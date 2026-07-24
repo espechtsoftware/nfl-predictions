@@ -35,11 +35,13 @@ pos_allowed AS (
   WHERE pm.position IN ('QB', 'RB', 'WR', 'TE')
   GROUP BY 1, 2, 3, 4
 ),
--- Offense strength: what each offense's position group scores per game
--- league-wide, to normalize opponents faced.
-off_strength AS (
-  SELECT a.team, a.season, pm.position,
-         SUM(a.dk_points) / COUNT(DISTINCT a.week) AS pos_dk_points_pg
+-- Offense strength, point-in-time: what each offense's position group has
+-- scored per game THROUGH THE PRIOR WEEK. A season-wide average here would
+-- let week-3 adjustments see week-18 offense — the same leak the rolling
+-- features guard against with 1 PRECEDING.
+off_week AS (
+  SELECT a.team, a.season, a.week, pm.position,
+         SUM(a.dk_points) AS pos_dk_points
   FROM `${features}.player_week_actuals` a
   JOIN (
     SELECT gsis_id, season, ANY_VALUE(position HAVING MAX week) AS position
@@ -47,19 +49,29 @@ off_strength AS (
     GROUP BY gsis_id, season
   ) pm ON pm.gsis_id = a.gsis_id AND pm.season = a.season
   WHERE pm.position IN ('QB', 'RB', 'WR', 'TE')
-  GROUP BY 1, 2, 3
+  GROUP BY 1, 2, 3, 4
+),
+off_strength AS (
+  SELECT team, season, week, position,
+         AVG(pos_dk_points) OVER (
+           PARTITION BY team, season, position ORDER BY week
+           ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING
+         ) AS pos_dk_points_pg_prior
+  FROM off_week
 ),
 adjusted AS (
   SELECT
     p.team, p.season, p.week, p.position,
     p.pos_dk_points_allowed,
-    -- Points allowed relative to that offense's usual output
-    p.pos_dk_points_allowed - o.pos_dk_points_pg AS pos_dk_points_allowed_adj
+    -- Points allowed relative to that offense's usual output so far. NULL in
+    -- an offense's first week (no prior baseline) — honest, not imputed.
+    p.pos_dk_points_allowed - o.pos_dk_points_pg_prior AS pos_dk_points_allowed_adj
   FROM pos_allowed p
   JOIN `${features}.schedule_long` s
     ON s.team = p.team AND s.season = p.season AND s.week = p.week
-  JOIN off_strength o
-    ON o.team = s.opponent AND o.season = p.season AND o.position = p.position
+  LEFT JOIN off_strength o
+    ON o.team = s.opponent AND o.season = p.season
+   AND o.week = p.week AND o.position = p.position
 )
 SELECT
   d.team, d.season, d.week,
