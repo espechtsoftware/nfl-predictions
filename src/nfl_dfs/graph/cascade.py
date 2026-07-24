@@ -20,6 +20,10 @@ from .build import team_of, teammates
 log = logging.getLogger(__name__)
 
 MIN_ABSENCES_FOR_HISTORY = 3
+# Depth-chart fallback multiplier for candidates sharing the injured
+# player's scoring archetype (see analysis/archetypes.py). Mild on purpose:
+# a prior, not evidence.
+ARCHETYPE_MATCH_BOOST = 1.25
 
 
 @dataclass
@@ -129,4 +133,21 @@ def project_vacated_usage(
     )
     if current.empty:
         return pd.DataFrame(columns=["gsis_id", "delta", "method"])
-    return depth_chart_fallback(vac, current).assign(method="depth_chart")
+
+    # Archetype-aware fallback: when nodes carry scoring-profile labels
+    # (analysis.archetypes.annotate_graph), tilt the depth-chart weights
+    # toward profile-compatible inheritors — a possession receiver's vacated
+    # slot targets flow to another high-floor profile, not a deep threat.
+    # The history path above stays unweighted on purpose: measured
+    # redistribution beats any prior.
+    out_arch = G.nodes[out_player].get("archetype") if out_player in G else None
+    method = "depth_chart"
+    if out_arch is not None:
+        boost = current.gsis_id.map(
+            lambda g: ARCHETYPE_MATCH_BOOST
+            if g in G and G.nodes[g].get("archetype") == out_arch
+            else 1.0
+        )
+        current = current.assign(target_share=current.target_share * boost)
+        method = "depth_chart_archetype"
+    return depth_chart_fallback(vac, current).assign(method=method)
