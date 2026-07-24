@@ -4,7 +4,7 @@ CREATE OR REPLACE TABLE `${features}.player_week_actuals` AS
 SELECT
   player_id AS gsis_id,
   season, week,
-  recent_team AS team,
+  team,
   targets, receptions,
   receiving_yards   AS rec_yards,
   receiving_tds     AS rec_tds,
@@ -15,7 +15,7 @@ SELECT
   completions,
   passing_yards     AS pass_yards,
   passing_tds       AS pass_tds,
-  interceptions,
+  passing_interceptions AS interceptions,
   sack_fumbles_lost + rushing_fumbles_lost + receiving_fumbles_lost AS fumbles_lost,
   passing_2pt_conversions + rushing_2pt_conversions + receiving_2pt_conversions AS two_pt,
   special_teams_tds,
@@ -24,7 +24,7 @@ SELECT
   0.04 * passing_yards
     + 4 * passing_tds
     + IF(passing_yards >= 300, 3, 0)
-    - 1 * interceptions
+    - 1 * passing_interceptions
     + 0.1 * rushing_yards
     + 6 * rushing_tds
     + IF(rushing_yards >= 100, 3, 0)

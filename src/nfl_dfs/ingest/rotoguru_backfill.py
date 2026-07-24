@@ -32,6 +32,15 @@ COLUMNS = {
 }
 
 
+def _flip_name(name):
+    """RotoGuru names are "Last, First"; normalize to "First Last". Rows
+    without a comma (team defenses) pass through unchanged."""
+    if isinstance(name, str) and ", " in name:
+        last, first = name.split(", ", 1)
+        return f"{first} {last}"
+    return name
+
+
 def fetch_week(year: int, week: int, session: requests.Session) -> pd.DataFrame:
     r = session.get(URL.format(week=week, year=year), timeout=30)
     r.raise_for_status()
@@ -41,12 +50,7 @@ def fetch_week(year: int, week: int, session: requests.Session) -> pd.DataFrame:
         text = text.split("<pre>")[1].split("</pre>")[0]
     df = pd.read_csv(io.StringIO(text.strip()), sep=";")
     df = df.rename(columns=COLUMNS)[list(COLUMNS.values())]
-    # RotoGuru names are "Last, First"; normalize to "First Last".
-    df["display_name"] = (
-        df["display_name"]
-        .str.split(", ", n=1)
-        .map(lambda p: f"{p[1]} {p[0]}" if isinstance(p, list) and len(p) == 2 else p)
-    )
+    df["display_name"] = df["display_name"].map(_flip_name)
     df["team_abbr"] = df["team_abbr"].str.upper()
     df["opponent"] = df["opponent"].str.upper()
     return df

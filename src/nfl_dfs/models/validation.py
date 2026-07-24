@@ -59,8 +59,11 @@ def evaluate(
     if market is not None:
         market = np.asarray(market, dtype=float)
         ok = ~np.isnan(market)
-        rep.market_mae = float(np.abs(market[ok] - y[ok]).mean())
-        rep.beats_market = bool(np.abs(pred[ok] - y[ok]).mean() < rep.market_mae)
+        # An all-null market (no props/dk_ppg for the period — see the README
+        # data deficiency log) means "no comparison", not "didn't beat it".
+        if ok.any():
+            rep.market_mae = float(np.abs(market[ok] - y[ok]).mean())
+            rep.beats_market = bool(np.abs(pred[ok] - y[ok]).mean() < rep.market_mae)
 
     if p10 is not None:
         rep.coverage_p10 = float(np.mean(y < np.asarray(p10, dtype=float)))

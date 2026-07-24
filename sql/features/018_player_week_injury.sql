@@ -4,7 +4,11 @@
 CREATE OR REPLACE TABLE `${features}.player_week_injury` AS
 WITH inj AS (
   SELECT
-    gsis_id, season, week,
+    gsis_id,
+    -- nflverse ships these as FLOAT in the injuries dataset (null-driven
+    -- upcast); INT64 keeps join keys consistent and windows partitionable.
+    CAST(season AS INT64) AS season,
+    CAST(week AS INT64) AS week,
     report_status AS injury_status,
     -- Encode Wed/Thu/Fri practice as 0=DNP, 1=Limited, 2=Full and average
     (SELECT AVG(v) FROM UNNEST([

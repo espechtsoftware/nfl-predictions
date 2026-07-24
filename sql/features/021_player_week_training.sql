@@ -71,13 +71,16 @@ FROM `${features}.player_week_usage` u
 JOIN `${features}.player_week_actuals` a USING (gsis_id, season, week)
 JOIN `${features}.schedule_long` s
   ON s.team = u.team AND s.season = u.season AND s.week = u.week
-LEFT JOIN `${features}.player_week_efficiency` e USING (gsis_id, season, week)
+LEFT JOIN `${features}.player_week_efficiency` e
+  ON e.gsis_id = u.gsis_id AND e.season = u.season AND e.week = u.week
 LEFT JOIN `${features}.team_week_context` t
   ON t.team = u.team AND t.season = u.season AND t.week = u.week
 LEFT JOIN `${features}.defense_week_allowed` d
   ON d.team = s.opponent AND d.season = u.season AND d.week = u.week
-LEFT JOIN `${features}.player_week_injury` i USING (gsis_id, season, week)
+LEFT JOIN `${features}.player_week_injury` i
+  ON i.gsis_id = u.gsis_id AND i.season = u.season AND i.week = u.week
 LEFT JOIN `${features}.game_weather` w ON w.game_id = s.game_id
-LEFT JOIN `${features}.dk_salary_week` dk USING (gsis_id, season, week)
+LEFT JOIN `${features}.dk_salary_week` dk
+  ON dk.gsis_id = u.gsis_id AND dk.season = u.season AND dk.week = u.week
 WHERE u.position IN ('QB', 'RB', 'WR', 'TE')
   AND u.games_played_prior >= 1;

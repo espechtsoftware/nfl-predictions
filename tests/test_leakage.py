@@ -81,3 +81,40 @@ def test_unordered_input_handled():
     source = make_source().sample(frac=1, random_state=3)  # shuffle rows
     built = build_correct(source)
     assert_no_leakage(built, source, "target_share_l4", "target_share", window=4)
+
+
+def test_team_grain_key_col():
+    """Defense-style checks: team key instead of gsis_id."""
+    source = make_source(n_players=6, n_weeks=10).rename(
+        columns={"gsis_id": "team", "target_share": "epa_allowed"}
+    )
+    built = source.copy()
+    built["epa_allowed_l6"] = trailing_mean_excluding_current(
+        built, "epa_allowed", window=6, group_cols=("team", "season")
+    )
+    assert_no_leakage(built, source, "epa_allowed_l6", "epa_allowed",
+                      window=6, key_col="team")
+
+    leaky = source.sort_values(["team", "season", "week"]).copy()
+    leaky["epa_allowed_l6"] = leaky.groupby(["team", "season"])["epa_allowed"].transform(
+        lambda s: s.rolling(6, min_periods=1).mean()
+    )
+    with pytest.raises(LeakageError):
+        assert_no_leakage(leaky, source, "epa_allowed_l6", "epa_allowed",
+                          window=6, key_col="team")
+
+
+def test_first_row_null_generic():
+    from nfl_dfs.features.leakage import assert_first_row_features_null
+
+    source = make_source(n_players=3, n_weeks=5).rename(columns={"gsis_id": "team"})
+    ok = source.copy()
+    ok["f_l6"] = trailing_mean_excluding_current(
+        ok, "target_share", window=6, group_cols=("team", "season")
+    )
+    assert_first_row_features_null(ok, ["f_l6"], ("team", "season"))
+
+    bad = ok.copy()
+    bad["f_l6"] = bad["f_l6"].fillna(0.1)
+    with pytest.raises(LeakageError):
+        assert_first_row_features_null(bad, ["f_l6"], ("team", "season"))

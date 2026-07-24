@@ -22,8 +22,12 @@ class Settings:
     predictions_dataset: str = field(
         default_factory=lambda: os.environ.get("BQ_PREDICTIONS_DATASET", "nfl_predictions")
     )
+    # Default follows deploy/setup_gcp.sh's convention: ${PROJECT}-raw.
     gcs_bucket: str = field(
-        default_factory=lambda: os.environ.get("GCS_BUCKET", "nfl-dfs-prod-raw")
+        default_factory=lambda: os.environ.get(
+            "GCS_BUCKET",
+            f"{os.environ.get('GCP_PROJECT', 'nfl-dfs-prod')}-raw",
+        )
     )
     model_registry_prefix: str = field(
         default_factory=lambda: os.environ.get("MODEL_REGISTRY_PREFIX", "models")
