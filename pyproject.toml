@@ -47,3 +47,8 @@ where = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+filterwarnings = [
+    # PuLP 3.x deprecates direct LpVariable construction ahead of 4.0; the
+    # classic API is intentional here and still supported.
+    "ignore:Constructing LpVariable:DeprecationWarning",
+]
