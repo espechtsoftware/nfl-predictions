@@ -1,7 +1,8 @@
 """Nightly nflverse ingestion into nfl_raw.
 
 Schedule: daily 06:00 CT in-season (nflverse updates overnight), weekly in the
-offseason. Run once with --full to backfill 1999-present (~15 min, ~2 GB).
+offseason. Run once with --full to backfill FIRST_SEASON (default 2014) to
+the latest completed-or-active season.
 """
 
 from __future__ import annotations
@@ -28,7 +29,10 @@ def _load(df, table: str) -> None:
 def run(full_refresh: bool = False) -> None:
     import nflreadpy as nfl
 
-    season = current_season()
+    # config's season rolls over in March (we prepare for the coming season),
+    # but nflverse has no data for it until games are played — clamp to the
+    # latest season the loaders actually serve, or offseason runs crash.
+    season = min(current_season(), nfl.get_current_season())
     seasons = list(range(settings.first_season, season + 1)) if full_refresh else [season]
 
     _load(nfl.load_pbp(seasons), "pbp")
