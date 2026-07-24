@@ -11,7 +11,7 @@ import lightgbm as lgb
 import numpy as np
 import pandas as pd
 
-from .featureset import build_X
+from .featureset import LGB_THREADS, build_X
 from .validation import walk_forward_folds
 from .weights import sample_weights
 
@@ -32,6 +32,7 @@ def tune(
 
     def _objective(trial: "optuna.Trial") -> float:
         params = dict(
+            num_threads=LGB_THREADS,
             objective=objective,
             learning_rate=trial.suggest_float("lr", 0.01, 0.1, log=True),
             num_leaves=trial.suggest_int("leaves", 15, 63),

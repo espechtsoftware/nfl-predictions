@@ -13,6 +13,14 @@ import pandas as pd
 
 POSITIONS = ["QB", "RB", "WR", "TE"]
 
+# LightGBM thread cap shared by every model in this package. Our panels are
+# small (tens of thousands of rows at most); letting OpenMP grab all cores
+# adds per-split sync overhead and has livelocked outright on WSL. Eight is
+# plenty and matches Cloud Run job sizing.
+import os as _os  # noqa: E402
+
+LGB_THREADS = max(1, min(8, _os.cpu_count() or 1))
+
 NUMERIC_FEATURES = [
     # Usage (point-in-time rollups, §5.2)
     "target_share_l4",

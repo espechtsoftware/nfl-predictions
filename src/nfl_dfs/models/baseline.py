@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 
 from . import validation
-from .featureset import FEATURES, build_X
+from .featureset import FEATURES, LGB_THREADS, build_X
 from .weights import sample_weights
 
 LABEL = "y_dk_points"
@@ -22,6 +22,7 @@ QUANTILES = (0.10, 0.50, 0.90)
 _P10_P90_TO_STD = 2.5631
 
 MEAN_PARAMS = dict(
+    num_threads=LGB_THREADS,
     objective="regression",
     metric="mae",
     learning_rate=0.06,

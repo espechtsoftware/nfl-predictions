@@ -192,8 +192,20 @@ def optimize_many(
     lineups: list[Lineup] = []
     banned: list[frozenset] = []
     for _ in range(n_lineups):
-        lu = optimize(players, stack=stack, banned_lineups=banned,
-                      max_overlap=max_overlap, **kwargs)
+        # CBC runs as a subprocess and occasionally fails to launch under
+        # load (seen in replays and tests). One retry, then return what we
+        # have rather than blowing up the whole batch.
+        for attempt in (1, 2):
+            try:
+                lu = optimize(players, stack=stack, banned_lineups=banned,
+                              max_overlap=max_overlap, **kwargs)
+                break
+            except pulp.PulpSolverError as exc:
+                log.warning("CBC solve failed (attempt %d): %s", attempt, exc)
+                lu = None
+        else:
+            log.warning("CBC unavailable; returning %d lineups", len(lineups))
+            return lineups
         if lu is None:
             log.warning("Pool exhausted after %d lineups", len(lineups))
             break
@@ -232,3 +244,52 @@ def simulate_lineups(
             by_id = {p["id"]: p for p in players}
             exemplars[key] = Lineup([by_id[i] for i in key])
     return [(exemplars[key], n) for key, n in counts.most_common(n_keep)]
+
+
+def core_and_variations(
+    stable_pool: list[Player],
+    upside_pool: list[Player],
+    n_lineups: int,
+    core_size: int = 6,
+    scout_n: int = 15,
+    stack: StackRules | None = None,
+    locks: set | None = None,
+    bans: set | None = None,
+    max_overlap: int | None = None,
+) -> tuple[list, list[Lineup]]:
+    """Suggest a core, then build entries that vary around it.
+
+    Scouts a diverse batch of lineups on the stable objective (median
+    projection), counts exposure, and takes the `core_size` most-consensus
+    players FROM ONE scout lineup — a subset of a feasible lineup, so the
+    core is jointly feasible by construction. Entries are then optimized on
+    the upside objective with the core locked; max_overlap defaults to
+    core_size + 1 so every pair of entries differs in at least two of the
+    free spots.
+
+    Returns (core_ids, lineups). Empty core/lineups if the slate is
+    infeasible.
+    """
+    from collections import Counter
+
+    scout = optimize_many(
+        stable_pool, n_lineups=scout_n, stack=stack,
+        locks=locks, bans=bans, max_overlap=6,
+    )
+    if not scout:
+        return [], []
+    counts = Counter(p["id"] for lu in scout for p in lu.players)
+    consensus = max(scout, key=lambda lu: sum(counts[p["id"]] for p in lu.players))
+    core = [
+        p["id"]
+        for p in sorted(consensus.players, key=lambda p: -counts[p["id"]])[:core_size]
+    ]
+    lineups = optimize_many(
+        upside_pool,
+        n_lineups=n_lineups,
+        stack=stack,
+        locks=set(core) | (locks or set()),
+        bans=bans,
+        max_overlap=max_overlap if max_overlap is not None else core_size + 1,
+    )
+    return core, lineups

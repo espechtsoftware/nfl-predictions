@@ -15,10 +15,11 @@ import lightgbm as lgb
 import numpy as np
 import pandas as pd
 
-from .featureset import build_X
+from .featureset import LGB_THREADS, build_X
 from .weights import sample_weights
 
 COUNT_PARAMS = dict(
+    num_threads=LGB_THREADS,
     objective="poisson",
     metric="poisson",
     learning_rate=0.06,

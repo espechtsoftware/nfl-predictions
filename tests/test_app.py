@@ -171,3 +171,30 @@ def test_defense_dashboard_html(client_with_defense):
 def test_defense_endpoints_empty_store(client):
     assert client.get("/defense/points-against").status_code == 404
     assert "No defense data" in client.get("/").text
+
+
+def test_core_lineups(client):
+    req = {"season": 2025, "week": 3, "n_lineups": 4, "core_size": 6}
+    r = client.post("/lineups/core", json=req)
+    assert r.status_code == 200, r.text
+    out = r.json()
+    core_ids = {p["id"] for p in out["core"]}
+    assert 3 <= len(core_ids) <= 6
+    assert len(out["lineups"]) == 4
+    # Every entry contains the full core; variations differ from each other
+    rosters = [frozenset(p["id"] for p in lu["players"]) for lu in out["lineups"]]
+    assert all(core_ids <= roster for roster in rosters)
+    assert len(set(rosters)) == len(rosters)
+    assert "dk_csv" in out and "exposure" in out
+
+
+def test_core_lineups_respects_bans(client):
+    base = client.post("/lineups/core",
+                       json={"season": 2025, "week": 3, "n_lineups": 1}).json()
+    banned = base["core"][0]["id"]
+    r = client.post("/lineups/core",
+                    json={"season": 2025, "week": 3, "n_lineups": 2,
+                          "bans": [banned]})
+    assert r.status_code == 200
+    for lu in r.json()["lineups"]:
+        assert banned not in {p["id"] for p in lu["players"]}

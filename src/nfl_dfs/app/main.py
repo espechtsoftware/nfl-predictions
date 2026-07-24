@@ -14,7 +14,7 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
 from ..optimizer.export import exposure_summary, to_dk_csv
-from ..optimizer.lineup import StackRules, optimize_many
+from ..optimizer.lineup import StackRules, core_and_variations, optimize_many
 from .store import BigQueryStore, ProjectionStore
 
 app = FastAPI(title="NFL DFS", version="0.1.0")
@@ -219,6 +219,54 @@ def build_lineups(
                 "salary": lu.salary,
                 "proj": round(lu.proj, 2),
             }
+            for lu in lineups
+        ],
+        "exposure": exposure_summary(lineups),
+        "dk_csv": to_dk_csv(lineups),
+    }
+
+
+class CoreLineupRequest(LineupRequest):
+    """Core-and-variations mode: a consensus core (picked on the stable
+    median objective) locked into every entry, with the remaining spots
+    varied on `objective` (defaults to ceiling — variation is for upside)."""
+
+    objective: str = Field("proj_p90", pattern="^proj_(points|p50|p90)$")
+    core_size: int = Field(6, ge=3, le=8)
+
+
+@app.post("/lineups/core")
+def build_core_lineups(
+    req: CoreLineupRequest, store: ProjectionStore = Depends(get_store)
+) -> dict:
+    df = store.projections(req.season, req.week)
+    if df.empty:
+        raise HTTPException(404, f"No projections for {req.season} week {req.week}")
+    stable_pool = _player_pool(df, "proj_p50")
+    upside_pool = _player_pool(df, req.objective)
+    stack = StackRules(
+        qb_stack_min=req.qb_stack_min,
+        bring_back_min=req.bring_back_min,
+        forbid_rb_vs_dst=req.forbid_rb_vs_dst,
+    )
+    core, lineups = core_and_variations(
+        stable_pool, upside_pool, n_lineups=req.n_lineups,
+        core_size=req.core_size, stack=stack,
+        locks=set(req.locks), bans=set(req.bans),
+        max_overlap=req.max_overlap if req.max_overlap != 7 else None,
+    )
+    if not lineups:
+        raise HTTPException(422, "No feasible lineup under the given constraints")
+    by_id = {p["id"]: p for p in upside_pool}
+    return {
+        "core": [
+            {"id": i, "name": by_id[i]["name"], "pos": by_id[i]["pos"],
+             "team": by_id[i]["team"], "salary": by_id[i]["salary"]}
+            for i in core
+        ],
+        "lineups": [
+            {"players": lu.slot_order(), "salary": lu.salary,
+             "proj": round(lu.proj, 2)}
             for lu in lineups
         ],
         "exposure": exposure_summary(lineups),
