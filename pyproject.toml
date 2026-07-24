@@ -36,6 +36,7 @@ tuning = [
 ]
 dev = [
     "pytest>=7.4",
+    "httpx>=0.25",  # FastAPI TestClient
 ]
 
 [project.scripts]
