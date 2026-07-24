@@ -198,3 +198,21 @@ def test_core_lineups_respects_bans(client):
     assert r.status_code == 200
     for lu in r.json()["lineups"]:
         assert banned not in {p["id"] for p in lu["players"]}
+
+
+def test_core_lineups_auto_sizes(client):
+    r = client.post("/lineups/core", json={"season": 2025, "week": 3, "n_lineups": 3})
+    assert r.status_code == 200, r.text
+    out = r.json()
+    core = out["core"]
+    assert 2 <= len(core) <= 7  # system-chosen size
+    # Conviction reported and sorted strongest-first
+    convictions = [c["conviction"] for c in core]
+    assert all(0 < c <= 1 for c in convictions)
+    assert convictions == sorted(convictions, reverse=True)
+    # Budget guard: free slots keep at least mid-tier salary each
+    core_salary = sum(c["salary"] for c in core)
+    assert 50_000 - core_salary >= (9 - len(core)) * 4_500
+    core_ids = {c["id"] for c in core}
+    for lu in out["lineups"]:
+        assert core_ids <= {p["id"] for p in lu["players"]}

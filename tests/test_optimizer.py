@@ -121,3 +121,30 @@ def test_slot_order_flex_identification():
     assert positions[6] == "TE"
     assert positions[7] in ("RB", "WR", "TE")  # FLEX
     assert positions[8] == "DST"
+
+
+def test_auto_core_budget_guard_sheds_expensive_studs():
+    """A consensus lineup stuffed with studs must shed its priciest members
+    until every free slot keeps a mid-tier budget."""
+    from nfl_dfs.optimizer.lineup import CORE_FREE_SLOT_BUDGET, Lineup, _auto_core
+
+    players = []
+    for i in range(9):
+        salary = 9000 if i < 5 else 4000
+        players.append({"id": i, "name": f"p{i}", "pos": "WR", "team": f"T{i}",
+                        "opp": "X", "game_id": "G", "salary": salary,
+                        "proj": salary / 400})
+    # Pool with plenty of cheap high-value alternatives so studs are only
+    # median value at their position
+    pool = players + [
+        {"id": 100 + j, "name": f"v{j}", "pos": "WR", "team": "T9", "opp": "X",
+         "game_id": "G", "salary": 3500, "proj": 12.0}
+        for j in range(9)
+    ]
+    counts = {p["id"]: 15 for p in players}  # everyone unanimous
+    core = _auto_core(Lineup(players), counts, 15, pool)
+    core_salary = sum(p["salary"] for p in core)
+    assert 50_000 - core_salary >= (9 - len(core)) * CORE_FREE_SLOT_BUDGET
+    # The shed members are the expensive ones
+    assert max(p["salary"] for p in core) <= 9000
+    assert sum(1 for p in core if p["salary"] == 9000) < 5

@@ -229,10 +229,13 @@ def build_lineups(
 class CoreLineupRequest(LineupRequest):
     """Core-and-variations mode: a consensus core (picked on the stable
     median objective) locked into every entry, with the remaining spots
-    varied on `objective` (defaults to ceiling — variation is for upside)."""
+    varied on `objective` (defaults to ceiling — variation is for upside).
+    core_size omitted = the system decides how many players it feels
+    strongly about (conviction + positional value, with a budget guard so
+    the core can't hoard the salary cap)."""
 
     objective: str = Field("proj_p90", pattern="^proj_(points|p50|p90)$")
-    core_size: int = Field(6, ge=3, le=8)
+    core_size: int | None = Field(None, ge=2, le=8)
 
 
 @app.post("/lineups/core")
@@ -260,9 +263,10 @@ def build_core_lineups(
     by_id = {p["id"]: p for p in upside_pool}
     return {
         "core": [
-            {"id": i, "name": by_id[i]["name"], "pos": by_id[i]["pos"],
-             "team": by_id[i]["team"], "salary": by_id[i]["salary"]}
-            for i in core
+            {"id": c["id"], "conviction": c["conviction"],
+             "name": by_id[c["id"]]["name"], "pos": by_id[c["id"]]["pos"],
+             "team": by_id[c["id"]]["team"], "salary": by_id[c["id"]]["salary"]}
+            for c in core
         ],
         "lineups": [
             {"players": lu.slot_order(), "salary": lu.salary,

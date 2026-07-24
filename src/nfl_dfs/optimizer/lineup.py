@@ -246,29 +246,75 @@ def simulate_lineups(
     return [(exemplars[key], n) for key, n in counts.most_common(n_keep)]
 
 
+# Auto-core conviction rules. A player makes the core when the scout batch
+# keeps picking him despite forced diversity, AND he's a value at his
+# position (or so consensus that value doesn't matter). The salary guard
+# keeps the core from hoarding the cap: every non-core slot must retain at
+# least a mid-tier budget, so a stud-stacked core sheds its priciest
+# marginal member — the "cheap good QB over three studs" philosophy.
+CORE_CONVICTION = 0.6
+CORE_SUPER_CONVICTION = 0.85
+CORE_MIN, CORE_MAX = 2, 7
+CORE_FREE_SLOT_BUDGET = 4_500
+
+
+def _auto_core(consensus: Lineup, counts, n_scout: int,
+               stable_pool: list[Player]) -> list[Player]:
+    def value(p: Player) -> float:
+        return p["proj"] / (p["salary"] / 1000.0)
+
+    med_value: dict[str, float] = {}
+    for pos in {p["pos"] for p in stable_pool}:
+        vals = sorted(value(p) for p in stable_pool if p["pos"] == pos)
+        med_value[pos] = vals[len(vals) // 2]
+
+    core = []
+    for p in sorted(consensus.players, key=lambda p: -counts[p["id"]]):
+        share = counts[p["id"]] / n_scout
+        if share < CORE_CONVICTION:
+            break  # sorted by conviction; nothing below threshold qualifies
+        if value(p) >= med_value[p["pos"]] or share >= CORE_SUPER_CONVICTION:
+            core.append(p)
+    core = core[:CORE_MAX]
+
+    # Budget guard: leave every free slot at least CORE_FREE_SLOT_BUDGET.
+    while len(core) > CORE_MIN:
+        free_slots = 9 - len(core)
+        if SALARY_CAP - sum(p["salary"] for p in core) >= free_slots * CORE_FREE_SLOT_BUDGET:
+            break
+        core.remove(max(core, key=lambda p: p["salary"]))
+
+    if len(core) < CORE_MIN:
+        core = sorted(consensus.players, key=lambda p: -counts[p["id"]])[:CORE_MIN]
+    return core
+
+
 def core_and_variations(
     stable_pool: list[Player],
     upside_pool: list[Player],
     n_lineups: int,
-    core_size: int = 6,
+    core_size: int | None = None,
     scout_n: int = 15,
     stack: StackRules | None = None,
     locks: set | None = None,
     bans: set | None = None,
     max_overlap: int | None = None,
-) -> tuple[list, list[Lineup]]:
+) -> tuple[list[dict], list[Lineup]]:
     """Suggest a core, then build entries that vary around it.
 
     Scouts a diverse batch of lineups on the stable objective (median
-    projection), counts exposure, and takes the `core_size` most-consensus
-    players FROM ONE scout lineup — a subset of a feasible lineup, so the
-    core is jointly feasible by construction. Entries are then optimized on
-    the upside objective with the core locked; max_overlap defaults to
-    core_size + 1 so every pair of entries differs in at least two of the
+    projection) and counts exposure. With core_size=None (default) the core
+    sizes itself: consensus players (>=60% of scout lineups) who are also
+    values at their position — or near-unanimous — capped so the remaining
+    slots keep real budget. An explicit core_size takes the N most-consensus
+    instead. Either way the core is a subset of one scout lineup, so it's
+    jointly feasible by construction. Entries are then optimized on the
+    upside objective with the core locked; max_overlap defaults to
+    len(core) + 1 so every pair of entries differs in at least two of the
     free spots.
 
-    Returns (core_ids, lineups). Empty core/lineups if the slate is
-    infeasible.
+    Returns (core, lineups) where core entries are {"id", "conviction"}.
+    Empty core/lineups if the slate is infeasible.
     """
     from collections import Counter
 
@@ -280,16 +326,24 @@ def core_and_variations(
         return [], []
     counts = Counter(p["id"] for lu in scout for p in lu.players)
     consensus = max(scout, key=lambda lu: sum(counts[p["id"]] for p in lu.players))
+
+    if core_size is None:
+        core_players = _auto_core(consensus, counts, len(scout), stable_pool)
+    else:
+        core_players = sorted(
+            consensus.players, key=lambda p: -counts[p["id"]]
+        )[:core_size]
     core = [
-        p["id"]
-        for p in sorted(consensus.players, key=lambda p: -counts[p["id"]])[:core_size]
+        {"id": p["id"], "conviction": round(counts[p["id"]] / len(scout), 2)}
+        for p in core_players
     ]
+    core_ids = {c["id"] for c in core}
     lineups = optimize_many(
         upside_pool,
         n_lineups=n_lineups,
         stack=stack,
-        locks=set(core) | (locks or set()),
+        locks=core_ids | (locks or set()),
         bans=bans,
-        max_overlap=max_overlap if max_overlap is not None else core_size + 1,
+        max_overlap=max_overlap if max_overlap is not None else len(core_ids) + 1,
     )
     return core, lineups
