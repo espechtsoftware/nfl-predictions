@@ -2,6 +2,24 @@
 
 A complete blueprint for a DraftKings NFL daily-fantasy prediction and lineup-construction system, built on free data and Google Cloud.
 
+> **This repository implements the guide.** Map from guide section to code:
+>
+> | Guide | Code |
+> |---|---|
+> | §2/§4 Ingestion | `src/nfl_dfs/ingest/` (nflverse, DK slates, RotoGuru backfill, odds, weather) |
+> | §3 Warehouse schema | `sql/raw/`, `sql/predictions/` |
+> | §4.3/§5 Features + ID crosswalk | `sql/features/`, `src/nfl_dfs/features/` (incl. leakage checks) |
+> | §6/§7 Models | `src/nfl_dfs/models/` (baseline, components, simulation, blending, cold start, registry, monitoring, tuning) |
+> | §8.5 Trend detection | `src/nfl_dfs/trends/` (BOCPD, CUSUM, salary-lag alerts) |
+> | §8.2–8.4, §8.7 Graph + news | `src/nfl_dfs/graph/` (build, injury cascade, LLM extraction) |
+> | §9 Optimizer | `src/nfl_dfs/optimizer/` (PuLP, stacking, multi-entry, DK CSV) |
+> | §10 Backtesting | `src/nfl_dfs/backtest/` (field simulation, payouts, ROI) |
+> | §11 Orchestration | `deploy/` (GCP setup, Cloud Run Jobs + Scheduler), `Dockerfile` |
+> | Phase 7 Interface | `src/nfl_dfs/app/` (FastAPI), `src/nfl_dfs/cli.py` (`nfl-dfs` command) |
+> | §8.6 GNN | intentionally not implemented (see the section for why) |
+>
+> Setup: `pip install -e ".[dev]"` then `pytest`. GCP bootstrap: `deploy/setup_gcp.sh`, deploy jobs: `deploy/deploy_jobs.sh`. One deliberate correction to the guide: the BOCPD snippet's `P(run length = 0)` readout is constant by construction; `src/nfl_dfs/trends/changepoint.py` reports `P(run length ≤ 2)` instead (see its docstring).
+
 ---
 
 ## 0. Design principles
