@@ -122,3 +122,27 @@ def test_good_projections_beat_random_in_percentile():
     sharp = median_pct(proj_quality=2.0, seed=0)
     noise = median_pct(proj_quality=0.001, seed=1)
     assert sharp < noise, f"sharp {sharp:.2f} should finish above noise {noise:.2f}"
+
+
+def test_sharp_field_entrants():
+    from nfl_dfs.backtest import field as field_sim
+
+    slate = make_slate()
+    sharp = field_sim.sharp_field(slate, n_lineups=50, n_distinct=6, seed=2)
+    assert len(sharp) == 50
+    salaries = slate["salary"].to_numpy()
+    pos = slate["pos"].to_numpy()
+    for lu in sharp[:10]:
+        assert len(lu) == 9 and len(set(lu)) == 9
+        assert salaries[lu].sum() <= field_sim.SALARY_CAP
+        assert (pos[lu] == "QB").sum() == 1 and (pos[lu] == "DST").sum() == 1
+    # Duplication is expected: far fewer distinct lineups than entries
+    assert len({tuple(sorted(lu)) for lu in sharp}) <= 12
+
+
+def test_sample_field_sharp_fraction():
+    from nfl_dfs.backtest import field as field_sim
+
+    slate = make_slate()
+    fld = field_sim.sample_field(slate, n_lineups=100, seed=3, sharp_fraction=0.2)
+    assert len(fld) >= 95  # random part may drop a few infeasible attempts

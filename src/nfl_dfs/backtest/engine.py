@@ -83,6 +83,7 @@ def run_week(
     field_size: int = 5_000,
     stack: StackRules | None = None,
     seed: int | None = 42,
+    sharp_fraction: float = 0.0,
 ) -> WeekResult | None:
     """Backtest one historical slate. `slate` columns: REQUIRED_COLS."""
     leakage_guard(slate)
@@ -99,7 +100,8 @@ def run_week(
     lineup_scores = [float(actual.reindex([p["id"] for p in lu.players]).sum())
                      for lu in lineups]
 
-    fld = field_sim.sample_field(slate, n_lineups=field_size, seed=seed)
+    fld = field_sim.sample_field(slate, n_lineups=field_size, seed=seed,
+                                 sharp_fraction=sharp_fraction)
     scores = field_sim.field_scores(fld, slate["actual"].to_numpy())
 
     percentiles, winnings = [], []
@@ -119,11 +121,13 @@ def run(
     field_size: int = 5_000,
     stack: StackRules | None = None,
     seed: int | None = 42,
+    sharp_fraction: float = 0.0,
 ) -> BacktestResult:
     result = BacktestResult(contest=contest)
     for slate in slates:
         wk = run_week(slate, contest, n_entries=n_entries,
-                      field_size=field_size, stack=stack, seed=seed)
+                      field_size=field_size, stack=stack, seed=seed,
+                      sharp_fraction=sharp_fraction)
         if wk is not None:
             result.weeks.append(wk)
             log.info("season %s week %s: best %.1f pts, best pct %.1f%%",

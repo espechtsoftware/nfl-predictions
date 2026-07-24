@@ -15,7 +15,7 @@ import pandas as pd
 
 from ..bq import load_dataframe, query_df
 from ..config import current_season, settings
-from ..models import coldstart, components, simulate
+from ..models import calibration, coldstart, components, simulate
 from ..models.blend import blend, market_projection_frame
 
 log = logging.getLogger(__name__)
@@ -69,7 +69,9 @@ def project(
     feats = coldstart.fill_cold_start_features(feats)
     comps = model.predict_components(feats)
     sim = simulate.simulate(comps, n_sims=n_sims)
-    preds = sim.summary
+    preds = calibration.apply_widen(
+        sim.summary, feats.get("position", feats.get("dk_position"))
+    )
     preds = coldstart.widen_cold_start_quantiles(
         preds, feats.get("is_cold_start", pd.Series(False, index=feats.index))
     )

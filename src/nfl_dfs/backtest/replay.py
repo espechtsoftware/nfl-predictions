@@ -21,7 +21,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from ..models import coldstart, components, simulate
+from ..models import calibration, coldstart, components, simulate
 from .engine import BacktestResult, run as engine_run
 from .payout import Contest
 
@@ -36,6 +36,7 @@ def replay_projections(
     n_sims: int = 10_000,
     num_boost_round: int = 400,
     seed: int = 0,
+    widen: bool = True,
 ) -> pd.DataFrame:
     """Project every (player, week) row of `season` with models trained on
     strictly earlier seasons. Rows carry point-in-time features, so no
@@ -47,9 +48,12 @@ def replay_projections(
     rows = coldstart.fill_cold_start_features(rows)
 
     sim = simulate.simulate(cm.predict_components(rows), n_sims=n_sims, seed=seed)
+    summary = sim.summary
+    if widen:
+        summary = calibration.apply_widen(summary, rows.position)
     keep = [c for c in ("gsis_id", "name", "season", "week", "team", "opponent",
                         "position", "game_id", "salary") if c in rows.columns]
-    out = pd.concat([rows[keep], sim.summary], axis=1)
+    out = pd.concat([rows[keep], summary], axis=1)
     out["actual"] = rows["y_dk_points"].to_numpy()
     out["naive"] = rows.get("dk_points_l4")  # trailing average, the free baseline
     return out
@@ -141,9 +145,11 @@ def run_contest_replay(
     n_entries: int = 20,
     field_size: int = 5_000,
     seed: int = 42,
+    sharp_fraction: float = 0.15,
 ) -> BacktestResult:
     return engine_run(build_slates(proj, dst), contest,
-                      n_entries=n_entries, field_size=field_size, seed=seed)
+                      n_entries=n_entries, field_size=field_size, seed=seed,
+                      sharp_fraction=sharp_fraction)
 
 
 # Warehouse entry point ------------------------------------------------------
@@ -178,6 +184,7 @@ def run(
     contest: Contest | None = None,
     n_entries: int = 20,
     field_size: int = 5_000,
+    sharp_fraction: float = 0.15,
 ) -> None:
     panel, dst = load_panel_and_dst(season)
     proj = replay_projections(panel, season, n_sims=n_sims)
@@ -198,6 +205,8 @@ def run(
 
         contest = gpp()
     result = run_contest_replay(proj, dst, contest,
-                                n_entries=n_entries, field_size=field_size)
-    print(f"\n=== Contest replay: {season} ===")
+                                n_entries=n_entries, field_size=field_size,
+                                sharp_fraction=sharp_fraction)
+    print(f"\n=== Contest replay: {season} "
+          f"(field {sharp_fraction:.0%} optimizer-built) ===")
     print(result.summary())

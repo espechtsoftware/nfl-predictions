@@ -42,6 +42,16 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--entries", type=int, default=20)
     p.add_argument("--contest", choices=["gpp", "double_up"], default="gpp")
     p.add_argument("--field-size", type=int, default=5_000)
+    p.add_argument("--sharp", type=float, default=0.15,
+                   help="Fraction of the simulated field built by optimizer")
+
+    p = sub.add_parser("import-ownership",
+                       help="Import a DK contest-standings CSV (actual ownership)")
+    p.add_argument("path")
+    p.add_argument("--season", type=int, required=True)
+    p.add_argument("--week", type=int, required=True)
+    p.add_argument("--contest-id", required=True)
+    p.add_argument("--contest-name", default=None)
 
     p = sub.add_parser("archetypes",
                        help="Cluster scoring-consistency archetypes into nfl_features")
@@ -95,7 +105,14 @@ def main(argv: list[str] | None = None) -> None:
 
         contest = payout.gpp() if args.contest == "gpp" else payout.double_up()
         replay.run(args.season, n_sims=args.sims, contest=contest,
-                   n_entries=args.entries, field_size=args.field_size)
+                   n_entries=args.entries, field_size=args.field_size,
+                   sharp_fraction=args.sharp)
+    elif args.command == "import-ownership":
+        from .ingest import ownership_import
+
+        ownership_import.run(args.path, season=args.season, week=args.week,
+                             contest_id=args.contest_id,
+                             contest_name=args.contest_name)
     elif args.command == "archetypes":
         from .analysis import archetypes
 

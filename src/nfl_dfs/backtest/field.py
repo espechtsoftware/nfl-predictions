@@ -33,17 +33,65 @@ def naive_ownership(players: pd.DataFrame) -> np.ndarray:
     return weights
 
 
+def sharp_field(
+    players: pd.DataFrame,
+    n_lineups: int,
+    n_distinct: int = 20,
+    noise: float = 0.08,
+    seed: int | None = 42,
+) -> list[np.ndarray]:
+    """Optimizer-built entrants: the slice of a real field that runs an
+    optimizer over its own (imperfect) projections. Each batch jitters the
+    projection column and takes a handful of optimal lineups; distinct
+    lineups are then duplicated up to `n_lineups`, mirroring how heavily
+    sharp lineups duplicate in large contests."""
+    from ..optimizer.lineup import optimize_many
+
+    rng = np.random.default_rng(seed)
+    players = players.reset_index(drop=True)
+    row_of = {r["id"]: i for i, r in players.iterrows()}
+    distinct: list[np.ndarray] = []
+    per_batch = 5
+    for _ in range(2 * (n_distinct // per_batch + 1)):
+        if len(distinct) >= n_distinct:
+            break
+        pool = players.to_dict("records")
+        for p in pool:
+            p["proj"] = float(p["proj"]) * float(rng.normal(1.0, noise))
+        try:
+            batch = optimize_many(pool, n_lineups=per_batch)
+        except Exception as exc:  # noqa: BLE001 - a flaky CBC subprocess
+            # shouldn't kill a whole replay; the field falls back to fewer
+            # (or zero) sharp entrants.
+            import logging
+
+            logging.getLogger(__name__).warning("sharp_field batch failed: %s", exc)
+            continue
+        for lu in batch:
+            distinct.append(np.array([row_of[p["id"]] for p in lu.players]))
+    if not distinct:  # infeasible slate; let the caller fall back
+        return []
+    picks = rng.integers(0, len(distinct), n_lineups)
+    return [distinct[i] for i in picks]
+
+
 def sample_field(
     players: pd.DataFrame,
     n_lineups: int = 10_000,
     seed: int | None = 42,
     ownership: np.ndarray | None = None,
+    sharp_fraction: float = 0.0,
 ) -> list[np.ndarray]:
     """Generate opposing lineups by ownership-weighted sampling per slot.
     Salary is enforced loosely (retry a few times, keep the best attempt) —
-    the field is approximated, not optimized; real entrants aren't optimal
-    either. Returns arrays of positional indices into `players`."""
+    the field is approximated, not optimized; most real entrants aren't
+    optimal either. `sharp_fraction` of the field is instead built by
+    `sharp_field` (optimizer entrants), which is what keeps GPP payout
+    tails honest. Returns arrays of positional indices into `players`."""
     rng = np.random.default_rng(seed)
+    n_sharp = int(n_lineups * sharp_fraction)
+    sharp = sharp_field(players, n_sharp, seed=seed) if n_sharp else []
+    n_lineups = n_lineups - len(sharp)
     own = ownership if ownership is not None else naive_ownership(players)
     players = players.reset_index(drop=True)
     pos_idx = {
@@ -88,7 +136,7 @@ def sample_field(
                 best = arr
         if best is not None:
             field.append(best)
-    return field
+    return sharp + field
 
 
 def field_scores(field: list[np.ndarray], actual_points: np.ndarray) -> np.ndarray:
