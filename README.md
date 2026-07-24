@@ -159,6 +159,37 @@ See §11 for the production schedule each job runs on.
 
 ---
 
+## Known gaps and future enhancements
+
+Repo-specific items, distinct from the guide's roadmap (§12).
+
+**Historical DK salary gap, 2022–2025.** RotoGuru stopped publishing DraftKings salary data after the 2021 season, so `backfill-rotoguru` covers 2014–2021 only. Training rows for 2022–2025 have null `salary` / `salary_delta_wow` features — LightGBM handles missing values natively and leans on usage/Vegas features for those seasons, so training works, but backtests over 2022–2025 can't use salary-based lineup construction at realistic prices. From the 2026 season onward this heals itself: the hourly `ingest-dk` snapshots become our own append-only salary log. Closing the historical gap would require a paid data source or a community archive; decide whether it's worth it only if recent-season backtests become important.
+
+**Local demo mode (no GCP).** The web app reads projections from BigQuery; there is no local-database path today. The seam already exists — `app/store.py` defines the `ProjectionStore` protocol and an `InMemoryStore` used by the tests — so a `nfl-dfs serve --demo` flag that loads a projections parquet/CSV from disk would let someone try the UI and optimizer without a GCP project. Small change, unimplemented.
+
+**Archetype clustering — deferred pieces.** `nfl-dfs archetypes` (see `src/nfl_dfs/analysis/archetypes.py`) clusters players into scoring-consistency archetypes, stamps them on graph nodes for the injury cascade, and adds `SIMILAR_TO` edges for profile-based pivots. Deliberately left out of v1: (a) graph-derived clustering inputs — QB-attachment stability via `TARGETED_BY` edges and target-room crowding via `COMPETES_WITH` — the least value for the most work; (b) salary/ownership-aware pivot ranking ("cheaper, same profile, lower owned") — needs live slate salaries and an ownership source (see the deficiency log); (c) a scheduled refresh — the table is CLI-only, not in `deploy_jobs.sh`; weekly in-season would be the natural cadence.
+
+**Replay findings (2026-07-24, first full-season replays).** `nfl-dfs replay --season N` trains on strictly-prior seasons and scores every week of season N; see `src/nfl_dfs/backtest/replay.py`. First results (2019/2021/2025): projection MAE beats the naive trailing-average baseline by ~5% every season; within-position rank correlation 0.43–0.64. Two known weaknesses to work: (a) the simulated distribution is slightly too narrow — p10 empirical coverage runs 13–17% against a 10% target across seasons, so floors are overstated; widening the simulator's variance (e.g., overdispersed opportunity draws or a calibration multiplier fit on replays) is the top model-improvement candidate. (b) Contest ROI numbers (+63–69% double-up, +230% GPP on salaried seasons) are upper bounds, not expectations — the simulated field uses the naive value-based ownership proxy and contains no optimizer-built opponents, a direct consequence of the missing-ownership deficiency below. Treat the double-up number as the meaningful signal and the GPP number as tail-inflated.
+
+### Data deficiency log
+
+Append-only. Whenever a gap or quality problem is found in source data, add a row here (see CLAUDE.md) so future decisions about fixing vs. accepting are made from a complete list.
+
+| Found | Deficiency | Impact | Status |
+|---|---|---|---|
+| 2026-07-24 | RotoGuru DK salary history ends after the 2021 season (site stopped updating) | `salary`/`salary_delta_wow` null on 2022–2025 training rows; recent-season backtests can't price lineups | Open — heals from 2026 via our own `ingest-dk` log; closing 2022–2025 needs a paid source (details above) |
+| 2026-07-24 | ~2–4% of 2014–2021 RotoGuru rows can't be safely matched to a GSIS ID (ambiguous duplicate names, team defenses) | Small salary-coverage holes in otherwise ~98%-covered seasons | Accepted — dropping beats guessing between same-name players |
+| 2026-07-24 | No historical market projection exists: RotoGuru has no `dk_ppg`, and we have no prop-line archive | `dk_ppg` is null before 2026, so walk-forward "beats the market" comparisons have no market baseline until our own DK snapshots accumulate | Open — consider a props archive if market-relative validation matters before mid-2026 |
+| 2026-07-24 | nflverse `weekly_stats` schema drift: `recent_team` → `team`, `interceptions` → `passing_interceptions` | Broke `013_player_week_actuals.sql` on first real build | Fixed in SQL — treat unknown-column build failures as possible upstream renames |
+| 2026-07-24 | nflverse `injuries` ships `season`/`week` as FLOAT (null-driven upcast) | BigQuery refuses FLOAT64 in window `PARTITION BY`; type-inconsistent join keys | Fixed — cast to INT64 in `018_player_week_injury.sql` |
+| 2026-07-24 | Advanced-source history is shorter than the 2014+ panel: snap counts 2012+, NGS 2016+, FTN charting 2022+ | Features derived from these are null in early seasons of the training window | Accepted — LightGBM handles missing natively |
+| 2026-07-24 | No nflverse data for a season until its games begin (loaders reject the planning-clock season) | Offseason ingest crashed until clamped | Fixed — `ingest/nflverse_job.py` clamps to `nfl.get_current_season()` |
+| 2026-07-24 | No ownership data source, projected or historical — `player_projections.proj_ownership` is a NULL placeholder | GPP leverage decisions and "same profile, lower owned" pivot ranking have no ownership signal; field simulation in backtests leans on salary-based heuristics instead | Open — options: post-contest ownership scrapes in-season, or a paid projections source |
+| 2026-07-24 | `017_defense_week_allowed.sql`: the opponent-strength normalizer (`off_strength`) averaged over the full season, so `*_fp_allowed_adj_l6` saw future weeks | Mild optimistic bias in backtests through the four positional defense features; originally not caught by leakage checks (they only covered usage features) | Fixed same day — offense strength is now a trailing average through the prior week, and the leakage checker gained a defense pass (EPA-allowed recomputed from pbp at team grain + first-row-null invariant on all six defense features) |
+| 2026-07-24 | FTN charting (2022+) is ingested but unused by any feature SQL — pressure (`n_pass_rushers`, `n_blitzers`), box counts, play-action flags | Defense assessment leans on EPA-allowed only; pressure rate allowed is the strongest free upgrade for QB/pass projections. Also the reason paid DVOA was evaluated and deferred — most of its marginal signal is derivable here | Open — candidate features: pressure rate allowed l6, box-count vs. run efficiency, success/explosive-play rate allowed from pbp |
+
+---
+
 ## 0. Design principles
 
 Read these before writing code. They save the most time.
