@@ -35,6 +35,19 @@ def main(argv: list[str] | None = None) -> None:
     p = sub.add_parser("trends", help="Changepoint detection + salary-lag watchlist")
     p.add_argument("--season", type=int, default=None)
 
+    p = sub.add_parser("replay",
+                       help="Replay a past season: projection accuracy + contest ROI")
+    p.add_argument("--season", type=int, required=True)
+    p.add_argument("--sims", type=int, default=10_000)
+    p.add_argument("--entries", type=int, default=20)
+    p.add_argument("--contest", choices=["gpp", "double_up"], default="gpp")
+    p.add_argument("--field-size", type=int, default=5_000)
+
+    p = sub.add_parser("archetypes",
+                       help="Cluster scoring-consistency archetypes into nfl_features")
+    p.add_argument("--seasons", type=int, default=3, help="Trailing seasons to profile")
+    p.add_argument("--min-games", type=int, default=16)
+
     p = sub.add_parser("serve", help="Run the FastAPI app")
     p.add_argument("--port", type=int, default=8080)
 
@@ -77,6 +90,16 @@ def main(argv: list[str] | None = None) -> None:
         from .trends import alerts
 
         alerts.run(args.season or current_season())
+    elif args.command == "replay":
+        from .backtest import payout, replay
+
+        contest = payout.gpp() if args.contest == "gpp" else payout.double_up()
+        replay.run(args.season, n_sims=args.sims, contest=contest,
+                   n_entries=args.entries, field_size=args.field_size)
+    elif args.command == "archetypes":
+        from .analysis import archetypes
+
+        archetypes.run(trailing_seasons=args.seasons, min_games=args.min_games)
     elif args.command == "serve":
         import uvicorn
 
