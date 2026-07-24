@@ -105,3 +105,69 @@ def test_lineup_infeasible_constraints(client):
         "bans": list(range(1000, 1030)),
     })
     assert r.status_code in (200, 422)  # feasibility depends on pool; must not 500
+
+
+def defense_frame(season=2025, weeks=6, n_teams=6, seed=9):
+    rng = np.random.default_rng(seed)
+    rows = []
+    for t in range(n_teams):
+        for pos in ("QB", "RB", "WR", "TE"):
+            base = rng.uniform(15, 35)
+            vals = []
+            for wk in range(1, weeks + 1):
+                fp = max(0.0, rng.normal(base + (2 if t == 0 else 0) * wk, 4))
+                vals.append(fp)
+                s = pd.Series(vals)
+                rows.append({
+                    "team": f"T{t}", "season": season, "week": wk,
+                    "position": pos, "fp_allowed": fp,
+                    "fp_allowed_l3": s.tail(3).mean(),
+                    "fp_allowed_l6": s.tail(6).mean(),
+                    "fp_allowed_season": s.mean(),
+                    "trend": s.tail(3).mean() - s.mean(),
+                })
+    return pd.DataFrame(rows)
+
+
+@pytest.fixture
+def client_with_defense():
+    app_main.app.dependency_overrides[app_main.default_store] = (
+        lambda: InMemoryStore(projections_frame(), defense=defense_frame())
+    )
+    yield TestClient(app_main.app)
+    app_main.app.dependency_overrides.clear()
+
+
+def test_defense_points_against(client_with_defense):
+    rows = client_with_defense.get(
+        "/defense/points-against", params={"season": 2025, "position": "wr"}
+    ).json()
+    assert len(rows) == 6  # one snapshot per team
+    assert all(r["position"] == "WR" and r["week"] == 6 for r in rows)
+    # Ranked toughest-first
+    seasons_avg = [r["fp_allowed_season"] for r in rows]
+    assert seasons_avg == sorted(seasons_avg)
+
+
+def test_defense_trends(client_with_defense):
+    out = client_with_defense.get(
+        "/defense/trends", params={"season": 2025, "top": 3}
+    ).json()
+    assert set(out) == {"QB", "RB", "WR", "TE"}
+    for pos in out:
+        assert len(out[pos]["improving"]) == 3
+        assert len(out[pos]["fading"]) == 3
+        # T0's defense worsens by construction -> it should be a top fader
+        assert out[pos]["fading"][0]["team"] == "T0"
+
+
+def test_defense_dashboard_html(client_with_defense):
+    r = client_with_defense.get("/")
+    assert r.status_code == 200
+    assert "DK points allowed per position" in r.text
+    assert "vs WR" in r.text
+
+
+def test_defense_endpoints_empty_store(client):
+    assert client.get("/defense/points-against").status_code == 404
+    assert "No defense data" in client.get("/").text

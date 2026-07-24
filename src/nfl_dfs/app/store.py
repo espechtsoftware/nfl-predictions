@@ -20,6 +20,7 @@ PROJ_COLUMNS = [
 class ProjectionStore(Protocol):
     def slates(self) -> pd.DataFrame: ...
     def projections(self, season: int, week: int) -> pd.DataFrame: ...
+    def defense_points_against(self, season: int | None = None) -> pd.DataFrame: ...
 
 
 class BigQueryStore:
@@ -53,11 +54,32 @@ class BigQueryStore:
         )
 
 
+    def defense_points_against(self, season: int | None = None) -> pd.DataFrame:
+        from ..bq import query_df
+
+        where = f"WHERE season = {int(season)}" if season else ""
+        return query_df(
+            f"""
+            SELECT * FROM `{settings.features}.defense_points_against`
+            {where}
+            ORDER BY season, week, position, team
+            """
+        )
+
+
 class InMemoryStore:
     """For tests and local demos."""
 
-    def __init__(self, frame: pd.DataFrame):
+    def __init__(self, frame: pd.DataFrame, defense: pd.DataFrame | None = None):
         self.frame = frame
+        self.defense = defense if defense is not None else pd.DataFrame(
+            columns=["team", "season", "week", "position", "fp_allowed",
+                     "fp_allowed_l3", "fp_allowed_l6", "fp_allowed_season", "trend"]
+        )
+
+    def defense_points_against(self, season: int | None = None) -> pd.DataFrame:
+        df = self.defense
+        return df[df.season == season] if season else df
 
     def slates(self) -> pd.DataFrame:
         return (
