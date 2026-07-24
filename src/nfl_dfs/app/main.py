@@ -67,8 +67,8 @@ def _defense_page(df, season: int) -> str:
             continue
         rows = []
         for r in grp.itertuples():
-            arrow = ("<span class='down'>&#9650; fading</span>" if r.trend > 1.5
-                     else "<span class='up'>&#9660; improving</span>" if r.trend < -1.5
+            arrow = ("<span class='down'>&#9660; fading</span>" if r.trend > 1.5
+                     else "<span class='up'>&#9650; improving</span>" if r.trend < -1.5
                      else "&mdash;")
             rows.append(
                 f"<tr><td>{r.team}</td><td>{r.fp_allowed_season:.1f}</td>"
