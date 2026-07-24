@@ -11,8 +11,8 @@ venv/
 .ruff_cache/
 *.parquet
 *.duckdb
-models/
-data/
+/models/
+/data/
 .env
 .DS_Store
 notebooks/.ipynb_checkpoints/

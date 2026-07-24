@@ -18,7 +18,144 @@ A complete blueprint for a DraftKings NFL daily-fantasy prediction and lineup-co
 > | Phase 7 Interface | `src/nfl_dfs/app/` (FastAPI), `src/nfl_dfs/cli.py` (`nfl-dfs` command) |
 > | §8.6 GNN | intentionally not implemented (see the section for why) |
 >
-> Setup: `pip install -e ".[dev]"` then `pytest`. GCP bootstrap: `deploy/setup_gcp.sh`, deploy jobs: `deploy/deploy_jobs.sh`. One deliberate correction to the guide: the BOCPD snippet's `P(run length = 0)` readout is constant by construction; `src/nfl_dfs/trends/changepoint.py` reports `P(run length ≤ 2)` instead (see its docstring).
+> One deliberate correction to the guide: the BOCPD snippet's `P(run length = 0)` readout is constant by construction; `src/nfl_dfs/trends/changepoint.py` reports `P(run length ≤ 2)` instead (see its docstring).
+
+---
+
+## Quick start
+
+### Do I need to deploy to GCP to try this?
+
+No — nothing ever has to be *deployed*. Every job that runs in production (ingestion, feature builds, training, projections, the web app) is also a local CLI command, and the normal way to use the system is to run everything from your own machine.
+
+What you *do* need is a **GCP project**, because BigQuery is the system's database: the pipeline writes raw data and features there, and the web app reads projections from there. There is no local-database mode. A fresh project on the free tier is generally enough for development-scale usage.
+
+The full path from zero to lineups in the browser:
+
+```bash
+# 0. One-time: auth + create datasets/bucket/tables
+gcloud auth application-default login
+export GCP_PROJECT=your-project-id
+deploy/setup_gcp.sh
+
+# 1. Install with the data + app extras
+python3 -m venv .venv && source .venv/bin/activate
+pip install -e ".[gcp,app,dev]"
+
+# 2. Load data (backfills 2014-present by default; FIRST_SEASON=1999 for deep history)
+nfl-dfs ingest-nflverse --full
+nfl-dfs backfill-rotoguru
+nfl-dfs ingest-dk           # needs an active DK slate — in-season only
+nfl-dfs ingest-odds
+nfl-dfs ingest-weather
+
+# 3. Features -> model -> projections
+nfl-dfs build-features
+nfl-dfs train
+nfl-dfs project
+
+# 4. Serve it
+nfl-dfs serve --port 8080   # then open http://localhost:8080/docs
+```
+
+The interactive API docs at `/docs` are the UI: browse projections, then POST to `/lineups` to optimize and `/lineups.csv` for a DraftKings upload file. Deploying to Cloud Run (§ Deploying below) only automates steps 2–3 on a schedule — it adds nothing you can't do locally.
+
+One seasonal caveat: `ingest-dk` and `project` need an active DraftKings slate, so end-to-end projections only work in-season (roughly September–January). Out of season you can still backfill history, build features, train, and run the backtest engine.
+
+### Prerequisites
+
+- Python 3.11+
+- For anything that touches data (ingestion, features, training, projections): a GCP project with BigQuery and GCS, plus the `gcloud` CLI authenticated with application-default credentials (`gcloud auth application-default login`)
+
+### Install and run the tests
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev,app]"
+pytest
+```
+
+The venv is required on Debian/Ubuntu (including WSL), where the system Python is externally managed (PEP 668) and refuses bare `pip install`. The `app` extra is needed because the test suite exercises the FastAPI service.
+
+The test suite runs entirely offline — no GCP account, credentials, or network access required. This is the fastest way to verify the code works on your machine.
+
+Optional dependency groups (combine as needed, e.g. `pip install -e ".[gcp,app,dev]"`):
+
+| Extra | What it enables |
+|---|---|
+| `dev` | `pytest` + `httpx` (FastAPI test client) |
+| `gcp` | BigQuery/GCS clients + `nflreadpy` — required for all `nfl-dfs` data commands |
+| `app` | FastAPI + uvicorn for the web service (`nfl-dfs serve`) |
+| `tuning` | Optuna, for walk-forward hyperparameter tuning |
+
+### Configuration
+
+All configuration is via environment variables, read in `src/nfl_dfs/config.py` (nothing else touches `os.environ`):
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `GCP_PROJECT` | `nfl-dfs-prod` | GCP project holding the datasets |
+| `BQ_LOCATION` | `US` | BigQuery location |
+| `BQ_RAW_DATASET` | `nfl_raw` | Landed source data |
+| `BQ_FEATURES_DATASET` | `nfl_features` | Derived feature tables |
+| `BQ_PREDICTIONS_DATASET` | `nfl_predictions` | Projections + registry metadata |
+| `GCS_BUCKET` | `nfl-dfs-prod-raw` | Raw snapshots + model registry |
+| `MODEL_REGISTRY_PREFIX` | `models` | GCS prefix for registered models |
+| `FIRST_SEASON` | `2014` | Earliest season to backfill. Training only uses 2015+ (DK salaries don't exist earlier), so the default backfills just one run-up season before that; set `1999` for the full play-by-play history if you want it for exploration |
+| `TRAIN_FIRST_SEASON` | `2015` | Earliest season used in training (DK salaries only go back to 2014) |
+
+### One-time GCP setup
+
+```bash
+export GCP_PROJECT=your-project-id   # defaults to nfl-dfs-prod
+deploy/setup_gcp.sh                  # enables APIs, creates datasets/bucket, applies DDL
+```
+
+### Running the pipeline locally
+
+Every job that Cloud Scheduler runs in production can also be run by hand through the `nfl-dfs` CLI (installed by `pip install -e .`). In dependency order:
+
+```bash
+nfl-dfs ingest-nflverse --full        # backfill play-by-play etc., 2014–present (one-time; omit --full for nightly refresh)
+nfl-dfs backfill-rotoguru             # one-time historical DK salary backfill (2014+)
+nfl-dfs ingest-dk                     # snapshot current DK slates/salaries
+nfl-dfs ingest-odds                   # snapshot DK sportsbook game lines
+nfl-dfs ingest-weather                # Open-Meteo forecasts for upcoming games
+nfl-dfs build-features                # run feature SQL + leakage checks
+nfl-dfs train                         # weekly retrain + registry write
+nfl-dfs project                       # project the upcoming slate
+nfl-dfs trends                        # changepoint detection + salary-lag watchlist
+```
+
+Run `nfl-dfs --help` (or `nfl-dfs <command> --help`) for flags.
+
+### Running the web app
+
+```bash
+pip install -e ".[gcp,app]"
+nfl-dfs serve --port 8080
+```
+
+Endpoints: `GET /health`, `GET /slates`, `GET /projections`, `POST /lineups` (optimize), `POST /lineups.csv` (DK upload file).
+
+### Docker
+
+The image is what Cloud Run runs; the default command serves the web app, and Cloud Run Jobs override it per job.
+
+```bash
+docker build -t nfl-dfs .
+docker run -p 8080:8080 -e GCP_PROJECT=your-project-id nfl-dfs
+```
+
+### Deploying to GCP
+
+```bash
+deploy/deploy_jobs.sh   # builds the image via Cloud Build, creates Cloud Run Jobs + Scheduler triggers
+                        # REGION defaults to us-central1
+```
+
+See §11 for the production schedule each job runs on.
 
 ---
 
