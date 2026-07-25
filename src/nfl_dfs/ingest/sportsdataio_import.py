@@ -113,6 +113,15 @@ def run(first_season: int = 2022, last_season: int = 2025) -> None:
         raise RuntimeError(
             f"only {ok.mean():.0%} of salaries in the plausible DK range — "
             "trial data may be scrambled; not loading")
+    # Real DK salaries are ALWAYS multiples of $100. SportsDataIO trials
+    # serve scrambled numbers that stay in-range but violate this — verified
+    # empirically (2/88 clean multiples on a trial key). Never load them.
+    clean = (out.salary % 100 == 0)
+    if clean.mean() < 0.99:
+        raise RuntimeError(
+            f"only {clean.mean():.0%} of salaries are $100 multiples — this "
+            "is scrambled trial data, not real DK pricing; not loading. "
+            "A paid/unlocked SportsDataIO key is required.")
     load_dataframe(out, "dk_salaries_historical",
                    write_disposition="WRITE_APPEND")
     log.info("Appended %d salary rows (%s-%s)", len(out), first_season, last_season)
