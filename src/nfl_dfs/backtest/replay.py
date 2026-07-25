@@ -146,10 +146,11 @@ def run_contest_replay(
     field_size: int = 5_000,
     seed: int = 42,
     sharp_fraction: float = 0.15,
+    stack=None,
 ) -> BacktestResult:
     return engine_run(build_slates(proj, dst), contest,
                       n_entries=n_entries, field_size=field_size, seed=seed,
-                      sharp_fraction=sharp_fraction)
+                      sharp_fraction=sharp_fraction, stack=stack)
 
 
 # Warehouse entry point ------------------------------------------------------
@@ -204,9 +205,15 @@ def run(
         from .payout import gpp
 
         contest = gpp()
+    # QB stacking validated on both imputed-2025 and real-2021 replays
+    # (reports/2026-07-25-system-study.md addendum); mean objective beat a
+    # p90 objective on real salaries, so stacking is the only GPP default.
+    from ..optimizer.lineup import StackRules
+
+    stack = StackRules(qb_stack_min=1) if "gpp" in contest.name else None
     result = run_contest_replay(proj, dst, contest,
                                 n_entries=n_entries, field_size=field_size,
-                                sharp_fraction=sharp_fraction)
+                                sharp_fraction=sharp_fraction, stack=stack)
     print(f"\n=== Contest replay: {season} "
           f"(field {sharp_fraction:.0%} optimizer-built) ===")
     print(result.summary())

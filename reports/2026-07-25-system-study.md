@@ -161,3 +161,26 @@ Deliberately NOT implemented, with reasons:
 - **Routes run / targets-per-route-run** — the one genuinely valuable
   missing metric; no free source exists (PFF/FTN paid tiers). Logged in the
   data deficiency table.
+
+
+## Addendum 2: entry-construction matrix (new features live)
+
+Re-ran 2025 with the advanced features in the retrained models, plus a
+2x2 of entry objective {blended mean, p90 ceiling} x stacking {none, QB
+stack >=1}, validated on 2021 real salaries:
+
+| Season | Objective | Stack | Mean best | >=190 | >=170 |
+|---|---|---|---|---|---|
+| 2025 (imputed) | mean | none | 177.5 | 5/17 | 9/17 |
+| 2025 (imputed) | mean | QB stack | 180.3 | 6/17 | 11/17 |
+| 2025 (imputed) | p90 | QB stack | 182.6 | 6/17 | 9/17 |
+| 2021 (real) | mean | none | 159.2 | 0/17 | 5/17 |
+| 2021 (real) | mean | QB stack | **160.7** | **1/17** | 6/17 |
+| 2021 (real) | p90 | none/stack | 156.6–156.9 | 0/17 | 2–3/17 |
+
+Adopted: **QB stacking is now the GPP replay default** — it helps on both
+salary regimes. Rejected: the p90 entry objective — flattering on imputed
+salaries, harmful on real ones (pays real cap dollars for variance).
+2025 with the new features scores in line with the pre-feature run
+(177–183 vs 181.7 mean best), consistent with Addendum 1's redundancy
+verdict.
