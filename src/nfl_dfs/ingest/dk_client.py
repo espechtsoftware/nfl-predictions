@@ -59,13 +59,19 @@ def draftables_frame(gid: int, slate_type: str, payload: dict[str, Any]) -> pd.D
     comps = {c["competitionId"]: c for c in payload.get("competitions", [])}
     pulled_at = datetime.now(timezone.utc)
 
-    rows: list[dict[str, Any]] = []
-    seen: set[int] = set()
+    # DK repeats players across roster slots. On classic slates the repeats
+    # are identical; on showdown slates the CPT row carries a 1.5x salary,
+    # so keep the cheaper (FLEX) row — the optimizer re-derives CPT cost.
+    rows: dict[int, dict[str, Any]] = {}
     for d in payload.get("draftables", []):
         pid = d["playerId"]
-        if pid in seen:  # DK repeats players across roster slots
+        prev = rows.get(pid)
+        if prev is not None:
+            sal = d.get("salary")
+            if sal is not None and (prev["salary"] is None or sal < prev["salary"]):
+                prev["salary"] = sal
+                prev["roster_slot"] = str(d.get("rosterSlotId"))
             continue
-        seen.add(pid)
         comp = comps.get(d.get("competition", {}).get("competitionId"), {})
         ppg = None
         for attr in d.get("draftStatAttributes", []):
@@ -74,20 +80,18 @@ def draftables_frame(gid: int, slate_type: str, payload: dict[str, Any]) -> pd.D
                     ppg = float(attr.get("value"))
                 except (TypeError, ValueError):
                     ppg = None
-        rows.append(
-            {
-                "pulled_at": pulled_at,
-                "draft_group_id": gid,
-                "slate_type": slate_type,
-                "dk_player_id": pid,
-                "display_name": d["displayName"],
-                "team_abbr": d.get("teamAbbreviation"),
-                "position": d.get("position"),
-                "salary": d.get("salary"),
-                "roster_slot": str(d.get("rosterSlotId")),
-                "game_start": comp.get("startTime"),
-                "status": d.get("status"),
-                "dk_ppg": ppg,
-            }
-        )
-    return pd.DataFrame(rows)
+        rows[pid] = {
+            "pulled_at": pulled_at,
+            "draft_group_id": gid,
+            "slate_type": slate_type,
+            "dk_player_id": pid,
+            "display_name": d["displayName"],
+            "team_abbr": d.get("teamAbbreviation"),
+            "position": d.get("position"),
+            "salary": d.get("salary"),
+            "roster_slot": str(d.get("rosterSlotId")),
+            "game_start": comp.get("startTime"),
+            "status": d.get("status"),
+            "dk_ppg": ppg,
+        }
+    return pd.DataFrame(list(rows.values()))

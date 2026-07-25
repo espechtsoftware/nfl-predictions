@@ -63,6 +63,15 @@ def test_draftables_frame_fields():
     assert pd.isna(chase.dk_ppg)  # non-numeric attr value handled
 
 
+def test_showdown_dedup_keeps_flex_salary():
+    """Showdown draftables repeat each player as CPT (1.5x salary) and FLEX;
+    the frame must keep the FLEX price regardless of payload order."""
+    pl = payload()
+    pl["draftables"][0]["salary"] = 13_350  # CPT row first: 1.5x the 8900 FLEX
+    df = dk_client.draftables_frame(123, "showdown", pl)
+    assert df[df.dk_player_id == 1].salary.iloc[0] == 8900
+
+
 def test_classify_slate():
     assert dk_client.classify_slate({"gameTypeDescription": "Showdown Captain Mode"}) == "showdown"
     assert dk_client.classify_slate({"gameType": "NFL Captain"}) == "showdown"

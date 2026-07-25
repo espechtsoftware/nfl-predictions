@@ -148,3 +148,122 @@ def test_auto_core_budget_guard_sheds_expensive_studs():
     # The shed members are the expensive ones
     assert max(p["salary"] for p in core) <= 9000
     assert sum(1 for p in core if p["salary"] == 9000) < 5
+
+
+# --- Showdown Captain Mode ---------------------------------------------------
+
+from nfl_dfs.optimizer.export import showdown_exposure_summary, to_dk_showdown_csv
+from nfl_dfs.optimizer.showdown import (
+    CPT_MULT,
+    cpt_salary,
+    optimize_many_showdown,
+    optimize_showdown,
+)
+
+
+def make_showdown_pool(seed=17):
+    """One game, two teams, full showdown pool including K and DST."""
+    rng = np.random.default_rng(seed)
+    players = []
+    pid = 0
+    for team, opp in (("HOME", "AWAY"), ("AWAY", "HOME")):
+        roster = [("QB", 1), ("RB", 2), ("WR", 4), ("TE", 2), ("K", 1), ("DST", 1)]
+        for pos, n in roster:
+            for i in range(n):
+                base = {"QB": 20, "RB": 14, "WR": 12, "TE": 8, "K": 7, "DST": 6}[pos]
+                proj = max(1.0, base - 3 * i + rng.normal(0, 1.5))
+                players.append({
+                    "id": pid, "name": f"{pos}{i}_{team}", "pos": pos,
+                    "team": team, "opp": opp, "game_id": 555,
+                    "salary": int(np.clip(200 * round((1500 + proj * 450) / 200),
+                                          1000, 11_600)),
+                    "proj": proj,
+                })
+                pid += 1
+    return players
+
+
+def test_showdown_roster_cap_and_both_teams():
+    lu = optimize_showdown(make_showdown_pool())
+    assert lu is not None
+    assert len(lu.players) == 6
+    assert lu.captain["id"] not in {p["id"] for p in lu.flex}
+    # Cap includes the 1.5x captain premium
+    assert lu.salary <= 50_000
+    assert lu.salary == cpt_salary(lu.captain["salary"]) + sum(
+        p["salary"] for p in lu.flex
+    )
+    assert {p["team"] for p in lu.players} == {"HOME", "AWAY"}
+    assert lu.proj == pytest.approx(
+        CPT_MULT * lu.captain["proj"] + sum(p["proj"] for p in lu.flex)
+    )
+
+
+def test_showdown_captain_choice_is_value_aware():
+    """The optimizer must weigh the 1.5x salary premium, not just points:
+    an overpriced top scorer should be rostered as FLEX, with a cheaper
+    player taking the captaincy."""
+    pool = []
+    for i in range(6):
+        pool.append({"id": i, "name": f"H{i}", "pos": "WR", "team": "H",
+                     "opp": "A", "game_id": 1, "salary": 7000, "proj": 20.0})
+    for i in range(6, 12):
+        pool.append({"id": i, "name": f"A{i}", "pos": "WR", "team": "A",
+                     "opp": "H", "game_id": 1, "salary": 7000, "proj": 10.0})
+    # Stud: best points, but captaining him busts the cap (16500 + 5*7000)
+    pool.append({"id": 99, "name": "Stud", "pos": "QB", "team": "H",
+                 "opp": "A", "game_id": 1, "salary": 11_000, "proj": 25.0})
+    lu = optimize_showdown(pool)
+    assert 99 in lu.ids  # worth rostering...
+    assert lu.captain["id"] != 99  # ...but not at 1.5x salary
+    assert lu.salary <= 50_000
+
+
+def test_showdown_locks_bans_and_captain_lock():
+    pool = make_showdown_pool()
+    worst = min(pool, key=lambda p: p["proj"])
+    best = max(pool, key=lambda p: p["proj"])
+    lu = optimize_showdown(pool, locks={worst["id"]}, bans={best["id"]})
+    assert worst["id"] in lu.ids and best["id"] not in lu.ids
+
+    forced = next(p for p in pool if p["pos"] == "K")
+    lu = optimize_showdown(pool, captain_lock=forced["id"])
+    assert lu.captain["id"] == forced["id"]
+
+
+def test_showdown_uniqueness_counts_the_captain():
+    lineups = optimize_many_showdown(make_showdown_pool(), n_lineups=8)
+    assert len(lineups) == 8
+    keys = {lu.key for lu in lineups}
+    assert len(keys) == 8  # no repeated (captain, roster) pair
+    projs = [lu.proj for lu in lineups]
+    assert all(projs[i] >= projs[i + 1] - 1e-6 for i in range(len(projs) - 1))
+
+    # Tighter overlap forces the player sets themselves to differ
+    diverse = optimize_many_showdown(make_showdown_pool(), n_lineups=4,
+                                     max_overlap=4)
+    for i, a in enumerate(diverse):
+        for b in diverse[i + 1:]:
+            assert len(a.ids & b.ids) <= 5
+
+
+def test_showdown_infeasible_returns_none():
+    one_team = [p for p in make_showdown_pool() if p["team"] == "HOME"]
+    assert optimize_showdown(one_team) is None  # must roster both teams
+
+
+def test_showdown_csv_and_exposure():
+    lineups = optimize_many_showdown(make_showdown_pool(), n_lineups=3)
+    csv_text = to_dk_showdown_csv(lineups)
+    lines = csv_text.strip().splitlines()
+    assert lines[0].split(",") == ["CPT", "FLEX", "FLEX", "FLEX", "FLEX", "FLEX"]
+    assert len(lines) == 4
+    # First slot of each row is that lineup's captain
+    for lu, line in zip(lineups, lines[1:]):
+        assert line.split(",")[0] == f"{lu.captain['name']} ({lu.captain['id']})"
+
+    exp = showdown_exposure_summary(lineups)
+    assert sum(e["lineups"] for e in exp) == 18
+    assert sum(e["cpt_lineups"] for e in exp) == 3
+    for e in exp:
+        assert e["cpt_lineups"] <= e["lineups"]
