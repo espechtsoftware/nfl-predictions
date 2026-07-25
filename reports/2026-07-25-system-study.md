@@ -184,3 +184,48 @@ salaries, harmful on real ones (pays real cap dollars for variance).
 2025 with the new features scores in line with the pre-feature run
 (177–183 vs 181.7 mean best), consistent with Addendum 1's redundancy
 verdict.
+
+
+## Addendum 3: real 2025 salaries land (DiscoveryLab) + Showdown replay
+
+SportsDataIO's free personal-use DiscoveryLab tier turned out to serve
+REAL DraftKings data for the most recent season — verified 13,406 salary
+rows (100% clean $100-multiples) plus per-player actual DK points and DST
+scoring. That removes the imputation asterisk from every 2025 number and
+adds Captain Mode replay capability.
+
+### Classic, real 2025 salaries (20 GPP entries/week)
+
+| Metric | Imputed (old) | **Real** |
+|---|---|---|
+| Mean best entry | 181.7 | **158.5** |
+| Max | 248.4 | 220.5 (wk 12) |
+| Weeks ≥190 | 5/17 | **2/17** |
+| GPP ROI (sharp field) | +202% | **+112%** |
+| Double-up ROI | — | **+65.3%** (best of all 5 real seasons) |
+| Projection MAE | 4.93 | **4.91** (real salary features helped) |
+
+The imputed numbers were ~20 best-entry points and ~2x GPP ROI flattering,
+exactly as suspected. The five-season real-salary story is now fully
+consistent: double-up ROI +51% to +69% every season, best-of-20 clears
+190 in roughly 1-of-6 weeks.
+
+### Showdown Captain Mode, 2025 (first ever; 41 Thu/Mon slates, 20 entries)
+
+| Metric | Result |
+|---|---|
+| Mean best entry / hindsight-optimal | 100.3 / 128.0 |
+| Mean capture of optimal | **78.8%** (median 80.6%) |
+| Slates ≥90% capture | 7/41 |
+
+Capture (best entry / perfect-knowledge lineup for that slate) is the
+headline metric because absolute showdown scores swing with the game.
+~80% median capture from a 20-entry batch is a solid baseline; the gap
+concentrates in slates where a low-projected player boomed (the classic
+showdown loss mode). No field/ROI simulation — no showdown ownership model
+exists yet; this measures lineup quality, not contest economics.
+Machinery: `nfl-dfs import-discoverylab-showdown` + `nfl-dfs
+replay-showdown` (backtest/showdown_replay.py).
+
+Remaining salary gap: 2022-2024 only (DiscoveryLab paid tiers may cover
+them; unverified). The deficiency-log entry is updated accordingly.

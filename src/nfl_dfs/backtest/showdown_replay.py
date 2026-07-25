@@ -102,8 +102,12 @@ def replay_showdown_season(
     hindsight-optimal score, capture ratio."""
     pools = build_pools(slates, proj)
     if days:
+        # operator_day is a date in historical slate payloads and a weekday
+        # name in live ones — accept either.
         wanted = {d.lower()[:3] for d in days}
-        pools = pools[pools.operator_day.astype(str).str.lower().str[:3].isin(wanted)]
+        dt = pd.to_datetime(pools.operator_day, errors="coerce")
+        day_names = dt.dt.day_name().fillna(pools.operator_day.astype(str))
+        pools = pools[day_names.str.lower().str[:3].isin(wanted)]
     results = []
     for (week, slate_id), grp in pools.groupby(["week", "operator_slate_id"]):
         pool = [
