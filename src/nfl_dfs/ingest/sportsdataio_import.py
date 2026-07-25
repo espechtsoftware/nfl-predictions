@@ -6,7 +6,8 @@ through the same name+position GSIS matching in 019_dk_salary_week.sql,
 so a successful import heals the salary features for recent training rows
 and unlocks real-salary contest replays for 2022-2025.
 
-Endpoint: GET /v3/nfl/scores/json/DfsSlatesByWeek/{season}REG/{week}
+Endpoint: GET /v3/nfl/projections/json/DfsSlatesByWeek/{season}REG/{week}
+(the projections feed — requires a Fantasy/projections product key)
 Auth: Ocp-Apim-Subscription-Key header (settings.sportsdata_api_key).
 
 Slate selection: DraftKings classic main slate = the DK slate with the
@@ -28,7 +29,7 @@ from ..config import settings
 
 log = logging.getLogger(__name__)
 
-URL = "https://api.sportsdata.io/v3/nfl/scores/json/DfsSlatesByWeek/{season}REG/{week}"
+URL = "https://api.sportsdata.io/v3/nfl/projections/json/DfsSlatesByWeek/{season}REG/{week}"
 
 # SportsDataIO position labels -> RotoGuru-era labels used by 019/replay
 _POSITION_MAP = {"DST": "Def", "DEF": "Def", "D": "Def"}
