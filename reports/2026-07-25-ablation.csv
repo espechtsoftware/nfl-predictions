@@ -1,0 +1,8 @@
+config,mae,rank_corr,mae_delta_vs_full
+FULL,4.934,0.622,0.0
+minus_vegas,4.982,0.617,0.048
+minus_usage,4.968,0.615,0.034
+minus_production_trail,4.971,0.621,0.037
+minus_defense,4.942,0.622,0.008
+minus_salary,4.921,0.627,-0.013
+minus_role_nextman,4.958,0.615,0.024
