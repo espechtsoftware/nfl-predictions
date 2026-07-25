@@ -15,7 +15,7 @@ from pathlib import Path
 def _load_dotenv(path: str = ".env") -> None:
     """Minimal .env support: KEY=VALUE lines from the working directory,
     never overriding variables already set in the real environment. The
-    file is gitignored; it's where secrets like SPORTSDATA_API_KEY live."""
+    file is gitignored; it's where local secrets and API keys live."""
     p = Path(path)
     if not p.is_file():
         return
@@ -54,11 +54,6 @@ class Settings:
     # Backfill start. PBP exists back to 1999, but training only uses 2015+
     # (below), so default to one season of feature run-up before that; set
     # FIRST_SEASON=1999 if you want deep history for exploration.
-    # SportsDataIO trial/paid key for the historical salary backfill
-    # (ingest/sportsdataio_import.py). Empty = importer unavailable.
-    sportsdata_api_key: str = field(
-        default_factory=lambda: os.environ.get("SPORTSDATA_API_KEY", "")
-    )
     first_season: int = field(default_factory=lambda: int(os.environ.get("FIRST_SEASON", "2014")))
     # Seasons used for model training; PBP exists to 1999 but DK salaries only to 2014.
     train_first_season: int = field(
