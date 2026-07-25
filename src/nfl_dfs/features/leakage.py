@@ -181,6 +181,45 @@ GROUP BY 1, 2, 3
 """
 
 
+COVERAGE_CHECKS = [
+    # (built l6 col, per-game source col)
+    ("cb_ypt_allowed_l6", "cb_ypt_allowed"),
+    ("cb_comp_rate_allowed_l6", "cb_comp_rate_allowed"),
+    ("db_ypt_allowed_l6", "db_ypt_allowed"),
+]
+
+# Mirrors 017a's cov_games CTE exactly; sampled by team. PFR advstats start
+# in 2018, so pre-2018 built rows simply have nothing to compare against
+# (they're NULL and drop out of the merge).
+COVERAGE_SOURCE_SQL = """
+WITH def_pos AS (
+  SELECT pfr_player_id, season, week, position
+  FROM `{raw}.snap_counts`
+  WHERE defense_snaps > 0 AND pfr_player_id IS NOT NULL
+)
+SELECT
+  a.team, a.season, a.week,
+  SAFE_DIVIDE(
+    SUM(IF(p.position = 'CB', a.def_yards_allowed, NULL)),
+    NULLIF(SUM(IF(p.position = 'CB', a.def_targets, NULL)), 0)
+  ) AS cb_ypt_allowed,
+  SAFE_DIVIDE(
+    SUM(IF(p.position = 'CB', a.def_completions_allowed, NULL)),
+    NULLIF(SUM(IF(p.position = 'CB', a.def_targets, NULL)), 0)
+  ) AS cb_comp_rate_allowed,
+  SAFE_DIVIDE(
+    SUM(IF(p.position IN ('CB', 'DB', 'S', 'FS', 'SS'), a.def_yards_allowed, NULL)),
+    NULLIF(SUM(IF(p.position IN ('CB', 'DB', 'S', 'FS', 'SS'), a.def_targets, NULL)), 0)
+  ) AS db_ypt_allowed
+FROM `{raw}.pfr_advstats_def` a
+JOIN def_pos p
+  ON p.pfr_player_id = a.pfr_player_id
+ AND p.season = a.season AND p.week = a.week
+WHERE MOD(FARM_FINGERPRINT(a.team), 4) = 0
+GROUP BY 1, 2, 3
+"""
+
+
 def run_leakage_checks() -> None:
     from ..bq import query_df
     from ..config import settings
@@ -212,6 +251,28 @@ def run_leakage_checks() -> None:
                           window=6, key_col="team")
     assert_first_row_features_null(
         def_built, DEFENSE_L6_FEATURES + DEFENSE_ADJ_FEATURES, ("team", "season")
+    )
+
+    # Coverage features (017a): per-game CB-group concessions recomputed from
+    # raw PFR advstats on the same team sample. The built table's window
+    # slides over schedule-spine rows, so a played game absent from advstats
+    # occupies a slot the reference doesn't — min_coverage absorbs that rare
+    # drift. Upcoming-week spine rows have no source row and drop out of the
+    # merge. top_cb_out isn't a rolling mean, but it is strictly-prior on the
+    # snaps side, so the week-1-null invariant applies to it too.
+    cov_built = query_df(
+        DEFENSE_SAMPLE_SQL.format(
+            cols=", ".join([f for f, _ in COVERAGE_CHECKS] + ["top_cb_out"]),
+            table=f"{settings.features}.defense_week_coverage",
+        )
+    )
+    cov_source = query_df(COVERAGE_SOURCE_SQL.format(raw=settings.raw))
+    for feature_col, source_col in COVERAGE_CHECKS:
+        assert_no_leakage(cov_built, cov_source, feature_col, source_col,
+                          window=6, key_col="team")
+    assert_first_row_features_null(
+        cov_built, [f for f, _ in COVERAGE_CHECKS] + ["top_cb_out"],
+        ("team", "season"),
     )
 
     # Training-table sanity: labels exist, features don't correlate perfectly

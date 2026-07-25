@@ -47,6 +47,11 @@ NUMERIC_FEATURES = [
     # Next-man-up: opportunity vacated by teammates ruled Out this week
     "team_vacated_target_share",
     "team_vacated_carry_share",
+    # Opponent secondary (CB coverage from PFR advstats; NULL before 2018)
+    "cb_ypt_allowed_l6",
+    "cb_comp_rate_allowed_l6",
+    "db_ypt_allowed_l6",
+    "top_cb_out",
     # Market signal
     "salary",
     "salary_delta_wow",
