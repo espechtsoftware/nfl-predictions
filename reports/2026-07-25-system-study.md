@@ -229,3 +229,52 @@ replay-showdown` (backtest/showdown_replay.py).
 
 Remaining salary gap: 2022-2024 only (DiscoveryLab paid tiers may cover
 them; unverified). The deficiency-log entry is updated accordingly.
+
+
+## Addendum 4: anatomy of actual 2025 Milly Maker winners (dfsarmy.com)
+
+Winning-lineup data for three 2025 weeks, vs our replay entries:
+
+| Week | Winning score | Our best of 20 | QB ownership | Game-stack size / pts | Sub-$4k booms |
+|---|---|---|---|---|---|
+| 7 | 249.6 | 155 | Herbert 6.0% ($6.4k) | 4-man + bring-back / 131 | Gadsden $3.3k @ 1.4% (32.4 pts) |
+| 12 | 277.0 | 220 | Winston **3.97%** ($4.6k) | 4-man / 204 | Henry $3.9k (27.5 pts) |
+| 15 | 236.0 | 170 | Goff 3.71% ($6.1k) | **5-man** / 198 | Parkinson $3.2k @ 7.3% (24.5) |
+
+Every winner shares four elements our construction never produces:
+
+1. **Sub-7%-owned QB, often cheap.** Week 12's Winston is the archetype —
+   a next-man-up starter our vacated-opportunity features exist to detect,
+   but our mean-objective optimizer will never roster a modestly-projected
+   $4.6k QB. Ownership leverage, not projection, is what made him right.
+2. **One massive game stack (4-5 players, 53-80% of all points).** Our
+   qb_stack_min=1 is a different sport. Winners bet an entire game
+   environment; we sprinkle correlation.
+3. **At least one sub-$4k punt that boomed** (usually a 1-7% owned TE).
+   Our optimizer structurally avoids low-projection punts.
+4. **Chalk only where safe** (stud RB/WR at 23-39%), full $50k.
+
+Diagnosis: our entries optimize the projection mean, which lands them
+chalk-adjacent by construction — good for cash (+51-69% double-up ROI
+every season) and top-20% finishes (median 19.5%), structurally unable to
+win a 150k-entry contest. Winning scores (236-277) sit 2-4 sigma above
+our best-entry distribution (mean 158, max 220).
+
+### Recommended build: tournament ("milly") entry mode — a barbell
+
+Keep most entries mean-optimal (the measured cash edge), add N leverage
+entries per week:
+
+- **Full game-stack construction**: for the 2-3 highest-total games, force
+  QB + 3-4 pass catchers + bring-back from that game per entry.
+- **Punt slot**: require >=1 player <=$4k, selected by p90 among players
+  flagged by vacated-opportunity/depth-promotion (the Winston/Gadsden
+  detector we already compute) — p90 failed as a whole-lineup objective
+  but is right for the punt slot, where only ceiling matters.
+- **Chalk fade**: penalize our naive-ownership proxy in leverage entries
+  until real ownership data accrues (collection starts week 1 via
+  import-ownership).
+- **New replay metric**: P(any entry >= 240) and distance-to-winning-line,
+  not mean best — the tail is the target.
+
+Not yet implemented; measured next via replay once built.
