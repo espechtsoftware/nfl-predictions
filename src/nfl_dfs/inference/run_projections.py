@@ -17,6 +17,7 @@ from ..bq import load_dataframe, query_df
 from ..config import current_season, settings
 from ..models import calibration, coldstart, components, simulate
 from ..models.blend import blend, market_projection_frame
+from . import cascade_adjust
 
 log = logging.getLogger(__name__)
 
@@ -26,7 +27,11 @@ BLEND_WEIGHT = 0.45  # refit on validation each retrain; see models/blend.py
 def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
     """Feature rows for the players in the current classic slate, with the
     same point-in-time features the model trained on. Unmatched slate
-    players fail loudly — a dropped player is a lineup you can't build."""
+    players fail loudly — a dropped player is a lineup you can't build.
+
+    Features come from player_week_inference (023): as-of-now rollups built
+    on the upcoming week's synthetic rows. The training table can't serve
+    live slates — its rows require played games and actuals."""
     df = query_df(
         f"""
         WITH latest_pull AS (
@@ -43,7 +48,7 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
         SELECT sl.*, m.gsis_id, t.*
         FROM slate sl
         LEFT JOIN `{settings.features}.player_id_map` m USING (dk_player_id)
-        LEFT JOIN `{settings.features}.player_week_training` t
+        LEFT JOIN `{settings.features}.player_week_inference` t
           ON t.gsis_id = m.gsis_id AND t.season = {season} AND t.week = {week}
         """
     )
@@ -65,8 +70,15 @@ def project(
     season: int,
     week: int,
     n_sims: int = 10_000,
+    adjust=None,
 ) -> pd.DataFrame:
+    """adjust: optional callable (feats) -> (feats, out_gsis_ids), applied
+    after the cold-start fill so cascade bumps land on top of role priors —
+    see inference.cascade_adjust."""
     feats = coldstart.fill_cold_start_features(feats)
+    out_ids: list[str] = []
+    if adjust is not None:
+        feats, out_ids = adjust(feats)
     comps = model.predict_components(feats)
     sim = simulate.simulate(comps, n_sims=n_sims)
     preds = calibration.apply_widen(
@@ -105,7 +117,37 @@ def project(
             "proj_ownership": pd.NA,
         }
     )
-    return out
+    return cascade_adjust.zero_out_projections(out, out_ids)
+
+
+def _cascade_adjuster(season: int):
+    """Build the late-inactive adjuster from warehouse history (current and
+    prior season give the with/without splits enough absences to work with).
+    Inference must survive this failing — projections without the cascade
+    beat no projections on a Sunday morning."""
+    try:
+        span = f"({season - 1}, {season})"
+        usage_rec = query_df(
+            f"""SELECT gsis_id, season, week, total_targets, rz20_targets,
+                       target_share
+                FROM `{settings.features}.rz_receiving` WHERE season IN {span}"""
+        )
+        usage_rush = query_df(
+            f"""SELECT gsis_id, season, week, total_carries, gl3_carries,
+                       carry_share
+                FROM `{settings.features}.rz_rushing` WHERE season IN {span}"""
+        )
+        injuries = query_df(
+            f"""SELECT gsis_id, season, week, injury_status AS game_status
+                FROM `{settings.features}.player_week_injury`
+                WHERE season IN {span}"""
+        )
+    except Exception:
+        log.exception("cascade inputs unavailable; projecting without "
+                      "late-inactive redistribution")
+        return None
+    return lambda f: cascade_adjust.adjust_for_inactives(
+        f, usage_rec, usage_rush, injuries)
 
 
 def run() -> None:
@@ -121,7 +163,8 @@ def run() -> None:
     model, version = load_latest_component_models()
     feats = upcoming_slate_features(season, week)
     skill = feats[feats.dk_position.isin(["QB", "RB", "WR", "TE"])].reset_index(drop=True)
-    out = project(skill, model, version, season, week)
+    out = project(skill, model, version, season, week,
+                  adjust=_cascade_adjuster(season))
     load_dataframe(out, f"{settings.predictions}.player_projections",
                    write_disposition="WRITE_APPEND", partition_field="generated_at")
     log.info("Wrote %d projections for season %s week %s (model %s)",

@@ -89,3 +89,16 @@ def test_render_sql_fails_on_unresolved(tmp_path):
     p.write_text("SELECT ${mystery}")
     with pytest.raises(ValueError):
         render_sql(p)
+
+
+def test_every_shipped_sql_file_renders():
+    """Placeholder coverage for the real pipeline SQL: build-features runs
+    every file under sql/, and an unresolved ${...} should fail here, not
+    in the morning build."""
+    from nfl_dfs.bq import SQL_DIR, render_sql
+
+    files = sorted(SQL_DIR.rglob("*.sql"))
+    assert files, f"no SQL found under {SQL_DIR}"
+    for path in files:
+        sql = render_sql(path, prior_k=4)
+        assert "${" not in sql, path

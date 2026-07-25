@@ -31,6 +31,24 @@ league_week AS (
   FROM team_games
   GROUP BY 1, 2
 ),
+-- Synthetic rows for each team's next unplayed game (same device as 014):
+-- NULL metrics, so the strictly-prior windows emit as-of-now pace/PROE on
+-- the upcoming week's row for live inference.
+team_games_all AS (
+  SELECT team, season, week, plays, scrimmage_plays, pass_rate,
+         neutral_pass_rate, sec_per_play, rz10_pass_rate
+  FROM team_games
+  UNION ALL
+  SELECT s.team, s.season, MIN(s.week),
+         NULL, NULL, NULL, NULL, NULL, NULL
+  FROM `${features}.schedule_long` s
+  WHERE s.gameday >= CAST(CURRENT_DATE() AS STRING)
+    AND NOT EXISTS (
+      SELECT 1 FROM team_games t2
+      WHERE t2.team = s.team AND t2.season = s.season AND t2.week = s.week
+    )
+  GROUP BY s.team, s.season
+),
 rolled AS (
   SELECT
     t.team, t.season, t.week,
@@ -39,8 +57,8 @@ rolled AS (
     AVG(t.sec_per_play)      OVER w4 AS pace_l4,
     AVG(t.rz10_pass_rate)    OVER wstd AS rz10_pass_rate_std,
     AVG(t.neutral_pass_rate - l.league_neutral_pass_rate) OVER w4 AS proe_l4
-  FROM team_games t
-  JOIN league_week l USING (season, week)
+  FROM team_games_all t
+  LEFT JOIN league_week l USING (season, week)
   WINDOW
     w4   AS (PARTITION BY t.team, t.season ORDER BY t.week
              ROWS BETWEEN 4 PRECEDING AND 1 PRECEDING),

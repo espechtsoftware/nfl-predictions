@@ -12,6 +12,23 @@ WITH per_game AS (
     a.dk_points
   FROM `${features}.player_week_actuals` a
 ),
+-- Synthetic rows for each team's next unplayed game (same device as 014):
+-- NULL metrics, so the strictly-prior windows emit as-of-now values on the
+-- upcoming week's row for live inference.
+per_game_all AS (
+  SELECT * FROM per_game
+  UNION ALL
+  SELECT
+    ro.gsis_id, ro.season, ro.week,
+    CAST(NULL AS FLOAT64), CAST(NULL AS FLOAT64), CAST(NULL AS FLOAT64),
+    CAST(NULL AS FLOAT64), CAST(NULL AS FLOAT64), CAST(NULL AS FLOAT64)
+  FROM `${features}.player_week_role` ro
+  WHERE ro.is_upcoming
+    AND NOT EXISTS (
+      SELECT 1 FROM per_game g2
+      WHERE g2.gsis_id = ro.gsis_id AND g2.season = ro.season AND g2.week = ro.week
+    )
+),
 qb_quality AS (
   -- CPOE of the team's primary passer, trailing; a receiver feature.
   SELECT
@@ -40,7 +57,7 @@ SELECT
   AVG(g.dk_points)           OVER wstd AS dk_points_std,
   STDDEV(g.dk_points)        OVER wstd AS dk_points_vol,
   AVG(ad.adot)               OVER w8 AS adot_l8
-FROM per_game g
+FROM per_game_all g
 LEFT JOIN adot ad USING (gsis_id, season, week)
 WINDOW
   w4   AS (PARTITION BY g.gsis_id, g.season ORDER BY g.week

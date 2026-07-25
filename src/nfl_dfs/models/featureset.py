@@ -43,6 +43,10 @@ NUMERIC_FEATURES = [
     # Experience / role
     "games_played_prior",
     "is_cold_start",
+    "depth_rank",
+    # Next-man-up: opportunity vacated by teammates ruled Out this week
+    "team_vacated_target_share",
+    "team_vacated_carry_share",
     # Market signal
     "salary",
     "salary_delta_wow",

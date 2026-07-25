@@ -39,14 +39,45 @@ usage AS (
   FULL OUTER JOIN `${features}.rz_rushing` rush
     USING (game_id, season, week, team, gsis_id)
 ),
+-- Synthetic rows for each team's next unplayed game (player_week_role marks
+-- them is_upcoming). All source metrics are NULL, so the strictly-prior
+-- windows below naturally yield "as of now" rollups for the upcoming week —
+-- the rows live inference needs and the training table (021) must exclude.
+upcoming_rows AS (
+  SELECT
+    ro.gsis_id, ro.season, ro.week, ro.team,
+    CAST(NULL AS INT64) AS rz20_targets,
+    CAST(NULL AS INT64) AS rz10_targets,
+    CAST(NULL AS INT64) AS total_targets,
+    CAST(NULL AS FLOAT64) AS target_share,
+    CAST(NULL AS FLOAT64) AS air_yards_share,
+    CAST(NULL AS FLOAT64) AS rz20_target_share,
+    CAST(NULL AS FLOAT64) AS rz10_target_share,
+    CAST(NULL AS INT64) AS rz20_carries,
+    CAST(NULL AS INT64) AS gl3_carries,
+    CAST(NULL AS INT64) AS total_carries,
+    CAST(NULL AS FLOAT64) AS carry_share,
+    CAST(NULL AS FLOAT64) AS gl3_carry_share
+  FROM `${features}.player_week_role` ro
+  WHERE ro.is_upcoming
+    AND NOT EXISTS (
+      SELECT 1 FROM usage u2
+      WHERE u2.gsis_id = ro.gsis_id AND u2.season = ro.season AND u2.week = ro.week
+    )
+),
+usage_all AS (
+  SELECT u.*, FALSE AS is_upcoming FROM usage u
+  UNION ALL
+  SELECT up.*, TRUE AS is_upcoming FROM upcoming_rows up
+),
 with_snaps AS (
   SELECT u.*, s.snap_share
-  FROM usage u
+  FROM usage_all u
   LEFT JOIN snaps s USING (gsis_id, season, week)
 ),
 rolled AS (
   SELECT
-    gsis_id, season, week, team,
+    gsis_id, season, week, team, is_upcoming,
 
     -- Trailing 4-week averages, EXCLUDING current week (1 PRECEDING is key)
     AVG(rz20_targets)      OVER w4 AS rz20_targets_l4,
