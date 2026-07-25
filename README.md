@@ -12,7 +12,7 @@ A complete blueprint for a DraftKings NFL daily-fantasy prediction and lineup-co
 > | §6/§7 Models | `src/nfl_dfs/models/` (baseline, components, simulation, blending, cold start, registry, monitoring, tuning) |
 > | §8.5 Trend detection | `src/nfl_dfs/trends/` (BOCPD, CUSUM, salary-lag alerts) |
 > | §8.2–8.4, §8.7 Graph + news | `src/nfl_dfs/graph/` (build, injury cascade, LLM extraction); cascade wired into live projections by `src/nfl_dfs/inference/cascade_adjust.py` |
-> | §9 Optimizer | `src/nfl_dfs/optimizer/` (PuLP, stacking, multi-entry, DK CSV) |
+> | §9 Optimizer | `src/nfl_dfs/optimizer/` (PuLP, stacking, multi-entry, DK CSV; §9.5 Showdown Captain Mode in `showdown.py`) |
 > | §10 Backtesting | `src/nfl_dfs/backtest/` (field simulation, payouts, ROI) |
 > | §11 Orchestration | `deploy/` (GCP setup, Cloud Run Jobs + Scheduler), `Dockerfile` |
 > | Phase 7 Interface | `src/nfl_dfs/app/` (FastAPI), `src/nfl_dfs/cli.py` (`nfl-dfs` command) |
@@ -137,7 +137,7 @@ pip install -e ".[gcp,app]"
 nfl-dfs serve --port 8080
 ```
 
-Endpoints: `GET /health`, `GET /slates`, `GET /projections`, `POST /lineups` (optimize), `POST /lineups.csv` (DK upload file).
+Endpoints: `GET /health`, `GET /slates`, `GET /projections`, `POST /lineups` (optimize), `POST /lineups.csv` (DK upload file), `GET /showdown/slates` and `POST /showdown/lineups[.csv]` (Captain Mode single-game lineups, default filtered to the Thursday/Monday night games — see §9.5).
 
 ### Docker
 
@@ -177,6 +177,8 @@ Known edges, accepted for now: Doubtful players are projected, not zeroed (their
 
 **Cornerback coverage metrics (2026-07-25).** WR/TE projections previously saw the opposing pass defense only at team level (EPA/dropback allowed, positional FP allowed). `pfr_advstats_def` (new nflverse ingest, PFR advanced defense stats 2018+) now feeds `017a_defense_week_coverage.sql`: yards per target and completion rate allowed by the opponent's CB group as nearest defenders, the secondary-wide yards per target, and `top_cb_out` — the opponent's coverage-snap-leading corner (identified from strictly-prior snaps) listed Out on this week's report. Built on the schedule spine so the upcoming week has a real row (exact-week join in 023, no as-of staleness), joined into training/inference, added to the model featureset, and covered by the leakage checker (recompute-and-compare on the l6 windows + first-row-null). True WR-vs-CB assignment data remains paid-only and modest in value (§2.5); this is deliberately group-level. After deploying, run `nfl-dfs ingest-nflverse --full` once so the new raw table exists before the next `build-features`.
 
+**Showdown Captain Mode (2026-07-25).** Single-game Captain Mode lineups for the Thursday/Monday night slates are built by `optimizer/showdown.py` + the `/showdown/*` endpoints (see §9.5), reusing classic-pipeline projections joined by DK player id. Deliberately deferred: (a) K and DST ride on DK's `dk_ppg` figure rather than a model — a trailing-average kicker/DST model like the replay's `DST_FALLBACK_PROJ` approach would be the natural upgrade if showdown becomes a priority; (b) no showdown backtest — `backtest/` replays classic contests only, so showdown lineup quality is unvalidated beyond the optimizer's unit invariants; (c) no simulated-outcomes mode (`simulate_lineups` equivalent) — captain leverage from correlated draws would be the next construction improvement.
+
 **Archetype clustering — deferred pieces.** `nfl-dfs archetypes` (see `src/nfl_dfs/analysis/archetypes.py`) clusters players into scoring-consistency archetypes, stamps them on graph nodes for the injury cascade, and adds `SIMILAR_TO` edges for profile-based pivots. Deliberately left out of v1: (a) graph-derived clustering inputs — QB-attachment stability via `TARGETED_BY` edges and target-room crowding via `COMPETES_WITH` — the least value for the most work; (b) salary/ownership-aware pivot ranking ("cheaper, same profile, lower owned") — needs live slate salaries and an ownership source (see the deficiency log); (c) a scheduled refresh — the table is CLI-only, not in `deploy_jobs.sh`; weekly in-season would be the natural cadence.
 
 **Replay findings (2026-07-24, first full-season replays).** `nfl-dfs replay --season N` trains on strictly-prior seasons and scores every week of season N; see `src/nfl_dfs/backtest/replay.py`. Results (2019/2021/2025): projection MAE beats the naive trailing-average baseline by ~5% every season; within-position rank correlation 0.43–0.64. Both weaknesses found in the first replays were addressed same day:
@@ -209,6 +211,7 @@ Append-only. Whenever a gap or quality problem is found in source data, add a ro
 | 2026-07-25 | PFR advanced defense stats start in 2018, and "nearest defender" target attribution is charting-derived — noisy at the single-play level | CB coverage features (`017a`) are NULL on 2014–2017 training rows; per-game group aggregates carry attribution noise | Accepted — LightGBM handles missing natively; summing to the CB group per game averages the attribution noise out |
 | 2026-07-25 | No in-season coverage-scheme data: NGS stopped publishing participation (`defense_man_zone_type`/`defense_coverage_type`) after 2022; FTN's replacement lands only after each season ends | Team man/zone rates would be a season stale at inference — training on them would create train/serve skew, so they're not built | Accepted for now — revisit if FTN ever ships participation in-season |
 | 2026-07-25 | The `player_ids` crosswalk (dynastyprocess) has thinner coverage for defensive players; a CB1 whose `pfr_id` is unmatched can't be joined to the injury report | `top_cb_out` silently reads FALSE for unmatched corners (treated as playing) | Accepted — affects the indicator only, not the coverage-quality windows, which never leave PFR keys |
+| 2026-07-25 | DK showdown draftables repeat each player as CPT (1.5x salary) and FLEX; `draftables_frame` used to keep whichever row came first, so `dk_salaries` showdown rows ingested before this date may carry the CPT price | Historical showdown salary snapshots are ambiguous (off by up to 1.5x); classic rows unaffected (slot repeats share one salary) | Fixed — dedup now keeps the cheaper FLEX row and the optimizer derives CPT cost as 1.5x; old showdown rows are unused by any pipeline |
 
 ---
 
@@ -1379,6 +1382,25 @@ Better still: run the optimizer against **simulated outcomes** rather than point
 | Lineups | 1 | 20–150 with uniqueness constraints |
 
 Without ownership data, approximate it: ownership correlates strongly with value (`proj / salary`) and with public narrative. A simple `predicted_ownership ~ f(value, salary_rank, team_total, recent_media_volume)` regression trained on any ownership data you can scrape post-hoc gets you most of the way.
+
+### 9.5 Showdown Captain Mode (single-game slates)
+
+DK's single-game format, offered for every game but most interesting for the standalone prime-time slates (Thursday and Monday night), where it's the only game in town. Rules, verified against DK's contest rules and the major strategy references:
+
+- Roster: 6 spots — 1 **Captain (CPT)** + 5 **FLEX** — drawn from the two teams in one game.
+- The captain scores **1.5x fantasy points** and costs **1.5x his FLEX salary**; the cap stays $50,000.
+- At least one player from each team (5-1, 4-2, 3-3 splits all legal).
+- Every position is FLEX- and CPT-eligible, **including K and DST** — kickers exist on showdown slates even though DK Classic dropped them. Scoring is otherwise identical to Classic (including the 100-yard and 40/50-yard FG bonuses).
+
+Implementation (`optimizer/showdown.py`, endpoints in `app/main.py`):
+
+- **Captain choice is part of the MILP**, not a post-hoc promotion: each player gets a CPT and a FLEX binary, the objective weights CPT picks 1.5x, and the cap constraint charges them 1.5x. The best captain is usually *not* the highest-projected player — the premium matters (there's a test asserting the optimizer benches an overpriced stud into FLEX).
+- **Lineup identity includes the captain**: the same six players under a different captain is a distinct DK entry, and the multi-entry uniqueness constraint treats it that way (`max_overlap=5` default allows captain-swap variants; lower forces player-set diversity).
+- **No stack rules** — in a single game everything is already correlated with the game environment; entry-to-entry diversity does the leverage work. Classic's `StackRules` deliberately don't apply.
+- **Projections are reused from the classic pipeline** — no separate showdown inference job. The showdown player pool (latest `ingest-dk` snapshot, `slate_type='showdown'`, FLEX salaries) is joined to `player_projections` by `dk_player_id`; players the model doesn't project (K, DST) fall back to DK's own `dk_ppg` figure and are tagged `proj_source='dk_ppg'` in responses. Salaries always come from the showdown slate — DK prices the same player differently there than on classic slates.
+- `GET /showdown/slates` lists upcoming Captain Mode games, filtered by kickoff day in US/Eastern (default `thu,mon`); `POST /showdown/lineups` defaults to the next upcoming Thursday/Monday game, and supports `locks`/`bans`, a forced `captain`, and the same `proj_points|p50|p90` objectives; `POST /showdown/lineups.csv` emits the `CPT,FLEX,FLEX,FLEX,FLEX,FLEX` DK upload format.
+
+Strategy note baked into the defaults: cash-game showdown wants the chalk captain and `proj_points`; GPPs want `proj_p90` and captain diversity across entries, since captain leverage is where showdown tournaments are won.
 
 ---
 

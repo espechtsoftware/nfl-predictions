@@ -216,3 +216,125 @@ def test_core_lineups_auto_sizes(client):
     core_ids = {c["id"] for c in core}
     for lu in out["lineups"]:
         assert core_ids <= {p["id"] for p in lu["players"]}
+
+
+# --- Showdown Captain Mode endpoints -----------------------------------------
+
+
+def showdown_frame(frame, gid=7001, teams=("T0", "T1"),
+                   game_start="2025-09-19T00:15:00Z"):
+    """Showdown salary snapshot for one game, built from the projections
+    frame's players on `teams` plus a K and DST per team (no projections —
+    they exercise the dk_ppg fallback)."""
+    sub = frame[frame.team.isin(teams)]
+    rows = [{
+        "draft_group_id": gid, "dk_player_id": int(r.dk_player_id),
+        "display_name": r.display_name, "team_abbr": r.team,
+        "position": r.position, "salary": int(r.salary) + 200,
+        "game_start": game_start, "status": "None", "dk_ppg": None,
+    } for r in sub.itertuples()]
+    extra_id = 9900
+    for team in teams:
+        for pos, ppg in (("K", 7.5), ("DST", 6.0)):
+            rows.append({
+                "draft_group_id": gid, "dk_player_id": extra_id,
+                "display_name": f"{pos} {team}", "team_abbr": team,
+                "position": pos, "salary": 3600,
+                "game_start": game_start, "status": "None", "dk_ppg": ppg,
+            })
+            extra_id += 1
+    return pd.DataFrame(rows)
+
+
+@pytest.fixture
+def showdown_client():
+    frame = projections_frame()
+    thu = showdown_frame(frame, gid=7001, teams=("T0", "T1"),
+                         game_start="2025-09-19T00:15:00Z")   # Thu 8:15pm ET
+    sun = showdown_frame(frame, gid=7002, teams=("T2", "T3"),
+                         game_start="2025-09-21T17:00:00Z")   # Sunday
+    mon = showdown_frame(frame, gid=7003, teams=("T4", "T5"),
+                         game_start="2025-09-23T00:15:00Z")   # Mon 8:15pm ET
+    store = InMemoryStore(frame, showdown=pd.concat([sun, thu, mon]))
+    app_main.app.dependency_overrides[app_main.default_store] = lambda: store
+    yield TestClient(app_main.app)
+    app_main.app.dependency_overrides.clear()
+
+
+def test_showdown_slates_default_thu_mon(showdown_client):
+    slates = showdown_client.get("/showdown/slates").json()
+    assert [s["draft_group_id"] for s in slates] == [7001, 7003]
+    assert [s["day"] for s in slates] == ["Thursday", "Monday"]
+    assert slates[0]["game"] == "T0 vs T1"
+
+    all_days = showdown_client.get("/showdown/slates",
+                                   params={"days": ""}).json()
+    assert {s["draft_group_id"] for s in all_days} == {7001, 7002, 7003}
+
+
+def test_showdown_slates_empty_store(client):
+    assert client.get("/showdown/slates").status_code == 404
+
+
+def test_showdown_lineups_defaults_to_next_prime_time_game(showdown_client):
+    r = showdown_client.post("/showdown/lineups", json={
+        "season": 2025, "week": 3, "n_lineups": 3,
+    })
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["game"]["draft_group_id"] == 7001  # Thursday comes first
+    assert body["game"]["day"] == "Thursday"
+    assert len(body["lineups"]) == 3
+    from nfl_dfs.optimizer.showdown import cpt_salary
+    for lu in body["lineups"]:
+        assert len(lu["players"]) == 6
+        assert lu["salary"] <= 50_000
+        cpt, flex = lu["players"][0], lu["players"][1:]
+        assert cpt == lu["captain"]
+        assert lu["salary"] == cpt_salary(cpt["salary"]) + sum(
+            p["salary"] for p in flex)
+        assert {p["team"] for p in lu["players"]} == {"T0", "T1"}
+    assert body["dk_csv"].startswith("CPT,FLEX,FLEX,FLEX,FLEX,FLEX")
+    # Captains differ or rosters differ across the three entries
+    keys = {(lu["captain"]["id"], frozenset(p["id"] for p in lu["players"]))
+            for lu in body["lineups"]}
+    assert len(keys) == 3
+    assert all("cpt_exposure" in e for e in body["exposure"])
+
+
+def test_showdown_lineups_dk_ppg_fallback_and_selection(showdown_client):
+    r = showdown_client.post("/showdown/lineups", json={
+        "season": 2025, "week": 3, "draft_group_id": 7003,
+        "n_lineups": 1, "locks": [9900],  # K T4, projected via dk_ppg only
+    })
+    assert r.status_code == 200, r.text
+    lu = r.json()["lineups"][0]
+    kicker = next(p for p in lu["players"] if p["id"] == 9900)
+    assert kicker["proj_source"] == "dk_ppg"
+    assert kicker["proj"] == 7.5
+    assert all(p["proj_source"] == "model"
+               for p in lu["players"] if p["pos"] not in ("K", "DST"))
+
+
+def test_showdown_captain_lock_and_csv_endpoint(showdown_client):
+    frame = projections_frame()
+    a_qb = int(frame[(frame.team == "T0") & (frame.position == "QB")]
+               .dk_player_id.iloc[0])
+    r = showdown_client.post("/showdown/lineups", json={
+        "season": 2025, "week": 3, "n_lineups": 1, "captain": a_qb,
+    })
+    assert r.json()["lineups"][0]["captain"]["id"] == a_qb
+
+    csv_resp = showdown_client.post("/showdown/lineups.csv", json={
+        "season": 2025, "week": 3, "n_lineups": 2,
+    })
+    assert csv_resp.status_code == 200
+    assert csv_resp.headers["content-type"].startswith("text/csv")
+    assert csv_resp.text.startswith("CPT,FLEX")
+
+
+def test_showdown_unknown_group_404(showdown_client):
+    r = showdown_client.post("/showdown/lineups", json={
+        "season": 2025, "week": 3, "draft_group_id": 1234,
+    })
+    assert r.status_code == 404

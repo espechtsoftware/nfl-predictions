@@ -17,10 +17,17 @@ PROJ_COLUMNS = [
 ]
 
 
+SHOWDOWN_COLUMNS = [
+    "draft_group_id", "dk_player_id", "display_name", "team_abbr",
+    "position", "salary", "game_start", "status", "dk_ppg",
+]
+
+
 class ProjectionStore(Protocol):
     def slates(self) -> pd.DataFrame: ...
     def projections(self, season: int, week: int) -> pd.DataFrame: ...
     def defense_points_against(self, season: int | None = None) -> pd.DataFrame: ...
+    def showdown_salaries(self) -> pd.DataFrame: ...
 
 
 class BigQueryStore:
@@ -54,6 +61,31 @@ class BigQueryStore:
         )
 
 
+    def showdown_salaries(self) -> pd.DataFrame:
+        """Latest pull per upcoming showdown draft group (one game each).
+        Salaries are FLEX-slot; the optimizer derives the 1.5x CPT cost."""
+        from ..bq import query_df
+
+        return query_df(
+            f"""
+            WITH pulls AS (
+              SELECT draft_group_id, MAX(pulled_at) AS ts
+              FROM `{settings.raw}.dk_salaries`
+              WHERE slate_type = 'showdown'
+                AND game_start >= CURRENT_TIMESTAMP()
+              GROUP BY draft_group_id
+            )
+            SELECT s.draft_group_id, s.dk_player_id, s.display_name,
+                   s.team_abbr, s.position, s.salary, s.game_start,
+                   s.status, s.dk_ppg
+            FROM `{settings.raw}.dk_salaries` s
+            JOIN pulls p
+              ON s.draft_group_id = p.draft_group_id AND s.pulled_at = p.ts
+            WHERE s.slate_type = 'showdown'
+            ORDER BY s.game_start, s.salary DESC
+            """
+        )
+
     def defense_points_against(self, season: int | None = None) -> pd.DataFrame:
         from ..bq import query_df
 
@@ -70,12 +102,19 @@ class BigQueryStore:
 class InMemoryStore:
     """For tests and local demos."""
 
-    def __init__(self, frame: pd.DataFrame, defense: pd.DataFrame | None = None):
+    def __init__(self, frame: pd.DataFrame, defense: pd.DataFrame | None = None,
+                 showdown: pd.DataFrame | None = None):
         self.frame = frame
         self.defense = defense if defense is not None else pd.DataFrame(
             columns=["team", "season", "week", "position", "fp_allowed",
                      "fp_allowed_l3", "fp_allowed_l6", "fp_allowed_season", "trend"]
         )
+        self.showdown = showdown if showdown is not None else pd.DataFrame(
+            columns=SHOWDOWN_COLUMNS
+        )
+
+    def showdown_salaries(self) -> pd.DataFrame:
+        return self.showdown
 
     def defense_points_against(self, season: int | None = None) -> pd.DataFrame:
         df = self.defense

@@ -13,8 +13,14 @@ from fastapi import Depends, FastAPI, HTTPException, Query, Response
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
-from ..optimizer.export import exposure_summary, to_dk_csv
+from ..optimizer.export import (
+    exposure_summary,
+    showdown_exposure_summary,
+    to_dk_csv,
+    to_dk_showdown_csv,
+)
 from ..optimizer.lineup import StackRules, core_and_variations, optimize_many
+from ..optimizer.showdown import optimize_many_showdown
 from .store import BigQueryStore, ProjectionStore
 
 app = FastAPI(title="NFL DFS", version="0.1.0")
@@ -276,6 +282,173 @@ def build_core_lineups(
         "exposure": exposure_summary(lineups),
         "dk_csv": to_dk_csv(lineups),
     }
+
+
+# --- Showdown Captain Mode (single-game slates, guide §9.5) ---------------
+#
+# DK runs a showdown slate for every game, but the interesting ones here are
+# the standalone prime-time games — Thursday and Monday night — so that's
+# the default filter. Projections are reused from the classic pipeline
+# (joined by DK player id); showdown-only positions (K, DST) fall back to
+# DK's own points-per-game figure.
+
+SHOWDOWN_DEFAULT_DAYS = "thu,mon"
+
+
+def _showdown_games(store: ProjectionStore, days: str) -> pd.DataFrame:
+    """One row per upcoming showdown draft group, filtered to the requested
+    kickoff days (US/Eastern)."""
+    sd = store.showdown_salaries()
+    if sd.empty:
+        return sd
+    start = pd.to_datetime(sd.game_start, utc=True, format="ISO8601")
+    sd = sd.assign(
+        _day=start.dt.tz_convert("America/New_York").dt.day_name(),
+        _start=start,
+    )
+    wanted = {d.strip().lower()[:3] for d in days.split(",") if d.strip()}
+    if wanted:
+        sd = sd[sd["_day"].str.lower().str[:3].isin(wanted)]
+    return sd
+
+
+def _showdown_pool(game: pd.DataFrame, proj: pd.DataFrame, objective: str) -> list[dict]:
+    """Player pool for one showdown game: classic projections joined by DK
+    player id, dk_ppg fallback for unprojected players (K, DST)."""
+    teams = sorted(t for t in game.team_abbr.dropna().unique())
+    opp = {t: next((o for o in teams if o != t), None) for t in teams}
+    by_id = {}
+    if not proj.empty:
+        by_id = proj.set_index("dk_player_id")[
+            ["proj_points", "proj_p50", "proj_p90"]
+        ].to_dict("index")
+    pool = []
+    for r in game.itertuples():
+        row = by_id.get(r.dk_player_id)
+        if row is not None and pd.notna(row[objective]):
+            value, source = float(row[objective]), "model"
+        elif pd.notna(r.dk_ppg):
+            value, source = float(r.dk_ppg), "dk_ppg"
+        else:
+            continue  # no projection at all — can't rank the player
+        pool.append(
+            {
+                "id": int(r.dk_player_id),
+                "name": r.display_name,
+                "pos": r.position,
+                "team": r.team_abbr,
+                "opp": opp.get(r.team_abbr),
+                "game_id": int(r.draft_group_id),
+                "salary": int(r.salary),
+                "proj": value,
+                "proj_source": source,
+            }
+        )
+    return pool
+
+
+class ShowdownLineupRequest(BaseModel):
+    season: int
+    week: int
+    draft_group_id: int | None = None  # default: next upcoming Thu/Mon game
+    days: str = SHOWDOWN_DEFAULT_DAYS
+    n_lineups: int = Field(1, ge=1, le=150)
+    objective: str = Field("proj_points", pattern="^proj_(points|p50|p90)$")
+    locks: list[int] = []
+    bans: list[int] = []
+    captain: int | None = None
+    max_overlap: int = Field(5, ge=1, le=5)
+
+
+@app.get("/showdown/slates")
+def showdown_slates(
+    days: str = Query(SHOWDOWN_DEFAULT_DAYS),
+    store: ProjectionStore = Depends(get_store),
+) -> list[dict]:
+    """Upcoming Captain Mode games (default: Thursday/Monday night)."""
+    sd = _showdown_games(store, days)
+    if sd.empty:
+        raise HTTPException(404, "No upcoming showdown slates; run ingest-dk")
+    out = []
+    for gid, grp in sd.groupby("draft_group_id", sort=False):
+        teams = sorted(t for t in grp.team_abbr.dropna().unique())
+        out.append(
+            {
+                "draft_group_id": int(gid),
+                "game": " vs ".join(teams),
+                "day": grp["_day"].iloc[0],
+                "game_start": str(grp["_start"].iloc[0]),
+                "players": len(grp),
+            }
+        )
+    return sorted(out, key=lambda g: g["game_start"])
+
+
+@app.post("/showdown/lineups")
+def build_showdown_lineups(
+    req: ShowdownLineupRequest, store: ProjectionStore = Depends(get_store)
+) -> dict:
+    sd = _showdown_games(store, "" if req.draft_group_id else req.days)
+    if sd.empty:
+        raise HTTPException(404, "No upcoming showdown slates; run ingest-dk")
+    if req.draft_group_id is not None:
+        game = sd[sd.draft_group_id == req.draft_group_id]
+        if game.empty:
+            raise HTTPException(404, f"No showdown slate {req.draft_group_id}")
+    else:
+        next_gid = sd.sort_values("_start").draft_group_id.iloc[0]
+        game = sd[sd.draft_group_id == next_gid]
+
+    proj = store.projections(req.season, req.week)
+    pool = _showdown_pool(game, proj, req.objective)
+    if len(pool) < 6 or len({p["team"] for p in pool}) < 2:
+        raise HTTPException(422, "Showdown pool too thin to build a lineup")
+    pool_ids = {p["id"] for p in pool}
+    wanted = set(req.locks) | ({req.captain} if req.captain is not None else set())
+    if wanted - pool_ids:
+        raise HTTPException(
+            422, f"Players not in this game's projectable pool: {sorted(wanted - pool_ids)}"
+        )
+
+    lineups = optimize_many_showdown(
+        pool, n_lineups=req.n_lineups, locks=set(req.locks),
+        bans=set(req.bans) & pool_ids,
+        captain_lock=req.captain, max_overlap=req.max_overlap,
+    )
+    if not lineups:
+        raise HTTPException(422, "No feasible lineup under the given constraints")
+    teams = sorted(t for t in game.team_abbr.dropna().unique())
+    return {
+        "game": {
+            "draft_group_id": int(game.draft_group_id.iloc[0]),
+            "game": " vs ".join(teams),
+            "day": game["_day"].iloc[0],
+            "game_start": str(game["_start"].iloc[0]),
+        },
+        "lineups": [
+            {
+                "captain": lu.captain,
+                "players": lu.slot_order(),
+                "salary": lu.salary,
+                "proj": round(lu.proj, 2),
+            }
+            for lu in lineups
+        ],
+        "exposure": showdown_exposure_summary(lineups),
+        "dk_csv": to_dk_showdown_csv(lineups),
+    }
+
+
+@app.post("/showdown/lineups.csv")
+def build_showdown_lineups_csv(
+    req: ShowdownLineupRequest, store: ProjectionStore = Depends(get_store)
+) -> Response:
+    payload = build_showdown_lineups(req, store)
+    return Response(
+        content=payload["dk_csv"],
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=dk_showdown_lineups.csv"},
+    )
 
 
 @app.post("/lineups.csv")

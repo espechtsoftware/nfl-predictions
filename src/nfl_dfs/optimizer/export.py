@@ -7,8 +7,10 @@ import io
 from collections import Counter
 
 from .lineup import Lineup
+from .showdown import ShowdownLineup
 
 DK_HEADER = ["QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST"]
+DK_SHOWDOWN_HEADER = ["CPT", "FLEX", "FLEX", "FLEX", "FLEX", "FLEX"]
 
 
 def to_dk_csv(lineups: list[Lineup]) -> str:
@@ -21,6 +23,27 @@ def to_dk_csv(lineups: list[Lineup]) -> str:
         row = [f"{p['name']} ({p['id']})" for p in lu.slot_order()]
         writer.writerow(row)
     return buf.getvalue()
+
+
+def to_dk_showdown_csv(lineups: list[ShowdownLineup]) -> str:
+    """DraftKings Showdown bulk-upload format: CPT first, then five FLEX."""
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(DK_SHOWDOWN_HEADER)
+    for lu in lineups:
+        writer.writerow([f"{p['name']} ({p['id']})" for p in lu.slot_order()])
+    return buf.getvalue()
+
+
+def showdown_exposure_summary(lineups: list[ShowdownLineup]) -> list[dict]:
+    """Classic exposure plus how often each player is the captain."""
+    exp = exposure_summary(lineups)
+    cpt_counts = Counter(lu.captain["id"] for lu in lineups)
+    n = len(lineups)
+    for row in exp:
+        row["cpt_lineups"] = cpt_counts.get(row["id"], 0)
+        row["cpt_exposure"] = cpt_counts.get(row["id"], 0) / n
+    return exp
 
 
 def exposure_summary(lineups: list[Lineup]) -> list[dict]:

@@ -15,6 +15,6 @@ jobs:
           python-version: "3.11"
           cache: pip
       - name: Install
-        run: pip install -e ".[dev]"
+        run: pip install -e ".[dev,app]"
       - name: Tests (includes point-in-time leakage assertions)
         run: pytest
