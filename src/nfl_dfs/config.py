@@ -9,6 +9,25 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass, field
 from datetime import date
+from pathlib import Path
+
+
+def _load_dotenv(path: str = ".env") -> None:
+    """Minimal .env support: KEY=VALUE lines from the working directory,
+    never overriding variables already set in the real environment. The
+    file is gitignored; it's where secrets like SPORTSDATA_API_KEY live."""
+    p = Path(path)
+    if not p.is_file():
+        return
+    for line in p.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        os.environ.setdefault(key.strip(), value.strip().strip("'\""))
+
+
+_load_dotenv()
 
 
 @dataclass(frozen=True)

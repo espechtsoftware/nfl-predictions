@@ -15,3 +15,18 @@ def test_settings_qualified_datasets():
     assert s.raw.endswith(".nfl_raw")
     assert s.features.endswith(".nfl_features")
     assert s.predictions.endswith(".nfl_predictions")
+
+
+def test_dotenv_loading(tmp_path, monkeypatch):
+    from nfl_dfs.config import _load_dotenv
+
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / ".env").write_text(
+        "# comment\nMY_DOTENV_TEST=hello\nQUOTED='world'\nEXISTING=file\n")
+    monkeypatch.setenv("EXISTING", "real-env")
+    monkeypatch.delenv("MY_DOTENV_TEST", raising=False)
+    _load_dotenv()
+    import os
+    assert os.environ["MY_DOTENV_TEST"] == "hello"
+    assert os.environ["QUOTED"] == "world"
+    assert os.environ["EXISTING"] == "real-env"  # env always wins

@@ -51,10 +51,16 @@ def slate_rows(slate: dict, season: int, week: int) -> pd.DataFrame:
         pos = str(p.get("OperatorPosition") or p.get("Position") or "").upper()
         if not name or not salary or not pos:
             continue
+        if not (p.get("SlatePlayerID") or p.get("PlayerID")):
+            continue  # no usable id -> can't dedupe/group downstream
         rows.append({
             "season": season,
             "week": week,
-            "rotoguru_gid": f"sdio-{p.get('SlatePlayerID') or p.get('PlayerID')}",
+            # The table's rotoguru_gid landed as INTEGER (autodetect from
+            # RotoGuru's numeric GIDs), so these must be numeric too. No
+            # collision risk: RotoGuru rows end at 2021, these start at 2022,
+            # and 019 only groups gids within a (season, week).
+            "rotoguru_gid": int(p.get("SlatePlayerID") or p.get("PlayerID") or 0),
             "display_name": str(name).strip(),
             "position": _POSITION_MAP.get(pos, pos),
             "team_abbr": str(p.get("Team") or "").upper(),
