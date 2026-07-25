@@ -45,6 +45,11 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--sharp", type=float, default=0.15,
                    help="Fraction of the simulated field built by optimizer")
 
+    p = sub.add_parser("import-sportsdataio",
+                       help="Backfill 2022-2025 DK salaries from SportsDataIO")
+    p.add_argument("--first-season", type=int, default=2022)
+    p.add_argument("--last-season", type=int, default=2025)
+
     p = sub.add_parser("import-ownership",
                        help="Import a DK contest-standings CSV (actual ownership)")
     p.add_argument("path")
@@ -107,6 +112,11 @@ def main(argv: list[str] | None = None) -> None:
         replay.run(args.season, n_sims=args.sims, contest=contest,
                    n_entries=args.entries, field_size=args.field_size,
                    sharp_fraction=args.sharp)
+    elif args.command == "import-sportsdataio":
+        from .ingest import sportsdataio_import
+
+        sportsdataio_import.run(first_season=args.first_season,
+                                last_season=args.last_season)
     elif args.command == "import-ownership":
         from .ingest import ownership_import
 
