@@ -277,4 +277,24 @@ entries per week:
 - **New replay metric**: P(any entry >= 240) and distance-to-winning-line,
   not mean best — the tail is the target.
 
+### Full-season correction (all 17 weeks, reports/2025-milly-winners.csv)
+
+The 3-week sample overstated some elements. Complete 2025 winner stats:
+
+| Element | Full-season truth |
+|---|---|
+| Winning score | mean **236.9**, min **193.9** (wk 1), max 277.0 |
+| QB ownership | mean 8.7%; sub-10% in 11/17 (65%) — common, not universal |
+| Largest game stack | mean **3.2 players** — the 4-5-man stacks were outliers |
+| **Sub-$4k player scoring 15+** | **16/17 weeks (94%) — the near-universal signature** |
+
+Revised priorities for tournament mode: (1) the punt slot is the
+signature, not a garnish — a cheap boom appeared in 94% of winners, and
+our vacated-opportunity/depth features are the natural detector; (2)
+low-owned QB second (65%); (3) game stacks third — 3-4 correlated players
+suffice, our qb_stack machinery is closer than the sample suggested.
+Also: the minimum winning score (193.9) is inside our current best-entry
+range — in the softest weeks, consistency alone nearly competes; the gap
+is concentrated in normal-to-high scoring weeks.
+
 Not yet implemented; measured next via replay once built.
