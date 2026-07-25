@@ -1,5 +1,9 @@
 {
+  "env": {
+    "GCP_PROJECT": "nfl-predictions-503414"
+  },
   "permissions": {
+    "defaultMode": "acceptEdits",
     "allow": [
       "Bash(curl -s http://localhost:8080/*)",
       "Bash(curl -s -o /dev/null http://localhost:8080/*)",
@@ -9,8 +13,12 @@
       "Bash(.venv/bin/pytest *)",
       "Bash(python3 *)",
       "Bash(timeout *)",
-      "Bash(.venv/bin/nfl-dfs *)",
+      "Bash(nohup *)",
       "Bash(.venv/bin/python *)",
+      "Bash(.venv/bin/nfl-dfs *)",
+      "Bash(GCP_PROJECT=nfl-predictions-503414 .venv/bin/python *)",
+      "Bash(GCP_PROJECT=nfl-predictions-503414 .venv/bin/pytest *)",
+      "Bash(GCP_PROJECT=nfl-predictions-503414 .venv/bin/nfl-dfs *)",
       "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(git push)",
