@@ -45,6 +45,22 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--sharp", type=float, default=0.15,
                    help="Fraction of the simulated field built by optimizer")
 
+    p = sub.add_parser("import-discoverylab",
+                       help="Backfill real DK salaries from DiscoveryLab (free tier: last season)")
+    p.add_argument("--first-season", type=int, default=2025)
+    p.add_argument("--last-season", type=int, default=2025)
+
+    p = sub.add_parser("import-discoverylab-showdown",
+                       help="Backfill Captain Mode slates (salaries + actuals) from DiscoveryLab")
+    p.add_argument("--first-season", type=int, default=2025)
+    p.add_argument("--last-season", type=int, default=2025)
+
+    p = sub.add_parser("replay-showdown",
+                       help="Replay Captain Mode: entries vs hindsight-optimal per slate")
+    p.add_argument("--season", type=int, default=2025)
+    p.add_argument("--entries", type=int, default=20)
+    p.add_argument("--days", default="thu,mon")
+
     p = sub.add_parser("import-ownership",
                        help="Import a DK contest-standings CSV (actual ownership)")
     p.add_argument("path")
@@ -107,6 +123,21 @@ def main(argv: list[str] | None = None) -> None:
         replay.run(args.season, n_sims=args.sims, contest=contest,
                    n_entries=args.entries, field_size=args.field_size,
                    sharp_fraction=args.sharp)
+    elif args.command == "import-discoverylab":
+        from .ingest import discoverylab_import
+
+        discoverylab_import.run(first_season=args.first_season,
+                                last_season=args.last_season)
+    elif args.command == "import-discoverylab-showdown":
+        from .ingest import discoverylab_import
+
+        discoverylab_import.run_showdown(first_season=args.first_season,
+                                         last_season=args.last_season)
+    elif args.command == "replay-showdown":
+        from .backtest import showdown_replay
+
+        showdown_replay.run(season=args.season, n_entries=args.entries,
+                            days=args.days)
     elif args.command == "import-ownership":
         from .ingest import ownership_import
 

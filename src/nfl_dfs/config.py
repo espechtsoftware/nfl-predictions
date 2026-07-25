@@ -51,6 +51,11 @@ class Settings:
     model_registry_prefix: str = field(
         default_factory=lambda: os.environ.get("MODEL_REGISTRY_PREFIX", "models")
     )
+    # SportsDataIO DiscoveryLab key (ingest/discoverylab_import.py); lives
+    # in .env. Empty = importer unavailable.
+    sportsdata_api_key: str = field(
+        default_factory=lambda: os.environ.get("SPORTSDATA_API_KEY", "")
+    )
     # Backfill start. PBP exists back to 1999, but training only uses 2015+
     # (below), so default to one season of feature run-up before that; set
     # FIRST_SEASON=1999 if you want deep history for exploration.
