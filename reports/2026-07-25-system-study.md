@@ -96,11 +96,15 @@ Reading it honestly:
   (+0.008). This retroactively validates skipping paid DVOA — if our free
   defense metrics barely move MAE, a better version of them can't move it
   much either. (They remain useful for the dashboard/research layer.)
-- **Salary is noise as a model feature** — removing it *helped* slightly.
-  Plausible causes: 2022–2025 salary nulls degrade the splits, and salary
-  is downstream of the same signals the model already has. Candidate for
-  removal from the featureset at next retrain; keep `salary_delta_wow`
-  under watch.
+- **Salary looked like noise on 2025 (−0.013 when removed) but this was
+  a null-era artifact, verified and kept.** A follow-up ablation on 2021 —
+  where training salary coverage is complete — shows salary *helps*:
+  +0.010 MAE and rank correlation 0.611 → 0.599 without it. The 2025 harm
+  comes from 2022–2025 training rows being salary-null (RotoGuru gap), so
+  learned salary splits get NaN-routed on recent data. Decision: keep the
+  features; the problem self-heals from 2026 as the live `ingest-dk`
+  salary log accumulates. Revisit only if a 2027 ablation still shows
+  harm.
 - The new role/next-man-up group (+0.024) earns its place — comparable to
   usage's marginal contribution despite being days old.
 
