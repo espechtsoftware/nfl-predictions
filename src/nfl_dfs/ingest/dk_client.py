@@ -62,6 +62,11 @@ def draftables_frame(gid: int, slate_type: str, payload: dict[str, Any]) -> pd.D
     # DK repeats players across roster slots. On classic slates the repeats
     # are identical; on showdown slates the CPT row carries a 1.5x salary,
     # so keep the cheaper (FLEX) row — the optimizer re-derives CPT cost.
+    #
+    # Draftable IDs are what DK's bulk-upload parser matches on (the "ID"
+    # column of DKSalaries.csv is the draftableId, not the playerId), so
+    # keep the kept row's draftableId — and on showdown slates also the CPT
+    # row's, because the CPT slot only accepts the CPT-specific ID.
     rows: dict[int, dict[str, Any]] = {}
     for d in payload.get("draftables", []):
         pid = d["playerId"]
@@ -69,8 +74,14 @@ def draftables_frame(gid: int, slate_type: str, payload: dict[str, Any]) -> pd.D
         if prev is not None:
             sal = d.get("salary")
             if sal is not None and (prev["salary"] is None or sal < prev["salary"]):
+                # Cheaper repeat = the FLEX row; the row we had was CPT.
+                prev["dk_cpt_draftable_id"] = prev["dk_draftable_id"]
                 prev["salary"] = sal
                 prev["roster_slot"] = str(d.get("rosterSlotId"))
+                prev["dk_draftable_id"] = d.get("draftableId")
+            elif sal is not None and prev["salary"] is not None and sal > prev["salary"]:
+                # Pricier repeat = the CPT row of the player we're keeping.
+                prev["dk_cpt_draftable_id"] = d.get("draftableId")
             continue
         comp = comps.get(d.get("competition", {}).get("competitionId"), {})
         ppg = None
@@ -85,6 +96,8 @@ def draftables_frame(gid: int, slate_type: str, payload: dict[str, Any]) -> pd.D
             "draft_group_id": gid,
             "slate_type": slate_type,
             "dk_player_id": pid,
+            "dk_draftable_id": d.get("draftableId"),
+            "dk_cpt_draftable_id": None,
             "display_name": d["displayName"],
             "team_abbr": d.get("teamAbbreviation"),
             "position": d.get("position"),
@@ -94,4 +107,9 @@ def draftables_frame(gid: int, slate_type: str, payload: dict[str, Any]) -> pd.D
             "status": d.get("status"),
             "dk_ppg": ppg,
         }
-    return pd.DataFrame(list(rows.values()))
+    df = pd.DataFrame(list(rows.values()))
+    if not df.empty:
+        # Nullable Int64 so BigQuery sees INT64, not FLOAT64 via NaN.
+        for col in ("dk_draftable_id", "dk_cpt_draftable_id"):
+            df[col] = df[col].astype("Int64")
+    return df

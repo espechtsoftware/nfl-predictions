@@ -6,6 +6,7 @@ Run locally:  uvicorn nfl_dfs.app.main:app --reload
 
 from __future__ import annotations
 
+import logging
 from functools import lru_cache
 
 import pandas as pd
@@ -14,7 +15,9 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
 from ..optimizer.export import (
+    entry_count,
     exposure_summary,
+    fill_entries_csv,
     showdown_exposure_summary,
     to_dk_csv,
     to_dk_showdown_csv,
@@ -24,6 +27,7 @@ from ..optimizer.showdown import optimize_many_showdown
 from .store import BigQueryStore, ProjectionStore
 
 app = FastAPI(title="NFL DFS", version="0.1.0")
+log = logging.getLogger(__name__)
 
 
 @lru_cache
@@ -181,23 +185,45 @@ def projections(
     return df.sort_values("proj_points", ascending=False).to_dict("records")
 
 
-def _player_pool(df: pd.DataFrame, objective: str) -> list[dict]:
+def _classic_dk_ids(store: ProjectionStore) -> dict[int, int]:
+    """dk_player_id -> draftable ID for the latest classic slate. DK's
+    upload parser matches on draftable IDs; without the mapping the CSV
+    falls back to player IDs, which DK rejects."""
+    try:
+        m = store.classic_draftable_ids()
+    except Exception:
+        log.warning("classic draftable IDs unavailable; upload CSV will "
+                    "carry player IDs DK won't accept", exc_info=True)
+        return {}
+    if m.empty:
+        log.warning("no draftable IDs in the latest classic pull; run "
+                    "ingest-dk (rows pulled before 2026-07 lack them)")
+        return {}
+    return {int(r.dk_player_id): int(r.dk_draftable_id) for r in m.itertuples()}
+
+
+def _player_pool(
+    df: pd.DataFrame, objective: str, dk_ids: dict[int, int] | None = None
+) -> list[dict]:
     """Tournament-tilted pool: sub-$4k players are valued at their ceiling
     (p90 — a punt's only job is to boom) and every projection carries a
     chalk-fade penalty proportional to naive ownership, so entries lean
-    into the leverage that wins large fields."""
+    into the leverage that wins large fields. dk_id carries the slate's
+    draftable ID, which DK's upload parser requires."""
     from ..backtest.field import naive_ownership
     from ..optimizer.lineup import LEVERAGE_PENALTY, PUNT_MAX_SALARY
 
     pool = []
     for r in df.itertuples():
+        pid = int(r.dk_player_id)
         proj = float(getattr(r, objective))
         if int(r.salary) <= PUNT_MAX_SALARY and hasattr(r, "proj_p90") \
                 and pd.notna(r.proj_p90):
             proj = max(proj, float(r.proj_p90))
         pool.append(
             {
-                "id": int(r.dk_player_id),
+                "id": pid,
+                "dk_id": (dk_ids or {}).get(pid),
                 "name": r.display_name,
                 "pos": r.position,
                 "team": r.team,
@@ -213,14 +239,11 @@ def _player_pool(df: pd.DataFrame, objective: str) -> list[dict]:
     return pool
 
 
-@app.post("/lineups")
-def build_lineups(
-    req: LineupRequest, store: ProjectionStore = Depends(get_store)
-) -> dict:
+def _build_classic(req: LineupRequest, store: ProjectionStore) -> list:
     df = store.projections(req.season, req.week)
     if df.empty:
         raise HTTPException(404, f"No projections for {req.season} week {req.week}")
-    pool = _player_pool(df, req.objective)
+    pool = _player_pool(df, req.objective, _classic_dk_ids(store))
     stack = StackRules(
         qb_stack_min=req.qb_stack_min,
         bring_back_min=req.bring_back_min,
@@ -232,6 +255,14 @@ def build_lineups(
     )
     if not lineups:
         raise HTTPException(422, "No feasible lineup under the given constraints")
+    return lineups
+
+
+@app.post("/lineups")
+def build_lineups(
+    req: LineupRequest, store: ProjectionStore = Depends(get_store)
+) -> dict:
+    lineups = _build_classic(req, store)
     return {
         "lineups": [
             {
@@ -265,8 +296,9 @@ def build_core_lineups(
     df = store.projections(req.season, req.week)
     if df.empty:
         raise HTTPException(404, f"No projections for {req.season} week {req.week}")
-    stable_pool = _player_pool(df, "proj_p50")
-    upside_pool = _player_pool(df, req.objective)
+    dk_ids = _classic_dk_ids(store)
+    stable_pool = _player_pool(df, "proj_p50", dk_ids)
+    upside_pool = _player_pool(df, req.objective, dk_ids)
     stack = StackRules(
         qb_stack_min=req.qb_stack_min,
         bring_back_min=req.bring_back_min,
@@ -345,9 +377,13 @@ def _showdown_pool(game: pd.DataFrame, proj: pd.DataFrame, objective: str) -> li
             value, source = float(r.dk_ppg), "dk_ppg"
         else:
             continue  # no projection at all — can't rank the player
+        draftable = getattr(r, "dk_draftable_id", None)
+        cpt = getattr(r, "dk_cpt_draftable_id", None)
         pool.append(
             {
                 "id": int(r.dk_player_id),
+                "dk_id": int(draftable) if pd.notna(draftable) else None,
+                "cpt_dk_id": int(cpt) if pd.notna(cpt) else None,
                 "name": r.display_name,
                 "pos": r.position,
                 "team": r.team_abbr,
@@ -398,10 +434,9 @@ def showdown_slates(
     return sorted(out, key=lambda g: g["game_start"])
 
 
-@app.post("/showdown/lineups")
-def build_showdown_lineups(
-    req: ShowdownLineupRequest, store: ProjectionStore = Depends(get_store)
-) -> dict:
+def _build_showdown(
+    req: ShowdownLineupRequest, store: ProjectionStore
+) -> tuple[pd.DataFrame, list]:
     sd = _showdown_games(store, "" if req.draft_group_id else req.days)
     if sd.empty:
         raise HTTPException(404, "No upcoming showdown slates; run ingest-dk")
@@ -431,6 +466,14 @@ def build_showdown_lineups(
     )
     if not lineups:
         raise HTTPException(422, "No feasible lineup under the given constraints")
+    return game, lineups
+
+
+@app.post("/showdown/lineups")
+def build_showdown_lineups(
+    req: ShowdownLineupRequest, store: ProjectionStore = Depends(get_store)
+) -> dict:
+    game, lineups = _build_showdown(req, store)
     teams = sorted(t for t in game.team_abbr.dropna().unique())
     return {
         "game": {
@@ -475,3 +518,64 @@ def build_lineups_csv(
         media_type="text/csv",
         headers={"Content-Disposition": "attachment; filename=dk_lineups.csv"},
     )
+
+
+# --- DKEntries filling ----------------------------------------------------
+#
+# The other DK import path: for contests already entered, download
+# DKEntries.csv (Lineups -> Edit Entries on DraftKings), POST it here, and
+# re-upload the response on the same screen. One lineup is generated per
+# entry row; everything else in the file passes through untouched.
+
+MAX_ENTRIES = 500  # DK's own per-file upload limit
+
+
+class FillEntriesRequest(LineupRequest):
+    entries_csv: str
+    n_lineups: int | None = None  # ignored — one lineup per entry row
+
+
+class ShowdownFillEntriesRequest(ShowdownLineupRequest):
+    entries_csv: str
+    n_lineups: int | None = None  # ignored — one lineup per entry row
+
+
+def _entries_n(entries_csv: str) -> int:
+    try:
+        n = entry_count(entries_csv)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc))
+    if n == 0:
+        raise HTTPException(422, "Entries file contains no entry rows")
+    if n > MAX_ENTRIES:
+        raise HTTPException(422, f"{n} entries exceeds DK's {MAX_ENTRIES}-row limit")
+    return n
+
+
+def _entries_response(entries_csv: str, lineups: list) -> Response:
+    try:
+        filled = fill_entries_csv(entries_csv, lineups)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc))
+    return Response(
+        content=filled,
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=DKEntries.csv"},
+    )
+
+
+@app.post("/lineups/entries.csv")
+def fill_classic_entries(
+    req: FillEntriesRequest, store: ProjectionStore = Depends(get_store)
+) -> Response:
+    build_req = req.model_copy(update={"n_lineups": _entries_n(req.entries_csv)})
+    return _entries_response(req.entries_csv, _build_classic(build_req, store))
+
+
+@app.post("/showdown/lineups/entries.csv")
+def fill_showdown_entries(
+    req: ShowdownFillEntriesRequest, store: ProjectionStore = Depends(get_store)
+) -> Response:
+    build_req = req.model_copy(update={"n_lineups": _entries_n(req.entries_csv)})
+    _, lineups = _build_showdown(build_req, store)
+    return _entries_response(req.entries_csv, lineups)

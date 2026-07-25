@@ -58,7 +58,7 @@ nfl-dfs project
 nfl-dfs serve --port 8080   # then open http://localhost:8080/docs
 ```
 
-The interactive API docs at `/docs` are the UI: browse projections, then POST to `/lineups` to optimize and `/lineups.csv` for a DraftKings upload file. Deploying to Cloud Run (§ Deploying below) only automates steps 2–3 on a schedule — it adds nothing you can't do locally.
+The interactive API docs at `/docs` are the UI: browse projections, then POST to `/lineups` to optimize and `/lineups.csv` for a file you can import at [draftkings.com/lineup/upload](https://www.draftkings.com/lineup/upload). For contests you've already entered, download DKEntries.csv from DK's Lineups → Edit Entries screen, POST it to `/lineups/entries.csv`, and re-upload the response — one generated lineup per entry. Deploying to Cloud Run (§ Deploying below) only automates steps 2–3 on a schedule — it adds nothing you can't do locally.
 
 One seasonal caveat: `ingest-dk` and `project` need an active DraftKings slate, so end-to-end projections only work in-season (roughly September–January). Out of season you can still backfill history, build features, train, and run the backtest engine.
 
@@ -137,7 +137,9 @@ pip install -e ".[gcp,app]"
 nfl-dfs serve --port 8080
 ```
 
-Endpoints: `GET /health`, `GET /slates`, `GET /projections`, `POST /lineups` (optimize), `POST /lineups.csv` (DK upload file), `GET /showdown/slates` and `POST /showdown/lineups[.csv]` (Captain Mode single-game lineups, default filtered to the Thursday/Monday night games — see §9.5).
+Endpoints: `GET /health`, `GET /slates`, `GET /projections`, `POST /lineups` (optimize), `POST /lineups.csv` (DK upload file), `POST /lineups/entries.csv` (fill a downloaded DKEntries.csv, one lineup per entry), `GET /showdown/slates` and `POST /showdown/lineups[.csv]` / `POST /showdown/lineups/entries.csv` (Captain Mode single-game lineups, default filtered to the Thursday/Monday night games — see §9.5).
+
+DK's import formats match on **draftable IDs** — the slate-specific `ID` column of DKSalaries.csv, not the stable `playerId` — so upload files are only generatable for slates ingested after the IDs were added to `ingest-dk` (see the deficiency log). Showdown CPT cells additionally require the CPT-slot draftable ID; `to_dk_showdown_csv` handles that.
 
 ### Docker
 
@@ -212,6 +214,7 @@ Append-only. Whenever a gap or quality problem is found in source data, add a ro
 | 2026-07-25 | No in-season coverage-scheme data: NGS stopped publishing participation (`defense_man_zone_type`/`defense_coverage_type`) after 2022; FTN's replacement lands only after each season ends | Team man/zone rates would be a season stale at inference — training on them would create train/serve skew, so they're not built | Accepted for now — revisit if FTN ever ships participation in-season |
 | 2026-07-25 | The `player_ids` crosswalk (dynastyprocess) has thinner coverage for defensive players; a CB1 whose `pfr_id` is unmatched can't be joined to the injury report | `top_cb_out` silently reads FALSE for unmatched corners (treated as playing) | Accepted — affects the indicator only, not the coverage-quality windows, which never leave PFR keys |
 | 2026-07-25 | DK showdown draftables repeat each player as CPT (1.5x salary) and FLEX; `draftables_frame` used to keep whichever row came first, so `dk_salaries` showdown rows ingested before this date may carry the CPT price | Historical showdown salary snapshots are ambiguous (off by up to 1.5x); classic rows unaffected (slot repeats share one salary) | Fixed — dedup now keeps the cheaper FLEX row and the optimizer derives CPT cost as 1.5x; old showdown rows are unused by any pipeline |
+| 2026-07-25 | DK's lineup import matches on slate-specific draftable IDs (the DKSalaries `ID` column), which `ingest-dk` discarded — it kept only the stable `playerId`, and upload CSVs were built from that, so DK would reject them. Verified against the live draftgroups API vs. `getavailableplayerscsv` for the same group; showdown CPT slots need the CPT-row draftable ID, which differs from FLEX | `dk_salaries` rows pulled before this date can't produce importable files (upload only matters for live slates, so the loss is historical-only); pre-fix "DK upload" CSVs were never actually importable | Fixed — ingest now lands `dk_draftable_id` + `dk_cpt_draftable_id` (DDL migration in `sql/raw/002_dk_salaries.sql`), exports use them with player-ID fallback + warning |
 
 ---
 
@@ -437,6 +440,8 @@ CREATE TABLE nfl_raw.dk_salaries (
   slate_type STRING,            -- 'classic' | 'showdown'
   season INT64, week INT64,
   dk_player_id INT64,
+  dk_draftable_id INT64,        -- slate-specific ID DK's lineup upload wants
+  dk_cpt_draftable_id INT64,    -- showdown only: the CPT-slot draftable ID
   display_name STRING,
   team_abbr STRING,
   position STRING,
@@ -1398,7 +1403,7 @@ Implementation (`optimizer/showdown.py`, endpoints in `app/main.py`):
 - **Lineup identity includes the captain**: the same six players under a different captain is a distinct DK entry, and the multi-entry uniqueness constraint treats it that way (`max_overlap=5` default allows captain-swap variants; lower forces player-set diversity).
 - **No stack rules** — in a single game everything is already correlated with the game environment; entry-to-entry diversity does the leverage work. Classic's `StackRules` deliberately don't apply.
 - **Projections are reused from the classic pipeline** — no separate showdown inference job. The showdown player pool (latest `ingest-dk` snapshot, `slate_type='showdown'`, FLEX salaries) is joined to `player_projections` by `dk_player_id`; players the model doesn't project (K, DST) fall back to DK's own `dk_ppg` figure and are tagged `proj_source='dk_ppg'` in responses. Salaries always come from the showdown slate — DK prices the same player differently there than on classic slates.
-- `GET /showdown/slates` lists upcoming Captain Mode games, filtered by kickoff day in US/Eastern (default `thu,mon`); `POST /showdown/lineups` defaults to the next upcoming Thursday/Monday game, and supports `locks`/`bans`, a forced `captain`, and the same `proj_points|p50|p90` objectives; `POST /showdown/lineups.csv` emits the `CPT,FLEX,FLEX,FLEX,FLEX,FLEX` DK upload format.
+- `GET /showdown/slates` lists upcoming Captain Mode games, filtered by kickoff day in US/Eastern (default `thu,mon`); `POST /showdown/lineups` defaults to the next upcoming Thursday/Monday game, and supports `locks`/`bans`, a forced `captain`, and the same `proj_points|p50|p90` objectives; `POST /showdown/lineups.csv` emits the `CPT,FLEX,FLEX,FLEX,FLEX,FLEX` DK upload format (CPT cells carry the CPT-slot draftable ID DK requires); `POST /showdown/lineups/entries.csv` fills a downloaded DKEntries.csv for contests already entered.
 
 Strategy note baked into the defaults: cash-game showdown wants the chalk captain and `proj_points`; GPPs want `proj_p90` and captain diversity across entries, since captain leverage is where showdown tournaments are won.
 

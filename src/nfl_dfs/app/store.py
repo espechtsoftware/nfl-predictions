@@ -18,7 +18,8 @@ PROJ_COLUMNS = [
 
 
 SHOWDOWN_COLUMNS = [
-    "draft_group_id", "dk_player_id", "display_name", "team_abbr",
+    "draft_group_id", "dk_player_id", "dk_draftable_id",
+    "dk_cpt_draftable_id", "display_name", "team_abbr",
     "position", "salary", "game_start", "status", "dk_ppg",
 ]
 
@@ -28,6 +29,7 @@ class ProjectionStore(Protocol):
     def projections(self, season: int, week: int) -> pd.DataFrame: ...
     def defense_points_against(self, season: int | None = None) -> pd.DataFrame: ...
     def showdown_salaries(self) -> pd.DataFrame: ...
+    def classic_draftable_ids(self) -> pd.DataFrame: ...
 
 
 class BigQueryStore:
@@ -75,7 +77,8 @@ class BigQueryStore:
                 AND game_start >= CURRENT_TIMESTAMP()
               GROUP BY draft_group_id
             )
-            SELECT s.draft_group_id, s.dk_player_id, s.display_name,
+            SELECT s.draft_group_id, s.dk_player_id, s.dk_draftable_id,
+                   s.dk_cpt_draftable_id, s.display_name,
                    s.team_abbr, s.position, s.salary, s.game_start,
                    s.status, s.dk_ppg
             FROM `{settings.raw}.dk_salaries` s
@@ -83,6 +86,25 @@ class BigQueryStore:
               ON s.draft_group_id = p.draft_group_id AND s.pulled_at = p.ts
             WHERE s.slate_type = 'showdown'
             ORDER BY s.game_start, s.salary DESC
+            """
+        )
+
+    def classic_draftable_ids(self) -> pd.DataFrame:
+        """dk_player_id -> draftable ID from the latest classic pull. The
+        upload CSV needs draftable IDs (the DKSalaries 'ID' column), which
+        change every slate — so this is always the freshest snapshot."""
+        from ..bq import query_df
+
+        return query_df(
+            f"""
+            WITH latest_pull AS (
+              SELECT MAX(pulled_at) AS ts FROM `{settings.raw}.dk_salaries`
+              WHERE slate_type = 'classic'
+            )
+            SELECT DISTINCT s.dk_player_id, s.dk_draftable_id
+            FROM `{settings.raw}.dk_salaries` s, latest_pull
+            WHERE s.pulled_at = latest_pull.ts AND s.slate_type = 'classic'
+              AND s.dk_draftable_id IS NOT NULL
             """
         )
 
@@ -103,7 +125,8 @@ class InMemoryStore:
     """For tests and local demos."""
 
     def __init__(self, frame: pd.DataFrame, defense: pd.DataFrame | None = None,
-                 showdown: pd.DataFrame | None = None):
+                 showdown: pd.DataFrame | None = None,
+                 draftables: pd.DataFrame | None = None):
         self.frame = frame
         self.defense = defense if defense is not None else pd.DataFrame(
             columns=["team", "season", "week", "position", "fp_allowed",
@@ -112,9 +135,15 @@ class InMemoryStore:
         self.showdown = showdown if showdown is not None else pd.DataFrame(
             columns=SHOWDOWN_COLUMNS
         )
+        self.draftables = draftables if draftables is not None else pd.DataFrame(
+            columns=["dk_player_id", "dk_draftable_id"]
+        )
 
     def showdown_salaries(self) -> pd.DataFrame:
         return self.showdown
+
+    def classic_draftable_ids(self) -> pd.DataFrame:
+        return self.draftables
 
     def defense_points_against(self, season: int | None = None) -> pd.DataFrame:
         df = self.defense

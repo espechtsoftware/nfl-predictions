@@ -6,6 +6,8 @@ CREATE TABLE IF NOT EXISTS `${raw}.dk_salaries` (
   slate_type STRING,            -- 'classic' | 'showdown'
   season INT64, week INT64,
   dk_player_id INT64,
+  dk_draftable_id INT64,        -- slate-specific ID DK's lineup upload wants
+  dk_cpt_draftable_id INT64,    -- showdown only: the CPT-slot draftable ID
   display_name STRING,
   team_abbr STRING,
   position STRING,
@@ -17,3 +19,9 @@ CREATE TABLE IF NOT EXISTS `${raw}.dk_salaries` (
 )
 PARTITION BY DATE(pulled_at)
 CLUSTER BY season, week, dk_player_id;
+
+-- Migration for tables created before draftable IDs were ingested
+-- (2026-07). Rows pulled before then keep NULLs — see the deficiency log.
+ALTER TABLE `${raw}.dk_salaries`
+  ADD COLUMN IF NOT EXISTS dk_draftable_id INT64,
+  ADD COLUMN IF NOT EXISTS dk_cpt_draftable_id INT64;
