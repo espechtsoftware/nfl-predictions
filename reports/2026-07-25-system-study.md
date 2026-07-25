@@ -135,3 +135,29 @@ lineups — exactly what cash games pay for and GPPs only occasionally do.
 - Study scripts (session scratchpad, reproducible from this report's
   descriptions): weekly metrics grid, 2025 imputed-salary picks, ablation
   matrix. Weekly metrics CSV archived in this directory.
+
+
+## Addendum: advanced-metric research and implementation (same day)
+
+Follow-up research on high-value fantasy metrics (volume dominance, air-yards
+target quality, TD-history instability, NGS over-expected stability) led to
+four new strictly-prior features via `015a_player_week_advanced.sql`:
+end-zone targets (air yards >= distance to goal), deep targets (20+ air
+yards), NGS separation, and NGS stacked-box rate.
+
+Measured verdict — honest: **no meaningful lift today.** Replay deltas were
+within noise (2021 +0.007 MAE, 2025 −0.005 MAE / +0.003 rank corr), and gain
+shares show why: `wopr_l4` + `rz20_targets_smoothed` already encode the
+target-quality and TD-opportunity signal the research recommends — the
+existing featureset was ahead of the critique. Kept anyway: zero measured
+cost, sound mechanism (separation reaches 4.2% of the TD model's gain), and
+the table doubles as research data (end-zone target leaderboards).
+
+Deliberately NOT implemented, with reasons:
+- **DVOA (paid)** — our ablation shows defense features contribute +0.008
+  MAE total; a better defense metric cannot matter much (see §3).
+- **NGS RYOE / YAC-over-expected** — public research shows near-zero
+  year-over-year stability; they grade highlights, not futures.
+- **Routes run / targets-per-route-run** — the one genuinely valuable
+  missing metric; no free source exists (PFF/FTN paid tiers). Logged in the
+  data deficiency table.

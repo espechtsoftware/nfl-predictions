@@ -27,6 +27,10 @@ NUMERIC_FEATURES = [
     "carry_share_l4",
     "wopr_l4",
     "rz20_targets_smoothed",
+    "ez_targets_l4",
+    "deep_targets_l4",
+    "separation_l4",
+    "stacked_box_l4",
     "gl3_carries_smoothed",
     "snap_share_l4",
     # Production trail

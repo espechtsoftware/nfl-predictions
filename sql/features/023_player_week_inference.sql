@@ -76,6 +76,9 @@ SELECT
       - IF(i.injury_status = 'Out', COALESCE(u.carry_share_l4, 0), 0),
     0) AS team_vacated_carry_share,
 
+  -- Target quality + NGS context (024)
+  adv.ez_targets_l4, adv.deep_targets_l4, adv.separation_l4, adv.stacked_box_l4,
+
   -- Weather
   w.wind_mph, w.temp_f, w.is_dome,
 
@@ -107,5 +110,7 @@ LEFT JOIN `${features}.player_week_role` ro
   ON ro.gsis_id = u.gsis_id AND ro.season = u.season AND ro.week = u.week
 LEFT JOIN `${features}.team_week_vacated` v
   ON v.team = u.team AND v.season = u.season AND v.week = u.week
+LEFT JOIN `${features}.player_week_advanced` adv
+  ON adv.gsis_id = u.gsis_id AND adv.season = u.season AND adv.week = u.week
 WHERE u.is_upcoming
   AND COALESCE(u.position, ro.position) IN ('QB', 'RB', 'WR', 'TE');
