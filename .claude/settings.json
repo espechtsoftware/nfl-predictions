@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s http://localhost:8080/*)",
+      "Bash(curl -s -o /dev/null http://localhost:8080/*)",
+      "Bash(gcloud storage ls *)",
+      "Bash(gsutil ls *)",
+      "Bash(.venv/bin/pytest)",
+      "Bash(.venv/bin/pytest *)",
+      "Bash(python3 *)",
+      "Bash(timeout *)",
+      "Bash(.venv/bin/nfl-dfs *)",
+      "Bash(.venv/bin/python *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push)",
+      "Bash(git push *)"
+    ]
+  }
+}
