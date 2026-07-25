@@ -55,6 +55,15 @@ def synthetic_panel(n_players=120, seasons=range(2018, 2025), seed=11) -> pd.Dat
                     # Market is a good but imperfect projection
                     "dk_ppg": mu + rng.normal(0, 2.0),
                     "injury_status": None,
+                    # Role + next-man-up features (021/023). Deterministic —
+                    # consuming rng draws here would shift every label below.
+                    "depth_rank": (p // 4) % 3 + 1,
+                    "is_rookie": False,
+                    "draft_round": p % 7 + 1,
+                    "team_vacated_target_share":
+                        0.2 if (week % 9 == 0 and p % 5 == 0) else 0.0,
+                    "team_vacated_carry_share":
+                        0.35 if (week % 11 == 0 and p % 4 == 1) else 0.0,
                     # Component labels, roughly consistent with dk points
                     "y_targets": rng.poisson(9 * usage) if pos != "QB" else 0,
                     "y_receptions": rng.poisson(6 * usage) if pos != "QB" else 0,

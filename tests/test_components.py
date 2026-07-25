@@ -67,3 +67,26 @@ def test_simulation_draws_scored_with_bonuses(small_panel):
     comps = cm.predict_components(va)
     res = simulate.simulate(comps, n_sims=500, seed=3, keep_draws=True)
     assert res.draws.shape == (5, 500)
+
+
+def test_registry_model_survives_featureset_growth(small_panel):
+    """A booster trained before a featureset addition (e.g. loaded from the
+    registry) must keep predicting: predict_components slices the matrix to
+    each booster's own training columns."""
+    import lightgbm as lgb
+
+    from nfl_dfs.models.featureset import build_X
+
+    cm = components.train(small_panel, target_season=2022, num_boost_round=10)
+    tr = small_panel[small_panel.season < 2022]
+    X_old = build_X(tr).drop(
+        columns=["depth_rank", "team_vacated_target_share",
+                 "team_vacated_carry_share"]
+    )
+    cm.models["targets"] = lgb.train(
+        components.COUNT_PARAMS,
+        lgb.Dataset(X_old, tr.y_targets, categorical_feature=["position"]),
+        num_boost_round=5,
+    )
+    comps = cm.predict_components(small_panel[small_panel.season == 2022])
+    assert comps.targets.notna().all()

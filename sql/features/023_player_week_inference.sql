@@ -1,10 +1,25 @@
--- The joined, model-ready wide table. Every feature is point-in-time; the
--- labels (y_*) are the only same-week values. Leakage assertions in
--- nfl_dfs.features.leakage run against this table after every build.
-CREATE OR REPLACE TABLE `${features}.player_week_training` AS
+-- Live-slate feature rows: the upcoming week's synthetic usage rows (014)
+-- joined to the same point-in-time features the model trained on (021).
+-- Before this table existed, inference joined player_week_training at the
+-- upcoming week — rows that can't exist until the games are played — so
+-- every live projection silently fell back to cold-start fills.
+--
+-- Differences from the training table, all deliberate:
+--   * no labels and no games_played_prior filter — debut players belong
+--     here (they're the next-man-up rows this table exists to price);
+--   * position falls back to the roster when there's no usage history;
+--   * opponent defense joins as-of its latest built week (the defense
+--     table has no upcoming-week rows; one-week-stale l6 windows are fine
+--     for features the models treat as optional).
+CREATE OR REPLACE TABLE `${features}.player_week_inference` AS
+WITH def_asof AS (
+  SELECT * FROM `${features}.defense_week_allowed`
+  QUALIFY ROW_NUMBER() OVER (PARTITION BY team, season ORDER BY week DESC) = 1
+)
 SELECT
   -- Keys
-  u.gsis_id, u.season, u.week, u.team, s.opponent, u.position, s.game_id,
+  u.gsis_id, u.season, u.week, u.team, s.opponent,
+  COALESCE(u.position, ro.position) AS position, s.game_id,
 
   -- Usage (point-in-time, §5.2)
   u.targets_l4, u.target_share_l4, u.air_yards_share_l4, u.wopr_l4,
@@ -27,13 +42,11 @@ SELECT
   t.is_home, t.days_rest,
   t.plays_l4, t.pass_rate_l4, t.pace_l4, t.proe_l4, t.expected_plays,
 
-  -- The strongest single derived feature (§5.4): expected TDs from red zone
-  -- opportunity — stable part (opportunity) x league-average conversion.
   u.rz20_targets_smoothed
     * t.rz10_pass_rate_std
     * SAFE_DIVIDE(t.implied_team_total, 22.0) AS xtd_receiving_proxy,
 
-  -- Opponent
+  -- Opponent (as-of latest built defense week)
   d.epa_per_dropback_allowed_l6, d.epa_per_rush_allowed_l6,
   d.rz_td_rate_allowed_l6,
   d.qb_fp_allowed_adj_l6, d.rb_fp_allowed_adj_l6,
@@ -47,7 +60,7 @@ SELECT
   ro.depth_rank, ro.is_rookie, ro.draft_round,
 
   -- Opportunity vacated by teammates ruled Out this week (own share
-  -- excluded): the point-in-time next-man-up signal.
+  -- excluded), same definition as the training table.
   GREATEST(
     COALESCE(v.vacated_target_share, 0)
       - IF(i.injury_status = 'Out', COALESCE(u.target_share_l4, 0), 0),
@@ -60,37 +73,23 @@ SELECT
   -- Weather
   w.wind_mph, w.temp_f, w.is_dome,
 
-  -- DFS-specific
-  dk.salary, dk.salary_delta_wow, dk.dk_ppg,
+  -- DFS-specific (salary and dk_ppg come from the live slate pull at
+  -- inference time; only the derived delta belongs here)
+  dk.salary_delta_wow,
 
   -- Cold start flag (§7.6): no usable rolling history
   (u.games_played_prior IS NULL OR u.games_played_prior < 1
-   OR u.target_share_l4 IS NULL AND u.carry_share_l4 IS NULL) AS is_cold_start,
-
-  -- Labels (multiple, for the component models)
-  a.targets       AS y_targets,
-  a.receptions    AS y_receptions,
-  a.rec_yards     AS y_rec_yards,
-  a.rec_tds       AS y_rec_tds,
-  a.carries       AS y_carries,
-  a.rush_yards    AS y_rush_yards,
-  a.rush_tds      AS y_rush_tds,
-  a.pass_attempts AS y_pass_attempts,
-  a.pass_yards    AS y_pass_yards,
-  a.pass_tds      AS y_pass_tds,
-  a.interceptions AS y_interceptions,
-  a.dk_points     AS y_dk_points
+   OR u.target_share_l4 IS NULL AND u.carry_share_l4 IS NULL) AS is_cold_start
 
 FROM `${features}.player_week_usage` u
-JOIN `${features}.player_week_actuals` a USING (gsis_id, season, week)
 JOIN `${features}.schedule_long` s
   ON s.team = u.team AND s.season = u.season AND s.week = u.week
 LEFT JOIN `${features}.player_week_efficiency` e
   ON e.gsis_id = u.gsis_id AND e.season = u.season AND e.week = u.week
 LEFT JOIN `${features}.team_week_context` t
   ON t.team = u.team AND t.season = u.season AND t.week = u.week
-LEFT JOIN `${features}.defense_week_allowed` d
-  ON d.team = s.opponent AND d.season = u.season AND d.week = u.week
+LEFT JOIN def_asof d
+  ON d.team = s.opponent AND d.season = u.season
 LEFT JOIN `${features}.player_week_injury` i
   ON i.gsis_id = u.gsis_id AND i.season = u.season AND i.week = u.week
 LEFT JOIN `${features}.game_weather` w ON w.game_id = s.game_id
@@ -100,8 +99,5 @@ LEFT JOIN `${features}.player_week_role` ro
   ON ro.gsis_id = u.gsis_id AND ro.season = u.season AND ro.week = u.week
 LEFT JOIN `${features}.team_week_vacated` v
   ON v.team = u.team AND v.season = u.season AND v.week = u.week
-WHERE u.position IN ('QB', 'RB', 'WR', 'TE')
-  AND u.games_played_prior >= 1
-  -- Upcoming-week synthetic rows (014) are inference-only; the actuals
-  -- inner join already drops them, this states the intent.
-  AND NOT u.is_upcoming;
+WHERE u.is_upcoming
+  AND COALESCE(u.position, ro.position) IN ('QB', 'RB', 'WR', 'TE');

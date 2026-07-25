@@ -19,6 +19,12 @@ FTN_FIRST_SEASON = 2022
 NGS_FIRST_SEASON = 2016
 SNAPS_FIRST_SEASON = 2012
 INJURIES_FIRST_SEASON = 2009
+DEPTH_CHARTS_FIRST_SEASON = 2001
+# nflverse replaced the weekly depth chart format in 2025: season/week rows
+# with depth_team ranks became dated snapshots (dt) with pos_rank, and the
+# two schemas share almost no columns. Land them as separate raw tables so
+# feature SQL can normalize each on its own terms (003_player_week_role).
+DEPTH_SNAPSHOTS_FIRST_SEASON = 2025
 
 
 def _load(df, table: str) -> None:
@@ -37,7 +43,12 @@ def run(full_refresh: bool = False) -> None:
 
     _load(nfl.load_pbp(seasons), "pbp")
     _load(nfl.load_player_stats(seasons), "weekly_stats")
-    _load(nfl.load_depth_charts([s for s in seasons if s >= 2001]), "depth_charts")
+    legacy_dc = [s for s in seasons
+                 if DEPTH_CHARTS_FIRST_SEASON <= s < DEPTH_SNAPSHOTS_FIRST_SEASON]
+    if legacy_dc:
+        _load(nfl.load_depth_charts(legacy_dc), "depth_charts")
+    if snap_dc := [s for s in seasons if s >= DEPTH_SNAPSHOTS_FIRST_SEASON]:
+        _load(nfl.load_depth_charts(snap_dc), "depth_charts_snapshots")
     _load(nfl.load_rosters_weekly(seasons), "rosters_weekly")
     _load(nfl.load_schedules(), "schedules")
     _load(nfl.load_ff_playerids(), "player_ids")

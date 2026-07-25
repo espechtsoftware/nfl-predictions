@@ -45,3 +45,41 @@ SELECT
   COALESCE(m.games_missed_l4, 0) AS games_missed_l4
 FROM inj i
 LEFT JOIN missed m USING (gsis_id, season, week);
+
+-- Opportunity vacated by teammates ruled Out for week W: the sum of the
+-- trailing-4-week target and carry shares of every player on the team's
+-- report as Out that week. Point-in-time on both sides — the report is
+-- published before W's games and the shares are strictly-prior windows —
+-- so the models can learn next-man-up bumps instead of relying only on a
+-- bolt-on inference adjustment. Consumers subtract the player's own share
+-- (an Out player shouldn't count his own vacancy as opportunity).
+--
+-- The Out player's share comes from his latest usage row AT OR BEFORE the
+-- report week, not a same-week equijoin: a player who sits has no usage
+-- row that week, so the naive join would zero this feature across all of
+-- training history while the upcoming week's synthetic rows (014) kept it
+-- populated live — a train/serve skew that would teach the models to
+-- ignore the signal.
+CREATE OR REPLACE TABLE `${features}.team_week_vacated` AS
+WITH outs AS (
+  SELECT gsis_id, season, week
+  FROM `${features}.player_week_injury`
+  WHERE injury_status = 'Out'
+),
+asof AS (
+  SELECT
+    o.gsis_id, o.season, o.week,
+    u.team, u.target_share_l4, u.carry_share_l4
+  FROM outs o
+  JOIN `${features}.player_week_usage` u
+    ON u.gsis_id = o.gsis_id AND u.season = o.season AND u.week <= o.week
+  QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY o.gsis_id, o.season, o.week ORDER BY u.week DESC
+  ) = 1
+)
+SELECT
+  team, season, week,
+  SUM(COALESCE(target_share_l4, 0)) AS vacated_target_share,
+  SUM(COALESCE(carry_share_l4, 0))  AS vacated_carry_share
+FROM asof
+GROUP BY team, season, week;

@@ -71,7 +71,10 @@ class ComponentModels:
         X = build_X(df)
         out = pd.DataFrame(index=df.index)
         for name in COMPONENT_NAMES:
-            out[name] = self.models[name].predict(X)
+            # Slice to the booster's own training columns: a registry model
+            # trained before a featureset addition must keep predicting until
+            # the next weekly retrain picks the new columns up.
+            out[name] = self.models[name].predict(X[self.models[name].feature_name()])
 
         for name, (lo, hi) in RATE_CLIPS.items():
             out[name] = out[name].clip(lo, hi)
