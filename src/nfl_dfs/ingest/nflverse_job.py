@@ -16,6 +16,7 @@ from ..config import current_season, settings
 log = logging.getLogger(__name__)
 
 FTN_FIRST_SEASON = 2022
+PFR_ADVSTATS_FIRST_SEASON = 2018
 NGS_FIRST_SEASON = 2016
 SNAPS_FIRST_SEASON = 2012
 INJURIES_FIRST_SEASON = 2009
@@ -64,6 +65,12 @@ def run(full_refresh: bool = False) -> None:
             _load(nfl.load_nextgen_stats(ngs, stat_type=stat_type), f"ngs_{stat_type}")
     if ftn := [s for s in seasons if s >= FTN_FIRST_SEASON]:
         _load(nfl.load_ftn_charting(ftn), "ftn_charting")
+    # Per-defender coverage stats (targets, completions/yards allowed as the
+    # nearest defender). PFR-keyed like snap_counts; teams already in
+    # nflverse abbreviations. Feeds 017a_defense_week_coverage.
+    if pfr := [s for s in seasons if s >= PFR_ADVSTATS_FIRST_SEASON]:
+        _load(nfl.load_pfr_advstats(pfr, stat_type="def", summary_level="week"),
+              "pfr_advstats_def")
 
 
 if __name__ == "__main__":

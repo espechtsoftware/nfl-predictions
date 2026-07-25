@@ -52,6 +52,12 @@ SELECT
   d.qb_fp_allowed_adj_l6, d.rb_fp_allowed_adj_l6,
   d.wr_fp_allowed_adj_l6, d.te_fp_allowed_adj_l6,
 
+  -- Opponent secondary: exact-week join, no as-of needed — 017a's spine is
+  -- the schedule, so the upcoming week has a row with strictly-prior
+  -- windows and a live injury-report top_cb_out.
+  cv.cb_ypt_allowed_l6, cv.cb_comp_rate_allowed_l6, cv.db_ypt_allowed_l6,
+  cv.top_cb_out,
+
   -- Player state
   i.injury_status, i.practice_level, i.practice_participation_trend,
   COALESCE(i.games_missed_l4, 0) AS games_missed_l4,
@@ -90,6 +96,8 @@ LEFT JOIN `${features}.team_week_context` t
   ON t.team = u.team AND t.season = u.season AND t.week = u.week
 LEFT JOIN def_asof d
   ON d.team = s.opponent AND d.season = u.season
+LEFT JOIN `${features}.defense_week_coverage` cv
+  ON cv.team = s.opponent AND cv.season = u.season AND cv.week = u.week
 LEFT JOIN `${features}.player_week_injury` i
   ON i.gsis_id = u.gsis_id AND i.season = u.season AND i.week = u.week
 LEFT JOIN `${features}.game_weather` w ON w.game_id = s.game_id

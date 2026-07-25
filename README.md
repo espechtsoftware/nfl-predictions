@@ -175,6 +175,8 @@ Repo-specific items, distinct from the guide's roadmap (§12).
 
 Known edges, accepted for now: Doubtful players are projected, not zeroed (their depressed practice features carry the signal); on multi-day slates, players whose game already happened lose their upcoming-week feature row and fall back to cold-start (they're not late-swappable anyway); a registry model trained before a featureset addition keeps predicting — `predict_components` slices to each booster's own feature list — and picks up new features at the next weekly retrain. After deploying this change, run `nfl-dfs ingest-nflverse --full` once so the split depth chart raw tables exist before the next `build-features`.
 
+**Cornerback coverage metrics (2026-07-25).** WR/TE projections previously saw the opposing pass defense only at team level (EPA/dropback allowed, positional FP allowed). `pfr_advstats_def` (new nflverse ingest, PFR advanced defense stats 2018+) now feeds `017a_defense_week_coverage.sql`: yards per target and completion rate allowed by the opponent's CB group as nearest defenders, the secondary-wide yards per target, and `top_cb_out` — the opponent's coverage-snap-leading corner (identified from strictly-prior snaps) listed Out on this week's report. Built on the schedule spine so the upcoming week has a real row (exact-week join in 023, no as-of staleness), joined into training/inference, added to the model featureset, and covered by the leakage checker (recompute-and-compare on the l6 windows + first-row-null). True WR-vs-CB assignment data remains paid-only and modest in value (§2.5); this is deliberately group-level. After deploying, run `nfl-dfs ingest-nflverse --full` once so the new raw table exists before the next `build-features`.
+
 **Archetype clustering — deferred pieces.** `nfl-dfs archetypes` (see `src/nfl_dfs/analysis/archetypes.py`) clusters players into scoring-consistency archetypes, stamps them on graph nodes for the injury cascade, and adds `SIMILAR_TO` edges for profile-based pivots. Deliberately left out of v1: (a) graph-derived clustering inputs — QB-attachment stability via `TARGETED_BY` edges and target-room crowding via `COMPETES_WITH` — the least value for the most work; (b) salary/ownership-aware pivot ranking ("cheaper, same profile, lower owned") — needs live slate salaries and an ownership source (see the deficiency log); (c) a scheduled refresh — the table is CLI-only, not in `deploy_jobs.sh`; weekly in-season would be the natural cadence.
 
 **Replay findings (2026-07-24, first full-season replays).** `nfl-dfs replay --season N` trains on strictly-prior seasons and scores every week of season N; see `src/nfl_dfs/backtest/replay.py`. Results (2019/2021/2025): projection MAE beats the naive trailing-average baseline by ~5% every season; within-position rank correlation 0.43–0.64. Both weaknesses found in the first replays were addressed same day:
@@ -203,6 +205,9 @@ Append-only. Whenever a gap or quality problem is found in source data, add a ro
 | 2026-07-25 | nflverse depth charts changed format in 2025: weekly `season`/`week`/`depth_team` rows became dated snapshots (`dt`, `pos_rank`, `pos_grp`) sharing almost no columns with the old schema | A single raw table can't hold both eras; naive multi-season loads mix schemas | Fixed — ingest lands `depth_charts` (2001–2024) and `depth_charts_snapshots` (2025–) separately; `003_player_week_role.sql` normalizes both, mapping snapshots to weeks point-in-time (latest snapshot on/before gameday). Requires one `ingest-nflverse --full` to materialize |
 | 2026-07-25 | `draft_picks.gsis_id` is empty or non-GSIS-formatted for recent draft classes | Draft-round lookup by ID fails for exactly the rookies who need the cold-start discount | Fixed — 003 falls back to matching the roster's overall pick number (`draft_number`) within the player's `entry_year` draft |
 | 2026-07-25 | Legacy depth charts list alignment starters with equal `depth_team` (two WR "1" rows) and occasional garbage in `depth_position` | No true global WR pecking order before 2025; ranks 1–3 all mean "starter tier" | Accepted — deterministic ROW_NUMBER tiebreak (depth_team, jersey); the 2025+ snapshot format publishes a real global `pos_rank` |
+| 2026-07-25 | PFR advanced defense stats start in 2018, and "nearest defender" target attribution is charting-derived — noisy at the single-play level | CB coverage features (`017a`) are NULL on 2014–2017 training rows; per-game group aggregates carry attribution noise | Accepted — LightGBM handles missing natively; summing to the CB group per game averages the attribution noise out |
+| 2026-07-25 | No in-season coverage-scheme data: NGS stopped publishing participation (`defense_man_zone_type`/`defense_coverage_type`) after 2022; FTN's replacement lands only after each season ends | Team man/zone rates would be a season stale at inference — training on them would create train/serve skew, so they're not built | Accepted for now — revisit if FTN ever ships participation in-season |
+| 2026-07-25 | The `player_ids` crosswalk (dynastyprocess) has thinner coverage for defensive players; a CB1 whose `pfr_id` is unmatched can't be joined to the injury report | `top_cb_out` silently reads FALSE for unmatched corners (treated as playing) | Accepted — affects the indicator only, not the coverage-quality windows, which never leave PFR keys |
 
 ---
 
@@ -301,6 +306,7 @@ The nflverse project publishes clean NFL data as versioned GitHub releases in pa
 | Participation | `load_participation(seasons)` | Personnel groupings, offense/defense players on field per play | 2016–2023 |
 | FTN charting | `load_ftn_charting(seasons)` | Play action, screen, QB pressure, no-huddle, motion — manual charting | 2022– |
 | Next Gen Stats | `load_nextgen_stats(...)` | Separation, cushion, time to throw, expected rush yards | 2016– |
+| PFR advanced stats | `load_pfr_advstats(seasons, stat_type, summary_level)` | With `stat_type="def"`: per-defender coverage — targets, completions/yards/TDs allowed as nearest defender, passer rating when targeted, missed tackles. Weekly or season grain | 2018– |
 | ID crosswalk | `load_ff_playerids()` | Maps GSIS ↔ PFR ↔ ESPN ↔ Sleeper ↔ Yahoo ↔ DraftKings-ish names | current |
 
 **Licensing note:** nflverse data is generally free to use; the FTN charting subset is CC-BY-SA 4.0 and requires attribution to FTN Data via nflverse. If you ever make the app public, put that attribution in the footer.
@@ -365,13 +371,17 @@ Be honest about the ceiling. These require PFF, Fantasy Points Data Suite, or SI
 
 - **Routes run** (and therefore true targets-per-route-run / YPRR)
 - **Target separation and coverage matchup** (NGS gives partial separation data)
+- **WR-vs-CB assignments** — who shadowed whom, per-route matchup targets. Before paying for this, note the signal is smaller than it sounds: most teams keep corners on sides or play zone on a majority of snaps, and true shadow situations are a handful of player-weeks per season
 - **Snap-level offensive line grades**
 - **Route depth/type charting at scale**
 
 Serviceable free proxies:
 - Routes run ≈ `offense_snaps × team_pass_rate` — correlation is around 0.9 for WRs, weaker for RBs
 - Coverage matchup ≈ opponent's EPA-per-dropback allowed to that alignment, from PBP
+- Cornerback quality ≈ PFR advanced defense stats (2018+): per-CB yards/completions allowed as nearest defender, rolled up to the opposing CB group per week (implemented — `defense_week_coverage`, §5.3). Plus a "top corner out" flag from prior-week coverage snaps × the injury report
 - Separation ≈ NGS `avg_separation`, available 2016–present
+
+One coverage-scheme source deliberately not used: `load_participation()` carries per-play `defense_man_zone_type` / `defense_coverage_type`, but NGS stopped publishing after 2022 and FTN's replacement (2023–) lands only after each season ends — a season stale at inference time, so team man/zone rates would train on data that can't be served live.
 
 ### 2.6 Where Playwright/Browserbase is actually warranted
 
@@ -446,6 +456,7 @@ Core tables:
 - `player_week_efficiency` — rate stats
 - `team_week_context` — pace, pass rate over expected, implied total
 - `defense_week_allowed` — opponent-adjusted concessions by position
+- `defense_week_coverage` — CB-group coverage quality + top-corner availability (schedule spine, so the upcoming week has a servable row)
 - `player_week_training` — the joined, model-ready wide table
 
 ### 3.3 `nfl_predictions`
@@ -744,6 +755,8 @@ Tune `k` on validation data. Typical values land around 3–5 games for red zone
 - Positional fantasy points allowed, opponent-adjusted (raw "points allowed to WRs" is badly confounded by schedule — regress it against opponent strength)
 - Blitz rate, pressure rate from FTN
 - Red zone TD rate allowed
+- Cornerback-group coverage quality (`017a_defense_week_coverage.sql`, from PFR advstats 2018+): yards per target and completion rate allowed by the opponent's CBs as nearest defenders, plus the whole secondary's yards per target, trailing 6 games. Group-level on purpose — free data can't say who covers whom (§2.5), but "this secondary gives up 9.1 yards/target" doesn't need to
+- Top corner availability: `top_cb_out` flags the opponent's coverage-snap-leading CB (prior weeks only) listed Out on this week's injury report — the WR-side analogue of the next-man-up signal
 
 **Player state**
 - Injury designation and practice participation trend

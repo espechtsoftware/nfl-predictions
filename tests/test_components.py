@@ -69,6 +69,28 @@ def test_simulation_draws_scored_with_bonuses(small_panel):
     assert res.draws.shape == (5, 500)
 
 
+def test_build_X_handles_nullable_coverage_features():
+    """The CB coverage features arrive from BigQuery as nullable dtypes
+    (top_cb_out is a BOOL that's NULL on week-1 rows); build_X must accept
+    them and NaN-fill panels that predate the columns entirely."""
+    import pandas as pd
+
+    from nfl_dfs.models.featureset import build_X
+
+    df = pd.DataFrame({
+        "position": ["WR", "TE"],
+        "top_cb_out": pd.array([True, pd.NA], dtype="boolean"),
+        "cb_ypt_allowed_l6": [8.1, None],
+    })
+    X = build_X(df)
+    for col in ("cb_ypt_allowed_l6", "cb_comp_rate_allowed_l6",
+                "db_ypt_allowed_l6", "top_cb_out"):
+        assert col in X.columns
+    assert bool(X.top_cb_out.iloc[0]) is True
+    assert pd.isna(X.top_cb_out.iloc[1])
+    assert pd.isna(X.cb_comp_rate_allowed_l6).all()  # absent column -> NaN
+
+
 def test_registry_model_survives_featureset_growth(small_panel):
     """A booster trained before a featureset addition (e.g. loaded from the
     registry) must keep predicting: predict_components slices the matrix to
