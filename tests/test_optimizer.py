@@ -345,3 +345,33 @@ def test_showdown_csv_uses_cpt_draftable_id():
     assert row[0] == f"{lu.captain['name']} ({lu.captain['cpt_dk_id']})"
     for cell, p in zip(row[1:], lu.slot_order()[1:]):
         assert cell == f"{p['name']} ({p['dk_id']})"
+
+
+def test_tournament_punt_slot_default():
+    """Every default-built lineup must roster >=1 sub-$4k punt (94% of 2025
+    Milly winners had one; punt_min defaults on in optimize_many)."""
+    from nfl_dfs.optimizer.lineup import PUNT_MAX_SALARY, optimize_many
+
+    slate = None
+    from test_backtest import make_slate  # synthetic slate fixture
+
+    pool = make_slate().to_dict("records")
+    lineups = optimize_many(pool, n_lineups=5)
+    assert lineups
+    for lu in lineups:
+        assert any(p["salary"] <= PUNT_MAX_SALARY for p in lu.players)
+
+
+def test_showdown_punt_slot_default():
+    from nfl_dfs.optimizer.showdown import optimize_many_showdown
+    from nfl_dfs.optimizer.lineup import PUNT_MAX_SALARY
+    import numpy as np
+
+    rng = np.random.default_rng(6)
+    pool = [{"id": i, "name": f"p{i}", "pos": "WR", "team": "A" if i % 2 else "B",
+             "opp": None, "game_id": "G", "salary": int(rng.integers(2, 11)) * 500,
+             "proj": float(rng.uniform(5, 25))} for i in range(20)]
+    lineups = optimize_many_showdown(pool, n_lineups=3)
+    assert lineups
+    for lu in lineups:
+        assert any(p["salary"] <= PUNT_MAX_SALARY for p in lu.players)
