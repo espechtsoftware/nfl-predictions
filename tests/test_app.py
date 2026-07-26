@@ -229,6 +229,8 @@ def showdown_frame(frame, gid=7001, teams=("T0", "T1"),
     sub = frame[frame.team.isin(teams)]
     rows = [{
         "draft_group_id": gid, "dk_player_id": int(r.dk_player_id),
+        "dk_draftable_id": int(r.dk_player_id) + 40_000_000,
+        "dk_cpt_draftable_id": int(r.dk_player_id) + 50_000_000,
         "display_name": r.display_name, "team_abbr": r.team,
         "position": r.position, "salary": int(r.salary) + 200,
         "game_start": game_start, "status": "None", "dk_ppg": None,
@@ -238,6 +240,8 @@ def showdown_frame(frame, gid=7001, teams=("T0", "T1"),
         for pos, ppg in (("K", 7.5), ("DST", 6.0)):
             rows.append({
                 "draft_group_id": gid, "dk_player_id": extra_id,
+                "dk_draftable_id": extra_id + 40_000_000,
+                "dk_cpt_draftable_id": extra_id + 50_000_000,
                 "display_name": f"{pos} {team}", "team_abbr": team,
                 "position": pos, "salary": 3600,
                 "game_start": game_start, "status": "None", "dk_ppg": ppg,
@@ -338,3 +342,102 @@ def test_showdown_unknown_group_404(showdown_client):
         "season": 2025, "week": 3, "draft_group_id": 1234,
     })
     assert r.status_code == 404
+
+
+# --- DK import files: draftable IDs and DKEntries filling --------------------
+
+
+@pytest.fixture
+def draftable_client():
+    """Classic store with a draftable-ID mapping from the latest DK pull."""
+    frame = projections_frame()
+    draftables = pd.DataFrame({
+        "dk_player_id": frame.dk_player_id,
+        "dk_draftable_id": frame.dk_player_id + 40_000_000,
+    })
+    store = InMemoryStore(frame, draftables=draftables)
+    app_main.app.dependency_overrides[app_main.default_store] = lambda: store
+    yield TestClient(app_main.app)
+    app_main.app.dependency_overrides.clear()
+
+
+def test_classic_csv_uses_draftable_ids(draftable_client):
+    r = draftable_client.post("/lineups", json={
+        "season": 2025, "week": 3, "n_lineups": 1,
+    })
+    body = r.json()
+    row = body["dk_csv"].strip().splitlines()[1]
+    for p in body["lineups"][0]["players"]:
+        assert f"({p['id'] + 40_000_000})" in row
+        assert f"({p['id']})" not in row
+
+
+def test_classic_csv_falls_back_to_player_ids(client):
+    """No draftable mapping in the store (e.g. pre-migration rows): the
+    CSV still renders, carrying player IDs."""
+    r = client.post("/lineups", json={"season": 2025, "week": 3, "n_lineups": 1})
+    row = r.json()["dk_csv"].strip().splitlines()[1]
+    ids = [p["id"] for p in r.json()["lineups"][0]["players"]]
+    assert all(f"({pid})" in row for pid in ids)
+
+
+def test_showdown_csv_uses_cpt_draftable_id(showdown_client):
+    r = showdown_client.post("/showdown/lineups", json={
+        "season": 2025, "week": 3, "n_lineups": 1,
+    })
+    body = r.json()
+    row = body["dk_csv"].strip().splitlines()[1].split(",")
+    cpt = body["lineups"][0]["captain"]
+    assert row[0] == f"{cpt['name']} ({cpt['id'] + 50_000_000})"
+    for cell, p in zip(row[1:], body["lineups"][0]["players"][1:]):
+        assert cell == f"{p['name']} ({p['id'] + 40_000_000})"
+
+
+CLASSIC_ENTRIES = (
+    "Entry ID,Contest Name,Contest ID,Entry Fee,"
+    "QB,RB,RB,WR,WR,WR,TE,FLEX,DST,,Instructions\n"
+    "4111111,NFL $100K Flea Flicker,987,$5,,,,,,,,,,,Fill in your entries\n"
+    "4111112,NFL $100K Flea Flicker,987,$5\n"
+)
+
+
+def test_fill_classic_entries_endpoint(draftable_client):
+    r = draftable_client.post("/lineups/entries.csv", json={
+        "season": 2025, "week": 3, "entries_csv": CLASSIC_ENTRIES,
+    })
+    assert r.status_code == 200, r.text
+    assert r.headers["content-type"].startswith("text/csv")
+    lines = r.text.strip().splitlines()
+    assert lines[1].startswith("4111111,NFL $100K Flea Flicker,987,$5,")
+    assert "(4" in lines[1] and "Fill in your entries" in lines[1]
+    assert lines[2].startswith("4111112,")
+    # One distinct lineup per entry row
+    assert lines[1].split(",")[4:13] != lines[2].split(",")[4:13]
+
+
+def test_fill_showdown_entries_endpoint(showdown_client):
+    entries = (
+        "Entry ID,Contest Name,Contest ID,Entry Fee,"
+        "CPT,FLEX,FLEX,FLEX,FLEX,FLEX\n"
+        "4222221,T0 vs T1 Showdown,55,$1\n"
+    )
+    r = showdown_client.post("/showdown/lineups/entries.csv", json={
+        "season": 2025, "week": 3, "entries_csv": entries,
+    })
+    assert r.status_code == 200, r.text
+    filled = r.text.strip().splitlines()[1].split(",")
+    assert filled[0] == "4222221"
+    assert all(cell.endswith(")") for cell in filled[4:10])
+
+
+def test_fill_entries_rejects_mismatched_file(showdown_client):
+    r = showdown_client.post("/showdown/lineups/entries.csv", json={
+        "season": 2025, "week": 3, "entries_csv": CLASSIC_ENTRIES,
+    })
+    assert r.status_code == 422
+    assert "mismatch" in r.json()["detail"]
+
+    r = showdown_client.post("/showdown/lineups/entries.csv", json={
+        "season": 2025, "week": 3, "entries_csv": "not,a,dk,file\n1,2,3,4\n",
+    })
+    assert r.status_code == 422

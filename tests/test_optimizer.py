@@ -111,6 +111,70 @@ def test_dk_csv_and_exposure():
     assert sum(e["lineups"] for e in exp) == 27
 
 
+def test_dk_csv_prefers_draftable_ids():
+    """Upload cells must carry the slate's draftable ID when the pool has
+    one; the stable player id is only a last-resort fallback."""
+    pool = make_pool()
+    for p in pool:
+        p["dk_id"] = p["id"] + 40_000_000
+    lu = optimize(pool)
+    csv_text = to_dk_csv([lu])
+    row = csv_text.strip().splitlines()[1]
+    for p in lu.players:
+        assert f"({p['dk_id']})" in row
+        assert f"({p['id']})" not in row
+
+
+def test_fill_entries_csv_round_trip():
+    from nfl_dfs.optimizer.export import entry_count, fill_entries_csv
+
+    lineups = optimize_many(make_pool(), n_lineups=2)
+    entries = (
+        "\ufeffEntry ID,Contest Name,Contest ID,Entry Fee,"
+        "QB,RB,RB,WR,WR,WR,TE,FLEX,DST,,Instructions\n"
+        "4111111,NFL $100K Flea Flicker,987,$5,,,,,,,,,,,Fill in your entries\n"
+        "4111112,NFL $100K Flea Flicker,987,$5\n"
+        "4111113,\"NFL $2 Double, Up\",988,$2\n"
+        ",,,,,,,,,,,,,,Name,ID\n"
+        ",,,,,,,,,,,,,,Some Player,40000001\n"
+    )
+    assert entry_count(entries) == 3
+
+    filled = fill_entries_csv(entries, lineups)
+    import csv as csv_mod
+    import io as io_mod
+
+    rows = list(csv_mod.reader(io_mod.StringIO(filled)))
+    # Metadata, instructions, and the player-list block are untouched
+    assert rows[1][:4] == ["4111111", "NFL $100K Flea Flicker", "987", "$5"]
+    assert rows[1][14] == "Fill in your entries"
+    assert rows[3][:3] == ["4111113", "NFL $2 Double, Up", "988"]
+    assert rows[5][14:16] == ["Some Player", "40000001"]
+    # Each entry got 9 slot cells; entries cycle when lineups run out
+    for r in (rows[1], rows[2], rows[3]):
+        assert all(cell.endswith(")") for cell in r[4:13])
+    assert rows[3][4:13] == rows[1][4:13]
+    assert rows[2][4:13] != rows[1][4:13]
+
+
+def test_fill_entries_csv_rejects_bad_input():
+    import pytest as pt
+
+    from nfl_dfs.optimizer.export import fill_entries_csv
+
+    lineups = optimize_many(make_pool(), n_lineups=1)
+    with pt.raises(ValueError, match="Not a DKEntries"):
+        fill_entries_csv("QB,RB,RB,WR,WR,WR,TE,FLEX,DST\n", lineups)
+    showdown_file = (
+        "Entry ID,Contest Name,Contest ID,Entry Fee,CPT,FLEX,FLEX,FLEX,FLEX,FLEX\n"
+        "4111111,Showdown,55,$1\n"
+    )
+    with pt.raises(ValueError, match="mismatch"):
+        fill_entries_csv(showdown_file, lineups)  # 9-man classic lineups
+    with pt.raises(ValueError, match="No lineups"):
+        fill_entries_csv(showdown_file, [])
+
+
 def test_slot_order_flex_identification():
     lu = optimize(make_pool())
     ordered = lu.slot_order()
@@ -267,3 +331,17 @@ def test_showdown_csv_and_exposure():
     assert sum(e["cpt_lineups"] for e in exp) == 3
     for e in exp:
         assert e["cpt_lineups"] <= e["lineups"]
+
+
+def test_showdown_csv_uses_cpt_draftable_id():
+    """The CPT cell must carry the CPT-slot draftable ID; FLEX cells the
+    FLEX one — DK rejects a FLEX ID in the captain slot."""
+    pool = make_showdown_pool()
+    for p in pool:
+        p["dk_id"] = p["id"] + 40_000_000
+        p["cpt_dk_id"] = p["id"] + 50_000_000
+    lu = optimize_showdown(pool)
+    row = to_dk_showdown_csv([lu]).strip().splitlines()[1].split(",")
+    assert row[0] == f"{lu.captain['name']} ({lu.captain['cpt_dk_id']})"
+    for cell, p in zip(row[1:], lu.slot_order()[1:]):
+        assert cell == f"{p['name']} ({p['dk_id']})"

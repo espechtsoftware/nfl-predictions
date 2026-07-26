@@ -1,3 +1,5 @@
+import pandas as pd
+
 from nfl_dfs.ingest import dk_client
 
 
@@ -8,6 +10,7 @@ def payload():
         ],
         "draftables": [
             {
+                "draftableId": 9001,
                 "playerId": 1,
                 "displayName": "Justin Jefferson",
                 "teamAbbreviation": "MIN",
@@ -20,6 +23,7 @@ def payload():
             },
             # Same player repeated in the FLEX slot — must be deduped
             {
+                "draftableId": 9002,
                 "playerId": 1,
                 "displayName": "Justin Jefferson",
                 "teamAbbreviation": "MIN",
@@ -30,6 +34,7 @@ def payload():
                 "competition": {"competitionId": 111},
             },
             {
+                "draftableId": 9003,
                 "playerId": 2,
                 "displayName": "Ja'Marr Chase",
                 "teamAbbreviation": "CIN",
@@ -63,13 +68,40 @@ def test_draftables_frame_fields():
     assert pd.isna(chase.dk_ppg)  # non-numeric attr value handled
 
 
+def test_draftables_frame_keeps_draftable_ids():
+    """DK's lineup upload matches on draftable IDs (the DKSalaries 'ID'
+    column), so the frame must carry them. Classic repeats share a player,
+    and any of the player's draftable IDs resolves on upload — keep the
+    first."""
+    df = dk_client.draftables_frame(123, "classic", payload())
+    jj = df[df.dk_player_id == 1].iloc[0]
+    assert jj.dk_draftable_id == 9001
+    assert pd.isna(jj.dk_cpt_draftable_id)  # classic has no CPT slot
+    assert df.dk_draftable_id.dtype == "Int64"
+
+
 def test_showdown_dedup_keeps_flex_salary():
     """Showdown draftables repeat each player as CPT (1.5x salary) and FLEX;
-    the frame must keep the FLEX price regardless of payload order."""
+    the frame must keep the FLEX price regardless of payload order — and
+    both draftable IDs, because the upload's CPT cell only accepts the
+    CPT-specific ID."""
     pl = payload()
     pl["draftables"][0]["salary"] = 13_350  # CPT row first: 1.5x the 8900 FLEX
     df = dk_client.draftables_frame(123, "showdown", pl)
-    assert df[df.dk_player_id == 1].salary.iloc[0] == 8900
+    jj = df[df.dk_player_id == 1].iloc[0]
+    assert jj.salary == 8900
+    assert jj.dk_draftable_id == 9002       # the FLEX row
+    assert jj.dk_cpt_draftable_id == 9001   # the CPT row
+
+
+def test_showdown_dedup_flex_row_first():
+    pl = payload()
+    pl["draftables"][1]["salary"] = 13_350  # FLEX first, CPT repeat after
+    df = dk_client.draftables_frame(123, "showdown", pl)
+    jj = df[df.dk_player_id == 1].iloc[0]
+    assert jj.salary == 8900
+    assert jj.dk_draftable_id == 9001
+    assert jj.dk_cpt_draftable_id == 9002
 
 
 def test_classify_slate():
