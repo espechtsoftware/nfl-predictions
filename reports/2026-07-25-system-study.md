@@ -554,3 +554,17 @@ winning line to 5/17 over the minimum line, mean best 160.5 -> 180.1.
 - **Prop lines backfilled**: The Odds API, 2023-2025, kickoff-2h
   snapshots, DK+FanDuel, ~2,500 rows/week -> nfl_raw.prop_lines. Next:
   de-vig -> DK-point medians -> market blend -> validation replay.
+
+## Addendum 14 (2026-07-26): prop-market blend validated — best accuracy and best tail
+
+Run J (2025, blend w=0.45 over 4,104/4,687 rows = 88% line coverage):
+- **MAE 4.664** — beats model-only (4.909) and market-only (4.786); the
+  blend outperforms both parents, as the architecture predicted.
+- **Mean best-of-40 184.3** (run I: 182.3); **6/17 weeks >= 194** (was 5);
+  median N@194 208 (was 394), 17/17 weeks reachable in a 150k field.
+  Median finish 14.2% (13.9) — the usual small cash-side trade.
+- Day ledger, baseline -> J: mean best 160.5 -> **184.3**; weeks over the
+  minimum Milly line 0 -> **6 of 17**; projection MAE 4.905 -> **4.664**.
+- Adopted for replays. Pre-season TODO: live weekly prop snapshot job
+  (the historical importer's endpoints, current-events variant) so
+  production Sundays get the same blend; The Odds API $30/mo in-season.
