@@ -21,7 +21,7 @@ from dataclasses import dataclass
 
 import pulp
 
-from .lineup import Player
+from .lineup import PUNT_MAX_SALARY, PUNT_MIN, Player
 
 log = logging.getLogger(__name__)
 
@@ -79,6 +79,8 @@ def optimize_showdown(
     banned_lineups: list[tuple] | None = None,
     max_overlap: int = FLEX_SPOTS,
     objective_col: str = "proj",
+    punt_max_salary: int | None = PUNT_MAX_SALARY,
+    punt_min: int = PUNT_MIN,
 ) -> ShowdownLineup | None:
     """Solve one Captain Mode lineup. Returns None if infeasible.
 
@@ -112,6 +114,12 @@ def optimize_showdown(
         prob += pulp.lpSum(
             c[p["id"]] + f[p["id"]] for p in players if p["team"] == team
         ) <= MAX_FROM_TEAM
+
+    # Tournament punt: at least one sub-$4k roster spot (FLEX pricing)
+    if punt_min and punt_max_salary:
+        punts = [p["id"] for p in players if p["salary"] <= punt_max_salary]
+        if punts:
+            prob += pulp.lpSum(c[pid] + f[pid] for pid in punts) >= punt_min
 
     for pid in locks or ():
         prob += c[pid] + f[pid] == 1

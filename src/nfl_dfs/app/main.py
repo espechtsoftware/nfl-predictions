@@ -38,12 +38,12 @@ def get_store() -> ProjectionStore:
 class LineupRequest(BaseModel):
     season: int
     week: int
-    n_lineups: int = Field(1, ge=1, le=150)
+    n_lineups: int = Field(40, ge=1, le=150)
     objective: str = Field("proj_points", pattern="^proj_(points|p50|p90)$")
     locks: list[int] = []
     bans: list[int] = []
-    qb_stack_min: int = Field(1, ge=0, le=3)
-    bring_back_min: int = Field(0, ge=0, le=2)
+    qb_stack_min: int = Field(2, ge=0, le=3)
+    bring_back_min: int = Field(1, ge=0, le=2)
     forbid_rb_vs_dst: bool = True
     max_overlap: int = Field(7, ge=1, le=8)
 
@@ -182,8 +182,19 @@ def projections(
 
 
 def _player_pool(df: pd.DataFrame, objective: str) -> list[dict]:
+    """Tournament-tilted pool: sub-$4k players are valued at their ceiling
+    (p90 — a punt's only job is to boom) and every projection carries a
+    chalk-fade penalty proportional to naive ownership, so entries lean
+    into the leverage that wins large fields."""
+    from ..backtest.field import naive_ownership
+    from ..optimizer.lineup import LEVERAGE_PENALTY, PUNT_MAX_SALARY
+
     pool = []
     for r in df.itertuples():
+        proj = float(getattr(r, objective))
+        if int(r.salary) <= PUNT_MAX_SALARY and hasattr(r, "proj_p90") \
+                and pd.notna(r.proj_p90):
+            proj = max(proj, float(r.proj_p90))
         pool.append(
             {
                 "id": int(r.dk_player_id),
@@ -193,9 +204,12 @@ def _player_pool(df: pd.DataFrame, objective: str) -> list[dict]:
                 "opp": getattr(r, "opponent", None),
                 "game_id": f"{r.team}@{getattr(r, 'opponent', '?')}",
                 "salary": int(r.salary),
-                "proj": float(getattr(r, objective)),
+                "proj": proj,
             }
         )
+    own = naive_ownership(pd.DataFrame(pool))
+    for p, w in zip(pool, own):
+        p["proj"] = p["proj"] - LEVERAGE_PENALTY * float(w)
     return pool
 
 

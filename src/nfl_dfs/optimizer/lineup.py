@@ -24,6 +24,11 @@ import pulp
 log = logging.getLogger(__name__)
 
 SALARY_CAP = 50_000
+# Tournament construction defaults (the only mode this shop plays): a
+# sub-$4k ceiling punt appeared in 94% of 2025 Milly Maker winners.
+PUNT_MAX_SALARY = 4_000
+PUNT_MIN = 1
+LEVERAGE_PENALTY = 25.0  # pts deducted x naive-ownership weight (chalk fade)
 ROSTER_SIZE = 9
 MAX_FROM_TEAM = 8
 MIN_GAMES = 2
@@ -81,6 +86,8 @@ def optimize(
     stack: StackRules | None = None,
     objective_col: str = "proj",
     max_overlap: int = 8,
+    punt_max_salary: int | None = None,
+    punt_min: int = 0,
 ) -> Lineup | None:
     """Solve one lineup. Returns None if infeasible."""
     prob = pulp.LpProblem("dfs", pulp.LpMaximize)
@@ -114,6 +121,13 @@ def optimize(
             prob += pulp.lpSum(
                 x[p["id"]] for p in players if p.get("game_id") != game
             ) >= 1
+
+    # Tournament punt slot: winners rostered a sub-$4k player who scored
+    # 15+ in 94% of 2025 Milly Makers (reports/2025-milly-winners.csv).
+    if punt_min and punt_max_salary:
+        punts = [p["id"] for p in players if p["salary"] <= punt_max_salary]
+        if punts:
+            prob += pulp.lpSum(x[pid] for pid in punts) >= punt_min
 
     for pid in locks or ():
         prob += x[pid] == 1
@@ -185,6 +199,8 @@ def optimize_many(
     n_lineups: int,
     stack: StackRules | None = None,
     max_overlap: int = 7,
+    punt_max_salary: int | None = PUNT_MAX_SALARY,
+    punt_min: int = PUNT_MIN,
     **kwargs,
 ) -> list[Lineup]:
     """Generate n unique lineups; each new lineup may share at most
@@ -198,7 +214,9 @@ def optimize_many(
         for attempt in (1, 2):
             try:
                 lu = optimize(players, stack=stack, banned_lineups=banned,
-                              max_overlap=max_overlap, **kwargs)
+                              max_overlap=max_overlap,
+                              punt_max_salary=punt_max_salary,
+                              punt_min=punt_min, **kwargs)
                 break
             except pulp.PulpSolverError as exc:
                 log.warning("CBC solve failed (attempt %d): %s", attempt, exc)

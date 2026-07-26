@@ -91,7 +91,9 @@ def run_week(
     week = int(slate["week"].iloc[0]) if "week" in slate else 0
 
     pool = slate.to_dict("records")
-    lineups = optimize_many(pool, n_lineups=n_entries, stack=stack)
+    obj = "proj_tourney" if "proj_tourney" in slate.columns else "proj"
+    lineups = optimize_many(pool, n_lineups=n_entries, stack=stack,
+                            objective_col=obj)
     if not lineups:
         log.warning("No feasible lineups for %s week %s", season, week)
         return None

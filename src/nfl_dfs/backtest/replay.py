@@ -111,7 +111,13 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
     skill["id"] = skill.gsis_id
     skill["pos"] = skill.position
     skill["opp"] = skill.opponent
-    skill["proj"] = skill.proj_points
+    # Tournament tilt (mirrors app._player_pool): ceiling-valued punts.
+    # The chalk-fade penalty is applied per-slate below.
+    from ..optimizer.lineup import PUNT_MAX_SALARY
+
+    punt = skill.salary <= PUNT_MAX_SALARY
+    skill["proj"] = skill.proj_points.where(~punt,
+                                            skill[["proj_points", "proj_p90"]].max(axis=1))
     if "name" not in skill.columns:
         skill["name"] = skill.gsis_id
 
@@ -134,6 +140,14 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
             log.info("slate %s wk %s: dropped %d rows with missing salary/proj/actual",
                      season, week, n0 - len(frame))
         frame["salary"] = frame.salary.astype(int)
+        # Our entries optimize the leverage-tilted objective; the field
+        # simulation keeps the untilted proj — the field is chalky by
+        # definition, and that asymmetry IS the leverage.
+        from ..optimizer.lineup import LEVERAGE_PENALTY
+        from .field import naive_ownership
+
+        frame = frame.reset_index(drop=True)
+        frame["proj_tourney"] = frame.proj - LEVERAGE_PENALTY * naive_ownership(frame)
         slates.append(frame)
     return slates
 
@@ -183,7 +197,7 @@ def run(
     season: int,
     n_sims: int = 10_000,
     contest: Contest | None = None,
-    n_entries: int = 20,
+    n_entries: int = 40,
     field_size: int = 5_000,
     sharp_fraction: float = 0.15,
 ) -> None:
@@ -210,10 +224,19 @@ def run(
     # p90 objective on real salaries, so stacking is the only GPP default.
     from ..optimizer.lineup import StackRules
 
-    stack = StackRules(qb_stack_min=1) if "gpp" in contest.name else None
+    stack = (StackRules(qb_stack_min=2, bring_back_min=1)
+             if "gpp" in contest.name else None)
+    best_by_week = {}
     result = run_contest_replay(proj, dst, contest,
                                 n_entries=n_entries, field_size=field_size,
                                 sharp_fraction=sharp_fraction, stack=stack)
     print(f"\n=== Contest replay: {season} "
           f"(field {sharp_fraction:.0%} optimizer-built) ===")
     print(result.summary())
+    best = [max(w.lineup_scores) for w in result.weeks]
+    if best:
+        import numpy as _np
+
+        print(f"  tail: mean best {_np.mean(best):.1f}  max {_np.max(best):.1f}  "
+              f"weeks best>=237 (avg 2025 milly line): {sum(b >= 237 for b in best)}"
+              f"/{len(best)}  >=194 (min line): {sum(b >= 194 for b in best)}/{len(best)}")
