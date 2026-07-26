@@ -24,6 +24,32 @@ FALLBACK_PROJ = 6.0   # league-average DST DK points
 STD = 5.4
 P10_OFF, P50_OFF, P90_OFF = -4.5, -0.5, 7.0
 
+# Vegas-first model, fit 2026-07-26 on 6,126 DST-weeks (OOS fit<=2020,
+# eval 2021+2025: R=0.293 vs 0.124 trailing-only). Opponent implied total
+# is ~4x the signal of trailing form; QB experience survives Vegas at
+# about half its raw size (the market prices the rest).
+COEF_INTERCEPT = 14.33
+COEF_OPP_IMPLIED = -0.385
+COEF_L16 = 0.118
+COEF_ROOKIE = 1.05   # opposing QB <= 3 career starts
+COEF_EARLY = 0.91    # 4-10 career starts
+
+
+def model_projection(opp_implied: pd.Series, trailing: pd.Series,
+                     opp_qb_starts: pd.Series) -> pd.Series:
+    """Vegas-first DST projection; rows without a line fall back to
+    trailing form + the raw QB-experience adjustment."""
+    opp_implied = pd.to_numeric(opp_implied, errors="coerce")
+    trailing = pd.to_numeric(trailing, errors="coerce").fillna(FALLBACK_PROJ)
+    starts = pd.to_numeric(opp_qb_starts, errors="coerce")
+    rookie = (starts <= 3).fillna(False).astype(float)
+    early = ((starts > 3) & (starts <= 10)).fillna(False).astype(float)
+    vegas = (COEF_INTERCEPT + COEF_OPP_IMPLIED * opp_implied
+             + COEF_L16 * trailing + COEF_ROOKIE * rookie
+             + COEF_EARLY * early)
+    fallback = trailing + adjustment(opp_qb_starts)
+    return vegas.where(opp_implied.notna(), fallback)
+
 
 def build_rows(
     slate: pd.DataFrame,      # dk_player_id, display_name, team_abbr, salary, draft_group_id
@@ -41,7 +67,9 @@ def build_rows(
     d = d.merge(qb_starts.rename(columns={"team": "opp_team",
                                           "career_starts": "opp_qb_starts"}),
                 left_on="opponent", right_on="opp_team", how="left")
-    proj = d["dst_l4"].fillna(FALLBACK_PROJ) + adjustment(d["opp_qb_starts"])
+    opp_implied = (d["opp_implied"] if "opp_implied" in d.columns
+                   else pd.Series(pd.NA, index=d.index))
+    proj = model_projection(opp_implied, d["dst_l4"], d["opp_qb_starts"])
     return pd.DataFrame({
         "generated_at": datetime.now(timezone.utc),
         "model_version": model_version,
@@ -97,11 +125,13 @@ def project_dst(season: int, week: int, model_version: str) -> pd.DataFrame:
     )
     opponents = query_df(
         f"""
-        SELECT home_team AS team, away_team AS opponent
+        SELECT home_team AS team, away_team AS opponent,
+               (total_line - spread_line)/2 AS opp_implied
         FROM `{settings.raw}.schedules`
         WHERE season = {season} AND week = {week}
         UNION ALL
-        SELECT away_team AS team, home_team AS opponent
+        SELECT away_team AS team, home_team AS opponent,
+               (total_line + spread_line)/2 AS opp_implied
         FROM `{settings.raw}.schedules`
         WHERE season = {season} AND week = {week}
         """

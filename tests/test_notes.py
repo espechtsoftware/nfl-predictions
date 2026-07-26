@@ -100,3 +100,22 @@ def test_dst_projection_rows_assembly():
     assert det.proj_points == pytest.approx(FALLBACK_PROJ - 0.7)
     assert (rows.position == "DST").all()
     assert rows.value.gt(0).all()
+
+
+def test_vegas_first_dst_model():
+    from nfl_dfs.inference.dst_projections import (COEF_INTERCEPT,
+                                                   COEF_L16,
+                                                   COEF_OPP_IMPLIED,
+                                                   COEF_ROOKIE,
+                                                   model_projection)
+
+    opp_implied = pd.Series([17.0, 26.0, np.nan])
+    trailing = pd.Series([8.0, 8.0, 8.0])
+    starts = pd.Series([2, 120, 2])
+    out = model_projection(opp_implied, trailing, starts)
+    # Vegas path: intercept + implied + trailing + rookie terms
+    exp0 = COEF_INTERCEPT + COEF_OPP_IMPLIED * 17 + COEF_L16 * 8 + COEF_ROOKIE
+    assert out.iloc[0] == pytest.approx(exp0)
+    assert out.iloc[0] > out.iloc[1] + 3      # low implied total >> high
+    # No line -> fallback: trailing + raw QB-experience adjustment
+    assert out.iloc[2] == pytest.approx(8.0 + 2.2)

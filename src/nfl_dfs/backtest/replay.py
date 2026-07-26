@@ -96,24 +96,35 @@ def replay_metrics(proj: pd.DataFrame) -> tuple[dict, pd.DataFrame]:
 
 
 def dst_slate_rows(dst: pd.DataFrame,
-                   qb_starts: pd.DataFrame | None = None) -> pd.DataFrame:
-    """RotoGuru DST rows -> slate rows. Projection is the trailing 4-week
-    average of that defense's DK points (strictly prior weeks), plus the
-    opposing-QB experience adjustment when qb_starts is provided (rookie
-    QBs are worth ~+2 DK pts to the defense — see inference/qb_experience)."""
+                   qb_starts: pd.DataFrame | None = None,
+                   vegas: pd.DataFrame | None = None) -> pd.DataFrame:
+    """RotoGuru DST rows -> slate rows.
+
+    Projection tiers (best available wins): Vegas-first model (opponent
+    implied total + trailing form + opposing-QB experience — see
+    inference/dst_projections.model_projection) > trailing form + raw
+    QB-experience adjustment > trailing form alone. `vegas` columns:
+    season, week, team, opp_implied."""
     d = dst.sort_values(["team", "season", "week"]).copy()
     d["proj"] = (
         d.groupby(["team", "season"])["actual"]
         .transform(lambda s: s.shift(1).rolling(4, min_periods=1).mean())
         .fillna(DST_FALLBACK_PROJ)
     )
+    starts = pd.Series(pd.NA, index=d.index)
     if qb_starts is not None and not qb_starts.empty:
-        from ..inference.qb_experience import adjustment
-
         d = d.merge(qb_starts.rename(columns={"team": "opp"}),
                     on=["season", "week", "opp"], how="left")
-        d["proj"] = d["proj"] + adjustment(d["prior_starts"])
-        d = d.drop(columns=["prior_starts"])
+        starts = d.pop("prior_starts")
+    if vegas is not None and not vegas.empty:
+        from ..inference.dst_projections import model_projection
+
+        d = d.merge(vegas, on=["season", "week", "team"], how="left")
+        d["proj"] = model_projection(d.pop("opp_implied"), d["proj"], starts)
+    elif starts.notna().any():
+        from ..inference.qb_experience import adjustment
+
+        d["proj"] = d["proj"] + adjustment(starts)
     d["id"] = "DST_" + d.team
     d["name"] = d.team + " DST"
     d["pos"] = "DST"
@@ -143,7 +154,7 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
     if "name" not in skill.columns:
         skill["name"] = skill.gsis_id
 
-    qb_starts = None
+    qb_starts, vegas = None, None
     if dst is not None and len(dst):
         try:
             from ..inference.qb_experience import starter_prior_starts
@@ -152,7 +163,28 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
         except Exception:
             log.exception("QB-experience data unavailable; DST projections "
                           "without the opponent adjustment")
-    dst_rows = dst_slate_rows(dst, qb_starts) if dst is not None else None
+        try:
+            from ..bq import query_df
+            from ..config import settings
+
+            vegas = query_df(
+                f"""
+                SELECT season, week, home_team AS team,
+                       (total_line - spread_line)/2 AS opp_implied
+                FROM `{settings.raw}.schedules`
+                WHERE game_type='REG' AND total_line IS NOT NULL
+                UNION ALL
+                SELECT season, week, away_team AS team,
+                       (total_line + spread_line)/2 AS opp_implied
+                FROM `{settings.raw}.schedules`
+                WHERE game_type='REG' AND total_line IS NOT NULL
+                """
+            )
+        except Exception:
+            log.exception("Vegas lines unavailable; DST projections "
+                          "without the implied-total model")
+    dst_rows = (dst_slate_rows(dst, qb_starts, vegas)
+                if dst is not None else None)
     slates = []
     for (season, week), grp in skill.groupby(["season", "week"]):
         cols = ["id", "name", "pos", "team", "opp", "game_id",
