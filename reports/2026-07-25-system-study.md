@@ -535,3 +535,22 @@ Verdicts:
 
 Week-of-work summary: baseline -> D took the season from 0 weeks over any
 winning line to 5/17 over the minimum line, mean best 160.5 -> 180.1.
+
+## Addendum 13 (2026-07-26): diagnostics + min-spend adopted; rankings are cosmetic
+
+- **Min-spend floor $49k adopted** (run I, lever verified active: 0% of
+  entries left >$1k vs 7% before): mean best-of-40 180.1 -> **182.3**,
+  max/194-count unchanged, median finish 13.2 -> 13.9%. (Run G was void —
+  env var landed on an image without the lever.)
+- **Neither ranking predicts the weekly best entry.** Best scorer's rank:
+  selection order — median 15, top-5 0/17, top-10 6/17; app confidence
+  formula — median 17, top-5 2/17, top-10 3/17 (below chance). Guidance:
+  spread all 40 entries; rankings are ordering cosmetics.
+- **Entry anatomy: the punt decides.** Weekly best vs rest is structurally
+  identical (game concentration 4.3, QB stack 2.0, chalk, ~$49.7k spent);
+  the separator is punt production: 21.0 pts (best) vs 13.5 (rest).
+  Boom-draw generator produced 11-12/17 weekly bests from ~58% pool share.
+  Next lever: punt diversity + selection (Vegas DST, p90 punts).
+- **Prop lines backfilled**: The Odds API, 2023-2025, kickoff-2h
+  snapshots, DK+FanDuel, ~2,500 rows/week -> nfl_raw.prop_lines. Next:
+  de-vig -> DK-point medians -> market blend -> validation replay.
