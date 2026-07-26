@@ -289,6 +289,24 @@ def run(
     panel, dst = load_panel_and_dst(season)
     proj, draws = replay_projections(panel, season, n_sims=n_sims,
                                      return_draws=True)
+    # Market blend (guide §7.7) with real prop-derived medians when the
+    # season has prop_lines coverage; players without a line keep the
+    # model projection (blend() falls back on NaN).
+    try:
+        from ..models.blend import BLEND_W, blend as _blend
+        from ..models.prop_market import market_points
+
+        mkt = market_points((season,))
+        if not mkt.empty:
+            proj = proj.merge(mkt, on=["season", "week", "gsis_id"],
+                              how="left")
+            proj["proj_points"] = _blend(proj.proj_points.to_numpy(),
+                                         proj.market_points.to_numpy(),
+                                         BLEND_W)
+            log.info("prop-market blend applied to %d/%d rows",
+                     int(proj.market_points.notna().sum()), len(proj))
+    except Exception:
+        log.exception("prop market unavailable; replaying unblended")
     overall, by_pos = replay_metrics(proj)
 
     print(f"\n=== Projection replay: {season} "

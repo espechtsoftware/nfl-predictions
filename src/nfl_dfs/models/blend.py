@@ -14,6 +14,9 @@ import pandas as pd
 from scipy import optimize, stats
 
 
+BLEND_W = 0.45  # model weight; refit on validation
+
+
 def fit_blend_weight(
     truth: np.ndarray, model: np.ndarray, market: np.ndarray
 ) -> float:
