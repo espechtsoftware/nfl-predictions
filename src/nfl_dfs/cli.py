@@ -39,7 +39,7 @@ def main(argv: list[str] | None = None) -> None:
                        help="Replay a past season: projection accuracy + contest ROI")
     p.add_argument("--season", type=int, required=True)
     p.add_argument("--sims", type=int, default=10_000)
-    p.add_argument("--entries", type=int, default=20)
+    p.add_argument("--entries", type=int, default=40)
     p.add_argument("--contest", choices=["gpp", "double_up"], default="gpp")
     p.add_argument("--field-size", type=int, default=5_000)
     p.add_argument("--sharp", type=float, default=0.15,
@@ -58,7 +58,7 @@ def main(argv: list[str] | None = None) -> None:
     p = sub.add_parser("replay-showdown",
                        help="Replay Captain Mode: entries vs hindsight-optimal per slate")
     p.add_argument("--season", type=int, default=2025)
-    p.add_argument("--entries", type=int, default=20)
+    p.add_argument("--entries", type=int, default=40)
     p.add_argument("--days", default="thu,mon")
 
     p = sub.add_parser("import-ownership",
