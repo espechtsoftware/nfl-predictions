@@ -106,7 +106,7 @@ def execute_tool(name: str, args: dict) -> str:
         df = query_df(
             f"""SELECT DISTINCT player_id AS gsis_id,
                        player_display_name AS name, position,
-                       recent_team AS team, MAX(season) AS last_seen
+                       team, MAX(season) AS last_seen
                 FROM `{settings.raw}.weekly_stats`
                 WHERE LOWER(player_display_name) LIKE
                       LOWER(CONCAT('%', @q, '%'))

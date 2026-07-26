@@ -89,3 +89,23 @@ def test_contest_replay_tail_selection(proj, small_panel):
     ids = [frozenset(pl["id"] for pl in lu.players)
            for lu in result.weeks[0].lineups]
     assert len(set(ids)) == 3  # selected entries are distinct lineups
+
+
+def test_dst_qb_experience_adjustment():
+    from nfl_dfs.inference.qb_experience import adjustment
+
+    starts = pd.Series([0, 3, 4, 10, 11, 30, 31, 200, np.nan])
+    adj = adjustment(starts)
+    assert list(adj[:2]) == [2.2, 2.2]          # rookie tier
+    assert list(adj[2:4]) == [1.5, 1.5]         # early career
+    assert list(adj[4:6]) == [-0.5, -0.5]       # established
+    assert list(adj[6:8]) == [-0.7, -0.7]       # veteran
+    assert adj.iloc[8] == 0.0                    # unknown starter
+
+    d = _dst()
+    qb = pd.DataFrame({"season": 2022, "week": d.week, "team": d.opp,
+                       "prior_starts": 0}).drop_duplicates()
+    plain = replay.dst_slate_rows(_dst())
+    adj_rows = replay.dst_slate_rows(_dst(), qb)
+    merged = plain.merge(adj_rows, on=["team", "week"], suffixes=("_p", "_a"))
+    assert np.allclose(merged.proj_a - merged.proj_p, 2.2)  # all rookies

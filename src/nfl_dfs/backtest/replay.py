@@ -95,15 +95,25 @@ def replay_metrics(proj: pd.DataFrame) -> tuple[dict, pd.DataFrame]:
     return overall, pd.DataFrame(rows).set_index("position")
 
 
-def dst_slate_rows(dst: pd.DataFrame) -> pd.DataFrame:
+def dst_slate_rows(dst: pd.DataFrame,
+                   qb_starts: pd.DataFrame | None = None) -> pd.DataFrame:
     """RotoGuru DST rows -> slate rows. Projection is the trailing 4-week
-    average of that defense's DK points (strictly prior weeks)."""
+    average of that defense's DK points (strictly prior weeks), plus the
+    opposing-QB experience adjustment when qb_starts is provided (rookie
+    QBs are worth ~+2 DK pts to the defense — see inference/qb_experience)."""
     d = dst.sort_values(["team", "season", "week"]).copy()
     d["proj"] = (
         d.groupby(["team", "season"])["actual"]
         .transform(lambda s: s.shift(1).rolling(4, min_periods=1).mean())
         .fillna(DST_FALLBACK_PROJ)
     )
+    if qb_starts is not None and not qb_starts.empty:
+        from ..inference.qb_experience import adjustment
+
+        d = d.merge(qb_starts.rename(columns={"team": "opp"}),
+                    on=["season", "week", "opp"], how="left")
+        d["proj"] = d["proj"] + adjustment(d["prior_starts"])
+        d = d.drop(columns=["prior_starts"])
     d["id"] = "DST_" + d.team
     d["name"] = d.team + " DST"
     d["pos"] = "DST"
@@ -133,7 +143,16 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
     if "name" not in skill.columns:
         skill["name"] = skill.gsis_id
 
-    dst_rows = dst_slate_rows(dst) if dst is not None else None
+    qb_starts = None
+    if dst is not None and len(dst):
+        try:
+            from ..inference.qb_experience import starter_prior_starts
+
+            qb_starts = starter_prior_starts()
+        except Exception:
+            log.exception("QB-experience data unavailable; DST projections "
+                          "without the opponent adjustment")
+    dst_rows = dst_slate_rows(dst, qb_starts) if dst is not None else None
     slates = []
     for (season, week), grp in skill.groupby(["season", "week"]):
         cols = ["id", "name", "pos", "team", "opp", "game_id",
