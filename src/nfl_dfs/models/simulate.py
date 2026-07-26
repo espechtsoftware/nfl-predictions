@@ -43,28 +43,49 @@ def _gamma_yards(
     return out
 
 
+GAME_FACTOR_SIGMA = 0.18  # lognormal sigma of the shared per-game factor
+
+
 def simulate(
     comps: pd.DataFrame,
     n_sims: int = 10_000,
     seed: int | None = None,
     keep_draws: bool = False,
+    game_ids: pd.Series | None = None,
 ) -> SimResult:
+    """game_ids (aligned to comps) enables correlated game environments:
+    one shared lognormal factor per (game, sim) scales every player's
+    opportunity in that game, so shootouts lift whole games together.
+    Milly winners take 50-80% of their points from one game — without this
+    the simulator prices such lineups as near-impossible. Mean-preserving
+    (E[factor]=1), so projections are unchanged; only the joint tail moves."""
     rng = np.random.default_rng(seed)
     n = len(comps)
+
+    game_mult = np.ones((n, n_sims))
+    if game_ids is not None:
+        codes, uniq = pd.factorize(pd.Series(game_ids).fillna("_none").to_numpy())
+        g = rng.lognormal(-GAME_FACTOR_SIGMA ** 2 / 2, GAME_FACTOR_SIGMA,
+                          (len(uniq), n_sims))
+        game_mult = g[codes]
 
     def col(name: str) -> np.ndarray:
         return np.nan_to_num(comps[name].to_numpy(dtype=float))[:, None]
 
-    targets = rng.poisson(col("targets"), (n, n_sims))
+    def opp(name: str) -> np.ndarray:
+        """Opportunity means, scaled by the shared game factor per sim."""
+        return col(name) * game_mult
+
+    targets = rng.poisson(opp("targets"))
     receptions = rng.binomial(targets, col("catch_rate"))
     rec_yards = _gamma_yards(rng, receptions, col("ypr"))
     rec_tds = rng.poisson(col("rec_tds"), (n, n_sims))
 
-    carries = rng.poisson(col("carries"), (n, n_sims))
+    carries = rng.poisson(opp("carries"))
     rush_yards = _gamma_yards(rng, carries, col("ypc"))
     rush_tds = rng.poisson(col("rush_tds"), (n, n_sims))
 
-    attempts = rng.poisson(col("pass_attempts"), (n, n_sims))
+    attempts = rng.poisson(opp("pass_attempts"))
     pass_yards = _gamma_yards(rng, attempts, col("ypa"))
     pass_tds = rng.poisson(col("pass_tds"), (n, n_sims))
     interceptions = rng.poisson(col("interceptions"), (n, n_sims))

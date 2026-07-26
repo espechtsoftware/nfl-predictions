@@ -47,7 +47,8 @@ def replay_projections(
         raise ValueError(f"no {season} rows in panel")
     rows = coldstart.fill_cold_start_features(rows)
 
-    sim = simulate.simulate(cm.predict_components(rows), n_sims=n_sims, seed=seed)
+    sim = simulate.simulate(cm.predict_components(rows), n_sims=n_sims,
+                        seed=seed, game_ids=rows.get("game_id"))
     summary = sim.summary
     if widen:
         summary = calibration.apply_widen(summary, rows.position)

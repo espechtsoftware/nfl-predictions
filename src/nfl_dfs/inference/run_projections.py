@@ -80,7 +80,8 @@ def project(
     if adjust is not None:
         feats, out_ids = adjust(feats)
     comps = model.predict_components(feats)
-    sim = simulate.simulate(comps, n_sims=n_sims)
+    sim = simulate.simulate(comps, n_sims=n_sims,
+                        game_ids=feats.get("game_id"))
     preds = calibration.apply_widen(
         sim.summary, feats.get("position", feats.get("dk_position"))
     )
