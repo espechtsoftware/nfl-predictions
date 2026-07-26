@@ -111,6 +111,119 @@ inp.addEventListener('keydown',e=>{if(e.key==='Enter')send();});
 """
 
 
+_NAV_HTML = ("<nav style='margin-bottom:1rem'><a href='/'>Defense</a> &middot; "
+             "<a href='/lineups/view'>Lineups</a> &middot; "
+             "<a href='/docs'>API</a></nav>")
+
+_LINEUPS_CSS = """
+#controls{display:flex;gap:.6rem;flex-wrap:wrap;align-items:end;
+  background:#fff;border:1px solid #e5e5ef;border-radius:8px;padding:1rem}
+#controls label{display:flex;flex-direction:column;font-size:.75rem;color:#666}
+#controls input,#controls select{padding:.4rem;border:1px solid #ccc;
+  border-radius:6px;width:6.5rem}
+#cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:1rem;margin-top:1.2rem}
+.card{background:#fff;border:1px solid #e5e5ef;border-radius:10px;
+  overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.card header{background:#1a1a2e;color:#fff;padding:.5rem .8rem;display:flex;
+  justify-content:space-between;align-items:baseline;font-size:.85rem}
+.card header .conf{color:#53d337;font-weight:700}
+.card table{font-size:.8rem;box-shadow:none}
+.card td,.card th{padding:.25rem .55rem;border-bottom:1px solid #f0f0f5}
+.slot{display:inline-block;min-width:2.6rem;text-align:center;font-weight:700;
+  font-size:.68rem;background:#eef0f6;border-radius:4px;padding:.12rem .2rem;
+  color:#1a1a2e}
+.card tfoot td{font-weight:600;background:#fafafa}
+#status{margin:.8rem 0;color:#666}
+"""
+
+_LINEUPS_JS = """
+async function loadSlates(){
+  try{const r=await fetch('/slates');const s=await r.json();
+    if(s.length){const last=s[s.length-1];
+      document.getElementById('season').value=last.season??'';
+      document.getElementById('week').value=last.week??'';}}catch(e){}}
+function slotNames(players){
+  const slots=['QB','RB','RB','WR','WR','WR','TE','FLEX','DST'];
+  return players.map((p,i)=>({slot:slots[i]||p.pos,p}));}
+async function build(){
+  const st=document.getElementById('status'),
+        cards=document.getElementById('cards');
+  st.textContent='Building lineups (CBC solves, ~10-60s)...';
+  cards.innerHTML=''; document.getElementById('go').disabled=true;
+  const body={season:+document.getElementById('season').value,
+    week:+document.getElementById('week').value,
+    n_lineups:+document.getElementById('n').value,
+    objective:document.getElementById('obj').value};
+  try{
+    const r=await fetch('/lineups',{method:'POST',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const j=await r.json();
+    if(!r.ok){st.textContent='Error: '+(j.detail||r.status);return;}
+    st.textContent=j.lineups.length+' lineups, strongest first. '+
+      'Confidence = P(score >= 194), ordering signal.';
+    for(const lu of j.lineups){
+      const rows=slotNames(lu.players).map(({slot,p})=>
+        `<tr><td><span class='slot'>${slot}</span></td>`+
+        `<td style='text-align:left'>${p.name}</td>`+
+        `<td>${p.team}${p.opp?' @ '+p.opp:''}</td>`+
+        `<td>$${p.salary.toLocaleString()}</td>`+
+        `<td>${(+p.proj).toFixed(1)}</td></tr>`).join('');
+      const el=document.createElement('div'); el.className='card';
+      el.innerHTML=`<header><span>#${lu.rank}</span>`+
+        `<span class='conf'>${lu.confidence}%</span>`+
+        `<span>${lu.proj_mean} pts proj</span></header>`+
+        `<table><tr><th></th><th style='text-align:left'>Player</th>`+
+        `<th>Game</th><th>Salary</th><th>Proj</th></tr>${rows}`+
+        `<tfoot><tr><td colspan='3'>Total</td>`+
+        `<td>$${lu.salary.toLocaleString()}</td>`+
+        `<td>${lu.proj.toFixed(1)}</td></tr></tfoot></table>`;
+      cards.appendChild(el);}
+  }catch(e){st.textContent='Error: '+e;}
+  document.getElementById('go').disabled=false;}
+document.getElementById('go').onclick=build;
+document.getElementById('csv').onclick=()=>{
+  const body={season:+document.getElementById('season').value,
+    week:+document.getElementById('week').value,
+    n_lineups:+document.getElementById('n').value,
+    objective:document.getElementById('obj').value};
+  fetch('/lineups.csv',{method:'POST',
+    headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+   .then(r=>r.blob()).then(b=>{const a=document.createElement('a');
+    a.href=URL.createObjectURL(b);a.download='dk_lineups.csv';a.click();});};
+loadSlates();
+"""
+
+
+@app.get("/lineups/view", response_class=HTMLResponse)
+def lineups_page() -> str:
+    """DK-style lineup card viewer: build entries and eyeball them without
+    touching the CSV. Cards are confidence-ordered, strongest first."""
+    return (
+        f"<!doctype html><html><head><meta charset='utf-8'>"
+        f"<title>NFL DFS — Lineups</title>"
+        f"<style>{_PAGE_CSS}{_LINEUPS_CSS}</style></head><body>"
+        f"{_NAV_HTML}<h1>Lineup builder</h1>"
+        f"<div id='controls'>"
+        f"<label>Season<input id='season' type='number'></label>"
+        f"<label>Week<input id='week' type='number'></label>"
+        f"<label>Entries<input id='n' type='number' value='40'></label>"
+        f"<label>Objective<select id='obj'>"
+        f"<option value='proj_points'>Mean</option>"
+        f"<option value='proj_p90'>Ceiling</option>"
+        f"<option value='proj_p50'>Median</option></select></label>"
+        f"<button id='go' style='padding:.5rem 1.2rem;background:#1a1a2e;"
+        f"color:#fff;border:0;border-radius:6px;cursor:pointer'>Build</button>"
+        f"<button id='csv' style='padding:.5rem 1.2rem;background:#fff;"
+        f"border:1px solid #1a1a2e;border-radius:6px;cursor:pointer'>"
+        f"DK CSV</button></div>"
+        f"<div id='status'>Pick season/week and Build. Tournament defaults "
+        f"apply: QB+2 stack, bring-back, punt slot, chalk fade.</div>"
+        f"<div id='cards'></div>"
+        f"<script>{_LINEUPS_JS}</script></body></html>"
+    )
+
+
 def _defense_page(df, season: int) -> str:
     latest = df.loc[df.groupby(["team", "position"])["week"].idxmax()]
     sections = []
@@ -137,6 +250,7 @@ def _defense_page(df, season: int) -> str:
         f"<!doctype html><html><head><meta charset='utf-8'>"
         f"<title>NFL DFS — Defense vs Position</title>"
         f"<style>{_PAGE_CSS}</style></head><body>"
+        f"{_NAV_HTML}"
         f"<h1>DK points allowed per position &middot; {season}</h1>"
         f"<small>Season/L6/L3 = avg DK points allowed per game to the position "
         f"(fewest first = toughest defense). Trend = last 3 vs season norm: "

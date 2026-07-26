@@ -441,3 +441,10 @@ def test_fill_entries_rejects_mismatched_file(showdown_client):
         "season": 2025, "week": 3, "entries_csv": "not,a,dk,file\n1,2,3,4\n",
     })
     assert r.status_code == 422
+
+
+def test_lineups_view_page(client):
+    r = client.get("/lineups/view")
+    assert r.status_code == 200
+    assert "Lineup builder" in r.text
+    assert "DK CSV" in r.text
