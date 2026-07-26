@@ -44,6 +44,9 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--field-size", type=int, default=5_000)
     p.add_argument("--sharp", type=float, default=0.15,
                    help="Fraction of the simulated field built by optimizer")
+    p.add_argument("--tail-line", type=float, default=None,
+                   help="GPP entry selection maximizes P(best >= this "
+                        "score); default 194 for gpp, 0 disables")
 
     p = sub.add_parser("import-discoverylab",
                        help="Backfill real DK salaries from DiscoveryLab (free tier: last season)")
@@ -122,7 +125,7 @@ def main(argv: list[str] | None = None) -> None:
         contest = payout.gpp() if args.contest == "gpp" else payout.double_up()
         replay.run(args.season, n_sims=args.sims, contest=contest,
                    n_entries=args.entries, field_size=args.field_size,
-                   sharp_fraction=args.sharp)
+                   sharp_fraction=args.sharp, tail_line=args.tail_line)
     elif args.command == "import-discoverylab":
         from .ingest import discoverylab_import
 

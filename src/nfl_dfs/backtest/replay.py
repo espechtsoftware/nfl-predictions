@@ -37,10 +37,15 @@ def replay_projections(
     num_boost_round: int = 400,
     seed: int = 0,
     widen: bool = True,
-) -> pd.DataFrame:
+    return_draws: bool = False,
+) -> pd.DataFrame | tuple[pd.DataFrame, np.ndarray]:
     """Project every (player, week) row of `season` with models trained on
     strictly earlier seasons. Rows carry point-in-time features, so no
-    per-week retraining is needed for fidelity."""
+    per-week retraining is needed for fidelity.
+
+    return_draws=True also returns the raw correlated draw matrix
+    (row-aligned with the output frame, float32) for tail-objective entry
+    selection."""
     cm = components.train(panel, target_season=season, num_boost_round=num_boost_round)
     rows = panel[panel.season == season].reset_index(drop=True)
     if rows.empty:
@@ -48,7 +53,8 @@ def replay_projections(
     rows = coldstart.fill_cold_start_features(rows)
 
     sim = simulate.simulate(cm.predict_components(rows), n_sims=n_sims,
-                        seed=seed, game_ids=rows.get("game_id"))
+                        seed=seed, game_ids=rows.get("game_id"),
+                        keep_draws=return_draws)
     summary = sim.summary
     if widen:
         summary = calibration.apply_widen(summary, rows.position)
@@ -57,6 +63,8 @@ def replay_projections(
     out = pd.concat([rows[keep], summary], axis=1)
     out["actual"] = rows["y_dk_points"].to_numpy()
     out["naive"] = rows.get("dk_points_l4")  # trailing average, the free baseline
+    if return_draws:
+        return out, sim.draws.astype(np.float32)
     return out
 
 
@@ -112,6 +120,9 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
     skill["id"] = skill.gsis_id
     skill["pos"] = skill.position
     skill["opp"] = skill.opponent
+    # Row position in the replay_projections frame == row in its draw
+    # matrix; -1 (DST) means "no draws, use the static projection".
+    skill["draw_idx"] = skill.index.to_numpy()
     # Tournament tilt (mirrors app._player_pool): ceiling-valued punts.
     # The chalk-fade penalty is applied per-slate below.
     from ..optimizer.lineup import PUNT_MAX_SALARY
@@ -126,11 +137,12 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
     slates = []
     for (season, week), grp in skill.groupby(["season", "week"]):
         cols = ["id", "name", "pos", "team", "opp", "game_id",
-                "salary", "proj", "actual", "season", "week"]
+                "salary", "proj", "actual", "season", "week", "draw_idx"]
         frame = grp[cols].copy()
         if dst_rows is not None:
             d = dst_rows[(dst_rows.season == season) & (dst_rows.week == week)].copy()
             d["game_id"] = d.team + "@" + d.opp
+            d["draw_idx"] = -1
             frame = pd.concat([frame, d[cols]], ignore_index=True)
         # RotoGuru DST rows occasionally lack salary or points; a single NaN
         # poisons the field sampler's ownership softmax.
@@ -162,10 +174,15 @@ def run_contest_replay(
     seed: int = 42,
     sharp_fraction: float = 0.15,
     stack=None,
+    draws: np.ndarray | None = None,
+    tail_line: float | None = None,
+    n_boom_solves: int = 40,
 ) -> BacktestResult:
     return engine_run(build_slates(proj, dst), contest,
                       n_entries=n_entries, field_size=field_size, seed=seed,
-                      sharp_fraction=sharp_fraction, stack=stack)
+                      sharp_fraction=sharp_fraction, stack=stack,
+                      draws=draws, tail_line=tail_line,
+                      n_boom_solves=n_boom_solves)
 
 
 # Warehouse entry point ------------------------------------------------------
@@ -194,6 +211,9 @@ def load_panel_and_dst(season: int):
     return panel, dst
 
 
+TAIL_LINE_DEFAULT = 194.0  # min 2025 Milly-winning line; 0 disables
+
+
 def run(
     season: int,
     n_sims: int = 10_000,
@@ -201,9 +221,11 @@ def run(
     n_entries: int = 40,
     field_size: int = 5_000,
     sharp_fraction: float = 0.15,
+    tail_line: float | None = None,
 ) -> None:
     panel, dst = load_panel_and_dst(season)
-    proj = replay_projections(panel, season, n_sims=n_sims)
+    proj, draws = replay_projections(panel, season, n_sims=n_sims,
+                                     return_draws=True)
     overall, by_pos = replay_metrics(proj)
 
     print(f"\n=== Projection replay: {season} "
@@ -227,10 +249,20 @@ def run(
 
     stack = (StackRules(qb_stack_min=2, bring_back_min=1)
              if "gpp" in contest.name else None)
+    # Tail-objective selection (issue #5) is a GPP concept only; double-ups
+    # want the mean objective. tail_line=0 disables explicitly.
+    if tail_line is None and "gpp" in contest.name:
+        tail_line = TAIL_LINE_DEFAULT
+    use_tail = bool(tail_line)
+    if use_tail:
+        print(f"\n  entry selection: P(best >= {tail_line:.0f}) greedy "
+              f"coverage over correlated draws")
     best_by_week = {}
     result = run_contest_replay(proj, dst, contest,
                                 n_entries=n_entries, field_size=field_size,
-                                sharp_fraction=sharp_fraction, stack=stack)
+                                sharp_fraction=sharp_fraction, stack=stack,
+                                draws=draws if use_tail else None,
+                                tail_line=tail_line if use_tail else None)
     print(f"\n=== Contest replay: {season} "
           f"(field {sharp_fraction:.0%} optimizer-built) ===")
     print(result.summary())

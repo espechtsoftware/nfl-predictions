@@ -232,6 +232,39 @@ def optimize_many(
     return lineups
 
 
+def select_tail_entries(
+    cand_totals: np.ndarray, n_entries: int, line: float
+) -> list[int]:
+    """Pick the n_entries candidates that maximize P(best-of-N >= line)
+    against correlated draws. cand_totals[c, k] = candidate c's total in
+    sim k. Greedy max-coverage over the sims each candidate clears the
+    line in (submodular, so greedy is within 1-1/e of optimal): two
+    entries that boom in the SAME sims are redundant no matter how good
+    each looks alone. Slots left after coverage saturates go to the
+    highest remaining P(>= line), then mean total."""
+    cand_totals = np.asarray(cand_totals, dtype=float)
+    clears = cand_totals >= line
+    p_line = clears.mean(axis=1)
+    mean_total = cand_totals.mean(axis=1)
+    n_entries = min(n_entries, len(cand_totals))
+    selected: list[int] = []
+    covered = np.zeros(cand_totals.shape[1], dtype=bool)
+    remaining = set(range(len(cand_totals)))
+    while len(selected) < n_entries and remaining:
+        best = max(remaining,
+                   key=lambda i: (int(np.count_nonzero(clears[i] & ~covered)),
+                                  p_line[i], mean_total[i]))
+        if not np.count_nonzero(clears[best] & ~covered):
+            break  # coverage saturated; fill below
+        selected.append(best)
+        covered |= clears[best]
+        remaining.discard(best)
+    fill = sorted(remaining, key=lambda i: (p_line[i], mean_total[i]),
+                  reverse=True)
+    selected += fill[: n_entries - len(selected)]
+    return selected
+
+
 def simulate_lineups(
     players: list[Player],
     draws: np.ndarray,

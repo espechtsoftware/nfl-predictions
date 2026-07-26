@@ -67,3 +67,25 @@ def test_contest_replay_runs(proj):
     assert len(result.weeks) == 2
     assert all(len(w.winnings) == 3 for w in result.weeks)
     assert np.isfinite(result.total_roi)
+
+
+
+def test_contest_replay_tail_selection(proj, small_panel):
+    # Full issue-#5 path: correlated draws -> candidate pool (leverage batch
+    # + boom-draw solves) -> greedy coverage selection. A low line keeps
+    # coverage non-degenerate on the tiny synthetic slate.
+    p, draws = replay.replay_projections(
+        small_panel, season=2022, n_sims=200, num_boost_round=40, seed=1,
+        return_draws=True,
+    )
+    weeks = p[p.week <= 1].copy()
+    result = replay.run_contest_replay(
+        weeks, _dst(), payout.double_up(entry_fee=5, field_size=1000),
+        n_entries=3, field_size=200, seed=1,
+        draws=draws, tail_line=60.0, n_boom_solves=3,
+    )
+    assert len(result.weeks) == 1
+    assert len(result.weeks[0].winnings) == 3
+    ids = [frozenset(pl["id"] for pl in lu.players)
+           for lu in result.weeks[0].lineups]
+    assert len(set(ids)) == 3  # selected entries are distinct lineups

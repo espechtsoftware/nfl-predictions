@@ -15,7 +15,8 @@ from dataclasses import dataclass, field as dc_field
 import numpy as np
 import pandas as pd
 
-from ..optimizer.lineup import Lineup, StackRules, optimize_many
+from ..optimizer.lineup import (Lineup, StackRules, optimize, optimize_many,
+                                select_tail_entries)
 from . import field as field_sim
 from .payout import Contest, roi
 
@@ -76,6 +77,61 @@ def leakage_guard(slate: pd.DataFrame) -> None:
         )
 
 
+def _row_draws(slate: pd.DataFrame, draws: np.ndarray) -> np.ndarray:
+    """Per-slate-row draw matrix, aligned to slate row order. Rows without a
+    draw (DST, draw_idx == -1) get their static projection in every sim."""
+    di = slate["draw_idx"].to_numpy(dtype=int)
+    out = np.empty((len(slate), draws.shape[1]), dtype=np.float32)
+    has = di >= 0
+    out[has] = draws[di[has]]
+    out[~has] = slate["proj"].to_numpy(dtype=float)[~has, None]
+    return out
+
+
+def tail_select_lineups(
+    slate: pd.DataFrame,
+    pool: list[dict],
+    draws: np.ndarray,
+    tail_line: float,
+    n_entries: int,
+    stack: StackRules | None,
+    objective_col: str,
+    candidate_multiple: int = 2,
+    n_boom_solves: int = 40,
+) -> list[Lineup]:
+    """Entry selection on P(best-of-N >= tail_line) (guide: issue #5).
+
+    Candidates come from two generators: the diverse leverage-objective
+    batch (what we entered before), plus one solve per top-total sim —
+    'if the slate booms like THIS, what's the best lineup?' — which yields
+    genuinely boom-correlated entries the mean objective never builds.
+    Selection is greedy sim-coverage (see select_tail_entries)."""
+    rd = _row_draws(slate, draws)
+    cands = optimize_many(pool, n_lineups=candidate_multiple * n_entries,
+                          stack=stack, objective_col=objective_col)
+    seen = {lu.ids for lu in cands}
+    boom_sims = np.argsort(rd.sum(axis=0))[::-1][:n_boom_solves]
+    for k in boom_sims:
+        sim_pool = [{**p, "proj_sim": float(rd[i, k])}
+                    for i, p in enumerate(pool)]
+        try:
+            lu = optimize(sim_pool, stack=stack, objective_col="proj_sim")
+        except Exception as exc:  # CBC subprocess flake: skip this draw
+            log.warning("boom-draw solve failed: %s", exc)
+            continue
+        if lu is not None and lu.ids not in seen:
+            seen.add(lu.ids)
+            cands.append(lu)
+    if not cands:
+        return []
+    id2row = {pid: i for i, pid in enumerate(slate["id"])}
+    cand_totals = np.stack([
+        rd[[id2row[p["id"]] for p in lu.players]].sum(axis=0) for lu in cands
+    ])
+    picked = select_tail_entries(cand_totals, n_entries, tail_line)
+    return [cands[i] for i in picked]
+
+
 def run_week(
     slate: pd.DataFrame,
     contest: Contest,
@@ -84,16 +140,27 @@ def run_week(
     stack: StackRules | None = None,
     seed: int | None = 42,
     sharp_fraction: float = 0.0,
+    draws: np.ndarray | None = None,
+    tail_line: float | None = None,
+    n_boom_solves: int = 40,
 ) -> WeekResult | None:
-    """Backtest one historical slate. `slate` columns: REQUIRED_COLS."""
+    """Backtest one historical slate. `slate` columns: REQUIRED_COLS.
+    With `draws` (player-draw matrix indexed by the slate's draw_idx
+    column) and `tail_line`, entries are selected to maximize
+    P(best entry >= tail_line) instead of taking the top objective batch."""
     leakage_guard(slate)
     season = int(slate["season"].iloc[0]) if "season" in slate else 0
     week = int(slate["week"].iloc[0]) if "week" in slate else 0
 
     pool = slate.to_dict("records")
     obj = "proj_tourney" if "proj_tourney" in slate.columns else "proj"
-    lineups = optimize_many(pool, n_lineups=n_entries, stack=stack,
-                            objective_col=obj)
+    if draws is not None and tail_line is not None and "draw_idx" in slate.columns:
+        lineups = tail_select_lineups(slate, pool, draws, tail_line,
+                                      n_entries, stack, obj,
+                                      n_boom_solves=n_boom_solves)
+    else:
+        lineups = optimize_many(pool, n_lineups=n_entries, stack=stack,
+                                objective_col=obj)
     if not lineups:
         log.warning("No feasible lineups for %s week %s", season, week)
         return None
@@ -124,12 +191,16 @@ def run(
     stack: StackRules | None = None,
     seed: int | None = 42,
     sharp_fraction: float = 0.0,
+    draws: np.ndarray | None = None,
+    tail_line: float | None = None,
+    n_boom_solves: int = 40,
 ) -> BacktestResult:
     result = BacktestResult(contest=contest)
     for slate in slates:
         wk = run_week(slate, contest, n_entries=n_entries,
                       field_size=field_size, stack=stack, seed=seed,
-                      sharp_fraction=sharp_fraction)
+                      sharp_fraction=sharp_fraction, draws=draws,
+                      tail_line=tail_line, n_boom_solves=n_boom_solves)
         if wk is not None:
             result.weeks.append(wk)
             log.info("season %s week %s: best %.1f pts, best pct %.1f%%",
