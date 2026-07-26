@@ -360,9 +360,10 @@ def _entries_to_line(weeks, lines=(194, 237)) -> None:
 
     print("  entries-to-line (N for 50% chance best-of-N >= line); "
           "top3 = the week's three best entry scores:")
-    print(f"    {'week':>4} {'mu':>6} {'sd':>5} {'top3':>20} "
+    print(f"    {'week':>4} {'mu':>6} {'sd':>5} {'top3':>20} {'brk':>4} "
           + " ".join(f"N@{ln}" for ln in lines))
     med = {ln: [] for ln in lines}
+    best_ranks: list[int] = []
     for w in weeks:
         s = _np.asarray(w.lineup_scores, dtype=float)
         if len(s) < 5 or s.std(ddof=1) == 0:
@@ -376,8 +377,16 @@ def _entries_to_line(weeks, lines=(194, 237)) -> None:
             med[ln].append(n)
             ns.append("inf" if n == math.inf else f"{n:.0f}")
         top3 = ",".join(f"{v:.1f}" for v in sorted(s)[::-1][:3])
-        print(f"    {w.week:>4} {mu:6.1f} {sd:5.1f} {top3:>20} "
-              + " ".join(f"{x:>7}" for x in ns))
+        best_rank = int(_np.argmax(s)) + 1  # selection position of the
+        best_ranks.append(best_rank)        # week's best scorer (1 = the
+        print(f"    {w.week:>4} {mu:6.1f} {sd:5.1f} {top3:>20} {best_rank:>4} "
+              + " ".join(f"{x:>7}" for x in ns))  # entry we trusted most)
+    if best_ranks:
+        br = _np.array(best_ranks)
+        print(f"    best scorer's selection rank: median {int(_np.median(br))}"
+              f"  rank-1 hit {int((br == 1).sum())}/{len(br)} weeks"
+              f"  in top-5 {int((br <= 5).sum())}/{len(br)}"
+              f"  in top-10 {int((br <= 10).sum())}/{len(br)}")
     for ln in lines:
         if med[ln]:
             m = sorted(med[ln])[len(med[ln]) // 2]
