@@ -420,3 +420,31 @@ Deltas are noise-sized and sign-flip between seasons. Consistent with the
 literature (1-2 game samples, roster/coach turnover) and with our earlier
 advanced-metrics ablations: opponent info is already carried by trailing
 defense-vs-position form + the Vegas blend. Not adopted.
+
+## Addendum 9 (2026-07-26): consistent cheap overperformers — real trait, already priced
+
+Question (user): are there low-dollar players that consistently overperform?
+
+**Descriptively, yes** (25,701 player-weeks at <=$5k, 2014-2021 + 2025;
+boom = 3x+ salary value):
+- Split-half boom-rate correlation 0.214; first-half boomers (>=50% rate)
+  keep booming at 27.4% vs 20.6% base — a persistent ~+7pt edge.
+- Cross-season correlation 0.175 (DK eventually reprices).
+- The 2025 archetypes: min-priced starting TEs (Parkinson 62% boom at
+  $2.9k avg, Strange, Barner, Tonges) and young QBs priced below role
+  (Shough, McCarthy 67%). Sticky bottom-of-scale pricing = the
+  "mispriced starter" Milly mechanism seen from the other side.
+
+**As model features, no.** value_l8 (trailing pts/$1k) +
+cheap_boom_rate_prior, walk-forward:
+
+| eval season | MAE base | +value | rank_corr base | +value | cheap MAE base | +value |
+|-------------|----------|--------|----------------|--------|----------------|--------|
+| 2025 | 4.9121 | 4.8990 | 0.5574 | 0.5608 | 4.0333 | 4.0103 |
+| 2021 | 5.1704 | 5.1914 | 0.5350 | 0.5330 | 4.2289 | 4.2266 |
+
+2025's apparent gain sign-flips on 2021 — same mirage shape as the h2h
+ablation. Salary + dk_points_l4 already encode "cheap player scoring
+well"; the explicit framing adds nothing robust. Not adopted. The
+construction side already exploits the trait: punt slots are picked by
+p90 value, which is exactly where these players surface.
