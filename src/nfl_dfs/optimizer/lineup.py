@@ -100,6 +100,13 @@ def optimize(
 
     prob += pulp.lpSum(x[p["id"]] * float(p[objective_col]) for p in players)
     prob += pulp.lpSum(x[p["id"]] * p["salary"] for p in players) <= budget
+    # A/B lever (env MIN_LINEUP_SALARY, off by default): Milly winners
+    # spend the cap — 2025 median $0 left, 2023-24 90% within $300.
+    import os as _os
+
+    _min_sal = int(_os.environ.get("MIN_LINEUP_SALARY", "0") or 0)
+    if _min_sal:
+        prob += pulp.lpSum(x[p["id"]] * p["salary"] for p in players) >= _min_sal
     prob += pulp.lpSum(x.values()) == ROSTER_SIZE
 
     def count(pos: str):
