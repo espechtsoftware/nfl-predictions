@@ -474,3 +474,33 @@ higher-variance construction (concentrated 4-5-man game stacks, #6) and
 selecting entries on P(>= line) against correlated draws (#5). Caveat:
 normal fit thins the right tail, so absolute Ns are order-of-magnitude
 pessimistic; the variance-vs-N relationship is the robust finding.
+
+## Addendum 11 (2026-07-26): tail-objective selection validated — biggest single gain yet
+
+Full-season 2025 replay with issue #5 live (boom-draw candidates + greedy
+sim-coverage selection at line 194), vs the pre-#5 baseline:
+
+| metric | baseline | tail-objective | 
+|--------|----------|----------------|
+| mean best-of-40 | 160.5 | **177.1** |
+| season max | 192.2 | **208.7** |
+| weeks >= 194 (min Milly line) | 0/17 | **2/17** (wks 2, 9*) |
+| entry-pool sd (range) | 10-24 | **16-32** |
+| median N@194 (entries for 50% best-of-N) | ~824,000 | **306** |
+| weeks with 194 reachable in a 150k field | 8/17 | **16/17** |
+| weeks with 237 reachable in a 150k field | 1/17 | 5/17 |
+| median field finish | 11.6% | 14.2% |
+
+(*wk2 best 208.7, wk9 196.1.) The mechanism worked exactly as addendum
+10 predicted: variance was the lever. Boom-draw candidates ("what wins
+if the slate booms like THIS sim") widened per-week entry sd, and
+coverage selection stopped stacking redundant near-identical entries.
+Median entries-to-line collapsed from ~824k to ~306 — the 194 line moved
+from practically unreachable to within a 150k field's grasp in 16/17
+weeks, and week 12/17-type weeks now need only 29/14 entries.
+
+The cost is the expected one: median finish slipped 11.6% -> 14.2%
+(entries are individually lower-mean, higher-variance). For a
+tournament-only player this is the correct trade — cash-line finishes
+don't pay; tails do. Issue #6 (concentrated game buckets) remains open
+as a further variance lever.
