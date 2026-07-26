@@ -504,3 +504,34 @@ The cost is the expected one: median finish slipped 11.6% -> 14.2%
 tournament-only player this is the correct trade — cash-line finishes
 don't pay; tails do. Issue #6 (concentrated game buckets) remains open
 as a further variance lever.
+
+## Addendum 12 (2026-07-26): construction ladder A/B/C/D — Vegas-first DST is the win
+
+Four full-season 2025 replays, each layering one change (baseline =
+addendum 11's tail selection: mean best 177.1, max 208.7, 2/17 >= 194):
+
+| run | change | mean best | >=194 | med finish | med N@194 | 237 in 150k |
+|-----|--------|-----------|-------|------------|-----------|-------------|
+| A | + concentrated game stacks | 177.5 | 2/17 | 13.5% | 278 | 7/17 |
+| B | + DST punt bonus 1.5 | 177.5 | 2/17 | 13.5% | 278 | 7/17 |
+| C | + QB-experience DST adj | 177.2 | 2/17 | 13.7% | 228 | 9/17 |
+| D | + Vegas-first DST model | **180.1** | **5/17** | **13.2%** | 394 | 7/17 |
+
+Verdicts:
+- **Game stacks (A): adopted.** Small clean gain, deep tail 5/17 -> 7/17.
+- **DST punt bonus (B): null, stays off.** Byte-identical to A (env var
+  verified in-container): the punt slot + salary cap already produce the
+  winners' cheap-DST pattern; a +1.5 objective tilt flips no solves.
+- **QB-experience adj (C): adopted** (superseded by D, which contains it).
+- **Vegas-first DST (D): adopted — biggest realized-tail gain of the day.**
+  Five weeks now clear the 194 minimum Milly line (2, 9, 12, 16, 17; best
+  202.2/208.7), mean best 180.1, and median finish improved to 13.2% —
+  better mean AND better tail. Weeks 16/17 jumped +21/+10 pts vs run C.
+- Honest nuance: D's *extrapolated* N@237 (normal-fit) reads worse than
+  C's while its realized results are strictly better — the thin-tailed
+  normal fit under-credits distributions that concentrate mass in real
+  boom scenarios. Realized best-of-40 is the ground truth; the fit is a
+  progress proxy.
+
+Week-of-work summary: baseline -> D took the season from 0 weeks over any
+winning line to 5/17 over the minimum line, mean best 160.5 -> 180.1.

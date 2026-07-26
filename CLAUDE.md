@@ -56,9 +56,9 @@ Config is env vars only, all read in `src/nfl_dfs/config.py`.
 ## Handoff state (2026-07-25, written after local machine instability)
 
 Local box crashes under load (HYPERVISOR_ERROR; .wslconfig caps applied,
-unproven). Strategy: develop via Claude on the web (code, tests, PRs);
-anything needing GCP/BigQuery, the DiscoveryLab API, or long compute runs
-locally via `nfl-dfs <cmd>` — paste the user exact commands to run.
+unproven). Strategy: BigQuery queries and tests run locally; ANY heavy compute
+(model training, replays, ablations) runs on Cloud Run ONLY — local
+LightGBM training has frozen the machine repeatedly (2026-07-26).
 
 - **Tournament construction is the ONLY mode** (user plays GPPs only,
   35-40 entries): every lineup (classic + showdown) requires >=1 sub-$4k

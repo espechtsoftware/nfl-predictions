@@ -336,6 +336,12 @@ def run(
         print(f"  tail: mean best {_np.mean(best):.1f}  max {_np.max(best):.1f}  "
               f"weeks best>=237 (avg 2025 milly line): {sum(b >= 237 for b in best)}"
               f"/{len(best)}  >=194 (min line): {sum(b >= 194 for b in best)}/{len(best)}")
+        # Milly winners spend the cap (2025: median $0 left, max $100;
+        # 2023-24: 90% within $300) — flag if our entries leave money.
+        left = [50_000 - lu.salary for w in result.weeks for lu in w.lineups]
+        print(f"  salary left on table: mean {_np.mean(left):.0f}  "
+              f"median {_np.median(left):.0f}  p90 {_np.percentile(left, 90):.0f}  "
+              f"share >$1k: {100 * _np.mean(_np.array(left) > 1000):.0f}%")
         _entries_to_line(result.weeks)
 
 
