@@ -400,3 +400,23 @@ Net: every construction constant we set from 2025 (punt slot, chalk fade,
 ~237 tail target) is confirmed by 2023-2024. One candidate tweak: bias
 the punt slot toward cheap DST more often (winners do it 29/31 weeks in
 2023-24).
+
+## Addendum 8 (2026-07-26): head-to-head (last meeting) features — null result
+
+Question (user): do we consider what happened the last time these two teams
+played? We didn't — and a walk-forward ablation confirms we shouldn't.
+
+Two point-in-time features (`faced_opp_prior` within 2 seasons, and the
+player's `dk_points_last_vs_opp` from that meeting; 40.4% of panel rows have
+a prior meeting), added to the canonical featureset and evaluated with
+identical seeds:
+
+| season | MAE base | MAE +h2h | delta | rank_corr base | +h2h | delta |
+|--------|----------|----------|-------|----------------|------|-------|
+| 2024 | 5.0384 | 5.0264 | -0.012 | 0.5317 | 0.5310 | -0.0007 |
+| 2025 | 4.8995 | 4.9002 | +0.001 | 0.5579 | 0.5596 | +0.0017 |
+
+Deltas are noise-sized and sign-flip between seasons. Consistent with the
+literature (1-2 game samples, roster/coach turnover) and with our earlier
+advanced-metrics ablations: opponent info is already carried by trailing
+defense-vs-position form + the Vegas blend. Not adopted.
