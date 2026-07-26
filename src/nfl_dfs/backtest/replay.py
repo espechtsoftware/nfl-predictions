@@ -241,3 +241,44 @@ def run(
         print(f"  tail: mean best {_np.mean(best):.1f}  max {_np.max(best):.1f}  "
               f"weeks best>=237 (avg 2025 milly line): {sum(b >= 237 for b in best)}"
               f"/{len(best)}  >=194 (min line): {sum(b >= 194 for b in best)}/{len(best)}")
+        _entries_to_line(result.weeks)
+
+
+def _entries_to_line(weeks, lines=(194, 237)) -> None:
+    """Order-statistics extrapolation: from each week's entry-score
+    distribution (normal fit to the generated entries), how many entries N
+    would give a 50% chance that the best of N clears a Milly line?
+    N = ln(0.5)/ln(P(one entry < line)). Two opposing biases roughly cancel:
+    a normal fit thins the right tail (overstates N for correlated stacks),
+    while extrapolating from the optimizer's top picks assumes entry quality
+    doesn't degrade with N (understates it). Read as order-of-magnitude."""
+    import math
+    from statistics import NormalDist
+
+    import numpy as _np
+
+    print("  entries-to-line (N for 50% chance best-of-N >= line):")
+    print(f"    {'week':>4} {'mu':>6} {'sd':>5} {'best':>6} "
+          + " ".join(f"N@{ln}" for ln in lines))
+    med = {ln: [] for ln in lines}
+    for w in weeks:
+        s = _np.asarray(w.lineup_scores, dtype=float)
+        if len(s) < 5 or s.std(ddof=1) == 0:
+            continue
+        mu, sd = s.mean(), s.std(ddof=1)
+        ns = []
+        for ln in lines:
+            p_under = NormalDist(mu, sd).cdf(ln)
+            n = math.inf if p_under >= 1.0 else (
+                1.0 if p_under <= 0.5 else math.log(0.5) / math.log(p_under))
+            med[ln].append(n)
+            ns.append("inf" if n == math.inf else f"{n:.0f}")
+        print(f"    {w.week:>4} {mu:6.1f} {sd:5.1f} {max(s):6.1f} "
+              + " ".join(f"{x:>7}" for x in ns))
+    for ln in lines:
+        if med[ln]:
+            m = sorted(med[ln])[len(med[ln]) // 2]
+            within = sum(n <= 150_000 for n in med[ln])
+            print(f"    line {ln}: median N {'inf' if m == math.inf else f'{m:,.0f}'}"
+                  f"  weeks reachable within a 150k-entry field: "
+                  f"{within}/{len(med[ln])}")
