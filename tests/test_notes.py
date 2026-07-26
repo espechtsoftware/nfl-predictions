@@ -119,3 +119,28 @@ def test_vegas_first_dst_model():
     assert out.iloc[0] > out.iloc[1] + 3      # low implied total >> high
     # No line -> fallback: trailing + raw QB-experience adjustment
     assert out.iloc[2] == pytest.approx(8.0 + 2.2)
+
+
+def test_prop_lines_parse():
+    from nfl_dfs.ingest.oddsapi_import import parse_event_odds
+
+    payload = {"data": {
+        "id": "ev1", "commence_time": "2025-09-07T17:00:00Z",
+        "home_team": "Chicago Bears", "away_team": "Detroit Lions",
+        "bookmakers": [{"key": "draftkings", "markets": [
+            {"key": "player_pass_yds", "outcomes": [
+                {"name": "Over", "description": "C. Williams",
+                 "price": -115, "point": 245.5},
+                {"name": "Under", "description": "C. Williams",
+                 "price": -105, "point": 245.5}]},
+            {"key": "player_anytime_td", "outcomes": [
+                {"name": "D. Montgomery", "price": +120}]},
+        ]}]}}
+    rows = parse_event_odds(payload, 2025, 1, "2025-09-07T15:00:00Z")
+    assert len(rows) == 3
+    over = rows[0]
+    assert over["player"] == "C. Williams" and over["point"] == 245.5
+    td = rows[2]
+    assert td["player"] == "D. Montgomery" and td["point"] is None
+    assert all(r["season"] == 2025 and r["bookmaker"] == "draftkings"
+               for r in rows)

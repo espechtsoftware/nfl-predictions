@@ -64,6 +64,11 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--entries", type=int, default=40)
     p.add_argument("--days", default="thu,mon")
 
+    p = sub.add_parser("import-prop-lines",
+                       help="Backfill player-prop lines from The Odds API")
+    p.add_argument("--first-season", type=int, default=2023)
+    p.add_argument("--last-season", type=int, default=2025)
+
     p = sub.add_parser("import-ownership",
                        help="Import a DK contest-standings CSV (actual ownership)")
     p.add_argument("path")
@@ -141,6 +146,11 @@ def main(argv: list[str] | None = None) -> None:
 
         showdown_replay.run(season=args.season, n_entries=args.entries,
                             days=args.days)
+    elif args.command == "import-prop-lines":
+        from .ingest import oddsapi_import
+
+        oddsapi_import.run(first_season=args.first_season,
+                           last_season=args.last_season)
     elif args.command == "import-ownership":
         from .ingest import ownership_import
 

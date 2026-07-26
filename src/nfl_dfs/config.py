@@ -51,6 +51,11 @@ class Settings:
     model_registry_prefix: str = field(
         default_factory=lambda: os.environ.get("MODEL_REGISTRY_PREFIX", "models")
     )
+    # The Odds API key (ingest/oddsapi_import.py) — historical + live prop
+    # lines and multi-book game odds; lives in .env.
+    odds_api_key: str = field(
+        default_factory=lambda: os.environ.get("ODDS_API_KEY", "")
+    )
     # SportsDataIO DiscoveryLab key (ingest/discoverylab_import.py); lives
     # in .env. Empty = importer unavailable.
     sportsdata_api_key: str = field(
