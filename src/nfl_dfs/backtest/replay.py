@@ -358,8 +358,9 @@ def _entries_to_line(weeks, lines=(194, 237)) -> None:
 
     import numpy as _np
 
-    print("  entries-to-line (N for 50% chance best-of-N >= line):")
-    print(f"    {'week':>4} {'mu':>6} {'sd':>5} {'best':>6} "
+    print("  entries-to-line (N for 50% chance best-of-N >= line); "
+          "top3 = the week's three best entry scores:")
+    print(f"    {'week':>4} {'mu':>6} {'sd':>5} {'top3':>20} "
           + " ".join(f"N@{ln}" for ln in lines))
     med = {ln: [] for ln in lines}
     for w in weeks:
@@ -374,7 +375,8 @@ def _entries_to_line(weeks, lines=(194, 237)) -> None:
                 1.0 if p_under <= 0.5 else math.log(0.5) / math.log(p_under))
             med[ln].append(n)
             ns.append("inf" if n == math.inf else f"{n:.0f}")
-        print(f"    {w.week:>4} {mu:6.1f} {sd:5.1f} {max(s):6.1f} "
+        top3 = ",".join(f"{v:.1f}" for v in sorted(s)[::-1][:3])
+        print(f"    {w.week:>4} {mu:6.1f} {sd:5.1f} {top3:>20} "
               + " ".join(f"{x:>7}" for x in ns))
     for ln in lines:
         if med[ln]:
