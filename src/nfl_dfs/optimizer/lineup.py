@@ -88,8 +88,12 @@ def optimize(
     max_overlap: int = 8,
     punt_max_salary: int | None = None,
     punt_min: int = 0,
+    game_lock: tuple[str, int] | None = None,
 ) -> Lineup | None:
-    """Solve one lineup. Returns None if infeasible."""
+    """Solve one lineup. Returns None if infeasible.
+    game_lock=(game_id, n) forces >= n players from that game — the
+    concentrated-game-stack construction (issue #6): Milly winners take
+    50-80% of their points from one game."""
     prob = pulp.LpProblem("dfs", pulp.LpMaximize)
     x = {p["id"]: pulp.LpVariable(f"x_{p['id']}", cat="Binary") for p in players}
     by_id = {p["id"]: p for p in players}
@@ -128,6 +132,12 @@ def optimize(
         punts = [p["id"] for p in players if p["salary"] <= punt_max_salary]
         if punts:
             prob += pulp.lpSum(x[pid] for pid in punts) >= punt_min
+
+    if game_lock:
+        gid, n_from_game = game_lock
+        in_game = [p["id"] for p in players if p.get("game_id") == gid]
+        if len(in_game) >= n_from_game:
+            prob += pulp.lpSum(x[pid] for pid in in_game) >= n_from_game
 
     for pid in locks or ():
         prob += x[pid] == 1

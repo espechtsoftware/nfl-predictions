@@ -375,4 +375,48 @@ def test_showdown_punt_slot_default():
     assert lineups
     for lu in lineups:
         assert any(p["salary"] <= PUNT_MAX_SALARY for p in lu.players)
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+
+
+def test_game_lock_forces_concentration():
+    pool = make_pool()
+    gid = sorted({p["game_id"] for p in pool})[0]
+    lu = optimize(pool, game_lock=(gid, 5))
+    assert lu is not None
+    assert sum(1 for p in lu.players if p["game_id"] == gid) >= 5
+    # And without the lock the optimum is less concentrated or equal-proj
+    free = optimize(pool)
+    assert free.proj >= lu.proj
+
+
+# select_tail_entries -------------------------------------------------------
+# (restored after crash corruption zeroed these out of commit db8160c)
+
+from nfl_dfs.optimizer.lineup import select_tail_entries
+
+
+def test_tail_selection_prefers_complementary_booms():
+    # A and B clear the line in the SAME sims; C clears a different sim.
+    # Coverage selection must take one of {A,B} plus C — never A and B —
+    # even though B beats C on every marginal stat.
+    line = 100.0
+    a = [120, 115, 0, 0, 0, 0]
+    b = [125, 118, 0, 0, 0, 50]
+    c = [0, 0, 110, 0, 0, 0]
+    picked = select_tail_entries(np.array([a, b, c], dtype=float), 2, line)
+    assert set(picked) == {1, 2}  # B (higher P and mean of the pair) + C
+
+
+def test_tail_selection_fills_after_saturation():
+    line = 100.0
+    a = [120, 0, 0]   # covers sim 0
+    b = [0, 0, 90]    # never clears
+    c = [0, 0, 95]    # never clears, higher mean
+    picked = select_tail_entries(np.array([a, b, c], dtype=float), 3, line)
+    assert picked[0] == 0                 # only real coverage first
+    assert picked[1] == 2                 # then best remaining mean
+    assert len(picked) == 3
+
+
+def test_tail_selection_caps_at_candidates():
+    totals = np.array([[120.0, 0.0]])
+    assert select_tail_entries(totals, 5, 100.0) == [0]

@@ -161,6 +161,18 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
 
         frame = frame.reset_index(drop=True)
         frame["proj_tourney"] = frame.proj - LEVERAGE_PENALTY * naive_ownership(frame)
+        # A/B lever (env DST_PUNT_BONUS, off by default): 2023-24 Milly
+        # winners used a cheap DST as their punt in 29/31 weeks (addendum
+        # 7). The bonus tilts OUR objective toward sub-punt-cap DSTs;
+        # the field's proj is untouched.
+        import os
+
+        dst_bonus = float(os.environ.get("DST_PUNT_BONUS", "0") or 0)
+        if dst_bonus:
+            from ..optimizer.lineup import PUNT_MAX_SALARY as _punt_cap
+
+            cheap_dst = (frame.pos == "DST") & (frame.salary <= _punt_cap)
+            frame.loc[cheap_dst, "proj_tourney"] += dst_bonus
         slates.append(frame)
     return slates
 

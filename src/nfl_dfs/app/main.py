@@ -306,7 +306,34 @@ def _player_pool(
     return pool
 
 
-def _build_classic(req: LineupRequest, store: ProjectionStore) -> list:
+MIN_MILLY_LINE = 194.0  # lowest 2025 Milly-winning score; confidence target
+
+
+def _rank_by_confidence(lineups: list, df: pd.DataFrame,
+                        line: float = MIN_MILLY_LINE) -> list[dict]:
+    """Sort lineups by tournament confidence — P(lineup total >= line)
+    under a normal approximation from each player's projection mean and
+    std. Independence understates stacked lineups' true tail, so treat
+    the number as an ordering signal, not a literal probability; the
+    untilted means are used (confidence is about scoring, not leverage)."""
+    from statistics import NormalDist
+
+    mu_map = df.set_index("dk_player_id").proj_points.to_dict()
+    sd_map = (df.set_index("dk_player_id").proj_std.to_dict()
+              if "proj_std" in df.columns else {})
+    ranked = []
+    for lu in lineups:
+        mu = sum(float(mu_map.get(p["id"], p["proj"])) for p in lu.players)
+        var = sum(float(sd_map.get(p["id"], 0) or 0) ** 2 for p in lu.players)
+        sigma = max(var ** 0.5, 1e-6)
+        p_line = 1 - NormalDist(mu, sigma).cdf(line)
+        ranked.append({"lineup": lu, "proj_mean": round(mu, 1),
+                       "confidence": round(100 * p_line, 2)})
+    ranked.sort(key=lambda r: (r["confidence"], r["proj_mean"]), reverse=True)
+    return ranked
+
+
+def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
     df = store.projections(req.season, req.week)
     if df.empty:
         raise HTTPException(404, f"No projections for {req.season} week {req.week}")
@@ -322,22 +349,28 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> list:
     )
     if not lineups:
         raise HTTPException(422, "No feasible lineup under the given constraints")
-    return lineups
+    # Confidence order everywhere (JSON + CSVs): first lineup = strongest
+    # entry, so "enter the top N in the bigger contest" is just slicing.
+    ranked = _rank_by_confidence(lineups, df)
+    return [r["lineup"] for r in ranked], ranked
 
 
 @app.post("/lineups")
 def build_lineups(
     req: LineupRequest, store: ProjectionStore = Depends(get_store)
 ) -> dict:
-    lineups = _build_classic(req, store)
+    lineups, ranked = _build_classic(req, store)
     return {
         "lineups": [
             {
-                "players": lu.slot_order(),
-                "salary": lu.salary,
-                "proj": round(lu.proj, 2),
+                "rank": i + 1,
+                "confidence": r["confidence"],  # P(total >= 194), % (ordering signal)
+                "proj_mean": r["proj_mean"],
+                "players": r["lineup"].slot_order(),
+                "salary": r["lineup"].salary,
+                "proj": round(r["lineup"].proj, 2),
             }
-            for lu in lineups
+            for i, r in enumerate(ranked)
         ],
         "exposure": exposure_summary(lineups),
         "dk_csv": to_dk_csv(lineups),
@@ -380,6 +413,7 @@ def build_core_lineups(
     if not lineups:
         raise HTTPException(422, "No feasible lineup under the given constraints")
     by_id = {p["id"]: p for p in upside_pool}
+    ranked = _rank_by_confidence(lineups, df)
     return {
         "core": [
             {"id": c["id"], "conviction": c["conviction"],
@@ -388,12 +422,15 @@ def build_core_lineups(
             for c in core
         ],
         "lineups": [
-            {"players": lu.slot_order(), "salary": lu.salary,
-             "proj": round(lu.proj, 2)}
-            for lu in lineups
+            {"rank": i + 1, "confidence": r["confidence"],
+             "proj_mean": r["proj_mean"],
+             "players": r["lineup"].slot_order(),
+             "salary": r["lineup"].salary,
+             "proj": round(r["lineup"].proj, 2)}
+            for i, r in enumerate(ranked)
         ],
         "exposure": exposure_summary(lineups),
-        "dk_csv": to_dk_csv(lineups),
+        "dk_csv": to_dk_csv([r["lineup"] for r in ranked]),
     }
 
 
@@ -636,7 +673,7 @@ def fill_classic_entries(
     req: FillEntriesRequest, store: ProjectionStore = Depends(get_store)
 ) -> Response:
     build_req = req.model_copy(update={"n_lineups": _entries_n(req.entries_csv)})
-    return _entries_response(req.entries_csv, _build_classic(build_req, store))
+    return _entries_response(req.entries_csv, _build_classic(build_req, store)[0])
 
 
 @app.post("/showdown/lineups/entries.csv")

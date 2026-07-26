@@ -98,6 +98,8 @@ def tail_select_lineups(
     objective_col: str,
     candidate_multiple: int = 2,
     n_boom_solves: int = 40,
+    n_game_stacks: int = 4,
+    n_per_game: int = 3,
 ) -> list[Lineup]:
     """Entry selection on P(best-of-N >= tail_line) (guide: issue #5).
 
@@ -122,6 +124,29 @@ def tail_select_lineups(
         if lu is not None and lu.ids not in seen:
             seen.add(lu.ids)
             cands.append(lu)
+    # Concentrated game stacks (issue #6): for each top game environment,
+    # force >= 5 players from that game. Winners take 50-80% of points
+    # from one game; these are deliberately lower-mean, higher-variance
+    # candidates — coverage selection decides how many survive.
+    game_proj = (slate[slate.get("game_id").notna()]
+                 .groupby("game_id")["proj"].sum().sort_values(ascending=False)
+                 if "game_id" in slate.columns else pd.Series(dtype=float))
+    for gid in game_proj.head(n_game_stacks).index:
+        banned = []
+        for _ in range(n_per_game):
+            try:
+                lu = optimize(pool, stack=stack, objective_col=objective_col,
+                              game_lock=(gid, 5), banned_lineups=banned,
+                              max_overlap=7)
+            except Exception as exc:
+                log.warning("game-stack solve failed (%s): %s", gid, exc)
+                break
+            if lu is None:
+                break
+            banned.append(lu.ids)
+            if lu.ids not in seen:
+                seen.add(lu.ids)
+                cands.append(lu)
     if not cands:
         return []
     id2row = {pid: i for i, pid in enumerate(slate["id"])}
