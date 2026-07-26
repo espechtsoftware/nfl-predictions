@@ -324,3 +324,32 @@ Implication: the punt slot needs no extra machinery — p90 valuation +
 vacated features + inference-table cold-start rows cover all three skill
 archetypes; replay-based punt validation slightly understates live punt
 quality because rookies are invisible to the training panel.
+
+
+## Addendum 6: season-wide leverage anatomy (all 153 winning roster spots)
+
+All 17 Milly-winning rosters (136 skill players + 17 DSTs;
+reports/2025-milly-rosters.csv) classified against point-in-time warehouse
+signals. Signals: injury_vacated (teammate vacated share >=0.10),
+secure_role_slump (depth<=2, snaps>=55%, trailing points <60% of the boom),
+secure_role, no_history (rookie/returner), other.
+
+| Tier | injury | slumping starter | secure role | no history | other |
+|---|---|---|---|---|---|
+| Punt <=4k (19) | **42%** | 37% | 5% | 5% | 11% |
+| Mid 4-7k (86) | **30%** | **29%** | 16% | 10% | 14% |
+| Stud 7k+ (31) | 16% | 32% | 45% | 6% | 0% |
+
+Findings:
+- The injury/vacated-opportunity mechanism is the single largest driver at
+  the punt tier (42%) and a co-lead at mid salary (30%) — stronger up the
+  salary scale than the 3-week sample suggested.
+- The equal co-driver is the **slumping secure starter** (depth 1-2,
+  55%+ snaps, depressed trailing points): 29-37% of every tier, and the
+  hardest boomers of all (32.2 avg points vs 27.9 for injury plays) —
+  the field's recency bias is the other exploitable inefficiency.
+- Both mechanisms are already what our construction targets: vacated
+  features + p90 punts catch the injury tier; usage-first projections +
+  chalk fade catch the under-owned slumping starters.
+- Studs in winning lineups are mostly just studs (77% secure roles) —
+  leverage lives below $7k.
