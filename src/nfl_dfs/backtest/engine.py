@@ -111,6 +111,8 @@ def tail_select_lineups(
     rd = _row_draws(slate, draws)
     cands = optimize_many(pool, n_lineups=candidate_multiple * n_entries,
                           stack=stack, objective_col=objective_col)
+    for lu in cands:
+        lu.tag = "lev"
     seen = {lu.ids for lu in cands}
     boom_sims = np.argsort(rd.sum(axis=0))[::-1][:n_boom_solves]
     for k in boom_sims:
@@ -122,6 +124,7 @@ def tail_select_lineups(
             log.warning("boom-draw solve failed: %s", exc)
             continue
         if lu is not None and lu.ids not in seen:
+            lu.tag = "boom"
             seen.add(lu.ids)
             cands.append(lu)
     # Concentrated game stacks (issue #6): for each top game environment,
@@ -145,6 +148,7 @@ def tail_select_lineups(
                 break
             banned.append(lu.ids)
             if lu.ids not in seen:
+                lu.tag = "game"
                 seen.add(lu.ids)
                 cands.append(lu)
     if not cands:

@@ -47,6 +47,7 @@ class StackRules:
 @dataclass
 class Lineup:
     players: list[Player]
+    tag: str = ""  # which generator produced it (lev/boom/game); analysis only
 
     @property
     def ids(self) -> frozenset:

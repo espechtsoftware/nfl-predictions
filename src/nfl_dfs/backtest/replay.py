@@ -344,6 +344,72 @@ def run(
               f"share >$1k: {100 * _np.mean(_np.array(left) > 1000):.0f}%")
         _entries_to_line(result.weeks)
         _confidence_calibration(result.weeks, proj)
+        _entry_anatomy(result.weeks)
+
+
+def _entry_anatomy(weeks) -> None:
+    """Why do our best entries win? Compare each week's top scorer (and
+    top quintile) against the rest of the 40 on structure: generator of
+    origin, game concentration, QB stack size, punt production, chalk
+    level, salary. Ownership is recovered from the leverage tilt:
+    proj_tourney = proj - LEVERAGE_PENALTY * ownership."""
+    import numpy as _np
+
+    from ..optimizer.lineup import LEVERAGE_PENALTY, PUNT_MAX_SALARY
+
+    def feats(lu):
+        ps = lu.players
+        games = {}
+        for p in ps:
+            games[p.get("game_id")] = games.get(p.get("game_id"), 0) + 1
+        qb = next((p for p in ps if p["pos"] == "QB"), None)
+        stack_n = sum(1 for p in ps if qb is not None and p["pos"] in
+                      ("WR", "TE") and p["team"] == qb["team"])
+        punts = [p for p in ps if p["salary"] <= PUNT_MAX_SALARY]
+        own = sum(max(0.0, (p.get("proj", 0) - p.get("proj_tourney",
+                   p.get("proj", 0)))) / LEVERAGE_PENALTY for p in ps)
+        return {
+            "tag": lu.tag or "lev",
+            "max_game": max(games.values()) if games else 0,
+            "stack": stack_n,
+            "punt_actual": max((float(p.get("actual") or 0) for p in punts),
+                               default=0.0),
+            "own": own,
+            "salary": lu.salary,
+        }
+
+    rows, best_tags = [], []
+    for w in weeks:
+        order = _np.argsort(w.lineup_scores)[::-1]
+        for rank_pos, idx in enumerate(order):
+            f = feats(w.lineups[idx])
+            f["score"] = w.lineup_scores[idx]
+            f["is_best"] = rank_pos == 0
+            f["is_top8"] = rank_pos < 8
+            rows.append(f)
+            if rank_pos == 0:
+                best_tags.append(f["tag"])
+    if not rows:
+        return
+    df = pd.DataFrame(rows)
+    pool_share = df.tag.value_counts(normalize=True)
+    from collections import Counter
+
+    bt = Counter(best_tags)
+    print("  entry anatomy (what wins within our own 40):")
+    print("    weekly best by generator: "
+          + "  ".join(f"{t}:{bt.get(t, 0)}/{len(best_tags)} "
+                      f"(pool {100 * pool_share.get(t, 0):.0f}%)"
+                      for t in ("lev", "boom", "game")))
+    for label, mask in (("weekly best", df.is_best),
+                        ("top-8/week", df.is_top8),
+                        ("rest", ~df.is_top8)):
+        g = df[mask]
+        print(f"    {label:>11}: score {g.score.mean():5.1f}  "
+              f"max-from-game {g.max_game.mean():.2f}  "
+              f"QB stack {g['stack'].mean():.2f}  "
+              f"punt pts {g.punt_actual.mean():5.1f}  "
+              f"chalk {g.own.mean():.2f}  salary {g.salary.mean():.0f}")
 
 
 def _confidence_calibration(weeks, proj: pd.DataFrame,
