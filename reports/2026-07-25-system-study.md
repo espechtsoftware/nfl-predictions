@@ -298,3 +298,29 @@ range — in the softest weeks, consistency alone nearly competes; the gap
 is concentrated in normal-to-high scoring weeks.
 
 Not yet implemented; measured next via replay once built.
+
+
+## Addendum 5: what elevated the winning punts (traced to our features)
+
+The 10 skill punts from 2025 Milly winners, traced to their point-in-time
+training rows (7 other winners used a cheap DST as the sub-$4k play):
+
+- **3/10 next-man-up inheritors** — vacated-opportunity features fired
+  hard: Hutchinson wk8 vac_tgt 0.464 (7.5x league mean 0.062), Wilson
+  wk11 0.185, Boutte wk6 vac_car 0.168. The injury-elevation hypothesis
+  is real and our detector sees it.
+- **4/10 mispriced starters** — depth rank 1-2, snap share 0.67-0.91,
+  yet priced $3.2-3.9k: DK price lag on established roles (Parkinson's
+  usage trend 1.37). Salary-lag, not injury. p90 punt valuation captures
+  these because ceilings load on snaps/usage.
+- **3/10 rookies/new roles** (Gadsden, Fannin, wk-1) — cold-start rows
+  absent from the training table (gp>=1 filter) but present in the
+  inference table with depth/draft priors; the punt slot can reach them
+  live even though replays undercount them.
+- **DST-as-punt in 7/17 winners** — our punt constraint counts DSTs, so
+  construction already permits this dominant pattern.
+
+Implication: the punt slot needs no extra machinery — p90 valuation +
+vacated features + inference-table cold-start rows cover all three skill
+archetypes; replay-based punt validation slightly understates live punt
+quality because rookies are invisible to the training panel.
