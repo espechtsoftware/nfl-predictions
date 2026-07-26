@@ -51,3 +51,30 @@ Config is env vars only, all read in `src/nfl_dfs/config.py`.
 - Season semantics: `config.current_season()` rolls over in March
   (planning clock); nflverse serves data only for started seasons — clamp
   with `nfl.get_current_season()` when loading (see `ingest/nflverse_job.py`).
+
+
+## Handoff state (2026-07-25, written after local machine instability)
+
+Local box crashes under load (HYPERVISOR_ERROR; .wslconfig caps applied,
+unproven). Strategy: develop via Claude on the web (code, tests, PRs);
+anything needing GCP/BigQuery, the DiscoveryLab API, or long compute runs
+locally via `nfl-dfs <cmd>` — paste the user exact commands to run.
+
+- **Tournament construction is the ONLY mode** (user plays GPPs only,
+  35-40 entries): every lineup (classic + showdown) requires >=1 sub-$4k
+  punt valued at p90; chalk-fade penalty (LEVERAGE_PENALTY x naive
+  ownership) applies to OUR objective only, never the simulated field
+  (proj_tourney vs proj in replay slates); stack defaults QB+2 catchers
+  +1 bring-back; replay prints winning-line tail (>=237 avg / >=194 min
+  2025 Milly lines, reports/2025-milly-winners.csv).
+- **Committed but UNVALIDATED**: the tournament-mode replays (classic
+  gpp + showdown, season 2025) never completed — machine crashed. First
+  task: run `nfl-dfs replay --season 2025 --contest gpp` and
+  `nfl-dfs replay-showdown --season 2025 --entries 40`; compare tail vs
+  pre-tournament baseline (best mean 158.5, 2/17 weeks >=190).
+- **Open analysis**: do the Milly punt booms (punt_4k columns in
+  reports/2025-milly-winners.csv) show elevated team_vacated_*/depth_rank
+  signals in player_week_training that week? Tests whether our next-man-up
+  detector finds them prospectively.
+- Everything else: reports/2026-07-25-system-study.md (addenda 1-4) and
+  the README deficiency log are current.
