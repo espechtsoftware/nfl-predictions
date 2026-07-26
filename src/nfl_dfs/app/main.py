@@ -65,6 +65,49 @@ tr:nth-child(-n+5) td:first-child{font-weight:600}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
 @media(max-width:800px){.grid{grid-template-columns:1fr}}
 small{color:#666}
+#chat{margin:1.5rem 0;background:#fff;border:1px solid #e5e5ef;
+      border-radius:8px;padding:1rem}
+#chatlog{max-height:320px;overflow-y:auto;font-size:.9rem;margin-bottom:.6rem}
+#chatlog .u{font-weight:600;margin-top:.5rem}
+#chatlog .a{white-space:pre-wrap;margin:.2rem 0 .2rem .8rem}
+#chatrow{display:flex;gap:.5rem}
+#chatin{flex:1;padding:.45rem .6rem;border:1px solid #ccc;border-radius:6px}
+#chatbtn{padding:.45rem 1rem;background:#1a1a2e;color:#fff;border:0;
+         border-radius:6px;cursor:pointer}
+#chatbtn:disabled{opacity:.5}
+"""
+
+_CHAT_HTML = """
+<div id='chat'><h2 style='margin-top:0'>Assistant</h2>
+<small>Manage usage notes ("Add a note: coach says Odunze moves to the
+slot, +15%"), list/delete them, or ask about projections and player form.</small>
+<div id='chatlog'></div>
+<div id='chatrow'>
+<input id='chatin' placeholder='Ask or instruct...'>
+<button id='chatbtn'>Send</button></div></div>
+<script>
+let hist=[];
+const log=document.getElementById('chatlog'),inp=document.getElementById('chatin'),
+      btn=document.getElementById('chatbtn');
+function show(cls,text){const d=document.createElement('div');d.className=cls;
+  d.textContent=text;log.appendChild(d);log.scrollTop=log.scrollHeight;}
+async function send(){
+  const q=inp.value.trim(); if(!q)return;
+  inp.value=''; btn.disabled=true; show('u','You: '+q);
+  hist.push({role:'user',content:q});
+  try{
+    const r=await fetch('/chat',{method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({messages:hist})});
+    const j=await r.json();
+    if(!r.ok){show('a','Error: '+(j.detail||r.status));}
+    else{hist=j.messages; show('a',j.reply||'(no reply)');}
+  }catch(e){show('a','Error: '+e);}
+  btn.disabled=false; inp.focus();
+}
+btn.onclick=send;
+inp.addEventListener('keydown',e=>{if(e.key==='Enter')send();});
+</script>
 """
 
 
@@ -100,6 +143,7 @@ def _defense_page(df, season: int) -> str:
         f"positive means the defense is giving up more than usual lately. "
         f"API: <a href='/docs'>/docs</a>, "
         f"<a href='/defense/trends?season={season}'>/defense/trends</a></small>"
+        f"{_CHAT_HTML}"
         f"<div class='grid'>{''.join(sections)}</div></body></html>"
     )
 
@@ -120,6 +164,29 @@ def defense_dashboard(
 @app.get("/health")
 def health() -> dict:
     return {"status": "ok"}
+
+
+class ChatRequest(BaseModel):
+    messages: list[dict]  # Claude-API-shaped history; last entry is the user turn
+
+
+@app.post("/chat")
+def chat(req: ChatRequest) -> dict:
+    """Dashboard assistant: manage usage notes, query projections/form.
+    Needs ANTHROPIC_API_KEY in the environment."""
+    import os
+
+    from . import chat as chat_mod
+
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        raise HTTPException(503, "ANTHROPIC_API_KEY is not set — add it to "
+                                 ".env to enable chat")
+    try:
+        messages = chat_mod.chat_turn(list(req.messages))
+    except Exception as exc:
+        log.exception("chat turn failed")
+        raise HTTPException(500, f"chat failed: {exc}")
+    return {"reply": chat_mod.reply_text(messages), "messages": messages}
 
 
 @app.get("/defense/points-against")

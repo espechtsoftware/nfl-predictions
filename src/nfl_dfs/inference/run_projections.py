@@ -80,6 +80,11 @@ def project(
     if adjust is not None:
         feats, out_ids = adjust(feats)
     comps = model.predict_components(feats)
+    # Manual usage notes (coach statements etc.): inference-only prior
+    # adjustment, decaying to zero by week 6 — see notes.py.
+    from .. import notes as manual_notes
+
+    comps = manual_notes.apply_notes(comps, feats, season, week)
     sim = simulate.simulate(comps, n_sims=n_sims,
                         game_ids=feats.get("game_id"))
     preds = calibration.apply_widen(
