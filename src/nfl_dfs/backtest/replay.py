@@ -343,6 +343,39 @@ def run(
               f"median {_np.median(left):.0f}  p90 {_np.percentile(left, 90):.0f}  "
               f"share >$1k: {100 * _np.mean(_np.array(left) > 1000):.0f}%")
         _entries_to_line(result.weeks)
+        _confidence_calibration(result.weeks, proj)
+
+
+def _confidence_calibration(weeks, proj: pd.DataFrame,
+                            line: float = 194.0, dst_std: float = 5.4) -> None:
+    """Judge the app's confidence formula (normal-approx P(entry >= line)
+    from per-player proj mean/std — app._rank_by_confidence) the same way
+    the selection order is judged: where does each week's best scorer land
+    when entries are ordered by that confidence?"""
+    from statistics import NormalDist
+
+    import numpy as _np
+
+    mu_map = {(r.week, r.gsis_id): r.proj_points for r in proj.itertuples()}
+    sd_map = {(r.week, r.gsis_id): r.proj_std for r in proj.itertuples()}
+    ranks = []
+    for w in weeks:
+        conf = []
+        for lu in w.lineups:
+            mu = sum(float(mu_map.get((w.week, p["id"]), p["proj"]))
+                     for p in lu.players)
+            var = sum(float(sd_map.get((w.week, p["id"]), dst_std)) ** 2
+                      for p in lu.players)
+            conf.append(1 - NormalDist(mu, max(var ** 0.5, 1e-6)).cdf(line))
+        order = _np.argsort(conf)[::-1]  # most confident first
+        best_idx = int(_np.argmax(w.lineup_scores))
+        ranks.append(int(_np.where(order == best_idx)[0][0]) + 1)
+    if ranks:
+        r = _np.array(ranks)
+        print(f"  app-confidence ordering, best scorer's rank: "
+              f"median {int(_np.median(r))}  rank-1 hit {int((r == 1).sum())}"
+              f"/{len(r)}  in top-5 {int((r <= 5).sum())}/{len(r)}"
+              f"  in top-10 {int((r <= 10).sum())}/{len(r)}")
 
 
 def _entries_to_line(weeks, lines=(194, 237)) -> None:
