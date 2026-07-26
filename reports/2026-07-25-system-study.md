@@ -448,3 +448,29 @@ ablation. Salary + dk_points_l4 already encode "cheap player scoring
 well"; the explicit framing adds nothing robust. Not adopted. The
 construction side already exploits the trait: punt slots are picked by
 p90 value, which is exactly where these players surface.
+
+## Addendum 10 (2026-07-26): how many entries to reach a Milly line? Entry count is not the lever
+
+New replay output (`_entries_to_line`): per week, fit the score distribution
+of our 40 generated entries, then solve order statistics for the N where
+best-of-N clears a line with 50% probability. 2025, correlated sim:
+
+- **Line 194 (min 2025 winning line): median N ~824k.** Reachable within a
+  150k-entry field in 8/17 weeks; within DK's 150-entry/user cap in ~2
+  weeks (wk12 N=40, wk17 N=104).
+- **Line 237 (avg winning line): median N ~10^15.** Effectively
+  unreachable at any entry count from the current entry distribution.
+
+The diagnostic is the sd column: weeks with entry-pool sd >=18 (wks 10,
+12, 15) need N in the hundreds-to-thousands; weeks with sd ~10-13 need
+millions+. Our weekly entry sd is 10-24 while the winning line sits
+4-6 sd above our mean. More entries sample the same thin-tailed
+distribution; the field's 150k entries win because they span thousands of
+*constructions*, i.e. a much wider distribution.
+
+Conclusion: scaling from 40 toward 150 entries buys little on a median
+week. The lever is entry-pool variance — deliberately lower-mean,
+higher-variance construction (concentrated 4-5-man game stacks, #6) and
+selecting entries on P(>= line) against correlated draws (#5). Caveat:
+normal fit thins the right tail, so absolute Ns are order-of-magnitude
+pessimistic; the variance-vs-N relationship is the robust finding.
