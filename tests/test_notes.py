@@ -75,3 +75,28 @@ def test_chat_tool_dispatch(monkeypatch):
     assert "deleted 1" in chat.execute_tool("delete_usage_note",
                                             {"note_id": "abc123"})
     assert "unknown tool" in chat.execute_tool("nope", {})
+
+
+def test_dst_projection_rows_assembly():
+    from nfl_dfs.inference.dst_projections import (FALLBACK_PROJ, P90_OFF,
+                                                   build_rows)
+
+    slate = pd.DataFrame({
+        "dk_player_id": [901, 902], "display_name": ["Bears", "Lions"],
+        "team_abbr": ["CHI", "DET"], "salary": [3200, 2600],
+        "draft_group_id": [7, 7]})
+    trailing = pd.DataFrame({"team": ["CHI"], "dst_l4": [8.0]})
+    opponents = pd.DataFrame({"team": ["CHI", "DET"],
+                              "opponent": ["DET", "CHI"]})
+    qb = pd.DataFrame({"team": ["DET", "CHI"], "career_starts": [2, 120]})
+
+    rows = build_rows(slate, trailing, opponents, qb, 2026, 1, "vtest")
+    chi = rows[rows.team == "CHI"].iloc[0]
+    det = rows[rows.team == "DET"].iloc[0]
+    # CHI: 8.0 trailing + rookie-opponent bonus 2.2
+    assert chi.proj_points == pytest.approx(10.2)
+    assert chi.proj_p90 == pytest.approx(10.2 + P90_OFF)
+    # DET: no trailing history -> fallback, veteran opponent -0.7
+    assert det.proj_points == pytest.approx(FALLBACK_PROJ - 0.7)
+    assert (rows.position == "DST").all()
+    assert rows.value.gt(0).all()

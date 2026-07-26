@@ -171,6 +171,17 @@ def run() -> None:
     skill = feats[feats.dk_position.isin(["QB", "RB", "WR", "TE"])].reset_index(drop=True)
     out = project(skill, model, version, season, week,
                   adjust=_cascade_adjuster(season))
+    # DST rows (issue #7): trailing team-defense form + opposing-QB
+    # experience. Failure-safe — skill projections without DSTs still
+    # beat nothing, though lineup building needs the DST rows.
+    try:
+        from .dst_projections import project_dst
+
+        dst = project_dst(season, week, model_version=version)
+        if not dst.empty:
+            out = pd.concat([out, dst], ignore_index=True)
+    except Exception:
+        log.exception("DST projections failed; writing skill rows only")
     load_dataframe(out, f"{settings.predictions}.player_projections",
                    write_disposition="WRITE_APPEND", partition_field="generated_at")
     log.info("Wrote %d projections for season %s week %s (model %s)",
