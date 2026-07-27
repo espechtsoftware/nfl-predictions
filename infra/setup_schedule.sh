@@ -49,6 +49,7 @@ job ingest-odds     ingest-odds
 job ingest-props    ingest-props
 job ingest-weather  ingest-weather
 job trends-alerts   trends
+job score-entries   score-entries
 
 # Cadence (America/Chicago). Tuesday chain is staggered, not chained —
 # each step reads whatever the previous wrote; an hour apart is plenty.
@@ -61,6 +62,7 @@ sched s-odds       "0 9,15 * * 3-7"   ingest-odds       # Wed-Sun 9a+3p
 sched s-props      "30 9 * * 3-7"     ingest-props      # Wed-Sun 09:30
 sched s-weather    "0 8 * * 5-7"      ingest-weather    # Fri-Sun 08:00
 sched s-trends     "0 11 * * 3"       trends-alerts     # Wed 11:00
+sched s-score      "0 8 * * 2"        score-entries     # Tue 08:00 (post-features)
 sched s-project-su "0 6-11 * * 7"     project-slate     # Sun hourly 6-11a
 
 # Dashboard service (auth required — your Google login via proxy or IAP)

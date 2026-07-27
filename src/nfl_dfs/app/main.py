@@ -461,6 +461,17 @@ class HistoryImport(BaseModel):
     csv_text: str
 
 
+@app.post("/results/score")
+def score_results(season: int, week: int) -> dict:
+    """Score the recorded entry set vs actuals; fills best_score."""
+    from .. import notes as _n
+
+    try:
+        return _n.score_entries(season, week)
+    except Exception as exc:
+        raise HTTPException(422, f"scoring failed: {exc}")
+
+
 @app.post("/results/import")
 def import_history(req: HistoryImport) -> dict:
     from .. import notes as _n
@@ -902,6 +913,13 @@ def build_showdown_lineups_csv(
 def build_lineups_csv(
     req: LineupRequest, store: ProjectionStore = Depends(get_store)
 ) -> Response:
+    lineups, ranked = _build_classic(req, store)
+    try:
+        from .. import notes as _n
+
+        _n.record_entered_lineups(req.season, req.week, lineups)
+    except Exception:
+        log.exception("could not record entered lineups")
     payload = build_lineups(req, store)
     return Response(
         content=payload["dk_csv"],

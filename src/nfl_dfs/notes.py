@@ -290,3 +290,77 @@ def import_entry_history(csv_text: str, season: int) -> dict:
                                 "spent": float(rows[fee].sum()),
                                 "won": float(rows[won].sum())}
     return out
+
+
+# Entered lineups: recorded when the DK upload CSV is downloaded, scored
+# against warehouse actuals after games — auto-fills best_score in the
+# season tracker (rank still comes from DK's contest standings export).
+
+ENTERED_TABLE = "entered_lineups"
+
+
+def record_entered_lineups(season: int, week: int, lineups) -> int:
+    """Persist the downloaded entry set (latest download replaces)."""
+    from .bq import client
+
+    try:
+        client().query(
+            f"DELETE FROM `{settings.features}.{ENTERED_TABLE}` "
+            f"WHERE season={int(season)} AND week={int(week)}").result()
+    except Exception:
+        pass
+    rows = []
+    now = datetime.now(timezone.utc)
+    for ix, lu in enumerate(lineups):
+        for p in lu.players:
+            rows.append({"season": int(season), "week": int(week),
+                         "lineup_ix": ix, "dk_player_id": p.get("id"),
+                         "name": p.get("name"), "pos": p.get("pos"),
+                         "team": p.get("team"), "created_at": now})
+    if rows:
+        load_dataframe(pd.DataFrame(rows),
+                       f"{settings.features}.{ENTERED_TABLE}",
+                       write_disposition="WRITE_APPEND")
+    return len(lineups)
+
+
+def score_entries(season: int, week: int) -> dict:
+    """Score recorded lineups vs actuals; upsert best_score into the
+    season tracker, preserving money fields and notes."""
+    e = query_df(f"SELECT lineup_ix, name, pos, team FROM "
+                 f"`{settings.features}.{ENTERED_TABLE}` "
+                 f"WHERE season={int(season)} AND week={int(week)}")
+    if e.empty:
+        return {"scored": 0}
+    skill = query_df(
+        f"""SELECT w.player_display_name AS pname, t.y_dk_points AS pts
+            FROM `{settings.features}.player_week_training` t
+            JOIN (SELECT DISTINCT player_id, player_display_name
+                  FROM `{settings.raw}.weekly_stats`
+                  WHERE season={int(season)}) w
+              ON w.player_id = t.gsis_id
+            WHERE t.season={int(season)} AND t.week={int(week)}""")
+    dstp = query_df(f"SELECT team, dst_dk_points FROM "
+                    f"`{settings.features}.team_defense_week` "
+                    f"WHERE season={int(season)} AND week={int(week)}")
+    smap = dict(zip(skill.pname.map(norm_name), skill.pts))
+    dmap = dict(zip(dstp.team, dstp.dst_dk_points))
+    e["pts"] = [
+        float(dmap.get(r.team, 0.0)) if r.pos == "DST"
+        else float(smap.get(norm_name(r.name), 0.0))
+        for r in e.itertuples()]
+    totals = e.groupby("lineup_ix").pts.sum().sort_values(ascending=False)
+    best = float(totals.iloc[0])
+    old = list_results(season)
+    row = old[old.week == int(week)]
+    upsert_result(
+        season, week,
+        contests=int(row.contests.iloc[0]) if len(row) else len(totals),
+        spent=float(row.spent.iloc[0]) if len(row) else 0.0,
+        won=float(row.won.iloc[0]) if len(row) else 0.0,
+        best_score=best,
+        best_rank=(int(row.best_rank.iloc[0]) if len(row)
+                   and pd.notna(row.best_rank.iloc[0]) else None),
+        note=str(row.note.iloc[0]) if len(row) and row.note.iloc[0] else "")
+    return {"scored": int(totals.size), "best": best,
+            "top3": [round(v, 1) for v in totals.head(3)]}
