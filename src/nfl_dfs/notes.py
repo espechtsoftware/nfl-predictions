@@ -119,3 +119,77 @@ def apply_notes(comps: pd.DataFrame, feats: pd.DataFrame, season: int,
         log.info("manual notes: scaled opportunity for %d players "
                  "(week %d decay %.0f%%)", applied, week, 100 * d)
     return comps
+
+
+# Weekly lineup preferences: bans (never roster) and boosts (tilt into
+# more lineups). Stored by normalized display name and matched against
+# the pool at build time — robust to dk_player_id churn across slates.
+
+PREFS_TABLE = "lineup_prefs"
+BOOST_BONUS = 2.5  # proj_tourney points added to boosted players
+
+
+def _prefs_table() -> str:
+    return f"{settings.features}.{PREFS_TABLE}"
+
+
+def norm_name(s: str) -> str:
+    import re
+
+    return re.sub(r"[^a-z ]", "", str(s).lower()).strip()
+
+
+def list_prefs(season: int, week: int) -> pd.DataFrame:
+    try:
+        return query_df(
+            f"SELECT pref_id, display_name, kind, created_at FROM "
+            f"`{_prefs_table()}` WHERE season={int(season)} AND "
+            f"week={int(week)} ORDER BY created_at")
+    except Exception:
+        return pd.DataFrame(columns=["pref_id", "display_name", "kind",
+                                     "created_at"])
+
+
+def add_pref(season: int, week: int, display_name: str, kind: str) -> str:
+    assert kind in ("ban", "boost")
+    pref_id = uuid.uuid4().hex[:12]
+    load_dataframe(pd.DataFrame([{
+        "pref_id": pref_id, "season": int(season), "week": int(week),
+        "display_name": display_name, "norm": norm_name(display_name),
+        "kind": kind, "created_at": datetime.now(timezone.utc)}]),
+        _prefs_table(), write_disposition="WRITE_APPEND")
+    return pref_id
+
+
+def delete_pref(pref_id: str) -> int:
+    from .bq import client
+
+    job = client().query(f"DELETE FROM `{_prefs_table()}` WHERE pref_id=@id",
+                         job_config=_param_config(pref_id))
+    job.result()
+    return job.num_dml_affected_rows or 0
+
+
+def apply_prefs(pool: list[dict], season: int, week: int) -> list[dict]:
+    """Drop banned players; add BOOST_BONUS to boosted players' objective.
+    Failure-safe: no prefs table -> pool unchanged."""
+    try:
+        p = query_df(f"SELECT norm, kind FROM `{_prefs_table()}` WHERE "
+                     f"season={int(season)} AND week={int(week)}")
+    except Exception:
+        return pool
+    if p.empty:
+        return pool
+    bans = set(p[p.kind == "ban"].norm)
+    boosts = set(p[p.kind == "boost"].norm)
+    out = []
+    for pl in pool:
+        n = norm_name(pl.get("name", ""))
+        if n in bans:
+            continue
+        if n in boosts:
+            pl = {**pl, "proj": pl["proj"] + BOOST_BONUS}
+        out.append(pl)
+    log.info("prefs: %d banned, %d boosted (wk %s)", len(bans), len(boosts),
+             week)
+    return out

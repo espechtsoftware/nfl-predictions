@@ -191,7 +191,32 @@ document.getElementById('csv').onclick=()=>{
     headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
    .then(r=>r.blob()).then(b=>{const a=document.createElement('a');
     a.href=URL.createObjectURL(b);a.download='dk_lineups.csv';a.click();});};
-loadSlates();
+async function loadPrefs(){
+  const se=+document.getElementById('season').value,
+        wk=+document.getElementById('week').value;
+  if(!se||!wk)return;
+  const r=await fetch(`/prefs?season=${se}&week=${wk}`);
+  const ps=await r.json();
+  document.getElementById('prefs').innerHTML=ps.map(p=>
+    `<span style='margin-right:.6rem'>${p.kind==='ban'?'&#128683;':'&#11088;'} `+
+    `${p.display_name} <a href='#' data-id='${p.pref_id}'>x</a></span>`).join('');
+  document.querySelectorAll('#prefs a').forEach(a=>a.onclick=async e=>{
+    e.preventDefault();
+    await fetch('/prefs/'+a.dataset.id,{method:'DELETE'}); loadPrefs();});
+}
+async function addPref(kind,inputId){
+  const v=document.getElementById(inputId).value.trim(); if(!v)return;
+  await fetch('/prefs',{method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({season:+document.getElementById('season').value,
+      week:+document.getElementById('week').value,display_name:v,kind})});
+  document.getElementById(inputId).value=''; loadPrefs();
+}
+document.getElementById('banin').addEventListener('keydown',
+  e=>{if(e.key==='Enter')addPref('ban','banin');});
+document.getElementById('boostin').addEventListener('keydown',
+  e=>{if(e.key==='Enter')addPref('boost','boostin');});
+loadSlates().then?loadSlates():loadSlates; loadPrefs();
 """
 
 
@@ -216,7 +241,10 @@ def lineups_page() -> str:
         f"color:#fff;border:0;border-radius:6px;cursor:pointer'>Build</button>"
         f"<button id='csv' style='padding:.5rem 1.2rem;background:#fff;"
         f"border:1px solid #1a1a2e;border-radius:6px;cursor:pointer'>"
-        f"DK CSV</button></div>"
+        f"DK CSV</button>"
+        f"<label>Ban player<input id='banin' placeholder='name'></label>"
+        f"<label>Boost player<input id='boostin' placeholder='name'></label>"
+        f"</div><div id='prefs' style='margin:.5rem 0;font-size:.85rem'></div>"
         f"<div id='status'>Pick season/week and Build. Tournament defaults "
         f"apply: QB+2 stack, bring-back, punt slot, chalk fade.</div>"
         f"<div id='cards'></div>"
@@ -301,6 +329,35 @@ def chat(req: ChatRequest) -> dict:
         log.exception("chat turn failed")
         raise HTTPException(500, f"chat failed: {exc}")
     return {"reply": chat_mod.reply_text(messages), "messages": messages}
+
+
+class PrefRequest(BaseModel):
+    season: int
+    week: int
+    display_name: str
+    kind: str = Field(pattern="^(ban|boost)$")
+
+
+@app.get("/prefs")
+def get_prefs(season: int, week: int) -> list[dict]:
+    from .. import notes as _notes
+
+    return _notes.list_prefs(season, week).to_dict("records")
+
+
+@app.post("/prefs")
+def post_pref(req: PrefRequest) -> dict:
+    from .. import notes as _notes
+
+    return {"pref_id": _notes.add_pref(req.season, req.week,
+                                       req.display_name, req.kind)}
+
+
+@app.delete("/prefs/{pref_id}")
+def del_pref(pref_id: str) -> dict:
+    from .. import notes as _notes
+
+    return {"deleted": _notes.delete_pref(pref_id)}
 
 
 @app.get("/defense/points-against")
@@ -451,7 +508,11 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
     df = store.projections(req.season, req.week)
     if df.empty:
         raise HTTPException(404, f"No projections for {req.season} week {req.week}")
-    pool = _player_pool(df, req.objective, _classic_dk_ids(store))
+    from .. import notes as _notes
+
+    pool = _notes.apply_prefs(_player_pool(df, req.objective,
+                                           _classic_dk_ids(store)),
+                              req.season, req.week)
     stack = StackRules(
         qb_stack_min=req.qb_stack_min,
         bring_back_min=req.bring_back_min,

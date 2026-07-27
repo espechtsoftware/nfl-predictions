@@ -33,8 +33,10 @@ never more than +/-40% — the API clamps. "Best shape of his life" stories
 deserve no note. When the user names a player, resolve them with
 find_player first if you don't have the gsis_id. Confirm what you did.
 
-You can also read the system's current projections and a player's recent
-form. If asked for something you have no tool for, say so briefly."""
+You can manage weekly lineup preferences: ban a player from this week's
+lineups or boost one into more of them (add_lineup_pref kind=ban|boost);
+prefs apply on the next Build. You can also read the system's current
+projections and a player's recent form. If asked for something you have no tool for, say so briefly."""
 
 TOOLS = [
     {"name": "list_usage_notes",
@@ -67,6 +69,24 @@ TOOLS = [
      "description": "Resolve a player name to gsis_id, position and team.",
      "input_schema": {"type": "object", "properties": {
          "name": {"type": "string"}}, "required": ["name"]}},
+    {"name": "list_lineup_prefs",
+     "description": "List this week's lineup bans and boosts.",
+     "input_schema": {"type": "object", "properties": {
+         "season": {"type": "integer"}, "week": {"type": "integer"}},
+      "required": ["season", "week"]}},
+    {"name": "add_lineup_pref",
+     "description": "Ban a player from this week's lineups, or boost one "
+                    "into more lineups. After adding, tell the user to hit "
+                    "Build again to regenerate.",
+     "input_schema": {"type": "object", "properties": {
+         "season": {"type": "integer"}, "week": {"type": "integer"},
+         "display_name": {"type": "string"},
+         "kind": {"type": "string", "enum": ["ban", "boost"]}},
+      "required": ["season", "week", "display_name", "kind"]}},
+    {"name": "delete_lineup_pref",
+     "description": "Remove a ban/boost by pref_id (from list_lineup_prefs).",
+     "input_schema": {"type": "object", "properties": {
+         "pref_id": {"type": "string"}}, "required": ["pref_id"]}},
     {"name": "get_projections",
      "description": "Latest generated projections (top rows by points).",
      "input_schema": {"type": "object", "properties": {
@@ -113,6 +133,15 @@ def execute_tool(name: str, args: dict) -> str:
                 GROUP BY 1, 2, 3, 4 ORDER BY last_seen DESC LIMIT 10""",
             params={"q": args["name"]})
         return _df_result(df)
+    if name == "list_lineup_prefs":
+        return _df_result(notes.list_prefs(args["season"], args["week"]))
+    if name == "add_lineup_pref":
+        pid = notes.add_pref(args["season"], args["week"],
+                             args["display_name"], args["kind"])
+        return (f"{args['kind']} added ({pid}) for {args['display_name']} "
+                f"wk {args['week']} — rebuild lineups to apply")
+    if name == "delete_lineup_pref":
+        return f"deleted {notes.delete_pref(args['pref_id'])} pref(s)"
     if name == "get_projections":
         pos = args.get("position")
         pos_filter = f"AND position = '{pos}'" if pos in (
