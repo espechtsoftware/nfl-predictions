@@ -36,7 +36,11 @@ find_player first if you don't have the gsis_id. Confirm what you did.
 You can manage weekly lineup preferences: ban a player from this week's
 lineups or boost one into more of them (add_lineup_pref kind=ban|boost);
 prefs apply on the next Build. You can also read the system's current
-projections and a player's recent form. If asked for something you have no tool for, say so briefly."""
+projections and a player's recent form. When asked WHY a player is
+recommended, call find_player then explain_player, and answer citing the
+concrete numbers: prop lines vs salary, Vegas environment, role trend,
+matchup, vacated snaps, and any usage note. Be candid when the data is
+mixed. If asked for something you have no tool for, say so briefly."""
 
 TOOLS = [
     {"name": "list_usage_notes",
@@ -87,6 +91,18 @@ TOOLS = [
      "description": "Remove a ban/boost by pref_id (from list_lineup_prefs).",
      "input_schema": {"type": "object", "properties": {
          "pref_id": {"type": "string"}}, "required": ["pref_id"]}},
+    {"name": "explain_player",
+     "description": "Everything the system knows about why a player is (or "
+                    "isn't) a strong play this week: projection + ceiling + "
+                    "value, prop-market lines, Vegas game environment, "
+                    "recent role/form, opponent defense vs his position, "
+                    "vacated opportunity, active usage notes. Use when the "
+                    "user asks why a player appears in lineups.",
+     "input_schema": {"type": "object", "properties": {
+         "gsis_id": {"type": "string"},
+         "display_name": {"type": "string"},
+         "season": {"type": "integer"}, "week": {"type": "integer"}},
+      "required": ["gsis_id", "display_name", "season", "week"]}},
     {"name": "get_projections",
      "description": "Latest generated projections (top rows by points).",
      "input_schema": {"type": "object", "properties": {
@@ -142,6 +158,62 @@ def execute_tool(name: str, args: dict) -> str:
                 f"wk {args['week']} — rebuild lineups to apply")
     if name == "delete_lineup_pref":
         return f"deleted {notes.delete_pref(args['pref_id'])} pref(s)"
+    if name == "explain_player":
+        gid, dn = args["gsis_id"], args["display_name"]
+        se, wk = int(args["season"]), int(args["week"])
+        parts = []
+        q = [
+            ("PROJECTION", f"""SELECT position, team, opponent, salary,
+                ROUND(proj_points,1) proj, ROUND(proj_p90,1) p90,
+                ROUND(value,2) value FROM
+                `{settings.predictions}.player_projections`
+                WHERE gsis_id=@q AND season={se} AND week={wk}
+                ORDER BY generated_at DESC LIMIT 1"""),
+            ("PROP MARKET (pre-lock lines)", f"""SELECT market, bookmaker,
+                outcome_name, point, price FROM `{settings.raw}.prop_lines`
+                WHERE LOWER(player) LIKE LOWER(@dn) AND season={se}
+                AND week={wk} ORDER BY market, bookmaker LIMIT 24"""),
+            ("RECENT ROLE/FORM (last 5)", f"""SELECT season, week,
+                ROUND(snap_share_l4,2) snaps, depth_rank,
+                ROUND(target_share_l4,2) tgt_share,
+                ROUND(dk_points_l4,1) dk_l4, y_dk_points actual
+                FROM `{settings.features}.player_week_training`
+                WHERE gsis_id=@q ORDER BY season DESC, week DESC LIMIT 5"""),
+            ("VACATED OPPORTUNITY", f"""SELECT team_vacated_target_share,
+                team_vacated_carry_share FROM
+                `{settings.features}.player_week_training`
+                WHERE gsis_id=@q ORDER BY season DESC, week DESC LIMIT 1"""),
+            ("ACTIVE USAGE NOTES", f"""SELECT mult, note, source FROM
+                `{settings.features}.manual_notes`
+                WHERE gsis_id=@q AND season={se}"""),
+        ]
+        for title, sql in q:
+            try:
+                df = query_df(sql, params={"q": gid, "dn": f"%{dn}%"})
+                parts.append(f"== {title} ==\n{_df_result(df, 24)}")
+            except Exception as exc:
+                parts.append(f"== {title} == (unavailable: {exc})")
+        try:
+            pos_df = query_df(f"""SELECT position FROM
+                `{settings.predictions}.player_projections`
+                WHERE gsis_id=@q ORDER BY generated_at DESC LIMIT 1""",
+                params={"q": gid})
+            opp_df = query_df(f"""SELECT opponent FROM
+                `{settings.predictions}.player_projections`
+                WHERE gsis_id=@q AND season={se} AND week={wk}
+                ORDER BY generated_at DESC LIMIT 1""", params={"q": gid})
+            if not pos_df.empty and not opp_df.empty:
+                d = query_df(f"""SELECT fp_allowed_season, fp_allowed_l3,
+                    trend FROM `{settings.features}.defense_points_against`
+                    WHERE team=@t AND position=@p
+                    ORDER BY season DESC, week DESC LIMIT 1""",
+                    params={"t": str(opp_df.opponent.iloc[0]),
+                            "p": str(pos_df.position.iloc[0])})
+                parts.append(f"== OPPONENT DEFENSE vs POSITION ==\n"
+                             f"{_df_result(d)}")
+        except Exception:
+            pass
+        return "\n\n".join(parts)
     if name == "get_projections":
         pos = args.get("position")
         pos_filter = f"AND position = '{pos}'" if pos in (
