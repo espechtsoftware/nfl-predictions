@@ -454,3 +454,24 @@ def test_season_dashboard_home(client):
     r = client.get("/")
     assert r.status_code == 200
     assert "Season tracker" in r.text
+
+
+def test_swap_blocks_duplicates(client, monkeypatch):
+    from nfl_dfs import notes as n
+
+    monkeypatch.setattr(n, "entered_rosters", lambda s, w: {
+        0: {"a qb", "b rb", "c wr"}, 1: {"a qb", "b rb", "d wr"}})
+    monkeypatch.setattr(n, "swap_entered_player",
+                        lambda *a, **k: (_ for _ in ()).throw(
+                            AssertionError("must not swap")))
+    # store fixture has projections for 2025 wk3; pick any real name from it
+    import nfl_dfs.app.main as m
+    df = m.get_store().projections(2025, 3)
+    name = df.display_name.iloc[0]
+    monkeypatch.setattr(n, "norm_name", lambda s: {
+        name.lower(): "d wr"}.get(str(s).lower(), str(s).lower()))
+    r = client.post("/entries/swap", json={
+        "season": 2025, "week": 3, "lineup_ix": 0,
+        "out_name": "c wr", "in_name": name})
+    assert r.status_code == 409
+    assert "identical" in r.json()["detail"]

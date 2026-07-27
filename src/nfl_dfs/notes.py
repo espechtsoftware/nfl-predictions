@@ -400,3 +400,14 @@ def swap_entered_player(season: int, week: int, lineup_ix: int,
         "created_at": datetime.now(timezone.utc)}]),
         f"{settings.features}.{ENTERED_TABLE}",
         write_disposition="WRITE_APPEND")
+
+
+def entered_rosters(season: int, week: int) -> dict[int, set[str]]:
+    """lineup_ix -> set of normalized player names, for duplicate checks."""
+    e = query_df(f"SELECT lineup_ix, name FROM "
+                 f"`{settings.features}.{ENTERED_TABLE}` "
+                 f"WHERE season={int(season)} AND week={int(week)}")
+    out: dict[int, set[str]] = {}
+    for r in e.itertuples():
+        out.setdefault(int(r.lineup_ix), set()).add(norm_name(r.name))
+    return out

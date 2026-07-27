@@ -639,6 +639,22 @@ def swap_entry_player(req: SwapRequest,
                             + ", ".join(hit.display_name.head(5)))
     r = (hit[hit.display_name.str.lower() == req.in_name.lower()].iloc[0]
          if len(hit) > 1 else hit.iloc[0])
+    # Duplicate guards: the swap must not clone another entered lineup,
+    # and the incoming player must not already be in this one.
+    rosters = _n.entered_rosters(req.season, req.week)
+    cur = rosters.get(req.lineup_ix)
+    if cur is not None:
+        incoming = _n.norm_name(str(r.display_name))
+        if incoming in cur:
+            raise HTTPException(409, f"{r.display_name} is already in "
+                                     f"this lineup")
+        proposed = (cur - {_n.norm_name(req.out_name)}) | {incoming}
+        for ix, roster in rosters.items():
+            if ix != req.lineup_ix and roster == proposed:
+                raise HTTPException(
+                    409, f"blocked: that swap would make this lineup "
+                         f"identical to entry #{ix + 1} — DK rejects "
+                         f"duplicate lineups, pick a different player")
     _n.swap_entered_player(req.season, req.week, req.lineup_ix,
                            req.out_name,
                            {"name": r.display_name, "pos": r.position,
