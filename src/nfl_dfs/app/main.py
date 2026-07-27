@@ -26,7 +26,7 @@ from ..optimizer.lineup import StackRules, core_and_variations, optimize_many
 from ..optimizer.showdown import optimize_many_showdown
 from .store import BigQueryStore, ProjectionStore
 
-app = FastAPI(title="NFL DFS", version="0.1.0")
+app = FastAPI(title="Fingerblasters' Brain", version="0.1.0")
 log = logging.getLogger(__name__)
 
 
@@ -140,7 +140,7 @@ inp.addEventListener('keydown',e=>{if(e.key==='Enter')send();});
 
 
 _NAV_HTML = """
-<div class='topbar'><div class='brand'>&#127944; NFL <span>DFS</span></div>
+<div class='topbar'><div class='brand'>&#127944; Fingerblasters&#39; <span>Brain</span></div>
 <a href='/'>Season</a><a href='/lineups/view'>Lineups</a>
 <a href='/defense'>Defense</a><a href='/docs'>API</a>
 <button class='guide' onclick="document.getElementById('modal').style.display=
@@ -287,7 +287,7 @@ def lineups_page() -> str:
     touching the CSV. Cards are confidence-ordered, strongest first."""
     return (
         f"<!doctype html><html><head><meta charset='utf-8'>"
-        f"<title>NFL DFS — Lineups</title>"
+        f"<title>Fingerblasters' Brain — Lineups</title>"
         f"<style>{_PAGE_CSS}{_LINEUPS_CSS}</style></head><body>"
         f"{_NAV_HTML}<main><h1>Lineup builder</h1>"
         f"<div id='controls'>"
@@ -337,7 +337,7 @@ def _defense_page(df, season: int) -> str:
         )
     return (
         f"<!doctype html><html><head><meta charset='utf-8'>"
-        f"<title>NFL DFS — Defense vs Position</title>"
+        f"<title>Fingerblasters' Brain — Defense</title>"
         f"<style>{_PAGE_CSS}</style></head><body>"
         f"{_NAV_HTML}<main>"
         f"<h1>DK points allowed per position &middot; {season}</h1>"
@@ -418,7 +418,7 @@ def season_dashboard() -> str:
     running P/L, best-lineup notes, and DK Entry History CSV import."""
     return (
         f"<!doctype html><html><head><meta charset='utf-8'>"
-        f"<title>NFL DFS — Season</title>"
+        f"<title>Fingerblasters' Brain — Season</title>"
         f"<style>{_PAGE_CSS}{_LINEUPS_CSS}</style></head><body>"
         f"{_NAV_HTML}<main><h1>Season tracker</h1>"
         f"<div id='totals' style='font-size:1.05rem;margin:.6rem 0'></div>"
