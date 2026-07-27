@@ -373,3 +373,30 @@ def score_entries(season: int, week: int) -> dict:
         note=str(row.note.iloc[0]) if len(row) and row.note.iloc[0] else "")
     return {"scored": int(totals.size), "best": best,
             "top3": [round(v, 1) for v in totals.head(3)]}
+
+
+def swap_entered_player(season: int, week: int, lineup_ix: int,
+                        out_name: str, new_player: dict) -> None:
+    """Mirror a lineup edit made on DK: replace one player in one recorded
+    lineup so Tuesday scoring matches reality."""
+    from google.cloud import bigquery
+
+    from .bq import client
+
+    cfg = bigquery.QueryJobConfig(query_parameters=[
+        bigquery.ScalarQueryParameter("o", "STRING", norm_name(out_name))])
+    client().query(
+        f"DELETE FROM `{settings.features}.{ENTERED_TABLE}` "
+        f"WHERE season={int(season)} AND week={int(week)} "
+        f"AND lineup_ix={int(lineup_ix)} "
+        f"AND REGEXP_REPLACE(LOWER(name), r'[^a-z ]', '') = @o",
+        job_config=cfg).result()
+    load_dataframe(pd.DataFrame([{
+        "season": int(season), "week": int(week),
+        "lineup_ix": int(lineup_ix),
+        "dk_player_id": new_player.get("dk_player_id"),
+        "name": new_player["name"], "pos": new_player["pos"],
+        "team": new_player["team"],
+        "created_at": datetime.now(timezone.utc)}]),
+        f"{settings.features}.{ENTERED_TABLE}",
+        write_disposition="WRITE_APPEND")

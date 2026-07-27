@@ -397,13 +397,35 @@ async function showWeek(wk){
     wk+' (lineups are recorded when the DK CSV is downloaded).</small>';
     return;}
   box.innerHTML='<h2>Week '+wk+' entries by score</h2>'+
+    '<small>Click a player to swap him for whoever you used on DK.</small>'+
     "<div id='cards'>"+lus.map((lu,i)=>
     `<div class='card'><header><span>#${i+1}</span>`+
     `<span class='conf'>${lu.score}</span></header><table>`+
     lu.players.map(p=>`<tr><td><span class='slot'>${p.pos}</span></td>`+
-      `<td style='text-align:left'>${p.name}</td><td>${p.team}</td>`+
+      `<td style='text-align:left'><a href='#' class='swp' data-ix='${lu.ix}'`+
+      ` data-out='${p.name}'>${p.name}</a></td><td>${p.team}</td>`+
       `<td>${p.pts}</td></tr>`).join('')+
     `</table></div>`).join('')+'</div>';
+  document.querySelectorAll('a.swp').forEach(a=>a.onclick=async e=>{
+    e.preventDefault();
+    const q=prompt('Swap OUT '+a.dataset.out+'.\nSearch replacement name:');
+    if(!q)return;
+    const se=+document.getElementById('rseason').value;
+    const cs=await (await fetch(`/players/search?season=${se}&week=${wk}`+
+      `&q=${encodeURIComponent(q)}`)).json();
+    if(!cs.length){alert('No match for "'+q+'"');return;}
+    let pick=cs[0];
+    if(cs.length>1){
+      const c=prompt(cs.map((p,i)=>`${i+1}. ${p.name} ${p.pos} ${p.team} `+
+        `$${p.salary}`).join('\n')+'\n\nEnter number:');
+      pick=cs[+c-1]; if(!pick)return;}
+    const r=await fetch('/entries/swap',{method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({season:se,week:wk,lineup_ix:+a.dataset.ix,
+        out_name:a.dataset.out,in_name:pick.name})});
+    if(!r.ok){alert('Swap failed: '+(await r.json()).detail);return;}
+    showWeek(wk);
+  });
 }
 document.getElementById('rfile').addEventListener('change',async e=>{
   const f=e.target.files[0]; if(!f)return;
@@ -571,11 +593,58 @@ def week_lineups(season: int, week: int) -> list[dict]:
     for ix, grp in e.groupby("lineup_ix"):
         players = grp.sort_values("pts", ascending=False)
         out.append({
+            "ix": int(ix),
             "score": round(float(grp.pts.sum()), 1),
             "players": [{"name": r.name, "pos": r.pos, "team": r.team,
                          "pts": round(float(r.pts), 1)}
                         for r in players.itertuples()]})
     return sorted(out, key=lambda x: -x["score"])
+
+
+@app.get("/players/search")
+def player_search(season: int, week: int, q: str,
+                  store: ProjectionStore = Depends(get_store)) -> list[dict]:
+    """Name search over the week's projectable pool (swap candidates)."""
+    df = store.projections(season, week)
+    if df.empty:
+        return []
+    hit = df[df.display_name.str.contains(q, case=False, na=False)]
+    return [{"name": r.display_name, "pos": r.position, "team": r.team,
+             "salary": int(r.salary), "dk_player_id": int(r.dk_player_id),
+             "proj": round(float(r.proj_points), 1)}
+            for r in hit.head(10).itertuples()]
+
+
+class SwapRequest(BaseModel):
+    season: int
+    week: int
+    lineup_ix: int
+    out_name: str
+    in_name: str
+
+
+@app.post("/entries/swap")
+def swap_entry_player(req: SwapRequest,
+                      store: ProjectionStore = Depends(get_store)) -> dict:
+    """Replace a player in a recorded lineup (mirrors a DK edit)."""
+    from .. import notes as _n
+
+    df = store.projections(req.season, req.week)
+    hit = df[df.display_name.str.contains(req.in_name, case=False, na=False)]
+    if hit.empty:
+        raise HTTPException(404, f"no player matching '{req.in_name}'")
+    if len(hit) > 1 and not (hit.display_name.str.lower()
+                             == req.in_name.lower()).any():
+        raise HTTPException(409, "ambiguous: "
+                            + ", ".join(hit.display_name.head(5)))
+    r = (hit[hit.display_name.str.lower() == req.in_name.lower()].iloc[0]
+         if len(hit) > 1 else hit.iloc[0])
+    _n.swap_entered_player(req.season, req.week, req.lineup_ix,
+                           req.out_name,
+                           {"name": r.display_name, "pos": r.position,
+                            "team": r.team,
+                            "dk_player_id": int(r.dk_player_id)})
+    return {"swapped": req.out_name, "for": str(r.display_name)}
 
 
 @app.post("/results/score")
