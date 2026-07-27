@@ -561,6 +561,24 @@ def test_lineups_view_page(client):
     assert r.status_code == 200
     assert "Lineup builder" in r.text
     assert "DK CSV" in r.text
+    # Slate dropdown offers both formats and the JS hits both builders
+    assert "Classic slates" in r.text
+    assert "Showdown (Captain Mode)" in r.text
+    assert "/showdown/lineups" in r.text
+    assert "/showdown/slates?days=" in r.text
+
+
+def test_showdown_any_game_selectable(showdown_client):
+    """The UI dropdown lists every upcoming showdown game (days unfiltered),
+    so a Sunday game must build once its draft group is named."""
+    r = showdown_client.post("/showdown/lineups", json={
+        "season": 2025, "week": 3, "draft_group_id": 7002, "n_lineups": 1,
+    })
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["game"]["draft_group_id"] == 7002
+    assert body["game"]["game"] == "T2 vs T3"
+    assert {p["team"] for p in body["lineups"][0]["players"]} == {"T2", "T3"}
 
 
 def test_season_dashboard_home(client):

@@ -217,66 +217,95 @@ async function loadSlates(){
 async function loadClassicSlates(){
   const sel=document.getElementById('slate');
   try{const r=await fetch('/classic/slates'); if(!r.ok)return;
+    const grp=document.createElement('optgroup'); grp.label='Classic slates';
     for(const g of await r.json()){
       const o=document.createElement('option');
       o.value=g.draft_group_id;
       o.textContent=(g.main?'Main: ':'')+g.label;
       if(g.main)o.selected=true;
-      sel.appendChild(o);}
+      grp.appendChild(o);}
+    if(grp.children.length)sel.appendChild(grp);
   }catch(e){}}
-function slateId(){
+async function loadShowdownSlates(){
+  const sel=document.getElementById('slate');
+  try{const r=await fetch('/showdown/slates?days='); if(!r.ok)return;
+    const grp=document.createElement('optgroup');
+    grp.label='Showdown (Captain Mode)';
+    for(const g of await r.json()){
+      const o=document.createElement('option');
+      o.value='sd:'+g.draft_group_id;
+      o.textContent=g.game+' · '+g.day;
+      grp.appendChild(o);}
+    if(grp.children.length)sel.appendChild(grp);
+  }catch(e){}}
+function slateSel(){
   const v=document.getElementById('slate').value;
-  return v?+v:null;}
+  if(v.startsWith('sd:'))return{sd:true,gid:+v.slice(3)};
+  return{sd:false,gid:v?+v:null};}
+function reqBody(){
+  return{season:+document.getElementById('season').value,
+    week:+document.getElementById('week').value,
+    draft_group_id:slateSel().gid,
+    n_lineups:+document.getElementById('n').value,
+    objective:document.getElementById('obj').value};}
 function slotNames(players){
   const slots=['QB','RB','RB','WR','WR','WR','TE','FLEX','DST'];
   return players.map((p,i)=>({slot:slots[i]||p.pos,p}));}
 async function build(){
   const st=document.getElementById('status'),
-        cards=document.getElementById('cards');
+        cards=document.getElementById('cards'),
+        sd=slateSel().sd;
   st.textContent='Building lineups (CBC solves, ~10-60s)...';
   cards.innerHTML=''; document.getElementById('go').disabled=true;
-  const body={season:+document.getElementById('season').value,
-    week:+document.getElementById('week').value,
-    draft_group_id:slateId(),
-    n_lineups:+document.getElementById('n').value,
-    objective:document.getElementById('obj').value};
   try{
-    const r=await fetch('/lineups',{method:'POST',
-      headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const r=await fetch(sd?'/showdown/lineups':'/lineups',{method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(reqBody())});
     const j=await r.json();
     if(!r.ok){st.textContent='Error: '+(j.detail||r.status);return;}
-    st.textContent=j.lineups.length+' lineups, strongest first. '+
-      'Confidence = P(score >= 194), ordering signal.';
-    for(const lu of j.lineups){
-      const rows=slotNames(lu.players).map(({slot,p})=>
-        `<tr><td><span class='slot'>${slot}</span></td>`+
+    st.textContent=sd
+      ? j.lineups.length+' Captain Mode lineups · '+j.game.game+' ('+
+        j.game.day+'). Captain scores 1.5x and costs 1.5x.'
+      : j.lineups.length+' lineups, strongest first. '+
+        'Confidence = P(score >= 194), ordering signal.';
+    j.lineups.forEach((lu,i)=>{
+      const named=sd
+        ? lu.players.map((p,k)=>({slot:k?'FLEX':'CPT',p,cpt:!k}))
+        : slotNames(lu.players);
+      const rows=named.map(({slot,p,cpt})=>{
+        const sal=cpt?Math.round(p.salary*1.5):p.salary,
+              pr=cpt?1.5*p.proj:+p.proj;
+        return `<tr><td><span class='slot'>${slot}</span></td>`+
         `<td style='text-align:left'>${p.name}</td>`+
         `<td>${p.team}${p.opp?' @ '+p.opp:''}</td>`+
-        `<td>$${p.salary.toLocaleString()}</td>`+
-        `<td>${(+p.proj).toFixed(1)}</td></tr>`).join('');
+        `<td>$${sal.toLocaleString()}</td>`+
+        `<td>${pr.toFixed(1)}</td></tr>`;}).join('');
+      const head=sd
+        ? `<header><span>#${i+1}</span>`+
+          `<span class='conf'>CPT ${lu.captain.name}</span>`+
+          `<span>${lu.proj.toFixed(1)} pts proj</span></header>`
+        : `<header><span>#${lu.rank}</span>`+
+          `<span class='conf'>${lu.confidence}%</span>`+
+          `<span>${lu.proj_mean} pts proj</span></header>`;
       const el=document.createElement('div'); el.className='card';
-      el.innerHTML=`<header><span>#${lu.rank}</span>`+
-        `<span class='conf'>${lu.confidence}%</span>`+
-        `<span>${lu.proj_mean} pts proj</span></header>`+
+      el.innerHTML=head+
         `<table><tr><th></th><th style='text-align:left'>Player</th>`+
         `<th>Game</th><th>Salary</th><th>Proj</th></tr>${rows}`+
         `<tfoot><tr><td colspan='3'>Total</td>`+
         `<td>$${lu.salary.toLocaleString()}</td>`+
         `<td>${lu.proj.toFixed(1)}</td></tr></tfoot></table>`;
-      cards.appendChild(el);}
+      cards.appendChild(el);});
   }catch(e){st.textContent='Error: '+e;}
   document.getElementById('go').disabled=false;}
 document.getElementById('go').onclick=build;
 document.getElementById('csv').onclick=()=>{
-  const body={season:+document.getElementById('season').value,
-    week:+document.getElementById('week').value,
-    draft_group_id:slateId(),
-    n_lineups:+document.getElementById('n').value,
-    objective:document.getElementById('obj').value};
-  fetch('/lineups.csv',{method:'POST',
-    headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+  const sd=slateSel().sd;
+  fetch(sd?'/showdown/lineups.csv':'/lineups.csv',{method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(reqBody())})
    .then(r=>r.blob()).then(b=>{const a=document.createElement('a');
-    a.href=URL.createObjectURL(b);a.download='dk_lineups.csv';a.click();});};
+    a.href=URL.createObjectURL(b);
+    a.download=sd?'dk_showdown_lineups.csv':'dk_lineups.csv';a.click();});};
 async function loadPrefs(){
   const se=+document.getElementById('season').value,
         wk=+document.getElementById('week').value;
@@ -302,7 +331,8 @@ document.getElementById('banin').addEventListener('keydown',
   e=>{if(e.key==='Enter')addPref('ban','banin');});
 document.getElementById('boostin').addEventListener('keydown',
   e=>{if(e.key==='Enter')addPref('boost','boostin');});
-loadSlates().then?loadSlates():loadSlates; loadClassicSlates(); loadPrefs();
+loadSlates().then?loadSlates():loadSlates;
+loadClassicSlates(); loadShowdownSlates(); loadPrefs();
 """
 
 
@@ -335,8 +365,10 @@ def lineups_page() -> str:
         f"<label>Boost player<input id='boostin' placeholder='name'></label>"
         f"</div><div id='prefs' style='margin:.5rem 0;font-size:.85rem'></div>"
         f"<div id='status'>Pick season/week/slate and Build (the Sunday "
-        f"main slate preselects itself when DK lists one). Tournament defaults "
-        f"apply: QB+2 stack, bring-back, punt slot, chalk fade.</div>"
+        f"main slate preselects itself when DK lists one; single games under "
+        f"Showdown build Captain Mode entries). Classic tournament defaults "
+        f"apply: QB+2 stack, bring-back, punt slot, chalk fade — showdown "
+        f"leverages captain diversity instead.</div>"
         f"<div id='cards'></div>"
         f"</main><script>{_LINEUPS_JS}</script></body></html>"
     )
