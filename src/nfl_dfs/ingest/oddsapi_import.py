@@ -135,3 +135,40 @@ def run(first_season: int = 2023, last_season: int = 2025) -> None:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     run()
+
+
+def run_live() -> None:
+    """In-season weekly snapshot: current prop lines for upcoming games ->
+    same prop_lines table (season/week resolved from the schedule)."""
+    from ..config import current_season
+
+    if not settings.odds_api_key:
+        raise RuntimeError("ODDS_API_KEY is not set")
+    season = current_season()
+    sched = query_df(
+        f"""SELECT MIN(week) AS wk FROM `{settings.raw}.schedules`
+            WHERE season = {season}
+              AND gameday >= CAST(CURRENT_DATE() AS STRING)""")
+    week = int(sched.wk.iloc[0])
+    events = _get(f"/sports/{SPORT}/events")
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    rows: list[dict] = []
+    for ev in events or []:
+        time.sleep(PAUSE_S)
+        try:
+            odds = _get(f"/sports/{SPORT}/events/{ev['id']}/odds",
+                        regions="us", markets=MARKETS,
+                        oddsFormat="american",
+                        bookmakers="draftkings,fanduel")
+        except requests.HTTPError as exc:
+            log.warning("live odds pull failed %s: %s", ev["id"], exc)
+            continue
+        rows.extend(parse_event_odds({"data": odds}, season, week,
+                                     snapshot_ts=now))
+    if rows:
+        df = pd.DataFrame(rows)
+        df["commence_time"] = pd.to_datetime(df.commence_time)
+        load_dataframe(df, f"{settings.raw}.{TABLE}",
+                       write_disposition="WRITE_APPEND")
+        log.info("live props: %d rows for season %s week %s",
+                 len(rows), season, week)

@@ -21,6 +21,7 @@ def main(argv: list[str] | None = None) -> None:
 
     sub.add_parser("ingest-dk", help="Snapshot current DK slates/salaries")
     sub.add_parser("ingest-odds", help="Snapshot DK sportsbook game lines")
+    sub.add_parser("ingest-props", help="Snapshot live prop lines (in-season)")
     sub.add_parser("ingest-weather", help="Fetch Open-Meteo forecasts for upcoming games")
 
     p = sub.add_parser("backfill-rotoguru", help="One-time historical DK salary backfill")
@@ -146,6 +147,10 @@ def main(argv: list[str] | None = None) -> None:
 
         showdown_replay.run(season=args.season, n_entries=args.entries,
                             days=args.days)
+    elif args.command == "ingest-props":
+        from .ingest import oddsapi_import
+
+        oddsapi_import.run_live()
     elif args.command == "import-prop-lines":
         from .ingest import oddsapi_import
 
