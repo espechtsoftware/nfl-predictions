@@ -264,6 +264,7 @@ def import_entry_history(csv_text: str, season: int) -> dict:
         f"SELECT week, MIN(gameday) AS d0, MAX(gameday) AS d1 "
         f"FROM `{settings.raw}.schedules` WHERE season={int(season)} "
         f"GROUP BY week")
+    existing = list_results(season)
     money = lambda s: pd.to_numeric(
         s.astype(str).str.replace(r"[$,]", "", regex=True), errors="coerce")
     df[fee], df[won] = money(df[fee]), money(df[won])
@@ -273,9 +274,18 @@ def import_entry_history(csv_text: str, season: int) -> dict:
         d1 = pd.Timestamp(w.d1).date() + pd.Timedelta(days=1)
         rows = df[(df._d >= d0) & (df._d <= d1)]
         if len(rows):
+            # Preserve manually entered fields across re-imports — the DK
+            # export is cumulative, so the same file gets uploaded weekly.
+            old = existing[existing.week == int(w.week)]
+            bs = (float(old.best_score.iloc[0])
+                  if len(old) and pd.notna(old.best_score.iloc[0]) else None)
+            br = (int(old.best_rank.iloc[0])
+                  if len(old) and pd.notna(old.best_rank.iloc[0]) else None)
+            note = (str(old.note.iloc[0]) if len(old) and old.note.iloc[0]
+                    else "imported from DK entry history")
             upsert_result(season, int(w.week), len(rows),
                           float(rows[fee].sum()), float(rows[won].sum()),
-                          note="imported from DK entry history")
+                          best_score=bs, best_rank=br, note=note)
             out[int(w.week)] = {"contests": len(rows),
                                 "spent": float(rows[fee].sum()),
                                 "won": float(rows[won].sum())}

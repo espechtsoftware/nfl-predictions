@@ -144,3 +144,21 @@ def test_prop_lines_parse():
     assert td["player"] == "D. Montgomery" and td["point"] is None
     assert all(r["season"] == 2025 and r["bookmaker"] == "draftkings"
                for r in rows)
+
+
+def test_entry_history_reimport_preserves_manual_fields(monkeypatch):
+    saved = {}
+    monkeypatch.setattr(notes, "list_results", lambda s: pd.DataFrame(
+        [{"result_id": "x", "week": 1, "contests": 30, "spent": 60.0,
+          "won": 80.0, "best_score": 187.5, "best_rank": 42,
+          "note": "great punt week"}]))
+    monkeypatch.setattr(notes, "upsert_result",
+                        lambda *a, **k: saved.update(k) or "rid")
+    monkeypatch.setattr(notes, "query_df", lambda *a, **k: pd.DataFrame(
+        [{"week": 1, "d0": "2026-09-10", "d1": "2026-09-14"}]))
+    csv_text = ("Contest,Entry Fee,Winnings,Contest Date\n"
+                "Milly,$3,$0,2026-09-13\nMilly,$3,$12.50,2026-09-13\n")
+    out = notes.import_entry_history(csv_text, 2026)
+    assert out[1]["contests"] == 2 and out[1]["spent"] == 6.0
+    assert saved["best_score"] == 187.5 and saved["best_rank"] == 42
+    assert saved["note"] == "great punt week"
