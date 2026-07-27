@@ -53,9 +53,34 @@ class LineupRequest(BaseModel):
 
 
 _PAGE_CSS = """
-body{font-family:system-ui,sans-serif;margin:2rem auto;max-width:1080px;
-     padding:0 1rem;color:#1a1a2e;background:#fafafa}
-h1{font-size:1.5rem} h2{font-size:1.1rem;margin-top:2rem}
+*{box-sizing:border-box}
+body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;margin:0;
+     color:#1a1a2e;background:#f2f4f8;min-height:100vh}
+main{max-width:1100px;margin:0 auto;padding:1.2rem 1.2rem 3rem}
+.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;
+  gap:1.2rem;padding:.7rem 1.4rem;color:#fff;
+  background:linear-gradient(90deg,#0d1b2a 0%,#1a1a2e 60%,#232946 100%);
+  box-shadow:0 2px 12px rgba(13,27,42,.35)}
+.topbar .brand{font-weight:800;font-size:1.05rem;letter-spacing:.03em}
+.topbar .brand span{color:#53d337}
+.topbar a{color:#c8cede;text-decoration:none;font-size:.9rem;
+  padding:.38rem .85rem;border-radius:999px;transition:all .15s}
+.topbar a:hover{color:#fff;background:rgba(255,255,255,.1)}
+.topbar a.active{color:#0d1b2a;background:#53d337;font-weight:700}
+.topbar .guide{margin-left:auto;cursor:pointer;border:1px solid
+  rgba(255,255,255,.35);background:none;color:#fff;border-radius:999px;
+  padding:.38rem .95rem;font-size:.85rem}
+.topbar .guide:hover{background:rgba(255,255,255,.12)}
+#modalbg{display:none;position:fixed;inset:0;z-index:99;
+  background:rgba(13,27,42,.55);backdrop-filter:blur(2px)}
+#modal{display:none;position:fixed;z-index:100;top:8vh;left:50%;
+  transform:translateX(-50%);width:min(680px,92vw);background:#fff;
+  border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.35);
+  padding:1.4rem 1.6rem;max-height:80vh;overflow-y:auto}
+#modal h2{margin-top:0}
+#modal .x{float:right;cursor:pointer;border:0;background:#eef0f6;
+  border-radius:8px;padding:.3rem .7rem;font-weight:700}
+h1{font-size:1.45rem;margin:1rem 0 .4rem} h2{font-size:1.05rem;margin-top:1.6rem}
 table{border-collapse:collapse;width:100%;font-size:.9rem;background:#fff}
 th,td{padding:.35rem .6rem;text-align:right;border-bottom:1px solid #e5e5ef}
 th:first-child,td:first-child{text-align:left}
@@ -75,6 +100,9 @@ small{color:#666}
 #chatbtn{padding:.45rem 1rem;background:#1a1a2e;color:#fff;border:0;
          border-radius:6px;cursor:pointer}
 #chatbtn:disabled{opacity:.5}
+button{transition:filter .15s} button:hover{filter:brightness(1.12)}
+.card{transition:transform .12s,box-shadow .12s}
+.card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(13,27,42,.14)}
 """
 
 _CHAT_HTML = """
@@ -111,9 +139,42 @@ inp.addEventListener('keydown',e=>{if(e.key==='Enter')send();});
 """
 
 
-_NAV_HTML = ("<nav style='margin-bottom:1rem'><a href='/'>Season</a> &middot; <a href='/defense'>Defense</a> &middot; "
-             "<a href='/lineups/view'>Lineups</a> &middot; "
-             "<a href='/docs'>API</a></nav>")
+_NAV_HTML = """
+<div class='topbar'><div class='brand'>&#127944; NFL <span>DFS</span></div>
+<a href='/'>Season</a><a href='/lineups/view'>Lineups</a>
+<a href='/defense'>Defense</a><a href='/docs'>API</a>
+<button class='guide' onclick="document.getElementById('modal').style.display=
+'block';document.getElementById('modalbg').style.display='block'">
+&#128197; Weekly guide</button></div>
+<div id='modalbg' onclick="this.style.display='none';
+document.getElementById('modal').style.display='none'"></div>
+<div id='modal'><button class='x' onclick="document.getElementById('modal')
+.style.display='none';document.getElementById('modalbg').style.display=
+'none'">&times;</button><h2>Your weekly schedule</h2>
+<table><tr><th>When</th><th>What you do</th></tr>
+<tr><td>Tue&ndash;Sat</td><td style='text-align:left'>Optional: tell the
+chat about credible news (usage notes); ban/boost players as opinions
+form. Automation handles stats, retrain, salaries, odds, props,
+weather.</td></tr>
+<tr><td>Sun before noon CT</td><td style='text-align:left'>Lineups
+&rarr; Build (pick entry count) &rarr; review cards, ban/boost +
+rebuild &rarr; <b>download DK CSV</b> (also records entries for
+auto-scoring) &rarr; upload at DraftKings before 1pm ET lock.</td></tr>
+<tr><td>Sun afternoon</td><td style='text-align:left'>Optional late swap
+on DK for 3pm/night games if news breaks.</td></tr>
+<tr><td>Mon or Tue</td><td style='text-align:left'>DraftKings &rarr; My
+Contests &rarr; <b>download Entry History CSV</b> &rarr; upload on the
+Season page (fills contests/spent/won). Optional: contest standings CSV
+for rank + real ownership.</td></tr>
+<tr><td>Tue 8:00 (auto)</td><td style='text-align:left'>Lineups scored
+vs actuals; best score fills itself. Click week numbers to review
+entries by score.</td></tr></table></div>
+<script>document.addEventListener('DOMContentLoaded',()=>{
+  const p=location.pathname;
+  document.querySelectorAll('.topbar a').forEach(a=>{
+    if(a.getAttribute('href')===p||(p==='/'&&a.getAttribute('href')==='/'))
+      a.classList.add('active');});});</script>
+"""
 
 _LINEUPS_CSS = """
 #controls{display:flex;gap:.6rem;flex-wrap:wrap;align-items:end;
@@ -228,7 +289,7 @@ def lineups_page() -> str:
         f"<!doctype html><html><head><meta charset='utf-8'>"
         f"<title>NFL DFS — Lineups</title>"
         f"<style>{_PAGE_CSS}{_LINEUPS_CSS}</style></head><body>"
-        f"{_NAV_HTML}<h1>Lineup builder</h1>"
+        f"{_NAV_HTML}<main><h1>Lineup builder</h1>"
         f"<div id='controls'>"
         f"<label>Season<input id='season' type='number'></label>"
         f"<label>Week<input id='week' type='number'></label>"
@@ -248,7 +309,7 @@ def lineups_page() -> str:
         f"<div id='status'>Pick season/week and Build. Tournament defaults "
         f"apply: QB+2 stack, bring-back, punt slot, chalk fade.</div>"
         f"<div id='cards'></div>"
-        f"<script>{_LINEUPS_JS}</script></body></html>"
+        f"</main><script>{_LINEUPS_JS}</script></body></html>"
     )
 
 
@@ -278,7 +339,7 @@ def _defense_page(df, season: int) -> str:
         f"<!doctype html><html><head><meta charset='utf-8'>"
         f"<title>NFL DFS — Defense vs Position</title>"
         f"<style>{_PAGE_CSS}</style></head><body>"
-        f"{_NAV_HTML}"
+        f"{_NAV_HTML}<main>"
         f"<h1>DK points allowed per position &middot; {season}</h1>"
         f"<small>Season/L6/L3 = avg DK points allowed per game to the position "
         f"(fewest first = toughest defense). Trend = last 3 vs season norm: "
@@ -286,7 +347,7 @@ def _defense_page(df, season: int) -> str:
         f"API: <a href='/docs'>/docs</a>, "
         f"<a href='/defense/trends?season={season}'>/defense/trends</a></small>"
         f"{_CHAT_HTML}"
-        f"<div class='grid'>{''.join(sections)}</div></body></html>"
+        f"<div class='grid'>{''.join(sections)}</div></main></body></html>"
     )
 
 
@@ -359,7 +420,7 @@ def season_dashboard() -> str:
         f"<!doctype html><html><head><meta charset='utf-8'>"
         f"<title>NFL DFS — Season</title>"
         f"<style>{_PAGE_CSS}{_LINEUPS_CSS}</style></head><body>"
-        f"{_NAV_HTML}<h1>Season tracker</h1>"
+        f"{_NAV_HTML}<main><h1>Season tracker</h1>"
         f"<div id='totals' style='font-size:1.05rem;margin:.6rem 0'></div>"
         f"<div id='controls'>"
         f"<label>Season<input id='rseason' type='number'></label>"
@@ -375,34 +436,8 @@ def season_dashboard() -> str:
         f"<th>Best score</th><th>Best rank</th><th>Note</th></tr>"
         f"<tbody id='rbody'></tbody></table>"
         f"<div id='wklineups' style='margin-top:1rem'></div>"
-        f"<details style='margin-top:1.5rem;background:#fff;"
-        f"border:1px solid #e5e5ef;border-radius:8px;padding:1rem'>"
-        f"<summary style='cursor:pointer;font-weight:600'>Your weekly "
-        f"schedule (everything else is automated)</summary>"
-        f"<table style='margin-top:.6rem'><tr><th>When</th><th>What you do"
-        f"</th></tr>"
-        f"<tr><td>Tue&ndash;Sat</td><td style='text-align:left'>Optional: "
-        f"tell the chat about credible news (usage notes), ban/boost "
-        f"players as opinions form. Automation handles stats, retrain, "
-        f"salaries, odds, props, weather.</td></tr>"
-        f"<tr><td>Sun before noon CT</td><td style='text-align:left'>"
-        f"Lineups page &rarr; Build (pick entry count) &rarr; review "
-        f"cards, ban/boost + rebuild if needed &rarr; <b>download DK CSV"
-        f"</b> (this also records your entries for auto-scoring) &rarr; "
-        f"upload at DraftKings before 1pm ET lock.</td></tr>"
-        f"<tr><td>Sun afternoon</td><td style='text-align:left'>Optional "
-        f"late swap on DK for 3pm/night games if news breaks.</td></tr>"
-        f"<tr><td>Mon or Tue</td><td style='text-align:left'>DraftKings "
-        f"&rarr; My Contests &rarr; <b>download Entry History CSV</b> "
-        f"&rarr; upload above (fills contests/spent/won). Optional: "
-        f"download a contest standings CSV for rank + real ownership."
-        f"</td></tr>"
-        f"<tr><td>Tue 8:00 (auto)</td><td style='text-align:left'>Your "
-        f"lineups are scored vs actuals; best score fills in. Click week "
-        f"numbers to review entries by score.</td></tr>"
-        f"</table></details>"
-        f"{_CHAT_HTML}"
-        f"<script>{_SEASON_JS}</script></body></html>"
+                f"{_CHAT_HTML}"
+        f"</main><script>{_SEASON_JS}</script></body></html>"
     )
 
 
