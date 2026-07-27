@@ -68,4 +68,6 @@ gcloud run deploy nfl-dfs-app --image "$IMG" --region $REGION \
   --project $PROJECT --command nfl-dfs --args serve --port 8080 \
   --cpu 1 --memory 1Gi --min-instances 0 --no-allow-unauthenticated \
   --set-env-vars "$ENVV" --quiet
-echo "DONE. Dashboard: gcloud run services proxy nfl-dfs-app --region $REGION"
+# IAP: browser login with your Google account, no proxy needed
+gcloud beta run services update nfl-dfs-app --region $REGION --project $PROJECT --iap --quiet
+echo "DONE. Dashboard (Google login): $(gcloud run services describe nfl-dfs-app --region $REGION --format='value(status.url)')"
