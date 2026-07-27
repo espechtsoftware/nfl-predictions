@@ -12,6 +12,7 @@ from functools import lru_cache
 import pandas as pd
 from fastapi import Depends, FastAPI, HTTPException, Query, Response
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from ..optimizer.export import (
@@ -27,6 +28,11 @@ from ..optimizer.showdown import optimize_many_showdown
 from .store import BigQueryStore, ProjectionStore
 
 app = FastAPI(title="Fingerblasters' Brain", version="0.1.0")
+
+from pathlib import Path as _Path
+
+app.mount("/static", StaticFiles(directory=_Path(__file__).parent / "static"),
+          name="static")
 log = logging.getLogger(__name__)
 
 
@@ -62,6 +68,8 @@ main{max-width:1100px;margin:0 auto;padding:1.2rem 1.2rem 3rem}
   background:linear-gradient(90deg,#0d1b2a 0%,#1a1a2e 60%,#232946 100%);
   box-shadow:0 2px 12px rgba(13,27,42,.35)}
 .topbar .brand{font-weight:800;font-size:1.05rem;letter-spacing:.03em}
+.topbar .logo{height:32px;width:32px;border-radius:8px;object-fit:cover;
+  box-shadow:0 0 0 2px rgba(255,255,255,.25)}
 .topbar .brand span{color:#53d337}
 .topbar a{color:#c8cede;text-decoration:none;font-size:.9rem;
   padding:.38rem .85rem;border-radius:999px;transition:all .15s}
@@ -140,7 +148,7 @@ inp.addEventListener('keydown',e=>{if(e.key==='Enter')send();});
 
 
 _NAV_HTML = """
-<div class='topbar'><div class='brand'>&#127944; Fingerblasters&#39; <span>Brain</span></div>
+<div class='topbar'><img src='/static/logo.png' class='logo' alt=''><div class='brand'>Fingerblasters&#39; <span>Brain</span></div>
 <a href='/'>Season</a><a href='/lineups/view'>Lineups</a>
 <a href='/defense'>Defense</a><a href='/docs'>API</a>
 <button class='guide' onclick="document.getElementById('modal').style.display=
@@ -287,7 +295,7 @@ def lineups_page() -> str:
     touching the CSV. Cards are confidence-ordered, strongest first."""
     return (
         f"<!doctype html><html><head><meta charset='utf-8'>"
-        f"<title>Fingerblasters' Brain — Lineups</title>"
+        f"<title>Fingerblasters' Brain — Lineups</title><link rel='icon' href='/static/logo.png'>"
         f"<style>{_PAGE_CSS}{_LINEUPS_CSS}</style></head><body>"
         f"{_NAV_HTML}<main><h1>Lineup builder</h1>"
         f"<div id='controls'>"
@@ -337,7 +345,7 @@ def _defense_page(df, season: int) -> str:
         )
     return (
         f"<!doctype html><html><head><meta charset='utf-8'>"
-        f"<title>Fingerblasters' Brain — Defense</title>"
+        f"<title>Fingerblasters' Brain — Defense</title><link rel='icon' href='/static/logo.png'>"
         f"<style>{_PAGE_CSS}</style></head><body>"
         f"{_NAV_HTML}<main>"
         f"<h1>DK points allowed per position &middot; {season}</h1>"
@@ -418,7 +426,7 @@ def season_dashboard() -> str:
     running P/L, best-lineup notes, and DK Entry History CSV import."""
     return (
         f"<!doctype html><html><head><meta charset='utf-8'>"
-        f"<title>Fingerblasters' Brain — Season</title>"
+        f"<title>Fingerblasters' Brain — Season</title><link rel='icon' href='/static/logo.png'>"
         f"<style>{_PAGE_CSS}{_LINEUPS_CSS}</style></head><body>"
         f"{_NAV_HTML}<main><h1>Season tracker</h1>"
         f"<div id='totals' style='font-size:1.05rem;margin:.6rem 0'></div>"
