@@ -301,19 +301,40 @@ async function loadResults(){
   let spent=0,won=0,contests=0,html='';
   for(const x of rows){spent+=x.spent;won+=x.won;contests+=x.contests;
     const pl=x.won-x.spent, cum=won-spent;
-    html+=`<tr><td>${x.week}</td><td>${x.contests}</td>`+
+    html+=`<tr><td><a href='#' class='wk' data-w='${x.week}'>`+
+      `${x.week}</a></td><td>${x.contests}</td>`+
       `<td>$${x.spent.toFixed(2)}</td><td>$${x.won.toFixed(2)}</td>`+
       `<td class='${pl>=0?"up":"down"}'>$${pl.toFixed(2)}</td>`+
       `<td class='${cum>=0?"up":"down"}'>$${cum.toFixed(2)}</td>`+
       `<td>${x.best_score??''}</td><td>${x.best_rank??''}</td>`+
       `<td>${x.note||''}</td></tr>`;}
   document.getElementById('rbody').innerHTML=html;
+  document.querySelectorAll('a.wk').forEach(a=>a.onclick=e=>{
+    e.preventDefault(); showWeek(+a.dataset.w);});
   const pl=won-spent;
   document.getElementById('totals').innerHTML=
     `Season: <b>${contests}</b> entries &middot; spent <b>$${spent.toFixed(2)}</b>`+
     ` &middot; won <b>$${won.toFixed(2)}</b> &middot; `+
     `<b class='${pl>=0?"up":"down"}'>${pl>=0?"+":""}$${pl.toFixed(2)}`+
     ` (${spent?(100*pl/spent).toFixed(1):0}% ROI)</b>`;
+}
+async function showWeek(wk){
+  const se=+document.getElementById('rseason').value;
+  const box=document.getElementById('wklineups');
+  box.innerHTML='<small>Scoring week '+wk+'...</small>';
+  const r=await fetch(`/results/lineups?season=${se}&week=${wk}`);
+  const lus=await r.json();
+  if(!lus.length){box.innerHTML='<small>No recorded lineups for week '+
+    wk+' (lineups are recorded when the DK CSV is downloaded).</small>';
+    return;}
+  box.innerHTML='<h2>Week '+wk+' entries by score</h2>'+
+    "<div id='cards'>"+lus.map((lu,i)=>
+    `<div class='card'><header><span>#${i+1}</span>`+
+    `<span class='conf'>${lu.score}</span></header><table>`+
+    lu.players.map(p=>`<tr><td><span class='slot'>${p.pos}</span></td>`+
+      `<td style='text-align:left'>${p.name}</td><td>${p.team}</td>`+
+      `<td>${p.pts}</td></tr>`).join('')+
+    `</table></div>`).join('')+'</div>';
 }
 document.getElementById('rfile').addEventListener('change',async e=>{
   const f=e.target.files[0]; if(!f)return;
@@ -353,6 +374,7 @@ def season_dashboard() -> str:
         f"<th>Spent</th><th>Won</th><th>P/L</th><th>Cumulative</th>"
         f"<th>Best score</th><th>Best rank</th><th>Note</th></tr>"
         f"<tbody id='rbody'></tbody></table>"
+        f"<div id='wklineups' style='margin-top:1rem'></div>"
         f"{_CHAT_HTML}"
         f"<script>{_SEASON_JS}</script></body></html>"
     )
@@ -459,6 +481,25 @@ def post_result(req: ResultRequest) -> dict:
 class HistoryImport(BaseModel):
     season: int
     csv_text: str
+
+
+@app.get("/results/lineups")
+def week_lineups(season: int, week: int) -> list[dict]:
+    """The week's entered lineups with actual player points, best first."""
+    from .. import notes as _n
+
+    e = _n.scored_lineups(season, week)
+    if e.empty:
+        return []
+    out = []
+    for ix, grp in e.groupby("lineup_ix"):
+        players = grp.sort_values("pts", ascending=False)
+        out.append({
+            "score": round(float(grp.pts.sum()), 1),
+            "players": [{"name": r.name, "pos": r.pos, "team": r.team,
+                         "pts": round(float(r.pts), 1)}
+                        for r in players.itertuples()]})
+    return sorted(out, key=lambda x: -x["score"])
 
 
 @app.post("/results/score")

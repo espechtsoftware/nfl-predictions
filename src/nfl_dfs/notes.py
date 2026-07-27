@@ -324,14 +324,14 @@ def record_entered_lineups(season: int, week: int, lineups) -> int:
     return len(lineups)
 
 
-def score_entries(season: int, week: int) -> dict:
-    """Score recorded lineups vs actuals; upsert best_score into the
-    season tracker, preserving money fields and notes."""
+def scored_lineups(season: int, week: int) -> pd.DataFrame:
+    """Recorded lineups joined to actual points: one row per player with
+    lineup_ix, name, pos, team, pts (empty frame if nothing recorded)."""
     e = query_df(f"SELECT lineup_ix, name, pos, team FROM "
                  f"`{settings.features}.{ENTERED_TABLE}` "
                  f"WHERE season={int(season)} AND week={int(week)}")
     if e.empty:
-        return {"scored": 0}
+        return e
     skill = query_df(
         f"""SELECT w.player_display_name AS pname, t.y_dk_points AS pts
             FROM `{settings.features}.player_week_training` t
@@ -349,6 +349,15 @@ def score_entries(season: int, week: int) -> dict:
         float(dmap.get(r.team, 0.0)) if r.pos == "DST"
         else float(smap.get(norm_name(r.name), 0.0))
         for r in e.itertuples()]
+    return e
+
+
+def score_entries(season: int, week: int) -> dict:
+    """Score recorded lineups vs actuals; upsert best_score into the
+    season tracker, preserving money fields and notes."""
+    e = scored_lineups(season, week)
+    if e.empty:
+        return {"scored": 0}
     totals = e.groupby("lineup_ix").pts.sum().sort_values(ascending=False)
     best = float(totals.iloc[0])
     old = list_results(season)
