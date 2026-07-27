@@ -315,17 +315,6 @@ async function loadResults(){
     `<b class='${pl>=0?"up":"down"}'>${pl>=0?"+":""}$${pl.toFixed(2)}`+
     ` (${spent?(100*pl/spent).toFixed(1):0}% ROI)</b>`;
 }
-async function saveWeek(){
-  const g=id=>document.getElementById(id).value;
-  await fetch('/results',{method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({season:+g('rseason'),week:+g('rweek'),
-      contests:+g('rcontests'),spent:+g('rspent'),won:+g('rwon'),
-      best_score:g('rbest')?+g('rbest'):null,
-      best_rank:g('rrank')?+g('rrank'):null,note:g('rnote')})});
-  loadResults();
-}
-document.getElementById('rsave').onclick=saveWeek;
 document.getElementById('rfile').addEventListener('change',async e=>{
   const f=e.target.files[0]; if(!f)return;
   const txt=await f.text();
@@ -353,21 +342,13 @@ def season_dashboard() -> str:
         f"<div id='totals' style='font-size:1.05rem;margin:.6rem 0'></div>"
         f"<div id='controls'>"
         f"<label>Season<input id='rseason' type='number'></label>"
-        f"<label>Week<input id='rweek' type='number'></label>"
-        f"<label>Contests<input id='rcontests' type='number'></label>"
-        f"<label>Spent $<input id='rspent' type='number' step='0.01'></label>"
-        f"<label>Won $<input id='rwon' type='number' step='0.01'></label>"
-        f"<label>Best score<input id='rbest' type='number' step='0.1'></label>"
-        f"<label>Best rank<input id='rrank' type='number'></label>"
-        f"<label>Note<input id='rnote' style='width:12rem'></label>"
-        f"<button id='rsave' style='padding:.5rem 1.2rem;background:#1a1a2e;"
-        f"color:#fff;border:0;border-radius:6px;cursor:pointer'>Save week"
-        f"</button>"
         f"<label>DK Entry History CSV<input id='rfile' type='file' "
         f"accept='.csv'></label><span id='istatus'></span></div>"
-        f"<small>Weekly rows are replaced on save/import (one row per "
-        f"week). Get the CSV at draftkings.com &rarr; My Contests &rarr; "
-        f"Download Entry History.</small>"
+        f"<small>Upload the cumulative export any time (draftkings.com "
+        f"&rarr; My Contests &rarr; Download Entry History) — weeks "
+        f"recompute in place; re-uploads are safe. The manual week form "
+        f"was removed by request; the /results API still accepts manual "
+        f"rows if ever needed.</small>"
         f"<table style='margin-top:1rem'><tr><th>Wk</th><th>Contests</th>"
         f"<th>Spent</th><th>Won</th><th>P/L</th><th>Cumulative</th>"
         f"<th>Best score</th><th>Best rank</th><th>Note</th></tr>"
