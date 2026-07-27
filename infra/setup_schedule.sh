@@ -7,8 +7,8 @@ set -euo pipefail
 PROJECT=nfl-predictions-503414
 REGION=us-central1
 IMG=us-central1-docker.pkg.dev/$PROJECT/nfl-dfs/nfl-dfs:latest
-SA=$(gcloud iam service-accounts list --project $PROJECT \
-     --filter="displayName:Compute Engine default" --format="value(email)")
+PROJ_NUM=$(gcloud projects describe $PROJECT --format="value(projectNumber)")
+SA="$PROJ_NUM-compute@developer.gserviceaccount.com"
 ENVV="GCP_PROJECT=$PROJECT,ODDS_API_KEY=${ODDS_API_KEY:?},ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}"
 
 job() {  # name, command, cpu, memory
