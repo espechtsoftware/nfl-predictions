@@ -193,3 +193,90 @@ def apply_prefs(pool: list[dict], season: int, week: int) -> list[dict]:
     log.info("prefs: %d banned, %d boosted (wk %s)", len(bans), len(boosts),
              week)
     return out
+
+
+# Season bankroll tracking: weekly contests/spent/won + best-lineup notes.
+
+RESULTS_TABLE = "season_results"
+
+
+def _results_table() -> str:
+    return f"{settings.features}.{RESULTS_TABLE}"
+
+
+def list_results(season: int) -> pd.DataFrame:
+    try:
+        return query_df(
+            f"SELECT result_id, week, contests, spent, won, best_score, "
+            f"best_rank, note FROM `{_results_table()}` "
+            f"WHERE season={int(season)} ORDER BY week")
+    except Exception:
+        return pd.DataFrame(columns=["result_id", "week", "contests",
+                                     "spent", "won", "best_score",
+                                     "best_rank", "note"])
+
+
+def upsert_result(season: int, week: int, contests: int, spent: float,
+                  won: float, best_score: float | None = None,
+                  best_rank: int | None = None, note: str = "") -> str:
+    """One row per (season, week): replace any existing row for the week."""
+    from .bq import client
+
+    try:
+        client().query(
+            f"DELETE FROM `{_results_table()}` WHERE season={int(season)} "
+            f"AND week={int(week)}").result()
+    except Exception:
+        pass  # table may not exist yet
+    rid = uuid.uuid4().hex[:12]
+    load_dataframe(pd.DataFrame([{
+        "result_id": rid, "season": int(season), "week": int(week),
+        "contests": int(contests), "spent": float(spent),
+        "won": float(won),
+        "best_score": float(best_score) if best_score is not None else None,
+        "best_rank": int(best_rank) if best_rank is not None else None,
+        "note": note, "created_at": datetime.now(timezone.utc)}]),
+        _results_table(), write_disposition="WRITE_APPEND")
+    return rid
+
+
+def import_entry_history(csv_text: str, season: int) -> dict:
+    """Aggregate a DraftKings Entry History CSV into weekly rows.
+    Tolerant of column naming: finds fee/winnings/date columns by
+    substring. Only rows whose date falls inside an NFL week count."""
+    import io
+
+    df = pd.read_csv(io.StringIO(csv_text))
+    cols = {c.lower(): c for c in df.columns}
+
+    def find(*subs):
+        for lc, c in cols.items():
+            if any(s in lc for s in subs):
+                return c
+        return None
+
+    fee, won, date = (find("fee"), find("winning", "won"),
+                      find("date", "time"))
+    if not (fee and won and date):
+        raise ValueError(f"unrecognized CSV columns: {list(df.columns)}")
+    df["_d"] = pd.to_datetime(df[date], errors="coerce").dt.date
+    weeks = query_df(
+        f"SELECT week, MIN(gameday) AS d0, MAX(gameday) AS d1 "
+        f"FROM `{settings.raw}.schedules` WHERE season={int(season)} "
+        f"GROUP BY week")
+    money = lambda s: pd.to_numeric(
+        s.astype(str).str.replace(r"[$,]", "", regex=True), errors="coerce")
+    df[fee], df[won] = money(df[fee]), money(df[won])
+    out = {}
+    for w in weeks.itertuples():
+        d0 = pd.Timestamp(w.d0).date()
+        d1 = pd.Timestamp(w.d1).date() + pd.Timedelta(days=1)
+        rows = df[(df._d >= d0) & (df._d <= d1)]
+        if len(rows):
+            upsert_result(season, int(w.week), len(rows),
+                          float(rows[fee].sum()), float(rows[won].sum()),
+                          note="imported from DK entry history")
+            out[int(w.week)] = {"contests": len(rows),
+                                "spent": float(rows[fee].sum()),
+                                "won": float(rows[won].sum())}
+    return out

@@ -162,7 +162,7 @@ def test_defense_trends(client_with_defense):
 
 
 def test_defense_dashboard_html(client_with_defense):
-    r = client_with_defense.get("/")
+    r = client_with_defense.get("/defense")
     assert r.status_code == 200
     assert "DK points allowed per position" in r.text
     assert "vs WR" in r.text
@@ -170,7 +170,7 @@ def test_defense_dashboard_html(client_with_defense):
 
 def test_defense_endpoints_empty_store(client):
     assert client.get("/defense/points-against").status_code == 404
-    assert "No defense data" in client.get("/").text
+    assert "No defense data" in client.get("/defense").text
 
 
 def test_core_lineups(client):
@@ -448,3 +448,9 @@ def test_lineups_view_page(client):
     assert r.status_code == 200
     assert "Lineup builder" in r.text
     assert "DK CSV" in r.text
+
+
+def test_season_dashboard_home(client):
+    r = client.get("/")
+    assert r.status_code == 200
+    assert "Season tracker" in r.text

@@ -111,7 +111,7 @@ inp.addEventListener('keydown',e=>{if(e.key==='Enter')send();});
 """
 
 
-_NAV_HTML = ("<nav style='margin-bottom:1rem'><a href='/'>Defense</a> &middot; "
+_NAV_HTML = ("<nav style='margin-bottom:1rem'><a href='/'>Season</a> &middot; <a href='/defense'>Defense</a> &middot; "
              "<a href='/lineups/view'>Lineups</a> &middot; "
              "<a href='/docs'>API</a></nav>")
 
@@ -290,7 +290,94 @@ def _defense_page(df, season: int) -> str:
     )
 
 
+
+
+_SEASON_JS = """
+const yr=new Date().getFullYear();
+document.getElementById('rseason').value=yr;
+async function loadResults(){
+  const se=+document.getElementById('rseason').value;
+  const r=await fetch('/results?season='+se); const rows=await r.json();
+  let spent=0,won=0,contests=0,html='';
+  for(const x of rows){spent+=x.spent;won+=x.won;contests+=x.contests;
+    const pl=x.won-x.spent, cum=won-spent;
+    html+=`<tr><td>${x.week}</td><td>${x.contests}</td>`+
+      `<td>$${x.spent.toFixed(2)}</td><td>$${x.won.toFixed(2)}</td>`+
+      `<td class='${pl>=0?"up":"down"}'>$${pl.toFixed(2)}</td>`+
+      `<td class='${cum>=0?"up":"down"}'>$${cum.toFixed(2)}</td>`+
+      `<td>${x.best_score??''}</td><td>${x.best_rank??''}</td>`+
+      `<td>${x.note||''}</td></tr>`;}
+  document.getElementById('rbody').innerHTML=html;
+  const pl=won-spent;
+  document.getElementById('totals').innerHTML=
+    `Season: <b>${contests}</b> entries &middot; spent <b>$${spent.toFixed(2)}</b>`+
+    ` &middot; won <b>$${won.toFixed(2)}</b> &middot; `+
+    `<b class='${pl>=0?"up":"down"}'>${pl>=0?"+":""}$${pl.toFixed(2)}`+
+    ` (${spent?(100*pl/spent).toFixed(1):0}% ROI)</b>`;
+}
+async function saveWeek(){
+  const g=id=>document.getElementById(id).value;
+  await fetch('/results',{method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({season:+g('rseason'),week:+g('rweek'),
+      contests:+g('rcontests'),spent:+g('rspent'),won:+g('rwon'),
+      best_score:g('rbest')?+g('rbest'):null,
+      best_rank:g('rrank')?+g('rrank'):null,note:g('rnote')})});
+  loadResults();
+}
+document.getElementById('rsave').onclick=saveWeek;
+document.getElementById('rfile').addEventListener('change',async e=>{
+  const f=e.target.files[0]; if(!f)return;
+  const txt=await f.text();
+  const r=await fetch('/results/import',{method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({season:+document.getElementById('rseason').value,
+                         csv_text:txt})});
+  const j=await r.json();
+  document.getElementById('istatus').textContent=r.ok?
+    'Imported '+Object.keys(j.weeks).length+' week(s)':('Error: '+j.detail);
+  loadResults();});
+loadResults();
+"""
+
+
 @app.get("/", response_class=HTMLResponse)
+def season_dashboard() -> str:
+    """Home: season bankroll tracker — weekly entries/spent/won with
+    running P/L, best-lineup notes, and DK Entry History CSV import."""
+    return (
+        f"<!doctype html><html><head><meta charset='utf-8'>"
+        f"<title>NFL DFS — Season</title>"
+        f"<style>{_PAGE_CSS}{_LINEUPS_CSS}</style></head><body>"
+        f"{_NAV_HTML}<h1>Season tracker</h1>"
+        f"<div id='totals' style='font-size:1.05rem;margin:.6rem 0'></div>"
+        f"<div id='controls'>"
+        f"<label>Season<input id='rseason' type='number'></label>"
+        f"<label>Week<input id='rweek' type='number'></label>"
+        f"<label>Contests<input id='rcontests' type='number'></label>"
+        f"<label>Spent $<input id='rspent' type='number' step='0.01'></label>"
+        f"<label>Won $<input id='rwon' type='number' step='0.01'></label>"
+        f"<label>Best score<input id='rbest' type='number' step='0.1'></label>"
+        f"<label>Best rank<input id='rrank' type='number'></label>"
+        f"<label>Note<input id='rnote' style='width:12rem'></label>"
+        f"<button id='rsave' style='padding:.5rem 1.2rem;background:#1a1a2e;"
+        f"color:#fff;border:0;border-radius:6px;cursor:pointer'>Save week"
+        f"</button>"
+        f"<label>DK Entry History CSV<input id='rfile' type='file' "
+        f"accept='.csv'></label><span id='istatus'></span></div>"
+        f"<small>Weekly rows are replaced on save/import (one row per "
+        f"week). Get the CSV at draftkings.com &rarr; My Contests &rarr; "
+        f"Download Entry History.</small>"
+        f"<table style='margin-top:1rem'><tr><th>Wk</th><th>Contests</th>"
+        f"<th>Spent</th><th>Won</th><th>P/L</th><th>Cumulative</th>"
+        f"<th>Best score</th><th>Best rank</th><th>Note</th></tr>"
+        f"<tbody id='rbody'></tbody></table>"
+        f"{_CHAT_HTML}"
+        f"<script>{_SEASON_JS}</script></body></html>"
+    )
+
+
+@app.get("/defense", response_class=HTMLResponse)
 def defense_dashboard(
     season: int | None = None,
     store: ProjectionStore = Depends(get_store),
@@ -358,6 +445,49 @@ def del_pref(pref_id: str) -> dict:
     from .. import notes as _notes
 
     return {"deleted": _notes.delete_pref(pref_id)}
+
+
+class ResultRequest(BaseModel):
+    season: int
+    week: int
+    contests: int
+    spent: float
+    won: float
+    best_score: float | None = None
+    best_rank: int | None = None
+    note: str = ""
+
+
+@app.get("/results")
+def get_results(season: int) -> list[dict]:
+    from .. import notes as _n
+
+    df = _n.list_results(season)
+    return df.where(pd.notna(df), None).to_dict("records")
+
+
+@app.post("/results")
+def post_result(req: ResultRequest) -> dict:
+    from .. import notes as _n
+
+    return {"result_id": _n.upsert_result(req.season, req.week, req.contests,
+                                          req.spent, req.won, req.best_score,
+                                          req.best_rank, req.note)}
+
+
+class HistoryImport(BaseModel):
+    season: int
+    csv_text: str
+
+
+@app.post("/results/import")
+def import_history(req: HistoryImport) -> dict:
+    from .. import notes as _n
+
+    try:
+        return {"weeks": _n.import_entry_history(req.csv_text, req.season)}
+    except Exception as exc:
+        raise HTTPException(422, f"could not parse entry history: {exc}")
 
 
 @app.get("/defense/points-against")
