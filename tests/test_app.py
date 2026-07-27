@@ -344,6 +344,119 @@ def test_showdown_unknown_group_404(showdown_client):
     assert r.status_code == 404
 
 
+# --- Classic slate selection --------------------------------------------------
+
+
+def classic_frame(frame, gid, kickoffs, id_base):
+    """Classic salary snapshot for one draft group. `kickoffs` maps team ->
+    game_start; only those teams' players are in the group. Slate salaries
+    run $100 over the projection frame's to prove the override."""
+    sub = frame[frame.team.isin(kickoffs)]
+    return pd.DataFrame([{
+        "draft_group_id": gid, "dk_player_id": int(r.dk_player_id),
+        "dk_draftable_id": int(r.dk_player_id) + id_base,
+        "display_name": r.display_name, "team_abbr": r.team,
+        "position": r.position, "salary": int(r.salary) + 100,
+        "game_start": kickoffs[r.team], "status": "None",
+    } for r in sub.itertuples()])
+
+
+SUN_EARLY = "2025-09-21T17:00:00Z"   # Sun 1:00 PM ET
+SUN_LATE = "2025-09-21T20:25:00Z"    # Sun 4:25 PM ET
+THU_NIGHT = "2025-09-19T00:15:00Z"   # Thu 8:15 PM ET
+
+
+@pytest.fixture
+def classic_client():
+    """Two classic slates over the 6-team projections frame: the Sunday
+    main (T2-T5) and a Thu-Sun full slate (all teams)."""
+    frame = projections_frame()
+    main = classic_frame(frame, gid=8200, id_base=60_000_000, kickoffs={
+        "T2": SUN_EARLY, "T3": SUN_EARLY, "T4": SUN_LATE, "T5": SUN_LATE})
+    full = classic_frame(frame, gid=8100, id_base=70_000_000, kickoffs={
+        "T0": THU_NIGHT, "T1": THU_NIGHT,
+        "T2": SUN_EARLY, "T3": SUN_EARLY, "T4": SUN_LATE, "T5": SUN_LATE})
+    store = InMemoryStore(frame, classic=pd.concat([main, full]))
+    app_main.app.dependency_overrides[app_main.default_store] = lambda: store
+    yield TestClient(app_main.app)
+    app_main.app.dependency_overrides.clear()
+
+
+def test_classic_slates_listing(classic_client):
+    slates = classic_client.get("/classic/slates").json()
+    assert [s["draft_group_id"] for s in slates] == [8100, 8200]  # first kickoff
+    full, main = slates
+    assert full["label"] == "Thu–Sun · 3 games"
+    assert full["games"] == 3 and full["players"] == 72
+    assert not full["main"]
+    assert main["label"] == "Sun 1:00 PM–4:25 PM · 2 games"
+    assert main["games"] == 2 and main["players"] == 48
+    assert main["main"]  # all-Sunday group with the most games
+
+
+def test_classic_slates_empty_store(client):
+    assert client.get("/classic/slates").status_code == 404
+
+
+def test_lineups_restricted_to_chosen_slate(classic_client):
+    r = classic_client.post("/lineups", json={
+        "season": 2025, "week": 3, "n_lineups": 2, "draft_group_id": 8200,
+    })
+    assert r.status_code == 200, r.text
+    body = r.json()
+    frame = projections_frame()
+    salary_by_id = frame.set_index("dk_player_id").salary.to_dict()
+    for lu in body["lineups"]:
+        for p in lu["players"]:
+            # Pool is the slate's teams only, at the slate's salaries
+            assert p["team"] in {"T2", "T3", "T4", "T5"}
+            assert p["salary"] == salary_by_id[p["id"]] + 100
+    # Upload CSV carries the chosen slate's draftable IDs
+    row = body["dk_csv"].strip().splitlines()[1]
+    for p in body["lineups"][0]["players"]:
+        assert f"({p['id'] + 60_000_000})" in row
+
+
+def test_lineups_full_slate_keeps_all_teams_available(classic_client):
+    frame = projections_frame()
+    a_thu_wr = int(frame[(frame.team == "T0") & (frame.position == "WR")]
+                   .dk_player_id.iloc[0])
+    r = classic_client.post("/lineups", json={
+        "season": 2025, "week": 3, "n_lineups": 1,
+        "draft_group_id": 8100, "locks": [a_thu_wr],
+    })
+    assert r.status_code == 200, r.text
+    lu = r.json()["lineups"][0]
+    assert a_thu_wr in {p["id"] for p in lu["players"]}
+    row = r.json()["dk_csv"].strip().splitlines()[1]
+    assert f"({a_thu_wr + 70_000_000})" in row
+
+
+def test_lineups_unknown_slate_404(classic_client):
+    r = classic_client.post("/lineups", json={
+        "season": 2025, "week": 3, "draft_group_id": 4321,
+    })
+    assert r.status_code == 404
+    assert "/classic/slates" in r.json()["detail"]
+
+
+def test_core_lineups_respect_slate(classic_client):
+    r = classic_client.post("/lineups/core", json={
+        "season": 2025, "week": 3, "n_lineups": 2, "draft_group_id": 8200,
+    })
+    assert r.status_code == 200, r.text
+    out = r.json()
+    slate_teams = {"T2", "T3", "T4", "T5"}
+    assert {c["team"] for c in out["core"]} <= slate_teams
+    for lu in out["lineups"]:
+        assert {p["team"] for p in lu["players"]} <= slate_teams
+
+
+def test_slate_label_single_kickoff():
+    starts = pd.Series(["2025-09-22T00:20:00Z"])  # Sun 8:20 PM ET
+    assert app_main._slate_label(starts, 1) == "Sun 8:20 PM · 1 game"
+
+
 # --- DK import files: draftable IDs and DKEntries filling --------------------
 
 

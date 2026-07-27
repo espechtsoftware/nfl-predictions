@@ -24,11 +24,19 @@ SHOWDOWN_COLUMNS = [
 ]
 
 
+CLASSIC_COLUMNS = [
+    "draft_group_id", "dk_player_id", "dk_draftable_id", "display_name",
+    "team_abbr", "position", "salary", "game_start", "status",
+]
+
+
 class ProjectionStore(Protocol):
     def slates(self) -> pd.DataFrame: ...
     def projections(self, season: int, week: int) -> pd.DataFrame: ...
     def defense_points_against(self, season: int | None = None) -> pd.DataFrame: ...
     def showdown_salaries(self) -> pd.DataFrame: ...
+    def classic_slates(self) -> pd.DataFrame: ...
+    def classic_salaries(self, draft_group_id: int) -> pd.DataFrame: ...
     def classic_draftable_ids(self) -> pd.DataFrame: ...
 
 
@@ -89,6 +97,56 @@ class BigQueryStore:
             """
         )
 
+    def classic_slates(self) -> pd.DataFrame:
+        """One row per (upcoming classic draft group, kickoff time): team and
+        player counts from the latest pull per group. A group stays listed
+        until its last game kicks off, so late swap keeps working after the
+        early games lock."""
+        from ..bq import query_df
+
+        return query_df(
+            f"""
+            WITH pulls AS (
+              SELECT draft_group_id, MAX(pulled_at) AS ts
+              FROM `{settings.raw}.dk_salaries`
+              WHERE slate_type = 'classic'
+              GROUP BY draft_group_id
+              HAVING MAX(game_start) >= CURRENT_TIMESTAMP()
+            )
+            SELECT s.draft_group_id, s.game_start,
+                   COUNT(DISTINCT s.team_abbr) AS teams,
+                   COUNT(DISTINCT s.dk_player_id) AS players
+            FROM `{settings.raw}.dk_salaries` s
+            JOIN pulls p
+              ON s.draft_group_id = p.draft_group_id AND s.pulled_at = p.ts
+            WHERE s.slate_type = 'classic'
+            GROUP BY 1, 2
+            ORDER BY s.draft_group_id, s.game_start
+            """
+        )
+
+    def classic_salaries(self, draft_group_id: int) -> pd.DataFrame:
+        """Latest pull for one classic draft group: the slate's player pool
+        with its own salaries and draftable IDs (both are slate-specific)."""
+        from ..bq import query_df
+
+        return query_df(
+            f"""
+            WITH pull AS (
+              SELECT MAX(pulled_at) AS ts
+              FROM `{settings.raw}.dk_salaries`
+              WHERE slate_type = 'classic' AND draft_group_id = @gid
+            )
+            SELECT DISTINCT s.draft_group_id, s.dk_player_id,
+                   s.dk_draftable_id, s.display_name, s.team_abbr,
+                   s.position, s.salary, s.game_start, s.status
+            FROM `{settings.raw}.dk_salaries` s, pull
+            WHERE s.pulled_at = pull.ts AND s.slate_type = 'classic'
+              AND s.draft_group_id = @gid
+            """,
+            params={"gid": int(draft_group_id)},
+        )
+
     def classic_draftable_ids(self) -> pd.DataFrame:
         """dk_player_id -> draftable ID from the latest classic pull. The
         upload CSV needs draftable IDs (the DKSalaries 'ID' column), which
@@ -126,7 +184,8 @@ class InMemoryStore:
 
     def __init__(self, frame: pd.DataFrame, defense: pd.DataFrame | None = None,
                  showdown: pd.DataFrame | None = None,
-                 draftables: pd.DataFrame | None = None):
+                 draftables: pd.DataFrame | None = None,
+                 classic: pd.DataFrame | None = None):
         self.frame = frame
         self.defense = defense if defense is not None else pd.DataFrame(
             columns=["team", "season", "week", "position", "fp_allowed",
@@ -138,9 +197,28 @@ class InMemoryStore:
         self.draftables = draftables if draftables is not None else pd.DataFrame(
             columns=["dk_player_id", "dk_draftable_id"]
         )
+        self.classic = classic if classic is not None else pd.DataFrame(
+            columns=CLASSIC_COLUMNS
+        )
 
     def showdown_salaries(self) -> pd.DataFrame:
         return self.showdown
+
+    def classic_slates(self) -> pd.DataFrame:
+        if self.classic.empty:
+            return pd.DataFrame(
+                columns=["draft_group_id", "game_start", "teams", "players"]
+            )
+        return (
+            self.classic.groupby(["draft_group_id", "game_start"])
+            .agg(teams=("team_abbr", "nunique"),
+                 players=("dk_player_id", "nunique"))
+            .reset_index()
+        )
+
+    def classic_salaries(self, draft_group_id: int) -> pd.DataFrame:
+        c = self.classic
+        return c[c.draft_group_id == draft_group_id].reset_index(drop=True)
 
     def classic_draftable_ids(self) -> pd.DataFrame:
         return self.draftables

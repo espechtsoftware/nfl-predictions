@@ -48,6 +48,7 @@ def get_store() -> ProjectionStore:
 class LineupRequest(BaseModel):
     season: int
     week: int
+    draft_group_id: int | None = None  # classic slate; None = whole week pool
     n_lineups: int = Field(40, ge=1, le=150)
     objective: str = Field("proj_points", pattern="^proj_(points|p50|p90)$")
     locks: list[int] = []
@@ -165,7 +166,8 @@ chat about credible news (usage notes); ban/boost players as opinions
 form. Automation handles stats, retrain, salaries, odds, props,
 weather.</td></tr>
 <tr><td>Sun before noon CT</td><td style='text-align:left'>Lineups
-&rarr; Build (pick entry count) &rarr; review cards, ban/boost +
+&rarr; Build (pick slate + entry count; the Sunday main slate is
+preselected) &rarr; review cards, ban/boost +
 rebuild &rarr; <b>download DK CSV</b> (also records entries for
 auto-scoring) &rarr; upload at DraftKings before 1pm ET lock.</td></tr>
 <tr><td>Sun afternoon</td><td style='text-align:left'>Optional late swap
@@ -212,6 +214,19 @@ async function loadSlates(){
     if(s.length){const last=s[s.length-1];
       document.getElementById('season').value=last.season??'';
       document.getElementById('week').value=last.week??'';}}catch(e){}}
+async function loadClassicSlates(){
+  const sel=document.getElementById('slate');
+  try{const r=await fetch('/classic/slates'); if(!r.ok)return;
+    for(const g of await r.json()){
+      const o=document.createElement('option');
+      o.value=g.draft_group_id;
+      o.textContent=(g.main?'Main: ':'')+g.label;
+      if(g.main)o.selected=true;
+      sel.appendChild(o);}
+  }catch(e){}}
+function slateId(){
+  const v=document.getElementById('slate').value;
+  return v?+v:null;}
 function slotNames(players){
   const slots=['QB','RB','RB','WR','WR','WR','TE','FLEX','DST'];
   return players.map((p,i)=>({slot:slots[i]||p.pos,p}));}
@@ -222,6 +237,7 @@ async function build(){
   cards.innerHTML=''; document.getElementById('go').disabled=true;
   const body={season:+document.getElementById('season').value,
     week:+document.getElementById('week').value,
+    draft_group_id:slateId(),
     n_lineups:+document.getElementById('n').value,
     objective:document.getElementById('obj').value};
   try{
@@ -254,6 +270,7 @@ document.getElementById('go').onclick=build;
 document.getElementById('csv').onclick=()=>{
   const body={season:+document.getElementById('season').value,
     week:+document.getElementById('week').value,
+    draft_group_id:slateId(),
     n_lineups:+document.getElementById('n').value,
     objective:document.getElementById('obj').value};
   fetch('/lineups.csv',{method:'POST',
@@ -285,7 +302,7 @@ document.getElementById('banin').addEventListener('keydown',
   e=>{if(e.key==='Enter')addPref('ban','banin');});
 document.getElementById('boostin').addEventListener('keydown',
   e=>{if(e.key==='Enter')addPref('boost','boostin');});
-loadSlates().then?loadSlates():loadSlates; loadPrefs();
+loadSlates().then?loadSlates():loadSlates; loadClassicSlates(); loadPrefs();
 """
 
 
@@ -301,6 +318,9 @@ def lineups_page() -> str:
         f"<div id='controls'>"
         f"<label>Season<input id='season' type='number'></label>"
         f"<label>Week<input id='week' type='number'></label>"
+        f"<label>Slate<select id='slate' style='width:15rem'>"
+        f"<option value=''>Whole week pool (no slate filter)</option>"
+        f"</select></label>"
         f"<label>Entries<input id='n' type='number' value='40'></label>"
         f"<label>Objective<select id='obj'>"
         f"<option value='proj_points'>Mean (GPP default — replay-validated; ceiling logic is built in via punts/boom stacks)</option>"
@@ -314,7 +334,8 @@ def lineups_page() -> str:
         f"<label>Ban player<input id='banin' placeholder='name'></label>"
         f"<label>Boost player<input id='boostin' placeholder='name'></label>"
         f"</div><div id='prefs' style='margin:.5rem 0;font-size:.85rem'></div>"
-        f"<div id='status'>Pick season/week and Build. Tournament defaults "
+        f"<div id='status'>Pick season/week/slate and Build (the Sunday "
+        f"main slate preselects itself when DK lists one). Tournament defaults "
         f"apply: QB+2 stack, bring-back, punt slot, chalk fade.</div>"
         f"<div id='cards'></div>"
         f"</main><script>{_LINEUPS_JS}</script></body></html>"
@@ -727,6 +748,54 @@ def defense_trends(
     return out
 
 
+def _slate_label(kickoffs: pd.Series, games: int) -> str:
+    """Human label for a classic draft group from its kickoff times:
+    'Sun 1:00 PM–4:25 PM · 12 games' or 'Thu–Mon · 16 games' (US/Eastern)."""
+    et = pd.to_datetime(kickoffs, utc=True).dt.tz_convert(
+        "America/New_York").sort_values()
+    days = list(dict.fromkeys(et.dt.strftime("%a")))
+
+    def clock(ts) -> str:
+        return ts.strftime("%I:%M %p").lstrip("0")
+
+    if len(days) == 1:
+        first, last = clock(et.iloc[0]), clock(et.iloc[-1])
+        when = f"{days[0]} {first}" + (f"–{last}" if last != first else "")
+    else:
+        when = f"{days[0]}–{days[-1]}"
+    return f"{when} · {games} game{'s' if games != 1 else ''}"
+
+
+@app.get("/classic/slates")
+def classic_slates(store: ProjectionStore = Depends(get_store)) -> list[dict]:
+    """Upcoming classic slates (draft groups) to build lineups against.
+    `main` flags the Sunday main slate: the all-Sunday group with the most
+    games (DK's 1:00+4:25 slate — the user's usual tournament target)."""
+    df = store.classic_slates()
+    if df.empty:
+        raise HTTPException(404, "No upcoming classic slates; run ingest-dk")
+    out = []
+    for gid, grp in df.groupby("draft_group_id", sort=False):
+        starts = pd.to_datetime(grp.game_start, utc=True)
+        games = int(grp.teams.sum()) // 2
+        et_days = list(dict.fromkeys(
+            starts.dt.tz_convert("America/New_York").dt.strftime("%a")))
+        out.append({
+            "draft_group_id": int(gid),
+            "label": _slate_label(grp.game_start, games),
+            "days": et_days,
+            "games": games,
+            "players": int(grp.players.sum()),
+            "first_game": str(starts.min()),
+            "last_game": str(starts.max()),
+            "main": False,
+        })
+    sunday_only = [s for s in out if s["days"] == ["Sun"]]
+    if sunday_only:
+        max(sunday_only, key=lambda s: (s["games"], s["players"]))["main"] = True
+    return sorted(out, key=lambda s: (s["first_game"], -s["games"]))
+
+
 @app.get("/slates")
 def slates(store: ProjectionStore = Depends(get_store)) -> list[dict]:
     return store.slates().to_dict("records")
@@ -828,14 +897,45 @@ def _rank_by_confidence(lineups: list, df: pd.DataFrame,
     return ranked
 
 
-def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
+def _classic_projections(
+    req: LineupRequest, store: ProjectionStore
+) -> tuple[pd.DataFrame, dict[int, int]]:
+    """The week's projections plus draftable IDs, restricted to the chosen
+    classic slate when the request names one. Slate salaries and draftable
+    IDs override the projection row's — both are slate-specific, and a CSV
+    with another slate's draftable IDs is a CSV DK rejects."""
     df = store.projections(req.season, req.week)
     if df.empty:
         raise HTTPException(404, f"No projections for {req.season} week {req.week}")
+    if req.draft_group_id is None:
+        return df, _classic_dk_ids(store)
+    sal = store.classic_salaries(req.draft_group_id)
+    if sal.empty:
+        raise HTTPException(
+            404, f"No classic slate {req.draft_group_id}; "
+                 f"see GET /classic/slates for what's upcoming")
+    sal = sal.drop_duplicates(subset=["dk_player_id"]).set_index("dk_player_id")
+    df = df[df.dk_player_id.isin(sal.index)].copy()
+    if df.empty:
+        raise HTTPException(
+            404, f"No projections overlap slate {req.draft_group_id}; "
+                 f"run project after ingest-dk")
+    df["salary"] = (df.dk_player_id.map(sal.salary)
+                    .fillna(df.salary).astype(int))
+    unprojected = len(sal) - df.dk_player_id.nunique()
+    if unprojected:
+        log.info("slate %s: %d salary rows have no projection and are "
+                 "left out of the pool", req.draft_group_id, unprojected)
+    dk_ids = {int(pid): int(d)
+              for pid, d in sal.dk_draftable_id.dropna().items()}
+    return df, dk_ids
+
+
+def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
+    df, dk_ids = _classic_projections(req, store)
     from .. import notes as _notes
 
-    pool = _notes.apply_prefs(_player_pool(df, req.objective,
-                                           _classic_dk_ids(store)),
+    pool = _notes.apply_prefs(_player_pool(df, req.objective, dk_ids),
                               req.season, req.week)
     stack = StackRules(
         qb_stack_min=req.qb_stack_min,
@@ -892,10 +992,7 @@ class CoreLineupRequest(LineupRequest):
 def build_core_lineups(
     req: CoreLineupRequest, store: ProjectionStore = Depends(get_store)
 ) -> dict:
-    df = store.projections(req.season, req.week)
-    if df.empty:
-        raise HTTPException(404, f"No projections for {req.season} week {req.week}")
-    dk_ids = _classic_dk_ids(store)
+    df, dk_ids = _classic_projections(req, store)
     stable_pool = _player_pool(df, "proj_p50", dk_ids)
     upside_pool = _player_pool(df, req.objective, dk_ids)
     stack = StackRules(

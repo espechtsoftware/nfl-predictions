@@ -137,7 +137,9 @@ pip install -e ".[gcp,app]"
 nfl-dfs serve --port 8080
 ```
 
-Endpoints: `GET /health`, `GET /slates`, `GET /projections`, `POST /lineups` (optimize), `POST /lineups.csv` (DK upload file), `POST /lineups/entries.csv` (fill a downloaded DKEntries.csv, one lineup per entry), `GET /showdown/slates` and `POST /showdown/lineups[.csv]` / `POST /showdown/lineups/entries.csv` (Captain Mode single-game lineups, default filtered to the Thursday/Monday night games — see §9.5).
+Endpoints: `GET /health`, `GET /slates`, `GET /classic/slates` (upcoming classic slates with labels like `Sun 1:00 PM–4:25 PM · 12 games`; the Sunday main slate is flagged `main`), `GET /projections`, `POST /lineups` (optimize; pass `draft_group_id` from `/classic/slates` to build for a specific slate — Sunday main, full Thu–Mon, etc. — restricting the pool to that slate's players at its salaries and draftable IDs; omit it for the whole projected week pool), `POST /lineups.csv` (DK upload file), `POST /lineups/entries.csv` (fill a downloaded DKEntries.csv, one lineup per entry; both accept `draft_group_id` too, as does `POST /lineups/core`), `GET /showdown/slates` and `POST /showdown/lineups[.csv]` / `POST /showdown/lineups/entries.csv` (Captain Mode single-game lineups, default filtered to the Thursday/Monday night games — see §9.5).
+
+Classic projections cover the union of every upcoming classic draft group (deduped per player), so any slate DK lists is buildable; `run_projections.upcoming_slate_features` used to key on a single `MAX(pulled_at)`, which silently served whichever classic group the hourly ingest happened to fetch last.
 
 DK's import formats match on **draftable IDs** — the slate-specific `ID` column of DKSalaries.csv, not the stable `playerId` — so upload files are only generatable for slates ingested after the IDs were added to `ingest-dk` (see the deficiency log). Showdown CPT cells additionally require the CPT-slot draftable ID; `to_dk_showdown_csv` handles that.
 

@@ -31,19 +31,44 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
 
     Features come from player_week_inference (023): as-of-now rollups built
     on the upcoming week's synthetic rows. The training table can't serve
-    live slates — its rows require played games and actuals."""
+    live slates — its rows require played games and actuals.
+
+    The pool is the UNION of every upcoming classic draft group (latest pull
+    per group), deduped per player, so any slate — Sunday main, full
+    Thu-Mon, afternoon-only — can be built from these projections. A single
+    MAX(pulled_at) would pick just one arbitrary group: each group gets its
+    own timestamp within an ingest run."""
     df = query_df(
         f"""
-        WITH latest_pull AS (
-          SELECT MAX(pulled_at) AS ts FROM `{settings.raw}.dk_salaries`
+        WITH pulls AS (
+          SELECT draft_group_id, MAX(pulled_at) AS ts
+          FROM `{settings.raw}.dk_salaries`
           WHERE slate_type = 'classic'
+          GROUP BY draft_group_id
+          HAVING MAX(game_start) >= CURRENT_TIMESTAMP()
         ),
-        slate AS (
+        latest AS (
           SELECT DISTINCT s.dk_player_id, s.display_name, s.salary,
                  s.position AS dk_position, s.team_abbr, s.status, s.dk_ppg,
                  s.draft_group_id
-          FROM `{settings.raw}.dk_salaries` s, latest_pull
-          WHERE s.pulled_at = latest_pull.ts AND s.slate_type = 'classic'
+          FROM `{settings.raw}.dk_salaries` s
+          JOIN pulls p
+            ON s.draft_group_id = p.draft_group_id AND s.pulled_at = p.ts
+          WHERE s.slate_type = 'classic'
+        ),
+        sizes AS (
+          SELECT draft_group_id, COUNT(DISTINCT dk_player_id) AS n_players
+          FROM latest GROUP BY draft_group_id
+        ),
+        slate AS (
+          -- One row per player; ties broken toward the biggest group so
+          -- slate_id mostly names the fullest slate.
+          SELECT * EXCEPT (rn) FROM (
+            SELECT l.*, ROW_NUMBER() OVER (
+              PARTITION BY l.dk_player_id
+              ORDER BY z.n_players DESC, l.draft_group_id) AS rn
+            FROM latest l JOIN sizes z USING (draft_group_id)
+          ) WHERE rn = 1
         )
         SELECT sl.*, m.gsis_id, t.*
         FROM slate sl
@@ -52,6 +77,11 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
           ON t.gsis_id = m.gsis_id AND t.season = {season} AND t.week = {week}
         """
     )
+    if df.empty:
+        raise RuntimeError(
+            "no upcoming classic slates in dk_salaries — run ingest-dk "
+            "(or DK hasn't posted next week's draft groups yet)"
+        )
     unmatched = df[df.gsis_id.isna() & (df.dk_position != "DST")]
     if not unmatched.empty:
         raise RuntimeError(
