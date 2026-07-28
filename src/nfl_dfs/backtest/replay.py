@@ -300,11 +300,24 @@ def run(
         if not mkt.empty:
             proj = proj.merge(mkt, on=["season", "week", "gsis_id"],
                               how="left")
-            proj["proj_points"] = _blend(proj.proj_points.to_numpy(),
+            _pre = proj.proj_points.to_numpy().copy()
+            proj["proj_points"] = _blend(_pre,
                                          proj.market_points.to_numpy(),
                                          BLEND_W)
             log.info("prop-market blend applied to %d/%d rows",
                      int(proj.market_points.notna().sum()), len(proj))
+            # Weight sweep: BLEND_W was fit against the weak dk_ppg
+            # market; the prop market is stronger and likely deserves
+            # more weight. MAE(w) over blended rows only.
+            have = proj.market_points.notna().to_numpy()
+            act = proj.actual.to_numpy()[have]
+            mdl, mrk = _pre[have], proj.market_points.to_numpy()[have]
+            import numpy as _np
+
+            print("  blend-weight sweep (w = model weight; blended rows):")
+            for w in (0.0, 0.1, 0.2, 0.3, 0.4, 0.45, 0.5, 0.6, 0.7, 1.0):
+                mae = _np.abs(w * mdl + (1 - w) * mrk - act).mean()
+                print(f"    w={w:.2f}  MAE={mae:.4f}")
     except Exception:
         log.exception("prop market unavailable; replaying unblended")
     overall, by_pos = replay_metrics(proj)
