@@ -162,3 +162,33 @@ def test_entry_history_reimport_preserves_manual_fields(monkeypatch):
     assert out[1]["contests"] == 2 and out[1]["spent"] == 6.0
     assert saved["best_score"] == 187.5 and saved["best_rank"] == 42
     assert saved["note"] == "great punt week"
+
+
+def test_list_entered_sets_survives_missing_table(monkeypatch):
+    def boom(*a, **k):
+        raise RuntimeError("table absent")
+    monkeypatch.setattr(notes, "query_df", boom)
+    df = notes.list_entered_sets(2025)
+    assert df.empty
+    assert list(df.columns) == ["week", "lineups", "players", "recorded_at"]
+
+
+def test_delete_entered_lineups_targets_the_week(monkeypatch):
+    captured = {}
+
+    class _Job:
+        num_dml_affected_rows = 9
+
+        def result(self):
+            return None
+
+    class _Client:
+        def query(self, sql, **kw):
+            captured["sql"] = sql
+            return _Job()
+
+    import nfl_dfs.bq as bq
+    monkeypatch.setattr(bq, "client", lambda: _Client())
+    assert notes.delete_entered_lineups(2025, 3) == 9
+    assert notes.ENTERED_TABLE in captured["sql"]
+    assert "season=2025" in captured["sql"] and "week=3" in captured["sql"]

@@ -606,3 +606,35 @@ def test_swap_blocks_duplicates(client, monkeypatch):
         "out_name": "c wr", "in_name": name})
     assert r.status_code == 409
     assert "identical" in r.json()["detail"]
+
+
+def test_exports_listing_and_slate_delete(client, monkeypatch):
+    from nfl_dfs import notes as n
+
+    monkeypatch.setattr(n, "list_entered_sets", lambda s: pd.DataFrame([
+        {"week": 3, "lineups": 40, "players": 360,
+         "recorded_at": "2025-09-21 15:00:00+00"}]))
+    r = client.get("/results/exports", params={"season": 2025})
+    assert r.status_code == 200
+    assert r.json() == [{"week": 3, "lineups": 40, "players": 360,
+                         "recorded_at": "2025-09-21 15:00:00+00"}]
+
+    deleted = {}
+
+    def fake_delete(season, week):
+        deleted["args"] = (season, week)
+        return 27
+
+    monkeypatch.setattr(n, "delete_entered_lineups", fake_delete)
+    r = client.delete("/results/lineups",
+                      params={"season": 2025, "week": 3})
+    assert r.status_code == 200
+    assert r.json() == {"deleted": 27}
+    assert deleted["args"] == (2025, 3)
+
+
+def test_season_dashboard_offers_slate_delete(client):
+    r = client.get("/")
+    assert r.status_code == 200
+    assert "Delete recorded slate" in r.text
+    assert "/results/exports" in r.text

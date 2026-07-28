@@ -444,12 +444,21 @@ async function showWeek(wk){
   const se=+document.getElementById('rseason').value;
   const box=document.getElementById('wklineups');
   box.innerHTML='<small>Scoring week '+wk+'...</small>';
-  const r=await fetch(`/results/lineups?season=${se}&week=${wk}`);
+  const [r,xr]=await Promise.all([
+    fetch(`/results/lineups?season=${se}&week=${wk}`),
+    fetch(`/results/exports?season=${se}`)]);
   const lus=await r.json();
+  const info=(await xr.json()).find(s=>s.week===wk);
   if(!lus.length){box.innerHTML='<small>No recorded lineups for week '+
     wk+' (lineups are recorded when the DK CSV is downloaded).</small>';
     return;}
   box.innerHTML='<h2>Week '+wk+' entries by score</h2>'+
+    (info?`<small>Export set: <b>${info.lineups}</b> lineups, recorded `+
+      `${info.recorded_at} (latest DK CSV download for the week &mdash; `+
+      `each download replaces the last). </small>`:'')+
+    `<button id='delwk' style='margin-left:.5rem;padding:.2rem .7rem;`+
+    `background:#fff;border:1px solid #b00;color:#b00;border-radius:6px;`+
+    `cursor:pointer'>Delete recorded slate</button><br>`+
     '<small>Click a player to swap him for whoever you used on DK.</small>'+
     "<div id='cards'>"+lus.map((lu,i)=>
     `<div class='card'><header><span>#${i+1}</span>`+
@@ -459,6 +468,18 @@ async function showWeek(wk){
       ` data-out='${p.name}'>${p.name}</a></td><td>${p.team}</td>`+
       `<td>${p.pts}</td></tr>`).join('')+
     `</table></div>`).join('')+'</div>';
+  document.getElementById('delwk').onclick=async()=>{
+    if(!confirm('Delete week '+wk+"'s recorded lineups? Do this for "+
+      'what-if slates you never entered on DK, so Tuesday scoring '+
+      "skips the week. (An already-scored best_score isn't reset; "+
+      're-score after recording the real slate, or edit via the API.)'))
+      return;
+    const dr=await fetch(`/results/lineups?season=${se}&week=${wk}`,
+      {method:'DELETE'});
+    if(dr.ok){box.innerHTML='<small>Week '+wk+
+      ' recorded lineups deleted.</small>';}
+    else alert('Delete failed: '+(await dr.json()).detail);
+  };
   document.querySelectorAll('a.swp').forEach(a=>a.onclick=async e=>{
     e.preventDefault();
     const q=prompt('Swap OUT '+a.dataset.out+'.\nSearch replacement name:');
@@ -652,6 +673,27 @@ def week_lineups(season: int, week: int) -> list[dict]:
                          "pts": round(float(r.pts), 1)}
                         for r in players.itertuples()]})
     return sorted(out, key=lambda x: -x["score"])
+
+
+@app.get("/results/exports")
+def list_exports(season: int) -> list[dict]:
+    """Recorded export sets by week: lineup/player counts and when the DK
+    CSV was downloaded (only the latest download per week is kept)."""
+    from .. import notes as _n
+
+    return _n.list_entered_sets(season).to_dict("records")
+
+
+@app.delete("/results/lineups")
+def delete_week_lineups(season: int, week: int) -> dict:
+    """Forget the week's recorded export set — for what-if slates that
+    were downloaded but never entered on DK, so scoring skips the week."""
+    from .. import notes as _n
+
+    try:
+        return {"deleted": _n.delete_entered_lineups(season, week)}
+    except Exception as exc:
+        raise HTTPException(422, f"delete failed: {exc}")
 
 
 @app.get("/players/search")

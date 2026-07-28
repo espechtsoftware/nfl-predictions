@@ -324,6 +324,37 @@ def record_entered_lineups(season: int, week: int, lineups) -> int:
     return len(lineups)
 
 
+def list_entered_sets(season: int) -> pd.DataFrame:
+    """Per-week summary of the recorded export set: lineup/player counts
+    and when the DK CSV was downloaded. One set per week — each download
+    replaces the previous record, so this is always the latest export."""
+    try:
+        return query_df(
+            f"SELECT week, COUNT(DISTINCT lineup_ix) AS lineups, "
+            f"COUNT(*) AS players, "
+            f"CAST(MAX(created_at) AS STRING) AS recorded_at "
+            f"FROM `{settings.features}.{ENTERED_TABLE}` "
+            f"WHERE season={int(season)} GROUP BY week ORDER BY week")
+    except Exception:  # table may not exist until the first download
+        return pd.DataFrame(columns=["week", "lineups", "players",
+                                     "recorded_at"])
+
+
+def delete_entered_lineups(season: int, week: int) -> int:
+    """Drop the week's recorded export set entirely, so a throwaway
+    what-if download can't leak into Tuesday scoring (best_score) or the
+    duplicate-swap guard. Does NOT touch season_results — money fields
+    come from the DK entry-history import, and an already-scored
+    best_score stays until re-scored or edited via POST /results."""
+    from .bq import client
+
+    job = client().query(
+        f"DELETE FROM `{settings.features}.{ENTERED_TABLE}` "
+        f"WHERE season={int(season)} AND week={int(week)}")
+    job.result()
+    return job.num_dml_affected_rows or 0
+
+
 def scored_lineups(season: int, week: int) -> pd.DataFrame:
     """Recorded lineups joined to actual points: one row per player with
     lineup_ix, name, pos, team, pts (empty frame if nothing recorded)."""
