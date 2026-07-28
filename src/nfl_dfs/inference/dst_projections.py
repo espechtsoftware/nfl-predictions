@@ -98,17 +98,30 @@ def project_dst(season: int, week: int, model_version: str) -> pd.DataFrame:
     """Assemble DST projection rows for the upcoming slate from live data."""
     from ..bq import query_df
 
+    # Union of every upcoming classic group (latest pull each), one row per
+    # DST, so full-week slates get Thu/Mon defenses too — mirrors
+    # run_projections.upcoming_slate_features.
     slate = query_df(
         f"""
-        WITH latest AS (
-          SELECT MAX(pulled_at) AS ts FROM `{settings.raw}.dk_salaries`
+        WITH pulls AS (
+          SELECT draft_group_id, MAX(pulled_at) AS ts
+          FROM `{settings.raw}.dk_salaries`
           WHERE slate_type = 'classic'
+          GROUP BY draft_group_id
+          HAVING MAX(game_start) >= CURRENT_TIMESTAMP()
         )
-        SELECT DISTINCT s.dk_player_id, s.display_name, s.team_abbr,
-               s.salary, s.draft_group_id
-        FROM `{settings.raw}.dk_salaries` s, latest
-        WHERE s.pulled_at = latest.ts AND s.slate_type = 'classic'
-          AND s.position = 'DST'
+        SELECT dk_player_id, display_name, team_abbr, salary, draft_group_id
+        FROM (
+          SELECT DISTINCT s.dk_player_id, s.display_name, s.team_abbr,
+                 s.salary, s.draft_group_id, s.pulled_at
+          FROM `{settings.raw}.dk_salaries` s
+          JOIN pulls p
+            ON s.draft_group_id = p.draft_group_id AND s.pulled_at = p.ts
+          WHERE s.slate_type = 'classic' AND s.position = 'DST'
+        )
+        QUALIFY ROW_NUMBER() OVER (
+          PARTITION BY dk_player_id
+          ORDER BY pulled_at DESC, draft_group_id) = 1
         """
     )
     if slate.empty:
