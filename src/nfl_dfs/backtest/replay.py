@@ -151,15 +151,6 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
     punt = skill.salary <= PUNT_MAX_SALARY
     skill["proj"] = skill.proj_points.where(~punt,
                                             skill[["proj_points", "proj_p90"]].max(axis=1))
-    # Market-informed punt valuation: punts whose prop lines imply real
-    # production boom at 24.6% (market>8 implied) vs 5.4% base — 4x our
-    # vacated-share signal (2023-25 study). Ceiling (p90) never sees the
-    # market, so lift punt value toward 1.6x market-implied points.
-    if "market_points" in skill.columns:
-        mkt_val = 1.6 * pd.to_numeric(skill.market_points,
-                                      errors="coerce").fillna(0)
-        skill.loc[punt, "proj"] = skill.loc[punt, ["proj"]].max(axis=1).combine(
-            mkt_val[punt], max)
     if "name" not in skill.columns:
         skill["name"] = skill.gsis_id
 

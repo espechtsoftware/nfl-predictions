@@ -578,3 +578,16 @@ carry positive expected value. Remaining levers correctly wait for
 in-season data: real ownership (leverage + field calibration), prop-line
 movement signals, and the ownership prediction model. Note: the Tuesday
 scheduler chain fired live for the first time this morning.
+
+## Addendum 16 (2026-07-29): punt-market lift and 470-candidate pool — both null
+
+- Punt-boom study stands (market-implied >8 pts -> 24.6% boom vs 5.4%
+  base; vacated signal only 6.5%) but the explicit 1.6x punt valuation
+  changed nothing in replay (run M: 181.2/5/17 vs 181.6/5/17) — the
+  blend already delivers the market signal to punt projections.
+  Reverted; the finding's value was already banked in the props blend.
+- 470-candidate selection audit (run L, CAND_MULT=8/N_BOOM=150):
+  realized tail slightly worse (178.3, 4/17, 15.0% finish) despite a
+  much wider fitted tail (N@237 847k vs 5.4M) — selection already
+  extracts what generation produces at ~132 candidates. Defaults kept;
+  compute better spent elsewhere. Remaining levers are in-season only.
