@@ -568,3 +568,13 @@ Run J (2025, blend w=0.45 over 4,104/4,687 rows = 88% line coverage):
 - Adopted for replays. Pre-season TODO: live weekly prop snapshot job
   (the historical importer's endpoints, current-events variant) so
   production Sundays get the same blend; The Odds API $30/mo in-season.
+
+## Addendum 15 (2026-07-28): closing audit — blend weight confirmed, system settled
+
+Blend-weight sweep (run K, 2025 blended rows): optimum w=0.40
+(MAE 4.6311) vs current 0.45 (4.6331) — flat basin 0.30-0.50, difference
+is noise. Kept at 0.45. Audit verdict: no further pre-season changes
+carry positive expected value. Remaining levers correctly wait for
+in-season data: real ownership (leverage + field calibration), prop-line
+movement signals, and the ownership prediction model. Note: the Tuesday
+scheduler chain fired live for the first time this morning.
