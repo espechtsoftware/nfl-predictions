@@ -184,9 +184,12 @@ def run_week(
     pool = slate.to_dict("records")
     obj = "proj_tourney" if "proj_tourney" in slate.columns else "proj"
     if draws is not None and tail_line is not None and "draw_idx" in slate.columns:
-        lineups = tail_select_lineups(slate, pool, draws, tail_line,
-                                      n_entries, stack, obj,
-                                      n_boom_solves=n_boom_solves)
+        import os as _os
+
+        lineups = tail_select_lineups(
+            slate, pool, draws, tail_line, n_entries, stack, obj,
+            candidate_multiple=int(_os.environ.get("CAND_MULT", "2")),
+            n_boom_solves=int(_os.environ.get("N_BOOM", str(n_boom_solves))))
     else:
         lineups = optimize_many(pool, n_lineups=n_entries, stack=stack,
                                 objective_col=obj)
