@@ -88,10 +88,23 @@ def _done() -> set[tuple[int, int]]:
         return set()
 
 
-def run(first_season: int = 2023, last_season: int = 2025) -> None:
+def run(first_season: int = 2023, last_season: int = 2025,
+        opens: bool = False) -> None:
+    """opens=True backfills Tuesday 18:00 UTC OPENING lines (movement
+    study: open vs the kickoff-2h close already loaded). Open rows are
+    identifiable by their exact T18:00:00Z snapshot_ts."""
     if not settings.odds_api_key:
         raise RuntimeError("ODDS_API_KEY is not set (add it to .env)")
-    done = _done()
+    if opens:
+        try:
+            d = query_df(f"SELECT DISTINCT season, week FROM "
+                         f"`{settings.raw}.{TABLE}` WHERE "
+                         f"snapshot_ts LIKE '%T18:00:00Z'")
+            done = {(int(r.season), int(r.week)) for r in d.itertuples()}
+        except Exception:
+            done = set()
+    else:
+        done = _done()
     for wk in _weeks(first_season, last_season).itertuples():
         key = (int(wk.season), int(wk.week))
         if key in done:
@@ -106,11 +119,15 @@ def run(first_season: int = 2023, last_season: int = 2025) -> None:
         except requests.HTTPError:
             log.exception("events snapshot failed for %s", key)
             continue
+        tuesday = (pd.Timestamp(wk.first_day)
+                   - timedelta(days=(pd.Timestamp(wk.first_day).weekday()
+                                     - 1) % 7)).strftime("%Y-%m-%d")
         rows: list[dict] = []
         for ev in events.get("data") or []:
-            snap = (pd.Timestamp(ev["commence_time"])
-                    - timedelta(hours=SNAPSHOT_BEFORE_H)).strftime(
-                        "%Y-%m-%dT%H:%M:%SZ")
+            snap = (f"{tuesday}T18:00:00Z" if opens else
+                    (pd.Timestamp(ev["commence_time"])
+                     - timedelta(hours=SNAPSHOT_BEFORE_H)).strftime(
+                        "%Y-%m-%dT%H:%M:%SZ"))
             time.sleep(PAUSE_S)
             try:
                 odds = _get(
