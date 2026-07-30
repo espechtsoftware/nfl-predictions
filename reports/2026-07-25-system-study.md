@@ -618,3 +618,15 @@ ownership model on live standings (#11).
   effectively unique; no underspend/uniqueness engineering warranted,
   and full-spend adoption carries no dup cost. Recheck with the real
   ownership model in-season.
+
+## Addendum 19 (2026-07-30): mid-tier QB diversity — null; QB weakness is epistemic, not structural
+
+Run Q (N_MIDQB=12, top mid-tier QBs by simulated p90, locked+stacked):
+midqb candidates took 10% of slots but produced 0/17 weekly bests; QB
+capture unchanged (9/17, distinct QBs 12.3 -> 13.1); tail identical
+(181.4/5/17 vs 181.5/5/17). Verdict: the selector's QB concentration is
+the correct trade — forcing QB breadth builds weaker rosters that never
+win weeks. QB remains the weakest position (rank corr 0.463, 17/41
+top-scorer misses) because QB outcomes (rushing TDs, game script) are
+irreducibly noisy and the market prices QBs efficiently. Miss-pattern
+loop closed; generator stays env-gated off.
