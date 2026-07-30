@@ -35,8 +35,9 @@ def market_points(seasons: tuple[int, ...] = (2023, 2024, 2025)) -> pd.DataFrame
     props = query_df(
         f"""SELECT season, week, bookmaker, market, outcome_name, player,
                    price, point FROM `{settings.raw}.prop_lines`
-            WHERE season IN ({season_list})"""
-    )
+            WHERE season IN ({season_list})
+              AND NOT ENDS_WITH(snapshot_ts, 'T18:00:00Z')"""
+    )  # closes only: Tuesday opens (T18:00:00Z) are for movement studies
     names = query_df(
         f"""SELECT DISTINCT player_id AS gsis_id,
                    player_display_name AS display_name
