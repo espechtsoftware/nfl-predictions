@@ -526,7 +526,7 @@ def _entry_anatomy(weeks) -> None:
     print("    weekly best by generator: "
           + "  ".join(f"{t}:{bt.get(t, 0)}/{len(best_tags)} "
                       f"(pool {100 * pool_share.get(t, 0):.0f}%)"
-                      for t in ("lev", "boom", "game", "nostk", "midqb")))
+                      for t in ("lev", "boom", "game", "nostk", "midqb", "dark")))
     for label, mask in (("weekly best", df.is_best),
                         ("top-8/week", df.is_top8),
                         ("rest", ~df.is_top8)):

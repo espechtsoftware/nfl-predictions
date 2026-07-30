@@ -190,6 +190,21 @@ def tail_select_lineups(
                 lu.tag = "game"
                 seen.add(lu.ids)
                 cands.append(lu)
+    # Dark-game A/B (env N_DARKGAME): concentrated stacks from games
+    # RANKED 5+ by projected total — 29% of matched 2025 Milly winners
+    # stacked a game ranked 8th-14th on the slate (addendum 20 study).
+    n_dark = int(_os.environ.get("N_DARKGAME", "0"))
+    if n_dark and len(game_proj) > n_game_stacks:
+        for gid in game_proj.index[n_game_stacks:n_game_stacks + n_dark]:
+            try:
+                lu = optimize(pool, stack=stack, objective_col=objective_col,
+                              game_lock=(gid, 5))
+            except Exception:
+                continue
+            if lu is not None and lu.ids not in seen:
+                lu.tag = "dark"
+                seen.add(lu.ids)
+                cands.append(lu)
     if not cands:
         return []
     id2row = {pid: i for i, pid in enumerate(slate["id"])}
