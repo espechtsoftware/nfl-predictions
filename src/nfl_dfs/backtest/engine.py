@@ -127,6 +127,27 @@ def tail_select_lineups(
             lu.tag = "boom"
             seen.add(lu.ids)
             cands.append(lu)
+    # Anti-correlation A/B (env N_NOSTACK): candidates with NO stack
+    # rules — pure variance plays; coverage selection decides if any
+    # earn slots. Prior is low (all 48 studied Milly winners stacked).
+    import os as _os
+
+    n_nostack = int(_os.environ.get("N_NOSTACK", "0"))
+    if n_nostack:
+        banned_ns = []
+        for _ in range(n_nostack):
+            try:
+                lu = optimize(pool, stack=None, objective_col=objective_col,
+                              banned_lineups=banned_ns, max_overlap=7)
+            except Exception:
+                break
+            if lu is None:
+                break
+            banned_ns.append(lu.ids)
+            if lu.ids not in seen:
+                lu.tag = "nostk"
+                seen.add(lu.ids)
+                cands.append(lu)
     # Concentrated game stacks (issue #6): for each top game environment,
     # force >= 5 players from that game. Winners take 50-80% of points
     # from one game; these are deliberately lower-mean, higher-variance

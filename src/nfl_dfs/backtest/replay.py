@@ -378,6 +378,32 @@ def run(
         _confidence_calibration(result.weeks, proj)
         _entry_anatomy(result.weeks)
         _capture_rates(result.weeks, slates)
+        _duplication_risk(result.weeks)
+
+
+def _duplication_risk(weeks, field_size: int = 150_000) -> None:
+    """Estimated copies of each entry in a Milly-sized field: field_size
+    x product of player ownerships (naive proxy until the real model).
+    Arbitrates whether engineered uniqueness (underspend, forced pivots)
+    is needed or our entries are already effectively unique."""
+    import numpy as _np
+
+    from ..optimizer.lineup import LEVERAGE_PENALTY
+
+    est = []
+    for w in weeks:
+        for lu in w.lineups:
+            owns = [max(1e-4, min(0.6, (p.get("proj", 0)
+                    - p.get("proj_tourney", p.get("proj", 0)))
+                    / LEVERAGE_PENALTY)) for p in lu.players]
+            est.append(field_size * float(_np.prod(owns)))
+    if not est:
+        return
+    e = _np.array(est)
+    print(f"  duplication risk (est copies in a {field_size//1000}k field, "
+          f"naive ownership): median {_np.median(e):.3f}  "
+          f"p90 {_np.percentile(e, 90):.2f}  max {e.max():.1f}  "
+          f"entries with >=1 est copy: {int((e >= 1).sum())}/{len(e)}")
 
 
 def _capture_rates(weeks, slates) -> None:
@@ -476,7 +502,7 @@ def _entry_anatomy(weeks) -> None:
     print("    weekly best by generator: "
           + "  ".join(f"{t}:{bt.get(t, 0)}/{len(best_tags)} "
                       f"(pool {100 * pool_share.get(t, 0):.0f}%)"
-                      for t in ("lev", "boom", "game")))
+                      for t in ("lev", "boom", "game", "nostk")))
     for label, mask in (("weekly best", df.is_best),
                         ("top-8/week", df.is_top8),
                         ("rest", ~df.is_top8)):
