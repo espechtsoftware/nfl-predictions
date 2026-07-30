@@ -602,3 +602,19 @@ absorbs the week's news; movement modeling unnecessary. In-season this
 validates the design: always blend from the LATEST pre-lock snapshot.
 Remaining information plays: showdown modernization (#10) and the
 ownership model on live standings (#11).
+
+## Addendum 18 (2026-07-30): capture, anti-correlation, duplication — investigation closed
+
+- **Capture rates (run N)**: our 40 held the slate's single best punt
+  14/17 weeks (36.8 distinct punts held/wk) and best QB 9/17 (misses only
+  4.3 pts deep). Marginal selection is near-ceiling; the residual gap to
+  237 is JOINT capture (right punt + right stack in one roster) — the
+  structural 40-vs-150k frontier.
+- **Anti-correlation A/B (run O, N_NOSTACK=60)**: stack-free candidates
+  took 17% of slots but produced only 2/17 bests; tail slightly worse
+  (180.4/4/17 vs 181.5/5/17). Null — stacking stays mandatory.
+- **Duplication risk (run O)**: est copies in a 150k field — median
+  0.000, max 0.0, 0/680 entries with >=1 expected copy. Our entries are
+  effectively unique; no underspend/uniqueness engineering warranted,
+  and full-spend adoption carries no dup cost. Recheck with the real
+  ownership model in-season.
