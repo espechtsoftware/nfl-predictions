@@ -88,18 +88,23 @@ def _done() -> set[tuple[int, int]]:
         return set()
 
 
+ALT_MARKETS = ("player_pass_yds_alternate,player_rush_yds_alternate,"
+               "player_reception_yds_alternate,player_receptions_alternate")
+
+
 def run(first_season: int = 2023, last_season: int = 2025,
-        opens: bool = False) -> None:
+        opens: bool = False, markets: str = MARKETS,
+        done_filter: str = "") -> None:
     """opens=True backfills Tuesday 18:00 UTC OPENING lines (movement
     study: open vs the kickoff-2h close already loaded). Open rows are
     identifiable by their exact T18:00:00Z snapshot_ts."""
     if not settings.odds_api_key:
         raise RuntimeError("ODDS_API_KEY is not set (add it to .env)")
-    if opens:
+    if opens or done_filter:
         try:
+            cond = (done_filter or "snapshot_ts LIKE '%T18:00:00Z'")
             d = query_df(f"SELECT DISTINCT season, week FROM "
-                         f"`{settings.raw}.{TABLE}` WHERE "
-                         f"snapshot_ts LIKE '%T18:00:00Z'")
+                         f"`{settings.raw}.{TABLE}` WHERE {cond}")
             done = {(int(r.season), int(r.week)) for r in d.itertuples()}
         except Exception:
             done = set()
@@ -132,7 +137,7 @@ def run(first_season: int = 2023, last_season: int = 2025,
             try:
                 odds = _get(
                     f"/historical/sports/{SPORT}/events/{ev['id']}/odds",
-                    date=snap, regions="us", markets=MARKETS,
+                    date=snap, regions="us", markets=markets,
                     oddsFormat="american", bookmakers="draftkings,fanduel")
             except requests.HTTPError as exc:
                 log.warning("odds pull failed %s %s: %s", key, ev["id"], exc)
