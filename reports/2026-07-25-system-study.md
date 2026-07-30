@@ -591,3 +591,14 @@ scheduler chain fired live for the first time this morning.
   much wider fitted tail (N@237 847k vs 5.4M) — selection already
   extracts what generation produces at ~132 candidates. Defaults kept;
   compute better spent elsewhere. Remaining levers are in-season only.
+
+## Addendum 17 (2026-07-29): line movement — closes absorb the news (null)
+
+Tuesday-open backfill complete (54 weeks, DK opens). On 624 player-weeks
+with open+close+actuals: close-only R=0.467 vs close+movement R=0.471,
+movement beta -0.30 — no signal beyond the closing line, bucket means
+flat after conditioning on close. Verdict: the kickoff-2h close already
+absorbs the week's news; movement modeling unnecessary. In-season this
+validates the design: always blend from the LATEST pre-lock snapshot.
+Remaining information plays: showdown modernization (#10) and the
+ownership model on live standings (#11).
