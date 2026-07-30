@@ -379,6 +379,30 @@ def run(
         _entry_anatomy(result.weeks)
         _capture_rates(result.weeks, slates)
         _duplication_risk(result.weeks)
+        try:  # persist rosters for human review (nfl_features.replay_lineups)
+            from ..bq import load_dataframe
+            from ..config import settings
+
+            rows = []
+            for w in result.weeks:
+                order = np.argsort(w.lineup_scores)[::-1]
+                for rk, ix in enumerate(order):
+                    lu = w.lineups[ix]
+                    for p in lu.players:
+                        rows.append({
+                            "season": w.season, "week": w.week,
+                            "score_rank": rk + 1, "tag": lu.tag or "lev",
+                            "lineup_score": round(w.lineup_scores[ix], 1),
+                            "player": p.get("name"), "pos": p.get("pos"),
+                            "team": p.get("team"), "salary": p.get("salary"),
+                            "proj": round(float(p.get("proj", 0)), 1),
+                            "actual": round(float(p.get("actual") or 0), 1)})
+            load_dataframe(pd.DataFrame(rows),
+                           f"{settings.features}.replay_lineups",
+                           write_disposition="WRITE_TRUNCATE")
+            print(f"  rosters persisted: {len(rows)} rows -> replay_lineups")
+        except Exception:
+            log.exception("could not persist replay rosters")
 
 
 def _duplication_risk(weeks, field_size: int = 150_000) -> None:
