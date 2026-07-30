@@ -148,6 +148,24 @@ def tail_select_lineups(
                 lu.tag = "nostk"
                 seen.add(lu.ids)
                 cands.append(lu)
+    # Mid-tier QB A/B (env N_MIDQB): one candidate locked on each of the
+    # top-N $4-6.5k QBs by simulated p90 — targets the measured miss zone
+    # (17/41 top-scorer misses were QBs, 27/41 mid-salary).
+    n_midqb = int(_os.environ.get("N_MIDQB", "0"))
+    if n_midqb:
+        qb_rows = [(i, p) for i, p in enumerate(pool)
+                   if p["pos"] == "QB" and 4000 < p["salary"] <= 6500]
+        qb_rows.sort(key=lambda t: -float(np.percentile(rd[t[0]], 90)))
+        for _, qb in qb_rows[:n_midqb]:
+            try:
+                lu = optimize(pool, stack=stack, objective_col=objective_col,
+                              locks={qb["id"]})
+            except Exception:
+                continue
+            if lu is not None and lu.ids not in seen:
+                lu.tag = "midqb"
+                seen.add(lu.ids)
+                cands.append(lu)
     # Concentrated game stacks (issue #6): for each top game environment,
     # force >= 5 players from that game. Winners take 50-80% of points
     # from one game; these are deliberately lower-mean, higher-variance
