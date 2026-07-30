@@ -630,3 +630,14 @@ win weeks. QB remains the weakest position (rank corr 0.463, 17/41
 top-scorer misses) because QB outcomes (rushing TDs, game script) are
 irreducibly noisy and the market prices QBs efficiently. Miss-pattern
 loop closed; generator stays env-gated off.
+
+## Addendum 20 (2026-07-30): dark-game stacks ADOPTED — the user's hypothesis wins
+
+Study: 29% of matched 2025 Milly winners stacked a game ranked 8th-14th
+by Vegas total — a zone our generators never touched. Run R (one 5-man
+stack from each game ranked 5-14): mean best 181.5 -> **184.2**, weeks
+>=194 5 -> **6/17**, median finish 12.3% (best ever), max 209.4. The
+dark generator took 10% of slots and produced **5/17 weekly bests**
+(2.9x its share) — strongest per-slot generator measured. Adopted as
+default (N_DARKGAME=10). Rookie-ramp draft-prior A/B (run S) queued;
+its baseline is now 184.2.

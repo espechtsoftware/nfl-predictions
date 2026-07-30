@@ -41,8 +41,28 @@ def _role_prior(position: str, depth_rank: float) -> tuple[float, float]:
     return ROLE_PRIORS.get((position, depth), (0.03, 0.02))
 
 
+DRAFT_ADJ = {("RB", 1): 1.3, ("TE", 1): 0.6, ("TE", 2): 0.6,
+             ("TE", 3): 0.6, ("WR", 1): 0.9, ("WR", 2): 0.9,
+             ("WR", 3): 0.9}  # rookie-ramp study 2026-07-30 (env-gated)
+
+
+def _draft_rounds() -> dict:
+    try:
+        from ..bq import query_df
+        from ..config import settings
+
+        d = query_df(f"SELECT gsis_id, round FROM "
+                     f"`{settings.raw}.draft_picks` WHERE gsis_id IS NOT NULL")
+        return dict(zip(d.gsis_id, d["round"]))
+    except Exception:
+        return {}
+
+
 def fill_cold_start_features(df: pd.DataFrame) -> pd.DataFrame:
-    """Fill null usage features on cold-start rows from role priors."""
+    """Fill null usage features on cold-start rows from role priors.
+    Env DRAFT_PRIORS=1 scales rookie priors by draft capital: round-1 RBs
+    produce day one (x1.3); rookie TEs are near-unplayable (x0.6);
+    rookie WRs never ramp (x0.9)."""
     out = df.copy()
     if "is_cold_start" not in out.columns:
         return out
@@ -51,6 +71,15 @@ def fill_cold_start_features(df: pd.DataFrame) -> pd.DataFrame:
     for idx in out.index[cold]:
         row = out.loc[idx]
         tgt, carry = _role_prior(row.get("position"), row.get("depth_rank", np.nan))
+        import os as _os
+
+        if _os.environ.get("DRAFT_PRIORS"):
+            if not hasattr(fill_cold_start_features, "_dr"):
+                fill_cold_start_features._dr = _draft_rounds()
+            rnd = fill_cold_start_features._dr.get(row.get("gsis_id"))
+            if rnd:
+                f = DRAFT_ADJ.get((row.get("position"), int(min(rnd, 3))), 1.0)
+                tgt, carry = tgt * f, carry * f
         if bool(row.get("is_rookie", False)):
             rnd = row.get("draft_round")
             mult = (
