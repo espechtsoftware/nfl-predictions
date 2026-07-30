@@ -352,11 +352,12 @@ def run(
         print(f"\n  entry selection: P(best >= {tail_line:.0f}) greedy "
               f"coverage over correlated draws")
     best_by_week = {}
-    result = run_contest_replay(proj, dst, contest,
-                                n_entries=n_entries, field_size=field_size,
-                                sharp_fraction=sharp_fraction, stack=stack,
-                                draws=draws if use_tail else None,
-                                tail_line=tail_line if use_tail else None)
+    slates = build_slates(proj, dst)
+    result = engine_run(slates, contest,
+                        n_entries=n_entries, field_size=field_size,
+                        sharp_fraction=sharp_fraction, stack=stack,
+                        draws=draws if use_tail else None,
+                        tail_line=tail_line if use_tail else None)
     print(f"\n=== Contest replay: {season} "
           f"(field {sharp_fraction:.0%} optimizer-built) ===")
     print(result.summary())
@@ -376,6 +377,50 @@ def run(
         _entries_to_line(result.weeks)
         _confidence_calibration(result.weeks, proj)
         _entry_anatomy(result.weeks)
+        _capture_rates(result.weeks, slates)
+
+
+def _capture_rates(weeks, slates) -> None:
+    """Did our 40 hold the slate's best-scoring punt / QB at all? Breadth
+    (distinct players held per tier) + capture tell whether misses are a
+    prediction problem or a diversity problem."""
+    import numpy as _np
+
+    from ..optimizer.lineup import PUNT_MAX_SALARY
+
+    by_wk = {int(s.week.iloc[0]): s for s in slates}
+    rows = []
+    for w in weeks:
+        sl = by_wk.get(w.week)
+        if sl is None:
+            continue
+        punts = sl[(sl.salary <= PUNT_MAX_SALARY)]
+        best_punt = punts.actual.max() if len(punts) else 0
+        qbs = sl[sl.pos == "QB"]
+        best_qb = qbs.actual.max() if len(qbs) else 0
+        held_p, held_q = set(), set()
+        our_bp, our_bq = 0.0, 0.0
+        for lu in w.lineups:
+            for p in lu.players:
+                a = float(p.get("actual") or 0)
+                if p["salary"] <= PUNT_MAX_SALARY:
+                    held_p.add(p["id"]); our_bp = max(our_bp, a)
+                if p["pos"] == "QB":
+                    held_q.add(p["id"]); our_bq = max(our_bq, a)
+        rows.append({"pc": our_bp >= best_punt - 1e-6,
+                     "qc": our_bq >= best_qb - 1e-6,
+                     "np": len(held_p), "nq": len(held_q),
+                     "pgap": best_punt - our_bp, "qgap": best_qb - our_bq})
+    if not rows:
+        return
+    d = pd.DataFrame(rows)
+    print(f"  capture rates across our 40 (per week):")
+    print(f"    slate-best PUNT held: {int(d.pc.sum())}/{len(d)} weeks  "
+          f"(distinct punts held avg {d.np.mean():.1f}, "
+          f"miss gap avg {d[~d.pc].pgap.mean():.1f} pts)")
+    print(f"    slate-best QB held:   {int(d.qc.sum())}/{len(d)} weeks  "
+          f"(distinct QBs held avg {d.nq.mean():.1f}, "
+          f"miss gap avg {d[~d.qc].qgap.mean():.1f} pts)")
 
 
 def _entry_anatomy(weeks) -> None:
