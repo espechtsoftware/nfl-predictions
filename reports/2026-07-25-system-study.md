@@ -641,3 +641,16 @@ dark generator took 10% of slots and produced **5/17 weekly bests**
 (2.9x its share) — strongest per-slot generator measured. Adopted as
 default (N_DARKGAME=10). Rookie-ramp draft-prior A/B (run S) queued;
 its baseline is now 184.2.
+
+## Addendum 21 (2026-07-30): draft-capital cold-start priors — null; pre-season book closed
+
+Run S (DRAFT_PRIORS=1: R1 RBs x1.3, rookie TEs x0.6, rookie WRs x0.9 on
+cold-start opportunity): MAE 4.666 vs 4.664, tail identical to run R
+(184.2 / 6/17 / 12.3%). The rookie-ramp patterns are real (study above)
+but the props blend already prices rookies — stays env-gated off.
+
+**Final pre-season configuration** (all replay-validated): correlated
+sim + props blend (w=0.45) + Vegas-first DST + tail selection over
+lev/boom/game/dark generators + min-spend 49k + punt slot + chalk fade.
+2025: MAE 4.664, mean best-of-40 184.2, 6/17 weeks over the min Milly
+line, median finish 12.3%. In-season queue: issues #10, #11, #12.
