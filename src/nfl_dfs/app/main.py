@@ -925,6 +925,7 @@ def _player_pool(
         if int(r.salary) <= PUNT_MAX_SALARY and hasattr(r, "proj_p90") \
                 and pd.notna(r.proj_p90):
             proj = max(proj, float(r.proj_p90))
+        kickoff = getattr(r, "kickoff", None)
         pool.append(
             {
                 "id": pid,
@@ -936,6 +937,7 @@ def _player_pool(
                 "game_id": f"{r.team}@{getattr(r, 'opponent', '?')}",
                 "salary": int(r.salary),
                 "proj": proj,
+                "kickoff": kickoff if pd.notna(kickoff) else None,
             }
         )
     own = naive_ownership(pd.DataFrame(pool))
@@ -996,6 +998,11 @@ def _classic_projections(
                  f"run project after ingest-dk")
     df["salary"] = (df.dk_player_id.map(sal.salary)
                     .fillna(df.salary).astype(int))
+    if "game_start" in sal.columns:
+        # Feeds slot_order()'s late-swap FLEX preference (roadmap #13.2);
+        # absent for callers with no chosen slate, which is the existing
+        # proj-based behavior.
+        df["kickoff"] = df.dk_player_id.map(sal.game_start)
     unprojected = len(sal) - df.dk_player_id.nunique()
     if unprojected:
         log.info("slate %s: %d salary rows have no projection and are "

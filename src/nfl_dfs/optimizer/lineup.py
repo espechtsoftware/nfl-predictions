@@ -62,17 +62,37 @@ class Lineup:
         return float(sum(p["proj"] for p in self.players))
 
     def slot_order(self) -> list[Player]:
-        """Players in DK upload order: QB RB RB WR WR WR TE FLEX DST."""
-        pool = list(self.players)
+        """Players in DK upload order: QB RB RB WR WR WR TE FLEX DST.
 
-        def take(pos: str, n: int) -> list[Player]:
-            got = sorted([p for p in pool if p["pos"] == pos],
-                         key=lambda p: -p["proj"])[:n]
+        Slot labels don't affect DK scoring (all 9 spots count the same),
+        so which specific player lands in FLEX is free to optimize for
+        late-swap flexibility instead: when every player carries a
+        `kickoff` time, the position with a surplus over its required
+        minimum sends its LATEST-kickoff player to FLEX (the only slot
+        that accepts any of RB/WR/TE) rather than its lowest-projected
+        one. Missing kickoff data (the common case — most callers don't
+        have it) falls back to the original proj-based assignment."""
+        pool = list(self.players)
+        has_kickoffs = bool(pool) and all(p.get("kickoff") for p in pool)
+
+        def take(pos: str, n: int, flex_eligible: bool = False) -> list[Player]:
+            cands = [p for p in pool if p["pos"] == pos]
+            if flex_eligible and has_kickoffs and len(cands) > n:
+                # Earliest n lock into the hard slot; the latest-kickoff
+                # surplus player is left behind for FLEX.
+                got = sorted(cands, key=lambda p: p["kickoff"])[:n]
+            else:
+                got = sorted(cands, key=lambda p: -p["proj"])[:n]
             for g in got:
                 pool.remove(g)
             return got
 
-        ordered = take("QB", 1) + take("RB", 2) + take("WR", 3) + take("TE", 1)
+        ordered = (
+            take("QB", 1)
+            + take("RB", 2, flex_eligible=True)
+            + take("WR", 3, flex_eligible=True)
+            + take("TE", 1, flex_eligible=True)
+        )
         dst = take("DST", 1)
         flex = [p for p in pool if p["pos"] in ("RB", "WR", "TE")]
         return ordered + flex + dst

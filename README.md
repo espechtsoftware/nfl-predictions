@@ -1318,6 +1318,14 @@ Keep the LLM strictly in the extraction role. Do not let it generate projections
 - Salary cap: $50,000
 - Minimum 2 different games represented
 - No more than 8 players from one team (rarely binding)
+- Swappability: `Lineup.slot_order()` (`optimizer/lineup.py`) assigns FLEX
+  at export time, not construction time — slot labels don't change DK
+  scoring, so among the position with a roster surplus it labels the
+  **latest-kickoff** player FLEX (the only slot any of RB/WR/TE can fill)
+  rather than the lowest-projected one, preserving the most late-swap
+  optionality. Requires every player to carry a `kickoff` time (populated
+  from `dk_salaries.game_start` when a slate is chosen); falls back to
+  the old lowest-projection pick otherwise.
 
 ### 9.2 Base optimizer
 
