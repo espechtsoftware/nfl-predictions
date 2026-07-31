@@ -654,3 +654,15 @@ sim + props blend (w=0.45) + Vegas-first DST + tail selection over
 lev/boom/game/dark generators + min-spend 49k + punt slot + chalk fade.
 2025: MAE 4.664, mean best-of-40 184.2, 6/17 weeks over the min Milly
 line, median finish 12.3%. In-season queue: issues #10, #11, #12.
+
+## Addendum 22 (2026-07-30): alt-line ceiling bump — null, not adopted
+
+The market-ceiling signal is real predictively (top-quartile ceiling
+room booms 21.4% vs 13%, corr 0.259 — study stands) but run T
+(ALT_CEIL=0.4 on <=6.5k salaries) was mixed-within-noise: mean best
+185.1 (+0.9), weeks >=194 down 6 -> 5, median finish 12.3 -> 14.2%.
+The simulated p90 + boom draws already price ceiling room where it
+matters. ALT_CEIL stays env-gated off; market_ceilings() remains
+available as a feature source (candidate input for the ownership model
+and the possession simulator's usage draws). Cloud roadmap worker
+(routine trig_01T9os88Tr7iqJvedtLtmh9Y) continues issue #13 via PRs.
