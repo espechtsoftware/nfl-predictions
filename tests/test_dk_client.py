@@ -110,6 +110,103 @@ def test_classify_slate():
     assert dk_client.classify_slate({"gameTypeDescription": "Classic"}) == "classic"
 
 
+def contests_payload():
+    return [
+        {
+            "id": 111,
+            "dg": 555,
+            "n": "$1M Fantasy Football Millionaire [$150K to 1st]",
+            "gameType": "Classic",
+            "a": 20,
+            "m": 50_000,
+            "nt": 12_000,
+            "po": 1_000_000.0,
+            "attr": {"IsGuaranteed": "true"},
+            "sd": "/Date(1785513600000)/",
+        },
+        {
+            # Non-guaranteed: never carries an overlay even when short-filled.
+            "id": 112,
+            "dg": 555,
+            "n": "50/50 Double Up",
+            "gameType": "Classic",
+            "a": 5,
+            "m": 1000,
+            "nt": 10,
+            "po": 4500.0,
+            "attr": {},
+            "sd": "/Date(1785513600000)/",
+        },
+        {
+            # Different draft group (e.g. a Madden sim contest sharing the
+            # sport=NFL tag) — excluded when filtering by draft_group_ids.
+            "id": 113,
+            "dg": 999,
+            "n": "Madden Stream $6K Friday Special",
+            "gameType": "Madden Classic",
+            "a": 15,
+            "m": 470,
+            "nt": 222,
+            "po": 6000.0,
+            "attr": {"IsGuaranteed": "true"},
+            "sd": "/Date(1785513600000)/",
+        },
+    ]
+
+
+def test_contests_frame_filters_to_draft_group_ids():
+    df = dk_client.contests_frame(contests_payload(), draft_group_ids={555})
+    assert set(df.contest_id) == {111, 112}
+
+
+def test_contests_frame_no_filter_keeps_everything():
+    df = dk_client.contests_frame(contests_payload())
+    assert set(df.contest_id) == {111, 112, 113}
+
+
+def test_contests_frame_fill_rate():
+    df = dk_client.contests_frame(contests_payload(), draft_group_ids={555})
+    gpp = df[df.contest_id == 111].iloc[0]
+    assert gpp.fill_rate == 12_000 / 50_000
+
+
+def test_contests_frame_overlay_only_for_guaranteed():
+    df = dk_client.contests_frame(contests_payload(), draft_group_ids={555})
+    gpp = df[df.contest_id == 111].iloc[0]
+    double_up = df[df.contest_id == 112].iloc[0]
+    assert gpp.is_guaranteed
+    assert gpp.overlay_dollars == 1_000_000.0 - 12_000 * 20
+    assert not double_up.is_guaranteed
+    # Short-filled (10 of 1000 entries) but not guaranteed -> no overlay.
+    assert double_up.overlay_dollars == 0.0
+
+
+def test_contests_frame_empty_input():
+    df = dk_client.contests_frame([])
+    assert df.empty
+    assert list(df.columns) == dk_client.CONTEST_COLUMNS
+
+
+def test_contests_frame_handles_missing_fields():
+    df = dk_client.contests_frame(
+        [{"id": 1, "dg": 1, "n": "Weird contest", "attr": {"IsGuaranteed": "true"}}]
+    )
+    row = df.iloc[0]
+    assert pd.isna(row.fill_rate)
+    assert row.overlay_dollars == 0.0  # missing entries/fee/pool -> no overlay computed
+    assert pd.isna(row.start_time)
+
+
+def test_parse_dk_date():
+    ts = dk_client._parse_dk_date("/Date(1785513600000)/")
+    assert ts is not None
+    assert ts.tz is not None
+    assert ts.year == 2026
+
+    assert dk_client._parse_dk_date("not a date") is None
+    assert dk_client._parse_dk_date(None) is None
+
+
 def test_render_sql_placeholders(tmp_path):
     from nfl_dfs.bq import render_sql
 
