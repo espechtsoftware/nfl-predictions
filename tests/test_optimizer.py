@@ -187,6 +187,48 @@ def test_slot_order_flex_identification():
     assert positions[8] == "DST"
 
 
+def _kickoff_pool():
+    def p(id, pos, proj, kickoff=None):
+        return {"id": id, "pos": pos, "proj": proj, "salary": 5000,
+                "kickoff": kickoff}
+
+    # 3 RBs (surplus position), 3 WRs, 1 TE => RB's leftover goes to FLEX.
+    # rb3 has the highest proj (would win the old proj-based leftover
+    # pick if it were the *lowest*) but also the latest kickoff, while
+    # rb2 has the lowest proj but an early kickoff.
+    return [
+        p("qb", "QB", 20, "2026-09-10T13:00:00Z"),
+        p("rb1", "RB", 15, "2026-09-10T13:00:00Z"),
+        p("rb2", "RB", 14, "2026-09-10T13:05:00Z"),
+        p("rb3", "RB", 25, "2026-09-10T20:20:00Z"),
+        p("wr1", "WR", 12, "2026-09-10T13:00:00Z"),
+        p("wr2", "WR", 11, "2026-09-10T13:00:00Z"),
+        p("wr3", "WR", 10, "2026-09-10T13:00:00Z"),
+        p("te1", "TE", 8, "2026-09-10T13:00:00Z"),
+        p("dst", "DST", 7, "2026-09-10T13:00:00Z"),
+    ]
+
+
+def test_slot_order_prefers_latest_kickoff_for_flex():
+    """With every player's kickoff known, FLEX goes to the latest-kickoff
+    player in the surplus position (roadmap #13.2: max late-swap
+    flexibility, since FLEX is the only slot DK lets you fill with any of
+    RB/WR/TE) even though it isn't the lowest-projected one."""
+    ordered = Lineup(_kickoff_pool()).slot_order()
+    assert [p["id"] for p in ordered[1:3]] == ["rb1", "rb2"]
+    assert ordered[7]["id"] == "rb3"
+    assert ordered[7]["pos"] == "RB"
+
+
+def test_slot_order_ignores_kickoff_when_incomplete():
+    """Missing kickoff for even one player must fall back to the original
+    proj-based FLEX pick — half-known kickoff data is worse than none."""
+    players = _kickoff_pool()
+    next(p for p in players if p["id"] == "dst")["kickoff"] = None
+    ordered = Lineup(players).slot_order()
+    assert ordered[7]["id"] == "rb2"  # lowest-proj RB, the old behavior
+
+
 def test_auto_core_budget_guard_sheds_expensive_studs():
     """A consensus lineup stuffed with studs must shed its priciest members
     until every free slot keeps a mid-tier budget."""
