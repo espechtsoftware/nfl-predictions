@@ -10,7 +10,7 @@ A complete blueprint for a DraftKings NFL daily-fantasy prediction and lineup-co
 > | §3 Warehouse schema | `sql/raw/`, `sql/predictions/` |
 > | §4.3/§5 Features + ID crosswalk | `sql/features/`, `src/nfl_dfs/features/` (incl. leakage checks) |
 > | §6/§7 Models | `src/nfl_dfs/models/` (baseline, components, simulation, blending, cold start, registry, monitoring, tuning) |
-> | §8.5 Trend detection | `src/nfl_dfs/trends/` (BOCPD, CUSUM, salary-lag alerts) |
+> | §8.5 Trend detection | `src/nfl_dfs/trends/` (BOCPD, CUSUM, salary-lag alerts); `src/nfl_dfs/models/pricing_lag.py` (salary-vs-trailing-production residual) |
 > | §8.2–8.4, §8.7 Graph + news | `src/nfl_dfs/graph/` (build, injury cascade, LLM extraction); cascade wired into live projections by `src/nfl_dfs/inference/cascade_adjust.py` |
 > | §9 Optimizer | `src/nfl_dfs/optimizer/` (PuLP, stacking, multi-entry, DK CSV; §9.5 Showdown Captain Mode in `showdown.py`) |
 > | §10 Backtesting | `src/nfl_dfs/backtest/` (field simulation, payouts, ROI) |
@@ -1288,6 +1288,8 @@ WHERE c.changepoint_prob > 0.5
   AND dk.salary_delta_wow < 500          -- salary hasn't caught up yet
 ORDER BY c.changepoint_prob DESC;
 ```
+
+**Pricing-lag model (issue #13 item 3).** The changepoint alert above catches a *recent* role change DK hasn't repriced yet. A complementary, longer-horizon signal: regress salary directly on trailing-production features (Ridge, per position, walk-forward by season — `src/nfl_dfs/models/pricing_lag.py`, `nfl-dfs pricing-lag --season S --week W`). The residual (actual salary minus what the trailing role implies) flags players DK has been *structurally* underpricing for a while, not just this week — a candidate input to the ownership-residual work in issue #11, since public ownership tends to track salary/narrative rather than underlying role. Writes `nfl_features.salary_pricing_lag`.
 
 ### 8.6 Graph neural networks — probably not
 
