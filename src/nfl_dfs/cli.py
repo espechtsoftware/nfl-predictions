@@ -38,6 +38,11 @@ def main(argv: list[str] | None = None) -> None:
     p = sub.add_parser("trends", help="Changepoint detection + salary-lag watchlist")
     p.add_argument("--season", type=int, default=None)
 
+    p = sub.add_parser("pricing-lag",
+                       help="DK salary-vs-trailing-production residual watchlist")
+    p.add_argument("--season", type=int, required=True)
+    p.add_argument("--week", type=int, required=True)
+
     p = sub.add_parser("replay",
                        help="Replay a past season: projection accuracy + contest ROI")
     p.add_argument("--season", type=int, required=True)
@@ -127,6 +132,10 @@ def main(argv: list[str] | None = None) -> None:
         from .trends import alerts
 
         alerts.run(args.season or current_season())
+    elif args.command == "pricing-lag":
+        from .models import pricing_lag
+
+        pricing_lag.run(args.season, args.week)
     elif args.command == "replay":
         from .backtest import payout, replay
 
