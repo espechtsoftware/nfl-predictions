@@ -1459,6 +1459,18 @@ Run this over at least three full seasons. Single-season results are noise — t
 |---|---|---|
 > **Live-deployment note (2026-07-31):** the actually-deployed schedulers run sparser than this table — nflverse/features/train/projections are weekly (Tuesdays), DK slates 1×/day — see the WARNING in `deploy/deploy_jobs.sh`. `status.py`'s freshness thresholds follow the live cadences; the daily `check-freshness` job emails (via the Cloud Run failed-execution alert) when any active feed goes stale.
 
+**Off-season pause / season-start runbook (2026 edition).** Five schedulers are PAUSED for the off-season (2026-07-31) because they only re-process a finished season: `s-nflverse`, `s-features`, `s-train`, `s-project-tu`, `s-project-su`. Everything else (odds, DK poll, CFB scaffold, weather, freshness check) stays live year-round. The season-start sequence:
+
+| When (2026) | Do |
+|---|---|
+| **Mon Aug 24** | Resume the Tuesday chain + projections: `for s in s-nflverse s-features s-train s-project-tu s-project-su; do gcloud scheduler jobs resume $s --location us-central1; done`. First runs land Tue Aug 25 and pick up 2026 schedule finalizations. |
+| **Sat Aug 29** (CFB week 0) | Nothing to start — `ingest-cfb` is already live and self-activating. Verify it caught real slates: System status popup → "CFB slates/salaries" shows rows (or query `nfl_raw.cfb_dk_salaries`). If still 0 after slates exist on DK, the `sportId == 5` filter guess was wrong — check the `ingest-cfb` logs. |
+| **~Thu Sep 3** (week-1 slates post) | The dead-filter check from the deficiency log (2026-07-31): run `dk_client.nfl_draft_groups(requests.Session())` against the live lobby. Real slate returned → close the log row. Empty → switch the filter to `sportId == 1` and redeploy `ingest-dk`. |
+| **Thu Sep 10** (NFL kickoff) | Status popup should be fully green: salaries/odds/props/weather flowing, projections present. Any red is real — the daily check will also have emailed. |
+| **Sun Sep 13** (first main slate) | Normal weekly guide flow. First end-to-end test of lineups → CSV → upload. |
+
+If resuming is forgotten: the Tuesday-chain feeds are `nfl`-seasonal in `status.py` and go **active Sep 1**, so the daily `check-freshness` starts emailing about their staleness — the system nags you itself. Reverse direction (next off-season, ~mid-February): pause the same five schedulers again.
+
 | `ingest_nflverse` | Daily 06:00 CT | Year-round; nightly refresh matters in-season |
 | `ingest_dk_slate` | Hourly | Thu 00:00 – Mon 04:00 CT |
 | `ingest_contests` | Not yet scheduled — opt-in via `INGEST_CONTESTS_ENABLED` (see *Known gaps*: overlay detection scaffold) | Thu 00:00 – Mon 04:00 CT once adopted; denser near each slate's lock for real fill-rate signal |
