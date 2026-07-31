@@ -151,6 +151,14 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
     punt = skill.salary <= PUNT_MAX_SALARY
     skill["proj"] = skill.proj_points.where(~punt,
                                             skill[["proj_points", "proj_p90"]].max(axis=1))
+    import os as _os2
+
+    _k = float(_os2.environ.get("ALT_CEIL", "0") or 0)
+    if _k and "ceil_spread" in skill.columns:
+        # Market-implied ceiling room boosts modest-salary objectives
+        mod = skill.salary <= 6500
+        skill.loc[mod, "proj"] += _k * pd.to_numeric(
+            skill.loc[mod, "ceil_spread"], errors="coerce").fillna(0)
     if "name" not in skill.columns:
         skill["name"] = skill.gsis_id
 
@@ -320,6 +328,18 @@ def run(
                 print(f"    w={w:.2f}  MAE={mae:.4f}")
     except Exception:
         log.exception("prop market unavailable; replaying unblended")
+    try:  # market ceiling room (env ALT_CEIL, off by default)
+        import os as _os
+
+        k = float(_os.environ.get("ALT_CEIL", "0") or 0)
+        if k:
+            from ..models.prop_market import market_ceilings
+
+            mc = market_ceilings((season,))
+            proj = proj.merge(mc, on=["season", "week", "gsis_id"],
+                              how="left")
+    except Exception:
+        log.exception("alt ceilings unavailable")
     overall, by_pos = replay_metrics(proj)
 
     print(f"\n=== Projection replay: {season} "
