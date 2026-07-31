@@ -20,10 +20,19 @@ log = logging.getLogger(__name__)
 DK_GROUPS = "https://api.draftkings.com/draftgroups/v1/"
 DK_DRAFTABLES = "https://api.draftkings.com/draftgroups/v1/draftgroups/{gid}/draftables"
 DK_CONTESTS = "https://www.draftkings.com/lobby/getcontests?sport=NFL"
+DK_CFB_CONTESTS = "https://www.draftkings.com/lobby/getcontests?sport=CFB"
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) nfl-dfs-personal-research",
     "Accept": "application/json",
 }
+
+# DK's own /sites/US-DK/sports/v1/sports lists College Football as sportId=5
+# (regionAbbreviatedSportName "CFB"; verified live 2026-07-31). Each entry in
+# /draftgroups/v1/'s draftGroups array carries this same sportId at the top
+# level — unlike the top-level "sport" string nfl_draft_groups() filters on,
+# which 0/180 groups sampled live on that date actually carried (see the
+# README's Data deficiency log). sportId is confirmed present and reliable.
+CFB_SPORT_ID = 5
 
 # rosterSlotIds seen on showdown slates (CPT/FLEX) differ from classic;
 # startTimeSuffix like "(Sun only)" marks the classic main slate variants.
@@ -38,6 +47,26 @@ def nfl_draft_groups(session: requests.Session | None = None) -> list[dict[str, 
         g
         for g in r.json().get("draftGroups", [])
         if g.get("sport") == "NFL" and g.get("draftGroupState") == "Upcoming"
+    ]
+
+
+def cfb_draft_groups(session: requests.Session | None = None) -> list[dict[str, Any]]:
+    """Upcoming DK College Football draft groups (issue #13 item 7).
+
+    Same endpoint as ``nfl_draft_groups``, filtered on ``sportId`` instead
+    of the top-level ``sport`` string — see ``CFB_SPORT_ID``'s docstring
+    for why. Collection-only scaffold: DK's own sports list shows CFB with
+    ``hasPublicContests: false`` as of 2026-07-31 (off-season, no slates
+    yet), so this returns empty until real draft groups appear later in
+    the season.
+    """
+    s = session or requests.Session()
+    r = s.get(DK_GROUPS, headers=HEADERS, timeout=30)
+    r.raise_for_status()
+    return [
+        g
+        for g in r.json().get("draftGroups", [])
+        if g.get("sportId") == CFB_SPORT_ID and g.get("draftGroupState") == "Upcoming"
     ]
 
 
@@ -68,6 +97,16 @@ def nfl_contests(session: requests.Session | None = None) -> list[dict[str, Any]
     """
     s = session or requests.Session()
     r = s.get(DK_CONTESTS, headers=HEADERS, timeout=30)
+    r.raise_for_status()
+    return r.json().get("Contests", [])
+
+
+def cfb_contests(session: requests.Session | None = None) -> list[dict[str, Any]]:
+    """Every contest DK's lobby currently tags sport=CFB. See ``nfl_contests``
+    for the shared off-season-noise caveat; filter with ``contests_frame``'s
+    ``draft_group_ids`` using ``cfb_draft_groups()`` IDs."""
+    s = session or requests.Session()
+    r = s.get(DK_CFB_CONTESTS, headers=HEADERS, timeout=30)
     r.raise_for_status()
     return r.json().get("Contests", [])
 
@@ -156,7 +195,7 @@ def draftables_frame(gid: int, slate_type: str, payload: dict[str, Any]) -> pd.D
 
 
 CONTEST_COLUMNS = [
-    "pulled_at", "contest_id", "draft_group_id", "name", "game_type",
+    "pulled_at", "contest_id", "draft_group_id", "sport", "name", "game_type",
     "entry_fee", "max_entries", "entries", "fill_rate", "prize_pool",
     "is_guaranteed", "overlay_dollars", "start_time",
 ]
@@ -165,6 +204,7 @@ CONTEST_COLUMNS = [
 def contests_frame(
     contests: list[dict[str, Any]],
     draft_group_ids: set[int] | None = None,
+    sport: str = "NFL",
 ) -> pd.DataFrame:
     """Flatten DK lobby contest listings into a fill-rate/overlay snapshot.
 
@@ -181,6 +221,11 @@ def contests_frame(
     has tied to one of those draft groups (pass the IDs from
     ``nfl_draft_groups()`` to keep only real NFL slates — see
     ``nfl_contests()`` for why that filter matters).
+
+    ``sport`` stamps a ``sport`` column so ``nfl_raw.dk_contest_fills`` can
+    hold both NFL and CFB (issue #13 item 7) polls in one append-only
+    table; defaults to "NFL" for backward compatibility with the existing
+    overlay-detection scaffold's call sites.
     """
     pulled_at = datetime.now(timezone.utc)
     rows = []
@@ -206,6 +251,7 @@ def contests_frame(
             "pulled_at": pulled_at,
             "contest_id": c.get("id"),
             "draft_group_id": dg,
+            "sport": sport,
             "name": c.get("n"),
             "game_type": c.get("gameType"),
             "entry_fee": entry_fee,

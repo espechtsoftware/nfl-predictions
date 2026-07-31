@@ -23,6 +23,10 @@ def main(argv: list[str] | None = None) -> None:
     sub.add_parser("ingest-contests",
                    help="Poll DK contest fill rates for overlay detection "
                         "(scaffold, needs INGEST_CONTESTS_ENABLED)")
+    sub.add_parser("ingest-cfb",
+                   help="Poll DK college football draft groups/draftables + "
+                        "contest fills (collection-only scaffold, needs "
+                        "INGEST_CFB_ENABLED)")
     sub.add_parser("ingest-odds", help="Snapshot DK sportsbook game lines")
     sub.add_parser("score-entries",
                    help="Score last week's entered lineups vs actuals")
@@ -110,6 +114,10 @@ def main(argv: list[str] | None = None) -> None:
         from .ingest import contest_job
 
         contest_job.run()
+    elif args.command == "ingest-cfb":
+        from .ingest import cfb_job
+
+        cfb_job.run()
     elif args.command == "ingest-odds":
         from .ingest import odds_job
 
