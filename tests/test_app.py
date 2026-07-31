@@ -83,6 +83,34 @@ def test_lineup_builder(client):
     assert all(0 < e["exposure"] <= 1 for e in exposures.values())
 
 
+def test_tail_line_scales_with_field_size(client):
+    # Anchor: the Milly field reproduces the measured 194 line; smaller
+    # fields win lower, monotonically, and never below the contending mean.
+    assert app_main.tail_line_for_field(app_main.MILLY_FIELD) == 194.0
+    q20k = app_main.tail_line_for_field(20_000)
+    q5k = app_main.tail_line_for_field(5_000)
+    assert q5k < q20k < 194.0
+    assert q20k > 180  # sanity: a 20k qualifier is not a cakewalk
+
+    # /contests always serves presets (BQ-less test env has no live table)
+    opts = client.get("/contests").json()
+    assert opts["presets"][0]["field_size"] == 20_000
+    assert all("tail_line" in c for c in opts["presets"])
+
+    # field_size flows into the response's confidence target
+    r = client.post("/lineups", json={
+        "season": 2025, "week": 3, "n_lineups": 1, "field_size": 20_000,
+    })
+    assert r.status_code == 200
+    assert r.json()["tail_line"] == q20k
+    # explicit tail_line overrides field_size
+    r = client.post("/lineups", json={
+        "season": 2025, "week": 3, "n_lineups": 1, "field_size": 20_000,
+        "tail_line": 205.0,
+    })
+    assert r.json()["tail_line"] == 205.0
+
+
 def test_lineup_builder_locks_and_csv_endpoint(client):
     frame = projections_frame()
     a_wr = int(frame[frame.position == "WR"].dk_player_id.iloc[-1])

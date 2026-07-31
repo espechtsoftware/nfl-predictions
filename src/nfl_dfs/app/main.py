@@ -57,6 +57,18 @@ class LineupRequest(BaseModel):
     bring_back_min: int = Field(1, ge=0, le=2)
     forbid_rb_vs_dst: bool = True
     max_overlap: int = Field(7, ge=1, le=8)
+    # Contest sizing: field_size scales the confidence target line via
+    # tail_line_for_field (a 20k qualifier's winning line sits below the
+    # Milly's); an explicit tail_line overrides. Both None = Milly 194.
+    field_size: int | None = Field(None, ge=100)
+    tail_line: float | None = Field(None, ge=100, le=300)
+
+    def line(self) -> float:
+        if self.tail_line is not None:
+            return self.tail_line
+        if self.field_size is not None:
+            return tail_line_for_field(self.field_size)
+        return MIN_MILLY_LINE
 
 
 _PAGE_CSS = """
@@ -238,6 +250,26 @@ async function loadShowdownSlates(){
       grp.appendChild(o);}
     if(grp.children.length)sel.appendChild(grp);
   }catch(e){}}
+async function loadContests(){
+  const sel=document.getElementById('contest');
+  try{const r=await fetch('/contests'); if(!r.ok)return;
+    const j=await r.json();
+    const add=(list,label)=>{
+      if(!list.length)return;
+      const grp=document.createElement('optgroup'); grp.label=label;
+      for(const c of list){
+        const o=document.createElement('option');
+        o.value=c.field_size;
+        o.textContent=`${c.name} · $${c.entry_fee} · `+
+          `${(+c.field_size).toLocaleString()} entries (line ${c.tail_line})`;
+        grp.appendChild(o);}
+      sel.appendChild(grp);};
+    add(j.live,'Live DK contests'); add(j.presets,'Presets');
+    if(sel.options.length)
+      document.getElementById('fsize').value=sel.options[0].value;
+    sel.onchange=()=>{
+      document.getElementById('fsize').value=sel.value;};
+  }catch(e){}}
 function slateSel(){
   const v=document.getElementById('slate').value;
   if(v.startsWith('sd:'))return{sd:true,gid:+v.slice(3)};
@@ -247,6 +279,7 @@ function reqBody(){
     week:+document.getElementById('week').value,
     draft_group_id:slateSel().gid,
     n_lineups:+document.getElementById('n').value,
+    field_size:+document.getElementById('fsize').value||null,
     objective:document.getElementById('obj').value};}
 function slotNames(players){
   const slots=['QB','RB','RB','WR','WR','WR','TE','FLEX','DST'];
@@ -266,8 +299,9 @@ async function build(){
     st.textContent=sd
       ? j.lineups.length+' Captain Mode lineups · '+j.game.game+' ('+
         j.game.day+'). Captain scores 1.5x and costs 1.5x.'
-      : j.lineups.length+' lineups, strongest first. '+
-        'Confidence = P(score >= 194), ordering signal.';
+      : j.lineups.length+' lineups, strongest first. Confidence = '+
+        'P(score >= '+(j.tail_line||194)+'), ordering signal scaled to '+
+        'the chosen contest field.';
     j.lineups.forEach((lu,i)=>{
       const named=sd
         ? lu.players.map((p,k)=>({slot:k?'FLEX':'CPT',p,cpt:!k}))
@@ -332,7 +366,7 @@ document.getElementById('banin').addEventListener('keydown',
 document.getElementById('boostin').addEventListener('keydown',
   e=>{if(e.key==='Enter')addPref('boost','boostin');});
 loadSlates().then?loadSlates():loadSlates;
-loadClassicSlates(); loadShowdownSlates(); loadPrefs();
+loadClassicSlates(); loadShowdownSlates(); loadPrefs(); loadContests();
 """
 
 
@@ -351,6 +385,10 @@ def lineups_page() -> str:
         f"<label>Slate<select id='slate' style='width:15rem'>"
         f"<option value=''>Whole week pool (no slate filter)</option>"
         f"</select></label>"
+        f"<label>Contest<select id='contest' style='width:16rem'></select>"
+        f"</label>"
+        f"<label>Field size<input id='fsize' type='number' value='20000'>"
+        f"</label>"
         f"<label>Entries<input id='n' type='number' value='40'></label>"
         f"<label>Objective<select id='obj'>"
         f"<option value='proj_points'>Mean (GPP default — replay-validated; ceiling logic is built in via punts/boom stacks)</option>"
@@ -947,6 +985,64 @@ def _player_pool(
 
 
 MIN_MILLY_LINE = 194.0  # lowest 2025 Milly-winning score; confidence target
+MILLY_FIELD = 150_000   # field the 194 anchor was measured in
+_FIELD_MU = 120.0       # contending-entry mean the Gumbel term scales from
+
+
+def tail_line_for_field(field_size: int) -> float:
+    """Winning-line estimate for a GPP of `field_size` entries.
+
+    Extreme-value scaling: the max of N entry scores grows like
+    mu + sigma*sqrt(2 ln N), so the line moves with sqrt(ln N) around a
+    contending-field mean. Anchored at the one point we measured (2025
+    Milly, 150k entries, min winning line 194). PROVISIONAL until real
+    qualifier standings recalibrate it (in-season queue item 7) — treat
+    it as "a 20k field wins ~6-7 points lower", not gospel.
+    """
+    import math
+
+    n = max(int(field_size), 100)
+    scale = math.sqrt(math.log(n) / math.log(MILLY_FIELD))
+    return round(_FIELD_MU + (MIN_MILLY_LINE - _FIELD_MU) * scale, 1)
+
+
+# Static picker fallbacks; live DK contests (real names, fees and field
+# sizes from the overlay scaffold's fill polls) take over when
+# INGEST_CONTESTS_ENABLED has landed data. $5 qualifier first: it's the
+# primary contest this shop enters.
+CONTEST_PRESETS = [
+    {"name": "$5 Qualifier (typical)", "entry_fee": 5.0, "field_size": 20_000},
+    {"name": "Millionaire Maker", "entry_fee": 20.0, "field_size": MILLY_FIELD},
+    {"name": "Small qualifier / single-entry", "entry_fee": 5.0,
+     "field_size": 5_000},
+]
+
+
+@app.get("/contests")
+def contest_options() -> dict:
+    """Contest picker: live upcoming DK contests when the fill-poll table
+    has them, else just the presets. Every option carries the field size
+    and the tail line the confidence ordering will target."""
+    live: list[dict] = []
+    try:
+        from ..bq import query_df
+        from ..config import settings
+
+        df = query_df(f"""
+            SELECT name, entry_fee, field_size, prize_pool FROM (
+              SELECT name, entry_fee, max_entries AS field_size, prize_pool,
+                     ROW_NUMBER() OVER (PARTITION BY contest_id
+                                        ORDER BY pulled_at DESC) rn
+              FROM `{settings.raw}.dk_contest_fills`
+              WHERE start_time > CURRENT_TIMESTAMP()
+                AND is_guaranteed AND max_entries >= 1000)
+            WHERE rn = 1 ORDER BY prize_pool DESC LIMIT 25""")
+        live = df.to_dict("records")
+    except Exception as exc:  # table absent until the scaffold is enabled
+        log.info("live contest list unavailable (%s); presets only", exc)
+    for c in live + CONTEST_PRESETS:
+        c["tail_line"] = tail_line_for_field(int(c["field_size"]))
+    return {"live": live, "presets": CONTEST_PRESETS}
 
 
 def _rank_by_confidence(lineups: list, df: pd.DataFrame,
@@ -1031,7 +1127,7 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
         raise HTTPException(422, "No feasible lineup under the given constraints")
     # Confidence order everywhere (JSON + CSVs): first lineup = strongest
     # entry, so "enter the top N in the bigger contest" is just slicing.
-    ranked = _rank_by_confidence(lineups, df)
+    ranked = _rank_by_confidence(lineups, df, line=req.line())
     return [r["lineup"] for r in ranked], ranked
 
 
@@ -1041,10 +1137,11 @@ def build_lineups(
 ) -> dict:
     lineups, ranked = _build_classic(req, store)
     return {
+        "tail_line": req.line(),  # what "confidence" is P(score >= X) of
         "lineups": [
             {
                 "rank": i + 1,
-                "confidence": r["confidence"],  # P(total >= 194), % (ordering signal)
+                "confidence": r["confidence"],  # P(total >= tail_line), %
                 "proj_mean": r["proj_mean"],
                 "players": r["lineup"].slot_order(),
                 "salary": r["lineup"].salary,
@@ -1090,8 +1187,9 @@ def build_core_lineups(
     if not lineups:
         raise HTTPException(422, "No feasible lineup under the given constraints")
     by_id = {p["id"]: p for p in upside_pool}
-    ranked = _rank_by_confidence(lineups, df)
+    ranked = _rank_by_confidence(lineups, df, line=req.line())
     return {
+        "tail_line": req.line(),
         "core": [
             {"id": c["id"], "conviction": c["conviction"],
              "name": by_id[c["id"]]["name"], "pos": by_id[c["id"]]["pos"],
