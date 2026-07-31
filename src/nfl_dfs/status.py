@@ -54,8 +54,11 @@ FEEDS: tuple[Feed, ...] = (
     Feed("weather", "Weather (Open-Meteo)", "raw", "weather", 72, "nfl"),
     Feed("player_week_training", "Feature build (training)", "features",
          "player_week_training", 8 * 24),
+    # 'nfl', not 'always': inference rows are synthetic upcoming-week rows,
+    # which need next-season rosters -- legitimately empty in the off-season
+    # even though the build that produces them runs year-round.
     Feed("player_week_inference", "Feature build (inference)", "features",
-         "player_week_inference", 8 * 24),
+         "player_week_inference", 8 * 24, "nfl"),
     Feed("player_projections", "Projections", "predictions",
          "player_projections", 8 * 24, "nfl"),
     Feed("cfb_dk_salaries", "CFB slates/salaries", "raw", "cfb_dk_salaries",
