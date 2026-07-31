@@ -104,10 +104,84 @@ def test_showdown_dedup_flex_row_first():
     assert jj.dk_cpt_draftable_id == 9002
 
 
+def test_group_sport_reads_nested_contest_type():
+    """Live DK payload (verified 2026-07-31) nests the sport code under
+    contestType, not a top-level 'sport' key."""
+    assert dk_client._group_sport({"contestType": {"sport": "CFB"}}) == "CFB"
+
+
+def test_group_sport_falls_back_to_top_level():
+    assert dk_client._group_sport({"sport": "CFB"}) == "CFB"
+
+
+def test_group_sport_missing():
+    assert dk_client._group_sport({}) is None
+
+
+def cfb_groups_payload():
+    return {
+        "draftGroups": [
+            {
+                "draftGroupId": 77001,
+                "contestType": {"sport": "CFB"},
+                "draftGroupState": "Upcoming",
+            },
+            {
+                # Wrong sport -> excluded
+                "draftGroupId": 77002,
+                "contestType": {"sport": "NFL"},
+                "draftGroupState": "Upcoming",
+            },
+            {
+                # Right sport, not upcoming -> excluded
+                "draftGroupId": 77003,
+                "contestType": {"sport": "CFB"},
+                "draftGroupState": "Closed",
+            },
+        ]
+    }
+
+
+def test_cfb_draft_groups_filters_sport_and_state(monkeypatch):
+    class FakeResponse:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return cfb_groups_payload()
+
+    class FakeSession:
+        def get(self, url, headers=None, timeout=None):
+            return FakeResponse()
+
+    groups = dk_client.cfb_draft_groups(FakeSession())
+    assert [g["draftGroupId"] for g in groups] == [77001]
+
+
 def test_classify_slate():
     assert dk_client.classify_slate({"gameTypeDescription": "Showdown Captain Mode"}) == "showdown"
     assert dk_client.classify_slate({"gameType": "NFL Captain"}) == "showdown"
     assert dk_client.classify_slate({"gameTypeDescription": "Classic"}) == "classic"
+
+
+def test_cfb_contests_hits_cfb_endpoint(monkeypatch):
+    seen = {}
+
+    class FakeResponse:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {"Contests": [{"id": 1}]}
+
+    class FakeSession:
+        def get(self, url, headers=None, timeout=None):
+            seen["url"] = url
+            return FakeResponse()
+
+    contests = dk_client.cfb_contests(FakeSession())
+    assert contests == [{"id": 1}]
+    assert seen["url"] == dk_client.DK_CFB_CONTESTS
 
 
 def contests_payload():

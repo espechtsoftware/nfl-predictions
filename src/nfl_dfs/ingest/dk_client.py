@@ -20,6 +20,8 @@ log = logging.getLogger(__name__)
 DK_GROUPS = "https://api.draftkings.com/draftgroups/v1/"
 DK_DRAFTABLES = "https://api.draftkings.com/draftgroups/v1/draftgroups/{gid}/draftables"
 DK_CONTESTS = "https://www.draftkings.com/lobby/getcontests?sport=NFL"
+DK_CFB_CONTESTS = "https://www.draftkings.com/lobby/getcontests?sport=CFB"
+CFB_SPORT = "CFB"
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) nfl-dfs-personal-research",
     "Accept": "application/json",
@@ -38,6 +40,32 @@ def nfl_draft_groups(session: requests.Session | None = None) -> list[dict[str, 
         g
         for g in r.json().get("draftGroups", [])
         if g.get("sport") == "NFL" and g.get("draftGroupState") == "Upcoming"
+    ]
+
+
+def _group_sport(group: dict[str, Any]) -> str | None:
+    """DK nests the sport code under ``contestType`` in the current live
+    payload (verified 2026-07-31 against ``DK_GROUPS`` — no top-level
+    ``sport`` key exists on any draft group today, unlike ``nfl_contests``'
+    flat lobby payload). Also checks a top-level ``sport`` key so this
+    doesn't silently stop matching if DK's shape reverts."""
+    return group.get("sport") or group.get("contestType", {}).get("sport")
+
+
+def cfb_draft_groups(session: requests.Session | None = None) -> list[dict[str, Any]]:
+    """CFB twin of ``nfl_draft_groups``: same undocumented endpoint, no CFB
+    draft groups exist yet as of 2026-07-31 (college football preseason) so
+    this is unexercised against a live slate — verified only that DK's
+    lobby recognizes ``CFB`` as a sport code (``nfl_contests``' sibling
+    endpoint returns ``SelectedSport: "CFB"`` for it, vs. null for made-up
+    codes)."""
+    s = session or requests.Session()
+    r = s.get(DK_GROUPS, headers=HEADERS, timeout=30)
+    r.raise_for_status()
+    return [
+        g
+        for g in r.json().get("draftGroups", [])
+        if _group_sport(g) == CFB_SPORT and g.get("draftGroupState") == "Upcoming"
     ]
 
 
@@ -68,6 +96,16 @@ def nfl_contests(session: requests.Session | None = None) -> list[dict[str, Any]
     """
     s = session or requests.Session()
     r = s.get(DK_CONTESTS, headers=HEADERS, timeout=30)
+    r.raise_for_status()
+    return r.json().get("Contests", [])
+
+
+def cfb_contests(session: requests.Session | None = None) -> list[dict[str, Any]]:
+    """CFB twin of ``nfl_contests``, same off-season-noise caveat: filter
+    with ``contests_frame(..., draft_group_ids=...)`` using
+    ``cfb_draft_groups()`` IDs to keep only real CFB slates."""
+    s = session or requests.Session()
+    r = s.get(DK_CFB_CONTESTS, headers=HEADERS, timeout=30)
     r.raise_for_status()
     return r.json().get("Contests", [])
 
