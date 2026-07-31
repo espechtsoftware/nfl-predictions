@@ -666,3 +666,32 @@ matters. ALT_CEIL stays env-gated off; market_ceilings() remains
 available as a feature source (candidate input for the ownership model
 and the possession simulator's usage draws). Cloud roadmap worker
 (routine trig_01T9os88Tr7iqJvedtLtmh9Y) continues issue #13 via PRs.
+
+## Addendum 23 (2026-07-31): qualifier tail-line targeting — null for construction
+
+Context change: primary 2026 contest is DK Championship qualifiers
+(~20k entries), not the 150k Milly the tail_line=194 anchor came from.
+Gumbel scaling (line ~ sqrt(ln N), anchored 150k -> 194) estimates a
+20k qualifier winning line of ~187.6; the dashboard contest picker now
+labels confidence against the chosen field's line (commit fcff4c0).
+
+Run U (Cloud Run): identical construction, selection targeting
+P(best >= 187.6), simulated field 20k at sharp=0.25. Result vs the
+last persisted comparator (run T, itself within noise of adopted run
+R): mean best 183.5 vs 185.1, weeks >= 187.6 **8/17 vs 9/17**, weeks
+>= 194 identical 5/17. 398/680 lineups came out identical; 13/17 weeks
+the best score didn't move at all. Tag mix shifted mildly toward boom
+(53% -> 62% of selected slots) with no payoff. Lowering the target
+line does NOT increase how often we cross the lower line — selection
+is saturated at this candidate pool, same conclusion as the CAND_MULT
+and N_BOOM depth ablations.
+
+**Decision: no qualifier construction mode.** tail_line stays 194 for
+replay/selection; the field-size picker remains what it demonstrably
+is — an honest confidence-labeling and ordering device, not a lineup
+changer. Worth keeping in mind: the sharper simulated field (0.25 vs
+0.15 optimizer share) moved median finish 14.2% -> 18.9%, a fair
+warning that qualifier fields are harder per entry than the Milly.
+Real qualifier standings in-season (queue item 7) replace the 187.6
+estimate with the observed seat line and re-test. Rosters:
+reports/2025-replay-lineups-qualifier.csv (tags included).
