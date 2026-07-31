@@ -42,7 +42,10 @@ engine models **drives** as the unit, with a small discrete state space:
   `fringe` (60-79, opp side), `redzone` (80-99, i.e. opp 1-20). Yardline
   expressed 1-99 from the simulating team's own end zone.
 - Terminal outcomes per drive: `td`, `fg_make`, `fg_miss`, `punt`,
-  `turnover`, `turnover_on_downs`, `safety`, `end_of_half`.
+  `turnover`, `turnover_on_downs`, `safety`. (`end_of_half` is a real
+  drive ending in pbp but is deliberately absent from the v1 code's
+  `TERMINALS` — the engine has no clock; see "Next steps" for how the
+  fit should handle those drives.)
 
 This keeps the transition table small enough to fit from a few seasons
 of `nfl_raw.pbp` (~15 rows: start_zone -> terminal outcome probabilities,
@@ -94,13 +97,27 @@ not something to run in production until it's validated.
 ## Next steps (need GCP + Cloud Run; NOT done by this worker)
 
 1. Fit `DEFAULT_TRANSITIONS` for real from `nfl_raw.pbp`: group plays by
-   drive (`drive` column), bucket start yardline into the four zones,
+   drive (`drive` column), bucket start yardline into the five zones,
    read off `fixed_drive_result` as the terminal outcome, and the next
-   drive's start yardline as the next-drive start zone. Write as a new
-   `sql/features/` transform or a one-off notebook query — this is a
-   fitting step, not a point-in-time feature, so it doesn't need to go
-   through the leakage-checked feature pipeline; it's closer to
-   `models/scoring.py`'s DK-rules constants than to a per-week feature.
+   drive's start yardline as the next-drive start zone. Two semantics to
+   get right, both flagged in `_simulate_team_drives`'s docstring:
+   - **Next-zone is the same team's next start, not the opponent's
+     takeover spot.** The engine skips the opponent's intervening drive,
+     so the next-zone distribution it consumes is where *this team's*
+     next drive starts — two possession changes after the terminal
+     outcome. The placeholder table conflates the two (wrong-signed in
+     places: a turnover deep in opponent territory should tend to give
+     this team a short field *back*, not pin it at `deep_own`). Fit the
+     same-team quantity, or restructure to explicit alternating
+     possessions.
+   - **`fixed_drive_result` includes end-of-half/game values** the code's
+     `TERMINALS` deliberately omits. Drop those drives and renormalize
+     (v1) or add the terminal — decide explicitly so the fit doesn't
+     silently misallocate them to another outcome.
+   Write as a new `sql/features/` transform or a one-off notebook query —
+   this is a fitting step, not a point-in-time feature, so it doesn't
+   need to go through the leakage-checked feature pipeline; it's closer
+   to `models/scoring.py`'s DK-rules constants than to a per-week feature.
 2. Wire `GAME_SIM_MODE=possession` into `backtest/replay.py` behind the
    same kind of A/B flag as `N_DARKGAME`/`ALT_CEIL`, and run
    `nfl-dfs replay --season 2025` with it on vs. off.
@@ -110,7 +127,15 @@ not something to run in production until it's validated.
    possession sim matches or beats that on 2025 replay — this is a
    structural change to every simulated draw, so hold it to the same bar
    as the A/B tests that came before it, not a lower one just because
-   it's more "realistic."
+   it's more "realistic." Note on dispersion: the possession factor's sd
+   measures ~0.32 (2026-07-31, after recalibrating the placeholder from
+   ~1.4 to ~2.15 pts/drive and replacing Poisson drive counts, sd ~3.3,
+   with a rounded normal, sd 1.8 — the original combination produced sd
+   ~0.45). That is still ~1.8x the lognormal's 0.18, roughly the relative
+   sd of real NFL game totals (~13.5 on ~45) — fatter tails are partly
+   the point, but whether the extra environment variance double-counts
+   the player-level draw variance downstream is exactly what the replay
+   A/B decides. `test_game_factor_matrix_dispersion_sane` pins the band.
 4. If adopted, `allocate_drive_usage` becomes the place to fold in
    `market_ceilings()` (Addendum 22) as a per-player ceiling nudge on top
    of the Dirichlet draw, and to fold in the DK pricing-lag residual

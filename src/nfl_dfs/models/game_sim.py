@@ -40,10 +40,10 @@ SAFETY_POINTS = 2.0  # credited to the opponent, not this team's own total
 # Raw (unnormalized) weights: terminal-outcome likelihood by starting field
 # position, deep_own -> redzone. Placeholder -- see module docstring.
 _TERMINAL_WEIGHTS = {
-    "deep_own": {"td": 3, "fg_make": 2, "fg_miss": 1, "punt": 66, "turnover": 12, "turnover_on_downs": 1, "safety": 2},
-    "own": {"td": 8, "fg_make": 6, "fg_miss": 2, "punt": 55, "turnover": 12, "turnover_on_downs": 2, "safety": 0},
-    "midfield": {"td": 18, "fg_make": 12, "fg_miss": 3, "punt": 35, "turnover": 12, "turnover_on_downs": 4, "safety": 0},
-    "fringe": {"td": 34, "fg_make": 20, "fg_miss": 3, "punt": 12, "turnover": 11, "turnover_on_downs": 6, "safety": 0},
+    "deep_own": {"td": 12, "fg_make": 7, "fg_miss": 1, "punt": 58, "turnover": 12, "turnover_on_downs": 1, "safety": 1},
+    "own": {"td": 20, "fg_make": 12, "fg_miss": 3, "punt": 45, "turnover": 12, "turnover_on_downs": 3, "safety": 0},
+    "midfield": {"td": 27, "fg_make": 16, "fg_miss": 3, "punt": 28, "turnover": 11, "turnover_on_downs": 5, "safety": 0},
+    "fringe": {"td": 32, "fg_make": 21, "fg_miss": 4, "punt": 10, "turnover": 10, "turnover_on_downs": 6, "safety": 0},
     "redzone": {"td": 58, "fg_make": 18, "fg_miss": 2, "punt": 2, "turnover": 10, "turnover_on_downs": 5, "safety": 0},
 }
 
@@ -69,6 +69,7 @@ _ZONE_FLIP = {
 }
 
 MAX_DRIVES_PER_TEAM = 16  # generous upper bound; real games run ~9-13
+DRIVES_PER_TEAM_SD = 1.8  # real drives/team/game sd, placeholder like the rest
 
 
 def _normalize(weights: dict[str, float]) -> dict[str, float]:
@@ -122,7 +123,17 @@ def _simulate_team_drives(
     Does not explicitly simulate the opponent's intervening drives -- the
     next-zone draw approximates the receiving team's expected field
     position from aggregate rates across all possession changes of that
-    type, which already folds in the opponent's average drive length."""
+    type, which already folds in the opponent's average drive length.
+
+    CAUTION for the pbp fit (design doc "Next steps" 1): because the
+    opponent's drive is skipped, the next-zone distribution consumed here
+    is *this same team's* next drive start -- two possession changes
+    after the terminal outcome -- NOT the opponent's takeover spot. The
+    placeholder table conflates the two (e.g. a turnover in the opponent's
+    red zone pins THIS team at deep_own next drive, when causally the
+    opponent inherits the bad field position and this team tends to get a
+    short field back). Fit the same-team quantity from pbp, or switch to
+    explicit alternating possessions."""
     n_drives = np.clip(np.asarray(n_drives, dtype=int), 0, MAX_DRIVES_PER_TEAM)
     n_sims = len(n_drives)
     zone = np.full(n_sims, ZONE_INDEX[start_zone], dtype=int)
@@ -165,13 +176,24 @@ def simulate_game_points(
     n_sims: int,
     mean_drives_per_team: float = 11.0,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Per-team total points for `n_sims` independent game draws. Drive
-    counts are correlated within +/-1 between the two teams (they
-    alternate possessions, so a real game's counts rarely differ by more
-    than one). Safeties conceded by one team are credited to the other's
-    total here, since that's the only terminal outcome that scores for
-    the defense rather than the offense."""
-    n_a = np.clip(rng.poisson(mean_drives_per_team, n_sims), 6, MAX_DRIVES_PER_TEAM)
+    """Per-team total points for `n_sims` independent game draws. Each
+    team's drive sequence is simulated independently; the only cross-team
+    coupling is (a) drive counts constrained within +/-1 of each other
+    (teams alternate possessions in a real game, so counts rarely differ
+    by more) and (b) safeties conceded by one team credited to the
+    other's total, since that's the only terminal outcome that scores
+    for the defense rather than the offense. There is no within-sim
+    field-position coupling (a turnover here does not literally hand the
+    other simulated team a short field) -- adequate for the shared
+    per-game factor this feeds, revisit if team-level asymmetry lands."""
+    # Rounded normal, NOT Poisson: Poisson(11) has sd ~3.3 drives, far
+    # wider than real games (~1.5-2), and that excess possession variance
+    # alone pushed the derived game factor's sd to ~0.45 vs the validated
+    # lognormal's 0.18 before this was tightened.
+    n_a = np.clip(
+        np.rint(rng.normal(mean_drives_per_team, DRIVES_PER_TEAM_SD, n_sims)).astype(int),
+        6, MAX_DRIVES_PER_TEAM,
+    )
     delta = rng.integers(-1, 2, n_sims)
     n_b = np.clip(n_a + delta, 6, MAX_DRIVES_PER_TEAM)
     points_a, safeties_a = _simulate_team_drives(rng, n_a)

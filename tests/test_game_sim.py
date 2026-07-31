@@ -1,5 +1,3 @@
-import importlib
-
 import numpy as np
 import pandas as pd
 import pytest
@@ -32,8 +30,10 @@ def test_simulate_team_points_plausible_range():
     points = game_sim.simulate_team_points(rng, n_drives)
     assert points.shape == (20_000,)
     assert (points >= 0).all()
-    # ~11 drives/game at ~2.0-2.2 pts/drive should land well within a wide band
-    assert 12 <= points.mean() <= 32
+    # 11 drives at the docstring's claimed ~2.0-2.2 pts/drive -> ~22-24;
+    # band allows placeholder slop but fails if the table drifts from its
+    # own stated calibration (it originally shipped at ~1.4 pts/drive).
+    assert 19 <= points.mean() <= 28
 
 
 def test_simulate_team_points_respects_variable_drive_counts():
@@ -56,6 +56,22 @@ def test_game_factor_matrix_mean_preserving_and_positive():
     assert factors.shape == (4, 10_000)
     assert (factors >= 0).all()
     np.testing.assert_allclose(factors.mean(axis=1), 1.0, atol=0.02)
+
+
+def test_game_factor_matrix_dispersion_sane():
+    """Guard against a wildly over/under-dispersed placeholder table.
+
+    The validated lognormal factor has sd 0.18; real NFL total-points
+    relative sd is ~0.30 (13.5 on ~45). The possession factor currently
+    measures ~0.32 -- fatter than the lognormal by design (possession
+    variance is the point), but it must stay in a band where the replay
+    A/B is comparing engines, not a variance bug. Tighten after the pbp
+    fit. (The table originally shipped at ~0.45, driven by Poisson
+    drive counts with sd ~3.3 vs the real ~1.5-2.)"""
+    rng = np.random.default_rng(9)
+    factors = game_sim.game_factor_matrix(rng, n_games=4, n_sims=20_000)
+    stds = factors.std(axis=1)
+    assert (stds > 0.15).all() and (stds < 0.45).all()
 
 
 def test_allocate_drive_usage_sums_to_units_single_draw():
@@ -84,11 +100,17 @@ def test_allocate_drive_usage_handles_all_zero_shares():
     assert allocated.sum() == pytest.approx(4.0)
 
 
-def test_simulate_default_mode_unaffected_by_game_sim_module(small_panel, monkeypatch):
-    """GAME_SIM_MODE unset must reproduce today's lognormal output exactly
-    -- this module must be a pure opt-in addition."""
+def test_simulate_default_mode_never_consults_game_sim(small_panel, monkeypatch):
+    """With GAME_SIM_MODE unset, simulate() must be deterministic and must
+    never touch game_sim at all -- proven by making its entry point raise.
+    (Byte-for-byte equivalence with the pre-game_sim code holds by
+    inspection: the default branch runs the identical lognormal RNG call.)"""
     monkeypatch.delenv("GAME_SIM_MODE", raising=False)
-    importlib.reload(simulate)
+
+    def _boom(*args, **kwargs):
+        raise AssertionError("game_sim consulted in default mode")
+
+    monkeypatch.setattr(game_sim, "game_factor_matrix", _boom)
     cm = components.train(small_panel, target_season=2022, num_boost_round=60)
     va = small_panel[small_panel.season == 2022].head(30)
     comps = cm.predict_components(va)
@@ -106,16 +128,10 @@ def test_simulate_possession_mode_runs_and_differs_from_lognormal(small_panel, m
     game_ids = va.game_id
 
     monkeypatch.delenv("GAME_SIM_MODE", raising=False)
-    importlib.reload(simulate)
     baseline = simulate.simulate(comps, n_sims=2000, seed=8, game_ids=game_ids)
 
     monkeypatch.setenv("GAME_SIM_MODE", "possession")
-    importlib.reload(simulate)
-    try:
-        possession = simulate.simulate(comps, n_sims=2000, seed=8, game_ids=game_ids)
-    finally:
-        monkeypatch.delenv("GAME_SIM_MODE", raising=False)
-        importlib.reload(simulate)
+    possession = simulate.simulate(comps, n_sims=2000, seed=8, game_ids=game_ids)
 
     assert possession.summary.shape == baseline.summary.shape
     assert (possession.summary.proj_points >= 0).all()
