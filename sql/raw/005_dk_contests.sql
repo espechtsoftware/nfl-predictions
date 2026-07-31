@@ -5,7 +5,8 @@
 CREATE TABLE IF NOT EXISTS `${raw}.dk_contest_fills` (
   pulled_at TIMESTAMP,        -- when YOU fetched it
   contest_id INT64,
-  draft_group_id INT64,       -- matches dk_salaries.draft_group_id
+  draft_group_id INT64,       -- matches dk_salaries.draft_group_id (or cfb_dk_salaries')
+  sport STRING,                -- 'NFL' | 'CFB' (issue #13 item 7); NULL on pre-migration rows, treat as 'NFL'
   name STRING,
   game_type STRING,
   entry_fee FLOAT64,
@@ -19,3 +20,9 @@ CREATE TABLE IF NOT EXISTS `${raw}.dk_contest_fills` (
 )
 PARTITION BY DATE(pulled_at)
 CLUSTER BY draft_group_id, contest_id;
+
+-- Migration: reuse this table for CFB contest polls (issue #13 item 7)
+-- instead of a separate twin — same shape, one more discriminator column.
+-- Does not touch the validated NFL ingest path; existing rows stay NULL.
+ALTER TABLE `${raw}.dk_contest_fills`
+  ADD COLUMN IF NOT EXISTS sport STRING;

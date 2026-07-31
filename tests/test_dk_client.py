@@ -1,4 +1,5 @@
 import pandas as pd
+import requests
 
 from nfl_dfs.ingest import dk_client
 
@@ -110,6 +111,67 @@ def test_classify_slate():
     assert dk_client.classify_slate({"gameTypeDescription": "Classic"}) == "classic"
 
 
+def draft_groups_payload():
+    """Modeled on a live /draftgroups/v1/ response (verified 2026-07-31):
+    entries carry sportId at the top level (1=NFL, 5=CFB per DK's own
+    /sites/US-DK/sports/v1/sports) but no top-level "sport" string."""
+    return {
+        "draftGroups": [
+            {"draftGroupId": 90001, "sportId": 1, "draftGroupState": "Upcoming"},
+            {"draftGroupId": 90002, "sportId": 5, "draftGroupState": "Upcoming"},
+            # Not upcoming -> excluded regardless of sport.
+            {"draftGroupId": 90003, "sportId": 5, "draftGroupState": "Complete"},
+            # A non-NFL, non-CFB sport (e.g. NBA) -> excluded from both.
+            {"draftGroupId": 90004, "sportId": 4, "draftGroupState": "Upcoming"},
+        ]
+    }
+
+
+class _FakeResponse:
+    def __init__(self, payload):
+        self._payload = payload
+
+    def raise_for_status(self):
+        pass
+
+    def json(self):
+        return self._payload
+
+
+def test_cfb_draft_groups_filters_by_sport_id(monkeypatch):
+    def fake_get(self, url, headers=None, timeout=None):
+        assert url == dk_client.DK_GROUPS
+        return _FakeResponse(draft_groups_payload())
+
+    monkeypatch.setattr(requests.Session, "get", fake_get)
+    groups = dk_client.cfb_draft_groups()
+    assert [g["draftGroupId"] for g in groups] == [90002]
+
+
+def test_nfl_contests_hits_nfl_endpoint(monkeypatch):
+    calls = []
+
+    def fake_get(self, url, headers=None, timeout=None):
+        calls.append(url)
+        return _FakeResponse({"Contests": [{"id": 1}]})
+
+    monkeypatch.setattr(requests.Session, "get", fake_get)
+    assert dk_client.nfl_contests() == [{"id": 1}]
+    assert calls == [dk_client.DK_CONTESTS]
+
+
+def test_cfb_contests_hits_cfb_endpoint(monkeypatch):
+    calls = []
+
+    def fake_get(self, url, headers=None, timeout=None):
+        calls.append(url)
+        return _FakeResponse({"Contests": [{"id": 2}]})
+
+    monkeypatch.setattr(requests.Session, "get", fake_get)
+    assert dk_client.cfb_contests() == [{"id": 2}]
+    assert calls == [dk_client.DK_CFB_CONTESTS]
+
+
 def contests_payload():
     return [
         {
@@ -179,6 +241,18 @@ def test_contests_frame_overlay_only_for_guaranteed():
     assert not double_up.is_guaranteed
     # Short-filled (10 of 1000 entries) but not guaranteed -> no overlay.
     assert double_up.overlay_dollars == 0.0
+
+
+def test_contests_frame_sport_defaults_nfl():
+    df = dk_client.contests_frame(contests_payload(), draft_group_ids={555})
+    assert set(df.sport) == {"NFL"}
+
+
+def test_contests_frame_sport_stamps_cfb():
+    """cfb_job.py passes sport="CFB" so dk_contest_fills can hold both
+    sports' polls in one append-only table (issue #13 item 7)."""
+    df = dk_client.contests_frame(contests_payload(), draft_group_ids={555}, sport="CFB")
+    assert set(df.sport) == {"CFB"}
 
 
 def test_contests_frame_empty_input():
