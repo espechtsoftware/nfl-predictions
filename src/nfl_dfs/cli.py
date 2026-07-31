@@ -27,7 +27,10 @@ def main(argv: list[str] | None = None) -> None:
                    help="Poll DK college football draft groups/draftables + "
                         "contest fills (collection-only scaffold, needs "
                         "INGEST_CFB_ENABLED)")
-    sub.add_parser("ingest-odds", help="Snapshot DK sportsbook game lines")
+    sub.add_parser("ingest-odds",
+                   help="Snapshot DK game lines via The Odds API")
+    sub.add_parser("check-freshness",
+                   help="Fail if any active data feed is stale (see status.py)")
     sub.add_parser("score-entries",
                    help="Score last week's entered lineups vs actuals")
     sub.add_parser("ingest-props", help="Snapshot live prop lines (in-season)")
@@ -122,6 +125,10 @@ def main(argv: list[str] | None = None) -> None:
         from .ingest import odds_job
 
         odds_job.run()
+    elif args.command == "check-freshness":
+        from . import status
+
+        status.check_freshness()
     elif args.command == "ingest-weather":
         from .ingest import weather_job
 

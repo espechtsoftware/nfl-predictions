@@ -166,9 +166,20 @@ _NAV_HTML = """
 <a href='/defense'>Defense</a><a href='/docs'>API</a>
 <button class='guide' onclick="document.getElementById('modal').style.display=
 'block';document.getElementById('modalbg').style.display='block'">
-&#128197; Weekly guide</button></div>
+&#128197; Weekly guide</button>
+<button class='guide' style='margin-left:.6rem' onclick="openStatus()">
+&#129658; System status</button></div>
 <div id='modalbg' onclick="this.style.display='none';
-document.getElementById('modal').style.display='none'"></div>
+document.getElementById('modal').style.display='none';
+document.getElementById('statusmodal').style.display='none'"></div>
+<div id='statusmodal' style='display:none;position:fixed;z-index:100;top:8vh;
+left:50%;transform:translateX(-50%);width:min(760px,94vw);background:#fff;
+border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.35);
+padding:1.4rem 1.6rem;max-height:80vh;overflow-y:auto'>
+<button class='x' onclick="document.getElementById('statusmodal')
+.style.display='none';document.getElementById('modalbg').style.display=
+'none'">&times;</button><h2>System status</h2>
+<div id='statusbody'><small>Loading&hellip;</small></div></div>
 <div id='modal'><button class='x' onclick="document.getElementById('modal')
 .style.display='none';document.getElementById('modalbg').style.display=
 'none'">&times;</button><h2>Your weekly schedule</h2>
@@ -195,7 +206,41 @@ entries by score.</td></tr></table></div>
   const p=location.pathname;
   document.querySelectorAll('.topbar a').forEach(a=>{
     if(a.getAttribute('href')===p||(p==='/'&&a.getAttribute('href')==='/'))
-      a.classList.add('active');});});</script>
+      a.classList.add('active');});});
+const _stColor={ok:'#0a7a3d',stale:'#b3261e',missing:'#b3261e',
+                empty:'#b26a00',idle:'#667'};
+const _stGloss={ok:'fresh',stale:'STALE',missing:'MISSING',
+                empty:'no data yet',idle:'idle (off-season)'};
+function _stAge(h){if(h==null)return '&mdash;';
+  if(h<1)return Math.round(h*60)+'m';
+  if(h<48)return h.toFixed(h<10?1:0)+'h';
+  return (h/24).toFixed(1)+'d';}
+async function openStatus(){
+  const m=document.getElementById('statusmodal'),
+        b=document.getElementById('statusbody');
+  m.style.display='block';
+  document.getElementById('modalbg').style.display='block';
+  b.innerHTML='<small>Loading&hellip;</small>';
+  try{
+    const r=await fetch('/api/system-status'); const j=await r.json();
+    let h="<table><tr><th>Feed</th><th>State</th><th>Last update</th>"+
+          "<th>Rows</th></tr>";
+    for(const c of j.components){
+      const col=_stColor[c.state]||'#667';
+      h+="<tr><td style='text-align:left'>"+c.label+
+         (c.note?"<br><small>"+c.note+"</small>":"")+"</td>"+
+         "<td style='text-align:left'><span style='color:"+col+
+         ";font-weight:700'>&#9679; "+(_stGloss[c.state]||c.state)+"</span>"+
+         (c.state==='stale'?"<br><small>max "+c.max_age_hours+"h</small>":"")+
+         "</td><td>"+_stAge(c.age_hours)+" ago</td>"+
+         "<td>"+(c.rows==null?'&mdash;':c.rows.toLocaleString())+"</td></tr>";
+    }
+    h+="</table><small>Feeds marked idle are out of season. Generated "+
+       new Date(j.generated_at).toLocaleTimeString()+
+       ". A daily check emails on any red state.</small>";
+    b.innerHTML=h;
+  }catch(e){b.innerHTML="<small>Failed to load status: "+e+"</small>";}
+}</script>
 """
 
 _LINEUPS_CSS = """
@@ -601,6 +646,20 @@ def defense_dashboard(
                 "<p>Run <code>nfl-dfs build-features</code> first.</p>")
     season = int(season or df.season.max())
     return _defense_page(df[df.season == season], season)
+
+
+@app.get("/api/system-status")
+def api_system_status() -> dict:
+    """Freshness of every data feed, for the System status popup. See
+    nfl_dfs/status.py for the feed specs and state rules."""
+    from datetime import datetime, timezone
+
+    from .. import status as _status
+
+    return {
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "components": _status.system_status(),
+    }
 
 
 @app.get("/health")

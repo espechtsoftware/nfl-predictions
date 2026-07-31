@@ -21,7 +21,24 @@ if TYPE_CHECKING:  # pragma: no cover
 
 log = logging.getLogger(__name__)
 
-SQL_DIR = Path(__file__).resolve().parents[2] / "sql"
+def _sql_dir() -> Path:
+    """sql/ lives at the repo root, NOT inside the package. Two layouts:
+    a source checkout (this file is src/nfl_dfs/bq.py, so parents[2] is the
+    root) and the container (pip-installed into site-packages, where
+    parents[2] is /usr/local/lib/python3.11 — but the Dockerfile copies
+    sql/ into the WORKDIR). The checkout path silently broke every
+    scheduled build-features run (see the deficiency log, 2026-07-31)."""
+    candidates = (
+        Path(__file__).resolve().parents[2] / "sql",  # source checkout
+        Path.cwd() / "sql",                           # container WORKDIR /app
+    )
+    for c in candidates:
+        if c.is_dir():
+            return c
+    return candidates[0]
+
+
+SQL_DIR = _sql_dir()
 
 
 def client() -> "bigquery.Client":

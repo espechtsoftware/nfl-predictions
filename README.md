@@ -1455,6 +1455,8 @@ Run this over at least three full seasons. Single-season results are noise — t
 
 | Job | Cadence | Window |
 |---|---|---|
+> **Live-deployment note (2026-07-31):** the actually-deployed schedulers run sparser than this table — nflverse/features/train/projections are weekly (Tuesdays), DK slates 1×/day — see the WARNING in `deploy/deploy_jobs.sh`. `status.py`'s freshness thresholds follow the live cadences; the daily `check-freshness` job emails (via the Cloud Run failed-execution alert) when any active feed goes stale.
+
 | `ingest_nflverse` | Daily 06:00 CT | Year-round; nightly refresh matters in-season |
 | `ingest_dk_slate` | Hourly | Thu 00:00 – Mon 04:00 CT |
 | `ingest_contests` | Not yet scheduled — opt-in via `INGEST_CONTESTS_ENABLED` (see *Known gaps*: overlay detection scaffold) | Thu 00:00 – Mon 04:00 CT once adopted; denser near each slate's lock for real fill-rate signal |
