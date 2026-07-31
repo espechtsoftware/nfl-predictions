@@ -1,9 +1,19 @@
 """Hourly odds snapshot into nfl_raw.odds_snapshots.
 
-v1 strategy per the guide: nflverse closing lines cover training; for live
-in-week game lines we hit the DK sportsbook's public event group endpoint
-(we're already a DK consumer). A paid props provider slots in behind the
-same interface later, keyed by PROPS_PROVIDER env.
+Source: The Odds API's live game-odds endpoint (`americanfootball_nfl`),
+restricted to DraftKings' book so lines stay aligned with the DK slates the
+rest of the pipeline prices. This replaced the original DK-sportsbook
+eventgroup scrape on 2026-07-31: that endpoint 403s (Akamai bot blocking)
+from both Cloud Run and residential IPs, and `odds_snapshots` never
+received a single row from it — see the README's Data deficiency log.
+
+Cost: one call per run = 1 credit per market per region (3 total with
+h2h/spreads/totals), independent of event count — a few hundred credits per
+season at the hourly Thu-Sun cadence, negligible next to the props history
+(`oddsapi_import.py`), which shares the same ODDS_API_KEY quota.
+
+nflverse closing lines still cover training; this feed exists for live
+in-week line movement.
 """
 
 from __future__ import annotations
@@ -16,50 +26,86 @@ import pandas as pd
 import requests
 
 from ..bq import load_dataframe
+from ..config import settings
 
 log = logging.getLogger(__name__)
 
-# DK sportsbook public eventgroup for NFL
-DK_SB_NFL = "https://sportsbook-nash.draftkings.com/api/sportscontent/dkusoh/v1/leagues/88808"
-HEADERS = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64)", "Accept": "application/json"}
+ODDS_API_URL = "https://api.the-odds-api.com/v4/sports/americanfootball_nfl/odds"
+MARKETS = "h2h,spreads,totals"
+BOOKMAKER = "draftkings"
+
+# The Odds API market keys -> the market_type values odds_snapshots has
+# used since its DDL was written (003_misc.sql), so any future reader works
+# unchanged against rows from either source era (not that the old era
+# produced any rows).
+_MARKET_TYPE = {"h2h": "Moneyline", "spreads": "Spread", "totals": "Total"}
 
 
-def _rows_from_payload(payload: dict[str, Any]) -> list[dict[str, Any]]:
+def _fetch(session: requests.Session | None = None) -> list[dict[str, Any]]:
+    if not settings.odds_api_key:
+        raise RuntimeError("ODDS_API_KEY is not set (add it to .env)")
+    s = session or requests.Session()
+    r = s.get(
+        ODDS_API_URL,
+        params={
+            "apiKey": settings.odds_api_key,
+            "regions": "us",
+            "markets": MARKETS,
+            "oddsFormat": "american",
+            "bookmakers": BOOKMAKER,
+        },
+        timeout=30,
+    )
+    r.raise_for_status()
+    return r.json()
+
+
+def _american_str(price: Any) -> str | None:
+    """Format The Odds API's numeric american odds the way DK displayed
+    them ('+120' / '-110'), matching the STRING column's existing intent."""
+    if price is None:
+        return None
+    return f"{int(price):+d}"
+
+
+def _rows_from_payload(payload: list[dict[str, Any]]) -> list[dict[str, Any]]:
     pulled_at = datetime.now(timezone.utc)
-    events = {e["id"]: e for e in payload.get("events", [])}
     rows = []
-    markets = {m["id"]: m for m in payload.get("markets", [])}
-    for sel in payload.get("selections", []):
-        market = markets.get(sel.get("marketId"), {})
-        event = events.get(market.get("eventId"), {})
-        rows.append(
-            {
-                "pulled_at": pulled_at,
-                "event_id": market.get("eventId"),
-                "event_name": event.get("name"),
-                "start_time": event.get("startEventDate"),
-                "market_type": market.get("marketType", {}).get("name"),
-                "selection": sel.get("label"),
-                "line": sel.get("points"),
-                "odds_american": (sel.get("displayOdds") or {}).get("american"),
-            }
-        )
+    for event in payload:
+        name = f"{event.get('away_team')} @ {event.get('home_team')}"
+        for bk in event.get("bookmakers") or []:
+            if bk.get("key") != BOOKMAKER:
+                continue
+            for market in bk.get("markets") or []:
+                market_type = _MARKET_TYPE.get(market.get("key"))
+                if market_type is None:
+                    continue
+                for outcome in market.get("outcomes") or []:
+                    rows.append(
+                        {
+                            "pulled_at": pulled_at,
+                            "event_id": event.get("id"),
+                            "event_name": name,
+                            "start_time": event.get("commence_time"),
+                            "market_type": market_type,
+                            "selection": outcome.get("name"),
+                            "line": outcome.get("point"),
+                            "odds_american": _american_str(outcome.get("price")),
+                        }
+                    )
     return rows
 
 
 def run() -> None:
-    r = requests.get(DK_SB_NFL, headers=HEADERS, timeout=30)
-    r.raise_for_status()
-    rows = _rows_from_payload(r.json())
+    rows = _rows_from_payload(_fetch())
     if not rows:
         log.info("No odds rows")
         return
     df = pd.DataFrame(rows)
-    keep = df["market_type"].isin(["Moneyline", "Spread", "Total"])
-    df = df[keep | df["market_type"].isna()]
     load_dataframe(df, "odds_snapshots", write_disposition="WRITE_APPEND",
                    partition_field="pulled_at")
-    log.info("Wrote %d odds rows", len(df))
+    log.info("Wrote %d odds rows across %d events",
+             len(df), df.event_id.nunique())
 
 
 if __name__ == "__main__":

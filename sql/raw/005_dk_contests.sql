@@ -26,3 +26,13 @@ CLUSTER BY draft_group_id, contest_id;
 -- Does not touch the validated NFL ingest path; existing rows stay NULL.
 ALTER TABLE `${raw}.dk_contest_fills`
   ADD COLUMN IF NOT EXISTS sport STRING;
+
+-- NFL-only view: the safe default read path now that the table holds both
+-- sports (CFB collection scheduled 2026-07-31). Future overlay-detection /
+-- contest-analysis queries should read this, not the raw table, so CFB
+-- Saturday contests can never silently blend into NFL overlay signals.
+-- (sport IS NULL kept for pre-migration rows; the table was empty at
+-- migration time, so in practice every row carries an explicit sport.)
+CREATE OR REPLACE VIEW `${raw}.dk_contest_fills_nfl` AS
+SELECT * FROM `${raw}.dk_contest_fills`
+WHERE sport = 'NFL' OR sport IS NULL;

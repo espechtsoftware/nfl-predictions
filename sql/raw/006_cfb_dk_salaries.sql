@@ -29,4 +29,6 @@ CREATE TABLE IF NOT EXISTS `${raw}.cfb_dk_salaries` (
   dk_ppg FLOAT64                -- DK's own points-per-game figure when present
 )
 PARTITION BY DATE(pulled_at)
-CLUSTER BY season, week, dk_player_id;
+-- draft_group_id, not season/week: week is always NULL here (see above) and
+-- draft_group_id is the natural access path, matching dk_salaries' key.
+CLUSTER BY draft_group_id, dk_player_id;
