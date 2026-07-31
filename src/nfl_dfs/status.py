@@ -42,10 +42,17 @@ class Feed:
 # README §11's aspirational ones: s-nflverse/s-features/s-train/s-project-tu
 # all run weekly on Tuesdays, so their bar is 8 days (one missed Tuesday ->
 # stale). s-odds runs 9:00/15:00 CT Wed-Sun (worst gap ~66h -> 78h bar).
+#
+# The Tuesday chain feeds are 'nfl'-seasonal, not 'always': their schedulers
+# are PAUSED in the off-season (2026-07-31 — re-ingesting a finished season
+# weekly is pure waste). Resume before week 1 (see the week-1 checklist);
+# if forgotten, these feeds go active Sep 1 and check-freshness emails.
 FEEDS: tuple[Feed, ...] = (
-    Feed("pbp", "Play-by-play (nflverse)", "raw", "pbp", 8 * 24),
-    Feed("weekly_stats", "Weekly stats (nflverse)", "raw", "weekly_stats", 8 * 24),
-    Feed("schedules", "Schedules + closing lines", "raw", "schedules", 8 * 24),
+    Feed("pbp", "Play-by-play (nflverse)", "raw", "pbp", 8 * 24, "nfl"),
+    Feed("weekly_stats", "Weekly stats (nflverse)", "raw", "weekly_stats",
+         8 * 24, "nfl"),
+    Feed("schedules", "Schedules + closing lines", "raw", "schedules",
+         8 * 24, "nfl"),
     Feed("dk_salaries", "DK slates/salaries", "raw", "dk_salaries", 36, "nfl"),
     Feed("odds_snapshots", "Game lines (The Odds API)", "raw", "odds_snapshots",
          78),
@@ -53,7 +60,7 @@ FEEDS: tuple[Feed, ...] = (
          8 * 24, "nfl"),
     Feed("weather", "Weather (Open-Meteo)", "raw", "weather", 72, "nfl"),
     Feed("player_week_training", "Feature build (training)", "features",
-         "player_week_training", 8 * 24),
+         "player_week_training", 8 * 24, "nfl"),
     # 'nfl', not 'always': inference rows are synthetic upcoming-week rows,
     # which need next-season rosters -- legitimately empty in the off-season
     # even though the build that produces them runs year-round.

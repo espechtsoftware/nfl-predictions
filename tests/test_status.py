@@ -61,13 +61,15 @@ def test_stale_seasonal_feed_is_idle_off_season(monkeypatch):
 
 
 def test_always_feed_must_stay_fresh_off_season(monkeypatch):
+    """odds_snapshots is the one remaining year-round feed (its scheduler
+    runs through the off-season); it must alert even in April."""
     def info(dataset, table):
-        if table == "pbp":
+        if table == "odds_snapshots":
             return OFF_SEASON - timedelta(days=10), 1000
         return OFF_SEASON - timedelta(hours=1), 1000
 
     monkeypatch.setattr(status, "_table_info", info)
-    with pytest.raises(RuntimeError, match="Play-by-play"):
+    with pytest.raises(RuntimeError, match="Game lines"):
         status.check_freshness(now=OFF_SEASON)
 
 
