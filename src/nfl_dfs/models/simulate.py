@@ -12,6 +12,7 @@ means); a biased sampler would silently shift every projection.
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 
 import numpy as np
@@ -45,6 +46,12 @@ def _gamma_yards(
 
 GAME_FACTOR_SIGMA = 0.18  # lognormal sigma of the shared per-game factor
 
+# GAME_SIM_MODE=possession swaps the lognormal game factor for the
+# drive-state Markov engine in game_sim.py (issue #13 item 6). Off by
+# default -- see reports/possession-simulator-design.md; its transition
+# probabilities are a placeholder, not yet fit from real play-by-play.
+GAME_SIM_MODE = os.environ.get("GAME_SIM_MODE", "lognormal")
+
 
 def simulate(
     comps: pd.DataFrame,
@@ -65,8 +72,12 @@ def simulate(
     game_mult = np.ones((n, n_sims))
     if game_ids is not None:
         codes, uniq = pd.factorize(pd.Series(game_ids).fillna("_none").to_numpy())
-        g = rng.lognormal(-GAME_FACTOR_SIGMA ** 2 / 2, GAME_FACTOR_SIGMA,
-                          (len(uniq), n_sims))
+        if GAME_SIM_MODE == "possession":
+            from . import game_sim
+            g = game_sim.game_factor_matrix(rng, len(uniq), n_sims)
+        else:
+            g = rng.lognormal(-GAME_FACTOR_SIGMA ** 2 / 2, GAME_FACTOR_SIGMA,
+                              (len(uniq), n_sims))
         game_mult = g[codes]
 
     def col(name: str) -> np.ndarray:
