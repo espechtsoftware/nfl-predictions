@@ -20,6 +20,9 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--full", action="store_true", help="Backfill 1999-present")
 
     sub.add_parser("ingest-dk", help="Snapshot current DK slates/salaries")
+    sub.add_parser("ingest-contests",
+                   help="Poll DK contest fill rates for overlay detection "
+                        "(scaffold, needs INGEST_CONTESTS_ENABLED)")
     sub.add_parser("ingest-odds", help="Snapshot DK sportsbook game lines")
     sub.add_parser("score-entries",
                    help="Score last week's entered lineups vs actuals")
@@ -103,6 +106,10 @@ def main(argv: list[str] | None = None) -> None:
         from .ingest import dk_job
 
         dk_job.run()
+    elif args.command == "ingest-contests":
+        from .ingest import contest_job
+
+        contest_job.run()
     elif args.command == "ingest-odds":
         from .ingest import odds_job
 
