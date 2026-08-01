@@ -79,10 +79,30 @@ NUMERIC_FEATURES = [
 
 FEATURES = NUMERIC_FEATURES + ["position"]
 
+# Candidate features (2026-08-01): materialized in the feature tables but
+# EXCLUDED from the model unless named in the EXTRA_FEATURES env var
+# (comma-separated) -- so one table rebuild supports N parallel exact
+# feature A/Bs, each arm enabling exactly one. The deterministic-replay
+# lesson (depth_rank_delta -4.6, team_ol_out -8.7): every feature pays
+# its own way through a replay before joining NUMERIC_FEATURES.
+CANDIDATE_FEATURES = (
+    "pace_env_l6",                # own off plays + opp def plays faced (l6)
+    "opp_blitz_rate_l6",          # opponent defense blitz rate (FTN, 2022+)
+    "team_top2_target_share_l6",  # target concentration -> stack strength
+)
+
+
+def _active_numeric_features() -> list[str]:
+    import os
+
+    extra = [f.strip() for f in os.environ.get("EXTRA_FEATURES", "").split(",")
+             if f.strip()]
+    return NUMERIC_FEATURES + [f for f in extra if f in CANDIDATE_FEATURES]
+
 
 def build_X(df: pd.DataFrame) -> pd.DataFrame:
     X = pd.DataFrame(index=df.index)
-    for c in NUMERIC_FEATURES:
+    for c in _active_numeric_features():
         if c in df.columns:
             X[c] = pd.to_numeric(df[c], errors="coerce")
         else:

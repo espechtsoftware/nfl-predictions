@@ -115,3 +115,15 @@ def test_nav_html_has_status_button():
     assert "System status" in app_main._NAV_HTML
     assert "openStatus()" in app_main._NAV_HTML
     assert "statusmodal" in app_main._NAV_HTML
+
+
+def test_candidate_features_env_gate(monkeypatch):
+    """EXTRA_FEATURES adds only registered candidates; unset = baseline."""
+    from nfl_dfs.models import featureset
+
+    monkeypatch.delenv("EXTRA_FEATURES", raising=False)
+    assert featureset._active_numeric_features() == featureset.NUMERIC_FEATURES
+
+    monkeypatch.setenv("EXTRA_FEATURES", "pace_env_l6, not_a_feature")
+    active = featureset._active_numeric_features()
+    assert active == featureset.NUMERIC_FEATURES + ["pace_env_l6"]

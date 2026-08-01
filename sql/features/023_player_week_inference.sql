@@ -71,6 +71,10 @@ SELECT
   IF(rt.ref_prior_games >= 5, rt.ref_flags_prior, NULL) AS ref_flags_prior,
   np.neutral_pass_rate_l6,
   COALESCE(ol.team_ol_out, 0) AS team_ol_out,
+  -- Candidate features (EXTRA_FEATURES gate in featureset.py)
+  pc.off_plays_l6 + pcd.def_plays_faced_l6 AS pace_env_l6,
+  bl.blitz_rate_l6 AS opp_blitz_rate_l6,
+  tc.top2_target_share_l6 AS team_top2_target_share_l6,
 
   -- Opportunity vacated by teammates ruled Out this week (own share
   -- excluded), same definition as the training table.
@@ -124,5 +128,13 @@ LEFT JOIN `${features}.team_week_neutral_pass` np
   ON np.team = u.team AND np.season = u.season AND np.week = u.week
 LEFT JOIN `${features}.team_week_ol_out` ol
   ON ol.team = u.team AND ol.season = u.season AND ol.week = u.week
+LEFT JOIN `${features}.team_week_pace` pc
+  ON pc.team = u.team AND pc.season = u.season AND pc.week = u.week
+LEFT JOIN `${features}.team_week_pace` pcd
+  ON pcd.team = s.opponent AND pcd.season = u.season AND pcd.week = u.week
+LEFT JOIN `${features}.defense_week_blitz` bl
+  ON bl.team = s.opponent AND bl.season = u.season AND bl.week = u.week
+LEFT JOIN `${features}.team_week_target_concentration` tc
+  ON tc.team = u.team AND tc.season = u.season AND tc.week = u.week
 WHERE u.is_upcoming
   AND COALESCE(u.position, ro.position) IN ('QB', 'RB', 'WR', 'TE');
