@@ -31,6 +31,9 @@ def main(argv: list[str] | None = None) -> None:
                    help="Snapshot DK game lines via The Odds API")
     sub.add_parser("check-freshness",
                    help="Fail if any active data feed is stale (see status.py)")
+    sub.add_parser("train-ownership",
+                   help="Fit ownership model on imported contest standings "
+                        "(in-season; see issue #11)")
     sub.add_parser("score-entries",
                    help="Score last week's entered lineups vs actuals")
     sub.add_parser("ingest-props", help="Snapshot live prop lines (in-season)")
@@ -129,6 +132,10 @@ def main(argv: list[str] | None = None) -> None:
         from . import status
 
         status.check_freshness()
+    elif args.command == "train-ownership":
+        from .models import ownership
+
+        ownership.run_training()
     elif args.command == "ingest-weather":
         from .ingest import weather_job
 
