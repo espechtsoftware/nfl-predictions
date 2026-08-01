@@ -54,6 +54,7 @@ def simulate(
     keep_draws: bool = False,
     game_ids: pd.Series | None = None,
     team_ids: pd.Series | None = None,
+    game_totals: pd.Series | None = None,
 ) -> SimResult:
     """game_ids (aligned to comps) enables correlated game environments:
     one shared lognormal factor per (game, sim) scales every player's
@@ -83,6 +84,23 @@ def simulate(
         # transition probabilities are a placeholder, not yet fit from pbp.
         if os.environ.get("GAME_SIM_MODE", "lognormal") == "possession":
             from . import game_sim
+            # GAME_SIM_PACE=vegas conditions each game's DRIVE COUNT on its
+            # vegas total (game_totals aligned to comps; pace = total /
+            # slate mean). Pace is the only strength channel that survives
+            # a mean-preserving factor -- an efficiency tilt (raising a
+            # team's TD prob) cancels when the factor divides by its own
+            # raised mean -- and it adds back a vegas-grounded shared
+            # environment between the two teams' factors.
+            paces = None
+            if (os.environ.get("GAME_SIM_PACE", "") == "vegas"
+                    and game_totals is not None):
+                gt = pd.to_numeric(pd.Series(game_totals).reset_index(drop=True),
+                                   errors="coerce").to_numpy()
+                per_game = pd.Series(gt).groupby(pd.Series(codes)).first()
+                per_game = per_game.reindex(range(len(uniq))).to_numpy()
+                league = np.nanmean(per_game)
+                if league and not np.isnan(league) and league > 0:
+                    paces = np.where(np.isnan(per_game), 1.0, per_game / league)
             # GAME_SIM_TEAM_FACTORS=0 forces the shared per-game factor even
             # when team_ids are supplied -- the middle arm of the 3-arm A/B
             # (lognormal / possession-shared / possession-team), so a team-arm
@@ -99,10 +117,11 @@ def simulate(
                 # matter since factors_a/factors_b are symmetric in intent.
                 first_team = team_series.groupby(game_series).transform("first")
                 slot = (team_series != first_team).astype(int).to_numpy()
-                factors_a, factors_b = game_sim.team_game_factors(rng, len(uniq), n_sims)
+                factors_a, factors_b = game_sim.team_game_factors(
+                    rng, len(uniq), n_sims, paces=paces)
                 game_mult = np.where(slot[:, None] == 0, factors_a[codes], factors_b[codes])
             else:
-                g = game_sim.game_factor_matrix(rng, len(uniq), n_sims)
+                g = game_sim.game_factor_matrix(rng, len(uniq), n_sims, paces=paces)
                 game_mult = g[codes]
         else:
             g = rng.lognormal(-GAME_FACTOR_SIGMA ** 2 / 2, GAME_FACTOR_SIGMA,

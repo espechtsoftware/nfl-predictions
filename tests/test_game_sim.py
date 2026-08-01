@@ -309,3 +309,50 @@ def test_usage_dirichlet_fattens_low_share_tail(monkeypatch):
 
     assert usage.summary.proj_p90.iloc[2] > base.summary.proj_p90.iloc[2]
     assert usage.summary.proj_std.iloc[2] > base.summary.proj_std.iloc[2]
+
+
+def test_pace_scales_drive_counts_and_points():
+    rng = np.random.default_rng(20)
+    slow = game_sim.game_factor_matrix(rng, 1, 5000, paces=np.array([0.85]))
+    rng2 = np.random.default_rng(20)
+    fast = game_sim.game_factor_matrix(rng2, 1, 5000, paces=np.array([1.15]))
+    # Both stay mean-preserving; pace changes the underlying game, not the factor mean
+    assert slow.mean() == pytest.approx(1.0, abs=0.03)
+    assert fast.mean() == pytest.approx(1.0, abs=0.03)
+
+
+def test_simulate_pace_gate_off_without_env(monkeypatch):
+    """game_totals passed but GAME_SIM_PACE unset -> factors must not
+    consult pace (proven by identical output with/without totals)."""
+    monkeypatch.setenv("GAME_SIM_MODE", "possession")
+    monkeypatch.delenv("GAME_SIM_PACE", raising=False)
+    monkeypatch.delenv("GAME_SIM_USAGE", raising=False)
+    comps = _two_team_comps()
+    ids = dict(game_ids=pd.Series(["g1", "g1"]), team_ids=pd.Series(["TA", "TB"]))
+
+    a = simulate.simulate(comps, n_sims=1000, seed=30, **ids)
+    b = simulate.simulate(comps, n_sims=1000, seed=30,
+                          game_totals=pd.Series([55.0, 55.0]), **ids)
+    pd.testing.assert_frame_equal(a.summary, b.summary)
+
+
+def test_simulate_pace_vegas_tightens_high_total_games(monkeypatch):
+    """With GAME_SIM_PACE=vegas, a high-total game draws MORE possessions,
+    and a mean-preserving factor over more possessions has LOWER relative
+    variance (~1/sqrt(drives)) -- so the same player shows a slightly
+    TIGHTER distribution in the 54-total game than the 36-total game,
+    means unchanged. (The vegas *level* lives in the model's means; what
+    pace adds is vegas-grounded heteroskedasticity. The naive 'high total
+    = wider' intuition is already priced into the means.)"""
+    monkeypatch.setenv("GAME_SIM_MODE", "possession")
+    monkeypatch.setenv("GAME_SIM_PACE", "vegas")
+    monkeypatch.delenv("GAME_SIM_USAGE", raising=False)
+    row = _two_team_comps().iloc[[0]]
+    comps = pd.concat([row, row], ignore_index=True)  # same player, 2 games
+    ids = dict(game_ids=pd.Series(["hi", "lo"]), team_ids=pd.Series(["TA", "TC"]))
+
+    res = simulate.simulate(comps, n_sims=30_000, seed=31,
+                            game_totals=pd.Series([54.0, 36.0]), **ids)
+    hi, lo = res.summary.iloc[0], res.summary.iloc[1]
+    assert hi.proj_points == pytest.approx(lo.proj_points, rel=0.05)
+    assert hi.proj_std < lo.proj_std

@@ -55,6 +55,7 @@ def replay_projections(
     sim = simulate.simulate(cm.predict_components(rows), n_sims=n_sims,
                         seed=seed, game_ids=rows.get("game_id"),
                         team_ids=rows.get("team"),
+                        game_totals=rows.get("game_total"),
                         keep_draws=return_draws)
     summary = sim.summary
     if widen:
