@@ -61,6 +61,8 @@ SELECT
   pc.off_plays_l6 + pcd.def_plays_faced_l6 AS pace_env_l6,
   bl.blitz_rate_l6 AS opp_blitz_rate_l6,
   tc.top2_target_share_l6 AS team_top2_target_share_l6,
+  qn.qb_cpoe_l6,
+  qn.qb_time_to_throw_l6,
 
   -- Opportunity vacated by teammates ruled Out this week (own share
   -- excluded): the point-in-time next-man-up signal.
@@ -136,6 +138,8 @@ LEFT JOIN `${features}.defense_week_blitz` bl
   ON bl.team = s.opponent AND bl.season = u.season AND bl.week = u.week
 LEFT JOIN `${features}.team_week_target_concentration` tc
   ON tc.team = u.team AND tc.season = u.season AND tc.week = u.week
+LEFT JOIN `${features}.qb_week_ngs` qn
+  ON qn.gsis_id = u.gsis_id AND qn.season = u.season AND qn.week = u.week
 WHERE u.position IN ('QB', 'RB', 'WR', 'TE')
   AND u.games_played_prior >= 1
   -- Upcoming-week synthetic rows (014) are inference-only; the actuals

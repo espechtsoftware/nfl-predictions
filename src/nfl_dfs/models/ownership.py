@@ -50,9 +50,12 @@ def build_features(pool: pd.DataFrame) -> pd.DataFrame:
 
 
 def training_frame() -> pd.DataFrame:
-    """Join contest ownership to salaries and projections by normalized
-    display name within (season, week). Raises with a friendly message
-    until standings CSVs have been imported (in-season task)."""
+    """Historical training data: LineStar-backfilled contest ownership
+    (2022-2025, real DK GPP pct_drafted) joined to dk_salaries_historical
+    by normalized name within (season, week). proj_points is the
+    strictly-prior trailing-4 mean of PPR points -- deliberately the
+    PUBLIC-visible expectation ("recent points"), which is what actually
+    drives chalk, rather than our model's projection."""
     from ..bq import query_df
     from ..config import settings
 
@@ -64,27 +67,32 @@ def training_frame() -> pd.DataFrame:
           GROUP BY season, week, uname
         ),
         sal AS (
-          SELECT DISTINCT draft_group_id, season, week,
-                 UPPER(display_name) AS uname, position, salary
-          FROM `{settings.raw}.dk_salaries`
-          WHERE slate_type = 'classic'
+          SELECT DISTINCT season, week, UPPER(display_name) AS uname,
+                 position, salary
+          FROM `{settings.raw}.dk_salaries_historical`
         ),
-        proj AS (
-          SELECT season, week, UPPER(display_name) AS uname,
-                 AVG(proj_points) AS proj_points
-          FROM `{settings.predictions}.player_projections`
-          GROUP BY season, week, uname
+        prod AS (
+          SELECT season, week, UPPER(player_display_name) AS uname,
+                 AVG(fantasy_points_ppr) OVER (
+                   PARTITION BY player_id ORDER BY season, week
+                   ROWS BETWEEN 4 PRECEDING AND 1 PRECEDING
+                 ) AS proj_points
+          FROM `{settings.raw}.weekly_stats`
         )
         SELECT own.season, own.week, own.uname AS display_name,
-               sal.position, sal.salary, proj.proj_points, own.pct_drafted
+               sal.position, sal.salary,
+               COALESCE(prod.proj_points, 0) AS proj_points,
+               own.pct_drafted
         FROM own
         JOIN sal USING (season, week, uname)
-        JOIN proj USING (season, week, uname)
+        LEFT JOIN (SELECT DISTINCT season, week, uname, proj_points
+                   FROM prod) prod USING (season, week, uname)
     """)
     if df.empty:
         raise RuntimeError(
-            "contest_ownership has no joinable rows yet -- import weekly "
-            "standings CSVs in-season (nfl-dfs import-ownership), then rerun."
+            "contest_ownership has no joinable rows -- run "
+            "nfl_dfs.ingest.linestar_backfill (or import weekly standings "
+            "CSVs in-season via nfl-dfs import-ownership), then rerun."
         )
     return build_features(df)
 
@@ -110,16 +118,31 @@ def predict_ownership(booster, pool: pd.DataFrame) -> np.ndarray:
     return 100.0 / (1.0 + np.exp(-logit))
 
 
-def run_training() -> None:
-    """CLI entry: fit on all imported standings and report in-sample fit
-    vs the naive value/salary proxy so week-over-week improvement is
-    visible from week 1."""
+def run_training(holdout_season: int = 2025) -> None:
+    """CLI entry: walk-forward evaluation -- train on seasons before
+    `holdout_season`, score out-of-sample against real contest ownership,
+    and compare with the naive value/salary softmax the field sim uses
+    today. Then refit on everything and save."""
     frame = training_frame()
-    booster = train(frame)
-    pred = predict_ownership(booster, frame)
-    corr = np.corrcoef(pred, frame[TARGET])[0, 1]
-    print(f"trained on {len(frame)} player-weeks; in-sample corr {corr:.3f}")
+    tr = frame[frame.season < holdout_season]
+    ho = frame[frame.season == holdout_season]
+    print(f"train {len(tr)} rows (<{holdout_season}); holdout {len(ho)} rows")
+
+    booster = train(tr)
+    pred = predict_ownership(booster, ho)
+    corr = np.corrcoef(pred, ho[TARGET])[0, 1]
+
+    # Naive comparator: value within (week, position), same shape the
+    # field simulation's naive_ownership uses.
+    naive = ho.groupby(["week", "position"]).value.rank(pct=True)
+    naive_corr = np.corrcoef(naive, ho[TARGET])[0, 1]
+    print(f"OUT-OF-SAMPLE {holdout_season}: model corr {corr:.3f} "
+          f"vs naive value-rank corr {naive_corr:.3f}")
+
+    booster = train(frame)  # refit on all seasons for the live artifact
+    import os
+
+    os.makedirs("models", exist_ok=True)
     out = "models/ownership.txt"
     booster.save_model(out)
-    print(f"saved {out} -- wire into run_projections/field sim once "
-          f"out-of-sample beats the naive proxy")
+    print(f"saved {out} (refit on all {len(frame)} rows)")

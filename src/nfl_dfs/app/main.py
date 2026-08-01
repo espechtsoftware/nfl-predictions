@@ -163,7 +163,7 @@ inp.addEventListener('keydown',e=>{if(e.key==='Enter')send();});
 _NAV_HTML = """
 <div class='topbar'><img src='/static/logo.png' class='logo' alt=''><div class='brand'>Fingerblasters&#39; <span>Brain</span></div>
 <a href='/'>Season</a><a href='/lineups/view'>Lineups</a>
-<a href='/defense'>Defense</a><a href='/docs'>API</a>
+<a href='/defense'>Defense</a><a href='/market'>Market</a><a href='/docs'>API</a>
 <button class='guide' onclick="document.getElementById('modal').style.display=
 'block';document.getElementById('modalbg').style.display='block'">
 &#128197; Weekly guide</button>
@@ -646,6 +646,82 @@ def defense_dashboard(
                 "<p>Run <code>nfl-dfs build-features</code> first.</p>")
     season = int(season or df.season.max())
     return _defense_page(df[df.season == season], season)
+
+
+@app.get("/market", response_class=HTMLResponse)
+def market_page() -> str:
+    """Market intelligence: line movement since open, and where our model
+    disagrees most with the prop market (2026-08-01 audit item)."""
+    body = """
+<main><h1>Market</h1>
+<h2>Line movement (since first snapshot)</h2>
+<div id='moves'><small>Loading&hellip;</small></div>
+<h2 style='margin-top:2rem'>Model vs prop market</h2>
+<div style='margin:.4rem 0'><small>Season/week with projections:</small>
+<input id='ms' size='5' placeholder='season'> <input id='mw' size='3'
+placeholder='wk'> <button id='mgo'>Load</button></div>
+<div id='dis'><small>Enter a projected week (in-season) and Load.</small></div>
+</main>
+<script>
+function tbl(rows, cols){if(!rows.length)return '<small>No data yet.</small>';
+  let h='<table><tr>'+cols.map(c=>'<th>'+c+'</th>').join('')+'</tr>';
+  for(const r of rows){h+='<tr>'+cols.map(c=>'<td>'+(r[c]??'')+'</td>').join('')+'</tr>';}
+  return h+'</table>';}
+fetch('/api/line-movement').then(r=>r.json()).then(j=>{
+  document.getElementById('moves').innerHTML=tbl(j,
+    ['event_name','market_type','selection','open_line','latest_line',
+     'line_move','latest_odds','last_seen']);});
+document.getElementById('mgo').onclick=async()=>{
+  const s=document.getElementById('ms').value,w=document.getElementById('mw').value;
+  if(!s||!w)return;
+  const j=await (await fetch(`/api/market-disagreement?season=${s}&week=${w}`)).json();
+  document.getElementById('dis').innerHTML=tbl(j,
+    ['display_name','position','team','salary','proj_points','market_points','edge']);
+};
+</script>"""
+    return f"<html><head><title>Market</title><style>{_PAGE_CSS}</style></head><body>{_NAV_HTML}{body}</body></html>"
+
+
+@app.get("/api/line-movement")
+def api_line_movement(limit: int = 40) -> list[dict]:
+    """Biggest spread/total moves since first snapshot (odds_movement
+    view; collecting 2x/day Wed-Sun since the 2026-07-31 odds fix)."""
+    from ..bq import query_df
+    from ..config import settings
+
+    df = query_df(f"""
+        SELECT event_name, market_type, selection, open_line, latest_line,
+               line_move, open_odds, latest_odds,
+               FORMAT_TIMESTAMP('%m-%d %H:%M', last_seen) AS last_seen
+        FROM `{settings.raw}.odds_movement`
+        WHERE line_move IS NOT NULL AND market_type IN ('Spread', 'Total')
+        ORDER BY ABS(line_move) DESC
+        LIMIT {int(limit)}
+    """)
+    return df.to_dict("records")
+
+
+@app.get("/api/market-disagreement")
+def api_market_disagreement(season: int, week: int, limit: int = 40) -> list[dict]:
+    """Model projections vs prop-market-implied points: the rows where we
+    disagree most with the betting market, both directions. Divergence is
+    either alpha or a bug -- worth eyes each week either way."""
+    from ..models.prop_market import market_points
+
+    store = get_store()
+    proj = store.projections(season, week)
+    if proj.empty:
+        return []
+    mkt = market_points(seasons=(season,))
+    mkt = mkt[mkt.week == week]
+    if mkt.empty:
+        return []
+    j = proj.merge(mkt[["gsis_id", "market_points"]], on="gsis_id", how="inner")
+    j["edge"] = j.proj_points - j.market_points
+    j = j.reindex(j.edge.abs().sort_values(ascending=False).index).head(int(limit))
+    cols = ["display_name", "position", "team", "salary",
+            "proj_points", "market_points", "edge"]
+    return j[[c for c in cols if c in j.columns]].round(2).to_dict("records")
 
 
 @app.get("/api/system-status")

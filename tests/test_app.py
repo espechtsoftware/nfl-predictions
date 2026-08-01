@@ -699,3 +699,17 @@ def test_showdown_pool_trailing_fallback_order():
     pool2 = app_main._showdown_pool(game, proj, "proj_points", trailing=None)
     by_id2 = {p["id"]: p for p in pool2}
     assert by_id2[2]["proj_source"] == "dk_ppg"
+
+
+def test_market_page_and_endpoints(monkeypatch):
+    """Market page renders; endpoints degrade gracefully with no data."""
+    import pandas as pd
+
+    monkeypatch.setattr("nfl_dfs.bq.query_df", lambda sql, **k: pd.DataFrame())
+    client = TestClient(app_main.app)
+    r = client.get("/market")
+    assert r.status_code == 200 and "Line movement" in r.text
+    r2 = client.get("/api/line-movement")
+    assert r2.status_code == 200 and r2.json() == []
+    r3 = client.get("/api/market-disagreement?season=2025&week=1")
+    assert r3.status_code == 200 and r3.json() == []

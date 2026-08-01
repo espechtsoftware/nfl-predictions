@@ -89,6 +89,8 @@ CANDIDATE_FEATURES = (
     "pace_env_l6",                # own off plays + opp def plays faced (l6)
     "opp_blitz_rate_l6",          # opponent defense blitz rate (FTN, 2022+)
     "team_top2_target_share_l6",  # target concentration -> stack strength
+    "qb_cpoe_l6",                 # NGS completion % above expectation (2016+)
+    "qb_time_to_throw_l6",        # NGS avg time to throw (2016+)
 )
 
 
