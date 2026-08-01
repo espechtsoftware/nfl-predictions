@@ -28,7 +28,10 @@ historical AS (
     CAST(NULL AS FLOAT64) AS dk_ppg
   FROM (
     SELECT
-      h.season, h.week, h.rotoguru_gid,
+      -- Grouped by (name, position), NOT rotoguru_gid: LineStar-backfilled
+      -- rows (2022-24, see ingest/linestar_backfill.py) carry NULL gid,
+      -- which would collapse a whole week into one ambiguous group.
+      h.season, h.week, h.display_name, h.position,
       ANY_VALUE(h.salary) AS salary,
       -- Unique name+position candidate first; unique name-only as fallback
       -- (position occasionally recorded differently, e.g. FB vs RB); rows
@@ -45,7 +48,7 @@ historical AS (
      AND i.gsis_id IS NOT NULL
     WHERE h.season NOT IN (SELECT DISTINCT season FROM own_log)
       AND h.salary > 0  -- RotoGuru encodes "no salary listed" as 0
-    GROUP BY h.season, h.week, h.rotoguru_gid
+    GROUP BY h.season, h.week, h.display_name, h.position
   )
   WHERE gsis_id IS NOT NULL
 ),
