@@ -1,8 +1,10 @@
 import numpy as np
 import pandas as pd
 
+import pytest
+
 from nfl_dfs.backtest.showdown_replay import (
-    build_pools, naive_trailing, replay_showdown_season)
+    build_pools, naive_trailing, replay_showdown_season, showdown_draws)
 
 
 def _slates(weeks=(5, 6), seed=8):
@@ -69,3 +71,47 @@ def test_replay_scores_and_capture():
     # Projections = actuals + constant -> optimizer should capture nearly
     # everything (cap constraints can force small gaps)
     assert row.capture > 0.85
+
+
+def test_sim_mode_entries_and_gate(monkeypatch):
+    """SHOWDOWN_SIM=1 routes through correlated-draw construction and
+    still produces valid, scored entries; unset leaves the MILP path
+    untouched (proven by identical results)."""
+    slates = _slates(weeks=(5,))
+    proj = _proj(slates)
+
+    monkeypatch.delenv("SHOWDOWN_SIM", raising=False)
+    base = replay_showdown_season(slates, proj, n_entries=4, days=("mon",))
+    base2 = replay_showdown_season(slates, proj, n_entries=4, days=("mon",))
+    pd.testing.assert_frame_equal(base, base2)  # deterministic without gate
+
+    monkeypatch.setenv("SHOWDOWN_SIM", "1")
+    monkeypatch.setenv("SHOWDOWN_TAIL_LINE", "80")
+    sim = replay_showdown_season(slates, proj, n_entries=4, days=("mon",))
+    assert not sim.empty
+    assert (sim.best > 0).all()
+    assert (sim.capture <= 1.001).all()
+
+
+def test_showdown_draws_mean_preserving_and_nonnegative():
+    pool = [
+        {"id": 1, "proj": 15.0, "proj_sd": 8.0},
+        {"id": 2, "proj": 5.0, "proj_sd": 4.0},
+        {"id": 3, "proj": 0.0, "proj_sd": 0.0},
+    ]
+    draws = showdown_draws(pool, n_sims=30_000, seed=1)
+    assert draws[1].mean() == pytest.approx(15.0, rel=0.05)
+    assert draws[2].mean() == pytest.approx(5.0, rel=0.05)
+    assert (draws[1] >= 0).all()
+    assert (draws[3] == 0).all()
+
+
+def test_lineup_draw_totals_captain_weighting():
+    from nfl_dfs.optimizer.showdown import ShowdownLineup, lineup_draw_totals
+    cpt = {"id": 1, "salary": 5000, "proj": 10.0}
+    flex = [{"id": i, "salary": 3000, "proj": 5.0} for i in range(2, 7)]
+    lu = ShowdownLineup(cpt, flex)
+    draws = {i: np.full(4, 10.0) for i in range(1, 7)}
+    totals = lineup_draw_totals([lu], draws)
+    assert totals.shape == (1, 4)
+    np.testing.assert_allclose(totals[0], 1.5 * 10 + 5 * 10)

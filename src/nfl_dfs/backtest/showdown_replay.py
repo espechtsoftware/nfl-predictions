@@ -20,18 +20,27 @@ measures lineup quality, not contest ROI.
 from __future__ import annotations
 
 import logging
+import os
 import re
 
 import numpy as np
 import pandas as pd
 
-from ..optimizer.showdown import CPT_MULT, optimize_many_showdown, optimize_showdown
+from ..optimizer.showdown import (CPT_MULT, optimize_many_showdown,
+                                  optimize_showdown, select_showdown_entries,
+                                  simulate_showdown_lineups)
 from . import replay
 
 log = logging.getLogger(__name__)
 
 DEFAULT_DAYS = ("thursday", "monday")
 MIN_PRIOR_GAMES_FOR_NAIVE = 2
+# Simulated-outcomes mode (issue #10): SHOWDOWN_SIM=1 builds entries from
+# correlated draws (recurrence + tail-line coverage) instead of the plain
+# MILP-on-means path. Same call-time env-gate pattern as the classic A/Bs.
+SHOWDOWN_SIM_SIGMA = 0.18        # shared game-factor sigma (see simulate.py)
+TRAILING_SD_RATIO = 0.9          # sd for trailing/naive-projected rows
+DEFAULT_SHOWDOWN_TAIL_LINE = 150.0
 
 
 def _norm(name: str) -> str:
@@ -39,18 +48,21 @@ def _norm(name: str) -> str:
 
 
 def projection_lookup(proj: pd.DataFrame) -> dict:
-    """(week, norm_name, position) -> projection, with (week, norm_name)
-    fallback when the name is unique that week."""
+    """(week, norm_name, position) -> (projection, sd), with
+    (week, norm_name) fallback when the name is unique that week."""
+    has_sd = "proj_std" in proj.columns
     by_np: dict = {}
     by_name: dict = {}
     for r in proj.itertuples():
         if pd.isna(r.name):
             continue
         n = _norm(r.name)
+        sd = float(r.proj_std) if has_sd and pd.notna(r.proj_std) else None
+        val = (float(r.proj_points), sd)
         key = (int(r.week), n, str(r.position))
-        by_np[key] = None if key in by_np else float(r.proj_points)
+        by_np[key] = None if key in by_np else val
         nkey = (int(r.week), n)
-        by_name[nkey] = None if nkey in by_name else float(r.proj_points)
+        by_name[nkey] = None if nkey in by_name else val
     return {"np": by_np, "name": by_name}
 
 
@@ -71,7 +83,7 @@ def build_pools(slates: pd.DataFrame, proj: pd.DataFrame) -> pd.DataFrame:
     projection of any kind are dropped (logged)."""
     lookup = projection_lookup(proj)
     trail = naive_trailing(slates)
-    values, sources = [], []
+    values, sds, sources = [], [], []
     for i, r in enumerate(slates.itertuples()):
         n = _norm(r.display_name)
         v = None
@@ -80,16 +92,59 @@ def build_pools(slates: pd.DataFrame, proj: pd.DataFrame) -> pd.DataFrame:
             if v is None:
                 v = lookup["name"].get((int(r.week), n))
         if v is not None:
-            values.append(v); sources.append("model")
+            values.append(v[0])
+            sds.append(v[1] if v[1] is not None else v[0] * TRAILING_SD_RATIO)
+            sources.append("model")
         elif pd.notna(trail.iloc[i]):
-            values.append(float(trail.iloc[i])); sources.append("trailing")
+            values.append(float(trail.iloc[i]))
+            sds.append(float(trail.iloc[i]) * TRAILING_SD_RATIO)
+            sources.append("trailing")
         else:
-            values.append(np.nan); sources.append("none")
-    out = slates.assign(proj=values, proj_source=sources)
+            values.append(np.nan); sds.append(np.nan); sources.append("none")
+    out = slates.assign(proj=values, proj_sd=sds, proj_source=sources)
     dropped = int(out.proj.isna().sum())
     if dropped:
         log.info("build_pools: dropped %d slate rows with no projection", dropped)
     return out.dropna(subset=["proj"])
+
+
+def showdown_draws(pool: list[dict], n_sims: int, seed: int) -> dict:
+    """Correlated per-player point draws for one slate: a shared
+    mean-preserving lognormal game factor (both teams — a single-game
+    slate IS one environment) times an independent gamma per player
+    matched to that player's projection mean/sd. Gamma keeps draws
+    nonnegative and right-skewed, the shape DK points actually have."""
+    rng = np.random.default_rng(seed)
+    game = rng.lognormal(-SHOWDOWN_SIM_SIGMA ** 2 / 2, SHOWDOWN_SIM_SIGMA, n_sims)
+    draws = {}
+    for p in pool:
+        m, s = float(p["proj"]), float(p.get("proj_sd") or 0)
+        if m <= 0 or s <= 0:
+            draws[p["id"]] = np.full(n_sims, max(m, 0.0)) * game
+            continue
+        shape = (m / s) ** 2
+        draws[p["id"]] = rng.gamma(shape, m / shape, n_sims) * game
+    return draws
+
+
+def sim_mode_entries(pool: list[dict], n_entries: int, seed: int,
+                     n_sims: int = 4000) -> list:
+    """SHOWDOWN_SIM=1 construction: candidates from (a) the diverse MILP
+    batch and (b) per-draw re-optimization recurrence, then greedy
+    tail-line coverage across the correlated draws (classic-side
+    select_tail_entries logic, captain-weighted)."""
+    draws = showdown_draws(pool, n_sims=n_sims, seed=seed)
+    milp = optimize_many_showdown(pool, n_lineups=max(2 * n_entries, 30),
+                                  max_overlap=4)
+    recurrent = simulate_showdown_lineups(pool, draws, n_keep=n_entries)
+    seen, candidates = set(), []
+    for lu in milp + [lu for lu, _ in recurrent]:
+        if lu.key not in seen:
+            seen.add(lu.key)
+            candidates.append(lu)
+    line = float(os.environ.get("SHOWDOWN_TAIL_LINE",
+                                DEFAULT_SHOWDOWN_TAIL_LINE) or 0)
+    return select_showdown_entries(candidates, draws, n_entries, line)
 
 
 def replay_showdown_season(
@@ -114,13 +169,16 @@ def replay_showdown_season(
             {"id": int(r.sdio_player_id), "name": r.display_name,
              "pos": r.position, "team": r.team_abbr, "opp": None,
              "game_id": slate_id, "salary": int(r.salary),
-             "proj": float(r.proj),
+             "proj": float(r.proj), "proj_sd": float(r.proj_sd),
              "actual": float(r.dk_points_actual) if pd.notna(r.dk_points_actual) else 0.0}
             for r in grp.itertuples()
         ]
         if len(pool) < 8 or len({p["team"] for p in pool}) < 2:
             continue
-        entries = optimize_many_showdown(pool, n_lineups=n_entries)
+        if os.environ.get("SHOWDOWN_SIM"):
+            entries = sim_mode_entries(pool, n_entries, seed=int(week))
+        else:
+            entries = optimize_many_showdown(pool, n_lineups=n_entries)
         if not entries:
             continue
 

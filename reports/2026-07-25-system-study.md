@@ -728,3 +728,27 @@ should ensure the p90-valued punt pool isn't crowding these out in favor
 of cascade candidates; (3) a *depth-rank transition* signal (rank 2 -> 1
 in recent weeks, Gadsden case) may prospectively catch newly-promoted
 min-priced starters the static rank misses — cheap feature, untested.
+
+## Addendum 25 (2026-08-01): possession sim 3-arm A/B — team arm adopted
+
+Engine: drive-state Markov chain, transitions FITTED from pbp 2018-2025
+(48,528 drives; game_sim.py docstring has fit semantics + artifacts).
+2025 GPP replay, 40 entries, identical settings across arms:
+
+| arm | mean best | >=194 | median finish |
+|---|---|---|---|
+| lognormal (fresh baseline 2026-07-31) | 188.0 | 6/17 | 14.1% |
+| possession, shared factor | 185.6 | 5/17 | 15.1% |
+| possession, TEAM factors | **188.4** | **7/17** | 14.4% |
+
+Recorded bar (Addendum 21): 184.2 / 6-17 / 12.3%. The team arm matches
+or beats every headline: best mean-best and best tail-week count of any
+recorded run. The feared shootout-stack degradation from dropping the
+corr=1 shared factor did NOT appear (punt capture 16/17 vs 14/17;
+QB-held 11/17 vs 12/17 — a wash), consistent with the fit's measurement
+that real cross-team scoring correlation is ~0.016. **Adopted**:
+GAME_SIM_MODE=possession set on the project-slate job env (replay jobs
+left unset so future A/Bs keep a lognormal control). Queued next arms on
+top of possession-team: GAME_SIM_USAGE=dirichlet (correlated usage
+draws), GAME_SIM_PACE=vegas (drive counts conditioned on game totals),
+and the depth_rank_delta feature build.

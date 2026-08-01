@@ -175,3 +175,71 @@ def optimize_many_showdown(
         lineups.append(lu)
         banned.append(lu.key)
     return lineups
+
+
+# --- Simulated-outcomes construction (issue #10 modernization) ------------
+# Ports the classic side's correlated-draw machinery (lineup.simulate_lineups
+# + lineup.select_tail_entries) to Captain Mode. Draws come from the caller
+# (showdown_replay builds them from projection mean/sd + a shared game
+# factor); these helpers only consume them.
+
+def lineup_draw_totals(lineups, draws_by_id) -> "np.ndarray":
+    """(n_lineups, n_sims) DK totals across draws, captain at 1.5x.
+    draws_by_id: player id -> (n_sims,) points array."""
+    import numpy as np
+
+    totals = np.zeros((len(lineups), next(iter(draws_by_id.values())).shape[0]))
+    for i, lu in enumerate(lineups):
+        totals[i] = CPT_MULT * draws_by_id[lu.captain["id"]]
+        for p in lu.flex:
+            totals[i] += draws_by_id[p["id"]]
+    return totals
+
+
+def simulate_showdown_lineups(
+    players: list[Player],
+    draws_by_id: dict,
+    n_keep: int = 20,
+    n_draw_solves: int = 120,
+    **kwargs,
+) -> list[tuple[ShowdownLineup, int]]:
+    """Optimize one lineup per Monte Carlo draw and keep the recurrent
+    ones — captain choice included in identity (ShowdownLineup.key), since
+    correlated draws are exactly what should discover which player's boom
+    worlds deserve the 1.5x slot."""
+    from collections import Counter
+
+    counts: Counter[tuple] = Counter()
+    exemplars: dict[tuple, ShowdownLineup] = {}
+    n_sims = next(iter(draws_by_id.values())).shape[0]
+    for k in range(min(n_draw_solves, n_sims)):
+        sim_players = [
+            {**p, "proj": float(draws_by_id[p["id"]][k])} for p in players
+        ]
+        lu = optimize_showdown(sim_players, **kwargs)
+        if lu is None:
+            continue
+        counts[lu.key] += 1
+        if lu.key not in exemplars:
+            by_id = {p["id"]: p for p in players}
+            exemplars[lu.key] = ShowdownLineup(
+                by_id[lu.captain["id"]], [by_id[p["id"]] for p in lu.flex])
+    return [(exemplars[k], n) for k, n in counts.most_common(n_keep)]
+
+
+def select_showdown_entries(
+    candidates: list[ShowdownLineup],
+    draws_by_id: dict,
+    n_entries: int,
+    line: float,
+) -> list[ShowdownLineup]:
+    """Greedy sim-coverage entry selection at a tail line — identical
+    logic to the classic side's select_tail_entries, fed captain-weighted
+    totals."""
+    from .lineup import select_tail_entries
+
+    if not candidates:
+        return []
+    totals = lineup_draw_totals(candidates, draws_by_id)
+    idx = select_tail_entries(totals, n_entries, line)
+    return [candidates[i] for i in idx]
