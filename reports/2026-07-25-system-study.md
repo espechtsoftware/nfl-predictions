@@ -811,3 +811,35 @@ Feature-lesson: both single quick-add features (delta, OL) hurt; the
 paired environment features helped. New features must each pass their
 own exact replay before shipping — the harness makes that a 35-minute
 question.
+
+## Addendum 28 (2026-08-01): assumption audit — all four pre-A/B rules validated; candidate features closed
+
+**The pre-A/B assumption audit** (each rule removed for one exact run vs
+the 189.5/8-17 shipping config; env levers LEV_PENALTY / PUNT_MIN /
+STACK_BRING_BACK / STACK_QB_MIN / FORBID_RB_DST now permanent):
+
+| rule removed | result | cost | verdict |
+|---|---|---|---|
+| bring-back mandate | 183.9 / 4-17 | -5.6 / -4 weeks | KEEP — most load-bearing rule; note linear WR1-oppWR1 corr is only .10, tail dependence is what pays |
+| mandatory sub-$4k punt | 185.1 / 5-17 | -4.4 / -3 | KEEP — now causal, not just "94% of winners" correlation |
+| RB-vs-DST ban | 185.3 / 5-17 | -4.2 / -3 | KEEP |
+| chalk fade (25.0 -> 0) | 187.5 / 6-17 | -2.0 / -2 | KEEP — smallest edge; the in-season ownership model is the upgrade path |
+
+**Candidate features closed** (EXTRA_FEATURES harness; each one exact run):
+pace_env_l6 182.0/5-17, opp_blitz_rate_l6 183.2/7-17 (median 13.5 but
+-6.3 mean), team_top2_target_share_l6 183.8/5-17. Combined with
+depth_rank_delta (-4.6) and team_ol_out (-8.7), that is FIVE consecutive
+single-feature failures with the same signature — better typical-week
+calibration paid for out of the tails. Standing law: model features are
+guilty until proven innocent by their own replay; construction RULES
+(above) are where the edge actually lives.
+
+**DST_CORR_DRAWS closed**: refit to measured moments (corr -0.491,
+rel-sd 0.93, from 4,390 team-games 2018-25 — the first attempt was
+backwards on both axes) still tests negative: 186.5/5-17. Constant DST
+projections in entry selection are not a deficiency. Gate remains in
+code as tested-twice-negative.
+
+Also this cycle: deploy/deploy_jobs.sh reconciled with live infra
+(every cadence verified); candidate-feature env harness makes any
+future feature one rebuild + one 35-min run from an exact verdict.
