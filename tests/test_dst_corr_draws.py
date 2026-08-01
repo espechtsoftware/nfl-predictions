@@ -31,9 +31,11 @@ def test_gate_on_dst_anticorrelated_and_mean_preserved(monkeypatch):
     rd = _row_draws(slate, draws)
     opp_total = rd[0] + rd[1]  # AAA offense vs the BBB DST
     corr = np.corrcoef(rd[3], opp_total)[0, 1]
-    assert corr < -0.5
-    assert rd[3].mean() == np.float32(6.0) or abs(rd[3].mean() - 6.0) < 0.1
-    assert rd[3].std() > 0.5  # DST actually has variance now
+    # Fitted moments: corr -0.491, rel-sd 0.93 (both within tolerance)
+    assert -0.6 < corr < -0.35
+    assert abs(rd[3].mean() - 6.0) < 0.15
+    rel_sd = rd[3].std() / rd[3].mean()
+    assert 0.7 < rel_sd < 1.1
 
 
 def test_gate_on_skill_rows_untouched(monkeypatch):

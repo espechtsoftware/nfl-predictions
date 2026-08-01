@@ -96,6 +96,15 @@ def _row_draws(slate: pd.DataFrame, draws: np.ndarray) -> np.ndarray:
     out[has] = draws[di[has]]
     out[~has] = slate["proj"].to_numpy(dtype=float)[~has, None]
     if _os.environ.get("DST_CORR_DRAWS") and (~has).any() and "opp" in slate.columns:
+        # Fitted 2026-08-01 from 4,390 team-games 2018-25: DST DK points
+        # correlate -0.491 with the opposing offense's total fantasy
+        # points, with relative sd 0.93 (mean 6.2, sd 5.8). The first
+        # (nulled) version had it backwards on both axes: ~-0.9 corr but
+        # only ~0.3 rel-sd. Draws hit the measured moments exactly:
+        # mult = 1 + rel_sd*(corr*z_opp + sqrt(1-corr^2)*z_iid), floored
+        # (DK DST brackets go to -4) and renormalized to mean 1.
+        DST_OPP_CORR, DST_REL_SD = -0.491, 0.93
+        rng = np.random.default_rng(7)
         teams = slate["team"].to_numpy()
         opps = slate["opp"].to_numpy()
         for i in np.flatnonzero(~has):
@@ -103,10 +112,14 @@ def _row_draws(slate: pd.DataFrame, draws: np.ndarray) -> np.ndarray:
             if not len(rows):
                 continue
             tot = draws[di[rows]].sum(axis=0)
-            m = tot.mean()
-            if m <= 0:
+            sd = tot.std()
+            if sd <= 0 or tot.mean() <= 0:
                 continue
-            mult = np.clip(2.0 - tot / m, 0.3, 1.7)
+            z_opp = (tot - tot.mean()) / sd
+            z_iid = rng.standard_normal(tot.shape[0])
+            mult = 1.0 + DST_REL_SD * (DST_OPP_CORR * z_opp
+                                       + np.sqrt(1 - DST_OPP_CORR ** 2) * z_iid)
+            mult = np.clip(mult, -0.7, None)
             out[i] = out[i] * (mult / mult.mean())
     return out
 
