@@ -1,11 +1,12 @@
 # Possession-level game simulator — design doc
 
 Issue #13 item 6 (flagship). Status: **core engine landed, offline-tested,
-env-gated off; team-level asymmetry added 2026-08-01**. Not yet wired to
-replace the production game factor — that requires fitting real transition
-probabilities from `nfl_raw.pbp`, which needs BigQuery access this worker
-doesn't have. This doc records the design so the next session (with GCP
-creds) can finish the integration.
+env-gated off; team-level asymmetry added 2026-08-01; transition
+probabilities FITTED from real pbp 2026-08-01** (2018–2025, 48,528 drives —
+see `game_sim.py`'s module docstring for fit semantics and the artifacts
+that poisoned the first fit attempts: kickoff-row yardlines and PAT-only
+pseudo-drives). Remaining before any adoption decision: the 3-arm 2025
+replay A/B below.
 
 ## Why
 
@@ -110,11 +111,18 @@ not something to run in production until it's validated.
 
 ## Next steps (need GCP + Cloud Run; NOT done by this worker)
 
-1. Fit `DEFAULT_TRANSITIONS` for real from `nfl_raw.pbp`: group plays by
-   drive (`drive` column), bucket start yardline into the five zones,
-   read off `fixed_drive_result` as the terminal outcome, and the next
-   drive's start yardline as the next-drive start zone. Two semantics to
-   get right, both flagged in `_simulate_team_drives`'s docstring:
+1. ~~Fit the transition tables for real from `nfl_raw.pbp`~~ — **done
+   2026-08-01** (2018–2025, 48,528 drives, 2,227 games; fitted values and
+   full fit semantics now live in `game_sim.py`). Both semantic traps
+   below were honored: next-zone fitted as the same-team quantity for
+   td/fg_make/punt/safety (`_ZONE_FLIP` retained for the zone-dependent
+   terminals), end-of-half drives dropped + renormalized with the
+   drives/team moments (10.16 ± 1.65) matched to that choice. Two data
+   artifacts to remember for refits: a drive's first row is often the
+   KICKOFF (kicking-spot yardline → fake "fringe" starts), and PAT-only
+   pseudo-drives after defensive TDs land at yardline_100=15 with result
+   "Opp touchdown" (fake "redzone turnover" starts) — filter both.
+   Original fit spec for reference:
    - **Next-zone is the same team's next start, not the opponent's
      takeover spot.** The engine skips the opponent's intervening drive,
      so the next-zone distribution it consumes is where *this team's*
@@ -153,6 +161,24 @@ not something to run in production until it's validated.
    the point, but whether the extra environment variance double-counts
    the player-level draw variance downstream is exactly what the replay
    A/B decides. `test_game_factor_matrix_dispersion_sane` pins the band.
+   **Correlation caveat for interpreting the team-asymmetric arm
+   (2026-08-01, revised after the pbp fit):** `team_game_factors` gives
+   the two teams NEARLY INDEPENDENT factors (measured corr ~0.1-0.2),
+   where the lognormal/shared factor gives corr = 1. The 2018-2025 fit
+   measured the real thing: **cross-team offensive scoring correlation in
+   actual games is 0.016 — essentially zero** — so on scoring alone, the
+   team arm is the realistic one and the shared factor's corr=1 is the
+   distortion. BUT the shared factor was never validated as a scoring
+   model; it's a *fantasy-point tail* device (§6.2: QB + opposing
+   bring-back shootout stacks), and fantasy volume can correlate across
+   teams (pace, garbage-time passing) even when points don't. Whether
+   corr=1 was load-bearing for lineup quality or just an acceptable
+   distortion is exactly what the A/B decides. Run it three-armed
+   (lognormal / possession-shared / possession-team;
+   `GAME_SIM_TEAM_FACTORS=0` forces the shared arm even when team_ids
+   are passed) so the answer is attributable; if the team arm loses to
+   the shared arm, the next move is a hybrid factor (shared environment
+   component x team-specific component), not abandonment.
 4. If adopted, `allocate_drive_usage` becomes the place to fold in
    `market_ceilings()` (Addendum 22) as a per-player ceiling nudge on top
    of the Dirichlet draw, and to fold in the DK pricing-lag residual

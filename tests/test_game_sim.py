@@ -93,6 +93,19 @@ def test_team_game_factors_asymmetric_not_identical_to_shared_factor():
     assert not np.allclose(factors_a, factors_b)
 
 
+def test_team_game_factors_cross_team_correlation_documented():
+    """Pins the engine's actual cross-team structure so nobody reasons
+    from the wrong model: the two teams' factors are NEARLY INDEPENDENT
+    (weak positive corr via shared drive counts) -- neither the corr=1 of
+    the shared factor nor the blowout anticorrelation a score-aware engine
+    would produce. If a hybrid shared-x-team factor lands, this band is
+    the thing to change."""
+    rng = np.random.default_rng(12)
+    factors_a, factors_b = game_sim.team_game_factors(rng, n_games=1, n_sims=40_000)
+    corr = np.corrcoef(factors_a[0], factors_b[0])[0, 1]
+    assert -0.05 < corr < 0.35
+
+
 def test_allocate_drive_usage_sums_to_units_single_draw():
     rng = np.random.default_rng(4)
     shares = np.array([0.5, 0.3, 0.2])

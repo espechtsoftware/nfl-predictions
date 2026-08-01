@@ -83,7 +83,13 @@ def simulate(
         # transition probabilities are a placeholder, not yet fit from pbp.
         if os.environ.get("GAME_SIM_MODE", "lognormal") == "possession":
             from . import game_sim
-            if team_ids is not None:
+            # GAME_SIM_TEAM_FACTORS=0 forces the shared per-game factor even
+            # when team_ids are supplied -- the middle arm of the 3-arm A/B
+            # (lognormal / possession-shared / possession-team), so a team-arm
+            # result can be attributed to team independence vs the drive
+            # engine itself. See the design doc's correlation caveat.
+            team_arm = os.environ.get("GAME_SIM_TEAM_FACTORS", "1") != "0"
+            if team_ids is not None and team_arm:
                 team_series = pd.Series(team_ids).fillna("_none").reset_index(drop=True)
                 game_series = pd.Series(codes)
                 # Row order within each game group is player order, not a

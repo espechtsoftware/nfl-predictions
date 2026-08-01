@@ -5,13 +5,32 @@ for issue #13 item 6 (flagship) -- a small discrete drive-state Markov
 chain that replaces the lognormal per-game factor in `simulate.py` with
 one derived from how drives actually end (score, punt, turnover, ...).
 
-The transition weights below are a PLACEHOLDER: calibrated only to be
-roughly plausible NFL aggregates (~11-12 drives/team/game, ~2.0-2.2
-points/drive), not fit from real play-by-play. Fitting them from
-`nfl_raw.pbp` needs BigQuery access this module was written without --
-see the design doc's "Next steps". Everything here runs fully offline so
-the engine and the usage-allocation math built on it can be developed and
-tested without GCP.
+The transition weights below are FITTED from `nfl_raw.pbp`, seasons
+2018-2025 (48,528 drives, 2,227 games; fit 2026-08-01, replacing the
+original hand-calibrated placeholder). Fit semantics, chosen to match how
+the engine consumes each table:
+
+- Start zone = the drive's first SCRIMMAGE play (kickoff rows carry the
+  kicking-spot yardline; PAT-only pseudo-drives after defensive TDs were
+  excluded -- both poisoned earlier fit attempts).
+- `end_of_half`/`end_of_game` drives (6.8%) are dropped and the terminal
+  probabilities renormalized; correspondingly, drives/team/game moments
+  EXCLUDE those drives (mean 10.16, sd 1.65), so points/game stays right.
+- `_NEXT_ZONE_WEIGHTS` is the SAME TEAM's next-drive start zone (two
+  possession changes later), the quantity `_simulate_team_drives`
+  actually consumes. Only td/fg_make/punt/safety are fitted; fg_miss/
+  turnover/turnover_on_downs keep the zone-aware `_ZONE_FLIP` heuristic,
+  since a single per-terminal distribution can't carry their strong
+  dependence on where the drive died.
+- Empirical anchors from the same fit: 2.175 pts/drive, 22.1 offensive
+  pts/team/game (7/TD + 3/FG accounting), game total 44.2 +/- 13.8, and
+  cross-team points correlation 0.016 -- i.e., the two teams' scoring is
+  essentially INDEPENDENT in real games (relevant to the team_game_factors
+  correlation discussion below).
+
+The module still runs fully offline; the fit script lives in the session
+records and is a ~60-line pbp aggregation, easy to re-run when seasons
+accumulate.
 
 Gated by `GAME_SIM_MODE` in `simulate.py`; default behavior there
 (`GAME_SIM_MODE` unset or "lognormal") is completely unaffected by this
@@ -37,27 +56,29 @@ TERMINAL_POINTS = np.array([7.0, 3.0, 0.0, 0.0, 0.0, 0.0, 0.0])
 assert len(TERMINAL_POINTS) == len(TERMINALS)
 SAFETY_POINTS = 2.0  # credited to the opponent, not this team's own total
 
-# Raw (unnormalized) weights: terminal-outcome likelihood by starting field
-# position, deep_own -> redzone. Placeholder -- see module docstring.
+# Terminal-outcome percentages by starting field position, FITTED from
+# nfl_raw.pbp 2018-2025 (see module docstring for fit semantics). Zone
+# support: own 36,587 drives / midfield 4,961 / deep_own 4,011 / fringe
+# 2,107 / redzone 860.
 _TERMINAL_WEIGHTS = {
-    "deep_own": {"td": 12, "fg_make": 7, "fg_miss": 1, "punt": 58, "turnover": 12, "turnover_on_downs": 1, "safety": 1},
-    "own": {"td": 20, "fg_make": 12, "fg_miss": 3, "punt": 45, "turnover": 12, "turnover_on_downs": 3, "safety": 0},
-    "midfield": {"td": 27, "fg_make": 16, "fg_miss": 3, "punt": 28, "turnover": 11, "turnover_on_downs": 5, "safety": 0},
-    "fringe": {"td": 32, "fg_make": 21, "fg_miss": 4, "punt": 10, "turnover": 10, "turnover_on_downs": 6, "safety": 0},
-    "redzone": {"td": 58, "fg_make": 18, "fg_miss": 2, "punt": 2, "turnover": 10, "turnover_on_downs": 5, "safety": 0},
+    "deep_own": {"td": 16.74, "fg_make": 9.74, "fg_miss": 1.86, "punt": 50.49, "turnover": 13.95, "turnover_on_downs": 4.62, "safety": 2.6},
+    "own": {"td": 22.44, "fg_make": 14.56, "fg_miss": 2.73, "punt": 41.66, "turnover": 12.85, "turnover_on_downs": 5.69, "safety": 0.07},
+    "midfield": {"td": 30.51, "fg_make": 22.75, "fg_miss": 4.05, "punt": 25.83, "turnover": 10.09, "turnover_on_downs": 6.78, "safety": 0.0},
+    "fringe": {"td": 40.45, "fg_make": 35.19, "fg_miss": 5.84, "punt": 5.47, "turnover": 7.63, "turnover_on_downs": 5.42, "safety": 0.0},
+    "redzone": {"td": 57.6, "fg_make": 31.03, "fg_miss": 1.24, "punt": 0.12, "turnover": 5.93, "turnover_on_downs": 4.08, "safety": 0.0},
 }
 
-# Raw weights for where the *next* offense starts after each terminal
-# outcome (kickoff touchback -> "own", punt -> field-position-dependent,
-# safety free-kick -> short field around midfield). Terminals not listed
-# here (fg_miss, turnover, turnover_on_downs) fall back to `_ZONE_FLIP`:
-# possession changed roughly where the drive was, so the new offense's
-# zone is the mirror image of the old one.
+# Same-team NEXT-drive start-zone percentages by terminal outcome (two
+# possession changes later -- the quantity `_simulate_team_drives`
+# consumes; see its CAUTION docstring), fitted from the same pbp span.
+# Terminals not listed (fg_miss, turnover, turnover_on_downs) fall back
+# to `_ZONE_FLIP`: their next-start depends strongly on where the drive
+# died, which a flat per-terminal distribution can't carry.
 _NEXT_ZONE_WEIGHTS = {
-    "td": {"own": 1},
-    "fg_make": {"own": 1},
-    "safety": {"midfield": 5, "fringe": 4, "redzone": 1},
-    "punt": {"deep_own": 2, "own": 11, "midfield": 4, "fringe": 1},
+    "td": {"deep_own": 8.67, "own": 73.28, "midfield": 11.28, "fringe": 5.05, "redzone": 1.72},
+    "fg_make": {"deep_own": 8.4, "own": 73.2, "midfield": 11.28, "fringe": 5.23, "redzone": 1.88},
+    "safety": {"deep_own": 10.58, "own": 75.0, "midfield": 7.69, "fringe": 3.85, "redzone": 2.88},
+    "punt": {"deep_own": 8.59, "own": 71.6, "midfield": 12.08, "fringe": 5.2, "redzone": 2.53},
 }
 
 _ZONE_FLIP = {
@@ -69,7 +90,10 @@ _ZONE_FLIP = {
 }
 
 MAX_DRIVES_PER_TEAM = 16  # generous upper bound; real games run ~9-13
-DRIVES_PER_TEAM_SD = 1.8  # real drives/team/game sd, placeholder like the rest
+# Fitted 2018-2025, EXCLUDING end-of-half drives to match the terminal
+# table's renormalization (see module docstring): 10.16 +/- 1.65.
+MEAN_DRIVES_PER_TEAM = 10.16
+DRIVES_PER_TEAM_SD = 1.65
 
 
 def _normalize(weights: dict[str, float]) -> dict[str, float]:
@@ -174,7 +198,7 @@ def simulate_team_points(
 def simulate_game_points(
     rng: np.random.Generator,
     n_sims: int,
-    mean_drives_per_team: float = 11.0,
+    mean_drives_per_team: float = MEAN_DRIVES_PER_TEAM,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Per-team total points for `n_sims` independent game draws. Each
     team's drive sequence is simulated independently; the only cross-team
@@ -205,7 +229,7 @@ def game_factor_matrix(
     rng: np.random.Generator,
     n_games: int,
     n_sims: int,
-    mean_drives_per_team: float = 11.0,
+    mean_drives_per_team: float = MEAN_DRIVES_PER_TEAM,
 ) -> np.ndarray:
     """Drop-in replacement for `simulate.py`'s lognormal `game_mult` draw:
     shape (n_games, n_sims), one shared multiplier per game per sim (both
@@ -232,16 +256,28 @@ def team_game_factors(
     rng: np.random.Generator,
     n_games: int,
     n_sims: int,
-    mean_drives_per_team: float = 11.0,
+    mean_drives_per_team: float = MEAN_DRIVES_PER_TEAM,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Per-TEAM, mean-preserving multipliers -- the asymmetric counterpart
     to `game_factor_matrix`. Each team's factor is that team's own points
-    divided by that team's own mean, so a blowout shows up as one team's
-    factor rising while the other's falls in the same sim, instead of
-    both teams sharing one combined-total factor the way
-    `game_factor_matrix` (and the lognormal draw it replaces) does. This
-    is the game-script asymmetry the design doc's "Why" section cites as
-    the possession sim's main motivation over the shared lognormal factor.
+    divided by that team's own mean, instead of both teams sharing one
+    combined-total factor the way `game_factor_matrix` (and the lognormal
+    draw it replaces) does.
+
+    What this does and does NOT deliver: because `simulate_game_points`
+    simulates the two teams' drive sequences independently (coupled only
+    through drive counts +/-1 and safety credit), the two factors are
+    NEARLY INDEPENDENT (measured corr ~0.1-0.2) -- not anticorrelated.
+    A blowout world (one factor up while the other is down) occurs only
+    as often as independence implies; the engine has no score-differential
+    dynamics to make it more likely. Equally important: independence
+    REMOVES the within-game cross-team correlation the shared factor
+    provided, which is what makes QB + opposing bring-back shootout
+    stacks price correctly (README §6.2). Reality sits between corr=1
+    (shared) and corr~0 (this): interpret any replay A/B accordingly, and
+    if this arm underperforms, the fix is likely a hybrid (shared
+    environment component x team-specific component), not abandoning
+    team-level factors. See the design doc's "Next steps".
 
     Returns (factors_a, factors_b), each shape (n_games, n_sims) and
     individually mean-preserving (E[factor] == 1 per team, up to sampling
