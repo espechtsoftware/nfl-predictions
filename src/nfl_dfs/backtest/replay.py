@@ -294,10 +294,50 @@ def load_panel_and_dst(season: int):
     )
     dst = query_df(
         f"""
-        SELECT season, week, team_abbr AS team, opponent AS opp,
-               salary, dk_points AS actual
-        FROM `{settings.raw}.dk_salaries_historical`
-        WHERE position = 'Def' AND season = {season}
+        -- RotoGuru rows (position 'Def', <=2021) carry dk_points actuals;
+        -- LineStar-backfilled rows (position 'DST', 2022-24) don't, so
+        -- actuals are computed from pbp + schedules with DK DST scoring
+        -- (same accounting as app.store.trailing_kdst). LAR->LA maps the
+        -- one abbreviation difference vs nflverse.
+        WITH sal AS (
+          SELECT season, week,
+                 IF(team_abbr = 'LAR', 'LA', team_abbr) AS team,
+                 IF(opponent = 'LAR', 'LA', opponent) AS opp,
+                 salary, dk_points
+          FROM `{settings.raw}.dk_salaries_historical`
+          WHERE UPPER(position) IN ('DEF', 'DST') AND season = {season}
+        ),
+        def_game AS (
+          SELECT p.game_id, p.defteam AS team, ANY_VALUE(p.week) AS week,
+                 SUM(CAST(p.sack AS INT64)) AS sacks,
+                 SUM(CAST(p.interception AS INT64))
+                   + SUM(IF(p.fumble_lost = 1, 1, 0)) AS takeaways,
+                 SUM(IF(p.touchdown = 1 AND p.td_team = p.defteam, 1, 0)) AS tds
+          FROM `{settings.raw}.pbp` p
+          WHERE p.season = {season} AND p.defteam IS NOT NULL
+          GROUP BY p.game_id, p.defteam
+        ),
+        pts AS (
+          SELECT game_id, home_team AS team, away_score AS pa
+          FROM `{settings.raw}.schedules` WHERE season = {season}
+          UNION ALL
+          SELECT game_id, away_team, home_score
+          FROM `{settings.raw}.schedules` WHERE season = {season}
+        ),
+        computed AS (
+          SELECT dg.team, dg.week,
+                 dg.sacks + 2*dg.takeaways + 6*dg.tds +
+                 CASE WHEN p.pa = 0 THEN 10 WHEN p.pa <= 6 THEN 7
+                      WHEN p.pa <= 13 THEN 4 WHEN p.pa <= 20 THEN 1
+                      WHEN p.pa <= 27 THEN 0 WHEN p.pa <= 34 THEN -1
+                      ELSE -4 END AS dk
+          FROM def_game dg JOIN pts p USING (game_id, team)
+        )
+        SELECT sal.season, sal.week, sal.team, sal.opp, sal.salary,
+               COALESCE(sal.dk_points, c.dk) AS actual
+        FROM sal
+        LEFT JOIN computed c ON c.team = sal.team AND c.week = sal.week
+        WHERE COALESCE(sal.dk_points, c.dk) IS NOT NULL
         """
     )
     return panel, dst
