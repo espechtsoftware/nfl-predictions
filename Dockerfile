@@ -6,7 +6,8 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml README.md ./
+COPY pyproject.toml README.md CLAUDE.md ./
+COPY reports/model-primer.md ./reports/model-primer.md
 COPY src ./src
 COPY sql ./sql
 

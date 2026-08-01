@@ -13,6 +13,7 @@ import logging
 import pandas as pd
 
 from .. import notes, watchlist
+from . import system_context
 from ..bq import query_df
 from ..config import current_season, settings
 
@@ -37,9 +38,21 @@ There is also a WATCHLIST, separate from usage notes: free-text notes
 about players worth tracking that change NOTHING numerically. "Add a
 note about X" / "keep an eye on X because..." means add_watch_note, NOT
 a usage note — only create a usage note when the user clearly wants a
-projection adjustment, or asks to convert a watch note (then confirm the
-mult first). Watch notes appear on generated lineups and the Watchlist
-page.
+projection adjustment, or asks to convert a watch note. Watch notes
+appear on generated lineups and the Watchlist page.
+
+When the user asks to convert a note (or asks what adjustment a note
+deserves), follow the CONVERSION PROTOCOL: (1) call system_design
+topic='conversion_guide'; (2) classify the note's archetype (offseason
+vacancy / new team / scheme fit / in-season injury / talent take);
+(3) check the player's CURRENT situation with get_player_form or
+explain_player — depth chart, competition, whether the system already
+prices the situation; (4) propose a specific mult with the archetype
+reasoning and any double-count warnings; (5) convert only after the
+user confirms. For questions about how the system itself works — what's
+already in the model, how notes decay, how lineups are chosen — use
+system_design first and read_doc (model-primer, claude-md, readme) for
+depth. Answer from those documents, not from generic DFS knowledge.
 
 You can manage weekly lineup preferences: ban a player from this week's
 lineups or boost one into more of them (add_lineup_pref kind=ban|boost);
@@ -109,7 +122,12 @@ TOOLS = [
      "description": "Promote a watchlist note into a real usage-note "
                     "adjustment: creates the opportunity multiplier "
                     "(clamped [0.6, 1.4]) and marks the watch note "
-                    "converted. Confirm the mult with the user first.",
+                    "converted. BEFORE proposing a mult, follow the "
+                    "conversion protocol: call system_design topic="
+                    "'conversion_guide', classify the note's archetype, "
+                    "check current depth chart/competition via "
+                    "get_player_form or explain_player, then propose the "
+                    "mult with reasoning and get confirmation.",
      "input_schema": {"type": "object", "properties": {
          "note_id": {"type": "string"},
          "mult": {"type": "number",
@@ -117,6 +135,22 @@ TOOLS = [
          "season": {"type": "integer",
                     "description": "Omit for current season"}},
       "required": ["note_id", "mult"]}},
+    {"name": "system_design",
+     "description": "Curated documentation of how THIS system works — "
+                    "use to answer 'how does the system treat X' and "
+                    "ALWAYS before suggesting a watch-note conversion "
+                    "mult. Topics: overview, notes_and_adjustments, "
+                    "conversion_guide (archetype -> suggested mult "
+                    "ranges + double-count warnings), already_priced.",
+     "input_schema": {"type": "object", "properties": {
+         "topic": {"type": "string"}}, "required": ["topic"]}},
+    {"name": "read_doc",
+     "description": "Full project documents when the curated sections "
+                    "aren't enough: 'model-primer' (beginner walkthrough "
+                    "of models/training), 'claude-md' (project state "
+                    "notes), 'readme' (the full design guide — long).",
+     "input_schema": {"type": "object", "properties": {
+         "name": {"type": "string"}}, "required": ["name"]}},
     {"name": "list_lineup_prefs",
      "description": "List this week's lineup bans and boosts.",
      "input_schema": {"type": "object", "properties": {
@@ -200,6 +234,10 @@ def execute_tool(name: str, args: dict) -> str:
             int(args.get("season") or current_season()))
         return (f"converted: usage note {mid} created "
                 f"(mult applied on next projection run)")
+    if name == "system_design":
+        return system_context.get_section(args.get("topic", "overview"))
+    if name == "read_doc":
+        return system_context.read_doc(args.get("name", ""))
     if name == "find_player":
         df = query_df(
             f"""SELECT DISTINCT player_id AS gsis_id,

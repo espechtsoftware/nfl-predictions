@@ -67,3 +67,22 @@ def test_build_lineups_annotation_hook(monkeypatch):
     players = [{"name": "Note Target"}, {"name": "Nobody"}]
     out = app_main._with_watch_notes(players)
     assert out[0]["watch_note"] == "watch him"
+
+
+def test_system_context_sections_and_docs():
+    from nfl_dfs.app import system_context as sc
+    from nfl_dfs.app.chat import execute_tool
+
+    for topic in ("overview", "notes_and_adjustments", "conversion_guide",
+                  "already_priced"):
+        assert len(sc.get_section(topic)) > 200
+    assert "available:" in sc.get_section("nope")
+    # archetype guidance mentions the double-count distinction
+    guide = sc.get_section("conversion_guide")
+    assert "INJURY REPORTS" in guide and "double-count" in guide.lower()
+    # docs resolve from the repo checkout
+    assert "Plain-English Primer" in sc.read_doc("model-primer")
+    assert "unknown doc" in sc.read_doc("bogus")
+    # chat dispatch
+    assert "OPPORTUNITY" in execute_tool("system_design",
+                                         {"topic": "notes_and_adjustments"})
