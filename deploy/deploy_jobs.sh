@@ -1,67 +1,76 @@
 #!/usr/bin/env bash
-# Build the container and (re)create Cloud Run Jobs + Cloud Scheduler triggers.
-# Cadences follow the guide §11.
+# Cloud Run Jobs + Cloud Scheduler for nfl-dfs — reconciled with LIVE
+# infrastructure 2026-08-01 (the previous version described an aspirational
+# deployment that never matched production; see git history).
 #
-# WARNING (2026-07-31): this script has DRIFTED from the live infrastructure.
-# Live jobs are named ingest-dk / ingest-props / project-slate / ... (not
-# ingest-dk-slate etc.), schedulers are s-* (not trigger-*), the container
-# command is the `nfl-dfs` CLI (not python -m), the service account is the
-# default compute SA, and live cadences are sparser than §11 (e.g. s-dk runs
-# 1x/day at 10:00 CT, not hourly). Running this script as-is would CREATE A
-# DUPLICATE PARALLEL SET of jobs and triggers alongside the live ones —
-# double ingestion. Until it's reconciled, treat it as documentation only and
-# deploy changes with targeted gcloud commands matching the live conventions
-# (see the ingest-cfb block at the bottom for the pattern actually used).
+# Conventions (match every live job):
+#   - container command is the `nfl-dfs` CLI (not python -m)
+#   - schedulers are named s-<short>, POST to the v2 run API, oauth as the
+#     default compute SA, timezone America/Chicago
+#   - jobs pin the image DIGEST at deploy time: after building a new
+#     :latest, re-run the deploy for any job that should pick it up
+#
+# Secrets come from the caller's environment (ODDS_API_KEY, ANTHROPIC_API_KEY).
+# Idempotent: `gcloud run jobs deploy` upserts; scheduler create || update.
 set -euo pipefail
 
-PROJECT="${GCP_PROJECT:-nfl-dfs-prod}"
+PROJECT="${GCP_PROJECT:?set GCP_PROJECT}"
 REGION="${REGION:-us-central1}"
 IMAGE="${REGION}-docker.pkg.dev/${PROJECT}/nfl-dfs/nfl-dfs:latest"
-SA="nfl-dfs-jobs@${PROJECT}.iam.gserviceaccount.com"
+SA="$(gcloud projects describe "$PROJECT" --format='value(projectNumber)')-compute@developer.gserviceaccount.com"
 
-gcloud artifacts repositories create nfl-dfs --repository-format=docker \
-  --location="$REGION" 2>/dev/null || true
-gcloud builds submit --tag "$IMAGE" .
+build() { gcloud builds submit --tag "$IMAGE" .; }
 
-job() {  # name, module, schedule, [args]
-  local name=$1 module=$2 schedule=$3 args=${4:-}
-  gcloud run jobs deploy "$name" \
-    --image "$IMAGE" \
-    --region "$REGION" \
-    --service-account "$SA" \
-    --set-env-vars "GCP_PROJECT=${PROJECT}" \
-    --command python3 --args="-m,${module}${args:+,$args}" \
-    --max-retries 1 --task-timeout 3600
-  gcloud scheduler jobs create http "trigger-${name}" \
-    --location "$REGION" \
-    --schedule "$schedule" \
-    --time-zone "America/Chicago" \
-    --uri "https://${REGION}-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/${PROJECT}/jobs/${name}:run" \
-    --http-method POST \
-    --oauth-service-account-email "$SA" 2>/dev/null || \
-  gcloud scheduler jobs update http "trigger-${name}" \
-    --location "$REGION" --schedule "$schedule" --time-zone "America/Chicago"
+job() {  # name, cli-args (comma-separated), memory, cpu, extra-env (| separated)
+  local name=$1 args=$2 mem=${3:-2Gi} cpu=${4:-1} extra=${5:-}
+  gcloud run jobs deploy "$name" --image "$IMAGE" --region "$REGION" \
+    --command nfl-dfs --args "$args" \
+    --set-env-vars "^|^GCP_PROJECT=${PROJECT}${extra:+|$extra}" \
+    --memory "$mem" --cpu "$cpu" --max-retries 1 --task-timeout 3600
 }
 
-# §11 orchestration schedule (times in CT)
-job ingest-nflverse  nfl_dfs.ingest.nflverse_job   "0 6 * * *"
-job ingest-dk-slate  nfl_dfs.ingest.dk_job         "0 * * * 4,5,6,0"     # hourly Thu-Sun
-job ingest-dk-mon    nfl_dfs.ingest.dk_job         "0 0-4 * * 1"         # Mon 00-04
-job ingest-odds      nfl_dfs.ingest.odds_job       "30 * * * 4,5,6,0"
-job ingest-weather   nfl_dfs.ingest.weather_job    "0 6,12,18 * * 5,6,0" # 3x daily Fri-Sun
-job build-features   nfl_dfs.features.build        "0 7 * * *"
-job run-projections  nfl_dfs.inference.run_projections "0 8 * * 2"       # Tue initial
-job run-projections-wknd nfl_dfs.inference.run_projections "0 * * * 6,0" # hourly Sat-Sun (late swap)
-job retrain-models   nfl_dfs.models.train_job      "0 9 * * 2"           # Tue after new week lands
+sched() {  # scheduler-name, job-name, cron
+  local sname=$1 jname=$2 cron=$3
+  gcloud scheduler jobs create http "$sname" --location "$REGION" \
+    --schedule "$cron" --time-zone "America/Chicago" \
+    --uri "https://run.googleapis.com/v2/projects/${PROJECT}/locations/${REGION}/jobs/${jname}:run" \
+    --http-method POST --oauth-service-account-email "$SA" 2>/dev/null || \
+  gcloud scheduler jobs update http "$sname" --location "$REGION" --schedule "$cron"
+}
 
-# --- ingest-cfb (issue #13 item 7) — deployed 2026-07-31 with the LIVE
-# conventions (see WARNING above), not the job() helper. Collection-only;
-# self-activating: no-ops (one lobby GET) until DK posts CFB draft groups.
-#   gcloud run jobs deploy ingest-cfb \
-#     --image us-central1-docker.pkg.dev/$GCP_PROJECT/nfl-dfs/nfl-dfs:latest \
-#     --region us-central1 --command nfl-dfs --args ingest-cfb \
-#     --set-env-vars GCP_PROJECT=$GCP_PROJECT,INGEST_CFB_ENABLED=1 \
-#     --max-retries 1 --task-timeout 3600
-#   s-cfb:     "0 10,14,18 * * *"  (3x daily CT — salary/pool snapshots)
-#   s-cfb-sat: "0 8-13 * * 6"      (hourly Sat morning through main-slate lock,
-#                                   fill-rate trajectory for the 2027 go/no-go)
+build
+
+# --- Ingestion ---------------------------------------------------------------
+job ingest-nflverse  ingest-nflverse 4Gi 1 "ODDS_API_KEY=${ODDS_API_KEY:-}"
+job ingest-dk        ingest-dk       2Gi 1 "ODDS_API_KEY=${ODDS_API_KEY:-}"
+job ingest-odds      ingest-odds     2Gi 1 "ODDS_API_KEY=${ODDS_API_KEY:-}"
+job ingest-props     ingest-props    2Gi 1 "ODDS_API_KEY=${ODDS_API_KEY:-}"
+job ingest-weather   ingest-weather
+job ingest-cfb       ingest-cfb      2Gi 1 "INGEST_CFB_ENABLED=1"
+# --- Pipeline ----------------------------------------------------------------
+job build-features   build-features
+job train-weekly     train           8Gi 4
+job project-slate    project         4Gi 2 "GAME_SIM_MODE=possession"
+job score-entries    score-entries
+job trends-alerts    trends
+job check-freshness  check-freshness 1Gi 1
+
+# --- Schedules (live cadences; seasonal pauses managed by the README §11
+# runbook: s-nflverse/s-features/s-train/s-project-* are PAUSED in the
+# off-season and resumed ~Aug 24) --------------------------------------------
+sched s-nflverse    ingest-nflverse "0 5 * * 2"
+sched s-features    build-features  "30 6 * * 2"
+sched s-train       train-weekly    "30 7 * * 2"
+sched s-project-tu  project-slate   "30 9 * * 2"
+sched s-project-su  project-slate   "0 6-11 * * 7"
+sched s-dk          ingest-dk       "0 10 * * 3-7"
+sched s-odds        ingest-odds     "0 9,15 * * 3-7"
+sched s-props       ingest-props    "0 11 * * 4"
+sched s-weather     ingest-weather  "0 6,12,18 * * 5,6,0"
+sched s-score       score-entries   "0 8 * * 2"
+sched s-trends      trends-alerts   "15 8 * * 2"
+sched s-freshness   check-freshness "0 8 * * *"
+sched s-cfb         ingest-cfb      "0 10,14,18 * * *"
+sched s-cfb-sat     ingest-cfb      "0 8-13 * * 6"
+
+echo "Deployed. NOTE: replay-* jobs are A/B harness jobs managed ad hoc, not here."
