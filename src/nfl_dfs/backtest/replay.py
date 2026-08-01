@@ -221,7 +221,22 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
         from .field import naive_ownership
 
         frame = frame.reset_index(drop=True)
-        frame["proj_tourney"] = frame.proj - LEVERAGE_PENALTY * naive_ownership(frame)
+        # A/B lever (env LEV_POS_WEIGHTS, e.g. "RB:0.5,QB:0.8,WR:1.2,TE:1.1,
+        # DST:2.0", off by default = uniform): position-weighted chalk fade.
+        # Levitan's 452-top-10 Milly study: ownership-vs-points corr by
+        # position is RB .55 / QB .53 / TE .48 / WR .47 / DST .21 -- the
+        # crowd is nearly RIGHT about RB chalk (fading it is expensive) and
+        # nearly uninformed about DST (fading it is cheap leverage).
+        import os
+
+        lev_w = 1.0
+        spec = os.environ.get("LEV_POS_WEIGHTS", "")
+        if spec:
+            wmap = {k.strip().upper(): float(v) for k, _, v in
+                    (part.partition(":") for part in spec.split(","))}
+            lev_w = frame.pos.str.upper().map(wmap).fillna(1.0).to_numpy()
+        frame["proj_tourney"] = (frame.proj
+                                 - LEVERAGE_PENALTY * lev_w * naive_ownership(frame))
         # A/B lever (env DST_PUNT_BONUS, off by default): 2023-24 Milly
         # winners used a cheap DST as their punt in 29/31 weeks (addendum
         # 7). The bonus tilts OUR objective toward sub-punt-cap DSTs;

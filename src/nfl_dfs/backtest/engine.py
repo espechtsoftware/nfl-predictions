@@ -243,7 +243,12 @@ def run_week(
         lineups = tail_select_lineups(
             slate, pool, draws, tail_line, n_entries, stack, obj,
             candidate_multiple=int(_os.environ.get("CAND_MULT", "2")),
-            n_boom_solves=int(_os.environ.get("N_BOOM", str(n_boom_solves))))
+            n_boom_solves=int(_os.environ.get("N_BOOM", str(n_boom_solves))),
+            # Generator-mix A/B (2026-08-01): 2025 replays show the top-4
+            # game-stack generator won 0/17 weeks from ~6% of the pool
+            # while dark games won 4/17 from ~11% -- N_GAMESTACK=0 +
+            # N_DARKGAME up reallocates toward what actually wins.
+            n_game_stacks=int(_os.environ.get("N_GAMESTACK", "4")))
     else:
         lineups = optimize_many(pool, n_lineups=n_entries, stack=stack,
                                 objective_col=obj)
