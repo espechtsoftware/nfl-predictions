@@ -127,3 +127,13 @@ def test_candidate_features_env_gate(monkeypatch):
     monkeypatch.setenv("EXTRA_FEATURES", "pace_env_l6, not_a_feature")
     active = featureset._active_numeric_features()
     assert active == featureset.NUMERIC_FEATURES + ["pace_env_l6"]
+
+
+def test_drop_features_env(monkeypatch):
+    from nfl_dfs.models import featureset
+
+    monkeypatch.setenv("DROP_FEATURES", "salary, salary_delta_wow")
+    monkeypatch.delenv("EXTRA_FEATURES", raising=False)
+    active = featureset._active_numeric_features()
+    assert "salary" not in active and "salary_delta_wow" not in active
+    assert len(active) == len(featureset.NUMERIC_FEATURES) - 2

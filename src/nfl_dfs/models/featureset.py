@@ -95,11 +95,19 @@ CANDIDATE_FEATURES = (
 
 
 def _active_numeric_features() -> list[str]:
+    """EXTRA_FEATURES adds registered candidates; DROP_FEATURES removes
+    any baseline feature -- the ablation mirror (2026-08-01: built to test
+    whether the pre-A/B-era salary features earn their slots, after the
+    salary backfill's -4.4 on 2025 suggested consensus features eat tails).
+    Both call-time envs; unset = the validated baseline."""
     import os
 
     extra = [f.strip() for f in os.environ.get("EXTRA_FEATURES", "").split(",")
              if f.strip()]
-    return NUMERIC_FEATURES + [f for f in extra if f in CANDIDATE_FEATURES]
+    drop = {f.strip() for f in os.environ.get("DROP_FEATURES", "").split(",")
+            if f.strip()}
+    base = [f for f in NUMERIC_FEATURES if f not in drop]
+    return base + [f for f in extra if f in CANDIDATE_FEATURES]
 
 
 def build_X(df: pd.DataFrame) -> pd.DataFrame:
