@@ -843,3 +843,42 @@ code as tested-twice-negative.
 Also this cycle: deploy/deploy_jobs.sh reconciled with live infra
 (every cadence verified); candidate-feature env harness makes any
 future feature one rebuild + one 35-min run from an exact verdict.
+
+## Addendum 29 (2026-08-01): the LineStar backfill — multi-season era begins
+
+**Data acquired** (ingest/linestar_backfill.py, LineStar public API):
+DK salaries 2022-2024 (45k rows; full 2014-2025 coverage, replayable
+seasons 3 -> 6) and — the larger prize — REAL DK contest ownership,
+2022-2025: 103,556 rows across 1,258 contests. The in-season ownership
+queue's data blocker is gone before the season starts.
+
+**Ownership model** (models/ownership.py): trained on 2022-24, evaluated
+on 7,327 held-out 2025 rows: corr 0.727 vs naive value-rank 0.548 — the
+pre-registered wire-in criterion met. OWN_MODEL=1 wires it (walk-forward
+per replay season) into the chalk fade and the simulated field. First
+exact result: construction unchanged (185.2/5-17 = baseline), median
+finish 16.8% -> 23.4% — a REALISM upgrade, not a performance knob; the
+model field is the truer, harder yardstick for future A/Bs.
+
+**Selection-bias correction**: the salary-enriched training data moved
+the 2025 replay from 189.5/8-17 to 185.1/5-17. Read honestly: a week of
+exact config selection ON 2025 replays partially overfit 2025; richer
+data regressed it. This is the problem the backfill exists to solve —
+verdicts from here on aggregate across seasons.
+
+**First 2023 contest replay ever**: 172.4 mean-best / 2-17 >=194 /
+median 12.8% (the best median of any season). 194 is a 2025 anchor;
+median-finish percentile is the season-portable metric. Backfill
+hardening en route fixed four latent bugs: training-table dupes
+(mid-week trades), 019's rotoguru_gid grouping, the 'Def'-only DST
+loader (actuals now computed from pbp), and a QB-starts merge fan-out.
+
+**Also resolved**: conformal prediction declined (sim p90 coverage
+already 0.912 vs 0.90 target; miscalibrated p10 is unconsumed); RL for
+construction declined (one-shot combinatorial problem, MILP+greedy is
+1-1/e near-optimal; the ownership-aware objective it gestures at is
+OWN_MODEL, tested above); Neo4j declined again (NetworkX at this scale).
+NGS candidates (qb_cpoe_l6, qb_time_to_throw_l6) are materialized and
+one EXTRA_FEATURES command away from their arms — untested, prior
+against per the feature law. /market page live: prop-market
+disagreement + line movement (odds_movement view).
