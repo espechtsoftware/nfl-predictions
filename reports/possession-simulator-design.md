@@ -1,10 +1,11 @@
 # Possession-level game simulator — design doc
 
 Issue #13 item 6 (flagship). Status: **core engine landed, offline-tested,
-env-gated off**. Not yet wired to replace the production game factor —
-that requires fitting real transition probabilities from `nfl_raw.pbp`,
-which needs BigQuery access this worker doesn't have. This doc records the
-design so the next session (with GCP creds) can finish the integration.
+env-gated off; team-level asymmetry added 2026-08-01**. Not yet wired to
+replace the production game factor — that requires fitting real transition
+probabilities from `nfl_raw.pbp`, which needs BigQuery access this worker
+doesn't have. This doc records the design so the next session (with GCP
+creds) can finish the integration.
 
 ## Why
 
@@ -73,10 +74,23 @@ work requiring BigQuery (see "Next steps").
   for `n_sims` draws, returns per-team total points per sim — this is
   the analog of today's lognormal `game_mult`, but derived from summed
   discrete drive outcomes instead of a smooth multiplicative factor.
-- `game_environment_factor(...)`: converts `simulate_game_points` output
-  into a mean-preserving multiplier per team per sim (team points / that
-  team's expected points), shaped so it can be substituted for the
-  `game_mult` array in `simulate.simulate()`.
+- `game_factor_matrix(...)`: converts `simulate_game_points` output into
+  ONE shared mean-preserving multiplier per game per sim (both teams get
+  the same value — combined-game total / its mean), shaped so it can be
+  substituted for the `game_mult` array in `simulate.simulate()`. Used
+  when the caller has no per-player team assignment to key off.
+- `team_game_factors(...)` (added 2026-08-01): the asymmetric version —
+  each team's OWN points / its OWN mean, so the two teams in a game draw
+  independent factors instead of sharing one. `simulate.simulate()` now
+  accepts an optional `team_ids` argument (aligned to `comps`, same shape
+  as `game_ids`) and uses this instead of `game_factor_matrix` whenever
+  it's provided; `backtest/replay.py` and `inference/run_projections.py`
+  both pass `team_ids=<frame>.team`. This is the piece "Next steps" item 2
+  below originally scoped as "wire GAME_SIM_MODE into replay.py" — turned
+  out no A/B-flag-style wiring was needed beyond this, since
+  `simulate.simulate()` already read `GAME_SIM_MODE` from the environment
+  at call time; the gap was purely that the factor it built was
+  team-symmetric.
 - `allocate_drive_usage(...)`: Dirichlet-draw split of a drive's plays
   across a team's players given prior usage shares (`target_share_l4`,
   `carry_share_l4` — the columns `models/featureset.py` already carries).
@@ -118,9 +132,12 @@ not something to run in production until it's validated.
    this is a fitting step, not a point-in-time feature, so it doesn't
    need to go through the leakage-checked feature pipeline; it's closer
    to `models/scoring.py`'s DK-rules constants than to a per-week feature.
-2. Wire `GAME_SIM_MODE=possession` into `backtest/replay.py` behind the
-   same kind of A/B flag as `N_DARKGAME`/`ALT_CEIL`, and run
-   `nfl-dfs replay --season 2025` with it on vs. off.
+2. ~~Wire `GAME_SIM_MODE=possession` into `backtest/replay.py`~~ — done
+   2026-08-01 (see `team_game_factors` above; no extra A/B plumbing was
+   needed, `replay_projections` already threaded `game_ids` through to
+   `simulate.simulate()`, which already read the env var). What's left
+   here is just running it: `nfl-dfs replay --season 2025` with
+   `GAME_SIM_MODE=possession` on vs. off, once GCP access exists.
 3. Validate against the current baseline (correlated lognormal sim + all
    adopted A/Bs): mean best-of-40 184.2, 6/17 weeks >= the min Milly
    line (194), median finish 12.3% (`Addendum 21`). Adopt only if the

@@ -116,7 +116,8 @@ def project(
 
     comps = manual_notes.apply_notes(comps, feats, season, week)
     sim = simulate.simulate(comps, n_sims=n_sims,
-                        game_ids=feats.get("game_id"))
+                        game_ids=feats.get("game_id"),
+                        team_ids=feats.get("team"))
     preds = calibration.apply_widen(
         sim.summary, feats.get("position", feats.get("dk_position"))
     )

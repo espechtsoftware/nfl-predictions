@@ -53,13 +53,23 @@ def simulate(
     seed: int | None = None,
     keep_draws: bool = False,
     game_ids: pd.Series | None = None,
+    team_ids: pd.Series | None = None,
 ) -> SimResult:
     """game_ids (aligned to comps) enables correlated game environments:
     one shared lognormal factor per (game, sim) scales every player's
     opportunity in that game, so shootouts lift whole games together.
     Milly winners take 50-80% of their points from one game — without this
     the simulator prices such lineups as near-impossible. Mean-preserving
-    (E[factor]=1), so projections are unchanged; only the joint tail moves."""
+    (E[factor]=1), so projections are unchanged; only the joint tail moves.
+
+    team_ids (aligned to comps, optional): only consulted when
+    GAME_SIM_MODE=possession. Lets the two teams in a game draw DIFFERENT
+    mean-preserving factors (game_sim.team_game_factors) instead of one
+    shared value — the game-script asymmetry (leading team runs more,
+    trailing team's DST/receivers skew differently) that's the possession
+    sim's whole motivation over the shared lognormal factor. Without
+    team_ids, possession mode falls back to one shared factor per game
+    (game_sim.game_factor_matrix), same granularity as the lognormal draw."""
     rng = np.random.default_rng(seed)
     n = len(comps)
 
@@ -73,11 +83,25 @@ def simulate(
         # transition probabilities are a placeholder, not yet fit from pbp.
         if os.environ.get("GAME_SIM_MODE", "lognormal") == "possession":
             from . import game_sim
-            g = game_sim.game_factor_matrix(rng, len(uniq), n_sims)
+            if team_ids is not None:
+                team_series = pd.Series(team_ids).fillna("_none").reset_index(drop=True)
+                game_series = pd.Series(codes)
+                # Row order within each game group is player order, not a
+                # kickoff coin flip -- "first" just needs to be a stable,
+                # consistent pick per game so both of a game's teams land
+                # on different slots; which team is slot 0 vs 1 doesn't
+                # matter since factors_a/factors_b are symmetric in intent.
+                first_team = team_series.groupby(game_series).transform("first")
+                slot = (team_series != first_team).astype(int).to_numpy()
+                factors_a, factors_b = game_sim.team_game_factors(rng, len(uniq), n_sims)
+                game_mult = np.where(slot[:, None] == 0, factors_a[codes], factors_b[codes])
+            else:
+                g = game_sim.game_factor_matrix(rng, len(uniq), n_sims)
+                game_mult = g[codes]
         else:
             g = rng.lognormal(-GAME_FACTOR_SIGMA ** 2 / 2, GAME_FACTOR_SIGMA,
                               (len(uniq), n_sims))
-        game_mult = g[codes]
+            game_mult = g[codes]
 
     def col(name: str) -> np.ndarray:
         return np.nan_to_num(comps[name].to_numpy(dtype=float))[:, None]

@@ -74,6 +74,25 @@ def test_game_factor_matrix_dispersion_sane():
     assert (stds > 0.15).all() and (stds < 0.45).all()
 
 
+def test_team_game_factors_shape_and_each_team_mean_preserving():
+    rng = np.random.default_rng(10)
+    factors_a, factors_b = game_sim.team_game_factors(rng, n_games=4, n_sims=10_000)
+    assert factors_a.shape == factors_b.shape == (4, 10_000)
+    assert (factors_a >= 0).all() and (factors_b >= 0).all()
+    np.testing.assert_allclose(factors_a.mean(axis=1), 1.0, atol=0.02)
+    np.testing.assert_allclose(factors_b.mean(axis=1), 1.0, atol=0.02)
+
+
+def test_team_game_factors_asymmetric_not_identical_to_shared_factor():
+    """The whole point of team_game_factors over game_factor_matrix: the
+    two teams in a game should draw DIFFERENT per-sim values (one team's
+    blowout doesn't imply the other team's), not the same combined-total
+    factor both teams would get from game_factor_matrix."""
+    rng = np.random.default_rng(11)
+    factors_a, factors_b = game_sim.team_game_factors(rng, n_games=3, n_sims=5000)
+    assert not np.allclose(factors_a, factors_b)
+
+
 def test_allocate_drive_usage_sums_to_units_single_draw():
     rng = np.random.default_rng(4)
     shares = np.array([0.5, 0.3, 0.2])
@@ -137,3 +156,73 @@ def test_simulate_possession_mode_runs_and_differs_from_lognormal(small_panel, m
     assert (possession.summary.proj_points >= 0).all()
     # different engines, same seed -> shouldn't coincidentally match exactly
     assert not possession.summary.proj_points.equals(baseline.summary.proj_points)
+
+
+def _two_team_comps() -> pd.DataFrame:
+    """Two identical player rows in the same game, on different teams --
+    isolates the game-factor multiplier's effect from any per-player
+    difference in the underlying component predictions."""
+    row = {
+        "targets": 8.0, "catch_rate": 0.65, "ypr": 11.0, "rec_tds": 0.4,
+        "carries": 3.0, "ypc": 4.2, "rush_tds": 0.1,
+        "pass_attempts": 0.0, "ypa": 0.0, "pass_tds": 0.0, "interceptions": 0.0,
+    }
+    return pd.DataFrame([row, row])
+
+
+def test_simulate_possession_mode_without_team_ids_gives_identical_players_close_points(monkeypatch):
+    """No team_ids -> falls back to one shared factor per game (the
+    pre-team_ids behavior), so two identical-mean rows in the same game
+    should land on nearly identical projections -- 'nearly' because each
+    row still draws its own independent Poisson/Binomial/Gamma samples on
+    top of the shared factor, so exact equality isn't expected even with
+    a shared multiplier (contrast with the with-team_ids test below,
+    where the *means* themselves are expected to diverge)."""
+    monkeypatch.setenv("GAME_SIM_MODE", "possession")
+    comps = _two_team_comps()
+    game_ids = pd.Series(["g1", "g1"])
+
+    res = simulate.simulate(comps, n_sims=20_000, seed=1, game_ids=game_ids)
+
+    a, b = res.summary.proj_points.iloc[0], res.summary.proj_points.iloc[1]
+    assert a == pytest.approx(b, rel=0.03)
+
+
+def test_simulate_possession_mode_with_team_ids_lets_teammates_in_a_game_diverge(monkeypatch):
+    """With team_ids, the two teams in a game draw independent factors
+    (game_sim.team_game_factors), so two identical-comps players on
+    DIFFERENT teams in the same game should land on different
+    projections -- the game-script asymmetry this increment adds."""
+    monkeypatch.setenv("GAME_SIM_MODE", "possession")
+    comps = _two_team_comps()
+    game_ids = pd.Series(["g1", "g1"])
+    team_ids = pd.Series(["TA", "TB"])
+
+    res = simulate.simulate(comps, n_sims=3000, seed=1, game_ids=game_ids, team_ids=team_ids)
+
+    a, b = res.summary.proj_points.iloc[0], res.summary.proj_points.iloc[1]
+    assert a != pytest.approx(b)
+
+
+def test_simulate_possession_mode_team_ids_still_mean_preserving(monkeypatch, small_panel):
+    """Threading team_ids through must not bias the TOTAL projected points
+    across the slate -- only the joint tail should move, same contract as
+    game_ids alone. Compared in aggregate (not per-row) because the
+    per-game multiplier is shared across every player in that game, so a
+    single row's mean carries the full sampling noise of one game-level
+    draw; summing across many games averages that noise out."""
+    cm = components.train(small_panel, target_season=2022, num_boost_round=60)
+    va = small_panel[small_panel.season == 2022].head(40)
+    comps = cm.predict_components(va)
+
+    monkeypatch.delenv("GAME_SIM_MODE", raising=False)
+    baseline = simulate.simulate(comps, n_sims=6000, seed=3, game_ids=va.game_id,
+                                  team_ids=va.team)
+
+    monkeypatch.setenv("GAME_SIM_MODE", "possession")
+    possession = simulate.simulate(comps, n_sims=6000, seed=3, game_ids=va.game_id,
+                                    team_ids=va.team)
+
+    assert possession.summary.proj_points.sum() == pytest.approx(
+        baseline.summary.proj_points.sum(), rel=0.08
+    )
