@@ -952,3 +952,31 @@ adopted (qb_cpoe_l6). Every queued experiment in the project's history
 now has a recorded verdict. The shipping baseline is the Addendum-32
 CPOE panel: 23/101 weeks >= 194, median-finish avg 14.3%, live on
 project-slate/train-weekly/app.
+
+## Addendum 34 (2026-08-01): column-order sensitivity discovered; dollars selection declined; canonical ordering adopted
+
+The night's three verdicts:
+1. **Column-order sensitivity.** A "determinism anomaly" (2019 baseline
+   shifting 186.9 -> 181.8 across images with identical feature sets)
+   was isolated by control run: LightGBM split tie-breaking depends on
+   feature COLUMN ORDER. EXTRA_FEATURES arms append candidates last;
+   adoption inserts them mid-list -- same features, different order,
+   different (equally valid) model, ~+/-5 mean-best of order luck.
+   Consequence: single-run A/Bs were exact only up to ordering; the
+   panel discipline absorbs this, single-season adoptions don't. FIX:
+   build_X now sorts active features alphabetically -- candidate arms
+   and post-adoption baselines train byte-identical models forever.
+   The sort is itself one final re-ordering, so the six-season harvest
+   (next) defines the definitive shipping baseline.
+2. **SELECT_OBJ=dollars declined.** Expected-dollars selection lost on
+   every metric INCLUDING ROI (tails 9 vs 21 across the panel). Root
+   cause recorded: a 1,000-lineup field resolves ranks to 1e-3 of
+   field, but the GPP curve concentrates payouts at 1e-5 -- the
+   estimator cannot see first place. Fix path: tail-resolved field
+   estimation (importance-sample the top of the field). Code + gate
+   remain.
+3. **OWN_MODEL yardstick: available, deferred.** Fallback verified
+   clean (walk-forward: 2019-22 have no prior ownership data and
+   reproduce the naive field exactly). Standard yardstick stays naive
+   for ledger continuity; the model field becomes natural in-season
+   when weekly refits give it fresh data.

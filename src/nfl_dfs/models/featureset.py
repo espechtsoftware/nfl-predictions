@@ -114,8 +114,16 @@ def _active_numeric_features() -> list[str]:
 
 
 def build_X(df: pd.DataFrame) -> pd.DataFrame:
+    # SORTED columns (2026-08-01, Addendum 34): LightGBM's split
+    # tie-breaking depends on column ORDER, so the same feature set in a
+    # different order trains a different (equally valid) model -- worth
+    # ~+/-5 mean-best of "order luck". Discovered when adopting
+    # qb_cpoe_l6 (EXTRA_FEATURES appends last; adoption inserted
+    # mid-list) shifted deterministic replays. Canonical alphabetical
+    # order makes candidate arms and post-adoption baselines train
+    # IDENTICAL models, restoring exact A/B equivalence forever.
     X = pd.DataFrame(index=df.index)
-    for c in _active_numeric_features():
+    for c in sorted(_active_numeric_features()):
         if c in df.columns:
             X[c] = pd.to_numeric(df[c], errors="coerce")
         else:
