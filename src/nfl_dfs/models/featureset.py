@@ -59,6 +59,9 @@ NUMERIC_FEATURES = [
     # sourced) and script-stripped neutral pass rate.
     "ref_flags_prior",
     "neutral_pass_rate_l6",
+    # OL injuries (2026-08-01): count of T/G/C ruled Out on the week's
+    # report -- pass-protection losses reprice every skill player.
+    "team_ol_out",
     # Next-man-up: opportunity vacated by teammates ruled Out this week
     "team_vacated_target_share",
     "team_vacated_carry_share",

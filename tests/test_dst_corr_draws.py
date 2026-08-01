@@ -1,0 +1,43 @@
+"""DST_CORR_DRAWS: anti-correlated, mean-preserving DST draws (A/B gate)."""
+
+import numpy as np
+import pandas as pd
+
+from nfl_dfs.backtest.engine import _row_draws
+
+
+def _slate_and_draws(n_sims=4000, seed=0):
+    rng = np.random.default_rng(seed)
+    slate = pd.DataFrame({
+        "team": ["AAA", "AAA", "BBB", "BBB"],
+        "opp":  ["BBB", "BBB", "AAA", "AAA"],
+        "proj": [15.0, 12.0, 14.0, 6.0],
+        "draw_idx": [0, 1, 2, -1],  # last row is the DST (team BBB vs AAA)
+    })
+    draws = rng.gamma(4.0, 3.5, (3, n_sims))
+    return slate, draws
+
+
+def test_gate_off_dst_is_constant(monkeypatch):
+    monkeypatch.delenv("DST_CORR_DRAWS", raising=False)
+    slate, draws = _slate_and_draws()
+    rd = _row_draws(slate, draws)
+    assert np.allclose(rd[3], 6.0)
+
+
+def test_gate_on_dst_anticorrelated_and_mean_preserved(monkeypatch):
+    monkeypatch.setenv("DST_CORR_DRAWS", "1")
+    slate, draws = _slate_and_draws()
+    rd = _row_draws(slate, draws)
+    opp_total = rd[0] + rd[1]  # AAA offense vs the BBB DST
+    corr = np.corrcoef(rd[3], opp_total)[0, 1]
+    assert corr < -0.5
+    assert rd[3].mean() == np.float32(6.0) or abs(rd[3].mean() - 6.0) < 0.1
+    assert rd[3].std() > 0.5  # DST actually has variance now
+
+
+def test_gate_on_skill_rows_untouched(monkeypatch):
+    monkeypatch.setenv("DST_CORR_DRAWS", "1")
+    slate, draws = _slate_and_draws()
+    rd = _row_draws(slate, draws)
+    np.testing.assert_allclose(rd[0], draws[0], rtol=1e-6)

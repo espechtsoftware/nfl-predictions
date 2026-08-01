@@ -79,12 +79,35 @@ def leakage_guard(slate: pd.DataFrame) -> None:
 
 def _row_draws(slate: pd.DataFrame, draws: np.ndarray) -> np.ndarray:
     """Per-slate-row draw matrix, aligned to slate row order. Rows without a
-    draw (DST, draw_idx == -1) get their static projection in every sim."""
+    draw (DST, draw_idx == -1) get their static projection in every sim.
+
+    DST_CORR_DRAWS=1 (A/B, 2026-08-01): constants mean the tail selector
+    can never prefer a DST for its boom worlds, even though DST scoring
+    anti-correlates with the opposing offense (turnovers, points-allowed
+    brackets) and 7/17 winning 2025 Milly punts were DSTs (Addendum 24).
+    With the gate on, each DST row gets mean-preserving draws scaled by
+    the INVERSE of its opponent's simulated offense total: mult =
+    clip(2 - opp_total/mean, 0.3, 1.7), renormalized to mean 1."""
+    import os as _os
+
     di = slate["draw_idx"].to_numpy(dtype=int)
     out = np.empty((len(slate), draws.shape[1]), dtype=np.float32)
     has = di >= 0
     out[has] = draws[di[has]]
     out[~has] = slate["proj"].to_numpy(dtype=float)[~has, None]
+    if _os.environ.get("DST_CORR_DRAWS") and (~has).any() and "opp" in slate.columns:
+        teams = slate["team"].to_numpy()
+        opps = slate["opp"].to_numpy()
+        for i in np.flatnonzero(~has):
+            rows = np.flatnonzero(has & (teams == opps[i]))
+            if not len(rows):
+                continue
+            tot = draws[di[rows]].sum(axis=0)
+            m = tot.mean()
+            if m <= 0:
+                continue
+            mult = np.clip(2.0 - tot / m, 0.3, 1.7)
+            out[i] = out[i] * (mult / mult.mean())
     return out
 
 
