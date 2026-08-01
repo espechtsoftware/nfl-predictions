@@ -920,3 +920,13 @@ tails, not consensus dampening them. The 2025-only enrichment regression
 was era/data-shift noise, not a salary indictment. Methodological
 exhibit: per-season deltas ranged +1.4 to -11.5 -- any single season
 could have "proven" either conclusion. Panels or nothing.
+
+Post-script to Addendum 31 — the training-adjustments question, closed:
+(1) salary features: panel-validated above. (2) Recency weighting:
+already implemented (models/weights.py, 3-season half-life exponential
+decay, season-level only); tuning the half-life is a refused
+hyperparameter sweep. (3) In-season weekly retraining (current-season
+weeks entering the training set): queued, requires per-week retrain
+replays (~17x cost) to validate. (4) Hyperparameters, p10 floor
+calibration, further features: refused with reasons on record. The
+fitting layer is sound as configured.
