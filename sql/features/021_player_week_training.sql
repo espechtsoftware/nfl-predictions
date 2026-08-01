@@ -140,4 +140,11 @@ WHERE u.position IN ('QB', 'RB', 'WR', 'TE')
   AND u.games_played_prior >= 1
   -- Upcoming-week synthetic rows (014) are inference-only; the actuals
   -- inner join already drops them, this states the intent.
-  AND NOT u.is_upcoming;
+  AND NOT u.is_upcoming
+-- Mid-week team changes (trades/waivers: McCaffrey 2022 wk7, Bennett
+-- 2017 wk10, ...) give a player two upstream team rows and therefore two
+-- training rows (2026-08-01 audit: 9 dupes in 52,422). Keep one,
+-- deterministically.
+QUALIFY ROW_NUMBER() OVER (
+  PARTITION BY u.gsis_id, u.season, u.week ORDER BY u.team
+) = 1;

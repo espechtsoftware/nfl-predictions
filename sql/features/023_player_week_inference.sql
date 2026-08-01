@@ -137,4 +137,8 @@ LEFT JOIN `${features}.defense_week_blitz` bl
 LEFT JOIN `${features}.team_week_target_concentration` tc
   ON tc.team = u.team AND tc.season = u.season AND tc.week = u.week
 WHERE u.is_upcoming
-  AND COALESCE(u.position, ro.position) IN ('QB', 'RB', 'WR', 'TE');
+  AND COALESCE(u.position, ro.position) IN ('QB', 'RB', 'WR', 'TE')
+-- Same mid-week team-change dedup as 021 (audit 2026-08-01).
+QUALIFY ROW_NUMBER() OVER (
+  PARTITION BY u.gsis_id, u.season, u.week ORDER BY u.team
+) = 1;
