@@ -232,7 +232,6 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
         # position is RB .55 / QB .53 / TE .48 / WR .47 / DST .21 -- the
         # crowd is nearly RIGHT about RB chalk (fading it is expensive) and
         # nearly uninformed about DST (fading it is cheap leverage).
-        import os
 
         lev_w = 1.0
         spec = os.environ.get("LEV_POS_WEIGHTS", "")
@@ -259,7 +258,6 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
         # winners used a cheap DST as their punt in 29/31 weeks (addendum
         # 7). The bonus tilts OUR objective toward sub-punt-cap DSTs;
         # the field's proj is untouched.
-        import os
 
         dst_bonus = float(os.environ.get("DST_PUNT_BONUS", "0") or 0)
         if dst_bonus:
