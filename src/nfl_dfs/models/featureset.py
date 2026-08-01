@@ -48,10 +48,12 @@ NUMERIC_FEATURES = [
     "games_played_prior",
     "is_cold_start",
     "depth_rank",
-    # Depth-rank transition (Addendum 24): positive = promoted vs last
-    # week's chart -- newly-promoted min-priced starters are a dominant
-    # winning-punt archetype static depth_rank can't see.
-    "depth_rank_delta",
+    # depth_rank_delta (Addendum 24) was REMOVED from the model inputs
+    # 2026-08-01: the replay pipeline turned out to be fully
+    # deterministic (3 identical confirmation runs), which retroactively
+    # converts its "neutral within noise" replay result into a real
+    # -4.6 mean-best cost (188.4 -> 183.8). The SQL column remains in
+    # the feature tables for analysis; it just doesn't feed the model.
     # Game environment extras (2026-08-01): referee-crew flag tendency
     # (strictly-prior; NULL live until midweek crew assignments are
     # sourced) and script-stripped neutral pass rate.
