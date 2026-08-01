@@ -210,9 +210,10 @@ def game_factor_matrix(
     """Drop-in replacement for `simulate.py`'s lognormal `game_mult` draw:
     shape (n_games, n_sims), one shared multiplier per game per sim (both
     teams in a game get the same value -- the same granularity the
-    lognormal factor has today). Team-level asymmetry -- the main
-    motivating benefit of a possession sim, see the design doc -- needs
-    team_ids threaded through `simulate.simulate()`, which is future work.
+    lognormal factor has today). Used when the caller has no per-player
+    team assignment to key an asymmetric factor off of; see
+    `team_game_factors` for the team-level version, which is the main
+    motivating benefit of a possession sim (see the design doc).
 
     Mean-preserving empirically over the `n_sims` batch (E[factor] == 1 up
     to sampling noise); use `n_sims` in the thousands, matching
@@ -225,6 +226,36 @@ def game_factor_matrix(
         mean = total.mean()
         factors[i] = total / mean if mean > 0 else 1.0
     return factors
+
+
+def team_game_factors(
+    rng: np.random.Generator,
+    n_games: int,
+    n_sims: int,
+    mean_drives_per_team: float = 11.0,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Per-TEAM, mean-preserving multipliers -- the asymmetric counterpart
+    to `game_factor_matrix`. Each team's factor is that team's own points
+    divided by that team's own mean, so a blowout shows up as one team's
+    factor rising while the other's falls in the same sim, instead of
+    both teams sharing one combined-total factor the way
+    `game_factor_matrix` (and the lognormal draw it replaces) does. This
+    is the game-script asymmetry the design doc's "Why" section cites as
+    the possession sim's main motivation over the shared lognormal factor.
+
+    Returns (factors_a, factors_b), each shape (n_games, n_sims) and
+    individually mean-preserving (E[factor] == 1 per team, up to sampling
+    noise). `simulate.simulate()` assigns factors_a/factors_b to players
+    by which of the two teams in their game they're on.
+    """
+    factors_a = np.empty((n_games, n_sims))
+    factors_b = np.empty((n_games, n_sims))
+    for i in range(n_games):
+        pts_a, pts_b = simulate_game_points(rng, n_sims, mean_drives_per_team)
+        mean_a, mean_b = pts_a.mean(), pts_b.mean()
+        factors_a[i] = pts_a / mean_a if mean_a > 0 else 1.0
+        factors_b[i] = pts_b / mean_b if mean_b > 0 else 1.0
+    return factors_a, factors_b
 
 
 DIRICHLET_CONCENTRATION_SCALE = 20.0
