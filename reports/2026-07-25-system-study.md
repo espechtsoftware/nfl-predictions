@@ -930,3 +930,15 @@ weeks entering the training set): queued, requires per-week retrain
 replays (~17x cost) to validate. (4) Hyperparameters, p10 floor
 calibration, further features: refused with reasons on record. The
 fitting layer is sound as configured.
+
+## Addendum 32 (2026-08-01): qb_cpoe_l6 — the first feature to pass, adopted
+
+Six-season panel, EXTRA_FEATURES=qb_cpoe_l6 vs the Addendum-30 baseline:
+tail weeks 18 -> 23 of 101 (+28% on the paying metric; up in 4 seasons,
+down only in 2023), mean-best avg flat (178.5 -> 178.3), median avg flat.
+First survivor of the feature law after five failures -- and it came from
+the audit's one unused raw table (ngs_passing). ADOPTED into
+NUMERIC_FEATURES; by determinism the CPOE panel IS the new baseline
+panel (2019: 186.9/6-16/10.8 · 2021: 177.1/5/12.5 · 2022: 174.3/3/15.8 ·
+2023: 167.8/1/15.9 · 2024: 175.5/1/16.3 · 2025: 188.1/7/15.1).
+qb_time_to_throw_l6 panel launched next on this new baseline.

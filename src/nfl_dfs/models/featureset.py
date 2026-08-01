@@ -59,6 +59,10 @@ NUMERIC_FEATURES = [
     # sourced) and script-stripped neutral pass rate.
     "ref_flags_prior",
     "neutral_pass_rate_l6",
+    # qb_cpoe_l6 ADOPTED 2026-08-01 (Addendum 32): the first feature to
+    # pass a six-season panel -- tail weeks 18 -> 23 of 101 at flat
+    # mean/median. Found via the audit (ngs_passing was fully unused).
+    "qb_cpoe_l6",
     # team_ol_out was REMOVED 2026-08-01 same day it was added: exact
     # replay cost -8.7 mean-best / -4 tail weeks (180.8/4-17 vs
     # 189.5/8-17). Plausible mechanism, bad feature -- likely confounded
@@ -89,7 +93,6 @@ CANDIDATE_FEATURES = (
     "pace_env_l6",                # own off plays + opp def plays faced (l6)
     "opp_blitz_rate_l6",          # opponent defense blitz rate (FTN, 2022+)
     "team_top2_target_share_l6",  # target concentration -> stack strength
-    "qb_cpoe_l6",                 # NGS completion % above expectation (2016+)
     "qb_time_to_throw_l6",        # NGS avg time to throw (2016+)
 )
 
