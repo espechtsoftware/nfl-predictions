@@ -91,6 +91,7 @@ def run(full_refresh: bool = False) -> None:
         _load(nfl.load_depth_charts(snap_dc), "depth_charts_snapshots")
     _load(nfl.load_rosters_weekly(seasons), "rosters_weekly", replace_seasons=inc)
     _load(nfl.load_schedules(), "schedules")
+    _load(nfl.load_officials(), "officials")  # full snapshot, 2015+; refs feature
     _load(nfl.load_ff_playerids(), "player_ids")
     _load(nfl.load_draft_picks(), "draft_picks")
     _load(nfl.load_combine(), "combine")

@@ -50,6 +50,13 @@ SELECT
   -- Role (depth chart + draft capital; cold-start priors read these)
   ro.depth_rank, ro.depth_rank_delta, ro.is_rookie, ro.draft_round,
 
+  -- Game environment extras (2026-08-01): referee-crew flag tendency
+  -- (strictly-prior 20-game window; NULL live until a midweek crew
+  -- source exists) and neutral-situation pass rate (script-stripped
+  -- schematic identity, l6 strictly prior).
+  IF(rt.ref_prior_games >= 5, rt.ref_flags_prior, NULL) AS ref_flags_prior,
+  np.neutral_pass_rate_l6,
+
   -- Opportunity vacated by teammates ruled Out this week (own share
   -- excluded): the point-in-time next-man-up signal.
   GREATEST(
@@ -111,6 +118,9 @@ LEFT JOIN `${features}.team_week_vacated` v
   ON v.team = u.team AND v.season = u.season AND v.week = u.week
 LEFT JOIN `${features}.player_week_advanced` adv
   ON adv.gsis_id = u.gsis_id AND adv.season = u.season AND adv.week = u.week
+LEFT JOIN `${features}.referee_game_tendency` rt ON rt.game_id = s.game_id
+LEFT JOIN `${features}.team_week_neutral_pass` np
+  ON np.team = u.team AND np.season = u.season AND np.week = u.week
 WHERE u.position IN ('QB', 'RB', 'WR', 'TE')
   AND u.games_played_prior >= 1
   -- Upcoming-week synthetic rows (014) are inference-only; the actuals

@@ -65,6 +65,12 @@ SELECT
   -- Role (depth chart + draft capital; cold-start priors read these)
   ro.depth_rank, ro.depth_rank_delta, ro.is_rookie, ro.draft_round,
 
+  -- Game environment extras, same definitions as the training table.
+  -- ref_flags_prior is NULL for upcoming games (officials data is
+  -- post-game) until a midweek crew-assignment source exists.
+  IF(rt.ref_prior_games >= 5, rt.ref_flags_prior, NULL) AS ref_flags_prior,
+  np.neutral_pass_rate_l6,
+
   -- Opportunity vacated by teammates ruled Out this week (own share
   -- excluded), same definition as the training table.
   GREATEST(
@@ -112,5 +118,8 @@ LEFT JOIN `${features}.team_week_vacated` v
   ON v.team = u.team AND v.season = u.season AND v.week = u.week
 LEFT JOIN `${features}.player_week_advanced` adv
   ON adv.gsis_id = u.gsis_id AND adv.season = u.season AND adv.week = u.week
+LEFT JOIN `${features}.referee_game_tendency` rt ON rt.game_id = s.game_id
+LEFT JOIN `${features}.team_week_neutral_pass` np
+  ON np.team = u.team AND np.season = u.season AND np.week = u.week
 WHERE u.is_upcoming
   AND COALESCE(u.position, ro.position) IN ('QB', 'RB', 'WR', 'TE');

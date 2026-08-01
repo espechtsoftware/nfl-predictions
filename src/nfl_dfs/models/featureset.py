@@ -52,6 +52,11 @@ NUMERIC_FEATURES = [
     # week's chart -- newly-promoted min-priced starters are a dominant
     # winning-punt archetype static depth_rank can't see.
     "depth_rank_delta",
+    # Game environment extras (2026-08-01): referee-crew flag tendency
+    # (strictly-prior; NULL live until midweek crew assignments are
+    # sourced) and script-stripped neutral pass rate.
+    "ref_flags_prior",
+    "neutral_pass_rate_l6",
     # Next-man-up: opportunity vacated by teammates ruled Out this week
     "team_vacated_target_share",
     "team_vacated_carry_share",
