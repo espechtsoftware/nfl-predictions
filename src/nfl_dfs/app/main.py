@@ -163,7 +163,8 @@ inp.addEventListener('keydown',e=>{if(e.key==='Enter')send();});
 _NAV_HTML = """
 <div class='topbar'><img src='/static/logo.png' class='logo' alt=''><div class='brand'>Fingerblasters&#39; <span>Brain</span></div>
 <a href='/'>Season</a><a href='/lineups/view'>Lineups</a>
-<a href='/defense'>Defense</a><a href='/market'>Market</a><a href='/docs'>API</a>
+<a href='/defense'>Defense</a><a href='/market'>Market</a>
+<a href='/watchlist'>Watchlist</a><a href='/docs'>API</a>
 <button class='guide' onclick="document.getElementById('modal').style.display=
 'block';document.getElementById('modalbg').style.display='block'">
 &#128197; Weekly guide</button>
@@ -354,8 +355,11 @@ async function build(){
       const rows=named.map(({slot,p,cpt})=>{
         const sal=cpt?Math.round(p.salary*1.5):p.salary,
               pr=cpt?1.5*p.proj:+p.proj;
-        return `<tr><td><span class='slot'>${slot}</span></td>`+
-        `<td style='text-align:left'>${p.name}</td>`+
+        const wn=p.watch_note?` <span title="${String(p.watch_note)
+          .replace(/"/g,'&quot;')}" style='cursor:help'>&#128221;</span>`:'';
+        return `<tr${p.watch_note?` title="${String(p.watch_note)
+          .replace(/"/g,'&quot;')}"`:''}><td><span class='slot'>${slot}</span></td>`+
+        `<td style='text-align:left'>${p.name}${wn}</td>`+
         `<td>${p.team}${p.opp?' @ '+p.opp:''}</td>`+
         `<td>$${sal.toLocaleString()}</td>`+
         `<td>${pr.toFixed(1)}</td></tr>`;}).join('');
@@ -680,6 +684,96 @@ document.getElementById('mgo').onclick=async()=>{
 };
 </script>"""
     return f"<html><head><title>Market</title><style>{_PAGE_CSS}</style></head><body>{_NAV_HTML}{body}</body></html>"
+
+
+def _with_watch_notes(players: list[dict]) -> list[dict]:
+    """Attach active watch notes to lineup players (fail-safe passthrough)."""
+    from .. import watchlist
+
+    watchlist.annotate_players(players)
+    return players
+
+
+@app.get("/api/watchlist")
+def api_watchlist() -> list[dict]:
+    from .. import watchlist
+
+    df = watchlist.list_watch()
+    if df.empty:
+        return []
+    df = df.copy()
+    for c in ("created_at", "converted_at"):
+        df[c] = df[c].astype(str).replace("NaT", "")
+    return df.fillna("").to_dict("records")
+
+
+@app.post("/api/watchlist/{note_id}/convert")
+def api_watchlist_convert(note_id: str, mult: float, season: int | None = None) -> dict:
+    from .. import watchlist
+    from ..config import current_season
+
+    try:
+        mid = watchlist.convert_watch(note_id, mult, season or current_season())
+    except ValueError as exc:
+        raise HTTPException(422, str(exc))
+    return {"converted": note_id, "manual_note_id": mid}
+
+
+@app.delete("/api/watchlist/{note_id}")
+def api_watchlist_delete(note_id: str) -> dict:
+    from .. import watchlist
+
+    return {"deleted": watchlist.delete_watch(note_id)}
+
+
+@app.get("/watchlist", response_class=HTMLResponse)
+def watchlist_page() -> str:
+    """Player watch notes: free-text intel, lifecycle view, convert/delete.
+    Notes change nothing until converted into a usage-note adjustment."""
+    body = """
+<main><h1>Watchlist</h1>
+<small>Free-text player notes from the chat ("add a note: ..."). A note
+changes <b>nothing</b> until you convert it into a usage-note adjustment
+(opportunity multiplier, decays by week 6). Notes also appear as &#128221;
+on any generated lineup containing the player.</small>
+<div id='wl' style='margin-top:1rem'><small>Loading&hellip;</small></div>
+</main>
+<script>
+async function load(){
+  const j=await (await fetch('/api/watchlist')).json();
+  const el=document.getElementById('wl');
+  if(!j.length){el.innerHTML='<small>No notes yet. Add one in the chat on the Season page.</small>';return;}
+  let h='<table><tr><th>Player</th><th>Note</th><th>Added</th><th>Status</th><th></th></tr>';
+  for(const n of j){
+    const st=n.status==='converted'
+      ?`<span style="color:#0a7a3d;font-weight:700">converted</span><br><small>mult ${n.converted_mult} &middot; ${String(n.converted_at).slice(0,10)}</small>`
+      :`<span style="color:#b26a00;font-weight:700">active</span>`;
+    const act=n.status==='converted'?''
+      :`<input id='m_${n.note_id}' size='4' placeholder='1.10'>
+        <button onclick="conv('${n.note_id}')">Convert</button>
+        <button onclick="del('${n.note_id}')" style='color:#b3261e'>Delete</button>`;
+    h+=`<tr><td style='text-align:left'><b>${n.display_name}</b></td>
+      <td style='text-align:left;max-width:28rem'>${n.note}</td>
+      <td>${String(n.created_at).slice(0,10)}</td><td>${st}</td>
+      <td style='text-align:left'>${act}</td></tr>`;
+  }
+  el.innerHTML=h+'</table>';
+}
+async function conv(id){
+  const m=document.getElementById('m_'+id).value;
+  if(!m){alert('Enter a multiplier, e.g. 1.10');return;}
+  const r=await fetch(`/api/watchlist/${id}/convert?mult=${m}`,{method:'POST'});
+  if(!r.ok){alert((await r.json()).detail||r.status);return;}
+  load();
+}
+async function del(id){
+  if(!confirm('Delete this note?'))return;
+  await fetch(`/api/watchlist/${id}`,{method:'DELETE'});
+  load();
+}
+load();
+</script>"""
+    return f"<html><head><title>Watchlist</title><style>{_PAGE_CSS}</style></head><body>{_NAV_HTML}{body}</body></html>"
 
 
 @app.get("/api/line-movement")
@@ -1278,7 +1372,7 @@ def build_lineups(
                 "rank": i + 1,
                 "confidence": r["confidence"],  # P(total >= tail_line), %
                 "proj_mean": r["proj_mean"],
-                "players": r["lineup"].slot_order(),
+                "players": _with_watch_notes(r["lineup"].slot_order()),
                 "salary": r["lineup"].salary,
                 "proj": round(r["lineup"].proj, 2),
             }
@@ -1334,7 +1428,7 @@ def build_core_lineups(
         "lineups": [
             {"rank": i + 1, "confidence": r["confidence"],
              "proj_mean": r["proj_mean"],
-             "players": r["lineup"].slot_order(),
+             "players": _with_watch_notes(r["lineup"].slot_order()),
              "salary": r["lineup"].salary,
              "proj": round(r["lineup"].proj, 2)}
             for i, r in enumerate(ranked)

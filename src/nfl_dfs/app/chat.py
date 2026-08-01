@@ -12,7 +12,7 @@ import logging
 
 import pandas as pd
 
-from .. import notes
+from .. import notes, watchlist
 from ..bq import query_df
 from ..config import current_season, settings
 
@@ -32,6 +32,14 @@ Sensible mults: +10-20% (1.1-1.2) for a credible expanded-role statement;
 never more than +/-40% — the API clamps. "Best shape of his life" stories
 deserve no note. When the user names a player, resolve them with
 find_player first if you don't have the gsis_id. Confirm what you did.
+
+There is also a WATCHLIST, separate from usage notes: free-text notes
+about players worth tracking that change NOTHING numerically. "Add a
+note about X" / "keep an eye on X because..." means add_watch_note, NOT
+a usage note — only create a usage note when the user clearly wants a
+projection adjustment, or asks to convert a watch note (then confirm the
+mult first). Watch notes appear on generated lineups and the Watchlist
+page.
 
 You can manage weekly lineup preferences: ban a player from this week's
 lineups or boost one into more of them (add_lineup_pref kind=ban|boost);
@@ -73,6 +81,42 @@ TOOLS = [
      "description": "Resolve a player name to gsis_id, position and team.",
      "input_schema": {"type": "object", "properties": {
          "name": {"type": "string"}}, "required": ["name"]}},
+    {"name": "add_watch_note",
+     "description": "Add a WATCHLIST note about a player — free-text intel "
+                    "worth tracking ('rookie looked explosive in camp', "
+                    "'new OC loves screens'). Affects NOTHING — no "
+                    "projection or lineup change; it's a memory aid the "
+                    "user may later convert into a usage-note adjustment. "
+                    "Use when the user wants to note/track/watch a player "
+                    "WITHOUT changing scores. Resolve gsis_id via "
+                    "find_player when possible.",
+     "input_schema": {"type": "object", "properties": {
+         "display_name": {"type": "string"},
+         "note": {"type": "string",
+                  "description": "Why the player is interesting"},
+         "gsis_id": {"type": "string"}},
+      "required": ["display_name", "note"]}},
+    {"name": "list_watch_notes",
+     "description": "List watchlist notes (active + converted), with each "
+                    "note's status and, if converted, the adjustment made.",
+     "input_schema": {"type": "object", "properties": {}}},
+    {"name": "delete_watch_note",
+     "description": "Delete a watchlist note by note_id "
+                    "(from list_watch_notes).",
+     "input_schema": {"type": "object", "properties": {
+         "note_id": {"type": "string"}}, "required": ["note_id"]}},
+    {"name": "convert_watch_note",
+     "description": "Promote a watchlist note into a real usage-note "
+                    "adjustment: creates the opportunity multiplier "
+                    "(clamped [0.6, 1.4]) and marks the watch note "
+                    "converted. Confirm the mult with the user first.",
+     "input_schema": {"type": "object", "properties": {
+         "note_id": {"type": "string"},
+         "mult": {"type": "number",
+                  "description": "Opportunity multiplier, e.g. 1.10"},
+         "season": {"type": "integer",
+                    "description": "Omit for current season"}},
+      "required": ["note_id", "mult"]}},
     {"name": "list_lineup_prefs",
      "description": "List this week's lineup bans and boosts.",
      "input_schema": {"type": "object", "properties": {
@@ -138,6 +182,24 @@ def execute_tool(name: str, args: dict) -> str:
     if name == "delete_usage_note":
         n = notes.delete_note(args["note_id"])
         return f"deleted {n} note(s)"
+    if name == "add_watch_note":
+        wid = watchlist.add_watch(
+            display_name=args["display_name"], note=args["note"],
+            gsis_id=args.get("gsis_id", ""))
+        return (f"watch note {wid} added for {args['display_name']} "
+                f"(no projection impact; visible on generated lineups and "
+                f"the Watchlist page)")
+    if name == "list_watch_notes":
+        return _df_result(watchlist.list_watch())
+    if name == "delete_watch_note":
+        n = watchlist.delete_watch(args["note_id"])
+        return f"deleted {n} watch note(s)"
+    if name == "convert_watch_note":
+        mid = watchlist.convert_watch(
+            args["note_id"], float(args["mult"]),
+            int(args.get("season") or current_season()))
+        return (f"converted: usage note {mid} created "
+                f"(mult applied on next projection run)")
     if name == "find_player":
         df = query_df(
             f"""SELECT DISTINCT player_id AS gsis_id,
