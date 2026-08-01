@@ -666,3 +666,36 @@ def test_season_dashboard_offers_slate_delete(client):
     assert r.status_code == 200
     assert "Delete recorded slate" in r.text
     assert "/results/exports" in r.text
+
+
+def test_showdown_pool_trailing_fallback_order():
+    """K/DST fallback: model proj > trailing actuals > dk_ppg (issue #10)."""
+    import pandas as pd
+
+    game = pd.DataFrame([
+        {"dk_player_id": 1, "display_name": "Model QB", "position": "QB",
+         "team_abbr": "AAA", "draft_group_id": 9, "salary": 9000,
+         "dk_ppg": 20.0, "dk_draftable_id": 11, "dk_cpt_draftable_id": 12},
+        {"dk_player_id": 2, "display_name": "Some Kicker", "position": "K",
+         "team_abbr": "AAA", "draft_group_id": 9, "salary": 4000,
+         "dk_ppg": 6.0, "dk_draftable_id": 13, "dk_cpt_draftable_id": 14},
+        {"dk_player_id": 3, "display_name": "BBB DST", "position": "DST",
+         "team_abbr": "BBB", "draft_group_id": 9, "salary": 3500,
+         "dk_ppg": 5.0, "dk_draftable_id": 15, "dk_cpt_draftable_id": 16},
+    ])
+    proj = pd.DataFrame([{"dk_player_id": 1, "proj_points": 18.5,
+                          "proj_p50": 17.0, "proj_p90": 26.0, "proj_std": 6.0}])
+    trailing = pd.DataFrame([
+        {"kind": "K", "key": "SOME KICKER", "trailing_pts": 8.4},
+        {"kind": "DST", "key": "BBB", "trailing_pts": 9.1},
+    ])
+    pool = app_main._showdown_pool(game, proj, "proj_points", trailing=trailing)
+    by_id = {p["id"]: p for p in pool}
+    assert by_id[1]["proj_source"] == "model" and by_id[1]["proj"] == 18.5
+    assert by_id[2]["proj_source"] == "trailing" and by_id[2]["proj"] == 8.4
+    assert by_id[3]["proj_source"] == "trailing" and by_id[3]["proj"] == 9.1
+
+    # without trailing data, dk_ppg still catches them
+    pool2 = app_main._showdown_pool(game, proj, "proj_points", trailing=None)
+    by_id2 = {p["id"]: p for p in pool2}
+    assert by_id2[2]["proj_source"] == "dk_ppg"

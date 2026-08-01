@@ -71,6 +71,66 @@ class BigQueryStore:
         )
 
 
+    def trailing_kdst(self, season: int, week: int) -> pd.DataFrame:
+        """Trailing-mean DK points for K and DST, strictly-prior weeks of
+        `season` (min 2 games) — the live showdown pool's fallback for the
+        positions the model doesn't cover, replacing raw dk_ppg (issue
+        #10's last item). K scoring is computed from distance-bucketed
+        kicking stats (DK: 3/4/5-pt FGs + PAT); DST from pbp + schedules
+        (sacks/takeaways/TDs + points-allowed brackets).
+
+        Columns: kind ('K'|'DST'), key (UPPER player name for K, team
+        abbr for DST), trailing_pts."""
+        from ..bq import query_df
+
+        return query_df(
+            f"""
+            WITH k AS (
+              SELECT 'K' AS kind, UPPER(player_display_name) AS key,
+                     AVG(3*(fg_made_0_19+fg_made_20_29+fg_made_30_39)
+                         + 4*fg_made_40_49
+                         + 5*(fg_made_50_59+fg_made_60_)
+                         + pat_made) AS trailing_pts,
+                     COUNT(*) AS games
+              FROM `{settings.raw}.weekly_stats`
+              WHERE position = 'K' AND season = @season AND week < @week
+              GROUP BY key
+            ),
+            def_game AS (
+              SELECT p.game_id, p.defteam AS team, ANY_VALUE(p.week) AS week,
+                     SUM(CAST(p.sack AS INT64)) AS sacks,
+                     SUM(CAST(p.interception AS INT64))
+                       + SUM(IF(p.fumble_lost = 1, 1, 0)) AS takeaways,
+                     SUM(IF(p.touchdown = 1 AND p.td_team = p.defteam, 1, 0)) AS tds
+              FROM `{settings.raw}.pbp` p
+              WHERE p.season = @season AND p.week < @week AND p.defteam IS NOT NULL
+              GROUP BY p.game_id, p.defteam
+            ),
+            pts AS (
+              SELECT game_id, home_team AS team, away_score AS pa
+              FROM `{settings.raw}.schedules` WHERE season = @season
+              UNION ALL
+              SELECT game_id, away_team, home_score
+              FROM `{settings.raw}.schedules` WHERE season = @season
+            ),
+            d AS (
+              SELECT 'DST' AS kind, dg.team AS key,
+                     AVG(dg.sacks + 2*dg.takeaways + 6*dg.tds +
+                         CASE WHEN p.pa = 0 THEN 10 WHEN p.pa <= 6 THEN 7
+                              WHEN p.pa <= 13 THEN 4 WHEN p.pa <= 20 THEN 1
+                              WHEN p.pa <= 27 THEN 0 WHEN p.pa <= 34 THEN -1
+                              ELSE -4 END) AS trailing_pts,
+                     COUNT(*) AS games
+              FROM def_game dg JOIN pts p USING (game_id, team)
+              GROUP BY key
+            )
+            SELECT kind, key, trailing_pts FROM k WHERE games >= 2
+            UNION ALL
+            SELECT kind, key, trailing_pts FROM d WHERE games >= 2
+            """,
+            params={"season": season, "week": week},
+        )
+
     def showdown_salaries(self) -> pd.DataFrame:
         """Latest pull per upcoming showdown draft group (one game each).
         Salaries are FLEX-slot; the optimizer derives the 1.5x CPT cost."""

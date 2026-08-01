@@ -1296,9 +1296,11 @@ def _showdown_games(store: ProjectionStore, days: str) -> pd.DataFrame:
     return sd
 
 
-def _showdown_pool(game: pd.DataFrame, proj: pd.DataFrame, objective: str) -> list[dict]:
+def _showdown_pool(game: pd.DataFrame, proj: pd.DataFrame, objective: str,
+                   trailing: pd.DataFrame | None = None) -> list[dict]:
     """Player pool for one showdown game: classic projections joined by DK
-    player id, dk_ppg fallback for unprojected players (K, DST)."""
+    player id; K/DST fall back to trailing-mean DK actuals (issue #10's
+    last item, store.trailing_kdst) and only then to DK's dk_ppg figure."""
     teams = sorted(t for t in game.team_abbr.dropna().unique())
     opp = {t: next((o for o in teams if o != t), None) for t in teams}
     by_id = {}
@@ -1307,11 +1309,19 @@ def _showdown_pool(game: pd.DataFrame, proj: pd.DataFrame, objective: str) -> li
         if "proj_std" in proj.columns:
             cols.append("proj_std")
         by_id = proj.set_index("dk_player_id")[cols].to_dict("index")
+    trail_map = {}
+    if trailing is not None and len(trailing):
+        trail_map = {(t.kind, t.key): float(t.trailing_pts)
+                     for t in trailing.itertuples()}
     pool = []
     for r in game.itertuples():
         row = by_id.get(r.dk_player_id)
+        tkey = (("DST", r.team_abbr) if r.position == "DST"
+                else ("K", str(r.display_name).upper()))
         if row is not None and pd.notna(row[objective]):
             value, source = float(row[objective]), "model"
+        elif tkey in trail_map:
+            value, source = trail_map[tkey], "trailing"
         elif pd.notna(r.dk_ppg):
             value, source = float(r.dk_ppg), "dk_ppg"
         else:
@@ -1396,7 +1406,14 @@ def _build_showdown(
         game = sd[sd.draft_group_id == next_gid]
 
     proj = store.projections(req.season, req.week)
-    pool = _showdown_pool(game, proj, req.objective)
+    trailing = None
+    trail_fn = getattr(store, "trailing_kdst", None)
+    if trail_fn is not None:
+        try:
+            trailing = trail_fn(req.season, req.week)
+        except Exception:  # trailing is a fallback nicety, never a blocker
+            log.warning("trailing_kdst unavailable", exc_info=True)
+    pool = _showdown_pool(game, proj, req.objective, trailing=trailing)
     if len(pool) < 6 or len({p["team"] for p in pool}) < 2:
         raise HTTPException(422, "Showdown pool too thin to build a lineup")
     pool_ids = {p["id"] for p in pool}
