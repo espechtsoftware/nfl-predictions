@@ -176,10 +176,27 @@ def select_dollar_entries(
     F = np.stack([rd_sub[f].sum(axis=0) for f in fld])  # (n_field, K)
     cums, pays = _tier_thresholds(contest)
     ct = cand_totals[:, k_idx]
+    # Tail-resolved rank estimation (Addendum 34 fix): a coarse sampled
+    # field resolves ranks only to 1/n_field, but GPP payouts concentrate
+    # at 1e-5 of the field -- "beat the whole sample" spans $10..$100k.
+    # Hybrid: empirical count where >= EMP_MIN field lineups are ahead;
+    # otherwise a normal-tail extrapolation of the per-sim field score
+    # distribution, capped by the empirical upper bound so the parametric
+    # tail can only REFINE below sample resolution, never contradict it.
+    EMP_MIN = 10
+    from scipy.stats import norm
+
+    mu = F.mean(axis=0)                                     # per-sim field mean
+    sd = np.maximum(F.std(axis=0), 1e-6)
+    n_f = F.shape[0]
     ev = np.empty(len(cands))
     for c in range(len(cands)):
-        beaten = (F > ct[c][None, :]).mean(axis=0)          # frac of field ahead
-        frac = beaten + 1.0 / contest.field_size            # ~rank/field_size
+        counts = (F > ct[c][None, :]).sum(axis=0)           # field ahead, sampled
+        p_emp = counts / n_f
+        p_par = norm.sf((ct[c] - mu) / sd)
+        p_cap = (counts + 1.0) / n_f                        # empirical upper bound
+        p = np.where(counts >= EMP_MIN, p_emp, np.minimum(p_par, p_cap))
+        frac = p + 1.0 / contest.field_size                 # ~rank/field_size
         idx = np.searchsorted(cums, frac, side="left")
         pay = np.where(idx < len(pays), pays[np.minimum(idx, len(pays) - 1)], 0.0)
         ev[c] = float(pay.mean())

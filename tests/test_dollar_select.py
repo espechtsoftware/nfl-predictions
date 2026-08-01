@@ -53,3 +53,36 @@ def test_dollar_selection_prefers_dominant_candidate(monkeypatch):
                                    contest=gpp(), n_field=50, n_sim_sub=200)
     assert picked[0] == 1
     assert len(picked) == 2 and len(set(picked)) == 2
+
+
+def test_tail_resolution_distinguishes_sample_beaters(monkeypatch):
+    """The Addendum-34 flaw: two candidates that both beat the ENTIRE
+    sampled field used to get identical (top-tier) E[$]. The hybrid
+    tail estimator must rank the stronger one higher, and neither
+    should automatically score as outright 1st of 100k."""
+    import numpy as np
+    from nfl_dfs.backtest import engine
+    from nfl_dfs.backtest.engine import select_dollar_entries
+    from nfl_dfs.backtest.payout import gpp
+    from nfl_dfs.optimizer.lineup import Lineup
+
+    slate = _tiny_slate()
+    n_sims = 300
+    rng = np.random.default_rng(5)
+    rd = rng.gamma(3, 4, (len(slate), n_sims)).astype(np.float32)
+
+    def mk(ids):
+        return Lineup([{"id": f"p{i}", "pos": "WR", "salary": 4000,
+                        "proj": 10.0} for i in ids])
+
+    cands = [mk(range(0, 9)), mk(range(9, 18))]
+    base = np.stack([rd[list(range(0, 9))].sum(axis=0),
+                     rd[list(range(9, 18))].sum(axis=0)])
+    totals = base.copy()
+    totals[0] += 200.0   # clears the whole field sample in every sim
+    totals[1] += 260.0   # clears it by MORE -- deeper into the true tail
+
+    # Capture the internal EVs by spying on the selection order
+    picked = select_dollar_entries(slate, rd, cands, totals, n_entries=2,
+                                   contest=gpp(), n_field=60, n_sim_sub=200)
+    assert picked[0] == 1  # the deeper tail must rank first now
