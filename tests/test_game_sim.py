@@ -239,3 +239,73 @@ def test_simulate_possession_mode_team_ids_still_mean_preserving(monkeypatch, sm
     assert possession.summary.proj_points.sum() == pytest.approx(
         baseline.summary.proj_points.sum(), rel=0.08
     )
+
+
+def _team_usage_comps() -> pd.DataFrame:
+    """A 3-catcher team (60/25/15 target shares) plus one opponent row."""
+    def catcher(tgts, team_row=True):
+        return {
+            "targets": tgts, "catch_rate": 0.65, "ypr": 11.0, "rec_tds": 0.3,
+            "carries": 0.0, "ypc": 0.0, "rush_tds": 0.0,
+            "pass_attempts": 0.0, "ypa": 0.0, "pass_tds": 0.0, "interceptions": 0.0,
+        }
+    return pd.DataFrame([catcher(9.0), catcher(4.0), catcher(2.0), catcher(6.0)])
+
+
+_USAGE_IDS = dict(game_ids=pd.Series(["g1"] * 4),
+                  team_ids=pd.Series(["TA", "TA", "TA", "TB"]))
+
+
+def test_usage_dirichlet_off_by_default(monkeypatch):
+    """GAME_SIM_USAGE unset must never touch allocate_drive_usage."""
+    monkeypatch.delenv("GAME_SIM_USAGE", raising=False)
+    monkeypatch.delenv("GAME_SIM_MODE", raising=False)
+
+    def _boom(*a, **k):
+        raise AssertionError("allocate_drive_usage consulted with usage mode off")
+
+    monkeypatch.setattr(game_sim, "allocate_drive_usage", _boom)
+    simulate.simulate(_team_usage_comps(), n_sims=500, seed=2, **_USAGE_IDS)
+
+
+def test_usage_dirichlet_mean_preserving(monkeypatch):
+    monkeypatch.delenv("GAME_SIM_MODE", raising=False)
+    monkeypatch.delenv("GAME_SIM_USAGE", raising=False)
+    base = simulate.simulate(_team_usage_comps(), n_sims=30_000, seed=5, **_USAGE_IDS)
+
+    monkeypatch.setenv("GAME_SIM_USAGE", "dirichlet")
+    usage = simulate.simulate(_team_usage_comps(), n_sims=30_000, seed=5, **_USAGE_IDS)
+
+    np.testing.assert_allclose(usage.summary.proj_points.to_numpy(),
+                               base.summary.proj_points.to_numpy(), rtol=0.04)
+
+
+def test_usage_dirichlet_teammates_negatively_correlated(monkeypatch):
+    """The mechanism itself: WR1's target count and WR2's should covary
+    negatively under a shared-total Dirichlet split, and be ~uncorrelated
+    under independent Poissons."""
+    monkeypatch.delenv("GAME_SIM_MODE", raising=False)
+    monkeypatch.setenv("GAME_SIM_USAGE", "dirichlet")
+    # game_ids=None isolates the usage mechanism: with a game factor
+    # active, its shared scaling (positive corr) masks the split's
+    # negative corr in the points draws.
+    res = simulate.simulate(_team_usage_comps(), n_sims=8000, seed=6,
+                            keep_draws=True, game_ids=None,
+                            team_ids=_USAGE_IDS["team_ids"])
+    a, b = res.draws[0], res.draws[1]
+    corr = np.corrcoef(a, b)[0, 1]
+    assert corr < -0.05
+
+
+def test_usage_dirichlet_fattens_low_share_tail(monkeypatch):
+    """A 15%-share catcher should reach boom outcomes (p90) more often
+    with correlated usage draws than with independent Poissons."""
+    monkeypatch.delenv("GAME_SIM_MODE", raising=False)
+    monkeypatch.delenv("GAME_SIM_USAGE", raising=False)
+    base = simulate.simulate(_team_usage_comps(), n_sims=30_000, seed=7, **_USAGE_IDS)
+
+    monkeypatch.setenv("GAME_SIM_USAGE", "dirichlet")
+    usage = simulate.simulate(_team_usage_comps(), n_sims=30_000, seed=7, **_USAGE_IDS)
+
+    assert usage.summary.proj_p90.iloc[2] > base.summary.proj_p90.iloc[2]
+    assert usage.summary.proj_std.iloc[2] > base.summary.proj_std.iloc[2]

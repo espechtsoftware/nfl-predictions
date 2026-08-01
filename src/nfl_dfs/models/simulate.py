@@ -116,12 +116,46 @@ def simulate(
         """Opportunity means, scaled by the shared game factor per sim."""
         return col(name) * game_mult
 
-    targets = rng.poisson(opp("targets"))
+    # GAME_SIM_USAGE=dirichlet (+ team_ids): correlated within-team usage.
+    # Instead of each player independently Poisson-ing around their own
+    # mean, each TEAM's total opportunity mean is split across teammates
+    # by a Dirichlet draw centered on their shares
+    # (game_sim.allocate_drive_usage), then Poisson-ed. Teammates become
+    # negatively correlated (WR1 boom <-> WR2 squeeze) and low-share
+    # players occasionally draw real volume -- the next-man-up boom
+    # variance Addendum 24 found under-modeled. Mean-preserving:
+    # E[Dirichlet share] = prior share. Off by default; same call-time
+    # env pattern as GAME_SIM_MODE.
+    usage_dirichlet = (os.environ.get("GAME_SIM_USAGE", "") == "dirichlet"
+                       and team_ids is not None)
+    team_codes = None
+    if usage_dirichlet:
+        team_codes, _ = pd.factorize(pd.Series(team_ids).fillna("_none").to_numpy())
+
+    def opp_draw(name: str) -> np.ndarray:
+        """Integer opportunity draws for stat `name` (targets/carries)."""
+        means = opp(name)
+        if not usage_dirichlet:
+            return rng.poisson(means)
+        from . import game_sim
+        base = np.nan_to_num(comps[name].to_numpy(dtype=float))
+        means = means.copy()
+        for t in np.unique(team_codes):
+            rows = np.flatnonzero((team_codes == t) & (base > 0))
+            if len(rows) < 2:
+                continue  # nothing to reallocate within
+            shares = base[rows] / base[rows].sum()
+            totals = means[rows].sum(axis=0)  # (n_sims,) game-factor-scaled
+            alloc = game_sim.allocate_drive_usage(rng, totals, shares, n_sims=n_sims)
+            means[rows] = np.atleast_2d(alloc).T
+        return rng.poisson(means)
+
+    targets = opp_draw("targets")
     receptions = rng.binomial(targets, col("catch_rate"))
     rec_yards = _gamma_yards(rng, receptions, col("ypr"))
     rec_tds = rng.poisson(col("rec_tds"), (n, n_sims))
 
-    carries = rng.poisson(opp("carries"))
+    carries = opp_draw("carries")
     rush_yards = _gamma_yards(rng, carries, col("ypc"))
     rush_tds = rng.poisson(col("rush_tds"), (n, n_sims))
 
