@@ -72,9 +72,10 @@ LightGBM training has frozen the machine repeatedly (2026-07-26).
   task: run `nfl-dfs replay --season 2025 --contest gpp` and
   `nfl-dfs replay-showdown --season 2025 --entries 40`; compare tail vs
   pre-tournament baseline (best mean 158.5, 2/17 weeks >=190).
-- **Open analysis**: do the Milly punt booms (punt_4k columns in
-  reports/2025-milly-winners.csv) show elevated team_vacated_*/depth_rank
-  signals in player_week_training that week? Tests whether our next-man-up
-  detector finds them prospectively.
+- **Open analysis — DONE 2026-08-01** (Addendum 24 in
+  reports/2026-07-25-system-study.md): next-man-up detector flags ~1/3 of
+  player punt booms; dominant winning-punt archetypes are cheap starting
+  TEs (depth_rank 1, nothing vacated) and DSTs (7/17). Follow-up ideas
+  recorded there (depth-rank transition signal; punt-pool composition).
 - Everything else: reports/2026-07-25-system-study.md (addenda 1-4) and
   the README deficiency log are current.

@@ -695,3 +695,36 @@ warning that qualifier fields are harder per entry than the Milly.
 Real qualifier standings in-season (queue item 7) replace the 187.6
 estimate with the observed seat line and re-test. Rosters:
 reports/2025-replay-lineups-qualifier.csv (tags included).
+
+## Addendum 24 (2026-08-01): Milly punt booms vs the next-man-up detector — partial hit, archetype finding
+
+The handoff's open analysis: do the 2025 Milly winners' sub-$4k punt
+booms (punt_4k columns, reports/2025-milly-winners.csv) show elevated
+team_vacated_*/depth_rank in player_week_training THAT week — i.e.,
+would the next-man-up detector have flagged them prospectively?
+(Point-in-time is preserved: training windows end at 1 PRECEDING, so
+these are exactly the signals available before lock.)
+
+Of 17 winning punts: **7 are DSTs** (41% — outside the detector's
+universe entirely), 10 are skill players, 9 matchable to training rows
+(Juwan Johnson has no week-1 row — cold-start edge).
+
+- **Detector hits, 3/9:** Xavier Hutchinson (wk 8, 95.9th pctl
+  vacated-target — maximally flagged), Michael Wilson (wk 11, 72.7th
+  tgt), Kayshon Boutte (wk 6, 78.1st pctl vacated-carry). The
+  injury-replacement archetype the detector was built for.
+- **Detector misses, 6/9 — but they share an archetype:** Ferguson,
+  Hunter Henry, Fannin, Parkinson, Gadsden, (Johnson wk 1) are all
+  **starting TEs at min price** — depth_rank 1 (or newly 1: Gadsden was
+  rank 2 through wk 6, rank 1 at his wk-7 boom), vacated share ~0.
+  Nothing was vacated; DK's TE pricing compression just puts real
+  starters at $3.2-3.9k.
+
+Conclusions: (1) the vacated-share detector is real but covers only ~1/3
+of player punt booms — keep it, don't over-weight it; (2) the dominant
+winning-punt archetypes are *cheap starting TEs* and *DSTs*, which are
+availability/pricing phenomena, not injury cascades — punt selection
+should ensure the p90-valued punt pool isn't crowding these out in favor
+of cascade candidates; (3) a *depth-rank transition* signal (rank 2 -> 1
+in recent weeks, Gadsden case) may prospectively catch newly-promoted
+min-priced starters the static rank misses — cheap feature, untested.
