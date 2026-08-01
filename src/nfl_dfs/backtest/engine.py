@@ -124,6 +124,82 @@ def _row_draws(slate: pd.DataFrame, draws: np.ndarray) -> np.ndarray:
     return out
 
 
+def _tier_thresholds(contest: Contest) -> tuple[np.ndarray, np.ndarray]:
+    """Vectorized form of Contest.payout_for_rank: cumulative field
+    fractions and dollar payouts per tier."""
+    cums, pays = [], []
+    c = 0.0
+    for top_frac, mult in contest.tiers:
+        c += top_frac
+        cums.append(c)
+        pays.append(contest.entry_fee * mult)
+    return np.asarray(cums), np.asarray(pays)
+
+
+def select_dollar_entries(
+    slate: pd.DataFrame,
+    rd: np.ndarray,
+    cands: list[Lineup],
+    cand_totals: np.ndarray,
+    n_entries: int,
+    contest: Contest,
+    sharp_fraction: float = 0.0,
+    max_overlap: int = 7,
+    n_field: int = 1000,
+    n_sim_sub: int = 2000,
+    seed: int = 42,
+) -> list[int]:
+    """SELECT_OBJ=dollars (2026-08-01): expected-DOLLARS entry selection.
+
+    The tail-line objective is a step function at one line; real payouts
+    are a curve. Here each candidate is scored by its expected winnings:
+    a subsampled simulated FIELD (ownership-weighted lineups, scored in
+    the SAME correlated sims as our candidates via the draw matrix) gives
+    each candidate a per-sim rank, the contest curve converts rank to
+    dollars, and E[$] is additive across entries -- so selection is
+    greedy by E[$] under the uniqueness (max_overlap) constraint. This
+    was issue #13's "expected-dollars objective once field model exists";
+    the LineStar ownership model is that field model (pass model_own on
+    the slate to use it)."""
+    own_vec = (slate["model_own"].to_numpy()
+               if "model_own" in slate.columns and slate["model_own"].notna().all()
+               else None)
+    fld = field_sim.sample_field(slate, n_lineups=n_field, seed=seed,
+                                 ownership=own_vec,
+                                 sharp_fraction=sharp_fraction)
+    if not fld:
+        return list(range(min(n_entries, len(cands))))
+    rng = np.random.default_rng(seed)
+    k_idx = rng.choice(rd.shape[1], size=min(n_sim_sub, rd.shape[1]),
+                       replace=False)
+    rd_sub = rd[:, k_idx]
+    F = np.stack([rd_sub[f].sum(axis=0) for f in fld])  # (n_field, K)
+    cums, pays = _tier_thresholds(contest)
+    ct = cand_totals[:, k_idx]
+    ev = np.empty(len(cands))
+    for c in range(len(cands)):
+        beaten = (F > ct[c][None, :]).mean(axis=0)          # frac of field ahead
+        frac = beaten + 1.0 / contest.field_size            # ~rank/field_size
+        idx = np.searchsorted(cums, frac, side="left")
+        pay = np.where(idx < len(pays), pays[np.minimum(idx, len(pays) - 1)], 0.0)
+        ev[c] = float(pay.mean())
+    order = np.argsort(ev)[::-1]
+    picked: list[int] = []
+    sel_ids: list[frozenset] = []
+    for i in order:
+        if len(picked) >= n_entries:
+            break
+        if all(len(cands[i].ids & s) <= max_overlap for s in sel_ids):
+            picked.append(int(i))
+            sel_ids.append(cands[i].ids)
+    for i in order:  # fill if the overlap constraint ran the list dry
+        if len(picked) >= n_entries:
+            break
+        if int(i) not in picked:
+            picked.append(int(i))
+    return picked
+
+
 def tail_select_lineups(
     slate: pd.DataFrame,
     pool: list[dict],
@@ -136,6 +212,8 @@ def tail_select_lineups(
     n_boom_solves: int = 40,
     n_game_stacks: int = 4,
     n_per_game: int = 3,
+    contest: Contest | None = None,
+    sharp_fraction: float = 0.0,
 ) -> list[Lineup]:
     """Entry selection on P(best-of-N >= tail_line) (guide: issue #5).
 
@@ -247,7 +325,12 @@ def tail_select_lineups(
     cand_totals = np.stack([
         rd[[id2row[p["id"]] for p in lu.players]].sum(axis=0) for lu in cands
     ])
-    picked = select_tail_entries(cand_totals, n_entries, tail_line)
+    if _os.environ.get("SELECT_OBJ") == "dollars" and contest is not None:
+        picked = select_dollar_entries(slate, rd, cands, cand_totals,
+                                       n_entries, contest,
+                                       sharp_fraction=sharp_fraction)
+    else:
+        picked = select_tail_entries(cand_totals, n_entries, tail_line)
     return [cands[i] for i in picked]
 
 
@@ -278,6 +361,7 @@ def run_week(
 
         lineups = tail_select_lineups(
             slate, pool, draws, tail_line, n_entries, stack, obj,
+            contest=contest, sharp_fraction=sharp_fraction,
             candidate_multiple=int(_os.environ.get("CAND_MULT", "2")),
             n_boom_solves=int(_os.environ.get("N_BOOM", str(n_boom_solves))),
             # Generator-mix A/B (2026-08-01): 2025 replays show the top-4
