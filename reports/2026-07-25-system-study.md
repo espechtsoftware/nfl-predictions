@@ -980,3 +980,43 @@ The night's three verdicts:
    reproduce the naive field exactly). Standard yardstick stays naive
    for ledger continuity; the model field becomes natural in-season
    when weekly refits give it fresh data.
+
+## Addendum 35 (2026-08-01): the selection-objective panel — dollars fix validated, tail-coverage retained; OWN_MODEL rejected
+
+The user stopped the final harvest so the Addendum 34 fix path could be
+tested BEFORE the definitive run — the right call. Commit 27ddf23
+implemented tail-resolved rank estimation in select_dollar_entries:
+empirical rank when >=10 sampled field lineups score above a candidate,
+else a parametric normal tail capped at (count+1)/n. A regression test
+pins the failure (two candidates both beating the whole sampled field
+must rank by depth into the true tail).
+
+Three arms, six seasons, one canonical-ordering image (all include
+GAME_SIM_MODE=possession), plus a deconfounding re-run:
+
+1. **OWN_MODEL=1 rejected as a replay field.** 2019-22 reproduce the
+   naive field exactly (walk-forward, no prior data). In 2023-25 where
+   it binds: tails equal, median finish roughly DOUBLES (13.6->25.8,
+   16.3->25.3, 14.6->20.7%), ROI collapses (+44,792 -> +3,118%). The
+   pre-canonical "Wave A tails 21" was order luck. The naive yardstick
+   stays; the ownership model remains valuable where validated —
+   leverage/chalk analysis and live-season use after weekly refits.
+2. **The dollars fix is real.** First run was contaminated by
+   OWN_MODEL; re-run clean on 2023-25, the fix's effect stands alone:
+   2023 median 26.4->16.0%, ROI +3,113 -> +44,794%. The estimator can
+   now see the top of the field (Addendum 34's exact defect).
+3. **Tail-coverage retained as shipping default.** Clean six-season
+   comparison: tails 15 vs 15; >=237 weeks 2 vs 1 — tail-coverage
+   caught 2021's 238.9 slate-breaker, dollars topped out at 206.4 that
+   season; median 14.6 vs 15.1%; ROI +219,749 vs +257,008% for
+   dollars. The dollars objective buys mid-distribution ROI (+17%) at
+   the cost of extreme-tail depth — exactly the trade a 35-40 entry
+   Milly strategy must refuse. **SELECT_OBJ=dollars is now a validated
+   lever for the ~20k qualifier contest mix**, where advancement/ROI
+   dominates and the 237 anchor is irrelevant.
+
+Note the baseline ledger shift: on the canonical-ordering image the
+six-season panel reads 15/101 tail weeks (was 23/101 pre-canonical,
+Addendum 32) — order luck cut both ways and the honest number is the
+reproducible one. The sequential harvest running now (baseline config)
+defines the shipping baseline and produces the per-year lineup book.
