@@ -1303,9 +1303,10 @@ def _showdown_pool(game: pd.DataFrame, proj: pd.DataFrame, objective: str) -> li
     opp = {t: next((o for o in teams if o != t), None) for t in teams}
     by_id = {}
     if not proj.empty:
-        by_id = proj.set_index("dk_player_id")[
-            ["proj_points", "proj_p50", "proj_p90"]
-        ].to_dict("index")
+        cols = ["proj_points", "proj_p50", "proj_p90"]
+        if "proj_std" in proj.columns:
+            cols.append("proj_std")
+        by_id = proj.set_index("dk_player_id")[cols].to_dict("index")
     pool = []
     for r in game.itertuples():
         row = by_id.get(r.dk_player_id)
@@ -1317,6 +1318,9 @@ def _showdown_pool(game: pd.DataFrame, proj: pd.DataFrame, objective: str) -> li
             continue  # no projection at all — can't rank the player
         draftable = getattr(r, "dk_draftable_id", None)
         cpt = getattr(r, "dk_cpt_draftable_id", None)
+        sd = None
+        if row is not None and pd.notna(row.get("proj_std")):
+            sd = float(row["proj_std"])
         pool.append(
             {
                 "id": int(r.dk_player_id),
@@ -1329,6 +1333,7 @@ def _showdown_pool(game: pd.DataFrame, proj: pd.DataFrame, objective: str) -> li
                 "game_id": int(r.draft_group_id),
                 "salary": int(r.salary),
                 "proj": value,
+                "proj_sd": sd,  # None -> sim-mode's FALLBACK_SD_RATIO
                 "proj_source": source,
             }
         )
@@ -1342,6 +1347,10 @@ class ShowdownLineupRequest(BaseModel):
     days: str = SHOWDOWN_DEFAULT_DAYS
     n_lineups: int = Field(1, ge=1, le=150)
     objective: str = Field("proj_points", pattern="^proj_(points|p50|p90)$")
+    # Correlated-draw construction, adopted 2026-08-01 (2025 replay:
+    # capture 85.0% vs 80.7% MILP, >=90%-capture slates 16/41 vs 8/41).
+    # sim=False restores the plain MILP-on-means path.
+    sim: bool = True
     locks: list[int] = []
     bans: list[int] = []
     captain: int | None = None
@@ -1397,11 +1406,19 @@ def _build_showdown(
             422, f"Players not in this game's projectable pool: {sorted(wanted - pool_ids)}"
         )
 
-    lineups = optimize_many_showdown(
-        pool, n_lineups=req.n_lineups, locks=set(req.locks),
-        bans=set(req.bans) & pool_ids,
-        captain_lock=req.captain, max_overlap=req.max_overlap,
-    )
+    if req.sim:
+        from ..optimizer.showdown import sim_mode_entries
+
+        lineups = sim_mode_entries(
+            pool, req.n_lineups, seed=req.week, locks=set(req.locks),
+            bans=set(req.bans) & pool_ids, captain_lock=req.captain,
+        )
+    else:
+        lineups = optimize_many_showdown(
+            pool, n_lineups=req.n_lineups, locks=set(req.locks),
+            bans=set(req.bans) & pool_ids,
+            captain_lock=req.captain, max_overlap=req.max_overlap,
+        )
     if not lineups:
         raise HTTPException(422, "No feasible lineup under the given constraints")
     return game, lineups

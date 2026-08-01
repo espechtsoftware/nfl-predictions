@@ -27,8 +27,8 @@ import numpy as np
 import pandas as pd
 
 from ..optimizer.showdown import (CPT_MULT, optimize_many_showdown,
-                                  optimize_showdown, select_showdown_entries,
-                                  simulate_showdown_lineups)
+                                  optimize_showdown, showdown_draws,
+                                  sim_mode_entries)
 from . import replay
 
 log = logging.getLogger(__name__)
@@ -37,10 +37,9 @@ DEFAULT_DAYS = ("thursday", "monday")
 MIN_PRIOR_GAMES_FOR_NAIVE = 2
 # Simulated-outcomes mode (issue #10): SHOWDOWN_SIM=1 builds entries from
 # correlated draws (recurrence + tail-line coverage) instead of the plain
-# MILP-on-means path. Same call-time env-gate pattern as the classic A/Bs.
-SHOWDOWN_SIM_SIGMA = 0.18        # shared game-factor sigma (see simulate.py)
+# MILP-on-means path; the construction itself lives in optimizer.showdown
+# (adopted for the live app too -- Addendum 26).
 TRAILING_SD_RATIO = 0.9          # sd for trailing/naive-projected rows
-DEFAULT_SHOWDOWN_TAIL_LINE = 150.0
 
 
 def _norm(name: str) -> str:
@@ -106,45 +105,6 @@ def build_pools(slates: pd.DataFrame, proj: pd.DataFrame) -> pd.DataFrame:
     if dropped:
         log.info("build_pools: dropped %d slate rows with no projection", dropped)
     return out.dropna(subset=["proj"])
-
-
-def showdown_draws(pool: list[dict], n_sims: int, seed: int) -> dict:
-    """Correlated per-player point draws for one slate: a shared
-    mean-preserving lognormal game factor (both teams — a single-game
-    slate IS one environment) times an independent gamma per player
-    matched to that player's projection mean/sd. Gamma keeps draws
-    nonnegative and right-skewed, the shape DK points actually have."""
-    rng = np.random.default_rng(seed)
-    game = rng.lognormal(-SHOWDOWN_SIM_SIGMA ** 2 / 2, SHOWDOWN_SIM_SIGMA, n_sims)
-    draws = {}
-    for p in pool:
-        m, s = float(p["proj"]), float(p.get("proj_sd") or 0)
-        if m <= 0 or s <= 0:
-            draws[p["id"]] = np.full(n_sims, max(m, 0.0)) * game
-            continue
-        shape = (m / s) ** 2
-        draws[p["id"]] = rng.gamma(shape, m / shape, n_sims) * game
-    return draws
-
-
-def sim_mode_entries(pool: list[dict], n_entries: int, seed: int,
-                     n_sims: int = 4000) -> list:
-    """SHOWDOWN_SIM=1 construction: candidates from (a) the diverse MILP
-    batch and (b) per-draw re-optimization recurrence, then greedy
-    tail-line coverage across the correlated draws (classic-side
-    select_tail_entries logic, captain-weighted)."""
-    draws = showdown_draws(pool, n_sims=n_sims, seed=seed)
-    milp = optimize_many_showdown(pool, n_lineups=max(2 * n_entries, 30),
-                                  max_overlap=4)
-    recurrent = simulate_showdown_lineups(pool, draws, n_keep=n_entries)
-    seen, candidates = set(), []
-    for lu in milp + [lu for lu, _ in recurrent]:
-        if lu.key not in seen:
-            seen.add(lu.key)
-            candidates.append(lu)
-    line = float(os.environ.get("SHOWDOWN_TAIL_LINE",
-                                DEFAULT_SHOWDOWN_TAIL_LINE) or 0)
-    return select_showdown_entries(candidates, draws, n_entries, line)
 
 
 def replay_showdown_season(

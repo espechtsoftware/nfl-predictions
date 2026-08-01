@@ -243,3 +243,57 @@ def select_showdown_entries(
     totals = lineup_draw_totals(candidates, draws_by_id)
     idx = select_tail_entries(totals, n_entries, line)
     return [candidates[i] for i in idx]
+
+
+# Correlated-draw construction adopted 2026-08-01 (Addendum 26): sim-mode
+# capture 85.0% vs 80.7% MILP baseline on the 2025 showdown replay,
+# slates >=90% capture doubled (16/41 vs 8/41).
+SHOWDOWN_SIM_SIGMA = 0.18   # shared game-factor sigma (see simulate.py)
+FALLBACK_SD_RATIO = 0.9     # sd for rows projected without a model sd
+DEFAULT_SHOWDOWN_TAIL_LINE = 150.0
+
+
+def showdown_draws(pool: list[Player], n_sims: int, seed: int) -> dict:
+    """Correlated per-player point draws for one slate: a shared
+    mean-preserving lognormal game factor (a single-game slate IS one
+    environment) times an independent gamma per player matched to the
+    player's projection mean/sd ('proj'/'proj_sd'; missing sd falls back
+    to FALLBACK_SD_RATIO x mean)."""
+    import numpy as np
+
+    rng = np.random.default_rng(seed)
+    game = rng.lognormal(-SHOWDOWN_SIM_SIGMA ** 2 / 2, SHOWDOWN_SIM_SIGMA, n_sims)
+    draws = {}
+    for p in pool:
+        m = float(p["proj"])
+        s = float(p.get("proj_sd") or 0) or m * FALLBACK_SD_RATIO
+        if m <= 0 or s <= 0:
+            draws[p["id"]] = np.full(n_sims, max(m, 0.0)) * game
+            continue
+        shape = (m / s) ** 2
+        draws[p["id"]] = rng.gamma(shape, m / shape, n_sims) * game
+    return draws
+
+
+def sim_mode_entries(pool: list[Player], n_entries: int, seed: int,
+                     n_sims: int = 4000, tail_line: float | None = None,
+                     **kwargs) -> list[ShowdownLineup]:
+    """Simulated-outcomes construction: candidates from (a) a diverse MILP
+    batch and (b) per-draw re-optimization recurrence, then greedy
+    tail-line coverage across the correlated draws. kwargs (locks, bans,
+    captain_lock, ...) pass through to every underlying solve."""
+    import os
+
+    draws = showdown_draws(pool, n_sims=n_sims, seed=seed)
+    milp = optimize_many_showdown(pool, n_lineups=max(2 * n_entries, 30),
+                                  max_overlap=4, **kwargs)
+    recurrent = simulate_showdown_lineups(pool, draws, n_keep=n_entries, **kwargs)
+    seen, candidates = set(), []
+    for lu in milp + [l for l, _ in recurrent]:
+        if lu.key not in seen:
+            seen.add(lu.key)
+            candidates.append(lu)
+    if tail_line is None:
+        tail_line = float(os.environ.get("SHOWDOWN_TAIL_LINE",
+                                         DEFAULT_SHOWDOWN_TAIL_LINE) or 0)
+    return select_showdown_entries(candidates, draws, n_entries, tail_line)

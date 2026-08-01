@@ -752,3 +752,21 @@ left unset so future A/Bs keep a lognormal control). Queued next arms on
 top of possession-team: GAME_SIM_USAGE=dirichlet (correlated usage
 draws), GAME_SIM_PACE=vegas (drive counts conditioned on game totals),
 and the depth_rank_delta feature build.
+
+## Addendum 26 (2026-08-01): off-season sprint scorecard — five A/Bs resolved
+
+All on 2025 replays against the adopted possession-team base (Addendum
+25: 188.4 mean-best / 7-17 >=194 / 14.4%). Run-to-run noise band for
+identical configs measured at roughly +/-5 on mean-best (183.5-188.4).
+
+| experiment | result | verdict |
+|---|---|---|
+| Possession sim, team factors (GAME_SIM_MODE=possession) | 188.4 / 7-17 / 14.4% | **ADOPTED** (Addendum 25; live on project-slate) |
+| Showdown sim-mode (SHOWDOWN_SIM / app `sim` flag) | capture 85.0% vs 80.7%, >=90%-capture slates 16/41 vs 8/41 | **ADOPTED** — decisive; live default in /showdown/lineups |
+| Vegas-pace drive counts (GAME_SIM_PACE=vegas) | 185.6 / 5-17 / 14.4% | null — gate stays off (mean-preservation leaves pace only heteroskedasticity) |
+| Dirichlet usage draws (GAME_SIM_USAGE=dirichlet) | 177.3 / 3-17 / 14.6% | NEGATIVE at K=20 — off; punt pool widened (52 held) but capture fell (13/17); concentration scale is the retune knob |
+| depth_rank_delta feature | 183.8 / 6-17 / 16.4% | neutral (within noise) — feature kept in featureset, re-evaluate on 2026 weeks |
+
+Also seeded (not A/B-able until in-season): ownership model
+(models/ownership.py, `nfl-dfs train-ownership`), awaiting week-1
+standings imports.
