@@ -907,3 +907,16 @@ season-portable metric). Mean-best tracks era scoring (2019's shootout
 league: 190.8; the 2022-23 dead-ball era: ~172), so absolute tail lines
 must be era-anchored -- 194 is a 2025 number. 2022 and 2024 are the
 first-ever replays of those seasons (LineStar salary backfill).
+
+## Addendum 31 (2026-08-01): salary-feature ablation — hypothesis falsified, features validated
+
+First experiment under the multi-season protocol. Hypothesis (from the
+enrichment regression + the feature law): salary/salary_delta_wow are
+consensus features that eat tails; removing them might help. DROP_FEATURES
+ablation across all six seasons: tail weeks 18 -> 11 (panel), mean-best
+avg 178.5 -> 175.2, vs a modest median improvement. VERDICT: salary
+features decisively earn their slots -- they are value-detection FUELING
+tails, not consensus dampening them. The 2025-only enrichment regression
+was era/data-shift noise, not a salary indictment. Methodological
+exhibit: per-season deltas ranged +1.4 to -11.5 -- any single season
+could have "proven" either conclusion. Panels or nothing.
