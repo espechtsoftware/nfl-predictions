@@ -882,3 +882,28 @@ NGS candidates (qb_cpoe_l6, qb_time_to_throw_l6) are materialized and
 one EXTRA_FEATURES command away from their arms — untested, prior
 against per the feature law. /market page live: prop-market
 disagreement + line movement (odds_movement view).
+
+## Addendum 30 (2026-08-01): the six-season baseline panel
+
+One configuration (the shipping config: possession-team engine, fitted
+transitions, refs+neutral-pass features, naive field), every replayable
+season, exact numbers. The pre-season reference every future idea must
+move — judged on the PANEL, not any single season (Addendum 29's
+selection-bias lesson).
+
+| season | mean best | max week | >=194 | >=237 | median finish |
+|---|---|---|---|---|---|
+| 2019 | 190.8 | 271.1 | 5/16 | 2/16 | 11.6% |
+| 2021 | 173.8 | 249.9 | 3/17 | 1/17 | 13.3% |
+| 2022 | 171.4 | 196.2 | 2/17 | 0/17 | 14.4% |
+| 2023 | 172.4 | 206.7 | 2/17 | 0/17 | 12.8% |
+| 2024 | 177.4 | 203.3 | 1/17 | 0/17 | 16.0% |
+| 2025 | 185.1 | 233.9 | 5/17 | 0/17 | 16.8% |
+
+Panel aggregates: 18/101 weeks >= 194; mean best-of-40 avg 178.5;
+median-finish avg 14.2% (range 11.6-16.8 -- tight across six seasons
+spanning wildly different scoring environments, confirming it as the
+season-portable metric). Mean-best tracks era scoring (2019's shootout
+league: 190.8; the 2022-23 dead-ball era: ~172), so absolute tail lines
+must be era-anchored -- 194 is a 2025 number. 2022 and 2024 are the
+first-ever replays of those seasons (LineStar salary backfill).
