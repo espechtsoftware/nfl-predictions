@@ -116,10 +116,15 @@ def dst_slate_rows(dst: pd.DataFrame,
     )
     starts = pd.Series(pd.NA, index=d.index)
     if qb_starts is not None and not qb_starts.empty:
+        # One row per (season, week, team) or the merge fans out duplicate
+        # DST rows (2023: a mid-week QB change flagged two starters, which
+        # crashed the engine's unique-id reindex).
+        qb_starts = qb_starts.drop_duplicates(subset=["season", "week", "team"])
         d = d.merge(qb_starts.rename(columns={"team": "opp"}),
                     on=["season", "week", "opp"], how="left")
         starts = d.pop("prior_starts")
     if vegas is not None and not vegas.empty:
+        vegas = vegas.drop_duplicates(subset=["season", "week", "team"])
         from ..inference.dst_projections import model_projection
 
         d = d.merge(vegas, on=["season", "week", "team"], how="left")
@@ -215,6 +220,13 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
         n0 = len(frame)
         frame = frame.dropna(subset=["salary", "proj", "actual"])
         frame = frame[frame.salary > 0]  # RotoGuru's missing-salary sentinel
+        # Engine requires unique ids (actual.reindex, draw alignment);
+        # guard against upstream merge fan-outs rather than crash mid-run.
+        dup = frame.id.duplicated()
+        if dup.any():
+            log.warning("slate %s wk %s: dropping %d duplicate-id rows",
+                        season, week, int(dup.sum()))
+            frame = frame[~dup]
         if len(frame) < n0:
             log.info("slate %s wk %s: dropped %d rows with missing salary/proj/actual",
                      season, week, n0 - len(frame))
