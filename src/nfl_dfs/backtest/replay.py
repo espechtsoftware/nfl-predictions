@@ -196,6 +196,10 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
                           "without the implied-total model")
     dst_rows = (dst_slate_rows(dst, qb_starts, vegas)
                 if dst is not None else None)
+    own_booster = None
+    if os.environ.get("OWN_MODEL"):
+        replay_season = int(skill.season.max())
+        own_booster = _ownership_booster(replay_season)
     slates = []
     for (season, week), grp in skill.groupby(["season", "week"]):
         cols = ["id", "name", "pos", "team", "opp", "game_id",
@@ -239,8 +243,18 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
         # LEV_PENALTY env (assumption validation): the 25.0 constant was
         # hand-set pre-A/B-era; 0 tests whether the chalk fade helps at all.
         lev_pen = float(os.environ.get("LEV_PENALTY", LEVERAGE_PENALTY))
-        frame["proj_tourney"] = (frame.proj
-                                 - lev_pen * lev_w * naive_ownership(frame))
+        # OWN_MODEL=1 (2026-08-01, the LineStar-ownership capstone): swap
+        # the naive value/salary softmax for the trained ownership model
+        # (walk-forward fit, seasons < replay season) in BOTH the chalk
+        # fade here and the field sampler (engine passes frame.model_own
+        # through when present). OOS 2025: model corr .727 vs naive .548.
+        own = None
+        if os.environ.get("OWN_MODEL") and own_booster is not None:
+            own = _model_ownership(own_booster, frame)
+            frame["model_own"] = own
+        if own is None:
+            own = naive_ownership(frame)
+        frame["proj_tourney"] = frame.proj - lev_pen * lev_w * own
         # A/B lever (env DST_PUNT_BONUS, off by default): 2023-24 Milly
         # winners used a cheap DST as their punt in 29/31 weeks (addendum
         # 7). The bonus tilts OUR objective toward sub-punt-cap DSTs;
@@ -344,6 +358,44 @@ def load_panel_and_dst(season: int):
 
 
 TAIL_LINE_DEFAULT = 194.0  # min 2025 Milly-winning line; 0 disables
+
+
+def _ownership_booster(replay_season: int):
+    """OWN_MODEL=1: LightGBM ownership model fit on LineStar-backfilled
+    contest ownership, WALK-FORWARD (seasons strictly before the replayed
+    one -- point-in-time discipline applies to auxiliary models too).
+    Returns None when no prior-season ownership exists (e.g. 2022)."""
+    from ..models import ownership as own_mod
+
+    frame = own_mod.training_frame()
+    tr = frame[frame.season < replay_season]
+    if len(tr) < 1000:
+        log.warning("OWN_MODEL: only %d prior-season ownership rows before "
+                    "%s; falling back to naive", len(tr), replay_season)
+        return None
+    log.info("OWN_MODEL: fit on %d rows from seasons < %s", len(tr), replay_season)
+    return own_mod.train(tr)
+
+
+def _model_ownership(booster, frame: pd.DataFrame) -> np.ndarray:
+    """Predicted pct -> naive_ownership-compatible weights (normalized
+    within position), so LEVERAGE_PENALTY's scale and the field sampler's
+    per-slot semantics are preserved. frame['proj'] stands in for the
+    public points expectation the model trained on."""
+    from ..models import ownership as own_mod
+
+    f = pd.DataFrame({
+        "season": frame["season"], "week": frame["week"],
+        "position": frame["pos"], "salary": frame["salary"],
+        "proj_points": frame["proj"],
+    })
+    pct = own_mod.predict_ownership(booster, f)
+    out = np.zeros(len(frame))
+    for _pos, idx in frame.groupby("pos").groups.items():
+        loc = frame.index.get_indexer(idx)
+        tot = pct[loc].sum()
+        out[loc] = pct[loc] / tot if tot > 0 else 1.0 / max(len(loc), 1)
+    return out
 
 
 def run(

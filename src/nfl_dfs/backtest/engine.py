@@ -296,7 +296,13 @@ def run_week(
     lineup_scores = [float(actual.reindex([p["id"] for p in lu.players]).sum())
                      for lu in lineups]
 
+    # model_own column present => OWN_MODEL replay: the trained ownership
+    # model drives the simulated field instead of the naive softmax.
+    own_vec = (slate["model_own"].to_numpy()
+               if "model_own" in slate.columns and slate["model_own"].notna().all()
+               else None)
     fld = field_sim.sample_field(slate, n_lineups=field_size, seed=seed,
+                                 ownership=own_vec,
                                  sharp_fraction=sharp_fraction)
     scores = field_sim.field_scores(fld, slate["actual"].to_numpy())
 
