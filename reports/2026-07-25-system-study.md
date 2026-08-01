@@ -942,3 +942,13 @@ NUMERIC_FEATURES; by determinism the CPOE panel IS the new baseline
 panel (2019: 186.9/6-16/10.8 · 2021: 177.1/5/12.5 · 2022: 174.3/3/15.8 ·
 2023: 167.8/1/15.9 · 2024: 175.5/1/16.3 · 2025: 188.1/7/15.1).
 qb_time_to_throw_l6 panel launched next on this new baseline.
+
+## Addendum 33 (2026-08-01): qb_time_to_throw_l6 — declined; the ledger closes
+
+Six-season panel vs the CPOE baseline: tail weeks 23 -> 17 (-6; down in
+three seasons, up in one), mean flat. NOT adopted; remains a registered
+candidate. Final feature score: 7 tested under exact discipline, 1
+adopted (qb_cpoe_l6). Every queued experiment in the project's history
+now has a recorded verdict. The shipping baseline is the Addendum-32
+CPOE panel: 23/101 weeks >= 194, median-finish avg 14.3%, live on
+project-slate/train-weekly/app.
