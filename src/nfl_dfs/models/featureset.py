@@ -59,9 +59,11 @@ NUMERIC_FEATURES = [
     # sourced) and script-stripped neutral pass rate.
     "ref_flags_prior",
     "neutral_pass_rate_l6",
-    # OL injuries (2026-08-01): count of T/G/C ruled Out on the week's
-    # report -- pass-protection losses reprice every skill player.
-    "team_ol_out",
+    # team_ol_out was REMOVED 2026-08-01 same day it was added: exact
+    # replay cost -8.7 mean-best / -4 tail weeks (180.8/4-17 vs
+    # 189.5/8-17). Plausible mechanism, bad feature -- likely confounded
+    # (teams missing linemen are bad teams). Column remains in the
+    # tables for analysis.
     # Next-man-up: opportunity vacated by teammates ruled Out this week
     "team_vacated_target_share",
     "team_vacated_carry_share",

@@ -770,3 +770,44 @@ identical configs measured at roughly +/-5 on mean-best (183.5-188.4).
 Also seeded (not A/B-able until in-season): ownership model
 (models/ownership.py, `nfl-dfs train-ownership`), awaiting week-1
 standings imports.
+
+## Addendum 27 (2026-08-01): determinism, folklore tests, and the final pre-season state
+
+**The replay pipeline is DETERMINISTIC** (three identical confirmation
+runs to the decimal). All comparisons below are exact, not statistical;
+earlier "run-to-run noise" was data-vintage drift. Corollary guardrail:
+exact measurement makes single-season overfitting EASIER — adopt only
+mechanism-backed, decent-sized effects; small exact wins get recorded
+and re-tested on 2026 data, not chased.
+
+**Final adopted configuration** (GAME_SIM_MODE=possession + fitted
+transitions + team factors + ref_flags_prior + neutral_pass_rate_l6;
+depth_rank_delta and team_ol_out excluded):
+**mean best-of-40 189.5, 8/17 weeks >= 194, max 228.5, median 15.5%** —
+best recorded values on every tail metric (week began at 184.2 / 6-17).
+
+Exact A/B ledger this cycle (comparator 189.5/8-17 unless noted):
+| lever | result | verdict |
+|---|---|---|
+| refs + neutral pass rate | +0.1 mean, median 16.4->13.6 (vs delta base) | adopted |
+| depth_rank_delta | -4.6 mean (proven by determinism) | removed |
+| team_ol_out | 180.8 / 4-17 (-8.7, -4 weeks) | removed same day |
+| DST_CORR_DRAWS (anti-corr DST draws) | 188.5 / 8-17 / 16.1% | null at first calibration; gate kept — refit magnitude from data in-season |
+| LEV_POS_WEIGHTS (Levitan tilt) | 182.4 / 5-17 | negative; gate kept |
+| generator mix (2 variants) | 186.0-187.3, -1 tail week | closed null — default allocation wins; losing generators contribute coverage diversity |
+
+Folklore measurements (2,195 games 2018-25 unless noted): QB-WR1 .446,
+QB-TE1 .311, QB-WR3 .265 (the one under-priced pair), QB-oppQB .199
+(the ".58" claim fails), QB-RB1 .082, favRB-oppQB .076, WR1-oppTE1
+.067, WR1-oppWR1 .104 (bring-back value is tail-conditional, not
+linear — which is why the sim prices worlds, not pairs). Wind: uniform
+within-player degradation, NO short-area shift. Dome-to-cold: dome
+teams degrade LESS than outdoor teams (claim backwards). Underdog-RB
+garbage pairing: corr .04. Milly winners' implied-total tier: 1/17 from
+top-3, 10/17 from rank 11+ (median implied 24.5) — the dark-game thesis
+confirmed from an independent angle.
+
+Feature-lesson: both single quick-add features (delta, OL) hurt; the
+paired environment features helped. New features must each pass their
+own exact replay before shipping — the harness makes that a 35-minute
+question.
