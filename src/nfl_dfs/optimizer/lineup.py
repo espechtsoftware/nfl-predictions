@@ -244,6 +244,12 @@ def optimize_many(
 ) -> list[Lineup]:
     """Generate n unique lineups; each new lineup may share at most
     max_overlap players with any previous one."""
+    # Assumption-validation lever (2026-08-01): PUNT_MIN env overrides the
+    # mandatory-punt rule so its causal value can be measured (the rule was
+    # adopted from "94% of Milly winners had a punt" -- correlational).
+    import os as _os
+
+    punt_min = int(_os.environ.get("PUNT_MIN", punt_min))
     lineups: list[Lineup] = []
     banned: list[frozenset] = []
     for _ in range(n_lineups):

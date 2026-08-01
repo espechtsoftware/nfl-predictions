@@ -16,6 +16,7 @@ Two layers, matching data availability:
 from __future__ import annotations
 
 import logging
+import os
 
 import numpy as np
 import pandas as pd
@@ -235,8 +236,11 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
             wmap = {k.strip().upper(): float(v) for k, _, v in
                     (part.partition(":") for part in spec.split(","))}
             lev_w = frame.pos.str.upper().map(wmap).fillna(1.0).to_numpy()
+        # LEV_PENALTY env (assumption validation): the 25.0 constant was
+        # hand-set pre-A/B-era; 0 tests whether the chalk fade helps at all.
+        lev_pen = float(os.environ.get("LEV_PENALTY", LEVERAGE_PENALTY))
         frame["proj_tourney"] = (frame.proj
-                                 - LEVERAGE_PENALTY * lev_w * naive_ownership(frame))
+                                 - lev_pen * lev_w * naive_ownership(frame))
         # A/B lever (env DST_PUNT_BONUS, off by default): 2023-24 Milly
         # winners used a cheap DST as their punt in 29/31 weeks (addendum
         # 7). The bonus tilts OUR objective toward sub-punt-cap DSTs;
@@ -378,7 +382,14 @@ def run(
     # p90 objective on real salaries, so stacking is the only GPP default.
     from ..optimizer.lineup import StackRules
 
-    stack = (StackRules(qb_stack_min=2, bring_back_min=1)
+    # Assumption-validation levers (2026-08-01): these construction rules
+    # predate the deterministic A/B era and were adopted on correlational
+    # evidence; the envs let each be causally tested with one exact run.
+    # Defaults reproduce the adopted construction unchanged.
+    stack = (StackRules(
+                 qb_stack_min=int(os.environ.get("STACK_QB_MIN", "2")),
+                 bring_back_min=int(os.environ.get("STACK_BRING_BACK", "1")),
+                 forbid_rb_vs_dst=os.environ.get("FORBID_RB_DST", "1") != "0")
              if "gpp" in contest.name else None)
     # Tail-objective selection (issue #5) is a GPP concept only; double-ups
     # want the mean objective. tail_line=0 disables explicitly.
