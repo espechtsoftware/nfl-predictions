@@ -112,7 +112,8 @@ ranks AS (
   SELECT * FROM legacy_rank
   UNION ALL
   SELECT gsis_id, season, week, team, position, depth_rank FROM snapshot_rank
-)
+),
+deduped AS (
 SELECT
   b.gsis_id, b.season, b.week, b.team, b.position,
   r.depth_rank,
@@ -140,4 +141,18 @@ LEFT JOIN upcoming up ON up.season = b.season AND up.team = b.team
 QUALIFY ROW_NUMBER() OVER (
   PARTITION BY b.gsis_id, b.season, b.week
   ORDER BY r.depth_rank NULLS LAST
-) = 1;
+) = 1
+)
+SELECT
+  *,
+  -- Depth-rank transition (Addendum 24): winning Milly punts are often
+  -- NEWLY-promoted min-priced starters (rank 2 -> 1 in recent weeks, e.g.
+  -- Gadsden wk 7) that static depth_rank can't distinguish from long-time
+  -- starters. Positive = promoted vs the player's previous listed week.
+  -- Both ranks are as-of-week-W roster knowledge (same discipline as
+  -- depth_rank itself, see header), so no PRECEDING window is needed;
+  -- computed AFTER dedup so LAG sees one row per (player, week).
+  LAG(depth_rank) OVER (
+    PARTITION BY gsis_id, season ORDER BY week
+  ) - depth_rank AS depth_rank_delta
+FROM deduped;

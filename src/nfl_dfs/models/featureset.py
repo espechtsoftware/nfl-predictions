@@ -48,6 +48,10 @@ NUMERIC_FEATURES = [
     "games_played_prior",
     "is_cold_start",
     "depth_rank",
+    # Depth-rank transition (Addendum 24): positive = promoted vs last
+    # week's chart -- newly-promoted min-priced starters are a dominant
+    # winning-punt archetype static depth_rank can't see.
+    "depth_rank_delta",
     # Next-man-up: opportunity vacated by teammates ruled Out this week
     "team_vacated_target_share",
     "team_vacated_carry_share",

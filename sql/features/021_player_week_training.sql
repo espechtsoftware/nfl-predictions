@@ -48,7 +48,7 @@ SELECT
   COALESCE(i.games_missed_l4, 0) AS games_missed_l4,
 
   -- Role (depth chart + draft capital; cold-start priors read these)
-  ro.depth_rank, ro.is_rookie, ro.draft_round,
+  ro.depth_rank, ro.depth_rank_delta, ro.is_rookie, ro.draft_round,
 
   -- Opportunity vacated by teammates ruled Out this week (own share
   -- excluded): the point-in-time next-man-up signal.
