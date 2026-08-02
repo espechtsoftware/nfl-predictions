@@ -227,6 +227,26 @@ def punt_boom_flags_live(season: int, week: int) -> set[tuple]:
     return _punt_boom_from_signals(df)
 
 
+def _wr_boom_flags(seasons: list) -> set[tuple]:
+    """(gsis_id, season, week) for WRs with a boom-SHAPED role: top-decile
+    deep-target volume among that week's WRs (point-in-time l4 window).
+    Real Milly winners' WR slots average 29.9 pts vs our 19.9 (Addendum
+    38), and the eruptions are deep threats at punt/mid prices. Salary
+    gating happens at application (PUNT_BOOM_WR / WR_BOOM envs)."""
+    from ..bq import query_df
+    from ..config import settings
+
+    yrs = ",".join(str(int(s)) for s in seasons)
+    df = query_df(f"""
+        SELECT gsis_id, season, week, deep_targets_l4
+        FROM `{settings.features}.player_week_training`
+        WHERE season IN ({yrs}) AND position = 'WR'
+          AND deep_targets_l4 IS NOT NULL AND deep_targets_l4 > 0""")
+    pct = df.groupby(["season", "week"]).deep_targets_l4.rank(pct=True)
+    hit = df[pct >= 0.90]
+    return {(r.gsis_id, int(r.season), int(r.week)) for r in hit.itertuples()}
+
+
 def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFrame]:
     """One engine-ready slate per week: skill rows from the replay (dropping
     the few without a salary) plus DST rows when provided."""
@@ -306,6 +326,22 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
         except Exception:
             log.exception("punt-boom signals unavailable; lever inert")
             punt_boom = 0.0
+    # A/B levers (off by default — separate gates so the ADOPTED punt
+    # boom's behavior never changes silently): PUNT_BOOM_WR=1 adds the
+    # deep-threat-WR archetype to the punt-boom flag set; WR_BOOM=<pts>
+    # boosts OUR objective for boom-shaped MID-band ($4-6.5k) WRs, the
+    # band where real winners' WR eruptions live.
+    wr_boom = float(os.environ.get("WR_BOOM", "0") or 0)
+    wr_keys: set = set()
+    if wr_boom or os.environ.get("PUNT_BOOM_WR"):
+        try:
+            wr_keys = _wr_boom_flags(sorted(skill.season.unique()))
+            log.info("wr-boom: %d flagged player-weeks", len(wr_keys))
+            if os.environ.get("PUNT_BOOM_WR") and punt_boom:
+                boom_keys = boom_keys | wr_keys
+        except Exception:
+            log.exception("wr-boom signals unavailable; lever inert")
+            wr_boom = 0.0
     slates = []
     for (season, week), grp in skill.groupby(["season", "week"]):
         cols = ["id", "name", "pos", "team", "opp", "game_id",
@@ -392,6 +428,19 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
                              index=frame.index)
             boom &= (frame.salary <= _pcap2) & (frame.pos != "DST")
             frame.loc[boom, "proj_tourney"] += punt_boom
+        if wr_boom and wr_keys:
+            keys = list(zip(frame.id, frame.season.astype(int),
+                            frame.week.astype(int)))
+            wb = pd.Series([k in wr_keys for k in keys], index=frame.index)
+            wb &= (frame.pos == "WR") & frame.salary.between(4000, 6500)
+            frame.loc[wb, "proj_tourney"] += wr_boom
+        # Ownership-shape flag for the MIN_LOWOWN optimizer constraint
+        # (winner spec, Addendum 38: ~2 sub-5%-owned players per winning
+        # lineup). Expected ownership ~= within-position weight x roster
+        # slots for that position.
+        slots = {"QB": 1.0, "RB": 2.5, "WR": 3.5, "TE": 1.2, "DST": 1.0}
+        frame["low_own"] = (own * frame.pos.map(slots).fillna(1.0)
+                            .to_numpy()) < 0.05
         slates.append(frame)
     return slates
 

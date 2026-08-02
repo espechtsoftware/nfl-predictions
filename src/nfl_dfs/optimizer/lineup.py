@@ -162,6 +162,19 @@ def optimize(
         if punts:
             prob += pulp.lpSum(x[pid] for pid in punts) >= punt_min
 
+    # A/B lever (env MIN_LOWOWN, off by default): winner ownership shape
+    # — real Milly winners carry ~2 sub-5%-owned players (Addendum 38,
+    # stable 2019-2024). Requires callers to stamp a boolean `low_own`
+    # on pool dicts (replay build_slates does); silently inert otherwise.
+    import os as _os2
+
+    min_lowown = int(_os2.environ.get("MIN_LOWOWN", "0"))
+    if min_lowown:
+        lows = [p["id"] for p in players if p.get("low_own")]
+        if lows:
+            prob += pulp.lpSum(x[pid] for pid in lows) >= min(
+                min_lowown, len(lows))
+
     if game_lock:
         gid, n_from_game = game_lock
         in_game = [p["id"] for p in players if p.get("game_id") == gid]
