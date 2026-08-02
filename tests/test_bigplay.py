@@ -41,3 +41,13 @@ def test_none_rate_is_noop():
     b = simulate.simulate(comps, n_sims=5_000, seed=9, keep_draws=True,
                           bigplay_rate=None)
     np.testing.assert_array_equal(a.draws, b.draws)
+
+
+def test_proj_tail_between_p90_neighborhood_and_max():
+    comps = _comps(2)
+    r = simulate.simulate(comps, n_sims=20_000, seed=4)
+    s = r.summary
+    assert (s.proj_tail > s.proj_p50).all()
+    assert (s.proj_tail > s.proj_points).all()
+    # top-quartile mean sits near/above p90 for right-skewed outcomes
+    assert (s.proj_tail > 0.9 * s.proj_p90).all()

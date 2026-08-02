@@ -348,8 +348,14 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
     from ..optimizer.lineup import PUNT_MAX_SALARY
 
     punt = skill.salary <= PUNT_MAX_SALARY
+    # A/B lever (env PUNT_VALUE=tail, off by default): value punts at the
+    # top-quartile MEAN (proj_tail) instead of the p90 point — ETR's
+    # ceiling definition; more stable and it sees the far tail p90 cuts
+    # off. Default stays p90 (the validated shipping rule).
+    ceil_col = ("proj_tail" if os.environ.get("PUNT_VALUE") == "tail"
+                and "proj_tail" in skill.columns else "proj_p90")
     skill["proj"] = skill.proj_points.where(~punt,
-                                            skill[["proj_points", "proj_p90"]].max(axis=1))
+                                            skill[["proj_points", ceil_col]].max(axis=1))
     import os as _os2
 
     _k = float(_os2.environ.get("ALT_CEIL", "0") or 0)

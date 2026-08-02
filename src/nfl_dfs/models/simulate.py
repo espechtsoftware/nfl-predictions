@@ -218,12 +218,18 @@ def simulate(
             mean_lump = 6.0 + 1.0 + 4.5
             draws = draws + events * lump_pts - rate * mean_lump
 
+    # proj_tail: mean of the top quartile of outcomes (ETR's ceiling
+    # definition, vendor audit 2026-08-03) — a tail AVERAGE is more
+    # stable than the p90 point and weighs the far tail the p90 ignores.
+    srt = np.sort(draws, axis=1)
+    q3 = srt[:, int(0.75 * srt.shape[1]):]
     summary = pd.DataFrame(
         {
             "proj_points": draws.mean(axis=1),
             "proj_p10": np.percentile(draws, 10, axis=1),
             "proj_p50": np.percentile(draws, 50, axis=1),
             "proj_p90": np.percentile(draws, 90, axis=1),
+            "proj_tail": q3.mean(axis=1),
             "proj_std": draws.std(axis=1),
             "p_20_plus": (draws >= 20.0).mean(axis=1),
         },
