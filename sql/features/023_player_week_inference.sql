@@ -74,6 +74,8 @@ SELECT
   -- Candidate features (EXTRA_FEATURES gate in featureset.py)
   pc.off_plays_l6 + pcd.def_plays_faced_l6 AS pace_env_l6,
   bl.blitz_rate_l6 AS opp_blitz_rate_l6,
+  fo.pa_rate_l6,
+  fd.def_pressure_rate_l6 AS opp_pressure_rate_l6,
   tc.top2_target_share_l6 AS team_top2_target_share_l6,
   qn.qb_cpoe_l6,
   qn.qb_time_to_throw_l6,
@@ -136,6 +138,10 @@ LEFT JOIN `${features}.team_week_pace` pcd
   ON pcd.team = s.opponent AND pcd.season = u.season AND pcd.week = u.week
 LEFT JOIN `${features}.defense_week_blitz` bl
   ON bl.team = s.opponent AND bl.season = u.season AND bl.week = u.week
+LEFT JOIN `${features}.team_week_ftn_offense` fo
+  ON fo.team = u.team AND fo.season = u.season AND fo.week = u.week
+LEFT JOIN `${features}.team_week_ftn_offense` fd
+  ON fd.team = s.opponent AND fd.season = u.season AND fd.week = u.week
 LEFT JOIN `${features}.team_week_target_concentration` tc
   ON tc.team = u.team AND tc.season = u.season AND tc.week = u.week
 LEFT JOIN `${features}.qb_week_ngs` qn

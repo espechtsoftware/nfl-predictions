@@ -94,6 +94,8 @@ CANDIDATE_FEATURES = (
     "opp_blitz_rate_l6",          # opponent defense blitz rate (FTN, 2022+)
     "team_top2_target_share_l6",  # target concentration -> stack strength
     "qb_time_to_throw_l6",        # NGS avg time to throw (2016+)
+    "pa_rate_l6",                 # team play-action rate (FTN, 2022+) — deep-shot / WR-ceiling context
+    "opp_pressure_rate_l6",       # opp pressure GENERATED per dropback (FTN, 2022+) — outcome, not rushers sent
 )
 
 
