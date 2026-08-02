@@ -31,6 +31,9 @@ def main(argv: list[str] | None = None) -> None:
                    help="Snapshot DK game lines via The Odds API")
     sub.add_parser("check-freshness",
                    help="Fail if any active data feed is stale (see status.py)")
+    sub.add_parser("backup-tables",
+                   help="Daily snapshots of irreplaceable tables (30-day "
+                        "retention, ops/backup.py)")
     sub.add_parser("train-ownership",
                    help="Fit ownership model on imported contest standings "
                         "(in-season; see issue #11)")
@@ -132,6 +135,10 @@ def main(argv: list[str] | None = None) -> None:
         from . import status
 
         status.check_freshness()
+    elif args.command == "backup-tables":
+        from .ops import backup
+
+        backup.run()
     elif args.command == "train-ownership":
         from .models import ownership
 
