@@ -82,12 +82,12 @@ def run() -> None:
                 continue
             except NotFound:
                 pass
-            c.query(f"""
-                CREATE SNAPSHOT TABLE `{dst}`
-                CLONE `{src}`
-                OPTIONS (expiration_timestamp = TIMESTAMP_ADD(
-                    CURRENT_TIMESTAMP(), INTERVAL {RETENTION_DAYS} DAY))
-            """).result()
+            # Retention comes from the DATASET default expiration (30d),
+            # not an OPTIONS clause: an explicit expiration_timestamp on
+            # CREATE SNAPSHOT demands bigquery.tables.deleteSnapshot
+            # (the expiry is a scheduled delete), which the job SA
+            # deliberately lacks. Inherited default dodges the check.
+            c.query(f"CREATE SNAPSHOT TABLE `{dst}` CLONE `{src}`").result()
             ok += 1
         except NotFound:
             # Tables like dk_contest_fills only exist once the season
