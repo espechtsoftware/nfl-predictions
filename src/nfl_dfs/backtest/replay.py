@@ -61,14 +61,40 @@ def replay_projections(
     summary = sim.summary
     if widen:
         summary = calibration.apply_widen(summary, rows.position)
+    # A/B lever (env SIM_WIDEN_DRAWS): the fitted widen factors above
+    # only ever stretched the SUMMARY quantiles — the draws that drive
+    # lineup optimization, boom solves, and tail-coverage selection have
+    # always been the raw (known-too-narrow: QB 1.5x, RB 1.45x per the
+    # calibration's own fit) composition. "fitted" applies DEFAULT_WIDEN
+    # to the draws mean-preservingly; or pass explicit "WR:1.3,QB:1.5".
+    draws_out = sim.draws
+    if return_draws and os.environ.get("SIM_WIDEN_DRAWS"):
+        draws_out = _widen_draws(sim.draws, rows.position,
+                                 os.environ["SIM_WIDEN_DRAWS"])
     keep = [c for c in ("gsis_id", "name", "season", "week", "team", "opponent",
                         "position", "game_id", "salary") if c in rows.columns]
     out = pd.concat([rows[keep], summary], axis=1)
     out["actual"] = rows["y_dk_points"].to_numpy()
     out["naive"] = rows.get("dk_points_l4")  # trailing average, the free baseline
     if return_draws:
-        return out, sim.draws.astype(np.float32)
+        return out, draws_out.astype(np.float32)
     return out
+
+
+def _widen_draws(draws: np.ndarray, positions: pd.Series, spec: str) -> np.ndarray:
+    """Mean-preserving per-position spread widening of the draw matrix
+    (draws[i, k] = player i's points in sim k). E[row] is exactly
+    unchanged; row std scales by the position factor. spec: "fitted"
+    (calibration.DEFAULT_WIDEN) or "WR:1.3,QB:1.5"."""
+    if spec.strip().lower() == "fitted":
+        factors = dict(calibration.DEFAULT_WIDEN)
+    else:
+        factors = {k.strip().upper(): float(v) for k, _, v in
+                   (p.partition(":") for p in spec.split(","))}
+    w = positions.map(lambda p: factors.get(str(p).upper(), 1.0)) \
+                 .to_numpy(dtype=np.float64)[:, None]
+    mu = draws.mean(axis=1, keepdims=True)
+    return mu + (draws - mu) * w
 
 
 def replay_metrics(proj: pd.DataFrame) -> tuple[dict, pd.DataFrame]:
