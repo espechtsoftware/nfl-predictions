@@ -1,10 +1,13 @@
-# Six-season replay harvest — shipping baseline of record (2026-08-01)
+# Six-season replay harvest — shipping baseline of record (2026-08-02, PUNT_BOOM=2)
 
 Definitive baseline: canonical feature ordering (alphabetical `build_X`),
-possession-sim game engine, tail-coverage selection of 40 GPP entries per
-week, tournament constraints on (bring-back, sub-$4k punt, RB-vs-DST ban,
-chalk fade). Deterministic — these numbers reproduce exactly on re-run
-(verified: harvest matched the Addendum 35 panel to the decimal).
+possession-sim game engine, archetype punt tilt (PUNT_BOOM=2, adopted
+Addendum 37 — the only lever to improve every metric at once),
+tail-coverage selection of 40 GPP entries per week, tournament
+constraints on (bring-back, sub-$4k punt, RB-vs-DST ban, chalk fade).
+Deterministic — these numbers reproduce exactly on re-run (verified:
+harvest matched the Addendum 37 panel to the decimal, running on the
+code default with no env override).
 
 Companion spreadsheet: `six-season-replay-lineups.csv` — every player of
 every entered lineup (4,040 lineups, 36,360 rows): season, week,
@@ -15,13 +18,13 @@ projection, actual DK points.
 
 | Season | Weeks | Mean best | Highest score | Weeks ≥194 | Weeks ≥237 | Median finish | ROI |
 |---|---|---|---|---|---|---|---|
-| 2019 | 16 | 184.7 | **271.1** (wk 5) | 2 | 1 | 11.9% | +60,486% |
-| 2021 | 17 | 177.2 | **238.9** (wk 5) | 3 | 1 | 15.1% | +33,174% |
-| 2022 | 17 | 173.1 | **206.3** (wk 2) | 2 | 0 | 15.9% | +32,880% |
-| 2023 | 17 | 174.2 | **200.6** (wk 3) | 2 | 0 | 13.6% | +44,792% |
-| 2024 | 17 | 177.5 | **194.8** (wk 5) | 2 | 0 | 16.3% | +15,255% |
-| 2025 | 17 | 183.5 | **230.9** (wk 12) | 4 | 0 | 14.6% | +33,162% |
-| **Total** | **101** | **178.4** | 271.1 | **15** | **2** | **14.6% avg** | **+219,749% sum** |
+| 2019 | 16 | 185.1 | **271.1** (wk 5) | 2 | 1 | 10.7% | +73,226% |
+| 2021 | 17 | 179.5 | **238.9** (wk 5) | 3 | 1 | 15.1% | +39,137% |
+| 2022 | 17 | 175.5 | **206.3** (wk 2) | 3 | 0 | 16.0% | +38,804% |
+| 2023 | 17 | 175.0 | **200.6** (wk 3) | 2 | 0 | 14.2% | +50,701% |
+| 2024 | 17 | 177.2 | **194.8** (wk 5) | 2 | 0 | 16.0% | +18,150% |
+| 2025 | 17 | 185.6 | **230.9** (wk 12) | 4 | 0 | 14.2% | +36,110% |
+| **Total** | **101** | **179.6** | 271.1 | **16** | **2** | **14.4% avg** | **+256,128% sum** |
 
 Reference lines are 2025 Milly Maker anchors: 194 = minimum winning line,
 237 = average. Median finish percentile is the season-portable metric
@@ -119,6 +122,12 @@ survived), and cheap DSTs. Note how many winners carry one dead spot
 271-point week doesn't need nine hits, it needs five booms, which is why
 the selection objective chases tail coverage instead of mean.
 
-Provenance: Addendum 35 (selection-objective panel, this baseline's
-adoption) and Addendum 34 (canonical ordering) in
-`2026-07-25-system-study.md`.
+Every season's highest-scoring lineup is IDENTICAL to the pre-punt-boom
+baseline — the tilt reshaped ~21k of 36k lineup slots across the
+portfolio (better punts in the breadth entries, +1 tail week in 2022,
+ROI +17%) without touching the peaks. That's the adoption thesis in
+one line: a tiebreak among near-equal punts, never a mandate.
+
+Provenance: Addendum 37 (PUNT_BOOM adoption, this baseline), 36
+(attribution sweep), 35 (selection-objective panel), 34 (canonical
+ordering) in `2026-07-25-system-study.md`.
