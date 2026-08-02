@@ -56,7 +56,15 @@ def run() -> None:
         c.create_dataset(ds)
         log.info("created backup dataset %s", ds)
 
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%d")
+    import os
+
+    # NOTE: never reuse a snapshot name deleted <7 days ago — BigQuery
+    # treats same-name recreation inside the time-travel window as a
+    # replace and demands deleteSnapshot, which the job SA lacks by
+    # design. Daily date stamps make this a non-issue in production;
+    # BACKUP_SUFFIX exists so a fresh-name run can be tested on demand.
+    stamp = (datetime.now(timezone.utc).strftime("%Y%m%d")
+             + os.environ.get("BACKUP_SUFFIX", ""))
     ok = missing = 0
     for attr, table in TABLES:
         src = f"{getattr(settings, attr)}.{table}"
