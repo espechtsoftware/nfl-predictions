@@ -139,6 +139,40 @@ def dst_slate_rows(dst: pd.DataFrame,
     return d
 
 
+def _punt_boom_from_signals(df: pd.DataFrame) -> set[tuple]:
+    """(gsis_id, season, week) keys matching a winning-punt archetype
+    (Addendum 24/36): cheap starting TEs (depth_rank 1 — DK's TE pricing
+    compression puts real starters at min price), newly-promoted rank-1s
+    (the Gadsden case: rank 2 -> 1), and injury-cascade beneficiaries
+    (top-decile vacated share that week). Salary gating happens at
+    application time; these are role signals only.
+
+    df columns: gsis_id, season, week, position, depth_rank, prev_rank,
+    vac (max of vacated target/carry share). All point-in-time."""
+    te_starter = (df.position == "TE") & (df.depth_rank == 1)
+    promoted = (df.depth_rank == 1) & (df.prev_rank >= 2)
+    vac_pct = df.groupby(["season", "week"]).vac.rank(pct=True)
+    cascade = (df.vac > 0) & (vac_pct >= 0.90)
+    hit = df[te_starter | promoted | cascade]
+    return {(r.gsis_id, int(r.season), int(r.week)) for r in hit.itertuples()}
+
+
+def _punt_boom_flags(seasons: list) -> set[tuple]:
+    from ..bq import query_df
+    from ..config import settings
+
+    yrs = ",".join(str(int(s)) for s in seasons)
+    df = query_df(f"""
+        SELECT gsis_id, season, week, position, depth_rank,
+               LAG(depth_rank) OVER (
+                   PARTITION BY gsis_id, season ORDER BY week) prev_rank,
+               GREATEST(COALESCE(team_vacated_target_share, 0),
+                        COALESCE(team_vacated_carry_share, 0)) vac
+        FROM `{settings.features}.player_week_training`
+        WHERE season IN ({yrs})""")
+    return _punt_boom_from_signals(df)
+
+
 def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFrame]:
     """One engine-ready slate per week: skill rows from the replay (dropping
     the few without a salary) plus DST rows when provided."""
@@ -205,6 +239,15 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
     if os.environ.get("OWN_MODEL"):
         replay_season = int(skill.season.max())
         own_booster = _ownership_booster(replay_season)
+    punt_boom = float(os.environ.get("PUNT_BOOM", "0") or 0)
+    boom_keys: set = set()
+    if punt_boom:
+        try:
+            boom_keys = _punt_boom_flags(sorted(skill.season.unique()))
+            log.info("punt-boom: %d flagged player-weeks", len(boom_keys))
+        except Exception:
+            log.exception("punt-boom signals unavailable; lever inert")
+            punt_boom = 0.0
     slates = []
     for (season, week), grp in skill.groupby(["season", "week"]):
         cols = ["id", "name", "pos", "team", "opp", "game_id",
@@ -277,6 +320,20 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
 
             cheap_dst = (frame.pos == "DST") & (frame.salary <= _punt_cap)
             frame.loc[cheap_dst, "proj_tourney"] += dst_bonus
+        # A/B lever (env PUNT_BOOM, off by default): Addendum 36 found a
+        # perfect punt swap crosses 194 in 16/28 near-miss weeks while
+        # our punts average 7.3 with 45% duds. Boost OUR objective for
+        # punt-priced skill players matching a winning-punt archetype
+        # (see _punt_boom_from_signals); the field's proj is untouched.
+        if punt_boom and boom_keys:
+            from ..optimizer.lineup import PUNT_MAX_SALARY as _pcap2
+
+            keys = list(zip(frame.id, frame.season.astype(int),
+                            frame.week.astype(int)))
+            boom = pd.Series([k in boom_keys for k in keys],
+                             index=frame.index)
+            boom &= (frame.salary <= _pcap2) & (frame.pos != "DST")
+            frame.loc[boom, "proj_tourney"] += punt_boom
         slates.append(frame)
     return slates
 
