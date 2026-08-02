@@ -1020,3 +1020,52 @@ six-season panel reads 15/101 tail weeks (was 23/101 pre-canonical,
 Addendum 32) — order luck cut both ways and the honest number is the
 reproducible one. The sequential harvest running now (baseline config)
 defines the shipping baseline and produces the per-year lineup book.
+
+## Addendum 36 (2026-08-01): harvest attribution — the assembly gap; concentration levers tested, declined for GPP
+
+Full attribution sweep over the harvest lineup book (four analyses, all
+deterministic against the 49f8dac baseline):
+
+1. **The ceiling always exists.** Perfect-hindsight optimal (MILP over
+   actuals, 8 skill slots + our DST) scored >=194 in 101/101 weeks and
+   >=237 in 99/101 (avg ~283). Our capture: 63.5% of optimal; a 237
+   Milly winner runs ~84%. Misses are never "the slate had no ceiling."
+2. **Identification is fine; assembly is the gap.** 71% of each week's
+   top-3 actual scorers per position appear somewhere in our 40; the
+   slate's #1 QB is rostered 71% of weeks; entry diversity healthy (14%
+   pairwise overlap, ~120 unique players/week). But the 40 spread over
+   ~16 distinct QBs (~2.5 tickets/stack), and the best single-lineup
+   overlap with the weekly optimal-8 is TWO players in the median week
+   (2.8 in boom weeks). Right stacks, wrong pieces.
+3. **Punt anatomy validated, punt quality poor.** Optimal lineups carry
+   ~1.0 sub-$4k skill player (the mandatory-punt rule matches winning
+   anatomy). Our punts: mean 7.3 pts, 45% under 5. A perfect
+   same-position punt swap crosses 194 in 16 of 28 near-miss weeks
+   (oracle bound). Punt-boom prediction (Addendum 24 next-man-up
+   detector) is now the highest-value untested lever.
+4. **The near-miss band is dense**: 28 weeks at 180-194.
+
+Levers built and tested (eb69be0, env-gated, off by default):
+MAX_QBS (distinct-QB cap in tail selection, cap-aware greedy) and
+N_QB_VARIANTS (per-top-QB catcher-combination candidates). Six-season
+panel vs the 49f8dac baseline (tails / >=237 / median / ROI):
+baseline 15 / 2 / 14.6% / +220k; cap8+var4 14 / 1 / 14.2% / +248k;
+cap12+var4 15 / 1 / 13.7% / +244k; cap8-only 13 / 1 / +249k.
+
+Verdict: **declined for the GPP default.** Every arm loses 2021 week
+5's 238.9 (one of only two >=237 weeks in six seasons — the 4-Raven
+Lamar build survives only under uncapped coverage), and none adds tail
+weeks. Concentration buys mid-distribution consistency (median and ROI
+up in every arm) at the extreme tail's expense — the same trade
+direction as dollars selection, and the same reason to refuse it for
+the Milly. cap12+var4 joins SELECT_OBJ=dollars as a validated
+qualifier-mix candidate (equal 194-tails, better median, +11% ROI).
+
+The assembly gap is real but is evidently not closed by concentration
+alone: with the cap on, selection holds more combos of the stacks the
+MODEL likes, which converts only when the projections rank the right
+stacks. The binding constraint under the cap becomes projection quality
+on stack ordering, not coverage breadth. Remaining levers from this
+sweep, in value order: (a) punt-boom scoring in the punt slot
+(next-man-up + depth-rank transition, Addendum 24), (b) stack-ordering
+quality (QB p90 calibration), (c) nothing else visible in the book.
