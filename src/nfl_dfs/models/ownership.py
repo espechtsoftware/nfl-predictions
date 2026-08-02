@@ -139,6 +139,17 @@ def run_training(holdout_season: int = 2025) -> None:
     print(f"OUT-OF-SAMPLE {holdout_season}: model corr {corr:.3f} "
           f"vs naive value-rank corr {naive_corr:.3f}")
 
+    # Cold-start read (paid-ownership-feed decision): the model's weakest
+    # weeks should be 1-4, before the season's own usage/salary signals
+    # accumulate. Per-week holdout corr says how big that gap really is.
+    ho = ho.assign(_pred=pred, _naive=naive)
+    for w, g in ho.groupby("week"):
+        if len(g) < 30:
+            continue
+        mc = np.corrcoef(g._pred, g[TARGET])[0, 1]
+        nc = np.corrcoef(g._naive, g[TARGET])[0, 1]
+        print(f"  week {int(w):2}: model {mc:.3f}  naive {nc:.3f}  n={len(g)}")
+
     booster = train(frame)  # refit on all seasons for the live artifact
     import os
 
