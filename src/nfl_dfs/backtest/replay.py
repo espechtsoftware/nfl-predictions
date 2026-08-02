@@ -53,10 +53,19 @@ def replay_projections(
         raise ValueError(f"no {season} rows in panel")
     rows = coldstart.fill_cold_start_features(rows)
 
+    # Big-play mixture rate (env BIGPLAY=<scale>): expected house-calls
+    # per game from the point-in-time deep-target profile. At scale 1 a
+    # 3-deep-targets/wk receiver draws ~0.09 long-TD events/game.
+    bigplay = None
+    _bp = float(os.environ.get("BIGPLAY", "0") or 0)
+    if _bp and "deep_targets_l4" in rows.columns:
+        bigplay = 0.03 * _bp * pd.to_numeric(
+            rows.deep_targets_l4, errors="coerce").fillna(0.0)
     sim = simulate.simulate(cm.predict_components(rows), n_sims=n_sims,
                         seed=seed, game_ids=rows.get("game_id"),
                         team_ids=rows.get("team"),
                         game_totals=rows.get("game_total"),
+                        bigplay_rate=bigplay,
                         keep_draws=return_draws)
     summary = sim.summary
     if widen:

@@ -55,6 +55,7 @@ def simulate(
     game_ids: pd.Series | None = None,
     team_ids: pd.Series | None = None,
     game_totals: pd.Series | None = None,
+    bigplay_rate: pd.Series | None = None,
 ) -> SimResult:
     """game_ids (aligned to comps) enables correlated game environments:
     one shared lognormal factor per (game, sim) scales every player's
@@ -195,6 +196,27 @@ def simulate(
             rec_tds=rec_tds,
         )
     )
+
+    # Big-play mixture (env BIGPLAY, off by default): explicit house-call
+    # events for deep-threat profiles. Linear widening cannot create the
+    # LUMP a deep WR's true distribution has (the 2-long-TD eruption --
+    # Fuller 56.7 @ $4.5k, the event class real Milly winners are built
+    # on, Addendum 38). Each event adds TD + long-catch yardage; the
+    # expected addition is subtracted so E[row] is EXACTLY unchanged --
+    # only the shape moves, mass migrates from the middle to the far
+    # tail. bigplay_rate (aligned to comps) carries expected events/game
+    # per player; callers derive it from the deep-target profile.
+    if bigplay_rate is not None:
+        rate = np.nan_to_num(
+            pd.Series(bigplay_rate).reset_index(drop=True)
+            .to_numpy(dtype=float)).clip(0.0, 0.5)[:, None]
+        if rate.any():
+            events = rng.poisson(rate, (n, n_sims))
+            # long TD: 6 (TD) + 1 (catch) + ~45yd => ~4.5 yardage points
+            yds = 30.0 + rng.exponential(15.0, (n, n_sims))
+            lump_pts = 6.0 + 1.0 + yds / 10.0
+            mean_lump = 6.0 + 1.0 + 4.5
+            draws = draws + events * lump_pts - rate * mean_lump
 
     summary = pd.DataFrame(
         {
