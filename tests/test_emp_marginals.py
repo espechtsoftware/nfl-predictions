@@ -37,12 +37,8 @@ def test_wr_high_tier_gains_right_skew():
 
 
 def test_unknown_position_passthrough():
+    # position absent from the fitted table -> row must be untouched
     draws = _draws(n_rows=1)
-    out = _empirical_marginals(draws, pd.Series(["DST"]),
+    out = _empirical_marginals(draws, pd.Series(["FB"]),
                                np.random.default_rng(1))
-    row_changed = not np.allclose(out[0], draws[0])
-    # DST rows exist in the fitted table, so it may transform; K does not
-    out_k = _empirical_marginals(draws, pd.Series(["K"]),
-                                 np.random.default_rng(1))
-    np.testing.assert_array_equal(out_k[0], draws[0])
-    assert row_changed or True
+    np.testing.assert_array_equal(out[0], draws[0])
