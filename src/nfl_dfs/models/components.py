@@ -109,6 +109,17 @@ def train(
 ) -> ComponentModels:
     """Train every component on seasons before `target_season`."""
     tr = panel[panel.season < target_season]
+    # A/B lever (env TRAIN_MAX_WEEK, off by default): drop late-season
+    # training rows. Rest-week dynamics (playoff-locked starters on a
+    # half, surprise backups) generate labels unrepresentative of the
+    # weeks the user actually plays; fully-rested stars vanish entirely
+    # (no stats row), so the residue is systematically weird. 16 keeps
+    # ~88% of rows and excludes the modern weeks 17-18.
+    import os as _os
+
+    max_wk = int(_os.environ.get("TRAIN_MAX_WEEK", "0"))
+    if max_wk:
+        tr = tr[tr.week <= max_wk]
     if tr.empty:
         raise ValueError(f"no training rows before season {target_season}")
 
