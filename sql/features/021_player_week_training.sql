@@ -141,7 +141,12 @@ LEFT JOIN `${features}.team_week_target_concentration` tc
 LEFT JOIN `${features}.qb_week_ngs` qn
   ON qn.gsis_id = u.gsis_id AND qn.season = u.season AND qn.week = u.week
 WHERE u.position IN ('QB', 'RB', 'WR', 'TE')
-  AND u.games_played_prior >= 1
+  -- Season openers (week 1) train the cold-start regime the live path
+  -- serves every September: trailing windows NULL, is_cold_start true,
+  -- the model leans on salary/depth/draft/context — exactly what a real
+  -- week-1 slate offers. Before 2026-08-02 these rows were dropped, so
+  -- week 1 was untrainable AND unreplayable (023 always emitted them).
+  AND (u.games_played_prior >= 1 OR u.week = 1)
   -- Upcoming-week synthetic rows (014) are inference-only; the actuals
   -- inner join already drops them, this states the intent.
   AND NOT u.is_upcoming
