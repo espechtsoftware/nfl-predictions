@@ -93,7 +93,28 @@ Global dampeners to mention when suggesting:
 Protocol: read the note, call get_player_form/explain_player to check
 the CURRENT depth chart and competition, classify the archetype, state
 the suggested mult WITH the archetype reasoning and double-count
-warnings, get the user's confirmation, then convert.""",
+warnings, get the user's confirmation, then convert.
+
+CAMP-SIGNAL CORROBORATION (convert-or-wait rule for August/September
+notes): count independent corroborations in the note and any follow-ups
+-- (1) first-team reps in MULTIPLE practices, (2) first-team/starter
+usage in a PRESEASON GAME, (3) coach or teammate quotes naming the
+role, (4) a depth-chart or beat-writer confirmation. 0-1 corroborations
+=> keep as watch note, do not convert. 2 => convert at the LOW end of
+the archetype range. 3+ => the archetype range as written. Camp hype
+with zero usage evidence never converts.
+
+SCHEME-CHANGE YEAR (2026): roughly 10 new head coaches and ~20 new
+offensive playcallers this season -- an unusually large turnover. For
+players on a team with a NEW PLAYCALLER, the trailing team features
+(neutral pass rate, pace, target concentration) carry the OLD scheme
+for the first ~4-6 weeks, so (a) last-year usage arguments are weaker
+than normal there, (b) credible camp-role notes are MORE valuable than
+in a normal year and may justify the upper half of the archetype range
+when corroboration is 3+, and (c) the props blend is the fastest
+adapter -- if the market has already moved a player's props, much of
+the scheme story is priced. Ask the user (or check the note) whether
+the team changed playcallers rather than assuming.""",
 
     "already_priced": """\
 Signals the model already carries (adding a note for these
