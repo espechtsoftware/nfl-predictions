@@ -62,8 +62,20 @@ def run() -> None:
         src = f"{getattr(settings, attr)}.{table}"
         dst = f"{ds}.{table}_{stamp}"
         try:
+            # Explicit existence check instead of IF NOT EXISTS: on an
+            # existing snapshot the DDL path demands deleteSnapshot,
+            # which the job's service account deliberately lacks
+            # (dataEditor has createSnapshot only — backups are
+            # append-only from the job's point of view).
+            try:
+                c.get_table(dst)
+                log.info("backup: %s already exists, kept", dst)
+                ok += 1
+                continue
+            except NotFound:
+                pass
             c.query(f"""
-                CREATE SNAPSHOT TABLE IF NOT EXISTS `{dst}`
+                CREATE SNAPSHOT TABLE `{dst}`
                 CLONE `{src}`
                 OPTIONS (expiration_timestamp = TIMESTAMP_ADD(
                     CURRENT_TIMESTAMP(), INTERVAL {RETENTION_DAYS} DAY))
