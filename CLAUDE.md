@@ -53,31 +53,41 @@ Config is env vars only, all read in `src/nfl_dfs/config.py`.
   with `nfl.get_current_season()` when loading (see `ingest/nflverse_job.py`).
 
 
-## Handoff state (2026-07-25, written after local machine instability)
+## Handoff state (2026-08-03, end of pre-season program)
 
-Local box crashes under load (HYPERVISOR_ERROR; .wslconfig caps applied,
-unproven). Strategy: BigQuery queries and tests run locally; ANY heavy compute
-(model training, replays, ablations) runs on Cloud Run ONLY — local
-LightGBM training has frozen the machine repeatedly (2026-07-26).
+Local box crashes under load (HYPERVISOR_ERROR): BigQuery queries and
+tests run locally; ANY heavy compute (training, replays, panels) runs on
+Cloud Run ONLY. The full experiment ledger is
+reports/2026-07-25-system-study.md (40 addenda); the September runbook
+calendar is in README (season-start table). Auto-memory carries the
+user-facing plans (contest mix, week-1 checks, in-season queue).
 
-- **Tournament construction is the ONLY mode** (user plays GPPs only,
-  35-40 entries): every lineup (classic + showdown) requires >=1 sub-$4k
-  punt valued at p90; chalk-fade penalty (LEVERAGE_PENALTY x naive
-  ownership) applies to OUR objective only, never the simulated field
-  (proj_tourney vs proj in replay slates); stack defaults QB+2 catchers
-  +1 bring-back; replay prints winning-line tail (>=237 avg / >=194 min
-  2025 Milly lines, reports/2025-milly-winners.csv). PUNT_BOOM=2 is an
-  adopted default on both replay and app paths (Addendum 37: archetype
-  punt tilt, the only all-metric win of the program; 0 disables).
-- **Committed but UNVALIDATED**: the tournament-mode replays (classic
-  gpp + showdown, season 2025) never completed — machine crashed. First
-  task: run `nfl-dfs replay --season 2025 --contest gpp` and
-  `nfl-dfs replay-showdown --season 2025 --entries 40`; compare tail vs
-  pre-tournament baseline (best mean 158.5, 2/17 weeks >=190).
-- **Open analysis — DONE 2026-08-01** (Addendum 24 in
-  reports/2026-07-25-system-study.md): next-man-up detector flags ~1/3 of
-  player punt booms; dominant winning-punt archetypes are cheap starting
-  TEs (depth_rank 1, nothing vacated) and DSTs (7/17). Follow-up ideas
-  recorded there (depth-rank transition signal; punt-pool composition).
-- Everything else: reports/2026-07-25-system-study.md (addenda 1-4) and
-  the README deficiency log are current.
+- **Tournament construction is the ONLY mode** (user plays GPPs: ~40x $5
+  qualifier + ~40x $3 tourney + ~4 Milly weekly, generated as separate
+  runs per contest field size): mandatory sub-$4k punt valued at p90,
+  chalk-fade on OUR objective only, QB+2 catchers + bring-back, punt-boom
+  archetype tilt (PUNT_BOOM=2 adopted, both paths). Tail metric = real
+  per-week Milly lines (backtest/real_lines.py), not the 194/237 anchors.
+- **Validation laws** (hard-won, do not relax): panels or nothing
+  (six-season, never single-season); replays are deterministic BUT
+  feature-table REBUILDS are not (BQ tie-breaking) — after ANY
+  build-features run, every panel must co-run its own CONTROL arm on the
+  same table build (2026-08-03 incident: a rebuild silently shifted the
+  baseline and nearly mis-judged nine arms); adding ANY feature column
+  reshuffles LightGBM tie-breaks (~±5 mean-best "order luck").
+- **Env-lever registry**: adopted defaults live in code; every tested
+  lever and its verdict is in the study report. Notable off-by-default
+  levers validated for QUALIFIER contests (not Milly): SELECT_OBJ=dollars,
+  LEV_POS_WEIGHTS (empirical QB:2.08), MAX_QBS/N_QB_VARIANTS, LEV_SHAPE=sqrt.
+  Untested-inert: PUNT_VALUE=tail, BIGPLAY (equal tails/+ROI), SIMS 30k
+  (live-only candidate).
+- **September machinery is pre-built, data-gated**: import-ownership now
+  captures per-entry lineups (contest_entries; DK purges exports ~4
+  DAYS — download standings Mon/Tue after every slate, non-negotiable);
+  `nfl-dfs field-calibration` scores field-sim dupe realism vs real
+  entries (RTS benchmarks 0.43/0.72); /market has external-projection
+  consensus diff (ETR weekly pass planned Sep 8-9) + accuracy grading;
+  lineup cards show Lev% and watch notes; daily backups (s-backup) cover
+  all irreplaceable tables.
+- Reference clones of public DFS repos live in
+  /home/erich/projects/other-nfl-projects (analysis in addenda/memory).
