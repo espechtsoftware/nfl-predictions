@@ -1103,3 +1103,39 @@ week's player_week_inference rows so a fresh promotion is visible in
 its first week). Env still overrides; 0 disables. The shipping baseline
 of record is now the PB2 row; the six-season lineup book is being
 regenerated to match.
+
+## Addendum 38 (2026-08-02): real Milly winners 2019/2023/2024 — the honest bar, and where the 55 points live
+
+The user supplied player-level Milly-winning rosters for 2019, 2023 and
+2024 (reports/milly-winners-2019-2023-2024.csv; 2024 wk9 is a duplicate
+of wk7 in the source and is excluded). Combined with the 2025 file this
+gives 68 real per-week winning lines — now wired into replay reporting
+(backtest/real_lines.py, "vs REAL winning lines" output row).
+
+**Ground truth vs our book: beat the actual same-week winner 1/64
+weeks** (2024 wk10, a 178.3 line). Mean gap 51-68 pts by season. Real
+lines: median ~237 (2023-25) but 252 in 2019; season minima 178-222.
+The long-standing "194 min line" was a season minimum, not a typical
+bar — and 2025's softest line (193.9) was WEEK 1, the week replays
+never covered until today's cold-start fix. The market is most beatable
+exactly where our validation was blind.
+
+**Winner anatomy (50 lineups):** ~120% summed ownership (~13%/player),
+~2 sub-5% players, ~1.9 chalk (>=20%) pieces, punt in 73%, salary to
+the cap. QB: 60% under $6.5k, mean 8.3% owned. Boom density: 3.4
+players >=30 pts and ~1.0 >=40 per winner (ours: 1.8 and 0.6).
+
+**Slot decomposition of the gap** (winners vs our weekly-best):
+WR 29.9 vs 19.9 (x3 slots = ~30 pts — THE deficit), TE 21.5 vs 15.4,
+DST 16.7 vs 12.7, RB 26.8 vs 22.0, QB 32.6 vs 28.3. Winning WRs are
+mid-priced eruptions (Fuller 56.7 @ $4.5k, Jennings 49.5 @ $4.1k).
+67% of winning players were already somewhere in our 40 that week —
+identification holds, assembly + WR-ceiling capture fail.
+
+Prescriptions queued (both already-coded env levers, panel next):
+N_MIDQB (winner QBs are exactly mid-priced low-owned) and
+LEV_POS_WEIGHTS (Levitan: crowd accurate on RB chalk, weak on WR/TE/DST
+— fade where the crowd is wrong). Strategy implication unchanged but
+sharpened: 4 Milly entries are lottery tickets against a 237 median;
+the ~187 qualifier line (cleared 7/17 weeks in 2025) is where the
+edge actually cashes.
