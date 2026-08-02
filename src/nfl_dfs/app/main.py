@@ -670,6 +670,12 @@ def market_page() -> str:
 <input id='ms' size='5' placeholder='season'> <input id='mw' size='3'
 placeholder='wk'> <button id='mgo'>Load</button></div>
 <div id='dis'><small>Enter a projected week (in-season) and Load.</small></div>
+<h2 style='margin-top:2rem'>Projection accuracy (last completed week)</h2>
+<div style='margin:.4rem 0'>
+<input id='as' size='5' placeholder='season'> <input id='aw' size='3' placeholder='wk'>
+<button id='ago'>Grade</button></div>
+<div id='acc'><small>Grade any completed week: our MAE / rank corr vs the
+naive trailing-average baseline.</small></div>
 <h2 style='margin-top:2rem'>Consensus diff (external projections)</h2>
 <div style='margin:.4rem 0'><small>Upload an outside CSV (ETR, Stokastic,
 free ownership sites — needs name + projection columns; ownership/ceiling
@@ -697,6 +703,14 @@ document.getElementById('mgo').onclick=async()=>{
   const j=await (await fetch(`/api/market-disagreement?season=${s}&week=${w}`)).json();
   document.getElementById('dis').innerHTML=tbl(j,
     ['display_name','position','team','salary','proj_points','market_points','edge']);
+};
+document.getElementById('ago').onclick=async()=>{
+  const s=document.getElementById('as').value,w=document.getElementById('aw').value;
+  if(!s||!w)return;
+  const j=await (await fetch(`/api/accuracy?season=${s}&week=${w}`)).json();
+  if(j.status){document.getElementById('acc').innerHTML=`<small>${j.status}</small>`;return;}
+  let h=`<p><b>MAE ${j.mae}</b>${j.naive_mae?` vs naive ${j.naive_mae}`:''} · rank corr ${j.rank_corr} · n=${j.rows}</p>`;
+  document.getElementById('acc').innerHTML=h+tbl(j.by_position||[],['position','n','mae','rank_corr']);
 };
 document.getElementById('xup').onclick=async()=>{
   const src=document.getElementById('xsrc').value||'external',
@@ -870,6 +884,48 @@ async def api_external_import(source: str, season: int, week: int,
     except ValueError as exc:
         raise HTTPException(400, str(exc))
     return {"imported": n, "source": source, "season": season, "week": week}
+
+
+@app.get("/api/accuracy")
+def api_accuracy(season: int, week: int) -> dict:
+    """Walk-forward self-grading (4for4 discipline, vendor audit 10/11f):
+    last completed week's projections vs actuals — MAE, rank correlation,
+    and the naive trailing-average baseline that any real model must
+    beat. Empty until the week's actuals land (Tue after the slate)."""
+    from ..bq import query_df
+    from ..config import settings
+
+    store = get_store()
+    proj = store.projections(season, week)
+    if proj.empty:
+        return {"status": f"no projections for {season} wk {week}"}
+    act = query_df(
+        f"""SELECT gsis_id, MAX(dk_points) actual
+            FROM `{settings.features}.player_week_actuals`
+            WHERE season={int(season)} AND week={int(week)} GROUP BY gsis_id""")
+    if act.empty:
+        return {"status": "actuals not loaded yet (Tuesday ingest)"}
+    j = proj.merge(act, on="gsis_id", how="inner")
+    if len(j) < 20:
+        return {"status": f"only {len(j)} matched rows"}
+    out = {"season": season, "week": week, "rows": int(len(j)),
+           "mae": round(float((j.proj_points - j.actual).abs().mean()), 2),
+           "rank_corr": round(float(
+               j.proj_points.corr(j.actual, method="spearman")), 3)}
+    if "dk_points_l4" in j.columns:
+        n = j.dropna(subset=["dk_points_l4"])
+        if len(n) > 20:
+            out["naive_mae"] = round(float(
+                (n.dk_points_l4 - n.actual).abs().mean()), 2)
+    per = []
+    for pos, g in j.groupby("position"):
+        if len(g) >= 8:
+            per.append({"position": pos, "n": int(len(g)),
+                        "mae": round(float((g.proj_points - g.actual).abs().mean()), 2),
+                        "rank_corr": round(float(
+                            g.proj_points.corr(g.actual, method="spearman")), 3)})
+    out["by_position"] = per
+    return out
 
 
 @app.get("/api/external-diff")
