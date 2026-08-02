@@ -359,9 +359,12 @@ async function build(){
               pr=cpt?1.5*p.proj:+p.proj;
         const wn=p.watch_note?` <span title="${String(p.watch_note)
           .replace(/"/g,'&quot;')}" style='cursor:help'>&#128221;</span>`:'';
+        const lev=(p.lev_pct!=null&&Math.abs(p.lev_pct)>=8)
+          ?` <small title='Lev%: our exposure minus expected field ownership'`+
+           ` style='color:${p.lev_pct>0?"#0a7":"#c60"}'>${p.lev_pct>0?"+":""}${p.lev_pct}%</small>`:'';
         return `<tr${p.watch_note?` title="${String(p.watch_note)
           .replace(/"/g,'&quot;')}"`:''}><td><span class='slot'>${slot}</span></td>`+
-        `<td style='text-align:left'>${p.name}${wn}</td>`+
+        `<td style='text-align:left'>${p.name}${wn}${lev}</td>`+
         `<td>${p.team}${p.opp?' @ '+p.opp:''}</td>`+
         `<td>$${sal.toLocaleString()}</td>`+
         `<td>${pr.toFixed(1)}</td></tr>`;}).join('');
@@ -1447,7 +1450,37 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
     # Confidence order everywhere (JSON + CSVs): first lineup = strongest
     # entry, so "enter the top N in the bigger contest" is just slicing.
     ranked = _rank_by_confidence(lineups, df, line=req.line())
+    _annotate_leverage([r["lineup"] for r in ranked])
     return [r["lineup"] for r in ranked], ranked
+
+
+def _annotate_leverage(lineups: list) -> None:
+    """Stokastic-style Lev% (2026-08-03 vendor-methodology audit): a
+    player's exposure across OUR chosen entries minus his expected field
+    ownership — 'how much more are we on him than the field will be'.
+    Display-only; positive = our stand, negative = underweight vs field.
+    Fail-safe: lineups without the metric beat no lineups."""
+    try:
+        import pandas as _pd
+
+        from ..backtest.field import naive_ownership
+
+        players: dict[int, dict] = {}
+        counts: dict[int, int] = {}
+        for lu in lineups:
+            for p in lu.players:
+                players[p["id"]] = p
+                counts[p["id"]] = counts.get(p["id"], 0) + 1
+        pool = list(players.values())
+        own = naive_ownership(_pd.DataFrame(pool))
+        slots = {"QB": 1.0, "RB": 2.5, "WR": 3.5, "TE": 1.2, "DST": 1.0}
+        n = max(len(lineups), 1)
+        for p, w in zip(pool, own):
+            field_pct = 100.0 * float(w) * slots.get(str(p.get("pos")), 1.0)
+            expo = 100.0 * counts[p["id"]] / n
+            p["lev_pct"] = round(expo - field_pct, 1)
+    except Exception:
+        log.exception("leverage annotation failed; lineups unannotated")
 
 
 @app.post("/lineups")
