@@ -30,6 +30,7 @@ RETENTION_DAYS = 30
 # discipline as status.FEEDS).
 TABLES: list[tuple[str, str]] = [
     ("raw", "contest_ownership"),
+    ("raw", "contest_entries"),  # per-entry lineups; source purges in ~4 days
     ("raw", "dk_salaries_historical"),
     ("raw", "showdown_salaries_historical"),
     ("raw", "dk_contest_fills"),  # dk_contest_fills_nfl is a VIEW — skip

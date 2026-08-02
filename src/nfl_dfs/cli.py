@@ -34,6 +34,13 @@ def main(argv: list[str] | None = None) -> None:
     sub.add_parser("backup-tables",
                    help="Daily snapshots of irreplaceable tables (30-day "
                         "retention, ops/backup.py)")
+    p = sub.add_parser("field-calibration",
+                       help="Score our field sim's dupe/salary realism vs a "
+                            "real imported contest (ops/field_calibration.py)")
+    p.add_argument("--season", type=int, required=True)
+    p.add_argument("--week", type=int, required=True)
+    p.add_argument("--contest-id", required=True)
+    p.add_argument("--sims", type=int, default=20_000)
     sub.add_parser("train-ownership",
                    help="Fit ownership model on imported contest standings "
                         "(in-season; see issue #11)")
@@ -139,6 +146,11 @@ def main(argv: list[str] | None = None) -> None:
         from .ops import backup
 
         backup.run()
+    elif args.command == "field-calibration":
+        from .ops import field_calibration
+
+        field_calibration.run(args.season, args.week, args.contest_id,
+                              n_sims=args.sims)
     elif args.command == "train-ownership":
         from .models import ownership
 

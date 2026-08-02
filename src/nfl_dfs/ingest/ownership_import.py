@@ -53,6 +53,40 @@ def parse_standings_csv(path: str | Path) -> pd.DataFrame:
     return out.reset_index(drop=True)
 
 
+def parse_entries_csv(path: str | Path) -> pd.DataFrame:
+    """Extract the per-ENTRY rows (left block): every submitted lineup
+    with rank and points. This is the joint-structure data the field/
+    dupe modeling needs (in-season queue 10a/10b; RTS blueprint) — DK
+    purges standings exports after ~4 days, so losing these rows at
+    import time loses them forever. `players_key` (sorted, delimited)
+    is the duplicate-grouping key; the raw lineup string is kept
+    lossless for slot-level parsing later."""
+    raw = pd.read_csv(path)
+    need = {"Rank", "Lineup"}
+    if not need <= set(raw.columns):
+        raise ValueError(f"{path}: no entry block (missing {need - set(raw.columns)})")
+    e = raw[raw["Lineup"].notna() & raw["Rank"].notna()].copy()
+    slots = ("CPT", "FLEX", "QB", "RB", "WR", "TE", "DST", "K")
+
+    def players_of(s: str) -> str:
+        t = str(s)
+        for tok in slots:
+            t = t.replace(f"{tok} ", f"|{tok}|")
+        names = [seg.strip() for seg in t.split("|")
+                 if seg.strip() and seg.strip() not in slots]
+        return "|".join(sorted(names))
+
+    out = pd.DataFrame({
+        "rank": pd.to_numeric(e["Rank"], errors="coerce"),
+        "entry_id": e.get("EntryId", pd.Series(dtype=str)).astype(str),
+        "entry_name": e.get("EntryName", pd.Series(dtype=str)).astype(str),
+        "points": pd.to_numeric(e.get("Points"), errors="coerce"),
+        "lineup": e["Lineup"].astype(str),
+    })
+    out["players_key"] = out.lineup.map(players_of)
+    return out.dropna(subset=["rank"]).reset_index(drop=True)
+
+
 def run(
     path: str,
     season: int,
@@ -69,4 +103,20 @@ def run(
     load_dataframe(df, "contest_ownership", write_disposition="WRITE_APPEND")
     log.info("Imported %d ownership rows for %s wk %s (contest %s)",
              len(df), season, week, contest_id)
+
+    # Entry-level lineups (lossless): failure here must not block the
+    # ownership import that the weekly model refit depends on.
+    try:
+        entries = parse_entries_csv(path)
+        entries.insert(0, "imported_at", datetime.now(timezone.utc))
+        entries.insert(1, "season", season)
+        entries.insert(2, "week", week)
+        entries.insert(3, "contest_id", contest_id)
+        load_dataframe(entries, "contest_entries",
+                       write_disposition="WRITE_APPEND")
+        dupes = entries.groupby("players_key").size()
+        log.info("Imported %d entries (%d distinct lineups, max dupe %d)",
+                 len(entries), len(dupes), int(dupes.max()))
+    except Exception:
+        log.exception("entry-block import failed; ownership rows kept")
     return len(df)
