@@ -279,6 +279,32 @@ def tail_select_lineups(
                 lu.tag = "nostk"
                 seen.add(lu.ids)
                 cands.append(lu)
+    # Stack-depth A/B (env N_QB_VARIANTS): the harvest attribution found
+    # the 40 entries spread over ~16 QBs with max 2-of-8 overlap vs the
+    # weekly optimal — right stacks, wrong pieces. For each of the top-8
+    # QBs by simulated p90, build several catcher-combination variants
+    # (same QB, different pieces) so the pool holds real depth per stack.
+    n_qbvar = int(_os.environ.get("N_QB_VARIANTS", "0"))
+    if n_qbvar:
+        qb_all = [(i, p) for i, p in enumerate(pool) if p["pos"] == "QB"]
+        qb_all.sort(key=lambda t: -float(np.percentile(rd[t[0]], 90)))
+        for _, qb in qb_all[:8]:
+            banned_qv: list = []
+            for _ in range(n_qbvar):
+                try:
+                    lu = optimize(pool, stack=stack,
+                                  objective_col=objective_col,
+                                  locks={qb["id"]}, banned_lineups=banned_qv,
+                                  max_overlap=6)
+                except Exception:
+                    break
+                if lu is None:
+                    break
+                banned_qv.append(lu.ids)
+                if lu.ids not in seen:
+                    lu.tag = "qbvar"
+                    seen.add(lu.ids)
+                    cands.append(lu)
     # Mid-tier QB A/B (env N_MIDQB): one candidate locked on each of the
     # top-N $4-6.5k QBs by simulated p90 — targets the measured miss zone
     # (17/41 top-scorer misses were QBs, 27/41 mid-salary).
@@ -347,8 +373,63 @@ def tail_select_lineups(
                                        n_entries, contest,
                                        sharp_fraction=sharp_fraction)
     else:
-        picked = select_tail_entries(cand_totals, n_entries, tail_line)
+        max_qbs = int(_os.environ.get("MAX_QBS", "0"))
+        if max_qbs:
+            qb_of = [next((p["id"] for p in lu.players if p["pos"] == "QB"),
+                          None) for lu in cands]
+            picked = _select_tail_qb_capped(cand_totals, n_entries,
+                                            tail_line, qb_of, max_qbs)
+        else:
+            picked = select_tail_entries(cand_totals, n_entries, tail_line)
     return [cands[i] for i in picked]
+
+
+def _select_tail_qb_capped(
+    cand_totals: np.ndarray, n_entries: int, line: float,
+    qb_of: list, max_qbs: int,
+) -> list[int]:
+    """select_tail_entries with a cap on DISTINCT QBs across the selected
+    set (env MAX_QBS). Once the cap is reached, only candidates reusing an
+    already-selected QB stay eligible — the freed slots buy combinatorial
+    depth within the kept stacks instead of a 17th stack. Mirrors the
+    greedy coverage + fill of select_tail_entries."""
+    cand_totals = np.asarray(cand_totals, dtype=float)
+    clears = cand_totals >= line
+    p_line = clears.mean(axis=1)
+    mean_total = cand_totals.mean(axis=1)
+    n_entries = min(n_entries, len(cand_totals))
+    selected: list[int] = []
+    qbs: set = set()
+    covered = np.zeros(cand_totals.shape[1], dtype=bool)
+    remaining = set(range(len(cand_totals)))
+
+    def eligible():
+        if len(qbs) < max_qbs:
+            return remaining
+        return [i for i in remaining if qb_of[i] in qbs]
+
+    while len(selected) < n_entries:
+        pool_i = eligible()
+        if not pool_i:
+            break
+        best = max(pool_i,
+                   key=lambda i: (int(np.count_nonzero(clears[i] & ~covered)),
+                                  p_line[i], mean_total[i]))
+        if not np.count_nonzero(clears[best] & ~covered):
+            break  # coverage saturated; fill below
+        selected.append(best)
+        qbs.add(qb_of[best])
+        covered |= clears[best]
+        remaining.discard(best)
+    while len(selected) < n_entries:
+        pool_i = eligible()
+        if not pool_i:
+            break
+        best = max(pool_i, key=lambda i: (p_line[i], mean_total[i]))
+        selected.append(best)
+        qbs.add(qb_of[best])
+        remaining.discard(best)
+    return selected
 
 
 def run_week(
