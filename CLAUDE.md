@@ -66,7 +66,9 @@ LightGBM training has frozen the machine repeatedly (2026-07-26).
   ownership) applies to OUR objective only, never the simulated field
   (proj_tourney vs proj in replay slates); stack defaults QB+2 catchers
   +1 bring-back; replay prints winning-line tail (>=237 avg / >=194 min
-  2025 Milly lines, reports/2025-milly-winners.csv).
+  2025 Milly lines, reports/2025-milly-winners.csv). PUNT_BOOM=2 is an
+  adopted default on both replay and app paths (Addendum 37: archetype
+  punt tilt, the only all-metric win of the program; 0 disables).
 - **Committed but UNVALIDATED**: the tournament-mode replays (classic
   gpp + showdown, season 2025) never completed — machine crashed. First
   task: run `nfl-dfs replay --season 2025 --contest gpp` and

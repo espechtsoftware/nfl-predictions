@@ -173,6 +173,34 @@ def _punt_boom_flags(seasons: list) -> set[tuple]:
     return _punt_boom_from_signals(df)
 
 
+def punt_boom_flags_live(season: int, week: int) -> set[tuple]:
+    """Live-inference variant: the upcoming week's rows live in
+    player_week_inference (training rows only exist for played weeks), so
+    the rank-2->1 transition needs history unioned with the current week."""
+    from ..bq import query_df
+    from ..config import settings
+
+    sig = ("gsis_id, season, week, position, depth_rank, "
+           "team_vacated_target_share, team_vacated_carry_share")
+    df = query_df(f"""
+        WITH hist AS (
+          SELECT {sig} FROM `{settings.features}.player_week_training`
+          WHERE season = {int(season)} AND week < {int(week)}
+          UNION ALL
+          SELECT {sig} FROM `{settings.features}.player_week_inference`
+          WHERE season = {int(season)} AND week = {int(week)}
+        )
+        SELECT * FROM (
+          SELECT gsis_id, season, week, position, depth_rank,
+                 LAG(depth_rank) OVER (
+                     PARTITION BY gsis_id, season ORDER BY week) prev_rank,
+                 GREATEST(COALESCE(team_vacated_target_share, 0),
+                          COALESCE(team_vacated_carry_share, 0)) vac
+          FROM hist)
+        WHERE week = {int(week)}""")
+    return _punt_boom_from_signals(df)
+
+
 def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFrame]:
     """One engine-ready slate per week: skill rows from the replay (dropping
     the few without a salary) plus DST rows when provided."""
@@ -239,7 +267,11 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
     if os.environ.get("OWN_MODEL"):
         replay_season = int(skill.season.max())
         own_booster = _ownership_booster(replay_season)
-    punt_boom = float(os.environ.get("PUNT_BOOM", "0") or 0)
+    # ADOPTED at +2 (Addendum 37): the only lever to beat the 49f8dac
+    # baseline on every metric at once (tails 16 vs 15, both >=237 weeks
+    # kept, median and ROI up). Dose-response was clean — 4 and 8
+    # overwhelm the p90 punt valuation and destroy the slate-breakers.
+    punt_boom = float(os.environ.get("PUNT_BOOM", "2") or 0)
     boom_keys: set = set()
     if punt_boom:
         try:

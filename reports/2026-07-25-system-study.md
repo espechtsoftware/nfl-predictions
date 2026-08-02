@@ -1069,3 +1069,37 @@ on stack ordering, not coverage breadth. Remaining levers from this
 sweep, in value order: (a) punt-boom scoring in the punt slot
 (next-man-up + depth-rank transition, Addendum 24), (b) stack-ordering
 quality (QB p90 calibration), (c) nothing else visible in the book.
+
+## Addendum 37 (2026-08-02): PUNT_BOOM adopted at +2 — the first strict improvement of the program
+
+The Addendum 36 fix path, built and validated in one cycle. The lever
+(f9b2886): punt-priced skill players matching a winning-punt archetype
+get +PUNT_BOOM points on OUR objective only (field untouched, same
+asymmetry as the chalk fade). Archetypes from the Addendum 24 study of
+actual Milly-winning punts, all point-in-time from player_week_training:
+cheap starting TEs (depth_rank 1), newly-promoted rank-1s (prev rank
+>= 2), top-decile within-week vacated share (>0).
+
+Six-season dose-response panel vs the 49f8dac baseline
+(tails / >=237 / median / ROI / mean-best):
+
+- baseline:      15 / 2 / 14.6% / +220k / 178.4
+- PUNT_BOOM=2:   **16 / 2 / 14.4% / +256k / 179.7**  <- adopted
+- PUNT_BOOM=4:   15 / 1 / 14.7% / +241k / 178.8
+- PUNT_BOOM=8:   14 / 0 / 14.8% / +223k / 178.4
+
++2 is the only configuration in the entire off-season program to beat
+the baseline on EVERY headline metric simultaneously — one more tail
+week (2022), both >=237 slate-breakers kept, median, ROI, and mean-best
+all better. The dose-response is textbook: at +4/+8 the boost overrides
+the p90 punt valuation and forces archetype punts into lineups that
+didn't want them, killing 2019's 271.1 and 2021's 238.9. The signal
+helps as a tiebreak among near-equal punts and hurts as a mandate.
+
+Adoption: default PUNT_BOOM=2 in code on BOTH paths — replay
+(build_slates) and the live app pool (_player_pool via
+punt_boom_flags_live, which unions training history with the upcoming
+week's player_week_inference rows so a fresh promotion is visible in
+its first week). Env still overrides; 0 disables. The shipping baseline
+of record is now the PB2 row; the six-season lineup book is being
+regenerated to match.

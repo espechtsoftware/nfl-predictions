@@ -7,6 +7,7 @@ Run locally:  uvicorn nfl_dfs.app.main:app --reload
 from __future__ import annotations
 
 import logging
+import os
 from functools import lru_cache
 
 import pandas as pd
@@ -1174,6 +1175,13 @@ def _classic_dk_ids(store: ProjectionStore) -> dict[int, int]:
     return {int(r.dk_player_id): int(r.dk_draftable_id) for r in m.itertuples()}
 
 
+@lru_cache(maxsize=8)
+def _punt_boom_keys(season: int, week: int) -> frozenset:
+    from ..backtest.replay import punt_boom_flags_live
+
+    return frozenset(punt_boom_flags_live(season, week))
+
+
 def _player_pool(
     df: pd.DataFrame, objective: str, dk_ids: dict[int, int] | None = None
 ) -> list[dict]:
@@ -1181,9 +1189,24 @@ def _player_pool(
     (p90 — a punt's only job is to boom) and every projection carries a
     chalk-fade penalty proportional to naive ownership, so entries lean
     into the leverage that wins large fields. dk_id carries the slate's
-    draftable ID, which DK's upload parser requires."""
+    draftable ID, which DK's upload parser requires.
+
+    Punt-boom tilt (adopted, Addendum 37): punt-priced skill players
+    matching a winning-punt archetype (cheap starting TE, rank 2->1
+    promotion, top-decile vacated share) get +PUNT_BOOM objective points
+    — replays measured 16 vs 15 tail weeks with every other metric up."""
     from ..backtest.field import naive_ownership
     from ..optimizer.lineup import LEVERAGE_PENALTY, PUNT_MAX_SALARY
+
+    punt_boom = float(os.environ.get("PUNT_BOOM", "2") or 0)
+    boom_keys: set = set()
+    if punt_boom and {"gsis_id", "season", "week"} <= set(df.columns) \
+            and len(df):
+        try:
+            boom_keys = _punt_boom_keys(int(df.season.iloc[0]),
+                                        int(df.week.iloc[0]))
+        except Exception:
+            log.exception("punt-boom flags unavailable; pool untilted")
 
     pool = []
     for r in df.itertuples():
@@ -1192,6 +1215,11 @@ def _player_pool(
         if int(r.salary) <= PUNT_MAX_SALARY and hasattr(r, "proj_p90") \
                 and pd.notna(r.proj_p90):
             proj = max(proj, float(r.proj_p90))
+        if boom_keys and int(r.salary) <= PUNT_MAX_SALARY \
+                and r.position != "DST" \
+                and (getattr(r, "gsis_id", None), int(r.season),
+                     int(r.week)) in boom_keys:
+            proj += punt_boom
         kickoff = getattr(r, "kickoff", None)
         pool.append(
             {
