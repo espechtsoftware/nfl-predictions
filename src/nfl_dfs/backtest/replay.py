@@ -80,6 +80,12 @@ def replay_projections(
     if return_draws and os.environ.get("SIM_WIDEN_DRAWS"):
         draws_out = _widen_draws(sim.draws, rows.position,
                                  os.environ["SIM_WIDEN_DRAWS"])
+    # EMP_MARGINALS=1: empirically-fitted per-position/tier marginal
+    # shapes (weibull RB/WR high tiers etc.), copula and moments ours.
+    if return_draws and os.environ.get("EMP_MARGINALS"):
+        draws_out = _empirical_marginals(
+            draws_out, rows.position,
+            np.random.default_rng(0 if seed is None else seed + 7))
     keep = [c for c in ("gsis_id", "name", "season", "week", "team", "opponent",
                         "position", "game_id", "salary") if c in rows.columns]
     out = pd.concat([rows[keep], summary], axis=1)
@@ -87,6 +93,74 @@ def replay_projections(
     out["naive"] = rows.get("dk_points_l4")  # trailing average, the free baseline
     if return_draws:
         return out, draws_out.astype(np.float32)
+    return out
+
+
+def _empirical_marginals(draws: np.ndarray, positions: pd.Series,
+                         rng: np.random.Generator) -> np.ndarray:
+    """Reshape each player's marginal to the empirically-fitted family
+    for (position, projection tier) — models/emp_marginals.py — while
+    preserving BOTH our correlation structure (rank reordering: the
+    possession-engine copula survives byte-for-byte) and our first two
+    moments (affine match to the row's own mean/std). Only skew and
+    kurtosis change: RB/WR high tiers go weibull-fat, TE lognormal at
+    the bottom, QB skew-normal. Env EMP_MARGINALS=1."""
+    from scipy import stats as _st
+
+    from ..models.emp_marginals import ROWS
+
+    by_pos: dict = {}
+    for r in ROWS:
+        by_pos.setdefault(r["pos"], []).append(r)
+
+    def family_sample(r, n):
+        d = r["dist"]
+        if d == "exgaussian":
+            return _st.exponnorm.rvs(K=r["tau"] / r["sigma"], loc=r["mu"],
+                                     scale=r["sigma"], size=n, random_state=rng)
+        if d == "skew_normal":
+            return _st.skewnorm.rvs(a=r["alpha"], loc=r["loc"],
+                                    scale=r["scale"], size=n, random_state=rng)
+        if d == "weibull":
+            return _st.weibull_min.rvs(c=r.get("c", r.get("a", 1.0)),
+                                       scale=r["scale"], size=n, random_state=rng)
+        if d == "lognormal":
+            return _st.lognorm.rvs(s=r["sigma"], scale=np.exp(r["mu"]),
+                                   size=n, random_state=rng)
+        if d == "generalized_gamma":
+            return _st.gengamma.rvs(a=r["a"], c=r.get("c", r.get("d", 1.0)),
+                                    scale=r.get("scale", r.get("beta", 1.0)),
+                                    size=n, random_state=rng)
+        # scale/loc are irrelevant post-affine-match; only SHAPE params
+        # matter. Some source rows store rate (beta) instead of scale.
+        gscale = r.get("scale", 1.0 / r["beta"] if r.get("beta") else 1.0)
+        if d == "shifted_gamma":
+            return r.get("shift", 0.0) + _st.gamma.rvs(
+                a=r["alpha"], scale=gscale, size=n, random_state=rng)
+        if d == "gamma":
+            return _st.gamma.rvs(a=r["alpha"], scale=gscale, size=n,
+                                 random_state=rng)
+        raise ValueError(d)
+
+    out = draws.copy()
+    n_sims = draws.shape[1]
+    pos_arr = positions.astype(str).str.upper().to_numpy()
+    for i in range(draws.shape[0]):
+        rows_p = by_pos.get(pos_arr[i])
+        if not rows_p:
+            continue
+        mu, sd = float(draws[i].mean()), float(draws[i].std())
+        if sd < 1e-6:
+            continue
+        r = min(rows_p, key=lambda t: abs((t["lo"] + t["hi"]) / 2 - mu))
+        s = family_sample(r, n_sims)
+        s_sd = s.std()
+        if s_sd < 1e-9:
+            continue
+        s = (s - s.mean()) * (sd / s_sd) + mu  # affine: our mean & std
+        # rank reorder: our copula, their shape
+        order = np.argsort(np.argsort(draws[i]))
+        out[i] = np.sort(s)[order]
     return out
 
 
@@ -411,7 +485,19 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
             frame["model_own"] = own
         if own is None:
             own = naive_ownership(frame)
-        frame["proj_tourney"] = frame.proj - lev_pen * lev_w * own
+        # A/B lever (env LEV_SHAPE=sqrt, off by default = linear): a
+        # LINEAR chalk penalty keeps paying all the way to the 0.1%-owned
+        # fringe, pulling entries toward implausibly low-owned players
+        # (pangadfs's OwnershipPenalty argues the same). sqrt gives
+        # diminishing reward for going ever more contrarian; rescaled to
+        # the same slate-mean penalty so only the SHAPE changes.
+        own_eff = own
+        if os.environ.get("LEV_SHAPE") == "sqrt":
+            root = np.sqrt(np.maximum(own, 0.0))
+            m = root.mean()
+            if m > 1e-12:
+                own_eff = root * (np.mean(own) / m)
+        frame["proj_tourney"] = frame.proj - lev_pen * lev_w * own_eff
         # A/B lever (env DST_PUNT_BONUS, off by default): 2023-24 Milly
         # winners used a cheap DST as their punt in 29/31 weeks (addendum
         # 7). The bonus tilts OUR objective toward sub-punt-cap DSTs;
