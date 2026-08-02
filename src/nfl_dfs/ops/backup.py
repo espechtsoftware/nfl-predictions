@@ -39,6 +39,7 @@ TABLES: list[tuple[str, str]] = [
     ("features", "season_results"),
     ("features", "entered_lineups"),
     ("features", "player_id_overrides"),
+    ("features", "external_projections"),  # user-uploaded; source CSVs expire
 ]
 
 

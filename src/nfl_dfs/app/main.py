@@ -11,7 +11,8 @@ import os
 from functools import lru_cache
 
 import pandas as pd
-from fastapi import Depends, FastAPI, HTTPException, Query, Response
+from fastapi import (Depends, FastAPI, File, HTTPException, Query, Response,
+                     UploadFile)
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -666,6 +667,17 @@ def market_page() -> str:
 <input id='ms' size='5' placeholder='season'> <input id='mw' size='3'
 placeholder='wk'> <button id='mgo'>Load</button></div>
 <div id='dis'><small>Enter a projected week (in-season) and Load.</small></div>
+<h2 style='margin-top:2rem'>Consensus diff (external projections)</h2>
+<div style='margin:.4rem 0'><small>Upload an outside CSV (ETR, Stokastic,
+free ownership sites — needs name + projection columns; ownership/ceiling
+optional). A disagreement flag, never a model input: big divergence on a
+player we're heavy on belongs in the watchlist.</small></div>
+<div style='margin:.4rem 0'>
+<input id='xsrc' size='10' placeholder='source'>
+<input id='xs' size='5' placeholder='season'> <input id='xw' size='3' placeholder='wk'>
+<input id='xfile' type='file' accept='.csv'>
+<button id='xup'>Upload</button> <button id='xgo'>Show diff</button></div>
+<div id='xdiff'><small>No external projections loaded.</small></div>
 </main>
 <script>
 function tbl(rows, cols){if(!rows.length)return '<small>No data yet.</small>';
@@ -682,6 +694,27 @@ document.getElementById('mgo').onclick=async()=>{
   const j=await (await fetch(`/api/market-disagreement?season=${s}&week=${w}`)).json();
   document.getElementById('dis').innerHTML=tbl(j,
     ['display_name','position','team','salary','proj_points','market_points','edge']);
+};
+document.getElementById('xup').onclick=async()=>{
+  const src=document.getElementById('xsrc').value||'external',
+        s=document.getElementById('xs').value,w=document.getElementById('xw').value,
+        f=document.getElementById('xfile').files[0];
+  if(!s||!w||!f){alert('source, season, week and a CSV file required');return;}
+  const fd=new FormData();fd.append('file',f);
+  const r=await fetch(`/api/external-projections?source=${encodeURIComponent(src)}&season=${s}&week=${w}`,
+    {method:'POST',body:fd});
+  const j=await r.json();
+  document.getElementById('xdiff').innerHTML = r.ok ?
+    `<small>Imported ${j.imported} rows from ${j.source}.</small>` :
+    `<small>Import failed: ${j.detail||r.status}</small>`;
+};
+document.getElementById('xgo').onclick=async()=>{
+  const s=document.getElementById('xs').value,w=document.getElementById('xw').value;
+  if(!s||!w)return;
+  const j=await (await fetch(`/api/external-diff?season=${s}&week=${w}`)).json();
+  document.getElementById('xdiff').innerHTML=tbl(j,
+    ['display_name','position','team','salary','proj_points','ext_proj','diff',
+     'ext_own','ext_ceiling','source']);
 };
 </script>"""
     return f"<html><head><title>Market</title><style>{_PAGE_CSS}</style></head><body>{_NAV_HTML}{body}</body></html>"
@@ -817,6 +850,35 @@ def api_market_disagreement(season: int, week: int, limit: int = 40) -> list[dic
     cols = ["display_name", "position", "team", "salary",
             "proj_points", "market_points", "edge"]
     return j[[c for c in cols if c in j.columns]].round(2).to_dict("records")
+
+
+@app.post("/api/external-projections")
+async def api_external_import(source: str, season: int, week: int,
+                              file: UploadFile = File(...)) -> dict:
+    """Upload an outside source's projections CSV (ETR/Stokastic/free
+    ownership sites). Loose schema; replaces the same (source, season,
+    week). Feeds the consensus-diff view — a disagreement flag, never a
+    model input."""
+    from .. import external_proj
+
+    text = (await file.read()).decode("utf-8", errors="replace")
+    try:
+        n = external_proj.import_csv(text, source, season, week)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+    return {"imported": n, "source": source, "season": season, "week": week}
+
+
+@app.get("/api/external-diff")
+def api_external_diff(season: int, week: int, limit: int = 40) -> list[dict]:
+    from .. import external_proj
+
+    store = get_store()
+    proj = store.projections(season, week)
+    if proj.empty:
+        return []
+    d = external_proj.diff(proj, season, week, limit=limit)
+    return d.to_dict("records")
 
 
 @app.get("/api/system-status")
