@@ -607,6 +607,19 @@ def run(
         print(f"  tail: mean best {_np.mean(best):.1f}  max {_np.max(best):.1f}  "
               f"weeks best>=237 (avg 2025 milly line): {sum(b >= 237 for b in best)}"
               f"/{len(best)}  >=194 (min line): {sum(b >= 194 for b in best)}/{len(best)}")
+        # Honest per-week bar: the ACTUAL score that won the Milly that
+        # week (real_lines.py, 2019/23/24/25). Era-portable, unlike the
+        # 2025-anchored constants above.
+        from .real_lines import REAL_LINES
+
+        pairs = [(max(w.lineup_scores), REAL_LINES[(w.season, w.week)])
+                 for w in result.weeks if (w.season, w.week) in REAL_LINES]
+        if pairs:
+            beat = sum(b >= ln for b, ln in pairs)
+            gap = _np.mean([ln - b for b, ln in pairs])
+            print(f"  vs REAL winning lines ({len(pairs)} wks known): "
+                  f"beat {beat}/{len(pairs)}  mean gap {gap:.0f} pts  "
+                  f"within 20: {sum(0 < ln - b <= 20 for b, ln in pairs)}")
         # Milly winners spend the cap (2025: median $0 left, max $100;
         # 2023-24: 90% within $300) — flag if our entries leave money.
         left = [50_000 - lu.salary for w in result.weeks for lu in w.lineups]
