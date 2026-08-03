@@ -1208,3 +1208,28 @@ contest-entry import, field-calibration harness, accuracy grading,
 proj_tail ceiling lever, external-projection consensus diff. The EW
 harvest (sequential, weeks 1-18, book export) is the shipping baseline
 of record; its numbers land in six-season-harvest-summary.md.
+
+## Addendum 41 (2026-08-03): EW-book attribution + the closing proposal panel — the program ends at a measured local optimum
+
+**EW harvest of record: 23/107 tails, 2 >=237, mean best 180.6, first
+WEEK-1 replays (2019 wk1 = 199.3, a tail week), and the program's first
+real head-to-head win vs an actual same-week Milly winner (2024 wk10).**
+Book: six-season-harvest-summary.md + six-season-replay-lineups.csv
+(4,280 lineups).
+
+Attribution sweep on the new book: vs the PB2 book EW converted 15
+weeks and regressed 9 (net +6 on common weeks) — it reshapes selection,
+not uniformly lifts. QB slot nearly closed (30.3 vs winners' 32.6),
+boom density 2.01/lineup (from 1.8; winners 3.4), punt oracle partially
+harvested (10/24 near-misses from 16/28). Remaining gaps: WR slot 20.9
+vs 29.9, TE slot regressed to 13.1 under the empirical TE family.
+
+Closing proposal panel (co-run CONTROL reproduced the harvest exactly —
+the new law works): SHAPE_MIX=0.5 (hedge shaped/raw worlds) 20 tails —
+mixing DILUTES the shaped edge, declined; BIGPLAY on EW 22 (2022 max
+240.3) — declined; EMP_POS without TE 23 — equal, declined (churn
+without gain). With EWT (20) and SIMS30K (+2 at 3x cost) earlier, five
+attack angles have failed to beat EW. The pre-season program closes at
+a measured local optimum; remaining upside is in-season data (field
+calibration, qualifier curves, ownership refits) rather than more
+pre-season search. Levers all remain env-gated for future panels.
