@@ -123,8 +123,16 @@ tr:nth-child(-n+5) td:first-child{font-weight:600}
 @media(max-width:800px){.grid{grid-template-columns:1fr}}
 small{color:#666}
 #chat{margin:1.5rem 0;background:#fff;border:1px solid #e5e5ef;
-      border-radius:8px;padding:1rem}
-#chatlog{max-height:320px;overflow-y:auto;font-size:.9rem;margin-bottom:.6rem}
+      border-radius:8px;padding:1rem;display:flex;flex-direction:column;
+      height:calc(100vh - 220px);min-height:340px}
+#chatlog{flex:1;overflow-y:auto;font-size:.9rem;margin-bottom:.6rem;
+         scroll-behavior:smooth}
+#typing{display:inline-block;margin:.2rem 0 .2rem .8rem;color:#888}
+#typing span{display:inline-block;width:6px;height:6px;margin:0 2px;
+  background:#999;border-radius:50%;animation:blink 1.2s infinite}
+#typing span:nth-child(2){animation-delay:.2s}
+#typing span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
 #chatlog .u{font-weight:600;margin-top:.5rem}
 #chatlog .a{white-space:pre-wrap;margin:.2rem 0 .2rem .8rem}
 #chatrow{display:flex;gap:.5rem}
@@ -154,19 +162,26 @@ const log=document.getElementById('chatlog'),inp=document.getElementById('chatin
       btn=document.getElementById('chatbtn');
 function show(cls,text){const d=document.createElement('div');d.className=cls;
   d.textContent=text;log.appendChild(d);log.scrollTop=log.scrollHeight;}
+function showTyping(){
+  const d=document.createElement('div');d.id='typing';
+  d.innerHTML='<span></span><span></span><span></span>';
+  log.appendChild(d);log.scrollTop=log.scrollHeight;}
+function hideTyping(){const d=document.getElementById('typing');if(d)d.remove();}
 async function send(){
   const q=inp.value.trim(); if(!q)return;
   inp.value=''; btn.disabled=true; show('u','You: '+q);
   hist.push({role:'user',content:q});
+  showTyping();
   try{
     const r=await fetch('/chat',{method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({messages:hist,
         model:document.getElementById('chatmodel').value})});
     const j=await r.json();
+    hideTyping();
     if(!r.ok){show('a','Error: '+(j.detail||r.status));}
     else{hist=j.messages; show('a',j.reply||'(no reply)');}
-  }catch(e){show('a','Error: '+e);}
+  }catch(e){hideTyping();show('a','Error: '+e);}
   btn.disabled=false; inp.focus();
 }
 btn.onclick=send;
