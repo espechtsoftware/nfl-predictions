@@ -2003,6 +2003,28 @@ def fill_classic_entries(
     return _entries_response(req.entries_csv, _build_classic(build_req, store)[0])
 
 
+@app.post("/lineups/entries/diff")
+def preview_classic_entries(
+    req: FillEntriesRequest, store: ProjectionStore = Depends(get_store)
+) -> dict:
+    """Sunday late-swap preview (2026-08-03): what the entries.csv fill
+    WOULD change, per entry — churn-minimizing assignment, locked-player
+    rows flagged. Review here, then POST /lineups/entries.csv for the
+    upload file (same assignment, deterministic)."""
+    from ..optimizer.export import fill_entries_csv
+
+    build_req = req.model_copy(update={"n_lineups": _entries_n(req.entries_csv)})
+    lineups = _build_classic(build_req, store)[0]
+    diff: list = []
+    fill_entries_csv(req.entries_csv, lineups, diff_out=diff)
+    changed = [d for d in diff if d["out"] or d["in"]]
+    return {"entries": diff,
+            "summary": {"total": len(diff), "changed": len(changed),
+                        "untouched_locked": sum(d["untouched"] for d in diff),
+                        "avg_swaps": round(sum(len(d["out"]) for d in diff)
+                                           / len(diff), 2) if diff else 0}}
+
+
 @app.post("/showdown/lineups/entries.csv")
 def fill_showdown_entries(
     req: ShowdownFillEntriesRequest, store: ProjectionStore = Depends(get_store)

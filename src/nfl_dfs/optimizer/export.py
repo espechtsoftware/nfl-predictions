@@ -96,17 +96,59 @@ def entry_count(entries_csv: str) -> int:
     return sum(1 for r in rows[hdr + 1:] if r and r[0].strip())
 
 
+def _cell_name(cell: str) -> str:
+    """'Justin Jefferson (12345678)' / 'X (LOCKED)' -> normalized name."""
+    import re as _re
+
+    return _re.sub(r"\s*\(.*\)\s*$", "", str(cell)).strip().upper()
+
+
+def _is_locked(cell: str) -> bool:
+    return "LOCKED" in str(cell).upper()
+
+
+def assign_min_churn(current: list[list[str]],
+                     lineups: list) -> list[int]:
+    """Assign generated lineups to entry rows MINIMIZING total player
+    changes (2026-08-03, Thursday-entry workflow): the upload replaces
+    by Entry ID either way, but a churn-minimizing assignment makes the
+    Sunday diff reviewable and keeps locked players matched where
+    possible. current[i] = normalized player names now in entry i.
+    Returns lineup index per entry (lineups cycled if fewer)."""
+    import numpy as np
+    from scipy.optimize import linear_sum_assignment
+
+    n = len(current)
+    pool = [lineups[i % len(lineups)] for i in range(n)]
+    names = [{str(p.get("name", "")).strip().upper() for p in lu.players}
+             for lu in pool]
+    overlap = np.zeros((n, len(pool)))
+    for i, cur in enumerate(current):
+        cs = set(cur)
+        for j, ns in enumerate(names):
+            overlap[i, j] = len(cs & ns)
+    r, c = linear_sum_assignment(-overlap)
+    out = [0] * n
+    for i, j in zip(r, c):
+        out[i] = j % len(lineups)
+    return out
+
+
 def fill_entries_csv(
-    entries_csv: str, lineups: list[Lineup] | list[ShowdownLineup]
+    entries_csv: str, lineups: list[Lineup] | list[ShowdownLineup],
+    diff_out: list | None = None,
 ) -> str:
     """Fill a downloaded DKEntries.csv with generated lineups for re-upload.
 
-    Entry rows (those with an Entry ID) get lineups in order, cycling if
-    there are more entries than lineups; every other cell — entry metadata,
-    DK's instruction text, the player-list columns on the right — passes
-    through untouched. Raises ValueError if the file isn't a DKEntries
-    download or its slot count doesn't match the lineups (e.g. classic
-    lineups into a showdown file).
+    Assignment is churn-minimizing (see assign_min_churn): each entry
+    gets the generated lineup most similar to what it already holds, so
+    the Sunday late-swap diff is as small as the new set allows. Rows
+    with LOCKED players (games already kicked off) are handled safely:
+    if the assigned lineup contains every locked player, locked cells
+    keep their original text and the rest fill around them; otherwise
+    the ROW IS LEFT UNTOUCHED (DK would reject a locked-slot change) and
+    flagged in the diff. Pass diff_out=[] to receive per-entry dicts:
+    {entry_id, changed, out, in, locked, untouched}.
     """
     if not lineups:
         raise ValueError("No lineups to fill entries with")
@@ -120,15 +162,53 @@ def fill_entries_csv(
         )
     is_cpt = [s.strip().upper() == "CPT" for s in slots]
 
-    cycle = itertools.cycle(lineups)
-    for row in rows[hdr + 1:]:
-        if not row or not row[0].strip():
-            continue  # player-list / instruction rows, not entries
-        players = next(cycle).slot_order()
+    entry_rows = [r for r in rows[hdr + 1:] if r and r[0].strip()]
+    current = [[_cell_name(c) for c in
+                (r[first_slot:first_slot + size] + [""] * size)[:size]]
+               for r in entry_rows]
+    try:
+        order = assign_min_churn(current, lineups)
+    except Exception:  # scipy unavailable etc. — order-fill still correct
+        order = [i % len(lineups) for i in range(len(entry_rows))]
+
+    for i, row in enumerate(entry_rows):
+        lu = lineups[order[i]]
+        players = lu.slot_order()
         if len(row) < first_slot + size:
             row.extend([""] * (first_slot + size - len(row)))
-        for j, (p, cpt) in enumerate(zip(players, is_cpt)):
-            row[first_slot + j] = _cell(p, captain=cpt)
+        cells = row[first_slot:first_slot + size]
+        locked_idx = [j for j, c in enumerate(cells) if _is_locked(c)]
+        locked_names = {_cell_name(cells[j]) for j in locked_idx}
+        new_names = {str(p.get("name", "")).strip().upper()
+                     for p in players}
+        d = {"entry_id": row[0], "locked": sorted(locked_names),
+             "untouched": False, "out": [], "in": []}
+        if locked_names and not locked_names <= new_names:
+            d["untouched"] = True  # DK would reject; keep as entered
+            if diff_out is not None:
+                diff_out.append(d)
+            continue
+        if locked_idx:
+            # keep locked cells verbatim; fill remaining slots with the
+            # remaining players in slot order (positions align because
+            # slot_order is position-deterministic)
+            rest = [p for p in players
+                    if str(p.get("name", "")).strip().upper()
+                    not in locked_names]
+            it = iter(rest)
+            for j in range(size):
+                if j in locked_idx:
+                    continue
+                p = next(it)
+                row[first_slot + j] = _cell(p, captain=is_cpt[j])
+        else:
+            for j, (p, cpt) in enumerate(zip(players, is_cpt)):
+                row[first_slot + j] = _cell(p, captain=cpt)
+        if diff_out is not None:
+            cur_set = {c for c in current[i] if c}
+            d["out"] = sorted(cur_set - new_names)
+            d["in"] = sorted(new_names - cur_set)
+            diff_out.append(d)
 
     buf = io.StringIO()
     csv.writer(buf).writerows(rows)
