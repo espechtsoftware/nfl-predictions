@@ -94,7 +94,7 @@ def run(season: int, week: int, contest_id: str,
     entries = query_df(
         f"""SELECT rank, players_key FROM `{settings.raw}.contest_entries`
             WHERE season={int(season)} AND week={int(week)}
-              AND contest_id='{contest_id}'""")
+              AND contest_id=@cid""", params={"cid": str(contest_id)})
     if entries.empty:
         print(f"no contest_entries for {season} wk {week} contest "
               f"{contest_id}; run import-ownership first")
@@ -103,7 +103,8 @@ def run(season: int, week: int, contest_id: str,
         f"""SELECT display_name, AVG(pct_drafted)/100 own
             FROM `{settings.raw}.contest_ownership`
             WHERE season={int(season)} AND week={int(week)}
-              AND contest_id='{contest_id}' GROUP BY display_name""")
+              AND contest_id=@cid GROUP BY display_name""",
+        params={"cid": str(contest_id)})
     ownership = pd.Series(own.own.values, index=own.display_name)
 
     real = real_dupe_table(entries)

@@ -93,18 +93,20 @@ ALT_MARKETS = ("player_pass_yds_alternate,player_rush_yds_alternate,"
 
 
 def run(first_season: int = 2023, last_season: int = 2025,
-        opens: bool = False, markets: str = MARKETS,
-        done_filter: str = "") -> None:
+        opens: bool = False, markets: str = MARKETS) -> None:
     """opens=True backfills Tuesday 18:00 UTC OPENING lines (movement
     study: open vs the kickoff-2h close already loaded). Open rows are
     identifiable by their exact T18:00:00Z snapshot_ts."""
     if not settings.odds_api_key:
         raise RuntimeError("ODDS_API_KEY is not set (add it to .env)")
-    if opens or done_filter:
+    if opens:
         try:
-            cond = (done_filter or "snapshot_ts LIKE '%T18:00:00Z'")
+            # Fixed predicate — a raw-WHERE parameter here was a loaded
+            # gun (security sweep 2026-08-03); opens rows are exactly
+            # the T18:00:00Z snapshots.
             d = query_df(f"SELECT DISTINCT season, week FROM "
-                         f"`{settings.raw}.{TABLE}` WHERE {cond}")
+                         f"`{settings.raw}.{TABLE}` "
+                         f"WHERE snapshot_ts LIKE '%T18:00:00Z'")
             done = {(int(r.season), int(r.week)) for r in d.itertuples()}
         except Exception:
             done = set()
