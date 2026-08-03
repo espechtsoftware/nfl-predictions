@@ -64,6 +64,10 @@ class LineupRequest(BaseModel):
     # shaping, boom-draw candidates, tail-coverage selection. Falls back
     # to the plain MILP path on any failure. sim=False forces the old path.
     sim: bool = True
+    # Chalk-fade scaling (contest presets, 2026-08-03): 1.0 = validated
+    # large-field fade; sharp/high-stakes fields use 0.5-0.7 — our fade
+    # is soft-field-calibrated and sharp chalk busts less.
+    lev_scale: float = Field(1.0, ge=0.0, le=2.0)
     # Contest sizing: field_size scales the confidence target line via
     # tail_line_for_field (a 20k qualifier's winning line sits below the
     # Milly's); an explicit tail_line overrides. Both None = Milly 194.
@@ -313,15 +317,23 @@ async function loadContests(){
       for(const c of list){
         const o=document.createElement('option');
         o.value=c.field_size;
+        o.dataset.cfg=JSON.stringify(c);
         o.textContent=`${c.name} · $${c.entry_fee} · `+
           `${(+c.field_size).toLocaleString()} entries (line ${c.tail_line})`;
         grp.appendChild(o);}
       sel.appendChild(grp);};
     add(j.live,'Live DK contests'); add(j.presets,'Presets');
-    if(sel.options.length)
-      document.getElementById('fsize').value=sel.options[0].value;
-    sel.onchange=()=>{
-      document.getElementById('fsize').value=sel.value;};
+    const applyCfg=()=>{
+      const o=sel.options[sel.selectedIndex]; if(!o)return;
+      const c=JSON.parse(o.dataset.cfg||'{}');
+      document.getElementById('fsize').value=c.field_size||sel.value;
+      if(c.entries)document.getElementById('n').value=c.entries;
+      document.getElementById('lev').value=c.lev_scale??1;
+      document.getElementById('chint').textContent=
+        c.note?`auto: ${c.entries} entries, line ${c.tail_line}, `+
+        `fade x${c.lev_scale??1} — ${c.note}`:'';};
+    if(sel.options.length)applyCfg();
+    sel.onchange=applyCfg;
   }catch(e){}}
 function slateSel(){
   const v=document.getElementById('slate').value;
@@ -333,6 +345,7 @@ function reqBody(){
     draft_group_id:slateSel().gid,
     n_lineups:+document.getElementById('n').value,
     field_size:+document.getElementById('fsize').value||null,
+    lev_scale:+document.getElementById('lev').value||1,
     objective:document.getElementById('obj').value};}
 function slotNames(players){
   const slots=['QB','RB','RB','WR','WR','WR','TE','FLEX','DST'];
@@ -449,6 +462,8 @@ def lineups_page() -> str:
         f"<label>Field size<input id='fsize' type='number' value='20000'>"
         f"</label>"
         f"<label>Entries<input id='n' type='number' value='40'></label>"
+        f"<input id='lev' type='hidden' value='1'>"
+        f"<div id='chint' style='font-size:.8em;color:#888'></div>"
         f"<label>Objective<select id='obj'>"
         f"<option value='proj_points'>Mean (GPP default — replay-validated; ceiling logic is built in via punts/boom stacks)</option>"
         f"<option value='proj_p90'>Ceiling p90 (tested: underperforms for GPP)</option>"
@@ -1309,7 +1324,8 @@ def _punt_boom_keys(season: int, week: int) -> frozenset:
 
 
 def _player_pool(
-    df: pd.DataFrame, objective: str, dk_ids: dict[int, int] | None = None
+    df: pd.DataFrame, objective: str, dk_ids: dict[int, int] | None = None,
+    lev_scale: float = 1.0,
 ) -> list[dict]:
     """Tournament-tilted pool: sub-$4k players are valued at their ceiling
     (p90 — a punt's only job is to boom) and every projection carries a
@@ -1363,7 +1379,7 @@ def _player_pool(
         )
     own = naive_ownership(pd.DataFrame(pool))
     for p, w in zip(pool, own):
-        p["proj"] = p["proj"] - LEVERAGE_PENALTY * float(w)
+        p["proj"] = p["proj"] - LEVERAGE_PENALTY * lev_scale * float(w)
     return pool
 
 
@@ -1394,11 +1410,38 @@ def tail_line_for_field(field_size: int) -> float:
 # INGEST_CONTESTS_ENABLED has landed data. $5 qualifier first: it's the
 # primary contest this shop enters.
 CONTEST_PRESETS = [
-    {"name": "$5 Qualifier (typical)", "entry_fee": 5.0, "field_size": 20_000},
-    {"name": "Millionaire Maker", "entry_fee": 20.0, "field_size": MILLY_FIELD},
+    {"name": "$5 Qualifier (typical)", "entry_fee": 5.0,
+     "field_size": 20_000, "entries": 40, "lev_scale": 1.0,
+     "note": "40-entry coverage portfolio, full leverage"},
+    {"name": "$3 Large GPP", "entry_fee": 3.0,
+     "field_size": 100_000, "entries": 40, "lev_scale": 1.0,
+     "note": "40-entry coverage portfolio, full leverage"},
+    {"name": "Millionaire Maker", "entry_fee": 20.0,
+     "field_size": MILLY_FIELD, "entries": 4, "lev_scale": 1.0,
+     "note": "4 lottery tickets at the 194+ line"},
     {"name": "Small qualifier / single-entry", "entry_fee": 5.0,
-     "field_size": 5_000},
+     "field_size": 5_000, "entries": 3, "lev_scale": 0.7,
+     "note": "each lineup self-sufficient; moderated chalk fade"},
+    # High-stakes: sharp field — our chalk fade is soft-field-calibrated,
+    # so halve it; 3-max entries must each stand alone (memory:
+    # contest-mix-qualifiers, 2026-08-03).
+    {"name": "$333 High-Stakes (3-max)", "entry_fee": 333.0,
+     "field_size": 3_000, "entries": 3, "lev_scale": 0.5,
+     "note": "sharp field: halved chalk fade, self-sufficient entries"},
 ]
+
+
+def _strategy_for(field_size: float, entry_fee: float) -> dict:
+    """Auto-strategy for LIVE contests (no hand-tuned preset): sharp
+    small/high-stakes fields get moderated leverage and few entries."""
+    if entry_fee >= 100 or field_size <= 3_500:
+        return {"entries": 3, "lev_scale": 0.5,
+                "note": "sharp field: halved chalk fade, 3 entries"}
+    if field_size <= 10_000:
+        return {"entries": 3, "lev_scale": 0.7,
+                "note": "small field: moderated fade, few entries"}
+    return {"entries": 40, "lev_scale": 1.0,
+            "note": "large field: coverage portfolio, full leverage"}
 
 
 @app.get("/contests")
@@ -1423,6 +1466,9 @@ def contest_options() -> dict:
         live = df.to_dict("records")
     except Exception as exc:  # table absent until the scaffold is enabled
         log.info("live contest list unavailable (%s); presets only", exc)
+    for c in live:
+        c.update(_strategy_for(float(c["field_size"]),
+                               float(c.get("entry_fee") or 0)))
     for c in live + CONTEST_PRESETS:
         c["tail_line"] = tail_line_for_field(int(c["field_size"]))
     return {"live": live, "presets": CONTEST_PRESETS}
@@ -1511,7 +1557,8 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
 
             lineups = build_sim_lineups(
                 req.season, req.week, n_entries=req.n_lineups,
-                stack=stack, tail_line=req.line())
+                stack=stack, tail_line=req.line(),
+                lev_scale=req.lev_scale)
             if lineups:
                 for lu in lineups:
                     for p in lu.players:
@@ -1522,8 +1569,9 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
         except Exception:
             log.exception("sim-mode lineup build failed; MILP fallback")
 
-    pool = _notes.apply_prefs(_player_pool(df, req.objective, dk_ids),
-                              req.season, req.week)
+    pool = _notes.apply_prefs(
+        _player_pool(df, req.objective, dk_ids, lev_scale=req.lev_scale),
+        req.season, req.week)
     lineups = optimize_many(
         pool, n_lineups=req.n_lineups, stack=stack,
         locks=set(req.locks), bans=set(req.bans), max_overlap=req.max_overlap,

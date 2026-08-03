@@ -30,7 +30,8 @@ log = logging.getLogger(__name__)
 
 
 def build_slate_with_draws(season: int, week: int, n_sims: int = 10_000,
-                           seed: int = 42) -> tuple[pd.DataFrame, np.ndarray]:
+                           seed: int = 42, lev_scale: float = 1.0,
+                           ) -> tuple[pd.DataFrame, np.ndarray]:
     """Engine-ready slate frame + aligned draw matrix for the live week."""
     from ..backtest.field import naive_ownership
     from ..backtest.replay import apply_draw_shape, punt_boom_flags_live
@@ -106,7 +107,7 @@ def build_slate_with_draws(season: int, week: int, n_sims: int = 10_000,
     frame.loc[punt, "proj"] = np.maximum(
         frame.loc[punt, "proj"], p90[frame.loc[punt, "draw_idx"].to_numpy()])
     own = naive_ownership(frame)
-    frame["proj_tourney"] = frame.proj - LEVERAGE_PENALTY * own
+    frame["proj_tourney"] = frame.proj - LEVERAGE_PENALTY * lev_scale * own
     try:
         boom = punt_boom_flags_live(season, week)
         keys = list(zip(frame.gsis_id, [season] * len(frame),
@@ -124,13 +125,13 @@ def build_slate_with_draws(season: int, week: int, n_sims: int = 10_000,
 
 def build_sim_lineups(season: int, week: int, n_entries: int,
                       stack, tail_line: float, n_sims: int = 10_000,
-                      seed: int = 42) -> list:
+                      seed: int = 42, lev_scale: float = 1.0) -> list:
     """Full validated pipeline on the live slate -> selected entries in
     coverage order (first = broadest boom coverage)."""
     from ..backtest.engine import tail_select_lineups
 
     slate, draws = build_slate_with_draws(season, week, n_sims=n_sims,
-                                          seed=seed)
+                                          seed=seed, lev_scale=lev_scale)
     pool = slate.to_dict("records")
     lineups = tail_select_lineups(
         slate, pool, draws, tail_line=tail_line, n_entries=n_entries,
