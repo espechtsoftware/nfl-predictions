@@ -888,6 +888,11 @@ def run(
                         rows.append({
                             "season": w.season, "week": w.week,
                             "score_rank": rk + 1, "tag": lu.tag or "lev",
+                            # selection order (greedy coverage is nested:
+                            # first N entries ~ optimal N-entry portfolio)
+                            # -> one 150-entry run yields P(best-of-N)
+                            # curves for every N (entries sweet-spot study)
+                            "entry_ix": int(ix) + 1,
                             "lineup_score": round(w.lineup_scores[ix], 1),
                             "player": p.get("name"), "pos": p.get("pos"),
                             "team": p.get("team"), "salary": p.get("salary"),
