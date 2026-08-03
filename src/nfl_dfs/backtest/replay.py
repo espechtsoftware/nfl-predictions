@@ -76,13 +76,16 @@ def replay_projections(
     # always been the raw (known-too-narrow: QB 1.5x, RB 1.45x per the
     # calibration's own fit) composition. "fitted" applies DEFAULT_WIDEN
     # to the draws mean-preservingly; or pass explicit "WR:1.3,QB:1.5".
+    # ADOPTED DEFAULTS (Addendum 40, combo "EW" — 24/107 tails vs 16
+    # control, the largest gain in program history): fitted draw widening
+    # + empirically-shaped marginals, composed. Both mean-preserving.
+    # Env overrides: SIM_WIDEN_DRAWS=off / EMP_MARGINALS=0 disable;
+    # SIM_WIDEN_DRAWS accepts explicit "WR:1.3,..." specs for A/Bs.
     draws_out = sim.draws
-    if return_draws and os.environ.get("SIM_WIDEN_DRAWS"):
-        draws_out = _widen_draws(sim.draws, rows.position,
-                                 os.environ["SIM_WIDEN_DRAWS"])
-    # EMP_MARGINALS=1: empirically-fitted per-position/tier marginal
-    # shapes (weibull RB/WR high tiers etc.), copula and moments ours.
-    if return_draws and os.environ.get("EMP_MARGINALS"):
+    widen_spec = os.environ.get("SIM_WIDEN_DRAWS", "fitted")
+    if return_draws and widen_spec.lower() not in ("off", "0", ""):
+        draws_out = _widen_draws(sim.draws, rows.position, widen_spec)
+    if return_draws and os.environ.get("EMP_MARGINALS", "1") not in ("0", ""):
         draws_out = _empirical_marginals(
             draws_out, rows.position,
             np.random.default_rng(0 if seed is None else seed + 7))
