@@ -162,6 +162,20 @@ def optimize(
         if punts:
             prob += pulp.lpSum(x[pid] for pid in punts) >= punt_min
 
+    # A/B lever (env MAX_PER_GAME, off by default): cap same-game players.
+    # 28 fully-mapped Milly winners average 2.96 from their most-loaded
+    # game (22/28 used only 2-3) across 5.3 distinct games; our entries
+    # average 4.6 from one game — the concentrated-game folklore the
+    # 5-stack generators encode is contradicted by the winners (2026-08-03).
+    max_pg = int(_os.environ.get("MAX_PER_GAME", "0"))
+    if max_pg:
+        by_game: dict = {}
+        for p in players:
+            by_game.setdefault(p.get("game_id"), []).append(p["id"])
+        for gid, ids in by_game.items():
+            if gid is not None and len(ids) > max_pg:
+                prob += pulp.lpSum(x[pid] for pid in ids) <= max_pg
+
     # A/B lever (env MIN_LOWOWN, off by default): winner ownership shape
     # — real Milly winners carry ~2 sub-5%-owned players (Addendum 38,
     # stable 2019-2024). Requires callers to stamp a boolean `low_own`

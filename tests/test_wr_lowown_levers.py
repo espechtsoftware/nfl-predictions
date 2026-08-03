@@ -51,3 +51,13 @@ def test_wr_boom_flags_top_decile():
     })
     pct = df.groupby(["season", "week"]).deep_targets_l4.rank(pct=True)
     assert set(df[pct >= 0.90].gsis_id) == {"W17", "W18", "W19"}
+
+
+def test_max_per_game_cap(monkeypatch):
+    monkeypatch.setenv("MAX_PER_GAME", "3")
+    lu = optimize(_pool(), stack=None)
+    assert lu is not None
+    games = {}
+    for p in lu.players:
+        games[p["game_id"]] = games.get(p["game_id"], 0) + 1
+    assert max(games.values()) <= 3
