@@ -283,6 +283,7 @@ _LINEUPS_CSS = """
 """
 
 _LINEUPS_JS = """
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 async function loadSlates(){
   try{const r=await fetch('/slates');const s=await r.json();
     if(s.length){const last=s[s.length-1];
@@ -487,8 +488,7 @@ def lineups_page() -> str:
         f"apply: QB+2 stack, bring-back, punt slot, chalk fade — showdown "
         f"leverages captain diversity instead.</div>"
         f"<div id='cards'></div>"
-        f"</main><script>
-function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}{_LINEUPS_JS}</script></body></html>"
+        f"</main><script>{_LINEUPS_JS}</script></body></html>"
     )
 
 
