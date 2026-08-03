@@ -96,6 +96,9 @@ CANDIDATE_FEATURES = (
     "qb_time_to_throw_l6",        # NGS avg time to throw (2016+)
     "pa_rate_l6",                 # team play-action rate (FTN, 2022+) — deep-shot / WR-ceiling context
     "opp_pressure_rate_l6",       # opp pressure GENERATED per dropback (FTN, 2022+) — outcome, not rushers sent
+    "xfp_l4",                     # expected FP from opportunity alone (bucketed pbp rates; FantasyPoints lineage)
+    "net_rest_diff",              # own minus opponent days rest (pure schedule join)
+    "body_clock_hour",            # kickoff hour on the team's home-tz body clock (west-coast night effect)
 )
 
 
