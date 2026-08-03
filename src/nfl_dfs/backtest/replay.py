@@ -563,6 +563,32 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
                              index=frame.index)
             boom &= (frame.salary <= _pcap2) & (frame.pos != "DST")
             frame.loc[boom, "proj_tourney"] += punt_boom
+        # A/B lever (env PUNT_SLOPE, off by default): winners' punts
+        # cluster $2.9-3.9k; the hard $3,500 threshold failed its
+        # rebuilt-data confirmation (a cliff only binds in the sliver).
+        # This is the SHAPED version: within the punt band, cheaper
+        # punts get a boost proportional to distance below $4k.
+        slope = float(os.environ.get("PUNT_SLOPE", "0") or 0)
+        if slope:
+            from ..optimizer.lineup import PUNT_MAX_SALARY as _pcap3
+
+            pmask = (frame.salary <= _pcap3) & (frame.pos != "DST")
+            frame.loc[pmask, "proj_tourney"] += (
+                slope * (_pcap3 - frame.loc[pmask, "salary"]) / 1000.0)
+        # A/B lever (env PUNT_STRICT, off by default): the CONDITIONAL
+        # threshold — unflagged punts must be <=$3,500; boom-archetype
+        # punts stay eligible to $4k (cheap punts are min-priced
+        # STARTERS; an expensive punt must earn its price with a role
+        # signal). Consumed by the optimizer's punt constraint via the
+        # punt_elig flag when PUNT_STRICT is set.
+        if os.environ.get("PUNT_STRICT") and punt_boom and boom_keys:
+            keys2 = list(zip(frame.id, frame.season.astype(int),
+                             frame.week.astype(int)))
+            boom2 = pd.Series([k in boom_keys for k in keys2],
+                              index=frame.index)
+            frame["punt_elig"] = (
+                (frame.salary <= 3500)
+                | (boom2 & (frame.salary <= 4000))) & (frame.pos != "DST")
         if wr_boom and wr_keys:
             keys = list(zip(frame.id, frame.season.astype(int),
                             frame.week.astype(int)))

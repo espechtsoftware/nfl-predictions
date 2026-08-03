@@ -158,7 +158,12 @@ def optimize(
     # Tournament punt slot: winners rostered a sub-$4k player who scored
     # 15+ in 94% of 2025 Milly Makers (reports/2025-milly-winners.csv).
     if punt_min and punt_max_salary:
-        punts = [p["id"] for p in players if p["salary"] <= punt_max_salary]
+        if _os.environ.get("PUNT_STRICT") and any(
+                "punt_elig" in p for p in players):
+            punts = [p["id"] for p in players if p.get("punt_elig")]
+        else:
+            punts = [p["id"] for p in players
+                     if p["salary"] <= punt_max_salary]
         if punts:
             prob += pulp.lpSum(x[pid] for pid in punts) >= punt_min
 
