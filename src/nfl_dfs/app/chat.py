@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 
 import pandas as pd
 
@@ -19,7 +20,11 @@ from ..config import current_season, settings
 
 log = logging.getLogger(__name__)
 
-MODEL = "claude-opus-5"
+# Opus is the deliberate default (user preference 2026-08-03): the
+# chat's jobs are tool-driven and well-scoped. To upgrade without a
+# redeploy: gcloud run services update nfl-dfs-app --region us-central1
+#   --update-env-vars CHAT_MODEL=claude-fable-5
+MODEL = os.environ.get("CHAT_MODEL", "claude-opus-5")
 MAX_TOOL_TURNS = 8
 
 SYSTEM = """You are the assistant inside a DraftKings NFL DFS system's
@@ -292,6 +297,7 @@ def execute_tool(name: str, args: dict) -> str:
                 df = query_df(sql, params={"q": gid, "dn": f"%{dn}%"})
                 parts.append(f"== {title} ==\n{_df_result(df, 24)}")
             except Exception as exc:
+                log.exception("chat tool failed")
                 parts.append(f"== {title} == (unavailable: {exc})")
         try:
             pos_df = query_df(f"""SELECT position FROM
@@ -339,16 +345,17 @@ def execute_tool(name: str, args: dict) -> str:
     return f"unknown tool: {name}"
 
 
-def chat_turn(messages: list[dict]) -> list[dict]:
+def chat_turn(messages: list[dict], model: str | None = None) -> list[dict]:
     """Run one user turn through Claude's tool loop. `messages` is the
     prior API-shaped history plus the new user message; returns the
-    full updated history (assistant turns + tool results appended)."""
+    full updated history (assistant turns + tool results appended).
+    `model` overrides the default per conversation (UI selector)."""
     import anthropic
 
     client = anthropic.Anthropic()
     for _ in range(MAX_TOOL_TURNS):
         response = client.messages.create(
-            model=MODEL, max_tokens=4000, system=SYSTEM,
+            model=model or MODEL, max_tokens=4000, system=SYSTEM,
             tools=TOOLS, messages=messages)
         messages.append({"role": "assistant",
                          "content": [b.model_dump() for b in response.content]})
@@ -366,7 +373,9 @@ def chat_turn(messages: list[dict]) -> list[dict]:
                 log.exception("chat tool %s failed", block.name)
                 results.append({"type": "tool_result",
                                 "tool_use_id": block.id,
-                                "content": f"Error: {exc}", "is_error": True})
+                                "content": "Error: "
+                                f"{type(exc).__name__} (see server logs)",
+                                "is_error": True})
         messages.append({"role": "user", "content": results})
     return messages
 

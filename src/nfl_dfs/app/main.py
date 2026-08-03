@@ -144,6 +144,9 @@ slot, +15%"), list/delete them, or ask about projections and player form.</small
 <div id='chatlog'></div>
 <div id='chatrow'>
 <input id='chatin' placeholder='Ask or instruct...'>
+<select id='chatmodel' title='Model for this chat'>
+<option value='claude-opus-5'>Opus</option>
+<option value='claude-fable-5'>Fable</option></select>
 <button id='chatbtn'>Send</button></div></div>
 <script>
 let hist=[];
@@ -158,7 +161,8 @@ async function send(){
   try{
     const r=await fetch('/chat',{method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({messages:hist})});
+      body:JSON.stringify({messages:hist,
+        model:document.getElementById('chatmodel').value})});
     const j=await r.json();
     if(!r.ok){show('a','Error: '+(j.detail||r.status));}
     else{hist=j.messages; show('a',j.reply||'(no reply)');}
@@ -214,7 +218,8 @@ for rank + real ownership.</td></tr>
 <tr><td>Tue 8:00 (auto)</td><td style='text-align:left'>Lineups scored
 vs actuals; best score fills itself. Click week numbers to review
 entries by score.</td></tr></table></div>
-<script>document.addEventListener('DOMContentLoaded',()=>{
+<script>
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}document.addEventListener('DOMContentLoaded',()=>{
   const p=location.pathname;
   document.querySelectorAll('.topbar a').forEach(a=>{
     if(a.getAttribute('href')===p||(p==='/'&&a.getAttribute('href')==='/'))
@@ -382,13 +387,13 @@ async function build(){
            ` style='color:${p.lev_pct>0?"#0a7":"#c60"}'>${p.lev_pct>0?"+":""}${p.lev_pct}%</small>`:'';
         return `<tr${p.watch_note?` title="${String(p.watch_note)
           .replace(/"/g,'&quot;')}"`:''}><td><span class='slot'>${slot}</span></td>`+
-        `<td style='text-align:left'>${p.name}${wn}${lev}</td>`+
+        `<td style='text-align:left'>${esc(p.name)}${wn}${lev}</td>`+
         `<td>${p.team}${p.opp?' @ '+p.opp:''}</td>`+
         `<td>$${sal.toLocaleString()}</td>`+
         `<td>${pr.toFixed(1)}</td></tr>`;}).join('');
       const head=sd
         ? `<header><span>#${i+1}</span>`+
-          `<span class='conf'>CPT ${lu.captain.name}</span>`+
+          `<span class='conf'>CPT ${esc(lu.captain.name)}</span>`+
           `<span>${lu.proj.toFixed(1)} pts proj</span></header>`
         : `<header><span>#${lu.rank}</span>`+
           `<span class='conf'>${lu.confidence}%</span>`+
@@ -482,7 +487,8 @@ def lineups_page() -> str:
         f"apply: QB+2 stack, bring-back, punt slot, chalk fade — showdown "
         f"leverages captain diversity instead.</div>"
         f"<div id='cards'></div>"
-        f"</main><script>{_LINEUPS_JS}</script></body></html>"
+        f"</main><script>
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}{_LINEUPS_JS}</script></body></html>"
     )
 
 
@@ -575,9 +581,9 @@ async function showWeek(wk){
     "<div id='cards'>"+lus.map((lu,i)=>
     `<div class='card'><header><span>#${i+1}</span>`+
     `<span class='conf'>${lu.score}</span></header><table>`+
-    lu.players.map(p=>`<tr><td><span class='slot'>${p.pos}</span></td>`+
+    lu.players.map(p=>`<tr><td><span class='slot'>${esc(p.pos)}</span></td>`+
       `<td style='text-align:left'><a href='#' class='swp' data-ix='${lu.ix}'`+
-      ` data-out='${p.name}'>${p.name}</a></td><td>${p.team}</td>`+
+      ` data-out='${esc(p.name)}'>${esc(p.name)}</a></td><td>${esc(p.team)}</td>`+
       `<td>${p.pts}</td></tr>`).join('')+
     `</table></div>`).join('')+'</div>';
   document.getElementById('delwk').onclick=async()=>{
@@ -709,9 +715,10 @@ player we're heavy on belongs in the watchlist.</small></div>
 <div id='xdiff'><small>No external projections loaded.</small></div>
 </main>
 <script>
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function tbl(rows, cols){if(!rows.length)return '<small>No data yet.</small>';
-  let h='<table><tr>'+cols.map(c=>'<th>'+c+'</th>').join('')+'</tr>';
-  for(const r of rows){h+='<tr>'+cols.map(c=>'<td>'+(r[c]??'')+'</td>').join('')+'</tr>';}
+  let h='<table><tr>'+cols.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr>';
+  for(const r of rows){h+='<tr>'+cols.map(c=>'<td>'+esc(r[c]??'')+'</td>').join('')+'</tr>';}
   return h+'</table>';}
 fetch('/api/line-movement').then(r=>r.json()).then(j=>{
   document.getElementById('moves').innerHTML=tbl(j,
@@ -728,7 +735,7 @@ document.getElementById('ago').onclick=async()=>{
   const s=document.getElementById('as').value,w=document.getElementById('aw').value;
   if(!s||!w)return;
   const j=await (await fetch(`/api/accuracy?season=${s}&week=${w}`)).json();
-  if(j.status){document.getElementById('acc').innerHTML=`<small>${j.status}</small>`;return;}
+  if(j.status){document.getElementById('acc').innerHTML=`<small>${esc(j.status)}</small>`;return;}
   let h=`<p><b>MAE ${j.mae}</b>${j.naive_mae?` vs naive ${j.naive_mae}`:''} · rank corr ${j.rank_corr} · n=${j.rows}</p>`;
   document.getElementById('acc').innerHTML=h+tbl(j.by_position||[],['position','n','mae','rank_corr']);
 };
@@ -742,8 +749,8 @@ document.getElementById('xup').onclick=async()=>{
     {method:'POST',body:fd});
   const j=await r.json();
   document.getElementById('xdiff').innerHTML = r.ok ?
-    `<small>Imported ${j.imported} rows from ${j.source}.</small>` :
-    `<small>Import failed: ${j.detail||r.status}</small>`;
+    `<small>Imported ${esc(j.imported)} rows from ${esc(j.source)}.</small>` :
+    `<small>Import failed: ${esc(j.detail||r.status)}</small>`;
 };
 document.getElementById('xgo').onclick=async()=>{
   const s=document.getElementById('xs').value,w=document.getElementById('xw').value;
@@ -810,6 +817,7 @@ on any generated lineup containing the player.</small>
 <div id='wl' style='margin-top:1rem'><small>Loading&hellip;</small></div>
 </main>
 <script>
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 async function load(){
   const j=await (await fetch('/api/watchlist')).json();
   const el=document.getElementById('wl');
@@ -823,8 +831,8 @@ async function load(){
       :`<input id='m_${n.note_id}' size='4' placeholder='1.10'>
         <button onclick="conv('${n.note_id}')">Convert</button>
         <button onclick="del('${n.note_id}')" style='color:#b3261e'>Delete</button>`;
-    h+=`<tr><td style='text-align:left'><b>${n.display_name}</b></td>
-      <td style='text-align:left;max-width:28rem'>${n.note}</td>
+    h+=`<tr><td style='text-align:left'><b>${esc(n.display_name)}</b></td>
+      <td style='text-align:left;max-width:28rem'>${esc(n.note)}</td>
       <td>${String(n.created_at).slice(0,10)}</td><td>${st}</td>
       <td style='text-align:left'>${act}</td></tr>`;
   }
@@ -981,6 +989,9 @@ def health() -> dict:
 
 class ChatRequest(BaseModel):
     messages: list[dict]  # Claude-API-shaped history; last entry is the user turn
+    # Per-conversation model choice (UI selector): Opus default —
+    # tool-driven, well-scoped work; Fable for hard reasoning turns.
+    model: str | None = Field(None, pattern="^claude-(opus-5|fable-5)$")
 
 
 @app.post("/chat")
@@ -995,10 +1006,11 @@ def chat(req: ChatRequest) -> dict:
         raise HTTPException(503, "ANTHROPIC_API_KEY is not set — add it to "
                                  ".env to enable chat")
     try:
-        messages = chat_mod.chat_turn(list(req.messages))
+        messages = chat_mod.chat_turn(list(req.messages), model=req.model)
     except Exception as exc:
         log.exception("chat turn failed")
-        raise HTTPException(500, f"chat failed: {exc}")
+        log.exception("chat turn failed")
+        raise HTTPException(500, "chat failed — see server logs")
     return {"reply": chat_mod.reply_text(messages), "messages": messages}
 
 
@@ -1112,7 +1124,8 @@ def player_search(season: int, week: int, q: str,
     df = store.projections(season, week)
     if df.empty:
         return []
-    hit = df[df.display_name.str.contains(q, case=False, na=False)]
+    hit = df[df.display_name.str.contains(q, case=False, na=False,
+                                           regex=False)]
     return [{"name": r.display_name, "pos": r.position, "team": r.team,
              "salary": int(r.salary), "dk_player_id": int(r.dk_player_id),
              "proj": round(float(r.proj_points), 1)}
@@ -1134,7 +1147,8 @@ def swap_entry_player(req: SwapRequest,
     from .. import notes as _n
 
     df = store.projections(req.season, req.week)
-    hit = df[df.display_name.str.contains(req.in_name, case=False, na=False)]
+    hit = df[df.display_name.str.contains(req.in_name, case=False,
+                                           na=False, regex=False)]
     if hit.empty:
         raise HTTPException(404, f"no player matching '{req.in_name}'")
     if len(hit) > 1 and not (hit.display_name.str.lower()
