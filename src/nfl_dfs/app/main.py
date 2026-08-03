@@ -375,7 +375,7 @@ async function build(){
   const st=document.getElementById('status'),
         cards=document.getElementById('cards'),
         sd=slateSel().sd;
-  st.textContent='Building lineups (CBC solves, ~10-60s)...';
+  st.textContent='Building lineups (simulating 30k worlds + candidate solves; ~1-4 min, first build of the day slowest)...';
   cards.innerHTML=''; document.getElementById('go').disabled=true;
   try{
     const r=await fetch(sd?'/showdown/lineups':'/lineups',{method:'POST',
