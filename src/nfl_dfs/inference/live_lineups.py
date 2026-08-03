@@ -1,0 +1,138 @@
+"""Live classic sim-mode: the VALIDATED replay engine on the live slate.
+
+Until 2026-08-03 the live classic path was MILP-on-projections plus a
+normal-approximation confidence ranking, while every validated gain
+(boom-draw candidates, tail-coverage selection of 40, and the adopted
+EW draw shaping) lived only in replays. This module closes that fidelity
+gap: features -> cold-start fill -> component models -> correlated sims
+-> EW shaping -> the SAME candidate generation and coverage selection
+the six-season panels graded (engine.tail_select_lineups).
+
+Design choices, deliberate:
+- Market blend enters as an additive per-player shift on the draws
+  (mean = validated live blend; SHAPE = validated EW worlds).
+- Same tournament tilts as replay build_slates: punt ceiling valuation,
+  punt-boom archetype boost, chalk-fade on OUR objective only, low_own
+  flags for MIN_LOWOWN.
+- Deterministic seed so a rebuild of the same slate reproduces exactly.
+- Callers (app) wrap this in a fallback to the plain MILP path: a slate
+  built the old way beats a 500.
+"""
+
+from __future__ import annotations
+
+import logging
+
+import numpy as np
+import pandas as pd
+
+log = logging.getLogger(__name__)
+
+
+def build_slate_with_draws(season: int, week: int, n_sims: int = 10_000,
+                           seed: int = 42) -> tuple[pd.DataFrame, np.ndarray]:
+    """Engine-ready slate frame + aligned draw matrix for the live week."""
+    from ..backtest.field import naive_ownership
+    from ..backtest.replay import apply_draw_shape, punt_boom_flags_live
+    from ..models import coldstart, simulate
+    from ..models.train_job import load_latest_component_models
+    from ..optimizer.lineup import LEVERAGE_PENALTY, PUNT_MAX_SALARY
+    from .. import notes as manual_notes
+    from ..models.blend import blend, market_projection_frame
+    from .run_projections import BLEND_WEIGHT, upcoming_slate_features
+
+    model, version = load_latest_component_models()
+    feats = upcoming_slate_features(season, week)
+    skill = feats[feats.dk_position.isin(["QB", "RB", "WR", "TE"])] \
+        .reset_index(drop=True)
+    skill = coldstart.fill_cold_start_features(skill)
+    comps = model.predict_components(skill)
+    comps = manual_notes.apply_notes(comps, skill, season, week)
+    sim = simulate.simulate(comps, n_sims=n_sims, seed=seed, keep_draws=True,
+                            game_ids=skill.get("game_id"),
+                            team_ids=skill.get("team"),
+                            game_totals=skill.get("game_total"))
+    draws = apply_draw_shape(sim.draws, skill.position, seed)
+
+    # Market blend as an additive mean shift — draw shape untouched.
+    market = market_projection_frame(skill)
+    blended = blend(draws.mean(axis=1), market.to_numpy(), BLEND_WEIGHT)
+    draws = draws + (blended - draws.mean(axis=1))[:, None]
+
+    frame = pd.DataFrame({
+        "id": skill.dk_player_id.astype(int),
+        "gsis_id": skill.gsis_id,
+        "name": skill.display_name,
+        "pos": skill.position if "position" in skill.columns
+               else skill.dk_position,
+        "team": skill.get("team", skill.get("team_abbr")),
+        "opp": skill.get("opponent"),
+        "salary": pd.to_numeric(skill.salary, errors="coerce"),
+        "season": season, "week": week,
+    })
+    frame["game_id"] = skill.get(
+        "game_id", frame.team.astype(str) + "@" + frame.opp.astype(str))
+    frame["draw_idx"] = np.arange(len(frame))
+    frame["proj"] = draws.mean(axis=1)
+
+    # DST rows: static live projections, no draws (draw_idx -1).
+    try:
+        from .dst_projections import project_dst
+
+        dst = project_dst(season, week, model_version=version)
+        if not dst.empty:
+            d = pd.DataFrame({
+                "id": dst.dk_player_id.astype(int),
+                "gsis_id": "", "name": dst.display_name,
+                "pos": "DST", "team": dst.get("team", dst.display_name),
+                "opp": dst.get("opponent"),
+                "salary": pd.to_numeric(dst.salary, errors="coerce"),
+                "season": season, "week": week,
+                "draw_idx": -1, "proj": dst.proj_points,
+            })
+            d["game_id"] = d.team.astype(str) + "@" + d.opp.astype(str)
+            frame = pd.concat([frame, d], ignore_index=True)
+    except Exception:
+        log.exception("live DST rows unavailable; skill-only slate")
+
+    frame = frame.dropna(subset=["salary", "proj"])
+    frame = frame[frame.salary > 0]
+    frame["salary"] = frame.salary.astype(int)
+    frame = frame[~frame.id.duplicated()].reset_index(drop=True)
+
+    # Tournament tilts, replay-identical (see backtest.replay.build_slates)
+    punt = (frame.salary <= PUNT_MAX_SALARY) & (frame.draw_idx >= 0)
+    p90 = np.percentile(draws, 90, axis=1)
+    frame.loc[punt, "proj"] = np.maximum(
+        frame.loc[punt, "proj"], p90[frame.loc[punt, "draw_idx"].to_numpy()])
+    own = naive_ownership(frame)
+    frame["proj_tourney"] = frame.proj - LEVERAGE_PENALTY * own
+    try:
+        boom = punt_boom_flags_live(season, week)
+        keys = list(zip(frame.gsis_id, [season] * len(frame),
+                        [week] * len(frame)))
+        bmask = pd.Series([k in boom for k in keys], index=frame.index)
+        bmask &= punt & (frame.pos != "DST")
+        frame.loc[bmask, "proj_tourney"] += 2.0  # adopted PUNT_BOOM dose
+    except Exception:
+        log.exception("live punt-boom flags unavailable; tilt skipped")
+    slots = {"QB": 1.0, "RB": 2.5, "WR": 3.5, "TE": 1.2, "DST": 1.0}
+    frame["low_own"] = (own * frame.pos.map(slots).fillna(1.0)
+                        .to_numpy()) < 0.05
+    return frame, draws
+
+
+def build_sim_lineups(season: int, week: int, n_entries: int,
+                      stack, tail_line: float, n_sims: int = 10_000,
+                      seed: int = 42) -> list:
+    """Full validated pipeline on the live slate -> selected entries in
+    coverage order (first = broadest boom coverage)."""
+    from ..backtest.engine import tail_select_lineups
+
+    slate, draws = build_slate_with_draws(season, week, n_sims=n_sims,
+                                          seed=seed)
+    pool = slate.to_dict("records")
+    lineups = tail_select_lineups(
+        slate, pool, draws, tail_line=tail_line, n_entries=n_entries,
+        stack=stack, objective_col="proj_tourney")
+    return lineups

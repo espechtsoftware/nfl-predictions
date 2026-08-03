@@ -59,6 +59,11 @@ class LineupRequest(BaseModel):
     bring_back_min: int = Field(1, ge=0, le=2)
     forbid_rb_vs_dst: bool = True
     max_overlap: int = Field(7, ge=1, le=8)
+    # Sim-mode (2026-08-03, fidelity fix): run the VALIDATED replay
+    # engine on the live slate — correlated draws with the adopted EW
+    # shaping, boom-draw candidates, tail-coverage selection. Falls back
+    # to the plain MILP path on any failure. sim=False forces the old path.
+    sim: bool = True
     # Contest sizing: field_size scales the confidence target line via
     # tail_line_for_field (a 20k qualifier's winning line sits below the
     # Milly's); an explicit tail_line overrides. Both None = Milly 194.
@@ -1490,13 +1495,35 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
     df, dk_ids = _classic_projections(req, store)
     from .. import notes as _notes
 
-    pool = _notes.apply_prefs(_player_pool(df, req.objective, dk_ids),
-                              req.season, req.week)
     stack = StackRules(
         qb_stack_min=req.qb_stack_min,
         bring_back_min=req.bring_back_min,
         forbid_rb_vs_dst=req.forbid_rb_vs_dst,
     )
+    # Sim-mode first (validated replay engine on the live slate; see
+    # inference/live_lineups.py). Locks/bans/slate-restriction aren't
+    # supported there yet, so those requests use the MILP path, as does
+    # any sim failure — a slate built the old way beats a 500.
+    if req.sim and not req.locks and not req.bans \
+            and req.draft_group_id is None:
+        try:
+            from ..inference.live_lineups import build_sim_lineups
+
+            lineups = build_sim_lineups(
+                req.season, req.week, n_entries=req.n_lineups,
+                stack=stack, tail_line=req.line())
+            if lineups:
+                for lu in lineups:
+                    for p in lu.players:
+                        p.setdefault("dk_id", (dk_ids or {}).get(int(p["id"])))
+                ranked = _rank_by_confidence(lineups, df, line=req.line())
+                _annotate_leverage([r["lineup"] for r in ranked])
+                return [r["lineup"] for r in ranked], ranked
+        except Exception:
+            log.exception("sim-mode lineup build failed; MILP fallback")
+
+    pool = _notes.apply_prefs(_player_pool(df, req.objective, dk_ids),
+                              req.season, req.week)
     lineups = optimize_many(
         pool, n_lineups=req.n_lineups, stack=stack,
         locks=set(req.locks), bans=set(req.bans), max_overlap=req.max_overlap,

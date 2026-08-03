@@ -713,3 +713,28 @@ def test_market_page_and_endpoints(monkeypatch):
     assert r2.status_code == 200 and r2.json() == []
     r3 = client.get("/api/market-disagreement?season=2025&week=1")
     assert r3.status_code == 200 and r3.json() == []
+
+
+def test_sim_mode_falls_back_cleanly(client, monkeypatch):
+    # Sim-mode is the default; in an offline env its model/BQ loads fail
+    # and the MILP fallback must serve lineups anyway (also covers any
+    # in-season sim failure: old-way slate beats a 500).
+    called = {}
+
+    def boom(*a, **k):
+        called["sim"] = True
+        raise RuntimeError("no models offline")
+
+    from nfl_dfs.inference import live_lineups
+
+    monkeypatch.setattr(live_lineups, "build_sim_lineups", boom)
+    r = client.post("/lineups", json={"season": 2025, "week": 3,
+                                      "n_lineups": 2})
+    assert r.status_code == 200 and len(r.json()["lineups"]) == 2
+    assert called.get("sim") is True
+
+    # sim=False must not even attempt the sim path
+    called.clear()
+    r = client.post("/lineups", json={"season": 2025, "week": 3,
+                                      "n_lineups": 2, "sim": False})
+    assert r.status_code == 200 and called == {}

@@ -76,19 +76,8 @@ def replay_projections(
     # always been the raw (known-too-narrow: QB 1.5x, RB 1.45x per the
     # calibration's own fit) composition. "fitted" applies DEFAULT_WIDEN
     # to the draws mean-preservingly; or pass explicit "WR:1.3,QB:1.5".
-    # ADOPTED DEFAULTS (Addendum 40, combo "EW" — 24/107 tails vs 16
-    # control, the largest gain in program history): fitted draw widening
-    # + empirically-shaped marginals, composed. Both mean-preserving.
-    # Env overrides: SIM_WIDEN_DRAWS=off / EMP_MARGINALS=0 disable;
-    # SIM_WIDEN_DRAWS accepts explicit "WR:1.3,..." specs for A/Bs.
-    draws_out = sim.draws
-    widen_spec = os.environ.get("SIM_WIDEN_DRAWS", "fitted")
-    if return_draws and widen_spec.lower() not in ("off", "0", ""):
-        draws_out = _widen_draws(sim.draws, rows.position, widen_spec)
-    if return_draws and os.environ.get("EMP_MARGINALS", "1") not in ("0", ""):
-        draws_out = _empirical_marginals(
-            draws_out, rows.position,
-            np.random.default_rng(0 if seed is None else seed + 7))
+    draws_out = (apply_draw_shape(sim.draws, rows.position, seed)
+                 if return_draws else sim.draws)
     keep = [c for c in ("gsis_id", "name", "season", "week", "team", "opponent",
                         "position", "game_id", "salary") if c in rows.columns]
     out = pd.concat([rows[keep], summary], axis=1)
@@ -96,6 +85,25 @@ def replay_projections(
     out["naive"] = rows.get("dk_points_l4")  # trailing average, the free baseline
     if return_draws:
         return out, draws_out.astype(np.float32)
+    return out
+
+
+def apply_draw_shape(draws: np.ndarray, positions: pd.Series,
+                     seed: int | None) -> np.ndarray:
+    """ADOPTED DEFAULTS (Addendum 40, combo "EW" — 24/107 tails vs 16
+    same-build control, largest gain in program history): fitted draw
+    widening + empirically-shaped marginals, composed, mean-preserving.
+    Shared by replays AND the live sim-mode path so what was validated
+    is exactly what fires on Sundays. Env overrides: SIM_WIDEN_DRAWS=off
+    or an explicit "WR:1.3,..." spec; EMP_MARGINALS=0 disables."""
+    out = draws
+    widen_spec = os.environ.get("SIM_WIDEN_DRAWS", "fitted")
+    if widen_spec.lower() not in ("off", "0", ""):
+        out = _widen_draws(out, positions, widen_spec)
+    if os.environ.get("EMP_MARGINALS", "1") not in ("0", ""):
+        out = _empirical_marginals(
+            out, positions,
+            np.random.default_rng(0 if seed is None else seed + 7))
     return out
 
 
