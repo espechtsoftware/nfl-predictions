@@ -136,7 +136,8 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                       stack, tail_line: float, n_sims: int | None = None,
                       seed: int = 42, lev_scale: float = 1.0,
                       locks: set | None = None, bans: set | None = None,
-                      allowed_ids: set | None = None) -> list:
+                      allowed_ids: set | None = None,
+                      theses: list | None = None) -> list:
     """Full validated pipeline on the live slate -> selected entries in
     coverage order (first = broadest boom coverage).
 
@@ -161,5 +162,5 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
     lineups = tail_select_lineups(
         slate, pool, draws, tail_line=tail_line, n_entries=n_entries,
         stack=stack, objective_col="proj_tourney",
-        locks=set(locks or ()))
+        locks=set(locks or ()), theses=theses)
     return lineups

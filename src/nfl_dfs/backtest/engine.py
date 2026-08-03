@@ -232,6 +232,7 @@ def tail_select_lineups(
     contest: Contest | None = None,
     sharp_fraction: float = 0.0,
     locks: set | None = None,
+    theses: list[dict] | None = None,
 ) -> list[Lineup]:
     """Entry selection on P(best-of-N >= tail_line) (guide: issue #5).
 
@@ -245,6 +246,31 @@ def tail_select_lineups(
     cands = optimize_many(pool, n_lineups=candidate_multiple * n_entries,
                           stack=stack, objective_col=objective_col,
                           locks=set(locks))
+    # Thesis candidates (2026-08-03, OWS "Bink Machine" pattern): each
+    # thesis {players: [ids], min: k} guarantees the POOL holds enough
+    # combo-containing builds; the post-selection repair below enforces
+    # the portfolio floor. Builds TOWARD correlated convictions (pairs
+    # with watchlist conversions) instead of only capping exposure.
+    for th in (theses or []):
+        combo = set(th.get("players") or ())
+        need = int(th.get("min") or 0)
+        if not combo or need <= 0:
+            continue
+        banned_th: list = []
+        for _ in range(max(need, 2)):
+            try:
+                lu = optimize(pool, stack=stack, objective_col=objective_col,
+                              locks=combo | set(locks),
+                              banned_lineups=banned_th, max_overlap=7)
+            except Exception:
+                break
+            if lu is None:
+                break
+            banned_th.append(lu.ids)
+            if lu.ids not in seen:
+                lu.tag = "thesis"
+                seen.add(lu.ids)
+                cands.append(lu)
     for lu in cands:
         lu.tag = "lev"
     seen = {lu.ids for lu in cands}
@@ -411,7 +437,43 @@ def tail_select_lineups(
                                             tail_line, qb_of, max_qbs)
         else:
             picked = select_tail_entries(cand_totals, n_entries, tail_line)
+    if theses:
+        picked = _enforce_theses(picked, cands, cand_totals, tail_line,
+                                 theses)
     return [cands[i] for i in picked]
+
+
+def _enforce_theses(picked: list[int], cands: list, cand_totals,
+                    tail_line: float, theses: list[dict]) -> list[int]:
+    """Portfolio floor per thesis: swap the weakest non-thesis entries
+    for the best unpicked combo-containing candidates until each quota
+    is met (best-effort — a thesis the pool can't satisfy is logged)."""
+    import numpy as _np
+
+    p_line = (cand_totals >= tail_line).mean(axis=1)
+    picked = list(picked)
+    for th in theses:
+        combo = set(th.get("players") or ())
+        need = int(th.get("min") or 0)
+        if not combo or need <= 0:
+            continue
+        def has(i):
+            return combo <= {p["id"] for p in cands[i].players}
+        have = sum(1 for i in picked if has(i))
+        pool_extra = sorted((i for i in range(len(cands))
+                             if i not in picked and has(i)),
+                            key=lambda i: -p_line[i])
+        while have < need and pool_extra:
+            worst = min((i for i in picked if not has(i)),
+                        key=lambda i: p_line[i], default=None)
+            if worst is None:
+                break
+            picked[picked.index(worst)] = pool_extra.pop(0)
+            have += 1
+        if have < need:
+            log.warning("thesis %s: only %d/%d entries possible",
+                        sorted(combo), have, need)
+    return picked
 
 
 def _select_tail_qb_capped(

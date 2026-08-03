@@ -51,3 +51,19 @@ def test_cap_buys_depth_in_kept_stacks():
     picked = _select_tail_qb_capped(totals, 4, 194.0, qb_of, 2)
     assert set(picked) >= {0, 1, 2}, "all three QB0 variants must be kept"
     assert len({qb_of[i] for i in picked}) <= 2
+
+
+def test_thesis_repair_enforces_portfolio_floor():
+    import numpy as np
+
+    from nfl_dfs.backtest.engine import _enforce_theses
+
+    class L:
+        def __init__(self, ids):
+            self.players = [{"id": i} for i in ids]
+
+    cands = [L([1, 2, 3]), L([4, 5, 6]), L([7, 8, 9]), L([1, 7, 9])]
+    totals = np.array([[200.0], [150.0], [140.0], [190.0]])
+    picked = _enforce_theses([1, 2], cands, totals, 194.0,
+                             [{"players": [1], "min": 2}])
+    assert sum(1 for i in picked if 1 in {p["id"] for p in cands[i].players}) == 2

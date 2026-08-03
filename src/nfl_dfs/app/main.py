@@ -64,6 +64,10 @@ class LineupRequest(BaseModel):
     # shaping, boom-draw candidates, tail-coverage selection. Falls back
     # to the plain MILP path on any failure. sim=False forces the old path.
     sim: bool = True
+    # Thesis constraints (2026-08-03): [{players: [dk_ids], min: k}] —
+    # ">=k of my entries must contain this combo". Builds toward
+    # correlated convictions; pairs with watchlist conversions.
+    theses: list[dict] = []
     # Chalk-fade scaling (contest presets, 2026-08-03): 1.0 = validated
     # large-field fade; sharp/high-stakes fields use 0.5-0.7 — our fade
     # is soft-field-calibrated and sharp chalk busts less.
@@ -1624,7 +1628,7 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
                 stack=stack, tail_line=req.line(),
                 lev_scale=req.lev_scale,
                 locks=set(req.locks), bans=set(req.bans),
-                allowed_ids=allowed)
+                allowed_ids=allowed, theses=req.theses or None)
         except HTTPException:
             raise
         except Exception as exc:
