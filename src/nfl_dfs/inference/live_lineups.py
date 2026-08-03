@@ -125,15 +125,32 @@ def build_slate_with_draws(season: int, week: int, n_sims: int = 10_000,
 
 def build_sim_lineups(season: int, week: int, n_entries: int,
                       stack, tail_line: float, n_sims: int = 10_000,
-                      seed: int = 42, lev_scale: float = 1.0) -> list:
+                      seed: int = 42, lev_scale: float = 1.0,
+                      locks: set | None = None, bans: set | None = None,
+                      allowed_ids: set | None = None) -> list:
     """Full validated pipeline on the live slate -> selected entries in
-    coverage order (first = broadest boom coverage)."""
+    coverage order (first = broadest boom coverage).
+
+    locks: dk_player_ids required in every entry (plumbed through every
+    candidate generator). bans: excluded from the pool entirely.
+    allowed_ids: restrict to one DK slate's player set (draft_group_id
+    requests) — draw_idx stays valid because rows only get DROPPED."""
     from ..backtest.engine import tail_select_lineups
 
     slate, draws = build_slate_with_draws(season, week, n_sims=n_sims,
                                           seed=seed, lev_scale=lev_scale)
+    if allowed_ids:
+        slate = slate[slate.id.isin(allowed_ids)]
+    if bans:
+        slate = slate[~slate.id.isin(bans)]
+    slate = slate.reset_index(drop=True)
+    if locks:
+        missing = set(locks) - set(slate.id)
+        if missing:
+            raise ValueError(f"locked players not in slate: {sorted(missing)}")
     pool = slate.to_dict("records")
     lineups = tail_select_lineups(
         slate, pool, draws, tail_line=tail_line, n_entries=n_entries,
-        stack=stack, objective_col="proj_tourney")
+        stack=stack, objective_col="proj_tourney",
+        locks=set(locks or ()))
     return lineups

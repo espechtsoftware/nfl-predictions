@@ -231,6 +231,7 @@ def tail_select_lineups(
     n_per_game: int = 3,
     contest: Contest | None = None,
     sharp_fraction: float = 0.0,
+    locks: set | None = None,
 ) -> list[Lineup]:
     """Entry selection on P(best-of-N >= tail_line) (guide: issue #5).
 
@@ -240,8 +241,10 @@ def tail_select_lineups(
     genuinely boom-correlated entries the mean objective never builds.
     Selection is greedy sim-coverage (see select_tail_entries)."""
     rd = _row_draws(slate, draws)
+    locks = locks or set()
     cands = optimize_many(pool, n_lineups=candidate_multiple * n_entries,
-                          stack=stack, objective_col=objective_col)
+                          stack=stack, objective_col=objective_col,
+                          locks=set(locks))
     for lu in cands:
         lu.tag = "lev"
     seen = {lu.ids for lu in cands}
@@ -250,7 +253,8 @@ def tail_select_lineups(
         sim_pool = [{**p, "proj_sim": float(rd[i, k])}
                     for i, p in enumerate(pool)]
         try:
-            lu = optimize(sim_pool, stack=stack, objective_col="proj_sim")
+            lu = optimize(sim_pool, stack=stack, objective_col="proj_sim",
+                          locks=set(locks))
         except Exception as exc:  # CBC subprocess flake: skip this draw
             log.warning("boom-draw solve failed: %s", exc)
             continue
@@ -269,7 +273,8 @@ def tail_select_lineups(
         for _ in range(n_nostack):
             try:
                 lu = optimize(pool, stack=None, objective_col=objective_col,
-                              banned_lineups=banned_ns, max_overlap=7)
+                              banned_lineups=banned_ns, max_overlap=7,
+                              locks=set(locks))
             except Exception:
                 break
             if lu is None:
@@ -294,7 +299,8 @@ def tail_select_lineups(
                 try:
                     lu = optimize(pool, stack=stack,
                                   objective_col=objective_col,
-                                  locks={qb["id"]}, banned_lineups=banned_qv,
+                                  locks={qb["id"]} | set(locks),
+                                  banned_lineups=banned_qv,
                                   max_overlap=6)
                 except Exception:
                     break
@@ -316,7 +322,7 @@ def tail_select_lineups(
         for _, qb in qb_rows[:n_midqb]:
             try:
                 lu = optimize(pool, stack=stack, objective_col=objective_col,
-                              locks={qb["id"]})
+                              locks={qb["id"]} | set(locks))
             except Exception:
                 continue
             if lu is not None and lu.ids not in seen:
@@ -336,7 +342,7 @@ def tail_select_lineups(
             try:
                 lu = optimize(pool, stack=stack, objective_col=objective_col,
                               game_lock=(gid, 5), banned_lineups=banned,
-                              max_overlap=7)
+                              max_overlap=7, locks=set(locks))
             except Exception as exc:
                 log.warning("game-stack solve failed (%s): %s", gid, exc)
                 break
@@ -355,7 +361,7 @@ def tail_select_lineups(
         for gid in game_proj.index[n_game_stacks:n_game_stacks + n_dark]:
             try:
                 lu = optimize(pool, stack=stack, objective_col=objective_col,
-                              game_lock=(gid, 5))
+                              game_lock=(gid, 5), locks=set(locks))
             except Exception:
                 continue
             if lu is not None and lu.ids not in seen:

@@ -1560,28 +1560,42 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
         bring_back_min=req.bring_back_min,
         forbid_rb_vs_dst=req.forbid_rb_vs_dst,
     )
-    # Sim-mode first (validated replay engine on the live slate; see
-    # inference/live_lineups.py). Locks/bans/slate-restriction aren't
-    # supported there yet, so those requests use the MILP path, as does
-    # any sim failure — a slate built the old way beats a 500.
-    if req.sim and not req.locks and not req.bans \
-            and req.draft_group_id is None:
+    # Sim-mode is THE path (validated replay engine on the live slate,
+    # locks/bans/slate-restriction included). No silent fallback — the
+    # user chose the validated system always (2026-08-03): a sim failure
+    # returns a clear error naming the cause; sim=false is the explicit
+    # escape hatch to the plain MILP path.
+    if req.sim:
+        allowed = None
+        if req.draft_group_id is not None:
+            allowed = set(int(p) for p in df.dk_player_id.dropna())
         try:
             from ..inference.live_lineups import build_sim_lineups
 
             lineups = build_sim_lineups(
                 req.season, req.week, n_entries=req.n_lineups,
                 stack=stack, tail_line=req.line(),
-                lev_scale=req.lev_scale)
-            if lineups:
-                for lu in lineups:
-                    for p in lu.players:
-                        p.setdefault("dk_id", (dk_ids or {}).get(int(p["id"])))
-                ranked = _rank_by_confidence(lineups, df, line=req.line())
-                _annotate_leverage([r["lineup"] for r in ranked])
-                return [r["lineup"] for r in ranked], ranked
-        except Exception:
-            log.exception("sim-mode lineup build failed; MILP fallback")
+                lev_scale=req.lev_scale,
+                locks=set(req.locks), bans=set(req.bans),
+                allowed_ids=allowed)
+        except HTTPException:
+            raise
+        except Exception as exc:
+            log.exception("sim-mode lineup build failed")
+            raise HTTPException(
+                503, "Sim-mode build failed "
+                f"({type(exc).__name__}: {str(exc)[:200]}). Fix the cause "
+                "or pass sim=false to explicitly use the MILP path.")
+        if not lineups:
+            raise HTTPException(
+                422, "Sim-mode found no feasible lineups under the given "
+                     "constraints")
+        for lu in lineups:
+            for p in lu.players:
+                p.setdefault("dk_id", (dk_ids or {}).get(int(p["id"])))
+        ranked = _rank_by_confidence(lineups, df, line=req.line())
+        _annotate_leverage([r["lineup"] for r in ranked])
+        return [r["lineup"] for r in ranked], ranked
 
     pool = _notes.apply_prefs(
         _player_pool(df, req.objective, dk_ids, lev_scale=req.lev_scale),

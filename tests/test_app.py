@@ -715,10 +715,10 @@ def test_market_page_and_endpoints(monkeypatch):
     assert r3.status_code == 200 and r3.json() == []
 
 
-def test_sim_mode_falls_back_cleanly(client, monkeypatch):
-    # Sim-mode is the default; in an offline env its model/BQ loads fail
-    # and the MILP fallback must serve lineups anyway (also covers any
-    # in-season sim failure: old-way slate beats a 500).
+def test_sim_mode_is_mandatory(client, monkeypatch):
+    # No silent fallback (user decision 2026-08-03): a sim failure must
+    # surface a clear 503 naming the cause; sim=false is the explicit
+    # escape hatch and must serve MILP lineups without touching sim.
     called = {}
 
     def boom(*a, **k):
@@ -730,11 +730,29 @@ def test_sim_mode_falls_back_cleanly(client, monkeypatch):
     monkeypatch.setattr(live_lineups, "build_sim_lineups", boom)
     r = client.post("/lineups", json={"season": 2025, "week": 3,
                                       "n_lineups": 2})
-    assert r.status_code == 200 and len(r.json()["lineups"]) == 2
+    assert r.status_code == 503
+    assert "RuntimeError" in r.json()["detail"]
+    assert "sim=false" in r.json()["detail"]
     assert called.get("sim") is True
 
-    # sim=False must not even attempt the sim path
     called.clear()
     r = client.post("/lineups", json={"season": 2025, "week": 3,
                                       "n_lineups": 2, "sim": False})
-    assert r.status_code == 200 and called == {}
+    assert r.status_code == 200 and len(r.json()["lineups"]) == 2
+    assert called == {}
+
+
+def test_sim_mode_receives_locks_and_bans(client, monkeypatch):
+    seen = {}
+
+    def capture(*a, **k):
+        seen.update(k)
+        raise RuntimeError("stop here")
+
+    from nfl_dfs.inference import live_lineups
+
+    monkeypatch.setattr(live_lineups, "build_sim_lineups", capture)
+    client.post("/lineups", json={"season": 2025, "week": 3,
+                                  "n_lineups": 2,
+                                  "locks": [11], "bans": [22]})
+    assert seen.get("locks") == {11} and seen.get("bans") == {22}
