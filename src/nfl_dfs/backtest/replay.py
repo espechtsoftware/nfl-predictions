@@ -104,6 +104,15 @@ def apply_draw_shape(draws: np.ndarray, positions: pd.Series,
         out = _empirical_marginals(
             out, positions,
             np.random.default_rng(0 if seed is None else seed + 7))
+    # A/B lever (env SHAPE_MIX, off by default = 1.0): apply the shaping
+    # to only the first fraction f of sims, leaving the rest RAW — the
+    # EW-vs-PB2 diff showed 15 weeks converted but 9 regressed (each
+    # world-model sees booms the other misses); mixed worlds let the
+    # coverage selector hedge across both regimes.
+    mix = float(os.environ.get("SHAPE_MIX", "1") or 1)
+    if 0.0 < mix < 1.0:
+        k = int(mix * draws.shape[1])
+        out = np.concatenate([out[:, :k], draws[:, k:]], axis=1)
     return out
 
 
@@ -120,8 +129,15 @@ def _empirical_marginals(draws: np.ndarray, positions: pd.Series,
 
     from ..models.emp_marginals import ROWS
 
+    # EMP_POS (A/B, default all): comma list of positions to reshape —
+    # the EW-book sweep found the TE slot REGRESSED under the empirical
+    # TE family (13.1 actual vs winners' 21.5), so a no-TE arm exists.
+    allow = {p.strip().upper() for p in
+             os.environ.get("EMP_POS", "").split(",") if p.strip()}
     by_pos: dict = {}
     for r in ROWS:
+        if allow and r["pos"] not in allow:
+            continue
         by_pos.setdefault(r["pos"], []).append(r)
 
     def family_sample(r, n):

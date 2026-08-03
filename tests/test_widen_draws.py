@@ -41,3 +41,27 @@ def test_tail_actually_deepens():
     out = _widen_draws(draws, pos, "WR:1.3")
     assert np.percentile(out[0], 99) > np.percentile(draws[0], 99)
     assert (out[0] >= 40).mean() > (draws[0] >= 40).mean()
+
+
+def test_shape_mix_blends_worlds(monkeypatch):
+    from nfl_dfs.backtest.replay import apply_draw_shape
+
+    draws, pos = _mk()
+    monkeypatch.setenv("SHAPE_MIX", "0.5")
+    out = apply_draw_shape(draws, pos, seed=1)
+    n = draws.shape[1]
+    # raw half untouched, shaped half changed
+    np.testing.assert_array_equal(out[:, n // 2:], draws[:, n // 2:])
+    assert not np.allclose(out[:, :n // 2], draws[:, :n // 2])
+
+
+def test_emp_pos_filter(monkeypatch):
+    from nfl_dfs.backtest.replay import _empirical_marginals
+
+    draws, pos = _mk()
+    monkeypatch.setenv("EMP_POS", "QB,RB,WR")
+    out = _empirical_marginals(draws.copy(), pos,
+                               np.random.default_rng(1))
+    te_row = list(pos).index("TE")
+    np.testing.assert_array_equal(out[te_row], draws[te_row])
+    monkeypatch.delenv("EMP_POS")
