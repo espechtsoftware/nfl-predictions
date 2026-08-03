@@ -1139,3 +1139,72 @@ LEV_POS_WEIGHTS (Levitan: crowd accurate on RB chalk, weak on WR/TE/DST
 sharpened: 4 Milly entries are lottery tickets against a 237 median;
 the ~187 qualifier line (cleared 7/17 weeks in 2025) is where the
 edge actually cashes.
+
+## Addendum 39 (2026-08-03): the rebuild-nondeterminism incident — and the corrected 9-arm verdicts
+
+A 9-arm panel (rest-week training exclusion, draw widening x2, FTN
+features x2, WR levers x2, ownership-shape constraint, DST bonus) came
+back with a shared fingerprint: unrelated selection-only arms all showed
+2021 at ~170 mean-best vs the prior control's 178.8 — byte-identical
+ROIs across arms that shouldn't share anything. A clean CONTROL arm on
+the same image reproduced the shifted numbers exactly, proving the
+cause: **feature-table REBUILDS are not deterministic** (BigQuery
+tie-breaking; the FTN-column rebuild between panels silently moved the
+shared baseline). Replays are exact within a table build; a rebuild is
+a new world.
+
+**New law: after any build-features run, every panel co-runs its own
+CONTROL arm on the same table build.** (CLAUDE.md, validation laws.)
+
+Corrected verdicts vs the same-build control (16/107 tails):
+TRAIN_MAX_WEEK=16 **+5** (21; retrain reshuffle inflates it — see
+Addendum 40's combo), SIM_WIDEN_DRAWS=fitted **+4** (20, +1 >=237),
+EXTRA=pa_rate_l6 +3 (19), widen-WR-bump +1, FTN pressure / WR-punt
+archetype / MIN_LOWOWN=2 / DST_PUNT_BONUS all 0, WR_BOOM=2 **-3**
+(declined). SIMS30K (32Gi retry after 12Gi OOM): +2 tails with the
+program's best ROI and medians — not worth 3x compute as the panel
+default; recorded as a live-Sunday candidate (one slate, pennies).
+
+## Addendum 40 (2026-08-03): EW adopted — the largest gain of the program; live sim-mode closes the fidelity gap
+
+**Final single-lever panel** (same-build control 16/107): BIGPLAY=1
+(deep-threat house-call mixture) 16 tails but +1 >=237 (2019 244.2),
+best-of-night ROI and 4/6 better medians — flavor, not tails.
+EMP_MARGINALS=1 (empirical per-position/tier families from the
+NFL-DFS-Tools fit, rank-reordered onto our copula, moments preserved)
+**+5 CLEAN** (21; models byte-identical to control — no reshuffle
+excuse). LEV_SHAPE=sqrt 16 tails but the night's best median (13.1%) —
+qualifier pile.
+
+**Combo panel:** EMPMARG x WIDENFIT ("EW") **24/107 tails, 2 >=237
+weeks — the strongest configuration in program history** (2019: mean
+best 195.2, 8/17 tail weeks). EMPMARG x TRAINW16 23. All three stacked
+20 (2024 collapsed to 0 — triple-stack overshoots; rest-week exclusion
+stays a recorded lever, its solo +5 mostly retrain shuffle).
+
+**ADOPTED: SIM_WIDEN_DRAWS=fitted + EMP_MARGINALS=1 as code defaults**
+(backtest.replay.apply_draw_shape). Mechanism, in one line: the fitted
+widening supplies the width the calibration always measured as missing,
+and the empirical families shape that width into realistic right-skew —
+composed, mean-preserving, correlation structure untouched.
+
+**Live fidelity fix (the biggest architectural find of the audit):**
+the live CLASSIC path had never consumed draws — plain MILP + a
+normal-approximation ranking — so every draws-side gain existed only in
+replays. inference/live_lineups.py now runs the validated pipeline on
+the live slate (features -> cold-start -> components -> usage notes ->
+correlated sims -> EW shaping -> market blend as an additive mean shift
+-> replay-identical tournament tilts -> boom-draw candidates ->
+tail-coverage selection), POST /lineups sim=true by default with a
+fail-safe MILP fallback (locks/bans/slate-restricted requests use the
+MILP path). What was validated is now what fires on Sundays.
+
+Also this cycle: repo-mining rounds 2-3 (RTS field-model blueprint with
+measured 0.43->0.72 dupe-correlation value; Picking Winners overlap
+datapoint; DK standings purge ~4 days -> Mon/Tue download law),
+vendor-methodology audit (Lev% shipped on lineup cards; salary-residual
+et al. recorded), and the pre-built September machinery: lossless
+contest-entry import, field-calibration harness, accuracy grading,
+proj_tail ceiling lever, external-projection consensus diff. The EW
+harvest (sequential, weeks 1-18, book export) is the shipping baseline
+of record; its numbers land in six-season-harvest-summary.md.
