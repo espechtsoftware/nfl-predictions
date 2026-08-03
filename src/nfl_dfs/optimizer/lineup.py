@@ -263,6 +263,10 @@ def optimize_many(
     import os as _os
 
     punt_min = int(_os.environ.get("PUNT_MIN", punt_min))
+    # PUNT_MAX (2026-08-03): the $4k threshold was inherited from the
+    # 2025 winner study (punts cluster $2.9-3.9k) and never dose-tested.
+    if _os.environ.get("PUNT_MAX"):
+        punt_max_salary = int(_os.environ["PUNT_MAX"])
     lineups: list[Lineup] = []
     banned: list[frozenset] = []
     for _ in range(n_lineups):
