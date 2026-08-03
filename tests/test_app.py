@@ -71,6 +71,7 @@ def test_lineup_builder(client):
     r = client.post("/lineups", json={
         "season": 2025, "week": 3, "n_lineups": 3,
         "qb_stack_min": 1, "objective": "proj_p90",
+        "sim": False,
     })
     assert r.status_code == 200
     body = r.json()
@@ -100,6 +101,7 @@ def test_tail_line_scales_with_field_size(client):
     # field_size flows into the response's confidence target
     r = client.post("/lineups", json={
         "season": 2025, "week": 3, "n_lineups": 1, "field_size": 20_000,
+        "sim": False,
     })
     assert r.status_code == 200
     assert r.json()["tail_line"] == q20k
@@ -107,6 +109,7 @@ def test_tail_line_scales_with_field_size(client):
     r = client.post("/lineups", json={
         "season": 2025, "week": 3, "n_lineups": 1, "field_size": 20_000,
         "tail_line": 205.0,
+        "sim": False,
     })
     assert r.json()["tail_line"] == 205.0
 
@@ -116,11 +119,13 @@ def test_lineup_builder_locks_and_csv_endpoint(client):
     a_wr = int(frame[frame.position == "WR"].dk_player_id.iloc[-1])
     r = client.post("/lineups", json={
         "season": 2025, "week": 3, "n_lineups": 1, "locks": [a_wr],
+        "sim": False,
     })
     ids = [p["id"] for p in r.json()["lineups"][0]["players"]]
     assert a_wr in ids
 
-    csv_resp = client.post("/lineups.csv", json={"season": 2025, "week": 3})
+    csv_resp = client.post("/lineups.csv", json={"season": 2025, "week": 3,
+                                                 "sim": False})
     assert csv_resp.status_code == 200
     assert csv_resp.headers["content-type"].startswith("text/csv")
 
@@ -131,6 +136,7 @@ def test_lineup_infeasible_constraints(client):
         "qb_stack_min": 3,  # only ~6 WR/TE per team projected > cap conflicts
         "bring_back_min": 2,
         "bans": list(range(1000, 1030)),
+        "sim": False,
     })
     assert r.status_code in (200, 422)  # feasibility depends on pool; must not 500
 
@@ -229,6 +235,7 @@ def test_core_lineups_respects_bans(client):
 
 
 def test_core_lineups_auto_sizes(client):
+    r = client.post("/lineups/core", json={"season": 2025, "week": 3, "n_lineups": 3})
     r = client.post("/lineups/core", json={"season": 2025, "week": 3, "n_lineups": 3})
     assert r.status_code == 200, r.text
     out = r.json()
@@ -429,6 +436,7 @@ def test_classic_slates_empty_store(client):
 def test_lineups_restricted_to_chosen_slate(classic_client):
     r = classic_client.post("/lineups", json={
         "season": 2025, "week": 3, "n_lineups": 2, "draft_group_id": 8200,
+        "sim": False,
     })
     assert r.status_code == 200, r.text
     body = r.json()
@@ -452,6 +460,7 @@ def test_lineups_full_slate_keeps_all_teams_available(classic_client):
     r = classic_client.post("/lineups", json={
         "season": 2025, "week": 3, "n_lineups": 1,
         "draft_group_id": 8100, "locks": [a_thu_wr],
+        "sim": False,
     })
     assert r.status_code == 200, r.text
     lu = r.json()["lineups"][0]
@@ -463,6 +472,7 @@ def test_lineups_full_slate_keeps_all_teams_available(classic_client):
 def test_lineups_unknown_slate_404(classic_client):
     r = classic_client.post("/lineups", json={
         "season": 2025, "week": 3, "draft_group_id": 4321,
+        "sim": False,
     })
     assert r.status_code == 404
     assert "/classic/slates" in r.json()["detail"]
@@ -471,6 +481,7 @@ def test_lineups_unknown_slate_404(classic_client):
 def test_core_lineups_respect_slate(classic_client):
     r = classic_client.post("/lineups/core", json={
         "season": 2025, "week": 3, "n_lineups": 2, "draft_group_id": 8200,
+        "sim": False,
     })
     assert r.status_code == 200, r.text
     out = r.json()
@@ -504,7 +515,7 @@ def draftable_client():
 
 def test_classic_csv_uses_draftable_ids(draftable_client):
     r = draftable_client.post("/lineups", json={
-        "season": 2025, "week": 3, "n_lineups": 1,
+        "season": 2025, "week": 3, "n_lineups": 1, "sim": False,
     })
     body = r.json()
     row = body["dk_csv"].strip().splitlines()[1]
@@ -516,7 +527,8 @@ def test_classic_csv_uses_draftable_ids(draftable_client):
 def test_classic_csv_falls_back_to_player_ids(client):
     """No draftable mapping in the store (e.g. pre-migration rows): the
     CSV still renders, carrying player IDs."""
-    r = client.post("/lineups", json={"season": 2025, "week": 3, "n_lineups": 1})
+    r = client.post("/lineups", json={"season": 2025, "week": 3,
+                                      "n_lineups": 1, "sim": False})
     row = r.json()["dk_csv"].strip().splitlines()[1]
     ids = [p["id"] for p in r.json()["lineups"][0]["players"]]
     assert all(f"({pid})" in row for pid in ids)
@@ -545,6 +557,7 @@ CLASSIC_ENTRIES = (
 def test_fill_classic_entries_endpoint(draftable_client):
     r = draftable_client.post("/lineups/entries.csv", json={
         "season": 2025, "week": 3, "entries_csv": CLASSIC_ENTRIES,
+        "sim": False,
     })
     assert r.status_code == 200, r.text
     assert r.headers["content-type"].startswith("text/csv")
