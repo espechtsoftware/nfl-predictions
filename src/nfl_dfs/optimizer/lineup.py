@@ -110,6 +110,7 @@ def optimize(
     punt_max_salary: int | None = None,
     punt_min: int = 0,
     game_lock: tuple[str, int] | None = None,
+    min_salary: int | None = None,
 ) -> Lineup | None:
     """Solve one lineup. Returns None if infeasible.
     game_lock=(game_id, n) forces >= n players from that game — the
@@ -126,7 +127,8 @@ def optimize(
     # 182.3 with a floor of 49000. Env MIN_LINEUP_SALARY overrides; 0 disables.
     import os as _os
 
-    _min_sal = int(_os.environ.get("MIN_LINEUP_SALARY", "49000") or 0)
+    _min_sal = (min_salary if min_salary is not None
+                else int(_os.environ.get("MIN_LINEUP_SALARY", "49000") or 0))
     if _min_sal:
         prob += pulp.lpSum(x[p["id"]] * p["salary"] for p in players) >= _min_sal
     prob += pulp.lpSum(x.values()) == ROSTER_SIZE

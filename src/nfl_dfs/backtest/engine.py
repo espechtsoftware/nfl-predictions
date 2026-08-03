@@ -284,6 +284,30 @@ def tail_select_lineups(
                 lu.tag = "nostk"
                 seen.add(lu.ids)
                 cands.append(lu)
+    # Low-salary candidate batch (env N_LOWSAL, off by default;
+    # underspend-family redesign 2026-08-03): the validated $49k floor
+    # pushes every candidate into near-cap build space; these solves at
+    # a $47k floor reach constructions the floor forbids, and the
+    # coverage selector decides if any earn slots (the original
+    # underspend-dedup died with the WRONG rationale — dupe avoidance;
+    # ours measure ~0 — this one is pure coverage breadth).
+    n_lowsal = int(_os.environ.get("N_LOWSAL", "0"))
+    if n_lowsal:
+        banned_ls: list = []
+        for _ in range(n_lowsal):
+            try:
+                lu = optimize(pool, stack=stack, objective_col=objective_col,
+                              banned_lineups=banned_ls, max_overlap=7,
+                              min_salary=47_000)
+            except Exception:
+                break
+            if lu is None:
+                break
+            banned_ls.append(lu.ids)
+            if lu.ids not in seen:
+                lu.tag = "lowsal"
+                seen.add(lu.ids)
+                cands.append(lu)
     # Stack-depth A/B (env N_QB_VARIANTS): the harvest attribution found
     # the 40 entries spread over ~16 QBs with max 2-of-8 overlap vs the
     # weekly optimal — right stacks, wrong pieces. For each of the top-8
