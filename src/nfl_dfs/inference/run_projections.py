@@ -9,6 +9,7 @@ Sunday morning are how you enter lineups you didn't mean to enter.
 from __future__ import annotations
 
 import logging
+import os
 from datetime import datetime, timezone
 
 import pandas as pd
@@ -199,9 +200,12 @@ def run() -> None:
     week = int(week)
 
     model, version = load_latest_component_models()
+    # LIVE_SIMS (adopted 2026-08-03): live paths sim 30k worlds (better
+    # medians/ROI, one slate = pennies); panels/replays stay at 10k.
+    n_sims = int(os.environ.get("LIVE_SIMS", "30000"))
     feats = upcoming_slate_features(season, week)
     skill = feats[feats.dk_position.isin(["QB", "RB", "WR", "TE"])].reset_index(drop=True)
-    out = project(skill, model, version, season, week,
+    out = project(skill, model, version, season, week, n_sims=n_sims,
                   adjust=_cascade_adjuster(season))
     # DST rows (issue #7): trailing team-defense form + opposing-QB
     # experience. Failure-safe — skill projections without DSTs still

@@ -29,7 +29,12 @@ import pandas as pd
 log = logging.getLogger(__name__)
 
 
-def build_slate_with_draws(season: int, week: int, n_sims: int = 10_000,
+LIVE_SIMS_DEFAULT = 30_000  # adopted 2026-08-03: +2 tails, best ROI and
+# medians of its panel — 3x compute is pennies on ONE live slate while
+# panels stay at 10k (research cadence). Env LIVE_SIMS overrides.
+
+
+def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
                            seed: int = 42, lev_scale: float = 1.0,
                            ) -> tuple[pd.DataFrame, np.ndarray]:
     """Engine-ready slate frame + aligned draw matrix for the live week."""
@@ -42,6 +47,10 @@ def build_slate_with_draws(season: int, week: int, n_sims: int = 10_000,
     from ..models.blend import blend, market_projection_frame
     from .run_projections import BLEND_WEIGHT, upcoming_slate_features
 
+    import os as _os
+
+    if n_sims is None:
+        n_sims = int(_os.environ.get("LIVE_SIMS", LIVE_SIMS_DEFAULT))
     model, version = load_latest_component_models()
     feats = upcoming_slate_features(season, week)
     skill = feats[feats.dk_position.isin(["QB", "RB", "WR", "TE"])] \
@@ -124,7 +133,7 @@ def build_slate_with_draws(season: int, week: int, n_sims: int = 10_000,
 
 
 def build_sim_lineups(season: int, week: int, n_entries: int,
-                      stack, tail_line: float, n_sims: int = 10_000,
+                      stack, tail_line: float, n_sims: int | None = None,
                       seed: int = 42, lev_scale: float = 1.0,
                       locks: set | None = None, bans: set | None = None,
                       allowed_ids: set | None = None) -> list:
