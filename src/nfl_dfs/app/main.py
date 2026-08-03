@@ -968,6 +968,38 @@ def api_external_diff(season: int, week: int, limit: int = 40) -> list[dict]:
     return d.to_dict("records")
 
 
+@app.get("/api/cfb-export-links")
+def cfb_export_links(days: int = 3, limit: int = 5) -> list[dict]:
+    """Saturday-night helper (2026-08-03): the biggest recently-completed
+    CFB contests with ready-made standings-export URLs — click each while
+    logged into DK, then import-ownership the downloads. No entry
+    required; contest IDs come from the automated fills poll. Empty until
+    the CFB scaffold lands data (late Aug)."""
+    from ..bq import query_df
+    from ..config import settings
+
+    try:
+        df = query_df(f"""
+            SELECT contest_id, name, entry_fee, prize_pool, start_time
+            FROM (SELECT contest_id, name, entry_fee, prize_pool, start_time,
+                         ROW_NUMBER() OVER (PARTITION BY contest_id
+                                            ORDER BY pulled_at DESC) rn
+                  FROM `{settings.raw}.dk_contest_fills`
+                  WHERE sport = 'CFB'
+                    AND start_time < CURRENT_TIMESTAMP()
+                    AND start_time > TIMESTAMP_SUB(CURRENT_TIMESTAMP(),
+                                                   INTERVAL {int(days)} DAY))
+            WHERE rn = 1 ORDER BY prize_pool DESC LIMIT {int(limit)}""")
+    except Exception:
+        return []
+    out = df.to_dict("records")
+    for c in out:
+        c["export_url"] = ("https://www.draftkings.com/contest/"
+                           f"exportfullstandingscsv/{c['contest_id']}")
+        c["start_time"] = str(c["start_time"])
+    return out
+
+
 @app.get("/api/system-status")
 def api_system_status() -> dict:
     """Freshness of every data feed, for the System status popup. See
