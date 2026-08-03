@@ -300,7 +300,12 @@ def team_game_factors(
     return factors_a, factors_b
 
 
-DIRICHLET_CONCENTRATION_SCALE = 20.0
+DIRICHLET_CONCENTRATION_SCALE = float(
+    __import__("os").environ.get("DIRICHLET_K", "20.0"))
+# DIRICHLET_K env (graveyard review 2026-08-03): K=20 tested negative
+# with the ledger itself noting "concentration scale is the retune
+# knob" — the retune was never run. Lower K = spikier within-team
+# allocations (more next-man-up variance).
 MIN_CONCENTRATION = 0.05
 
 
