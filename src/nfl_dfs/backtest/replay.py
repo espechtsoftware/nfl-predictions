@@ -848,7 +848,9 @@ def run(
         pb = [max(w.lineup_scores) for w in result.weeks if w.week <= 16]
         if pb and len(pb) < len(best):
             print(f"  playable weeks (<=16): mean best {_np.mean(pb):.1f}  "
-                  f">=194: {sum(b >= 194 for b in pb)}/{len(pb)}")
+                  f">=194: {sum(b >= 194 for b in pb)}/{len(pb)}  "
+                  f">=187 (20k-qualifier line): "
+                  f"{sum(b >= 187 for b in pb)}/{len(pb)}")
         # Honest per-week bar: the ACTUAL score that won the Milly that
         # week (real_lines.py, 2019/23/24/25). Era-portable, unlike the
         # 2025-anchored constants above.
