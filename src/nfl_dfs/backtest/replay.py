@@ -515,7 +515,14 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
         own = None
         if os.environ.get("OWN_MODEL") and own_booster is not None:
             own = _model_ownership(own_booster, frame)
-            frame["model_own"] = own
+            # OWN_MODEL=fade (2026-08-03 graveyard review): the original
+            # rejection conflated decision input with measurement — the
+            # model went into the fade AND the field, and the "median
+            # doubled" verdict partly reflects a sharper yardstick, not
+            # worse lineups. fade-only keeps the naive field (stable
+            # measurement) while the fade uses the better own estimate.
+            if os.environ["OWN_MODEL"] != "fade":
+                frame["model_own"] = own
         if own is None:
             own = naive_ownership(frame)
         # A/B lever (env LEV_SHAPE=sqrt, off by default = linear): a
