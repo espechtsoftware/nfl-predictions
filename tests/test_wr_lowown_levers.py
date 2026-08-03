@@ -61,3 +61,13 @@ def test_max_per_game_cap(monkeypatch):
     for p in lu.players:
         games[p["game_id"]] = games.get(p["game_id"], 0) + 1
     assert max(games.values()) <= 3
+
+
+def test_value2_barbell(monkeypatch):
+    monkeypatch.setenv("VALUE2_MIN", "2")
+    monkeypatch.setenv("VALUE2_MAX", "5300")
+    lu = optimize(_pool(), stack=None)
+    assert lu is not None
+    cheap = [p for p in lu.players
+             if p["salary"] <= 5300 and p["pos"] != "DST"]
+    assert len(cheap) >= 2

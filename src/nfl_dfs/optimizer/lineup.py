@@ -162,6 +162,19 @@ def optimize(
         if punts:
             prob += pulp.lpSum(x[pid] for pid in punts) >= punt_min
 
+    # A/B lever (env VALUE2_MIN, off by default): salary-barbell second
+    # tier — 84% of first-place Milly lineups carried >=2 skill players
+    # under $5,300 (44% carried three; 4for4 via 2026-08-03 triage). The
+    # sub-$4k punt rule mandates ONE extreme value; this requires N
+    # players under VALUE2_MAX (default 5300), punt included.
+    v2_min = int(_os.environ.get("VALUE2_MIN", "0"))
+    if v2_min:
+        v2_max = int(_os.environ.get("VALUE2_MAX", "5300"))
+        cheap2 = [p["id"] for p in players
+                  if p["salary"] <= v2_max and p["pos"] != "DST"]
+        if len(cheap2) >= v2_min:
+            prob += pulp.lpSum(x[pid] for pid in cheap2) >= v2_min
+
     # A/B lever (env MAX_PER_GAME, off by default): cap same-game players.
     # 28 fully-mapped Milly winners average 2.96 from their most-loaded
     # game (22/28 used only 2-3) across 5.3 distinct games; our entries

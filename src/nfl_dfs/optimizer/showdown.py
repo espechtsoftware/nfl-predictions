@@ -106,6 +106,28 @@ def optimize_showdown(
     ) <= budget
     prob += pulp.lpSum(c.values()) == 1
     prob += pulp.lpSum(f.values()) == FLEX_SPOTS
+
+    # A/B lever (env SHOWDOWN_BRING_BACK, off pending replay validation):
+    # 88% of winning showdown lineups with a pass-position captain
+    # (QB/WR/TE) carried an OPPOSING pass-position player (FantasyLabs
+    # via 2026-08-03 research triage) — near-mandatory, and this
+    # optimizer had NO bring-back rule at all. Conditional big-M: if the
+    # captain is pass-position on team T, require >=1 QB/WR/TE from the
+    # other team anywhere in the lineup.
+    import os as _os
+
+    if _os.environ.get("SHOWDOWN_BRING_BACK"):
+        PASS_POS = ("QB", "WR", "TE")
+        teams = sorted({p["team"] for p in players})
+        if len(teams) == 2:
+            for team in teams:
+                opp_pass = [p["id"] for p in players
+                            if p["team"] != team and p["pos"] in PASS_POS]
+                own_pass_cpt = [p["id"] for p in players
+                                if p["team"] == team and p["pos"] in PASS_POS]
+                if opp_pass and own_pass_cpt:
+                    prob += (pulp.lpSum(c[pid] + f[pid] for pid in opp_pass)
+                             >= pulp.lpSum(c[pid] for pid in own_pass_cpt))
     for p in players:
         prob += c[p["id"]] + f[p["id"]] <= 1
 
