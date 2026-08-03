@@ -1,133 +1,117 @@
-# Six-season replay harvest — shipping baseline of record (2026-08-02, PUNT_BOOM=2)
+# Six-season replay harvest — shipping baseline of record (2026-08-03, "EW")
 
-Definitive baseline: canonical feature ordering (alphabetical `build_X`),
-possession-sim game engine, archetype punt tilt (PUNT_BOOM=2, adopted
-Addendum 37 — the only lever to improve every metric at once),
-tail-coverage selection of 40 GPP entries per week, tournament
-constraints on (bring-back, sub-$4k punt, RB-vs-DST ban, chalk fade).
-Deterministic — these numbers reproduce exactly on re-run (verified:
-harvest matched the Addendum 37 panel to the decimal, running on the
-code default with no env override).
+The season-ready configuration: possession-sim game engine, ADOPTED
+draw shaping (fitted widening + empirical per-position/tier marginal
+families — Addendum 40, the largest validated gain in program history),
+punt-boom archetype tilt, canonical feature ordering, week-1 cold-start
+training, tail-coverage selection of 40 entries/week. Deterministic
+under this image; graded against REAL per-week Milly winning lines.
+First baseline to include WEEK 1 of every season (107 weeks total).
 
-Companion spreadsheet: `six-season-replay-lineups.csv` — every player of
-every entered lineup (4,040 lineups, 36,360 rows): season, week,
-score_rank within the week, lineup total, player, position, team, salary,
-projection, actual DK points.
+Companion spreadsheet: `six-season-replay-lineups.csv` — 4,280 lineups,
+38,520 player rows.
 
 ## Per-year summary
 
-| Season | Weeks | Mean best | Highest score | Weeks ≥194 | Weeks ≥237 | Median finish | ROI |
+| Season | Weeks | Mean best | Highest | ≥194 | ≥237 | Median finish | ROI |
 |---|---|---|---|---|---|---|---|
-| 2019 | 16 | 185.1 | **271.1** (wk 5) | 2 | 1 | 10.7% | +73,226% |
-| 2021 | 17 | 179.5 | **238.9** (wk 5) | 3 | 1 | 15.1% | +39,137% |
-| 2022 | 17 | 175.5 | **206.3** (wk 2) | 3 | 0 | 16.0% | +38,804% |
-| 2023 | 17 | 175.0 | **200.6** (wk 3) | 2 | 0 | 14.2% | +50,701% |
-| 2024 | 17 | 177.2 | **194.8** (wk 5) | 2 | 0 | 16.0% | +18,150% |
-| 2025 | 17 | 185.6 | **230.9** (wk 12) | 4 | 0 | 14.2% | +36,110% |
-| **Total** | **101** | **179.6** | 271.1 | **16** | **2** | **14.4% avg** | **+256,128% sum** |
+| 2019 | 17 | 195.2 | **245.5** (wk 5) | 8 | 2 | 10.9% | +52,406% |
+| 2021 | 18 | 174.3 | **197.1** (wk 4) | 2 | 0 | 12.3% | +42,496% |
+| 2022 | 18 | 181.7 | **233.0** (wk 4) | 4 | 0 | 14.6% | +33,940% |
+| 2023 | 18 | 174.1 | **210.5** (wk 3) | 3 | 0 | 15.8% | +42,355% |
+| 2024 | 18 | 178.0 | **202.4** (wk 10) | 3 | 0 | 16.7% | +44,783% |
+| 2025 | 18 | 181.0 | **218.2** (wk 12) | 3 | 0 | 16.0% | +31,095% |
+| **Total** | **107** | **180.6** | 245.5 | **23** | **2** | 14.4% avg | — |
 
-Reference lines are 2025 Milly Maker anchors: 194 = minimum winning line,
-237 = average. Median finish percentile is the season-portable metric
-(lower is better; the field is re-simulated per week). ROI assumes Milly
-payout curve at $20/entry.
+Versus the pre-adoption baseline (16/101 comparable-control tails): the
+EW shaping added ~+50% more winning-line weeks. Against the ACTUAL
+same-week Milly winners (68 known lines): beat 1 (2024 wk 10) — the
+program's first real head-to-head win — with mean gaps down to 48-63
+pts from 51-68. The Milly stays a lottery; the ~187 qualifier line is
+the cashing zone (playable-week counts printed per replay).
 
 ## Highest-scoring lineup per season
 
-### 2019 week 5 — 271.1 pts ($49,700)
+
+### 2019 week 5 — 245.5 pts ($49,800)
 | Pos | Player | Team | Salary | Proj | Actual |
 |---|---|---|---|---|---|
-| QB | Dak Prescott | DAL | $6,000 | 19.1 | 29.2 |
-| RB | Christian McCaffrey | CAR | $8,700 | 27.5 | 50.7 |
-| RB | Aaron Jones | GB | $5,900 | 13.9 | 52.2 |
-| WR | Amari Cooper | DAL | $6,800 | 19.7 | 42.6 |
-| WR | Michael Thomas | NO | $6,600 | 20.0 | 44.2 |
-| WR | Michael Gallup | DAL | $5,000 | 15.0 | 27.3 |
-| TE | Greg Olsen | CAR | $4,000 | 22.1 | 0.0 |
-| TE | Jason Witten | DAL | $3,800 | 21.8 | 5.9 |
-| DST | SFO | SFO | $2,900 | 13.2 | 19.0 |
+| QB | Dak Prescott | DAL | $6,000 | 20.6 | 29.2 |
+| RB | Dalvin Cook | MIN | $8,400 | 15.2 | 29.8 |
+| RB | Aaron Jones | GB | $5,900 | 12.4 | 52.2 |
+| RB | Devonta Freeman | ATL | $5,300 | 15.5 | 18.0 |
+| WR | Amari Cooper | DAL | $6,800 | 20.1 | 42.6 |
+| WR | Allen Robinson | CHI | $5,600 | 13.7 | 28.7 |
+| WR | Michael Gallup | DAL | $5,000 | 15.9 | 27.3 |
+| TE | Jeremy Sprinkle | WAS | $2,500 | 9.1 | 3.7 |
+| DST | NWE DST | NWE | $4,300 | 22.2 | 14.0 |
 
-### 2021 week 5 — 238.9 pts ($49,900)
+### 2021 week 4 — 197.1 pts ($50,000)
 | Pos | Player | Team | Salary | Proj | Actual |
 |---|---|---|---|---|---|
-| QB | Lamar Jackson | BAL | $7,600 | 24.4 | 45.9 |
-| RB | Jonathan Taylor | IND | $6,300 | 12.4 | 34.9 |
-| RB | Devonta Freeman | BAL | $4,000 | 10.3 | 6.5 |
-| WR | Cooper Kupp | LA | $7,900 | 22.9 | 16.2 |
-| WR | Marquise Brown | BAL | $5,800 | 13.4 | 36.5 |
-| WR | Mecole Hardman | KC | $4,000 | 25.9 | 16.6 |
-| WR | Kadarius Toney | NYG | $4,000 | 25.5 | 32.6 |
-| TE | Mark Andrews | BAL | $5,400 | 11.9 | 44.7 |
-| DST | NWE | NWE | $4,900 | 9.4 | 5.0 |
+| QB | Jalen Hurts | PHI | $6,900 | 27.0 | 31.2 |
+| RB | Austin Ekeler | LAC | $7,600 | 19.0 | 32.5 |
+| RB | Chris Carson | SEA | $6,300 | 18.8 | 4.1 |
+| WR | Tyreek Hill | KC | $8,000 | 18.9 | 50.6 |
+| WR | Amari Cooper | DAL | $6,000 | 19.6 | 15.9 |
+| WR | Darnell Mooney | CHI | $3,900 | 23.7 | 21.5 |
+| WR | Quez Watkins | PHI | $3,500 | 17.7 | 6.3 |
+| TE | Zach Ertz | PHI | $3,500 | 14.5 | 12.0 |
+| DST | BUF DST | BUF | $4,300 | 11.1 | 23.0 |
 
-### 2022 week 2 — 206.3 pts ($49,800)
+### 2022 week 4 — 233.0 pts ($49,800)
 | Pos | Player | Team | Salary | Proj | Actual |
 |---|---|---|---|---|---|
-| QB | Lamar Jackson | BAL | $7,400 | 20.3 | 48.6 |
-| RB | Nick Chubb | CLE | $7,100 | 19.2 | 32.3 |
-| RB | Rashaad Penny | SEA | $5,400 | 12.4 | 1.5 |
-| WR | Jaylen Waddle | MIA | $6,400 | 12.1 | 43.1 |
-| WR | Tyler Lockett | SEA | $5,600 | 15.1 | 22.7 |
-| WR | Rashod Bateman | BAL | $5,500 | 11.8 | 23.8 |
-| WR | Dee Eskridge | SEA | $3,800 | 10.8 | 1.6 |
-| TE | Mark Andrews | BAL | $6,400 | 15.9 | 28.7 |
-| DST | CIN | CIN | $2,200 | 8.9 | 4.0 |
+| QB | Jared Goff | DET | $5,900 | 15.6 | 37.2 |
+| RB | Saquon Barkley | NYG | $8,000 | 16.8 | 21.2 |
+| RB | Austin Ekeler | LAC | $7,700 | 15.7 | 34.9 |
+| RB | Rashaad Penny | SEA | $4,900 | 9.6 | 31.7 |
+| WR | Adam Thielen | MIN | $6,100 | 15.1 | 15.2 |
+| WR | Curtis Samuel | WAS | $5,700 | 15.5 | 7.8 |
+| WR | Josh Reynolds | DET | $4,600 | 9.7 | 21.1 |
+| TE | T.J. Hockenson | DET | $4,100 | 11.2 | 42.9 |
+| DST | SF DST | SF | $2,800 | 7.3 | 21.0 |
 
-### 2023 week 3 — 200.6 pts ($50,000)
+### 2023 week 3 — 210.5 pts ($50,000)
 | Pos | Player | Team | Salary | Proj | Actual |
 |---|---|---|---|---|---|
-| QB | Jimmy Garoppolo | LV | $5,200 | 19.0 | 23.7 |
-| RB | Tony Pollard | DAL | $8,000 | 17.2 | 18.1 |
-| RB | Raheem Mostert | MIA | $6,000 | 15.4 | 45.2 |
-| RB | Jaylen Warren | PIT | $5,000 | 8.9 | 8.2 |
-| WR | CeeDee Lamb | DAL | $7,700 | 16.3 | 10.2 |
-| WR | Davante Adams | LV | $7,500 | 17.8 | 45.2 |
-| WR | Jakobi Meyers | LV | $4,800 | 13.2 | 15.5 |
-| TE | Durham Smythe | MIA | $2,900 | 19.4 | 2.5 |
-| DST | BUF | BUF | $2,900 | 8.9 | 32.0 |
+| QB | Justin Herbert | LAC | $7,500 | 21.3 | 32.3 |
+| RB | Josh Jacobs | LV | $7,000 | 15.7 | 11.0 |
+| RB | Zack Moss | IND | $5,500 | 15.3 | 25.5 |
+| WR | Keenan Allen | LAC | $7,600 | 16.5 | 48.5 |
+| WR | Marquise Brown | ARI | $4,900 | 11.3 | 17.1 |
+| WR | Joshua Palmer | LAC | $3,300 | 10.7 | 15.6 |
+| TE | T.J. Hockenson | MIN | $6,500 | 14.9 | 14.8 |
+| TE | Evan Engram | JAX | $4,800 | 10.7 | 13.7 |
+| DST | BUF DST | BUF | $2,900 | 8.9 | 32.0 |
 
-### 2024 week 5 — 194.8 pts ($50,000)
+### 2024 week 10 — 202.4 pts ($50,000)
 | Pos | Player | Team | Salary | Proj | Actual |
 |---|---|---|---|---|---|
-| QB | Joe Burrow | CIN | $6,400 | 20.9 | 37.8 |
-| RB | Zack Moss | CIN | $6,000 | 12.2 | 8.2 |
-| RB | Rhamondre Stevenson | NE | $6,000 | 11.2 | 19.2 |
-| WR | Ja'Marr Chase | CIN | $8,000 | 16.5 | 44.3 |
-| WR | Garrett Wilson | NYJ | $6,700 | 14.6 | 32.1 |
-| WR | Wan'Dale Robinson | NYG | $5,600 | 13.0 | 16.0 |
-| WR | Andrei Iosivas | CIN | $4,000 | 18.5 | 4.9 |
-| TE | Isaiah Likely | BAL | $4,400 | 7.0 | 16.3 |
-| DST | DEN | DEN | $2,900 | 9.9 | 16.0 |
+| QB | Joe Burrow | CIN | $7,000 | 22.5 | 36.7 |
+| RB | Chuba Hubbard | CAR | $6,700 | 14.7 | 28.9 |
+| RB | D'Andre Swift | CHI | $6,500 | 15.4 | 7.5 |
+| RB | Chase Brown | CIN | $6,000 | 14.5 | 23.4 |
+| WR | Ja'Marr Chase | CIN | $8,400 | 20.4 | 58.4 |
+| WR | Andrei Iosivas | CIN | $3,900 | 15.8 | 4.9 |
+| WR | Tylan Wallace | BAL | $3,000 | 9.4 | 23.5 |
+| TE | Trey McBride | ARI | $5,700 | 13.8 | 11.1 |
+| DST | WAS DST | WAS | $2,800 | 6.8 | 8.0 |
 
-### 2025 week 12 — 230.9 pts ($50,000)
+### 2025 week 12 — 218.2 pts ($50,000)
 | Pos | Player | Team | Salary | Proj | Actual |
 |---|---|---|---|---|---|
-| QB | Jameis Winston | NYG | $4,600 | 15.0 | 36.2 |
-| RB | Christian McCaffrey | SF | $9,500 | 26.4 | 27.2 |
-| RB | Jahmyr Gibbs | DET | $8,300 | 22.4 | 58.4 |
-| WR | Amon-Ra St. Brown | DET | $8,000 | 21.0 | 32.9 |
-| WR | Wan'Dale Robinson | NYG | $5,500 | 12.7 | 33.6 |
-| WR | Isaiah Hodgins | NYG | $3,300 | 16.1 | 12.2 |
-| TE | Dalton Schultz | HOU | $4,000 | 18.9 | 1.8 |
-| TE | Juwan Johnson | NO | $4,000 | 19.2 | 10.6 |
-| DST | LA | LA | $2,800 | 7.2 | 18.0 |
+| QB | Jameis Winston | NYG | $4,600 | 15.4 | 36.2 |
+| RB | Christian McCaffrey | SF | $9,500 | 24.8 | 27.2 |
+| RB | Jahmyr Gibbs | DET | $8,300 | 21.8 | 58.4 |
+| WR | Amon-Ra St. Brown | DET | $8,000 | 20.0 | 32.9 |
+| WR | Wan'Dale Robinson | NYG | $5,500 | 13.1 | 33.6 |
+| WR | Isaiah Hodgins | NYG | $3,300 | 14.9 | 12.2 |
+| TE | Juwan Johnson | NO | $4,000 | 19.6 | 10.6 |
+| TE | Mark Andrews | BAL | $3,800 | 18.3 | 2.1 |
+| DST | PHI DST | PHI | $3,000 | 6.9 | 5.0 |
 
-## Reading the winners
-
-The season-best lineups all share the validated construction DNA: a game
-stack with bring-backs (2019: four Cowboys vs a Carolina bring-back;
-2021: four Ravens; 2024: four Bengals), a sub-$4k punt that hit
-(Toney 32.6, Hodgins 12.2 on a 3-stack week, Eskridge the miss the stack
-survived), and cheap DSTs. Note how many winners carry one dead spot
-(Olsen 0.0, Penny 1.5, Smythe 2.5, Iosivas 4.9, Schultz 1.8) — a
-271-point week doesn't need nine hits, it needs five booms, which is why
-the selection objective chases tail coverage instead of mean.
-
-Every season's highest-scoring lineup is IDENTICAL to the pre-punt-boom
-baseline — the tilt reshaped ~21k of 36k lineup slots across the
-portfolio (better punts in the breadth entries, +1 tail week in 2022,
-ROI +17%) without touching the peaks. That's the adoption thesis in
-one line: a tiebreak among near-equal punts, never a mandate.
-
-Provenance: Addendum 37 (PUNT_BOOM adoption, this baseline), 36
-(attribution sweep), 35 (selection-objective panel), 34 (canonical
-ordering) in `2026-07-25-system-study.md`.
+Provenance: Addenda 39-40 (rebuild-nondeterminism law, EW adoption,
+live sim-mode) in `2026-07-25-system-study.md`. The live app now runs
+this exact pipeline (sim-mode default) — what was validated is what
+fires on Sundays.
