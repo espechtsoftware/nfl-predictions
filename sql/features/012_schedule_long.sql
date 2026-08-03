@@ -3,11 +3,19 @@
 -- nflverse convention: spread_line is relative to the home team (positive =
 -- home favored), so implied_home = total/2 + spread_home/2.
 CREATE OR REPLACE TABLE `${features}.schedule_long` AS
+-- Team codes NORMALIZED to the modern convention (OAK->LV, SD->LAC,
+-- STL->LA) to match rosters/stats-derived tables. Before 2026-08-03 the
+-- historical codes silently dropped ~1,500 relocated-franchise training
+-- rows (2014-19) at 021's inner join and NULLed opponent-defense
+-- features on 1,458 more (data audit, Addendum 42).
 WITH base AS (
   SELECT
     game_id, season, week, game_type,
     gameday, weekday, gametime,
-    home_team, away_team,
+    CASE home_team WHEN 'OAK' THEN 'LV' WHEN 'SD' THEN 'LAC'
+                   WHEN 'STL' THEN 'LA' ELSE home_team END AS home_team,
+    CASE away_team WHEN 'OAK' THEN 'LV' WHEN 'SD' THEN 'LAC'
+                   WHEN 'STL' THEN 'LA' ELSE away_team END AS away_team,
     spread_line,                       -- home margin expectation
     total_line,
     roof, surface, temp, wind,

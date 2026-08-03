@@ -94,11 +94,22 @@ def _fit(
     target_season: int,
     params: dict,
     num_boost_round: int,
+    denom: pd.Series | None = None,
 ) -> lgb.Booster:
+    w = sample_weights(tr, target_season)
+    # A/B lever (env RATE_DENOM_WEIGHTS, off by default; data audit
+    # 2026-08-03 finding 7): rate components (catch_rate, ypr, ypc, ypa)
+    # weigh a 1-target rate the same as a 12-target rate, inflating rate
+    # noise. With the lever on, rate rows are weighted by recency x
+    # denominator so high-volume observations dominate the rate fit.
+    import os as _os
+
+    if denom is not None and _os.environ.get("RATE_DENOM_WEIGHTS"):
+        w = w * denom.to_numpy(dtype=float)
     dset = lgb.Dataset(
         build_X(tr),
         label,
-        weight=sample_weights(tr, target_season),
+        weight=w,
         categorical_feature=["position"],
     )
     return lgb.train(params, dset, num_boost_round=num_boost_round)
@@ -130,22 +141,27 @@ def train(
     rushed = tr[tr.y_carries > 0]
     attempted = qb[qb.y_pass_attempts > 0]
 
-    specs: dict[str, tuple[pd.DataFrame, pd.Series, dict]] = {
-        "targets": (recv, recv.y_targets, COUNT_PARAMS),
-        "catch_rate": (caught, caught.y_receptions / caught.y_targets, RATE_PARAMS),
-        "ypr": (with_rec, with_rec.y_rec_yards / with_rec.y_receptions, RATE_PARAMS),
-        "rec_tds": (recv, recv.y_rec_tds, COUNT_PARAMS),
-        "carries": (tr[_ALL(tr)], tr.y_carries, COUNT_PARAMS),
-        "ypc": (rushed, rushed.y_rush_yards / rushed.y_carries, RATE_PARAMS),
-        "rush_tds": (tr[_ALL(tr)], tr.y_rush_tds, COUNT_PARAMS),
-        "pass_attempts": (qb, qb.y_pass_attempts, COUNT_PARAMS),
-        "ypa": (attempted, attempted.y_pass_yards / attempted.y_pass_attempts, RATE_PARAMS),
-        "pass_tds": (qb, qb.y_pass_tds, COUNT_PARAMS),
-        "interceptions": (qb, qb.y_interceptions, COUNT_PARAMS),
+    specs: dict = {
+        "targets": (recv, recv.y_targets, COUNT_PARAMS, None),
+        "catch_rate": (caught, caught.y_receptions / caught.y_targets,
+                       RATE_PARAMS, caught.y_targets),
+        "ypr": (with_rec, with_rec.y_rec_yards / with_rec.y_receptions,
+                RATE_PARAMS, with_rec.y_receptions),
+        "rec_tds": (recv, recv.y_rec_tds, COUNT_PARAMS, None),
+        "carries": (tr[_ALL(tr)], tr.y_carries, COUNT_PARAMS, None),
+        "ypc": (rushed, rushed.y_rush_yards / rushed.y_carries,
+                RATE_PARAMS, rushed.y_carries),
+        "rush_tds": (tr[_ALL(tr)], tr.y_rush_tds, COUNT_PARAMS, None),
+        "pass_attempts": (qb, qb.y_pass_attempts, COUNT_PARAMS, None),
+        "ypa": (attempted, attempted.y_pass_yards / attempted.y_pass_attempts,
+                RATE_PARAMS, attempted.y_pass_attempts),
+        "pass_tds": (qb, qb.y_pass_tds, COUNT_PARAMS, None),
+        "interceptions": (qb, qb.y_interceptions, COUNT_PARAMS, None),
     }
 
     models = {
-        name: _fit(rows, label, target_season, params, num_boost_round)
-        for name, (rows, label, params) in specs.items()
+        name: _fit(rows, label, target_season, params, num_boost_round,
+                   denom=denom)
+        for name, (rows, label, params, denom) in specs.items()
     }
     return ComponentModels(models=models)
