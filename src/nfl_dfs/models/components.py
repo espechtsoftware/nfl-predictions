@@ -20,6 +20,14 @@ from .weights import sample_weights
 
 COUNT_PARAMS = dict(
     num_threads=LGB_THREADS,
+    # Determinism hardening (external variance review 2026-08-04):
+    # deterministic histogram construction, pinned row-wise building
+    # (the row/col heuristic could flip with row order), and full-data
+    # bin boundaries (subsampled bins shift with row order). These
+    # change numerics -> the next rebuild panel is their validation.
+    deterministic=True,
+    force_row_wise=True,
+    bin_construct_sample_cnt=200_000,
     objective="poisson",
     metric="poisson",
     learning_rate=0.06,

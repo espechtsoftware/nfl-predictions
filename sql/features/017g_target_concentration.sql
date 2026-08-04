@@ -15,7 +15,9 @@ tw AS (
          SUM(IF(rnk <= 2, t, 0)) AS top2_targets
   FROM (
     SELECT *, ROW_NUMBER() OVER (
-      PARTITION BY team, season, week ORDER BY t DESC) AS rnk
+      -- gsis_id tie-break: equal target counts are common and an
+      -- unkeyed rank drifts per rebuild (variance review 2026-08-04)
+      PARTITION BY team, season, week ORDER BY t DESC, gsis_id) AS rnk
     FROM pw
   )
   GROUP BY team, season, week

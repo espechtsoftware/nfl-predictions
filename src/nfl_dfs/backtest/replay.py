@@ -770,8 +770,9 @@ def load_panel_and_dst(season: int):
         FROM `{settings.features}.player_week_training` t
         LEFT JOIN `{settings.raw}.player_ids` i USING (gsis_id)
         WHERE t.season BETWEEN {settings.train_first_season} AND {season}
+        ORDER BY t.season, t.week, t.gsis_id
         """
-    )
+    )  # ORDER BY: read-order determinism (variance review 2026-08-04)
     dst = query_df(
         f"""
         -- RotoGuru rows (position 'Def', <=2021) carry dk_points actuals;

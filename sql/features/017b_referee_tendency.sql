@@ -26,7 +26,9 @@ ref AS (
   SELECT CAST(game_id AS STRING) AS old_game_id, official_name AS referee
   FROM `${raw}.officials`
   WHERE position = 'Referee'
-  QUALIFY ROW_NUMBER() OVER (PARTITION BY game_id) = 1
+  -- deterministic tie-break (variance review 2026-08-04): no ORDER
+  -- BY = arbitrary referee row per game per rebuild
+  QUALIFY ROW_NUMBER() OVER (PARTITION BY game_id ORDER BY name) = 1
 )
 SELECT
   g.game_id, g.season, g.week, r.referee,
