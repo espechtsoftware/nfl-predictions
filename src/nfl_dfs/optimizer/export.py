@@ -89,11 +89,17 @@ def _entries_layout(rows: list[list[str]]) -> tuple[int, int, list[str]]:
     )
 
 
-def entry_count(entries_csv: str) -> int:
-    """Number of contest entries in a DKEntries.csv download."""
+def entry_count(entries_csv: str, contest_id: str | None = None) -> int:
+    """Number of contest entries in a DKEntries.csv download (optionally
+    only one contest's rows — sizing the build to the filtered fill)."""
     rows = list(csv.reader(io.StringIO(entries_csv)))
     hdr, _, _ = _entries_layout(rows)
-    return sum(1 for r in rows[hdr + 1:] if r and r[0].strip())
+    entry_rows = [r for r in rows[hdr + 1:] if r and r[0].strip()]
+    if contest_id is not None:
+        cid = str(contest_id).strip()
+        entry_rows = [r for r in entry_rows
+                      if len(r) > 2 and r[2].strip() == cid]
+    return len(entry_rows)
 
 
 def _cell_name(cell: str) -> str:

@@ -2195,9 +2195,9 @@ class ShowdownFillEntriesRequest(ShowdownLineupRequest):
     n_lineups: int | None = None  # ignored — one lineup per entry row
 
 
-def _entries_n(entries_csv: str) -> int:
+def _entries_n(entries_csv: str, contest_id: str | None = None) -> int:
     try:
-        n = entry_count(entries_csv)
+        n = entry_count(entries_csv, contest_id=contest_id)
     except ValueError as exc:
         raise HTTPException(422, str(exc))
     if n == 0:
@@ -2224,7 +2224,7 @@ def _entries_response(entries_csv: str, lineups: list,
 def fill_classic_entries(
     req: FillEntriesRequest, store: ProjectionStore = Depends(get_store)
 ) -> Response:
-    build_req = req.model_copy(update={"n_lineups": _entries_n(req.entries_csv)})
+    build_req = req.model_copy(update={"n_lineups": _entries_n(req.entries_csv, getattr(req, "contest_id", None))})
     return _entries_response(req.entries_csv,
                              _build_classic(build_req, store)[0],
                              contest_id=req.contest_id)
@@ -2240,7 +2240,7 @@ def preview_classic_entries(
     upload file (same assignment, deterministic)."""
     from ..optimizer.export import fill_entries_csv
 
-    build_req = req.model_copy(update={"n_lineups": _entries_n(req.entries_csv)})
+    build_req = req.model_copy(update={"n_lineups": _entries_n(req.entries_csv, getattr(req, "contest_id", None))})
     lineups = _build_classic(build_req, store)[0]
     diff: list = []
     fill_entries_csv(req.entries_csv, lineups, diff_out=diff,
@@ -2257,6 +2257,6 @@ def preview_classic_entries(
 def fill_showdown_entries(
     req: ShowdownFillEntriesRequest, store: ProjectionStore = Depends(get_store)
 ) -> Response:
-    build_req = req.model_copy(update={"n_lineups": _entries_n(req.entries_csv)})
+    build_req = req.model_copy(update={"n_lineups": _entries_n(req.entries_csv, getattr(req, "contest_id", None))})
     _, lineups, _ = _build_showdown(build_req, store)
     return _entries_response(req.entries_csv, lineups)
