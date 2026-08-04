@@ -462,3 +462,27 @@ def test_tail_selection_fills_after_saturation():
 def test_tail_selection_caps_at_candidates():
     totals = np.array([[120.0, 0.0]])
     assert select_tail_entries(totals, 5, 100.0) == [0]
+
+
+def test_showdown_captain_board_metrics():
+    """sim_mode_entries(with_metrics=True) returns the captain board:
+    salary-free rates (p_top/p_top6) must be proper distributions over the
+    pool, salary-aware rates (cpt_opt/flex_opt) must come from the
+    per-draw solves, and the projection favorite should top the board."""
+    from nfl_dfs.optimizer.showdown import sim_mode_entries
+
+    pool = make_showdown_pool()
+    entries, board = sim_mode_entries(pool, 3, seed=1, n_sims=200,
+                                      with_metrics=True)
+    assert entries and len(board) == len(pool)
+    assert abs(sum(m["p_top"] for m in board) - 1.0) < 1e-2
+    assert abs(sum(m["p_top6"] for m in board) - 6.0) < 2e-2
+    assert abs(sum(m["cpt_opt"] for m in board) - 1.0) < 1e-2
+    assert abs(sum(m["flex_opt"] for m in board) - 5.0) < 2e-2
+    assert board == sorted(board, key=lambda m: (-m["p_top"], -m["p_top6"]))
+    top_proj = max(pool, key=lambda p: p["proj"])
+    assert board[0]["p_top"] >= next(
+        m for m in board if m["id"] == top_proj["id"])["p_top"] * 0.99
+    # metrics path must not change the entries themselves
+    plain = sim_mode_entries(pool, 3, seed=1, n_sims=200)
+    assert [lu.key for lu in plain] == [lu.key for lu in entries]

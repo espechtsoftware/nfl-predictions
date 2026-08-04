@@ -223,12 +223,17 @@ def simulate_showdown_lineups(
     draws_by_id: dict,
     n_keep: int = 20,
     n_draw_solves: int = 120,
+    counters: dict | None = None,
     **kwargs,
 ) -> list[tuple[ShowdownLineup, int]]:
     """Optimize one lineup per Monte Carlo draw and keep the recurrent
     ones — captain choice included in identity (ShowdownLineup.key), since
     correlated draws are exactly what should discover which player's boom
-    worlds deserve the 1.5x slot."""
+    worlds deserve the 1.5x slot. A `counters` dict, when supplied, is
+    filled with the salary-aware per-draw optimal rates over ALL solves
+    ("n", "cpt": Counter, "flex": Counter) — the recurrence truncation
+    below keeps only the top lineups, so this is the one place the full
+    captain-optimal distribution is observable."""
     from collections import Counter
 
     counts: Counter[tuple] = Counter()
@@ -241,12 +246,57 @@ def simulate_showdown_lineups(
         lu = optimize_showdown(sim_players, **kwargs)
         if lu is None:
             continue
+        if counters is not None:
+            counters["n"] = counters.get("n", 0) + 1
+            counters.setdefault("cpt", Counter())[lu.captain["id"]] += 1
+            fc = counters.setdefault("flex", Counter())
+            for p in lu.flex:
+                fc[p["id"]] += 1
         counts[lu.key] += 1
         if lu.key not in exemplars:
             by_id = {p["id"]: p for p in players}
             exemplars[lu.key] = ShowdownLineup(
                 by_id[lu.captain["id"]], [by_id[p["id"]] for p in lu.flex])
     return [(exemplars[k], n) for k, n in counts.most_common(n_keep)]
+
+
+def showdown_player_metrics(
+    pool: list[Player], draws_by_id: dict, counters: dict | None = None,
+) -> list[dict]:
+    """Per-player captaincy diagnostics from the correlated draws
+    (Stokastic-style display, computed rather than intuited):
+
+    - p_top:  share of draws where the player outscores the whole slate —
+      the salary-FREE captain-optimal rate (CPT multiplies everyone the
+      same 1.5x, so the draw's top scorer is its best captain).
+    - p_top6: share of draws where the player lands in the best six — the
+      salary-free "belongs in the perfect lineup" rate.
+    - cpt_opt / flex_opt: salary-AWARE rates from the per-draw MILP solves
+      when `counters` (filled by simulate_showdown_lineups) is supplied.
+    """
+    import numpy as np
+
+    ids = [p["id"] for p in pool]
+    mat = np.vstack([np.asarray(draws_by_id[i], dtype=float) for i in ids])
+    n = mat.shape[1]
+    p_top = np.bincount(mat.argmax(axis=0), minlength=len(ids)) / n
+    top6 = np.bincount(
+        np.argsort(-mat, axis=0)[:6, :].ravel(), minlength=len(ids)) / n
+    total = counters.get("n", 0) if counters else 0
+    out = []
+    for k, p in enumerate(pool):
+        row = {
+            "id": p["id"], "name": p.get("name"), "team": p.get("team"),
+            "position": p.get("pos"), "salary": p.get("salary"),
+            "p_top": round(float(p_top[k]), 4),
+            "p_top6": round(float(top6[k]), 4),
+        }
+        if total:
+            row["cpt_opt"] = round(counters["cpt"].get(p["id"], 0) / total, 4)
+            row["flex_opt"] = round(counters["flex"].get(p["id"], 0) / total, 4)
+        out.append(row)
+    out.sort(key=lambda r: (-r["p_top"], -r["p_top6"]))
+    return out
 
 
 def select_showdown_entries(
@@ -299,17 +349,22 @@ def showdown_draws(pool: list[Player], n_sims: int, seed: int) -> dict:
 
 def sim_mode_entries(pool: list[Player], n_entries: int, seed: int,
                      n_sims: int = 4000, tail_line: float | None = None,
-                     **kwargs) -> list[ShowdownLineup]:
+                     with_metrics: bool = False,
+                     **kwargs) -> list[ShowdownLineup] | tuple:
     """Simulated-outcomes construction: candidates from (a) a diverse MILP
     batch and (b) per-draw re-optimization recurrence, then greedy
     tail-line coverage across the correlated draws. kwargs (locks, bans,
-    captain_lock, ...) pass through to every underlying solve."""
+    captain_lock, ...) pass through to every underlying solve.
+    with_metrics=True additionally returns showdown_player_metrics (the
+    captain board) as a second element."""
     import os
 
     draws = showdown_draws(pool, n_sims=n_sims, seed=seed)
     milp = optimize_many_showdown(pool, n_lineups=max(2 * n_entries, 30),
                                   max_overlap=4, **kwargs)
-    recurrent = simulate_showdown_lineups(pool, draws, n_keep=n_entries, **kwargs)
+    counters: dict | None = {} if with_metrics else None
+    recurrent = simulate_showdown_lineups(pool, draws, n_keep=n_entries,
+                                          counters=counters, **kwargs)
     seen, candidates = set(), []
     for lu in milp + [l for l, _ in recurrent]:
         if lu.key not in seen:
@@ -318,4 +373,7 @@ def sim_mode_entries(pool: list[Player], n_entries: int, seed: int,
     if tail_line is None:
         tail_line = float(os.environ.get("SHOWDOWN_TAIL_LINE",
                                          DEFAULT_SHOWDOWN_TAIL_LINE) or 0)
-    return select_showdown_entries(candidates, draws, n_entries, tail_line)
+    entries = select_showdown_entries(candidates, draws, n_entries, tail_line)
+    if with_metrics:
+        return entries, showdown_player_metrics(pool, draws, counters)
+    return entries

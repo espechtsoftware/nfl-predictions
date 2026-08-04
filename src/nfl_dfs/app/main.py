@@ -426,6 +426,24 @@ async function build(){
         `<td>$${lu.salary.toLocaleString()}</td>`+
         `<td>${lu.proj.toFixed(1)}</td></tr></tfoot></table>`;
       cards.appendChild(el);});
+    if(sd&&j.captain_board&&j.captain_board.length){
+      const cb=j.captain_board.slice(0,12),
+            pc=v=>v==null?'&mdash;':(100*v).toFixed(1)+'%';
+      const rows=cb.map(m=>`<tr><td style='text-align:left'>${esc(m.name)}`+
+        ` <small>${m.team||''} ${m.position||''}</small></td>`+
+        `<td>${pc(m.cpt_opt)}</td><td>${pc(m.flex_opt)}</td>`+
+        `<td>${pc(m.p_top)}</td><td>${pc(m.p_top6)}</td></tr>`).join('');
+      const el=document.createElement('div'); el.className='card';
+      el.style.gridColumn='1/-1';
+      el.innerHTML=`<header><span>Captain board</span>`+
+        `<span title='CPT-opt / FLEX-opt: share of simulated worlds whose`+
+        ` salary-aware optimal lineup used the player at captain / flex.`+
+        ` Top scorer: outscores the whole slate (best captain ignoring`+
+        ` salary). Top 6: lands in the perfect lineup ignoring salary.'`+
+        ` style='cursor:help'>computed from this build&#39;s sims &#9432;</span></header>`+
+        `<table><tr><th style='text-align:left'>Player</th><th>CPT-opt</th>`+
+        `<th>FLEX-opt</th><th>Top scorer</th><th>Top 6</th></tr>${rows}</table>`;
+      cards.appendChild(el);}
   }catch(e){st.textContent='Error: '+e;}
   document.getElementById('go').disabled=false;}
 document.getElementById('go').onclick=build;
@@ -619,7 +637,7 @@ async function showWeek(wk){
   };
   document.querySelectorAll('a.swp').forEach(a=>a.onclick=async e=>{
     e.preventDefault();
-    const q=prompt('Swap OUT '+a.dataset.out+'.\nSearch replacement name:');
+    const q=prompt('Swap OUT '+a.dataset.out+'.\\nSearch replacement name:');
     if(!q)return;
     const se=+document.getElementById('rseason').value;
     const cs=await (await fetch(`/players/search?season=${se}&week=${wk}`+
@@ -628,7 +646,7 @@ async function showWeek(wk){
     let pick=cs[0];
     if(cs.length>1){
       const c=prompt(cs.map((p,i)=>`${i+1}. ${p.name} ${p.pos} ${p.team} `+
-        `$${p.salary}`).join('\n')+'\n\nEnter number:');
+        `$${p.salary}`).join('\\n')+'\\n\\nEnter number:');
       pick=cs[+c-1]; if(!pick)return;}
     const r=await fetch('/entries/swap',{method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -1896,7 +1914,7 @@ def showdown_slates(
 
 def _build_showdown(
     req: ShowdownLineupRequest, store: ProjectionStore
-) -> tuple[pd.DataFrame, list]:
+) -> tuple[pd.DataFrame, list, list | None]:
     sd = _showdown_games(store, "" if req.draft_group_id else req.days)
     if sd.empty:
         raise HTTPException(404, "No upcoming showdown slates; run ingest-dk")
@@ -1926,12 +1944,14 @@ def _build_showdown(
             422, f"Players not in this game's projectable pool: {sorted(wanted - pool_ids)}"
         )
 
+    captain_board = None
     if req.sim:
         from ..optimizer.showdown import sim_mode_entries
 
-        lineups = sim_mode_entries(
+        lineups, captain_board = sim_mode_entries(
             pool, req.n_lineups, seed=req.week, locks=set(req.locks),
             bans=set(req.bans) & pool_ids, captain_lock=req.captain,
+            with_metrics=True,
         )
     else:
         lineups = optimize_many_showdown(
@@ -1941,14 +1961,14 @@ def _build_showdown(
         )
     if not lineups:
         raise HTTPException(422, "No feasible lineup under the given constraints")
-    return game, lineups
+    return game, lineups, captain_board
 
 
 @app.post("/showdown/lineups")
 def build_showdown_lineups(
     req: ShowdownLineupRequest, store: ProjectionStore = Depends(get_store)
 ) -> dict:
-    game, lineups = _build_showdown(req, store)
+    game, lineups, captain_board = _build_showdown(req, store)
     teams = sorted(t for t in game.team_abbr.dropna().unique())
     return {
         "game": {
@@ -1957,6 +1977,7 @@ def build_showdown_lineups(
             "day": game["_day"].iloc[0],
             "game_start": str(game["_start"].iloc[0]),
         },
+        "captain_board": captain_board,
         "lineups": [
             {
                 "captain": lu.captain,
@@ -2081,5 +2102,5 @@ def fill_showdown_entries(
     req: ShowdownFillEntriesRequest, store: ProjectionStore = Depends(get_store)
 ) -> Response:
     build_req = req.model_copy(update={"n_lineups": _entries_n(req.entries_csv)})
-    _, lineups = _build_showdown(build_req, store)
+    _, lineups, _ = _build_showdown(build_req, store)
     return _entries_response(req.entries_csv, lineups)
