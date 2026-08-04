@@ -1354,3 +1354,19 @@ Shipped as EXTRA_FEATURES candidates `vacated_capture_tgt`/`_car`
 (021/023: team vacated sum x empirical cell capture rate — the
 interaction the team-level-sum feature left for the GBM to discover).
 Final-panel arm VACC judges them; the raw team-level features stay.
+
+**Round 9 remainder (LEM / players-as-tokens):** the Large Event Model
+is the most promising architecture idea yet for the sim — but it's a
+GPU training project, and the honest gate is compute, not data. Shipped
+tonight: scripts/lem_corpus.py tokenizes the full nflverse pbp
+(1999-2025, ~1.25M plays; smoke-tested 143k plays / 855 games / 31k
+composite vocab on 2023-25) into the SAME state space as the
+possession-Markov engine, so the adoption bar is pre-registered:
+held-out next-event log-loss vs the Markov transition model
+(walk-forward, train <=2023, eval 2024-25), and only a winner earns
+GAME_SIM_MODE=lem integration. nanoGPT ~10M params, one 24GB GPU,
+hours-scale — first offseason/GPU-quota project. RisingBALLER-style
+player embeddings fold into the same effort (player-conditioned LEM is
+EventGPT exactly); the cheap proxy already in-system is archetype
+clustering + the new causally-directed vacated features (Addendum 44),
+which cover the same cold-start/role-change gap at feature scale.
