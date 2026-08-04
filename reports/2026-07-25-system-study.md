@@ -1721,3 +1721,26 @@ suggestion is the better ensemble design if ensembling ever returns.
 amplification through the dense 180-194 near-miss band) matches
 Addendum 36's own data — meaning source determinism suffices; no
 selection-layer intervention needed.
+
+## Addendum 56 (2026-08-04): MODEL_ENSEMBLE=3 ADOPTED — the largest gain of the program, born from the variance investigation
+
+CONTROL2 (14/107) confirmed build C's low level; the ENS3 arm — three
+LightGBM members per component, shuffled column orders + distinct
+seeds, mean-averaged — scored **26/107** on the same build: +12, LOSO
++5/−1, best median (13.7%), and ABOVE every single-model build level
+ever measured (23/18/15). Reading: averaging over the order-luck
+dimension doesn't just stabilize the draw, it removes noise the greedy
+selection layer was amplifying through the dense near-miss band — the
+variance investigation's diagnostic chain (external review attribution
+→ ensemble treatment → determinism hardening) converted the program's
+biggest nuisance into its biggest win. The Gemini reviewer's
+variance-compression objection is empirically refuted here (TabPFN
+quantile mapping resets marginal spread after the mean average), while
+its determinism-at-source fixes are ALSO adopted (b0f7d9b) — the two
+treatments are complementary, not rivals. Registry persists ensembles
+(member files + manifest, round-trip tested), so the September weekly
+retrain carries K=3 with no operator action. TABCOMP (21, +7) is
+superseded as the mean-layer treatment; it retires to the registry as
+validated-positive-but-dominated. Shipping baseline: **26/107 —
+ENS3's run IS the harvest of record** (identical config to the new
+defaults, same tables).
