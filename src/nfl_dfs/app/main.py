@@ -1738,7 +1738,7 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
                 p.setdefault("dk_id", (dk_ids or {}).get(int(p["id"])))
                 p.setdefault("kickoff", kick.get(int(p["id"])))
         ranked = _rank_by_confidence(lineups, df, line=req.line())
-        _annotate_leverage([r["lineup"] for r in ranked])
+        _annotate_leverage([r["lineup"] for r in ranked], slate=df)
         return [r["lineup"] for r in ranked], ranked
 
     pool = _player_pool(df, req.objective, dk_ids, lev_scale=req.lev_scale)
@@ -1753,16 +1753,21 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
     # Confidence order everywhere (JSON + CSVs): first lineup = strongest
     # entry, so "enter the top N in the bigger contest" is just slicing.
     ranked = _rank_by_confidence(lineups, df, line=req.line())
-    _annotate_leverage([r["lineup"] for r in ranked])
+    _annotate_leverage([r["lineup"] for r in ranked], slate=df)
     return [r["lineup"] for r in ranked], ranked
 
 
-def _annotate_leverage(lineups: list) -> None:
+def _annotate_leverage(lineups: list, slate: pd.DataFrame | None = None) -> None:
     """Stokastic-style Lev% (2026-08-03 vendor-methodology audit): a
     player's exposure across OUR chosen entries minus his expected field
     ownership — 'how much more are we on him than the field will be'.
     Display-only; positive = our stand, negative = underweight vs field.
-    Fail-safe: lineups without the metric beat no lineups."""
+    Fail-safe: lineups without the metric beat no lineups.
+
+    Field ownership normalizes over the FULL slate when provided
+    (2026-08-04 audit): normalizing over only the ~30 rostered players
+    overstated every field percentage ~10x and biased Lev% hard
+    negative."""
     try:
         import pandas as _pd
 
@@ -1775,7 +1780,16 @@ def _annotate_leverage(lineups: list) -> None:
                 players[p["id"]] = p
                 counts[p["id"]] = counts.get(p["id"], 0) + 1
         pool = list(players.values())
-        own = naive_ownership(_pd.DataFrame(pool))
+        if slate is not None and {"dk_player_id", "position", "salary",
+                                  "proj_points"} <= set(slate.columns):
+            full = _pd.DataFrame({
+                "pos": slate.position, "salary": slate.salary,
+                "proj": slate.proj_points})
+            own_map = dict(zip(slate.dk_player_id.astype(int),
+                               naive_ownership(full)))
+            own = [own_map.get(int(p["id"]), 0.0) for p in pool]
+        else:
+            own = naive_ownership(_pd.DataFrame(pool))
         slots = {"QB": 1.0, "RB": 2.5, "WR": 3.5, "TE": 1.2, "DST": 1.0}
         n = max(len(lineups), 1)
         for p, w in zip(pool, own):

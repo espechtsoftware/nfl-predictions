@@ -108,7 +108,8 @@ def _is_locked(cell: str) -> bool:
 
 
 def assign_min_churn(current: list[list[str]],
-                     lineups: list) -> list[int]:
+                     lineups: list,
+                     locked: list[set] | None = None) -> list[int]:
     """Assign generated lineups to entry rows MINIMIZING total player
     changes (2026-08-03, Thursday-entry workflow): the upload replaces
     by Entry ID either way, but a churn-minimizing assignment makes the
@@ -127,6 +128,13 @@ def assign_min_churn(current: list[list[str]],
         cs = set(cur)
         for j, ns in enumerate(names):
             overlap[i, j] = len(cs & ns)
+            # Lock-aware (2026-08-04 audit): a lineup missing an entry's
+            # locked players can't be uploaded to that row — make such
+            # pairs prohibitively costly so a compatible lineup isn't
+            # assigned elsewhere while this row goes untouched and the
+            # compatible lineup's coverage slot is silently stranded.
+            if locked and locked[i] and not locked[i] <= ns:
+                overlap[i, j] = -1e6
     r, c = linear_sum_assignment(-overlap)
     out = [0] * n
     for i, j in zip(r, c):
@@ -166,8 +174,12 @@ def fill_entries_csv(
     current = [[_cell_name(c) for c in
                 (r[first_slot:first_slot + size] + [""] * size)[:size]]
                for r in entry_rows]
+    locked_by_row = []
+    for r in entry_rows:
+        cells = (r[first_slot:first_slot + size] + [""] * size)[:size]
+        locked_by_row.append({_cell_name(c) for c in cells if _is_locked(c)})
     try:
-        order = assign_min_churn(current, lineups)
+        order = assign_min_churn(current, lineups, locked=locked_by_row)
     except Exception:  # scipy unavailable etc. — order-fill still correct
         order = [i % len(lineups) for i in range(len(entry_rows))]
 
@@ -189,17 +201,44 @@ def fill_entries_csv(
                 diff_out.append(d)
             continue
         if locked_idx:
-            # keep locked cells verbatim; fill remaining slots with the
-            # remaining players in slot order (positions align because
-            # slot_order is position-deterministic)
+            # keep locked cells verbatim; fill the open slots POSITION-
+            # AWARE (2026-08-04 audit): sequential fill misaligned slots
+            # whenever the locked player sat in a different slot index in
+            # the new lineup's slot_order (e.g. locked FLEX cell, lineup
+            # hard-slots him at RB) — every later cell shifted one slot
+            # and DK would reject the row. Specific slots fill first,
+            # FLEX/CPT take leftovers; if no eligible player remains for
+            # a slot, the row is left untouched rather than invalid.
             rest = [p for p in players
                     if str(p.get("name", "")).strip().upper()
                     not in locked_names]
-            it = iter(rest)
-            for j in range(size):
-                if j in locked_idx:
-                    continue
-                p = next(it)
+
+            def _fits(p, slot):
+                s = str(slot).strip().upper()
+                pos = str(p.get("pos", "")).upper()
+                if s in ("FLEX", "UTIL"):
+                    return pos in ("RB", "WR", "TE")
+                if s == "CPT":
+                    return True
+                return pos == s
+
+            open_slots = [j for j in range(size) if j not in locked_idx]
+            fill: dict[int, dict] = {}
+            feasible = True
+            for j in sorted(open_slots, key=lambda j: str(slots[j]).strip()
+                            .upper() in ("FLEX", "UTIL", "CPT")):
+                pick = next((p for p in rest if _fits(p, slots[j])), None)
+                if pick is None:
+                    feasible = False
+                    break
+                rest.remove(pick)
+                fill[j] = pick
+            if not feasible:
+                d["untouched"] = True
+                if diff_out is not None:
+                    diff_out.append(d)
+                continue
+            for j, p in fill.items():
                 row[first_slot + j] = _cell(p, captain=is_cpt[j])
         else:
             for j, (p, cpt) in enumerate(zip(players, is_cpt)):
