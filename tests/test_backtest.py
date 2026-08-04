@@ -157,6 +157,7 @@ def test_model_ensemble_averages_and_differs(monkeypatch, panel):
     from nfl_dfs.models import components
 
     season = int(panel.season.max())
+    monkeypatch.setenv("MODEL_ENSEMBLE", "1")
     single = components.train(panel, target_season=season,
                               num_boost_round=20)
     rows = panel[panel.season == season].head(50)
@@ -169,3 +170,28 @@ def test_model_ensemble_averages_and_differs(monkeypatch, panel):
     assert np.isfinite(p3.to_numpy(float)).all()
     assert not np.allclose(p1.targets, p3.targets), \
         "ensemble should differ from the single draw"
+
+
+def test_registry_roundtrips_ensemble(tmp_path, monkeypatch, panel):
+    """MODEL_ENSEMBLE adoption requires the weekly-retrain registry to
+    persist and reload K-member ensembles transparently."""
+    import numpy as np
+
+    from nfl_dfs.models import components, registry
+
+    monkeypatch.setenv("MODEL_ENSEMBLE", "3")
+    season = int(panel.season.max())
+    cm = components.train(panel, target_season=season, num_boost_round=15)
+    ens = cm.models["targets"]
+    meta = registry.ModelMeta(
+        scope="test", label="comp_targets", iso_week="2026-W31",
+        params={}, features=[], train_seasons=[2020], metrics={})
+    registry.save(ens, meta, str(tmp_path))
+    loaded, _ = registry.load(str(tmp_path), "test", "comp_targets", "2026-W31")
+    rows = panel[panel.season == season].head(30)
+    from nfl_dfs.models.featureset import build_X
+
+    X = build_X(rows)
+    a = ens.predict(X[ens.feature_name()])
+    b = loaded.predict(X[loaded.feature_name()])
+    assert np.allclose(a, b), "reloaded ensemble must predict identically"

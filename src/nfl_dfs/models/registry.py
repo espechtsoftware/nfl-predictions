@@ -43,21 +43,40 @@ def _bucket_and_prefix(root: str):
     return storage.Client().bucket(bucket_name), prefix.rstrip("/")
 
 
-def save(model: lgb.Booster, meta: ModelMeta, root: str) -> str:
-    """Write model + sidecar; returns the version string scope/label/iso_week."""
+def save(model, meta: ModelMeta, root: str) -> str:
+    """Write model + sidecar; returns the version string scope/label/iso_week.
+    Ensembles (objects with .members, MODEL_ENSEMBLE lever) persist as
+    member_<i>.txt + ensemble.json so the weekly retrain and live load
+    round-trip them transparently."""
     version = f"{meta.scope}/{meta.label}/{meta.iso_week}"
     meta_json = json.dumps(asdict(meta), indent=2, default=str)
 
+    members = getattr(model, "members", None)
     if _is_gcs(root):
         bucket, prefix = _bucket_and_prefix(root)
         base = f"{prefix}/{version}" if prefix else version
-        with tempfile.NamedTemporaryFile(suffix=".txt") as tmp:
-            model.save_model(tmp.name)
-            bucket.blob(f"{base}/{_MODEL_FILE}").upload_from_filename(tmp.name)
+        if members is not None:
+            for i, m in enumerate(members):
+                with tempfile.NamedTemporaryFile(suffix=".txt") as tmp:
+                    m.save_model(tmp.name)
+                    bucket.blob(f"{base}/member_{i}.txt"
+                                ).upload_from_filename(tmp.name)
+            bucket.blob(f"{base}/ensemble.json").upload_from_string(
+                json.dumps({"k": len(members)}))
+        else:
+            with tempfile.NamedTemporaryFile(suffix=".txt") as tmp:
+                model.save_model(tmp.name)
+                bucket.blob(f"{base}/{_MODEL_FILE}").upload_from_filename(tmp.name)
         bucket.blob(f"{base}/{_META_FILE}").upload_from_string(meta_json)
     else:
         d = Path(root) / version
         d.mkdir(parents=True, exist_ok=True)
+        if members is not None:
+            for i, m in enumerate(members):
+                m.save_model(str(d / f"member_{i}.txt"))
+            (d / "ensemble.json").write_text(json.dumps({"k": len(members)}))
+            (d / _META_FILE).write_text(meta_json)
+            return version
         model.save_model(str(d / _MODEL_FILE))
         (d / _META_FILE).write_text(meta_json)
     return version
@@ -68,13 +87,34 @@ def load(root: str, scope: str, label: str, iso_week: str) -> tuple[lgb.Booster,
     if _is_gcs(root):
         bucket, prefix = _bucket_and_prefix(root)
         base = f"{prefix}/{version}" if prefix else version
-        with tempfile.NamedTemporaryFile(suffix=".txt") as tmp:
-            bucket.blob(f"{base}/{_MODEL_FILE}").download_to_filename(tmp.name)
-            model = lgb.Booster(model_file=tmp.name)
+        ens_blob = bucket.blob(f"{base}/ensemble.json")
+        if ens_blob.exists():
+            k = json.loads(ens_blob.download_as_text())["k"]
+            members = []
+            for i in range(k):
+                with tempfile.NamedTemporaryFile(suffix=".txt") as tmp:
+                    bucket.blob(f"{base}/member_{i}.txt"
+                                ).download_to_filename(tmp.name)
+                    members.append(lgb.Booster(model_file=tmp.name))
+            from .components import _EnsembleBooster
+
+            model = _EnsembleBooster(members)
+        else:
+            with tempfile.NamedTemporaryFile(suffix=".txt") as tmp:
+                bucket.blob(f"{base}/{_MODEL_FILE}").download_to_filename(tmp.name)
+                model = lgb.Booster(model_file=tmp.name)
         meta_raw = bucket.blob(f"{base}/{_META_FILE}").download_as_text()
     else:
         d = Path(root) / version
-        model = lgb.Booster(model_file=str(d / _MODEL_FILE))
+        if (d / "ensemble.json").exists():
+            k = json.loads((d / "ensemble.json").read_text())["k"]
+            from .components import _EnsembleBooster
+
+            model = _EnsembleBooster([
+                lgb.Booster(model_file=str(d / f"member_{i}.txt"))
+                for i in range(k)])
+        else:
+            model = lgb.Booster(model_file=str(d / _MODEL_FILE))
         meta_raw = (d / _META_FILE).read_text()
     return model, ModelMeta(**json.loads(meta_raw))
 

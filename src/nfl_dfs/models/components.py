@@ -140,7 +140,11 @@ def _fit(
     # to the pre-lever behavior.
     import os as _os2
 
-    K = int(_os2.environ.get("MODEL_ENSEMBLE", "1") or 1)
+    # ADOPTED default 3 (2026-08-04, Addendum 56): ENS3 scored 26/107
+    # vs same-build CONTROL2 14 — +12, the largest gain of the program,
+    # LOSO +5/-1, best median — and exceeds every single-model build
+    # level ever measured (23/18/15). MODEL_ENSEMBLE=1 restores single.
+    K = int(_os2.environ.get("MODEL_ENSEMBLE", "3") or 1)
     if K <= 1:
         dset = lgb.Dataset(X, label, weight=w,
                            categorical_feature=["position"])
