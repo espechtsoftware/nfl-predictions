@@ -1233,3 +1233,45 @@ attack angles have failed to beat EW. The pre-season program closes at
 a measured local optimum; remaining upside is in-season data (field
 calibration, qualifier curves, ownership refits) rather than more
 pre-season search. Levers all remain env-gated for future panels.
+
+## Addendum 42 (2026-08-03): the FINAL EXAM — every survivor and graveyard retry, one panel, one control
+
+Ten arms, six seasons each (2019, 2021–2025), all on the same table build
+and image; CONTROL reproduces the EW baseline exactly (23/107 ≥194 tail
+weeks; the 2019 execution's metrics were recovered from Cloud Logging
+after a truncated log fetch — job succeeded, fetch didn't).
+
+| Arm | Levers | Tails ≥194 | Δ | Mean best | Median fin % |
+|---|---|---|---|---|---|
+| CONTROL | (EW baseline) | 23 | — | 178.7 | 15.1 |
+| **QBVAR4** | N_QB_VARIANTS=4 | **25** | **+2** | 178.8 | 15.0 |
+| OWNFADE | OWN_MODEL=fade | 24 | +1 | 178.9 | 14.7 |
+| COMBO2 | PUNT_MAX=3500 + no game-stack batches | 24 | +1 | 178.6 | 15.6 |
+| PMAX3500 | PUNT_MAX=3500 | 23 | 0 | 178.7 | 15.0 |
+| NOGSTACK | N_GAMESTACK=0, N_DARKGAME=0 | 23 | 0 | 178.6 | 15.3 |
+| RATEDW | RATE_DENOM_WEIGHTS=1 | 23 | 0 | 179.3 | **14.6** |
+| VALUE2 | VALUE2_MIN=2 | 22 | −1 | 178.6 | 15.2 |
+| WRBOOM1 | WR_BOOM=1 | 22 | −1 | 178.7 | 15.1 |
+| TMW17 | TRAIN_MAX_WEEK=17 | 21 | −2 | 177.6 | 14.9 |
+
+Verdicts: QBVAR4 is the lone clear positive and the adoption leader —
+consistent with Addendum 36's qualifier finding (best median) now
+carrying the Milly tail too. OWNFADE's +1 with the best-median tie
+(14.7) makes it the second candidate. COMBO2 (+1) beats its own parts
+(both 0), a real interaction. VALUE2/WRBOOM1/TMW17 are rejected and
+return to the graveyard with proper burials (correctly tested this
+time). Because +1/+2 on 107 weeks is within tie-breaking distance, the
+QF (QBVAR4+OWNFADE) and QFC (QF + COMBO2's pair) combination arms are
+running before anything is adopted — combos have failed to add before
+(Addendum 33).
+
+Also in this pass, all committed pre-panel: thesis constraints
+(per-combo portfolio floors through the sim path and POST /lineups),
+the showdown captain board (salary-free p_top/p_top6 from the build's
+draws + salary-aware CPT/FLEX-optimal rates counted over every per-draw
+MILP solve, rendered under the showdown lineups), and the XFP +
+schedule-context candidate features (017j: opportunity-valued FP from
+2014–18 bucket rates; net_rest_diff; body_clock_hour) — table rebuild
+deliberately held until the running panel queue drains. Node-checking
+every served page's inline JS surfaced two pre-existing page-breaking
+newline-escape bugs in the late-swap prompts, now fixed.
