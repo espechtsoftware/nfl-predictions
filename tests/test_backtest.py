@@ -146,3 +146,26 @@ def test_sample_field_sharp_fraction():
     slate = make_slate()
     fld = field_sim.sample_field(slate, n_lineups=100, seed=3, sharp_fraction=0.2)
     assert len(fld) >= 95  # random part may drop a few infeasible attempts
+
+
+def test_model_ensemble_averages_and_differs(monkeypatch, panel):
+    """MODEL_ENSEMBLE=3: members trained on shuffled column orders
+    average into predictions that differ from the single model (the
+    order-luck dimension is real) while staying finite and same-shape."""
+    import numpy as np
+
+    from nfl_dfs.models import components
+
+    season = int(panel.season.max())
+    single = components.train(panel, target_season=season,
+                              num_boost_round=20)
+    rows = panel[panel.season == season].head(50)
+    p1 = single.predict_components(rows)
+    monkeypatch.setenv("MODEL_ENSEMBLE", "3")
+    ens = components.train(panel, target_season=season,
+                           num_boost_round=20)
+    p3 = ens.predict_components(rows)
+    assert p1.shape == p3.shape
+    assert np.isfinite(p3.to_numpy(float)).all()
+    assert not np.allclose(p1.targets, p3.targets), \
+        "ensemble should differ from the single draw"

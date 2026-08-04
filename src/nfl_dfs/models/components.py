@@ -88,6 +88,22 @@ class ComponentModels:
         return out
 
 
+class _EnsembleBooster:
+    """Booster-compatible average of K members trained on shuffled
+    column orders (MODEL_ENSEMBLE lever). Implements the two methods the
+    predict path uses: predict() and feature_name()."""
+
+    def __init__(self, members):
+        self.members = members
+
+    def feature_name(self):
+        return self.members[0].feature_name()
+
+    def predict(self, X):
+        preds = [m.predict(X[m.feature_name()]) for m in self.members]
+        return np.mean(preds, axis=0)
+
+
 def _fit(
     tr: pd.DataFrame,
     label: pd.Series,
@@ -106,13 +122,33 @@ def _fit(
 
     if denom is not None and _os.environ.get("RATE_DENOM_WEIGHTS"):
         w = w * denom.to_numpy(dtype=float)
-    dset = lgb.Dataset(
-        build_X(tr),
-        label,
-        weight=w,
-        categorical_feature=["position"],
-    )
-    return lgb.train(params, dset, num_boost_round=num_boost_round)
+    X = build_X(tr)
+    # A/B lever (env MODEL_ENSEMBLE=K, off by default = 1; 2026-08-04,
+    # the order-luck treatment): train K members with per-member seeds
+    # AND per-member COLUMN ORDER, average predictions. Column order is
+    # the measured tie-break dimension (Addendum 34: ±5 tail weeks of
+    # "order luck" per rebuild); averaging over shuffled orders directly
+    # attenuates the band every rebuild draws from. K=1 is byte-identical
+    # to the pre-lever behavior.
+    import os as _os2
+
+    K = int(_os2.environ.get("MODEL_ENSEMBLE", "1") or 1)
+    if K <= 1:
+        dset = lgb.Dataset(X, label, weight=w,
+                           categorical_feature=["position"])
+        return lgb.train(params, dset, num_boost_round=num_boost_round)
+    members = []
+    for k in range(K):
+        rng = np.random.default_rng(9000 + k)
+        cols = list(X.columns)
+        rng.shuffle(cols)
+        pk = {**params, "seed": 9000 + k,
+              "feature_fraction_seed": 9100 + k,
+              "bagging_seed": 9200 + k, "data_random_seed": 9300 + k}
+        dset = lgb.Dataset(X[cols], label, weight=w,
+                           categorical_feature=["position"])
+        members.append(lgb.train(pk, dset, num_boost_round=num_boost_round))
+    return _EnsembleBooster(members)
 
 
 def train(
