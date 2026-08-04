@@ -1422,3 +1422,30 @@ data):**
   gated 2.5 model, and the stress-test use (rare regimes: snow games,
   backup QBs) needs a regime taxonomy first. Not data-gated, but
   effort-vs-evidence says it waits for the TabPFN main-line verdict.
+
+## Addendum 46 (2026-08-04): research round 11 — kNN comps null, LLM env-forecast scaffolded, CV gated
+
+- **Retrieval-augmented projection (kNN comps): null for adoption,
+  third confirmation of the calibration pattern.** K=100 comps over
+  standardized feature space (position-weighted, strictly prior
+  seasons): RMSE 6.752 vs LGB 6.583, pinball90 1.408 vs 1.393 — LGB
+  keeps the accuracy crown — but kNN's q90 coverage is exactly 0.900
+  vs LGB's 0.871. Conformal (Add. 43), the betting market (Add. 45),
+  and now comps all agree: OUR POINT-MODEL TAILS UNDER-COVER; every
+  distribution-native method arrives calibrated. The sim already
+  corrects in-draw (EMP_MARGINALS), so no adoption — but any DISPLAYED
+  p90 (lineup cards, /api/market-tails) should eventually carry the
+  conformal shift. Comps stay attractive as an explain-layer UI
+  (scripts/knn_comps_study.py).
+- **LLM game-environment forecasts (ForecastBench pattern): built for
+  live validation, not backtested** — fuzzy-question backtests are
+  contaminated (the model knows how 2025 games went). scripts/
+  env_forecast.py runs the multi-stage pipeline (context -> sub-
+  question forecasts -> critique -> final JSON: shootout_p, run_lean_p,
+  pace) per game and logs to reports/env_forecasts/ for post-slate
+  grading. Contract: watchlist context first; sim scenario weights only
+  after a few graded live weeks show calibration.
+- **CV on film: genuinely gated** — no footage pipeline in house and
+  broadcast-video licensing is its own problem; nearest in-house proxy
+  (NGS separation, snap shares) already feeds the models. Revisit only
+  if a specific role-ambiguity (committee backfield) costs us a week.
