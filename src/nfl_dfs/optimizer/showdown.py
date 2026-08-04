@@ -344,6 +344,38 @@ def showdown_draws(pool: list[Player], n_sims: int, seed: int) -> dict:
             continue
         shape = (m / s) ** 2
         draws[p["id"]] = rng.gamma(shape, m / shape, n_sims) * game
+    import os as _os
+
+    if _os.environ.get("TABPFN_SHOWDOWN", "") not in ("", "0"):
+        # Opt-in (2026-08-04, TabPFN-expansion review): quantile-map each
+        # player's showdown draws onto the cached TabPFN marginals —
+        # same rank-reorder mechanism the classic sim adopted (+6 tails)
+        # but UNVALIDATED for showdown (the historical showdown replay
+        # pool has no gsis bridge yet), hence not default. Rows without
+        # keys/cache keep their gamma draws.
+        try:
+            import numpy as _np
+            import pandas as _pd
+
+            from ..backtest.replay import _tabpfn_marginals
+
+            keyed = [p for p in pool
+                     if p.get("gsis_id") and p.get("season") and p.get("week")]
+            if keyed:
+                mat = _np.vstack([draws[p["id"]] for p in keyed])
+                keys = _pd.DataFrame({
+                    "season": [int(p["season"]) for p in keyed],
+                    "week": [int(p["week"]) for p in keyed],
+                    "gsis_id": [p["gsis_id"] for p in keyed]})
+                mapped = _tabpfn_marginals(mat, keys)
+                if mapped is not None:
+                    for i, p in enumerate(keyed):
+                        draws[p["id"]] = mapped[i]
+        except Exception:  # cache/BQ unavailable -> validated gamma draws
+            import logging
+
+            logging.getLogger(__name__).exception(
+                "TabPFN showdown marginals unavailable; gamma draws kept")
     return draws
 
 

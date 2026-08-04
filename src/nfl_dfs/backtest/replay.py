@@ -876,6 +876,34 @@ def run(
                 print(f"    w={w:.2f}  MAE={mae:.4f}")
     except Exception:
         log.exception("prop market unavailable; replaying unblended")
+    # A/B lever (env TABPFN_MEAN=w, off by default; 2026-08-04): blend
+    # the cached TabPFN walk-forward MEAN into the projection at weight
+    # w. Rationale: TabPFN beat the quick-LGB on RMSE everywhere, and
+    # on COLD-START rows its edge over the trailing baseline is 4x the
+    # veteran edge (MAE 4.55 vs 6.10) — ICL shines on thin slices where
+    # boosting starves. Rows without cache keep the model mean.
+    try:
+        _tw = float(os.environ.get("TABPFN_MEAN", "0") or 0)
+        if _tw:
+            from ..bq import query_df as _qdf
+            from ..config import settings as _st
+
+            tb = _qdf(f"SELECT season, week, gsis_id, mean AS tab_mean "
+                      f"FROM `{_st.features}.tabpfn_projections` "
+                      f"WHERE season = {int(season)}").drop_duplicates(
+                          ["season", "week", "gsis_id"])
+            _n = len(proj)
+            proj = proj.merge(tb, on=["season", "week", "gsis_id"],
+                              how="left")
+            assert len(proj) == _n, "tabpfn mean merge fanned out rows"
+            have = proj.tab_mean.notna()
+            proj.loc[have, "proj_points"] = (
+                (1 - _tw) * proj.loc[have, "proj_points"]
+                + _tw * proj.loc[have, "tab_mean"])
+            log.info("TabPFN mean blended (w=%.2f) into %d rows",
+                     _tw, int(have.sum()))
+    except Exception:
+        log.exception("prop market unavailable; replaying unblended")
     try:  # market ceiling room (env ALT_CEIL, off by default)
         import os as _os
 

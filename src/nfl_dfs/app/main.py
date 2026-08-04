@@ -1967,8 +1967,9 @@ def _showdown_pool(game: pd.DataFrame, proj: pd.DataFrame, objective: str,
     by_id = {}
     if not proj.empty:
         cols = ["proj_points", "proj_p50", "proj_p90"]
-        if "proj_std" in proj.columns:
-            cols.append("proj_std")
+        for c in ("proj_std", "gsis_id", "season", "week"):
+            if c in proj.columns:
+                cols.append(c)
         by_id = proj.set_index("dk_player_id")[cols].to_dict("index")
     trail_map = {}
     if trailing is not None and len(trailing):
@@ -2006,6 +2007,10 @@ def _showdown_pool(game: pd.DataFrame, proj: pd.DataFrame, objective: str,
                 "proj": value,
                 "proj_sd": sd,  # None -> sim-mode's FALLBACK_SD_RATIO
                 "proj_source": source,
+                # keys for the TabPFN showdown marginal map (opt-in)
+                "gsis_id": (row or {}).get("gsis_id"),
+                "season": (row or {}).get("season"),
+                "week": (row or {}).get("week"),
             }
         )
     return pool
