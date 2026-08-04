@@ -1692,3 +1692,32 @@ and NO re-rolling of builds to chase a pretty number (that is
 selecting on noise). The V2 panel's CONTROL2 runs the identical config
 on the identical build and will confirm whether 15 is the build's
 level or this run drew low within it.
+
+## Addendum 55 (2026-08-04): the variance review (Gemini Pro) — determinism hardening adopted at the source
+
+The targeted second review returned an expert-grade answer; triage:
+**ACCEPTED (the cure, commit b0f7d9b):** (1) read-order determinism —
+the panel load had NO ORDER BY (the reviewer said "before write"; in
+BigQuery the fix belongs at READ time and in the feature SQL's windows
+— corrected in implementation); (2) LightGBM deterministic=True +
+force_row_wise=True + bin_construct_sample_cnt > N — all three
+mechanisms verified real (thread-order histogram accumulation, the
+row/col heuristic flip, subsampled bin boundaries); (3) the window
+audit found two genuinely unkeyed ranks (017b referee had NO order at
+all; 017g ranks tied target counts) — both now keyed. These change
+numerics: the next rebuild panel validates them, and the definitive
+cross-build test (rebuild twice, diff tables + replays byte-for-byte)
+is a documented September experiment.
+**DEFERRED with reasoning:** min_data_in_leaf 40→60-80 is a model
+change wearing a determinism costume — it needs its own panel, queued.
+**KEPT AS DATA DECIDES:** MODEL_ENSEMBLE — the reviewer's
+variance-compression critique is right in general but partially
+blunted here (TabPFN quantile mapping RESETS per-player marginal
+widths after the mean ensemble, so compression affects ranks/levels,
+not the simulated spread). The ENS3 arm is mid-flight; its verdict
+stands alongside the source fix. Its "sample one member per draw"
+suggestion is the better ensemble design if ensembling ever returns.
+**CONFIRMED:** its attribution (model-side instigation, selection-side
+amplification through the dense 180-194 near-miss band) matches
+Addendum 36's own data — meaning source determinism suffices; no
+selection-layer intervention needed.
