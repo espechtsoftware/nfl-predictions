@@ -1493,6 +1493,15 @@ Run this over at least three full seasons. Single-season results are noise — t
 |---|---|---|
 > **Live-deployment note (2026-07-31):** the actually-deployed schedulers run sparser than this table — nflverse/features/train/projections are weekly (Tuesdays), DK slates 1×/day — see the WARNING in `deploy/deploy_jobs.sh`. `status.py`'s freshness thresholds follow the live cadences; the daily `check-freshness` job emails (via the Cloud Run failed-execution alert) when any active feed goes stale.
 
+**TabPFN projection cache (adopted 2026-08-04, Addendum 50).** The sim's
+default marginals come from `nfl_features.tabpfn_projections`, generated
+by the `tabpfn-gen` Cloud Run GPU job (L4, ~64s/season, ~$0.05/run).
+Regenerate after EVERY feature-table rebuild and weekly in-season
+(Wednesday, after `s-train`): `gcloud run jobs execute tabpfn-gen
+--region us-central1`. A missing/stale cache is safe — the sim falls
+back to the EW empirical marginals with a logged warning — but the
+validated default is the TabPFN shapes.
+
 **Off-season pause / season-start runbook (2026 edition).** Five schedulers are PAUSED for the off-season (2026-07-31) because they only re-process a finished season: `s-nflverse`, `s-features`, `s-train`, `s-project-tu`, `s-project-su`. Everything else (odds, DK poll, CFB scaffold, weather, freshness check) stays live year-round. The season-start sequence:
 
 **Backups (2026-08-02).** `s-backup` runs `backup-tables` daily at 07:00 UTC: BigQuery snapshots of the irreplaceable tables (LineStar ownership backfill, standings imports, notes/watchlist, entered lineups, ID overrides — see `ops/backup.py` TABLES) into the `nfl_backups` dataset, 30-day retention, delta-billed (~pennies). Everything else is re-ingestable from source, and BigQuery time travel covers the last 7 days on all tables regardless. Restore: `CREATE TABLE <dataset>.<table> CLONE nfl_backups.<table>_<YYYYMMDD>`. New irreplaceable tables must be added to `backup.TABLES` (same discipline as `status.FEEDS`). Runs year-round; never pause it.
