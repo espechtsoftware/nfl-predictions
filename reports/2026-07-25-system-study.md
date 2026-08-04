@@ -1488,3 +1488,46 @@ LOGGED fallback only). "0"/"" restore the old behavior; the final
 candidate panel (XFP/SCHED/VACC/MPG3/QD2) will run against the
 post-adoption CONTROL. PMAX3500, NOGSTACK, RATEDW retire to the
 registry as validated-neutral; VALUE2, WRBOOM1, TMW17, DIRK8 buried.
+
+## Addendum 48 (2026-08-04): the four-reviewer pipeline audit — 17 verified findings, 3 commits of fixes
+
+User-requested full audit of the sim pipeline and everything around it,
+run as four parallel reviewers (selection engine, app/export, sim
+pipeline, commit-range review) with every finding verified against the
+code before fixing. Committed as 26cd477, f936052, 80f4051; every HIGH
+carries a regression test or hard guard.
+
+The five that mattered most:
+1. **Thesis batch crashed the live endpoint** (UnboundLocalError on any
+   feasible thesis — the block landed above its own seen-init) and its
+   tags were clobbered. The unit test had passed because it tested the
+   repair function, not the generation path — an end-to-end test now
+   exercises the real path.
+2. **/api/market-tails was dead on arrival** (guarded on 'p90'; the
+   column is 'proj_p90') — the Addendum-45 feature returned [] forever,
+   indistinguishable from "no props". Plus pass-yards priced 2.5x hot.
+3. **xfp_l4 was structurally NULL at live inference** — exact-week join
+   onto a pbp table with no upcoming-week rows; the replay A/B was real
+   but adoption would have shipped silent train/serve skew (the exact
+   class 023's header warns about). As-of join now.
+4. **Late-swap locked rows could upload invalid slots** — sequential
+   fill misaligned positions whenever the locked player sat in a
+   different slot index in the new lineup; position-aware fill now, and
+   genuinely un-arrangeable locks leave the row untouched.
+5. **The prop-market merge could shift every draw index** on duplicate
+   name-norm keys (each player scored with the NEXT player's draws)
+   — dedup + hard length assert.
+Also fixed: OWN_MODEL falsy-spelling footgun (own_mode()), TabPFN
+live-parity gap + empty-cache fallback, NaN-game pseudo-correlation,
+SHAPE_MIX=0 inversion, Lev% ~10x field-pct overstatement, lock-aware
+churn assignment, DST rng decoupling, vacated CASE position source,
+xfp offensive-TD-only rates.
+
+Standing caveat: the in-flight final-panel arms (VACC/XFP/XSCHED) run
+the PRE-fix SQL columns — replay signal stands, but any adoption
+re-confirms on rebuilt tables (which the deploy requires anyway).
+Ledger corrections: PMAX3500's exam null is PARTIALLY EXPLAINED — the
+PUNT_MIN/PUNT_MAX levers only ever reached the ~2N lev candidates, not
+the boom/qbvar/game batches, so the dose arms tested a weaker lever
+than documented. Same for the cross-thesis repair regression and
+_select_tail_qb_capped underfill (documented, low priority).
