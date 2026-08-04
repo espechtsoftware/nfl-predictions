@@ -1628,3 +1628,17 @@ data 2023+, FTN-style NULL precedent). **3.3 LEM "game flow"
 attention** — PARTIAL REBUT: LEM v1's factored tokens already embed
 score-differential and quarter (the sd/qtr factors); the real v2 items
 are continuous embeddings and longer context, noted in the LEM road.
+
+## Addendum 52 (2026-08-04): expansion-review verdicts, part 1 — showdown fade, and two vacuous-A/B catches
+
+**SHOWDOWN_FADE (naive-ownership chalk fade for Captain Mode):** the
+first two A/B attempts were VACUOUS and caught by the byte-identical
+check — (1) stale :review image lacking the lever, (2) both arms on the
+replay's MILP default while the lever (and live builds) run the sim
+path. Law recorded: showdown A/Bs need SHOWDOWN_SIM=1 in BOTH arms +
+an image probe. The real A/B (sim path, 43 slates 2025): capture-WASH —
+84.8% vs 84.9% mean, 9/43 vs 8/43 slates ≥90%, median −1.1. Expected
+shape: capture measures scoring accuracy, a fade buys leverage capture
+can't see (no showdown field model exists). Verdict: costs ~nothing,
+benefit unmeasurable pre-season → OFF by default, re-judged against
+real showdown standings once September imports accrue.
