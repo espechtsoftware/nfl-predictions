@@ -1449,3 +1449,13 @@ data):**
   broadcast-video licensing is its own problem; nearest in-house proxy
   (NGS separation, snap shares) already feeds the models. Revisit only
   if a specific role-ambiguity (committee backfield) costs us a week.
+
+**LEM v0 verdict (GPU run, 2026-08-04):** the composite-token
+transformer (11.3M params, 49.5k vocab) LOST to the add-k bigram on
+held-out 2024-25 next-event NLL — 8.192 vs 8.120, top-1 13.5% vs 16.8%
+— exactly the failure the vocab math predicted (~9 training samples per
+embedding). GPU quota turned out to exist (Cloud Run L4,
+--no-gpu-zonal-redundancy, 1h task cap, ~$1/run), so the "offseason"
+gate was imaginary; v1 with FACTORED tokens (7 small vocabs, summed
+input embeddings, 7 output heads — the standard fix) launched the same
+night. v0 checkpoint + metrics in gs://.../lem/.
