@@ -1665,3 +1665,30 @@ play-count sd too wide (15.9 vs 12.5). v1 stays OUT of the sim.
 September v2 targets are now concrete: special-teams event calibration
 + drive-count variance, then re-gate — scripts/lem_train/rollout_eval.py
 is the fixed yardstick.
+
+## Addendum 54 (2026-08-04): the final harvest — and the honest cross-build picture
+
+The shipping configuration (every adoption as a code default) on the
+final tables (audit-fixed SQL) with the regenerated TabPFN cache:
+**15/107 tail weeks** (7/1/2/1/1/3 by season), mean-best 175.1, median
+14.1%, one ≥237 week (2019's 248.2 — its 193.0 mean-best is the best
+2019 of the program). TabPFN mapping verified firing on every row; no
+mechanical failure. This is a LOW order-luck draw, and it must be
+recorded exactly that way:
+
+| Table build | Same-build control | Adopted-stack result |
+|---|---|---|
+| A (exam, 2026-08-03) | 23 | QF 25 (+2) |
+| B (candidate panel) | 18 | SCHED/TABPFN +6 each, STPFN 24 |
+| C (final, fixed SQL) | (CONTROL2 pending) | **15** |
+
+What bounces across builds is the ABSOLUTE level (±5 order luck per
+rebuild, twice compounded here: new tables AND a regenerated marginal
+cache). What replicated within every build is the RELATIVE gain of the
+adopted levers. September's weekly retrains re-draw from this
+distribution every Tuesday — the honest expectation is the
+distribution's center with the adopted deltas, not any single draw,
+and NO re-rolling of builds to chase a pretty number (that is
+selecting on noise). The V2 panel's CONTROL2 runs the identical config
+on the identical build and will confirm whether 15 is the build's
+level or this run drew low within it.
