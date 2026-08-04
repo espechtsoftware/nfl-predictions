@@ -34,6 +34,12 @@ audit. Review for:
    implemented or tested in the ledger below. For each idea: what it
    is, evidence it works, how it would slot into this architecture, and
    how to validate it under this project's panel rules.
+A companion file (external-review-code.md) contains the COMPLETE source
+code, SQL, and test suite — use it to verify the ledger's claims at the
+implementation level and to ground section 5's suggestions in the
+actual architecture. Where the code and the ledger disagree, the code
+is the truth and the disagreement is a finding.
+
 Respond with a numbered findings list, most important first, each with
 severity and a concrete recommended action.
 
