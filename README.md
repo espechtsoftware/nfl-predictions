@@ -912,6 +912,66 @@ Train: 2015–2024  → Test: 2025 (touch once, at the very end)
 
 ---
 
+### 6.4 As-built (2026-08-04): the production distribution stack
+
+Sections 6.2-6.3 describe the original design; this is what actually
+ships after the July-August experiment program (every stage
+replay-validated on six-season panels — the verdicts live in
+reports/2026-07-25-system-study.md). The chain, in execution order:
+
+1. **Component means — LightGBM** (`models/components.py`): the 11
+   component models of §6.2, trained walk-forward weekly, sorted feature
+   columns (order-luck law, Addendum 34). The feature list includes the
+   adopted `qb_cpoe_l6`, `net_rest_diff`, `body_clock_hour`; candidates
+   are `EXTRA_FEATURES`-gated (`models/featureset.py`).
+2. **Correlation structure — possession-Markov game engine**
+   (`models/game_sim.py`, `GAME_SIM_MODE=possession`): drive-state
+   Markov chain fit on 48.5k drives supplies per-team game factors, so
+   teammate/opponent correlation is mechanistic, not a copula matrix.
+   `SCRIPT_FEEDBACK` (two-half deficit-driven pace response) is an
+   off-default lever with a recorded panel verdict.
+3. **Draw shaping — EW + TabPFN marginals**
+   (`backtest/replay.py:apply_draw_shape`, shared by replays AND live):
+   fitted variance widening, then each player's draws are QUANTILE-
+   MAPPED (rank-reorder — the correlation survives untouched) onto
+   **TabPFN-v2 walk-forward quantiles** cached in
+   `features.tabpfn_projections` (GPU job `tabpfn-gen`, weekly +
+   post-rebuild; `TABPFN_UPCOMING=season:week` adds the live week).
+   Missing cache falls back to the EW empirical (position, tier)
+   families WITH a UI warning. TabPFN was adopted because three
+   independent studies showed our GBM tails under-cover while TabPFN
+   arrives calibrated — and it then won +6 tail weeks on the panel.
+   Deeper TabPFN insertions (mean blend `TABPFN_MEAN`, full component
+   swap `TABPFN_COMPONENTS` from `features.tabpfn_components`) are
+   levers with panel verdicts in the ledger.
+4. **Market blend** (§7.7, `models/blend.py` + `models/prop_market.py`):
+   additive mean shift from de-vigged prop lines; the draw SHAPE stays
+   the validated one. The market's own implied quantiles
+   (`inference/market_implied.py`) are a WATCHLIST signal
+   (`/api/market-tails`) — model-vs-market tail disagreement predicts
+   market error in both directions (Addendum 45).
+5. **Tournament objective** (`backtest/replay.py:build_slates` and the
+   live mirror `inference/live_lineups.py`): punt ceiling valuation,
+   PUNT_BOOM archetype boost, and the chalk fade — which uses the
+   **trained ownership booster** (LightGBM on `raw.contest_ownership`,
+   OOS corr .727 vs naive .548; `OWN_MODEL=fade`) while the naive
+   softmax remains the field-simulation yardstick. Showdown has its own
+   naive-fade lever (`SHOWDOWN_FADE`).
+6. **Construction + selection** (§9-§10): boom-draw candidate solves,
+   QB-variant batches, thesis constraints, then greedy tail-coverage
+   selection of N entries on P(best-of-N ≥ contest line).
+7. **Confidence calibration** (`models/conformal.py`): the lineup-card
+   confidence sigma is scaled by a rolling 3-week conformal factor once
+   ≥100 scored rows accrue in-season (neutral 1.0 before) — external
+   review 3.1.
+
+Adjacent research models with recorded status: **LEM** (factored
+next-event transformer, `scripts/lem_train/` — beat its bigram gate;
+rollout-realism gate decides `GAME_SIM_MODE=lem` work), **persona
+ownership** (LLM field simulation — beat naive, September live shadow),
+and the **captain board** (per-player CPT/FLEX-optimal rates computed
+from the showdown build's own draws).
+
 ## 7. Model training in depth
 
 ### 7.1 Assembling the training set
