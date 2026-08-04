@@ -20,6 +20,20 @@ audit. Review for:
    contamination in LLM-based tests (flagged where known).
 4. **What's missing**: tests or checks you would run before risking
    real money in September.
+5. **AI-model and predictive-logic usage review**: analyze how the
+   project uses its models (LightGBM component models, the
+   possession-Markov game engine, TabPFN-v2 marginals, the LEM
+   next-event transformer, the LLM persona/forecast pipelines) and
+   suggest concrete improvements. For example: is TabPFN being used
+   effectively, and should it be used in MORE places (mean projections,
+   component models, synthetic data, the ownership model)? Perform
+   detailed web research — recent research studies, relevant GitHub
+   projects, and the documented processes of fantasy sports data
+   vendors (RotoWire, FantasyLabs, Stokastic, SaberSim, Establish The
+   Run, etc.) — and propose specific ideas that are NOT already
+   implemented or tested in the ledger below. For each idea: what it
+   is, evidence it works, how it would slot into this architecture, and
+   how to validate it under this project's panel rules.
 Respond with a numbered findings list, most important first, each with
 severity and a concrete recommended action.
 
