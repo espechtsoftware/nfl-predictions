@@ -1398,3 +1398,27 @@ the ETR contract (never a silent model input). September follow-ups
 queued: migrate market_ceilings' vig-naive ladder onto this module;
 market-implied quantiles as EXTRA_FEATURES candidates (NULL pre-2023,
 same precedent as FTN) for a replay arm.
+
+**Round 10 remainder (cold-start pooling, ensemble weather, synthetic
+data):**
+- **Hierarchical Bayesian partial pooling: NULL on the slice it exists
+  for.** On 1,316 cold-start 2025 rows (<=2 career games), explicit
+  empirical-Bayes shrinkage (player -> pos x draft-round x depth group
+  -> position) loses to the plain LGB (RMSE 6.103 vs 5.843); a 50/50
+  blend is within noise (5.831) with worse MAE and bias. The GBM sees
+  draft_round/depth_rank/is_cold_start and already pools implicitly.
+  NumPyro build not justified; scripts/coldstart_bayes_study.py holds
+  the harness if the 2026 rookie class reopens the question.
+- **Ensemble weather (GenCast): right idea, staged on-ramp.** GenCast
+  itself (TPU, ERA5 init pipeline) is an offseason project; the
+  same-shaped cheap step is Open-Meteo's free ensemble endpoint (GFS/
+  ECMWF members) — wire wind-speed SPREAD per stadium into the weather
+  ingest in September and pass scenario weights into the sim
+  (wind-sensitive draws already exist via temp/wind features).
+  Historical ensemble forecasts aren't in house, so no backtest is
+  possible tonight — live-data-gated, genuinely.
+- **TabPFN synthetic data: queued behind the TabPFN projection
+  experiment** — generation quality inherits from the same license-
+  gated 2.5 model, and the stress-test use (rare regimes: snow games,
+  backup QBs) needs a regime taxonomy first. Not data-gated, but
+  effort-vs-evidence says it waits for the TabPFN main-line verdict.
