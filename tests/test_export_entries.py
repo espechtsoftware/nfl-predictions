@@ -121,3 +121,20 @@ def test_lock_aware_assignment_prevents_stranding():
     d_locked = next(d for d in diff if d["entry_id"] == "666")
     assert d_locked["untouched"] is False, "lock-compatible lineup stranded"
     assert "B0" in out.splitlines()[2], "free row should get the B lineup"
+
+
+def test_contest_id_filter_fills_only_that_contest():
+    """Multi-contest DKEntries: filter fills the named contest's rows;
+    other contests' rows pass through verbatim."""
+    from nfl_dfs.optimizer.export import fill_entries_csv
+
+    a = [f"A{i}" for i in range(9)]
+    r1 = "111,Qual,900,$5," + ",".join([f"X{i} (1)" for i in range(9)])
+    r2 = "222,Milly,901,$5," + ",".join([f"Y{i} (1)" for i in range(9)])
+    out = fill_entries_csv(_entries([r1, r2]), [_lu(a)], contest_id="900")
+    lines = out.strip().splitlines()
+    assert "A0" in lines[1] and "Y0 (1)" in lines[2] and "A0" not in lines[2]
+    import pytest
+
+    with pytest.raises(ValueError):
+        fill_entries_csv(_entries([r1]), [_lu(a)], contest_id="999")

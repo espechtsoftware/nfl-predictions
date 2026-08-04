@@ -145,6 +145,34 @@ Classic projections cover the union of every upcoming classic draft group (dedup
 
 DK's import formats match on **draftable IDs** — the slate-specific `ID` column of DKSalaries.csv, not the stable `playerId` — so upload files are only generatable for slates ingested after the IDs were added to `ingest-dk` (see the deficiency log). Showdown CPT cells additionally require the CPT-slot draftable ID; `to_dk_showdown_csv` handles that.
 
+### Entering DK contests: the two upload flows (quick reference)
+
+DraftKings never requires manual per-contest lineup entry — but only one
+of its two CSV flows lands lineups directly in contests:
+
+**Direct-to-contest (use this): the DKEntries.csv round-trip.**
+1. EARLY WEEK (Thu/Fri, before contests fill): enter/reserve your
+   entries in each contest on DK with placeholder lineups.
+2. Download **DKEntries.csv** from DK's My Entries -> Edit/Bulk edit.
+   Every row carries an Entry ID + Contest ID — a manifest of your
+   actual entries across ALL contests.
+3. `POST /lineups/entries.csv` with the file — fills each row
+   (churn-minimized assignment, locked cells preserved and filled
+   position-aware around; rows whose locks can't be satisfied are left
+   untouched and flagged). **Multi-contest files:** pass `contest_id`
+   to fill only that contest's rows with that contest's preset (field
+   size, entries, lev_scale); other rows pass through verbatim, so run
+   one fill per contest on the same download, uploading after each (or
+   after chaining the output of one pass as the input of the next).
+4. Upload at draftkings.com/lineup/upload — DK matches by Entry ID and
+   the lineups land in the right contests. Repeat the download->fill->
+   upload loop Sunday morning for late swap (`POST
+   /lineups/entries/diff` previews the swaps first).
+
+**Generic lineup CSV (`POST /lineups.csv`)**: no Entry IDs — DK only
+adds these to your saved Lineups library, and attaching them to
+contests is manual. Use for previews, not for entering at scale.
+
 ### Docker
 
 The image is what Cloud Run runs; the default command serves the web app, and Cloud Run Jobs override it per job.

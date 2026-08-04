@@ -2128,6 +2128,10 @@ MAX_ENTRIES = 500  # DK's own per-file upload limit
 class FillEntriesRequest(LineupRequest):
     entries_csv: str
     n_lineups: int | None = None  # ignored — one lineup per entry row
+    # Fill only this contest's rows (multi-contest DKEntries downloads:
+    # one download, one fill per contest with that contest's preset;
+    # untouched rows pass through for the next pass). None = all rows.
+    contest_id: str | None = None
 
 
 class ShowdownFillEntriesRequest(ShowdownLineupRequest):
@@ -2147,9 +2151,10 @@ def _entries_n(entries_csv: str) -> int:
     return n
 
 
-def _entries_response(entries_csv: str, lineups: list) -> Response:
+def _entries_response(entries_csv: str, lineups: list,
+                      contest_id: str | None = None) -> Response:
     try:
-        filled = fill_entries_csv(entries_csv, lineups)
+        filled = fill_entries_csv(entries_csv, lineups, contest_id=contest_id)
     except ValueError as exc:
         raise HTTPException(422, str(exc))
     return Response(
@@ -2164,7 +2169,9 @@ def fill_classic_entries(
     req: FillEntriesRequest, store: ProjectionStore = Depends(get_store)
 ) -> Response:
     build_req = req.model_copy(update={"n_lineups": _entries_n(req.entries_csv)})
-    return _entries_response(req.entries_csv, _build_classic(build_req, store)[0])
+    return _entries_response(req.entries_csv,
+                             _build_classic(build_req, store)[0],
+                             contest_id=req.contest_id)
 
 
 @app.post("/lineups/entries/diff")
@@ -2180,7 +2187,8 @@ def preview_classic_entries(
     build_req = req.model_copy(update={"n_lineups": _entries_n(req.entries_csv)})
     lineups = _build_classic(build_req, store)[0]
     diff: list = []
-    fill_entries_csv(req.entries_csv, lineups, diff_out=diff)
+    fill_entries_csv(req.entries_csv, lineups, diff_out=diff,
+                     contest_id=req.contest_id)
     changed = [d for d in diff if d["out"] or d["in"]]
     return {"entries": diff,
             "summary": {"total": len(diff), "changed": len(changed),

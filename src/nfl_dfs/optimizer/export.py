@@ -145,6 +145,7 @@ def assign_min_churn(current: list[list[str]],
 def fill_entries_csv(
     entries_csv: str, lineups: list[Lineup] | list[ShowdownLineup],
     diff_out: list | None = None,
+    contest_id: str | None = None,
 ) -> str:
     """Fill a downloaded DKEntries.csv with generated lineups for re-upload.
 
@@ -171,6 +172,15 @@ def fill_entries_csv(
     is_cpt = [s.strip().upper() == "CPT" for s in slots]
 
     entry_rows = [r for r in rows[hdr + 1:] if r and r[0].strip()]
+    if contest_id is not None:
+        # Multi-contest DKEntries files (2026-08-04): fill ONLY this
+        # contest's rows; others pass through verbatim so the same
+        # download can be run once per contest with per-contest builds.
+        cid = str(contest_id).strip()
+        entry_rows = [r for r in entry_rows
+                      if len(r) > 2 and r[2].strip() == cid]
+        if not entry_rows:
+            raise ValueError(f"no entry rows for contest_id {cid}")
     current = [[_cell_name(c) for c in
                 (r[first_slot:first_slot + size] + [""] * size)[:size]]
                for r in entry_rows]
