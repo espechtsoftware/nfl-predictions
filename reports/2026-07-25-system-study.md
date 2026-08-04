@@ -1459,3 +1459,18 @@ embedding). GPU quota turned out to exist (Cloud Run L4,
 gate was imaginary; v1 with FACTORED tokens (7 small vocabs, summed
 input embeddings, 7 output heads — the standard fix) launched the same
 night. v0 checkpoint + metrics in gs://.../lem/.
+
+**LEM v1 verdict (same night): FACTORED model BEATS the bigram on the
+pre-registered bar** — held-out NLL/event 4.599 vs 8.120, with 1.9M
+params and a 7-minute L4 run (~$0.15). Honest caveats logged with the
+win: (a) a large share of the gap is the factorization itself — the
+composite bigram hemorrhages probability on unseen exact transitions —
+so the NEXT bar is a factored bigram (each factor conditioned on the
+prior event); (b) on exact-match top-1 the bigram still edges v1
+(16.8% vs 16.4%) by memorizing modal transitions — NLL is the metric
+that matters for a generative sim, but the number is recorded. Road to
+GAME_SIM_MODE=lem, in order: factored-bigram hurdle -> ROLLOUT REALISM
+harness (generate full games; compare score distributions, drive
+lengths, play counts vs held-out 2024-25 actuals; this is the gate
+that counts) -> player-conditioning (EventGPT proper) -> replay A/B
+vs the possession-Markov engine. Checkpoints/metrics in gs://.../lem/.
