@@ -246,6 +246,9 @@ def tail_select_lineups(
     cands = optimize_many(pool, n_lineups=candidate_multiple * n_entries,
                           stack=stack, objective_col=objective_col,
                           locks=set(locks))
+    for lu in cands:
+        lu.tag = "lev"
+    seen = {lu.ids for lu in cands}
     # Thesis candidates (2026-08-03, OWS "Bink Machine" pattern): each
     # thesis {players: [ids], min: k} guarantees the POOL holds enough
     # combo-containing builds; the post-selection repair below enforces
@@ -271,9 +274,6 @@ def tail_select_lineups(
                 lu.tag = "thesis"
                 seen.add(lu.ids)
                 cands.append(lu)
-    for lu in cands:
-        lu.tag = "lev"
-    seen = {lu.ids for lu in cands}
     boom_sims = np.argsort(rd.sum(axis=0))[::-1][:n_boom_solves]
     for k in boom_sims:
         sim_pool = [{**p, "proj_sim": float(rd[i, k])}

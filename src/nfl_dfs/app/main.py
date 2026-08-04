@@ -973,21 +973,28 @@ def api_market_tails(season: int, week: int, limit: int = 40) -> list[dict]:
         return []
     store = get_store()
     proj = store.projections(season, week)
-    if proj.empty or "p90" not in proj.columns:
+    if proj.empty or "proj_p90" not in proj.columns:
         return []
     norm = lambda s: (s.astype(str).str.lower()  # noqa: E731
                       .str.replace(r"[^a-z ]", "", regex=True).str.strip())
     mq["norm"], proj = mq.player.pipe(norm), proj.assign(
         norm=norm(proj.display_name))
     # spread vs spread, both in DK pts: our (p90 - mean) vs the market's
-    # (q90 - q50) x 0.1/yd summed across its yardage markets
-    tails = (mq.assign(mkt_spread_pts=(mq.q90 - mq.q50) * 0.1)
+    # (q90 - q50) at the correct DK rate per market (0.1/yd rush+rec,
+    # 0.04/yd pass — the first cut priced QBs 2.5x hot). Known bias,
+    # displayed not modeled: summed independent per-market spreads
+    # overstate a dual-threat player's combined spread, and our side
+    # includes reception/TD variance the yardage markets don't — treat
+    # tail_edge as a WATCHLIST ranking, not a calibrated quantity.
+    pts_per_yd = {"player_pass_yds_alternate": 0.04}
+    tails = (mq.assign(mkt_spread_pts=(mq.q90 - mq.q50)
+                       * mq.market.map(pts_per_yd).fillna(0.1))
              .groupby("norm").mkt_spread_pts.sum().reset_index())
     j = proj.merge(tails, on="norm", how="inner")
-    j["tail_edge"] = (j.p90 - j.proj_points) - j.mkt_spread_pts
+    j["tail_edge"] = (j.proj_p90 - j.proj_points) - j.mkt_spread_pts
     j = j.reindex(j.tail_edge.abs().sort_values(ascending=False).index)
     cols = ["display_name", "position", "team", "salary", "proj_points",
-            "p90", "mkt_spread_pts", "tail_edge"]
+            "proj_p90", "mkt_spread_pts", "tail_edge"]
     return j[[c for c in cols if c in j.columns]].head(int(limit)).round(
         2).to_dict("records")
 
@@ -1724,7 +1731,8 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
         kick = {}
         if "kickoff" in df.columns:
             kick = {int(k): (v if pd.notna(v) else None)
-                    for k, v in zip(df.dk_player_id, df.kickoff)}
+                    for k, v in zip(df.dk_player_id, df.kickoff)
+                    if pd.notna(k)}
         for lu in lineups:
             for p in lu.players:
                 p.setdefault("dk_id", (dk_ids or {}).get(int(p["id"])))
@@ -2075,6 +2083,10 @@ def build_showdown_lineups_csv(
 def build_lineups_csv(
     req: LineupRequest, store: ProjectionStore = Depends(get_store)
 ) -> Response:
+    # ONE build (2026-08-04 audit): this used to run the full sim build
+    # twice — 2x latency, and worse, the recorded set could diverge from
+    # the uploaded CSV (the ownership booster retrains from BQ per call
+    # and BQ tie-breaking is not deterministic — the rebuild law).
     lineups, ranked = _build_classic(req, store)
     try:
         from .. import notes as _n
@@ -2082,9 +2094,8 @@ def build_lineups_csv(
         _n.record_entered_lineups(req.season, req.week, lineups)
     except Exception:
         log.exception("could not record entered lineups")
-    payload = build_lineups(req, store)
     return Response(
-        content=payload["dk_csv"],
+        content=to_dk_csv(lineups),
         media_type="text/csv",
         headers={"Content-Disposition": "attachment; filename=dk_lineups.csv"},
     )

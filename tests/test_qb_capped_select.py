@@ -67,3 +67,52 @@ def test_thesis_repair_enforces_portfolio_floor():
     picked = _enforce_theses([1, 2], cands, totals, 194.0,
                              [{"players": [1], "min": 2}])
     assert sum(1 for i in picked if 1 in {p["id"] for p in cands[i].players}) == 2
+
+
+def _engine_slate(n_teams=8):
+    """Minimal engine-ready slate + pool + draws for tail_select_lineups."""
+    import pandas as pd
+
+    rng = np.random.default_rng(5)
+    rows = []
+    pid = 0
+    for t in range(n_teams):
+        team, opp = f"T{t}", f"T{(t + 1) % n_teams}"
+        gid = f"g{min(t, (t + 1) % n_teams)}{max(t, (t + 1) % n_teams)}"
+        for pos, n in (("QB", 1), ("RB", 2), ("WR", 3), ("TE", 1), ("DST", 1)):
+            for i in range(n):
+                proj = {"QB": 18, "RB": 12, "WR": 11, "TE": 7, "DST": 6}[pos] \
+                    - 2 * i + rng.normal(0, 1)
+                rows.append({
+                    "id": pid, "name": f"{pos}{i}{team}", "pos": pos,
+                    "team": team, "opp": opp, "game_id": gid,
+                    "salary": int(1200 + 250 * max(proj, 1)),
+                    "proj": max(proj, 1.0), "actual": max(proj, 1.0),
+                    "draw_idx": pid, "proj_tourney": max(proj, 1.0)})
+                pid += 1
+    slate = pd.DataFrame(rows)
+    draws = np.maximum(
+        slate.proj.to_numpy()[:, None] + rng.normal(0, 6, (len(slate), 300)),
+        0).astype(np.float32)
+    return slate, slate.to_dict("records"), draws
+
+
+def test_thesis_generation_path_end_to_end(monkeypatch):
+    """Regression (2026-08-04 audit): the thesis candidate batch crashed
+    with UnboundLocalError (seen referenced before assignment) and had
+    its tags clobbered by the lev retag loop. Exercise the REAL
+    generation path, not just the repair function. Salary-floor and punt
+    envs neutralized — the synthetic slate tests thesis mechanics only."""
+    from nfl_dfs.backtest.engine import tail_select_lineups
+
+    monkeypatch.setenv("MIN_LINEUP_SALARY", "0")
+    monkeypatch.setenv("PUNT_MIN", "0")
+    slate, pool, draws = _engine_slate()
+    combo = [0, 2]  # QB of T0 + a T0 RB — feasible pair
+    picked = tail_select_lineups(
+        slate, pool, draws, tail_line=150.0, n_entries=4, stack=None,
+        objective_col="proj_tourney", theses=[{"players": combo, "min": 2}])
+    assert len(picked) == 4
+    n_combo = sum(1 for lu in picked
+                  if set(combo) <= {p["id"] for p in lu.players})
+    assert n_combo >= 2, f"thesis floor not met: {n_combo}"
