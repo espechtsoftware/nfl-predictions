@@ -1531,3 +1531,30 @@ PUNT_MIN/PUNT_MAX levers only ever reached the ~2N lev candidates, not
 the boom/qbvar/game batches, so the dose arms tested a weaker lever
 than documented. Same for the cross-thesis repair regression and
 _select_tail_qb_capped underfill (documented, low priority).
+
+## Addendum 49 (2026-08-04): the final candidate panel — SCHED adopted, TabPFN validated on tails
+
+Post-rebuild, post-QF-adoption build (CONTROL 18/107 on the new tables
+— the rebuild law bit again: 23 -> 18 baseline shift, all arms co-run):
+
+| Arm | Tails | Mean | Med% | Verdict |
+|---|---|---|---|---|
+| CONTROL | 18 | 176.0 | 15.1 | — |
+| **SCHED** (net_rest_diff + body_clock_hour) | **24 (+6)** | 178.4 | 14.4 | **ADOPTED** |
+| **TABPFN** (TabPFN marginals) | **24 (+6)** | 178.4 | **14.7** | validated; combo pending |
+| XSCHED (XFP + SCHED) | 24 (+6) | 178.5 | 15.2 | = SCHED alone; XFP doesn't stack |
+| XFP | 20 (+2) | 179.4 | 14.8 | positive alone; stays candidate |
+| QD2 (MAP-Elites archive) | 18 (0) | 175.7 | 14.8 | validated-neutral |
+| VACC (causal vacated capture) | 13 (−5) | 177.4 | 14.8 | REJECTED |
+| MPG3 | vacuous | — | — | cap 3 < mandatory stack shape; MPG4 running |
+
+SCHED is in NUMERIC_FEATURES (the XSCHED arm proves the exact adopted
+model via sorted columns). TabPFN's +6 with the panel-best median
+converts Addendum 43's calibration win into a TAIL win — the marginal
+shapes matter where it pays. The SCHED+TABPFN stack arm (STPFN) decides
+whether both ship as defaults; TabPFN live adoption additionally needs
+the weekly projection-cache GPU job (built: tabpfn-gen; ~$0.05/wk) and
+falls back to empirical marginals when the cache is missing (audit
+round 3). VACC's -5 despite t>10 causal evidence is the program's
+cleanest "true fact ≠ good feature" exhibit; the event-study finding
+stands as scouting knowledge (Addendum 44).

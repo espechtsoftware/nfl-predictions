@@ -79,6 +79,13 @@ NUMERIC_FEATURES = [
     # Market signal
     "salary",
     "salary_delta_wow",
+    # SCHED pair ADOPTED 2026-08-04 (final candidate panel, Addendum 49):
+    # +6 tails vs same-build post-QF control (24 vs 18), best 2019 and
+    # 2025 of the panel; the XSCHED combo arm proves this exact model
+    # (sorted columns => EXTRA_FEATURES == adoption). Pure pre-game
+    # schedule facts — available live by construction.
+    "net_rest_diff",
+    "body_clock_hour",
 ]
 
 FEATURES = NUMERIC_FEATURES + ["position"]
@@ -97,8 +104,6 @@ CANDIDATE_FEATURES = (
     "pa_rate_l6",                 # team play-action rate (FTN, 2022+) — deep-shot / WR-ceiling context
     "opp_pressure_rate_l6",       # opp pressure GENERATED per dropback (FTN, 2022+) — outcome, not rushers sent
     "xfp_l4",                     # expected FP from opportunity alone (bucketed pbp rates; FantasyPoints lineage)
-    "net_rest_diff",              # own minus opponent days rest (pure schedule join)
-    "body_clock_hour",            # kickoff hour on the team's home-tz body clock (west-coast night effect)
     "vacated_capture_tgt",        # vacated targets x empirical (pos,depth) capture rate (Addendum 44 event study)
     "vacated_capture_car",        # vacated carries x empirical capture rate (backfield-concentrated)
 )
