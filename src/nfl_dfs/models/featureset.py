@@ -99,6 +99,8 @@ CANDIDATE_FEATURES = (
     "xfp_l4",                     # expected FP from opportunity alone (bucketed pbp rates; FantasyPoints lineage)
     "net_rest_diff",              # own minus opponent days rest (pure schedule join)
     "body_clock_hour",            # kickoff hour on the team's home-tz body clock (west-coast night effect)
+    "vacated_capture_tgt",        # vacated targets x empirical (pos,depth) capture rate (Addendum 44 event study)
+    "vacated_capture_car",        # vacated carries x empirical capture rate (backfield-concentrated)
 )
 
 

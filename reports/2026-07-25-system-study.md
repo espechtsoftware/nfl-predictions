@@ -1330,3 +1330,27 @@ so memorized hindsight may inflate this; the clean test is live 2026
 weeks. Verdict: mechanism validated, cost trivial (~4 calls/slate);
 promote to a September live shadow scored by the field-calibration
 harness against real standings before any adoption into the field sim.
+
+## Addendum 44 (2026-08-03): causal vacated-opportunity study — who actually captures absent teammates' usage
+
+Research round 9's causal-ML item, run as an event study on 2019-2025
+(scripts/causal_vacated_study.py): treatment = team-weeks where a
+target hog (trailing share >=18%, 553 events) or carry hog (>=35%, 369
+events) is absent; outcome = each teammate's ACTUAL share minus his own
+trailing expectation; uplift vs no-absence control weeks, by (position x
+depth) cell.
+
+Findings, both t>2.8 in the load-bearing cells:
+- **Vacated targets flow LATERALLY, not down:** WR2 +2.61 share pts,
+  WR1 +2.51, WR3 +1.86, TE1/TE2 +1.2-1.4 — and RBs capture ~nothing
+  (RB1 +0.71 at t=1.9, RB3 +0.23). The "check-down bump" folklore fails.
+- **Vacated carries CONCENTRATE:** RB2 +15.8 share pts (t=10.8), RB1
+  +9.5, RB3 +7.5; receivers/TEs gain ~nothing from a lost carry hog.
+- Accounting honesty: teammates in the panel capture only ~10 of the
+  mean 25.5 vacated share pts — the remainder goes to call-ups outside
+  the panel — so the CELL STRUCTURE is the finding, not the absolutes.
+
+Shipped as EXTRA_FEATURES candidates `vacated_capture_tgt`/`_car`
+(021/023: team vacated sum x empirical cell capture rate — the
+interaction the team-level-sum feature left for the GBM to discover).
+Final-panel arm VACC judges them; the raw team-level features stay.

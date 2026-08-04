@@ -94,6 +94,33 @@ SELECT
       - IF(i.injury_status = 'Out', COALESCE(u.carry_share_l4, 0), 0),
     0) AS team_vacated_carry_share,
 
+  -- Causally-directed vacated capture (2026-08-03 event study, Addendum
+  -- 44): 553 target-hog / 369 carry-hog absences 2019-25 show vacated
+  -- TARGETS flow laterally to other WRs (WR1/WR2 +2.5-2.6 share pts,
+  -- WR3 +1.9, TE +1.2, RB ~0) while vacated CARRIES concentrate in the
+  -- backfield (RB2 +15.8, RB1 +9.5, RB3 +7.5, others ~0). These weight
+  -- the team-level sum by the empirical capture rate of the player's
+  -- (position x depth) cell — the interaction a GBM must otherwise
+  -- discover on its own. EXTRA_FEATURES candidates.
+  GREATEST(
+    COALESCE(v.vacated_target_share, 0)
+      - IF(i.injury_status = 'Out', COALESCE(u.target_share_l4, 0), 0),
+    0) * CASE
+      WHEN ro.position = 'WR' AND ro.depth_rank <= 2 THEN 0.100
+      WHEN ro.position = 'WR' THEN 0.073
+      WHEN ro.position = 'TE' THEN 0.050
+      WHEN ro.position = 'RB' AND ro.depth_rank <= 2 THEN 0.033
+      ELSE 0.009 END AS vacated_capture_tgt,
+  GREATEST(
+    COALESCE(v.vacated_carry_share, 0)
+      - IF(i.injury_status = 'Out', COALESCE(u.carry_share_l4, 0), 0),
+    0) * CASE
+      WHEN ro.position = 'RB' AND ro.depth_rank = 1 THEN 0.270
+      WHEN ro.position = 'RB' AND ro.depth_rank = 2 THEN 0.450
+      WHEN ro.position = 'RB' THEN 0.210
+      WHEN ro.position = 'QB' THEN 0.047
+      ELSE 0.020 END AS vacated_capture_car,
+
   -- Target quality + NGS context (024)
   adv.ez_targets_l4, adv.deep_targets_l4, adv.separation_l4, adv.stacked_box_l4,
 
