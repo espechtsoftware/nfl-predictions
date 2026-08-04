@@ -71,7 +71,47 @@ def replay_projections(
     if _bp and "deep_targets_l4" in rows.columns:
         bigplay = 0.03 * _bp * pd.to_numeric(
             rows.deep_targets_l4, errors="coerce").fillna(0.0)
-    sim = simulate.simulate(cm.predict_components(rows), n_sims=n_sims,
+    comps = cm.predict_components(rows)
+    # A/B lever (env TABPFN_COMPONENTS, off by default; 2026-08-04,
+    # TabPFN-expansion): swap the LightGBM component MEANS for cached
+    # walk-forward TabPFN predictions (features.tabpfn_components, GPU
+    # job tabpfn-comp) — the deepest insertion point, gated behind its
+    # own panel. Clips and position-zero rules re-applied so downstream
+    # sim invariants hold; rows without cache keep the LGB values.
+    if os.environ.get("TABPFN_COMPONENTS", "") not in ("", "0"):
+        try:
+            from ..bq import query_df as _qdf
+            from ..config import settings as _st
+            from ..models.components import COMPONENT_NAMES, RATE_CLIPS
+
+            tc = _qdf(f"SELECT * FROM `{_st.features}.tabpfn_components` "
+                      f"WHERE season = {int(season)}").drop_duplicates(
+                          ["season", "week", "gsis_id"]).set_index(
+                          ["week", "gsis_id"])
+            idx = pd.MultiIndex.from_arrays(
+                [rows.week.astype(int), rows.gsis_id])
+            aligned = tc.reindex(idx)
+            n_hit = int(aligned[COMPONENT_NAMES[0]].notna().sum())
+            for name in COMPONENT_NAMES:
+                if name not in aligned.columns:
+                    continue
+                v = aligned[name].to_numpy()
+                have = ~pd.isna(v)
+                comps.loc[have, name] = v[have].astype(float)
+            for name, (lo, hi) in RATE_CLIPS.items():
+                comps[name] = comps[name].clip(lo, hi)
+            for name in ("targets", "rec_tds", "carries", "rush_tds",
+                         "pass_attempts", "pass_tds", "interceptions"):
+                comps[name] = comps[name].clip(lower=0.0)
+            is_qb = (rows.position == "QB").to_numpy()
+            comps.loc[is_qb, ["targets", "rec_tds"]] = 0.0
+            comps.loc[~is_qb, ["pass_attempts", "pass_tds",
+                               "interceptions"]] = 0.0
+            log.info("TabPFN components swapped for %d/%d rows",
+                     n_hit, len(rows))
+        except Exception:
+            log.exception("TabPFN components unavailable; LGB kept")
+    sim = simulate.simulate(comps, n_sims=n_sims,
                         seed=seed, game_ids=rows.get("game_id"),
                         team_ids=rows.get("team"),
                         game_totals=rows.get("game_total"),
