@@ -934,6 +934,54 @@ def api_market_disagreement(season: int, week: int, limit: int = 40) -> list[dic
     return j[[c for c in cols if c in j.columns]].round(2).to_dict("records")
 
 
+@app.get("/api/market-tails")
+def api_market_tails(season: int, week: int, limit: int = 40) -> list[dict]:
+    """Model q90 vs the market's de-vigged implied q90 from alternate
+    prop ladders (Addendum 45): disagreement predicted the direction of
+    market error BOTH ways on 2025 holdout, so the biggest gaps in each
+    direction are the week's leverage watchlist."""
+    from ..bq import query_df
+    from ..config import settings
+    from ..inference.market_implied import ALT_MARKETS, market_quantiles
+
+    props = query_df(
+        f"""WITH latest AS (
+              SELECT *, ROW_NUMBER() OVER (
+                PARTITION BY market, player, CAST(point AS STRING),
+                             outcome_name
+                ORDER BY snapshot_ts DESC) rn
+              FROM `{settings.raw}.prop_lines`
+              WHERE season={int(season)} AND week={int(week)}
+                AND bookmaker='draftkings'
+                AND market IN ({", ".join("'" + m + "'" for m in ALT_MARKETS)})
+            ) SELECT season, week, market, player, point, outcome_name,
+                     price FROM latest WHERE rn=1""")
+    if props.empty:
+        return []
+    mq = market_quantiles(props)
+    if mq.empty:
+        return []
+    store = get_store()
+    proj = store.projections(season, week)
+    if proj.empty or "p90" not in proj.columns:
+        return []
+    norm = lambda s: (s.astype(str).str.lower()  # noqa: E731
+                      .str.replace(r"[^a-z ]", "", regex=True).str.strip())
+    mq["norm"], proj = mq.player.pipe(norm), proj.assign(
+        norm=norm(proj.display_name))
+    # spread vs spread, both in DK pts: our (p90 - mean) vs the market's
+    # (q90 - q50) x 0.1/yd summed across its yardage markets
+    tails = (mq.assign(mkt_spread_pts=(mq.q90 - mq.q50) * 0.1)
+             .groupby("norm").mkt_spread_pts.sum().reset_index())
+    j = proj.merge(tails, on="norm", how="inner")
+    j["tail_edge"] = (j.p90 - j.proj_points) - j.mkt_spread_pts
+    j = j.reindex(j.tail_edge.abs().sort_values(ascending=False).index)
+    cols = ["display_name", "position", "team", "salary", "proj_points",
+            "p90", "mkt_spread_pts", "tail_edge"]
+    return j[[c for c in cols if c in j.columns]].head(int(limit)).round(
+        2).to_dict("records")
+
+
 @app.post("/api/external-projections")
 async def api_external_import(source: str, season: int, week: int,
                               file: UploadFile = File(...)) -> dict:

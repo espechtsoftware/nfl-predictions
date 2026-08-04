@@ -1370,3 +1370,31 @@ player embeddings fold into the same effort (player-conditioned LEM is
 EventGPT exactly); the cheap proxy already in-system is archetype
 clustering + the new causally-directed vacated features (Addendum 44),
 which cover the same cold-start/role-change gap at feature scale.
+
+## Addendum 45 (2026-08-03): market-implied distributions from alternate prop ladders — validated, endpoint shipped
+
+Round 10's no-new-model idea, run on data already in house (prop_lines
+holds DK alternate ladders 2023-25: 102k reception-yds rows / 141
+distinct lines, 47k rush, 27k pass). Pairwise de-vig of Over/Under at
+each alt line -> monotone implied P(over x) -> implied quantiles
+(scripts/prop_implied_study.py; two bugs found en route: prices are
+AMERICAN odds, and the naive first pass produced garbage curves that
+the coverage check caught immediately).
+
+Results (matched player-weeks vs panel actuals):
+- The market's implied q90 arrives CALIBRATED out of the box: coverage
+  0.921 recv / 0.917 rush vs target 0.90 — better than our LGB
+  quantiles (0.863/0.843 on the same 2025 rows) — and beats us on rush
+  pinball (5.87 vs 6.00), ties on recv (5.94 vs 5.95).
+- **Disagreement is predictive BOTH directions** (the leverage
+  finding): top-20% "model q90 >> market q90" rows outperform the
+  market median by ~+6 yards on actuals; bottom-20% underperform it by
+  ~-5. Neither source dominates -> the diff itself is the signal.
+
+Shipped: inference/market_implied.py (tested de-vig/curve/quantile
+module) + GET /api/market-tails (our p90-mean spread vs the market's
+q90-q50 spread in DK pts, biggest gaps first) — a watchlist flag under
+the ETR contract (never a silent model input). September follow-ups
+queued: migrate market_ceilings' vig-naive ladder onto this module;
+market-implied quantiles as EXTRA_FEATURES candidates (NULL pre-2023,
+same precedent as FTN) for a replay arm.
