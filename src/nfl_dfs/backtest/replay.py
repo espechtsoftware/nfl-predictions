@@ -584,6 +584,11 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
             d = dst_rows[(dst_rows.season == season) & (dst_rows.week == week)].copy()
             d["game_id"] = d.team + "@" + d.opp
             d["draw_idx"] = -1
+            # DST rows lack optional slate columns (consensus_div —
+            # 2026-08-04 crash: KeyError on every prop-covered season)
+            for c in cols:
+                if c not in d.columns:
+                    d[c] = 0.0
             frame = pd.concat([frame, d[cols]], ignore_index=True)
         # RotoGuru DST rows occasionally lack salary or points; a single NaN
         # poisons the field sampler's ownership softmax.
