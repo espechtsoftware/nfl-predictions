@@ -1642,3 +1642,26 @@ shape: capture measures scoring accuracy, a fade buys leverage capture
 can't see (no showdown field model exists). Verdict: costs ~nothing,
 benefit unmeasurable pre-season → OFF by default, re-judged against
 real showdown standings once September imports accrue.
+
+## Addendum 53 (2026-08-04): the entries sweet-spot curve (3 seasons) and the LEM rollout gate
+
+**Entries study complete** (2023-25, 54 week-slates, one 150-entry
+sequential run per season; prefix-nested selection makes the first N
+entries ~ the optimal N-entry portfolio; reports/entries_study/):
+P(best-of-N ≥ 187 qualifier line) = 1.9% @N=1 → 16.7% @10 → 20.4% @15 →
+31.5% @40 → 33.3% @50 → 44.4% @150. Marginal efficiency per entry:
+~15-28/1000 through N≈10, ~4-7/1000 from 10-40, <1/1000 past 75. The
+2025-only knee (~15) softens on three seasons — value keeps accruing to
+~75 at reduced rate. Portfolio guidance stands: 30-50 entries per
+contest across 2-4 contests beats one max-entry block (a week's entries
+are identical across contests, so the benefit is multiple lines/fields,
+not independent lotteries); never below ~15/contest (coverage cliff).
+Full curve: sweet_spot_curve.csv.
+
+**LEM rollout gate: FAILED 2/5** (400 generated games vs held-out
+2024-25): TDs (4.72 vs 5.12 ✓borderline-pass rule) and turnovers pass;
+punts over-generated (8.81 vs 7.19), FGs under (3.12 vs 4.03),
+play-count sd too wide (15.9 vs 12.5). v1 stays OUT of the sim.
+September v2 targets are now concrete: special-teams event calibration
++ drive-count variance, then re-gate — scripts/lem_train/rollout_eval.py
+is the fixed yardstick.
