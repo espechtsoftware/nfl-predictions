@@ -426,7 +426,9 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
     dst_rows = (dst_slate_rows(dst, qb_starts, vegas)
                 if dst is not None else None)
     own_booster = None
-    if os.environ.get("OWN_MODEL"):
+    # OWN_MODEL default "fade" ADOPTED 2026-08-04 (QF arm): model own in
+    # the chalk fade, naive field kept as the stable yardstick. "" disables.
+    if os.environ.get("OWN_MODEL", "fade"):
         replay_season = int(skill.season.max())
         own_booster = _ownership_booster(replay_season)
     # ADOPTED at +2 (Addendum 37): the only lever to beat the 49f8dac
@@ -513,7 +515,7 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
         # fade here and the field sampler (engine passes frame.model_own
         # through when present). OOS 2025: model corr .727 vs naive .548.
         own = None
-        if os.environ.get("OWN_MODEL") and own_booster is not None:
+        if os.environ.get("OWN_MODEL", "fade") and own_booster is not None:
             own = _model_ownership(own_booster, frame)
             # OWN_MODEL=fade (2026-08-03 graveyard review): the original
             # rejection conflated decision input with measurement — the
@@ -521,7 +523,7 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
             # doubled" verdict partly reflects a sharper yardstick, not
             # worse lineups. fade-only keeps the naive field (stable
             # measurement) while the fade uses the better own estimate.
-            if os.environ["OWN_MODEL"] != "fade":
+            if os.environ.get("OWN_MODEL", "fade") != "fade":
                 frame["model_own"] = own
         if own is None:
             own = naive_ownership(frame)

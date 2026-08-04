@@ -1474,3 +1474,17 @@ harness (generate full games; compare score distributions, drive
 lengths, play counts vs held-out 2024-25 actuals; this is the gate
 that counts) -> player-conditioning (EventGPT proper) -> replay A/B
 vs the possession-Markov engine. Checkpoints/metrics in gs://.../lem/.
+
+## Addendum 47 (2026-08-04): QF ADOPTED — N_QB_VARIANTS=4 + OWN_MODEL=fade become the defaults
+
+Combo arms complete the exam: QF (QBVAR4+OWNFADE) 25 tails / median
+14.6% (program best) / TWO >=237 weeks incl. a 254.6 max (program
+high); QFC (QF + PUNT_MAX 3500 + no-game-stack) 24 — the extra pair
+subtracts (and craters 2022 to 0/18); QBVAR4 alone 25 at median 15.0.
+Adopted QF: equal-best tails, strictly better median, deeper ceiling.
+Defaults now in code (engine N_QB_VARIANTS=4; replay OWN_MODEL=fade;
+live fade upgraded to the trained ownership model with naive as a
+LOGGED fallback only). "0"/"" restore the old behavior; the final
+candidate panel (XFP/SCHED/VACC/MPG3/QD2) will run against the
+post-adoption CONTROL. PMAX3500, NOGSTACK, RATEDW retire to the
+registry as validated-neutral; VALUE2, WRBOOM1, TMW17, DIRK8 buried.

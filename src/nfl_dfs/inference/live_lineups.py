@@ -115,7 +115,25 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     p90 = np.percentile(draws, 90, axis=1)
     frame.loc[punt, "proj"] = np.maximum(
         frame.loc[punt, "proj"], p90[frame.loc[punt, "draw_idx"].to_numpy()])
-    own = naive_ownership(frame)
+    # OWN_MODEL=fade ADOPTED 2026-08-04 (QF arm, replay-validated): the
+    # trained ownership model feeds the chalk fade (naive stays the field
+    # yardstick elsewhere). Live mirror of backtest.replay's fade path;
+    # falls back to naive WITH A WARNING only if the booster can't train
+    # (contest_ownership empty — never true since 2022). "" disables.
+    import os as _os
+
+    own = None
+    if _os.environ.get("OWN_MODEL", "fade"):
+        try:
+            from ..backtest.replay import _model_ownership, _ownership_booster
+
+            booster = _ownership_booster(int(season))
+            if booster is not None:
+                own = _model_ownership(booster, frame)
+        except Exception:
+            log.exception("ownership model unavailable; fade uses naive")
+    if own is None:
+        own = naive_ownership(frame)
     frame["proj_tourney"] = frame.proj - LEVERAGE_PENALTY * lev_scale * own
     try:
         boom = punt_boom_flags_live(season, week)

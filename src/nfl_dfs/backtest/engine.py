@@ -370,7 +370,10 @@ def tail_select_lineups(
     # weekly optimal — right stacks, wrong pieces. For each of the top-8
     # QBs by simulated p90, build several catcher-combination variants
     # (same QB, different pieces) so the pool holds real depth per stack.
-    n_qbvar = int(_os.environ.get("N_QB_VARIANTS", "0"))
+    # ADOPTED 2026-08-04 (QF arm, final-exam combos): default 4. QBVAR4
+    # alone +2 tails (25/107); with OWN_MODEL=fade, equal 25 tails, best
+    # median of the program (14.6%) and two >=237 weeks. "0" disables.
+    n_qbvar = int(_os.environ.get("N_QB_VARIANTS", "4"))
     if n_qbvar:
         qb_all = [(i, p) for i, p in enumerate(pool) if p["pos"] == "QB"]
         qb_all.sort(key=lambda t: -float(np.percentile(rd[t[0]], 90)))
