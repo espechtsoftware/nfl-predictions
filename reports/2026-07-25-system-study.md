@@ -1569,3 +1569,18 @@ concentration gap is a symptom of our stack construction, not an
 independent leak. MAX_PER_GAME retires to the registry as
 tested-neutral; MPG3 recorded as infeasible-vacuous (cap < stack shape,
 caught only because the audit taught us to look for vacuous arms).
+
+## Addendum 50 (2026-08-04): STPFN — TabPFN marginals ADOPTED default-on; the stack verdict
+
+SCHED+TabPFN together: 24 tails (equal to each alone — the +6s share a
+mechanism budget, they don't add) but the BEST mean-best of the entire
+panel (179.5 vs 178.4) at the tied-best median (14.7), deterministic
+same-build comparison. Adopted: TABPFN_MARGINALS defaults to 1 —
+per-player TabPFN quantile marginals over the possession-engine copula,
+with automatic fallback to the EW empirical marginals when the
+projection cache is absent (so live weeks degrade to the previous
+default, never to raw). Operational contract: the tabpfn-gen GPU job
+(~64s/season, ~$0.05) regenerates features.tabpfn_projections after
+every feature-table rebuild and weekly in-season (runbook entry).
+Final adopted stack of the program: EW + PUNT_BOOM=2 + QF
+(N_QB_VARIANTS=4, OWN_MODEL=fade) + SCHED features + TabPFN marginals.

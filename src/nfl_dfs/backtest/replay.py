@@ -113,7 +113,12 @@ def apply_draw_shape(draws: np.ndarray, positions: pd.Series,
     if widen_spec.lower() not in ("off", "0", ""):
         out = _widen_draws(out, positions, widen_spec)
     shaped = None
-    if (os.environ.get("TABPFN_MARGINALS") not in (None, "0", "")
+    # TABPFN_MARGINALS ADOPTED default-on 2026-08-04 (Addendum 50):
+    # +6 tails alone (24 vs 18), STPFN stack = best mean-best of the
+    # panel (179.5) at equal tails. Requires the tabpfn_projections
+    # cache (GPU job tabpfn-gen, ~$0.05/wk); missing cache falls back
+    # to empirical marginals below. "0"/"" disables.
+    if (os.environ.get("TABPFN_MARGINALS", "1") not in ("0", "")
             and keys is not None):
         shaped = _tabpfn_marginals(out, keys)
     if shaped is not None:
