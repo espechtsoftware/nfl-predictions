@@ -10,6 +10,7 @@ A complete blueprint for a DraftKings NFL daily-fantasy prediction and lineup-co
 > | §3 Warehouse schema | `sql/raw/`, `sql/predictions/` |
 > | §4.3/§5 Features + ID crosswalk | `sql/features/`, `src/nfl_dfs/features/` (incl. leakage checks) |
 > | §6/§7 Models | `src/nfl_dfs/models/` (baseline, components, simulation, blending, cold start, registry, monitoring, tuning) |
+> | §6.4 As-built stack | `models/game_sim.py` (possession engine), `backtest/replay.py:apply_draw_shape` (EW + TabPFN marginals), `models/conformal.py` (CQR confidence), `inference/market_implied.py` (market quantiles), `scripts/tabpfn_gen/` (GPU caches), `scripts/lem_train/` (LEM) |
 > | §8.5 Trend detection | `src/nfl_dfs/trends/` (BOCPD, CUSUM, salary-lag alerts); `src/nfl_dfs/models/pricing_lag.py` (salary-vs-trailing-production residual) |
 > | §8.2–8.4, §8.7 Graph + news | `src/nfl_dfs/graph/` (build, injury cascade, LLM extraction); cascade wired into live projections by `src/nfl_dfs/inference/cascade_adjust.py` |
 > | §9 Optimizer | `src/nfl_dfs/optimizer/` (PuLP, stacking, multi-entry, DK CSV; §9.5 Showdown Captain Mode in `showdown.py`) |
