@@ -15,6 +15,17 @@ CREATE OR REPLACE TABLE `${features}.player_week_inference` AS
 WITH def_asof AS (
   SELECT * FROM `${features}.defense_week_allowed`
   QUALIFY ROW_NUMBER() OVER (PARTITION BY team, season ORDER BY week DESC) = 1
+),
+-- xfp as-of (2026-08-04 audit): player_week_xfp is built from pbp, so
+-- an UPCOMING week has no row and an exact-week join would leave
+-- xfp_l4 NULL on every live slate while replays saw real values — the
+-- train/serve-skew class this file's header warns about. Latest
+-- available row per player-season instead (window ends 1 PRECEDING,
+-- so it is the same information a played-week row would carry).
+xfp_asof AS (
+  SELECT * FROM `${features}.player_week_xfp`
+  QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY gsis_id, season ORDER BY week DESC) = 1
 )
 SELECT
   -- Keys
@@ -106,19 +117,19 @@ SELECT
     COALESCE(v.vacated_target_share, 0)
       - IF(i.injury_status = 'Out', COALESCE(u.target_share_l4, 0), 0),
     0) * CASE
-      WHEN ro.position = 'WR' AND ro.depth_rank <= 2 THEN 0.100
-      WHEN ro.position = 'WR' THEN 0.073
-      WHEN ro.position = 'TE' THEN 0.050
-      WHEN ro.position = 'RB' AND ro.depth_rank <= 2 THEN 0.033
+      WHEN COALESCE(u.position, ro.position) = 'WR' AND ro.depth_rank <= 2 THEN 0.100
+      WHEN COALESCE(u.position, ro.position) = 'WR' THEN 0.073
+      WHEN COALESCE(u.position, ro.position) = 'TE' THEN 0.050
+      WHEN COALESCE(u.position, ro.position) = 'RB' AND ro.depth_rank <= 2 THEN 0.033
       ELSE 0.009 END AS vacated_capture_tgt,
   GREATEST(
     COALESCE(v.vacated_carry_share, 0)
       - IF(i.injury_status = 'Out', COALESCE(u.carry_share_l4, 0), 0),
     0) * CASE
-      WHEN ro.position = 'RB' AND ro.depth_rank = 1 THEN 0.270
-      WHEN ro.position = 'RB' AND ro.depth_rank = 2 THEN 0.450
-      WHEN ro.position = 'RB' THEN 0.210
-      WHEN ro.position = 'QB' THEN 0.047
+      WHEN COALESCE(u.position, ro.position) = 'RB' AND ro.depth_rank = 1 THEN 0.270
+      WHEN COALESCE(u.position, ro.position) = 'RB' AND ro.depth_rank = 2 THEN 0.450
+      WHEN COALESCE(u.position, ro.position) = 'RB' THEN 0.210
+      WHEN COALESCE(u.position, ro.position) = 'QB' THEN 0.047
       ELSE 0.020 END AS vacated_capture_car,
 
   -- Target quality + NGS context (024)
@@ -170,8 +181,8 @@ LEFT JOIN `${features}.defense_week_blitz` bl
   ON bl.team = s.opponent AND bl.season = u.season AND bl.week = u.week
 LEFT JOIN `${features}.team_week_ftn_offense` fo
   ON fo.team = u.team AND fo.season = u.season AND fo.week = u.week
-LEFT JOIN `${features}.player_week_xfp` xf
-  ON xf.gsis_id = u.gsis_id AND xf.season = u.season AND xf.week = u.week
+LEFT JOIN xfp_asof xf
+  ON xf.gsis_id = u.gsis_id AND xf.season = u.season
 LEFT JOIN `${features}.team_week_schedule_ctx` sx
   ON sx.team = u.team AND sx.season = u.season AND sx.week = u.week
 LEFT JOIN `${features}.team_week_ftn_offense` fd

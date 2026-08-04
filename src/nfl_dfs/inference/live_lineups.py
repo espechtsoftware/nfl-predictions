@@ -69,7 +69,13 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
                             game_ids=skill.get("game_id"),
                             team_ids=skill.get("team"),
                             game_totals=skill.get("game_total"))
-    draws = apply_draw_shape(sim.draws, skill.position, seed)
+    # keys enable per-player marginal levers (TABPFN_MARGINALS) live —
+    # without them the lever silently fell through to empirical
+    # marginals, a replay/live parity gap (2026-08-04 audit).
+    draws = apply_draw_shape(sim.draws, skill.position, seed,
+                             keys=skill[["season", "week", "gsis_id"]]
+                             if {"season", "week", "gsis_id"}
+                             <= set(skill.columns) else None)
 
     # Market blend as an additive mean shift — draw shape untouched.
     market = market_projection_frame(skill)
@@ -130,7 +136,8 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     import os as _os
 
     own = None
-    if _os.environ.get("OWN_MODEL", "fade"):
+    from ..backtest.replay import own_mode
+    if own_mode():
         try:
             from ..backtest.replay import _model_ownership, _ownership_booster
 

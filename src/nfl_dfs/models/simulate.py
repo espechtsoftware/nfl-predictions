@@ -77,7 +77,13 @@ def simulate(
 
     game_mult = np.ones((n, n_sims))
     if game_ids is not None:
-        codes, uniq = pd.factorize(pd.Series(game_ids).fillna("_none").to_numpy())
+        # NaN game_ids get UNIQUE labels (2026-08-04 audit): one shared
+        # "_none" group gave unrelated fringe/cold-start players a common
+        # game factor — fake cross-player correlation exactly where the
+        # boom/tail machinery is most credulous.
+        _g = pd.Series(game_ids).reset_index(drop=True)
+        _g = _g.where(_g.notna(), "_none_" + _g.index.astype(str))
+        codes, uniq = pd.factorize(_g.to_numpy())
         # GAME_SIM_MODE=possession swaps the lognormal game factor for the
         # drive-state Markov engine in game_sim.py (issue #13 item 6). Read
         # at call time like the other A/B env flags (N_DARKGAME, ALT_CEIL).

@@ -92,19 +92,19 @@ SELECT
     COALESCE(v.vacated_target_share, 0)
       - IF(i.injury_status = 'Out', COALESCE(u.target_share_l4, 0), 0),
     0) * CASE
-      WHEN ro.position = 'WR' AND ro.depth_rank <= 2 THEN 0.100
-      WHEN ro.position = 'WR' THEN 0.073
-      WHEN ro.position = 'TE' THEN 0.050
-      WHEN ro.position = 'RB' AND ro.depth_rank <= 2 THEN 0.033
+      WHEN COALESCE(u.position, ro.position) = 'WR' AND ro.depth_rank <= 2 THEN 0.100
+      WHEN COALESCE(u.position, ro.position) = 'WR' THEN 0.073
+      WHEN COALESCE(u.position, ro.position) = 'TE' THEN 0.050
+      WHEN COALESCE(u.position, ro.position) = 'RB' AND ro.depth_rank <= 2 THEN 0.033
       ELSE 0.009 END AS vacated_capture_tgt,
   GREATEST(
     COALESCE(v.vacated_carry_share, 0)
       - IF(i.injury_status = 'Out', COALESCE(u.carry_share_l4, 0), 0),
     0) * CASE
-      WHEN ro.position = 'RB' AND ro.depth_rank = 1 THEN 0.270
-      WHEN ro.position = 'RB' AND ro.depth_rank = 2 THEN 0.450
-      WHEN ro.position = 'RB' THEN 0.210
-      WHEN ro.position = 'QB' THEN 0.047
+      WHEN COALESCE(u.position, ro.position) = 'RB' AND ro.depth_rank = 1 THEN 0.270
+      WHEN COALESCE(u.position, ro.position) = 'RB' AND ro.depth_rank = 2 THEN 0.450
+      WHEN COALESCE(u.position, ro.position) = 'RB' THEN 0.210
+      WHEN COALESCE(u.position, ro.position) = 'QB' THEN 0.047
       ELSE 0.020 END AS vacated_capture_car,
 
   -- Target quality + NGS context (024): TD opportunity beats TD history

@@ -104,7 +104,7 @@ def _row_draws(slate: pd.DataFrame, draws: np.ndarray) -> np.ndarray:
         # mult = 1 + rel_sd*(corr*z_opp + sqrt(1-corr^2)*z_iid), floored
         # (DK DST brackets go to -4) and renormalized to mean 1.
         DST_OPP_CORR, DST_REL_SD = -0.491, 0.93
-        rng = np.random.default_rng(7)
+        rng = np.random.default_rng(70921)  # distinct from marginal rng(seed+7) — audit
         teams = slate["team"].to_numpy()
         opps = slate["opp"].to_numpy()
         for i in np.flatnonzero(~has):

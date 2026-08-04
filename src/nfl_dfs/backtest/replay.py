@@ -31,6 +31,16 @@ log = logging.getLogger(__name__)
 DST_FALLBACK_PROJ = 6.0  # league-average DST DK points, for week-1 rows
 
 
+def own_mode() -> str:
+    """OWN_MODEL env, normalized (2026-08-04 audit): default "fade";
+    falsy spellings ("", "0", "off", "false", "no", "none") DISABLE —
+    before this, OWN_MODEL=0 silently enabled the strongest mode (full
+    model-own field, deliberately not adopted) because any non-"fade"
+    truthy string flips the model into the field sampler."""
+    v = os.environ.get("OWN_MODEL", "fade").strip().lower()
+    return "" if v in ("", "0", "off", "false", "no", "none") else v
+
+
 def replay_projections(
     panel: pd.DataFrame,
     season: int,
@@ -102,9 +112,12 @@ def apply_draw_shape(draws: np.ndarray, positions: pd.Series,
     widen_spec = os.environ.get("SIM_WIDEN_DRAWS", "fitted")
     if widen_spec.lower() not in ("off", "0", ""):
         out = _widen_draws(out, positions, widen_spec)
+    shaped = None
     if (os.environ.get("TABPFN_MARGINALS") not in (None, "0", "")
             and keys is not None):
-        out = _tabpfn_marginals(out, keys)
+        shaped = _tabpfn_marginals(out, keys)
+    if shaped is not None:
+        out = shaped
     elif os.environ.get("EMP_MARGINALS", "1") not in ("0", ""):
         out = _empirical_marginals(
             out, positions,
@@ -115,7 +128,9 @@ def apply_draw_shape(draws: np.ndarray, positions: pd.Series,
     # world-model sees booms the other misses); mixed worlds let the
     # coverage selector hedge across both regimes.
     mix = float(os.environ.get("SHAPE_MIX", "1") or 1)
-    if 0.0 < mix < 1.0:
+    if mix <= 0.0:
+        return draws  # 0 = all-raw (was returning fully-shaped — audit)
+    if mix < 1.0:
         k = int(mix * draws.shape[1])
         out = np.concatenate([out[:, :k], draws[:, k:]], axis=1)
     return out
@@ -138,8 +153,9 @@ def _tabpfn_marginals(draws: np.ndarray, keys: pd.DataFrame) -> np.ndarray:
     q = query_df(f"SELECT * FROM `{settings.features}.tabpfn_projections` "
                  f"WHERE season = {season}")
     if q.empty:
-        log.warning("TABPFN_MARGINALS on but no cached rows for %s", season)
-        return draws
+        log.warning("TABPFN_MARGINALS on but no cached rows for season %s "
+                    "— falling back to empirical marginals", season)
+        return None
     qcols = sorted(c for c in q.columns if c.startswith("q") and c[1:].isdigit())
     levels = np.array([int(c[1:]) / 100 for c in qcols])
     q = q.set_index(["week", "gsis_id"])
@@ -480,7 +496,7 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
     own_booster = None
     # OWN_MODEL default "fade" ADOPTED 2026-08-04 (QF arm): model own in
     # the chalk fade, naive field kept as the stable yardstick. "" disables.
-    if os.environ.get("OWN_MODEL", "fade"):
+    if own_mode():
         replay_season = int(skill.season.max())
         own_booster = _ownership_booster(replay_season)
     # ADOPTED at +2 (Addendum 37): the only lever to beat the 49f8dac
@@ -567,7 +583,7 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
         # fade here and the field sampler (engine passes frame.model_own
         # through when present). OOS 2025: model corr .727 vs naive .548.
         own = None
-        if os.environ.get("OWN_MODEL", "fade") and own_booster is not None:
+        if own_mode() and own_booster is not None:
             own = _model_ownership(own_booster, frame)
             # OWN_MODEL=fade (2026-08-03 graveyard review): the original
             # rejection conflated decision input with measurement — the
@@ -575,7 +591,7 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
             # doubled" verdict partly reflects a sharper yardstick, not
             # worse lineups. fade-only keeps the naive field (stable
             # measurement) while the fade uses the better own estimate.
-            if os.environ.get("OWN_MODEL", "fade") != "fade":
+            if own_mode() not in ("fade", ""):
                 frame["model_own"] = own
         if own is None:
             own = naive_ownership(frame)
@@ -808,8 +824,16 @@ def run(
 
         mkt = market_points((season,))
         if not mkt.empty:
+            # Dedup + length guard (2026-08-04 audit): market_points
+            # dedups on NAME norm, not gsis — two name variants of one
+            # player produce duplicate (season, week, gsis_id) keys, the
+            # left merge fans rows out, and every draw_idx after the
+            # first duplicate points at the NEXT player's draws.
+            mkt = mkt.drop_duplicates(["season", "week", "gsis_id"])
+            _n_before = len(proj)
             proj = proj.merge(mkt, on=["season", "week", "gsis_id"],
                               how="left")
+            assert len(proj) == _n_before, "market merge fanned out rows"
             _pre = proj.proj_points.to_numpy().copy()
             proj["proj_points"] = _blend(_pre,
                                          proj.market_points.to_numpy(),
@@ -837,7 +861,8 @@ def run(
         if k:
             from ..models.prop_market import market_ceilings
 
-            mc = market_ceilings((season,))
+            mc = market_ceilings((season,)).drop_duplicates(
+                ["season", "week", "gsis_id"])
             proj = proj.merge(mc, on=["season", "week", "gsis_id"],
                               how="left")
     except Exception:

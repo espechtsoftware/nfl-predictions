@@ -24,7 +24,7 @@ WITH bucket_rates AS (
       -- DK PPR points per target in bucket
       AVG(COALESCE(yards_gained, 0) * 0.1
           + IF(complete_pass = 1, 1.0, 0.0)
-          + IF(touchdown = 1, 6.0, 0.0)) AS fp_per_tgt
+          + IF(pass_touchdown = 1, 6.0, 0.0)) AS fp_per_tgt
     FROM `${raw}.pbp`
     WHERE season BETWEEN 2014 AND 2018 AND pass = 1
       AND air_yards IS NOT NULL
@@ -35,7 +35,7 @@ carry_rates AS (
     CASE WHEN yardline_100 <= 5 THEN 'gl'
          WHEN yardline_100 <= 20 THEN 'rz' ELSE 'field' END AS fz,
     AVG(COALESCE(yards_gained, 0) * 0.1
-        + IF(touchdown = 1, 6.0, 0.0)) AS fp_per_carry
+        + IF(rush_touchdown = 1, 6.0, 0.0)) AS fp_per_carry
   FROM `${raw}.pbp`
   WHERE season BETWEEN 2014 AND 2018 AND rush = 1
   GROUP BY fz
