@@ -1293,3 +1293,40 @@ nulls; the salary-related graveyard verdicts are confirmed under their
 regression: sharpening usage concentration collapses tail weeks, so the
 K=20-null verdict was about the MODE being neutral, not about K being
 mis-tuned. Default usage mode retained.
+
+## Addendum 43 (2026-08-03): research rounds 7-8 — three offline verdicts (TabPFN, conformal, persona field)
+
+Scripts preserved in `scripts/`; all on the real panel, walk-forward
+2019-24 train -> 2025 test (the validation law, one split).
+
+**TabPFN-v2 beats our LightGBM shape zero-shot.** 8k-row context, no
+training, CPU: RMSE 6.539 vs 6.580, pinball90 1.347 vs 1.388 (better at
+ALL four positions), q90 coverage 0.908 vs LGB's 0.870 under-coverage —
+the first model to arrive properly calibrated out of the box. Caveats:
+reference was the quick-LGB stand-in (not the component system); v2.5+
+weights are license-gated (priorlabs.ai, TABPFN_TOKEN); CPU inference
+(~9 min per 5k predictions at 8k context) is too slow for replay panels
+— adoption path is the licensed API or a GPU job, queued as the first
+post-season-start model experiment. Full-context (29k) confirmation run
+in flight.
+
+**Conformal calibration: real, small, direction-confirming.** Raw LGB
+q90 under-covers (0.870, QB worst at 0.839); a single CQR shift (+1.31
+pts, calibrated on 2024) restores 0.899 AND improves pinball (1.378 vs
+1.399). Gaussian mean+1.28sd covers only 0.836 — independent
+confirmation of the EW/empirical-marginals adoption. Candidate use: a
+per-season conformal shift on the projection layer; low priority while
+EMP_MARGINALS carries the same correction inside the sim.
+
+**LLM persona field passes the offline screen — decisively, with a
+contamination asterisk.** Four personas (casual 55 / value 25 / sharp 15
+/ homer 5), public info only (salary, l4 form, Vegas totals), aggregate
+exposure vs REAL pct_drafted from imported contests (raw.contest_ownership,
+72 weeks of 2022-25 — the data was already in house): Spearman 0.554 vs
+naive_ownership 0.393, MAE 0.851 vs 1.156 share-points, persona better
+on all three test weeks (w5/w10/w15 2025), gap widest late season (.502
+vs .233). ASTERISK: the LLM's training window includes the 2025 season,
+so memorized hindsight may inflate this; the clean test is live 2026
+weeks. Verdict: mechanism validated, cost trivial (~4 calls/slate);
+promote to a September live shadow scored by the field-calibration
+harness against real standings before any adoption into the field sim.
