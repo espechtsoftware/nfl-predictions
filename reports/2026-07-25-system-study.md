@@ -1283,3 +1283,13 @@ bring-back organically in the correlated draws, so the hard constraint
 binds too rarely to move capture. Stays OFF by default; it remains a
 free judgment lever for slates where the field will captain a one-sided
 blowout script.
+
+**Punt-shape / graveyard-retry panel (same image and tables, exam CONTROL
+= control):** PSLOPE (PUNT_SLOPE=1) 23 tails, PSTRICT (punt_elig
+eligibility) 23, LOWSAL (10-lineup min-salary-47k batch) 23 — all exact
+nulls; the salary-related graveyard verdicts are confirmed under their
+"different approach" retries and stay buried. DIRK8
+(GAME_SIM_USAGE=dirichlet, K=8) 11 tails / mean 175.0 — a severe
+regression: sharpening usage concentration collapses tail weeks, so the
+K=20-null verdict was about the MODE being neutral, not about K being
+mis-tuned. Default usage mode retained.
