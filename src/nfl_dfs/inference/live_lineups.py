@@ -36,6 +36,7 @@ LIVE_SIMS_DEFAULT = 30_000  # adopted 2026-08-03: +2 tails, best ROI and
 
 def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
                            seed: int = 42, lev_scale: float = 1.0,
+                           apply_notes: bool = True,
                            ) -> tuple[pd.DataFrame, np.ndarray]:
     """Engine-ready slate frame + aligned draw matrix for the live week."""
     from ..backtest.field import naive_ownership
@@ -57,7 +58,13 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
         .reset_index(drop=True)
     skill = coldstart.fill_cold_start_features(skill)
     comps = model.predict_components(skill)
-    comps = manual_notes.apply_notes(comps, skill, season, week)
+    if apply_notes:
+        # Multiplier notes (chat-converted opportunity scalers). Gated by
+        # the same "My notes" toggle as boost/ban prefs (2026-08-04) —
+        # off = the untouched algorithm. NOTE: the STORED Sunday
+        # projections (run_projections) bake these in; only this live
+        # recompute honors the toggle fully.
+        comps = manual_notes.apply_notes(comps, skill, season, week)
     sim = simulate.simulate(comps, n_sims=n_sims, seed=seed, keep_draws=True,
                             game_ids=skill.get("game_id"),
                             team_ids=skill.get("team"),
@@ -167,7 +174,8 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
     from ..backtest.engine import tail_select_lineups
 
     slate, draws = build_slate_with_draws(season, week, n_sims=n_sims,
-                                          seed=seed, lev_scale=lev_scale)
+                                          seed=seed, lev_scale=lev_scale,
+                                          apply_notes=apply_notes)
     if allowed_ids:
         slate = slate[slate.id.isin(allowed_ids)]
     if bans:

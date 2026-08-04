@@ -513,11 +513,11 @@ def lineups_page() -> str:
         f"<input id='lev' type='hidden' value='1'>"
         f"<div id='chint' style='font-size:.8em;color:#888'></div>"
         f"<label>Objective<select id='obj'>"
-        f"<option value='proj_points'>Mean (GPP default — replay-validated; ceiling logic is built in via punts/boom stacks)</option>"
+        f"<option value='proj_points'>Mean (GPP default — replay-validated; sim mode always uses this + validated tilts)</option>"
         f"<option value='proj_p90'>Ceiling p90 (tested: underperforms for GPP)</option>"
         f"<option value='proj_p50'>Median</option></select></label>"
         f"<label style='display:flex;align-items:center;gap:.35rem' "
-        f"title='On: your converted notes (boosts/bans) tilt the build. "
+        f"title='On: your converted notes tilt the build — boost/ban prefs AND multiplier notes from chat conversions. "
         f"Off: the pure validated algorithm, no manual adjustments — "
         f"build both ways to compare.'>"
         f"<input id='usenotes' type='checkbox' checked> My notes</label>"
@@ -1718,9 +1718,17 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
             raise HTTPException(
                 422, "Sim-mode found no feasible lineups under the given "
                      "constraints")
+        # dk_id + kickoff onto sim-built players: kickoff drives the
+        # latest-kickoff FLEX preference (late-swap flexibility) and was
+        # silently absent from the sim path (2026-08-04 audit).
+        kick = {}
+        if "kickoff" in df.columns:
+            kick = {int(k): (v if pd.notna(v) else None)
+                    for k, v in zip(df.dk_player_id, df.kickoff)}
         for lu in lineups:
             for p in lu.players:
                 p.setdefault("dk_id", (dk_ids or {}).get(int(p["id"])))
+                p.setdefault("kickoff", kick.get(int(p["id"])))
         ranked = _rank_by_confidence(lineups, df, line=req.line())
         _annotate_leverage([r["lineup"] for r in ranked])
         return [r["lineup"] for r in ranked], ranked
