@@ -76,7 +76,8 @@ def replay_projections(
     # always been the raw (known-too-narrow: QB 1.5x, RB 1.45x per the
     # calibration's own fit) composition. "fitted" applies DEFAULT_WIDEN
     # to the draws mean-preservingly; or pass explicit "WR:1.3,QB:1.5".
-    draws_out = (apply_draw_shape(sim.draws, rows.position, seed)
+    draws_out = (apply_draw_shape(sim.draws, rows.position, seed,
+                                  keys=rows[["season", "week", "gsis_id"]])
                  if return_draws else sim.draws)
     keep = [c for c in ("gsis_id", "name", "season", "week", "team", "opponent",
                         "position", "game_id", "salary") if c in rows.columns]
@@ -89,7 +90,8 @@ def replay_projections(
 
 
 def apply_draw_shape(draws: np.ndarray, positions: pd.Series,
-                     seed: int | None) -> np.ndarray:
+                     seed: int | None,
+                     keys: pd.DataFrame | None = None) -> np.ndarray:
     """ADOPTED DEFAULTS (Addendum 40, combo "EW" — 24/107 tails vs 16
     same-build control, largest gain in program history): fitted draw
     widening + empirically-shaped marginals, composed, mean-preserving.
@@ -100,7 +102,10 @@ def apply_draw_shape(draws: np.ndarray, positions: pd.Series,
     widen_spec = os.environ.get("SIM_WIDEN_DRAWS", "fitted")
     if widen_spec.lower() not in ("off", "0", ""):
         out = _widen_draws(out, positions, widen_spec)
-    if os.environ.get("EMP_MARGINALS", "1") not in ("0", ""):
+    if (os.environ.get("TABPFN_MARGINALS") not in (None, "0", "")
+            and keys is not None):
+        out = _tabpfn_marginals(out, keys)
+    elif os.environ.get("EMP_MARGINALS", "1") not in ("0", ""):
         out = _empirical_marginals(
             out, positions,
             np.random.default_rng(0 if seed is None else seed + 7))
@@ -113,6 +118,53 @@ def apply_draw_shape(draws: np.ndarray, positions: pd.Series,
     if 0.0 < mix < 1.0:
         k = int(mix * draws.shape[1])
         out = np.concatenate([out[:, :k], draws[:, k:]], axis=1)
+    return out
+
+
+def _tabpfn_marginals(draws: np.ndarray, keys: pd.DataFrame) -> np.ndarray:
+    """TABPFN_MARGINALS=1 (A/B, off by default; Addenda 43/46): reshape
+    each player's marginal onto the TabPFN-v2 walk-forward quantiles
+    cached in features.tabpfn_projections (generated on GPU, context =
+    strictly-prior seasons). Same rank-reordering mechanism as
+    _empirical_marginals — the correlation copula survives untouched —
+    but the target distribution is PER-PLAYER, not a (pos, tier) family.
+    TabPFN arrives calibrated where our quantiles under-cover (three
+    independent confirmations). Rows without a cached prediction keep
+    their original draws. Tails extrapolate linearly beyond q01/q99."""
+    from ..bq import query_df
+    from ..config import settings
+
+    season = int(keys.season.iloc[0])
+    q = query_df(f"SELECT * FROM `{settings.features}.tabpfn_projections` "
+                 f"WHERE season = {season}")
+    if q.empty:
+        log.warning("TABPFN_MARGINALS on but no cached rows for %s", season)
+        return draws
+    qcols = sorted(c for c in q.columns if c.startswith("q") and c[1:].isdigit())
+    levels = np.array([int(c[1:]) / 100 for c in qcols])
+    q = q.set_index(["week", "gsis_id"])
+    out = draws.copy()
+    n = draws.shape[1]
+    hit = 0
+    for i in range(len(keys)):
+        k = (int(keys.week.iloc[i]), keys.gsis_id.iloc[i])
+        try:
+            qv = q.loc[k, qcols].to_numpy(dtype=float)
+        except KeyError:
+            continue
+        if qv.ndim > 1:  # duplicate cache rows; take the first
+            qv = qv[0]
+        row = draws[i]
+        ranks = row.argsort().argsort() / max(n - 1, 1)
+        y = np.interp(ranks, levels, qv)
+        lo, hi = ranks < levels[0], ranks > levels[-1]
+        y[lo] = qv[0] + (ranks[lo] - levels[0]) * (qv[1] - qv[0]) / (
+            levels[1] - levels[0])
+        y[hi] = qv[-1] + (ranks[hi] - levels[-1]) * (qv[-1] - qv[-2]) / (
+            levels[-1] - levels[-2])
+        out[i] = np.maximum(y, 0.0)
+        hit += 1
+    log.info("tabpfn marginals: %d/%d rows mapped", hit, len(keys))
     return out
 
 
