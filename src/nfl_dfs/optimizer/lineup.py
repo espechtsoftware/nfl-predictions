@@ -111,6 +111,8 @@ def optimize(
     punt_min: int = 0,
     game_lock: tuple[str, int] | None = None,
     min_salary: int | None = None,
+    max_salary: int | None = None,
+    max_per_game: int | None = None,
 ) -> Lineup | None:
     """Solve one lineup. Returns None if infeasible.
     game_lock=(game_id, n) forces >= n players from that game — the
@@ -131,6 +133,8 @@ def optimize(
                 else int(_os.environ.get("MIN_LINEUP_SALARY", "49000") or 0))
     if _min_sal:
         prob += pulp.lpSum(x[p["id"]] * p["salary"] for p in players) >= _min_sal
+    if max_salary is not None and max_salary < budget:
+        prob += pulp.lpSum(x[p["id"]] * p["salary"] for p in players) <= max_salary
     prob += pulp.lpSum(x.values()) == ROSTER_SIZE
 
     def count(pos: str):
@@ -187,7 +191,8 @@ def optimize(
     # game (22/28 used only 2-3) across 5.3 distinct games; our entries
     # average 4.6 from one game — the concentrated-game folklore the
     # 5-stack generators encode is contradicted by the winners (2026-08-03).
-    max_pg = int(_os.environ.get("MAX_PER_GAME", "0"))
+    max_pg = (max_per_game if max_per_game is not None
+              else int(_os.environ.get("MAX_PER_GAME", "0")))
     if max_pg:
         by_game: dict = {}
         for p in players:

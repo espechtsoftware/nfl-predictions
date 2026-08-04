@@ -334,6 +334,37 @@ def tail_select_lineups(
                 lu.tag = "lowsal"
                 seen.add(lu.ids)
                 cands.append(lu)
+    # Quality-diversity archive batch (env QD_CELLS = elites per cell,
+    # off by default; MAP-Elites idea, research round 8 2026-08-03): the
+    # named batches above are a hand-made archive; this tessellates the
+    # descriptor space the real Milly winners actually occupy —
+    # max-per-game concentration {2,3,4} (winners avg 2.96) x salary band
+    # (winners spend the cap, but coverage may pay off-cap) — and solves
+    # the best lineups per cell. Same tail-coverage selector downstream
+    # decides which cells earn entries; empty/infeasible cells just skip.
+    n_qd = int(_os.environ.get("QD_CELLS", "0"))
+    if n_qd:
+        for mpg in (2, 3, 4):
+            for lo, hi in ((44_000, 47_500), (47_500, 49_000),
+                           (49_000, 50_000)):
+                banned_qd: list = []
+                for _ in range(n_qd):
+                    try:
+                        lu = optimize(pool, stack=stack,
+                                      objective_col=objective_col,
+                                      banned_lineups=banned_qd,
+                                      max_overlap=7, locks=set(locks),
+                                      min_salary=lo, max_salary=hi,
+                                      max_per_game=mpg)
+                    except Exception:
+                        break
+                    if lu is None:
+                        break
+                    banned_qd.append(lu.ids)
+                    if lu.ids not in seen:
+                        lu.tag = "qd"
+                        seen.add(lu.ids)
+                        cands.append(lu)
     # Stack-depth A/B (env N_QB_VARIANTS): the harvest attribution found
     # the 40 entries spread over ~16 QBs with max 2-of-8 overlap vs the
     # weekly optimal — right stacks, wrong pieces. For each of the top-8

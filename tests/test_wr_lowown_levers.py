@@ -71,3 +71,22 @@ def test_value2_barbell(monkeypatch):
     cheap = [p for p in lu.players
              if p["salary"] <= 5300 and p["pos"] != "DST"]
     assert len(cheap) >= 2
+
+
+def test_qd_cell_constraints_hold():
+    """optimize() cell parameters (the MAP-Elites archive axes): salary
+    band and per-game concentration must bind simultaneously."""
+    from nfl_dfs.optimizer.lineup import optimize
+
+    pool = _pool()
+    # 4-game fixture: mpg=2 is pigeonhole-infeasible (9 slots / 4 games)
+    # and must return None (the engine skips such cells), mpg=3 must bind.
+    assert optimize(pool, min_salary=44_000, max_salary=47_500,
+                    max_per_game=2) is None
+    lu = optimize(pool, min_salary=44_000, max_salary=47_500, max_per_game=3)
+    assert lu is not None
+    assert 44_000 <= lu.salary <= 47_500
+    from collections import Counter
+
+    per_game = Counter(p.get("game_id") for p in lu.players)
+    assert max(per_game.values()) <= 3
