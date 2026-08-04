@@ -391,9 +391,29 @@ def sim_mode_entries(pool: list[Player], n_entries: int, seed: int,
     captain board) as a second element."""
     import os
 
+    # A/B lever (env SHOWDOWN_FADE=k, off by default; 2026-08-04
+    # expansion review): showdown had NO chalk fade at all while captain
+    # chalk concentration defines these fields. Naive-ownership fade on
+    # the MILP objective only (draws/selection stay on raw proj — the
+    # classic pattern: fade what we BUILD, measure with the clean score).
+    # Naive proxy first, exactly like the classic program pre-booster.
+    fade_k = float(os.environ.get("SHOWDOWN_FADE", "0") or 0)
+    obj_col = "proj"
+    if fade_k:
+        import pandas as _pd
+
+        from ..backtest.field import naive_ownership
+        from .lineup import LEVERAGE_PENALTY
+
+        own = naive_ownership(_pd.DataFrame(pool))
+        for p, w in zip(pool, own):
+            p["proj_fade"] = p["proj"] - fade_k * LEVERAGE_PENALTY * float(w)
+        obj_col = "proj_fade"
+
     draws = showdown_draws(pool, n_sims=n_sims, seed=seed)
     milp = optimize_many_showdown(pool, n_lineups=max(2 * n_entries, 30),
-                                  max_overlap=4, **kwargs)
+                                  max_overlap=4, objective_col=obj_col,
+                                  **kwargs)
     counters: dict | None = {} if with_metrics else None
     recurrent = simulate_showdown_lineups(pool, draws, n_keep=n_entries,
                                           counters=counters, **kwargs)
