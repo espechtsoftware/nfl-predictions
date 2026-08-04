@@ -1628,7 +1628,9 @@ def contest_options() -> dict:
 
 
 def _rank_by_confidence(lineups: list, df: pd.DataFrame,
-                        line: float = MIN_MILLY_LINE) -> list[dict]:
+                        line: float = MIN_MILLY_LINE,
+                        season: int | None = None,
+                        week: int | None = None) -> list[dict]:
     """Sort lineups by tournament confidence — P(lineup total >= line)
     under a normal approximation from each player's projection mean and
     std. Independence understates stacked lineups' true tail, so treat
@@ -1636,6 +1638,14 @@ def _rank_by_confidence(lineups: list, df: pd.DataFrame,
     untilted means are used (confidence is about scoring, not leverage)."""
     from statistics import NormalDist
 
+    # CQR sigma scale (external review 3.1): rolling in-season
+    # calibration makes confidence% converge to a real probability as
+    # accuracy data accrues; neutral 1.0 until then.
+    _scale = 1.0
+    if season is not None and week is not None:
+        from ..models.conformal import sigma_scale
+
+        _scale = sigma_scale(season, week)
     mu_map = df.set_index("dk_player_id").proj_points.to_dict()
     sd_map = (df.set_index("dk_player_id").proj_std.to_dict()
               if "proj_std" in df.columns else {})
@@ -1643,7 +1653,7 @@ def _rank_by_confidence(lineups: list, df: pd.DataFrame,
     for lu in lineups:
         mu = sum(float(mu_map.get(p["id"], p["proj"])) for p in lu.players)
         var = sum(float(sd_map.get(p["id"], 0) or 0) ** 2 for p in lu.players)
-        sigma = max(var ** 0.5, 1e-6)
+        sigma = max(var ** 0.5, 1e-6) * _scale
         p_line = 1 - NormalDist(mu, sigma).cdf(line)
         ranked.append({"lineup": lu, "proj_mean": round(mu, 1),
                        "confidence": round(100 * p_line, 2)})
@@ -1742,7 +1752,8 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
             for p in lu.players:
                 p.setdefault("dk_id", (dk_ids or {}).get(int(p["id"])))
                 p.setdefault("kickoff", kick.get(int(p["id"])))
-        ranked = _rank_by_confidence(lineups, df, line=req.line())
+        ranked = _rank_by_confidence(lineups, df, line=req.line(),
+                                 season=req.season, week=req.week)
         _annotate_leverage([r["lineup"] for r in ranked], slate=df)
         return [r["lineup"] for r in ranked], ranked
 
@@ -1757,7 +1768,8 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
         raise HTTPException(422, "No feasible lineup under the given constraints")
     # Confidence order everywhere (JSON + CSVs): first lineup = strongest
     # entry, so "enter the top N in the bigger contest" is just slicing.
-    ranked = _rank_by_confidence(lineups, df, line=req.line())
+    ranked = _rank_by_confidence(lineups, df, line=req.line(),
+                                 season=req.season, week=req.week)
     _annotate_leverage([r["lineup"] for r in ranked], slate=df)
     return [r["lineup"] for r in ranked], ranked
 
@@ -1894,7 +1906,8 @@ def build_core_lineups(
     if not lineups:
         raise HTTPException(422, "No feasible lineup under the given constraints")
     by_id = {p["id"]: p for p in upside_pool}
-    ranked = _rank_by_confidence(lineups, df, line=req.line())
+    ranked = _rank_by_confidence(lineups, df, line=req.line(),
+                                 season=req.season, week=req.week)
     return {
         "tail_line": req.line(),
         "core": [

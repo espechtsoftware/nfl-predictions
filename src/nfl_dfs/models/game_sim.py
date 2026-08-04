@@ -220,8 +220,36 @@ def simulate_game_points(
     )
     delta = rng.integers(-1, 2, n_sims)
     n_b = np.clip(n_a + delta, 6, MAX_DRIVES_PER_TEAM)
-    points_a, safeties_a = _simulate_team_drives(rng, n_a)
-    points_b, safeties_b = _simulate_team_drives(rng, n_b)
+    import os as _os
+
+    if _os.environ.get("SCRIPT_FEEDBACK", "") not in ("", "0"):
+        # A/B lever (external review 1.3, 2026-08-04): game-script
+        # feedback. Independent whole-game drive sequences can't express
+        # "trailing team speeds up / leader kills clock". Two-half split:
+        # sim half 1, then when the half-1 margin exceeds 10 the trailing
+        # team gains a half-2 possession and the leader loses one with
+        # p=0.5 — fattening both-boom (shootout chase) and blowout
+        # (clock-kill) worlds. Downstream factors are mean-normalized,
+        # so only the SHAPE changes. Off by default pending its panel.
+        h1_a = n_a // 2
+        h1_b = n_b // 2
+        p1a, s1a = _simulate_team_drives(rng, h1_a)
+        p1b, s1b = _simulate_team_drives(rng, h1_b)
+        margin = (p1a + SAFETY_POINTS * s1b) - (p1b + SAFETY_POINTS * s1a)
+        chase_a = margin < -10
+        chase_b = margin > 10
+        kill = rng.random(n_sims) < 0.5
+        h2_a = np.clip(n_a - h1_a + chase_a.astype(int)
+                       - (chase_b & kill).astype(int), 1, MAX_DRIVES_PER_TEAM)
+        h2_b = np.clip(n_b - h1_b + chase_b.astype(int)
+                       - (chase_a & kill).astype(int), 1, MAX_DRIVES_PER_TEAM)
+        p2a, s2a = _simulate_team_drives(rng, h2_a)
+        p2b, s2b = _simulate_team_drives(rng, h2_b)
+        points_a, safeties_a = p1a + p2a, s1a + s2a
+        points_b, safeties_b = p1b + p2b, s1b + s2b
+    else:
+        points_a, safeties_a = _simulate_team_drives(rng, n_a)
+        points_b, safeties_b = _simulate_team_drives(rng, n_b)
     return points_a + SAFETY_POINTS * safeties_b, points_b + SAFETY_POINTS * safeties_a
 
 

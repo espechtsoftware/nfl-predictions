@@ -537,6 +537,8 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
     for (season, week), grp in skill.groupby(["season", "week"]):
         cols = ["id", "name", "pos", "team", "opp", "game_id",
                 "salary", "proj", "actual", "season", "week", "draw_idx"]
+        if "consensus_div" in grp.columns:  # DIV_TILT lever input
+            cols.append("consensus_div")
         frame = grp[cols].copy()
         if dst_rows is not None:
             d = dst_rows[(dst_rows.season == season) & (dst_rows.week == week)].copy()
@@ -613,6 +615,15 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
             if m > 1e-12:
                 own_eff = root * (np.mean(own) / m)
         frame["proj_tourney"] = frame.proj - lev_pen * lev_w * own_eff
+        # A/B lever (env DIV_TILT, off by default; external review 3.2):
+        # tilt toward players where OUR model diverges from the prop
+        # market — Addendum 45 measured disagreement predictive in BOTH
+        # directions, so conviction (positive div) earns objective
+        # points. Dose = DIV_TILT * clip(div, -3, 3).
+        _dt = float(os.environ.get("DIV_TILT", "0") or 0)
+        if _dt and "consensus_div" in frame.columns:
+            frame["proj_tourney"] += _dt * frame.consensus_div.fillna(
+                0.0).clip(-3.0, 3.0)
         # A/B lever (env DST_PUNT_BONUS, off by default): 2023-24 Milly
         # winners used a cheap DST as their punt in 29/31 weeks (addendum
         # 7). The bonus tilts OUR objective toward sub-punt-cap DSTs;
@@ -843,6 +854,12 @@ def run(
             proj["proj_points"] = _blend(_pre,
                                          proj.market_points.to_numpy(),
                                          BLEND_W)
+            # Consensus divergence (external review 3.2 / Addendum 45's
+            # two-way disagreement signal): our PRE-blend projection minus
+            # the market's — carried on the frame for the DIV_TILT lever.
+            proj["consensus_div"] = np.where(
+                proj.market_points.notna(),
+                _pre - proj.market_points.to_numpy(), 0.0)
             log.info("prop-market blend applied to %d/%d rows",
                      int(proj.market_points.notna().sum()), len(proj))
             # Weight sweep: BLEND_W was fit against the weak dk_ppg
