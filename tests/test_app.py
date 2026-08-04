@@ -769,3 +769,23 @@ def test_sim_mode_receives_locks_and_bans(client, monkeypatch):
                                   "n_lineups": 2,
                                   "locks": [11], "bans": [22]})
     assert seen.get("locks") == {11} and seen.get("bans") == {22}
+
+
+def test_sim_mode_notes_toggle_passthrough(client, monkeypatch):
+    """apply_notes reaches the sim path; default True, UI-off -> False
+    (pure algorithm, no watch-note boosts/bans)."""
+    seen = {}
+
+    def capture(*a, **k):
+        seen.update(k)
+        raise RuntimeError("stop here")
+
+    from nfl_dfs.inference import live_lineups
+
+    monkeypatch.setattr(live_lineups, "build_sim_lineups", capture)
+    client.post("/lineups", json={"season": 2025, "week": 3, "n_lineups": 2})
+    assert seen.get("apply_notes") is True
+    seen.clear()
+    client.post("/lineups", json={"season": 2025, "week": 3, "n_lineups": 2,
+                                  "apply_notes": False})
+    assert seen.get("apply_notes") is False

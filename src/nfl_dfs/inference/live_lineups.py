@@ -155,7 +155,8 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                       seed: int = 42, lev_scale: float = 1.0,
                       locks: set | None = None, bans: set | None = None,
                       allowed_ids: set | None = None,
-                      theses: list | None = None) -> list:
+                      theses: list | None = None,
+                      apply_notes: bool = True) -> list:
     """Full validated pipeline on the live slate -> selected entries in
     coverage order (first = broadest boom coverage).
 
@@ -171,6 +172,28 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
         slate = slate[slate.id.isin(allowed_ids)]
     if bans:
         slate = slate[~slate.id.isin(bans)]
+    if apply_notes:
+        # Converted watch-notes (boost/ban prefs) applied INSIDE the sim
+        # path (2026-08-04 — previously MILP-only, so the default build
+        # silently ignored them). apply_notes=False = pure algorithm.
+        try:
+            from ..notes import BOOST_BONUS, _prefs_table, norm_name
+            from ..bq import query_df
+
+            p = query_df(f"SELECT norm, kind FROM `{_prefs_table()}` WHERE "
+                         f"season={int(season)} AND week={int(week)}")
+            if not p.empty:
+                nb = set(p[p.kind == "ban"].norm)
+                bo = set(p[p.kind == "boost"].norm)
+                norms = slate.name.map(norm_name)
+                drop = norms.isin(nb) & ~slate.id.isin(locks or set())
+                slate = slate[~drop]
+                bmask = slate.name.map(norm_name).isin(bo)
+                slate.loc[bmask, "proj_tourney"] += BOOST_BONUS
+                log.info("notes applied in sim path: %d banned, %d boosted",
+                         int(drop.sum()), int(bmask.sum()))
+        except Exception:
+            log.exception("note prefs unavailable; building without them")
     slate = slate.reset_index(drop=True)
     if locks:
         missing = set(locks) - set(slate.id)

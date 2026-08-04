@@ -64,6 +64,10 @@ class LineupRequest(BaseModel):
     # shaping, boom-draw candidates, tail-coverage selection. Falls back
     # to the plain MILP path on any failure. sim=False forces the old path.
     sim: bool = True
+    # Apply converted watch-notes (boost/ban prefs) to the build
+    # (2026-08-04, user request): False = pure algorithm, no manual
+    # tilts — for comparing "my ideas" vs the untouched system.
+    apply_notes: bool = True
     # Thesis constraints (2026-08-03): [{players: [dk_ids], min: k}] —
     # ">=k of my entries must contain this combo". Builds toward
     # correlated convictions; pairs with watchlist conversions.
@@ -371,7 +375,8 @@ function reqBody(){
     n_lineups:+document.getElementById('n').value,
     field_size:+document.getElementById('fsize').value||null,
     lev_scale:+document.getElementById('lev').value||1,
-    objective:document.getElementById('obj').value};}
+    objective:document.getElementById('obj').value,
+    apply_notes:document.getElementById('usenotes').checked};}
 function slotNames(players){
   const slots=['QB','RB','RB','WR','WR','WR','TE','FLEX','DST'];
   return players.map((p,i)=>({slot:slots[i]||p.pos,p}));}
@@ -511,6 +516,11 @@ def lineups_page() -> str:
         f"<option value='proj_points'>Mean (GPP default — replay-validated; ceiling logic is built in via punts/boom stacks)</option>"
         f"<option value='proj_p90'>Ceiling p90 (tested: underperforms for GPP)</option>"
         f"<option value='proj_p50'>Median</option></select></label>"
+        f"<label style='display:flex;align-items:center;gap:.35rem' "
+        f"title='On: your converted notes (boosts/bans) tilt the build. "
+        f"Off: the pure validated algorithm, no manual adjustments — "
+        f"build both ways to compare.'>"
+        f"<input id='usenotes' type='checkbox' checked> My notes</label>"
         f"<button id='go' style='padding:.5rem 1.2rem;background:#1a1a2e;"
         f"color:#fff;border:0;border-radius:6px;cursor:pointer'>Build</button>"
         f"<button id='csv' style='padding:.5rem 1.2rem;background:#fff;"
@@ -1694,7 +1704,8 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
                 stack=stack, tail_line=req.line(),
                 lev_scale=req.lev_scale,
                 locks=set(req.locks), bans=set(req.bans),
-                allowed_ids=allowed, theses=req.theses or None)
+                allowed_ids=allowed, theses=req.theses or None,
+                apply_notes=req.apply_notes)
         except HTTPException:
             raise
         except Exception as exc:
@@ -1714,9 +1725,9 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
         _annotate_leverage([r["lineup"] for r in ranked])
         return [r["lineup"] for r in ranked], ranked
 
-    pool = _notes.apply_prefs(
-        _player_pool(df, req.objective, dk_ids, lev_scale=req.lev_scale),
-        req.season, req.week)
+    pool = _player_pool(df, req.objective, dk_ids, lev_scale=req.lev_scale)
+    if req.apply_notes:
+        pool = _notes.apply_prefs(pool, req.season, req.week)
     lineups = optimize_many(
         pool, n_lineups=req.n_lineups, stack=stack,
         locks=set(req.locks), bans=set(req.bans), max_overlap=req.max_overlap,
