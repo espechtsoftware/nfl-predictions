@@ -1558,3 +1558,14 @@ falls back to empirical marginals when the cache is missing (audit
 round 3). VACC's -5 despite t>10 causal evidence is the program's
 cleanest "true fact ≠ good feature" exhibit; the event-study finding
 stands as scouting knowledge (Addendum 44).
+
+**MPG4 verdict (the corrected MAX_PER_GAME dose):** 20 tails (+2) but
+mean 175.7 and median 15.2 both WORSE than control — noise-band mixed,
+not adoption-grade next to the clean +6s. Closes the winners-
+concentration question the diffusion pitch raised: our 4.6-per-game
+concentration vs winners' 2.96 is real but capping at 4 (the largest
+dose compatible with the mandatory stack) doesn't buy tails — the
+concentration gap is a symptom of our stack construction, not an
+independent leak. MAX_PER_GAME retires to the registry as
+tested-neutral; MPG3 recorded as infeasible-vacuous (cap < stack shape,
+caught only because the audit taught us to look for vacuous arms).
