@@ -398,6 +398,11 @@ async function build(){
       : j.lineups.length+' lineups, strongest first. Confidence = '+
         'P(score >= '+(j.tail_line||194)+'), ordering signal scaled to '+
         'the chosen contest field.';
+    if(j.model_health&&j.model_health.warning){
+      const w=document.createElement('div');
+      w.style.cssText='color:#b00;font-weight:600;margin:.3rem 0';
+      w.textContent='\u26a0 '+j.model_health.warning;
+      st.after(w);}
     j.lineups.forEach((lu,i)=>{
       const named=sd
         ? lu.players.map((p,k)=>({slot:k?'FLEX':'CPT',p,cpt:!k}))
@@ -1800,12 +1805,45 @@ def _annotate_leverage(lineups: list, slate: pd.DataFrame | None = None) -> None
         log.exception("leverage annotation failed; lineups unannotated")
 
 
+def _marginals_health(season: int, week: int) -> dict:
+    """Which marginal model will the sim actually use (external review
+    1.2, 2026-08-04): the TabPFN cache fallback is graceful but must
+    never be SILENT — a missing cache on a Sunday means building with
+    the older EW marginals (-6 validated tail weeks) without knowing."""
+    import os as _os
+
+    if _os.environ.get("TABPFN_MARGINALS", "1") in ("0", ""):
+        return {"marginals": "empirical (TabPFN disabled by env)",
+                "warning": None}
+    try:
+        from ..bq import query_df
+        from ..config import settings
+
+        n = query_df(
+            f"SELECT COUNT(*) n FROM `{settings.features}.tabpfn_projections`"
+            f" WHERE season={int(season)} AND week={int(week)}").n.iloc[0]
+        if int(n) > 0:
+            return {"marginals": "tabpfn", "warning": None}
+        return {"marginals": "empirical-fallback",
+                "warning": f"TabPFN cache has NO rows for {season} wk {week}"
+                           " — sim used the older empirical marginals. Run"
+                           " the tabpfn-gen job before building for money."}
+    except Exception:
+        return {"marginals": "unknown",
+                "warning": "TabPFN cache probe failed — marginal source "
+                           "unverified."}
+
+
+
 @app.post("/lineups")
 def build_lineups(
     req: LineupRequest, store: ProjectionStore = Depends(get_store)
 ) -> dict:
     lineups, ranked = _build_classic(req, store)
     return {
+        "model_health": (_marginals_health(req.season, req.week)
+                         if req.sim else {"marginals": "n/a (MILP path)",
+                                          "warning": None}),
         "tail_line": req.line(),  # what "confidence" is P(score >= X) of
         "lineups": [
             {

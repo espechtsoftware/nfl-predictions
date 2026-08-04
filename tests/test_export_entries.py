@@ -138,3 +138,22 @@ def test_contest_id_filter_fills_only_that_contest():
 
     with pytest.raises(ValueError):
         fill_entries_csv(_entries([r1]), [_lu(a)], contest_id="999")
+
+
+def test_massive_lock_late_swap_stress():
+    """External review 4.1: 6 of 9 cells locked (1pm games started),
+    the 4pm swap must fill the remaining 3 slots position-aware."""
+    from nfl_dfs.optimizer.export import fill_entries_csv
+
+    names = ["Q", "R1", "R2", "W1", "W2", "W3", "T", "W4", "D"]
+    pos = ["QB", "RB", "RB", "WR", "WR", "WR", "TE", "WR", "DST"]
+    cells = ["Q (LOCKED)", "R1 (LOCKED)", "R2 (LOCKED)", "W1 (LOCKED)",
+             "W2 (LOCKED)", "X5 (1)", "T (LOCKED)", "X7 (1)", "X8 (1)"]
+    row = "888,C,9,$5," + ",".join(cells)
+    diff = []
+    out = fill_entries_csv(_entries([row]), [_lu(names, pos)], diff_out=diff)
+    line = out.strip().splitlines()[1]
+    assert diff[0]["untouched"] is False
+    assert line.count("LOCKED") == 6
+    for pn in ("W3", "W4", "D"):
+        assert pn in line, f"{pn} missing from swap fill"

@@ -48,6 +48,17 @@ def build_changepoints_table(season: int) -> pd.DataFrame:
     return merged
 
 
+def is_salary_lagged(changepoint_prob: float, weeks_since_change: int,
+                     salary_delta_wow: float | None) -> bool:
+    """Pure mirror of the watchlist SQL predicate (external review
+    2026-08-04: the threshold had no test). A Gadsden-type promotion —
+    fresh usage changepoint, salary not yet repriced — must flag."""
+    return (changepoint_prob > CHANGEPOINT_THRESHOLD
+            and weeks_since_change <= RECENT_WEEKS
+            and (salary_delta_wow is None
+                 or salary_delta_wow < SALARY_LAG_MAX_DELTA))
+
+
 def salary_lag_watchlist() -> pd.DataFrame:
     """The alert query: fresh changepoint + flat salary."""
     return query_df(

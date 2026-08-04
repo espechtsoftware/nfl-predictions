@@ -1,3 +1,204 @@
+# External review package — NFL DFS system (2026-08-04)
+
+## Instructions for the reviewing model
+
+You are an independent reviewer of a DraftKings NFL DFS prediction and
+lineup-construction system. The materials below are: (1) the project's
+operating summary, (2) the last ~45 commits, (3) the FULL experiment
+ledger (50 addenda) covering every A/B test, adoption, rejection, and
+audit. Review for:
+
+1. **Methodological soundness**: are the validation rules (six-season
+   panels, co-run controls on every table rebuild, deterministic
+   replays, walk-forward only) sufficient? Where could the verdicts
+   still be fooled (multiple comparisons, order-luck selection,
+   survivorship in the adoption sequence)?
+2. **Statistical rigor**: adoption thresholds are small integer deltas
+   (+2 to +6 tail weeks out of 107). Which adoptions look robust vs
+   noise-level given the documented +/-5 order-luck band? Be specific.
+3. **Hidden risks**: train/serve skew, leakage, overfitting-to-2025,
+   contamination in LLM-based tests (flagged where known).
+4. **What's missing**: tests or checks you would run before risking
+   real money in September.
+5. **AI-model and predictive-logic usage review**: analyze how the
+   project uses its models (LightGBM component models, the
+   possession-Markov game engine, TabPFN-v2 marginals, the LEM
+   next-event transformer, the LLM persona/forecast pipelines) and
+   suggest concrete improvements. For example: is TabPFN being used
+   effectively, and should it be used in MORE places (mean projections,
+   component models, synthetic data, the ownership model)? Perform
+   detailed web research — recent research studies, relevant GitHub
+   projects, and the documented processes of fantasy sports data
+   vendors (RotoWire, FantasyLabs, Stokastic, SaberSim, Establish The
+   Run, etc.) — and propose specific ideas that are NOT already
+   implemented or tested in the ledger below. For each idea: what it
+   is, evidence it works, how it would slot into this architecture, and
+   how to validate it under this project's panel rules.
+A companion file (external-review-code.md) contains the COMPLETE source
+code, SQL, and test suite — use it to verify the ledger's claims at the
+implementation level and to ground section 5's suggestions in the
+actual architecture. Where the code and the ledger disagree, the code
+is the truth and the disagreement is a finding.
+
+Respond with a numbered findings list, most important first, each with
+severity and a concrete recommended action.
+
+---
+
+## 1. Project operating summary (CLAUDE.md)
+
+# CLAUDE.md
+
+DraftKings NFL DFS prediction and lineup-construction system on free data +
+GCP. [README.md](README.md) is the authoritative document: the full design
+guide (§0–§14), the Quick start (install, env vars, local usage, deploy),
+and the section-to-code map at the top. Don't duplicate it — read it.
+
+## Commands
+
+```bash
+source .venv/bin/activate
+pytest                      # full suite, runs offline (no GCP needed)
+nfl-dfs --help              # every pipeline job as a CLI subcommand
+nfl-dfs build-features      # feature SQL + leakage checks (needs GCP auth)
+```
+
+Install: `pip install -e ".[dev,app]"` for code work; add `gcp` for
+pipeline work. BigQuery is the only database — there is no local-data mode.
+Config is env vars only, all read in `src/nfl_dfs/config.py`.
+
+## Layout
+
+- `src/nfl_dfs/` — `ingest/` → `features/` (+ `sql/features/`) → `models/`
+  → `inference/` → `optimizer/` / `backtest/`, plus `app/` (FastAPI),
+  `graph/`, `trends/`, `analysis/` (archetype clustering), `cli.py`.
+  Map with guide sections: README top.
+- `sql/` — BigQuery DDL/transforms. `${raw}`, `${features}`,
+  `${predictions}`, `${prior_k}` are substituted by `bq.run_sql_file`.
+- `tests/` — offline; synthetic player-week panel in `conftest.py`.
+
+## Rules
+
+- **Point-in-time is sacred.** A feature row for week W may only see data
+  from weeks < W (windows end at `1 PRECEDING`). The leakage checks in
+  `features/leakage.py` run on every `build-features` and must pass; never
+  weaken a check to make a build go green — first prove the build is
+  actually point-in-time correct.
+- **Walk-forward validation only** (by season). Never random splits.
+- **Data deficiency log.** Every time we find a gap or quality problem in
+  source data (missing seasons, schema drift, unmatchable rows, absent
+  fields), add a row to the "Data deficiency log" table in README.md's
+  *Known gaps and future enhancements* section — date, deficiency, impact,
+  status. It's an append-only decision aid for what to fix or accept later.
+- **nflverse schema drifts.** Column renames upstream have already broken
+  feature SQL once (see the log). When a build fails on an unknown column,
+  check the live BigQuery schema before assuming the SQL is wrong.
+- `.gitignore` patterns must stay root-anchored (`/models/`, not
+  `models/`) — an unanchored pattern once silently kept
+  `src/nfl_dfs/models/` out of git and the package had to be rebuilt from
+  its tests.
+- Season semantics: `config.current_season()` rolls over in March
+  (planning clock); nflverse serves data only for started seasons — clamp
+  with `nfl.get_current_season()` when loading (see `ingest/nflverse_job.py`).
+
+
+## Handoff state (2026-08-03, end of pre-season program)
+
+Local box crashes under load (HYPERVISOR_ERROR): BigQuery queries and
+tests run locally; ANY heavy compute (training, replays, panels) runs on
+Cloud Run ONLY. The full experiment ledger is
+reports/2026-07-25-system-study.md (40 addenda); the September runbook
+calendar is in README (season-start table). Auto-memory carries the
+user-facing plans (contest mix, week-1 checks, in-season queue).
+
+- **Tournament construction is the ONLY mode** (user plays GPPs: ~40x $5
+  qualifier + ~40x $3 tourney + ~4 Milly weekly, generated as separate
+  runs per contest field size): mandatory sub-$4k punt valued at p90,
+  chalk-fade on OUR objective only, QB+2 catchers + bring-back, punt-boom
+  archetype tilt (PUNT_BOOM=2 adopted, both paths). Tail metric = real
+  per-week Milly lines (backtest/real_lines.py), not the 194/237 anchors.
+- **Validation laws** (hard-won, do not relax): panels or nothing
+  (six-season, never single-season); replays are deterministic BUT
+  feature-table REBUILDS are not (BQ tie-breaking) — after ANY
+  build-features run, every panel must co-run its own CONTROL arm on the
+  same table build (2026-08-03 incident: a rebuild silently shifted the
+  baseline and nearly mis-judged nine arms); adding ANY feature column
+  reshuffles LightGBM tie-breaks (~±5 mean-best "order luck").
+- **Env-lever registry**: adopted defaults live in code; every tested
+  lever and its verdict is in the study report. Notable off-by-default
+  levers validated for QUALIFIER contests (not Milly): SELECT_OBJ=dollars,
+  LEV_POS_WEIGHTS (empirical QB:2.08), MAX_QBS/N_QB_VARIANTS, LEV_SHAPE=sqrt.
+  Untested-inert: PUNT_VALUE=tail, BIGPLAY (equal tails/+ROI), SIMS 30k
+  (live-only candidate).
+- **September machinery is pre-built, data-gated**: import-ownership now
+  captures per-entry lineups (contest_entries; DK purges exports ~4
+  DAYS — download standings Mon/Tue after every slate, non-negotiable);
+  `nfl-dfs field-calibration` scores field-sim dupe realism vs real
+  entries (RTS benchmarks 0.43/0.72); /market has external-projection
+  consensus diff (ETR weekly pass planned Sep 8-9) + accuracy grading;
+  lineup cards show Lev% and watch notes; daily backups (s-backup) cover
+  all irreplaceable tables.
+- Reference clones of public DFS repos live in
+  /home/erich/projects/other-nfl-projects (analysis in addenda/memory).
+
+
+---
+
+## 2. Recent commits
+
+```
+a73d1e3 TabPFN generator versioned in-repo + upcoming-week live mode
+cc64dc8 Runbook: tabpfn-gen cache regeneration (weekly + post-rebuild)
+293641b ADOPT TabPFN marginals default-on + Addendum 50 (STPFN verdict)
+cc6a978 MPG4 verdict: noise-band mixed, retires neutral
+4e81199 =study
+c7d083f ADOPT SCHED features + Addendum 49 (final panel verdicts)
+a2a224f Per-contest fill (contest_id filter) + README upload-flow reference
+4c8ed62 Addendum 48: four-reviewer audit record
+80f4051 Audit fixes round 3: xfp train/serve skew, merge fanout guard, sim hygiene
+f936052 Audit fixes round 2: locked-slot alignment, lock-aware assignment, Lev% scale
+26cd477 Audit fixes round 1: thesis-batch crash, dead market-tails, CSV double build
+23484c4 Sim-path parity audit: gate multiplier notes, restore kickoff, honest labels
+4ccee94 'My notes' toggle: enable/disable converted watch-note tilts per build
+bd6c68a TABPFN_MARGINALS lever: per-player TabPFN quantile marginals in the sim
+b1c88f9 ADOPT QF: N_QB_VARIANTS=4 + OWN_MODEL=fade defaults (Addendum 47)
+01ca441 LEM v1: factored model beats bigram (4.60 vs 8.12 NLL/event); road to sim recorded
+4e0c485 LEM v0 verdict: composite vocab loses to bigram; factored v1 launched
+7a7d901 Addendum 46: kNN comps null; env-forecast pipeline scaffold; CV gated
+1831a6c Round-10 verdicts: cold-start pooling null; weather/synthetic staged
+edc45e3 Market-implied prop distributions: module + /api/market-tails + Addendum 45
+7e6b5ca LEM corpus builder + round-9 scoping (GPU-gated, eval bar pre-registered)
+fb3b355 Causal vacated-capture candidates + Addendum 44 (event study)
+d70dcf1 Addendum 43: TabPFN/conformal/persona offline verdicts
+ba0aaf6 Preserve rounds-7/8 experiment scripts (TabPFN, conformal, persona)
+4339d59 QD_CELLS: MAP-Elites archive candidate batch (research round 8)
+8a959a4 Addendum 42: punt-shape panel nulls; DIRK8 severe regression
+c44447b Addendum 42: showdown bring-back A/B verdict (wash, stays off)
+df68852 Addendum 42: FINAL EXAM verdicts (QBVAR4 +2 leads; combos queued)
+ee3c2b8 Showdown captain board: CPT/FLEX-optimal rates + P(top scorer) in UI
+aa2b0c4 XFP + schedule-context candidate features (rebuild-gated)
+6852c36 Thesis constraints: per-combo portfolio floors through sim path + API
+db85601 Export selection order (entry_ix): one 150-entry run = full best-of-N curve
+899ca40 Replay print: 187 qualifier line on the playable-weeks cut
+5e0faab DIRICHLET_K env: the retune the K=20 null verdict itself requested
+c460821 Salary-family redesigns: N_LOWSAL coverage batch; ALT_CEIL reclassified untested
+921c395 Punt-threshold reimplementations: PUNT_SLOPE (shaped) + PUNT_STRICT (conditional)
+ccf2cfb UI: set sim-mode build-time expectation (~1-4 min)
+71b213e Adopt LIVE_SIMS=30k for live paths (sim-mode + weekly projections)
+da3c123 OWN_MODEL=fade: unbundle decision input from measurement instrument
+77c1b0f Chat UI: typing indicator + fixed-height scrolling layout
+0ad1dcb Research-triage levers: showdown bring-back (88% of winners; rule was absent) + salary-barbell VALUE2
+43e4349 Data audit fixes: team-code normalization (recovers ~1,500 training rows), RATE_DENOM_WEIGHTS lever, deficiency log
+fc1f918 MAX_PER_GAME lever: winners spread across 5.3 games, max ~3 from one
+d20b3d3 PUNT_MAX env lever: dose-test the inherited $4k punt threshold
+437ff0b CFB export-links helper: one-click standings URLs from the fills poll
+
+```
+
+---
+
+## 3. Full experiment ledger
+
 # System study: replayed picks, weekly confidence, and what actually matters
 
 *2026-07-25. All results from season replays: models trained strictly on
@@ -1585,46 +1786,3 @@ every feature-table rebuild and weekly in-season (runbook entry).
 Final adopted stack of the program: EW + PUNT_BOOM=2 + QF
 (N_QB_VARIANTS=4, OWN_MODEL=fade) + SCHED features + TabPFN marginals.
 
-## Addendum 51 (2026-08-04): external model review (Gemini) — triage, fixes, and the LOSO consistency table
-
-An independent Gemini review of the full ledger + complete source
-(reports/external-review-package + code companion) returned findings;
-each verified against code before acting. Its implementation
-cross-checks all CONFIRMED our Addendum-48 fixes.
-
-**1.1 Multiple comparisons (HIGH) — accepted, with evidence both ways.**
-The reviewer's LOSO rule (adopt only if positive in >=4 of 6 seasons)
-was computed retroactively for every current adoption:
-| Adoption | +seasons | -seasons | LOSO 4-of-6 |
-|---|---|---|---|
-| SCHED | 4 | 0 | PASS |
-| TABPFN | 4 | 1 | PASS |
-| STPFN (shipped combo) | 4 | 0 | PASS |
-| QF | 2 | 1 | **FAIL** |
-QF stays adopted on cross-build replication (QBVAR4 +2 on a different
-table build; Addendum 36's independent qualifier panel) plus
-equal-tails/best-median — but it is now FLAGGED as the weakest adoption
-and gets re-judged against real September standings at the qualifier
-recalibration. LOSO >=4-of-6 (with no more than 1 negative) is ADOPTED
-as a prospective validation law for future single-build adoptions.
-
-**1.2 Silent TabPFN fallback (HIGH) — accepted, fixed.** /lineups now
-returns model_health (cache probe per season/week) and the builder UI
-shows a red warning when the sim used empirical-fallback marginals —
-"never silently -6 tails on a Sunday."
-
-**4.x Missing tests — all three added**: massive-lock late-swap stress
-(6 locked cells, position-aware fill of the rest), DST variance guard
-(gate-on rel-sd > 0.3), and the salary-lag threshold contract (pure
-is_salary_lagged predicate mirroring the SQL; Gadsden-type promotion
-must flag).
-
-**1.3 Script-feedback pace multiplier — accepted as a lever to test**
-(queued: SCRIPT_FEEDBACK env in game_sim, panel arm after the harvest).
-**3.1 CQR live calibration** — queued for September (needs rolling live
-accuracy; pairs with /api/accuracy). **3.2 consensus-divergence
-feature** — queued as a candidate for the next panel round (market
-data 2023+, FTN-style NULL precedent). **3.3 LEM "game flow"
-attention** — PARTIAL REBUT: LEM v1's factored tokens already embed
-score-differential and quarter (the sd/qtr factors); the real v2 items
-are continuous embeddings and longer context, noted in the LEM road.

@@ -43,3 +43,20 @@ def test_gate_on_skill_rows_untouched(monkeypatch):
     slate, draws = _slate_and_draws()
     rd = _row_draws(slate, draws)
     np.testing.assert_allclose(rd[0], draws[0], rtol=1e-6)
+
+
+def test_gate_on_dst_variance_materially_positive(monkeypatch):
+    """External review 4.2: with the gate on, DST rows must carry real
+    variance (the whole point vs the static fallback), not a token
+    epsilon."""
+    import numpy as np
+
+    from nfl_dfs.backtest.engine import _row_draws
+
+    monkeypatch.setenv("DST_CORR_DRAWS", "1")
+    slate, draws = _slate_and_draws()
+    rd = _row_draws(slate, draws)
+    dst = slate.index[slate.draw_idx < 0]
+    for i in dst:
+        rel_sd = rd[i].std() / max(rd[i].mean(), 1e-6)
+        assert rel_sd > 0.3, f"DST row {i} rel-sd {rel_sd:.3f} too flat"
