@@ -1275,3 +1275,11 @@ schedule-context candidate features (017j: opportunity-valued FP from
 deliberately held until the running panel queue drains. Node-checking
 every served page's inline JS surfaced two pre-existing page-breaking
 newline-escape bugs in the late-swap prompts, now fixed.
+
+**Showdown bring-back A/B (2025, 43 slates, 40 entries):** CONTROL 82.3%
+mean capture, 10/43 slates ≥90%; SHOWDOWN_BRING_BACK=1 82.4%, 10/43. A
+wash — the pass-position captain almost always carries an opposing
+bring-back organically in the correlated draws, so the hard constraint
+binds too rarely to move capture. Stays OFF by default; it remains a
+free judgment lever for slates where the field will captain a one-sided
+blowout script.
