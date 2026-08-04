@@ -53,41 +53,69 @@ Config is env vars only, all read in `src/nfl_dfs/config.py`.
   with `nfl.get_current_season()` when loading (see `ingest/nflverse_job.py`).
 
 
-## Handoff state (2026-08-03, end of pre-season program)
+## Handoff state (2026-08-04, Fable program complete — Opus operates from here)
 
-Local box crashes under load (HYPERVISOR_ERROR): BigQuery queries and
-tests run locally; ANY heavy compute (training, replays, panels) runs on
-Cloud Run ONLY. The full experiment ledger is
-reports/2026-07-25-system-study.md (40 addenda); the September runbook
-calendar is in README (season-start table). Auto-memory carries the
-user-facing plans (contest mix, week-1 checks, in-season queue).
+Local box crashes under load (HYPERVISOR_ERROR, 3x on 2026-08-04): BQ
+queries and tests run locally; ALL heavy compute on Cloud Run. /tmp dies
+on reboot — durable driver scripts + state files live in ~/nfl-panels/
+(rerun any driver after a crash; state files make them resume). The full
+experiment ledger is reports/2026-07-25-system-study.md (50+ addenda —
+READ THE LAST TEN before proposing anything; most "new" ideas are
+already tested there). September calendar: README season-start table +
+"TabPFN projection cache" runbook block.
 
-- **Tournament construction is the ONLY mode** (user plays GPPs: ~40x $5
-  qualifier + ~40x $3 tourney + ~4 Milly weekly, generated as separate
-  runs per contest field size): mandatory sub-$4k punt valued at p90,
-  chalk-fade on OUR objective only, QB+2 catchers + bring-back, punt-boom
-  archetype tilt (PUNT_BOOM=2 adopted, both paths). Tail metric = real
-  per-week Milly lines (backtest/real_lines.py), not the 194/237 anchors.
-- **Validation laws** (hard-won, do not relax): panels or nothing
-  (six-season, never single-season); replays are deterministic BUT
-  feature-table REBUILDS are not (BQ tie-breaking) — after ANY
-  build-features run, every panel must co-run its own CONTROL arm on the
-  same table build (2026-08-03 incident: a rebuild silently shifted the
-  baseline and nearly mis-judged nine arms); adding ANY feature column
-  reshuffles LightGBM tie-breaks (~±5 mean-best "order luck").
-- **Env-lever registry**: adopted defaults live in code; every tested
-  lever and its verdict is in the study report. Notable off-by-default
-  levers validated for QUALIFIER contests (not Milly): SELECT_OBJ=dollars,
-  LEV_POS_WEIGHTS (empirical QB:2.08), MAX_QBS/N_QB_VARIANTS, LEV_SHAPE=sqrt.
-  Untested-inert: PUNT_VALUE=tail, BIGPLAY (equal tails/+ROI), SIMS 30k
-  (live-only candidate).
-- **September machinery is pre-built, data-gated**: import-ownership now
-  captures per-entry lineups (contest_entries; DK purges exports ~4
-  DAYS — download standings Mon/Tue after every slate, non-negotiable);
-  `nfl-dfs field-calibration` scores field-sim dupe realism vs real
-  entries (RTS benchmarks 0.43/0.72); /market has external-projection
-  consensus diff (ETR weekly pass planned Sep 8-9) + accuracy grading;
-  lineup cards show Lev% and watch notes; daily backups (s-backup) cover
-  all irreplaceable tables.
-- Reference clones of public DFS repos live in
-  /home/erich/projects/other-nfl-projects (analysis in addenda/memory).
+- **ADOPTED STACK (all code defaults, no envs needed)**: EW draw shaping
+  + PUNT_BOOM=2 + QF (N_QB_VARIANTS=4, OWN_MODEL=fade — fade uses the
+  trained ownership booster live) + SCHED features (net_rest_diff,
+  body_clock_hour in NUMERIC_FEATURES) + TabPFN marginals
+  (TABPFN_MARGINALS default-on; cache = features.tabpfn_projections,
+  GPU job `tabpfn-gen`, falls back to EW empirical marginals WITH a UI
+  warning when the cache is missing). Tournament-only construction:
+  sub-$4k punt at p90, chalk-fade on OUR objective, QB+2+bring-back,
+  mandatory sim-mode (503 on failure; sim=false explicit escape).
+- **VALIDATION LAWS (hard-won, never relax)**: six-season panels with a
+  CO-RUN CONTROL on the same table build (rebuilds shift baselines ±5;
+  2026-08-04: 23→18); deterministic replays; walk-forward only; sorted
+  feature columns; NEW 2026-08-04: (a) LOSO — adopt only if positive in
+  ≥4 of 6 seasons with ≤1 negative (QF FAILED this retroactively — it
+  stays on cross-build replication but MUST be re-judged against real
+  qualifier standings ~week 3); (b) vacuity checks — byte-identical A/B
+  arms mean the lever never fired (stale image, wrong code path, or
+  infeasible constraint: MPG3, showdown-fade x2 all caught this way);
+  (c) showdown A/Bs need SHOWDOWN_SIM=1 in BOTH arms (the replay
+  default is MILP; live default is sim — they diverge); (d) verify the
+  deployed image contains the lever (img-probe pattern) before trusting
+  an A/B.
+- **GPU on Cloud Run works and is cheap** (L4, us-central1,
+  --no-gpu-zonal-redundancy, 1h task cap, ~$0.70/hr): jobs `tabpfn-gen`
+  (marginal quantiles; TABPFN_UPCOMING=season:week adds the live week —
+  run WEEKLY Wed + after every build-features), `tabpfn-comp`
+  (component-mean cache, TABPFN_SEASONS + TABPFN_WRITE=append for the
+  1h cap), `lem-train`, `lem-rollout`. Sources: scripts/tabpfn_gen/,
+  scripts/lem_train/ (versioned after /tmp losses).
+- **Off-default levers with pending-or-recorded verdicts**: check
+  ~/nfl-panels/review_results.txt + showdown_fade.txt + the ledger's
+  final addenda for SCRIPT_FEEDBACK, DIV_TILT, TABPFN_MEAN,
+  TABPFN_COMPONENTS, ALT_CEIL (revived post-audit), SHOWDOWN_FADE
+  verdicts before touching them. Qualifier-validated-but-HELD:
+  SELECT_OBJ=dollars, MAX_QBS — recalibrate on real standings first.
+- **September cadence (NO new code should be needed)**: Mon/Tue after
+  every slate download contest standings (DK purges ~4 days) →
+  import-ownership; Wed tabpfn-gen with TABPFN_UPCOMING; weekly ETR
+  CSV to /market (paid pass Sep 8-9); persona shadow
+  (scripts/persona_ownership_experiment.py) + env-forecast
+  (scripts/env_forecast.py) logged weekly and GRADED before any
+  adoption; CQR confidence auto-activates at ≥100 scored rows;
+  field-calibration after 2-3 weeks of standings; entries plan per
+  contest-mix memory (split entries across 2-4 contests at 30-50 each,
+  never <15 — sweet-spot study, reports/entries_study/).
+- **September projects that DO need code (design docs only, build only
+  if September evidence warrants)**: LEM v2 / GAME_SIM_MODE=lem (gate
+  result in lem-rollout logs; road map in ledger), market-implied
+  DISTRIBUTIONAL composition (yardage→DK-points convolution — the
+  reason MARKET_MARGINALS wasn't shipped), showdown ownership model
+  (data too thin until standings accrue), TabPFN ownership/synthetic.
+- External review artifacts: reports/external-review-package.md (+
+  code companion) — regenerate and re-run the Gemini review after
+  meaningful changes; its LOSO rule and fallback-warning finding are
+  now law/shipped.
