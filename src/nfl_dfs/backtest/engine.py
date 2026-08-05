@@ -572,6 +572,34 @@ def tail_select_lineups(
     if theses:
         picked = _enforce_theses(picked, cands, cand_totals, tail_line,
                                  theses)
+    # Candidate-oracle instrumentation (review #5 F1, always on): the
+    # selected 40 are all we ever scored against actuals — the
+    # PRESELECTION frontier was unobserved, so "the wall is the
+    # generator" rested on selected-set evidence only. Log, per week:
+    # the best ACTUAL score any candidate achieves vs the best
+    # selected, how many unselected candidates clear the line the
+    # selected set missed, and where the actual-best candidate sat in
+    # the sim's own ranking.
+    try:
+        actuals = np.array([
+            sum(float(p.get("actual") or 0) for p in lu.players)
+            for lu in cands])
+        sel = set(int(i) for i in picked)
+        sel_best = max((actuals[i] for i in sel), default=0.0)
+        orc_ix = int(np.argmax(actuals))
+        extra = sum(1 for i in range(len(cands))
+                    if i not in sel and actuals[i] >= tail_line)
+        p_line_all = (cand_totals >= tail_line).mean(axis=1)
+        orc_simrank = int((p_line_all > p_line_all[orc_ix]).sum()) + 1
+        log.info(
+            "cand-oracle: n_cand %d  oracle %.1f (%s, sim-rank %d, "
+            "selected %s)  selected-best %.1f  gap %.1f  "
+            "unselected>=line %d",
+            len(cands), actuals[orc_ix], cands[orc_ix].tag or "lev",
+            orc_simrank, orc_ix in sel, sel_best,
+            actuals[orc_ix] - sel_best, extra)
+    except Exception:
+        log.exception("cand-oracle instrumentation failed")
     return [cands[i] for i in picked]
 
 
