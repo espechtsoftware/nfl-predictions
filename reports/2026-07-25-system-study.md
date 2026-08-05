@@ -2002,3 +2002,12 @@ magnitude. Also noted for the ledger: the winner-vs-leaderboard
 uniqueness gap (3-5x) is the empirical justification for max_overlap
 diversity in selection that the ordering audit (Add. 62) could not
 supply.
+
+**Redesign-arm verdicts (Addendum 60's retests, on the shipping
+config vs HARVEST-FINAL 25):** VACC2 (capture features REPLACING the
+raw vacated sums) 21 — the collinearity redesign did not rescue it;
+the causal vacated family retires with idea AND implementation both
+fairly tested. VALUE2E 26 (+1, LOSO 2+/1−) — inside the noise band,
+fails the bar honestly; the cheap-skill mechanism is already carried
+by the punt rule. Remaining in flight: NBOOM, PEAK10 (pre-registered
+null), GREEN (the branch architecture comparison).
