@@ -53,69 +53,98 @@ Config is env vars only, all read in `src/nfl_dfs/config.py`.
   with `nfl.get_current_season()` when loading (see `ingest/nflverse_job.py`).
 
 
-## Handoff state (2026-08-04, Fable program complete — Opus operates from here)
 
-Local box crashes under load (HYPERVISOR_ERROR, 3x on 2026-08-04): BQ
-queries and tests run locally; ALL heavy compute on Cloud Run. /tmp dies
-on reboot — durable driver scripts + state files live in ~/nfl-panels/
-(rerun any driver after a crash; state files make them resume). The full
-experiment ledger is reports/2026-07-25-system-study.md (50+ addenda —
-READ THE LAST TEN before proposing anything; most "new" ideas are
-already tested there). September calendar: README season-start table +
-"TabPFN projection cache" runbook block.
+## Handoff state (2026-08-05 final, Fable program complete — Opus operates from here)
 
-- **ADOPTED STACK (all code defaults, no envs needed)**: EW draw shaping
-  + PUNT_BOOM=2 + QF (N_QB_VARIANTS=4, OWN_MODEL=fade — fade uses the
-  trained ownership booster live) + SCHED features (net_rest_diff,
-  body_clock_hour in NUMERIC_FEATURES) + TabPFN marginals
-  (TABPFN_MARGINALS default-on; cache = features.tabpfn_projections,
-  GPU job `tabpfn-gen`, falls back to EW empirical marginals WITH a UI
-  warning when the cache is missing). Tournament-only construction:
-  sub-$4k punt at p90, chalk-fade on OUR objective, QB+2+bring-back,
-  mandatory sim-mode (503 on failure; sim=false explicit escape).
-- **VALIDATION LAWS (hard-won, never relax)**: six-season panels with a
-  CO-RUN CONTROL on the same table build (rebuilds shift baselines ±5;
-  2026-08-04: 23→18); deterministic replays; walk-forward only; sorted
-  feature columns; NEW 2026-08-04: (a) LOSO — adopt only if positive in
-  ≥4 of 6 seasons with ≤1 negative (QF FAILED this retroactively — it
-  stays on cross-build replication but MUST be re-judged against real
-  qualifier standings ~week 3); (b) vacuity checks — byte-identical A/B
-  arms mean the lever never fired (stale image, wrong code path, or
-  infeasible constraint: MPG3, showdown-fade x2 all caught this way);
-  (c) showdown A/Bs need SHOWDOWN_SIM=1 in BOTH arms (the replay
-  default is MILP; live default is sim — they diverge); (d) verify the
-  deployed image contains the lever (img-probe pattern) before trusting
-  an A/B.
+Local box crashes under load (HYPERVISOR_ERROR, 5x): BQ queries and
+SINGLE targeted test runs are fine locally; NEVER run parallel agents,
+parallel pytest, or local sims — ALL heavy compute on Cloud Run. /tmp
+dies on reboot — durable driver scripts + state files live in
+~/nfl-panels/ (rerun any driver after a crash; state files resume).
+The experiment ledger is reports/2026-07-25-system-study.md (89
+addenda — READ THE LAST FIFTEEN before proposing anything; most "new"
+ideas are already tested, and several early verdicts were RETRACTED
+by later audits, so never cite an addendum without checking for a
+correction in a later one).
+
+- **SHIPPING BASELINE (HARVEST-FINAL-2, Addendum 87): 27/107 weeks
+  best-of-40 >= 194, mean best 179.5, median percentile 14.2%** —
+  per-season {2019:5, 2021:3, 2022:3, 2023:4, 2024:6, 2025:6},
+  byte-identical to its validating arm across an image rebuild. Every
+  future arm is judged against THIS on a same-code-image co-run.
+- **ADOPTED STACK (all code defaults, no envs)**: EW draw shaping +
+  QF construction (N_QB_VARIANTS=4) + NAIVE-ownership chalk fade
+  (OWN_MODEL default "" — the fade itself is +2 twice-proven; the
+  trained booster added nothing and left the construction path) + NO
+  punt mandate, NO punt-boom boost (deleted at +1/+2; the p90 punt
+  VALUATION and $49k salary floor and stack mandate all KEPT —
+  true-deletion tests cost tails) + SCHED features + TabPFN marginals
+  + MODEL_ENSEMBLE=3 + prop-market blend, now props-first in LIVE
+  paths too (parity fix; DK-PPG fallback). Tournament-only
+  construction unchanged: chalk-fade on OUR objective,
+  QB+2+bring-back, mandatory sim-mode.
+- **VALIDATION LAWS (never relax)**: six-season panels, co-run
+  control on the SAME image build (RNG stream order changes rebase
+  everything — golden-hash parity tests in tests/test_sbi.py now pin
+  default draws); LOSO >=4-of-6 with <=1 negative; vacuity checks
+  (byte-identical arms = dead lever; env-name typos and column-gated
+  levers both happened); post-ensemble AND post-selection law:
+  verdicts don't transfer across a changed downstream stage; AUDIT
+  BEFORE VERDICT — the fade mislabel, GREEN2 env typo, and TDLEDGER
+  season-pooling defect were all caught by instrument/code audit,
+  never by the panel number; deletion tests need the env to actually
+  gate what its name claims.
+- **THE MEASURED FRONTIER (Addenda 83, 87)**: the candidate pool's
+  oracle clears 30/107 vs the selected book's 22 (same build) — ~8
+  recoverable weeks exist in the pool; the sim cannot rank candidates
+  (actual-best at median sim-rank 53/168), so ALL sim-informed
+  selector variants are a dead end (LSE/SHARP/coverage triple-null).
+  Capture paths: more entries per slate (pool outproduces the book),
+  or the decision-focused reranker (needs a non-sim signal).
+  cand-oracle log line + candidate persistence
+  (predictions.live_candidates) accumulate the training set live.
+- **RESEARCH PROGRAM (reports/emerging-technologies-plan.md is the
+  spec; reports/september-research-designs.md the queue)**: six
+  workstreams BUILT under src/nfl_dfs/research/, adopt-only-as-proven.
+  Verdicts so far: GFlowNet GATED OUT (its own cheap-diversity
+  baselines beat it — world-argmax +7.9 / Gumbel-MILP +6.8 vs GFN
+  +5.4 at equal count); parametric TD coupling BURIED VALIDLY
+  (TDLEDGER2 19 vs 27 after all defects fixed); Chronos baselines-win
+  (EWM/Kalman better everywhere, worst at cold start); SBI 2-of-3
+  params identifiable (synthetic gate passed; walk-forward real-data
+  inference is the next step, §6.8 needs listed in ledger); tracking
+  v0 SHIPPED (1,384-player trait table + 96.3% high-confidence gsis
+  crosswalk at ~/projects/other-nfl-projects/nfl-big-data-bowl-2026/;
+  next gate = shadow features on thin-history players; free in-season
+  refresh = nflverse NGS weekly aggregates); evidence + online
+  conformal built and fixture-proven, data-gated on September news /
+  scored rows. September dependence build #1 = Schaake shuffle, gated
+  on the variogram instrument (src/nfl_dfs/research/dependence.py).
+  PENDING ARM: GUMBEL (N_GUMBEL=20 vs HF2 27) — collect and judge.
+- **SHADOW COLLECTORS (all automatic, best-effort, deliberately NOT
+  in status.FEEDS)**: predictions.div_shadow (prop-market divergence,
+  writes only when props exist; grade with scripts/div_shadow_grade.py
+  after 4-6 weeks — pre-registered bar inside), predictions.own_shadow
+  (build-time predicted ownership incl. booster column),
+  predictions.live_candidates (reranker training set). The config
+  manifest (src/nfl_dfs/research/config_manifest.py) must show ZERO
+  discrepancies (tests enforce).
 - **GPU on Cloud Run works and is cheap** (L4, us-central1,
-  --no-gpu-zonal-redundancy, 1h task cap, ~$0.70/hr): jobs `tabpfn-gen`
-  (marginal quantiles; TABPFN_UPCOMING=season:week adds the live week —
-  run WEEKLY Wed + after every build-features), `tabpfn-comp`
-  (component-mean cache, TABPFN_SEASONS + TABPFN_WRITE=append for the
-  1h cap), `lem-train`, `lem-rollout`. Sources: scripts/tabpfn_gen/,
-  scripts/lem_train/ (versioned after /tmp losses).
-- **Off-default levers with pending-or-recorded verdicts**: check
-  ~/nfl-panels/review_results.txt + showdown_fade.txt + the ledger's
-  final addenda for SCRIPT_FEEDBACK, DIV_TILT, TABPFN_MEAN,
-  TABPFN_COMPONENTS, ALT_CEIL (revived post-audit), SHOWDOWN_FADE
-  verdicts before touching them. Qualifier-validated-but-HELD:
-  SELECT_OBJ=dollars, MAX_QBS — recalibrate on real standings first.
-- **September cadence (NO new code should be needed)**: Mon/Tue after
-  every slate download contest standings (DK purges ~4 days) →
-  import-ownership; Wed tabpfn-gen with TABPFN_UPCOMING; weekly ETR
-  CSV to /market (paid pass Sep 8-9); persona shadow
-  (scripts/persona_ownership_experiment.py) + env-forecast
-  (scripts/env_forecast.py) logged weekly and GRADED before any
-  adoption; CQR confidence auto-activates at ≥100 scored rows;
-  field-calibration after 2-3 weeks of standings; entries plan per
-  contest-mix memory (split entries across 2-4 contests at 30-50 each,
-  never <15 — sweet-spot study, reports/entries_study/).
-- **September projects that DO need code (design docs only, build only
-  if September evidence warrants)**: LEM v2 / GAME_SIM_MODE=lem (gate
-  result in lem-rollout logs; road map in ledger), market-implied
-  DISTRIBUTIONAL composition (yardage→DK-points convolution — the
-  reason MARKET_MARGINALS wasn't shipped), showdown ownership model
-  (data too thin until standings accrue), TabPFN ownership/synthetic.
-- External review artifacts: reports/external-review-package.md (+
-  code companion) — regenerate and re-run the Gemini review after
-  meaningful changes; its LOSO rule and fallback-warning finding are
-  now law/shipped.
+  --no-gpu-zonal-redundancy, 1h cap, ~$0.70/hr): jobs tabpfn-gen
+  (TABPFN_UPCOMING=season:week — run WEEKLY Wed + after every
+  build-features), tabpfn-comp, lem-train, lem-rollout. Sources
+  versioned under scripts/.
+- **September cadence (run-only; NO new code should be needed)**:
+  Mon/Tue standings downloads (DK purges ~4 days) → import-ownership;
+  Wed tabpfn-gen with TABPFN_UPCOMING; weekly ETR CSV to /market
+  (paid pass Sep 8-9); persona shadow + env-forecast logged weekly and
+  GRADED before any adoption; CQR auto-activates at >=100 scored
+  rows; field-calibration after 2-3 weeks of standings; DIV_TILT
+  shadow auto-collects (grade at week 4-6); entries per contest-mix
+  memory (3 qualifiers x 14 + 4 Milly week 1; never <15 per contest).
+- External reviews: 5 rounds (Gemini x4, Sol/GPT-5.6 with code
+  access). Every actionable finding implemented and tested; review
+  packages archived in reports/review-archive/ (superseded — the
+  ledger is authoritative). The audit-before-verdict law is their
+  legacy: reviews caught three invalid arms the panel would have
+  sworn were real.
