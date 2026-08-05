@@ -841,6 +841,53 @@ def tail_select_lineups(
             df["score_artifact_uri"] = art_uri
             df["score_artifact_sha256"] = art_sha
 
+            # IMMUTABLE PLAYER FEATURE SNAPSHOT (Sol audit 3 §A2.6): the
+            # point-in-time values construction actually used. Written
+            # once per (slate, player) — candidate rows carry their
+            # player ids, so the join reconstructs candidate-level
+            # features without storing 9x duplicate rows. Joining to
+            # mutable "latest" feature tables later would reintroduce the
+            # lineage ambiguity this whole exercise exists to remove.
+            feat_tbl = _os.environ.get(
+                "CAND_FEATURE_TABLE",
+                (_cand_tbl.rsplit(".", 1)[0] + ".slate_player_features"
+                 if "." in _cand_tbl else ""))
+            if feat_tbl:
+                want = ["id", "gsis_id", "name", "pos", "team", "opp",
+                        "game_id", "salary", "proj", "proj_tourney",
+                        "own_est", "consensus_div", "market_points",
+                        "model_points_pre", "proj_p10", "proj_p50",
+                        "proj_p90", "proj_std", "actual"]
+                have = [c for c in want if c in slate.columns]
+                fdf = slate[have].copy()
+                for c in want:  # explicit missingness, never silent
+                    if c not in have:
+                        fdf[c] = None
+                fdf["feature_missing"] = json.dumps(
+                    [c for c in want if c not in have])
+                fdf["panel_run_id"] = panel_run_id
+                fdf["slate_run_id"] = slate_run_id
+                fdf["season"] = int(slate["season"].iloc[0])
+                fdf["week"] = int(slate["week"].iloc[0])
+                fdf["generated_at"] = now
+                fdf["code_sha"] = _sha
+                fdf["config_hash"] = _cfg
+                fdf["research_eligible"] = False  # promotion grants it
+
+                def _write_feats(d=fdf, t=feat_tbl):
+                    try:
+                        load_dataframe(d, t, write_disposition="WRITE_APPEND")
+                        log.info("player features persisted: %d -> %s",
+                                 len(d), t)
+                    except Exception:
+                        log.exception("player-feature persistence failed")
+
+                if cand_log_async:
+                    import threading
+                    threading.Thread(target=_write_feats, daemon=True).start()
+                else:
+                    _write_feats()
+
             def _write():
                 try:
                     load_dataframe(df, _cand_tbl,

@@ -604,6 +604,13 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
                 "gsis_id"]  # Q99_WILD keys
         if "consensus_div" in grp.columns:  # DIV_TILT lever input
             cols.append("consensus_div")
+        # point-in-time feature snapshot for the candidate table
+        # (Sol audit 3 §B1): market/model disagreement + marginal
+        # quantiles are only available DURING the run.
+        for _c in ("market_points", "model_points_pre", "proj_p10",
+                   "proj_p50", "proj_p90", "proj_std"):
+            if _c in grp.columns:
+                cols.append(_c)
         frame = grp[cols].copy()
         if dst_rows is not None:
             d = dst_rows[(dst_rows.season == season) & (dst_rows.week == week)].copy()
@@ -936,6 +943,10 @@ def run(
             proj["consensus_div"] = np.where(
                 proj.market_points.notna(),
                 _pre - proj.market_points.to_numpy(), 0.0)
+            # pre-blend model projection kept for the candidate feature
+            # snapshot (Sol audit 3: the reranker needs model-vs-market
+            # disagreement, which is unrecoverable after the blend).
+            proj["model_points_pre"] = _pre
             log.info("prop-market blend applied to %d/%d rows",
                      int(proj.market_points.notna().sum()), len(proj))
             # Weight sweep: BLEND_W was fit against the weak dk_ppg

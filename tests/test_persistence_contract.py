@@ -179,3 +179,35 @@ def test_staging_rows_never_research_eligible(monkeypatch):
     df, _, _, _ = _capture(monkeypatch, PANEL_RUN_ID="p-elig")
     assert not df.research_eligible.any(), (
         "staging rows must be ineligible until promotion")
+
+
+def test_player_feature_snapshot_written(monkeypatch):
+    """A2.6: the point-in-time features construction used must persist
+    during the run, with explicit missingness — never reconstructed
+    later from mutable tables."""
+    slate, pool, draws = _slate()
+    slate["own_est"] = 0.12
+    slate["consensus_div"] = 1.5
+    slate["market_points"] = slate.proj - 0.5
+    slate["model_points_pre"] = slate.proj + 0.3
+    writes: list = []
+    monkeypatch.setattr("nfl_dfs.bq.load_dataframe",
+                        lambda df, table, **kw: writes.append((table, df)))
+    monkeypatch.setenv("MIN_LINEUP_SALARY", "0")
+    monkeypatch.setenv("PANEL_RUN_ID", "p-feat")
+    engine.tail_select_lineups(
+        slate, slate.to_dict("records"), draws, tail_line=95.0,
+        n_entries=8, stack=None, objective_col="proj",
+        cand_log_table="proj.ds.candidates")
+    tables = {t for t, _ in writes}
+    assert any(t.endswith("slate_player_features") for t in tables), tables
+    fdf = next(d for t, d in writes if t.endswith("slate_player_features"))
+    # one row per slate player, carrying the orthogonal features
+    assert len(fdf) == len(slate)
+    for col in ("market_points", "model_points_pre", "consensus_div",
+                "own_est", "proj", "salary", "panel_run_id", "slate_run_id",
+                "feature_missing", "code_sha"):
+        assert col in fdf.columns, f"missing {col}"
+    assert not fdf.research_eligible.any()
+    # quantile columns absent from this fixture must be declared missing
+    assert "proj_p90" in json.loads(fdf.feature_missing.iloc[0])
