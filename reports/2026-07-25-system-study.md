@@ -2223,3 +2223,15 @@ GREENFIELD. The lever never fired. Consequences, honestly:
   sailed through. LAW STRENGTHENED: an arm whose lever lives on a
   BRANCH image must verify the env gate name against THAT branch's
   code (img-probe covers the image, not the spelling of the gate).
+
+**Addendum 72 resolution — G2FIX (the real corrected-bar GREEN):
+25/107, exact parity.** Per-season {2019:6, 2021:2, 2022:3, 2023:5,
+2024:5, 2025:4} vs incumbent {5,1,3,4,7,5}: +3/-2 seasons, tails tied
+25-25, mean best 179.9 vs 179.7, two >=237 weeks (248.8, 249.6). The
+architecture verdict, now on honest data: per-world argmax +
+empirical-bar selection EQUALS the incumbent everywhere except v1's
+over-scaled-bar 27 (real, but within the +/-2-3 noise band and
+mechanistically an accidental ceiling-tilt). Architecture stays
+unadopted for week 1; the assembly-diag redo decides whether it
+carries a MECHANISM lead into September. The GREEN backlog note in
+september-operator-notes stands with G2FIX as the reference number.
