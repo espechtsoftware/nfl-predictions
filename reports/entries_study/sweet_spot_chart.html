@@ -1,0 +1,86 @@
+<meta charset="utf-8"><title>Entries sweet-spot curve</title>
+<style>
+.viz-root{color-scheme:light;--surface-1:#fcfcfb;--text-primary:#0b0b0b;
+--text-secondary:#52514e;--grid:#e4e3df;--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;
+--band:rgba(42,120,214,.07);font:14px/1.45 system-ui,sans-serif;
+background:var(--surface-1);color:var(--text-primary);padding:1.2rem;max-width:860px;margin:auto}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .viz-root{
+color-scheme:dark;--surface-1:#1a1a19;--text-primary:#fff;--text-secondary:#c3c2b7;
+--grid:#33322f;--s1:#3987e5;--s2:#d95926;--s3:#199e70;--band:rgba(57,135,229,.12)}}
+:root[data-theme="dark"] .viz-root{color-scheme:dark;--surface-1:#1a1a19;
+--text-primary:#fff;--text-secondary:#c3c2b7;--grid:#33322f;--s1:#3987e5;
+--s2:#d95926;--s3:#199e70;--band:rgba(57,135,229,.12)}
+.viz-root h1{font-size:1.15rem;margin:0 0 .2rem}
+.viz-root p{color:var(--text-secondary);margin:.2rem 0 .8rem;font-size:.86rem}
+.legend{display:flex;gap:1.1rem;font-size:.82rem;margin:.3rem 0 .4rem}
+.legend span{display:inline-flex;align-items:center;gap:.35rem}
+.sw{width:14px;height:3px;border-radius:2px;display:inline-block}
+svg{width:100%;height:auto;display:block}
+table{border-collapse:collapse;font-size:.8rem;margin-top:.9rem;width:100%}
+td,th{padding:.25rem .55rem;text-align:right;border-bottom:1px solid var(--grid)}
+th:first-child,td:first-child{text-align:left}
+#tip{position:fixed;pointer-events:none;background:var(--surface-1);
+border:1px solid var(--grid);border-radius:6px;padding:.4rem .55rem;
+font-size:.78rem;display:none;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+</style>
+<div class="viz-root">
+<h1>Entries sweet-spot: P(best-of-first-N clears the line)</h1>
+<p>Three seasons (2023&ndash;25), 54 week-slates, one sequential 150-entry
+run per season &mdash; selection is prefix-nested, so the first N entries
+&asymp; the optimal N-entry portfolio. Shaded band: recommended 30&ndash;50
+entries per contest. Measured 2026-08-04 (study Addendum&nbsp;53).</p>
+<div class="legend">
+<span><i class="sw" style="background:var(--s1)"></i>&ge;187 (qualifier)</span>
+<span><i class="sw" style="background:var(--s2)"></i>&ge;194 (Milly min)</span>
+<span><i class="sw" style="background:var(--s3)"></i>&ge;199 (big-field)</span>
+</div>
+<svg id="c" viewBox="0 0 840 420" role="img" aria-label="Sweet-spot curves"></svg>
+<div id="tip"></div>
+<table id="tbl"><thead><tr><th>N entries</th><th>P&ge;187</th><th>P&ge;194</th>
+<th>P&ge;199</th></tr></thead><tbody></tbody></table>
+</div>
+<script>
+const D={"N": [1, 2, 3, 5, 8, 10, 15, 20, 25, 30, 40, 50, 75, 100, 150], "P187": [0.019, 0.037, 0.056, 0.074, 0.111, 0.167, 0.204, 0.204, 0.241, 0.259, 0.315, 0.333, 0.407, 0.426, 0.444], "P194": [0.0, 0.019, 0.019, 0.019, 0.037, 0.056, 0.074, 0.093, 0.13, 0.13, 0.13, 0.13, 0.222, 0.241, 0.259], "P199": [0.0, 0.019, 0.019, 0.019, 0.037, 0.037, 0.056, 0.056, 0.074, 0.074, 0.074, 0.074, 0.111, 0.148, 0.148]};
+const W=840,H=420,M={l:52,r:80,t:14,b:38};
+const lx=n=>M.l+(Math.log(n)/Math.log(150))*(W-M.l-M.r);
+const ly=p=>H-M.b-(p/0.5)*(H-M.t-M.b);
+const css=v=>getComputedStyle(document.querySelector('.viz-root')).getPropertyValue(v).trim();
+function draw(){
+const s=[css('--s1'),css('--s2'),css('--s3')],grid=css('--grid'),
+      ink=css('--text-primary'),ink2=css('--text-secondary');
+let g='';
+g+=`<rect x="${lx(30)}" y="${M.t}" width="${lx(50)-lx(30)}" height="${H-M.t-M.b}" fill="${css('--band')}"/>`;
+for(const p of [0,.1,.2,.3,.4,.5]){
+  g+=`<line x1="${M.l}" x2="${W-M.r}" y1="${ly(p)}" y2="${ly(p)}" stroke="${grid}" stroke-width="1"/>`+
+     `<text x="${M.l-8}" y="${ly(p)+4}" text-anchor="end" fill="${ink2}" font-size="11">${(100*p).toFixed(0)}%</text>`;}
+for(const n of [1,2,3,5,10,20,30,50,100,150]){
+  g+=`<text x="${lx(n)}" y="${H-M.b+18}" text-anchor="middle" fill="${ink2}" font-size="11">${n}</text>`;}
+g+=`<text x="${(W-M.r+M.l)/2}" y="${H-4}" text-anchor="middle" fill="${ink2}" font-size="11">entries per contest (log scale)</text>`;
+const keys=['P187','P194','P199'],labels=['\u2265187','\u2265194','\u2265199'];
+keys.forEach((k,i)=>{
+  const pts=D.N.map((n,j)=>`${lx(n)},${ly(D[k][j])}`).join(' ');
+  g+=`<polyline points="${pts}" fill="none" stroke="${s[i]}" stroke-width="2" stroke-linejoin="round"/>`;
+  D.N.forEach((n,j)=>{g+=`<circle cx="${lx(n)}" cy="${ly(D[k][j])}" r="3.5" fill="${s[i]}" stroke="${css('--surface-1')}" stroke-width="2"/>`;});
+  const last=D.N.length-1;
+  g+=`<text x="${lx(150)+8}" y="${ly(D[k][last])+4}" fill="${ink}" font-size="12" font-weight="600">${labels[i]} ${(100*D[k][last]).toFixed(0)}%</text>`;});
+g+=`<line x1="${M.l}" x2="${W-M.r}" y1="${ly(0)}" y2="${ly(0)}" stroke="${ink2}" stroke-width="1"/>`;
+document.getElementById('c').innerHTML=g;}
+draw();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',draw);
+new MutationObserver(draw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+const svg=document.getElementById('c'),tip=document.getElementById('tip');
+svg.addEventListener('mousemove',e=>{
+  const r=svg.getBoundingClientRect(),x=(e.clientX-r.left)*(W/r.width);
+  let best=0,bd=1e9;
+  D.N.forEach((n,j)=>{const d=Math.abs(lx(n)-x);if(d<bd){bd=d;best=j;}});
+  if(bd>40){tip.style.display='none';return;}
+  const n=D.N[best];
+  tip.innerHTML=`<b>N = ${n}</b><br>\u2265187: ${(100*D.P187[best]).toFixed(1)}%`+
+    `<br>\u2265194: ${(100*D.P194[best]).toFixed(1)}%<br>\u2265199: ${(100*D.P199[best]).toFixed(1)}%`;
+  tip.style.display='block';
+  tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY+10)+'px';});
+svg.addEventListener('mouseleave',()=>tip.style.display='none');
+const tb=document.querySelector('#tbl tbody');
+tb.innerHTML=D.N.map((n,j)=>`<tr><td>${n}</td><td>${(100*D.P187[j]).toFixed(1)}%</td>`+
+  `<td>${(100*D.P194[j]).toFixed(1)}%</td><td>${(100*D.P199[j]).toFixed(1)}%</td></tr>`).join('');
+</script>
