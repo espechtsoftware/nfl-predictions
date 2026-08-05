@@ -96,6 +96,35 @@ class ComponentModels:
         return out
 
 
+class _HistMember:
+    """sklearn HistGradientBoosting wrapped to the Booster interface
+    (MODEL_ENSEMBLE_MIX). Poisson objective maps; position becomes a
+    category code. Registry persistence: mixed ensembles are REPLAY-
+    ONLY until save support lands — train_job keeps pure-LGBM."""
+
+    def __init__(self, X, label, w, params):
+        from sklearn.ensemble import HistGradientBoostingRegressor
+
+        self.cols = list(X.columns)
+        Xn = X.copy()
+        Xn["position"] = Xn["position"].cat.codes
+        loss = ("poisson" if params.get("objective") == "poisson"
+                else "absolute_error")
+        self.m = HistGradientBoostingRegressor(
+            loss=loss, max_iter=300, learning_rate=0.06,
+            max_leaf_nodes=31, min_samples_leaf=40, random_state=9400)
+        self.m.fit(Xn, np.maximum(label, 0) if loss == "poisson" else label,
+                   sample_weight=w)
+
+    def feature_name(self):
+        return self.cols
+
+    def predict(self, X):
+        Xn = X[self.cols].copy()
+        Xn["position"] = Xn["position"].cat.codes
+        return self.m.predict(Xn)
+
+
 class _EnsembleBooster:
     """Booster-compatible average of K members trained on shuffled
     column orders (MODEL_ENSEMBLE lever). Implements the two methods the
@@ -149,11 +178,19 @@ def _fit(
         dset = lgb.Dataset(X, label, weight=w,
                            categorical_feature=["position"])
         return lgb.train(params, dset, num_boost_round=num_boost_round)
+    # MODEL_ENSEMBLE_MIX=1 (A/B, off by default; 2026-08-05): the last
+    # member comes from a DIFFERENT implementation family (sklearn
+    # HistGradientBoosting) — heterogeneous ensembles diversify beyond
+    # what seed/column shuffles reach within one codebase.
+    mix = _os2.environ.get("MODEL_ENSEMBLE_MIX", "") not in ("", "0")
     members = []
     for k in range(K):
         rng = np.random.default_rng(9000 + k)
         cols = list(X.columns)
         rng.shuffle(cols)
+        if mix and k == K - 1:
+            members.append(_HistMember(X[cols], label, w, params))
+            continue
         pk = {**params, "seed": 9000 + k,
               "feature_fraction_seed": 9100 + k,
               "bagging_seed": 9200 + k, "data_random_seed": 9300 + k}
