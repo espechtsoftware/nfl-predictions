@@ -505,6 +505,13 @@ def tail_select_lineups(
         picked = select_dollar_entries(slate, rd, cands, cand_totals,
                                        n_entries, contest,
                                        sharp_fraction=sharp_fraction)
+    elif int(_os.environ.get("M4_QBLOCK", "0") or 0):
+        # Review #4 F5: at tiny N (the 4-entry Milly slice) coverage
+        # buys 4 disparate "flat tires"; concentrate instead — all
+        # entries share the QB family whose candidates jointly clear
+        # the line most often, varying only the ancillary pieces.
+        picked = _select_qb_concentrated(cands, cand_totals, n_entries,
+                                         tail_line)
     else:
         max_qbs = int(_os.environ.get("MAX_QBS", "0"))
         if max_qbs:
@@ -564,6 +571,37 @@ def _enforce_theses(picked: list[int], cands: list, cand_totals,
             log.warning("thesis %s: only %d/%d entries possible",
                         sorted(combo), have, need)
     return picked
+
+
+def _select_qb_concentrated(
+    cands: list, cand_totals: np.ndarray, n_entries: int, line: float,
+) -> list[int]:
+    """One QB family for the whole portfolio (review #4 F5). For each
+    QB with enough candidates, greedy-select n_entries within the
+    family and score P(any clears the line); keep the best family
+    (tiebreak mean best-of-N). Families smaller than n_entries are
+    padded from the global pool only if no family is big enough."""
+    from ..optimizer.lineup import select_tail_entries
+
+    fams: dict = {}
+    for ix, lu in enumerate(cands):
+        qb = next((p["id"] for p in lu.players if p["pos"] == "QB"), None)
+        fams.setdefault(qb, []).append(ix)
+    best_pick, best_key = None, (-1.0, -1.0)
+    for qb, ixs in fams.items():
+        if qb is None or len(ixs) < min(n_entries, 2):
+            continue
+        sub = cand_totals[ixs]
+        local = select_tail_entries(sub, n_entries, line)
+        pick = [ixs[i] for i in local]
+        tot = cand_totals[pick]
+        key = (float((tot >= line).any(axis=0).mean()),
+               float(tot.max(axis=0).mean()))
+        if key > best_key:
+            best_key, best_pick = key, pick
+    if best_pick is None:  # no family large enough — fall back
+        return select_tail_entries(cand_totals, n_entries, line)
+    return best_pick
 
 
 def _select_tail_qb_capped(

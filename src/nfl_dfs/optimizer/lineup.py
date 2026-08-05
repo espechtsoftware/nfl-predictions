@@ -186,6 +186,26 @@ def optimize(
         if len(cheap2) >= v2_min:
             prob += pulp.lpSum(x[pid] for pid in cheap2) >= v2_min
 
+    # A/B lever (env OWN_BARBELL, off by default; review #4 F4): winners
+    # reach their contrarian ownership-sum via a BARBELL (mega-chalk studs
+    # + near-zero-owned punts), not a smooth fade. Linear proxy for an
+    # ownership-variance floor: require >= NLOW skill players at or below
+    # LOW ownership AND >= NHIGH at or above HIGH. Needs own_est on the
+    # pool rows (replay attaches it); silently inert otherwise.
+    if _os.environ.get("OWN_BARBELL") and any(
+            p.get("own_est") is not None for p in players):
+        b_low = float(_os.environ.get("OWN_BARBELL_LOW", "0.05"))
+        b_high = float(_os.environ.get("OWN_BARBELL_HIGH", "0.20"))
+        n_low = int(_os.environ.get("OWN_BARBELL_NLOW", "3"))
+        n_high = int(_os.environ.get("OWN_BARBELL_NHIGH", "2"))
+        lows = [p["id"] for p in players if p["pos"] != "DST"
+                and (p.get("own_est") or 0) <= b_low]
+        highs = [p["id"] for p in players if p["pos"] != "DST"
+                 and (p.get("own_est") or 0) >= b_high]
+        if len(lows) >= n_low and len(highs) >= n_high:
+            prob += pulp.lpSum(x[pid] for pid in lows) >= n_low
+            prob += pulp.lpSum(x[pid] for pid in highs) >= n_high
+
     # A/B lever (env MAX_PER_GAME, off by default): cap same-game players.
     # 28 fully-mapped Milly winners average 2.96 from their most-loaded
     # game (22/28 used only 2-3) across 5.3 distinct games; our entries
@@ -344,6 +364,18 @@ def select_tail_entries(
     each looks alone. Slots left after coverage saturates go to the
     highest remaining P(>= line), then mean total."""
     cand_totals = np.asarray(cand_totals, dtype=float)
+    # A/B lever (env SELECT_LSE=<alpha>, off by default; review #4 F1):
+    # binary coverage treats a 200 and a 265 in the same world as equal
+    # once the world is "covered" — the hypothesized cause of the
+    # below-random assembly overlap (1.87 vs null 2.51: coverage
+    # scatters co-booms to stretch breadth). Log-sum-exp keeps paying
+    # for DEPTH above the line, letting the portfolio concentrate
+    # co-booming players into single entries when the exchange rate
+    # favors it. alpha in 1/DK-points; ~0.05-0.15 spans soft-to-sharp.
+    import os as _os
+    _alpha = float(_os.environ.get("SELECT_LSE", "0") or 0)
+    if _alpha > 0:
+        return _select_lse_entries(cand_totals, n_entries, line, _alpha)
     clears = cand_totals >= line
     p_line = clears.mean(axis=1)
     mean_total = cand_totals.mean(axis=1)
@@ -363,6 +395,30 @@ def select_tail_entries(
     fill = sorted(remaining, key=lambda i: (p_line[i], mean_total[i]),
                   reverse=True)
     selected += fill[: n_entries - len(selected)]
+    return selected
+
+
+def _select_lse_entries(
+    cand_totals: np.ndarray, n_entries: int, line: float, alpha: float
+) -> list[int]:
+    """Greedy portfolio selection on sum_w log(sum_{i in S}
+    exp(alpha*(score_iw - line))) — still submodular (log of a modular
+    sum), so greedy keeps the 1-1/e guarantee. Unlike binary coverage,
+    the marginal gain of a candidate never hits zero in a world already
+    covered — it just shrinks — so depth can outbid breadth."""
+    T = np.asarray(cand_totals, dtype=float)
+    n_entries = min(n_entries, len(T))
+    E = np.exp(np.clip(alpha * (T - line), -60.0, 60.0))
+    S = np.full(T.shape[1], 1e-12)
+    remaining = set(range(len(T)))
+    selected: list[int] = []
+    while len(selected) < n_entries and remaining:
+        idx = np.fromiter(remaining, dtype=int)
+        gains = np.log1p(E[idx] / S).sum(axis=1)
+        best = int(idx[int(np.argmax(gains))])
+        selected.append(best)
+        S = S + E[best]
+        remaining.discard(best)
     return selected
 
 

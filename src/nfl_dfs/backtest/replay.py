@@ -679,6 +679,11 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
             if m > 1e-12:
                 own_eff = root * (np.mean(own) / m)
         frame["proj_tourney"] = frame.proj - lev_pen * lev_w * own_eff
+        # Ownership estimate on the slate rows (review #4 F4): the
+        # OWN_BARBELL constraint in optimize() reads it off the pool
+        # dicts. Raw own (not LEV_SHAPE-transformed) — the constraint
+        # wants the level, not the penalty shape.
+        frame["own_est"] = own
         # A/B lever (env DIV_TILT, off by default; external review 3.2):
         # tilt toward players where OUR model diverges from the prop
         # market — Addendum 45 measured disagreement predictive in BOTH
