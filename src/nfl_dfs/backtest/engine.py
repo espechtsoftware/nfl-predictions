@@ -292,10 +292,45 @@ def tail_select_lineups(
             lu.tag = "boom"
             seen.add(lu.ids)
             cands.append(lu)
+    # A/B lever (env HYPER_BOOM=<n games>, off by default; review #4
+    # round 2): the sim's sampled worlds may never realize the
+    # perfectly-collinear game scripts that break slates (45-42
+    # shootouts where every participant hits p95+ TOGETHER). Rather
+    # than wait for the sampler to roll one, MANUFACTURE it: for each
+    # of the top-N games by projected total, build a synthetic world
+    # where every player in that game sits at his own p98 draw and
+    # everyone else at p50, then MILP-solve it. Injection via the
+    # candidate pool (tag "hyper") — selection still decides.
+    import os as _os
+
+    n_hyper = int(_os.environ.get("HYPER_BOOM", "0") or 0)
+    if n_hyper:
+        game_tot: dict = {}
+        for p in pool:
+            gid = p.get("game_id")
+            if gid:
+                game_tot[gid] = game_tot.get(gid, 0.0) + float(p["proj"])
+        q_hi = np.quantile(rd, 0.98, axis=1)
+        q_md = np.quantile(rd, 0.50, axis=1)
+        for gid in sorted(game_tot, key=game_tot.get,
+                          reverse=True)[:n_hyper]:
+            hpool = [{**p, "proj_hyper": float(
+                q_hi[i] if p.get("game_id") == gid else q_md[i])}
+                for i, p in enumerate(pool)]
+            try:
+                lu = optimize(hpool, stack=stack,
+                              objective_col="proj_hyper",
+                              locks=set(locks))
+            except Exception as exc:
+                log.warning("hyper-boom solve failed: %s", exc)
+                continue
+            if lu is not None and lu.ids not in seen:
+                lu.tag = "hyper"
+                seen.add(lu.ids)
+                cands.append(lu)
     # Anti-correlation A/B (env N_NOSTACK): candidates with NO stack
     # rules — pure variance plays; coverage selection decides if any
     # earn slots. Prior is low (all 48 studied Milly winners stacked).
-    import os as _os
 
     n_nostack = int(_os.environ.get("N_NOSTACK", "0"))
     if n_nostack:

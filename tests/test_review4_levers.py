@@ -113,3 +113,40 @@ def test_qb_concentrated_fallback_small_families():
     totals = np.random.default_rng(3).normal(150, 10, size=(6, 50))
     picked = _select_qb_concentrated(cands, totals, 4, 194.0)
     assert len(picked) == 4
+
+
+# --- HYPER_BOOM: manufactured collinear game worlds ----------------------
+
+def test_hyper_boom_injects_tagged_candidates(monkeypatch):
+    import pandas as pd
+
+    from nfl_dfs.backtest.engine import tail_select_lineups
+
+    rng = np.random.default_rng(7)
+    pool = []
+    ix = 0
+    for pos, n, sal in (("QB", 4, 6000), ("RB", 8, 5500), ("WR", 12, 5000),
+                        ("TE", 6, 3800), ("DST", 4, 3000)):
+        for k in range(n):
+            team = f"T{ix % 4}"
+            pool.append({
+                "id": f"{pos}{k}", "name": f"{pos}{k}", "pos": pos,
+                "team": team, "opp": f"T{(ix + 1) % 4}",
+                "game_id": f"g{ix % 2}", "salary": sal + 137 * k,
+                "proj": 8.0 + (k % 5), "actual": 10.0})
+            ix += 1
+    slate = pd.DataFrame(pool)
+    slate["draw_idx"] = range(len(slate))
+    draws = np.abs(rng.normal(9, 5, size=(len(pool), 120)))
+    monkeypatch.setenv("HYPER_BOOM", "2")
+    monkeypatch.setenv("MIN_LINEUP_SALARY", "0")
+    monkeypatch.setenv("PUNT_MIN", "0")
+    lus = tail_select_lineups(slate, pool, draws, tail_line=90.0,
+                              n_entries=8, stack=None,
+                              objective_col="proj")
+    assert lus, "no lineups returned"
+    monkeypatch.delenv("HYPER_BOOM")
+    base = tail_select_lineups(slate, pool, draws, tail_line=90.0,
+                               n_entries=8, stack=None,
+                               objective_col="proj")
+    assert base, "baseline returned nothing"
