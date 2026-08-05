@@ -1920,9 +1920,24 @@ def _marginals_health(season: int, week: int) -> dict:
         n = query_df(
             f"SELECT COUNT(*) n FROM `{settings.features}.tabpfn_projections`"
             f" WHERE season={int(season)} AND week={int(week)}").n.iloc[0]
+        unmatched = 0
+        try:
+            unmatched = int(query_df(
+                f"SELECT COUNT(*) n FROM "
+                f"`{settings.features}.unmatched_dk_players`").n.iloc[0])
+        except Exception:
+            pass
+        warn = None
+        if unmatched:
+            warn = (f"{unmatched} slate players have NO gsis mapping "
+                    f"(likely rookies/call-ups) — they are EXCLUDED from "
+                    f"the pool. Review features.unmatched_dk_players and "
+                    f"drain into player_id_overrides.")
         if int(n) > 0:
-            return {"marginals": "tabpfn", "warning": None}
+            return {"marginals": "tabpfn", "unmatched_players": unmatched,
+                    "warning": warn}
         return {"marginals": "empirical-fallback",
+                "unmatched_players": unmatched,
                 "warning": f"TabPFN cache has NO rows for {season} wk {week}"
                            " — sim used the older empirical marginals. Run"
                            " the tabpfn-gen job before building for money."}
