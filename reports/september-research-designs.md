@@ -126,3 +126,78 @@ its calibration comparison in #4.
 
 ## Deferred indefinitely (Sol concurs): vine copulas, Tail-GANs,
 ## lineup transformers — 107 slates cannot support them.
+
+## Round 4 additions (2026-08-05, Sol's "distinctive technology" batch)
+## — triaged against tonight's measurements; NOTHING here precedes
+## instruments #0 or items 1-5 above
+
+### 6. Conditional GFlowNet lineup generator (top of the new batch)
+
+Reward-proportional diverse sampling of legal lineups (sequential
+construction, action masks, condition on slate/contest/portfolio).
+Directly aimed at the measured frontier problem: the pool's oracle
+clears 30/107 vs the book's 22, and MILP re-solves cluster modes.
+- **Caveat from tonight's data**: the reward is SIMULATED, and the
+  sim cannot rank candidates by realized outcome (actual-best at
+  median sim-rank 53/168). A GFlowNet inherits that blindness — its
+  claim is DIVERSITY at equal quality (a wider pool frontier), not
+  better per-candidate judgment.
+- **Gate (Sol's, adopted)**: candidate-oracle score AND diversity at
+  the SAME candidate count as the incumbent generator mix. Falsified
+  if the oracle frontier doesn't widen.
+- Family note: shares the diversity goal with the queued MAP-Elites/
+  QD archive idea (in-season memory item 15) — build ONE of them,
+  whichever the oracle instrumentation motivates first; do not run
+  both as separate arms.
+- DIFUSCO-style discrete diffusion: explicitly BEHIND GFlowNets
+  (Sol concurs); revisit only if GFlowNets gate-pass but plateau.
+
+### 7. Simulation-based inference for simulator parameters
+
+Learn a posterior over hand-set sim constants (game-factor sigma,
+pace response, usage concentration, TD allocation sharpness) against
+observed summaries (role-pair variograms, scoring concentration,
+QB-receiver tail dependence); sample parameters per world to carry
+structural uncertainty.
+- HARD PREREQUISITE: instrument #0 (the variogram score) — SBI's
+  summaries ARE that instrument; building SBI first would be
+  measuring with the ruler we haven't calibrated.
+- Fits the misspecification lesson of TDLEDGER: parametric surgery
+  on an uncalibrated simulator produced an invalid arm; SBI is the
+  principled version of "fit the knobs to reality."
+
+### 8. Tracking-data player embeddings (BDB 2026) — off-season moat
+
+Self-supervised embeddings from Next Gen Stats tracking (separation,
+route versatility, coverage response...) as PRIORS for rookies/team
+changes/new roles — the cold-start gap TabPFN already narrowed.
+Slowly-changing traits, not weekly projections. Off-season project;
+coverage limits acknowledged.
+
+### 9. Evidence-to-prior news pipeline
+
+LLM as structured EXTRACTOR (event, expected effect, confidence,
+source, expiry) feeding a conventional historical-effect model —
+never raw text into prediction (Zhang et al. 2025: raw news degrades).
+Upgrades the existing manual-notes/watchlist machinery into an
+auditable channel. Buildable incrementally in-season; grade like
+every shadow (persona pattern).
+
+### Cheap shadow tests (in-season, challenger protocol)
+
+- **TabFM** (Google, June 2026): zero-shot challenger vs TabPFN on
+  the same eval harness (reports pattern from Addendum 42/43). Judge
+  on RESIDUAL CORRELATION vs LightGBM/TabPFN as much as accuracy —
+  its value would be making DIFFERENT mistakes (the ensemble
+  lesson). Not a moat (public), but cheap.
+- **Time-series foundation models** (MOMENT/Chronos/TimesFM) on
+  usage sequences for role transitions/breakouts: must beat trailing-
+  window + state-space baselines first; short intermittent NFL
+  histories make the prior low.
+- **Online conformal risk control**: extends the existing CQR
+  auto-activation (>=100 scored rows) to position-specific coverage
+  and portfolio-clear probabilities; small build, reliability not
+  headline gains.
+
+### Explicitly avoided (Sol concurs): quantum optimization, autonomous
+### betting agents, end-to-end lineup transformers, GAN scenarios.
