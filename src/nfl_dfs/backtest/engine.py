@@ -10,6 +10,7 @@ looks bad.
 from __future__ import annotations
 
 import logging
+import os
 from dataclasses import dataclass, field as dc_field
 
 import numpy as np
@@ -474,6 +475,19 @@ def tail_select_lineups(
                                             tail_line, qb_of, max_qbs)
         else:
             picked = select_tail_entries(cand_totals, n_entries, tail_line)
+    # Peak slice (env PEAK_SLICE, 2026-08-05 null-model finding: our
+    # assembly is BELOW-RANDOM — 1.87/8 best-entry overlap with the
+    # hindsight-optimal vs 2.51 expected under exposure-preserving
+    # random assembly; the diversity objective scatters winning
+    # combinations). Reserve the final K slots for the highest
+    # individual P(>= line) candidates, coverage-penalty-exempt.
+    k_peak = int(os.environ.get("PEAK_SLICE", "0") or 0)
+    if k_peak > 0 and len(picked) > k_peak:
+        p_line = (cand_totals >= tail_line).mean(axis=1)
+        keep = list(picked[:len(picked) - k_peak])
+        pool_ix = [int(i) for i in np.argsort(p_line)[::-1]
+                   if int(i) not in set(keep)]
+        picked = keep + pool_ix[:k_peak]
     if theses:
         picked = _enforce_theses(picked, cands, cand_totals, tail_line,
                                  theses)
