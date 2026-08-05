@@ -330,6 +330,34 @@ def tail_select_lineups(
                 lu.tag = "hyper"
                 seen.add(lu.ids)
                 cands.append(lu)
+    # A/B lever (env N_GUMBEL, off by default; 2026-08-05 GFN gate):
+    # Gumbel-perturbed MILP objectives — perturb-and-MAP diverse-mode
+    # sampling. In the GFlowNet's own equal-count gate this cheap trick
+    # produced +6.8 union frontier gain vs repeated-MILP (world-argmax
+    # +7.9, GFlowNet +5.4) at ~zero compute. Injection via pool, tag
+    # "gumbel"; selection decides. GUMBEL_SCALE in DK points (default
+    # 2.0, the gate's setting).
+    n_gumbel = int(_os.environ.get("N_GUMBEL", "0") or 0)
+    if n_gumbel:
+        _grng = np.random.default_rng(4700)
+        _gscale = float(_os.environ.get("GUMBEL_SCALE", "2.0") or 2.0)
+        for _ in range(n_gumbel * 3):
+            gpool = [{**p, "proj_gum": float(
+                p[objective_col] + _grng.gumbel(0.0, _gscale))}
+                for p in pool]
+            try:
+                lu = optimize(gpool, stack=stack, objective_col="proj_gum",
+                              locks=set(locks))
+            except Exception as exc:
+                log.warning("gumbel solve failed: %s", exc)
+                continue
+            if lu is not None and lu.ids not in seen:
+                lu.tag = "gumbel"
+                seen.add(lu.ids)
+                cands.append(lu)
+            if sum(1 for c in cands if c.tag == "gumbel") >= n_gumbel:
+                break
+
     # Anti-correlation A/B (env N_NOSTACK): candidates with NO stack
     # rules — pure variance plays; coverage selection decides if any
     # earn slots. Prior is low (all 48 studied Milly winners stacked).
