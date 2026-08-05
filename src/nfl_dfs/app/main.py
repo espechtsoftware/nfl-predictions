@@ -457,6 +457,30 @@ async function build(){
   }catch(e){st.textContent='Error: '+e;}
   document.getElementById('go').disabled=false;}
 document.getElementById('go').onclick=build;
+document.getElementById('cmpgo').onclick=async()=>{
+  const cs=[];
+  for(const i of [0,1]){
+    const f=+document.getElementById('cf'+i).value,
+          s=+document.getElementById('cs'+i).value,
+          p=+document.getElementById('cp'+i).value,
+          e=+document.getElementById('ce'+i).value;
+    if(f&&s&&p&&e)cs.push({name:document.getElementById('cn'+i).value||('Contest '+(i+1)),
+      entry_fee:f,field_size:s,top_prize:p,n_entries:e});}
+  if(cs.length<2){document.getElementById('cmpout').textContent=
+    'Fill both contests.';return;}
+  const r=await fetch('/api/contest-compare',{method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({contests:cs})});
+  const j=await r.json();
+  if(!r.ok){document.getElementById('cmpout').textContent='Error: '+
+    JSON.stringify(j.detail).slice(0,120);return;}
+  document.getElementById('cmpout').innerHTML=
+    j.contests.map(c=>`<div><b>${c.name}</b>: est line ${c.est_line}, `+
+      `P(reach) ${(100*c.p_reach).toFixed(1)}%, top-prize EV `+
+      `$${c.ev_top.toLocaleString()} on $${c.cost} `+
+      `(<b>${c.ev_per_dollar}</b>/$)</div>`).join('')+
+    `<div style='margin-top:.3rem'><b>Better call: ${j.verdict}</b> `+
+    `<small>${j.note}</small></div>`;};
 document.getElementById('csv').onclick=()=>{
   const sd=slateSel().sd;
   fetch(sd?'/showdown/lineups.csv':'/lineups.csv',{method:'POST',
@@ -534,6 +558,28 @@ def lineups_page() -> str:
         f"<label>Ban player<input id='banin' placeholder='name'></label>"
         f"<label>Boost player<input id='boostin' placeholder='name'></label>"
         f"</div><div id='prefs' style='margin:.5rem 0;font-size:.85rem'></div>"
+        f"<details style='margin:.4rem 0'><summary style='cursor:pointer;"
+        f"font-size:.9rem'>Contest comparator (which contest is the better "
+        f"call?)</summary><div id='cmp' style='display:flex;gap:1rem;"
+        f"flex-wrap:wrap;margin:.4rem 0'>"
+        + "".join(
+            f"<div style='border:1px solid #ccc;border-radius:8px;"
+            f"padding:.5rem'><b>Contest {i+1}</b><br>"
+            f"<label>Name<input id='cn{i}' placeholder='e.g. \u00245 Milly'"
+            f" style='width:9rem'></label><br>"
+            f"<label>Entry fee $<input id='cf{i}' type='number' value='{v[0]}'"
+            f" style='width:5rem'></label><br>"
+            f"<label>Field size<input id='cs{i}' type='number' value='{v[1]}'"
+            f" style='width:7rem'></label><br>"
+            f"<label>Top prize $<input id='cp{i}' type='number' value='{v[2]}'"
+            f" style='width:7rem'></label><br>"
+            f"<label>My entries<input id='ce{i}' type='number' value='{v[3]}'"
+            f" style='width:4rem'></label></div>"
+            for i, v in enumerate([(5, 832000, 1000000, 4),
+                                   (20, 100000, 200000, 4)]))
+        + f"<div><button id='cmpgo' style='padding:.4rem 1rem'>Compare"
+        f"</button><div id='cmpout' style='font-size:.85rem;max-width:22rem'>"
+        f"</div></div></div></details>"
         f"<div id='status'>Pick season/week/slate and Build (the Sunday "
         f"main slate preselects itself when DK lists one; single games under "
         f"Showdown build Captain Mode entries). Classic tournament defaults "
@@ -947,6 +993,46 @@ def api_market_disagreement(season: int, week: int, limit: int = 40) -> list[dic
     cols = ["display_name", "position", "team", "salary",
             "proj_points", "market_points", "edge"]
     return j[[c for c in cols if c in j.columns]].round(2).to_dict("records")
+
+
+class ContestSpec(BaseModel):
+    name: str = ""
+    entry_fee: float = Field(gt=0)
+    field_size: int = Field(gt=99)
+    top_prize: float = Field(gt=0)
+    n_entries: int = Field(gt=0, le=150)
+
+
+class ContestCompareRequest(BaseModel):
+    contests: list[ContestSpec] = Field(min_length=2, max_length=4)
+
+
+@app.post("/api/contest-compare")
+def api_contest_compare(req: ContestCompareRequest) -> dict:
+    """Contest picker math (2026-08-04, the '$5 Milly vs smaller pool'
+    rule): per contest, estimate the winning line from field size
+    (tail_line_for_field — PROVISIONAL until real standings recalibrate
+    it), read P(best-of-N reaches it) off the measured 3-season entries
+    curve, and score by top-prize EV per dollar of fees. Top-prize-only
+    EV: min-cash ladders and field sharpness are NOT modeled — this
+    ranks lottery tails, it does not price tickets."""
+    from ..models.entries_curve import p_reach
+
+    rows = []
+    for c in req.contests:
+        line = tail_line_for_field(c.field_size)
+        p = p_reach(c.n_entries, line)
+        cost = c.entry_fee * c.n_entries
+        ev = p * c.top_prize
+        rows.append({
+            "name": c.name or f"{c.field_size:,} @ ${c.entry_fee:g}",
+            "est_line": round(line, 1), "p_reach": round(p, 4),
+            "cost": round(cost, 2), "ev_top": round(ev, 2),
+            "ev_per_dollar": round(ev / cost, 3) if cost else 0.0})
+    best = max(rows, key=lambda r: r["ev_per_dollar"])
+    return {"contests": rows, "verdict": best["name"],
+            "note": "top-prize EV per fee dollar; lines provisional until "
+                    "real standings recalibrate tail_line_for_field"}
 
 
 @app.get("/api/market-tails")
