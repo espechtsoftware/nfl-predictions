@@ -2693,3 +2693,37 @@ against it. Ops note: the box crashed twice under parallel local
 load — the emerging-tech workstreams now proceed ONE at a time,
 targeted tests only, per the standing all-heavy-compute-on-Cloud-Run
 rule.
+
+## Addendum 88 (2026-08-05): Emerging-tech program — build results and first verdicts
+
+All six workstreams BUILT, merged, targeted-tested. First real
+verdicts, each by the plan's own gates:
+
+- **GFlowNet: GATED OUT of GPU spend.** Mechanism clean (100% legal
+  by construction, zero MILP-mode overlap, QB entropy 2.79 vs 0) but
+  the §5.8 cheap-diversity baselines both beat it at equal candidate
+  count on synthetic: world-argmax frontier 115.6 (+7.9 union gain)
+  and Gumbel-MILP 114.1 (+6.8) vs GFlowNet 109.9 (+5.4) — in 0.4s vs
+  6.6s training. Its own falsification rule applies. The v0
+  environment/TB code is archived for a future field-relative-reward
+  revisit; meanwhile the winner of its own gate IS our production
+  boom generator, re-validated a third way. Gumbel-MILP (+6.8 cheap)
+  is a NEW candidate-batch idea worth a real-slate arm in September.
+- **Chronos (time-series FM): baselines-win.** Loses to EWM/Kalman
+  on all synthetic buckets, worst at cold start (pinball90 2.10 vs
+  1.28) — §10.3 rule keeps it out; harness ready for real sequences.
+- **SBI: 2 of 3 parameters identifiable** (game-factor sigma, usage
+  concentration; TD allocation fixed at default per §6.7); golden-
+  hash RNG-parity tests now pin default draws byte-exactly.
+- **Tracking: v0 SHIPPED with real crosswalk** — 18 weeks in 9s,
+  1,384 players, 96.3% high-confidence nfl_id->gsis matches after a
+  dob-format fix (0% -> 96.3%; 51 honest review rows). Traits sanity:
+  Tyreek Hill fastest (p90 speed 8.40). Next gate: shadow-feature
+  eval on thin-history players. Free in-season refresh path noted:
+  nflverse NGS weekly aggregates (same family as adopted qb_cpoe).
+- **Evidence + conformal: built, fixture-proven, data-gated** (live
+  news / 2026 scored rows). Zero code needed at activation beyond
+  wiring documented in the workstream reports.
+- **Config manifest caught real drift on first run** (app legacy
+  path PUNT_BOOM=2 vs adopted 0 — fixed; zero-discrepancy test now
+  permanent).
