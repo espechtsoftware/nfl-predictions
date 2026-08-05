@@ -2046,3 +2046,20 @@ QF, SCHED, TabPFN marginals, MODEL_ENSEMBLE=3), baseline 25/107 sealed
 and deployed, twelve challengers repelled on the final day, one
 alternate architecture at parity on a branch, and every question that
 can be answered without September data — answered.
+
+## Addendum 67 (2026-08-05): the no-settling sweep — three "September" items tested tonight instead
+
+Erich refused to settle; three deferred items got built and tested:
+1. **Late-swap score alpha: NULL, measured honestly.** The unconstrained
+   tease (+24 mean-best) was pure legality inflation; position-legal,
+   salary-feasible q90-chasing nets +0.9 with flat P(187). The perfect-
+   swap upper bound (+69, 100% of weeks ≥187) is hindsight-only —
+   individuals remain unpredictable. What SURVIVES for September:
+   late-swap's leverage/uniqueness value (post-lock ownership is
+   REVEALED information the fade could exploit) — unmeasurable by
+   score-capture pre-season, same epistemic class as the showdown
+   fade. The churn-min pipeline already preserves the optionality.
+2. **Q99_WILD** (ceiling-wildcard injection — the untested assembly
+   mechanism; gsis plumbed after a vacuity near-miss): arm running.
+3. **MODEL_ENSEMBLE_MIX** (heterogeneous third member, sklearn HistGB,
+   replay-only until registry support): arm running.
