@@ -195,15 +195,13 @@ def test_manifest_matches_live_code(monkeypatch):
     assert own_mode() == m["defaults"]["OWN_MODEL"]
 
 
-def test_manifest_flags_known_punt_boom_drift():
-    # app/main.py's legacy MILP pool still ships PUNT_BOOM=2 while the
-    # validated replay/live paths deleted it (Addendum 77/79b). The
-    # manifest must surface that, not silently pick a side.
+def test_manifest_has_no_config_drift():
+    # The manifest's first run caught app/main.py shipping PUNT_BOOM=2
+    # against the adopted 0 (Addendum 77/79b) — fixed same day. The
+    # standing invariant is now ZERO discrepancies: any future drift
+    # between code paths fails this test by name.
     m = config_manifest.manifest()
-    drift = [d for d in m["discrepancies"]
-             if d["key"] == "PUNT_BOOM" and d["path"] == "app/main.py"]
-    assert len(drift) == 1
-    assert drift[0]["default"] == "2" and drift[0]["canonical"] == "0"
+    assert m["discrepancies"] == [], m["discrepancies"]
 
 
 def test_manifest_hash_stable_and_content_sensitive():
