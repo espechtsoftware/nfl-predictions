@@ -37,6 +37,7 @@ LIVE_SIMS_DEFAULT = 30_000  # adopted 2026-08-03: +2 tails, best ROI and
 def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
                            seed: int = 42, lev_scale: float = 1.0,
                            apply_notes: bool = True,
+                           allowed_ids: set | None = None,
                            ) -> tuple[pd.DataFrame, np.ndarray]:
     """Engine-ready slate frame + aligned draw matrix for the live week."""
     from ..backtest.field import naive_ownership
@@ -80,8 +81,25 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
                              <= set(_kc) else None)
 
     # Market blend as an additive mean shift — draw shape untouched.
+    # Props-first (review #5 round 3 parity fix): the replay blend that
+    # validated BLEND_W uses prop-market points; DK PPG is the fallback.
     market = market_projection_frame(skill)
-    blended = blend(draws.mean(axis=1), market.to_numpy(), BLEND_WEIGHT)
+    try:
+        from ..models.prop_market import market_points as _prop_points
+        _pm = _prop_points((int(season),))
+        _pm = _pm[_pm.week == int(week)]
+        if len(_pm):
+            _m = skill[["gsis_id"]].merge(
+                _pm[["gsis_id", "market_points"]], on="gsis_id",
+                how="left").market_points
+            if _m.notna().sum() >= 0.3 * len(skill):
+                market = _m.astype(float)
+                log.info("live blend source: props (%d/%d rows)",
+                         int(_m.notna().sum()), len(skill))
+    except Exception:
+        log.exception("live prop market unavailable; DK PPG stand-in")
+    blended = blend(draws.mean(axis=1), np.asarray(market, dtype=float),
+                    BLEND_WEIGHT)
     draws = draws + (blended - draws.mean(axis=1))[:, None]
 
     frame = pd.DataFrame({
@@ -124,6 +142,12 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     frame = frame[frame.salary > 0]
     frame["salary"] = frame.salary.astype(int)
     frame = frame[~frame.id.duplicated()].reset_index(drop=True)
+    # Slate restriction BEFORE ownership/fade (review #5 round 3): the
+    # feature frame is the UNION of every upcoming draft group;
+    # normalizing ownership over the union distorted both the chalk
+    # fade and the own_shadow calibration for single-slate builds.
+    if allowed_ids:
+        frame = frame[frame.id.isin(allowed_ids)].reset_index(drop=True)
 
     # Tournament tilts, replay-identical (see backtest.replay.build_slates)
     punt = (frame.salary <= PUNT_MAX_SALARY) & (frame.draw_idx >= 0)
@@ -181,13 +205,22 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
             "gsis_id": frame.get("gsis_id"),
             "name": frame.get("name"),
             "pos": frame.pos, "salary": frame.salary,
+            "n_pool": len(frame),  # slate-restricted universe size
             "pred_own": own, "source": _own_src,
             "booster_own": (own if _own_src == "booster"
                             else booster_own),
         })
-        load_dataframe(shadow, f"{settings.predictions}.own_shadow",
-                       write_disposition="WRITE_APPEND")
-        log.info("own-shadow: %d rows (%s)", len(shadow), _own_src)
+
+        def _write_shadow(df=shadow, src=_own_src):
+            try:
+                load_dataframe(df, f"{settings.predictions}.own_shadow",
+                               write_disposition="WRITE_APPEND")
+                log.info("own-shadow: %d rows (%s)", len(df), src)
+            except Exception:
+                log.exception("own-shadow write failed")
+
+        import threading
+        threading.Thread(target=_write_shadow, daemon=True).start()
     except Exception:
         log.exception("own-shadow logging failed; build unaffected")
     frame["proj_tourney"] = frame.proj - LEVERAGE_PENALTY * lev_scale * own
@@ -229,8 +262,9 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
 
     slate, draws = build_slate_with_draws(season, week, n_sims=n_sims,
                                           seed=seed, lev_scale=lev_scale,
-                                          apply_notes=apply_notes)
-    if allowed_ids:
+                                          apply_notes=apply_notes,
+                                          allowed_ids=allowed_ids)
+    if allowed_ids:  # safety no-op — restriction now happens pre-fade
         slate = slate[slate.id.isin(allowed_ids)]
     if bans:
         slate = slate[~slate.id.isin(bans)]
@@ -262,16 +296,14 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
         if missing:
             raise ValueError(f"locked players not in slate: {sorted(missing)}")
     pool = slate.to_dict("records")
-    # Live default: persist every candidate (reranker training data,
-    # September designs #3 — irrecoverable post-build). Replay arms
-    # opt in explicitly instead.
-    import os as _os
-
+    # Persist every live candidate (reranker training data, September
+    # designs #3 — irrecoverable post-build). Explicit destination +
+    # async write: never mutates global env, never blocks the build.
     from ..config import settings as _settings
-    _os.environ.setdefault("CAND_LOG_TABLE",
-                           f"{_settings.predictions}.live_candidates")
     lineups = tail_select_lineups(
         slate, pool, draws, tail_line=tail_line, n_entries=n_entries,
         stack=stack, objective_col="proj_tourney",
-        locks=set(locks or ()), theses=theses)
+        locks=set(locks or ()), theses=theses,
+        cand_log_table=f"{_settings.predictions}.live_candidates",
+        cand_log_async=True)
     return lineups

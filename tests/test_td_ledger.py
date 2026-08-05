@@ -92,3 +92,38 @@ def test_simulate_env_gate_and_mean_parity(monkeypatch):
     qb_wr_base = base.draws[0] + base.draws[1]
     qb_wr_led = led.draws[0] + led.draws[1]
     assert np.percentile(qb_wr_led, 99) >= np.percentile(qb_wr_base, 99)
+
+
+# --- review #5 round 3 regression tests ----------------------------------
+
+def test_ledger_groups_by_game_not_season():
+    # Same team in TWO games (a season-frame slice): units must not
+    # pool across games — the invalid-TDLEDGER-arm defect.
+    rng = np.random.default_rng(11)
+    rec = np.array([0.0, 0.6, 0.0, 0.6])   # WR g1, WR g2
+    pas = np.array([1.8, 0.0, 1.8, 0.0])   # QB g1, QB g2
+    codes = np.array([0, 0, 1, 1])          # (game, team) units
+    gm = np.ones((4, 40_000))
+    r, p = _td_event_ledger(rng, rec, pas, codes, gm, 40_000)
+    within = np.corrcoef(p[0], r[1])[0, 1]
+    across = np.corrcoef(p[0], r[3])[0, 1]
+    assert within > 0.15, f"within-game coupling lost: {within:.3f}"
+    assert abs(across) < 0.03, f"cross-game leakage: {across:.3f}"
+    for i, m in enumerate(rec):
+        if m > 0:
+            assert r[i].mean() == pytest.approx(m, rel=0.06)
+
+
+def test_ledger_preserves_receiver_means_when_rec_exceeds_pass():
+    # rec_sum (2.4) > passer mean (1.8): the old scale-down broke
+    # receiver marginals; the reconciled total must preserve BOTH.
+    rng = np.random.default_rng(12)
+    rec = np.array([0.0, 1.0, 0.8, 0.6])
+    pas = np.array([1.8, 0.0, 0.0, 0.0])
+    codes = np.zeros(4, dtype=int)
+    gm = np.ones((4, 60_000))
+    r, p = _td_event_ledger(rng, rec, pas, codes, gm, 60_000)
+    for i in (1, 2, 3):
+        assert r[i].mean() == pytest.approx(rec[i], rel=0.05), \
+            f"receiver {i} mean broken: {r[i].mean():.3f} vs {rec[i]}"
+    assert p[0].mean() == pytest.approx(1.8, rel=0.05)

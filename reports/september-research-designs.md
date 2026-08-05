@@ -40,13 +40,15 @@ comparable historical games, keeping our calibrated marginals.
 - For each current game, find K similar historical games (features:
   vegas total, spread, implied pace, pass rate, usage concentration
   HHI). All from nflverse 2016-2025 — data on hand.
-- Represent each historical game by ROLE outcome ranks (QB, RB1,
-  RB2, WR1-3, TE, DST x both teams): the within-game rank vector of
-  realized DK scores.
-- Draw a historical template per sim world; apply its rank pattern
-  to the current players' marginal quantiles (Schaake shuffle:
-  sort-and-substitute). Marginals preserved EXACTLY by construction
-  — only the dependence changes, and it is real, not modeled.
+- Rank each ROLE's outcome ACROSS the K matched historical games
+  (review #5 round 3 axis correction: within-game rank vectors do
+  NOT guarantee unchanged role marginals — the empirical copula
+  needs each role's rank taken across its own matched-game
+  distribution, i.e. the standard Schaake construction: for each sim
+  world draw one matched game and assign every role its ACROSS-GAME
+  rank from that game, then map ranks onto the current players'
+  marginal quantiles). Marginals preserved exactly; the joint rank
+  pattern of the historical game carries the dependence.
 - Three-arm comparison (Sol's design): sim copula (control) vs
   UNCONDITIONAL historical templates vs SIMILARITY-CONDITIONED
   templates. Judge on instrument #0 first, then candidate-oracle,

@@ -71,7 +71,14 @@ def _td_event_ledger(
         rows_q = team[pass_means[team] > 0]
         rows_r = team[rec_means[team] > 0]
         team_pass = float(pass_means[rows_q].sum())
-        if team_pass <= 0:
+        rec_sum = float(rec_means[rows_r].sum())
+        # the unit's TRUE event count reconciles both sides: the larger
+        # of the passer-mean sum and the catcher-mean sum, so NEITHER
+        # side's marginal means get scaled (review #5 round 3 — the old
+        # scale-down broke receiver marginals when rec_sum > team_pass).
+        # The other-bucket on each side absorbs the difference.
+        total_mean = max(team_pass, rec_sum)
+        if total_mean <= 0 or not len(rows_q):
             # no rostered passer (or DST-only) — independent fallback
             for i in team:
                 if rec_means[i] > 0:
@@ -79,20 +86,15 @@ def _td_event_ledger(
                 if pass_means[i] > 0:
                     pass_tds[i] = rng.poisson(pass_means[i], n_sims)
             continue
-        gm = game_mult[team[0]]  # shared within team by construction
-        T = rng.poisson(team_pass * gm)
-        # catcher shares vs the passer total; "other" bucket absorbs
-        # the unrostered remainder. If rostered receiver means exceed
-        # the passer total (data quirk), scale down proportionally.
-        pr = rec_means[rows_r] / team_pass
-        s = pr.sum()
-        if s > 1.0:
-            pr = pr / s
-        probs_r = np.concatenate([pr, [max(0.0, 1.0 - pr.sum())]])
+        gm = game_mult[team[0]]  # shared within the (game, team) unit
+        T = rng.poisson(total_mean * gm)
+        probs_r = np.concatenate([rec_means[rows_r] / total_mean,
+                                  [max(0.0, 1.0 - rec_sum / total_mean)]])
         alloc_r = rng.multinomial(T, probs_r)  # (n_sims, k+1)
         for j, i in enumerate(rows_r):
             rec_tds[i] = alloc_r[:, j]
-        probs_q = pass_means[rows_q] / team_pass
+        probs_q = np.concatenate([pass_means[rows_q] / total_mean,
+                                  [max(0.0, 1.0 - team_pass / total_mean)]])
         alloc_q = rng.multinomial(T, probs_q)
         for j, i in enumerate(rows_q):
             pass_tds[i] = alloc_q[:, j]
@@ -228,9 +230,32 @@ def simulate(
             means[rows] = np.atleast_2d(alloc).T
         return rng.poisson(means)
 
+    # TD_LEDGER=1 (review #5, Sol; grouping + RNG-parity fixes from
+    # review #5 round 3): a passing TD and its catch are ONE EVENT.
+    # The ledger draws each (GAME, TEAM) unit's passing-TD count once
+    # (game-factor scaled) and allocates the same totals to catchers
+    # and passers. When OFF (default), the draw ORDER below is byte-
+    # identical to the pre-ledger sampler — the 2026-08-05 draw-order
+    # regression shifted every default stream and forced a baseline
+    # rebase; never again.
+    td_ledger = (os.environ.get("TD_LEDGER", "") not in ("", "0")
+                 and team_ids is not None)
+    _unit_codes = None
+    if td_ledger:
+        # group by (game, team): a season-level frame has each team in
+        # ~17 games — factorizing team alone pooled a team's whole
+        # season into one TD draw (the invalid TDLEDGER arm).
+        _g = (pd.Series(game_ids).reset_index(drop=True).astype(str)
+              if game_ids is not None else
+              pd.Series(["_g"] * n))
+        _t = pd.Series(team_ids).fillna("_none").reset_index(drop=True).astype(str)
+        _unit_codes = pd.factorize((_g + "|" + _t).to_numpy())[0]
+
     targets = opp_draw("targets")
     receptions = rng.binomial(targets, col("catch_rate"))
     rec_yards = _gamma_yards(rng, receptions, col("ypr"))
+    if not td_ledger:
+        rec_tds = rng.poisson(col("rec_tds"), (n, n_sims))
 
     carries = opp_draw("carries")
     rush_yards = _gamma_yards(rng, carries, col("ypc"))
@@ -238,28 +263,15 @@ def simulate(
 
     attempts = rng.poisson(opp("pass_attempts"))
     pass_yards = _gamma_yards(rng, attempts, col("ypa"))
+    if not td_ledger:
+        pass_tds = rng.poisson(col("pass_tds"), (n, n_sims))
     interceptions = rng.poisson(col("interceptions"), (n, n_sims))
 
-    # TD_LEDGER=1 (review #5, Sol): a passing TD and its catch are ONE
-    # EVENT, but the default sampler draws rec_tds and pass_tds as
-    # independent Poissons on static means — QB+receiver joint booms
-    # occur only at base rates, and TDs ignore the game environment.
-    # The ledger draws each team's passing-TD count ONCE (game-factor
-    # scaled), then multinomial-allocates catches to receivers (an
-    # "other" bucket absorbs the unrostered share) and the same totals
-    # to the team's passers. Mean-preserving by construction:
-    # E[alloc_i] = E[T]*mean_i/team_mean = gm*mean_i.
-    td_ledger = (os.environ.get("TD_LEDGER", "") not in ("", "0")
-                 and team_ids is not None)
     if td_ledger:
         rec_tds, pass_tds = _td_event_ledger(
             rng, np.nan_to_num(comps["rec_tds"].to_numpy(dtype=float)),
             np.nan_to_num(comps["pass_tds"].to_numpy(dtype=float)),
-            pd.factorize(pd.Series(team_ids).fillna("_none").to_numpy())[0],
-            game_mult, n_sims)
-    else:
-        rec_tds = rng.poisson(col("rec_tds"), (n, n_sims))
-        pass_tds = rng.poisson(col("pass_tds"), (n, n_sims))
+            _unit_codes, game_mult, n_sims)
 
     draws = dk_points(
         StatLine(

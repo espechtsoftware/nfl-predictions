@@ -52,19 +52,28 @@ def main() -> None:
         actual_vs_market=("vs_market", "mean"),
         actual_vs_blend=("vs_blend", "mean"))
     print(g.round(2).to_string())
-    # the adoption test: signed divergence must predict signed
-    # market error, week by week
-    print("\nper-week: does the div>=+2 bucket beat the market line?")
-    wk = (d[d.consensus_div >= 2]
-          .groupby(["season", "week"])
-          .agg(n=("actual", "size"), edge=("vs_market", "mean")))
+    # THE PREREGISTERED TEST (exactly as documented above; corrected
+    # review #5 round 3): statistic = sign(div) x (actual - market)
+    # over |div| >= 2, evaluated on the FIRST SIX eligible weeks only
+    # (frozen denominator — later weeks are exploratory).
+    print("\npreregistered test: sign(div)*(actual-market), |div|>=2, "
+          "first 6 eligible weeks")
+    hi = d[d.consensus_div.abs() >= 2].copy()
+    hi["signed_edge"] = np.sign(hi.consensus_div) * hi.vs_market
+    wk = (hi.groupby(["season", "week"])
+            .agg(n=("actual", "size"), edge=("signed_edge", "mean")))
+    wk = wk[wk.n >= 25]  # eligibility: >=25 qualifying players
     if wk.empty:
-        print("  (no high-divergence players yet)")
+        print("  (no eligible weeks yet)")
     else:
-        wk["pass"] = (wk.edge > 0) & (wk.n >= 25)
-        print(wk.round(2).to_string())
-        print(f"\nweeks passing: {int(wk['pass'].sum())}/{len(wk)} "
-              "(adoption bar: >=4 of first 6)")
+        first6 = wk.sort_index().head(6)
+        first6["pass"] = first6.edge > 0
+        print(first6.round(2).to_string())
+        print(f"\nweeks passing: {int(first6['pass'].sum())}/{len(first6)}"
+              " (adoption bar: >=4 of 6; do not grade past week 6)")
+        if len(wk) > 6:
+            print(f"(exploratory later weeks: {len(wk) - 6} — "
+                  "not part of the preregistered verdict)")
     corr = np.corrcoef(d.consensus_div, d.vs_market)[0, 1]
     print(f"\nsigned corr(div, actual-market): {corr:+.3f} "
           "(positive = our disagreements carry information)")

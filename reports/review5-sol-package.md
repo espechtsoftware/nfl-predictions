@@ -1,3 +1,7 @@
+**SUPERSEDED NOTE (2026-08-05, post-review):** several 'in flight'
+items in §0 have since resolved — see ledger Addenda 77-85 for
+the current record. This package is preserved for provenance.
+
 # Independent review #5 (2026-08-05): the generator frontier
 
 You are the third independent reviewer of a DraftKings NFL DFS system
@@ -102,10 +106,11 @@ Read this first so you don't re-litigate closed questions:
   ("boom": 13% of candidates, ~54% of weekly bests), (b) diverse
   mean-objective MILPs, (c) leverage/game-stack/dark-game batches.
   Validated hard rules: QB+2 same-team pass-catchers + opponent
-  bring-back; one sub-$4k punt valued at its p90 (deletion PASSED —
-  treat as dead); chalk fade on our objective (deletion PASSED —
-  treat as dead); salary floor $49k; sub-$4k punt-boom archetype
-  boost (dies with the punt deletion).
+  bring-back; p90 ceiling VALUATION of punt-priced players (KEPT —
+  the deletion that passed was the hard punt MANDATE + archetype
+  boost, Addendum 77); chalk fade on our objective (KEPT — its true
+  deletion cost ~2 tails twice, Addendum 80/84; it now runs on naive
+  ownership, the trained booster added nothing); salary floor $49k.
 - **Selection** (`select_tail_entries`): greedy max-coverage over
   worlds on P(best-of-N >= line). Entries are co-equal; the system
   cannot rank its own entries within a week (best scorer's selection

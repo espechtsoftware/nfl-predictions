@@ -128,21 +128,40 @@ def project(
         preds, feats.get("is_cold_start", pd.Series(False, index=feats.index))
     )
 
+    # Live blend parity fix (review #5 round 3): the REPLAY blend —
+    # where BLEND_W=0.45 was validated — uses de-vigged PROP-market
+    # points; the live path was blending DK's historical PPG
+    # (market_projection_frame's documented stand-in). Prefer the real
+    # prop feed, fall back to DK PPG when props are absent.
     market = market_projection_frame(feats)
+    _mkt_src = "dk_ppg"
+    try:
+        from ..models.prop_market import market_points as _prop_points
+        _pm = _prop_points((season,))
+        _pm = _pm[_pm.week == week]
+        if len(_pm):
+            _m = feats[["gsis_id"]].merge(
+                _pm[["gsis_id", "market_points"]], on="gsis_id",
+                how="left").market_points
+            if _m.notna().sum() >= 0.3 * len(feats):
+                market = _m.astype(float)
+                _mkt_src = "props"
+    except Exception:
+        log.exception("prop market unavailable; blending DK PPG stand-in")
+    log.info("market blend source: %s (%d/%d rows)",
+             _mkt_src, int(pd.notna(market).sum()), len(feats))
     _pre_blend = preds["proj_points"].to_numpy().copy()
     preds["proj_points"] = blend(
-        _pre_blend, market.to_numpy(), BLEND_WEIGHT
+        _pre_blend, np.asarray(market, dtype=float), BLEND_WEIGHT
     )
-    # DIV_TILT shadow log (2026-08-05, Addendum 82): the burial was
-    # unsound (pre-ensemble + no 2019 prop coverage), so the
-    # divergence signal is graded on real 2026 slates before any
-    # adoption talk. Zero operator cadence: rows append to
-    # predictions.div_shadow every projections run; grade with
-    # scripts/div_shadow_grade.py after 4-6 weeks.
+    # DIV_TILT shadow log (2026-08-05, Addendum 82; source fixed round
+    # 3): logs the PROP-market divergence only — rows are written only
+    # when the market source is the real prop feed, so the grader
+    # never mistakes DK-PPG disagreement for prop-market disagreement.
     try:
-        _mkt = market.to_numpy()
-        _has = ~np.isnan(_mkt)
-        if _has.any():
+        if _mkt_src == "props":
+            _mkt = np.asarray(market, dtype=float)
+            _has = ~np.isnan(_mkt)
             shadow = pd.DataFrame({
                 "generated_at": datetime.now(timezone.utc),
                 "season": season, "week": week,
@@ -159,6 +178,8 @@ def project(
                            write_disposition="WRITE_APPEND")
             log.info("div-shadow: %d rows logged (median |div| %.2f)",
                      len(shadow), float(shadow.consensus_div.abs().median()))
+        else:
+            log.info("div-shadow: skipped (no prop feed this run)")
     except Exception:
         log.exception("div-shadow logging failed; projections unaffected")
 
