@@ -102,9 +102,10 @@ Read this first so you don't re-litigate closed questions:
   ("boom": 13% of candidates, ~54% of weekly bests), (b) diverse
   mean-objective MILPs, (c) leverage/game-stack/dark-game batches.
   Validated hard rules: QB+2 same-team pass-catchers + opponent
-  bring-back; one sub-$4k punt valued at its p90 (deletion test in
-  flight); chalk fade on our objective (deletion PASSED — treat as dead);
-  salary floor $49k; sub-$4k punt-boom archetype boost.
+  bring-back; one sub-$4k punt valued at its p90 (deletion PASSED —
+  treat as dead); chalk fade on our objective (deletion PASSED —
+  treat as dead); salary floor $49k; sub-$4k punt-boom archetype
+  boost (dies with the punt deletion).
 - **Selection** (`select_tail_entries`): greedy max-coverage over
   worlds on P(best-of-N >= line). Entries are co-equal; the system
   cannot rank its own entries within a week (best scorer's selection
