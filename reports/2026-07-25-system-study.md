@@ -2011,3 +2011,13 @@ fairly tested. VALUE2E 26 (+1, LOSO 2+/1−) — inside the noise band,
 fails the bar honestly; the cheap-skill mechanism is already carried
 by the punt rule. Remaining in flight: NBOOM, PEAK10 (pre-registered
 null), GREEN (the branch architecture comparison).
+
+**Assembly-arm verdicts:** NBOOM (boom solves 40→100) 25 vs 25 —
+exact null; the 40 saturate. PEAK10 21 vs 25 (0+/3−) — Addendum 62's
+PRE-REGISTERED prediction confirmed and exceeded: reserving slots for
+p_line-ranked picks costs breadth for a ranking that carries no
+realized signal. The diagnostic-eval rule's first full catch:
+designed on a discredited signal → predicted null → delivered
+negative. Combined with the stack-mandate validation, the assembly
+gap's remedy is now narrowed to ONE untested mechanism: the
+architecture itself (GREEN, running last).
