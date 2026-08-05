@@ -2561,3 +2561,26 @@ on THIS build and MUST be judged against CANDORACLE's 22, not the
 sealed 25 (same-build law). Consequence for the reseal: the new
 image re-bases the baseline — the final seal includes a fresh
 control panel (HARVEST-FINAL-2) to establish the shipping number.
+
+## Addendum 84 (2026-08-05): TDLEDGER negative (18 vs 22) — parametric TD coupling buried; DELETE3 confirms the fade; final package locked
+
+Both judged vs CANDORACLE 22 (same build, same RNG streams — the
+draw-order rebase of Addendum 83):
+
+- **TDLEDGER 18/107** ({7,3,1,4,0,3} vs {6,3,3,2,3,5}) — three
+  negative seasons, 2024 wiped out (0 clears, max 190.7). The ledger
+  passed its gates (marginals preserved, QB-catcher corr created,
+  joint boom rate up in isolation) and still LOWERS panel tails.
+  Mechanism note for September: by Poisson splitting, the multinomial
+  allocation leaves receiver counts marginally Poisson — the actual
+  changes were the shared-total QB<->catcher correlation and the
+  game-factor coupling of TD means; as implemented, the package
+  compresses lineup ceilings. Parametric dependence surgery is now
+  0-for-2 (ledger, HYPER); the similarity-conditioned Schaake shuffle
+  (real joint patterns, no parametric assumptions) is the September
+  vehicle, judged with instrument #0 BEFORE any panel. TD_LEDGER
+  stays default-off; code and gate tests remain for re-examination.
+- **DELETE3 20/107** — fade removal costs ~2 on this build too
+  (TRUENOFADE said the same on the old build). Confirmatory; the
+  DELETE2 package (naive-fade + no punt mandate + no punt boost) is
+  FINAL for the reseal.
