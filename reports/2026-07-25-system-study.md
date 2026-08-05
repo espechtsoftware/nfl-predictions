@@ -2235,3 +2235,19 @@ mechanistically an accidental ceiling-tilt). Architecture stays
 unadopted for week 1; the assembly-diag redo decides whether it
 carries a MECHANISM lead into September. The GREEN backlog note in
 september-operator-notes stands with G2FIX as the reference number.
+
+## Addendum 73 (2026-08-05): LSE verdict — NULL by its own falsification; the assembly gap is generator-bounded
+
+LSE (SELECT_LSE=0.08, review #4 F1): tails 25/107 (tie), mean best
+179.3 vs 179.7 (did NOT rise), per-season {6,2,3,4,5,5} vs
+{5,1,3,4,7,5}. Lever verifiably fired (means/medians/profiles all
+moved; season maxes identical to control — the weekly best candidate
+survives every selector, which is itself evidence selection was never
+the binding stage). Per the reviewer's pre-registered criterion this
+FALSIFIES the selection-defect hypothesis: the below-random assembly
+overlap is a property of the CANDIDATE GENERATOR's noise (W2:
+individuals unpredictable), not of coverage's binary threshold.
+Retest chain voids automatically (LSE <= 25): the VALUE2E / Q99_WILD
+/ N_BOOM graves stand. The wall's W1 is now closed as "not a defect"
+— the remaining edge, per F2's verified math, is structural (field/
+duplication), which is September's skeleton-resampler work.
