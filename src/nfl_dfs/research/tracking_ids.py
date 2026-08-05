@@ -45,7 +45,11 @@ def _roster_index(rosters: pd.DataFrame) -> tuple[dict, dict]:
     """{norm_name: [row, ...]} and {initial_key: [row, ...]} over roster
     rows deduped by gsis_id (rosters_weekly repeats players per week)."""
     r = rosters.dropna(subset=["gsis_id"]).copy()
-    r["birth_date"] = r["birth_date"].astype("string")
+    # date-only normalization (2026-08-05 first real run: nflverse
+    # birth_date strings carry " 00:00:00" while tracking has bare
+    # dates — every dob compared as unequal and 1384/1384 landed in
+    # review as dob_conflict)
+    r["birth_date"] = r["birth_date"].astype("string").str[:10]
     # keep, per gsis_id, the row with a birth_date when one exists
     r = (r.sort_values("birth_date", na_position="last")
           .drop_duplicates("gsis_id", keep="first"))
