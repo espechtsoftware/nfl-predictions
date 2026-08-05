@@ -2727,3 +2727,20 @@ verdicts, each by the plan's own gates:
 - **Config manifest caught real drift on first run** (app legacy
   path PUNT_BOOM=2 vs adopted 0 — fixed; zero-discrepancy test now
   permanent).
+
+## Addendum 89 (2026-08-05): TDLEDGER2 19 vs 27 — the valid burial; parametric TD coupling is dead
+
+TDLEDGER2 (fixed (game,team) grouping, RNG-parity default,
+reconciled marginals — every round-3 defect corrected): **19/107 vs
+the HF2 co-run control's 27** ({5,3,4,3,1,3} vs {5,3,3,4,6,6};
+mean best 178.4 vs 179.5; 2024 -5, 2025 -3). This time the arm is
+VALID — and the verdict is unambiguous: hand-specified TD event
+coupling reduces tails even when mean-preserving and correctly
+grouped. Family buried on clean evidence. Consequences: TD_LEDGER
+stays default-off permanently (code + gates remain as the SBI
+td_alloc_k host); the reconciliation-identities direction is
+DEPRIORITIZED behind Schaake (which imports real joint patterns
+without specifying mechanisms) — Schaake is confirmed as September
+dependence build #1, gated on instrument #0. The N_GUMBEL candidate
+batch (this hour's gate winner, +6.8 synthetic union gain) is the
+one new-generation lever left with a live shot; arm queued.
