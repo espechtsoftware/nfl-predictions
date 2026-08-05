@@ -58,6 +58,13 @@ FEEDS: tuple[Feed, ...] = (
          78),
     Feed("prop_lines", "Player props (The Odds API)", "raw", "prop_lines",
          8 * 24, "nfl"),
+    # Adopted-model dependencies (2026-08-04): the sim's default
+    # marginals and the component cache — stale means a logged fallback
+    # to weaker distributions, which must page, not hide.
+    Feed("tabpfn_projections", "TabPFN marginal cache (GPU job)",
+         "features", "tabpfn_projections", 9 * 24, "nfl"),
+    Feed("tabpfn_components", "TabPFN component cache (GPU job)",
+         "features", "tabpfn_components", 9 * 24, "nfl"),
     Feed("weather", "Weather (Open-Meteo)", "raw", "weather", 72, "nfl"),
     Feed("player_week_training", "Feature build (training)", "features",
          "player_week_training", 8 * 24, "nfl"),
