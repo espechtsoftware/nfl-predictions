@@ -243,6 +243,9 @@ def tail_select_lineups(
     Selection is greedy sim-coverage (see select_tail_entries)."""
     rd = _row_draws(slate, draws)
     locks = locks or set()
+    # Dose lever (env N_BOOM, 2026-08-05 attribution: boom solves are
+    # 13% of candidates but produce the weekly BEST in 29/54 weeks).
+    n_boom_solves = int(os.environ.get("N_BOOM", n_boom_solves) or n_boom_solves)
     cands = optimize_many(pool, n_lineups=candidate_multiple * n_entries,
                           stack=stack, objective_col=objective_col,
                           locks=set(locks))
