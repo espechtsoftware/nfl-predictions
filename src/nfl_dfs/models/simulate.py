@@ -47,6 +47,58 @@ def _gamma_yards(
 GAME_FACTOR_SIGMA = 0.18  # lognormal sigma of the shared per-game factor
 
 
+def _td_event_ledger(
+    rng: np.random.Generator,
+    rec_means: np.ndarray,
+    pass_means: np.ndarray,
+    team_codes: np.ndarray,
+    game_mult: np.ndarray,
+    n_sims: int,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Team-level passing-TD ledger (TD_LEDGER=1). For each team: draw
+    the team's passing-TD count once per sim (Poisson on the summed
+    passer means, scaled by the team's game factor), then allocate the
+    SAME totals to catchers (multinomial on receiving-TD shares, with
+    an "other" bucket reconciling unrostered catchers) and to passers.
+    Preserves every player's marginal mean; creates the QB<->receiver
+    same-event covariance and couples TDs to the game environment.
+    Teams with no rostered passer fall back to independent draws."""
+    n = len(rec_means)
+    rec_tds = np.zeros((n, n_sims), dtype=np.int64)
+    pass_tds = np.zeros((n, n_sims), dtype=np.int64)
+    for t in np.unique(team_codes):
+        team = np.flatnonzero(team_codes == t)
+        rows_q = team[pass_means[team] > 0]
+        rows_r = team[rec_means[team] > 0]
+        team_pass = float(pass_means[rows_q].sum())
+        if team_pass <= 0:
+            # no rostered passer (or DST-only) — independent fallback
+            for i in team:
+                if rec_means[i] > 0:
+                    rec_tds[i] = rng.poisson(rec_means[i], n_sims)
+                if pass_means[i] > 0:
+                    pass_tds[i] = rng.poisson(pass_means[i], n_sims)
+            continue
+        gm = game_mult[team[0]]  # shared within team by construction
+        T = rng.poisson(team_pass * gm)
+        # catcher shares vs the passer total; "other" bucket absorbs
+        # the unrostered remainder. If rostered receiver means exceed
+        # the passer total (data quirk), scale down proportionally.
+        pr = rec_means[rows_r] / team_pass
+        s = pr.sum()
+        if s > 1.0:
+            pr = pr / s
+        probs_r = np.concatenate([pr, [max(0.0, 1.0 - pr.sum())]])
+        alloc_r = rng.multinomial(T, probs_r)  # (n_sims, k+1)
+        for j, i in enumerate(rows_r):
+            rec_tds[i] = alloc_r[:, j]
+        probs_q = pass_means[rows_q] / team_pass
+        alloc_q = rng.multinomial(T, probs_q)
+        for j, i in enumerate(rows_q):
+            pass_tds[i] = alloc_q[:, j]
+    return rec_tds, pass_tds
+
+
 def simulate(
     comps: pd.DataFrame,
     n_sims: int = 10_000,
@@ -179,7 +231,6 @@ def simulate(
     targets = opp_draw("targets")
     receptions = rng.binomial(targets, col("catch_rate"))
     rec_yards = _gamma_yards(rng, receptions, col("ypr"))
-    rec_tds = rng.poisson(col("rec_tds"), (n, n_sims))
 
     carries = opp_draw("carries")
     rush_yards = _gamma_yards(rng, carries, col("ypc"))
@@ -187,8 +238,28 @@ def simulate(
 
     attempts = rng.poisson(opp("pass_attempts"))
     pass_yards = _gamma_yards(rng, attempts, col("ypa"))
-    pass_tds = rng.poisson(col("pass_tds"), (n, n_sims))
     interceptions = rng.poisson(col("interceptions"), (n, n_sims))
+
+    # TD_LEDGER=1 (review #5, Sol): a passing TD and its catch are ONE
+    # EVENT, but the default sampler draws rec_tds and pass_tds as
+    # independent Poissons on static means — QB+receiver joint booms
+    # occur only at base rates, and TDs ignore the game environment.
+    # The ledger draws each team's passing-TD count ONCE (game-factor
+    # scaled), then multinomial-allocates catches to receivers (an
+    # "other" bucket absorbs the unrostered share) and the same totals
+    # to the team's passers. Mean-preserving by construction:
+    # E[alloc_i] = E[T]*mean_i/team_mean = gm*mean_i.
+    td_ledger = (os.environ.get("TD_LEDGER", "") not in ("", "0")
+                 and team_ids is not None)
+    if td_ledger:
+        rec_tds, pass_tds = _td_event_ledger(
+            rng, np.nan_to_num(comps["rec_tds"].to_numpy(dtype=float)),
+            np.nan_to_num(comps["pass_tds"].to_numpy(dtype=float)),
+            pd.factorize(pd.Series(team_ids).fillna("_none").to_numpy())[0],
+            game_mult, n_sims)
+    else:
+        rec_tds = rng.poisson(col("rec_tds"), (n, n_sims))
+        pass_tds = rng.poisson(col("pass_tds"), (n, n_sims))
 
     draws = dk_points(
         StatLine(
