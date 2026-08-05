@@ -2442,3 +2442,14 @@ disease (missing joint dependence); two simultaneous dependence
 overhauls would confound attribution. TDLEDGER's verdict + oracle
 metrics decide whether Schaake is a September-week-1 build or the
 program's first 2027 idea.
+
+**Addendum 79b — DELETE2 guard verdict: 27/107, program-best clean
+tails.** (Relabeled arm: TRAINED->NAIVE ownership in the fade + punt
+mandate/archetype-boost deleted; p90 valuation and the fade itself
+retained.) Deltas {0,+2,0,0,-1,+1}, mean best 179.5, max 271.1. No
+negative interaction between the partial deletions; the simpler
+package holds >= control everywhere it matters. Pending TRUENOFADE
+(LEV_PENALTY=0) and DELETE3 (full corrected package) to finalize
+which defaults flip. The direction is now unmistakable: post-ensemble,
+the system prefers LESS hand-tuning — every deletion tested so far is
+null-to-positive.
