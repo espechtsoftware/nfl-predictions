@@ -54,6 +54,7 @@ def _td_event_ledger(
     team_codes: np.ndarray,
     game_mult: np.ndarray,
     n_sims: int,
+    alloc_k: float | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Team-level passing-TD ledger (TD_LEDGER=1). For each team: draw
     the team's passing-TD count once per sim (Poisson on the summed
@@ -62,7 +63,16 @@ def _td_event_ledger(
     an "other" bucket reconciling unrostered catchers) and to passers.
     Preserves every player's marginal mean; creates the QB<->receiver
     same-event covariance and couples TDs to the game environment.
-    Teams with no rostered passer fall back to independent draws."""
+    Teams with no rostered passer fall back to independent draws.
+
+    `alloc_k` (research/SBI injection, plan §2.4): when None -- every
+    production call -- allocation is the exact multinomial on mean TD
+    shares, byte-identical to before the argument existed. A finite
+    value switches to Dirichlet-multinomial (per-sim shares drawn from
+    Dirichlet(alloc_k * mean_shares), then multinomial), which keeps
+    each player's marginal TD mean but makes realized shares burstier
+    -- the passing-TD allocation concentration parameter registered in
+    src/nfl_dfs/research/sbi_params.py."""
     n = len(rec_means)
     rec_tds = np.zeros((n, n_sims), dtype=np.int64)
     pass_tds = np.zeros((n, n_sims), dtype=np.int64)
@@ -90,12 +100,24 @@ def _td_event_ledger(
         T = rng.poisson(total_mean * gm)
         probs_r = np.concatenate([rec_means[rows_r] / total_mean,
                                   [max(0.0, 1.0 - rec_sum / total_mean)]])
-        alloc_r = rng.multinomial(T, probs_r)  # (n_sims, k+1)
+        if alloc_k is None:
+            alloc_r = rng.multinomial(T, probs_r)  # (n_sims, k+1)
+        else:
+            # E[Dirichlet(k*p)] = p (up to the tiny alpha floor guarding
+            # zero-mass buckets), so marginal TD means are preserved.
+            p_r = rng.dirichlet(np.clip(alloc_k * probs_r, 1e-3, None),
+                                size=T.shape[0])
+            alloc_r = rng.multinomial(T, p_r)
         for j, i in enumerate(rows_r):
             rec_tds[i] = alloc_r[:, j]
         probs_q = np.concatenate([pass_means[rows_q] / total_mean,
                                   [max(0.0, 1.0 - team_pass / total_mean)]])
-        alloc_q = rng.multinomial(T, probs_q)
+        if alloc_k is None:
+            alloc_q = rng.multinomial(T, probs_q)
+        else:
+            p_q = rng.dirichlet(np.clip(alloc_k * probs_q, 1e-3, None),
+                                size=T.shape[0])
+            alloc_q = rng.multinomial(T, p_q)
         for j, i in enumerate(rows_q):
             pass_tds[i] = alloc_q[:, j]
     return rec_tds, pass_tds
@@ -110,6 +132,7 @@ def simulate(
     team_ids: pd.Series | None = None,
     game_totals: pd.Series | None = None,
     bigplay_rate: pd.Series | None = None,
+    params: dict[str, float] | None = None,
 ) -> SimResult:
     """game_ids (aligned to comps) enables correlated game environments:
     one shared lognormal factor per (game, sim) scales every player's
@@ -125,9 +148,23 @@ def simulate(
     trailing team's DST/receivers skew differently) that's the possession
     sim's whole motivation over the shared lognormal factor. Without
     team_ids, possession mode falls back to one shared factor per game
-    (game_sim.game_factor_matrix), same granularity as the lognormal draw."""
+    (game_sim.game_factor_matrix), same granularity as the lognormal draw.
+
+    params (research/SBI calibration, plan §6 + §2.4): optional overrides
+    for the registered simulator parameters — keys `game_factor_sigma`
+    (lognormal sigma of the shared game factor), `usage_dirichlet_k`
+    (within-team usage concentration; only fires under
+    GAME_SIM_USAGE=dirichlet), `td_alloc_k` (passing-TD allocation
+    concentration; only fires under TD_LEDGER=1). params=None — every
+    production call — is REQUIRED to be byte-identical to the pre-params
+    sampler: same RNG stream order, same draws (tests/test_sbi.py pins
+    golden checksums). See src/nfl_dfs/research/sbi_params.py."""
     rng = np.random.default_rng(seed)
     n = len(comps)
+    params = params or {}
+    _sigma = float(params.get("game_factor_sigma", GAME_FACTOR_SIGMA))
+    _usage_k = params.get("usage_dirichlet_k")  # None -> game_sim default
+    _td_k = params.get("td_alloc_k")  # None -> exact multinomial (production)
 
     game_mult = np.ones((n, n_sims))
     if game_ids is not None:
@@ -185,7 +222,9 @@ def simulate(
                 g = game_sim.game_factor_matrix(rng, len(uniq), n_sims, paces=paces)
                 game_mult = g[codes]
         else:
-            g = rng.lognormal(-GAME_FACTOR_SIGMA ** 2 / 2, GAME_FACTOR_SIGMA,
+            # _sigma == GAME_FACTOR_SIGMA whenever params is absent; the
+            # lognormal call consumes the identical RNG stream either way.
+            g = rng.lognormal(-_sigma ** 2 / 2, _sigma,
                               (len(uniq), n_sims))
             game_mult = g[codes]
 
@@ -226,7 +265,9 @@ def simulate(
                 continue  # nothing to reallocate within
             shares = base[rows] / base[rows].sum()
             totals = means[rows].sum(axis=0)  # (n_sims,) game-factor-scaled
-            alloc = game_sim.allocate_drive_usage(rng, totals, shares, n_sims=n_sims)
+            alloc = game_sim.allocate_drive_usage(
+                rng, totals, shares, n_sims=n_sims,
+                concentration_scale=_usage_k)
             means[rows] = np.atleast_2d(alloc).T
         return rng.poisson(means)
 
@@ -271,7 +312,7 @@ def simulate(
         rec_tds, pass_tds = _td_event_ledger(
             rng, np.nan_to_num(comps["rec_tds"].to_numpy(dtype=float)),
             np.nan_to_num(comps["pass_tds"].to_numpy(dtype=float)),
-            _unit_codes, game_mult, n_sims)
+            _unit_codes, game_mult, n_sims, alloc_k=_td_k)
 
     draws = dk_points(
         StatLine(
