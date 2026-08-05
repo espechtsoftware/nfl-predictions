@@ -2278,3 +2278,32 @@ contest-mix sizing.
 vs 0.26 under fade — it held the mega-chalk as designed) but the
 winner-anatomy barbell does NOT beat the smooth fade on our objective.
 The fade survives its replacement challenger; F4 closed.
+
+## Addendum 75 (2026-08-05): Review #4 round 2 — generator verdict accepted; two new arms; one misread corrected
+
+Reviewer accepted the LSE falsification and moved the wall to the
+GENERATOR ("the co-booms do not exist in the candidate pool"). Triage:
+
+- **N@237 "crisis" (5-trillion claims): MISREAD.** Those columns are
+  the GAUSSIAN self-model of our 40 entry scores — the same model
+  Addendum 74 showed under-predicts our own realized tails by +7
+  weeks. They measure the diagnostic's normality assumption, not the
+  sim's covariance. Correction goes in the next reviewer message. The
+  legitimate residual question — does the sim ever roll
+  slate-breaking collinear game scripts? — is answered by testing the
+  remedy directly:
+- **HYPER_BOOM (new lever, coded)**: for each top-N games by
+  projected total, manufacture a synthetic world (every in-game
+  player at his own p98 draw, everyone else p50) and MILP-solve it;
+  tag "hyper", injection via pool. This is GAME-level collinear
+  inflation — distinct from Q99_WILD (individual players, no
+  correlation), so not graveyard-blocked. ARM: HYPER_BOOM=8, chained
+  after SHARP on the panel family, on the rebuilt :rev4.
+- **"Glass cannon" conditional-peak selection: internally
+  inconsistent with their own §1** (selection was just exonerated;
+  the weekly max survives every selector) — but zero-code testable:
+  SELECT_LSE=0.5 IS conditional-peak ranking (sharp alpha is
+  dominated by each candidate's best worlds). ARM: SHARP, running.
+  Prediction registered: null-or-worse on tails (it sacrifices
+  breadth for depth the pool doesn't contain; PEAK_SLICE's 21 is the
+  family prior).
