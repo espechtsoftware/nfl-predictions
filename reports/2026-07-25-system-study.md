@@ -2191,3 +2191,11 @@ Review #4 (the "wall" brief) returned 7 findings. Triage and action:
 Image :rev4 (levers + tests, commit 70d5173). Chains gated on the
 assembly diagnostic and on image existence (stale-image law): panel
 family LSE -> BARBELL; rev family NOFADE -> NOPUNT -> M4QBLOCK.
+
+**Post-selection law (2026-08-05, operator insight):** generalizing
+the post-ensemble law — verdicts don't transfer across a changed
+downstream stage. All generation-lever graves predate the selection
+objective now under test; if SELECT_LSE adopts, VALUE2E (26),
+Q99_WILD (23), and N_BOOM (25) get re-judged under the new selector
+before their burials are trusted (PEAK_SLICE stays buried — LSE
+subsumes it). Queue + rationale: memory post-selection-retest-queue.
