@@ -162,6 +162,19 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
 
         from ..bq import load_dataframe
         from ..config import settings
+        # the BOOSTER prediction is the one worth grading vs real
+        # ownership (queue item 4) even though construction now uses
+        # the naive fade (Addendum 80) — compute it for the log only.
+        booster_own = None
+        if _own_src != "booster":
+            try:
+                from ..backtest.replay import (_model_ownership,
+                                               _ownership_booster)
+                _b = _ownership_booster(int(season))
+                if _b is not None:
+                    booster_own = _model_ownership(_b, frame)
+            except Exception:
+                log.info("own-shadow: booster unavailable, logging naive only")
         shadow = pd.DataFrame({
             "generated_at": datetime.now(timezone.utc),
             "season": int(season), "week": int(week),
@@ -169,6 +182,8 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
             "name": frame.get("name"),
             "pos": frame.pos, "salary": frame.salary,
             "pred_own": own, "source": _own_src,
+            "booster_own": (own if _own_src == "booster"
+                            else booster_own),
         })
         load_dataframe(shadow, f"{settings.predictions}.own_shadow",
                        write_disposition="WRITE_APPEND")
@@ -176,15 +191,20 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     except Exception:
         log.exception("own-shadow logging failed; build unaffected")
     frame["proj_tourney"] = frame.proj - LEVERAGE_PENALTY * lev_scale * own
-    try:
-        boom = punt_boom_flags_live(season, week)
-        keys = list(zip(frame.gsis_id, [season] * len(frame),
-                        [week] * len(frame)))
-        bmask = pd.Series([k in boom for k in keys], index=frame.index)
-        bmask &= punt & (frame.pos != "DST")
-        frame.loc[bmask, "proj_tourney"] += 2.0  # adopted PUNT_BOOM dose
-    except Exception:
-        log.exception("live punt-boom flags unavailable; tilt skipped")
+    # PUNT_BOOM default 0 ADOPTED 2026-08-05 (Addendum 77/79b — mirror
+    # of the replay default): the archetype boost is deleted; env
+    # restores it for A/Bs.
+    _pb = float(_os.environ.get("PUNT_BOOM", "0") or 0)
+    if _pb:
+        try:
+            boom = punt_boom_flags_live(season, week)
+            keys = list(zip(frame.gsis_id, [season] * len(frame),
+                            [week] * len(frame)))
+            bmask = pd.Series([k in boom for k in keys], index=frame.index)
+            bmask &= punt & (frame.pos != "DST")
+            frame.loc[bmask, "proj_tourney"] += _pb
+        except Exception:
+            log.exception("live punt-boom flags unavailable; tilt skipped")
     slots = {"QB": 1.0, "RB": 2.5, "WR": 3.5, "TE": 1.2, "DST": 1.0}
     frame["low_own"] = (own * frame.pos.map(slots).fillna(1.0)
                         .to_numpy()) < 0.05

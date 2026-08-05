@@ -27,7 +27,12 @@ SALARY_CAP = 50_000
 # Tournament construction defaults (the only mode this shop plays): a
 # sub-$4k ceiling punt appeared in 94% of 2025 Milly Maker winners.
 PUNT_MAX_SALARY = 4_000
-PUNT_MIN = 1
+# PUNT_MIN default 0 ADOPTED 2026-08-05 (Addendum 77): the hard punt
+# MANDATE deletion scored 26/107 vs 25 with better mean-best and the
+# program-max 271.1 — the p90 ceiling VALUATION of punt-priced players
+# (replay.build_slates / live mirror) is what carries the punt edge,
+# and it stays. PUNT_MIN=1 env restores the mandate.
+PUNT_MIN = 0
 LEVERAGE_PENALTY = 25.0  # pts deducted x naive-ownership weight (chalk fade)
 ROSTER_SIZE = 9
 MAX_FROM_TEAM = 8

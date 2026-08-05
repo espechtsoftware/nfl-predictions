@@ -32,12 +32,15 @@ DST_FALLBACK_PROJ = 6.0  # league-average DST DK points, for week-1 rows
 
 
 def own_mode() -> str:
-    """OWN_MODEL env, normalized (2026-08-04 audit): default "fade";
-    falsy spellings ("", "0", "off", "false", "no", "none") DISABLE —
-    before this, OWN_MODEL=0 silently enabled the strongest mode (full
-    model-own field, deliberately not adopted) because any non-"fade"
-    truthy string flips the model into the field sampler."""
-    v = os.environ.get("OWN_MODEL", "fade").strip().lower()
+    """OWN_MODEL env, normalized. Default "" ADOPTED 2026-08-05
+    (Addenda 77/80/84): the chalk fade STAYS (its true deletion cost
+    ~2 tails in both builds) but runs on NAIVE ownership — the trained
+    booster added nothing in the fade (naive-fade arms 26/27 vs 25)
+    and leaves the construction path entirely. OWN_MODEL=fade restores
+    the booster fade; falsy spellings ("", "0", "off", "false", "no",
+    "none") mean naive-fade; any other truthy string flips the model
+    into the field sampler (deliberately not adopted)."""
+    v = os.environ.get("OWN_MODEL", "").strip().lower()
     return "" if v in ("", "0", "off", "false", "no", "none") else v
 
 
@@ -566,7 +569,10 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
     # baseline on every metric at once (tails 16 vs 15, both >=237 weeks
     # kept, median and ROI up). Dose-response was clean — 4 and 8
     # overwhelm the p90 punt valuation and destroy the slate-breakers.
-    punt_boom = float(os.environ.get("PUNT_BOOM", "2") or 0)
+    # PUNT_BOOM default 0 ADOPTED 2026-08-05 (Addendum 77/79b): the
+    # archetype boost + punt mandate deletion scored 26-27 vs 25; the
+    # p90 punt VALUATION (build_slates) stays — it was never the dose.
+    punt_boom = float(os.environ.get("PUNT_BOOM", "0") or 0)
     boom_keys: set = set()
     if punt_boom:
         try:

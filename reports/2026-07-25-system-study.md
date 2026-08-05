@@ -2584,3 +2584,11 @@ draw-order rebase of Addendum 83):
   (TRUENOFADE said the same on the old build). Confirmatory; the
   DELETE2 package (naive-fade + no punt mandate + no punt boost) is
   FINAL for the reseal.
+
+**Addendum 84b — TRUEBARBELL 24 vs co-run 22**: the corrected
+barbell-replaces-fade arm (old punt defaults) recoups the fade's ~2
+tails ({0,+2,0,0,0,0}) — an ownership-structure term worth ~2 exists
+whether expressed as smooth fade or barbell; LOSO fails for adoption
+(one positive season) and the fade is simpler + twice-validated, so
+the package is unchanged. Corrective set COMPLETE: every mislabeled
+arm now has an honest verdict.
