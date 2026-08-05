@@ -2093,3 +2093,12 @@ automation TODO. The 4-entry Milly slice genuinely cannot play
 coverage (below the cliff); dollars/uniqueness objective for it, and
 the rank<=seats objective for qualifiers once the field model (F3)
 exists. Queued with the reviewer's exact validation design.
+
+**Final lever verdicts:** HET (heterogeneous ensemble member) 21 vs 25
+— the HistGB family subtracts; the homogeneous shuffle-ensemble is the
+right design, retire. WILD (q99 ceiling injection) 23 vs 25 — the
+LAST assembly mechanism nulls; the never-rostered booms weren't
+flaggable ex-ante even at q99, the individuals-unpredictable law's
+final word. The assembly gap's only remaining candidate is the
+architecture itself: GREEN2 (empirically-corrected bar) and the M4
+objective pair are the program's final two verdicts.
