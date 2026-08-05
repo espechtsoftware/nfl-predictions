@@ -1675,7 +1675,9 @@ def _player_pool(
     from ..backtest.field import naive_ownership
     from ..optimizer.lineup import LEVERAGE_PENALTY, PUNT_MAX_SALARY
 
-    punt_boom = float(os.environ.get("PUNT_BOOM", "2") or 0)
+    # default 0 ADOPTED 2026-08-05 (Addendum 77/79b) — caught drifting
+    # at "2" by the config manifest's first run (§3.5 reconciliation).
+    punt_boom = float(os.environ.get("PUNT_BOOM", "0") or 0)
     boom_keys: set = set()
     if punt_boom and {"gsis_id", "season", "week"} <= set(df.columns) \
             and len(df):
