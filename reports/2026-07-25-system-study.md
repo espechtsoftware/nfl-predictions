@@ -2307,3 +2307,29 @@ GENERATOR ("the co-booms do not exist in the candidate pool"). Triage:
   Prediction registered: null-or-worse on tails (it sacrifices
   breadth for depth the pool doesn't contain; PEAK_SLICE's 21 is the
   family prior).
+
+## Addendum 76 (2026-08-05): Assembly batteries — LSE's second falsification triggers; GREEN's generator finds more, concentrates less
+
+Race-free batteries (per-arm roster tables), 2025, 40 entries:
+
+| arm | capture | pool-hit | best-entry overlap (null) | pairs | opt QB pool/best |
+|---|---|---|---|---|---|
+| CONTROL | 67.5% | 77.8% | 2.00 (2.38) BELOW | 25.8% | 13/18 / 4/18 |
+| LSE a=0.08 | 66.9% | 74.3% | 1.78 (2.30) BELOW | 22.7% | 12/18 / 4/18 |
+| GREEN2-corrected | 66.9% | 81.2% | 1.56 (2.37) BELOW | 20.2% | 15/18 / 3/18 |
+
+- **LSE: both pre-registered falsifications now triggered** (mean best
+  did not rise; overlap 1.78 did not clear the null). The
+  depth-rewarding objective actually holds slightly FEWER optimal
+  players. F1 is closed with maximal prejudice.
+- **Below-null overlap is universal** — three constructions, three
+  selectors, all below their random nulls. It is a structural
+  property of world-coverage portfolio selection over noisy sims,
+  not any single algorithm's defect.
+- **GREEN's one real mechanism lead**: pool-hit 81.2% vs 77.8% and
+  optimal-QB-in-pool 15/18 vs 13/18 — the per-world-argmax generator
+  IDENTIFIES more of the hindsight-optimal slate than the incumbent
+  generator mix, at equal capture. If September's skeleton-resampler
+  bar ever makes selection sharper, GREEN has more raw material.
+  Recorded as the documented lead that keeps GREEN alive as the
+  September vehicle (score: exact parity).
