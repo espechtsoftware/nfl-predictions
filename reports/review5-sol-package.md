@@ -8,6 +8,10 @@ Be adversarial: do not restate our conclusions, attack them. Every
 prior reviewer's testable claim went to a six-season panel within
 hours. Yours will too.
 
+Ignore `reports/review-archive/` (superseded historical briefs) and
+treat ledger addenda 58-77 in `reports/2026-07-25-system-study.md` as
+the authoritative record wherever this summary compresses.
+
 ## 0. State of play — what the last 24 hours already resolved
 
 Read this first so you don't re-litigate closed questions:
@@ -42,6 +46,28 @@ Read this first so you don't re-litigate closed questions:
   entries carry a heavy right tail the normal fit can't see. (So any
   "your sim says N@237 = trillions" argument is measuring the
   diagnostic's normality assumption, not the sim.)
+- **The assembly batteries are in** (2025, 40 entries): best-entry
+  overlap with the hindsight optimal is below the random null for
+  EVERY construction — control 2.00 (null 2.38), LSE 1.78 (2.30),
+  alternate architecture 1.56 (2.37). LSE's second pre-registered
+  falsification also triggered. Below-null overlap is a structural
+  property of world-coverage portfolio selection, not an algorithm
+  defect. One mechanism lead: the alternate architecture's
+  per-world-argmax generator puts MORE of the optimal slate in the
+  pool (81.2% vs 77.8%; optimal QB present 15/18 vs 13/18) at equal
+  capture — more raw material, same concentration failure.
+- **Two deletions just passed their pre-registered tests** (both
+  rules were pre-ensemble adoptions never re-validated after the
+  ensemble): removing the chalk fade scored 26/107 (never negative
+  in any season); removing the punt mandate + punt-boom valuation
+  scored 26/107 with a BETTER mean best (180.6 vs 179.7) and the
+  program's highest-ever single score (271.1). A combined-deletion
+  interaction guard is running; defaults flip only if it holds >=25.
+  Treat the fade and the punt mandate as dead unless the guard
+  fails.
+- **4-entry concentration refuted**: forcing all 4 small-contest
+  entries onto one QB family scored 1/107 vs the fixed-line slice's
+  3/107 (mean best ~143 vs ~152).
 - **In flight right now** (results may exist by the time you reply;
   we'll share): SHARP — conditional-peak "glass cannon" selection
   (sharp-alpha LSE ranks candidates by their own best worlds;
@@ -49,10 +75,8 @@ Read this first so you don't re-litigate closed questions:
   exonerated). HYPER — manufactured collinear game scripts: for the
   top 8 games by projected total, a synthetic world where every
   in-game player sits at his own p98 SIMULTANEOUSLY, MILP-solved,
-  injected into the candidate pool. Also in flight: deletion tests
-  for two pre-ensemble rules never re-validated post-ensemble (the
-  chalk fade; the mandatory sub-$4k punt), and a 4-entry
-  concentrated-QB-family portfolio for the small-entry contest.
+  injected into the candidate pool. And DELETE2 — the combined
+  deletion guard above.
 
 ## 1. What the system is
 
@@ -79,7 +103,7 @@ Read this first so you don't re-litigate closed questions:
   mean-objective MILPs, (c) leverage/game-stack/dark-game batches.
   Validated hard rules: QB+2 same-team pass-catchers + opponent
   bring-back; one sub-$4k punt valued at its p90 (deletion test in
-  flight); chalk fade on our objective (deletion test in flight);
+  flight); chalk fade on our objective (deletion PASSED — treat as dead);
   salary floor $49k; sub-$4k punt-boom archetype boost.
 - **Selection** (`select_tail_entries`): greedy max-coverage over
   worlds on P(best-of-N >= line). Entries are co-equal; the system
