@@ -150,6 +150,31 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
             log.exception("ownership model unavailable; fade uses naive")
     if own is None:
         own = naive_ownership(frame)
+        _own_src = "naive"
+    else:
+        _own_src = "booster"
+    # Ownership shadow log (2026-08-05): the predicted-ownership vector
+    # at BUILD TIME is what the in-season calibration (queue item 4)
+    # grades against imported real ownership — and it is irrecoverable
+    # after the build (late scratches shift the pool). Best-effort.
+    try:
+        from datetime import datetime, timezone
+
+        from ..bq import load_dataframe
+        from ..config import settings
+        shadow = pd.DataFrame({
+            "generated_at": datetime.now(timezone.utc),
+            "season": int(season), "week": int(week),
+            "gsis_id": frame.get("gsis_id"),
+            "name": frame.get("name"),
+            "pos": frame.pos, "salary": frame.salary,
+            "pred_own": own, "source": _own_src,
+        })
+        load_dataframe(shadow, f"{settings.predictions}.own_shadow",
+                       write_disposition="WRITE_APPEND")
+        log.info("own-shadow: %d rows (%s)", len(shadow), _own_src)
+    except Exception:
+        log.exception("own-shadow logging failed; build unaffected")
     frame["proj_tourney"] = frame.proj - LEVERAGE_PENALTY * lev_scale * own
     try:
         boom = punt_boom_flags_live(season, week)
@@ -217,6 +242,14 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
         if missing:
             raise ValueError(f"locked players not in slate: {sorted(missing)}")
     pool = slate.to_dict("records")
+    # Live default: persist every candidate (reranker training data,
+    # September designs #3 — irrecoverable post-build). Replay arms
+    # opt in explicitly instead.
+    import os as _os
+
+    from ..config import settings as _settings
+    _os.environ.setdefault("CAND_LOG_TABLE",
+                           f"{_settings.predictions}.live_candidates")
     lineups = tail_select_lineups(
         slate, pool, draws, tail_line=tail_line, n_entries=n_entries,
         stack=stack, objective_col="proj_tourney",

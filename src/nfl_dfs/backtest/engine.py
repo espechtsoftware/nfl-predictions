@@ -600,6 +600,41 @@ def tail_select_lineups(
             actuals[orc_ix] - sel_best, extra)
     except Exception:
         log.exception("cand-oracle instrumentation failed")
+    # Candidate persistence (env CAND_LOG_TABLE; the live path defaults
+    # it on): the reranker (September designs #3) needs every week's
+    # FULL candidate pool with sim features + selection outcome, and
+    # candidates are irrecoverable after the build (they depend on that
+    # week's caches, draws, and code). ~170 rows/week.
+    _cand_tbl = _os.environ.get("CAND_LOG_TABLE")
+    if _cand_tbl:
+        try:
+            from datetime import datetime, timezone
+
+            from ..bq import load_dataframe
+
+            p_line_all = (cand_totals >= tail_line).mean(axis=1)
+            sel = set(int(i) for i in picked)
+            rows = []
+            now = datetime.now(timezone.utc)
+            for ix, lu in enumerate(cands):
+                rows.append({
+                    "generated_at": now,
+                    "season": int(slate["season"].iloc[0]),
+                    "week": int(slate["week"].iloc[0]),
+                    "cand_ix": ix, "tag": lu.tag or "lev",
+                    "selected": ix in sel,
+                    "salary": int(lu.salary),
+                    "p_line": float(p_line_all[ix]),
+                    "sim_mean": float(cand_totals[ix].mean()),
+                    "sim_q99": float(np.quantile(cand_totals[ix], 0.99)),
+                    "players": ",".join(
+                        str(p.get("id")) for p in lu.players),
+                })
+            load_dataframe(pd.DataFrame(rows), _cand_tbl,
+                           write_disposition="WRITE_APPEND")
+            log.info("candidates persisted: %d -> %s", len(rows), _cand_tbl)
+        except Exception:
+            log.exception("candidate persistence failed; selection unaffected")
     return [cands[i] for i in picked]
 
 
