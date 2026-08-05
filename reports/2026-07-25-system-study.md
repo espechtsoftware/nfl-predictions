@@ -2744,3 +2744,24 @@ without specifying mechanisms) — Schaake is confirmed as September
 dependence build #1, gated on instrument #0. The N_GUMBEL candidate
 batch (this hour's gate winner, +6.8 synthetic union gain) is the
 one new-generation lever left with a live shot; arm queued.
+
+## Addendum 90 (2026-08-05, FINAL): GUMBEL 26 vs 27 — null; the program closes on the sealed baseline
+
+GUMBEL (N_GUMBEL=20, perturb-and-MAP diverse candidates — the winner
+of the GFlowNet's own cheap-diversity gate): **26/107 vs HF2's 27**,
+per-season {5,3,3,4,6,5} vs {5,3,3,4,6,6}; mean best 179.5 vs 179.5
+(identical); median percentile 14.2 vs 14.2. One season -1, five
+seasons dead level. The synthetic gate's +6.8 union-frontier gain did
+NOT transport to real slates — the third time a diversity mechanism
+has looked good in isolation and nulled on the panel (Q99_WILD,
+GFlowNet, now Gumbel). N_GUMBEL stays default-off; the code and its
+test remain as the archived generator-diversity family.
+
+**PROGRAM CLOSE.** Shipping baseline stands at HARVEST-FINAL-2 =
+27/107 (mean best 179.5, median 14.2%, max 271.1). Per-week bests
+archived at ~/nfl-panels/gumbel_weekly.csv. Final tally of the
+post-seal wave: 30+ arms tested, ONE adoption (the deletion package:
+naive fade + no punt mandate + no punt boost, 25 -> 27 with a simpler
+system), three invalid arms caught by audit rather than by the panel,
+six research workstreams built and gated, and every remaining idea
+either buried with cause or scheduled with a pre-registered gate.
