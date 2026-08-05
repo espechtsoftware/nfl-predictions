@@ -2125,3 +2125,22 @@ adoption.
 check): 3/107 line-clears vs 25/107 at 40 entries — the coverage
 cliff the reviewer predicted, measured. The pair verdict vs
 M4DOLLAR (expected-dollars objective) decides week-1 Milly selection.
+
+## Addendum 70 (2026-08-05): M4 pair verdict — dollars objective NULL at 4 entries; fixed line stands
+
+Review #3 F4's exact experiment: 4-entry portfolios (the real Milly
+slice), fixed-line selection (M4LINE) vs expected-dollars objective
+(M4DOLLAR), six seasons. Result: **null with a lean to the incumbent**.
+Tails identical (3/107 each — the coverage cliff measured); ROI season
+wins 3-3 with the six-season totals dominated by two opposite-sign
+single-week jackpots (noise); median percentile FAVORS the fixed line
+(12.6 vs 14.0, better in 4/6 seasons). The reviewer's theory that
+below-cliff portfolios should optimize simulated ROI directly does not
+survive its own test. CAVEAT that keeps it honest: replay ROI is
+scored against the naive marginal field model — the same field model
+F3 indicts. Re-judge ONLY if/when the September skeleton-resampler
+field model exists; until then SELECT_OBJ=dollars stays HELD and
+week-1 Milly entries use the standard fixed-line selection (the 4
+Milly entries = first 4 of the run, co-equal shots). Review #3 is now
+fully adjudicated: F2 fixed (and the fix nulled GREEN's edge —
+Addendum 69), F4 tested-null, F1/F3 September directions.
