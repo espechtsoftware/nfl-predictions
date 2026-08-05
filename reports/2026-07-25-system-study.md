@@ -2497,3 +2497,36 @@ selector drops. The CANDORACLE control aggregate (in flight, clean
 defaults) quantifies the recoverable-tail rate; if it is material,
 selection re-opens — this time with the right instrument and against
 the right frontier.
+
+## Addendum 82 (2026-08-05): Graveyard mislabel audit — one more unsound burial found; the corrective set is now complete
+
+Erich's question — "with better testing, retry old ideas?" — answered
+by AUDIT, not blanket rerun. Every buried post-ensemble arm's env gate
+was verified against code:
+
+- **CLEAN burials** (gate exists, verifiably fired, tested what the
+  name says): LSE, SHARP, Q99_WILD (post-gsis_id-fix), N_BOOM,
+  PEAK_SLICE, VALUE2E, HET, M4 arms, HYPER, SCRIPT_FEEDBACK,
+  ALT_CEIL, WR_BOOM, ROOKIE_WIDEN, VACC2. These graves stand.
+- **DIV_TILT: burial UNSOUND on two grounds.** (1) DIVTILT2's 16
+  total dates it to the PRE-ensemble era — unreliable by the
+  post-ensemble law; (2) the lever is column-gated on consensus_div
+  and 2019 has NO prop market at all ("prop market unavailable;
+  replaying unblended" in the logs) — the arm's best season (2019,
+  7/17) occurred where the lever was INERT. Disposition: NOT a panel
+  rerun (covered seasons alone can't clear the evidence bar; narrow
+  posture forbids new tilt arms) — reclassified to IN-SEASON SHADOW
+  CANDIDATE: 2026 has full live prop coverage, so log the divergence
+  signal weekly beside persona/env-forecast and grade it on real
+  slates before any adoption talk.
+- **TRUE_BARBELL launched** (panel family): the last
+  mislabeled-untested corrective (Sol's list) — barbell with the fade
+  ACTUALLY removed (LEV_PENALTY=0|OWN_BARBELL=1). Prior low
+  (fade-removal costs ~2; the barbell must recoup it), but the
+  question deserves a real answer, not a mislabeled one.
+- **Conditional retests remain tied to adoptions, not nostalgia**:
+  if TDLEDGER adopts, VALUE2E (26, nearest miss) gets one re-judgment
+  under the new joint structure; if CANDORACLE's aggregate shows a
+  material recoverable-tail rate, selection re-opens with
+  oracle-aware design — and the selection-era graves revive under
+  THAT selector only. No other reruns.
