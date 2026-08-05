@@ -2102,3 +2102,26 @@ flaggable ex-ante even at q99, the individuals-unpredictable law's
 final word. The assembly gap's only remaining candidate is the
 architecture itself: GREEN2 (empirically-corrected bar) and the M4
 objective pair are the program's final two verdicts.
+
+## Addendum 69 (2026-08-05): GREEN2 verdict — corrected architecture at parity; v1's edge was the bug
+
+GREEN2 (per-world argmax + beat-the-bar selection with the EMPIRICAL
+field-max extension 0.256·sd, review #3's fix): **24 vs incumbent 25**
+(per-season deltas 0,0,-1,0,-1,+1; mean best 179.6 vs 179.7; median
+percentile 13.7 vs 14.1). GREEN v1's 27 was scored WITH the 4.26x
+over-scaled bar — correcting the bug removed the edge, i.e. the edge
+WAS the bug (an over-tight bar behaves like an aggressive
+ceiling-tilt). Score verdict: the alternate architecture is at exact
+parity with the incumbent on its first two attempts, never ahead once
+correct. Architecture question stays CLOSED for week 1; GREEN remains
+the September vehicle for the skeleton-resampler field model (a real
+modeled bar instead of a constant extension is precisely its missing
+piece). Assembly-mechanism comparison (review #3 F1 standard) queued:
+CONTROL-40e vs GREEN2-40e on 2025, diagnostic battery both —
+mechanism-without-score would be a documented September lead, not an
+adoption.
+
+**M4LINE interim** (4-entry fixed-line slice, the Milly reality
+check): 3/107 line-clears vs 25/107 at 40 entries — the coverage
+cliff the reviewer predicted, measured. The pair verdict vs
+M4DOLLAR (expected-dollars objective) decides week-1 Milly selection.
