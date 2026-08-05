@@ -288,8 +288,9 @@ def tail_select_lineups(
             if lu is None:
                 break
             banned_th.append(lu.ids)
+            if lu is not None:
+                _note(lu.ids, "thesis")   # every producer (A2.1)
             if lu.ids not in seen:
-                _note(lu.ids, "thesis")
                 lu.tag = "thesis"
                 seen.add(lu.ids)
                 cands.append(lu)
@@ -303,8 +304,9 @@ def tail_select_lineups(
         except Exception as exc:  # CBC subprocess flake: skip this draw
             log.warning("boom-draw solve failed: %s", exc)
             continue
+        if lu is not None:
+            _note(lu.ids, "boom")   # every producer (A2.1)
         if lu is not None and lu.ids not in seen:
-            _note(lu.ids, "boom")
             lu.tag = "boom"
             seen.add(lu.ids)
             cands.append(lu)
@@ -340,8 +342,9 @@ def tail_select_lineups(
             except Exception as exc:
                 log.warning("hyper-boom solve failed: %s", exc)
                 continue
+            if lu is not None:
+                _note(lu.ids, "hyper")   # every producer (A2.1)
             if lu is not None and lu.ids not in seen:
-                _note(lu.ids, "hyper")
                 lu.tag = "hyper"
                 seen.add(lu.ids)
                 cands.append(lu)
@@ -366,8 +369,9 @@ def tail_select_lineups(
             except Exception as exc:
                 log.warning("gumbel solve failed: %s", exc)
                 continue
+            if lu is not None:
+                _note(lu.ids, "gumbel")   # every producer (A2.1)
             if lu is not None and lu.ids not in seen:
-                _note(lu.ids, "gumbel")
                 lu.tag = "gumbel"
                 seen.add(lu.ids)
                 cands.append(lu)
@@ -391,8 +395,9 @@ def tail_select_lineups(
             if lu is None:
                 break
             banned_ns.append(lu.ids)
+            if lu is not None:
+                _note(lu.ids, "nostk")   # every producer (A2.1)
             if lu.ids not in seen:
-                _note(lu.ids, "nostk")
                 lu.tag = "nostk"
                 seen.add(lu.ids)
                 cands.append(lu)
@@ -416,8 +421,9 @@ def tail_select_lineups(
             if lu is None:
                 break
             banned_ls.append(lu.ids)
+            if lu is not None:
+                _note(lu.ids, "lowsal")   # every producer (A2.1)
             if lu.ids not in seen:
-                _note(lu.ids, "lowsal")
                 lu.tag = "lowsal"
                 seen.add(lu.ids)
                 cands.append(lu)
@@ -454,8 +460,9 @@ def tail_select_lineups(
                                   max_overlap=7)
                 except Exception:
                     continue
+                if lu is not None:
+                    _note(lu.ids, "wild")   # every producer (A2.1)
                 if lu is not None and lu.ids not in seen:
-                    _note(lu.ids, "wild")
                     lu.tag = "wild"
                     seen.add(lu.ids)
                     cands.append(lu)
@@ -488,8 +495,9 @@ def tail_select_lineups(
                     if lu is None:
                         break
                     banned_qd.append(lu.ids)
+                    if lu is not None:
+                        _note(lu.ids, "qd")   # every producer (A2.1)
                     if lu.ids not in seen:
-                        _note(lu.ids, "qd")
                         lu.tag = "qd"
                         seen.add(lu.ids)
                         cands.append(lu)
@@ -519,8 +527,9 @@ def tail_select_lineups(
                 if lu is None:
                     break
                 banned_qv.append(lu.ids)
+                if lu is not None:
+                    _note(lu.ids, "qbvar")   # every producer (A2.1)
                 if lu.ids not in seen:
-                    _note(lu.ids, "qbvar")
                     lu.tag = "qbvar"
                     seen.add(lu.ids)
                     cands.append(lu)
@@ -538,8 +547,9 @@ def tail_select_lineups(
                               locks={qb["id"]} | set(locks))
             except Exception:
                 continue
+            if lu is not None:
+                _note(lu.ids, "midqb")   # every producer (A2.1)
             if lu is not None and lu.ids not in seen:
-                _note(lu.ids, "midqb")
                 lu.tag = "midqb"
                 seen.add(lu.ids)
                 cands.append(lu)
@@ -563,8 +573,9 @@ def tail_select_lineups(
             if lu is None:
                 break
             banned.append(lu.ids)
+            if lu is not None:
+                _note(lu.ids, "game")   # every producer (A2.1)
             if lu.ids not in seen:
-                _note(lu.ids, "game")
                 lu.tag = "game"
                 seen.add(lu.ids)
                 cands.append(lu)
@@ -579,8 +590,9 @@ def tail_select_lineups(
                               game_lock=(gid, 5), locks=set(locks))
             except Exception:
                 continue
+            if lu is not None:
+                _note(lu.ids, "dark")   # every producer (A2.1)
             if lu is not None and lu.ids not in seen:
-                _note(lu.ids, "dark")
                 lu.tag = "dark"
                 seen.add(lu.ids)
                 cands.append(lu)
@@ -664,6 +676,7 @@ def tail_select_lineups(
     _cand_tbl = cand_log_table or _os.environ.get("CAND_LOG_TABLE")
     if _cand_tbl:
         try:
+            import json
             import uuid
             from datetime import datetime, timezone
 
@@ -673,31 +686,53 @@ def tail_select_lineups(
             sel_order = {int(ix): rank for rank, ix in enumerate(picked)}
             rows = []
             now = datetime.now(timezone.utc)
-            run_id = uuid.uuid4().hex[:12]
-            # actual scores + rank (review #6, Sol: the reranker training
-            # set needs LABELS — the previous record had none, so "we
-            # persist candidates with actuals" was false). Actuals are
-            # available in replay; live builds write NaN until scored.
-            try:
-                acts = np.array([
-                    sum(float(p.get("actual") or 0) for p in lu.players)
-                    for lu in cands])
-                act_rank = (-acts).argsort().argsort() + 1
-            except Exception:
+            # A2.3 two-level identity: PANEL_RUN_ID is set once per
+            # six-season invocation (harvest driver exports it); the
+            # slate id is per (season, week). A per-slate-only uuid made
+            # partial reruns look like independent panels.
+            panel_run_id = _os.environ.get("PANEL_RUN_ID", "")
+            slate_run_id = uuid.uuid4().hex[:12]
+            # A2.2 labels: `or 0` turned MISSING actuals into real-looking
+            # zeros, so unlabeled live candidates appeared labeled. Labels
+            # are populated ONLY when every player has an actual.
+            vals = [[p.get("actual") for p in lu.players] for lu in cands]
+            complete = [all(v is not None and not pd.isna(v) for v in row)
+                        for row in vals]
+            labels_complete = bool(complete) and all(complete)
+            if labels_complete:
+                acts = np.array([sum(map(float, row)) for row in vals])
+                # explicit ranking method (ties -> min), not double argsort
+                act_rank = pd.Series(-acts).rank(method="min").astype(int).to_numpy()
+            else:
                 acts = np.full(len(cands), np.nan)
-                act_rank = np.zeros(len(cands), dtype=int)
+                act_rank = np.full(len(cands), -1)
             sim_sd = cand_totals.std(axis=1)
             qs = np.quantile(cand_totals, [0.5, 0.9, 0.99], axis=1)
+            # A2.4 masks: store the FULL world mask (no silent 2048
+            # truncation) plus n_worlds/bitorder, and preregistered
+            # masks at 187/194/200 so ACTION 3 is an exact offline
+            # counterfactual rather than a re-simulation.
+            n_worlds = int(cand_totals.shape[1])
+            grid = (187.0, 194.0, 200.0)
+            grid_masks = {g: (cand_totals >= g) for g in grid}
             for ix, lu in enumerate(cands):
                 rows.append({
-                    "generated_at": now, "run_id": run_id,
+                    "generated_at": now,
+                    "panel_run_id": panel_run_id,
+                    "slate_run_id": slate_run_id,
+                    "run_type": ("replay" if labels_complete
+                                 else "live_unlabeled"),
+                    "labels_complete": labels_complete,
+                    "research_eligible": labels_complete
+                    and bool(panel_run_id),
                     "season": int(slate["season"].iloc[0]),
                     "week": int(slate["week"].iloc[0]),
                     "cand_ix": ix, "tag": lu.tag or "lev",
                     # every generator that produced this roster, not just
-                    # the first (Sol: first-producer attribution bias)
-                    "all_tags": ",".join(all_tags.get(lu.ids,
-                                                      [lu.tag or "lev"])),
+                    # the first (Sol A2.1: recorded before the dedupe
+                    # test). JSON list, not an ambiguous delimited string.
+                    "all_tags": json.dumps(
+                        all_tags.get(lu.ids, [lu.tag or "lev"])),
                     "selected": ix in sel_order,
                     "selected_rank": sel_order.get(ix, -1),
                     "salary": int(lu.salary),
@@ -709,8 +744,10 @@ def tail_select_lineups(
                     "sim_q99": float(qs[2, ix]),
                     "sim_rank_p_line": int(
                         (p_line_all > p_line_all[ix]).sum()) + 1,
-                    "actual_score": float(acts[ix]),
-                    "actual_rank": int(act_rank[ix]),
+                    "actual_score": (None if not labels_complete
+                                     else float(acts[ix])),
+                    "actual_rank": (None if not labels_complete
+                                    else int(act_rank[ix])),
                     "tail_line": float(tail_line),
                     "n_entries": int(n_entries),
                     "n_sims": int(cand_totals.shape[1]),
@@ -718,14 +755,60 @@ def tail_select_lineups(
                     "n_theses": len(theses or ()),
                     "players": ",".join(
                         str(p.get("id")) for p in lu.players),
-                    # clear-world bitmask (hex) — the greedy coverage
-                    # selector cannot be reconstructed from scalar p_line
-                    # (Sol §6); capped to the first 2048 worlds.
+                    # clear-world masks — the greedy coverage selector
+                    # cannot be reconstructed from scalar p_line (Sol
+                    # §6). FULL length (no truncation), with n_worlds and
+                    # bitorder recorded so decode is unambiguous, plus
+                    # the preregistered 187/194/200 grid for ACTION 3.
+                    "n_worlds": n_worlds,
+                    "bitorder": "big",
                     "clear_bits": np.packbits(
-                        (cand_totals[ix][:2048] >= tail_line)
-                    ).tobytes().hex(),
+                        cand_totals[ix] >= tail_line,
+                        bitorder="big").tobytes().hex(),
+                    "clear_bits_187": np.packbits(
+                        grid_masks[187.0][ix], bitorder="big").tobytes().hex(),
+                    "clear_bits_194": np.packbits(
+                        grid_masks[194.0][ix], bitorder="big").tobytes().hex(),
+                    "clear_bits_200": np.packbits(
+                        grid_masks[200.0][ix], bitorder="big").tobytes().hex(),
                 })
             df = pd.DataFrame(rows)
+            # A2.6 (partial): the candidate-by-world SCORE MATRIX is
+            # irrecoverable after the run and masks at three thresholds
+            # cannot support a residual-shift-and-reselect reranker.
+            # Written as one compressed npz per slate to GCS, keyed by
+            # panel/slate ids, with a checksum in the warehouse row.
+            art_uri = ""
+            art_sha = ""
+            bucket = _os.environ.get("CAND_ARTIFACT_BUCKET", "")
+            if bucket and panel_run_id:
+                try:
+                    import hashlib
+                    import io
+
+                    from google.cloud import storage
+
+                    buf = io.BytesIO()
+                    np.savez_compressed(
+                        buf,
+                        cand_ix=np.arange(len(cands), dtype=np.int32),
+                        totals=np.asarray(cand_totals, dtype=np.float32),
+                        tail_line=np.float32(tail_line))
+                    payload = buf.getvalue()
+                    art_sha = hashlib.sha256(payload).hexdigest()
+                    season_i = int(slate["season"].iloc[0])
+                    week_i = int(slate["week"].iloc[0])
+                    art_uri = (f"gs://{bucket}/cand_scores/{panel_run_id}/"
+                               f"{season_i}_w{week_i}_{slate_run_id}.npz")
+                    storage.Client().bucket(bucket).blob(
+                        art_uri.split(f"{bucket}/", 1)[1]
+                    ).upload_from_string(payload)
+                    log.info("score artifact -> %s (%d bytes)",
+                             art_uri, len(payload))
+                except Exception:
+                    log.exception("score-artifact upload failed")
+            df["score_artifact_uri"] = art_uri
+            df["score_artifact_sha256"] = art_sha
 
             def _write():
                 try:
