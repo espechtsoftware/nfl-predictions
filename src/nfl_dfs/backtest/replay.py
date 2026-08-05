@@ -127,7 +127,9 @@ def replay_projections(
     # calibration's own fit) composition. "fitted" applies DEFAULT_WIDEN
     # to the draws mean-preservingly; or pass explicit "WR:1.3,QB:1.5".
     draws_out = (apply_draw_shape(sim.draws, rows.position, seed,
-                                  keys=rows[["season", "week", "gsis_id"]])
+                                  keys=rows[[c for c in ("season", "week",
+                                         "gsis_id", "is_rookie")
+                                         if c in rows.columns]])
                  if return_draws else sim.draws)
     keep = [c for c in ("gsis_id", "name", "season", "week", "team", "opponent",
                         "position", "game_id", "salary") if c in rows.columns]
@@ -152,6 +154,22 @@ def apply_draw_shape(draws: np.ndarray, positions: pd.Series,
     widen_spec = os.environ.get("SIM_WIDEN_DRAWS", "fitted")
     if widen_spec.lower() not in ("off", "0", ""):
         out = _widen_draws(out, positions, widen_spec)
+    # A/B lever (env ROOKIE_WIDEN, off by default; 2026-08-04 rookie
+    # readiness): rookie q90 coverage measured 0.888 vs 0.904 veteran —
+    # ceilings mildly under-covered exactly in the punt band where the
+    # construction values players AT their ceiling. Fitted on 4,105
+    # historical rookie rows: widening rookie draws' spread around their
+    # mean by 1.07 restores exact 0.900 coverage. Needs keys carrying
+    # is_rookie (replay rows and the live inference frame both do).
+    rw = os.environ.get("ROOKIE_WIDEN", "")
+    if (rw not in ("", "0") and keys is not None
+            and "is_rookie" in getattr(keys, "columns", [])):
+        s = 1.07 if rw == "1" else float(rw)
+        mask = keys.is_rookie.fillna(False).astype(bool).to_numpy()
+        if mask.any():
+            mu = out[mask].mean(axis=1, keepdims=True)
+            out = out.copy()
+            out[mask] = np.maximum(mu + s * (out[mask] - mu), 0.0)
     shaped = None
     # TABPFN_MARGINALS ADOPTED default-on 2026-08-04 (Addendum 50):
     # +6 tails alone (24 vs 18), STPFN stack = best mean-best of the

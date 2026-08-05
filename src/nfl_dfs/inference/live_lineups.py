@@ -72,10 +72,12 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     # keys enable per-player marginal levers (TABPFN_MARGINALS) live —
     # without them the lever silently fell through to empirical
     # marginals, a replay/live parity gap (2026-08-04 audit).
+    _kc = [c for c in ("season", "week", "gsis_id", "is_rookie")
+           if c in skill.columns]
     draws = apply_draw_shape(sim.draws, skill.position, seed,
-                             keys=skill[["season", "week", "gsis_id"]]
+                             keys=skill[_kc]
                              if {"season", "week", "gsis_id"}
-                             <= set(skill.columns) else None)
+                             <= set(_kc) else None)
 
     # Market blend as an additive mean shift — draw shape untouched.
     market = market_projection_frame(skill)

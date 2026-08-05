@@ -27,3 +27,23 @@ def test_tabpfn_marginals_maps_and_preserves_ranks(monkeypatch):
     assert abs(np.quantile(o0, 0.9) - 24.0) < 2.5
     assert (out[1] == draws[1]).all(), "uncached row untouched"
     assert (out >= 0).all()
+
+
+def test_rookie_widen_scales_only_rookie_rows(monkeypatch):
+    import numpy as np
+    import pandas as pd
+
+    from nfl_dfs.backtest.replay import apply_draw_shape
+
+    monkeypatch.setenv("ROOKIE_WIDEN", "1")
+    monkeypatch.setenv("TABPFN_MARGINALS", "0")
+    monkeypatch.setenv("EMP_MARGINALS", "0")
+    monkeypatch.setenv("SIM_WIDEN_DRAWS", "off")
+    rng = np.random.default_rng(4)
+    draws = rng.gamma(3, 4, (2, 800)).astype(np.float32)
+    keys = pd.DataFrame({"season": [2026, 2026], "week": [1, 1],
+                         "gsis_id": ["R", "V"], "is_rookie": [True, False]})
+    out = apply_draw_shape(draws.copy(), pd.Series(["WR", "WR"]), 0, keys=keys)
+    assert np.allclose(out[1], draws[1]), "veteran untouched"
+    assert out[0].std() > draws[0].std() * 1.05, "rookie spread widened"
+    assert abs(out[0].mean() - draws[0].mean()) < 0.15, "mean preserved"
