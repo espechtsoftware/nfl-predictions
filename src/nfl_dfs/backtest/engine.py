@@ -860,9 +860,25 @@ def tail_select_lineups(
                         "proj_p90", "proj_std", "actual"]
                 have = [c for c in want if c in slate.columns]
                 fdf = slate[have].copy()
+                # BigQuery/pyarrow cannot infer a type for an all-None
+                # object column (2026-08-05: every feature write failed
+                # this way while candidates wrote fine). Missing numeric
+                # families become float NaN, missing string families
+                # become a typed string column.
+                _strcols = {"id", "gsis_id", "name", "pos", "team", "opp",
+                            "game_id"}
                 for c in want:  # explicit missingness, never silent
                     if c not in have:
-                        fdf[c] = None
+                        fdf[c] = (pd.Series([pd.NA] * len(fdf),
+                                            dtype="string")
+                                  if c in _strcols
+                                  else pd.Series(np.nan, index=fdf.index,
+                                                 dtype="float64"))
+                for c in want:  # coerce present columns to a stable type
+                    if c in _strcols:
+                        fdf[c] = fdf[c].astype("string")
+                    else:
+                        fdf[c] = pd.to_numeric(fdf[c], errors="coerce")
                 fdf["feature_missing"] = json.dumps(
                     [c for c in want if c not in have])
                 fdf["panel_run_id"] = panel_run_id

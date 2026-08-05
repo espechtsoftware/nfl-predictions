@@ -211,3 +211,27 @@ def test_player_feature_snapshot_written(monkeypatch):
     assert not fdf.research_eligible.any()
     # quantile columns absent from this fixture must be declared missing
     assert "proj_p90" in json.loads(fdf.feature_missing.iloc[0])
+
+
+def test_feature_snapshot_is_warehouse_typed(monkeypatch):
+    """2026-08-05 harvest failure: all-None object columns made every
+    feature write fail pyarrow conversion while candidates wrote fine.
+    Missing families must be TYPED (float NaN / string NA), and present
+    columns coerced, so the frame is loadable."""
+    import pyarrow as pa
+
+    slate, pool, draws = _slate()          # no market/quantile columns
+    writes: list = []
+    monkeypatch.setattr("nfl_dfs.bq.load_dataframe",
+                        lambda df, table, **kw: writes.append((table, df)))
+    monkeypatch.setenv("MIN_LINEUP_SALARY", "0")
+    monkeypatch.setenv("PANEL_RUN_ID", "p-typed")
+    engine.tail_select_lineups(
+        slate, pool, draws, tail_line=95.0, n_entries=8, stack=None,
+        objective_col="proj", cand_log_table="proj.ds.candidates")
+    fdf = next(d for t, d in writes if t.endswith("slate_player_features"))
+    for col in ("market_points", "model_points_pre", "proj_p90"):
+        assert fdf[col].dtype.kind == "f", f"{col} is {fdf[col].dtype}"
+    # the decisive check: the frame must survive arrow conversion, which
+    # is what the warehouse loader does internally
+    pa.Table.from_pandas(fdf, preserve_index=False)
