@@ -2530,3 +2530,34 @@ was verified against code:
   material recoverable-tail rate, selection re-opens with
   oracle-aware design — and the selection-era graves revive under
   THAT selector only. No other reruns.
+
+## Addendum 83 (2026-08-05): The candidate-oracle baseline — 8 recoverable weeks sit in the pool; and a draw-order confound caught by co-run control
+
+**CANDORACLE (defaults, instrumented build): the preselection
+frontier clears 194 in 30/107 weeks vs the selected book's 22 on the
+same build — +8 weeks (+36%) of tails EXIST in the current pool and
+selection drops them.** Mean oracle gap 6.9 pts (median 0.5, p90 21);
+oracle in the selected 40 only 48% of weeks; the actual-best
+candidate's sim-rank is median 53/168 (top-40 only 38%). Precise
+correction to "selection is exonerated": all SIM-INFORMED selectors
+are equivalent (hence LSE/SHARP/coverage all tie — they read the same
+signal, and the sim cannot rank candidates by realized outcome), and
+all of them leave ~1/3 of reachable tails unselected. Capturing the
+residual needs either (a) MORE ENTRIES — the pool outproduces the
+book, which is WHY the entries curve still slopes past 40 (Addendum
+74); bankroll-level lever, no code — or (b) a selection signal
+ORTHOGONAL to the sim: exactly the decision-focused reranker
+(September designs #3), whose priority now RISES with its target
+quantified (8 weeks / 6.9 pts). Oracle tag mix: boom 55, lev 24,
+dark 12, qbvar 10, game 6 — the leverage batch is a quiet oracle
+producer.
+
+**Co-run control catch**: the TD-ledger commit REORDERED the sim's
+RNG draw sequence (TD draws moved after interceptions), so the
+instrumented build's deterministic streams shifted — CANDORACLE
+(defaults, same build) came in at 22 selected-clears vs the sealed
+25. Nothing is wrong distributionally; but TDLEDGER and DELETE3 run
+on THIS build and MUST be judged against CANDORACLE's 22, not the
+sealed 25 (same-build law). Consequence for the reseal: the new
+image re-bases the baseline — the final seal includes a fresh
+control panel (HARVEST-FINAL-2) to establish the shipping number.
