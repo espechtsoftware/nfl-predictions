@@ -594,7 +594,8 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
     slates = []
     for (season, week), grp in skill.groupby(["season", "week"]):
         cols = ["id", "name", "pos", "team", "opp", "game_id",
-                "salary", "proj", "actual", "season", "week", "draw_idx"]
+                "salary", "proj", "actual", "season", "week", "draw_idx",
+                "gsis_id"]  # Q99_WILD keys
         if "consensus_div" in grp.columns:  # DIV_TILT lever input
             cols.append("consensus_div")
         frame = grp[cols].copy()
