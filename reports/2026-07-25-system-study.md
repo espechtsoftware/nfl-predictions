@@ -2021,3 +2021,28 @@ designed on a discredited signal → predicted null → delivered
 negative. Combined with the stack-mandate validation, the assembly
 gap's remedy is now narrowed to ONE untested mechanism: the
 architecture itself (GREEN, running last).
+
+## Addendum 66 (2026-08-05): GREEN — the alternate architecture reaches parity on its first attempt
+
+The greenfield-v1 branch (per-world argmax primary generator +
+beat-the-Gumbel-extended-field-bar selection, sharing the validated
+worlds engine): **27 vs HARVEST-FINAL's 25** — but +2 inside the noise
+band, LOSO 2+/2−, and the incumbent keeps the better mean (179.7 vs
+178.7), median (14.1 vs 14.6), and the only ≥237 week. NOT adopted.
+The finding is nonetheless the day's most forward-looking: a v1
+architecture reached PARITY with the 66-addenda incumbent in one
+attempt, with none of its refinements. The branch survives as the
+September iteration vehicle; its v2 backlog (from the greenfield doc,
+not yet in v1): the field bar from REAL imported standings instead of
+the sampled naive field; dupe-aware bar margins; hybrid generation
+(world-argmax + the incumbent's diversity batch feeding ONE selection);
+and the diagnostic battery run on its exports to see whether its
+assembly overlap beats the incumbent's 1.87 — if it does, the
+architecture wins on mechanism even at score parity, and iteration is
+justified by the eval rule.
+
+**THE LEDGER CLOSES HERE.** Final state: six adoptions (EW, PUNT_BOOM,
+QF, SCHED, TabPFN marginals, MODEL_ENSEMBLE=3), baseline 25/107 sealed
+and deployed, twelve challengers repelled on the final day, one
+alternate architecture at parity on a branch, and every question that
+can be answered without September data — answered.
