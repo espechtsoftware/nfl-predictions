@@ -2453,3 +2453,26 @@ package holds >= control everywhere it matters. Pending TRUENOFADE
 which defaults flip. The direction is now unmistakable: post-ensemble,
 the system prefers LESS hand-tuning — every deletion tested so far is
 null-to-positive.
+
+## Addendum 80 (2026-08-05): TRUENOFADE 23 — the fade earns its keep; the final default package is DELETE2's config
+
+TRUENOFADE (LEV_PENALTY=0, the ACTUAL fade deletion): 23/107, deltas
+{0,+1,0,0,-3,0}, mean best 180.5 (up) but tails down. The chalk fade
+contributes ~+2 tails post-ensemble — it survives its corrected
+deletion test. Sol's audit materially changed an adoption decision:
+the mislabeled arm said delete (26); the true arm says keep (23).
+
+The four-arm picture is now coherent:
+- fade OFF: 23 (costs tails)
+- fade w/ trained own (sealed default): 25
+- fade w/ NAIVE own: 26 (booster adds nothing)
+- fade w/ naive own + punt mandate/boost deleted: 27 (DELETE2)
+
+**Default flips chosen (pending one confirmatory arm)**: OWN_MODEL
+default "" (naive fade — ownership booster leaves construction),
+PUNT_MIN default 0, PUNT_BOOM default 0. KEEP: the fade itself, p90
+punt valuation, salary floor, stack mandate. Live path
+(live_lineups.py) must mirror all three. DELETE3 (in queue) is now
+purely confirmatory (predicts ~23-25: it includes the fade
+deletion). The reseal happens ONCE, after TDLEDGER's verdict, so a
+ledger adoption (if any) ships in the same image.
