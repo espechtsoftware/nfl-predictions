@@ -2592,3 +2592,53 @@ whether expressed as smooth fade or barbell; LOSO fails for adoption
 (one positive season) and the fade is simpler + twice-validated, so
 the package is unchanged. Corrective set COMPLETE: every mislabeled
 arm now has an honest verdict.
+
+## Addendum 85 (2026-08-05): Review #5 round 3 — two retractions, seven fixes; the audit loop catches its biggest fish
+
+Sol audited the day's commits with code access. Verified findings and
+consequences, in severity order:
+
+- **TDLEDGER's burial (Addendum 84) is RETRACTED — the arm was
+  INVALID, not negative.** replay simulates whole-season frames and
+  the ledger factorized team abbreviations alone, pooling every
+  KC player-week of a season into ONE TD draw scaled by the first
+  game's multiplier. 18-vs-22 measured a broken mechanism. FIXED:
+  (game, team) unit grouping + cross-game-independence regression
+  test. TDLEDGER2 rerun queued on the fixed build; the parametric-
+  coupling question is OPEN again, not buried.
+- **The 25->22 "draw-order rebase" (Addendum 83) was self-inflicted
+  and is REVERTED**: the off-path now reproduces the pre-ledger RNG
+  sequence byte-for-byte. Sealed baselines are comparable again; the
+  CANDORACLE oracle numbers (30-vs-22 frontier) remain valid AS
+  ORACLE data on their own build, and HARVEST-FINAL-2 (relaunched on
+  the fixed image) re-measures both baseline and oracle on the
+  shipping config.
+- **Ledger reconciliation fixed**: when rostered receiver TD means
+  exceed the passer sum, the old code scaled receivers down (broke
+  their marginals); the unit total is now max(passer-sum, catcher-
+  sum) with other-buckets on both sides — both marginal sets
+  preserved, regression-tested.
+- **Live/replay blend parity**: the live paths blended DK historical
+  PPG while the replay blend that VALIDATED BLEND_W=0.45 uses
+  de-vigged prop points. Live is now props-first with DK-PPG
+  fallback; div_shadow only logs when the source is real props (it
+  was about to spend September grading the wrong market).
+- **Live ownership universe**: fade + own_shadow were computed over
+  the UNION of upcoming draft groups; restriction now happens before
+  ownership normalization.
+- **div grader preregistration**: implements sign(div)x(actual-
+  market) over |div|>=2 with the frozen first-6-week denominator.
+- **Persistence hardening**: candidate rows carry provenance (run_id,
+  selected_rank, tail_line, n_entries, n_sims, locks/theses); the
+  live path passes the table explicitly (no global env mutation) and
+  writes via daemon threads — a stalled BigQuery call can no longer
+  block lineup generation.
+- **Schaake axis corrected** in the design doc (ranks ACROSS matched
+  games per role — the within-game axis would not preserve marginals).
+- Sol's "defaults not applied" finding was timing (reviewed pre-flip
+  HEAD): the DELETE2 package is committed and deployed.
+
+Process law reinforced: the GREEN2 env typo, the NOFADE mislabel, and
+now the TDLEDGER grouping defect were all caught by AUDIT, not by the
+panel — the panel produces a number either way. Instrument-level
+review before verdict-level interpretation.
