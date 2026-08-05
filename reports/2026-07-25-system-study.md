@@ -1886,3 +1886,32 @@ post-ensemble law:
   September shows a shootout-miss pattern.
 - TMW17, DIRK8, PSLOPE/PSTRICT/LOWSAL: no mechanism evidence surfaced
   by any later analysis; buried on merits.
+
+## Addendum 61 (2026-08-05): model-technique audit, GPU verification, and the eval upgrade
+
+**GPU artifacts verified sound, not just present**: marginal cache —
+100% monotone ladders, zero nulls, stable ~10-pt q90−q50 spreads, all
+six seasons. Component cache — actuals-correlations IMPROVE with
+context size (targets r .545→.623, the ICL signature); TabPFN's
+occasional negative counts (539 rows at the smallest 2019 context,
+~0 later) are neutralized by the production clips at consumption.
+
+**Technique audit**: every model uses a defensible technique; the real
+gaps are UNTRIED TabPFN placements, ranked: (1) DST projections — the
+stack's weakest model (trailing means) and a pure cache-pattern
+experiment; (2) ownership vs the .727 booster; (3) the licensed v2.5
+upgrade (Erich accepts at priorlabs.ai → TABPFN_TOKEN → regenerate
+caches → one panel). Plus the best remaining ensemble idea:
+**heterogeneous members** — the K=3 ensemble is all-LGBM; a mixed
+family (LGBM + CatBoost + TabPFN-mean member) adds diversity that
+seed/column shuffles cannot. All September arms.
+
+**Eval strategy upgraded** (Erich: "would a better eval find problems
+easier?" — yes, proven tonight): the tails metric is outcome-only;
+every mechanism discovery of the last 24h came from ad-hoc analysis.
+scripts/diagnose_portfolio.py now packages that battery (capture%,
+pool-hit%, assembly-vs-random-null, pair co-occurrence, QB anchoring,
+generator attribution) as a one-command standing diagnosis. New eval
+rule: an arm that moves tails without moving ANY diagnostic is
+suspected of winning on noise; an arm that moves a diagnostic without
+moving tails is a mechanism lead worth a redesign.
