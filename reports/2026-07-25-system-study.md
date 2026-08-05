@@ -2251,3 +2251,23 @@ Retest chain voids automatically (LSE <= 25): the VALUE2E / Q99_WILD
 / N_BOOM graves stand. The wall's W1 is now closed as "not a defect"
 — the remaining edge, per F2's verified math, is structural (field/
 duplication), which is September's skeleton-resampler work.
+
+## Addendum 74 (2026-08-05): LSE log mining — the portfolio out-tails its own Gaussian model by +7 weeks
+
+Parsing all six LSE runs' entries-to-line tables (106 weeks): summing
+the Gaussian-implied per-week P(clear 194 with 40 entries) predicts
+17.9 clears; actual = 25. The +7 is NOT luck — the boom-solve entries
+give the portfolio a heavy right tail the week's Gaussian fit (mu
+~110-140, sd ~20-35) cannot represent. Implications: (a) tails are
+manufactured by the boom generator (attribution agrees: 8/18 weekly
+bests from 58% of pool), not by breadth; (b) all Gaussian-derived
+difficulty numbers (N@237 medians ~1M, "6/18 reachable", reviewer
+F2's EVT ceiling) are CONSERVATIVE for our portfolio specifically.
+Also measured: clears are environment-gated (cleared weeks mu 131/sd
+28.4 vs missed 122/22.9 — the slate booms, not the picks); best-scorer
+selection rank median 20 = uniform, though rank<=10 holds 31% of
+bests vs 25% uniform (faint, not actionable); 17 "reachable misses"
+mostly low-sd weeks = the Gaussian overstating quiet-slate
+reachability. Expected clears at 150 entries (Gaussian, conservative):
+38.4 — the entries-count curve still has slope past 40, relevant to
+contest-mix sizing.
