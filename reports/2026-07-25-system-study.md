@@ -2271,3 +2271,10 @@ mostly low-sd weeks = the Gaussian overstating quiet-slate
 reachability. Expected clears at 150 entries (Gaussian, conservative):
 38.4 — the entries-count curve still has slope past 40, relevant to
 contest-mix sizing.
+
+**Addendum 74b — BARBELL verdict: 24/107, null-negative.** (OWN_BARBELL
+=1 + OWN_MODEL=off, review #4 F4.) Mean best 178.4 vs 179.7; per-season
+{4,2,3,3,7,5} vs {5,1,3,4,7,5}. The lever fired (portfolio chalk 0.39
+vs 0.26 under fade — it held the mega-chalk as designed) but the
+winner-anatomy barbell does NOT beat the smooth fade on our objective.
+The fade survives its replacement challenger; F4 closed.
