@@ -40,7 +40,31 @@ class ProjectionStore(Protocol):
     def classic_draftable_ids(self) -> pd.DataFrame: ...
 
 
+def _empty_on_missing(fn):
+    """Off-season/first-week readiness (2026-08-04): tables or columns
+    that only exist once the season's jobs have run must render as
+    'no data yet', not a 500."""
+    import functools
+
+    @functools.wraps(fn)
+    def wrap(*a, **k):
+        try:
+            return fn(*a, **k)
+        except Exception as exc:
+            msg = str(exc)
+            if "Not found" in msg or "not found" in msg:
+                import logging
+
+                logging.getLogger(__name__).warning(
+                    "%s: table/column not available yet (%s) — empty frame",
+                    fn.__name__, msg.splitlines()[0][:120])
+                return pd.DataFrame()
+            raise
+    return wrap
+
+
 class BigQueryStore:
+    @_empty_on_missing
     def slates(self) -> pd.DataFrame:
         from ..bq import query_df
 
@@ -131,6 +155,7 @@ class BigQueryStore:
             params={"season": season, "week": week},
         )
 
+    @_empty_on_missing
     def showdown_salaries(self) -> pd.DataFrame:
         """Latest pull per upcoming showdown draft group (one game each).
         Salaries are FLEX-slot; the optimizer derives the 1.5x CPT cost."""
@@ -157,6 +182,7 @@ class BigQueryStore:
             """
         )
 
+    @_empty_on_missing
     def classic_slates(self) -> pd.DataFrame:
         """One row per (upcoming classic draft group, kickoff time): team and
         player counts from the latest pull per group. A group stays listed
@@ -185,6 +211,7 @@ class BigQueryStore:
             """
         )
 
+    @_empty_on_missing
     def classic_salaries(self, draft_group_id: int) -> pd.DataFrame:
         """Latest pull for one classic draft group: the slate's player pool
         with its own salaries and draftable IDs (both are slate-specific)."""
@@ -207,6 +234,7 @@ class BigQueryStore:
             params={"gid": int(draft_group_id)},
         )
 
+    @_empty_on_missing
     def classic_draftable_ids(self) -> pd.DataFrame:
         """dk_player_id -> draftable ID from the latest classic pull. The
         upload CSV needs draftable IDs (the DKSalaries 'ID' column), which

@@ -109,6 +109,13 @@ def load_dataframe(
     if "." not in table:
         table = f"{settings.raw}.{table}"
     job_config = bigquery.LoadJobConfig(write_disposition=write_disposition, autodetect=True)
+    if write_disposition == "WRITE_APPEND":
+        # Schema evolution (2026-08-04 readiness check): appends with NEW
+        # columns (e.g. dk_draftable_id added to the ingest in July while
+        # the off-season table kept the old schema) otherwise fail the
+        # first September pull.
+        job_config.schema_update_options = [
+            bigquery.SchemaUpdateOption.ALLOW_FIELD_ADDITION]
     if partition_field:
         job_config.time_partitioning = bigquery.TimePartitioning(field=partition_field)
     log.info("Loading %d rows into %s (%s)", len(df), table, write_disposition)
