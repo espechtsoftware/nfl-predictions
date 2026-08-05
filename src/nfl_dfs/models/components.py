@@ -105,9 +105,14 @@ class _HistMember:
     def __init__(self, X, label, w, params):
         from sklearn.ensemble import HistGradientBoostingRegressor
 
-        self.cols = list(X.columns)
+        self.full_cols = list(X.columns)
         Xn = X.copy()
         Xn["position"] = Xn["position"].cat.codes
+        # HistGB's binner crashes on constant columns (thin QB slices);
+        # keep only columns with >=2 distinct non-null values.
+        keep = [c for c in Xn.columns if Xn[c].nunique(dropna=True) >= 2]
+        self.cols = keep
+        Xn = Xn[keep]
         loss = ("poisson" if params.get("objective") == "poisson"
                 else "absolute_error")
         self.m = HistGradientBoostingRegressor(
@@ -117,12 +122,13 @@ class _HistMember:
                    sample_weight=w)
 
     def feature_name(self):
-        return self.cols
+        return self.full_cols
 
     def predict(self, X):
-        Xn = X[self.cols].copy()
-        Xn["position"] = Xn["position"].cat.codes
-        return self.m.predict(Xn)
+        Xn = X.copy()
+        if "position" in Xn.columns:
+            Xn["position"] = Xn["position"].cat.codes
+        return self.m.predict(Xn[self.cols])
 
 
 class _EnsembleBooster:
