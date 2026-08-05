@@ -25,8 +25,9 @@ YARD_PTS = {"player_pass_yds": 0.04, "player_rush_yds": 0.1,
 
 
 def _norm(s: pd.Series) -> pd.Series:
-    return (s.astype(str).str.lower()
-            .str.replace(r"[^a-z ]", "", regex=True).str.strip())
+    from ..names import norm_name
+
+    return s.astype(str).map(norm_name)
 
 
 def market_points(seasons: tuple[int, ...] = (2023, 2024, 2025)) -> pd.DataFrame:
@@ -80,7 +81,14 @@ def market_points(seasons: tuple[int, ...] = (2023, 2024, 2025)) -> pd.DataFrame
                .mean().reset_index())
     total = (per_mkt.groupby(["season", "week", "norm"]).pts.sum()
              .reset_index().rename(columns={"pts": "market_points"}))
-    out = total.merge(names[["norm", "gsis_id"]], on="norm", how="inner")
+    # two-stage match (names.py): exact norm, then unambiguous
+    # initial-key fallback — catches 'Cameron Ward' vs 'Cam Ward'.
+    from ..names import match_map, resolve
+
+    lookup = match_map(dict(zip(names.display_name, names.gsis_id)))
+    total["gsis_id"] = total.norm.map(
+        lambda n: resolve(n, lookup))
+    out = total[total.gsis_id.notna()].copy()
     log.info("prop market: %d player-weeks priced (%.0f%% of prop names "
              "matched)", len(out), 100 * len(out) / max(len(total), 1))
     return out[["season", "week", "gsis_id", "market_points"]]

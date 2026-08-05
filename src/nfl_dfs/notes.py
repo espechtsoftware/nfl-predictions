@@ -134,7 +134,11 @@ def _prefs_table() -> str:
 
 
 def norm_name(s: str) -> str:
-    import re
+    """Shared normalizer (names.py): suffix-proof, so a pref typed
+    'odell beckham' matches 'Odell Beckham Jr.'"""
+    from .names import norm_name as _n
+
+    return _n(s)
 
     return re.sub(r"[^a-z ]", "", str(s).lower()).strip()
 
