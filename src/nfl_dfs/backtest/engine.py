@@ -338,6 +338,45 @@ def tail_select_lineups(
                 lu.tag = "lowsal"
                 seen.add(lu.ids)
                 cands.append(lu)
+    # Ceiling-wildcard injection (env Q99_WILD=N, off by default;
+    # 2026-08-05 gap decomposition: the 16% of hindsight-optimal players
+    # we NEVER rostered are mid-cheap booms — mean $4.8k, mean 30.3 pts,
+    # Achane 54.3 — that mean-anchored candidates skip). For each of the
+    # week's top-N TabPFN-q99 sub-$6.5k skill players not already in any
+    # candidate, solve ONE lineup locking him in; the selector judges.
+    # INJECTION, not tilt — ALT_CEIL/WRBOOM failed as tilts (Add. 60).
+    n_wild = int(_os.environ.get("Q99_WILD", "0") or 0)
+    if n_wild:
+        try:
+            from ..bq import query_df as _qdf
+            from ..config import settings as _st
+
+            season_w = int(slate.season.iloc[0])
+            week_w = int(slate.week.iloc[0])
+            qq = _qdf(f"SELECT gsis_id, q99 FROM "
+                      f"`{_st.features}.tabpfn_projections` WHERE "
+                      f"season={season_w} AND week={week_w}")
+            qmap = dict(zip(qq.gsis_id, qq.q99))
+            covered = {p["id"] for lu in cands for p in lu.players}
+            wild = sorted(
+                (p for p in pool
+                 if p.get("gsis_id") in qmap and p["salary"] <= 6500
+                 and p["pos"] != "DST" and p["id"] not in covered),
+                key=lambda p: -qmap[p["gsis_id"]])[:n_wild]
+            for wp in wild:
+                try:
+                    lu = optimize(pool, stack=stack,
+                                  objective_col=objective_col,
+                                  locks={wp["id"]} | set(locks),
+                                  max_overlap=7)
+                except Exception:
+                    continue
+                if lu is not None and lu.ids not in seen:
+                    lu.tag = "wild"
+                    seen.add(lu.ids)
+                    cands.append(lu)
+        except Exception:
+            log.exception("q99 wildcards unavailable; batch skipped")
     # Quality-diversity archive batch (env QD_CELLS = elites per cell,
     # off by default; MAP-Elites idea, research round 8 2026-08-03): the
     # named batches above are a hand-made archive; this tessellates the
