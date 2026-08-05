@@ -2199,3 +2199,27 @@ objective now under test; if SELECT_LSE adopts, VALUE2E (26),
 Q99_WILD (23), and N_BOOM (25) get re-judged under the new selector
 before their burials are trusted (PEAK_SLICE stays buried — LSE
 subsumes it). Queue + rationale: memory post-selection-retest-queue.
+
+## Addendum 72 (2026-08-05): CORRECTION — Addendum 69's GREEN2 was VACUOUS; the corrected architecture was never measured
+
+The assembly diagnostic returned byte-identical batteries for CONTROL
+and "GREEN2" — the vacuity signature. Root cause: the GREEN2 panel
+script (and the diag) passed GREEN2FIELD=1 but the branch gate reads
+GREENFIELD. The lever never fired. Consequences, honestly:
+
+- **Addendum 69 is WRONG.** "GREEN2 = 24" was the incumbent
+  construction on a rebuilt image — its 24-vs-25 delta is cross-build
+  noise. The claim "the corrected bar removed the edge / the edge was
+  the bug" is unsupported.
+- **GREEN v1's 27 stands** (panel_green.sh used GREENFIELD=1
+  correctly). The architecture's only real datapoint is 27 vs 25 —
+  WITH the over-scaled bar.
+- The corrected-bar architecture (empirical 0.256·sd) is now ACTUALLY
+  running: arm G2FIX, own job family (replay-g2-*), results
+  ~/nfl-panels/g2fix_results.txt. Assembly diag redo
+  (assembly_diag2.sh) re-gated to run last.
+- Process note: the vacuity law caught this — but only because the
+  diagnostic battery ran. A score-only readout (24, plausibly parity)
+  sailed through. LAW STRENGTHENED: an arm whose lever lives on a
+  BRANCH image must verify the env gate name against THAT branch's
+  code (img-probe covers the image, not the spelling of the gate).
