@@ -252,9 +252,21 @@ def tail_select_lineups(
     cands = optimize_many(pool, n_lineups=candidate_multiple * n_entries,
                           stack=stack, objective_col=objective_col,
                           locks=set(locks))
+    # Multi-tag provenance (review #6, Sol): `seen` dedupes rosters, so a
+    # lineup produced by BOTH lev and boom was attributed only to lev —
+    # first-producer bias that invalidates generator analysis. all_tags
+    # records EVERY producer; _note() is called at each generator site.
+    all_tags: dict = {}
+
+    def _note(ids, tag: str) -> None:
+        tags = all_tags.setdefault(ids, [])
+        if tag not in tags:
+            tags.append(tag)
     for lu in cands:
+        _note(lu.ids, "lev")
         lu.tag = "lev"
     seen = {lu.ids for lu in cands}
+
     # Thesis candidates (2026-08-03, OWS "Bink Machine" pattern): each
     # thesis {players: [ids], min: k} guarantees the POOL holds enough
     # combo-containing builds; the post-selection repair below enforces
@@ -277,6 +289,7 @@ def tail_select_lineups(
                 break
             banned_th.append(lu.ids)
             if lu.ids not in seen:
+                _note(lu.ids, "thesis")
                 lu.tag = "thesis"
                 seen.add(lu.ids)
                 cands.append(lu)
@@ -291,6 +304,7 @@ def tail_select_lineups(
             log.warning("boom-draw solve failed: %s", exc)
             continue
         if lu is not None and lu.ids not in seen:
+            _note(lu.ids, "boom")
             lu.tag = "boom"
             seen.add(lu.ids)
             cands.append(lu)
@@ -327,6 +341,7 @@ def tail_select_lineups(
                 log.warning("hyper-boom solve failed: %s", exc)
                 continue
             if lu is not None and lu.ids not in seen:
+                _note(lu.ids, "hyper")
                 lu.tag = "hyper"
                 seen.add(lu.ids)
                 cands.append(lu)
@@ -352,6 +367,7 @@ def tail_select_lineups(
                 log.warning("gumbel solve failed: %s", exc)
                 continue
             if lu is not None and lu.ids not in seen:
+                _note(lu.ids, "gumbel")
                 lu.tag = "gumbel"
                 seen.add(lu.ids)
                 cands.append(lu)
@@ -376,6 +392,7 @@ def tail_select_lineups(
                 break
             banned_ns.append(lu.ids)
             if lu.ids not in seen:
+                _note(lu.ids, "nostk")
                 lu.tag = "nostk"
                 seen.add(lu.ids)
                 cands.append(lu)
@@ -400,6 +417,7 @@ def tail_select_lineups(
                 break
             banned_ls.append(lu.ids)
             if lu.ids not in seen:
+                _note(lu.ids, "lowsal")
                 lu.tag = "lowsal"
                 seen.add(lu.ids)
                 cands.append(lu)
@@ -437,6 +455,7 @@ def tail_select_lineups(
                 except Exception:
                     continue
                 if lu is not None and lu.ids not in seen:
+                    _note(lu.ids, "wild")
                     lu.tag = "wild"
                     seen.add(lu.ids)
                     cands.append(lu)
@@ -470,6 +489,7 @@ def tail_select_lineups(
                         break
                     banned_qd.append(lu.ids)
                     if lu.ids not in seen:
+                        _note(lu.ids, "qd")
                         lu.tag = "qd"
                         seen.add(lu.ids)
                         cands.append(lu)
@@ -500,6 +520,7 @@ def tail_select_lineups(
                     break
                 banned_qv.append(lu.ids)
                 if lu.ids not in seen:
+                    _note(lu.ids, "qbvar")
                     lu.tag = "qbvar"
                     seen.add(lu.ids)
                     cands.append(lu)
@@ -518,6 +539,7 @@ def tail_select_lineups(
             except Exception:
                 continue
             if lu is not None and lu.ids not in seen:
+                _note(lu.ids, "midqb")
                 lu.tag = "midqb"
                 seen.add(lu.ids)
                 cands.append(lu)
@@ -542,6 +564,7 @@ def tail_select_lineups(
                 break
             banned.append(lu.ids)
             if lu.ids not in seen:
+                _note(lu.ids, "game")
                 lu.tag = "game"
                 seen.add(lu.ids)
                 cands.append(lu)
@@ -557,6 +580,7 @@ def tail_select_lineups(
             except Exception:
                 continue
             if lu is not None and lu.ids not in seen:
+                _note(lu.ids, "dark")
                 lu.tag = "dark"
                 seen.add(lu.ids)
                 cands.append(lu)
@@ -650,18 +674,43 @@ def tail_select_lineups(
             rows = []
             now = datetime.now(timezone.utc)
             run_id = uuid.uuid4().hex[:12]
+            # actual scores + rank (review #6, Sol: the reranker training
+            # set needs LABELS — the previous record had none, so "we
+            # persist candidates with actuals" was false). Actuals are
+            # available in replay; live builds write NaN until scored.
+            try:
+                acts = np.array([
+                    sum(float(p.get("actual") or 0) for p in lu.players)
+                    for lu in cands])
+                act_rank = (-acts).argsort().argsort() + 1
+            except Exception:
+                acts = np.full(len(cands), np.nan)
+                act_rank = np.zeros(len(cands), dtype=int)
+            sim_sd = cand_totals.std(axis=1)
+            qs = np.quantile(cand_totals, [0.5, 0.9, 0.99], axis=1)
             for ix, lu in enumerate(cands):
                 rows.append({
                     "generated_at": now, "run_id": run_id,
                     "season": int(slate["season"].iloc[0]),
                     "week": int(slate["week"].iloc[0]),
                     "cand_ix": ix, "tag": lu.tag or "lev",
+                    # every generator that produced this roster, not just
+                    # the first (Sol: first-producer attribution bias)
+                    "all_tags": ",".join(all_tags.get(lu.ids,
+                                                      [lu.tag or "lev"])),
                     "selected": ix in sel_order,
                     "selected_rank": sel_order.get(ix, -1),
                     "salary": int(lu.salary),
                     "p_line": float(p_line_all[ix]),
                     "sim_mean": float(cand_totals[ix].mean()),
-                    "sim_q99": float(np.quantile(cand_totals[ix], 0.99)),
+                    "sim_sd": float(sim_sd[ix]),
+                    "sim_q50": float(qs[0, ix]),
+                    "sim_q90": float(qs[1, ix]),
+                    "sim_q99": float(qs[2, ix]),
+                    "sim_rank_p_line": int(
+                        (p_line_all > p_line_all[ix]).sum()) + 1,
+                    "actual_score": float(acts[ix]),
+                    "actual_rank": int(act_rank[ix]),
                     "tail_line": float(tail_line),
                     "n_entries": int(n_entries),
                     "n_sims": int(cand_totals.shape[1]),
@@ -669,6 +718,12 @@ def tail_select_lineups(
                     "n_theses": len(theses or ()),
                     "players": ",".join(
                         str(p.get("id")) for p in lu.players),
+                    # clear-world bitmask (hex) — the greedy coverage
+                    # selector cannot be reconstructed from scalar p_line
+                    # (Sol §6); capped to the first 2048 worlds.
+                    "clear_bits": np.packbits(
+                        (cand_totals[ix][:2048] >= tail_line)
+                    ).tobytes().hex(),
                 })
             df = pd.DataFrame(rows)
 
