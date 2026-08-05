@@ -2642,3 +2642,39 @@ Process law reinforced: the GREEN2 env typo, the NOFADE mislabel, and
 now the TDLEDGER grouping defect were all caught by AUDIT, not by the
 panel — the panel produces a number either way. Instrument-level
 review before verdict-level interpretation.
+
+## Addendum 86 (2026-08-05): Emerging-technologies program LAUNCHED — five parallel workstream builds
+
+Erich's directive: build everything whose data exists today; adopt
+only as proven. The program doc (reports/emerging-technologies-plan.md)
+is the specification; its §3 prerequisites were completed by tonight's
+round-3 fixes. Five builds now running in parallel isolated worktrees:
+
+1. **Shared infrastructure** (§4/16.1): run-context, normalized
+   candidate schemas, machine-readable config manifest, role-weighted
+   variogram dependence suite (instrument #0 made real).
+2. **GFlowNet generator v0** (workstream A): legal-construction
+   environment with masks, trajectory-balance training, toy-
+   distribution validation, equal-count gate vs MILP baseline.
+3. **SBI calibration v0** (workstream B): 3-parameter registry
+   (game-factor sigma, usage concentration, TD allocation), summary
+   builder, synthetic truth-recovery gate — with an RNG-parity test
+   so parameter injection cannot repeat the draw-order accident.
+4. **Online conformal + foundation challengers** (workstreams E/F):
+   append-only adaptive calibration state, risk-control knob,
+   walk-forward usage-sequence benchmark (Chronos if installable;
+   TabFM availability probe).
+5. **Evidence-to-prior pipeline** (workstream D): schema + supersede/
+   conflict logic (conflicts widen variance), extractor contract with
+   injection defenses, effect-model stub — fixtures now, live news
+   wiring is the one data-gate besides tracking.
+
+**Data-gated (the only deferrals, per directive)**: workstream C
+tracking embeddings (needs Kaggle BDB 2026 download under Erich's
+account) and evidence LIVE feeds (September news flow). Everything
+else is being built tonight. Adoption bar unchanged: every workstream
+carries the plan's own mechanism gates + the panel/LOSO laws — built
+is not adopted.
+
+Meanwhile the close-out continues: HARVEST-FINAL-2 + TDLEDGER2
+running on the fixed image (rev family).
