@@ -2359,3 +2359,58 @@ Review #4 F6's deletion tests, each vs the sealed 25 control:
   dependency (the ownership booster leaves the construction path;
   it remains in QF fade… no — QF's fade IS the deleted rule; the
   booster remains available for field modeling only).
+
+## Addendum 78 (2026-08-05): Review #5 (Sol) triage — two verdicts relabeled, the TD covariance hole confirmed, oracle instrumentation shipped
+
+Sol (OpenAI GPT-5.6, with code access) audited the code paths behind
+tonight's conclusions. Four claims VERIFIED against source, with
+consequences:
+
+- **Addendum 77 PART-RETRACTED — "the fade is dead" was never
+  tested.** OWN_MODEL=off falls back to naive_ownership and the
+  leverage penalty still applies (replay.py: `if own is None: own =
+  naive_ownership(frame)` -> unconditional proj_tourney fade).
+  NOFADE's 26 actually measured TRAINED-vs-NAIVE ownership inside the
+  fade — its real finding: the trained ownership booster adds nothing
+  to the fade post-ensemble (QF's OWN_MODEL=fade adoption is itself
+  now questionable). BARBELL likewise ran barbell+naive-fade, not
+  barbell-replacing-fade. DELETE2 (running) is relabeled "naive-fade
+  + mandate/boost deletion guard." TRUE_NOFADE (LEV_PENALTY=0) is
+  RUNNING on the g2 family; the fade deletion decision waits for it.
+- **NOPUNT relabeled**: the p90 punt valuation in build_slates has no
+  off switch and stayed active; what 26/180.6 killed is the MANDATE +
+  archetype boost only. p90 valuation survives (Sol concurs it
+  should).
+- **TD independence CONFIRMED — and worse than claimed**: rec_tds,
+  rush_tds, pass_tds are independent Poissons on static means in
+  simulate.py — uncorrelated with the game factor, the usage draws,
+  and EACH OTHER. A QB passing TD and its receiver's TD (the same
+  physical event, 6+4 points of joint boom) co-occur only at base
+  rates. The single most credible generator-wall mechanism found by
+  any reviewer. Build: TD event ledger (draw team passing TDs once,
+  multinomial-allocate to receivers, score the QB from the same
+  ledger, "other" bucket reconciles means) behind TD_LEDGER=1, with
+  Sol's gates: marginals unchanged, held-out joint moments improve,
+  THEN panel.
+- **Live-path parity risk confirmed**: live_lineups.py hardcodes the
+  p90 punt valuation and mirrors the fade — any default flip must
+  touch it.
+- **Candidate-oracle instrumentation SHIPPED** (engine.py, always-on
+  log line): per week — best ACTUAL among ALL candidates vs best
+  selected, unselected line-clears missed, actual-best's sim rank.
+  Sol's core point stands: every "wall is the generator" claim rested
+  on selected-set evidence; the preselection frontier was unobserved.
+  Every arm from here on reports it free.
+- **SHARP verdict (glass cannon, SELECT_LSE=0.5): 26/107, mean 179.7
+  — null as registered.**
+- Sol's 88/69 prior (60% field-scale luck / 30% buildable / <=10%
+  field blind spots) and its critique of diagnose_portfolio's null
+  (Bernoulli, no salary/position/stack constraints; 8-player $47k
+  optimum) are recorded as measurement work: the FLEX archive
+  subsampling curve is runnable now; classic transport waits for
+  September.
+- Research posture adopted (Sol F7): operate-and-collect with a
+  NARROW budget — corrective tests, candidate-frontier measurement,
+  coherent joint-event generation (TD ledger), and
+  new-standings-unlocked experiments ONLY. No more tilt/selector/
+  dose/anatomy arms.
