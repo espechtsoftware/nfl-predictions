@@ -1778,3 +1778,16 @@ plumbed), revived (audit), single-model-positive (V2), and finally
 rejected on the shipping config — the graveyard's best-documented
 burial. Only RWIDEN remains open (it runs ON the ensemble config, so
 its verdict is directly citable).
+
+**RWIDEN verdict (final open lever): 22 vs 26 — rejected, 1+/4−.**
+Third and cleanest confirmation of the post-ensemble law: the rookie
+q90 gap is real (0.888 measured), the fitted 1.07 correction restores
+coverage exactly, and it still costs 4 tail weeks — marginal
+calibration and portfolio tails are different objectives once the
+ensemble owns the noise budget. ROOKIE_WIDEN retires to judgment-lever
+status (fitted constant preserved for rookie-extreme slates).
+**THE PROGRAM'S FINAL ADOPTION SET IS CLOSED**: EW shaping + PUNT_BOOM
++ QF + SCHED features + TabPFN marginals + MODEL_ENSEMBLE=3 — nothing
+else survived the ensemble era. The seal sequence (final image, full
+deploy, keyed-window rebuild, cache regen, HARVEST-FINAL) measures the
+shipping baseline.
