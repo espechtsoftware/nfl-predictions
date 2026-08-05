@@ -1791,3 +1791,30 @@ status (fitted constant preserved for rookie-extreme slates).
 else survived the ensemble era. The seal sequence (final image, full
 deploy, keyed-window rebuild, cache regen, HARVEST-FINAL) measures the
 shipping baseline.
+
+## Addendum 58 (2026-08-05): THE SEAL — HARVEST-FINAL 25/107, and the variance work passes its first cross-build test
+
+The sealed image (every adoption a code default) on freshly rebuilt
+tables (keyed windows, ordered reads, deterministic LightGBM) with a
+regenerated marginal cache: **25/107 tail weeks** (5/1/3/4/7/5), mean-
+best 179.7, median 14.1%. THE SEPTEMBER BASELINE.
+
+The cross-build ledger, complete:
+| Build | Config | Result |
+|---|---|---|
+| A (exam) | pre-ensemble control | 23 |
+| B (candidate panel) | pre-ensemble control | 18 |
+| C (final-1) | pre-ensemble control | 14-15 |
+| C | ENS3 (adopted stack) | 26 |
+| **D (sealed, hardened)** | **adopted stack** | **25** |
+
+Pre-hardening, three rebuilds of the same single-model config spanned
+23→14 (±5 band). The adopted stack crossed a rebuild 26→25. One data
+point, not proof — the rebuild-twice protocol remains September's
+experiment — but it is precisely the signature the ensemble+determinism
+work predicted, and it means the weekly Tuesday retrains should hold
+their level rather than lottery-draw it. App and all 14 jobs serve the
+sealed image. The pre-season program is CLOSED: six adoptions, a
+57-addenda evidence ledger, a graveyard where every burial has a cause
+of death, and a baseline measured on the exact bits that will build
+Erich's week-1 lineups.
