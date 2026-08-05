@@ -1818,3 +1818,43 @@ sealed image. The pre-season program is CLOSED: six adoptions, a
 57-addenda evidence ledger, a graveyard where every burial has a cause
 of death, and a baseline measured on the exact bits that will build
 Erich's week-1 lineups.
+
+## Addendum 59 (2026-08-05): the gap decomposition — where the missing points actually live
+
+Erich: "the maxes still seem low." Quantified against 54 weeks of
+perfect-hindsight optimals (skill-8 MILP on full-slate actuals + ~10
+DST, scripts era; gap_decomposition.csv):
+
+| Quantity | Value |
+|---|---|
+| Hindsight optimal, avg (max) | ~268 (297-321) |
+| Real Milly winners, avg | ~237 = 88% of optimal (best of 150k entries) |
+| Our best-of-40 / best-of-150 | 66% / 69% of optimal |
+| **Optimal players ANYWHERE in our 150 entries** | **84%** (50/54 weeks have ≥6 of 8) |
+| **Optimal players in our BEST entry** | **1.87 of 8** |
+
+**The gap is ASSEMBLY, not identification.** We roster the right
+players — then scatter them. (Confirms the harvest attribution's
+"right stacks, wrong pieces" at scale.) Order-statistics honesty: a
+150k field draws 1000x more combinations than our 150 entries; parity
+alone predicts the winner beats our best by ~25-35 — our 45-55 deficit
+says our per-entry tail engine is field-typical while our MEDIAN is
+top-14% — we are consistently good, rarely THE one. Realistic target:
+capture 69% -> ~75% (+12-15 pts on best-of-150).
+
+**Structural findings vs optimal (and winners):**
+- Optimal lineups are BARELY stacked: 1.65 players from the QB's team
+  incl. QB; max-any-team 1.87. Winners ~2.5-3. Our MANDATORY QB+2+
+  bring-back forces a 4-man block — more correlated than either. The
+  stack minimum PREDATES the A/B era and was never dose-tested — arms
+  QBS1 (STACK_QB_MIN=1) and QBS1NB (+no bring-back) launched on the
+  sealed config vs HARVEST-FINAL 25.
+- Salary: optimal full-equiv ≈ 49.2k -> our 49k floor is CORRECT, not
+  binding. Punts: optimal carries 1.30 sub-$4k -> punt rule CORRECT.
+- The 16% of optimal players we never rostered skew WR (34/69), mean
+  salary $4.8k, mean actual 30.3 (Achane 54.3, Jennings 49.5) — the
+  mid-cheap boom our mean-anchored candidates skip. Lever design
+  (September): q99-wildcard injection — force the week's top-N
+  TabPFN-q99 sub-$6k skill players into ≥1 candidate each (cache
+  column already exists); assembly batch — per top boom-sim, solve
+  restricted to that sim's top-12 scorers (attacks 1.87/8 directly).
