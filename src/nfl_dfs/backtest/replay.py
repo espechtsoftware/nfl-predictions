@@ -1097,8 +1097,13 @@ def run(
                             "team": p.get("team"), "salary": p.get("salary"),
                             "proj": round(float(p.get("proj", 0)), 1),
                             "actual": round(float(p.get("actual") or 0), 1)})
-            load_dataframe(pd.DataFrame(rows),
-                           f"{settings.features}.replay_lineups",
+            # REPLAY_LINEUPS_TABLE env: diagnostic arms write to their
+            # own table so concurrent runs can't clobber each other's
+            # rosters (2026-08-05: the shared-table WRITE_TRUNCATE race
+            # forced diag exports to be sequenced after ALL arms).
+            _tbl = (os.environ.get("REPLAY_LINEUPS_TABLE")
+                    or f"{settings.features}.replay_lineups")
+            load_dataframe(pd.DataFrame(rows), _tbl,
                            write_disposition="WRITE_TRUNCATE")
             print(f"  rosters persisted: {len(rows)} rows -> replay_lineups")
         except Exception:
