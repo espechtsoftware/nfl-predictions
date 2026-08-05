@@ -508,8 +508,24 @@ async function addPref(kind,inputId){
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({season:+document.getElementById('season').value,
       week:+document.getElementById('week').value,display_name:v,kind})});
-  document.getElementById(inputId).value=''; loadPrefs();
+  document.getElementById(inputId).value=''; loadPrefs(); noteConflicts();
 }
+async function noteConflicts(){
+  try{
+    const se=+document.getElementById('season').value,
+          wk=+document.getElementById('week').value;
+    if(!se||!wk)return;
+    const r=await fetch(`/api/note-conflicts?season=${se}&week=${wk}`);
+    if(!r.ok)return;
+    const j=await r.json();
+    let el=document.getElementById('noteconf');
+    if(!el){el=document.createElement('div');el.id='noteconf';
+      el.style.cssText='color:#b60;font-size:.85rem;margin:.2rem 0';
+      document.getElementById('prefs').after(el);}
+    el.innerHTML=j.length?('\u26a0 possible double-counts: '+
+      j.map(c=>`<b>${c.player}</b> (${c.kind}: we ${c.our_proj} vs market `+
+        `${c.market_proj})`).join(' · ')):'';
+  }catch(e){}}
 document.getElementById('banin').addEventListener('keydown',
   e=>{if(e.key==='Enter')addPref('ban','banin');});
 document.getElementById('boostin').addEventListener('keydown',
@@ -1005,6 +1021,85 @@ class ContestSpec(BaseModel):
 
 class ContestCompareRequest(BaseModel):
     contests: list[ContestSpec] = Field(min_length=2, max_length=4)
+
+
+@app.get("/api/note-conflicts")
+def api_note_conflicts(season: int, week: int) -> list[dict]:
+    """Double-count guard (2026-08-04): for every active multiplier note
+    and boost/ban pref, compare OUR projection to the prop-market's for
+    that player. If the market already leans the note's direction, the
+    note likely re-prices information the blend already carries — a
+    warning, never a block (notes are deliberate overrides)."""
+    from .. import notes as _notes
+    from ..models.prop_market import market_points
+    from ..names import match_map, resolve
+
+    store = get_store()
+    proj = store.projections(season, week)
+    if proj.empty:
+        return []
+    try:
+        mkt = market_points((season,))
+        mkt = mkt[mkt.week == week]
+    except Exception:
+        mkt = pd.DataFrame(columns=["gsis_id", "market_points"])
+    j = proj.merge(mkt[["gsis_id", "market_points"]] if len(mkt) else
+                   pd.DataFrame(columns=["gsis_id", "market_points"]),
+                   on="gsis_id", how="left")
+    out = []
+    # multiplier notes (by gsis)
+    try:
+        nts = _notes.list_notes(season)
+        eff = {}
+        if len(nts):
+            d = _notes.decay(week)
+            for r in nts.itertuples():
+                eff[r.gsis_id] = eff.get(r.gsis_id, 1.0) * (1 + (r.mult - 1) * d)
+        for gid, m in eff.items():
+            row = j[j.gsis_id == gid]
+            if row.empty or abs(m - 1.0) < 0.02:
+                continue
+            r = row.iloc[0]
+            mk = r.get("market_points")
+            if pd.isna(mk):
+                continue
+            gap = float(r.proj_points) - float(mk)
+            same_dir = (m > 1 and gap > 1.0) or (m < 1 and gap < -1.0)
+            if same_dir:
+                out.append({
+                    "player": r.display_name, "kind": "multiplier",
+                    "note_effect": round(m, 2),
+                    "our_proj": round(float(r.proj_points), 1),
+                    "market_proj": round(float(mk), 1),
+                    "warning": "market already leans this way — note may "
+                               "double-count priced-in information"})
+    except Exception:
+        log.exception("note-conflict multiplier scan failed")
+    # boost/ban prefs (by name)
+    try:
+        prefs = _notes.list_prefs(season, week)
+        lookup = match_map(dict(zip(j.display_name, j.index)))
+        for r in prefs.itertuples():
+            ix = resolve(r.display_name, lookup)
+            if ix is None:
+                continue
+            pr = j.loc[ix]
+            mk = pr.get("market_points")
+            if pd.isna(mk):
+                continue
+            gap = float(pr.proj_points) - float(mk)
+            same_dir = (r.kind == "boost" and gap > 1.0) or                        (r.kind == "ban" and gap < -1.0)
+            if same_dir:
+                out.append({
+                    "player": pr.display_name, "kind": r.kind,
+                    "our_proj": round(float(pr.proj_points), 1),
+                    "market_proj": round(float(mk), 1),
+                    "warning": f"model already {'above' if gap > 0 else 'below'} "
+                               f"market by {abs(gap):.1f} — {r.kind} may "
+                               f"double-count"})
+    except Exception:
+        log.exception("note-conflict pref scan failed")
+    return out
 
 
 @app.post("/api/contest-compare")
