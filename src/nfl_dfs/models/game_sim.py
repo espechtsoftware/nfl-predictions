@@ -342,6 +342,7 @@ def allocate_drive_usage(
     n_units: float | np.ndarray,
     usage_shares: np.ndarray,
     n_sims: int = 1,
+    concentration_scale: float | None = None,
 ) -> np.ndarray:
     """Split `n_units` (plays, targets, carries...) across a team's
     players for `n_sims` draws, via a Dirichlet distribution centered on
@@ -351,6 +352,12 @@ def allocate_drive_usage(
     boom/next-man-up variance this system is built to price -- because
     their Dirichlet concentration is small, not zero.
 
+    `concentration_scale` (research/SBI injection, plan §2.4): when None
+    -- every production call -- the module-level DIRICHLET_CONCENTRATION_SCALE
+    is used and behavior is byte-identical to before the argument existed;
+    a finite value overrides it for calibration experiments only
+    (src/nfl_dfs/research/sbi_params.py).
+
     Returns shape (n_sims, len(usage_shares)) if n_sims > 1, else
     (len(usage_shares),).
     """
@@ -358,7 +365,9 @@ def allocate_drive_usage(
     total = shares.sum()
     shares = shares / total if total > 0 else np.full_like(shares, 1.0 / len(shares))
 
-    concentration = np.clip(shares * DIRICHLET_CONCENTRATION_SCALE, MIN_CONCENTRATION, None)
+    scale = (DIRICHLET_CONCENTRATION_SCALE if concentration_scale is None
+             else float(concentration_scale))
+    concentration = np.clip(shares * scale, MIN_CONCENTRATION, None)
     drawn = rng.dirichlet(concentration, size=n_sims)  # (n_sims, k)
     units = np.broadcast_to(n_units, (n_sims,)).astype(float)
     allocated = drawn * units[:, None]

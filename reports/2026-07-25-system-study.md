@@ -2678,3 +2678,18 @@ is not adopted.
 
 Meanwhile the close-out continues: HARVEST-FINAL-2 + TDLEDGER2
 running on the fixed image (rev family).
+
+## Addendum 87 (2026-08-05): HARVEST-FINAL-2 = 27/107 — the shipping baseline, byte-identical to its validating arm
+
+The rebased shipping baseline (adopted defaults: naive fade, no punt
+mandate/boost; fixed draw order; all shadow collectors aboard):
+**27/107, mean best 179.5, median percentile 14.2%** — per-season
+{2019:5, 2021:3, 2022:3, 2023:4, 2024:6, 2025:6}, BYTE-IDENTICAL to
+the DELETE2 arm that validated the package. Cross-build exact
+replication = the determinism program and the round-3 RNG-parity fix
+verified in one shot. This replaces HARVEST-FINAL (25) as the number
+every future arm must beat. TDLEDGER2 (fixed grouping) launched
+against it. Ops note: the box crashed twice under parallel local
+load — the emerging-tech workstreams now proceed ONE at a time,
+targeted tests only, per the standing all-heavy-compute-on-Cloud-Run
+rule.
