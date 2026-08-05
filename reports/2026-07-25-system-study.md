@@ -1936,3 +1936,19 @@ arm doubles down on the discredited p_line ranking and should return
 null — if it does, the diagnostic-eval rule caught a bad lever before
 its panel; (c) trimming 150->N loses breadth, not "the best ones" —
 consistent with the sweet-spot curve's shape.
+
+## Addendum 63 (2026-08-05): the stack mandate survives its first test ever — decisively
+
+QBS1 (STACK_QB_MIN=1): 17 vs HARVEST-FINAL 25 (0+/4−). QBS1NB (also
+no bring-back): 17 (0+/5−). Both loosening doses lose ~a third of the
+tails. The QB+2-catchers+bring-back mandate — adopted pre-A/B-era on
+winner anatomy, and challenged tonight by the hindsight-optimal
+structure (avg 1.65 QB-team players) — is validated at last, and the
+apparent contradiction resolves the program's closing principle:
+hindsight optimals are made of INDEPENDENT booms nobody can predict;
+a strategy manufactures correlated ones. WHAT WON is not HOW TO HUNT.
+The assembly finding (below-random 1.87/8) stands, but its remedy is
+candidate injection and assembly batches (queued), NOT loosening the
+correlation skeleton — that was just tested and bled. Remaining
+in-flight: VACC2, VALUE2E, then NBOOM and PEAK10 (PEAK10 carries
+Addendum 62's pre-registered null prediction).
