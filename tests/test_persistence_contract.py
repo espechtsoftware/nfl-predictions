@@ -68,7 +68,8 @@ def test_labels_present_and_ranked_when_actuals_complete(monkeypatch):
     assert df is not None and len(df)
     assert df.labels_complete.all()
     assert df.run_type.eq("replay").all()
-    assert df.research_eligible.all()
+    # eligibility is granted by PROMOTION, never by the writer
+    assert not df.research_eligible.any()
     assert df.actual_score.notna().all()
     # ranks are 1..n with ties handled by an explicit method
     assert df.actual_rank.min() == 1
@@ -145,3 +146,36 @@ def test_selection_reproducible_from_persisted_masks(monkeypatch):
     stored = df[df.selected].sort_values("selected_rank").cand_ix.tolist()
     assert list(picked) == stored, (
         f"mask-reconstructed selection {picked} != persisted {stored}")
+
+
+def test_selector_tiebreak_uses_mean_total():
+    """Adversarial (Sol audit 3): candidates that tie on coverage AND
+    p_line must be broken by mean total. A binary-mask reconstruction
+    that drops mean_total would pick the wrong one — this is why
+    production and the acceptance gate share select_from_support."""
+    from nfl_dfs.optimizer.lineup import select_from_support
+
+    clears = np.array([[True, False], [True, False]])   # identical support
+    p_line = np.array([0.5, 0.5])                        # identical p_line
+    mean_total = np.array([100.0, 180.0])                # only difference
+    picked = select_from_support(clears, p_line, mean_total, 1)
+    assert picked == [1], f"mean-total tiebreak ignored: {picked}"
+    # and with the means swapped, the other candidate must win
+    picked2 = select_from_support(clears, p_line, mean_total[::-1], 1)
+    assert picked2 == [0]
+
+
+def test_provenance_fields_present(monkeypatch):
+    df, _, _, _ = _capture(monkeypatch, PANEL_RUN_ID="p-prov",
+                           MIN_LINEUP_SALARY="0")
+    for col in ("code_sha", "code_dirty", "config_hash", "lever_env",
+                "seeds", "score_artifact_uri", "score_artifact_sha256"):
+        assert col in df.columns, f"missing provenance column {col}"
+    # lever_env must record the env that was actually set
+    assert "MIN_LINEUP_SALARY=0" in df.lever_env.iloc[0]
+
+
+def test_staging_rows_never_research_eligible(monkeypatch):
+    df, _, _, _ = _capture(monkeypatch, PANEL_RUN_ID="p-elig")
+    assert not df.research_eligible.any(), (
+        "staging rows must be ineligible until promotion")

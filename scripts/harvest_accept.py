@@ -84,38 +84,93 @@ def main() -> int:
     # 5 labels + provenance
     if not d.labels_complete.all():
         fails.append("labels_complete false somewhere")
-    if not d.research_eligible.all():
-        fails.append("research_eligible false somewhere")
+    if d.research_eligible.any():
+        fails.append("staging rows already research_eligible (must be "
+                     "FALSE until promotion)")
     if d.actual_score.isna().any():
         fails.append("null actual_score in a replay panel")
     tags = d.all_tags.map(lambda s: json.loads(s) if isinstance(s, str) else [])
     if tags.map(len).max() < 2:
         fails.append("no multi-producer roster recorded (provenance suspect)")
 
-    # 6-7 masks decode + selection reproduces, on a sample of slates
-    rng = np.random.default_rng(0)
-    keys = list(d.groupby(["season", "week"]).groups)
-    sample = [keys[i] for i in rng.choice(len(keys), min(8, len(keys)),
-                                          replace=False)]
-    from nfl_dfs.optimizer.lineup import select_tail_entries
-    for (s, w) in sample:
-        g = d[(d.season == s) & (d.week == w)].sort_values("cand_ix")
+    # 6-7 masks + selection reproduction on EVERY slate (Sol audit 3:
+    # sampling is monitoring, not acceptance), using the SAME selector
+    # helper production used — so the mean-total tiebreak is exercised.
+    from nfl_dfs.optimizer.lineup import select_from_support
+    for (s_, w_), g in d.groupby(["season", "week"]):
+        g = g.sort_values("cand_ix")
         n = int(g.n_worlds.iloc[0])
+        if g.cand_ix.duplicated().any():
+            fails.append(f"duplicate cand_ix {s_} wk{w_}")
+            continue
+        if not (g.n_worlds == n).all():
+            fails.append(f"n_worlds disagrees within slate {s_} wk{w_}")
         try:
-            m194 = np.stack([_bits(b, n) for b in g.clear_bits_194])
+            base = np.stack([_bits(b, n) for b in g.clear_bits])
             m187 = np.stack([_bits(b, n) for b in g.clear_bits_187])
+            m194 = np.stack([_bits(b, n) for b in g.clear_bits_194])
             m200 = np.stack([_bits(b, n) for b in g.clear_bits_200])
         except Exception as e:
-            fails.append(f"mask decode failed {s} wk{w}: {e}")
+            fails.append(f"mask decode failed {s_} wk{w_}: {e}")
             continue
-        if not (m187.sum() >= m194.sum() >= m200.sum()):
-            fails.append(f"mask monotonicity violated {s} wk{w}")
-        base = np.stack([_bits(b, n) for b in g.clear_bits])
-        totals = np.where(base, 1e6, 0.0)
-        picked = select_tail_entries(totals, int(g.selected.sum()), 1e5)
-        stored = g[g.selected].sort_values("selected_rank").cand_ix.tolist()
-        if list(picked) != stored:
-            fails.append(f"selection not reproducible from masks {s} wk{w}")
+        if base.shape[1] != n:
+            fails.append(f"mask length != n_worlds {s_} wk{w_}")
+        # element-wise nesting, not just aggregate counts
+        if not (np.all(m194 <= m187) and np.all(m200 <= m194)):
+            fails.append(f"mask nesting violated (element-wise) {s_} wk{w_}")
+        sel_rows = g[g.selected].sort_values("selected_rank")
+        if len(sel_rows) == 0:
+            fails.append(f"zero selected entries {s_} wk{w_}")
+            continue
+        ranks = sel_rows.selected_rank.tolist()
+        if ranks != list(range(len(ranks))):
+            fails.append(f"selected_rank not contiguous/unique {s_} wk{w_}")
+        picked = select_from_support(base, g.p_line.to_numpy(),
+                                     g.sim_mean.to_numpy(), len(sel_rows))
+        if list(picked) != sel_rows.cand_ix.tolist():
+            fails.append(f"selection not reproducible {s_} wk{w_}")
+
+    # 6b artifacts must EXIST and match (Sol audit 3: an optional,
+    # unverified artifact means a panel can pass without the data the
+    # reranker needs).
+    try:
+        from google.cloud import storage
+        client = storage.Client()
+        for (s_, w_), g in d.groupby(["season", "week"]):
+            uri = str(g.score_artifact_uri.iloc[0] or "")
+            sha = str(g.score_artifact_sha256.iloc[0] or "")
+            if not uri or not sha:
+                fails.append(f"missing score artifact {s_} wk{w_}")
+                continue
+            bkt, _, path = uri.replace("gs://", "").partition("/")
+            blob = client.bucket(bkt).blob(path)
+            if not blob.exists():
+                fails.append(f"artifact object absent {uri}")
+                continue
+            payload = blob.download_as_bytes()
+            import hashlib
+            if hashlib.sha256(payload).hexdigest() != sha:
+                fails.append(f"artifact sha mismatch {uri}")
+                continue
+            import io
+            z = np.load(io.BytesIO(payload))
+            totals = z["totals"]
+            if totals.shape[0] != len(g):
+                fails.append(f"artifact rows {totals.shape[0]} != {len(g)} "
+                             f"{s_} wk{w_}")
+            elif totals.shape[1] != int(g.n_worlds.iloc[0]):
+                fails.append(f"artifact worlds != n_worlds {s_} wk{w_}")
+            else:
+                # scores must reproduce the persisted masks exactly
+                gg = g.sort_values("cand_ix")
+                recon = totals[gg.cand_ix.to_numpy()] >= 194.0
+                stored = np.stack([_bits(b, int(gg.n_worlds.iloc[0]))
+                                   for b in gg.clear_bits_194])
+                if not np.array_equal(recon, stored):
+                    fails.append(f"artifact scores disagree with mask "
+                                 f"{s_} wk{w_}")
+    except Exception as e:
+        fails.append(f"artifact verification failed: {e}")
 
     # 8 summaries recompute from the table
     per_slate = d.groupby(["season", "week"]).apply(
@@ -137,11 +192,26 @@ def main() -> int:
         return 1
     print("\nACCEPTANCE PASSED — panel eligible for promotion")
     if a.promote:
+        # idempotent: refuse if the panel is already promoted (Sol audit 3)
+        try:
+            ex = query_df(f"""
+                SELECT COUNT(*) AS n FROM `{settings.predictions}.{RESEARCH}`
+                WHERE panel_run_id = '{a.panel_run_id}'""")
+            if int(ex.n.iloc[0]) > 0:
+                print(f"REFUSED: panel {a.panel_run_id} already promoted "
+                      f"({int(ex.n.iloc[0])} rows)")
+                return 1
+        except Exception:
+            pass  # research table does not exist yet
         query_df(f"""
             CREATE TABLE IF NOT EXISTS `{settings.predictions}.{RESEARCH}`
-            LIKE `{settings.predictions}.{STAGING}`;
+            LIKE `{settings.predictions}.{STAGING}`""")
+        # research_eligible is FALSE in staging by construction; the
+        # promotion is what makes rows eligible.
+        query_df(f"""
             INSERT INTO `{settings.predictions}.{RESEARCH}`
-            SELECT * FROM `{settings.predictions}.{STAGING}`
+            SELECT * EXCEPT (research_eligible), TRUE AS research_eligible
+            FROM `{settings.predictions}.{STAGING}`
             WHERE panel_run_id = '{a.panel_run_id}'""")
         print(f"promoted panel {a.panel_run_id} -> {RESEARCH}")
     return 0

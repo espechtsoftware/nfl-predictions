@@ -382,12 +382,33 @@ def select_tail_entries(
     if _alpha > 0:
         return _select_lse_entries(cand_totals, n_entries, line, _alpha)
     clears = cand_totals >= line
-    p_line = clears.mean(axis=1)
-    mean_total = cand_totals.mean(axis=1)
-    n_entries = min(n_entries, len(cand_totals))
+    return select_from_support(clears, clears.mean(axis=1),
+                               cand_totals.mean(axis=1), n_entries)
+
+
+def select_from_support(
+    clears: np.ndarray,
+    p_line: np.ndarray,
+    mean_total: np.ndarray,
+    n_entries: int,
+) -> list[int]:
+    """THE greedy coverage selector, expressed over its sufficient
+    statistics: the per-world clear mask plus the two tiebreakers
+    (p_line, then mean total).
+
+    Factored out 2026-08-05 (Sol audit 3): the acceptance gate rebuilt
+    selection from persisted masks with binary 0/1 totals, which
+    silently DISCARDS the mean-total tiebreak — so a reproduction test
+    could pass on fixtures and diverge in production. Production and
+    the gate now call this same function, and any candidate set that
+    ties on coverage and p_line is broken identically in both."""
+    clears = np.asarray(clears, dtype=bool)
+    p_line = np.asarray(p_line, dtype=float)
+    mean_total = np.asarray(mean_total, dtype=float)
+    n_entries = min(n_entries, len(clears))
     selected: list[int] = []
-    covered = np.zeros(cand_totals.shape[1], dtype=bool)
-    remaining = set(range(len(cand_totals)))
+    covered = np.zeros(clears.shape[1], dtype=bool)
+    remaining = set(range(len(clears)))
     while len(selected) < n_entries and remaining:
         best = max(remaining,
                    key=lambda i: (int(np.count_nonzero(clears[i] & ~covered)),

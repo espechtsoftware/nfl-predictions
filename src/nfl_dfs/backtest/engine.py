@@ -692,6 +692,31 @@ def tail_select_lineups(
             # partial reruns look like independent panels.
             panel_run_id = _os.environ.get("PANEL_RUN_ID", "")
             slate_run_id = uuid.uuid4().hex[:12]
+            # Run provenance (Sol audit 3): panel+slate ids alone cannot
+            # detect a mixed-config panel. Capture what identifies the
+            # BUILD and the CONFIG, cheaply and without failing the run.
+            try:
+                import subprocess
+                _sha = subprocess.run(
+                    ["git", "rev-parse", "HEAD"], capture_output=True,
+                    text=True, timeout=5).stdout.strip()[:12]
+                _dirty = bool(subprocess.run(
+                    ["git", "status", "--porcelain"], capture_output=True,
+                    text=True, timeout=5).stdout.strip())
+            except Exception:
+                _sha, _dirty = _os.environ.get("CODE_SHA", ""), False
+            try:
+                from ..research.config_manifest import manifest_hash
+                _cfg = manifest_hash()
+            except Exception:
+                _cfg = ""
+            _seeds = _os.environ.get("SEEDS", "")
+            _levers = ",".join(sorted(
+                f"{k}={v}" for k, v in _os.environ.items()
+                if k in ("SELECT_LSE", "TD_LEDGER", "OWN_MODEL", "PUNT_MIN",
+                         "PUNT_BOOM", "MIN_LINEUP_SALARY", "N_GUMBEL",
+                         "HYPER_BOOM", "OWN_BARBELL", "GAME_SIM_MODE",
+                         "MODEL_ENSEMBLE", "TABPFN_MARGINALS")))
             # A2.2 labels: `or 0` turned MISSING actuals into real-looking
             # zeros, so unlabeled live candidates appeared labeled. Labels
             # are populated ONLY when every player has an actual.
@@ -722,9 +747,15 @@ def tail_select_lineups(
                     "slate_run_id": slate_run_id,
                     "run_type": ("replay" if labels_complete
                                  else "live_unlabeled"),
+                    "code_sha": _sha, "code_dirty": _dirty,
+                    "config_hash": _cfg, "lever_env": _levers,
+                    "seeds": _seeds,
                     "labels_complete": labels_complete,
-                    "research_eligible": labels_complete
-                    and bool(panel_run_id),
+                    # Staging rows are NEVER research-eligible: only
+                    # a passing promotion (scripts/harvest_accept.py)
+                    # sets this true, so a partial or mixed-config panel
+                    # cannot leak into training queries (Sol audit 3).
+                    "research_eligible": False,
                     "season": int(slate["season"].iloc[0]),
                     "week": int(slate["week"].iloc[0]),
                     "cand_ix": ix, "tag": lu.tag or "lev",
@@ -815,7 +846,7 @@ def tail_select_lineups(
                     load_dataframe(df, _cand_tbl,
                                    write_disposition="WRITE_APPEND")
                     log.info("candidates persisted: %d -> %s (run %s)",
-                             len(df), _cand_tbl, run_id)
+                             len(df), _cand_tbl, slate_run_id)
                 except Exception:
                     log.exception("candidate persistence failed")
 
