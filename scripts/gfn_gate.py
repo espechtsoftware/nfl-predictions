@@ -114,6 +114,47 @@ def milp_candidates(players, n: int, floor: int):
     return out
 
 
+def gumbel_milp_candidates(players, n: int, floor: int, rng,
+                           scale: float = 1.0):
+    """Cheap-diversity baseline #1 (plan §5.8): Gumbel-perturbed MILP
+    objectives — each solve re-draws proj + Gumbel(scale) noise, the
+    classic perturb-and-MAP diverse-mode sampler."""
+    out, seen = [], set()
+    for _ in range(n * 3):
+        noisy = [{**p, "proj_g": float(p["proj"] + rng.gumbel(0, scale))}
+                 for p in players]
+        lu = optimize(noisy, objective_col="proj_g", min_salary=floor)
+        if lu is None:
+            continue
+        ids = tuple(sorted(p["id"] for p in lu.players))
+        if ids not in seen:
+            seen.add(ids)
+            out.append(list(ids))
+        if len(out) >= n:
+            break
+    return out
+
+
+def world_argmax_candidates(players, draws, n: int, floor: int):
+    """Cheap-diversity baseline #2 (plan §5.8): per-world MILP argmax
+    on the top-total sim columns — the production boom generator."""
+    order = np.argsort(draws.sum(axis=0))[::-1]
+    out, seen = [], set()
+    for k in order:
+        sim = [{**p, "proj_w": float(draws[i, k])}
+               for i, p in enumerate(players)]
+        lu = optimize(sim, objective_col="proj_w", min_salary=floor)
+        if lu is None:
+            continue
+        ids = tuple(sorted(p["id"] for p in lu.players))
+        if ids not in seen:
+            seen.add(ids)
+            out.append(list(ids))
+        if len(out) >= n:
+            break
+    return out
+
+
 def gfn_candidates(policy, env, n: int, rng, max_tries: int = 8):
     """Sample until n unique player sets (or budget exhausted)."""
     seen, out, sampled = set(), [], 0
@@ -215,6 +256,17 @@ def main() -> int:
     t_sample = time.time() - t0
     print(f"GFN candidates: {len(gfn)} unique from {sampled} samples in {t_sample:.1f}s\n")
 
+    # cheap-diversity baselines (plan §5.8 — the GFN's own v0 verdict
+    # demanded these before any GPU spend)
+    t0 = time.time()
+    gum = gumbel_milp_candidates(players, args.n_candidates, floor,
+                                 np.random.default_rng(args.seed + 7),
+                                 scale=2.0)
+    wam = world_argmax_candidates(players, draws[:, train_cols],
+                                  args.n_candidates, floor)
+    print(f"cheap-diversity baselines: gumbel {len(gum)}, "
+          f"world-argmax {len(wam)} in {time.time() - t0:.1f}s")
+
     draws_eval = draws[:, eval_cols]
     rows = [
         describe("GFlowNet", gfn, by_id, env, draws_eval),
@@ -222,6 +274,17 @@ def main() -> int:
         describe("Union", gfn + milp, by_id, env, draws_eval),
     ]
     g, m, u = rows
+    gb = describe("Gumbel-MILP", gum, by_id, env, draws_eval)
+    wa = describe("World-argmax", wam, by_id, env, draws_eval)
+    print("\ncheap-diversity comparison (same eval draws):")
+    print(f"{'generator':<16}{'n':>4}{'uniq':>7}{'QB-H':>7}"
+          f"{'frontier':>10}{'p90':>9}{'+MILP gain':>12}")
+    for r in (g, gb, wa, m):
+        gain = float((np.maximum(r["per_col_max"], m["per_col_max"])
+                      - m["per_col_max"]).mean())
+        print(f"{r['name']:<16}{r['n']:>4d}{r['unique_rate']:>7.2f}"
+              f"{r['qb_entropy']:>7.2f}{r['frontier_mean']:>10.2f}"
+              f"{r['frontier_p90']:>9.2f}{gain:>+12.3f}")
 
     overlap = len(g["hashes"] & m["hashes"])
     win = float((g["per_col_max"] > m["per_col_max"]).mean())
