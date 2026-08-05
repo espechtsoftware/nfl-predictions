@@ -1915,3 +1915,24 @@ generator attribution) as a one-command standing diagnosis. New eval
 rule: an arm that moves tails without moving ANY diagnostic is
 suspected of winning on noise; an arm that moves a diagnostic without
 moving tails is a mechanism lead worth a redesign.
+
+## Addendum 62 (2026-08-05): the selection-ordering audit — coverage is real, ranking is decorative
+
+Erich asked whether the selection process ITSELF had been analyzed.
+The ordering had not — and it fails: across 54 weeks, entry #1 (the
+sim's single highest-P(>=line) pick, crowned "strongest" in the UI)
+lands at the 49th percentile of our own portfolio's realized scores —
+a coin flip. Spearman(selection order, realized score) = +0.086
+(mildly INVERTED); 187-clearers sit at median rank 68; the 81-150
+bucket has the highest realized mean. What survives: the first-40
+CONTAINS the weekly best 50% vs 27% uniform — the prefix has portfolio
+breadth value while its internal order is noise. Formal statement:
+tail-coverage selection is validated at the PORTFOLIO level (what
+panels measure); the sim cannot rank its own entries because hero
+status is decided by co-boom realizations it models only
+approximately. Consequences: (a) UI relabeled honestly (entries are
+co-equal shots); (b) PRE-REGISTERED PREDICTION: the in-flight PEAK10
+arm doubles down on the discredited p_line ranking and should return
+null — if it does, the diagnostic-eval rule caught a bad lever before
+its panel; (c) trimming 150->N loses breadth, not "the best ones" —
+consistent with the sweet-spot curve's shape.

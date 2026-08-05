@@ -395,9 +395,10 @@ async function build(){
     st.textContent=sd
       ? j.lineups.length+' Captain Mode lineups · '+j.game.game+' ('+
         j.game.day+'). Captain scores 1.5x and costs 1.5x.'
-      : j.lineups.length+' lineups, strongest first. Confidence = '+
-        'P(score >= '+(j.tail_line||194)+'), ordering signal scaled to '+
-        'the chosen contest field.';
+      : j.lineups.length+' lineups. Confidence = P(score >= '+
+        (j.tail_line||194)+') per the sim — PORTFOLIO-level validated; '+
+        'the within-set ordering is approximate (measured ~coin-flip on '+
+        'realized outcomes), so treat all entries as co-equal shots.';
     if(j.model_health&&j.model_health.warning){
       const w=document.createElement('div');
       w.style.cssText='color:#b00;font-weight:600;margin:.3rem 0';
