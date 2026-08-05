@@ -1952,3 +1952,24 @@ candidate injection and assembly batches (queued), NOT loosening the
 correlation skeleton — that was just tested and bled. Remaining
 in-flight: VACC2, VALUE2E, then NBOOM and PEAK10 (PEAK10 carries
 Addendum 62's pre-registered null prediction).
+
+## Addendum 64 (2026-08-05): the leaderboard-pool analysis — aggregate stratum done, per-entry stratum specced
+
+Winner-level anatomy existed (Addenda 38+); the FIELD-level stratum is
+now analyzed via the ownership aggregates (54 contest-weeks x top-60
+owned): splitting weeks by the field's collective chalk performance,
+our best-of-150 clears 187 in 60% of chalk-BUST weeks vs 40% of
+chalk-WIN weeks (corr −0.11) — the fade construction is positioned
+exactly as designed, paying differentially when the crowd fails
+without collapsing when it succeeds. Field top-10 chalk hits the
+top-10 scoreboard only ~2.7/10 in every regime — the crowd's ceiling
+blindness is persistent, and it is the edge.
+
+**Per-entry leaderboard stratum (top-N anatomy beyond the winner):
+GENUINELY September-gated** — contest_entries populates only from
+Erich's standings imports (machinery built, table empty). Specced for
+the first 2-3 weeks of imports: top-1% vs top-10% vs median entries on
+ownership-sum, stack shape, salary left, dupe counts, punt usage —
+the question being whether NEAR-winners share the winner anatomy or
+the winner is an outlier of a different process (changes whether we
+target the top-1% shape or the winner shape).
