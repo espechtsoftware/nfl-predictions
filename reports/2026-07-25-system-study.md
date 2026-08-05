@@ -2476,3 +2476,24 @@ punt valuation, salary floor, stack mandate. Live path
 purely confirmatory (predicts ~23-25: it includes the fade
 deletion). The reseal happens ONCE, after TDLEDGER's verdict, so a
 ledger adoption (if any) ships in the same image.
+
+## Addendum 81 (2026-08-05): HYPER 24 (no adoption; family to CE gate) — and the oracle's first look shows recoverable tails
+
+HYPER (manufactured collinear game worlds, HYPER_BOOM=8): 24/107,
+deltas {+2,+2,-1,0,-4,0} — LOSO fails, no adoption — but the highest
+mean best of any arm ever (180.9; 2019 arm mean 190.9). The
+manufactured-scenario family shows mean-lift with tail-variance;
+judgment deferred to the September cross-entropy mechanism gate
+(designs doc #2), which supersedes the fixed-rule approach. Note:
+_entry_anatomy's generator list is hardcoded and omits "hyper" —
+attribution was blind to the new tag (instrument fix for September).
+
+**Candidate-oracle first samples (from the HYPER-2024 run)**: week
+sampled — oracle 200.2 was a LEV candidate at sim-rank 155/175,
+UNSELECTED; selected-best 190.6; SIX unselected candidates cleared
+194 in a week the portfolio missed. Sol's core point materialized on
+the first look: the preselection pool contains line-clears the
+selector drops. The CANDORACLE control aggregate (in flight, clean
+defaults) quantifies the recoverable-tail rate; if it is material,
+selection re-opens — this time with the right instrument and against
+the right frontier.
