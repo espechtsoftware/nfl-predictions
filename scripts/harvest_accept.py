@@ -27,6 +27,8 @@ import pandas as pd
 sys.path.insert(0, "src")
 from nfl_dfs.bq import query_df  # noqa: E402
 from nfl_dfs.config import settings  # noqa: E402
+from nfl_dfs.research.candidate_features import (  # noqa: E402
+    FEATURE_DEF_VERSION)
 
 STAGING = "replay_candidates_staging"
 RESEARCH = "replay_candidates"
@@ -172,18 +174,71 @@ def main() -> int:
     except Exception as e:
         fails.append(f"artifact verification failed: {e}")
 
-    # 8 summaries recompute from the table
+    # 8 acceptance REPORT (scoring plan §6) + the §6.1 decision gate,
+    # computed mechanically so the reranker go/no-go is not a judgment
+    # call made after seeing the numbers.
     per_slate = d.groupby(["season", "week"]).apply(
         lambda g: pd.Series({
             "sel_best": g[g.selected].actual_score.max(),
-            "oracle": g.actual_score.max()}), include_groups=False)
-    clears = int((per_slate.sel_best >= 194).sum())
-    orc_clears = int((per_slate.oracle >= 194).sum())
-    print(f"\nRECOMPUTED FROM TABLE: selected clears {clears}/{len(per_slate)}"
-          f"  |  candidate-oracle clears {orc_clears}/{len(per_slate)}"
-          f"  |  recoverable {orc_clears - clears}")
-    print(f"mean best-of-40 {per_slate.sel_best.mean():.1f}  "
-          f"mean oracle {per_slate.oracle.mean():.1f}")
+            "oracle": g.actual_score.max(),
+            "oracle_simrank": int(
+                g.loc[g.actual_score.idxmax(), "sim_rank_p_line"]),
+            "oracle_selected": bool(
+                g.loc[g.actual_score.idxmax(), "selected"]),
+            "oracle_tag": g.loc[g.actual_score.idxmax(), "tag"],
+            "n_cand": len(g)}), include_groups=False).reset_index()
+    per_slate["regret"] = per_slate.oracle - per_slate.sel_best
+
+    print("\n=== ACCEPTANCE REPORT (plan §6) ===")
+    print(f"definition version: {FEATURE_DEF_VERSION}")
+    for thr in (187, 194, 200):
+        sc = int((per_slate.sel_best >= thr).sum())
+        oc = int((per_slate.oracle >= thr).sum())
+        print(f"  >={thr}: selected {sc:3d}  pool-oracle {oc:3d}  "
+              f"recoverable {oc - sc:3d}")
+    print("\nby season (selected / oracle clears at 194):")
+    bys = per_slate.groupby("season").apply(
+        lambda g: pd.Series({
+            "slates": len(g),
+            "sel194": int((g.sel_best >= 194).sum()),
+            "orc194": int((g.oracle >= 194).sum()),
+            "mean_sel": round(g.sel_best.mean(), 1),
+            "mean_regret": round(g.regret.mean(), 1)}),
+        include_groups=False)
+    print(bys.to_string())
+
+    rec = per_slate[(per_slate.oracle >= 194) & (per_slate.sel_best < 194)]
+    print(f"\nRECOVERABLE WEEKS ({len(rec)}):")
+    if len(rec):
+        print(rec[["season", "week", "sel_best", "oracle", "regret",
+                   "oracle_simrank", "oracle_tag"]].to_string(index=False))
+    print(f"\noracle sim-rank: median {per_slate.oracle_simrank.median():.0f} "
+          f"of median pool {per_slate.n_cand.median():.0f}; "
+          f"oracle already selected {per_slate.oracle_selected.mean():.1%}")
+    # honest correlation: unconditional AND selection-conditioned
+    unsel = per_slate[~per_slate.oracle_selected]
+    if len(unsel) > 2:
+        print(f"corr(sim-rank, regret): all {np.corrcoef(per_slate.oracle_simrank, per_slate.regret)[0,1]:+.3f}"
+              f"  |  oracle-unselected only {np.corrcoef(unsel.oracle_simrank, unsel.regret)[0,1]:+.3f}")
+
+    # generator shares with exclusive vs shared provenance (plan §6)
+    tag_list = d.all_tags.map(lambda s: json.loads(s) if isinstance(s, str) else [])
+    d2 = d.assign(n_tags=tag_list.map(len))
+    print("\ngenerator shares (candidate / selected / exclusive):")
+    for tg in sorted({t for lst in tag_list for t in lst}):
+        has = tag_list.map(lambda L, t=tg: t in L)
+        excl = has & (d2.n_tags == 1)
+        print(f"  {tg:<8} cand {has.mean():6.1%}  sel "
+              f"{(has & d.selected).sum() / max(int(d.selected.sum()), 1):6.1%}"
+              f"  exclusive {excl.mean():6.1%}")
+
+    # --- §6.1 PREREGISTERED DECISION GATE ---
+    rec_seasons = rec.season.nunique()
+    gate_pass = (len(rec) >= 4) and (rec_seasons >= 3)
+    print("\n=== §6.1 DECISION GATE (preregistered) ===")
+    print(f"  recoverable weeks {len(rec)} (need >=4), "
+          f"spread over {rec_seasons} seasons (need >=3)")
+    print(f"  VERDICT: {'PROCEED to Workstream A (reranker)' if gate_pass else 'DO NOT build the reranker — prioritize generation (B/C)'}")
 
     if fails:
         print("\nACCEPTANCE FAILED:")
