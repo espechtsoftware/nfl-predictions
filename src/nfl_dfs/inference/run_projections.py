@@ -12,6 +12,7 @@ import logging
 import os
 from datetime import datetime, timezone
 
+import numpy as np
 import pandas as pd
 
 from ..bq import load_dataframe, query_df
@@ -128,9 +129,38 @@ def project(
     )
 
     market = market_projection_frame(feats)
+    _pre_blend = preds["proj_points"].to_numpy().copy()
     preds["proj_points"] = blend(
-        preds["proj_points"].to_numpy(), market.to_numpy(), BLEND_WEIGHT
+        _pre_blend, market.to_numpy(), BLEND_WEIGHT
     )
+    # DIV_TILT shadow log (2026-08-05, Addendum 82): the burial was
+    # unsound (pre-ensemble + no 2019 prop coverage), so the
+    # divergence signal is graded on real 2026 slates before any
+    # adoption talk. Zero operator cadence: rows append to
+    # predictions.div_shadow every projections run; grade with
+    # scripts/div_shadow_grade.py after 4-6 weeks.
+    try:
+        _mkt = market.to_numpy()
+        _has = ~np.isnan(_mkt)
+        if _has.any():
+            shadow = pd.DataFrame({
+                "generated_at": datetime.now(timezone.utc),
+                "season": season, "week": week,
+                "gsis_id": feats.get("gsis_id"),
+                "display_name": feats.get("display_name"),
+                "position": feats.get("position", feats.get("dk_position")),
+                "salary": feats.get("salary"),
+                "our_points": _pre_blend,
+                "market_points": _mkt,
+                "blend_points": preds["proj_points"],
+            })[_has]
+            shadow["consensus_div"] = shadow.our_points - shadow.market_points
+            load_dataframe(shadow, f"{settings.predictions}.div_shadow",
+                           write_disposition="WRITE_APPEND")
+            log.info("div-shadow: %d rows logged (median |div| %.2f)",
+                     len(shadow), float(shadow.consensus_div.abs().median()))
+    except Exception:
+        log.exception("div-shadow logging failed; projections unaffected")
 
     out = pd.DataFrame(
         {
