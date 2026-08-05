@@ -1973,3 +1973,32 @@ ownership-sum, stack shape, salary left, dupe counts, punt usage —
 the question being whether NEAR-winners share the winner anatomy or
 the winner is an outlier of a different process (changes whether we
 target the top-1% shape or the winner shape).
+
+## Addendum 65 (2026-08-05): the per-entry leaderboard stratum — found in-repo, analyzed, and the winner IS different
+
+Erich was right: full per-entry standings existed in the
+RTS-Little-Data-Bowl clone — 74 contests from 2021, up to 408k entries
+each (FLEX-6 format; behavior universals transfer, construction rules
+do not). 63 large contests, 19,507 stratified entries:
+
+| Stratum | own-sum | min-own | duped% |
+|---|---|---|---|
+| winner | **235** | **11.9** | **85%** |
+| top 0.05% | 245 | 13.7 | 97% |
+| top 1% | 251 | 14.7 | 97% |
+| top 10% | 254 | 15.3 | 97% |
+| median | 250 | 14.3 | 95% |
+
+**The September question is answered early: near-winners do NOT share
+the winner's anatomy — the top-1% looks like the median on ownership;
+only the WINNER is contrarian and unique.** Consequences: (a) target
+the winner's shape (leverage + uniqueness), not the top-1% shape —
+chasing the leaderboard's average anatomy optimizes for
+almost-winning; (b) this independently validates the fade + uniqueness
+construction from field data at scale; (c) re-run this exact analysis
+on Erich's own September imports (classic format, his fields) to
+calibrate the DOSE — the 2021 FLEX data fixes the direction, not the
+magnitude. Also noted for the ledger: the winner-vs-leaderboard
+uniqueness gap (3-5x) is the empirical justification for max_overlap
+diversity in selection that the ordering audit (Add. 62) could not
+supply.
