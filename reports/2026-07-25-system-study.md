@@ -2765,3 +2765,25 @@ naive fade + no punt mandate + no punt boost, 25 -> 27 with a simpler
 system), three invalid arms caught by audit rather than by the panel,
 six research workstreams built and gated, and every remaining idea
 either buried with cause or scheduled with a pre-registered gate.
+
+## Addendum 91 (2026-08-05): ACTION 4 — the salary floor is NOT load-bearing (26 vs 27, mechanism confirmed live)
+
+Sol's clean deletion (MIN_LINEUP_SALARY=0, not a 47.5k dose): **26/107**
+per-season {5,3,3,4,6,5} vs HF2 {5,3,3,4,6,6}; mean best 179.9 vs
+179.5 (UP); max unchanged 271.1. The deletion FIRED verifiably — the
+salary-left distribution moved from the floor-clamped "median $200 /
+share>$1k ~0%" to median $100-300 with 5-16% of entries leaving over
+$1k — so the solver did explore sub-$49k builds and simply did not
+prefer them enough to change tails.
+Verdict: within noise, one season -1, mean-best slightly better. The
+floor is NOT the load-bearing rule its pre-ensemble validation (2026-
+07-26, 180.1 -> 182.3) implied — but deleting it also buys nothing, so
+the rule STAYS on the "no reason to change" principle rather than on
+its old evidence. Gemini's B4 instinct (pre-ensemble verdict, retest
+it) was right to raise; Sol's version of the test (clean deletion, not
+a dose) is what made the answer interpretable.
+CAVEAT recorded: the control here is HF2's 27 from an earlier image.
+The persistence work since is behavior-neutral by construction
+(logging + provenance only), and the relaunched ACTION 1 control will
+confirm that by reproducing 27 on the current image; if it does not,
+this verdict is re-judged against whatever ACTION 1 measures.
