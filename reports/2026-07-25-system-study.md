@@ -1858,3 +1858,31 @@ capture 69% -> ~75% (+12-15 pts on best-of-150).
   TabPFN-q99 sub-$6k skill players into ≥1 candidate each (cache
   column already exists); assembly batch — per top boom-sim, solve
   restricted to that sim's top-12 scorers (attacks 1.87/8 directly).
+
+## Addendum 60 (2026-08-05): the graveyard design review — which burials were of ideas, which of implementations
+
+Erich's question — could a better-constructed version of each rejected
+arm succeed — audited against the gap decomposition and the
+post-ensemble law:
+
+**Retests justified (arms queued on the sealed config):**
+- VACC2: the causal capture features were ADDED alongside the raw
+  team-vacated sums they derive from — collinear pairs degrade GBMs.
+  Clean design: capture features REPLACE the raw ones (DROP_FEATURES).
+- VALUE2E: the ≥2-cheap-skill rule matches optimal structure exactly
+  (missed booms avg $4.8k; optimal carries multiple cheap pieces) and
+  its −1 verdict is pre-ensemble = stale by law.
+- MPG3-conditional: infeasible only because of the 4-man stack
+  mandate; if QBS1 wins, retest as a combo.
+
+**Burials that survive the autopsy:**
+- ALT_CEIL / WRBOOM: failed as OBJECTIVE TILTS (distort every build);
+  the same players' correct mechanism is CANDIDATE INJECTION (q99
+  wildcards — designed, September). Mechanism rejected, target alive.
+- ROOKIE_WIDEN: draw-wide was wrong; narrow redesign = rookie
+  punt-valuation correction only (September).
+- TABMEAN: dead by construction (marginals already carry the center).
+- SCRIPT: clean ensemble-era negative; refined pace design only if
+  September shows a shootout-miss pattern.
+- TMW17, DIRK8, PSLOPE/PSTRICT/LOWSAL: no mechanism evidence surfaced
+  by any later analysis; buried on merits.
