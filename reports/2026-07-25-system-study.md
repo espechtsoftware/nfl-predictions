@@ -2144,3 +2144,50 @@ week-1 Milly entries use the standard fixed-line selection (the 4
 Milly entries = first 4 of the run, co-equal shots). Review #3 is now
 fully adjudicated: F2 fixed (and the fix nulled GREEN's edge —
 Addendum 69), F4 tested-null, F1/F3 September directions.
+
+## Addendum 71 (2026-08-05): Review #4 triage — five arms launched, one claim refuted same-hour
+
+Review #4 (the "wall" brief) returned 7 findings. Triage and action:
+
+- **F1 (log-sum-exp selection — coverage's binary threshold scatters
+  co-booms)**: the sharpest mechanistic hypothesis for the
+  below-random assembly overlap anyone has produced. CODED
+  (SELECT_LSE=<alpha> in select_tail_entries; greedy on
+  sum_w log sum_S exp(alpha*(score-line)), still submodular). ARM: LSE
+  alpha=0.08, 6 seasons. Falsification per reviewer: mean best must
+  rise from 179.7 or assembly overlap past 2.51.
+- **F2 (ceiling math)**: verified — Gaussian-tail EVT gives
+  sqrt(ln40/ln150k) ~= 55% as the naive best-of-40 capture bound; we
+  measure 69%, winners-with-150k-human-entries 88%. Their verdict
+  stands: stop chasing capture, buy structure. Judgment recorded, not
+  testable.
+- **F4 (ownership barbell — winners reach contrarian sums via
+  chalk+zero barbell, not smooth fade)**: CODED (OWN_BARBELL linear
+  proxy: >=3 skill players <=5% own AND >=2 >=20%). ARM: BARBELL =
+  OWN_BARBELL=1 + OWN_MODEL=off (reviewer's design: barbell REPLACES
+  the fade).
+- **F5 (4-entry concentration — one QB family, no coverage)**: CODED
+  (M4_QBLOCK: pick the QB family maximizing P(any >= line)). ARM:
+  M4QBLOCK at 4 entries vs M4LINE (3/107, median pct 12.55).
+- **F6 (deletions — fade and punt mandate never re-tested
+  post-ensemble)**: correct procedural point; both are pre-ensemble
+  adoptions. NO CODE NEEDED. ARMS: NOFADE (OWN_MODEL=off), NOPUNT
+  (PUNT_MIN=0 + PUNT_BOOM=0). Falsification: if 25 holds, delete.
+- **F7 (pairwise co-ownership matrix — "you're flying blind into
+  crowded stacks")**: MEASURED SAME-HOUR on the 74-contest archive
+  and REFUTED there: median joint/product inflation of top-20 pairs =
+  0.87 (mean 0.84, p90 1.08); only 0.3% of pairs exceed 1.5x, 20%
+  are repelled <0.67x (cap/slot substitution); max chalk-pair
+  inflation 1.7x (RB+own-DST, game pairs) — nowhere near the claimed
+  2.4x. Independence errs mildly CONSERVATIVE in this archive.
+  CAVEAT: showdown format — classic QB+WR stack inflation re-measured
+  on September imports; the skeleton resampler encodes whatever the
+  real number is automatically. Data: ~/nfl-panels/coownership_pairs.csv.
+- **F3-adjacent ranking** (dup-penalty > skeleton bar > per-contest
+  lines): noted for September; the dup-penalty needs the F7-style
+  matrix from CLASSIC standings, which is exactly what September
+  accrues.
+
+Image :rev4 (levers + tests, commit 70d5173). Chains gated on the
+assembly diagnostic and on image existence (stale-image law): panel
+family LSE -> BARBELL; rev family NOFADE -> NOPUNT -> M4QBLOCK.
