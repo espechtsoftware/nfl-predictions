@@ -2414,3 +2414,31 @@ consequences:
   coherent joint-event generation (TD ledger), and
   new-standings-unlocked experiments ONLY. No more tilt/selector/
   dose/anatomy arms.
+
+## Addendum 79 (2026-08-05): Review #5 round 2 — the September research program is now specified
+
+Sol's five new directions triaged into build-ready specs:
+reports/september-research-designs.md. Adopted testing order: (0)
+instruments — candidate-oracle (shipped) + role-weighted variogram
+dependence score (build first in September; energy scores are blind
+to miscorrelation); (1) similarity-conditioned Schaake shuffle
+(historical within-game rank templates on our calibrated marginals —
+imports ALL real joint patterns at once, marginals preserved by
+construction; three-arm design vs sim copula and unconditional
+templates); (2) cross-entropy rare-world generation (learned
+replacement for HYPER's fixed p98 rule; mechanism gate: upper-tail
+regret -25% AND candidate-oracle actuals improve, else bury the
+family); (3) decision-focused lineup reranker (needs candidate
+persistence — REPLAY_CANDIDATES_TABLE pattern; LOW prior, selection
+thrice-null); (4) inverse-optimization field model vs skeleton
+resampler on ownership/salary/stack/DUP calibration (needs classic
+standings); (5) field-relative best-response generation (only after
+#4 picks a field model). Vine copulas / Tail-GANs / lineup
+transformers deferred indefinitely — 107 slates.
+
+Sequencing decision recorded: Schaake does NOT launch tonight even
+if the window allows a build — TDLEDGER (in flight) treats the same
+disease (missing joint dependence); two simultaneous dependence
+overhauls would confound attribution. TDLEDGER's verdict + oracle
+metrics decide whether Schaake is a September-week-1 build or the
+program's first 2027 idea.
