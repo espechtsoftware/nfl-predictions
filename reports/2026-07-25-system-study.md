@@ -1744,3 +1744,27 @@ superseded as the mean-layer treatment; it retires to the registry as
 validated-positive-but-dominated. Shipping baseline: **26/107 —
 ENS3's run IS the harvest of record** (identical config to the new
 defaults, same tables).
+
+## Addendum 57 (2026-08-05): V2 verdicts — and the ensemble changes what levers mean
+
+Clean-build V2 panel (all arms one build, one image; CONTROL2 14
+confirms build C's level):
+| Arm | Tails | Δ | Verdict |
+|---|---|---|---|
+| SCRIPT2 (pace feedback) | 21 | +7 | see below — NOT adopted |
+| ALTC2 (market ceiling room) | 19 | +5 (LOSO 3+/0−) | stack test running |
+| DIVTILT2 | 16 | +2 | noise-band, retired |
+| TABMEAN2 | 15 | +1 | null (marginals already carry TabPFN), retired |
+
+**The lesson of the night, twice-taught:** single-model lever verdicts
+do not survive the ensemble. SCRIPT2's +7 became **−2** stacked on
+ENS3 (ENSSCRIPT 24 vs 26, LOSO 1+/3−) — the pace-feedback variance
+that helped noisy single models is pure distortion once the ensemble
+tames their noise. SCRIPT_FEEDBACK stays off. NEW VALIDATION LAW: with
+MODEL_ENSEMBLE adopted, every lever verdict must come from (or be
+confirmed on) an ensemble-based arm — pre-ensemble arms measure a
+model that no longer ships. ALTC2's +5 gets the same stack test
+(ENSALTC) before any adoption; the rookie-widen arm (RWIDEN) runs on
+the current chain likewise. Also recorded: V1 of this panel was
+destroyed by a mid-panel rebuild (my sequencing error) and its file
+deleted at Erich's direction — V2 is the only citable version.
