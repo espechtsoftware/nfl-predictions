@@ -1768,3 +1768,13 @@ model that no longer ships. ALTC2's +5 gets the same stack test
 the current chain likewise. Also recorded: V1 of this panel was
 destroyed by a mid-panel rebuild (my sequencing error) and its file
 deleted at Erich's direction — V2 is the only citable version.
+
+**ENSALTC verdict (2026-08-05): ALT_CEIL retired for good.** 22 vs
+ENS3's 26 (0+/2− LOSO) — the second lever whose single-model gain
+(+5) inverted under the ensemble (−4). The pattern is now law twice
+over: the ensemble removes the noise these levers were unknowingly
+harvesting. ALT_CEIL's history is a complete arc — vacuous (never
+plumbed), revived (audit), single-model-positive (V2), and finally
+rejected on the shipping config — the graveyard's best-documented
+burial. Only RWIDEN remains open (it runs ON the ensemble config, so
+its verdict is directly citable).
