@@ -2333,3 +2333,29 @@ Race-free batteries (per-arm roster tables), 2025, 40 entries:
   bar ever makes selection sharper, GREEN has more raw material.
   Recorded as the documented lead that keeps GREEN alive as the
   September vehicle (score: exact parity).
+
+## Addendum 77 (2026-08-05): The deletions pass — both never-retested rules are dead weight; M4 concentration refuted
+
+Review #4 F6's deletion tests, each vs the sealed 25 control:
+
+- **NOFADE (OWN_MODEL=off): 26/107**, per-season deltas
+  {0,0,0,0,0,+1} — never negative. The chalk fade contributes NOTHING
+  post-ensemble. Its pre-registered deletion rule ("if 25 holds,
+  delete") FIRES.
+- **NOPUNT (PUNT_MIN=0 + PUNT_BOOM=0): 26/107**, mean best 180.6 vs
+  179.7 (deltas {0,+2,0,0,-1,0}), program-best max 271.1 (2019). The
+  punt mandate + punt-boom valuation contribute nothing and cost a
+  little ceiling. Deletion rule FIRES.
+- Post-ensemble law vindicated AGAIN: both rules were pre-ensemble
+  adoptions with real-looking wins that do not survive the ensemble.
+- **M4QBLOCK: 1/107** vs M4LINE 3/107, mean best ~143 vs 152 —
+  one-QB-family concentration at 4 entries REFUTED (reviewer F5).
+  Week-1 Milly slice: fixed-line first-4, final.
+- **DELETE2 launched** (combined OWN_MODEL=off + PUNT_MIN=0 +
+  PUNT_BOOM=0): the deletions were tested separately; defaults flip
+  ONLY if the combination holds >=25 (interaction guard). If it
+  holds: flip code defaults, reseal, update memories — the shipped
+  system gets SIMPLER days before week 1, with one fewer live
+  dependency (the ownership booster leaves the construction path;
+  it remains in QF fade… no — QF's fade IS the deleted rule; the
+  booster remains available for field modeling only).
