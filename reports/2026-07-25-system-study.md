@@ -2063,3 +2063,33 @@ Erich refused to settle; three deferred items got built and tested:
    mechanism; gsis plumbed after a vacuity near-miss): arm running.
 3. **MODEL_ENSEMBLE_MIX** (heterogeneous third member, sklearn HistGB,
    replay-only until registry support): arm running.
+
+## Addendum 68 (2026-08-05): review #3 triage — the objective-function review lands blows
+
+The targeted review (objective + field model) returned four findings;
+triage:
+**F2 (Gumbel IID flaw): VERIFIED AND FIXED SAME HOUR.** Its exact
+validation plan run on the 63 real 2021 contests: the analytic
+extension over-scales the winning bar **4.26x** (16.8 vs the measured
+3.9-pt true-max gap; empirical constant = 0.256 field-SD). GREEN v1
+reached parity while chasing bars ~13 pts too high — the corrected
+GREEN2 arm is running. If GREEN2 clears the incumbent decisively, the
+architecture question reopens TONIGHT.
+**F1 (fixed line optimizes near-winner anatomy): ACCEPTED as the
+September strategic direction** — it synthesizes Add. 65 + GREEN
+correctly. Not adopted overnight because the incumbent still holds
+the measured profile edge; the reviewer's validation plan (judge
+architectures on assembly + expected dollars, not line-clearing) is
+now the standing rule for the architecture track.
+**F3 (skeleton-resampler field model): the best architectural idea of
+all three reviews** — resample real per-entry lineups as structural
+skeletons, inject current players, validate the FIELD ITSELF with the
+diagnostic battery. September build #1; 2021 FLEX skeletons are
+direction-only (format mismatch), his classic imports are the
+calibration data.
+**F4 (split objectives per contest): ACCEPTED, partially pre-built** —
+converges with the held SELECT_OBJ=dollars and the memory's
+automation TODO. The 4-entry Milly slice genuinely cannot play
+coverage (below the cliff); dollars/uniqueness objective for it, and
+the rank<=seats objective for qualifiers once the field model (F3)
+exists. Queued with the reviewer's exact validation design.
