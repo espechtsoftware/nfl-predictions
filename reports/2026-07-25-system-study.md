@@ -2969,3 +2969,41 @@ baseline here is salary+position, not the full component model. The
 crosswalk (96.3% high-confidence) and trait pipeline stand ready if
 the encoder phase is ever attempted, but on current evidence tracking
 is NOT a scoring lever.
+
+## Addendum 97 (2026-08-06): Generation-arm audit — first cloud runs invalidated; mechanisms repaired
+
+The first Schaake, EPI and CE executions must not be used for a verdict.
+A code audit found mechanism-level differences from the preregistered
+design, and each was corrected before any adoption decision:
+
+- **Schaake:** historical percentiles were used as direct indices into
+  current sorted draws. Repeated templates therefore repeated quantiles and
+  changed player marginals. The shuffle now converts the sampled template
+  sequence to an exact rank permutation, with an invariant test requiring
+  every player's complete draw multiset to remain unchanged. The replay
+  diagnostic now reports realized held-out variogram and joint-upper-tail
+  Brier scores, plus exact marginal preservation, rather than merely the
+  distance between two simulated correlation matrices. Similarity matching
+  now uses the replay's actual pre-lock game total, spread, pace, neutral
+  pass rate and usage-concentration fields.
+- **EPI:** uncovered seasons previously ran 24 boom solves and zero EPI
+  solves, making the purported fixed-budget arm 16 slots smaller. EPI now
+  carries complete ensemble-member point vectors into the slate, uses
+  complete market/model and high-disagreement-game belief vectors, and
+  restores missing or duplicate slots with incumbent boom worlds. DST rows
+  without epistemic inputs retain their baseline projection rather than
+  receiving a false zero-point belief. EPI/CE automatically replace boom
+  slots when N_BOOM is not explicitly supplied.
+- **CE:** the initial score split favored one arbitrary slate team against
+  every other team, the proposal was scored with an illegal value-greedy
+  nine-player proxy, and earliest-round elites were used. CE parameters are
+  now game-local, pass/usage changes redistribute within teams, each sampled
+  environment is scored by the real legal stacked MILP, only final-round
+  elites generate candidates, truncated-normal importance weights match the
+  bounded sampler, and low ESS actively prevents further proposal collapse.
+  Failed/duplicate CE slots fall back to boom worlds.
+
+The repaired code is test-green, but that is a mechanism result—not a score
+result. All three arms require fresh same-image runs. The executions started
+before this addendum are explicitly invalidated and cannot be cited as null,
+positive or negative evidence.

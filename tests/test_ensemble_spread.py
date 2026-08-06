@@ -8,7 +8,8 @@ visible (empty), never silently zero.
 import numpy as np
 import pandas as pd
 
-from nfl_dfs.models.components import _EnsembleBooster
+from nfl_dfs.models.components import (COMPONENT_NAMES, ComponentModels,
+                                       _EnsembleBooster)
 
 
 class _Stub:
@@ -52,3 +53,35 @@ def test_single_model_reports_unavailable_not_zero():
 
     m = _Single(0.0)
     assert not hasattr(m, "predict_spread")
+
+
+def test_component_members_are_exposed_as_complete_point_vectors(monkeypatch):
+    from nfl_dfs.models import components
+
+    class _Const:
+        def __init__(self, value):
+            self.value = value
+
+        def feature_name(self):
+            return ["x"]
+
+        def predict(self, X):
+            return np.full(len(X), self.value)
+
+    values = {
+        "targets": 6.0, "catch_rate": 0.7, "ypr": 12.0,
+        "rec_tds": 0.4, "carries": 4.0, "ypc": 4.5,
+        "rush_tds": 0.2, "pass_attempts": 30.0, "ypa": 7.0,
+        "pass_tds": 1.5, "interceptions": 0.7,
+    }
+    models = {
+        name: _EnsembleBooster([_Const(v), _Const(v * 1.1)])
+        for name, v in values.items() if name in COMPONENT_NAMES
+    }
+    monkeypatch.setattr(components, "build_X",
+                        lambda df: pd.DataFrame({"x": np.ones(len(df))}))
+    df = pd.DataFrame({"position": ["QB", "WR"]})
+    out = ComponentModels(models).point_member_predictions(df)
+    assert list(out) == ["ensemble_point_0", "ensemble_point_1"]
+    assert np.isfinite(out.to_numpy()).all()
+    assert not np.allclose(out.ensemble_point_0, out.ensemble_point_1)

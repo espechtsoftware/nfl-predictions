@@ -30,7 +30,8 @@ log = logging.getLogger(__name__)
 # roles the template carries, per team
 ROLES = ("QB", "RB1", "RB2", "WR1", "WR2", "WR3", "TE1", "DST")
 # similarity features (all available PRE-LOCK)
-SIM_FEATURES = ("total_line", "spread_abs", "implied_team_total")
+SIM_FEATURES = ("game_total", "spread_abs", "pace_env_l6",
+                "neutral_pass_rate_l6", "team_top2_target_share_l6")
 
 
 def assign_roles(players: pd.DataFrame) -> pd.Series:
@@ -74,7 +75,7 @@ def build_game_bank(games: pd.DataFrame) -> pd.DataFrame:
                 rec[f"{r.role}_{side}"] = r.rank_pct
         for c in SIM_FEATURES:
             if c in gg.columns:
-                rec[c] = gg[c].iloc[0]
+                rec[c] = pd.to_numeric(gg[c], errors="coerce").mean()
         rows.append(rec)
     return pd.DataFrame(rows)
 
@@ -92,6 +93,13 @@ def apply_schaake_game(draws, roles, teams, templates, seed=0):
     sides = sorted(pd.unique(tm))
     pick = rng.integers(0, len(templates), size=n_sims)
     T = templates.reset_index(drop=True)
+    # Sampling templates with replacement necessarily creates repeated
+    # historical percentiles.  The Schaake operation must nevertheless be
+    # a PERMUTATION of 0..n_sims-1 for every player; indexing the marginal
+    # directly by the historical percentile changes its distribution.
+    # A shared tie-break preserves the association of repeated templates
+    # across roles while assigning every current marginal draw exactly once.
+    tie_break = rng.permutation(n_sims)
     for si, team in enumerate(sides[:2]):
         suf = "a" if si == 0 else "b"
         for i in np.flatnonzero(tm == team):
@@ -101,7 +109,9 @@ def apply_schaake_game(draws, roles, teams, templates, seed=0):
                 continue
             r = T[col].to_numpy(dtype=float)[pick]
             r = np.where(np.isfinite(r), r, rng.random(n_sims))
-            q = np.clip((r * (n_sims - 1)).astype(int), 0, n_sims - 1)
+            order = np.lexsort((tie_break, r))
+            q = np.empty(n_sims, dtype=int)
+            q[order] = np.arange(n_sims)
             out[i] = srt[i][q]
     return out
 
@@ -140,6 +150,8 @@ def match_templates(bank: pd.DataFrame, ctx: dict, season: int, week: int,
     X = past[feats].to_numpy(dtype=float)
     mu, sd = np.nanmean(X, axis=0), np.nanstd(X, axis=0) + 1e-9
     q = np.array([ctx[c] for c in feats], dtype=float)
+    X = np.where(np.isfinite(X), X, mu)
+    q = np.where(np.isfinite(q), q, mu)
     d = np.linalg.norm((X - mu) / sd - (q - mu) / sd, axis=1)
     return past.iloc[np.argsort(d)[:k]]
 
@@ -165,6 +177,7 @@ def apply_schaake(draws: np.ndarray, roles: pd.Series, teams: pd.Series,
     tcols = list(tmpl.columns)
     col_of = {r: i for i, r in enumerate(tcols)}
     pick = rng.integers(0, len(tmat), size=(n_sims,))
+    tie_break = rng.permutation(n_sims)
     for team, idx in pd.Series(range(n), index=teams.to_numpy()).groupby(level=0):
         rows = idx.to_numpy()
         # a distinct template row per world for this team
@@ -175,6 +188,8 @@ def apply_schaake(draws: np.ndarray, roles: pd.Series, teams: pd.Series,
                 continue
             r = t_for_world[:, col_of[role]]
             r = np.where(np.isfinite(r), r, rng.random(n_sims))
-            q = np.clip((r * (n_sims - 1)).astype(int), 0, n_sims - 1)
+            order = np.lexsort((tie_break, r))
+            q = np.empty(n_sims, dtype=int)
+            q[order] = np.arange(n_sims)
             out[i] = srt[i][q]
     return out

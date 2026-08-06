@@ -7,8 +7,8 @@ Three arms on a held-out season (plan §9.3):
   2. unconditional historical templates
   3. similarity-conditioned templates
 
-Gate (all must hold before any lineup panel):
-  - role-pair dependence closer to realized (variogram, lower better)
+Screen (the production replay performs the proper realized variogram gate):
+  - role-pair correlation closer to realized
   - marginal means/quantiles unchanged within tolerance
 Failure here stops the workstream — no candidate or panel compute.
 
@@ -36,9 +36,10 @@ def load_games(seasons):
       WITH base AS (
         SELECT a.season, a.week, a.gsis_id, a.dk_points,
                u.position AS pos, u.team, s.salary,
-               sc.game_id, sc.total_line,
+               sc.game_id, sc.total_line AS game_total,
                ABS(sc.spread_line) AS spread_abs,
-               (sc.total_line + sc.spread_line)/2 AS implied_team_total
+               NULL AS pace_env_l6, NULL AS neutral_pass_rate_l6,
+               NULL AS team_top2_target_share_l6
         FROM `nfl_features.player_week_actuals` a
         JOIN `nfl_features.player_week_usage` u USING (gsis_id, season, week)
         JOIN `nfl_features.dk_salary_week` s USING (gsis_id, season, week)
@@ -160,9 +161,11 @@ def main():
     # similarity-conditioned: match per (season, week) context
     cond_out = base.copy()
     for (wk, gid), g in test.groupby(["week", "game_id"]):
-        ctx = {"total_line": g.total_line.iloc[0],
+        ctx = {"game_total": g.game_total.iloc[0],
                "spread_abs": g.spread_abs.iloc[0],
-               "implied_team_total": g.implied_team_total.iloc[0]}
+               "pace_env_l6": np.nan,
+               "neutral_pass_rate_l6": np.nan,
+               "team_top2_target_share_l6": np.nan}
         t = match_templates(bank, ctx, a.season, int(wk), k=a.k)
         if t.empty:
             continue
@@ -188,9 +191,11 @@ def main():
     print(f"\n{'TOTAL |error| (lower better)':<28}" + "".join(
         f"{scores[k]:>16.3f}" for k in arms))
 
-    print("\nmarginal preservation (must be ~unchanged):")
+    print("\nmarginal preservation (must be exact per player):")
     for k, dr in arms.items():
-        print(f"  {k:<32} mean {dr.mean():7.3f}  p90 "
+        exact = all(np.array_equal(np.sort(base[i]), np.sort(dr[i]))
+                    for i in range(len(base)))
+        print(f"  {k:<32} exact={exact} mean {dr.mean():7.3f}  p90 "
               f"{np.percentile(dr, 90):7.3f}")
 
     best = min(scores, key=scores.get)

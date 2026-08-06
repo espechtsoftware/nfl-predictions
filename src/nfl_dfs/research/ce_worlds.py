@@ -1,30 +1,13 @@
-"""Workstream D: cross-entropy rare-world generation (scoring plan §10).
-
-Elite legal lineups come from a structured subset of game
-environments. HYPER hand-picked that subset (top-N games by projected
-total, everyone at p98) and nulled at 24/107. A cross-entropy sampler
-LEARNS which environments produce elite oracle lineups instead of
-assuming them.
-
-Latent knobs are simulator parameters with clear semantics and
-validated bounds (plan §10.2) — NOT the buried hand-specified TD
-ledger under a new name:
-    pace multiplier, pass-rate tilt, team scoring split,
-    usage concentration
-The loop keeps importance weights so downstream probabilities stay
-unbiased, and monitors effective sample size so the proposal cannot
-collapse onto a handful of worlds.
-"""
+"""Cross-entropy sampling of coherent, game-local rare environments."""
 from __future__ import annotations
 
 import logging
 
 import numpy as np
+from scipy.stats import truncnorm
 
 log = logging.getLogger(__name__)
 
-# (name, lo, hi, prior_mean, prior_sd) — bounds are the documented
-# ranges of the corresponding simulator behaviour
 KNOBS = (
     ("pace", 0.80, 1.30, 1.00, 0.10),
     ("pass_tilt", -0.15, 0.15, 0.00, 0.05),
@@ -33,77 +16,125 @@ KNOBS = (
 )
 
 
-def sample_knobs(rng, n: int, mu=None, sd=None) -> np.ndarray:
-    """Truncated-normal proposal over the knob vector."""
-    mu = np.array([k[3] for k in KNOBS]) if mu is None else np.asarray(mu)
-    sd = np.array([k[4] for k in KNOBS]) if sd is None else np.asarray(sd)
-    lo = np.array([k[1] for k in KNOBS])
-    hi = np.array([k[2] for k in KNOBS])
-    x = rng.normal(mu, sd, size=(n, len(KNOBS)))
-    return np.clip(x, lo, hi)
+def _parameter_arrays(n_games: int):
+    lo = np.tile([k[1] for k in KNOBS], n_games).astype(float)
+    hi = np.tile([k[2] for k in KNOBS], n_games).astype(float)
+    mu = np.tile([k[3] for k in KNOBS], n_games).astype(float)
+    sd = np.tile([k[4] for k in KNOBS], n_games).astype(float)
+    return lo, hi, mu, sd
+
+
+def sample_knobs(rng, n: int, mu=None, sd=None, n_games: int = 1):
+    """Draw from the actual bounded (truncated-normal) proposal."""
+    lo, hi, prior_mu, prior_sd = _parameter_arrays(n_games)
+    mu = prior_mu if mu is None else np.asarray(mu, dtype=float).reshape(-1)
+    sd = prior_sd if sd is None else np.asarray(sd, dtype=float).reshape(-1)
+    a, b = (lo - mu) / sd, (hi - mu) / sd
+    x = truncnorm.rvs(a, b, loc=mu, scale=sd, size=(n, len(mu)),
+                      random_state=rng)
+    shaped = x.reshape(n, n_games, len(KNOBS))
+    return shaped[:, 0, :] if n_games == 1 else shaped
 
 
 def apply_knobs(draws: np.ndarray, knobs: np.ndarray, team_codes,
-                pos_is_pass) -> np.ndarray:
-    """Deform a world's player means coherently at team/game level.
+                pos_is_pass, game_codes=None) -> np.ndarray:
+    """Apply pace, scoring and usage changes independently within games.
 
-    pace scales everyone; pass_tilt moves pass-game players against
-    run-game players; score_split shifts one team's share against the
-    other; usage_conc sharpens or flattens within-team distribution.
-    Mean-preserving in expectation across the prior.
+    Team scoring allocations are paired only with the opponent in the same
+    game. Pass tilt and usage concentration redistribute a team's existing
+    fantasy-point total rather than manufacturing player-level boosts.
     """
-    out = draws.astype(float).copy()
-    pace, tilt, split, conc = knobs
-    out *= pace
-    out[pos_is_pass] *= (1.0 + tilt)
-    out[~pos_is_pass] *= (1.0 - tilt)
+    out = np.maximum(draws.astype(float).copy(), 0.0)
     tc = np.asarray(team_codes)
-    for i, t in enumerate(np.unique(tc)):
-        m = tc == t
-        share = split if i == 0 else (1.0 - split)
-        out[m] *= (2.0 * share)
-        v = out[m]
-        if len(v) > 1 and conc != 1.0:
-            mu = v.mean(axis=0, keepdims=True)
-            out[m] = mu + (v - mu) * conc
-    return np.maximum(out, 0.0)
+    pc = np.asarray(pos_is_pass, dtype=bool)
+    gc = (np.zeros(len(tc), dtype=int) if game_codes is None
+          else np.asarray(game_codes))
+    games = list(dict.fromkeys(gc.tolist()))
+    K = np.asarray(knobs, dtype=float)
+    if K.ndim == 1:
+        K = np.repeat(K[None, :], len(games), axis=0)
+    if len(K) != len(games):
+        raise ValueError("one CE knob vector is required per game")
+
+    for gi, game in enumerate(games):
+        gm = gc == game
+        pace, tilt, split, conc = K[gi]
+        out[gm] *= pace
+        teams = sorted(np.unique(tc[gm]).tolist())
+        if len(teams) == 2:
+            a, b = (gm & (tc == teams[0])), (gm & (tc == teams[1]))
+            total = out[a].sum(axis=0) + out[b].sum(axis=0)
+            for mask, share in ((a, split), (b, 1.0 - split)):
+                cur = out[mask].sum(axis=0)
+                out[mask] *= np.divide(total * share, cur,
+                                       out=np.ones_like(cur), where=cur > 0)
+
+        for team in teams:
+            tm = gm & (tc == team)
+            before = out[tm].sum(axis=0)
+            pass_mask, run_mask = tm & pc, tm & ~pc
+            out[pass_mask] *= 1.0 + tilt
+            out[run_mask] *= 1.0 - tilt
+            after_tilt = out[tm].sum(axis=0)
+            out[tm] *= np.divide(before, after_tilt,
+                                 out=np.ones_like(before), where=after_tilt > 0)
+            if conc != 1.0:
+                concentrated = np.power(np.maximum(out[tm], 1e-12), conc)
+                denom = concentrated.sum(axis=0)
+                out[tm] = concentrated * np.divide(
+                    before, denom, out=np.ones_like(before), where=denom > 0)
+    return out
 
 
 def ce_iterate(score_world, rng, n_per_round: int = 60, rounds: int = 4,
-               elite_frac: float = 0.2, smooth: float = 0.7):
-    """Cross-entropy loop. `score_world(knobs) -> float` returns the
-    world's constrained-oracle objective. Returns (elite_knobs,
-    weights, diagnostics) with importance weights relative to the
-    production prior so downstream probabilities stay unbiased."""
-    mu = np.array([k[3] for k in KNOBS], dtype=float)
-    sd = np.array([k[4] for k in KNOBS], dtype=float)
-    p_mu, p_sd = mu.copy(), sd.copy()
+               elite_frac: float = 0.2, smooth: float = 0.7,
+               n_games: int = 1, min_ess_frac: float = 0.20):
+    """Fit a bounded proposal and return elites from the final round only."""
+    lo, hi, prior_mu, prior_sd = _parameter_arrays(n_games)
+    mu, sd = prior_mu.copy(), prior_sd.copy()
     hist = []
-    elites = np.empty((0, len(KNOBS)))
+    final_elites = None
     for r in range(rounds):
-        X = sample_knobs(rng, n_per_round, mu, sd)
-        s = np.array([score_world(x) for x in X])
+        X = sample_knobs(rng, n_per_round, mu, sd, n_games=n_games)
+        flat = X.reshape(n_per_round, -1)
+        s = np.asarray([score_world(x) for x in X], dtype=float)
         k = max(2, int(elite_frac * n_per_round))
         idx = np.argsort(s)[::-1][:k]
-        E = X[idx]
-        elites = np.vstack([elites, E])
+        E = flat[idx]
+        final_elites = E
+
+        weights = _iw(flat, mu, sd, prior_mu, prior_sd, lo, hi)
+        ess = (weights.sum() ** 2) / max(float((weights ** 2).sum()), 1e-12)
+        collapsed = ess < min_ess_frac * n_per_round
         new_mu = E.mean(axis=0)
-        new_sd = np.maximum(E.std(axis=0), 1e-3)
-        mu = smooth * new_mu + (1 - smooth) * mu
-        sd = smooth * new_sd + (1 - smooth) * sd
-        # effective sample size guards against proposal collapse
-        w = _iw(E, mu, sd, p_mu, p_sd)
-        ess = (w.sum() ** 2) / np.maximum((w ** 2).sum(), 1e-12)
+        new_sd = np.maximum(E.std(axis=0), prior_sd * 0.10)
+        if collapsed:
+            # Do not narrow an already poorly supported proposal further.
+            new_sd = np.maximum(new_sd, sd)
+        mu = smooth * new_mu + (1.0 - smooth) * mu
+        sd = smooth * new_sd + (1.0 - smooth) * sd
+        mu = np.clip(mu, lo, hi)
         hist.append({"round": r, "elite_mean_score": float(s[idx].mean()),
-                     "all_mean_score": float(s.mean()),
-                     "ess": float(ess), "mu": mu.copy().tolist()})
-        log.info("CE round %d: elite %.1f (all %.1f) ESS %.1f mu %s",
-                 r, s[idx].mean(), s.mean(), ess, np.round(mu, 3))
-    return elites, _iw(elites, mu, sd, p_mu, p_sd), hist
+                     "all_mean_score": float(s.mean()), "ess": float(ess),
+                     "collapsed": collapsed, "mu": mu.copy().tolist()})
+        log.info("CE round %d: elite %.1f (all %.1f) ESS %.1f%s", r,
+                 s[idx].mean(), s.mean(), ess,
+                 " (proposal guarded)" if collapsed else "")
+
+    elites = final_elites.reshape(-1, n_games, len(KNOBS))
+    shaped = elites[:, 0, :] if n_games == 1 else elites
+    weights = _iw(final_elites, mu, sd, prior_mu, prior_sd, lo, hi)
+    return shaped, weights, hist
 
 
-def _iw(X, mu, sd, p_mu, p_sd):
-    """Importance weights prior/proposal (diagonal normals)."""
+def _iw(X, mu, sd, prior_mu, prior_sd, lo, hi):
+    """Prior/proposal weights using matching truncated-normal densities."""
+    X = np.asarray(X, dtype=float).reshape(len(X), -1)
+
     def logpdf(x, m, s):
-        return -0.5 * (((x - m) / s) ** 2 + np.log(2 * np.pi * s ** 2)).sum(1)
-    return np.exp(logpdf(X, p_mu, p_sd) - logpdf(X, mu, sd))
+        a, b = (lo - m) / s, (hi - m) / s
+        return truncnorm.logpdf(x, a, b, loc=m, scale=s).sum(axis=1)
+
+    logw = logpdf(X, prior_mu, prior_sd) - logpdf(X, mu, sd)
+    logw -= np.max(logw)
+    return np.exp(logw)

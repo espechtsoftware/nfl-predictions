@@ -23,6 +23,25 @@ def test_apply_knobs_is_coherent_at_team_level():
     assert out[0].mean() > out[3].mean()      # score split favours team 0
 
 
+def test_knobs_are_game_local_and_pair_opponents_within_each_game():
+    draws = np.full((8, 20), 10.0)
+    teams = np.repeat(np.arange(4), 2)
+    games = np.repeat(np.arange(2), 4)
+    is_pass = np.tile([True, False], 4)
+    knobs = np.array([
+        [1.0, 0.10, 0.60, 1.0],
+        [1.0, 0.00, 0.50, 1.0],
+    ])
+    out = apply_knobs(draws, knobs, teams, is_pass, games)
+    # Game 1 is neutral and cannot inherit game 0's scoring split.
+    assert np.allclose(out[games == 1], draws[games == 1])
+    # Within game 0, team 0 receives 60% and team 1 receives 40%, while
+    # the game's combined fantasy-point total is preserved.
+    assert np.allclose(out[teams == 0].sum(axis=0), 24.0)
+    assert np.allclose(out[teams == 1].sum(axis=0), 16.0)
+    assert np.allclose(out[games == 0].sum(axis=0), 40.0)
+
+
 def test_ce_finds_a_known_elite_region():
     """Synthetic: worlds score best at high pace. CE must move the
     proposal mean toward it while keeping ESS finite."""

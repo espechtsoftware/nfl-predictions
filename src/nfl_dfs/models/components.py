@@ -112,6 +112,60 @@ class ComponentModels:
             out[f"{name}_range"] = rng_
         return out
 
+    def point_member_predictions(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Expected DK points for each aligned ensemble member.
+
+        Component-level spreads cannot be added meaningfully: a target,
+        catch-rate and touchdown disagreement live on different scales.
+        Constructing each member's complete component vector gives the EPI
+        generator genuine alternative beliefs in the same unit as its MILP
+        objective.  A single-model registry returns an empty frame so lack
+        of epistemic information is never represented as zero disagreement.
+        """
+        member_counts = [len(m.members) for m in self.models.values()
+                         if hasattr(m, "members")]
+        if not member_counts:
+            return pd.DataFrame(index=df.index)
+        k_members = min(member_counts)
+        X = build_X(df)
+        cached: dict[str, np.ndarray] = {}
+        for name in COMPONENT_NAMES:
+            model = self.models[name]
+            Xi = X[model.feature_name()]
+            if hasattr(model, "predict_members"):
+                cached[name] = model.predict_members(Xi)[:k_members]
+            else:
+                cached[name] = np.repeat(
+                    np.asarray(model.predict(Xi))[None, :], k_members, axis=0)
+
+        from .scoring import StatLine, dk_points
+
+        out = pd.DataFrame(index=df.index)
+        is_qb = (df.position == "QB").to_numpy()
+        for k in range(k_members):
+            c = pd.DataFrame({name: cached[name][k]
+                              for name in COMPONENT_NAMES}, index=df.index)
+            for name, (lo, hi) in RATE_CLIPS.items():
+                c[name] = c[name].clip(lo, hi)
+            for name in ("targets", "rec_tds", "carries", "rush_tds",
+                         "pass_attempts", "pass_tds", "interceptions"):
+                c[name] = c[name].clip(lower=0.0)
+            c.loc[is_qb, ["targets", "rec_tds"]] = 0.0
+            c.loc[~is_qb, ["pass_attempts", "pass_tds",
+                           "interceptions"]] = 0.0
+            receptions = c.targets.to_numpy() * c.catch_rate.to_numpy()
+            out[f"ensemble_point_{k}"] = dk_points(StatLine(
+                pass_yards=c.pass_attempts.to_numpy() * c.ypa.to_numpy(),
+                pass_tds=c.pass_tds.to_numpy(),
+                interceptions=c.interceptions.to_numpy(),
+                rush_yards=c.carries.to_numpy() * c.ypc.to_numpy(),
+                rush_tds=c.rush_tds.to_numpy(),
+                receptions=receptions,
+                rec_yards=receptions * c.ypr.to_numpy(),
+                rec_tds=c.rec_tds.to_numpy(),
+            ))
+        return out
+
 
 class _HistMember:
     """sklearn HistGradientBoosting wrapped to the Booster interface

@@ -138,8 +138,11 @@ correction in a later one).
   next gate = shadow features on thin-history players; free in-season
   refresh = nflverse NGS weekly aggregates); evidence + online
   conformal built and fixture-proven, data-gated on September news /
-  scored rows. September dependence build #1 = Schaake shuffle, gated
-  on the variogram instrument (src/nfl_dfs/research/dependence.py).
+  scored rows. September generation arms (Schaake/EPI/CE) were repaired
+  after the first cloud executions failed a mechanism audit; those executions
+  are INVALID and must be rerun from the repaired image (system-study
+  Addendum 97). Schaake is gated on realized variogram + upper-tail score and
+  exact marginal preservation before any candidate panel.
   PENDING ARM: GUMBEL (N_GUMBEL=20 vs HF2 27) — collect and judge.
 - **SHADOW COLLECTORS (all automatic, best-effort, deliberately NOT
   in status.FEEDS)**: predictions.div_shadow (prop-market divergence,

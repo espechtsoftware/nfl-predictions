@@ -185,6 +185,27 @@ def test_gumbel_batch_injects_and_default_off(monkeypatch):
 
 # --- N_EPISTEMIC: belief-scenario candidates (scoring plan §8) ------------
 
+def test_epistemic_scenarios_use_complete_member_and_game_vectors():
+    from nfl_dfs.backtest.engine import _epistemic_scenarios
+
+    pool = [
+        {"proj": 10.0, "game_id": "g1", "ensemble_point_0": 12.0,
+         "model_points_pre": 11.0, "market_points": 8.0},
+        {"proj": 10.0, "game_id": "g1", "ensemble_point_0": 9.0,
+         "model_points_pre": 12.0, "market_points": 9.0},
+        {"proj": 10.0, "game_id": "g2", "ensemble_point_0": 8.0,
+         "model_points_pre": 10.0, "market_points": 10.0},
+        {"proj": 6.0, "game_id": "g2", "ensemble_point_0": np.nan,
+         "model_points_pre": np.nan, "market_points": np.nan},
+    ]
+    scenarios = dict(_epistemic_scenarios(pool, "proj"))
+    assert np.array_equal(scenarios["ensemble_point_0"],
+                          [12.0, 9.0, 8.0, 6.0])
+    assert np.array_equal(scenarios["game_model:g1"],
+                          [11.0, 12.0, 10.0, 6.0])
+    assert np.array_equal(scenarios["game_market:g1"],
+                          [8.0, 9.0, 10.0, 6.0])
+
 def test_epistemic_batch_fires_and_is_inert_without_market(monkeypatch):
     import pandas as pd
 

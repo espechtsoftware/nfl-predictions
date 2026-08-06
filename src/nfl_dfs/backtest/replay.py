@@ -75,6 +75,9 @@ def replay_projections(
         bigplay = 0.03 * _bp * pd.to_numeric(
             rows.deep_targets_l4, errors="coerce").fillna(0.0)
     comps = cm.predict_components(rows)
+    member_points = (pd.DataFrame(index=rows.index)
+                     if os.environ.get("TABPFN_COMPONENTS", "") not in ("", "0")
+                     else cm.point_member_predictions(rows))
     # A/B lever (env TABPFN_COMPONENTS, off by default; 2026-08-04,
     # TabPFN-expansion): swap the LightGBM component MEANS for cached
     # walk-forward TabPFN predictions (features.tabpfn_components, GPU
@@ -148,6 +151,8 @@ def replay_projections(
     keep = [c for c in ("gsis_id", "name", "season", "week", "team", "opponent",
                         "position", "game_id", "salary") if c in rows.columns]
     out = pd.concat([rows[keep], summary], axis=1)
+    if not member_points.empty:
+        out = pd.concat([out, member_points.reset_index(drop=True)], axis=1)
     out["actual"] = rows["y_dk_points"].to_numpy()
     out["naive"] = rows.get("dk_points_l4")  # trailing average, the free baseline
     if return_draws:
@@ -227,8 +232,17 @@ def _tabpfn_marginals(draws: np.ndarray, keys: pd.DataFrame) -> np.ndarray:
     from ..config import settings
 
     season = int(keys.season.iloc[0])
-    q = query_df(f"SELECT * FROM `{settings.features}.tabpfn_projections` "
-                 f"WHERE season = {season}")
+    try:
+        q = query_df(
+            f"SELECT * FROM `{settings.features}.tabpfn_projections` "
+            f"WHERE season = {season}")
+    except Exception:
+        # Local tests, a newly-created project, or a transient warehouse
+        # failure must take the documented empirical fallback rather than
+        # aborting the entire projection/simulation path.
+        log.exception("TabPFN marginal cache unavailable for season %s; "
+                      "falling back to empirical marginals", season)
+        return None
     if q.empty:
         log.warning("TABPFN_MARGINALS on but no cached rows for season %s "
                     "— falling back to empirical marginals", season)
@@ -622,6 +636,8 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
                    "proj_p50", "proj_p90", "proj_std"):
             if _c in grp.columns:
                 cols.append(_c)
+        cols.extend(c for c in grp.columns
+                    if c.startswith("ensemble_point_") and c not in cols)
         frame = grp[cols].copy()
         if dst_rows is not None:
             d = dst_rows[(dst_rows.season == season) & (dst_rows.week == week)].copy()
@@ -631,7 +647,18 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
             # 2026-08-04 crash: KeyError on every prop-covered season)
             for c in cols:
                 if c not in d.columns:
-                    d[c] = 0.0
+                    if c == "consensus_div":
+                        d[c] = 0.0
+                    elif (c in ("market_points", "model_points_pre")
+                          or c.startswith("ensemble_point_")):
+                        # Missing epistemic information is not a zero-point
+                        # belief.  NaN makes scenario construction retain the
+                        # DST's incumbent projection.
+                        d[c] = np.nan
+                    elif c.startswith("proj_p") or c == "proj_std":
+                        d[c] = d["proj"] if c != "proj_std" else 0.0
+                    else:
+                        d[c] = 0.0
             frame = pd.concat([frame, d[cols]], ignore_index=True)
         # RotoGuru DST rows occasionally lack salary or points; a single NaN
         # poisons the field sampler's ownership softmax.

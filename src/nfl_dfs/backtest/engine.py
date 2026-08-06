@@ -27,6 +27,57 @@ REQUIRED_COLS = {"id", "name", "pos", "team", "opp", "game_id",
                  "salary", "proj", "actual"}
 
 
+def _epistemic_scenarios(pool: list[dict], objective_col: str
+                         ) -> list[tuple[str, np.ndarray]]:
+    """Complete, preregisterable alternative mean vectors.
+
+    Ensemble members are the primary scenarios.  Market/model alternatives
+    are included only when the slate actually has those point-in-time
+    inputs.  Game-specific alternatives replace the complete vector for a
+    high-disagreement game; no player receives an independent p99-style
+    bump merely because its disagreement magnitude is large.
+    """
+    if not pool:
+        return []
+    base = np.asarray([float(p[objective_col]) for p in pool])
+    scenarios: list[tuple[str, np.ndarray]] = []
+    member_cols = sorted({c for p in pool for c in p
+                          if c.startswith("ensemble_point_")})
+    for col in member_cols:
+        values = np.asarray([p.get(col, np.nan) for p in pool], dtype=float)
+        have = np.isfinite(values)
+        if have.any():
+            scenarios.append((col, np.where(have, values, base)))
+
+    model = np.asarray([p.get("model_points_pre", np.nan) for p in pool],
+                       dtype=float)
+    market = np.asarray([p.get("market_points", np.nan) for p in pool],
+                        dtype=float)
+    have_model = np.isfinite(model)
+    have_market = np.isfinite(market)
+    if have_model.any() and have_market.any():
+        mdl = np.where(have_model, model, base)
+        mkt = np.where(have_market, market, mdl)
+        w = float(os.environ.get("EPISTEMIC_W", "0.85"))
+        scenarios.extend([
+            ("market_heavy", w * mkt + (1.0 - w) * mdl),
+            ("model_heavy", w * mdl + (1.0 - w) * mkt),
+        ])
+        game_scores: dict[str, float] = {}
+        for i, p in enumerate(pool):
+            gid = p.get("game_id")
+            if gid and have_market[i] and have_model[i]:
+                game_scores[gid] = game_scores.get(gid, 0.0) + abs(
+                    model[i] - market[i])
+        for gid in sorted(game_scores, key=game_scores.get, reverse=True)[:2]:
+            in_game = np.asarray([p.get("game_id") == gid for p in pool])
+            scenarios.append((f"game_model:{gid}",
+                              np.where(in_game, mdl, base)))
+            scenarios.append((f"game_market:{gid}",
+                              np.where(in_game, mkt, base)))
+    return scenarios
+
+
 @dataclass
 class WeekResult:
     season: int
@@ -248,7 +299,16 @@ def tail_select_lineups(
     locks = locks or set()
     # Dose lever (env N_BOOM, 2026-08-05 attribution: boom solves are
     # 13% of candidates but produce the weekly BEST in 29/54 weeks).
-    n_boom_solves = int(os.environ.get("N_BOOM", n_boom_solves) or n_boom_solves)
+    baseline_boom_solves = n_boom_solves
+    n_epi = int(os.environ.get("N_EPISTEMIC", "0") or 0)
+    n_ce = int(os.environ.get("N_CE", "0") or 0)
+    if "N_BOOM" in os.environ:
+        n_boom_solves = int(os.environ.get("N_BOOM") or n_boom_solves)
+    else:
+        # EPI/CE are replacement arms by definition.  Make the safe default
+        # fixed-budget even if an operator forgets to set N_BOOM alongside
+        # the new arm.
+        n_boom_solves = max(0, baseline_boom_solves - n_epi - n_ce)
     cands = optimize_many(pool, n_lineups=candidate_multiple * n_entries,
                           stack=stack, objective_col=objective_col,
                           locks=set(locks))
@@ -266,6 +326,15 @@ def tail_select_lineups(
         _note(lu.ids, "lev")
         lu.tag = "lev"
     seen = {lu.ids for lu in cands}
+    epi_scenarios = (_epistemic_scenarios(pool, objective_col)
+                     if n_epi else [])
+    if n_epi and not epi_scenarios:
+        # A replacement arm must not silently remove incumbent generation
+        # when its new point-in-time inputs are absent (the former behavior
+        # made 2019/21/22 exactly 16 candidates smaller).
+        log.warning("EPI inputs unavailable; restoring %d boom solves", n_epi)
+        n_boom_solves = min(baseline_boom_solves,
+                            n_boom_solves + n_epi)
 
     # Thesis candidates (2026-08-03, OWS "Bink Machine" pattern): each
     # thesis {players: [ids], min: k} guarantees the POOL holds enough
@@ -294,22 +363,32 @@ def tail_select_lineups(
                 lu.tag = "thesis"
                 seen.add(lu.ids)
                 cands.append(lu)
-    boom_sims = np.argsort(rd.sum(axis=0))[::-1][:n_boom_solves]
-    for k in boom_sims:
-        sim_pool = [{**p, "proj_sim": float(rd[i, k])}
-                    for i, p in enumerate(pool)]
-        try:
-            lu = optimize(sim_pool, stack=stack, objective_col="proj_sim",
-                          locks=set(locks))
-        except Exception as exc:  # CBC subprocess flake: skip this draw
-            log.warning("boom-draw solve failed: %s", exc)
-            continue
-        if lu is not None:
-            _note(lu.ids, "boom")   # every producer (A2.1)
-        if lu is not None and lu.ids not in seen:
-            lu.tag = "boom"
-            seen.add(lu.ids)
-            cands.append(lu)
+    boom_order = np.argsort(rd.sum(axis=0))[::-1]
+    boom_cursor = n_boom_solves
+
+    def _add_boom(sim_indices, unique_target: int | None = None) -> int:
+        added = 0
+        for k in sim_indices:
+            if unique_target is not None and added >= unique_target:
+                break
+            sim_pool = [{**p, "proj_sim": float(rd[i, k])}
+                        for i, p in enumerate(pool)]
+            try:
+                lu = optimize(sim_pool, stack=stack, objective_col="proj_sim",
+                              locks=set(locks))
+            except Exception as exc:  # CBC subprocess flake: skip this draw
+                log.warning("boom-draw solve failed: %s", exc)
+                continue
+            if lu is not None:
+                _note(lu.ids, "boom")
+            if lu is not None and lu.ids not in seen:
+                lu.tag = "boom"
+                seen.add(lu.ids)
+                cands.append(lu)
+                added += 1
+        return added
+
+    _add_boom(boom_order[:n_boom_solves])
     # A/B lever (env HYPER_BOOM=<n games>, off by default; review #4
     # round 2): the sim's sampled worlds may never realize the
     # perfectly-collinear game scripts that break slates (45-42
@@ -351,105 +430,140 @@ def tail_select_lineups(
     # A/B lever (env N_CE, off by default; scoring plan §10): candidates
     # from LEARNED rare worlds. A cross-entropy loop searches the
     # bounded knob space (pace, pass tilt, scoring split, usage
-    # concentration) for environments whose constrained oracle is
-    # elite, then MILP-solves the elite worlds. HYPER assumed that
-    # subset and nulled; this learns it. Worlds are scored by a cheap
-    # greedy proxy so only elite worlds pay for a MILP solve.
-    n_ce = int(_os.environ.get("N_CE", "0") or 0)
+    # concentration) for environments whose legal constrained oracle is
+    # elite, then MILP-solves the elite worlds. Parameters are independent
+    # per game; the former slate-global deformation and illegal greedy
+    # nine-player proxy did not implement the preregistered experiment.
     if n_ce:
+        ce_added = 0
         try:
             from ..research.ce_worlds import apply_knobs, ce_iterate
 
-            teamc = pd.factorize(pd.Series(
-                [p.get("team") for p in pool]).fillna("_"))[0]
-            is_pass = np.array([str(p.get("pos")) in ("QB", "WR", "TE")
-                                for p in pool])
-            sal = np.array([float(p.get("salary") or 1) for p in pool])
-            base_world = rd[:, np.argsort(rd.sum(axis=0))[::-1][:200]]
+            game_totals: dict[str, float] = {}
+            for p in pool:
+                gid = p.get("game_id")
+                if gid:
+                    game_totals[gid] = game_totals.get(gid, 0.0) + float(
+                        p[objective_col])
+            max_games = int(_os.environ.get("CE_GAMES", "4") or 4)
+            active_games = sorted(game_totals, key=game_totals.get,
+                                  reverse=True)[:max_games]
+            active = np.asarray([p.get("game_id") in active_games
+                                 for p in pool])
+            if not active.any():
+                raise ValueError("CE requires game_id on the player pool")
+            active_pool_idx = np.flatnonzero(active)
+            active_game = pd.Categorical(
+                [pool[i].get("game_id") for i in active_pool_idx],
+                categories=active_games, ordered=True).codes
+            active_team = pd.factorize(pd.Series(
+                [pool[i].get("team") for i in active_pool_idx]).fillna("_"))[0]
+            active_pass = np.asarray([
+                str(pool[i].get("pos")) in ("QB", "WR", "TE")
+                for i in active_pool_idx])
+            base_mean = rd.mean(axis=1)
+
+            def _world(knobs):
+                w = base_mean.copy()
+                w[active] = apply_knobs(
+                    base_mean[active, None], knobs, active_team, active_pass,
+                    active_game)[:, 0]
+                return w
 
             def _score_world(knobs):
-                w = apply_knobs(base_world.mean(axis=1)[:, None], knobs,
-                                teamc, is_pass)[:, 0]
-                # cheap proxy for the constrained oracle: value-greedy
-                # fill under the cap, 9 slots
-                order = np.argsort(w / np.maximum(sal, 1))[::-1][:60]
-                tot, spend, n = 0.0, 0.0, 0
-                for i in order:
-                    if n >= 9 or spend + sal[i] > 50_000:
-                        continue
-                    tot += w[i]; spend += sal[i]; n += 1
-                return tot
+                w = _world(knobs)
+                scored = [{**p, "proj_ce": float(w[i])}
+                          for i, p in enumerate(pool)]
+                lu = optimize(scored, stack=stack, objective_col="proj_ce",
+                              locks=set(locks))
+                if lu is None:
+                    return -1e9
+                return float(sum(w[i] for i, p in enumerate(pool)
+                                 if p["id"] in lu.ids))
 
             rng_ce = np.random.default_rng(1701)
+            per_round = max(24, n_ce * 2)
             elites, iw, hist = ce_iterate(_score_world, rng_ce,
-                                          n_per_round=40, rounds=3)
+                                          n_per_round=per_round, rounds=3,
+                                          elite_frac=0.5,
+                                          n_games=len(active_games))
             log.info("CE: %d elite worlds, final ESS %.1f, elite score "
-                     "%.1f -> %.1f", len(elites), hist[-1]["ess"],
-                     hist[0]["all_mean_score"], hist[-1]["elite_mean_score"])
-            for kn in elites[:n_ce]:
-                wmean = apply_knobs(rd.mean(axis=1)[:, None], kn, teamc,
-                                    is_pass)[:, 0]
+                     "%.1f -> %.1f (candidate-only weights, %d games)",
+                     len(elites), hist[-1]["ess"],
+                     hist[0]["all_mean_score"], hist[-1]["elite_mean_score"],
+                     len(active_games))
+            banned_ce: list[frozenset] = []
+            for attempt in range(max(n_ce * 3, len(elites))):
+                if ce_added >= n_ce:
+                    break
+                kn = elites[attempt % len(elites)]
+                wmean = _world(kn)
                 cpool = [{**p, "proj_ce": float(wmean[i])}
                          for i, p in enumerate(pool)]
                 try:
                     lu = optimize(cpool, stack=stack, objective_col="proj_ce",
-                                  locks=set(locks))
+                                  locks=set(locks), banned_lineups=banned_ce)
                 except Exception:
                     continue
                 if lu is None:
                     continue
+                banned_ce.append(lu.ids)
                 _note(lu.ids, "ce")
                 if lu.ids not in seen:
                     lu.tag = "ce"
                     seen.add(lu.ids)
                     cands.append(lu)
+                    ce_added += 1
         except Exception:
             log.exception("CE world generation failed; pool unaffected")
+        if ce_added < n_ce:
+            missing = n_ce - ce_added
+            log.warning("CE produced %d/%d unique candidates; replacing "
+                        "the missing %d with boom worlds", ce_added, n_ce,
+                        missing)
+            _add_boom(boom_order[boom_cursor:], unique_target=missing)
 
     # A/B lever (env N_EPISTEMIC, off by default; scoring plan §8):
     # EPISTEMIC-scenario candidates. Every existing generator samples
     # the same aleatoric worlds the selector scores against — a closed
     # loop. These instead encode alternative BELIEFS about the means:
-    # market-heavy vs model-heavy blends and high-disagreement tilts,
-    # each coherent at game level (a scenario moves a whole game's
-    # players together, never independent per-player boosts). Requires
-    # the market/model split on the pool; silently inert otherwise.
-    n_epi = int(_os.environ.get("N_EPISTEMIC", "0") or 0)
-    if n_epi and any(p.get("model_points_pre") is not None for p in pool):
-        _w = float(_os.environ.get("EPISTEMIC_W", "0.85"))
-        scen: list = []
-        # 1) market-heavy and 2) model-heavy beliefs (bounded blends)
-        for name, wt in (("mkt", 1.0 - _w), ("mdl", _w)):
-            scen.append((name, lambda p, wt=wt: (
-                wt * float(p.get("model_points_pre") or p[objective_col])
-                + (1 - wt) * float(p.get("market_points")
-                                   if p.get("market_points") is not None
-                                   else p.get("model_points_pre")
-                                   or p[objective_col]))))
-        # 3) high-disagreement games get their whole game tilted toward
-        #    OUR number, 4) toward the market's
-        for name, sgn in (("divup", 1.0), ("divdn", -1.0)):
-            scen.append((name, lambda p, sgn=sgn: float(p[objective_col])
-                         + sgn * 0.5 * float(p.get("consensus_div") or 0.0)))
-        for si, (sname, fn) in enumerate(scen):
-            spool = [{**p, "proj_epi": fn(p)} for p in pool]
-            for _ in range(max(1, n_epi // len(scen))):
-                try:
-                    lu = optimize(spool, stack=stack,
-                                  objective_col="proj_epi",
-                                  locks=set(locks),
-                                  banned_lineups=[c.ids for c in cands
-                                                  if c.tag == "epi"][-8:])
-                except Exception as exc:
-                    log.warning("epistemic solve failed: %s", exc)
-                    continue
-                if lu is None:
-                    break
-                _note(lu.ids, "epi")
-                if lu.ids not in seen:
-                    lu.tag = "epi"
-                    seen.add(lu.ids)
-                    cands.append(lu)
+    # complete ensemble-member vectors, market/model blends and complete
+    # high-disagreement-game alternatives. No independent player p99 boost
+    # is used. Missing inputs are replaced by incumbent boom slots.
+    epi_added = 0
+    if n_epi and epi_scenarios:
+        banned_epi: list[frozenset] = []
+        max_attempts = max(n_epi * 3, len(epi_scenarios))
+        for attempt in range(max_attempts):
+            if epi_added >= n_epi:
+                break
+            sname, vector = epi_scenarios[attempt % len(epi_scenarios)]
+            spool = [{**p, "proj_epi": float(vector[i])}
+                     for i, p in enumerate(pool)]
+            try:
+                lu = optimize(spool, stack=stack, objective_col="proj_epi",
+                              locks=set(locks), banned_lineups=banned_epi)
+            except Exception as exc:
+                log.warning("epistemic solve failed: %s", exc)
+                continue
+            if lu is None:
+                continue
+            banned_epi.append(lu.ids)
+            _note(lu.ids, "epi")
+            _note(lu.ids, f"epi:{sname}")
+            if lu.ids not in seen:
+                lu.tag = "epi"
+                seen.add(lu.ids)
+                cands.append(lu)
+                epi_added += 1
+        if epi_added < n_epi:
+            # Preserve the candidate-generation budget when scenario solves
+            # fail or duplicate incumbent candidates.
+            missing = n_epi - epi_added
+            log.warning("EPI produced %d/%d unique candidates; replacing "
+                        "the missing %d with boom worlds", epi_added, n_epi,
+                        missing)
+            _add_boom(boom_order[boom_cursor:], unique_target=missing)
 
     # A/B lever (env N_GUMBEL, off by default; 2026-08-05 GFN gate):
     # Gumbel-perturbed MILP objectives — perturb-and-MAP diverse-mode
