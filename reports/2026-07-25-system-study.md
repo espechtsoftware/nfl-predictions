@@ -2894,3 +2894,41 @@ the previous one did, three retracted claims corrected, and four
 families closed with evidence instead of intuition. September's live
 levers are candidate GENERATION (Schaake, cross-entropy), new
 information (market movement, evidence, tracking), and entry volume.
+
+## Addendum 95 (2026-08-06): Scope correction to Addenda 93-94
+
+Sol's review of the close-out flags two overclaims in my wording.
+Both accepted:
+
+1. **"No scoring gain was available" is unknowable** and should never
+   have been written. The defensible statement is: no change TESTED
+   this round earned adoption, and the tested space was bounded by the
+   current simulator and a static, historically-reconstructable
+   feature set.
+2. **"Selection is closed" is too broad.** The correct claim is:
+   **selection is closed WITH THE CURRENT SIMULATOR AND STATIC FEATURE
+   SET.** Five falsifications (LSE, sharp-LSE, QB-concentration,
+   dollars, residual reranker) all read either the same simulated
+   worlds or features reconstructable from the existing pipeline. They
+   do not rule out a selector fed by information the system does not
+   yet have.
+
+**Reopening condition (preregistered here so it cannot be
+rationalized later):** a reranker/selector may be revisited ONLY when
+a genuinely new pre-lock signal exists — market MOVEMENT and
+cross-book dispersion, activated evidence features, tracking traits
+with point-in-time coverage, or a materially different simulator
+(e.g. an adopted Schaake dependence model) — AND its evaluation is
+frozen BEFORE the new outcomes are observed. Retrospective tuning on
+these same 107 slates is panel mining and is forbidden.
+
+Sol's priority order for September, adopted verbatim: (1)
+similarity-conditioned Schaake, gated on held-out variogram +
+marginal preservation; (2) fixed-budget epistemic-scenario generation
+(ensemble members, market movement, coherent role alternatives); (3)
+cross-entropy rare-world generation, requiring ACTUAL candidate-oracle
+improvement before any panel; (4) prospective 2026 collection of
+market-movement / evidence / tracking features; (5) entry-volume
+analysis using REAL contest costs and payout curves (blocked today —
+payout.py is stylized and classic-format rank/score curves do not
+exist yet; this is an economics question, not a modelling one).
