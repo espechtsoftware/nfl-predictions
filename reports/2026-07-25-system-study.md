@@ -2830,3 +2830,40 @@ mean best 180.3 / 179.4 / 179.5, regret 6.0 / 6.8 / 6.7. The
 objective threshold is FLAT within noise — 194 keeps the most
 194-clears and 187 the best mean/regret. No change; the economic
 question stays open until real payout curves exist (plan §B3).
+
+## Addendum 93 (2026-08-06): Workstream A — the reranker is FALSIFIED; the frontier is not recoverable by ranking
+
+One nested LOSO comparison on the canonical panel, preregistered
+before any result was viewed (target = actual minus simulated
+location; ridge; slate as the unit; bounded shift applied to world
+totals then the UNCHANGED coverage selector rerun, never a top-40
+sort):
+
+| arm | clears | mean best | regret | seasons better |
+|---|---|---|---|---|
+| A0 incumbent | 27 | 179.4 | 6.8 | — |
+| A1 structure/provenance | 28 | 179.9 | 6.3 | 2 |
+| A2 + market/model disagreement | 27 | 179.6 | 6.6 | 1 |
+| A3 + ownership/uncertainty | 24 | 178.4 | 7.9 | 0 |
+| A4 shuffled control | 25 | 179.4 | 6.9 | 0 |
+
+**No arm meets §7.8's adoption bar** (>=4 seasons improved, no
+catastrophic season, beats the control). A1's +1 clear is
+concentrated in 2 seasons — inside the +/-2-3 noise band and barely
+separated from the shuffled control. Decisively: **adding the
+orthogonal features made it WORSE** (A2 flat, A3 -3). The hypothesis
+that pre-lock market/model disagreement or ownership can identify the
+buried winners is refuted on the only data that could test it.
+
+This closes the loop opened by the +0.428 correlation: that statistic
+was inflated (+0.030 among unselected oracles on the shipping build),
+and with the honest number there was never a gradient to learn. The
+8 recoverable weeks are real but are NOT recoverable by re-ranking a
+frozen pool — no pre-lock signal in our possession separates the
+oracle from its 160 neighbours. Capture, if it comes, must come from
+MORE ENTRIES (the pool outproduces the book) or from genuinely new
+information (plan Workstream E), not from smarter selection.
+
+Selection is now falsified five independent ways: LSE, sharp-LSE,
+QB-concentration, dollars-objective, and this decision-focused
+residual reranker. The family is closed.
