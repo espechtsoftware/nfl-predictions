@@ -148,6 +148,8 @@ def replay_projections(
             log_dependence_ab(rows, draws_out)
         except Exception:
             log.exception("schaake diagnostic failed; replay unaffected")
+            if os.environ.get("SCHAAKE_DIAG_STRICT"):
+                raise
     keep = [c for c in ("gsis_id", "name", "season", "week", "team", "opponent",
                         "position", "game_id", "salary") if c in rows.columns]
     out = pd.concat([rows[keep], summary], axis=1)

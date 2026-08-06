@@ -65,11 +65,21 @@ def build_game_bank(games: pd.DataFrame) -> pd.DataFrame:
     g["rank_pct"] = g.groupby("role").dk_points.rank(pct=True)
     rows = []
     for (se, wk, gid), gg in g.groupby(["season", "week", "game_id"]):
-        teams = sorted(gg.team.unique())
+        teams = list(gg.team.unique())
         if len(teams) != 2:
             continue
+        # Preserve the football meaning of the two template sides.  The old
+        # alphabetical a/b mapping could apply a favorite's outcome ranks to
+        # the current underdog merely because of team abbreviations.
+        if "implied_team_total" in gg:
+            strength = (gg.groupby("team").implied_team_total.mean()
+                        .to_dict())
+            teams = sorted(teams, key=lambda t: (-strength.get(t, -np.inf),
+                                                 str(t)))
+        else:
+            teams = sorted(teams)
         rec = {"season": se, "week": wk, "game_id": gid}
-        for side, t in zip(("a", "b"), teams):
+        for side, t in zip(("fav", "dog"), teams):
             sub = gg[gg.team == t]
             for _, r in sub.iterrows():
                 rec[f"{r.role}_{side}"] = r.rank_pct
@@ -80,7 +90,8 @@ def build_game_bank(games: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def apply_schaake_game(draws, roles, teams, templates, seed=0):
+def apply_schaake_game(draws, roles, teams, templates, seed=0,
+                       team_values=None):
     """Impose GAME-level template patterns: one historical game per
     simulated world; our two teams take its _a and _b sides."""
     rng = np.random.default_rng(seed)
@@ -90,7 +101,14 @@ def apply_schaake_game(draws, roles, teams, templates, seed=0):
     out = draws.copy()
     srt = np.sort(draws, axis=1)
     tm = np.asarray(teams)
-    sides = sorted(pd.unique(tm))
+    sides = list(pd.unique(tm))
+    if team_values is not None:
+        tv = np.asarray(team_values, dtype=float)
+        strength = {team: float(np.nanmean(tv[tm == team]))
+                    for team in sides}
+        sides = sorted(sides, key=lambda team: (-strength[team], str(team)))
+    else:
+        sides = sorted(sides)
     pick = rng.integers(0, len(templates), size=n_sims)
     T = templates.reset_index(drop=True)
     # Sampling templates with replacement necessarily creates repeated
@@ -100,8 +118,10 @@ def apply_schaake_game(draws, roles, teams, templates, seed=0):
     # A shared tie-break preserves the association of repeated templates
     # across roles while assigning every current marginal draw exactly once.
     tie_break = rng.permutation(n_sims)
+    semantic_sides = any(str(c).endswith("_fav") for c in T.columns)
     for si, team in enumerate(sides[:2]):
-        suf = "a" if si == 0 else "b"
+        suf = (("fav", "dog")[si] if semantic_sides
+               else ("a", "b")[si])
         for i in np.flatnonzero(tm == team):
             role = roles.iloc[i] if hasattr(roles, "iloc") else roles[i]
             col = f"{role}_{suf}"

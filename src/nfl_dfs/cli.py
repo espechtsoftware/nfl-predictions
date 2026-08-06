@@ -77,7 +77,10 @@ def main(argv: list[str] | None = None) -> None:
                    help="Fraction of the simulated field built by optimizer")
     p.add_argument("--tail-line", type=float, default=None,
                    help="GPP entry selection maximizes P(best >= this "
-                        "score); default 194 for gpp, 0 disables")
+                   "score); default 194 for gpp, 0 disables")
+
+    sub.add_parser("schaake-smoke",
+                   help="Run image-level Schaake mechanism invariants")
 
     p = sub.add_parser("import-discoverylab",
                        help="Backfill real DK salaries from DiscoveryLab (free tier: last season)")
@@ -191,6 +194,10 @@ def main(argv: list[str] | None = None) -> None:
         replay.run(args.season, n_sims=args.sims, contest=contest,
                    n_entries=args.entries, field_size=args.field_size,
                    sharp_fraction=args.sharp, tail_line=args.tail_line)
+    elif args.command == "schaake-smoke":
+        from .research.schaake_diag import cloud_smoke
+
+        cloud_smoke()
     elif args.command == "import-discoverylab":
         from .ingest import discoverylab_import
 
