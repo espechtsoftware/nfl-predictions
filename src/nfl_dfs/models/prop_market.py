@@ -82,6 +82,13 @@ def market_points(seasons: tuple[int, ...] = (2023, 2024, 2025)) -> pd.DataFrame
     td["pts"] = 6.0 * (-np.log1p(-td.p))
     rows.extend(td[["season", "week", "norm", "market", "bookmaker",
                     "pts"]].to_dict("records"))
+    # Pre-prop historical seasons legitimately have no rows.  Return the
+    # documented empty schema so callers can use their model-only fallback;
+    # constructing a column-less DataFrame here used to raise KeyError on
+    # the group-bys below and emit a misleading replay error.
+    if not rows:
+        return pd.DataFrame(columns=["season", "week", "gsis_id",
+                                     "market_points"])
     df = pd.DataFrame(rows)
     # Average books within a market, then sum markets per player-week
     per_mkt = (df.groupby(["season", "week", "norm", "market"]).pts

@@ -59,3 +59,19 @@ def test_prop_market_accepts_td_only_snapshot(monkeypatch):
     assert len(out) == 1
     assert out.gsis_id.iloc[0] == "p1"
     assert out.market_points.iloc[0] > 0
+
+
+def test_prop_market_accepts_no_props_snapshot(monkeypatch):
+    """Pre-coverage seasons are a normal model-only fallback, not an
+    exception path with a column-less groupby."""
+    from nfl_dfs.models import prop_market
+
+    props = pd.DataFrame(columns=["season", "week", "bookmaker", "market",
+                                  "outcome_name", "player", "price", "point"])
+    names = pd.DataFrame(columns=["gsis_id", "display_name"])
+    replies = iter([props, names])
+    monkeypatch.setattr(prop_market, "query_df", lambda _sql: next(replies))
+
+    out = prop_market.market_points((2019,))
+    assert out.empty
+    assert list(out.columns) == ["season", "week", "gsis_id", "market_points"]
