@@ -3040,3 +3040,32 @@ Roles, pair correlations and the point-in-time template cutoff are
 now keyed per (season, week); the run must be repeated. The
 marginal-preservation invariant it reported (exact) stands, since it
 does not depend on the grouping.
+
+## Addendum 99 (2026-08-06): Schaake repaired 2025 Cloud Run gate — NEGATIVE
+
+The repaired dependence-only gate ran on Cloud Run execution
+`schaake-gate-2025-ba157ab-24b2g`, pinned to image
+`sha256:1096e1b92319f53446bc36f5777b0ca0caf250ad5c7b505c2c5ebd7c6924b8cb`.
+Its prior image smoke test passed the whole-season role grouping,
+distinct per-game random stream, and exact-marginal checks.
+
+The full 2025 diagnostic then produced all 18 machine-readable weekly
+records and all required skill pairs (1,686 pair observations):
+
+| Measure (lower is better) | Production | Schaake |
+| --- | ---: | ---: |
+| Variogram error | 0.158437 | 0.161294 |
+| Joint-q90 tail Brier | 0.020284 | 0.020443 |
+
+Every player's draw multiset was exactly preserved and no required pair was
+missing, so this is a valid comparison rather than another diagnostic
+failure. Schaake is worse on both preregistered held-out measures. It does
+not proceed to a candidate-oracle or scoring-panel arm, and it is not
+enabled in production.
+
+The execution was deliberately cancelled after the gate record had been
+emitted, while the unrelated baseline replay/selection tail was still
+running. The cancellation neither changes nor invalidates the already
+complete dependence result. The formerly broken `replay-g2-2025` Cloud Run
+job was also repinned to this immutable image with strict diagnostic failure
+handling, so a future replay cannot silently swallow a Schaake exception.
