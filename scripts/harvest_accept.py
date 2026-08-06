@@ -263,9 +263,12 @@ def main() -> int:
             LIKE `{settings.predictions}.{STAGING}`""")
         # research_eligible is FALSE in staging by construction; the
         # promotion is what makes rows eligible.
+        # SELECT * REPLACE keeps column ORDER (INSERT..SELECT is
+        # positional in BigQuery; EXCEPT+append put the flag last and
+        # collided with the target's column 11).
         query_df(f"""
             INSERT INTO `{settings.predictions}.{RESEARCH}`
-            SELECT * EXCEPT (research_eligible), TRUE AS research_eligible
+            SELECT * REPLACE (TRUE AS research_eligible)
             FROM `{settings.predictions}.{STAGING}`
             WHERE panel_run_id = '{a.panel_run_id}'""")
         print(f"promoted panel {a.panel_run_id} -> {RESEARCH}")
