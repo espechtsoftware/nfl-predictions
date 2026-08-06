@@ -2932,3 +2932,26 @@ market-movement / evidence / tracking features; (5) entry-volume
 analysis using REAL contest costs and payout curves (blocked today —
 payout.py is stylized and classic-format rank/score curves do not
 exist yet; this is an economics question, not a modelling one).
+
+## Addendum 96 (2026-08-06): Workstream E first results — market movement and cross-book dispersion are both NULL
+
+Prop-market history is richer than assumed: 2023-2025, ~130 snapshots
+per season (7-10 per week), 2 books — enough to compute movement and
+dispersion strictly point-in-time (snapshots before commence_time
+only, never a closing line).
+
+- **Movement (open -> last pre-lock)**: correlation with OUR
+  projection residual is ~0 across every market (|r| <= 0.018 on
+  1.2k-7.3k player-weeks). The market moves, but not toward anything
+  our projection is missing.
+- **Cross-book dispersion**: an initial +0.12 on rush yards was MY
+  ARTIFACT — a pivot with fillna(0) conflated "no dispersion data"
+  with "zero dispersion". The clean per-player-week join gives
+  **+0.038 overall and +0.034 / +0.081 / +0.029 by season** — small
+  and unstable. Fails the plan's §11.5 step-2 gate (held-out residual
+  improvement) and the stability rule.
+
+Neither justifies a feature, a scenario family, or wider
+distributions. Recorded so September does not re-mine the same
+signal: only 2 books are covered, so a genuine dispersion test needs
+a wider book panel (paid Odds API tier), not more work on this data.
