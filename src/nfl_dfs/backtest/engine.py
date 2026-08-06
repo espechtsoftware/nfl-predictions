@@ -37,6 +37,39 @@ DEFAULT_N_CE = 12
 DEFAULT_N_BOOM = GEN_TOTAL_BUDGET - DEFAULT_N_CE   # 28
 
 
+# Replacement slots the adopted CE arm displaces. Both arms of a paired
+# comparison protect this many: 12 CE in treatment, 12 boom in control.
+REPLACEMENT_SLOTS = 12
+
+
+def pool_cap_for_slate(season: int, week: int, env: dict | None = None
+                       ) -> int:
+    """Per-slate cap, from GEN_POOL_CAP_MAP if present else GEN_POOL_CAP.
+
+    A single scalar cap cannot equalize paired pools: realized counts
+    vary by slate (~157-174 in the prior panel), so one number leaves
+    some control slates under it and cuts some treatment slates and not
+    others. The map is emitted by the CE-off control run keyed
+    "season-week" and consumed verbatim by the treatment.
+    """
+    e = os.environ if env is None else env
+    raw = e.get("GEN_POOL_CAP_MAP", "")
+    if raw:
+        try:
+            import json as _json
+
+            m = _json.loads(raw)
+            v = m.get(f"{season}-{week}")
+            if v is not None:
+                return int(v)
+            log.warning("no cap-map entry for %s wk%s — slate uncapped",
+                        season, week)
+            return 0
+        except Exception:
+            log.exception("GEN_POOL_CAP_MAP unparsable; falling back")
+    return int(e.get("GEN_POOL_CAP", "0") or 0)
+
+
 def trim_pool_to_cap(cands: list, cap: int, quotas: dict[str, int],
                      protect: tuple[str, ...] = ("ce", "epi"),
                      ) -> tuple[list, dict[str, int], dict[str, int]]:
@@ -953,15 +986,35 @@ def tail_select_lineups(
     # not negligible. GEN_POOL_CAP trims deterministically (by generation
     # order, which is itself deterministic) so two arms can be compared at
     # byte-identical pool size.
-    _cap = int(os.environ.get("GEN_POOL_CAP", "0") or 0)
+    # season/week are optional on a slate frame (live/ad-hoc builds and
+    # several fixtures omit them); the cap map is keyed by them, so a
+    # frame without them is simply uncapped rather than an exception.
+    _season = (int(slate["season"].iloc[0])
+               if "season" in slate.columns and len(slate) else 0)
+    _week = (int(slate["week"].iloc[0])
+             if "week" in slate.columns and len(slate) else 0)
+    # Realized pool size is logged ALWAYS (not only when trimming) so a
+    # CE-off control run can emit the per-slate cap manifest the paired
+    # treatment arm consumes.
+    log.info("pool size: %s wk%s n=%d", _season, _week, len(cands))
+    _cap = pool_cap_for_slate(_season, _week)
     if _cap and len(cands) > _cap:
-        # quotas name the arms UNDER TEST; every other tag is handled
-        # by the round-robin so no generator is silently trim-eligible
-        # merely because it lacks a quota entry.
-        _quotas = {"ce": n_ce, "epi": n_epi}
-        cands, _ret, _drop = trim_pool_to_cap(cands, _cap, _quotas)
-        log.info("pool trimmed to GEN_POOL_CAP %d: retained=%s dropped=%s",
-                 _cap, _ret, _drop)
+        # PAIRED replacement-slot policy: the treatment protects its 12
+        # CE candidates, so the control must protect an equal number of
+        # the slots CE replaces (boom) — otherwise the cap retains the
+        # novel arm more aggressively than the incumbent it displaces.
+        if n_ce or n_epi:
+            _quotas = {"ce": n_ce, "epi": n_epi}
+            _protect = ("ce", "epi")
+        else:
+            _quotas = {"boom": REPLACEMENT_SLOTS}
+            _protect = ("boom",)
+        cands, _ret, _drop = trim_pool_to_cap(cands, _cap, _quotas,
+                                              protect=_protect)
+        log.info("pool trimmed to cap %d (protect=%s): retained=%s "
+                 "dropped=%s", _cap, _protect, _ret, _drop)
+    log.info("pool final: %s wk%s n=%d cap=%s", _season, _week,
+             len(cands), _cap or "none")
     id2row = {pid: i for i, pid in enumerate(slate["id"])}
     cand_totals = np.stack([
         rd[[id2row[p["id"]] for p in lu.players]].sum(axis=0) for lu in cands

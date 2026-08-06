@@ -71,7 +71,23 @@ def main() -> int:
             failures.append(f"{name}: could not read deployment spec")
             continue
         ce, epi, boom = resolve_generation_budget(env=env)
-        ok = (ce, boom) == (DEFAULT_N_CE, DEFAULT_N_BOOM)
+        # FULL contract, not just (ce, boom): N_EPISTEMIC=1 alongside
+        # 12/28 would otherwise pass while producing 41 slots. Research
+        # knobs must never appear on a production deployment either.
+        forbidden = {k: env[k] for k in ("GEN_POOL_CAP", "GEN_POOL_CAP_MAP",
+                                         "GEN_TOTAL_BUDGET") if k in env}
+        problems = []
+        if ce != DEFAULT_N_CE:
+            problems.append(f"N_CE={ce} (want {DEFAULT_N_CE})")
+        if epi != 0:
+            problems.append(f"N_EPISTEMIC={epi} (want 0)")
+        if boom != DEFAULT_N_BOOM:
+            problems.append(f"N_BOOM={boom} (want {DEFAULT_N_BOOM})")
+        if ce + epi + boom != DEFAULT_N_CE + DEFAULT_N_BOOM:
+            problems.append(f"total={ce + epi + boom} (want 40)")
+        if forbidden:
+            problems.append(f"research overrides present: {forbidden}")
+        ok = not problems
         row = {"target": name, "kind": kind, "n_ce": ce,
                "n_epistemic": epi, "n_boom": boom, "total": ce + epi + boom,
                "ce_seed": int(env.get("CE_SEED", "1701") or 1701),
@@ -81,10 +97,9 @@ def main() -> int:
                                       "CE_SEED", "GEN_TOTAL_BUDGET",
                                       "GEN_POOL_CAP")}}
         report.append(row)
+        row["problems"] = problems
         if not ok:
-            failures.append(
-                f"{name}: resolved CE {ce} / boom {boom}, adopted is "
-                f"{DEFAULT_N_CE}/{DEFAULT_N_BOOM} (overrides {row['overrides']})")
+            failures.append(f"{name}: " + "; ".join(problems))
 
     if a.json:
         print(json.dumps({"targets": report, "failures": failures}, indent=2))

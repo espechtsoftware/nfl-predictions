@@ -185,3 +185,44 @@ def test_degenerate_trim_is_round_robin_not_index_order():
         cands, 14, {"ce": 10, "epi": 10})
     assert len(kept) == 14
     assert dropped.get("ce", 0) == 3 and dropped.get("epi", 0) == 3, dropped
+
+
+# --- per-slate cap manifest (2026-08-06 review) --------------------------
+
+def test_per_slate_cap_map_beats_a_scalar_cap():
+    """A single cap cannot equalize paired pools: realized counts vary
+    ~157-174 per slate, so one number leaves some control slates under
+    it and cuts some treatment slates and not others."""
+    from nfl_dfs.backtest.engine import pool_cap_for_slate
+
+    m = '{"2025-3": 161, "2025-4": 168}'
+    assert pool_cap_for_slate(2025, 3, env={"GEN_POOL_CAP_MAP": m}) == 161
+    assert pool_cap_for_slate(2025, 4, env={"GEN_POOL_CAP_MAP": m}) == 168
+    # a slate missing from the manifest is left UNCAPPED (and warned),
+    # never silently capped at some other slate's number
+    assert pool_cap_for_slate(2025, 9, env={"GEN_POOL_CAP_MAP": m}) == 0
+    # scalar remains available for exploratory (non-paired) use
+    assert pool_cap_for_slate(2025, 3, env={"GEN_POOL_CAP": "160"}) == 160
+    # a corrupt manifest falls back rather than crashing a panel
+    assert pool_cap_for_slate(
+        2025, 3, env={"GEN_POOL_CAP_MAP": "{oops", "GEN_POOL_CAP": "155"}) == 155
+
+
+def test_paired_protection_keeps_equal_replacement_slots():
+    """Treatment protects 12 CE; the control must protect 12 boom, or
+    the cap retains the novel arm more aggressively than the incumbent
+    it displaces."""
+    from nfl_dfs.backtest.engine import REPLACEMENT_SLOTS, trim_pool_to_cap
+
+    assert REPLACEMENT_SLOTS == 12
+    treat = ([_Lu("lev", i) for i in range(60)]
+             + [_Lu("boom", i) for i in range(28)]
+             + [_Lu("ce", i) for i in range(12)])
+    ctrl = ([_Lu("lev", i) for i in range(60)]
+            + [_Lu("boom", i) for i in range(40)])
+    _, rt, _ = trim_pool_to_cap(treat, 80, {"ce": 12, "epi": 0},
+                                protect=("ce", "epi"))
+    _, rc, _ = trim_pool_to_cap(ctrl, 80, {"boom": REPLACEMENT_SLOTS},
+                                protect=("boom",))
+    assert rt["ce"] == 12          # treatment keeps its replacement slots
+    assert rc["boom"] >= 12        # control keeps an equal number
