@@ -348,6 +348,51 @@ def tail_select_lineups(
                 lu.tag = "hyper"
                 seen.add(lu.ids)
                 cands.append(lu)
+    # A/B lever (env N_EPISTEMIC, off by default; scoring plan §8):
+    # EPISTEMIC-scenario candidates. Every existing generator samples
+    # the same aleatoric worlds the selector scores against — a closed
+    # loop. These instead encode alternative BELIEFS about the means:
+    # market-heavy vs model-heavy blends and high-disagreement tilts,
+    # each coherent at game level (a scenario moves a whole game's
+    # players together, never independent per-player boosts). Requires
+    # the market/model split on the pool; silently inert otherwise.
+    n_epi = int(_os.environ.get("N_EPISTEMIC", "0") or 0)
+    if n_epi and any(p.get("model_points_pre") is not None for p in pool):
+        _w = float(_os.environ.get("EPISTEMIC_W", "0.85"))
+        scen: list = []
+        # 1) market-heavy and 2) model-heavy beliefs (bounded blends)
+        for name, wt in (("mkt", 1.0 - _w), ("mdl", _w)):
+            scen.append((name, lambda p, wt=wt: (
+                wt * float(p.get("model_points_pre") or p[objective_col])
+                + (1 - wt) * float(p.get("market_points")
+                                   if p.get("market_points") is not None
+                                   else p.get("model_points_pre")
+                                   or p[objective_col]))))
+        # 3) high-disagreement games get their whole game tilted toward
+        #    OUR number, 4) toward the market's
+        for name, sgn in (("divup", 1.0), ("divdn", -1.0)):
+            scen.append((name, lambda p, sgn=sgn: float(p[objective_col])
+                         + sgn * 0.5 * float(p.get("consensus_div") or 0.0)))
+        for si, (sname, fn) in enumerate(scen):
+            spool = [{**p, "proj_epi": fn(p)} for p in pool]
+            for _ in range(max(1, n_epi // len(scen))):
+                try:
+                    lu = optimize(spool, stack=stack,
+                                  objective_col="proj_epi",
+                                  locks=set(locks),
+                                  banned_lineups=[c.ids for c in cands
+                                                  if c.tag == "epi"][-8:])
+                except Exception as exc:
+                    log.warning("epistemic solve failed: %s", exc)
+                    continue
+                if lu is None:
+                    break
+                _note(lu.ids, "epi")
+                if lu.ids not in seen:
+                    lu.tag = "epi"
+                    seen.add(lu.ids)
+                    cands.append(lu)
+
     # A/B lever (env N_GUMBEL, off by default; 2026-08-05 GFN gate):
     # Gumbel-perturbed MILP objectives — perturb-and-MAP diverse-mode
     # sampling. In the GFlowNet's own equal-count gate this cheap trick

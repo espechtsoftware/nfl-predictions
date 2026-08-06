@@ -95,6 +95,23 @@ class ComponentModels:
         out.loc[~is_qb, ["pass_attempts", "pass_tds", "interceptions"]] = 0.0
         return out
 
+    def component_spread(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Per-component ensemble member spread (scoring plan §5.2):
+        epistemic disagreement about the MEAN, which the simulator's
+        aleatoric draws do not represent. Empty frame when the members
+        are not exposed (single-model registry entries), so callers
+        must treat absence as 'unavailable', never as zero."""
+        X = build_X(df)
+        out = pd.DataFrame(index=df.index)
+        for name in COMPONENT_NAMES:
+            m = self.models[name]
+            if not hasattr(m, "predict_spread"):
+                continue
+            sd, rng_ = m.predict_spread(X[m.feature_name()])
+            out[f"{name}_sd"] = sd
+            out[f"{name}_range"] = rng_
+        return out
+
 
 class _HistMember:
     """sklearn HistGradientBoosting wrapped to the Booster interface
@@ -145,6 +162,20 @@ class _EnsembleBooster:
     def predict(self, X):
         preds = [m.predict(X[m.feature_name()]) for m in self.members]
         return np.mean(preds, axis=0)
+
+    def predict_members(self, X):
+        """Per-member predictions (K, n) — EPISTEMIC uncertainty, i.e.
+        disagreement about the mean, distinct from the aleatoric
+        outcome variance the simulator already samples (scoring plan
+        §5.2 / §11.4). Exposed for epistemic-scenario generation and
+        as a candidate feature; averaging is unchanged."""
+        return np.vstack([m.predict(X[m.feature_name()])
+                          for m in self.members])
+
+    def predict_spread(self, X):
+        """Robust member spread per row: (sd, range)."""
+        P = self.predict_members(X)
+        return P.std(axis=0), P.max(axis=0) - P.min(axis=0)
 
 
 def _fit(

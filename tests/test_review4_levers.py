@@ -181,3 +181,42 @@ def test_gumbel_batch_injects_and_default_off(monkeypatch):
     gum = tail_select_lineups(slate, pool, draws, tail_line=90.0,
                               n_entries=8, stack=None, objective_col="proj")
     assert base and gum
+
+
+# --- N_EPISTEMIC: belief-scenario candidates (scoring plan §8) ------------
+
+def test_epistemic_batch_fires_and_is_inert_without_market(monkeypatch):
+    import pandas as pd
+
+    from nfl_dfs.backtest.engine import tail_select_lineups
+
+    rng = np.random.default_rng(23)
+    pool, ix = [], 0
+    for pos, n, sal in (("QB", 4, 6000), ("RB", 8, 5500), ("WR", 12, 5000),
+                        ("TE", 6, 3800), ("DST", 4, 3000)):
+        for k in range(n):
+            pool.append({
+                "id": f"{pos}{k}", "name": f"{pos}{k}", "pos": pos,
+                "team": f"T{ix % 4}", "opp": f"T{(ix + 1) % 4}",
+                "game_id": f"g{ix % 2}", "salary": sal + 137 * k,
+                "proj": 8.0 + (k % 5), "actual": 10.0,
+                "model_points_pre": 8.0 + (k % 5) + 0.7,
+                "market_points": 8.0 + (k % 5) - 0.7,
+                "consensus_div": 1.4 if k % 3 == 0 else -0.6})
+            ix += 1
+    slate = pd.DataFrame(pool)
+    slate["draw_idx"] = range(len(slate))
+    draws = np.abs(rng.normal(9, 5, size=(len(pool), 120)))
+    monkeypatch.setenv("MIN_LINEUP_SALARY", "0")
+    monkeypatch.setenv("N_EPISTEMIC", "8")
+    lus = tail_select_lineups(slate, pool, draws, tail_line=90.0,
+                              n_entries=8, stack=None, objective_col="proj")
+    assert lus
+    # inert when the market/model split is absent
+    bare = [{k: v for k, v in p.items()
+             if k not in ("model_points_pre", "market_points", "consensus_div")}
+            for p in pool]
+    sb = pd.DataFrame(bare)
+    sb["draw_idx"] = range(len(bare))
+    assert tail_select_lineups(sb, bare, draws, tail_line=90.0, n_entries=8,
+                               stack=None, objective_col="proj")
