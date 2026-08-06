@@ -2787,3 +2787,46 @@ The persistence work since is behavior-neutral by construction
 (logging + provenance only), and the relaunched ACTION 1 control will
 confirm that by reproducing 27 on the current image; if it does not,
 this verdict is re-judged against whatever ACTION 1 measures.
+
+## Addendum 92 (2026-08-06): The canonical panel — frontier confirmed, crowd-out REFUTED, objective flat
+
+Panel 20260805-hf5 (promoted, acceptance-gated: 17,851 candidates /
+107 slates / 31,107 player-feature rows / 107 checksum-verified score
+artifacts; every slate's selection reproduced from persisted masks).
+
+**Frontier (§6.1 gate PASSES)**: pool clears 194 in 35/107 vs the
+selected book's 27 — **8 recoverable weeks across 4 seasons** (2019
+wk1/4/15, 2022 wk5/12, 2024 wk14, 2025 wk10/17). At 187 the gap is
+12; at 200 it is 6. Mean regret to the pool oracle 6.8 pts.
+
+**The reranker's premise narrowed sharply.** corr(oracle sim-rank,
+regret) = +0.362 unconditionally but **+0.030** among the 54 weeks
+where the oracle went unselected (the old build's inflated figure was
++0.428/+0.211). "The simulator systematically buries winners" is NOT
+the mechanism on the shipping system — recoverable oracles sit at
+ranks 48-138 with no usable gradient. Any reranker must supply
+information ORTHOGONAL to the simulator or it will find nothing.
+
+**ACTION 2 (leave-one-generator-out, both bounds, frozen pool) —
+the crowd-out hypothesis is REFUTED**:
+| generator | cand share | selected share | d_clears if removed |
+|---|---|---|---|
+| boom | 24% | 65% | **-15** (27 -> 12) |
+| dark | 6% | 11% | -3 |
+| qbvar | 19% | 9% | -1 |
+| lev | 48% | 8% | -1 |
+| game | 7% | 8% | 0 |
+Removing `lev` — 48% of the pool, only 8% of selections, source of 4
+of the 8 recoverable oracles — costs ONE clear. The selector is not
+crowding out a valuable batch; boom's selection dominance is EARNED
+(removing it costs 15 clears). Gemini's stratified-quota proposal
+would have been actively harmful; Sol's insistence on measuring
+deletion before dosing was correct. Bonus finding: `dark` is the
+highest value-per-candidate batch (6% of pool, 3 clears).
+
+**ACTION 3 (tail-line sensitivity, every portfolio scored at ALL
+lines)**: selecting at 187 / 194 / 200 yields c194 of 26 / 27 / 27,
+mean best 180.3 / 179.4 / 179.5, regret 6.0 / 6.8 / 6.7. The
+objective threshold is FLAT within noise — 194 keeps the most
+194-clears and 187 the best mean/regret. No change; the economic
+question stays open until real payout curves exist (plan §B3).
