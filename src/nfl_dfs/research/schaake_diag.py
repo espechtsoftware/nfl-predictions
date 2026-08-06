@@ -31,7 +31,9 @@ def _roles(rows: pd.DataFrame) -> pd.Series:
     out = pd.Series([None] * len(rows), index=rows.index, dtype=object)
     if "salary" not in rows.columns:
         return out
-    for (tm, pos), g in rows.groupby(["team", "position"]):
+    keys = [c for c in ("season", "week", "team", "position")
+            if c in rows.columns]
+    for _k, g in rows.groupby(keys):
         # NaN salaries (DST rows, missing prices) make rank() return
         # NaN — int(NaN) raised and killed the whole diagnostic.
         order = g.salary.rank(ascending=False, method="first")
@@ -54,7 +56,9 @@ def _pair_corr(draws: np.ndarray, meta: pd.DataFrame) -> dict:
     out = {}
     for a, b, rel in PAIRS:
         cs = []
-        for gid, g in meta.groupby("game_id"):
+        gkeys = [c for c in ("season", "week", "game_id")
+                 if c in meta.columns]
+        for _gk, g in meta.groupby(gkeys):
             teams = sorted(pd.unique(g.team.dropna()))
             todo = []
             if rel == "same":
@@ -174,10 +178,11 @@ def log_dependence_ab(rows: pd.DataFrame, draws: np.ndarray) -> None:
     bank = _bank(meta)
     if bank.empty:
         return
-    season, week = int(meta.season.iloc[0]), int(meta.week.iloc[0])
+    season = int(meta.season.iloc[0])
     k = int(os.environ.get("SCHAAKE_K", "40"))
     sh = draws.copy()
-    for gid, g in meta.groupby("game_id"):
+    for (wk, gid), g in meta.groupby(["week", "game_id"]):
+        week = int(wk)
         ctx = {}
         for c in ("game_total", "spread_abs", "pace_env_l6",
                   "neutral_pass_rate_l6", "team_top2_target_share_l6"):
