@@ -501,6 +501,16 @@ If simulated regret improves but actual frontier does not, the simulator
 cannot identify the missing real combinations. Bury the family without a
 full scoring panel.
 
+### 10.6 Final verdict and production configuration
+
+Completed 2026-08-06. The repaired union gate (`N_CE=12,N_BOOM=40`) improved
+actual candidate-oracle clears from 29 to 38 and mean oracle score from
+184.58 to 187.83 over 107 slates. The ensuing fixed-budget panel
+(`N_CE=12,N_BOOM=28`) scored 29/107 clears at 194 versus baseline 27/107,
+with mean best 181.3 versus 179.4. Adopt CE at exactly that replacement
+budget. Do not treat the larger union pool as a production result; preserve
+boom fallback for failed or duplicate CE candidates.
+
 ## 11. Workstream E: genuinely new projection information
 
 ### 11.1 Market movement

@@ -3069,3 +3069,46 @@ running. The cancellation neither changes nor invalidates the already
 complete dependence result. The formerly broken `replay-g2-2025` Cloud Run
 job was also repinned to this immutable image with strict diagnostic failure
 handling, so a future replay cannot silently swallow a Schaake exception.
+
+## Addendum 100 (2026-08-06): Cross-entropy worlds — ADOPTED at fixed budget
+
+The repaired cross-entropy (CE) generator was evaluated in two Cloud Run
+stages on the same frozen image (`ba157ab`, digest
+`sha256:1096e1b92319f53446bc36f5777b0ca0caf250ad5c7b505c2c5ebd7c6924b8cb`),
+over all 107 slates from 2019 and 2021--2025. CE samples bounded,
+game-local pace/pass-tilt/scoring-split/usage-concentration worlds, scores
+them with the real legal stacked MILP, and uses final-round elite worlds.
+Failed or duplicate CE candidates fall back to incumbent boom worlds.
+
+**Stage 1 — union frontier gate (`N_CE=12,N_BOOM=40`).** Adding 12 CE
+candidates to the incumbent 40 boom solves increased the *actual* candidate
+oracle from **29 to 38 clears at 194** and mean oracle score from **184.58
+to 187.83**. The improvement appeared in every season:
+
+| Season | Baseline oracle mean / clears | CE-union oracle mean / clears |
+| --- | ---: | ---: |
+| 2019 | 191.81 / 6 | 196.69 / 8 |
+| 2021 | 181.42 / 3 | 183.73 / 3 |
+| 2022 | 182.48 / 4 | 184.64 / 5 |
+| 2023 | 181.28 / 3 | 184.89 / 6 |
+| 2024 | 182.84 / 6 | 184.70 / 7 |
+| 2025 | 188.06 / 7 | 192.79 / 9 |
+
+This earned the equal-budget scoring arm; the union result is not used as a
+production score claim.
+
+**Stage 2 — fixed-budget adoption test (`N_CE=12,N_BOOM=28`).** Replacing
+12 of 40 boom solves rather than enlarging the pool produced **29/107
+selected clears at 194**, versus the 27 baseline, and mean best **181.3**
+versus **179.4**. Per season the result is `{4,3,3,5,7,7}` against baseline
+`{5,3,3,4,6,6}`. The effect is modest (+2 clears; 2019 loses one clear),
+but it passes both the preregistered actual-frontier and equal-budget scoring
+gates. CE is therefore adopted, not overclaimed as a large effect.
+
+Production is set to `N_CE=12,N_BOOM=28` on the live app and `project-slate`.
+The deployed image is digest
+`sha256:28de80b3a615fdf8a3fbbce5f1bb7c07bcc101acbcdab65d40cf9cca1781d57f`;
+it additionally fixes the harmless-but-noisy empty two-way-prop fallback in
+older seasons. Schaake and EPI remain off/closed; standard boom generation
+retains 28 slots and remains the fallback if CE cannot produce a unique
+candidate.

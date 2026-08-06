@@ -142,7 +142,14 @@ correction in a later one).
   after the first cloud executions failed a mechanism audit; those executions
   are INVALID and must be rerun from the repaired image (system-study
   Addendum 97). Schaake is gated on realized variogram + upper-tail score and
-  exact marginal preservation before any candidate panel.
+  exact marginal preservation before any candidate panel. **Schaake was
+  subsequently measured and rejected** (Addendum 99: worse variogram and
+  tail Brier, exact marginals preserved). **CE was subsequently adopted**:
+  its union gate improved actual candidate-oracle clears 29 -> 38 and mean
+  184.58 -> 187.83; its equal-budget 12-CE/28-boom arm improved selected
+  clears 27 -> 29 and mean best 179.4 -> 181.3 across all 107 slates.
+  Production configuration is `N_CE=12,N_BOOM=28` on `nfl-dfs-app` and
+  `project-slate`; retain the boom fallback for failed/duplicate CE worlds.
   PENDING ARM: GUMBEL (N_GUMBEL=20 vs HF2 27) — collect and judge.
 - **SHADOW COLLECTORS (all automatic, best-effort, deliberately NOT
   in status.FEEDS)**: predictions.div_shadow (prop-market divergence,
