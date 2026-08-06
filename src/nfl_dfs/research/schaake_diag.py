@@ -31,8 +31,12 @@ def _roles(rows: pd.DataFrame) -> pd.Series:
     if "salary" not in rows.columns:
         return out
     for (tm, pos), g in rows.groupby(["team", "position"]):
+        # NaN salaries (DST rows, missing prices) make rank() return
+        # NaN — int(NaN) raised and killed the whole diagnostic.
         order = g.salary.rank(ascending=False, method="first")
         for idx, k in order.items():
+            if pd.isna(k):
+                continue
             k = int(k)
             if pos == "QB" and k == 1:
                 out[idx] = "QB"
