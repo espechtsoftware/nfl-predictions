@@ -97,9 +97,13 @@ def test_pool_cap_does_not_preferentially_drop_the_batch_under_test():
     quotas = {"lev": 40, "boom": 28, "ce": 12}
     kept, retained, dropped = trim_pool_to_cap(cands, 80, quotas)
     assert len(kept) == 80
+    # the essential property: the arm under test is untouched
     assert retained["ce"] == 12, f"CE trimmed to {retained.get('ce')}"
-    assert retained["boom"] == 28
-    assert dropped.get("ce", 0) == 0 and dropped["lev"] == 20
+    assert dropped.get("ce", 0) == 0
+    # drops are shared ROUND-ROBIN across the incumbent tags (the
+    # earlier largest-surplus-first rule put all 20 on lev, which the
+    # 2026-08-06 review flagged as an unbalanced baseline change)
+    assert dropped["lev"] == 10 and dropped["boom"] == 10
 
 
 def test_pool_cap_is_a_noop_below_the_cap():
@@ -119,3 +123,65 @@ def test_pool_cap_trims_protected_only_as_a_last_resort():
                                                            "ce": 12})
     assert len(kept) == 30
     assert sum(retained.values()) == 30
+
+
+# --- CE seed independence (2026-08-06 review) ----------------------------
+
+def test_ce_seed_is_configurable_and_recorded():
+    """The world search was pinned to a literal 1701, so an
+    'independent seed' rerun would have re-drawn the SAME elite worlds
+    and proved nothing."""
+    from nfl_dfs.backtest.engine import effective_generation_config
+
+    assert effective_generation_config(env={})["ce_seed"] == 1701
+    cfg = effective_generation_config(env={"CE_SEED": "424242"})
+    assert cfg["ce_seed"] == 424242
+    assert cfg["overrides"]["CE_SEED"] == "424242"
+    # a seed change must not disturb the budget
+    assert (cfg["n_ce"], cfg["n_boom"]) == (12, 28)
+
+
+def test_ce_seed_changes_the_sampled_worlds():
+    import numpy as np
+
+    from nfl_dfs.research.ce_worlds import sample_knobs
+
+    a = sample_knobs(np.random.default_rng(1701), 8)
+    b = sample_knobs(np.random.default_rng(424242), 8)
+    same = sample_knobs(np.random.default_rng(1701), 8)
+    assert np.allclose(a, same), "same seed must reproduce"
+    assert not np.allclose(a, b), "different seed must explore elsewhere"
+
+
+# --- trim fairness across ALL generator tags -----------------------------
+
+def test_trim_round_robins_across_untested_tags():
+    """Tags without a quota entry (game, dark, thesis...) must not be
+    silently fully trim-eligible while others are spared."""
+    from nfl_dfs.backtest.engine import trim_pool_to_cap
+
+    cands = ([_Lu("lev", i) for i in range(40)]
+             + [_Lu("boom", i) for i in range(28)]
+             + [_Lu("game", i) for i in range(10)]
+             + [_Lu("dark", i) for i in range(10)]
+             + [_Lu("ce", i) for i in range(12)])
+    kept, retained, dropped = trim_pool_to_cap(
+        cands, 90, {"ce": 12, "epi": 0})
+    assert len(kept) == 90
+    assert retained["ce"] == 12 and "ce" not in dropped
+    # the 10 drops are shared round-robin, not taken from one batch
+    assert len(dropped) >= 3, f"trim concentrated: {dropped}"
+    assert max(dropped.values()) <= 4, f"unbalanced trim: {dropped}"
+
+
+def test_degenerate_trim_is_round_robin_not_index_order():
+    """When protected alone exceeds the cap, drops must spread across
+    tags rather than removing the latest-generated (CE) entries."""
+    from nfl_dfs.backtest.engine import trim_pool_to_cap
+
+    cands = [_Lu("epi", i) for i in range(10)] + [_Lu("ce", i)
+                                                  for i in range(10)]
+    kept, retained, dropped = trim_pool_to_cap(
+        cands, 14, {"ce": 10, "epi": 10})
+    assert len(kept) == 14
+    assert dropped.get("ce", 0) == 3 and dropped.get("epi", 0) == 3, dropped

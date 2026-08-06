@@ -37,7 +37,8 @@ DEFAULT_N_CE = 12
 DEFAULT_N_BOOM = GEN_TOTAL_BUDGET - DEFAULT_N_CE   # 28
 
 
-def trim_pool_to_cap(cands: list, cap: int, quotas: dict[str, int]
+def trim_pool_to_cap(cands: list, cap: int, quotas: dict[str, int],
+                     protect: tuple[str, ...] = ("ce", "epi"),
                      ) -> tuple[list, dict[str, int], dict[str, int]]:
     """Quota-aware deterministic trim -> (kept, retained, dropped).
 
@@ -46,44 +47,61 @@ def trim_pool_to_cap(cands: list, cap: int, quotas: dict[str, int]
     generated after lev/boom — is preferentially discarded, producing
     equal-sized pools but an unequal-opportunity comparison.
 
-    Instead each generator keeps its intended quota first; only the
-    SURPLUS above quota is eligible for trimming, dropped from the
-    largest surplus batch first (ties by later generation index), so
-    the mix under test survives.
+    Rules:
+      * tags in `protect` (the arms under test) keep their full quota
+        and are trimmed only if the protected set ALONE exceeds the cap
+      * every other tag contributes proportionally via deterministic
+        ROUND-ROBIN across tags (latest generation index first), so no
+        single incumbent batch absorbs the whole trim and no tag is
+        silently trim-eligible just because it lacks a quota entry
+      * per-tag retained/dropped counts are returned for logging, so a
+        confirmatory run can prove what its cap actually did
     """
     if cap <= 0 or len(cands) <= cap:
         keep = list(cands)
+        dropped_idx: set[int] = set()
     else:
         by_tag: dict[str, list[int]] = {}
         for i, lu in enumerate(cands):
             by_tag.setdefault(lu.tag or "lev", []).append(i)
         protected: set[int] = set()
-        surplus: dict[str, list[int]] = {}
+        pool_by_tag: dict[str, list[int]] = {}
         for tag, idxs in by_tag.items():
-            q = int(quotas.get(tag, 0))
-            protected.update(idxs[:q])
-            surplus[tag] = idxs[q:]
+            if tag in protect:
+                q = int(quotas.get(tag, len(idxs)))
+                protected.update(idxs[:q])
+                pool_by_tag[tag] = idxs[q:]
+            else:
+                pool_by_tag[tag] = list(idxs)
         n_drop = len(cands) - cap
-        dropped_idx: set[int] = set()
-        while n_drop > 0 and any(surplus.values()):
-            tag = max(surplus, key=lambda t: (len(surplus[t]), t))
-            if not surplus[tag]:
-                break
-            dropped_idx.add(surplus[tag].pop())   # latest first
-            n_drop -= 1
-        if n_drop > 0:  # protected alone exceeds the cap — trim evenly
-            prot = sorted(protected, reverse=True)
-            for i in prot[:n_drop]:
-                dropped_idx.add(i)
+        dropped_idx = set()
+        # deterministic round-robin over tags, sorted for reproducibility
+        while n_drop > 0 and any(pool_by_tag.values()):
+            for tag in sorted(pool_by_tag):
+                if n_drop <= 0:
+                    break
+                if pool_by_tag[tag]:
+                    dropped_idx.add(pool_by_tag[tag].pop())  # latest first
+                    n_drop -= 1
+        if n_drop > 0:  # protected alone exceeds the cap
+            prot_by_tag: dict[str, list[int]] = {}
+            for i in sorted(protected):
+                prot_by_tag.setdefault(cands[i].tag or "lev", []).append(i)
+            while n_drop > 0 and any(prot_by_tag.values()):
+                for tag in sorted(prot_by_tag):
+                    if n_drop <= 0:
+                        break
+                    if prot_by_tag[tag]:
+                        dropped_idx.add(prot_by_tag[tag].pop())
+                        n_drop -= 1
         keep = [lu for i, lu in enumerate(cands) if i not in dropped_idx]
     retained: dict[str, int] = {}
     for lu in keep:
         retained[lu.tag or "lev"] = retained.get(lu.tag or "lev", 0) + 1
     dropped: dict[str, int] = {}
-    kept_ids = {id(lu) for lu in keep}
-    for lu in cands:
-        if id(lu) not in kept_ids:
-            dropped[lu.tag or "lev"] = dropped.get(lu.tag or "lev", 0) + 1
+    for i in dropped_idx:
+        t = cands[i].tag or "lev"
+        dropped[t] = dropped.get(t, 0) + 1
     return keep, retained, dropped
 
 
@@ -137,8 +155,9 @@ def effective_generation_config(env: dict | None = None) -> dict:
             "total": n_ce + n_epi + n_boom,
             "matches_adopted_default": (n_ce, n_boom) == (DEFAULT_N_CE,
                                                           DEFAULT_N_BOOM),
+            "ce_seed": int(e.get("CE_SEED", "1701") or 1701),
             "overrides": {k: e[k] for k in
-                          ("N_CE", "N_EPISTEMIC", "N_BOOM",
+                          ("N_CE", "N_EPISTEMIC", "N_BOOM", "CE_SEED",
                            "GEN_TOTAL_BUDGET", "GEN_POOL_CAP") if k in e}}
 
 
@@ -588,7 +607,11 @@ def tail_select_lineups(
                 return float(sum(w[i] for i, p in enumerate(pool)
                                  if p["id"] in lu.ids))
 
-            rng_ce = np.random.default_rng(1701)
+            # CE_SEED (2026-08-06): the world search was pinned to a
+            # literal, so an 'independent seed' rerun would have
+            # re-drawn the SAME elite worlds and proved nothing.
+            ce_seed = int(_os.environ.get('CE_SEED', '1701') or 1701)
+            rng_ce = np.random.default_rng(ce_seed)
             per_round = max(24, n_ce * 2)
             elites, iw, hist = ce_iterate(_score_world, rng_ce,
                                           n_per_round=per_round, rounds=3,
@@ -932,8 +955,10 @@ def tail_select_lineups(
     # byte-identical pool size.
     _cap = int(os.environ.get("GEN_POOL_CAP", "0") or 0)
     if _cap and len(cands) > _cap:
-        _quotas = {"ce": n_ce, "epi": n_epi, "boom": n_boom,
-                   "lev": candidate_multiple * n_entries}
+        # quotas name the arms UNDER TEST; every other tag is handled
+        # by the round-robin so no generator is silently trim-eligible
+        # merely because it lacks a quota entry.
+        _quotas = {"ce": n_ce, "epi": n_epi}
         cands, _ret, _drop = trim_pool_to_cap(cands, _cap, _quotas)
         log.info("pool trimmed to GEN_POOL_CAP %d: retained=%s dropped=%s",
                  _cap, _ret, _drop)
@@ -1050,6 +1075,12 @@ def tail_select_lineups(
             except Exception:
                 _cfg = ""
             _seeds = _os.environ.get("SEEDS", "")
+            # CE world-search seed belongs in run metadata: an
+            # independent-seed rerun is only auditable if the seed
+            # that produced the worlds is stored with the rows.
+            _seeds = ";".join(x for x in (
+                _seeds, f"CE_SEED={_os.environ.get('CE_SEED', '1701')}")
+                if x)
             _levers = ",".join(sorted(
                 f"{k}={v}" for k, v in _os.environ.items()
                 if k in ("SELECT_LSE", "TD_LEDGER", "OWN_MODEL", "PUNT_MIN",
