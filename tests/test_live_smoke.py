@@ -74,3 +74,10 @@ def test_live_build_chain_offline(monkeypatch, panel, live_slate):
         assert lu.salary <= 50_000
         ids = [p["id"] for p in lu.players]
         assert len(ids) == len(set(ids))
+
+    # A selected classic draft group can price an overlapping player
+    # differently from the largest-group row used to source live features.
+    # The exact chosen snapshot must win before salary-sensitive tilts.
+    slate, _ = live_lineups.build_slate_with_draws(
+        season, 3, n_sims=20, seed=7, salary_overrides={100: 4321})
+    assert int(slate.loc[slate.id == 100, "salary"].iloc[0]) == 4321

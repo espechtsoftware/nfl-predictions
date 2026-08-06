@@ -38,6 +38,7 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
                            seed: int = 42, lev_scale: float = 1.0,
                            apply_notes: bool = True,
                            allowed_ids: set | None = None,
+                           salary_overrides: dict[int, int] | None = None,
                            ) -> tuple[pd.DataFrame, np.ndarray]:
     """Engine-ready slate frame + aligned draw matrix for the live week."""
     from ..backtest.field import naive_ownership
@@ -148,6 +149,15 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     # fade and the own_shadow calibration for single-slate builds.
     if allowed_ids:
         frame = frame[frame.id.isin(allowed_ids)].reset_index(drop=True)
+    # `upcoming_slate_features` deliberately deduplicates the UNION of
+    # upcoming classic draft groups toward the largest group.  That is the
+    # right feature universe, but not necessarily the price list for a
+    # selected Sunday/afternoon slate.  Apply the exact group snapshot
+    # supplied by the app before *any* salary-sensitive tilt or solve.
+    if salary_overrides:
+        exact_salary = frame.id.map(salary_overrides)
+        frame.loc[exact_salary.notna(), "salary"] = exact_salary.dropna()
+        frame["salary"] = frame.salary.astype(int)
 
     # Tournament tilts, replay-identical (see backtest.replay.build_slates)
     punt = (frame.salary <= PUNT_MAX_SALARY) & (frame.draw_idx >= 0)
@@ -249,6 +259,7 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                       seed: int = 42, lev_scale: float = 1.0,
                       locks: set | None = None, bans: set | None = None,
                       allowed_ids: set | None = None,
+                      salary_overrides: dict[int, int] | None = None,
                       theses: list | None = None,
                       apply_notes: bool = True) -> list:
     """Full validated pipeline on the live slate -> selected entries in
@@ -263,7 +274,8 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
     slate, draws = build_slate_with_draws(season, week, n_sims=n_sims,
                                           seed=seed, lev_scale=lev_scale,
                                           apply_notes=apply_notes,
-                                          allowed_ids=allowed_ids)
+                                          allowed_ids=allowed_ids,
+                                          salary_overrides=salary_overrides)
     if allowed_ids:  # safety no-op — restriction now happens pre-fade
         slate = slate[slate.id.isin(allowed_ids)]
     if bans:

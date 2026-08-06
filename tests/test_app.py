@@ -607,6 +607,9 @@ def test_lineups_view_page(client):
     assert "Showdown (Captain Mode)" in r.text
     assert "/showdown/lineups" in r.text
     assert "/showdown/slates?days=" in r.text
+    assert "/lineups/record" in r.text
+    assert "CSV always downloads that exact preview" in r.text
+    assert "setModeControls" in r.text
 
 
 def test_showdown_any_game_selectable(showdown_client):
@@ -771,6 +774,32 @@ def test_sim_mode_receives_locks_and_bans(client, monkeypatch):
     assert seen.get("locks") == {11} and seen.get("bans") == {22}
 
 
+def test_sim_mode_receives_selected_slate_salary_snapshot(classic_client,
+                                                           monkeypatch):
+    """The live sim must optimize on the selected group's prices, not the
+    feature query's largest-group price for an overlapping player."""
+    seen = {}
+
+    def capture(*a, **k):
+        seen.update(k)
+        raise RuntimeError("stop here")
+
+    from nfl_dfs.inference import live_lineups
+
+    monkeypatch.setattr(live_lineups, "build_sim_lineups", capture)
+    r = classic_client.post("/lineups", json={
+        "season": 2025, "week": 3, "n_lineups": 2,
+        "draft_group_id": 8200,
+    })
+    assert r.status_code == 503
+    frame = projections_frame()
+    expected = {int(p.dk_player_id): int(p.salary) + 100
+                for p in frame[frame.team.isin({"T2", "T3", "T4", "T5"})]
+                .itertuples()}
+    assert seen["allowed_ids"] == set(expected)
+    assert seen["salary_overrides"] == expected
+
+
 def test_sim_mode_notes_toggle_passthrough(client, monkeypatch):
     """apply_notes reaches the sim path; default True, UI-off -> False
     (pure algorithm, no watch-note boosts/bans)."""
@@ -789,3 +818,45 @@ def test_sim_mode_notes_toggle_passthrough(client, monkeypatch):
     client.post("/lineups", json={"season": 2025, "week": 3, "n_lineups": 2,
                                   "apply_notes": False})
     assert seen.get("apply_notes") is False
+
+
+def test_record_preview_lineups_records_exact_client_roster(client, monkeypatch):
+    """CSV recording accepts the already-reviewed `/lineups` payload; it
+    must not call the optimizer a second time."""
+    saved = {}
+
+    from nfl_dfs import notes
+
+    def capture(season, week, lineups):
+        saved.update(season=season, week=week, lineups=lineups)
+        return len(lineups)
+
+    monkeypatch.setattr(notes, "record_entered_lineups", capture)
+    players = []
+    for r in projections_frame().head(9).itertuples():
+        players.append({"id": int(r.dk_player_id), "name": r.display_name,
+                        "pos": r.position, "team": r.team,
+                        "salary": int(r.salary), "proj": float(r.proj_points)})
+    r = client.post("/lineups/record", json={
+        "season": 2025, "week": 3, "lineups": [{"players": players}]})
+    assert r.status_code == 200 and r.json()["recorded"] == 1
+    assert saved["season"] == 2025 and saved["week"] == 3
+    assert [p["id"] for p in saved["lineups"][0].players] == [p["id"] for p in players]
+
+
+def test_preference_requires_projectable_player(client, monkeypatch):
+    from nfl_dfs import notes
+
+    monkeypatch.setattr(notes, "add_pref", lambda *a: "pref-1")
+    # Synthetic names differ only by digits, which the production
+    # normalizer deliberately removes; retain the test's intended one-name
+    # case without changing real suffix-insensitive behavior.
+    monkeypatch.setattr(notes, "norm_name", lambda s: str(s).lower())
+    missing = client.post("/prefs", json={"season": 2025, "week": 3,
+                                            "display_name": "Not A Player",
+                                            "kind": "ban"})
+    assert missing.status_code == 422
+    good = client.post("/prefs", json={"season": 2025, "week": 3,
+                                         "display_name": "WR0 T0", "kind": "boost"})
+    assert good.status_code == 200
+    assert good.json()["display_name"] == "WR0 T0"

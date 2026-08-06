@@ -306,6 +306,7 @@ _LINEUPS_CSS = """
 """
 
 _LINEUPS_JS = """
+let lastBuild=null;
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 async function loadSlates(){
   try{const r=await fetch('/slates');const s=await r.json();
@@ -369,14 +370,29 @@ function slateSel(){
   if(v.startsWith('sd:'))return{sd:true,gid:+v.slice(3)};
   return{sd:false,gid:v?+v:null};}
 function reqBody(){
-  return{season:+document.getElementById('season').value,
+  const sd=slateSel().sd;
+  const base={season:+document.getElementById('season').value,
     week:+document.getElementById('week').value,
     draft_group_id:slateSel().gid,
     n_lineups:+document.getElementById('n').value,
+    objective:document.getElementById('obj').value};
+  if(sd)return base;
+  return{...base,
     field_size:+document.getElementById('fsize').value||null,
     lev_scale:+document.getElementById('lev').value||1,
-    objective:document.getElementById('obj').value,
     apply_notes:document.getElementById('usenotes').checked};}
+function buildKey(body){return JSON.stringify(body);}
+function setModeControls(){
+  const sd=slateSel().sd;
+  for(const id of ['contestctl','fieldctl','notesctl']){
+    const e=document.getElementById(id); if(e)e.style.display=sd?'none':'';}
+  const obj=document.getElementById('obj');
+  if(!sd)obj.value='proj_points';
+  obj.disabled=!sd;
+  document.getElementById('objhint').textContent=sd
+    ? 'Choose the Showdown projection objective.'
+    : 'Classic simulation uses the validated tournament objective; Mean is fixed.';
+}
 function slotNames(players){
   const slots=['QB','RB','RB','WR','WR','WR','TE','FLEX','DST'];
   return players.map((p,i)=>({slot:slots[i]||p.pos,p}));}
@@ -387,11 +403,13 @@ async function build(){
   st.textContent='Building lineups (simulating 30k worlds + candidate solves; ~1-4 min, first build of the day slowest)...';
   cards.innerHTML=''; document.getElementById('go').disabled=true;
   try{
+    const body=reqBody();
     const r=await fetch(sd?'/showdown/lineups':'/lineups',{method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(reqBody())});
+      body:JSON.stringify(body)});
     const j=await r.json();
     if(!r.ok){st.textContent='Error: '+(j.detail||r.status);return;}
+    lastBuild={key:buildKey(body),payload:j,showdown:sd};
     st.textContent=sd
       ? j.lineups.length+' Captain Mode lineups · '+j.game.game+' ('+
         j.game.day+'). Captain scores 1.5x and costs 1.5x.'
@@ -482,14 +500,27 @@ document.getElementById('cmpgo').onclick=async()=>{
       `(<b>${c.ev_per_dollar}</b>/$)</div>`).join('')+
     `<div style='margin-top:.3rem'><b>Better call: ${j.verdict}</b> `+
     `<small>${j.note}</small></div>`;};
-document.getElementById('csv').onclick=()=>{
-  const sd=slateSel().sd;
-  fetch(sd?'/showdown/lineups.csv':'/lineups.csv',{method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(reqBody())})
-   .then(r=>r.blob()).then(b=>{const a=document.createElement('a');
-    a.href=URL.createObjectURL(b);
-    a.download=sd?'dk_showdown_lineups.csv':'dk_lineups.csv';a.click();});};
+function downloadCsv(text,name){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([text],{type:'text/csv'}));
+  a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+document.getElementById('csv').onclick=async()=>{
+  const st=document.getElementById('status'), body=reqBody(), sd=slateSel().sd;
+  if(!lastBuild||lastBuild.showdown!==sd||lastBuild.key!==buildKey(body)){
+    st.textContent='Build lineups first; CSV always downloads that exact preview.';
+    return;
+  }
+  downloadCsv(lastBuild.payload.dk_csv,sd?'dk_showdown_lineups.csv':'dk_lineups.csv');
+  if(!sd){
+    const r=await fetch('/lineups/record',{method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({season:body.season,week:body.week,
+        lineups:lastBuild.payload.lineups.map(x=>({players:x.players}))})});
+    if(!r.ok)st.textContent='CSV downloaded, but recording it for scoring failed: '+
+      ((await r.json()).detail||r.status);
+  }
+};
 async function loadPrefs(){
   const se=+document.getElementById('season').value,
         wk=+document.getElementById('week').value;
@@ -505,10 +536,12 @@ async function loadPrefs(){
 }
 async function addPref(kind,inputId){
   const v=document.getElementById(inputId).value.trim(); if(!v)return;
-  await fetch('/prefs',{method:'POST',
+  const r=await fetch('/prefs',{method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({season:+document.getElementById('season').value,
       week:+document.getElementById('week').value,display_name:v,kind})});
+  if(!r.ok){document.getElementById('status').textContent='Preference not added: '+
+    ((await r.json()).detail||r.status); return;}
   document.getElementById(inputId).value=''; loadPrefs(); noteConflicts();
 }
 async function noteConflicts(){
@@ -531,8 +564,14 @@ document.getElementById('banin').addEventListener('keydown',
   e=>{if(e.key==='Enter')addPref('ban','banin');});
 document.getElementById('boostin').addEventListener('keydown',
   e=>{if(e.key==='Enter')addPref('boost','boostin');});
-loadSlates().then?loadSlates():loadSlates;
-loadClassicSlates(); loadShowdownSlates(); loadPrefs(); loadContests();
+document.getElementById('season').addEventListener('change',()=>{loadPrefs();noteConflicts();});
+document.getElementById('week').addEventListener('change',()=>{loadPrefs();noteConflicts();});
+document.getElementById('slate').addEventListener('change',setModeControls);
+(async()=>{
+  await loadSlates();
+  await Promise.all([loadClassicSlates(),loadShowdownSlates(),loadContests()]);
+  setModeControls(); loadPrefs(); noteConflicts();
+})();
 """
 
 
@@ -551,18 +590,19 @@ def lineups_page() -> str:
         f"<label>Slate<select id='slate' style='width:15rem'>"
         f"<option value=''>Whole week pool (no slate filter)</option>"
         f"</select></label>"
-        f"<label>Contest<select id='contest' style='width:16rem'></select>"
+        f"<label id='contestctl'>Contest<select id='contest' style='width:16rem'></select>"
         f"</label>"
-        f"<label>Field size<input id='fsize' type='number' value='20000'>"
+        f"<label id='fieldctl'>Field size<input id='fsize' type='number' value='20000'>"
         f"</label>"
         f"<label>Entries<input id='n' type='number' value='40'></label>"
         f"<input id='lev' type='hidden' value='1'>"
         f"<div id='chint' style='font-size:.8em;color:#888'></div>"
         f"<label>Objective<select id='obj'>"
         f"<option value='proj_points'>Mean (GPP default — replay-validated; sim mode always uses this + validated tilts)</option>"
-        f"<option value='proj_p90'>Ceiling p90 (tested: underperforms for GPP)</option>"
-        f"<option value='proj_p50'>Median</option></select></label>"
-        f"<label style='display:flex;align-items:center;gap:.35rem' "
+        f"<option value='proj_p90'>Ceiling p90</option>"
+        f"<option value='proj_p50'>Median</option></select>"
+        f"<small id='objhint'></small></label>"
+        f"<label id='notesctl' style='display:flex;align-items:center;gap:.35rem' "
         f"title='On: your converted notes tilt the build — boost/ban prefs AND multiplier notes from chat conversions. "
         f"Off: the pure validated algorithm, no manual adjustments — "
         f"build both ways to compare.'>"
@@ -1350,11 +1390,27 @@ def get_prefs(season: int, week: int) -> list[dict]:
 
 
 @app.post("/prefs")
-def post_pref(req: PrefRequest) -> dict:
+def post_pref(req: PrefRequest,
+              store: ProjectionStore = Depends(get_store)) -> dict:
     from .. import notes as _notes
 
-    return {"pref_id": _notes.add_pref(req.season, req.week,
-                                       req.display_name, req.kind)}
+    # A preference that matches nobody is indistinguishable from a working
+    # preference in the old UI.  Resolve it at entry time and store the
+    # canonical display name; suffix-insensitive matching keeps common
+    # shorthand (e.g. "Odell Beckham") usable.
+    df = store.projections(req.season, req.week)
+    matches = (df[df.display_name.map(_notes.norm_name)
+                  == _notes.norm_name(req.display_name)]
+               if not df.empty else df)
+    if matches.empty:
+        raise HTTPException(422,
+                            f"No projectable player matches '{req.display_name}'")
+    if len(matches) > 1:
+        raise HTTPException(409, "Ambiguous player preference: " + ", ".join(
+            matches.display_name.head(5)))
+    name = str(matches.display_name.iloc[0])
+    return {"pref_id": _notes.add_pref(req.season, req.week, name, req.kind),
+            "display_name": name}
 
 
 @app.delete("/prefs/{pref_id}")
@@ -1902,6 +1958,10 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
         allowed = None
         if req.draft_group_id is not None:
             allowed = set(int(p) for p in df.dk_player_id.dropna())
+        salaries = ({int(r.dk_player_id): int(r.salary)
+                     for r in df[["dk_player_id", "salary"]].itertuples()
+                     if pd.notna(r.dk_player_id) and pd.notna(r.salary)}
+                    if req.draft_group_id is not None else None)
         try:
             from ..inference.live_lineups import build_sim_lineups
 
@@ -1911,6 +1971,7 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
                 lev_scale=req.lev_scale,
                 locks=set(req.locks), bans=set(req.bans),
                 allowed_ids=allowed, theses=req.theses or None,
+                salary_overrides=salaries,
                 apply_notes=req.apply_notes)
         except HTTPException:
             raise
@@ -2082,6 +2143,43 @@ class CoreLineupRequest(LineupRequest):
 
     objective: str = Field("proj_p90", pattern="^proj_(points|p50|p90)$")
     core_size: int | None = Field(None, ge=2, le=8)
+
+
+class RecordPreviewLineupsRequest(BaseModel):
+    """The exact classic preview the browser downloaded.
+
+    The UI receives the finished DK CSV from `/lineups`; rebuilding on
+    download can diverge when live inputs change.  Keep scoring history tied
+    to that exact reviewed response instead of asking the server to solve a
+    second time.
+    """
+    season: int
+    week: int
+    lineups: list[dict] = Field(min_length=1, max_length=150)
+
+
+@app.post("/lineups/record")
+def record_preview_lineups(req: RecordPreviewLineupsRequest,
+                           store: ProjectionStore = Depends(get_store)) -> dict:
+    from .. import notes as _notes
+    from ..optimizer.lineup import Lineup
+
+    valid = store.projections(req.season, req.week)
+    valid_ids = (set(valid.dk_player_id.dropna().astype(int))
+                 if not valid.empty else set())
+    recorded = []
+    for ix, item in enumerate(req.lineups):
+        players = item.get("players")
+        if not isinstance(players, list) or len(players) != 9:
+            raise HTTPException(422, f"preview lineup {ix + 1} is not a 9-player roster")
+        ids = [p.get("id") for p in players if isinstance(p, dict)]
+        if len(ids) != 9 or len(set(ids)) != 9 or not all(isinstance(i, int) for i in ids):
+            raise HTTPException(422, f"preview lineup {ix + 1} has invalid player IDs")
+        if valid_ids and not set(ids) <= valid_ids:
+            raise HTTPException(422, f"preview lineup {ix + 1} has players outside this week")
+        recorded.append(Lineup(players=players))
+    return {"recorded": _notes.record_entered_lineups(req.season, req.week,
+                                                         recorded)}
 
 
 @app.post("/lineups/core")
