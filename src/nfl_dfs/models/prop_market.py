@@ -53,6 +53,13 @@ def market_points(seasons: tuple[int, ...] = (2023, 2024, 2025)) -> pd.DataFrame
     keys = ["season", "week", "norm", "market", "bookmaker", "point"]
     piv = (ou.pivot_table(index=keys, columns="outcome_name",
                           values="price", aggfunc="first").reset_index())
+    # Older seasons can contain only one-way anytime-TD prices (or no prop
+    # snapshots at all).  ``pivot_table`` then has no Over/Under columns;
+    # keep the two-way component empty while still allowing the TD component
+    # below to contribute instead of raising KeyError and relying on the
+    # replay's broad fallback.
+    if not {"Over", "Under"}.issubset(piv.columns):
+        piv = pd.DataFrame(columns=[*keys, "Over", "Under"])
     piv = piv.dropna(subset=["Over", "Under", "point"])
     for r in piv.itertuples():
         p_over, _ = devig_two_way(american_to_prob(r.Over),

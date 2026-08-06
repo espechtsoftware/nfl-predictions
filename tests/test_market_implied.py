@@ -40,3 +40,22 @@ def test_market_quantiles_frame():
     d["season"], d["week"], d["market"], d["player"] = 2025, 1, "m", "A B"
     out = market_quantiles(d)
     assert len(out) == 1 and out.q50.iloc[0] < out.q90.iloc[0]
+
+
+def test_prop_market_accepts_td_only_snapshot(monkeypatch):
+    """A season with no two-way prices must not suppress its TD market."""
+    from nfl_dfs.models import prop_market
+
+    props = pd.DataFrame([{
+        "season": 2019, "week": 1, "bookmaker": "book",
+        "market": "player_anytime_td", "outcome_name": "Yes",
+        "player": "A Player", "price": 150, "point": np.nan,
+    }])
+    names = pd.DataFrame([{"gsis_id": "p1", "display_name": "A Player"}])
+    replies = iter([props, names])
+    monkeypatch.setattr(prop_market, "query_df", lambda _sql: next(replies))
+
+    out = prop_market.market_points((2019,))
+    assert len(out) == 1
+    assert out.gsis_id.iloc[0] == "p1"
+    assert out.market_points.iloc[0] > 0
