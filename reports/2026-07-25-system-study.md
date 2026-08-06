@@ -3007,3 +3007,36 @@ The repaired code is test-green, but that is a mechanism result—not a score
 result. All three arms require fresh same-image runs. The executions started
 before this addendum are explicitly invalidated and cannot be cited as null,
 positive or negative evidence.
+
+## Addendum 98 (2026-08-06): EPI fixed-budget arm — 23/107, NEGATIVE
+
+First valid run of the repaired epistemic-scenario generator
+(N_EPISTEMIC=16, budget maintained by automatic boom replacement,
+complete ensemble/market/model belief vectors, DST rows keeping
+baseline projections):
+
+**23/107 vs the 27 baseline** — per-season {3,3,2,3,6,6} vs
+{5,3,3,4,6,6}; mean best 178.4 vs 179.4; three seasons worse, three
+level, none better. Belief-scenario candidates do not earn their
+slots: replacing 16 boom solves per slate with market-heavy,
+model-heavy, ensemble-member and high-disagreement-game beliefs COSTS
+four line-clears.
+
+Mechanism note for the graveyard: the arm is a fair test this time —
+budget held constant (the invalid first run silently ran 16 slots
+short on market-uncovered seasons), scenarios are complete vectors
+rather than per-player tilts, and failed/duplicate slots fall back to
+boom. The result is that the incumbent boom generator's worlds are
+better raw material than alternative BELIEFS about the means. This is
+consistent with the leave-one-generator-out finding (removing boom
+costs 15 clears) and with the reranker falsification (pre-lock belief
+disagreement carried no usable signal). Workstream B closes.
+
+**Schaake: still unmeasured.** Its 2025 diagnostic ran on a biased
+subset — replay hands the diagnostic a WHOLE-SEASON frame and the
+role assignment ranked salary across all 18 weeks at once, labelling
+~3 players per team for the season (n_pairs=11, one week-1 line).
+Roles, pair correlations and the point-in-time template cutoff are
+now keyed per (season, week); the run must be repeated. The
+marginal-preservation invariant it reported (exact) stands, since it
+does not depend on the grouping.
