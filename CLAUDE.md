@@ -100,8 +100,10 @@ correction in a later one).
   **8 recoverable weeks across 4 seasons**; mean regret 6.8. But
   corr(oracle sim-rank, regret) is +0.030 among unselected oracles
   (the old +0.428/+0.211 figures were inflated and are RETRACTED), so
-  there is no gradient to learn. SELECTION IS CLOSED — falsified five
-  ways: LSE, sharp-LSE, QB-concentration, dollars-objective, and the
+  there is no gradient to learn IN THE SIGNALS WE HAVE. **Selection is
+  closed FOR THE CURRENT SIMULATOR AND STATIC FEATURE SET** (Addendum
+  95 — do not overstate this as "selection is closed"): falsified five
+  ways — LSE, sharp-LSE, QB-concentration, dollars-objective, and the
   decision-focused residual reranker (A1 +1 clear in 2 seasons, A2
   flat, A3 -3, shuffled control 25 — orthogonal features made it
   WORSE). Generator crowd-out is REFUTED: removing `lev` (48% of the
@@ -109,6 +111,12 @@ correction in a later one).
   `dark` is the best value-per-candidate batch. Tail-line 187/194/200
   is flat. The only live capture paths are MORE ENTRIES per slate and
   genuinely new information (plan Workstream E).
+  REOPENING CONDITION (preregistered, Addendum 95): a selector may be
+  revisited ONLY on a genuinely new pre-lock signal (market MOVEMENT /
+  cross-book dispersion, activated evidence, point-in-time tracking
+  traits, or an adopted new dependence model) with evaluation frozen
+  BEFORE new outcomes are seen. Retrospective tuning on these same 107
+  slates is panel mining — forbidden.
   RESEARCH DATA IN THE WAREHOUSE: predictions.replay_candidates
   (17,851 labeled candidates, full provenance + masks),
   predictions.slate_player_features (31,107 point-in-time rows), 107
