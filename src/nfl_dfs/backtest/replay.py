@@ -134,6 +134,17 @@ def replay_projections(
                                          "gsis_id", "is_rookie")
                                          if c in rows.columns]])
                  if return_draws else sim.draws)
+    # SCHAAKE_DIAG=1 (Workstream C gate): log role-pair dependence of
+    # the PRODUCTION draws vs the same draws with the empirical
+    # game-template copula imposed. Same marginals both sides — only
+    # the joint pattern differs — so this is the honest control the
+    # offline gate could not provide (it compared against independence).
+    if return_draws and os.environ.get("SCHAAKE_DIAG"):
+        try:
+            from ..research.schaake_diag import log_dependence_ab
+            log_dependence_ab(rows, draws_out)
+        except Exception:
+            log.exception("schaake diagnostic failed; replay unaffected")
     keep = [c for c in ("gsis_id", "name", "season", "week", "team", "opponent",
                         "position", "game_id", "salary") if c in rows.columns]
     out = pd.concat([rows[keep], summary], axis=1)
