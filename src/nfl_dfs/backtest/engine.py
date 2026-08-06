@@ -27,6 +27,45 @@ REQUIRED_COLS = {"id", "name", "pos", "team", "opp", "game_id",
                  "salary", "proj", "actual"}
 
 
+# ADOPTED generation budget (2026-08-06, CE fixed-budget arm). These are
+# CODE defaults, not deployment env vars: CE was live only because two
+# Cloud Run services carried N_CE/N_BOOM, so any redeploy without them
+# silently reverted production to boom-only generation and neither the
+# tests nor the config manifest could see it.
+GEN_TOTAL_BUDGET = 40      # replacement slots shared by boom/CE/EPI
+DEFAULT_N_CE = 12
+DEFAULT_N_BOOM = GEN_TOTAL_BUDGET - DEFAULT_N_CE   # 28
+
+
+def resolve_generation_budget(n_boom_solves: int | None = None,
+                              env: dict | None = None
+                              ) -> tuple[int, int, int]:
+    """-> (n_ce, n_epistemic, n_boom) under one fixed total budget.
+
+    Rules (agreed 2026-08-06):
+      * no env               -> 12 CE / 28 boom, 40 total
+      * explicit N_CE and/or N_EPISTEMIC without N_BOOM
+                             -> boom = 40 - N_CE - N_EPISTEMIC
+      * explicit N_BOOM      -> override, used verbatim
+    Naively defaulting the boom ARGUMENT to 28 would double-subtract
+    (28 - 12 = 16), which is why the resolution lives here instead of
+    in the signature.
+    """
+    e = os.environ if env is None else env
+    total = int(e.get("GEN_TOTAL_BUDGET", GEN_TOTAL_BUDGET)
+                or GEN_TOTAL_BUDGET)
+    n_ce = int(e.get("N_CE", DEFAULT_N_CE) or 0)
+    n_epi = int(e.get("N_EPISTEMIC", "0") or 0)
+    if "N_BOOM" in e:
+        n_boom = int(e.get("N_BOOM") or 0)
+    elif n_boom_solves is not None and n_boom_solves != GEN_TOTAL_BUDGET:
+        # an explicit caller-supplied budget still wins over the default
+        n_boom = max(0, n_boom_solves - n_ce - n_epi)
+    else:
+        n_boom = max(0, total - n_ce - n_epi)
+    return n_ce, n_epi, n_boom
+
+
 def _epistemic_scenarios(pool: list[dict], objective_col: str
                          ) -> list[tuple[str, np.ndarray]]:
     """Complete, preregisterable alternative mean vectors.
@@ -300,15 +339,7 @@ def tail_select_lineups(
     # Dose lever (env N_BOOM, 2026-08-05 attribution: boom solves are
     # 13% of candidates but produce the weekly BEST in 29/54 weeks).
     baseline_boom_solves = n_boom_solves
-    n_epi = int(os.environ.get("N_EPISTEMIC", "0") or 0)
-    n_ce = int(os.environ.get("N_CE", "0") or 0)
-    if "N_BOOM" in os.environ:
-        n_boom_solves = int(os.environ.get("N_BOOM") or n_boom_solves)
-    else:
-        # EPI/CE are replacement arms by definition.  Make the safe default
-        # fixed-budget even if an operator forgets to set N_BOOM alongside
-        # the new arm.
-        n_boom_solves = max(0, baseline_boom_solves - n_epi - n_ce)
+    n_ce, n_epi, n_boom_solves = resolve_generation_budget(n_boom_solves)
     cands = optimize_many(pool, n_lineups=candidate_multiple * n_entries,
                           stack=stack, objective_col=objective_col,
                           locks=set(locks))
@@ -815,6 +846,18 @@ def tail_select_lineups(
                 cands.append(lu)
     if not cands:
         return []
+    # Exact realized-pool control (2026-08-06 audit): holding SOLVE budget
+    # constant is not the same as holding the realized unique-candidate
+    # count constant — dedup rates differ per arm, so the CE fixed-budget
+    # comparison ran 166.35 vs 166.29 candidates in 2019, 166.50 vs 166.28
+    # in 2023, etc. With an adopted lift of only +2 clears, that slack is
+    # not negligible. GEN_POOL_CAP trims deterministically (by generation
+    # order, which is itself deterministic) so two arms can be compared at
+    # byte-identical pool size.
+    _cap = int(os.environ.get("GEN_POOL_CAP", "0") or 0)
+    if _cap and len(cands) > _cap:
+        log.info("pool trimmed to GEN_POOL_CAP: %d -> %d", len(cands), _cap)
+        cands = cands[:_cap]
     id2row = {pid: i for i, pid in enumerate(slate["id"])}
     cand_totals = np.stack([
         rd[[id2row[p["id"]] for p in lu.players]].sum(axis=0) for lu in cands

@@ -67,9 +67,14 @@ def collect_defaults() -> tuple[dict[str, Any], list[dict[str, str]]]:
     discrepancies, never silently preferred.
     """
     # Cheap, offline-safe imports — the real constants where they exist.
+    from ..backtest.engine import resolve_generation_budget
     from ..inference import live_lineups
     from ..models import blend
     from ..optimizer import lineup
+
+    # env={} so the manifest records CODE defaults, never the env of the
+    # process that happens to run it
+    _gen_budget = resolve_generation_budget(env={})
 
     replay_src = _module_source("nfl_dfs.backtest.replay")
     lineup_src = _module_source("nfl_dfs.optimizer.lineup")
@@ -103,6 +108,15 @@ def collect_defaults() -> tuple[dict[str, Any], list[dict[str, str]]]:
         "GAME_SIM_MODE": _env_default(
             simulate_src, "GAME_SIM_MODE", "models.simulate"),
         "LIVE_SIMS": int(live_lineups.LIVE_SIMS_DEFAULT),
+        # ADOPTED generation budget (2026-08-06). Recorded from the CODE
+        # resolver, not from deployment env: CE was previously live only
+        # via Cloud Run env vars, so the manifest reported "no drift"
+        # while the adopted lever sat outside the code entirely.
+        "N_CE": int(_gen_budget[0]),
+        "N_EPISTEMIC": int(_gen_budget[1]),
+        "N_BOOM": int(_gen_budget[2]),
+        "GEN_TOTAL_BUDGET": int(_gen_budget[0] + _gen_budget[1]
+                                + _gen_budget[2]),
         "BLEND_WEIGHT": float(blend.BLEND_W),
     }
 

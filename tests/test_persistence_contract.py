@@ -16,7 +16,8 @@ import pandas as pd
 import pytest
 
 from nfl_dfs.backtest import engine
-from nfl_dfs.optimizer.lineup import select_tail_entries
+from nfl_dfs.optimizer.lineup import (select_from_support,
+                                      select_tail_entries)
 
 
 def _slate(n_teams: int = 4):
@@ -140,9 +141,13 @@ def test_selection_reproducible_from_persisted_masks(monkeypatch):
         np.unpackbits(np.frombuffer(bytes.fromhex(b), dtype=np.uint8),
                       bitorder="big")[:n_worlds].astype(bool)
         for b in df.clear_bits])
-    # rebuild the same greedy pick order the selector used, from masks
-    totals = np.where(masks, 1e6, 0.0)  # any value >= line where cleared
-    picked = select_tail_entries(totals, len(lus), 1e5)
+    # Rebuild via the SHARED selector helper with the persisted
+    # tiebreakers. The old form (binary 1e6/0 totals) silently dropped
+    # the mean-total tiebreak and only passed while no candidates tied;
+    # adding the CE batch to the default pool produced ties and exposed
+    # it — the same class of defect the helper was extracted to prevent.
+    picked = select_from_support(masks, df.p_line.to_numpy(),
+                                 df.sim_mean.to_numpy(), len(lus))
     stored = df[df.selected].sort_values("selected_rank").cand_ix.tolist()
     assert list(picked) == stored, (
         f"mask-reconstructed selection {picked} != persisted {stored}")

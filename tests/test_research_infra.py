@@ -171,6 +171,12 @@ EXPECTED_DEFAULTS = {
     "GAME_SIM_MODE": "lognormal",
     "LIVE_SIMS": 30_000,
     "BLEND_WEIGHT": 0.45,
+    # adopted 2026-08-06 (CE fixed-budget arm): recorded from the CODE
+    # resolver so the adoption cannot live only in deployment env
+    "N_CE": 12,
+    "N_EPISTEMIC": 0,
+    "N_BOOM": 28,
+    "GEN_TOTAL_BUDGET": 40,
 }
 
 
@@ -323,3 +329,14 @@ def test_dependence_report_validates_shapes():
 def test_variogram_empty_pairs_nan():
     assert np.isnan(dependence.variogram_score(
         np.zeros((2, 5)), np.zeros(2), []))
+
+
+def test_manifest_pins_adopted_generation_budget():
+    """CE adoption must be provable from CODE (2026-08-06): it was
+    previously live only via Cloud Run env vars, so the manifest
+    reported 'no drift' while the adopted lever sat outside the code."""
+    m = config_manifest.manifest()
+    d = m["defaults"]
+    assert d["N_CE"] == 12 and d["N_BOOM"] == 28
+    assert d["GEN_TOTAL_BUDGET"] == 40
+    assert d["N_CE"] + d["N_EPISTEMIC"] + d["N_BOOM"] == 40
