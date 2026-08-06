@@ -2955,3 +2955,17 @@ Neither justifies a feature, a scenario family, or wider
 distributions. Recorded so September does not re-mine the same
 signal: only 2 books are covered, so a genuine dispersion test needs
 a wider book panel (paid Odds API tier), not more work on this data.
+
+**Addendum 96b — tracking traits v0: NO residual gain.** BDB 2023
+traits (recv speed p90, accel p90, separation mean, route depth)
+crosswalked to 1,333 players and tested on 2024 outcomes (strictly
+later season) against a salary+position baseline: MAE 5.007 -> 5.006
+overall (+0.02%, nothing) and 4.023 -> 4.034 on THIN-history players
+(<17 prior games) — slightly WORSE on the exact population they were
+built for. Fails plan §11.5 step 2; traits do not enter construction.
+Honest caveats for September: these are v0 aggregates, not the §7.4-7.5
+learned encoder; coverage is one season of pass plays; and the
+baseline here is salary+position, not the full component model. The
+crosswalk (96.3% high-confidence) and trait pipeline stand ready if
+the encoder phase is ever attempted, but on current evidence tracking
+is NOT a scoring lever.
