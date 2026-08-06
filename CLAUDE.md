@@ -94,15 +94,27 @@ correction in a later one).
   season-pooling defect were all caught by instrument/code audit,
   never by the panel number; deletion tests need the env to actually
   gate what its name claims.
-- **THE MEASURED FRONTIER (Addenda 83, 87)**: the candidate pool's
-  oracle clears 30/107 vs the selected book's 22 (same build) — ~8
-  recoverable weeks exist in the pool; the sim cannot rank candidates
-  (actual-best at median sim-rank 53/168), so ALL sim-informed
-  selector variants are a dead end (LSE/SHARP/coverage triple-null).
-  Capture paths: more entries per slate (pool outproduces the book),
-  or the decision-focused reranker (needs a non-sim signal).
-  cand-oracle log line + candidate persistence
-  (predictions.live_candidates) accumulate the training set live.
+- **THE MEASURED FRONTIER (Addenda 92-93, canonical panel
+  20260805-hf5 — acceptance-gated, promoted, the ONLY citable
+  numbers)**: pool oracle clears 35/107 vs the selected book's 27 —
+  **8 recoverable weeks across 4 seasons**; mean regret 6.8. But
+  corr(oracle sim-rank, regret) is +0.030 among unselected oracles
+  (the old +0.428/+0.211 figures were inflated and are RETRACTED), so
+  there is no gradient to learn. SELECTION IS CLOSED — falsified five
+  ways: LSE, sharp-LSE, QB-concentration, dollars-objective, and the
+  decision-focused residual reranker (A1 +1 clear in 2 seasons, A2
+  flat, A3 -3, shuffled control 25 — orthogonal features made it
+  WORSE). Generator crowd-out is REFUTED: removing `lev` (48% of the
+  pool, 8% of selections) costs 1 clear; removing `boom` costs 15;
+  `dark` is the best value-per-candidate batch. Tail-line 187/194/200
+  is flat. The only live capture paths are MORE ENTRIES per slate and
+  genuinely new information (plan Workstream E).
+  RESEARCH DATA IN THE WAREHOUSE: predictions.replay_candidates
+  (17,851 labeled candidates, full provenance + masks),
+  predictions.slate_player_features (31,107 point-in-time rows), 107
+  checksum-verified score artifacts in gs://nfl-predictions-503414-raw
+  /cand_scores/20260805-hf5/. Promotion gate:
+  scripts/harvest_accept.py (10 checks + the §6.1 decision gate).
 - **RESEARCH PROGRAM (reports/emerging-technologies-plan.md is the
   spec; reports/september-research-designs.md the queue)**: six
   workstreams BUILT under src/nfl_dfs/research/, adopt-only-as-proven.
