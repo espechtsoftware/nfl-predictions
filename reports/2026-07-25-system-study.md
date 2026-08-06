@@ -2867,3 +2867,30 @@ information (plan Workstream E), not from smarter selection.
 Selection is now falsified five independent ways: LSE, sharp-LSE,
 QB-concentration, dollars-objective, and this decision-focused
 residual reranker. The family is closed.
+
+## Addendum 94 (2026-08-06, FINAL): Preseason sealed
+
+**Shipping system: HARVEST-FINAL-2 config, 27/107 weeks best-of-40
+>= 194, mean best 179.4, median percentile 14.2%** — re-verified on
+the canonical panel (20260805-hf5) with every slate's selection
+reproduced from persisted masks. App + 14/14 jobs deployed on the
+final image (nfl-dfs-app rev 00050); full suite green (515 tests).
+
+Post-review-6 program, complete:
+- ACTION 0 persistence contract — closed after three audit rounds
+  (provenance before dedupe, NULL labels, two-level run identity,
+  full masks + 187/194/200 grid, score artifacts, per-player feature
+  snapshot, all-slate acceptance, idempotent promotion).
+- ACTION 1 canonical harvest — promoted; 17,851 labeled candidates,
+  31,107 point-in-time player rows, 107 verified artifacts.
+- ACTION 2 LOGO — generator crowd-out REFUTED.
+- ACTION 3 tail-line — objective flat 187/194/200.
+- ACTION 4 salary floor — not load-bearing; rule kept (no gain).
+- Workstream A reranker — FALSIFIED; selection closed five ways.
+
+Nothing adopted this round; the shipping config is unchanged. What
+the round produced is a measurement apparatus that cannot lie the way
+the previous one did, three retracted claims corrected, and four
+families closed with evidence instead of intuition. September's live
+levers are candidate GENERATION (Schaake, cross-entropy), new
+information (market movement, evidence, tracking), and entry volume.
