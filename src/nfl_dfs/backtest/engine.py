@@ -348,6 +348,64 @@ def tail_select_lineups(
                 lu.tag = "hyper"
                 seen.add(lu.ids)
                 cands.append(lu)
+    # A/B lever (env N_CE, off by default; scoring plan §10): candidates
+    # from LEARNED rare worlds. A cross-entropy loop searches the
+    # bounded knob space (pace, pass tilt, scoring split, usage
+    # concentration) for environments whose constrained oracle is
+    # elite, then MILP-solves the elite worlds. HYPER assumed that
+    # subset and nulled; this learns it. Worlds are scored by a cheap
+    # greedy proxy so only elite worlds pay for a MILP solve.
+    n_ce = int(_os.environ.get("N_CE", "0") or 0)
+    if n_ce:
+        try:
+            from ..research.ce_worlds import apply_knobs, ce_iterate
+
+            teamc = pd.factorize(pd.Series(
+                [p.get("team") for p in pool]).fillna("_"))[0]
+            is_pass = np.array([str(p.get("pos")) in ("QB", "WR", "TE")
+                                for p in pool])
+            sal = np.array([float(p.get("salary") or 1) for p in pool])
+            base_world = rd[:, np.argsort(rd.sum(axis=0))[::-1][:200]]
+
+            def _score_world(knobs):
+                w = apply_knobs(base_world.mean(axis=1)[:, None], knobs,
+                                teamc, is_pass)[:, 0]
+                # cheap proxy for the constrained oracle: value-greedy
+                # fill under the cap, 9 slots
+                order = np.argsort(w / np.maximum(sal, 1))[::-1][:60]
+                tot, spend, n = 0.0, 0.0, 0
+                for i in order:
+                    if n >= 9 or spend + sal[i] > 50_000:
+                        continue
+                    tot += w[i]; spend += sal[i]; n += 1
+                return tot
+
+            rng_ce = np.random.default_rng(1701)
+            elites, iw, hist = ce_iterate(_score_world, rng_ce,
+                                          n_per_round=40, rounds=3)
+            log.info("CE: %d elite worlds, final ESS %.1f, elite score "
+                     "%.1f -> %.1f", len(elites), hist[-1]["ess"],
+                     hist[0]["all_mean_score"], hist[-1]["elite_mean_score"])
+            for kn in elites[:n_ce]:
+                wmean = apply_knobs(rd.mean(axis=1)[:, None], kn, teamc,
+                                    is_pass)[:, 0]
+                cpool = [{**p, "proj_ce": float(wmean[i])}
+                         for i, p in enumerate(pool)]
+                try:
+                    lu = optimize(cpool, stack=stack, objective_col="proj_ce",
+                                  locks=set(locks))
+                except Exception:
+                    continue
+                if lu is None:
+                    continue
+                _note(lu.ids, "ce")
+                if lu.ids not in seen:
+                    lu.tag = "ce"
+                    seen.add(lu.ids)
+                    cands.append(lu)
+        except Exception:
+            log.exception("CE world generation failed; pool unaffected")
+
     # A/B lever (env N_EPISTEMIC, off by default; scoring plan §8):
     # EPISTEMIC-scenario candidates. Every existing generator samples
     # the same aleatoric worlds the selector scores against — a closed

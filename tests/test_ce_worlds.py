@@ -35,3 +35,33 @@ def test_ce_finds_a_known_elite_region():
     assert hist[-1]["elite_mean_score"] > hist[0]["all_mean_score"]
     assert hist[-1]["mu"][0] > hist[0]["mu"][0]        # moved toward 1.25
     assert np.isfinite(w).all() and hist[-1]["ess"] > 0
+
+
+def test_ce_batch_wires_into_generator(monkeypatch):
+    """N_CE must produce tagged candidates and stay inert when off."""
+    import numpy as np
+    import pandas as pd
+
+    from nfl_dfs.backtest.engine import tail_select_lineups
+
+    rng = np.random.default_rng(31)
+    pool, ix = [], 0
+    for pos, n, sal in (("QB", 4, 6000), ("RB", 8, 5500), ("WR", 12, 5000),
+                        ("TE", 6, 3800), ("DST", 4, 3000)):
+        for k in range(n):
+            pool.append({"id": f"{pos}{k}", "name": f"{pos}{k}", "pos": pos,
+                         "team": f"T{ix % 4}", "opp": f"T{(ix + 1) % 4}",
+                         "game_id": f"g{ix % 2}", "salary": sal + 137 * k,
+                         "proj": 8.0 + (k % 5), "actual": 10.0})
+            ix += 1
+    slate = pd.DataFrame(pool)
+    slate["draw_idx"] = range(len(slate))
+    draws = np.abs(rng.normal(9, 5, size=(len(pool), 150)))
+    monkeypatch.setenv("MIN_LINEUP_SALARY", "0")
+    monkeypatch.setenv("N_CE", "4")
+    lus = tail_select_lineups(slate, pool, draws, tail_line=90.0,
+                              n_entries=8, stack=None, objective_col="proj")
+    assert lus
+    monkeypatch.delenv("N_CE")
+    assert tail_select_lineups(slate, pool, draws, tail_line=90.0,
+                               n_entries=8, stack=None, objective_col="proj")
