@@ -48,3 +48,74 @@ def test_no_double_subtraction_regression():
 def test_ce_off_experiment_restores_full_boom_budget():
     ce, epi, boom = resolve_generation_budget(env={"N_CE": "0"})
     assert (ce, boom) == (0, 40)
+
+
+# --- bounds validation ---------------------------------------------------
+
+def test_budget_is_clamped_when_ce_plus_epi_exceeds_total():
+    """N_CE=50 previously produced 50 CE / 0 boom while still claiming a
+    40-slot budget — a stated fixed total that wasn't fixed."""
+    ce, epi, boom = resolve_generation_budget(env={"N_CE": "50"})
+    assert ce + epi + boom == 40 and boom == 0
+    ce, epi, boom = resolve_generation_budget(
+        env={"N_CE": "30", "N_EPISTEMIC": "30"})
+    assert ce + epi + boom == 40, (ce, epi, boom)
+    # an EXPLICIT N_BOOM is still an override, not clamped
+    ce, epi, boom = resolve_generation_budget(
+        env={"N_CE": "30", "N_BOOM": "40"})
+    assert (ce, boom) == (30, 40)
+
+
+# --- effective-config visibility ----------------------------------------
+
+def test_effective_config_flags_a_deployment_override():
+    from nfl_dfs.backtest.engine import effective_generation_config
+
+    ok = effective_generation_config(env={})
+    assert ok["matches_adopted_default"] and ok["overrides"] == {}
+    bad = effective_generation_config(env={"N_CE": "0"})
+    assert not bad["matches_adopted_default"]
+    assert bad["overrides"] == {"N_CE": "0"} and bad["n_boom"] == 40
+
+
+# --- fair pool-size control ---------------------------------------------
+
+class _Lu:
+    def __init__(self, tag, i):
+        self.tag = tag
+        self.i = i
+
+
+def test_pool_cap_does_not_preferentially_drop_the_batch_under_test():
+    """Tail truncation would discard CE, which is generated LAST — the
+    exact candidates the experiment is measuring."""
+    from nfl_dfs.backtest.engine import trim_pool_to_cap
+
+    cands = ([_Lu("lev", i) for i in range(60)]
+             + [_Lu("boom", i) for i in range(28)]
+             + [_Lu("ce", i) for i in range(12)])       # appended last
+    quotas = {"lev": 40, "boom": 28, "ce": 12}
+    kept, retained, dropped = trim_pool_to_cap(cands, 80, quotas)
+    assert len(kept) == 80
+    assert retained["ce"] == 12, f"CE trimmed to {retained.get('ce')}"
+    assert retained["boom"] == 28
+    assert dropped.get("ce", 0) == 0 and dropped["lev"] == 20
+
+
+def test_pool_cap_is_a_noop_below_the_cap():
+    from nfl_dfs.backtest.engine import trim_pool_to_cap
+
+    cands = [_Lu("ce", i) for i in range(5)]
+    kept, retained, dropped = trim_pool_to_cap(cands, 50, {"ce": 12})
+    assert len(kept) == 5 and dropped == {}
+
+
+def test_pool_cap_trims_protected_only_as_a_last_resort():
+    from nfl_dfs.backtest.engine import trim_pool_to_cap
+
+    cands = [_Lu("boom", i) for i in range(28)] + [_Lu("ce", i)
+                                                   for i in range(12)]
+    kept, retained, dropped = trim_pool_to_cap(cands, 30, {"boom": 28,
+                                                           "ce": 12})
+    assert len(kept) == 30
+    assert sum(retained.values()) == 30

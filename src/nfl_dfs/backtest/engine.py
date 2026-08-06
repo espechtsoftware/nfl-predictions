@@ -37,6 +37,56 @@ DEFAULT_N_CE = 12
 DEFAULT_N_BOOM = GEN_TOTAL_BUDGET - DEFAULT_N_CE   # 28
 
 
+def trim_pool_to_cap(cands: list, cap: int, quotas: dict[str, int]
+                     ) -> tuple[list, dict[str, int], dict[str, int]]:
+    """Quota-aware deterministic trim -> (kept, retained, dropped).
+
+    Tail truncation (`cands[:cap]`) is NOT a fair pool-size control:
+    generators append in a fixed order, so the batch under test — CE is
+    generated after lev/boom — is preferentially discarded, producing
+    equal-sized pools but an unequal-opportunity comparison.
+
+    Instead each generator keeps its intended quota first; only the
+    SURPLUS above quota is eligible for trimming, dropped from the
+    largest surplus batch first (ties by later generation index), so
+    the mix under test survives.
+    """
+    if cap <= 0 or len(cands) <= cap:
+        keep = list(cands)
+    else:
+        by_tag: dict[str, list[int]] = {}
+        for i, lu in enumerate(cands):
+            by_tag.setdefault(lu.tag or "lev", []).append(i)
+        protected: set[int] = set()
+        surplus: dict[str, list[int]] = {}
+        for tag, idxs in by_tag.items():
+            q = int(quotas.get(tag, 0))
+            protected.update(idxs[:q])
+            surplus[tag] = idxs[q:]
+        n_drop = len(cands) - cap
+        dropped_idx: set[int] = set()
+        while n_drop > 0 and any(surplus.values()):
+            tag = max(surplus, key=lambda t: (len(surplus[t]), t))
+            if not surplus[tag]:
+                break
+            dropped_idx.add(surplus[tag].pop())   # latest first
+            n_drop -= 1
+        if n_drop > 0:  # protected alone exceeds the cap — trim evenly
+            prot = sorted(protected, reverse=True)
+            for i in prot[:n_drop]:
+                dropped_idx.add(i)
+        keep = [lu for i, lu in enumerate(cands) if i not in dropped_idx]
+    retained: dict[str, int] = {}
+    for lu in keep:
+        retained[lu.tag or "lev"] = retained.get(lu.tag or "lev", 0) + 1
+    dropped: dict[str, int] = {}
+    kept_ids = {id(lu) for lu in keep}
+    for lu in cands:
+        if id(lu) not in kept_ids:
+            dropped[lu.tag or "lev"] = dropped.get(lu.tag or "lev", 0) + 1
+    return keep, retained, dropped
+
+
 def resolve_generation_budget(n_boom_solves: int | None = None,
                               env: dict | None = None
                               ) -> tuple[int, int, int]:
@@ -62,8 +112,34 @@ def resolve_generation_budget(n_boom_solves: int | None = None,
         # an explicit caller-supplied budget still wins over the default
         n_boom = max(0, n_boom_solves - n_ce - n_epi)
     else:
+        # Bounds: without an explicit N_BOOM the total is a CONTRACT.
+        # N_CE=50 previously yielded 50 CE / 0 boom while still claiming
+        # a 40-slot budget; clamp loudly instead of silently exceeding.
+        if n_ce + n_epi > total:
+            log.warning("generation budget exceeded: N_CE=%d + N_EPISTEMIC=%d "
+                        "> %d — clamping to the total", n_ce, n_epi, total)
+            if n_ce >= total:
+                n_ce, n_epi = total, 0
+            else:
+                n_epi = total - n_ce
         n_boom = max(0, total - n_ce - n_epi)
     return n_ce, n_epi, n_boom
+
+
+def effective_generation_config(env: dict | None = None) -> dict:
+    """The config a RUNNING process will actually use, including any
+    deployment override. The manifest proves CODE defaults; this proves
+    what the live service resolved, so an accidental N_CE=0 on the app
+    is visible in logs and health output rather than silent."""
+    e = os.environ if env is None else env
+    n_ce, n_epi, n_boom = resolve_generation_budget(env=e)
+    return {"n_ce": n_ce, "n_epistemic": n_epi, "n_boom": n_boom,
+            "total": n_ce + n_epi + n_boom,
+            "matches_adopted_default": (n_ce, n_boom) == (DEFAULT_N_CE,
+                                                          DEFAULT_N_BOOM),
+            "overrides": {k: e[k] for k in
+                          ("N_CE", "N_EPISTEMIC", "N_BOOM",
+                           "GEN_TOTAL_BUDGET", "GEN_POOL_CAP") if k in e}}
 
 
 def _epistemic_scenarios(pool: list[dict], objective_col: str
@@ -856,8 +932,11 @@ def tail_select_lineups(
     # byte-identical pool size.
     _cap = int(os.environ.get("GEN_POOL_CAP", "0") or 0)
     if _cap and len(cands) > _cap:
-        log.info("pool trimmed to GEN_POOL_CAP: %d -> %d", len(cands), _cap)
-        cands = cands[:_cap]
+        _quotas = {"ce": n_ce, "epi": n_epi, "boom": n_boom,
+                   "lev": candidate_multiple * n_entries}
+        cands, _ret, _drop = trim_pool_to_cap(cands, _cap, _quotas)
+        log.info("pool trimmed to GEN_POOL_CAP %d: retained=%s dropped=%s",
+                 _cap, _ret, _drop)
     id2row = {pid: i for i, pid in enumerate(slate["id"])}
     cand_totals = np.stack([
         rd[[id2row[p["id"]] for p in lu.players]].sum(axis=0) for lu in cands

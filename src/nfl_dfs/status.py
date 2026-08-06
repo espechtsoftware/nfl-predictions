@@ -19,6 +19,10 @@ builds) must stay fresh year-round because their jobs run year-round.
 
 from __future__ import annotations
 
+import logging
+
+log = logging.getLogger(__name__)
+
 from dataclasses import dataclass
 from datetime import date, datetime, timezone
 from typing import Any
@@ -151,6 +155,28 @@ def check_freshness(now: datetime | None = None) -> None:
         for c in system_status(now)
         if c["alerting"] and c["active"] and c["state"] in ("stale", "empty", "missing")
     ]
+    # Effective-config health (2026-08-06): the config manifest proves
+    # CODE defaults; it cannot see a deployment override. An accidental
+    # N_CE=0 on the app would silently revert generation to boom-only,
+    # so the resolved config is surfaced here and flagged when it
+    # departs from the adopted 12/28.
+    try:
+        from .backtest.engine import effective_generation_config
+
+        cfg = effective_generation_config()
+        state = ("adopted" if cfg["matches_adopted_default"]
+                 else "OVERRIDDEN")
+        print(f"generation config: {state} "
+              f"(CE {cfg['n_ce']} / EPI {cfg['n_epistemic']} / "
+              f"boom {cfg['n_boom']}, total {cfg['total']})"
+              + (f" overrides={cfg['overrides']}" if cfg["overrides"] else ""))
+        if not cfg["matches_adopted_default"]:
+            bad.append(
+                "generation config departs from the adopted 12/28: "
+                f"{cfg['n_ce']}/{cfg['n_boom']} overrides={cfg['overrides']}")
+    except Exception:
+        log.exception("effective-config health check failed")
+
     if bad:
         raise RuntimeError("Stale feeds:\n" + "\n".join(bad))
     print("All feeds fresh")
