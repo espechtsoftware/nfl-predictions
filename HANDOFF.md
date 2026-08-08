@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-08 16:54 CDT
+## Current state — 2026-08-08 17:07 CDT
 
 ### Recovery provenance
 
@@ -193,8 +193,7 @@ agent or developer:
   after preflight `replay-a02ens1-smoke-cppnj`; check execution
   `accept-replay-panel-w86nj` passed with 17,423 candidates, 107/107 slates,
   50,098 unique feature rows, 16/107 selected clears at 194, mean selected
-  best 174.55, and 24/107 pool-oracle clears. These are completeness and
-  headline facts, not yet an adoption verdict.
+  best 174.55, and 24/107 pool-oracle clears.
 - First ensemble comparator `compare-adoption-panel-5r5vx` failed only the
   assertion that post-shaping player means must move. Code audit proved that
   assertion targets the wrong layer: K changes component beliefs and the
@@ -204,20 +203,30 @@ agent or developer:
   the K=3 member mean by 0.281 points, all other inputs/seeds matched, and the
   post-shaping mean was therefore invariant. The comparator now treats that
   downstream mean as a diagnostic rather than a required direction; focused
-  mechanism/panel tests pass (12 tests). No scoring gate was changed.
+  mechanism/panel tests pass (12 tests). No scoring gate was changed. Cloud
+  Build `a8ed72ec-d909-447f-881e-3eeaca6b2e7f` then passed the full suite
+  (621 passed, 2 skipped) and produced reporting digest
+  `sha256:5b7e8e38399c29315a11a8c13c4c2453dc15042c06ed5c29e45b67ac37ebe712`.
+- Corrected ensemble comparator `compare-adoption-panel-6kf7z` passed with no
+  mechanism failures, but its disposition is `unsupported-neutral`. K=1
+  improved the 194 count 11→16, the 200 count 1→9, mean selected best
+  173.06→174.55, and pool oracle 20→24. Season deltas were
+  `{2019:+1, 2021:0, 2022:+3, 2023:+3, 2024:-1, 2025:-1}`: only three
+  positive seasons and two negative seasons, versus the frozen requirements
+  of at least four positive and at most one negative. K=1 is not adopted;
+  the aggregate gain is retained as a future confirmation candidate.
 
 ### Deployment caution
 
 The recovered source defaults to the corrected `0/0/0/40` generation budget
-and a three-member model ensemble. Do not change production deployment knobs
-until the pending ensemble-ablation audit has been recorded and the
-deployment contract has been rechecked. Earlier deployed `12 CE / 28 boom`
-settings are stale relative to the corrected research state.
+and a three-member model ensemble. A01 and A02 are now recorded; neither
+deletion was adopted. Do not change production deployment knobs until the
+deployment contract is rechecked against this corrected research state.
+Earlier deployed `12 CE / 28 boom` settings are stale.
 
 ### Next concrete action
 
-Run the complete Cloud Build test gate for the corrected reporting-only
-ensemble comparator, then rerun that comparator against the already-frozen
-`20260808-deterministic-baseline-c616390` and
-`20260808-a02-ensemble1-c616390` panels. Do not rerun or alter either panel,
-and do not adopt K=1 unless the unchanged directional gates pass.
+Audit the remaining queue in `post-review6-scoring-improvement-plan.md` and
+select the next still-preregistered mechanism/frontier gate. Do not tune on
+the 107 scored slates, do not revive arms already closed in the study, and do
+not treat K=1's aggregate gain as adoption without independent confirmation.

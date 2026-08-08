@@ -10,8 +10,10 @@
         "passes": false,
         "positive_in_at_least_4_seasons": false
       },
-      "disposition": "unsupported-neutral",
-      "failures": [],
+      "disposition": "invalid",
+      "failures": [
+        "post-shaping model means did not change under ablation"
+      ],
       "incumbent_supported_gate": {
         "aligned_107_slates": true,
         "at_most_1_negative_season": false,
@@ -26,7 +28,6 @@
         "non_ensemble_seeds_match": true,
         "offense_player_weeks": 47692,
         "post_shaping_model_mean_abs_delta": 1.396330183306023e-17,
-        "post_shaping_model_mean_changed_rows": 0,
         "source_candidate_mean_max_abs_error": 2.3594806265236912e-05,
         "source_ensemble_size": 3,
         "source_member_max_spread": 8.295044453817397,

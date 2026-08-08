@@ -89,6 +89,7 @@ the relevant deletion arm are both recorded in the experiment ledger and
 | `20260808-deterministic-baseline-c616390` | 11/107 | Accepted/promoted deterministic control; full exact replica passed |
 | `20260808-deterministic-replica-c616390` | 11/107 | Check accepted; exact parity passed for 107/107 artifacts |
 | `20260808-a01-modelonly-c616390` | 11/107 | Mechanism valid; `unsupported-neutral`, model-only not adopted |
+| `20260808-a02-ensemble1-c616390` | 16/107 | Mechanism valid; `unsupported-neutral`, K=1 not adopted |
 
 ## Current repair under validation
 
@@ -121,4 +122,13 @@ selected best by 0.92 and pool oracle by one; neither directional gate passed,
 so its disposition is `unsupported-neutral` and it is not adopted. The
 generic baseline acceptance job's blend-parity assertion failed by design
 because that assertion encodes the deleted 45/55 mean; its other completeness
-and candidate-mean checks passed. A02 is the next allowed arm.
+and candidate-mean checks passed. A02 then passed ordinary acceptance at
+16/107. Its first mechanism audit exposed a layer-contract error:
+full-coverage TabPFN shaping fixes player marginals while K changes the
+joint-world copula, so a changed post-shaping mean is not required. The
+corrected audit was fully tested in Cloud Build
+`a8ed72ec-d909-447f-881e-3eeaca6b2e7f` and passed in
+`compare-adoption-panel-6kf7z` without changing the frozen score gates. K=1
+improved aggregate clears, mean and oracle, but was positive in only three
+seasons and negative in two. Its disposition is therefore
+`unsupported-neutral`, and it is not adopted.

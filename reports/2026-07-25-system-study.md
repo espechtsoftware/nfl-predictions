@@ -3284,3 +3284,37 @@ season-194 deltas were `{2019:0, 2021:0, 2022:0, 2023:+2, 2024:-1,
 gate passed, yielding the preregistered `unsupported-neutral` disposition.
 Model-only is not adopted; the incumbent blend remains the operational
 default without overclaiming strong positive evidence. A02 K=1 is next.
+
+## Addendum 107 (2026-08-08): A02 K=1 improves aggregate score but fails stability gate
+
+Fresh A02 panel `20260808-a02-ensemble1-c616390` changed only
+`MODEL_ENSEMBLE=1` on the deterministic control image and fixed `0/0/0/40`
+generation budget. All six season executions completed, and check execution
+`accept-replay-panel-w86nj` passed: 17,423 candidates, 107/107 slates, 50,098
+unique feature rows, zero missing joins, and replay/live mean parity.
+
+The first mechanism audit (`compare-adoption-panel-5r5vx`) found correct K=1
+provenance and member movement but rejected invariant post-shaping means. A
+code audit showed that assertion targeted the wrong layer. K changes the
+component simulator's ordinal copula; the full-coverage TabPFN shaper then
+replaces each player's marginal from the same key-addressed quantile cache.
+Post-shaping player means should therefore remain fixed while joint lineup
+worlds change. The audit was corrected without changing any score criterion,
+and a regression test covers this invariant. Cloud Build
+`a8ed72ec-d909-447f-881e-3eeaca6b2e7f` passed 621 tests (2 skipped) and built
+reporting digest `sha256:5b7e8e38399c29315a11a8c13c4c2453dc15042c06ed5c29e45b67ac37ebe712`.
+
+Corrected comparator `compare-adoption-panel-6kf7z` passed with no mechanism
+failures. All 47,692 offensive rows recorded K=3 member disagreement; K=1
+differed from the K=3 member mean by 0.281 points on average; inputs and
+non-ensemble seeds matched; and candidate/player mean error stayed below
+`2.36e-05`. K=1 improved selected clears **11→16 at 194**, **1→9 at 200**,
+mean selected best **173.06→174.55**, and pool oracle **20→24**; it tied at
+26 clears at 187. Season-194 deltas were `{2019:+1, 2021:0, 2022:+3,
+2023:+3, 2024:-1, 2025:-1}`.
+
+That pattern fails the frozen directional-stability law: only three seasons
+are positive (need at least four) and two are negative (allow at most one).
+The disposition is therefore `unsupported-neutral`, not adoption. K=1 is a
+promising candidate for genuinely independent future confirmation, but the
+current K=3 default remains unchanged and no production knob moves.
