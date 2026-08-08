@@ -1,0 +1,160 @@
+[
+  {
+    "jsonPayload": {
+      "artifacts": {
+        "2019-w1": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                164,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                164,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        }
+      },
+      "candidate": "20260808-det2019-d-c616390",
+      "candidate_parity": {
+        "candidate_only_keys": 0,
+        "candidate_rows": 164,
+        "common_rows": 164,
+        "max_abs_deltas": {
+          "sim_mean": 0,
+          "sim_q50": 0,
+          "sim_q90": 0,
+          "sim_q99": 0,
+          "sim_sd": 0
+        },
+        "mismatch_counts": {
+          "actual_rank": 0,
+          "actual_score": 0,
+          "all_tags": 0,
+          "bitorder": 0,
+          "clear_bits": 0,
+          "clear_bits_187": 0,
+          "clear_bits_194": 0,
+          "clear_bits_200": 0,
+          "labels_complete": 0,
+          "n_entries": 0,
+          "n_locks": 0,
+          "n_sims": 0,
+          "n_theses": 0,
+          "n_worlds": 0,
+          "p_line": 0,
+          "salary": 0,
+          "selected": 0,
+          "selected_rank": 0,
+          "sim_mean": 0,
+          "sim_q50": 0,
+          "sim_q90": 0,
+          "sim_q99": 0,
+          "sim_rank_p_line": 0,
+          "sim_sd": 0,
+          "tag": 0,
+          "tail_line": 0
+        },
+        "reference_only_keys": 0,
+        "reference_rows": 164
+      },
+      "failures": [],
+      "feature_parity": {
+        "candidate_only_keys": 0,
+        "candidate_rows": 335,
+        "common_rows": 335,
+        "max_abs_deltas": {
+          "actual": 0,
+          "carry_share_jump": 0,
+          "carry_share_l4": 0,
+          "carry_share_last": 0,
+          "consensus_div": 0,
+          "depth_rank": 0,
+          "depth_rank_delta": 0,
+          "dk_points_l4": 0,
+          "game_total": 0,
+          "games_played_prior": 0,
+          "implied_team_total": 0,
+          "market_points": 0,
+          "mean_projection": 0,
+          "model_points_pre": 0,
+          "own_est": 0,
+          "proj": 0,
+          "proj_p10": 0,
+          "proj_p50": 0,
+          "proj_p90": 0,
+          "proj_std": 0,
+          "proj_tourney": 0,
+          "salary": 0,
+          "salary_delta_wow": 0,
+          "snap_share_jump": 0,
+          "snap_share_l4": 0,
+          "snap_share_last": 0,
+          "spread": 0,
+          "target_share_jump": 0,
+          "target_share_l4": 0,
+          "target_share_last": 0,
+          "team_vacated_carry_share": 0,
+          "team_vacated_target_share": 0
+        },
+        "mismatch_counts": {
+          "actual": 0,
+          "carry_share_jump": 0,
+          "carry_share_l4": 0,
+          "carry_share_last": 0,
+          "consensus_div": 0,
+          "depth_rank": 0,
+          "depth_rank_delta": 0,
+          "dk_points_l4": 0,
+          "feature_missing": 0,
+          "game_id": 0,
+          "game_total": 0,
+          "games_played_prior": 0,
+          "gsis_id": 0,
+          "implied_team_total": 0,
+          "is_cold_start": 0,
+          "market_points": 0,
+          "mean_projection": 0,
+          "model_points_pre": 0,
+          "name": 0,
+          "opp": 0,
+          "own_est": 0,
+          "pos": 0,
+          "proj": 0,
+          "proj_p10": 0,
+          "proj_p50": 0,
+          "proj_p90": 0,
+          "proj_std": 0,
+          "proj_tourney": 0,
+          "salary": 0,
+          "salary_delta_wow": 0,
+          "snap_share_jump": 0,
+          "snap_share_l4": 0,
+          "snap_share_last": 0,
+          "spread": 0,
+          "target_share_jump": 0,
+          "target_share_l4": 0,
+          "target_share_last": 0,
+          "team": 0,
+          "team_vacated_carry_share": 0,
+          "team_vacated_target_share": 0
+        },
+        "reference_only_keys": 0,
+        "reference_rows": 335
+      },
+      "passes": true,
+      "reference": "20260808-det2019-c-c616390"
+    }
+  }
+]

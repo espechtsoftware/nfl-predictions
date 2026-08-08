@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-08 12:23 CDT
+## Current state — 2026-08-08 12:42 CDT
 
 ### Recovery provenance
 
@@ -129,9 +129,17 @@ agent or developer:
   player's marginal distribution.
 - Commit `1ab4d32` makes the simulation-column index the stable tie-break for
   both TabPFN and empirical marginal shaping. The focused replay-shape,
-  empirical-marginal, draw-widen and SBI suites pass (29 tests). It still
-  requires a clean Cloud Build and a fresh 2019 exact probe pair before the
-  frozen sequence can advance to 2024.
+  empirical-marginal, draw-widen and SBI suites pass (29 tests). Cloud Build
+  `f0251844-2cfe-470c-a12b-f1591f1c97af` then passed the complete suite (620
+  passed, 2 skipped) and produced digest
+  `sha256:98a31edd1921660df6c4f0c9d606e0096ea703ffe250ccc650af706e06798fd6`.
+- The fresh 2019 pair on that digest, `replay-det19c-2019-87z8s` and
+  `replay-det19d-2019-cjgvc`, again persisted 164 candidates and 40 selected
+  with the same component hashes as the failed pair. Exact comparator
+  `compare-exact-replay-zznbf` **passed**: all 335 player snapshots and 164
+  candidates matched, candidate ordering did not move, every mismatch count
+  and numeric delta was zero, and the full 164x10,000 totals artifact was
+  bit-for-bit identical. The 2019 cheap gate is closed; 2024 remains required.
 
 ### Deployment caution
 
@@ -143,9 +151,8 @@ recorded and the deployment contract has been rechecked. Earlier deployed
 
 ### Next concrete action
 
-Build commit `1ab4d32` via the full Cloud Build suite, then run a fresh 2019
-staging-only probe pair on distinct Cloud Run jobs and require exact world
-parity. If it passes, repeat the proof on 2024, then run a fresh six-season
+Run the same staging-only exact probe pair on 2024 using digest
+`sha256:98a31edd...`. If it passes, run a fresh six-season
 baseline and a same-image reproduction and require the full exact comparator
 to pass. Only then rerun or judge the K=1 ensemble ablation with the
 mechanism-aware adoption comparator. Record every execution and verdict here

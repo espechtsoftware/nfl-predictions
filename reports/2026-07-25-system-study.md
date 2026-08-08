@@ -3177,3 +3177,12 @@ shape. Commit `1ab4d32` replaces both TabPFN and empirical marginal ranks with
 a stable sort whose explicit tie-breaker is the original simulation-column
 index. No score claim follows. The 2019 pair must be rerun on the new image;
 2024 and all full panels remain blocked until it passes exactly.
+
+The fresh post-fix pair (`replay-det19c-2019-87z8s` and
+`replay-det19d-2019-cjgvc`) passed exact comparator execution
+`compare-exact-replay-zznbf`. All 335 player snapshots, all 164 candidate
+records, every selected flag and threshold mask, candidate ordering, and the
+entire 164x10,000 totals matrix matched with zero delta. Component hashes also
+remained identical to the pre-fix pair, confirming that stable tie assignment
+alone repaired the observed 2019 world drift. The separate 2024 proof remains
+mandatory before a full baseline can launch.

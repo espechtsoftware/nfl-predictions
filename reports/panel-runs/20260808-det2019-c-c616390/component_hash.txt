@@ -1,0 +1,5 @@
+execution=replay-det19c-2019-87z8s
+raw_sha256=77d4194f933cd904b7e2190ec08ae229365c93311c86d4e404e8d031c535e29d
+stable_sha256=3a5abdc4d17fba22faa37a3b63ac673b700f6069df57da1f65e1384055a30476
+decimals=10
+max_adjustment=5e-11
