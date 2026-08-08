@@ -1,0 +1,13 @@
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:98a31edd1921660df6c4f0c9d606e0096ea703ffe250ccc650af706e06798fd6
+family=detbase1
+panel_run_id=20260808-deterministic-baseline-c616390
+code_sha=c616390
+seasons=2019 2021 2022 2023 2024 2025
+arm_label=baseline
+arm_env=
+memory=16Gi
+smoke_season=2022
+n_ce=0
+n_epistemic=0
+n_gumbel=0
+n_boom=40
