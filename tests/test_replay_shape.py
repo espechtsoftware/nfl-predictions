@@ -29,6 +29,19 @@ def test_tabpfn_marginals_maps_and_preserves_ranks(monkeypatch):
     assert (out >= 0).all()
 
 
+def test_marginal_rank_ties_use_world_index_as_stable_tiebreaker():
+    """Equal outcomes cannot acquire CPU-dependent marginal ranks."""
+    import numpy as np
+
+    from nfl_dfs.backtest.replay import _stable_ordinal_ranks
+
+    draws = np.array([2.0, 1.0, 1.0, 2.0, 1.0])
+    # Values sort as world indices [1, 2, 4, 0, 3]. Equal values retain
+    # their original simulation-column order.
+    np.testing.assert_array_equal(
+        _stable_ordinal_ranks(draws), np.array([3, 0, 1, 4, 2]))
+
+
 def test_rookie_widen_scales_only_rookie_rows(monkeypatch):
     import numpy as np
     import pandas as pd

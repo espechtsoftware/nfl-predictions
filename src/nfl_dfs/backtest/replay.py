@@ -278,6 +278,23 @@ def apply_draw_shape(draws: np.ndarray, positions: pd.Series,
     return out
 
 
+def _stable_ordinal_ranks(values: np.ndarray) -> np.ndarray:
+    """Zero-based ranks with reproducible tie-breaking by world index.
+
+    Simulation draws contain many exact ties (zero-volume players and
+    discrete scoring outcomes in particular).  NumPy's default quicksort is
+    intentionally unstable and may permute equal values differently across
+    CPU-dispatched implementations.  Marginal shaping turns those arbitrary
+    tie permutations into different joint worlds even though every player's
+    marginal distribution is unchanged.  A stable sort makes the original
+    simulation-column index the explicit, portable tie-breaker.
+    """
+    order = np.argsort(np.asarray(values), kind="stable")
+    ranks = np.empty_like(order)
+    ranks[order] = np.arange(order.size, dtype=order.dtype)
+    return ranks
+
+
 def _tabpfn_marginals(draws: np.ndarray, keys: pd.DataFrame) -> np.ndarray:
     """TABPFN_MARGINALS=1 (A/B, off by default; Addenda 43/46): reshape
     each player's marginal onto the TabPFN-v2 walk-forward quantiles
@@ -322,7 +339,7 @@ def _tabpfn_marginals(draws: np.ndarray, keys: pd.DataFrame) -> np.ndarray:
         if qv.ndim > 1:  # duplicate cache rows; take the first
             qv = qv[0]
         row = draws[i]
-        ranks = row.argsort().argsort() / max(n - 1, 1)
+        ranks = _stable_ordinal_ranks(row) / max(n - 1, 1)
         y = np.interp(ranks, levels, qv)
         lo, hi = ranks < levels[0], ranks > levels[-1]
         y[lo] = qv[0] + (ranks[lo] - levels[0]) * (qv[1] - qv[0]) / (
@@ -405,7 +422,7 @@ def _empirical_marginals(draws: np.ndarray, positions: pd.Series,
             continue
         s = (s - s.mean()) * (sd / s_sd) + mu  # affine: our mean & std
         # rank reorder: our copula, their shape
-        order = np.argsort(np.argsort(draws[i]))
+        order = _stable_ordinal_ranks(draws[i])
         out[i] = np.sort(s)[order]
     return out
 
