@@ -2,6 +2,7 @@ import importlib.util
 import json
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 
@@ -124,6 +125,24 @@ def test_ensemble_mechanism_proves_member_ablation_fired():
     assert report["non_ensemble_seeds_match"] is True
     assert report["unchanged_input_mismatch_rows"] == {
         "pos": 0, "salary": 0, "actual": 0, "market_points": 0}
+
+
+def test_ensemble_mechanism_allows_shaped_mean_invariance():
+    """TabPFN marginals fix each player distribution while K changes copula."""
+    source = _ensemble_features(3)
+    treatment = _ensemble_features(1)
+    treatment["model_points_pre"] = source.model_points_pre
+    treatment["mean_projection"] = np.where(
+        treatment.market_points.notna(),
+        0.45 * treatment.model_points_pre + 0.55 * treatment.market_points,
+        treatment.model_points_pre)
+    report, failures = compare._ensemble_mechanism(
+        source, treatment, _audit(), _audit(),
+        _ensemble_seeds(3), _ensemble_seeds(1))
+    assert failures == []
+    assert report["k1_vs_k3_mean_abs_delta"] > 0
+    assert report["post_shaping_model_mean_abs_delta"] == 0.0
+    assert report["post_shaping_model_mean_changed_rows"] == 0
 
 
 def test_ensemble_mechanism_rejects_missing_member_prediction():

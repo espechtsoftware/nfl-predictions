@@ -407,8 +407,15 @@ def _ensemble_mechanism(source_features: pd.DataFrame,
     if (not len(member_ablation_delta)
             or not member_ablation_delta.gt(1e-6).any()):
         failures.append("K=1 predictions do not differ from the K=3 member mean")
-    if not len(model_mean_delta) or not model_mean_delta.gt(1e-6).any():
-        failures.append("post-shaping model means did not change under ablation")
+    # ``model_points_pre`` is the mean *after* marginal shaping, not the raw
+    # component-model point prediction.  The adopted TabPFN shaper replaces
+    # each player's complete marginal from a key-addressed quantile cache
+    # while preserving the component simulator's ordinal copula.  With full
+    # cache coverage, K=1 and K=3 should therefore have identical persisted
+    # player means even though their joint lineup worlds differ.  On an
+    # empirical fallback the means can move.  The member identities and
+    # ``member_ablation_delta`` above prove the upstream lever fired; do not
+    # impose an invalid direction on this downstream diagnostic.
 
     for name, audit in (("source", source_mean_audit),
                         ("treatment", treatment_mean_audit)):
@@ -435,6 +442,8 @@ def _ensemble_mechanism(source_features: pd.DataFrame,
             if len(member_ablation_delta) else 0.0),
         "post_shaping_model_mean_abs_delta": (
             float(model_mean_delta.mean()) if len(model_mean_delta) else 0.0),
+        "post_shaping_model_mean_changed_rows": int(
+            model_mean_delta.gt(1e-6).sum()),
         "unchanged_input_mismatch_rows": input_mismatches,
         "non_ensemble_seeds_match": seed_rest_source == seed_rest_treatment,
         "source_candidate_mean_max_abs_error": source_mean_audit["max_abs_error"],

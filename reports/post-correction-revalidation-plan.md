@@ -45,8 +45,12 @@ by the frozen sequence and mechanism audits below.
 6. **A02 ensemble deletion.** Run `MODEL_ENSEMBLE=1` against the accepted K=3
    baseline on the same image. The comparator must prove exact non-ensemble
    seed/input identity, the expected member specifications, observed K=3
-   disagreement, K=1/K=3 model-mean movement, and complete candidate/player
-   mean joins before applying directional score gates.
+   disagreement, K=1/K=3 member-prediction movement, and complete
+   candidate/player mean joins before applying directional score gates.
+   Post-shaping player means are diagnostic rather than directionally gated:
+   full-coverage TabPFN marginal shaping intentionally fixes each player's
+   marginal while retaining the component simulator's changed rank copula.
+   This layer-contract correction changes no scoring threshold.
 7. **Only then expand the arm queue.** Revalidate one production mechanism at
    a time under the laws in `post-review6-scoring-improvement-plan.md`. New
    candidate generation or selection work must meet its preregistered earlier

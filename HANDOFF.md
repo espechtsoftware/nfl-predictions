@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-08 15:53 CDT
+## Current state — 2026-08-08 16:54 CDT
 
 ### Recovery provenance
 
@@ -189,6 +189,22 @@ agent or developer:
   deletion nor strong incumbent-support directional gate passed. Model-only
   is not adopted; the existing blend remains the default pending future
   evidence.
+- A02 K=1 panel `20260808-a02-ensemble1-c616390` completed all six seasons
+  after preflight `replay-a02ens1-smoke-cppnj`; check execution
+  `accept-replay-panel-w86nj` passed with 17,423 candidates, 107/107 slates,
+  50,098 unique feature rows, 16/107 selected clears at 194, mean selected
+  best 174.55, and 24/107 pool-oracle clears. These are completeness and
+  headline facts, not yet an adoption verdict.
+- First ensemble comparator `compare-adoption-panel-5r5vx` failed only the
+  assertion that post-shaping player means must move. Code audit proved that
+  assertion targets the wrong layer: K changes component beliefs and the
+  joint-world rank copula, while full-coverage TabPFN marginal shaping fixes
+  each player's downstream marginal distribution. K=1 provenance was exact,
+  all 47,692 offensive rows showed K=3 member disagreement, K=1 differed from
+  the K=3 member mean by 0.281 points, all other inputs/seeds matched, and the
+  post-shaping mean was therefore invariant. The comparator now treats that
+  downstream mean as a diagnostic rather than a required direction; focused
+  mechanism/panel tests pass (12 tests). No scoring gate was changed.
 
 ### Deployment caution
 
@@ -200,8 +216,8 @@ settings are stale relative to the corrected research state.
 
 ### Next concrete action
 
-Run fresh A02 `20260808-a02-ensemble1-c616390` on the same immutable digest
-with `MODEL_ENSEMBLE=1` and the frozen generation budget. Require check-only
-acceptance and the mechanism-aware `ensemble` adoption comparator against
-`20260808-deterministic-baseline-c616390`. Do not use the obsolete K=1 arm
-from the superseded `ee6f433` control.
+Run the complete Cloud Build test gate for the corrected reporting-only
+ensemble comparator, then rerun that comparator against the already-frozen
+`20260808-deterministic-baseline-c616390` and
+`20260808-a02-ensemble1-c616390` panels. Do not rerun or alter either panel,
+and do not adopt K=1 unless the unchanged directional gates pass.
