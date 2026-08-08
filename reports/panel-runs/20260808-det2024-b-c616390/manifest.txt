@@ -1,0 +1,5 @@
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:98a31edd1921660df6c4f0c9d606e0096ea703ffe250ccc650af706e06798fd6
+code_sha=c616390
+family=det24b
+panel_run_id=20260808-det2024-b-c616390
+season=2024

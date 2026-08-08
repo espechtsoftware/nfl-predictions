@@ -95,6 +95,9 @@ with an unstable sort inside marginal shaping. Commit `1ab4d32` replaces both
 TabPFN and empirical ordinal ranks with a stable world-index tie-break. The
 fresh pair (`20260808-det2019-c-c616390` / `...-d-...`) passed exact equality
 in comparator execution `compare-exact-replay-zznbf`, including the complete
-164x10,000 candidate-world artifact. The independent 2024 probe is still
-required. None of these repairs constitutes a scoring adoption; the sequence
-above must establish their measurement validity before any arm is judged.
+164x10,000 candidate-world artifact. The independent 2024 pair
+(`20260808-det2024-a-c616390` / `...-b-...`) also passed in execution
+`compare-exact-replay-mrdnx`, including all 700 player snapshots, 161
+candidates and its 161x10,000 artifact. Both cheap gates are closed. None of
+these repairs constitutes a scoring adoption; the full baseline and replica
+gates above must still pass before any arm is judged.

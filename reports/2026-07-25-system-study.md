@@ -3186,3 +3186,20 @@ entire 164x10,000 totals matrix matched with zero delta. Component hashes also
 remained identical to the pre-fix pair, confirming that stable tie assignment
 alone repaired the observed 2019 world drift. The separate 2024 proof remains
 mandatory before a full baseline can launch.
+
+## Addendum 103 (2026-08-08): Both formerly drifting seasons pass exact smoke
+
+The independent 2024 pair on the same immutable digest ran as
+`replay-det24a-2024-bkhfb` and `replay-det24b-2024-8zvzx`. Both recorded raw
+component hash `96e62bc6...`, canonical hash `b1e23c15...`, and the same
+`5e-11` maximum adjustment. Comparator execution
+`compare-exact-replay-mrdnx` passed: all 700 player snapshots and 161
+candidate records matched, candidate ordering did not move, every candidate
+metric/mask/selected flag had zero mismatches, and the complete 161x10,000
+totals matrix was bit-for-bit identical.
+
+Together with the 2019 pass in Addendum 102, the cheap cross-worker gate is
+closed on both seasons that failed the original six-season replica. This is a
+measurement-integrity result, not a scoring improvement. The next allowed
+step is a new 107-slate default baseline followed by a full same-image exact
+replica; no arm verdict or production change may precede those gates.

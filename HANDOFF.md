@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-08 12:42 CDT
+## Current state — 2026-08-08 13:02 CDT
 
 ### Recovery provenance
 
@@ -139,7 +139,13 @@ agent or developer:
   `compare-exact-replay-zznbf` **passed**: all 335 player snapshots and 164
   candidates matched, candidate ordering did not move, every mismatch count
   and numeric delta was zero, and the full 164x10,000 totals artifact was
-  bit-for-bit identical. The 2019 cheap gate is closed; 2024 remains required.
+  bit-for-bit identical. The 2019 cheap gate is closed.
+- The 2024 pair on the same digest, `replay-det24a-2024-bkhfb` and
+  `replay-det24b-2024-8zvzx`, also passed in comparator execution
+  `compare-exact-replay-mrdnx`: all 700 player snapshots and 161 candidates
+  matched, candidate ordering and every mismatch count were zero, and the
+  161x10,000 totals artifact was bit-for-bit identical. Both formerly
+  drifting-season smoke gates are now closed.
 
 ### Deployment caution
 
@@ -151,9 +157,8 @@ recorded and the deployment contract has been rechecked. Earlier deployed
 
 ### Next concrete action
 
-Run the same staging-only exact probe pair on 2024 using digest
-`sha256:98a31edd...`. If it passes, run a fresh six-season
-baseline and a same-image reproduction and require the full exact comparator
-to pass. Only then rerun or judge the K=1 ensemble ablation with the
+Run a fresh six-season baseline on digest `sha256:98a31edd...`, require normal
+acceptance, and promote it. Run a same-image reproduction and require the full
+exact comparator to pass. Only then rerun or judge the K=1 ensemble ablation with the
 mechanism-aware adoption comparator. Record every execution and verdict here
 before proceeding to a new preregistered scoring arm.

@@ -1,0 +1,3 @@
+candidates=161
+slates=1
+selected=40

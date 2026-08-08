@@ -1,0 +1,5 @@
+execution=replay-det24a-2024-bkhfb
+raw_sha256=96e62bc624a41140dc732ea97f0cd3a81acf68e85147da371b90e50263b2b019
+stable_sha256=b1e23c157b766818ec221cf5ff833a84502f3e60211254a36eda5a70c4ae0bae
+decimals=10
+max_adjustment=5e-11
