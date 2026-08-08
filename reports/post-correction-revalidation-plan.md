@@ -57,6 +57,23 @@ by the frozen sequence and mechanism audits below.
    mechanism/frontier gate. Retrospective tuning on these 107 slates remains
    forbidden.
 
+## Expanded queue decision — A03 salary-floor deletion
+
+After A01/A02, the next open preregistered corrective arm is the §12
+salary-floor deletion from `post-review6-scoring-improvement-plan.md`. Its old
+26/107 result used the now-invalid 27/107 replay universe and cannot transfer.
+Fresh panel `20260808-a03-nofloor-c616390` will change only
+`MIN_LINEUP_SALARY=0` on the deterministic generation image and fixed
+`0/0/0/40`, K=3 budget.
+
+Before score interpretation, the `salary` mechanism audit must prove the
+same upstream player features and non-treatment seeds, a $49k source floor,
+a zero treatment floor, and actual sub-$49k candidate generation. Candidate
+and selected salary distributions plus selected-roster overlap are reported.
+The existing directional gate remains the adoption law. A neutral result does
+not authorize a retrospectively chosen intermediate floor; any such dose
+would require a new preregistration and independent evidence.
+
 ## Adoption law
 
 An arm must be complete, mechanism-valid, same-image, fixed-budget, and

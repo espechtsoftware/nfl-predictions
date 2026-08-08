@@ -1,6 +1,6 @@
 #!/bin/bash
 # Compare an accepted/promoted source with a staging treatment in Cloud Run.
-# Usage: cloud_compare_adoption_panel.sh <IMAGE@sha256:...> <SOURCE> <TREATMENT> [blend|ensemble]
+# Usage: cloud_compare_adoption_panel.sh <IMAGE@sha256:...> <SOURCE> <TREATMENT> [blend|ensemble|salary]
 set -euo pipefail
 
 IMG=${1:-}
@@ -15,7 +15,7 @@ OUT="$ROOT/reports/panel-runs/$TREATMENT"
 case "$IMG" in *@sha256:*) ;; *) echo "ABORT: immutable image required"; exit 2;; esac
 case "$SOURCE" in ""|*[!A-Za-z0-9_-]*) echo "ABORT: invalid source panel"; exit 2;; esac
 case "$TREATMENT" in ""|*[!A-Za-z0-9_-]*) echo "ABORT: invalid treatment panel"; exit 2;; esac
-case "$MECHANISM" in ""|blend|ensemble) ;; *) echo "ABORT: mechanism is blend or ensemble"; exit 2;; esac
+case "$MECHANISM" in ""|blend|ensemble|salary) ;; *) echo "ABORT: mechanism is blend, ensemble, or salary"; exit 2;; esac
 [ -d "$OUT" ] || { echo "ABORT: treatment report directory absent: $OUT"; exit 2; }
 
 ARGS="scripts/compare_adoption_panel.py,$SOURCE,$TREATMENT"

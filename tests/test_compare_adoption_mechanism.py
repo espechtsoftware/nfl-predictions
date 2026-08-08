@@ -87,6 +87,18 @@ def _ensemble_seeds(size: int, other: str = "CE_SEED=1701") -> str:
     return f"{other};MODEL_ENSEMBLE_SIZE={size};MODEL_MEMBER_SPEC={spec_json}"
 
 
+def _salary_candidates(deleted: bool) -> pd.DataFrame:
+    salaries = [49_000, 49_400] if not deleted else [48_700, 49_400]
+    return pd.DataFrame([
+        {"season": 2025, "week": 1, "cand_ix": i,
+         "players": f"p{i}", "selected": True, "actual_score": 180 + i,
+         "sim_mean": 170 + i, "salary": salary,
+         "lever_env": ("GAME_SIM_MODE=possession,MIN_LINEUP_SALARY=0"
+                       if deleted else "GAME_SIM_MODE=possession")}
+        for i, salary in enumerate(salaries)
+    ])
+
+
 def test_blend_mechanism_proves_only_weight_changed():
     report, failures = compare._blend_mechanism(
         _features(False), _features(True), _audit(), _audit(),
@@ -168,3 +180,32 @@ def test_ensemble_mechanism_rejects_unrelated_seed_drift():
         _ensemble_features(3), _ensemble_features(1), _audit(), _audit(),
         _ensemble_seeds(3), _ensemble_seeds(1, other="CE_SEED=1702"))
     assert "source and treatment non-ensemble seeds differ" in failures
+
+
+def test_salary_floor_mechanism_proves_deletion_fired():
+    report, failures = compare._salary_floor_mechanism(
+        _salary_candidates(False), _salary_candidates(True),
+        _features(False), _features(False))
+    assert failures == []
+    assert report["source_floor"] == 49_000
+    assert report["treatment_floor"] == 0
+    assert report["source_salary"]["below_49000_rows"] == 0
+    assert report["treatment_salary"]["below_49000_rows"] == 1
+
+
+def test_salary_floor_mechanism_rejects_inert_deletion():
+    treatment = _salary_candidates(True)
+    treatment["salary"] = [49_000, 49_400]
+    _, failures = compare._salary_floor_mechanism(
+        _salary_candidates(False), treatment,
+        _features(False), _features(False))
+    assert "salary-floor deletion generated no sub-$49k candidates" in failures
+
+
+def test_salary_floor_mechanism_rejects_feature_drift():
+    treatment_features = _features(False)
+    treatment_features.loc[treatment_features.id.eq("qb"), "proj"] += 0.1
+    _, failures = compare._salary_floor_mechanism(
+        _salary_candidates(False), _salary_candidates(True),
+        _features(False), treatment_features)
+    assert "source/treatment proj features differ" in failures

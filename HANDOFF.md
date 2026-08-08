@@ -226,7 +226,9 @@ Earlier deployed `12 CE / 28 boom` settings are stale.
 
 ### Next concrete action
 
-Audit the remaining queue in `post-review6-scoring-improvement-plan.md` and
-select the next still-preregistered mechanism/frontier gate. Do not tune on
-the 107 scored slates, do not revive arms already closed in the study, and do
-not treat K=1's aggregate gain as adoption without independent confirmation.
+Run A03 `20260808-a03-nofloor-c616390` from the deterministic generation
+image with only `MIN_LINEUP_SALARY=0`. Require ordinary acceptance and the
+new `salary` mechanism comparator: identical upstream features/seeds,
+default-source/deleted-treatment provenance, and at least one sub-$49k
+treatment candidate. Apply the existing directional gate without tuning; do
+not advance to an intermediate floor from a neutral result.

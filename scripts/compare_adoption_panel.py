@@ -34,7 +34,7 @@ def _candidates(panel: str, promoted: bool) -> pd.DataFrame:
     eligibility = "AND research_eligible" if promoted else ""
     return query_df(f"""
         SELECT season, week, cand_ix, players, selected, actual_score,
-               sim_mean, code_sha, config_hash, lever_env, seeds
+               sim_mean, salary, code_sha, config_hash, lever_env, seeds
         FROM `{settings.predictions}.{table}`
         WHERE panel_run_id = '{_panel_id(panel)}' {eligibility}
         """)
@@ -452,11 +452,115 @@ def _ensemble_mechanism(source_features: pd.DataFrame,
     return report, failures
 
 
+def _lever_values(value: str) -> dict[str, str]:
+    """Parse the persisted comma-delimited replay lever manifest."""
+    out: dict[str, str] = {}
+    for item in str(value or "").split(","):
+        if "=" in item:
+            key, val = item.split("=", 1)
+            out[key.strip()] = val.strip()
+    return out
+
+
+def _salary_floor_mechanism(source: pd.DataFrame,
+                            treatment: pd.DataFrame,
+                            source_features: pd.DataFrame,
+                            treatment_features: pd.DataFrame) -> tuple[dict, list[str]]:
+    """Prove the $49k lineup-floor deletion fired and nothing upstream moved."""
+    failures: list[str] = []
+    keys = ["season", "week", "id"]
+    for name, frame in (("source", source_features),
+                        ("treatment", treatment_features)):
+        if frame.empty or frame.duplicated(keys).any():
+            failures.append(f"{name} feature snapshot empty or duplicate")
+    if failures:
+        return {}, failures
+
+    joined = source_features.merge(
+        treatment_features, on=keys, how="outer",
+        suffixes=("_source", "_treatment"), indicator=True,
+        validate="one_to_one")
+    if not joined._merge.eq("both").all():
+        failures.append("source/treatment player universes differ")
+    joined = joined[joined._merge.eq("both")].copy()
+    feature_mismatches: dict[str, int] = {}
+    for col in ("pos", "proj", "mean_projection", "model_points_pre",
+                "market_points"):
+        source_col = joined[f"{col}_source"]
+        treatment_col = joined[f"{col}_treatment"]
+        null_mismatch = source_col.isna() != treatment_col.isna()
+        if pd.api.types.is_numeric_dtype(source_col):
+            value_mismatch = (source_col - treatment_col).abs().fillna(0).gt(1e-8)
+        else:
+            value_mismatch = source_col.fillna("").ne(
+                treatment_col.fillna(""))
+        count = int((null_mismatch | value_mismatch).sum())
+        feature_mismatches[col] = count
+        if count:
+            failures.append(f"source/treatment {col} features differ")
+
+    source_levers = _lever_values(str(source.lever_env.iloc[0]))
+    treatment_levers = _lever_values(str(treatment.lever_env.iloc[0]))
+    source_floor = int(source_levers.get("MIN_LINEUP_SALARY", "49000") or 0)
+    treatment_floor = int(
+        treatment_levers.get("MIN_LINEUP_SALARY", "49000") or 0)
+    if source_floor != 49_000:
+        failures.append("source does not identify the default $49k floor")
+    if treatment_floor != 0:
+        failures.append("treatment does not identify salary-floor deletion")
+
+    def salary_report(frame: pd.DataFrame) -> dict:
+        salary = pd.to_numeric(frame.salary, errors="coerce")
+        selected = frame.selected.astype(bool)
+        selected_salary = salary[selected]
+        return {
+            "rows": int(len(frame)),
+            "missing_salary_rows": int(salary.isna().sum()),
+            "below_49000_rows": int(salary.lt(49_000).sum()),
+            "below_49000_selected": int((salary.lt(49_000) & selected).sum()),
+            "salary_min": float(salary.min()),
+            "salary_median": float(salary.median()),
+            "salary_p10": float(salary.quantile(0.10)),
+            "selected_salary_min": float(selected_salary.min()),
+            "selected_salary_median": float(selected_salary.median()),
+            "selected_salary_p10": float(selected_salary.quantile(0.10)),
+        }
+
+    source_salary = salary_report(source)
+    treatment_salary = salary_report(treatment)
+    if source_salary["missing_salary_rows"] or treatment_salary["missing_salary_rows"]:
+        failures.append("candidate salary is missing")
+    if source_salary["below_49000_rows"]:
+        failures.append("source contains candidates below its $49k floor")
+    if not treatment_salary["below_49000_rows"]:
+        failures.append("salary-floor deletion generated no sub-$49k candidates")
+
+    source_selected = source[source.selected].loc[:, ["season", "week", "players"]]
+    treatment_selected = treatment[treatment.selected].loc[
+        :, ["season", "week", "players"]]
+    selected_join = source_selected.merge(
+        treatment_selected, on=["season", "week", "players"], how="outer",
+        indicator=True)
+    report = {
+        "source_floor": source_floor,
+        "treatment_floor": treatment_floor,
+        "unchanged_feature_mismatch_rows": feature_mismatches,
+        "source_salary": source_salary,
+        "treatment_salary": treatment_salary,
+        "selected_rosters_shared": int(selected_join._merge.eq("both").sum()),
+        "selected_rosters_source_only": int(
+            selected_join._merge.eq("left_only").sum()),
+        "selected_rosters_treatment_only": int(
+            selected_join._merge.eq("right_only").sum()),
+    }
+    return report, failures
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("source", help="accepted/promoted same-image baseline")
     ap.add_argument("treatment", help="accepted staging ablation")
-    ap.add_argument("--mechanism", choices=("blend", "ensemble"))
+    ap.add_argument("--mechanism", choices=("blend", "ensemble", "salary"))
     ap.add_argument("--output")
     a = ap.parse_args()
     source = _candidates(a.source, promoted=True)
@@ -493,6 +597,11 @@ def main() -> int:
             _candidate_mean_audit(a.source, True),
             _candidate_mean_audit(a.treatment, False),
             str(source.seeds.iloc[0]), str(treatment.seeds.iloc[0]))
+        failures.extend(mechanism_failures)
+    elif a.mechanism == "salary" and not source.empty and not treatment.empty:
+        mechanism_report, mechanism_failures = _salary_floor_mechanism(
+            source, treatment, _features(a.source, True),
+            _features(a.treatment, False))
         failures.extend(mechanism_failures)
     if failures:
         disposition = "invalid"
