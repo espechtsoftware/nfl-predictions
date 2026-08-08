@@ -3203,3 +3203,30 @@ closed on both seasons that failed the original six-season replica. This is a
 measurement-integrity result, not a scoring improvement. The next allowed
 step is a new 107-slate default baseline followed by a full same-image exact
 replica; no arm verdict or production change may precede those gates.
+
+## Addendum 104 (2026-08-08): Deterministic 107-slate control accepted and promoted
+
+Fresh panel `20260808-deterministic-baseline-c616390` ran all 107 corrected
+Sunday-main slates on immutable digest
+`sha256:98a31edd1921660df6c4f0c9d606e0096ea703ffe250ccc650af706e06798fd6`
+with the frozen default (`MODEL_ENSEMBLE=3`, possession mode,
+`N_CE=0,N_EPISTEMIC=0,N_GUMBEL=0,N_BOOM=40`). Its six season execution IDs
+are retained in the panel report. Check execution
+`accept-replay-panel-2t7vn` and promotion execution
+`accept-replay-panel-mlbxt` both passed.
+
+The accepted control contains 17,432 candidates, exactly 40 selected per
+slate, and 50,098 unique player snapshots. Replay/live mean parity passed
+with zero blend error, zero missing candidate slates/roster players and a
+maximum candidate-mean reconstruction error of 0.0000236. Results are
+**26/107 at 187, 11/107 at 194, and 1/107 at 200**, with mean selected best
+173.06; pool-oracle clears at 194 are 20/107. At 194 the season split is
+`{2019:4, 2021:1, 2022:0, 2023:0, 2024:3, 2025:3}`.
+
+This does not mean the determinism repair worsened football prediction by a
+clean seven clears: the image bundles stable tied-world assignment, component
+canonicalization, and removal of duplicated old training rows. It does mean
+the prior 18/107 checkpoint cannot remain the arm control because its joint
+worlds were not reproducible. The promoted 11/107 panel is the only current
+control, pending its mandatory full same-image exact replica. No scoring arm
+may be interpreted before that replica passes.

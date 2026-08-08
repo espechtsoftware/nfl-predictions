@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-08 13:02 CDT
+## Current state — 2026-08-08 14:01 CDT
 
 ### Recovery provenance
 
@@ -54,12 +54,15 @@ agent or developer:
 - The old 27/107 result and the later 17/107 result are invalid controls. The
   former contains illegal repriced lineups; the latter omitted historical DST
   aliases. See the detailed corrections in `CLAUDE.md`.
-- The corrected, promoted baseline is
-  `20260808-livefaithful-b3-ee6f433`: 107/107 slates, 17,426 candidates,
-  exactly 40 selected per slate, 18/107 selected clears at 194, mean selected
-  best 175.31, and 24/107 pool-oracle clears. Its acceptance and replay/live
-  mean-parity checks passed; promotion execution was
-  `accept-replay-panel-mmdgr`.
+- The formerly promoted `20260808-livefaithful-b3-ee6f433` (18/107) is
+  superseded because its same-image exact replica failed. The current
+  accepted and promoted deterministic control is
+  `20260808-deterministic-baseline-c616390` on digest `sha256:98a31edd...`:
+  107/107 slates, 17,432 candidates, exactly 40 selected per slate, 11/107
+  selected clears at 194, mean selected best 173.06, and 20/107 pool-oracle
+  clears. Check execution `accept-replay-panel-2t7vn` and promotion execution
+  `accept-replay-panel-mlbxt` passed the canonical acceptance and replay/live
+  mean-parity contracts. A full exact same-image replica is still mandatory.
 - The baseline uses `N_CE=0`, `N_EPISTEMIC=0`, `N_GUMBEL=0`, `N_BOOM=40`,
   `MODEL_ENSEMBLE=3`, and possession simulation. CE, Gumbel, hierarchical
   Gumbel, fast-role, and role-belief variants remain rejected or research-only.
@@ -146,6 +149,15 @@ agent or developer:
   matched, candidate ordering and every mismatch count were zero, and the
   161x10,000 totals artifact was bit-for-bit identical. Both formerly
   drifting-season smoke gates are now closed.
+- Fresh default panel `20260808-deterministic-baseline-c616390` completed in
+  executions `replay-detbase1-2019-wvc7l`, `...-2021-qtkn4`,
+  `...-2022-prk7g`, `...-2023-xkxmz`, `...-2024-x9vv7`, and
+  `...-2025-sh6dq`, after preflight `replay-detbase1-smoke-b5djr`. Acceptance
+  found 50,098 unique player snapshots, zero missing candidate slates or
+  roster players, 17,432 candidates, and exact 107-slate/40-selected
+  completeness. Selected clears are 26/107 at 187, 11/107 at 194, and 1/107
+  at 200; pool oracle is 20/107 at 194. The 18/107 unstable-world checkpoint
+  is not a valid scoring control for later arms.
 
 ### Deployment caution
 
@@ -157,8 +169,8 @@ recorded and the deployment contract has been rechecked. Earlier deployed
 
 ### Next concrete action
 
-Run a fresh six-season baseline on digest `sha256:98a31edd...`, require normal
-acceptance, and promote it. Run a same-image reproduction and require the full
+Run a same-image reproduction of `20260808-deterministic-baseline-c616390`
+on digest `sha256:98a31edd...` and require both normal acceptance and the full
 exact comparator to pass. Only then rerun or judge the K=1 ensemble ablation with the
 mechanism-aware adoption comparator. Record every execution and verdict here
 before proceeding to a new preregistered scoring arm.

@@ -81,6 +81,7 @@ the relevant deletion arm are both recorded in the experiment ledger and
 | `20260808-livefaithful-b3-ee6f433` | 18/107 | Corrected and promoted, but exact replica failed |
 | `20260808-livefaithful-b3r-ee6f433` | 18/107 | Exact comparison failed in 2019/2024 |
 | `20260808-a02-ensemble1-ee6f433` | 18/107 | Complete but no verdict; rerun after exact gate |
+| `20260808-deterministic-baseline-c616390` | 11/107 | Accepted/promoted deterministic control; full exact replica pending |
 
 ## Current repair under validation
 
@@ -99,5 +100,7 @@ in comparator execution `compare-exact-replay-zznbf`, including the complete
 (`20260808-det2024-a-c616390` / `...-b-...`) also passed in execution
 `compare-exact-replay-mrdnx`, including all 700 player snapshots, 161
 candidates and its 161x10,000 artifact. Both cheap gates are closed. None of
-these repairs constitutes a scoring adoption; the full baseline and replica
-gates above must still pass before any arm is judged.
+these repairs constitutes a scoring adoption. The fresh 107-slate baseline
+then passed acceptance and was promoted by `accept-replay-panel-mlbxt` with
+11/107 selected and 20/107 pool-oracle clears at 194. Its full replica gate
+must still pass before any arm is judged.
