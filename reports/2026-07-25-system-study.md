@@ -3256,3 +3256,31 @@ scoring improvement, and the accepted control remains 11/107. The next valid
 experiment is frozen A01 (`BLEND_MODEL_WEIGHT=1.0`), followed only after its
 mechanism-aware verdict by a fresh A02 (`MODEL_ENSEMBLE=1`) on this same
 image. Results from the obsolete `ee6f433` arms remain non-transferable.
+
+## Addendum 106 (2026-08-08): A01 model-only blend deletion is valid but unsupported-neutral
+
+Fresh A01 panel `20260808-a01-modelonly-c616390` changed only
+`BLEND_MODEL_WEIGHT=1.0` on the deterministic control image and fixed
+`0/0/0/40` generation budget. All six season executions completed. Generic
+baseline acceptance execution `accept-replay-panel-xmdlw` reported 17,422
+candidates, all 107 slates, 50,098 unique feature rows, zero missing joins,
+and candidate/player mean parity. It exited non-zero only because its
+baseline-specific assertion requires persisted covered means to equal the
+adopted 45/55 blend; an intentional model-only deletion cannot satisfy that
+assertion. This expected failure is not treated as arm invalidation.
+
+The purpose-built `blend` audit in execution
+`compare-adoption-panel-bc4qd` passed with no failures. Market inputs and
+post-shaping model means were invariant, the treatment mean equalled the
+model-only mean, 15,538 covered player-weeks moved by 0.941 points on average,
+uncovered means did not move, all 53 no-market slates reproduced exactly, and
+candidate/player mean error stayed below `2.36e-05`.
+
+Scoring did not support removal. Model-only tied the control at **11/107**
+clears at 194, but fell **26→22** at 187, rose **1→3** at 200, lowered mean
+selected best **173.06→172.14**, and lowered pool oracle **20→19**. Its
+season-194 deltas were `{2019:0, 2021:0, 2022:0, 2023:+2, 2024:-1,
+2025:-1}`. Neither the deletion-improves gate nor the reverse strong-support
+gate passed, yielding the preregistered `unsupported-neutral` disposition.
+Model-only is not adopted; the incumbent blend remains the operational
+default without overclaiming strong positive evidence. A02 K=1 is next.

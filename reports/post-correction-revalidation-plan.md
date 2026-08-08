@@ -84,6 +84,7 @@ the relevant deletion arm are both recorded in the experiment ledger and
 | `20260808-a02-ensemble1-ee6f433` | 18/107 | Complete but no verdict; rerun after exact gate |
 | `20260808-deterministic-baseline-c616390` | 11/107 | Accepted/promoted deterministic control; full exact replica passed |
 | `20260808-deterministic-replica-c616390` | 11/107 | Check accepted; exact parity passed for 107/107 artifacts |
+| `20260808-a01-modelonly-c616390` | 11/107 | Mechanism valid; `unsupported-neutral`, model-only not adopted |
 
 ## Current repair under validation
 
@@ -110,4 +111,10 @@ then passed acceptance and was promoted by `accept-replay-panel-mlbxt` with
 `compare-exact-replay-4j5hz`: 50,098 feature keys and 17,432 candidate keys
 had zero mismatch counts, candidate summaries had zero delta, ordering never
 moved, and all 107 score-matrix artifacts were bit-identical. The exact gate
-is closed and A01 is the next allowed arm.
+is closed. A01 then completed and its `blend` mechanism audit passed in
+`compare-adoption-panel-bc4qd`. Model-only tied at 11/107 but reduced mean
+selected best by 0.92 and pool oracle by one; neither directional gate passed,
+so its disposition is `unsupported-neutral` and it is not adopted. The
+generic baseline acceptance job's blend-parity assertion failed by design
+because that assertion encodes the deleted 45/55 mean; its other completeness
+and candidate-mean checks passed. A02 is the next allowed arm.

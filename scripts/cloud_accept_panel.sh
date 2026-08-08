@@ -48,6 +48,16 @@ EXEC=$(gcloud run jobs execute "$JOB" --region "$REGION" --async \
 [ -n "$EXEC" ] || { echo "ABORT: acceptance execution id missing"; exit 1; }
 echo "$EXEC" > "$OUT/acceptance_${MODE}_execution.txt"
 
+harvest_logs() {
+  # A treatment may deliberately violate a baseline-only parity assertion.
+  # Preserve the complete audit in that case instead of stranding the useful
+  # completeness, score, and mechanism evidence in Cloud Logging.
+  gcloud logging read \
+    "resource.type=\"cloud_run_job\" AND labels.\"run.googleapis.com/execution_name\"=\"$EXEC\"" \
+    --project=nfl-predictions-503414 --limit=5000 --order=asc \
+    --format='value(textPayload)' > "$OUT/acceptance_${MODE}.txt"
+}
+
 while true; do
   state=$(gcloud run jobs executions describe "$EXEC" --region "$REGION" \
     --format='value(status.conditions[0].status)')
@@ -56,16 +66,14 @@ while true; do
   # condition transitions from Unknown to True.  completionTime therefore
   # cannot distinguish success from failure; only an explicit False can.
   if [ "$state" = "False" ]; then
+    harvest_logs
     echo "ABORT: acceptance execution failed: $EXEC"
     exit 1
   fi
   sleep 30
 done
 
-gcloud logging read \
-  "resource.type=\"cloud_run_job\" AND labels.\"run.googleapis.com/execution_name\"=\"$EXEC\"" \
-  --project=nfl-predictions-503414 --limit=5000 --order=asc \
-  --format='value(textPayload)' > "$OUT/acceptance_${MODE}.txt"
+harvest_logs
 grep -q 'ACCEPTANCE PASSED' "$OUT/acceptance_${MODE}.txt" || {
   echo "ABORT: success marker absent from acceptance logs"; exit 1; }
 echo "Acceptance $MODE passed: $OUT/acceptance_${MODE}.txt"

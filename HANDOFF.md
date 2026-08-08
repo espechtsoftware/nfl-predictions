@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-08 14:53 CDT
+## Current state — 2026-08-08 15:53 CDT
 
 ### Recovery provenance
 
@@ -172,21 +172,36 @@ agent or developer:
   Feature-value round trips were within the registered floating-point
   tolerance (maximum `3.56e-15`). The full deterministic control gate is now
   closed; scoring arms may proceed in the frozen order.
+- A01 model-only panel `20260808-a01-modelonly-c616390` completed from the
+  same image after preflight `replay-a01model1-smoke-rpw6n`; its six season
+  execution IDs are retained in the report directory. The generic baseline
+  acceptance execution `accept-replay-panel-xmdlw` intentionally failed only
+  its hard-coded 45/55 blend assertion; it still proved 107-slate
+  completeness, 50,098 unique feature rows, zero missing joins, and candidate
+  mean parity. The wrapper now preserves failed audit logs automatically.
+- Mechanism-aware blend comparator `compare-adoption-panel-bc4qd` passed with
+  no failures: 15,538 covered player-weeks moved by 0.941 points on average,
+  model and market inputs were invariant, all 53 no-market slates reproduced
+  exactly, and candidate/player means joined within `2.36e-05`. Model-only
+  tied the control at 11/107 clears at 194, fell 26→22 at 187, rose 1→3 at
+  200, lowered mean selected best 173.06→172.14, and lowered pool oracle
+  20→19. The preregistered disposition is `unsupported-neutral`: neither the
+  deletion nor strong incumbent-support directional gate passed. Model-only
+  is not adopted; the existing blend remains the default pending future
+  evidence.
 
 ### Deployment caution
 
 The recovered source defaults to the corrected `0/0/0/40` generation budget
 and a three-member model ensemble. Do not change production deployment knobs
-until the pending exact-reproduction and ensemble-ablation audits have been
-recorded and the deployment contract has been rechecked. Earlier deployed
-`12 CE / 28 boom` settings are stale relative to the corrected research state.
+until the pending ensemble-ablation audit has been recorded and the
+deployment contract has been rechecked. Earlier deployed `12 CE / 28 boom`
+settings are stale relative to the corrected research state.
 
 ### Next concrete action
 
-Run A01, the model/market blend deletion, on the same immutable digest as
-`20260808-a01-modelonly-c616390` with `BLEND_MODEL_WEIGHT=1.0` and the frozen
-generation budget. Require normal check-only acceptance and the
-mechanism-aware `blend` adoption comparator against
-`20260808-deterministic-baseline-c616390`. Record its directional verdict
-before launching A02 (`MODEL_ENSEMBLE=1`); do not use either obsolete arm from
-the superseded `ee6f433` control.
+Run fresh A02 `20260808-a02-ensemble1-c616390` on the same immutable digest
+with `MODEL_ENSEMBLE=1` and the frozen generation budget. Require check-only
+acceptance and the mechanism-aware `ensemble` adoption comparator against
+`20260808-deterministic-baseline-c616390`. Do not use the obsolete K=1 arm
+from the superseded `ee6f433` control.
