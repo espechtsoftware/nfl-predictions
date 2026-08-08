@@ -3149,3 +3149,31 @@ until the default same-image control passes exact replay. The next valid work
 is determinism instrumentation/hardening at the component-to-simulator
 boundary, followed by a fresh baseline plus exact same-image reproduction.
 No production promotion and no new scoring arm may bypass that gate.
+
+## Addendum 102 (2026-08-08): One-slate probe isolates unstable tied-world ranks
+
+The first repaired-image 2019 probe pair ran on immutable digest
+`sha256:efa18a9a56b62c5c2606eaae3ad37a9765306863a389de8d4af09f8329545a55`
+as executions `replay-det19a-2019-lzfjv` and
+`replay-det19b-2019-45g2g`. Each persisted the same 164 candidate keys for
+2019 Week 1 and exactly 40 selected entries. More importantly, both workers
+logged the same raw component hash (`77d4194f...`), canonical component hash
+(`3a5abdc4...`), and `5e-11` maximum boundary adjustment.
+
+Exact comparator `compare-exact-replay-g5hf5` still failed, but sharply
+narrowed the defect. All 335 player snapshot keys and values matched, all 164
+candidate roster keys matched, all actual scores matched, and selected flags
+were identical. Per-player simulated summaries were also exact. Only the
+joint world assignment differed: the 164x10,000 candidate-total artifacts had
+a maximum 3.1025-point delta, which changed three threshold masks and several
+candidate quantiles.
+
+The marginal shapers used NumPy's default unstable quicksort twice to turn
+each player's outcomes into ordinal ranks. Simulator output contains many
+equal outcomes; CPU-dispatched sort implementations may permute those ties
+differently. That preserves every player's marginal distribution while
+changing which players boom together in a world—the exact observed failure
+shape. Commit `1ab4d32` replaces both TabPFN and empirical marginal ranks with
+a stable sort whose explicit tie-breaker is the original simulation-column
+index. No score claim follows. The 2019 pair must be rerun on the new image;
+2024 and all full panels remain blocked until it passes exactly.

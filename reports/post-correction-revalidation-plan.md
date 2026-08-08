@@ -88,5 +88,10 @@ Commit `4f4a633` canonicalizes component means at the shared live/replay
 simulator boundary, fingerprints raw and effective inputs, deduplicates the
 display-only `player_ids` join that had duplicated 31 old training rows, and
 orders DST inputs. Commit `6102845` adds the immutable one-slate probe runner.
-Neither constitutes a scoring adoption. The sequence above must establish
-their measurement validity before any arm is judged.
+The first 2019 probe pair on fully tested image `e61c59c` proved equal raw and
+canonical component hashes and identical per-player feature summaries, but
+failed exact joint-world parity because equal simulator outcomes were ranked
+with an unstable sort inside marginal shaping. Commit `1ab4d32` replaces both
+TabPFN and empirical ordinal ranks with a stable world-index tie-break. None
+of these repairs constitutes a scoring adoption. The sequence above must
+establish their measurement validity before any arm is judged.

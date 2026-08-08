@@ -1,0 +1,5 @@
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:efa18a9a56b62c5c2606eaae3ad37a9765306863a389de8d4af09f8329545a55
+code_sha=e61c59c
+family=det19b
+panel_run_id=20260808-det2019-b-e61c59c
+season=2019

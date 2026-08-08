@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-08 11:54 CDT
+## Current state — 2026-08-08 12:23 CDT
 
 ### Recovery provenance
 
@@ -92,11 +92,10 @@ agent or developer:
   useful only as completeness evidence; the frozen adoption comparator is
   blocked until the same-image control is reproducible.
 - Investigation found stable warehouse inputs and exact persisted ensemble
-  member point predictions. The season-specific cross-run pattern is
-  consistent with sub-machine-precision component/simulation differences
-  being amplified by discrete RNG thresholds and marginal rank shaping on
-  different Cloud Run CPU instances.
-- A determinism repair is implemented but not yet cloud-validated: the shared
+  member point predictions. Component canonicalization eliminated the first
+  hypothesis—sub-machine input drift—from the cheap probe and exposed the
+  remaining CPU-dependent tied-rank behavior in marginal shaping.
+- The first determinism repair was implemented and fully tested: the shared
   live/replay simulator rounds component means to 10 decimal places at its
   boundary and logs raw/effective SHA-256 fingerprints; replay also deduplicates
   its display-only `player_ids` join (which had duplicated 31 old training
@@ -110,8 +109,29 @@ agent or developer:
   failed one repository-layout assertion: recovery had preserved the obsolete
   `sql/features/019_dk_salary_week.sql` alongside its expanded replacement,
   `001a_dk_salary_week.sql`. The obsolete duplicate has now been removed and
-  all 66 feature-SQL tests pass locally. A clean full Cloud Build suite and
-  cross-execution Cloud Run proof remain required.
+  all 66 feature-SQL tests pass locally. Replacement build
+  `3a27a669-bf91-465e-ad0c-8aa4a90e2f67` passed the complete suite (619
+  passed, 2 skipped) and produced immutable digest
+  `sha256:efa18a9a56b62c5c2606eaae3ad37a9765306863a389de8d4af09f8329545a55`.
+- The first cheap 2019 probe pair completed on that digest:
+  `replay-det19a-2019-lzfjv` and `replay-det19b-2019-45g2g`. Each persisted
+  164 candidates for one slate and exactly 40 selected. Their raw component
+  hash (`77d4194f...`) and canonical component hash (`3a5abdc4...`) were
+  identical, with the same `5e-11` maximum adjustment.
+- Exact comparator `compare-exact-replay-g5hf5` nevertheless failed. All 335
+  player snapshots and all 164 candidate roster keys matched; player feature
+  summaries, actual scores and selected flags were exact. Only the joint
+  world assignment drifted: the 164x10,000 totals matrices differed by at
+  most 3.1025 points, changing 3 threshold masks and several candidate
+  quantiles. This isolated the remaining defect to marginal reshaping:
+  NumPy's unstable default quicksort gave tied simulator outcomes different
+  ordinal ranks on different CPU implementations while preserving every
+  player's marginal distribution.
+- Commit `1ab4d32` makes the simulation-column index the stable tie-break for
+  both TabPFN and empirical marginal shaping. The focused replay-shape,
+  empirical-marginal, draw-widen and SBI suites pass (29 tests). It still
+  requires a clean Cloud Build and a fresh 2019 exact probe pair before the
+  frozen sequence can advance to 2024.
 
 ### Deployment caution
 
@@ -123,9 +143,9 @@ recorded and the deployment contract has been rechecked. Earlier deployed
 
 ### Next concrete action
 
-Rebuild the duplicate-free source via the full Cloud Build suite.
-Run two staging-only 2019/2024 smoke probes on distinct Cloud Run jobs and
-require exact world parity. If they pass, run a fresh corrected six-season
+Build commit `1ab4d32` via the full Cloud Build suite, then run a fresh 2019
+staging-only probe pair on distinct Cloud Run jobs and require exact world
+parity. If it passes, repeat the proof on 2024, then run a fresh six-season
 baseline and a same-image reproduction and require the full exact comparator
 to pass. Only then rerun or judge the K=1 ensemble ablation with the
 mechanism-aware adoption comparator. Record every execution and verdict here
