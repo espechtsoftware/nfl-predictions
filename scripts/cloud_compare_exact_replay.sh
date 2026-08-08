@@ -1,11 +1,12 @@
 #!/bin/bash
 # Run the full B2 -> instrumented-rebuild equality proof in Cloud Run.
-# Usage: bash scripts/cloud_compare_exact_replay.sh <IMAGE@sha256:...> <REFERENCE> <CANDIDATE>
+# Usage: bash scripts/cloud_compare_exact_replay.sh <IMAGE@sha256:...> <REFERENCE> <CANDIDATE> [promoted|staging]
 set -euo pipefail
 
 IMG=${1:-}
 REFERENCE=${2:-}
 CANDIDATE=${3:-}
+REFERENCE_MODE=${4:-promoted}
 REGION=us-central1
 PROJECT=nfl-predictions-503414
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
@@ -14,12 +15,15 @@ OUT="$ROOT/reports/panel-runs/$CANDIDATE"
 case "$IMG" in *@sha256:*) ;; *) echo "ABORT: immutable image required"; exit 2;; esac
 case "$REFERENCE" in ""|*[!A-Za-z0-9_-]*) echo "ABORT: invalid reference panel"; exit 2;; esac
 case "$CANDIDATE" in ""|*[!A-Za-z0-9_-]*) echo "ABORT: invalid candidate panel"; exit 2;; esac
+case "$REFERENCE_MODE" in promoted|staging) ;; *) echo "ABORT: reference mode is promoted or staging"; exit 2;; esac
 [ -d "$OUT" ] || { echo "ABORT: candidate report directory absent: $OUT"; exit 2; }
 
 JOB=compare-exact-replay
+ARGS="scripts/compare_exact_replay.py,$REFERENCE,$CANDIDATE"
+[ "$REFERENCE_MODE" = "promoted" ] || ARGS="$ARGS,--reference-staging"
 gcloud run jobs deploy "$JOB" --project "$PROJECT" --region "$REGION" \
   --image "$IMG" --command python \
-  --args "scripts/compare_exact_replay.py,$REFERENCE,$CANDIDATE" \
+  --args "$ARGS" \
   --set-env-vars "GCP_PROJECT=$PROJECT" --memory 8Gi --cpu 2 \
   --max-retries 0 --task-timeout 3600 >/dev/null
 

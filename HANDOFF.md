@@ -95,9 +95,18 @@ agent or developer:
   member point predictions. The season-specific cross-run pattern is
   consistent with sub-machine-precision component/simulation differences
   being amplified by discrete RNG thresholds and marginal rank shaping on
-  different Cloud Run CPU instances. Instrument and canonicalize the
-  component-to-simulator boundary, then rebuild and prove exact parity before
-  launching or judging another scoring arm.
+  different Cloud Run CPU instances.
+- A determinism repair is implemented but not yet cloud-validated: the shared
+  live/replay simulator rounds component means to 10 decimal places at its
+  boundary and logs raw/effective SHA-256 fingerprints; replay also deduplicates
+  its display-only `player_ids` join (which had duplicated 31 old training
+  rows) and orders DST inputs. The exact comparator can now compare two
+  staging-only smoke probes before a full panel is spent.
+- Targeted validation for the repair is green: components (including exact
+  seeded equality under machine-epsilon perturbations), replay-shape SQL,
+  simulator golden/RNG-parity tests, live smoke, and exact-comparator helper
+  tests. A full Cloud Build suite and cross-execution Cloud Run proof remain
+  required.
 
 ### Deployment caution
 
@@ -109,10 +118,10 @@ recorded and the deployment contract has been rechecked. Earlier deployed
 
 ### Next concrete action
 
-Commit and push the recovered source plus this handoff so it is portable.
-Then add a tested deterministic component-to-simulator boundary, build it via
-the full Cloud Build suite, run a fresh corrected six-season baseline and a
-same-image reproduction, and require the exact comparator to pass. Only then
-rerun or judge the K=1 ensemble ablation with the mechanism-aware adoption
-comparator. Record every execution and verdict here before proceeding to a
-new preregistered scoring arm.
+Commit the determinism repair and build it via the full Cloud Build suite.
+Run two staging-only 2019/2024 smoke probes on distinct Cloud Run jobs and
+require exact world parity. If they pass, run a fresh corrected six-season
+baseline and a same-image reproduction and require the full exact comparator
+to pass. Only then rerun or judge the K=1 ensemble ablation with the
+mechanism-aware adoption comparator. Record every execution and verdict here
+before proceeding to a new preregistered scoring arm.

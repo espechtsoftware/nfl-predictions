@@ -294,17 +294,21 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("reference", help="accepted/promoted reference panel")
     parser.add_argument("candidate", help="instrumented staging panel")
+    parser.add_argument(
+        "--reference-staging", action="store_true",
+        help="read the reference from staging (for non-promotable smoke probes)")
     parser.add_argument("--output")
     args = parser.parse_args()
 
-    source_candidates = _candidates(args.reference, promoted=True)
+    source_candidates = _candidates(
+        args.reference, promoted=not args.reference_staging)
     rebuilt_candidates = _candidates(args.candidate, promoted=False)
     candidate_report, candidate_failures = _frame_report(
         source_candidates, rebuilt_candidates,
         ["season", "week", "players"], CANDIDATE_COMPARE_FIELDS,
         CANDIDATE_TOLERANCES)
     feature_report, feature_failures = _frame_report(
-        _features(args.reference, promoted=True),
+        _features(args.reference, promoted=not args.reference_staging),
         _features(args.candidate, promoted=False),
         ["season", "week", "id"], FEATURE_COMPARE_FIELDS,
         FEATURE_TOLERANCES)

@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 from nfl_dfs.models import components, simulate
 
@@ -112,3 +113,31 @@ def test_registry_model_survives_featureset_growth(small_panel):
     )
     comps = cm.predict_components(small_panel[small_panel.season == 2022])
     assert comps.targets.notna().all()
+def test_simulation_boundary_collapses_machine_epsilon_drift():
+    base = pd.DataFrame({
+        "targets": [8.12345678901, 5.23456789012],
+        "catch_rate": [0.62345678901, 0.73456789012],
+        "ypr": [12.12345678901, 9.23456789012],
+        "rec_tds": [0.42345678901, 0.23456789012],
+        "carries": [2.12345678901, 9.23456789012],
+        "ypc": [4.12345678901, 4.73456789012],
+        "rush_tds": [0.12345678901, 0.33456789012],
+        "pass_attempts": [0.12345678901, 0.23456789012],
+        "ypa": [7.12345678901, 6.23456789012],
+        "pass_tds": [0.02345678901, 0.03456789012],
+        "interceptions": [0.01345678901, 0.02456789012],
+    })
+    drifted = base.copy()
+    drifted.iloc[0, 0] += 2e-13
+    drifted.iloc[1, 4] -= 3e-13
+
+    stable_base = simulate.canonicalize_simulation_components(base)
+    stable_drifted = simulate.canonicalize_simulation_components(drifted)
+    pd.testing.assert_frame_equal(stable_base, stable_drifted, check_exact=True)
+    assert (simulate.simulation_component_sha256(stable_base)
+            == simulate.simulation_component_sha256(stable_drifted))
+
+    kwargs = dict(n_sims=200, seed=91, keep_draws=True)
+    left = simulate.simulate(base, **kwargs).draws
+    right = simulate.simulate(drifted, **kwargs).draws
+    assert np.array_equal(left, right)

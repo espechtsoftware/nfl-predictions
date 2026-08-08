@@ -12,6 +12,8 @@ means); a biased sampler would silently shift every projection.
 
 from __future__ import annotations
 
+import hashlib
+import logging
 import os
 from dataclasses import dataclass
 
@@ -19,6 +21,39 @@ import numpy as np
 import pandas as pd
 
 from .scoring import StatLine, dk_points
+
+
+log = logging.getLogger(__name__)
+
+
+# Cloud Run can place otherwise identical executions on different CPU
+# microarchitectures. Sub-ULP component prediction differences are harmless
+# as point estimates but can cross a discrete Poisson/binomial threshold and
+# then be amplified by marginal rank shaping. Quantize only at the simulator
+# boundary so training and persisted model predictions retain full precision
+# while seeded worlds remain portable across workers.
+SIM_COMPONENT_DECIMALS = 10
+
+
+def canonicalize_simulation_components(comps: pd.DataFrame) -> pd.DataFrame:
+    """Return stable float64 component means for seeded outcome sampling."""
+    values = comps.to_numpy(dtype=np.float64, copy=True)
+    finite = np.isfinite(values)
+    values[finite] = np.round(values[finite], SIM_COMPONENT_DECIMALS)
+    # Normalize signed zero because its byte representation is otherwise
+    # different even though every numeric operation treats it as zero.
+    values[values == 0.0] = 0.0
+    return pd.DataFrame(values, index=comps.index, columns=comps.columns)
+
+
+def simulation_component_sha256(comps: pd.DataFrame) -> str:
+    """Deterministic fingerprint used to audit cross-execution parity."""
+    values = comps.to_numpy(dtype="<f8", copy=True)
+    # The sampler converts missing component means to zero, so the audit hash
+    # records the exact effective input rather than platform-specific NaN bits.
+    values = np.nan_to_num(values, nan=0.0, posinf=np.inf, neginf=-np.inf)
+    payload = "\x1f".join(map(str, comps.columns)).encode() + values.tobytes()
+    return hashlib.sha256(payload).hexdigest()
 
 # Gamma shape per unit of opportunity: higher = tighter yardage around the
 # predicted rate. ~2 per touch reproduces observed per-catch/carry variance.
@@ -159,6 +194,21 @@ def simulate(
     production call — is REQUIRED to be byte-identical to the pre-params
     sampler: same RNG stream order, same draws (tests/test_sbi.py pins
     golden checksums). See src/nfl_dfs/research/sbi_params.py."""
+    raw_components = comps
+    comps = canonicalize_simulation_components(comps)
+    raw_values = raw_components.to_numpy(dtype=np.float64)
+    stable_values = comps.to_numpy(dtype=np.float64)
+    finite = np.isfinite(raw_values) & np.isfinite(stable_values)
+    max_adjustment = (float(np.max(np.abs(raw_values[finite]
+                                         - stable_values[finite])))
+                      if finite.any() else 0.0)
+    log.info(
+        "simulation components raw_sha256=%s stable_sha256=%s decimals=%d "
+        "max_adjustment=%.3g",
+        simulation_component_sha256(raw_components),
+        simulation_component_sha256(comps), SIM_COMPONENT_DECIMALS,
+        max_adjustment,
+    )
     rng = np.random.default_rng(seed)
     n = len(comps)
     params = params or {}

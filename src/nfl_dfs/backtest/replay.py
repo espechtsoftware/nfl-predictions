@@ -992,7 +992,18 @@ def load_panel_and_dst(season: int):
         f"""
         SELECT t.*, i.name
         FROM `{settings.features}.player_week_training` t
-        LEFT JOIN `{settings.raw}.player_ids` i USING (gsis_id)
+        LEFT JOIN (
+          -- player_ids is not unique on gsis_id (legacy aliases and a few
+          -- upstream collisions). A raw join duplicated otherwise unique
+          -- training rows. Name is display-only here, so select one stable
+          -- spelling without changing the model-fitting universe.
+          SELECT gsis_id,
+                 ARRAY_AGG(name IGNORE NULLS ORDER BY name LIMIT 1)
+                   [SAFE_OFFSET(0)] AS name
+          FROM `{settings.raw}.player_ids`
+          WHERE gsis_id IS NOT NULL
+          GROUP BY gsis_id
+        ) i USING (gsis_id)
         LEFT JOIN `{settings.raw}.schedules` sc USING (game_id)
         WHERE t.season BETWEEN {settings.train_first_season} AND {season}
           -- Prior seasons remain complete model-training data. Only the
@@ -1045,6 +1056,7 @@ def load_panel_and_dst(season: int):
         FROM sal
         LEFT JOIN computed c ON c.team = sal.team AND c.week = sal.week
         WHERE COALESCE(sal.dk_points, c.dk) IS NOT NULL
+        ORDER BY sal.season, sal.week, sal.team, sal.opp
         """
     )
     dst_key = ["season", "week", "team"]

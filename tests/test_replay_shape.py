@@ -85,6 +85,28 @@ def test_dst_salary_query_validates_weekly_opponent(monkeypatch):
     assert dst_sql.index("schedule_long") < dst_sql.index("computed AS")
     assert "team_defense_week" in dst_sql
     assert "fumble_lost = 1" not in dst_sql
+    assert "ORDER BY sal.season, sal.week, sal.team, sal.opp" in dst_sql
+
+
+def test_replay_player_name_join_cannot_duplicate_training_rows(monkeypatch):
+    """player_ids has legacy duplicate GSIS ids; name lookup is one-to-one."""
+    import pandas as pd
+
+    from nfl_dfs.backtest import replay
+    import nfl_dfs.bq as bq
+
+    queries = []
+
+    def fake_query(sql, **_kwargs):
+        queries.append(sql)
+        return pd.DataFrame()
+
+    monkeypatch.setattr(bq, "query_df", fake_query)
+    replay.load_panel_and_dst(2024)
+    panel_sql = queries[0]
+    assert "ARRAY_AGG(name IGNORE NULLS ORDER BY name LIMIT 1)" in panel_sql
+    assert "GROUP BY gsis_id" in panel_sql
+    assert "LEFT JOIN `nfl-dfs-prod.nfl_raw.player_ids` i USING" not in panel_sql
 
 
 def test_dst_salary_query_normalizes_all_historical_team_aliases(monkeypatch):
@@ -144,7 +166,7 @@ def test_replay_target_and_dst_are_restricted_to_sunday_main_slate(
         assert part in panel_sql
         assert part in dst_sql
     assert "t.season < 2024 OR" in panel_sql
-    assert "JOIN `nfl-dfs-prod.nfl_raw.schedules` sc USING (game_id)" in dst_sql
+    assert ".nfl_raw.schedules` sc USING (game_id)" in dst_sql
 
 
 def test_dst_salary_query_rejects_duplicate_valid_team_weeks(monkeypatch):
