@@ -3230,3 +3230,29 @@ the prior 18/107 checkpoint cannot remain the arm control because its joint
 worlds were not reproducible. The promoted 11/107 panel is the only current
 control, pending its mandatory full same-image exact replica. No scoring arm
 may be interpreted before that replica passes.
+
+## Addendum 105 (2026-08-08): Full 107-slate same-image replica passes exact gate
+
+Replica panel `20260808-deterministic-replica-c616390` ran from the same
+immutable digest and frozen configuration as the promoted deterministic
+control. Its six season executions were `replay-detrep1-2019-jk6g9`,
+`replay-detrep1-2021-2hm8h`, `replay-detrep1-2022-l7kgq`,
+`replay-detrep1-2023-r6mqz`, `replay-detrep1-2024-9jdm8`, and
+`replay-detrep1-2025-qmpp2`. Check-only acceptance execution
+`accept-replay-panel-2qfbr` passed with the same 17,432 candidates, 107
+slates, 50,098 feature rows, and 11/107 selected clears at 194 as the
+promoted control.
+
+Exact comparator execution `compare-exact-replay-4j5hz` then passed against
+the promoted baseline. All 50,098 feature keys and all 17,432 candidate keys
+joined with no keys unique to either side and zero registered mismatch
+counts. Candidate simulation summaries had zero numeric delta, candidate
+ordering never moved, and every one of the 107 roster-aligned 10,000-world
+score matrices was bit-for-bit identical. Warehouse feature-value round-trip
+noise remained within the registered tolerance (maximum `3.56e-15`).
+
+The full measurement/reproducibility gate is therefore closed. This is not a
+scoring improvement, and the accepted control remains 11/107. The next valid
+experiment is frozen A01 (`BLEND_MODEL_WEIGHT=1.0`), followed only after its
+mechanism-aware verdict by a fresh A02 (`MODEL_ENSEMBLE=1`) on this same
+image. Results from the obsolete `ee6f433` arms remain non-transferable.

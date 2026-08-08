@@ -1,0 +1,2598 @@
+[
+  {
+    "jsonPayload": {
+      "artifacts": {
+        "2019-w1": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                164,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                164,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2019-w10": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                154,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                154,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2019-w11": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                163,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                163,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2019-w12": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                162,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                162,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2019-w13": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                167,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                167,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2019-w14": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                164,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                164,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2019-w15": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                167,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                167,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2019-w16": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                165,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                165,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2019-w17": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                166,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                166,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2019-w2": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                166,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                166,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2019-w3": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                165,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                165,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2019-w4": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                165,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                165,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2019-w5": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                166,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                166,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2019-w6": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                163,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                163,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2019-w7": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                167,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                167,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2019-w8": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                164,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                164,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2019-w9": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                154,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                154,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2021-w1": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                159,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                159,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2021-w10": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                165,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                165,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2021-w11": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                162,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                162,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2021-w12": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                164,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                164,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2021-w13": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                162,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                162,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2021-w14": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                165,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                165,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2021-w15": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                160,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                160,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2021-w16": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                164,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                164,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2021-w17": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                167,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                167,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2021-w18": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                165,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                165,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2021-w2": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                168,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                168,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2021-w3": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                167,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                167,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2021-w4": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                161,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                161,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2021-w5": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                163,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                163,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2021-w6": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                155,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                155,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2021-w7": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                159,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                159,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2021-w8": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                160,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                160,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2021-w9": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                165,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                165,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2022-w1": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                168,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                168,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2022-w10": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                163,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                163,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2022-w11": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                160,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                160,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2022-w12": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                162,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                162,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2022-w13": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                168,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                168,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2022-w14": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                166,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                166,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2022-w15": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                159,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                159,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2022-w16": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                143,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                143,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2022-w17": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                166,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                166,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2022-w18": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                156,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                156,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2022-w2": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                165,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                165,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2022-w3": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                166,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                166,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2022-w4": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                167,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                167,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2022-w5": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                167,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                167,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2022-w6": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                155,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                155,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2022-w7": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                166,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                166,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2022-w8": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                156,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                156,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2022-w9": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                160,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                160,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2023-w1": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                166,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                166,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2023-w10": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                156,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                156,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2023-w11": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                158,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                158,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2023-w12": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                166,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                166,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2023-w13": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                155,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                155,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2023-w14": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                159,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                159,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2023-w15": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                161,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                161,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2023-w16": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                161,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                161,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2023-w17": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                164,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                164,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2023-w18": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                169,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                169,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2023-w2": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                165,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                165,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2023-w3": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                159,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                159,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2023-w4": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                159,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                159,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2023-w5": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                160,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                160,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2023-w6": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                168,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                168,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2023-w7": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                155,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                155,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2023-w8": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                168,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                168,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2023-w9": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                165,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                165,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2024-w1": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                161,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                161,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2024-w10": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                165,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                165,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2024-w11": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                161,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                161,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2024-w12": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                164,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                164,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2024-w13": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                160,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                160,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2024-w14": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                154,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                154,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2024-w15": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                166,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                166,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2024-w16": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                164,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                164,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2024-w17": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                161,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                161,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2024-w18": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                164,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                164,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2024-w2": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                159,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                159,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2024-w3": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                162,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                162,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2024-w4": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                165,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                165,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2024-w5": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                162,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                162,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2024-w6": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                158,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                158,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2024-w7": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                167,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                167,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2024-w8": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                166,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                166,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2024-w9": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                169,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                169,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2025-w1": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                165,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                165,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2025-w10": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                160,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                160,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2025-w11": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                168,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                168,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2025-w12": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                159,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                159,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2025-w13": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                163,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                163,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2025-w14": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                166,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                166,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2025-w15": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                160,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                160,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2025-w16": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                165,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                165,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2025-w17": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                162,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                162,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2025-w18": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                167,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                167,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2025-w2": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                169,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                169,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2025-w3": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                172,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                172,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2025-w4": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                164,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                164,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2025-w5": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                163,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                163,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2025-w6": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                162,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                162,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2025-w7": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                164,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                164,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2025-w8": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                169,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                169,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        },
+        "2025-w9": {
+          "arrays": {
+            "tail_line": {
+              "candidate_shape": [],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": []
+            },
+            "totals": {
+              "candidate_shape": [
+                166,
+                10000
+              ],
+              "exact": true,
+              "max_abs_delta": 0,
+              "reference_shape": [
+                166,
+                10000
+              ]
+            }
+          },
+          "candidate_order_moved_rows": 0
+        }
+      },
+      "candidate": "20260808-deterministic-replica-c616390",
+      "candidate_parity": {
+        "candidate_only_keys": 0,
+        "candidate_rows": 17432,
+        "common_rows": 17432,
+        "max_abs_deltas": {
+          "sim_mean": 0,
+          "sim_q50": 0,
+          "sim_q90": 0,
+          "sim_q99": 0,
+          "sim_sd": 0
+        },
+        "mismatch_counts": {
+          "actual_rank": 0,
+          "actual_score": 0,
+          "all_tags": 0,
+          "bitorder": 0,
+          "clear_bits": 0,
+          "clear_bits_187": 0,
+          "clear_bits_194": 0,
+          "clear_bits_200": 0,
+          "labels_complete": 0,
+          "n_entries": 0,
+          "n_locks": 0,
+          "n_sims": 0,
+          "n_theses": 0,
+          "n_worlds": 0,
+          "p_line": 0,
+          "salary": 0,
+          "selected": 0,
+          "selected_rank": 0,
+          "sim_mean": 0,
+          "sim_q50": 0,
+          "sim_q90": 0,
+          "sim_q99": 0,
+          "sim_rank_p_line": 0,
+          "sim_sd": 0,
+          "tag": 0,
+          "tail_line": 0
+        },
+        "reference_only_keys": 0,
+        "reference_rows": 17432
+      },
+      "failures": [],
+      "feature_parity": {
+        "candidate_only_keys": 0,
+        "candidate_rows": 50098,
+        "common_rows": 50098,
+        "max_abs_deltas": {
+          "actual": 0,
+          "carry_share_jump": 0,
+          "carry_share_l4": 0,
+          "carry_share_last": 0,
+          "consensus_div": 3.552713678800501e-15,
+          "depth_rank": 0,
+          "depth_rank_delta": 0,
+          "dk_points_l4": 0,
+          "game_total": 0,
+          "games_played_prior": 0,
+          "implied_team_total": 0,
+          "market_points": 3.552713678800501e-15,
+          "mean_projection": 3.552713678800501e-15,
+          "model_points_pre": 0,
+          "own_est": 1.1102230246251565e-16,
+          "proj": 3.552713678800501e-15,
+          "proj_p10": 0,
+          "proj_p50": 0,
+          "proj_p90": 0,
+          "proj_std": 0,
+          "proj_tourney": 3.552713678800501e-15,
+          "salary": 0,
+          "salary_delta_wow": 0,
+          "snap_share_jump": 0,
+          "snap_share_l4": 0,
+          "snap_share_last": 0,
+          "spread": 0,
+          "target_share_jump": 0,
+          "target_share_l4": 0,
+          "target_share_last": 0,
+          "team_vacated_carry_share": 0,
+          "team_vacated_target_share": 0
+        },
+        "mismatch_counts": {
+          "actual": 0,
+          "carry_share_jump": 0,
+          "carry_share_l4": 0,
+          "carry_share_last": 0,
+          "consensus_div": 0,
+          "depth_rank": 0,
+          "depth_rank_delta": 0,
+          "dk_points_l4": 0,
+          "feature_missing": 0,
+          "game_id": 0,
+          "game_total": 0,
+          "games_played_prior": 0,
+          "gsis_id": 0,
+          "implied_team_total": 0,
+          "is_cold_start": 0,
+          "market_points": 0,
+          "mean_projection": 0,
+          "model_points_pre": 0,
+          "name": 0,
+          "opp": 0,
+          "own_est": 0,
+          "pos": 0,
+          "proj": 0,
+          "proj_p10": 0,
+          "proj_p50": 0,
+          "proj_p90": 0,
+          "proj_std": 0,
+          "proj_tourney": 0,
+          "salary": 0,
+          "salary_delta_wow": 0,
+          "snap_share_jump": 0,
+          "snap_share_l4": 0,
+          "snap_share_last": 0,
+          "spread": 0,
+          "target_share_jump": 0,
+          "target_share_l4": 0,
+          "target_share_last": 0,
+          "team": 0,
+          "team_vacated_carry_share": 0,
+          "team_vacated_target_share": 0
+        },
+        "reference_only_keys": 0,
+        "reference_rows": 50098
+      },
+      "passes": true,
+      "reference": "20260808-deterministic-baseline-c616390"
+    }
+  }
+]

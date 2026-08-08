@@ -17,8 +17,9 @@ from those universes transfers to the corrected universe.
 The first corrected 0/0/0/40 baseline reached 18/107, but its same-image
 replica failed exact candidate-world parity in two seasons despite identical
 persisted feature values and actual scores. Aggregate score equality is not a
-substitute for reproducibility. Every arm remains blocked behind the exact
-gate.
+substitute for reproducibility. The replacement deterministic control and its
+same-image replica have now passed the full exact gate; arms remain governed
+by the frozen sequence and mechanism audits below.
 
 ## Frozen execution sequence
 
@@ -81,7 +82,8 @@ the relevant deletion arm are both recorded in the experiment ledger and
 | `20260808-livefaithful-b3-ee6f433` | 18/107 | Corrected and promoted, but exact replica failed |
 | `20260808-livefaithful-b3r-ee6f433` | 18/107 | Exact comparison failed in 2019/2024 |
 | `20260808-a02-ensemble1-ee6f433` | 18/107 | Complete but no verdict; rerun after exact gate |
-| `20260808-deterministic-baseline-c616390` | 11/107 | Accepted/promoted deterministic control; full exact replica pending |
+| `20260808-deterministic-baseline-c616390` | 11/107 | Accepted/promoted deterministic control; full exact replica passed |
+| `20260808-deterministic-replica-c616390` | 11/107 | Check accepted; exact parity passed for 107/107 artifacts |
 
 ## Current repair under validation
 
@@ -102,5 +104,10 @@ in comparator execution `compare-exact-replay-zznbf`, including the complete
 candidates and its 161x10,000 artifact. Both cheap gates are closed. None of
 these repairs constitutes a scoring adoption. The fresh 107-slate baseline
 then passed acceptance and was promoted by `accept-replay-panel-mlbxt` with
-11/107 selected and 20/107 pool-oracle clears at 194. Its full replica gate
-must still pass before any arm is judged.
+11/107 selected and 20/107 pool-oracle clears at 194. Full same-image replica
+`20260808-deterministic-replica-c616390` passed check-only acceptance in
+`accept-replay-panel-2qfbr` and the exact comparison in
+`compare-exact-replay-4j5hz`: 50,098 feature keys and 17,432 candidate keys
+had zero mismatch counts, candidate summaries had zero delta, ordering never
+moved, and all 107 score-matrix artifacts were bit-identical. The exact gate
+is closed and A01 is the next allowed arm.

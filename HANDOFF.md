@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-08 14:01 CDT
+## Current state — 2026-08-08 14:53 CDT
 
 ### Recovery provenance
 
@@ -158,6 +158,20 @@ agent or developer:
   completeness. Selected clears are 26/107 at 187, 11/107 at 194, and 1/107
   at 200; pool oracle is 20/107 at 194. The 18/107 unstable-world checkpoint
   is not a valid scoring control for later arms.
+- Full same-image replica `20260808-deterministic-replica-c616390` completed
+  in executions `replay-detrep1-2019-jk6g9`, `...-2021-2hm8h`,
+  `...-2022-l7kgq`, `...-2023-r6mqz`, `...-2024-9jdm8`, and
+  `...-2025-qmpp2`, after preflight `replay-detrep1-smoke-zzr66`. Check-only
+  acceptance execution `accept-replay-panel-2qfbr` passed with the same
+  107-slate counts and headline metrics as the promoted control.
+- Exact comparator execution `compare-exact-replay-4j5hz` **passed** against
+  the promoted control: all 50,098 feature keys and 17,432 candidate keys
+  joined with zero mismatch counts, all candidate simulation summaries had
+  zero numeric delta, candidate ordering never moved, and all 107
+  roster-aligned 10,000-world score matrices were bit-for-bit identical.
+  Feature-value round trips were within the registered floating-point
+  tolerance (maximum `3.56e-15`). The full deterministic control gate is now
+  closed; scoring arms may proceed in the frozen order.
 
 ### Deployment caution
 
@@ -169,8 +183,10 @@ recorded and the deployment contract has been rechecked. Earlier deployed
 
 ### Next concrete action
 
-Run a same-image reproduction of `20260808-deterministic-baseline-c616390`
-on digest `sha256:98a31edd...` and require both normal acceptance and the full
-exact comparator to pass. Only then rerun or judge the K=1 ensemble ablation with the
-mechanism-aware adoption comparator. Record every execution and verdict here
-before proceeding to a new preregistered scoring arm.
+Run A01, the model/market blend deletion, on the same immutable digest as
+`20260808-a01-modelonly-c616390` with `BLEND_MODEL_WEIGHT=1.0` and the frozen
+generation budget. Require normal check-only acceptance and the
+mechanism-aware `blend` adoption comparator against
+`20260808-deterministic-baseline-c616390`. Record its directional verdict
+before launching A02 (`MODEL_ENSEMBLE=1`); do not use either obsolete arm from
+the superseded `ee6f433` control.
