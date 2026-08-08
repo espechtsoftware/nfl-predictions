@@ -2,9 +2,9 @@
 
 Date recovered/reconstructed: 2026-08-08
 
-Status: active protocol. `HANDOFF.md` carries the current execution IDs and
-supersedes this document on moment-to-moment status; this file freezes the
-order and gates.
+Status: current executable historical-replay queue completed 2026-08-08.
+`HANDOFF.md` carries the current execution IDs and supersedes this document on
+moment-to-moment status; this file freezes the order and gates.
 
 ## Why revalidation restarted
 
@@ -62,7 +62,7 @@ by the frozen sequence and mechanism audits below.
 After A01/A02, the next open preregistered corrective arm is the §12
 salary-floor deletion from `post-review6-scoring-improvement-plan.md`. Its old
 26/107 result used the now-invalid 27/107 replay universe and cannot transfer.
-Fresh panel `20260808-a03-nofloor-c616390` will change only
+Fresh panel `20260808-a03-nofloor-c616390` changed only
 `MIN_LINEUP_SALARY=0` on the deterministic generation image and fixed
 `0/0/0/40`, K=3 budget.
 
@@ -73,6 +73,17 @@ and selected salary distributions plus selected-roster overlap are reported.
 The existing directional gate remains the adoption law. A neutral result does
 not authorize a retrospectively chosen intermediate floor; any such dose
 would require a new preregistration and independent evidence.
+
+A03 completed from the deterministic image. Acceptance execution
+`accept-replay-panel-pwlzs` passed all 107 slates with 17,514 candidates and
+50,098 feature snapshots. Salary comparator
+`compare-adoption-panel-2k87b` passed: the treatment generated 3,729
+sub-$49k candidates and selected 468, while the source generated and selected
+none. It tied the source at 11 clears at 194 and 20 oracle clears, fell 26→21
+at 187, and lowered mean selected best 173.06→172.43. Season-194 deltas were
+`{2019:0, 2021:0, 2022:0, 2023:+1, 2024:0, 2025:-1}`. The disposition is
+`unsupported-neutral`; retain $49k and do not open an intermediate dose on
+these data.
 
 ## Adoption law
 
@@ -107,8 +118,9 @@ the relevant deletion arm are both recorded in the experiment ledger and
 | `20260808-deterministic-replica-c616390` | 11/107 | Check accepted; exact parity passed for 107/107 artifacts |
 | `20260808-a01-modelonly-c616390` | 11/107 | Mechanism valid; `unsupported-neutral`, model-only not adopted |
 | `20260808-a02-ensemble1-c616390` | 16/107 | Mechanism valid; `unsupported-neutral`, K=1 not adopted |
+| `20260808-a03-nofloor-c616390` | 11/107 | Mechanism valid; `unsupported-neutral`, salary-floor deletion not adopted |
 
-## Current repair under validation
+## Validated repair and arm record
 
 Commit `4f4a633` canonicalizes component means at the shared live/replay
 simulator boundary, fingerprints raw and effective inputs, deduplicates the
@@ -149,3 +161,12 @@ corrected audit was fully tested in Cloud Build
 improved aggregate clears, mean and oracle, but was positive in only three
 seasons and negative in two. Its disposition is therefore
 `unsupported-neutral`, and it is not adopted.
+
+A03 then passed ordinary acceptance and its salary mechanism audit. The
+deletion materially widened the salary support (3,729 sub-$49k candidates;
+468 selected) but did not improve the primary portfolio result and degraded
+the 187 count and mean score. Comparator `compare-adoption-panel-2k87b`
+assigned `unsupported-neutral`; the $49k default remains. This closes the
+currently executable corrected-universe historical arm queue. Reopening a
+closed family requires independent data or a materially different,
+preregistered mechanism.

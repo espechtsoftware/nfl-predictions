@@ -1,5 +1,9 @@
 # Post-review-6 execution plan (2026-08-05, revised after code audit)
 
+Status: historical execution record. Corrected-universe decisions are in
+`post-correction-revalidation-plan.md` and supersede the invalidated HF2-era
+score conclusions retained below.
+
 Both reviews are triaged below. Sol's two critical findings are accepted
 as errors in the review-6 package. Commit `34432a5` is a useful first
 persistence patch, but a second audit found that it does **not yet close
@@ -416,8 +420,9 @@ panel before the opportunity is shown to be material.
   passes completeness checks and is promoted.
 - Do not treat first-producer tags as generator attribution.
 - Do not claim LOGO estimates replacement-dose value.
-- The salary floor's load-bearing result is pre-ensemble and remains open
-  until ACTION 4.
+- The salary floor's old load-bearing result was pre-ensemble and invalidated.
+  Corrected A03 closed the question on 2026-08-08: deletion was
+  `unsupported-neutral`; see system-study Addendum 108.
 - The fade deletion comparisons were 23-vs-25 and 20-vs-22, not versus
   HF2's 27.
 

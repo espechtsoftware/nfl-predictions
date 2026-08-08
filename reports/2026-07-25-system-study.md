@@ -3318,3 +3318,39 @@ are positive (need at least four) and two are negative (allow at most one).
 The disposition is therefore `unsupported-neutral`, not adoption. K=1 is a
 promising candidate for genuinely independent future confirmation, but the
 current K=3 default remains unchanged and no production knob moves.
+
+## Addendum 108 (2026-08-08): A03 salary-floor deletion is active but unsupported-neutral
+
+Fresh A03 panel `20260808-a03-nofloor-c616390` changed only
+`MIN_LINEUP_SALARY=0` on deterministic generation digest
+`sha256:98a31edd1921660df6c4f0c9d606e0096ea703ffe250ccc650af706e06798fd6`.
+It retained K=3, the 45/55 model/market blend, and the fixed `0/0/0/40`
+candidate budget. Preflight `replay-a03floor1-smoke-pddht` passed, followed by
+successful season executions `replay-a03floor1-2019-cjn9c`,
+`replay-a03floor1-2021-tl84k`, `replay-a03floor1-2022-br5km`,
+`replay-a03floor1-2023-z8gpc`, `replay-a03floor1-2024-nd7bv`, and
+`replay-a03floor1-2025-vcmkx`.
+
+Check execution `accept-replay-panel-pwlzs` passed: 17,514 candidates, all
+107 slates, 50,098 unique feature snapshots, no missing candidate slates or
+roster players, and candidate/player mean parity within `2.40e-05`. The
+salary audit was built in Cloud Build
+`eccb96c1-8fbc-420f-ba37-5d90db0790fc` (624 passed, 2 skipped), producing
+reporting digest
+`sha256:f6cb471cbb50d5aca186e7f318e29f24d46b83c772cac4951a4c0f4f101ceaee`.
+
+Comparator `compare-adoption-panel-2k87b` passed with no mechanism failures.
+All registered upstream feature columns were invariant. The source had zero
+candidates or selected lineups below $49k; treatment had **3,729 candidates**
+and **468 selected lineups** below $49k. Candidate salary minimum moved
+$49,000→$34,100 and selected salary minimum moved $49,000→$43,100, so this
+was a real support deletion rather than an inert configuration change.
+
+Scoring did not support adoption. The arm tied at **11/107** clears at 194
+and **20/107** pool-oracle clears, fell **26→21** at 187, rose **1→3** at 200,
+and lowered mean selected best **173.06→172.43**. Season-194 deltas were
+`{2019:0, 2021:0, 2022:0, 2023:+1, 2024:0, 2025:-1}`. It therefore failed
+the frozen improvement gate and received `unsupported-neutral`. Retain the
+$49k floor. This negative result does not authorize retrospective tuning to
+$47,500 or another intermediate floor; that would require independent data
+and a fresh preregistration.

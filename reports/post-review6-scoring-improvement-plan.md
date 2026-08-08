@@ -2,8 +2,10 @@
 
 Date: 2026-08-05
 
-Status: design only; none of the scoring experiments in this document
-are authorized or implemented by this plan.
+Status: historical design protocol, superseded for execution by
+`post-correction-revalidation-plan.md`. The corrected-universe A01–A03 queue
+completed on 2026-08-08; historical conclusions below that used invalidated
+controls remain preserved as provenance, not current production evidence.
 
 ## 1. Objective
 
@@ -585,6 +587,16 @@ Before interpreting the score:
 If the lever is inert, the arm says nothing about salary strategy. If
 deletion is non-negative and produces materially different portfolios,
 an intermediate 47,500 dose may be justified as a separate experiment.
+
+**Corrected-universe result (2026-08-08): closed, not adopted.** Panel
+`20260808-a03-nofloor-c616390` generated 3,729 candidates below $49k and
+selected 468, proving the lever was active. It tied the deterministic control
+at 11/107 clears at 194 and 20/107 pool-oracle clears, but fell 26→21 at 187
+and lowered mean selected best 173.06→172.43. Only 2023 improved at 194 and
+2025 declined; the other four seasons tied. The preregistered disposition is
+`unsupported-neutral`. Retain the $49k floor. Because the result was not
+non-negative, it does not authorize an intermediate-dose experiment on this
+panel.
 
 ## 13. Priority and decision tree
 

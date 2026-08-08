@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-08 17:07 CDT
+## Current state — 2026-08-08 18:14 CDT
 
 ### Recovery provenance
 
@@ -62,7 +62,9 @@ agent or developer:
   selected clears at 194, mean selected best 173.06, and 20/107 pool-oracle
   clears. Check execution `accept-replay-panel-2t7vn` and promotion execution
   `accept-replay-panel-mlbxt` passed the canonical acceptance and replay/live
-  mean-parity contracts. A full exact same-image replica is still mandatory.
+  mean-parity contracts. Full same-image replica
+  `20260808-deterministic-replica-c616390` passed exact comparison in
+  `compare-exact-replay-4j5hz`; the control is reproducible.
 - The baseline uses `N_CE=0`, `N_EPISTEMIC=0`, `N_GUMBEL=0`, `N_BOOM=40`,
   `MODEL_ENSEMBLE=3`, and possession simulation. CE, Gumbel, hierarchical
   Gumbel, fast-role, and role-belief variants remain rejected or research-only.
@@ -215,20 +217,46 @@ agent or developer:
   positive seasons and two negative seasons, versus the frozen requirements
   of at least four positive and at most one negative. K=1 is not adopted;
   the aggregate gain is retained as a future confirmation candidate.
+- A03 salary-floor deletion panel `20260808-a03-nofloor-c616390` changed only
+  `MIN_LINEUP_SALARY=0` on the same immutable generation digest after
+  preflight `replay-a03floor1-smoke-pddht`. Season executions were
+  `replay-a03floor1-2019-cjn9c`, `replay-a03floor1-2021-tl84k`,
+  `replay-a03floor1-2022-br5km`, `replay-a03floor1-2023-z8gpc`,
+  `replay-a03floor1-2024-nd7bv`, and `replay-a03floor1-2025-vcmkx`; all six
+  completed successfully. Check execution `accept-replay-panel-pwlzs` passed
+  with 17,514 candidates, 107/107 slates, 50,098 unique feature rows, zero
+  missing joins, and replay/live mean parity.
+- Salary comparator `compare-adoption-panel-2k87b` passed with no mechanism
+  failures. Upstream feature values were invariant. The source generated zero
+  candidates below $49k; the deletion generated 3,729 and selected 468 of
+  them, with treatment candidate salary minimum $34,100 and selected minimum
+  $43,100. The arm tied at 11/107 clears at 194 and 20/107 pool-oracle clears,
+  but fell 26→21 at 187 and reduced mean selected best 173.06→172.43. Its
+  season-194 deltas were `{2019:0, 2021:0, 2022:0, 2023:+1, 2024:0,
+  2025:-1}`. The frozen gate fails; disposition is `unsupported-neutral`.
+  Keep the $49k floor and do not tune an intermediate floor on this panel.
+- The A03 audit layer was validated in Cloud Build
+  `eccb96c1-8fbc-420f-ba37-5d90db0790fc` (624 passed, 2 skipped). Its immutable
+  reporting digest is
+  `sha256:f6cb471cbb50d5aca186e7f318e29f24d46b83c772cac4951a4c0f4f101ceaee`.
 
 ### Deployment caution
 
-The recovered source defaults to the corrected `0/0/0/40` generation budget
-and a three-member model ensemble. A01 and A02 are now recorded; neither
-deletion was adopted. Do not change production deployment knobs until the
+The recovered source defaults to the corrected `0/0/0/40` generation budget,
+a three-member model ensemble, the 45/55 model/market blend, and the $49k
+salary floor. A01, A02, and A03 are now recorded; none was adopted. Do not
+change production deployment knobs until the
 deployment contract is rechecked against this corrected research state.
 Earlier deployed `12 CE / 28 boom` settings are stale.
 
 ### Next concrete action
 
-Run A03 `20260808-a03-nofloor-c616390` from the deterministic generation
-image with only `MIN_LINEUP_SALARY=0`. Require ordinary acceptance and the
-new `salary` mechanism comparator: identical upstream features/seeds,
-default-source/deleted-treatment provenance, and at least one sub-$49k
-treatment candidate. Apply the existing directional gate without tuning; do
-not advance to an intermediate floor from a neutral result.
+The currently executable preregistered corrected-universe arm queue is
+exhausted. Do not tune the salary floor, revive a closed generator/reranker
+family, or promote K=1 from its aggregate headline. Preserve the deterministic
+K=3, 45/55 blend, $49k-floor control. The next evidence-bearing scoring work
+requires genuinely independent data: use new 2026 outcomes for a prospective
+K=1 confirmation and for point-in-time evidence/tracking/market signals, or
+import real classic standings/payout curves before optimizing contest-dollar
+objectives. The user-supplied lineup analyzer remains a separately logged
+future product task in `README.md`, not a scoring-arm continuation.
