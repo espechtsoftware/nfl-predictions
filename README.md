@@ -202,6 +202,19 @@ See §11 for the production schedule each job runs on.
 
 Repo-specific items, distinct from the guide's roadmap (§12).
 
+**User-supplied lineup analyzer — future task (requested 2026-08-08).** Add a
+UI workflow that accepts a lineup either by selecting players from the active
+slate or by uploading a DraftKings-exported CSV/spreadsheet. Resolve players
+by slate-specific draftable ID where available, preserve the source slate and
+upload provenance, and hard-check roster shape, salary cap, matchup/slate,
+duplicate-player, and lock-time legality before analysis. Report the lineup's
+model projection and simulated distribution, threshold/tail probabilities,
+stack and bring-back structure, ownership/leverage, correlation and game
+concentration, estimated duplication risk, weak links, and clearly explained
+pivot opportunities. Keep analysis separate from contest entry or lineup
+mutation, and test both UI-selected and uploaded-lineup paths against the same
+analysis contract.
+
 **Historical DK salary gap, 2022–2024** *(2026-08-01 audit: 2025 is now covered — 18 weeks in `dk_salaries_historical` via the DiscoveryLab import — so the gap is three seasons, not four)*. RotoGuru stopped publishing DraftKings salary data after the 2021 season, so `backfill-rotoguru` covers 2014–2021 only. Training rows for 2022–2024 have null `salary` / `salary_delta_wow` features — LightGBM handles missing values natively and leans on usage/Vegas features for those seasons, so training works, but backtests over 2022–2025 can't use salary-based lineup construction at realistic prices. From the 2026 season onward this heals itself: the hourly `ingest-dk` snapshots become our own append-only salary log. Closing the historical gap would require a paid data source or a community archive; decide whether it's worth it only if recent-season backtests become important.
 
 **Local demo mode (no GCP).** The web app reads projections from BigQuery; there is no local-database path today. The seam already exists — `app/store.py` defines the `ProjectionStore` protocol and an `InMemoryStore` used by the tests — so a `nfl-dfs serve --demo` flag that loads a projections parquet/CSV from disk would let someone try the UI and optimizer without a GCP project. Small change, unimplemented.
