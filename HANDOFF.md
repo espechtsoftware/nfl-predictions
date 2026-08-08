@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-08 11:45 CDT
+## Current state — 2026-08-08 11:54 CDT
 
 ### Recovery provenance
 
@@ -105,8 +105,13 @@ agent or developer:
 - Targeted validation for the repair is green: components (including exact
   seeded equality under machine-epsilon perturbations), replay-shape SQL,
   simulator golden/RNG-parity tests, live smoke, and exact-comparator helper
-  tests. A full Cloud Build suite and cross-execution Cloud Run proof remain
-  required.
+  tests. The first full repair build,
+  `9e42b0d2-418b-4b7d-ae01-93406f247148`, reached 620 passed and 2 skipped but
+  failed one repository-layout assertion: recovery had preserved the obsolete
+  `sql/features/019_dk_salary_week.sql` alongside its expanded replacement,
+  `001a_dk_salary_week.sql`. The obsolete duplicate has now been removed and
+  all 66 feature-SQL tests pass locally. A clean full Cloud Build suite and
+  cross-execution Cloud Run proof remain required.
 
 ### Deployment caution
 
@@ -118,7 +123,7 @@ recorded and the deployment contract has been rechecked. Earlier deployed
 
 ### Next concrete action
 
-Commit the determinism repair and build it via the full Cloud Build suite.
+Rebuild the duplicate-free source via the full Cloud Build suite.
 Run two staging-only 2019/2024 smoke probes on distinct Cloud Run jobs and
 require exact world parity. If they pass, run a fresh corrected six-season
 baseline and a same-image reproduction and require the full exact comparator
