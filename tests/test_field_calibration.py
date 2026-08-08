@@ -43,6 +43,9 @@ def test_entries_parsed_and_keyed(tmp_path):
     assert dupes.iloc[0] == 2 and len(dupes) == 3
     # slot tokens stripped, names sorted
     assert "QB" not in dupes.index[0] and "FLEX" not in dupes.index[0]
+    assert e.n_players.eq(9).all()
+    assert e.is_top20.all()
+    assert e.lineup_slots_json.str.contains('"slot": "QB"').all()
     # ownership block still parses from the same file
     own = parse_standings_csv(p)
     assert len(own) == 3 and own.pct_drafted.max() == 50.0

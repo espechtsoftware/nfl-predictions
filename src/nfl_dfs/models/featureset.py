@@ -97,6 +97,12 @@ FEATURES = NUMERIC_FEATURES + ["position"]
 # lesson (depth_rank_delta -4.6, team_ol_out -8.7): every feature pays
 # its own way through a replay before joining NUMERIC_FEATURES.
 CANDIDATE_FEATURES = (
+    "target_share_last",           # most recent strictly-prior active role
+    "carry_share_last",            # fast role state; avoids l4 dilution
+    "snap_share_last",             # most recent strictly-prior snap share
+    "target_share_jump",           # last role minus earlier values in l4
+    "carry_share_jump",
+    "snap_share_jump",
     "pace_env_l6",                # own off plays + opp def plays faced (l6)
     "opp_blitz_rate_l6",          # opponent defense blitz rate (FTN, 2022+)
     "team_top2_target_share_l6",  # target concentration -> stack strength
@@ -107,6 +113,19 @@ CANDIDATE_FEATURES = (
     "vacated_capture_tgt",        # vacated targets x empirical (pos,depth) capture rate (Addendum 44 event study)
     "vacated_capture_car",        # vacated carries x empirical capture rate (backfield-concentrated)
 )
+
+
+def active_training_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """Keep played outcomes when fitting player-production models.
+
+    The corrected historical universe retains listed inactive players for
+    replay scoring, but those synthetic zero labels must not teach the player
+    models that an otherwise healthy role randomly produces zero. Older/test
+    frames without the provenance column retain prior behavior.
+    """
+    if "was_active" not in df.columns:
+        return df
+    return df[df["was_active"].fillna(False).astype(bool)]
 
 
 def _active_numeric_features() -> list[str]:

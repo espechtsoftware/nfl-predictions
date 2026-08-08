@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from nfl_dfs.ingest.ownership_import import parse_standings_csv
+from nfl_dfs.ingest.ownership_import import parse_lineup_slots, parse_standings_csv
 
 
 def _write_export(path, with_summary=True):
@@ -36,3 +36,15 @@ def test_parse_rejects_wrong_file(tmp_path):
     path = _write_export(tmp_path / "not_standings.csv", with_summary=False)
     with pytest.raises(ValueError, match="missing columns"):
         parse_standings_csv(path)
+
+
+def test_slot_parser_preserves_names_and_order():
+    slots = parse_lineup_slots(
+        "QB Patrick Mahomes II RB James Cook III RB A Player "
+        "WR A.J. Brown WR B Player WR C Player TE Travis Kelce "
+        "FLEX D Player DST Chiefs"
+    )
+    assert len(slots) == 9
+    assert slots[0] == {"slot": "QB", "player": "Patrick Mahomes II"}
+    assert slots[1] == {"slot": "RB", "player": "James Cook III"}
+    assert slots[-1] == {"slot": "DST", "player": "Chiefs"}

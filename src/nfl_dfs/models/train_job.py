@@ -31,13 +31,16 @@ def _iso_week(today: date | None = None) -> str:
 
 
 def training_panel() -> pd.DataFrame:
-    return query_df(
+    from .featureset import active_training_rows
+
+    panel = query_df(
         f"""
         SELECT * FROM `{settings.features}.player_week_training`
         WHERE season >= {settings.train_first_season}
           AND position IN ('QB', 'RB', 'WR', 'TE')
         """
     )
+    return active_training_rows(panel)
 
 
 def train_and_register(today: date | None = None) -> str:
@@ -66,7 +69,7 @@ def train_and_register(today: date | None = None) -> str:
                 scope=SCOPE,
                 label=f"comp_{name}",
                 iso_week=iso_week,
-                params=dict(booster.params),
+                params=registry.model_params(booster),
                 features=FEATURES,
                 train_seasons=train_seasons,
                 metrics=metrics,

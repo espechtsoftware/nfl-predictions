@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -18,6 +20,45 @@ def test_replay_is_point_in_time(proj, small_panel):
     assert len(proj) == (small_panel.season == 2022).sum()
     assert not np.allclose(proj.proj_points, proj.actual)
     assert proj.proj_p10.le(proj.proj_p90 + 1e-9).all()
+
+
+def test_role_snapshot_fields_survive_projection_and_slate_build(small_panel):
+    """The snapshot writer cannot audit a feature dropped by replay plumbing."""
+    panel = small_panel.copy()
+    panel["target_share_last"] = 0.22
+    panel["target_share_jump"] = 0.06
+    panel["is_cold_start"] = False
+    projected = replay.replay_projections(
+        panel, season=2022, n_sims=40, num_boost_round=5, seed=17,
+    )
+    assert projected.target_share_last.eq(0.22).all()
+    assert projected.target_share_jump.eq(0.06).all()
+    assert not projected.is_cold_start.astype(bool).any()
+
+    one_week = projected[projected.week == projected.week.min()].copy()
+    slates = replay.build_slates(one_week, dst=None)
+    assert len(slates) == 1
+    slate = slates[0]
+    assert slate.target_share_last.eq(0.22).all()
+    assert slate.target_share_jump.eq(0.06).all()
+    assert not slate.is_cold_start.astype(bool).any()
+
+
+def test_role_belief_projection_is_exact_and_restores_baseline_env(
+        small_panel, monkeypatch):
+    features = ",".join(replay.ROLE_BELIEF_FEATURES)
+    monkeypatch.setenv("ROLE_BELIEF_FEATURES", features)
+    monkeypatch.setenv("ROLE_BELIEF_SEED", "73")
+    alternate, draws = replay.role_belief_projections(
+        small_panel, season=2022, n_sims=20, num_boost_round=5)
+    assert len(alternate) == (small_panel.season == 2022).sum()
+    assert draws.shape == (len(alternate), 20)
+    assert "EXTRA_FEATURES" not in os.environ
+
+    monkeypatch.setenv("ROLE_BELIEF_FEATURES", "target_share_last")
+    with pytest.raises(ValueError, match="must be exactly"):
+        replay.role_belief_projections(
+            small_panel, season=2022, n_sims=10, num_boost_round=2)
 
 
 def test_replay_metrics(proj):

@@ -5,6 +5,7 @@ CREATE OR REPLACE TABLE `${features}.player_week_training` AS
 SELECT
   -- Keys
   u.gsis_id, u.season, u.week, u.team, s.opponent, u.position, s.game_id,
+  u.was_active,
 
   -- Usage (point-in-time, §5.2)
   u.targets_l4, u.target_share_l4, u.air_yards_share_l4, u.wopr_l4,
@@ -14,6 +15,8 @@ SELECT
   u.carries_l4, u.carry_share_l4, u.gl3_carries_l4, u.gl3_carry_share_l4,
   u.gl3_carries_smoothed,
   u.snap_share_l4,
+  u.target_share_last, u.carry_share_last, u.snap_share_last,
+  u.target_share_jump, u.carry_share_jump, u.snap_share_jump,
   u.target_share_std, u.target_share_trend, u.carry_share_trend,
   u.games_played_prior,
 
@@ -181,12 +184,9 @@ LEFT JOIN `${features}.team_week_target_concentration` tc
 LEFT JOIN `${features}.qb_week_ngs` qn
   ON qn.gsis_id = u.gsis_id AND qn.season = u.season AND qn.week = u.week
 WHERE u.position IN ('QB', 'RB', 'WR', 'TE')
-  -- Season openers (week 1) train the cold-start regime the live path
-  -- serves every September: trailing windows NULL, is_cold_start true,
-  -- the model leans on salary/depth/draft/context — exactly what a real
-  -- week-1 slate offers. Before 2026-08-02 these rows were dropped, so
-  -- week 1 was untrainable AND unreplayable (023 always emitted them).
-  AND (u.games_played_prior >= 1 OR u.week = 1)
+  -- Salary-spined history deliberately retains in-season debuts and listed
+  -- players with no prior stat line. Cold-start handling is part of the live
+  -- model contract; filtering these rows made that regime unreplayable.
   -- Upcoming-week synthetic rows (014) are inference-only; the actuals
   -- inner join already drops them, this states the intent.
   AND NOT u.is_upcoming

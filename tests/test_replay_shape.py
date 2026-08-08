@@ -47,3 +47,127 @@ def test_rookie_widen_scales_only_rookie_rows(monkeypatch):
     assert np.allclose(out[1], draws[1]), "veteran untouched"
     assert out[0].std() > draws[0].std() * 1.05, "rookie spread widened"
     assert abs(out[0].mean() - draws[0].mean()) < 0.15, "mean preserved"
+
+
+def test_audit_smoke_limits_weeks_without_changing_default():
+    import pandas as pd
+    import pytest
+
+    from nfl_dfs.backtest import replay
+
+    slates = [pd.DataFrame({"week": [w]}) for w in range(1, 5)]
+    assert replay._limit_replay_slates(slates, None) is slates
+    limited = replay._limit_replay_slates(slates, 1)
+    assert [int(x.week.iloc[0]) for x in limited] == [1]
+    with pytest.raises(ValueError, match="at least 1"):
+        replay._limit_replay_slates(slates, 0)
+
+
+def test_dst_salary_query_validates_weekly_opponent(monkeypatch):
+    """Adjacent-Thursday rows share the prior source week.  The replay must
+    join both team and opponent to schedule_long before choosing a salary."""
+    import pandas as pd
+
+    from nfl_dfs.backtest import replay
+    import nfl_dfs.bq as bq
+
+    queries = []
+
+    def fake_query(sql, **_kwargs):
+        queries.append(sql)
+        return pd.DataFrame()
+
+    monkeypatch.setattr(bq, "query_df", fake_query)
+    replay.load_panel_and_dst(2024)
+    dst_sql = queries[1]
+    assert "schedule_long" in dst_sql
+    assert "s.team = h.team AND s.opponent = h.opp" in dst_sql
+    assert dst_sql.index("schedule_long") < dst_sql.index("computed AS")
+    assert "team_defense_week" in dst_sql
+    assert "fumble_lost = 1" not in dst_sql
+
+
+def test_dst_salary_query_normalizes_all_historical_team_aliases(monkeypatch):
+    """RotoGuru aliases must not disappear against modern schedule codes."""
+    import pandas as pd
+
+    from nfl_dfs.backtest import replay
+    import nfl_dfs.bq as bq
+
+    queries = []
+
+    def fake_query(sql, **_kwargs):
+        queries.append(sql)
+        return pd.DataFrame()
+
+    monkeypatch.setattr(bq, "query_df", fake_query)
+    replay.load_panel_and_dst(2019)
+    dst_sql = queries[1]
+
+    for old, new in {
+        "GNB": "GB", "JAC": "JAX", "KAN": "KC", "LAR": "LA",
+        "LVR": "LV", "NOR": "NO", "NWE": "NE", "OAK": "LV",
+        "SD": "LAC", "SDG": "LAC", "SFO": "SF", "STL": "LA",
+        "TAM": "TB",
+    }.items():
+        mapping = f"WHEN '{old}' THEN '{new}'"
+        # Once in the team expression and once in the opponent expression.
+        assert dst_sql.count(mapping) == 2
+    assert "CASE team_abbr" in dst_sql
+    assert "CASE opponent" in dst_sql
+
+
+def test_replay_target_and_dst_are_restricted_to_sunday_main_slate(
+        monkeypatch):
+    """NFL-week salary feeds must never become an all-games DFS slate."""
+    import pandas as pd
+
+    from nfl_dfs.backtest import replay
+    import nfl_dfs.bq as bq
+
+    queries = []
+
+    def fake_query(sql, **_kwargs):
+        queries.append(sql)
+        return pd.DataFrame()
+
+    monkeypatch.setattr(bq, "query_df", fake_query)
+    replay.load_panel_and_dst(2024)
+    panel_sql, dst_sql = queries
+    predicate_parts = (
+        "sc.game_type = 'REG'",
+        "sc.weekday = 'Sunday'",
+        "SAFE.PARSE_TIME('%H:%M', sc.gametime) >= TIME '13:00:00'",
+        "SAFE.PARSE_TIME('%H:%M', sc.gametime) < TIME '19:00:00'",
+    )
+    for part in predicate_parts:
+        assert part in panel_sql
+        assert part in dst_sql
+    assert "t.season < 2024 OR" in panel_sql
+    assert "JOIN `nfl-dfs-prod.nfl_raw.schedules` sc USING (game_id)" in dst_sql
+
+
+def test_dst_salary_query_rejects_duplicate_valid_team_weeks(monkeypatch):
+    import pandas as pd
+    import pytest
+
+    from nfl_dfs.backtest import replay
+    import nfl_dfs.bq as bq
+
+    calls = 0
+
+    def fake_query(_sql, **_kwargs):
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            return pd.DataFrame()
+        return pd.DataFrame([
+            {"season": 2024, "week": 1, "team": "BUF", "opp": "ARI",
+             "salary": 3200, "actual": 8},
+            {"season": 2024, "week": 1, "team": "BUF", "opp": "ARI",
+             "salary": 3100, "actual": 8},
+        ])
+
+    monkeypatch.setattr(bq, "query_df", fake_query)
+    with pytest.raises(ValueError, match="one row per team-week"):
+        replay.load_panel_and_dst(2024)

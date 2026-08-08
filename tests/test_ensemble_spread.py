@@ -7,6 +7,7 @@ visible (empty), never silently zero.
 """
 import numpy as np
 import pandas as pd
+import pytest
 
 from nfl_dfs.models.components import (COMPONENT_NAMES, ComponentModels,
                                        _EnsembleBooster)
@@ -53,6 +54,42 @@ def test_single_model_reports_unavailable_not_zero():
 
     m = _Single(0.0)
     assert not hasattr(m, "predict_spread")
+
+
+def test_single_model_exposes_one_real_point_member(monkeypatch):
+    from nfl_dfs.models import components
+
+    values = {
+        "targets": 6.0, "catch_rate": 0.7, "ypr": 12.0,
+        "rec_tds": 0.4, "carries": 4.0, "ypc": 4.5,
+        "rush_tds": 0.2, "pass_attempts": 30.0, "ypa": 7.0,
+        "pass_tds": 1.5, "interceptions": 0.7,
+    }
+    models = {name: _Stub(value) for name, value in values.items()}
+    monkeypatch.setattr(components, "build_X",
+                        lambda df: pd.DataFrame({"a": np.ones(len(df)),
+                                                 "b": np.zeros(len(df))}))
+    df = pd.DataFrame({"position": ["QB", "WR"]})
+    out = ComponentModels(models).point_member_predictions(df)
+    assert list(out) == ["ensemble_point_0"]
+    assert np.isfinite(out.to_numpy()).all()
+
+
+def test_member_specs_match_fit_contract():
+    from nfl_dfs.models.components import (
+        effective_ensemble_size, ensemble_member_specs)
+
+    single = ensemble_member_specs({"MODEL_ENSEMBLE": "1"})
+    assert single == [{
+        "index": 0, "model": "lightgbm", "column_order": "canonical",
+        "seeds": "library-defaults",
+    }]
+    triple = ensemble_member_specs({})
+    assert [member["seeds"]["seed"] for member in triple] == [9000, 9001, 9002]
+    assert [member["column_order"] for member in triple] == [
+        "shuffle-9000", "shuffle-9001", "shuffle-9002"]
+    with pytest.raises(ValueError, match=">=1"):
+        effective_ensemble_size({"MODEL_ENSEMBLE": "0"})
 
 
 def test_component_members_are_exposed_as_complete_point_vectors(monkeypatch):

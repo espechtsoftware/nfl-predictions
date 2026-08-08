@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 
 from . import validation
-from .featureset import FEATURES, LGB_THREADS, build_X
+from .featureset import FEATURES, LGB_THREADS, active_training_rows, build_X
 from .weights import sample_weights
 
 LABEL = "y_dk_points"
@@ -72,7 +72,7 @@ def train(
     panel: pd.DataFrame, target_season: int, num_boost_round: int = 400
 ) -> BaselineModel:
     """Train on every season before `target_season`, recency-weighted."""
-    tr = panel[panel.season < target_season]
+    tr = active_training_rows(panel[panel.season < target_season])
     if tr.empty:
         raise ValueError(f"no training rows before season {target_season}")
     X = build_X(tr)
@@ -100,7 +100,7 @@ def walk_forward(
     reports: dict[int, validation.EvalReport] = {}
     for _train_seasons, val_season in folds:
         model = train(panel, target_season=val_season, num_boost_round=num_boost_round)
-        va = panel[panel.season == val_season]
+        va = active_training_rows(panel[panel.season == val_season])
         preds = model.predict(va)
         reports[val_season] = validation.evaluate(
             va[LABEL],

@@ -15,7 +15,7 @@ import lightgbm as lgb
 import numpy as np
 import pandas as pd
 
-from .featureset import LGB_THREADS, build_X
+from .featureset import LGB_THREADS, active_training_rows, build_X
 from .weights import sample_weights
 
 COUNT_PARAMS = dict(
@@ -71,6 +71,45 @@ COMPONENT_NAMES = [
 ]
 
 
+def effective_ensemble_size(env: dict | None = None) -> int:
+    """Resolve and validate the fitted component-model member count."""
+    if env is None:
+        import os
+
+        env = os.environ
+    size = int(env.get("MODEL_ENSEMBLE", "3") or 1)
+    if size < 1:
+        raise ValueError(f"MODEL_ENSEMBLE must be >=1, got {size}")
+    return size
+
+
+def ensemble_member_specs(env: dict | None = None) -> list[dict]:
+    """Stable audit identities for the models `_fit` actually trains."""
+    size = effective_ensemble_size(env)
+    if size == 1:
+        # The historical single-model control intentionally uses LightGBM's
+        # canonical column order and library-default RNG parameters.  Making
+        # up numeric seeds here would falsely claim behavior the fit did not
+        # use (and explicitly adding them would change the control).
+        return [{
+            "index": 0,
+            "model": "lightgbm",
+            "column_order": "canonical",
+            "seeds": "library-defaults",
+        }]
+    return [{
+        "index": k,
+        "model": "lightgbm",
+        "column_order": f"shuffle-{9000 + k}",
+        "seeds": {
+            "seed": 9000 + k,
+            "feature_fraction_seed": 9100 + k,
+            "bagging_seed": 9200 + k,
+            "data_random_seed": 9300 + k,
+        },
+    } for k in range(size)]
+
+
 @dataclass
 class ComponentModels:
     models: dict[str, lgb.Booster]
@@ -113,20 +152,19 @@ class ComponentModels:
         return out
 
     def point_member_predictions(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Expected DK points for each aligned ensemble member.
+        """Expected DK points for each aligned fitted member.
 
         Component-level spreads cannot be added meaningfully: a target,
         catch-rate and touchdown disagreement live on different scales.
         Constructing each member's complete component vector gives the EPI
         generator genuine alternative beliefs in the same unit as its MILP
-        objective.  A single-model registry returns an empty frame so lack
-        of epistemic information is never represented as zero disagreement.
+        objective. A single model has one real fitted-member prediction; it
+        is exposed as ``ensemble_point_0`` while ``component_spread`` remains
+        unavailable, so one member is never misrepresented as zero spread.
         """
         member_counts = [len(m.members) for m in self.models.values()
                          if hasattr(m, "members")]
-        if not member_counts:
-            return pd.DataFrame(index=df.index)
-        k_members = min(member_counts)
+        k_members = min(member_counts) if member_counts else 1
         X = build_X(df)
         cached: dict[str, np.ndarray] = {}
         for name in COMPONENT_NAMES:
@@ -264,7 +302,7 @@ def _fit(
     # vs same-build CONTROL2 14 — +12, the largest gain of the program,
     # LOSO +5/-1, best median — and exceeds every single-model build
     # level ever measured (23/18/15). MODEL_ENSEMBLE=1 restores single.
-    K = int(_os2.environ.get("MODEL_ENSEMBLE", "3") or 1)
+    K = effective_ensemble_size(_os2.environ)
     if K <= 1:
         dset = lgb.Dataset(X, label, weight=w,
                            categorical_feature=["position"])
@@ -295,7 +333,7 @@ def train(
     panel: pd.DataFrame, target_season: int, num_boost_round: int = 400
 ) -> ComponentModels:
     """Train every component on seasons before `target_season`."""
-    tr = panel[panel.season < target_season]
+    tr = active_training_rows(panel[panel.season < target_season])
     # A/B lever (env TRAIN_MAX_WEEK, off by default): drop late-season
     # training rows. Rest-week dynamics (playoff-locked starters on a
     # half, surprise backups) generate labels unrepresentative of the

@@ -7,11 +7,8 @@
 #
 #   bash scripts/panel_arm.sh <ARM> <FAMILY> <ENTRIES> [EXTRA_ENV]
 #
-# CRITICAL (2026-08-06): CE is an ADOPTED CODE DEFAULT (12 CE / 28
-# boom). A replay with no explicit environment is therefore CE-ON, so
-# every CONTROL arm must disable it explicitly or the baseline is
-# contaminated by the mechanism under test. This runner sets
-# N_CE=0|N_BOOM=40 by default; pass EXTRA_ENV to override for a
+# Production defaults are the boom-only 0 CE / 40 boom baseline. This
+# runner states that control explicitly and uses EXTRA_ENV only for a
 # treatment arm (e.g. "N_CE=12|N_BOOM=28|GEN_POOL_CAP=160").
 set -o pipefail
 ARM=$1; FAM=${2:-rev}; ENT=${3:-40}; ENVS=$4

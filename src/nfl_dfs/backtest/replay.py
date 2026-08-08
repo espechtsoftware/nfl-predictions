@@ -23,12 +23,21 @@ import pandas as pd
 from scipy import stats
 
 from ..models import calibration, coldstart, components, simulate
+from ..research.candidate_features import PLAYER_SNAPSHOT_FEATURES
 from .engine import BacktestResult, run as engine_run
 from .payout import Contest
 
 log = logging.getLogger(__name__)
 
 DST_FALLBACK_PROJ = 6.0  # league-average DST DK points, for week-1 rows
+
+# Frozen after the rejected wholesale fast-role panel. This exact family may
+# train a second model for candidate generation, but it must never leak into
+# the baseline projections used to score and select those candidates.
+ROLE_BELIEF_FEATURES = (
+    "target_share_last", "carry_share_last", "snap_share_last",
+    "target_share_jump", "carry_share_jump", "snap_share_jump",
+)
 
 
 def own_mode() -> str:
@@ -150,8 +159,11 @@ def replay_projections(
             log.exception("schaake diagnostic failed; replay unaffected")
             if os.environ.get("SCHAAKE_DIAG_STRICT"):
                 raise
-    keep = [c for c in ("gsis_id", "name", "season", "week", "team", "opponent",
-                        "position", "game_id", "salary") if c in rows.columns]
+    keep = [c for c in (
+        "gsis_id", "name", "season", "week", "team", "opponent",
+        "position", "game_id", "salary", "injury_status", "was_active",
+        *PLAYER_SNAPSHOT_FEATURES,
+    ) if c in rows.columns]
     out = pd.concat([rows[keep], summary], axis=1)
     if not member_points.empty:
         out = pd.concat([out, member_points.reset_index(drop=True)], axis=1)
@@ -160,6 +172,52 @@ def replay_projections(
     if return_draws:
         return out, draws_out.astype(np.float32)
     return out
+
+
+def role_belief_projections(
+    panel: pd.DataFrame,
+    season: int,
+    n_sims: int,
+    num_boost_round: int = 400,
+) -> tuple[pd.DataFrame, np.ndarray] | tuple[None, None]:
+    """Train the frozen alternate role model without changing baseline env.
+
+    The feature set is deliberately exact—this is a preregistered mechanism,
+    not a sweep. A nonempty baseline EXTRA_FEATURES would bundle two changes
+    and therefore hard-fails. Environment restoration is guaranteed even if
+    model training fails.
+    """
+    raw = os.environ.get("ROLE_BELIEF_FEATURES", "").strip()
+    if not raw:
+        return None, None
+    requested = tuple(x.strip() for x in raw.split(",") if x.strip())
+    if len(requested) != len(set(requested)) or set(requested) != set(
+            ROLE_BELIEF_FEATURES):
+        raise ValueError(
+            "ROLE_BELIEF_FEATURES must be exactly "
+            + ",".join(ROLE_BELIEF_FEATURES))
+    if os.environ.get("EXTRA_FEATURES", "").strip():
+        raise ValueError(
+            "role-belief panel requires an unmodified baseline EXTRA_FEATURES")
+    previous = os.environ.get("EXTRA_FEATURES")
+    os.environ["EXTRA_FEATURES"] = ",".join(ROLE_BELIEF_FEATURES)
+    try:
+        seed = int(os.environ.get("ROLE_BELIEF_SEED", "7331") or 7331)
+        alternate, draws = replay_projections(
+            panel, season, n_sims=n_sims,
+            num_boost_round=num_boost_round, seed=seed, return_draws=True)
+    finally:
+        if previous is None:
+            os.environ.pop("EXTRA_FEATURES", None)
+        else:
+            os.environ["EXTRA_FEATURES"] = previous
+    keys = ["season", "week", "gsis_id"]
+    expected = panel[panel.season == season].reset_index(drop=True)[keys]
+    if not alternate[keys].reset_index(drop=True).equals(expected):
+        raise ValueError("role-belief replay rows do not align with baseline panel")
+    log.info("role-belief replay ready: season=%s rows=%d seed=%d features=%s",
+             season, len(alternate), seed, ",".join(ROLE_BELIEF_FEATURES))
+    return alternate, draws
 
 
 def apply_draw_shape(draws: np.ndarray, positions: pd.Series,
@@ -370,6 +428,11 @@ def _widen_draws(draws: np.ndarray, positions: pd.Series, spec: str) -> np.ndarr
 
 def replay_metrics(proj: pd.DataFrame) -> tuple[dict, pd.DataFrame]:
     """(overall metrics, per-position table)."""
+    # Projection accuracy is conditional on participating. Salary-listed
+    # inactive rows remain in contest replay with a zero score, but they are
+    # not training/evaluation examples for on-field player output.
+    if "was_active" in proj.columns:
+        proj = proj[proj.was_active.fillna(False).astype(bool)].copy()
     err = proj.proj_points - proj.actual
     have_naive = proj.dropna(subset=["naive"])
     overall = {
@@ -525,12 +588,22 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
     dropped = len(proj) - len(skill)
     if dropped:
         log.info("build_slates: dropped %d skill rows without salary", dropped)
+    if "injury_status" in skill.columns:
+        known_out = skill.injury_status.fillna("").astype(str).str.upper().eq("OUT")
+        if known_out.any():
+            log.info("build_slates: removed %d players known Out before lock",
+                     int(known_out.sum()))
+            skill = skill[~known_out].copy()
     skill["id"] = skill.gsis_id
     skill["pos"] = skill.position
     skill["opp"] = skill.opponent
     # Row position in the replay_projections frame == row in its draw
     # matrix; -1 (DST) means "no draws, use the static projection".
     skill["draw_idx"] = skill.index.to_numpy()
+    # Keep the post-market mean before construction-specific p90 punt
+    # valuation overwrites ``proj``. Blend audits must observe the actual
+    # projection, not a downstream optimizer objective.
+    skill["mean_projection"] = skill.proj_points
     # Tournament tilt (mirrors app._player_pool): ceiling-valued punts.
     # The chalk-fade penalty is applied per-slate below.
     from ..optimizer.lineup import PUNT_MAX_SALARY
@@ -634,8 +707,11 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
         # point-in-time feature snapshot for the candidate table
         # (Sol audit 3 §B1): market/model disagreement + marginal
         # quantiles are only available DURING the run.
-        for _c in ("market_points", "model_points_pre", "proj_p10",
-                   "proj_p50", "proj_p90", "proj_std"):
+        for _c in (
+            "market_points", "model_points_pre", "mean_projection",
+            "proj_p10", "proj_p50", "proj_p90", "proj_std",
+            *PLAYER_SNAPSHOT_FEATURES,
+        ):
             if _c in grp.columns:
                 cols.append(_c)
         cols.extend(c for c in grp.columns
@@ -659,21 +735,33 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
                         d[c] = np.nan
                     elif c.startswith("proj_p") or c == "proj_std":
                         d[c] = d["proj"] if c != "proj_std" else 0.0
+                    elif c in PLAYER_SNAPSHOT_FEATURES:
+                        # DST rows have no player-role history. Missingness is
+                        # semantically different from a zero role or zero game
+                        # total and must remain visible in the snapshot.
+                        d[c] = np.nan
                     else:
                         d[c] = 0.0
+            if "mean_projection" in cols:
+                # DST has no simulated marginal. Its static projection is
+                # therefore its world mean, not the generic numeric-missing
+                # sentinel used for optional skill-player features.
+                d["mean_projection"] = d["proj"]
             frame = pd.concat([frame, d[cols]], ignore_index=True)
         # RotoGuru DST rows occasionally lack salary or points; a single NaN
         # poisons the field sampler's ownership softmax.
         n0 = len(frame)
         frame = frame.dropna(subset=["salary", "proj", "actual"])
         frame = frame[frame.salary > 0]  # RotoGuru's missing-salary sentinel
-        # Engine requires unique ids (actual.reindex, draw alignment);
-        # guard against upstream merge fan-outs rather than crash mid-run.
+        # Engine requires unique ids (actual.reindex, draw alignment). Never
+        # select one by input order: that previously hid adjacent-Thursday DST
+        # salaries and could assign the wrong opponent/price to a replay week.
         dup = frame.id.duplicated()
         if dup.any():
-            log.warning("slate %s wk %s: dropping %d duplicate-id rows",
-                        season, week, int(dup.sum()))
-            frame = frame[~dup]
+            ids = frame.loc[frame.id.duplicated(keep=False), "id"].tolist()
+            raise ValueError(
+                f"slate {season} wk {week}: duplicate ids after validated "
+                f"joins: {ids[:8]}")
         if len(frame) < n0:
             log.info("slate %s wk %s: dropped %d rows with missing salary/proj/actual",
                      season, week, n0 - len(frame))
@@ -834,6 +922,61 @@ def run_contest_replay(
                       n_boom_solves=n_boom_solves)
 
 
+def _limit_replay_slates(slates: list[pd.DataFrame],
+                         max_weeks: int | None) -> list[pd.DataFrame]:
+    """Audit-smoke limiter; production/default replay is unchanged."""
+    if max_weeks is None:
+        return slates
+    if max_weeks < 1:
+        raise ValueError("max_weeks must be at least 1")
+    return slates[:max_weeks]
+
+
+# Historical salary sources use a mixture of RotoGuru, LineStar, and modern
+# NFL abbreviations.  schedule_long deliberately uses modern codes, so both
+# sides of every historical salary/schedule join must use this complete map.
+# Keep this list aligned with sql/features/001a_dk_salary_week.sql.
+_HISTORICAL_TEAM_ALIASES = {
+    "GNB": "GB",
+    "JAC": "JAX",
+    "KAN": "KC",
+    "LAR": "LA",
+    "LVR": "LV",
+    "NOR": "NO",
+    "NWE": "NE",
+    "OAK": "LV",
+    "SD": "LAC",
+    "SDG": "LAC",
+    "SFO": "SF",
+    "STL": "LA",
+    "TAM": "TB",
+}
+
+
+def _historical_team_sql(column: str) -> str:
+    """BigQuery expression mapping a historical team column to modern codes."""
+    whens = " ".join(
+        f"WHEN '{old}' THEN '{new}'"
+        for old, new in _HISTORICAL_TEAM_ALIASES.items()
+    )
+    return f"CASE {column} {whens} ELSE {column} END"
+
+
+def _main_slate_sql(alias: str) -> str:
+    """Independent schedule predicate for the DK Sunday main slate.
+
+    Historical salary feeds are NFL-week feeds, not draft-group snapshots.
+    The main GPP slate contains Sunday 1pm and late-afternoon games; London,
+    primetime, Thursday/Friday/Saturday/Monday, and Sunday night are excluded.
+    """
+    return (
+        f"{alias}.game_type = 'REG' "
+        f"AND {alias}.weekday = 'Sunday' "
+        f"AND SAFE.PARSE_TIME('%H:%M', {alias}.gametime) >= TIME '13:00:00' "
+        f"AND SAFE.PARSE_TIME('%H:%M', {alias}.gametime) < TIME '19:00:00'"
+    )
+
+
 # Warehouse entry point ------------------------------------------------------
 
 
@@ -841,12 +984,20 @@ def load_panel_and_dst(season: int):
     from ..bq import query_df
     from ..config import settings
 
+    salary_team = _historical_team_sql("team_abbr")
+    salary_opp = _historical_team_sql("opponent")
+    main_target = _main_slate_sql("sc")
+
     panel = query_df(
         f"""
         SELECT t.*, i.name
         FROM `{settings.features}.player_week_training` t
         LEFT JOIN `{settings.raw}.player_ids` i USING (gsis_id)
+        LEFT JOIN `{settings.raw}.schedules` sc USING (game_id)
         WHERE t.season BETWEEN {settings.train_first_season} AND {season}
+          -- Prior seasons remain complete model-training data. Only the
+          -- target/evaluation season is restricted to the contest slate.
+          AND (t.season < {season} OR ({main_target}))
         ORDER BY t.season, t.week, t.gsis_id
         """
     )  # ORDER BY: read-order determinism (variance review 2026-08-04)
@@ -855,41 +1006,39 @@ def load_panel_and_dst(season: int):
         -- RotoGuru rows (position 'Def', <=2021) carry dk_points actuals;
         -- LineStar-backfilled rows (position 'DST', 2022-24) don't, so
         -- actuals are computed from pbp + schedules with DK DST scoring
-        -- (same accounting as app.store.trailing_kdst). LAR->LA maps the
-        -- one abbreviation difference vs nflverse.
-        WITH sal AS (
+        -- (same accounting as app.store.trailing_kdst). Historical salary
+        -- sources use RotoGuru/LineStar aliases while schedule_long uses
+        -- modern codes, so normalize BOTH team and opponent before joining.
+        WITH sal_raw AS (
           SELECT season, week,
-                 IF(team_abbr = 'LAR', 'LA', team_abbr) AS team,
-                 IF(opponent = 'LAR', 'LA', opponent) AS opp,
+                 {salary_team} AS team,
+                 {salary_opp} AS opp,
                  salary, dk_points
           FROM `{settings.raw}.dk_salaries_historical`
           WHERE UPPER(position) IN ('DEF', 'DST') AND season = {season}
         ),
-        def_game AS (
-          SELECT p.game_id, p.defteam AS team, ANY_VALUE(p.week) AS week,
-                 SUM(CAST(p.sack AS INT64)) AS sacks,
-                 SUM(CAST(p.interception AS INT64))
-                   + SUM(IF(p.fumble_lost = 1, 1, 0)) AS takeaways,
-                 SUM(IF(p.touchdown = 1 AND p.td_team = p.defteam, 1, 0)) AS tds
-          FROM `{settings.raw}.pbp` p
-          WHERE p.season = {season} AND p.defteam IS NOT NULL
-          GROUP BY p.game_id, p.defteam
-        ),
-        pts AS (
-          SELECT game_id, home_team AS team, away_score AS pa
-          FROM `{settings.raw}.schedules` WHERE season = {season}
-          UNION ALL
-          SELECT game_id, away_team, home_score
-          FROM `{settings.raw}.schedules` WHERE season = {season}
+        -- LineStar's weekly export labels the adjacent Thursday slate with
+        -- the prior display week.  That leaves two salaries for some teams:
+        -- one against this NFL week's opponent and one against next week's.
+        -- Validate the opponent against the canonical schedule BEFORE any
+        -- deduplication; dropping by input order selected the wrong salary.
+        sal AS (
+          SELECT h.*
+          FROM sal_raw h
+          JOIN `{settings.features}.schedule_long` s
+            ON s.season = h.season AND s.week = h.week
+           AND s.team = h.team AND s.opponent = h.opp
+          JOIN `{settings.raw}.schedules` sc USING (game_id)
+          WHERE {main_target}
         ),
         computed AS (
-          SELECT dg.team, dg.week,
-                 dg.sacks + 2*dg.takeaways + 6*dg.tds +
-                 CASE WHEN p.pa = 0 THEN 10 WHEN p.pa <= 6 THEN 7
-                      WHEN p.pa <= 13 THEN 4 WHEN p.pa <= 20 THEN 1
-                      WHEN p.pa <= 27 THEN 0 WHEN p.pa <= 34 THEN -1
-                      ELSE -4 END AS dk
-          FROM def_game dg JOIN pts p USING (game_id, team)
+          -- One canonical scorer owns fumble-recovery team attribution,
+          -- return/blocked-kick TDs, safeties, blocked kicks, defensive
+          -- conversions, and the DK points-allowed exclusions.  The old
+          -- replay-local approximation omitted several of those events.
+          SELECT season, week, team, dst_dk_points AS dk
+          FROM `{settings.features}.team_defense_week`
+          WHERE season = {season}
         )
         SELECT sal.season, sal.week, sal.team, sal.opp, sal.salary,
                COALESCE(sal.dk_points, c.dk) AS actual
@@ -898,6 +1047,12 @@ def load_panel_and_dst(season: int):
         WHERE COALESCE(sal.dk_points, c.dk) IS NOT NULL
         """
     )
+    dst_key = ["season", "week", "team"]
+    if not dst.empty and dst.duplicated(dst_key).any():
+        bad = dst.loc[dst.duplicated(dst_key, keep=False), dst_key]
+        raise ValueError(
+            "DST salary replay is not one row per team-week after schedule "
+            f"validation: {bad.head(8).to_dict('records')}")
     return panel, dst
 
 
@@ -942,6 +1097,43 @@ def _model_ownership(booster, frame: pd.DataFrame) -> np.ndarray:
     return out
 
 
+def _market_blend_worlds(
+    frame: pd.DataFrame,
+    frame_draws: np.ndarray,
+    market: pd.DataFrame,
+    model_weight: float,
+) -> tuple[pd.DataFrame, np.ndarray, np.ndarray]:
+    """Apply the prop blend to the exact post-shaping model worlds.
+
+    Live lineup generation defines its model mean as ``draws.mean`` after
+    TabPFN/empirical marginal shaping. Replay formerly blended the older
+    LightGBM summary mean instead, so the UI and historical selector consumed
+    different centers. This helper is shared by baseline and role-belief
+    replay frames and also runs when ``market`` is empty: uncovered players
+    remain model-only without taking a different alignment branch.
+    """
+    from ..models.blend import blend as _blend, shift_draws_to_means
+
+    n_before = len(frame)
+    if frame_draws.shape[0] != n_before:
+        raise ValueError("market blend frame/draw rows do not align")
+    frame = frame.merge(
+        market, on=["season", "week", "gsis_id"], how="left",
+        sort=False, validate="many_to_one")
+    if len(frame) != n_before:
+        raise ValueError("market merge fanned out rows")
+    pre = frame_draws.mean(axis=1, dtype=np.float64)
+    frame["proj_points"] = _blend(
+        pre, frame.market_points.to_numpy(), model_weight)
+    frame_draws = shift_draws_to_means(
+        frame_draws, frame.proj_points.to_numpy())
+    frame["consensus_div"] = np.where(
+        frame.market_points.notna(),
+        pre - frame.market_points.to_numpy(), 0.0)
+    frame["model_points_pre"] = pre
+    return frame, frame_draws, pre
+
+
 def run(
     season: int,
     n_sims: int = 10_000,
@@ -950,49 +1142,49 @@ def run(
     field_size: int = 5_000,
     sharp_fraction: float = 0.15,
     tail_line: float | None = None,
+    max_weeks: int | None = None,
 ) -> None:
     panel, dst = load_panel_and_dst(season)
     proj, draws = replay_projections(panel, season, n_sims=n_sims,
                                      return_draws=True)
+    role_proj, role_draws = role_belief_projections(
+        panel, season, n_sims=n_sims)
+    if role_proj is not None:
+        keys = ["season", "week", "gsis_id"]
+        if not proj[keys].equals(role_proj[keys]):
+            raise ValueError("baseline and role-belief projection rows differ")
     # Market blend (guide §7.7) with real prop-derived medians when the
     # season has prop_lines coverage; players without a line keep the
     # model projection (blend() falls back on NaN).
     try:
-        from ..models.blend import BLEND_W, blend as _blend
+        from ..models.blend import effective_model_weight
         from ..models.prop_market import market_points
 
+        blend_model_weight = effective_model_weight()
         mkt = market_points((season,))
-        if not mkt.empty:
-            # Dedup + length guard (2026-08-04 audit): market_points
-            # dedups on NAME norm, not gsis — two name variants of one
-            # player produce duplicate (season, week, gsis_id) keys, the
-            # left merge fans rows out, and every draw_idx after the
-            # first duplicate points at the NEXT player's draws.
-            mkt = mkt.drop_duplicates(["season", "week", "gsis_id"])
-            _n_before = len(proj)
-            proj = proj.merge(mkt, on=["season", "week", "gsis_id"],
-                              how="left")
-            assert len(proj) == _n_before, "market merge fanned out rows"
-            _pre = proj.proj_points.to_numpy().copy()
-            proj["proj_points"] = _blend(_pre,
-                                         proj.market_points.to_numpy(),
-                                         BLEND_W)
-            # Consensus divergence (external review 3.2 / Addendum 45's
-            # two-way disagreement signal): our PRE-blend projection minus
-            # the market's — carried on the frame for the DIV_TILT lever.
-            proj["consensus_div"] = np.where(
-                proj.market_points.notna(),
-                _pre - proj.market_points.to_numpy(), 0.0)
-            # pre-blend model projection kept for the candidate feature
-            # snapshot (Sol audit 3: the reranker needs model-vs-market
-            # disagreement, which is unrecoverable after the blend).
-            proj["model_points_pre"] = _pre
-            log.info("prop-market blend applied to %d/%d rows",
-                     int(proj.market_points.notna().sum()), len(proj))
-            # Weight sweep: BLEND_W was fit against the weak dk_ppg
-            # market; the prop market is stronger and likely deserves
-            # more weight. MAE(w) over blended rows only.
-            have = proj.market_points.notna().to_numpy()
+        # Dedup + length guard (2026-08-04 audit): market_points dedups on
+        # NAME norm, not gsis. The helper's many-to-one merge enforces this
+        # even when an entire season has zero market rows.
+        mkt = mkt.drop_duplicates(["season", "week", "gsis_id"])
+        proj, draws, _pre = _market_blend_worlds(
+            proj, draws, mkt, blend_model_weight)
+        if role_proj is not None:
+            # The control computes this too. It makes the candidate-only
+            # belief vector exactly comparable to the rejected role arm.
+            role_proj, role_draws, _ = _market_blend_worlds(
+                role_proj, role_draws, mkt, blend_model_weight)
+        covered = proj.market_points.notna()
+        blend_delta = (proj.proj_points - proj.model_points_pre).abs()
+        log.info(
+            "prop-market blend: model_weight=%.3f covered=%d/%d "
+            "covered_mean_abs_delta=%.6f uncovered_mean_abs_delta=%.6f",
+            blend_model_weight, int(covered.sum()), len(proj),
+            float(blend_delta[covered].mean()) if covered.any() else 0.0,
+            float(blend_delta[~covered].mean()) if (~covered).any() else 0.0)
+        # Weight sweep: MAE over blended rows only. A season with no props
+        # is a valid model-only control, not a NaN diagnostic.
+        have = covered.to_numpy()
+        if have.any():
             act = proj.actual.to_numpy()[have]
             mdl, mrk = _pre[have], proj.market_points.to_numpy()[have]
             import numpy as _np
@@ -1083,12 +1275,31 @@ def run(
         print(f"\n  entry selection: P(best >= {tail_line:.0f}) greedy "
               f"coverage over correlated draws")
     best_by_week = {}
-    slates = build_slates(proj, dst)
+    slates = _limit_replay_slates(build_slates(proj, dst), max_weeks)
+    belief_slates = None
+    if role_proj is not None:
+        belief_slates = _limit_replay_slates(
+            build_slates(role_proj, dst), max_weeks)
+        base_keys = [(int(s.season.iloc[0]), int(s.week.iloc[0]))
+                     for s in slates]
+        belief_keys = [(int(s.season.iloc[0]), int(s.week.iloc[0]))
+                       for s in belief_slates]
+        if base_keys != belief_keys:
+            raise ValueError("baseline and role-belief slate weeks differ")
+        for base, belief in zip(slates, belief_slates):
+            if list(base.id) != list(belief.id):
+                raise ValueError(
+                    "baseline and role-belief slate player order differs")
+    if max_weeks is not None:
+        log.info("audit smoke: contest replay limited to %d week(s)",
+                 max_weeks)
     result = engine_run(slates, contest,
                         n_entries=n_entries, field_size=field_size,
                         sharp_fraction=sharp_fraction, stack=stack,
                         draws=draws if use_tail else None,
-                        tail_line=tail_line if use_tail else None)
+                        tail_line=tail_line if use_tail else None,
+                        belief_slates=belief_slates,
+                        belief_draws=role_draws)
     print(f"\n=== Contest replay: {season} "
           f"(field {sharp_fraction:.0%} optimizer-built) ===")
     print(result.summary())

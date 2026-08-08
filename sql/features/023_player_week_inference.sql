@@ -40,6 +40,8 @@ SELECT
   u.carries_l4, u.carry_share_l4, u.gl3_carries_l4, u.gl3_carry_share_l4,
   u.gl3_carries_smoothed,
   u.snap_share_l4,
+  u.target_share_last, u.carry_share_last, u.snap_share_last,
+  u.target_share_jump, u.carry_share_jump, u.snap_share_jump,
   u.target_share_std, u.target_share_trend, u.carry_share_trend,
   u.games_played_prior,
 

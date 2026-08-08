@@ -10,6 +10,7 @@ first persistence patch (34432a5):
        and selection reconstructable from the persisted masks alone
 """
 import json
+from types import SimpleNamespace
 
 import numpy as np
 import pandas as pd
@@ -172,12 +173,50 @@ def test_selector_tiebreak_uses_mean_total():
 
 def test_provenance_fields_present(monkeypatch):
     df, _, _, _ = _capture(monkeypatch, PANEL_RUN_ID="p-prov",
-                           MIN_LINEUP_SALARY="0")
+                           MIN_LINEUP_SALARY="0",
+                           EXTRA_FEATURES="target_share_last",
+                           EPISTEMIC_FAMILY="role_draws",
+                           ROLE_BELIEF_FEATURES="target_share_last",
+                           ROLE_BELIEF_SEED="7331")
     for col in ("code_sha", "code_dirty", "config_hash", "lever_env",
                 "seeds", "score_artifact_uri", "score_artifact_sha256"):
         assert col in df.columns, f"missing provenance column {col}"
     # lever_env must record the env that was actually set
     assert "MIN_LINEUP_SALARY=0" in df.lever_env.iloc[0]
+    assert "EXTRA_FEATURES=target_share_last" in df.lever_env.iloc[0]
+    assert "EPISTEMIC_FAMILY=role_draws" in df.lever_env.iloc[0]
+    assert "ROLE_BELIEF_FEATURES=target_share_last" in df.lever_env.iloc[0]
+    assert "ROLE_BELIEF_SEED=7331" in df.seeds.iloc[0]
+    assert "MODEL_ENSEMBLE_SIZE=3" in df.seeds.iloc[0]
+    member_spec = json.loads(
+        df.seeds.iloc[0].split("MODEL_MEMBER_SPEC=", 1)[1])
+    assert [member["seeds"]["seed"] for member in member_spec] == [
+        9000, 9001, 9002]
+
+
+def test_single_member_provenance_is_explicit(monkeypatch):
+    df, _, _, _ = _capture(
+        monkeypatch, PANEL_RUN_ID="p-ens1", MODEL_ENSEMBLE="1")
+    assert "MODEL_ENSEMBLE=1" in df.lever_env.iloc[0]
+    assert "MODEL_ENSEMBLE_SIZE=1" in df.seeds.iloc[0]
+    member_spec = json.loads(
+        df.seeds.iloc[0].split("MODEL_MEMBER_SPEC=", 1)[1])
+    assert member_spec[0]["column_order"] == "canonical"
+    assert member_spec[0]["seeds"] == "library-defaults"
+
+
+def test_container_provenance_uses_deployed_code_sha(monkeypatch):
+    """The production image has no .git directory.  A failed git command
+    returns blank stdout rather than raising, so CODE_SHA must be the explicit
+    fallback and must never become a falsely successful blank value."""
+    monkeypatch.setattr(
+        "subprocess.run",
+        lambda *args, **kwargs: SimpleNamespace(
+            returncode=128, stdout="", stderr="not a git repository"),
+    )
+    df, _, _, _ = _capture(
+        monkeypatch, PANEL_RUN_ID="p-container", CODE_SHA="b9e33eb12345")
+    assert df.code_sha.eq("b9e33eb12345").all()
 
 
 def test_staging_rows_never_research_eligible(monkeypatch):
@@ -195,6 +234,12 @@ def test_player_feature_snapshot_written(monkeypatch):
     slate["consensus_div"] = 1.5
     slate["market_points"] = slate.proj - 0.5
     slate["model_points_pre"] = slate.proj + 0.3
+    slate["ensemble_point_0"] = slate.proj - 0.2
+    slate["ensemble_point_1"] = slate.proj + 0.1
+    slate["ensemble_point_2"] = slate.proj + 0.4
+    slate["target_share_last"] = 0.22
+    slate["carry_share_jump"] = 0.08
+    slate["is_cold_start"] = False
     writes: list = []
     monkeypatch.setattr("nfl_dfs.bq.load_dataframe",
                         lambda df, table, **kw: writes.append((table, df)))
@@ -211,8 +256,17 @@ def test_player_feature_snapshot_written(monkeypatch):
     assert len(fdf) == len(slate)
     for col in ("market_points", "model_points_pre", "consensus_div",
                 "own_est", "proj", "salary", "panel_run_id", "slate_run_id",
+                "target_share_last", "carry_share_jump", "is_cold_start",
+                "ensemble_point_0", "ensemble_point_1", "ensemble_point_2",
+                "model_ensemble_size", "model_member_spec",
                 "feature_missing", "code_sha"):
         assert col in fdf.columns, f"missing {col}"
+    assert fdf.target_share_last.eq(0.22).all()
+    assert fdf.carry_share_jump.eq(0.08).all()
+    assert str(fdf.is_cold_start.dtype) == "boolean"
+    assert fdf.model_ensemble_size.eq(3).all()
+    specs = json.loads(fdf.model_member_spec.iloc[0])
+    assert [member["seeds"]["seed"] for member in specs] == [9000, 9001, 9002]
     assert not fdf.research_eligible.any()
     # quantile columns absent from this fixture must be declared missing
     assert "proj_p90" in json.loads(fdf.feature_missing.iloc[0])
@@ -235,8 +289,10 @@ def test_feature_snapshot_is_warehouse_typed(monkeypatch):
         slate, pool, draws, tail_line=95.0, n_entries=8, stack=None,
         objective_col="proj", cand_log_table="proj.ds.candidates")
     fdf = next(d for t, d in writes if t.endswith("slate_player_features"))
-    for col in ("market_points", "model_points_pre", "proj_p90"):
+    for col in ("market_points", "model_points_pre", "proj_p90",
+                "target_share_last", "depth_rank_delta", "dk_points_l4"):
         assert fdf[col].dtype.kind == "f", f"{col} is {fdf[col].dtype}"
+    assert str(fdf.is_cold_start.dtype) == "boolean"
     # the decisive check: the frame must survive arrow conversion, which
     # is what the warehouse loader does internally
     pa.Table.from_pandas(fdf, preserve_index=False)

@@ -206,6 +206,51 @@ def test_epistemic_scenarios_use_complete_member_and_game_vectors():
     assert np.array_equal(scenarios["game_market:g1"],
                           [8.0, 9.0, 10.0, 6.0])
 
+
+def test_role_belief_scenarios_mix_mean_variants_and_top_worlds():
+    import pandas as pd
+
+    from nfl_dfs.backtest.engine import _role_belief_scenarios
+
+    belief = pd.DataFrame({
+        "id": ["a", "b", "dst"],
+        "proj": [10.0, 9.0, 6.0],
+        "proj_tourney": [11.0, 8.0, 6.0],
+        "draw_idx": [0, 1, -1],
+    })
+    draws = np.array([[1.0, 20.0, 3.0], [2.0, 10.0, 4.0]])
+    scenarios = _role_belief_scenarios(belief, draws, n_slots=6)
+    assert [name for name, _ in scenarios[:4]] == [
+        "role_mean:1", "role_mean:2", "role_mean:3", "role_mean:4"]
+    assert all(np.array_equal(v, [11.0, 8.0, 6.0])
+               for _, v in scenarios[:4])
+    # draw 1 has the highest alternate-world slate total (DST stays static)
+    assert scenarios[4][0] == "role_draw:1:1"
+    assert np.array_equal(scenarios[4][1], [20.0, 10.0, 6.0])
+
+
+def test_role_belief_treatment_fails_if_alternate_inputs_are_missing(
+        monkeypatch):
+    import pandas as pd
+
+    from nfl_dfs.backtest.engine import tail_select_lineups
+
+    pool = _pool({})
+    for p in pool:
+        p["actual"] = 10.0
+    slate = pd.DataFrame(pool)
+    slate["draw_idx"] = range(len(slate))
+    draws = np.ones((len(slate), 20), dtype=float) * 10
+    monkeypatch.setenv("N_EPISTEMIC", "12")
+    monkeypatch.setenv("N_BOOM", "28")
+    monkeypatch.setenv("EPISTEMIC_FAMILY", "role_draws")
+    monkeypatch.setenv("MIN_LINEUP_SALARY", "0")
+    monkeypatch.setenv("PUNT_MIN", "0")
+    with pytest.raises(RuntimeError, match="requires alternate"):
+        tail_select_lineups(
+            slate, pool, draws, tail_line=90.0, n_entries=4,
+            stack=None, objective_col="proj")
+
 def test_epistemic_batch_fires_and_is_inert_without_market(monkeypatch):
     import pandas as pd
 

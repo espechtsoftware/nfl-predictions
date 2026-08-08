@@ -20,6 +20,33 @@ import pandas as pd
 # feature drift can never be mistaken for a modelling result.
 FEATURE_DEF_VERSION = "cf-1.0.0"
 
+# Point-in-time player state that must survive projection replay, slate
+# construction, and the immutable warehouse snapshot as one contract.  Keeping
+# this list in one place prevents an experimental feature from reaching model
+# training while being silently discarded before the audit snapshot.
+PLAYER_SNAPSHOT_FEATURES = (
+    "target_share_last",
+    "carry_share_last",
+    "snap_share_last",
+    "target_share_jump",
+    "carry_share_jump",
+    "snap_share_jump",
+    "target_share_l4",
+    "carry_share_l4",
+    "snap_share_l4",
+    "dk_points_l4",
+    "implied_team_total",
+    "spread",
+    "game_total",
+    "is_cold_start",
+    "depth_rank",
+    "depth_rank_delta",
+    "team_vacated_target_share",
+    "team_vacated_carry_share",
+    "salary_delta_wow",
+    "games_played_prior",
+)
+
 _SLOTS = ("QB", "RB", "WR", "TE", "DST")
 
 

@@ -94,7 +94,10 @@ def run(season: int, week: int, contest_id: str,
     entries = query_df(
         f"""SELECT rank, players_key FROM `{settings.raw}.contest_entries`
             WHERE season={int(season)} AND week={int(week)}
-              AND contest_id=@cid""", params={"cid": str(contest_id)})
+              AND contest_id=@cid
+            QUALIFY ROW_NUMBER() OVER (
+              PARTITION BY contest_id, entry_id ORDER BY imported_at DESC
+            ) = 1""", params={"cid": str(contest_id)})
     if entries.empty:
         print(f"no contest_entries for {season} wk {week} contest "
               f"{contest_id}; run import-ownership first")

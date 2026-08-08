@@ -43,6 +43,31 @@ def _bucket_and_prefix(root: str):
     return storage.Client().bucket(bucket_name), prefix.rstrip("/")
 
 
+def model_params(model) -> dict:
+    """Return auditable registry metadata for a booster or ensemble.
+
+    A single LightGBM booster exposes a flat ``params`` mapping.  The adopted
+    component ensemble is a wrapper, so its parameters live on its members.
+    Keep that distinction explicit in the sidecar instead of assuming every
+    prediction-compatible object is itself a LightGBM Booster.
+    """
+    members = getattr(model, "members", None)
+    if members is None:
+        return dict(model.params)
+    return {
+        "model_type": "ensemble",
+        "ensemble_size": len(members),
+        "members": [
+            {
+                "index": i,
+                "class": type(member).__name__,
+                "params": dict(getattr(member, "params", {})),
+            }
+            for i, member in enumerate(members)
+        ],
+    }
+
+
 def save(model, meta: ModelMeta, root: str) -> str:
     """Write model + sidecar; returns the version string scope/label/iso_week.
     Ensembles (objects with .members, MODEL_ENSEMBLE lever) persist as

@@ -66,7 +66,10 @@ def fill_cold_start_features(df: pd.DataFrame) -> pd.DataFrame:
     out = df.copy()
     if "is_cold_start" not in out.columns:
         return out
-    cold = out.is_cold_start.astype(bool)
+    # Salary-spined replay intentionally retains listed inactive/cold-start
+    # rows, whose roster metadata may be nullable.  pandas.NA has no truth
+    # value, so all boolean provenance must use an explicit false fallback.
+    cold = out.is_cold_start.fillna(False).astype(bool)
 
     for idx in out.index[cold]:
         row = out.loc[idx]
@@ -80,7 +83,8 @@ def fill_cold_start_features(df: pd.DataFrame) -> pd.DataFrame:
             if rnd:
                 f = DRAFT_ADJ.get((row.get("position"), int(min(rnd, 3))), 1.0)
                 tgt, carry = tgt * f, carry * f
-        if bool(row.get("is_rookie", False)):
+        rookie = row.get("is_rookie", False)
+        if pd.notna(rookie) and bool(rookie):
             rnd = row.get("draft_round")
             mult = (
                 _ROOKIE_DISCOUNT.get(int(rnd), _ROOKIE_DISCOUNT_DEFAULT)

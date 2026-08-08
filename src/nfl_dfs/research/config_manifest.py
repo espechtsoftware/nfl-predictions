@@ -70,6 +70,7 @@ def collect_defaults() -> tuple[dict[str, Any], list[dict[str, str]]]:
     from ..backtest.engine import resolve_generation_budget
     from ..inference import live_lineups
     from ..models import blend
+    from ..models.components import effective_ensemble_size
     from ..optimizer import lineup
 
     # env={} so the manifest records CODE defaults, never the env of the
@@ -79,7 +80,6 @@ def collect_defaults() -> tuple[dict[str, Any], list[dict[str, str]]]:
     replay_src = _module_source("nfl_dfs.backtest.replay")
     lineup_src = _module_source("nfl_dfs.optimizer.lineup")
     simulate_src = _module_source("nfl_dfs.models.simulate")
-    components_src = _module_source("nfl_dfs.models.components")
     live_src = _module_source("nfl_dfs.inference.live_lineups")
     app_src = _module_source("nfl_dfs.app.main")
 
@@ -103,8 +103,9 @@ def collect_defaults() -> tuple[dict[str, Any], list[dict[str, str]]]:
         "TABPFN_MARGINALS": _env_default(
             replay_src, "TABPFN_MARGINALS", "replay") not in ("", "0"),
         # ENS3 adopted Addendum 56 (+12 tails vs same-build control).
-        "MODEL_ENSEMBLE": int(_env_default(
-            components_src, "MODEL_ENSEMBLE", "models.components") or 1),
+        # Resolve behaviorally from an empty environment, not from the
+        # process or a fragile source-text regex.
+        "MODEL_ENSEMBLE": effective_ensemble_size({}),
         "GAME_SIM_MODE": _env_default(
             simulate_src, "GAME_SIM_MODE", "models.simulate"),
         "LIVE_SIMS": int(live_lineups.LIVE_SIMS_DEFAULT),

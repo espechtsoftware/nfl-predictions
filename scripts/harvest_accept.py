@@ -16,6 +16,8 @@ Checks (each maps to a §C bullet):
  6. masks decode, lengths agree with n_worlds, 187>=194>=200 monotone
  7. mask-reconstructed selection reproduces the persisted portfolio
  8. baseline + oracle summaries recompute FROM THE TABLE
+ 9. immutable player snapshots independently reconstruct every candidate's
+    salary, actual score, roster shape, and Sunday-main-slate eligibility
 """
 import argparse
 import json
@@ -29,6 +31,7 @@ from nfl_dfs.bq import query_df  # noqa: E402
 from nfl_dfs.config import settings  # noqa: E402
 from nfl_dfs.research.candidate_features import (  # noqa: E402
     FEATURE_DEF_VERSION)
+from nfl_dfs.research.panel_compare import candidate_mean_parity  # noqa: E402
 
 STAGING = "replay_candidates_staging"
 RESEARCH = "replay_candidates"
@@ -43,6 +46,124 @@ def _bits(hexs: str, n: int) -> np.ndarray:
         bitorder="big")[:n].astype(bool)
 
 
+def _snapshot_contract_failures(candidates: pd.DataFrame,
+                                features: pd.DataFrame,
+                                main_pairs: pd.DataFrame) -> list[str]:
+    """Independent candidate legality and slate-boundary reconstruction."""
+    fails: list[str] = []
+    if features.empty:
+        return ["empty immutable player-feature rows"]
+    feat_key = ["slate_run_id", "id"]
+    if features.duplicated(feat_key).any():
+        fails.append("duplicate player ids within immutable slate snapshots")
+        return fails
+
+    expected = set(map(tuple, main_pairs[
+        ["season", "week", "team", "opp"]].drop_duplicates().values))
+    null_pairs = int(features[["team", "opp"]].isna().any(axis=1).sum())
+    if null_pairs:
+        fails.append(
+            f"snapshot contains {null_pairs} players without team/opponent")
+    observed = set(map(tuple, features.dropna(subset=["team", "opp"])[
+        ["season", "week", "team", "opp"]].drop_duplicates().values))
+    outside = observed - expected
+    if outside:
+        fails.append(
+            f"snapshot contains {len(outside)} off-main team/opponent pairs; "
+            f"examples={sorted(outside)[:4]}")
+    dst_observed = set(map(tuple, features[
+        features.pos.astype(str).str.upper().eq("DST")][
+            ["season", "week", "team", "opp"]].drop_duplicates().values))
+    missing_dst = expected - dst_observed
+    extra_dst = dst_observed - expected
+    if missing_dst or extra_dst:
+        fails.append(
+            f"DST snapshot does not exactly cover main slate: "
+            f"missing={len(missing_dst)} extra={len(extra_dst)}")
+
+    by_run = {str(run): g.set_index("id")
+              for run, g in features.groupby("slate_run_id")}
+    counts = {k: 0 for k in (
+        "roster_size", "missing_player", "salary", "actual", "position")}
+    samples: dict[str, list[str]] = {k: [] for k in counts}
+    for row in candidates.itertuples(index=False):
+        label = f"{int(row.season)}w{int(row.week)}c{int(row.cand_ix)}"
+        ids = str(row.players or "").split(",")
+        if len(ids) != 9 or len(set(ids)) != 9:
+            counts["roster_size"] += 1
+            samples["roster_size"].append(label)
+            continue
+        frame = by_run.get(str(row.slate_run_id))
+        if frame is None or any(pid not in frame.index for pid in ids):
+            counts["missing_player"] += 1
+            samples["missing_player"].append(label)
+            continue
+        roster = frame.loc[ids]
+        salaries = pd.to_numeric(roster.salary, errors="coerce")
+        actuals = pd.to_numeric(roster.actual, errors="coerce")
+        salary = float(salaries.sum()) if salaries.notna().all() else np.nan
+        actual = float(actuals.sum()) if actuals.notna().all() else np.nan
+        if (not np.isfinite(salary) or abs(salary - float(row.salary)) > 1e-6
+                or salary > 50_000):
+            counts["salary"] += 1
+            samples["salary"].append(label)
+        if (not np.isfinite(actual)
+                or abs(actual - float(row.actual_score)) > 1e-6):
+            counts["actual"] += 1
+            samples["actual"].append(label)
+        pos = roster.pos.astype(str).str.upper().value_counts()
+        legal_shape = (
+            int(pos.get("QB", 0)) == 1
+            and 2 <= int(pos.get("RB", 0)) <= 3
+            and 3 <= int(pos.get("WR", 0)) <= 4
+            and 1 <= int(pos.get("TE", 0)) <= 2
+            and int(pos.get("DST", 0)) == 1
+        )
+        if not legal_shape:
+            counts["position"] += 1
+            samples["position"].append(label)
+    for kind, count in counts.items():
+        if count:
+            fails.append(
+                f"snapshot {kind} reconstruction failed for {count} "
+                f"candidates; examples={samples[kind][:4]}")
+    return fails
+
+
+def _authoritative_actual_failures(features: pd.DataFrame,
+                                   actuals: pd.DataFrame) -> list[str]:
+    """Verify persisted player labels against the canonical actual tables."""
+    key = ["season", "week", "id"]
+    if actuals.empty:
+        return ["empty authoritative actual rows"]
+    if actuals.duplicated(key).any():
+        return ["duplicate authoritative actual keys"]
+    authoritative = actuals.set_index(key).authoritative_actual
+    unique_features = features.drop_duplicates(key)
+    missing: list[str] = []
+    mismatched: list[str] = []
+    for row in unique_features.itertuples(index=False):
+        k = (int(row.season), int(row.week), str(row.id))
+        label = f"{k[0]}w{k[1]}:{k[2]}"
+        if k not in authoritative.index:
+            missing.append(label)
+            continue
+        got = pd.to_numeric(pd.Series([row.actual]), errors="coerce").iloc[0]
+        expected = float(authoritative.loc[k])
+        if not np.isfinite(got) or abs(float(got) - expected) > 1e-6:
+            mismatched.append(label)
+    fails: list[str] = []
+    if missing:
+        fails.append(
+            f"snapshot has {len(missing)} players without authoritative "
+            f"actuals; examples={missing[:4]}")
+    if mismatched:
+        fails.append(
+            f"snapshot has {len(mismatched)} authoritative actual "
+            f"mismatches; examples={mismatched[:4]}")
+    return fails
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("panel_run_id")
@@ -52,6 +173,55 @@ def main() -> int:
     d = query_df(f"""
         SELECT * FROM `{settings.predictions}.{STAGING}`
         WHERE panel_run_id = '{a.panel_run_id}'""")
+    feature_rows = query_df(f"""
+        SELECT season, week, slate_run_id, id, pos, team, opp, salary, actual,
+               proj, mean_projection, model_points_pre, market_points,
+               code_sha, research_eligible
+        FROM `{settings.predictions}.slate_player_features`
+        WHERE panel_run_id = '{a.panel_run_id}'
+        """)
+    main_pairs = query_df(f"""
+        WITH games AS (
+          SELECT season, week,
+                 CASE home_team WHEN 'OAK' THEN 'LV' WHEN 'SD' THEN 'LAC'
+                      WHEN 'STL' THEN 'LA' ELSE home_team END AS home_team,
+                 CASE away_team WHEN 'OAK' THEN 'LV' WHEN 'SD' THEN 'LAC'
+                      WHEN 'STL' THEN 'LA' ELSE away_team END AS away_team
+          FROM `{settings.raw}.schedules`
+          WHERE season IN (2019, 2021, 2022, 2023, 2024, 2025)
+            AND game_type = 'REG'
+            AND weekday = 'Sunday'
+            AND SAFE.PARSE_TIME('%H:%M', gametime) >= TIME '13:00:00'
+            AND SAFE.PARSE_TIME('%H:%M', gametime) < TIME '19:00:00'
+        )
+        SELECT season, week, home_team AS team, away_team AS opp FROM games
+        UNION ALL
+        SELECT season, week, away_team, home_team FROM games""")
+    authoritative_actuals = query_df(f"""
+        SELECT season, week, gsis_id AS id,
+               dk_points AS authoritative_actual
+        FROM `{settings.features}.player_week_actuals`
+        WHERE season IN (2019, 2021, 2022, 2023, 2024, 2025)
+        UNION ALL
+        SELECT season, week, CONCAT('DST_', team) AS id,
+               dst_dk_points AS authoritative_actual
+        FROM `{settings.features}.team_defense_week`
+        WHERE season IN (2019, 2021, 2022, 2023, 2024, 2025)
+        """)
+    if feature_rows.empty:
+        feature_snapshots = pd.DataFrame(columns=[
+            "season", "week", "slate_run_id", "n_players", "n_eligible",
+            "n_bad_sha"])
+    else:
+        fr = feature_rows.assign(
+            bad_sha=(feature_rows.code_sha.isna()
+                     | feature_rows.code_sha.astype(str).str.strip().isin(
+                         ("", "unknown"))))
+        feature_snapshots = fr.groupby(
+            ["season", "week", "slate_run_id"], as_index=False).agg(
+                n_players=("id", "size"),
+                n_eligible=("research_eligible", "sum"),
+                n_bad_sha=("bad_sha", "sum"))
     fails: list[str] = []
     if d.empty:
         print(f"FAIL: no rows for panel {a.panel_run_id}")
@@ -91,6 +261,40 @@ def main() -> int:
                      "FALSE until promotion)")
     if d.actual_score.isna().any():
         fails.append("null actual_score in a replay panel")
+    for col in ("panel_run_id", "code_sha", "config_hash"):
+        if col not in d or d[col].fillna("").astype(str).str.strip().eq("").any():
+            fails.append(f"missing {col} provenance")
+    if d.code_sha.astype(str).eq("unknown").any():
+        fails.append("unknown code_sha provenance")
+    for col in ("code_sha", "config_hash", "lever_env", "seeds"):
+        if d[col].fillna("").astype(str).nunique(dropna=False) != 1:
+            fails.append(f"mixed {col} provenance within panel")
+    # Candidate rows alone are insufficient for missed-player/reranker work:
+    # the point-in-time player snapshot must cover the exact same immutable
+    # slate runs.  The old promotion only flipped candidate eligibility, so
+    # `missed-player-analysis` could never read an otherwise accepted panel.
+    cand_runs = set(map(tuple, d[["season", "week", "slate_run_id"]]
+                        .drop_duplicates().values))
+    feat_runs = (set(map(tuple, feature_snapshots[
+                    ["season", "week", "slate_run_id"]].values))
+                 if not feature_snapshots.empty else set())
+    if cand_runs != feat_runs:
+        fails.append("player-feature snapshots do not match candidate slate runs")
+    if not feature_snapshots.empty:
+        if (feature_snapshots.n_players <= 0).any():
+            fails.append("empty player-feature snapshot")
+        if (feature_snapshots.n_eligible != 0).any():
+            fails.append("feature snapshots already research_eligible")
+        if (feature_snapshots.n_bad_sha != 0).any():
+            fails.append("feature snapshots have blank/unknown code provenance")
+    fails.extend(_snapshot_contract_failures(d, feature_rows, main_pairs))
+    fails.extend(_authoritative_actual_failures(
+        feature_rows, authoritative_actuals))
+    parity_report, parity_failures = candidate_mean_parity(d, feature_rows)
+    print("\n=== REPLAY/LIVE MEAN PARITY ===")
+    print(json.dumps(parity_report, indent=2, sort_keys=True))
+    fails.extend(f"replay/live parity: {failure}"
+                 for failure in parity_failures)
     tags = d.all_tags.map(lambda s: json.loads(s) if isinstance(s, str) else [])
     if tags.map(len).max() < 2:
         fails.append("no multi-producer roster recorded (provenance suspect)")
@@ -266,12 +470,20 @@ def main() -> int:
         # SELECT * REPLACE keeps column ORDER (INSERT..SELECT is
         # positional in BigQuery; EXCEPT+append put the flag last and
         # collided with the target's column 11).
+        # Candidates and their immutable player snapshots become eligible in
+        # one transaction.  A half-promotion would strand analysis in the same
+        # state as the old candidates-only implementation.
         query_df(f"""
+            BEGIN TRANSACTION;
             INSERT INTO `{settings.predictions}.{RESEARCH}`
             SELECT * REPLACE (TRUE AS research_eligible)
             FROM `{settings.predictions}.{STAGING}`
-            WHERE panel_run_id = '{a.panel_run_id}'""")
-        print(f"promoted panel {a.panel_run_id} -> {RESEARCH}")
+            WHERE panel_run_id = '{a.panel_run_id}';
+            UPDATE `{settings.predictions}.slate_player_features`
+            SET research_eligible = TRUE
+            WHERE panel_run_id = '{a.panel_run_id}';
+            COMMIT TRANSACTION;""")
+        print(f"promoted panel {a.panel_run_id} -> {RESEARCH} plus player snapshots")
     return 0
 
 

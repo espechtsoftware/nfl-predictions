@@ -3112,3 +3112,40 @@ it additionally fixes the harmless-but-noisy empty two-way-prop fallback in
 older seasons. Schaake and EPI remain off/closed; standard boom generation
 retains 28 slots and remains the fallback if CE cannot produce a unique
 candidate.
+
+## Addendum 101 (2026-08-08): Corrected-universe baseline established; exact replay gate fails
+
+**This addendum supersedes Addendum 100's production conclusion.** The
+subsequent independent replay-universe audit found that the 27/107 book
+contained 256 selected lineups that fail authoritative historical repricing.
+The later 17/107 rebaseline was also invalid because historical DST aliases
+dropped 478 salary rows. Additional repairs restrict the target season to the
+actual Sunday main slate, validate skill and DST salaries against the
+canonical opponent before aggregation, and use the canonical DK DST scorer.
+CE's independent confirmation then scored 26/107 against a 27 control, so CE
+returned to research-only; production research defaults are again
+`N_CE=0,N_EPISTEMIC=0,N_GUMBEL=0,N_BOOM=40`.
+
+The first complete corrected baseline is
+`20260808-livefaithful-b3-ee6f433` on immutable digest
+`sha256:6e34cb1f3580be71ad2acd50f0faeacf45b59a7039fe7e32b0996ecf26dda9d0`:
+107/107 slates, 17,426 candidates, exactly 40 selected per slate, **18/107
+selected clears at 194**, mean selected best 175.31, and 24/107 pool-oracle
+clears. Replay/live mean parity and the canonical acceptance gate passed; the
+panel was promoted by execution `accept-replay-panel-mmdgr`.
+
+The mandatory same-image reproduction
+`20260808-livefaithful-b3r-ee6f433` also scored 18/107, but the exact gate
+failed in execution `compare-exact-replay-pckdb`. All 50,098 persisted player
+features match within the registered tolerance and all actual candidate
+scores match. Nevertheless, 2019 and 2024 have 14 roster keys absent from
+each opposing arm, 41 differing selected flags, and 22 non-identical
+candidate-world artifacts; 2021, 2022, 2023, and 2025 are exact. Aggregate
+headline equality therefore does not establish reproducibility.
+
+The already-complete `MODEL_ENSEMBLE=1` ablation
+`20260808-a02-ensemble1-ee6f433` (18/107, mean 174.55) receives **no verdict**
+until the default same-image control passes exact replay. The next valid work
+is determinism instrumentation/hardening at the component-to-simulator
+boundary, followed by a fresh baseline plus exact same-image reproduction.
+No production promotion and no new scoring arm may bypass that gate.

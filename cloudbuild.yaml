@@ -1,0 +1,24 @@
+# Heavy validation belongs in Cloud Build because the local workstation is
+# not reliable under sustained CPU load.  The production image is emitted
+# only after the complete test suite succeeds.
+steps:
+  - name: python:3.11-slim
+    id: full-test-suite
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        apt-get update
+        apt-get install -y --no-install-recommends libgomp1
+        pip install --no-cache-dir '.[gcp,app,dev]'
+        pytest
+  - name: gcr.io/cloud-builders/docker
+    id: build-image
+    args: [build, -t, '${_IMAGE}', .]
+images:
+  - '${_IMAGE}'
+substitutions:
+  _IMAGE: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:cloud-validated
+timeout: 3600s
+options:
+  machineType: E2_HIGHCPU_8

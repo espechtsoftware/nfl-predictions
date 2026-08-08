@@ -10,6 +10,10 @@ COPY pyproject.toml README.md CLAUDE.md ./
 COPY reports/model-primer.md ./reports/model-primer.md
 COPY src ./src
 COPY sql ./sql
+COPY scripts/harvest_accept.py ./scripts/harvest_accept.py
+COPY scripts/compare_adoption_panel.py ./scripts/compare_adoption_panel.py
+COPY scripts/compare_exact_replay.py ./scripts/compare_exact_replay.py
+COPY scripts/compare_role_belief_panel.py ./scripts/compare_role_belief_panel.py
 
 RUN pip install --no-cache-dir ".[gcp,app]"
 

@@ -28,7 +28,9 @@ ref AS (
   WHERE position = 'Referee'
   -- deterministic tie-break (variance review 2026-08-04): no ORDER
   -- BY = arbitrary referee row per game per rebuild
-  QUALIFY ROW_NUMBER() OVER (PARTITION BY game_id ORDER BY name) = 1
+  QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY game_id ORDER BY official_name, official_id
+  ) = 1
 )
 SELECT
   g.game_id, g.season, g.week, r.referee,

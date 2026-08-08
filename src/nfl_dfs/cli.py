@@ -77,7 +77,9 @@ def main(argv: list[str] | None = None) -> None:
                    help="Fraction of the simulated field built by optimizer")
     p.add_argument("--tail-line", type=float, default=None,
                    help="GPP entry selection maximizes P(best >= this "
-                   "score); default 194 for gpp, 0 disables")
+                        "score); default 194 for gpp, 0 disables")
+    p.add_argument("--max-weeks", type=int, default=None,
+                   help="audit smoke only: stop contest replay after N weeks")
 
     sub.add_parser("schaake-smoke",
                    help="Run image-level Schaake mechanism invariants")
@@ -110,6 +112,29 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--week", type=int, required=True)
     p.add_argument("--contest-id", required=True)
     p.add_argument("--contest-name", default=None)
+
+    p = sub.add_parser(
+        "leaderboard-analysis",
+        help="Analyze captured top entries and player appearances for a contest",
+    )
+    p.add_argument("--season", type=int, required=True)
+    p.add_argument("--week", type=int, required=True)
+    p.add_argument("--contest-id", required=True)
+    p.add_argument("--top-n", type=int, default=20)
+
+    p = sub.add_parser(
+        "missed-player-analysis",
+        help="Attribute high-scoring unselected players in an accepted replay panel",
+    )
+    p.add_argument("--panel", required=True)
+    p.add_argument("--threshold", type=float, default=20.0)
+
+    p = sub.add_parser(
+        "archetype-panel-analysis",
+        help="Run same-slate matched controls for breakout states in a panel",
+    )
+    p.add_argument("--panel", required=True)
+    p.add_argument("--threshold", type=float, default=20.0)
 
     p = sub.add_parser("archetypes",
                        help="Cluster scoring-consistency archetypes into nfl_features")
@@ -193,7 +218,8 @@ def main(argv: list[str] | None = None) -> None:
         contest = payout.gpp() if args.contest == "gpp" else payout.double_up()
         replay.run(args.season, n_sims=args.sims, contest=contest,
                    n_entries=args.entries, field_size=args.field_size,
-                   sharp_fraction=args.sharp, tail_line=args.tail_line)
+                   sharp_fraction=args.sharp, tail_line=args.tail_line,
+                   max_weeks=args.max_weeks)
     elif args.command == "schaake-smoke":
         from .research.schaake_diag import cloud_smoke
 
@@ -243,6 +269,20 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import archetypes
 
         archetypes.run(trailing_seasons=args.seasons, min_games=args.min_games)
+    elif args.command == "leaderboard-analysis":
+        from .analysis import leaderboard
+
+        print(leaderboard.run(args.season, args.week, args.contest_id,
+                              top_n=args.top_n))
+    elif args.command == "missed-player-analysis":
+        from .analysis import leaderboard
+
+        print(leaderboard.run_missed_panel(args.panel,
+                                            actual_threshold=args.threshold))
+    elif args.command == "archetype-panel-analysis":
+        from .analysis import archetype_research
+
+        print(archetype_research.run(args.panel, tail=args.threshold))
     elif args.command == "serve":
         import uvicorn
 

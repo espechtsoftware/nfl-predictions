@@ -47,8 +47,10 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     from ..models.train_job import load_latest_component_models
     from ..optimizer.lineup import LEVERAGE_PENALTY, PUNT_MAX_SALARY
     from .. import notes as manual_notes
-    from ..models.blend import blend, market_projection_frame
-    from .run_projections import BLEND_WEIGHT, upcoming_slate_features
+    from ..models.blend import (blend, effective_model_weight,
+                                market_projection_frame,
+                                shift_draws_to_means)
+    from .run_projections import upcoming_slate_features
 
     import os as _os
 
@@ -100,8 +102,8 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     except Exception:
         log.exception("live prop market unavailable; DK PPG stand-in")
     blended = blend(draws.mean(axis=1), np.asarray(market, dtype=float),
-                    BLEND_WEIGHT)
-    draws = draws + (blended - draws.mean(axis=1))[:, None]
+                    effective_model_weight())
+    draws = shift_draws_to_means(draws, blended)
 
     frame = pd.DataFrame({
         "id": skill.dk_player_id.astype(int),

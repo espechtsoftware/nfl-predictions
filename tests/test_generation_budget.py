@@ -1,21 +1,19 @@
-"""Adopted generation budget (2026-08-06 CE adoption).
+"""Adopted boom-only generation budget.
 
-CE was live in production ONLY through Cloud Run env vars while the
-code defaulted to CE-off, so any redeploy without those vars silently
-reverted generation to boom-only — invisible to both the test suite
-and the config manifest. These tests pin the resolver's rules so the
-adopted configuration is a code fact.
+The independent CE confirmation did not improve the primary score metric,
+so production defaults to 0 CE / 40 boom. These tests pin that decision in
+code and retain CE as an explicit research override only.
 """
 from nfl_dfs.backtest.engine import (DEFAULT_N_BOOM, DEFAULT_N_CE,
                                      GEN_TOTAL_BUDGET,
                                      resolve_generation_budget)
 
 
-def test_no_env_is_exactly_12_ce_28_boom_40_total():
+def test_no_env_is_exactly_0_ce_40_boom_40_total():
     ce, epi, boom = resolve_generation_budget(env={})
-    assert (ce, epi, boom) == (12, 0, 28)
+    assert (ce, epi, boom) == (0, 0, 40)
     assert ce + epi + boom == GEN_TOTAL_BUDGET == 40
-    assert (DEFAULT_N_CE, DEFAULT_N_BOOM) == (12, 28)
+    assert (DEFAULT_N_CE, DEFAULT_N_BOOM) == (0, 40)
 
 
 def test_explicit_ce_without_boom_keeps_total_at_40():
@@ -40,9 +38,9 @@ def test_explicit_boom_is_an_override():
 
 def test_no_double_subtraction_regression():
     """The bug a naive signature default would have caused: boom
-    defaulting to 28 AND then subtracting CE, giving 16."""
+    defaulting to a partial boom budget and then subtracting CE again."""
     _, _, boom = resolve_generation_budget(env={})
-    assert boom == 28, f"double-subtracted to {boom}"
+    assert boom == 40, f"double-subtracted to {boom}"
 
 
 def test_ce_off_experiment_restores_full_boom_budget():
@@ -73,9 +71,26 @@ def test_effective_config_flags_a_deployment_override():
 
     ok = effective_generation_config(env={})
     assert ok["matches_adopted_default"] and ok["overrides"] == {}
-    bad = effective_generation_config(env={"N_CE": "0"})
+    bad = effective_generation_config(env={"N_CE": "12", "N_BOOM": "28"})
     assert not bad["matches_adopted_default"]
-    assert bad["overrides"] == {"N_CE": "0"} and bad["n_boom"] == 40
+    assert bad["overrides"] == {"N_CE": "12", "N_BOOM": "28"}
+    assert bad["n_boom"] == 28
+    # A research EPI override must not masquerade as the adopted budget.
+    assert not effective_generation_config(
+        env={"N_EPISTEMIC": "1", "N_BOOM": "40"})["matches_adopted_default"]
+    assert not effective_generation_config(
+        env={"N_GUMBEL": "20"})["matches_adopted_default"]
+    role = effective_generation_config(env={
+        "EPISTEMIC_FAMILY": "role_draws",
+        "ROLE_BELIEF_FEATURES": "target_share_last",
+        "ROLE_BELIEF_SEED": "91",
+    })
+    # The generation counts remain baseline, but the research mechanism is
+    # still surfaced for the deployment verifier to reject.
+    assert not role["matches_adopted_default"]
+    assert role["epistemic_family"] == "role_draws"
+    assert role["role_belief_seed"] == 91
+    assert role["overrides"]["ROLE_BELIEF_FEATURES"] == "target_share_last"
 
 
 # --- fair pool-size control ---------------------------------------------
@@ -138,7 +153,7 @@ def test_ce_seed_is_configurable_and_recorded():
     assert cfg["ce_seed"] == 424242
     assert cfg["overrides"]["CE_SEED"] == "424242"
     # a seed change must not disturb the budget
-    assert (cfg["n_ce"], cfg["n_boom"]) == (12, 28)
+    assert (cfg["n_ce"], cfg["n_boom"]) == (0, 40)
 
 
 def test_ce_seed_changes_the_sampled_worlds():
@@ -151,6 +166,56 @@ def test_ce_seed_changes_the_sampled_worlds():
     same = sample_knobs(np.random.default_rng(1701), 8)
     assert np.allclose(a, same), "same seed must reproduce"
     assert not np.allclose(a, b), "different seed must explore elsewhere"
+
+
+def test_gumbel_seed_is_configurable_reproducible_and_recorded():
+    import numpy as np
+
+    from nfl_dfs.backtest.engine import (_gumbel_rng,
+                                         effective_generation_config)
+
+    assert effective_generation_config(env={})["gumbel_seed"] == 4700
+    cfg = effective_generation_config(env={"GUMBEL_SEED": "20260807"})
+    assert cfg["gumbel_seed"] == 20260807
+    assert cfg["overrides"]["GUMBEL_SEED"] == "20260807"
+    a = _gumbel_rng({"GUMBEL_SEED": "20260807"}).gumbel(size=12)
+    same = _gumbel_rng({"GUMBEL_SEED": "20260807"}).gumbel(size=12)
+    b = _gumbel_rng({"GUMBEL_SEED": "20260808"}).gumbel(size=12)
+    assert np.allclose(a, same)
+    assert not np.allclose(a, b)
+
+
+def test_hierarchical_gumbel_has_frozen_game_and_team_correlation():
+    import numpy as np
+
+    from nfl_dfs.backtest.engine import _gumbel_perturbations
+
+    pool = [
+        {"id": "a1", "game_id": "g1", "team": "A"},
+        {"id": "a2", "game_id": "g1", "team": "A"},
+        {"id": "b1", "game_id": "g1", "team": "B"},
+        {"id": "c1", "game_id": "g2", "team": "C"},
+    ]
+    rng = np.random.default_rng(91)
+    draws = np.stack([_gumbel_perturbations(
+        pool, rng, 2.0, "hierarchical") for _ in range(5000)])
+    corr = np.corrcoef(draws, rowvar=False)
+    # Equal component variances imply approximately 2/3 correlation within
+    # team, 1/3 across opponents, and zero across games.
+    assert 0.58 < corr[0, 1] < 0.75
+    assert 0.23 < corr[0, 2] < 0.43
+    assert abs(corr[0, 3]) < 0.08
+    assert corr[0, 1] > corr[0, 2] > corr[0, 3]
+
+
+def test_unknown_gumbel_mode_fails_loudly():
+    import numpy as np
+    import pytest
+
+    from nfl_dfs.backtest.engine import _gumbel_perturbations
+
+    with pytest.raises(ValueError, match="GUMBEL_MODE"):
+        _gumbel_perturbations([], np.random.default_rng(1), 2.0, "typo")
 
 
 # --- trim fairness across ALL generator tags -----------------------------
@@ -226,3 +291,19 @@ def test_paired_protection_keeps_equal_replacement_slots():
                                 protect=("boom",))
     assert rt["ce"] == 12          # treatment keeps its replacement slots
     assert rc["boom"] >= 12        # control keeps an equal number
+
+
+def test_gumbel_treatment_and_control_protect_equal_replacement_slots():
+    from nfl_dfs.backtest.engine import trim_pool_to_cap
+
+    treat = ([_Lu("lev", i) for i in range(60)]
+             + [_Lu("boom", i) for i in range(20)]
+             + [_Lu("gumbel", i) for i in range(20)])
+    ctrl = ([_Lu("lev", i) for i in range(60)]
+            + [_Lu("boom", i) for i in range(40)])
+    _, rt, _ = trim_pool_to_cap(treat, 80, {"gumbel": 20},
+                                protect=("gumbel",))
+    _, rc, _ = trim_pool_to_cap(ctrl, 80, {"boom": 20},
+                                protect=("boom",))
+    assert rt["gumbel"] == 20
+    assert rc["boom"] >= 20

@@ -5,9 +5,13 @@ import pandas as pd
 import pytest
 
 from nfl_dfs.features.leakage import (
+    assert_dst_actual_universe_reconciled,
+    HISTORICAL_ROSTER_GAP_SQL,
     LeakageError,
     assert_first_game_features_null,
+    assert_historical_salary_source_reconciled,
     assert_no_leakage,
+    assert_salary_universe_reconciled,
     trailing_mean_excluding_current,
 )
 
@@ -118,3 +122,44 @@ def test_first_row_null_generic():
     bad["f_l6"] = bad["f_l6"].fillna(0.1)
     with pytest.raises(LeakageError):
         assert_first_row_features_null(bad, ["f_l6"], ("team", "season"))
+
+
+def test_dst_actual_universe_gate_rejects_missing_team_weeks():
+    assert_dst_actual_universe_reconciled(pd.DataFrame())
+    gaps = pd.DataFrame([
+        {"season": 2019, "week": 1, "team": "LV"},
+        {"season": 2019, "week": 1, "team": "LAC"},
+    ])
+    with pytest.raises(LeakageError, match="team_defense_week"):
+        assert_dst_actual_universe_reconciled(gaps)
+
+
+def test_salary_universe_reconciliation():
+    assert_salary_universe_reconciled(pd.DataFrame())
+    gap = pd.DataFrame([{
+        "gsis_id": "00-0000001", "display_name": "Missing Player",
+        "season": 2025, "week": 7, "position": "QB", "team": "DET",
+        "salary": 6100,
+    }])
+    with pytest.raises(LeakageError, match="salary-universe"):
+        assert_salary_universe_reconciled(gap)
+
+
+def test_historical_salary_source_reconciliation():
+    assert_historical_salary_source_reconciled(pd.DataFrame())
+    gap = pd.DataFrame([{
+        "display_name": "Dropped Player", "season": 2015, "week": 3,
+        "position": "WR", "team": "BAL", "opponent": "CIN",
+        "salary": 4200, "source_dk_points": 18.4,
+    }])
+    with pytest.raises(LeakageError, match="roster-valid historical"):
+        assert_historical_salary_source_reconciled(gap)
+
+
+def test_historical_source_gate_independently_requires_weekly_roster():
+    assert "`{raw}.rosters_weekly`" in HISTORICAL_ROSTER_GAP_SQL
+    assert "ir.team = v.team AND ir.gsis_id = i.gsis_id" in HISTORICAL_ROSTER_GAP_SQL
+    assert "WHEN 'BLT' THEN 'BAL'" in HISTORICAL_ROSTER_GAP_SQL
+    assert "('PHILLY BROWN', 'COREY BROWN')" in HISTORICAL_ROSTER_GAP_SQL
+    assert "LEFT JOIN `{features}.dk_salary_week`" in HISTORICAL_ROSTER_GAP_SQL
+    assert "season <= 2021" not in HISTORICAL_ROSTER_GAP_SQL

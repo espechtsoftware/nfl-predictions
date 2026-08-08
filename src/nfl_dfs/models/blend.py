@@ -9,12 +9,31 @@ for building the market projection in the first place.
 
 from __future__ import annotations
 
+import os
+
 import numpy as np
 import pandas as pd
 from scipy import optimize, stats
 
 
 BLEND_W = 0.45  # model weight; refit on validation
+
+
+def effective_model_weight(env: dict | None = None) -> float:
+    """Return the model share of the model/prop-market blend.
+
+    ``BLEND_W`` predates the experiment framework and its name is easy to
+    misread: zero means *market only*, not "turn the market off".  The
+    explicit research override is therefore named ``BLEND_MODEL_WEIGHT``;
+    the clean market-ablation value is 1.0.  Keeping the default in the
+    constant preserves the shipping behavior when no override is present.
+    """
+    source = os.environ if env is None else env
+    weight = float(source.get("BLEND_MODEL_WEIGHT", BLEND_W))
+    if not 0.0 <= weight <= 1.0:
+        raise ValueError(
+            f"BLEND_MODEL_WEIGHT must be between 0 and 1, got {weight}")
+    return weight
 
 
 def fit_blend_weight(
@@ -41,6 +60,22 @@ def blend(model: np.ndarray, market: np.ndarray, w: float) -> np.ndarray:
     market = np.asarray(market, dtype=float)
     out = w * model + (1.0 - w) * market
     return np.where(np.isnan(market), model, out)
+
+
+def shift_draws_to_means(draws: np.ndarray,
+                         target_means: np.ndarray) -> np.ndarray:
+    """Shift each simulated marginal to its blended mean, shape unchanged.
+
+    Replay and live generation must consume the same mean-adjusted worlds.
+    Altering only the projection frame changes deterministic optimization but
+    leaves boom generation and coverage selection on a different model.
+    """
+    values = np.asarray(draws)
+    targets = np.asarray(target_means, dtype=float)
+    if values.ndim != 2 or targets.shape != (values.shape[0],):
+        raise ValueError(
+            "draw rows and target means must have matching player counts")
+    return values + (targets - values.mean(axis=1))[:, None]
 
 
 def market_projection_frame(feats: pd.DataFrame) -> pd.Series:

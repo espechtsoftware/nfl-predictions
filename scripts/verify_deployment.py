@@ -2,11 +2,12 @@
 match the adopted default?
 
 Why this exists: `check-freshness` resolves configuration inside its
-OWN process, so if the app alone were deployed with N_CE=0 the
-freshness job would still see code defaults (12/28) and pass. The
+OWN process, so if the app alone were deployed with a research override the
+freshness job would still see code defaults and pass. The
 claimed "an accidental app override trips the alert" protection did
 not exist. This reads the Cloud Run specs for the two live
-lineup-generation paths and fails if either departs from 12/28.
+lineup-generation paths and fails if either departs from the adopted
+boom-only baseline.
 
   python scripts/verify_deployment.py            # check, exit 1 on drift
   python scripts/verify_deployment.py --json     # machine-readable
@@ -71,31 +72,45 @@ def main() -> int:
             failures.append(f"{name}: could not read deployment spec")
             continue
         ce, epi, boom = resolve_generation_budget(env=env)
+        gumbel = int(env.get("N_GUMBEL", "0") or 0)
         # FULL contract, not just (ce, boom): N_EPISTEMIC=1 alongside
-        # 12/28 would otherwise pass while producing 41 slots. Research
-        # knobs must never appear on a production deployment either.
-        forbidden = {k: env[k] for k in ("GEN_POOL_CAP", "GEN_POOL_CAP_MAP",
-                                         "GEN_TOTAL_BUDGET") if k in env}
+        # an explicit boom setting could otherwise pass while producing
+        # 41 slots. Research knobs must never appear in production either.
+        forbidden = {k: env[k] for k in (
+            "GEN_POOL_CAP", "GEN_POOL_CAP_MAP", "GEN_TOTAL_BUDGET",
+            "GUMBEL_SEED", "GUMBEL_SCALE", "GUMBEL_MODE",
+            "EPISTEMIC_FAMILY", "ROLE_BELIEF_FEATURES",
+            "ROLE_BELIEF_SEED",
+            "REPLACEMENT_SLOTS") if k in env}
         problems = []
         if ce != DEFAULT_N_CE:
             problems.append(f"N_CE={ce} (want {DEFAULT_N_CE})")
         if epi != 0:
             problems.append(f"N_EPISTEMIC={epi} (want 0)")
+        if gumbel != 0:
+            problems.append(f"N_GUMBEL={gumbel} (want 0)")
         if boom != DEFAULT_N_BOOM:
             problems.append(f"N_BOOM={boom} (want {DEFAULT_N_BOOM})")
-        if ce + epi + boom != DEFAULT_N_CE + DEFAULT_N_BOOM:
-            problems.append(f"total={ce + epi + boom} (want 40)")
+        effective_total = ce + epi + boom + gumbel
+        if effective_total != DEFAULT_N_CE + DEFAULT_N_BOOM:
+            problems.append(f"total={effective_total} (want 40)")
         if forbidden:
             problems.append(f"research overrides present: {forbidden}")
         ok = not problems
         row = {"target": name, "kind": kind, "n_ce": ce,
-               "n_epistemic": epi, "n_boom": boom, "total": ce + epi + boom,
+               "n_epistemic": epi, "n_gumbel": gumbel,
+               "n_boom": boom, "total": effective_total,
                "ce_seed": int(env.get("CE_SEED", "1701") or 1701),
                "matches_adopted": ok,
                "overrides": {k: v for k, v in env.items()
                              if k in ("N_CE", "N_EPISTEMIC", "N_BOOM",
-                                      "CE_SEED", "GEN_TOTAL_BUDGET",
-                                      "GEN_POOL_CAP")}}
+                                      "CE_SEED", "N_GUMBEL", "GUMBEL_SEED",
+                                      "GUMBEL_SCALE", "GUMBEL_MODE",
+                                      "EPISTEMIC_FAMILY",
+                                      "ROLE_BELIEF_FEATURES",
+                                      "ROLE_BELIEF_SEED",
+                                      "REPLACEMENT_SLOTS",
+                                      "GEN_TOTAL_BUDGET", "GEN_POOL_CAP")}}
         report.append(row)
         row["problems"] = problems
         if not ok:
@@ -107,7 +122,8 @@ def main() -> int:
         for r in report:
             state = "OK " if r["matches_adopted"] else "DRIFT"
             print(f"  [{state}] {r['target']:<16} CE {r['n_ce']:>2} / "
-                  f"boom {r['n_boom']:>2} / total {r['total']:>2}"
+                  f"Gumbel {r['n_gumbel']:>2} / boom {r['n_boom']:>2} / "
+                  f"total {r['total']:>2}"
                   + (f"  overrides={r['overrides']}" if r["overrides"] else ""))
     if failures:
         print("\nDEPLOYMENT CONTRACT FAILED:")

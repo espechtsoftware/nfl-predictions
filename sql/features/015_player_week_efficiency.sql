@@ -9,7 +9,9 @@ WITH per_game AS (
     SAFE_DIVIDE(a.receptions, NULLIF(a.targets, 0))   AS catch_rate,
     SAFE_DIVIDE(a.rush_yards, NULLIF(a.carries, 0))   AS yards_per_carry,
     SAFE_DIVIDE(a.pass_yards, NULLIF(a.pass_attempts, 0)) AS yards_per_attempt,
-    a.dk_points
+    -- A salary-listed inactive needs a zero label for honest replay scoring,
+    -- but it is not a played game and must not depress rolling production.
+    IF(a.has_stat_line, a.dk_points, NULL) AS dk_points
   FROM `${features}.player_week_actuals` a
 ),
 -- Synthetic rows for each team's next unplayed game (same device as 014):

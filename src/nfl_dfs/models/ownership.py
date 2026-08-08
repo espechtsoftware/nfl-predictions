@@ -60,10 +60,21 @@ def training_frame() -> pd.DataFrame:
     from ..config import settings
 
     df = query_df(f"""
-        WITH own AS (
+        WITH own_rows AS (
+          -- Safe-import retries append the same contest export again. Keep
+          -- the latest copy per contest/player so one retried contest cannot
+          -- receive extra weight in the ownership target.
+          SELECT season, week, contest_id, display_name, pct_drafted
+          FROM `{settings.raw}.contest_ownership`
+          QUALIFY ROW_NUMBER() OVER (
+            PARTITION BY season, week, contest_id, display_name
+            ORDER BY imported_at DESC
+          ) = 1
+        ),
+        own AS (
           SELECT season, week, UPPER(display_name) AS uname,
                  AVG(pct_drafted) AS pct_drafted
-          FROM `{settings.raw}.contest_ownership`
+          FROM own_rows
           GROUP BY season, week, uname
         ),
         sal AS (

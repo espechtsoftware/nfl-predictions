@@ -24,6 +24,57 @@ class LeakageError(AssertionError):
     """A feature saw data from its own week or later."""
 
 
+def assert_salary_universe_reconciled(gaps: pd.DataFrame) -> None:
+    """Every played, salary-listed skill player must reach training.
+
+    This is a universe/provenance invariant rather than a temporal leakage
+    check, but it belongs in the same mandatory post-build gate: silently
+    dropping a selectable player makes a replay just as misleading as seeing
+    future data.
+    """
+    if not gaps.empty:
+        cols = [c for c in (
+            "gsis_id", "display_name", "season", "week", "position", "team",
+            "salary",
+        ) if c in gaps.columns]
+        sample = gaps[cols].head(25).to_string(index=False)
+        raise LeakageError(
+            f"{len(gaps)} played salary-universe rows are absent from "
+            f"player_week_training. Sample:\n{sample}"
+        )
+
+
+def assert_historical_salary_source_reconciled(gaps: pd.DataFrame) -> None:
+    """Every schedule- and roster-valid historical row reaches the spine.
+
+    The downstream universe check cannot detect a player dropped before
+    ``dk_salary_week``. Independently rebuild source identity through the
+    weekly roster; a valid row absent from the salary spine is an unexplained
+    identity/source loss and must stop the build.
+    """
+    if not gaps.empty:
+        cols = [c for c in (
+            "gsis_id", "display_name", "season", "week", "position", "team",
+            "opponent", "salary", "source_dk_points",
+        ) if c in gaps.columns]
+        sample = gaps[cols].head(25).to_string(index=False)
+        raise LeakageError(
+            f"{len(gaps)} schedule- and roster-valid historical salary "
+            f"rows are absent from dk_salary_week. Sample:\n{sample}"
+        )
+
+
+def assert_dst_actual_universe_reconciled(gaps: pd.DataFrame) -> None:
+    """Every completed regular-season team-game has a canonical DST label."""
+    if not gaps.empty:
+        cols = [c for c in ("season", "week", "team") if c in gaps.columns]
+        sample = gaps[cols].head(25).to_string(index=False)
+        raise LeakageError(
+            f"{len(gaps)} completed schedule team-weeks are absent from "
+            f"team_defense_week. Sample:\n{sample}"
+        )
+
+
 def trailing_mean_excluding_current(
     df: pd.DataFrame,
     value_col: str,
@@ -139,20 +190,230 @@ FROM `{table}`
 WHERE MOD(FARM_FINGERPRINT(gsis_id), 20) = 0  -- deterministic 5% player sample
 """
 
-# The reference must window over the same rows the build does: usage rows are
-# the FULL OUTER JOIN of receiving and rushing (a rush-only game still occupies
-# a window slot, with NULL share and zero-coalesced counts). Recomputing from
-# rz_receiving alone would slide the window across different weeks for any
-# player with intermittent receiving rows and report false mismatches.
+# The reference must window over the same rows the build does: the historical
+# DK salary universe. Active players without a receiving/rushing event receive
+# a zero share; listed inactive players receive NULL. Recomputing from the
+# activity tables alone would silently omit exactly the players this gate is
+# intended to protect.
 SOURCE_GRAIN_SQL = """
-SELECT gsis_id, season, week,
-       COALESCE(rec.rz20_targets, 0) AS rz20_targets,
-       rec.target_share,
-       rush.carry_share
-FROM `{features}.rz_receiving` rec
-FULL OUTER JOIN `{features}.rz_rushing` rush
-  USING (game_id, season, week, team, gsis_id)
-WHERE MOD(FARM_FINGERPRINT(gsis_id), 20) = 0
+WITH snaps AS (
+  SELECT i.gsis_id, CAST(n.season AS INT64) AS season,
+         CAST(n.week AS INT64) AS week, n.offense_pct AS snap_share
+  FROM `{raw}.snap_counts` n
+  JOIN `{raw}.player_ids` i ON i.pfr_id = n.pfr_player_id
+  WHERE i.gsis_id IS NOT NULL
+  QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY i.gsis_id, CAST(n.season AS INT64), CAST(n.week AS INT64)
+    ORDER BY n.offense_pct DESC
+  ) = 1
+)
+SELECT sal.gsis_id, sal.season, sal.week,
+       IF(COALESCE(a.has_stat_line, FALSE) OR sn.snap_share IS NOT NULL,
+          COALESCE(rec.rz20_targets, 0), NULL) AS rz20_targets,
+       IF(COALESCE(a.has_stat_line, FALSE) OR sn.snap_share IS NOT NULL,
+          COALESCE(rec.target_share, 0), NULL) AS target_share,
+       IF(COALESCE(a.has_stat_line, FALSE) OR sn.snap_share IS NOT NULL,
+          COALESCE(rush.carry_share, 0), NULL) AS carry_share
+FROM `{features}.dk_salary_week` sal
+LEFT JOIN `{features}.rz_receiving` rec
+  ON rec.gsis_id = sal.gsis_id AND rec.season = sal.season
+ AND rec.week = sal.week
+ AND CASE rec.team WHEN 'OAK' THEN 'LV' WHEN 'SD' THEN 'LAC'
+                   WHEN 'STL' THEN 'LA' ELSE rec.team END = sal.team
+LEFT JOIN `{features}.rz_rushing` rush
+  ON rush.gsis_id = sal.gsis_id AND rush.season = sal.season
+ AND rush.week = sal.week
+ AND CASE rush.team WHEN 'OAK' THEN 'LV' WHEN 'SD' THEN 'LAC'
+                    WHEN 'STL' THEN 'LA' ELSE rush.team END = sal.team
+LEFT JOIN `{features}.player_week_actuals` a
+  ON a.gsis_id = sal.gsis_id AND a.season = sal.season AND a.week = sal.week
+LEFT JOIN snaps sn
+  ON sn.gsis_id = sal.gsis_id AND sn.season = sal.season AND sn.week = sal.week
+WHERE sal.position IN ('QB', 'RB', 'WR', 'TE')
+  AND MOD(FARM_FINGERPRINT(sal.gsis_id), 20) = 0
+"""
+
+
+UNIVERSE_GAP_SQL = """
+SELECT s.gsis_id, s.display_name, s.season, s.week, s.position, s.team, s.salary
+FROM `{features}.dk_salary_week` s
+JOIN `{features}.schedule_long` g
+  ON g.season = s.season AND g.week = s.week AND g.team = s.team
+LEFT JOIN `{features}.player_week_training` t
+  ON t.gsis_id = s.gsis_id AND t.season = s.season AND t.week = s.week
+WHERE s.position IN ('QB', 'RB', 'WR', 'TE')
+  AND DATE(g.gameday) < CURRENT_DATE()
+  AND t.gsis_id IS NULL
+ORDER BY s.season, s.week, s.position, s.salary DESC
+"""
+
+
+# Independent raw-source-to-spine contract for every historical source.
+# raw.schedules avoids making identity validation depend on betting-line
+# availability. This deliberately repeats the identity bridge: a regression
+# in the transform must not redefine its own acceptance condition.
+HISTORICAL_ROSTER_GAP_SQL = r"""
+WITH norm_ids AS (
+  SELECT DISTINCT gsis_id, UPPER(position) AS position,
+    REGEXP_REPLACE(
+      REGEXP_REPLACE(
+        REGEXP_REPLACE(UPPER(TRIM(id_name)),
+                       r'\s+(JR|SR|II|III|IV|V)\.?$', ''),
+        r'[^A-Z ]', ''), r' +', ' ') AS clean_name
+  FROM `{raw}.player_ids`, UNNEST([name, merge_name]) AS id_name
+  WHERE gsis_id IS NOT NULL AND id_name IS NOT NULL
+), norm_rosters AS (
+  SELECT DISTINCT
+    gsis_id, CAST(season AS INT64) AS season, CAST(week AS INT64) AS week,
+    CASE UPPER(team)
+      WHEN 'ARZ' THEN 'ARI' WHEN 'BLT' THEN 'BAL' WHEN 'CLV' THEN 'CLE'
+      WHEN 'HST' THEN 'HOU' WHEN 'SL' THEN 'LA'
+      WHEN 'GNB' THEN 'GB' WHEN 'KAN' THEN 'KC' WHEN 'JAC' THEN 'JAX'
+      WHEN 'LAR' THEN 'LA' WHEN 'LVR' THEN 'LV' WHEN 'OAK' THEN 'LV'
+      WHEN 'NOR' THEN 'NO' WHEN 'NWE' THEN 'NE' WHEN 'SFO' THEN 'SF'
+      WHEN 'TAM' THEN 'TB' WHEN 'SD' THEN 'LAC' WHEN 'SDG' THEN 'LAC'
+      WHEN 'STL' THEN 'LA' ELSE UPPER(team)
+    END AS team,
+    UPPER(position) AS position,
+    REGEXP_REPLACE(
+      REGEXP_REPLACE(
+        REGEXP_REPLACE(UPPER(TRIM(roster_name)),
+                       r'\s+(JR|SR|II|III|IV|V)\.?$', ''),
+        r'[^A-Z ]', ''), r' +', ' ') AS clean_name
+  FROM `{raw}.rosters_weekly`,
+       UNNEST([full_name, CONCAT(football_name, ' ', last_name)]) AS roster_name
+  WHERE gsis_id IS NOT NULL AND full_name IS NOT NULL
+    AND roster_name IS NOT NULL AND game_type = 'REG'
+), games AS (
+  SELECT season, week,
+    CASE home_team WHEN 'OAK' THEN 'LV' WHEN 'SD' THEN 'LAC'
+                   WHEN 'STL' THEN 'LA' ELSE home_team END AS team,
+    CASE away_team WHEN 'OAK' THEN 'LV' WHEN 'SD' THEN 'LAC'
+                   WHEN 'STL' THEN 'LA' ELSE away_team END AS opponent
+  FROM `{raw}.schedules`
+  WHERE game_type = 'REG'
+  UNION ALL
+  SELECT season, week,
+    CASE away_team WHEN 'OAK' THEN 'LV' WHEN 'SD' THEN 'LAC'
+                   WHEN 'STL' THEN 'LA' ELSE away_team END,
+    CASE home_team WHEN 'OAK' THEN 'LV' WHEN 'SD' THEN 'LAC'
+                   WHEN 'STL' THEN 'LA' ELSE home_team END
+  FROM `{raw}.schedules`
+  WHERE game_type = 'REG'
+), aliases AS (
+  SELECT * FROM UNNEST([
+    STRUCT('BISI JOHNSON' AS source_name, 'OLABISI JOHNSON' AS roster_name),
+    ('CHIG OKONKWO', 'CHIGOZIEM OKONKWO'),
+    ('ELI MITCHELL', 'ELIJAH MITCHELL'),
+    ('HOLLYWOOD BROWN', 'MARQUISE BROWN'),
+    ('KENNY GAINWELL', 'KENNETH GAINWELL'),
+    ('MITCH TRUBISKY', 'MITCHELL TRUBISKY'),
+    ('NICK WESTBROOK', 'NICK WESTBROOKIKHINE'),
+    ('PHILLY BROWN', 'COREY BROWN'),
+    ('PJ WALKER', 'PHILLIP WALKER'),
+    ('ROBBIE ANDERSON', 'ROBBY ANDERSON'),
+    ('RODNEY WILLIAMS', 'ROD WILLIAMS'),
+    ('SHAQ DAVIS', 'SHAQUAN DAVIS'),
+    ('TYRON BILLY JOHNSON', 'TYRON JOHNSON')
+  ])
+), source_base AS (
+  SELECT
+    CAST(season AS INT64) AS season, CAST(week AS INT64) AS week,
+    display_name, UPPER(position) AS position,
+    CASE UPPER(team_abbr)
+      WHEN 'GNB' THEN 'GB' WHEN 'KAN' THEN 'KC' WHEN 'JAC' THEN 'JAX'
+      WHEN 'LAR' THEN 'LA' WHEN 'LVR' THEN 'LV' WHEN 'OAK' THEN 'LV'
+      WHEN 'NOR' THEN 'NO' WHEN 'NWE' THEN 'NE' WHEN 'SFO' THEN 'SF'
+      WHEN 'TAM' THEN 'TB' WHEN 'SD' THEN 'LAC' WHEN 'SDG' THEN 'LAC'
+      WHEN 'STL' THEN 'LA' ELSE UPPER(team_abbr)
+    END AS team,
+    CASE UPPER(opponent)
+      WHEN 'GNB' THEN 'GB' WHEN 'KAN' THEN 'KC' WHEN 'JAC' THEN 'JAX'
+      WHEN 'LAR' THEN 'LA' WHEN 'LVR' THEN 'LV' WHEN 'OAK' THEN 'LV'
+      WHEN 'NOR' THEN 'NO' WHEN 'NWE' THEN 'NE' WHEN 'SFO' THEN 'SF'
+      WHEN 'TAM' THEN 'TB' WHEN 'SD' THEN 'LAC' WHEN 'SDG' THEN 'LAC'
+      WHEN 'STL' THEN 'LA' ELSE UPPER(opponent)
+    END AS opponent,
+    CAST(salary AS INT64) AS salary,
+    CAST(dk_points AS FLOAT64) AS source_dk_points,
+    REGEXP_REPLACE(
+      REGEXP_REPLACE(
+        REGEXP_REPLACE(UPPER(TRIM(display_name)),
+                       r'\s+(JR|SR|II|III|IV|V)\.?$', ''),
+        r'[^A-Z ]', ''), r' +', ' ') AS clean_name
+  FROM `{raw}.dk_salaries_historical`
+  WHERE salary > 0 AND UPPER(position) IN ('QB', 'RB', 'WR', 'TE')
+), source AS (
+  SELECT s.* REPLACE(COALESCE(a.roster_name, s.clean_name) AS clean_name)
+  FROM source_base s
+  LEFT JOIN aliases a ON a.source_name = s.clean_name
+), valid AS (
+  SELECT DISTINCT s.*
+  FROM source s
+  JOIN games g
+   ON g.season = s.season AND g.week = s.week AND g.team = s.team
+   AND (g.opponent = s.opponent
+        OR (s.season = 2025 AND s.opponent IS NULL)
+        OR (s.season = 2017 AND s.week = 11 AND s.opponent = '-'
+            AND ((s.team = 'MIA' AND g.opponent = 'TB')
+                 OR (s.team = 'TB' AND g.opponent = 'MIA'))))
+), matched AS (
+  SELECT v.*,
+    COALESCE(
+      IF(COUNT(DISTINCT IF(r.position = v.position, r.gsis_id, NULL)) = 1,
+         MAX(IF(r.position = v.position, r.gsis_id, NULL)), NULL),
+      IF(COUNT(DISTINCT r.gsis_id) = 1, MAX(r.gsis_id), NULL),
+      IF(COUNT(DISTINCT IF(ir.position = v.position, ir.gsis_id, NULL)) = 1,
+         MAX(IF(ir.position = v.position, ir.gsis_id, NULL)), NULL),
+      IF(COUNT(DISTINCT ir.gsis_id) = 1, MAX(ir.gsis_id), NULL)
+    ) AS gsis_id
+  FROM valid v
+  LEFT JOIN norm_rosters r
+    ON r.season = v.season AND r.week = v.week
+   AND r.team = v.team AND r.clean_name = v.clean_name
+  LEFT JOIN norm_ids i ON i.clean_name = v.clean_name
+  LEFT JOIN norm_rosters ir
+    ON ir.season = v.season AND ir.week = v.week
+   AND ir.team = v.team AND ir.gsis_id = i.gsis_id
+  GROUP BY v.season, v.week, v.display_name, v.position, v.team,
+           v.opponent, v.salary, v.source_dk_points, v.clean_name
+), expected AS (
+  SELECT DISTINCT gsis_id, season, week, display_name, position, team,
+                  opponent, salary, source_dk_points
+  FROM matched WHERE gsis_id IS NOT NULL
+)
+SELECT e.*
+FROM expected e
+LEFT JOIN `{features}.dk_salary_week` d
+  ON d.gsis_id = e.gsis_id AND d.season = e.season AND d.week = e.week
+ AND d.team = e.team AND UPPER(d.position) = e.position
+WHERE d.gsis_id IS NULL
+ORDER BY e.season, e.week, e.position, e.salary DESC
+"""
+
+
+DST_ACTUAL_GAP_SQL = """
+WITH expected AS (
+  SELECT season, week,
+    CASE home_team WHEN 'OAK' THEN 'LV' WHEN 'SD' THEN 'LAC'
+                   WHEN 'STL' THEN 'LA' ELSE home_team END AS team
+  FROM `{raw}.schedules`
+  WHERE game_type = 'REG' AND season >= {first_season}
+    AND home_score IS NOT NULL AND away_score IS NOT NULL
+  UNION ALL
+  SELECT season, week,
+    CASE away_team WHEN 'OAK' THEN 'LV' WHEN 'SD' THEN 'LAC'
+                   WHEN 'STL' THEN 'LA' ELSE away_team END
+  FROM `{raw}.schedules`
+  WHERE game_type = 'REG' AND season >= {first_season}
+    AND home_score IS NOT NULL AND away_score IS NOT NULL
+)
+SELECT DISTINCT e.season, e.week, e.team
+FROM expected e
+LEFT JOIN `{features}.team_defense_week` d
+  USING (season, week, team)
+WHERE d.team IS NULL
+ORDER BY e.season, e.week, e.team
 """
 
 
@@ -229,10 +490,24 @@ def run_leakage_checks() -> None:
         SAMPLE_SQL.format(cols=", ".join(built_cols),
                           table=f"{settings.features}.player_week_usage")
     )
-    source = query_df(SOURCE_GRAIN_SQL.format(features=settings.features))
+    source = query_df(SOURCE_GRAIN_SQL.format(
+        features=settings.features, raw=settings.raw))
     for feature_col, source_col, window in CHECKED_FEATURES:
         assert_no_leakage(built, source, feature_col, source_col, window)
     assert_first_game_features_null(built, [f for f, *_ in CHECKED_FEATURES])
+
+    # Exact replay-universe contract. This catches identity, source-spine,
+    # actual-label, and cold-start filtering regressions before a new build can
+    # be used by replay or training.
+    gaps = query_df(UNIVERSE_GAP_SQL.format(features=settings.features))
+    assert_salary_universe_reconciled(gaps)
+    source_gaps = query_df(HISTORICAL_ROSTER_GAP_SQL.format(
+        features=settings.features, raw=settings.raw))
+    assert_historical_salary_source_reconciled(source_gaps)
+    dst_gaps = query_df(DST_ACTUAL_GAP_SQL.format(
+        features=settings.features, raw=settings.raw,
+        first_season=settings.first_season))
+    assert_dst_actual_universe_reconciled(dst_gaps)
 
     # Defense features: same discipline, team grain. EPA-allowed is
     # recomputed per-week from raw pbp on a deterministic team sample and

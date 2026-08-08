@@ -18,6 +18,7 @@ import pandas as pd
 
 from ..optimizer.lineup import (Lineup, StackRules, optimize, optimize_many,
                                 select_tail_entries)
+from ..research.candidate_features import PLAYER_SNAPSHOT_FEATURES
 from . import field as field_sim
 from .payout import Contest, roi
 
@@ -27,18 +28,17 @@ REQUIRED_COLS = {"id", "name", "pos", "team", "opp", "game_id",
                  "salary", "proj", "actual"}
 
 
-# ADOPTED generation budget (2026-08-06, CE fixed-budget arm). These are
-# CODE defaults, not deployment env vars: CE was live only because two
-# Cloud Run services carried N_CE/N_BOOM, so any redeploy without them
-# silently reverted production to boom-only generation and neither the
-# tests nor the config manifest could see it.
+# ADOPTED generation budget. The independent-seed CE confirmation did not
+# reproduce its initial threshold gain (26 clears vs the 27-boom control),
+# so production uses the proven boom-only baseline. These are CODE defaults,
+# not deployment env vars, so a redeploy cannot silently change generation.
 GEN_TOTAL_BUDGET = 40      # replacement slots shared by boom/CE/EPI
-DEFAULT_N_CE = 12
-DEFAULT_N_BOOM = GEN_TOTAL_BUDGET - DEFAULT_N_CE   # 28
+DEFAULT_N_CE = 0
+DEFAULT_N_BOOM = GEN_TOTAL_BUDGET                  # 40
 
 
-# Replacement slots the adopted CE arm displaces. Both arms of a paired
-# comparison protect this many: 12 CE in treatment, 12 boom in control.
+# Replacement slots used by the archived CE paired-panel protocol. Both
+# arms protect this many: 12 CE in treatment, 12 boom in control.
 REPLACEMENT_SLOTS = 12
 
 
@@ -144,7 +144,7 @@ def resolve_generation_budget(n_boom_solves: int | None = None,
     """-> (n_ce, n_epistemic, n_boom) under one fixed total budget.
 
     Rules (agreed 2026-08-06):
-      * no env               -> 12 CE / 28 boom, 40 total
+      * no env               -> 0 CE / 40 boom, 40 total
       * explicit N_CE and/or N_EPISTEMIC without N_BOOM
                              -> boom = 40 - N_CE - N_EPISTEMIC
       * explicit N_BOOM      -> override, used verbatim
@@ -180,18 +180,78 @@ def resolve_generation_budget(n_boom_solves: int | None = None,
 def effective_generation_config(env: dict | None = None) -> dict:
     """The config a RUNNING process will actually use, including any
     deployment override. The manifest proves CODE defaults; this proves
-    what the live service resolved, so an accidental N_CE=0 on the app
-    is visible in logs and health output rather than silent."""
+    what the live service resolved, so an unintended research override is
+    visible in logs and health output rather than silent."""
     e = os.environ if env is None else env
     n_ce, n_epi, n_boom = resolve_generation_budget(env=e)
+    n_gumbel = int(e.get("N_GUMBEL", "0") or 0)
+    research_only = (
+        "EPISTEMIC_FAMILY", "ROLE_BELIEF_FEATURES", "ROLE_BELIEF_SEED",
+        "GEN_POOL_CAP", "GEN_POOL_CAP_MAP", "GEN_TOTAL_BUDGET",
+        "REPLACEMENT_SLOTS",
+    )
     return {"n_ce": n_ce, "n_epistemic": n_epi, "n_boom": n_boom,
-            "total": n_ce + n_epi + n_boom,
-            "matches_adopted_default": (n_ce, n_boom) == (DEFAULT_N_CE,
-                                                          DEFAULT_N_BOOM),
+            "n_gumbel": n_gumbel,
+            "total": n_ce + n_epi + n_boom + n_gumbel,
+            "matches_adopted_default": (n_ce, n_epi, n_boom) ==
+                                       (DEFAULT_N_CE, 0, DEFAULT_N_BOOM)
+                                       and n_gumbel == 0
+                                       and not any(k in e for k in research_only),
             "ce_seed": int(e.get("CE_SEED", "1701") or 1701),
+            "epistemic_family": e.get("EPISTEMIC_FAMILY", "standard"),
+            "role_belief_seed": int(e.get("ROLE_BELIEF_SEED", "7331")
+                                    or 7331),
+            "gumbel_seed": int(e.get("GUMBEL_SEED", "4700") or 4700),
+            "gumbel_mode": e.get("GUMBEL_MODE", "independent"),
             "overrides": {k: e[k] for k in
                           ("N_CE", "N_EPISTEMIC", "N_BOOM", "CE_SEED",
-                           "GEN_TOTAL_BUDGET", "GEN_POOL_CAP") if k in e}}
+                           "EPISTEMIC_FAMILY", "ROLE_BELIEF_FEATURES",
+                           "ROLE_BELIEF_SEED",
+                           "N_GUMBEL", "GUMBEL_SEED", "GUMBEL_SCALE",
+                           "GUMBEL_MODE",
+                           "REPLACEMENT_SLOTS", "GEN_TOTAL_BUDGET",
+                           "GEN_POOL_CAP", "GEN_POOL_CAP_MAP") if k in e}}
+
+
+def _gumbel_rng(env: dict | None = None) -> np.random.Generator:
+    """Reproducible perturb-and-MAP stream for an auditable research arm."""
+    e = os.environ if env is None else env
+    return np.random.default_rng(int(e.get("GUMBEL_SEED", "4700") or 4700))
+
+
+def _gumbel_perturbations(pool: list[dict], rng: np.random.Generator,
+                          scale: float, mode: str = "independent"
+                          ) -> np.ndarray:
+    """Draw player objective shocks for perturb-and-MAP generation.
+
+    ``hierarchical`` assigns equal variance to shared game, shared team,
+    and idiosyncratic player components. Because Gumbel variance is
+    proportional to scale squared, scaling each component by 1/sqrt(3)
+    preserves the independent arm's total marginal perturbation variance.
+    Players on opposing teams have target correlation 1/3; players on the
+    same team have target correlation 2/3. This is one frozen mechanism,
+    not a fitted or swept hyperparameter family.
+    """
+    if mode == "independent":
+        return rng.gumbel(0.0, scale, size=len(pool))
+    if mode != "hierarchical":
+        raise ValueError(f"unknown GUMBEL_MODE={mode!r}")
+
+    component_scale = scale / np.sqrt(3.0)
+    # Center each component. The common mean is irrelevant to a MILP argmax,
+    # but centering keeps diagnostics interpretable when levels are combined.
+    center = np.euler_gamma * component_scale
+    game_keys = [str(p.get("game_id") or f"__game_{i}")
+                 for i, p in enumerate(pool)]
+    team_keys = [(game_keys[i], str(p.get("team") or f"__team_{i}"))
+                 for i, p in enumerate(pool)]
+    game_shock = {k: rng.gumbel(0.0, component_scale) - center
+                  for k in dict.fromkeys(game_keys)}
+    team_shock = {k: rng.gumbel(0.0, component_scale) - center
+                  for k in dict.fromkeys(team_keys)}
+    player_shock = rng.gumbel(0.0, component_scale, size=len(pool)) - center
+    return np.asarray([game_shock[game_keys[i]] + team_shock[team_keys[i]]
+                       + player_shock[i] for i in range(len(pool))])
 
 
 def _epistemic_scenarios(pool: list[dict], objective_col: str
@@ -242,6 +302,39 @@ def _epistemic_scenarios(pool: list[dict], objective_col: str
                               np.where(in_game, mdl, base)))
             scenarios.append((f"game_market:{gid}",
                               np.where(in_game, mkt, base)))
+    return scenarios
+
+
+def _role_belief_scenarios(
+    belief_slate: pd.DataFrame,
+    belief_draws: np.ndarray,
+    n_slots: int,
+) -> list[tuple[str, np.ndarray]]:
+    """Frozen role-model alternatives used only for candidate generation.
+
+    Four slots reproduce the alternative model's leverage/mean family using
+    the role slate's tournament objective. Remaining slots reproduce its boom
+    family using the highest-total alternate-model worlds. The caller still
+    scores every resulting roster with the baseline draw matrix.
+    """
+    if n_slots <= 0:
+        return []
+    objective = ("proj_tourney" if "proj_tourney" in belief_slate.columns
+                 else "proj")
+    mean = pd.to_numeric(belief_slate[objective], errors="coerce").to_numpy(
+        dtype=float)
+    if not np.isfinite(mean).all():
+        raise ValueError("role-belief objective contains missing values")
+    rd = _row_draws(belief_slate, belief_draws)
+    if rd.shape[0] != len(belief_slate):
+        raise ValueError("role-belief draw rows do not match the slate")
+    mean_slots = min(4, n_slots)
+    scenarios = [(f"role_mean:{i + 1}", mean.copy())
+                 for i in range(mean_slots)]
+    order = np.argsort(rd.sum(axis=0))[::-1]
+    for rank, draw_ix in enumerate(order[:n_slots - mean_slots], start=1):
+        scenarios.append((f"role_draw:{rank}:{int(draw_ix)}",
+                          rd[:, draw_ix].astype(float, copy=True)))
     return scenarios
 
 
@@ -454,6 +547,8 @@ def tail_select_lineups(
     theses: list[dict] | None = None,
     cand_log_table: str | None = None,
     cand_log_async: bool = False,
+    belief_slate: pd.DataFrame | None = None,
+    belief_draws: np.ndarray | None = None,
 ) -> list[Lineup]:
     """Entry selection on P(best-of-N >= tail_line) (guide: issue #5).
 
@@ -485,8 +580,21 @@ def tail_select_lineups(
         _note(lu.ids, "lev")
         lu.tag = "lev"
     seen = {lu.ids for lu in cands}
-    epi_scenarios = (_epistemic_scenarios(pool, objective_col)
-                     if n_epi else [])
+    epi_family = os.environ.get("EPISTEMIC_FAMILY", "standard")
+    if n_epi and epi_family == "role_draws":
+        if belief_slate is None or belief_draws is None:
+            raise RuntimeError(
+                "role_draws treatment requires alternate belief slate/draws")
+        if list(slate["id"]) != list(belief_slate["id"]):
+            raise ValueError("baseline and role-belief slate ids are misaligned")
+        epi_scenarios = _role_belief_scenarios(
+            belief_slate, belief_draws, n_epi)
+    elif n_epi and epi_family in ("", "standard"):
+        epi_scenarios = _epistemic_scenarios(pool, objective_col)
+    elif n_epi:
+        raise ValueError(f"unknown EPISTEMIC_FAMILY={epi_family!r}")
+    else:
+        epi_scenarios = []
     if n_epi and not epi_scenarios:
         # A replacement arm must not silently remove incumbent generation
         # when its new point-in-time inputs are absent (the former behavior
@@ -586,7 +694,7 @@ def tail_select_lineups(
                 lu.tag = "hyper"
                 seen.add(lu.ids)
                 cands.append(lu)
-    # A/B lever (env N_CE, off by default; scoring plan §10): candidates
+    # Research lever (env N_CE, off by default; scoring plan §10): candidates
     # from LEARNED rare worlds. A cross-entropy loop searches the
     # bounded knob space (pace, pass tilt, scoring split, usage
     # concentration) for environments whose legal constrained oracle is
@@ -723,6 +831,10 @@ def tail_select_lineups(
             # Preserve the candidate-generation budget when scenario solves
             # fail or duplicate incumbent candidates.
             missing = n_epi - epi_added
+            if epi_family == "role_draws":
+                raise RuntimeError(
+                    f"role-belief generator produced {epi_added}/{n_epi} "
+                    "unique replacement candidates")
             log.warning("EPI produced %d/%d unique candidates; replacing "
                         "the missing %d with boom worlds", epi_added, n_epi,
                         missing)
@@ -737,12 +849,16 @@ def tail_select_lineups(
     # 2.0, the gate's setting).
     n_gumbel = int(_os.environ.get("N_GUMBEL", "0") or 0)
     if n_gumbel:
-        _grng = np.random.default_rng(4700)
+        _grng = _gumbel_rng()
         _gscale = float(_os.environ.get("GUMBEL_SCALE", "2.0") or 2.0)
+        _gmode = _os.environ.get("GUMBEL_MODE", "independent")
+        log.info("Gumbel generator: mode=%s scale=%.3f seed=%s n=%d",
+                 _gmode, _gscale, _os.environ.get("GUMBEL_SEED", "4700"),
+                 n_gumbel)
         for _ in range(n_gumbel * 3):
+            _noise = _gumbel_perturbations(pool, _grng, _gscale, _gmode)
             gpool = [{**p, "proj_gum": float(
-                p[objective_col] + _grng.gumbel(0.0, _gscale))}
-                for p in pool]
+                p[objective_col] + _noise[i])} for i, p in enumerate(pool)]
             try:
                 lu = optimize(gpool, stack=stack, objective_col="proj_gum",
                               locks=set(locks))
@@ -751,6 +867,7 @@ def tail_select_lineups(
                 continue
             if lu is not None:
                 _note(lu.ids, "gumbel")   # every producer (A2.1)
+                _note(lu.ids, f"gumbel:{_gmode}")
             if lu is not None and lu.ids not in seen:
                 lu.tag = "gumbel"
                 seen.add(lu.ids)
@@ -999,15 +1116,18 @@ def tail_select_lineups(
     log.info("pool size: %s wk%s n=%d", _season, _week, len(cands))
     _cap = pool_cap_for_slate(_season, _week)
     if _cap and len(cands) > _cap:
-        # PAIRED replacement-slot policy: the treatment protects its 12
-        # CE candidates, so the control must protect an equal number of
-        # the slots CE replaces (boom) — otherwise the cap retains the
-        # novel arm more aggressively than the incumbent it displaces.
-        if n_ce or n_epi:
-            _quotas = {"ce": n_ce, "epi": n_epi}
-            _protect = ("ce", "epi")
+        # PAIRED replacement-slot policy: treatment protects the novel
+        # candidates under test; control protects the same number of the
+        # boom slots they replace. Otherwise a cap could retain a novel
+        # arm more aggressively than the incumbent it displaces.
+        if n_ce or n_epi or n_gumbel:
+            _quotas = {"ce": n_ce, "epi": n_epi, "gumbel": n_gumbel}
+            _protect = tuple(k for k, v in _quotas.items() if v)
         else:
-            _quotas = {"boom": REPLACEMENT_SLOTS}
+            _replacement_slots = int(
+                _os.environ.get("REPLACEMENT_SLOTS", REPLACEMENT_SLOTS)
+                or REPLACEMENT_SLOTS)
+            _quotas = {"boom": _replacement_slots}
             _protect = ("boom",)
         cands, _ret, _drop = trim_pool_to_cap(cands, _cap, _quotas,
                                               protect=_protect)
@@ -1112,34 +1232,86 @@ def tail_select_lineups(
             # Run provenance (Sol audit 3): panel+slate ids alone cannot
             # detect a mixed-config panel. Capture what identifies the
             # BUILD and the CONFIG, cheaply and without failing the run.
+            # Containers intentionally do not contain .git.  Merely calling
+            # `git` does not raise there: it returns a non-zero result with an
+            # empty stdout, so the old exception-only fallback silently wrote
+            # a blank code_sha even when deployment supplied CODE_SHA.
+            _sha = _os.environ.get("CODE_SHA", "").strip()
+            _dirty = False
             try:
                 import subprocess
-                _sha = subprocess.run(
+                _rev = subprocess.run(
                     ["git", "rev-parse", "HEAD"], capture_output=True,
-                    text=True, timeout=5).stdout.strip()[:12]
-                _dirty = bool(subprocess.run(
-                    ["git", "status", "--porcelain"], capture_output=True,
-                    text=True, timeout=5).stdout.strip())
+                    text=True, timeout=5)
+                if _rev.returncode == 0 and _rev.stdout.strip():
+                    _sha = _rev.stdout.strip()[:12]
+                    _stat = subprocess.run(
+                        ["git", "status", "--porcelain"],
+                        capture_output=True, text=True, timeout=5)
+                    _dirty = (_stat.returncode == 0
+                              and bool(_stat.stdout.strip()))
             except Exception:
-                _sha, _dirty = _os.environ.get("CODE_SHA", ""), False
+                pass
+            _sha = _sha or "unknown"
             try:
                 from ..research.config_manifest import manifest_hash
                 _cfg = manifest_hash()
             except Exception:
                 _cfg = ""
             _seeds = _os.environ.get("SEEDS", "")
-            # CE world-search seed belongs in run metadata: an
-            # independent-seed rerun is only auditable if the seed
-            # that produced the worlds is stored with the rows.
+            # Research-generator seeds belong in run metadata: an
+            # independent-seed rerun is auditable only when the seeds
+            # that produced candidates are stored with the rows.
             _seeds = ";".join(x for x in (
-                _seeds, f"CE_SEED={_os.environ.get('CE_SEED', '1701')}")
+                _seeds,
+                f"CE_SEED={_os.environ.get('CE_SEED', '1701')}",
+                f"ROLE_BELIEF_SEED={_os.environ.get('ROLE_BELIEF_SEED', '7331')}",
+                f"GUMBEL_SEED={_os.environ.get('GUMBEL_SEED', '4700')}")
                 if x)
+            from ..models.components import (
+                effective_ensemble_size, ensemble_member_specs)
+            _ensemble_size = effective_ensemble_size(_os.environ)
+            _ensemble_spec = json.dumps(
+                ensemble_member_specs(_os.environ),
+                separators=(",", ":"), sort_keys=True)
+            _seeds = ";".join(x for x in (
+                _seeds,
+                f"MODEL_ENSEMBLE_SIZE={_ensemble_size}",
+                f"MODEL_MEMBER_SPEC={_ensemble_spec}") if x)
+            # Every env capable of changing projections, simulation,
+            # generation, or selection belongs in the immutable row.  The
+            # original short allow-list omitted EXTRA_FEATURES, so a feature
+            # treatment looked identical to its baseline in the warehouse.
+            # Infrastructure destinations/credentials are deliberately out.
+            _lever_keys = {
+                "ALT_CEIL", "BIGPLAY", "BLEND_MODEL_WEIGHT", "CAND_MULT",
+                "CE_GAMES", "CE_SEED",
+                "DIV_TILT", "DROP_FEATURES", "DST_CORR_DRAWS",
+                "DST_PUNT_BONUS", "EMP_MARGINALS", "EMP_POS",
+                "EPISTEMIC_FAMILY", "EPISTEMIC_W", "EXTRA_FEATURES",
+                "FORBID_RB_DST",
+                "GAME_SIM_MODE", "GAME_SIM_PACE", "GAME_SIM_TEAM_FACTORS",
+                "GAME_SIM_USAGE", "GEN_POOL_CAP", "GEN_POOL_CAP_MAP",
+                "GEN_TOTAL_BUDGET", "GUMBEL_MODE", "GUMBEL_SCALE",
+                "GUMBEL_SEED", "HYPER_BOOM", "LEV_PENALTY",
+                "LEV_POS_WEIGHTS", "LEV_SHAPE", "M4_QBLOCK", "MAX_QBS",
+                "MIN_LINEUP_SALARY", "MODEL_ENSEMBLE",
+                "MODEL_ENSEMBLE_MIX", "N_BOOM", "N_CE", "N_DARKGAME",
+                "N_EPISTEMIC", "N_GAMESTACK", "N_GUMBEL", "N_LOWSAL",
+                "N_MIDQB", "N_NOSTACK", "N_QB_VARIANTS", "OWN_BARBELL",
+                "OWN_MODEL", "PEAK_SLICE", "PUNT_BOOM", "PUNT_BOOM_WR",
+                "PUNT_MIN", "PUNT_SLOPE", "PUNT_STRICT", "PUNT_VALUE",
+                "Q99_WILD", "QD_CELLS", "RATE_DENOM_WEIGHTS",
+                "REPLACEMENT_SLOTS", "ROOKIE_WIDEN", "SCHAAKE_DIAG",
+                "SCHAAKE_DIAG_STRICT", "SELECT_LSE", "SELECT_OBJ",
+                "SHAPE_MIX", "SIM_WIDEN_DRAWS", "STACK_BRING_BACK",
+                "STACK_QB_MIN", "TABPFN_COMPONENTS", "TABPFN_MARGINALS",
+                "TABPFN_MEAN", "TD_LEDGER", "TRAIN_MAX_WEEK",
+                "ROLE_BELIEF_FEATURES", "ROLE_BELIEF_SEED", "WR_BOOM",
+            }
             _levers = ",".join(sorted(
                 f"{k}={v}" for k, v in _os.environ.items()
-                if k in ("SELECT_LSE", "TD_LEDGER", "OWN_MODEL", "PUNT_MIN",
-                         "PUNT_BOOM", "MIN_LINEUP_SALARY", "N_GUMBEL",
-                         "HYPER_BOOM", "OWN_BARBELL", "GAME_SIM_MODE",
-                         "MODEL_ENSEMBLE", "TABPFN_MARGINALS")))
+                if k in _lever_keys))
             # A2.2 labels: `or 0` turned MISSING actuals into real-looking
             # zeros, so unlabeled live candidates appeared labeled. Labels
             # are populated ONLY when every player has an actual.
@@ -1279,8 +1451,19 @@ def tail_select_lineups(
                 want = ["id", "gsis_id", "name", "pos", "team", "opp",
                         "game_id", "salary", "proj", "proj_tourney",
                         "own_est", "consensus_div", "market_points",
-                        "model_points_pre", "proj_p10", "proj_p50",
-                        "proj_p90", "proj_std", "actual"]
+                        "model_points_pre", "mean_projection", "proj_p10",
+                        "proj_p50", "proj_p90", "proj_std",
+                        # Point-in-time role/archetype state.  The shared
+                        # contract also governs replay projection and slate
+                        # construction, so a new field cannot silently vanish
+                        # before this immutable writer.
+                        *PLAYER_SNAPSHOT_FEATURES, "actual"]
+                # Member-level point predictions are dynamic by fitted K and
+                # were previously present in the replay frame but silently
+                # discarded here, making MODEL_ENSEMBLE unauditable.
+                want.extend(sorted(
+                    c for c in slate.columns
+                    if c.startswith("ensemble_point_")))
                 have = [c for c in want if c in slate.columns]
                 fdf = slate[have].copy()
                 # BigQuery/pyarrow cannot infer a type for an all-None
@@ -1290,16 +1473,23 @@ def tail_select_lineups(
                 # become a typed string column.
                 _strcols = {"id", "gsis_id", "name", "pos", "team", "opp",
                             "game_id"}
+                _boolcols = {"is_cold_start"}
                 for c in want:  # explicit missingness, never silent
                     if c not in have:
-                        fdf[c] = (pd.Series([pd.NA] * len(fdf),
-                                            dtype="string")
-                                  if c in _strcols
-                                  else pd.Series(np.nan, index=fdf.index,
-                                                 dtype="float64"))
+                        if c in _strcols:
+                            fdf[c] = pd.Series(
+                                [pd.NA] * len(fdf), dtype="string")
+                        elif c in _boolcols:
+                            fdf[c] = pd.Series(
+                                [pd.NA] * len(fdf), dtype="boolean")
+                        else:
+                            fdf[c] = pd.Series(
+                                np.nan, index=fdf.index, dtype="float64")
                 for c in want:  # coerce present columns to a stable type
                     if c in _strcols:
                         fdf[c] = fdf[c].astype("string")
+                    elif c in _boolcols:
+                        fdf[c] = fdf[c].astype("boolean")
                     else:
                         fdf[c] = pd.to_numeric(fdf[c], errors="coerce")
                 fdf["feature_missing"] = json.dumps(
@@ -1311,6 +1501,9 @@ def tail_select_lineups(
                 fdf["generated_at"] = now
                 fdf["code_sha"] = _sha
                 fdf["config_hash"] = _cfg
+                fdf["model_ensemble_size"] = _ensemble_size
+                fdf["model_member_spec"] = pd.Series(
+                    [_ensemble_spec] * len(fdf), dtype="string")
                 fdf["research_eligible"] = False  # promotion grants it
 
                 def _write_feats(d=fdf, t=feat_tbl):
@@ -1469,6 +1662,8 @@ def run_week(
     draws: np.ndarray | None = None,
     tail_line: float | None = None,
     n_boom_solves: int = 40,
+    belief_slate: pd.DataFrame | None = None,
+    belief_draws: np.ndarray | None = None,
 ) -> WeekResult | None:
     """Backtest one historical slate. `slate` columns: REQUIRED_COLS.
     With `draws` (player-draw matrix indexed by the slate's draw_idx
@@ -1492,7 +1687,8 @@ def run_week(
             # game-stack generator won 0/17 weeks from ~6% of the pool
             # while dark games won 4/17 from ~11% -- N_GAMESTACK=0 +
             # N_DARKGAME up reallocates toward what actually wins.
-            n_game_stacks=int(_os.environ.get("N_GAMESTACK", "4")))
+            n_game_stacks=int(_os.environ.get("N_GAMESTACK", "4")),
+            belief_slate=belief_slate, belief_draws=belief_draws)
     else:
         lineups = optimize_many(pool, n_lineups=n_entries, stack=stack,
                                 objective_col=obj)
@@ -1535,13 +1731,22 @@ def run(
     draws: np.ndarray | None = None,
     tail_line: float | None = None,
     n_boom_solves: int = 40,
+    belief_slates: list[pd.DataFrame] | None = None,
+    belief_draws: np.ndarray | None = None,
 ) -> BacktestResult:
     result = BacktestResult(contest=contest)
+    belief_by_week = ({
+        (int(s["season"].iloc[0]), int(s["week"].iloc[0])): s
+        for s in (belief_slates or [])
+    })
     for slate in slates:
+        key = (int(slate["season"].iloc[0]), int(slate["week"].iloc[0]))
         wk = run_week(slate, contest, n_entries=n_entries,
                       field_size=field_size, stack=stack, seed=seed,
                       sharp_fraction=sharp_fraction, draws=draws,
-                      tail_line=tail_line, n_boom_solves=n_boom_solves)
+                      tail_line=tail_line, n_boom_solves=n_boom_solves,
+                      belief_slate=belief_by_week.get(key),
+                      belief_draws=belief_draws)
         if wk is not None:
             result.weeks.append(wk)
             log.info("season %s week %s: best %.1f pts, best pct %.1f%%",

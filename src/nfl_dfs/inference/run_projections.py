@@ -18,13 +18,11 @@ import pandas as pd
 from ..bq import load_dataframe, query_df
 from ..config import current_season, settings
 from ..models import calibration, coldstart, components, simulate
-from ..models.blend import blend, market_projection_frame
+from ..models.blend import (BLEND_W as BLEND_WEIGHT, blend,
+                            effective_model_weight, market_projection_frame)
 from . import cascade_adjust
 
 log = logging.getLogger(__name__)
-
-BLEND_WEIGHT = 0.45  # refit on validation each retrain; see models/blend.py
-
 
 def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
     """Feature rows for the players in the current classic slate, with the
@@ -152,7 +150,7 @@ def project(
              _mkt_src, int(pd.notna(market).sum()), len(feats))
     _pre_blend = preds["proj_points"].to_numpy().copy()
     preds["proj_points"] = blend(
-        _pre_blend, np.asarray(market, dtype=float), BLEND_WEIGHT
+        _pre_blend, np.asarray(market, dtype=float), effective_model_weight()
     )
     # DIV_TILT shadow log (2026-08-05, Addendum 82; source fixed round
     # 3): logs the PROP-market divergence only — rows are written only

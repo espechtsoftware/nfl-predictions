@@ -36,6 +36,21 @@ def test_registry_latest_week(tmp_path):
     assert registry.latest_iso_week(str(tmp_path), "pooled", "dk_points") == "2025-W11"
 
 
+def test_registry_metadata_reads_ensemble_member_params():
+    """Weekly training registers the adopted wrapper, not a raw Booster."""
+    class _Member:
+        def __init__(self, seed):
+            self.params = {"objective": "poisson", "seed": seed}
+
+    class _Ensemble:
+        members = [_Member(9000), _Member(9001), _Member(9002)]
+
+    params = registry.model_params(_Ensemble())
+    assert params["model_type"] == "ensemble"
+    assert params["ensemble_size"] == 3
+    assert [m["params"]["seed"] for m in params["members"]] == [9000, 9001, 9002]
+
+
 def test_mae_drift_alarm():
     assert monitoring.check_mae(training_mae=5.0, recent_mae=7.0) is not None
     assert monitoring.check_mae(training_mae=5.0, recent_mae=5.5) is None
