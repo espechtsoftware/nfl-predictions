@@ -679,3 +679,27 @@ and [Probabilistic Forecasting with Generative Networks via Scoring Rule
 Minimization](https://jmlr.org/papers/v25/23-0038.html). The latter supports
 the joint-scoring validation principle; it does not by itself justify a deep
 model for this data set.
+
+### Frozen diagnostic specification
+
+Before any forest diagnostic outcome is read, the implementation and gate are
+fixed as follows. `SCHAAKE_TEMPLATE_MODE=forest` uses seed 8162, 300 trees,
+minimum leaf size 20, 64 Gaussian random Fourier response features, and a
+Gaussian bandwidth equal to the median pair distance in a seeded sample of at
+most 512 training games. The response is the complete 14-value rank vector
+for QB/RB1/RB2/WR1/WR2/WR3/TE1 on favorite and underdog sides. Training uses
+only complete games in seasons strictly before the target. Predictors are the
+available point-in-time values among game total, absolute spread, six-game
+pace, six-game neutral pass rate, and six-game top-two target share. Leaf
+co-membership supplies normalized weights over original templates; the
+forest never averages or synthesizes a response template.
+
+Run dependence-only replays for 2023, 2024, and 2025. The arm may pass only
+if every marginal multiset is exact, every registered pair is present, the
+pair-count-weighted aggregate variogram and joint-q90 tail Brier are both
+lower than production, both metrics are lower in at least two of three
+seasons, and no season worsens both. Failure ends this mechanism without
+candidate or score analysis. Passage earns only a separately preregistered
+candidate-oracle gate, not a scoring panel or production change. Do not tune
+the seed, forest dimensions, response roles, features, or seasons after the
+diagnostic result.

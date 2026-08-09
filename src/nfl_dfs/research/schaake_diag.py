@@ -184,7 +184,17 @@ def log_dependence_ab(rows: pd.DataFrame, draws: np.ndarray) -> dict:
         raise ValueError("Schaake diagnostic template bank is empty")
 
     season = int(meta.season.iloc[0])
+    template_mode = os.environ.get(
+        "SCHAAKE_TEMPLATE_MODE", "nearest").strip().lower()
+    if template_mode not in ("nearest", "forest"):
+        raise ValueError(
+            f"unknown SCHAAKE_TEMPLATE_MODE={template_mode!r}")
     neighbors = int(os.environ.get("SCHAAKE_K", "40"))
+    forest = None
+    forest_diagnostics = []
+    if template_mode == "forest":
+        from .conditional_schaake import fit_conditional_template_forest
+        forest = fit_conditional_template_forest(bank, season)
     shuffled = draws.copy()
     for (week_value, game_id), game in meta.groupby(["week", "game_id"]):
         week = int(week_value)
@@ -195,7 +205,14 @@ def log_dependence_ab(rows: pd.DataFrame, draws: np.ndarray) -> dict:
                       if col in game else pd.Series(dtype=float))
             if values.notna().any():
                 context[col] = float(values.mean())
-        templates = match_templates(bank, context, season, week, k=neighbors)
+        probabilities = None
+        if forest is not None:
+            templates = forest.templates
+            probabilities = forest.weights(context)
+            forest_diagnostics.append(forest.diagnostics(probabilities))
+        else:
+            templates = match_templates(
+                bank, context, season, week, k=neighbors)
         if templates.empty:
             continue
         idx = game.index.to_numpy()
@@ -204,7 +221,8 @@ def log_dependence_ab(rows: pd.DataFrame, draws: np.ndarray) -> dict:
         shuffled[idx] = apply_schaake_game(
             draws[idx], meta.role.iloc[idx], meta.team.iloc[idx].to_numpy(),
             templates, seed=_stable_game_seed(season, week, game_id),
-            team_values=team_values)
+            team_values=team_values,
+            template_probabilities=probabilities)
 
     actual_col = "y_dk_points" if "y_dk_points" in meta else "actual"
     if actual_col not in meta:
@@ -236,6 +254,7 @@ def log_dependence_ab(rows: pd.DataFrame, draws: np.ndarray) -> dict:
         and _metric_better(schaake["tail_brier"], production["tail_brier"]))
     report = {
         "season": season,
+        "template_mode": template_mode,
         "marginal_exact": marginal_exact,
         "required_pairs_complete": complete,
         "missing_pairs": missing,
@@ -245,6 +264,19 @@ def log_dependence_ab(rows: pd.DataFrame, draws: np.ndarray) -> dict:
         "weeks": len(weekly),
         "scope_note": "skill-player copula; DST has no production marginal draws",
     }
+    if forest is not None:
+        report["forest"] = {
+            "templates": len(forest.templates),
+            "context_features": list(forest.context_features),
+            "bandwidth": forest.bandwidth,
+            "seed": forest.seed,
+            "mean_effective_templates": float(np.mean([
+                item["effective_templates"]
+                for item in forest_diagnostics])),
+            "max_template_weight": float(max(
+                item["max_template_weight"]
+                for item in forest_diagnostics)),
+        }
     log.info("schaake-gate %s", json.dumps(report, sort_keys=True))
     if os.environ.get("SCHAAKE_DIAG_STRICT") and (
             not marginal_exact or not complete or len(weekly) < 1):

@@ -91,7 +91,7 @@ def build_game_bank(games: pd.DataFrame) -> pd.DataFrame:
 
 
 def apply_schaake_game(draws, roles, teams, templates, seed=0,
-                       team_values=None):
+                       team_values=None, template_probabilities=None):
     """Impose GAME-level template patterns: one historical game per
     simulated world; our two teams take its _a and _b sides."""
     rng = np.random.default_rng(seed)
@@ -109,7 +109,23 @@ def apply_schaake_game(draws, roles, teams, templates, seed=0,
         sides = sorted(sides, key=lambda team: (-strength[team], str(team)))
     else:
         sides = sorted(sides)
-    pick = rng.integers(0, len(templates), size=n_sims)
+    probabilities = None
+    if template_probabilities is not None:
+        probabilities = np.asarray(template_probabilities, dtype=float)
+        if probabilities.shape != (len(templates),):
+            raise ValueError("template probabilities do not match templates")
+        if (not np.isfinite(probabilities).all()
+                or np.any(probabilities < 0)
+                or probabilities.sum() <= 0):
+            raise ValueError("template probabilities are invalid")
+        probabilities = probabilities / probabilities.sum()
+    # Preserve the default path's seeded byte sequence.  ``choice(p=None)``
+    # is statistically equivalent to ``integers`` but is not a contractual
+    # guarantee of the same RNG consumption across NumPy versions.
+    pick = (rng.integers(0, len(templates), size=n_sims)
+            if probabilities is None
+            else rng.choice(
+                len(templates), size=n_sims, replace=True, p=probabilities))
     T = templates.reset_index(drop=True)
     # Sampling templates with replacement necessarily creates repeated
     # historical percentiles.  The Schaake operation must nevertheless be
