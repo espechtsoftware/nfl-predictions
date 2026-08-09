@@ -563,6 +563,18 @@ the same diagnosis as the missed candidate oracles: rare player and joint
 explosions were assigned too little probability, while selection and generic
 assembly changes merely rearrange hindsight winners.
 
+K=1 supplies a small but non-decisive assembly sensitivity. Its pool has
+nearly identical individual coverage (8.50/9) and 34 missing winner slots,
+while closest-roster overlap rises 3.46→3.53 and selected closest overlap
+3.31→3.44. K=1's realized oracle and selected-best overlap with the real
+winner rise 2.07→2.31 and 1.97→2.24; week-paired selected-best overlap gains
+25, ties 27, and loses 16. Its pool/selected assembly also remains above the
+same exposure-null (3.53 vs 3.28; 3.44 vs 3.22). This is compatible with K=1
+forming slightly more useful winner-player combinations, but it neither
+explains the roughly 57-point remaining first-place gap nor repairs K=1's
+historical season instability. It strengthens the case for a prospective
+K=1 shadow, not retrospective adoption.
+
 `real_winner_overlap.py` and the main tail analyzer reproduce the name/ID
 resolution, overlap, pair, null, and omitted-player figures. The 2024 week-9
 source duplicate is excluded explicitly. No construction lever is adopted

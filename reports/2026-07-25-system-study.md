@@ -3644,3 +3644,11 @@ first-place gap is therefore dominated by pre-lock belief on rare individual
 and joint booms, not a free assembly or selector repair. Reusable
 `real_winner_overlap.py` tooling is wired into the tail analyzer; no lever is
 adopted from this outcome-aware diagnostic.
+
+The rejected K=1 panel has nearly identical individual coverage (8.50/9;
+34 missing slots), but modestly higher closest-roster overlap: pool 3.53 and
+selected 3.44, versus K=3's 3.46/3.31. Its realized oracle/selected-best
+overlap rises 2.07→2.31 and 1.97→2.24; the selected-best paired weeks are
+25 gains, 27 ties, 16 losses. K=1 remains above its exposure null as well.
+This descriptive combination signal supports only the already-declared 2026
+prospective shadow; it does not override the frozen season-stability failure.

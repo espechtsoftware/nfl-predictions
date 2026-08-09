@@ -532,3 +532,10 @@ afterward. The lineup analyzer remains logged in `README.md`.
   projected (+15.55 surprise), led by WR/TE. New reusable
   `real_winner_overlap.py` diagnostics and two focused tests are tracked. No
   construction or selector lever is adopted from this outcome-aware audit.
+- The same real-winner diagnostic on rejected K=1 finds essentially equal
+  player coverage (8.50/9; 34 missing slots) but modestly higher pool/selected
+  closest-roster overlap (3.53/3.44 versus K=3 3.46/3.31) and realized
+  oracle/selected-best overlap (2.31/2.24 versus 2.07/1.97). Paired
+  selected-best overlap gains 25, ties 27, and loses 16 weeks. This is a
+  legitimate prospective K=1-shadow lead but cannot override its frozen
+  three-positive/two-negative season defect.
