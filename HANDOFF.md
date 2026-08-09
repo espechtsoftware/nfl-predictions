@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 17:03 CDT
+## Current state — 2026-08-09 17:24 CDT
 
 ### Autonomous scoring research resumed after context recovery
 
@@ -189,6 +189,24 @@ agent or developer:
   pass. Exact next action: commit/push this fail-closed repair, run a new full
   Cloud Build, and retry from a distinct commit-derived panel ID. Never reuse
   the failed f308609 panel or its digest for the ownership scoring panel.
+- Repair build `59f7cbd2-09f5-4cd1-819a-fe1bba0c6d8f` passed 701 tests with
+  2 skipped from exact commit `6d4a549e518fbed0677158b57b07fe0532b72a4f`
+  and produced immutable digest
+  `sha256:24d1b2b778c3e5ca905270d8836b7ee4b1e9632912ff6aa0609c77516813e7aa`.
+  Corrected 2023 preflight `replay-e80k1milly-smoke-7zvnq` passed after
+  fitting 3,146 exact 2022 ownership rows and serving the actual model.
+  True-80 K=1 ownership panel `20260809-e80-k1-millyown-6d4a549` is launched
+  with exact season executions `replay-e80k1milly-2019-578rs`,
+  `replay-e80k1milly-2021-27qdm`, `replay-e80k1milly-2022-k2cmq`,
+  `replay-e80k1milly-2023-rsntz`, `replay-e80k1milly-2024-p82td`, and
+  `replay-e80k1milly-2025-2nmwq`. Do not read or compare partial outcomes;
+  wait for all six exact IDs to succeed, then run the frozen ownership
+  mechanism/tail comparator on the same immutable digest.
+- CE union executions for 2019, 2021, 2022, 2023, and 2024 have completed
+  successfully. The 2025 execution has written all 18 slates but is still
+  finalizing. Exact next action: wait for `replay-e80k1ceu-2025-zjw6k` to
+  report success, then run the union comparator. Launch fixed CE replacement
+  only if its tracked binary union gate passes.
 
 ### Recovery provenance
 

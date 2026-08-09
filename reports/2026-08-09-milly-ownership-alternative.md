@@ -1,7 +1,7 @@
 # Contest-aware Milly ownership alternative
 
-Status: the corrected diagnostic passed its preregistered gate; the downstream
-lineup arm remains a frozen, controlled experiment and has not yet been scored.
+Status: the corrected diagnostic and trained-model smoke passed; the frozen
+downstream lineup arm is running and no partial lineup outcomes are read.
 
 Implementation note (recorded before any downstream lineup panel): the
 fade-only treatment is named `OWN_MODEL=milly_fade`. It fits only eligible
@@ -127,3 +127,12 @@ attempt's manifest also contained an incorrect full code SHA with the correct
 seven-character prefix; the runner now requires the supplied SHA to equal the
 local repository HEAD. Preserve the failed attempt as provenance and use a
 new commit, image digest, and panel ID for the corrected retry.
+
+Repair build `59f7cbd2-09f5-4cd1-819a-fe1bba0c6d8f` passed 701 tests with 2
+skipped and produced immutable digest
+`sha256:24d1b2b778c3e5ca905270d8836b7ee4b1e9632912ff6aa0609c77516813e7aa`.
+Corrected preflight `replay-e80k1milly-smoke-7zvnq` fit the same 3,146 rows,
+served model predictions, and completed the one-week replay. Panel
+`20260809-e80-k1-millyown-6d4a549` then launched all six seasons; its exact
+execution IDs and manifest are tracked under `reports/panel-runs/`. Do not
+compare partial season outcomes.

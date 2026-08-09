@@ -1,0 +1,15 @@
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:24d1b2b778c3e5ca905270d8836b7ee4b1e9632912ff6aa0609c77516813e7aa
+family=e80k1milly
+panel_run_id=20260809-e80-k1-millyown-6d4a549
+code_sha=6d4a549e518fbed0677158b57b07fe0532b72a4f
+seasons=2019 2021 2022 2023 2024 2025
+arm_label=k1_milly_ownership
+arm_env=MODEL_ENSEMBLE=1|OWN_MODEL=milly_fade
+memory=16Gi
+task_timeout=10800
+smoke_season=2023
+n_entries=80
+n_ce=0
+n_epistemic=0
+n_gumbel=0
+n_boom=40
