@@ -74,9 +74,12 @@ agent or developer:
   tests pass; both evaluator scripts compile/parse and whitespace checks pass.
 - Exact next action: finish/record the CE union preflight and six execution
   IDs; commit/push the ownership evaluator; run a full Cloud Build; then use
-  its immutable digest for the CE comparator and ownership diagnostic. Never
-  query or launch fixed-arm lineup outcomes unless the tracked union
-  mechanism/frontier gate passes.
+  its immutable digest for the CE comparator and ownership diagnostic. The
+  first queued build `0405d235-34af-49b0-bd72-d189f913f0e3` was cancelled
+  before use because review caught that Docker's explicit script allow-list
+  omitted the two new cloud entry points; no image from that build is valid.
+  Dockerfile now includes both scripts. Never query or launch fixed-arm lineup
+  outcomes unless the tracked union mechanism/frontier gate passes.
 
 ### Recovery provenance
 
