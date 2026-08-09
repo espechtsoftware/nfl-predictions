@@ -539,3 +539,7 @@ afterward. The lineup analyzer remains logged in `README.md`.
   selected-best overlap gains 25, ties 27, and loses 16 weeks. This is a
   legitimate prospective K=1-shadow lead but cannot override its frozen
   three-positive/two-negative season defect.
+- Real-winner audit Cloud Build
+  `3469c6ad-06fa-4058-8287-f8d4adecc81e` passed 652 tests (2 skipped) from
+  code commit `dd08bd8` and produced immutable digest
+  `sha256:81b9faa89829bc5035fdb135e9df8c39ed0f74b5f8ddc6ee5f5dcf2e29950a4a`.

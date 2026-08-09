@@ -578,7 +578,10 @@ K=1 shadow, not retrospective adoption.
 `real_winner_overlap.py` and the main tail analyzer reproduce the name/ID
 resolution, overlap, pair, null, and omitted-player figures. The 2024 week-9
 source duplicate is excluded explicitly. No construction lever is adopted
-from this outcome-aware audit.
+from this outcome-aware audit. Cloud Build
+`3469c6ad-06fa-4058-8287-f8d4adecc81e` passed the full suite (652 passed,
+2 skipped) and produced immutable audit digest
+`sha256:81b9faa89829bc5035fdb135e9df8c39ed0f74b5f8ddc6ee5f5dcf2e29950a4a`.
 
 ## Next preregistered arm: coherent member-sampled worlds
 

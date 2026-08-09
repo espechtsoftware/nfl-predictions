@@ -3652,3 +3652,7 @@ overlap rises 2.07→2.31 and 1.97→2.24; the selected-best paired weeks are
 25 gains, 27 ties, 16 losses. K=1 remains above its exposure null as well.
 This descriptive combination signal supports only the already-declared 2026
 prospective shadow; it does not override the frozen season-stability failure.
+Full validation passed Cloud Build
+`3469c6ad-06fa-4058-8287-f8d4adecc81e` (652 passed, 2 skipped), producing
+immutable audit digest
+`sha256:81b9faa89829bc5035fdb135e9df8c39ed0f74b5f8ddc6ee5f5dcf2e29950a4a`.
