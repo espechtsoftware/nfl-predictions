@@ -56,12 +56,27 @@ agent or developer:
   32 tests passed across the new comparator, canonical tail gate, and
   generation-budget controls; both shell scripts parse and `git diff --check`
   passes.
-- Exact next action: commit/push this CE infrastructure, launch union panel
-  `20260809-e80-k1-ceunion-c616390` on immutable generation digest
-  `sha256:98a31edd...`, and record its durable preflight/six-season execution
-  IDs. While those executions run, implement and cloud-validate the
-  contest-aware ownership diagnostic. Never query or launch fixed-arm lineup
-  outcomes unless the tracked union mechanism/frontier gate passes.
+- CE infrastructure commit `2650c77` is pushed on `main`. Union panel
+  `20260809-e80-k1-ceunion-c616390` is now launched on immutable generation
+  digest `sha256:98a31edd...`; its durable 2022 one-week preflight execution is
+  `replay-e80k1ceu-smoke-z4rlq` and was still running when this milestone was
+  recorded. The six season executions launch only after that job succeeds and
+  will be appended to the tracked panel manifest by the still-running wrapper.
+- The contest-aware ownership diagnostic is implemented while CE computes.
+  It deterministically selects the largest-field mass-valid Classic Milly,
+  excludes parenthetical alternate/single-game slates and high-roller copies,
+  maps DK defense nicknames to snapshot team codes, never imputes unmatched
+  ownership as zero, and trains 2023/2024/2025 strictly on earlier seasons.
+  It compares the low-capacity contest model to both the existing all-contest
+  model and a prior-season-mass-calibrated version of the current naive proxy,
+  emitting preregistered correlations/MAE/top-quartile/position calibration,
+  join coverage, and a binary gate. Ten focused ownership/current-model/CE
+  tests pass; both evaluator scripts compile/parse and whitespace checks pass.
+- Exact next action: finish/record the CE union preflight and six execution
+  IDs; commit/push the ownership evaluator; run a full Cloud Build; then use
+  its immutable digest for the CE comparator and ownership diagnostic. Never
+  query or launch fixed-arm lineup outcomes unless the tracked union
+  mechanism/frontier gate passes.
 
 ### Recovery provenance
 
