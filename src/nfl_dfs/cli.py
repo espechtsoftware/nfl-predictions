@@ -62,6 +62,10 @@ def main(argv: list[str] | None = None) -> None:
         help="Freeze the prospective K=1 Sunday-main 80-entry portfolio",
     )
     sub.add_parser(
+        "shadow-k1-nofloor",
+        help="Freeze the isolated prospective K=1 no-floor portfolio",
+    )
+    sub.add_parser(
         "shadow-k3",
         help="Freeze the canonical K=3 Sunday-main reference portfolio",
     )
@@ -226,6 +230,10 @@ def main(argv: list[str] | None = None) -> None:
         from .inference import tail_shadow
 
         tail_shadow.run()
+    elif args.command == "shadow-k1-nofloor":
+        from .inference import tail_shadow
+
+        tail_shadow.run(shadow_label=tail_shadow.K1_NOFLOOR_LABEL)
     elif args.command == "shadow-k3":
         from .inference import tail_shadow
 

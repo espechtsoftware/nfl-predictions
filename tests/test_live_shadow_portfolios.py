@@ -9,6 +9,7 @@ import pytest
 from nfl_dfs.research.live_shadow_portfolios import (
     EXPECTED_ENTRIES,
     K1_COVERAGE,
+    K1_NOFLOOR_COVERAGE,
     K1_TOP_P,
     K3_COVERAGE,
     MIX_20_60,
@@ -34,8 +35,10 @@ def _roster(model: str, cand_ix: int) -> str:
 
 
 def _panel(model: str, *, stamp: str = "2026-09-13T15:30:00Z") -> pd.DataFrame:
-    variant = "tail_k1" if model == "tail_k1" else "canonical"
-    size = 1 if model == "tail_k1" else 3
+    is_k1 = model in {"tail_k1", "tail_k1_nofloor"}
+    variant = "tail_k1" if is_k1 else "canonical"
+    size = 1 if is_k1 else 3
+    floor = 0 if model == "tail_k1_nofloor" else 49_000
     panel_stamp = pd.Timestamp(stamp).strftime("%Y%m%dT%H%M%SZ")
     panel = f"live-shadow-{model}-2026w01-{panel_stamp}"
     rows = []
@@ -48,7 +51,9 @@ def _panel(model: str, *, stamp: str = "2026-09-13T15:30:00Z") -> pd.DataFrame:
             "run_type": "live_shadow",
             "code_sha": "abc123def456",
             "config_hash": "cfg",
-            "lever_env": f"MODEL_REGISTRY_VARIANT={variant}",
+            "lever_env": (
+                f"MODEL_REGISTRY_VARIANT={variant}|"
+                f"MIN_LINEUP_SALARY={floor}"),
             "seeds": f"MODEL_ENSEMBLE_SIZE={size}",
             "labels_complete": False,
             "research_eligible": False,
@@ -82,13 +87,14 @@ def test_canonical_roster_requires_nine_unique_ids():
 
 def test_builds_frozen_top_p_and_duplicate_backfilled_mix():
     memberships = build_portfolios(
-        _panel("tail_k1"), _panel("tail_k3"),
+        _panel("tail_k1"), _panel("tail_k1_nofloor"), _panel("tail_k3"),
         portfolio_run_id="live-tail-portfolios-2026w01-early",
         snapshot_slot="early",
         frozen_at=datetime(2026, 9, 13, 16, 5, tzinfo=timezone.utc),
     )
     assert set(memberships.portfolio_id) == {
-        K1_COVERAGE, K1_TOP_P, K3_COVERAGE, MIX_20_60}
+        K1_COVERAGE, K1_TOP_P, K1_NOFLOOR_COVERAGE,
+        K3_COVERAGE, MIX_20_60}
     counts = memberships.groupby("portfolio_id").size()
     assert counts.eq(EXPECTED_ENTRIES).all()
     assert not memberships.groupby("portfolio_id").roster_key.apply(
@@ -96,6 +102,11 @@ def test_builds_frozen_top_p_and_duplicate_backfilled_mix():
 
     top = memberships[memberships.portfolio_id.eq(K1_TOP_P)]
     assert top.sort_values("portfolio_entry_rank").cand_ix.tolist() == \
+        list(range(80))
+    nofloor = memberships[
+        memberships.portfolio_id.eq(K1_NOFLOOR_COVERAGE)]
+    assert nofloor.source_model.eq("tail_k1_nofloor").all()
+    assert nofloor.sort_values("portfolio_entry_rank").cand_ix.tolist() == \
         list(range(80))
     mixed = memberships[memberships.portfolio_id.eq(MIX_20_60)]
     assert mixed.groupby("source_model").size().to_dict() == {
@@ -115,28 +126,37 @@ def test_shadow_validation_rejects_labels_and_wrong_registry():
     wrong["lever_env"] = "MODEL_REGISTRY_VARIANT=canonical"
     with pytest.raises(ValueError, match="wrong registry"):
         validate_shadow_panel(wrong, "tail_k1")
+    wrong_floor = _panel("tail_k1_nofloor")
+    wrong_floor["lever_env"] = (
+        "MODEL_REGISTRY_VARIANT=tail_k1|MIN_LINEUP_SALARY=49000")
+    with pytest.raises(ValueError, match="wrong salary floor"):
+        validate_shadow_panel(wrong_floor, "tail_k1_nofloor")
 
 
 def test_choose_latest_panels_is_date_and_ct_slot_bounded():
     old_k1 = _panel("tail_k1", stamp="2026-09-13T15:25:00Z")
     new_k1 = _panel("tail_k1", stamp="2026-09-13T15:35:00Z")
+    nofloor = _panel("tail_k1_nofloor", stamp="2026-09-13T15:33:00Z")
     k3 = _panel("tail_k3", stamp="2026-09-13T15:34:00Z")
     late = pd.concat([
         _panel("tail_k1", stamp="2026-09-13T16:20:00Z"),
+        _panel("tail_k1_nofloor", stamp="2026-09-13T16:20:00Z"),
         _panel("tail_k3", stamp="2026-09-13T16:20:00Z"),
     ])
-    rows = pd.concat([old_k1, new_k1, k3, late], ignore_index=True)
-    chosen_k1, chosen_k3 = choose_latest_panels(
+    rows = pd.concat(
+        [old_k1, new_k1, nofloor, k3, late], ignore_index=True)
+    chosen_k1, chosen_nofloor, chosen_k3 = choose_latest_panels(
         rows, season=2026, week=1, target_sunday=date(2026, 9, 13),
         snapshot_slot="early")
     assert chosen_k1.panel_run_id.nunique() == 1
     assert chosen_k1.panel_run_id.iloc[0].endswith("20260913T153500Z")
+    assert chosen_nofloor.panel_run_id.iloc[0].endswith("20260913T153300Z")
     assert chosen_k3.panel_run_id.iloc[0].endswith("20260913T153400Z")
 
 
 def test_scores_frozen_memberships_and_fails_on_missing_actual():
     memberships = build_portfolios(
-        _panel("tail_k1"), _panel("tail_k3"),
+        _panel("tail_k1"), _panel("tail_k1_nofloor"), _panel("tail_k3"),
         portfolio_run_id="live-tail-portfolios-2026w01-early",
         snapshot_slot="early")
     player_ids = sorted({
@@ -151,11 +171,11 @@ def test_scores_frozen_memberships_and_fails_on_missing_actual():
         "actual": 1.0,
     })
     grades = score_portfolios(memberships, actuals)
-    assert len(grades) == 4
+    assert len(grades) == 5
     assert grades.n_entries.eq(80).all()
     assert grades.weekly_max.eq(9.0).all()
     summary = summarize_grades(grades)
-    assert len(summary) == 4
+    assert len(summary) == 5
     assert summary.ge_200.eq(0).all()
     assert summary.mean_weekly_max.eq(9.0).all()
     with pytest.raises(ValueError, match="missing actuals"):

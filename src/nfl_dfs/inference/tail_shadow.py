@@ -1,10 +1,11 @@
-"""Prospective K=1/K=3 Sunday-main lineup shadows.
+"""Prospective Sunday-main lineup-policy shadows.
 
-The historical K=1 result is outcome-viewed, so the next honest evidence is
-an immutable paired portfolio created before each 2026 slate. These jobs do
-not publish projections or alter the app: each loads its declared registry,
-builds the same frozen 80-entry/194-tail book, and synchronously stores the
-complete candidate pool and support artifacts for later paired grading.
+The historical K=1 and no-salary-floor results are outcome-viewed, so the next
+honest evidence is an immutable paired portfolio created before each 2026
+slate. These jobs do not publish projections or alter the app: each loads its
+declared registry, builds its frozen 80-entry/194-tail book, and synchronously
+stores the complete candidate pool and support artifacts for later paired
+grading.
 """
 
 from __future__ import annotations
@@ -26,6 +27,12 @@ K1_VARIANT = "tail_k1"
 K3_VARIANT = CANONICAL_VARIANT
 VARIANT_K = {K1_VARIANT: 1, K3_VARIANT: 3}
 VARIANT_LABEL = {K1_VARIANT: "tail_k1", K3_VARIANT: "tail_k3"}
+K1_NOFLOOR_LABEL = "tail_k1_nofloor"
+POLICY_SPEC = {
+    "tail_k1": (K1_VARIANT, 49_000),
+    K1_NOFLOOR_LABEL: (K1_VARIANT, 0),
+    "tail_k3": (K3_VARIANT, 49_000),
+}
 SHADOW_ENTRIES = 80
 SHADOW_TAIL_LINE = 194.0
 
@@ -82,7 +89,8 @@ def sunday_main_group(slates: pd.DataFrame, target_sunday: date) -> int:
     return max(choices)[2]
 
 
-def run(*, expected_variant: str = K1_VARIANT, store=None,
+def run(*, expected_variant: str = K1_VARIANT,
+        shadow_label: str | None = None, store=None,
         generated_at: datetime | None = None) -> dict:
     """Freeze one declared shadow arm and return its immutable identity."""
     if expected_variant not in VARIANT_K:
@@ -98,6 +106,23 @@ def run(*, expected_variant: str = K1_VARIANT, store=None,
         raise RuntimeError(
             f"{VARIANT_LABEL[variant]} shadow requires "
             f"MODEL_ENSEMBLE={expected_k}, got {size}")
+    label = shadow_label or VARIANT_LABEL[variant]
+    if label not in POLICY_SPEC:
+        raise ValueError(f"unsupported shadow policy {label!r}")
+    policy_variant, expected_floor = POLICY_SPEC[label]
+    if policy_variant != variant:
+        raise RuntimeError(
+            f"shadow policy {label} requires MODEL_REGISTRY_VARIANT="
+            f"{policy_variant}, got {variant}")
+    try:
+        actual_floor = int(os.environ.get(
+            "MIN_LINEUP_SALARY", "49000") or 0)
+    except ValueError as exc:
+        raise RuntimeError("MIN_LINEUP_SALARY must be an integer") from exc
+    if actual_floor != expected_floor:
+        raise RuntimeError(
+            f"shadow policy {label} requires MIN_LINEUP_SALARY="
+            f"{expected_floor}, got {actual_floor}")
     if not os.environ.get("CAND_ARTIFACT_BUCKET", "").strip():
         raise RuntimeError(
             "tail shadow requires CAND_ARTIFACT_BUCKET so the full "
@@ -123,9 +148,8 @@ def run(*, expected_variant: str = K1_VARIANT, store=None,
     if stamp.tzinfo is None:
         stamp = stamp.replace(tzinfo=timezone.utc)
     stamp = stamp.astimezone(timezone.utc)
-    shadow_label = VARIANT_LABEL[variant]
     panel_run_id = (
-        f"live-shadow-{shadow_label}-{season}w{week:02d}-"
+        f"live-shadow-{label}-{season}w{week:02d}-"
         f"{stamp.strftime('%Y%m%dT%H%M%SZ')}")
 
     from .live_lineups import build_sim_lineups
@@ -144,10 +168,10 @@ def run(*, expected_variant: str = K1_VARIANT, store=None,
     )
     if len(lineups) != SHADOW_ENTRIES:
         raise RuntimeError(
-            f"{shadow_label} shadow built {len(lineups)} lineups, expected "
+            f"{label} shadow built {len(lineups)} lineups, expected "
             f"{SHADOW_ENTRIES}")
     log.info("froze %s shadow %s: draft_group=%s lineups=%d tail=%.1f",
-             shadow_label, panel_run_id, gid, len(lineups),
+             label, panel_run_id, gid, len(lineups),
              SHADOW_TAIL_LINE)
     return {
         "panel_run_id": panel_run_id,
@@ -157,5 +181,6 @@ def run(*, expected_variant: str = K1_VARIANT, store=None,
         "entries": len(lineups),
         "tail_line": SHADOW_TAIL_LINE,
         "model_variant": variant,
-        "shadow_label": shadow_label,
+        "shadow_label": label,
+        "minimum_lineup_salary": actual_floor,
     }

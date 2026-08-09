@@ -1,0 +1,200 @@
+[
+  {
+    "jsonPayload": {
+      "ablation_improves_gate": {
+        "aligned_107_slates": true,
+        "at_most_1_negative_season": true,
+        "clear_lift_at_least_2": true,
+        "mean_not_worse_by_more_than_0_5": true,
+        "oracle_not_worse": false,
+        "passes": false,
+        "positive_in_at_least_4_seasons": false
+      },
+      "disposition": "unsupported-neutral",
+      "entries_expected": 80,
+      "failures": [],
+      "high_tail_200_gate": {
+        "aligned_107_slates": true,
+        "at_most_1_negative_season": true,
+        "clear_194_not_worse": true,
+        "clear_210_not_worse": true,
+        "clear_lift_at_least_2": true,
+        "mean_not_worse_by_more_than_guard": true,
+        "mechanism_and_panel_valid": true,
+        "oracle_200_not_worse": false,
+        "passes": false,
+        "positive_in_at_least_4_seasons": false
+      },
+      "high_tail_200_season_metrics": [
+        {
+          "challenger_clears": 7,
+          "incumbent_clears": 5,
+          "lift": 2,
+          "season": 2019
+        },
+        {
+          "challenger_clears": 2,
+          "incumbent_clears": 1,
+          "lift": 1,
+          "season": 2021
+        },
+        {
+          "challenger_clears": 3,
+          "incumbent_clears": 3,
+          "lift": 0,
+          "season": 2022
+        },
+        {
+          "challenger_clears": 1,
+          "incumbent_clears": 1,
+          "lift": 0,
+          "season": 2023
+        },
+        {
+          "challenger_clears": 1,
+          "incumbent_clears": 1,
+          "lift": 0,
+          "season": 2024
+        },
+        {
+          "challenger_clears": 2,
+          "incumbent_clears": 1,
+          "lift": 1,
+          "season": 2025
+        }
+      ],
+      "incumbent_supported_gate": {
+        "aligned_107_slates": true,
+        "at_most_1_negative_season": false,
+        "clear_lift_at_least_2": false,
+        "mean_not_worse_by_more_than_0_5": true,
+        "oracle_not_worse": true,
+        "passes": false,
+        "positive_in_at_least_4_seasons": false
+      },
+      "mechanism": {
+        "selected_rosters_shared": 6164,
+        "selected_rosters_source_only": 2396,
+        "selected_rosters_treatment_only": 2396,
+        "source_floor": 49000,
+        "source_salary": {
+          "below_49000_rows": 0,
+          "below_49000_selected": 0,
+          "missing_salary_rows": 0,
+          "rows": 25787,
+          "salary_median": 49900,
+          "salary_min": 49000,
+          "salary_p10": 49200,
+          "selected_salary_median": 49900,
+          "selected_salary_min": 49000,
+          "selected_salary_p10": 49300
+        },
+        "treatment_floor": 0,
+        "treatment_salary": {
+          "below_49000_rows": 5967,
+          "below_49000_selected": 1256,
+          "missing_salary_rows": 0,
+          "rows": 25904,
+          "salary_median": 49800,
+          "salary_min": 34200,
+          "salary_p10": 48000,
+          "selected_salary_median": 49800,
+          "selected_salary_min": 41400,
+          "selected_salary_p10": 48600
+        },
+        "unchanged_feature_mismatch_rows": {
+          "market_points": 0,
+          "mean_projection": 0,
+          "model_points_pre": 0,
+          "pos": 0,
+          "proj": 0
+        }
+      },
+      "season_metrics": [
+        {
+          "challenger_194": 8,
+          "incumbent_194": 6,
+          "lift": 2,
+          "season": 2019
+        },
+        {
+          "challenger_194": 3,
+          "incumbent_194": 2,
+          "lift": 1,
+          "season": 2021
+        },
+        {
+          "challenger_194": 4,
+          "incumbent_194": 4,
+          "lift": 0,
+          "season": 2022
+        },
+        {
+          "challenger_194": 4,
+          "incumbent_194": 4,
+          "lift": 0,
+          "season": 2023
+        },
+        {
+          "challenger_194": 2,
+          "incumbent_194": 2,
+          "lift": 0,
+          "season": 2024
+        },
+        {
+          "challenger_194": 3,
+          "incumbent_194": 4,
+          "lift": -1,
+          "season": 2025
+        }
+      ],
+      "source": "20260808-e80-k1-c616390",
+      "source_metrics": {
+        "clear_187": 36,
+        "clear_194": 22,
+        "clear_200": 12,
+        "clear_210": 6,
+        "clear_220": 3,
+        "clear_230": 1,
+        "clear_240": 1,
+        "mean_best": 179.59887850467288,
+        "median_best": 178.82,
+        "oracle_187": 44,
+        "oracle_194": 30,
+        "oracle_200": 19,
+        "oracle_210": 9,
+        "oracle_220": 3,
+        "oracle_230": 1,
+        "oracle_240": 1
+      },
+      "tail_first_operational_disposition": "tail-first-not-supported",
+      "tail_first_operational_gate": {
+        "aligned_107_slates": true,
+        "clear_200_lift_at_least_2": true,
+        "clear_210_not_worse": true,
+        "mechanism_and_panel_valid": true,
+        "oracle_200_not_worse": false,
+        "passes": false
+      },
+      "treatment": "20260809-e80-k1-nofloor-c616390",
+      "treatment_metrics": {
+        "clear_187": 37,
+        "clear_194": 24,
+        "clear_200": 16,
+        "clear_210": 8,
+        "clear_220": 3,
+        "clear_230": 1,
+        "clear_240": 1,
+        "mean_best": 179.11327102803736,
+        "median_best": 177.51999999999998,
+        "oracle_187": 43,
+        "oracle_194": 28,
+        "oracle_200": 18,
+        "oracle_210": 9,
+        "oracle_220": 3,
+        "oracle_230": 1,
+        "oracle_240": 1
+      }
+    }
+  }
+]

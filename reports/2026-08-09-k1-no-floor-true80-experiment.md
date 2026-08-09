@@ -4,9 +4,9 @@ Preregistered: 2026-08-09 12:03 CDT, before creation of any treatment rows or
 execution. Source results were already known. The treatment panel ID was
 confirmed absent from staging at freeze time.
 
-Status: **RUNNING — immutable execution IDs frozen; no score-bearing output
-inspected**. This is an outcome-informed historical exploration, not
-prospective confirmation.
+Status: **COMPLETE — valid mechanism; formal frozen gate fails; exact policy
+retained only as a separate prospective shadow**. This is an outcome-informed
+historical exploration, not prospective confirmation.
 The arm is being revisited because the earlier K=3/40-entry salary-floor
 deletion added two weeks at 200 under the later tail-first utility, after the
 K=1/80-entry portfolio became the research baseline. All three of that old
@@ -116,3 +116,51 @@ configuration, and execution mapping. All IDs were recorded before any
 score-bearing output was inspected. Monitor only completion conditions and
 row/slate counts until every execution is immutable; then run check-only
 acceptance and the purpose-built `salary` comparator.
+
+## Result — 2026-08-09
+
+All six season executions completed successfully. Check-only acceptance
+`accept-replay-panel-8m9hv` passed on reporting image
+`sha256:67e20d8308bd8bee20b436ff89dc3093445dcc559965f4527b3582ec7ed4f3f6`:
+25,904 candidates, 107 slates, exactly 8,560 selected rows, 50,098 player
+feature rows, no missing roster joins, and candidate/live mean parity within
+`2.34e-05`. Comparator `compare-adoption-panel-7c4cs` reported zero failures.
+
+The salary mechanism is valid and active. The source has no candidate below
+$49,000; the treatment has 5,967, including 1,256 selected rows. Source versus
+treatment selected membership shares 6,164 slots and changes 2,396 in each
+direction. Treatment candidate/selected minimum salary is $34,200/$41,400;
+the medians are $49,800/$49,800. All upstream position, projection, pre-blend
+model, and market fields match exactly.
+
+| selected 194 coverage | >=187 | >=194 | >=200 | >=210 | >=220 | >=230 | >=240 | mean | median |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| K=1, $49k floor | 36 | 22 | 12 | 6 | 3 | 1 | 1 | 179.60 | 178.82 |
+| K=1, no floor | **37** | **24** | **16** | **8** | 3 | 1 | 1 | 179.11 | 177.52 |
+
+At 200 the treatment gains five weeks and loses one: 2019w10 185.94→201.14,
+2019w15 190.36→200.36, 2019w16 198.86→205.46, 2021w4 193.60→215.38, and
+2025w12 199.06→206.06 are gained; 2019w4 223.78→196.50 is lost. The 210
+grid additionally gains 2022w14 205.02→214.02 and 2023w9 200.40→226.10, so
+net changes are +4 weeks at 200 and +2 at 210. The lost 223.78 week is offset
+at the 220 grid by 2023w9's 226.10; 220/230/240 counts are unchanged.
+Season deltas at 200 are `{2019:+2, 2021:+1, 2022:0, 2023:0, 2024:0,
+2025:+1}`: three positive, three tied, none negative.
+
+The candidate-pool oracle moves 44/30/19/9/3/1/1 to
+43/28/**18**/9/3/1/1 on the same threshold grid. The lost 200-point oracle is
+2023w16 (202.74→193.84). That violates the preregistered non-worsening oracle
+safeguard; therefore both the formal high-tail and frozen tail-first
+operational dispositions are **not supported**. Preserve that verdict and do
+not promote this staging panel, tune an intermediate floor, combine this
+result with a newly mined selector, or relabel it as a historical success.
+
+The operator had already made selected weekly highs—not pool potential or
+average—the primary utility. On that explicitly stated utility, five paired
+gains versus one loss, 12→16 at 200, 6→8 at 210, and unchanged 220+ counts are
+material enough to observe the **exact** rule prospectively. A separately
+identified `tail_k1_nofloor` live shadow will therefore reuse the isolated
+K=1 registry, change only `MIN_LINEUP_SALARY=0`, freeze 80 entries at 194,
+and remain excluded from UI/production selection. This is a post-result
+prospective research decision, not an exception to the historical verdict.
+Only new pre-lock 2026 portfolios may confirm it.

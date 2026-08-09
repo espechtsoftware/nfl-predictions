@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 13:18 CDT
+## Current state — 2026-08-09 13:46 CDT
 
 ### Recovery provenance
 
@@ -70,6 +70,23 @@ agent or developer:
   production reference at `29/19/8/5/1/1/1`, mean 177.08, oracle >=200 count
   12. This promotion changes the research incumbent only; no live deployment
   default has been changed.
+
+- Final K=1 no-salary-floor panel `20260809-e80-k1-nofloor-c616390`
+  completed on all 107 slates with 25,904 candidates and exactly 8,560
+  selections. Acceptance `accept-replay-panel-8m9hv` passed on reporting
+  digest `sha256:67e20d8308bd...ed4f3f6`; salary comparator
+  `compare-adoption-panel-7c4cs` had zero failures. Selected
+  187/194/200/210/220/230/240 moves from `36/22/12/6/3/1/1` to
+  `37/24/16/8/3/1/1`; mean/median moves 179.60/178.82 to 179.11/177.52.
+  Five weeks are gained and one lost at 200; season deltas are
+  `{2019:+2, 2021:+1, 2022:0, 2023:0, 2024:0, 2025:+1}`. The source/treatment
+  pool oracle grid moves `44/30/19/9/3/1/1` to `43/28/18/9/3/1/1`, so the
+  frozen oracle safeguard fails and formal disposition remains
+  `tail-first-not-supported`. Never promote the staging panel or tune an
+  intermediate floor/selector on it. Because submitted weekly highs are the
+  operator's explicit utility, the exact unchanged policy is retained only
+  as a distinct prospective `tail_k1_nofloor` shadow; it is not a historical
+  adoption and remains excluded from the UI.
 
 - Prospective K=1 shadow infrastructure is implemented on `main` in commits
   `97cee37` and `0e0278d`. Canonical model labels
@@ -526,30 +543,28 @@ from the opposing pool. Full mechanism and missed-oracle evidence is in
 `reports/2026-08-09-k1-model-only-true80-experiment.md` and the tracked panel
 artifacts. Never promote or retune this arm.
 
-The lower-prior true-80 K=1 salary-floor deletion is preregistered in
-`reports/2026-08-09-k1-no-floor-true80-experiment.md`, before any treatment
-rows existed. Panel `20260809-e80-k1-nofloor-c616390` changes only
-`MIN_LINEUP_SALARY=0` against source `20260808-e80-k1-c616390` on immutable
-generation digest `sha256:98a31edd...`. It is outcome-informed historical
-exploration: the old K=3/40-entry no-floor result added two 200 weeks, but all
-three of its 200+ weeks already appear in the current K=1 book. Require at
-least 14 selected weeks >=200, non-worse counts of at least 6 at >=210 and 19
-pool oracles >=200, plus the purpose-built salary mechanism audit. Never
-promote it, and close the exact arm without tuning if it fails.
+The true-80 K=1 salary-floor deletion is complete. The immutable 2022 smoke
+`replay-e80k1nf-smoke-7rrbr` and all six season executions passed:
+`replay-e80k1nf-2019-nrw5b`, `replay-e80k1nf-2021-zjwt8`,
+`replay-e80k1nf-2022-rdvll`, `replay-e80k1nf-2023-57cw8`,
+`replay-e80k1nf-2024-gdx9t`, and `replay-e80k1nf-2025-2bpt5`. The complete
+result, gained/lost weeks, mechanism, formal failed gate, and post-result
+prospective-shadow decision are in
+`reports/2026-08-09-k1-no-floor-true80-experiment.md`; immutable acceptance
+and comparison artifacts are tracked under
+`reports/panel-runs/20260809-e80-k1-nofloor-c616390/`.
 
-The immutable 2022 smoke `replay-e80k1nf-smoke-7rrbr` passed. All six season
-jobs are running: `replay-e80k1nf-2019-nrw5b`,
-`replay-e80k1nf-2021-zjwt8`, `replay-e80k1nf-2022-rdvll`,
-`replay-e80k1nf-2023-57cw8`, `replay-e80k1nf-2024-gdx9t`, and
-`replay-e80k1nf-2025-2bpt5`. Their exact manifest is tracked under
-`reports/panel-runs/20260809-e80-k1-nofloor-c616390/`. No score-bearing output
-was inspected before these IDs were frozen.
-
-Next, monitor only Cloud Run completion conditions and staging slate counts.
-After all six jobs succeed and all 107 slates exist, run check-only acceptance
-on reporting digest `sha256:67e20d8308bd...ed4f3f6`, then the purpose-built
-`salary` comparator against `20260808-e80-k1-c616390`. Preserve its complete
-tail grid and mechanism report before making the frozen disposition.
+Next, finish validation and deployment of the isolated prospective
+`shadow-k1-nofloor` path. The current work adds an exact policy identity
+requiring K=1 registry `tail_k1` plus `MIN_LINEUP_SALARY=0`, distinct panel
+prefix `live-shadow-tail_k1_nofloor-*`, a fifth frozen 80-entry portfolio,
+paired grading, and two paused 10:30/11:20 Sunday schedules. Focused local
+tests currently pass 31/31; Python compilation, CLI discovery, shell syntax,
+and diff whitespace pass. Run a full Cloud Build, deploy K=1/K=1-no-floor/K=3
+shadow and early/late freezer jobs on its immutable digest, create and verify
+the two new schedules PAUSED, and prove a live preseason call fails closed
+before model loading/writes because no matching regular-season Sunday group
+exists. Do not run a source shadow or freezer successfully before Week 1.
 
 The data-acquisition audit requested during this run is tracked in
 `reports/2026-08-09-data-acquisition-priorities.md`. Its ordering is: complete
@@ -610,16 +625,13 @@ requires complete entry-level lineups/ranks/duplication/payouts to justify
 cost; an independent projected-ownership feed remains only a prospective,
 timestamped signal trial.
 
-At 13:07 CDT all six no-floor season executions still reported Cloud Run
-`Completed=Unknown` / waiting; no score-bearing treatment result was inspected.
-
 Before resuming the season schedules, complete the newly tracked arm/UI
 promotion gate in the README's August 24 runbook: close or explicitly defer
 the historical arms, record the adopted production policy, wire that policy
 through the UI/API and all three lineup/CSV paths, expose its identity, and
 pass a full build plus end-to-end 80-lineup export smoke. Unconfirmed arms
 remain shadow-only; an explicit decision to retain canonical K=3/194 also
-satisfies the policy-choice portion. Keep all seven research schedules paused
+satisfies the policy-choice portion. Keep all nine research schedules paused
 until this gate passes. Do not execute either source shadow or freezer before
 DK posts the matching regular-season Sunday main slate. Never mutate the
 pre-lock candidate or membership records, and do not retune K, the 194 control
