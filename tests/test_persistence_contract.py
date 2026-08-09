@@ -102,6 +102,52 @@ def test_two_level_run_identity(monkeypatch):
     assert not df2.research_eligible.any()
 
 
+def test_explicit_shadow_identity_overrides_process_env(monkeypatch):
+    slate, pool, draws = _slate()
+    writes = []
+    monkeypatch.setattr(
+        "nfl_dfs.bq.load_dataframe",
+        lambda df, table, **kw: writes.append((table, df)),
+    )
+    monkeypatch.setenv("MIN_LINEUP_SALARY", "0")
+    monkeypatch.setenv("PANEL_RUN_ID", "wrong-process-id")
+    monkeypatch.setenv("MODEL_REGISTRY_VARIANT", "tail_k1")
+    engine.tail_select_lineups(
+        slate, pool, draws, tail_line=95.0, n_entries=8, stack=None,
+        objective_col="proj", cand_log_table="proj.ds.candidates",
+        panel_run_id="prospective-k1", candidate_run_type="live_shadow",
+    )
+    df = next(d for t, d in writes if t.endswith("candidates"))
+    assert df.panel_run_id.eq("prospective-k1").all()
+    assert df.run_type.eq("live_shadow").all()
+    assert "MODEL_REGISTRY_VARIANT=tail_k1" in df.lever_env.iloc[0]
+
+
+def test_required_persistence_propagates_warehouse_failure(monkeypatch):
+    slate, pool, draws = _slate()
+    monkeypatch.setenv("MIN_LINEUP_SALARY", "0")
+    monkeypatch.setattr(
+        "nfl_dfs.bq.load_dataframe",
+        lambda *a, **k: (_ for _ in ()).throw(RuntimeError("warehouse down")),
+    )
+    with pytest.raises(RuntimeError, match="warehouse down"):
+        engine.tail_select_lineups(
+            slate, pool, draws, tail_line=95.0, n_entries=8, stack=None,
+            objective_col="proj", cand_log_table="proj.ds.candidates",
+            cand_log_required=True,
+        )
+
+
+def test_required_persistence_rejects_async_mode():
+    slate, pool, draws = _slate()
+    with pytest.raises(ValueError, match="cannot run asynchronously"):
+        engine.tail_select_lineups(
+            slate, pool, draws, tail_line=95.0, n_entries=8, stack=None,
+            objective_col="proj", cand_log_table="proj.ds.candidates",
+            cand_log_async=True, cand_log_required=True,
+        )
+
+
 def test_multi_generator_provenance_records_every_producer(monkeypatch):
     df, _, _, _ = _capture(monkeypatch, PANEL_RUN_ID="p", N_GUMBEL="6",
                            HYPER_BOOM="2")

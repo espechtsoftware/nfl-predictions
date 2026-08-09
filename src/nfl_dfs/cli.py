@@ -57,6 +57,10 @@ def main(argv: list[str] | None = None) -> None:
 
     sub.add_parser("train", help="Weekly retrain + registry write")
     sub.add_parser("project", help="Project the upcoming slate")
+    sub.add_parser(
+        "shadow-k1",
+        help="Freeze the prospective K=1 Sunday-main 80-entry portfolio",
+    )
 
     p = sub.add_parser("trends", help="Changepoint detection + salary-lag watchlist")
     p.add_argument("--season", type=int, default=None)
@@ -203,6 +207,10 @@ def main(argv: list[str] | None = None) -> None:
         from .inference import run_projections
 
         run_projections.run()
+    elif args.command == "shadow-k1":
+        from .inference import tail_shadow
+
+        tail_shadow.run()
     elif args.command == "trends":
         from .config import current_season
         from .trends import alerts

@@ -37,6 +37,7 @@ LIVE_SIMS_DEFAULT = 30_000  # adopted 2026-08-03: +2 tails, best ROI and
 def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
                            seed: int = 42, lev_scale: float = 1.0,
                            apply_notes: bool = True,
+                           model_variant: str | None = None,
                            allowed_ids: set | None = None,
                            salary_overrides: dict[int, int] | None = None,
                            ) -> tuple[pd.DataFrame, np.ndarray]:
@@ -56,7 +57,19 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
 
     if n_sims is None:
         n_sims = int(_os.environ.get("LIVE_SIMS", LIVE_SIMS_DEFAULT))
-    model, version = load_latest_component_models()
+    if model_variant is None:
+        model, version = load_latest_component_models()
+    else:
+        model, version = load_latest_component_models(model_variant)
+        from ..models.components import effective_ensemble_size
+        from ..models.train_job import registered_ensemble_size
+
+        expected_k = effective_ensemble_size()
+        loaded_k = registered_ensemble_size(model)
+        if loaded_k != expected_k:
+            raise RuntimeError(
+                f"registry variant {model_variant} contains K={loaded_k}, "
+                f"but MODEL_ENSEMBLE={expected_k}")
     feats = upcoming_slate_features(season, week)
     skill = feats[feats.dk_position.isin(["QB", "RB", "WR", "TE"])] \
         .reset_index(drop=True)
@@ -263,7 +276,13 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                       allowed_ids: set | None = None,
                       salary_overrides: dict[int, int] | None = None,
                       theses: list | None = None,
-                      apply_notes: bool = True) -> list:
+                      apply_notes: bool = True,
+                      model_variant: str | None = None,
+                      cand_log_table: str | None = None,
+                      cand_log_async: bool = True,
+                      cand_log_required: bool = False,
+                      panel_run_id: str | None = None,
+                      candidate_run_type: str | None = None) -> list:
     """Full validated pipeline on the live slate -> selected entries in
     coverage order (first = broadest boom coverage).
 
@@ -276,6 +295,7 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
     slate, draws = build_slate_with_draws(season, week, n_sims=n_sims,
                                           seed=seed, lev_scale=lev_scale,
                                           apply_notes=apply_notes,
+                                          model_variant=model_variant,
                                           allowed_ids=allowed_ids,
                                           salary_overrides=salary_overrides)
     if allowed_ids:  # safety no-op — restriction now happens pre-fade
@@ -311,13 +331,18 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
             raise ValueError(f"locked players not in slate: {sorted(missing)}")
     pool = slate.to_dict("records")
     # Persist every live candidate (reranker training data, September
-    # designs #3 — irrecoverable post-build). Explicit destination +
-    # async write: never mutates global env, never blocks the build.
+    # designs #3 — irrecoverable post-build). App builds use async writes so
+    # storage never blocks a user response; prospective shadows request a
+    # synchronous write so a successful job means the pre-lock artifact is
+    # durably frozen.
     from ..config import settings as _settings
+    if cand_log_table is None:
+        cand_log_table = f"{_settings.predictions}.live_candidates"
     lineups = tail_select_lineups(
         slate, pool, draws, tail_line=tail_line, n_entries=n_entries,
         stack=stack, objective_col="proj_tourney",
         locks=set(locks or ()), theses=theses,
-        cand_log_table=f"{_settings.predictions}.live_candidates",
-        cand_log_async=True)
+        cand_log_table=cand_log_table, cand_log_async=cand_log_async,
+        cand_log_required=cand_log_required,
+        panel_run_id=panel_run_id, candidate_run_type=candidate_run_type)
     return lineups

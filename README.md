@@ -116,6 +116,8 @@ All configuration is via environment variables, read in `src/nfl_dfs/config.py` 
 | `BQ_PREDICTIONS_DATASET` | `nfl_predictions` | Projections + registry metadata |
 | `GCS_BUCKET` | `nfl-dfs-prod-raw` | Raw snapshots + model registry |
 | `MODEL_REGISTRY_PREFIX` | `models` | GCS prefix for registered models |
+| `MODEL_REGISTRY_VARIANT` | `canonical` | Isolated model label namespace; `tail_k1` is reserved for the prospective K=1 shadow and never overwrites canonical K=3 |
+| `MODEL_ENSEMBLE` | `3` | Component-model member count; the isolated tail shadow requires `1` |
 | `FIRST_SEASON` | `2014` | Earliest season to backfill. Training only uses 2015+ (DK salaries don't exist earlier), so the default backfills just one run-up season before that; set `1999` for the full play-by-play history if you want it for exploration |
 | `TRAIN_FIRST_SEASON` | `2015` | Earliest season used in training (DK salaries only go back to 2014) |
 
@@ -145,6 +147,16 @@ nfl-dfs trends                        # changepoint detection + salary-lag watch
 ```
 
 Run `nfl-dfs --help` (or `nfl-dfs <command> --help`) for flags.
+
+The K=1 tail-first baseline has a separate prospective path. The scheduled
+`train-weekly-k1` job trains with
+`MODEL_ENSEMBLE=1 MODEL_REGISTRY_VARIANT=tail_k1`, writing suffixed registry
+labels that cannot replace the canonical K=3 models. `nfl-dfs shadow-k1`
+then selects the UI-equivalent Sunday main slate and synchronously freezes the
+fixed 80-entry, 194-tail candidate book, player snapshots, support masks, and
+candidate-by-world artifact as `live_shadow` data. It refuses the canonical
+registry, missing artifact storage, the wrong K, partial lineup counts, and
+warehouse failures; it does not publish projections or alter the live app.
 
 ### Running the web app
 
@@ -1609,20 +1621,20 @@ Regenerate after EVERY feature-table rebuild and weekly in-season
 back to the EW empirical marginals with a logged warning — but the
 validated default is the TabPFN shapes.
 
-**Off-season pause / season-start runbook (2026 edition).** Five schedulers are PAUSED for the off-season (2026-07-31) because they only re-process a finished season: `s-nflverse`, `s-features`, `s-train`, `s-project-tu`, `s-project-su`. Everything else (odds, DK poll, CFB scaffold, weather, freshness check) stays live year-round. The season-start sequence:
+**Off-season pause / season-start runbook (2026 edition).** Eight schedulers are PAUSED for the off-season because they only re-process a finished season or require a live Sunday slate: `s-nflverse`, `s-features`, `s-train`, `s-train-k1`, `s-project-tu`, `s-project-su`, `s-shadow-k1-early`, `s-shadow-k1-late`. Everything else (odds, DK poll, CFB scaffold, weather, freshness check) stays live year-round. The season-start sequence:
 
 **Backups (2026-08-02).** `s-backup` runs `backup-tables` daily at 07:00 UTC: BigQuery snapshots of the irreplaceable tables (LineStar ownership backfill, standings imports, notes/watchlist, entered lineups, ID overrides — see `ops/backup.py` TABLES) into the `nfl_backups` dataset, 30-day retention, delta-billed (~pennies). Everything else is re-ingestable from source, and BigQuery time travel covers the last 7 days on all tables regardless. Restore: `CREATE TABLE <dataset>.<table> CLONE nfl_backups.<table>_<YYYYMMDD>`. New irreplaceable tables must be added to `backup.TABLES` (same discipline as `status.FEEDS`). Runs year-round; never pause it.
 
 | When (2026) | Do |
 |---|---|
-| **Mon Aug 24** | Resume the Tuesday chain + projections: `for s in s-nflverse s-features s-train s-project-tu s-project-su; do gcloud scheduler jobs resume $s --location us-central1; done`. First runs land Tue Aug 25 and pick up 2026 schedule finalizations. |
+| **Mon Aug 24** | Resume the Tuesday chain, projections, and prospective K=1 shadow: `for s in s-nflverse s-features s-train s-train-k1 s-project-tu s-project-su s-shadow-k1-early s-shadow-k1-late; do gcloud scheduler jobs resume $s --location us-central1; done`. First training runs land Tue Aug 25; the shadow freezes Sunday-main books at 10:30 and 11:20 CT. |
 | **Sat Aug 29** (CFB week 0) | Nothing to start — `ingest-cfb` is already live and self-activating. Verify it caught real slates: System status popup → "CFB slates/salaries" shows rows (or query `nfl_raw.cfb_dk_salaries`). If still 0 after slates exist on DK, the `sportId == 5` filter guess was wrong — check the `ingest-cfb` logs. |
 | **Tue-Wed Sep 8-9** | Purchase the ETR **NFL In-Season Package WEEKLY pass** ($30.99 — verified 2026-08-02 at establishtherun.com/subscribe; monthly is $89.99, weekly beats it unless certain of 3+ weeks). Includes DK projections + ceilings, LARGE & SMALL-field ownership (qualifier-relevant), showdown projections. Use: download their CSV, upload on /market (Consensus diff, source `etr`); divergences on players we're heavy on -> watchlist via chat; showdown captain ownership secondary. Re-up weekly ONLY if a diff flag changed a decision for the better. |
 | **~Thu Sep 3** (week-1 slates post) | The dead-filter check from the deficiency log (2026-07-31): `python -c "import requests; from nfl_dfs.ingest import dk_client; print(len(dk_client.nfl_draft_groups(requests.Session())))"`. Nonzero → close the log row, done. Zero → in `dk_client.py`'s `nfl_draft_groups`, change the filter line to `if g.get("sportId") == 1 and g.get("draftGroupState") == "Upcoming"` (mirror `cfb_draft_groups`), commit, then rebuild+redeploy: `gcloud builds submit --tag us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:latest .` and `gcloud run jobs deploy ingest-dk --image <that tag> --region us-central1 --command nfl-dfs --args ingest-dk --set-env-vars "GCP_PROJECT=nfl-predictions-503414" --memory 2Gi --cpu 1`, then re-run the check via the deployed job and confirm `dk_salaries` gains rows. |
 | **Thu Sep 10** (NFL kickoff) | Status popup should be fully green: salaries/odds/props/weather flowing, projections present. Any red is real — the daily check will also have emailed. |
 | **Sun Sep 13** (first main slate) | Normal weekly guide flow. First end-to-end test of lineups → CSV → upload. |
 
-If resuming is forgotten: the Tuesday-chain feeds are `nfl`-seasonal in `status.py` and go **active Sep 1**, so the daily `check-freshness` starts emailing about their staleness — the system nags you itself. Reverse direction (next off-season, ~mid-February): pause the same five schedulers again.
+If resuming is forgotten: the Tuesday-chain feeds are `nfl`-seasonal in `status.py` and go **active Sep 1**, so the daily `check-freshness` starts emailing about their staleness — the system nags you itself. Reverse direction (next off-season, ~mid-February): pause the same eight schedulers again.
 
 | `ingest_nflverse` | Daily 06:00 CT | Year-round; nightly refresh matters in-season |
 | `ingest_dk_slate` | Hourly | Thu 00:00 – Mon 04:00 CT |

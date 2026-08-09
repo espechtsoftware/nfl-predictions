@@ -547,6 +547,9 @@ def tail_select_lineups(
     theses: list[dict] | None = None,
     cand_log_table: str | None = None,
     cand_log_async: bool = False,
+    cand_log_required: bool = False,
+    panel_run_id: str | None = None,
+    candidate_run_type: str | None = None,
     belief_slate: pd.DataFrame | None = None,
     belief_draws: np.ndarray | None = None,
 ) -> list[Lineup]:
@@ -557,6 +560,9 @@ def tail_select_lineups(
     'if the slate booms like THIS, what's the best lineup?' — which yields
     genuinely boom-correlated entries the mean objective never builds.
     Selection is greedy sim-coverage (see select_tail_entries)."""
+    if cand_log_required and cand_log_async:
+        raise ValueError(
+            "required candidate persistence cannot run asynchronously")
     rd = _row_draws(slate, draws)
     locks = locks or set()
     # Dose lever (env N_BOOM, 2026-08-05 attribution: boom solves are
@@ -1227,7 +1233,8 @@ def tail_select_lineups(
             # six-season invocation (harvest driver exports it); the
             # slate id is per (season, week). A per-slate-only uuid made
             # partial reruns look like independent panels.
-            panel_run_id = _os.environ.get("PANEL_RUN_ID", "")
+            persist_panel_run_id = (panel_run_id if panel_run_id is not None
+                                    else _os.environ.get("PANEL_RUN_ID", ""))
             slate_run_id = uuid.uuid4().hex[:12]
             # Run provenance (Sol audit 3): panel+slate ids alone cannot
             # detect a mixed-config panel. Capture what identifies the
@@ -1300,7 +1307,8 @@ def tail_select_lineups(
                 "GUMBEL_SEED", "HYPER_BOOM", "LEV_PENALTY",
                 "LEV_POS_WEIGHTS", "LEV_SHAPE", "M4_QBLOCK", "MAX_QBS",
                 "MIN_LINEUP_SALARY", "MODEL_ENSEMBLE",
-                "MODEL_ENSEMBLE_MIX", "N_BOOM", "N_CE", "N_DARKGAME",
+                "MODEL_ENSEMBLE_MIX", "MODEL_REGISTRY_VARIANT",
+                "N_BOOM", "N_CE", "N_DARKGAME",
                 "N_EPISTEMIC", "N_GAMESTACK", "N_GUMBEL", "N_LOWSAL",
                 "N_MIDQB", "N_NOSTACK", "N_QB_VARIANTS", "OWN_BARBELL",
                 "OWN_MODEL", "PEAK_SLICE", "PUNT_BOOM", "PUNT_BOOM_WR",
@@ -1344,10 +1352,11 @@ def tail_select_lineups(
             for ix, lu in enumerate(cands):
                 rows.append({
                     "generated_at": now,
-                    "panel_run_id": panel_run_id,
+                    "panel_run_id": persist_panel_run_id,
                     "slate_run_id": slate_run_id,
-                    "run_type": ("replay" if labels_complete
-                                 else "live_unlabeled"),
+                    "run_type": (candidate_run_type or
+                                 ("replay" if labels_complete
+                                  else "live_unlabeled")),
                     "code_sha": _sha, "code_dirty": _dirty,
                     "config_hash": _cfg, "lever_env": _levers,
                     "seeds": _seeds,
@@ -1413,7 +1422,7 @@ def tail_select_lineups(
             art_uri = ""
             art_sha = ""
             bucket = _os.environ.get("CAND_ARTIFACT_BUCKET", "")
-            if bucket and panel_run_id:
+            if bucket and persist_panel_run_id:
                 try:
                     import hashlib
                     import io
@@ -1430,7 +1439,8 @@ def tail_select_lineups(
                     art_sha = hashlib.sha256(payload).hexdigest()
                     season_i = int(slate["season"].iloc[0])
                     week_i = int(slate["week"].iloc[0])
-                    art_uri = (f"gs://{bucket}/cand_scores/{panel_run_id}/"
+                    art_uri = (f"gs://{bucket}/cand_scores/"
+                               f"{persist_panel_run_id}/"
                                f"{season_i}_w{week_i}_{slate_run_id}.npz")
                     storage.Client().bucket(bucket).blob(
                         art_uri.split(f"{bucket}/", 1)[1]
@@ -1439,6 +1449,8 @@ def tail_select_lineups(
                              art_uri, len(payload))
                 except Exception:
                     log.exception("score-artifact upload failed")
+                    if cand_log_required:
+                        raise
             df["score_artifact_uri"] = art_uri
             df["score_artifact_sha256"] = art_sha
 
@@ -1500,7 +1512,7 @@ def tail_select_lineups(
                         fdf[c] = pd.to_numeric(fdf[c], errors="coerce")
                 fdf["feature_missing"] = json.dumps(
                     [c for c in want if c not in have])
-                fdf["panel_run_id"] = panel_run_id
+                fdf["panel_run_id"] = persist_panel_run_id
                 fdf["slate_run_id"] = slate_run_id
                 fdf["season"] = int(slate["season"].iloc[0])
                 fdf["week"] = int(slate["week"].iloc[0])
@@ -1519,6 +1531,8 @@ def tail_select_lineups(
                                  len(d), t)
                     except Exception:
                         log.exception("player-feature persistence failed")
+                        if cand_log_required:
+                            raise
 
                 if cand_log_async:
                     import threading
@@ -1534,6 +1548,8 @@ def tail_select_lineups(
                              len(df), _cand_tbl, slate_run_id)
                 except Exception:
                     log.exception("candidate persistence failed")
+                    if cand_log_required:
+                        raise
 
             if cand_log_async:
                 import threading
@@ -1542,6 +1558,8 @@ def tail_select_lineups(
                 _write()
         except Exception:
             log.exception("candidate persistence failed; selection unaffected")
+            if cand_log_required:
+                raise
     return [cands[i] for i in picked]
 
 

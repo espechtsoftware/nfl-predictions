@@ -7,6 +7,8 @@ current ISO week with its metrics sidecar.
 from __future__ import annotations
 
 import logging
+import os
+import re
 from datetime import date
 
 import pandas as pd
@@ -19,6 +21,47 @@ from .featureset import FEATURES
 log = logging.getLogger(__name__)
 
 SCOPE = "pooled"
+CANONICAL_VARIANT = "canonical"
+
+
+def registry_variant(value: str | None = None) -> str:
+    """Return a safe component-registry namespace.
+
+    Canonical labels remain unchanged for production compatibility. Research
+    shadows use suffixed labels, so training K=1 cannot overwrite live K=3.
+    """
+    variant = (value if value is not None else
+               os.environ.get("MODEL_REGISTRY_VARIANT", CANONICAL_VARIANT))
+    variant = str(variant).strip().lower() or CANONICAL_VARIANT
+    if not re.fullmatch(r"[a-z][a-z0-9_]{0,31}", variant):
+        raise ValueError(
+            "MODEL_REGISTRY_VARIANT must match [a-z][a-z0-9_]{0,31}")
+    return variant
+
+
+def _component_label(name: str, variant: str) -> str:
+    base = f"comp_{name}"
+    return base if variant == CANONICAL_VARIANT else f"{base}__{variant}"
+
+
+def _component_version(iso_week: str, variant: str) -> str:
+    family = ("components" if variant == CANONICAL_VARIANT
+              else f"components__{variant}")
+    return f"{SCOPE}/{family}/{iso_week}"
+
+
+def registered_ensemble_size(models: components.ComponentModels) -> int:
+    """Member count encoded by a loaded component set; all must agree."""
+    sizes = {
+        len(members) if (members := getattr(model, "members", None))
+        is not None else 1
+        for model in models.models.values()
+    }
+    if len(sizes) != 1:
+        raise RuntimeError(
+            f"registered component models have mixed member counts: "
+            f"{sorted(sizes)}")
+    return next(iter(sizes))
 
 
 def _registry_root() -> str:
@@ -43,13 +86,15 @@ def training_panel() -> pd.DataFrame:
     return active_training_rows(panel)
 
 
-def train_and_register(today: date | None = None) -> str:
+def train_and_register(today: date | None = None,
+                       variant: str | None = None) -> str:
     """Retrain the component models on everything up to now, validate the
     baseline walk-forward for the metrics sidecar, and register every
     booster under this ISO week. Returns the model version prefix."""
     panel = training_panel()
     season = current_season(today)
     iso_week = _iso_week(today)
+    variant = registry_variant(variant)
     train_seasons = sorted(int(s) for s in panel.season.unique() if s < season + 1)
 
     wf = baseline.walk_forward(panel)
@@ -67,7 +112,7 @@ def train_and_register(today: date | None = None) -> str:
             booster,
             registry.ModelMeta(
                 scope=SCOPE,
-                label=f"comp_{name}",
+                label=_component_label(name, variant),
                 iso_week=iso_week,
                 params=registry.model_params(booster),
                 features=FEATURES,
@@ -76,17 +121,24 @@ def train_and_register(today: date | None = None) -> str:
             ),
             root,
         )
-    version = f"{SCOPE}/components/{iso_week}"
-    log.info("Registered %d component models as %s", len(cm.models), version)
+    version = _component_version(iso_week, variant)
+    log.info("Registered %d component models as %s (variant=%s)",
+             len(cm.models), version, variant)
     return version
 
 
-def load_latest_component_models() -> tuple[components.ComponentModels, str]:
+def load_latest_component_models(
+    variant: str | None = None,
+) -> tuple[components.ComponentModels, str]:
     """Latest registered component set + its version string, for inference."""
     root = _registry_root()
-    iso_week = registry.latest_iso_week(root, SCOPE, "comp_targets")
+    variant = registry_variant(variant)
+    iso_week = registry.latest_iso_week(
+        root, SCOPE, _component_label("targets", variant))
     models = {
-        name: registry.load(root, SCOPE, f"comp_{name}", iso_week)[0]
+        name: registry.load(
+            root, SCOPE, _component_label(name, variant), iso_week)[0]
         for name in components.COMPONENT_NAMES
     }
-    return components.ComponentModels(models=models), f"{SCOPE}/components/{iso_week}"
+    return (components.ComponentModels(models=models),
+            _component_version(iso_week, variant))

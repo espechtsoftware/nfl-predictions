@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 06:17 CDT
+## Current state — 2026-08-09 06:27 CDT
 
 ### Recovery provenance
 
@@ -64,6 +64,21 @@ agent or developer:
   production reference at `29/19/8/5/1/1/1`, mean 177.08, oracle >=200 count
   12. This promotion changes the research incumbent only; no live deployment
   default has been changed.
+
+- Prospective K=1 shadow infrastructure is implemented on `main` from base
+  `e848767` and awaits full Cloud Build validation. Canonical model labels
+  remain unchanged; `MODEL_REGISTRY_VARIANT=tail_k1` writes/loads only
+  `comp_*__tail_k1` labels, and the loader verifies their stored member count
+  is exactly the configured K=1. New `nfl-dfs shadow-k1` refuses canonical or
+  incorrectly sized models, selects the same Sunday-main draft group as the
+  UI, freezes exactly 80 entries at line 194 with notes disabled, and writes
+  a distinct `live_shadow` run synchronously. Missing artifact storage,
+  partial lineup counts, feature/candidate warehouse failures, and score
+  artifact failures make the job fail rather than silently lose prospective
+  evidence. The app and canonical K=3 registry are untouched. Focused local
+  validation is green: 47 tests across shadow/registry, persistence, live
+  smoke, ensemble, and research infrastructure; Python compilation, CLI
+  discovery, shell syntax, and diff whitespace also pass.
 
 - The old 27/107 result and the later 17/107 result are invalid controls. The
   former contains illegal repriced lineups; the latter omitted historical DST
@@ -365,14 +380,14 @@ model registry or silently change app behavior. Earlier deployed
 
 ### Next concrete action
 
-K=1 is promoted as the tail-first research baseline; raw candidate doubling
-is rejected and closed. Build an isolated, off-by-default K=1 registry and
-prospective Sunday-main shadow that freezes 80 selected entries and their
-full candidate/support artifacts before outcomes. It must not overwrite the
-canonical K=3 weekly models or alter live app defaults. Validate the code in
-Cloud Build, then deploy only the separate shadow train/build jobs and record
-their scheduler names. Grade 2026 weekly high-tail outcomes after results
-land; do not retune K, the 194 target, or selector on the 107 known slates.
+Submit the isolated K=1 shadow implementation to full Cloud Build. If green,
+deploy only `train-weekly-k1` and `shadow-k1`, create the paused seasonal
+`s-train-k1`, `s-shadow-k1-early`, and `s-shadow-k1-late` schedulers, execute
+one off-season K=1 training smoke, and prove its registry does not modify the
+latest canonical K=3 labels. Keep all new schedules paused until the tracked
+August 24 season-start runbook. Grade 2026 weekly high-tail outcomes after
+results land; do not retune K, the 194 target, or selector on the 107 known
+slates.
 
 ### 2026-08-08 true-80 completion update
 
