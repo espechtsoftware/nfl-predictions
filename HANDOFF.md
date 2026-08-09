@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 11:59 CDT
+## Current state — 2026-08-09 12:03 CDT
 
 ### Recovery provenance
 
@@ -520,14 +520,20 @@ from the opposing pool. Full mechanism and missed-oracle evidence is in
 `reports/2026-08-09-k1-model-only-true80-experiment.md` and the tracked panel
 artifacts. Never promote or retune this arm.
 
-Next, preregister the lower-prior true-80 K=1 salary-floor deletion against
-the same source, changing only `MIN_LINEUP_SALARY=0` on the immutable
-generation image. It is outcome-informed historical exploration: the old
-K=3/40-entry no-floor result added two 200 weeks, but all three of its 200+
-weeks already appear in the current K=1 book. Require the same +2 >=200,
-non-worse >=210 and pool-oracle >=200 tail-first gate plus the purpose-built
-salary mechanism audit; never promote it, and close the exact arm without
-tuning if it fails.
+The lower-prior true-80 K=1 salary-floor deletion is preregistered in
+`reports/2026-08-09-k1-no-floor-true80-experiment.md`, before any treatment
+rows existed. Panel `20260809-e80-k1-nofloor-c616390` changes only
+`MIN_LINEUP_SALARY=0` against source `20260808-e80-k1-c616390` on immutable
+generation digest `sha256:98a31edd...`. It is outcome-informed historical
+exploration: the old K=3/40-entry no-floor result added two 200 weeks, but all
+three of its 200+ weeks already appear in the current K=1 book. Require at
+least 14 selected weeks >=200, non-worse counts of at least 6 at >=210 and 19
+pool oracles >=200, plus the purpose-built salary mechanism audit. Never
+promote it, and close the exact arm without tuning if it fails.
+
+Next, commit and push the preregistration, run the 2022 immutable-image smoke,
+then launch the six season executions only if that smoke succeeds. Record and
+push all durable execution IDs before inspecting score-bearing output.
 Keep all seven research schedules paused until the tracked August 24
 season-start runbook. Do not execute either source shadow or freezer before
 DK posts the matching regular-season Sunday main slate. Never mutate the
