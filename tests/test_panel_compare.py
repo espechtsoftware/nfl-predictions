@@ -1,7 +1,8 @@
 import pandas as pd
 
 from nfl_dfs.research.panel_compare import (
-    candidate_mean_parity, directional_gate, metrics, slate_scores)
+    candidate_mean_parity, directional_gate, high_tail_gate, metrics,
+    slate_scores)
 
 
 def _panel(improved_seasons=()):
@@ -29,6 +30,28 @@ def test_directional_gate_requires_strictly_positive_four_seasons():
     assert int((seasons.lift > 0).sum()) == 4
     neutral_gate, _ = directional_gate(base, base.copy())
     assert not neutral_gate["passes"]
+
+
+def test_high_tail_gate_uses_declared_threshold_and_season_law():
+    base = slate_scores(_panel())
+    challenger = base.copy()
+    for season in (2019, 2021, 2022, 2023):
+        row = challenger.season.eq(season) & challenger.week.eq(2)
+        challenger.loc[row, "selected_best"] = 205.0
+        challenger.loc[row, "oracle"] = 206.0
+    gate, seasons = high_tail_gate(base, challenger, threshold=200.0)
+    assert gate["passes"]
+    assert int((seasons.lift > 0).sum()) == 4
+    assert int((seasons.lift < 0).sum()) == 0
+
+    unstable = challenger.copy()
+    for season in (2024, 2025):
+        row = unstable.season.eq(season) & unstable.week.eq(1)
+        unstable.loc[row, "selected_best"] = 170.0
+    unstable_gate, unstable_seasons = high_tail_gate(
+        base, unstable, threshold=194.0)
+    assert int((unstable_seasons.lift < 0).sum()) == 2
+    assert not unstable_gate["passes"]
 
 
 def test_metrics_reports_all_frozen_thresholds():

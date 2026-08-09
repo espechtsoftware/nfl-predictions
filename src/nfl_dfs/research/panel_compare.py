@@ -70,6 +70,52 @@ def directional_gate(incumbent: pd.DataFrame,
     return checks, by_season
 
 
+def high_tail_gate(incumbent: pd.DataFrame,
+                   challenger: pd.DataFrame,
+                   threshold: float = 200.0,
+                   mean_guard: float = 2.0) -> tuple[dict, pd.DataFrame]:
+    """Frozen directional law for a higher weekly-maximum threshold.
+
+    This does not replace :func:`directional_gate`, whose 194-point contract
+    remains the canonical 40-entry adoption record. It applies the same
+    aggregate and season-distribution discipline to an explicitly declared
+    high-tail objective, with a looser mean guard because mean weekly maximum
+    is secondary for a top-heavy portfolio.
+    """
+    pair = incumbent.merge(
+        challenger, on=["season", "week"], how="outer",
+        suffixes=("_incumbent", "_challenger"), indicator=True,
+        validate="one_to_one")
+    aligned = bool(pair._merge.eq("both").all())
+    pair = pair[pair._merge.eq("both")].copy()
+    by_season = pair.groupby("season").apply(
+        lambda g: pd.Series({
+            "incumbent_clears": int(
+                (g.selected_best_incumbent >= threshold).sum()),
+            "challenger_clears": int(
+                (g.selected_best_challenger >= threshold).sum()),
+        }), include_groups=False).reset_index()
+    by_season["lift"] = (
+        by_season.challenger_clears - by_season.incumbent_clears)
+    incumbent_clears = int(
+        (pair.selected_best_incumbent >= threshold).sum())
+    challenger_clears = int(
+        (pair.selected_best_challenger >= threshold).sum())
+    checks = {
+        "aligned_107_slates": aligned and len(pair) == 107,
+        "clear_lift_at_least_2": challenger_clears >= incumbent_clears + 2,
+        "positive_in_at_least_4_seasons": int(
+            (by_season.lift > 0).sum()) >= 4,
+        "at_most_1_negative_season": int(
+            (by_season.lift < 0).sum()) <= 1,
+        "mean_not_worse_by_more_than_guard": (
+            pair.selected_best_challenger.mean()
+            >= pair.selected_best_incumbent.mean() - mean_guard),
+    }
+    checks["passes"] = all(checks.values())
+    return checks, by_season
+
+
 def candidate_mean_parity(candidates: pd.DataFrame,
                           features: pd.DataFrame,
                           model_weight: float = 0.45,

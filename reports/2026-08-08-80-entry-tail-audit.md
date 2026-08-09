@@ -183,9 +183,10 @@ pair on immutable generation digest
    187/194/200/210/220/230/240.
 5. Primary high-tail gate: aggregate >=200 lift of at least two weeks,
    positive in at least four seasons, negative in at most one. Require >=210
-   not to worsen, >=194 aggregate not to worsen, valid mechanism, and no
-   catastrophic mean-weekly-max regression. The old 194 stability result is
-   still reported and is not erased.
+   not to worsen, >=194 aggregate not to worsen, pool-oracle >=200 not to
+   worsen, valid mechanism, and mean weekly max not to regress by more than
+   2.0 points. The old 194 stability result is still reported and is not
+   erased.
 6. Do not tune the selection line, K, generator quotas, or candidate multiple
    after seeing this pair. Candidate-budget scaling is a separate future arm.
 

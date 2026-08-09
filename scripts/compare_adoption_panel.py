@@ -20,7 +20,7 @@ from nfl_dfs.bq import query_df  # noqa: E402
 from nfl_dfs.config import settings  # noqa: E402
 from nfl_dfs.models.components import ensemble_member_specs  # noqa: E402
 from nfl_dfs.research.panel_compare import (  # noqa: E402
-    directional_gate, metrics, slate_scores)
+    directional_gate, high_tail_gate, metrics, slate_scores)
 
 
 def _panel_id(value: str) -> str:
@@ -585,9 +585,11 @@ def main() -> int:
     ts = slate_scores(treatment) if not treatment.empty else pd.DataFrame()
     treatment_gate, seasons = ({}, pd.DataFrame())
     incumbent_gate = {}
+    tail_gate, tail_seasons = ({}, pd.DataFrame())
     if not ss.empty and not ts.empty:
         treatment_gate, seasons = directional_gate(ss, ts)
         incumbent_gate, _ = directional_gate(ts, ss)
+        tail_gate, tail_seasons = high_tail_gate(ss, ts, threshold=200.0)
     mechanism_report: dict = {}
     if a.mechanism == "blend" and not source.empty and not treatment.empty:
         mechanism_report, mechanism_failures = _blend_mechanism(
@@ -617,6 +619,18 @@ def main() -> int:
         disposition = "incumbent-supported"
     else:
         disposition = "unsupported-neutral"
+    if tail_gate:
+        tail_gate["clear_194_not_worse"] = int(
+            (ts.selected_best >= 194).sum()) >= int(
+                (ss.selected_best >= 194).sum())
+        tail_gate["clear_210_not_worse"] = int(
+            (ts.selected_best >= 210).sum()) >= int(
+                (ss.selected_best >= 210).sum())
+        tail_gate["oracle_200_not_worse"] = int(
+            (ts.oracle >= 200).sum()) >= int((ss.oracle >= 200).sum())
+        tail_gate["mechanism_and_panel_valid"] = not failures
+        tail_gate["passes"] = all(
+            value for key, value in tail_gate.items() if key != "passes")
     report = {
         "source": a.source,
         "treatment": a.treatment,
@@ -626,6 +640,8 @@ def main() -> int:
         "season_metrics": seasons.to_dict("records"),
         "ablation_improves_gate": treatment_gate,
         "incumbent_supported_gate": incumbent_gate,
+        "high_tail_200_gate": tail_gate,
+        "high_tail_200_season_metrics": tail_seasons.to_dict("records"),
         "mechanism": mechanism_report,
         "disposition": disposition,
         "failures": failures,

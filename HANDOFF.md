@@ -264,6 +264,21 @@ agent or developer:
   160 initial leverage candidates versus 80 in these source pools. The panel,
   acceptance, and comparison runners now accept explicit entry counts while
   defaulting to 40. New selector/audit helpers and focused tests are green.
+- Production-faithful 80-entry panels are running on immutable generation
+  digest `sha256:98a31edd...`. K=3 preflight
+  `replay-e80k3a-smoke-rw4tk` passed, then launched season executions
+  `replay-e80k3a-2019-ghcpn`, `...-2021-kl7r7`, `...-2022-t4wzx`,
+  `...-2023-6wmkq`, `...-2024-b8ltc`, and `...-2025-qrpkg`. K=1 preflight
+  `replay-e80k1a-smoke-gkdnq` passed, then launched
+  `replay-e80k1a-2019-hgqwn`, `...-2021-xxqks`, `...-2022-t8d9w`,
+  `...-2023-zwbc4`, `...-2024-2z87w`, and `...-2025-k544g`. The manifests
+  under `reports/panel-runs/` are authoritative; all 12 season jobs were
+  running without a failed condition at the last check.
+- Reporting build `38655fa6-f535-45fd-9c03-90392373a167` was launched from
+  commit `5120014`. A subsequent small change adds the explicitly
+  preregistered >=200 directional report to the comparator; acceptance can use
+  the first reporting image, while the final comparison needs an image that
+  includes the later high-tail report.
 
 ### Deployment caution
 
@@ -283,7 +298,8 @@ and promote the K=3 source with `--entries-expected 80`, accept the K=1 staging
 arm, then run the ensemble mechanism comparator at 80 entries. The primary
 high-tail gate is >=200 lift >=2 with at least four positive and at most one
 negative season, plus non-worsening >=194 aggregate, non-worsening >=210,
-valid mechanism, and no catastrophic mean-weekly-max regression. Do not tune
+non-worsening >=200 pool oracle, valid mechanism, and no more than a 2.0-point
+mean-weekly-max regression. Do not tune
 selection line, ensemble K, or generation quotas after this result. A scaled
 boom/candidate-budget arm is separate and may be preregistered only after the
 default 80-entry pair. The lineup analyzer remains logged in `README.md`.
