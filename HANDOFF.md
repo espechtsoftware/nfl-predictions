@@ -457,6 +457,23 @@ afterward. The lineup analyzer remains logged in `README.md`.
   IDs and reason are retained in `superseded-executions.txt`; image, CPU,
   memory, args, arm, and seeds did not change. Do not inspect realized scores
   before the full panel completes; row-count/status monitoring is allowed.
+- The authoritative candidate-multiple-4 panel has now persisted all 107
+  slates, 42,706 candidates, and exactly 8,560 selected rows. Executions for
+  2021-2025 are clean successes. The 2019 container explicitly logged
+  `exit(0)` at `2026-08-09T10:07:53Z` after persisting all 17 slates, but its
+  Cloud Run execution/task metadata remains `Completed=Unknown` with a
+  `WaitingForOperation` 30-minute retry condition. Canonical acceptance
+  correctly aborted rather than bypass that clean-success contract. Do not
+  delete, rerun, promote, or manually override the panel; wait for the control
+  plane to reconcile, then rerun `cloud_accept_panel.sh` in check mode.
+- Reporting code now implements the separately labeled prospective
+  tail-first gate documented above while retaining the frozen scientific
+  disposition. It requires +2 aggregate >=200, non-worse >=210, non-worse
+  pool-oracle >=200, and a valid panel/mechanism; season signs, >=194, and
+  mean remain diagnostics. Focused comparator validation passes 26 tests.
+  Full Cloud Build validation is the next step; use its resulting reporting
+  digest only after the original immutable candidate-budget comparison is
+  also preserved.
 - The accepted K=3 missed-winner analysis now separates genuinely lost weeks
   from redundant high scores: 16 unselected >=200 rows span eight slates, but
   ten are on slates where the submitted book already cleared 200; six rows

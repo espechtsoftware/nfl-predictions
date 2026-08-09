@@ -304,6 +304,15 @@ def test_primary_high_tail_disposition_precedes_legacy_gate():
         {"passes": True}) == "invalid"
 
 
+def test_tail_first_disposition_is_separate_from_frozen_disposition():
+    assert compare._tail_first_disposition(
+        [], {"passes": True}) == "tail-first-improves"
+    assert compare._tail_first_disposition(
+        [], {"passes": False}) == "tail-first-not-supported"
+    assert compare._tail_first_disposition(
+        ["bad mechanism"], {"passes": True}) == "invalid"
+
+
 def test_salary_floor_mechanism_proves_deletion_fired():
     report, failures = compare._salary_floor_mechanism(
         _salary_candidates(False), _salary_candidates(True),

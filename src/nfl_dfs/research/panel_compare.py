@@ -116,6 +116,36 @@ def high_tail_gate(incumbent: pd.DataFrame,
     return checks, by_season
 
 
+def tail_first_gate(incumbent: pd.DataFrame,
+                    challenger: pd.DataFrame) -> dict:
+    """Prospective aggregate-tail gate matching the operator's utility.
+
+    Unlike :func:`high_tail_gate`, season signs and mean weekly maximum are
+    diagnostics rather than vetoes.  This policy was frozen on 2026-08-09
+    before the candidate-multiple-4 aggregate result was read.
+    """
+    pair = incumbent.merge(
+        challenger, on=["season", "week"], how="outer",
+        suffixes=("_incumbent", "_challenger"), indicator=True,
+        validate="one_to_one")
+    aligned = bool(pair._merge.eq("both").all())
+    pair = pair[pair._merge.eq("both")].copy()
+    incumbent_200 = int((pair.selected_best_incumbent >= 200).sum())
+    challenger_200 = int((pair.selected_best_challenger >= 200).sum())
+    checks = {
+        "aligned_107_slates": aligned and len(pair) == 107,
+        "clear_200_lift_at_least_2": challenger_200 >= incumbent_200 + 2,
+        "clear_210_not_worse": int(
+            (pair.selected_best_challenger >= 210).sum()) >= int(
+                (pair.selected_best_incumbent >= 210).sum()),
+        "oracle_200_not_worse": int(
+            (pair.oracle_challenger >= 200).sum()) >= int(
+                (pair.oracle_incumbent >= 200).sum()),
+    }
+    checks["passes"] = all(checks.values())
+    return checks
+
+
 def candidate_mean_parity(candidates: pd.DataFrame,
                           features: pd.DataFrame,
                           model_weight: float = 0.45,

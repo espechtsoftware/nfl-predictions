@@ -4,7 +4,7 @@ import pandas as pd
 
 from nfl_dfs.research.panel_compare import (
     candidate_mean_parity, directional_gate, high_tail_gate, metrics,
-    slate_scores)
+    slate_scores, tail_first_gate)
 
 
 def _panel(improved_seasons=()):
@@ -54,6 +54,46 @@ def test_high_tail_gate_uses_declared_threshold_and_season_law():
         base, unstable, threshold=194.0)
     assert int((unstable_seasons.lift < 0).sum()) == 2
     assert not unstable_gate["passes"]
+
+
+def test_tail_first_gate_uses_aggregate_tail_without_season_veto():
+    base = slate_scores(_panel())
+    for season in (2021, 2023):
+        row = base.season.eq(season) & base.week.eq(1)
+        base.loc[row, ["selected_best", "oracle"]] = [205.0, 206.0]
+    challenger = base.copy()
+    # Three gained seasons and two losing seasons: the old stability law
+    # fails, while the newly frozen aggregate-tail utility passes.
+    for season in (2019, 2022, 2025):
+        row = challenger.season.eq(season) & challenger.week.isin((2, 3))
+        challenger.loc[row, ["selected_best", "oracle"]] = [215.0, 216.0]
+    for season in (2021, 2023):
+        row = challenger.season.eq(season) & challenger.week.eq(1)
+        challenger.loc[row, "selected_best"] = 180.0
+
+    old_gate, seasons = high_tail_gate(base, challenger, threshold=200.0)
+    new_gate = tail_first_gate(base, challenger)
+
+    assert int((seasons.lift > 0).sum()) == 3
+    assert int((seasons.lift < 0).sum()) == 2
+    assert not old_gate["passes"]
+    assert new_gate["passes"]
+
+
+def test_tail_first_gate_preserves_210_and_pool_oracle_safeguards():
+    base = slate_scores(_panel())
+    high = base.season.eq(2024) & base.week.eq(1)
+    base.loc[high, ["selected_best", "oracle"]] = [215.0, 216.0]
+    challenger = base.copy()
+    for season in (2019, 2021):
+        row = challenger.season.eq(season) & challenger.week.eq(2)
+        challenger.loc[row, ["selected_best", "oracle"]] = [205.0, 206.0]
+    challenger.loc[high, "selected_best"] = 205.0
+    gate = tail_first_gate(base, challenger)
+    assert gate["clear_200_lift_at_least_2"]
+    assert not gate["clear_210_not_worse"]
+    assert gate["oracle_200_not_worse"]
+    assert not gate["passes"]
 
 
 def test_score_gate_reports_are_json_serializable():

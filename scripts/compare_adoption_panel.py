@@ -20,7 +20,8 @@ from nfl_dfs.bq import query_df  # noqa: E402
 from nfl_dfs.config import settings  # noqa: E402
 from nfl_dfs.models.components import ensemble_member_specs  # noqa: E402
 from nfl_dfs.research.panel_compare import (  # noqa: E402
-    directional_gate, high_tail_gate, metrics, slate_scores)
+    directional_gate, high_tail_gate, metrics, slate_scores,
+    tail_first_gate)
 
 
 def _panel_id(value: str) -> str:
@@ -955,6 +956,15 @@ def _disposition(failures: list[str], tail_gate: dict,
     return "unsupported-neutral"
 
 
+def _tail_first_disposition(failures: list[str], gate: dict) -> str:
+    """Keep the revised operator verdict separate from the frozen verdict."""
+    if failures:
+        return "invalid"
+    if gate.get("passes"):
+        return "tail-first-improves"
+    return "tail-first-not-supported"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("source", help="accepted/promoted same-image baseline")
@@ -1042,8 +1052,17 @@ def main() -> int:
         tail_gate["mechanism_and_panel_valid"] = not failures
         tail_gate["passes"] = all(
             value for key, value in tail_gate.items() if key != "passes")
+    operational_gate = (
+        tail_first_gate(ss, ts) if not ss.empty and not ts.empty else {})
+    if operational_gate:
+        operational_gate["mechanism_and_panel_valid"] = not failures
+        operational_gate["passes"] = all(
+            value for key, value in operational_gate.items()
+            if key != "passes")
     disposition = _disposition(
         failures, tail_gate, treatment_gate, incumbent_gate)
+    operational_disposition = _tail_first_disposition(
+        failures, operational_gate)
     report = {
         "source": a.source,
         "treatment": a.treatment,
@@ -1055,6 +1074,8 @@ def main() -> int:
         "incumbent_supported_gate": incumbent_gate,
         "high_tail_200_gate": tail_gate,
         "high_tail_200_season_metrics": tail_seasons.to_dict("records"),
+        "tail_first_operational_gate": operational_gate,
+        "tail_first_operational_disposition": operational_disposition,
         "mechanism": mechanism_report,
         "disposition": disposition,
         "failures": failures,
