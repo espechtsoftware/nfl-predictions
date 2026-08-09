@@ -367,3 +367,7 @@ or budgets after the result. The lineup analyzer remains logged in
   counts `[3334,3333,3333]` at seed 8161. All six season executions per arm
   are launched; immutable IDs are authoritative in each panel's
   `reports/panel-runs/.../executions.txt` manifest.
+- Member-world reporting build `b9c6fb26-6a7d-4e40-bd49-4863fc0d2a99`
+  passed 638 tests (2 skipped) and produced immutable digest
+  `sha256:29bb404d84e1a6d8d27d94f4204ffa6fbac7d97dab164c54069c4a4a9ec02dea`.
+  Use it for both acceptance runs and the `member_world` comparator.

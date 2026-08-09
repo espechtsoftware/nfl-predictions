@@ -389,3 +389,8 @@ executions are `replay-e80msc-2019-7p54c`, `...-2021-jqlxm`,
 `...-2025-k2tdn`; treatment executions are `replay-e80msm-2019-t4m94`,
 `...-2021-cs8sk`, `...-2022-g6hjm`, `...-2023-hwd4q`,
 `...-2024-nfmlg`, and `...-2025-c4gnw`.
+
+The acceptance/comparison image is independently pinned: Cloud Build
+`b9c6fb26-6a7d-4e40-bd49-4863fc0d2a99` passed 638 tests (2 skipped) and
+produced reporting digest
+`sha256:29bb404d84e1a6d8d27d94f4204ffa6fbac7d97dab164c54069c4a4a9ec02dea`.
