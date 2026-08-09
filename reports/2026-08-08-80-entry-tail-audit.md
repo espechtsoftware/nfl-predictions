@@ -296,6 +296,11 @@ therefore much higher leverage than mining another selector on this panel.
 The analyzer now prints selected and pool-oracle beat/within/gap figures
 against known same-week winning lines for every future portfolio.
 
+The complete audit layer passed Cloud Build
+`9a33319b-db99-4f4d-95ae-58016db7382f` with 643 tests passed and 2 skipped,
+producing immutable digest
+`sha256:21489a693a72cb533551e9603db60b53af2fe3e8867fd788e6cac96a304cac59`.
+
 The frozen lower-bound result direction survived but its size shrank: at the
 preregistered selection line, K=1 beat K=3 **12→8 at 200**, not 15→7. K=1
 also improved 29→36 at 187, 19→22 at 194, 5→6 at 210, 1→3 at 220, and mean

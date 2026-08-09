@@ -475,3 +475,8 @@ afterward. The lineup analyzer remains logged in `README.md`.
   `b24be18a-13c8-4912-b324-04d872981ebe` (643 passed, 2 skipped), producing
   immutable tooling digest
   `sha256:805a7c1e4e8bfdcf088bc0c4a169ef31196a9a35f88e68c58f24a9bbe91ce5f0`.
+- Superseding full validation including weekly-oracle, coverage-cost, and
+  same-week Milly-line context passed Cloud Build
+  `9a33319b-db99-4f4d-95ae-58016db7382f` (643 passed, 2 skipped), producing
+  immutable audit digest
+  `sha256:21489a693a72cb533551e9603db60b53af2fe3e8867fd788e6cac96a304cac59`.

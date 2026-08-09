@@ -3531,6 +3531,11 @@ remain useful comparative markers, but cannot be represented as top-prize
 proxies. The roughly 58-point oracle gap makes upstream belief/candidate
 quality—not selector mining—the dominant first-place problem.
 
+The complete weekly-oracle, coverage-cost, ranked/hybrid, and real-winning-
+line audit layer passed Cloud Build `9a33319b-db99-4f4d-95ae-58016db7382f`
+(643 passed, 2 skipped), producing immutable digest
+`sha256:21489a693a72cb533551e9603db60b53af2fe3e8867fd788e6cac96a304cac59`.
+
 The accepted K=3 true-80 book has 16 unselected candidate rows scoring at
 least 200, but ten are redundant to a different selected 200+ lineup on the
 same slate. Only six candidate rows across four weeks represent a lost
