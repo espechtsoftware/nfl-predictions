@@ -206,6 +206,9 @@ def main() -> int:
                     default=[187.0, 194.0, 200.0])
     ap.add_argument("--top-unselected", type=int, default=20)
     ap.add_argument(
+        "--top-unselected-oracles", type=int, default=20,
+        help="show weekly pool maxima omitted from the submitted book")
+    ap.add_argument(
         "--ranked-diagnostics", action="store_true",
         help="compare coverage selection with top marginal-ranking books")
     args = ap.parse_args()
@@ -258,6 +261,33 @@ def main() -> int:
         print(f"\nN={entries}, SELECT=194 — BY SEASON")
         print(season_summary(slate_rows).to_string(
             index=False, float_format=lambda x: f"{x:.2f}"))
+        unselected_oracles = slate_rows[~slate_rows.oracle_selected].sort_values(
+            ["regret", "oracle"], ascending=False)
+        print(f"\nN={entries} UNSELECTED WEEKLY POOL MAXIMA")
+        if unselected_oracles.empty:
+            print("  none")
+        else:
+            oracle_200 = unselected_oracles.oracle.ge(200)
+            selected_200 = unselected_oracles.selected_best.ge(200)
+            print(
+                f"{len(unselected_oracles)}/{len(slate_rows)} weekly pool "
+                f"maxima unselected; median regret "
+                f"{unselected_oracles.regret.median():.2f}; "
+                f"max regret {unselected_oracles.regret.max():.2f}; "
+                f"oracle >=200 in "
+                f"{int(oracle_200.sum())} weeks, "
+                f"including {int((oracle_200 & selected_200).sum())} "
+                f"where the selected book already cleared 200")
+            oracle_columns = [
+                "season", "week", "selected_best", "oracle", "regret",
+                "oracle_tag", "oracle_p_line_rank", "oracle_sim_mean_rank",
+                "oracle_sim_q99_rank", "best_oracle_swap_coverage_delta",
+                "roster_overlap",
+            ]
+            if args.top_unselected_oracles:
+                print(unselected_oracles[oracle_columns].head(
+                    args.top_unselected_oracles).to_string(
+                        index=False, float_format=lambda x: f"{x:.2f}"))
         for threshold in (194.0, 200.0):
             print(f"\nN={entries} RECOVERABLE >={threshold:g} WEEKS")
             _print_misses(missed_oracles(slate_rows, threshold), threshold)

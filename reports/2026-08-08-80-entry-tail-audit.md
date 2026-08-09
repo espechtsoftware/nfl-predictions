@@ -394,6 +394,16 @@ are consequential. An unselected 224.54, for example, is not evidence of a
 lost threshold week when that week's submitted book already contains a still
 higher winner.
 
+Looking beyond thresholds, the selected book contains the exact weekly pool
+maximum in 74 of 107 slates and omits it in 33. Among those 33, median regret
+is 6.36 points and maximum regret is 35.52; across all 107 the mean regret is
+only 2.72. Five omitted weekly maxima score at least 200. Four are the
+recoverable threshold weeks already analyzed, while the fifth is 2019 week
+15: the pool's 207.14 would improve the selected 204.66 by 2.48 without
+creating an additional 200+ week. The other large-regret omissions top out
+below 200, so they matter to generic weekly-max accuracy but not to the
+operator's exceptional-score count.
+
 Three additional outcome-blind diagnostic books isolate candidate ranking
 from portfolio coverage. Taking the top 80 candidates on each slate by
 individual `p_line`, simulated mean, or simulated q99 recovers the same two

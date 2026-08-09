@@ -436,6 +436,13 @@ afterward. The lineup analyzer remains logged in `README.md`.
   14-15 >=200, but remain positive in only three seasons and negative in two
   versus K=3. No selector change is supported. New reusable ranked/hybrid
   diagnostics pass all nine focused tests; details are in the 80-entry audit.
+- Exact weekly pool maxima are selected on 74/107 slates and omitted on 33;
+  omitted-oracle median regret is 6.36 and max regret 35.52, while all-slate
+  mean regret is 2.72. Only five omitted maxima reach 200: the four threshold
+  misses plus 2019w15, where unselected 207.14 beats selected 204.66 by 2.48
+  but does not add another 200+ week. The analyzer now prints this broader
+  weekly-max view via `--top-unselected-oracles` so threshold summaries cannot
+  hide smaller payout-relevant upgrades.
 - Paired-week evidence also supports retaining the frozen stability law.
   Preregistered K=1 coverage has seven gained versus three lost 200+ weeks
   against K=3 (one-sided exact paired `p=0.172`). Post-result top-p-line has

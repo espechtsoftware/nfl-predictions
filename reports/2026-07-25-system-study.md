@@ -3528,6 +3528,14 @@ same slate. Only six candidate rows across four weeks represent a lost
 threshold opportunity. This distinction prevents impressive unselected raw
 scores from overstating the actionable gap.
 
+The broader weekly-maximum view selects the exact pool oracle on 74/107
+slates and omits it on 33. Omitted-oracle regret has median 6.36 and maximum
+35.52, versus 2.72 mean regret over all slates. Five omitted oracles score at
+least 200: the four new-threshold opportunities plus 2019 week 15, whose
+207.14 improves selected 204.66 by 2.48 but does not add a 200+ week. The
+durable analyzer now reports this explicitly rather than hiding it behind
+threshold counts.
+
 Outcome-blind top-80 selection by individual p-line, simulated mean, or q99
 each recovers the 2019-week-6 and 2025-week-12 missed winners. All three still
 fall from 8 to 7 aggregate 200+ weeks versus correlated-world coverage and
