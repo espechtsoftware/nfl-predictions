@@ -3522,6 +3522,15 @@ current and superseded execution IDs are tracked in the panel manifest.
 
 ## Addendum 114 (2026-08-09): ranked hedges do not repair the missed high scores
 
+Before interpreting selector misses, the corrected true-80 book was compared
+with all 68 known same-week Milly winning scores. K=3 beats 0/68, is within 20
+points in 0, within 30 in 2, and within 40 in 7; mean gap is 60.69. Its
+candidate-pool oracle also beats 0/68 and has mean gap 57.69. K=1 beats 0 and
+is within 20 in 0, with selected mean gap 57.16. Fixed 194/200 thresholds
+remain useful comparative markers, but cannot be represented as top-prize
+proxies. The roughly 58-point oracle gap makes upstream belief/candidate
+quality—not selector mining—the dominant first-place problem.
+
 The accepted K=3 true-80 book has 16 unselected candidate rows scoring at
 least 200, but ten are redundant to a different selected 200+ lineup on the
 same slate. Only six candidate rows across four weeks represent a lost

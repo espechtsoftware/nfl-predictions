@@ -20,6 +20,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from nfl_dfs.bq import query_df  # noqa: E402
+from nfl_dfs.backtest.real_lines import REAL_LINES  # noqa: E402
 from nfl_dfs.config import settings  # noqa: E402
 from nfl_dfs.research.tail_portfolio import (  # noqa: E402
     evaluate_portfolio,
@@ -92,6 +93,28 @@ def _print_misses(rows: pd.DataFrame, threshold: float) -> None:
         "n_candidates",
     ]
     print(rows[columns].to_string(index=False, float_format=lambda x: f"{x:.2f}"))
+
+
+def _print_real_line_context(slates: pd.DataFrame) -> None:
+    """Compare selected/pool maxima with known same-week Milly winners."""
+    rows = slates.copy()
+    rows["real_line"] = [
+        REAL_LINES.get((int(season), int(week)))
+        for season, week in zip(rows.season, rows.week)
+    ]
+    rows = rows[rows.real_line.notna()]
+    if rows.empty:
+        print("  no same-week winning lines available")
+        return
+    for label, column in (("selected", "selected_best"),
+                          ("pool oracle", "oracle")):
+        gap = rows.real_line - rows[column]
+        within = "/".join(
+            str(int(gap.le(limit).sum())) for limit in (10, 20, 30, 40))
+        print(
+            f"  {label}: beat {int(gap.le(0).sum())}/{len(rows)}; "
+            f"within 10/20/30/40 = {within}; mean gap {gap.mean():.2f}; "
+            f"median gap {gap.median():.2f}")
 
 
 def _print_roster_contrasts(misses: pd.DataFrame, candidates: pd.DataFrame,
@@ -261,6 +284,8 @@ def main() -> int:
         print(f"\nN={entries}, SELECT=194 — BY SEASON")
         print(season_summary(slate_rows).to_string(
             index=False, float_format=lambda x: f"{x:.2f}"))
+        print(f"\nN={entries} — KNOWN SAME-WEEK MILLY WINNING LINES")
+        _print_real_line_context(slate_rows)
         unselected_oracles = slate_rows[~slate_rows.oracle_selected].sort_values(
             ["regret", "oracle"], ascending=False)
         print(f"\nN={entries} UNSELECTED WEEKLY POOL MAXIMA")

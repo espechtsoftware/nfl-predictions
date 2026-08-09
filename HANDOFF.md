@@ -446,6 +446,13 @@ afterward. The lineup analyzer remains logged in `README.md`.
   but does not add another 200+ week. The analyzer now prints this broader
   weekly-max view via `--top-unselected-oracles` so threshold summaries cannot
   hide smaller payout-relevant upgrades.
+- Against 68 known same-week Milly winning scores, corrected true-80 K=3
+  beats 0, comes within 20 points in 0, within 30 in 2, and within 40 in 7;
+  mean gap is 60.69. Its candidate-pool oracle also beats 0/68 and narrows
+  mean gap only to 57.69. K=1 likewise beats 0 and is never within 20. Thus
+  194/200 are comparison markers, not top-prize claims; almost all of the
+  first-place gap precedes selection. The analyzer now reports this same-week
+  winning-line context automatically.
 - Only 7/33 omitted weekly oracles have a non-worsening coverage swap, and
   zero of the five omitted 200+ oracles do. Even 2019w15's 207.14 costs six
   simulated covered worlds in its best swap. Thus the high omissions are not

@@ -277,6 +277,25 @@ after the independent second audit `accept-replay-panel-d6fbn`.
 | K=1 | **194** | **36** | **22** | **12** | **6** | **3** | **1** | **1** | **179.60** |
 | K=1 | 200 | 36 | 22 | 15 | 6 | 3 | 1 | 1 | 179.29 |
 
+### Money-aligned context: known Milly winning lines
+
+The repository has same-week Milly winning scores for 68 slates across 2019,
+2023, 2024, and 2025. Corrected true-80 K=3 beats **0/68**, comes within 20
+points in **0/68**, within 30 in 2, and within 40 in 7; its mean/median gap is
+60.69/60.19 points. Even the hindsight candidate-pool oracle beats 0, comes
+within 20 in 0, and narrows the mean gap only to 57.69. K=1 also beats 0/68
+and comes within 20 in 0; its selected mean gap is 57.16.
+
+This does not mean a 194- or 200-point lineup earns nothing—historical full
+standings and payout rows are unavailable—but it does mean those thresholds
+are comparative research markers, not claims of winning the top prize. For
+the actual first-place objective, nearly all of the observed gap exists before
+selection: the current candidate pool itself is about 58 points short on
+average. Improving player/joint-tail beliefs and candidate construction is
+therefore much higher leverage than mining another selector on this panel.
+The analyzer now prints selected and pool-oracle beat/within/gap figures
+against known same-week winning lines for every future portfolio.
+
 The frozen lower-bound result direction survived but its size shrank: at the
 preregistered selection line, K=1 beat K=3 **12→8 at 200**, not 15→7. K=1
 also improved 29→36 at 187, 19→22 at 194, 5→6 at 210, 1→3 at 220, and mean
