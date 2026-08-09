@@ -1266,7 +1266,10 @@ def tail_select_lineups(
                 _seeds,
                 f"CE_SEED={_os.environ.get('CE_SEED', '1701')}",
                 f"ROLE_BELIEF_SEED={_os.environ.get('ROLE_BELIEF_SEED', '7331')}",
-                f"GUMBEL_SEED={_os.environ.get('GUMBEL_SEED', '4700')}")
+                f"GUMBEL_SEED={_os.environ.get('GUMBEL_SEED', '4700')}",
+                (f"ENSEMBLE_WORLD_SEED="
+                 f"{_os.environ.get('ENSEMBLE_WORLD_SEED', '8161')}"
+                 if _os.environ.get("ENSEMBLE_WORLD_MODE") else ""))
                 if x)
             from ..models.components import (
                 effective_ensemble_size, ensemble_member_specs)
@@ -1289,6 +1292,7 @@ def tail_select_lineups(
                 "DIV_TILT", "DROP_FEATURES", "DST_CORR_DRAWS",
                 "DST_PUNT_BONUS", "EMP_MARGINALS", "EMP_POS",
                 "EPISTEMIC_FAMILY", "EPISTEMIC_W", "EXTRA_FEATURES",
+                "ENSEMBLE_WORLD_MODE", "ENSEMBLE_WORLD_SEED",
                 "FORBID_RB_DST",
                 "GAME_SIM_MODE", "GAME_SIM_PACE", "GAME_SIM_TEAM_FACTORS",
                 "GAME_SIM_USAGE", "GEN_POOL_CAP", "GEN_POOL_CAP_MAP",

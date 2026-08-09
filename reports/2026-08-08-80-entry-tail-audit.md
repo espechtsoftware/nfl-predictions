@@ -175,6 +175,20 @@ simulator design. Member-sampled worlds are a separately preregistered,
 same-image arm only after that pair establishes the production-faithful
 frontier.
 
+The off-by-default mechanism plumbing is now implemented but has not been
+launched. `ENSEMBLE_WORLD_MODE=member_sample` assigns one of the three fitted
+members to each world with balanced deterministic seed
+`ENSEMBLE_WORLD_SEED=8161`, then adds that member's centered point-belief
+delta coherently to every player in the world *before* the existing
+TabPFN/empirical rank shaper. The shaper restores each player's frozen
+marginal values, retaining only the changed joint-world ordering. The mode is
+research-only, requires the draw-returning replay path, rejects K=1, records
+its mode/seed in candidate provenance, and leaves the default averaged path
+unchanged. Focused replay, persistence, deterministic-assignment, SBI, and
+live-smoke tests pass; the full local suite also passes. A new experiment still
+requires a written same-image protocol after the running 80-entry result—not
+retrospective activation of this switch.
+
 The next experiment is therefore a same-image, production-faithful 80-entry
 pair on immutable generation digest
 `sha256:98a31edd1921660df6c4f0c9d606e0096ea703ffe250ccc650af706e06798fd6`:

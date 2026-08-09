@@ -61,6 +61,33 @@ def test_role_belief_projection_is_exact_and_restores_baseline_env(
             small_panel, season=2022, n_sims=10, num_boost_round=2)
 
 
+def test_member_world_shift_is_balanced_centered_and_coherent():
+    draws = np.zeros((2, 12))
+    members = pd.DataFrame({
+        "ensemble_point_0": [10.0, 20.0],
+        "ensemble_point_1": [12.0, 24.0],
+        "ensemble_point_2": [14.0, 28.0],
+    })
+    shifted, member_ids = replay.apply_member_world_shift(
+        draws, members, seed=73)
+    assert np.bincount(member_ids, minlength=3).tolist() == [4, 4, 4]
+    assert np.allclose(shifted.mean(axis=1), 0.0)
+    # The same member controls every player in a world: player 2's delta is
+    # exactly twice player 1's delta for this fixture.
+    assert np.allclose(shifted[1], 2.0 * shifted[0])
+    again, again_ids = replay.apply_member_world_shift(
+        draws, members, seed=73)
+    assert np.array_equal(member_ids, again_ids)
+    assert np.array_equal(shifted, again)
+
+
+def test_member_world_shift_rejects_single_member():
+    with pytest.raises(ValueError, match="at least two"):
+        replay.apply_member_world_shift(
+            np.zeros((1, 4)),
+            pd.DataFrame({"ensemble_point_0": [10.0]}))
+
+
 def test_replay_metrics(proj):
     overall, by_pos = replay.replay_metrics(proj)
     assert overall["mae"] < 7.65  # learned signal (sigma 6; small margin

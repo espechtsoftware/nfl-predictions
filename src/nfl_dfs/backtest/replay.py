@@ -126,6 +126,14 @@ def replay_projections(
                      n_hit, len(rows))
         except Exception:
             log.exception("TabPFN components unavailable; LGB kept")
+    member_world_mode = os.environ.get("ENSEMBLE_WORLD_MODE", "").strip()
+    if member_world_mode not in ("", "member_sample"):
+        raise ValueError(
+            f"unknown ENSEMBLE_WORLD_MODE={member_world_mode!r}")
+    if member_world_mode and not return_draws:
+        raise ValueError(
+            "ENSEMBLE_WORLD_MODE is research-only and requires "
+            "return_draws=True")
     sim = simulate.simulate(comps, n_sims=n_sims,
                         seed=seed, game_ids=rows.get("game_id"),
                         team_ids=rows.get("team"),
@@ -141,7 +149,17 @@ def replay_projections(
     # always been the raw (known-too-narrow: QB 1.5x, RB 1.45x per the
     # calibration's own fit) composition. "fitted" applies DEFAULT_WIDEN
     # to the draws mean-preservingly; or pass explicit "WR:1.3,QB:1.5".
-    draws_out = (apply_draw_shape(sim.draws, rows.position, seed,
+    raw_draws = sim.draws
+    if member_world_mode == "member_sample":
+        member_seed = int(
+            os.environ.get("ENSEMBLE_WORLD_SEED", "8161") or 8161)
+        raw_draws, member_ids = apply_member_world_shift(
+            raw_draws, member_points, member_seed)
+        counts = np.bincount(member_ids, minlength=member_points.shape[1])
+        log.info(
+            "ensemble member-world shift: seed=%d counts=%s",
+            member_seed, counts.tolist())
+    draws_out = (apply_draw_shape(raw_draws, rows.position, seed,
                                   keys=rows[[c for c in ("season", "week",
                                          "gsis_id", "is_rookie")
                                          if c in rows.columns]])
@@ -172,6 +190,44 @@ def replay_projections(
     if return_draws:
         return out, draws_out.astype(np.float32)
     return out
+
+
+def apply_member_world_shift(
+    draws: np.ndarray,
+    member_points: pd.DataFrame,
+    seed: int = 8161,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Inject coherent ensemble beliefs before frozen marginal shaping.
+
+    One fitted member is assigned to each simulation world and its centered
+    point-prediction delta is applied to every player in that world. Assigning
+    one member globally (rather than independently by player) represents a
+    coherent model belief. The normal TabPFN/empirical rank shaper runs after
+    this helper, restoring each player's calibrated marginal distribution and
+    retaining only the member-induced joint-world ordering.
+
+    This is an off-by-default research mechanism. It never changes the
+    default averaged-component simulator.
+    """
+    values = np.asarray(draws, dtype=float)
+    if values.ndim != 2:
+        raise ValueError("draws must be a player-by-world matrix")
+    columns = sorted(
+        (column for column in member_points
+         if column.startswith("ensemble_point_")),
+        key=lambda column: int(column.rsplit("_", 1)[1]))
+    if len(columns) < 2:
+        raise ValueError(
+            "member_sample requires at least two ensemble point predictions")
+    points = member_points[columns].to_numpy(dtype=float)
+    if points.shape[0] != values.shape[0] or not np.isfinite(points).all():
+        raise ValueError("ensemble point predictions are missing or misaligned")
+    n_members = points.shape[1]
+    member_ids = np.arange(values.shape[1], dtype=int) % n_members
+    np.random.default_rng(seed).shuffle(member_ids)
+    centered = points - points.mean(axis=1, keepdims=True)
+    shifted = values + centered[:, member_ids]
+    return shifted, member_ids
 
 
 def role_belief_projections(

@@ -282,6 +282,14 @@ agent or developer:
   preregistered >=200 directional report, also passed and produced immutable
   reporting digest
   `sha256:89f692b6209adbbd070e7b26c998f59f265207877de79496d4419884159410c7`.
+- Off-by-default future-arm instrumentation now supports
+  `ENSEMBLE_WORLD_MODE=member_sample`: balanced seed-8161 member assignment,
+  one coherent member belief per world, centered player point shifts before
+  the frozen marginal shaper, and explicit provenance. It requires K>=2 and
+  the replay draw path, so it cannot silently affect ordinary projections or
+  live defaults. Focused and full local tests pass. It is not preregistered or
+  launched; define its same-image comparator only after the running 80-entry
+  K=3/K=1 result establishes which configuration is the incumbent.
 
 ### Deployment caution
 
