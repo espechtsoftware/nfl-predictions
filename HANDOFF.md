@@ -318,16 +318,15 @@ Earlier deployed `12 CE / 28 boom` settings are stale.
 
 ### Next concrete action
 
-Launch the preregistered same-image member-world pair on immutable digest
-`sha256:458dd21d...`: K=3 averaged-world control
-`20260808-e80-msctl-d99b125` and K=3 member-sampled treatment
-`20260808-e80-msarm-d99b125`, both true 80 with the default `0/0/0/40`
-generation budget and 194 selection line. The treatment changes only
-`ENSEMBLE_WORLD_MODE=member_sample` with seed 8161. Accept/promote the control,
-accept the treatment, run the `member_world` mechanism comparator, and apply
-the unchanged >=200 high-tail gate. Do not tune the line, K, allocation, seed,
-or budgets after the result. The lineup analyzer remains logged in
-`README.md`.
+The member-world pair is complete and rejected. Do not tune its line, K,
+allocation, seed, or budget on these outcomes. Before another costly panel,
+freeze one materially distinct mechanism and its comparator. The only
+historically executable low-prior confirmation still explicitly left open is
+candidate-budget scaling at true 80; it must change only `CAND_MULT`, retain
+the 194 selector and standing >=200 gate, and prove added candidates rather
+than silently changing generator quotas. The prior one-season 470-candidate
+null and the current unchanged 12-week pool oracle make its prior low. The
+lineup analyzer remains logged in `README.md`.
 
 ### 2026-08-08 true-80 completion update
 
@@ -381,9 +380,22 @@ or budgets after the result. The lineup analyzer remains logged in
   `8b8ba490-a181-408b-bba0-a13a36b69790` passed 638 tests (2 skipped) and
   produced immutable audit-tooling digest `sha256:c591980d...`. Production
   selection was not changed.
-- Both member-world panels remain active with no failed season execution. At
-  the last durable query, control had 31/107 staging slates and treatment had
-  24/107. The exact next action is to wait for 107/107 on both, verify all 12
-  executions completed cleanly, then run control check/promote, treatment
-  check, `member_world` comparison, and the full missed-winner grids using the
-  pinned reporting digest above.
+- The member-world pair completed with all 12 season executions clean: both
+  panels have 25,813 candidates, 107 slates, and exactly 80 selections per
+  slate. Control check/promote executions were
+  `accept-replay-panel-jcx6k` / `accept-replay-panel-wkxsd`; treatment check
+  was `accept-replay-panel-b4tqk`; official comparator was
+  `compare-adoption-panel-hz7f7`. All durable acceptance/comparison artifacts
+  are tracked under the two panel report directories.
+- The mechanism passed strongly: 24,118 support masks, 3,545 rosters, and
+  2,100 selected slots per side changed with zero invariant-feature or
+  same-roster-actual mismatches. At the frozen 194 selector, treatment moved
+  187/194/200/210 counts from 29/19/8/5 to 32/20/6/4 and mean weekly max
+  177.08→177.94. Its >=200 season deltas are `{-1,0,0,0,-1,0}`; pool oracle
+  remains 12. It fails the primary high-tail, stability, and 210 gates and is
+  `unsupported-neutral`; keep `ENSEMBLE_WORLD_MODE` off.
+- Treatment expands consequential >=200 misses from four to six. The lost
+  2019w15 204.66 and 2024w5 211.12 control winners remained available in the
+  treatment pool with nearly unchanged marginal probability/mean but were
+  displaced by changed joint-world overlap. Outcome-blind local refinement
+  recovers none of the six misses. Full evidence is in the 80-entry audit.

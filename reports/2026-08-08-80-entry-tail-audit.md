@@ -425,3 +425,64 @@ The acceptance/comparison image is independently pinned: Cloud Build
 `b9c6fb26-6a7d-4e40-bd49-4863fc0d2a99` passed 638 tests (2 skipped) and
 produced reporting digest
 `sha256:29bb404d84e1a6d8d27d94f4204ffa6fbac7d97dab164c54069c4a4a9ec02dea`.
+
+## Coherent member-sampled world result
+
+Both panels completed with identical fixed budgets: 25,813 candidates, 107
+slates, and exactly 80 selected lineups per slate. Control check/promotion
+executions were `accept-replay-panel-jcx6k` and
+`accept-replay-panel-wkxsd`; treatment check was
+`accept-replay-panel-b4tqk`. Official comparator
+`compare-adoption-panel-hz7f7` reported zero mechanism failures.
+
+The mechanism was strongly active without moving registered inputs or player
+marginals. Of 25,813 aligned candidate rows, 24,118 support masks, 20,984
+tail probabilities, 10,962 simulated means, and 3,545 rosters changed. The
+selected books retained 6,460 common slots and changed 2,100 slots per side.
+Every invariant feature had zero mismatch rows, non-world seeds matched, and
+same-roster actual scores were identical.
+
+| worlds | selection line | >=187 | >=194 | >=200 | >=210 | >=220 | >=230 | >=240 | mean weekly max |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| averaged control | 187 | 27 | 19 | 8 | 4 | 1 | 1 | 1 | 176.84 |
+| averaged control | **194** | **29** | **19** | **8** | **5** | **1** | **1** | **1** | **177.08** |
+| averaged control | 200 | 30 | 19 | 7 | 4 | 1 | 1 | 0 | 176.44 |
+| member-sampled | 187 | 33 | 19 | 6 | 3 | 1 | 1 | 1 | 177.83 |
+| member-sampled | **194** | **32** | **20** | **6** | **4** | **1** | **1** | **1** | **177.94** |
+| member-sampled | 200 | 34 | 20 | 8 | 5 | 1 | 1 | 1 | 178.41 |
+
+At the preregistered 194 selector, coherent member worlds improve the middle
+of the distribution—29→32 weeks at 187, 19→20 at 194, and +0.86 mean weekly
+maximum—but damage the operator's primary high tail: **8→6 at 200** and
+**5→4 at 210**. The >=200 season deltas are `{2019:-1, 2021:0, 2022:0,
+2023:0, 2024:-1, 2025:0}`: zero positive and two negative seasons. Pool
+oracle >=200 stays 12. The arm fails aggregate lift, season stability, and
+the 210 safeguard, so its disposition is **unsupported-neutral**. It is not
+adopted, and the member seed, K, allocation, or target line will not be tuned
+on these outcomes.
+
+Selecting the treatment at 200 is a declared sensitivity, not an adoption
+choice. It returns 8 weeks >=200 and 5 >=210—exactly tying the control rather
+than beating it—and was not the production target. This does not rescue the
+mechanism.
+
+### Why the high weeks were lost
+
+The treatment pool still contains 12 >=200 oracle weeks but selects only six,
+expanding the control's four consequential misses to six: **2019w9 216.42**,
+**2025w12 214.36**, **2024w5 211.12**, **2019w15 207.14**,
+**2021w11 205.20**, and **2019w6 204.44**. Three have a coverage-improving or
+neutral hindsight swap under the treatment worlds (2019w9 +1, 2024w5 0,
+2019w6 +2), but the outcome-blind lexicographic local refinement still
+recovers none. No missed oracle is support-dominated, and all 80 selected
+entries own unique worlds.
+
+The two net lost threshold weeks isolate the problem. In 2019w15 the control
+selected 204.66; that exact roster remained in treatment with nearly
+unchanged `p_line` (0.0106→0.0102) and identical simulated mean (128.83) but
+was not selected. Treatment also generated a 207.14 oracle and missed it. In
+2024w5 the exact 211.12 control winner remained the treatment's pool oracle
+with unchanged `p_line` 0.0054 and mean 115.37, but treatment selected only
+195.08. The new copula therefore displaced available high winners through
+changed cross-lineup world overlap; it did not reveal a better extreme-tail
+belief.

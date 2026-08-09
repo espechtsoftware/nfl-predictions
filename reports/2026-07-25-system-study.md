@@ -3464,3 +3464,29 @@ Complete validation also passed in Cloud Build
 `8b8ba490-a181-408b-bba0-a13a36b69790`: 638 tests passed and 2 skipped,
 producing immutable audit-tooling digest
 `sha256:c591980dd60244cad370d4e6f8a97fc10de3f7e312760b4bc8ffcafdcfad3f22`.
+
+## Addendum 112 (2026-08-08): coherent ensemble-member worlds are valid but lose the high tail
+
+The preregistered true-80 pair completed with 25,813 candidates and exact 80
+selections on every one of 107 slates in each arm. Control check/promotion
+executions `accept-replay-panel-jcx6k` / `accept-replay-panel-wkxsd` and
+treatment check `accept-replay-panel-b4tqk` all passed. Comparator
+`compare-adoption-panel-hz7f7` had zero mechanism failures: 24,118 support
+masks, 3,545 candidate rosters, and 2,100 selected slots per side changed,
+while every registered invariant input/marginal matched.
+
+At the frozen 194 selector, member-sampled worlds moved 187 clears 29→32,
+194 clears 19→20, and mean weekly maximum 177.08→177.94, but reduced the
+primary high tail **8→6 at 200** and **5→4 at 210**. The >=200 season deltas
+are `{2019:-1, 2021:0, 2022:0, 2023:0, 2024:-1, 2025:0}`. Pool oracle remains
+12. The arm fails aggregate lift, stability, and 210 safeguards and receives
+`unsupported-neutral`; it stays off.
+
+The two lost weeks are selection losses under changed joint support, not
+candidate absence. The 2019w15 control's 204.66 roster remains in treatment
+with almost identical probability/mean, while treatment also contains an
+unselected 207.14 oracle. The exact 2024w5 211.12 control winner remains the
+treatment pool oracle with unchanged marginal probability and mean but is not
+selected. Treatment has six consequential >=200 misses versus control's four;
+outcome-blind one-swap refinement recovers none. Full threshold and
+support-substitute evidence is in `reports/2026-08-08-80-entry-tail-audit.md`.
