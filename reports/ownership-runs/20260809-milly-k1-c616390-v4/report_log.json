@@ -1,0 +1,688 @@
+[
+  {
+    "jsonPayload": {
+      "aggregate_mass_coverage": 0.9890161494402475,
+      "coverage": [
+        {
+          "mass_coverage": 0.9792027234892315,
+          "matched_mass": 14749.76,
+          "matched_rows": 3146,
+          "min_week_mass_coverage": 0.9374140612672723,
+          "season": 2022,
+          "slates": 17,
+          "truth_mass": 15063.03
+        },
+        {
+          "mass_coverage": 0.9910110076588924,
+          "matched_mass": 15802.830000000002,
+          "matched_rows": 3081,
+          "min_week_mass_coverage": 0.9666774905104749,
+          "season": 2023,
+          "slates": 18,
+          "truth_mass": 15946.170000000002
+        },
+        {
+          "mass_coverage": 0.9941801150064923,
+          "matched_mass": 15864.49,
+          "matched_rows": 3140,
+          "min_week_mass_coverage": 0.9730345868022574,
+          "season": 2024,
+          "slates": 18,
+          "truth_mass": 15957.36
+        },
+        {
+          "mass_coverage": 0.9911218800636111,
+          "matched_mass": 15817.77,
+          "matched_rows": 2789,
+          "min_week_mass_coverage": 0.9468921842603444,
+          "season": 2025,
+          "slates": 18,
+          "truth_mass": 15959.460000000001
+        }
+      ],
+      "data_contract": {
+        "contest_field_size_max": 1194451,
+        "contest_field_size_min": 105882,
+        "contest_ownership_mass_max": 895.98,
+        "contest_ownership_mass_min": 860.1800000000001,
+        "held_out_folds": [
+          2023,
+          2024,
+          2025
+        ],
+        "scope_eligible_contests": 71,
+        "scope_exclusions": [
+          {
+            "reason": "Christmas Saturday Milly does not match Sunday replay slate",
+            "season": 2022,
+            "week": 16
+          }
+        ],
+        "seasons": [
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "selected_contests": 72
+      },
+      "disposition": "pass",
+      "gate": {
+        "aggregate_mae_and_spearman_better_than_both": true,
+        "both_metrics_improve_or_tie_in_two_seasons": true,
+        "no_season_spearman_loss_worse_than_0_02": true,
+        "ownership_mass_coverage_at_least_90pct": true,
+        "passes": true,
+        "season_pass_count": 3
+      },
+      "metrics": [
+        {
+          "mae": 2.9114734575528267,
+          "method": "contest_aware",
+          "pearson": 0.6348606964717417,
+          "rows": 3081,
+          "season": 2023,
+          "spearman": 0.7710143305077981,
+          "top_quartile_mae": 8.14760585302746
+        },
+        {
+          "mae": 3.566009939203825,
+          "method": "all_contest",
+          "pearson": 0.42122348672778753,
+          "rows": 3081,
+          "season": 2023,
+          "spearman": 0.5652048884796276,
+          "top_quartile_mae": 10.123407777056192
+        },
+        {
+          "mae": 4.8168091344098825,
+          "method": "naive",
+          "pearson": 0.08921555127412488,
+          "rows": 3081,
+          "season": 2023,
+          "spearman": 0.18794753433467049,
+          "top_quartile_mae": 11.781795851008159
+        },
+        {
+          "mae": 2.739967149009815,
+          "method": "contest_aware",
+          "pearson": 0.664073120875031,
+          "rows": 3140,
+          "season": 2024,
+          "spearman": 0.7874218468629105,
+          "top_quartile_mae": 7.258231270816755
+        },
+        {
+          "mae": 3.51149186136687,
+          "method": "all_contest",
+          "pearson": 0.44222838535406334,
+          "rows": 3140,
+          "season": 2024,
+          "spearman": 0.5784939303775736,
+          "top_quartile_mae": 9.328447393644543
+        },
+        {
+          "mae": 4.283965725603054,
+          "method": "naive",
+          "pearson": 0.21675015373921877,
+          "rows": 3140,
+          "season": 2024,
+          "spearman": 0.27754889566758245,
+          "top_quartile_mae": 10.842030453326302
+        },
+        {
+          "mae": 2.9596444857447297,
+          "method": "contest_aware",
+          "pearson": 0.7102281421284186,
+          "rows": 2789,
+          "season": 2025,
+          "spearman": 0.812476408224576,
+          "top_quartile_mae": 7.816778822479785
+        },
+        {
+          "mae": 3.783048620467671,
+          "method": "all_contest",
+          "pearson": 0.5281590924123888,
+          "rows": 2789,
+          "season": 2025,
+          "spearman": 0.587588826708667,
+          "top_quartile_mae": 10.131386613738208
+        },
+        {
+          "mae": 4.893485637076715,
+          "method": "naive",
+          "pearson": 0.1546811841669279,
+          "rows": 2789,
+          "season": 2025,
+          "spearman": 0.30959781924741875,
+          "top_quartile_mae": 12.06886767527539
+        },
+        {
+          "mae": 2.866614322014776,
+          "method": "contest_aware",
+          "pearson": 0.6694351835055877,
+          "rows": 9010,
+          "season": "aggregate",
+          "spearman": 0.7865355072087886,
+          "top_quartile_mae": 7.734736351677694
+        },
+        {
+          "mae": 3.6141935260669578,
+          "method": "all_contest",
+          "pearson": 0.463022681567915,
+          "rows": 9010,
+          "season": "aggregate",
+          "spearman": 0.565748743219526,
+          "top_quartile_mae": 9.848281313941133
+        },
+        {
+          "mae": 4.654847143542442,
+          "method": "naive",
+          "pearson": 0.14876422839700063,
+          "rows": 9010,
+          "season": "aggregate",
+          "spearman": 0.2588616809178936,
+          "top_quartile_mae": 11.542412999806919
+        }
+      ],
+      "position_calibration": [
+        {
+          "actual_mean": 4.61007874015748,
+          "actual_slate_mass_mean": 97.58000000000001,
+          "mean_bias": -1.1390015330300165,
+          "method": "contest_aware",
+          "position": "DST",
+          "prediction_mean": 3.471077207127464,
+          "prediction_slate_mass_mean": 73.47113421753131,
+          "rows": 381,
+          "season": 2023
+        },
+        {
+          "actual_mean": 4.856657303370786,
+          "actual_slate_mass_mean": 96.05388888888889,
+          "mean_bias": -1.4042127402413136,
+          "method": "contest_aware",
+          "position": "QB",
+          "prediction_mean": 3.4524445631294727,
+          "prediction_slate_mass_mean": 68.28168135967181,
+          "rows": 356,
+          "season": 2023
+        },
+        {
+          "actual_mean": 6.3908709175738725,
+          "actual_slate_mass_mean": 228.29611111111112,
+          "mean_bias": -2.9710915080449682,
+          "method": "contest_aware",
+          "position": "RB",
+          "prediction_mean": 3.4197794095289042,
+          "prediction_slate_mass_mean": 122.16212001817144,
+          "rows": 643,
+          "season": 2023
+        },
+        {
+          "actual_mean": 4.021509803921569,
+          "actual_slate_mass_mean": 113.94277777777776,
+          "mean_bias": -1.3117143631820498,
+          "method": "contest_aware",
+          "position": "TE",
+          "prediction_mean": 2.7097954407395193,
+          "prediction_slate_mass_mean": 76.77753748761971,
+          "rows": 510,
+          "season": 2023
+        },
+        {
+          "actual_mean": 5.169706129303107,
+          "actual_slate_mass_mean": 342.06222222222226,
+          "mean_bias": -1.9933421652639967,
+          "method": "contest_aware",
+          "position": "WR",
+          "prediction_mean": 3.1763639640391097,
+          "prediction_slate_mass_mean": 210.16941562058778,
+          "rows": 1191,
+          "season": 2023
+        },
+        {
+          "actual_mean": 4.61007874015748,
+          "actual_slate_mass_mean": 97.58000000000001,
+          "mean_bias": -1.7396422997243293,
+          "method": "all_contest",
+          "position": "DST",
+          "prediction_mean": 2.8704364404331506,
+          "prediction_slate_mass_mean": 60.75757132250169,
+          "rows": 381,
+          "season": 2023
+        },
+        {
+          "actual_mean": 4.856657303370786,
+          "actual_slate_mass_mean": 96.05388888888889,
+          "mean_bias": -0.8984228100803328,
+          "method": "all_contest",
+          "position": "QB",
+          "prediction_mean": 3.958234493290454,
+          "prediction_slate_mass_mean": 78.28508220063343,
+          "rows": 356,
+          "season": 2023
+        },
+        {
+          "actual_mean": 6.3908709175738725,
+          "actual_slate_mass_mean": 228.29611111111112,
+          "mean_bias": -4.0563702017525864,
+          "method": "all_contest",
+          "position": "RB",
+          "prediction_mean": 2.3345007158212847,
+          "prediction_slate_mass_mean": 83.3935533485048,
+          "rows": 643,
+          "season": 2023
+        },
+        {
+          "actual_mean": 4.021509803921569,
+          "actual_slate_mass_mean": 113.94277777777776,
+          "mean_bias": -0.870994050962319,
+          "method": "all_contest",
+          "position": "TE",
+          "prediction_mean": 3.1505157529592496,
+          "prediction_slate_mass_mean": 89.26461300051207,
+          "rows": 510,
+          "season": 2023
+        },
+        {
+          "actual_mean": 5.169706129303107,
+          "actual_slate_mass_mean": 342.06222222222226,
+          "mean_bias": -2.8961248276090337,
+          "method": "all_contest",
+          "position": "WR",
+          "prediction_mean": 2.273581301694073,
+          "prediction_slate_mass_mean": 150.43529612875784,
+          "rows": 1191,
+          "season": 2023
+        },
+        {
+          "actual_mean": 4.61007874015748,
+          "actual_slate_mass_mean": 97.58000000000001,
+          "mean_bias": -0.0756789497597574,
+          "method": "naive",
+          "position": "DST",
+          "prediction_mean": 4.534399790397724,
+          "prediction_slate_mass_mean": 95.9781288967518,
+          "rows": 381,
+          "season": 2023
+        },
+        {
+          "actual_mean": 4.856657303370786,
+          "actual_slate_mass_mean": 96.05388888888889,
+          "mean_bias": -1.4693933818772553,
+          "method": "naive",
+          "position": "QB",
+          "prediction_mean": 3.387263921493531,
+          "prediction_slate_mass_mean": 66.99255311398318,
+          "rows": 356,
+          "season": 2023
+        },
+        {
+          "actual_mean": 6.3908709175738725,
+          "actual_slate_mass_mean": 228.29611111111112,
+          "mean_bias": -5.010053425971217,
+          "method": "naive",
+          "position": "RB",
+          "prediction_mean": 1.3808174916026554,
+          "prediction_slate_mass_mean": 49.32586928336153,
+          "rows": 643,
+          "season": 2023
+        },
+        {
+          "actual_mean": 4.021509803921569,
+          "actual_slate_mass_mean": 113.94277777777776,
+          "mean_bias": -1.6207979647134276,
+          "method": "naive",
+          "position": "TE",
+          "prediction_mean": 2.400711839208141,
+          "prediction_slate_mass_mean": 68.020168777564,
+          "rows": 510,
+          "season": 2023
+        },
+        {
+          "actual_mean": 5.169706129303107,
+          "actual_slate_mass_mean": 342.06222222222226,
+          "mean_bias": -3.0925064663887567,
+          "method": "naive",
+          "position": "WR",
+          "prediction_mean": 2.0771996629143508,
+          "prediction_slate_mass_mean": 137.4413776961662,
+          "rows": 1191,
+          "season": 2023
+        },
+        {
+          "actual_mean": 4.594046997389034,
+          "actual_slate_mass_mean": 97.75111111111111,
+          "mean_bias": -1.1832649470305057,
+          "method": "contest_aware",
+          "position": "DST",
+          "prediction_mean": 3.410782050358528,
+          "prediction_slate_mass_mean": 72.57386251596202,
+          "rows": 383,
+          "season": 2024
+        },
+        {
+          "actual_mean": 4.937392550143267,
+          "actual_slate_mass_mean": 95.73055555555555,
+          "mean_bias": -0.6767549033740271,
+          "method": "contest_aware",
+          "position": "QB",
+          "prediction_mean": 4.26063764676924,
+          "prediction_slate_mass_mean": 82.6090299290258,
+          "rows": 349,
+          "season": 2024
+        },
+        {
+          "actual_mean": 6.452076923076923,
+          "actual_slate_mass_mean": 232.99166666666667,
+          "mean_bias": -2.2929320181429578,
+          "method": "contest_aware",
+          "position": "RB",
+          "prediction_mean": 4.1591449049339655,
+          "prediction_slate_mass_mean": 150.1913437892821,
+          "rows": 650,
+          "season": 2024
+        },
+        {
+          "actual_mean": 3.875753676470588,
+          "actual_slate_mass_mean": 117.13388888888888,
+          "mean_bias": -1.03069446075617,
+          "method": "contest_aware",
+          "position": "TE",
+          "prediction_mean": 2.845059215714418,
+          "prediction_slate_mass_mean": 85.98401185270241,
+          "rows": 544,
+          "season": 2024
+        },
+        {
+          "actual_mean": 5.007874794069192,
+          "actual_slate_mass_mean": 337.75333333333333,
+          "mean_bias": -1.5913675483198486,
+          "method": "contest_aware",
+          "position": "WR",
+          "prediction_mean": 3.416507245749344,
+          "prediction_slate_mass_mean": 230.42443312998356,
+          "rows": 1214,
+          "season": 2024
+        },
+        {
+          "actual_mean": 4.594046997389034,
+          "actual_slate_mass_mean": 97.75111111111111,
+          "mean_bias": -1.78256315791364,
+          "method": "all_contest",
+          "position": "DST",
+          "prediction_mean": 2.8114838394753945,
+          "prediction_slate_mass_mean": 59.82212836217089,
+          "rows": 383,
+          "season": 2024
+        },
+        {
+          "actual_mean": 4.937392550143267,
+          "actual_slate_mass_mean": 95.73055555555555,
+          "mean_bias": -0.3170951076252177,
+          "method": "all_contest",
+          "position": "QB",
+          "prediction_mean": 4.620297442518049,
+          "prediction_slate_mass_mean": 89.58243374659995,
+          "rows": 349,
+          "season": 2024
+        },
+        {
+          "actual_mean": 6.452076923076923,
+          "actual_slate_mass_mean": 232.99166666666667,
+          "mean_bias": -3.1748001012459346,
+          "method": "all_contest",
+          "position": "RB",
+          "prediction_mean": 3.2772768218309887,
+          "prediction_slate_mass_mean": 118.34610745500792,
+          "rows": 650,
+          "season": 2024
+        },
+        {
+          "actual_mean": 3.875753676470588,
+          "actual_slate_mass_mean": 117.13388888888888,
+          "mean_bias": -0.4783913709810516,
+          "method": "all_contest",
+          "position": "TE",
+          "prediction_mean": 3.397362305489537,
+          "prediction_slate_mass_mean": 102.67583856590598,
+          "rows": 544,
+          "season": 2024
+        },
+        {
+          "actual_mean": 5.007874794069192,
+          "actual_slate_mass_mean": 337.75333333333333,
+          "mean_bias": -2.000318813744983,
+          "method": "all_contest",
+          "position": "WR",
+          "prediction_mean": 3.00755598032421,
+          "prediction_slate_mass_mean": 202.84294222853285,
+          "rows": 1214,
+          "season": 2024
+        },
+        {
+          "actual_mean": 4.594046997389034,
+          "actual_slate_mass_mean": 97.75111111111111,
+          "mean_bias": -0.14585625000853672,
+          "method": "naive",
+          "position": "DST",
+          "prediction_mean": 4.448190747380497,
+          "prediction_slate_mass_mean": 94.64761423592947,
+          "rows": 383,
+          "season": 2024
+        },
+        {
+          "actual_mean": 4.937392550143267,
+          "actual_slate_mass_mean": 95.73055555555555,
+          "mean_bias": -1.4389622628027539,
+          "method": "naive",
+          "position": "QB",
+          "prediction_mean": 3.498430287340512,
+          "prediction_slate_mass_mean": 67.83067612676884,
+          "rows": 349,
+          "season": 2024
+        },
+        {
+          "actual_mean": 6.452076923076923,
+          "actual_slate_mass_mean": 232.99166666666667,
+          "mean_bias": -3.0999295740721036,
+          "method": "naive",
+          "position": "RB",
+          "prediction_mean": 3.35214734900482,
+          "prediction_slate_mass_mean": 121.0497653807296,
+          "rows": 650,
+          "season": 2024
+        },
+        {
+          "actual_mean": 3.875753676470588,
+          "actual_slate_mass_mean": 117.13388888888888,
+          "mean_bias": -1.5803143468403633,
+          "method": "naive",
+          "position": "TE",
+          "prediction_mean": 2.295439329630225,
+          "prediction_slate_mass_mean": 69.37327751771346,
+          "rows": 544,
+          "season": 2024
+        },
+        {
+          "actual_mean": 5.007874794069192,
+          "actual_slate_mass_mean": 337.75333333333333,
+          "mean_bias": -3.634542794247877,
+          "method": "naive",
+          "position": "WR",
+          "prediction_mean": 1.3733319998213156,
+          "prediction_slate_mass_mean": 92.6236137657265,
+          "rows": 1214,
+          "season": 2024
+        },
+        {
+          "actual_mean": 4.6659568733153645,
+          "actual_slate_mass_mean": 96.17055555555557,
+          "mean_bias": -1.1465041349877758,
+          "method": "contest_aware",
+          "position": "DST",
+          "prediction_mean": 3.519452738327588,
+          "prediction_slate_mass_mean": 72.53983143997418,
+          "rows": 371,
+          "season": 2025
+        },
+        {
+          "actual_mean": 5.031345029239765,
+          "actual_slate_mass_mean": 95.59555555555556,
+          "mean_bias": -0.46865411667549456,
+          "method": "contest_aware",
+          "position": "QB",
+          "prediction_mean": 4.562690912564271,
+          "prediction_slate_mass_mean": 86.69112733872116,
+          "rows": 342,
+          "season": 2025
+        },
+        {
+          "actual_mean": 7.665505415162456,
+          "actual_slate_mass_mean": 235.9272222222222,
+          "mean_bias": -2.794213720568164,
+          "method": "contest_aware",
+          "position": "RB",
+          "prediction_mean": 4.87129169459429,
+          "prediction_slate_mass_mean": 149.92753326695762,
+          "rows": 554,
+          "season": 2025
+        },
+        {
+          "actual_mean": 4.603920335429769,
+          "actual_slate_mass_mean": 122.00388888888887,
+          "mean_bias": -0.9151246244169355,
+          "method": "contest_aware",
+          "position": "TE",
+          "prediction_mean": 3.6887957110128338,
+          "prediction_slate_mass_mean": 97.75308634184009,
+          "rows": 477,
+          "season": 2025
+        },
+        {
+          "actual_mean": 5.668153110047847,
+          "actual_slate_mass_mean": 329.0677777777778,
+          "mean_bias": -1.489750850484921,
+          "method": "contest_aware",
+          "position": "WR",
+          "prediction_mean": 4.178402259562926,
+          "prediction_slate_mass_mean": 242.57946451351432,
+          "rows": 1045,
+          "season": 2025
+        },
+        {
+          "actual_mean": 4.6659568733153645,
+          "actual_slate_mass_mean": 96.17055555555557,
+          "mean_bias": -1.7142488541809613,
+          "method": "all_contest",
+          "position": "DST",
+          "prediction_mean": 2.9517080191344025,
+          "prediction_slate_mass_mean": 60.83798194993685,
+          "rows": 371,
+          "season": 2025
+        },
+        {
+          "actual_mean": 5.031345029239765,
+          "actual_slate_mass_mean": 95.59555555555556,
+          "mean_bias": 0.18339828544173561,
+          "method": "all_contest",
+          "position": "QB",
+          "prediction_mean": 5.2147433146815025,
+          "prediction_slate_mass_mean": 99.08012297894852,
+          "rows": 342,
+          "season": 2025
+        },
+        {
+          "actual_mean": 7.665505415162456,
+          "actual_slate_mass_mean": 235.9272222222222,
+          "mean_bias": -3.773324355840035,
+          "method": "all_contest",
+          "position": "RB",
+          "prediction_mean": 3.892181059322419,
+          "prediction_slate_mass_mean": 119.79268371470114,
+          "rows": 554,
+          "season": 2025
+        },
+        {
+          "actual_mean": 4.603920335429769,
+          "actual_slate_mass_mean": 122.00388888888887,
+          "mean_bias": -0.9134262375997593,
+          "method": "all_contest",
+          "position": "TE",
+          "prediction_mean": 3.69049409783001,
+          "prediction_slate_mass_mean": 97.79809359249526,
+          "rows": 477,
+          "season": 2025
+        },
+        {
+          "actual_mean": 5.668153110047847,
+          "actual_slate_mass_mean": 329.0677777777778,
+          "mean_bias": -2.5434952289780166,
+          "method": "all_contest",
+          "position": "WR",
+          "prediction_mean": 3.1246578810698304,
+          "prediction_slate_mass_mean": 181.40374920655404,
+          "rows": 1045,
+          "season": 2025
+        },
+        {
+          "actual_mean": 4.6659568733153645,
+          "actual_slate_mass_mean": 96.17055555555557,
+          "mean_bias": -0.18725351850434777,
+          "method": "naive",
+          "position": "DST",
+          "prediction_mean": 4.4787033548110164,
+          "prediction_slate_mass_mean": 92.31105247971594,
+          "rows": 371,
+          "season": 2025
+        },
+        {
+          "actual_mean": 5.031345029239765,
+          "actual_slate_mass_mean": 95.59555555555556,
+          "mean_bias": -1.5123675638474967,
+          "method": "naive",
+          "position": "QB",
+          "prediction_mean": 3.518977465392269,
+          "prediction_slate_mass_mean": 66.86057184245311,
+          "rows": 342,
+          "season": 2025
+        },
+        {
+          "actual_mean": 7.665505415162456,
+          "actual_slate_mass_mean": 235.9272222222222,
+          "mean_bias": -5.0811965610503425,
+          "method": "naive",
+          "position": "RB",
+          "prediction_mean": 2.5843088541121126,
+          "prediction_slate_mass_mean": 79.53928362100615,
+          "rows": 554,
+          "season": 2025
+        },
+        {
+          "actual_mean": 4.603920335429769,
+          "actual_slate_mass_mean": 122.00388888888887,
+          "mean_bias": -1.5739781734405962,
+          "method": "naive",
+          "position": "TE",
+          "prediction_mean": 3.029942161989173,
+          "prediction_slate_mass_mean": 80.29346729271307,
+          "rows": 477,
+          "season": 2025
+        },
+        {
+          "actual_mean": 5.668153110047847,
+          "actual_slate_mass_mean": 329.0677777777778,
+          "mean_bias": -2.95169114576199,
+          "method": "naive",
+          "position": "WR",
+          "prediction_mean": 2.716461964285857,
+          "prediction_slate_mass_mean": 157.70570848215115,
+          "rows": 1045,
+          "season": 2025
+        }
+      ],
+      "source_panel": "20260808-e80-k1-c616390"
+    }
+  }
+]

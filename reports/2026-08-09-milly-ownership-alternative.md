@@ -1,7 +1,7 @@
 # Contest-aware Milly ownership alternative
 
-Status: diagnostic and downstream arm preregistered before viewing any new
-ownership-model or lineup-score comparison.
+Status: the corrected diagnostic passed its preregistered gate; the downstream
+lineup arm remains a frozen, controlled experiment and has not yet been scored.
 
 Implementation note (recorded before any downstream lineup panel): the
 fade-only treatment is named `OWN_MODEL=milly_fade`. It fits only eligible
@@ -94,3 +94,25 @@ DraftKings' Saturday main slate. This is a calendar/slate-universe correction,
 not a result-based model change. The final diagnostic must cover the remaining
 71 contest/slate pairs, retain at least 90% mass in every eligible week, and
 pass the original frozen gate above before the scoring runner will start.
+
+## Corrected diagnostic outcome
+
+The leakage-free v4 diagnostic completed as Cloud Run execution
+`evaluate-milly-ownership-wd4ll` on immutable digest
+`sha256:1530d8d9f9bd67a4928b40c7c42edcc740a8ab2887ddfcda1a6ca5dcb7852959`.
+The report is tracked under
+`reports/ownership-runs/20260809-milly-k1-c616390-v4/`.
+
+The contest-aware model passed every frozen condition. Across 9,010 held-out
+player rows, its aggregate MAE/Spearman were `2.8666/0.7865`, versus
+`3.6142/0.5657` for the old all-contest model and `4.6548/0.2589` for the
+naive proxy. Top-quartile MAE was `7.7347`, versus `9.8483/11.5424`. It beat
+both comparators on MAE and Spearman in each held-out season (2023, 2024, and
+2025), with no adverse-season exception. The 71 eligible contest/slate pairs
+retained `98.90%` of ownership mass overall and at least `93.74%` in every
+eligible week.
+
+This result licenses only the already-frozen true-80 K=1 fade arm. It is not
+evidence that the arm improves lineup tails. Its preflight uses 2023, not the
+2022 training-only season, so the smoke test must actually fit and serve the
+walk-forward model before the six-season panel can launch.

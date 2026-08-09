@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 15:58 CDT
+## Current state — 2026-08-09 16:47 CDT
 
 ### Autonomous scoring research resumed after context recovery
 
@@ -150,8 +150,26 @@ agent or developer:
   gate. Focused validation across ownership, comparator, panel gate, replay,
   live smoke, and infrastructure is 39 passed; shell parsing, compilation and
   whitespace checks pass. Corrected diagnostic build
-  `fa00ea6f-ffd0-49c6-8352-553c24989eb2` is running from rank-aligned commit
-  `638ce2a`. Never launch the scoring runner from superseded v3.
+  `fa00ea6f-ffd0-49c6-8352-553c24989eb2` passed 697 tests with 2 skipped from
+  rank-aligned commit `638ce2a` and produced immutable digest
+  `sha256:1530d8d9f9bd67a4928b40c7c42edcc740a8ab2887ddfcda1a6ca5dcb7852959`.
+  Corrected v4 execution `evaluate-milly-ownership-wd4ll` passed every frozen
+  diagnostic condition over 9,010 held-out rows and 71 eligible slates.
+  Aggregate contest-aware MAE/Spearman are `2.8666/0.7865`, versus old
+  all-contest `3.6142/0.5657` and naive `4.6548/0.2589`; top-quartile MAE is
+  `7.7347` versus `9.8483/11.5424`. It beats both metrics in every held-out
+  2023-2025 season, retains `98.90%` ownership mass overall, and retains at
+  least `93.74%` in every eligible week. The tracked clean report is
+  `reports/ownership-runs/20260809-milly-k1-c616390-v4/`; superseded v3 still
+  must never be used.
+- The ownership panel preflight is now pinned to 2023 so it must train on 2022
+  and exercise the actual `milly_fade` serve path; a 2022 smoke would only
+  exercise the intentional cold-start fallback. Focused ownership/comparator/
+  replay tests pass (19 tests), shell parsing and whitespace checks pass.
+  Exact next action: commit/push this diagnostic milestone, run a full Cloud
+  Build of the final guarded scoring code, then launch the one frozen ownership
+  panel from that immutable digest. In parallel, continue polling the six exact
+  CE union execution IDs and compare the union only after all six succeed.
 
 ### Recovery provenance
 
