@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 10:27 CDT
+## Current state — 2026-08-09 11:59 CDT
 
 ### Recovery provenance
 
@@ -501,32 +501,33 @@ model registry or silently change app behavior. Earlier deployed
 
 ### Next concrete action
 
-The explicitly exploratory true-80 K=1 model-only experiment is now frozen in
-`reports/2026-08-09-k1-model-only-true80-experiment.md`, before treatment
-creation. Launch panel `20260809-e80-k1-modelonly-c616390` from immutable
-generation digest `sha256:98a31edd...`, changing only K=1 source env plus
-`BLEND_MODEL_WEIGHT=1.0`; require the 2022 smoke before all six season jobs.
-After completion, run check-only acceptance and the purpose-built `blend`
-comparator at 80 entries, report the full tail grid and paired gained/lost
-weeks, and never promote the treatment. A favorable result is only a reason
-for prospective confirmation because this hypothesis was chosen after
-inspecting earlier outcomes.
-The paired comparator's canonical metrics now emit selected and pool-oracle
-counts across the complete 187/194/200/210/220/230/240 grid; its eight focused
-tests and Python compilation pass locally. Validate that reporting change in
-Cloud Build before running the final comparator.
-Immutable 2022 preflight `replay-e80k1mo-smoke-jswhj` passed and verified the
-model-only lever at runtime. The six season executions are now running from
-the frozen generation digest: `replay-e80k1mo-2019-hcxpf`,
+The true-80 K=1 model-only arm is complete and closed. All six season jobs
+completed cleanly: `replay-e80k1mo-2019-hcxpf`,
 `replay-e80k1mo-2021-6s8rw`, `replay-e80k1mo-2022-n5f6s`,
 `replay-e80k1mo-2023-n4h4g`, `replay-e80k1mo-2024-qtbq2`, and
 `replay-e80k1mo-2025-prbcr`. Reporting build
-`95911a3d-8925-4859-bee4-afa5bb69ad8c` passed 673 tests with 2 skipped from
-source commit `8c67945`, producing immutable audit/comparator digest
-`sha256:67e20d8308bd8bee20b436ff89dc3093445dcc559965f4527b3582ec7ed4f3f6`.
-Wait for six clean season successes, then run check-only acceptance and the
-80-entry `blend` comparator on that validated digest before querying or
-interpreting the full score grid.
+`95911a3d-8925-4859-bee4-afa5bb69ad8c` passed 673 tests with 2 skipped and
+produced audit/comparator digest `sha256:67e20d8308bd...ed4f3f6`. Check-only
+acceptance `accept-replay-panel-ggzqg` failed
+only its intentionally inapplicable 45/55 assertion while proving complete
+107-slate/80-entry provenance and mean joins. Purpose-built comparator
+`compare-adoption-panel-qlh5s` had zero failures and returned
+`tail-first-not-supported`: selected 187/194/200/210/220/230/240 moved from
+`36/22/12/6/3/1/1` to `33/21/12/7/4/1/1`, pool-oracle >=200 fell `19→17`,
+and mean weekly max fell `179.60→178.33`. The 200 count trades a new 220.48
+in 2025 Week 9 for the lost 201.74 in Week 5; both winning rosters are absent
+from the opposing pool. Full mechanism and missed-oracle evidence is in
+`reports/2026-08-09-k1-model-only-true80-experiment.md` and the tracked panel
+artifacts. Never promote or retune this arm.
+
+Next, preregister the lower-prior true-80 K=1 salary-floor deletion against
+the same source, changing only `MIN_LINEUP_SALARY=0` on the immutable
+generation image. It is outcome-informed historical exploration: the old
+K=3/40-entry no-floor result added two 200 weeks, but all three of its 200+
+weeks already appear in the current K=1 book. Require the same +2 >=200,
+non-worse >=210 and pool-oracle >=200 tail-first gate plus the purpose-built
+salary mechanism audit; never promote it, and close the exact arm without
+tuning if it fails.
 Keep all seven research schedules paused until the tracked August 24
 season-start runbook. Do not execute either source shadow or freezer before
 DK posts the matching regular-season Sunday main slate. Never mutate the

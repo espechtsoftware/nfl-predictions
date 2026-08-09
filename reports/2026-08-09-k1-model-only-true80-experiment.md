@@ -4,7 +4,9 @@ Preregistered: 2026-08-09 10:10 CDT, before creation of any treatment rows or
 execution. Source results were already known. The treatment panel ID was
 confirmed absent from staging at freeze time.
 
-Status: **historical exploratory experiment, outcome-informed hypothesis**.
+Status: **COMPLETED — valid mechanism, tail-first not supported; arm closed**.
+This remains a historical exploratory experiment and outcome-informed
+hypothesis.
 The model-only arm is being revisited because the earlier K=3/40-entry A01
 arm gained two weeks at 200 and the later K=1/80-entry portfolio became the
 tail-first research baseline. Consequently, even a passing result is not
@@ -91,3 +93,79 @@ Because this is outcome-informed historical exploration, a pass means only
 A historical failure closes this exact K=1/80 model-only arm; do not retune
 the weight, entry count, selection line, K, or individual weeks in response.
 
+## Result — 2026-08-09
+
+The 2022 smoke `replay-e80k1mo-smoke-jswhj` passed. All six immutable season
+executions completed cleanly; their durable IDs are in the panel-run manifest.
+Reporting build `95911a3d-8925-4859-bee4-afa5bb69ad8c` passed 673 tests with
+2 skipped and produced audit digest
+`sha256:67e20d8308bd8bee20b436ff89dc3093445dcc559965f4527b3582ec7ed4f3f6`.
+
+Check-only acceptance `accept-replay-panel-ggzqg` found 25,779 candidates,
+107 slates, exactly 80 selected entries per slate, 50,098 unique feature rows,
+zero missing or duplicate joins, and maximum candidate/player mean error
+`2.57e-05`. It exited nonzero only on the baseline-specific assertion that
+covered means equal the 45/55 blend, which the treatment intentionally
+deleted. Purpose-built comparison `compare-adoption-panel-qlh5s` then passed
+with no mechanism or panel failures:
+
+- all 15,538 market-covered player-weeks moved by 0.941 points on average;
+- model, market, and DST inputs were invariant;
+- treatment covered means exactly equaled the model-only means;
+- uncovered means did not move; and
+- all 53 no-market slates reproduced exactly, including rosters, selections,
+  actuals, p-line, and simulated means.
+
+### Complete tail grid
+
+| Metric | 45/55 K=1 source | Model-only K=1 |
+|---|---:|---:|
+| Selected >=187 | 36 | 33 |
+| Selected >=194 | 22 | 21 |
+| Selected >=200 | 12 | 12 |
+| Selected >=210 | 6 | 7 |
+| Selected >=220 | 3 | 4 |
+| Selected >=230 | 1 | 1 |
+| Selected >=240 | 1 | 1 |
+| Pool oracle >=187 | 44 | 39 |
+| Pool oracle >=194 | 30 | 27 |
+| Pool oracle >=200 | 19 | 17 |
+| Pool oracle >=210 | 9 | 9 |
+| Pool oracle >=220 | 3 | 4 |
+| Pool oracle >=230 | 1 | 1 |
+| Pool oracle >=240 | 1 | 1 |
+| Mean weekly maximum | 179.60 | 178.33 |
+| Median weekly maximum | 178.82 | 177.00 |
+
+The >=200 season counts are identical in every season:
+`{2019:5, 2021:1, 2022:3, 2023:1, 2024:1, 2025:1}`. Differences are confined
+to market-covered 2023–2025. Model-only loses one 194 clear and one pool
+oracle >=200 in 2023; loses four 187 clears in 2024; and in 2025 trades one
+200 week for another while adding one 210/220 week and losing one pool-oracle
+>=200 week.
+
+The 2025 trade is concrete:
+
+- Week 9 improves from 187.60 to **220.48**. The winning model-only boom
+  roster is new to that candidate pool, ranks 24th in coverage selection,
+  costs $49,800, and is absent from the source candidate pool.
+- Week 5 falls from **201.74** to 191.06. The source boom winner is absent
+  from the model-only pool; model-only's best pool candidate scores only
+  191.86. This is not a selector miss.
+
+Model-only still misses five pool oracles >=200. Four (2019 Weeks 6/10/15
+and 2021 Week 4) are exactly the same known source-pool misses and remain
+deep by p-line rank (79/201/160/118). Its new 2025 Week 12 oracle is 202.86,
+while the source pool had a stronger unselected 214.36 oracle that model-only
+removed. Thus the arm does not repair the known high-score omissions.
+
+The frozen tail-first gate fails: there is no +2 lift at 200 and pool-oracle
+>=200 worsens by two. The modest 210/220 gain is real but comes from one
+swapped week and does not justify adopting a smaller opportunity pool. Keep
+the 45/55 K=1 research baseline, never promote this treatment, and do not
+tune another blend weight from these results.
+
+One progress-log query after all outputs were already immutable but before
+the complete audit incidentally displayed a single 2022 weekly score line.
+No configuration, gate, comparison, or next action changed in response; the
+full protocol above had already been committed before launch.
