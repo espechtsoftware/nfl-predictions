@@ -36,7 +36,36 @@ from nfl_dfs.research.panel_compare import candidate_mean_parity  # noqa: E402
 STAGING = "replay_candidates_staging"
 RESEARCH = "replay_candidates"
 EXPECTED_SEASONS = (2019, 2021, 2022, 2023, 2024, 2025)
-CAND_RANGE = (80, 400)      # preregistered plausible pool size
+CAND_RANGE = (80, 400)      # default CAND_MULT=2 plausible pool size
+
+
+def _candidate_count_contract(rows: pd.DataFrame, entries_expected: int,
+                              multiple_expected: int
+                              ) -> tuple[tuple[int, int], list[str]]:
+    """Bind a multiplier-aware count range to persisted provenance."""
+    failures: list[str] = []
+    multiples: set[int] = set()
+    for value in rows.get("lever_env", pd.Series(dtype=str)).fillna(""):
+        fields = {}
+        for item in str(value).split(","):
+            if "=" in item:
+                key, field_value = item.split("=", 1)
+                fields[key] = field_value
+        try:
+            multiples.add(int(fields.get("CAND_MULT", "2")))
+        except ValueError:
+            failures.append("persisted CAND_MULT is not an integer")
+            break
+    if not multiples:
+        failures.append("candidate rows have no multiplier provenance")
+    elif multiples != {multiple_expected}:
+        failures.append(
+            f"persisted CAND_MULT values {sorted(multiples)} do not equal "
+            f"declared {multiple_expected}")
+    # Preserve the original default ceiling. The +2 allowance bounds all
+    # non-leverage generators already present in the frozen generation path.
+    upper = max(CAND_RANGE[1], entries_expected * (multiple_expected + 2))
+    return (CAND_RANGE[0], upper), failures
 
 
 def _bits(hexs: str, n: int) -> np.ndarray:
@@ -168,9 +197,12 @@ def main() -> int:
     ap.add_argument("panel_run_id")
     ap.add_argument("--promote", action="store_true")
     ap.add_argument("--entries-expected", type=int, default=40)
+    ap.add_argument("--candidate-multiple-expected", type=int, default=2)
     a = ap.parse_args()
     if not 1 <= a.entries_expected <= 150:
         ap.error("--entries-expected must be from 1 through 150")
+    if not 1 <= a.candidate_multiple_expected <= 10:
+        ap.error("--candidate-multiple-expected must be from 1 through 10")
 
     d = query_df(f"""
         SELECT * FROM `{settings.predictions}.{STAGING}`
@@ -254,10 +286,14 @@ def main() -> int:
             f"persisted n_entries is not uniformly {a.entries_expected}")
 
     # 4 candidate counts
+    candidate_range, count_contract_failures = _candidate_count_contract(
+        d, a.entries_expected, a.candidate_multiple_expected)
+    fails.extend(count_contract_failures)
     n_by = d.groupby(["season", "week"]).size()
-    out = n_by[(n_by < CAND_RANGE[0]) | (n_by > CAND_RANGE[1])]
+    out = n_by[(n_by < candidate_range[0]) | (n_by > candidate_range[1])]
     if len(out):
-        fails.append(f"candidate count outside {CAND_RANGE} in {len(out)} slates")
+        fails.append(
+            f"candidate count outside {candidate_range} in {len(out)} slates")
 
     # 5 labels + provenance
     if not d.labels_complete.all():

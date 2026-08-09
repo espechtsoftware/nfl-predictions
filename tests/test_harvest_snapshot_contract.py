@@ -67,3 +67,21 @@ def test_authoritative_actual_contract_accepts_and_rejects_drift():
     changed.loc[changed.id.eq("WR1"), "actual"] += 1
     failures = accept._authoritative_actual_failures(changed, actuals)
     assert any("authoritative actual mismatches" in f for f in failures)
+
+
+def test_candidate_count_contract_preserves_default_range():
+    rows = pd.DataFrame({"lever_env": ["N_BOOM=40"] * 2})
+    count_range, failures = accept._candidate_count_contract(rows, 80, 2)
+    assert failures == []
+    assert count_range == (80, 400)
+
+
+def test_candidate_count_contract_allows_declared_multiple_four_only():
+    rows = pd.DataFrame({"lever_env": ["N_BOOM=40,CAND_MULT=4"] * 2})
+    count_range, failures = accept._candidate_count_contract(rows, 80, 4)
+    assert failures == []
+    assert count_range == (80, 480)
+
+    _, wrong_failures = accept._candidate_count_contract(rows, 80, 2)
+    assert any("do not equal declared 2" in failure
+               for failure in wrong_failures)

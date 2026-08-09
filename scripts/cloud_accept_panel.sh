@@ -2,14 +2,15 @@
 # Run the memory-heavy canonical panel acceptance gate on Cloud Run.
 #
 # Usage:
-#   bash scripts/cloud_accept_panel.sh <IMAGE@sha256:...> <PANEL_RUN_ID> check [N_ENTRIES]
-#   bash scripts/cloud_accept_panel.sh <IMAGE@sha256:...> <PANEL_RUN_ID> promote [N_ENTRIES]
+#   bash scripts/cloud_accept_panel.sh <IMAGE@sha256:...> <PANEL_RUN_ID> check [N_ENTRIES] [CAND_MULT]
+#   bash scripts/cloud_accept_panel.sh <IMAGE@sha256:...> <PANEL_RUN_ID> promote [N_ENTRIES] [CAND_MULT]
 set -euo pipefail
 
 IMG=${1:-}
 PANEL=${2:-}
 MODE=${3:-check}
 N_ENTRIES=${4:-40}
+N_CAND_MULT=${5:-2}
 REGION=us-central1
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$ROOT/reports/panel-runs/$PANEL"
@@ -21,6 +22,9 @@ case "$MODE" in check|promote) ;; *) echo "ABORT: mode is check or promote"; exi
 case "$N_ENTRIES" in ""|*[!0-9]*) echo "ABORT: invalid entry count"; exit 2;; esac
 [ "$N_ENTRIES" -ge 1 ] && [ "$N_ENTRIES" -le 150 ] || {
   echo "ABORT: entry count must be from 1 through 150"; exit 2; }
+case "$N_CAND_MULT" in ""|*[!0-9]*) echo "ABORT: invalid candidate multiple"; exit 2;; esac
+[ "$N_CAND_MULT" -ge 1 ] && [ "$N_CAND_MULT" -le 10 ] || {
+  echo "ABORT: candidate multiple must be from 1 through 10"; exit 2; }
 [ -s "$EXECS" ] || { echo "ABORT: missing execution manifest $EXECS"; exit 2; }
 
 # Never ask acceptance to interpret an incomplete or failed panel.
@@ -40,7 +44,7 @@ while read -r _season _job exec_id; do
   }
 done < "$EXECS"
 
-ARGS="scripts/harvest_accept.py,$PANEL,--entries-expected,$N_ENTRIES"
+ARGS="scripts/harvest_accept.py,$PANEL,--entries-expected,$N_ENTRIES,--candidate-multiple-expected,$N_CAND_MULT"
 [ "$MODE" = "promote" ] && ARGS="$ARGS,--promote"
 JOB="accept-replay-panel"
 gcloud run jobs deploy "$JOB" --image "$IMG" --region "$REGION" \

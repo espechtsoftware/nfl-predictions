@@ -474,6 +474,26 @@ afterward. The lineup analyzer remains logged in `README.md`.
   Full Cloud Build validation is the next step; use its resulting reporting
   digest only after the original immutable candidate-budget comparison is
   also preserved.
+- Tail-first reporting validation passed Cloud Build
+  `c1080fc9-3210-401c-9f7a-21e048a98d9e` with 655 tests passed and 2 skipped;
+  validated image digest is
+  `sha256:81ac495c696ca05cddf39208a652896bc73e55dc49e21e8377adbe5fbfa758a9`.
+  The earlier direct Docker build `b95d8af8-bb47-423d-ba87-d1371612c0ed`
+  succeeded but did not run tests and must not be cited as validation.
+- Original-image acceptance execution `accept-replay-panel-fjwz7` passed mean
+  parity, all 107 slates, 42,706 candidate rows, 50,098 unique feature rows,
+  exact labels/joins, and selected structure, but failed only the old fixed
+  candidate range `(80, 400)` on 46 deliberately enlarged slates. This is a
+  reporting-contract defect: that ceiling predated and cannot represent the
+  registered `CAND_MULT=4` arm. No scoring gate is changing.
+- Acceptance now requires a caller-declared candidate multiple to match every
+  persisted `lever_env`. Default multiple 2 preserves the old `(80, 400)`
+  range exactly; true-80 multiple 4 receives the bounded `(80, 480)` range
+  derived from `entries * (multiple + 2)`. The wrapper passes the declaration
+  explicitly. Focused acceptance/comparator validation passes 32 tests plus
+  shell syntax. Build, rerun check mode as `... check 80 4`, then run the
+  immutable mechanism comparison and the separately labeled tail-first
+  report; never promote a failed treatment.
 - The accepted K=3 missed-winner analysis now separates genuinely lost weeks
   from redundant high scores: 16 unselected >=200 rows span eight slates, but
   ten are on slates where the submitted book already cleared 200; six rows
