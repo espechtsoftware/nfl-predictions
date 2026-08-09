@@ -520,3 +520,13 @@ Because candidate scaling does not change RNG worlds or any upstream stage,
 the already accepted same-image control is valid and need not be rerun. A
 failed treatment closes raw candidate-budget scaling on this historical
 panel; future reopening requires new information or prospective outcomes.
+
+The reporting implementation passed full Cloud Build
+`d0fc0c32-e055-4765-bcf6-3854aa7ec29d` with 641 tests passed and 2 skipped.
+The acceptance/comparison image is pinned at
+`sha256:6c4d71ab991fe26460d77094b84e7cef3579a33a18437d1ba28998e29e50bf70`.
+Treatment preflight `replay-e80cm4-smoke-2wbs8` passed in 17m42s on the
+unchanged generation digest. The six launched season executions are
+`replay-e80cm4-2019-gbhxs`, `replay-e80cm4-2021-4grfn`,
+`replay-e80cm4-2022-lj9v8`, `replay-e80cm4-2023-q8vgb`,
+`replay-e80cm4-2024-2jmfs`, and `replay-e80cm4-2025-qn9dw`.

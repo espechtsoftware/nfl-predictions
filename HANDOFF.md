@@ -407,3 +407,17 @@ afterward. The lineup analyzer remains logged in `README.md`.
   reporting so a genuine primary high-tail pass is labeled
   `high-tail-improves`; no score threshold changed. The exact arm and frozen
   gate are in Addendum 113 and the 80-entry audit.
+- Full candidate-budget reporting validation passed in Cloud Build
+  `d0fc0c32-e055-4765-bcf6-3854aa7ec29d` (641 passed, 2 skipped). Its
+  immutable reporting digest is
+  `sha256:6c4d71ab991fe26460d77094b84e7cef3579a33a18437d1ba28998e29e50bf70`.
+  Use this digest for the treatment acceptance and `candidate_budget`
+  comparator.
+- Candidate-multiple-4 treatment `20260808-e80-cm4-d99b125` passed preflight
+  execution `replay-e80cm4-smoke-2wbs8` in 17m42s. All six immutable season
+  executions are launched: `replay-e80cm4-2019-gbhxs`,
+  `replay-e80cm4-2021-4grfn`, `replay-e80cm4-2022-lj9v8`,
+  `replay-e80cm4-2023-q8vgb`, `replay-e80cm4-2024-2jmfs`, and
+  `replay-e80cm4-2025-qn9dw`. They were queued for Cloud Run capacity with no
+  failed condition at the last check. Do not inspect realized scores before
+  the full panel completes; row-count/status monitoring is allowed.
