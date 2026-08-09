@@ -501,3 +501,10 @@ afterward. The lineup analyzer remains logged in `README.md`.
   requires three clean immutable executions and verifies each diagnostic-only
   exit before recording either a positive or negative scientific result. No
   forest season execution has been launched yet.
+- Conditional-dependence Cloud Build
+  `107a8e47-1a31-4dc6-a7b8-5d95562bdb60` passed 650 tests (2 skipped) from
+  mechanism commit `3dbebb2` and produced immutable digest
+  `sha256:12cdf18151af051ac766e302514cceaf34c3d9cf320d13bd1467ed8e88e96978`.
+  Use that digest for the smoke and frozen 2023-2025 dependence-only panel.
+  Commit `a8c0c38` is only the local log harvester/docs and need not be in the
+  diagnostic image.

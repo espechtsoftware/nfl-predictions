@@ -713,3 +713,10 @@ IDs, and pins every diagnostic job to the same digest. The finish wrapper
 requires three clean executions, harvests each report by immutable execution
 ID, verifies the diagnostic-only exit marker, and persists the gate result
 even when the scientific disposition is negative.
+
+Full Cloud Build `107a8e47-1a31-4dc6-a7b8-5d95562bdb60` passed 650 tests
+(2 skipped) from implementation commit `3dbebb2`. The dependence diagnostic
+image is pinned at
+`sha256:12cdf18151af051ac766e302514cceaf34c3d9cf320d13bd1467ed8e88e96978`.
+The later `a8c0c38` commit adds only the local immutable-log harvester and
+documentation; it does not alter the image mechanism or gate.
