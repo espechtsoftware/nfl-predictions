@@ -276,11 +276,12 @@ agent or developer:
   `...-2023-zwbc4`, `...-2024-2z87w`, and `...-2025-k544g`. The manifests
   under `reports/panel-runs/` are authoritative; all 12 season jobs were
   running without a failed condition at the last check.
-- Reporting build `38655fa6-f535-45fd-9c03-90392373a167` was launched from
-  commit `5120014`. A subsequent small change adds the explicitly
-  preregistered >=200 directional report to the comparator; acceptance can use
-  the first reporting image, while the final comparison needs an image that
-  includes the later high-tail report.
+- Reporting build `38655fa6-f535-45fd-9c03-90392373a167` passed from commit
+  `5120014` and produced digest `sha256:835c8320...`. Final comparator build
+  `1bce24eb-079e-41d4-8606-e8a63c49605d`, including the explicitly
+  preregistered >=200 directional report, also passed and produced immutable
+  reporting digest
+  `sha256:89f692b6209adbbd070e7b26c998f59f265207877de79496d4419884159410c7`.
 
 ### Deployment caution
 
