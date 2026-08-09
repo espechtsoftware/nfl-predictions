@@ -320,13 +320,13 @@ Earlier deployed `12 CE / 28 boom` settings are stale.
 
 The member-world pair is complete and rejected. Do not tune its line, K,
 allocation, seed, or budget on these outcomes. Before another costly panel,
-freeze one materially distinct mechanism and its comparator. The only
-historically executable low-prior confirmation still explicitly left open is
-candidate-budget scaling at true 80; it must change only `CAND_MULT`, retain
-the 194 selector and standing >=200 gate, and prove added candidates rather
-than silently changing generator quotas. The prior one-season 470-candidate
-null and the current unchanged 12-week pool oracle make its prior low. The
-lineup analyzer remains logged in `README.md`.
+run the now-frozen final historical confirmation: accepted source
+`20260808-e80-msctl-d99b125` versus treatment
+`20260808-e80-cm4-d99b125`, changing only `CAND_MULT=4` from default 2 on the
+same generation digest/code. Build the new `candidate_budget` reporting gate,
+run the treatment preflight/panel, accept it, compare it at true 80, and apply
+the unchanged >=200 high-tail law. Do not tune another multiple or target line
+afterward. The lineup analyzer remains logged in `README.md`.
 
 ### 2026-08-08 true-80 completion update
 
@@ -399,3 +399,11 @@ lineup analyzer remains logged in `README.md`.
   treatment pool with nearly unchanged marginal probability/mean but were
   displaced by changed joint-world overlap. Outcome-blind local refinement
   recovers none of the six misses. Full evidence is in the 80-entry audit.
+- Candidate-budget comparator instrumentation is implemented and focused
+  validation is green (39 tests plus shell syntax). It requires default
+  `CAND_MULT=2` versus explicit 4, exact invariant features/seeds/shared-roster
+  worlds, a strict source candidate subset with extra leverage candidates on
+  all 107 slates, and selected-book movement. It also fixes disposition
+  reporting so a genuine primary high-tail pass is labeled
+  `high-tail-improves`; no score threshold changed. The exact arm and frozen
+  gate are in Addendum 113 and the 80-entry audit.

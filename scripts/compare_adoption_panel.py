@@ -34,7 +34,7 @@ def _candidates(panel: str, promoted: bool) -> pd.DataFrame:
     eligibility = "AND research_eligible" if promoted else ""
     return query_df(f"""
         SELECT season, week, cand_ix, players, selected, actual_score,
-               sim_mean, salary, code_sha, config_hash, lever_env, seeds
+               sim_mean, salary, tag, code_sha, config_hash, lever_env, seeds
         FROM `{settings.predictions}.{table}`
         WHERE panel_run_id = '{_panel_id(panel)}' {eligibility}
         """)
@@ -531,6 +531,88 @@ def _member_world_pair_audit(source: str, treatment: str) -> dict:
     return {name: int(result.get(name) or 0) for name in result.index}
 
 
+def _candidate_budget_pair_audit(source: str, treatment: str) -> dict:
+    """Prove a larger candidate request is a strict frozen-world superset."""
+    result = query_df(f"""
+        WITH source_rows AS (
+          SELECT season, week, players, tag, selected, actual_score,
+                 p_line, sim_mean, clear_bits_194
+          FROM `{settings.predictions}.replay_candidates`
+          WHERE panel_run_id = '{_panel_id(source)}' AND research_eligible
+        ), treatment_rows AS (
+          SELECT season, week, players, tag, selected, actual_score,
+                 p_line, sim_mean, clear_bits_194
+          FROM `{settings.predictions}.replay_candidates_staging`
+          WHERE panel_run_id = '{_panel_id(treatment)}'
+        ), paired AS (
+          SELECT s.players AS source_players,
+                 t.players AS treatment_players,
+                 COALESCE(s.season, t.season) AS season,
+                 COALESCE(s.week, t.week) AS week,
+                 s.selected AS source_selected,
+                 t.selected AS treatment_selected,
+                 s.actual_score AS source_actual_score,
+                 t.actual_score AS treatment_actual_score,
+                 s.p_line AS source_p_line,
+                 t.p_line AS treatment_p_line,
+                 s.sim_mean AS source_sim_mean,
+                 t.sim_mean AS treatment_sim_mean,
+                 s.clear_bits_194 AS source_clear_bits_194,
+                 t.clear_bits_194 AS treatment_clear_bits_194,
+                 t.tag AS treatment_tag
+          FROM source_rows s FULL OUTER JOIN treatment_rows t
+          USING (season, week, players)
+        ), source_counts AS (
+          SELECT season, week, COUNT(*) AS n FROM source_rows
+          GROUP BY season, week
+        ), treatment_counts AS (
+          SELECT season, week, COUNT(*) AS n FROM treatment_rows
+          GROUP BY season, week
+        ), slate_counts AS (
+          SELECT s.season, s.week, s.n AS source_n, t.n AS treatment_n
+          FROM source_counts s JOIN treatment_counts t USING (season, week)
+        )
+        SELECT
+          (SELECT COUNT(*) FROM source_rows) AS source_rows,
+          (SELECT COUNT(*) FROM treatment_rows) AS treatment_rows,
+          COUNTIF(source_players IS NOT NULL
+                  AND treatment_players IS NOT NULL) AS common_rows,
+          COUNTIF(source_players IS NOT NULL
+                  AND treatment_players IS NULL) AS source_only_rows,
+          COUNTIF(source_players IS NULL
+                  AND treatment_players IS NOT NULL) AS treatment_only_rows,
+          COUNTIF(source_players IS NULL AND treatment_players IS NOT NULL
+                  AND treatment_tag = 'lev') AS treatment_only_lev_rows,
+          COUNTIF(source_players IS NULL AND treatment_players IS NOT NULL
+                  AND treatment_tag != 'lev') AS treatment_only_nonlev_rows,
+          COUNTIF(source_players IS NOT NULL AND treatment_players IS NOT NULL
+                  AND ABS(source_actual_score - treatment_actual_score) > 1e-8)
+                  AS common_actual_mismatch,
+          COUNTIF(source_players IS NOT NULL AND treatment_players IS NOT NULL
+                  AND ABS(source_p_line - treatment_p_line) > 1e-8)
+                  AS common_p_line_mismatch,
+          COUNTIF(source_players IS NOT NULL AND treatment_players IS NOT NULL
+                  AND ABS(source_sim_mean - treatment_sim_mean) > 1e-6)
+                  AS common_sim_mean_mismatch,
+          COUNTIF(source_players IS NOT NULL AND treatment_players IS NOT NULL
+                  AND source_clear_bits_194 != treatment_clear_bits_194)
+                  AS common_support_mismatch,
+          COUNTIF(source_selected AND treatment_selected) AS selected_shared,
+          COUNTIF(source_selected AND COALESCE(NOT treatment_selected, TRUE))
+                  AS selected_source_only,
+          COUNTIF(treatment_selected AND COALESCE(NOT source_selected, TRUE))
+                  AS selected_treatment_only,
+          (SELECT COUNTIF(treatment_n > source_n) FROM slate_counts)
+                  AS slates_with_more_candidates,
+          (SELECT MIN(treatment_n - source_n) FROM slate_counts)
+                  AS min_extra_candidates_per_slate,
+          (SELECT MAX(treatment_n - source_n) FROM slate_counts)
+                  AS max_extra_candidates_per_slate
+        FROM paired
+        """).iloc[0]
+    return {name: int(result.get(name) or 0) for name in result.index}
+
+
 def _member_world_mechanism(
     source_candidates: pd.DataFrame,
     treatment_candidates: pd.DataFrame,
@@ -548,15 +630,18 @@ def _member_world_mechanism(
         "model_points_pre", "market_points", "model_ensemble_size",
         "model_member_spec", "ensemble_point_0", "ensemble_point_1",
         "ensemble_point_2")
+    feature_structure_failed = False
     for name, frame in (("source", source_features),
                         ("treatment", treatment_features)):
         needed = {*keys, *invariant_columns}
         missing = needed - set(frame.columns)
         if missing:
             failures.append(f"{name} feature snapshot missing {sorted(missing)}")
+            feature_structure_failed = True
         elif frame.empty or frame.duplicated(keys).any():
             failures.append(f"{name} feature snapshot empty or duplicate")
-    if failures:
+            feature_structure_failed = True
+    if feature_structure_failed:
         return {}, failures
 
     source_levers = _lever_values(str(source_candidates.lever_env.iloc[0]))
@@ -641,6 +726,109 @@ def _member_world_mechanism(
             source_seed_rest == treatment_seed_rest,
         "invariant_feature_mismatch_rows": mismatch_rows,
         "candidate_and_support_change": pair_audit,
+        "source_candidate_mean_max_abs_error":
+            source_mean_audit["max_abs_error"],
+        "treatment_candidate_mean_max_abs_error":
+            treatment_mean_audit["max_abs_error"],
+    }
+    return report, failures
+
+
+def _candidate_budget_mechanism(
+    source_candidates: pd.DataFrame,
+    treatment_candidates: pd.DataFrame,
+    source_features: pd.DataFrame,
+    treatment_features: pd.DataFrame,
+    source_mean_audit: dict,
+    treatment_mean_audit: dict,
+    pair_audit: dict,
+) -> tuple[dict, list[str]]:
+    """Prove CAND_MULT=4 only expands the frozen-world candidate pool."""
+    failures: list[str] = []
+    source_levers = _lever_values(str(source_candidates.lever_env.iloc[0]))
+    treatment_levers = _lever_values(
+        str(treatment_candidates.lever_env.iloc[0]))
+    source_multiple = int(source_levers.pop("CAND_MULT", "2") or 0)
+    treatment_multiple = int(treatment_levers.pop("CAND_MULT", "2") or 0)
+    if source_multiple != 2:
+        failures.append("source does not identify default CAND_MULT=2")
+    if treatment_multiple != 4:
+        failures.append("treatment does not identify CAND_MULT=4")
+    if source_levers != treatment_levers:
+        failures.append("candidate-budget arm changes other replay levers")
+
+    keys = ["season", "week", "id"]
+    invariant_columns = (
+        "pos", "salary", "actual", "proj", "mean_projection",
+        "model_points_pre", "market_points", "model_ensemble_size",
+        "model_member_spec", "ensemble_point_0", "ensemble_point_1",
+        "ensemble_point_2")
+    feature_structure_failed = False
+    for name, frame in (("source", source_features),
+                        ("treatment", treatment_features)):
+        needed = {*keys, *invariant_columns}
+        missing = needed - set(frame.columns)
+        if missing:
+            failures.append(f"{name} feature snapshot missing {sorted(missing)}")
+            feature_structure_failed = True
+        elif frame.empty or frame.duplicated(keys).any():
+            failures.append(f"{name} feature snapshot empty or duplicate")
+            feature_structure_failed = True
+    if feature_structure_failed:
+        return {}, failures
+
+    joined = source_features.merge(
+        treatment_features, on=keys, how="outer",
+        suffixes=("_source", "_treatment"), indicator=True,
+        validate="one_to_one")
+    if not joined._merge.eq("both").all():
+        failures.append("source/treatment player universes differ")
+    joined = joined[joined._merge.eq("both")].copy()
+    mismatch_rows: dict[str, int] = {}
+    for col in invariant_columns:
+        source_col = joined[f"{col}_source"]
+        treatment_col = joined[f"{col}_treatment"]
+        null_mismatch = source_col.isna() != treatment_col.isna()
+        if pd.api.types.is_numeric_dtype(source_col):
+            value_mismatch = (
+                source_col - treatment_col).abs().fillna(0).gt(1e-8)
+        else:
+            value_mismatch = source_col.fillna("").ne(
+                treatment_col.fillna(""))
+        count = int((null_mismatch | value_mismatch).sum())
+        mismatch_rows[col] = count
+        if count:
+            failures.append(f"source/treatment {col} feature rows differ")
+
+    for name, audit in (("source", source_mean_audit),
+                        ("treatment", treatment_mean_audit)):
+        if (audit["duplicate_feature_keys"]
+                or audit["missing_roster_players"]
+                or audit["max_abs_error"] > 1e-3):
+            failures.append(f"{name} candidate/player mean parity failed")
+    if pair_audit.get("source_only_rows", 0):
+        failures.append("larger candidate request is not a source superset")
+    if pair_audit.get("treatment_only_rows", 0) <= 0:
+        failures.append("CAND_MULT=4 generated no additional candidates")
+    if pair_audit.get("treatment_only_lev_rows", 0) <= 0:
+        failures.append("CAND_MULT=4 generated no additional lev candidates")
+    if pair_audit.get("slates_with_more_candidates", 0) != 107:
+        failures.append("CAND_MULT=4 did not expand every slate")
+    for field in ("common_actual_mismatch", "common_p_line_mismatch",
+                  "common_sim_mean_mismatch", "common_support_mismatch"):
+        if pair_audit.get(field, 0):
+            failures.append(f"shared candidates differ in {field}")
+    if pair_audit.get("selected_source_only", 0) <= 0:
+        failures.append("CAND_MULT=4 did not remove any selected rosters")
+    if pair_audit.get("selected_treatment_only", 0) <= 0:
+        failures.append("CAND_MULT=4 did not add any selected rosters")
+
+    report = {
+        "source_candidate_multiple": source_multiple,
+        "treatment_candidate_multiple": treatment_multiple,
+        "other_levers_match": source_levers == treatment_levers,
+        "invariant_feature_mismatch_rows": mismatch_rows,
+        "candidate_superset": pair_audit,
         "source_candidate_mean_max_abs_error":
             source_mean_audit["max_abs_error"],
         "treatment_candidate_mean_max_abs_error":
@@ -753,12 +941,27 @@ def _salary_floor_mechanism(source: pd.DataFrame,
     return report, failures
 
 
+def _disposition(failures: list[str], tail_gate: dict,
+                 treatment_gate: dict, incumbent_gate: dict) -> str:
+    """Label the primary high-tail verdict before legacy 194 directions."""
+    if failures:
+        return "invalid"
+    if tail_gate.get("passes"):
+        return "high-tail-improves"
+    if treatment_gate.get("passes"):
+        return "remove-improves"
+    if incumbent_gate.get("passes"):
+        return "incumbent-supported"
+    return "unsupported-neutral"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("source", help="accepted/promoted same-image baseline")
     ap.add_argument("treatment", help="accepted staging ablation")
     ap.add_argument("--mechanism", choices=(
-        "blend", "ensemble", "salary", "member_world"))
+        "blend", "ensemble", "salary", "member_world",
+        "candidate_budget"))
     ap.add_argument("--entries-expected", type=int, default=40)
     ap.add_argument("--output")
     a = ap.parse_args()
@@ -817,14 +1020,16 @@ def main() -> int:
             _candidate_mean_audit(a.treatment, False),
             _member_world_pair_audit(a.source, a.treatment))
         failures.extend(mechanism_failures)
-    if failures:
-        disposition = "invalid"
-    elif treatment_gate.get("passes"):
-        disposition = "remove-improves"
-    elif incumbent_gate.get("passes"):
-        disposition = "incumbent-supported"
-    else:
-        disposition = "unsupported-neutral"
+    elif (a.mechanism == "candidate_budget"
+          and not source.empty and not treatment.empty):
+        mechanism_report, mechanism_failures = _candidate_budget_mechanism(
+            source, treatment,
+            _ensemble_features(a.source, True),
+            _ensemble_features(a.treatment, False),
+            _candidate_mean_audit(a.source, True),
+            _candidate_mean_audit(a.treatment, False),
+            _candidate_budget_pair_audit(a.source, a.treatment))
+        failures.extend(mechanism_failures)
     if tail_gate:
         tail_gate["clear_194_not_worse"] = int(
             (ts.selected_best >= 194).sum()) >= int(
@@ -837,6 +1042,8 @@ def main() -> int:
         tail_gate["mechanism_and_panel_valid"] = not failures
         tail_gate["passes"] = all(
             value for key, value in tail_gate.items() if key != "passes")
+    disposition = _disposition(
+        failures, tail_gate, treatment_gate, incumbent_gate)
     report = {
         "source": a.source,
         "treatment": a.treatment,

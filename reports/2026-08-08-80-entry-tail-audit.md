@@ -486,3 +486,37 @@ with unchanged `p_line` 0.0054 and mean 115.37, but treatment selected only
 195.08. The new copula therefore displaced available high winners through
 changed cross-lineup world overlap; it did not reveal a better extreme-tail
 belief.
+
+## Preregistered final historical confirmation: candidate multiple 4
+
+Raw candidate scaling remains low-prior evidence, but it is the one
+historically executable mechanism explicitly separated from the K=1 protocol
+before those outcomes were viewed. This final confirmation is frozen before
+launch:
+
+1. Reuse promoted same-image source `20260808-e80-msctl-d99b125` on generation
+   digest `sha256:458dd21d...` and code `d99b125`. It is the accepted averaged
+   K=3, true-80, 194-selection control.
+2. Treatment `20260808-e80-cm4-d99b125` uses the exact same generation image
+   and changes only `CAND_MULT=4` from the implicit default 2. Entries remain
+   80; `N_CE/N_EPISTEMIC/N_GUMBEL/N_BOOM` remain `0/0/0/40`; no ensemble,
+   blend, floor, world, seed, target-line, or generator-quota setting moves.
+3. The dose is a single natural doubling, not a sweep. Do not try 3, 5, 8, or
+   a different selection line after the result. The older one-season
+   `CAND_MULT=8/N_BOOM=150` 470-candidate null and the present 12-week pool
+   oracle make the prior deliberately low.
+4. Mechanism acceptance requires invariant player snapshots and seeds;
+   default 2 versus explicit 4 provenance; identical actual score,
+   probability, simulated mean, and support mask for every shared roster; the
+   source candidate set as a strict subset; more candidates on all 107
+   slates; extra leverage candidates; and actual selected-roster movement.
+5. Primary adoption remains >=200 aggregate lift of at least two weeks,
+   positive in at least four seasons and negative in no more than one.
+   Require non-worsening aggregate 194, 210, and pool-oracle 200, valid
+   mechanism/panel, and no more than a 2.0-point mean-weekly-max regression.
+   Report the full 187/194/200/210/220/230/240 grid.
+
+Because candidate scaling does not change RNG worlds or any upstream stage,
+the already accepted same-image control is valid and need not be rerun. A
+failed treatment closes raw candidate-budget scaling on this historical
+panel; future reopening requires new information or prospective outcomes.

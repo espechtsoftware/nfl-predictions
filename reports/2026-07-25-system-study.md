@@ -3490,3 +3490,23 @@ treatment pool oracle with unchanged marginal probability and mean but is not
 selected. Treatment has six consequential >=200 misses versus control's four;
 outcome-blind one-swap refinement recovers none. Full threshold and
 support-substitute evidence is in `reports/2026-08-08-80-entry-tail-audit.md`.
+
+## Addendum 113 (2026-08-08): candidate-budget doubling preregistered as the final historical confirmation
+
+Before launching or reading any treatment outcomes, one low-prior true-80
+candidate-scaling arm is frozen. Accepted same-image source
+`20260808-e80-msctl-d99b125` remains the control. Treatment
+`20260808-e80-cm4-d99b125` changes only `CAND_MULT=4` from default 2 on the
+same generation digest/code, retaining K=3, 194 selection, 80 entries,
+45/55 blend, $49k floor, possession mode, all seeds, and fixed `0/0/0/40`
+generator budgets.
+
+The mechanism gate requires a strict frozen-world candidate superset on every
+slate, extra leverage candidates, invariant shared-roster support/probability/
+mean/actual, identical feature snapshots/seeds, and changed selected rosters.
+The score gate remains >=2 additional 200+ weeks, >=4 positive and <=1
+negative seasons, with 194/210/oracle/mean safeguards. Dose 4 is a single
+natural doubling, not a sweep; failure closes raw budget scaling rather than
+authorizing 3/5/8 or another target line. The older 470-candidate null and the
+current unchanged 12-week pool oracle make this a final confirmation, not the
+leading hypothesis.

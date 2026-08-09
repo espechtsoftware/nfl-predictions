@@ -1,6 +1,6 @@
 #!/bin/bash
 # Compare an accepted/promoted source with a staging treatment in Cloud Run.
-# Usage: cloud_compare_adoption_panel.sh <IMAGE@sha256:...> <SOURCE> <TREATMENT> [blend|ensemble|salary|member_world] [N_ENTRIES]
+# Usage: cloud_compare_adoption_panel.sh <IMAGE@sha256:...> <SOURCE> <TREATMENT> [blend|ensemble|salary|member_world|candidate_budget] [N_ENTRIES]
 set -euo pipefail
 
 IMG=${1:-}
@@ -17,8 +17,8 @@ case "$IMG" in *@sha256:*) ;; *) echo "ABORT: immutable image required"; exit 2;
 case "$SOURCE" in ""|*[!A-Za-z0-9_-]*) echo "ABORT: invalid source panel"; exit 2;; esac
 case "$TREATMENT" in ""|*[!A-Za-z0-9_-]*) echo "ABORT: invalid treatment panel"; exit 2;; esac
 case "$MECHANISM" in
-  ""|blend|ensemble|salary|member_world) ;;
-  *) echo "ABORT: mechanism is blend, ensemble, salary, or member_world"; exit 2;;
+  ""|blend|ensemble|salary|member_world|candidate_budget) ;;
+  *) echo "ABORT: unsupported mechanism"; exit 2;;
 esac
 case "$N_ENTRIES" in ""|*[!0-9]*) echo "ABORT: invalid entry count"; exit 2;; esac
 [ "$N_ENTRIES" -ge 1 ] && [ "$N_ENTRIES" -le 150 ] || {

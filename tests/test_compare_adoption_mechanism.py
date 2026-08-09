@@ -125,6 +125,38 @@ def _member_world_pair_report() -> dict:
     }
 
 
+def _candidate_budget_candidates(multiple: int) -> pd.DataFrame:
+    lever = "GAME_SIM_MODE=possession,N_BOOM=40,N_CE=0"
+    if multiple != 2:
+        lever = f"CAND_MULT={multiple}," + lever
+    return pd.DataFrame([{
+        "lever_env": lever,
+        "seeds": _ensemble_seeds(3),
+    }])
+
+
+def _candidate_budget_pair_report() -> dict:
+    return {
+        "source_rows": 10,
+        "treatment_rows": 15,
+        "common_rows": 10,
+        "source_only_rows": 0,
+        "treatment_only_rows": 5,
+        "treatment_only_lev_rows": 5,
+        "treatment_only_nonlev_rows": 0,
+        "common_actual_mismatch": 0,
+        "common_p_line_mismatch": 0,
+        "common_sim_mean_mismatch": 0,
+        "common_support_mismatch": 0,
+        "selected_shared": 7,
+        "selected_source_only": 3,
+        "selected_treatment_only": 3,
+        "slates_with_more_candidates": 107,
+        "min_extra_candidates_per_slate": 3,
+        "max_extra_candidates_per_slate": 7,
+    }
+
+
 def test_blend_mechanism_proves_only_weight_changed():
     report, failures = compare._blend_mechanism(
         _features(False), _features(True), _audit(), _audit(),
@@ -234,6 +266,42 @@ def test_member_world_mechanism_rejects_marginal_or_seed_drift():
         _audit(), _audit(), _member_world_pair_report())
     assert "source/treatment non-member-world seeds differ" in failures
     assert "source/treatment mean_projection feature rows differ" in failures
+
+
+def test_candidate_budget_mechanism_proves_strict_superset():
+    report, failures = compare._candidate_budget_mechanism(
+        _candidate_budget_candidates(2), _candidate_budget_candidates(4),
+        _ensemble_features(3), _ensemble_features(3),
+        _audit(), _audit(), _candidate_budget_pair_report())
+    assert failures == []
+    assert report["source_candidate_multiple"] == 2
+    assert report["treatment_candidate_multiple"] == 4
+    assert report["other_levers_match"] is True
+    assert report["candidate_superset"]["treatment_only_rows"] == 5
+
+
+def test_candidate_budget_mechanism_rejects_drift_or_inert_pool():
+    treatment = _candidate_budget_candidates(4)
+    treatment.loc[0, "lever_env"] += ",N_BOOM=41"
+    pair = _candidate_budget_pair_report()
+    pair["source_only_rows"] = 1
+    pair["selected_treatment_only"] = 0
+    _, failures = compare._candidate_budget_mechanism(
+        _candidate_budget_candidates(2), treatment,
+        _ensemble_features(3), _ensemble_features(3),
+        _audit(), _audit(), pair)
+    assert "candidate-budget arm changes other replay levers" in failures
+    assert "larger candidate request is not a source superset" in failures
+    assert "CAND_MULT=4 did not add any selected rosters" in failures
+
+
+def test_primary_high_tail_disposition_precedes_legacy_gate():
+    assert compare._disposition(
+        [], {"passes": True}, {"passes": False}, {"passes": False}
+    ) == "high-tail-improves"
+    assert compare._disposition(
+        ["bad mechanism"], {"passes": True}, {"passes": True},
+        {"passes": True}) == "invalid"
 
 
 def test_salary_floor_mechanism_proves_deletion_fired():
