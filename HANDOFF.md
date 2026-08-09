@@ -98,6 +98,17 @@ agent or developer:
   two-null-row regression. The retry must use a distinct run directory/ID.
   Failure provenance is tracked under
   `reports/ownership-runs/20260809-milly-k1-c616390/`.
+- Null-name repair build `1e5f3245-30ec-4637-b42d-85fa90add577` passed 695
+  tests with 2 skipped and produced immutable digest
+  `sha256:3929447c0dfb376dc70847a1d4d6291333a42b8d4c96fe8f66b4c25abf0be17a`.
+  Distinct retry `evaluate-milly-ownership-kb9fl` failed closed before model
+  training or a scientific verdict on the next genuine identity ambiguity:
+  separate Ryan Griffin players at different native positions share a name.
+  The join key now includes native position plus normalized name, which is
+  present on both truth and snapshots and is not a model feature. All eight
+  focused tests pass. Preserve the v2 failure directory and use a distinct v3
+  retry after full validation; do not reinterpret either failure as evidence
+  for or against ownership modeling.
 
 ### Recovery provenance
 

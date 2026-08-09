@@ -1,0 +1,6 @@
+Execution evaluate-milly-ownership-kb9fl failed before model training or any
+scientific verdict. The null-name repair fired correctly, then exposed a true
+same-name ambiguity: two distinct players named Ryan Griffin at different
+native positions coexist in multiple accepted snapshots. The deterministic
+join identity must include native position plus normalized name. No
+preregistered feature, model setting, fold, comparator, or gate was changed.

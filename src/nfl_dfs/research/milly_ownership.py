@@ -62,7 +62,7 @@ def ownership_join_key(name: object, position: object,
         normalized = re.sub(r"(?:DST|DEFENSE)$", "", normalized)
         code = _DST_NICKNAME_TO_TEAM.get(normalized, normalized)
         return "DST_" + code
-    return "PLAYER_" + normalize_name(name)
+    return f"PLAYER_{pos}_" + normalize_name(name)
 
 
 def parse_field_size(contest_name: object) -> int:
@@ -123,7 +123,7 @@ def join_milly_truth(features: pd.DataFrame, ownership: pd.DataFrame,
         ownership_join_key(name, pos)
         for name, pos in zip(truth.display_name, truth.position)
     ]
-    if truth.join_key.isin({"PLAYER_", "DST_"}).any():
+    if truth.join_key.str.endswith("_").any():
         raise ValueError("ownership truth contains an empty player name")
     feat = features.copy()
     feat["position"] = feat.pos.astype(str).str.upper().replace({"D/ST": "DST"})
@@ -135,7 +135,7 @@ def join_milly_truth(features: pd.DataFrame, ownership: pd.DataFrame,
     # display-name lookup is null. They remain in the full slate for naive
     # normalization but cannot be joined to settled ownership. Give each an
     # explicit nonmatching key instead of collapsing all nulls to PLAYER_NAN.
-    empty_feature_key = feat.join_key.isin({"PLAYER_", "DST_"})
+    empty_feature_key = feat.join_key.str.endswith("_")
     feat.loc[empty_feature_key, "join_key"] = (
         "UNMATCHED_ID_" + feat.loc[empty_feature_key, "id"].astype(str))
     keys = ["season", "week", "join_key"]

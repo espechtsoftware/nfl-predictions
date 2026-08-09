@@ -36,7 +36,7 @@ def test_name_normalization_and_dst_aliases():
     assert normalize_name("Brian Robinson Jr.") == "BRIANROBINSON"
     assert ownership_join_key("Commanders", "DST") == "DST_WAS"
     assert ownership_join_key("anything", "DST", "LAC") == "DST_LAC"
-    assert ownership_join_key("D.J. Moore", "WR") == "PLAYER_DJMOORE"
+    assert ownership_join_key("D.J. Moore", "WR") == "PLAYER_WR_DJMOORE"
 
 
 def test_main_milly_selector_excludes_alternate_and_chooses_largest_field():
