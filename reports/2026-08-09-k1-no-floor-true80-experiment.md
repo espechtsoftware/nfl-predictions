@@ -68,9 +68,10 @@ Before interpreting scores, require:
    portfolio. Report candidate and selected salary distributions and roster
    overlap.
 4. Candidate artifacts, realized scores, and player-mean joins are complete
-   within the established tolerance. The generic baseline acceptance may
-   reject the intentional treatment floor; any other completeness or
-   provenance failure invalidates the arm.
+   within the established tolerance. Code review after launch confirmed that
+   generic acceptance enforces the salary cap and roster reconstruction but
+   does not require the default minimum salary, so it is expected to pass.
+   Any acceptance failure invalidates the arm.
 
 Never promote this treatment panel directly.
 
