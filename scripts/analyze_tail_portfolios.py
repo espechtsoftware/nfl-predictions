@@ -302,21 +302,25 @@ def main() -> int:
         high = high_unselected_candidates(
             candidates, membership, threshold=200.0)
         columns = [
-            "season", "week", "cand_ix", "actual_score", "tag", "salary",
+            "season", "week", "cand_ix", "actual_score", "selected_best",
+            "weekly_max_gain", "adds_200_week", "tag", "salary",
             "p_line", "p_line_rank", "sim_mean", "sim_mean_rank",
             "sim_q99", "sim_q99_rank", "players",
         ]
         if high.empty:
             print("  none")
         else:
+            high = high.merge(
+                slate_rows[["season", "week", "selected_best"]],
+                on=["season", "week"], validate="many_to_one")
+            high["weekly_max_gain"] = (
+                high.actual_score - high.selected_best)
+            high["adds_200_week"] = high.selected_best < 200.0
             if args.top_unselected:
                 print(high[columns].head(args.top_unselected).to_string(
                     index=False, float_format=lambda x: f"{x:.3f}"))
             print(f"unselected >=200 candidates: {len(high)} across "
                   f"{high.groupby(['season', 'week']).ngroups} slates")
-            high = high.merge(
-                slate_rows[["season", "week", "selected_best"]],
-                on=["season", "week"], validate="many_to_one")
             high["consequential"] = high.selected_best < 200.0
             print("by generator (candidates / slates / consequential):")
             by_tag = high.groupby("tag").apply(

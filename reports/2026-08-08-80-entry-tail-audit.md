@@ -394,6 +394,11 @@ are consequential. An unselected 224.54, for example, is not evidence of a
 lost threshold week when that week's submitted book already contains a still
 higher winner.
 
+The high-candidate table now prints that comparison on every row:
+`selected_best`, signed `weekly_max_gain`, and `adds_200_week`. This prevents
+a visually striking but dominated score—such as the unselected 224.54 behind
+the selected 265.44—from being mistaken for a portfolio failure.
+
 Looking beyond thresholds, the selected book contains the exact weekly pool
 maximum in 74 of 107 slates and omits it in 33. Among those 33, median regret
 is 6.36 points and maximum regret is 35.52; across all 107 the mean regret is

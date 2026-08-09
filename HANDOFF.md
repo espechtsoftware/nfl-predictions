@@ -436,6 +436,9 @@ afterward. The lineup analyzer remains logged in `README.md`.
   14-15 >=200, but remain positive in only three seasons and negative in two
   versus K=3. No selector change is supported. New reusable ranked/hybrid
   diagnostics pass all nine focused tests; details are in the 80-entry audit.
+  The high-unselected table now includes selected weekly best, signed gain,
+  and whether the candidate actually adds a 200+ week, so dominated raw
+  scores cannot be misread as missed winners.
 - Exact weekly pool maxima are selected on 74/107 slates and omitted on 33;
   omitted-oracle median regret is 6.36 and max regret 35.52, while all-slate
   mean regret is 2.72. Only five omitted maxima reach 200: the four threshold
