@@ -3596,3 +3596,24 @@ The new diagnostic layer passed full Cloud Build
 `b24be18a-13c8-4912-b324-04d872981ebe` with 643 tests passed and 2 skipped,
 producing immutable digest
 `sha256:805a7c1e4e8bfdcf088bc0c4a169ef31196a9a35f88e68c58f24a9bbe91ce5f0`.
+
+## Addendum 115 (2026-08-09): learned conditional templates improve average dependence but fail the joint-tail gate
+
+The missed-winner review motivated one new upstream mechanism rather than
+another selector sweep: an MMD-style random-feature forest learned
+walk-forward weights over fixed-role historical game templates, then imposed
+their ranks on the unchanged production marginals. The complete algorithm,
+seed, dimensions, 2023-2025 seasons, and two-metric gate were frozen before
+any diagnostic result. Cloud Build `107a8e47-1a31-4dc6-a7b8-5d95562bdb60`
+passed 650 tests (2 skipped); immutable digest is
+`sha256:12cdf18151af051ac766e302514cceaf34c3d9cf320d13bd1467ed8e88e96978`.
+
+All three dependence-only executions completed cleanly with exact marginal
+multisets and complete role pairs. The forest improved variogram error in
+2023, 2024, and 2025, moving the pair-weighted aggregate
+**0.168911→0.165064**. It did not improve the metric most directly tied to
+simultaneous high scores: joint-q90 tail Brier worsened slightly
+**0.017582→0.017635**, with both metrics improving only in 2023. The frozen
+gate therefore fails. The mechanism is active and scientifically valid, but
+does not proceed to candidate-oracle or scoring stages. Its hyperparameters,
+roles, features, and seasons will not be tuned on this result.

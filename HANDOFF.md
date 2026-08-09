@@ -480,8 +480,8 @@ afterward. The lineup analyzer remains logged in `README.md`.
   `9a33319b-db99-4f4d-95ae-58016db7382f` (643 passed, 2 skipped), producing
   immutable audit digest
   `sha256:21489a693a72cb533551e9603db60b53af2fe3e8867fd788e6cac96a304cac59`.
-- A future dependence mechanism is now logged in the 80-entry audit, but is
-  not launched: learn walk-forward conditional weights over fixed-role
+- A conditional dependence mechanism was logged and frozen in the 80-entry
+  audit before launch: learn walk-forward conditional weights over fixed-role
   historical game-residual templates with an MMD-style random-feature forest,
   then rank-reorder the current calibrated marginals. Off-by-default
   implementation uses `SCHAAKE_TEMPLATE_MODE=forest`; focused tests cover
@@ -499,8 +499,7 @@ afterward. The lineup analyzer remains logged in `README.md`.
   `scripts/compare_dependence_panel.py` applies the machine-readable weighted
   aggregate/stability gate. `scripts/cloud_finish_dependence_panel.sh`
   requires three clean immutable executions and verifies each diagnostic-only
-  exit before recording either a positive or negative scientific result. No
-  forest season execution has been launched yet.
+  exit before recording either a positive or negative scientific result.
 - Conditional-dependence Cloud Build
   `107a8e47-1a31-4dc6-a7b8-5d95562bdb60` passed 650 tests (2 skipped) from
   mechanism commit `3dbebb2` and produced immutable digest
@@ -512,6 +511,13 @@ afterward. The lineup analyzer remains logged in `README.md`.
   `20260809-forest-dep-3dbebb2` launched 2023/2024/2025 executions
   `dependence-forest-2023-hrh2x`, `dependence-forest-2024-zvrz9`, and
   `dependence-forest-2025-srdqt`. The exact manifest is tracked under
-  `reports/dependence-runs/20260809-forest-dep-3dbebb2/`. Wait for all three
-  clean successes, then run `scripts/cloud_finish_dependence_panel.sh`; do not
-  combine or interpret partial reports.
+  `reports/dependence-runs/20260809-forest-dep-3dbebb2/`.
+- All three dependence executions completed cleanly and emitted the required
+  diagnostic-only exit. The forest improved role-pair variogram error in all
+  three seasons and aggregate **0.168911→0.165064**, but worsened joint-q90
+  tail Brier aggregate **0.017582→0.017635**; only 2023 improved both metrics.
+  Machine disposition is `dependence-gate-fails`. The mechanism is valid and
+  active (2,304/2,576/2,848 templates; mean effective weights about
+  229/239/238) but does not proceed to candidates or scoring. Do not tune its
+  seed, forest size, leaf size, RFF dimension, roles, features, or seasons on
+  this result.

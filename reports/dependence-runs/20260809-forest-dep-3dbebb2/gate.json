@@ -1,0 +1,59 @@
+{
+  "aggregate": {
+    "forest_tail_brier": 0.017634751773151474,
+    "forest_variogram": 0.16506369475580818,
+    "n_pairs": 4179,
+    "production_tail_brier": 0.017581604948552286,
+    "production_variogram": 0.16891111083552127
+  },
+  "checks": {
+    "aggregate_tail_brier_better": false,
+    "aggregate_variogram_better": true,
+    "both_better_in_at_least_2_seasons": false,
+    "no_season_worsens_both": true,
+    "passes": false,
+    "reports_valid": true
+  },
+  "disposition": "dependence-gate-fails",
+  "seasons": [
+    {
+      "both_better": true,
+      "both_worse": false,
+      "forest_tail_brier": 0.0167976131,
+      "forest_variogram": 0.16275155155957083,
+      "n_pairs": 1400,
+      "production_tail_brier": 0.016817520514285714,
+      "production_variogram": 0.16843324681254299,
+      "season": 2023,
+      "tail_brier_better": true,
+      "valid": true,
+      "variogram_better": true
+    },
+    {
+      "both_better": false,
+      "both_worse": false,
+      "forest_tail_brier": 0.021055052526920318,
+      "forest_variogram": 0.16499274678252815,
+      "n_pairs": 1393,
+      "production_tail_brier": 0.02103752,
+      "production_variogram": 0.16878008320068844,
+      "season": 2024,
+      "tail_brier_better": false,
+      "valid": true,
+      "variogram_better": true
+    },
+    {
+      "both_better": false,
+      "both_worse": false,
+      "forest_tail_brier": 0.015042771392496395,
+      "forest_variogram": 0.1674704992302031,
+      "n_pairs": 1386,
+      "production_tail_brier": 0.01488003823953824,
+      "production_variogram": 0.1695254911583869,
+      "season": 2025,
+      "tail_brier_better": false,
+      "valid": true,
+      "variogram_better": true
+    }
+  ]
+}

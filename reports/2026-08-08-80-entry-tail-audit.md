@@ -675,7 +675,7 @@ that ceiling infeasible and before any scores were inspected. Their exact
 partial staging rows were deleted before this clean 21,600-second relaunch;
 all scientific inputs and compute resources remain identical.
 
-## Prospective dependence lead: learned historical-template weights
+## Conditional dependence arm: learned historical-template weights
 
 The missed-winner and primary-literature review identifies one mechanism
 worth preserving for a future, separately gated experiment. A distributional
@@ -684,8 +684,8 @@ residual vectors. Sampling templates from those weights and applying their
 rank permutations to the existing calibrated player marginals would extend
 the failed fixed-distance Schaake shuffle without changing those marginals.
 The relevant predictors are point-in-time game total/spread, pace and neutral
-pass rate, plus role-level projection, salary, and usage concentration. This
-is a research lead, not an adopted or launched arm.
+pass rate, plus role-level projection, salary, and usage concentration. It was
+implemented only after freezing the dependence-only protocol below.
 
 Any implementation must use a fixed role vector and strictly walk-forward
 templates. Before candidate generation or realized lineup scores are read,
@@ -753,3 +753,29 @@ executions `dependence-forest-2023-hrh2x`,
 `dependence-forest-2024-zvrz9`, and `dependence-forest-2025-srdqt`. Their
 manifest is tracked under `reports/dependence-runs/`; do not read or combine
 partial reports before all three executions succeed.
+
+### Dependence result: better variogram, failed tail calibration
+
+All three immutable executions completed cleanly, preserved every player's
+draw multiset exactly, covered all registered role pairs, and emitted the
+diagnostic-only exit before candidate generation. Conditional weights were
+material rather than uniform: the 2023/2024/2025 fits used
+2,304/2,576/2,848 prior-season templates but averaged only
+228.7/239.2/237.7 effective templates per current game; maximum individual
+template weight was 2.39%/2.29%/2.23%.
+
+| season | pairs | production variogram | forest variogram | production joint-q90 Brier | forest joint-q90 Brier | both improve? |
+|---|---:|---:|---:|---:|---:|---|
+| 2023 | 1,400 | 0.168433 | **0.162752** | 0.016818 | **0.016798** | yes |
+| 2024 | 1,393 | 0.168780 | **0.164993** | **0.021038** | 0.021055 | no |
+| 2025 | 1,386 | 0.169525 | **0.167470** | **0.014880** | 0.015043 | no |
+| weighted aggregate | 4,179 | 0.168911 | **0.165064** | **0.017582** | 0.017635 | no |
+
+The learned conditional templates improve the variogram in every season, so
+they capture some average dependence structure better than production. But
+the operator's high-score objective needs correct joint upper tails, and the
+forest slightly worsens that Brier score overall and in two of three seasons.
+It therefore fails the two-metric aggregate and season-stability conditions;
+machine disposition is **`dependence-gate-fails`**. Per protocol there is no
+candidate-oracle or selected-score run. Do not tune the seed, forest size,
+minimum leaf, RFF dimension, roles, feature set, or seasons on these results.
