@@ -3542,6 +3542,13 @@ weeks at 200 and 8 at 210, and 60 coverage plus 20 mean-ranked entries reaches
 in two versus K=3. The aggregate gain is still concentrated in the same
 seasons that caused K=1 to fail its frozen stability law.
 
+On paired weeks, preregistered K=1 coverage gains seven 200+ outcomes and
+loses three against K=3 (one-sided exact sign-test `p=0.172`). The post-result
+top-p-line book gains eleven and loses four (`p=0.059` uncorrected), but that
+book was found among multiple selector sensitivities. The latter may be
+frozen as a future prospective shadow; it cannot retroactively weaken the
+historical stability gate.
+
 No selector change is adopted. The two moderately ranked misses can be found
 by marginal ranking only by surrendering other high weeks; the remaining
 2019-week-9 and 2021-week-11 winners are deeply buried by every persisted

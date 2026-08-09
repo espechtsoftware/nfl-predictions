@@ -420,6 +420,14 @@ positive in only three seasons and negative in two—the exact stability defect
 that rejected ordinary K=1. Large aggregate gains are concentrated in 2019,
 2022, and 2025 rather than replicated across the panel.
 
+The paired-week counts do not supply a statistical reason to relax the
+stability law. Preregistered K=1 coverage gains seven 200+ weeks and loses
+three versus K=3; a one-sided exact paired sign test gives `p=0.172`. The
+post-result top-p-line sensitivity gains eleven and loses four (`p=0.059`
+without any multiplicity correction), but it was discovered among several
+ranked and hybrid books. That near-threshold descriptive result is a valid
+prospective-shadow lead, not confirmatory historical evidence.
+
 The resulting diagnosis is narrower and stronger: ordinary marginal ranking
 can find the two moderately ranked misses, but sacrifices other winning
 weeks; neither coverage nor ranking can find the 2019-week-9 and

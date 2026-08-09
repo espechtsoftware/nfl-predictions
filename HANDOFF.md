@@ -436,6 +436,12 @@ afterward. The lineup analyzer remains logged in `README.md`.
   14-15 >=200, but remain positive in only three seasons and negative in two
   versus K=3. No selector change is supported. New reusable ranked/hybrid
   diagnostics pass all nine focused tests; details are in the 80-entry audit.
+- Paired-week evidence also supports retaining the frozen stability law.
+  Preregistered K=1 coverage has seven gained versus three lost 200+ weeks
+  against K=3 (one-sided exact paired `p=0.172`). Post-result top-p-line has
+  eleven gained versus four lost (`p=0.059` uncorrected), but was selected
+  from several sensitivities. Treat it only as a prospective shadow lead, not
+  as permission to relax the historical gate or play it as the incumbent.
 - The four consequential K=3 missed oracles are not obvious contrarian
   lottery tickets. Their naive pre-lock ownership-product ranks are at the
   78.8th-95.0th percentiles of the selected books, and all are more popular
