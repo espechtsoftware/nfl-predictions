@@ -497,4 +497,7 @@ afterward. The lineup analyzer remains logged in `README.md`.
   scoring paths. `scripts/cloud_dependence_panel.sh` launches only the frozen
   2023-2025 reports after an immutable-image smoke, and
   `scripts/compare_dependence_panel.py` applies the machine-readable weighted
-  aggregate/stability gate. No forest season execution has been launched yet.
+  aggregate/stability gate. `scripts/cloud_finish_dependence_panel.sh`
+  requires three clean immutable executions and verifies each diagnostic-only
+  exit before recording either a positive or negative scientific result. No
+  forest season execution has been launched yet.

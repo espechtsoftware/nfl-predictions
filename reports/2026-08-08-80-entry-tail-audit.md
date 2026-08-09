@@ -709,4 +709,7 @@ these jobs cannot silently continue into candidates or selected-lineup
 scores. `scripts/compare_dependence_panel.py` applies the frozen weighted and
 season-stability law to exactly three harvested reports. The dedicated Cloud
 launcher first exercises an immutable-image smoke, records exact execution
-IDs, and pins every diagnostic job to the same digest.
+IDs, and pins every diagnostic job to the same digest. The finish wrapper
+requires three clean executions, harvests each report by immutable execution
+ID, verifies the diagnostic-only exit marker, and persists the gate result
+even when the scientific disposition is negative.
