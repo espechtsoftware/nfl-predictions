@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 17:24 CDT
+## Current state — 2026-08-09 17:44 CDT
 
 ### Autonomous scoring research resumed after context recovery
 
@@ -207,6 +207,24 @@ agent or developer:
   finalizing. Exact next action: wait for `replay-e80k1ceu-2025-zjw6k` to
   report success, then run the union comparator. Launch fixed CE replacement
   only if its tracked binary union gate passes.
+- All six CE union executions ultimately reported success. Comparator v1
+  `compare-k1-ce-panel-kkkzh` failed closed with one reported mechanism issue:
+  2,229/50,098 feature payloads were not bit-exact. A column-level audit shows
+  zero row/identity/config/actual differences and zero numeric differences
+  above `1e-12`; the maximum is `3.552713678800501e-15`. All 25,787 source
+  candidates have exact shared actual/p-line/sim-mean/support values; union
+  adds 12 candidates on every slate and 1,284 novel CE rosters. V1 is
+  preserved under the union panel directory and remains mechanically invalid.
+- V1's provisional tail result is highly favorable but not yet a gate pass:
+  selected 187/194/200/210/220/230/240 moves `36/22/12/6/3/1/1` to
+  `39/26/16/11/5/2/1`; pool oracle moves `44/30/19/9/3/1/1` to
+  `47/33/22/13/5/2/1`. The comparator repair keeps bit-exact mismatches as a
+  diagnostic, uses `1e-12` only for numeric materiality, and still requires
+  every nonnumeric field exactly equal. The gate, CE seed/dose, and thresholds
+  are unchanged. Eleven focused comparator/panel tests and the live corrected
+  query pass; shell parsing and whitespace checks pass. Exact next action:
+  commit/push, full Cloud Build, run labeled union v2, and launch the frozen
+  fixed replacement only if `ce_comparison_v2.json` passes.
 
 ### Recovery provenance
 

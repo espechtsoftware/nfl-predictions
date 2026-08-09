@@ -64,7 +64,7 @@ fi
 
 # Fixed replacement may use union outcomes only through this frozen binary
 # gate.  It must never be launched because a human eyeballed partial logs.
-UNION_REPORT="$ROOT/reports/panel-runs/$UNION/ce_comparison.json"
+UNION_REPORT="$ROOT/reports/panel-runs/$UNION/ce_comparison_v2.json"
 [ -s "$UNION_REPORT" ] || {
   echo "ABORT: union comparison is absent: $UNION_REPORT"; exit 2; }
 "$ROOT/.venv/bin/python" - "$UNION_REPORT" <<'PY'

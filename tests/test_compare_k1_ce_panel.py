@@ -27,7 +27,9 @@ def _feature_audit() -> dict:
         "treatment_rows": 100,
         "source_only_rows": 0,
         "treatment_only_rows": 0,
+        "bit_exact_mismatch_rows": 12,
         "mismatch_rows": 0,
+        "max_numeric_abs_delta": 3.6e-15,
     }
 
 

@@ -1,7 +1,7 @@
 # K=1 cross-entropy true-80 experiment
 
-Status: preregistered before querying any new CE candidate or portfolio
-outcome on the corrected Sunday-main universe.
+Status: union panel complete; first comparator failed closed on sub-ULP
+serialization drift and a tolerance-corrected mechanical retry is pending.
 
 ## Why this arm is still eligible
 
@@ -62,3 +62,24 @@ Season signs and mean weekly maximum are diagnostics under the operator's
 tail-first utility, not automatic vetoes. A failure closes this exact CE arm.
 Do not tune a CE dose or seed on these 107 outcomes.
 
+## Union comparator correction ledger
+
+All six union executions completed successfully. Comparator v1 execution
+`compare-k1-ce-panel-kkkzh` marked the union invalid solely because its
+bit-exact JSON payload comparison counted 2,229 player rows as different.
+Column-level diagnosis found zero identity, config, actual-score, row-set, or
+material feature differences. All numeric deltas are at most
+`3.552713678800501e-15`; zero exceed `1e-12`. All 25,787 source candidates
+are retained, all shared actual scores, simulated means, p-line values, and
+support masks match, and CE adds exactly 12 candidates to every slate (1,284
+novel CE rosters after cross-generator deduplication).
+
+The v1 metrics are promising but remain provisional while its mechanical gate
+is invalid: selected 187/194/200/210/220/230/240 moves
+`36/22/12/6/3/1/1` to `39/26/16/11/5/2/1`, while pool oracle moves
+`44/30/19/9/3/1/1` to `47/33/22/13/5/2/1`. No gate or generation setting is
+changed in response. Comparator v2 retains the bit-exact mismatch count as a
+diagnostic and separately fails only numeric differences above `1e-12` or
+any exact nonnumeric difference. Preserve v1 and run a labeled v2 retry on a
+new fully validated reporting image. The fixed replacement remains blocked
+until tracked `ce_comparison_v2.json` passes the original union gate.
