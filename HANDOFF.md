@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 10:18 CDT
+## Current state — 2026-08-09 10:21 CDT
 
 ### Recovery provenance
 
@@ -515,6 +515,16 @@ The paired comparator's canonical metrics now emit selected and pool-oracle
 counts across the complete 187/194/200/210/220/230/240 grid; its eight focused
 tests and Python compilation pass locally. Validate that reporting change in
 Cloud Build before running the final comparator.
+Immutable 2022 preflight `replay-e80k1mo-smoke-jswhj` passed and verified the
+model-only lever at runtime. The six season executions are now running from
+the frozen generation digest: `replay-e80k1mo-2019-hcxpf`,
+`replay-e80k1mo-2021-6s8rw`, `replay-e80k1mo-2022-n5f6s`,
+`replay-e80k1mo-2023-n4h4g`, `replay-e80k1mo-2024-qtbq2`, and
+`replay-e80k1mo-2025-prbcr`. Reporting build
+`95911a3d-8925-4859-bee4-afa5bb69ad8c` is queued from source commit `8c67945`.
+Wait for six clean successes and a green reporting build, then run check-only
+acceptance and the 80-entry `blend` comparator before querying or interpreting
+the full score grid.
 Keep all seven research schedules paused until the tracked August 24
 season-start runbook. Do not execute either source shadow or freezer before
 DK posts the matching regular-season Sunday main slate. Never mutate the
