@@ -3511,6 +3511,15 @@ authorizing 3/5/8 or another target line. The older 470-candidate null and the
 current unchanged 12-week pool oracle make this a final confirmation, not the
 leading hypothesis.
 
+Operational amendment before outcomes: preflight passed, but observed
+14-16-minute first-slate throughput made the runner's inherited three-hour
+timeout mechanically insufficient for a full season. The six first season
+executions were cancelled before score inspection, and 1,610 partial
+candidate plus 2,406 feature rows were transactionally deleted. The same
+panel was relaunched on the same immutable image, four CPUs, 16 GiB, seeds,
+args, and `CAND_MULT=4`, changing only task timeout to six hours. Immutable
+current and superseded execution IDs are tracked in the panel manifest.
+
 ## Addendum 114 (2026-08-09): ranked hedges do not repair the missed high scores
 
 The accepted K=3 true-80 book has 16 unselected candidate rows scoring at
@@ -3539,3 +3548,17 @@ by marginal ranking only by surrendering other high weeks; the remaining
 pre-lock rank and require new information or better beliefs. Reusable
 `--ranked-diagnostics` tooling and nine focused tests are now tracked; full
 evidence remains in `reports/2026-08-08-80-entry-tail-audit.md`.
+
+The missed winners also fail a simple contrarian-shape explanation. Their
+naive pre-lock ownership products sit at the 78.8th-95.0th percentiles of the
+80 selected entries on those slates, and each is more popular by proxy than
+the selected-best lineup. They span five or six games with no more than four
+players from one game. Because historical full classic fields are absent,
+this cannot establish actual duplication or payout; it does establish that
+the misses are not obviously low-owned, uniquely structured entries worth
+forcing into the book.
+
+The new diagnostic layer passed full Cloud Build
+`b24be18a-13c8-4912-b324-04d872981ebe` with 643 tests passed and 2 skipped,
+producing immutable digest
+`sha256:805a7c1e4e8bfdcf088bc0c4a169ef31196a9a35f88e68c58f24a9bbe91ce5f0`.

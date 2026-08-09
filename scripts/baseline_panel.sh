@@ -20,6 +20,7 @@ CODE_SHA=${PANEL_CODE_SHA:-}
 ARM_LABEL=${PANEL_ARM_LABEL:-baseline}
 ARM_ENV=${PANEL_ARM_ENV:-}
 PANEL_MEMORY=${PANEL_MEMORY:-16Gi}
+PANEL_TASK_TIMEOUT=${PANEL_TASK_TIMEOUT:-10800}
 PANEL_SMOKE_SEASON=${PANEL_SMOKE_SEASON:-2022}
 PANEL_N_CE=${PANEL_N_CE:-0}
 PANEL_N_EPISTEMIC=${PANEL_N_EPISTEMIC:-0}
@@ -74,9 +75,17 @@ EXISTING=$(bq query --project_id="$PROJECT" --use_legacy_sql=false \
 [ "${EXISTING:-0}" = "0" ] || {
   echo "ABORT: panel id already has $EXISTING staging rows"; exit 2; }
 
-printf 'image=%s\nfamily=%s\npanel_run_id=%s\ncode_sha=%s\nseasons=%s\narm_label=%s\narm_env=%s\nmemory=%s\nsmoke_season=%s\nn_entries=%s\nn_ce=%s\nn_epistemic=%s\nn_gumbel=%s\nn_boom=%s\n' \
+case "$PANEL_TASK_TIMEOUT" in
+  ""|*[!0-9]*)
+    echo "ABORT: PANEL_TASK_TIMEOUT must be an integer number of seconds"; exit 2 ;;
+esac
+[ "$PANEL_TASK_TIMEOUT" -ge 300 ] || {
+  echo "ABORT: PANEL_TASK_TIMEOUT must be at least 300 seconds"; exit 2; }
+
+printf 'image=%s\nfamily=%s\npanel_run_id=%s\ncode_sha=%s\nseasons=%s\narm_label=%s\narm_env=%s\nmemory=%s\ntask_timeout=%s\nsmoke_season=%s\nn_entries=%s\nn_ce=%s\nn_epistemic=%s\nn_gumbel=%s\nn_boom=%s\n' \
   "$IMG" "$FAM" "$PANEL_RUN_ID" "$CODE_SHA" "$SEASONS" \
-  "$ARM_LABEL" "$ARM_ENV" "$PANEL_MEMORY" "$PANEL_SMOKE_SEASON" \
+  "$ARM_LABEL" "$ARM_ENV" "$PANEL_MEMORY" "$PANEL_TASK_TIMEOUT" \
+  "$PANEL_SMOKE_SEASON" \
   "$PANEL_N_ENTRIES" "$PANEL_N_CE" "$PANEL_N_EPISTEMIC" \
   "$PANEL_N_GUMBEL" "$PANEL_N_BOOM" \
   > "$OUT/manifest.txt"
@@ -104,7 +113,7 @@ launch_one() {
   gcloud run jobs deploy "$JOB" --image "$IMG" --region "$REGION" \
     --command nfl-dfs --args "$ARGS" \
     --set-env-vars "^|^$ENVS" --memory "$PANEL_MEMORY" --cpu 4 --max-retries 0 \
-    --task-timeout 10800 >/dev/null
+    --task-timeout "$PANEL_TASK_TIMEOUT" >/dev/null
   EXEC=$(gcloud run jobs execute "$JOB" --region "$REGION" --async \
     --format='value(metadata.name)')
   [ -n "$EXEC" ] || { echo "ABORT: no execution id for $JOB"; exit 1; }

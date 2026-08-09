@@ -414,13 +414,18 @@ afterward. The lineup analyzer remains logged in `README.md`.
   Use this digest for the treatment acceptance and `candidate_budget`
   comparator.
 - Candidate-multiple-4 treatment `20260808-e80-cm4-d99b125` passed preflight
-  execution `replay-e80cm4-smoke-2wbs8` in 17m42s. All six immutable season
-  executions are launched: `replay-e80cm4-2019-gbhxs`,
-  `replay-e80cm4-2021-4grfn`, `replay-e80cm4-2022-lj9v8`,
-  `replay-e80cm4-2023-q8vgb`, `replay-e80cm4-2024-2jmfs`, and
-  `replay-e80cm4-2025-qn9dw`. They were queued for Cloud Run capacity with no
-  failed condition at the last check. Do not inspect realized scores before
-  the full panel completes; row-count/status monitoring is allowed.
+  execution `replay-e80cm4-smoke-2wbs8` in 17m42s. First-slate throughput of
+  14-16 minutes proved the inherited 10,800-second task timeout insufficient
+  for 17-18 weeks. Before any score was inspected, all six season executions
+  were cancelled, their 1,610 partial candidate and 2,406 feature rows were
+  transactionally deleted, and the identical jobs were relaunched with only
+  timeout extended to 21,600 seconds. Authoritative execution IDs are
+  `replay-e80cm4-2019-sb95x`, `replay-e80cm4-2021-2zmrk`,
+  `replay-e80cm4-2022-hns7s`, `replay-e80cm4-2023-bfk69`,
+  `replay-e80cm4-2024-slxz5`, and `replay-e80cm4-2025-9zsqq`. The cancelled
+  IDs and reason are retained in `superseded-executions.txt`; image, CPU,
+  memory, args, arm, and seeds did not change. Do not inspect realized scores
+  before the full panel completes; row-count/status monitoring is allowed.
 - The accepted K=3 missed-winner analysis now separates genuinely lost weeks
   from redundant high scores: 16 unselected >=200 rows span eight slates, but
   ten are on slates where the submitted book already cleared 200; six rows
@@ -431,3 +436,14 @@ afterward. The lineup analyzer remains logged in `README.md`.
   14-15 >=200, but remain positive in only three seasons and negative in two
   versus K=3. No selector change is supported. New reusable ranked/hybrid
   diagnostics pass all nine focused tests; details are in the 80-entry audit.
+- The four consequential K=3 missed oracles are not obvious contrarian
+  lottery tickets. Their naive pre-lock ownership-product ranks are at the
+  78.8th-95.0th percentiles of the selected books, and all are more popular
+  by proxy than that week's selected-best lineup. They span five or six games
+  rather than sharing an omitted concentrated-stack shape. Actual duplication
+  cannot be recovered without historical classic entry rows, so this is a
+  caution—not a payout claim—but it further argues against hindsight swaps.
+- Full validation of ranked/hybrid diagnostics passed Cloud Build
+  `b24be18a-13c8-4912-b324-04d872981ebe` (643 passed, 2 skipped), producing
+  immutable tooling digest
+  `sha256:805a7c1e4e8bfdcf088bc0c4a169ef31196a9a35f88e68c58f24a9bbe91ce5f0`.

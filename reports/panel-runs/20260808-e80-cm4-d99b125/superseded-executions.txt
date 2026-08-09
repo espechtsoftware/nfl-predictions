@@ -1,0 +1,14 @@
+Reason: observed 14-16 minute first-slate throughput made the inherited
+10800-second task timeout mechanically insufficient for 17-18 slates. These
+executions were cancelled before any score was inspected. The exact panel's
+partial staging rows were deleted transactionally before the 21600-second
+relaunch; immutable image, CPU, memory, args, environment, and seeds did not
+change. Orphaned partial score artifacts are not referenced by panel rows and
+are non-citable.
+
+2019 replay-e80cm4-2019 replay-e80cm4-2019-gbhxs cancelled
+2021 replay-e80cm4-2021 replay-e80cm4-2021-4grfn cancelled
+2022 replay-e80cm4-2022 replay-e80cm4-2022-lj9v8 cancelled
+2023 replay-e80cm4-2023 replay-e80cm4-2023-q8vgb cancelled
+2024 replay-e80cm4-2024 replay-e80cm4-2024-2jmfs cancelled
+2025 replay-e80cm4-2025 replay-e80cm4-2025-qn9dw cancelled

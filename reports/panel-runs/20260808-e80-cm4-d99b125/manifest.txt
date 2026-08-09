@@ -6,6 +6,7 @@ seasons=2019 2021 2022 2023 2024 2025
 arm_label=candidate-multiple-4
 arm_env=CAND_MULT=4
 memory=16Gi
+task_timeout=21600
 smoke_season=2022
 n_entries=80
 n_ce=0
