@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 06:27 CDT
+## Current state — 2026-08-09 06:42 CDT
 
 ### Recovery provenance
 
@@ -79,6 +79,23 @@ agent or developer:
   validation is green: 47 tests across shadow/registry, persistence, live
   smoke, ensemble, and research infrastructure; Python compilation, CLI
   discovery, shell syntax, and diff whitespace also pass.
+
+- First full validation of commit `97cee37` passed Cloud Build
+  `fc5691cf-b359-466c-85cb-b28b2424fec4` with 667 passed and 2 skipped,
+  producing digest
+  `sha256:39b097ebf714beefecc5478f70c9449de2788ff7371db7b3df375dc29506260c`.
+  Jobs `train-weekly-k1` and `shadow-k1` were deployed on that digest; paused
+  schedulers are `s-train-k1` (Tue 08:30 CT), `s-shadow-k1-early` (Sun 10:30),
+  and `s-shadow-k1-late` (Sun 11:20). Training smoke
+  `train-weekly-k1-hrhl8` completed successfully, creating isolated
+  `comp_targets__tail_k1/2026-W32`. The canonical `comp_targets` latest object
+  remains `2026-W32` and its full listing checksum remained exactly
+  `e85a892e48da1b31eb87712b1ace96ea8f8c25f841d9bcdca9084a29b6cd1a8d`.
+  A post-deploy review then found that an August preseason DK group could be
+  the largest upcoming Sunday before Week 1. The working-tree repair now
+  requires the DK group's Eastern date to equal the next regular-season
+  week's Sunday; its focused tests pass. Rebuild and redeploy the two jobs
+  before activation so the pinned digest includes this fail-closed date gate.
 
 - The old 27/107 result and the later 17/107 result are invalid controls. The
   former contains illegal repriced lineups; the latter omitted historical DST
@@ -380,14 +397,13 @@ model registry or silently change app behavior. Earlier deployed
 
 ### Next concrete action
 
-Submit the isolated K=1 shadow implementation to full Cloud Build. If green,
-deploy only `train-weekly-k1` and `shadow-k1`, create the paused seasonal
-`s-train-k1`, `s-shadow-k1-early`, and `s-shadow-k1-late` schedulers, execute
-one off-season K=1 training smoke, and prove its registry does not modify the
-latest canonical K=3 labels. Keep all new schedules paused until the tracked
-August 24 season-start runbook. Grade 2026 weekly high-tail outcomes after
-results land; do not retune K, the 194 target, or selector on the 107 known
-slates.
+Commit the regular-season Sunday date gate, rerun full Cloud Build, and
+redeploy `train-weekly-k1`/`shadow-k1` to the replacement validated digest.
+Verify both jobs' image/env contracts and all three scheduler states again.
+Keep the schedulers paused until the tracked August 24 season-start runbook;
+do not execute the shadow itself before DK posts the matching regular-season
+Sunday main slate. Grade 2026 weekly high-tail outcomes after results land;
+do not retune K, the 194 target, or selector on the 107 known slates.
 
 ### 2026-08-08 true-80 completion update
 

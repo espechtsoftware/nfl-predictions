@@ -96,7 +96,14 @@ def test_sunday_main_matches_ui_largest_all_sunday_group():
         {"draft_group_id": 30, "game_start": "2026-09-13T20:25:00Z",
          "teams": 8, "players": 80},
     ])
-    assert sunday_main_group(slates) == 20
+    # A larger preseason Sunday must never be paired with regular Week 1.
+    slates = pd.concat([slates, pd.DataFrame([{
+        "draft_group_id": 40,
+        "game_start": "2026-08-30T17:00:00Z",
+        "teams": 30,
+        "players": 300,
+    }])], ignore_index=True)
+    assert sunday_main_group(slates, date(2026, 9, 13)) == 20
 
 
 def test_shadow_run_is_fixed_isolated_and_synchronous(monkeypatch):
@@ -106,7 +113,8 @@ def test_shadow_run_is_fixed_isolated_and_synchronous(monkeypatch):
     monkeypatch.setenv("MODEL_ENSEMBLE", "1")
     monkeypatch.setenv("CAND_ARTIFACT_BUCKET", "test-artifacts")
     monkeypatch.setattr(
-        tail_shadow, "upcoming_season_week", lambda: (2026, 1))
+        tail_shadow, "upcoming_season_week",
+        lambda: (2026, 1, date(2026, 9, 13)))
 
     class Store:
         def classic_slates(self):
