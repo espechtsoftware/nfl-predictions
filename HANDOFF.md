@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 09:37 CDT
+## Current state — 2026-08-09 10:07 CDT
 
 ### Recovery provenance
 
@@ -125,8 +125,8 @@ agent or developer:
   K=1 gains/losses paired under near-identical pre-lock information rather
   than judged in isolation.
 
-- Prospective selector/mix freezing and grading are implemented locally,
-  pending full Cloud Build validation and paused-job deployment. After each
+- Prospective selector/mix freezing and grading are implemented, fully
+  validated, and deployed for paused off-season operation. After each
   complete early/late K=1/K=3 source pair, `freeze-tail-portfolios` verifies
   unlabeled live provenance, exact 80-entry counts, registry/K isolation,
   score artifacts, p-line/mask parity, and exact persisted coverage
@@ -148,7 +148,17 @@ agent or developer:
   or memberships. Focused local validation is green: 38 tests across the new
   freezer/grader, portfolio helpers, both shadow arms, and persistence;
   Python compilation, CLI discovery, shell syntax, and diff whitespace also
-  pass. No job or scheduler for this unvalidated source has been deployed.
+  pass. Source commit `c916de4` passed Cloud Build
+  `f19ebeb0-5e19-4288-bb50-7bd11bc5e713` with 673 tests passed and 2 skipped,
+  producing immutable digest
+  `sha256:747aa216d61e25e33a2c31d1d6722449369bb62bab3a8337eff9e71fe19e1e30`.
+  Cloud Run jobs `freeze-tail-early` and `freeze-tail-late` are Ready on that
+  exact digest with 1Gi/1 CPU, `nfl-dfs freeze-tail-portfolios --slot
+  early|late`, one retry, and a 3600-second timeout. Schedulers
+  `s-freeze-tail-early` (`5 11 * * 7`) and `s-freeze-tail-late`
+  (`50 11 * * 7`) use `America/Chicago` and are both verified PAUSED. Neither
+  job has been executed because no matching regular-season Sunday-main source
+  panel exists yet.
 
 - The old 27/107 result and the later 17/107 result are invalid controls. The
   former contains illegal repriced lineups; the latter omitted historical DST
@@ -491,15 +501,19 @@ model registry or silently change app behavior. Earlier deployed
 
 ### Next concrete action
 
-Commit the prospective freezer/grader, run full Cloud Build validation, then
-deploy only the two cheap freeze jobs and their schedulers on the validated
-digest. Keep all seven research schedules paused until the tracked August 24
-season-start runbook, then resume them with the rest of the seasonal chain.
-Do not execute either source shadow or freezer before DK posts the matching
-regular-season Sunday main slate. Never mutate the pre-lock candidate or
-membership records, and do not retune K, the 194 control target, the top-p
-rule, the 20/60 quota, or its asymmetric duplicate backfill on the 107 known
-historical slates or after prospective outcomes begin.
+Preregister and run an explicitly exploratory true-80 K=1 model-only blend
+arm against the existing accepted K=1 tail-first baseline, changing only
+`BLEND_MODEL_WEIGHT=1.0` on the same immutable generation image and preserving
+the exact 107-slate, K=1, 80-entry, 0/0/0/40, possession, $49k, seed, and
+selection-line contract. Freeze the tail-first comparison and mechanism
+checks before launching, and do not treat a favorable result as prospective
+confirmation because this arm was chosen after inspecting earlier outcomes.
+Keep all seven research schedules paused until the tracked August 24
+season-start runbook. Do not execute either source shadow or freezer before
+DK posts the matching regular-season Sunday main slate. Never mutate the
+pre-lock candidate or membership records, and do not retune K, the 194 control
+target, the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill
+on the 107 known historical slates or after prospective outcomes begin.
 
 ### 2026-08-08 true-80 completion update
 
