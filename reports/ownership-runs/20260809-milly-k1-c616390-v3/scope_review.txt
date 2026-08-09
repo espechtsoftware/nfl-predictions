@@ -1,0 +1,10 @@
+Execution evaluate-milly-ownership-644mf completed and passed every frozen
+diagnostic gate. Its held-out model metrics are valid. Post-run coverage
+review found that the sole zero-match target, 2022 Week 16, is not a join
+failure: Christmas was Sunday, the accepted replay slate contains the two
+Sunday games, and the named DraftKings Milly was the large Saturday main
+slate. That contest is not ownership truth for the replay universe. A v4
+report will preserve the same model/folds/gates while marking this explicit
+calendar-proven scope exclusion and calculating coverage over the 71 eligible
+contest/slate pairs. No held-out prediction or score outcome motivated the
+exclusion.

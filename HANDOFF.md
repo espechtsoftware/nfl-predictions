@@ -109,6 +109,25 @@ agent or developer:
   focused tests pass. Preserve the v2 failure directory and use a distinct v3
   retry after full validation; do not reinterpret either failure as evidence
   for or against ownership modeling.
+- Position-aware build `7cbd0f43-930c-491d-93d2-2bfe37c73655` passed 695
+  tests with 2 skipped and produced immutable digest
+  `sha256:a306743b802b2904907f998b0653c626dc8c19e22dbe55795472dbe89942feb2`.
+  V3 execution `evaluate-milly-ownership-644mf` completed and passed every
+  frozen gate. Held-out aggregate contest-aware MAE/Spearman are
+  `2.8147/0.7924` versus old all-contest `3.6142/0.5657` and naive
+  `4.6548/0.2589`; it beats both metrics in all three 2023-2025 seasons and
+  lowers top-quartile MAE to `7.5983` versus `9.8483/11.5424`. Reported mass
+  coverage was 97.51%.
+- Coverage review found the only zero-match week is a scope mismatch, not a
+  name join failure: Christmas 2022 fell on Sunday; the accepted Week-16
+  replay contains only the two Sunday games, while DK's named Milly was its
+  large Saturday main slate. V3 held-out metrics are unaffected (the week is
+  2022 training-only and contributed no joined row), but its coverage
+  denominator is superseded. The evaluator now declares this one
+  calendar-proven exclusion, requires every other week to retain >=90% mass,
+  and will emit a final v4 report over 71 eligible contest/slate pairs. Nine
+  focused tests pass. Do not launch the scoring arm until that clean report is
+  tracked, though the diagnostic result is already strongly positive.
 
 ### Recovery provenance
 

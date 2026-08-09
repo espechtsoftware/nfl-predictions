@@ -14,6 +14,12 @@ import pandas as pd
 
 TARGET = "pct_drafted"
 POSITIONS = ("QB", "RB", "WR", "TE", "DST")
+SCOPE_EXCLUSIONS = {
+    # Christmas fell on Sunday. The accepted replay's Sunday slate contains
+    # only DEN-LAR and GB-MIA, while DK's named Week-16 Milly was the large
+    # Saturday main slate. It is not ownership truth for the replay universe.
+    (2022, 16): "Christmas Saturday Milly does not match Sunday replay slate",
+}
 FEATURES = (
     "salary", "proj_points", "value", "salary_rank_pos", "value_rank_pos",
     "salary_pct_pos", "value_pct_pos", "slate_size", "implied_team_total",
@@ -257,3 +263,26 @@ def diagnostic_gate(metric_rows: pd.DataFrame,
         value for key, value in checks.items()
         if key not in {"season_pass_count", "passes"})
     return checks
+
+
+def mark_scope_eligibility(coverage: pd.DataFrame) -> pd.DataFrame:
+    """Apply calendar-proven slate exclusions and fail on any new mismatch."""
+    out = coverage.copy()
+    out["scope_eligible"] = True
+    out["scope_exclusion_reason"] = ""
+    observed = set(zip(out.season.astype(int), out.week.astype(int)))
+    missing_declared = set(SCOPE_EXCLUSIONS) - observed
+    if missing_declared:
+        raise ValueError(f"declared scope exclusions absent: {missing_declared}")
+    for key, reason in SCOPE_EXCLUSIONS.items():
+        mask = out.season.eq(key[0]) & out.week.eq(key[1])
+        if not out.loc[mask, "mass_coverage"].lt(0.05).all():
+            raise ValueError(f"declared scope exclusion unexpectedly matches: {key}")
+        out.loc[mask, "scope_eligible"] = False
+        out.loc[mask, "scope_exclusion_reason"] = reason
+    unexpected = out[out.scope_eligible & out.mass_coverage.lt(0.90)]
+    if not unexpected.empty:
+        keys = list(zip(unexpected.season.astype(int),
+                        unexpected.week.astype(int)))
+        raise ValueError(f"unexpected Milly/snapshot scope or join mismatch: {keys}")
+    return out

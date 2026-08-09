@@ -3,6 +3,7 @@ import pandas as pd
 from nfl_dfs.research.milly_ownership import (
     diagnostic_gate,
     join_milly_truth,
+    mark_scope_eligibility,
     normalize_name,
     ownership_join_key,
     parse_field_size,
@@ -113,3 +114,14 @@ def test_diagnostic_gate_rejects_low_mass_coverage():
     gate = diagnostic_gate(pd.DataFrame(rows), 0.89)
     assert gate["passes"] is False
     assert gate["ownership_mass_coverage_at_least_90pct"] is False
+
+
+def test_scope_eligibility_excludes_only_2022_christmas_mismatch():
+    coverage = pd.DataFrame([
+        {"season": 2022, "week": 15, "mass_coverage": .97},
+        {"season": 2022, "week": 16, "mass_coverage": 0.0},
+        {"season": 2022, "week": 17, "mass_coverage": .96},
+    ])
+    marked = mark_scope_eligibility(coverage)
+    assert marked.scope_eligible.tolist() == [True, False, True]
+    assert "Saturday" in marked.scope_exclusion_reason.iloc[1]

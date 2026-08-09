@@ -1,0 +1,3 @@
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:a306743b802b2904907f998b0653c626dc8c19e22dbe55795472dbe89942feb2
+source_panel=20260808-e80-k1-c616390
+folds=2023,2024,2025

@@ -15,7 +15,8 @@ from nfl_dfs.bq import query_df  # noqa: E402
 from nfl_dfs.config import settings  # noqa: E402
 from nfl_dfs.models import ownership as generic_ownership  # noqa: E402
 from nfl_dfs.research.milly_ownership import (  # noqa: E402
-    TARGET, build_features, diagnostic_gate, join_milly_truth,
+    SCOPE_EXCLUSIONS, TARGET, build_features, diagnostic_gate,
+    join_milly_truth, mark_scope_eligibility,
     prediction_metrics, predict_contest_model, select_main_milly_contests,
     train_contest_model,
 )
@@ -117,6 +118,10 @@ def evaluate(panel: str = SOURCE_PANEL) -> dict:
 
     features = _add_naive_weights(build_features(_feature_rows(panel)))
     joined, coverage = join_milly_truth(features, ownership, contests)
+    coverage = mark_scope_eligibility(coverage)
+    for season, week in SCOPE_EXCLUSIONS:
+        joined = joined[
+            ~(joined.season.eq(season) & joined.week.eq(week))]
     joined = build_features(joined)
     generic_frame = generic_ownership.training_frame()
     metric_rows: list[dict] = []
@@ -171,11 +176,13 @@ def evaluate(panel: str = SOURCE_PANEL) -> dict:
             **prediction_metrics(all_scored, all_scored[method]),
         })
     metrics_frame = pd.DataFrame(metric_rows)
-    aggregate_coverage = float(coverage.matched_mass.sum() / coverage.own_sum.sum())
+    eligible_coverage = coverage[coverage.scope_eligible]
+    aggregate_coverage = float(
+        eligible_coverage.matched_mass.sum() / eligible_coverage.own_sum.sum())
     gate = diagnostic_gate(metrics_frame, aggregate_coverage)
 
     coverage_rows = []
-    for season, group in coverage.groupby("season"):
+    for season, group in eligible_coverage.groupby("season"):
         coverage_rows.append({
             "season": int(season),
             "slates": int(len(group)),
@@ -189,6 +196,11 @@ def evaluate(panel: str = SOURCE_PANEL) -> dict:
         "source_panel": panel,
         "data_contract": {
             "selected_contests": int(len(contests)),
+            "scope_eligible_contests": int(coverage.scope_eligible.sum()),
+            "scope_exclusions": [
+                {"season": season, "week": week, "reason": reason}
+                for (season, week), reason in SCOPE_EXCLUSIONS.items()
+            ],
             "seasons": [2022, 2023, 2024, 2025],
             "held_out_folds": list(FOLDS),
             "contest_field_size_min": int(contests.field_size.min()),
