@@ -379,3 +379,13 @@ digest
    mechanism/panel.
 5. Report 187/194/200/210/220/230/240. Do not change K, selection line,
    allocation, member seed, or candidate budgets after the result.
+
+Both one-week preflights passed before season launch: control
+`replay-e80msc-smoke-mzzgb` and treatment `replay-e80msm-smoke-ns5pj`.
+Treatment logs mechanically confirmed seed 8161 assigned the 10,000 worlds
+`[3334, 3333, 3333]` across members before marginal shaping. The six control
+executions are `replay-e80msc-2019-7p54c`, `...-2021-jqlxm`,
+`...-2022-l95kh`, `...-2023-8svsn`, `...-2024-7w6bz`, and
+`...-2025-k2tdn`; treatment executions are `replay-e80msm-2019-t4m94`,
+`...-2021-cs8sk`, `...-2022-g6hjm`, `...-2023-hwd4q`,
+`...-2024-nfmlg`, and `...-2025-c4gnw`.

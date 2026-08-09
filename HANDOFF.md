@@ -362,3 +362,8 @@ or budgets after the result. The lineup analyzer remains logged in
   `0/0/0/40`, with treatment only `ENSEMBLE_WORLD_MODE=member_sample` seed
   8161. Use the unchanged >=200 high-tail gate and the new `member_world`
   mechanism comparator. Do not tune allocation/K/line/seed/budgets.
+- Member-world preflights passed: control `replay-e80msc-smoke-mzzgb` and
+  treatment `replay-e80msm-smoke-ns5pj`. Treatment logged balanced member
+  counts `[3334,3333,3333]` at seed 8161. All six season executions per arm
+  are launched; immutable IDs are authoritative in each panel's
+  `reports/panel-runs/.../executions.txt` manifest.
