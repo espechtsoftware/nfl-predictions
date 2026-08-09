@@ -3755,3 +3755,28 @@ Training smoke `train-weekly-k1-hrhl8` created
 Schedulers `s-train-k1`, `s-shadow-k1-early`, `s-shadow-k1-late`,
 `s-shadow-k3-early`, and `s-shadow-k3-late` are all PAUSED until the August 24
 season-start runbook. No live app default or canonical K=3 model was changed.
+
+## Addendum 120 (2026-08-09): corrected K=1 CE and contest-aware ownership paths preregistered
+
+Development resumed after a context compaction incorrectly treated paused
+prospective schedulers as a pause in historical research. Cloud execution
+history proves there is no unharvested scoring job: the final six no-floor
+seasons, acceptance, and salary comparator all completed; the concurrent
+Odds API shadow/telemetry work also completed. The next two bounded scoring
+paths are now frozen before new results.
+
+First, CE receives its one allowed corrected-universe K=1 confirmation. A
+12-CE/40-boom union diagnostic must add at least two 200+ candidate-oracle
+weeks before the already-frozen 12-CE/28-boom equal-budget replacement may
+run. Both use the accepted true-80 K=1 image/configuration and seed 1701; no
+CE parameter or selector tuning is permitted. Exact protocol:
+`reports/2026-08-09-k1-ce-true80-experiment.md`.
+
+Second, the existing ownership data will be used through a genuinely
+different target, not by repeating the failed generic booster. The current
+training target averages incompatible cash/GPP, Classic/Showdown, and slate
+scopes. A walk-forward model will instead target the large-field Sunday-main
+Milly ownership and use the immutable accepted K=1 Sunday-main snapshots.
+Only a preregistered held-out ownership-calibration pass can earn one fixed
+K=1 lineup arm; otherwise the path closes without querying lineup outcomes.
+Exact protocol: `reports/2026-08-09-milly-ownership-alternative.md`.

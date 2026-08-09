@@ -20,7 +20,37 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 15:01 CDT
+## Current state — 2026-08-09 15:27 CDT
+
+### Autonomous scoring research resumed after context recovery
+
+- Live Cloud Run history and every tracked manifest were reconciled after the
+  operator reported that research had stopped unexpectedly. There is no
+  unharvested scoring execution: all six true-80 K=1 no-floor seasons,
+  acceptance `accept-replay-panel-8m9hv`, and comparator
+  `compare-adoption-panel-7c4cs` completed. The concurrent work was the Odds
+  API shadow/telemetry implementation, which also completed. Paused Week-1
+  prospective schedulers do not pause historical mechanism research.
+- Two bounded next paths are preregistered before new outcomes. The first is
+  the one allowed corrected-universe K=1 CE confirmation: union panel
+  `20260809-e80-k1-ceunion-c616390` (`12 CE / 40 boom`) must pass its
+  candidate-oracle gate before fixed replacement panel
+  `20260809-e80-k1-ce12-c616390` (`12 CE / 28 boom`) can launch. Both retain
+  immutable generation digest `sha256:98a31edd...`, K=1, true 80, $49k,
+  45/55, line 194, and seed 1701. Protocol:
+  `reports/2026-08-09-k1-ce-true80-experiment.md`.
+- The recovered parallel ownership direction is also frozen. Do not repeat
+  the failed generic `OWN_MODEL=fade` test: its target averaged incompatible
+  cash/GPP, Classic/Showdown, and slate scopes. Build a walk-forward
+  large-field Sunday-main Milly ownership target from the existing 2022-2025
+  data and exact accepted K=1 snapshots. It earns one fixed K=1 scoring arm
+  only after the preregistered held-out ownership-calibration gate passes.
+  Protocol: `reports/2026-08-09-milly-ownership-alternative.md`.
+- Exact next action: implement CE-specific mechanism/union comparators and
+  the contest-aware ownership diagnostic with focused tests. Launch the
+  immutable CE union preflight/panel while the ownership diagnostic is being
+  validated; never query fixed-arm lineup outcomes unless its preceding
+  mechanism gate passes.
 
 ### Recovery provenance
 
