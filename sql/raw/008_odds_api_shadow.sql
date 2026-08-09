@@ -4,11 +4,13 @@
 -- ingestion command so spending and point-in-time provenance stay bounded.
 
 CREATE TABLE IF NOT EXISTS `${raw}.odds_api_requests` (
-  requested_at TIMESTAMP NOT NULL,
-  request_kind STRING NOT NULL,
-  endpoint STRING NOT NULL,           -- path only; never query/API key
-  historical BOOL NOT NULL,
-  is_shadow BOOL NOT NULL,
+  -- Modes remain NULLABLE to match load_dataframe's append/autodetect
+  -- contract. The ingestion code always supplies these five identity fields.
+  requested_at TIMESTAMP,
+  request_kind STRING,
+  endpoint STRING,                    -- path only; never query/API key
+  historical BOOL,
+  is_shadow BOOL,
   season INT64,
   week INT64,
   event_id STRING,

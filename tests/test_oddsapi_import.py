@@ -188,3 +188,34 @@ def test_no_upcoming_regular_week_makes_no_api_request(monkeypatch):
     )
 
     oddsapi_import._run_live([])
+
+
+def test_quota_check_uses_free_endpoint_and_requires_persistence(monkeypatch):
+    monkeypatch.setattr(
+        oddsapi_import,
+        "settings",
+        replace(settings, odds_api_key="set"),
+    )
+    calls = []
+
+    def fake_get(path, *, audit_rows, request_kind, **kwargs):
+        calls.append((path, request_kind, kwargs))
+        audit_rows.append({
+            "requests_remaining": 19991,
+            "requests_used": 10009,
+            "requests_last": 0,
+        })
+        return []
+
+    monkeypatch.setattr(oddsapi_import, "_get", fake_get)
+    persisted = []
+    monkeypatch.setattr(
+        oddsapi_import,
+        "persist_request_audits",
+        lambda rows: persisted.extend(rows) or True,
+    )
+
+    oddsapi_import.check_quota()
+
+    assert calls == [("/sports", "quota_check", {})]
+    assert persisted[0]["requests_last"] == 0

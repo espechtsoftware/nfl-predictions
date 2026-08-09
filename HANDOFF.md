@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 14:18 CDT
+## Current state — 2026-08-09 14:32 CDT
 
 ### Recovery provenance
 
@@ -77,17 +77,41 @@ agent or developer:
   preseason—to the next regular-season week. It now filters events to the
   next regular-season week's exact US-local game-date window before either
   paid prop request. The deficiency is recorded in README.
-- Focused offline validation is green: 26 tests across request sanitization,
+- Initial source commit `910bc6e` is pushed on `main`. Focused offline
+  validation was green: 26 tests across request sanitization,
   quota capture/persistence, reserve boundaries, local-date filtering,
   base/shadow table isolation, existing game-line behavior, and prop parsing;
-  Python compilation and `git diff --check` also pass. Source commit, full
-  Cloud Build ID/digest, applied DDL, exact deployed env, and safe smoke ID
-  must be added here before this milestone is considered deployed.
-- Exact next action: commit this implementation, record its SHA, apply
-  `sql/raw/008_odds_api_shadow.sql`, run the full suite in Cloud Build, deploy
-  only `ingest-odds` and `ingest-props` without changing their scheduler
-  cadence or Secret Manager binding, then execute a no-paid-prop preseason
-  smoke to capture the current quota balance.
+  Python compilation and `git diff --check` also passed. Cloud Build
+  `5ad9f2e5-4141-41bc-b1f2-3e1ff71b247b` passed 685 tests with 2 skipped and
+  produced immutable digest
+  `sha256:8dc28e1c06f618118ad2e7695864a56e7428033e367146249520a0f246da1617`.
+  Both additive DDL tables were created and verified empty/partitioned before
+  deployment. `ingest-odds` generation 32 and `ingest-props` generation 29
+  are Ready on that digest; Secret Manager bindings, CPU/memory, command,
+  service account, retries/timeouts, and the existing enabled scheduler
+  cadences remained unchanged. Only `ingest-props` added
+  `ODDS_SHADOW_MARKETS_ENABLED=1` and reserve `5000`.
+- Preseason smoke `ingest-props-mmx2l` completed but correctly keeps this
+  milestone open. The provider already lists all 16 Week 1 events. The job
+  therefore made one events request and inferred 16 base plus 16 shadow
+  attempts; four games returned 82 legitimate very-early DraftKings
+  anytime-TD base rows, while the shadow returned zero rows. Exact credits
+  cannot be cited because the 33-row audit batch failed to load. No job retry
+  occurred and no shadow row landed.
+- The audit failure was a schema-contract defect: the new table declared five
+  fields `NOT NULL`, while the shared DataFrame loader appends an autodetected
+  nullable schema. Production columns have been safely relaxed to NULLABLE,
+  the tracked DDL now matches, and audit DataFrames explicitly assign Arrow
+  string/boolean/integer/timestamp dtypes so all-null fields cannot infer an
+  incompatible type. A new `check-odds-quota` command uses the provider's
+  free `/sports` endpoint, requires its audit row to persist, and avoids
+  repeating any event prop request. Updated focused validation is 27 passed.
+- Exact next action: commit/push the schema and quota-check repair, run a
+  second full Cloud Build, redeploy the two ingestion jobs on its immutable
+  digest, then execute `ingest-props` with the one-execution args override
+  `check-odds-quota`. Verify `requests_last=0`, capture remaining/used quota,
+  and confirm both prop tables receive zero new rows before closing the
+  milestone. Do not rerun ordinary `ingest-props` for this validation.
 
 ### Latest validated research state
 

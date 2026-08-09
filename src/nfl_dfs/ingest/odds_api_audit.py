@@ -195,6 +195,15 @@ def persist_request_audits(rows: list[dict[str, Any]]) -> bool:
     )
     for column in integer_columns:
         df[column] = pd.array(df[column], dtype="Int64")
+    string_columns = (
+        "request_kind", "endpoint", "event_id", "markets", "bookmakers",
+        "regions", "response_market_keys", "error_type",
+    )
+    for column in string_columns:
+        df[column] = pd.array(df[column], dtype="string")
+    for column in ("historical", "is_shadow"):
+        df[column] = pd.array(df[column], dtype="boolean")
+    df["requested_at"] = pd.to_datetime(df["requested_at"], utc=True)
     try:
         load_dataframe(
             df,

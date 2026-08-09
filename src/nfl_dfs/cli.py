@@ -47,6 +47,10 @@ def main(argv: list[str] | None = None) -> None:
     sub.add_parser("score-entries",
                    help="Score last week's entered lineups vs actuals")
     sub.add_parser("ingest-props", help="Snapshot live prop lines (in-season)")
+    sub.add_parser(
+        "check-odds-quota",
+        help="Record Odds API quota via the provider's free sports endpoint",
+    )
     sub.add_parser("ingest-weather", help="Fetch Open-Meteo forecasts for upcoming games")
 
     p = sub.add_parser("backfill-rotoguru", help="One-time historical DK salary backfill")
@@ -297,6 +301,10 @@ def main(argv: list[str] | None = None) -> None:
         from .ingest import oddsapi_import
 
         oddsapi_import.run_live()
+    elif args.command == "check-odds-quota":
+        from .ingest import oddsapi_import
+
+        oddsapi_import.check_quota()
     elif args.command == "import-prop-lines":
         from .ingest import oddsapi_import
 

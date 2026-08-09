@@ -156,6 +156,8 @@ def test_persist_audits_uses_dedicated_partitioned_table(monkeypatch):
         "write_disposition": "WRITE_APPEND", "partition_field": "requested_at",
     }
     assert str(df.http_status.dtype) == "Int64"
+    assert str(df.error_type.dtype).startswith("string")
+    assert str(df.historical.dtype) == "boolean"
 
 
 def test_bad_audit_path_is_rejected_before_request():

@@ -382,3 +382,26 @@ def run_live() -> None:
         _run_live(audit_rows)
     finally:
         persist_request_audits(audit_rows)
+
+
+def check_quota() -> None:
+    """Persist current provider quota using The Odds API's free sports call."""
+    if not settings.odds_api_key:
+        raise RuntimeError("ODDS_API_KEY is not set")
+    audit_rows: list[dict] = []
+    try:
+        _get(
+            "/sports",
+            audit_rows=audit_rows,
+            request_kind="quota_check",
+        )
+    finally:
+        persisted = persist_request_audits(audit_rows)
+    if not audit_rows or not persisted:
+        raise RuntimeError("Odds API quota check did not persist its audit")
+    row = audit_rows[-1]
+    log.info(
+        "Odds API quota: remaining=%s used=%s last=%s",
+        row.get("requests_remaining"), row.get("requests_used"),
+        row.get("requests_last"),
+    )
