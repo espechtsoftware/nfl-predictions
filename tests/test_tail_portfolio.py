@@ -8,6 +8,8 @@ from nfl_dfs.research.tail_portfolio import (
     combine_slate_portfolios,
     decode_clear_bits,
     evaluate_portfolio,
+    evaluate_hybrid_portfolio,
+    evaluate_ranked_portfolio,
     high_unselected_candidates,
     missed_oracles,
     portfolio_summary,
@@ -96,6 +98,41 @@ def test_entry_count_caps_at_candidate_pool():
     assert slates.entry_count.eq(3).all()
     assert slates.oracle_selected.all()
     assert membership.portfolio_selected.all()
+
+
+def test_ranked_portfolio_is_stable_and_outcome_blind():
+    panel = _panel()
+    # All three p_line values are 0.5, 0.5, 0.0. Stable cand_ix tie-breaking
+    # therefore takes candidate zero first and never sees the realized score.
+    slates, membership = evaluate_ranked_portfolio(panel, 1, "p_line")
+    assert slates.selected_best.tolist() == [190.0, 190.0]
+    assert not slates.oracle_selected.any()
+    picked = membership[membership.portfolio_selected]
+    assert picked.cand_ix.eq(0).all()
+    assert portfolio_summary(slates)["ge_200"] == 0
+
+    with pytest.raises(ValueError, match="candidate panel missing"):
+        evaluate_ranked_portfolio(panel, 1, "does_not_exist")
+
+
+def test_hybrid_portfolio_keeps_exact_budget_and_excludes_duplicates():
+    panel = _panel()
+    # Coverage takes candidate 0. The rank hedge skips it and takes candidate
+    # 1, preserving two distinct entries even though the ranking is tied.
+    slates, membership = evaluate_hybrid_portfolio(
+        panel, coverage_entries=1, ranked_entries=1, rank_column="p_line")
+    assert slates.entry_count.eq(2).all()
+    assert slates.coverage_entries.eq(1).all()
+    assert slates.ranked_entries.eq(1).all()
+    assert slates.selected_best.tolist() == [195.0, 195.0]
+    for _, slate in membership.groupby(["season", "week"]):
+        assert slate[slate.portfolio_selected].cand_ix.tolist() == [0, 1]
+
+    pure_ranked, _ = evaluate_hybrid_portfolio(
+        panel, coverage_entries=0, ranked_entries=1, rank_column="p_line")
+    assert pure_ranked.selected_best.tolist() == [190.0, 190.0]
+    with pytest.raises(ValueError, match="at least one"):
+        evaluate_hybrid_portfolio(panel, 0, 0, "p_line")
 
 
 def test_swap_frontier_identifies_equivalent_and_costly_candidates():

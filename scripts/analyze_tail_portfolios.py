@@ -23,6 +23,8 @@ from nfl_dfs.bq import query_df  # noqa: E402
 from nfl_dfs.config import settings  # noqa: E402
 from nfl_dfs.research.tail_portfolio import (  # noqa: E402
     evaluate_portfolio,
+    evaluate_hybrid_portfolio,
+    evaluate_ranked_portfolio,
     high_unselected_candidates,
     missed_oracles,
     portfolio_summary,
@@ -203,6 +205,9 @@ def main() -> int:
     ap.add_argument("--select-lines", nargs="+", type=float,
                     default=[187.0, 194.0, 200.0])
     ap.add_argument("--top-unselected", type=int, default=20)
+    ap.add_argument(
+        "--ranked-diagnostics", action="store_true",
+        help="compare coverage selection with top marginal-ranking books")
     args = ap.parse_args()
 
     candidates = _load(args.panel_run_id, args.staging)
@@ -295,6 +300,50 @@ def main() -> int:
         _print_roster_contrasts(
             misses_200, candidates,
             features if features is not None else pd.DataFrame())
+
+        if args.ranked_diagnostics:
+            print(f"\nN={entries} OUTCOME-BLIND RANKED-BOOK DIAGNOSTICS")
+            coverage_slates, _ = results[(entries, 194.0)]
+            coverage_misses = missed_oracles(coverage_slates, 200.0)
+            oracle_keys = set(zip(
+                coverage_misses.season.astype(int),
+                coverage_misses.week.astype(int),
+                coverage_misses.oracle_cand_ix.astype(int)))
+            for rank_column in ("p_line", "sim_mean", "sim_q99"):
+                ranked_slates, ranked_membership = evaluate_ranked_portfolio(
+                    candidates, entries, rank_column)
+                summary = portfolio_summary(ranked_slates)
+                print(f"top-{rank_column}: {_fmt_summary(summary)}")
+                membership_lookup = ranked_membership.set_index(
+                    ["season", "week", "cand_ix"]).portfolio_selected
+                recovered = sorted(
+                    (season, week) for season, week, cand_ix in oracle_keys
+                    if bool(membership_lookup.loc[(season, week, cand_ix)]))
+                print(f"  production >=200 misses included: "
+                      f"{len(recovered)}/{len(oracle_keys)} {recovered}")
+                for coverage_entries in (
+                        entries, 3 * entries // 4, entries // 2,
+                        entries // 4):
+                    ranked_entries = entries - coverage_entries
+                    if not ranked_entries:
+                        continue
+                    hybrid_slates, hybrid_membership = (
+                        evaluate_hybrid_portfolio(
+                            candidates, coverage_entries, ranked_entries,
+                            rank_column))
+                    hybrid_summary = portfolio_summary(hybrid_slates)
+                    hybrid_lookup = hybrid_membership.set_index(
+                        ["season", "week", "cand_ix"]).portfolio_selected
+                    hybrid_recovered = sorted(
+                        (season, week)
+                        for season, week, cand_ix in oracle_keys
+                        if bool(hybrid_lookup.loc[
+                            (season, week, cand_ix)]))
+                    print(
+                        f"  coverage/rank {coverage_entries}/"
+                        f"{ranked_entries}: {_fmt_summary(hybrid_summary)}; "
+                        f"misses {len(hybrid_recovered)}/"
+                        f"{len(oracle_keys)} {hybrid_recovered}")
     return 0
 
 

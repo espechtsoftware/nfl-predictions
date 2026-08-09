@@ -385,6 +385,50 @@ actionable mismatch is that some leverage constructions realize a boom
 without being supported strongly enough by the simulated joint worlds; raw
 candidate availability is not the missing ingredient.
 
+### Further selector isolation on the unselected high scores
+
+The raw K=3 count needs one more distinction: of its 16 unselected candidate
+rows scoring at least 200, ten occur on weeks where another selected lineup
+already scored at least 200. Only six rows across the four recoverable weeks
+are consequential. An unselected 224.54, for example, is not evidence of a
+lost threshold week when that week's submitted book already contains a still
+higher winner.
+
+Three additional outcome-blind diagnostic books isolate candidate ranking
+from portfolio coverage. Taking the top 80 candidates on each slate by
+individual `p_line`, simulated mean, or simulated q99 recovers the same two
+production misses—2019 week 6 and 2025 week 12—but still loses overall:
+
+| K=3 selector | >=187 | >=194 | >=200 | >=210 | mean weekly max |
+|---|---:|---:|---:|---:|---:|
+| production 194-world coverage | **29** | **19** | **8** | **5** | **177.08** |
+| top individual p-line | 26 | 17 | 7 | 4 | 175.02 |
+| top simulated mean | 25 | 12 | 7 | **5** | 173.34 |
+| top simulated q99 | 27 | 17 | 7 | 4 | 175.31 |
+
+A fixed 60/20 coverage/ranking hedge was also scored without outcomes in its
+selection rule. The best K=3 sensitivity uses 60 coverage entries and 20
+top-p-line additions: it ties at eight >=200 weeks and moves 5→6 at 210, but
+drops 19→18 at 194 and mean 177.08→177.06. The analogous simulated-mean hedge
+exactly ties the 194/200/210 counts and mean. Thus the hedge merely exchanges
+which weeks win; it does not repair aggregate capture.
+
+The K=1 pool makes the overfitting danger especially clear. Pure top-p-line
+selection reaches 15 >=200 and 8 >=210, while 60 coverage plus 20 mean-ranked
+entries reaches 14 and 7. Yet versus accepted K=3, every such variant remains
+positive in only three seasons and negative in two—the exact stability defect
+that rejected ordinary K=1. Large aggregate gains are concentrated in 2019,
+2022, and 2025 rather than replicated across the panel.
+
+The resulting diagnosis is narrower and stronger: ordinary marginal ranking
+can find the two moderately ranked misses, but sacrifices other winning
+weeks; neither coverage nor ranking can find the 2019-week-9 and
+2021-week-11 winners, which rank 185/105/161 and 150/177/140 by
+p-line/mean/q99. Those require better pre-lock beliefs, not a hindsight swap
+rule. No ranked or hybrid book is adopted. The analyzer now reproduces these
+diagnostics behind `--ranked-diagnostics`; focused validation has nine tests
+passing.
+
 ## Next preregistered arm: coherent member-sampled worlds
 
 Because K=1 did not earn adoption, the accepted K=3 configuration remains the

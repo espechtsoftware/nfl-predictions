@@ -341,6 +341,159 @@ def evaluate_portfolio(rows: pd.DataFrame, entry_count: int,
     return pd.DataFrame(slate_rows), pd.concat(memberships, ignore_index=True)
 
 
+def evaluate_ranked_portfolio(
+    rows: pd.DataFrame,
+    entry_count: int,
+    rank_column: str,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Score an outcome-blind top-ranked diagnostic book.
+
+    This deliberately does not replace the production coverage selector. It
+    isolates whether a missed realized winner was rejected because of the
+    portfolio overlap objective or because every persisted pre-lock marginal
+    ranking also placed it outside the available entry budget.
+    """
+    needed = {"season", "week", "cand_ix", "actual_score", rank_column}
+    missing = needed - set(rows.columns)
+    if missing:
+        raise ValueError(f"candidate panel missing {sorted(missing)}")
+    if rows.empty:
+        raise ValueError("candidate panel is empty")
+    if entry_count <= 0:
+        raise ValueError("entry_count must be positive")
+
+    slate_rows: list[dict] = []
+    memberships: list[pd.DataFrame] = []
+    for (season, week), group in rows.groupby(["season", "week"], sort=True):
+        ordered = group.sort_values("cand_ix").reset_index(drop=True)
+        rank_values = pd.to_numeric(ordered[rank_column], errors="coerce")
+        actual = pd.to_numeric(ordered.actual_score, errors="coerce")
+        if rank_values.isna().any() or actual.isna().any():
+            raise ValueError(
+                f"missing diagnostic value in {int(season)} week "
+                f"{int(week)}")
+        ranked = pd.DataFrame({
+            "position": np.arange(len(ordered), dtype=int),
+            "rank_value": rank_values.to_numpy(dtype=float),
+            "cand_ix": ordered.cand_ix.to_numpy(dtype=int),
+        }).sort_values(
+            ["rank_value", "cand_ix"], ascending=[False, True],
+            kind="mergesort")
+        picked = ranked.position.head(min(entry_count, len(ordered))).to_numpy(
+            dtype=int)
+        selected_actual = actual.iloc[picked].to_numpy(dtype=float)
+        oracle_pos = int(actual.to_numpy().argmax())
+        selected_best_pos = int(picked[int(selected_actual.argmax())])
+        oracle = float(actual.iloc[oracle_pos])
+        selected_best = float(actual.iloc[selected_best_pos])
+        slate_rows.append({
+            "season": int(season),
+            "week": int(week),
+            "entry_count": int(len(picked)),
+            "select_line": np.nan,
+            "rank_column": rank_column,
+            "selected_best": selected_best,
+            "selected_best_cand_ix": int(
+                ordered.cand_ix.iloc[selected_best_pos]),
+            "oracle": oracle,
+            "oracle_cand_ix": int(ordered.cand_ix.iloc[oracle_pos]),
+            "regret": oracle - selected_best,
+            "oracle_selected": bool(oracle_pos in set(picked.tolist())),
+        })
+        member = ordered[["cand_ix"]].copy()
+        member.insert(0, "week", int(week))
+        member.insert(0, "season", int(season))
+        member["portfolio_selected"] = False
+        member.loc[picked, "portfolio_selected"] = True
+        memberships.append(member)
+    return pd.DataFrame(slate_rows), pd.concat(memberships, ignore_index=True)
+
+
+def evaluate_hybrid_portfolio(
+    rows: pd.DataFrame,
+    coverage_entries: int,
+    ranked_entries: int,
+    rank_column: str,
+    select_line: float = 194.0,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Score a diagnostic coverage book plus marginal-ranking hedge.
+
+    Coverage entries are selected first with the production algorithm. The
+    remaining slots take the highest stable ``rank_column`` candidates not
+    already selected. This remains outcome-blind and keeps the total entry
+    budget exact, but is only a retrospective mechanism diagnostic.
+    """
+    needed = {"season", "week", "cand_ix", "actual_score", rank_column}
+    missing = needed - set(rows.columns)
+    if missing:
+        raise ValueError(f"candidate panel missing {sorted(missing)}")
+    if rows.empty:
+        raise ValueError("candidate panel is empty")
+    if coverage_entries < 0 or ranked_entries < 0:
+        raise ValueError("hybrid entry allocations must be nonnegative")
+    total_entries = coverage_entries + ranked_entries
+    if total_entries <= 0:
+        raise ValueError("hybrid portfolio must contain at least one entry")
+
+    slate_rows: list[dict] = []
+    memberships: list[pd.DataFrame] = []
+    for (season, week), group in rows.groupby(["season", "week"], sort=True):
+        if coverage_entries:
+            ordered, _, coverage_picked = select_slate(
+                group, coverage_entries, select_line)
+        else:
+            ordered = group.sort_values("cand_ix").reset_index(drop=True)
+            coverage_picked = np.asarray([], dtype=int)
+        rank_values = pd.to_numeric(ordered[rank_column], errors="coerce")
+        actual = pd.to_numeric(ordered.actual_score, errors="coerce")
+        if rank_values.isna().any() or actual.isna().any():
+            raise ValueError(
+                f"missing diagnostic value in {int(season)} week "
+                f"{int(week)}")
+        selected = np.zeros(len(ordered), dtype=bool)
+        selected[coverage_picked] = True
+        remaining = pd.DataFrame({
+            "position": np.flatnonzero(~selected),
+            "rank_value": rank_values.to_numpy(dtype=float)[~selected],
+            "cand_ix": ordered.cand_ix.to_numpy(dtype=int)[~selected],
+        }).sort_values(
+            ["rank_value", "cand_ix"], ascending=[False, True],
+            kind="mergesort")
+        hedge_picked = remaining.position.head(
+            min(ranked_entries, len(remaining))).to_numpy(dtype=int)
+        picked = np.concatenate([coverage_picked, hedge_picked])
+        if len(picked) < min(total_entries, len(ordered)):
+            raise ValueError("hybrid selector returned too few candidates")
+        selected_actual = actual.iloc[picked].to_numpy(dtype=float)
+        oracle_pos = int(actual.to_numpy().argmax())
+        selected_best_pos = int(picked[int(selected_actual.argmax())])
+        oracle = float(actual.iloc[oracle_pos])
+        selected_best = float(actual.iloc[selected_best_pos])
+        slate_rows.append({
+            "season": int(season),
+            "week": int(week),
+            "entry_count": int(len(picked)),
+            "select_line": float(select_line),
+            "rank_column": rank_column,
+            "coverage_entries": int(len(coverage_picked)),
+            "ranked_entries": int(len(hedge_picked)),
+            "selected_best": selected_best,
+            "selected_best_cand_ix": int(
+                ordered.cand_ix.iloc[selected_best_pos]),
+            "oracle": oracle,
+            "oracle_cand_ix": int(ordered.cand_ix.iloc[oracle_pos]),
+            "regret": oracle - selected_best,
+            "oracle_selected": bool(oracle_pos in set(picked.tolist())),
+        })
+        member = ordered[["cand_ix"]].copy()
+        member.insert(0, "week", int(week))
+        member.insert(0, "season", int(season))
+        member["portfolio_selected"] = False
+        member.loc[picked, "portfolio_selected"] = True
+        memberships.append(member)
+    return pd.DataFrame(slate_rows), pd.concat(memberships, ignore_index=True)
+
+
 def portfolio_summary(slates: pd.DataFrame,
                       thresholds: Iterable[float] = ACTUAL_THRESHOLDS) -> dict:
     """Summarize realized weekly maxima and frozen-pool opportunity."""

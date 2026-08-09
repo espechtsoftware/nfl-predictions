@@ -421,3 +421,13 @@ afterward. The lineup analyzer remains logged in `README.md`.
   `replay-e80cm4-2025-qn9dw`. They were queued for Cloud Run capacity with no
   failed condition at the last check. Do not inspect realized scores before
   the full panel completes; row-count/status monitoring is allowed.
+- The accepted K=3 missed-winner analysis now separates genuinely lost weeks
+  from redundant high scores: 16 unselected >=200 rows span eight slates, but
+  ten are on slates where the submitted book already cleared 200; six rows
+  create only four consequential missed weeks. Outcome-blind top-80 books by
+  p-line/mean/q99 each recover two of those misses but fall from 8→7 aggregate
+  >=200 weeks. The best K=3 60/20 coverage/rank hedge only ties eight >=200
+  (though 5→6 at 210) and worsens 194. K=1 ranking/hybrid sensitivities reach
+  14-15 >=200, but remain positive in only three seasons and negative in two
+  versus K=3. No selector change is supported. New reusable ranked/hybrid
+  diagnostics pass all nine focused tests; details are in the 80-entry audit.
