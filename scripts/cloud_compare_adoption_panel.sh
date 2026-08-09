@@ -1,12 +1,13 @@
 #!/bin/bash
 # Compare an accepted/promoted source with a staging treatment in Cloud Run.
-# Usage: cloud_compare_adoption_panel.sh <IMAGE@sha256:...> <SOURCE> <TREATMENT> [blend|ensemble|salary]
+# Usage: cloud_compare_adoption_panel.sh <IMAGE@sha256:...> <SOURCE> <TREATMENT> [blend|ensemble|salary] [N_ENTRIES]
 set -euo pipefail
 
 IMG=${1:-}
 SOURCE=${2:-}
 TREATMENT=${3:-}
 MECHANISM=${4:-}
+N_ENTRIES=${5:-40}
 REGION=us-central1
 PROJECT=nfl-predictions-503414
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
@@ -16,9 +17,12 @@ case "$IMG" in *@sha256:*) ;; *) echo "ABORT: immutable image required"; exit 2;
 case "$SOURCE" in ""|*[!A-Za-z0-9_-]*) echo "ABORT: invalid source panel"; exit 2;; esac
 case "$TREATMENT" in ""|*[!A-Za-z0-9_-]*) echo "ABORT: invalid treatment panel"; exit 2;; esac
 case "$MECHANISM" in ""|blend|ensemble|salary) ;; *) echo "ABORT: mechanism is blend, ensemble, or salary"; exit 2;; esac
+case "$N_ENTRIES" in ""|*[!0-9]*) echo "ABORT: invalid entry count"; exit 2;; esac
+[ "$N_ENTRIES" -ge 1 ] && [ "$N_ENTRIES" -le 150 ] || {
+  echo "ABORT: entry count must be from 1 through 150"; exit 2; }
 [ -d "$OUT" ] || { echo "ABORT: treatment report directory absent: $OUT"; exit 2; }
 
-ARGS="scripts/compare_adoption_panel.py,$SOURCE,$TREATMENT"
+ARGS="scripts/compare_adoption_panel.py,$SOURCE,$TREATMENT,--entries-expected,$N_ENTRIES"
 [ -z "$MECHANISM" ] || ARGS="$ARGS,--mechanism,$MECHANISM"
 JOB=compare-adoption-panel
 gcloud run jobs deploy "$JOB" --project "$PROJECT" --region "$REGION" \

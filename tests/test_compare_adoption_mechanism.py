@@ -209,3 +209,18 @@ def test_salary_floor_mechanism_rejects_feature_drift():
         _salary_candidates(False), _salary_candidates(True),
         _features(False), treatment_features)
     assert "source/treatment proj features differ" in failures
+
+
+def test_panel_validation_accepts_explicit_entry_count():
+    rows = []
+    for week in range(1, 108):
+        for ix in range(80):
+            rows.append({
+                "season": 2025, "week": week, "selected": True,
+                "actual_score": 150.0 + ix, "code_sha": "a",
+                "config_hash": "b", "lever_env": "c", "seeds": "d",
+            })
+    panel = pd.DataFrame(rows)
+    assert compare._validate_panel("panel", panel, 80) == []
+    assert any("exactly 40" in failure
+               for failure in compare._validate_panel("panel", panel, 40))

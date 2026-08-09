@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-08 18:14 CDT
+## Current state — 2026-08-08 19:19 CDT
 
 ### Recovery provenance
 
@@ -33,9 +33,9 @@ agent or developer:
   `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:4100028f3d5c29c4b6de423e590054dc765f605a4a88d57670a64ca6f8c21acb`.
   The underlying fully tested replay image is tag `ee6f433`, digest
   `sha256:6e34cb1f3580be71ad2acd50f0faeacf45b59a7039fe7e32b0996ecf26dda9d0`.
-- The recovered source is overlaid on branch
-  `recovery/2026-08-08-cloud-handoff`. GitHub-only reports were preserved; no
-  files were deleted during recovery.
+- The recovery branch was fast-forwarded into `main` and pushed. Local and
+  remote `main` both pointed to `1e3361f` before the 80-entry audit began.
+  GitHub-only reports were preserved; no files were deleted during recovery.
 
 ### Environment on the replacement computer
 
@@ -239,6 +239,31 @@ agent or developer:
   `eccb96c1-8fbc-420f-ba37-5d90db0790fc` (624 passed, 2 skipped). Its immutable
   reporting digest is
   `sha256:f6cb471cbb50d5aca186e7f318e29f24d46b83c772cac4951a4c0f4f101ceaee`.
+- The operator clarified that the weekly maximum from the submitted portfolio
+  is much more important than average lineup score and that 80 entries are
+  more likely than 40. Frozen-mask analysis reselected both accepted K=3 and
+  staging K=1 candidate pools at 40/80 entries and selection lines
+  187/194/200. The 40-entry reconstructions had zero persisted-selection
+  mismatches.
+- With selection line 194, frozen K=3 moved 11→18 at 194, 1→7 at 200, and
+  1→3 at 210 when entries increased 40→80. Frozen K=1 moved 16→22 at 194,
+  9→15 at 200, and 5→9 at 210. At 80, K=1 beats K=3 at every measured
+  threshold 187 through 220 and its >=200 season deltas are
+  `{2019:+3, 2021:0, 2022:+2, 2023:0, 2024:+1, 2025:+2}`—four positive,
+  zero negative.
+- The 80-entry books each left only one consequential >=200 candidate-pool
+  winner unselected. K=3's 2023-week-3 winner was buried at p-line rank
+  144/159 and depended on a +30.61 Keenan Allen surprise. K=1's
+  2019-week-6 winner ranked 53/161 and could replace one selected entry with
+  zero final simulated-coverage loss; it was an ATL/NYJ construction versus
+  the selected SEA construction. This is an algorithmic/non-unique frontier,
+  not permission to hindsight-tune selection. Full evidence is in
+  `reports/2026-08-08-80-entry-tail-audit.md`.
+- The frozen 80 result is a lower-bound diagnostic: replay generates
+  `CAND_MULT * n_entries` leverage candidates, so a true 80-entry replay has
+  160 initial leverage candidates versus 80 in these source pools. The panel,
+  acceptance, and comparison runners now accept explicit entry counts while
+  defaulting to 40. New selector/audit helpers and focused tests are green.
 
 ### Deployment caution
 
@@ -251,12 +276,14 @@ Earlier deployed `12 CE / 28 boom` settings are stale.
 
 ### Next concrete action
 
-The currently executable preregistered corrected-universe arm queue is
-exhausted. Do not tune the salary floor, revive a closed generator/reranker
-family, or promote K=1 from its aggregate headline. Preserve the deterministic
-K=3, 45/55 blend, $49k-floor control. The next evidence-bearing scoring work
-requires genuinely independent data: use new 2026 outcomes for a prospective
-K=1 confirmation and for point-in-time evidence/tracking/market signals, or
-import real classic standings/payout curves before optimizing contest-dollar
-objectives. The user-supplied lineup analyzer remains a separately logged
-future product task in `README.md`, not a scoring-arm continuation.
+Run the preregistered production-faithful 80-entry K=3/K=1 pair on immutable
+generation digest `sha256:98a31edd...`, six corrected seasons, default
+`0/0/0/40` generation budget, 194 selection line, and no other changes. Accept
+and promote the K=3 source with `--entries-expected 80`, accept the K=1 staging
+arm, then run the ensemble mechanism comparator at 80 entries. The primary
+high-tail gate is >=200 lift >=2 with at least four positive and at most one
+negative season, plus non-worsening >=194 aggregate, non-worsening >=210,
+valid mechanism, and no catastrophic mean-weekly-max regression. Do not tune
+selection line, ensemble K, or generation quotas after this result. A scaled
+boom/candidate-budget arm is separate and may be preregistered only after the
+default 80-entry pair. The lineup analyzer remains logged in `README.md`.

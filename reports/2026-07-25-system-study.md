@@ -3354,3 +3354,32 @@ the frozen improvement gate and received `unsupported-neutral`. Retain the
 $49k floor. This negative result does not authorize retrospective tuning to
 $47,500 or another intermediate floor; that would require independent data
 and a fresh preregistration.
+
+## Addendum 109 (2026-08-08): 80-entry tail objective and missed-winner audit
+
+The operator clarified before this analysis that weekly portfolio maximum and
+exceptional realized scores matter more than average lineup score, with 80
+entries more likely than 40. Production-faithful frozen-mask reconstruction
+had zero mismatches for both K=3 and K=1 at 40 entries.
+
+Selecting 80 from the immutable 40-entry candidate pools produced K=3/K=1
+counts of **18/22 at 194**, **7/15 at 200**, and **3/9 at 210**. K=1's 200
+lift was positive in four seasons, negative in none, and neutral in two. The
+full selection-line grid did not produce this conclusion by threshold mining:
+194 selection tied the best K=3 high-tail counts and was best/tied-best for
+K=1 through 210.
+
+Eighty entries reduced pool-oracle misses at 200 to one week in each model.
+K=3 buried its 2023-week-3 winner at simulated probability rank 144/159; its
+48.46-point Keenan Allen result was a 30.61-point surprise. K=1's remaining
+2019-week-6 winner ranked a plausible 53/161 and could replace one selected
+entry without losing final simulated coverage, exposing non-unique greedy
+coverage rather than a hindsight-identifiable rule. See
+`reports/2026-08-08-80-entry-tail-audit.md` for the full grid and roster
+contrasts.
+
+This is discovery evidence, not adoption. Candidate generation starts with
+`CAND_MULT * n_entries`, so a real 80-entry replay produces 160 rather than 80
+leverage candidates. A preregistered same-image K=3/K=1 80-entry pair is next;
+its primary high-tail gate is >=200 with the standing 4-positive/<=1-negative
+season law, plus non-worsening checks at 194/210 and full mechanism audits.

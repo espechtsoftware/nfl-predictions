@@ -25,6 +25,7 @@ PANEL_N_CE=${PANEL_N_CE:-0}
 PANEL_N_EPISTEMIC=${PANEL_N_EPISTEMIC:-0}
 PANEL_N_GUMBEL=${PANEL_N_GUMBEL:-0}
 PANEL_N_BOOM=${PANEL_N_BOOM:-40}
+PANEL_N_ENTRIES=${PANEL_N_ENTRIES:-40}
 
 case "$IMG" in
   *@sha256:*) ;;
@@ -42,6 +43,12 @@ case "$PANEL_RUN_ID" in
 esac
 [ -n "$CODE_SHA" ] || {
   echo "ABORT: PANEL_CODE_SHA must be the commit embedded in the image"; exit 2; }
+case "$PANEL_N_ENTRIES" in
+  ""|*[!0-9]*)
+    echo "ABORT: PANEL_N_ENTRIES must be an integer from 1 through 150"; exit 2 ;;
+esac
+[ "$PANEL_N_ENTRIES" -ge 1 ] && [ "$PANEL_N_ENTRIES" -le 150 ] || {
+  echo "ABORT: PANEL_N_ENTRIES must be an integer from 1 through 150"; exit 2; }
 [ -z "$ARM_ENV" ] || [ "${PANEL_ALLOW_TREATMENT:-0}" = "1" ] || {
   echo "ABORT: baseline runner refuses treatment env without reviewed wrapper"; exit 2; }
 if [ "$PANEL_N_CE" != 0 ] || [ "$PANEL_N_EPISTEMIC" != 0 ] \
@@ -67,10 +74,11 @@ EXISTING=$(bq query --project_id="$PROJECT" --use_legacy_sql=false \
 [ "${EXISTING:-0}" = "0" ] || {
   echo "ABORT: panel id already has $EXISTING staging rows"; exit 2; }
 
-printf 'image=%s\nfamily=%s\npanel_run_id=%s\ncode_sha=%s\nseasons=%s\narm_label=%s\narm_env=%s\nmemory=%s\nsmoke_season=%s\nn_ce=%s\nn_epistemic=%s\nn_gumbel=%s\nn_boom=%s\n' \
+printf 'image=%s\nfamily=%s\npanel_run_id=%s\ncode_sha=%s\nseasons=%s\narm_label=%s\narm_env=%s\nmemory=%s\nsmoke_season=%s\nn_entries=%s\nn_ce=%s\nn_epistemic=%s\nn_gumbel=%s\nn_boom=%s\n' \
   "$IMG" "$FAM" "$PANEL_RUN_ID" "$CODE_SHA" "$SEASONS" \
   "$ARM_LABEL" "$ARM_ENV" "$PANEL_MEMORY" "$PANEL_SMOKE_SEASON" \
-  "$PANEL_N_CE" "$PANEL_N_EPISTEMIC" "$PANEL_N_GUMBEL" "$PANEL_N_BOOM" \
+  "$PANEL_N_ENTRIES" "$PANEL_N_CE" "$PANEL_N_EPISTEMIC" \
+  "$PANEL_N_GUMBEL" "$PANEL_N_BOOM" \
   > "$OUT/manifest.txt"
 : > "$EXECS"
 : > "$PREFLIGHT"
@@ -83,13 +91,13 @@ launch_one() {
     # Exercise model fitting, nullable/cold-start handling, simulation,
     # generation, and selection without polluting the canonical panel tables.
     ENVS="GCP_PROJECT=$PROJECT|GAME_SIM_MODE=possession|N_CE=$PANEL_N_CE|N_EPISTEMIC=$PANEL_N_EPISTEMIC|N_GUMBEL=$PANEL_N_GUMBEL|N_BOOM=$PANEL_N_BOOM|CODE_SHA=$CODE_SHA|REPLAY_LINEUPS_TABLE=$LINEUPS"
-    ARGS="replay,--season,$S,--contest,gpp,--entries,40,--field-size,500,--max-weeks,1"
+    ARGS="replay,--season,$S,--contest,gpp,--entries,$PANEL_N_ENTRIES,--field-size,500,--max-weeks,1"
     RECORD="$PREFLIGHT"
   else
     JOB="replay-$FAM-$S"
     LINEUPS="$PROJECT.nfl_features.replay_lineups_${FAM}_${S}"
     ENVS="GCP_PROJECT=$PROJECT|GAME_SIM_MODE=possession|N_CE=$PANEL_N_CE|N_EPISTEMIC=$PANEL_N_EPISTEMIC|N_GUMBEL=$PANEL_N_GUMBEL|N_BOOM=$PANEL_N_BOOM|PANEL_RUN_ID=$PANEL_RUN_ID|CODE_SHA=$CODE_SHA|CAND_LOG_TABLE=$PROJECT.nfl_predictions.replay_candidates_staging|CAND_FEATURE_TABLE=$PROJECT.nfl_predictions.slate_player_features|CAND_ARTIFACT_BUCKET=${PROJECT}-raw|REPLAY_LINEUPS_TABLE=$LINEUPS"
-    ARGS="replay,--season,$S,--contest,gpp,--entries,40"
+    ARGS="replay,--season,$S,--contest,gpp,--entries,$PANEL_N_ENTRIES"
     RECORD="$EXECS"
   fi
   [ -z "$ARM_ENV" ] || ENVS="$ENVS|$ARM_ENV"

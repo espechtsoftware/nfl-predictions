@@ -37,7 +37,6 @@ STAGING = "replay_candidates_staging"
 RESEARCH = "replay_candidates"
 EXPECTED_SEASONS = (2019, 2021, 2022, 2023, 2024, 2025)
 CAND_RANGE = (80, 400)      # preregistered plausible pool size
-ENTRIES_EXPECTED = 40
 
 
 def _bits(hexs: str, n: int) -> np.ndarray:
@@ -168,7 +167,10 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("panel_run_id")
     ap.add_argument("--promote", action="store_true")
+    ap.add_argument("--entries-expected", type=int, default=40)
     a = ap.parse_args()
+    if not 1 <= a.entries_expected <= 150:
+        ap.error("--entries-expected must be from 1 through 150")
 
     d = query_df(f"""
         SELECT * FROM `{settings.predictions}.{STAGING}`
@@ -243,9 +245,13 @@ def main() -> int:
 
     # 3 selected counts
     sel = d[d.selected].groupby(["season", "week"]).size()
-    bad = sel[sel != ENTRIES_EXPECTED]
+    bad = sel[sel != a.entries_expected]
     if len(bad):
-        fails.append(f"selected != {ENTRIES_EXPECTED} in {len(bad)} slates")
+        fails.append(
+            f"selected != {a.entries_expected} in {len(bad)} slates")
+    if "n_entries" not in d or not d.n_entries.eq(a.entries_expected).all():
+        fails.append(
+            f"persisted n_entries is not uniformly {a.entries_expected}")
 
     # 4 candidate counts
     n_by = d.groupby(["season", "week"]).size()

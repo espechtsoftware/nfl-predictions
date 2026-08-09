@@ -77,15 +77,17 @@ def _split_seed_provenance(value: str) -> tuple[str, dict[str, str]]:
     return ";".join(rest), ensemble
 
 
-def _validate_panel(name: str, rows: pd.DataFrame) -> list[str]:
+def _validate_panel(name: str, rows: pd.DataFrame,
+                    entries_expected: int = 40) -> list[str]:
     failures: list[str] = []
     if rows.empty:
         return [f"{name} is empty"]
     slates = slate_scores(rows)
     if len(slates) != 107:
         failures.append(f"{name} has {len(slates)} slates, want 107")
-    if not slates.n_selected.eq(40).all():
-        failures.append(f"{name} does not select exactly 40 every slate")
+    if not slates.n_selected.eq(entries_expected).all():
+        failures.append(
+            f"{name} does not select exactly {entries_expected} every slate")
     for col in ("code_sha", "config_hash", "lever_env", "seeds"):
         if rows[col].nunique(dropna=False) != 1:
             failures.append(f"{name} has mixed {col}")
@@ -561,12 +563,16 @@ def main() -> int:
     ap.add_argument("source", help="accepted/promoted same-image baseline")
     ap.add_argument("treatment", help="accepted staging ablation")
     ap.add_argument("--mechanism", choices=("blend", "ensemble", "salary"))
+    ap.add_argument("--entries-expected", type=int, default=40)
     ap.add_argument("--output")
     a = ap.parse_args()
+    if not 1 <= a.entries_expected <= 150:
+        ap.error("--entries-expected must be from 1 through 150")
     source = _candidates(a.source, promoted=True)
     treatment = _candidates(a.treatment, promoted=False)
-    failures = (_validate_panel("source", source)
-                + _validate_panel("treatment", treatment))
+    failures = (_validate_panel("source", source, a.entries_expected)
+                + _validate_panel(
+                    "treatment", treatment, a.entries_expected))
     if not source.empty and not treatment.empty:
         if source.code_sha.iloc[0] != treatment.code_sha.iloc[0]:
             failures.append("source and treatment code SHA differ")
@@ -614,6 +620,7 @@ def main() -> int:
     report = {
         "source": a.source,
         "treatment": a.treatment,
+        "entries_expected": a.entries_expected,
         "source_metrics": metrics(ss) if not ss.empty else {},
         "treatment_metrics": metrics(ts) if not ts.empty else {},
         "season_metrics": seasons.to_dict("records"),

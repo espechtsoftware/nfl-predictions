@@ -1,0 +1,231 @@
+"""Analyze 40/80-entry frozen portfolios and high scores left unselected.
+
+Examples:
+  python scripts/analyze_tail_portfolios.py PANEL
+  python scripts/analyze_tail_portfolios.py PANEL --staging
+
+The script prints a full, predeclared grid: entry counts 40/80 and selection
+lines 187/194/200. It does not pick whichever objective happened to win.
+"""
+
+from __future__ import annotations
+
+import argparse
+from pathlib import Path
+import re
+import sys
+
+import pandas as pd
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from nfl_dfs.bq import query_df  # noqa: E402
+from nfl_dfs.config import settings  # noqa: E402
+from nfl_dfs.research.tail_portfolio import (  # noqa: E402
+    evaluate_portfolio,
+    high_unselected_candidates,
+    missed_oracles,
+    portfolio_summary,
+    season_summary,
+)
+
+
+def _panel_id(value: str) -> str:
+    if not re.fullmatch(r"[A-Za-z0-9_-]+", value):
+        raise ValueError(f"invalid panel id {value!r}")
+    return value
+
+
+def _load(panel: str, staging: bool) -> pd.DataFrame:
+    table = "replay_candidates_staging" if staging else "replay_candidates"
+    eligibility = "" if staging else "AND research_eligible"
+    return query_df(f"""
+        SELECT season, week, cand_ix, tag, all_tags, players, selected,
+               selected_rank, salary, p_line, sim_mean, sim_sd, sim_q50,
+               sim_q90, sim_q99, sim_rank_p_line, actual_score, actual_rank,
+               n_worlds, clear_bits_187, clear_bits_194, clear_bits_200
+        FROM `{settings.predictions}.{table}`
+        WHERE panel_run_id = '{_panel_id(panel)}' {eligibility}
+        """)
+
+
+def _load_features(panel: str, staging: bool) -> pd.DataFrame:
+    eligibility = "" if staging else "AND research_eligible"
+    return query_df(f"""
+        SELECT season, week, id, name, pos, team, salary, actual, proj,
+               mean_projection, model_points_pre, market_points
+        FROM `{settings.predictions}.slate_player_features`
+        WHERE panel_run_id = '{_panel_id(panel)}' {eligibility}
+        """)
+
+
+def _fmt_summary(report: dict) -> str:
+    fields = [
+        f"N={report['entry_count']}",
+        f"select={report['select_line']:g}",
+        *(f">={line} {report[f'ge_{line}']}" for line in
+          (187, 194, 200, 210, 220, 230, 240)),
+        f"mean-max {report['mean_weekly_max']:.2f}",
+        f"q90 {report['q90_weekly_max']:.2f}",
+        f"regret {report['mean_regret']:.2f}",
+    ]
+    return " | ".join(fields)
+
+
+def _print_misses(rows: pd.DataFrame, threshold: float) -> None:
+    if rows.empty:
+        print("  none")
+        return
+    columns = [
+        "season", "week", "selected_best", "oracle", "regret",
+        "oracle_tag", "oracle_p_line_rank", "oracle_sim_mean_rank",
+        "oracle_sim_q99_rank", "oracle_clear_worlds",
+        "oracle_new_worlds_after_portfolio",
+        "best_oracle_swap_coverage_delta", "nonnegative_oracle_swaps",
+        "roster_overlap", "n_candidates",
+    ]
+    print(rows[columns].to_string(index=False, float_format=lambda x: f"{x:.2f}"))
+
+
+def _print_roster_contrasts(misses: pd.DataFrame, candidates: pd.DataFrame,
+                            features: pd.DataFrame) -> None:
+    """Explain which realized player swaps created each missed winner."""
+    if misses.empty:
+        print("  none")
+        return
+    candidate_lookup = candidates.set_index(["season", "week", "cand_ix"])
+    feature_lookup = {
+        (int(season), int(week)): group.drop_duplicates("id").set_index("id")
+        for (season, week), group in features.groupby(["season", "week"])
+    }
+    for miss in misses.itertuples(index=False):
+        key = (int(miss.season), int(miss.week))
+        oracle = candidate_lookup.loc[
+            (*key, int(miss.oracle_cand_ix))]
+        selected = candidate_lookup.loc[
+            (*key, int(miss.selected_best_cand_ix))]
+        oracle_ids = set(str(oracle.players).split(","))
+        selected_ids = set(str(selected.players).split(","))
+        frame = feature_lookup[key]
+        details = []
+        for side, ids in (("oracle_only", oracle_ids - selected_ids),
+                          ("selected_only", selected_ids - oracle_ids)):
+            for player_id in ids:
+                player = frame.loc[player_id]
+                expected = (player.proj if str(player.pos).upper() == "DST"
+                            else player.mean_projection)
+                details.append({
+                    "side": side,
+                    "id": player_id,
+                    "name": player.get("name", player_id),
+                    "pos": player.pos,
+                    "team": player.team,
+                    "salary": int(player.salary),
+                    "expected": float(expected),
+                    "actual": float(player.actual),
+                    "surprise": float(player.actual - expected),
+                })
+        detail = pd.DataFrame(details).sort_values(
+            ["side", "actual"], ascending=[True, False])
+        print(f"  {key[0]} week {key[1]}: selected {miss.selected_best:.2f}, "
+              f"oracle {miss.oracle:.2f}, overlap {miss.roster_overlap}/9")
+        print(detail.to_string(
+            index=False, float_format=lambda x: f"{x:.2f}"))
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("panel_run_id")
+    ap.add_argument("--staging", action="store_true")
+    ap.add_argument("--entry-counts", nargs="+", type=int, default=[40, 80])
+    ap.add_argument("--select-lines", nargs="+", type=float,
+                    default=[187.0, 194.0, 200.0])
+    ap.add_argument("--top-unselected", type=int, default=20)
+    args = ap.parse_args()
+
+    candidates = _load(args.panel_run_id, args.staging)
+    if candidates.empty:
+        print(f"no candidate rows for {args.panel_run_id}", file=sys.stderr)
+        return 1
+    slates = candidates.groupby(["season", "week"]).ngroups
+    print(f"panel={args.panel_run_id} staging={args.staging} "
+          f"candidates={len(candidates):,} slates={slates}")
+    features: pd.DataFrame | None = None
+
+    results: dict[tuple[int, float], tuple[pd.DataFrame, pd.DataFrame]] = {}
+    print("\nFULL FROZEN GRID")
+    for entries in args.entry_counts:
+        for line in args.select_lines:
+            slate_rows, membership = evaluate_portfolio(
+                candidates, entry_count=entries, select_line=line)
+            results[(entries, line)] = (slate_rows, membership)
+            print(_fmt_summary(portfolio_summary(slate_rows)))
+
+    # Production replay used 40 entries and the 194 support mask. Prove this
+    # frozen analysis is faithful before interpreting any 80-entry result.
+    if (40, 194.0) in results:
+        _, membership = results[(40, 194.0)]
+        persisted = candidates[["season", "week", "cand_ix", "selected"]]
+        joined = persisted.merge(
+            membership, on=["season", "week", "cand_ix"],
+            validate="one_to_one")
+        mismatches = int(
+            (joined.selected != joined.portfolio_selected).sum())
+        print(f"\n40-entry production-selection mismatches: {mismatches}")
+        if mismatches:
+            return 2
+
+    for entries in args.entry_counts:
+        key = (entries, 194.0)
+        if key not in results:
+            continue
+        slate_rows, membership = results[key]
+        print(f"\nN={entries}, SELECT=194 — BY SEASON")
+        print(season_summary(slate_rows).to_string(
+            index=False, float_format=lambda x: f"{x:.2f}"))
+        for threshold in (194.0, 200.0):
+            print(f"\nN={entries} RECOVERABLE >={threshold:g} WEEKS")
+            _print_misses(missed_oracles(slate_rows, threshold), threshold)
+
+        print(f"\nN={entries} TOP REALIZED >=200 CANDIDATES NOT SELECTED")
+        high = high_unselected_candidates(
+            candidates, membership, threshold=200.0)
+        columns = [
+            "season", "week", "cand_ix", "actual_score", "tag", "salary",
+            "p_line", "p_line_rank", "sim_mean", "sim_mean_rank",
+            "sim_q99", "sim_q99_rank", "players",
+        ]
+        if high.empty:
+            print("  none")
+        else:
+            if args.top_unselected:
+                print(high[columns].head(args.top_unselected).to_string(
+                    index=False, float_format=lambda x: f"{x:.3f}"))
+            print(f"unselected >=200 candidates: {len(high)} across "
+                  f"{high.groupby(['season', 'week']).ngroups} slates")
+            high = high.merge(
+                slate_rows[["season", "week", "selected_best"]],
+                on=["season", "week"], validate="many_to_one")
+            high["consequential"] = high.selected_best < 200.0
+            print("by generator (candidates / slates / consequential):")
+            by_tag = high.groupby("tag").apply(
+                lambda g: pd.Series({
+                    "candidates": len(g),
+                    "slates": g.groupby(["season", "week"]).ngroups,
+                    "consequential": int(g.consequential.sum()),
+                    "median_p_line_rank": float(g.p_line_rank.median()),
+                }), include_groups=False).reset_index()
+            print(by_tag.to_string(
+                index=False, float_format=lambda x: f"{x:.1f}"))
+
+        misses_200 = missed_oracles(slate_rows, 200.0)
+        print(f"\nN={entries} MISSED >=200 ROSTER CONTRASTS")
+        if not misses_200.empty and features is None:
+            features = _load_features(args.panel_run_id, args.staging)
+        _print_roster_contrasts(
+            misses_200, candidates,
+            features if features is not None else pd.DataFrame())
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
