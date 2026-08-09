@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 12:13 CDT
+## Current state — 2026-08-09 12:16 CDT
 
 ### Recovery provenance
 
@@ -544,6 +544,18 @@ After all six jobs succeed and all 107 slates exist, run check-only acceptance
 on reporting digest `sha256:67e20d8308bd...ed4f3f6`, then the purpose-built
 `salary` comparator against `20260808-e80-k1-c616390`. Preserve its complete
 tail grid and mechanism report before making the frozen disposition.
+
+The data-acquisition audit requested during this run is tracked in
+`reports/2026-08-09-data-acquisition-priorities.md`. Its ordering is: complete
+Classic contest-entry/payout standings first (free and directly aligned with
+winning money), one independent ownership/projection source as a measured
+trial, expanded shadow use of the already-paid Odds API, then route-level
+usage data only if it adds held-out signal. BigQuery has 369,727 prop rows in
+10 markets but the vendor exposes many unused volume/TD/combo/tail markets;
+the first proposed expansion is shadow-only and quota-metered. The new
+computer lacks the local Odds API key, so never redeploy `ingest-odds` or
+`ingest-props` with the current value-passing script until the credential is
+restored securely or migrated to Secret Manager.
 Keep all seven research schedules paused until the tracked August 24
 season-start runbook. Do not execute either source shadow or freezer before
 DK posts the matching regular-season Sunday main slate. Never mutate the
