@@ -556,6 +556,23 @@ the first proposed expansion is shadow-only and quota-metered. The new
 computer lacks the local Odds API key, so never redeploy `ingest-odds` or
 `ingest-props` with the current value-passing script until the credential is
 restored securely or migrated to Secret Manager.
+
+Historical full-field backfill was subsequently audited because DraftKings'
+free full-standings CSV expires after 10 days. Affordable UI/backtest products
+exist, but no public vendor documentation yet guarantees a bulk raw-field
+export. First choice is DFS Hero's $1/five-day all-tools trial: BacktestIQ says
+it uses real historical opponent fields. Before renewal, require 2023–2025 NFL
+Sunday Classic coverage plus either import/grading of our exact 80-lineup
+portfolios or usable score/rank/payout output. FantasyCruncher NFL Pro is the
+fallback at its current $89.95/month and explicitly includes NFL Lineup Study;
+ask support about retained years, contest list, payouts, and export before
+purchase. FantasyLabs ($39.95/month NFL) documents historical ownership and
+NFL Contest Dashboard lineups but not export or depth. Fantasy Team Advice
+advertises projected/live ownership rather than historical fields, and the
+claimed Sports Data Direct $34.95 feed could not be verified as current. No
+purchase/account creation has been authorized. The exact vendor gate and
+primary-source links are preserved in the acquisition report.
+
 Keep all seven research schedules paused until the tracked August 24
 season-start runbook. Do not execute either source shadow or freezer before
 DK posts the matching regular-season Sunday main slate. Never mutate the

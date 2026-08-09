@@ -39,7 +39,7 @@ oracle from 19 to 17. Market information is useful, but the next gain is more
 likely to come from richer market constraints and opponent modeling than from
 throwing the market mean away.
 
-## Priority 1 — complete real contest fields (highest expected value; free)
+## Priority 1 — complete real contest fields (highest expected value; free prospectively)
 
 Download the full standings CSV for every contest actually played, ideally on
 Monday and no later than Tuesday. At minimum collect:
@@ -62,6 +62,75 @@ This is more valuable than buying a projection feed because a projection feed
 can improve player estimates, while complete fields tell us what combinations
 the opponents submit and what score actually wins money—the objective the
 optimizer cannot presently observe.
+
+### Historical backfill before the 2026 season
+
+The free DraftKings workflow cannot backfill old fields. DraftKings' current
+help page says a completed contest's full standings CSV includes ranks,
+complete lineups, points, and ownership, but remains downloadable for only 10
+days after the contest ends. The separate personal contest-history export is
+not a substitute: it describes the account's own entries and results rather
+than every opposing lineup and the contest payout curve.
+
+There are affordable products with real historical contest fields, but their
+public documentation does **not** promise a bulk/raw field export. Treat the
+first purchase as a workflow trial rather than as a licensed dataset:
+
+1. **DFS Hero — first trial.** Its official site offers every tool for $1 for
+   five days, then $79.95/month for Essential. BacktestIQ explicitly claims to
+   test build strategies against actual past contests with real opponent
+   lineups, and Contest Analyzer claims every lineup in a past DraftKings
+   contest. Before allowing renewal, verify that it covers 2023–2025 NFL
+   Sunday Classic slates and either accepts our exact historical 80-lineup
+   portfolios or exposes enough score/rank/payout information to grade them.
+   Only generated-lineup and current-data exports are publicly documented;
+   historical opponent-field export is not.
+2. **FantasyCruncher NFL Pro — best documented field-analysis fallback.** Its
+   current signup data prices NFL Pro at $89.95/month and lists Lineup Study
+   access; its current NFL support page confirms DraftKings NFL Lineup Study
+   and Lineup Rewind. This is comfortably within budget and is a plausible
+   one-month backfill tool, but first confirm the retained NFL years, contest
+   list, payout visibility, and whether field rows or score/rank distributions
+   can be exported. Public CSV help covers generated lineups, not Lineup Study
+   opponent rows.
+3. **FantasyLabs NFL — inexpensive research/UI fallback, not yet a data-feed
+   purchase.** The current official NFL plan is $39.95/month. FantasyLabs
+   documents historical ownership/player performance and an NFL Contest
+   Dashboard with detailed lineups, exposures, duplicates, and leaderboards.
+   It does not publicly promise complete-field export, arbitrary portfolio
+   backtesting, retained-year depth, or that every needed Sunday Classic
+   contest is present.
+
+Fantasy Team Advice is not a historical-field solution based on its current
+official materials. Its $29.99/month product advertises an optimizer and
+**projected/live** ownership, not archived complete contest entries. The
+claimed $34.95 Sports Data Direct feed could not be verified as a current
+product; the discoverable Python client was last released in 2019. Do not buy
+either for this purpose without new primary-source evidence.
+
+The exact vendor gate is: “Can I export or programmatically access every
+entry—rank, score, ordered lineup, duplicates, and payout—for 2023–2025
+DraftKings NFL Sunday Classic contests, or upload my own 80 lineups per slate
+and receive their ranks and payouts against the complete historical field?
+Which slates and contests are retained?” A product that supplies only player
+ownership percentages does not pass.
+
+No purchase or account creation is authorized by this audit. Recommended next
+step is the $1 DFS Hero trial after the user is available to create the account
+and approve its auto-renewing billing; cancel within the five-day window unless
+the gate passes. If it fails, ask FantasyCruncher support the same question
+before buying one NFL Pro month.
+
+Sources:
+[DraftKings full-standings CSV and 10-day limit](https://help.draftkings.com/hc/en-us/articles/4412213454099-How-do-I-download-a-CSV-to-see-GameCenter-standings-for-a-contest-US),
+[DFS Hero tools](https://dfshero.com/tools),
+[DFS Hero pricing](https://dfshero.com/pricing),
+[FantasyCruncher NFL Pro signup](https://www.fantasycruncher.com/premium-signup/NFL/monthly),
+[FantasyCruncher supported NFL tools](https://www.fantasycruncher.com/help/faqs/What-sites-sports-do-you-support),
+[FantasyLabs NFL pricing](https://www.fantasylabs.com/pricing-al/),
+[FantasyLabs NFL Contest Dashboard](https://www.fantasylabs.com/articles/use-nfl-dfs-contest-dashboard-fantasylabs/),
+[Fantasy Team Advice membership](https://fantasyteamadvice.com/memberships?rfr=ownership),
+[stale Sports Data Direct Python client](https://pypi.org/project/sdd-api/).
 
 ## Priority 2 — independent ownership and projection consensus (small trial)
 
