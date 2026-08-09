@@ -399,6 +399,31 @@ duplication or a removable greedy tie. The audit now prints these fields for
 every future panel: closest selected candidate and actual score, simulated
 support Jaccard, roster overlap, and selected support-superset count.
 
+The exact K=3 roster decomposition shows two different failure shapes:
+
+- **2019w9 (216.42 vs 180.90, overlap 2/9)** combined four simultaneous
+  positive surprises—Russell Wilson +20.18 over expectation, Christian
+  McCaffrey +16.31, Jaylen Samuels +11.52, and Jacob Hollister +14.19. This is
+  a broad joint-tail miss, not one locally interchangeable player.
+- **2025w12 (214.36 vs 197.64, overlap 2/9)** relied mainly on Hunter Henry
+  +17.50, Chimere Dike +12.91, and GB DST +8.88. The submitted book was
+  already close to 200 through a different Jameis Winston/Ashton Jeanty
+  construction; the missing gain required a different set of co-booms.
+- **2021w11 (205.20 vs 198.40, overlap 7/9)** is a two-slot pivot: Joe
+  Mixon/PHI DST replaced Dalvin Cook/CHI DST. Their pre-lock expected sums
+  were nearly tied, 26.56 versus 26.21, but the realized pivot gained 6.80.
+- **2019w6 (204.44 vs 188.54, overlap 7/9)** is another two-slot pivot: Nick
+  Chubb/Corey Davis replaced Dalvin Cook/Demaryius Thomas. Expected sums were
+  again nearly tied, 27.45 versus 27.22; the result turned on Chubb beating
+  expectation by 14.86 while Cook missed by 6.92.
+
+The two close pivots explain why marginal ranking can recover some misses,
+but not why it should know which of many near-equal pivots will hit. The two
+broad misses require the joint simulator to put more probability on the
+correct combinations. Because the generic ranked/hybrid portfolios lose
+other 200+ weeks, this decomposition supports better conditional joint
+beliefs rather than a hindsight exposure mandate.
+
 Across *all* unselected candidate rows scoring at least 200—not only the
 slate oracle—K=3 has 16 rows across eight slates and K=1 has 24 across eleven.
 They are predominantly `lev` candidates (15/16 and 21/24). That concentration
