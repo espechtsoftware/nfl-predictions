@@ -354,6 +354,27 @@ and 190.36. Across all seven misses, the local repair recovers **zero**
 winners. The problem is not an obvious greedy bug; the changed simulator
 beliefs and candidate ranking remain the appropriate research target.
 
+The follow-up support-substitute audit makes that attribution more precise.
+For every consequential miss, compare the oracle candidate with the selected
+candidate having the largest Jaccard overlap in simulated >=194 worlds. No
+selected candidate is a support superset of any missed oracle, and all 80
+selected candidates retain at least one uniquely covered world. The nearest
+selected support overlap is only **0.228-0.404 for K=3** and
+**0.140-0.464 for K=1**. Thus the selector did not discard these winners as
+exact or near-exact simulated duplicates.
+
+Several missed oracles nevertheless share seven of nine players with their
+nearest selected support substitute. Those near-roster cases were decided by
+realized player swaps the simulator did not rank strongly enough: for
+example, 2021w11 K=3 swapped Dalvin Cook/CHI DST for Joe Mixon/PHI DST, while
+2019w10 K=1 swapped Tyreek Hill/BUF DST for Michael Thomas/PIT DST. Other
+misses required genuinely different game constructions: K=1 2021w4's nearest
+selected substitute shared only four players and just 0.140 of tail-world
+support. This is evidence of joint-outcome belief error, not merely roster
+duplication or a removable greedy tie. The audit now prints these fields for
+every future panel: closest selected candidate and actual score, simulated
+support Jaccard, roster overlap, and selected support-superset count.
+
 ## Next preregistered arm: coherent member-sampled worlds
 
 Because K=1 did not earn adoption, the accepted K=3 configuration remains the

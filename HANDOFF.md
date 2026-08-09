@@ -371,3 +371,17 @@ or budgets after the result. The lineup analyzer remains logged in
   passed 638 tests (2 skipped) and produced immutable digest
   `sha256:29bb404d84e1a6d8d27d94f4204ffa6fbac7d97dab164c54069c4a4a9ec02dea`.
   Use it for both acceptance runs and the `member_world` comparator.
+- The deeper true-80 missed-winner audit now measures each oracle against its
+  nearest selected simulated-support substitute. None of the 11
+  consequential >=200 misses is support-dominated by a selected lineup; the
+  nearest support Jaccard is only 0.140-0.464, while every selected entry owns
+  unique worlds. This rules out simple duplicate pruning and attributes the
+  residual misses to joint-outcome beliefs/candidate ranking. Focused
+  validation: `tests/test_tail_portfolio.py`, 7 passed. Production selection
+  was not changed.
+- Both member-world panels remain active with no failed season execution. At
+  the last durable query, control had 31/107 staging slates and treatment had
+  24/107. The exact next action is to wait for 107/107 on both, verify all 12
+  executions completed cleanly, then run control check/promote, treatment
+  check, `member_world` comparison, and the full missed-winner grids using the
+  pinned reporting digest above.

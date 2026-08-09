@@ -85,7 +85,9 @@ def _print_misses(rows: pd.DataFrame, threshold: float) -> None:
         "oracle_sim_q99_rank", "oracle_clear_worlds",
         "oracle_new_worlds_after_portfolio",
         "best_oracle_swap_coverage_delta", "nonnegative_oracle_swaps",
-        "roster_overlap", "n_candidates",
+        "roster_overlap", "closest_selected_support_jaccard",
+        "closest_selected_roster_overlap", "selected_support_superset_count",
+        "n_candidates",
     ]
     print(rows[columns].to_string(index=False, float_format=lambda x: f"{x:.2f}"))
 
@@ -157,6 +159,12 @@ def _print_roster_contrasts(misses: pd.DataFrame, candidates: pd.DataFrame,
             free_mask & (actual_values >= 200.0)))
         print(f"  {key[0]} week {key[1]}: selected {miss.selected_best:.2f}, "
               f"oracle {miss.oracle:.2f}, overlap {miss.roster_overlap}/9")
+        print(f"    closest simulated substitute cand="
+              f"{int(miss.closest_selected_cand_ix)} scored "
+              f"{miss.closest_selected_actual:.2f}; support Jaccard="
+              f"{miss.closest_selected_support_jaccard:.3f}, roster overlap="
+              f"{int(miss.closest_selected_roster_overlap)}/9; selected "
+              f"support supersets={int(miss.selected_support_superset_count)}")
         print(f"    oracle best swap delta={best_delta[oracle_pos]:+d}; "
               f"non-worsening drops={free_swaps[oracle_pos]}; "
               f"all unselected candidates with a free swap="

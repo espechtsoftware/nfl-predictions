@@ -264,6 +264,20 @@ def evaluate_portfolio(rows: pd.DataFrame, entry_count: int,
 
         covered = np.any(support[picked], axis=0)
         oracle_worlds = support[oracle_pos]
+        selected_support = support[picked]
+        intersections = np.count_nonzero(
+            selected_support & oracle_worlds, axis=1)
+        unions = np.count_nonzero(
+            selected_support | oracle_worlds, axis=1)
+        support_jaccard = np.divide(
+            intersections, unions,
+            out=np.ones(len(picked), dtype=float), where=unions > 0)
+        closest_selected_local = int(np.argmax(support_jaccard))
+        closest_selected_pos = int(picked[closest_selected_local])
+        closest_players = set(
+            str(ordered.players.iloc[closest_selected_pos]).split(","))
+        support_supersets = np.all(
+            selected_support | ~oracle_worlds, axis=1)
         oracle_new_worlds = int(np.count_nonzero(oracle_worlds & ~covered))
         oracle_clear_worlds = int(np.count_nonzero(oracle_worlds))
         swap_delta, free_swaps = _best_swap_delta(
@@ -290,6 +304,16 @@ def evaluate_portfolio(rows: pd.DataFrame, entry_count: int,
             "selected_best_players": str(
                 ordered.players.iloc[selected_best_pos]),
             "roster_overlap": int(len(oracle_players & best_players)),
+            "closest_selected_cand_ix": int(
+                ordered.cand_ix.iloc[closest_selected_pos]),
+            "closest_selected_actual": float(
+                actual.iloc[closest_selected_pos]),
+            "closest_selected_support_jaccard": float(
+                support_jaccard[closest_selected_local]),
+            "closest_selected_roster_overlap": int(
+                len(oracle_players & closest_players)),
+            "selected_support_superset_count": int(
+                np.count_nonzero(support_supersets)),
             "oracle_actual_rank": _descending_rank(actual, oracle_pos),
             "oracle_p_line": float(ordered.p_line.iloc[oracle_pos]),
             "oracle_p_line_rank": _descending_rank(

@@ -72,6 +72,9 @@ def test_select_and_evaluate_frozen_portfolio():
     assert not slates.oracle_selected.any()
     assert slates.oracle_new_worlds_after_portfolio.eq(0).all()
     assert slates.best_oracle_swap_coverage_delta.eq(-2).all()
+    assert slates.closest_selected_support_jaccard.eq(0).all()
+    assert slates.closest_selected_roster_overlap.eq(0).all()
+    assert slates.selected_support_superset_count.eq(2).all()
     assert membership.portfolio_selected.sum() == 4
 
     summary = portfolio_summary(slates)

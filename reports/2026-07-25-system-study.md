@@ -3440,3 +3440,22 @@ coherent member-sampled worlds (`ENSEMBLE_WORLD_MODE=member_sample`, seed
 8161). It keeps the 194 selector and the same >=200 4-positive/<=1-negative
 law. Its mechanism gate must prove invariant player marginals and inputs but
 changed joint support/candidate portfolios before any score is interpreted.
+
+## Addendum 111 (2026-08-08): missed winners are not simulated-support duplicates
+
+The true-80 missed-winner audit now identifies each oracle's nearest selected
+substitute in simulated >=194-world support. Across all four K=3 and seven
+K=1 consequential >=200 misses, **zero** selected lineups are support
+supersets of the oracle and every selected lineup owns at least one unique
+world. Nearest-support Jaccard overlap is only 0.228-0.404 for K=3 and
+0.140-0.464 for K=1, even though many nearest substitutes share seven of nine
+players.
+
+This rejects a simple duplicate-pruning explanation. Some misses are narrow
+player-combination errors inside similar rosters (for example RB/DST swaps);
+others are different game constructions whose realized booms were not close
+in the simulated joint tail. Only two K=1 oracles permit a non-worsening final
+coverage swap, and the already-frozen outcome-blind local refinement selects
+other candidates. Production selection remains unchanged. The new
+diagnostic is covered by the focused tail-portfolio suite and is recorded in
+`reports/2026-08-08-80-entry-tail-audit.md`.
