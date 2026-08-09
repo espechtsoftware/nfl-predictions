@@ -1,7 +1,7 @@
 # K=1 cross-entropy true-80 experiment
 
-Status: union panel complete; first comparator failed closed on sub-ULP
-serialization drift and a tolerance-corrected mechanical retry is pending.
+Status: corrected union comparator passed; the frozen equal-budget fixed
+replacement panel is running and no partial fixed-panel outcomes are read.
 
 ## Why this arm is still eligible
 
@@ -83,3 +83,14 @@ diagnostic and separately fails only numeric differences above `1e-12` or
 any exact nonnumeric difference. Preserve v1 and run a labeled v2 retry on a
 new fully validated reporting image. The fixed replacement remains blocked
 until tracked `ce_comparison_v2.json` passes the original union gate.
+
+Comparator build `4acbc4dd-d54e-4556-9097-1870589f8dcb` passed 701 tests
+with 2 skipped and produced reporting digest
+`sha256:342c96629fd335c57ab2ff695b79ee29d9b11df73a001ddf7d34ee0c8fee0eff`.
+Labeled execution `compare-k1-ce-panel-wbspp` passed every original union
+condition with zero failures and the same metrics above. The fixed runner then
+froze all 107 source pool caps (range 224–251), passed immutable one-week
+preflight `replay-e80k1cef-smoke-mcv5c`, and launched the six fixed seasons.
+The exact IDs and cap map are tracked under
+`reports/panel-runs/20260809-e80-k1-ce12-c616390/`. Do not inspect or compare
+partial fixed-panel scores.

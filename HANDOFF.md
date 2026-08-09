@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 17:44 CDT
+## Current state — 2026-08-09 18:06 CDT
 
 ### Autonomous scoring research resumed after context recovery
 
@@ -225,6 +225,28 @@ agent or developer:
   query pass; shell parsing and whitespace checks pass. Exact next action:
   commit/push, full Cloud Build, run labeled union v2, and launch the frozen
   fixed replacement only if `ce_comparison_v2.json` passes.
+- Comparator build `4acbc4dd-d54e-4556-9097-1870589f8dcb` passed 701 tests
+  with 2 skipped from `04ec460` and produced immutable reporting digest
+  `sha256:342c96629fd335c57ab2ff695b79ee29d9b11df73a001ddf7d34ee0c8fee0eff`.
+  Labeled v2 execution `compare-k1-ce-panel-wbspp` passed all original union
+  gates with zero material feature, shared-world, or candidate mechanism
+  failures. The tracked `ce_comparison_v2.json` is the valid gate record; v1
+  remains preserved as false-positive audit provenance.
+- Fixed equal-budget panel `20260809-e80-k1-ce12-c616390` froze all 107
+  source-pool caps before treatment scoring (range 224–251), uses old immutable
+  generation digest `sha256:98a31edd...`, code `c616390`, K=1, true 80,
+  `12 CE / 28 boom`, and seed 1701. Preflight
+  `replay-e80k1cef-smoke-mcv5c` passed. Exact season executions are
+  `replay-e80k1cef-2019-4xr9f`, `replay-e80k1cef-2021-sfdjt`,
+  `replay-e80k1cef-2022-9km62`, `replay-e80k1cef-2023-8p8z9`,
+  `replay-e80k1cef-2024-7tz6v`, and `replay-e80k1cef-2025-xjhhh`.
+  Do not read partial outcomes. Once all six succeed, run the frozen fixed
+  comparator and promote only if its selected-tail and oracle gates pass.
+- Ownership panel remains healthy and partial outcomes remain unread; current
+  no-score progress is 7/10/8/12/9/8 slates for 2019/2021/2022/2023/2024/2025.
+  Exact next action: monitor the six fixed CE and six ownership execution IDs,
+  compare each only after its complete six-season success contract, update
+  both protocols/HANDOFF, and continue from whichever mechanisms pass.
 
 ### Recovery provenance
 
