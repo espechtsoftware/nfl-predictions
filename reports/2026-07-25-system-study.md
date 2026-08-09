@@ -3723,3 +3723,28 @@ with exact 80-entry completeness and no parity failures. The next evidence
 must be prospective: train and store K=1 in an isolated registry and freeze
 Sunday-main candidate books before outcomes without changing the K=3 live
 default.
+
+## Addendum 119 (2026-08-09): prospective K=1 shadow is isolated and deployed
+
+The tail-first research baseline now has a fail-closed prospective path.
+Canonical registry labels remain unchanged; K=1 training writes only
+`comp_*__tail_k1`, and shadow loading verifies both the namespace and the
+stored member count before any lineup work. `nfl-dfs shadow-k1` selects the
+largest all-Sunday DK group only when its Eastern date exactly matches the
+next regular-season week's Sunday, then freezes exactly 80 entries at line
+194 with the historical 0/0/0/40 generation budget, $49k floor, 45/55 blend,
+and user notes disabled. Candidate/player writes and full score-matrix storage
+are synchronous and required; any missing artifact, partial portfolio, or
+warehouse failure fails the execution.
+
+Cloud Build `d5c080e9-03a6-46e8-b8d9-aca3874b287c` passed 667 tests (2
+skipped), producing immutable digest
+`sha256:d7df959ce3f7ed6f41427b6015f4e275606c07e91671aa24872422c8f3319998`.
+Isolated jobs `train-weekly-k1` and `shadow-k1` are pinned to that digest.
+Training smoke `train-weekly-k1-hrhl8` created
+`comp_targets__tail_k1/2026-W32`; the canonical target registry stayed at
+2026-W32 with exact before/after listing checksum
+`e85a892e48da1b31eb87712b1ace96ea8f8c25f841d9bcdca9084a29b6cd1a8d`.
+Schedulers `s-train-k1`, `s-shadow-k1-early`, and `s-shadow-k1-late` are all
+PAUSED until the August 24 season-start runbook. No live app default or
+canonical K=3 model was changed.

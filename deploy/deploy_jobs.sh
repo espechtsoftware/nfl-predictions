@@ -58,12 +58,13 @@ job project-slate    project         4Gi 2 "GAME_SIM_MODE=possession"
 # Prospective evidence only: fixed true-80/194 Sunday-main book, synchronous
 # persistence, no user notes, and no projection/live-app mutation.
 job shadow-k1        shadow-k1       8Gi 4 "MODEL_ENSEMBLE=1|MODEL_REGISTRY_VARIANT=tail_k1|GAME_SIM_MODE=possession|N_CE=0|N_EPISTEMIC=0|N_GUMBEL=0|N_BOOM=40|MIN_LINEUP_SALARY=49000|BLEND_MODEL_WEIGHT=0.45|LIVE_SIMS=30000|CAND_ARTIFACT_BUCKET=${PROJECT}-raw|CODE_SHA=${CODE_SHA}"
+job shadow-k3        shadow-k3       8Gi 4 "MODEL_ENSEMBLE=3|MODEL_REGISTRY_VARIANT=canonical|GAME_SIM_MODE=possession|N_CE=0|N_EPISTEMIC=0|N_GUMBEL=0|N_BOOM=40|MIN_LINEUP_SALARY=49000|BLEND_MODEL_WEIGHT=0.45|LIVE_SIMS=30000|CAND_ARTIFACT_BUCKET=${PROJECT}-raw|CODE_SHA=${CODE_SHA}"
 job score-entries    score-entries
 job trends-alerts    trends
 job check-freshness  check-freshness 1Gi 1
 
 # --- Schedules (live cadences; seasonal pauses managed by the README §11
-# runbook: s-nflverse/s-features/s-train*/s-project-*/s-shadow-k1-* are PAUSED in the
+# runbook: s-nflverse/s-features/s-train*/s-project-*/s-shadow-k[13]-* are PAUSED in the
 # off-season and resumed ~Aug 24) --------------------------------------------
 sched s-nflverse    ingest-nflverse "0 5 * * 2"
 sched s-features    build-features  "30 6 * * 2"
@@ -75,6 +76,8 @@ sched s-project-su  project-slate   "0 6-11 * * 7"
 # the later one incorporates most Sunday inactive/market information.
 sched s-shadow-k1-early shadow-k1   "30 10 * * 7"
 sched s-shadow-k1-late  shadow-k1   "20 11 * * 7"
+sched s-shadow-k3-early shadow-k3   "30 10 * * 7"
+sched s-shadow-k3-late  shadow-k3   "20 11 * * 7"
 sched s-dk          ingest-dk       "0 10 * * 3-7"
 sched s-odds        ingest-odds     "0 9,15 * * 3-7"
 sched s-props       ingest-props    "0 11 * * 4"

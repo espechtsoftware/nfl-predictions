@@ -61,6 +61,10 @@ def main(argv: list[str] | None = None) -> None:
         "shadow-k1",
         help="Freeze the prospective K=1 Sunday-main 80-entry portfolio",
     )
+    sub.add_parser(
+        "shadow-k3",
+        help="Freeze the canonical K=3 Sunday-main reference portfolio",
+    )
 
     p = sub.add_parser("trends", help="Changepoint detection + salary-lag watchlist")
     p.add_argument("--season", type=int, default=None)
@@ -211,6 +215,10 @@ def main(argv: list[str] | None = None) -> None:
         from .inference import tail_shadow
 
         tail_shadow.run()
+    elif args.command == "shadow-k3":
+        from .inference import tail_shadow
+
+        tail_shadow.run(expected_variant=tail_shadow.K3_VARIANT)
     elif args.command == "trends":
         from .config import current_season
         from .trends import alerts

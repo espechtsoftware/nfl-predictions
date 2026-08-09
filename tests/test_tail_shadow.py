@@ -164,5 +164,51 @@ def test_shadow_refuses_canonical_registry(monkeypatch):
 
     monkeypatch.delenv("MODEL_REGISTRY_VARIANT", raising=False)
     monkeypatch.setenv("MODEL_ENSEMBLE", "1")
-    with pytest.raises(RuntimeError, match="refuses the canonical registry"):
+    with pytest.raises(RuntimeError, match="requires MODEL_REGISTRY_VARIANT=tail_k1"):
         tail_shadow.run(store=object())
+
+
+def test_canonical_reference_shadow_has_distinct_identity(monkeypatch):
+    from nfl_dfs.inference import tail_shadow
+
+    monkeypatch.setenv("MODEL_REGISTRY_VARIANT", "canonical")
+    monkeypatch.setenv("MODEL_ENSEMBLE", "3")
+    monkeypatch.setenv("CAND_ARTIFACT_BUCKET", "test-artifacts")
+    monkeypatch.setattr(
+        tail_shadow, "upcoming_season_week",
+        lambda: (2026, 1, date(2026, 9, 13)))
+
+    class Store:
+        def classic_slates(self):
+            return pd.DataFrame([{
+                "draft_group_id": 77,
+                "game_start": "2026-09-13T17:00:00Z",
+                "teams": 20,
+                "players": 100,
+            }])
+
+        def classic_salaries(self, gid):
+            return pd.DataFrame({
+                "dk_player_id": range(100, 200),
+                "salary": [5000] * 100,
+            })
+
+    captured = {}
+
+    def fake_build(*args, **kwargs):
+        captured.update(kwargs)
+        return [object()] * 80
+
+    monkeypatch.setattr(
+        "nfl_dfs.inference.live_lineups.build_sim_lineups", fake_build)
+    result = tail_shadow.run(
+        expected_variant=tail_shadow.K3_VARIANT,
+        store=Store(),
+        generated_at=datetime(2026, 9, 13, 15, 30, tzinfo=timezone.utc),
+    )
+    assert result["panel_run_id"] == \
+        "live-shadow-tail_k3-2026w01-20260913T153000Z"
+    assert result["model_variant"] == "canonical"
+    assert result["shadow_label"] == "tail_k3"
+    assert captured["model_variant"] == "canonical"
+    assert captured["candidate_run_type"] == "live_shadow"

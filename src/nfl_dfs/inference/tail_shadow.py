@@ -1,10 +1,10 @@
-"""Prospective K=1 Sunday-main lineup shadow.
+"""Prospective K=1/K=3 Sunday-main lineup shadows.
 
 The historical K=1 result is outcome-viewed, so the next honest evidence is
-an immutable portfolio created before each 2026 slate.  This job deliberately
-does not publish projections or alter the app: it loads the isolated K=1
-registry, builds the frozen 80-entry/194-tail book, and synchronously stores
-the complete candidate pool and support artifacts for later grading.
+an immutable paired portfolio created before each 2026 slate. These jobs do
+not publish projections or alter the app: each loads its declared registry,
+builds the same frozen 80-entry/194-tail book, and synchronously stores the
+complete candidate pool and support artifacts for later paired grading.
 """
 
 from __future__ import annotations
@@ -23,6 +23,9 @@ from ..optimizer.lineup import StackRules
 log = logging.getLogger(__name__)
 
 K1_VARIANT = "tail_k1"
+K3_VARIANT = CANONICAL_VARIANT
+VARIANT_K = {K1_VARIANT: 1, K3_VARIANT: 3}
+VARIANT_LABEL = {K1_VARIANT: "tail_k1", K3_VARIANT: "tail_k3"}
 SHADOW_ENTRIES = 80
 SHADOW_TAIL_LINE = 194.0
 
@@ -79,21 +82,22 @@ def sunday_main_group(slates: pd.DataFrame, target_sunday: date) -> int:
     return max(choices)[2]
 
 
-def run(*, store=None, generated_at: datetime | None = None) -> dict:
-    """Freeze one prospective K=1 candidate book and return its identity."""
+def run(*, expected_variant: str = K1_VARIANT, store=None,
+        generated_at: datetime | None = None) -> dict:
+    """Freeze one declared shadow arm and return its immutable identity."""
+    if expected_variant not in VARIANT_K:
+        raise ValueError(f"unsupported shadow variant {expected_variant!r}")
     variant = registry_variant()
-    if variant == CANONICAL_VARIANT:
+    if variant != expected_variant:
         raise RuntimeError(
-            "tail shadow refuses the canonical registry; set "
-            f"MODEL_REGISTRY_VARIANT={K1_VARIANT}")
-    if variant != K1_VARIANT:
-        raise RuntimeError(
-            f"tail shadow requires MODEL_REGISTRY_VARIANT={K1_VARIANT}, "
+            f"tail shadow requires MODEL_REGISTRY_VARIANT={expected_variant}, "
             f"got {variant}")
     size = effective_ensemble_size()
-    if size != 1:
+    expected_k = VARIANT_K[variant]
+    if size != expected_k:
         raise RuntimeError(
-            f"tail shadow requires MODEL_ENSEMBLE=1, got {size}")
+            f"{VARIANT_LABEL[variant]} shadow requires "
+            f"MODEL_ENSEMBLE={expected_k}, got {size}")
     if not os.environ.get("CAND_ARTIFACT_BUCKET", "").strip():
         raise RuntimeError(
             "tail shadow requires CAND_ARTIFACT_BUCKET so the full "
@@ -119,8 +123,9 @@ def run(*, store=None, generated_at: datetime | None = None) -> dict:
     if stamp.tzinfo is None:
         stamp = stamp.replace(tzinfo=timezone.utc)
     stamp = stamp.astimezone(timezone.utc)
+    shadow_label = VARIANT_LABEL[variant]
     panel_run_id = (
-        f"live-shadow-{K1_VARIANT}-{season}w{week:02d}-"
+        f"live-shadow-{shadow_label}-{season}w{week:02d}-"
         f"{stamp.strftime('%Y%m%dT%H%M%SZ')}")
 
     from .live_lineups import build_sim_lineups
@@ -139,10 +144,11 @@ def run(*, store=None, generated_at: datetime | None = None) -> dict:
     )
     if len(lineups) != SHADOW_ENTRIES:
         raise RuntimeError(
-            f"K=1 shadow built {len(lineups)} lineups, expected "
+            f"{shadow_label} shadow built {len(lineups)} lineups, expected "
             f"{SHADOW_ENTRIES}")
-    log.info("froze K=1 shadow %s: draft_group=%s lineups=%d tail=%.1f",
-             panel_run_id, gid, len(lineups), SHADOW_TAIL_LINE)
+    log.info("froze %s shadow %s: draft_group=%s lineups=%d tail=%.1f",
+             shadow_label, panel_run_id, gid, len(lineups),
+             SHADOW_TAIL_LINE)
     return {
         "panel_run_id": panel_run_id,
         "season": season,
@@ -151,4 +157,5 @@ def run(*, store=None, generated_at: datetime | None = None) -> dict:
         "entries": len(lineups),
         "tail_line": SHADOW_TAIL_LINE,
         "model_variant": variant,
+        "shadow_label": shadow_label,
     }
