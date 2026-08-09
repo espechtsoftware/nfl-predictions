@@ -3459,3 +3459,8 @@ coverage swap, and the already-frozen outcome-blind local refinement selects
 other candidates. Production selection remains unchanged. The new
 diagnostic is covered by the focused tail-portfolio suite and is recorded in
 `reports/2026-08-08-80-entry-tail-audit.md`.
+
+Complete validation also passed in Cloud Build
+`8b8ba490-a181-408b-bba0-a13a36b69790`: 638 tests passed and 2 skipped,
+producing immutable audit-tooling digest
+`sha256:c591980dd60244cad370d4e6f8a97fc10de3f7e312760b4bc8ffcafdcfad3f22`.

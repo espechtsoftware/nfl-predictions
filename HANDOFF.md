@@ -377,8 +377,10 @@ or budgets after the result. The lineup analyzer remains logged in
   nearest support Jaccard is only 0.140-0.464, while every selected entry owns
   unique worlds. This rules out simple duplicate pruning and attributes the
   residual misses to joint-outcome beliefs/candidate ranking. Focused
-  validation: `tests/test_tail_portfolio.py`, 7 passed. Production selection
-  was not changed.
+  validation: `tests/test_tail_portfolio.py`, 7 passed. Full Cloud Build
+  `8b8ba490-a181-408b-bba0-a13a36b69790` passed 638 tests (2 skipped) and
+  produced immutable audit-tooling digest `sha256:c591980d...`. Production
+  selection was not changed.
 - Both member-world panels remain active with no failed season execution. At
   the last durable query, control had 31/107 staging slates and treatment had
   24/107. The exact next action is to wait for 107/107 on both, verify all 12

@@ -375,6 +375,16 @@ duplication or a removable greedy tie. The audit now prints these fields for
 every future panel: closest selected candidate and actual score, simulated
 support Jaccard, roster overlap, and selected support-superset count.
 
+Across *all* unselected candidate rows scoring at least 200—not only the
+slate oracle—K=3 has 16 rows across eight slates and K=1 has 24 across eleven.
+They are predominantly `lev` candidates (15/16 and 21/24). That concentration
+does not justify a generator quota: `lev` already contributes 17,120 of about
+25,800 candidates per panel, and the earlier frozen leave-one-generator-out
+test found that removing the large `lev` batch cost only one clear. The
+actionable mismatch is that some leverage constructions realize a boom
+without being supported strongly enough by the simulated joint worlds; raw
+candidate availability is not the missing ingredient.
+
 ## Next preregistered arm: coherent member-sampled worlds
 
 Because K=1 did not earn adoption, the accepted K=3 configuration remains the
