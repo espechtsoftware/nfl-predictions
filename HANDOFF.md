@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-08 19:19 CDT
+## Current state — 2026-08-09 04:44 CDT
 
 ### Recovery provenance
 
@@ -76,6 +76,37 @@ agent or developer:
   (6 tests), and adoption-mechanism helpers (7 tests). Do not run parallel
   tests, local simulations, or other sustained heavy work; use Cloud
   Run/Build.
+
+### Operator tail-first policy amendment — 2026-08-09
+
+- The operator clarified after the completed K=1 comparison, but before the
+  candidate-multiple-4 panel completed, that aggregate high-scoring weeks are
+  the real utility and that declines in individual seasons are acceptable.
+  Mean score is secondary. Future decisions must therefore report season
+  variation as risk information, not use the prior four-positive-season and
+  at-most-one-negative-season law as an automatic veto.
+- Preserve every earlier comparator and disposition under its originally
+  frozen law; do not relabel those results as preregistered successes. Under
+  the newly clarified utility, however, true-80 K=1 is the current
+  **tail-first historical leader**: versus accepted K=3 it moves the
+  187/194/200/210/220 counts from `29/19/8/5/1` to `36/22/12/6/3`, keeps
+  230/240 at `1/1`, and raises mean weekly maximum 177.08 to 179.60. Its
+  season deltas at 200 are `{2019:+3, 2021:-1, 2022:+2, 2023:-1, 2024:0,
+  2025:+1}`. This is an explicitly post-result operational interpretation,
+  not a retroactive change to `compare-adoption-panel-x9tsz`.
+- Freeze the prospective tail-first adoption rule now: require a valid and
+  reproducible mechanism, at least **+2 aggregate weeks >=200**, non-worsening
+  aggregate >=210, and non-worsening candidate-pool oracle >=200. Report the
+  full 187/194/200/210/220/230/240 grid, all season deltas, and mean weekly
+  maximum, but neither season signs, >=194, nor mean are hard vetoes. Prefer
+  Pareto improvements at 220/230/240; if extreme-tail counts trade off, keep
+  the arm research-only until a payout utility is frozen from prospective
+  contest/field data rather than inventing retrospective weights.
+- The in-progress candidate-multiple-4 arm must still receive its original
+  frozen scientific disposition. Because this amendment precedes its full
+  result, also apply the prospective tail-first rule as a separately labeled
+  operational disposition. Do not inspect or tune individual weeks, K,
+  selection line, or another candidate multiple from the outcome.
 
 ### Work in progress
 

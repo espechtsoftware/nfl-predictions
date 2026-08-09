@@ -714,6 +714,33 @@ launch:
    mechanism/panel, and no more than a 2.0-point mean-weekly-max regression.
    Report the full 187/194/200/210/220/230/240 grid.
 
+### Prospective operator-utility amendment before the treatment result
+
+At 2026-08-09 04:44 CDT, while only 103/107 treatment slates were persisted
+and before any aggregate treatment score comparison, the operator clarified
+that aggregate high-scoring weeks are more important than consistency of the
+gain across seasons. Individual-season declines and mean-weekly-max declines
+are acceptable when the submitted portfolio produces more exceptional
+weekly highs.
+
+The original gate above remains binding for the arm's preregistered
+scientific disposition. A second, separately labeled **tail-first operational
+disposition** is now frozen prospectively for this result and future arms:
+valid/reproducible mechanism, at least +2 aggregate weeks >=200,
+non-worsening aggregate >=210, and non-worsening candidate-pool oracle >=200.
+The full threshold grid, season deltas, >=194 count, and mean weekly maximum
+remain mandatory diagnostics, but season signs, >=194, and mean are no longer
+automatic vetoes. Improvements at 220/230/240 are preferred; conflicting
+extreme-tail counts do not receive invented retrospective weights and remain
+research-only pending a prospective contest-payout utility.
+
+This amendment does not retroactively turn K=1 into a preregistered success.
+It does make K=1 the post-result tail-first historical leader: relative to
+K=3, it gains four >=200 weeks, one >=210 week, two >=220 weeks, and 2.52
+points of mean weekly maximum, while losing one >=200 week in each of 2021
+and 2023. New K=1 work may use the amended policy, but may not tune K,
+selection line, or a selector on those known historical outcomes.
+
 Because candidate scaling does not change RNG worlds or any upstream stage,
 the already accepted same-image control is valid and need not be rerun. A
 failed treatment closes raw candidate-budget scaling on this historical
