@@ -178,17 +178,25 @@ def main() -> int:
             results[(entries, line)] = (slate_rows, membership)
             print(_fmt_summary(portfolio_summary(slate_rows)))
 
-    # Production replay used 40 entries and the 194 support mask. Prove this
-    # frozen analysis is faithful before interpreting any 80-entry result.
-    if (40, 194.0) in results:
-        _, membership = results[(40, 194.0)]
+    # Prove the frozen analysis reproduces the panel's persisted portfolio at
+    # its actual entry count before interpreting counterfactual sizes. Older
+    # panels persisted 40; the production-faithful experiment persists 80.
+    persisted_counts = candidates.groupby(
+        ["season", "week"]).selected.sum().unique()
+    if len(persisted_counts) != 1:
+        print("panel has inconsistent persisted entry counts", file=sys.stderr)
+        return 2
+    persisted_entries = int(persisted_counts[0])
+    if (persisted_entries, 194.0) in results:
+        _, membership = results[(persisted_entries, 194.0)]
         persisted = candidates[["season", "week", "cand_ix", "selected"]]
         joined = persisted.merge(
             membership, on=["season", "week", "cand_ix"],
             validate="one_to_one")
         mismatches = int(
             (joined.selected != joined.portfolio_selected).sum())
-        print(f"\n40-entry production-selection mismatches: {mismatches}")
+        print(f"\n{persisted_entries}-entry production-selection "
+              f"mismatches: {mismatches}")
         if mismatches:
             return 2
 
