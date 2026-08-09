@@ -720,3 +720,11 @@ image is pinned at
 `sha256:12cdf18151af051ac766e302514cceaf34c3d9cf320d13bd1467ed8e88e96978`.
 The later `a8c0c38` commit adds only the local immutable-log harvester and
 documentation; it does not alter the image mechanism or gate.
+
+Immutable-image smoke `conditional-schaake-smoke-xnt89` passed with 80
+templates, normalized weights, and 1.0 mass on the synthetic matched-context
+group. Dependence-only run `20260809-forest-dep-3dbebb2` then launched exact
+executions `dependence-forest-2023-hrh2x`,
+`dependence-forest-2024-zvrz9`, and `dependence-forest-2025-srdqt`. Their
+manifest is tracked under `reports/dependence-runs/`; do not read or combine
+partial reports before all three executions succeed.

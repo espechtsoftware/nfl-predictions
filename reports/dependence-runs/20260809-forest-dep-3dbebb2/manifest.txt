@@ -1,0 +1,4 @@
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:12cdf18151af051ac766e302514cceaf34c3d9cf320d13bd1467ed8e88e96978
+run_id=20260809-forest-dep-3dbebb2
+seasons=2023 2024 2025
+mode=forest

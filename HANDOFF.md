@@ -508,3 +508,10 @@ afterward. The lineup analyzer remains logged in `README.md`.
   Use that digest for the smoke and frozen 2023-2025 dependence-only panel.
   Commit `a8c0c38` is only the local log harvester/docs and need not be in the
   diagnostic image.
+- Immutable-image smoke `conditional-schaake-smoke-xnt89` passed. Frozen run
+  `20260809-forest-dep-3dbebb2` launched 2023/2024/2025 executions
+  `dependence-forest-2023-hrh2x`, `dependence-forest-2024-zvrz9`, and
+  `dependence-forest-2025-srdqt`. The exact manifest is tracked under
+  `reports/dependence-runs/20260809-forest-dep-3dbebb2/`. Wait for all three
+  clean successes, then run `scripts/cloud_finish_dependence_panel.sh`; do not
+  combine or interpret partial reports.
