@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 14:49 CDT
+## Current state — 2026-08-09 15:01 CDT
 
 ### Recovery provenance
 
@@ -122,11 +122,30 @@ agent or developer:
   first nonempty `prop_lines_shadow` append. `load_dataframe` now accepts and
   applies explicit clustering fields; audit and shadow callers pin the exact
   DDL order. A focused helper regression plus all Odds tests pass (28 tests).
-- Exact next action: commit/push the clustering repair, run the full Cloud
-  Build again, redeploy both ingestion jobs, then repeat only the free
-  `check-odds-quota` args override. Verify the persisted row has
-  `requests_last=0`, capture remaining/used quota, confirm zero new prop rows,
-  and recheck both scheduled job templates before closing the milestone.
+- Final source commit `aad6739` is pushed on `main`. Cloud Build
+  `00a055a7-d31b-463b-b757-b704560fb21e` passed 687 tests with 2 skipped and
+  produced immutable digest
+  `sha256:0a55920d638951aaa6516b059f7ae3d1218cc6ee0d89a332805ca611fefc052d`.
+  `ingest-odds` generation 34 and `ingest-props` generation 31 are Ready on
+  that exact digest with their original scheduled args. Secret refs,
+  resources, retries, timeout, service account, and schedulers remain intact;
+  `s-odds` is enabled at `0 9,15 * * 3-7` and `s-props` at
+  `30 9 * * 3-7`, both America/Chicago.
+- Final free validation `ingest-props-8tgqd` completed successfully using
+  only the execution-time `check-odds-quota` args override. Its one audit row
+  persisted with HTTP 200, endpoint `/sports`, `requests_last=0`,
+  `requests_remaining=99940`, and `requests_used=60`. It wrote zero base and
+  shadow prop rows; `prop_lines_shadow` remains empty. The audit table has
+  one row and zero endpoints containing a query string or API-key-like text.
+  The scheduled job template still runs ordinary `ingest-props`, not the
+  diagnostic override.
+- This milestone is closed. Do not buy or backfill historical Odds markets:
+  the account has ample prospective quota, but the new data is not allowed
+  into models/UI until held-out residual, tail-calibration, and
+  candidate-oracle gates are frozen and passed. Next concrete action is to
+  inspect `odds_api_requests` and `prop_lines_shadow` after the next scheduled
+  in-season pull, verify actual per-market cost/coverage, and then freeze the
+  prospective evaluation before any lineup outcome is viewed.
 
 ### Latest validated research state
 
