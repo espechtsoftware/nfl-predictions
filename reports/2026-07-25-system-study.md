@@ -3402,3 +3402,41 @@ hypothesis and must beat the stronger homogeneous endpoint by at least two
 194/210/oracle/mean safeguards. Cross-book duplicate rosters will be reported
 and retained in historical maximum scoring, so they cannot manufacture an
 improvement. Full protocol is in the 80-entry tail audit.
+
+## Addendum 110 (2026-08-08): true-80 K=1 wins aggregate tail but fails stability; mixed book fails
+
+Production-faithful 80-entry panels completed on generation digest
+`sha256:98a31edd...`, with 25,813 K=3 and 25,787 K=1 candidates over all 107
+slates and exactly 80 selected per slate. Full acceptance and artifact audits
+passed; K=3 was promoted as the valid control.
+
+At the preregistered 194 selection line, K=3/K=1 scored **19/22 at 194**,
+**8/12 at 200**, **5/6 at 210**, and **1/3 at 220**, with mean weekly maxima
+177.08/179.60. K=1's aggregate improvement is real, but its >=200 season
+deltas are `{2019:+3, 2021:-1, 2022:+2, 2023:-1, 2024:0, 2025:+1}`: only
+three positive seasons and two negative. At 194 it has four positive but still
+two negative. Official mechanism comparator `compare-adoption-panel-x9tsz`
+had zero failures, but both stability gates fail. K=1 remains
+`unsupported-neutral`; K=3 remains the incumbent without weakening the law.
+
+The preregistered 40/40 K=1/K=3 book also failed, with 9 weeks >=200 versus
+K=1's 12 and three negative seasons. The 20/60 sensitivity tied K=1 at 12 and
+rose to 7 at 210, but it was not the primary hypothesis and improves only
+three seasons versus K=3. It is not selected post hoc. Duplicate cross-book
+rosters are common (392 slots across 96 slates at 40/40), so any future mixed
+implementation also needs deterministic backfill.
+
+The true-80 pools expose a larger selector frontier: K=3 leaves 4 recoverable
+>=200 weeks and K=1 leaves 7. Outcome-blind lexicographic one-swap refinement
+recovers none of them, including the two K=1 misses with non-worsening oracle
+swaps. This strengthens the conclusion that there is no obvious greedy repair
+using current beliefs. Full grids, missed rosters, and the 107-row weekly-max
+file are in `reports/2026-08-08-80-entry-tail-audit.md` and
+`reports/2026-08-08-true80-weekly-max.csv`.
+
+The next arm is now preregistered on reporting/generation digest
+`sha256:458dd21d...`: same-image true-80 K=3 averaged-world control versus K=3
+coherent member-sampled worlds (`ENSEMBLE_WORLD_MODE=member_sample`, seed
+8161). It keeps the 194 selector and the same >=200 4-positive/<=1-negative
+law. Its mechanism gate must prove invariant player marginals and inputs but
+changed joint support/candidate portfolios before any score is interpreted.

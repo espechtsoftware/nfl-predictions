@@ -1,0 +1,153 @@
+[
+  {
+    "jsonPayload": {
+      "ablation_improves_gate": {
+        "aligned_107_slates": true,
+        "at_most_1_negative_season": false,
+        "clear_lift_at_least_2": true,
+        "mean_not_worse_by_more_than_0_5": true,
+        "oracle_not_worse": true,
+        "passes": false,
+        "positive_in_at_least_4_seasons": true
+      },
+      "disposition": "unsupported-neutral",
+      "entries_expected": 80,
+      "failures": [],
+      "high_tail_200_gate": {
+        "aligned_107_slates": true,
+        "at_most_1_negative_season": false,
+        "clear_194_not_worse": true,
+        "clear_210_not_worse": true,
+        "clear_lift_at_least_2": true,
+        "mean_not_worse_by_more_than_guard": true,
+        "mechanism_and_panel_valid": true,
+        "oracle_200_not_worse": true,
+        "passes": false,
+        "positive_in_at_least_4_seasons": false
+      },
+      "high_tail_200_season_metrics": [
+        {
+          "challenger_clears": 5,
+          "incumbent_clears": 2,
+          "lift": 3,
+          "season": 2019
+        },
+        {
+          "challenger_clears": 1,
+          "incumbent_clears": 2,
+          "lift": -1,
+          "season": 2021
+        },
+        {
+          "challenger_clears": 3,
+          "incumbent_clears": 1,
+          "lift": 2,
+          "season": 2022
+        },
+        {
+          "challenger_clears": 1,
+          "incumbent_clears": 2,
+          "lift": -1,
+          "season": 2023
+        },
+        {
+          "challenger_clears": 1,
+          "incumbent_clears": 1,
+          "lift": 0,
+          "season": 2024
+        },
+        {
+          "challenger_clears": 1,
+          "incumbent_clears": 0,
+          "lift": 1,
+          "season": 2025
+        }
+      ],
+      "incumbent_supported_gate": {
+        "aligned_107_slates": true,
+        "at_most_1_negative_season": false,
+        "clear_lift_at_least_2": false,
+        "mean_not_worse_by_more_than_0_5": false,
+        "oracle_not_worse": false,
+        "passes": false,
+        "positive_in_at_least_4_seasons": false
+      },
+      "mechanism": {
+        "k1_vs_k3_mean_abs_delta": 0.28094501352151957,
+        "non_ensemble_seeds_match": true,
+        "offense_player_weeks": 47692,
+        "post_shaping_model_mean_abs_delta": 1.396330183306023e-17,
+        "post_shaping_model_mean_changed_rows": 0,
+        "source_candidate_mean_max_abs_error": 2.3594806265236912e-05,
+        "source_ensemble_size": 3,
+        "source_member_max_spread": 8.295044453817397,
+        "source_member_mean_spread": 0.5150161125848434,
+        "source_rows_with_member_disagreement": 47692,
+        "treatment_candidate_mean_max_abs_error": 2.330544155881853e-05,
+        "treatment_ensemble_size": 1,
+        "unchanged_input_mismatch_rows": {
+          "actual": 0,
+          "market_points": 0,
+          "pos": 0,
+          "salary": 0
+        }
+      },
+      "season_metrics": [
+        {
+          "challenger_194": 6,
+          "incumbent_194": 5,
+          "lift": 1,
+          "season": 2019
+        },
+        {
+          "challenger_194": 2,
+          "incumbent_194": 5,
+          "lift": -3,
+          "season": 2021
+        },
+        {
+          "challenger_194": 4,
+          "incumbent_194": 1,
+          "lift": 3,
+          "season": 2022
+        },
+        {
+          "challenger_194": 4,
+          "incumbent_194": 2,
+          "lift": 2,
+          "season": 2023
+        },
+        {
+          "challenger_194": 2,
+          "incumbent_194": 3,
+          "lift": -1,
+          "season": 2024
+        },
+        {
+          "challenger_194": 4,
+          "incumbent_194": 3,
+          "lift": 1,
+          "season": 2025
+        }
+      ],
+      "source": "20260808-e80-k3-c616390",
+      "source_metrics": {
+        "clear_187": 29,
+        "clear_194": 19,
+        "clear_200": 8,
+        "mean_best": 177.07850467289717,
+        "median_best": 176.82,
+        "oracle_194": 23
+      },
+      "treatment": "20260808-e80-k1-c616390",
+      "treatment_metrics": {
+        "clear_187": 36,
+        "clear_194": 22,
+        "clear_200": 12,
+        "mean_best": 179.59887850467288,
+        "median_best": 178.82,
+        "oracle_194": 30
+      }
+    }
+  }
+]

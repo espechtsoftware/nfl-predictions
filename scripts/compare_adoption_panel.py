@@ -77,6 +77,18 @@ def _split_seed_provenance(value: str) -> tuple[str, dict[str, str]]:
     return ";".join(rest), ensemble
 
 
+def _split_member_world_seed(value: str) -> tuple[str, str | None]:
+    """Separate the research-only coherent-member seed from all others."""
+    member_seed: str | None = None
+    rest: list[str] = []
+    for item in str(value or "").split(";"):
+        if item.startswith("ENSEMBLE_WORLD_SEED="):
+            member_seed = item.split("=", 1)[1]
+        elif item:
+            rest.append(item)
+    return ";".join(rest), member_seed
+
+
 def _validate_panel(name: str, rows: pd.DataFrame,
                     entries_expected: int = 40) -> list[str]:
     failures: list[str] = []
@@ -454,6 +466,189 @@ def _ensemble_mechanism(source_features: pd.DataFrame,
     return report, failures
 
 
+def _member_world_pair_audit(source: str, treatment: str) -> dict:
+    """Compute candidate/support movement in BigQuery without huge downloads."""
+    result = query_df(f"""
+        WITH source_rows AS (
+          SELECT season, week, cand_ix, players, selected, actual_score,
+                 p_line, sim_mean, clear_bits_194
+          FROM `{settings.predictions}.replay_candidates`
+          WHERE panel_run_id = '{_panel_id(source)}' AND research_eligible
+        ), treatment_rows AS (
+          SELECT season, week, cand_ix, players, selected, actual_score,
+                 p_line, sim_mean, clear_bits_194
+          FROM `{settings.predictions}.replay_candidates_staging`
+          WHERE panel_run_id = '{_panel_id(treatment)}'
+        ), paired AS (
+          SELECT s.*, t.cand_ix AS treatment_cand_ix,
+                 t.players AS treatment_players,
+                 t.selected AS treatment_selected,
+                 t.actual_score AS treatment_actual_score,
+                 t.p_line AS treatment_p_line,
+                 t.sim_mean AS treatment_sim_mean,
+                 t.clear_bits_194 AS treatment_clear_bits_194
+          FROM source_rows s FULL OUTER JOIN treatment_rows t
+          USING (season, week, cand_ix)
+        ), source_selected AS (
+          SELECT season, week, players FROM source_rows WHERE selected
+        ), treatment_selected AS (
+          SELECT season, week, players FROM treatment_rows WHERE selected
+        ), selected_pair AS (
+          SELECT s.players AS source_players, t.players AS treatment_players
+          FROM source_selected s FULL OUTER JOIN treatment_selected t
+          USING (season, week, players)
+        )
+        SELECT
+          (SELECT COUNT(*) FROM source_rows) AS source_rows,
+          (SELECT COUNT(*) FROM treatment_rows) AS treatment_rows,
+          COUNTIF(cand_ix IS NULL OR treatment_cand_ix IS NULL) AS missing_rows,
+          COUNTIF(cand_ix IS NOT NULL AND treatment_cand_ix IS NOT NULL
+                  AND players != treatment_players) AS roster_mismatch,
+          COUNTIF(cand_ix IS NOT NULL AND treatment_cand_ix IS NOT NULL
+                  AND clear_bits_194 != treatment_clear_bits_194)
+                  AS support_mismatch,
+          COUNTIF(cand_ix IS NOT NULL AND treatment_cand_ix IS NOT NULL
+                  AND ABS(p_line - treatment_p_line) > 1e-8)
+                  AS p_line_mismatch,
+          COUNTIF(cand_ix IS NOT NULL AND treatment_cand_ix IS NOT NULL
+                  AND ABS(sim_mean - treatment_sim_mean) > 1e-6)
+                  AS sim_mean_mismatch,
+          COUNTIF(cand_ix IS NOT NULL AND treatment_cand_ix IS NOT NULL
+                  AND players = treatment_players
+                  AND ABS(actual_score - treatment_actual_score) > 1e-8)
+                  AS same_roster_actual_mismatch,
+          (SELECT COUNTIF(source_players IS NOT NULL
+                          AND treatment_players IS NOT NULL)
+             FROM selected_pair) AS selected_shared,
+          (SELECT COUNTIF(source_players IS NOT NULL
+                          AND treatment_players IS NULL)
+             FROM selected_pair) AS selected_source_only,
+          (SELECT COUNTIF(source_players IS NULL
+                          AND treatment_players IS NOT NULL)
+             FROM selected_pair) AS selected_treatment_only
+        FROM paired
+        """).iloc[0]
+    return {name: int(result.get(name) or 0) for name in result.index}
+
+
+def _member_world_mechanism(
+    source_candidates: pd.DataFrame,
+    treatment_candidates: pd.DataFrame,
+    source_features: pd.DataFrame,
+    treatment_features: pd.DataFrame,
+    source_mean_audit: dict,
+    treatment_mean_audit: dict,
+    pair_audit: dict,
+) -> tuple[dict, list[str]]:
+    """Prove coherent member-world sampling changed only joint worlds."""
+    failures: list[str] = []
+    keys = ["season", "week", "id"]
+    invariant_columns = (
+        "pos", "salary", "actual", "proj", "mean_projection",
+        "model_points_pre", "market_points", "model_ensemble_size",
+        "model_member_spec", "ensemble_point_0", "ensemble_point_1",
+        "ensemble_point_2")
+    for name, frame in (("source", source_features),
+                        ("treatment", treatment_features)):
+        needed = {*keys, *invariant_columns}
+        missing = needed - set(frame.columns)
+        if missing:
+            failures.append(f"{name} feature snapshot missing {sorted(missing)}")
+        elif frame.empty or frame.duplicated(keys).any():
+            failures.append(f"{name} feature snapshot empty or duplicate")
+    if failures:
+        return {}, failures
+
+    source_levers = _lever_values(str(source_candidates.lever_env.iloc[0]))
+    treatment_levers = _lever_values(
+        str(treatment_candidates.lever_env.iloc[0]))
+    if source_levers.get("ENSEMBLE_WORLD_MODE", ""):
+        failures.append("source unexpectedly enables ensemble world mode")
+    if treatment_levers.get("ENSEMBLE_WORLD_MODE") != "member_sample":
+        failures.append("treatment does not identify member_sample world mode")
+
+    source_seed_rest, source_member_seed = _split_member_world_seed(
+        str(source_candidates.seeds.iloc[0]))
+    treatment_seed_rest, treatment_member_seed = _split_member_world_seed(
+        str(treatment_candidates.seeds.iloc[0]))
+    if source_member_seed is not None:
+        failures.append("source unexpectedly records an ensemble-world seed")
+    if treatment_member_seed != "8161":
+        failures.append("treatment does not record ensemble-world seed 8161")
+    if source_seed_rest != treatment_seed_rest:
+        failures.append("source/treatment non-member-world seeds differ")
+
+    joined = source_features.merge(
+        treatment_features, on=keys, how="outer",
+        suffixes=("_source", "_treatment"), indicator=True,
+        validate="one_to_one")
+    if not joined._merge.eq("both").all():
+        failures.append("source/treatment player universes differ")
+    joined = joined[joined._merge.eq("both")].copy()
+    mismatch_rows: dict[str, int] = {}
+    for col in invariant_columns:
+        source_col = joined[f"{col}_source"]
+        treatment_col = joined[f"{col}_treatment"]
+        null_mismatch = source_col.isna() != treatment_col.isna()
+        if pd.api.types.is_numeric_dtype(source_col):
+            value_mismatch = (
+                source_col - treatment_col).abs().fillna(0).gt(1e-8)
+        else:
+            value_mismatch = source_col.fillna("").ne(
+                treatment_col.fillna(""))
+        count = int((null_mismatch | value_mismatch).sum())
+        mismatch_rows[col] = count
+        if count:
+            failures.append(f"source/treatment {col} feature rows differ")
+
+    expected_spec = json.dumps(
+        ensemble_member_specs({"MODEL_ENSEMBLE": "3"}),
+        separators=(",", ":"), sort_keys=True)
+    for name, frame in (("source", source_features),
+                        ("treatment", treatment_features)):
+        sizes = pd.to_numeric(
+            frame.model_ensemble_size, errors="coerce").dropna().unique()
+        specs = frame.model_member_spec.dropna().astype(str).unique()
+        if len(sizes) != 1 or int(sizes[0]) != 3:
+            failures.append(f"{name} does not uniformly record K=3")
+        if len(specs) != 1 or specs[0] != expected_spec:
+            failures.append(f"{name} K=3 member specification is wrong")
+
+    for name, audit in (("source", source_mean_audit),
+                        ("treatment", treatment_mean_audit)):
+        if (audit["duplicate_feature_keys"]
+                or audit["missing_roster_players"]
+                or audit["max_abs_error"] > 1e-3):
+            failures.append(f"{name} candidate/player mean parity failed")
+    changed = (pair_audit.get("missing_rows", 0)
+               + pair_audit.get("roster_mismatch", 0)
+               + pair_audit.get("support_mismatch", 0))
+    if changed <= 0:
+        failures.append("member-world mode did not change candidates or support")
+    if pair_audit.get("selected_source_only", 0) <= 0:
+        failures.append("member-world mode did not remove any selected rosters")
+    if pair_audit.get("selected_treatment_only", 0) <= 0:
+        failures.append("member-world mode did not add any selected rosters")
+    if pair_audit.get("same_roster_actual_mismatch", 0):
+        failures.append("same-roster actual scores differ")
+
+    report = {
+        "source_mode": source_levers.get("ENSEMBLE_WORLD_MODE", ""),
+        "treatment_mode": treatment_levers.get("ENSEMBLE_WORLD_MODE", ""),
+        "source_member_world_seed": source_member_seed,
+        "treatment_member_world_seed": treatment_member_seed,
+        "non_member_world_seeds_match":
+            source_seed_rest == treatment_seed_rest,
+        "invariant_feature_mismatch_rows": mismatch_rows,
+        "candidate_and_support_change": pair_audit,
+        "source_candidate_mean_max_abs_error":
+            source_mean_audit["max_abs_error"],
+        "treatment_candidate_mean_max_abs_error":
+            treatment_mean_audit["max_abs_error"],
+    }
+    return report, failures
+
+
 def _lever_values(value: str) -> dict[str, str]:
     """Parse the persisted comma-delimited replay lever manifest."""
     out: dict[str, str] = {}
@@ -562,7 +757,8 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("source", help="accepted/promoted same-image baseline")
     ap.add_argument("treatment", help="accepted staging ablation")
-    ap.add_argument("--mechanism", choices=("blend", "ensemble", "salary"))
+    ap.add_argument("--mechanism", choices=(
+        "blend", "ensemble", "salary", "member_world"))
     ap.add_argument("--entries-expected", type=int, default=40)
     ap.add_argument("--output")
     a = ap.parse_args()
@@ -578,7 +774,7 @@ def main() -> int:
             failures.append("source and treatment code SHA differ")
         if source.config_hash.iloc[0] != treatment.config_hash.iloc[0]:
             failures.append("source and treatment config hashes differ")
-        if (a.mechanism != "ensemble"
+        if (a.mechanism not in ("ensemble", "member_world")
                 and source.seeds.iloc[0] != treatment.seeds.iloc[0]):
             failures.append("source and treatment seeds differ")
     ss = slate_scores(source) if not source.empty else pd.DataFrame()
@@ -610,6 +806,16 @@ def main() -> int:
         mechanism_report, mechanism_failures = _salary_floor_mechanism(
             source, treatment, _features(a.source, True),
             _features(a.treatment, False))
+        failures.extend(mechanism_failures)
+    elif (a.mechanism == "member_world"
+          and not source.empty and not treatment.empty):
+        mechanism_report, mechanism_failures = _member_world_mechanism(
+            source, treatment,
+            _ensemble_features(a.source, True),
+            _ensemble_features(a.treatment, False),
+            _candidate_mean_audit(a.source, True),
+            _candidate_mean_audit(a.treatment, False),
+            _member_world_pair_audit(a.source, a.treatment))
         failures.extend(mechanism_failures)
     if failures:
         disposition = "invalid"

@@ -254,3 +254,128 @@ it does not silently change the current live selector.
 Runner, acceptance, and comparator interfaces now accept an explicit entry
 count while retaining 40 as the default. Tests cover 80-entry panel
 validation and the frozen selector diagnostics.
+
+## Production-faithful 80-entry result
+
+Both preregistered panels completed all 107 slates on generation digest
+`sha256:98a31edd...`: K=3 `20260808-e80-k3-c616390` persisted 25,813
+candidates and K=1 `20260808-e80-k1-c616390` persisted 25,787. Every slate
+selected exactly 80 entries. Acceptance executions
+`accept-replay-panel-vlw7c` / `accept-replay-panel-cjct8` passed with zero
+missing player joins, zero duplicate feature keys, complete score artifacts,
+and candidate/player mean errors below `2.36e-05`. K=3 was promoted only
+after the independent second audit `accept-replay-panel-d6fbn`.
+
+### Realized tail grid
+
+| worlds | selection line | >=187 | >=194 | >=200 | >=210 | >=220 | >=230 | >=240 | mean weekly max |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| K=3 | 187 | 27 | 19 | 8 | 4 | 1 | 1 | 1 | 176.84 |
+| K=3 | **194** | **29** | **19** | **8** | **5** | **1** | **1** | **1** | **177.08** |
+| K=3 | 200 | 30 | 19 | 7 | 4 | 1 | 1 | 0 | 176.44 |
+| K=1 | 187 | 37 | 22 | 14 | 8 | 3 | 1 | 1 | 179.88 |
+| K=1 | **194** | **36** | **22** | **12** | **6** | **3** | **1** | **1** | **179.60** |
+| K=1 | 200 | 36 | 22 | 15 | 6 | 3 | 1 | 1 | 179.29 |
+
+The frozen lower-bound result direction survived but its size shrank: at the
+preregistered selection line, K=1 beat K=3 **12→8 at 200**, not 15→7. K=1
+also improved 29→36 at 187, 19→22 at 194, 5→6 at 210, 1→3 at 220, and mean
+weekly maximum by 2.52 points. The complete week-level maxima and both pool
+oracles are in `reports/2026-08-08-true80-weekly-max.csv`.
+
+### K=1 gate: aggregate win, stability failure
+
+Official comparator `compare-adoption-panel-x9tsz` ran on reporting digest
+`sha256:458dd21d9074a1a3a35222c5b3aa67c4e331b4ee2e3ea62768c7870ef52fe4a1`
+after Cloud Build `1520f9b3-9f76-47bc-ba15-47f4d621c22b` passed 636 tests.
+The ensemble mechanism audit had zero failures: all 47,692 offensive rows
+recorded K=3 member disagreement, immutable inputs matched, non-ensemble
+seeds matched, K=1 moved 0.281 points from the K=3 member mean on average,
+and post-shaping marginal means were invariant.
+
+| season | K3 >=194 | K1 >=194 | delta | K3 >=200 | K1 >=200 | delta |
+|---|---:|---:|---:|---:|---:|---:|
+| 2019 | 5 | 6 | +1 | 2 | 5 | +3 |
+| 2021 | 5 | 2 | -3 | 2 | 1 | -1 |
+| 2022 | 1 | 4 | +3 | 1 | 3 | +2 |
+| 2023 | 2 | 4 | +2 | 2 | 1 | -1 |
+| 2024 | 3 | 2 | -1 | 1 | 1 | 0 |
+| 2025 | 3 | 4 | +1 | 0 | 1 | +1 |
+
+At 200, K=1 has only three positive seasons and two negative seasons. At 194
+it has four positive but still two negative. It passes every aggregate,
+oracle, mean, and mechanism safeguard but fails the standing distribution
+law at both thresholds. The disposition remains **unsupported-neutral**;
+K=3 stays the validated incumbent. The rule is not weakened after seeing the
+result.
+
+Selection-line sensitivity is useful but not an adoption loophole. Selecting
+K=1 at 200 would have captured 15 high weeks, yet its >=200 season delta
+against the preregistered K=3 control is `{2019:+3, 2021:0, 2022:+2,
+2023:0, 2024:0, 2025:+2}`—only three positive seasons. This target was also
+not the declared production choice. It is a prospective hypothesis, not a
+retrospective switch.
+
+### Cross-model allocation result
+
+| K1/K3 entries | >=187 | >=194 | >=200 | >=210 | >=220 | mean weekly max | duplicate roster slots |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 0/80 | 29 | 19 | 8 | 5 | 1 | 177.08 | 0 |
+| 20/60 | 32 | 22 | 12 | 7 | 3 | 178.51 | 283 |
+| **40/40** | **34** | **23** | **9** | **5** | **3** | **179.30** | **392** |
+| 60/20 | 34 | 25 | 11 | 6 | 3 | 179.61 | 248 |
+| 80/0 | 36 | 22 | 12 | 6 | 3 | 179.60 | 0 |
+
+The primary 40/40 allocation fails: it loses three >=200 weeks to K=1 and is
+negative in 2019, 2022, and 2023. The 20/60 sensitivity ties K=1 at 12 weeks
+and improves 6→7 at 210, but it was not the primary allocation and improves
+only three seasons versus K=3. It cannot be selected as the historical winner
+after the fact. Cross-book overlap is also substantial: the 40/40 book has
+392 duplicate roster slots across 96 slates (maximum 12 on one slate), so a
+future joint implementation would require deterministic backfill.
+
+### High scores still outside the true-80 books
+
+The larger production-faithful pools create more opportunity than the frozen
+diagnostic. K=3's pool has 12 weeks >=200 and selects 8, leaving four
+recoverable weeks: **2019w9 216.42**, **2025w12 214.36**, **2021w11 205.20**,
+and **2019w6 204.44**. Their simulated probability ranks are respectively
+185/232, 53/237, 150/238, and 67/242. Every best oracle swap costs at least
+one covered world, and outcome-blind one-swap refinement still misses all
+four.
+
+K=1's pool has 19 weeks >=200 and selects 12, leaving seven recoverable
+weeks: **2021w4 215.38**, **2025w12 214.36**, **2019w6 204.44**,
+**2023w16 202.74**, **2025w9 202.50**, **2019w10 201.14**, and
+**2019w15 200.36**. Only 2025w12 offers a coverage-improving oracle swap and
+2019w15 a coverage-neutral swap. Even there, deterministic local refinement
+chooses other pre-lock improvements and leaves the realized maxima at 199.06
+and 190.36. Across all seven misses, the local repair recovers **zero**
+winners. The problem is not an obvious greedy bug; the changed simulator
+beliefs and candidate ranking remain the appropriate research target.
+
+## Next preregistered arm: coherent member-sampled worlds
+
+Because K=1 did not earn adoption, the accepted K=3 configuration remains the
+control. The next experiment is frozen before launch on same-image generation
+digest
+`sha256:458dd21d9074a1a3a35222c5b3aa67c4e331b4ee2e3ea62768c7870ef52fe4a1`
+(code `d99b125`):
+
+1. Control `20260808-e80-msctl-d99b125`: K=3 averaged model belief, true 80
+   entries, 194 selection line, 45/55 blend, $49k floor, possession mode, and
+   `0/0/0/40` generation budget.
+2. Treatment `20260808-e80-msarm-d99b125`: identical, changing only
+   `ENSEMBLE_WORLD_MODE=member_sample` with fixed seed 8161.
+3. One coherent fitted member is assigned to each simulation world before the
+   existing rank shaper. Player marginal values must remain byte-identical;
+   only joint world ordering may change. The mechanism gate requires K=3 and
+   member identities on both arms, identical non-world seeds and feature
+   snapshots, candidate/player mean parity, changed support/candidate
+   portfolios, and changed selected rosters.
+4. Apply the same primary >=200 law: aggregate lift >=2, at least four
+   positive and at most one negative season, with non-worsening 194, 210,
+   pool-oracle 200, no more than 2.0 mean-max regression, and a valid
+   mechanism/panel.
+5. Report 187/194/200/210/220/230/240. Do not change K, selection line,
+   allocation, member seed, or candidate budgets after the result.

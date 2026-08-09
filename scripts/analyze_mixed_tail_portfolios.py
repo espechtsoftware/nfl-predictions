@@ -156,6 +156,18 @@ def main() -> int:
         duplicates[(k1_entries, k3_entries)] = duplicate_report
         print(_fmt(report, k1_entries, k3_entries, duplicate_report))
 
+    season_grid = []
+    for allocation in ALLOCATIONS:
+        row = {"k1_entries": allocation[0], "k3_entries": allocation[1]}
+        by_season = season_summary(
+            mixed[allocation], thresholds=(200.0,)).set_index("season")
+        for season in by_season.index:
+            row[f"ge_200_{int(season)}"] = int(
+                by_season.loc[season, "ge_200"])
+        season_grid.append(row)
+    print("\n>=200 WEEKS BY SEASON FOR EVERY ALLOCATION")
+    print(pd.DataFrame(season_grid).to_string(index=False))
+
     # The stronger endpoint is defined on the primary >=200 objective, with
     # >=210, >=194, and mean weekly maximum as frozen tiebreakers.
     endpoints = ((0, 80), (80, 0))

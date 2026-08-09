@@ -99,6 +99,32 @@ def _salary_candidates(deleted: bool) -> pd.DataFrame:
     ])
 
 
+def _member_world_candidates(active: bool) -> pd.DataFrame:
+    return pd.DataFrame([{
+        "lever_env": ("GAME_SIM_MODE=possession,"
+                      "ENSEMBLE_WORLD_MODE=member_sample"
+                      if active else "GAME_SIM_MODE=possession"),
+        "seeds": (_ensemble_seeds(3) + ";ENSEMBLE_WORLD_SEED=8161"
+                  if active else _ensemble_seeds(3)),
+    }])
+
+
+def _member_world_pair_report() -> dict:
+    return {
+        "source_rows": 10,
+        "treatment_rows": 10,
+        "missing_rows": 0,
+        "roster_mismatch": 4,
+        "support_mismatch": 8,
+        "p_line_mismatch": 8,
+        "sim_mean_mismatch": 0,
+        "same_roster_actual_mismatch": 0,
+        "selected_shared": 7,
+        "selected_source_only": 3,
+        "selected_treatment_only": 3,
+    }
+
+
 def test_blend_mechanism_proves_only_weight_changed():
     report, failures = compare._blend_mechanism(
         _features(False), _features(True), _audit(), _audit(),
@@ -180,6 +206,34 @@ def test_ensemble_mechanism_rejects_unrelated_seed_drift():
         _ensemble_features(3), _ensemble_features(1), _audit(), _audit(),
         _ensemble_seeds(3), _ensemble_seeds(1, other="CE_SEED=1702"))
     assert "source and treatment non-ensemble seeds differ" in failures
+
+
+def test_member_world_mechanism_proves_joint_only_change():
+    report, failures = compare._member_world_mechanism(
+        _member_world_candidates(False), _member_world_candidates(True),
+        _ensemble_features(3), _ensemble_features(3),
+        _audit(), _audit(), _member_world_pair_report())
+    assert failures == []
+    assert report["source_mode"] == ""
+    assert report["treatment_mode"] == "member_sample"
+    assert report["treatment_member_world_seed"] == "8161"
+    assert report["non_member_world_seeds_match"] is True
+    assert not any(report["invariant_feature_mismatch_rows"].values())
+
+
+def test_member_world_mechanism_rejects_marginal_or_seed_drift():
+    treatment_features = _ensemble_features(3)
+    treatment_features.loc[0, "mean_projection"] += 0.1
+    treatment_candidates = _member_world_candidates(True)
+    treatment_candidates.loc[0, "seeds"] = (
+        _ensemble_seeds(3, other="CE_SEED=1702")
+        + ";ENSEMBLE_WORLD_SEED=8161")
+    _, failures = compare._member_world_mechanism(
+        _member_world_candidates(False), treatment_candidates,
+        _ensemble_features(3), treatment_features,
+        _audit(), _audit(), _member_world_pair_report())
+    assert "source/treatment non-member-world seeds differ" in failures
+    assert "source/treatment mean_projection feature rows differ" in failures
 
 
 def test_salary_floor_mechanism_proves_deletion_fired():

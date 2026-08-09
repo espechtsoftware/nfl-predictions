@@ -318,15 +318,47 @@ Earlier deployed `12 CE / 28 boom` settings are stale.
 
 ### Next concrete action
 
-Run the preregistered production-faithful 80-entry K=3/K=1 pair on immutable
-generation digest `sha256:98a31edd...`, six corrected seasons, default
-`0/0/0/40` generation budget, 194 selection line, and no other changes. Accept
-and promote the K=3 source with `--entries-expected 80`, accept the K=1 staging
-arm, then run the ensemble mechanism comparator at 80 entries. The primary
-high-tail gate is >=200 lift >=2 with at least four positive and at most one
-negative season, plus non-worsening >=194 aggregate, non-worsening >=210,
-non-worsening >=200 pool oracle, valid mechanism, and no more than a 2.0-point
-mean-weekly-max regression. Do not tune
-selection line, ensemble K, or generation quotas after this result. A scaled
-boom/candidate-budget arm is separate and may be preregistered only after the
-default 80-entry pair. The lineup analyzer remains logged in `README.md`.
+Launch the preregistered same-image member-world pair on immutable digest
+`sha256:458dd21d...`: K=3 averaged-world control
+`20260808-e80-msctl-d99b125` and K=3 member-sampled treatment
+`20260808-e80-msarm-d99b125`, both true 80 with the default `0/0/0/40`
+generation budget and 194 selection line. The treatment changes only
+`ENSEMBLE_WORLD_MODE=member_sample` with seed 8161. Accept/promote the control,
+accept the treatment, run the `member_world` mechanism comparator, and apply
+the unchanged >=200 high-tail gate. Do not tune the line, K, allocation, seed,
+or budgets after the result. The lineup analyzer remains logged in
+`README.md`.
+
+### 2026-08-08 true-80 completion update
+
+- Both production-faithful panels completed and passed acceptance. K=3
+  `20260808-e80-k3-c616390` has 25,813 candidates; K=1
+  `20260808-e80-k1-c616390` has 25,787; both cover 107 slates with exact 80
+  selections. K=3 check/promote executions were
+  `accept-replay-panel-vlw7c` / `accept-replay-panel-d6fbn`; K=1 check was
+  `accept-replay-panel-cjct8`.
+- At selection line 194, K=3/K=1 scored 29/36 >=187, 19/22 >=194, 8/12
+  >=200, 5/6 >=210, 1/3 >=220, and mean weekly maxima 177.08/179.60.
+  K=1's >=200 season deltas are `{2019:+3, 2021:-1, 2022:+2, 2023:-1,
+  2024:0, 2025:+1}`. Only three seasons improve and two regress, so the new
+  high-tail gate fails. At 194 four improve but two regress, so the old gate
+  also fails. Do not adopt K=1 or weaken the stability law.
+- Official comparator `compare-adoption-panel-x9tsz` ran on digest
+  `sha256:458dd21d9074a1a3a35222c5b3aa67c4e331b4ee2e3ea62768c7870ef52fe4a1`
+  after Cloud Build `1520f9b3-9f76-47bc-ba15-47f4d621c22b` passed 636 tests.
+  Mechanism failures were zero; disposition is `unsupported-neutral`.
+- The primary 40/40 mixed book failed (9 >=200, three negative seasons).
+  Sensitivity 20/60 tied K=1 at 12 >=200 and improved to 7 >=210, but it is
+  post-result sensitivity only and improves just three seasons vs K=3. The
+  40/40 book had 392 duplicate roster slots across 96 slates.
+- K=3's true pool has 12 >=200 opportunities and captures 8; K=1 has 19 and
+  captures 12. The four/seven consequential misses are fully audited. A
+  deterministic pre-lock one-swap refinement recovers none, so no simple
+  greedy repair is supported. Week-level results are in
+  `reports/2026-08-08-true80-weekly-max.csv`.
+- Next preregistered pair uses same-image digest `sha256:458dd21d...` and code
+  `d99b125`: control `20260808-e80-msctl-d99b125` versus treatment
+  `20260808-e80-msarm-d99b125`, true 80, K=3, selection line 194, default
+  `0/0/0/40`, with treatment only `ENSEMBLE_WORLD_MODE=member_sample` seed
+  8161. Use the unchanged >=200 high-tail gate and the new `member_world`
+  mechanism comparator. Do not tune allocation/K/line/seed/budgets.
