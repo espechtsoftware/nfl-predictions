@@ -3,6 +3,14 @@
 Status: diagnostic and downstream arm preregistered before viewing any new
 ownership-model or lineup-score comparison.
 
+Implementation note (recorded before any downstream lineup panel): the
+fade-only treatment is named `OWN_MODEL=milly_fade`. It fits only eligible
+earlier-season contest-aware rows from the accepted K=1 snapshots, normalizes
+predictions within position to preserve the incumbent penalty scale, and does
+not place model ownership into the simulated field. The mechanism comparator
+requires all upstream projections/worlds to remain invariant and the frozen
+linear fade equation to hold exactly.
+
 ## Problem with the old ownership use
 
 The warehouse already holds 103,556 settled ownership rows from 1,258
@@ -73,3 +81,16 @@ lineup ownership product/sum as payout-risk diagnostics; do not claim ROI or
 duplication without complete historical entry fields. Do not tune the fade
 penalty or reserve an ownership quota after viewing outcomes.
 
+## Diagnostic correction ledger
+
+Runs v1 and v2 failed before model fitting on null names and same-name players
+at different positions. V3 completed, but post-run serve review found that it
+recomputed salary/value ranks after joining truth rows; its positive metrics
+are scientifically superseded and no lineup arm was launched. The corrected
+evaluation preserves ranks computed on the complete accepted slate. It also
+excludes 2022 Week 16 from the eligible ownership target: Christmas was
+Sunday, the replay contains the two Sunday games, while the named Milly was
+DraftKings' Saturday main slate. This is a calendar/slate-universe correction,
+not a result-based model change. The final diagnostic must cover the remaining
+71 contest/slate pairs, retain at least 90% mass in every eligible week, and
+pass the original frozen gate above before the scoring runner will start.

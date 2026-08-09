@@ -140,6 +140,18 @@ agent or developer:
   within position to the incumbent penalty scale, and keeps the simulated
   field naive. Focused ownership/replay/infrastructure validation is 28
   passed. Do not run a lineup panel until the corrected diagnostic passes.
+- The one allowed downstream arm is now fully guarded but remains unlaunched.
+  `OWN_MODEL=milly_fade` changes only the optimizer's ownership fade, never the
+  field sampler. Its runner requires the clean 71-slate v4 JSON before it can
+  launch true-80 K=1 `0/0/0/40`; its comparator requires exact invariant
+  upstream player features, unchanged shared candidate worlds, the frozen
+  `proj_tourney = proj - 25*own_est` delta, estimate/candidate/selection
+  movement, ownership sum/product diagnostics, and the existing tail-first
+  gate. Focused validation across ownership, comparator, panel gate, replay,
+  live smoke, and infrastructure is 39 passed; shell parsing, compilation and
+  whitespace checks pass. Corrected diagnostic build
+  `fa00ea6f-ffd0-49c6-8352-553c24989eb2` is running from rank-aligned commit
+  `638ce2a`. Never launch the scoring runner from superseded v3.
 
 ### Recovery provenance
 
