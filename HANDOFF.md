@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 16:47 CDT
+## Current state — 2026-08-09 17:03 CDT
 
 ### Autonomous scoring research resumed after context recovery
 
@@ -170,6 +170,25 @@ agent or developer:
   Build of the final guarded scoring code, then launch the one frozen ownership
   panel from that immutable digest. In parallel, continue polling the six exact
   CE union execution IDs and compare the union only after all six succeed.
+- Final scoring-code Cloud Build
+  `53c60d18-3f77-4a70-bd4c-906261c3d7c6` passed 700 tests with 2 skipped from
+  commit `f3086097b79f13de9a7e9eccef570f9063f53d3a` and produced immutable
+  digest `sha256:5cab563fdb9bad9f4241631f05bad51e73929851f0aa0acb3cc7cd7135a2c3c0`.
+  The guarded 2023 preflight `replay-e80k1milly-smoke-tt2g5` fit on 3,146
+  exact 2022 rows, then failed before candidates because DST concatenation
+  promoted `is_cold_start` to pandas `object` and LightGBM requires numeric
+  serve columns. No season execution launched and no lineup outcome was
+  viewed. Provenance is tracked at
+  `reports/panel-runs/20260809-e80-k1-millyown-f308609/`.
+- The failed preflight manifest also records a supplied full `CODE_SHA` that
+  had the correct `f308609` prefix but did not equal the actual image-source
+  commit. This did not create panel rows, but it is an audit defect. The runner
+  now requires the supplied full SHA to equal local HEAD. The serve repair
+  coerces every declared ownership feature to float and adds a regression for
+  object-typed `is_cold_start`; 20 focused ownership/comparator/replay tests
+  pass. Exact next action: commit/push this fail-closed repair, run a new full
+  Cloud Build, and retry from a distinct commit-derived panel ID. Never reuse
+  the failed f308609 panel or its digest for the ownership scoring panel.
 
 ### Recovery provenance
 

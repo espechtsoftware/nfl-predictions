@@ -195,6 +195,13 @@ def build_features(frame: pd.DataFrame) -> pd.DataFrame:
     missing = set(FEATURES) - set(out.columns)
     if missing:
         raise ValueError(f"snapshot missing ownership features {sorted(missing)}")
+    # DST rows are concatenated into replay slates after the skill-player
+    # frame is built. Pandas can consequently promote nullable boolean fields
+    # such as is_cold_start to object even though every value is numeric/bool.
+    # LightGBM rejects object columns at serve time, so enforce the same
+    # numeric matrix contract used by the diagnostic/training path.
+    for feature in FEATURES:
+        out[feature] = pd.to_numeric(out[feature], errors="coerce").astype(float)
     return out
 
 

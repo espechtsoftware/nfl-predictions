@@ -11,6 +11,9 @@ DIAG="$ROOT/reports/ownership-runs/20260809-milly-k1-c616390-v4/report.json"
 
 case "$IMG" in *@sha256:*) ;; *) echo "ABORT: immutable image required"; exit 2 ;; esac
 case "$CODE_SHA" in ""|*[!0-9a-f]*) echo "ABORT: CODE_SHA must be hexadecimal"; exit 2 ;; esac
+LOCAL_SHA=$(git -C "$ROOT" rev-parse HEAD)
+[ "$CODE_SHA" = "$LOCAL_SHA" ] || {
+  echo "ABORT: CODE_SHA $CODE_SHA is not local HEAD $LOCAL_SHA"; exit 2; }
 [ -s "$DIAG" ] || { echo "ABORT: corrected ownership diagnostic absent"; exit 2; }
 "$ROOT/.venv/bin/python" - "$DIAG" <<'PY'
 import json

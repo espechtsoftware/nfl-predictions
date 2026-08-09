@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 
 from nfl_dfs.research.milly_ownership import (
+    FEATURES,
+    build_features,
     diagnostic_gate,
     join_milly_truth,
     mark_scope_eligibility,
@@ -10,6 +12,25 @@ from nfl_dfs.research.milly_ownership import (
     parse_field_size,
     select_main_milly_contests,
 )
+
+
+def test_build_features_coerces_serve_object_columns_to_numeric():
+    rows = []
+    for ix, cold in enumerate((False, True)):
+        row = {feature: 0.0 for feature in FEATURES}
+        row.update({
+            "id": f"p{ix}", "name": f"Player {ix}", "pos": "WR",
+            "team": "A", "season": 2023, "week": 1,
+            "salary": 5000 + 100 * ix, "proj": 10.0 + ix,
+            "is_cold_start": cold,
+        })
+        rows.append(row)
+    frame = pd.DataFrame(rows)
+    frame["is_cold_start"] = frame["is_cold_start"].astype(object)
+    built = build_features(frame)
+    assert all(pd.api.types.is_numeric_dtype(built[name])
+               for name in FEATURES)
+    assert built.is_cold_start.tolist() == [0.0, 1.0]
 
 
 def _contest(contest_id: str, name: str, *, season: int = 2025,

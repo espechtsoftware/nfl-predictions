@@ -116,3 +116,14 @@ This result licenses only the already-frozen true-80 K=1 fade arm. It is not
 evidence that the arm improves lineup tails. Its preflight uses 2023, not the
 2022 training-only season, so the smoke test must actually fit and serve the
 walk-forward model before the six-season panel can launch.
+
+The first downstream preflight, `replay-e80k1milly-smoke-tt2g5`, did fit on
+3,146 earlier-season rows but failed before candidate generation because DST
+concatenation promoted the nullable `is_cold_start` serve feature to pandas
+`object`, which LightGBM rejects. No season panel launched and no lineup
+outcome was viewed. The repair coerces every declared model feature to a
+numeric matrix in `build_features` and adds a serve-dtype regression. That
+attempt's manifest also contained an incorrect full code SHA with the correct
+seven-character prefix; the runner now requires the supplied SHA to equal the
+local repository HEAD. Preserve the failed attempt as provenance and use a
+new commit, image digest, and panel ID for the corrected retry.

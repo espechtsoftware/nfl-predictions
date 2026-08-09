@@ -1,0 +1,7 @@
+disposition=preflight_failed_no_panel_seasons_launched
+execution=replay-e80k1milly-smoke-tt2g5
+failure=LightGBM rejected serve feature is_cold_start because DST concatenation promoted it to pandas object
+training_rows=3146
+panel_code_sha_in_manifest=f308609ed1b64ee4ce1eac6c84efb6ac2ff27b3e
+actual_source_commit=f3086097b79f13de9a7e9eccef570f9063f53d3a
+note=The supplied full SHA had the correct short prefix but was not the exact image source commit. No season execution launched and no lineup outcome was viewed.
