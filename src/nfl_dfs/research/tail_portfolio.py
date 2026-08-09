@@ -143,6 +143,88 @@ def swap_frontier(support: np.ndarray,
     return deltas.max(axis=1), (deltas >= 0).sum(axis=1)
 
 
+def refine_one_swap(
+    support: np.ndarray,
+    p_line: np.ndarray,
+    mean_total: np.ndarray,
+    picked: np.ndarray,
+    max_iterations: int = 1_000,
+) -> tuple[np.ndarray, list[dict]]:
+    """Reach a deterministic one-swap local optimum without outcomes.
+
+    The lexicographic objective is final covered worlds, then the sum of
+    candidate clear probabilities, then the sum of simulated means. This is
+    a diagnostic for the non-unique greedy frontier, not the production
+    selector: it asks whether an obvious pre-lock local improvement would
+    have recovered a hindsight winner.
+    """
+    support = np.asarray(support, dtype=bool)
+    p_line = np.asarray(p_line, dtype=float)
+    mean_total = np.asarray(mean_total, dtype=float)
+    picked = np.asarray(picked, dtype=int).copy()
+    if support.ndim != 2 or not len(picked):
+        raise ValueError("support must be 2-D and picked must be nonempty")
+    if len(p_line) != len(support) or len(mean_total) != len(support):
+        raise ValueError("candidate tiebreak arrays do not match support")
+    if max_iterations <= 0:
+        raise ValueError("max_iterations must be positive")
+    if len(np.unique(picked)) != len(picked):
+        raise ValueError("picked contains duplicate candidates")
+    if picked.min() < 0 or picked.max() >= len(support):
+        raise ValueError("picked contains an out-of-range candidate index")
+
+    selected = np.zeros(len(support), dtype=bool)
+    selected[picked] = True
+    trace: list[dict] = []
+    for _ in range(max_iterations):
+        selected_support = support[picked]
+        selected_count = selected_support.sum(axis=0)
+        covered = selected_count > 0
+        unique_support = selected_support & (selected_count == 1)
+        unique_counts = unique_support.sum(axis=1, dtype=np.int32)
+        new_worlds = np.count_nonzero(support & ~covered, axis=1)
+        overlap = (support.astype(np.int16)
+                   @ unique_support.T.astype(np.int16)).astype(np.int32)
+        coverage_deltas = (
+            new_worlds[:, None] - (unique_counts[None, :] - overlap))
+
+        best: tuple[tuple[float, ...], int, int, int] | None = None
+        for candidate in np.flatnonzero(~selected):
+            for slot, dropped in enumerate(picked):
+                coverage_delta = int(coverage_deltas[candidate, slot])
+                p_delta = float(p_line[candidate] - p_line[dropped])
+                mean_delta = float(mean_total[candidate] - mean_total[dropped])
+                improves = (
+                    coverage_delta > 0
+                    or (coverage_delta == 0 and (
+                        p_delta > 1e-12
+                        or (abs(p_delta) <= 1e-12 and mean_delta > 1e-12))))
+                if not improves:
+                    continue
+                # Smaller candidate/slot indices are deterministic final
+                # tiebreakers and match the production selector's stable
+                # candidate ordering convention.
+                key = (float(coverage_delta), p_delta, mean_delta,
+                       float(-candidate), float(-slot))
+                if best is None or key > best[0]:
+                    best = (key, int(candidate), int(slot), int(dropped))
+        if best is None:
+            return picked, trace
+        key, candidate, slot, dropped = best
+        selected[dropped] = False
+        selected[candidate] = True
+        picked[slot] = candidate
+        trace.append({
+            "coverage_delta": int(key[0]),
+            "p_line_delta": float(key[1]),
+            "mean_delta": float(key[2]),
+            "added_pos": candidate,
+            "dropped_pos": dropped,
+        })
+    raise RuntimeError(
+        f"one-swap refinement did not converge in {max_iterations} iterations")
+
+
 def evaluate_portfolio(rows: pd.DataFrame, entry_count: int,
                        select_line: float = 194.0) -> tuple[pd.DataFrame,
                                                            pd.DataFrame]:

@@ -11,6 +11,7 @@ from nfl_dfs.research.tail_portfolio import (
     high_unselected_candidates,
     missed_oracles,
     portfolio_summary,
+    refine_one_swap,
     select_slate,
     swap_frontier,
 )
@@ -104,6 +105,24 @@ def test_swap_frontier_identifies_equivalent_and_costly_candidates():
     best, free = swap_frontier(support, np.asarray([0, 1]))
     assert best.tolist() == [0, 0, 0, -1]
     assert free.tolist() == [1, 1, 1, 0]
+
+
+def test_one_swap_refinement_improves_coverage_then_tiebreaks():
+    support = np.asarray([
+        [1, 1, 0, 0],
+        [0, 0, 1, 0],
+        [0, 0, 1, 1],  # adds one covered world in place of candidate 1
+        [1, 1, 0, 0],  # equal support but higher p_line than candidate 0
+    ], dtype=bool)
+    refined, trace = refine_one_swap(
+        support,
+        p_line=np.asarray([0.2, 0.2, 0.1, 0.3]),
+        mean_total=np.asarray([150.0, 150.0, 149.0, 151.0]),
+        picked=np.asarray([0, 1]),
+    )
+    assert refined.tolist() == [3, 2]
+    assert [step["coverage_delta"] for step in trace] == [1, 0]
+    assert np.any(support[refined], axis=0).sum() == 4
 
 
 def _slate_summary(best: list[float], oracle: list[float], entries: int = 40

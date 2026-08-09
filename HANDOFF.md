@@ -261,6 +261,12 @@ agent or developer:
   on those slates had a non-worsening coverage swap. This is a non-unique
   frontier, not permission to hindsight-tune selection. Full evidence is in
   `reports/2026-08-08-80-entry-tail-audit.md`.
+- A deterministic, outcome-blind one-swap refinement was added to make that
+  claim stronger and reproducible. K=3's missed oracle ranked 25th/30th/26th
+  by probability/mean/q99 within its 32-candidate free frontier; local search
+  improved coverage 1,795→1,797 but still missed it. K=1's oracle ranked
+  4th/10th/4th within 24, yet local search improved coverage 3,595→3,598 with
+  other candidates and also missed it. Neither realized maximum changed.
 - The frozen 80 result is a lower-bound diagnostic: replay generates
   `CAND_MULT * n_entries` leverage candidates, so a true 80-entry replay has
   160 initial leverage candidates versus 80 in these source pools. The panel,

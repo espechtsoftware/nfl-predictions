@@ -26,6 +26,7 @@ from nfl_dfs.research.tail_portfolio import (  # noqa: E402
     high_unselected_candidates,
     missed_oracles,
     portfolio_summary,
+    refine_one_swap,
     season_summary,
     select_slate,
     swap_frontier,
@@ -138,14 +139,50 @@ def _print_roster_contrasts(misses: pd.DataFrame, candidates: pd.DataFrame,
             ordered.cand_ix.to_numpy() == int(miss.oracle_cand_ix))[0])
         selected_mask = np.zeros(len(ordered), dtype=bool)
         selected_mask[picked] = True
-        free_candidates = int(
-            np.count_nonzero((best_delta >= 0) & ~selected_mask))
+        free_mask = (best_delta >= 0) & ~selected_mask
+        free_candidates = int(np.count_nonzero(free_mask))
+        selected_support = support[picked]
+        world_counts = selected_support.sum(axis=0)
+        unique_worlds = (
+            selected_support & (world_counts == 1)).sum(axis=1)
+        zero_unique = int(np.count_nonzero(unique_worlds == 0))
+
+        def frontier_rank(column: str) -> int:
+            values = pd.to_numeric(ordered[column], errors="coerce").to_numpy()
+            target = values[oracle_pos]
+            return int(np.count_nonzero(values[free_mask] > target)) + 1
+
+        actual_values = ordered.actual_score.to_numpy(dtype=float)
+        frontier_high = int(np.count_nonzero(
+            free_mask & (actual_values >= 200.0)))
         print(f"  {key[0]} week {key[1]}: selected {miss.selected_best:.2f}, "
               f"oracle {miss.oracle:.2f}, overlap {miss.roster_overlap}/9")
         print(f"    oracle best swap delta={best_delta[oracle_pos]:+d}; "
               f"non-worsening drops={free_swaps[oracle_pos]}; "
               f"all unselected candidates with a free swap="
               f"{free_candidates}/{int((~selected_mask).sum())}")
+        print(f"    final selected book covers {int((world_counts > 0).sum())}/"
+              f"{support.shape[1]} worlds; {zero_unique}/{len(picked)} "
+              f"selected entries own zero unique worlds")
+        if free_mask[oracle_pos]:
+            print(f"    oracle rank inside {free_candidates}-candidate free "
+                  f"frontier: p_line {frontier_rank('p_line')}, "
+                  f"mean {frontier_rank('sim_mean')}, "
+                  f"q99 {frontier_rank('sim_q99')}; "
+                  f"realized >=200 candidates on frontier={frontier_high}")
+        refined, refinement_trace = refine_one_swap(
+            support,
+            ordered.p_line.to_numpy(dtype=float),
+            ordered.sim_mean.to_numpy(dtype=float),
+            picked,
+        )
+        refined_coverage = int(np.any(support[refined], axis=0).sum())
+        refined_best = float(ordered.actual_score.iloc[refined].max())
+        print(f"    pre-lock lexicographic one-swap refinement: "
+              f"{len(refinement_trace)} swaps, coverage "
+              f"{int((world_counts > 0).sum())}->{refined_coverage}, "
+              f"oracle selected={oracle_pos in set(refined.tolist())}, "
+              f"realized best={refined_best:.2f}")
         print(detail.to_string(
             index=False, float_format=lambda x: f"{x:.2f}"))
 

@@ -3378,6 +3378,15 @@ coverage rather than a hindsight-identifiable rule. See
 `reports/2026-08-08-80-entry-tail-audit.md` for the full grid and roster
 contrasts.
 
+The deeper frontier check reinforces that conclusion. K=3's oracle ranked
+25th/30th/26th by probability/mean/q99 among 32 free-swap candidates; a
+pre-lock lexicographic one-swap hill climb raised coverage 1,795→1,797 worlds
+but still missed it. K=1's oracle ranked a more plausible 4th/10th/4th among
+24, yet the same deterministic refinement raised coverage 3,595→3,598 and
+also selected other candidates. Neither refinement improved the realized
+weekly maximum. The K=1 miss therefore does not expose a simple local-search
+fix even though its hindsight winner looks less buried.
+
 This is discovery evidence, not adoption. Candidate generation starts with
 `CAND_MULT * n_entries`, so a real 80-entry replay produces 160 rather than 80
 leverage candidates. A preregistered same-image K=3/K=1 80-entry pair is next;

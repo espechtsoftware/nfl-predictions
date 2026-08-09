@@ -106,6 +106,11 @@ weekly opportunity; distinct missed weeks are the correct unit.
   to identify this particular hindsight winner. This was not a rare greedy
   defect: 32 of the 79 unselected candidates on the slate had some
   non-worsening one-for-one coverage swap.
+- Inside that 32-candidate free-swap frontier, the oracle still ranked only
+  25th by `P(>=194)`, 30th by simulated mean, and 26th by q99; it was the only
+  member that happened to realize 200. A deterministic pre-lock one-swap hill
+  climb improved simulated coverage 1,795→1,797 worlds in four swaps but
+  still excluded the oracle and left the realized best at 184.86.
 
 ### Consequential K=1 miss: 2019 week 6
 
@@ -124,6 +129,13 @@ weekly opportunity; distinct missed weeks are the correct unit.
   coverage would choose the winner. Any new selector must still use only
   pre-lock information and requires independent confirmation under the
   project's standing validation law.
+- The oracle was more plausible inside this free frontier—4th of 24 by both
+  `P(>=194)` and q99, and 10th by mean—but it was still the only member to
+  realize 200. A deterministic lexicographic hill climb using only covered
+  worlds, summed `P(>=194)`, and summed simulated mean improved coverage
+  3,595→3,598 worlds in three swaps, yet selected other candidates, omitted
+  the oracle, and left the realized best at 190.50. Thus even the most direct
+  non-hindsight local repair suggested by this miss does not recover it.
 
 The other 80-entry miss at 194 is 2021 week 18 (oracle 194.12). It appears in
 both K=3 and K=1, is not a 200-point outcome, and costs three simulated
