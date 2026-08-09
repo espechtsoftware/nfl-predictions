@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 10:07 CDT
+## Current state — 2026-08-09 10:10 CDT
 
 ### Recovery provenance
 
@@ -501,13 +501,16 @@ model registry or silently change app behavior. Earlier deployed
 
 ### Next concrete action
 
-Preregister and run an explicitly exploratory true-80 K=1 model-only blend
-arm against the existing accepted K=1 tail-first baseline, changing only
-`BLEND_MODEL_WEIGHT=1.0` on the same immutable generation image and preserving
-the exact 107-slate, K=1, 80-entry, 0/0/0/40, possession, $49k, seed, and
-selection-line contract. Freeze the tail-first comparison and mechanism
-checks before launching, and do not treat a favorable result as prospective
-confirmation because this arm was chosen after inspecting earlier outcomes.
+The explicitly exploratory true-80 K=1 model-only experiment is now frozen in
+`reports/2026-08-09-k1-model-only-true80-experiment.md`, before treatment
+creation. Launch panel `20260809-e80-k1-modelonly-c616390` from immutable
+generation digest `sha256:98a31edd...`, changing only K=1 source env plus
+`BLEND_MODEL_WEIGHT=1.0`; require the 2022 smoke before all six season jobs.
+After completion, run check-only acceptance and the purpose-built `blend`
+comparator at 80 entries, report the full tail grid and paired gained/lost
+weeks, and never promote the treatment. A favorable result is only a reason
+for prospective confirmation because this hypothesis was chosen after
+inspecting earlier outcomes.
 Keep all seven research schedules paused until the tracked August 24
 season-start runbook. Do not execute either source shadow or freezer before
 DK posts the matching regular-season Sunday main slate. Never mutate the
