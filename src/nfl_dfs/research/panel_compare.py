@@ -62,7 +62,7 @@ def directional_gate(incumbent: pd.DataFrame,
             (by_season.lift > 0).sum()) >= 4,
         "at_most_1_negative_season": int(
             (by_season.lift < 0).sum()) <= 1,
-        "mean_not_worse_by_more_than_0_5": (
+        "mean_not_worse_by_more_than_0_5": bool(
             cm["mean_best"] >= im["mean_best"] - 0.5),
         "oracle_not_worse": cm["oracle_194"] >= im["oracle_194"],
     }
@@ -108,7 +108,7 @@ def high_tail_gate(incumbent: pd.DataFrame,
             (by_season.lift > 0).sum()) >= 4,
         "at_most_1_negative_season": int(
             (by_season.lift < 0).sum()) <= 1,
-        "mean_not_worse_by_more_than_guard": (
+        "mean_not_worse_by_more_than_guard": bool(
             pair.selected_best_challenger.mean()
             >= pair.selected_best_incumbent.mean() - mean_guard),
     }

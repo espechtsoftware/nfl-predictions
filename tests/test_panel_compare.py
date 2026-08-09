@@ -1,3 +1,5 @@
+import json
+
 import pandas as pd
 
 from nfl_dfs.research.panel_compare import (
@@ -52,6 +54,15 @@ def test_high_tail_gate_uses_declared_threshold_and_season_law():
         base, unstable, threshold=194.0)
     assert int((unstable_seasons.lift < 0).sum()) == 2
     assert not unstable_gate["passes"]
+
+
+def test_score_gate_reports_are_json_serializable():
+    base = slate_scores(_panel())
+    directional, _ = directional_gate(base, base.copy())
+    high_tail, _ = high_tail_gate(base, base.copy())
+    # Pandas comparisons can return numpy.bool_, which json.dumps rejects.
+    # These reports cross a persisted JSON boundary and need native booleans.
+    json.dumps({"directional": directional, "high_tail": high_tail})
 
 
 def test_metrics_reports_all_frozen_thresholds():
