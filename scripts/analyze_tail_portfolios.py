@@ -15,6 +15,7 @@ from pathlib import Path
 import re
 import sys
 
+import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
@@ -26,6 +27,8 @@ from nfl_dfs.research.tail_portfolio import (  # noqa: E402
     missed_oracles,
     portfolio_summary,
     season_summary,
+    select_slate,
+    swap_frontier,
 )
 
 
@@ -126,8 +129,23 @@ def _print_roster_contrasts(misses: pd.DataFrame, candidates: pd.DataFrame,
                 })
         detail = pd.DataFrame(details).sort_values(
             ["side", "actual"], ascending=[True, False])
+        slate_candidates = candidates[
+            candidates.season.eq(key[0]) & candidates.week.eq(key[1])]
+        ordered, support, picked = select_slate(
+            slate_candidates, int(miss.entry_count), float(miss.select_line))
+        best_delta, free_swaps = swap_frontier(support, picked)
+        oracle_pos = int(np.flatnonzero(
+            ordered.cand_ix.to_numpy() == int(miss.oracle_cand_ix))[0])
+        selected_mask = np.zeros(len(ordered), dtype=bool)
+        selected_mask[picked] = True
+        free_candidates = int(
+            np.count_nonzero((best_delta >= 0) & ~selected_mask))
         print(f"  {key[0]} week {key[1]}: selected {miss.selected_best:.2f}, "
               f"oracle {miss.oracle:.2f}, overlap {miss.roster_overlap}/9")
+        print(f"    oracle best swap delta={best_delta[oracle_pos]:+d}; "
+              f"non-worsening drops={free_swaps[oracle_pos]}; "
+              f"all unselected candidates with a free swap="
+              f"{free_candidates}/{int((~selected_mask).sum())}")
         print(detail.to_string(
             index=False, float_format=lambda x: f"{x:.2f}"))
 

@@ -256,8 +256,10 @@ agent or developer:
   144/159 and depended on a +30.61 Keenan Allen surprise. K=1's
   2019-week-6 winner ranked 53/161 and could replace one selected entry with
   zero final simulated-coverage loss; it was an ATL/NYJ construction versus
-  the selected SEA construction. This is an algorithmic/non-unique frontier,
-  not permission to hindsight-tune selection. Full evidence is in
+  the selected SEA construction. Deeper audit showed free swaps were common,
+  not special to the winners: 32/79 K=3 and 24/81 K=1 unselected candidates
+  on those slates had a non-worsening coverage swap. This is a non-unique
+  frontier, not permission to hindsight-tune selection. Full evidence is in
   `reports/2026-08-08-80-entry-tail-audit.md`.
 - The frozen 80 result is a lower-bound diagnostic: replay generates
   `CAND_MULT * n_entries` leverage candidates, so a true 80-entry replay has

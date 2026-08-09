@@ -11,6 +11,7 @@ from nfl_dfs.research.tail_portfolio import (
     missed_oracles,
     portfolio_summary,
     select_slate,
+    swap_frontier,
 )
 
 
@@ -91,3 +92,14 @@ def test_entry_count_caps_at_candidate_pool():
     assert slates.oracle_selected.all()
     assert membership.portfolio_selected.all()
 
+
+def test_swap_frontier_identifies_equivalent_and_costly_candidates():
+    support = np.asarray([
+        [1, 1, 0, 0],
+        [0, 0, 1, 1],
+        [1, 1, 0, 0],  # exact support substitute for selected candidate 0
+        [1, 0, 0, 0],  # loses one uniquely covered world on its best swap
+    ], dtype=bool)
+    best, free = swap_frontier(support, np.asarray([0, 1]))
+    assert best.tolist() == [0, 0, 0, -1]
+    assert free.tolist() == [1, 1, 1, 0]

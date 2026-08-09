@@ -112,6 +112,37 @@ def _best_swap_delta(support: np.ndarray, picked: np.ndarray,
     return best, nonnegative
 
 
+def swap_frontier(support: np.ndarray,
+                  picked: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Best one-for-one coverage swap for every candidate in one slate.
+
+    Returns two candidate-length arrays: the best change in covered worlds
+    and the number of selected entries that candidate can replace without
+    reducing coverage. This exposes whether a hindsight winner's zero-cost
+    swap is unusual or one of many equivalent simulated portfolios.
+    """
+    support = np.asarray(support, dtype=bool)
+    picked = np.asarray(picked, dtype=int)
+    if support.ndim != 2 or not len(picked):
+        raise ValueError("support must be 2-D and picked must be nonempty")
+    if picked.min() < 0 or picked.max() >= len(support):
+        raise ValueError("picked contains an out-of-range candidate index")
+
+    selected_support = support[picked]
+    selected_count = selected_support.sum(axis=0)
+    covered = selected_count > 0
+    unique_support = selected_support & (selected_count == 1)
+    unique_counts = unique_support.sum(axis=1, dtype=np.int32)
+    new_worlds = np.count_nonzero(support & ~covered, axis=1)
+    # 10,000 worlds fit safely in int16; cast the matrix-product result to
+    # int32 before subtraction so future larger world counts remain safe.
+    overlap = (support.astype(np.int16)
+               @ unique_support.T.astype(np.int16)).astype(np.int32)
+    losses = unique_counts[None, :] - overlap
+    deltas = new_worlds[:, None] - losses
+    return deltas.max(axis=1), (deltas >= 0).sum(axis=1)
+
+
 def evaluate_portfolio(rows: pd.DataFrame, entry_count: int,
                        select_line: float = 194.0) -> tuple[pd.DataFrame,
                                                            pd.DataFrame]:

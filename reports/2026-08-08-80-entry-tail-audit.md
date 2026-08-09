@@ -103,7 +103,9 @@ weekly opportunity; distinct missed weeks are the correct unit.
   selected best used a MIA stack led by Tyreek Hill and Tua Tagovailoa.
 - One selected candidate could be exchanged for this oracle without reducing
   final simulated-world coverage, but its pre-lock ranks supplied no reason
-  to identify this particular hindsight winner.
+  to identify this particular hindsight winner. This was not a rare greedy
+  defect: 32 of the 79 unselected candidates on the slate had some
+  non-worsening one-for-one coverage swap.
 
 ### Consequential K=1 miss: 2019 week 6
 
@@ -115,10 +117,13 @@ weekly opportunity; distinct missed weeks are the correct unit.
   by Russell Wilson and Chris Carson; both game theses realized well, but the
   ATL/NYJ combination won by 13.94.
 - Swapping the hindsight oracle for one selected lineup could preserve the
-  same final simulated-world coverage. This exposes a non-unique/greedy
-  selector frontier at 80 entries, not a learnable hindsight rule. Any new
-  selector must still use only pre-lock information and requires independent
-  confirmation under the project's standing validation law.
+  same final simulated-world coverage. But 24 of 81 unselected candidates on
+  the slate also had a non-worsening swap, so the oracle was one of many
+  coverage-equivalent alternatives. This exposes a non-unique frontier at 80
+  entries, not a learnable hindsight rule or evidence that exact maximum
+  coverage would choose the winner. Any new selector must still use only
+  pre-lock information and requires independent confirmation under the
+  project's standing validation law.
 
 The other 80-entry miss at 194 is 2021 week 18 (oracle 194.12). It appears in
 both K=3 and K=1, is not a 200-point outcome, and costs three simulated
