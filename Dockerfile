@@ -14,6 +14,7 @@ COPY scripts/harvest_accept.py ./scripts/harvest_accept.py
 COPY scripts/compare_adoption_panel.py ./scripts/compare_adoption_panel.py
 COPY scripts/compare_exact_replay.py ./scripts/compare_exact_replay.py
 COPY scripts/compare_role_belief_panel.py ./scripts/compare_role_belief_panel.py
+COPY scripts/run_conditional_schaake_smoke.py ./scripts/run_conditional_schaake_smoke.py
 
 RUN pip install --no-cache-dir ".[gcp,app]"
 

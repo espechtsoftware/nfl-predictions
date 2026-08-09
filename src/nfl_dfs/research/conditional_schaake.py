@@ -35,6 +35,7 @@ FOREST_ROLES = tuple(
     for role in ("QB", "RB1", "RB2", "WR1", "WR2", "WR3", "TE1")
     for side in ("fav", "dog")
 )
+DEPENDENCE_GATE_SEASONS = (2023, 2024, 2025)
 
 
 def _numeric_frame(frame: pd.DataFrame, columns: tuple[str, ...]) -> np.ndarray:
@@ -169,6 +170,100 @@ def fit_conditional_template_forest(
         bandwidth=bandwidth,
         seed=seed,
     )
+
+
+def evaluate_dependence_panel(reports: list[dict]) -> dict:
+    """Apply the frozen three-season dependence-only acceptance gate."""
+    by_season = {}
+    for report in reports:
+        season = int(report.get("season", 0))
+        if season in by_season:
+            raise ValueError(f"duplicate dependence report for {season}")
+        by_season[season] = report
+    missing = sorted(set(DEPENDENCE_GATE_SEASONS) - set(by_season))
+    extra = sorted(set(by_season) - set(DEPENDENCE_GATE_SEASONS))
+    if missing or extra:
+        raise ValueError(
+            f"dependence seasons mismatch: missing={missing} extra={extra}")
+
+    seasons = []
+    weighted = {
+        "production_variogram": 0.0,
+        "forest_variogram": 0.0,
+        "production_tail_brier": 0.0,
+        "forest_tail_brier": 0.0,
+    }
+    total_pairs = 0
+    reports_valid = True
+    for season in DEPENDENCE_GATE_SEASONS:
+        report = by_season[season]
+        production = report.get("production", {})
+        forest = report.get("schaake", {})
+        n_pairs = int(production.get("n_pairs", 0))
+        valid = bool(
+            report.get("template_mode") == "forest"
+            and report.get("marginal_exact")
+            and report.get("required_pairs_complete")
+            and n_pairs > 0
+            and int(forest.get("n_pairs", -1)) == n_pairs)
+        values = {
+            "production_variogram": float(
+                production.get("variogram", np.nan)),
+            "forest_variogram": float(forest.get("variogram", np.nan)),
+            "production_tail_brier": float(
+                production.get("tail_brier", np.nan)),
+            "forest_tail_brier": float(
+                forest.get("tail_brier", np.nan)),
+        }
+        valid = valid and all(np.isfinite(value) for value in values.values())
+        reports_valid = reports_valid and valid
+        variogram_better = (
+            values["forest_variogram"] < values["production_variogram"])
+        tail_brier_better = (
+            values["forest_tail_brier"]
+            < values["production_tail_brier"])
+        seasons.append({
+            "season": season,
+            "n_pairs": n_pairs,
+            **values,
+            "variogram_better": bool(variogram_better),
+            "tail_brier_better": bool(tail_brier_better),
+            "both_better": bool(variogram_better and tail_brier_better),
+            "both_worse": bool(
+                values["forest_variogram"] > values["production_variogram"]
+                and values["forest_tail_brier"]
+                > values["production_tail_brier"]),
+            "valid": bool(valid),
+        })
+        total_pairs += max(n_pairs, 0)
+        for key, value in values.items():
+            weighted[key] += max(n_pairs, 0) * value
+    if total_pairs <= 0:
+        raise ValueError("dependence reports contain no pair observations")
+    aggregate = {
+        key: value / total_pairs for key, value in weighted.items()
+    }
+    checks = {
+        "reports_valid": bool(reports_valid),
+        "aggregate_variogram_better": bool(
+            aggregate["forest_variogram"]
+            < aggregate["production_variogram"]),
+        "aggregate_tail_brier_better": bool(
+            aggregate["forest_tail_brier"]
+            < aggregate["production_tail_brier"]),
+        "both_better_in_at_least_2_seasons": bool(
+            sum(item["both_better"] for item in seasons) >= 2),
+        "no_season_worsens_both": bool(
+            not any(item["both_worse"] for item in seasons)),
+    }
+    checks["passes"] = all(checks.values())
+    return {
+        "seasons": seasons,
+        "aggregate": {"n_pairs": total_pairs, **aggregate},
+        "checks": checks,
+        "disposition": ("dependence-gate-passes" if checks["passes"]
+                        else "dependence-gate-fails"),
+    }
 
 
 def cloud_smoke() -> dict:

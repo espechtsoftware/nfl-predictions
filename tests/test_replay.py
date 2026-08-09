@@ -44,6 +44,23 @@ def test_role_snapshot_fields_survive_projection_and_slate_build(small_panel):
     assert not slate.is_cold_start.astype(bool).any()
 
 
+def test_dependence_only_run_exits_before_candidate_path(monkeypatch):
+    panel = pd.DataFrame({"season": [2025]})
+    monkeypatch.setenv("SCHAAKE_DIAG", "1")
+    monkeypatch.setenv("SCHAAKE_DIAG_ONLY", "1")
+    monkeypatch.setattr(
+        replay, "load_panel_and_dst", lambda season: (panel, None))
+    monkeypatch.setattr(
+        replay, "replay_projections",
+        lambda *args, **kwargs: (pd.DataFrame(), np.empty((0, 10))))
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("candidate path ran during dependence-only gate")
+
+    monkeypatch.setattr(replay, "role_belief_projections", forbidden)
+    replay.run(2025)
+
+
 def test_role_belief_projection_is_exact_and_restores_baseline_env(
         small_panel, monkeypatch):
     features = ",".join(replay.ROLE_BELIEF_FEATURES)

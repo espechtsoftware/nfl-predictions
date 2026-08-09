@@ -703,3 +703,10 @@ candidate or score analysis. Passage earns only a separately preregistered
 candidate-oracle gate, not a scoring panel or production change. Do not tune
 the seed, forest dimensions, response roles, features, or seasons after the
 diagnostic result.
+
+`SCHAAKE_DIAG_ONLY=1` now exits immediately after the dependence report, so
+these jobs cannot silently continue into candidates or selected-lineup
+scores. `scripts/compare_dependence_panel.py` applies the frozen weighted and
+season-stability law to exactly three harvested reports. The dedicated Cloud
+launcher first exercises an immutable-image smoke, records exact execution
+IDs, and pins every diagnostic job to the same digest.

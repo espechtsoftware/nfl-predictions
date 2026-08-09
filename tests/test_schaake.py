@@ -1,11 +1,12 @@
 import numpy as np
 import pandas as pd
+import pytest
 
 from nfl_dfs.research.schaake import (apply_schaake, apply_schaake_game,
                                       build_game_bank)
 from nfl_dfs.research.conditional_schaake import (
     FOREST_ROLES, cloud_smoke as conditional_cloud_smoke,
-    fit_conditional_template_forest)
+    evaluate_dependence_panel, fit_conditional_template_forest)
 from nfl_dfs.research import schaake_diag
 from nfl_dfs.research.schaake_diag import realized_dependence_scores
 
@@ -94,6 +95,45 @@ def test_conditional_forest_favors_matching_context_without_leakage():
     assert np.isclose(weights.sum(), 1.0)
     assert weights[fitted.templates.season.eq(2024)].sum() > 0.8
     assert fitted.diagnostics(weights)["effective_templates"] > 1
+
+
+def _dependence_report(season, production=(0.20, 0.030),
+                       forest=(0.19, 0.029)):
+    return {
+        "season": season,
+        "template_mode": "forest",
+        "marginal_exact": True,
+        "required_pairs_complete": True,
+        "production": {
+            "n_pairs": 100, "variogram": production[0],
+            "tail_brier": production[1],
+        },
+        "schaake": {
+            "n_pairs": 100, "variogram": forest[0],
+            "tail_brier": forest[1],
+        },
+    }
+
+
+def test_dependence_panel_gate_enforces_aggregate_and_season_stability():
+    reports = [_dependence_report(season)
+               for season in (2023, 2024, 2025)]
+    passing = evaluate_dependence_panel(reports)
+    assert passing["checks"]["passes"]
+    assert passing["disposition"] == "dependence-gate-passes"
+
+    unstable = reports[:2] + [_dependence_report(
+        2025, production=(0.20, 0.030), forest=(0.25, 0.040))]
+    failed = evaluate_dependence_panel(unstable)
+    assert not failed["checks"]["no_season_worsens_both"]
+    assert not failed["checks"]["passes"]
+
+
+def test_dependence_panel_gate_requires_frozen_seasons():
+    with pytest.raises(ValueError, match="seasons mismatch"):
+        evaluate_dependence_panel([
+            _dependence_report(2023), _dependence_report(2024),
+        ])
 
 
 def test_legacy_shuffle_is_an_exact_marginal_permutation():

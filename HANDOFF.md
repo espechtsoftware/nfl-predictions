@@ -492,3 +492,9 @@ afterward. The lineup analyzer remains logged in `README.md`.
   marginal draw multiset. Only a passing dependence gate may reach a newly
   preregistered candidate-oracle stage; do not tune it on the 107 realized
   portfolio outcomes.
+- The diagnostic is hardened with `SCHAAKE_DIAG_ONLY=1`, which returns before
+  role-belief, market-blend, candidate-generation, persistence, and lineup
+  scoring paths. `scripts/cloud_dependence_panel.sh` launches only the frozen
+  2023-2025 reports after an immutable-image smoke, and
+  `scripts/compare_dependence_panel.py` applies the machine-readable weighted
+  aggregate/stability gate. No forest season execution has been launched yet.

@@ -1229,9 +1229,18 @@ def run(
     tail_line: float | None = None,
     max_weeks: int | None = None,
 ) -> None:
+    diagnostic_only = os.environ.get(
+        "SCHAAKE_DIAG_ONLY", "").strip() not in ("", "0")
+    if diagnostic_only and not os.environ.get("SCHAAKE_DIAG"):
+        raise ValueError("SCHAAKE_DIAG_ONLY requires SCHAAKE_DIAG")
     panel, dst = load_panel_and_dst(season)
     proj, draws = replay_projections(panel, season, n_sims=n_sims,
                                      return_draws=True)
+    if diagnostic_only:
+        log.info(
+            "Schaake dependence-only run complete for season %d; "
+            "candidate generation skipped", season)
+        return
     role_proj, role_draws = role_belief_projections(
         panel, season, n_sims=n_sims)
     if role_proj is not None:
