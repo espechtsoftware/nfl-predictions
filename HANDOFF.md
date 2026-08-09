@@ -573,6 +573,18 @@ claimed Sports Data Direct $34.95 feed could not be verified as current. No
 purchase/account creation has been authorized. The exact vendor gate and
 primary-source links are preserved in the acquisition report.
 
+The operator subsequently activated DFS Hero's $1 Power trial. Direct access
+to the offseason NFL Contest Analyzer listed 309 DraftKings contests for
+2025-10-05 and supplied contest-level field, payout, min-cash, and winner
+metadata. It did not supply the required underlying fields: both the 161,764-
+entry main-slate Millionaire and the distinct main-slate `$40K MEGA mini-MAX`
+opened to `Contest data not available`, leaving no leaderboard or CSV export.
+DFS Hero therefore fails the current backfill gate unless its support team can
+identify a working retained 2023–2025 NFL Classic field and explain a temporary
+offseason defect. Do not allow the $149.95 renewal. The fallback remains a
+pre-purchase export/coverage confirmation from FantasyCruncher rather than
+another blind subscription.
+
 Keep all seven research schedules paused until the tracked August 24
 season-start runbook. Do not execute either source shadow or freezer before
 DK posts the matching regular-season Sunday main slate. Never mutate the

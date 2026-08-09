@@ -121,6 +121,19 @@ and approve its auto-renewing billing; cancel within the five-day window unless
 the gate passes. If it fails, ask FantasyCruncher support the same question
 before buying one NFL Pro month.
 
+**Trial result, 2026-08-09:** the user activated the $1 DFS Hero Power trial.
+Because NFL was marked offseason, the historical Contest Analyzer was opened
+directly. It listed 309 DraftKings contests for 2025-10-05 and exposed useful
+contest-level metadata. For example, it listed the main-slate Millionaire as
+161,764 entries with a 169.34-point min-cash line and 246.82 first-place score.
+However, opening both that contest and the separate main-slate `$40K MEGA
+mini-MAX` returned `Contest data not available`; no leaderboard or CSV export
+was available. Thus DFS Hero fails the current historical-field gate. Retain
+the trial only long enough to ask whether this is a temporary offseason defect
+and whether any 2023–2025 NFL Classic fields are actually downloadable; do not
+allow the $149.95 Power renewal. If support cannot identify a working retained
+contest and export, proceed to the FantasyCruncher pre-purchase question.
+
 Sources:
 [DraftKings full-standings CSV and 10-day limit](https://help.draftkings.com/hc/en-us/articles/4412213454099-How-do-I-download-a-CSV-to-see-GameCenter-standings-for-a-contest-US),
 [DFS Hero tools](https://dfshero.com/tools),
