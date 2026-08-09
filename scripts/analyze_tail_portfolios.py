@@ -34,6 +34,11 @@ from nfl_dfs.research.tail_portfolio import (  # noqa: E402
     select_slate,
     swap_frontier,
 )
+from nfl_dfs.research.real_winner_overlap import (  # noqa: E402
+    evaluate_known_winner_overlap,
+    load_known_winner_rows,
+    match_known_winner_players,
+)
 
 
 def _panel_id(value: str) -> str:
@@ -115,6 +120,49 @@ def _print_real_line_context(slates: pd.DataFrame) -> None:
             f"  {label}: beat {int(gap.le(0).sum())}/{len(rows)}; "
             f"within 10/20/30/40 = {within}; mean gap {gap.mean():.2f}; "
             f"median gap {gap.median():.2f}")
+
+
+def _print_real_winner_roster_context(candidates: pd.DataFrame,
+                                      features: pd.DataFrame) -> None:
+    """Audit individual exposure and assembly against known real winners."""
+    source = load_known_winner_rows(Path(__file__).resolve().parents[1]
+                                    / "reports")
+    winners = match_known_winner_players(source, features)
+    report, missing = evaluate_known_winner_overlap(candidates, winners)
+    distinct = report.drop_duplicates(["season", "week"])
+    print("\nKNOWN REAL MILLY WINNER ROSTER OVERLAP")
+    print(f"  weeks={report.groupby(['season', 'week']).ngroups}; "
+          f"exact winner in candidate pool="
+          f"{int(distinct.exact_winner_in_pool.sum())}")
+    for label in ("pool", "selected"):
+        rows = report[report.book.eq(label)]
+        print(
+            f"  {label}: individual winner-player coverage "
+            f"{rows.winner_player_coverage.mean():.2f}/9; all nine in "
+            f"{int(rows.winner_player_coverage.eq(9).sum())}/{len(rows)} "
+            f"weeks; closest roster overlap {rows.max_overlap.mean():.2f}/9 "
+            f"vs exposure-null {rows.null_max_mean.mean():.2f}; "
+            f"winner-pair co-occurrence {rows.pair_any_rate.mean():.3f} "
+            f"vs independent-exposure {rows.pair_independent_rate.mean():.3f}")
+    print(
+        f"  realized selected-best/oracle winner overlap: "
+        f"{distinct.selected_best_overlap.mean():.2f}/"
+        f"{distinct.oracle_overlap.mean():.2f} of 9")
+    if missing.empty:
+        print("  no individual winning-player slots missing from pool")
+    else:
+        by_pos = ", ".join(
+            f"{pos}={count}" for pos, count in
+            missing.pos.value_counts().items())
+        print(
+            f"  {len(missing)}/{len(winners)} individual winner slots "
+            f"missing across "
+            f"{missing.groupby(['season', 'week']).ngroups} weeks "
+            f"({by_pos}); actual/projection/surprise means "
+            f"{missing.actual.mean():.2f}/{missing.projection.mean():.2f}/"
+            f"{missing.surprise.mean():+.2f}")
+        print(missing.sort_values("actual", ascending=False).head(20).to_string(
+            index=False, float_format=lambda x: f"{x:.2f}"))
 
 
 def _print_roster_contrasts(misses: pd.DataFrame, candidates: pd.DataFrame,
@@ -275,6 +323,9 @@ def main() -> int:
               f"mismatches: {mismatches}")
         if mismatches:
             return 2
+
+        features = _load_features(args.panel_run_id, args.staging)
+        _print_real_winner_roster_context(candidates, features)
 
     for entries in args.entry_counts:
         key = (entries, 194.0)

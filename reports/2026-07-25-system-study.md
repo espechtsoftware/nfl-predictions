@@ -3617,3 +3617,30 @@ simultaneous high scores: joint-q90 tail Brier worsened slightly
 gate therefore fails. The mechanism is active and scientifically valid, but
 does not proceed to candidate-oracle or scoring stages. Its hyperparameters,
 roles, features, and seasons will not be tuned on this result.
+
+## Addendum 116 (2026-08-09): real-winner exposure is broad, but corrected assembly is not below random
+
+The accepted true-80 K=3 panel was joined to all 68 known same-week Milly
+winner rosters, resolving 612 player slots against each immutable slate
+snapshot. The pool contains an average 8.51/9 winning players somewhere and
+all nine in 39/68 weeks; the selected book contains 8.43 and all nine in 35.
+No exact winning roster is present. The closest single candidate contains
+3.46 winner players in the pool and 3.31 in the selected book, while the
+actual weekly oracle/selected-best contain only 2.07/1.97.
+
+Unlike the superseded old-panel assembly finding, the corrected true-80 book
+does not fall below an exposure-preserving null. Holding each winner player's
+marginal exposure fixed, independent random assembly produces mean maximum
+overlap 3.30 for the candidate pool and 3.22 for the selected book, below the
+observed 3.46/3.31. Observed versus null winner-pair occurrence is
+0.368/0.366 in the pool and 0.325/0.330 in selection. The null is not a legal
+lineup generator, but it falsifies a generic claim that the current generator
+systematically scatters winner players that its own exposures already favor.
+
+Only 33/612 winner slots are absent from every candidate, across 29 weeks.
+They average 22.74 actual versus 7.19 projected points (+15.55 surprise) and
+are concentrated at WR/TE (13/10, plus 7 RB, 2 QB, 1 DST). The remaining
+first-place gap is therefore dominated by pre-lock belief on rare individual
+and joint booms, not a free assembly or selector repair. Reusable
+`real_winner_overlap.py` tooling is wired into the tail analyzer; no lever is
+adopted from this outcome-aware diagnostic.

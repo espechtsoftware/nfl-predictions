@@ -521,3 +521,14 @@ afterward. The lineup analyzer remains logged in `README.md`.
   229/239/238) but does not proceed to candidates or scoring. Do not tune its
   seed, forest size, leaf size, RFF dimension, roles, features, or seasons on
   this result.
+- The known-real-winner audit now resolves all 612 player slots from 68 Milly
+  winners against the immutable accepted K=3 snapshots. The pool exposes
+  8.51/9 winning players on average, but its closest candidate contains only
+  3.46. That assembly is not below an exposure-preserving null (3.30), and
+  winner-pair occurrence is 0.368 versus null 0.366; selection is likewise
+  3.31 versus 3.22 and 0.325 versus 0.330. The old broad assembly-defect story
+  does not survive the corrected true-80 baseline. Only 33/612 winner slots
+  are missing from the entire pool; they average 22.74 actual versus 7.19
+  projected (+15.55 surprise), led by WR/TE. New reusable
+  `real_winner_overlap.py` diagnostics and two focused tests are tracked. No
+  construction or selector lever is adopted from this outcome-aware audit.

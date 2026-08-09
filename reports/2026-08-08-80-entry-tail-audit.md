@@ -525,6 +525,49 @@ paid less per point through duplication. Chasing them post hoc would be even
 less justified under the operator's actual money objective than under the
 score-only grid.
 
+### Real-winner roster assembly check
+
+The 68 known same-week Milly winner rosters provide a stricter upstream check
+than the score line alone. None of the exact nine-player winners appears in
+the accepted K=3 candidate pool, but exact-roster absence is unsurprising in a
+roughly 240-candidate sample from a combinatorial legal universe. The useful
+questions are individual exposure and assembly conditional on that exposure.
+
+The full candidate pool contains an average **8.51 of the nine winning
+players** somewhere and contains all nine in 39/68 weeks. The selected book
+contains 8.43 somewhere and all nine in 35/68. Yet the closest individual
+candidate contains only 3.46 winner players on average in the pool and 3.31
+in the selected book; the actual weekly pool oracle and selected-best contain
+only 2.07 and 1.97. Thus identifying many eventual winning players somewhere
+does not mean the pre-lock beliefs identify which of them should co-boom.
+
+An exposure-preserving random-assembly null closes the tempting interpretation
+that construction is mechanically scattering these players. For each week
+and book, independently assign each winning player to the same number of
+entries implied by that player's observed marginal exposure, then compare the
+maximum overlap and pair co-occurrence. The candidate pool's observed closest
+overlap is **3.46 versus 3.30 under the null**, and its winner-pair
+co-occurrence is **0.368 versus 0.366**. The selected book is likewise 3.31
+versus 3.22 on maximum overlap and 0.325 versus 0.330 on pairs. The null does
+not enforce salary, position, or stacking legality, so it is a falsification
+diagnostic rather than a replacement generator; nevertheless there is no
+broad below-random assembly defect to repair in the corrected true-80 book.
+
+Only 33 of 612 individual winning-player slots are absent from the entire
+candidate pool, across 29 weeks: 13 WR, 10 TE, 7 RB, 2 QB, and 1 DST. Those
+omitted players averaged **22.74 actual points versus 7.19 projected**, a
+**+15.55 surprise**. The largest examples are Taysom Hill 46.52 versus 9.51,
+Breshad Perriman 37.60 versus 8.52, Marquise Brown 33.70 versus 4.90, Tank
+Dell 32.60 versus 10.05, and Jayden Reed 30.10 versus 11.78. This reinforces
+the same diagnosis as the missed candidate oracles: rare player and joint
+explosions were assigned too little probability, while selection and generic
+assembly changes merely rearrange hindsight winners.
+
+`real_winner_overlap.py` and the main tail analyzer reproduce the name/ID
+resolution, overlap, pair, null, and omitted-player figures. The 2024 week-9
+source duplicate is excluded explicitly. No construction lever is adopted
+from this outcome-aware audit.
+
 ## Next preregistered arm: coherent member-sampled worlds
 
 Because K=1 did not earn adoption, the accepted K=3 configuration remains the
