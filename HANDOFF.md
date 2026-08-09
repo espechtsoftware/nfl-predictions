@@ -613,8 +613,14 @@ timestamped signal trial.
 At 13:07 CDT all six no-floor season executions still reported Cloud Run
 `Completed=Unknown` / waiting; no score-bearing treatment result was inspected.
 
-Keep all seven research schedules paused until the tracked August 24
-season-start runbook. Do not execute either source shadow or freezer before
+Before resuming the season schedules, complete the newly tracked arm/UI
+promotion gate in the README's August 24 runbook: close or explicitly defer
+the historical arms, record the adopted production policy, wire that policy
+through the UI/API and all three lineup/CSV paths, expose its identity, and
+pass a full build plus end-to-end 80-lineup export smoke. Unconfirmed arms
+remain shadow-only; an explicit decision to retain canonical K=3/194 also
+satisfies the policy-choice portion. Keep all seven research schedules paused
+until this gate passes. Do not execute either source shadow or freezer before
 DK posts the matching regular-season Sunday main slate. Never mutate the
 pre-lock candidate or membership records, and do not retune K, the 194 control
 target, the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill
