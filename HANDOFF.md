@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 13:46 CDT
+## Current state — 2026-08-09 14:03 CDT
 
 ### Recovery provenance
 
@@ -182,6 +182,27 @@ agent or developer:
   (`50 11 * * 7`) use `America/Chicago` and are both verified PAUSED. Neither
   job has been executed because no matching regular-season Sunday-main source
   panel exists yet.
+
+- Prospective policy v2 is now validated and deployed from source commit
+  `e356e1c`. Cloud Build `c2f468ac-405d-4cef-98ed-8cadcda8c08c` passed 675
+  tests (2 skipped) and produced immutable digest
+  `sha256:19c30dbb0d1ee9fddd55d4f79fc036ba716a2e1dd8788a6f6afa2d23a5381b36`.
+  `shadow-k1`, new `shadow-k1-nofloor`, `shadow-k3`, `freeze-tail-early`, and
+  `freeze-tail-late` are all Ready on that digest. The three 8Gi/4-CPU shadow
+  jobs share possession, `0/0/0/40`, 45/55, 30k-world, artifact, and 80-entry
+  contracts; K1/K1-no-floor/K3 differ only in command/panel identity,
+  registry/K, and salary floor ($49k/$0/$49k). The freezer now requires all
+  three complete unlabeled pools and writes five separately labeled books:
+  K1 coverage, K1 top-p, exact K1 no-floor coverage, K3 coverage, and 20/60
+  K1/K3. Policy version is `tail-first-v2-20260809`.
+- New schedulers `s-shadow-k1-nofloor-early` (Sun 10:30 CT) and
+  `s-shadow-k1-nofloor-late` (Sun 11:20 CT) are verified PAUSED alongside
+  K1/K3/freezer/training schedules; all nine research schedules remain
+  PAUSED. Preseason smoke `shadow-k1-nofloor-b5wqp` failed closed exactly as
+  intended—no 2026-09-13 all-Sunday DK group—before model loading,
+  generation, or writes. `live_candidates_shadow` still does not exist, so
+  zero prospective rows were created. Do not treat this expected failed
+  execution as an infrastructure defect.
 
 - The old 27/107 result and the later 17/107 result are invalid controls. The
   former contains illegal repriced lineups; the latter omitted historical DST
@@ -554,17 +575,20 @@ prospective-shadow decision are in
 and comparison artifacts are tracked under
 `reports/panel-runs/20260809-e80-k1-nofloor-c616390/`.
 
-Next, finish validation and deployment of the isolated prospective
-`shadow-k1-nofloor` path. The current work adds an exact policy identity
-requiring K=1 registry `tail_k1` plus `MIN_LINEUP_SALARY=0`, distinct panel
-prefix `live-shadow-tail_k1_nofloor-*`, a fifth frozen 80-entry portfolio,
-paired grading, and two paused 10:30/11:20 Sunday schedules. Focused local
-tests currently pass 31/31; Python compilation, CLI discovery, shell syntax,
-and diff whitespace pass. Run a full Cloud Build, deploy K=1/K=1-no-floor/K=3
-shadow and early/late freezer jobs on its immutable digest, create and verify
-the two new schedules PAUSED, and prove a live preseason call fails closed
-before model loading/writes because no matching regular-season Sunday group
-exists. Do not run a source shadow or freezer successfully before Week 1.
+The isolated `shadow-k1-nofloor` path is complete and closed until genuine
+2026 pre-lock slates exist. Do not add a no-floor/top-p combination, tune an
+intermediate salary floor, or query/freeze it before Week 1. No further
+historical selector/floor sweep is justified on these 107 known outcomes.
+
+Next, continue the genuinely new-information path: add quota telemetry and a
+strictly point-in-time shadow bundle for the already-paid Odds API's unused
+volume, touchdown-allocation, and dual-role markets. Preserve existing base
+market columns and ingestion jobs, bound requests from measured remaining
+quota, store per-book prices/timestamps and response quota headers, and keep
+all new features out of production decisions until their held-out residual,
+tail-calibration, and candidate-oracle gates are frozen and passed. Do not
+launch a historical credit-consuming backfill until the account's remaining
+quota and exact request cost are known.
 
 The data-acquisition audit requested during this run is tracked in
 `reports/2026-08-09-data-acquisition-priorities.md`. Its ordering is: complete
