@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 07:04 CDT
+## Current state — 2026-08-09 07:24 CDT
 
 ### Recovery provenance
 
@@ -181,6 +181,47 @@ agent or developer:
   result, also apply the prospective tail-first rule as a separately labeled
   operational disposition. Do not inspect or tune individual weeks, K,
   selection line, or another candidate multiple from the outcome.
+
+### Tail-first reinterpretation of earlier valid arms — 2026-08-09
+
+- Reassess only arms whose original rejection depended on the former
+  lower-threshold/mean/season-uniformity utility. Do not reopen mechanisms
+  that directly lost the 200/210 tail, failed a held-out mechanism gate, or
+  were measured only on an invalid historical universe.
+- The leading prospective selector hypothesis is **K=1 top individual
+  p-line**. On the valid true-80 pool it reached 15 weeks >=200 and 8 >=210,
+  versus 12/6 for the promoted K=1 194-coverage book and 8/5 for K=3. This
+  rule was found among several post-result sensitivities, so it is not a
+  historical adoption; freeze it as a distinct prospective shadow before
+  outcomes and grade it with multiplicity clearly reported. K=1 coverage at
+  selection line 200 is a weaker secondary clue: 15/6/3 at 200/210/220,
+  versus 12/6/3 at line 194.
+- The outcome-viewed 20/60 K=1/K=3 allocation is a prospective hedge lead,
+  not an adoption. It tied homogeneous K=1 at 12 weeks >=200 and 3 >=220
+  while improving 6->7 at >=210. A live implementation must reselect the
+  declared quotas from each frozen pool and deterministically backfill
+  cross-book duplicate rosters.
+- Read-only recomputation of the full valid 40-entry A01/A03 tails found that
+  both were more interesting under the amended utility than their old 194
+  verdicts showed. The accepted K=3 source's
+  187/194/200/210/220/230/240 grid is `26/11/1/1/1/0/0`, mean 173.06, and
+  pool-oracle >=200 count 8. Model-only A01 is
+  `22/11/3/2/2/0/0`, mean 172.14, oracle 8; both added >=200 weeks were in
+  2023. No-floor A03 is `21/11/3/2/1/0/0`, mean 172.43, oracle 9; its added
+  >=200 weeks were in 2023 and 2024. Each would satisfy the new aggregate
+  tail rule if it had been frozen before those results, but the policy was
+  changed afterward. Treat them as hypotheses for fresh K=1 true-80 tests,
+  with model-only first because it also added a 220+ week and its 2023w3
+  winner is absent from the current K=1 selected book. No-floor is lower
+  priority because all three of its historical 200+ weeks are already
+  present in the current K=1 book.
+- Keep candidate-multiple 4, coherent member-sampled worlds, the conditional
+  dependence forest, and K=3 ranked selectors closed: they failed the newly
+  important tail directly. Older CE/Gumbel/role arms are not promoted by a
+  looser utility because their comparison universe is superseded or their
+  tail mechanism was null; CE may receive a clean corrected K=1 exploratory
+  test only after the higher-prior selector/model-only work, not a parameter
+  sweep.
 
 ### Work in progress
 
