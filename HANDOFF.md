@@ -298,6 +298,8 @@ agent or developer:
   least two >=200 weeks, satisfy the standing 4-positive/<=1-negative season
   law, and preserve the 194/210/oracle/mean safeguards. Count cross-book
   duplicate rosters; retaining them in weekly-max scoring is conservative.
+  Endpoint strength is ordered by >=200, then >=210, >=194, then mean weekly
+  maximum. Use `scripts/analyze_mixed_tail_portfolios.py` after acceptance.
 
 ### Deployment caution
 

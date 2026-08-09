@@ -281,6 +281,77 @@ def season_summary(slates: pd.DataFrame,
     return pd.DataFrame(rows)
 
 
+def combine_slate_portfolios(
+    left: pd.DataFrame,
+    right: pd.DataFrame,
+    left_entries: int,
+    right_entries: int,
+) -> pd.DataFrame:
+    """Combine two independently selected books by realized weekly maximum.
+
+    This is the scoring operation for a fixed cross-model entry allocation.
+    Each side must already have been selected against its own immutable world
+    masks. The function never uses realized outcomes to alter membership; it
+    only scores the union of the two pre-lock portfolios.
+    """
+    if left_entries < 0 or right_entries < 0:
+        raise ValueError("entry allocations must be nonnegative")
+    if left_entries + right_entries <= 0:
+        raise ValueError("combined portfolio must contain at least one entry")
+
+    keys = ["season", "week"]
+    needed = {*keys, "selected_best", "oracle", "select_line"}
+    active: list[tuple[str, pd.DataFrame, int]] = []
+    for name, frame, entries in (
+            ("left", left, left_entries), ("right", right, right_entries)):
+        if entries == 0:
+            continue
+        missing = needed - set(frame.columns)
+        if missing:
+            raise ValueError(f"{name} slate summary missing {sorted(missing)}")
+        if frame.empty or frame.duplicated(keys).any():
+            raise ValueError(f"{name} slate summary is empty or duplicated")
+        if "entry_count" in frame and not frame.entry_count.eq(entries).all():
+            raise ValueError(
+                f"{name} summary does not contain exactly {entries} entries")
+        active.append((name, frame, entries))
+
+    if len(active) == 1:
+        name, frame, _ = active[0]
+        out = frame.copy()
+        out["left_best"] = (out.selected_best if name == "left" else np.nan)
+        out["right_best"] = (out.selected_best if name == "right" else np.nan)
+        out["left_oracle"] = (out.oracle if name == "left" else np.nan)
+        out["right_oracle"] = (out.oracle if name == "right" else np.nan)
+    else:
+        l = left[[*keys, "selected_best", "oracle", "select_line"]].rename(
+            columns={"selected_best": "left_best",
+                     "oracle": "left_oracle",
+                     "select_line": "left_select_line"})
+        r = right[[*keys, "selected_best", "oracle", "select_line"]].rename(
+            columns={"selected_best": "right_best",
+                     "oracle": "right_oracle",
+                     "select_line": "right_select_line"})
+        out = l.merge(r, on=keys, how="outer", indicator=True,
+                      validate="one_to_one")
+        if not out._merge.eq("both").all():
+            raise ValueError("left and right panels do not contain the same slates")
+        if not np.allclose(out.left_select_line, out.right_select_line):
+            raise ValueError("left and right panels use different selection lines")
+        out["selected_best"] = out[["left_best", "right_best"]].max(axis=1)
+        out["oracle"] = out[["left_oracle", "right_oracle"]].max(axis=1)
+        out["select_line"] = out.left_select_line
+        out = out.drop(columns=["left_select_line", "right_select_line",
+                                "_merge"])
+
+    out["entry_count"] = int(left_entries + right_entries)
+    out["regret"] = out.oracle - out.selected_best
+    out["oracle_selected"] = np.isclose(out.oracle, out.selected_best)
+    out["left_entries"] = int(left_entries)
+    out["right_entries"] = int(right_entries)
+    return out.sort_values(keys).reset_index(drop=True)
+
+
 def missed_oracles(slates: pd.DataFrame, threshold: float) -> pd.DataFrame:
     """Slates whose pool contained a threshold clear but the book did not."""
     out = slates[(slates.oracle >= threshold)

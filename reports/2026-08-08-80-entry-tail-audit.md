@@ -226,7 +226,9 @@ is 40/40, declared before outcomes; the other three non-endpoint allocations
 are sensitivity analysis, not a menu from which to pick the historical
 winner.
 
-The comparison is the stronger of the two homogeneous 80-entry endpoints.
+The comparison is the stronger of the two homogeneous 80-entry endpoints,
+defined first by >=200 count, then >=210, >=194, and mean weekly maximum as
+fixed tiebreakers.
 The 40/40 mix must add at least two >=200 weeks, improve at least four seasons
 with no more than one negative season at >=200, and not worsen aggregate
 >=194, aggregate >=210, pool-oracle >=200, or mean weekly maximum by more than

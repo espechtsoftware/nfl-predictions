@@ -5,6 +5,7 @@ import pandas as pd
 import pytest
 
 from nfl_dfs.research.tail_portfolio import (
+    combine_slate_portfolios,
     decode_clear_bits,
     evaluate_portfolio,
     high_unselected_candidates,
@@ -103,3 +104,43 @@ def test_swap_frontier_identifies_equivalent_and_costly_candidates():
     best, free = swap_frontier(support, np.asarray([0, 1]))
     assert best.tolist() == [0, 0, 0, -1]
     assert free.tolist() == [1, 1, 1, 0]
+
+
+def _slate_summary(best: list[float], oracle: list[float], entries: int = 40
+                   ) -> pd.DataFrame:
+    return pd.DataFrame({
+        "season": [2024, 2025],
+        "week": [1, 2],
+        "selected_best": best,
+        "oracle": oracle,
+        "select_line": [194.0, 194.0],
+        "entry_count": [entries, entries],
+    })
+
+
+def test_combine_slate_portfolios_scores_union_without_reselection():
+    left = _slate_summary([205.0, 180.0], [210.0, 190.0])
+    right = _slate_summary([190.0, 215.0], [208.0, 220.0])
+    mixed = combine_slate_portfolios(left, right, 40, 40)
+    assert mixed.selected_best.tolist() == [205.0, 215.0]
+    assert mixed.oracle.tolist() == [210.0, 220.0]
+    assert mixed.regret.tolist() == [5.0, 5.0]
+    assert mixed.entry_count.eq(80).all()
+    assert mixed.left_entries.eq(40).all()
+    assert mixed.right_entries.eq(40).all()
+
+
+def test_combine_slate_portfolios_validates_allocation_and_slate_keys():
+    left = _slate_summary([205.0, 180.0], [210.0, 190.0], entries=80)
+    pure = combine_slate_portfolios(left, pd.DataFrame(), 80, 0)
+    assert pure.selected_best.tolist() == left.selected_best.tolist()
+    assert pure.right_best.isna().all()
+
+    right = _slate_summary([190.0, 215.0], [208.0, 220.0])
+    right.loc[1, "week"] = 3
+    with pytest.raises(ValueError, match="same slates"):
+        combine_slate_portfolios(
+            _slate_summary([205.0, 180.0], [210.0, 190.0]),
+            right, 40, 40)
+    with pytest.raises(ValueError, match="at least one"):
+        combine_slate_portfolios(pd.DataFrame(), pd.DataFrame(), 0, 0)
