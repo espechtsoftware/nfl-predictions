@@ -59,9 +59,12 @@ agent or developer:
 - CE infrastructure commit `2650c77` is pushed on `main`. Union panel
   `20260809-e80-k1-ceunion-c616390` is now launched on immutable generation
   digest `sha256:98a31edd...`; its durable 2022 one-week preflight execution is
-  `replay-e80k1ceu-smoke-z4rlq` and was still running when this milestone was
-  recorded. The six season executions launch only after that job succeeds and
-  will be appended to the tracked panel manifest by the still-running wrapper.
+  `replay-e80k1ceu-smoke-z4rlq` and passed. The six durable season executions
+  are `replay-e80k1ceu-2019-7zp2w`, `replay-e80k1ceu-2021-hhbfh`,
+  `replay-e80k1ceu-2022-wnsz6`, `replay-e80k1ceu-2023-vrmsz`,
+  `replay-e80k1ceu-2024-9r566`, and `replay-e80k1ceu-2025-zjw6k`; all were
+  launched asynchronously and must be checked by these exact IDs rather than
+  by each job's latest execution.
 - The contest-aware ownership diagnostic is implemented while CE computes.
   It deterministically selects the largest-field mass-valid Classic Milly,
   excludes parenthetical alternate/single-game slates and high-roller copies,
@@ -80,6 +83,10 @@ agent or developer:
   omitted the two new cloud entry points; no image from that build is valid.
   Dockerfile now includes both scripts. Never query or launch fixed-arm lineup
   outcomes unless the tracked union mechanism/frontier gate passes.
+- Replacement full Cloud Build
+  `28ea77e8-1775-4b3d-a9d6-56888997f292` is running from pushed packaging
+  commit `1933b85` with image tag `:1933b85`. On success, resolve and record
+  its immutable digest before either evaluator is deployed.
 
 ### Recovery provenance
 
