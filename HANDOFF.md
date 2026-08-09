@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 10:21 CDT
+## Current state — 2026-08-09 10:27 CDT
 
 ### Recovery provenance
 
@@ -521,10 +521,12 @@ the frozen generation digest: `replay-e80k1mo-2019-hcxpf`,
 `replay-e80k1mo-2021-6s8rw`, `replay-e80k1mo-2022-n5f6s`,
 `replay-e80k1mo-2023-n4h4g`, `replay-e80k1mo-2024-qtbq2`, and
 `replay-e80k1mo-2025-prbcr`. Reporting build
-`95911a3d-8925-4859-bee4-afa5bb69ad8c` is queued from source commit `8c67945`.
-Wait for six clean successes and a green reporting build, then run check-only
-acceptance and the 80-entry `blend` comparator before querying or interpreting
-the full score grid.
+`95911a3d-8925-4859-bee4-afa5bb69ad8c` passed 673 tests with 2 skipped from
+source commit `8c67945`, producing immutable audit/comparator digest
+`sha256:67e20d8308bd8bee20b436ff89dc3093445dcc559965f4527b3582ec7ed4f3f6`.
+Wait for six clean season successes, then run check-only acceptance and the
+80-entry `blend` comparator on that validated digest before querying or
+interpreting the full score grid.
 Keep all seven research schedules paused until the tracked August 24
 season-start runbook. Do not execute either source shadow or freezer before
 DK posts the matching regular-season Sunday main slate. Never mutate the
