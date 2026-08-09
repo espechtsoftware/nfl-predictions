@@ -209,6 +209,34 @@ pair on immutable generation digest
 6. Do not tune the selection line, K, generator quotas, or candidate multiple
    after seeing this pair. Candidate-budget scaling is a separate future arm.
 
+### Preregistered cross-model portfolio mix
+
+Before querying any realized scores from the running true-80 panels, a second
+diagnostic was frozen around the operator's actual decision: how to allocate
+80 entries. Model averaging is not the only way to use K=1 and K=3; their
+errors may be complementary enough that two smaller books have a better
+weekly maximum than one homogeneous book.
+
+After both panels pass acceptance, reapply each panel's unchanged 194-point
+coverage selector to its own production-faithful candidate/world pool and
+report the complete K=1/K=3 allocation grid **0/80, 20/60, 40/40, 60/20,
+80/0**. For every allocation, score the realized weekly maximum at
+187/194/200/210/220/230/240 and by season. The primary mixed-book hypothesis
+is 40/40, declared before outcomes; the other three non-endpoint allocations
+are sensitivity analysis, not a menu from which to pick the historical
+winner.
+
+The comparison is the stronger of the two homogeneous 80-entry endpoints.
+The 40/40 mix must add at least two >=200 weeks, improve at least four seasons
+with no more than one negative season at >=200, and not worsen aggregate
+>=194, aggregate >=210, pool-oracle >=200, or mean weekly maximum by more than
+2.0 points. Duplicate rosters across the two model books must be counted and
+reported. They remain in the historical maximum calculation (a duplicate
+cannot create a false higher maximum), making the result a conservative
+lower bound on a live implementation that backfills duplicates. A passing
+diagnostic motivates that deterministic backfill/joint-book implementation;
+it does not silently change the current live selector.
+
 Runner, acceptance, and comparator interfaces now accept an explicit entry
 count while retaining 40 as the default. Tests cover 80-entry panel
 validation and the frozen selector diagnostics.

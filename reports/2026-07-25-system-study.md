@@ -3383,3 +3383,13 @@ This is discovery evidence, not adoption. Candidate generation starts with
 leverage candidates. A preregistered same-image K=3/K=1 80-entry pair is next;
 its primary high-tail gate is >=200 with the standing 4-positive/<=1-negative
 season law, plus non-worsening checks at 194/210 and full mechanism audits.
+
+Before any realized true-80 scores were queried, a cross-model allocation
+diagnostic was also preregistered. It will report K=1/K=3 splits of 0/80,
+20/60, 40/40, 60/20, and 80/0 using the unchanged 194 coverage selector
+inside each model's production-faithful pool. The 40/40 split is the primary
+hypothesis and must beat the stronger homogeneous endpoint by at least two
+>=200 weeks with the same 4-positive/<=1-negative season law and the existing
+194/210/oracle/mean safeguards. Cross-book duplicate rosters will be reported
+and retained in historical maximum scoring, so they cannot manufacture an
+improvement. Full protocol is in the 80-entry tail audit.

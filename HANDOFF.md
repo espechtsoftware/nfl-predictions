@@ -290,6 +290,14 @@ agent or developer:
   live defaults. Focused and full local tests pass. It is not preregistered or
   launched; define its same-image comparator only after the running 80-entry
   K=3/K=1 result establishes which configuration is the incumbent.
+- Before querying any realized scores from the running true-80 panels, a
+  cross-model 80-entry allocation diagnostic was frozen. Report K=1/K=3
+  splits `0/80, 20/60, 40/40, 60/20, 80/0`, always selecting at 194 inside
+  each model's own true-80 pool and scoring the complete realized tail grid.
+  The primary 40/40 split must beat the stronger homogeneous endpoint by at
+  least two >=200 weeks, satisfy the standing 4-positive/<=1-negative season
+  law, and preserve the 194/210/oracle/mean safeguards. Count cross-book
+  duplicate rosters; retaining them in weekly-max scoring is conservative.
 
 ### Deployment caution
 
