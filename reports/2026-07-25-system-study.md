@@ -3724,9 +3724,10 @@ must be prospective: train and store K=1 in an isolated registry and freeze
 Sunday-main candidate books before outcomes without changing the K=3 live
 default.
 
-## Addendum 119 (2026-08-09): prospective K=1 shadow is isolated and deployed
+## Addendum 119 (2026-08-09): paired prospective K=1/K=3 shadows are isolated and deployed
 
-The tail-first research baseline now has a fail-closed prospective path.
+The tail-first research baseline now has a fail-closed prospective path and a
+same-time canonical reference.
 Canonical registry labels remain unchanged; K=1 training writes only
 `comp_*__tail_k1`, and shadow loading verifies both the namespace and the
 stored member count before any lineup work. `nfl-dfs shadow-k1` selects the
@@ -3737,14 +3738,20 @@ and user notes disabled. Candidate/player writes and full score-matrix storage
 are synchronous and required; any missing artifact, partial portfolio, or
 warehouse failure fails the execution.
 
-Cloud Build `d5c080e9-03a6-46e8-b8d9-aca3874b287c` passed 667 tests (2
+`nfl-dfs shadow-k3` applies the identical frozen portfolio, date, and storage
+contract to canonical K=3, recording `live-shadow-tail_k3-*` separately from
+K=1's `live-shadow-tail_k1-*`. This is necessary attribution infrastructure:
+an isolated K=1 score cannot show whether the same pre-lock week improved or
+declined versus K=3.
+
+Final Cloud Build `a97781f2-c764-4067-b578-feacf931f03c` passed 668 tests (2
 skipped), producing immutable digest
-`sha256:d7df959ce3f7ed6f41427b6015f4e275606c07e91671aa24872422c8f3319998`.
-Isolated jobs `train-weekly-k1` and `shadow-k1` are pinned to that digest.
+`sha256:939778e31defe13dc48b6410d3621422070864cbc60f7fd9680e1faf0d555b89`.
+Jobs `train-weekly-k1`, `shadow-k1`, and `shadow-k3` are pinned to that digest.
 Training smoke `train-weekly-k1-hrhl8` created
 `comp_targets__tail_k1/2026-W32`; the canonical target registry stayed at
 2026-W32 with exact before/after listing checksum
 `e85a892e48da1b31eb87712b1ace96ea8f8c25f841d9bcdca9084a29b6cd1a8d`.
-Schedulers `s-train-k1`, `s-shadow-k1-early`, and `s-shadow-k1-late` are all
-PAUSED until the August 24 season-start runbook. No live app default or
-canonical K=3 model was changed.
+Schedulers `s-train-k1`, `s-shadow-k1-early`, `s-shadow-k1-late`,
+`s-shadow-k3-early`, and `s-shadow-k3-late` are all PAUSED until the August 24
+season-start runbook. No live app default or canonical K=3 model was changed.

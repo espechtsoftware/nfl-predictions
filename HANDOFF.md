@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 06:55 CDT
+## Current state — 2026-08-09 07:04 CDT
 
 ### Recovery provenance
 
@@ -97,7 +97,8 @@ agent or developer:
   read-only live check resolves the target to 2026w01 / 2026-09-13, finds no
   matching current DK group, and fails closed before model loading or writes.
 - Replacement Cloud Build `d5c080e9-03a6-46e8-b8d9-aca3874b287c` passed the
-  full suite again (667 passed, 2 skipped) and produced final shadow digest
+  full suite again (667 passed, 2 skipped) and produced the date-gated K=1
+  digest
   `sha256:d7df959ce3f7ed6f41427b6015f4e275606c07e91671aa24872422c8f3319998`.
   Both `train-weekly-k1` and `shadow-k1` are now pinned to that digest. The
   verified shadow contract is `nfl-dfs shadow-k1`, K=1, variant `tail_k1`,
@@ -105,16 +106,24 @@ agent or developer:
   30,000 live worlds, 8Gi/4 CPU, and code SHA `0e0278d`; training uses the
   same image with only K=1/variant settings. All three scheduler states and
   schedules were rechecked and remain PAUSED. Canonical registry checksum is
-  still unchanged after final deployment.
-- A same-time K=3 reference shadow has now been implemented locally but is not
-  yet cloud-validated or deployed. New `nfl-dfs shadow-k3` requires the
+  still unchanged after that deployment. This image is superseded for the
+  paired shadow jobs by the `cb57798` build below.
+- Same-time K=3 reference shadow is implemented, validated, and deployed from
+  source commit `cb57798`. New `nfl-dfs shadow-k3` requires the
   canonical registry and K=3, shares every 80-entry/194-tail generation,
   date, persistence, and artifact contract with K=1, and records distinct
   `live-shadow-tail_k3-*` panel IDs. K=1 remains `live-shadow-tail_k1-*`.
-  Focused paired-shadow/persistence/live tests pass (25 tests), CLI discovery,
-  Python compilation, deploy-script syntax, and diff whitespace are green.
-  This control is required so prospective K=1 gains/losses are paired under
-  near-identical pre-lock information rather than judged in isolation.
+  Final Cloud Build `a97781f2-c764-4067-b578-feacf931f03c` passed 668 tests
+  (2 skipped), producing digest
+  `sha256:939778e31defe13dc48b6410d3621422070864cbc60f7fd9680e1faf0d555b89`.
+  `train-weekly-k1`, `shadow-k1`, and `shadow-k3` are all pinned to that exact
+  digest; verified shadow envs differ only in declared K/registry/command and
+  otherwise share the frozen possession, 0/0/0/40, $49k, 45/55, 30k-world,
+  artifact-bucket, 8Gi/4 CPU contract. Paired schedules are 10:30 and 11:20
+  CT; all five new schedules, including K=1 training, are PAUSED. The
+  canonical registry checksum remains unchanged. This control makes future
+  K=1 gains/losses paired under near-identical pre-lock information rather
+  than judged in isolation.
 
 - The old 27/107 result and the later 17/107 result are invalid controls. The
   former contains illegal repriced lineups; the latter omitted historical DST
@@ -416,15 +425,15 @@ model registry or silently change app behavior. Earlier deployed
 
 ### Next concrete action
 
-Commit and fully Cloud-Build the paired K=3 reference. If green, deploy
-`shadow-k3` on the same immutable digest, create 10:30/11:20 CT schedules,
-and immediately pause/recheck them alongside the three existing shadow/train
-schedules. Do not execute either shadow before DK posts the matching
-regular-season Sunday main slate. Before Week 1 outcomes, add a fixed grader
-that joins each frozen `live_candidates_shadow` roster to point-in-time
-actuals and reports the same 187/194/200/210/220/230/240 weekly-max grid;
-never mutate the pre-lock candidate records. Do not retune K, the 194 target,
-or selector on the 107 known historical slates.
+Keep all five new schedules paused until the tracked August 24 season-start
+runbook, then resume them with the rest of the seasonal chain. Do not execute
+either shadow before DK posts the matching regular-season Sunday main slate.
+Before Week 1 outcomes, add a fixed grader that joins each frozen
+`live_candidates_shadow` roster to point-in-time actuals, pairs K=1/K=3 by
+week and snapshot slot, and reports the same
+187/194/200/210/220/230/240 weekly-max grid; never mutate the pre-lock
+candidate records. Do not retune K, the 194 target, or selector on the 107
+known historical slates.
 
 ### 2026-08-08 true-80 completion update
 
