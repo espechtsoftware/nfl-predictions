@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 12:03 CDT
+## Current state — 2026-08-09 12:13 CDT
 
 ### Recovery provenance
 
@@ -531,9 +531,19 @@ least 14 selected weeks >=200, non-worse counts of at least 6 at >=210 and 19
 pool oracles >=200, plus the purpose-built salary mechanism audit. Never
 promote it, and close the exact arm without tuning if it fails.
 
-Next, commit and push the preregistration, run the 2022 immutable-image smoke,
-then launch the six season executions only if that smoke succeeds. Record and
-push all durable execution IDs before inspecting score-bearing output.
+The immutable 2022 smoke `replay-e80k1nf-smoke-7rrbr` passed. All six season
+jobs are running: `replay-e80k1nf-2019-nrw5b`,
+`replay-e80k1nf-2021-zjwt8`, `replay-e80k1nf-2022-rdvll`,
+`replay-e80k1nf-2023-57cw8`, `replay-e80k1nf-2024-gdx9t`, and
+`replay-e80k1nf-2025-2bpt5`. Their exact manifest is tracked under
+`reports/panel-runs/20260809-e80-k1-nofloor-c616390/`. No score-bearing output
+was inspected before these IDs were frozen.
+
+Next, monitor only Cloud Run completion conditions and staging slate counts.
+After all six jobs succeed and all 107 slates exist, run check-only acceptance
+on reporting digest `sha256:67e20d8308bd...ed4f3f6`, then the purpose-built
+`salary` comparator against `20260808-e80-k1-c616390`. Preserve its complete
+tail grid and mechanism report before making the frozen disposition.
 Keep all seven research schedules paused until the tracked August 24
 season-start runbook. Do not execute either source shadow or freezer before
 DK posts the matching regular-season Sunday main slate. Never mutate the

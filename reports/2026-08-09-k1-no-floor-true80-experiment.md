@@ -4,8 +4,9 @@ Preregistered: 2026-08-09 12:03 CDT, before creation of any treatment rows or
 execution. Source results were already known. The treatment panel ID was
 confirmed absent from staging at freeze time.
 
-Status: **PREREGISTERED — no treatment rows inspected or generated**. This is
-an outcome-informed historical exploration, not prospective confirmation.
+Status: **RUNNING — immutable execution IDs frozen; no score-bearing output
+inspected**. This is an outcome-informed historical exploration, not
+prospective confirmation.
 The arm is being revisited because the earlier K=3/40-entry salary-floor
 deletion added two weeks at 200 under the later tail-first utility, after the
 K=1/80-entry portfolio became the research baseline. All three of that old
@@ -95,3 +96,22 @@ Because this is outcome-informed historical exploration, a pass means only
 A failure closes this exact K=1/80 no-floor arm. Do not use these outcomes to
 tune an intermediate floor, entry count, selection line, K, or individual
 weeks.
+
+## Execution — 2026-08-09
+
+The 2022 immutable-image smoke `replay-e80k1nf-smoke-7rrbr` passed before the
+panel launch. The six season executions are:
+
+- 2019: `replay-e80k1nf-2019-nrw5b`
+- 2021: `replay-e80k1nf-2021-zjwt8`
+- 2022: `replay-e80k1nf-2022-rdvll`
+- 2023: `replay-e80k1nf-2023-57cw8`
+- 2024: `replay-e80k1nf-2024-gdx9t`
+- 2025: `replay-e80k1nf-2025-2bpt5`
+
+The tracked manifest under
+`reports/panel-runs/20260809-e80-k1-nofloor-c616390/` records the exact image,
+configuration, and execution mapping. All IDs were recorded before any
+score-bearing output was inspected. Monitor only completion conditions and
+row/slate counts until every execution is immutable; then run check-only
+acceptance and the purpose-built `salary` comparator.
