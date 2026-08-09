@@ -112,22 +112,34 @@ agent or developer:
 - Position-aware build `7cbd0f43-930c-491d-93d2-2bfe37c73655` passed 695
   tests with 2 skipped and produced immutable digest
   `sha256:a306743b802b2904907f998b0653c626dc8c19e22dbe55795472dbe89942feb2`.
-  V3 execution `evaluate-milly-ownership-644mf` completed and passed every
-  frozen gate. Held-out aggregate contest-aware MAE/Spearman are
+  V3 execution `evaluate-milly-ownership-644mf` completed and appeared to
+  pass every frozen gate. Its recorded aggregate contest-aware MAE/Spearman are
   `2.8147/0.7924` versus old all-contest `3.6142/0.5657` and naive
-  `4.6548/0.2589`; it beats both metrics in all three 2023-2025 seasons and
-  lowers top-quartile MAE to `7.5983` versus `9.8483/11.5424`. Reported mass
-  coverage was 97.51%.
+  `4.6548/0.2589`; it appeared to beat both metrics in all three 2023-2025
+  seasons and lower top-quartile MAE to `7.5983` versus `9.8483/11.5424`.
+  These metrics are now **scientifically superseded**, not an adoption input:
+  serve-path review found salary/value ranks were recomputed after the truth
+  join, leaking which players appeared in settled ownership instead of using
+  the full-slate ranks available live. No scoring arm launched from V3.
 - Coverage review found the only zero-match week is a scope mismatch, not a
   name join failure: Christmas 2022 fell on Sunday; the accepted Week-16
   replay contains only the two Sunday games, while DK's named Milly was its
   large Saturday main slate. V3 held-out metrics are unaffected (the week is
   2022 training-only and contributed no joined row), but its coverage
-  denominator is superseded. The evaluator now declares this one
+  denominator is also superseded. The evaluator now declares this one
   calendar-proven exclusion, requires every other week to retain >=90% mass,
   and will emit a final v4 report over 71 eligible contest/slate pairs. Nine
   focused tests pass. Do not launch the scoring arm until that clean report is
-  tracked, though the diagnostic result is already strongly positive.
+  tracked and passes the original gate on full-slate rank features.
+- Reporting build `5e6db78f-665d-4ab4-867e-2b618f05612f` was cancelled before
+  use after the rank-skew audit; no image/result from it is valid. The
+  evaluator and reusable training frame now preserve features computed on the
+  complete accepted slate through the truth join. Off-by-default downstream
+  plumbing for `OWN_MODEL=milly_fade` is implemented but not launched: it
+  fits only earlier-season eligible Milly rows, normalizes predicted ownership
+  within position to the incumbent penalty scale, and keeps the simulated
+  field naive. Focused ownership/replay/infrastructure validation is 28
+  passed. Do not run a lineup panel until the corrected diagnostic passes.
 
 ### Recovery provenance
 

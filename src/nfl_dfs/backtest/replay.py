@@ -876,7 +876,7 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
             # doubled" verdict partly reflects a sharper yardstick, not
             # worse lineups. fade-only keeps the naive field (stable
             # measurement) while the fade uses the better own estimate.
-            if own_mode() not in ("fade", ""):
+            if own_mode() not in ("fade", "milly_fade", ""):
                 frame["model_own"] = own
         if own is None:
             own = naive_ownership(frame)
@@ -1149,6 +1149,20 @@ def _ownership_booster(replay_season: int):
     contest ownership, WALK-FORWARD (seasons strictly before the replayed
     one -- point-in-time discipline applies to auxiliary models too).
     Returns None when no prior-season ownership exists (e.g. 2022)."""
+    if own_mode() == "milly_fade":
+        from ..research import milly_ownership as milly_own
+
+        frame = milly_own.training_frame()
+        tr = frame[frame.season < replay_season]
+        if len(tr) < 1000:
+            log.warning("MILLY OWN_MODEL: only %d prior-season ownership rows "
+                        "before %s; falling back to naive", len(tr),
+                        replay_season)
+            return None
+        log.info("MILLY OWN_MODEL: fit on %d exact-snapshot rows from seasons "
+                 "< %s", len(tr), replay_season)
+        return "milly", milly_own.train_contest_model(tr)
+
     from ..models import ownership as own_mod
 
     frame = own_mod.training_frame()
@@ -1158,7 +1172,7 @@ def _ownership_booster(replay_season: int):
                     "%s; falling back to naive", len(tr), replay_season)
         return None
     log.info("OWN_MODEL: fit on %d rows from seasons < %s", len(tr), replay_season)
-    return own_mod.train(tr)
+    return "all_contest", own_mod.train(tr)
 
 
 def _model_ownership(booster, frame: pd.DataFrame) -> np.ndarray:
@@ -1166,14 +1180,22 @@ def _model_ownership(booster, frame: pd.DataFrame) -> np.ndarray:
     within position), so LEVERAGE_PENALTY's scale and the field sampler's
     per-slot semantics are preserved. frame['proj'] stands in for the
     public points expectation the model trained on."""
-    from ..models import ownership as own_mod
+    kind, model = (booster if isinstance(booster, tuple)
+                   else ("all_contest", booster))
+    if kind == "milly":
+        from ..research import milly_ownership as milly_own
 
-    f = pd.DataFrame({
-        "season": frame["season"], "week": frame["week"],
-        "position": frame["pos"], "salary": frame["salary"],
-        "proj_points": frame["proj"],
-    })
-    pct = own_mod.predict_ownership(booster, f)
+        f = milly_own.build_features(frame)
+        pct = milly_own.predict_contest_model(model, f)
+    else:
+        from ..models import ownership as own_mod
+
+        f = pd.DataFrame({
+            "season": frame["season"], "week": frame["week"],
+            "position": frame["pos"], "salary": frame["salary"],
+            "proj_points": frame["proj"],
+        })
+        pct = own_mod.predict_ownership(model, f)
     out = np.zeros(len(frame))
     for _pos, idx in frame.groupby("pos").groups.items():
         loc = frame.index.get_indexer(idx)

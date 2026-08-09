@@ -20,6 +20,7 @@ SCOPE_EXCLUSIONS = {
     # Saturday main slate. It is not ownership truth for the replay universe.
     (2022, 16): "Christmas Saturday Milly does not match Sunday replay slate",
 }
+ACCEPTED_K1_PANEL = "20260808-e80-k1-c616390"
 FEATURES = (
     "salary", "proj_points", "value", "salary_rank_pos", "value_rank_pos",
     "salary_pct_pos", "value_pct_pos", "slate_size", "implied_team_total",
@@ -286,3 +287,55 @@ def mark_scope_eligibility(coverage: pd.DataFrame) -> pd.DataFrame:
                         unexpected.week.astype(int)))
         raise ValueError(f"unexpected Milly/snapshot scope or join mismatch: {keys}")
     return out
+
+
+def training_frame(panel: str = ACCEPTED_K1_PANEL) -> pd.DataFrame:
+    """Exact accepted-snapshot Milly frame for walk-forward replay fitting."""
+    if not re.fullmatch(r"[A-Za-z0-9_-]+", panel):
+        raise ValueError(f"invalid panel id {panel!r}")
+    from ..bq import query_df
+    from ..config import settings
+
+    ownership = query_df(f"""
+      SELECT season, week, contest_id, contest_name, display_name,
+             roster_position, pct_drafted
+      FROM `{settings.raw}.contest_ownership`
+      WHERE season BETWEEN 2022 AND 2025
+      QUALIFY ROW_NUMBER() OVER (
+        PARTITION BY season, week, contest_id, display_name
+        ORDER BY imported_at DESC
+      ) = 1
+    """)
+    features = query_df(f"""
+      SELECT id, name, pos, team, season, week, salary, proj,
+             implied_team_total, spread, game_total, is_cold_start,
+             depth_rank, depth_rank_delta, target_share_last,
+             carry_share_last, snap_share_last, target_share_jump,
+             carry_share_jump, snap_share_jump, target_share_l4,
+             carry_share_l4, snap_share_l4, dk_points_l4,
+             team_vacated_target_share, team_vacated_carry_share,
+             salary_delta_wow, games_played_prior
+      FROM `{settings.predictions}.slate_player_features`
+      WHERE panel_run_id = '{panel}' AND research_eligible
+        AND season BETWEEN 2022 AND 2025
+    """)
+    contests = select_main_milly_contests(ownership)
+    observed = set(zip(contests.season.astype(int), contests.week.astype(int)))
+    expected = {(season, week) for season in range(2022, 2026)
+                for week in range(1, 19)}
+    if observed != expected:
+        raise ValueError("main Milly source does not contain 72 raw slates")
+    joined, coverage = join_milly_truth(
+        build_features(features), ownership, contests)
+    coverage = mark_scope_eligibility(coverage)
+    eligible = set(zip(
+        coverage.loc[coverage.scope_eligible, "season"].astype(int),
+        coverage.loc[coverage.scope_eligible, "week"].astype(int)))
+    joined = joined[[
+        (int(season), int(week)) in eligible
+        for season, week in zip(joined.season, joined.week)
+    ]].copy()
+    # Ranks/value features were computed on the full pre-lock slate before
+    # the truth join. Recomputing here would leak which players happened to
+    # appear in the settled ownership export and create train/serve skew.
+    return joined

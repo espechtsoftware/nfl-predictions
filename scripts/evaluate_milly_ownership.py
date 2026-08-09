@@ -122,7 +122,6 @@ def evaluate(panel: str = SOURCE_PANEL) -> dict:
     for season, week in SCOPE_EXCLUSIONS:
         joined = joined[
             ~(joined.season.eq(season) & joined.week.eq(week))]
-    joined = build_features(joined)
     generic_frame = generic_ownership.training_frame()
     metric_rows: list[dict] = []
     calibration_rows: list[dict] = []

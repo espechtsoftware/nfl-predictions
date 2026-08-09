@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 from nfl_dfs.research.milly_ownership import (
     diagnostic_gate,
@@ -125,3 +126,22 @@ def test_scope_eligibility_excludes_only_2022_christmas_mismatch():
     marked = mark_scope_eligibility(coverage)
     assert marked.scope_eligible.tolist() == [True, False, True]
     assert "Saturday" in marked.scope_exclusion_reason.iloc[1]
+
+
+def test_replay_milly_predictions_are_normalized_within_position(monkeypatch):
+    from nfl_dfs.backtest import replay
+    from nfl_dfs.research import milly_ownership
+
+    frame = pd.DataFrame({
+        "season": [2025] * 4,
+        "week": [1] * 4,
+        "pos": ["QB", "QB", "WR", "WR"],
+        "salary": [7000, 6000, 7000, 6000],
+        "proj": [20.0, 18.0, 20.0, 18.0],
+    })
+    monkeypatch.setattr(milly_ownership, "build_features", lambda f: f)
+    monkeypatch.setattr(
+        milly_ownership, "predict_contest_model",
+        lambda model, f: np.array([30.0, 10.0, 20.0, 20.0]))
+    out = replay._model_ownership(("milly", object()), frame)
+    assert np.allclose(out, [.75, .25, .5, .5])
