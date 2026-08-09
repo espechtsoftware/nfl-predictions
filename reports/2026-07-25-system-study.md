@@ -3510,3 +3510,32 @@ natural doubling, not a sweep; failure closes raw budget scaling rather than
 authorizing 3/5/8 or another target line. The older 470-candidate null and the
 current unchanged 12-week pool oracle make this a final confirmation, not the
 leading hypothesis.
+
+## Addendum 114 (2026-08-09): ranked hedges do not repair the missed high scores
+
+The accepted K=3 true-80 book has 16 unselected candidate rows scoring at
+least 200, but ten are redundant to a different selected 200+ lineup on the
+same slate. Only six candidate rows across four weeks represent a lost
+threshold opportunity. This distinction prevents impressive unselected raw
+scores from overstating the actionable gap.
+
+Outcome-blind top-80 selection by individual p-line, simulated mean, or q99
+each recovers the 2019-week-6 and 2025-week-12 missed winners. All three still
+fall from 8 to 7 aggregate 200+ weeks versus correlated-world coverage and
+worsen the lower-tail/mean safeguards. A 60/20 coverage/top-p-line hedge ties
+at eight 200+ weeks and improves 210+ from 5 to 6, but drops 194+ from 19 to
+18; the simulated-mean hedge is essentially an exact aggregate tie. These
+rules exchange winning weeks rather than adding them.
+
+K=1 sensitivities make the panel-mining risk explicit. Top-p-line reaches 15
+weeks at 200 and 8 at 210, and 60 coverage plus 20 mean-ranked entries reaches
+14/7, but every variant remains positive in only three seasons and negative
+in two versus K=3. The aggregate gain is still concentrated in the same
+seasons that caused K=1 to fail its frozen stability law.
+
+No selector change is adopted. The two moderately ranked misses can be found
+by marginal ranking only by surrendering other high weeks; the remaining
+2019-week-9 and 2021-week-11 winners are deeply buried by every persisted
+pre-lock rank and require new information or better beliefs. Reusable
+`--ranked-diagnostics` tooling and nine focused tests are now tracked; full
+evidence remains in `reports/2026-08-08-80-entry-tail-audit.md`.
