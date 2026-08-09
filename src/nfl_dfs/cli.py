@@ -65,6 +65,17 @@ def main(argv: list[str] | None = None) -> None:
         "shadow-k3",
         help="Freeze the canonical K=3 Sunday-main reference portfolio",
     )
+    p = sub.add_parser(
+        "freeze-tail-portfolios",
+        help="Freeze prospective K=1 selector and K=1/K=3 mixed books",
+    )
+    p.add_argument("--slot", choices=("early", "late"), required=True)
+    p = sub.add_parser(
+        "grade-tail-portfolios",
+        help="Grade frozen prospective tail books after actuals land",
+    )
+    p.add_argument("--write", action="store_true",
+                   help="Append the computed grade rows to BigQuery")
 
     p = sub.add_parser("trends", help="Changepoint detection + salary-lag watchlist")
     p.add_argument("--season", type=int, default=None)
@@ -219,6 +230,14 @@ def main(argv: list[str] | None = None) -> None:
         from .inference import tail_shadow
 
         tail_shadow.run(expected_variant=tail_shadow.K3_VARIANT)
+    elif args.command == "freeze-tail-portfolios":
+        from .research import live_shadow_portfolios
+
+        live_shadow_portfolios.freeze(args.slot)
+    elif args.command == "grade-tail-portfolios":
+        from .research import live_shadow_portfolios
+
+        live_shadow_portfolios.grade(write=args.write)
     elif args.command == "trends":
         from .config import current_season
         from .trends import alerts

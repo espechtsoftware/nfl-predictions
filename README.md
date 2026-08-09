@@ -159,6 +159,12 @@ artifacts as `live_shadow` data. Each command requires its declared registry
 and K, matching regular-season Sunday, artifact storage, exact lineup count,
 and successful warehouse writes. Neither publishes projections nor alters
 the live app; K=3 is the same-time reference needed to grade K=1 honestly.
+After both source books finish, `nfl-dfs freeze-tail-portfolios --slot
+early|late` verifies and reconstructs their persisted coverage selections,
+then freezes a K=1 top-p book and a duplicate-backfilled 20/60 K=1/K=3 book.
+`nfl-dfs grade-tail-portfolios` joins those immutable memberships to
+authoritative actuals after the week. These research commands never publish
+lineups or change the app's canonical selection.
 
 ### Running the web app
 
@@ -1623,13 +1629,13 @@ Regenerate after EVERY feature-table rebuild and weekly in-season
 back to the EW empirical marginals with a logged warning — but the
 validated default is the TabPFN shapes.
 
-**Off-season pause / season-start runbook (2026 edition).** Ten schedulers are PAUSED for the off-season because they only re-process a finished season or require a live Sunday slate: `s-nflverse`, `s-features`, `s-train`, `s-train-k1`, `s-project-tu`, `s-project-su`, `s-shadow-k1-early`, `s-shadow-k1-late`, `s-shadow-k3-early`, `s-shadow-k3-late`. Everything else (odds, DK poll, CFB scaffold, weather, freshness check) stays live year-round. The season-start sequence:
+**Off-season pause / season-start runbook (2026 edition).** Twelve schedulers are PAUSED for the off-season because they only re-process a finished season or require a live Sunday slate: `s-nflverse`, `s-features`, `s-train`, `s-train-k1`, `s-project-tu`, `s-project-su`, `s-shadow-k1-early`, `s-shadow-k1-late`, `s-shadow-k3-early`, `s-shadow-k3-late`, `s-freeze-tail-early`, `s-freeze-tail-late`. Everything else (odds, DK poll, CFB scaffold, weather, freshness check) stays live year-round. The season-start sequence:
 
 **Backups (2026-08-02).** `s-backup` runs `backup-tables` daily at 07:00 UTC: BigQuery snapshots of the irreplaceable tables (LineStar ownership backfill, standings imports, notes/watchlist, entered lineups, ID overrides — see `ops/backup.py` TABLES) into the `nfl_backups` dataset, 30-day retention, delta-billed (~pennies). Everything else is re-ingestable from source, and BigQuery time travel covers the last 7 days on all tables regardless. Restore: `CREATE TABLE <dataset>.<table> CLONE nfl_backups.<table>_<YYYYMMDD>`. New irreplaceable tables must be added to `backup.TABLES` (same discipline as `status.FEEDS`). Runs year-round; never pause it.
 
 | When (2026) | Do |
 |---|---|
-| **Mon Aug 24** | Resume the Tuesday chain, projections, and paired prospective shadows: `for s in s-nflverse s-features s-train s-train-k1 s-project-tu s-project-su s-shadow-k1-early s-shadow-k1-late s-shadow-k3-early s-shadow-k3-late; do gcloud scheduler jobs resume $s --location us-central1; done`. First training runs land Tue Aug 25; both arms freeze Sunday-main books at 10:30 and 11:20 CT. |
+| **Mon Aug 24** | Resume the Tuesday chain, projections, paired prospective shadows, and frozen selector post-processing: `for s in s-nflverse s-features s-train s-train-k1 s-project-tu s-project-su s-shadow-k1-early s-shadow-k1-late s-shadow-k3-early s-shadow-k3-late s-freeze-tail-early s-freeze-tail-late; do gcloud scheduler jobs resume $s --location us-central1; done`. First training runs land Tue Aug 25; both model arms freeze Sunday-main pools at 10:30 and 11:20 CT, then the delayed jobs freeze the predeclared selector memberships. |
 | **Sat Aug 29** (CFB week 0) | Nothing to start — `ingest-cfb` is already live and self-activating. Verify it caught real slates: System status popup → "CFB slates/salaries" shows rows (or query `nfl_raw.cfb_dk_salaries`). If still 0 after slates exist on DK, the `sportId == 5` filter guess was wrong — check the `ingest-cfb` logs. |
 | **Tue-Wed Sep 8-9** | Purchase the ETR **NFL In-Season Package WEEKLY pass** ($30.99 — verified 2026-08-02 at establishtherun.com/subscribe; monthly is $89.99, weekly beats it unless certain of 3+ weeks). Includes DK projections + ceilings, LARGE & SMALL-field ownership (qualifier-relevant), showdown projections. Use: download their CSV, upload on /market (Consensus diff, source `etr`); divergences on players we're heavy on -> watchlist via chat; showdown captain ownership secondary. Re-up weekly ONLY if a diff flag changed a decision for the better. |
 | **~Thu Sep 3** (week-1 slates post) | The dead-filter check from the deficiency log (2026-07-31): `python -c "import requests; from nfl_dfs.ingest import dk_client; print(len(dk_client.nfl_draft_groups(requests.Session())))"`. Nonzero → close the log row, done. Zero → in `dk_client.py`'s `nfl_draft_groups`, change the filter line to `if g.get("sportId") == 1 and g.get("draftGroupState") == "Upcoming"` (mirror `cfb_draft_groups`), commit, then rebuild+redeploy: `gcloud builds submit --tag us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:latest .` and `gcloud run jobs deploy ingest-dk --image <that tag> --region us-central1 --command nfl-dfs --args ingest-dk --set-env-vars "GCP_PROJECT=nfl-predictions-503414" --memory 2Gi --cpu 1`, then re-run the check via the deployed job and confirm `dk_salaries` gains rows. |

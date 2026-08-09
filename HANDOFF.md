@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 07:24 CDT
+## Current state — 2026-08-09 09:37 CDT
 
 ### Recovery provenance
 
@@ -124,6 +124,31 @@ agent or developer:
   canonical registry checksum remains unchanged. This control makes future
   K=1 gains/losses paired under near-identical pre-lock information rather
   than judged in isolation.
+
+- Prospective selector/mix freezing and grading are implemented locally,
+  pending full Cloud Build validation and paused-job deployment. After each
+  complete early/late K=1/K=3 source pair, `freeze-tail-portfolios` verifies
+  unlabeled live provenance, exact 80-entry counts, registry/K isolation,
+  score artifacts, p-line/mask parity, and exact persisted coverage
+  reconstruction before appending immutable memberships. It freezes four
+  separately labeled books: K=1 194 coverage, K=1 top individual p-line,
+  K=3 194 coverage, and 20 K=1 / 60 K=3 coverage. The mixed rule keeps the
+  first 20 entries from K=1's own complete coverage order, then walks K=3's
+  complete coverage order until it has 60 rosters not already present;
+  duplicate count and every source rank/panel/candidate are persisted. This
+  exact asymmetric backfill rule is frozen before prospective outcomes and
+  must not be changed after Week 1.
+- Portfolio run IDs are fixed as
+  `live-tail-portfolios-<season>w<week>-early|late`; an existing run is
+  accepted only when its complete identity matches byte-for-byte on the
+  membership keys. `grade-tail-portfolios` later joins the frozen nine-player
+  rosters to authoritative skill/DST DK points, fails on any missing or
+  duplicate actual, reports the full 187/194/200/210/220/230/240 grid and
+  paired >=200 gains/losses versus K=1 coverage, and never mutates candidates
+  or memberships. Focused local validation is green: 38 tests across the new
+  freezer/grader, portfolio helpers, both shadow arms, and persistence;
+  Python compilation, CLI discovery, shell syntax, and diff whitespace also
+  pass. No job or scheduler for this unvalidated source has been deployed.
 
 - The old 27/107 result and the later 17/107 result are invalid controls. The
   former contains illegal repriced lineups; the latter omitted historical DST
@@ -466,15 +491,15 @@ model registry or silently change app behavior. Earlier deployed
 
 ### Next concrete action
 
-Keep all five new schedules paused until the tracked August 24 season-start
-runbook, then resume them with the rest of the seasonal chain. Do not execute
-either shadow before DK posts the matching regular-season Sunday main slate.
-Before Week 1 outcomes, add a fixed grader that joins each frozen
-`live_candidates_shadow` roster to point-in-time actuals, pairs K=1/K=3 by
-week and snapshot slot, and reports the same
-187/194/200/210/220/230/240 weekly-max grid; never mutate the pre-lock
-candidate records. Do not retune K, the 194 target, or selector on the 107
-known historical slates.
+Commit the prospective freezer/grader, run full Cloud Build validation, then
+deploy only the two cheap freeze jobs and their schedulers on the validated
+digest. Keep all seven research schedules paused until the tracked August 24
+season-start runbook, then resume them with the rest of the seasonal chain.
+Do not execute either source shadow or freezer before DK posts the matching
+regular-season Sunday main slate. Never mutate the pre-lock candidate or
+membership records, and do not retune K, the 194 control target, the top-p
+rule, the 20/60 quota, or its asymmetric duplicate backfill on the 107 known
+historical slates or after prospective outcomes begin.
 
 ### 2026-08-08 true-80 completion update
 
