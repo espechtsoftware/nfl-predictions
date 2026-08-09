@@ -404,6 +404,14 @@ creating an additional 200+ week. The other large-regret omissions top out
 below 200, so they matter to generic weekly-max accuracy but not to the
 operator's exceptional-score count.
 
+Only seven of the 33 omitted weekly oracles have any one-for-one replacement
+that preserves final simulated-world coverage. None of the five omitted
+oracles scoring at least 200 does; even 2019 week 15's small 2.48-point
+realized upgrade costs six covered worlds on its best swap. The extreme-score
+omissions are therefore not arbitrary tie outcomes. Capturing them with
+current beliefs requires knowingly surrendering simulated winning scenarios,
+which the ranked/hybrid diagnostics show merely loses elsewhere.
+
 Three additional outcome-blind diagnostic books isolate candidate ranking
 from portfolio coverage. Taking the top 80 candidates on each slate by
 individual `p_line`, simulated mean, or simulated q99 recovers the same two

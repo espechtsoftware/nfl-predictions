@@ -269,6 +269,8 @@ def main() -> int:
         else:
             oracle_200 = unselected_oracles.oracle.ge(200)
             selected_200 = unselected_oracles.selected_best.ge(200)
+            free_swap = unselected_oracles[
+                "best_oracle_swap_coverage_delta"].ge(0)
             print(
                 f"{len(unselected_oracles)}/{len(slate_rows)} weekly pool "
                 f"maxima unselected; median regret "
@@ -277,7 +279,11 @@ def main() -> int:
                 f"oracle >=200 in "
                 f"{int(oracle_200.sum())} weeks, "
                 f"including {int((oracle_200 & selected_200).sum())} "
-                f"where the selected book already cleared 200")
+                f"where the selected book already cleared 200; "
+                f"non-worsening one-swap exists for "
+                f"{int(free_swap.sum())}/{len(unselected_oracles)} oracles "
+                f"and {int((free_swap & oracle_200).sum())}/"
+                f"{int(oracle_200.sum())} scoring >=200")
             oracle_columns = [
                 "season", "week", "selected_best", "oracle", "regret",
                 "oracle_tag", "oracle_p_line_rank", "oracle_sim_mean_rank",

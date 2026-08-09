@@ -3536,6 +3536,11 @@ least 200: the four new-threshold opportunities plus 2019 week 15, whose
 durable analyzer now reports this explicitly rather than hiding it behind
 threshold counts.
 
+Only 7/33 omitted weekly oracles have a non-worsening one-for-one coverage
+swap, and none of the five omitted 200+ oracles do. Even the small 2019-week-15
+upgrade costs six covered worlds. The high omissions are therefore real
+belief/portfolio tradeoffs rather than equivalent greedy tie outcomes.
+
 Outcome-blind top-80 selection by individual p-line, simulated mean, or q99
 each recovers the 2019-week-6 and 2025-week-12 missed winners. All three still
 fall from 8 to 7 aggregate 200+ weeks versus correlated-world coverage and

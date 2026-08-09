@@ -443,6 +443,11 @@ afterward. The lineup analyzer remains logged in `README.md`.
   but does not add another 200+ week. The analyzer now prints this broader
   weekly-max view via `--top-unselected-oracles` so threshold summaries cannot
   hide smaller payout-relevant upgrades.
+- Only 7/33 omitted weekly oracles have a non-worsening coverage swap, and
+  zero of the five omitted 200+ oracles do. Even 2019w15's 207.14 costs six
+  simulated covered worlds in its best swap. Thus the high omissions are not
+  free/tied selector choices; current pre-lock beliefs explicitly prefer the
+  scenarios that occupy those slots.
 - Paired-week evidence also supports retaining the frozen stability law.
   Preregistered K=1 coverage has seven gained versus three lost 200+ weeks
   against K=3 (one-sided exact paired `p=0.172`). Post-result top-p-line has
