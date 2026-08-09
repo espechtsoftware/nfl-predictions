@@ -6,6 +6,9 @@ import numpy as np
 import pandas as pd
 
 
+FROZEN_TAIL_THRESHOLDS = (187, 194, 200, 210, 220, 230, 240)
+
+
 def slate_scores(rows: pd.DataFrame) -> pd.DataFrame:
     """One selected and pool-oracle actual score per slate."""
     needed = {"season", "week", "selected", "actual_score"}
@@ -24,15 +27,17 @@ def slate_scores(rows: pd.DataFrame) -> pd.DataFrame:
 
 
 def metrics(slates: pd.DataFrame) -> dict:
-    """Canonical scalar score report for a slate summary."""
-    return {
-        "clear_187": int((slates.selected_best >= 187).sum()),
-        "clear_194": int((slates.selected_best >= 194).sum()),
-        "clear_200": int((slates.selected_best >= 200).sum()),
-        "oracle_194": int((slates.oracle >= 194).sum()),
+    """Canonical scalar score report on the frozen operator tail grid."""
+    report = {
         "mean_best": float(slates.selected_best.mean()),
         "median_best": float(slates.selected_best.median()),
     }
+    for threshold in FROZEN_TAIL_THRESHOLDS:
+        report[f"clear_{threshold}"] = int(
+            (slates.selected_best >= threshold).sum())
+        report[f"oracle_{threshold}"] = int(
+            (slates.oracle >= threshold).sum())
+    return report
 
 
 def directional_gate(incumbent: pd.DataFrame,

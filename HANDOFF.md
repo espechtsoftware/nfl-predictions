@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 10:10 CDT
+## Current state — 2026-08-09 10:18 CDT
 
 ### Recovery provenance
 
@@ -511,6 +511,10 @@ comparator at 80 entries, report the full tail grid and paired gained/lost
 weeks, and never promote the treatment. A favorable result is only a reason
 for prospective confirmation because this hypothesis was chosen after
 inspecting earlier outcomes.
+The paired comparator's canonical metrics now emit selected and pool-oracle
+counts across the complete 187/194/200/210/220/230/240 grid; its eight focused
+tests and Python compilation pass locally. Validate that reporting change in
+Cloud Build before running the final comparator.
 Keep all seven research schedules paused until the tracked August 24
 season-start runbook. Do not execute either source shadow or freezer before
 DK posts the matching regular-season Sunday main slate. Never mutate the

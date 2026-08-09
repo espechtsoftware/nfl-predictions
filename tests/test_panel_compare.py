@@ -112,6 +112,10 @@ def test_metrics_reports_all_frozen_thresholds():
     assert out["clear_187"] == 6
     assert out["clear_200"] == 0
     assert out["oracle_194"] == 6
+    assert out["oracle_187"] == 6
+    for threshold in (187, 194, 200, 210, 220, 230, 240):
+        assert f"clear_{threshold}" in out
+        assert f"oracle_{threshold}" in out
 
 
 def test_candidate_mean_parity_uses_blended_offense_and_static_dst():
