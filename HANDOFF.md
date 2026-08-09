@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 06:02 CDT
+## Current state — 2026-08-09 06:17 CDT
 
 ### Recovery provenance
 
@@ -50,6 +50,20 @@ agent or developer:
   No credential material belongs in this file.
 
 ### Latest validated research state
+
+- Under the operator's explicitly amended aggregate-tail utility, true-80
+  K=1 panel `20260808-e80-k1-c616390` is now the **promoted tail-first
+  research baseline**. Promotion execution `accept-replay-panel-jhcwr`
+  passed on validated digest
+  `sha256:4182a4c077a1dcc183be3c82dfcfa44d60d8909dc5807a4996622a49bab29fdd`:
+  25,787 candidates, 107 slates, exactly 8,560 selected rows, 50,098 eligible
+  player snapshots, zero missing joins, and candidate/live mean parity within
+  `2.34e-05`. At the frozen 194 selector its 187/194/200/210/220/230/240
+  counts are `36/22/12/6/3/1/1`, mean weekly maximum 179.60, and pool-oracle
+  >=200 count 19. K=3 `20260808-e80-k3-c616390` remains the stability and
+  production reference at `29/19/8/5/1/1/1`, mean 177.08, oracle >=200 count
+  12. This promotion changes the research incumbent only; no live deployment
+  default has been changed.
 
 - The old 27/107 result and the later 17/107 result are invalid controls. The
   former contains illegal repriced lineups; the latter omitted historical DST
@@ -342,22 +356,23 @@ agent or developer:
 
 The recovered source defaults to the corrected `0/0/0/40` generation budget,
 a three-member model ensemble, the 45/55 model/market blend, and the $49k
-salary floor. A01, A02, and A03 are now recorded; none was adopted. Do not
-change production deployment knobs until the
-deployment contract is rechecked against this corrected research state.
-Earlier deployed `12 CE / 28 boom` settings are stale.
+salary floor. A01, A02, and A03 retain their original scientific
+dispositions, but the later operator-utility amendment promotes true-80 K=1
+as the research baseline. K=3 remains the live/stability reference until an
+isolated prospective K=1 shadow is validated; do not overwrite the canonical
+model registry or silently change app behavior. Earlier deployed
+`12 CE / 28 boom` settings are stale.
 
 ### Next concrete action
 
-The member-world pair is complete and rejected. Do not tune its line, K,
-allocation, seed, or budget on these outcomes. Before another costly panel,
-run the now-frozen final historical confirmation: accepted source
-`20260808-e80-msctl-d99b125` versus treatment
-`20260808-e80-cm4-d99b125`, changing only `CAND_MULT=4` from default 2 on the
-same generation digest/code. Build the new `candidate_budget` reporting gate,
-run the treatment preflight/panel, accept it, compare it at true 80, and apply
-the unchanged >=200 high-tail law. Do not tune another multiple or target line
-afterward. The lineup analyzer remains logged in `README.md`.
+K=1 is promoted as the tail-first research baseline; raw candidate doubling
+is rejected and closed. Build an isolated, off-by-default K=1 registry and
+prospective Sunday-main shadow that freezes 80 selected entries and their
+full candidate/support artifacts before outcomes. It must not overwrite the
+canonical K=3 weekly models or alter live app defaults. Validate the code in
+Cloud Build, then deploy only the separate shadow train/build jobs and record
+their scheduler names. Grade 2026 weekly high-tail outcomes after results
+land; do not retune K, the 194 target, or selector on the 107 known slates.
 
 ### 2026-08-08 true-80 completion update
 

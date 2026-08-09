@@ -6,6 +6,15 @@ A complete blueprint for a DraftKings NFL daily-fantasy prediction and lineup-co
 > first. It is the tracked, current state and must be updated before every
 > development pause or machine transfer.
 
+> **Current 80-entry research baseline (2026-08-09):** K=1 is the promoted
+> tail-first research baseline under the operator's aggregate-high-score
+> utility; K=3 remains the production/stability reference. At the frozen 194
+> selector over 107 historical slates, K=1 produced 36/22/12/6/3/1/1 weekly
+> maxima at or above 187/194/200/210/220/230/240, versus K=3's
+> 29/19/8/5/1/1/1. This is a research promotion, not a silent live-deployment
+> change. See `HANDOFF.md` and the 80-entry tail audit for the prospective
+> safeguards and full provenance.
+
 > **This repository implements the guide.** Map from guide section to code:
 >
 > | Guide | Code |

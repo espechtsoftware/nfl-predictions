@@ -3703,3 +3703,23 @@ producing digest
 `sha256:4182a4c077a1dcc183be3c82dfcfa44d60d8909dc5807a4996622a49bab29fdd`.
 Check-only acceptance `accept-replay-panel-z5ncj` passed; the treatment stays
 in staging.
+
+## Addendum 118 (2026-08-09): K=1 promoted for the operator's aggregate-tail utility
+
+The operator explicitly accepted individual-season declines when the total
+book produces more exceptional weekly highs. Under that utility, true-80 K=1
+`20260808-e80-k1-c616390` is the strongest validated historical portfolio:
+at the frozen 194 selector it records **36/22/12/6/3/1/1** weeks at or above
+187/194/200/210/220/230/240, versus K=3's **29/19/8/5/1/1/1**, while mean
+weekly maximum rises 177.08→179.60 and pool-oracle 200+ rises 12→19.
+
+This does not rewrite the earlier preregistered stability disposition. It is
+a separate operator-policy decision made after that result, and K=3 remains
+the production/stability reference. Canonical acceptance promotion
+`accept-replay-panel-jhcwr` passed on validated digest
+`sha256:4182a4c077a1dcc183be3c82dfcfa44d60d8909dc5807a4996622a49bab29fdd`,
+promoting 25,787 candidates and 50,098 player snapshots across all 107 slates
+with exact 80-entry completeness and no parity failures. The next evidence
+must be prospective: train and store K=1 in an isolated registry and freeze
+Sunday-main candidate books before outcomes without changing the K=3 live
+default.

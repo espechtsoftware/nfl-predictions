@@ -307,7 +307,7 @@ also improved 29→36 at 187, 19→22 at 194, 5→6 at 210, 1→3 at 220, and me
 weekly maximum by 2.52 points. The complete week-level maxima and both pool
 oracles are in `reports/2026-08-08-true80-weekly-max.csv`.
 
-### K=1 gate: aggregate win, stability failure
+### K=1 gate: original stability failure; later tail-first promotion
 
 Official comparator `compare-adoption-panel-x9tsz` ran on reporting digest
 `sha256:458dd21d9074a1a3a35222c5b3aa67c4e331b4ee2e3ea62768c7870ef52fe4a1`
@@ -329,9 +329,13 @@ and post-shaping marginal means were invariant.
 At 200, K=1 has only three positive seasons and two negative seasons. At 194
 it has four positive but still two negative. It passes every aggregate,
 oracle, mean, and mechanism safeguard but fails the standing distribution
-law at both thresholds. The disposition remains **unsupported-neutral**;
-K=3 stays the validated incumbent. The rule is not weakened after seeing the
-result.
+law at both thresholds. The original preregistered disposition remains
+**unsupported-neutral** and is not retroactively relabeled. The operator
+subsequently clarified that the actual utility is aggregate exceptional
+weeks rather than uniform season-by-season gains. Under that separately
+documented prospective policy, K=1 became the tail-first historical leader
+and was promoted as the research baseline on 2026-08-09; K=3 remains the
+live/stability reference.
 
 Selection-line sensitivity is useful but not an adoption loophole. Selecting
 K=1 at 200 would have captured 15 high weeks, yet its >=200 season delta
@@ -585,8 +589,9 @@ from this outcome-aware audit. Cloud Build
 
 ## Next preregistered arm: coherent member-sampled worlds
 
-Because K=1 did not earn adoption, the accepted K=3 configuration remains the
-control. The next experiment is frozen before launch on same-image generation
+Because K=1 did not earn adoption under the original law, the accepted K=3
+configuration remained the control for this already-frozen experiment. The
+next experiment was frozen before launch on same-image generation
 digest
 `sha256:458dd21d9074a1a3a35222c5b3aa67c4e331b4ee2e3ea62768c7870ef52fe4a1`
 (code `d99b125`):
