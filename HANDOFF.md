@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 12:16 CDT
+## Current state — 2026-08-09 13:07 CDT
 
 ### Recovery provenance
 
@@ -584,6 +584,22 @@ identify a working retained 2023–2025 NFL Classic field and explain a temporar
 offseason defect. Do not allow the $149.95 renewal. The fallback remains a
 pre-purchase export/coverage confirmation from FantasyCruncher rather than
 another blind subscription.
+
+A targeted GitHub/public-repository audit found no usable archive of settled
+historical DraftKings NFL ownership or full contest fields. The closest live
+repository, `925Sports/925Sports-nfl-dfs-data`, was created in August 2026 and
+publishes current projected `RST%` ownership from a Google Sheet, not settled
+post-lock historical ownership. Older optimizer repositories contain
+salaries/scores or expect the user to supply projected ownership; exact
+DraftKings standings-header searches found no public field archive. This is
+not presently an acquisition path: BigQuery already has 103,556 actual
+ownership records across 1,258 contests and every week of 2022–2025. Continue
+searching only for the material gaps—verified 2019–2021 actual ownership or
+complete entry/rank/payout fields—and keep source provenance/license checks.
+The linked evidence is preserved in the acquisition report.
+
+At 13:07 CDT all six no-floor season executions still reported Cloud Run
+`Completed=Unknown` / waiting; no score-bearing treatment result was inspected.
 
 Keep all seven research schedules paused until the tracked August 24
 season-start runbook. Do not execute either source shadow or freezer before

@@ -134,6 +134,35 @@ and whether any 2023–2025 NFL Classic fields are actually downloadable; do not
 allow the $149.95 Power renewal. If support cannot identify a working retained
 contest and export, proceed to the FantasyCruncher pre-purchase question.
 
+### GitHub/public-repository audit
+
+A targeted GitHub audit did not find a usable archive of settled historical
+DraftKings NFL ownership or complete contest fields. The closest active result,
+[`925Sports/925Sports-nfl-dfs-data`](https://github.com/925Sports/925Sports-nfl-dfs-data),
+publishes a current `ownership.csv` sourced from a live Google Sheet. Its
+`RST%` values are projected ownership, the repository was created in August
+2026, and its short history cannot backfill prior seasons. Do not treat it as
+actual post-lock contest ownership or ingest it without provenance and license
+clarification.
+
+Older public projects likewise do not close the gap:
+[`guydotan/nfl-dfs-optimizer`](https://github.com/guydotan/nfl-dfs-optimizer)
+contains 2018 salaries and realized scores but no ownership;
+[`Germinsky/draft-kings-fun`](https://github.com/Germinsky/draft-kings-fun)
+expects the operator to download a projected-ownership file rather than
+archiving actual ownership; and a request for past contest data in
+[`pydfs-lineup-optimizer`](https://github.com/DimaKudosh/pydfs-lineup-optimizer/issues/372)
+contains no dataset. Exact-header searches for DraftKings full-standings CSVs
+also returned no public archive.
+
+This result makes broad GitHub scraping a low-priority acquisition path. The
+warehouse already has 103,556 actual player/contest ownership records across
+1,258 contests and every week of 2022–2025. A public repository is useful only
+if it adds verified post-lock ownership for 2019–2021 or lossless entry-level
+rosters/ranks/payouts. Projected ownership snapshots may still be useful
+prospectively as an independently timestamped model input, but they are not a
+historical truth set and must remain source-separated.
+
 Sources:
 [DraftKings full-standings CSV and 10-day limit](https://help.draftkings.com/hc/en-us/articles/4412213454099-How-do-I-download-a-CSV-to-see-GameCenter-standings-for-a-contest-US),
 [DFS Hero tools](https://dfshero.com/tools),
