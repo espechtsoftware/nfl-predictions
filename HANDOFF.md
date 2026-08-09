@@ -84,9 +84,13 @@ agent or developer:
   Dockerfile now includes both scripts. Never query or launch fixed-arm lineup
   outcomes unless the tracked union mechanism/frontier gate passes.
 - Replacement full Cloud Build
-  `28ea77e8-1775-4b3d-a9d6-56888997f292` is running from pushed packaging
-  commit `1933b85` with image tag `:1933b85`. On success, resolve and record
-  its immutable digest before either evaluator is deployed.
+  `28ea77e8-1775-4b3d-a9d6-56888997f292` passed 694 tests with 2 skipped from
+  pushed packaging commit `1933b85`. Its immutable audit/evaluator digest is
+  `sha256:a1217fec4074fe97f4e811bed439a9239ddfd662b5484b7ddeae46dfc539ea22`.
+  The frozen ownership diagnostic launched on that exact digest as durable
+  execution `evaluate-milly-ownership-6s2rq`; it was awaiting container start
+  when recorded. Its tracked manifest lives under
+  `reports/ownership-runs/20260809-milly-k1-c616390/`.
 
 ### Recovery provenance
 
