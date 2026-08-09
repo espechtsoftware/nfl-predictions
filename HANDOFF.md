@@ -480,3 +480,11 @@ afterward. The lineup analyzer remains logged in `README.md`.
   `9a33319b-db99-4f4d-95ae-58016db7382f` (643 passed, 2 skipped), producing
   immutable audit digest
   `sha256:21489a693a72cb533551e9603db60b53af2fe3e8867fd788e6cac96a304cac59`.
+- A future dependence mechanism is now logged in the 80-entry audit, but is
+  not implemented or launched: learn walk-forward conditional weights over
+  fixed-role historical game-residual templates with a distributional
+  forest, then rank-reorder the current calibrated marginals. It must first
+  beat production on both held-out role-pair variogram error and joint-q90
+  tail Brier while preserving every marginal draw multiset. Only a passing
+  dependence gate may reach candidate-oracle and same-image score stages;
+  do not tune it on the 107 realized portfolio outcomes.

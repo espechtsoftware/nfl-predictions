@@ -649,3 +649,33 @@ unchanged generation digest. The six launched season executions are
 that ceiling infeasible and before any scores were inspected. Their exact
 partial staging rows were deleted before this clean 21,600-second relaunch;
 all scientific inputs and compute resources remain identical.
+
+## Prospective dependence lead: learned historical-template weights
+
+The missed-winner and primary-literature review identifies one mechanism
+worth preserving for a future, separately gated experiment. A distributional
+random forest can learn conditional weights over fixed-role historical game
+residual vectors. Sampling templates from those weights and applying their
+rank permutations to the existing calibrated player marginals would extend
+the failed fixed-distance Schaake shuffle without changing those marginals.
+The relevant predictors are point-in-time game total/spread, pace and neutral
+pass rate, plus role-level projection, salary, and usage concentration. This
+is a research lead, not an adopted or launched arm.
+
+Any implementation must use a fixed role vector and strictly walk-forward
+templates. Before candidate generation or realized lineup scores are read,
+it must preserve every player's complete draw multiset and beat production
+on both the registered role-pair variogram error and joint-q90 tail Brier
+score, with the direction reported separately by held-out season. Only a
+passing dependence gate may proceed to a frozen candidate-oracle comparison;
+only that gate may earn a same-image scoring panel. Deep flows or end-to-end
+generative networks are not the first choice here because the fixed-role game
+sample is modest and their extra flexibility would make historical panel
+mining easier, not harder.
+
+Primary-method references: [Distributional Random Forests: Heterogeneity
+Adjustment and Multivariate Distributional Regression](https://jmlr.org/papers/v23/21-0585.html)
+and [Probabilistic Forecasting with Generative Networks via Scoring Rule
+Minimization](https://jmlr.org/papers/v25/23-0038.html). The latter supports
+the joint-scoring validation principle; it does not by itself justify a deep
+model for this data set.
