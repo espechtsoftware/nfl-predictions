@@ -210,6 +210,7 @@ def persist_request_audits(rows: list[dict[str, Any]]) -> bool:
             f"{settings.raw}.{AUDIT_TABLE}",
             write_disposition="WRITE_APPEND",
             partition_field="requested_at",
+            clustering_fields=("request_kind", "is_shadow", "http_status"),
         )
     except Exception as exc:  # telemetry must not trigger paid retries
         log.error(

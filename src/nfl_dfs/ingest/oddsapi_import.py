@@ -266,6 +266,8 @@ def _load_prop_rows(rows: list[dict], table: str) -> None:
     load_dataframe(
         df, f"{settings.raw}.{table}", write_disposition="WRITE_APPEND",
         partition_field="pulled_at" if table == SHADOW_TABLE else None,
+        clustering_fields=("season", "week", "market", "bookmaker")
+        if table == SHADOW_TABLE else None,
     )
 
 

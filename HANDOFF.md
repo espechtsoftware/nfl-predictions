@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 14:32 CDT
+## Current state — 2026-08-09 14:49 CDT
 
 ### Recovery provenance
 
@@ -106,12 +106,27 @@ agent or developer:
   incompatible type. A new `check-odds-quota` command uses the provider's
   free `/sports` endpoint, requires its audit row to persist, and avoids
   repeating any event prop request. Updated focused validation is 27 passed.
-- Exact next action: commit/push the schema and quota-check repair, run a
-  second full Cloud Build, redeploy the two ingestion jobs on its immutable
-  digest, then execute `ingest-props` with the one-execution args override
-  `check-odds-quota`. Verify `requests_last=0`, capture remaining/used quota,
-  and confirm both prop tables receive zero new rows before closing the
-  milestone. Do not rerun ordinary `ingest-props` for this validation.
+- Follow-up commit `ca47ac6` is pushed. Cloud Build
+  `313ca4a3-6acc-4f60-83e1-194ef05f6b65` passed 686 tests with 2 skipped and
+  produced digest
+  `sha256:59ed4fbf111a688125619cfebe41721b54b85e20fcdb762b486274b673880b53`;
+  both ingestion jobs were moved to it without other template/schedule
+  changes. Free quota-only execution `ingest-props-n5zch` then reproduced a
+  second distinct schema defect and was explicitly cancelled before any
+  automatic retries. It made no event-prop call and wrote no prop rows.
+- Exact warehouse error from an isolated synthetic conversion (which failed
+  before writing data): the partitioned+clustered destination expected
+  clustering `(request_kind,is_shadow,http_status)`, while the shared loader
+  repeated only its `requested_at` partition contract. BigQuery requires both
+  when the job supplies partitioning. The same defect would have rejected the
+  first nonempty `prop_lines_shadow` append. `load_dataframe` now accepts and
+  applies explicit clustering fields; audit and shadow callers pin the exact
+  DDL order. A focused helper regression plus all Odds tests pass (28 tests).
+- Exact next action: commit/push the clustering repair, run the full Cloud
+  Build again, redeploy both ingestion jobs, then repeat only the free
+  `check-odds-quota` args override. Verify the persisted row has
+  `requests_last=0`, capture remaining/used quota, confirm zero new prop rows,
+  and recheck both scheduled job templates before closing the milestone.
 
 ### Latest validated research state
 

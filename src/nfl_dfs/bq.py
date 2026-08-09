@@ -102,6 +102,7 @@ def load_dataframe(
     table: str,
     write_disposition: str = "WRITE_TRUNCATE",
     partition_field: str | None = None,
+    clustering_fields: tuple[str, ...] | list[str] | None = None,
 ) -> None:
     """Load a DataFrame into `dataset.table` (fully qualified or raw-relative)."""
     from google.cloud import bigquery
@@ -118,5 +119,10 @@ def load_dataframe(
             bigquery.SchemaUpdateOption.ALLOW_FIELD_ADDITION]
     if partition_field:
         job_config.time_partitioning = bigquery.TimePartitioning(field=partition_field)
+    if clustering_fields:
+        # BigQuery rejects a load into an existing clustered/partitioned
+        # table when the job repeats only its partition specification. Keep
+        # both parts of the destination contract explicit.
+        job_config.clustering_fields = list(clustering_fields)
     log.info("Loading %d rows into %s (%s)", len(df), table, write_disposition)
     client().load_table_from_dataframe(df, table, job_config=job_config).result()

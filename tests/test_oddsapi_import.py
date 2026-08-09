@@ -122,9 +122,13 @@ def test_live_shadow_isolated_and_preseason_event_filtered(monkeypatch):
     assert base[1].endswith(".prop_lines")
     assert set(base[0].market) == {"player_pass_yds"}
     assert base[2]["partition_field"] is None
+    assert base[2]["clustering_fields"] is None
     assert shadow[1].endswith(".prop_lines_shadow")
     assert set(shadow[0].market) == {"player_rush_attempts"}
     assert shadow[2]["partition_field"] == "pulled_at"
+    assert shadow[2]["clustering_fields"] == (
+        "season", "week", "market", "bookmaker",
+    )
 
 
 def test_live_shadow_fails_closed_without_quota_header(monkeypatch):

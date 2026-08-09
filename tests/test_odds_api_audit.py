@@ -154,6 +154,7 @@ def test_persist_audits_uses_dedicated_partitioned_table(monkeypatch):
     assert table == "test-project.nfl_raw.odds_api_requests"
     assert kwargs == {
         "write_disposition": "WRITE_APPEND", "partition_field": "requested_at",
+        "clustering_fields": ("request_kind", "is_shadow", "http_status"),
     }
     assert str(df.http_status.dtype) == "Int64"
     assert str(df.error_type.dtype).startswith("string")
