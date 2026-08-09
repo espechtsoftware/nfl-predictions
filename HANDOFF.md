@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 15:27 CDT
+## Current state — 2026-08-09 15:58 CDT
 
 ### Autonomous scoring research resumed after context recovery
 
@@ -46,11 +46,22 @@ agent or developer:
   data and exact accepted K=1 snapshots. It earns one fixed K=1 scoring arm
   only after the preregistered held-out ownership-calibration gate passes.
   Protocol: `reports/2026-08-09-milly-ownership-alternative.md`.
-- Exact next action: implement CE-specific mechanism/union comparators and
-  the contest-aware ownership diagnostic with focused tests. Launch the
-  immutable CE union preflight/panel while the ownership diagnostic is being
-  validated; never query fixed-arm lineup outcomes unless its preceding
-  mechanism gate passes.
+- The reviewed CE runner and comparator are now implemented. The union runner
+  pins the old generation image/code, K=1, seed 1701, 80 entries, and
+  `12 CE / 40 boom`; the fixed runner refuses to launch unless the tracked
+  union JSON passes, then derives all 107 caps from the promoted source before
+  launching `12 CE / 28 boom`. The comparator proves exact feature invariance,
+  source-roster union containment/shared-world equality, active CE candidates,
+  fixed pool equality, and the complete 187-240 tail grid. Focused validation:
+  32 tests passed across the new comparator, canonical tail gate, and
+  generation-budget controls; both shell scripts parse and `git diff --check`
+  passes.
+- Exact next action: commit/push this CE infrastructure, launch union panel
+  `20260809-e80-k1-ceunion-c616390` on immutable generation digest
+  `sha256:98a31edd...`, and record its durable preflight/six-season execution
+  IDs. While those executions run, implement and cloud-validate the
+  contest-aware ownership diagnostic. Never query or launch fixed-arm lineup
+  outcomes unless the tracked union mechanism/frontier gate passes.
 
 ### Recovery provenance
 
