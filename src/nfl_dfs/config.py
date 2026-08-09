@@ -30,6 +30,13 @@ def _load_dotenv(path: str = ".env") -> None:
 _load_dotenv()
 
 
+def _env_bool(name: str, default: bool = False) -> bool:
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
 @dataclass(frozen=True)
 class Settings:
     project: str = field(default_factory=lambda: os.environ.get("GCP_PROJECT", "nfl-dfs-prod"))
@@ -55,6 +62,17 @@ class Settings:
     # lines and multi-book game odds; lives in .env.
     odds_api_key: str = field(
         default_factory=lambda: os.environ.get("ODDS_API_KEY", "")
+    )
+    # Collection-only player-prop markets that are not consumed by models or
+    # the UI.  Disabled by default and guarded by the provider-reported
+    # remaining-credit balance when enabled for the live ingestion job.
+    odds_shadow_markets_enabled: bool = field(
+        default_factory=lambda: _env_bool("ODDS_SHADOW_MARKETS_ENABLED")
+    )
+    odds_shadow_min_remaining: int = field(
+        default_factory=lambda: int(
+            os.environ.get("ODDS_SHADOW_MIN_REMAINING", "5000")
+        )
     )
     # SportsDataIO DiscoveryLab key (ingest/discoverylab_import.py); lives
     # in .env. Empty = importer unavailable.

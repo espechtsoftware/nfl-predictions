@@ -17,27 +17,72 @@ import time
 from datetime import datetime, timedelta, timezone
 
 import pandas as pd
-import requests
 
 from ..bq import load_dataframe, query_df
 from ..config import settings
+from .odds_api_audit import (
+    OddsApiRequestError,
+    RequestContext,
+    persist_request_audits,
+    request_json,
+)
 
 log = logging.getLogger(__name__)
 
-BASE = "https://api.the-odds-api.com/v4"
 SPORT = "americanfootball_nfl"
 TABLE = "prop_lines"
+SHADOW_TABLE = "prop_lines_shadow"
 MARKETS = ("player_pass_yds,player_pass_tds,player_rush_yds,"
            "player_reception_yds,player_receptions,player_anytime_td")
+# Collection-only markets with genuinely different role/volume information.
+# This exact bundle is intentionally fixed rather than environment-tunable;
+# it is not consumed by any production model or UI query.
+SHADOW_MARKET_KEYS = (
+    "player_pass_attempts",
+    "player_pass_completions",
+    "player_rush_attempts",
+    "player_pass_interceptions",
+    "player_rush_tds",
+    "player_reception_tds",
+    "player_pass_rush_yds",
+    "player_rush_reception_yds",
+    "player_rush_reception_tds",
+)
+SHADOW_MARKETS = ",".join(SHADOW_MARKET_KEYS)
 SNAPSHOT_BEFORE_H = 2   # hours before kickoff
 PAUSE_S = 0.35          # stay far under the per-minute rate limit
 
 
-def _get(path: str, **params) -> dict | list:
-    params["apiKey"] = settings.odds_api_key
-    r = requests.get(f"{BASE}{path}", params=params, timeout=30)
-    r.raise_for_status()
-    return r.json()
+def _get(
+    path: str,
+    *,
+    audit_rows: list[dict],
+    request_kind: str,
+    historical: bool = False,
+    is_shadow: bool = False,
+    season: int | None = None,
+    week: int | None = None,
+    event_id: str | None = None,
+    **params,
+) -> dict | list:
+    return request_json(
+        path,
+        api_key=settings.odds_api_key,
+        params=params,
+        context=RequestContext(
+            request_kind=request_kind,
+            endpoint=path,
+            historical=historical,
+            is_shadow=is_shadow,
+            season=season,
+            week=week,
+            event_id=event_id,
+            markets=params.get("markets"),
+            bookmakers=params.get("bookmakers"),
+            regions=params.get("regions"),
+        ),
+        audit_rows=audit_rows,
+    )
 
 
 def parse_event_odds(payload: dict, season: int, week: int,
@@ -92,8 +137,8 @@ ALT_MARKETS = ("player_pass_yds_alternate,player_rush_yds_alternate,"
                "player_reception_yds_alternate,player_receptions_alternate")
 
 
-def run(first_season: int = 2023, last_season: int = 2025,
-        opens: bool = False, markets: str = MARKETS) -> None:
+def _run_historical(first_season: int, last_season: int, opens: bool,
+                    markets: str, audit_rows: list[dict]) -> None:
     """opens=True backfills Tuesday 18:00 UTC OPENING lines (movement
     study: open vs the kickoff-2h close already loaded). Open rows are
     identifiable by their exact T18:00:00Z snapshot_ts."""
@@ -120,11 +165,22 @@ def run(first_season: int = 2023, last_season: int = 2025,
         mid = (pd.Timestamp(wk.first_day) - timedelta(days=1)).strftime(
             "%Y-%m-%dT12:00:00Z")
         try:
-            events = _get(f"/historical/sports/{SPORT}/events", date=mid,
-                          commenceTimeFrom=f"{wk.first_day}T00:00:00Z",
-                          commenceTimeTo=f"{wk.last_day}T23:59:59Z")
-        except requests.HTTPError:
-            log.exception("events snapshot failed for %s", key)
+            events = _get(
+                f"/historical/sports/{SPORT}/events",
+                audit_rows=audit_rows,
+                request_kind="historical_events",
+                historical=True,
+                season=key[0],
+                week=key[1],
+                date=mid,
+                commenceTimeFrom=f"{wk.first_day}T00:00:00Z",
+                commenceTimeTo=f"{wk.last_day}T23:59:59Z",
+            )
+        except OddsApiRequestError as exc:
+            log.warning(
+                "events snapshot failed for %s (status=%s, error=%s)",
+                key, exc.status_code, exc.error_type,
+            )
             continue
         tuesday = (pd.Timestamp(wk.first_day)
                    - timedelta(days=(pd.Timestamp(wk.first_day).weekday()
@@ -139,10 +195,19 @@ def run(first_season: int = 2023, last_season: int = 2025,
             try:
                 odds = _get(
                     f"/historical/sports/{SPORT}/events/{ev['id']}/odds",
+                    audit_rows=audit_rows,
+                    request_kind="historical_event_odds",
+                    historical=True,
+                    season=key[0],
+                    week=key[1],
+                    event_id=str(ev["id"]),
                     date=snap, regions="us", markets=markets,
                     oddsFormat="american", bookmakers="draftkings,fanduel")
-            except requests.HTTPError as exc:
-                log.warning("odds pull failed %s %s: %s", key, ev["id"], exc)
+            except OddsApiRequestError as exc:
+                log.warning(
+                    "odds pull failed %s %s (status=%s, error=%s)",
+                    key, ev["id"], exc.status_code, exc.error_type,
+                )
                 continue
             rows.extend(parse_event_odds(odds, *key, snapshot_ts=snap))
         if rows:
@@ -156,43 +221,164 @@ def run(first_season: int = 2023, last_season: int = 2025,
             log.warning("season %s week %s: no prop rows", *key)
 
 
+def run(first_season: int = 2023, last_season: int = 2025,
+        opens: bool = False, markets: str = MARKETS) -> None:
+    """Run a resumable historical import and persist request-cost audits."""
+    audit_rows: list[dict] = []
+    try:
+        _run_historical(first_season, last_season, opens, markets, audit_rows)
+    finally:
+        persist_request_audits(audit_rows)
+
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     run()
 
 
-def run_live() -> None:
+def _event_is_in_window(event: dict, first_day, last_day) -> bool:
+    try:
+        kickoff = pd.Timestamp(event["commence_time"])
+        if kickoff.tzinfo is None:
+            kickoff = kickoff.tz_localize("UTC")
+        game_day = kickoff.tz_convert("America/New_York").date()
+    except (KeyError, TypeError, ValueError):
+        return False
+    return pd.Timestamp(first_day).date() <= game_day <= pd.Timestamp(last_day).date()
+
+
+def _shadow_request_allowed(audit_rows: list[dict]) -> bool:
+    """Fail closed unless the last response proves the reserve is protected."""
+    if not settings.odds_shadow_markets_enabled or not audit_rows:
+        return False
+    remaining = audit_rows[-1].get("requests_remaining")
+    if remaining is None:
+        return False
+    estimated_cost = len(SHADOW_MARKET_KEYS)  # one region; provider formula
+    return remaining - estimated_cost >= settings.odds_shadow_min_remaining
+
+
+def _load_prop_rows(rows: list[dict], table: str) -> None:
+    if not rows:
+        return
+    df = pd.DataFrame(rows)
+    df["commence_time"] = pd.to_datetime(df.commence_time)
+    load_dataframe(
+        df, f"{settings.raw}.{table}", write_disposition="WRITE_APPEND",
+        partition_field="pulled_at" if table == SHADOW_TABLE else None,
+    )
+
+
+def _run_live(audit_rows: list[dict]) -> None:
     """In-season weekly snapshot: current prop lines for upcoming games ->
-    same prop_lines table (season/week resolved from the schedule)."""
+    prop_lines, plus an isolated quota-guarded shadow when enabled."""
     from ..config import current_season
 
     if not settings.odds_api_key:
         raise RuntimeError("ODDS_API_KEY is not set")
     season = current_season()
     sched = query_df(
-        f"""SELECT MIN(week) AS wk FROM `{settings.raw}.schedules`
+        f"""SELECT week AS wk, MIN(gameday) AS first_day,
+                   MAX(gameday) AS last_day
+            FROM `{settings.raw}.schedules`
             WHERE season = {season}
-              AND gameday >= CAST(CURRENT_DATE() AS STRING)""")
+              AND game_type = 'REG'
+              AND gameday >= CAST(CURRENT_DATE() AS STRING)
+            GROUP BY week ORDER BY week LIMIT 1""")
+    if sched.empty or pd.isna(sched.wk.iloc[0]):
+        log.info("No upcoming regular-season week; skipping live props")
+        return
     week = int(sched.wk.iloc[0])
-    events = _get(f"/sports/{SPORT}/events")
+    first_day = sched.first_day.iloc[0]
+    last_day = sched.last_day.iloc[0]
+    events = _get(
+        f"/sports/{SPORT}/events",
+        audit_rows=audit_rows,
+        request_kind="live_events",
+        season=season,
+        week=week,
+    )
+    events = [ev for ev in (events or [])
+              if _event_is_in_window(ev, first_day, last_day)]
+    if not events:
+        log.info(
+            "No Odds API events in regular-season %s week %s window %s..%s",
+            season, week, first_day, last_day,
+        )
+        return
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     rows: list[dict] = []
+    shadow_rows: list[dict] = []
+    shadow_guard_reported = False
     for ev in events or []:
         time.sleep(PAUSE_S)
         try:
-            odds = _get(f"/sports/{SPORT}/events/{ev['id']}/odds",
-                        regions="us", markets=MARKETS,
-                        oddsFormat="american",
-                        bookmakers="draftkings,fanduel")
-        except requests.HTTPError as exc:
-            log.warning("live odds pull failed %s: %s", ev["id"], exc)
+            odds = _get(
+                f"/sports/{SPORT}/events/{ev['id']}/odds",
+                audit_rows=audit_rows,
+                request_kind="live_event_props",
+                season=season,
+                week=week,
+                event_id=str(ev["id"]),
+                regions="us",
+                markets=MARKETS,
+                oddsFormat="american",
+                bookmakers="draftkings,fanduel",
+            )
+        except OddsApiRequestError as exc:
+            log.warning(
+                "live prop pull failed %s (status=%s, error=%s)",
+                ev["id"], exc.status_code, exc.error_type,
+            )
             continue
         rows.extend(parse_event_odds({"data": odds}, season, week,
                                      snapshot_ts=now))
-    if rows:
-        df = pd.DataFrame(rows)
-        df["commence_time"] = pd.to_datetime(df.commence_time)
-        load_dataframe(df, f"{settings.raw}.{TABLE}",
-                       write_disposition="WRITE_APPEND")
-        log.info("live props: %d rows for season %s week %s",
-                 len(rows), season, week)
+        if not _shadow_request_allowed(audit_rows):
+            if settings.odds_shadow_markets_enabled and not shadow_guard_reported:
+                remaining = audit_rows[-1].get("requests_remaining")
+                log.info(
+                    "Skipping shadow props: remaining=%s, protected reserve=%s",
+                    remaining, settings.odds_shadow_min_remaining,
+                )
+                shadow_guard_reported = True
+            continue
+        time.sleep(PAUSE_S)
+        try:
+            shadow_odds = _get(
+                f"/sports/{SPORT}/events/{ev['id']}/odds",
+                audit_rows=audit_rows,
+                request_kind="live_event_props_shadow",
+                is_shadow=True,
+                season=season,
+                week=week,
+                event_id=str(ev["id"]),
+                regions="us",
+                markets=SHADOW_MARKETS,
+                oddsFormat="american",
+                bookmakers="draftkings,fanduel",
+            )
+        except OddsApiRequestError as exc:
+            log.warning(
+                "shadow prop pull failed %s (status=%s, error=%s)",
+                ev["id"], exc.status_code, exc.error_type,
+            )
+            continue
+        shadow_rows.extend(
+            parse_event_odds(
+                {"data": shadow_odds}, season, week, snapshot_ts=now
+            )
+        )
+    _load_prop_rows(rows, TABLE)
+    _load_prop_rows(shadow_rows, SHADOW_TABLE)
+    log.info(
+        "live props: %d base and %d shadow rows for season %s week %s",
+        len(rows), len(shadow_rows), season, week,
+    )
+
+
+def run_live() -> None:
+    audit_rows: list[dict] = []
+    try:
+        _run_live(audit_rows)
+    finally:
+        persist_request_audits(audit_rows)

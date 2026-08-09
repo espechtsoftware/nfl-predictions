@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 14:03 CDT
+## Current state — 2026-08-09 14:18 CDT
 
 ### Recovery provenance
 
@@ -54,6 +54,40 @@ agent or developer:
   compute service account has `roles/secretmanager.secretAccessor`. The
   deployment script now preserves this secret reference and no longer reads
   or distributes a workstation-local Odds API key. No secret value was read.
+
+### Odds API shadow-data implementation milestone
+
+- On `main` after `04fd2ab`, the existing game-lines and live-props requests
+  now record secret-free request identity, HTTP status, returned markets, and
+  provider quota headers in new partitioned table
+  `nfl_raw.odds_api_requests`. Sanitized exceptions intentionally discard the
+  provider URL/query so an HTTP or transport failure cannot put the API key
+  in logs or BigQuery. Audit-write failures do not trigger a Cloud Run retry
+  that would repeat paid calls.
+- The fixed nine-market live-only bundle covers pass attempts/completions,
+  rush attempts, pass interceptions, rush/reception touchdown allocation,
+  and dual-role yards/TDs. It writes only to partitioned
+  `nfl_raw.prop_lines_shadow`; repository search confirms no production
+  model, API, optimizer, or UI consumer reads that table. Every shadow call
+  requires a fresh provider-reported remaining balance and preserves a
+  5,000-credit reserve. Missing quota headers fail closed. Historical shadow
+  backfill is not implemented and remains prohibited.
+- A related point-in-time defect was fixed before season start: `ingest-props`
+  formerly assigned all currently listed NFL events—including August
+  preseason—to the next regular-season week. It now filters events to the
+  next regular-season week's exact US-local game-date window before either
+  paid prop request. The deficiency is recorded in README.
+- Focused offline validation is green: 26 tests across request sanitization,
+  quota capture/persistence, reserve boundaries, local-date filtering,
+  base/shadow table isolation, existing game-line behavior, and prop parsing;
+  Python compilation and `git diff --check` also pass. Source commit, full
+  Cloud Build ID/digest, applied DDL, exact deployed env, and safe smoke ID
+  must be added here before this milestone is considered deployed.
+- Exact next action: commit this implementation, record its SHA, apply
+  `sql/raw/008_odds_api_shadow.sql`, run the full suite in Cloud Build, deploy
+  only `ingest-odds` and `ingest-props` without changing their scheduler
+  cadence or Secret Manager binding, then execute a no-paid-prop preseason
+  smoke to capture the current quota balance.
 
 ### Latest validated research state
 

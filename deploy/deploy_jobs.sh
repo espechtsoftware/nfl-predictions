@@ -51,7 +51,10 @@ build
 job ingest-nflverse  ingest-nflverse 4Gi 1
 job ingest-dk        ingest-dk       2Gi 1
 job ingest-odds      ingest-odds     2Gi 1 "" "ODDS_API_KEY=odds-api-key:latest"
-job ingest-props     ingest-props    2Gi 1 "" "ODDS_API_KEY=odds-api-key:latest"
+# Live-only collection shadow. It writes a dedicated non-production table
+# and stops before each paid request unless the provider-reported remaining
+# balance will preserve the 5,000-credit reserve.
+job ingest-props     ingest-props    2Gi 1 "ODDS_SHADOW_MARKETS_ENABLED=1|ODDS_SHADOW_MIN_REMAINING=5000" "ODDS_API_KEY=odds-api-key:latest"
 job ingest-weather   ingest-weather
 job ingest-cfb       ingest-cfb      2Gi 1 "INGEST_CFB_ENABLED=1"
 # --- Pipeline ----------------------------------------------------------------

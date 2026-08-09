@@ -83,7 +83,9 @@ def test_rows_empty_payload():
 
 
 def test_run_loads_snapshot(monkeypatch):
-    monkeypatch.setattr(odds_job, "_fetch", lambda session=None: _payload())
+    monkeypatch.setattr(
+        odds_job, "_fetch", lambda session=None, audit_rows=None: _payload()
+    )
     loaded = []
     monkeypatch.setattr(
         "nfl_dfs.ingest.odds_job.load_dataframe",
@@ -100,7 +102,9 @@ def test_run_loads_snapshot(monkeypatch):
 
 
 def test_run_noop_on_empty(monkeypatch):
-    monkeypatch.setattr(odds_job, "_fetch", lambda session=None: [])
+    monkeypatch.setattr(
+        odds_job, "_fetch", lambda session=None, audit_rows=None: []
+    )
 
     def boom(*a, **k):
         raise AssertionError("must not load an empty frame")

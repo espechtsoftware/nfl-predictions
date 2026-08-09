@@ -27,10 +27,15 @@ import requests
 
 from ..bq import load_dataframe
 from ..config import settings
+from .odds_api_audit import (
+    RequestContext,
+    persist_request_audits,
+    request_json,
+)
 
 log = logging.getLogger(__name__)
 
-ODDS_API_URL = "https://api.the-odds-api.com/v4/sports/americanfootball_nfl/odds"
+ODDS_API_PATH = "/sports/americanfootball_nfl/odds"
 MARKETS = "h2h,spreads,totals"
 BOOKMAKER = "draftkings"
 
@@ -41,23 +46,30 @@ BOOKMAKER = "draftkings"
 _MARKET_TYPE = {"h2h": "Moneyline", "spreads": "Spread", "totals": "Total"}
 
 
-def _fetch(session: requests.Session | None = None) -> list[dict[str, Any]]:
+def _fetch(session: requests.Session | None = None,
+           audit_rows: list[dict] | None = None) -> list[dict[str, Any]]:
     if not settings.odds_api_key:
         raise RuntimeError("ODDS_API_KEY is not set (add it to .env)")
-    s = session or requests.Session()
-    r = s.get(
-        ODDS_API_URL,
+    audits = audit_rows if audit_rows is not None else []
+    return request_json(
+        ODDS_API_PATH,
+        api_key=settings.odds_api_key,
         params={
-            "apiKey": settings.odds_api_key,
             "regions": "us",
             "markets": MARKETS,
             "oddsFormat": "american",
             "bookmakers": BOOKMAKER,
         },
-        timeout=30,
+        context=RequestContext(
+            request_kind="live_game_odds",
+            endpoint=ODDS_API_PATH,
+            markets=MARKETS,
+            bookmakers=BOOKMAKER,
+            regions="us",
+        ),
+        audit_rows=audits,
+        session=session,
     )
-    r.raise_for_status()
-    return r.json()
 
 
 def _american_str(price: Any) -> str | None:
@@ -97,15 +109,19 @@ def _rows_from_payload(payload: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def run() -> None:
-    rows = _rows_from_payload(_fetch())
-    if not rows:
-        log.info("No odds rows")
-        return
-    df = pd.DataFrame(rows)
-    load_dataframe(df, "odds_snapshots", write_disposition="WRITE_APPEND",
-                   partition_field="pulled_at")
-    log.info("Wrote %d odds rows across %d events",
-             len(df), df.event_id.nunique())
+    audit_rows: list[dict] = []
+    try:
+        rows = _rows_from_payload(_fetch(audit_rows=audit_rows))
+        if not rows:
+            log.info("No odds rows")
+            return
+        df = pd.DataFrame(rows)
+        load_dataframe(df, "odds_snapshots", write_disposition="WRITE_APPEND",
+                       partition_field="pulled_at")
+        log.info("Wrote %d odds rows across %d events",
+                 len(df), df.event_id.nunique())
+    finally:
+        persist_request_audits(audit_rows)
 
 
 if __name__ == "__main__":
