@@ -88,8 +88,15 @@ agent or developer:
   pushed packaging commit `1933b85`. Its immutable audit/evaluator digest is
   `sha256:a1217fec4074fe97f4e811bed439a9239ddfd662b5484b7ddeae46dfc539ea22`.
   The frozen ownership diagnostic launched on that exact digest as durable
-  execution `evaluate-milly-ownership-6s2rq`; it was awaiting container start
-  when recorded. Its tracked manifest lives under
+  execution `evaluate-milly-ownership-6s2rq`; it failed closed before model
+  training or a scientific verdict because a few accepted snapshot rows have
+  null display names and collapsed to duplicate `PLAYER_NAN` join keys. The
+  repair retains those rows in full-slate naive normalization but assigns
+  them unique, explicitly unmatched ID keys; ownership truth still may never
+  be zero-filled. No preregistered feature, model setting, fold, comparator,
+  or gate changed. Eight focused tests pass after the repair, including a
+  two-null-row regression. The retry must use a distinct run directory/ID.
+  Failure provenance is tracked under
   `reports/ownership-runs/20260809-milly-k1-c616390/`.
 
 ### Recovery provenance

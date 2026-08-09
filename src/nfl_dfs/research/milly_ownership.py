@@ -43,6 +43,8 @@ _DST_NICKNAME_TO_TEAM = {
 
 def normalize_name(value: object) -> str:
     """Stable player-name key with punctuation and generational suffixes out."""
+    if value is None or pd.isna(value):
+        return ""
     text = re.sub(r"[^A-Z0-9 ]+", " ", str(value or "").upper())
     parts = text.split()
     while parts and parts[-1] in {"JR", "SR", "II", "III", "IV", "V"}:
@@ -54,7 +56,7 @@ def ownership_join_key(name: object, position: object,
                        team: object | None = None) -> str:
     pos = str(position or "").upper().replace("D/ST", "DST")
     if pos == "DST":
-        if team is not None and str(team).strip():
+        if team is not None and not pd.isna(team) and str(team).strip():
             return "DST_" + str(team).upper().strip()
         normalized = normalize_name(name)
         normalized = re.sub(r"(?:DST|DEFENSE)$", "", normalized)
@@ -121,12 +123,21 @@ def join_milly_truth(features: pd.DataFrame, ownership: pd.DataFrame,
         ownership_join_key(name, pos)
         for name, pos in zip(truth.display_name, truth.position)
     ]
+    if truth.join_key.isin({"PLAYER_", "DST_"}).any():
+        raise ValueError("ownership truth contains an empty player name")
     feat = features.copy()
     feat["position"] = feat.pos.astype(str).str.upper().replace({"D/ST": "DST"})
     feat["join_key"] = [
         ownership_join_key(name, pos, team if pos == "DST" else None)
         for name, pos, team in zip(feat.name, feat.position, feat.team)
     ]
+    # The accepted snapshot legitimately includes a few rows whose upstream
+    # display-name lookup is null. They remain in the full slate for naive
+    # normalization but cannot be joined to settled ownership. Give each an
+    # explicit nonmatching key instead of collapsing all nulls to PLAYER_NAN.
+    empty_feature_key = feat.join_key.isin({"PLAYER_", "DST_"})
+    feat.loc[empty_feature_key, "join_key"] = (
+        "UNMATCHED_ID_" + feat.loc[empty_feature_key, "id"].astype(str))
     keys = ["season", "week", "join_key"]
     for label, frame in (("ownership", truth), ("feature", feat)):
         if frame.duplicated(keys).any():

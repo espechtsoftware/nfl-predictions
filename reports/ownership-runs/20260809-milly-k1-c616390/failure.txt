@@ -1,0 +1,7 @@
+Execution evaluate-milly-ownership-6s2rq failed before model training or any
+scientific verdict. The accepted feature snapshot contains a few rows with a
+null display name; the join normalizer collapsed them to duplicate
+PLAYER_NAN keys and failed closed. No preregistered feature, model setting,
+fold, comparator, or gate was changed. Infrastructure retry uses a distinct
+run ID after assigning null-name feature rows unique, explicitly unmatched
+keys while retaining them in full-slate naive normalization.

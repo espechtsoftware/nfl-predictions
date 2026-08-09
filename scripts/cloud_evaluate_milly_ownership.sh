@@ -1,6 +1,6 @@
 #!/bin/bash
 # Run and durably harvest the preregistered Milly ownership diagnostic.
-# Usage: cloud_evaluate_milly_ownership.sh <IMAGE@sha256:...>
+# Usage: cloud_evaluate_milly_ownership.sh <IMAGE@sha256:...> [RUN_ID]
 set -euo pipefail
 
 IMG=${1:-}
@@ -8,7 +8,11 @@ PROJECT=nfl-predictions-503414
 REGION=us-central1
 PANEL=20260808-e80-k1-c616390
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-OUT="$ROOT/reports/ownership-runs/20260809-milly-k1-c616390"
+RUN_ID=${2:-20260809-milly-k1-c616390}
+case "$RUN_ID" in
+  ""|*[!A-Za-z0-9_-]*) echo "ABORT: invalid RUN_ID"; exit 2 ;;
+esac
+OUT="$ROOT/reports/ownership-runs/$RUN_ID"
 
 case "$IMG" in *@sha256:*) ;; *) echo "ABORT: immutable image required"; exit 2 ;; esac
 [ ! -s "$OUT/execution.txt" ] || {

@@ -2,6 +2,7 @@ import pandas as pd
 
 from nfl_dfs.research.milly_ownership import (
     diagnostic_gate,
+    join_milly_truth,
     normalize_name,
     ownership_join_key,
     parse_field_size,
@@ -30,6 +31,8 @@ def _contest(contest_id: str, name: str, *, season: int = 2025,
 
 
 def test_name_normalization_and_dst_aliases():
+    assert normalize_name(None) == ""
+    assert normalize_name(float("nan")) == ""
     assert normalize_name("Brian Robinson Jr.") == "BRIANROBINSON"
     assert ownership_join_key("Commanders", "DST") == "DST_WAS"
     assert ownership_join_key("anything", "DST", "LAC") == "DST_LAC"
@@ -46,6 +49,31 @@ def test_main_milly_selector_excludes_alternate_and_chooses_largest_field():
     chosen = select_main_milly_contests(pd.DataFrame(rows))
     assert chosen.contest_id.tolist() == ["main"]
     assert parse_field_size(main) == 161764
+
+
+def test_null_feature_names_are_unmatched_without_key_collision():
+    contest_name = (
+        "NFL $2M Fantasy Football Millionaire [$1M] [100000 entries, $20.0]")
+    contests = pd.DataFrame([{
+        "season": 2025, "week": 1, "contest_id": "c",
+        "contest_name": contest_name, "field_size": 100000, "own_sum": 10.0,
+    }])
+    ownership = pd.DataFrame([{
+        "season": 2025, "week": 1, "contest_id": "c",
+        "contest_name": contest_name, "display_name": "Real Player",
+        "roster_position": "WR", "pct_drafted": 10.0,
+    }])
+    features = pd.DataFrame([
+        {"season": 2025, "week": 1, "id": "missing-a", "name": None,
+         "pos": "WR", "team": "A"},
+        {"season": 2025, "week": 1, "id": "missing-b", "name": None,
+         "pos": "WR", "team": "B"},
+        {"season": 2025, "week": 1, "id": "real", "name": "Real Player",
+         "pos": "WR", "team": "C"},
+    ])
+    joined, coverage = join_milly_truth(features, ownership, contests)
+    assert joined.id.tolist() == ["real"]
+    assert coverage.mass_coverage.tolist() == [1.0]
 
 
 def test_diagnostic_gate_requires_both_comparators_and_two_seasons():
