@@ -33,6 +33,12 @@ BigQuery currently contains:
   calibration code exist, but they have no Classic full-field observations to
   learn from.
 
+**Acquisition decision:** the 2022–2025 actual-ownership coverage is sufficient
+for present player-level ownership modeling and validation. Do not purchase a
+feed merely to extend aggregate ownership into 2019–2021. Historical spending
+must add complete entry-level fields/ranks/payouts; a future projected-
+ownership subscription is a separate, prospective point-in-time signal trial.
+
 The true-80 comparison also supplies an important clue: deleting sportsbook
 means did not create more 200-point weeks and reduced the candidate-pool
 oracle from 19 to 17. Market information is useful, but the next gain is more
@@ -174,7 +180,7 @@ Sources:
 [Fantasy Team Advice membership](https://fantasyteamadvice.com/memberships?rfr=ownership),
 [stale Sports Data Direct Python client](https://pypi.org/project/sdd-api/).
 
-## Priority 2 — independent ownership and projection consensus (small trial)
+## Priority 2 — prospective ownership and projection consensus (small trial)
 
 The project should acquire one independent DFS source for an initial one-week
 shadow, then pay again only if its differences change decisions and grade

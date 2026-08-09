@@ -10,7 +10,8 @@
 #   - jobs pin the image DIGEST at deploy time: after building a new
 #     :latest, re-run the deploy for any job that should pick it up
 #
-# Secrets come from the caller's environment (ODDS_API_KEY, ANTHROPIC_API_KEY).
+# API credentials come from Secret Manager. Never replace a deployed secret
+# reference with an empty or workstation-local value during a machine move.
 # Idempotent: `gcloud run jobs deploy` upserts; scheduler create || update.
 set -euo pipefail
 
@@ -22,11 +23,16 @@ SA="$(gcloud projects describe "$PROJECT" --format='value(projectNumber)')-compu
 
 build() { gcloud builds submit --tag "$IMAGE" .; }
 
-job() {  # name, cli-args (comma-separated), memory, cpu, extra-env (| separated)
-  local name=$1 args=$2 mem=${3:-2Gi} cpu=${4:-1} extra=${5:-}
+job() {  # name, cli-args, memory, cpu, extra-env (|), secrets (comma-separated)
+  local name=$1 args=$2 mem=${3:-2Gi} cpu=${4:-1} extra=${5:-} secrets=${6:-}
+  local secret_args=()
+  if [[ -n "$secrets" ]]; then
+    secret_args=(--set-secrets "$secrets")
+  fi
   gcloud run jobs deploy "$name" --image "$IMAGE" --region "$REGION" \
     --command nfl-dfs --args "$args" \
     --set-env-vars "^|^GCP_PROJECT=${PROJECT}${extra:+|$extra}" \
+    "${secret_args[@]}" \
     --memory "$mem" --cpu "$cpu" --max-retries 1 --task-timeout 3600
 }
 
@@ -42,10 +48,10 @@ sched() {  # scheduler-name, job-name, cron
 build
 
 # --- Ingestion ---------------------------------------------------------------
-job ingest-nflverse  ingest-nflverse 4Gi 1 "ODDS_API_KEY=${ODDS_API_KEY:-}"
-job ingest-dk        ingest-dk       2Gi 1 "ODDS_API_KEY=${ODDS_API_KEY:-}"
-job ingest-odds      ingest-odds     2Gi 1 "ODDS_API_KEY=${ODDS_API_KEY:-}"
-job ingest-props     ingest-props    2Gi 1 "ODDS_API_KEY=${ODDS_API_KEY:-}"
+job ingest-nflverse  ingest-nflverse 4Gi 1
+job ingest-dk        ingest-dk       2Gi 1
+job ingest-odds      ingest-odds     2Gi 1 "" "ODDS_API_KEY=odds-api-key:latest"
+job ingest-props     ingest-props    2Gi 1 "" "ODDS_API_KEY=odds-api-key:latest"
 job ingest-weather   ingest-weather
 job ingest-cfb       ingest-cfb      2Gi 1 "INGEST_CFB_ENABLED=1"
 # --- Pipeline ----------------------------------------------------------------

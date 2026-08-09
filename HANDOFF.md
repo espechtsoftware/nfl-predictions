@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 13:07 CDT
+## Current state — 2026-08-09 13:18 CDT
 
 ### Recovery provenance
 
@@ -48,6 +48,12 @@ agent or developer:
   project/quota project `nfl-predictions-503414`.
 - Local `.env` sets `GCP_PROJECT=nfl-predictions-503414` and is gitignored.
   No credential material belongs in this file.
+- `ingest-odds` and `ingest-props` now resolve `ODDS_API_KEY` from Secret
+  Manager secret `odds-api-key:latest`; both retain immutable image digest
+  `sha256:6c556b9e...` and their existing enabled schedules. The default
+  compute service account has `roles/secretmanager.secretAccessor`. The
+  deployment script now preserves this secret reference and no longer reads
+  or distributes a workstation-local Odds API key. No secret value was read.
 
 ### Latest validated research state
 
@@ -552,10 +558,9 @@ winning money), one independent ownership/projection source as a measured
 trial, expanded shadow use of the already-paid Odds API, then route-level
 usage data only if it adds held-out signal. BigQuery has 369,727 prop rows in
 10 markets but the vendor exposes many unused volume/TD/combo/tail markets;
-the first proposed expansion is shadow-only and quota-metered. The new
-computer lacks the local Odds API key, so never redeploy `ingest-odds` or
-`ingest-props` with the current value-passing script until the credential is
-restored securely or migrated to Secret Manager.
+the first proposed expansion is shadow-only and quota-metered. The replacement
+computer does not need a local Odds API key: both ingestion jobs and the
+tracked deployment script now use the existing Secret Manager reference.
 
 Historical full-field backfill was subsequently audited because DraftKings'
 free full-standings CSV expires after 10 days. Affordable UI/backtest products
@@ -597,6 +602,13 @@ ownership records across 1,258 contests and every week of 2022–2025. Continue
 searching only for the material gaps—verified 2019–2021 actual ownership or
 complete entry/rank/payout fields—and keep source provenance/license checks.
 The linked evidence is preserved in the acquisition report.
+
+The operator then confirmed the acquisition direction: existing 2022–2025
+actual ownership is sufficient. Do not buy or prioritize additional aggregate
+historical ownership, including the 2019–2021 gap. Historical acquisition now
+requires complete entry-level lineups/ranks/duplication/payouts to justify
+cost; an independent projected-ownership feed remains only a prospective,
+timestamped signal trial.
 
 At 13:07 CDT all six no-floor season executions still reported Cloud Run
 `Completed=Unknown` / waiting; no score-bearing treatment result was inspected.
