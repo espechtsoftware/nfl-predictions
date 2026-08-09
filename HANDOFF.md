@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 04:44 CDT
+## Current state — 2026-08-09 06:02 CDT
 
 ### Recovery provenance
 
@@ -611,3 +611,50 @@ afterward. The lineup analyzer remains logged in `README.md`.
   `3469c6ad-06fa-4058-8287-f8d4adecc81e` passed 652 tests (2 skipped) from
   code commit `dd08bd8` and produced immutable digest
   `sha256:81b9faa89829bc5035fdb135e9df8c39ed0f74b5f8ddc6ee5f5dcf2e29950a4a`.
+- Candidate-budget acceptance repair passed Cloud Build
+  `0cba47ea-954e-451e-b481-f93585d4b593` with 657 tests passed and 2 skipped;
+  validated reporting digest is
+  `sha256:4182a4c077a1dcc183be3c82dfcfa44d60d8909dc5807a4996622a49bab29fdd`.
+  Check-only acceptance `accept-replay-panel-z5ncj` then passed the complete
+  42,706-row, 107-slate, true-80 multiple-4 panel. Do not promote it.
+- Candidate-budget comparator `compare-adoption-panel-ljdlp` completed with
+  zero failures. The treatment is a strict superset on all 107 slates:
+  25,813 shared rows plus 16,893 new leverage rows, 153-160 extras per slate,
+  exact shared actual/p-line/mean/support values, exact invariant player
+  features, and 1,832 selected slots changed in each direction.
+- At the frozen 194 selector, candidate multiple 2→4 moves
+  187/194/200/210/220/230/240 from `29/19/8/5/1/1/1` to
+  `30/22/9/2/1/1/1`; mean weekly maximum moves 177.08→177.27. The 200 gain is
+  only +1, all in 2021, and 210 loses three weeks. Frozen disposition is
+  `unsupported-neutral`; the prospectively amended operational disposition
+  is `tail-first-not-supported`. Raw candidate scaling is rejected and closed
+  on this historical panel; do not tune multiple 3/5/8 or selection line.
+- Deeper treatment audit finds 16 pool-oracle weeks >=200 versus 12 for the
+  control, but only 9 are selected. Seven consequential >=200 oracle weeks
+  remain unselected: 2025w12 220.86, 2019w9 216.42, 2025w11 213.58, 2025w2
+  210.64, 2019w6 205.44, 2023w16 202.74, and 2025w9 202.50. Only 2025w2 has
+  a non-worsening one-swap; the outcome-blind refinement still misses it.
+  Across all realized rows, 55 unselected >=200 candidates span 14 slates,
+  but most are redundant to an already higher selected score.
+- Exact source/treatment joining shows all four newly created >=200 oracle
+  weeks are extra leverage rosters and all remain unselected: 2025w11
+  213.58, 2025w2 210.64, 2023w16 202.74, and 2025w9 202.50. Conversely, the
+  sole selected >=200 gain—2021w11 205.20—already existed in the smaller
+  control pool; the added candidates only changed coverage interactions
+  enough to select it. That reshuffle displaced control 210+ winners in
+  2022w14 (214.02→206.42), 2023w3 (212.38→201.28), and 2024w5
+  (211.12→202.42). This is direct evidence that selection/belief interaction,
+  not absence from the raw generator, limits the submitted extreme tail.
+- The enlarged pool preserves individual real-winner-player coverage at
+  8.51/9 and the same 33/612 missing winner slots. Closest candidate overlap
+  rises modestly 3.46→3.57, but selected overlap remains 3.31 and same-week
+  first-place gaps remain enormous (selected/pool mean 60.17/55.68; 0/68
+  wins or within 20). More leverage candidates add opportunities without
+  fixing selection or rare-boom beliefs.
+- Declared sensitivities do not displace K=1. Multiple-4 at selector 187
+  reaches 10 >=200 and 5 >=210; top simulated-mean selection reaches 10/6
+  and 2 >=220, but both trail K=1's 12/6/3 and are outcome-viewed
+  sensitivities. K=1 remains the tail-first historical leader under the
+  operator's amended utility. Next work must develop K=1 under the new
+  prospective policy or add genuinely new prospective field/belief data—not
+  mine another selector/multiple on these 107 known outcomes.

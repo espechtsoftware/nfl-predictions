@@ -3656,3 +3656,50 @@ Full validation passed Cloud Build
 `3469c6ad-06fa-4058-8287-f8d4adecc81e` (652 passed, 2 skipped), producing
 immutable audit digest
 `sha256:81b9faa89829bc5035fdb135e9df8c39ed0f74b5f8ddc6ee5f5dcf2e29950a4a`.
+
+## Addendum 117 (2026-08-09): raw candidate doubling finds opportunities but damages the selected extreme tail
+
+The final registered historical confirmation doubled only `CAND_MULT` from 2
+to 4 at true 80, K=3, and frozen selector 194. Treatment
+`20260808-e80-cm4-d99b125` completed 42,706 candidates and exactly 8,560
+selected rows. Candidate-budget comparator `compare-adoption-panel-ljdlp`
+proved a strict superset on all 107 slates: the 25,813 control rows are exact,
+16,893 leverage rows are new, every shared belief/support/actual value and
+upstream feature is invariant, and 1,832 selected slots move each way.
+
+The larger pool raises 187/194/200 from 29/19/8 to 30/22/9 and mean weekly
+maximum 177.08→177.27, but collapses 210 from 5 to 2 while leaving
+220/230/240 at 1/1/1. Thus both the originally frozen scientific rule and the
+newly prospective tail-first operator rule reject it. The treatment is not
+promoted, and another candidate multiple or historical target line will not
+be tuned.
+
+The apparent opportunity gain is real but not selectable under current
+beliefs. Pool-oracle 200+ weeks rise 12→16, yet seven 200+ weekly oracles are
+missed by the 80-entry book. Only one has a non-worsening coverage swap and
+the pre-lock local refinement still does not take it. Fifty-five unselected
+200+ candidates span 14 slates, but most are redundant on weeks already won
+by a higher selected lineup. Top-mean and selector-187 sensitivities reach at
+most 10 200+ weeks, below K=1's 12, and are now outcome-viewed.
+
+All four newly created 200+ pool opportunities are extra leverage rosters and
+all remain unselected (213.58, 210.64, 202.74, 202.50). The sole selected
+200+ gain, 2021w11 at 205.20, already existed in the control pool. Coverage
+reshuffling selects it only while displacing three control 210+ weekly
+winners. This directly separates a successful opportunity generator from an
+unsuccessful submitted-portfolio tail: raw presence is no longer the primary
+constraint on these weeks.
+
+Real-winner coverage is likewise nearly unchanged: 8.51/9 winning players
+appear somewhere, the same 33/612 slots are absent, closest candidate overlap
+improves only 3.46→3.57, and selected overlap stays 3.31. The experiment
+closes raw pool scaling and reinforces the next direction: develop K=1 under
+the operator's prospective aggregate-tail utility and improve rare-boom
+belief/field information rather than spend more compute on candidate volume.
+
+The multiplier-aware acceptance repair and dual-disposition reporting passed
+Cloud Build `0cba47ea-954e-451e-b481-f93585d4b593` (657 passed, 2 skipped),
+producing digest
+`sha256:4182a4c077a1dcc183be3c82dfcfa44d60d8909dc5807a4996622a49bab29fdd`.
+Check-only acceptance `accept-replay-panel-z5ncj` passed; the treatment stays
+in staging.

@@ -760,6 +760,79 @@ that ceiling infeasible and before any scores were inspected. Their exact
 partial staging rows were deleted before this clean 21,600-second relaunch;
 all scientific inputs and compute resources remain identical.
 
+### Candidate-multiple-4 result: valid mechanism, insufficient selected tail
+
+All six authoritative executions completed cleanly. Treatment
+`20260808-e80-cm4-d99b125` contains 42,706 candidates over 107 slates and
+exactly 80 selected entries per slate. The original acceptance image exposed
+an obsolete fixed 400-candidate ceiling; every substantive contract passed,
+but 46 deliberately enlarged slates slightly exceeded that bound. Acceptance
+was repaired without changing a score gate: caller-declared `CAND_MULT` must
+match persisted provenance, default multiple 2 retains `(80,400)`, and the
+registered true-80 multiple 4 uses bounded `(80,480)`. Cloud Build
+`0cba47ea-954e-451e-b481-f93585d4b593` passed 657 tests (2 skipped), producing
+digest `sha256:4182a4c077a1dcc183be3c82dfcfa44d60d8909dc5807a4996622a49bab29fdd`;
+acceptance execution `accept-replay-panel-z5ncj` passed.
+
+Comparator `compare-adoption-panel-ljdlp` proves the treatment is a strict
+candidate superset on every slate. All 25,813 source candidates are present;
+16,893 new leverage candidates add 153-160 rosters per slate. Shared actual
+scores, p-line, simulated means, support masks, player snapshots, seeds, and
+all non-budget levers match exactly. Selected portfolios move materially:
+6,728 of 8,560 slots are shared, with 1,832 source-only and 1,832
+treatment-only. There are no mechanism failures.
+
+| frozen 194 selector | >=187 | >=194 | >=200 | >=210 | >=220 | >=230 | >=240 | mean weekly max |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| control, multiple 2 | 29 | 19 | 8 | 5 | 1 | 1 | 1 | 177.08 |
+| treatment, multiple 4 | 30 | 22 | 9 | 2 | 1 | 1 | 1 | 177.27 |
+
+The treatment adds only one 200+ week, entirely in 2021, and loses three
+210+ weeks. It fails the original +2 aggregate, four-positive-season, and
+210 safeguards, producing `unsupported-neutral`. It also fails the
+prospectively amended tail-first rule's +2 and 210 safeguards, producing
+`tail-first-not-supported`. Candidate-pool oracle 200+ improves 12→16, so the
+larger generator does find additional realized opportunities; selection does
+not convert them. The treatment remains staging-only and raw candidate
+scaling is closed on this historical panel.
+
+An exact roster join isolates causality. All four oracle weeks that cross 200
+only in the larger pool are genuinely new leverage candidates: 2025w11
+**213.58** (control oracle 197.18), 2025w2 **210.64** (195.44), 2023w16
+**202.74** (193.84), and 2025w9 **202.50** (198.16). None is selected. The
+only selected threshold gain, 2021w11 **205.20** versus control-selected
+198.40, is an old roster already present in the control pool. Added candidates
+changed cross-lineup coverage enough to select that old miss, but displaced
+three control 210+ winners: 2022w14 214.02→206.42, 2023w3 212.38→201.28,
+and 2024w5 211.12→202.42. Raw generation finds real opportunities; portfolio
+selection cannot incorporate them without losing stronger tail weeks.
+
+The complete high-unselected audit sharpens that diagnosis. The enlarged
+pool's weekly oracle is unselected on 45/107 slates. Twelve omitted oracles
+score at least 200, but five occur where the selected portfolio already
+clears 200. The seven consequential misses are 2025w12 **220.86**, 2019w9
+**216.42**, 2025w11 **213.58**, 2025w2 **210.64**, 2019w6 **205.44**,
+2023w16 **202.74**, and 2025w9 **202.50**. Only 2025w2 has a non-worsening
+one-for-one coverage swap (+1 world), and the frozen outcome-blind local
+refinement still selects other candidates. Fifty-five unselected 200+ rows
+span 14 slates; most are redundant to an even higher selected lineup and
+must not be counted as 55 lost winning chances.
+
+Ranking sensitivities exchange misses rather than establish a production
+repair. Top simulated-mean selection reaches 10/6/2 at 200/210/220, while the
+declared 187 selector reaches 10/5/1; both are now outcome-viewed, and both
+trail K=1's 12/6/3. Neither may rescue this arm or justify tuning the target
+line. K=1 remains the tail-first historical leader under the clarified
+operator utility.
+
+The real-winner audit also shows that raw scale is not the missing mechanism.
+Individual winning-player coverage remains 8.51/9 with exactly the same
+33/612 absent winner slots and +15.55-point mean surprise. Closest pool-roster
+overlap rises 3.46→3.57, but selected overlap remains 3.31; selected/pool
+same-week Milly gaps are still 60.17/55.68 points, with 0/68 wins and neither
+within 20. Extra leverage candidates modestly improve assembly opportunity,
+not selected first-place proximity or rare-boom beliefs.
+
 ## Conditional dependence arm: learned historical-template weights
 
 The missed-winner and primary-literature review identifies one mechanism
