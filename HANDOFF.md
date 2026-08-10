@@ -59,9 +59,16 @@ agent or developer:
   Build `cfe28aad-21be-4de0-9bcb-d90ff28c7ddc` from tree `755a216` passed
   762 tests with 2 skipped and produced immutable digest
   `sha256:1a0745b2a6aae3b78cfc4dfebb9be1661004c33e24fcf834d427705d9d1f1e6f`.
-  The single frozen diagnostic is running as durable Cloud Run execution
-  `fantasy-points-advanced-diagnostic-vb9xz`; do not retry it or alter the
-  feature/model/gate based on its outcome.
+  Frozen execution `fantasy-points-advanced-diagnostic-vb9xz` completed
+  cleanly in 1m44s with disposition `advanced-prior-player-tail-fails`.
+  Coverage passed at 60.27%--66.87%, both folds and aggregate 30-point Brier
+  improved slightly (`0.013278655→0.013268547` aggregate), but only WR/TE
+  improved by position; QB and RB worsened. Aggregate 20-point Brier worsened
+  `0.049025677→0.049177765` and residual MAE worsened
+  `3.279949→3.303976`. The required two-position gate therefore fails. No
+  Advanced candidate arm is licensed, and no position/field/model retry is
+  allowed. Durable result artifacts are tracked under
+  `reports/fantasy-points-advanced-runs/20260810-fp-advanced-prior-v1/`.
 - `fantasy-points/qbCoverageMatchupExport.csv` was validated as a clean
   37-QB/32-column grouped export, SHA-256
   `888d31272b16b921af50fdeec0bcf20ed526873443495c4983079842a1b83c32`.

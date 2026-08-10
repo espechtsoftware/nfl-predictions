@@ -1,0 +1,5 @@
+run_id=20260810-fp-advanced-prior-v1
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:1a0745b2a6aae3b78cfc4dfebb9be1661004c33e24fcf834d427705d9d1f1e6f
+panel=20260810-lockfix-e80-k1-8677d21
+source_seasons=2022 2023 2024 2025
+held_out=2024 2025

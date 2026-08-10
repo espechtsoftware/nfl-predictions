@@ -143,3 +143,30 @@ ambiguous source rows and the one known coalesced duplicate group. Twelve
 focused Advanced/Route tests pass; compilation, shell parsing and whitespace
 checks are clean. No Advanced table write or outcome diagnostic had run at
 this milestone.
+
+## Frozen result
+
+The private table was created with 3,771 normalized rows and an immediate
+repeat import returned `already-identical`. Exact-tree Cloud Build
+`cfe28aad-21be-4de0-9bcb-d90ff28c7ddc` passed 762 tests with 2 skipped and
+produced immutable digest
+`sha256:1a0745b2a6aae3b78cfc4dfebb9be1661004c33e24fcf834d427705d9d1f1e6f`.
+The single frozen execution `fantasy-points-advanced-diagnostic-vb9xz`
+completed cleanly in 1m44s with disposition
+`advanced-prior-player-tail-fails`.
+
+Coverage passed every position/fold cell at 60.27%--66.87%, and both held-out
+folds had slightly lower 30-point Brier. Aggregate 30-point Brier also moved
+in the favorable direction, but only marginally:
+`0.013278655→0.013268547`. The required multi-position mechanism did not
+hold: WR/TE improved `0.008641302→0.008593043`, while QB worsened
+`0.024371783→0.024431739` and RB worsened
+`0.018831886→0.018881183`. Aggregate 20-point Brier worsened
+`0.049025677→0.049177765`, and residual MAE worsened
+`3.279949→3.303976`.
+
+The exact broad prior-season Advanced mechanism is closed and receives no
+candidate-union test. Do not retry a position subset, feature subset, model
+strength, missingness rule or threshold on this result. Newly acquired
+coverage-shell/separation reports are distinct data and remain acquisition-
+only pending their own outcome-unseen, football-motivated protocol.
