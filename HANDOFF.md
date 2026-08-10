@@ -22,7 +22,47 @@ agent or developer:
 
 ## Current state — 2026-08-10 16:10 CDT
 
-### Tail-improvement research complete; role union rejected, route gate passed
+### Tail-first law revised; role-union promotion implementation in validation
+
+- The operator explicitly revised the operational objective after the valid
+  role union improved the same 80-entry portfolio at every 210+ threshold.
+  Scientific dispositions remain immutable, but season-sign requirements and
+  the role gate's requirement to rescue previously sub-200 pools are no
+  longer operational vetoes. The hard gates are point-in-time/mechanical
+  validity, exact final entry count, reproducibility/live parity, and no
+  hidden outcome-tuned parameter. The primary score comparison now proceeds
+  from 240→230→220→210→200; lower thresholds, means and season signs are
+  diagnostics. Full law and audit:
+  `reports/2026-08-10-tail-first-adoption-review.md`.
+- A fresh warehouse inventory covered every corrected-universe, complete,
+  mechanically valid true-80 panel. The role union is the strongest: selected
+  187/194/200/210/220/230/240 is `39/27/18/12/6/3/2`, mean `182.5725`, and
+  pool oracle `48/32/22/13/6/3/2`. Against CE12/boom28 it improves 15 paired
+  weekly maxima, declines on 6, ties 86, and has positive mean delta in five
+  of six seasons. No older valid arm beats it under the revised high-tail
+  law. Incomplete-universe and otherwise invalid panels remain ineligible.
+- Repository policy `classic-k1-ce12-role12-boom28-v2` now names valid panel
+  `20260810-e80-k1-ce12-roleunion-c616390`: K1 baseline registry `tail_k1`,
+  alternate K1 registry `tail_k1_role`, exact six frozen role inputs, CE seed
+  1701, role seed 7331, 12 CE / 12 role / 28 boom generation, line 194, $49k
+  floor, 45/55 blend, and 80 final entries. The role candidates add only
+  pre-selection compute. Prior `classic-k1-ce12-boom28-v1` is implemented as
+  a labeled fallback if the role registry/load/quota fails.
+- Live inference now lets each loaded booster materialize its own registered
+  feature columns rather than depending on process-global `EXTRA_FEATURES`.
+  This is required for a baseline and alternate-role registry to serve safely
+  in the same web process. JSON exposes the baseline and role model versions,
+  effective policy, and fallback flag; CSV headers expose the effective
+  policy. A new isolated weekly role training job, early/late role-union
+  shadow jobs, and two role-union freezer books are defined. Prospective
+  freezer policy is `tail-first-v6-20260810` with eleven books.
+- Targeted production/model/app/shadow/freezer validation is green. The
+  selected six-file run passed all tests, including an offline 80-lineup
+  role-union build and a labeled baseline-fallback test. Python compilation,
+  shell parsing and `git diff --check` pass. Full Cloud Build, immutable image
+  deployment, role-registry smoke, app smoke, and paused-scheduler audit are
+  still required before the new policy is live; the currently deployed Cloud
+  Run revision still serves v1.
 
 - Branch `main`; the live adopted policy remains unchanged at
   `classic-k1-ce12-boom28-v1` from accepted panel
@@ -204,12 +244,13 @@ agent or developer:
   freezers preserve their early/late commands and 1 CPU / 1Gi settings. All
   eight shadow/freezer schedulers remain PAUSED on the original Sunday CT
   schedules. No job was executed, and the adopted app was not changed.
-- Exact next action: do not launch the failed role fixed arm. Use the passed
-  pass-participation purchase gate to verify a sub-$200 full 2022-2025 route
-  CSV contract, while collecting the already-deployed v5 prospective books
-  when the season begins. Any further historical scoring arm requires a new
-  preregistered mechanism or genuinely new input, not another selector/dose
-  search on these 107 outcomes.
+- Exact next action: commit the v2 role-union implementation, run the complete
+  Cloud Build, then pin/deploy only the app, project job, role/base training,
+  four shadow generators, and two freezers to the validated immutable digest.
+  Train and verify `tail_k1_role`, run the exact live builder smoke, and keep
+  every seasonal scheduler paused. After promotion, return to the passed
+  sub-$200 route-data purchase gate and new mechanism queue; do not tune the
+  role seed, six fields, or 12-candidate dose on these 107 outcomes.
 
 ## Previous state — 2026-08-09 21:05 CDT
 

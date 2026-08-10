@@ -13,6 +13,8 @@ from nfl_dfs.research.live_shadow_portfolios import (
     K1_COVERAGE_200,
     K1_EXTREME_LEX,
     K1_NOFLOOR_COVERAGE,
+    K1_ROLE_COVERAGE,
+    K1_ROLE_EXTREME_LEX,
     K1_REFINED,
     K1_TOP_P,
     K3_COVERAGE,
@@ -41,7 +43,8 @@ def _roster(model: str, cand_ix: int) -> str:
 
 
 def _panel(model: str, *, stamp: str = "2026-09-13T15:30:00Z") -> pd.DataFrame:
-    is_k1 = model in {"tail_k1", "tail_k1_nofloor"}
+    is_k1 = model in {
+        "tail_k1", "tail_k1_nofloor", "tail_k1_roleunion"}
     variant = "tail_k1" if is_k1 else "canonical"
     size = 1 if is_k1 else 3
     floor = 0 if model == "tail_k1_nofloor" else 49_000
@@ -59,7 +62,13 @@ def _panel(model: str, *, stamp: str = "2026-09-13T15:30:00Z") -> pd.DataFrame:
             "config_hash": "cfg",
             "lever_env": (
                 f"MODEL_REGISTRY_VARIANT={variant}|"
-                f"MIN_LINEUP_SALARY={floor}"),
+                f"MIN_LINEUP_SALARY={floor}"
+                + ("|N_CE=12|N_EPISTEMIC=12|N_BOOM=28|"
+                   "EPISTEMIC_FAMILY=role_draws|ROLE_BELIEF_SEED=7331|"
+                   "ROLE_BELIEF_FEATURES=target_share_last,carry_share_last,"
+                   "snap_share_last,target_share_jump,carry_share_jump,"
+                   "snap_share_jump"
+                   if model == "tail_k1_roleunion" else "")),
             "seeds": f"MODEL_ENSEMBLE_SIZE={size}",
             "labels_complete": False,
             "research_eligible": False,
@@ -130,7 +139,8 @@ def test_extreme_lexicographic_order_prioritizes_220_then_210_then_200():
 
 def test_builds_frozen_top_p_and_duplicate_backfilled_mix():
     memberships = build_portfolios(
-        _panel("tail_k1"), _panel("tail_k1_nofloor"), _panel("tail_k3"),
+        _panel("tail_k1"), _panel("tail_k1_nofloor"),
+        _panel("tail_k1_roleunion"), _panel("tail_k3"),
         portfolio_run_id="live-tail-portfolios-2026w01-early",
         snapshot_slot="early",
         frozen_at=datetime(2026, 9, 13, 16, 5, tzinfo=timezone.utc),
@@ -138,7 +148,7 @@ def test_builds_frozen_top_p_and_duplicate_backfilled_mix():
     assert set(memberships.portfolio_id) == {
         K1_COVERAGE, K1_COVERAGE_187, K1_COVERAGE_200,
         K1_EXTREME_LEX, K1_TOP_P, K1_NOFLOOR_COVERAGE, K1_REFINED,
-        K3_COVERAGE, MIX_20_60}
+        K1_ROLE_COVERAGE, K1_ROLE_EXTREME_LEX, K3_COVERAGE, MIX_20_60}
     counts = memberships.groupby("portfolio_id").size()
     assert counts.eq(EXPECTED_ENTRIES).all()
     assert not memberships.groupby("portfolio_id").roster_key.apply(
@@ -161,6 +171,12 @@ def test_builds_frozen_top_p_and_duplicate_backfilled_mix():
     assert memberships[
         memberships.portfolio_id.eq(K1_EXTREME_LEX)
     ].selection_method.eq("coverage_lex_220_210_200").all()
+    assert memberships[
+        memberships.portfolio_id.eq(K1_ROLE_COVERAGE)
+    ].selection_method.eq("coverage194_roleunion").all()
+    assert memberships[
+        memberships.portfolio_id.eq(K1_ROLE_EXTREME_LEX)
+    ].selection_method.eq("coverage_lex_220_210_200_roleunion").all()
     nofloor = memberships[
         memberships.portfolio_id.eq(K1_NOFLOOR_COVERAGE)]
     assert nofloor.source_model.eq("tail_k1_nofloor").all()
@@ -199,22 +215,26 @@ def test_choose_latest_panels_is_date_and_ct_slot_bounded():
     late = pd.concat([
         _panel("tail_k1", stamp="2026-09-13T16:20:00Z"),
         _panel("tail_k1_nofloor", stamp="2026-09-13T16:20:00Z"),
+        _panel("tail_k1_roleunion", stamp="2026-09-13T16:20:00Z"),
         _panel("tail_k3", stamp="2026-09-13T16:20:00Z"),
     ])
+    role = _panel("tail_k1_roleunion", stamp="2026-09-13T15:32:00Z")
     rows = pd.concat(
-        [old_k1, new_k1, nofloor, k3, late], ignore_index=True)
-    chosen_k1, chosen_nofloor, chosen_k3 = choose_latest_panels(
+        [old_k1, new_k1, nofloor, role, k3, late], ignore_index=True)
+    chosen_k1, chosen_nofloor, chosen_role, chosen_k3 = choose_latest_panels(
         rows, season=2026, week=1, target_sunday=date(2026, 9, 13),
         snapshot_slot="early")
     assert chosen_k1.panel_run_id.nunique() == 1
     assert chosen_k1.panel_run_id.iloc[0].endswith("20260913T153500Z")
     assert chosen_nofloor.panel_run_id.iloc[0].endswith("20260913T153300Z")
+    assert chosen_role.panel_run_id.iloc[0].endswith("20260913T153200Z")
     assert chosen_k3.panel_run_id.iloc[0].endswith("20260913T153400Z")
 
 
 def test_scores_frozen_memberships_and_fails_on_missing_actual():
     memberships = build_portfolios(
-        _panel("tail_k1"), _panel("tail_k1_nofloor"), _panel("tail_k3"),
+        _panel("tail_k1"), _panel("tail_k1_nofloor"),
+        _panel("tail_k1_roleunion"), _panel("tail_k3"),
         portfolio_run_id="live-tail-portfolios-2026w01-early",
         snapshot_slot="early")
     player_ids = sorted({
@@ -229,11 +249,11 @@ def test_scores_frozen_memberships_and_fails_on_missing_actual():
         "actual": 1.0,
     })
     grades = score_portfolios(memberships, actuals)
-    assert len(grades) == 9
+    assert len(grades) == 11
     assert grades.n_entries.eq(80).all()
     assert grades.weekly_max.eq(9.0).all()
     summary = summarize_grades(grades)
-    assert len(summary) == 9
+    assert len(summary) == 11
     assert summary.ge_200.eq(0).all()
     assert summary.mean_weekly_max.eq(9.0).all()
     with pytest.raises(ValueError, match="missing actuals"):

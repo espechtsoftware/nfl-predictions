@@ -1,8 +1,11 @@
 # Scoring opportunity roadmap — 2026-08-10
 
-This is a prioritized research queue, not permission to change the adopted
-lineup policy. The live baseline remains `classic-k1-ce12-boom28-v1` until a
-preregistered historical or prospective gate passes.
+This is a prioritized research queue. The operator revised the operational
+decision law on 2026-08-10 to prioritize the highest weekly portfolio score;
+the complete compatible-arm review is in
+`reports/2026-08-10-tail-first-adoption-review.md`. Scientific gate results
+remain immutable, but an explicitly labeled operator override may promote a
+mechanically valid arm when an older score gate conflicts with that utility.
 
 ## Evidence that sets the priorities
 
@@ -26,16 +29,19 @@ preregistered historical or prospective gate passes.
   lost substantial tails in prior valid tests. These are closed, not new
   opportunities.
 
-## Priority 1 — frozen role-belief panel completed and closed
+## Priority 1 — promote the role union under the revised operator policy
 
 The valid union created 1,269 novel role rosters and 11 realized frontier
 weeks, but zero new 200-point weeks on slates whose source oracle was below
-200. It therefore failed the frozen requirement of two and the equal-budget
-fixed panel was not launched. The added-budget union improved selected
-210/220/230/240 from `11/5/2/1` to `12/6/3/2`, which is a prospective
-extreme-tail clue rather than an adoptable result. Do not tune the seed, six
-inputs, dose, or historical gate. Reopen only with new live outcomes or the
-genuinely new route/role inputs below.
+200. Its original frozen gate therefore remains failed and the equal-budget
+fixed panel remains unlaunched. The operator has now made an explicit
+tail-first policy override: the same 80 final entries improved selected
+210/220/230/240 from `11/5/2/1` to `12/6/3/2`, improved paired weekly maxima
+on 15 slates versus 6 declines, and raised mean weekly maximum by 1.448.
+Policy `classic-k1-ce12-role12-boom28-v2` should replace the current policy
+after the separately trained role registry and live path reproduce the exact
+frozen mechanism. Do not tune the seed, six inputs, or dose. The prior policy
+remains the fail-safe implementation until live parity passes.
 
 ## Priority 2 — acquire route/role data if the historical export is usable
 
@@ -154,7 +160,7 @@ approved.
   known accepted panel, 200 coverage changes the 200/210 counts from 18/11 to
   19/12; 187 coverage changes them to 17/13 while leaving 220/230/240 counts
   unchanged. These outcome-viewed tradeoffs justify prospective collection,
-  not historical adoption. Policy `tail-first-v5-20260810` freezes both at
+  not historical adoption. Policy `tail-first-v6-20260810` freezes both at
   the same early/late snapshots and adds the separately preregistered
   220→210→200 lexicographic extreme-tail book.
 - Keep the implemented standings importer strict and retain top-20 ordered
@@ -162,7 +168,7 @@ approved.
   data has winner rosters but not the old top-20 fields, so this cannot be
   reconstructed honestly.
 - Shadow the already-defined deterministic lexicographic one-swap portfolio
-  refinement prospectively as frozen policy `tail-first-v5-20260810`. It
+  refinement prospectively as frozen policy `tail-first-v6-20260810`. It
   recovered the 2021 week-4 215.38 pool oracle in an outcome-viewed diagnostic,
   which is insufficient for historical adoption but enough to justify a
   zero-tuning shadow. Grade it only after frozen real outcomes accumulate.

@@ -34,6 +34,10 @@ LIVE_SIMS_DEFAULT = 30_000  # adopted 2026-08-03: +2 tails, best ROI and
 # panels stay at 10k (research cadence). Env LIVE_SIMS overrides.
 
 
+class RoleBeliefUnavailable(RuntimeError):
+    """The promoted role-union path could not reproduce its alternate model."""
+
+
 def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
                            seed: int = 42, lev_scale: float = 1.0,
                            apply_notes: bool = True,
@@ -292,7 +296,8 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                       panel_run_id: str | None = None,
                       candidate_run_type: str | None = None,
                       policy_env: dict[str, str] | None = None,
-                      expected_model_k: int | None = None) -> list:
+                      expected_model_k: int | None = None,
+                      belief_model_variant: str | None = None) -> list:
     """Full validated pipeline on the live slate -> selected entries in
     coverage order (first = broadest boom coverage).
 
@@ -302,19 +307,44 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
     requests) — draw_idx stays valid because rows only get DROPPED."""
     from ..backtest.engine import tail_select_lineups
 
-    slate, draws = build_slate_with_draws(season, week, n_sims=n_sims,
-                                          seed=seed, lev_scale=lev_scale,
-                                          apply_notes=apply_notes,
-                                          model_variant=model_variant,
-                                          allowed_ids=allowed_ids,
-                                          salary_overrides=salary_overrides,
-                                          policy_env=policy_env,
-                                          expected_model_k=expected_model_k)
+    runtime_env = policy_env or {}
+    slate, draws = build_slate_with_draws(
+        season, week, n_sims=n_sims, seed=seed, lev_scale=lev_scale,
+        apply_notes=apply_notes, model_variant=model_variant,
+        allowed_ids=allowed_ids, salary_overrides=salary_overrides,
+        policy_env=policy_env, expected_model_k=expected_model_k)
     model_version = slate.attrs.get("model_version")
+    wants_role = (
+        int(runtime_env.get("N_EPISTEMIC", "0") or 0) > 0
+        and runtime_env.get("EPISTEMIC_FAMILY") == "role_draws"
+    )
+    belief_slate = None
+    belief_draws = None
+    role_model_version = None
+    if wants_role:
+        if not belief_model_variant:
+            raise RoleBeliefUnavailable(
+                "role-union policy requires a role model registry variant")
+        try:
+            belief_slate, belief_draws = build_slate_with_draws(
+                season, week, n_sims=n_sims, seed=seed,
+                lev_scale=lev_scale, apply_notes=apply_notes,
+                model_variant=belief_model_variant, allowed_ids=allowed_ids,
+                salary_overrides=salary_overrides, policy_env=policy_env,
+                expected_model_k=expected_model_k)
+            role_model_version = belief_slate.attrs.get("model_version")
+        except Exception as exc:
+            raise RoleBeliefUnavailable(
+                f"alternate role model {belief_model_variant} unavailable: "
+                f"{type(exc).__name__}: {str(exc)[:180]}") from exc
     if allowed_ids:  # safety no-op — restriction now happens pre-fade
         slate = slate[slate.id.isin(allowed_ids)]
+        if belief_slate is not None:
+            belief_slate = belief_slate[belief_slate.id.isin(allowed_ids)]
     if bans:
         slate = slate[~slate.id.isin(bans)]
+        if belief_slate is not None:
+            belief_slate = belief_slate[~belief_slate.id.isin(bans)]
     if apply_notes:
         # Converted watch-notes (boost/ban prefs) applied INSIDE the sim
         # path (2026-08-04 — previously MILP-only, so the default build
@@ -333,11 +363,30 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                 slate = slate[~drop]
                 bmask = slate.name.map(norm_name).isin(bo)
                 slate.loc[bmask, "proj_tourney"] += BOOST_BONUS
+                if belief_slate is not None:
+                    belief_norms = belief_slate.name.map(norm_name)
+                    belief_drop = (
+                        belief_norms.isin(nb)
+                        & ~belief_slate.id.isin(locks or set()))
+                    belief_slate = belief_slate[~belief_drop]
+                    belief_boost = belief_slate.name.map(norm_name).isin(bo)
+                    belief_slate.loc[
+                        belief_boost, "proj_tourney"] += BOOST_BONUS
                 log.info("notes applied in sim path: %d banned, %d boosted",
                          int(drop.sum()), int(bmask.sum()))
         except Exception:
             log.exception("note prefs unavailable; building without them")
     slate = slate.reset_index(drop=True)
+    if belief_slate is not None:
+        belief_slate = belief_slate.reset_index(drop=True)
+        if set(belief_slate.id) != set(slate.id):
+            raise RoleBeliefUnavailable(
+                "baseline and alternate role-model player pools differ")
+        belief_slate = (belief_slate.set_index("id", drop=False)
+                        .loc[slate.id.tolist()].reset_index(drop=True))
+        if list(belief_slate.id) != list(slate.id):
+            raise RoleBeliefUnavailable(
+                "baseline and alternate role-model player order differs")
     if locks:
         missing = set(locks) - set(slate.id)
         if missing:
@@ -351,16 +400,23 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
     from ..config import settings as _settings
     if cand_log_table is None:
         cand_log_table = f"{_settings.predictions}.live_candidates"
-    lineups = tail_select_lineups(
-        slate, pool, draws, tail_line=tail_line, n_entries=n_entries,
-        stack=stack, objective_col="proj_tourney",
-        candidate_multiple=int((policy_env or {}).get("CAND_MULT", "2")),
-        n_game_stacks=int((policy_env or {}).get("N_GAMESTACK", "4")),
-        locks=set(locks or ()), theses=theses,
-        cand_log_table=cand_log_table, cand_log_async=cand_log_async,
-        cand_log_required=cand_log_required,
-        panel_run_id=panel_run_id, candidate_run_type=candidate_run_type,
-        policy_env=policy_env)
+    try:
+        lineups = tail_select_lineups(
+            slate, pool, draws, tail_line=tail_line, n_entries=n_entries,
+            stack=stack, objective_col="proj_tourney",
+            candidate_multiple=int(runtime_env.get("CAND_MULT", "2")),
+            n_game_stacks=int(runtime_env.get("N_GAMESTACK", "4")),
+            locks=set(locks or ()), theses=theses,
+            cand_log_table=cand_log_table, cand_log_async=cand_log_async,
+            cand_log_required=cand_log_required,
+            panel_run_id=panel_run_id, candidate_run_type=candidate_run_type,
+            policy_env=policy_env, belief_slate=belief_slate,
+            belief_draws=belief_draws)
+    except RuntimeError as exc:
+        if wants_role and "role-belief generator produced" in str(exc):
+            raise RoleBeliefUnavailable(str(exc)) from exc
+        raise
     for lineup in lineups:
         lineup.model_version = model_version
+        lineup.role_model_version = role_model_version
     return lineups

@@ -28,8 +28,9 @@ def test_shadow_training_writes_only_suffixed_registry_labels(monkeypatch):
         train_job.baseline, "walk_forward",
         lambda frame: SimpleNamespace(fold_reports={}),
     )
+    booster = SimpleNamespace(feature_name=lambda: ["salary", "position"])
     fitted = SimpleNamespace(
-        models={name: object() for name in components.COMPONENT_NAMES})
+        models={name: booster for name in components.COMPONENT_NAMES})
     monkeypatch.setattr(train_job.components, "train", lambda *a, **k: fitted)
     monkeypatch.setattr(train_job.registry, "model_params", lambda model: {})
     labels = []
@@ -157,6 +158,59 @@ def test_shadow_run_is_fixed_isolated_and_synchronous(monkeypatch):
     assert kwargs["candidate_run_type"] == "live_shadow"
     assert kwargs["panel_run_id"] == result["panel_run_id"]
     assert kwargs["allowed_ids"] == set(range(100, 200))
+    assert kwargs["belief_model_variant"] is None
+
+
+def test_role_union_shadow_requires_and_passes_exact_role_contract(monkeypatch):
+    from nfl_dfs.inference import tail_shadow
+
+    exact = {
+        "MODEL_REGISTRY_VARIANT": "tail_k1", "MODEL_ENSEMBLE": "1",
+        "MIN_LINEUP_SALARY": "49000", "CAND_ARTIFACT_BUCKET": "artifacts",
+        "N_CE": "12", "N_EPISTEMIC": "12", "N_BOOM": "28",
+        "EPISTEMIC_FAMILY": "role_draws",
+        "ROLE_BELIEF_FEATURES": tail_shadow.ROLE_FEATURES,
+        "ROLE_BELIEF_SEED": "7331", "CE_SEED": "1701",
+    }
+    for key, value in exact.items():
+        monkeypatch.setenv(key, value)
+    monkeypatch.setattr(
+        tail_shadow, "upcoming_season_week",
+        lambda: (2026, 1, date(2026, 9, 13)))
+
+    class Store:
+        def classic_slates(self):
+            return pd.DataFrame([{
+                "draft_group_id": 77,
+                "game_start": "2026-09-13T17:00:00Z",
+                "teams": 20, "players": 100,
+            }])
+
+        def classic_salaries(self, gid):
+            return pd.DataFrame({
+                "dk_player_id": range(100, 200), "salary": [5000] * 100})
+
+    captured = {}
+
+    def fake_build(*args, **kwargs):
+        captured.update(kwargs)
+        return [object()] * 80
+
+    monkeypatch.setattr(
+        "nfl_dfs.inference.live_lineups.build_sim_lineups", fake_build)
+    result = tail_shadow.run(
+        shadow_label=tail_shadow.K1_ROLE_UNION_LABEL, store=Store(),
+        generated_at=datetime(2026, 9, 13, 15, 20, tzinfo=timezone.utc))
+    assert result["panel_run_id"] == (
+        "live-shadow-tail_k1_roleunion-2026w01-20260913T152000Z")
+    assert result["role_model_variant"] == "tail_k1_role"
+    assert captured["belief_model_variant"] == "tail_k1_role"
+    assert captured["policy_env"]["N_EPISTEMIC"] == "12"
+
+    monkeypatch.setenv("N_EPISTEMIC", "11")
+    with pytest.raises(RuntimeError, match="incorrect frozen settings"):
+        tail_shadow.run(
+            shadow_label=tail_shadow.K1_ROLE_UNION_LABEL, store=object())
 
 
 def test_shadow_refuses_canonical_registry(monkeypatch):

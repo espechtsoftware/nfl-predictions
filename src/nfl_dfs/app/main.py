@@ -1974,9 +1974,9 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
                      for r in df[["dk_player_id", "salary"]].itertuples()
                      if pd.notna(r.dk_player_id) and pd.notna(r.salary)}
                     if req.draft_group_id is not None else None)
+        from ..inference.live_lineups import (
+            RoleBeliefUnavailable, build_sim_lineups)
         try:
-            from ..inference.live_lineups import build_sim_lineups
-
             lineups = build_sim_lineups(
                 req.season, req.week, n_entries=req.n_lineups,
                 stack=stack, tail_line=req.line(),
@@ -1986,8 +1986,32 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
                 salary_overrides=salaries,
                 apply_notes=req.apply_notes,
                 model_variant=policy.model_variant,
+                belief_model_variant=policy.role_model_variant,
                 expected_model_k=policy.model_ensemble,
                 policy_env=policy_env)
+        except RoleBeliefUnavailable as exc:
+            log.error("promoted role policy unavailable; using CE fallback: %s",
+                      exc)
+            fallback_env = policy.fallback_environment(os.environ)
+            try:
+                lineups = build_sim_lineups(
+                    req.season, req.week, n_entries=req.n_lineups,
+                    stack=stack, tail_line=req.line(),
+                    lev_scale=req.lev_scale, locks=set(req.locks),
+                    bans=set(req.bans), allowed_ids=allowed,
+                    theses=req.theses or None, salary_overrides=salaries,
+                    apply_notes=req.apply_notes,
+                    model_variant=policy.model_variant,
+                    expected_model_k=policy.model_ensemble,
+                    policy_env=fallback_env)
+            except Exception as fallback_exc:
+                log.exception("CE fallback lineup build also failed")
+                raise HTTPException(
+                    503, "Role-union and CE fallback builds failed "
+                    f"({type(fallback_exc).__name__}: "
+                    f"{str(fallback_exc)[:180]}).") from fallback_exc
+            for lineup in lineups:
+                lineup.policy_fallback = "classic-k1-ce12-boom28-v1"
         except HTTPException:
             raise
         except Exception as exc:
@@ -2128,10 +2152,18 @@ def _classic_policy_identity(req: LineupRequest, lineups: list) -> dict:
         }
     model_version = (getattr(lineups[0], "model_version", None)
                      if lineups else None)
+    fallback = (getattr(lineups[0], "policy_fallback", None)
+                if lineups else None)
+    role_model_version = (getattr(lineups[0], "role_model_version", None)
+                          if lineups else None)
     return {
         **ADOPTED_CLASSIC_POLICY.public_identity(
             model_version=model_version,
             entries=len(lineups), tail_line=req.line()),
+        "role_model_version": role_model_version,
+        "effective_policy_id": (
+            fallback or ADOPTED_CLASSIC_POLICY.policy_id),
+        "fallback_used": bool(fallback),
         "adopted": True,
     }
 
@@ -2139,7 +2171,8 @@ def _classic_policy_identity(req: LineupRequest, lineups: list) -> dict:
 def _classic_policy_headers(req: LineupRequest, lineups: list) -> dict[str, str]:
     identity = _classic_policy_identity(req, lineups)
     return {
-        "X-Lineup-Policy": str(identity["policy_id"]),
+        "X-Lineup-Policy": str(
+            identity.get("effective_policy_id") or identity["policy_id"]),
         "X-Model-Version": str(identity.get("model_version") or "n/a"),
     }
 

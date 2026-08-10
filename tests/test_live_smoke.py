@@ -103,9 +103,17 @@ def test_adopted_policy_builds_true80_dk_csv(monkeypatch, panel, live_slate):
     season = int(panel.season.max())
     monkeypatch.setenv("MODEL_ENSEMBLE", "1")
     cm = components.train(panel, target_season=season, num_boost_round=12)
+    monkeypatch.setenv(
+        "EXTRA_FEATURES", ADOPTED_CLASSIC_POLICY.role_features)
+    cm_role = components.train(
+        panel, target_season=season, num_boost_round=12)
+    monkeypatch.delenv("EXTRA_FEATURES")
     monkeypatch.setattr(
         "nfl_dfs.models.train_job.load_latest_component_models",
-        lambda variant=None: (cm, "pooled/components__tail_k1/2026-W36"))
+        lambda variant=None: (
+            (cm_role, "pooled/components__tail_k1_role/2026-W36")
+            if variant == "tail_k1_role"
+            else (cm, "pooled/components__tail_k1/2026-W36")))
     monkeypatch.setattr(
         "nfl_dfs.inference.run_projections.upcoming_slate_features",
         lambda s, w: live_slate)
@@ -132,6 +140,7 @@ def test_adopted_policy_builds_true80_dk_csv(monkeypatch, panel, live_slate):
         stack=StackRules(qb_stack_min=2, bring_back_min=1),
         tail_line=policy.tail_line, n_sims=300, seed=7,
         apply_notes=False, model_variant=policy.model_variant,
+        belief_model_variant=policy.role_model_variant,
         expected_model_k=policy.model_ensemble,
         policy_env=policy.engine_environment())
     assert len(lineups) == 80

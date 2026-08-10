@@ -1,12 +1,13 @@
 """Freeze and grade prospective tail-first live portfolios.
 
 The K=1/K=3 shadow jobs persist complete candidate pools before lock.  This
-module turns those immutable inputs into nine explicitly frozen 80-entry
+module turns those immutable inputs into eleven explicitly frozen 80-entry
 books without regenerating a slate or consulting outcomes:
 
 * K=1 production coverage at 194 (research control)
 * K=1 coverage at 187 and at 200 (prospective threshold alternatives)
 * K=1 lexicographic extreme coverage at 220, then 210, then 200
+* expanded K=1 CE/role-union coverage at 194 and extreme 220/210/200
 * K=1 coverage followed by deterministic outcome-blind one-swap refinement
 * K=1 top individual ``p_line`` (the leading selector hypothesis)
 * K=1 no-salary-floor coverage at 194 (post-result prospective shadow)
@@ -35,7 +36,7 @@ log = logging.getLogger(__name__)
 
 PORTFOLIO_TABLE = "live_shadow_portfolios"
 GRADE_TABLE = "live_shadow_grades"
-POLICY_VERSION = "tail-first-v5-20260810"
+POLICY_VERSION = "tail-first-v6-20260810"
 EXPECTED_ENTRIES = 80
 SELECT_LINE = 194.0
 SLOT_HOURS = {"early": 10, "late": 11}
@@ -44,6 +45,8 @@ K1_COVERAGE = "tail_k1_coverage194"
 K1_COVERAGE_187 = "tail_k1_coverage187"
 K1_COVERAGE_200 = "tail_k1_coverage200"
 K1_EXTREME_LEX = "tail_k1_extreme_lex_220_210_200"
+K1_ROLE_COVERAGE = "tail_k1_roleunion_coverage194"
+K1_ROLE_EXTREME_LEX = "tail_k1_roleunion_extreme_lex_220_210_200"
 K1_REFINED = "tail_k1_coverage194_one_swap"
 K1_TOP_P = "tail_k1_top_p"
 K1_NOFLOOR_COVERAGE = "tail_k1_nofloor_coverage194"
@@ -56,7 +59,8 @@ _MEMBERSHIP_ID_COLUMNS = [
     "cand_ix", "roster_key", "selection_method", "policy_version",
 ]
 _PANEL_ID = re.compile(
-    r"^live-shadow-(tail_k1|tail_k1_nofloor|tail_k3)-\d{4}w\d{2}-"
+    r"^live-shadow-(tail_k1|tail_k1_nofloor|tail_k1_roleunion|tail_k3)-"
+    r"\d{4}w\d{2}-"
     r"(\d{8}T\d{6}Z)$")
 
 
@@ -233,6 +237,7 @@ def validate_shadow_panel(rows: pd.DataFrame, model: str) -> pd.DataFrame:
     specs = {
         "tail_k1": ("tail_k1", 1, 49_000),
         "tail_k1_nofloor": ("tail_k1", 1, 0),
+        "tail_k1_roleunion": ("tail_k1", 1, 49_000),
         "tail_k3": ("canonical", 3, 49_000),
     }
     if model not in specs:
@@ -286,6 +291,19 @@ def validate_shadow_panel(rows: pd.DataFrame, model: str) -> pd.DataFrame:
         raise ValueError(f"{model} shadow has the wrong salary floor")
     if f"MODEL_ENSEMBLE_SIZE={expected_k}" not in seeds:
         raise ValueError(f"{model} shadow has the wrong ensemble size")
+    if model == "tail_k1_roleunion":
+        exact = (
+            "N_CE=12", "N_EPISTEMIC=12", "N_BOOM=28",
+            "EPISTEMIC_FAMILY=role_draws", "ROLE_BELIEF_SEED=7331",
+            "ROLE_BELIEF_FEATURES=target_share_last,carry_share_last,"
+            "snap_share_last,target_share_jump,carry_share_jump,"
+            "snap_share_jump",
+        )
+        missing_role = [value for value in exact if value not in lever]
+        if missing_role:
+            raise ValueError(
+                "tail_k1_roleunion shadow has wrong role provenance: "
+                f"{missing_role}")
     if (rows.score_artifact_uri.fillna("").astype(str).str.strip().eq("").any()
             or rows.score_artifact_sha256.fillna("").astype(str)
             .str.strip().eq("").any()):
@@ -343,22 +361,24 @@ def _portfolio_rows(
 def build_portfolios(
     k1_rows: pd.DataFrame,
     k1_nofloor_rows: pd.DataFrame,
+    k1_role_rows: pd.DataFrame,
     k3_rows: pd.DataFrame,
     *,
     portfolio_run_id: str,
     snapshot_slot: str,
     frozen_at: datetime | None = None,
 ) -> pd.DataFrame:
-    """Build all nine predeclared books from complete candidate pools."""
+    """Build all eleven predeclared books from complete candidate pools."""
     if snapshot_slot not in SLOT_HOURS:
         raise ValueError(f"unknown shadow snapshot slot {snapshot_slot!r}")
     k1 = validate_shadow_panel(k1_rows, "tail_k1")
     k1_nofloor = validate_shadow_panel(
         k1_nofloor_rows, "tail_k1_nofloor")
+    k1_role = validate_shadow_panel(k1_role_rows, "tail_k1_roleunion")
     k3 = validate_shadow_panel(k3_rows, "tail_k3")
     slate_keys = [
         set(map(tuple, frame[["season", "week"]].drop_duplicates().values))
-        for frame in (k1, k1_nofloor, k3)
+        for frame in (k1, k1_nofloor, k1_role, k3)
     ]
     if not all(keys == slate_keys[0] for keys in slate_keys[1:]):
         raise ValueError("shadow policies do not cover the same slate")
@@ -371,6 +391,8 @@ def build_portfolios(
     _, k1_coverage_187_order = coverage_order(k1, 187.0)
     _, k1_coverage_200_order = coverage_order(k1, 200.0)
     _, k1_extreme_order = extreme_lexicographic_order(k1)
+    _, k1_role_order = coverage_order(k1_role)
+    _, k1_role_extreme_order = extreme_lexicographic_order(k1_role)
     _, k1_nofloor_order = coverage_order(k1_nofloor)
     _, k3_coverage_order = coverage_order(k3)
     _, k1_rank_order = top_p_order(k1)
@@ -378,6 +400,8 @@ def build_portfolios(
     k1_187 = k1_coverage_187_order[:EXPECTED_ENTRIES]
     k1_200 = k1_coverage_200_order[:EXPECTED_ENTRIES]
     k1_extreme = k1_extreme_order[:EXPECTED_ENTRIES]
+    k1_role_control = k1_role_order[:EXPECTED_ENTRIES]
+    k1_role_extreme = k1_role_extreme_order[:EXPECTED_ENTRIES]
     k1_nofloor_control = k1_nofloor_order[:EXPECTED_ENTRIES]
     k3_control = k3_coverage_order[:EXPECTED_ENTRIES]
     k1_top = k1_rank_order[:EXPECTED_ENTRIES]
@@ -435,6 +459,18 @@ def build_portfolios(
             selection_method="coverage_lex_220_210_200", source_quota=80,
             snapshot_slot=snapshot_slot, frozen_at=stamp),
         _portfolio_rows(
+            k1_role, k1_role_control, portfolio_run_id=portfolio_run_id,
+            portfolio_id=K1_ROLE_COVERAGE,
+            source_model="tail_k1_roleunion",
+            selection_method="coverage194_roleunion", source_quota=80,
+            snapshot_slot=snapshot_slot, frozen_at=stamp),
+        _portfolio_rows(
+            k1_role, k1_role_extreme, portfolio_run_id=portfolio_run_id,
+            portfolio_id=K1_ROLE_EXTREME_LEX,
+            source_model="tail_k1_roleunion",
+            selection_method="coverage_lex_220_210_200_roleunion",
+            source_quota=80, snapshot_slot=snapshot_slot, frozen_at=stamp),
+        _portfolio_rows(
             k1, k1_refined, portfolio_run_id=portfolio_run_id,
             portfolio_id=K1_REFINED, source_model="tail_k1",
             selection_method="coverage194_one_swap_lexicographic",
@@ -487,7 +523,7 @@ def choose_latest_panels(
     week: int,
     target_sunday: date,
     snapshot_slot: str,
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Choose the latest complete-looking policy runs in one CT slot."""
     if snapshot_slot not in SLOT_HOURS:
         raise ValueError(f"unknown shadow snapshot slot {snapshot_slot!r}")
@@ -518,6 +554,7 @@ def choose_latest_panels(
     for model, prefix in (
             ("tail_k1", "live-shadow-tail_k1-"),
             ("tail_k1_nofloor", "live-shadow-tail_k1_nofloor-"),
+            ("tail_k1_roleunion", "live-shadow-tail_k1_roleunion-"),
             ("tail_k3", "live-shadow-tail_k3-")):
         arm = work[work.panel_run_id.astype(str).str.startswith(prefix)]
         if arm.empty:
@@ -527,7 +564,7 @@ def choose_latest_panels(
         panel = arm[arm.panel_run_id.eq(latest)].drop(
             columns="_panel_started_at")
         selected.append(panel)
-    return selected[0], selected[1], selected[2]
+    return selected[0], selected[1], selected[2], selected[3]
 
 
 def score_portfolios(memberships: pd.DataFrame,
@@ -660,12 +697,12 @@ def freeze(snapshot_slot: str) -> dict:
         FROM `{settings.predictions}.live_candidates_shadow`
         WHERE season = @season AND week = @week AND run_type = 'live_shadow'
         """, params={"season": season, "week": week})
-    k1, k1_nofloor, k3 = choose_latest_panels(
+    k1, k1_nofloor, k1_role, k3 = choose_latest_panels(
         candidates, season=season, week=week, target_sunday=sunday,
         snapshot_slot=snapshot_slot)
     run_id = f"live-tail-portfolios-{season}w{week:02d}-{snapshot_slot}"
     memberships = build_portfolios(
-        k1, k1_nofloor, k3, portfolio_run_id=run_id,
+        k1, k1_nofloor, k1_role, k3, portfolio_run_id=run_id,
         snapshot_slot=snapshot_slot)
     existing = _load_existing(run_id)
     if not existing.empty:

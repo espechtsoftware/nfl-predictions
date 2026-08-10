@@ -24,13 +24,20 @@ from ..optimizer.lineup import StackRules
 log = logging.getLogger(__name__)
 
 K1_VARIANT = "tail_k1"
+K1_ROLE_VARIANT = "tail_k1_role"
 K3_VARIANT = CANONICAL_VARIANT
 VARIANT_K = {K1_VARIANT: 1, K3_VARIANT: 3}
 VARIANT_LABEL = {K1_VARIANT: "tail_k1", K3_VARIANT: "tail_k3"}
 K1_NOFLOOR_LABEL = "tail_k1_nofloor"
+K1_ROLE_UNION_LABEL = "tail_k1_roleunion"
+ROLE_FEATURES = (
+    "target_share_last,carry_share_last,snap_share_last,"
+    "target_share_jump,carry_share_jump,snap_share_jump"
+)
 POLICY_SPEC = {
     "tail_k1": (K1_VARIANT, 49_000),
     K1_NOFLOOR_LABEL: (K1_VARIANT, 0),
+    K1_ROLE_UNION_LABEL: (K1_VARIANT, 49_000),
     "tail_k3": (K3_VARIANT, 49_000),
 }
 SHADOW_ENTRIES = 80
@@ -123,6 +130,21 @@ def run(*, expected_variant: str = K1_VARIANT,
         raise RuntimeError(
             f"shadow policy {label} requires MIN_LINEUP_SALARY="
             f"{expected_floor}, got {actual_floor}")
+    if label == K1_ROLE_UNION_LABEL:
+        exact = {
+            "N_CE": "12", "N_EPISTEMIC": "12", "N_BOOM": "28",
+            "EPISTEMIC_FAMILY": "role_draws",
+            "ROLE_BELIEF_FEATURES": ROLE_FEATURES,
+            "ROLE_BELIEF_SEED": "7331", "CE_SEED": "1701",
+        }
+        wrong = {
+            key: (os.environ.get(key), value)
+            for key, value in exact.items()
+            if os.environ.get(key) != value
+        }
+        if wrong:
+            raise RuntimeError(
+                f"role-union shadow has incorrect frozen settings: {wrong}")
     if not os.environ.get("CAND_ARTIFACT_BUCKET", "").strip():
         raise RuntimeError(
             "tail shadow requires CAND_ARTIFACT_BUCKET so the full "
@@ -165,6 +187,9 @@ def run(*, expected_variant: str = K1_VARIANT,
         cand_log_async=False, cand_log_required=True,
         panel_run_id=panel_run_id,
         candidate_run_type="live_shadow",
+        policy_env=dict(os.environ),
+        belief_model_variant=(
+            K1_ROLE_VARIANT if label == K1_ROLE_UNION_LABEL else None),
     )
     if len(lineups) != SHADOW_ENTRIES:
         raise RuntimeError(
@@ -181,6 +206,8 @@ def run(*, expected_variant: str = K1_VARIANT,
         "entries": len(lineups),
         "tail_line": SHADOW_TAIL_LINE,
         "model_variant": variant,
+        "role_model_variant": (
+            K1_ROLE_VARIANT if label == K1_ROLE_UNION_LABEL else None),
         "shadow_label": label,
         "minimum_lineup_salary": actual_floor,
     }

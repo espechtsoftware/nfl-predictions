@@ -113,6 +113,25 @@ def test_registry_model_survives_featureset_growth(small_panel):
     )
     comps = cm.predict_components(small_panel[small_panel.season == 2022])
     assert comps.targets.notna().all()
+
+
+def test_alternate_registry_owns_extra_feature_contract(
+        small_panel, monkeypatch):
+    """A role registry must predict in the baseline web process.
+
+    EXTRA_FEATURES is a training-job setting, not a safe global setting for
+    a concurrent app. Loaded boosters therefore materialize their own saved
+    feature columns even after the environment is cleared.
+    """
+    monkeypatch.setenv("EXTRA_FEATURES", "target_share_last")
+    cm = components.train(small_panel, target_season=2022,
+                          num_boost_round=10)
+    assert "target_share_last" in cm.models["targets"].feature_name()
+    monkeypatch.delenv("EXTRA_FEATURES")
+
+    rows = small_panel[small_panel.season == 2022]
+    predicted = cm.predict_components(rows)
+    assert predicted.targets.notna().all()
 def test_simulation_boundary_collapses_machine_epsilon_drift():
     base = pd.DataFrame({
         "targets": [8.12345678901, 5.23456789012],

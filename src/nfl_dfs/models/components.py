@@ -15,7 +15,7 @@ import lightgbm as lgb
 import numpy as np
 import pandas as pd
 
-from .featureset import LGB_THREADS, active_training_rows, build_X
+from .featureset import LGB_THREADS, POSITIONS, active_training_rows, build_X
 from .weights import sample_weights
 
 COUNT_PARAMS = dict(
@@ -71,6 +71,29 @@ COMPONENT_NAMES = [
 ]
 
 
+def _matrix_for_model(df: pd.DataFrame, model) -> pd.DataFrame:
+    """Build the exact matrix expected by one registered booster.
+
+    Research/alternate registries may have been trained with candidate
+    features that are intentionally absent from the process-wide baseline
+    ``EXTRA_FEATURES`` setting.  A loaded model owns its feature contract, so
+    inference must materialize those columns directly from the input frame
+    instead of depending on whichever environment launched the web process.
+    """
+    columns = list(model.feature_name())
+    X = build_X(df)
+    for column in columns:
+        if column in X:
+            continue
+        if column == "position":
+            X[column] = pd.Categorical(df[column], categories=POSITIONS)
+        elif column in df:
+            X[column] = pd.to_numeric(df[column], errors="coerce")
+        else:
+            X[column] = np.nan
+    return X[columns]
+
+
 def effective_ensemble_size(env: dict | None = None) -> int:
     """Resolve and validate the fitted component-model member count."""
     if env is None:
@@ -115,13 +138,13 @@ class ComponentModels:
     models: dict[str, lgb.Booster]
 
     def predict_components(self, df: pd.DataFrame) -> pd.DataFrame:
-        X = build_X(df)
         out = pd.DataFrame(index=df.index)
         for name in COMPONENT_NAMES:
             # Slice to the booster's own training columns: a registry model
             # trained before a featureset addition must keep predicting until
             # the next weekly retrain picks the new columns up.
-            out[name] = self.models[name].predict(X[self.models[name].feature_name()])
+            model = self.models[name]
+            out[name] = model.predict(_matrix_for_model(df, model))
 
         for name, (lo, hi) in RATE_CLIPS.items():
             out[name] = out[name].clip(lo, hi)
@@ -140,13 +163,12 @@ class ComponentModels:
         aleatoric draws do not represent. Empty frame when the members
         are not exposed (single-model registry entries), so callers
         must treat absence as 'unavailable', never as zero."""
-        X = build_X(df)
         out = pd.DataFrame(index=df.index)
         for name in COMPONENT_NAMES:
             m = self.models[name]
             if not hasattr(m, "predict_spread"):
                 continue
-            sd, rng_ = m.predict_spread(X[m.feature_name()])
+            sd, rng_ = m.predict_spread(_matrix_for_model(df, m))
             out[f"{name}_sd"] = sd
             out[f"{name}_range"] = rng_
         return out
@@ -165,11 +187,10 @@ class ComponentModels:
         member_counts = [len(m.members) for m in self.models.values()
                          if hasattr(m, "members")]
         k_members = min(member_counts) if member_counts else 1
-        X = build_X(df)
         cached: dict[str, np.ndarray] = {}
         for name in COMPONENT_NAMES:
             model = self.models[name]
-            Xi = X[model.feature_name()]
+            Xi = _matrix_for_model(df, model)
             if hasattr(model, "predict_members"):
                 cached[name] = model.predict_members(Xi)[:k_members]
             else:

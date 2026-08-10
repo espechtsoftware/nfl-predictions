@@ -36,8 +36,10 @@ next roster by the following lexicographic key:
 
 Update all three covered-world masks after each choice and repeat to 80
 distinct rosters. Freeze at both existing early and late snapshots under
-policy `tail-first-v5-20260810`. The prior eight books remain unchanged in
-the same policy; this ninth book is additive.
+policy `tail-first-v6-20260810`. The prior books remain unchanged. A later
+operator-policy amendment adds the same frozen extreme rule to the promoted
+role-union candidate pool as a second prospective selector; the original K1
+book and its no-outcome rule are unchanged.
 
 ## Validation and grading
 

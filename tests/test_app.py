@@ -835,12 +835,42 @@ def test_sim_mode_receives_immutable_adopted_policy(client, monkeypatch):
     client.post("/lineups", json={"season": 2025, "week": 3})
     assert seen["n_entries"] == 80
     assert seen["model_variant"] == "tail_k1"
+    assert seen["belief_model_variant"] == "tail_k1_role"
     assert seen["expected_model_k"] == 1
     env = seen["policy_env"]
-    assert (env["N_CE"], env["N_BOOM"]) == ("12", "28")
+    assert (env["N_CE"], env["N_EPISTEMIC"], env["N_BOOM"]) == (
+        "12", "12", "28")
+    assert env["EPISTEMIC_FAMILY"] == "role_draws"
     assert env["MIN_LINEUP_SALARY"] == "49000"
     assert env["BLEND_MODEL_WEIGHT"] == "0.45"
     assert env["SELECT_LSE"] == "0"
+
+
+def test_role_registry_outage_uses_labeled_ce_fallback(client, monkeypatch):
+    from nfl_dfs.inference import live_lineups
+    from nfl_dfs.optimizer.lineup import optimize
+
+    frame = projections_frame()
+    lineup = optimize(app_main._player_pool(frame, "proj_points", None))
+    assert lineup is not None
+    lineup.model_version = "pooled/components__tail_k1/2026-W36"
+    calls = []
+
+    def build(*args, **kwargs):
+        calls.append(kwargs)
+        if len(calls) == 1:
+            raise live_lineups.RoleBeliefUnavailable("missing role registry")
+        return [lineup]
+
+    monkeypatch.setattr(live_lineups, "build_sim_lineups", build)
+    response = client.post("/lineups", json={
+        "season": 2025, "week": 3, "n_lineups": 1})
+    assert response.status_code == 200
+    assert calls[0]["policy_env"]["N_EPISTEMIC"] == "12"
+    assert calls[1]["policy_env"]["N_EPISTEMIC"] == "0"
+    identity = response.json()["policy"]
+    assert identity["fallback_used"] is True
+    assert identity["effective_policy_id"] == "classic-k1-ce12-boom28-v1"
 
 
 def test_all_three_classic_routes_expose_same_policy(client, monkeypatch):
@@ -866,11 +896,12 @@ def test_all_three_classic_routes_expose_same_policy(client, monkeypatch):
     entries = client.post("/lineups/entries.csv", json={
         **req, "entries_csv": one_entry})
 
-    policy_id = "classic-k1-ce12-boom28-v1"
+    policy_id = "classic-k1-ce12-role12-boom28-v2"
     assert preview.json()["policy"]["policy_id"] == policy_id
     assert preview.json()["policy"]["model_ensemble"] == 1
     assert preview.json()["policy"]["portfolio_allocation"] == {
-        "ce": 12, "boom": 28, "total_replacement_slots": 40}
+        "ce": 12, "role": 12, "boom": 28,
+        "total_generation_solves": 52}
     for response in (generic, entries):
         assert response.status_code == 200
         assert response.headers["x-lineup-policy"] == policy_id

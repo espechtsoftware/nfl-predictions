@@ -16,7 +16,6 @@ import pandas as pd
 from ..bq import query_df
 from ..config import current_season, settings
 from . import baseline, components, registry
-from .featureset import FEATURES
 
 log = logging.getLogger(__name__)
 
@@ -115,7 +114,7 @@ def train_and_register(today: date | None = None,
                 label=_component_label(name, variant),
                 iso_week=iso_week,
                 params=registry.model_params(booster),
-                features=FEATURES,
+                features=list(booster.feature_name()),
                 train_seasons=train_seasons,
                 metrics=metrics,
             ),
