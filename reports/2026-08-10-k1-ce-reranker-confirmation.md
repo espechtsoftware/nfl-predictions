@@ -1,7 +1,7 @@
 # K=1 CE true-80 fixed-pool reranker confirmation
 
-Status: preregistered before any reranker result; implementation and immutable
-validation are pending.
+Status: complete; the valid structure-only reranker failed the frozen
+tail-first and negative-control gates and is not adopted.
 
 ## Why this arm is eligible
 
@@ -62,3 +62,34 @@ A failure closes this structure-only reranker on the known historical panel.
 Do not tune alpha, shift cap, line, feature set, weighting, negative-control
 seed, or add the previously negative ownership/disagreement arms after seeing
 the result.
+
+## Outcome
+
+Full Cloud Build `44264eea-f58b-419a-a9b6-a77f13d60dff` passed 707 tests with
+2 skipped and produced immutable digest
+`sha256:09a7ed659928afef1e720b40fc55e2aec8ca643e706c720dee21047aa5d0dd9f`.
+Execution `evaluate-k1-ce-reranker-vhg99` completed with zero mechanism
+failures and returned `reject`:
+
+| Weekly maximum metric | Accepted CE | Primary A1 | Shuffled control |
+|---|---:|---:|---:|
+| >=187 | 40 | 42 | 39 |
+| >=194 | 26 | 26 | 26 |
+| >=200 | 18 | 18 | 19 |
+| >=210 | 11 | 12 | 11 |
+| >=220 | 5 | 5 | 5 |
+| >=230 | 2 | 2 | 2 |
+| >=240 | 1 | 1 | 1 |
+| Mean | 181.12 | 181.40 | 180.57 |
+| Median | 178.64 | 179.20 | 177.00 |
+
+The evaluator verified all 90 served-season artifacts, retained an unchanged
+2019 cold start, served every season only from earlier-season training, kept
+all shifts within the frozen cap, and moved 1,449 selected slots. Candidate
+pool and oracle metrics are identical by construction.
+
+The primary model adds no 200+ week (required +2) and loses the preregistered
+lexicographic comparison to the shuffled control, which adds one 200+ week by
+chance. Its extra 210+ week and modest mean/median gains are diagnostics, not
+permission to weaken the gate. Close this reranker family on the known panel;
+do not try A2/A3, another alpha/cap, or a different shuffle seed.

@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 19:54 CDT
+## Current state — 2026-08-09 20:12 CDT
 
 ### Autonomous scoring research resumed after context recovery
 
@@ -323,6 +323,25 @@ agent or developer:
   shell parsing, compilation, and whitespace checks pass. Exact next action:
   commit/push, run a full Cloud Build, then execute the one immutable evaluator
   and close or promote the selector arm from its frozen report.
+- Reranker Cloud Build `44264eea-f58b-419a-a9b6-a77f13d60dff` passed 707
+  tests with 2 skipped from pushed commit `cbd770a` and produced immutable
+  digest
+  `sha256:09a7ed659928afef1e720b40fc55e2aec8ca643e706c720dee21047aa5d0dd9f`.
+  Execution `evaluate-k1-ce-reranker-vhg99` completed with zero mechanism
+  failures and valid `reject`. Source/primary/shuffled selected
+  187/194/200/210/220/230/240 are respectively
+  `40/26/18/11/5/2/1`, `42/26/18/12/5/2/1`, and
+  `39/26/19/11/5/2/1`; mean weekly maximum is `181.12/181.40/180.57`.
+  The primary moves 1,449 selected slots but adds no 200 week (required +2)
+  and loses the lexicographic negative-control comparison because the shuffled
+  book reaches 19 at 200. Close A1 and do not run A2/A3, alternate alpha/cap,
+  or another shuffle seed on these outcomes.
+- Exact next action: commit/push the reranker report, then treat historical
+  scoring discovery as closed at the promoted K=1 `12 CE / 28 boom` baseline.
+  Complete the README pre-season arm-policy/UI gate so live lineup generation,
+  API, UI, and CSV paths explicitly use and expose the adopted policy; keep
+  any genuinely new data (Odds API shadow/prospective ownership) point-in-time
+  and shadow-only until its own held-out gate passes.
 
 ### Recovery provenance
 
