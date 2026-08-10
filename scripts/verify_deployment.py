@@ -1,137 +1,143 @@
-"""Deployment contract check: does the LIVE lineup-generation config
-match the adopted default?
+"""Verify the deployed Week 1 classic-policy contract.
 
-Why this exists: `check-freshness` resolves configuration inside its
-OWN process, so if the app alone were deployed with a research override the
-freshness job would still see code defaults and pass. The
-claimed "an accidental app override trips the alert" protection did
-not exist. This reads the Cloud Run specs for the two live
-lineup-generation paths and fails if either departs from the adopted
-boom-only baseline.
+The app receives its roster-changing environment as an immutable request-local
+mapping from ``production_policy.py``. Cloud Run therefore must not inject a
+second research policy. The projection and registry jobs have smaller exact
+contracts, while the role-union shadow must expose the historical arm's full
+configuration for prospective attribution.
 
-  python scripts/verify_deployment.py            # check, exit 1 on drift
-  python scripts/verify_deployment.py --json     # machine-readable
+Usage::
 
-Run it as a deploy gate and/or a scheduled job; a non-zero exit trips
-the existing failed-execution alert.
+    python scripts/verify_deployment.py
+    python scripts/verify_deployment.py --json
 """
+from __future__ import annotations
+
 import argparse
 import json
 import subprocess
 import sys
 
 sys.path.insert(0, "src")
-from nfl_dfs.backtest.engine import (  # noqa: E402
-    DEFAULT_N_BOOM, DEFAULT_N_CE, resolve_generation_budget)
+from nfl_dfs.inference.production_policy import (  # noqa: E402
+    ADOPTED_CLASSIC_POLICY,
+)
 
 REGION = "us-central1"
-# the two paths that actually BUILD lineups
-TARGETS = (("service", "nfl-dfs-app"), ("job", "project-slate"))
+ROLE_FEATURES = ADOPTED_CLASSIC_POLICY.role_features
+
+# Values that may never be injected into the app service. The adopted mapping
+# owns all of them per request, including the labeled CE-only fallback.
+APP_FORBIDDEN = {
+    "GEN_POOL_CAP", "GEN_POOL_CAP_MAP", "GEN_TOTAL_BUDGET",
+    "N_CE", "N_EPISTEMIC", "N_BOOM", "N_GUMBEL",
+    "EPISTEMIC_FAMILY", "ROLE_BELIEF_FEATURES", "ROLE_BELIEF_SEED",
+    "REPLACEMENT_SLOTS", "SELECT_OBJ", "SELECT_LSE",
+}
+
+TARGETS = (
+    ("service", "nfl-dfs-app", {}),
+    ("job", "project-slate", {
+        "MODEL_ENSEMBLE": "1", "MODEL_REGISTRY_VARIANT": "tail_k1",
+        "GAME_SIM_MODE": "possession", "BLEND_MODEL_WEIGHT": "0.45",
+    }),
+    ("job", "train-weekly-k1", {
+        "MODEL_ENSEMBLE": "1", "MODEL_REGISTRY_VARIANT": "tail_k1",
+    }),
+    ("job", "train-weekly-k1-role", {
+        "MODEL_ENSEMBLE": "1", "MODEL_REGISTRY_VARIANT": "tail_k1_role",
+        "EXTRA_FEATURES": ROLE_FEATURES,
+    }),
+    ("job", "shadow-k1-roleunion", {
+        "MODEL_ENSEMBLE": "1", "MODEL_REGISTRY_VARIANT": "tail_k1",
+        "GAME_SIM_MODE": "possession", "GEN_TOTAL_BUDGET": "52",
+        "N_CE": "12", "CE_SEED": "1701", "N_EPISTEMIC": "12",
+        "EPISTEMIC_FAMILY": "role_draws",
+        "ROLE_BELIEF_FEATURES": ROLE_FEATURES,
+        "ROLE_BELIEF_SEED": "7331", "N_GUMBEL": "0", "N_BOOM": "28",
+        "REPLACEMENT_SLOTS": "12", "MIN_LINEUP_SALARY": "49000",
+        "BLEND_MODEL_WEIGHT": "0.45", "LIVE_SIMS": "30000",
+    }),
+)
 
 
 def _env_of(kind: str, name: str) -> dict[str, str] | None:
     if kind == "service":
-        fmt = "value(spec.template.spec.containers[0].env)"
         cmd = ["gcloud", "run", "services", "describe", name,
-               "--region", REGION, "--format", fmt]
+               "--region", REGION, "--format", "json"]
     else:
-        fmt = ("value(spec.template.spec.template.spec.containers[0].env)")
         cmd = ["gcloud", "run", "jobs", "describe", name,
-               "--region", REGION, "--format", fmt]
+               "--region", REGION, "--format", "json"]
     try:
-        out = subprocess.run(cmd, capture_output=True, text=True,
-                             timeout=120)
+        out = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
     except Exception as exc:  # pragma: no cover - network path
         print(f"  {name}: describe failed ({exc})")
         return None
     if out.returncode != 0:
         print(f"  {name}: describe failed: {out.stderr.strip()[:160]}")
         return None
-    env: dict[str, str] = {}
-    for part in out.stdout.split(";"):
-        part = part.strip()
-        if "'name':" in part and "'value':" in part:
-            try:
-                k = part.split("'name':")[1].split("'")[1]
-                v = part.split("'value':")[1].split("'")[1]
-                env[k] = v
-            except IndexError:
-                continue
-    return env
+    try:
+        document = json.loads(out.stdout or "{}")
+    except json.JSONDecodeError:
+        print(f"  {name}: deployment env was not valid JSON")
+        return None
+    if kind == "service":
+        rows = document["spec"]["template"]["spec"]["containers"][0].get(
+            "env", [])
+    else:
+        rows = document["spec"]["template"]["spec"]["template"]["spec"][
+            "containers"][0].get("env", [])
+    return {
+        str(row.get("name")): str(row.get("value", ""))
+        for row in rows if row.get("name")
+    }
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--json", action="store_true")
-    a = ap.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--json", action="store_true")
+    args = parser.parse_args()
 
-    report, failures = [], []
-    for kind, name in TARGETS:
+    report: list[dict] = []
+    failures: list[str] = []
+    for kind, name, expected in TARGETS:
         env = _env_of(kind, name)
         if env is None:
             failures.append(f"{name}: could not read deployment spec")
             continue
-        ce, epi, boom = resolve_generation_budget(env=env)
-        gumbel = int(env.get("N_GUMBEL", "0") or 0)
-        # FULL contract, not just (ce, boom): N_EPISTEMIC=1 alongside
-        # an explicit boom setting could otherwise pass while producing
-        # 41 slots. Research knobs must never appear in production either.
-        forbidden = {k: env[k] for k in (
-            "GEN_POOL_CAP", "GEN_POOL_CAP_MAP", "GEN_TOTAL_BUDGET",
-            "GUMBEL_SEED", "GUMBEL_SCALE", "GUMBEL_MODE",
-            "EPISTEMIC_FAMILY", "ROLE_BELIEF_FEATURES",
-            "ROLE_BELIEF_SEED",
-            "REPLACEMENT_SLOTS") if k in env}
-        problems = []
-        if ce != DEFAULT_N_CE:
-            problems.append(f"N_CE={ce} (want {DEFAULT_N_CE})")
-        if epi != 0:
-            problems.append(f"N_EPISTEMIC={epi} (want 0)")
-        if gumbel != 0:
-            problems.append(f"N_GUMBEL={gumbel} (want 0)")
-        if boom != DEFAULT_N_BOOM:
-            problems.append(f"N_BOOM={boom} (want {DEFAULT_N_BOOM})")
-        effective_total = ce + epi + boom + gumbel
-        if effective_total != DEFAULT_N_CE + DEFAULT_N_BOOM:
-            problems.append(f"total={effective_total} (want 40)")
-        if forbidden:
-            problems.append(f"research overrides present: {forbidden}")
-        ok = not problems
-        row = {"target": name, "kind": kind, "n_ce": ce,
-               "n_epistemic": epi, "n_gumbel": gumbel,
-               "n_boom": boom, "total": effective_total,
-               "ce_seed": int(env.get("CE_SEED", "1701") or 1701),
-               "matches_adopted": ok,
-               "overrides": {k: v for k, v in env.items()
-                             if k in ("N_CE", "N_EPISTEMIC", "N_BOOM",
-                                      "CE_SEED", "N_GUMBEL", "GUMBEL_SEED",
-                                      "GUMBEL_SCALE", "GUMBEL_MODE",
-                                      "EPISTEMIC_FAMILY",
-                                      "ROLE_BELIEF_FEATURES",
-                                      "ROLE_BELIEF_SEED",
-                                      "REPLACEMENT_SLOTS",
-                                      "GEN_TOTAL_BUDGET", "GEN_POOL_CAP")}}
+        problems = [
+            f"{key}={env.get(key)!r} (want {value!r})"
+            for key, value in expected.items() if env.get(key) != value
+        ]
+        if kind == "service":
+            injected = {key: env[key] for key in APP_FORBIDDEN if key in env}
+            if injected:
+                problems.append(f"app research overrides present: {injected}")
+        row = {
+            "target": name, "kind": kind, "matches_adopted": not problems,
+            "expected": expected, "problems": problems,
+        }
         report.append(row)
-        row["problems"] = problems
-        if not ok:
+        if problems:
             failures.append(f"{name}: " + "; ".join(problems))
 
-    if a.json:
-        print(json.dumps({"targets": report, "failures": failures}, indent=2))
+    payload = {
+        "policy_id": ADOPTED_CLASSIC_POLICY.policy_id,
+        "source_panel": ADOPTED_CLASSIC_POLICY.source_panel,
+        "targets": report, "failures": failures,
+    }
+    if args.json:
+        print(json.dumps(payload, indent=2, sort_keys=True))
     else:
-        for r in report:
-            state = "OK " if r["matches_adopted"] else "DRIFT"
-            print(f"  [{state}] {r['target']:<16} CE {r['n_ce']:>2} / "
-                  f"Gumbel {r['n_gumbel']:>2} / boom {r['n_boom']:>2} / "
-                  f"total {r['total']:>2}"
-                  + (f"  overrides={r['overrides']}" if r["overrides"] else ""))
+        print(f"Adopted policy: {payload['policy_id']}")
+        for row in report:
+            state = "OK" if row["matches_adopted"] else "DRIFT"
+            print(f"  [{state:<5}] {row['target']}")
+            for problem in row["problems"]:
+                print(f"          {problem}")
     if failures:
-        print("\nDEPLOYMENT CONTRACT FAILED:")
-        for f in failures:
-            print("  -", f)
         return 1
-    print("\nDeployment contract OK — both lineup paths on the adopted "
-          f"{DEFAULT_N_CE}/{DEFAULT_N_BOOM} budget")
+    print("Deployment contract OK")
     return 0
 
 
