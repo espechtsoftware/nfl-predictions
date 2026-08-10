@@ -98,10 +98,15 @@ agent or developer:
   `replay-lockk3-2019-mf5jk`, `replay-lockk3-2021-b8w7x`,
   `replay-lockk3-2022-zsjcj`, `replay-lockk3-2023-dzhqz`,
   `replay-lockk3-2024-7dqbl`, and `replay-lockk3-2025-n95bb`. K1 2024
-  preflight `replay-lockk1-smoke-zgm9n` is running from the same digest; no
-  K1 season may launch until it succeeds. Both durable manifests are tracked
-  under their `reports/panel-runs/` panel directories. Do not inspect partial
-  scores; monitor only execution state and row completeness.
+  preflight `replay-lockk1-smoke-zgm9n` also passed with the same corrected
+  coverage. Its six executions are `replay-lockk1-2019-65m5t`,
+  `replay-lockk1-2021-qwvqg`, `replay-lockk1-2022-gsddd`,
+  `replay-lockk1-2023-75d9m`, `replay-lockk1-2024-9hlf4`, and
+  `replay-lockk1-2025-nj6sn`. Both durable manifests are tracked under their
+  `reports/panel-runs/` panel directories. Do not inspect partial scores;
+  monitor only execution state and row completeness. Once all twelve are
+  clean, run check-only acceptance on both and compare under the revised
+  240→230→220→210 law before launching CE.
 
 - The operator explicitly revised the operational objective after the valid
   role union improved the same 80-entry portfolio at every 210+ threshold.

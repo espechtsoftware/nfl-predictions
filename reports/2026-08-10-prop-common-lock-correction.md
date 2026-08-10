@@ -120,7 +120,11 @@ completed the full one-week 80-entry path. The six K3 executions are
 `replay-lockk3-2022-zsjcj`, `replay-lockk3-2023-dzhqz`,
 `replay-lockk3-2024-7dqbl`, and `replay-lockk3-2025-n95bb`.
 
-K1 2024 preflight `replay-lockk1-smoke-zgm9n` is running from the same
-digest. Its six-season panel remains launch-gated on a clean success. Durable
-manifests are tracked under the corresponding `reports/panel-runs/` panel
-directories.
+K1 2024 preflight `replay-lockk1-smoke-zgm9n` passed from the same digest and
+reproduced the exact common-lock coverage audit. Its six executions are
+`replay-lockk1-2019-65m5t`, `replay-lockk1-2021-qwvqg`,
+`replay-lockk1-2022-gsddd`, `replay-lockk1-2023-75d9m`,
+`replay-lockk1-2024-9hlf4`, and `replay-lockk1-2025-nj6sn`. Both control
+panels are now fully launched. Durable manifests are tracked under the
+corresponding `reports/panel-runs/` panel directories; do not inspect partial
+scores.
