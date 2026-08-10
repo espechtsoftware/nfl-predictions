@@ -193,8 +193,11 @@ agent or developer:
   `scripts/cloud_corrected_extreme_selector.sh`; thirteen focused selector,
   union and portfolio tests pass, along with compilation, shell parsing and
   whitespace validation. Implementation/protocol commit `177c113` is pushed;
-  exact-tree build `604b1496-5bc2-406f-9565-dd41c6870c96` is `WORKING`. No
-  corrected selector score has been queried.
+  exact-tree build `604b1496-5bc2-406f-9565-dd41c6870c96` passed 740 tests
+  with 2 skipped and produced immutable digest
+  `sha256:370695d6f576b6d71d770b4a0f9fa6745376167600188a481db51e9eedc34fce`.
+  Use that digest for the eventual selector confirmation. No corrected
+  selector score has been queried.
 - The operator supplied an outside strategy review. Its reconciled,
   repository-verified disposition is tracked in
   `reports/2026-08-10-strategy-review-reconciliation.md`. The useful new

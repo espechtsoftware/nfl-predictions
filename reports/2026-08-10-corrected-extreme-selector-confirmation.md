@@ -51,3 +51,11 @@ below it, matching the operator's documented objective.
 No selector parameter, threshold, ordering, source pool or retry may change
 after the corrected score result is read. A valid rejection leaves the
 prospective 2026 shadow in place but does not change the Week 1 UI policy.
+
+## Validated implementation
+
+Exact-tree Cloud Build `604b1496-5bc2-406f-9565-dd41c6870c96` passed 740
+tests with 2 skipped and produced immutable digest
+`sha256:370695d6f576b6d71d770b4a0f9fa6745376167600188a481db51e9eedc34fce`.
+No confirmation execution has run; the source remains blocked on the
+corrected generator chain.
