@@ -1,7 +1,8 @@
 # K=1 CE role-belief candidate experiment
 
 Preregistered 2026-08-10 before either treatment panel was launched or any
-treatment outcome was inspected.
+treatment outcome was inspected. Completed with a valid union rejection; the
+fixed treatment was correctly not launched.
 
 ## Decision context
 
@@ -124,3 +125,44 @@ approved pilot should start with a small volume/role market set and a fixed
 credit ceiling. Route share, target share, alignment, and coverage fields
 from the Fantasy Points Data Suite are the higher-priority paid-data trial
 because they address the observed WR/TE generation misses more directly.
+
+## Union result and disposition
+
+All six exact executions completed successfully. Comparator execution
+`compare-k1-role-panel-ps9mx` ran on validated immutable digest
+`sha256:a410648bc20b10ec65e7ca49a2bc67108771067136259d73fad65f8cdb72087f`.
+Its tracked report has zero mechanical failures:
+
+- 107 aligned slates and all 25,787 source rosters retained;
+- 1,269 novel role rosters, with exactly 12 role-tagged candidates on every
+  slate before cross-generator deduplication;
+- all 25,787 common actual scores, simulated means, p-line values and support
+  masks invariant;
+- all 50,098 player snapshot rows materially invariant (maximum numeric
+  difference `3.55e-15`); and
+- 795 selected role rows, with 990 selections changed in each direction.
+
+The role generator reached a new realized slate frontier on 11 weeks, with a
+maximum gain of 32.52 points. It improved an already-high 2019 week 3 oracle
+from 212.84 to 241.14 and week 5 from 265.14 to 279.44. But it created **zero**
+new 200-point weeks on slates whose source oracle was below 200; the frozen
+union gate required at least two.
+
+| Expanded union diagnostic | Source | Union |
+|---|---:|---:|
+| Selected >=187 / 194 / 200 | 40 / 26 / 18 | 39 / 27 / 18 |
+| Selected >=210 / 220 / 230 / 240 | 11 / 5 / 2 / 1 | 12 / 6 / 3 / 2 |
+| Oracle >=200 / 210 / 220 / 230 / 240 | 22 / 13 / 5 / 2 / 1 | 22 / 13 / 6 / 3 / 2 |
+| Mean / median weekly max | 181.12 / 178.64 | 182.57 / 179.22 |
+
+Machine disposition is `reject`, with `role_new_200_weeks_at_least_2=false`.
+The union is added-budget and never adoptable. Per the preregistration, panel
+`20260810-e80-k1-ce12-role12-c616390` is not launched, and the exact historical
+role arm closes without a dose/seed/gate retry.
+
+The 220/230/240 gains are a legitimate prospective clue under the operator's
+extreme-tail utility, but they were observed before any fixed replacement
+test and cannot be converted into a post-result historical gate. If role
+belief is revisited, it must be a separately frozen live shadow using new
+2026 outcomes or genuinely new route/role inputs—not a fixed-panel launch from
+this failed gate.

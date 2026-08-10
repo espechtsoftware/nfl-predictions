@@ -67,6 +67,18 @@ agent or developer:
   200/210/220/230/240 all nonworse; a novel role frontier; and full mechanical
   validity. Mean, 187/194 counts, and season signs are diagnostics, not vetoes.
   No parameter retry is allowed after a valid rejection.
+- All six union seasons completed cleanly and immutable comparator execution
+  `compare-k1-role-panel-ps9mx` returned a mechanically valid `reject` with
+  zero failures. The union retained all 25,787 source rosters, added 1,269
+  novel role rosters, held every common score/support value invariant, and
+  reached 11 role-specific realized frontiers. However, it created zero new
+  200-point weeks on slates whose source oracle was below 200 (required two),
+  so the fixed panel is not launched and this exact historical arm is closed.
+  The nonadoptable added-budget union moved selected
+  210/220/230/240 `11/5/2/1→12/6/3/2`, oracle
+  `13/5/2/1→13/6/3/2`, and mean `181.12→182.57`; this is only a prospective
+  extreme-tail clue. Tracked report and execution are under
+  `reports/panel-runs/20260810-e80-k1-ce12-roleunion-c616390/`.
 - New guarded runner/comparator scripts and focused tests are implemented.
   The comparator proves feature/common-world invariance, exact seed/lever
   identity, union containment, fixed pool equality, source CE preservation,
@@ -192,11 +204,12 @@ agent or developer:
   freezers preserve their early/late commands and 1 CPU / 1Gi settings. All
   eight shadow/freezer schedulers remain PAUSED on the original Sunday CT
   schedules. No job was executed, and the adopted app was not changed.
-- Exact next action: wait for all six exact union executions, run the union
-  comparator on immutable digest `sha256:a410648b...`, and commit its JSON and
-  Cloud Run execution. Launch the fixed arm only if that tracked union gate
-  passes. In parallel, commit/build the pass-participation diagnostic and run
-  its single frozen cloud gate from the resulting validated digest.
+- Exact next action: do not launch the failed role fixed arm. Use the passed
+  pass-participation purchase gate to verify a sub-$200 full 2022-2025 route
+  CSV contract, while collecting the already-deployed v5 prospective books
+  when the season begins. Any further historical scoring arm requires a new
+  preregistered mechanism or genuinely new input, not another selector/dose
+  search on these 107 outcomes.
 
 ## Previous state — 2026-08-09 21:05 CDT
 

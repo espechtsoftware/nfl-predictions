@@ -26,11 +26,16 @@ preregistered historical or prospective gate passes.
   lost substantial tails in prior valid tests. These are closed, not new
   opportunities.
 
-## Priority 1 — finish the frozen role-belief panel
+## Priority 1 — frozen role-belief panel completed and closed
 
-Complete the union and, only if its role-specific 200-point oracle gate
-passes, the equal-budget fixed panel. Do not tune the seed, six inputs, dose,
-or gate after outcomes. This is the only active historical scoring arm.
+The valid union created 1,269 novel role rosters and 11 realized frontier
+weeks, but zero new 200-point weeks on slates whose source oracle was below
+200. It therefore failed the frozen requirement of two and the equal-budget
+fixed panel was not launched. The added-budget union improved selected
+210/220/230/240 from `11/5/2/1` to `12/6/3/2`, which is a prospective
+extreme-tail clue rather than an adoptable result. Do not tune the seed, six
+inputs, dose, or historical gate. Reopen only with new live outcomes or the
+genuinely new route/role inputs below.
 
 ## Priority 2 — acquire route/role data if the historical export is usable
 
