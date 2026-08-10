@@ -313,6 +313,14 @@ agent or developer:
   grouped 59-column schema and exact hashes in the intake report; the same
   strict prior-season restriction applies. No further Fantasy Points download
   is currently requested.
+- Before any Advanced value was joined to a target-season outcome, one narrow
+  prior-season player-tail diagnostic was frozen in
+  `reports/2026-08-10-fantasy-points-prior-season-advanced-tail.md`. It joins
+  only season N-1 to target season N, uses fixed process-trait blocks for
+  QB/RB/WR-TE, and evaluates 2024/2025 30-point Brier with position/fold
+  safeguards. Outcome-blind coverage is 60.27%--66.87% across the required
+  position/fold cells. Implement the exact hash-locked parser and diagnostic;
+  no target-season aggregate, field subset or model retry is permitted.
 - Corrected CE12 completed all 107 slates with season counts
   `17/18/18/18/18/18`, 25,766 candidate rows and exactly 8,560 selected rows.
   All six authoritative executions completed cleanly. Check-only acceptance
