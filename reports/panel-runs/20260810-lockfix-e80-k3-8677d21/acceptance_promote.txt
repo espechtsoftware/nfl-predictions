@@ -48,11 +48,11 @@ generator shares (candidate / selected / exclusive):
   VERDICT: PROCEED to Workstream A (reranker)
 ACCEPTANCE PASSED — panel eligible for promotion
 Traceback (most recent call last):
-  File "/app/scripts/harvest_accept.py", line 533, in <module>
+  File "/app/scripts/harvest_accept.py", line 608, in <module>
     raise SystemExit(main())
                      ^^^^^^
-  File "/app/scripts/harvest_accept.py", line 518, in main
-    query_df(f"""
+  File "/app/scripts/harvest_accept.py", line 592, in main
+    query_df(_promotion_schema_sql(settings.predictions))
   File "/app/src/nfl_dfs/bq.py", line 82, in query_df
     return client().query(sql, job_config=job_config).to_dataframe()
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -100,8 +100,8 @@ Traceback (most recent call last):
              ^^^^^^^^
   File "/usr/local/lib/python3.11/site-packages/google/cloud/_http/__init__.py", line 494, in api_request
     raise exceptions.from_http_response(response)
-google.api_core.exceptions.BadRequest: 400 GET https://bigquery.googleapis.com/bigquery/v2/projects/nfl-predictions-503414/queries/d8330b06-c6a9-48c5-9b22-8eb68db08984?maxResults=0&location=US&prettyPrint=false: Query error: Inserted row has wrong column count; Has 44, expected 42 at [4:13]
+google.api_core.exceptions.BadRequest: 400 GET https://bigquery.googleapis.com/bigquery/v2/projects/nfl-predictions-503414/queries/3de1d536-565b-4035-b628-54419eaee1b9?maxResults=0&location=US&prettyPrint=false: Exceeded rate limits: too many table update operations for this table. For more information, see https://docs.cloud.google.com/bigquery/troubleshooting-errors at [5:1]
 Location: US
-Job ID: d8330b06-c6a9-48c5-9b22-8eb68db08984
+Job ID: 3de1d536-565b-4035-b628-54419eaee1b9
 Container called exit(1).
 

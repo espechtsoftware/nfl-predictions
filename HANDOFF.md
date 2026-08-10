@@ -210,6 +210,17 @@ agent or developer:
   acceptance tests, compilation and whitespace checks pass locally. Build a
   fresh validation image, retry only K3 promotion from the unchanged staging
   panel, then resume K1 check and comparison; do not rerun generation.
+- Repair build `a49f788a-9135-48a9-977b-3aebf7364712` passed 743 tests with
+  2 skipped and produced digest
+  `sha256:3f1aabf90065150e787c53fb5233741657c3b5219a2f231b444db899b8e14593`.
+  Retry execution `accept-replay-panel-c6zpv` repeated the full K3 acceptance
+  pass but failed before DML because BigQuery counts each of the repair's 44
+  `ALTER TABLE IF NOT EXISTS` statements toward its table-update rate limit.
+  Accepted candidates/snapshots still remain at zero. The superseding repair
+  now reads the existing schema and performs one schema API update containing
+  only missing fields, retaining the explicit name-aligned transactional
+  insert. Validate a new image and retry promotion after the metadata-rate
+  cooldown; do not reuse `c6zpv` or rerun generation.
 - K1 check-only acceptance subsequently passed in
   `accept-replay-panel-9qw7z`: 25,766 candidates, the same 50,098 immutable
   player rows, and complete parity/legality/artifact checks. Its selected

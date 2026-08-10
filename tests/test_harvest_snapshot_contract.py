@@ -88,12 +88,17 @@ def test_candidate_count_contract_allows_declared_multiple_four_only():
 
 
 def test_promotion_sql_is_schema_additive_and_name_aligned():
-    schema_sql = accept._promotion_schema_sql("project.dataset")
     insert_sql = accept._promotion_insert_sql(
         "project.dataset", "panel-safe")
 
-    assert "ADD COLUMN IF NOT EXISTS `clear_bits_210` STRING" in schema_sql
-    assert "ADD COLUMN IF NOT EXISTS `clear_bits_220` STRING" in schema_sql
+    existing = {name for name, _ in accept.PROMOTION_SCHEMA} - {
+        "clear_bits_210", "clear_bits_220"}
+    assert accept._missing_promotion_fields(existing) == (
+        ("clear_bits_210", "STRING"),
+        ("clear_bits_220", "STRING"),
+    )
+    assert accept._missing_promotion_fields(
+        {name for name, _ in accept.PROMOTION_SCHEMA}) == ()
     assert "INSERT INTO `project.dataset.replay_candidates` (" in insert_sql
     assert "TRUE AS `research_eligible`" in insert_sql
     assert "SELECT *" not in insert_sql

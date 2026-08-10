@@ -27,7 +27,7 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, "src")
-from nfl_dfs.bq import query_df  # noqa: E402
+from nfl_dfs.bq import client as bq_client, query_df  # noqa: E402
 from nfl_dfs.config import settings  # noqa: E402
 from nfl_dfs.research.candidate_features import (  # noqa: E402
     FEATURE_DEF_VERSION)
@@ -91,12 +91,35 @@ PROMOTION_SCHEMA = (
 )
 
 
-def _promotion_schema_sql(dataset: str) -> str:
-    """Add every known nullable candidate field without changing old data."""
-    table = f"`{dataset}.{RESEARCH}`"
-    return "\n".join(
-        f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS `{name}` {data_type};"
-        for name, data_type in PROMOTION_SCHEMA)
+def _missing_promotion_fields(existing_names: set[str]
+                              ) -> tuple[tuple[str, str], ...]:
+    """Return known candidate fields absent from an older accepted table."""
+    return tuple(
+        field for field in PROMOTION_SCHEMA if field[0] not in existing_names)
+
+
+def _ensure_promotion_schema(dataset: str) -> tuple[str, ...]:
+    """Apply all missing nullable fields in one BigQuery table update.
+
+    BigQuery counts each DDL ALTER as a table update even when
+    ``IF NOT EXISTS`` makes it a no-op.  A complete 44-statement migration can
+    therefore hit the metadata rate limit before reaching the actually new
+    fields.  The schema API performs one update containing only missing
+    fields.
+    """
+    from google.cloud import bigquery
+
+    client = bq_client()
+    table = client.get_table(f"{dataset}.{RESEARCH}")
+    missing = _missing_promotion_fields(
+        {field.name for field in table.schema})
+    if not missing:
+        return ()
+    table.schema = list(table.schema) + [
+        bigquery.SchemaField(name, data_type, mode="NULLABLE")
+        for name, data_type in missing]
+    client.update_table(table, ["schema"])
+    return tuple(name for name, _ in missing)
 
 
 def _promotion_insert_sql(dataset: str, panel_run_id: str) -> str:
@@ -589,7 +612,7 @@ def main() -> int:
             LIKE `{settings.predictions}.{STAGING}`""")
         # Older accepted tables predate the 210/220 masks now persisted in
         # staging.  Additive migration is safe for prior nullable rows.
-        query_df(_promotion_schema_sql(settings.predictions))
+        _ensure_promotion_schema(settings.predictions)
         # research_eligible is FALSE in staging by construction; the
         # promotion is what makes rows eligible.
         # Both target and source columns are named explicitly.  This remains
