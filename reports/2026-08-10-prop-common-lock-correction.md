@@ -1,7 +1,7 @@
 # Historical prop common-lock correction
 
-Status: point-in-time defect confirmed and reader correction validated;
-immutable K3/K1 true-80 revalidation is in progress.
+Status: point-in-time defect corrected; immutable K3/K1 controls completed,
+K1 adopted, and corrected CE12 rejected under the active tail-first law.
 
 ## Defect
 
@@ -140,3 +140,22 @@ reproduced the exact common-lock coverage audit. Its six executions are
 panels are now fully launched. Durable manifests are tracked under the
 corresponding `reports/panel-runs/` panel directories; do not inspect partial
 scores.
+
+All twelve control executions subsequently completed cleanly. Canonical
+acceptance passed for both controls, and the frozen comparison selected K1:
+its exact-80 187/194/200/210/220/230/240 grid is
+`34/21/11/7/4/2/1` versus K3's `25/18/8/3/1/1/1`. Corrected K1 is the
+accepted incumbent.
+
+Corrected CE12 then completed all 107 slates. Check-only acceptance execution
+`accept-replay-panel-55vrb` passed with 25,766 candidate rows, 50,098 player
+rows, exact 80 selections per slate, and zero parity/legality/artifact
+failures. Frozen comparator execution
+`compare-corrected-k1-ce-panel-s98dc` had zero mechanism failures. CE12 moved
+the selected grid to `37/25/13/6/3/1/1` and mean weekly best
+`178.9327→179.4993`, but lost one 230+, 220+, and 210+ week. It therefore
+fails the preregistered 240→230→220→210 law at the first non-tied threshold
+and is not promoted. Its original fixed 200 diagnostic also fails because
+210 is worse despite the 200 count improving by two. Exact output is tracked
+under
+`reports/panel-runs/20260810-lockfix-e80-k1-ce12-8677d21/`.

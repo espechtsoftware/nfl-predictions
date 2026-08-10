@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 15:14 CDT
+## Current state — 2026-08-10 15:38 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -297,15 +297,41 @@ agent or developer:
   download caveat are recorded in the intake report. All four Target Share
   exports now pass at 647/621/625/637 rows with exact hashes in the intake
   report. All four Defense PROE exports also pass at 32 unique defenses and
-  exact hashes recorded in the intake report. Advanced Receiving is now the
-  only requested family still absent from the repository-local intake
-  directory.
-- Corrected CE12 remains healthy and partial; no score has been queried. At
-  15:05 CDT its completeness-only slate counts were 2019=17, 2021=18,
-  2022=15, 2023=15, 2024=18 and 2025=17, with exactly 80 selected rows for
-  every written slate and no error-level logs. Continue monitoring to
-  17/18/18/18/18/18, then run check-only acceptance and the corrected
-  comparator digest above.
+  exact hashes recorded in the intake report. Advanced Receiving Player
+  exports now pass at 545/517/528/526 rows with 63 common columns and exact
+  hashes recorded in the intake report. They are full-season aggregates, not
+  weekly histories, so they are eligible only as strict prior-season inputs.
+  The known 2022 Brock Wright split requires count-aware coalescing. The
+  separately named Defense Advanced Receiving files remain 32-team season
+  aggregates and are not accepted as player history. Advanced Rushing Player
+  season exports are the next requested optional family; do not request its
+  Offense/Defense team views.
+- Corrected CE12 completed all 107 slates with season counts
+  `17/18/18/18/18/18`, 25,766 candidate rows and exactly 8,560 selected rows.
+  All six authoritative executions completed cleanly. Check-only acceptance
+  `accept-replay-panel-55vrb` passed candidate/feature parity, legality,
+  artifacts and exact-80 structure. Its selected 187/194/200 grid is
+  `37/25/13` and the panel is mechanically eligible for comparison. Frozen
+  K1-versus-CE12 comparison execution
+  `compare-corrected-k1-ce-panel-s98dc` completed from immutable image digest
+  `sha256:d4566a1031efd391ece5758dd294cd01069e5dae3d4f1bee5c04f0af6ec13b33`
+  with zero mechanical failures. CE12 moved selected
+  187/194/200/210/220/230/240 from K1's `34/21/11/7/4/2/1` to
+  `37/25/13/6/3/1/1` and mean weekly best `178.9327→179.4993`; its pool
+  oracle moved `41/28/16/9/4/2/1→44/30/17/9/3/1/1`. It therefore loses at
+  the first non-tied active threshold (230) and also at 220/210. Frozen
+  tail-first disposition is `reject`; do not promote CE12. Corrected K1
+  remains the accepted incumbent. CE's rejection does not measure the
+  distinct role-belief generator; freeze any direct K1+role test before
+  generating or reading a corrected role outcome.
+- At approximately 15:18 CDT, an operational recent-log check on the final
+  running 2022 CE execution unintentionally surfaced the already-written Week
+  16 and Week 17 best-score log lines before the panel was complete. No gate,
+  comparator, code, candidate construction, or planned next action was changed
+  after that accidental exposure; all CE decision rules and the immutable
+  comparator image had already been frozen. Do not use those two partial
+  values for any decision and do not query further execution logs; monitor
+  only status and row completeness until 107/107.
 - Before joining any paid Route Share value to an outcome, the exact first
   paid-data diagnostic was frozen in
   `reports/2026-08-10-fantasy-points-route-share-experiment.md`. It normalizes
@@ -383,9 +409,14 @@ agent or developer:
   reproduction all pass. Two focused evaluator tests plus 43 related tests
   pass; compilation, shell parsing and whitespace checks are clean. No Route
   lineup exists. Audit-complete generator build
-  `6c96b5bb-5958-4b17-bf1a-7ec2bdcfc9d1` from commit `aa087b8` is running;
-  it predates only the evaluator/runner and remains valid for generation if
-  the full suite passes. Build a later comparator image before evaluation.
+  `6c96b5bb-5958-4b17-bf1a-7ec2bdcfc9d1` from commit `aa087b8` passed 751
+  tests with 2 skipped and produced immutable generation digest
+  `sha256:b907bc6242d6b872cf10e4ff9ea59e56d89a1b99861780007eb767636a97041c`.
+  Evaluator build `cff83915-db3e-4576-b547-090f8c1cac0a` from commit
+  `c94c0e6` also passed and produced immutable comparison digest
+  `sha256:d4566a1031efd391ece5758dd294cd01069e5dae3d4f1bee5c04f0af6ec13b33`.
+  Do not launch Route generation until the corrected CE/role chain chooses
+  its incumbent.
 - One corrected-history selector confirmation is now frozen before either
   corrected control outcome is read:
   `reports/2026-08-10-corrected-extreme-selector-confirmation.md`. After the

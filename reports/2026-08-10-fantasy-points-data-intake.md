@@ -195,6 +195,34 @@ rather than as different players.
 | 2024 | 625 | 6,818 | `c9719fcada009cdd18f6d69b62f0cc390cb8a786d949d613dc683bc4b843f4c1` |
 | 2025 | 637 | 6,884 | `257f752d8cae71ac057335148d2eb4a733cfd06a99a96b07966afcb1d9ca74f8` |
 
+### Advanced Receiving family validation
+
+The first attempted 2022 export (SHA-256
+`8951a30802e93bc602c07f63fd3a43107f42a15bd1dbb97775c7dd11687b1356`)
+was a 32-team season aggregate and was subsequently replaced. The four stable
+files below are the correct **Player** view. They share a 63-column schema with
+player/team/position identity plus route participation, air-yard, target,
+first-read, alignment, efficiency, fantasy-point and expected-fantasy-point
+fields. Every row has the declared season and a consistent CSV width.
+
+| Season | Rows | SHA-256 |
+|---:|---:|---|
+| 2022 | 545 | `28a0c4d19cb1578c0d3eb36bea84f971ae1e645c72d784915b031b1f3fec4313` |
+| 2023 | 517 | `38a4424f952b62250e6dd721f34b1b95de4704d01686f41aa242ba39fcc6510f` |
+| 2024 | 528 | `c656488c84fa3a90d536690546d9a5dee42cd5c3ac8683d1c1b67166a6195753` |
+| 2025 | 526 | `354648754659d2308b32b3c3b5ab9dd2423608ae82820c07b664edea93b81974` |
+
+These reports remain full-regular-season aggregates (`G` reaches 16--17 and
+there is no week column). They may be evaluated only as a prior-season/career
+prior; using a season's final values for a slate within that same season would
+leak future games. The weekly Route/Target/Snap files remain the primary
+same-season point-in-time sources. The known Brock Wright 2022 vendor split
+also appears here as two DET rows (8 and 9 games); any prior-season importer
+must coalesce additive counts and recompute rates rather than choosing one row
+or adding already-normalized rates. The separately named Defense Advanced
+Receiving exports are still 32-team season aggregates and are not accepted as
+player history.
+
 ## Importer gate
 
 Do not freeze a *general multi-report* normalized schema or importer until at
