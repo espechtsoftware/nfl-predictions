@@ -11,7 +11,11 @@ preregistered historical or prospective gate passes.
   only four nonredundant recoverable 200-point weeks.
 - Among 68 known Millionaire winners, the accepted pool misses 36 player slots
   on 28 weeks. WR and TE account for 23 of the 36, and the omitted players
-  average +13.30 points above their pre-lock projection.
+  average +13.30 points above their pre-lock projection. Those omitted slots
+  average $4,128 salary and 5.88% realized ownership, with 61.1% below 5%;
+  covered winner slots average $5,644 and 13.88%. Eleven misses are fast-role
+  players and six are vacancy/promotions. This supports better cheap-player
+  role beliefs, not another generic ownership-score penalty.
 - Fast role growth and vacancy/promotion beat same-slate, same-position
   matched controls in every season. Their existing TabPFN tails are already
   reasonably calibrated, so a generic variance increase is unlikely to be

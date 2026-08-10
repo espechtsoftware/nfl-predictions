@@ -35,6 +35,11 @@ agent or developer:
   7.82 projected. The pool has an unselected weekly maximum on 25/107 slates,
   but only four nonredundant unselected oracles clear 200, so another flexible
   selector search is not justified on the same 107 outcomes.
+- The 36 omitted winner slots average $4,128 salary and 5.88% realized
+  ownership, with 61.1% below 5%, versus $5,644 and 13.88% for covered winner
+  slots. Eleven misses are fast-role players and six are vacancy/promotions.
+  Treat this as support for better cheap-player role inputs; the already
+  rejected generic ownership-scoring arm remains closed.
 - The existing point-in-time breakout analysis was run on the final accepted
   snapshots and persisted 27,266 same-slate/same-position matched pairs to
   `nfl_predictions.archetype_matched_pairs`. Fast-role-rise players produced
