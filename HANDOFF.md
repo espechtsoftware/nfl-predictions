@@ -200,6 +200,17 @@ agent or developer:
   acceptance tests, compilation and whitespace checks pass locally. Build a
   fresh validation image, retry only K3 promotion from the unchanged staging
   panel, then resume K1 check and comparison; do not rerun generation.
+- K1 check-only acceptance subsequently passed in
+  `accept-replay-panel-9qw7z`: 25,766 candidates, the same 50,098 immutable
+  player rows, and complete parity/legality/artifact checks. Its selected
+  187/194/200/210/220/230/240 grid is `34/21/11/7/4/2/1`, mean weekly maximum
+  `178.9327`, and pool-oracle grid `41/28/16/9/4/2/1`. The corresponding K3
+  selected grid is `25/18/8/3/1/1/1`, mean `175.5402`, and oracle grid
+  `38/22/12/5/1/1/1`. K1 therefore provisionally wins the revised high-to-low
+  law at the first non-tied threshold (230), while tying at 240 and improving
+  every lower reported threshold. Still require the frozen ensemble mechanism
+  comparator after schema-safe K3 promotion before promoting K1 or launching
+  CE.
 - One corrected-history selector confirmation is now frozen before either
   corrected control outcome is read:
   `reports/2026-08-10-corrected-extreme-selector-confirmation.md`. After the

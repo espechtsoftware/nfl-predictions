@@ -1,0 +1,54 @@
+rows: 25,766  slates: 107
+=== REPLAY/LIVE MEAN PARITY ===
+{
+  "blend_max_abs_error": 0.0,
+  "candidate_mean_max_abs_error": 2.309054056581772e-05,
+  "candidate_mean_p95_abs_error": 1.2562028043561213e-05,
+  "candidate_rows": 25766,
+  "covered_offense_rows": 10891,
+  "duplicate_feature_keys": 0,
+  "feature_rows": 50098,
+  "missing_candidate_slates": 0,
+  "missing_roster_players": 0,
+  "passes": true,
+  "slates": 107,
+  "uncovered_max_abs_error": 0.0,
+  "uncovered_offense_rows": 36801
+}
+=== ACCEPTANCE REPORT (plan §6) ===
+definition version: cf-1.0.0
+  >=187: selected  34  pool-oracle  41  recoverable   7
+  >=194: selected  21  pool-oracle  28  recoverable   7
+  >=200: selected  11  pool-oracle  16  recoverable   5
+by season (selected / oracle clears at 194):
+        slates  sel194  orc194  mean_sel  mean_regret
+season                                               
+2019      17.0     6.0    10.0     193.0          3.5
+2021      18.0     2.0     4.0     176.5          3.2
+2022      18.0     4.0     4.0     176.4          1.4
+2023      18.0     4.0     4.0     179.4          1.8
+2024      18.0     3.0     3.0     174.8          0.2
+2025      18.0     2.0     3.0     174.3          1.9
+RECOVERABLE WEEKS (7):
+ season  week  sel_best  oracle  regret  oracle_simrank oracle_tag
+   2019     6    190.50  204.44   13.94              79        lev
+   2019    10    185.94  201.14   15.20             201        lev
+   2019    14    180.04  198.54   18.50             103        lev
+   2019    15    190.36  200.36   10.00             160        lev
+   2021     4    193.60  215.38   21.78             118      qbvar
+   2021    18    178.82  194.12   15.30             173        lev
+   2025     9    187.60  202.50   14.90              48        lev
+oracle sim-rank: median 85 of median pool 241; oracle already selected 79.4%
+corr(sim-rank, regret): all +0.261  |  oracle-unselected only +0.174
+generator shares (candidate / selected / exclusive):
+  boom     cand  16.6%  sel  45.9%  exclusive  16.6%
+  dark     cand   3.4%  sel   7.3%  exclusive   2.8%
+  game     cand   5.0%  sel   8.4%  exclusive   3.9%
+  lev      cand  66.4%  sel  28.1%  exclusive  62.6%
+  qbvar    cand  13.3%  sel  13.9%  exclusive  10.0%
+=== §6.1 DECISION GATE (preregistered) ===
+  recoverable weeks 7 (need >=4), spread over 3 seasons (need >=3)
+  VERDICT: PROCEED to Workstream A (reranker)
+ACCEPTANCE PASSED — panel eligible for promotion
+Container called exit(0).
+
