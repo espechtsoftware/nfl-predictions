@@ -91,8 +91,10 @@ agent or developer:
   2022-2025 CSV exports are confirmed; requested fields and the walk-forward
   player-tail -> union-oracle -> fixed-budget gates are frozen there. A later
   Odds API pilot is capped to three volume markets and 20,000 credits. The
-  zero-tuning deterministic one-swap refinement is prospective-shadow-only,
-  and deep generative dependence work is deferred until more field data exist.
+  zero-tuning deterministic one-swap refinement is now implemented as a sixth
+  early/late frozen book under `tail-first-v3-20260810`; it is
+  prospective-shadow-only and cannot affect the adopted/UI portfolio. Deep
+  generative dependence work is deferred until more field data exist.
 - Exact next action: wait for all six exact union executions, run the union
   comparator on immutable digest `sha256:a410648b...`, and commit its JSON and
   Cloud Run execution. Launch the fixed arm only if that tracked union gate

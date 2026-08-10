@@ -98,10 +98,10 @@ approved.
   data has winner rosters but not the old top-20 fields, so this cannot be
   reconstructed honestly.
 - Shadow the already-defined deterministic lexicographic one-swap portfolio
-  refinement prospectively. It recovered the 2021 week-4 215.38 pool oracle
-  in an outcome-viewed diagnostic, which is insufficient for historical
-  adoption but enough to justify a zero-tuning shadow. Grade it only after
-  frozen real outcomes accumulate.
+  refinement prospectively as frozen policy `tail-first-v3-20260810`. It
+  recovered the 2021 week-4 215.38 pool oracle in an outcome-viewed diagnostic,
+  which is insufficient for historical adoption but enough to justify a
+  zero-tuning shadow. Grade it only after frozen real outcomes accumulate.
 - Use real large-field ownership to simulate opponent portfolios and payout,
   not merely to add another ownership penalty to our score. Optimization
   research supports maximizing the chance at least one lineup wins under a

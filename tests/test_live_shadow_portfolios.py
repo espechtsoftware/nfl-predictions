@@ -10,6 +10,7 @@ from nfl_dfs.research.live_shadow_portfolios import (
     EXPECTED_ENTRIES,
     K1_COVERAGE,
     K1_NOFLOOR_COVERAGE,
+    K1_REFINED,
     K1_TOP_P,
     K3_COVERAGE,
     MIX_20_60,
@@ -94,7 +95,7 @@ def test_builds_frozen_top_p_and_duplicate_backfilled_mix():
     )
     assert set(memberships.portfolio_id) == {
         K1_COVERAGE, K1_TOP_P, K1_NOFLOOR_COVERAGE,
-        K3_COVERAGE, MIX_20_60}
+        K1_REFINED, K3_COVERAGE, MIX_20_60}
     counts = memberships.groupby("portfolio_id").size()
     assert counts.eq(EXPECTED_ENTRIES).all()
     assert not memberships.groupby("portfolio_id").roster_key.apply(
@@ -102,6 +103,11 @@ def test_builds_frozen_top_p_and_duplicate_backfilled_mix():
 
     top = memberships[memberships.portfolio_id.eq(K1_TOP_P)]
     assert top.sort_values("portfolio_entry_rank").cand_ix.tolist() == \
+        list(range(80))
+    refined = memberships[memberships.portfolio_id.eq(K1_REFINED)]
+    assert refined.selection_method.eq(
+        "coverage194_one_swap_lexicographic").all()
+    assert refined.sort_values("portfolio_entry_rank").cand_ix.tolist() == \
         list(range(80))
     nofloor = memberships[
         memberships.portfolio_id.eq(K1_NOFLOOR_COVERAGE)]
@@ -171,11 +177,11 @@ def test_scores_frozen_memberships_and_fails_on_missing_actual():
         "actual": 1.0,
     })
     grades = score_portfolios(memberships, actuals)
-    assert len(grades) == 5
+    assert len(grades) == 6
     assert grades.n_entries.eq(80).all()
     assert grades.weekly_max.eq(9.0).all()
     summary = summarize_grades(grades)
-    assert len(summary) == 5
+    assert len(summary) == 6
     assert summary.ge_200.eq(0).all()
     assert summary.mean_weekly_max.eq(9.0).all()
     with pytest.raises(ValueError, match="missing actuals"):

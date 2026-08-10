@@ -1,10 +1,11 @@
 """Freeze and grade prospective tail-first live portfolios.
 
 The K=1/K=3 shadow jobs persist complete candidate pools before lock.  This
-module turns those immutable inputs into five explicitly frozen 80-entry
+module turns those immutable inputs into six explicitly frozen 80-entry
 books without regenerating a slate or consulting outcomes:
 
 * K=1 production coverage at 194 (research control)
+* K=1 coverage followed by deterministic outcome-blind one-swap refinement
 * K=1 top individual ``p_line`` (the leading selector hypothesis)
 * K=1 no-salary-floor coverage at 194 (post-result prospective shadow)
 * K=3 production coverage at 194 (same-time stability reference)
@@ -26,18 +27,19 @@ import pandas as pd
 
 from ..config import settings
 from ..optimizer.lineup import select_from_support
-from .tail_portfolio import decode_clear_bits
+from .tail_portfolio import decode_clear_bits, refine_one_swap
 
 log = logging.getLogger(__name__)
 
 PORTFOLIO_TABLE = "live_shadow_portfolios"
 GRADE_TABLE = "live_shadow_grades"
-POLICY_VERSION = "tail-first-v2-20260809"
+POLICY_VERSION = "tail-first-v3-20260810"
 EXPECTED_ENTRIES = 80
 SELECT_LINE = 194.0
 SLOT_HOURS = {"early": 10, "late": 11}
 
 K1_COVERAGE = "tail_k1_coverage194"
+K1_REFINED = "tail_k1_coverage194_one_swap"
 K1_TOP_P = "tail_k1_top_p"
 K1_NOFLOOR_COVERAGE = "tail_k1_nofloor_coverage194"
 K3_COVERAGE = "tail_k3_coverage194"
@@ -249,7 +251,7 @@ def build_portfolios(
     snapshot_slot: str,
     frozen_at: datetime | None = None,
 ) -> pd.DataFrame:
-    """Build all five predeclared books from complete candidate pools."""
+    """Build all six predeclared books from complete candidate pools."""
     if snapshot_slot not in SLOT_HOURS:
         raise ValueError(f"unknown shadow snapshot slot {snapshot_slot!r}")
     k1 = validate_shadow_panel(k1_rows, "tail_k1")
@@ -275,6 +277,18 @@ def build_portfolios(
     k1_nofloor_control = k1_nofloor_order[:EXPECTED_ENTRIES]
     k3_control = k3_coverage_order[:EXPECTED_ENTRIES]
     k1_top = k1_rank_order[:EXPECTED_ENTRIES]
+    n_worlds = int(pd.to_numeric(k1.n_worlds, errors="raise").iloc[0])
+    k1_support = np.stack([
+        decode_clear_bits(value, n_worlds) for value in k1.clear_bits_194
+    ])
+    k1_refined, refinement_trace = refine_one_swap(
+        k1_support,
+        pd.to_numeric(k1.p_line, errors="raise").to_numpy(dtype=float),
+        pd.to_numeric(k1.sim_mean, errors="raise").to_numpy(dtype=float),
+        k1_control,
+    )
+    log.info("K1 one-swap refinement completed with %d swaps",
+             len(refinement_trace))
 
     # Preserve the declared 20 K=1 / 60 K=3 allocation. K=1 is the fixed
     # anchor; walk farther down K=3's own complete coverage order whenever a
@@ -301,6 +315,11 @@ def build_portfolios(
             portfolio_id=K1_COVERAGE, source_model="tail_k1",
             selection_method="coverage194", source_quota=80,
             snapshot_slot=snapshot_slot, frozen_at=stamp),
+        _portfolio_rows(
+            k1, k1_refined, portfolio_run_id=portfolio_run_id,
+            portfolio_id=K1_REFINED, source_model="tail_k1",
+            selection_method="coverage194_one_swap_lexicographic",
+            source_quota=80, snapshot_slot=snapshot_slot, frozen_at=stamp),
         _portfolio_rows(
             k1, k1_top, portfolio_run_id=portfolio_run_id,
             portfolio_id=K1_TOP_P, source_model="tail_k1",
@@ -590,7 +609,8 @@ def grade(*, write: bool = False) -> pd.DataFrame:
         control = pivot[K1_COVERAGE]
         print("\nPAIRED >=200 GAINS/LOSSES VS K=1 COVERAGE")
         for portfolio_id in (
-                K1_TOP_P, K1_NOFLOOR_COVERAGE, MIX_20_60, K3_COVERAGE):
+                K1_REFINED, K1_TOP_P, K1_NOFLOOR_COVERAGE,
+                MIX_20_60, K3_COVERAGE):
             if portfolio_id not in pivot:
                 continue
             challenger = pivot[portfolio_id]
