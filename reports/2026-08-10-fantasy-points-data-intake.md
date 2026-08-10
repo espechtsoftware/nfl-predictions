@@ -35,6 +35,7 @@ available offensive positions, clear player filters, and prefer CSV. Acquire
 | Advanced Rushing | rushing process and expected-points priors | validated | validated | validated | validated |
 | Advanced Passing | QB process and efficiency priors | validated | validated | validated | validated |
 | Receiving Man vs. Zone | coverage-shell receiving priors | validated | validated | validated | validated |
+| Receiving Separation by Routes | route-specific separation priors | validated | validated | validated | validated |
 
 Do not bulk-add these fields to production. The frozen evaluation remains:
 walk-forward player residual/tail calibration, then candidate-union oracle
@@ -321,6 +322,31 @@ consistent with dividing full QB fantasy production by that route rather
 than measuring receiving fantasy production. Low-route skill-player split
 rates are also unstable, so minimum route support must be frozen before a
 diagnostic.
+
+### Receiving Separation by Routes family validation
+
+All four files are clean two-row grouped exports with 95 columns. They contain
+Player Details and Overall fields followed by Slant, Out, In/Dig, Hitch,
+Comeback, Corner, Post, Go, Crossers, Screens, Flat and Backfield blocks.
+Route blocks expose route count/share, separation score, YPRR, TPRR, win rate
+and (where applicable) average depth of route. All populated cells parse
+numerically; blank split metrics are expected when a player did not run or
+qualify for a route type. Unlike Man-vs.-Zone, these exports already omit QB
+rows and contain RB/FB/WR/TE only.
+
+| Season | Rows | SHA-256 |
+|---:|---:|---|
+| 2022 | 540 | `a8d238e918f6aa78758b2bafbcdf7b28e07288b689cad30aed0c56d66ebb5d6c` |
+| 2023 | 513 | `dd43d574f07f23f658571c1874cc8d3bbf4aee6660493b75c7f77934f21b4153` |
+| 2024 | 522 | `82b36444dddda6ca22bb4ccec39f0562fc8093ca38db5c42fffd7c3b7aae39fa` |
+| 2025 | 519 | `e0f9e709dbbba2e195e82a0155a3be22ce36744b9c2001ae444403c6fdf8c49e` |
+
+The known 2022 Brock Wright split is the only duplicate identity group. These
+are full-season aggregates and can be used only as season N-1 priors. The
+large sparse route grid is acquisition evidence, not permission to search
+route types against outcomes. Any later diagnostic must freeze a small
+football-motivated feature block and minimum route-count support in advance;
+the files do not alter the active Advanced diagnostic.
 
 ## Importer gate
 
