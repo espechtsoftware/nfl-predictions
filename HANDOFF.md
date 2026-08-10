@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 10:22 CDT
+## Current state — 2026-08-10 11:20 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -78,10 +78,8 @@ agent or developer:
   unique priced player-weeks in 2023/2024/2025 with zero duplicates. Eleven
   focused market tests pass, including London/1 p.m./late/SNF cutoff, exact-
   lock exclusion, latest-valid selection, TD-only, no-prop and alias cases.
-  Implementation is not yet citable until exact-tree Cloud Build and replay
-  smoke pass. Exact next action: commit/push, run full Cloud Build plus the
-  immutable one-week replay smoke, then launch corrected true-80 K3/K1
-  controls.
+  Exact-tree Cloud Build and both immutable one-week replay smokes passed;
+  the validated digest and durable execution IDs are recorded below.
 - Revalidation runner `scripts/prop_lock_rebaseline.sh` freezes the corrected
   panel chain and 2024 preflight: K3
   `20260810-lockfix-e80-k3-8677d21`, K1
@@ -110,7 +108,8 @@ agent or developer:
 - `scripts/prop_lock_finish_controls.sh` now freezes that completion sequence:
   K3 check→promote, K1 check, then the existing ensemble mechanism comparator
   at exact 80 entries. It deliberately leaves K1 in staging for an explicit
-  corrected tail-first decision. Shell parsing and `git diff --check` pass.
+  corrected tail-first decision. Shell parsing and `git diff --check` pass;
+  the wrapper and handoff are pushed on `main` at `b6d4d38`.
 
 - The operator explicitly revised the operational objective after the valid
   role union improved the same 80-entry portfolio at every 210+ threshold.
