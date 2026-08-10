@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 16:10 CDT
+## Current state — 2026-08-10 09:30 CDT
 
-### Tail-first law revised; role-union promotion implementation in validation
+### Tail-first law revised; role-union v2 adopted and live
 
 - The operator explicitly revised the operational objective after the valid
   role union improved the same 80-entry portfolio at every 210+ threshold.
@@ -56,17 +56,39 @@ agent or developer:
   policy. A new isolated weekly role training job, early/late role-union
   shadow jobs, and two role-union freezer books are defined. Prospective
   freezer policy is `tail-first-v6-20260810` with eleven books.
-- Targeted production/model/app/shadow/freezer validation is green. The
-  selected six-file run passed all tests, including an offline 80-lineup
-  role-union build and a labeled baseline-fallback test. Python compilation,
-  shell parsing and `git diff --check` pass. Full Cloud Build, immutable image
-  deployment, role-registry smoke, app smoke, and paused-scheduler audit are
-  still required before the new policy is live; the currently deployed Cloud
-  Run revision still serves v1.
+- Branch `main`; implementation commits `031c0c1` and `75c8791` are pushed.
+  Exact-tree Cloud Build `ab7073fa-a53b-4253-a481-9e47c150c7cd` passed `724`
+  tests with `2` skipped in 353.27 seconds. The deployable immutable image is
+  `sha256:41de2eaee84bb9eb72b07b6a96b35b7223951e4fa0c979780dd703b1c11d7349`.
+  An earlier green build `3ca9d329-e5ce-44d3-be5b-ecbf381f7aec` is not the
+  final tree and must not be deployed. Focused offline validation includes a
+  real 80-lineup role-union build and the labeled CE-only fallback; Python
+  compilation, shell parsing, deployment-contract validation, and
+  `git diff --check` are green.
+- Isolated role training execution `train-weekly-k1-role-zhd7w` completed
+  successfully in 3m25.78s and registered all 11 K=1 component models as
+  `pooled/components__tail_k1_role/2026-W33`. A read-back check proved that
+  every component contains the exact six frozen role fields, while baseline
+  `pooled/components__tail_k1/2026-W32` excludes them. Both registries report
+  ensemble size one.
+- Cloud Run service `nfl-dfs-app` now serves v2 from ready revision
+  `nfl-dfs-app-00065-v8d`, with 100% traffic on the exact validated digest.
+  Startup logs are clean. Existing IAP correctly redirects an unauthenticated
+  `/health` request to Google sign-in, so the real authenticated
+  UI -> 80 lineups -> DKEntries check remains a first-live-slate task rather
+  than bypassing IAP. The complete offline live-builder path already passed.
+- Jobs `train-weekly`, `train-weekly-k1`, `train-weekly-k1-role`,
+  `project-slate`, `shadow-k1`, `shadow-k1-nofloor`, `shadow-k3`,
+  `shadow-k1-roleunion`, `freeze-tail-early`, and `freeze-tail-late` are all
+  pinned to the same exact digest. `scripts/verify_deployment.py --json`
+  reports zero contract failures. The three new schedules
+  `s-train-k1-role`, `s-shadow-k1-roleunion-early`, and
+  `s-shadow-k1-roleunion-late` target the intended jobs and use the existing
+  compute service account. All 17 seasonal schedulers are `PAUSED`; year-round
+  ingestion, backups, scoring, trends, and freshness jobs were not changed.
 
-- Branch `main`; the live adopted policy remains unchanged at
-  `classic-k1-ce12-boom28-v1` from accepted panel
-  `20260809-e80-k1-ce12-c616390`. Its true-80 selected weekly-max counts at
+- The predecessor/fallback `classic-k1-ce12-boom28-v1` comes from accepted
+  panel `20260809-e80-k1-ce12-c616390`. Its true-80 selected weekly-max counts at
   187/194/200/210/220/230/240 remain `40/26/18/11/5/2/1`; mean/median are
   `181.1243/178.64`, and pool-oracle counts are `47/32/22/13/5/2/1`.
 - A fresh accepted-panel audit found that the pool omits 36 of 612 player
@@ -113,11 +135,13 @@ agent or developer:
   novel role rosters, held every common score/support value invariant, and
   reached 11 role-specific realized frontiers. However, it created zero new
   200-point weeks on slates whose source oracle was below 200 (required two),
-  so the fixed panel is not launched and this exact historical arm is closed.
-  The nonadoptable added-budget union moved selected
+  so the equal-budget fixed panel was not launched and remains closed. The
+  originally rejected added-budget union moved selected
   210/220/230/240 `11/5/2/1→12/6/3/2`, oracle
-  `13/5/2/1→13/6/3/2`, and mean `181.12→182.57`; this is only a prospective
-  extreme-tail clue. Tracked report and execution are under
+  `13/5/2/1→13/6/3/2`, and mean `181.12→182.57`. That machine disposition is
+  preserved, but the operator's documented tail-first override adopts the
+  mechanically valid union because these are direct gains in the stated
+  tournament objective. Tracked report and execution are under
   `reports/panel-runs/20260810-e80-k1-ce12-roleunion-c616390/`.
 - New guarded runner/comparator scripts and focused tests are implemented.
   The comparator proves feature/common-world invariance, exact seed/lever
@@ -231,26 +255,27 @@ agent or developer:
   lexicographically at 220→210→200. The implementation validates nested masks,
   deterministic priority/tiebreaks, 80 unique rosters and old 194 selection
   reproduction. Thirty-five combined selector/persistence/participation tests
-  pass locally. No generator/freezer job has been changed to this unvalidated
-  code; v4 digest `sha256:9d02ecc3...` remains the deployed paused freezer.
+  pass locally. This mechanism was subsequently retained in the eleven-book
+  `tail-first-v6-20260810` policy alongside two role-union books.
   Implementation commit `d1c9318` is pushed on `main`; full validation build
   `9e3e6c14-f70a-4f8d-9863-7120c5fae74f` passed 721 tests with 2 skipped and
   produced immutable digest
   `sha256:75daf1607c2f08197d1357c10702434161b1093cff2a21e8cdc7ca7d5bcdf95c`.
-  Only the three paused shadow generators and two paused freezers were
-  repinned to it. Generators now record `CODE_SHA=d1c9318` and preserve their
-  exact command, registry/K, possession mode, generator quotas, salary floor,
-  45/55 blend, 30,000 worlds, 4 CPU / 8Gi, retry and timeout settings;
-  freezers preserve their early/late commands and 1 CPU / 1Gi settings. All
-  eight shadow/freezer schedulers remain PAUSED on the original Sunday CT
-  schedules. No job was executed, and the adopted app was not changed.
-- Exact next action: commit the v2 role-union implementation, run the complete
-  Cloud Build, then pin/deploy only the app, project job, role/base training,
-  four shadow generators, and two freezers to the validated immutable digest.
-  Train and verify `tail_k1_role`, run the exact live builder smoke, and keep
-  every seasonal scheduler paused. After promotion, return to the passed
-  sub-$200 route-data purchase gate and new mechanism queue; do not tune the
-  role seed, six fields, or 12-candidate dose on these 107 outcomes.
+  That digest is historical. The four paused shadow generators and two paused
+  freezers now use the final v2 digest recorded above; the original three
+  generators record `CODE_SHA=75c8791` and preserve their exact command,
+  registry/K, possession mode, generator quotas, salary floor, 45/55 blend,
+  30,000 worlds, 4 CPU / 8Gi, retry and timeout settings. Freezers preserve
+  their early/late commands and 1 CPU / 1Gi settings. All ten shadow/freezer
+  schedulers remain PAUSED. No off-season shadow or freezer was executed.
+- Exact next action: keep all 17 seasonal schedules paused until the Aug 24
+  resume date. On the first real Sunday-main slate, run the authenticated
+  UI -> 80 lineups -> DKEntries smoke and confirm v2 provenance; deliberately
+  exercise and label the CE-only fallback in a controlled smoke. In parallel,
+  continue the passed sub-$200 true-route-data purchase gate and the frozen
+  prospective 11-book selector program. New historical experiments must use
+  the revised tail-first law; do not tune the role seed, six fields, or
+  12-candidate dose on these 107 outcomes.
 
 ## Previous state — 2026-08-09 21:05 CDT
 

@@ -29,7 +29,7 @@ mechanically valid arm when an older score gate conflicts with that utility.
   lost substantial tails in prior valid tests. These are closed, not new
   opportunities.
 
-## Priority 1 — promote the role union under the revised operator policy
+## Priority 1 — role union promoted under the revised operator policy
 
 The valid union created 1,269 novel role rosters and 11 realized frontier
 weeks, but zero new 200-point weeks on slates whose source oracle was below
@@ -38,10 +38,10 @@ fixed panel remains unlaunched. The operator has now made an explicit
 tail-first policy override: the same 80 final entries improved selected
 210/220/230/240 from `11/5/2/1` to `12/6/3/2`, improved paired weekly maxima
 on 15 slates versus 6 declines, and raised mean weekly maximum by 1.448.
-Policy `classic-k1-ce12-role12-boom28-v2` should replace the current policy
-after the separately trained role registry and live path reproduce the exact
-frozen mechanism. Do not tune the seed, six inputs, or dose. The prior policy
-remains the fail-safe implementation until live parity passes.
+Policy `classic-k1-ce12-role12-boom28-v2` replaced the prior policy on
+2026-08-10 after the separately trained role registry and live path reproduced
+the exact frozen mechanism. Do not tune the seed, six inputs, or dose. The
+prior policy remains the labeled fail-safe implementation.
 
 ## Priority 2 — acquire route/role data if the historical export is usable
 

@@ -76,12 +76,12 @@ gave no adoption credit for improving already-high weeks from 212.84 to
 241.14 and 265.14 to 279.44.
 
 The operator therefore overrides the operational decision, not the
-scientific record. Policy `classic-k1-ce12-role12-boom28-v2` is the Week 1
-promotion candidate. It retains the prior candidate pool and adds the exact
-frozen 12 role-belief candidates before selecting the same 80 entries. The
-old K1 CE12 + boom28 implementation remains the fallback until the separate
-role model registry and live candidate path pass their parity/deployment
-checks.
+scientific record. Policy `classic-k1-ce12-role12-boom28-v2` is adopted for
+Week 1. It retains the prior candidate pool and adds the exact frozen 12
+role-belief candidates before selecting the same 80 entries. Its separate
+role registry and live candidate path passed parity/deployment checks on
+2026-08-10; the old K1 CE12 + boom28 implementation remains a labeled
+runtime fallback.
 
 ## Revisited older rejections
 
