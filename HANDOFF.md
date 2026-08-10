@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 16:20 CDT
+## Current state — 2026-08-10 16:25 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -51,9 +51,14 @@ agent or developer:
   compilation, shell parsing and whitespace checks are clean. Outcome-blind
   audit-only import found 3,772 source rows, 3,771 normalized rows, 3,705
   resolved normalized rows, 64 unresolved source rows, two ambiguous source
-  rows and one coalesced duplicate group. Next create the private raw table
-  with the guarded first write, verify idempotence, build the exact commit,
-  and run the diagnostic once from its immutable digest.
+  rows and one coalesced duplicate group. The guarded first write created
+  private table `nfl_raw.fantasy_points_advanced_prior` with all 3,771 rows;
+  a second write returned `already-identical` without mutation. Direct
+  family/season verification found the expected twelve unique source hashes,
+  3,705 resolved rows and only the known split duplicate. Exact-commit Cloud
+  Build `cfe28aad-21be-4de0-9bcb-d90ff28c7ddc` from tree `755a216` is
+  running. If it passes, resolve its immutable digest and run the guarded
+  diagnostic exactly once.
 - `fantasy-points/qbCoverageMatchupExport.csv` was validated as a clean
   37-QB/32-column grouped export, SHA-256
   `888d31272b16b921af50fdeec0bcf20ed526873443495c4983079842a1b83c32`.
@@ -71,6 +76,16 @@ agent or developer:
   plus one current WR Coverage Matchup snapshot. These are acquisition-only;
   none is licensed for a model, diagnostic or lineup arm until its schema and
   point-in-time availability are inspected and a distinct protocol is frozen.
+- All four Receiving Man-vs.-Zone exports are now validated and hash-locked at
+  commit `ded9344`: 545/517/528/526 rows in 2022--2025 with identical grouped
+  Overall/Man/Zone/Single-High/Two-High schemas. They are season aggregates
+  and therefore strict N-1 priors only. A vendor semantic defect makes QB
+  `FP/RR` unusable (one receiving route paired with full QB fantasy scores as
+  high as 336.46); any future treatment must exclude QB, freeze minimum route
+  support before outcomes, and use a separate protocol. The files are not
+  added to the already-frozen Advanced diagnostic. Continue acquisition with
+  Separation by Coverage, Alignment, Routes and Route Breaks, then one
+  current prospective WR Coverage Matchup snapshot.
 
 - Optimization has resumed with one new point-in-time information path rather
   than another selector sweep on the same 107 outcomes. Protocol
