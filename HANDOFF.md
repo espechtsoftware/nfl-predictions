@@ -69,16 +69,26 @@ agent or developer:
   tests pass; both shell scripts parse, the comparator compiles, and
   `git diff --check` is clean. The Docker image now explicitly packages the
   comparator.
+- Preregistration/runner commit `c02cded` is pushed on `main`. Full validation
+  build `35ec292e-94ea-48b2-8597-23292b77dbd3` is running from that commit and
+  will produce tagged comparator image `nfl-dfs:c02cded` only after the entire
+  suite passes.
+- Union preflight `replay-e80k1ru-smoke-l4fjb` passed on the frozen generation
+  digest. The six exact asynchronous union executions are
+  `replay-e80k1ru-2019-kn4jf`, `replay-e80k1ru-2021-6sj8b`,
+  `replay-e80k1ru-2022-6n9gr`, `replay-e80k1ru-2023-t5r9v`,
+  `replay-e80k1ru-2024-zg8lx`, and `replay-e80k1ru-2025-wtsxz`. Their immutable
+  manifest is tracked under
+  `reports/panel-runs/20260810-e80-k1-ce12-roleunion-c616390/`. Do not inspect
+  partial scores or infer status from a job's latest execution.
 - No Odds API historical quota was spent. Official historical player props
   are potentially useful from May 2023 onward, but route/target/alignment data
   is a more direct paid-data lead for the observed WR/TE misses. Any quota
   backfill remains a separately approved, credit-capped experiment.
-- Exact next action: commit/push this preregistration, run the full Cloud Build,
-  then launch the union on immutable generation digest
-  `sha256:98a31edd1921660df6c4f0c9d606e0096ea703ffe250ccc650af706e06798fd6`
-  / code `c616390`. Record the preflight and all six exact execution IDs,
-  wait for all of them, run the new comparator on the new immutable audit
-  image, and launch the fixed arm only if the tracked union JSON passes.
+- Exact next action: wait for all six exact union executions and build
+  `35ec292e-94ea-48b2-8597-23292b77dbd3`; resolve the immutable comparator
+  digest, run the union comparator, and commit its JSON/Cloud Run execution.
+  Launch the fixed arm only if that tracked union gate passes.
 
 ## Previous state — 2026-08-09 21:05 CDT
 

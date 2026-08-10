@@ -100,6 +100,17 @@ signs are reported but are not vetoes. This matches the operator's stated
 preference for the best weekly lineup over average score or uniform
 season-level stability. There is no parameter retry after a rejection.
 
+## Execution status
+
+Preregistration commit `c02cded` was pushed before launch. The union's 2022
+one-week preflight `replay-e80k1ru-smoke-l4fjb` passed on the frozen generation
+digest. The six immutable season executions are
+`replay-e80k1ru-2019-kn4jf`, `replay-e80k1ru-2021-6sj8b`,
+`replay-e80k1ru-2022-6n9gr`, `replay-e80k1ru-2023-t5r9v`,
+`replay-e80k1ru-2024-zg8lx`, and `replay-e80k1ru-2025-wtsxz`.
+No partial union score may be inspected. Full comparator validation build
+`35ec292e-94ea-48b2-8597-23292b77dbd3` is running independently.
+
 ## Additional data path, separate from this test
 
 The Odds API officially offers historical player props from May 2023 and
