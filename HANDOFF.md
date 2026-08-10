@@ -95,6 +95,12 @@ agent or developer:
   early/late frozen book under `tail-first-v3-20260810`; it is
   prospective-shadow-only and cannot affect the adopted/UI portfolio. Deep
   generative dependence work is deferred until more field data exist.
+- One-swap implementation commit `b90047b` is pushed on `main`; 14 focused
+  shadow/refinement tests pass. Full validation/deployment build
+  `7ab5a1e2-1994-4ec5-8ac8-a188669b54c5` is queued. If it passes, redeploy only
+  the paused `freeze-tail-early` and `freeze-tail-late` jobs to its immutable
+  digest and preserve their schedules/paused state; no live app deploy is
+  required for this research-only addition.
 - Exact next action: wait for all six exact union executions, run the union
   comparator on immutable digest `sha256:a410648b...`, and commit its JSON and
   Cloud Run execution. Launch the fixed arm only if that tracked union gate
