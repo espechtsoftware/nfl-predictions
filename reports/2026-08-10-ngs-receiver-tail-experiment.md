@@ -135,3 +135,17 @@ show that separation is already active, while the usage/efficiency tables
 already provide the other two. The implementation was corrected before any
 result so both arms receive those exact existing fields. The test now asks
 only whether cross-season NGS history plus cushion/YACOE adds residual value.
+
+## Result
+
+Execution `ngs-receiver-tail-diagnostic-nkb2h` completed successfully from
+the immutable corrected diagnostic image after K1 check-only acceptance. The
+mechanism had excellent candidate-weighted coverage (97.43% in 2024 and
+98.25% in 2025) over 2,936 held-out player-weeks, but failed every predictive
+gate. Aggregate 30-point Brier worsened `0.0230785→0.0231012`, 20-point Brier
+worsened `0.0912537→0.0914343`, and residual MAE worsened
+`5.65602→5.66138`; 30-point Brier also worsened in 2025. The disposition is
+`ngs-receiver-tail-gate-fails`. No lineup arm is licensed, and the five NGS
+fields are closed as a pre-Week-1 scoring path without a parameter retry.
+This does not reverse the separate true-route-data purchase signal because
+complete route volume/opportunity is not measured by these NGS descriptors.

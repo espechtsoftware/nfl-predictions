@@ -1,0 +1,389 @@
+{
+  "aggregate": {
+    "control_brier_20": 0.09125366156139317,
+    "control_brier_30": 0.02307851283982059,
+    "control_mae": 5.656018039984956,
+    "fold": "aggregate",
+    "rows": 2936,
+    "tail_20_rate": 0.11376021798365123,
+    "tail_30_rate": 0.023841961852861037,
+    "treatment_brier_20": 0.09143434385835861,
+    "treatment_brier_30": 0.023101197222804765,
+    "treatment_mae": 5.661375940728019
+  },
+  "calibration_deciles": [
+    {
+      "actual_rate": 0.01020408163265306,
+      "arm": "control",
+      "decile": 0,
+      "mean_probability": 0.020229918387548104,
+      "rows": 294,
+      "threshold": 20
+    },
+    {
+      "actual_rate": 0.03741496598639456,
+      "arm": "control",
+      "decile": 1,
+      "mean_probability": 0.033167399862781825,
+      "rows": 294,
+      "threshold": 20
+    },
+    {
+      "actual_rate": 0.04778156996587031,
+      "arm": "control",
+      "decile": 2,
+      "mean_probability": 0.043497794983978884,
+      "rows": 293,
+      "threshold": 20
+    },
+    {
+      "actual_rate": 0.030612244897959183,
+      "arm": "control",
+      "decile": 3,
+      "mean_probability": 0.054912941415646774,
+      "rows": 294,
+      "threshold": 20
+    },
+    {
+      "actual_rate": 0.05460750853242321,
+      "arm": "control",
+      "decile": 4,
+      "mean_probability": 0.06898882440129626,
+      "rows": 293,
+      "threshold": 20
+    },
+    {
+      "actual_rate": 0.1054421768707483,
+      "arm": "control",
+      "decile": 5,
+      "mean_probability": 0.08842025095390603,
+      "rows": 294,
+      "threshold": 20
+    },
+    {
+      "actual_rate": 0.09897610921501707,
+      "arm": "control",
+      "decile": 6,
+      "mean_probability": 0.11595330101498408,
+      "rows": 293,
+      "threshold": 20
+    },
+    {
+      "actual_rate": 0.19047619047619047,
+      "arm": "control",
+      "decile": 7,
+      "mean_probability": 0.15415870460678333,
+      "rows": 294,
+      "threshold": 20
+    },
+    {
+      "actual_rate": 0.22525597269624573,
+      "arm": "control",
+      "decile": 8,
+      "mean_probability": 0.20946563142325272,
+      "rows": 293,
+      "threshold": 20
+    },
+    {
+      "actual_rate": 0.336734693877551,
+      "arm": "control",
+      "decile": 9,
+      "mean_probability": 0.3489000197734767,
+      "rows": 294,
+      "threshold": 20
+    },
+    {
+      "actual_rate": 0.017006802721088437,
+      "arm": "treatment",
+      "decile": 0,
+      "mean_probability": 0.020875782461814964,
+      "rows": 294,
+      "threshold": 20
+    },
+    {
+      "actual_rate": 0.03741496598639456,
+      "arm": "treatment",
+      "decile": 1,
+      "mean_probability": 0.034015921616213196,
+      "rows": 294,
+      "threshold": 20
+    },
+    {
+      "actual_rate": 0.034129692832764506,
+      "arm": "treatment",
+      "decile": 2,
+      "mean_probability": 0.04409099149739709,
+      "rows": 293,
+      "threshold": 20
+    },
+    {
+      "actual_rate": 0.04081632653061224,
+      "arm": "treatment",
+      "decile": 3,
+      "mean_probability": 0.05492908341587727,
+      "rows": 294,
+      "threshold": 20
+    },
+    {
+      "actual_rate": 0.05802047781569966,
+      "arm": "treatment",
+      "decile": 4,
+      "mean_probability": 0.0690026831057288,
+      "rows": 293,
+      "threshold": 20
+    },
+    {
+      "actual_rate": 0.08843537414965986,
+      "arm": "treatment",
+      "decile": 5,
+      "mean_probability": 0.08786721357104672,
+      "rows": 294,
+      "threshold": 20
+    },
+    {
+      "actual_rate": 0.11604095563139932,
+      "arm": "treatment",
+      "decile": 6,
+      "mean_probability": 0.11658059064080063,
+      "rows": 293,
+      "threshold": 20
+    },
+    {
+      "actual_rate": 0.19387755102040816,
+      "arm": "treatment",
+      "decile": 7,
+      "mean_probability": 0.15582895290096568,
+      "rows": 294,
+      "threshold": 20
+    },
+    {
+      "actual_rate": 0.23208191126279865,
+      "arm": "treatment",
+      "decile": 8,
+      "mean_probability": 0.21345439782466977,
+      "rows": 293,
+      "threshold": 20
+    },
+    {
+      "actual_rate": 0.3197278911564626,
+      "arm": "treatment",
+      "decile": 9,
+      "mean_probability": 0.3567271605876682,
+      "rows": 294,
+      "threshold": 20
+    },
+    {
+      "actual_rate": 0.003401360544217687,
+      "arm": "control",
+      "decile": 0,
+      "mean_probability": 0.00284510423880789,
+      "rows": 294,
+      "threshold": 30
+    },
+    {
+      "actual_rate": 0.003401360544217687,
+      "arm": "control",
+      "decile": 1,
+      "mean_probability": 0.0049056858856153605,
+      "rows": 294,
+      "threshold": 30
+    },
+    {
+      "actual_rate": 0.006825938566552901,
+      "arm": "control",
+      "decile": 2,
+      "mean_probability": 0.006994773279776259,
+      "rows": 293,
+      "threshold": 30
+    },
+    {
+      "actual_rate": 0.006802721088435374,
+      "arm": "control",
+      "decile": 3,
+      "mean_probability": 0.00945271480488058,
+      "rows": 294,
+      "threshold": 30
+    },
+    {
+      "actual_rate": 0.0,
+      "arm": "control",
+      "decile": 4,
+      "mean_probability": 0.012999186984240973,
+      "rows": 293,
+      "threshold": 30
+    },
+    {
+      "actual_rate": 0.01020408163265306,
+      "arm": "control",
+      "decile": 5,
+      "mean_probability": 0.01863039768909475,
+      "rows": 294,
+      "threshold": 30
+    },
+    {
+      "actual_rate": 0.027303754266211604,
+      "arm": "control",
+      "decile": 6,
+      "mean_probability": 0.02802636643746926,
+      "rows": 293,
+      "threshold": 30
+    },
+    {
+      "actual_rate": 0.023809523809523808,
+      "arm": "control",
+      "decile": 7,
+      "mean_probability": 0.0410344736944692,
+      "rows": 294,
+      "threshold": 30
+    },
+    {
+      "actual_rate": 0.07167235494880546,
+      "arm": "control",
+      "decile": 8,
+      "mean_probability": 0.06345219718261833,
+      "rows": 293,
+      "threshold": 30
+    },
+    {
+      "actual_rate": 0.08503401360544217,
+      "arm": "control",
+      "decile": 9,
+      "mean_probability": 0.14084707178650605,
+      "rows": 294,
+      "threshold": 30
+    },
+    {
+      "actual_rate": 0.003401360544217687,
+      "arm": "treatment",
+      "decile": 0,
+      "mean_probability": 0.0028694277214363567,
+      "rows": 294,
+      "threshold": 30
+    },
+    {
+      "actual_rate": 0.003401360544217687,
+      "arm": "treatment",
+      "decile": 1,
+      "mean_probability": 0.005003734546618836,
+      "rows": 294,
+      "threshold": 30
+    },
+    {
+      "actual_rate": 0.006825938566552901,
+      "arm": "treatment",
+      "decile": 2,
+      "mean_probability": 0.007054302400071396,
+      "rows": 293,
+      "threshold": 30
+    },
+    {
+      "actual_rate": 0.003401360544217687,
+      "arm": "treatment",
+      "decile": 3,
+      "mean_probability": 0.0093341764449644,
+      "rows": 294,
+      "threshold": 30
+    },
+    {
+      "actual_rate": 0.0034129692832764505,
+      "arm": "treatment",
+      "decile": 4,
+      "mean_probability": 0.01286694236268004,
+      "rows": 293,
+      "threshold": 30
+    },
+    {
+      "actual_rate": 0.01020408163265306,
+      "arm": "treatment",
+      "decile": 5,
+      "mean_probability": 0.01866844568554601,
+      "rows": 294,
+      "threshold": 30
+    },
+    {
+      "actual_rate": 0.027303754266211604,
+      "arm": "treatment",
+      "decile": 6,
+      "mean_probability": 0.027781805373816977,
+      "rows": 293,
+      "threshold": 30
+    },
+    {
+      "actual_rate": 0.030612244897959183,
+      "arm": "treatment",
+      "decile": 7,
+      "mean_probability": 0.04080115735402752,
+      "rows": 294,
+      "threshold": 30
+    },
+    {
+      "actual_rate": 0.06143344709897611,
+      "arm": "treatment",
+      "decile": 8,
+      "mean_probability": 0.06324644382245322,
+      "rows": 293,
+      "threshold": 30
+    },
+    {
+      "actual_rate": 0.08843537414965986,
+      "arm": "treatment",
+      "decile": 9,
+      "mean_probability": 0.13940153093882313,
+      "rows": 294,
+      "threshold": 30
+    }
+  ],
+  "disposition": "ngs-receiver-tail-gate-fails",
+  "folds": [
+    {
+      "control_brier_20": 0.09740884498499638,
+      "control_brier_30": 0.024464083394484522,
+      "control_mae": 5.904706307249284,
+      "fold": "2024",
+      "rows": 1503,
+      "tail_20_rate": 0.11842980705256155,
+      "tail_30_rate": 0.024617431803060547,
+      "treatment_brier_20": 0.09745308262918403,
+      "treatment_brier_30": 0.024424759947059397,
+      "treatment_mae": 5.910405758308219
+    },
+    {
+      "control_brier_20": 0.0847978062329384,
+      "control_brier_30": 0.02162525914571041,
+      "control_mae": 5.395181706629561,
+      "fold": "2025",
+      "rows": 1433,
+      "tail_20_rate": 0.10886252616887648,
+      "tail_30_rate": 0.023028611304954642,
+      "treatment_brier_20": 0.0851215983087769,
+      "treatment_brier_30": 0.021712980352913133,
+      "treatment_mae": 5.400181372812428
+    }
+  ],
+  "gate": {
+    "aggregate_brier_20_not_worse": false,
+    "aggregate_brier_30_improves": false,
+    "aggregate_mae_not_worse": false,
+    "at_least_1000_rows_each_fold": true,
+    "candidate_weighted_coverage_at_least_70pct": true,
+    "no_fold_brier_30_worse_over_1pct": true
+  },
+  "ngs_feature_missingness": {
+    "ngs_avg_cushion_l4": 0.04757699525333922,
+    "ngs_avg_intended_air_yards_l4": 0.04757699525333922,
+    "ngs_avg_separation_l4": 0.04757699525333922,
+    "ngs_avg_yac_above_expectation_l4": 0.04812893255326195,
+    "ngs_percent_share_of_intended_air_yards_l4": 0.04757699525333922
+  },
+  "panel_id": "20260810-lockfix-e80-k1-8677d21",
+  "source_audit": {
+    "candidate_rows": 25766,
+    "ngs_rows_downloaded": 14731,
+    "rows_with_prior_ngs": 8628,
+    "snapshot_rows": 9059
+  },
+  "weighted_coverage": {
+    "2024": 0.9742889433038237,
+    "2025": 0.9824792765636775
+  }
+}

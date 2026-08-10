@@ -1,0 +1,5 @@
+run_id=20260810-ngs-receiver-v1
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:fe380648b9a146a95b8c4d942c484979b50f95762f16a277d704151106a82374
+panel=20260810-lockfix-e80-k1-8677d21
+history_seasons=2016-2025
+held_out=2024 2025

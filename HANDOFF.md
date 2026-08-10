@@ -178,6 +178,16 @@ agent or developer:
   tests with 2 skipped and produced immutable digest
   `sha256:fe380648b9a146a95b8c4d942c484979b50f95762f16a277d704151106a82374`.
   Only that digest may run the NGS job after corrected K1 acceptance.
+- Frozen execution `ngs-receiver-tail-diagnostic-nkb2h` subsequently
+  completed cleanly after K1 check-only acceptance and returned
+  `ngs-receiver-tail-gate-fails`. Coverage was 97.43%/98.25% in 2024/2025
+  over 2,936 held-out player-weeks, but aggregate 30-point Brier worsened
+  `0.0230785→0.0231012`, 20-point Brier worsened
+  `0.0912537→0.0914343`, and residual MAE worsened `5.65602→5.66138`.
+  No NGS lineup arm is licensed and no field/regularization/window retry is
+  allowed. This does not negate the distinct passed true-route purchase
+  diagnostic, because these NGS descriptors do not measure route volume or
+  first-read opportunity.
 - All twelve corrected-control executions completed cleanly. Both K3 and K1
   now contain 107/107 slates and exactly 8,560 selected rows (80 per slate).
   The apparent earlier K3 2019 Week 17 omission was only asynchronous
