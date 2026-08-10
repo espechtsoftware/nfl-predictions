@@ -5,6 +5,7 @@
 #   bash scripts/prop_lock_rebaseline.sh controls <IMAGE@sha256:...> 8677d21
 #   bash scripts/prop_lock_rebaseline.sh ce       <IMAGE@sha256:...> 8677d21
 #   bash scripts/prop_lock_rebaseline.sh role     <IMAGE@sha256:...> 8677d21
+#   bash scripts/prop_lock_rebaseline.sh nofloor  <IMAGE@sha256:...> 8677d21
 set -euo pipefail
 
 MODE=${1:-}
@@ -17,9 +18,10 @@ K3=20260810-lockfix-e80-k3-8677d21
 K1=20260810-lockfix-e80-k1-8677d21
 CE=20260810-lockfix-e80-k1-ce12-8677d21
 ROLE=20260810-lockfix-e80-k1-ce12-roleunion-8677d21
+NOFLOOR=20260810-lockfix-e80-k1-nofloor-8677d21
 
-case "$MODE" in controls|ce|role) ;; *)
-  echo "ABORT: mode must be controls, ce, or role"; exit 2;;
+case "$MODE" in controls|ce|role|nofloor) ;; *)
+  echo "ABORT: mode must be controls, ce, role, or nofloor"; exit 2;;
 esac
 case "$IMG" in *@sha256:*) ;; *)
   echo "ABORT: immutable image required"; exit 2;;
@@ -92,9 +94,21 @@ PY
   exit 0
 fi
 
-accepted_counts "$CE" "$TMP_DIR/source_counts.csv"
-ROLE_FEATURES=target_share_last,carry_share_last,snap_share_last,target_share_jump,carry_share_jump,snap_share_jump
-launch lockrole "$ROLE" lockfix_k1_ce12_role_union \
-  "MODEL_ENSEMBLE=1|CE_SEED=1701|EPISTEMIC_FAMILY=role_draws|ROLE_BELIEF_FEATURES=$ROLE_FEATURES|ROLE_BELIEF_SEED=7331|REPLACEMENT_SLOTS=12" \
-  12 12 28
-echo "PROP_LOCK_ROLE_LAUNCHED panel=$ROLE source=$CE"
+if [ "$MODE" = role ]; then
+  accepted_counts "$CE" "$TMP_DIR/source_counts.csv"
+  ROLE_FEATURES=target_share_last,carry_share_last,snap_share_last,target_share_jump,carry_share_jump,snap_share_jump
+  launch lockrole "$ROLE" lockfix_k1_ce12_role_union \
+    "MODEL_ENSEMBLE=1|CE_SEED=1701|EPISTEMIC_FAMILY=role_draws|ROLE_BELIEF_FEATURES=$ROLE_FEATURES|ROLE_BELIEF_SEED=7331|REPLACEMENT_SLOTS=12" \
+    12 12 28
+  echo "PROP_LOCK_ROLE_LAUNCHED panel=$ROLE source=$CE"
+  exit 0
+fi
+
+# The no-floor source is deliberately sequenced after the corrected role
+# source, even though its own generation is an isolated K1 binary ablation.
+# This prevents an early score-bearing launch outside the preregistered union
+# protocol. The role rows are used only as a completeness prerequisite.
+accepted_counts "$ROLE" "$TMP_DIR/source_counts.csv"
+launch locknofloor "$NOFLOOR" lockfix_k1_nofloor \
+  "MODEL_ENSEMBLE=1|MIN_LINEUP_SALARY=0" 0 0 40
+echo "PROP_LOCK_NOFLOOR_LAUNCHED panel=$NOFLOOR source=$ROLE"

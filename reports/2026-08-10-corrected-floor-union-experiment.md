@@ -90,3 +90,9 @@ actual/probability/mean parity, and returns an exact-size reselected book plus
 membership audit. Offline tests cover containment, support mismatch,
 incomplete source books, and the high-to-low tail decision. This does not
 authorize a panel launch before the corrected role source is complete.
+
+The common-lock launcher now has a guarded `nofloor` mode for the exact panel
+above. It refuses to run until the complete corrected role source is present
+in the accepted table, then changes only `MIN_LINEUP_SALARY=0` on the frozen
+K1 control settings. This is implementation readiness, not launch authority;
+the role chain and its tail-first disposition must still finish first.

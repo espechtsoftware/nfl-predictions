@@ -128,6 +128,13 @@ agent or developer:
   focused union/portfolio tests pass; Python compilation and
   `git diff --check` are clean. No corrected no-floor score panel or union has
   been launched.
+- `scripts/prop_lock_rebaseline.sh nofloor` now prepares the exact corrected
+  K1 no-floor source `20260810-lockfix-e80-k1-nofloor-8677d21`. It refuses to
+  launch until all 107 corrected role-source slates are present in the
+  accepted table, then changes only `MIN_LINEUP_SALARY=0` from the frozen K1
+  control. Shell parsing and whitespace checks pass. Do not invoke it before
+  the corrected role comparison is complete; implementation readiness is not
+  permission to inspect this score arm early.
 - A new no-cost information path is preregistered before reading its outcomes:
   lagged weekly NFL Next Gen Stats receiver separation, cushion, intended air
   depth, air-yard share and YAC above expectation. Availability-only audit
