@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 12:09 CDT
+## Current state — 2026-08-10 12:35 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -142,8 +142,11 @@ agent or developer:
   masks, returns 80 entries, and applies 240→230→220→210 against both the
   role source and the actual corrected incumbent. Fifteen focused union,
   selector and portfolio tests pass; compilation, shell parsing and
-  whitespace checks are clean. It has not been built or executed yet, and
-  no union score has been queried.
+  whitespace checks are clean. Exact-tree Cloud Build
+  `a4079b03-2a23-453f-85b1-917550fc73c0` passed 742 tests with 2 skipped and
+  produced immutable evaluator digest
+  `sha256:ef0747eb3232ad797488dd8f38dcec522ea8815615120d31b2f7a39e332da85f`.
+  The union has not been executed and no union score has been queried.
 - A new no-cost information path is preregistered before reading its outcomes:
   lagged weekly NFL Next Gen Stats receiver separation, cushion, intended air
   depth, air-yard share and YAC above expectation. Availability-only audit
@@ -175,11 +178,15 @@ agent or developer:
   tests with 2 skipped and produced immutable digest
   `sha256:fe380648b9a146a95b8c4d942c484979b50f95762f16a277d704151106a82374`.
   Only that digest may run the NGS job after corrected K1 acceptance.
-- At 12:09 CDT the corrected controls remained healthy with no failed
-  execution: K3 had 105/107 complete slates and 8,400 selected rows; K1 had
-  93/107 and 7,440. These are completeness counts only; no partial score was
-  queried. Continue monitoring all twelve exact execution IDs above, then run
-  `scripts/prop_lock_finish_controls.sh` on the corrected generation digest.
+- All twelve corrected-control executions completed cleanly. Both K3 and K1
+  now contain 107/107 slates and exactly 8,560 selected rows (80 per slate).
+  The apparent earlier K3 2019 Week 17 omission was only asynchronous
+  warehouse-write lag; no repair, rerun, or score decision was made. No
+  partial score was queried. Frozen finish wrapper
+  `scripts/prop_lock_finish_controls.sh` is now running on the corrected
+  generation digest; K3 check-only acceptance execution is
+  `accept-replay-panel-tk27s`, followed by K3 promotion, K1 check, and the
+  K1-versus-K3 ensemble comparison.
 - One corrected-history selector confirmation is now frozen before either
   corrected control outcome is read:
   `reports/2026-08-10-corrected-extreme-selector-confirmation.md`. After the

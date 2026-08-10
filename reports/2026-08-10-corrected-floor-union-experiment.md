@@ -108,3 +108,9 @@ The guarded evaluator `research/floor_union_confirmation.py` and CLI command
 membership diagnostics, and require a high-to-low win against both the role
 source and the actual corrected incumbent. Shared candidates must match on
 all five persisted support masks; there is no outcome-dependent retry.
+
+Full exact-tree validation completed before any corrected union outcome was
+available. Cloud Build `a4079b03-2a23-453f-85b1-917550fc73c0` passed 742
+tests with 2 skipped and produced immutable evaluator digest
+`sha256:ef0747eb3232ad797488dd8f38dcec522ea8815615120d31b2f7a39e332da85f`.
+Only that digest may run the eventual guarded union confirmation.
