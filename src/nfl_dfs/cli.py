@@ -195,6 +195,25 @@ def main(argv: list[str] | None = None) -> None:
     )
 
     p = sub.add_parser(
+        "import-fantasy-points-route",
+        help="Audit/import hash-locked licensed Fantasy Points Route Share",
+    )
+    p.add_argument("--input-dir", default="fantasy-points")
+    p.add_argument(
+        "--write", action="store_true",
+        help="Create the private raw table; existing non-identical data aborts",
+    )
+
+    p = sub.add_parser(
+        "fantasy-points-route-diagnostic",
+        help="Run the frozen paid true Route Share player-tail gate",
+    )
+    p.add_argument(
+        "--panel", default="20260810-lockfix-e80-k1-8677d21",
+        help="Frozen corrected K1 panel (alternate values fail closed)",
+    )
+
+    p = sub.add_parser(
         "corrected-extreme-selector",
         help="Confirm the frozen 220/210/200 selector on one corrected panel",
     )
@@ -408,6 +427,14 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import ngs_receiver_tail
 
         ngs_receiver_tail.run(args.panel)
+    elif args.command == "import-fantasy-points-route":
+        from .ingest import fantasy_points_route
+
+        fantasy_points_route.run(args.input_dir, write=args.write)
+    elif args.command == "fantasy-points-route-diagnostic":
+        from .analysis import fantasy_points_route_share
+
+        fantasy_points_route_share.run(args.panel)
     elif args.command == "corrected-extreme-selector":
         from .research import extreme_selector_confirmation
 

@@ -95,6 +95,12 @@ Missing route observations must remain missing rather than being imputed to
 zero: the salary/player universe includes inactive and deep-reserve players
 who may not record a route.
 
+The separate hash-locked Route Share importer has now created private table
+`nfl_raw.fantasy_points_route_share` with 27,305 normalized weekly rows,
+26,881 resolved rows, 1,029 resolved GSIS players and all four source hashes.
+The licensed originals remain local/ignored. General ingestion for the other
+report families is still unfrozen.
+
 ### Fantasy Points Scored family validation
 
 All four season files use the same 26-column schema: the common identity and
@@ -156,9 +162,13 @@ the same checks.
 
 ## Importer gate
 
-Do not freeze the normalized schema or write the importer until at least one
-file from every requested report family has been inspected. Before loading any
-derived rows, require:
+Do not freeze a *general multi-report* normalized schema or importer until at
+least one file from every requested report family has been inspected. The
+separately preregistered Route Share-only diagnostic may use its narrow
+hash-locked importer from
+`reports/2026-08-10-fantasy-points-route-share-experiment.md`; it must not
+infer schemas for the pending families. Before loading any derived rows,
+require:
 
 1. exact source hashes and unchanged originals;
 2. declared season/week coverage and numeric ranges;

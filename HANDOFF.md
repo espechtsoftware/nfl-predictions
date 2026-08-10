@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 14:18 CDT
+## Current state — 2026-08-10 14:38 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -312,6 +312,17 @@ agent or developer:
   diagnostics. Outcome-blind availability is 82.07%/82.95% in 2024/2025.
   Implement and validate this exact diagnostic without inspecting intermediate
   outcomes; no field/window/model retry is permitted.
+- The Route Share-only importer and diagnostic are now implemented behind CLI
+  commands `import-fantasy-points-route` and
+  `fantasy-points-route-diagnostic`, with guarded runner
+  `scripts/cloud_fantasy_points_route_diagnostic.sh`. Four focused tests pass;
+  compilation, shell parsing and whitespace checks are clean. Audit-only import
+  normalized 27,305 weekly rows; the first authorized `WRITE_EMPTY` created
+  private table `nfl_raw.fantasy_points_route_share` with 26,881 resolved rows,
+  1,029 resolved GSIS players, four exact source hashes and values in `[0,1]`.
+  A repeated write returned `already-identical` without mutation. No outcome
+  diagnostic has run. Commit/push, execute a full Cloud Build, and use only its
+  immutable digest for the single frozen diagnostic.
 - One corrected-history selector confirmation is now frozen before either
   corrected control outcome is read:
   `reports/2026-08-10-corrected-extreme-selector-confirmation.md`. After the

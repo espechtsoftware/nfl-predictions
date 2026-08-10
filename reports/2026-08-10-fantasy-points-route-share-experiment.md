@@ -1,9 +1,9 @@
 # Fantasy Points true Route Share experiment
 
-Status: preregistered before any paid Route Share value was joined to a
-realized player outcome. Acquisition/schema/identity availability only has
-been inspected. No player-tail metric or lineup score from this treatment has
-been queried.
+Status: preregistered and implemented before any paid Route Share value was
+joined to a realized player outcome. Acquisition/schema/identity availability
+only has been inspected. No player-tail metric or lineup score from this
+treatment has been queried.
 
 ## Question
 
@@ -118,3 +118,29 @@ not alter production projections, the accepted lineup policy, or authorize a
 feature/window/regularization retry. Failure closes Route Share as a 2026
 lineup input; Target Share or Advanced Receiving fields remain separate
 hypotheses rather than retries of this test.
+
+## Pre-outcome implementation and import audit
+
+The narrow importer is `ingest/fantasy_points_route.py`; CLI command
+`import-fantasy-points-route` is audit-only unless passed `--write`. It verifies
+all four hashes and exact schemas, preserves unresolved rows, and creates the
+private raw table only with `WRITE_EMPTY`. An existing byte/provenance-equivalent
+table is an idempotent no-op; a non-identical table aborts rather than being
+overwritten.
+
+The four local files normalized to 27,305 player-week rows. Private table
+`nfl_raw.fantasy_points_route_share` was created once with 26,881 resolved
+weekly rows, 1,029 resolved players, all four source hashes, and Route Share
+range `[0,1]`. At the vendor season-row level, 2,472 resolve, 57 remain
+unresolved, and one is ambiguous. A repeated `--write` audit returned
+`already-identical` and performed no write.
+
+The diagnostic implementation is
+`analysis/fantasy_points_route_share.py`, CLI command
+`fantasy-points-route-diagnostic`, and guarded Cloud runner
+`scripts/cloud_fantasy_points_route_diagnostic.sh`. Four focused tests pass,
+including source provenance/identity normalization, conflicting player-week
+rejection, exact earlier-week/cross-season construction, and the 30-point gate.
+Python compilation, shell parsing and whitespace validation are clean. A full
+Cloud Build and immutable diagnostic image are still required before querying
+the outcome.
