@@ -1,0 +1,84 @@
+# Corrected role + no-floor candidate-union experiment
+
+Preregistered 2026-08-10 before any complete corrected K3/K1 score panel was
+available. This is a bounded operational optimization under the operator's
+240→230→220→210 tail-first utility, not a revision of the prior no-floor
+scientific disposition.
+
+## Why this combination remains open
+
+The prior valid true-80 no-salary-floor arm improved selected 200/210 counts
+relative to its K1 base while losing a different 220-point week and one
+candidate-pool 200 week. It is dominated by the later CE/role union when each
+book is viewed alone, so it was correctly not adopted. What has never been
+tested is candidate-level complementarity: retaining every candidate from
+the strongest CE/role source while adding the exact no-floor pool before the
+same 80-entry selector runs.
+
+An availability-only join of the preserved, pre-correction panels was made
+without querying actual scores. Across all 107 slates, the role source had
+235--263 candidates and the no-floor control had 224--251. They shared 18,056
+rosters, while no-floor contributed 7,848 distinct rosters, or 73.35 per
+slate. Only 4,534 of 8,560 selected slots were common. This establishes a
+real candidate-set mechanism; it does not establish scoring value, and the
+old panels are point-in-time-ineligible after the common-lock defect.
+
+## Frozen construction
+
+Do not launch this work until the common-lock chain has produced its complete
+corrected K1, CE12, and twelve-role source and the corrected tail-first
+decision has been recorded.
+
+1. Rebuild exactly one corrected no-floor K1 panel on generation image
+   `sha256:215a6729b66980310cfad3f63b06a7c25ce4dcf2fa2b6949a04a5c9afa337221`
+   and code identity `8677d21`: `MODEL_ENSEMBLE=1`, possession simulation,
+   model/market weight 0.45/0.55, `MIN_LINEUP_SALARY=0`, candidate multiple
+   2, no CE/role/Gumbel candidates, 40 boom candidates, selection line 194,
+   and 80 final entries. Proposed panel id:
+   `20260810-lockfix-e80-k1-nofloor-8677d21`.
+2. The source is the complete corrected CE12 + twelve-role added-budget union
+   from the correction chain. Preserve every source candidate and add every
+   distinct corrected no-floor candidate. No quota, intermediate salary
+   floor, candidate cap, dose, seed, selection line, or score-based filter is
+   permitted.
+3. Recompute candidate-by-world totals only after proving exact source versus
+   no-floor equality for player identities, authoritative actuals, component
+   predictions, corrected market points, marginal parameters, world count,
+   simulator mode, and seed. The source's common worlds are authoritative.
+4. Deduplicate exact nine-player rosters and run the unchanged greedy
+   194-point coverage selector over the union, returning exactly 80 unique
+   lineups. The candidate pool may grow; the submitted entry count may not.
+5. The comparator must report source containment, added roster counts and
+   salary distribution, selected membership movement, full selected and
+   pool-oracle grids at 187/194/200/210/220/230/240, paired weekly changes,
+   season diagnostics, runtime, and any generation/selection failure.
+
+## Decision rule
+
+Hard requirements are point-in-time validity, all six corrected seasons and
+107 slates, exact authoritative joins, reproducibility, legal candidates,
+exactly 80 final unique entries, no hidden tuning, and a live-feasible path.
+
+After those pass, compare selected weekly-maximum counts in the fixed order
+240, 230, 220, then 210. The union becomes a promotion candidate only if at
+least one 210+ count improves and no higher threshold worsens. Counts at 200,
+194 and 187, pool oracle, mean/median, season signs, candidate volume and
+runtime remain mandatory diagnostics but are not automatic scoring vetoes.
+Any tradeoff at a threshold higher than the gain requires an explicit
+operator decision. A tie through 210 closes the union.
+
+The mechanism was chosen with knowledge of the superseded no-floor result,
+so even a corrected pass must be labeled an operator-directed optimization,
+not an independent scientific confirmation. There is exactly one launch and
+no retry on the six historical outcomes. A failure does not license an
+intermediate salary floor, a reduced no-floor quota, a different selector,
+or a no-floor/CE/role parameter sweep.
+
+## Live feasibility
+
+Historical score improvement alone is insufficient. Before replacing the UI
+policy, reproduce the union from the already-isolated K1 no-floor and role
+candidate builders at one frozen pre-lock snapshot, verify that source
+fallback remains labeled and intact, and measure total wall time against the
+Week 1 operational window. Extra pre-selection compute is acceptable; a
+partial, late, or non-reproducible 80-lineup book is not.

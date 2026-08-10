@@ -176,6 +176,19 @@ fast-role and vacancy states? It is not a blind nine-market backfill. No quota
 may be spent until the exact event count and credit ceiling are printed and
 approved.
 
+## Priority 3A — corrected role/no-floor candidate union
+
+The no-floor policy remains inferior as a standalone book, but its preserved
+pre-correction pool contributes 7,848 rosters absent from the role-union pool
+(73.35 per slate) without increasing the final entry count. The combination
+of the two candidate sets has never been tested. Protocol
+`reports/2026-08-10-corrected-floor-union-experiment.md` freezes one exact
+added-budget union before corrected control scores are complete. It may run
+only after the corrected K1→CE→role chain establishes a valid source, and it
+must retain every source roster, add the exact binary no-floor control, return
+80 unique entries, and pass the 240→230→220→210 law. No intermediate floor,
+quota, selector, or retry is allowed.
+
 ## Priority 4 — prospective field and selector evidence
 
 - Freeze 187- and 200-point K=1 coverage books beside the 194 control. On the

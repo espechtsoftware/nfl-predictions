@@ -110,6 +110,16 @@ agent or developer:
   at exact 80 entries. It deliberately leaves K1 in staging for an explicit
   corrected tail-first decision. Shell parsing and `git diff --check` pass;
   the wrapper and handoff are pushed on `main` at `b6d4d38`.
+- One previously untested combination is now preregistered before corrected
+  outcomes are available: retain the complete corrected CE/role source pool,
+  add the exact binary no-salary-floor K1 pool, and reselect the same 80
+  entries at line 194. An outcome-free join of the preserved old pools found
+  7,848 distinct no-floor rosters absent from the role pool (73.35/slate), so
+  the mechanism is real rather than a relabeling. Full frozen construction,
+  the 240→230→220→210 gate, no-retry rule, and live-feasibility requirement
+  are in `reports/2026-08-10-corrected-floor-union-experiment.md`. Do not
+  launch it until corrected K1→CE→role is complete; do not inspect an old or
+  partial union score.
 
 - The operator explicitly revised the operational objective after the valid
   role union improved the same 80-entry portfolio at every 210+ threshold.
