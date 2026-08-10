@@ -128,6 +128,16 @@ agent or developer:
   focused union/portfolio tests pass; Python compilation and
   `git diff --check` are clean. No corrected no-floor score panel or union has
   been launched.
+- A new no-cost information path is preregistered before reading its outcomes:
+  lagged weekly NFL Next Gen Stats receiver separation, cushion, intended air
+  depth, air-yard share and YAC above expectation. Availability-only audit
+  found 8,976 2019--2025 rows and roughly 88% coverage weighted by candidate
+  roster appearances. The frozen 2024/2025 low-capacity comparison prioritizes
+  30-point Brier loss and requires nonworsening 20-point Brier/MAE plus
+  coverage and fold safeguards. Full point-in-time construction and gate:
+  `reports/2026-08-10-ngs-receiver-tail-experiment.md`. Do not query its
+  outcomes or launch a feature/lineup arm until the corrected K1 control is
+  complete and the protocol implementation is immutable.
 
 - The operator explicitly revised the operational objective after the valid
   role union improved the same 80-entry portfolio at every 210+ threshold.

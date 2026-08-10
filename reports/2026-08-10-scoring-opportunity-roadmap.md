@@ -156,6 +156,19 @@ residual separation reversed in 2024, and held-out 2025 30-point Brier
 worsened slightly `0.0305295→0.0305408`. No candidate union is licensed and
 this historical alternate-ladder mechanism is closed without quota spend.
 
+## Priority 2B — free lagged NGS receiver traits
+
+NFL Next Gen Stats weekly receiving data provide separation, cushion,
+intended air depth, air-yard share and YAC above expectation with stable GSIS
+IDs. These fields are absent from the current model and a strictly prior
+observation covers about 88% of candidate-used WR/TE roster appearances in
+the preserved historical universe. Protocol
+`reports/2026-08-10-ngs-receiver-tail-experiment.md` freezes a score-free
+2019--2025 construction and 2024/2025 walk-forward 30-point Brier gate before
+outcomes are queried. Run it only after the corrected K1 control is complete.
+A pass licenses one feature/candidate-union design; it is not direct model or
+lineup adoption and does not replace true route-volume data.
+
 ## Priority 3 — a credit-capped Odds API opportunity pilot
 
 The existing vendor can supply historical player props from May 3, 2023.

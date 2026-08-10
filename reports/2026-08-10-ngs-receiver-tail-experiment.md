@@ -1,0 +1,103 @@
+# Lagged Next Gen Stats receiver-tail experiment
+
+Preregistered 2026-08-10 before querying realized outcomes for this mechanism.
+The source is the NFL Next Gen Stats weekly receiving feed exposed by
+`nflreadpy`; acquiring it spends no Odds API quota.
+
+## Motivation and availability
+
+The current model has targets, target share, air yards, snaps, vacancies and
+depth, but not Next Gen Stats receiver separation, cushion, intended air
+depth, air-yard share, or YAC above expectation. These are observed player
+traits/opportunity descriptors that may distinguish receivers with similar
+box-score usage, especially in the cheap WR/TE pool where known winning
+rosters are most often missed.
+
+An outcome-free inventory found 8,976 regular-season weekly receiving rows
+for 2019--2025, with 198--223 distinct receivers and all 17/18 weeks per
+season. On the preserved true-80 role candidate universe, a strictly prior
+same-season observation covers about 81--89% of candidate-used WRs and
+70--83% of candidate-used TEs by season; weighting by candidate-roster
+appearances gives 88.3% coverage. Historical data are available from 2016,
+so a career-chronological join can also serve returning veterans in Week 1
+from prior-season observations. Rookies and other uncovered players remain
+missing rather than receiving invented values.
+
+## Frozen point-in-time construction
+
+Use regular-season weekly NGS receiving rows with `week > 0`. For every
+target player-week, retain only observations whose `(season, week)` is
+strictly earlier. The join may cross a season boundary but may never use the
+target week, a later week, the `week=0` season aggregate, postseason data, or
+a future season.
+
+For each field below, calculate a target-weighted mean of the most recent
+four eligible weekly observations. Weekly target count is a reliability
+weight only and is not added as a treatment feature. If all weights are
+missing/zero, use an unweighted mean of the available finite values.
+
+- `avg_separation`
+- `avg_cushion`
+- `avg_intended_air_yards`
+- `percent_share_of_intended_air_yards`
+- `avg_yac_above_expectation`
+
+The evaluation universe is WR/TE player-weeks that appeared in at least one
+candidate in corrected K1 control panel
+`20260810-lockfix-e80-k1-8677d21`, have an authoritative actual and pre-lock
+projection, and have at least one strictly prior NGS observation. Candidate
+membership is point-in-time and outcome-blind. Do not evaluate partial panel
+rows; the full corrected K1 control must first complete its mechanical check.
+
+## Frozen walk-forward comparison
+
+The 2024 fold trains on corrected source seasons 2019/2021/2022/2023. The
+2025 fold trains on all of those plus 2024. No future season predicts an
+earlier one. Both arms use identical rows, training-fold median imputation,
+standardization, WR/TE one-hot position, models and regularization.
+
+Control numeric inputs:
+
+- pre-lock projection and salary;
+- last target/snap share and their jumps;
+- team vacated target share;
+- depth rank; and
+- games played before the target week.
+
+The treatment adds only the five frozen lagged NGS fields. Fit
+`Ridge(alpha=10)` to `actual - projection`. Separately fit L2
+`LogisticRegression(C=0.1, solver=lbfgs, max_iter=2000)` for `actual >= 20`
+and `actual >= 30`. Report per-fold and aggregate residual MAE, 20/30-point
+Brier loss, event rates, calibration deciles, row counts, field missingness,
+source age, and candidate-weighted coverage.
+
+## Gate
+
+The mechanism passes only if all conditions hold:
+
+1. each held-out season has at least 1,000 eligible candidate-used WR/TE
+   player-weeks and at least 70% of candidate-weighted WR/TE appearances have
+   a strictly prior NGS observation;
+2. aggregate 30-point Brier loss improves;
+3. aggregate 20-point Brier loss does not worsen;
+4. aggregate residual MAE does not worsen; and
+5. held-out 30-point Brier loss does not worsen by more than 1% in either
+   season.
+
+The 30-point event is primary because it is closest to the operator's
+extreme weekly portfolio objective. The 20-point and MAE guards prevent a
+rare-event gain from silently destroying broader calibration. No position,
+field, rolling-window, regularization, threshold, fold or missing-data retry
+is allowed after a valid result.
+
+A pass licenses feature integration and one separately preregistered
+candidate-union test on the corrected live-policy source; it does not itself
+change projections, generate lineups, or authorize production use. A failure
+closes these five NGS receiving fields as a pre-Week-1 scoring path. It does
+not negate the already-passed true-route purchase diagnostic, because NGS
+separation/efficiency descriptors do not measure complete route volume or
+first-read opportunity.
+
+Primary source:
+
+- <https://github.com/nflverse/nflreadr/releases>
