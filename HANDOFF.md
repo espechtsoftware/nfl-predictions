@@ -292,9 +292,10 @@ agent or developer:
   replacement labels. The four offense PROE exports are complete at exactly
   32 teams per season with valid weeks/game counts. Do not commit licensed
   source rows or use same-week postgame values in a replay.
-  The stable 2022/2023 Snap Share exports also pass at 647/621 rows; 2024/2025
-  remain pending. The exact partial-family hashes and the replaced, filtered
-  first 2022 download caveat are recorded in the intake report.
+  All four Snap Share exports also pass at 647/621/625/637 rows. The exact
+  hashes, byte-identical extra 2024 file, and the replaced, filtered first 2022
+  download caveat are recorded in the intake report. Target Share is the next
+  primary family to acquire.
 - Corrected CE12 remains healthy and partial; no score has been queried. At
   14:18 CDT its completeness-only slate counts were 2019=7, 2021=6, 2022=5,
   2023=5, 2024=8 and 2025=6, with exactly 80 selected rows for every written
