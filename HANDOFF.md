@@ -187,6 +187,19 @@ agent or developer:
   generation digest; K3 check-only acceptance execution is
   `accept-replay-panel-tk27s`, followed by K3 promotion, K1 check, and the
   K1-versus-K3 ensemble comparison.
+- K3 check-only acceptance passed in `accept-replay-panel-tk27s`: 25,778
+  candidates, 50,098 immutable player rows, complete mean/label/artifact
+  parity, and selected 187/194/200 counts `25/18/8` versus pool-oracle
+  `38/22/12`. The subsequent promotion execution
+  `accept-replay-panel-tbjlb` failed safely after the repeated acceptance
+  pass because staging contains the new 210/220 masks (44 columns) while the
+  older accepted table has 42; BigQuery rolled back the transaction and no
+  candidate or snapshot row was promoted. `harvest_accept.py` now additively
+  migrates its complete candidate schema and uses an explicit name-aligned
+  target/source column list instead of positional `SELECT *`. Seven focused
+  acceptance tests, compilation and whitespace checks pass locally. Build a
+  fresh validation image, retry only K3 promotion from the unchanged staging
+  panel, then resume K1 check and comparison; do not rerun generation.
 - One corrected-history selector confirmation is now frozen before either
   corrected control outcome is read:
   `reports/2026-08-10-corrected-extreme-selector-confirmation.md`. After the

@@ -1,0 +1,107 @@
+rows: 25,778  slates: 107
+=== REPLAY/LIVE MEAN PARITY ===
+{
+  "blend_max_abs_error": 0.0,
+  "candidate_mean_max_abs_error": 2.4215844831587674e-05,
+  "candidate_mean_p95_abs_error": 1.2690780287272216e-05,
+  "candidate_rows": 25778,
+  "covered_offense_rows": 10891,
+  "duplicate_feature_keys": 0,
+  "feature_rows": 50098,
+  "missing_candidate_slates": 0,
+  "missing_roster_players": 0,
+  "passes": true,
+  "slates": 107,
+  "uncovered_max_abs_error": 0.0,
+  "uncovered_offense_rows": 36801
+}
+=== ACCEPTANCE REPORT (plan §6) ===
+definition version: cf-1.0.0
+  >=187: selected  25  pool-oracle  38  recoverable  13
+  >=194: selected  18  pool-oracle  22  recoverable   4
+  >=200: selected   8  pool-oracle  12  recoverable   4
+by season (selected / oracle clears at 194):
+        slates  sel194  orc194  mean_sel  mean_regret
+season                                               
+2019      17.0     5.0     7.0     188.3          5.2
+2021      18.0     5.0     6.0     178.0          2.7
+2022      18.0     1.0     1.0     172.7          1.6
+2023      18.0     2.0     2.0     174.8          4.2
+2024      18.0     2.0     3.0     170.1          1.3
+2025      18.0     3.0     3.0     170.1          3.7
+RECOVERABLE WEEKS (4):
+ season  week  sel_best  oracle  regret  oracle_simrank oracle_tag
+   2019     6    188.54  204.44   15.90              67        lev
+   2019     9    180.90  216.42   35.52             185        lev
+   2021    18    176.92  194.12   17.20              87        lev
+   2024     5    191.68  196.52    4.84             171        lev
+oracle sim-rank: median 89 of median pool 241; oracle already selected 69.2%
+corr(sim-rank, regret): all +0.375  |  oracle-unselected only +0.185
+generator shares (candidate / selected / exclusive):
+  boom     cand  16.6%  sel  45.6%  exclusive  16.6%
+  dark     cand   3.4%  sel   7.4%  exclusive   2.7%
+  game     cand   5.0%  sel   7.9%  exclusive   3.9%
+  lev      cand  66.4%  sel  28.1%  exclusive  62.6%
+  qbvar    cand  13.3%  sel  14.3%  exclusive  10.1%
+=== §6.1 DECISION GATE (preregistered) ===
+  recoverable weeks 4 (need >=4), spread over 3 seasons (need >=3)
+  VERDICT: PROCEED to Workstream A (reranker)
+ACCEPTANCE PASSED — panel eligible for promotion
+Traceback (most recent call last):
+  File "/app/scripts/harvest_accept.py", line 533, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/app/scripts/harvest_accept.py", line 518, in main
+    query_df(f"""
+  File "/app/src/nfl_dfs/bq.py", line 82, in query_df
+    return client().query(sql, job_config=job_config).to_dataframe()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/google/cloud/bigquery/job/query.py", line 2194, in to_dataframe
+    query_result = wait_for_query(self, progress_bar_type, max_results=max_results)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/google/cloud/bigquery/_tqdm_helpers.py", line 107, in wait_for_query
+    return query_job.result(max_results=max_results)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/google/cloud/bigquery/job/query.py", line 1797, in result
+    while not is_job_done():
+              ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/google/api_core/retry/retry_unary.py", line 295, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/google/api_core/retry/retry_unary.py", line 157, in retry_target
+    next_sleep = _retry_error_helper(
+                 ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/google/api_core/retry/retry_base.py", line 215, in _retry_error_helper
+    raise final_exc from source_exc
+  File "/usr/local/lib/python3.11/site-packages/google/api_core/retry/retry_unary.py", line 148, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/google/cloud/bigquery/job/query.py", line 1766, in is_job_done
+    self._reload_query_results(retry=retry, **reload_query_results_kwargs)
+  File "/usr/local/lib/python3.11/site-packages/google/cloud/bigquery/job/query.py", line 1558, in _reload_query_results
+    self._query_results = self._client._get_query_results(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/google/cloud/bigquery/client.py", line 2147, in _get_query_results
+    resource = self._call_api(
+               ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/google/cloud/bigquery/client.py", line 895, in _call_api
+    return call()
+           ^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/google/api_core/retry/retry_unary.py", line 295, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/google/api_core/retry/retry_unary.py", line 157, in retry_target
+    next_sleep = _retry_error_helper(
+                 ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/google/api_core/retry/retry_base.py", line 215, in _retry_error_helper
+    raise final_exc from source_exc
+  File "/usr/local/lib/python3.11/site-packages/google/api_core/retry/retry_unary.py", line 148, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/google/cloud/_http/__init__.py", line 494, in api_request
+    raise exceptions.from_http_response(response)
+google.api_core.exceptions.BadRequest: 400 GET https://bigquery.googleapis.com/bigquery/v2/projects/nfl-predictions-503414/queries/d8330b06-c6a9-48c5-9b22-8eb68db08984?maxResults=0&location=US&prettyPrint=false: Query error: Inserted row has wrong column count; Has 44, expected 42 at [4:13]
+Location: US
+Job ID: d8330b06-c6a9-48c5-9b22-8eb68db08984
+Container called exit(1).
+

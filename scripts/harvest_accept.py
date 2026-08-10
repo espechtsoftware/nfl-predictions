@@ -38,6 +38,86 @@ RESEARCH = "replay_candidates"
 EXPECTED_SEASONS = (2019, 2021, 2022, 2023, 2024, 2025)
 CAND_RANGE = (80, 400)      # default CAND_MULT=2 plausible pool size
 
+# BigQuery INSERT ... SELECT is positional unless the destination columns are
+# named.  Keep the accepted table additive and make promotion explicit so a
+# newly persisted mask cannot either break promotion or land in an older
+# column with the same physical type.  This is the complete candidate
+# persistence contract emitted by backtest.engine.
+PROMOTION_SCHEMA = (
+    ("generated_at", "TIMESTAMP"),
+    ("panel_run_id", "STRING"),
+    ("slate_run_id", "STRING"),
+    ("run_type", "STRING"),
+    ("code_sha", "STRING"),
+    ("code_dirty", "BOOL"),
+    ("config_hash", "STRING"),
+    ("lever_env", "STRING"),
+    ("seeds", "STRING"),
+    ("labels_complete", "BOOL"),
+    ("research_eligible", "BOOL"),
+    ("season", "INT64"),
+    ("week", "INT64"),
+    ("cand_ix", "INT64"),
+    ("tag", "STRING"),
+    ("all_tags", "STRING"),
+    ("selected", "BOOL"),
+    ("selected_rank", "INT64"),
+    ("salary", "INT64"),
+    ("p_line", "FLOAT64"),
+    ("sim_mean", "FLOAT64"),
+    ("sim_sd", "FLOAT64"),
+    ("sim_q50", "FLOAT64"),
+    ("sim_q90", "FLOAT64"),
+    ("sim_q99", "FLOAT64"),
+    ("sim_rank_p_line", "INT64"),
+    ("actual_score", "FLOAT64"),
+    ("actual_rank", "INT64"),
+    ("tail_line", "FLOAT64"),
+    ("n_entries", "INT64"),
+    ("n_sims", "INT64"),
+    ("n_locks", "INT64"),
+    ("n_theses", "INT64"),
+    ("players", "STRING"),
+    ("n_worlds", "INT64"),
+    ("bitorder", "STRING"),
+    ("clear_bits", "STRING"),
+    ("clear_bits_187", "STRING"),
+    ("clear_bits_194", "STRING"),
+    ("clear_bits_200", "STRING"),
+    ("clear_bits_210", "STRING"),
+    ("clear_bits_220", "STRING"),
+    ("score_artifact_uri", "STRING"),
+    ("score_artifact_sha256", "STRING"),
+)
+
+
+def _promotion_schema_sql(dataset: str) -> str:
+    """Add every known nullable candidate field without changing old data."""
+    table = f"`{dataset}.{RESEARCH}`"
+    return "\n".join(
+        f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS `{name}` {data_type};"
+        for name, data_type in PROMOTION_SCHEMA)
+
+
+def _promotion_insert_sql(dataset: str, panel_run_id: str) -> str:
+    """Atomic, name-aligned candidate/snapshot promotion statement."""
+    names = [name for name, _ in PROMOTION_SCHEMA]
+    destination = ", ".join(f"`{name}`" for name in names)
+    source = ", ".join(
+        "TRUE AS `research_eligible`"
+        if name == "research_eligible" else f"`{name}`"
+        for name in names)
+    return f"""
+        BEGIN TRANSACTION;
+        INSERT INTO `{dataset}.{RESEARCH}` ({destination})
+        SELECT {source}
+        FROM `{dataset}.{STAGING}`
+        WHERE panel_run_id = '{panel_run_id}';
+        UPDATE `{dataset}.slate_player_features`
+        SET research_eligible = TRUE
+        WHERE panel_run_id = '{panel_run_id}';
+        COMMIT TRANSACTION;"""
+
 
 def _candidate_count_contract(rows: pd.DataFrame, entries_expected: int,
                               multiple_expected: int
@@ -507,24 +587,19 @@ def main() -> int:
         query_df(f"""
             CREATE TABLE IF NOT EXISTS `{settings.predictions}.{RESEARCH}`
             LIKE `{settings.predictions}.{STAGING}`""")
+        # Older accepted tables predate the 210/220 masks now persisted in
+        # staging.  Additive migration is safe for prior nullable rows.
+        query_df(_promotion_schema_sql(settings.predictions))
         # research_eligible is FALSE in staging by construction; the
         # promotion is what makes rows eligible.
-        # SELECT * REPLACE keeps column ORDER (INSERT..SELECT is
-        # positional in BigQuery; EXCEPT+append put the flag last and
-        # collided with the target's column 11).
+        # Both target and source columns are named explicitly.  This remains
+        # correct even when additive migrations append fields in a different
+        # physical order from a newly-created staging table.
         # Candidates and their immutable player snapshots become eligible in
         # one transaction.  A half-promotion would strand analysis in the same
         # state as the old candidates-only implementation.
-        query_df(f"""
-            BEGIN TRANSACTION;
-            INSERT INTO `{settings.predictions}.{RESEARCH}`
-            SELECT * REPLACE (TRUE AS research_eligible)
-            FROM `{settings.predictions}.{STAGING}`
-            WHERE panel_run_id = '{a.panel_run_id}';
-            UPDATE `{settings.predictions}.slate_player_features`
-            SET research_eligible = TRUE
-            WHERE panel_run_id = '{a.panel_run_id}';
-            COMMIT TRANSACTION;""")
+        query_df(_promotion_insert_sql(
+            settings.predictions, a.panel_run_id))
         print(f"promoted panel {a.panel_run_id} -> {RESEARCH} plus player snapshots")
     return 0
 
