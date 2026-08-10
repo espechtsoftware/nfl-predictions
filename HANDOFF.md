@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 15:38 CDT
+## Current state — 2026-08-10 15:48 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -304,8 +304,12 @@ agent or developer:
   The known 2022 Brock Wright split requires count-aware coalescing. The
   separately named Defense Advanced Receiving files remain 32-team season
   aggregates and are not accepted as player history. Advanced Rushing Player
-  season exports are the next requested optional family; do not request its
-  Offense/Defense team views.
+  exports are also complete at 354/334/322/329 player rows. Their two-row
+  grouped schema cleanly identifies the repeated Zone and Man/Gap metric
+  blocks; exact hashes are in the intake report. Like Advanced Receiving,
+  they are strict prior-season inputs only: season N is forbidden for every
+  target in season N and first becomes eligible in season N+1. No further
+  Fantasy Points download is currently requested.
 - Corrected CE12 completed all 107 slates with season counts
   `17/18/18/18/18/18`, 25,766 candidate rows and exactly 8,560 selected rows.
   All six authoritative executions completed cleanly. Check-only acceptance
@@ -324,6 +328,20 @@ agent or developer:
   remains the accepted incumbent. CE's rejection does not measure the
   distinct role-belief generator; freeze any direct K1+role test before
   generating or reading a corrected role outcome.
+- Direct corrected K1+role confirmation is now frozen before any treatment
+  generation in
+  `reports/2026-08-10-corrected-k1-direct-role-union.md`. It excludes CE,
+  retains K1's 40 boom candidates, and adds exactly 12 candidates using the
+  pre-existing six role fields and seed 7331. Final output remains exactly 80
+  and the only active decision is 240→230→220→210 at the first difference.
+  Guarded generation runner `scripts/prop_lock_direct_role_union.sh`,
+  comparator `scripts/compare_corrected_k1_direct_role.py`, and Cloud Run
+  harvester `scripts/cloud_compare_corrected_k1_direct_role.sh` are
+  implemented. Sixteen focused role/CE/union tests pass; both shell scripts
+  parse and the comparator compiles. Build an exact-tree comparator image,
+  then launch the single treatment panel from the original corrected
+  generation digest
+  `sha256:215a6729b66980310cfad3f63b06a7c25ce4dcf2fa2b6949a04a5c9afa337221`.
 - At approximately 15:18 CDT, an operational recent-log check on the final
   running 2022 CE execution unintentionally surfaced the already-written Week
   16 and Week 17 best-score log lines before the panel was complete. No gate,

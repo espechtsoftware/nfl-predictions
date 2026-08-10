@@ -223,6 +223,31 @@ or adding already-normalized rates. The separately named Defense Advanced
 Receiving exports are still 32-team season aggregates and are not accepted as
 player history.
 
+### Advanced Rushing family validation
+
+All four stable files are the **Player** view with both group and column
+headers enabled. The two-row schema is essential: the six columns named
+`ATT`, `ATT %`, `YDS`, `TD`, `YPC`, and `Success %` occur once under `Zone
+Concept` and once under `Man/Gap Concept`. Group-qualified column keys are
+unique, every data row has the expected 42 fields, and every row declares the
+expected season.
+
+| Season | Rows | SHA-256 |
+|---:|---:|---|
+| 2022 | 354 | `05600c957a50fa63116517ffe72a54f73a5af47496aa52f556b112cfbee6164f` |
+| 2023 | 334 | `c24551981349c807b429ca71bbbe4ce8efa6f0e5d695f409e13875b54b4a0f43` |
+| 2024 | 322 | `3300d87d81080232a8f619558d9b9e009e5ec9e83ad4778a227c4e14cb102c30` |
+| 2025 | 329 | `fcd858042ddc1f90bd60dd1461a9cf4f6402ea127c68d681e8ec3a0e86c9c390` |
+
+The files cover QB/RB/FB/WR/TE rushing activity and contain total rushing,
+expected-run/yards, inside-five, success/stuff, missed-tackle, yards-after-
+contact, zone, man/gap, fantasy-point and expected-fantasy-point metrics. Like
+Advanced Receiving, they are full-season aggregates with no week column.
+They are eligible only as strict prior-season/career priors; same-season use
+would leak future games. The superseded no-group-header downloads must never
+be ingested because ordinary name-based CSV readers silently overwrite the
+first repeated metric block with the second.
+
 ## Importer gate
 
 Do not freeze a *general multi-report* normalized schema or importer until at
