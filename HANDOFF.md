@@ -20,7 +20,67 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 21:05 CDT
+## Current state — 2026-08-10 16:10 CDT
+
+### Tail-improvement research resumed; role-belief test preregistered
+
+- Branch `main`; the live adopted policy remains unchanged at
+  `classic-k1-ce12-boom28-v1` from accepted panel
+  `20260809-e80-k1-ce12-c616390`. Its true-80 selected weekly-max counts at
+  187/194/200/210/220/230/240 remain `40/26/18/11/5/2/1`; mean/median are
+  `181.1243/178.64`, and pool-oracle counts are `47/32/22/13/5/2/1`.
+- A fresh accepted-panel audit found that the pool omits 36 of 612 player
+  slots across 28 of 68 matched Millionaire winners, concentrated at WR (12),
+  TE (11), and RB (7). Those missing slots averaged 21.11 actual points versus
+  7.82 projected. The pool has an unselected weekly maximum on 25/107 slates,
+  but only four nonredundant unselected oracles clear 200, so another flexible
+  selector search is not justified on the same 107 outcomes.
+- The existing point-in-time breakout analysis was run on the final accepted
+  snapshots and persisted 27,266 same-slate/same-position matched pairs to
+  `nfl_predictions.archetype_matched_pairs`. Fast-role-rise players produced
+  +2.1908 mean DK points and +0.03791 probability of 20+ versus controls over
+  5,540 pairs; both effects are positive in all six seasons. Vacancy/promotion
+  produced +1.3849 and +0.01920 over 8,490 pairs, again positive in every
+  season. Cheap-DST and cold-start/rookie states were negative and are not
+  reopened.
+- A separate walk-forward TabPFN calibration audit found fast-role q90/q99
+  exceedance of 9.76%/1.06% and vacancy/promotion exceedance of 9.03%/1.20%,
+  close to their nominal 10%/1% rates. Ordinary players were overestimated at
+  7.37%/0.72%. This rejects a generic role-tail widening as the immediate
+  path and supports one bounded test of the already-frozen role-belief
+  candidate generator.
+- Protocol `reports/2026-08-10-k1-ce-role-belief-experiment.md` freezes the
+  exact pre-existing six role inputs, seed 7331, and 12-candidate dose before
+  treatment outcomes. The union panel
+  `20260810-e80-k1-ce12-roleunion-c616390` adds 12 role candidates to the
+  accepted 12 CE / 28 boom allocation and must create at least two new
+  role-caused 200-point oracle weeks. Only then may fixed panel
+  `20260810-e80-k1-ce12-role12-c616390` replace 12 boom solves, yielding equal
+  12 CE / 12 role / 16 boom compute and exact per-slate source pool sizes.
+- The fixed scoring gate follows the operator's tail-first utility: at least
+  +2 selected 200-point weeks; selected 210/220/230/240 and pool-oracle
+  200/210/220/230/240 all nonworse; a novel role frontier; and full mechanical
+  validity. Mean, 187/194 counts, and season signs are diagnostics, not vetoes.
+  No parameter retry is allowed after a valid rejection.
+- New guarded runner/comparator scripts and focused tests are implemented.
+  The comparator proves feature/common-world invariance, exact seed/lever
+  identity, union containment, fixed pool equality, source CE preservation,
+  and exact 12-role realization on all slates. `31` focused role/CE/budget
+  tests pass; both shell scripts parse, the comparator compiles, and
+  `git diff --check` is clean. The Docker image now explicitly packages the
+  comparator.
+- No Odds API historical quota was spent. Official historical player props
+  are potentially useful from May 2023 onward, but route/target/alignment data
+  is a more direct paid-data lead for the observed WR/TE misses. Any quota
+  backfill remains a separately approved, credit-capped experiment.
+- Exact next action: commit/push this preregistration, run the full Cloud Build,
+  then launch the union on immutable generation digest
+  `sha256:98a31edd1921660df6c4f0c9d606e0096ea703ffe250ccc650af706e06798fd6`
+  / code `c616390`. Record the preflight and all six exact execution IDs,
+  wait for all of them, run the new comparator on the new immutable audit
+  image, and launch the fixed arm only if the tracked union JSON passes.
+
+## Previous state — 2026-08-09 21:05 CDT
 
 ### Pre-season arm/UI promotion gate complete
 
