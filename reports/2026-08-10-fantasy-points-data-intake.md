@@ -26,7 +26,7 @@ available offensive positions, clear player filters, and prefer CSV. Acquire
 | Report | Purpose | 2022 | 2023 | 2024 | 2025 |
 |---|---|---:|---:|---:|---:|
 | Weekly Route Share | primary player opportunity | validated | validated | validated | validated |
-| Weekly Target Share | primary player opportunity | validated | pending | pending | pending |
+| Weekly Target Share | primary player opportunity | validated | validated | validated | validated |
 | Weekly Snap Share | role/injury replacement | validated | validated | validated | validated |
 | Weekly PROE Report (Offense) | secondary team context | validated | validated | validated | validated |
 | Weekly PROE Report (Defense) | secondary opponent context | pending | pending | pending | pending |
@@ -162,16 +162,22 @@ the operator with the complete all-position/zero-snap export; only the stable
 The no-hyphen `2024offenseSnapShareReportExport.csv` is byte-identical to the
 named 2024 export and is ignored as a duplicate.
 
-### Target Share partial validation
+### Target Share family validation
 
-`2022-receivingTargetShareReportExport.csv` is a complete, valid 2022 export:
-647 rows, the same 25-column identity/Weeks 1--18 schema as Route Share, and
-all 6,787 populated weekly values lie in `[0, 100]`. Its SHA-256 is
-`89ad27d72e52199e11beea11308883a06c74dbf4912c9f56b951af9096856893`.
-The known Brock Wright split again has disjoint weeks and zero conflicts.
-Multi-team strings sometimes list teams in a different order than Route/Snap;
-identity normalization must treat them as unordered team sets rather than as
-different players. The 2023--2025 Target Share exports are not present yet.
+All four files use the same 25-column identity/Weeks 1--18 schema as Route
+Share, ending in `TM TGT %`. Every populated weekly and aggregate value parses
+numerically and lies in `[0, 100]`; season, name and position fields are
+complete. The known 2022 Brock Wright split again has disjoint weeks and zero
+conflicts. Multi-team strings sometimes list teams in a different order than
+Route/Snap; identity normalization must treat them as unordered team sets
+rather than as different players.
+
+| Season | Rows | Populated weekly values | SHA-256 |
+|---:|---:|---:|---|
+| 2022 | 647 | 6,787 | `89ad27d72e52199e11beea11308883a06c74dbf4912c9f56b951af9096856893` |
+| 2023 | 621 | 6,816 | `1633732c2cd9a023df089e74db1d23c8ce5ca2e9a09c75cbb16383be7df1d60f` |
+| 2024 | 625 | 6,818 | `c9719fcada009cdd18f6d69b62f0cc390cb8a786d949d613dc683bc4b843f4c1` |
+| 2025 | 637 | 6,884 | `257f752d8cae71ac057335148d2eb4a733cfd06a99a96b07966afcb1d9ca74f8` |
 
 ## Importer gate
 

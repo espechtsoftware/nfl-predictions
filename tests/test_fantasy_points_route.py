@@ -1,7 +1,11 @@
+from types import SimpleNamespace
+
+import numpy as np
 import pandas as pd
 import pytest
 
 from nfl_dfs.analysis import fantasy_points_route_share as diagnostic
+from nfl_dfs.backtest import engine
 from nfl_dfs.ingest import fantasy_points_route as ingest
 
 
@@ -105,3 +109,74 @@ def test_route_gate_is_30_point_tail_first_with_coverage_safeguard():
     assert gate["passes"]
     assert not diagnostic.route_gate(
         folds, aggregate, {2024: 0.79, 2025: 0.83})["passes"]
+
+
+def test_route_tail_delta_uses_frozen_models_without_target_outcome(
+        monkeypatch):
+    rows = []
+    for season, actual in ((2022, 10.0), (2023, 35.0), (2024, np.nan)):
+        rows.append({
+            "season": season,
+            "week": 2,
+            "gsis_id": f"p-{season}",
+            "pos": "WR",
+            "actual": actual,
+            "mean_projection": 15.0,
+            "salary": 5000,
+            "target_share_last": 0.20,
+            "target_share_jump": 0.01,
+            "snap_share_last": 0.80,
+            "snap_share_jump": 0.02,
+            "team_vacated_target_share": 0.10,
+            "depth_rank": 1,
+            "games_played_prior": 1,
+            "fp_route_source_season": season,
+            "fp_route_source_week": 1,
+            "fp_route_share_last": 0.75,
+            "fp_route_share_l4": 0.70,
+            "fp_route_share_jump": 0.05,
+            "fp_route_cross_season": 0,
+        })
+
+    calls = []
+
+    def fake_fit(train, test, numeric):
+        assert train.season.tolist() == [2022, 2023]
+        assert test.season.tolist() == [2024]
+        assert test.actual.isna().all()
+        calls.append(numeric)
+        p30 = 0.12 if len(numeric) == len(diagnostic.CONTROL_NUMERIC) else 0.17
+        return np.zeros(len(test)), np.full(len(test), 0.2), np.full(len(test), p30)
+
+    monkeypatch.setattr(diagnostic, "_fit_predict", fake_fit)
+    out = diagnostic.route_tail_deltas(pd.DataFrame(rows), 2024)
+    assert len(calls) == 2
+    assert out.route_delta_30.tolist() == pytest.approx([0.05])
+    assert out.fp_route_source_week.tolist() == [1]
+
+
+def test_route_tail_candidates_are_exact_novel_added_budget(monkeypatch):
+    pool = [
+        {"id": f"p{i}", "proj_tourney": 10.0 + i,
+         "route_delta_30": 0.01 * i}
+        for i in range(20)
+    ]
+    source = [SimpleNamespace(ids=frozenset({"source"}))]
+    calls = []
+
+    def fake_optimize(scored, **kwargs):
+        calls.append(kwargs)
+        assert scored[1]["proj_route_tail"] == pytest.approx(11.3)
+        assert kwargs["objective_col"] == "proj_route_tail"
+        assert kwargs["max_overlap"] == 8
+        index = len(calls)
+        return SimpleNamespace(
+            ids=frozenset({f"route-{index}"}), tag=None)
+
+    monkeypatch.setattr(engine, "optimize", fake_optimize)
+    added = engine.route_tail_candidates(
+        pool, source, stack=None, locks=set(), env={})
+    assert len(added) == 12
+    assert all(lineup.tag == "route_tail" for lineup in added)
+    assert [len(call["banned_lineups"]) for call in calls] == list(
+        range(1, 13))

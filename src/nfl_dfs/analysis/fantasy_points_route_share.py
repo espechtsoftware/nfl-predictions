@@ -151,6 +151,115 @@ def _fit_predict(
     return regression.predict(test[columns]), *probabilities
 
 
+def route_tail_deltas(rows: pd.DataFrame, held_out: int) -> pd.DataFrame:
+    """Predict the frozen Route Share contribution to 30-point tails.
+
+    Training is identical to the passing player diagnostic. Target outcomes
+    are deliberately neither required nor read, which lets the same function
+    construct point-in-time candidate objectives.
+    """
+    if held_out not in HELD_OUT_SEASONS:
+        raise ValueError(f"unsupported Route Share held-out season {held_out}")
+    needed = {
+        "season", "week", "gsis_id", "pos", "actual",
+        "mean_projection", "fp_route_source_season",
+        "fp_route_source_week", "fp_route_share_last",
+        *CONTROL_NUMERIC, *ROUTE_FEATURES,
+    }
+    if missing := needed - set(rows.columns):
+        raise ValueError(f"Route Share rows missing {sorted(missing)}")
+    eligible = rows[
+        rows.pos.isin(["RB", "WR", "TE"])
+        & rows.mean_projection.notna()
+        & rows.fp_route_share_last.notna()
+    ].copy()
+    train = eligible[
+        eligible.season.lt(held_out) & eligible.actual.notna()
+    ].copy()
+    target = eligible[eligible.season.eq(held_out)].copy()
+    if train.empty or target.empty:
+        raise ValueError(
+            f"Route Share season {held_out} has empty train or target rows")
+    _, _, control_p30 = _fit_predict(train, target, CONTROL_NUMERIC)
+    _, _, treatment_p30 = _fit_predict(
+        train, target, CONTROL_NUMERIC + ROUTE_FEATURES)
+    out = target[[
+        "season", "week", "gsis_id", "fp_route_source_season",
+        "fp_route_source_week",
+    ]].copy()
+    out["route_control_p30"] = control_p30
+    out["route_treatment_p30"] = treatment_p30
+    out["route_delta_30"] = (
+        out.route_treatment_p30 - out.route_control_p30)
+    numeric = out[[
+        "route_control_p30", "route_treatment_p30", "route_delta_30",
+    ]].to_numpy(dtype=float)
+    if not np.isfinite(numeric).all():
+        raise ValueError("Route Share tail predictions are non-finite")
+    source_order = (
+        out.fp_route_source_season.astype(int) * 100
+        + out.fp_route_source_week.astype(int)
+    )
+    target_order = out.season.astype(int) * 100 + out.week.astype(int)
+    if source_order.ge(target_order).any():
+        raise ValueError("Route Share tail signal used non-prior information")
+    if out.duplicated(["season", "week", "gsis_id"]).any():
+        raise ValueError("Route Share tail signal has duplicate player-weeks")
+    return out.reset_index(drop=True)
+
+
+def load_route_tail_deltas(
+    held_out: int,
+    panel_id: str = PANEL_ID,
+) -> pd.DataFrame:
+    """Load and construct the one preregistered candidate-generation signal."""
+    if panel_id != PANEL_ID:
+        raise ValueError(f"Route Share protocol is frozen to panel {PANEL_ID}")
+    if held_out not in HELD_OUT_SEASONS:
+        raise ValueError(f"unsupported Route Share held-out season {held_out}")
+    from ..bq import query_df
+    from ..config import settings
+
+    completeness = query_df(f"""
+        SELECT COUNT(DISTINCT FORMAT('%d-%d', season, week)) AS slates,
+               COUNTIF(selected) AS selected_rows
+        FROM `{settings.predictions}.replay_candidates`
+        WHERE panel_run_id = @panel_id AND research_eligible
+        """, params={"panel_id": panel_id}).iloc[0]
+    if int(completeness.slates or 0) != 107:
+        raise ValueError("corrected K1 panel is incomplete")
+    if int(completeness.selected_rows or 0) != 107 * 80:
+        raise ValueError("corrected K1 panel is not exact true-80")
+    route = query_df(f"""
+        SELECT season, week, gsis_id, route_share, source_sha256
+        FROM `{settings.raw}.{TABLE}`
+        WHERE resolution_status = 'resolved'
+        """)
+    if set(route.source_sha256.dropna().astype(str)) != set(
+            EXPECTED_HASHES.values()):
+        raise ValueError("Route Share table provenance does not match protocol")
+    snapshots = query_df(f"""
+        SELECT season, week, gsis_id, pos, mean_projection, salary,
+               target_share_last, target_share_jump,
+               snap_share_last, snap_share_jump,
+               team_vacated_target_share, depth_rank,
+               games_played_prior, actual
+        FROM `{settings.predictions}.slate_player_features`
+        WHERE panel_run_id = @panel_id
+          AND research_eligible
+          AND season IN UNNEST(@seasons)
+          AND pos IN ('RB', 'WR', 'TE')
+        QUALIFY ROW_NUMBER() OVER (
+          PARTITION BY season, week, gsis_id ORDER BY generated_at DESC
+        ) = 1
+        """, params={
+            "panel_id": panel_id,
+            "seasons": list(SOURCE_SEASONS),
+        })
+    joined = attach_strict_prior_route(snapshots, route)
+    return route_tail_deltas(joined, held_out)
+
+
 def _score(frame: pd.DataFrame, label: str) -> dict:
     from sklearn.metrics import brier_score_loss, mean_absolute_error
 

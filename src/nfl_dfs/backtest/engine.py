@@ -532,6 +532,50 @@ def select_dollar_entries(
     return picked
 
 
+def route_tail_candidates(
+    pool: list[dict],
+    source_candidates: list[Lineup],
+    *,
+    stack: StackRules | None,
+    locks: set,
+    env: dict,
+    n_candidates: int = 12,
+) -> list[Lineup]:
+    """Build the frozen added-budget Route Share candidate batch."""
+    if n_candidates != 12:
+        raise ValueError("the frozen Route Share candidate dose is 12")
+    if not pool or any("route_delta_30" not in player for player in pool):
+        raise ValueError("Route Share candidate signal is missing")
+    delta = pd.to_numeric(pd.Series([
+        player["route_delta_30"] for player in pool
+    ]), errors="coerce").fillna(0.0)
+    if not np.isfinite(delta.to_numpy(dtype=float)).all():
+        raise ValueError("Route Share candidate signal is non-finite")
+    if any("proj_tourney" not in player for player in pool):
+        raise ValueError("Route Share requires the incumbent tourney objective")
+    route_pool = [{
+        **player,
+        "proj_route_tail": float(
+            player["proj_tourney"] + 30.0 * delta.iloc[index]),
+    } for index, player in enumerate(pool)]
+    banned = [lineup.ids for lineup in source_candidates]
+    seen = set(banned)
+    added: list[Lineup] = []
+    for _ in range(n_candidates):
+        lineup = optimize(
+            route_pool, stack=stack, objective_col="proj_route_tail",
+            locks=set(locks), banned_lineups=list(banned), max_overlap=8,
+            env=env)
+        if lineup is None or lineup.ids in seen:
+            raise RuntimeError(
+                "Route Share generator did not produce a novel roster")
+        lineup.tag = "route_tail"
+        banned.append(lineup.ids)
+        seen.add(lineup.ids)
+        added.append(lineup)
+    return added
+
+
 def tail_select_lineups(
     slate: pd.DataFrame,
     pool: list[dict],
@@ -1152,6 +1196,23 @@ def tail_select_lineups(
                  "dropped=%s", _cap, _protect, _ret, _drop)
     log.info("pool final: %s wk%s n=%d cap=%s", _season, _week,
              len(cands), _cap or "none")
+    # Paid Route Share confirmatory arm. This is an added-budget generator,
+    # so it runs only after the incumbent cap. Every source roster is banned
+    # at exact-nine overlap, guaranteeing twelve genuinely novel candidates
+    # without changing a production world or optimizer constraint.
+    n_route_tail = int(runtime_env.get("N_ROUTE_TAIL", "0") or 0)
+    if n_route_tail:
+        if n_route_tail != 12:
+            raise ValueError("the frozen Route Share candidate dose is 12")
+        if _season in (2024, 2025):
+            route_batch = route_tail_candidates(
+                pool, cands, stack=stack, locks=set(locks), env=runtime_env,
+                n_candidates=n_route_tail)
+            for lu in route_batch:
+                _note(lu.ids, "route_tail")
+                seen.add(lu.ids)
+                cands.append(lu)
+            log.info("Route Share added %d novel candidates", len(route_batch))
     id2row = {pid: i for i, pid in enumerate(slate["id"])}
     cand_totals = np.stack([
         rd[[id2row[p["id"]] for p in lu.players]].sum(axis=0) for lu in cands
@@ -1322,6 +1383,7 @@ def tail_select_lineups(
                 "MODEL_ENSEMBLE_MIX", "MODEL_REGISTRY_VARIANT",
                 "N_BOOM", "N_CE", "N_DARKGAME",
                 "N_EPISTEMIC", "N_GAMESTACK", "N_GUMBEL", "N_LOWSAL",
+                "N_ROUTE_TAIL",
                 "N_MIDQB", "N_NOSTACK", "N_QB_VARIANTS", "OWN_BARBELL",
                 "OWN_MODEL", "PEAK_SLICE", "PUNT_BOOM", "PUNT_BOOM_WR",
                 "PUNT_MIN", "PUNT_SLOPE", "PUNT_STRICT", "PUNT_VALUE",
@@ -1493,6 +1555,8 @@ def tail_select_lineups(
                         # construction, so a new field cannot silently vanish
                         # before this immutable writer.
                         *PLAYER_SNAPSHOT_FEATURES, "actual"]
+                if "route_delta_30" in slate.columns:
+                    want.append("route_delta_30")
                 # Member-level point predictions are dynamic by fitted K and
                 # were previously present in the replay frame but silently
                 # discarded here, making MODEL_ENSEMBLE unauditable.

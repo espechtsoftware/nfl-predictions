@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 14:53 CDT
+## Current state — 2026-08-10 15:05 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -294,16 +294,16 @@ agent or developer:
   source rows or use same-week postgame values in a replay.
   All four Snap Share exports also pass at 647/621/625/637 rows. The exact
   hashes, byte-identical extra 2024 file, and the replaced, filtered first 2022
-  download caveat are recorded in the intake report. The 2022 Target Share
-  export is also complete at 647 rows and SHA-256
-  `89ad27d72e52199e11beea11308883a06c74dbf4912c9f56b951af9096856893`;
-  2023--2025 Target Share, all Defense PROE, and all Advanced Receiving files
-  are still absent from the repository-local intake directory.
+  download caveat are recorded in the intake report. All four Target Share
+  exports now pass at 647/621/625/637 rows with exact hashes in the intake
+  report. All Defense PROE and Advanced Receiving files are still absent from
+  the repository-local intake directory.
 - Corrected CE12 remains healthy and partial; no score has been queried. At
-  14:18 CDT its completeness-only slate counts were 2019=7, 2021=6, 2022=5,
-  2023=5, 2024=8 and 2025=6, with exactly 80 selected rows for every written
-  slate and no error-level logs. Continue monitoring to 17/18/18/18/18/18,
-  then run check-only acceptance and the corrected comparator digest above.
+  15:05 CDT its completeness-only slate counts were 2019=17, 2021=18,
+  2022=15, 2023=15, 2024=18 and 2025=17, with exactly 80 selected rows for
+  every written slate and no error-level logs. Continue monitoring to
+  17/18/18/18/18/18, then run check-only acceptance and the corrected
+  comparator digest above.
 - Before joining any paid Route Share value to an outcome, the exact first
   paid-data diagnostic was frozen in
   `reports/2026-08-10-fantasy-points-route-share-experiment.md`. It normalizes
@@ -352,6 +352,18 @@ agent or developer:
   the 194 selector remain unchanged. Exact source containment/invariance and
   twelve novel candidates per treated slate are mandatory before applying the
   240→230→220→210 law. No dose/scale/model retry is allowed.
+- The preregistered Route candidate construction is now implemented but has
+  not run. It reconstructs the exact held-out control/treatment p30 models
+  without requiring target outcomes, persists the strict-prior audit fields,
+  and adds the paid signal only to the 2024/2025 candidate objective. The
+  engine applies the incumbent pool cap first, then adds exactly twelve
+  source-banned `route_tail` rosters using the frozen coefficient; unsupported
+  doses, missing/non-finite signals, failed solves or duplicate rosters abort.
+  Other seasons add zero candidates. Six focused Route tests plus the related
+  generation/persistence/replay suites pass (61 tests total); compilation and
+  whitespace checks are clean. Commit and exact-tree Cloud Build are still
+  required. Do not launch the arm until the corrected generator chain chooses
+  its incumbent.
 - One corrected-history selector confirmation is now frozen before either
   corrected control outcome is read:
   `reports/2026-08-10-corrected-extreme-selector-confirmation.md`. After the

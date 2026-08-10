@@ -793,6 +793,8 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
         ):
             if _c in grp.columns:
                 cols.append(_c)
+        if "route_delta_30" in grp.columns:
+            cols.append("route_delta_30")
         cols.extend(c for c in grp.columns
                     if c.startswith("ensemble_point_") and c not in cols)
         frame = grp[cols].copy()
@@ -814,6 +816,8 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
                         d[c] = np.nan
                     elif c.startswith("proj_p") or c == "proj_std":
                         d[c] = d["proj"] if c != "proj_std" else 0.0
+                    elif c == "route_delta_30":
+                        d[c] = 0.0
                     elif c in PLAYER_SNAPSHOT_FEATURES:
                         # DST rows have no player-role history. Missingness is
                         # semantically different from a zero role or zero game
@@ -1358,6 +1362,30 @@ def run(
                               how="left")
     except Exception:
         log.exception("alt ceilings unavailable")
+    n_route_tail = int(os.environ.get("N_ROUTE_TAIL", "0") or 0)
+    if n_route_tail:
+        if n_route_tail != 12:
+            raise ValueError("the frozen Route Share candidate dose is 12")
+        proj["route_delta_30"] = 0.0
+        if season in (2024, 2025):
+            from ..analysis.fantasy_points_route_share import (
+                load_route_tail_deltas,
+            )
+
+            signal = load_route_tail_deltas(season)
+            before = len(proj)
+            proj = proj.merge(
+                signal[["season", "week", "gsis_id", "route_delta_30"]],
+                on=["season", "week", "gsis_id"], how="left",
+                suffixes=("", "_paid"), validate="many_to_one",
+            )
+            if len(proj) != before:
+                raise ValueError("Route Share signal merge fanned out rows")
+            proj["route_delta_30"] = proj.pop(
+                "route_delta_30_paid").fillna(0.0)
+            log.info(
+                "Route Share tail signal: season=%d covered=%d/%d",
+                season, int(proj.route_delta_30.ne(0).sum()), len(proj))
     overall, by_pos = replay_metrics(proj)
 
     print(f"\n=== Projection replay: {season} "
