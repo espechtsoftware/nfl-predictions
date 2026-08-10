@@ -1,7 +1,7 @@
 # K=1 cross-entropy true-80 experiment
 
-Status: corrected union comparator passed; the frozen equal-budget fixed
-replacement panel is running and no partial fixed-panel outcomes are read.
+Status: corrected union and equal-budget fixed comparators passed; the fixed
+12-for-12 CE replacement is promoted as the historical research baseline.
 
 ## Why this arm is still eligible
 
@@ -94,3 +94,43 @@ preflight `replay-e80k1cef-smoke-mcv5c`, and launched the six fixed seasons.
 The exact IDs and cap map are tracked under
 `reports/panel-runs/20260809-e80-k1-ce12-c616390/`. Do not inspect or compare
 partial fixed-panel scores.
+
+## Equal-budget fixed outcome
+
+All six exact fixed season executions completed successfully and produced the
+full 107-slate panel. Immutable comparator execution
+`compare-k1-ce-panel-87l22` passed with zero failures:
+
+| Weekly maximum metric | Source K=1 | Fixed CE |
+|---|---:|---:|
+| >=187 | 36 | 40 |
+| >=194 | 22 | 26 |
+| >=200 | 12 | 18 |
+| >=210 | 6 | 11 |
+| >=220 | 3 | 5 |
+| >=230 | 1 | 2 |
+| >=240 | 1 | 1 |
+| Mean | 179.60 | 181.12 |
+| Median | 178.82 | 178.64 |
+
+Pool-oracle counts at 187/194/200/210/220/230/240 improve from
+`44/30/19/9/3/1/1` to `47/32/22/13/5/2/1`. The fixed gate passes: selected
+200+ gains six weeks (required at least two), selected 210+ gains five, and
+pool-oracle 200+ gains three.
+
+The mechanism is clean and equal-budget. Source and treatment each contain
+25,787 candidates; all 107 slates have identical frozen pool caps; exactly 12
+CE candidates replace 12 boom candidates on every slate; and 1,284 novel CE
+rosters are created. All 24,503 shared rosters retain exact actual scores,
+p-line, simulated means, and support masks. The 3,110 non-bit-exact feature
+payloads have zero material/categorical mismatches and maximum numeric delta
+`3.5527e-15`.
+
+Canonical promotion execution `accept-replay-panel-p6ll4` independently
+validated all 107 slates, 8,560 selected entries, feature snapshots, complete
+score artifacts, masks, authoritative outcomes, selection reproduction, and
+candidate/live mean parity, then atomically promoted the 25,787 candidates and
+50,098 feature rows. Panel `20260809-e80-k1-ce12-c616390` is therefore the new
+historical research baseline. This does not silently change the live UI/API;
+the pre-season arm-policy gate must wire the final adopted policy through all
+lineup paths after remaining research is closed or deferred.

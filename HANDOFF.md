@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 19:00 CDT
+## Current state — 2026-08-09 19:46 CDT
 
 ### Autonomous scoring research resumed after context recovery
 
@@ -285,6 +285,30 @@ agent or developer:
   exact next action is to wait for all six CE execution IDs to succeed, then
   run the frozen fixed comparator on immutable reporting digest
   `sha256:342c9662...0eff`.
+- All six fixed CE executions completed successfully and immutable comparator
+  `compare-k1-ce-panel-87l22` returned `pass` with zero failures. Selected
+  187/194/200/210/220/230/240 improves from `36/22/12/6/3/1/1` to
+  `40/26/18/11/5/2/1`; mean/median weekly maximum moves
+  `179.60/178.82 -> 181.12/178.64`; pool oracle improves from
+  `44/30/19/9/3/1/1` to `47/32/22/13/5/2/1`. The fixed tail-first gate passes
+  by +6 selected 200 weeks, +5 selected 210 weeks, and +3 oracle-200 weeks.
+- The fixed mechanism audit proves equal pools on all 107 slates (25,787 rows
+  each), exactly 12 CE candidates per slate replacing 12 boom candidates,
+  1,284 novel CE rosters, exact shared candidate worlds, zero material player
+  feature differences, and zero failures. Canonical promote execution
+  `accept-replay-panel-p6ll4` independently passed all completeness,
+  provenance, feature, authoritative-actual, score-artifact, mask, selection,
+  and parity contracts, then atomically promoted 25,787 candidates and 50,098
+  player features. `20260809-e80-k1-ce12-c616390` is now the accepted
+  historical research baseline. Live/UI behavior remains unchanged pending
+  the README's pre-season arm-policy gate.
+- The promoted baseline has 6 recoverable >=194 weeks across 4 seasons and 4
+  recoverable >=200 weeks. Canonical acceptance therefore passes the original
+  reranker-development opportunity gate. Exact next action: commit/push the
+  CE comparison and promotion artifacts, then preregister a corrected
+  true-80 tail-first reranker confirmation on this accepted CE pool before
+  evaluating its outcomes. Do not reuse the old 40-entry constants or choose
+  a feature arm after seeing new results.
 
 ### Recovery provenance
 
@@ -893,11 +917,11 @@ agent or developer:
 The recovered source defaults to the corrected `0/0/0/40` generation budget,
 a three-member model ensemble, the 45/55 model/market blend, and the $49k
 salary floor. A01, A02, and A03 retain their original scientific
-dispositions, but the later operator-utility amendment promotes true-80 K=1
-as the research baseline. K=3 remains the live/stability reference until an
-isolated prospective K=1 shadow is validated; do not overwrite the canonical
-model registry or silently change app behavior. Earlier deployed
-`12 CE / 28 boom` settings are stale.
+dispositions. Under the later operator-utility amendment, true-80 K=1 with
+fixed `12 CE / 28 boom` is now the accepted historical research baseline.
+K=3 remains the live/stability reference until the pre-season policy gate
+explicitly wires the final arm through UI/API and export paths; do not
+silently change app behavior from a historical promotion alone.
 
 ### Next concrete action
 
