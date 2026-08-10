@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 11:56 CDT
+## Current state — 2026-08-10 12:09 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -175,9 +175,9 @@ agent or developer:
   tests with 2 skipped and produced immutable digest
   `sha256:fe380648b9a146a95b8c4d942c484979b50f95762f16a277d704151106a82374`.
   Only that digest may run the NGS job after corrected K1 acceptance.
-- At 12:03 CDT the corrected controls remained healthy with no failed
-  execution: K3 had 98/107 complete slates and 7,840 selected rows; K1 had
-  85/107 and 6,800. These are completeness counts only; no partial score was
+- At 12:09 CDT the corrected controls remained healthy with no failed
+  execution: K3 had 105/107 complete slates and 8,400 selected rows; K1 had
+  93/107 and 7,440. These are completeness counts only; no partial score was
   queried. Continue monitoring all twelve exact execution IDs above, then run
   `scripts/prop_lock_finish_controls.sh` on the corrected generation digest.
 - One corrected-history selector confirmation is now frozen before either
@@ -195,6 +195,22 @@ agent or developer:
   whitespace validation. Implementation/protocol commit `177c113` is pushed;
   exact-tree build `604b1496-5bc2-406f-9565-dd41c6870c96` is `WORKING`. No
   corrected selector score has been queried.
+- The operator supplied an outside strategy review. Its reconciled,
+  repository-verified disposition is tracked in
+  `reports/2026-08-10-strategy-review-reconciliation.md`. The useful new
+  direction is explicit opponent-field/payout simulation, which is distinct
+  from the rejected ownership fade and supported by the cited primary DFS
+  optimization research. It is prospective/data-blocked: the warehouse has
+  103,556 aggregate ownership rows from 1,258 contests/72 slates and 68 winner
+  rosters, but no historical opponent lineups, payout curves, field sizes,
+  min-cash lines or duplication labels. Seek a metadata-only export first and
+  use 2026 full standings for field-model validation. The review's proposed
+  ordinary-tail widening reverses the measured calibration direction
+  (`7.37%/0.72%` exceedance is conservative, not too thin); its claimed-new
+  within-team Dirichlet mechanism already failed at K=20 and K=8; and its
+  world-argmax proposal is the existing boom generator. Do not launch those
+  three as new arms. Constant-budget candidate reallocation remains a lower-
+  priority possible arm after the corrected queue, not a current sweep.
 
 - The operator explicitly revised the operational objective after the valid
   role union improved the same 80-entry portfolio at every 210+ threshold.
