@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 15:09 CDT
+## Current state — 2026-08-10 15:14 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -296,8 +296,10 @@ agent or developer:
   hashes, byte-identical extra 2024 file, and the replaced, filtered first 2022
   download caveat are recorded in the intake report. All four Target Share
   exports now pass at 647/621/625/637 rows with exact hashes in the intake
-  report. All Defense PROE and Advanced Receiving files are still absent from
-  the repository-local intake directory.
+  report. All four Defense PROE exports also pass at 32 unique defenses and
+  exact hashes recorded in the intake report. Advanced Receiving is now the
+  only requested family still absent from the repository-local intake
+  directory.
 - Corrected CE12 remains healthy and partial; no score has been queried. At
   15:05 CDT its completeness-only slate counts were 2019=17, 2021=18,
   2022=15, 2023=15, 2024=18 and 2025=17, with exactly 80 selected rows for
@@ -369,6 +371,21 @@ agent or developer:
   `d01b4116-2abf-45af-b56c-1a0b1f7342bf` is therefore superseded even if it
   succeeds; build the audit-complete commit before any execution. Do not
   launch the arm until the corrected generator chain chooses its incumbent.
+- The Route union protocol's artifact condition was clarified before any arm
+  generation: whole NPZ checksums necessarily differ when twelve candidate
+  rows are appended. Both artifacts must be present/hash-addressed, while all
+  persisted shared-candidate actual/mean/probability/support fields must match.
+- The guarded Route union evaluator is implemented behind CLI
+  `route-tail-union` and `scripts/cloud_route_tail_union.sh`. It fails before
+  scoring unless source containment/shared supports, exact 12-per-treated-
+  slate Route provenance, zero additions elsewhere, strict-prior signal
+  provenance, artifacts, exact-80 completeness, and persisted-selection
+  reproduction all pass. Two focused evaluator tests plus 43 related tests
+  pass; compilation, shell parsing and whitespace checks are clean. No Route
+  lineup exists. Audit-complete generator build
+  `6c96b5bb-5958-4b17-bf1a-7ec2bdcfc9d1` from commit `aa087b8` is running;
+  it predates only the evaluator/runner and remains valid for generation if
+  the full suite passes. Build a later comparator image before evaluation.
 - One corrected-history selector confirmation is now frozen before either
   corrected control outcome is read:
   `reports/2026-08-10-corrected-extreme-selector-confirmation.md`. After the

@@ -29,7 +29,7 @@ available offensive positions, clear player filters, and prefer CSV. Acquire
 | Weekly Target Share | primary player opportunity | validated | validated | validated | validated |
 | Weekly Snap Share | role/injury replacement | validated | validated | validated | validated |
 | Weekly PROE Report (Offense) | secondary team context | validated | validated | validated | validated |
-| Weekly PROE Report (Defense) | secondary opponent context | pending | pending | pending | pending |
+| Weekly PROE Report (Defense) | secondary opponent context | validated | validated | validated | validated |
 | Weekly Fantasy Points Scored | identity/scoring audit only | validated | validated | validated | validated |
 | Advanced Receiving | route, alignment, first-read and separation candidates | pending | pending | pending | pending |
 
@@ -161,6 +161,22 @@ the operator with the complete all-position/zero-snap export; only the stable
 
 The no-hyphen `2024offenseSnapShareReportExport.csv` is byte-identical to the
 named 2024 export and is ignored as a duplicate.
+
+### Defense PROE family validation
+
+Every season contains 32 unique defenses and the same 25-column schema:
+full team name, games, season, separate location/nickname fields, `W1`--`W18`,
+and aggregate `PROE`. Every populated value parses numerically, and each
+defense's populated weekly count equals its reported games. The 2022 total is
+542 rather than 544 because two teams correctly report 16 games. Every file
+is distinct from its same-season Offense PROE export.
+
+| Season | Rows | Populated weekly values | SHA-256 |
+|---:|---:|---:|---|
+| 2022 | 32 | 542 | `ea07de3dff814c88599af1ff7e64e9c2ef2021ef53c2133442cd7086dff8be2b` |
+| 2023 | 32 | 544 | `f7ab17479bf6b68a42db1147e963f53ab5059dba3c1331c32efd1539a4505dc6` |
+| 2024 | 32 | 544 | `38951d500d25d8ec8f2e331a6eb347e5636a1245eb46a0468ca7dc4ee7b425c3` |
+| 2025 | 32 | 544 | `07940fdae0475756d29329c9f5279534ec7069b9d35850d95fb46a30b5a4435b` |
 
 ### Target Share family validation
 

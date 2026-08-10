@@ -71,7 +71,7 @@ Before reading lineup outcomes require:
 1. complete source and treatment slate sets and exactly 80 selected entries;
 2. exact source-candidate containment and equality of shared actual scores,
    simulated means, probabilities, 187/194/200/210/220 support masks, feature
-   rows, player order, and immutable score artifacts;
+   rows, player order, and required artifact presence/provenance;
 3. zero Route candidates outside 2024--2025 and exactly twelve novel
    `route_tail` candidates on every 2024--2025 slate; and
 4. an audit proving every nonzero Route value came from a strictly earlier
@@ -88,3 +88,26 @@ This is one confirmatory lineup test. A valid rejection closes this exact
 Route Share construction for pre-Week-1 adoption; do not tune the coefficient,
 dose, optimizer constraints, selector, folds, or model on these 107 outcomes.
 
+Pre-outcome implementation clarification: source and treatment score-artifact
+checksums cannot be equal because each NPZ stores the complete candidate matrix
+and the treatment has twelve additional rows. Equality is therefore required
+for every persisted shared-candidate score/support statistic, while both
+panel-specific artifacts must be present and hash-addressed. This correction
+was made before a Route lineup was generated or scored.
+
+## Implementation status
+
+Candidate construction is guarded by `N_ROUTE_TAIL=12` in the replay engine;
+the signal builder reuses the frozen diagnostic models and persists source
+season/week plus control/treatment p30 probabilities in the immutable player
+snapshot. The source cap is applied before the twelve paid candidates, so the
+arm is a true added-budget union.
+
+The evaluator is `research/route_tail_union.py`, CLI command
+`route-tail-union`, with guarded runner `scripts/cloud_route_tail_union.sh`.
+It refuses incomplete/unaccepted panels, validates exact source containment,
+all shared support statistics, twelve correctly tagged novel candidates on
+every treated slate and none elsewhere, strict-prior signal provenance, and
+reproduction of the persisted treatment selection before computing outcomes.
+No arm has been generated or scored; the corrected generator chain remains a
+hard prerequisite.

@@ -240,6 +240,23 @@ def main(argv: list[str] | None = None) -> None:
                      else "replay_candidates"),
         )
 
+    p = sub.add_parser(
+        "route-tail-union",
+        help="Evaluate the frozen paid Route Share candidate union",
+    )
+    p.add_argument("--source-panel", required=True)
+    p.add_argument("--treatment-panel", required=True)
+    p.add_argument(
+        "--source-table",
+        choices=("replay_candidates", "replay_candidates_staging"),
+        default="replay_candidates",
+    )
+    p.add_argument(
+        "--treatment-table",
+        choices=("replay_candidates", "replay_candidates_staging"),
+        default="replay_candidates_staging",
+    )
+
     p = sub.add_parser("archetypes",
                        help="Cluster scoring-consistency archetypes into nfl_features")
     p.add_argument("--seasons", type=int, default=3, help="Trailing seasons to profile")
@@ -449,6 +466,15 @@ def main(argv: list[str] | None = None) -> None:
             args.source_table,
             args.addon_table,
             args.incumbent_table,
+        )
+    elif args.command == "route-tail-union":
+        from .research import route_tail_union
+
+        route_tail_union.run(
+            args.source_panel,
+            args.treatment_panel,
+            args.source_table,
+            args.treatment_table,
         )
     elif args.command == "serve":
         import uvicorn
