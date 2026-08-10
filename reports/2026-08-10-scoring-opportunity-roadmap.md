@@ -168,15 +168,25 @@ The deeper follow-on is an estimator test, not another CE candidate retry.
 The adopted CE generator already uses learned rare worlds to create lineups,
 but its importance weights are explicitly candidate-only; every candidate's
 selection support is still estimated from the ordinary production worlds.
-Test whether a mixture of the production proposal and the already-defined
-bounded CE proposal can estimate lineup `P(score >= 210)` and
-`P(score >= 220)` with less seed-to-seed noise. Preserve likelihood weights
-and the ordinary component so multiple important regions are not dropped.
+Those weights **cannot be reused directly** for support estimation: CE's
+bounded knobs deform deterministic player means and do not constitute an
+alternate draw from the possession simulator with a known density ratio.
+
+The first prerequisite is therefore to expose a small set of the production
+simulator's own continuous latent variables and their exact log density, then
+define an absolutely continuous mixture proposal over those same variables.
+Only a proposal whose likelihood ratio reproduces analytically solvable toy
+events and ordinary Monte Carlo estimates may attempt to estimate lineup
+`P(score >= 210)` and `P(score >= 220)`. Preserve an ordinary-mixture
+component so multiple important regions are not dropped. If an exact density
+ratio cannot be written and tested, close this idea; self-normalized weights
+from CE mean deformations are not an acceptable approximation.
 
 The mechanism must pass before any portfolio is frozen:
 
-1. weighted estimates reproduce ordinary-world 187/194 probabilities within
-   their registered Monte Carlo confidence intervals;
+1. likelihood ratios reproduce normalized mass and analytic toy-event
+   probabilities, then weighted estimates reproduce ordinary-world 187/194
+   probabilities within their registered Monte Carlo confidence intervals;
 2. effective sample size is at least 25% of the nominal sample and no single
    world carries more than 1% normalized weight;
 3. across five fixed independent seeds, median relative standard error at

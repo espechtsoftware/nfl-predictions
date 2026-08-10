@@ -144,9 +144,12 @@ agent or developer:
 - Research on the subsequent selector question is recorded in
   `reports/2026-08-10-scoring-opportunity-roadmap.md`. After current shadows,
   prospective snapshots may retain 210/220 support and freeze a deterministic
-  220→210→200 lexicographic book. A separate mechanism test may use the
-  existing CE proposal with likelihood weights to reduce seed noise when
-  estimating 210/220 support; it must pass confidence-interval parity, ESS,
+  220→210→200 lexicographic book. A separate mechanism test may reduce seed
+  noise when estimating 210/220 support only after exposing an exact change
+  of measure on the possession simulator's own latent variables. The existing
+  CE weights are not valid for this purpose because CE deforms deterministic
+  means rather than sampling the production law. Any valid proposal must pass
+  analytic likelihood-ratio checks, confidence-interval parity, ESS,
   max-weight, repeated-seed variance, marginal-invariance and roster-stability
   gates before any portfolio. This is not a retry of the already-adopted CE
   candidate generator and may not inspect the 107 known scores to set rules.
