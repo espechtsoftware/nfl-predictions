@@ -137,8 +137,10 @@ agent or developer:
   season-delayed and presence is not a route, so it can only support or reject
   a paid route-data trial; it cannot become a production input or historical
   lineup arm. Implementation, CLI, and three focused tests are complete; nine
-  combined participation/selector tests pass. Full cloud validation and the
-  one frozen diagnostic remain pending.
+  combined participation/selector tests pass. Implementation/protocol commit
+  `0261801` is pushed on `main`; full validation build
+  `6200e344-837e-4935-9adf-8eb062383017` is running. The one frozen cloud
+  diagnostic remains blocked on a green immutable digest from that build.
 - Research on the subsequent selector question is recorded in
   `reports/2026-08-10-scoring-opportunity-roadmap.md`. After current shadows,
   prospective snapshots may retain 210/220 support and freeze a deterministic
