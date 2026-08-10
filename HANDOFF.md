@@ -153,6 +153,16 @@ agent or developer:
   max-weight, repeated-seed variance, marginal-invariance and roster-stability
   gates before any portfolio. This is not a retry of the already-adopted CE
   candidate generator and may not inspect the 107 known scores to set rules.
+- Prospective extreme-selector protocol
+  `reports/2026-08-10-prospective-extreme-selector.md` is now frozen and
+  implemented without consulting historical outcomes. Candidate persistence
+  adds complete 210/220 masks; policy `tail-first-v5-20260810` retains the
+  prior eight books and adds one K=1 book that greedily covers new worlds
+  lexicographically at 220→210→200. The implementation validates nested masks,
+  deterministic priority/tiebreaks, 80 unique rosters and old 194 selection
+  reproduction. Thirty-five combined selector/persistence/participation tests
+  pass locally. No generator/freezer job has been changed to this unvalidated
+  code; v4 digest `sha256:9d02ecc3...` remains the deployed paused freezer.
 - Exact next action: wait for all six exact union executions, run the union
   comparator on immutable digest `sha256:a410648b...`, and commit its JSON and
   Cloud Run execution. Launch the fixed arm only if that tracked union gate

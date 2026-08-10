@@ -11,6 +11,7 @@ from nfl_dfs.research.live_shadow_portfolios import (
     K1_COVERAGE,
     K1_COVERAGE_187,
     K1_COVERAGE_200,
+    K1_EXTREME_LEX,
     K1_NOFLOOR_COVERAGE,
     K1_REFINED,
     K1_TOP_P,
@@ -20,6 +21,7 @@ from nfl_dfs.research.live_shadow_portfolios import (
     canonical_roster,
     choose_latest_panels,
     coverage_order,
+    extreme_lexicographic_order,
     score_portfolios,
     summarize_grades,
     validate_shadow_panel,
@@ -76,6 +78,8 @@ def _panel(model: str, *, stamp: str = "2026-09-13T15:30:00Z") -> pd.DataFrame:
             "clear_bits_194": _mask(count),
             "clear_bits_187": _mask(count),
             "clear_bits_200": _mask(count),
+            "clear_bits_210": _mask(count),
+            "clear_bits_220": _mask(count),
             "score_artifact_uri": f"gs://bucket/{panel}.npz",
             "score_artifact_sha256": "f" * 64,
         })
@@ -99,8 +103,29 @@ def test_coverage_order_uses_the_requested_persisted_mask():
     _, at_200 = coverage_order(rows, 200)
     assert int(at_194[0]) == 0
     assert int(at_200[0]) == 99
+    _, at_210 = coverage_order(rows, 210)
+    assert int(at_210[0]) == 0
     with pytest.raises(ValueError, match="unsupported"):
-        coverage_order(rows, 210)
+        coverage_order(rows, 230)
+
+
+def test_extreme_lexicographic_order_prioritizes_220_then_210_then_200():
+    rows = _panel("tail_k1")
+    for column in ("clear_bits_200", "clear_bits_210", "clear_bits_220"):
+        rows[column] = _mask(0)
+    rows.loc[3, ["clear_bits_200", "clear_bits_210", "clear_bits_220"]] = \
+        _mask(1)
+    rows.loc[4, ["clear_bits_200", "clear_bits_210"]] = _mask(100)
+    rows.loc[5, "clear_bits_200"] = _mask(100)
+
+    _, order = extreme_lexicographic_order(rows)
+
+    assert order[:3].tolist() == [3, 4, 5]
+
+    invalid = rows.copy()
+    invalid.loc[6, "clear_bits_220"] = _mask(2)
+    with pytest.raises(ValueError, match="not nested"):
+        extreme_lexicographic_order(invalid)
 
 
 def test_builds_frozen_top_p_and_duplicate_backfilled_mix():
@@ -112,7 +137,7 @@ def test_builds_frozen_top_p_and_duplicate_backfilled_mix():
     )
     assert set(memberships.portfolio_id) == {
         K1_COVERAGE, K1_COVERAGE_187, K1_COVERAGE_200,
-        K1_TOP_P, K1_NOFLOOR_COVERAGE, K1_REFINED,
+        K1_EXTREME_LEX, K1_TOP_P, K1_NOFLOOR_COVERAGE, K1_REFINED,
         K3_COVERAGE, MIX_20_60}
     counts = memberships.groupby("portfolio_id").size()
     assert counts.eq(EXPECTED_ENTRIES).all()
@@ -133,6 +158,9 @@ def test_builds_frozen_top_p_and_duplicate_backfilled_mix():
     assert memberships[
         memberships.portfolio_id.eq(K1_COVERAGE_200)
     ].selection_method.eq("coverage200").all()
+    assert memberships[
+        memberships.portfolio_id.eq(K1_EXTREME_LEX)
+    ].selection_method.eq("coverage_lex_220_210_200").all()
     nofloor = memberships[
         memberships.portfolio_id.eq(K1_NOFLOOR_COVERAGE)]
     assert nofloor.source_model.eq("tail_k1_nofloor").all()
@@ -201,11 +229,11 @@ def test_scores_frozen_memberships_and_fails_on_missing_actual():
         "actual": 1.0,
     })
     grades = score_portfolios(memberships, actuals)
-    assert len(grades) == 8
+    assert len(grades) == 9
     assert grades.n_entries.eq(80).all()
     assert grades.weekly_max.eq(9.0).all()
     summary = summarize_grades(grades)
-    assert len(summary) == 8
+    assert len(summary) == 9
     assert summary.ge_200.eq(0).all()
     assert summary.mean_weekly_max.eq(9.0).all()
     with pytest.raises(ValueError, match="missing actuals"):

@@ -165,7 +165,8 @@ def test_masks_full_length_and_grid_decodes(monkeypatch):
     n_worlds = int(df.n_worlds.iloc[0])
     assert df.bitorder.eq("big").all()
     for col, line in (("clear_bits_187", 187.0), ("clear_bits_194", 194.0),
-                      ("clear_bits_200", 200.0), ("clear_bits", 95.0)):
+                      ("clear_bits_200", 200.0), ("clear_bits_210", 210.0),
+                      ("clear_bits_220", 220.0), ("clear_bits", 95.0)):
         bits = np.unpackbits(
             np.frombuffer(bytes.fromhex(df[col].iloc[0]), dtype=np.uint8),
             bitorder="big")[:n_worlds]
@@ -176,7 +177,8 @@ def test_masks_full_length_and_grid_decodes(monkeypatch):
             bytes.fromhex(df[col].iloc[0]), dtype=np.uint8),
             bitorder="big")[:n_worlds].sum()
     assert count("clear_bits_187") >= count("clear_bits_194") >= \
-        count("clear_bits_200")
+        count("clear_bits_200") >= count("clear_bits_210") >= \
+        count("clear_bits_220")
 
 
 def test_selection_reproducible_from_persisted_masks(monkeypatch):

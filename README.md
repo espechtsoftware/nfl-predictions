@@ -168,9 +168,10 @@ app; K=3 is the same-time stability reference. After all three source books
 finish, `nfl-dfs freeze-tail-portfolios --slot early|late` verifies and
 reconstructs their persisted coverage selections, then freezes the exact
 K=1 194 control, prospective 187- and 200-coverage alternatives, a
-deterministic outcome-blind one-swap refinement, the no-floor coverage book,
+prospective lexicographic 220→210→200 extreme-tail book, a deterministic
+outcome-blind one-swap refinement, the no-floor coverage book,
 a K=1 top-p book, the K=3 control, and a duplicate-backfilled 20/60 K1/K3
-book. Policy `tail-first-v4-20260810` keeps all alternatives
+book. Policy `tail-first-v5-20260810` keeps all alternatives
 prospective-only; none replaces the adopted/UI portfolio.
 `nfl-dfs grade-tail-portfolios` joins those immutable memberships to
 authoritative actuals after the week. These research commands never publish

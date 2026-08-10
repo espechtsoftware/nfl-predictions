@@ -1,11 +1,12 @@
 """Freeze and grade prospective tail-first live portfolios.
 
 The K=1/K=3 shadow jobs persist complete candidate pools before lock.  This
-module turns those immutable inputs into eight explicitly frozen 80-entry
+module turns those immutable inputs into nine explicitly frozen 80-entry
 books without regenerating a slate or consulting outcomes:
 
 * K=1 production coverage at 194 (research control)
 * K=1 coverage at 187 and at 200 (prospective threshold alternatives)
+* K=1 lexicographic extreme coverage at 220, then 210, then 200
 * K=1 coverage followed by deterministic outcome-blind one-swap refinement
 * K=1 top individual ``p_line`` (the leading selector hypothesis)
 * K=1 no-salary-floor coverage at 194 (post-result prospective shadow)
@@ -34,7 +35,7 @@ log = logging.getLogger(__name__)
 
 PORTFOLIO_TABLE = "live_shadow_portfolios"
 GRADE_TABLE = "live_shadow_grades"
-POLICY_VERSION = "tail-first-v4-20260810"
+POLICY_VERSION = "tail-first-v5-20260810"
 EXPECTED_ENTRIES = 80
 SELECT_LINE = 194.0
 SLOT_HOURS = {"early": 10, "late": 11}
@@ -42,6 +43,7 @@ SLOT_HOURS = {"early": 10, "late": 11}
 K1_COVERAGE = "tail_k1_coverage194"
 K1_COVERAGE_187 = "tail_k1_coverage187"
 K1_COVERAGE_200 = "tail_k1_coverage200"
+K1_EXTREME_LEX = "tail_k1_extreme_lex_220_210_200"
 K1_REFINED = "tail_k1_coverage194_one_swap"
 K1_TOP_P = "tail_k1_top_p"
 K1_NOFLOOR_COVERAGE = "tail_k1_nofloor_coverage194"
@@ -104,6 +106,8 @@ def coverage_order(
         187.0: "clear_bits_187",
         194.0: "clear_bits_194",
         200.0: "clear_bits_200",
+        210.0: "clear_bits_210",
+        220.0: "clear_bits_220",
     }
     line = float(select_line)
     if line not in mask_columns:
@@ -150,6 +154,78 @@ def top_p_order(rows: pd.DataFrame) -> tuple[pd.DataFrame, np.ndarray]:
     }).sort_values(
         ["p_line", "cand_ix"], ascending=[False, True], kind="mergesort")
     return ordered, ranked.position.to_numpy(dtype=int)
+
+
+def extreme_lexicographic_order(
+    rows: pd.DataFrame,
+    thresholds: tuple[float, ...] = (220.0, 210.0, 200.0),
+) -> tuple[pd.DataFrame, np.ndarray]:
+    """Greedy complete order by new high-to-low tail-world coverage.
+
+    Newly covered 220 worlds are always more valuable than newly covered 210
+    worlds, which dominate 200 worlds. Individual support probabilities at
+    those thresholds, simulated mean, and lower candidate index are the fixed
+    tiebreakers. The rule is frozen before any 2026 outcome exists.
+    """
+
+    ordered = _ordered(rows)
+    n_worlds = pd.to_numeric(ordered.n_worlds, errors="raise").astype(int)
+    if n_worlds.nunique() != 1 or int(n_worlds.iloc[0]) <= 0:
+        raise ValueError("shadow n_worlds is invalid or inconsistent")
+    n = int(n_worlds.iloc[0])
+    masks: list[np.ndarray] = []
+    for threshold in thresholds:
+        column = f"clear_bits_{int(threshold)}"
+        if column not in ordered:
+            raise ValueError(f"shadow candidates missing {column}")
+        masks.append(np.stack([
+            decode_clear_bits(value, n) for value in ordered[column]
+        ]))
+    for high, low, high_line, low_line in zip(
+            masks, masks[1:], thresholds, thresholds[1:]):
+        if np.any(high & ~low):
+            raise ValueError(
+                f"support masks are not nested: {high_line:g} is not a "
+                f"subset of {low_line:g}")
+    probabilities = [mask.mean(axis=1) for mask in masks]
+    mean_total = pd.to_numeric(
+        ordered.sim_mean, errors="raise",
+    ).to_numpy(dtype=float)
+    covered = [np.zeros(mask.shape[1], dtype=bool) for mask in masks]
+    remaining = set(range(len(ordered)))
+    selected: list[int] = []
+    while remaining:
+        best = max(
+            remaining,
+            key=lambda ix: (
+                *(int(np.count_nonzero(mask[ix] & ~seen))
+                  for mask, seen in zip(masks, covered)),
+                *(float(probability[ix]) for probability in probabilities),
+                float(mean_total[ix]),
+                -int(ordered.cand_ix.iloc[ix]),
+            ),
+        )
+        new_counts = [
+            int(np.count_nonzero(mask[best] & ~seen))
+            for mask, seen in zip(masks, covered)
+        ]
+        if not any(new_counts):
+            selected.extend(sorted(
+                remaining,
+                key=lambda ix: (
+                    *(float(probability[ix])
+                      for probability in probabilities),
+                    float(mean_total[ix]),
+                    -int(ordered.cand_ix.iloc[ix]),
+                ),
+                reverse=True,
+            ))
+            break
+        selected.append(int(best))
+        for mask, seen in zip(masks, covered):
+            seen |= mask[best]
+        remaining.remove(best)
+    return ordered, np.asarray(selected, dtype=int)
 
 
 def validate_shadow_panel(rows: pd.DataFrame, model: str) -> pd.DataFrame:
@@ -273,7 +349,7 @@ def build_portfolios(
     snapshot_slot: str,
     frozen_at: datetime | None = None,
 ) -> pd.DataFrame:
-    """Build all eight predeclared books from complete candidate pools."""
+    """Build all nine predeclared books from complete candidate pools."""
     if snapshot_slot not in SLOT_HOURS:
         raise ValueError(f"unknown shadow snapshot slot {snapshot_slot!r}")
     k1 = validate_shadow_panel(k1_rows, "tail_k1")
@@ -294,12 +370,14 @@ def build_portfolios(
     _, k1_coverage_order = coverage_order(k1)
     _, k1_coverage_187_order = coverage_order(k1, 187.0)
     _, k1_coverage_200_order = coverage_order(k1, 200.0)
+    _, k1_extreme_order = extreme_lexicographic_order(k1)
     _, k1_nofloor_order = coverage_order(k1_nofloor)
     _, k3_coverage_order = coverage_order(k3)
     _, k1_rank_order = top_p_order(k1)
     k1_control = k1_coverage_order[:EXPECTED_ENTRIES]
     k1_187 = k1_coverage_187_order[:EXPECTED_ENTRIES]
     k1_200 = k1_coverage_200_order[:EXPECTED_ENTRIES]
+    k1_extreme = k1_extreme_order[:EXPECTED_ENTRIES]
     k1_nofloor_control = k1_nofloor_order[:EXPECTED_ENTRIES]
     k3_control = k3_coverage_order[:EXPECTED_ENTRIES]
     k1_top = k1_rank_order[:EXPECTED_ENTRIES]
@@ -350,6 +428,11 @@ def build_portfolios(
             k1, k1_200, portfolio_run_id=portfolio_run_id,
             portfolio_id=K1_COVERAGE_200, source_model="tail_k1",
             selection_method="coverage200", source_quota=80,
+            snapshot_slot=snapshot_slot, frozen_at=stamp),
+        _portfolio_rows(
+            k1, k1_extreme, portfolio_run_id=portfolio_run_id,
+            portfolio_id=K1_EXTREME_LEX, source_model="tail_k1",
+            selection_method="coverage_lex_220_210_200", source_quota=80,
             snapshot_slot=snapshot_slot, frozen_at=stamp),
         _portfolio_rows(
             k1, k1_refined, portfolio_run_id=portfolio_run_id,
@@ -572,7 +655,8 @@ def freeze(snapshot_slot: str) -> dict:
                research_eligible, season, week, cand_ix, players, selected,
                selected_rank, p_line, sim_mean, actual_score, tail_line,
                n_entries, n_worlds, clear_bits_187, clear_bits_194,
-               clear_bits_200, score_artifact_uri, score_artifact_sha256
+               clear_bits_200, clear_bits_210, clear_bits_220,
+               score_artifact_uri, score_artifact_sha256
         FROM `{settings.predictions}.live_candidates_shadow`
         WHERE season = @season AND week = @week AND run_type = 'live_shadow'
         """, params={"season": season, "week": week})
@@ -645,7 +729,7 @@ def grade(*, write: bool = False) -> pd.DataFrame:
         control = pivot[K1_COVERAGE]
         print("\nPAIRED >=200 GAINS/LOSSES VS K=1 COVERAGE")
         for portfolio_id in (
-                K1_COVERAGE_187, K1_COVERAGE_200, K1_REFINED,
+                K1_COVERAGE_187, K1_COVERAGE_200, K1_EXTREME_LEX, K1_REFINED,
                 K1_TOP_P, K1_NOFLOOR_COVERAGE,
                 MIX_20_60, K3_COVERAGE):
             if portfolio_id not in pivot:

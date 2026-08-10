@@ -1356,10 +1356,11 @@ def tail_select_lineups(
             qs = np.quantile(cand_totals, [0.5, 0.9, 0.99], axis=1)
             # A2.4 masks: store the FULL world mask (no silent 2048
             # truncation) plus n_worlds/bitorder, and preregistered
-            # masks at 187/194/200 so ACTION 3 is an exact offline
-            # counterfactual rather than a re-simulation.
+            # masks at 187/194/200 plus prospective-only 210/220 masks so
+            # frozen live books can target the operator's extreme-tail
+            # utility without resimulation or post-outcome rule changes.
             n_worlds = int(cand_totals.shape[1])
-            grid = (187.0, 194.0, 200.0)
+            grid = (187.0, 194.0, 200.0, 210.0, 220.0)
             grid_masks = {g: (cand_totals >= g) for g in grid}
             for ix, lu in enumerate(cands):
                 rows.append({
@@ -1424,6 +1425,10 @@ def tail_select_lineups(
                         grid_masks[194.0][ix], bitorder="big").tobytes().hex(),
                     "clear_bits_200": np.packbits(
                         grid_masks[200.0][ix], bitorder="big").tobytes().hex(),
+                    "clear_bits_210": np.packbits(
+                        grid_masks[210.0][ix], bitorder="big").tobytes().hex(),
+                    "clear_bits_220": np.packbits(
+                        grid_masks[220.0][ix], bitorder="big").tobytes().hex(),
                 })
             df = pd.DataFrame(rows)
             # A2.6 (partial): the candidate-by-world SCORE MATRIX is

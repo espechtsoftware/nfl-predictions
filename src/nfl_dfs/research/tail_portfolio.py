@@ -20,6 +20,8 @@ MASK_COLUMNS = {
     187.0: "clear_bits_187",
     194.0: "clear_bits_194",
     200.0: "clear_bits_200",
+    210.0: "clear_bits_210",
+    220.0: "clear_bits_220",
 }
 ACTUAL_THRESHOLDS = (187.0, 194.0, 200.0, 210.0, 220.0, 230.0, 240.0)
 
