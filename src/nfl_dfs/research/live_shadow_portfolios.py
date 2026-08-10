@@ -1,10 +1,11 @@
 """Freeze and grade prospective tail-first live portfolios.
 
 The K=1/K=3 shadow jobs persist complete candidate pools before lock.  This
-module turns those immutable inputs into six explicitly frozen 80-entry
+module turns those immutable inputs into eight explicitly frozen 80-entry
 books without regenerating a slate or consulting outcomes:
 
 * K=1 production coverage at 194 (research control)
+* K=1 coverage at 187 and at 200 (prospective threshold alternatives)
 * K=1 coverage followed by deterministic outcome-blind one-swap refinement
 * K=1 top individual ``p_line`` (the leading selector hypothesis)
 * K=1 no-salary-floor coverage at 194 (post-result prospective shadow)
@@ -33,12 +34,14 @@ log = logging.getLogger(__name__)
 
 PORTFOLIO_TABLE = "live_shadow_portfolios"
 GRADE_TABLE = "live_shadow_grades"
-POLICY_VERSION = "tail-first-v3-20260810"
+POLICY_VERSION = "tail-first-v4-20260810"
 EXPECTED_ENTRIES = 80
 SELECT_LINE = 194.0
 SLOT_HOURS = {"early": 10, "late": 11}
 
 K1_COVERAGE = "tail_k1_coverage194"
+K1_COVERAGE_187 = "tail_k1_coverage187"
+K1_COVERAGE_200 = "tail_k1_coverage200"
 K1_REFINED = "tail_k1_coverage194_one_swap"
 K1_TOP_P = "tail_k1_top_p"
 K1_NOFLOOR_COVERAGE = "tail_k1_nofloor_coverage194"
@@ -92,26 +95,45 @@ def _ordered(rows: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def coverage_order(rows: pd.DataFrame) -> tuple[pd.DataFrame, np.ndarray]:
-    """Complete deterministic 194-coverage order for one candidate pool."""
+def coverage_order(
+    rows: pd.DataFrame, select_line: float = SELECT_LINE
+) -> tuple[pd.DataFrame, np.ndarray]:
+    """Complete deterministic persisted-support order for one pool."""
     ordered = _ordered(rows)
+    mask_columns = {
+        187.0: "clear_bits_187",
+        194.0: "clear_bits_194",
+        200.0: "clear_bits_200",
+    }
+    line = float(select_line)
+    if line not in mask_columns:
+        raise ValueError(
+            f"unsupported shadow selection line {line:g}; "
+            f"choose one of {sorted(mask_columns)}")
+    mask_column = mask_columns[line]
+    if mask_column not in ordered:
+        raise ValueError(f"shadow candidates missing {mask_column}")
     n_worlds = pd.to_numeric(ordered.n_worlds, errors="raise").astype(int)
     if n_worlds.nunique() != 1 or int(n_worlds.iloc[0]) <= 0:
         raise ValueError("shadow n_worlds is invalid or inconsistent")
     n = int(n_worlds.iloc[0])
     support = np.stack([
-        decode_clear_bits(value, n) for value in ordered.clear_bits_194
+        decode_clear_bits(value, n) for value in ordered[mask_column]
     ])
-    p_line = pd.to_numeric(
-        ordered.p_line, errors="raise").to_numpy(dtype=float)
+    support_probability = support.mean(axis=1)
+    if line == SELECT_LINE:
+        persisted_p_line = pd.to_numeric(
+            ordered.p_line, errors="raise").to_numpy(dtype=float)
+        if not np.allclose(
+                support_probability, persisted_p_line, atol=1e-12, rtol=0):
+            raise ValueError("shadow p_line does not match persisted 194 support")
     sim_mean = pd.to_numeric(
         ordered.sim_mean, errors="raise").to_numpy(dtype=float)
-    if not np.isfinite(p_line).all() or not np.isfinite(sim_mean).all():
+    if (not np.isfinite(support_probability).all()
+            or not np.isfinite(sim_mean).all()):
         raise ValueError("shadow selector values contain non-finite numbers")
-    if not np.allclose(support.mean(axis=1), p_line, atol=1e-12, rtol=0):
-        raise ValueError("shadow p_line does not match persisted 194 support")
     picked = select_from_support(
-        support, p_line, sim_mean, len(ordered),
+        support, support_probability, sim_mean, len(ordered),
     )
     if len(picked) != len(ordered) or len(set(picked)) != len(ordered):
         raise ValueError("coverage selector did not return a full ordering")
@@ -251,7 +273,7 @@ def build_portfolios(
     snapshot_slot: str,
     frozen_at: datetime | None = None,
 ) -> pd.DataFrame:
-    """Build all six predeclared books from complete candidate pools."""
+    """Build all eight predeclared books from complete candidate pools."""
     if snapshot_slot not in SLOT_HOURS:
         raise ValueError(f"unknown shadow snapshot slot {snapshot_slot!r}")
     k1 = validate_shadow_panel(k1_rows, "tail_k1")
@@ -270,10 +292,14 @@ def build_portfolios(
     stamp = stamp.astimezone(timezone.utc)
 
     _, k1_coverage_order = coverage_order(k1)
+    _, k1_coverage_187_order = coverage_order(k1, 187.0)
+    _, k1_coverage_200_order = coverage_order(k1, 200.0)
     _, k1_nofloor_order = coverage_order(k1_nofloor)
     _, k3_coverage_order = coverage_order(k3)
     _, k1_rank_order = top_p_order(k1)
     k1_control = k1_coverage_order[:EXPECTED_ENTRIES]
+    k1_187 = k1_coverage_187_order[:EXPECTED_ENTRIES]
+    k1_200 = k1_coverage_200_order[:EXPECTED_ENTRIES]
     k1_nofloor_control = k1_nofloor_order[:EXPECTED_ENTRIES]
     k3_control = k3_coverage_order[:EXPECTED_ENTRIES]
     k1_top = k1_rank_order[:EXPECTED_ENTRIES]
@@ -314,6 +340,16 @@ def build_portfolios(
             k1, k1_control, portfolio_run_id=portfolio_run_id,
             portfolio_id=K1_COVERAGE, source_model="tail_k1",
             selection_method="coverage194", source_quota=80,
+            snapshot_slot=snapshot_slot, frozen_at=stamp),
+        _portfolio_rows(
+            k1, k1_187, portfolio_run_id=portfolio_run_id,
+            portfolio_id=K1_COVERAGE_187, source_model="tail_k1",
+            selection_method="coverage187", source_quota=80,
+            snapshot_slot=snapshot_slot, frozen_at=stamp),
+        _portfolio_rows(
+            k1, k1_200, portfolio_run_id=portfolio_run_id,
+            portfolio_id=K1_COVERAGE_200, source_model="tail_k1",
+            selection_method="coverage200", source_quota=80,
             snapshot_slot=snapshot_slot, frozen_at=stamp),
         _portfolio_rows(
             k1, k1_refined, portfolio_run_id=portfolio_run_id,
@@ -535,8 +571,8 @@ def freeze(snapshot_slot: str) -> dict:
                config_hash, lever_env, seeds, labels_complete,
                research_eligible, season, week, cand_ix, players, selected,
                selected_rank, p_line, sim_mean, actual_score, tail_line,
-               n_entries, n_worlds, clear_bits_194, score_artifact_uri,
-               score_artifact_sha256
+               n_entries, n_worlds, clear_bits_187, clear_bits_194,
+               clear_bits_200, score_artifact_uri, score_artifact_sha256
         FROM `{settings.predictions}.live_candidates_shadow`
         WHERE season = @season AND week = @week AND run_type = 'live_shadow'
         """, params={"season": season, "week": week})
@@ -609,7 +645,8 @@ def grade(*, write: bool = False) -> pd.DataFrame:
         control = pivot[K1_COVERAGE]
         print("\nPAIRED >=200 GAINS/LOSSES VS K=1 COVERAGE")
         for portfolio_id in (
-                K1_REFINED, K1_TOP_P, K1_NOFLOOR_COVERAGE,
+                K1_COVERAGE_187, K1_COVERAGE_200, K1_REFINED,
+                K1_TOP_P, K1_NOFLOOR_COVERAGE,
                 MIX_20_60, K3_COVERAGE):
             if portfolio_id not in pivot:
                 continue

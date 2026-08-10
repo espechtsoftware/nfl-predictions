@@ -9,6 +9,8 @@ import pytest
 from nfl_dfs.research.live_shadow_portfolios import (
     EXPECTED_ENTRIES,
     K1_COVERAGE,
+    K1_COVERAGE_187,
+    K1_COVERAGE_200,
     K1_NOFLOOR_COVERAGE,
     K1_REFINED,
     K1_TOP_P,
@@ -17,6 +19,7 @@ from nfl_dfs.research.live_shadow_portfolios import (
     build_portfolios,
     canonical_roster,
     choose_latest_panels,
+    coverage_order,
     score_portfolios,
     summarize_grades,
     validate_shadow_panel,
@@ -71,6 +74,8 @@ def _panel(model: str, *, stamp: str = "2026-09-13T15:30:00Z") -> pd.DataFrame:
             "n_entries": EXPECTED_ENTRIES,
             "n_worlds": 100,
             "clear_bits_194": _mask(count),
+            "clear_bits_187": _mask(count),
+            "clear_bits_200": _mask(count),
             "score_artifact_uri": f"gs://bucket/{panel}.npz",
             "score_artifact_sha256": "f" * 64,
         })
@@ -86,6 +91,18 @@ def test_canonical_roster_requires_nine_unique_ids():
         canonical_roster("a,a,b,c,d,e,f,g,h")
 
 
+def test_coverage_order_uses_the_requested_persisted_mask():
+    rows = _panel("tail_k1")
+    rows["clear_bits_200"] = _mask(0)
+    rows.loc[99, "clear_bits_200"] = _mask(100)
+    _, at_194 = coverage_order(rows, 194)
+    _, at_200 = coverage_order(rows, 200)
+    assert int(at_194[0]) == 0
+    assert int(at_200[0]) == 99
+    with pytest.raises(ValueError, match="unsupported"):
+        coverage_order(rows, 210)
+
+
 def test_builds_frozen_top_p_and_duplicate_backfilled_mix():
     memberships = build_portfolios(
         _panel("tail_k1"), _panel("tail_k1_nofloor"), _panel("tail_k3"),
@@ -94,8 +111,9 @@ def test_builds_frozen_top_p_and_duplicate_backfilled_mix():
         frozen_at=datetime(2026, 9, 13, 16, 5, tzinfo=timezone.utc),
     )
     assert set(memberships.portfolio_id) == {
-        K1_COVERAGE, K1_TOP_P, K1_NOFLOOR_COVERAGE,
-        K1_REFINED, K3_COVERAGE, MIX_20_60}
+        K1_COVERAGE, K1_COVERAGE_187, K1_COVERAGE_200,
+        K1_TOP_P, K1_NOFLOOR_COVERAGE, K1_REFINED,
+        K3_COVERAGE, MIX_20_60}
     counts = memberships.groupby("portfolio_id").size()
     assert counts.eq(EXPECTED_ENTRIES).all()
     assert not memberships.groupby("portfolio_id").roster_key.apply(
@@ -109,6 +127,12 @@ def test_builds_frozen_top_p_and_duplicate_backfilled_mix():
         "coverage194_one_swap_lexicographic").all()
     assert refined.sort_values("portfolio_entry_rank").cand_ix.tolist() == \
         list(range(80))
+    assert memberships[
+        memberships.portfolio_id.eq(K1_COVERAGE_187)
+    ].selection_method.eq("coverage187").all()
+    assert memberships[
+        memberships.portfolio_id.eq(K1_COVERAGE_200)
+    ].selection_method.eq("coverage200").all()
     nofloor = memberships[
         memberships.portfolio_id.eq(K1_NOFLOOR_COVERAGE)]
     assert nofloor.source_model.eq("tail_k1_nofloor").all()
@@ -177,11 +201,11 @@ def test_scores_frozen_memberships_and_fails_on_missing_actual():
         "actual": 1.0,
     })
     grades = score_portfolios(memberships, actuals)
-    assert len(grades) == 6
+    assert len(grades) == 8
     assert grades.n_entries.eq(80).all()
     assert grades.weekly_max.eq(9.0).all()
     summary = summarize_grades(grades)
-    assert len(summary) == 6
+    assert len(summary) == 8
     assert summary.ge_200.eq(0).all()
     assert summary.mean_weekly_max.eq(9.0).all()
     with pytest.raises(ValueError, match="missing actuals"):

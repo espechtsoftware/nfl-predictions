@@ -96,10 +96,13 @@ agent or developer:
   2022-2025 CSV exports are confirmed; requested fields and the walk-forward
   player-tail -> union-oracle -> fixed-budget gates are frozen there. A later
   Odds API pilot is capped to three volume markets and 20,000 credits. The
-  zero-tuning deterministic one-swap refinement is now implemented as a sixth
-  early/late frozen book under `tail-first-v3-20260810`; it is
-  prospective-shadow-only and cannot affect the adopted/UI portfolio. Deep
-  generative dependence work is deferred until more field data exist.
+  Historical threshold diagnostics found 200 coverage at 19/12 weeks over
+  200/210 versus the 194 control's 18/11, while 187 coverage reached 17/13;
+  all three tied at 5/2/1 for 220/230/240. Both threshold alternatives and
+  the zero-tuning deterministic one-swap refinement are now implemented as
+  prospective early/late books under `tail-first-v4-20260810`; none can affect
+  the adopted/UI portfolio. Deep generative dependence work is deferred until
+  more field data exist.
 - One-swap implementation commit `b90047b` is pushed on `main`; 14 focused
   shadow/refinement tests pass. Full validation build
   `7ab5a1e2-1994-4ec5-8ac8-a188669b54c5` passed 716 tests with 2 skipped in

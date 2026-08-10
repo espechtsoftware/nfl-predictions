@@ -97,12 +97,18 @@ approved.
 
 ## Priority 4 — prospective field and selector evidence
 
+- Freeze 187- and 200-point K=1 coverage books beside the 194 control. On the
+  known accepted panel, 200 coverage changes the 200/210 counts from 18/11 to
+  19/12; 187 coverage changes them to 17/13 while leaving 220/230/240 counts
+  unchanged. These outcome-viewed tradeoffs justify prospective collection,
+  not historical adoption. Policy `tail-first-v4-20260810` freezes both at
+  the same early/late snapshots.
 - Keep the implemented standings importer strict and retain top-20 ordered
   lineups plus full ownership after every 2026 main slate. Historical project
   data has winner rosters but not the old top-20 fields, so this cannot be
   reconstructed honestly.
 - Shadow the already-defined deterministic lexicographic one-swap portfolio
-  refinement prospectively as frozen policy `tail-first-v3-20260810`. It
+  refinement prospectively as frozen policy `tail-first-v4-20260810`. It
   recovered the 2021 week-4 215.38 pool oracle in an outcome-viewed diagnostic,
   which is insufficient for historical adoption but enough to justify a
   zero-tuning shadow. Grade it only after frozen real outcomes accumulate.
