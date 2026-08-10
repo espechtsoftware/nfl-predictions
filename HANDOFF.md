@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 16:25 CDT
+## Current state — 2026-08-10 16:48 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -126,9 +126,20 @@ agent or developer:
 - Offense Coverage Matrix 2022--2025 is also complete and validated at the
   same 32-team/22-column shape with all cells populated. Exact hashes are in
   the intake report. Both sides of a possible N-1 scheme-matchup signal now
-  exist, but no diagnostic is licensed until Separation by Coverage and
-  Alignment are acquired and a small support-aware feature block is frozen
-  before any outcome join.
+  exist, but no diagnostic is licensed until the remaining Separation by
+  Alignment family is acquired and a small support-aware feature block is
+  frozen before any outcome join.
+- Receiving Separation-by-Coverage 2022--2025 is complete and hash-locked on
+  branch `main` at commit `7635c5e`: 540/513/522/519 rows with a stable
+  38-column grouped schema spanning
+  Overall, Man, Zone, Red Zone, and Cover 2/3/4/6. All populated metrics parse
+  numerically; the skill-position identity universes match the other
+  separation reports. Four 2024 Denver players each have one overall route
+  without a Man/Zone/Red Zone assignment, now recorded in the deficiency log;
+  future code must preserve that missing classification. The data remains
+  strict season N-1 and acquisition-only. Separation by Alignment is the last
+  requested historical receiver family before an outcome-unseen scheme
+  protocol may be designed.
 
 - Optimization has resumed with one new point-in-time information path rather
   than another selector sweep on the same 107 outcomes. Protocol
