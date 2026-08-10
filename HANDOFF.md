@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 10:15 CDT
+## Current state — 2026-08-10 10:22 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -55,6 +55,23 @@ agent or developer:
   No lineup union may launch, current live v2 is unchanged, and no quota was
   spent. Durable artifacts are tracked under
   `reports/market-tail-runs/20260810-market-tail-v1/`.
+- While enforcing the alternate-prop common lock, a more important existing
+  point-in-time defect was confirmed in `models.prop_market.market_points()`:
+  historical standard props use each game's two-hour pre-kick close, so
+  late-afternoon main-slate players receive lines written after the shared
+  1 p.m. DFS lock. Availability-only audit found post-lock market use on
+  1,842/1,788/1,716 accepted player-weeks in 2023/2024/2025; honest pre-lock
+  rows are absent for 1,841/1,617/1,315 of them. Full correction and
+  revalidation order are frozen in
+  `reports/2026-08-10-prop-common-lock-correction.md`. Existing panels remain
+  preserved but are point-in-time-ineligible for new decisions until K3,
+  K1, CE and role are rebuilt on the fixed common-lock reader. The live
+  mechanism remains provisionally served because freezer snapshots occur
+  before lock, but its historical adoption evidence must be re-established.
+  Exact next action: commit/push the defect protocol, implement and test the
+  strict latest-pre-common-lock reader, run full Cloud Build plus one-week
+  replay smoke, then launch corrected true-80 K3/K1 controls. No quota spend
+  is authorized.
 
 - The operator explicitly revised the operational objective after the valid
   role union improved the same 80-entry portfolio at every 210+ threshold.
