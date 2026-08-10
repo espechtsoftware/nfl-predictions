@@ -205,6 +205,22 @@ def main(argv: list[str] | None = None) -> None:
         default="replay_candidates",
     )
 
+    p = sub.add_parser(
+        "corrected-floor-union",
+        help="Evaluate the frozen corrected role/no-floor candidate union",
+    )
+    p.add_argument("--source-panel", required=True)
+    p.add_argument("--addon-panel", required=True)
+    p.add_argument("--incumbent-panel", required=True)
+    for table_arg in ("source-table", "addon-table", "incumbent-table"):
+        p.add_argument(
+            f"--{table_arg}",
+            choices=("replay_candidates", "replay_candidates_staging"),
+            default=("replay_candidates_staging"
+                     if table_arg == "addon-table"
+                     else "replay_candidates"),
+        )
+
     p = sub.add_parser("archetypes",
                        help="Cluster scoring-consistency archetypes into nfl_features")
     p.add_argument("--seasons", type=int, default=3, help="Trailing seasons to profile")
@@ -396,6 +412,17 @@ def main(argv: list[str] | None = None) -> None:
         from .research import extreme_selector_confirmation
 
         extreme_selector_confirmation.run(args.panel, args.table)
+    elif args.command == "corrected-floor-union":
+        from .research import floor_union_confirmation
+
+        floor_union_confirmation.run(
+            args.source_panel,
+            args.addon_panel,
+            args.incumbent_panel,
+            args.source_table,
+            args.addon_table,
+            args.incumbent_table,
+        )
     elif args.command == "serve":
         import uvicorn
 

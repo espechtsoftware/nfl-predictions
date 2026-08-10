@@ -121,6 +121,13 @@ rows, every frozen gate, and the complete walk-forward model path. No
 realized NGS-mechanism outcome has been queried and no cloud execution has
 been launched.
 
+Corrected exact-tree Cloud Build
+`e8dd679c-7a40-4e98-8525-31e4ecf700eb` passed 738 tests with 2 skipped and
+produced immutable diagnostic digest
+`sha256:fe380648b9a146a95b8c4d942c484979b50f95762f16a277d704151106a82374`.
+The runner may use only this digest and remains blocked on corrected K1
+check-only acceptance.
+
 Pre-outcome static audit correction: the first protocol draft incorrectly
 described separation, air depth, and air share as absent from the model.
 `sql/features/015a_player_week_advanced.sql` and the canonical feature list

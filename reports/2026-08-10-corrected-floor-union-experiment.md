@@ -41,10 +41,12 @@ decision has been recorded.
    distinct corrected no-floor candidate. No quota, intermediate salary
    floor, candidate cap, dose, seed, selection line, or score-based filter is
    permitted.
-3. Recompute candidate-by-world totals only after proving exact source versus
-   no-floor equality for player identities, authoritative actuals, component
-   predictions, corrected market points, marginal parameters, world count,
-   simulator mode, and seed. The source's common worlds are authoritative.
+3. Use the already-persisted candidate support masks only after proving exact
+   source versus no-floor equality for shared player identities,
+   authoritative actuals, simulated means/probabilities, world count, and
+   every 187/194/200/210/220 support mask. Both accepted panel manifests must
+   independently prove the corrected market reader, marginal parameters,
+   simulator mode and seed. The source's common worlds are authoritative.
 4. Deduplicate exact nine-player rosters and run the unchanged greedy
    194-point coverage selector over the union, returning exactly 80 unique
    lineups. The candidate pool may grow; the submitted entry count may not.
@@ -66,6 +68,10 @@ least one 210+ count improves and no higher threshold worsens. Counts at 200,
 runtime remain mandatory diagnostics but are not automatic scoring vetoes.
 Any tradeoff at a threshold higher than the gain requires an explicit
 operator decision. A tie through 210 closes the union.
+
+If the corrected role source is not itself the final corrected incumbent,
+promotion additionally requires the union to win the same high-to-low
+comparison against that incumbent. Beating a superseded source is not enough.
 
 The mechanism was chosen with knowledge of the superseded no-floor result,
 so even a corrected pass must be labeled an operator-directed optimization,
@@ -96,3 +102,9 @@ above. It refuses to run until the complete corrected role source is present
 in the accepted table, then changes only `MIN_LINEUP_SALARY=0` on the frozen
 K1 control settings. This is implementation readiness, not launch authority;
 the role chain and its tail-first disposition must still finish first.
+
+The guarded evaluator `research/floor_union_confirmation.py` and CLI command
+`corrected-floor-union` build exactly one union, report its candidate/salary/
+membership diagnostics, and require a high-to-low win against both the role
+source and the actual corrected incumbent. Shared candidates must match on
+all five persisted support masks; there is no outcome-dependent retry.

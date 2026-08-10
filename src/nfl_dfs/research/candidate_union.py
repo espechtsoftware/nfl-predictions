@@ -17,6 +17,10 @@ REQUIRED_COLUMNS = {
     "season", "week", "cand_ix", "players", "selected", "actual_score",
     "p_line", "sim_mean", "n_worlds", "clear_bits_194",
 }
+SUPPORT_COLUMNS = (
+    "clear_bits_187", "clear_bits_194", "clear_bits_200",
+    "clear_bits_210", "clear_bits_220",
+)
 TAIL_ORDER = (240, 230, 220, 210)
 
 
@@ -51,9 +55,16 @@ def _assert_shared_worlds(source: pd.DataFrame, addon: pd.DataFrame) -> None:
             raise ValueError(f"shared candidates differ in {column}")
     if not paired.n_worlds_source.eq(paired.n_worlds_addon).all():
         raise ValueError("shared candidates differ in n_worlds")
-    if not paired.clear_bits_194_source.eq(
-            paired.clear_bits_194_addon).all():
-        raise ValueError("shared candidates differ in 194 support worlds")
+    common_support = [
+        column for column in SUPPORT_COLUMNS
+        if f"{column}_source" in paired and f"{column}_addon" in paired
+    ]
+    for column in common_support:
+        if not paired[f"{column}_source"].eq(
+                paired[f"{column}_addon"]).all():
+            threshold = column.removeprefix("clear_bits_")
+            raise ValueError(
+                f"shared candidates differ in {threshold} support worlds")
 
 
 def select_candidate_union(

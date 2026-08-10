@@ -135,6 +135,15 @@ agent or developer:
   control. Shell parsing and whitespace checks pass. Do not invoke it before
   the corrected role comparison is complete; implementation readiness is not
   permission to inspect this score arm early.
+- The floor-union evaluator is now complete behind CLI command
+  `corrected-floor-union` and guarded runner
+  `scripts/cloud_corrected_floor_union.sh`. It constructs exactly one union,
+  requires shared rosters to match at all persisted 187/194/200/210/220
+  masks, returns 80 entries, and applies 240→230→220→210 against both the
+  role source and the actual corrected incumbent. Fifteen focused union,
+  selector and portfolio tests pass; compilation, shell parsing and
+  whitespace checks are clean. It has not been built or executed yet, and
+  no union score has been queried.
 - A new no-cost information path is preregistered before reading its outcomes:
   lagged weekly NFL Next Gen Stats receiver separation, cushion, intended air
   depth, air-yard share and YAC above expectation. Availability-only audit
@@ -160,13 +169,15 @@ agent or developer:
   treatment asks only whether cross-season last-four carry-forward plus NGS
   cushion/YACOE adds value. This correction occurred before any outcome or
   cloud diagnostic. Build `f68cedf9-2634-413c-bd8c-2e517691755d` contains
-  the superseded control and must never run the NGS job even if validation is
-  green. Corrected exact-tree build
-  `e8dd679c-7a40-4e98-8525-31e4ecf700eb` from commit `2d75ba0` is `WORKING`;
-  only its eventual immutable digest may run the NGS job.
-- At 11:56 CDT the corrected controls remained healthy with no failed
-  execution: K3 had 92/107 complete slates and 7,360 selected rows; K1 had
-  77/107 and 6,160. These are completeness counts only; no partial score was
+  the superseded control and must never run the NGS job even though validation
+  completed. Corrected exact-tree build
+  `e8dd679c-7a40-4e98-8525-31e4ecf700eb` from commit `2d75ba0` passed 738
+  tests with 2 skipped and produced immutable digest
+  `sha256:fe380648b9a146a95b8c4d942c484979b50f95762f16a277d704151106a82374`.
+  Only that digest may run the NGS job after corrected K1 acceptance.
+- At 12:03 CDT the corrected controls remained healthy with no failed
+  execution: K3 had 98/107 complete slates and 7,840 selected rows; K1 had
+  85/107 and 6,800. These are completeness counts only; no partial score was
   queried. Continue monitoring all twelve exact execution IDs above, then run
   `scripts/prop_lock_finish_controls.sh` on the corrected generation digest.
 - One corrected-history selector confirmation is now frozen before either
@@ -181,7 +192,9 @@ agent or developer:
   `corrected-extreme-selector`, and
   `scripts/cloud_corrected_extreme_selector.sh`; thirteen focused selector,
   union and portfolio tests pass, along with compilation, shell parsing and
-  whitespace validation. No corrected selector score has been queried.
+  whitespace validation. Implementation/protocol commit `177c113` is pushed;
+  exact-tree build `604b1496-5bc2-406f-9565-dd41c6870c96` is `WORKING`. No
+  corrected selector score has been queried.
 
 - The operator explicitly revised the operational objective after the valid
   role union improved the same 80-entry portfolio at every 210+ threshold.
