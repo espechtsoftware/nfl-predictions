@@ -101,3 +101,17 @@ first-read opportunity.
 Primary source:
 
 - <https://github.com/nflverse/nflreadr/releases>
+
+## Implementation status
+
+Guarded implementation lives in
+`src/nfl_dfs/analysis/ngs_receiver_tail.py`, CLI command
+`ngs-receiver-tail-diagnostic`, and
+`scripts/cloud_ngs_receiver_tail.sh`. The cloud runner requires an immutable
+image and a recorded passing check-only acceptance artifact for the complete
+corrected K1 panel, then harvests exactly one machine-readable report.
+Offline tests cover same-week/week-zero/postseason exclusion, cross-season
+history, target-weighted rolling values, uncovered players, duplicate source
+rows, every frozen gate, and the complete walk-forward model path. No
+realized NGS-mechanism outcome has been queried and no cloud execution has
+been launched.

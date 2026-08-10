@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 11:30 CDT
+## Current state — 2026-08-10 11:38 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -138,6 +138,15 @@ agent or developer:
   `reports/2026-08-10-ngs-receiver-tail-experiment.md`. Do not query its
   outcomes or launch a feature/lineup arm until the corrected K1 control is
   complete and the protocol implementation is immutable.
+- The NGS diagnostic is now implemented behind CLI command
+  `ngs-receiver-tail-diagnostic`. It excludes week-zero aggregates and
+  postseason rows, joins across careers with a strict earlier-week boundary,
+  target-weights the last four observations, restricts evaluation to players
+  actually present in the corrected K1 candidate pool, and fails closed on an
+  incomplete true-80 source. A guarded Cloud Run harvester refuses to start
+  until corrected K1 check-only acceptance is recorded. Twelve combined NGS,
+  candidate-union, and participation tests pass; compilation, shell parsing,
+  and whitespace checks are clean. No outcome query or NGS execution has run.
 
 - The operator explicitly revised the operational objective after the valid
   role union improved the same 80-entry portfolio at every 210+ threshold.

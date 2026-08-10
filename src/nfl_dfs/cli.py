@@ -185,6 +185,15 @@ def main(argv: list[str] | None = None) -> None:
         help="Frozen accepted panel (alternate values fail closed)",
     )
 
+    p = sub.add_parser(
+        "ngs-receiver-tail-diagnostic",
+        help="Test strictly lagged NGS receiving traits on WR/TE tails",
+    )
+    p.add_argument(
+        "--panel", default="20260810-lockfix-e80-k1-8677d21",
+        help="Frozen corrected K1 panel (alternate values fail closed)",
+    )
+
     p = sub.add_parser("archetypes",
                        help="Cluster scoring-consistency archetypes into nfl_features")
     p.add_argument("--seasons", type=int, default=3, help="Trailing seasons to profile")
@@ -368,6 +377,10 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import market_tail_disagreement
 
         market_tail_disagreement.run(args.panel)
+    elif args.command == "ngs-receiver-tail-diagnostic":
+        from .analysis import ngs_receiver_tail
+
+        ngs_receiver_tail.run(args.panel)
     elif args.command == "serve":
         import uvicorn
 
