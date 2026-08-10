@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 11:20 CDT
+## Current state — 2026-08-10 11:30 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -120,6 +120,14 @@ agent or developer:
   are in `reports/2026-08-10-corrected-floor-union-experiment.md`. Do not
   launch it until corrected K1→CE→role is complete; do not inspect an old or
   partial union score.
+- Outcome-blind implementation support for that future test now lives in
+  `research/candidate_union.py`. It preserves source candidate order, appends
+  only add-on-novel rosters, fails closed if shared actual/mean/probability/
+  world masks differ, reruns the unchanged 194 coverage selector at an exact
+  entry count, and applies the highest-difference-first tail law. Thirteen
+  focused union/portfolio tests pass; Python compilation and
+  `git diff --check` are clean. No corrected no-floor score panel or union has
+  been launched.
 
 - The operator explicitly revised the operational objective after the valid
   role union improved the same 80-entry portfolio at every 210+ threshold.

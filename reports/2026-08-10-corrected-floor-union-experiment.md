@@ -82,3 +82,11 @@ candidate builders at one frozen pre-lock snapshot, verify that source
 fallback remains labeled and intact, and measure total wall time against the
 Week 1 operational window. Extra pre-selection compute is acceptable; a
 partial, late, or non-reproducible 80-lineup book is not.
+
+The outcome-blind merge/selection primitive is implemented in
+`src/nfl_dfs/research/candidate_union.py`. It preserves incumbent ordering,
+adds only novel roster keys, checks exact shared 194 support masks and tight
+actual/probability/mean parity, and returns an exact-size reselected book plus
+membership audit. Offline tests cover containment, support mismatch,
+incomplete source books, and the high-to-low tail decision. This does not
+authorize a panel launch before the corrected role source is complete.
