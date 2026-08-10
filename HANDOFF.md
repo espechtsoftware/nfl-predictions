@@ -20,7 +20,72 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 20:12 CDT
+## Current state — 2026-08-09 21:05 CDT
+
+### Pre-season arm/UI promotion gate complete
+
+- Branch `main`; implementation commit `f647d00` promotes the adopted policy
+  through every money-lineup path. The frozen production decision is
+  `classic-k1-ce12-boom28-v1`, sourced from historical panel
+  `20260809-e80-k1-ce12-c616390`: K=1 `tail_k1`, possession simulation,
+  45/55 model/prop-market blend, $49,000 salary floor, fixed greedy coverage
+  at 194, 80 default entries, candidate multiple 2, seed 1701, and fixed
+  12 CE / 28 boom replacement allocation. The selected weekly-max counts over
+  107 slates at 187/194/200/210/220/230/240 are
+  `40/26/18/11/5/2/1`; mean/median weekly maxima are `181.1243/178.64`.
+  Its candidate-pool oracle counts are `47/32/22/13/5/2/1`.
+- `src/nfl_dfs/inference/production_policy.py` is now the single frozen
+  mapping consumed by projection and live lineup code. It passes a
+  request-local environment mapping rather than mutating process environment,
+  and overrides every research lever capable of changing a roster. The
+  projection job explicitly loads and verifies a one-member model from the
+  isolated `tail_k1` registry. The simulator, replay shaper, optimizer,
+  generator, selector, and provenance paths accept that explicit mapping.
+- `/lineups`, `/lineups.csv`, and `/lineups/entries.csv` all use the same
+  policy. The UI defaults to 80 and displays the policy plus exact loaded model
+  version; JSON returns the full policy identity and both CSV routes return
+  `X-Lineup-Policy` / `X-Model-Version`. The selector remains fixed at 194
+  when a field size is supplied; field-size winning-line estimates are
+  comparator metadata only. `sim=false` remains an explicitly labeled,
+  non-adopted plain-MILP emergency escape hatch. DKEntries files still govern
+  their actual reserved entry count.
+- Validation is complete. The full local suite reached 100% green. Cloud Build
+  `9b67b443-1924-4200-b749-ddc0bd147b5d` passed `712` tests with `2` skipped
+  in 351.73 seconds, including a real offline K=1 end-to-end build of 80 legal,
+  distinct, $49k+ lineups and an 81-line DraftKings CSV. Validated immutable
+  image digest:
+  `sha256:78ba7d76efcbe81913cef33a879dea1197b1440804c67d73d8bd6ae29219bc47`.
+- Cloud Run service `nfl-dfs-app` is deployed from that exact digest as ready
+  revision `nfl-dfs-app-00064-qgn` with 100% traffic. Its existing IAP policy
+  correctly rejects unauthenticated and ordinary identity-token curls, so the
+  external smoke was limited to Cloud Run readiness rather than bypassing IAP.
+  The `project-slate` job is also ready on the exact digest and explicitly
+  declares `MODEL_ENSEMBLE=1`, `MODEL_REGISTRY_VARIANT=tail_k1`,
+  `BLEND_MODEL_WEIGHT=.45`, and possession simulation; its project setting and
+  Odds API secret reference were preserved. It was not executed off-season
+  because no matching live slate exists.
+- All fourteen seasonal schedulers were rechecked after deployment and are
+  `PAUSED`: `s-nflverse`, `s-features`, `s-train`, `s-train-k1`,
+  `s-project-tu`, `s-project-su`, all six K=1/no-floor/K=3 early/late shadows,
+  and both freeze-tail jobs. Year-round backups, odds/DK/CFB/weather ingestion,
+  and freshness monitoring were left alone. This also prevents another
+  expected off-season `shadow-k1-nofloor` no-slate failure alert.
+- The alternate use of existing 2022-2025 ownership was completed, not lost:
+  the contest-aware ownership predictor passed its calibration gate but its
+  single frozen true-80 scoring arm failed to improve the adopted K=1 tail
+  book and is rejected. The CE reranker confirmation also failed its adoption
+  gate. Neither may enter live behavior; both remain durable negative evidence
+  rather than tasks to rerun or tune on the same 107 outcomes.
+- Exact next action: keep the fourteen jobs paused through Aug 23. On Mon Aug
+  24, run the resume command in the README season-start table, verify the
+  Tuesday K=1 training completes before projections, and use the first real
+  Sunday-main slate for the authenticated UI -> 80 lineups -> DKEntries CSV
+  smoke. Grade the already frozen K=1, no-floor, K=3, top-p, and mixed books
+  prospectively without changing their membership. New data signals remain
+  shadow-only until they have pre-lock evidence; do not retune this adopted
+  policy against the known historical outcomes.
+
+## Previous state — 2026-08-09 20:12 CDT
 
 ### Autonomous scoring research resumed after context recovery
 
@@ -300,8 +365,9 @@ agent or developer:
   provenance, feature, authoritative-actual, score-artifact, mask, selection,
   and parity contracts, then atomically promoted 25,787 candidates and 50,098
   player features. `20260809-e80-k1-ce12-c616390` is now the accepted
-  historical research baseline. Live/UI behavior remains unchanged pending
-  the README's pre-season arm-policy gate.
+  historical research baseline. At this historical milestone live/UI behavior
+  remained unchanged pending the README's pre-season arm-policy gate; the
+  current section records that gate's later completion.
 - The promoted baseline has 6 recoverable >=194 weeks across 4 seasons and 4
   recoverable >=200 weeks. Canonical acceptance therefore passes the original
   reranker-development opportunity gate. Exact next action: commit/push the
@@ -945,16 +1011,16 @@ agent or developer:
   Endpoint strength is ordered by >=200, then >=210, >=194, then mean weekly
   maximum. Use `scripts/analyze_mixed_tail_portfolios.py` after acceptance.
 
-### Deployment caution
+### Deployment caution (superseded by the completed gate above)
 
 The recovered source defaults to the corrected `0/0/0/40` generation budget,
 a three-member model ensemble, the 45/55 model/market blend, and the $49k
 salary floor. A01, A02, and A03 retain their original scientific
 dispositions. Under the later operator-utility amendment, true-80 K=1 with
 fixed `12 CE / 28 boom` is now the accepted historical research baseline.
-K=3 remains the live/stability reference until the pre-season policy gate
-explicitly wires the final arm through UI/API and export paths; do not
-silently change app behavior from a historical promotion alone.
+K=3 was the live/stability reference until the pre-season policy gate. That
+gate is now complete: the adopted K=1 fixed-CE policy is live, while K=3
+remains an isolated prospective stability shadow.
 
 ### Next concrete action
 
@@ -1062,18 +1128,14 @@ requires complete entry-level lineups/ranks/duplication/payouts to justify
 cost; an independent projected-ownership feed remains only a prospective,
 timestamped signal trial.
 
-Before resuming the season schedules, complete the newly tracked arm/UI
-promotion gate in the README's August 24 runbook: close or explicitly defer
-the historical arms, record the adopted production policy, wire that policy
-through the UI/API and all three lineup/CSV paths, expose its identity, and
-pass a full build plus end-to-end 80-lineup export smoke. Unconfirmed arms
-remain shadow-only; an explicit decision to retain canonical K=3/194 also
-satisfies the policy-choice portion. Keep all nine research schedules paused
-until this gate passes. Do not execute either source shadow or freezer before
-DK posts the matching regular-season Sunday main slate. Never mutate the
-pre-lock candidate or membership records, and do not retune K, the 194 control
-target, the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill
-on the 107 known historical slates or after prospective outcomes begin.
+The arm/UI promotion gate in the README's August 24 runbook completed on
+August 9; see the current section above for the policy, validation, image,
+revision, and exact resume action. Keep all fourteen seasonal schedules paused
+until August 24. Do not execute either source shadow or freezer before DK
+posts the matching regular-season Sunday main slate. Never mutate the pre-lock
+candidate or membership records, and do not retune K, the 194 control target,
+the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
+107 known historical slates or after prospective outcomes begin.
 
 ### 2026-08-08 true-80 completion update
 
