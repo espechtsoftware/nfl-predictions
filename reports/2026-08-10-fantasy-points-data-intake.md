@@ -294,6 +294,15 @@ Advanced prior diagnostic or any pre-Week-1 promotion decision. If collected
 weekly before the shared slate lock, it can later be graded as a shadow QB
 matchup signal.
 
+The companion `wrCoverageMatchupExport.csv`, retrieved at approximately
+16:32 CDT with the same Week 1 context, has SHA-256
+`e0e369d4fee3130d0cfea29709d66ad9f74a6ae02f7495e2509c97ac6a221a5a`.
+It is a clean 374-row, 38-column grouped export with unique RB/FB/WR/TE
+identities and Player Details, Matchup, Man and Cover 2/3/4/6 blocks. All
+rows declare source `Season=2025`; 241 blank split cells are legitimate and
+every populated metric parses numerically. Treat it identically as a
+prospective 2026 Week 1 snapshot. It cannot enter historical validation.
+
 ### Receiving Man vs. Zone family validation
 
 All four files have a consistent 26-column grouped schema: Player Details,

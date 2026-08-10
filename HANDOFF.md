@@ -56,9 +56,12 @@ agent or developer:
   a second write returned `already-identical` without mutation. Direct
   family/season verification found the expected twelve unique source hashes,
   3,705 resolved rows and only the known split duplicate. Exact-commit Cloud
-  Build `cfe28aad-21be-4de0-9bcb-d90ff28c7ddc` from tree `755a216` is
-  running. If it passes, resolve its immutable digest and run the guarded
-  diagnostic exactly once.
+  Build `cfe28aad-21be-4de0-9bcb-d90ff28c7ddc` from tree `755a216` passed
+  762 tests with 2 skipped and produced immutable digest
+  `sha256:1a0745b2a6aae3b78cfc4dfebb9be1661004c33e24fcf834d427705d9d1f1e6f`.
+  The single frozen diagnostic is running as durable Cloud Run execution
+  `fantasy-points-advanced-diagnostic-vb9xz`; do not retry it or alter the
+  feature/model/gate based on its outcome.
 - `fantasy-points/qbCoverageMatchupExport.csv` was validated as a clean
   37-QB/32-column grouped export, SHA-256
   `888d31272b16b921af50fdeec0bcf20ed526873443495c4983079842a1b83c32`.
@@ -69,6 +72,12 @@ agent or developer:
   or pre-Week-1 promotion. The intake report and README deficiency log record
   this limitation. Collect future QB/WR coverage snapshots before the shared
   slate lock and grade them only prospectively.
+- The current WR Coverage Matchup snapshot is also validated: 374 unique
+  RB/FB/WR/TE rows, 38 grouped columns, no malformed populated values, and
+  SHA-256
+  `e0e369d4fee3130d0cfea29709d66ad9f74a6ae02f7495e2509c97ac6a221a5a`.
+  It carries the same 2025-source/2026-Week-1 prospective semantics and is
+  excluded from historical validation.
 - Paid acquisition follow-up: Basic Receiving, Routes Run and Bell Cow were
   declined as materially redundant with the existing weekly share and
   Advanced exports. The operator was asked to preserve 2022--2025 Receiving
