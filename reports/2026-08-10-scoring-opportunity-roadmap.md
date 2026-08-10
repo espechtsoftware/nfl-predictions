@@ -106,6 +106,10 @@ approved.
   recovered the 2021 week-4 215.38 pool oracle in an outcome-viewed diagnostic,
   which is insufficient for historical adoption but enough to justify a
   zero-tuning shadow. Grade it only after frozen real outcomes accumulate.
+  Implementation commit `b90047b` passed Cloud Build
+  `7ab5a1e2-1994-4ec5-8ac8-a188669b54c5` (716 passed, 2 skipped); the two
+  paused freezer jobs use immutable digest `sha256:603d20c0...` and retain
+  their original schedules/resources.
 - Use real large-field ownership to simulate opponent portfolios and payout,
   not merely to add another ownership penalty to our score. Optimization
   research supports maximizing the chance at least one lineup wins under a
