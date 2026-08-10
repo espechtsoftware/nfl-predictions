@@ -18,6 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from nfl_dfs.bq import query_df  # noqa: E402
 from nfl_dfs.config import settings  # noqa: E402
 from nfl_dfs.research.panel_compare import metrics, slate_scores  # noqa: E402
+from nfl_dfs.research.candidate_union import tail_first_decision  # noqa: E402
 
 
 SOURCE_PANEL = "20260808-e80-k1-c616390"
@@ -310,6 +311,17 @@ def _season_metrics(source_slates: pd.DataFrame,
     return rows
 
 
+def _tail_first_operational_gate(source_metrics: dict,
+                                 treatment_metrics: dict,
+                                 mechanism_valid: bool) -> dict:
+    """Apply the current operator utility while retaining old gates in output."""
+    decision = tail_first_decision(source_metrics, treatment_metrics)
+    decision["mechanism_valid"] = mechanism_valid
+    decision["passes"] = bool(
+        mechanism_valid and decision["promotion_candidate"])
+    return decision
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("treatment")
@@ -338,6 +350,7 @@ def main() -> int:
         metrics(treatment_slates) if not treatment_slates.empty else {})
     union_gate: dict = {}
     fixed_gate: dict = {}
+    tail_first_operational_gate: dict = {}
     if source_metrics and treatment_metrics:
         union_gate = {
             "mechanism_valid": not failures,
@@ -363,8 +376,15 @@ def main() -> int:
                 treatment_metrics["oracle_200"] >= source_metrics["oracle_200"],
         }
         fixed_gate["passes"] = all(fixed_gate.values())
+        tail_first_operational_gate = _tail_first_operational_gate(
+            source_metrics, treatment_metrics, not failures)
 
-    active_gate = union_gate if args.mode == "union" else fixed_gate
+    # Union mode remains a candidate-frontier experiment. Fixed mode returns
+    # exactly 80 submitted lineups and therefore uses the operator's revised
+    # highest-score law. Keep ``fixed_gate`` as the immutable legacy/scientific
+    # disposition rather than silently rewriting it.
+    active_gate = (union_gate if args.mode == "union"
+                   else tail_first_operational_gate)
     report = {
         "source": args.source,
         "treatment": args.treatment,
@@ -378,6 +398,7 @@ def main() -> int:
         "candidate_pair_audit": pair_audit,
         "union_gate": union_gate,
         "fixed_gate": fixed_gate,
+        "tail_first_operational_gate": tail_first_operational_gate,
         "disposition": ("pass" if active_gate.get("passes") else
                         "invalid" if failures else "reject"),
         "failures": failures,

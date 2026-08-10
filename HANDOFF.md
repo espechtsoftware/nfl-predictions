@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 13:46 CDT
+## Current state — 2026-08-10 13:52 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -260,6 +260,16 @@ agent or developer:
   `replay-lockce-2024-7ff5s`, and `replay-lockce-2025-7gxrm`. Their immutable
   manifest is tracked under the CE12 panel directory. Monitor execution state
   and final row completeness only; do not inspect partial score outcomes.
+- Before any corrected CE12 score was inspected, its comparator was updated
+  to match the current operator objective. The original fixed 200-point gate
+  remains in the report as an immutable scientific diagnostic, while the
+  active fixed-budget disposition now uses the documented
+  240→230→220→210 highest-difference-first decision plus mandatory mechanism
+  validity. New guarded runner
+  `scripts/cloud_compare_corrected_k1_ce_panel.sh` freezes the corrected K1
+  and CE12 panel IDs. Nine focused CE/union tests pass; Python compilation,
+  shell parsing and whitespace checks are clean. Commit and full Cloud Build
+  this comparator before the complete CE12 panel is scored or compared.
 - The operator purchased the standalone Fantasy Points Data Suite for $200.
   Licensed downloads are excluded by repository `.gitignore` under
   `fantasy-points/`. The untouched first export,

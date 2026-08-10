@@ -83,3 +83,28 @@ def test_ce_mechanism_rejects_unrelated_lever_drift():
     failures = compare._mechanism_failures(
         source, treatment, _feature_audit(), _pair_audit("union"), "union")
     assert "CE treatment changes unrelated replay levers" in failures
+
+
+def test_fixed_operational_gate_uses_highest_difference_first():
+    source = {
+        "clear_240": 1, "clear_230": 1, "clear_220": 1, "clear_210": 3,
+    }
+    treatment = {
+        "clear_240": 1, "clear_230": 2, "clear_220": 0, "clear_210": 7,
+    }
+    gate = compare._tail_first_operational_gate(source, treatment, True)
+    assert gate["first_difference"] == 230
+    assert gate["promotion_candidate"]
+    assert gate["passes"]
+
+
+def test_fixed_operational_gate_requires_valid_mechanism():
+    source = {
+        "clear_240": 1, "clear_230": 1, "clear_220": 1, "clear_210": 3,
+    }
+    treatment = {
+        "clear_240": 2, "clear_230": 1, "clear_220": 1, "clear_210": 3,
+    }
+    gate = compare._tail_first_operational_gate(source, treatment, False)
+    assert gate["promotion_candidate"]
+    assert not gate["passes"]

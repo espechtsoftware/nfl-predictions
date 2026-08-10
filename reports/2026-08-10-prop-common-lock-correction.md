@@ -105,6 +105,15 @@ union. Every preflight uses 2024 so it exercises the corrected market reader.
 checks K1, and runs the existing ensemble mechanism comparator; it never
 promotes K1 automatically from a score label.
 
+Before any corrected CE12 outcome was inspected, its fixed-budget comparator
+was aligned with the current operator law. `compare_k1_ce_panel.py` continues
+to report its original 200-point fixed gate unchanged, but its active
+disposition for the exact-80 arm now uses the shared 240→230→220→210
+highest-difference-first decision and requires every mechanism audit to pass.
+Guarded runner `scripts/cloud_compare_corrected_k1_ce_panel.sh` freezes the
+corrected K1/CE12 IDs and an immutable comparator image. This is an operational
+policy update, not a rewrite of the old scientific result.
+
 No Odds API quota is authorized by this repair. A future common-lock backfill
 would be a separate costed data-acquisition decision.
 
