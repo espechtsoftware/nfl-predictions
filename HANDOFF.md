@@ -281,8 +281,10 @@ agent or developer:
   vendor-origin Brock Wright duplicate splits non-overlapping week blocks and
   must be coalesced by player-week; vendor team abbreviations and multi-team
   labels also require an explicit crosswalk. Continue untouched 2022--2025
-  exports for all six Weekly Reports and Advanced Receiving before freezing
-  the importer/schema. Do not commit licensed source rows or use same-week
+  exports for the remaining Weekly Reports and Advanced Receiving before
+  freezing the importer/schema. The four Fantasy Points Scored files are now
+  also complete and valid, but are identity/scoring audits only rather than
+  replacement labels. Do not commit licensed source rows or use same-week
   postgame values in a replay.
 - One corrected-history selector confirmation is now frozen before either
   corrected control outcome is read:

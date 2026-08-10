@@ -30,7 +30,7 @@ available offensive positions, clear player filters, and prefer CSV. Acquire
 | Weekly Snap Share | role/injury replacement | pending | pending | pending | pending |
 | Weekly PROE Report (Offense) | secondary team context | pending | pending | pending | pending |
 | Weekly PROE Report (Defense) | secondary opponent context | pending | pending | pending | pending |
-| Weekly Fantasy Points Scored | identity/scoring audit only | pending | pending | pending | pending |
+| Weekly Fantasy Points Scored | identity/scoring audit only | validated | validated | validated | validated |
 | Advanced Receiving | route, alignment, first-read and separation candidates | pending | pending | pending | pending |
 
 Do not bulk-add these fields to production. The frozen evaluation remains:
@@ -94,6 +94,28 @@ appearances is already high enough for a measured pilot:
 Missing route observations must remain missing rather than being imputed to
 zero: the salary/player universe includes inactive and deep-reserve players
 who may not record a route.
+
+### Fantasy Points Scored family validation
+
+All four season files use the same 26-column schema: the common identity and
+`W1`--`W18` fields plus `FP/G` and `FP`. Their row/position universes exactly
+match the corresponding Route Share files. Every populated score parses
+numerically; negative weekly values are valid fantasy outcomes. The sum of
+displayed one-decimal weekly values differs from the vendor season total by at
+most 0.3 points, consistent with rounding. The 2022 Brock Wright split is the
+same non-conflicting duplicate observed in Route Share.
+
+| Season | Rows | SHA-256 |
+|---:|---:|---|
+| 2022 | 647 | `b22af974eefb7df47df00875f0187c89430d527133cd66ae9c3e12ca7f99b5b0` |
+| 2023 | 621 | `c6a8565cc6fd239ed256d8b7e72adbd286d0f67a5c69784bf3e4bd2d6979db7f` |
+| 2024 | 625 | `b912e9a52c59214d8518ba8241c0783954d1a0cda4efa33ef69aa6d20faf71fe` |
+| 2025 | 637 | `b169cbeb2695790f03583c4629fc13f500936ab73ebc3984b3d53274d981f954` |
+
+The unprefixed `fptsScoredReportExport.csv` is byte-identical to the named
+2023 export and is ignored as a duplicate. These scores may validate identity
+and broad scoring reconciliation only; they do not replace authoritative
+DraftKings `player_week_actuals` labels.
 
 ## Importer gate
 
