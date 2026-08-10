@@ -20,9 +20,29 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 09:30 CDT
+## Current state — 2026-08-10 09:51 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
+
+- Optimization has resumed with one new point-in-time information path rather
+  than another selector sweep on the same 107 outcomes. Protocol
+  `reports/2026-08-10-market-tail-disagreement-experiment.md` freezes a
+  common-slate-lock diagnostic of signed production-versus-DraftKings
+  alternate-yardage tail disagreement before querying its current-panel
+  outcomes. Availability-only inspection found all 18 corrected main slates
+  and 1,576/1,700 covered primary-market player rows in 2024/2025; 2023 has
+  only four covered slates and is excluded. The diagnostic trains fixed
+  low-capacity control/treatment models on 2024 and evaluates 2025 30-point
+  Brier, 20-point Brier and residual MAE. If and only if it passes, one
+  predeclared twelve-candidate market-belief union may run against live v2;
+  it preserves incumbent scoring/selection worlds and uses the revised
+  240→230→220→210 operational law. This is distinct from and does not reopen
+  the rejected raw `ALT_CEIL`, `DIV_TILT`, or q99-wildcard mechanisms.
+- Branch is `main` at `abfed9c` before the new preregistration commit. The next
+  concrete action is to commit/push the frozen protocol, implement the guarded
+  diagnostic with offline tests, validate it in Cloud Build, and execute it
+  on Cloud Run without inspecting lineup outcomes first. No Odds API quota is
+  required.
 
 - The operator explicitly revised the operational objective after the valid
   role union improved the same 80-entry portfolio at every 210+ threshold.

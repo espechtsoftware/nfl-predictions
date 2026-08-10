@@ -134,6 +134,22 @@ Sources:
 - <https://receptionperception.com/subscription-page-new/>
 - <https://store.sportsinfosolutions.com/>
 
+## Priority 2A — market-tail disagreement from data already in house
+
+DraftKings alternate pass/rush/receiving-yard ladders already cover every
+corrected Sunday-main slate in 2024 and 2025. Before purchasing data or
+spending more Odds API quota, test whether the signed disagreement between
+the incumbent production tail and a single position-primary market tail adds
+held-out 30-point player signal. Enforce one common slate lock; do not use a
+late game's kickoff as its private cutoff.
+
+This does not reopen the rejected `ALT_CEIL` objective tilt. A passing
+player-level gate licenses only one twelve-candidate union on the current
+role-union v2 book; final scoring and selection remain on incumbent worlds.
+The complete frozen construction, 2024-to-2025 gate and current tail-first
+promotion law are in
+`reports/2026-08-10-market-tail-disagreement-experiment.md`.
+
 ## Priority 3 — a credit-capped Odds API opportunity pilot
 
 The existing vendor can supply historical player props from May 3, 2023.
