@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 12:35 CDT
+## Current state — 2026-08-10 13:46 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -232,6 +232,46 @@ agent or developer:
   every lower reported threshold. Still require the frozen ensemble mechanism
   comparator after schema-safe K3 promotion before promoting K1 or launching
   CE.
+- The final schema-safe acceptance repair at commit `9021a11` was validated by
+  Cloud Build `8d4c5d94-52bc-4db2-9fef-8a6dbda65f85`: 743 tests passed with
+  2 skipped, producing immutable digest
+  `sha256:8dea3952912a8464882ed07d3286da50f59e96b2cc9425f93a2c1fd59820d76b`.
+  K3 promotion execution `accept-replay-panel-25jbg` then completed cleanly.
+  Direct warehouse verification found exactly 25,778 accepted candidate rows,
+  50,098 eligible immutable player-feature rows and the complete 44-column
+  accepted schema. K1 promotion execution `accept-replay-panel-rbbgs` also
+  completed cleanly and direct verification found 25,766 accepted candidates
+  plus 50,098 eligible feature rows. The workstation reboot interrupted only
+  the local wrapper after the durable K1 execution; it did not affect the
+  transaction.
+- Frozen ensemble comparison `compare-adoption-panel-bspsn` completed with no
+  mechanism failures. K1 changed only the ensemble member count, retained the
+  identical player/input universe, and improved the exact-80 selected
+  187/194/200/210/220/230/240 grid from K3's `25/18/8/3/1/1/1` to
+  `34/21/11/7/4/2/1`; mean weekly best improved `175.5402→178.9327`.
+  The revised tail-first operational gate passes, even though the superseded
+  per-season stability gate does not. K1 is therefore adopted as the corrected
+  control. Corrected CE12 source panel
+  `20260810-lockfix-e80-k1-ce12-8677d21` was launched from the original
+  generation digest. Preflight execution `replay-lockce-smoke-l7mzs` passed
+  the full 2024 true-80 path in 8m10s. The six asynchronous executions are
+  `replay-lockce-2019-bp8b2`, `replay-lockce-2021-6f6j6`,
+  `replay-lockce-2022-j5lsm`, `replay-lockce-2023-2ntf7`,
+  `replay-lockce-2024-7ff5s`, and `replay-lockce-2025-7gxrm`. Their immutable
+  manifest is tracked under the CE12 panel directory. Monitor execution state
+  and final row completeness only; do not inspect partial score outcomes.
+- The operator purchased the standalone Fantasy Points Data Suite for $200.
+  Licensed downloads are excluded by repository `.gitignore` under
+  `fantasy-points/`. The untouched first export,
+  `2022-receivingRouteShareReportExport.csv`, has SHA-256
+  `68c92bcb01a97e9e603807496b44515c599bf6dd091ac7a47ec2c2802f9b4637`,
+  647 valid 2022 player rows, Weeks 1--18 and QB/RB/FB/WR/TE coverage. One
+  vendor-origin Brock Wright duplicate splits non-overlapping week blocks and
+  must be coalesced by player-week; vendor team abbreviations and multi-team
+  labels also require an explicit crosswalk. Continue untouched 2022--2025
+  exports for all six Weekly Reports and Advanced Receiving before freezing
+  the importer/schema. Do not commit licensed source rows or use same-week
+  postgame values in a replay.
 - One corrected-history selector confirmation is now frozen before either
   corrected control outcome is read:
   `reports/2026-08-10-corrected-extreme-selector-confirmation.md`. After the

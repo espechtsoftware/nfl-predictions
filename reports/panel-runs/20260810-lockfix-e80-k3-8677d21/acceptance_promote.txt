@@ -47,61 +47,6 @@ generator shares (candidate / selected / exclusive):
   recoverable weeks 4 (need >=4), spread over 3 seasons (need >=3)
   VERDICT: PROCEED to Workstream A (reranker)
 ACCEPTANCE PASSED — panel eligible for promotion
-Traceback (most recent call last):
-  File "/app/scripts/harvest_accept.py", line 608, in <module>
-    raise SystemExit(main())
-                     ^^^^^^
-  File "/app/scripts/harvest_accept.py", line 592, in main
-    query_df(_promotion_schema_sql(settings.predictions))
-  File "/app/src/nfl_dfs/bq.py", line 82, in query_df
-    return client().query(sql, job_config=job_config).to_dataframe()
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/site-packages/google/cloud/bigquery/job/query.py", line 2194, in to_dataframe
-    query_result = wait_for_query(self, progress_bar_type, max_results=max_results)
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/site-packages/google/cloud/bigquery/_tqdm_helpers.py", line 107, in wait_for_query
-    return query_job.result(max_results=max_results)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/site-packages/google/cloud/bigquery/job/query.py", line 1797, in result
-    while not is_job_done():
-              ^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/site-packages/google/api_core/retry/retry_unary.py", line 295, in retry_wrapped_func
-    return retry_target(
-           ^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/site-packages/google/api_core/retry/retry_unary.py", line 157, in retry_target
-    next_sleep = _retry_error_helper(
-                 ^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/site-packages/google/api_core/retry/retry_base.py", line 215, in _retry_error_helper
-    raise final_exc from source_exc
-  File "/usr/local/lib/python3.11/site-packages/google/api_core/retry/retry_unary.py", line 148, in retry_target
-    result = target()
-             ^^^^^^^^
-  File "/usr/local/lib/python3.11/site-packages/google/cloud/bigquery/job/query.py", line 1766, in is_job_done
-    self._reload_query_results(retry=retry, **reload_query_results_kwargs)
-  File "/usr/local/lib/python3.11/site-packages/google/cloud/bigquery/job/query.py", line 1558, in _reload_query_results
-    self._query_results = self._client._get_query_results(
-                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/site-packages/google/cloud/bigquery/client.py", line 2147, in _get_query_results
-    resource = self._call_api(
-               ^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/site-packages/google/cloud/bigquery/client.py", line 895, in _call_api
-    return call()
-           ^^^^^^
-  File "/usr/local/lib/python3.11/site-packages/google/api_core/retry/retry_unary.py", line 295, in retry_wrapped_func
-    return retry_target(
-           ^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/site-packages/google/api_core/retry/retry_unary.py", line 157, in retry_target
-    next_sleep = _retry_error_helper(
-                 ^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/site-packages/google/api_core/retry/retry_base.py", line 215, in _retry_error_helper
-    raise final_exc from source_exc
-  File "/usr/local/lib/python3.11/site-packages/google/api_core/retry/retry_unary.py", line 148, in retry_target
-    result = target()
-             ^^^^^^^^
-  File "/usr/local/lib/python3.11/site-packages/google/cloud/_http/__init__.py", line 494, in api_request
-    raise exceptions.from_http_response(response)
-google.api_core.exceptions.BadRequest: 400 GET https://bigquery.googleapis.com/bigquery/v2/projects/nfl-predictions-503414/queries/3de1d536-565b-4035-b628-54419eaee1b9?maxResults=0&location=US&prettyPrint=false: Exceeded rate limits: too many table update operations for this table. For more information, see https://docs.cloud.google.com/bigquery/troubleshooting-errors at [5:1]
-Location: US
-Job ID: 3de1d536-565b-4035-b628-54419eaee1b9
-Container called exit(1).
+promoted panel 20260810-lockfix-e80-k3-8677d21 -> replay_candidates plus player snapshots
+Container called exit(0).
 

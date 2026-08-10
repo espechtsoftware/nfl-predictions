@@ -85,15 +85,27 @@ is advertised on a route-by-route basis back to 2022. The announced 2026 Data
 Suite list price is $200 and its early-bird price was $160, so purchase only
 if checkout or a valid promotion puts it below the operator's $200 ceiling.
 
+Acquisition status (2026-08-10): the operator purchased the standalone Data
+Suite at the $200 ceiling. Full-history export access is not yet verified.
+Preserve every vendor download byte-for-byte before normalization. The first
+pass requests separate 2022, 2023, 2024 and 2025 all-week/all-team exports for
+all six Weekly Reports: Fantasy Points Scored, Snap Share, Route Share, Target
+Share, offense PROE and defense PROE. Route/target/snap are the primary player
+opportunity inputs; the two PROE reports are secondary team-context candidates;
+Fantasy Points Scored is an identity/scoring audit rather than a replacement
+for the existing authoritative DraftKings labels. Also request unfiltered
+season exports from Advanced Receiving. If the interface limits exports to one
+week, preserve the original per-week files rather than combining them by hand.
+
 Sources:
 
 - <https://newsletter.fantasypoints.com/p/fantasy-points-data-free-this-week>
 - <https://newsletter.fantasypoints.com/p/average-separation-score-fantasy-points-data>
 - <https://newsletter.fantasypoints.com/p/early-bird-discount-2026>
 
-Before purchase, verify that the subscription permits CSV export for the
+Before any experiment, verify that the subscription permits CSV export for the
 full 2022-2025 weekly history rather than current-season-only views. The first
-requested fields are:
+requested Advanced Receiving fields are:
 
 1. routes run and route participation;
 2. targets per route run and first-read target share;
