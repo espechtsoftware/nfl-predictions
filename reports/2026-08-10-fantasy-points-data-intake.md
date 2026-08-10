@@ -37,6 +37,7 @@ available offensive positions, clear player filters, and prefer CSV. Acquire
 | Receiving Man vs. Zone | coverage-shell receiving priors | validated | validated | validated | validated |
 | Receiving Separation by Routes | route-specific separation priors | validated | validated | validated | validated |
 | Receiving Separation by Route Breaks | route-family separation priors | validated | validated | validated | validated |
+| Receiving Separation by Coverage | coverage-specific separation priors | validated | validated | validated | validated |
 | Coverage Matrix (Defense) | team coverage-shell deployment priors | validated | validated | validated | validated |
 | Coverage Matrix (Offense) | team coverage-shell faced priors | validated | validated | validated | validated |
 
@@ -382,6 +383,40 @@ a lower-dimensional possible alternative to individual route types, not an
 additional simultaneous feature sweep. It remains acquisition-only, strict
 season N-1, and outside the frozen Advanced diagnostic.
 
+### Receiving Separation by Coverage family validation
+
+All four files share a clean 38-column grouped schema. Player Details and
+Overall are followed by Man, Zone and Red Zone blocks containing route count,
+separation score, YPRR, TPRR and win rate, then Cover 2/3/4/6 blocks containing
+route count, separation score and win rate. Every populated metric parses
+numerically; blank rate cells are expected for unsupported splits. The
+RB/FB/WR/TE identity multisets exactly match the Routes and Route-Breaks
+exports, including the known split 2022 Brock Wright record. Multi-team
+strings use a different ordering for 13/6/9/11 players by season, so future
+identity logic must treat those lists as unordered rather than as different
+players.
+
+| Season | Rows | SHA-256 |
+|---:|---:|---|
+| 2022 | 540 | `6eaf9e0d63794f39679f048c24f409b79c0b798611708cdc71fadfe84328ea1c` |
+| 2023 | 513 | `11538dfee6662572ab5502993a36fcb45e15a8d15f6ea7e288cd1082125c0787` |
+| 2024 | 522 | `2d97db23f9452118c4b16da70e7eb024c161625f84778d701d4f84b6fd033db0` |
+| 2025 | 519 | `0b7ccaffba50d0a2608cfab1dbc803fd57d46693d1984ff37bf85619c91193da` |
+
+The charted identities are internally strong: Cover 2/3/4/6 route counts sum
+to Zone routes for every row. Overall routes equal Man plus Zone plus Red Zone
+for every row except Courtland Sutton, Devaughn Vele, Troy Franklin and Lucas
+Krull in 2024; each Denver player has exactly one additional overall route
+without a coverage-category assignment. Preserve those explicit counts and
+missing classifications rather than forcing equality.
+
+These are full-season aggregates and remain strict season N-1 priors. A
+future outcome-unseen scheme diagnostic may combine a small, preregistered
+set of adequately supported receiver coverage splits with prior-season
+offense/defense Coverage Matrix rates. It must freeze route-support thresholds
+and feature definitions before joining outcomes; this acquisition does not
+alter or reopen the completed Advanced diagnostic.
+
 ### Defense Coverage Matrix family validation
 
 Each season contains exactly 32 unique teams and 22 complete columns grouped
@@ -423,9 +458,9 @@ Together the two views can support an outcome-unseen N-1 matchup hypothesis:
 compare a receiver/offense's prior-season coverage profile with the target
 opponent defense's prior-season deployment. They cannot support same-season
 historical features because no weekly observation grain was exported. No
-diagnostic is licensed until the receiver Separation-by-Coverage/Alignment
-schemas are acquired and one small feature block, support threshold and gate
-are preregistered before outcome joins.
+diagnostic is licensed until the receiver Separation-by-Alignment schema is
+acquired and one small feature block, support threshold and gate are
+preregistered before outcome joins.
 
 ## Importer gate
 
