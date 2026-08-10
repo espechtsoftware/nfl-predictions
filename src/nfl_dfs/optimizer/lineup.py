@@ -16,7 +16,7 @@ from __future__ import annotations
 import logging
 from collections import Counter
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Mapping
 
 import numpy as np
 import pulp
@@ -118,6 +118,7 @@ def optimize(
     min_salary: int | None = None,
     max_salary: int | None = None,
     max_per_game: int | None = None,
+    env: Mapping[str, str] | None = None,
 ) -> Lineup | None:
     """Solve one lineup. Returns None if infeasible.
     game_lock=(game_id, n) forces >= n players from that game — the
@@ -134,8 +135,10 @@ def optimize(
     # 182.3 with a floor of 49000. Env MIN_LINEUP_SALARY overrides; 0 disables.
     import os as _os
 
+    _env = _os.environ if env is None else env
+
     _min_sal = (min_salary if min_salary is not None
-                else int(_os.environ.get("MIN_LINEUP_SALARY", "49000") or 0))
+                else int(_env.get("MIN_LINEUP_SALARY", "49000") or 0))
     if _min_sal:
         prob += pulp.lpSum(x[p["id"]] * p["salary"] for p in players) >= _min_sal
     if max_salary is not None and max_salary < budget:
@@ -169,7 +172,7 @@ def optimize(
     # Tournament punt slot: winners rostered a sub-$4k player who scored
     # 15+ in 94% of 2025 Milly Makers (reports/2025-milly-winners.csv).
     if punt_min and punt_max_salary:
-        if _os.environ.get("PUNT_STRICT") and any(
+        if _env.get("PUNT_STRICT") and any(
                 "punt_elig" in p for p in players):
             punts = [p["id"] for p in players if p.get("punt_elig")]
         else:
@@ -183,9 +186,9 @@ def optimize(
     # under $5,300 (44% carried three; 4for4 via 2026-08-03 triage). The
     # sub-$4k punt rule mandates ONE extreme value; this requires N
     # players under VALUE2_MAX (default 5300), punt included.
-    v2_min = int(_os.environ.get("VALUE2_MIN", "0"))
+    v2_min = int(_env.get("VALUE2_MIN", "0"))
     if v2_min:
-        v2_max = int(_os.environ.get("VALUE2_MAX", "5300"))
+        v2_max = int(_env.get("VALUE2_MAX", "5300"))
         cheap2 = [p["id"] for p in players
                   if p["salary"] <= v2_max and p["pos"] != "DST"]
         if len(cheap2) >= v2_min:
@@ -197,12 +200,12 @@ def optimize(
     # ownership-variance floor: require >= NLOW skill players at or below
     # LOW ownership AND >= NHIGH at or above HIGH. Needs own_est on the
     # pool rows (replay attaches it); silently inert otherwise.
-    if _os.environ.get("OWN_BARBELL") and any(
+    if _env.get("OWN_BARBELL") and any(
             p.get("own_est") is not None for p in players):
-        b_low = float(_os.environ.get("OWN_BARBELL_LOW", "0.05"))
-        b_high = float(_os.environ.get("OWN_BARBELL_HIGH", "0.20"))
-        n_low = int(_os.environ.get("OWN_BARBELL_NLOW", "3"))
-        n_high = int(_os.environ.get("OWN_BARBELL_NHIGH", "2"))
+        b_low = float(_env.get("OWN_BARBELL_LOW", "0.05"))
+        b_high = float(_env.get("OWN_BARBELL_HIGH", "0.20"))
+        n_low = int(_env.get("OWN_BARBELL_NLOW", "3"))
+        n_high = int(_env.get("OWN_BARBELL_NHIGH", "2"))
         lows = [p["id"] for p in players if p["pos"] != "DST"
                 and (p.get("own_est") or 0) <= b_low]
         highs = [p["id"] for p in players if p["pos"] != "DST"
@@ -217,7 +220,7 @@ def optimize(
     # average 4.6 from one game — the concentrated-game folklore the
     # 5-stack generators encode is contradicted by the winners (2026-08-03).
     max_pg = (max_per_game if max_per_game is not None
-              else int(_os.environ.get("MAX_PER_GAME", "0")))
+              else int(_env.get("MAX_PER_GAME", "0")))
     if max_pg:
         by_game: dict = {}
         for p in players:
@@ -317,6 +320,7 @@ def optimize_many(
     max_overlap: int = 7,
     punt_max_salary: int | None = PUNT_MAX_SALARY,
     punt_min: int = PUNT_MIN,
+    env: Mapping[str, str] | None = None,
     **kwargs,
 ) -> list[Lineup]:
     """Generate n unique lineups; each new lineup may share at most
@@ -326,11 +330,13 @@ def optimize_many(
     # adopted from "94% of Milly winners had a punt" -- correlational).
     import os as _os
 
-    punt_min = int(_os.environ.get("PUNT_MIN", punt_min))
+    _env = _os.environ if env is None else env
+
+    punt_min = int(_env.get("PUNT_MIN", punt_min))
     # PUNT_MAX (2026-08-03): the $4k threshold was inherited from the
     # 2025 winner study (punts cluster $2.9-3.9k) and never dose-tested.
-    if _os.environ.get("PUNT_MAX"):
-        punt_max_salary = int(_os.environ["PUNT_MAX"])
+    if _env.get("PUNT_MAX"):
+        punt_max_salary = int(_env["PUNT_MAX"])
     lineups: list[Lineup] = []
     banned: list[frozenset] = []
     for _ in range(n_lineups):
@@ -342,7 +348,7 @@ def optimize_many(
                 lu = optimize(players, stack=stack, banned_lineups=banned,
                               max_overlap=max_overlap,
                               punt_max_salary=punt_max_salary,
-                              punt_min=punt_min, **kwargs)
+                              punt_min=punt_min, env=_env, **kwargs)
                 break
             except pulp.PulpSolverError as exc:
                 log.warning("CBC solve failed (attempt %d): %s", attempt, exc)
@@ -359,7 +365,8 @@ def optimize_many(
 
 
 def select_tail_entries(
-    cand_totals: np.ndarray, n_entries: int, line: float
+    cand_totals: np.ndarray, n_entries: int, line: float,
+    env: Mapping[str, str] | None = None,
 ) -> list[int]:
     """Pick the n_entries candidates that maximize P(best-of-N >= line)
     against correlated draws. cand_totals[c, k] = candidate c's total in
@@ -378,7 +385,8 @@ def select_tail_entries(
     # co-booming players into single entries when the exchange rate
     # favors it. alpha in 1/DK-points; ~0.05-0.15 spans soft-to-sharp.
     import os as _os
-    _alpha = float(_os.environ.get("SELECT_LSE", "0") or 0)
+    _env = _os.environ if env is None else env
+    _alpha = float(_env.get("SELECT_LSE", "0") or 0)
     if _alpha > 0:
         return _select_lse_entries(cand_totals, n_entries, line, _alpha)
     clears = cand_totals >= line

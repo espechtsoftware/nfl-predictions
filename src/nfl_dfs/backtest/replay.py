@@ -40,7 +40,7 @@ ROLE_BELIEF_FEATURES = (
 )
 
 
-def own_mode() -> str:
+def own_mode(env: dict | None = None) -> str:
     """OWN_MODEL env, normalized. Default "" ADOPTED 2026-08-05
     (Addenda 77/80/84): the chalk fade STAYS (its true deletion cost
     ~2 tails in both builds) but runs on NAIVE ownership — the trained
@@ -49,7 +49,8 @@ def own_mode() -> str:
     the booster fade; falsy spellings ("", "0", "off", "false", "no",
     "none") mean naive-fade; any other truthy string flips the model
     into the field sampler (deliberately not adopted)."""
-    v = os.environ.get("OWN_MODEL", "").strip().lower()
+    v = (os.environ.get("OWN_MODEL", "") if env is None
+         else env.get("OWN_MODEL", "")).strip().lower()
     return "" if v in ("", "0", "off", "false", "no", "none") else v
 
 
@@ -278,15 +279,17 @@ def role_belief_projections(
 
 def apply_draw_shape(draws: np.ndarray, positions: pd.Series,
                      seed: int | None,
-                     keys: pd.DataFrame | None = None) -> np.ndarray:
+                     keys: pd.DataFrame | None = None,
+                     env: dict | None = None) -> np.ndarray:
     """ADOPTED DEFAULTS (Addendum 40, combo "EW" — 24/107 tails vs 16
     same-build control, largest gain in program history): fitted draw
     widening + empirically-shaped marginals, composed, mean-preserving.
     Shared by replays AND the live sim-mode path so what was validated
     is exactly what fires on Sundays. Env overrides: SIM_WIDEN_DRAWS=off
     or an explicit "WR:1.3,..." spec; EMP_MARGINALS=0 disables."""
+    source = os.environ if env is None else env
     out = draws
-    widen_spec = os.environ.get("SIM_WIDEN_DRAWS", "fitted")
+    widen_spec = source.get("SIM_WIDEN_DRAWS", "fitted")
     if widen_spec.lower() not in ("off", "0", ""):
         out = _widen_draws(out, positions, widen_spec)
     # A/B lever (env ROOKIE_WIDEN, off by default; 2026-08-04 rookie
@@ -296,7 +299,7 @@ def apply_draw_shape(draws: np.ndarray, positions: pd.Series,
     # historical rookie rows: widening rookie draws' spread around their
     # mean by 1.07 restores exact 0.900 coverage. Needs keys carrying
     # is_rookie (replay rows and the live inference frame both do).
-    rw = os.environ.get("ROOKIE_WIDEN", "")
+    rw = source.get("ROOKIE_WIDEN", "")
     if (rw not in ("", "0") and keys is not None
             and "is_rookie" in getattr(keys, "columns", [])):
         s = 1.07 if rw == "1" else float(rw)
@@ -311,21 +314,22 @@ def apply_draw_shape(draws: np.ndarray, positions: pd.Series,
     # panel (179.5) at equal tails. Requires the tabpfn_projections
     # cache (GPU job tabpfn-gen, ~$0.05/wk); missing cache falls back
     # to empirical marginals below. "0"/"" disables.
-    if (os.environ.get("TABPFN_MARGINALS", "1") not in ("0", "")
+    if (source.get("TABPFN_MARGINALS", "1") not in ("0", "")
             and keys is not None):
         shaped = _tabpfn_marginals(out, keys)
     if shaped is not None:
         out = shaped
-    elif os.environ.get("EMP_MARGINALS", "1") not in ("0", ""):
+    elif source.get("EMP_MARGINALS", "1") not in ("0", ""):
         out = _empirical_marginals(
             out, positions,
-            np.random.default_rng(0 if seed is None else seed + 7))
+            np.random.default_rng(0 if seed is None else seed + 7),
+            env=source)
     # A/B lever (env SHAPE_MIX, off by default = 1.0): apply the shaping
     # to only the first fraction f of sims, leaving the rest RAW — the
     # EW-vs-PB2 diff showed 15 weeks converted but 9 regressed (each
     # world-model sees booms the other misses); mixed worlds let the
     # coverage selector hedge across both regimes.
-    mix = float(os.environ.get("SHAPE_MIX", "1") or 1)
+    mix = float(source.get("SHAPE_MIX", "1") or 1)
     if mix <= 0.0:
         return draws  # 0 = all-raw (was returning fully-shaped — audit)
     if mix < 1.0:
@@ -409,7 +413,8 @@ def _tabpfn_marginals(draws: np.ndarray, keys: pd.DataFrame) -> np.ndarray:
 
 
 def _empirical_marginals(draws: np.ndarray, positions: pd.Series,
-                         rng: np.random.Generator) -> np.ndarray:
+                         rng: np.random.Generator,
+                         env: dict | None = None) -> np.ndarray:
     """Reshape each player's marginal to the empirically-fitted family
     for (position, projection tier) — models/emp_marginals.py — while
     preserving BOTH our correlation structure (rank reordering: the
@@ -424,8 +429,9 @@ def _empirical_marginals(draws: np.ndarray, positions: pd.Series,
     # EMP_POS (A/B, default all): comma list of positions to reshape —
     # the EW-book sweep found the TE slot REGRESSED under the empirical
     # TE family (13.1 actual vs winners' 21.5), so a no-TE arm exists.
+    source = os.environ if env is None else env
     allow = {p.strip().upper() for p in
-             os.environ.get("EMP_POS", "").split(",") if p.strip()}
+             source.get("EMP_POS", "").split(",") if p.strip()}
     by_pos: dict = {}
     for r in ROWS:
         if allow and r["pos"] not in allow:

@@ -40,6 +40,8 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
                            model_variant: str | None = None,
                            allowed_ids: set | None = None,
                            salary_overrides: dict[int, int] | None = None,
+                           policy_env: dict[str, str] | None = None,
+                           expected_model_k: int | None = None,
                            ) -> tuple[pd.DataFrame, np.ndarray]:
     """Engine-ready slate frame + aligned draw matrix for the live week."""
     from ..backtest.field import naive_ownership
@@ -55,8 +57,10 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
 
     import os as _os
 
+    runtime_env = _os.environ if policy_env is None else policy_env
+
     if n_sims is None:
-        n_sims = int(_os.environ.get("LIVE_SIMS", LIVE_SIMS_DEFAULT))
+        n_sims = int(runtime_env.get("LIVE_SIMS", LIVE_SIMS_DEFAULT))
     if model_variant is None:
         model, version = load_latest_component_models()
     else:
@@ -64,7 +68,8 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
         from ..models.components import effective_ensemble_size
         from ..models.train_job import registered_ensemble_size
 
-        expected_k = effective_ensemble_size()
+        expected_k = (expected_model_k if expected_model_k is not None
+                      else effective_ensemble_size(runtime_env))
         loaded_k = registered_ensemble_size(model)
         if loaded_k != expected_k:
             raise RuntimeError(
@@ -85,7 +90,8 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     sim = simulate.simulate(comps, n_sims=n_sims, seed=seed, keep_draws=True,
                             game_ids=skill.get("game_id"),
                             team_ids=skill.get("team"),
-                            game_totals=skill.get("game_total"))
+                            game_totals=skill.get("game_total"),
+                            env=runtime_env)
     # keys enable per-player marginal levers (TABPFN_MARGINALS) live —
     # without them the lever silently fell through to empirical
     # marginals, a replay/live parity gap (2026-08-04 audit).
@@ -94,7 +100,8 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     draws = apply_draw_shape(sim.draws, skill.position, seed,
                              keys=skill[_kc]
                              if {"season", "week", "gsis_id"}
-                             <= set(_kc) else None)
+                             <= set(_kc) else None,
+                             env=runtime_env)
 
     # Market blend as an additive mean shift — draw shape untouched.
     # Props-first (review #5 round 3 parity fix): the replay blend that
@@ -115,7 +122,7 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     except Exception:
         log.exception("live prop market unavailable; DK PPG stand-in")
     blended = blend(draws.mean(axis=1), np.asarray(market, dtype=float),
-                    effective_model_weight())
+                    effective_model_weight(runtime_env))
     draws = shift_draws_to_means(draws, blended)
 
     frame = pd.DataFrame({
@@ -188,7 +195,7 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
 
     own = None
     from ..backtest.replay import own_mode
-    if own_mode():
+    if own_mode(runtime_env):
         try:
             from ..backtest.replay import _model_ownership, _ownership_booster
 
@@ -252,7 +259,7 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     # PUNT_BOOM default 0 ADOPTED 2026-08-05 (Addendum 77/79b — mirror
     # of the replay default): the archetype boost is deleted; env
     # restores it for A/Bs.
-    _pb = float(_os.environ.get("PUNT_BOOM", "0") or 0)
+    _pb = float(runtime_env.get("PUNT_BOOM", "0") or 0)
     if _pb:
         try:
             boom = punt_boom_flags_live(season, week)
@@ -266,6 +273,7 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     slots = {"QB": 1.0, "RB": 2.5, "WR": 3.5, "TE": 1.2, "DST": 1.0}
     frame["low_own"] = (own * frame.pos.map(slots).fillna(1.0)
                         .to_numpy()) < 0.05
+    frame.attrs["model_version"] = version
     return frame, draws
 
 
@@ -282,7 +290,9 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                       cand_log_async: bool = True,
                       cand_log_required: bool = False,
                       panel_run_id: str | None = None,
-                      candidate_run_type: str | None = None) -> list:
+                      candidate_run_type: str | None = None,
+                      policy_env: dict[str, str] | None = None,
+                      expected_model_k: int | None = None) -> list:
     """Full validated pipeline on the live slate -> selected entries in
     coverage order (first = broadest boom coverage).
 
@@ -297,7 +307,10 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                                           apply_notes=apply_notes,
                                           model_variant=model_variant,
                                           allowed_ids=allowed_ids,
-                                          salary_overrides=salary_overrides)
+                                          salary_overrides=salary_overrides,
+                                          policy_env=policy_env,
+                                          expected_model_k=expected_model_k)
+    model_version = slate.attrs.get("model_version")
     if allowed_ids:  # safety no-op — restriction now happens pre-fade
         slate = slate[slate.id.isin(allowed_ids)]
     if bans:
@@ -341,8 +354,13 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
     lineups = tail_select_lineups(
         slate, pool, draws, tail_line=tail_line, n_entries=n_entries,
         stack=stack, objective_col="proj_tourney",
+        candidate_multiple=int((policy_env or {}).get("CAND_MULT", "2")),
+        n_game_stacks=int((policy_env or {}).get("N_GAMESTACK", "4")),
         locks=set(locks or ()), theses=theses,
         cand_log_table=cand_log_table, cand_log_async=cand_log_async,
         cand_log_required=cand_log_required,
-        panel_run_id=panel_run_id, candidate_run_type=candidate_run_type)
+        panel_run_id=panel_run_id, candidate_run_type=candidate_run_type,
+        policy_env=policy_env)
+    for lineup in lineups:
+        lineup.model_version = model_version
     return lineups

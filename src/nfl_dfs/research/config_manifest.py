@@ -40,9 +40,16 @@ def _module_source(dotted: str) -> str:
 
 
 def _env_defaults(source: str, key: str) -> list[str]:
-    """Every `environ.get("KEY", "<literal>")` default in `source`."""
+    """Every injectable/environment mapping default in ``source``.
+
+    Production paths accept a request-local mapping so concurrent builds do
+    not mutate ``os.environ``.  Keep the static manifest useful across both
+    forms instead of requiring dead ``os.environ.get`` expressions solely
+    for this scanner.
+    """
     pat = re.compile(
-        r'environ\.get\(\s*"' + re.escape(key) + r'"\s*,\s*"([^"]*)"')
+        r'\b(?:os\.environ|_os\.environ|runtime_env|source|_env|env)'
+        r'\.get\(\s*"' + re.escape(key) + r'"\s*,\s*"([^"]*)"')
     return pat.findall(source)
 
 
@@ -51,7 +58,7 @@ def _env_default(source: str, key: str, module: str) -> str:
     read disappeared or the same file disagrees with itself."""
     found = _env_defaults(source, key)
     if not found:
-        raise LookupError(f"{key}: no environ.get default in {module}")
+        raise LookupError(f"{key}: no mapping.get default in {module}")
     if len(set(found)) > 1:
         raise LookupError(
             f"{key}: conflicting defaults {sorted(set(found))} in {module}")

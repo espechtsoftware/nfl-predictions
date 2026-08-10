@@ -101,6 +101,7 @@ def project(
     week: int,
     n_sims: int = 10_000,
     adjust=None,
+    policy_env: dict[str, str] | None = None,
 ) -> pd.DataFrame:
     """adjust: optional callable (feats) -> (feats, out_gsis_ids), applied
     after the cold-start fill so cascade bumps land on top of role priors —
@@ -118,7 +119,8 @@ def project(
     sim = simulate.simulate(comps, n_sims=n_sims,
                         game_ids=feats.get("game_id"),
                         team_ids=feats.get("team"),
-                        game_totals=feats.get("game_total"))
+                        game_totals=feats.get("game_total"),
+                        env=policy_env)
     preds = calibration.apply_widen(
         sim.summary, feats.get("position", feats.get("dk_position"))
     )
@@ -150,7 +152,8 @@ def project(
              _mkt_src, int(pd.notna(market).sum()), len(feats))
     _pre_blend = preds["proj_points"].to_numpy().copy()
     preds["proj_points"] = blend(
-        _pre_blend, np.asarray(market, dtype=float), effective_model_weight()
+        _pre_blend, np.asarray(market, dtype=float),
+        effective_model_weight(policy_env)
     )
     # DIV_TILT shadow log (2026-08-05, Addendum 82; source fixed round
     # 3): logs the PROP-market divergence only — rows are written only
@@ -239,7 +242,9 @@ def _cascade_adjuster(season: int):
 
 
 def run() -> None:
-    from ..models.train_job import load_latest_component_models
+    from ..models.train_job import (load_latest_component_models,
+                                    registered_ensemble_size)
+    from .production_policy import ADOPTED_CLASSIC_POLICY
 
     season = current_season()
     week = query_df(
@@ -248,14 +253,21 @@ def run() -> None:
     ).week.iloc[0]
     week = int(week)
 
-    model, version = load_latest_component_models()
+    policy = ADOPTED_CLASSIC_POLICY
+    policy_env = policy.engine_environment(os.environ)
+    model, version = load_latest_component_models(policy.model_variant)
+    loaded_k = registered_ensemble_size(model)
+    if loaded_k != policy.model_ensemble:
+        raise RuntimeError(
+            f"production policy {policy.policy_id} requires K="
+            f"{policy.model_ensemble}, but {version} contains K={loaded_k}")
     # LIVE_SIMS (adopted 2026-08-03): live paths sim 30k worlds (better
     # medians/ROI, one slate = pennies); panels/replays stay at 10k.
-    n_sims = int(os.environ.get("LIVE_SIMS", "30000"))
+    n_sims = int(policy_env["LIVE_SIMS"])
     feats = upcoming_slate_features(season, week)
     skill = feats[feats.dk_position.isin(["QB", "RB", "WR", "TE"])].reset_index(drop=True)
     out = project(skill, model, version, season, week, n_sims=n_sims,
-                  adjust=_cascade_adjuster(season))
+                  adjust=_cascade_adjuster(season), policy_env=policy_env)
     # DST rows (issue #7): trailing team-defense form + opposing-QB
     # experience. Failure-safe — skill projections without DSTs still
     # beat nothing, though lineup building needs the DST rows.
@@ -269,8 +281,8 @@ def run() -> None:
         log.exception("DST projections failed; writing skill rows only")
     load_dataframe(out, f"{settings.predictions}.player_projections",
                    write_disposition="WRITE_APPEND", partition_field="generated_at")
-    log.info("Wrote %d projections for season %s week %s (model %s)",
-             len(out), season, week, version)
+    log.info("Wrote %d projections for season %s week %s (policy %s, model %s)",
+             len(out), season, week, policy.policy_id, version)
 
 
 if __name__ == "__main__":

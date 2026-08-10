@@ -27,6 +27,7 @@ from ..optimizer.export import (
 )
 from ..optimizer.lineup import StackRules, core_and_variations, optimize_many
 from ..optimizer.showdown import optimize_many_showdown
+from ..inference.production_policy import ADOPTED_CLASSIC_POLICY
 from .store import BigQueryStore, ProjectionStore
 
 app = FastAPI(title="Fingerblasters' Brain", version="0.1.0")
@@ -51,7 +52,8 @@ class LineupRequest(BaseModel):
     season: int
     week: int
     draft_group_id: int | None = None  # classic slate; None = whole week pool
-    n_lineups: int = Field(40, ge=1, le=150)
+    n_lineups: int = Field(
+        ADOPTED_CLASSIC_POLICY.default_entries, ge=1, le=150)
     objective: str = Field("proj_points", pattern="^proj_(points|p50|p90)$")
     locks: list[int] = []
     bans: list[int] = []
@@ -76,18 +78,16 @@ class LineupRequest(BaseModel):
     # large-field fade; sharp/high-stakes fields use 0.5-0.7 — our fade
     # is soft-field-calibrated and sharp chalk busts less.
     lev_scale: float = Field(1.0, ge=0.0, le=2.0)
-    # Contest sizing: field_size scales the confidence target line via
-    # tail_line_for_field (a 20k qualifier's winning line sits below the
-    # Milly's); an explicit tail_line overrides. Both None = Milly 194.
+    # Field size is retained for contest comparison/metadata. The production
+    # selector stays on its validated fixed 194 line; only an explicit
+    # advanced tail_line request overrides it.
     field_size: int | None = Field(None, ge=100)
     tail_line: float | None = Field(None, ge=100, le=300)
 
     def line(self) -> float:
         if self.tail_line is not None:
             return self.tail_line
-        if self.field_size is not None:
-            return tail_line_for_field(self.field_size)
-        return MIN_MILLY_LINE
+        return ADOPTED_CLASSIC_POLICY.tail_line
 
 
 _PAGE_CSS = """
@@ -413,7 +413,9 @@ async function build(){
     st.textContent=sd
       ? j.lineups.length+' Captain Mode lineups · '+j.game.game+' ('+
         j.game.day+'). Captain scores 1.5x and costs 1.5x.'
-      : j.lineups.length+' lineups. Confidence = P(score >= '+
+      : j.lineups.length+' lineups · '+(j.policy?.policy_id||'policy unknown')+
+        ' · model '+(j.policy?.model_version||'unreported')+
+        '. Confidence = P(score >= '+
         (j.tail_line||194)+') per the sim — PORTFOLIO-level validated; '+
         'the within-set ordering is approximate (measured ~coin-flip on '+
         'realized outcomes), so treat all entries as co-equal shots.';
@@ -594,7 +596,8 @@ def lineups_page() -> str:
         f"</label>"
         f"<label id='fieldctl'>Field size<input id='fsize' type='number' value='20000'>"
         f"</label>"
-        f"<label>Entries<input id='n' type='number' value='40'></label>"
+        f"<label>Entries<input id='n' type='number' value='"
+        f"{ADOPTED_CLASSIC_POLICY.default_entries}'></label>"
         f"<input id='lev' type='hidden' value='1'>"
         f"<div id='chint' style='font-size:.8em;color:#888'></div>"
         f"<label>Objective<select id='obj'>"
@@ -640,7 +643,8 @@ def lineups_page() -> str:
         f"<div id='status'>Pick season/week/slate and Build (the Sunday "
         f"main slate preselects itself when DK lists one; single games under "
         f"Showdown build Captain Mode entries). Classic tournament defaults "
-        f"apply: QB+2 stack, bring-back, punt slot, chalk fade — showdown "
+        f"apply automatically: {ADOPTED_CLASSIC_POLICY.policy_id}, 80 entries, "
+        f"fixed 194 coverage, QB+2 stack, bring-back and chalk fade — showdown "
         f"leverages captain diversity instead.</div>"
         f"<div id='cards'></div>"
         f"</main><script>{_LINEUPS_JS}</script></body></html>"
@@ -1804,11 +1808,11 @@ def tail_line_for_field(field_size: int) -> float:
 # primary contest this shop enters.
 CONTEST_PRESETS = [
     {"name": "$5 Qualifier (typical)", "entry_fee": 5.0,
-     "field_size": 20_000, "entries": 40, "lev_scale": 1.0,
-     "note": "40-entry coverage portfolio, full leverage"},
+     "field_size": 20_000, "entries": 80, "lev_scale": 1.0,
+     "note": "adopted 80-entry coverage portfolio, full leverage"},
     {"name": "$3 Large GPP", "entry_fee": 3.0,
-     "field_size": 100_000, "entries": 40, "lev_scale": 1.0,
-     "note": "40-entry coverage portfolio, full leverage"},
+     "field_size": 100_000, "entries": 80, "lev_scale": 1.0,
+     "note": "adopted 80-entry coverage portfolio, full leverage"},
     {"name": "Millionaire Maker", "entry_fee": 20.0,
      "field_size": MILLY_FIELD, "entries": 4, "lev_scale": 1.0,
      "note": "4 lottery tickets at the 194+ line"},
@@ -1833,8 +1837,9 @@ def _strategy_for(field_size: float, entry_fee: float) -> dict:
     if field_size <= 10_000:
         return {"entries": 3, "lev_scale": 0.7,
                 "note": "small field: moderated fade, few entries"}
-    return {"entries": 40, "lev_scale": 1.0,
-            "note": "large field: coverage portfolio, full leverage"}
+    return {"entries": ADOPTED_CLASSIC_POLICY.default_entries,
+            "lev_scale": 1.0,
+            "note": "large field: adopted 80-entry coverage portfolio"}
 
 
 @app.get("/contests")
@@ -1863,14 +1868,17 @@ def contest_options() -> dict:
         c.update(_strategy_for(float(c["field_size"]),
                                float(c.get("entry_fee") or 0)))
     for c in live + CONTEST_PRESETS:
-        c["tail_line"] = tail_line_for_field(int(c["field_size"]))
+        c["estimated_winning_line"] = tail_line_for_field(
+            int(c["field_size"]))
+        c["tail_line"] = ADOPTED_CLASSIC_POLICY.tail_line
     return {"live": live, "presets": CONTEST_PRESETS}
 
 
 def _rank_by_confidence(lineups: list, df: pd.DataFrame,
                         line: float = MIN_MILLY_LINE,
                         season: int | None = None,
-                        week: int | None = None) -> list[dict]:
+                        week: int | None = None,
+                        prefer_lineup_means: bool = False) -> list[dict]:
     """Sort lineups by tournament confidence — P(lineup total >= line)
     under a normal approximation from each player's projection mean and
     std. Independence understates stacked lineups' true tail, so treat
@@ -1891,7 +1899,9 @@ def _rank_by_confidence(lineups: list, df: pd.DataFrame,
               if "proj_std" in df.columns else {})
     ranked = []
     for lu in lineups:
-        mu = sum(float(mu_map.get(p["id"], p["proj"])) for p in lu.players)
+        mu = sum(float(p["proj"] if prefer_lineup_means
+                       else mu_map.get(p["id"], p["proj"]))
+                 for p in lu.players)
         var = sum(float(sd_map.get(p["id"], 0) or 0) ** 2 for p in lu.players)
         sigma = max(var ** 0.5, 1e-6) * _scale
         p_line = 1 - NormalDist(mu, sigma).cdf(line)
@@ -1955,6 +1965,8 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
     # returns a clear error naming the cause; sim=false is the explicit
     # escape hatch to the plain MILP path.
     if req.sim:
+        policy = ADOPTED_CLASSIC_POLICY
+        policy_env = policy.engine_environment(os.environ)
         allowed = None
         if req.draft_group_id is not None:
             allowed = set(int(p) for p in df.dk_player_id.dropna())
@@ -1972,7 +1984,10 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
                 locks=set(req.locks), bans=set(req.bans),
                 allowed_ids=allowed, theses=req.theses or None,
                 salary_overrides=salaries,
-                apply_notes=req.apply_notes)
+                apply_notes=req.apply_notes,
+                model_variant=policy.model_variant,
+                expected_model_k=policy.model_ensemble,
+                policy_env=policy_env)
         except HTTPException:
             raise
         except Exception as exc:
@@ -1998,7 +2013,8 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
                 p.setdefault("dk_id", (dk_ids or {}).get(int(p["id"])))
                 p.setdefault("kickoff", kick.get(int(p["id"])))
         ranked = _rank_by_confidence(lineups, df, line=req.line(),
-                                 season=req.season, week=req.week)
+                                 season=req.season, week=req.week,
+                                 prefer_lineup_means=True)
         _annotate_leverage([r["lineup"] for r in ranked], slate=df)
         return [r["lineup"] for r in ranked], ranked
 
@@ -2067,11 +2083,6 @@ def _marginals_health(season: int, week: int) -> dict:
     1.2, 2026-08-04): the TabPFN cache fallback is graceful but must
     never be SILENT — a missing cache on a Sunday means building with
     the older EW marginals (-6 validated tail weeks) without knowing."""
-    import os as _os
-
-    if _os.environ.get("TABPFN_MARGINALS", "1") in ("0", ""):
-        return {"marginals": "empirical (TabPFN disabled by env)",
-                "warning": None}
     try:
         from ..bq import query_df
         from ..config import settings
@@ -2106,6 +2117,33 @@ def _marginals_health(season: int, week: int) -> dict:
                            "unverified."}
 
 
+def _classic_policy_identity(req: LineupRequest, lineups: list) -> dict:
+    """Identity attached to every classic JSON/CSV build response."""
+    if not req.sim:
+        return {
+            "policy_id": "manual-milp-escape-hatch",
+            "adopted": False,
+            "model_version": None,
+            "entries": len(lineups),
+        }
+    model_version = (getattr(lineups[0], "model_version", None)
+                     if lineups else None)
+    return {
+        **ADOPTED_CLASSIC_POLICY.public_identity(
+            model_version=model_version,
+            entries=len(lineups), tail_line=req.line()),
+        "adopted": True,
+    }
+
+
+def _classic_policy_headers(req: LineupRequest, lineups: list) -> dict[str, str]:
+    identity = _classic_policy_identity(req, lineups)
+    return {
+        "X-Lineup-Policy": str(identity["policy_id"]),
+        "X-Model-Version": str(identity.get("model_version") or "n/a"),
+    }
+
+
 
 @app.post("/lineups")
 def build_lineups(
@@ -2113,6 +2151,7 @@ def build_lineups(
 ) -> dict:
     lineups, ranked = _build_classic(req, store)
     return {
+        "policy": _classic_policy_identity(req, lineups),
         "model_health": (_marginals_health(req.season, req.week)
                          if req.sim else {"marginals": "n/a (MILP path)",
                                           "warning": None}),
@@ -2464,7 +2503,10 @@ def build_lineups_csv(
     return Response(
         content=to_dk_csv(lineups),
         media_type="text/csv",
-        headers={"Content-Disposition": "attachment; filename=dk_lineups.csv"},
+        headers={
+            "Content-Disposition": "attachment; filename=dk_lineups.csv",
+            **_classic_policy_headers(req, lineups),
+        },
     )
 
 
@@ -2505,7 +2547,8 @@ def _entries_n(entries_csv: str, contest_id: str | None = None) -> int:
 
 
 def _entries_response(entries_csv: str, lineups: list,
-                      contest_id: str | None = None) -> Response:
+                      contest_id: str | None = None,
+                      policy_headers: dict[str, str] | None = None) -> Response:
     try:
         filled = fill_entries_csv(entries_csv, lineups, contest_id=contest_id)
     except ValueError as exc:
@@ -2513,7 +2556,8 @@ def _entries_response(entries_csv: str, lineups: list,
     return Response(
         content=filled,
         media_type="text/csv",
-        headers={"Content-Disposition": "attachment; filename=DKEntries.csv"},
+        headers={"Content-Disposition": "attachment; filename=DKEntries.csv",
+                 **(policy_headers or {})},
     )
 
 
@@ -2522,9 +2566,10 @@ def fill_classic_entries(
     req: FillEntriesRequest, store: ProjectionStore = Depends(get_store)
 ) -> Response:
     build_req = req.model_copy(update={"n_lineups": _entries_n(req.entries_csv, getattr(req, "contest_id", None))})
-    return _entries_response(req.entries_csv,
-                             _build_classic(build_req, store)[0],
-                             contest_id=req.contest_id)
+    lineups = _build_classic(build_req, store)[0]
+    return _entries_response(
+        req.entries_csv, lineups, contest_id=req.contest_id,
+        policy_headers=_classic_policy_headers(build_req, lineups))
 
 
 @app.post("/lineups/entries/diff")

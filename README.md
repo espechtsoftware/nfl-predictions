@@ -6,14 +6,15 @@ A complete blueprint for a DraftKings NFL daily-fantasy prediction and lineup-co
 > first. It is the tracked, current state and must be updated before every
 > development pause or machine transfer.
 
-> **Current 80-entry research baseline (2026-08-09):** K=1 is the promoted
-> tail-first research baseline under the operator's aggregate-high-score
-> utility; K=3 remains the production/stability reference. At the frozen 194
-> selector over 107 historical slates, K=1 produced 36/22/12/6/3/1/1 weekly
-> maxima at or above 187/194/200/210/220/230/240, versus K=3's
-> 29/19/8/5/1/1/1. This is a research promotion, not a silent live-deployment
-> change. See `HANDOFF.md` and the 80-entry tail audit for the prospective
-> safeguards and full provenance.
+> **Current 80-entry production baseline (2026-08-09):** K=1 is the adopted
+> tail-first money-lineup policy under the operator's aggregate-high-score
+> utility. At the frozen 194 selector over 107 historical slates, the adopted
+> fixed 12 CE / 28 boom book produced 40/26/18/11/5/2/1 weekly maxima at or
+> above 187/194/200/210/220/230/240. Its candidate-pool oracle produced
+> 47/32/22/13/5/2/1. The UI/API, both CSV exports, and projection job are pinned
+> to policy `classic-k1-ce12-boom28-v1`; K=3 and outcome-viewed alternatives
+> remain isolated research references. See `HANDOFF.md` for provenance and
+> prospective safeguards.
 
 > **This repository implements the guide.** Map from guide section to code:
 >
@@ -116,8 +117,8 @@ All configuration is via environment variables, read in `src/nfl_dfs/config.py` 
 | `BQ_PREDICTIONS_DATASET` | `nfl_predictions` | Projections + registry metadata |
 | `GCS_BUCKET` | `nfl-dfs-prod-raw` | Raw snapshots + model registry |
 | `MODEL_REGISTRY_PREFIX` | `models` | GCS prefix for registered models |
-| `MODEL_REGISTRY_VARIANT` | `canonical` | Isolated model label namespace; `tail_k1` is reserved for the prospective K=1 shadow and never overwrites canonical K=3 |
-| `MODEL_ENSEMBLE` | `3` | Component-model member count; the isolated tail shadow requires `1` |
+| `MODEL_REGISTRY_VARIANT` | `canonical` for research jobs | Isolated model label namespace. The adopted money-lineup policy explicitly loads `tail_k1`; it does not inherit this process default. Canonical K=3 remains an isolated reference |
+| `MODEL_ENSEMBLE` | `3` for research jobs | Component-model member count. The adopted money-lineup policy explicitly requires and verifies K=1 from the `tail_k1` registry |
 | `ODDS_SHADOW_MARKETS_ENABLED` | unset/false | Collect the fixed live-only volume/role prop bundle into isolated `nfl_raw.prop_lines_shadow`; never read by production models or UI |
 | `ODDS_SHADOW_MIN_REMAINING` | `5000` | Do not make the next shadow request unless the provider-reported credit balance will remain at or above this reserve |
 | `FIRST_SEASON` | `2014` | Earliest season to backfill. Training only uses 2015+ (DK salaries don't exist earlier), so the default backfills just one run-up season before that; set `1999` for the full play-by-play history if you want it for exploration |
@@ -180,6 +181,22 @@ nfl-dfs serve --port 8080
 ```
 
 Endpoints: `GET /health`, `GET /slates`, `GET /classic/slates` (upcoming classic slates with labels like `Sun 1:00 PM–4:25 PM · 12 games`; the Sunday main slate is flagged `main`), `GET /projections`, `POST /lineups` (optimize; pass `draft_group_id` from `/classic/slates` to build for a specific slate — Sunday main, full Thu–Mon, etc. — restricting the pool to that slate's players at its salaries and draftable IDs; omit it for the whole projected week pool), `POST /lineups.csv` (DK upload file), `POST /lineups/entries.csv` (fill a downloaded DKEntries.csv, one lineup per entry; both accept `draft_group_id` too, as does `POST /lineups/core`), `GET /showdown/slates` and `POST /showdown/lineups[.csv]` / `POST /showdown/lineups/entries.csv` (Captain Mode single-game lineups, default filtered to the Thursday/Monday night games — see §9.5).
+
+**Adopted classic money-lineup policy (2026-08-09).** The app and projection
+job consume `inference/production_policy.py` directly: policy
+`classic-k1-ce12-boom28-v1`, promoted panel
+`20260809-e80-k1-ce12-c616390`, K=1 `tail_k1` model, possession simulation,
+45/55 model/prop-market blend, $49,000 salary floor, greedy coverage at a
+fixed 194 line, 80 default entries, and a fixed 12 CE / 28 boom replacement
+allocation. This mapping overrides lineup-changing research variables as
+request-local data without mutating process environment, so a stale research
+job setting cannot contaminate concurrent web requests. `/lineups` returns
+the policy plus exact loaded model version; both CSV routes expose the same
+identity in `X-Lineup-Policy` and `X-Model-Version` response headers. An
+explicit `sim=false` request remains an emergency plain-MILP escape hatch and
+is labeled non-adopted. DKEntries files still determine their actual entry
+count; 80 is the normal preview/generic-CSV default, not a command to create
+entries the user did not reserve.
 
 Classic projections cover the union of every upcoming classic draft group (deduped per player), so any slate DK lists is buildable; `run_projections.upcoming_slate_features` used to key on a single `MAX(pulled_at)`, which silently served whichever classic group the hourly ingest happened to fetch last.
 
@@ -1642,7 +1659,7 @@ validated default is the TabPFN shapes.
 
 | When (2026) | Do |
 |---|---|
-| **Before Mon Aug 24 — required arm/UI promotion gate** | Close or explicitly defer every running historical arm and write the final adopted production policy in `HANDOFF.md`. Keep outcome-viewed or prospectively unconfirmed arms shadow-only. Then make the UI/API use the adopted model, selector, salary floor, entry count, blend, and portfolio allocation automatically—do not leave the winning policy available only in research scripts. Verify `/lineups`, `/lineups.csv`, and `/lineups/entries.csv` use the same policy; display its policy/model identity in the UI response; run focused tests, a full Cloud Build, and an end-to-end 80-lineup → DK CSV smoke. If the adopted policy is still canonical K=3/194, record that explicit no-change decision. Do not resume the season schedulers until this gate is complete. |
+| **Before Mon Aug 24 — arm/UI promotion gate COMPLETE (Aug 9)** | Adopted `classic-k1-ce12-boom28-v1` is wired through projections, UI/API, and all three lineup/CSV paths with K=1 `tail_k1`, 45/55 blend, $49k floor, fixed 194 coverage, default 80 entries, and 12 CE / 28 boom allocation. The full Cloud Build and end-to-end 80-lineup → DK CSV smoke passed; the deployed app and `project-slate` job use the validated immutable image. Outcome-viewed and prospectively unconfirmed arms remain shadow-only. All fourteen seasonal schedulers were rechecked `PAUSED` after the deployment and stay paused until Aug 24. Durable IDs are in `HANDOFF.md`. |
 | **Mon Aug 24** | After the arm/UI promotion gate passes, resume the Tuesday chain, projections, paired prospective shadows, and frozen selector post-processing: `for s in s-nflverse s-features s-train s-train-k1 s-project-tu s-project-su s-shadow-k1-early s-shadow-k1-late s-shadow-k1-nofloor-early s-shadow-k1-nofloor-late s-shadow-k3-early s-shadow-k3-late s-freeze-tail-early s-freeze-tail-late; do gcloud scheduler jobs resume $s --location us-central1; done`. First training runs land Tue Aug 25; all three policy arms freeze Sunday-main pools at 10:30 and 11:20 CT, then the delayed jobs freeze the predeclared selector memberships. |
 | **Sat Aug 29** (CFB week 0) | Nothing to start — `ingest-cfb` is already live and self-activating. Verify it caught real slates: System status popup → "CFB slates/salaries" shows rows (or query `nfl_raw.cfb_dk_salaries`). If still 0 after slates exist on DK, the `sportId == 5` filter guess was wrong — check the `ingest-cfb` logs. |
 | **Tue-Wed Sep 8-9** | Purchase the ETR **NFL In-Season Package WEEKLY pass** ($30.99 — verified 2026-08-02 at establishtherun.com/subscribe; monthly is $89.99, weekly beats it unless certain of 3+ weeks). Includes DK projections + ceilings, LARGE & SMALL-field ownership (qualifier-relevant), showdown projections. Use: download their CSV, upload on /market (Consensus diff, source `etr`); divergences on players we're heavy on -> watchlist via chat; showdown captain ownership secondary. Re-up weekly ONLY if a diff flag changed a decision for the better. |

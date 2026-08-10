@@ -93,18 +93,20 @@ def test_tail_line_scales_with_field_size(client):
     assert q5k < q20k < 194.0
     assert q20k > 180  # sanity: a 20k qualifier is not a cakewalk
 
-    # /contests always serves presets (BQ-less test env has no live table)
+    # /contests retains the provisional estimate for comparison, but the
+    # production builder uses the fixed 194 selector that was validated.
     opts = client.get("/contests").json()
     assert opts["presets"][0]["field_size"] == 20_000
-    assert all("tail_line" in c for c in opts["presets"])
+    assert all(c["tail_line"] == 194.0 for c in opts["presets"])
+    assert all("estimated_winning_line" in c for c in opts["presets"])
 
-    # field_size flows into the response's confidence target
+    # field_size does not silently switch away from the adopted selector.
     r = client.post("/lineups", json={
         "season": 2025, "week": 3, "n_lineups": 1, "field_size": 20_000,
         "sim": False,
     })
     assert r.status_code == 200
-    assert r.json()["tail_line"] == q20k
+    assert r.json()["tail_line"] == 194.0
     # explicit tail_line overrides field_size
     r = client.post("/lineups", json={
         "season": 2025, "week": 3, "n_lineups": 1, "field_size": 20_000,
@@ -818,6 +820,61 @@ def test_sim_mode_notes_toggle_passthrough(client, monkeypatch):
     client.post("/lineups", json={"season": 2025, "week": 3, "n_lineups": 2,
                                   "apply_notes": False})
     assert seen.get("apply_notes") is False
+
+
+def test_sim_mode_receives_immutable_adopted_policy(client, monkeypatch):
+    seen = {}
+
+    def capture(*a, **k):
+        seen.update(k)
+        raise RuntimeError("stop here")
+
+    from nfl_dfs.inference import live_lineups
+
+    monkeypatch.setattr(live_lineups, "build_sim_lineups", capture)
+    client.post("/lineups", json={"season": 2025, "week": 3})
+    assert seen["n_entries"] == 80
+    assert seen["model_variant"] == "tail_k1"
+    assert seen["expected_model_k"] == 1
+    env = seen["policy_env"]
+    assert (env["N_CE"], env["N_BOOM"]) == ("12", "28")
+    assert env["MIN_LINEUP_SALARY"] == "49000"
+    assert env["BLEND_MODEL_WEIGHT"] == "0.45"
+    assert env["SELECT_LSE"] == "0"
+
+
+def test_all_three_classic_routes_expose_same_policy(client, monkeypatch):
+    from nfl_dfs.optimizer.lineup import optimize
+
+    frame = projections_frame()
+    pool = app_main._player_pool(frame, "proj_points", None)
+    lu = optimize(pool)
+    assert lu is not None
+    lu.model_version = "pooled/components__tail_k1/2026-W36"
+    ranked = [{"lineup": lu, "confidence": 1.0,
+               "proj_mean": round(lu.proj, 1)}]
+    monkeypatch.setattr(app_main, "_build_classic",
+                        lambda req, store: ([lu], ranked))
+    monkeypatch.setattr("nfl_dfs.notes.record_entered_lineups",
+                        lambda *a, **k: 1)
+
+    req = {"season": 2025, "week": 3, "n_lineups": 1}
+    preview = client.post("/lineups", json=req)
+    generic = client.post("/lineups.csv", json=req)
+    one_entry = CLASSIC_ENTRIES.splitlines()[0] + "\n" + \
+        CLASSIC_ENTRIES.splitlines()[1] + "\n"
+    entries = client.post("/lineups/entries.csv", json={
+        **req, "entries_csv": one_entry})
+
+    policy_id = "classic-k1-ce12-boom28-v1"
+    assert preview.json()["policy"]["policy_id"] == policy_id
+    assert preview.json()["policy"]["model_ensemble"] == 1
+    assert preview.json()["policy"]["portfolio_allocation"] == {
+        "ce": 12, "boom": 28, "total_replacement_slots": 40}
+    for response in (generic, entries):
+        assert response.status_code == 200
+        assert response.headers["x-lineup-policy"] == policy_id
+        assert response.headers["x-model-version"].endswith("2026-W36")
 
 
 def test_record_preview_lineups_records_exact_client_roster(client, monkeypatch):

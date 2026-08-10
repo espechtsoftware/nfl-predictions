@@ -389,7 +389,8 @@ def leakage_guard(slate: pd.DataFrame) -> None:
         )
 
 
-def _row_draws(slate: pd.DataFrame, draws: np.ndarray) -> np.ndarray:
+def _row_draws(slate: pd.DataFrame, draws: np.ndarray,
+               env: dict | None = None) -> np.ndarray:
     """Per-slate-row draw matrix, aligned to slate row order. Rows without a
     draw (DST, draw_idx == -1) get their static projection in every sim.
 
@@ -402,12 +403,14 @@ def _row_draws(slate: pd.DataFrame, draws: np.ndarray) -> np.ndarray:
     clip(2 - opp_total/mean, 0.3, 1.7), renormalized to mean 1."""
     import os as _os
 
+    runtime_env = _os.environ if env is None else env
+
     di = slate["draw_idx"].to_numpy(dtype=int)
     out = np.empty((len(slate), draws.shape[1]), dtype=np.float32)
     has = di >= 0
     out[has] = draws[di[has]]
     out[~has] = slate["proj"].to_numpy(dtype=float)[~has, None]
-    if _os.environ.get("DST_CORR_DRAWS") and (~has).any() and "opp" in slate.columns:
+    if runtime_env.get("DST_CORR_DRAWS") and (~has).any() and "opp" in slate.columns:
         # Fitted 2026-08-01 from 4,390 team-games 2018-25: DST DK points
         # correlate -0.491 with the opposing offense's total fantasy
         # points, with relative sd 0.93 (mean 6.2, sd 5.8). The first
@@ -552,6 +555,7 @@ def tail_select_lineups(
     candidate_run_type: str | None = None,
     belief_slate: pd.DataFrame | None = None,
     belief_draws: np.ndarray | None = None,
+    policy_env: dict | None = None,
 ) -> list[Lineup]:
     """Entry selection on P(best-of-N >= tail_line) (guide: issue #5).
 
@@ -563,15 +567,17 @@ def tail_select_lineups(
     if cand_log_required and cand_log_async:
         raise ValueError(
             "required candidate persistence cannot run asynchronously")
-    rd = _row_draws(slate, draws)
+    runtime_env = os.environ if policy_env is None else policy_env
+    rd = _row_draws(slate, draws, env=runtime_env)
     locks = locks or set()
     # Dose lever (env N_BOOM, 2026-08-05 attribution: boom solves are
     # 13% of candidates but produce the weekly BEST in 29/54 weeks).
     baseline_boom_solves = n_boom_solves
-    n_ce, n_epi, n_boom_solves = resolve_generation_budget(n_boom_solves)
+    n_ce, n_epi, n_boom_solves = resolve_generation_budget(
+        n_boom_solves, env=runtime_env)
     cands = optimize_many(pool, n_lineups=candidate_multiple * n_entries,
                           stack=stack, objective_col=objective_col,
-                          locks=set(locks))
+                          locks=set(locks), env=runtime_env)
     # Multi-tag provenance (review #6, Sol): `seen` dedupes rosters, so a
     # lineup produced by BOTH lev and boom was attributed only to lev —
     # first-producer bias that invalidates generator analysis. all_tags
@@ -586,7 +592,7 @@ def tail_select_lineups(
         _note(lu.ids, "lev")
         lu.tag = "lev"
     seen = {lu.ids for lu in cands}
-    epi_family = os.environ.get("EPISTEMIC_FAMILY", "standard")
+    epi_family = runtime_env.get("EPISTEMIC_FAMILY", "standard")
     if n_epi and epi_family == "role_draws":
         if belief_slate is None or belief_draws is None:
             raise RuntimeError(
@@ -624,7 +630,8 @@ def tail_select_lineups(
             try:
                 lu = optimize(pool, stack=stack, objective_col=objective_col,
                               locks=combo | set(locks),
-                              banned_lineups=banned_th, max_overlap=7)
+                              banned_lineups=banned_th, max_overlap=7,
+                              env=runtime_env)
             except Exception:
                 break
             if lu is None:
@@ -648,7 +655,7 @@ def tail_select_lineups(
                         for i, p in enumerate(pool)]
             try:
                 lu = optimize(sim_pool, stack=stack, objective_col="proj_sim",
-                              locks=set(locks))
+                              locks=set(locks), env=runtime_env)
             except Exception as exc:  # CBC subprocess flake: skip this draw
                 log.warning("boom-draw solve failed: %s", exc)
                 continue
@@ -673,7 +680,7 @@ def tail_select_lineups(
     # candidate pool (tag "hyper") — selection still decides.
     import os as _os
 
-    n_hyper = int(_os.environ.get("HYPER_BOOM", "0") or 0)
+    n_hyper = int(runtime_env.get("HYPER_BOOM", "0") or 0)
     if n_hyper:
         game_tot: dict = {}
         for p in pool:
@@ -690,7 +697,7 @@ def tail_select_lineups(
             try:
                 lu = optimize(hpool, stack=stack,
                               objective_col="proj_hyper",
-                              locks=set(locks))
+                              locks=set(locks), env=runtime_env)
             except Exception as exc:
                 log.warning("hyper-boom solve failed: %s", exc)
                 continue
@@ -718,7 +725,7 @@ def tail_select_lineups(
                 if gid:
                     game_totals[gid] = game_totals.get(gid, 0.0) + float(
                         p[objective_col])
-            max_games = int(_os.environ.get("CE_GAMES", "4") or 4)
+            max_games = int(runtime_env.get("CE_GAMES", "4") or 4)
             active_games = sorted(game_totals, key=game_totals.get,
                                   reverse=True)[:max_games]
             active = np.asarray([p.get("game_id") in active_games
@@ -748,7 +755,7 @@ def tail_select_lineups(
                 scored = [{**p, "proj_ce": float(w[i])}
                           for i, p in enumerate(pool)]
                 lu = optimize(scored, stack=stack, objective_col="proj_ce",
-                              locks=set(locks))
+                              locks=set(locks), env=runtime_env)
                 if lu is None:
                     return -1e9
                 return float(sum(w[i] for i, p in enumerate(pool)
@@ -757,7 +764,7 @@ def tail_select_lineups(
             # CE_SEED (2026-08-06): the world search was pinned to a
             # literal, so an 'independent seed' rerun would have
             # re-drawn the SAME elite worlds and proved nothing.
-            ce_seed = int(_os.environ.get('CE_SEED', '1701') or 1701)
+            ce_seed = int(runtime_env.get('CE_SEED', '1701') or 1701)
             rng_ce = np.random.default_rng(ce_seed)
             per_round = max(24, n_ce * 2)
             elites, iw, hist = ce_iterate(_score_world, rng_ce,
@@ -779,7 +786,8 @@ def tail_select_lineups(
                          for i, p in enumerate(pool)]
                 try:
                     lu = optimize(cpool, stack=stack, objective_col="proj_ce",
-                                  locks=set(locks), banned_lineups=banned_ce)
+                                  locks=set(locks), banned_lineups=banned_ce,
+                                  env=runtime_env)
                 except Exception:
                     continue
                 if lu is None:
@@ -819,7 +827,8 @@ def tail_select_lineups(
                      for i, p in enumerate(pool)]
             try:
                 lu = optimize(spool, stack=stack, objective_col="proj_epi",
-                              locks=set(locks), banned_lineups=banned_epi)
+                              locks=set(locks), banned_lineups=banned_epi,
+                              env=runtime_env)
             except Exception as exc:
                 log.warning("epistemic solve failed: %s", exc)
                 continue
@@ -853,13 +862,13 @@ def tail_select_lineups(
     # +7.9, GFlowNet +5.4) at ~zero compute. Injection via pool, tag
     # "gumbel"; selection decides. GUMBEL_SCALE in DK points (default
     # 2.0, the gate's setting).
-    n_gumbel = int(_os.environ.get("N_GUMBEL", "0") or 0)
+    n_gumbel = int(runtime_env.get("N_GUMBEL", "0") or 0)
     if n_gumbel:
-        _grng = _gumbel_rng()
-        _gscale = float(_os.environ.get("GUMBEL_SCALE", "2.0") or 2.0)
-        _gmode = _os.environ.get("GUMBEL_MODE", "independent")
+        _grng = _gumbel_rng(runtime_env)
+        _gscale = float(runtime_env.get("GUMBEL_SCALE", "2.0") or 2.0)
+        _gmode = runtime_env.get("GUMBEL_MODE", "independent")
         log.info("Gumbel generator: mode=%s scale=%.3f seed=%s n=%d",
-                 _gmode, _gscale, _os.environ.get("GUMBEL_SEED", "4700"),
+                 _gmode, _gscale, runtime_env.get("GUMBEL_SEED", "4700"),
                  n_gumbel)
         for _ in range(n_gumbel * 3):
             _noise = _gumbel_perturbations(pool, _grng, _gscale, _gmode)
@@ -867,7 +876,7 @@ def tail_select_lineups(
                 p[objective_col] + _noise[i])} for i, p in enumerate(pool)]
             try:
                 lu = optimize(gpool, stack=stack, objective_col="proj_gum",
-                              locks=set(locks))
+                              locks=set(locks), env=runtime_env)
             except Exception as exc:
                 log.warning("gumbel solve failed: %s", exc)
                 continue
@@ -885,14 +894,14 @@ def tail_select_lineups(
     # rules — pure variance plays; coverage selection decides if any
     # earn slots. Prior is low (all 48 studied Milly winners stacked).
 
-    n_nostack = int(_os.environ.get("N_NOSTACK", "0"))
+    n_nostack = int(runtime_env.get("N_NOSTACK", "0"))
     if n_nostack:
         banned_ns = []
         for _ in range(n_nostack):
             try:
                 lu = optimize(pool, stack=None, objective_col=objective_col,
                               banned_lineups=banned_ns, max_overlap=7,
-                              locks=set(locks))
+                              locks=set(locks), env=runtime_env)
             except Exception:
                 break
             if lu is None:
@@ -911,14 +920,14 @@ def tail_select_lineups(
     # coverage selector decides if any earn slots (the original
     # underspend-dedup died with the WRONG rationale — dupe avoidance;
     # ours measure ~0 — this one is pure coverage breadth).
-    n_lowsal = int(_os.environ.get("N_LOWSAL", "0"))
+    n_lowsal = int(runtime_env.get("N_LOWSAL", "0"))
     if n_lowsal:
         banned_ls: list = []
         for _ in range(n_lowsal):
             try:
                 lu = optimize(pool, stack=stack, objective_col=objective_col,
                               banned_lineups=banned_ls, max_overlap=7,
-                              min_salary=47_000)
+                              min_salary=47_000, env=runtime_env)
             except Exception:
                 break
             if lu is None:
@@ -937,7 +946,7 @@ def tail_select_lineups(
     # week's top-N TabPFN-q99 sub-$6.5k skill players not already in any
     # candidate, solve ONE lineup locking him in; the selector judges.
     # INJECTION, not tilt — ALT_CEIL/WRBOOM failed as tilts (Add. 60).
-    n_wild = int(_os.environ.get("Q99_WILD", "0") or 0)
+    n_wild = int(runtime_env.get("Q99_WILD", "0") or 0)
     if n_wild:
         try:
             from ..bq import query_df as _qdf
@@ -960,7 +969,7 @@ def tail_select_lineups(
                     lu = optimize(pool, stack=stack,
                                   objective_col=objective_col,
                                   locks={wp["id"]} | set(locks),
-                                  max_overlap=7)
+                                  max_overlap=7, env=runtime_env)
                 except Exception:
                     continue
                 if lu is not None:
@@ -979,7 +988,7 @@ def tail_select_lineups(
     # (winners spend the cap, but coverage may pay off-cap) — and solves
     # the best lineups per cell. Same tail-coverage selector downstream
     # decides which cells earn entries; empty/infeasible cells just skip.
-    n_qd = int(_os.environ.get("QD_CELLS", "0"))
+    n_qd = int(runtime_env.get("QD_CELLS", "0"))
     if n_qd:
         for mpg in (2, 3, 4):
             for lo, hi in ((44_000, 47_500), (47_500, 49_000),
@@ -992,7 +1001,7 @@ def tail_select_lineups(
                                       banned_lineups=banned_qd,
                                       max_overlap=7, locks=set(locks),
                                       min_salary=lo, max_salary=hi,
-                                      max_per_game=mpg)
+                                      max_per_game=mpg, env=runtime_env)
                     except Exception:
                         break
                     if lu is None:
@@ -1012,7 +1021,7 @@ def tail_select_lineups(
     # ADOPTED 2026-08-04 (QF arm, final-exam combos): default 4. QBVAR4
     # alone +2 tails (25/107); with OWN_MODEL=fade, equal 25 tails, best
     # median of the program (14.6%) and two >=237 weeks. "0" disables.
-    n_qbvar = int(_os.environ.get("N_QB_VARIANTS", "4"))
+    n_qbvar = int(runtime_env.get("N_QB_VARIANTS", "4"))
     if n_qbvar:
         qb_all = [(i, p) for i, p in enumerate(pool) if p["pos"] == "QB"]
         qb_all.sort(key=lambda t: -float(np.percentile(rd[t[0]], 90)))
@@ -1024,7 +1033,7 @@ def tail_select_lineups(
                                   objective_col=objective_col,
                                   locks={qb["id"]} | set(locks),
                                   banned_lineups=banned_qv,
-                                  max_overlap=6)
+                                  max_overlap=6, env=runtime_env)
                 except Exception:
                     break
                 if lu is None:
@@ -1039,7 +1048,7 @@ def tail_select_lineups(
     # Mid-tier QB A/B (env N_MIDQB): one candidate locked on each of the
     # top-N $4-6.5k QBs by simulated p90 — targets the measured miss zone
     # (17/41 top-scorer misses were QBs, 27/41 mid-salary).
-    n_midqb = int(_os.environ.get("N_MIDQB", "0"))
+    n_midqb = int(runtime_env.get("N_MIDQB", "0"))
     if n_midqb:
         qb_rows = [(i, p) for i, p in enumerate(pool)
                    if p["pos"] == "QB" and 4000 < p["salary"] <= 6500]
@@ -1047,7 +1056,7 @@ def tail_select_lineups(
         for _, qb in qb_rows[:n_midqb]:
             try:
                 lu = optimize(pool, stack=stack, objective_col=objective_col,
-                              locks={qb["id"]} | set(locks))
+                              locks={qb["id"]} | set(locks), env=runtime_env)
             except Exception:
                 continue
             if lu is not None:
@@ -1069,7 +1078,8 @@ def tail_select_lineups(
             try:
                 lu = optimize(pool, stack=stack, objective_col=objective_col,
                               game_lock=(gid, 5), banned_lineups=banned,
-                              max_overlap=7, locks=set(locks))
+                              max_overlap=7, locks=set(locks),
+                              env=runtime_env)
             except Exception as exc:
                 log.warning("game-stack solve failed (%s): %s", gid, exc)
                 break
@@ -1085,12 +1095,13 @@ def tail_select_lineups(
     # Dark-game A/B (env N_DARKGAME): concentrated stacks from games
     # RANKED 5+ by projected total — 29% of matched 2025 Milly winners
     # stacked a game ranked 8th-14th on the slate (addendum 20 study).
-    n_dark = int(_os.environ.get("N_DARKGAME", "10"))
+    n_dark = int(runtime_env.get("N_DARKGAME", "10"))
     if n_dark and len(game_proj) > n_game_stacks:
         for gid in game_proj.index[n_game_stacks:n_game_stacks + n_dark]:
             try:
                 lu = optimize(pool, stack=stack, objective_col=objective_col,
-                              game_lock=(gid, 5), locks=set(locks))
+                              game_lock=(gid, 5), locks=set(locks),
+                              env=runtime_env)
             except Exception:
                 continue
             if lu is not None:
@@ -1120,7 +1131,7 @@ def tail_select_lineups(
     # CE-off control run can emit the per-slate cap manifest the paired
     # treatment arm consumes.
     log.info("pool size: %s wk%s n=%d", _season, _week, len(cands))
-    _cap = pool_cap_for_slate(_season, _week)
+    _cap = pool_cap_for_slate(_season, _week, env=runtime_env)
     if _cap and len(cands) > _cap:
         # PAIRED replacement-slot policy: treatment protects the novel
         # candidates under test; control protects the same number of the
@@ -1131,7 +1142,7 @@ def tail_select_lineups(
             _protect = tuple(k for k, v in _quotas.items() if v)
         else:
             _replacement_slots = int(
-                _os.environ.get("REPLACEMENT_SLOTS", REPLACEMENT_SLOTS)
+                runtime_env.get("REPLACEMENT_SLOTS", REPLACEMENT_SLOTS)
                 or REPLACEMENT_SLOTS)
             _quotas = {"boom": _replacement_slots}
             _protect = ("boom",)
@@ -1145,11 +1156,11 @@ def tail_select_lineups(
     cand_totals = np.stack([
         rd[[id2row[p["id"]] for p in lu.players]].sum(axis=0) for lu in cands
     ])
-    if _os.environ.get("SELECT_OBJ") == "dollars" and contest is not None:
+    if runtime_env.get("SELECT_OBJ") == "dollars" and contest is not None:
         picked = select_dollar_entries(slate, rd, cands, cand_totals,
                                        n_entries, contest,
                                        sharp_fraction=sharp_fraction)
-    elif int(_os.environ.get("M4_QBLOCK", "0") or 0):
+    elif int(runtime_env.get("M4_QBLOCK", "0") or 0):
         # Review #4 F5: at tiny N (the 4-entry Milly slice) coverage
         # buys 4 disparate "flat tires"; concentrate instead — all
         # entries share the QB family whose candidates jointly clear
@@ -1157,21 +1168,22 @@ def tail_select_lineups(
         picked = _select_qb_concentrated(cands, cand_totals, n_entries,
                                          tail_line)
     else:
-        max_qbs = int(_os.environ.get("MAX_QBS", "0"))
+        max_qbs = int(runtime_env.get("MAX_QBS", "0"))
         if max_qbs:
             qb_of = [next((p["id"] for p in lu.players if p["pos"] == "QB"),
                           None) for lu in cands]
             picked = _select_tail_qb_capped(cand_totals, n_entries,
                                             tail_line, qb_of, max_qbs)
         else:
-            picked = select_tail_entries(cand_totals, n_entries, tail_line)
+            picked = select_tail_entries(cand_totals, n_entries, tail_line,
+                                         env=runtime_env)
     # Peak slice (env PEAK_SLICE, 2026-08-05 null-model finding: our
     # assembly is BELOW-RANDOM — 1.87/8 best-entry overlap with the
     # hindsight-optimal vs 2.51 expected under exposure-preserving
     # random assembly; the diversity objective scatters winning
     # combinations). Reserve the final K slots for the highest
     # individual P(>= line) candidates, coverage-penalty-exempt.
-    k_peak = int(os.environ.get("PEAK_SLICE", "0") or 0)
+    k_peak = int(runtime_env.get("PEAK_SLICE", "0") or 0)
     if k_peak > 0 and len(picked) > k_peak:
         p_line = (cand_totals >= tail_line).mean(axis=1)
         keep = list(picked[:len(picked) - k_peak])
@@ -1216,7 +1228,7 @@ def tail_select_lineups(
     # to tell repeated/custom builds apart. Live passes
     # cand_log_async=True so a stalled warehouse call can never block
     # lineup generation (review #5 round 3).
-    _cand_tbl = cand_log_table or _os.environ.get("CAND_LOG_TABLE")
+    _cand_tbl = cand_log_table or runtime_env.get("CAND_LOG_TABLE")
     if _cand_tbl:
         try:
             import json
@@ -1234,7 +1246,7 @@ def tail_select_lineups(
             # slate id is per (season, week). A per-slate-only uuid made
             # partial reruns look like independent panels.
             persist_panel_run_id = (panel_run_id if panel_run_id is not None
-                                    else _os.environ.get("PANEL_RUN_ID", ""))
+                                    else runtime_env.get("PANEL_RUN_ID", ""))
             slate_run_id = uuid.uuid4().hex[:12]
             # Run provenance (Sol audit 3): panel+slate ids alone cannot
             # detect a mixed-config panel. Capture what identifies the
@@ -1243,7 +1255,7 @@ def tail_select_lineups(
             # `git` does not raise there: it returns a non-zero result with an
             # empty stdout, so the old exception-only fallback silently wrote
             # a blank code_sha even when deployment supplied CODE_SHA.
-            _sha = _os.environ.get("CODE_SHA", "").strip()
+            _sha = runtime_env.get("CODE_SHA", "").strip()
             _dirty = False
             try:
                 import subprocess
@@ -1265,24 +1277,24 @@ def tail_select_lineups(
                 _cfg = manifest_hash()
             except Exception:
                 _cfg = ""
-            _seeds = _os.environ.get("SEEDS", "")
+            _seeds = runtime_env.get("SEEDS", "")
             # Research-generator seeds belong in run metadata: an
             # independent-seed rerun is auditable only when the seeds
             # that produced candidates are stored with the rows.
             _seeds = ";".join(x for x in (
                 _seeds,
-                f"CE_SEED={_os.environ.get('CE_SEED', '1701')}",
-                f"ROLE_BELIEF_SEED={_os.environ.get('ROLE_BELIEF_SEED', '7331')}",
-                f"GUMBEL_SEED={_os.environ.get('GUMBEL_SEED', '4700')}",
+                f"CE_SEED={runtime_env.get('CE_SEED', '1701')}",
+                f"ROLE_BELIEF_SEED={runtime_env.get('ROLE_BELIEF_SEED', '7331')}",
+                f"GUMBEL_SEED={runtime_env.get('GUMBEL_SEED', '4700')}",
                 (f"ENSEMBLE_WORLD_SEED="
-                 f"{_os.environ.get('ENSEMBLE_WORLD_SEED', '8161')}"
-                 if _os.environ.get("ENSEMBLE_WORLD_MODE") else ""))
+                 f"{runtime_env.get('ENSEMBLE_WORLD_SEED', '8161')}"
+                 if runtime_env.get("ENSEMBLE_WORLD_MODE") else ""))
                 if x)
             from ..models.components import (
                 effective_ensemble_size, ensemble_member_specs)
-            _ensemble_size = effective_ensemble_size(_os.environ)
+            _ensemble_size = effective_ensemble_size(runtime_env)
             _ensemble_spec = json.dumps(
-                ensemble_member_specs(_os.environ),
+                ensemble_member_specs(runtime_env),
                 separators=(",", ":"), sort_keys=True)
             _seeds = ";".join(x for x in (
                 _seeds,
@@ -1324,7 +1336,7 @@ def tail_select_lineups(
                 "ROLE_BELIEF_FEATURES", "ROLE_BELIEF_SEED", "WR_BOOM",
             }
             _levers = ",".join(sorted(
-                f"{k}={v}" for k, v in _os.environ.items()
+                f"{k}={v}" for k, v in runtime_env.items()
                 if k in _lever_keys))
             # A2.2 labels: `or 0` turned MISSING actuals into real-looking
             # zeros, so unlabeled live candidates appeared labeled. Labels
@@ -1421,7 +1433,7 @@ def tail_select_lineups(
             # panel/slate ids, with a checksum in the warehouse row.
             art_uri = ""
             art_sha = ""
-            bucket = _os.environ.get("CAND_ARTIFACT_BUCKET", "")
+            bucket = runtime_env.get("CAND_ARTIFACT_BUCKET", "")
             if bucket and persist_panel_run_id:
                 try:
                     import hashlib
@@ -1461,7 +1473,7 @@ def tail_select_lineups(
             # features without storing 9x duplicate rows. Joining to
             # mutable "latest" feature tables later would reintroduce the
             # lineage ambiguity this whole exercise exists to remove.
-            feat_tbl = _os.environ.get(
+            feat_tbl = runtime_env.get(
                 "CAND_FEATURE_TABLE",
                 (_cand_tbl.rsplit(".", 1)[0] + ".slate_player_features"
                  if "." in _cand_tbl else ""))

@@ -63,7 +63,9 @@ job train-weekly     train           8Gi 4
 # Tail-first research baseline: isolated registry labels mean this K=1
 # retrain cannot overwrite the canonical K=3 models loaded by the app.
 job train-weekly-k1  train           8Gi 4 "MODEL_ENSEMBLE=1|MODEL_REGISTRY_VARIANT=tail_k1"
-job project-slate    project         4Gi 2 "GAME_SIM_MODE=possession"
+# The command also pins/verifies these values from production_policy.py;
+# keeping them on the job makes the Cloud Run configuration self-describing.
+job project-slate    project         4Gi 2 "GAME_SIM_MODE=possession|MODEL_ENSEMBLE=1|MODEL_REGISTRY_VARIANT=tail_k1|BLEND_MODEL_WEIGHT=0.45"
 # Prospective evidence only: fixed true-80/194 Sunday-main book, synchronous
 # persistence, no user notes, and no projection/live-app mutation.
 job shadow-k1        shadow-k1       8Gi 4 "MODEL_ENSEMBLE=1|MODEL_REGISTRY_VARIANT=tail_k1|GAME_SIM_MODE=possession|N_CE=0|N_EPISTEMIC=0|N_GUMBEL=0|N_BOOM=40|MIN_LINEUP_SALARY=49000|BLEND_MODEL_WEIGHT=0.45|LIVE_SIMS=30000|CAND_ARTIFACT_BUCKET=${PROJECT}-raw|CODE_SHA=${CODE_SHA}"

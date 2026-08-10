@@ -16,6 +16,7 @@ import hashlib
 import logging
 import os
 from dataclasses import dataclass
+from typing import Mapping
 
 import numpy as np
 import pandas as pd
@@ -168,6 +169,7 @@ def simulate(
     game_totals: pd.Series | None = None,
     bigplay_rate: pd.Series | None = None,
     params: dict[str, float] | None = None,
+    env: Mapping[str, str] | None = None,
 ) -> SimResult:
     """game_ids (aligned to comps) enables correlated game environments:
     one shared lognormal factor per (game, sim) scales every player's
@@ -211,6 +213,7 @@ def simulate(
     )
     rng = np.random.default_rng(seed)
     n = len(comps)
+    runtime_env = os.environ if env is None else env
     params = params or {}
     _sigma = float(params.get("game_factor_sigma", GAME_FACTOR_SIGMA))
     _usage_k = params.get("usage_dirichlet_k")  # None -> game_sim default
@@ -230,7 +233,7 @@ def simulate(
         # at call time like the other A/B env flags (N_DARKGAME, ALT_CEIL).
         # Off by default -- see reports/possession-simulator-design.md; its
         # transition probabilities are a placeholder, not yet fit from pbp.
-        if os.environ.get("GAME_SIM_MODE", "lognormal") == "possession":
+        if runtime_env.get("GAME_SIM_MODE", "lognormal") == "possession":
             from . import game_sim
             # GAME_SIM_PACE=vegas conditions each game's DRIVE COUNT on its
             # vegas total (game_totals aligned to comps; pace = total /
@@ -240,7 +243,7 @@ def simulate(
             # raised mean -- and it adds back a vegas-grounded shared
             # environment between the two teams' factors.
             paces = None
-            if (os.environ.get("GAME_SIM_PACE", "") == "vegas"
+            if (runtime_env.get("GAME_SIM_PACE", "") == "vegas"
                     and game_totals is not None):
                 gt = pd.to_numeric(pd.Series(game_totals).reset_index(drop=True),
                                    errors="coerce").to_numpy()
@@ -254,7 +257,7 @@ def simulate(
             # (lognormal / possession-shared / possession-team), so a team-arm
             # result can be attributed to team independence vs the drive
             # engine itself. See the design doc's correlation caveat.
-            team_arm = os.environ.get("GAME_SIM_TEAM_FACTORS", "1") != "0"
+            team_arm = runtime_env.get("GAME_SIM_TEAM_FACTORS", "1") != "0"
             if team_ids is not None and team_arm:
                 team_series = pd.Series(team_ids).fillna("_none").reset_index(drop=True)
                 game_series = pd.Series(codes)
@@ -295,7 +298,7 @@ def simulate(
     # variance Addendum 24 found under-modeled. Mean-preserving:
     # E[Dirichlet share] = prior share. Off by default; same call-time
     # env pattern as GAME_SIM_MODE.
-    usage_dirichlet = (os.environ.get("GAME_SIM_USAGE", "") == "dirichlet"
+    usage_dirichlet = (runtime_env.get("GAME_SIM_USAGE", "") == "dirichlet"
                        and team_ids is not None)
     team_codes = None
     if usage_dirichlet:
@@ -329,7 +332,7 @@ def simulate(
     # identical to the pre-ledger sampler — the 2026-08-05 draw-order
     # regression shifted every default stream and forced a baseline
     # rebase; never again.
-    td_ledger = (os.environ.get("TD_LEDGER", "") not in ("", "0")
+    td_ledger = (runtime_env.get("TD_LEDGER", "") not in ("", "0")
                  and team_ids is not None)
     _unit_codes = None
     if td_ledger:
