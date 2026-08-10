@@ -1,0 +1,605 @@
+{
+  "calibration20": [
+    {
+      "actual_rate": 0.0058823529411764705,
+      "arm": "control",
+      "decile": 0,
+      "mean_probability": 0.025130933367577674,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.01764705882352941,
+      "arm": "control",
+      "decile": 1,
+      "mean_probability": 0.036488055872948455,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.052941176470588235,
+      "arm": "control",
+      "decile": 2,
+      "mean_probability": 0.04944446876564542,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.052941176470588235,
+      "arm": "control",
+      "decile": 3,
+      "mean_probability": 0.06677942966196265,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.047058823529411764,
+      "arm": "control",
+      "decile": 4,
+      "mean_probability": 0.08796387652891835,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.10588235294117647,
+      "arm": "control",
+      "decile": 5,
+      "mean_probability": 0.1231813395488695,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.14705882352941177,
+      "arm": "control",
+      "decile": 6,
+      "mean_probability": 0.17489678973658193,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.25882352941176473,
+      "arm": "control",
+      "decile": 7,
+      "mean_probability": 0.23570528577635702,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.2529411764705882,
+      "arm": "control",
+      "decile": 8,
+      "mean_probability": 0.3149015792822489,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.5294117647058824,
+      "arm": "control",
+      "decile": 9,
+      "mean_probability": 0.48962183642416734,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.0058823529411764705,
+      "arm": "treatment",
+      "decile": 0,
+      "mean_probability": 0.024900407458403738,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.01764705882352941,
+      "arm": "treatment",
+      "decile": 1,
+      "mean_probability": 0.03608047289196445,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.047058823529411764,
+      "arm": "treatment",
+      "decile": 2,
+      "mean_probability": 0.0489091687640556,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.058823529411764705,
+      "arm": "treatment",
+      "decile": 3,
+      "mean_probability": 0.0655158463151798,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.047058823529411764,
+      "arm": "treatment",
+      "decile": 4,
+      "mean_probability": 0.08626480342184957,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.10588235294117647,
+      "arm": "treatment",
+      "decile": 5,
+      "mean_probability": 0.12222394521122197,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.14705882352941177,
+      "arm": "treatment",
+      "decile": 6,
+      "mean_probability": 0.17507372491196868,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.25882352941176473,
+      "arm": "treatment",
+      "decile": 7,
+      "mean_probability": 0.23642428459640027,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.2529411764705882,
+      "arm": "treatment",
+      "decile": 8,
+      "mean_probability": 0.31649835352916,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.5294117647058824,
+      "arm": "treatment",
+      "decile": 9,
+      "mean_probability": 0.48846898103704695,
+      "rows": 170
+    }
+  ],
+  "calibration30": [
+    {
+      "actual_rate": 0.0,
+      "arm": "control",
+      "decile": 0,
+      "mean_probability": 0.004077226626957381,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.0,
+      "arm": "control",
+      "decile": 1,
+      "mean_probability": 0.0057494668343313765,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.01764705882352941,
+      "arm": "control",
+      "decile": 2,
+      "mean_probability": 0.007732481978884191,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.0058823529411764705,
+      "arm": "control",
+      "decile": 3,
+      "mean_probability": 0.010655217590551951,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.011764705882352941,
+      "arm": "control",
+      "decile": 4,
+      "mean_probability": 0.014158008587463843,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.01764705882352941,
+      "arm": "control",
+      "decile": 5,
+      "mean_probability": 0.01985684064980204,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.023529411764705882,
+      "arm": "control",
+      "decile": 6,
+      "mean_probability": 0.028701067082475773,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.047058823529411764,
+      "arm": "control",
+      "decile": 7,
+      "mean_probability": 0.040902361857022174,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.052941176470588235,
+      "arm": "control",
+      "decile": 8,
+      "mean_probability": 0.061035131662943894,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.1588235294117647,
+      "arm": "control",
+      "decile": 9,
+      "mean_probability": 0.12957167930343183,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.0,
+      "arm": "treatment",
+      "decile": 0,
+      "mean_probability": 0.004065810277466397,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.0,
+      "arm": "treatment",
+      "decile": 1,
+      "mean_probability": 0.00572374590800951,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.01764705882352941,
+      "arm": "treatment",
+      "decile": 2,
+      "mean_probability": 0.007704132111125627,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.0058823529411764705,
+      "arm": "treatment",
+      "decile": 3,
+      "mean_probability": 0.010567653106466816,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.011764705882352941,
+      "arm": "treatment",
+      "decile": 4,
+      "mean_probability": 0.014052124513448736,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.01764705882352941,
+      "arm": "treatment",
+      "decile": 5,
+      "mean_probability": 0.01981931226713092,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.023529411764705882,
+      "arm": "treatment",
+      "decile": 6,
+      "mean_probability": 0.028750266324917232,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.047058823529411764,
+      "arm": "treatment",
+      "decile": 7,
+      "mean_probability": 0.04101782909710664,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.052941176470588235,
+      "arm": "treatment",
+      "decile": 8,
+      "mean_probability": 0.061394352497580816,
+      "rows": 170
+    },
+    {
+      "actual_rate": 0.1588235294117647,
+      "arm": "treatment",
+      "decile": 9,
+      "mean_probability": 0.12974914705652824,
+      "rows": 170
+    }
+  ],
+  "disposition": "market-tail-mechanism-gate-fails",
+  "gate": {
+    "coverage_passes": true,
+    "heldout_brier20_not_worse_over_1pct": true,
+    "heldout_brier30_improves": false,
+    "heldout_mae_not_worse_over_1pct": true,
+    "heldout_wr_te_brier30_not_worse_over_1pct": true,
+    "positive_separation_2024": false,
+    "positive_separation_2025": true,
+    "positive_separation_aggregate": true
+  },
+  "heldout_by_position": {
+    "QB": {
+      "control_brier20": 0.2027858758149832,
+      "control_brier30": 0.05218864154325672,
+      "control_mae": 6.032493218886037,
+      "rows": 246,
+      "tail20_rate": 0.35772357723577236,
+      "tail30_rate": 0.056910569105691054,
+      "treatment_brier20": 0.20332240839716176,
+      "treatment_brier30": 0.052240185146568335,
+      "treatment_mae": 6.087498756947411
+    },
+    "RB": {
+      "control_brier20": 0.11328385033336102,
+      "control_brier30": 0.0511466621986636,
+      "control_mae": 5.799324954549485,
+      "rows": 416,
+      "tail20_rate": 0.14182692307692307,
+      "tail30_rate": 0.057692307692307696,
+      "treatment_brier20": 0.11335624173083882,
+      "treatment_brier30": 0.05116497738662167,
+      "treatment_mae": 5.815052675784745
+    },
+    "TE": {
+      "control_brier20": 0.036251066581517534,
+      "control_brier30": 0.005791540756380298,
+      "control_mae": 4.428753272970431,
+      "rows": 330,
+      "tail20_rate": 0.04242424242424243,
+      "tail30_rate": 0.006060606060606061,
+      "treatment_brier20": 0.03623702190940118,
+      "treatment_brier30": 0.005789633103116651,
+      "treatment_mae": 4.423296792461547
+    },
+    "WR": {
+      "control_brier20": 0.0936989842948375,
+      "control_brier30": 0.02242016201259257,
+      "control_mae": 5.605533619015276,
+      "rows": 708,
+      "tail20_rate": 0.12570621468926554,
+      "tail30_rate": 0.02401129943502825,
+      "treatment_brier20": 0.09354552569468766,
+      "treatment_brier30": 0.02241965467191823,
+      "treatment_mae": 5.563450178791115
+    }
+  },
+  "heldout_overall": {
+    "control_brier20": 0.10312537649518223,
+    "control_brier30": 0.030529470852238973,
+    "control_mae": 5.486305232518593,
+    "rows": 1700,
+    "tail20_rate": 0.14705882352941177,
+    "tail30_rate": 0.033529411764705884,
+    "treatment_brier20": 0.10315409320451295,
+    "treatment_brier30": 0.030540829747433555,
+    "treatment_mae": 5.479527809077609
+  },
+  "heldout_rows": 1700,
+  "heldout_wr_te": {
+    "control_brier20": 0.07543519542644099,
+    "control_brier30": 0.01713360612188924,
+    "control_mae": 5.231412699752463,
+    "rows": 1038,
+    "tail20_rate": 0.09922928709055877,
+    "tail30_rate": 0.018304431599229287,
+    "treatment_brier20": 0.07532605917335383,
+    "treatment_brier30": 0.0171326535951316,
+    "treatment_mae": 5.200973668686339
+  },
+  "panel_id": "20260809-e80-k1-ce12-c616390",
+  "separation": [
+    {
+      "bottom_mean_residual": 0.9014954104864256,
+      "bottom_rows": 314,
+      "season": 2024,
+      "top_mean_residual": 0.5427752688826909,
+      "top_minus_bottom_residual": -0.35872014160373467,
+      "top_rows": 317
+    },
+    {
+      "bottom_mean_residual": 0.14899561947777423,
+      "bottom_rows": 339,
+      "season": 2025,
+      "top_mean_residual": 0.4792084136399049,
+      "top_minus_bottom_residual": 0.3302127941621307,
+      "top_rows": 342
+    },
+    {
+      "bottom_mean_residual": 0.4004956586790142,
+      "bottom_rows": 653,
+      "season": "aggregate",
+      "top_mean_residual": 0.5854796208725424,
+      "top_minus_bottom_residual": 0.18498396219352814,
+      "top_rows": 657
+    }
+  ],
+  "source_audit": {
+    "ambiguous_snapshot_names_dropped": 0,
+    "cutoffs": [
+      {
+        "common_slate_lock": "2024-09-08T17:00:00+00:00",
+        "season": 2024,
+        "week": 1
+      },
+      {
+        "common_slate_lock": "2024-09-15T17:00:00+00:00",
+        "season": 2024,
+        "week": 2
+      },
+      {
+        "common_slate_lock": "2024-09-22T17:00:00+00:00",
+        "season": 2024,
+        "week": 3
+      },
+      {
+        "common_slate_lock": "2024-09-29T17:00:00+00:00",
+        "season": 2024,
+        "week": 4
+      },
+      {
+        "common_slate_lock": "2024-10-06T17:00:00+00:00",
+        "season": 2024,
+        "week": 5
+      },
+      {
+        "common_slate_lock": "2024-10-13T17:00:00+00:00",
+        "season": 2024,
+        "week": 6
+      },
+      {
+        "common_slate_lock": "2024-10-20T17:00:00+00:00",
+        "season": 2024,
+        "week": 7
+      },
+      {
+        "common_slate_lock": "2024-10-27T17:00:00+00:00",
+        "season": 2024,
+        "week": 8
+      },
+      {
+        "common_slate_lock": "2024-11-03T18:00:00+00:00",
+        "season": 2024,
+        "week": 9
+      },
+      {
+        "common_slate_lock": "2024-11-10T18:00:00+00:00",
+        "season": 2024,
+        "week": 10
+      },
+      {
+        "common_slate_lock": "2024-11-17T18:00:00+00:00",
+        "season": 2024,
+        "week": 11
+      },
+      {
+        "common_slate_lock": "2024-11-24T18:00:00+00:00",
+        "season": 2024,
+        "week": 12
+      },
+      {
+        "common_slate_lock": "2024-12-01T18:00:00+00:00",
+        "season": 2024,
+        "week": 13
+      },
+      {
+        "common_slate_lock": "2024-12-08T18:00:00+00:00",
+        "season": 2024,
+        "week": 14
+      },
+      {
+        "common_slate_lock": "2024-12-15T18:00:00+00:00",
+        "season": 2024,
+        "week": 15
+      },
+      {
+        "common_slate_lock": "2024-12-22T18:00:00+00:00",
+        "season": 2024,
+        "week": 16
+      },
+      {
+        "common_slate_lock": "2024-12-29T18:00:00+00:00",
+        "season": 2024,
+        "week": 17
+      },
+      {
+        "common_slate_lock": "2025-01-05T18:00:00+00:00",
+        "season": 2024,
+        "week": 18
+      },
+      {
+        "common_slate_lock": "2025-09-07T17:00:00+00:00",
+        "season": 2025,
+        "week": 1
+      },
+      {
+        "common_slate_lock": "2025-09-14T17:00:00+00:00",
+        "season": 2025,
+        "week": 2
+      },
+      {
+        "common_slate_lock": "2025-09-21T17:00:00+00:00",
+        "season": 2025,
+        "week": 3
+      },
+      {
+        "common_slate_lock": "2025-09-28T17:00:00+00:00",
+        "season": 2025,
+        "week": 4
+      },
+      {
+        "common_slate_lock": "2025-10-05T17:01:00+00:00",
+        "season": 2025,
+        "week": 5
+      },
+      {
+        "common_slate_lock": "2025-10-12T17:00:00+00:00",
+        "season": 2025,
+        "week": 6
+      },
+      {
+        "common_slate_lock": "2025-10-19T17:00:00+00:00",
+        "season": 2025,
+        "week": 7
+      },
+      {
+        "common_slate_lock": "2025-10-26T17:00:00+00:00",
+        "season": 2025,
+        "week": 8
+      },
+      {
+        "common_slate_lock": "2025-11-02T18:00:00+00:00",
+        "season": 2025,
+        "week": 9
+      },
+      {
+        "common_slate_lock": "2025-11-09T18:00:00+00:00",
+        "season": 2025,
+        "week": 10
+      },
+      {
+        "common_slate_lock": "2025-11-16T18:00:00+00:00",
+        "season": 2025,
+        "week": 11
+      },
+      {
+        "common_slate_lock": "2025-11-23T18:00:00+00:00",
+        "season": 2025,
+        "week": 12
+      },
+      {
+        "common_slate_lock": "2025-11-30T18:00:00+00:00",
+        "season": 2025,
+        "week": 13
+      },
+      {
+        "common_slate_lock": "2025-12-07T18:00:00+00:00",
+        "season": 2025,
+        "week": 14
+      },
+      {
+        "common_slate_lock": "2025-12-14T18:00:00+00:00",
+        "season": 2025,
+        "week": 15
+      },
+      {
+        "common_slate_lock": "2025-12-21T18:00:00+00:00",
+        "season": 2025,
+        "week": 16
+      },
+      {
+        "common_slate_lock": "2025-12-28T18:00:00+00:00",
+        "season": 2025,
+        "week": 17
+      },
+      {
+        "common_slate_lock": "2026-01-04T18:00:00+00:00",
+        "season": 2025,
+        "week": 18
+      }
+    ],
+    "matched_prop_rows_before_ladder_collapse": 45694,
+    "seasons": [
+      {
+        "covered_rows": 1576,
+        "covered_slates": 18,
+        "maximum_covered_rows_per_slate": 128,
+        "mean_covered_rows_per_slate": 87.55555555555556,
+        "minimum_covered_rows_per_slate": 35,
+        "season": 2024,
+        "slates": 18,
+        "snapshot_rows": 8910
+      },
+      {
+        "covered_rows": 1700,
+        "covered_slates": 18,
+        "maximum_covered_rows_per_slate": 118,
+        "mean_covered_rows_per_slate": 94.44444444444444,
+        "minimum_covered_rows_per_slate": 41,
+        "season": 2025,
+        "slates": 18,
+        "snapshot_rows": 8708
+      }
+    ],
+    "valid_ladders": 4191
+  },
+  "test_season": 2025,
+  "train_season": 2024,
+  "training_rows": 1576
+}

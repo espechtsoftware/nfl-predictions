@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 09:51 CDT
+## Current state — 2026-08-10 10:15 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -38,15 +38,23 @@ agent or developer:
   it preserves incumbent scoring/selection worlds and uses the revised
   240→230→220→210 operational law. This is distinct from and does not reopen
   the rejected raw `ALT_CEIL`, `DIV_TILT`, or q99-wildcard mechanisms.
-- Branch is `main` at `abfed9c` before the new preregistration commit. The next
-  preregistration is pushed as `53c78d8`. Guarded implementation now lives in
+- Preregistration `53c78d8` and implementation `391934e` are pushed on
+  `main`. Guarded implementation lives in
   `analysis/market_tail_disagreement.py`, CLI
   `market-tail-diagnostic`, and
   `scripts/cloud_market_tail_diagnostic.sh`. Nine focused market tests pass,
-  Python compilation, shell parsing and `git diff --check` are clean. The
-  next concrete action is to commit/push this implementation, validate its
-  exact tree in Cloud Build, and execute the immutable digest on Cloud Run
-  without inspecting lineup outcomes first. No Odds API quota is required.
+  Python compilation, shell parsing and `git diff --check` are clean.
+- Full exact-tree validation build `9780568e-c338-49fd-af55-27909542625c`
+  passed 727 tests with 2 skipped and produced immutable digest
+  `sha256:4bed5d04fe433b0a9da6fc2a4f4d3464af8aeab9cafa653e30d4d3366841355e`.
+  Frozen execution `market-tail-diagnostic-jg52t` then completed and failed
+  the mechanism gate: 2024 edge-quintile residual separation was negative
+  (`-0.3587`) despite positive 2025/aggregate signs, and held-out 30-point
+  Brier worsened `0.0305295→0.0305408`. Residual MAE and WR/TE-only metrics
+  improved slightly, but those diagnostics cannot override the frozen gate.
+  No lineup union may launch, current live v2 is unchanged, and no quota was
+  spent. Durable artifacts are tracked under
+  `reports/market-tail-runs/20260810-market-tail-v1/`.
 
 - The operator explicitly revised the operational objective after the valid
   role union improved the same 80-entry portfolio at every 210+ threshold.

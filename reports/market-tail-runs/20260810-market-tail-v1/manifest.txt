@@ -1,0 +1,5 @@
+run_id=20260810-market-tail-v1
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:4bed5d04fe433b0a9da6fc2a4f4d3464af8aeab9cafa653e30d4d3366841355e
+panel=20260809-e80-k1-ce12-c616390
+train_season=2024
+test_season=2025

@@ -1,8 +1,7 @@
 # Market-tail disagreement candidate experiment
 
-Status: preregistered before querying player outcomes or current-policy lineup
-scores for this experiment. Guarded diagnostic implementation and offline
-fixtures are complete; immutable Cloud validation and execution are pending.
+Status: completed; the frozen player-level mechanism gate failed, so no
+candidate union was implemented or launched.
 
 ## Question and scope
 
@@ -145,3 +144,30 @@ threshold worsens. Counts at 200/194/187, pool oracles, means, season signs,
 runtime and paired weekly gains/losses are reported diagnostics. No alternate
 dose, scale, selector line, market combination or seed may follow a valid
 rejection on these outcomes.
+
+## Result
+
+Exact-tree Cloud Build `9780568e-c338-49fd-af55-27909542625c` passed 727
+tests with 2 skipped and produced immutable digest
+`sha256:4bed5d04fe433b0a9da6fc2a4f4d3464af8aeab9cafa653e30d4d3366841355e`.
+Cloud Run execution `market-tail-diagnostic-jg52t` completed successfully;
+its manifest, raw log and complete machine report are tracked under
+`reports/market-tail-runs/20260810-market-tail-v1/`.
+
+The availability gate passed cleanly: 1,576/1,700 covered rows across all
+18 slates in 2024/2025, with minimum per-slate coverage of 35/41. The signed
+mechanism did not transport consistently. Top-minus-bottom edge-quintile
+residual separation was `-0.3587` points in 2024, `+0.3302` in 2025 and
+`+0.1850` aggregate, so the required positive sign in both seasons failed.
+
+On the untouched 2025 holdout, treatment residual MAE improved slightly from
+`5.48631` to `5.47953`, but 20-point Brier worsened from `0.103125` to
+`0.103154` and the primary 30-point Brier worsened from `0.0305295` to
+`0.0305408`. WR/TE alone improved slightly at all three metrics, including
+30-point Brier `0.0171336→0.0171327`, but that post-result slice cannot
+replace the frozen all-position gate.
+
+Machine disposition is **`market-tail-mechanism-gate-fails`**. Do not tune
+the position set, market mapping, scale, centering or candidate dose on this
+result. The twelve-candidate union is not licensed; current v2 remains
+unchanged and no Odds API quota was spent.

@@ -150,6 +150,12 @@ The complete frozen construction, 2024-to-2025 gate and current tail-first
 promotion law are in
 `reports/2026-08-10-market-tail-disagreement-experiment.md`.
 
+Completed result: immutable execution `market-tail-diagnostic-jg52t` covered
+all 36 recent slates but failed the frozen mechanism gate. The signed
+residual separation reversed in 2024, and held-out 2025 30-point Brier
+worsened slightly `0.0305295→0.0305408`. No candidate union is licensed and
+this historical alternate-ladder mechanism is closed without quota spend.
+
 ## Priority 3 — a credit-capped Odds API opportunity pilot
 
 The existing vendor can supply historical player props from May 3, 2023.
