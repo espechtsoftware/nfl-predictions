@@ -1,7 +1,8 @@
 # Historical prop common-lock correction
 
 Status: point-in-time defect confirmed from code and availability-only
-warehouse audit; correction and full revalidation pending.
+warehouse audit; guarded reader implementation and offline tests are complete,
+while immutable validation and full revalidation are pending.
 
 ## Defect
 
@@ -57,7 +58,9 @@ The standard prop reader will:
    player/point/outcome, so a valid closer supersedes an opening row without
    using arbitrary input order;
 4. preserve the existing de-vig, book averaging, name resolution and
-   model-only fallback; and
+   model-only fallback, while consolidating multiple prop aliases that resolve
+   to one GSIS id by averaging within market and then summing distinct markets;
+   and
 5. expose source snapshot/cutoff counts in logs so future coverage drift is
    visible.
 
@@ -65,6 +68,12 @@ The Sunday 1 p.m. lower bound is required: a London game must not become the
 common lock for the domestic main slate. The strict `<` rule also applies to
 live reads, preventing a post-lock ingest from changing an already locked
 book.
+
+The implementation audit also exposed 21 duplicate `(season, week, gsis_id)`
+outputs across 2023--2025: alternate name spellings were resolved only after
+market totals were aggregated, and replay then kept one by input order. The
+corrected reader now fulfills its documented unique player-week contract and
+combines those aliases deterministically without looking at outcomes.
 
 Offline fixtures must cover early, late, London, opening/closing, no-coverage,
 TD-only and name-resolution cases. Full Cloud Build validation and an
@@ -91,4 +100,3 @@ tail-first comparison, update the live policy to the strongest corrected arm.
 
 No Odds API quota is authorized by this repair. A future common-lock backfill
 would be a separate costed data-acquisition decision.
-

@@ -68,10 +68,20 @@ agent or developer:
   K1, CE and role are rebuilt on the fixed common-lock reader. The live
   mechanism remains provisionally served because freezer snapshots occur
   before lock, but its historical adoption evidence must be re-established.
-  Exact next action: commit/push the defect protocol, implement and test the
-  strict latest-pre-common-lock reader, run full Cloud Build plus one-week
-  replay smoke, then launch corrected true-80 K3/K1 controls. No quota spend
-  is authorized.
+  No quota spend is authorized.
+- The strict reader is now implemented in `models/prop_market.py`. It derives
+  the exact domestic Sunday-main cutoff from schedules, selects the latest
+  row strictly before it (including a valid opening when no later row exists),
+  logs excluded post-lock volume, and returns model-only fallback when honest
+  coverage is absent. A companion repair consolidates multiple prop aliases
+  to one player-week; the live warehouse read now returns 4,452/4,687/5,008
+  unique priced player-weeks in 2023/2024/2025 with zero duplicates. Eleven
+  focused market tests pass, including London/1 p.m./late/SNF cutoff, exact-
+  lock exclusion, latest-valid selection, TD-only, no-prop and alias cases.
+  Implementation is not yet citable until exact-tree Cloud Build and replay
+  smoke pass. Exact next action: commit/push, run full Cloud Build plus the
+  immutable one-week replay smoke, then launch corrected true-80 K3/K1
+  controls.
 
 - The operator explicitly revised the operational objective after the valid
   role union improved the same 80-entry portfolio at every 210+ threshold.

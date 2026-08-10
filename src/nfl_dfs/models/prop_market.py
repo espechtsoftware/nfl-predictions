@@ -9,7 +9,7 @@ Names matched to gsis_ids via normalized full display name.
 from __future__ import annotations
 
 import logging
-import re
+from datetime import time
 
 import numpy as np
 import pandas as pd
@@ -22,6 +22,14 @@ log = logging.getLogger(__name__)
 
 YARD_PTS = {"player_pass_yds": 0.04, "player_rush_yds": 0.1,
             "player_reception_yds": 0.1}
+STANDARD_MARKETS = (
+    "player_pass_yds",
+    "player_pass_tds",
+    "player_rush_yds",
+    "player_reception_yds",
+    "player_receptions",
+    "player_anytime_td",
+)
 
 
 def _norm(s: pd.Series) -> pd.Series:
@@ -30,15 +38,121 @@ def _norm(s: pd.Series) -> pd.Series:
     return s.astype(str).map(norm_name)
 
 
+def latest_pre_main_lock(
+    props: pd.DataFrame,
+    schedules: pd.DataFrame,
+) -> tuple[pd.DataFrame, dict[str, int]]:
+    """Return the latest standard-prop rows known at Sunday-main lock.
+
+    Historical odds snapshots are event-relative.  A late-afternoon game's
+    kickoff-minus-two-hours close occurs after the common 1 p.m. DFS lock, so
+    every event in the portfolio must share the schedule-derived first main
+    game cutoff.  London and Sunday-night games do not define that cutoff.
+    """
+
+    p_needed = {
+        "season", "week", "bookmaker", "market", "outcome_name", "player",
+        "price", "point", "snapshot_ts",
+    }
+    s_needed = {
+        "season", "week", "gameday", "gametime", "game_type", "weekday",
+    }
+    if missing := p_needed - set(props.columns):
+        raise ValueError(f"prop lines missing {sorted(missing)}")
+    if missing := s_needed - set(schedules.columns):
+        raise ValueError(f"schedules missing {sorted(missing)}")
+
+    lines = props.copy()
+    lines["_snapshot"] = pd.to_datetime(
+        lines.snapshot_ts, utc=True, errors="coerce",
+    )
+    slate = schedules[
+        schedules.game_type.eq("REG")
+        & schedules.weekday.eq("Sunday")
+    ].copy()
+    parsed_time = pd.to_datetime(
+        slate.gametime.astype(str), format="%H:%M", errors="coerce",
+    ).dt.time
+    slate = slate[
+        parsed_time.map(
+            lambda value: (
+                value is not pd.NaT
+                and pd.notna(value)
+                and time(13, 0) <= value < time(19, 0)
+            )
+        )
+    ].copy()
+    if slate.empty:
+        return lines.iloc[0:0].drop(columns="_snapshot"), {
+            "input_rows": int(len(lines)),
+            "main_slate_weeks": 0,
+            "prelock_rows": 0,
+            "postlock_rows_excluded": 0,
+        }
+    local = pd.to_datetime(
+        slate.gameday.astype(str) + " " + slate.gametime.astype(str),
+        errors="coerce",
+    ).dt.tz_localize(
+        "America/New_York", ambiguous="NaT", nonexistent="shift_forward",
+    ).dt.tz_convert("UTC")
+    slate["_common_lock"] = local
+    locks = slate.dropna(subset="_common_lock").groupby(
+        ["season", "week"], observed=True,
+    )._common_lock.min().rename("_common_lock").reset_index()
+    joined = lines.merge(
+        locks, on=["season", "week"], how="inner", validate="many_to_one",
+    )
+    prelock = joined[
+        joined._snapshot.notna() & joined._snapshot.lt(joined._common_lock)
+    ].copy()
+    key = [
+        "season", "week", "bookmaker", "market", "player", "point",
+        "outcome_name",
+    ]
+    prelock = prelock.sort_values("_snapshot", kind="stable").drop_duplicates(
+        key, keep="last",
+    )
+    audit = {
+        "input_rows": int(len(lines)),
+        "main_slate_weeks": int(len(locks)),
+        "prelock_rows": int(len(prelock)),
+        "postlock_rows_excluded": int(
+            (joined._snapshot.notna()
+             & joined._snapshot.ge(joined._common_lock)).sum()
+        ),
+    }
+    return prelock.drop(columns=["_snapshot", "_common_lock"]), audit
+
+
 def market_points(seasons: tuple[int, ...] = (2023, 2024, 2025)) -> pd.DataFrame:
     """(season, week, gsis_id, market_points) from nfl_raw.prop_lines."""
     season_list = ", ".join(str(int(s)) for s in seasons)
+    market_list = ", ".join(f"'{market}'" for market in STANDARD_MARKETS)
     props = query_df(
         f"""SELECT season, week, bookmaker, market, outcome_name, player,
-                   price, point FROM `{settings.raw}.prop_lines`
+                   price, point, snapshot_ts
+            FROM `{settings.raw}.prop_lines`
             WHERE season IN ({season_list})
-              AND NOT ENDS_WITH(snapshot_ts, 'T18:00:00Z')"""
-    )  # closes only: Tuesday opens (T18:00:00Z) are for movement studies
+              AND market IN ({market_list})"""
+    )
+    if props.empty:
+        return pd.DataFrame(columns=["season", "week", "gsis_id",
+                                     "market_points"])
+    schedules = query_df(
+        f"""SELECT season, week, gameday, gametime, game_type, weekday
+            FROM `{settings.raw}.schedules`
+            WHERE season IN ({season_list})"""
+    )
+    props, cutoff_audit = latest_pre_main_lock(props, schedules)
+    log.info(
+        "prop market common-lock audit: input=%d weeks=%d prelock=%d "
+        "postlock_excluded=%d",
+        cutoff_audit["input_rows"], cutoff_audit["main_slate_weeks"],
+        cutoff_audit["prelock_rows"], cutoff_audit["postlock_rows_excluded"],
+    )
+    if props.empty:
+        return pd.DataFrame(columns=["season", "week", "gsis_id",
+                                     "market_points"])
     names = query_df(
         f"""SELECT DISTINCT player_id AS gsis_id,
                    player_display_name AS display_name
@@ -82,29 +196,37 @@ def market_points(seasons: tuple[int, ...] = (2023, 2024, 2025)) -> pd.DataFrame
     td["pts"] = 6.0 * (-np.log1p(-td.p))
     rows.extend(td[["season", "week", "norm", "market", "bookmaker",
                     "pts"]].to_dict("records"))
-    # Pre-prop historical seasons legitimately have no rows.  Return the
-    # documented empty schema so callers can use their model-only fallback;
-    # constructing a column-less DataFrame here used to raise KeyError on
-    # the group-bys below and emit a misleading replay error.
+    # A pre-prop season, or a week with no rows before the shared lock, is a
+    # normal model-only fallback. Constructing a column-less frame here would
+    # make the group-bys below raise and trigger replay's broad exception path.
     if not rows:
         return pd.DataFrame(columns=["season", "week", "gsis_id",
                                      "market_points"])
     df = pd.DataFrame(rows)
-    # Average books within a market, then sum markets per player-week
+    # Average books within a market. Resolve aliases before summing markets:
+    # two prop spellings can map to one GSIS id (for example Gabe/Gabriel),
+    # and returning both rows made callers choose one by arbitrary input
+    # order. Alias duplicates of the same market are averaged; distinct
+    # markets are then summed once for the documented unique player-week row.
     per_mkt = (df.groupby(["season", "week", "norm", "market"]).pts
                .mean().reset_index())
-    total = (per_mkt.groupby(["season", "week", "norm"]).pts.sum()
-             .reset_index().rename(columns={"pts": "market_points"}))
     # two-stage match (names.py): exact norm, then unambiguous
     # initial-key fallback — catches 'Cameron Ward' vs 'Cam Ward'.
     from ..names import match_map, resolve
 
     lookup = match_map(dict(zip(names.display_name, names.gsis_id)))
-    total["gsis_id"] = total.norm.map(
+    per_mkt["gsis_id"] = per_mkt.norm.map(
         lambda n: resolve(n, lookup))
-    out = total[total.gsis_id.notna()].copy()
+    matched = per_mkt[per_mkt.gsis_id.notna()].copy()
+    by_market = matched.groupby(
+        ["season", "week", "gsis_id", "market"], observed=True,
+    ).pts.mean().reset_index()
+    out = by_market.groupby(
+        ["season", "week", "gsis_id"], observed=True,
+    ).pts.sum().rename("market_points").reset_index()
     log.info("prop market: %d player-weeks priced (%.0f%% of prop names "
-             "matched)", len(out), 100 * len(out) / max(len(total), 1))
+             "matched)", len(out),
+             100 * matched.norm.nunique() / max(per_mkt.norm.nunique(), 1))
     return out[["season", "week", "gsis_id", "market_points"]]
 
 
