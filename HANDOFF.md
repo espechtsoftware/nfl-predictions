@@ -163,6 +163,11 @@ agent or developer:
   reproduction. Thirty-five combined selector/persistence/participation tests
   pass locally. No generator/freezer job has been changed to this unvalidated
   code; v4 digest `sha256:9d02ecc3...` remains the deployed paused freezer.
+  Implementation commit `d1c9318` is pushed on `main`; full validation build
+  `9e3e6c14-f70a-4f8d-9863-7120c5fae74f` is running. If green, update only the
+  three paused shadow generators and two paused freezers to its immutable
+  digest; set the generator `CODE_SHA=d1c9318`, preserve every other setting,
+  and do not execute any job off-season.
 - Exact next action: wait for all six exact union executions, run the union
   comparator on immutable digest `sha256:a410648b...`, and commit its JSON and
   Cloud Run execution. Launch the fixed arm only if that tracked union gate
