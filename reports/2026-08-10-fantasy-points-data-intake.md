@@ -31,7 +31,9 @@ available offensive positions, clear player filters, and prefer CSV. Acquire
 | Weekly PROE Report (Offense) | secondary team context | validated | validated | validated | validated |
 | Weekly PROE Report (Defense) | secondary opponent context | validated | validated | validated | validated |
 | Weekly Fantasy Points Scored | identity/scoring audit only | validated | validated | validated | validated |
-| Advanced Receiving | route, alignment, first-read and separation candidates | pending | pending | pending | pending |
+| Advanced Receiving | route, alignment, first-read and expected-points priors | validated | validated | validated | validated |
+| Advanced Rushing | rushing process and expected-points priors | validated | validated | validated | validated |
+| Advanced Passing | QB process and efficiency priors | validated | validated | validated | validated |
 
 Do not bulk-add these fields to production. The frozen evaluation remains:
 walk-forward player residual/tail calibration, then candidate-union oracle
@@ -269,15 +271,32 @@ rate and fantasy points per dropback/opportunity. These files are again
 full-season aggregates with no week column: season N values are forbidden for
 all season N targets and first become eligible in season N+1.
 
+### QB Coverage Matchup prospective snapshot
+
+The operator exported `qbCoverageMatchupExport.csv` on 2026-08-10 at
+approximately 16:12 CDT with Schedule Week 1 selected. SHA-256 is
+`888d31272b16b921af50fdeec0bcf20ed526873443495c4983079842a1b83c32`.
+The file is a valid UTF-8-with-BOM CSV containing 37 unique QB rows and 32
+columns under Player Details, Matchup, Man, Cover 2, Cover 3, Cover 4 and
+Cover 6 groups. Every row has complete values and `Season=2025`.
+
+This is not historical Week 1 data. The page exposes no season selector and
+the vendor states that it uses the previous season through Week 3, then the
+active season from Week 4 onward. The 2025 season fields are therefore source
+performance, while `OPP`, expected FP/dropback and coverage grade are the
+current 2026 matchup layer. Preserve this file as a **2026 Week 1 prospective
+snapshot only**, with forecast season/week and retrieval timestamp supplied
+as external immutable metadata. It cannot enter a 2022--2025 replay, the
+Advanced prior diagnostic or any pre-Week-1 promotion decision. If collected
+weekly before the shared slate lock, it can later be graded as a shadow QB
+matchup signal.
+
 ## Importer gate
 
-Do not freeze a *general multi-report* normalized schema or importer until at
-least one file from every requested report family has been inspected. The
-separately preregistered Route Share-only diagnostic may use its narrow
-hash-locked importer from
-`reports/2026-08-10-fantasy-points-route-share-experiment.md`; it must not
-infer schemas for the pending families. Before loading any derived rows,
-require:
+Do not infer one general schema across these materially different report
+families. The separately preregistered Route Share and prior-season Advanced
+diagnostics use narrow hash-locked importers; the prospective Coverage
+Matchup snapshot remains isolated. Before loading any derived rows, require:
 
 1. exact source hashes and unchanged originals;
 2. declared season/week coverage and numeric ranges;

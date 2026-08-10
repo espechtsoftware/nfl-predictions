@@ -214,6 +214,25 @@ def main(argv: list[str] | None = None) -> None:
     )
 
     p = sub.add_parser(
+        "import-fantasy-points-advanced",
+        help="Audit/import hash-locked Fantasy Points Advanced player data",
+    )
+    p.add_argument("--input-dir", default="fantasy-points")
+    p.add_argument(
+        "--write", action="store_true",
+        help="Create the private raw table; existing non-identical data aborts",
+    )
+
+    p = sub.add_parser(
+        "fantasy-points-advanced-diagnostic",
+        help="Run the frozen prior-season Advanced player-tail gate",
+    )
+    p.add_argument(
+        "--panel", default="20260810-lockfix-e80-k1-8677d21",
+        help="Frozen corrected K1 panel (alternate values fail closed)",
+    )
+
+    p = sub.add_parser(
         "corrected-extreme-selector",
         help="Confirm the frozen 220/210/200 selector on one corrected panel",
     )
@@ -452,6 +471,14 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import fantasy_points_route_share
 
         fantasy_points_route_share.run(args.panel)
+    elif args.command == "import-fantasy-points-advanced":
+        from .ingest import fantasy_points_advanced
+
+        fantasy_points_advanced.run(args.input_dir, write=args.write)
+    elif args.command == "fantasy-points-advanced-diagnostic":
+        from .analysis import fantasy_points_advanced_tail
+
+        fantasy_points_advanced_tail.run(args.panel)
     elif args.command == "corrected-extreme-selector":
         from .research import extreme_selector_confirmation
 

@@ -1,0 +1,15 @@
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:215a6729b66980310cfad3f63b06a7c25ce4dcf2fa2b6949a04a5c9afa337221
+family=lockk1role
+panel_run_id=20260810-lockfix-e80-k1-role12union-8677d21
+code_sha=8677d21
+seasons=2019 2021 2022 2023 2024 2025
+arm_label=lockfix_k1_role12_union
+arm_env=MODEL_ENSEMBLE=1|EPISTEMIC_FAMILY=role_draws|ROLE_BELIEF_FEATURES=target_share_last,carry_share_last,snap_share_last,target_share_jump,carry_share_jump,snap_share_jump|ROLE_BELIEF_SEED=7331|REPLACEMENT_SLOTS=12
+memory=16Gi
+task_timeout=14400
+smoke_season=2024
+n_entries=80
+n_ce=0
+n_epistemic=12
+n_gumbel=0
+n_boom=40
