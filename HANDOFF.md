@@ -89,8 +89,13 @@ agent or developer:
   `20260810-lockfix-e80-k1-ce12-8677d21`, and role union
   `20260810-lockfix-e80-k1-ce12-roleunion-8677d21`. It is shell-parse clean;
   CE/role modes fail closed until their exact corrected source panel has been
-  accepted. Cloud Build `3470d0d4-df09-4776-96e8-eaf5a76d0243` is currently
-  validating generation commit `8677d21`.
+  accepted. Cloud Build `3470d0d4-df09-4776-96e8-eaf5a76d0243` passed 729
+  tests with 2 skipped and produced immutable generation digest
+  `sha256:215a6729b66980310cfad3f63b06a7c25ce4dcf2fa2b6949a04a5c9afa337221`.
+  Corrected K3 2024 preflight `replay-lockk3-smoke-tmjcp` is running; its
+  tracked manifest is under
+  `reports/panel-runs/20260810-lockfix-e80-k3-8677d21/`. No full-season
+  execution launches unless it succeeds.
 
 - The operator explicitly revised the operational objective after the valid
   role union improved the same 80-entry portfolio at every 210+ threshold.

@@ -1,8 +1,7 @@
 # Historical prop common-lock correction
 
-Status: point-in-time defect confirmed from code and availability-only
-warehouse audit; guarded reader implementation and offline tests are complete,
-while immutable validation and full revalidation are pending.
+Status: point-in-time defect confirmed and reader correction validated;
+immutable K3/K1 true-80 revalidation is in progress.
 
 ## Defect
 
@@ -105,3 +104,15 @@ union. Every preflight uses 2024 so it exercises the corrected market reader.
 
 No Odds API quota is authorized by this repair. A future common-lock backfill
 would be a separate costed data-acquisition decision.
+
+## Validation and execution log
+
+Exact generation commit `8677d21` passed Cloud Build
+`3470d0d4-df09-4776-96e8-eaf5a76d0243`: 729 tests passed, 2 skipped. The
+validated immutable digest is
+`sha256:215a6729b66980310cfad3f63b06a7c25ce4dcf2fa2b6949a04a5c9afa337221`.
+
+Corrected K3 2024 preflight `replay-lockk3-smoke-tmjcp` is running from that
+digest. Its durable manifest is tracked under
+`reports/panel-runs/20260810-lockfix-e80-k3-8677d21/`. The six-season K3
+panel and all K1 work remain launch-gated on a clean preflight.
