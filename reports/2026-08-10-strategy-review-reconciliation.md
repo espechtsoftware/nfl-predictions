@@ -61,6 +61,37 @@ Aggregate ownership alone can seed player marginals but cannot validate joint
 lineup construction or duplicated payouts. The first 2026 full-standings CSVs
 should therefore be treated as model-training data, not merely archived.
 
+### Vendor-access follow-up
+
+DFS Hero's own current product page says BacktestIQ uses actual historical
+fields with real opponent lineups and reports realized ROI, which would be the
+most direct source for this work. The operator's paid trial nevertheless
+returns `Contest data not available` for the available NFL Millionaire
+contests, and the public materials do not promise a CSV/API export. Before any
+renewal, ask support whether 2022--2025 NFL Classic full-field lineups plus
+contest/payout metadata can be exported; interactive-only access is not enough
+for a reproducible model gate.
+
+FantasyLabs publicly documents historical player ownership and detailed
+contest-lineup dashboards, but likewise does not publicly confirm bulk export.
+It is a secondary support inquiry, not a reason to buy another subscription.
+
+Official product references:
+
+- <https://dfshero.com/tools>
+- <https://www.fantasylabs.com/articles/introducing-new-fantasylabs-ownership-dashboard/>
+
+Fantasy Points remains the clearest route-data lead. Its own materials confirm
+weekly route share plus route-by-route coverage/alignment data back to 2022 and
+CSV/Excel export. The published 2026 list price is $200; the $160 figure was an
+expired early-bird offer. Confirm that one subscription permits full 2022--2025
+bulk export before treating it as within the operator's strictly-under-$200
+ceiling.
+
+- <https://newsletter.fantasypoints.com/p/fantasy-points-data-free-this-week>
+- <https://newsletter.fantasypoints.com/p/week1-average-separation-score>
+- <https://newsletter.fantasypoints.com/p/early-bird-discount-2026>
+
 ## Resulting priority order
 
 1. Finish the point-in-time-corrected K3→K1→CE→role chain and its frozen
