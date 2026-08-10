@@ -85,6 +85,14 @@ agent or developer:
   are potentially useful from May 2023 onward, but route/target/alignment data
   is a more direct paid-data lead for the observed WR/TE misses. Any quota
   backfill remains a separately approved, credit-capped experiment.
+- The ranked follow-on queue is now tracked in
+  `reports/2026-08-10-scoring-opportunity-roadmap.md`. The preferred paid-data
+  pilot is Fantasy Points Data only if checkout is below $200 and full
+  2022-2025 CSV exports are confirmed; requested fields and the walk-forward
+  player-tail -> union-oracle -> fixed-budget gates are frozen there. A later
+  Odds API pilot is capped to three volume markets and 20,000 credits. The
+  zero-tuning deterministic one-swap refinement is prospective-shadow-only,
+  and deep generative dependence work is deferred until more field data exist.
 - Exact next action: wait for all six exact union executions, run the union
   comparator on immutable digest `sha256:a410648b...`, and commit its JSON and
   Cloud Run execution. Launch the fixed arm only if that tracked union gate
