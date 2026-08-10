@@ -109,7 +109,9 @@ digest. The six immutable season executions are
 `replay-e80k1ru-2022-6n9gr`, `replay-e80k1ru-2023-t5r9v`,
 `replay-e80k1ru-2024-zg8lx`, and `replay-e80k1ru-2025-wtsxz`.
 No partial union score may be inspected. Full comparator validation build
-`35ec292e-94ea-48b2-8597-23292b77dbd3` is running independently.
+`35ec292e-94ea-48b2-8597-23292b77dbd3` passed 716 tests with 2 skipped and
+produced immutable comparator digest
+`sha256:a410648bc20b10ec65e7ca49a2bc67108771067136259d73fad65f8cdb72087f`.
 
 ## Additional data path, separate from this test
 

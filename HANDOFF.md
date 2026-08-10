@@ -70,9 +70,9 @@ agent or developer:
   `git diff --check` is clean. The Docker image now explicitly packages the
   comparator.
 - Preregistration/runner commit `c02cded` is pushed on `main`. Full validation
-  build `35ec292e-94ea-48b2-8597-23292b77dbd3` is running from that commit and
-  will produce tagged comparator image `nfl-dfs:c02cded` only after the entire
-  suite passes.
+  build `35ec292e-94ea-48b2-8597-23292b77dbd3` passed `716` tests with `2`
+  skipped in 387.33 seconds and produced immutable comparator digest
+  `sha256:a410648bc20b10ec65e7ca49a2bc67108771067136259d73fad65f8cdb72087f`.
 - Union preflight `replay-e80k1ru-smoke-l4fjb` passed on the frozen generation
   digest. The six exact asynchronous union executions are
   `replay-e80k1ru-2019-kn4jf`, `replay-e80k1ru-2021-6sj8b`,
@@ -85,10 +85,10 @@ agent or developer:
   are potentially useful from May 2023 onward, but route/target/alignment data
   is a more direct paid-data lead for the observed WR/TE misses. Any quota
   backfill remains a separately approved, credit-capped experiment.
-- Exact next action: wait for all six exact union executions and build
-  `35ec292e-94ea-48b2-8597-23292b77dbd3`; resolve the immutable comparator
-  digest, run the union comparator, and commit its JSON/Cloud Run execution.
-  Launch the fixed arm only if that tracked union gate passes.
+- Exact next action: wait for all six exact union executions, run the union
+  comparator on immutable digest `sha256:a410648b...`, and commit its JSON and
+  Cloud Run execution. Launch the fixed arm only if that tracked union gate
+  passes.
 
 ## Previous state — 2026-08-09 21:05 CDT
 
