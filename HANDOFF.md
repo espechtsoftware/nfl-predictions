@@ -342,6 +342,16 @@ agent or developer:
   final report is under
   `reports/fantasy-points-route-runs/20260810-fp-route-share-v1/`; do not retry
   or tune this player diagnostic.
+- Before any Route Share lineup was generated or scored, its one licensed
+  candidate test was frozen in
+  `reports/2026-08-10-fantasy-points-route-tail-union.md`. After the corrected
+  K1→CE12→role chain mechanically selects its incumbent, reproduce that source
+  and add exactly twelve novel candidates per 2024--2025 slate using
+  `proj_tourney + 30 * (treatment_p30 - control_p30)` from the same held-out
+  Route models. Other seasons reproduce source exactly; production worlds and
+  the 194 selector remain unchanged. Exact source containment/invariance and
+  twelve novel candidates per treated slate are mandatory before applying the
+  240→230→220→210 law. No dose/scale/model retry is allowed.
 - One corrected-history selector confirmation is now frozen before either
   corrected control outcome is read:
   `reports/2026-08-10-corrected-extreme-selector-confirmation.md`. After the
