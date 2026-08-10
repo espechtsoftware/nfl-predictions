@@ -112,7 +112,15 @@ Exact generation commit `8677d21` passed Cloud Build
 validated immutable digest is
 `sha256:215a6729b66980310cfad3f63b06a7c25ce4dcf2fa2b6949a04a5c9afa337221`.
 
-Corrected K3 2024 preflight `replay-lockk3-smoke-tmjcp` is running from that
-digest. Its durable manifest is tracked under
-`reports/panel-runs/20260810-lockfix-e80-k3-8677d21/`. The six-season K3
-panel and all K1 work remain launch-gated on a clean preflight.
+Corrected K3 2024 preflight `replay-lockk3-smoke-tmjcp` passed from that
+digest. It logged 15,007 excluded post-lock rows, 30,310 retained pre-lock
+rows and 3,613/9,601 replay players receiving an honest market blend, then
+completed the full one-week 80-entry path. The six K3 executions are
+`replay-lockk3-2019-mf5jk`, `replay-lockk3-2021-b8w7x`,
+`replay-lockk3-2022-zsjcj`, `replay-lockk3-2023-dzhqz`,
+`replay-lockk3-2024-7dqbl`, and `replay-lockk3-2025-n95bb`.
+
+K1 2024 preflight `replay-lockk1-smoke-zgm9n` is running from the same
+digest. Its six-season panel remains launch-gated on a clean success. Durable
+manifests are tracked under the corresponding `reports/panel-runs/` panel
+directories.

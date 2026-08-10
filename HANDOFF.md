@@ -92,10 +92,16 @@ agent or developer:
   accepted. Cloud Build `3470d0d4-df09-4776-96e8-eaf5a76d0243` passed 729
   tests with 2 skipped and produced immutable generation digest
   `sha256:215a6729b66980310cfad3f63b06a7c25ce4dcf2fa2b6949a04a5c9afa337221`.
-  Corrected K3 2024 preflight `replay-lockk3-smoke-tmjcp` is running; its
-  tracked manifest is under
-  `reports/panel-runs/20260810-lockfix-e80-k3-8677d21/`. No full-season
-  execution launches unless it succeeds.
+  Corrected K3 2024 preflight `replay-lockk3-smoke-tmjcp` passed, logging
+  15,007 excluded post-lock prop rows and completing the full one-week
+  true-80 path. Six K3 executions are now running:
+  `replay-lockk3-2019-mf5jk`, `replay-lockk3-2021-b8w7x`,
+  `replay-lockk3-2022-zsjcj`, `replay-lockk3-2023-dzhqz`,
+  `replay-lockk3-2024-7dqbl`, and `replay-lockk3-2025-n95bb`. K1 2024
+  preflight `replay-lockk1-smoke-zgm9n` is running from the same digest; no
+  K1 season may launch until it succeeds. Both durable manifests are tracked
+  under their `reports/panel-runs/` panel directories. Do not inspect partial
+  scores; monitor only execution state and row completeness.
 
 - The operator explicitly revised the operational objective after the valid
   role union improved the same 80-entry portfolio at every 210+ threshold.

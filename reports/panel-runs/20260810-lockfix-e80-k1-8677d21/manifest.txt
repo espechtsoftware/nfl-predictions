@@ -1,0 +1,15 @@
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:215a6729b66980310cfad3f63b06a7c25ce4dcf2fa2b6949a04a5c9afa337221
+family=lockk1
+panel_run_id=20260810-lockfix-e80-k1-8677d21
+code_sha=8677d21
+seasons=2019 2021 2022 2023 2024 2025
+arm_label=lockfix_k1
+arm_env=MODEL_ENSEMBLE=1
+memory=16Gi
+task_timeout=14400
+smoke_season=2024
+n_entries=80
+n_ce=0
+n_epistemic=0
+n_gumbel=0
+n_boom=40
