@@ -22,7 +22,7 @@ agent or developer:
 
 ## Current state — 2026-08-10 16:10 CDT
 
-### Tail-improvement research resumed; role-belief test preregistered
+### Tail-improvement research complete; role union rejected, route gate passed
 
 - Branch `main`; the live adopted policy remains unchanged at
   `classic-k1-ce12-boom28-v1` from accepted panel
