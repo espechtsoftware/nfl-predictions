@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 13:52 CDT
+## Current state — 2026-08-10 14:06 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -268,8 +268,13 @@ agent or developer:
   validity. New guarded runner
   `scripts/cloud_compare_corrected_k1_ce_panel.sh` freezes the corrected K1
   and CE12 panel IDs. Nine focused CE/union tests pass; Python compilation,
-  shell parsing and whitespace checks are clean. Commit and full Cloud Build
-  this comparator before the complete CE12 panel is scored or compared.
+  shell parsing and whitespace checks are clean. Comparator commit `db093ad`
+  is pushed on `main`. Exact-commit Cloud Build
+  `b3772bb8-e30a-4ca8-ac95-f9edc40911bd` passed 745 tests with 2 skipped and
+  produced immutable acceptance/comparator digest
+  `sha256:aab92b9120661e8764a4acd3d012298e5e5fcd746052452997a514f5afdaa6d1`.
+  Use that digest only after CE12 reaches 107/107 complete slates; do not score
+  or compare a partial panel.
 - The operator purchased the standalone Fantasy Points Data Suite for $200.
   Licensed downloads are excluded by repository `.gitignore` under
   `fantasy-points/`. The untouched first export,
