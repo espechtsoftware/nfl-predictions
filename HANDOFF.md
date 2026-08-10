@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 18:06 CDT
+## Current state — 2026-08-09 19:00 CDT
 
 ### Autonomous scoring research resumed after context recovery
 
@@ -247,6 +247,30 @@ agent or developer:
   Exact next action: monitor the six fixed CE and six ownership execution IDs,
   compare each only after its complete six-season success contract, update
   both protocols/HANDOFF, and continue from whichever mechanisms pass.
+- The contest-aware ownership scoring panel subsequently completed all 107
+  slates and all six exact executions reported `Completed=True` with one
+  successful task and no failures. Comparator execution
+  `compare-k1-milly-ownership-wcqqj` found no tail benefit: selected
+  187/194/200/210/220/230/240 moves `36/22/12/6/3/1/1` to
+  `33/22/12/6/3/1/1`, mean/median weekly max moves
+  `179.60/178.82 -> 178.60/177.14`, and pool oracle moves
+  `44/30/19/9/3/1/1` to `41/29/18/8/3/1/1`. It therefore fails both the
+  required +2 selected-200 lift and the non-worse oracle-200 safeguard.
+  The arm is rejected and must not be tuned on these outcomes.
+- Ownership comparator v1 labeled the result `invalid` only because 330
+  upstream payloads were not bit-exact. Column-aware local re-audit found zero
+  material/categorical mismatches, maximum numeric delta `3.5527e-15`, exact
+  shared candidate worlds, all 54 trained slates changed, and frozen fade
+  equation error `3.9968e-15`. The comparator repair retains that bit-level
+  diagnostic while applying the already-established `1e-12` numeric
+  materiality rule. Its local disposition is the scientifically correct
+  `reject`; no arm setting, tail gate, or result changed. One partial 2023
+  weekly score was inadvertently surfaced while checking a raw progress log,
+  after all settings and gates were frozen; it was not used for any change or
+  decision. Exact next action: commit/push the reporter-only repair, complete
+  a full Cloud Build, run a labeled immutable ownership v2, and continue
+  monitoring the fixed CE panel (currently 74/107 slates, no failed
+  execution).
 
 ### Recovery provenance
 

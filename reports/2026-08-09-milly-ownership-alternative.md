@@ -1,7 +1,8 @@
 # Contest-aware Milly ownership alternative
 
 Status: the corrected diagnostic and trained-model smoke passed; the frozen
-downstream lineup arm is running and no partial lineup outcomes are read.
+downstream lineup arm completed but failed the tail-first scoring gate and is
+not adopted.
 
 Implementation note (recorded before any downstream lineup panel): the
 fade-only treatment is named `OWN_MODEL=milly_fade`. It fits only eligible
@@ -136,3 +137,44 @@ served model predictions, and completed the one-week replay. Panel
 `20260809-e80-k1-millyown-6d4a549` then launched all six seasons; its exact
 execution IDs and manifest are tracked under `reports/panel-runs/`. Do not
 compare partial season outcomes.
+
+## Downstream scoring outcome
+
+All six exact season executions completed successfully and produced the full
+107-slate, 80-entry panel. Comparator v1 execution
+`compare-k1-milly-ownership-wcqqj` found the treatment failed the scoring gate:
+
+| Weekly maximum metric | Source | Milly fade |
+|---|---:|---:|
+| >=187 | 36 | 33 |
+| >=194 | 22 | 22 |
+| >=200 | 12 | 12 |
+| >=210 | 6 | 6 |
+| >=220 | 3 | 3 |
+| >=230 | 1 | 1 |
+| >=240 | 1 | 1 |
+| Mean | 179.60 | 178.60 |
+| Median | 178.82 | 177.14 |
+
+Candidate-pool oracle counts at 187/194/200/210/220/230/240 moved
+`44/30/19/9/3/1/1` to `41/29/18/8/3/1/1`. Thus the arm produces no selected
+200+ lift and worsens the required oracle-200 safeguard. The valid scientific
+disposition is rejection regardless of season signs or average score.
+
+The intended ownership mechanism is active: estimates changed on all 54
+eligible 2023-2025 slates, 2,292 selected slots moved in each direction, and
+the selected portfolio became *more* popular by its own modeled estimate
+(mean ownership sum `0.3562 -> 0.3782`, mean log product
+`-43.59 -> -36.08`). Shared candidates retained exact actual scores, p-line,
+simulated means, and support masks.
+
+V1 initially labeled the result mechanically invalid because 330 upstream
+feature payloads were not bit-exact. The same column-aware audit used for CE
+found zero material or categorical mismatches; the maximum numeric difference
+is `3.5527e-15`, and the frozen fade equation error is `3.9968e-15`. The
+comparator now preserves the bit-exact count as a diagnostic and fails only
+numeric differences above `1e-12`, null mismatches, or exact nonnumeric
+differences. No scoring gate, arm setting, or outcome is changed. Run a
+labeled immutable v2 comparator to durably record `reject`, then close this
+historical ownership arm; do not tune the fade dose or ownership variant on
+these outcomes.

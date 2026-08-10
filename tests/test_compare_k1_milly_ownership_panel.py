@@ -27,7 +27,9 @@ def _features() -> dict:
         "treatment_rows": 100,
         "source_only_rows": 0,
         "treatment_only_rows": 0,
+        "bit_exact_mismatch_rows": 0,
         "invariant_mismatch_rows": 0,
+        "max_numeric_abs_delta": 0.0,
         "preownership_change_rows": 0,
         "ownership_changed_rows": 50,
         "ownership_changed_slates": 54,
@@ -69,6 +71,19 @@ def test_milly_mechanism_rejects_upstream_drift():
     failures = compare._mechanism_failures(
         source, treatment, features, _candidate_audit())
     assert "upstream player snapshots differ" in failures
+
+
+def test_milly_mechanism_tolerates_immaterial_float_serialization_drift():
+    source = _candidates(
+        "GAME_SIM_MODE=possession,MODEL_ENSEMBLE=1,N_BOOM=40,N_CE=0")
+    treatment = _candidates(
+        "GAME_SIM_MODE=possession,MODEL_ENSEMBLE=1,N_BOOM=40,N_CE=0,"
+        "OWN_MODEL=milly_fade")
+    features = _features()
+    features["bit_exact_mismatch_rows"] = 330
+    features["max_numeric_abs_delta"] = 3.6e-15
+    assert compare._mechanism_failures(
+        source, treatment, features, _candidate_audit()) == []
 
 
 def test_milly_mechanism_rejects_field_or_other_lever_change():

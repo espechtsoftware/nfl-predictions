@@ -48,27 +48,52 @@ def _levers(value: object) -> dict[str, str]:
 
 
 def _feature_audit(source: str, treatment: str) -> dict:
-    invariant = """
-      id, gsis_id, name, pos, team, opp, game_id, salary, proj,
-      consensus_div, market_points, model_points_pre, mean_projection,
-      proj_p10, proj_p50, proj_p90, proj_std, target_share_last,
-      carry_share_last, snap_share_last, target_share_jump, carry_share_jump,
-      snap_share_jump, target_share_l4, carry_share_l4, snap_share_l4,
-      dk_points_l4, implied_team_total, spread, game_total, is_cold_start,
-      depth_rank, depth_rank_delta, team_vacated_target_share,
-      team_vacated_carry_share, salary_delta_wow, games_played_prior, actual,
-      ensemble_point_0, ensemble_point_1, ensemble_point_2, feature_missing,
-      model_ensemble_size, model_member_spec
-    """
+    # ``own_est`` and ``proj_tourney`` are the intended treatment. Every
+    # other point-in-time player field must be invariant. Keep a bit-exact
+    # payload count for provenance, but separately apply the same 1e-12
+    # numeric-materiality rule as the CE comparator: BigQuery can serialize
+    # separately loaded equivalent floats a few ulps apart.
+    exact_fields = (
+        "gsis_id", "name", "pos", "team", "opp", "game_id",
+        "is_cold_start", "feature_missing", "model_member_spec",
+    )
+    numeric_fields = (
+        "salary", "proj", "consensus_div", "market_points",
+        "model_points_pre", "mean_projection", "proj_p10", "proj_p50",
+        "proj_p90", "proj_std", "target_share_last", "carry_share_last",
+        "snap_share_last", "target_share_jump", "carry_share_jump",
+        "snap_share_jump", "target_share_l4", "carry_share_l4",
+        "snap_share_l4", "dk_points_l4", "implied_team_total", "spread",
+        "game_total", "depth_rank", "depth_rank_delta",
+        "team_vacated_target_share", "team_vacated_carry_share",
+        "salary_delta_wow", "games_played_prior", "actual",
+        "ensemble_point_0", "ensemble_point_1", "ensemble_point_2",
+        "model_ensemble_size",
+    )
+    all_fields = ("id",) + exact_fields + numeric_fields
+    source_payload = ", ".join(f"s.{field}" for field in all_fields)
+    treatment_payload = ", ".join(f"t.{field}" for field in all_fields)
+    material_checks = [
+        f"s.{field} IS DISTINCT FROM t.{field}" for field in exact_fields
+    ]
+    material_checks.extend(
+        f"((s.{field} IS NULL) != (t.{field} IS NULL) OR "
+        f"(s.{field} IS NOT NULL AND t.{field} IS NOT NULL AND "
+        f"ABS(s.{field} - t.{field}) > 1e-12))"
+        for field in numeric_fields
+    )
+    material_mismatch = " OR ".join(material_checks)
+    max_numeric_delta = ", ".join(
+        f"COALESCE(ABS(s.{field} - t.{field}), 0.0)"
+        for field in numeric_fields
+    )
     result = query_df(f"""
       WITH source_rows AS (
-        SELECT season, week, id, own_est, proj_tourney,
-               TO_JSON_STRING(STRUCT({invariant})) AS invariant_payload
+        SELECT *
         FROM `{settings.predictions}.slate_player_features`
         WHERE panel_run_id = '{_panel_id(source)}' AND research_eligible
       ), treatment_rows AS (
-        SELECT season, week, id, own_est, proj_tourney,
-               TO_JSON_STRING(STRUCT({invariant})) AS invariant_payload
+        SELECT *
         FROM `{settings.predictions}.slate_player_features`
         WHERE panel_run_id = '{_panel_id(treatment)}'
       ), paired AS (
@@ -78,8 +103,10 @@ def _feature_audit(source: str, treatment: str) -> dict:
                s.own_est AS source_own, t.own_est AS treatment_own,
                s.proj_tourney AS source_tourney,
                t.proj_tourney AS treatment_tourney,
-               s.invariant_payload AS source_invariant,
-               t.invariant_payload AS treatment_invariant
+               TO_JSON_STRING(STRUCT({source_payload})) AS source_payload,
+               TO_JSON_STRING(STRUCT({treatment_payload})) AS treatment_payload,
+               ({material_mismatch}) AS material_mismatch,
+               GREATEST({max_numeric_delta}) AS max_numeric_abs_delta
         FROM source_rows s FULL OUTER JOIN treatment_rows t
         USING (season, week, id)
       )
@@ -88,8 +115,13 @@ def _feature_audit(source: str, treatment: str) -> dict:
         (SELECT COUNT(*) FROM treatment_rows) AS treatment_rows,
         COUNTIF(source_id IS NULL) AS treatment_only_rows,
         COUNTIF(treatment_id IS NULL) AS source_only_rows,
-        COUNTIF(source_invariant != treatment_invariant)
-                AS invariant_mismatch_rows,
+        COUNTIF(source_id IS NOT NULL AND treatment_id IS NOT NULL
+                AND source_payload != treatment_payload)
+                AS bit_exact_mismatch_rows,
+        COUNTIF(source_id IS NOT NULL AND treatment_id IS NOT NULL
+                AND material_mismatch) AS invariant_mismatch_rows,
+        MAX(IF(source_id IS NOT NULL AND treatment_id IS NOT NULL,
+               max_numeric_abs_delta, NULL)) AS max_numeric_abs_delta,
         COUNTIF(season <= 2022 AND
                 (ABS(source_own-treatment_own) > 1e-10 OR
                  ABS(source_tourney-treatment_tourney) > 1e-8))
@@ -103,10 +135,11 @@ def _feature_audit(source: str, treatment: str) -> dict:
                 + 25.0*(treatment_own-source_own))) AS fade_equation_max_error
       FROM paired
     """).iloc[0]
-    ints = [name for name in result.index if name != "fade_equation_max_error"]
+    floats = {"fade_equation_max_error", "max_numeric_abs_delta"}
+    ints = [name for name in result.index if name not in floats]
     report = {name: int(result.get(name) or 0) for name in ints}
-    report["fade_equation_max_error"] = float(
-        result.fade_equation_max_error or 0.0)
+    for name in floats:
+        report[name] = float(result.get(name) or 0.0)
     return report
 
 

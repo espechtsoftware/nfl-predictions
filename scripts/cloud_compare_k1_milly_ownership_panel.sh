@@ -1,10 +1,11 @@
 #!/bin/bash
 # Compare and harvest the K=1 Milly ownership fade arm.
-# Usage: cloud_compare_k1_milly_ownership_panel.sh <IMAGE@sha256:...> <TREATMENT>
+# Usage: cloud_compare_k1_milly_ownership_panel.sh <IMAGE@sha256:...> <TREATMENT> [label]
 set -euo pipefail
 
 IMG=${1:-}
 TREATMENT=${2:-}
+LABEL=${3:-}
 PROJECT=nfl-predictions-503414
 REGION=us-central1
 SOURCE=20260808-e80-k1-c616390
@@ -17,7 +18,12 @@ case "$TREATMENT" in
   *) echo "ABORT: invalid ownership treatment panel"; exit 2 ;;
 esac
 [ -d "$OUT" ] || { echo "ABORT: treatment directory absent"; exit 2; }
-[ ! -s "$OUT/comparison_execution.txt" ] || {
+case "$LABEL" in ""|[A-Za-z0-9_-]*) ;; *) echo "ABORT: invalid label"; exit 2 ;; esac
+SUFFIX=${LABEL:+_$LABEL}
+EXEC_FILE="$OUT/comparison${SUFFIX}_execution.txt"
+LOG_FILE="$OUT/comparison${SUFFIX}_log.json"
+REPORT_FILE="$OUT/ownership_comparison${SUFFIX}.json"
+[ ! -s "$EXEC_FILE" ] || {
   echo "ABORT: immutable comparison already recorded"; exit 2; }
 
 JOB=compare-k1-milly-ownership
@@ -33,7 +39,7 @@ DEPLOYED=$(gcloud run jobs describe "$JOB" --project "$PROJECT" \
 EXEC=$(gcloud run jobs execute "$JOB" --project "$PROJECT" --region "$REGION" \
   --async --format='value(metadata.name)')
 [ -n "$EXEC" ] || { echo "ABORT: comparator execution id missing"; exit 1; }
-printf '%s\n' "$EXEC" > "$OUT/comparison_execution.txt"
+printf '%s\n' "$EXEC" > "$EXEC_FILE"
 while true; do
   STATE=$(gcloud run jobs executions describe "$EXEC" --project "$PROJECT" \
     --region "$REGION" --format='value(status.conditions[0].status)')
@@ -44,11 +50,10 @@ done
 gcloud logging read \
   "resource.type=\"cloud_run_job\" AND labels.\"run.googleapis.com/execution_name\"=\"$EXEC\" AND jsonPayload.disposition:*" \
   --project "$PROJECT" --limit 10 --order asc \
-  --format='json(jsonPayload)' > "$OUT/comparison_log.json"
-grep -q '"disposition"' "$OUT/comparison_log.json" || {
+  --format='json(jsonPayload)' > "$LOG_FILE"
+grep -q '"disposition"' "$LOG_FILE" || {
   echo "ABORT: structured comparison report absent"; exit 1; }
-"$ROOT/.venv/bin/python" - "$OUT/comparison_log.json" \
-  "$OUT/ownership_comparison.json" <<'PY'
+"$ROOT/.venv/bin/python" - "$LOG_FILE" "$REPORT_FILE" <<'PY'
 import json
 import sys
 
@@ -59,4 +64,4 @@ with open(sys.argv[2], "w", encoding="utf-8") as fh:
     json.dump(rows[0]["jsonPayload"], fh, indent=2, sort_keys=True)
     fh.write("\n")
 PY
-echo "K1 Milly ownership comparison complete: $OUT/ownership_comparison.json"
+echo "K1 Milly ownership comparison complete: $REPORT_FILE"
