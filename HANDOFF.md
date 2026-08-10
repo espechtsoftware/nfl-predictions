@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 15:05 CDT
+## Current state — 2026-08-10 15:09 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -361,9 +361,14 @@ agent or developer:
   doses, missing/non-finite signals, failed solves or duplicate rosters abort.
   Other seasons add zero candidates. Six focused Route tests plus the related
   generation/persistence/replay suites pass (61 tests total); compilation and
-  whitespace checks are clean. Commit and exact-tree Cloud Build are still
-  required. Do not launch the arm until the corrected generator chain chooses
-  its incumbent.
+  whitespace checks are clean. Implementation commit `2c0f93b` is pushed.
+  A post-commit audit found that the first implementation carried the delta
+  into candidate construction but did not persist its source season/week and
+  control/treatment probabilities. Those audit fields are now carried into
+  the immutable feature snapshot, and the relevant 31 tests pass. Cloud Build
+  `d01b4116-2abf-45af-b56c-1a0b1f7342bf` is therefore superseded even if it
+  succeeds; build the audit-complete commit before any execution. Do not
+  launch the arm until the corrected generator chain chooses its incumbent.
 - One corrected-history selector confirmation is now frozen before either
   corrected control outcome is read:
   `reports/2026-08-10-corrected-extreme-selector-confirmation.md`. After the

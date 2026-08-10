@@ -1555,8 +1555,13 @@ def tail_select_lineups(
                         # construction, so a new field cannot silently vanish
                         # before this immutable writer.
                         *PLAYER_SNAPSHOT_FEATURES, "actual"]
-                if "route_delta_30" in slate.columns:
-                    want.append("route_delta_30")
+                for column in (
+                    "fp_route_source_season", "fp_route_source_week",
+                    "route_control_p30", "route_treatment_p30",
+                    "route_delta_30",
+                ):
+                    if column in slate.columns:
+                        want.append(column)
                 # Member-level point predictions are dynamic by fitted K and
                 # were previously present in the replay frame but silently
                 # discarded here, making MODEL_ENSEMBLE unauditable.

@@ -793,8 +793,12 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
         ):
             if _c in grp.columns:
                 cols.append(_c)
-        if "route_delta_30" in grp.columns:
-            cols.append("route_delta_30")
+        for _c in (
+            "fp_route_source_season", "fp_route_source_week",
+            "route_control_p30", "route_treatment_p30", "route_delta_30",
+        ):
+            if _c in grp.columns:
+                cols.append(_c)
         cols.extend(c for c in grp.columns
                     if c.startswith("ensemble_point_") and c not in cols)
         frame = grp[cols].copy()
@@ -818,6 +822,10 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
                         d[c] = d["proj"] if c != "proj_std" else 0.0
                     elif c == "route_delta_30":
                         d[c] = 0.0
+                    elif (c.startswith("fp_route_source_")
+                          or c.startswith("route_control_")
+                          or c.startswith("route_treatment_")):
+                        d[c] = np.nan
                     elif c in PLAYER_SNAPSHOT_FEATURES:
                         # DST rows have no player-role history. Missingness is
                         # semantically different from a zero role or zero game
@@ -1366,7 +1374,10 @@ def run(
     if n_route_tail:
         if n_route_tail != 12:
             raise ValueError("the frozen Route Share candidate dose is 12")
-        proj["route_delta_30"] = 0.0
+        signal_columns = [
+            "fp_route_source_season", "fp_route_source_week",
+            "route_control_p30", "route_treatment_p30", "route_delta_30",
+        ]
         if season in (2024, 2025):
             from ..analysis.fantasy_points_route_share import (
                 load_route_tail_deltas,
@@ -1375,17 +1386,20 @@ def run(
             signal = load_route_tail_deltas(season)
             before = len(proj)
             proj = proj.merge(
-                signal[["season", "week", "gsis_id", "route_delta_30"]],
+                signal[["season", "week", "gsis_id", *signal_columns]],
                 on=["season", "week", "gsis_id"], how="left",
-                suffixes=("", "_paid"), validate="many_to_one",
+                validate="many_to_one",
             )
             if len(proj) != before:
                 raise ValueError("Route Share signal merge fanned out rows")
-            proj["route_delta_30"] = proj.pop(
-                "route_delta_30_paid").fillna(0.0)
+            proj["route_delta_30"] = proj.route_delta_30.fillna(0.0)
             log.info(
                 "Route Share tail signal: season=%d covered=%d/%d",
-                season, int(proj.route_delta_30.ne(0).sum()), len(proj))
+                season, int(proj.fp_route_source_season.notna().sum()),
+                len(proj))
+        else:
+            for column in signal_columns:
+                proj[column] = 0.0 if column == "route_delta_30" else np.nan
     overall, by_pos = replay_metrics(proj)
 
     print(f"\n=== Projection replay: {season} "
