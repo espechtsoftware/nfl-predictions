@@ -342,6 +342,12 @@ agent or developer:
   then launch the single treatment panel from the original corrected
   generation digest
   `sha256:215a6729b66980310cfad3f63b06a7c25ce4dcf2fa2b6949a04a5c9afa337221`.
+  Initial validation build `fbb4221a-7825-4999-903e-f02a0f9ab2cb` from
+  preregistration/implementation commit `e0e1a04` was cancelled during its
+  test step, before any image or panel launch: a prelaunch packaging audit
+  found Dockerfile's explicit script allow-list omitted the new comparator.
+  Add that copy line, validate the superseding exact tree, and record its
+  immutable digest before launching.
 - At approximately 15:18 CDT, an operational recent-log check on the final
   running 2022 CE execution unintentionally surfaced the already-written Week
   16 and Week 17 best-score log lines before the panel was complete. No gate,
