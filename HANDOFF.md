@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-09 19:46 CDT
+## Current state — 2026-08-09 19:54 CDT
 
 ### Autonomous scoring research resumed after context recovery
 
@@ -309,6 +309,20 @@ agent or developer:
   true-80 tail-first reranker confirmation on this accepted CE pool before
   evaluating its outcomes. Do not reuse the old 40-entry constants or choose
   a feature arm after seeing new results.
+- The one allowed true-80 fixed-pool reranker confirmation is now frozen in
+  `reports/2026-08-10-k1-ce-reranker-confirmation.md` before any reranker
+  outcome. It uses only the prior structure/provenance lead, strictly
+  earlier-season equal-slate-weighted ridge training (`alpha=10`), a fixed
+  +/-15 point candidate-world shift, 2019 cold-start fallback, the unchanged
+  194 coverage selector with 80 entries, and a within-slate shuffled-shift
+  control at seed 314159. Candidate generation and oracle are fixed. Adoption
+  requires +2 selected 200 weeks, non-worse 210/oracle-200, a valid mechanism,
+  and a lexicographic win over the shuffled control; season signs/mean remain
+  diagnostics. Ownership/disagreement arms are not reopened. Thirteen focused
+  reranker/panel tests and 38 reranker/infrastructure/persistence tests pass;
+  shell parsing, compilation, and whitespace checks pass. Exact next action:
+  commit/push, run a full Cloud Build, then execute the one immutable evaluator
+  and close or promote the selector arm from its frozen report.
 
 ### Recovery provenance
 

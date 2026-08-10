@@ -17,6 +17,7 @@ COPY scripts/compare_k1_milly_ownership_panel.py ./scripts/compare_k1_milly_owne
 COPY scripts/compare_exact_replay.py ./scripts/compare_exact_replay.py
 COPY scripts/compare_role_belief_panel.py ./scripts/compare_role_belief_panel.py
 COPY scripts/evaluate_milly_ownership.py ./scripts/evaluate_milly_ownership.py
+COPY scripts/evaluate_k1_ce_reranker.py ./scripts/evaluate_k1_ce_reranker.py
 COPY scripts/run_conditional_schaake_smoke.py ./scripts/run_conditional_schaake_smoke.py
 
 RUN pip install --no-cache-dir ".[gcp,app]"
