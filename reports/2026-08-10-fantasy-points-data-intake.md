@@ -34,6 +34,7 @@ available offensive positions, clear player filters, and prefer CSV. Acquire
 | Advanced Receiving | route, alignment, first-read and expected-points priors | validated | validated | validated | validated |
 | Advanced Rushing | rushing process and expected-points priors | validated | validated | validated | validated |
 | Advanced Passing | QB process and efficiency priors | validated | validated | validated | validated |
+| Receiving Man vs. Zone | coverage-shell receiving priors | validated | validated | validated | validated |
 
 Do not bulk-add these fields to production. The frozen evaluation remains:
 walk-forward player residual/tail calibration, then candidate-union oracle
@@ -290,6 +291,36 @@ as external immutable metadata. It cannot enter a 2022--2025 replay, the
 Advanced prior diagnostic or any pre-Week-1 promotion decision. If collected
 weekly before the shared slate lock, it can later be graded as a shadow QB
 matchup signal.
+
+### Receiving Man vs. Zone family validation
+
+All four files have a consistent 26-column grouped schema: Player Details,
+then separate Overall, Man, Zone, Single-High and Two-High blocks containing
+`RTE`, `TPRR`, `YPRR` and `FP/RR`. Group-qualified keys are unique, every row
+has the declared season and expected width, and every populated metric parses
+numerically. Blank rates are legitimate when a player recorded too few or no
+events in that split.
+
+| Season | Rows | SHA-256 |
+|---:|---:|---|
+| 2022 | 545 | `8033f7b539335a1d4bf4590ac7bcb0994c19eaf66b69a749803dbbf4f686e26d` |
+| 2023 | 517 | `aef16ffb479911bbdfeb072dba8edf5fa4fc3ba6ec8aad8caf029009e8e850f5` |
+| 2024 | 528 | `53e22d570a89c0e5578928cf7ca3634d94e6378fd3a896f67500e86361c0585c` |
+| 2025 | 526 | `b448016a04cf883bfbe53913e0666812e72f53ab92f853c6cb71db594bc86404` |
+
+The row universes match Advanced Receiving, including the known split 2022
+Brock Wright record. These are full-season aggregates and are eligible only
+as season N-1 priors. They are not added to the already-frozen Advanced
+diagnostic. A separately preregistered future treatment could use adequately
+supported RB/WR/TE differences such as Man-versus-Zone or Single-versus-Two-
+High TPRR/YPRR; it must not search split fields after reading outcomes.
+
+Exclude QB rows from any future receiving-rate use. The vendor reports a few
+QBs with one receiving route but assigns `FP/RR` values as high as 336.46,
+consistent with dividing full QB fantasy production by that route rather
+than measuring receiving fantasy production. Low-route skill-player split
+rates are also unstable, so minimum route support must be frozen before a
+diagnostic.
 
 ## Importer gate
 
