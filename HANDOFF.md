@@ -105,10 +105,16 @@ agent or developer:
   more field data exist.
 - Threshold-shadow implementation commit `d4a5e15` is pushed on `main`; 15
   focused selector/freezer tests pass, including a proof that 187/194/200 use
-  their distinct persisted support masks. Full build
-  `a000bbb2-5327-4de5-b216-0b35b4daf896` is running. If green, redeploy only
-  the two paused freezer jobs from its immutable digest, superseding the v3
-  freezer digest without executing either job.
+  their distinct persisted support masks. Full Cloud Build
+  `a000bbb2-5327-4de5-b216-0b35b4daf896` passed 717 tests with 2 skipped and
+  produced immutable digest
+  `sha256:9d02ecc3cfa1951d74056c64593314ce47facecbadeb500c998f6aa98ed7e297`.
+  Only `freeze-tail-early` and `freeze-tail-late` were updated to that digest;
+  both retain their exact early/late commands, GCP project environment, 1 CPU,
+  1Gi, one retry and 3600-second timeout. Schedulers
+  `s-freeze-tail-early` / `s-freeze-tail-late` remain PAUSED at 11:05 / 11:50
+  Sunday CT. Neither job was executed off-season. This supersedes the v3
+  freezer digest without changing the adopted/UI lineup path.
 - One-swap implementation commit `b90047b` is pushed on `main`; 14 focused
   shadow/refinement tests pass. Full validation build
   `7ab5a1e2-1994-4ec5-8ac8-a188669b54c5` passed 716 tests with 2 skipped in
@@ -119,10 +125,34 @@ agent or developer:
   early|late`, 1Gi/1 CPU, one retry, and 3600 seconds. Schedulers
   `s-freeze-tail-early` / `s-freeze-tail-late` remain PAUSED on their original
   11:05/11:50 Sunday CT schedules. No live app or adopted lineup path changed.
+- The next-data review found a usable no-cost diagnostic before buying route
+  data: installed `nflreadpy` currently serves 46,168 / 45,919 / 45,184
+  participation plays for 2023 / 2024 / 2025, including every offensive
+  player ID on a play. The frozen protocol in
+  `reports/2026-08-10-pass-participation-proxy.md` derives strictly lagged
+  player-on-field shares for all dropbacks and red-zone dropbacks, then tests
+  whether those four fields improve 2024/2025 walk-forward residual MAE and
+  20-point Brier loss beyond the accepted pre-lock projection, salary,
+  position, target/snap share, and vacancy features. The feed is
+  season-delayed and presence is not a route, so it can only support or reject
+  a paid route-data trial; it cannot become a production input or historical
+  lineup arm. Implementation, CLI, and three focused tests are complete; nine
+  combined participation/selector tests pass. Full cloud validation and the
+  one frozen diagnostic remain pending.
+- Research on the subsequent selector question is recorded in
+  `reports/2026-08-10-scoring-opportunity-roadmap.md`. After current shadows,
+  prospective snapshots may retain 210/220 support and freeze a deterministic
+  220→210→200 lexicographic book. A separate mechanism test may use the
+  existing CE proposal with likelihood weights to reduce seed noise when
+  estimating 210/220 support; it must pass confidence-interval parity, ESS,
+  max-weight, repeated-seed variance, marginal-invariance and roster-stability
+  gates before any portfolio. This is not a retry of the already-adopted CE
+  candidate generator and may not inspect the 107 known scores to set rules.
 - Exact next action: wait for all six exact union executions, run the union
   comparator on immutable digest `sha256:a410648b...`, and commit its JSON and
   Cloud Run execution. Launch the fixed arm only if that tracked union gate
-  passes.
+  passes. In parallel, commit/build the pass-participation diagnostic and run
+  its single frozen cloud gate from the resulting validated digest.
 
 ## Previous state — 2026-08-09 21:05 CDT
 

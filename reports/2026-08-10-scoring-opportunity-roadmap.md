@@ -34,6 +34,31 @@ or gate after outcomes. This is the only active historical scoring arm.
 
 ## Priority 2 — acquire route/role data if the historical export is usable
 
+Before spending, run a no-cost pass-participation proxy study. The installed
+`nflreadpy` client currently returns 46,168 / 45,919 / 45,184 play rows for
+2023 / 2024 / 2025 from `load_participation`, including the eleven offensive
+player IDs on each play. Joining those rows to `qb_dropback` and red-zone
+field position can recover each receiver's share of team dropbacks spent on
+the field, its week-over-week change, and teammate-vacancy redistribution.
+This is not routes run: an on-field receiver can block, stay in protection,
+or release without being represented by the play-level `route` value. It is
+also season-delayed, so it cannot be served point-in-time for a current week.
+
+Use the proxy only as a purchase/mechanism diagnostic on the 2023-2025
+history. Build lagged features from the prior game, then compare frozen
+walk-forward 2024 and 2025 player-level residual and 20-point tail forecasts
+with and without pass-play participation. Existing projection, salary,
+position, target/snap shares and vacancy fields are the control inputs. If
+the added fields do not improve aggregate held-out Brier and residual MAE,
+they do not support buying a route feed. If they do, proceed to the paid
+export below, because only that source can supply true routes and a live
+weekly update. No lineup outcome or candidate panel is part of this proxy
+gate.
+
+Source:
+
+- <https://github.com/nflverse/nflreadr/releases>
+
 Fantasy Points Data is the best sub-$200 candidate found. Its official
 material lists weekly route share and target share, advanced receiving,
 coverage/alignment/separation data, and CSV/Excel export. Its separation data
@@ -126,6 +151,51 @@ Sources:
 
 - <https://arxiv.org/abs/1604.01455>
 - <https://pubsonline.informs.org/doi/10.1287/mnsc.2019.3528>
+
+## Priority 5 — prospective multi-threshold and rare-support estimation
+
+The accepted selector maximizes world coverage at one comparison line, 194.
+That was a useful historical benchmark, but it is not a complete expression
+of the operator's preference for one exceptional 210-240 lineup. After the
+currently building 187/194/200 prospective books are deployed, extend only
+the *prospective* candidate snapshots to retain 210- and 220-point support
+masks. Freeze one deterministic lexicographic book that maximizes uncovered
+220 worlds, then 210, then 200, with individual support probability and
+simulated mean as fixed tiebreakers. Do not back-select its rules from the 107
+known weekly scores, and do not change the adopted 194 book.
+
+The deeper follow-on is an estimator test, not another CE candidate retry.
+The adopted CE generator already uses learned rare worlds to create lineups,
+but its importance weights are explicitly candidate-only; every candidate's
+selection support is still estimated from the ordinary production worlds.
+Test whether a mixture of the production proposal and the already-defined
+bounded CE proposal can estimate lineup `P(score >= 210)` and
+`P(score >= 220)` with less seed-to-seed noise. Preserve likelihood weights
+and the ordinary component so multiple important regions are not dropped.
+
+The mechanism must pass before any portfolio is frozen:
+
+1. weighted estimates reproduce ordinary-world 187/194 probabilities within
+   their registered Monte Carlo confidence intervals;
+2. effective sample size is at least 25% of the nominal sample and no single
+   world carries more than 1% normalized weight;
+3. across five fixed independent seeds, median relative standard error at
+   210/220 falls by at least 25% for candidates with nonzero ordinary support;
+4. player marginal means and quantiles are unchanged, because this is an
+   estimator of the existing distribution rather than a new player belief;
+5. the ranked top-80 set is stable enough that pairwise roster overlap rises
+   by at least 10 percentage points versus equal-cost ordinary simulation.
+
+Failure closes the weighted-support estimator without a historical scoring
+panel. A pass licenses only the prospective lexicographic shadow above. This
+separates the measured candidate-generation success of CE from the still
+unresolved problem of accurately ranking very rare lineup tails.
+
+Sources:
+
+- <https://pubsonline.informs.org/doi/abs/10.1287/ijoc.1060.0176>
+- <https://pubsonline.informs.org/doi/10.1287/opre.1080.0558>
+- <https://pubsonline.informs.org/doi/10.1287/mnsc.2023.4973>
 
 ## Lower priority
 

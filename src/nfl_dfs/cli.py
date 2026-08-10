@@ -163,6 +163,15 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--panel", required=True)
     p.add_argument("--threshold", type=float, default=20.0)
 
+    p = sub.add_parser(
+        "pass-participation-proxy",
+        help="Test season-delayed pass-play presence as a paid-route-data gate",
+    )
+    p.add_argument(
+        "--panel", default="20260809-e80-k1-ce12-c616390",
+        help="Frozen accepted panel (alternate values fail closed)",
+    )
+
     p = sub.add_parser("archetypes",
                        help="Cluster scoring-consistency archetypes into nfl_features")
     p.add_argument("--seasons", type=int, default=3, help="Trailing seasons to profile")
@@ -334,6 +343,10 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import archetype_research
 
         print(archetype_research.run(args.panel, tail=args.threshold))
+    elif args.command == "pass-participation-proxy":
+        from .analysis import pass_participation
+
+        pass_participation.run(args.panel)
     elif args.command == "serve":
         import uvicorn
 
