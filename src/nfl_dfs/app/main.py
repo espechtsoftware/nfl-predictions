@@ -223,6 +223,10 @@ padding:1.4rem 1.6rem;max-height:80vh;overflow-y:auto'>
 .style.display='none';document.getElementById('modalbg').style.display=
 'none'">&times;</button><h2>Your weekly schedule</h2>
 <table><tr><th>When</th><th>What you do</th></tr>
+<tr><td>Paid data</td><td style='text-align:left'><b>No recurring Fantasy
+Points download is required yet.</b> After the historical arms are finalized,
+this row will name only the adopted reports, exact filters and pre-lock
+deadline. Never upload data produced by the games being predicted.</td></tr>
 <tr><td>Tue&ndash;Sat</td><td style='text-align:left'>Optional: tell the
 chat about credible news (usage notes); ban/boost players as opinions
 form. Automation handles stats, retrain, salaries, odds, props,

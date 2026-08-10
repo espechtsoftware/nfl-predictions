@@ -4,7 +4,8 @@ BigQuery's 7-day time travel).
 Everything nflverse/odds/DK-API-shaped can be re-ingested from source;
 these tables cannot: hand-imported contest standings and the LineStar
 ownership backfill (the API stopped serving projections historically and
-DK deletes standings after 30 days), user-authored notes/watchlist, the
+DK deletes standings after 30 days), licensed Fantasy Points imports whose
+subscription/download access may lapse, user-authored notes/watchlist, the
 entered-lineups journal, and hand-curated ID overrides.
 
 CREATE SNAPSHOT TABLE bills only for storage DELTA vs the base table, so
@@ -34,6 +35,8 @@ TABLES: list[tuple[str, str]] = [
     ("raw", "dk_salaries_historical"),
     ("raw", "showdown_salaries_historical"),
     ("raw", "dk_contest_fills"),  # dk_contest_fills_nfl is a VIEW — skip
+    ("raw", "fantasy_points_route_share"),
+    ("raw", "fantasy_points_advanced_prior"),
     ("features", "manual_notes"),
     ("features", "player_watch_notes"),
     ("features", "lineup_prefs"),
@@ -42,6 +45,26 @@ TABLES: list[tuple[str, str]] = [
     ("features", "player_id_overrides"),
     ("features", "external_projections"),  # user-uploaded; source CSVs expire
 ]
+
+# Licensed Fantasy Points importers use this namespace. Discovering base
+# tables in addition to the explicit current list makes future adopted data
+# durable on its first daily backup without relying on a second manual edit.
+# Views/external tables are excluded because CREATE SNAPSHOT supports base
+# tables only.
+DISCOVER_PREFIXES: tuple[tuple[str, str], ...] = (
+    ("raw", "fantasy_points_"),
+)
+
+
+def _tables_to_backup(c: object) -> list[tuple[str, str]]:
+    tables = set(TABLES)
+    for attr, prefix in DISCOVER_PREFIXES:
+        dataset = getattr(settings, attr)
+        for item in c.list_tables(dataset):
+            if (item.table_id.startswith(prefix)
+                    and getattr(item, "table_type", "TABLE") == "TABLE"):
+                tables.add((attr, item.table_id))
+    return sorted(tables)
 
 
 def run() -> None:
@@ -58,6 +81,8 @@ def run() -> None:
         c.create_dataset(ds)
         log.info("created backup dataset %s", ds)
 
+    tables = _tables_to_backup(c)
+
     import os
 
     # NOTE: never reuse a snapshot name deleted <7 days ago — BigQuery
@@ -68,7 +93,7 @@ def run() -> None:
     stamp = (datetime.now(timezone.utc).strftime("%Y%m%d")
              + os.environ.get("BACKUP_SUFFIX", ""))
     ok = missing = 0
-    for attr, table in TABLES:
+    for attr, table in tables:
         src = f"{getattr(settings, attr)}.{table}"
         dst = f"{ds}.{table}_{stamp}"
         try:
@@ -99,6 +124,6 @@ def run() -> None:
         except Exception:
             log.exception("backup FAILED for %s", src)
     print(f"backup {stamp}: {ok} snapshotted, {missing} absent, "
-          f"{len(TABLES) - ok - missing} failed")
-    if ok + missing < len(TABLES):
+          f"{len(tables) - ok - missing} failed")
+    if ok + missing < len(tables):
         raise SystemExit(1)  # surface failure to the job-alert pipeline

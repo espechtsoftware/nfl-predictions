@@ -46,6 +46,14 @@ Do not bulk-add these fields to production. The frozen evaluation remains:
 walk-forward player residual/tail calibration, then candidate-union oracle
 gain, then one exact fixed-budget lineup panel.
 
+The operator does not need a recurring paid-data download routine yet. Before
+the 2026 season starts, after the evidence selects the surviving inputs, the
+in-app Weekly guide must be replaced with an exact report/filter/deadline
+checklist for only those inputs. Same-week completed-game data is always
+forbidden for that week's prediction. Every adopted importer must write a
+base table named `nfl_raw.fantasy_points_*`, which the daily backup job
+discovers automatically in addition to its explicit current tables.
+
 ## Validated source files
 
 ### `2022-receivingRouteShareReportExport.csv`

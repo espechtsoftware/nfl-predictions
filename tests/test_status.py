@@ -117,6 +117,14 @@ def test_nav_html_has_status_button():
     assert "statusmodal" in app_main._NAV_HTML
 
 
+def test_nav_html_defers_paid_downloads_until_adoption():
+    assert "No recurring Fantasy" in app_main._NAV_HTML
+    assert (
+        "Never upload data produced by the games being predicted"
+        in app_main._NAV_HTML
+    )
+
+
 def test_candidate_features_env_gate(monkeypatch):
     """EXTRA_FEATURES adds only registered candidates; unset = baseline."""
     from nfl_dfs.models import featureset
