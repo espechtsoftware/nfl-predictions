@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 16:54 CDT
+## Current state — 2026-08-10 17:12 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -32,13 +32,33 @@ agent or developer:
   `replay-lockk1role-2019-7hb9j`, `replay-lockk1role-2021-42gdb`,
   `replay-lockk1role-2022-mhn54`, `replay-lockk1role-2023-qzfdq`,
   `replay-lockk1role-2024-w2ft7`, and `replay-lockk1role-2025-w4bnb`.
-  At 16:12 CDT all six were still running (`Completed=Unknown`). Their exact
-  manifest and execution IDs are tracked under the panel directory at commit
-  `b014748`. Do not read partial scores or logs. Monitor only execution state
-  and row completeness; after all 107 slates are complete, use comparison
+  At 17:12 CDT all six were still running (`Completed=Unknown`) with 79/107
+  complete season/week books in staging: 11/17 in 2019 and 14/15/12/14/13 of
+  18 in 2021--2025. Their exact manifest and execution IDs are tracked under
+  the panel directory at commit `b014748`. No partial score has been read.
+  Monitor only execution state and row completeness; after all 107 slates are
+  complete, use comparison
   digest
   `sha256:5319704c23ac40f30771a43b2fb6b4d012a7b2d8f610b980ecfd509ba55deb6b`
   for check-only acceptance and the frozen 240→230→220→210 comparison.
+- The operator's paid-data operations request is implemented on branch `main`
+  at commit `ea6dca4`. The README season-start schedule now requires the final
+  evidence-selected Fantasy Points reports, exact filters and pre-lock
+  deadline to replace the temporary in-app Weekly-guide message before Week
+  1; rejected reports will not become recurring downloads, and same-week
+  completed data remains forbidden. Daily backups explicitly include
+  `fantasy_points_route_share` and `fantasy_points_advanced_prior` and also
+  discover every future base `nfl_raw.fantasy_points_*` table. Focused backup
+  and UI/status validation passed 16 tests locally. Exact-tree Cloud Build
+  `1253eb90-fca7-4bd2-bcac-e4b8e47b9a31` passed 764 tests with 2 skipped and
+  produced immutable digest
+  `sha256:3c5b0a6f2a450b252ef47a3b41600fd1517923f0f64672a8005593e53f7188a8`.
+  Only year-round job `backup-tables` was updated; scheduler `s-backup`
+  remains enabled at 07:00 UTC. Verification execution
+  `backup-tables-9sqrb` completed with 9 snapshots kept/created, 5 expected
+  absent tables and zero failures. It created
+  `fantasy_points_route_share_20260810` (27,305 rows) and
+  `fantasy_points_advanced_prior_20260810` (3,771 rows) in `nfl_backups`.
 - The hash-locked prior-season Fantasy Points Advanced importer and frozen
   player-tail diagnostic are implemented at commit `b014748` behind CLI
   commands `import-fantasy-points-advanced` and
