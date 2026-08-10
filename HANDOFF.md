@@ -300,6 +300,18 @@ agent or developer:
   2023=5, 2024=8 and 2025=6, with exactly 80 selected rows for every written
   slate and no error-level logs. Continue monitoring to 17/18/18/18/18/18,
   then run check-only acceptance and the corrected comparator digest above.
+- Before joining any paid Route Share value to an outcome, the exact first
+  paid-data diagnostic was frozen in
+  `reports/2026-08-10-fantasy-points-route-share-experiment.md`. It normalizes
+  only the four validated Route Share files, enforces source hashes and
+  conflict-safe identity resolution, and adds exactly last/l4/jump plus a
+  cross-season indicator under a strict earlier-week join. Corrected K1
+  player folds train 2024 on 2022--2023 and 2025 on 2022--2024, using fixed
+  Ridge/logistic controls. The active gate prioritizes aggregate and WR/TE
+  30-point Brier with per-fold/coverage safeguards; 20-point Brier and MAE are
+  diagnostics. Outcome-blind availability is 82.07%/82.95% in 2024/2025.
+  Implement and validate this exact diagnostic without inspecting intermediate
+  outcomes; no field/window/model retry is permitted.
 - One corrected-history selector confirmation is now frozen before either
   corrected control outcome is read:
   `reports/2026-08-10-corrected-extreme-selector-confirmation.md`. After the
