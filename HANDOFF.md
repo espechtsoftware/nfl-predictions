@@ -123,6 +123,12 @@ agent or developer:
   context and reject reordered schemas. These are N-1-only acquisition data;
   acquire the four Offense Coverage Matrix files before considering a
   distinct scheme-matchup protocol.
+- Offense Coverage Matrix 2022--2025 is also complete and validated at the
+  same 32-team/22-column shape with all cells populated. Exact hashes are in
+  the intake report. Both sides of a possible N-1 scheme-matchup signal now
+  exist, but no diagnostic is licensed until Separation by Coverage and
+  Alignment are acquired and a small support-aware feature block is frozen
+  before any outcome join.
 
 - Optimization has resumed with one new point-in-time information path rather
   than another selector sweep on the same 107 outcomes. Protocol

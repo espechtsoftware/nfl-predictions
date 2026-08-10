@@ -38,7 +38,7 @@ available offensive positions, clear player filters, and prefer CSV. Acquire
 | Receiving Separation by Routes | route-specific separation priors | validated | validated | validated | validated |
 | Receiving Separation by Route Breaks | route-family separation priors | validated | validated | validated | validated |
 | Coverage Matrix (Defense) | team coverage-shell deployment priors | validated | validated | validated | validated |
-| Coverage Matrix (Offense) | team coverage-shell faced priors | pending | pending | pending | pending |
+| Coverage Matrix (Offense) | team coverage-shell faced priors | validated | validated | validated | validated |
 
 Do not bulk-add these fields to production. The frozen evaluation remains:
 walk-forward player residual/tail calibration, then candidate-union oracle
@@ -404,6 +404,28 @@ both Man/Zone and Middle-of-Field groups. A future parser must use the frozen
 column positions to name Man, Zone, 1-High and 2-High FP/DB separately; an
 ordinary dict reader would silently overwrite them. These season aggregates
 are strict N-1 priors only and are not part of any current diagnostic.
+
+### Offense Coverage Matrix family validation
+
+The Offense view has the identical 32-team, 22-column grouped layout and the
+same repeated `FP/DB` headers as Defense. Its rates describe the coverage
+shells each offense faced rather than the shells a defense deployed. Every
+cell is populated, seasons match, and all metric cells parse numerically.
+
+| Season | SHA-256 |
+|---:|---|
+| 2022 | `35b8ed32866d1e52b2858a25c8a4dc146908b4b000303bcb41c05e5af0c45f06` |
+| 2023 | `209c6df570801e56e7d43befe90af36143cfa60b6d12f3503545057e0d082a56` |
+| 2024 | `a69f4ed67f06601d4127c0230f0ca12c73f9c6b1ec2cc041a0046379527d10dd` |
+| 2025 | `dadb20089a722485f3c502711d9df093994a6f225190bfe562f557373e061595` |
+
+Together the two views can support an outcome-unseen N-1 matchup hypothesis:
+compare a receiver/offense's prior-season coverage profile with the target
+opponent defense's prior-season deployment. They cannot support same-season
+historical features because no weekly observation grain was exported. No
+diagnostic is licensed until the receiver Separation-by-Coverage/Alignment
+schemas are acquired and one small feature block, support threshold and gate
+are preregistered before outcome joins.
 
 ## Importer gate
 
