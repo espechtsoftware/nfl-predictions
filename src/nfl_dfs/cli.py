@@ -194,6 +194,17 @@ def main(argv: list[str] | None = None) -> None:
         help="Frozen corrected K1 panel (alternate values fail closed)",
     )
 
+    p = sub.add_parser(
+        "corrected-extreme-selector",
+        help="Confirm the frozen 220/210/200 selector on one corrected panel",
+    )
+    p.add_argument("--panel", required=True)
+    p.add_argument(
+        "--table",
+        choices=("replay_candidates", "replay_candidates_staging"),
+        default="replay_candidates",
+    )
+
     p = sub.add_parser("archetypes",
                        help="Cluster scoring-consistency archetypes into nfl_features")
     p.add_argument("--seasons", type=int, default=3, help="Trailing seasons to profile")
@@ -381,6 +392,10 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import ngs_receiver_tail
 
         ngs_receiver_tail.run(args.panel)
+    elif args.command == "corrected-extreme-selector":
+        from .research import extreme_selector_confirmation
+
+        extreme_selector_confirmation.run(args.panel, args.table)
     elif args.command == "serve":
         import uvicorn
 

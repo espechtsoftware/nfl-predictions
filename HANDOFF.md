@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 11:38 CDT
+## Current state — 2026-08-10 11:56 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -154,7 +154,27 @@ agent or developer:
   cushion/YACOE adds value. This correction occurred before any outcome or
   cloud diagnostic. Build `f68cedf9-2634-413c-bd8c-2e517691755d` contains
   the superseded control and must never run the NGS job even if validation is
-  green; submit a new exact-tree build after this correction.
+  green. Corrected exact-tree build
+  `e8dd679c-7a40-4e98-8525-31e4ecf700eb` from commit `2d75ba0` is `WORKING`;
+  only its eventual immutable digest may run the NGS job.
+- At 11:56 CDT the corrected controls remained healthy with no failed
+  execution: K3 had 92/107 complete slates and 7,360 selected rows; K1 had
+  77/107 and 6,160. These are completeness counts only; no partial score was
+  queried. Continue monitoring all twelve exact execution IDs above, then run
+  `scripts/prop_lock_finish_controls.sh` on the corrected generation digest.
+- One corrected-history selector confirmation is now frozen before either
+  corrected control outcome is read:
+  `reports/2026-08-10-corrected-extreme-selector-confirmation.md`. After the
+  K3→K1→CE12→role chain chooses its final mechanically accepted generator,
+  apply the already-deployed prospective 220→210→200 lexicographic selector
+  exactly once to that source pool and compare its same-80 weekly maxima at
+  240→230→220→210. It excludes every other selector variant and cannot
+  influence which generator pool is chosen. Guarded implementation is
+  `research/extreme_selector_confirmation.py`, CLI command
+  `corrected-extreme-selector`, and
+  `scripts/cloud_corrected_extreme_selector.sh`; thirteen focused selector,
+  union and portfolio tests pass, along with compilation, shell parsing and
+  whitespace validation. No corrected selector score has been queried.
 
 - The operator explicitly revised the operational objective after the valid
   role union improved the same 80-entry portfolio at every 210+ threshold.
