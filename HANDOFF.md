@@ -86,6 +86,14 @@ agent or developer:
   added to the already-frozen Advanced diagnostic. Continue acquisition with
   Separation by Coverage, Alignment, Routes and Route Breaks, then one
   current prospective WR Coverage Matchup snapshot.
+- Receiving Separation-by-Routes is also validated at commit `525ee31`:
+  540/513/522/519 RB/FB/WR/TE rows for 2022--2025, 95 unique grouped
+  columns covering Overall plus twelve named route families, and no malformed
+  numeric cells. Blank route splits are legitimate; the known 2022 Brock
+  Wright split is the only duplicate. This is sparse full-season aggregate
+  data, so any later N-1 diagnostic must freeze a small football-motivated
+  feature block and minimum route support before outcomes. It is acquisition-
+  only and does not alter the frozen Advanced treatment.
 
 - Optimization has resumed with one new point-in-time information path rather
   than another selector sweep on the same 107 outcomes. Protocol
