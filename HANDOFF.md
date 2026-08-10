@@ -94,6 +94,11 @@ agent or developer:
   data, so any later N-1 diagnostic must freeze a small football-motivated
   feature block and minimum route support before outcomes. It is acquisition-
   only and does not alter the frozen Advanced treatment.
+- Receiving Separation-by-Route-Breaks is validated at 540/513/522/519 rows
+  with 41 grouped columns spanning horizontal, vertical, static, shallow and
+  backfield concepts. It is a lower-dimensional possible alternative to the
+  individual-route grid, not permission to test both after outcomes. The same
+  N-1, minimum-support and separate-preregistration restrictions apply.
 
 - Optimization has resumed with one new point-in-time information path rather
   than another selector sweep on the same 107 outcomes. Protocol

@@ -36,6 +36,7 @@ available offensive positions, clear player filters, and prefer CSV. Acquire
 | Advanced Passing | QB process and efficiency priors | validated | validated | validated | validated |
 | Receiving Man vs. Zone | coverage-shell receiving priors | validated | validated | validated | validated |
 | Receiving Separation by Routes | route-specific separation priors | validated | validated | validated | validated |
+| Receiving Separation by Route Breaks | route-family separation priors | validated | validated | validated | validated |
 
 Do not bulk-add these fields to production. The frozen evaluation remains:
 walk-forward player residual/tail calibration, then candidate-union oracle
@@ -347,6 +348,28 @@ large sparse route grid is acquisition evidence, not permission to search
 route types against outcomes. Any later diagnostic must freeze a small
 football-motivated feature block and minimum route-count support in advance;
 the files do not alter the active Advanced diagnostic.
+
+### Receiving Separation by Route Breaks family validation
+
+All four files share a clean 41-column grouped schema: Player Details and
+Overall, followed by Horizontally Breaking, Vertically Breaking, Static,
+Shallow/Underneath and Backfield blocks. Each split contains route count and
+share, separation score, YPRR, TPRR and win rate. Every populated metric
+parses numerically; blank split rates are expected for unsupported route
+families. The RB/FB/WR/TE row universes exactly match the more granular
+Separation-by-Routes exports.
+
+| Season | Rows | SHA-256 |
+|---:|---:|---|
+| 2022 | 540 | `124cce37f1d9eca30c7cec7b484c733d53738cce32256a00d054fca7a153f2cb` |
+| 2023 | 513 | `93f2239b0b941dafb22cadae22cafd9e888dcd19b3379a756cd6b35c520665d9` |
+| 2024 | 522 | `6677ceea04ed3522c7d8c11e73bd921dbd4e6e11f6c5acc49dd45b9d55249973` |
+| 2025 | 519 | `d15e6fc9bdff4e61ebeded828a4a60a38bd52c3713e611cf1b984b7450fbf21c` |
+
+The known 2022 Brock Wright split is again the only duplicate. This report is
+a lower-dimensional possible alternative to individual route types, not an
+additional simultaneous feature sweep. It remains acquisition-only, strict
+season N-1, and outside the frozen Advanced diagnostic.
 
 ## Importer gate
 
