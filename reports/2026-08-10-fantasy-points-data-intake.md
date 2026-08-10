@@ -38,6 +38,7 @@ available offensive positions, clear player filters, and prefer CSV. Acquire
 | Receiving Separation by Routes | route-specific separation priors | validated | validated | validated | validated |
 | Receiving Separation by Route Breaks | route-family separation priors | validated | validated | validated | validated |
 | Receiving Separation by Coverage | coverage-specific separation priors | validated | validated | validated | validated |
+| Receiving Separation by Alignment | alignment-specific separation priors | validated | validated | validated | validated |
 | Coverage Matrix (Defense) | team coverage-shell deployment priors | validated | validated | validated | validated |
 | Coverage Matrix (Offense) | team coverage-shell faced priors | validated | validated | validated | validated |
 
@@ -417,6 +418,33 @@ offense/defense Coverage Matrix rates. It must freeze route-support thresholds
 and feature definitions before joining outcomes; this acquisition does not
 alter or reopen the completed Advanced diagnostic.
 
+### Receiving Separation by Alignment family validation
+
+All four files share a clean 41-column grouped schema. The 15-field Overall
+block contains route volume, separation/YPRR/TPRR/win rates, positive and
+negative separation-event rates, target/reception/yard/touchdown totals, air
+yards and average depth of route. Wide, Slot, Inline and Backfield each add
+route count, separation score, YPRR, TPRR and win rate. Every populated metric
+parses numerically, while blank split rates occur naturally for alignments a
+player did not run. Wide plus Slot plus Inline plus Backfield route counts
+equal Overall routes on every row in all four seasons.
+
+| Season | Rows | SHA-256 |
+|---:|---:|---|
+| 2022 | 540 | `fa583a5beeb0b928345cf55cf8ead53df0e74bb95b738722283c0d7232e8531d` |
+| 2023 | 513 | `db465e27bb74be7302cdf08ecbab6c628069dfbbfe08242424fbf0dd1a82f18f` |
+| 2024 | 522 | `2feacbfffb60e62de01a1e5f93c79151ce8e80135fb440e7b465e14e047357b7` |
+| 2025 | 519 | `2d88d147ce5d4e8a9f7a879f77c15c7593c0c42275081d0d3f0aa51533dc8fc1` |
+
+The RB/FB/WR/TE identity multisets exactly match the Coverage, Routes and
+Route-Breaks families; the two 2022 Brock Wright records remain the only
+duplicate identity group. These files are also full-season aggregates and
+may only attach as season N-1 priors. Alignment shares and split performance
+are plausible role-stability inputs, but any future diagnostic must choose a
+small support-aware block before outcomes rather than search the 41-column
+grid. This completes the requested historical receiver-separation
+acquisition without changing the current model or active scoring arms.
+
 ### Defense Coverage Matrix family validation
 
 Each season contains exactly 32 unique teams and 22 complete columns grouped
@@ -457,10 +485,10 @@ cell is populated, seasons match, and all metric cells parse numerically.
 Together the two views can support an outcome-unseen N-1 matchup hypothesis:
 compare a receiver/offense's prior-season coverage profile with the target
 opponent defense's prior-season deployment. They cannot support same-season
-historical features because no weekly observation grain was exported. No
-diagnostic is licensed until the receiver Separation-by-Alignment schema is
-acquired and one small feature block, support threshold and gate are
-preregistered before outcome joins.
+historical features because no weekly observation grain was exported. The
+requested receiver Coverage and Alignment schemas are now acquired, but no
+diagnostic is licensed until one small feature block, support threshold and
+gate are preregistered before outcome joins.
 
 ## Importer gate
 
