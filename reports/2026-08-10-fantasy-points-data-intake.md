@@ -77,6 +77,24 @@ be retained for source auditing but cannot be used as a weekly model feature.
 The Windows `Zone.Identifier` sidecars are download metadata, not report data,
 and must be excluded from ingestion.
 
+An outcome-blind identity/coverage audit joined only season, week, normalized
+name, position and team to the accepted corrected K1 player snapshots, then
+weighted coverage by roster appearances without reading actual scores. The
+simple existing abbreviation bridge plus `FB→RB` produced no ambiguous match
+and no missing feature ID. Route Share coverage of offensive roster
+appearances is already high enough for a measured pilot:
+
+| Season | All candidate appearances | Selected-book appearances |
+|---:|---:|---:|
+| 2022 | 95.11% | 93.84% |
+| 2023 | 93.39% | 94.50% |
+| 2024 | 94.64% | 94.89% |
+| 2025 | 96.14% | 96.35% |
+
+Missing route observations must remain missing rather than being imputed to
+zero: the salary/player universe includes inactive and deep-reserve players
+who may not record a route.
+
 ## Importer gate
 
 Do not freeze the normalized schema or write the importer until at least one
