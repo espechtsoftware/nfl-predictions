@@ -132,3 +132,14 @@ It does not directly change production features. A valid failure closes this
 exact Advanced prior mechanism for pre-Week-1 adoption; do not retry fields,
 positions, folds, model strength or missingness rules on these outcomes.
 
+## Implementation status
+
+Commit `b014748` implements the hash-locked importer, exact N-1 join, three
+position-group comparisons, frozen gate and mandatory event-count,
+missingness and calibration reporting. Audit-only import completed without
+reading outcomes: 3,772 source rows became 3,771 normalized player-family-
+season rows, including 3,705 resolved rows, 64 unresolved source rows, two
+ambiguous source rows and the one known coalesced duplicate group. Twelve
+focused Advanced/Route tests pass; compilation, shell parsing and whitespace
+checks are clean. No Advanced table write or outcome diagnostic had run at
+this milestone.

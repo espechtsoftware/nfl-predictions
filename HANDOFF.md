@@ -20,9 +20,57 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 15:57 CDT
+## Current state — 2026-08-10 16:20 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
+
+- Active corrected direct-role confirmation
+  `20260810-lockfix-e80-k1-role12union-8677d21` passed immutable 2024
+  preflight `replay-lockk1role-smoke-bbg27` and launched all six season jobs
+  from corrected generation digest
+  `sha256:215a6729b66980310cfad3f63b06a7c25ce4dcf2fa2b6949a04a5c9afa337221`:
+  `replay-lockk1role-2019-7hb9j`, `replay-lockk1role-2021-42gdb`,
+  `replay-lockk1role-2022-mhn54`, `replay-lockk1role-2023-qzfdq`,
+  `replay-lockk1role-2024-w2ft7`, and `replay-lockk1role-2025-w4bnb`.
+  At 16:12 CDT all six were still running (`Completed=Unknown`). Their exact
+  manifest and execution IDs are tracked under the panel directory at commit
+  `b014748`. Do not read partial scores or logs. Monitor only execution state
+  and row completeness; after all 107 slates are complete, use comparison
+  digest
+  `sha256:5319704c23ac40f30771a43b2fb6b4d012a7b2d8f610b980ecfd509ba55deb6b`
+  for check-only acceptance and the frozen 240→230→220→210 comparison.
+- The hash-locked prior-season Fantasy Points Advanced importer and frozen
+  player-tail diagnostic are implemented at commit `b014748` behind CLI
+  commands `import-fantasy-points-advanced` and
+  `fantasy-points-advanced-diagnostic`. It imports only the preregistered
+  Passing/Receiving/Rushing fields, resolves identities without outcomes,
+  suppresses the known Brock Wright split rates, and attaches exactly season
+  N-1 to target season N. Required event counts, Advanced-feature missingness
+  and stable 30-point calibration deciles are emitted without changing the
+  frozen models or gate. Twelve focused Advanced/Route tests pass; Python
+  compilation, shell parsing and whitespace checks are clean. Outcome-blind
+  audit-only import found 3,772 source rows, 3,771 normalized rows, 3,705
+  resolved normalized rows, 64 unresolved source rows, two ambiguous source
+  rows and one coalesced duplicate group. Next create the private raw table
+  with the guarded first write, verify idempotence, build the exact commit,
+  and run the diagnostic once from its immutable digest.
+- `fantasy-points/qbCoverageMatchupExport.csv` was validated as a clean
+  37-QB/32-column grouped export, SHA-256
+  `888d31272b16b921af50fdeec0bcf20ed526873443495c4983079842a1b83c32`.
+  It contains 2025 source metrics plus the current 2026 Week 1 matchup layer;
+  the vendor provides no historical year selector and switches from prior-
+  season data to active-season data after Week 3. It is therefore isolated as
+  a prospective 2026 Week 1 snapshot and is forbidden from 2022--2025 replays
+  or pre-Week-1 promotion. The intake report and README deficiency log record
+  this limitation. Collect future QB/WR coverage snapshots before the shared
+  slate lock and grade them only prospectively.
+- Paid acquisition follow-up: Basic Receiving, Routes Run and Bell Cow were
+  declined as materially redundant with the existing weekly share and
+  Advanced exports. The operator was asked to preserve 2022--2025 Receiving
+  Man-vs-Zone and Separation-by-Coverage/Alignment/Routes/Route-Breaks files,
+  plus one current WR Coverage Matchup snapshot. These are acquisition-only;
+  none is licensed for a model, diagnostic or lineup arm until its schema and
+  point-in-time availability are inspected and a distinct protocol is frozen.
 
 - Optimization has resumed with one new point-in-time information path rather
   than another selector sweep on the same 107 outcomes. Protocol
