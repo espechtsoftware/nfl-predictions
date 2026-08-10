@@ -101,6 +101,9 @@ The tracked runner freezes panel IDs and settings in
 `scripts/prop_lock_rebaseline.sh`: corrected K3/K1 controls first, followed
 only after acceptance by K1 CE12/boom28 and then its twelve-role added-budget
 union. Every preflight uses 2024 so it exercises the corrected market reader.
+`scripts/prop_lock_finish_controls.sh` independently checks and promotes K3,
+checks K1, and runs the existing ensemble mechanism comparator; it never
+promotes K1 automatically from a score label.
 
 No Odds API quota is authorized by this repair. A future common-lock backfill
 would be a separate costed data-acquisition decision.

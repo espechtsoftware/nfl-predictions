@@ -107,6 +107,10 @@ agent or developer:
   monitor only execution state and row completeness. Once all twelve are
   clean, run check-only acceptance on both and compare under the revised
   240→230→220→210 law before launching CE.
+- `scripts/prop_lock_finish_controls.sh` now freezes that completion sequence:
+  K3 check→promote, K1 check, then the existing ensemble mechanism comparator
+  at exact 80 entries. It deliberately leaves K1 in staging for an explicit
+  corrected tail-first decision. Shell parsing and `git diff --check` pass.
 
 - The operator explicitly revised the operational objective after the valid
   role union improved the same 80-entry portfolio at every 210+ threshold.
