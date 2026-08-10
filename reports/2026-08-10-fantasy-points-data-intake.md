@@ -37,6 +37,8 @@ available offensive positions, clear player filters, and prefer CSV. Acquire
 | Receiving Man vs. Zone | coverage-shell receiving priors | validated | validated | validated | validated |
 | Receiving Separation by Routes | route-specific separation priors | validated | validated | validated | validated |
 | Receiving Separation by Route Breaks | route-family separation priors | validated | validated | validated | validated |
+| Coverage Matrix (Defense) | team coverage-shell deployment priors | validated | validated | validated | validated |
+| Coverage Matrix (Offense) | team coverage-shell faced priors | pending | pending | pending | pending |
 
 Do not bulk-add these fields to production. The frozen evaluation remains:
 walk-forward player residual/tail calibration, then candidate-union oracle
@@ -379,6 +381,29 @@ The known 2022 Brock Wright split is again the only duplicate. This report is
 a lower-dimensional possible alternative to individual route types, not an
 additional simultaneous feature sweep. It remains acquisition-only, strict
 season N-1, and outside the frozen Advanced diagnostic.
+
+### Defense Coverage Matrix family validation
+
+Each season contains exactly 32 unique teams and 22 complete columns grouped
+as Team Details, Man/Zone, Middle of Field Look (Closed/Open), and Coverages.
+The report supplies defensive dropbacks, man/zone and single-/two-high usage
+with FP/dropback, plus Cover 0/1/2/2-Man/3/4/6 deployment rates. Every cell is
+populated and numeric where expected.
+
+| Season | Source file | SHA-256 |
+|---:|---|---|
+| 2022 | `2022-Defense-coverageMatrixExport.csv` | `45ff5738d28c19b0dd098f07de438d335a1be229c32066fc19eb90ad58b740bf` |
+| 2023 | `2023-Defense-coverageMatrixExport.csv` | `52af5f92251eec85b34b875a24bccaa1e4d1b44196bf68b2e4e14ff65e35a394` |
+| 2024 | `2024-Defense-coverageMatrixExport.csv` | `7270273e2e3ee400865c4c9c69b96d0b7eba2f0f005526942b5324a8fbe9606a` |
+| 2025 | `Devense-coverageMatrixExport.csv` | `35ccde32e391b65426ace44452019389d1f1ef08d9cd5a279a6d5d2c9bd2b8c8` |
+
+The 2025 data filename retains the vendor/operator typo and missing season
+prefix; identify it by its exact hash rather than renaming the licensed
+original. Even with group headers, the source repeats `FP/DB` twice inside
+both Man/Zone and Middle-of-Field groups. A future parser must use the frozen
+column positions to name Man, Zone, 1-High and 2-High FP/DB separately; an
+ordinary dict reader would silently overwrite them. These season aggregates
+are strict N-1 priors only and are not part of any current diagnostic.
 
 ## Importer gate
 

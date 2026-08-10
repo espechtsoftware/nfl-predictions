@@ -115,6 +115,14 @@ agent or developer:
   backfield concepts. It is a lower-dimensional possible alternative to the
   individual-route grid, not permission to test both after outcomes. The same
   N-1, minimum-support and separate-preregistration restrictions apply.
+- Defense Coverage Matrix 2022--2025 is validated at exactly 32 teams and 22
+  complete columns per season. Hashes and the unprefixed/misspelled 2025
+  source filename are recorded in the intake report. The vendor repeats
+  `FP/DB` within both Man/Zone and middle-of-field groups even with group
+  headers, so any importer must assign those four fields by frozen positional
+  context and reject reordered schemas. These are N-1-only acquisition data;
+  acquire the four Offense Coverage Matrix files before considering a
+  distinct scheme-matchup protocol.
 
 - Optimization has resumed with one new point-in-time information path rather
   than another selector sweep on the same 107 outcomes. Protocol
