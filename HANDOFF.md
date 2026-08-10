@@ -153,6 +153,12 @@ agent or developer:
   frozen conditions pass and disposition is `supports-paid-route-trial`.
   This justifies verifying/buying the under-$200 full-history true-route
   export, not adding the season-delayed proxy or claiming a lineup result.
+  Fantasy Points remains first because it explicitly advertises weekly route
+  share plus CSV/Excel. Lower-cost fallback questions are logged for
+  Reception Perception ($99.99/year historical tables, but no public CSV or
+  complete-player promise) and SIS DataHub ($99.99/month with CSV, but no
+  public confirmation of route fields/history); do not buy either without
+  confirming the missing contract.
 - Research on the subsequent selector question is recorded in
   `reports/2026-08-10-scoring-opportunity-roadmap.md`. After current shadows,
   prospective snapshots may retain 210/220 support and freeze a deterministic

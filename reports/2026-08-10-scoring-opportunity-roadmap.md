@@ -102,11 +102,26 @@ tier is $99/month and real data is next-day delayed, but its public advanced
 metric list does not establish that the route-level fields are included in
 that tier. FTN's direct historical data products begin far above the budget.
 
+Two lower-cost fallbacks merit a support/export question, not an immediate
+purchase. Reception Perception's $99.99/year tier advertises all historical
+NFL data tables, while lower tiers describe WR route/coverage/alignment and TE
+route/coverage data. It is likely better for receiver skill and separation
+traits than for complete weekly opportunity: its public page does not promise
+CSV export, every slate player, routes run, or RB receiving routes. Sports
+Info Solutions lists a $99.99 one-month NFL DataHub tier with CSV export, but
+its public pricing page does not enumerate route-participation fields or
+retained seasons. Ask both the same full-history/raw-export question only if
+Fantasy Points cannot satisfy it. Neither displaces Fantasy Points for the
+measured dropback-participation signal without complete player-week route
+volume.
+
 Sources:
 
 - <https://sportsdata.io/developers>
 - <https://sportsdata.io/files/SDio_NFL_Advanced_Metrics.pdf>
 - <https://ftnfantasy.com/data>
+- <https://receptionperception.com/subscription-page-new/>
+- <https://store.sportsinfosolutions.com/>
 
 ## Priority 3 — a credit-capped Odds API opportunity pilot
 
