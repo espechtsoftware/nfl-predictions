@@ -103,6 +103,12 @@ agent or developer:
   prospective early/late books under `tail-first-v4-20260810`; none can affect
   the adopted/UI portfolio. Deep generative dependence work is deferred until
   more field data exist.
+- Threshold-shadow implementation commit `d4a5e15` is pushed on `main`; 15
+  focused selector/freezer tests pass, including a proof that 187/194/200 use
+  their distinct persisted support masks. Full build
+  `a000bbb2-5327-4de5-b216-0b35b4daf896` is running. If green, redeploy only
+  the two paused freezer jobs from its immutable digest, superseding the v3
+  freezer digest without executing either job.
 - One-swap implementation commit `b90047b` is pushed on `main`; 14 focused
   shadow/refinement tests pass. Full validation build
   `7ab5a1e2-1994-4ec5-8ac8-a188669b54c5` passed 716 tests with 2 skipped in
