@@ -278,7 +278,7 @@ rate and fantasy points per dropback/opportunity. These files are again
 full-season aggregates with no week column: season N values are forbidden for
 all season N targets and first become eligible in season N+1.
 
-### QB Coverage Matchup prospective snapshot
+### QB/WR Coverage Matchup schema samples (not prospective)
 
 The operator exported `qbCoverageMatchupExport.csv` on 2026-08-10 at
 approximately 16:12 CDT with Schedule Week 1 selected. SHA-256 is
@@ -287,16 +287,13 @@ The file is a valid UTF-8-with-BOM CSV containing 37 unique QB rows and 32
 columns under Player Details, Matchup, Man, Cover 2, Cover 3, Cover 4 and
 Cover 6 groups. Every row has complete values and `Season=2025`.
 
-This is not historical Week 1 data. The page exposes no season selector and
-the vendor states that it uses the previous season through Week 3, then the
-active season from Week 4 onward. The 2025 season fields are therefore source
-performance, while `OPP`, expected FP/dropback and coverage grade are the
-current 2026 matchup layer. Preserve this file as a **2026 Week 1 prospective
-snapshot only**, with forecast season/week and retrieval timestamp supplied
-as external immutable metadata. It cannot enter a 2022--2025 replay, the
-Advanced prior diagnostic or any pre-Week-1 promotion decision. If collected
-weekly before the shared slate lock, it can later be graded as a shadow QB
-matchup signal.
+Subsequent schedule verification disproved the initial prospective
+classification. The exported `OPP` pairs reproduce the 2025 Week 1 schedule,
+not the current 2026 Week 1 schedule, while the player inputs contain completed
+2025 season totals. The page therefore had not rolled to the 2026 matchup
+layer at retrieval time. Preserve this file as a **schema sample only**. It is
+neither point-in-time-valid 2025 history nor a 2026 forecast and cannot enter
+any replay, diagnostic, promotion decision or live projection.
 
 The companion `wrCoverageMatchupExport.csv`, retrieved at approximately
 16:32 CDT with the same Week 1 context, has SHA-256
@@ -304,8 +301,32 @@ The companion `wrCoverageMatchupExport.csv`, retrieved at approximately
 It is a clean 374-row, 38-column grouped export with unique RB/FB/WR/TE
 identities and Player Details, Matchup, Man and Cover 2/3/4/6 blocks. All
 rows declare source `Season=2025`; 241 blank split cells are legitimate and
-every populated metric parses numerically. Treat it identically as a
-prospective 2026 Week 1 snapshot. It cannot enter historical validation.
+every populated metric parses numerically. Its ordinary team/opponent pairs
+likewise reproduce 2025 Week 1, so it has the same schema-only disposition.
+Future QB/WR exports become prospectively usable only after their opponent
+pairs are mechanically verified against the target-season schedule and the
+file is frozen before the shared slate lock.
+
+### OL/DL Matchups schema sample (not replay-safe)
+
+`lineMatchupsExport.csv`, retrieved on 2026-08-10 at approximately 16:49 CDT,
+has SHA-256
+`15dfbc9759b123d835998546610c3404893a0a9e227c67f865bdc4c31db349db`.
+It is a complete 32-row, 20-column grouped CSV: one unique offensive team per
+row, Team Details plus eight Offense Stats and six opposing Defense Stats
+fields, and 16 reciprocal matchups. All populated metric cells parse
+numerically. The source repeats names such as `Name`, `ADJ YBC/ATT`,
+`PRESS %`, `PrROE` and `YBCO` across groups, so any parser must retain the
+group-qualified header.
+
+This is also a hindsight schema sample, not a current projection. Every row
+declares `Season=2025`, `G=17`, and its 16 pairs exactly match the 2025 Week 1
+schedule; none matches the 2026 Week 1 schedule in the warehouse. Thus the
+vendor paired completed-season offensive/defensive line aggregates with games
+from the beginning of that same season. With no observation timestamp or
+weekly input grain, the grades are forbidden from historical replay. A later
+export may be collected as a prospective shadow feature only after its pairs
+match the target 2026 schedule and it is frozen before the common slate lock.
 
 ### Receiving Man vs. Zone family validation
 
@@ -494,8 +515,9 @@ gate are preregistered before outcome joins.
 
 Do not infer one general schema across these materially different report
 families. The separately preregistered Route Share and prior-season Advanced
-diagnostics use narrow hash-locked importers; the prospective Coverage
-Matchup snapshot remains isolated. Before loading any derived rows, require:
+diagnostics use narrow hash-locked importers; the matchup schema samples are
+excluded from all current data paths. Before loading any derived rows,
+require:
 
 1. exact source hashes and unchanged originals;
 2. declared season/week coverage and numeric ranges;
