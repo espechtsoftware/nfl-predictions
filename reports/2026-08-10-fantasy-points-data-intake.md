@@ -25,7 +25,7 @@ available offensive positions, clear player filters, and prefer CSV. Acquire
 
 | Report | Purpose | 2022 | 2023 | 2024 | 2025 |
 |---|---|---:|---:|---:|---:|
-| Weekly Route Share | primary player opportunity | validated | pending | pending | pending |
+| Weekly Route Share | primary player opportunity | validated | validated | validated | validated |
 | Weekly Target Share | primary player opportunity | pending | pending | pending | pending |
 | Weekly Snap Share | role/injury replacement | pending | pending | pending | pending |
 | Weekly PROE Report (Offense) | secondary team context | pending | pending | pending | pending |
@@ -58,6 +58,24 @@ gain, then one exact fixed-budget lineup panel.
   week. This is not an operator export error.
 - Stable player IDs are absent, so ingestion must use the repository's audited
   name/team/season-to-GSIS bridge and emit unresolved/ambiguous match reports.
+
+### Route Share family validation
+
+All four files share the same 25-column schema (`Rank`, player/team/position,
+games, season, `W1`--`W18`, season `TM RTE %`). Every populated weekly or
+aggregate value parses numerically and lies in `[0, 100]`; every row has a
+name/team/position, and no CSV row has a width error. The aggregate column will
+be retained for source auditing but cannot be used as a weekly model feature.
+
+| Season | Rows | SHA-256 | Duplicate/conflicting player-week values |
+|---:|---:|---|---:|
+| 2022 | 647 | `68c92bcb01a97e9e603807496b44515c599bf6dd091ac7a47ec2c2802f9b4637` | one split row / zero conflicts |
+| 2023 | 621 | `c4940b8d7163b2baf0734b0b70d5c5c9bee456c1c004c61341ebcc5aa97a81d0` | zero |
+| 2024 | 625 | `45b68bb3fef0cd74c96ad88943141f37865647ef699f1e41553fca895f5408f7` | zero |
+| 2025 | 637 | `305b5ff5523e09645ef41bd7f3c1f290b035e3d97b5f1d0c942815feebc43717` | zero |
+
+The Windows `Zone.Identifier` sidecars are download metadata, not report data,
+and must be excluded from ingestion.
 
 ## Importer gate
 

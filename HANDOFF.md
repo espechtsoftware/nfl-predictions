@@ -265,7 +265,9 @@ agent or developer:
   `fantasy-points/`. The untouched first export,
   `2022-receivingRouteShareReportExport.csv`, has SHA-256
   `68c92bcb01a97e9e603807496b44515c599bf6dd091ac7a47ec2c2802f9b4637`,
-  647 valid 2022 player rows, Weeks 1--18 and QB/RB/FB/WR/TE coverage. One
+  647 valid 2022 player rows, Weeks 1--18 and QB/RB/FB/WR/TE coverage. The
+  2023--2025 Route Share exports are also complete and schema/range valid at
+  621/625/637 rows; exact hashes are tracked in the intake report. One
   vendor-origin Brock Wright duplicate splits non-overlapping week blocks and
   must be coalesced by player-week; vendor team abbreviations and multi-team
   labels also require an explicit crosswalk. Continue untouched 2022--2025
