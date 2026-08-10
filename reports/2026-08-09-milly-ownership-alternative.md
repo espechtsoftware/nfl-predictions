@@ -174,7 +174,11 @@ found zero material or categorical mismatches; the maximum numeric difference
 is `3.5527e-15`, and the frozen fade equation error is `3.9968e-15`. The
 comparator now preserves the bit-exact count as a diagnostic and fails only
 numeric differences above `1e-12`, null mismatches, or exact nonnumeric
-differences. No scoring gate, arm setting, or outcome is changed. Run a
-labeled immutable v2 comparator to durably record `reject`, then close this
-historical ownership arm; do not tune the fade dose or ownership variant on
-these outcomes.
+differences. No scoring gate, arm setting, or outcome is changed. Full Cloud
+Build `b6528016-6572-4b79-8278-a4b1d2999110` passed 702 tests with 2 skipped
+and produced immutable reporting digest
+`sha256:40839f1d99e9a08f54a1343c49c539ed7fe5329d3f1400b8c6cd5bf4f1fc18b3`.
+Labeled v2 execution `compare-k1-milly-ownership-wqgj5` then returned the
+durable, valid `reject` disposition with zero mechanism failures. This
+historical ownership arm is closed; do not tune the fade dose or ownership
+variant on these outcomes.

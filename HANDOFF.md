@@ -271,6 +271,20 @@ agent or developer:
   a full Cloud Build, run a labeled immutable ownership v2, and continue
   monitoring the fixed CE panel (currently 74/107 slates, no failed
   execution).
+- Ownership reporter build `b6528016-6572-4b79-8278-a4b1d2999110` passed 702
+  tests with 2 skipped from pushed main commit `54b29ca` and produced
+  immutable digest
+  `sha256:40839f1d99e9a08f54a1343c49c539ed7fe5329d3f1400b8c6cd5bf4f1fc18b3`.
+  Labeled v2 execution `compare-k1-milly-ownership-wqgj5` returned valid
+  `reject` with zero failures and the unchanged tail metrics above. Its
+  tracked `ownership_comparison_v2.json` is the definitive disposition; v1
+  remains preserved as false-positive audit provenance. Close this historical
+  ownership arm and do not try field-only ownership (the current 194 coverage
+  selector does not read opponent-field ownership) or tune the fade dose on
+  these outcomes. Fixed CE is now 90/107 slates with 2021 and 2024 complete;
+  exact next action is to wait for all six CE execution IDs to succeed, then
+  run the frozen fixed comparator on immutable reporting digest
+  `sha256:342c9662...0eff`.
 
 ### Recovery provenance
 
