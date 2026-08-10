@@ -141,6 +141,10 @@ agent or developer:
   `0261801` is pushed on `main`; full validation build
   `6200e344-837e-4935-9adf-8eb062383017` is running. The one frozen cloud
   diagnostic remains blocked on a green immutable digest from that build.
+  Guarded runner `scripts/cloud_pass_participation_proxy.sh` requires an
+  immutable digest, deploys the unscheduled diagnostic with 2 CPU / 4Gi / no
+  retries, records the execution and manifest, and harvests exactly one JSON
+  disposition under `reports/pass-participation-runs/`.
 - Research on the subsequent selector question is recorded in
   `reports/2026-08-10-scoring-opportunity-roadmap.md`. After current shadows,
   prospective snapshots may retain 210/220 support and freeze a deterministic
