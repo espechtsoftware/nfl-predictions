@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 16:52 CDT
+## Current state — 2026-08-10 16:54 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -72,19 +72,26 @@ agent or developer:
 - `fantasy-points/qbCoverageMatchupExport.csv` was validated as a clean
   37-QB/32-column grouped export, SHA-256
   `888d31272b16b921af50fdeec0bcf20ed526873443495c4983079842a1b83c32`.
-  It contains 2025 source metrics plus the current 2026 Week 1 matchup layer;
-  the vendor provides no historical year selector and switches from prior-
-  season data to active-season data after Week 3. It is therefore isolated as
-  a prospective 2026 Week 1 snapshot and is forbidden from 2022--2025 replays
-  or pre-Week-1 promotion. The intake report and README deficiency log record
-  this limitation. Collect future QB/WR coverage snapshots before the shared
-  slate lock and grade them only prospectively.
-- The current WR Coverage Matchup snapshot is also validated: 374 unique
+  The initial prospective interpretation was later disproved: its opponent
+  pairs reproduce 2025 Week 1, not 2026 Week 1, while its metrics contain
+  completed 2025 totals. It is a schema sample only and is forbidden from
+  replays, diagnostics, promotion and live projections.
+- The WR Coverage Matchup sample is also validated: 374 unique
   RB/FB/WR/TE rows, 38 grouped columns, no malformed populated values, and
   SHA-256
   `e0e369d4fee3130d0cfea29709d66ad9f74a6ae02f7495e2509c97ac6a221a5a`.
-  It carries the same 2025-source/2026-Week-1 prospective semantics and is
-  excluded from historical validation.
+  Its matchup layer also reproduces 2025 Week 1 and has the same schema-only
+  disposition. Future matchup snapshots require a mechanical target-schedule
+  match plus a pre-lock retrieval timestamp before prospective use.
+- The OL/DL Matchups sample and corrected matchup timing disposition are
+  recorded on branch `main` at commit `797b6c0`. The file is a complete
+  32-team/20-column grouped export, SHA-256
+  `15dfbc9759b123d835998546610c3404893a0a9e227c67f865bdc4c31db349db`.
+  Its 16 reciprocal pairs exactly match 2025 Week 1 while every row declares
+  completed `Season=2025`, `G=17`; none of those pairs matches 2026 Week 1.
+  It is hindsight schema evidence only, cannot support historical testing,
+  and may be recollected prospectively only after the vendor rolls the page
+  to the target schedule and before the shared slate lock.
 - Paid acquisition follow-up: Basic Receiving, Routes Run and Bell Cow were
   declined as materially redundant with the existing weekly share and
   Advanced exports. The operator was asked to preserve 2022--2025 Receiving
