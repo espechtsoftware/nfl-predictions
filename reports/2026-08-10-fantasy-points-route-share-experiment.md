@@ -148,3 +148,21 @@ with 2 skipped and produced immutable digest
 The one licensed outcome query is running as Cloud Run execution
 `fantasy-points-route-diagnostic-rthzs`. No intermediate result, alternate
 model, window or retry may be used.
+
+## Result
+
+Execution `fantasy-points-route-diagnostic-rthzs` completed successfully in
+2m17s and the frozen mechanism **passed every gate**. Strictly prior coverage
+was 82.35% in 2024 and 83.02% in 2025. Across 13,288 held-out player-weeks,
+the primary 30-point Brier loss improved from `0.00968358` to `0.00965675`,
+and WR/TE-only 30-point Brier improved from `0.00763166` to `0.00760188`.
+The treatment also improved 20-point Brier, while residual MAE worsened
+slightly (`2.88299` to `2.89248`); MAE was a preregistered diagnostic rather
+than a veto because this experiment targets exceptional scores. Neither
+season's 30-point Brier worsened, so the per-fold safeguard passed.
+
+The machine disposition is `route-share-player-tail-passes`. This licenses
+exactly one separately preregistered route-tail candidate-union experiment;
+it does not yet adopt Route Share in production. The immutable report and raw
+log are tracked under
+`reports/fantasy-points-route-runs/20260810-fp-route-share-v1/`.

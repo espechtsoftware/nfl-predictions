@@ -1,0 +1,234 @@
+{
+  "aggregate": {
+    "control_brier_20": 0.03514753148535642,
+    "control_brier_30": 0.00968358003688562,
+    "control_mae": 2.8829902863449712,
+    "control_wr_te_brier_20": 0.03096736590430793,
+    "control_wr_te_brier_30": 0.007631659375530444,
+    "fold": "aggregate",
+    "rows": 13288,
+    "tail_rate_20": 0.04372366044551475,
+    "tail_rate_30": 0.010159542444310657,
+    "treatment_brier_20": 0.03499630188256678,
+    "treatment_brier_30": 0.009656750975634142,
+    "treatment_mae": 2.8924764837936143,
+    "treatment_wr_te_brier_20": 0.030828317051081498,
+    "treatment_wr_te_brier_30": 0.007601878667214031
+  },
+  "calibration_deciles_30": [
+    {
+      "actual_rate": 0.0,
+      "arm": "control",
+      "decile": 0,
+      "mean_probability": 0.0005375145583761698,
+      "rows": 1329
+    },
+    {
+      "actual_rate": 0.0,
+      "arm": "control",
+      "decile": 1,
+      "mean_probability": 0.0007589577289024096,
+      "rows": 1329
+    },
+    {
+      "actual_rate": 0.0,
+      "arm": "control",
+      "decile": 2,
+      "mean_probability": 0.0009364962013673665,
+      "rows": 1329
+    },
+    {
+      "actual_rate": 0.0007530120481927711,
+      "arm": "control",
+      "decile": 3,
+      "mean_probability": 0.0011514273803614151,
+      "rows": 1328
+    },
+    {
+      "actual_rate": 0.0,
+      "arm": "control",
+      "decile": 4,
+      "mean_probability": 0.0013228414675327147,
+      "rows": 1329
+    },
+    {
+      "actual_rate": 0.0,
+      "arm": "control",
+      "decile": 5,
+      "mean_probability": 0.0016975762085405589,
+      "rows": 1329
+    },
+    {
+      "actual_rate": 0.0,
+      "arm": "control",
+      "decile": 6,
+      "mean_probability": 0.002638064050270119,
+      "rows": 1328
+    },
+    {
+      "actual_rate": 0.008276899924755455,
+      "arm": "control",
+      "decile": 7,
+      "mean_probability": 0.005661476812281527,
+      "rows": 1329
+    },
+    {
+      "actual_rate": 0.01655379984951091,
+      "arm": "control",
+      "decile": 8,
+      "mean_probability": 0.015147396258212433,
+      "rows": 1329
+    },
+    {
+      "actual_rate": 0.07599699021820917,
+      "arm": "control",
+      "decile": 9,
+      "mean_probability": 0.07261642226692255,
+      "rows": 1329
+    },
+    {
+      "actual_rate": 0.0,
+      "arm": "treatment",
+      "decile": 0,
+      "mean_probability": 0.0003308948478462799,
+      "rows": 1329
+    },
+    {
+      "actual_rate": 0.0,
+      "arm": "treatment",
+      "decile": 1,
+      "mean_probability": 0.0005130004744446231,
+      "rows": 1329
+    },
+    {
+      "actual_rate": 0.0,
+      "arm": "treatment",
+      "decile": 2,
+      "mean_probability": 0.0006669224856489255,
+      "rows": 1329
+    },
+    {
+      "actual_rate": 0.0,
+      "arm": "treatment",
+      "decile": 3,
+      "mean_probability": 0.0008710941565425856,
+      "rows": 1328
+    },
+    {
+      "actual_rate": 0.0007524454477050414,
+      "arm": "treatment",
+      "decile": 4,
+      "mean_probability": 0.0011296813637688707,
+      "rows": 1329
+    },
+    {
+      "actual_rate": 0.0,
+      "arm": "treatment",
+      "decile": 5,
+      "mean_probability": 0.0015618081703877241,
+      "rows": 1329
+    },
+    {
+      "actual_rate": 0.0,
+      "arm": "treatment",
+      "decile": 6,
+      "mean_probability": 0.002603097838854402,
+      "rows": 1328
+    },
+    {
+      "actual_rate": 0.008276899924755455,
+      "arm": "treatment",
+      "decile": 7,
+      "mean_probability": 0.005801711993829219,
+      "rows": 1329
+    },
+    {
+      "actual_rate": 0.01730624529721595,
+      "arm": "treatment",
+      "decile": 8,
+      "mean_probability": 0.015645194419542374,
+      "rows": 1329
+    },
+    {
+      "actual_rate": 0.07524454477050414,
+      "arm": "treatment",
+      "decile": 9,
+      "mean_probability": 0.0729985988726313,
+      "rows": 1329
+    }
+  ],
+  "coverage": [
+    {
+      "coverage": 0.8235148207863078,
+      "covered_rows": 6640,
+      "eligible_rows": 8063,
+      "season": 2024
+    },
+    {
+      "coverage": 0.8301698301698301,
+      "covered_rows": 6648,
+      "eligible_rows": 8008,
+      "season": 2025
+    }
+  ],
+  "disposition": "route-share-player-tail-passes",
+  "folds": [
+    {
+      "control_brier_20": 0.036974563499982536,
+      "control_brier_30": 0.00921071108144157,
+      "control_mae": 2.7866965333933416,
+      "control_wr_te_brier_20": 0.03256622362321597,
+      "control_wr_te_brier_30": 0.007901913381032749,
+      "fold": "2024",
+      "rows": 6640,
+      "tail_rate_20": 0.04623493975903614,
+      "tail_rate_30": 0.00963855421686747,
+      "treatment_brier_20": 0.03684013903920052,
+      "treatment_brier_30": 0.009204039950686072,
+      "treatment_mae": 2.80486321722515,
+      "treatment_wr_te_brier_20": 0.03242342922822131,
+      "treatment_wr_te_brier_30": 0.007881130147817727
+    },
+    {
+      "control_brier_20": 0.0333226980652124,
+      "control_brier_30": 0.010155879956282206,
+      "control_mae": 2.9791681623375736,
+      "control_wr_te_brier_20": 0.029328400785138167,
+      "control_wr_te_brier_30": 0.007354626039107803,
+      "fold": "2025",
+      "rows": 6648,
+      "tail_rate_20": 0.04121540312876053,
+      "tail_rate_30": 0.010679903730445247,
+      "treatment_brier_20": 0.03315468354320937,
+      "treatment_brier_30": 0.010108917221972167,
+      "treatment_mae": 2.9799843192350406,
+      "treatment_wr_te_brier_20": 0.029193191430722628,
+      "treatment_wr_te_brier_30": 0.00731562215372104
+    }
+  ],
+  "gate": {
+    "aggregate_30_brier_improves": true,
+    "aggregate_wr_te_30_brier_improves": true,
+    "coverage_at_least_80pct_each_fold": true,
+    "no_fold_30_brier_worse_over_1pct": true,
+    "passes": true
+  },
+  "panel_id": "20260810-lockfix-e80-k1-8677d21",
+  "route_feature_missingness": {
+    "fp_route_cross_season": 0.2300863055650076,
+    "fp_route_share_jump": 0.27719862653509453,
+    "fp_route_share_l4": 0.2300863055650076,
+    "fp_route_share_last": 0.2300863055650076
+  },
+  "source_audit": {
+    "route_rows": 26881,
+    "rows_with_prior_route": 24889,
+    "snapshot_rows": 32327,
+    "source_hashes": [
+      "305b5ff5523e09645ef41bd7f3c1f290b035e3d97b5f1d0c942815feebc43717",
+      "45b68bb3fef0cd74c96ad88943141f37865647ef699f1e41553fca895f5408f7",
+      "68c92bcb01a97e9e603807496b44515c599bf6dd091ac7a47ec2c2802f9b4637",
+      "c4940b8d7163b2baf0734b0b70d5c5c9bee456c1c004c61341ebcc5aa97a81d0"
+    ]
+  }
+}

@@ -26,7 +26,7 @@ available offensive positions, clear player filters, and prefer CSV. Acquire
 | Report | Purpose | 2022 | 2023 | 2024 | 2025 |
 |---|---|---:|---:|---:|---:|
 | Weekly Route Share | primary player opportunity | validated | validated | validated | validated |
-| Weekly Target Share | primary player opportunity | pending | pending | pending | pending |
+| Weekly Target Share | primary player opportunity | validated | pending | pending | pending |
 | Weekly Snap Share | role/injury replacement | validated | validated | validated | validated |
 | Weekly PROE Report (Offense) | secondary team context | validated | validated | validated | validated |
 | Weekly PROE Report (Defense) | secondary opponent context | pending | pending | pending | pending |
@@ -161,6 +161,17 @@ the operator with the complete all-position/zero-snap export; only the stable
 
 The no-hyphen `2024offenseSnapShareReportExport.csv` is byte-identical to the
 named 2024 export and is ignored as a duplicate.
+
+### Target Share partial validation
+
+`2022-receivingTargetShareReportExport.csv` is a complete, valid 2022 export:
+647 rows, the same 25-column identity/Weeks 1--18 schema as Route Share, and
+all 6,787 populated weekly values lie in `[0, 100]`. Its SHA-256 is
+`89ad27d72e52199e11beea11308883a06c74dbf4912c9f56b951af9096856893`.
+The known Brock Wright split again has disjoint weeks and zero conflicts.
+Multi-team strings sometimes list teams in a different order than Route/Snap;
+identity normalization must treat them as unordered team sets rather than as
+different players. The 2023--2025 Target Share exports are not present yet.
 
 ## Importer gate
 

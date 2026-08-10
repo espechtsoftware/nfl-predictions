@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 14:50 CDT
+## Current state — 2026-08-10 14:53 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -294,8 +294,11 @@ agent or developer:
   source rows or use same-week postgame values in a replay.
   All four Snap Share exports also pass at 647/621/625/637 rows. The exact
   hashes, byte-identical extra 2024 file, and the replaced, filtered first 2022
-  download caveat are recorded in the intake report. Target Share is the next
-  primary family to acquire.
+  download caveat are recorded in the intake report. The 2022 Target Share
+  export is also complete at 647 rows and SHA-256
+  `89ad27d72e52199e11beea11308883a06c74dbf4912c9f56b951af9096856893`;
+  2023--2025 Target Share, all Defense PROE, and all Advanced Receiving files
+  are still absent from the repository-local intake directory.
 - Corrected CE12 remains healthy and partial; no score has been queried. At
   14:18 CDT its completeness-only slate counts were 2019=7, 2021=6, 2022=5,
   2023=5, 2024=8 and 2025=6, with exactly 80 selected rows for every written
@@ -328,9 +331,17 @@ agent or developer:
   produced immutable digest
   `sha256:a08ae363d937a428849f62b3bd07ea7527d8dd4ab487496d0408fa3da9e49d42`.
   The single frozen diagnostic is now running as durable Cloud Run execution
-  `fantasy-points-route-diagnostic-rthzs`; do not inspect an intermediate
-  outcome or launch a retry/variant. Its runner will harvest the sole final
-  report under `reports/fantasy-points-route-runs/20260810-fp-route-share-v1/`.
+  `fantasy-points-route-diagnostic-rthzs`. It completed successfully in 2m17s
+  and passed every gate. Strict-prior coverage was 82.35%/83.02% in
+  2024/2025; aggregate 30-point Brier improved
+  `0.00968358→0.00965675`, and WR/TE 30-point Brier improved
+  `0.00763166→0.00760188`, with nonworsening fold safeguards. The treatment
+  also improved 20-point Brier; diagnostic-only MAE worsened slightly
+  `2.88299→2.89248`. This licenses one separately preregistered Route Share
+  candidate-union test but does not itself change production. The immutable
+  final report is under
+  `reports/fantasy-points-route-runs/20260810-fp-route-share-v1/`; do not retry
+  or tune this player diagnostic.
 - One corrected-history selector confirmation is now frozen before either
   corrected control outcome is read:
   `reports/2026-08-10-corrected-extreme-selector-confirmation.md`. After the
