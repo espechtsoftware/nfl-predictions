@@ -1,7 +1,7 @@
 # Prospective 220→210→200 selector shadow
 
-Status: frozen before any 2026 outcome; implementation and focused validation
-complete, with full cloud validation and paused-job deployment pending.
+Status: frozen before any 2026 outcome; implementation, full validation and
+paused-job deployment complete. No off-season job was executed.
 
 ## Motivation
 
@@ -56,3 +56,19 @@ authoritative points arrive and report paired weekly maxima and the complete
 No adoption threshold is invented before a useful number of independent live
 weeks accumulates. This is prospective evidence collection, not a historical
 arm or a reason to change the UI.
+
+## Deployment
+
+Implementation commit `d1c9318` passed full Cloud Build
+`9e3e6c14-f70a-4f8d-9863-7120c5fae74f` with 721 tests passed and 2 skipped.
+Validated immutable digest:
+`sha256:75daf1607c2f08197d1357c10702434161b1093cff2a21e8cdc7ca7d5bcdf95c`.
+
+Only `shadow-k1`, `shadow-k1-nofloor`, `shadow-k3`, `freeze-tail-early` and
+`freeze-tail-late` were repinned to that digest. The three generators record
+`CODE_SHA=d1c9318` and retain their prior commands, variants, K, possession
+mode, generator budgets, salary floors, 45/55 blend, 30,000 worlds, artifacts,
+4 CPU / 8Gi, retry and timeout settings. The two freezers retain 1 CPU / 1Gi
+and their exact early/late commands. All eight associated schedulers remain
+PAUSED on their original Sunday CT schedules. No live app or adopted policy
+changed.

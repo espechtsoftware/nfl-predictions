@@ -182,10 +182,16 @@ agent or developer:
   pass locally. No generator/freezer job has been changed to this unvalidated
   code; v4 digest `sha256:9d02ecc3...` remains the deployed paused freezer.
   Implementation commit `d1c9318` is pushed on `main`; full validation build
-  `9e3e6c14-f70a-4f8d-9863-7120c5fae74f` is running. If green, update only the
-  three paused shadow generators and two paused freezers to its immutable
-  digest; set the generator `CODE_SHA=d1c9318`, preserve every other setting,
-  and do not execute any job off-season.
+  `9e3e6c14-f70a-4f8d-9863-7120c5fae74f` passed 721 tests with 2 skipped and
+  produced immutable digest
+  `sha256:75daf1607c2f08197d1357c10702434161b1093cff2a21e8cdc7ca7d5bcdf95c`.
+  Only the three paused shadow generators and two paused freezers were
+  repinned to it. Generators now record `CODE_SHA=d1c9318` and preserve their
+  exact command, registry/K, possession mode, generator quotas, salary floor,
+  45/55 blend, 30,000 worlds, 4 CPU / 8Gi, retry and timeout settings;
+  freezers preserve their early/late commands and 1 CPU / 1Gi settings. All
+  eight shadow/freezer schedulers remain PAUSED on the original Sunday CT
+  schedules. No job was executed, and the adopted app was not changed.
 - Exact next action: wait for all six exact union executions, run the union
   comparator on immutable digest `sha256:a410648b...`, and commit its JSON and
   Cloud Run execution. Launch the fixed arm only if that tracked union gate
