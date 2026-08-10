@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 14:06 CDT
+## Current state — 2026-08-10 14:18 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -292,6 +292,14 @@ agent or developer:
   replacement labels. The four offense PROE exports are complete at exactly
   32 teams per season with valid weeks/game counts. Do not commit licensed
   source rows or use same-week postgame values in a replay.
+  The stable 2022/2023 Snap Share exports also pass at 647/621 rows; 2024/2025
+  remain pending. The exact partial-family hashes and the replaced, filtered
+  first 2022 download caveat are recorded in the intake report.
+- Corrected CE12 remains healthy and partial; no score has been queried. At
+  14:18 CDT its completeness-only slate counts were 2019=7, 2021=6, 2022=5,
+  2023=5, 2024=8 and 2025=6, with exactly 80 selected rows for every written
+  slate and no error-level logs. Continue monitoring to 17/18/18/18/18/18,
+  then run check-only acceptance and the corrected comparator digest above.
 - One corrected-history selector confirmation is now frozen before either
   corrected control outcome is read:
   `reports/2026-08-10-corrected-extreme-selector-confirmation.md`. After the

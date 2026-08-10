@@ -27,7 +27,7 @@ available offensive positions, clear player filters, and prefer CSV. Acquire
 |---|---|---:|---:|---:|---:|
 | Weekly Route Share | primary player opportunity | validated | validated | validated | validated |
 | Weekly Target Share | primary player opportunity | pending | pending | pending | pending |
-| Weekly Snap Share | role/injury replacement | pending | pending | pending | pending |
+| Weekly Snap Share | role/injury replacement | validated | validated | pending | pending |
 | Weekly PROE Report (Offense) | secondary team context | validated | validated | validated | validated |
 | Weekly PROE Report (Defense) | secondary opponent context | pending | pending | pending | pending |
 | Weekly Fantasy Points Scored | identity/scoring audit only | validated | validated | validated | validated |
@@ -135,6 +135,24 @@ from strictly prior weekly values.
 
 The unprefixed `proeReportExport.csv` is byte-identical to the named 2024
 offense export and is ignored as a duplicate.
+
+### Snap Share partial validation
+
+The stable 2022 and 2023 files have the same 25-column identity/weekly schema
+as Route Share, ending in `Snap %`. Their player/position universes match the
+corresponding Route Share and Fantasy Points Scored files; every populated
+value is numeric in `[0, 100]`. The 2022 Brock Wright split is again
+non-conflicting. The first observed 2022 download was subsequently replaced by
+the operator with the complete all-position/zero-snap export; only the stable
+647-row file below is valid.
+
+| Season | Rows | SHA-256 |
+|---:|---:|---|
+| 2022 | 647 | `0fec6ed4e7cb94af7c530d77530304cdc64d73fc38267a6bdcc91d2f193964b8` |
+| 2023 | 621 | `8091dd5be6c3bc47976b334e8bf0157bd82cd8c510e5c88a1d68ab88904517a2` |
+
+Do not freeze this family until the 2024 and 2025 all-position exports pass
+the same checks.
 
 ## Importer gate
 
