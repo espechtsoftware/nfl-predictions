@@ -284,8 +284,9 @@ agent or developer:
   exports for the remaining Weekly Reports and Advanced Receiving before
   freezing the importer/schema. The four Fantasy Points Scored files are now
   also complete and valid, but are identity/scoring audits only rather than
-  replacement labels. Do not commit licensed source rows or use same-week
-  postgame values in a replay.
+  replacement labels. The four offense PROE exports are complete at exactly
+  32 teams per season with valid weeks/game counts. Do not commit licensed
+  source rows or use same-week postgame values in a replay.
 - One corrected-history selector confirmation is now frozen before either
   corrected control outcome is read:
   `reports/2026-08-10-corrected-extreme-selector-confirmation.md`. After the

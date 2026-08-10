@@ -28,7 +28,7 @@ available offensive positions, clear player filters, and prefer CSV. Acquire
 | Weekly Route Share | primary player opportunity | validated | validated | validated | validated |
 | Weekly Target Share | primary player opportunity | pending | pending | pending | pending |
 | Weekly Snap Share | role/injury replacement | pending | pending | pending | pending |
-| Weekly PROE Report (Offense) | secondary team context | pending | pending | pending | pending |
+| Weekly PROE Report (Offense) | secondary team context | validated | validated | validated | validated |
 | Weekly PROE Report (Defense) | secondary opponent context | pending | pending | pending | pending |
 | Weekly Fantasy Points Scored | identity/scoring audit only | validated | validated | validated | validated |
 | Advanced Receiving | route, alignment, first-read and separation candidates | pending | pending | pending | pending |
@@ -116,6 +116,25 @@ The unprefixed `fptsScoredReportExport.csv` is byte-identical to the named
 2023 export and is ignored as a duplicate. These scores may validate identity
 and broad scoring reconciliation only; they do not replace authoritative
 DraftKings `player_week_actuals` labels.
+
+### Offense PROE family validation
+
+Every season export contains exactly 32 unique teams and the same 25-column
+schema: team identity, games, season, `W1`--`W18`, and aggregate `PROE`. Every
+populated value parses numerically, and each team's populated weekly count
+equals its reported games. Negative values are expected. Season aggregate
+PROE is retained for source auditing only; replay features must be constructed
+from strictly prior weekly values.
+
+| Season | Rows | SHA-256 |
+|---:|---:|---|
+| 2022 | 32 | `28cc6fe66fb15b254559246015e31bbb67e8529118bd0b43452b0107bce8479d` |
+| 2023 | 32 | `f164b37ab0eff22cbbb9fc06352a7b25df1cc4c29730b17e1b1af80ce03f4afa` |
+| 2024 | 32 | `2ae96cc7cee70c65f21b122726af1a099a1ebc4d12aadfe97e7465b408031d41` |
+| 2025 | 32 | `a1d85bc3e183a501b846782692b480cb0efb6ede2be387cb11966a5981638102` |
+
+The unprefixed `proeReportExport.csv` is byte-identical to the named 2024
+offense export and is ignored as a duplicate.
 
 ## Importer gate
 
