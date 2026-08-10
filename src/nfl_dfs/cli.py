@@ -176,6 +176,15 @@ def main(argv: list[str] | None = None) -> None:
         help="Frozen accepted panel (alternate values fail closed)",
     )
 
+    p = sub.add_parser(
+        "market-tail-diagnostic",
+        help="Test common-lock alternate-prop tail disagreement on 2024/2025",
+    )
+    p.add_argument(
+        "--panel", default="20260809-e80-k1-ce12-c616390",
+        help="Frozen accepted panel (alternate values fail closed)",
+    )
+
     p = sub.add_parser("archetypes",
                        help="Cluster scoring-consistency archetypes into nfl_features")
     p.add_argument("--seasons", type=int, default=3, help="Trailing seasons to profile")
@@ -355,6 +364,10 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import pass_participation
 
         pass_participation.run(args.panel)
+    elif args.command == "market-tail-diagnostic":
+        from .analysis import market_tail_disagreement
+
+        market_tail_disagreement.run(args.panel)
     elif args.command == "serve":
         import uvicorn
 

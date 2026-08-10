@@ -1,7 +1,8 @@
 # Market-tail disagreement candidate experiment
 
 Status: preregistered before querying player outcomes or current-policy lineup
-scores for this experiment.
+scores for this experiment. Guarded diagnostic implementation and offline
+fixtures are complete; immutable Cloud validation and execution are pending.
 
 ## Question and scope
 
@@ -144,4 +145,3 @@ threshold worsens. Counts at 200/194/187, pool oracles, means, season signs,
 runtime and paired weekly gains/losses are reported diagnostics. No alternate
 dose, scale, selector line, market combination or seed may follow a valid
 rejection on these outcomes.
-

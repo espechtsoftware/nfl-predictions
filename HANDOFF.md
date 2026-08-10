@@ -39,10 +39,14 @@ agent or developer:
   240→230→220→210 operational law. This is distinct from and does not reopen
   the rejected raw `ALT_CEIL`, `DIV_TILT`, or q99-wildcard mechanisms.
 - Branch is `main` at `abfed9c` before the new preregistration commit. The next
-  concrete action is to commit/push the frozen protocol, implement the guarded
-  diagnostic with offline tests, validate it in Cloud Build, and execute it
-  on Cloud Run without inspecting lineup outcomes first. No Odds API quota is
-  required.
+  preregistration is pushed as `53c78d8`. Guarded implementation now lives in
+  `analysis/market_tail_disagreement.py`, CLI
+  `market-tail-diagnostic`, and
+  `scripts/cloud_market_tail_diagnostic.sh`. Nine focused market tests pass,
+  Python compilation, shell parsing and `git diff --check` are clean. The
+  next concrete action is to commit/push this implementation, validate its
+  exact tree in Cloud Build, and execute the immutable digest on Cloud Run
+  without inspecting lineup outcomes first. No Odds API quota is required.
 
 - The operator explicitly revised the operational objective after the valid
   role union improved the same 80-entry portfolio at every 210+ threshold.
