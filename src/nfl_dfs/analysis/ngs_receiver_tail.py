@@ -21,6 +21,11 @@ NGS_FIELDS = (
     "avg_yac_above_expectation",
 )
 NGS_FEATURES = tuple(f"ngs_{field}_l4" for field in NGS_FIELDS)
+EXISTING_RECEIVER_FEATURES = (
+    "separation_l4",
+    "air_yards_share_l4",
+    "adot_l8",
+)
 CONTROL_NUMERIC = (
     "proj",
     "salary",
@@ -31,6 +36,7 @@ CONTROL_NUMERIC = (
     "team_vacated_target_share",
     "depth_rank",
     "games_played_prior",
+    *EXISTING_RECEIVER_FEATURES,
 )
 
 
@@ -347,16 +353,20 @@ def run(panel_id: str = PANEL_ID) -> dict:
         WHERE panel_run_id = @panel_id
         GROUP BY season, week, player_id
       ), features AS (
-        SELECT season, week, gsis_id, pos, proj, salary,
-               target_share_last, target_share_jump,
-               snap_share_last, snap_share_jump,
-               team_vacated_target_share, depth_rank,
-               games_played_prior, actual
-        FROM `{settings.predictions}.slate_player_features`
-        WHERE panel_run_id = @panel_id
-          AND season IN UNNEST(@seasons)
+        SELECT p.season, p.week, p.gsis_id, p.pos, p.proj, p.salary,
+               p.target_share_last, p.target_share_jump,
+               p.snap_share_last, p.snap_share_jump,
+               p.team_vacated_target_share, p.depth_rank,
+               p.games_played_prior, p.actual,
+               f.separation_l4, f.air_yards_share_l4, f.adot_l8
+        FROM `{settings.predictions}.slate_player_features` p
+        LEFT JOIN `{settings.features}.player_week_training` f
+          USING (season, week, gsis_id)
+        WHERE p.panel_run_id = @panel_id
+          AND p.season IN UNNEST(@seasons)
         QUALIFY ROW_NUMBER() OVER (
-          PARTITION BY season, week, gsis_id ORDER BY generated_at DESC
+          PARTITION BY p.season, p.week, p.gsis_id
+          ORDER BY p.generated_at DESC
         ) = 1
       )
       SELECT f.*, u.candidate_appearances

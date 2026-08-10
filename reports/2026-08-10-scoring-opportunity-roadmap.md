@@ -160,9 +160,11 @@ this historical alternate-ladder mechanism is closed without quota spend.
 
 NFL Next Gen Stats weekly receiving data provide separation, cushion,
 intended air depth, air-yard share and YAC above expectation with stable GSIS
-IDs. These fields are absent from the current model and a strictly prior
-observation covers about 88% of candidate-used WR/TE roster appearances in
-the preserved historical universe. Protocol
+IDs. Production already uses same-season separation plus PBP-derived air
+share/aDOT; the actual incremental question is cross-season carry-forward
+and the missing cushion/YACOE descriptors. A strictly prior observation
+covers about 88% of candidate-used WR/TE roster appearances in the preserved
+historical universe. Protocol
 `reports/2026-08-10-ngs-receiver-tail-experiment.md` freezes a score-free
 2019--2025 construction and 2024/2025 walk-forward 30-point Brier gate before
 outcomes are queried. Run it only after the corrected K1 control is complete.

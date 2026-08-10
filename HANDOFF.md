@@ -147,6 +147,14 @@ agent or developer:
   until corrected K1 check-only acceptance is recorded. Twelve combined NGS,
   candidate-union, and participation tests pass; compilation, shell parsing,
   and whitespace checks are clean. No outcome query or NGS execution has run.
+- A pre-outcome static audit corrected the NGS premise: production already
+  uses same-season `separation_l4`, PBP air-yard share, and aDOT. The frozen
+  control and implementation now include those raw fields explicitly; the
+  treatment asks only whether cross-season last-four carry-forward plus NGS
+  cushion/YACOE adds value. This correction occurred before any outcome or
+  cloud diagnostic. Build `f68cedf9-2634-413c-bd8c-2e517691755d` contains
+  the superseded control and must never run the NGS job even if validation is
+  green; submit a new exact-tree build after this correction.
 
 - The operator explicitly revised the operational objective after the valid
   role union improved the same 80-entry portfolio at every 210+ threshold.

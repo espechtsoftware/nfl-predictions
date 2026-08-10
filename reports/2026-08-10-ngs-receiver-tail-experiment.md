@@ -6,12 +6,15 @@ The source is the NFL Next Gen Stats weekly receiving feed exposed by
 
 ## Motivation and availability
 
-The current model has targets, target share, air yards, snaps, vacancies and
-depth, but not Next Gen Stats receiver separation, cushion, intended air
-depth, air-yard share, or YAC above expectation. These are observed player
-traits/opportunity descriptors that may distinguish receivers with similar
-box-score usage, especially in the cheap WR/TE pool where known winning
-rosters are most often missed.
+The current model already has targets, target share, PBP-derived air-yard
+share/aDOT, snaps, vacancies, depth, and a same-season four-week NGS
+separation average. The remaining prospective gap is narrower: the existing
+NGS window resets at every season boundary, while receiver traits can carry
+into Week 1; cushion and YAC above expectation are not included at all. This
+experiment therefore tests career-chronological last-four NGS observations
+only after explicitly controlling for the existing `separation_l4`,
+`air_yards_share_l4`, and `adot_l8` inputs. It cannot claim ordinary
+separation, air depth, or air share as newly discovered information.
 
 An outcome-free inventory found 8,976 regular-season weekly receiving rows
 for 2019--2025, with 198--223 distinct receivers and all 17/18 weeks per
@@ -62,7 +65,9 @@ Control numeric inputs:
 - last target/snap share and their jumps;
 - team vacated target share;
 - depth rank; and
-- games played before the target week.
+- games played before the target week; and
+- the model's existing same-season `separation_l4`, PBP-derived
+  `air_yards_share_l4`, and `adot_l8` fields.
 
 The treatment adds only the five frozen lagged NGS fields. Fit
 `Ridge(alpha=10)` to `actual - projection`. Separately fit L2
@@ -115,3 +120,11 @@ history, target-weighted rolling values, uncovered players, duplicate source
 rows, every frozen gate, and the complete walk-forward model path. No
 realized NGS-mechanism outcome has been queried and no cloud execution has
 been launched.
+
+Pre-outcome static audit correction: the first protocol draft incorrectly
+described separation, air depth, and air share as absent from the model.
+`sql/features/015a_player_week_advanced.sql` and the canonical feature list
+show that separation is already active, while the usage/efficiency tables
+already provide the other two. The implementation was corrected before any
+result so both arms receive those exact existing fields. The test now asks
+only whether cross-season NGS history plus cushion/YACOE adds residual value.
