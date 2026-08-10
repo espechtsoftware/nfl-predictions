@@ -55,6 +55,14 @@ export below, because only that source can supply true routes and a live
 weekly update. No lineup outcome or candidate panel is part of this proxy
 gate.
 
+Completed result: immutable execution `pass-participation-proxy-vmxdq`
+improved held-out aggregate residual MAE `3.71089→3.67957`, 20-point Brier
+`0.045375→0.045226`, and WR/TE Brier `0.039258→0.039082` across 9,887
+2024-2025 player-weeks. Both primary metrics improved in both seasons, so the
+frozen disposition is `supports-paid-route-trial`. The effect is modest; use
+it to justify the measured true-route export trial, not to forecast a large
+lineup-score lift.
+
 Source:
 
 - <https://github.com/nflverse/nflreadr/releases>

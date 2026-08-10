@@ -1,0 +1,4 @@
+run_id=20260810-pass-participation-v1
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:2665a7f9a683e2d737d620519a15a431e4a5c7baa6feb43aade7f2f4084fde62
+panel=20260809-e80-k1-ce12-c616390
+seasons=2023 2024 2025

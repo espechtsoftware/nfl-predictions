@@ -139,12 +139,20 @@ agent or developer:
   lineup arm. Implementation, CLI, and three focused tests are complete; nine
   combined participation/selector tests pass. Implementation/protocol commit
   `0261801` is pushed on `main`; full validation build
-  `6200e344-837e-4935-9adf-8eb062383017` is running. The one frozen cloud
-  diagnostic remains blocked on a green immutable digest from that build.
+  `6200e344-837e-4935-9adf-8eb062383017` passed 720 tests with 2 skipped and
+  produced immutable digest
+  `sha256:2665a7f9a683e2d737d620519a15a431e4a5c7baa6feb43aade7f2f4084fde62`.
   Guarded runner `scripts/cloud_pass_participation_proxy.sh` requires an
   immutable digest, deploys the unscheduled diagnostic with 2 CPU / 4Gi / no
   retries, records the execution and manifest, and harvests exactly one JSON
   disposition under `reports/pass-participation-runs/`.
+  Execution `pass-participation-proxy-vmxdq` completed cleanly. Across 9,887
+  held-out 2024-2025 player-weeks, the treatment improved residual MAE
+  `3.71089→3.67957`, 20-point Brier `0.045375→0.045226`, and WR/TE Brier
+  `0.039258→0.039082`; both primary metrics improved in each season. All
+  frozen conditions pass and disposition is `supports-paid-route-trial`.
+  This justifies verifying/buying the under-$200 full-history true-route
+  export, not adding the season-delayed proxy or claiming a lineup result.
 - Research on the subsequent selector question is recorded in
   `reports/2026-08-10-scoring-opportunity-roadmap.md`. After current shadows,
   prospective snapshots may retain 210/220 support and freeze a deterministic

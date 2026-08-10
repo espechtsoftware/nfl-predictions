@@ -1,6 +1,7 @@
 # Pass-participation proxy gate
 
-Status: preregistered; implementation and cloud diagnostic pending.
+Status: completed; frozen purchase/mechanism gate passed and supports a paid
+true-route-data trial.
 
 ## Purpose
 
@@ -88,3 +89,37 @@ four inputs, thresholds, folds or model family after seeing it.
 Source:
 
 - <https://github.com/nflverse/nflreadr/releases>
+
+## Result
+
+Full validation build `6200e344-837e-4935-9adf-8eb062383017` passed 720 tests
+with 2 skipped and produced immutable diagnostic digest
+`sha256:2665a7f9a683e2d737d620519a15a431e4a5c7baa6feb43aade7f2f4084fde62`.
+Cloud Run execution `pass-participation-proxy-vmxdq` completed successfully in
+1m48s. Its complete machine report is tracked under
+`reports/pass-participation-runs/20260810-pass-participation-v1/`.
+
+The source audit processed 137,271 participation plays, excluded 53 malformed
+personnel vectors, joined 60,805 valid dropbacks and produced 17,067
+player-week rows. The accepted snapshot supplied 24,205 2023-2025 skill rows;
+14,845 had a strictly prior participation observation. The two held-out folds
+contained 9,887 player-weeks.
+
+| held-out rows | control MAE | treatment MAE | control Brier | treatment Brier |
+|---:|---:|---:|---:|---:|
+| 2024: 4,964 | 3.80397 | 3.76658 | 0.048312 | 0.048096 |
+| 2025: 4,923 | 3.61703 | 3.59184 | 0.042413 | 0.042332 |
+| aggregate: 9,887 | 3.71089 | 3.67957 | 0.045375 | 0.045226 |
+
+Aggregate WR/TE Brier also improved from `0.039258` to `0.039082`. Every
+frozen gate condition passed: aggregate MAE, aggregate Brier and WR/TE Brier
+improved, while neither held-out season worsened either primary metric.
+Machine disposition is **`supports-paid-route-trial`**.
+
+The improvements are small—about 0.84% in MAE and 0.33% in Brier—so this is
+not evidence that route data alone will transform lineup scoring. It is clean
+evidence that a closer pass-opportunity measure adds incremental held-out
+signal beyond current target/snap/vacancy features. Proceed to the paid export
+only after full 2022-2025 CSV availability and a checkout below $200 are
+confirmed; the true-route fields must still pass their own player-tail,
+candidate-union and equal-budget lineup gates.
