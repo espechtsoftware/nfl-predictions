@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 14:38 CDT
+## Current state — 2026-08-10 14:50 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -322,8 +322,15 @@ agent or developer:
   private table `nfl_raw.fantasy_points_route_share` with 26,881 resolved rows,
   1,029 resolved GSIS players, four exact source hashes and values in `[0,1]`.
   A repeated write returned `already-identical` without mutation. No outcome
-  diagnostic has run. Commit/push, execute a full Cloud Build, and use only its
-  immutable digest for the single frozen diagnostic.
+  diagnostic had run at implementation time. Implementation commit `501760b`
+  is pushed on `main`. Exact-tree Cloud Build
+  `24d0a97b-b51e-43c0-a733-332f24064d25` passed 749 tests with 2 skipped and
+  produced immutable digest
+  `sha256:a08ae363d937a428849f62b3bd07ea7527d8dd4ab487496d0408fa3da9e49d42`.
+  The single frozen diagnostic is now running as durable Cloud Run execution
+  `fantasy-points-route-diagnostic-rthzs`; do not inspect an intermediate
+  outcome or launch a retry/variant. Its runner will harvest the sole final
+  report under `reports/fantasy-points-route-runs/20260810-fp-route-share-v1/`.
 - One corrected-history selector confirmation is now frozen before either
   corrected control outcome is read:
   `reports/2026-08-10-corrected-extreme-selector-confirmation.md`. After the

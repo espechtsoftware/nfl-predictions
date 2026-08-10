@@ -141,6 +141,10 @@ The diagnostic implementation is
 `scripts/cloud_fantasy_points_route_diagnostic.sh`. Four focused tests pass,
 including source provenance/identity normalization, conflicting player-week
 rejection, exact earlier-week/cross-season construction, and the 30-point gate.
-Python compilation, shell parsing and whitespace validation are clean. A full
-Cloud Build and immutable diagnostic image are still required before querying
-the outcome.
+Python compilation, shell parsing and whitespace validation are clean.
+Exact-tree Cloud Build `24d0a97b-b51e-43c0-a733-332f24064d25` passed 749 tests
+with 2 skipped and produced immutable digest
+`sha256:a08ae363d937a428849f62b3bd07ea7527d8dd4ab487496d0408fa3da9e49d42`.
+The one licensed outcome query is running as Cloud Run execution
+`fantasy-points-route-diagnostic-rthzs`. No intermediate result, alternate
+model, window or retry may be used.

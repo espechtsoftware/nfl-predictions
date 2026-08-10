@@ -1,0 +1,5 @@
+run_id=20260810-fp-route-share-v1
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:a08ae363d937a428849f62b3bd07ea7527d8dd4ab487496d0408fa3da9e49d42
+panel=20260810-lockfix-e80-k1-8677d21
+source_seasons=2022 2023 2024 2025
+held_out=2024 2025
