@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 16:48 CDT
+## Current state — 2026-08-10 16:52 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -140,6 +140,15 @@ agent or developer:
   strict season N-1 and acquisition-only. Separation by Alignment is the last
   requested historical receiver family before an outcome-unseen scheme
   protocol may be designed.
+- Receiving Separation-by-Alignment is now also validated on branch `main`
+  at commit `fcce6d5`: 540/513/522/519 rows with a stable 41-column grouped
+  schema. Wide, Slot,
+  Inline and Backfield route counts reconcile exactly to Overall for every
+  row, every populated metric parses numerically, and the identity universes
+  match the other separation reports. Exact hashes are in the intake report.
+  This completes the requested historical receiver-separation acquisition;
+  all files remain strict N-1, acquisition-only evidence until a small
+  support-aware feature block and gate are preregistered before outcomes.
 
 - Optimization has resumed with one new point-in-time information path rather
   than another selector sweep on the same 107 outcomes. Protocol
