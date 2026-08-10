@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 15:48 CDT
+## Current state — 2026-08-10 15:57 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -308,8 +308,11 @@ agent or developer:
   grouped schema cleanly identifies the repeated Zone and Man/Gap metric
   blocks; exact hashes are in the intake report. Like Advanced Receiving,
   they are strict prior-season inputs only: season N is forbidden for every
-  target in season N and first becomes eligible in season N+1. No further
-  Fantasy Points download is currently requested.
+  target in season N and first becomes eligible in season N+1. Advanced
+  Passing Player exports are also complete at 83/80/77/77 QBs with a clean
+  grouped 59-column schema and exact hashes in the intake report; the same
+  strict prior-season restriction applies. No further Fantasy Points download
+  is currently requested.
 - Corrected CE12 completed all 107 slates with season counts
   `17/18/18/18/18/18`, 25,766 candidate rows and exactly 8,560 selected rows.
   All six authoritative executions completed cleanly. Check-only acceptance
@@ -346,8 +349,12 @@ agent or developer:
   preregistration/implementation commit `e0e1a04` was cancelled during its
   test step, before any image or panel launch: a prelaunch packaging audit
   found Dockerfile's explicit script allow-list omitted the new comparator.
-  Add that copy line, validate the superseding exact tree, and record its
-  immutable digest before launching.
+  Commit `875164e` added that copy line. Superseding exact-tree Cloud Build
+  `b45029c0-a715-403e-8dba-c3323e27da91` passed 756 tests with 2 skipped and
+  produced immutable comparison digest
+  `sha256:5319704c23ac40f30771a43b2fb6b4d012a7b2d8f610b980ecfd509ba55deb6b`.
+  Launch the single direct-role treatment from the original corrected
+  generation digest, then use this later digest for check/comparison.
 - At approximately 15:18 CDT, an operational recent-log check on the final
   running 2022 CE execution unintentionally surfaced the already-written Week
   16 and Week 17 best-score log lines before the panel was complete. No gate,

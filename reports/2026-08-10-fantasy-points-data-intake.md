@@ -248,6 +248,27 @@ would leak future games. The superseded no-group-header downloads must never
 be ingested because ordinary name-based CSV readers silently overwrite the
 first repeated metric block with the second.
 
+### Advanced Passing family validation
+
+All four files are the complete **Player** QB view with group and column
+headers. They share 59 columns grouped as Player Details, Passing, Scrambles,
+Passing Advanced and FPTS. Every data row has the expected width, position is
+QB throughout, season matches the filename, and group-qualified column names
+are unique.
+
+| Season | Rows | SHA-256 |
+|---:|---:|---|
+| 2022 | 83 | `55d29f3e7995c0f08c6943d02e7f28a55744a11dd82b167821d1c61509e9aeba` |
+| 2023 | 80 | `5085de7ab8dc8f9d1f228dcff60cec2ccff73d2dc2ed72b09921ad0c87424474` |
+| 2024 | 77 | `753b7a000e7483e4633b1416b33402dad358be95b5bf503fad8641e0094be069` |
+| 2025 | 77 | `615fc914ff57b708d09ce525007df09f52db1370172aaa3f0d7456d0046da5c1` |
+
+Potential prior-season QB ceiling inputs include CPOE, aDOT, deep-throw rate,
+first-read rate, turnover-worthy throw rate, pressure/sack behavior, scramble
+rate and fantasy points per dropback/opportunity. These files are again
+full-season aggregates with no week column: season N values are forbidden for
+all season N targets and first become eligible in season N+1.
+
 ## Importer gate
 
 Do not freeze a *general multi-report* normalized schema or importer until at
