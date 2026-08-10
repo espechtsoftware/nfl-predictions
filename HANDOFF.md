@@ -82,6 +82,15 @@ agent or developer:
   smoke pass. Exact next action: commit/push, run full Cloud Build plus the
   immutable one-week replay smoke, then launch corrected true-80 K3/K1
   controls.
+- Revalidation runner `scripts/prop_lock_rebaseline.sh` freezes the corrected
+  panel chain and 2024 preflight: K3
+  `20260810-lockfix-e80-k3-8677d21`, K1
+  `20260810-lockfix-e80-k1-8677d21`, CE12
+  `20260810-lockfix-e80-k1-ce12-8677d21`, and role union
+  `20260810-lockfix-e80-k1-ce12-roleunion-8677d21`. It is shell-parse clean;
+  CE/role modes fail closed until their exact corrected source panel has been
+  accepted. Cloud Build `3470d0d4-df09-4776-96e8-eaf5a76d0243` is currently
+  validating generation commit `8677d21`.
 
 - The operator explicitly revised the operational objective after the valid
   role union improved the same 80-entry portfolio at every 210+ threshold.
