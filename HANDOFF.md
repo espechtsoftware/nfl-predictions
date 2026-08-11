@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 22:59 CDT
+## Current state — 2026-08-10 23:06 CDT
 
-Active branch is `main`; the last pushed milestone is commit `c0d0ffb`.
+Active branch is `main`; the last pushed milestone is commit `9570216`.
 The two operator-supplied outside-review documents under `reports/` remain
 untracked and must not be staged or modified.
 
@@ -147,6 +147,19 @@ untracked and must not be staged or modified.
   alter the completed N-1 verdicts or in-flight frozen coverage union. The
   full catalog/redundancy disposition is tracked in
   `reports/2026-08-11-fantasy-points-filter-surface-audit.md`.
+- The outcome-blind exact-window redundancy audit is tracked in
+  `reports/2026-08-11-fantasy-points-redundancy-audit.md`. Existing
+  strictly-prior target/air-yard/snap shares, XFP, YPC and YPT reproduce the
+  corresponding vendor values closely (typically 0.95--1.00 correlations),
+  so they are excluded from bulk model search. Fantasy Points separation is
+  distinct from NGS separation, and recent defensive shell deployment has no
+  close existing feature. A compact same-season Man/Zone diagnostic was
+  therefore preregistered before any outcome join in
+  `reports/2026-08-11-fantasy-points-same-season-coverage-protocol.md`.
+  Its plan contains only Man-vs-Zone, Separation-by-Coverage and Defense
+  Coverage Matrix for seasons 2022--2025, target Weeks 5--18 and exact
+  last-four-prior windows. Plan/catalog validation expanded 168 safe exports;
+  collection has not started at this handoff milestone.
 - The auditable Playwright downloader under `automation/fantasy_points/` and
   `ops/fantasy_points_downloads.py` is authenticated and operational. It uses
   a persistent profile outside the repository, never commits credentials or
@@ -1090,9 +1103,10 @@ untracked and must not be staged or modified.
 - Exact next action: monitor the six coverage executions without reading
   partial scores; after all succeed, run check-only exact-80 acceptance and
   the one frozen comparator against direct role. The no-floor union is closed.
-  For paid data, run outcome-blind redundancy/support audits on the proven
-  exact-window families, then preregister one compact same-season lagged
-  diagnostic before any outcome join or bulk historical collection. Keep all
+  For paid data, run the preregistered 168-export same-season coverage
+  collection sequentially, validate every manifest/schema/game count, then
+  implement the frozen importer and diagnostic without reading outcomes
+  until its PIT/support tests pass. Keep all
   17 seasonal schedules paused until the Aug 24 resume date. On the first real
   Sunday-main slate, run the authenticated UI -> 80 lineups -> DKEntries smoke
   and confirm v2 provenance; deliberately exercise and label the CE-only

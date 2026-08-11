@@ -80,6 +80,22 @@ The downloader establishes report context before selecting Season/Week(s),
 presses `Apply`, and reopens Week(s) to verify the exact selection. Do not
 remove that order: the vendor's active context link can reset filters.
 
+After the outcome-blind catalog/redundancy audit, the first historical
+modeling collection is frozen to three reports and exact last-four-completed
+week windows:
+
+```bash
+fantasy-points-download check \
+  --plan automation/fantasy_points/plans/same-season-coverage-last-four-v1.json
+fantasy-points-download run \
+  --plan automation/fantasy_points/plans/same-season-coverage-last-four-v1.json
+```
+
+This is a sequential 168-export historical collection. Its tracked protocol
+is `reports/2026-08-11-fantasy-points-same-season-coverage-protocol.md`.
+Do not add other catalog fields to that run or inspect outcomes before the
+protocol's importer and tests are complete.
+
 ## Adding or changing recurring exports
 
 Plans are declarative JSON. `seasons` and `week_windows` form a Cartesian
