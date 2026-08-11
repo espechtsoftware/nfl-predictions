@@ -89,3 +89,8 @@ strict-prior attachment, walk-forward diagnostic, CLI and backup coverage are
 implemented. Focused synthetic tests and a parse of all 52 rows in the real
 2025 Weeks 1--4 schema sample passed. Collection, table writes, outcome
 diagnostic and any lineup test have not started.
+
+Exact-tree Cloud Build `adc359ee-ee1d-4914-a251-680cf05dd221` passed 801
+tests with 2 skipped and produced immutable image
+`sha256:b1292d1ed171e20edf94e8a2f6ded5d63fdb1f83e9daa91e8d3acb6f37fa7d98`.
+Use that digest only after the future 56-export run passes its locked importer.

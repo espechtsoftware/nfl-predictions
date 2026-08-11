@@ -143,3 +143,9 @@ contract, waits for the rendered game counts, and validates Season/G inside
 the downloaded CSV. One-file live regression run `20260811T042431Z` proved a
 2022 Weeks 1--4 request returns only Season 2022 with `G=1..4` before the
 historical collection is retried under a new immutable run id.
+
+Exact-tree Cloud Build `adc359ee-ee1d-4914-a251-680cf05dd221` passed 801
+tests with 2 skipped and produced immutable diagnostic image
+`sha256:b1292d1ed171e20edf94e8a2f6ded5d63fdb1f83e9daa91e8d3acb6f37fa7d98`.
+No diagnostic may run until the corrected collection completes and passes
+the manifest-locked audit/import contract.

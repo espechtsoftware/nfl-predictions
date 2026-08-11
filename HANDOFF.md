@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 00:10 CDT
+## Current state — 2026-08-11 00:03 CDT
 
-Active branch is `main`; the last pushed milestone is commit `88cd79b`.
+Active branch is `main`; the last pushed milestone is commit `34dfaa6`.
 The two operator-supplied outside-review documents under `reports/` remain
 untracked and must not be staged or modified.
 
@@ -200,6 +200,12 @@ untracked and must not be staged or modified.
   the real 52-row schema sample parsed all 22 treatment features. Collection
   must wait for the active coverage plan to finish; no table write, outcome
   diagnostic or lineup arm has started.
+- Exact-tree Cloud Build `adc359ee-ee1d-4914-a251-680cf05dd221` from commit
+  `34dfaa6` passed 801 tests with 2 skipped and produced immutable image
+  `sha256:b1292d1ed171e20edf94e8a2f6ded5d63fdb1f83e9daa91e8d3acb6f37fa7d98`.
+  Use this digest for both same-season player-tail diagnostics after their
+  respective manifest-locked imports; never run from mutable tag
+  `same-season-data-34dfaa6`.
 - The auditable Playwright downloader under `automation/fantasy_points/` and
   `ops/fantasy_points_downloads.py` is authenticated and operational. It uses
   a persistent profile outside the repository, never commits credentials or
