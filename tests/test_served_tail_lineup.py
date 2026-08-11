@@ -44,6 +44,33 @@ def test_stage_b_mechanism_accepts_only_scale_change():
         treatment_code_sha="new") == []
 
 
+def test_candidate_mean_tolerance_matches_persisted_float_resolution():
+    assert lineup.CANDIDATE_MEAN_ATOL == 1e-4
+
+
+def test_generator_summary_collapses_per_draw_role_tags():
+    rows = pd.DataFrame([
+        {
+            "all_tags": '["boom","epi:role_draw:1:123"]',
+            "selected": True,
+        },
+        {
+            "all_tags": '["epi:role_draw:7:999"]',
+            "selected": False,
+        },
+    ])
+    assert lineup.generator_summary(rows) == [
+        {
+            "generator": "boom", "candidates": 1,
+            "selected": 1, "exclusive_candidates": 0,
+        },
+        {
+            "generator": "epi:role_draw", "candidates": 2,
+            "selected": 1, "exclusive_candidates": 1,
+        },
+    ]
+
+
 def test_stage_b_mechanism_rejects_wrong_factor_and_unrelated_change():
     source = _provenance(code=lineup.SOURCE_CODE_SHA)
     treatment = _provenance("1.020")

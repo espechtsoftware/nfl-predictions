@@ -147,8 +147,12 @@ def _candidate_audit(source: str, treatment: str) -> dict:
                 AND ABS(source_actual - treatment_actual) > 1e-8)
                 AS common_actual_mismatch,
         COUNTIF(source_players IS NOT NULL AND treatment_players IS NOT NULL
-                AND ABS(source_mean - treatment_mean) > 1e-6)
+                AND ABS(source_mean - treatment_mean)
+                    > {stage_b.CANDIDATE_MEAN_ATOL})
                 AS common_sim_mean_mismatch,
+        MAX(IF(source_players IS NOT NULL AND treatment_players IS NOT NULL,
+               ABS(source_mean - treatment_mean), NULL))
+                AS max_common_sim_mean_abs_delta,
         COUNTIF(source_selected AND COALESCE(NOT treatment_selected, TRUE))
                 AS selected_source_only,
         COUNTIF(treatment_selected AND COALESCE(NOT source_selected, TRUE))
@@ -158,25 +162,15 @@ def _candidate_audit(source: str, treatment: str) -> dict:
         (SELECT MAX(treatment_n - source_n) FROM counts) AS max_pool_delta
       FROM paired
     """).iloc[0]
-    return {name: int(result.get(name) or 0) for name in result.index}
-
-
-def _generator_summary(rows: pd.DataFrame) -> list[dict]:
-    if rows.empty:
-        return []
-    provenance = rows.all_tags.map(
-        lambda value: json.loads(value) if isinstance(value, str) else [])
-    generators = sorted({tag for tags in provenance for tag in tags})
-    report: list[dict] = []
-    for generator in generators:
-        has = provenance.map(lambda tags, tag=generator: tag in tags)
-        report.append({
-            "generator": generator,
-            "candidates": int(has.sum()),
-            "selected": int((has & rows.selected).sum()),
-            "exclusive_candidates": int(
-                (has & provenance.map(len).eq(1)).sum()),
-        })
+    report = {
+        name: int(result.get(name) or 0)
+        for name in result.index
+        if name != "max_common_sim_mean_abs_delta"
+    }
+    report["max_common_sim_mean_abs_delta"] = float(
+        result.max_common_sim_mean_abs_delta or 0.0
+    )
+    report["sim_mean_absolute_tolerance"] = stage_b.CANDIDATE_MEAN_ATOL
     return report
 
 
@@ -231,10 +225,10 @@ def main() -> int:
         "mode": "served-tail-scale-1.025-partial-panel",
         "feature_invariance": feature_audit,
         "candidate_audit": candidate_audit,
-        "source_generator_summary": _generator_summary(source),
-        "source_evaluation_generator_summary": _generator_summary(
+        "source_generator_summary": stage_b.generator_summary(source),
+        "source_evaluation_generator_summary": stage_b.generator_summary(
             source[source.season.isin(stage_b.EVALUATION_SEASONS)]),
-        "treatment_generator_summary": _generator_summary(treatment),
+        "treatment_generator_summary": stage_b.generator_summary(treatment),
         **scores,
         "tail_first_decision": decision,
         "disposition": disposition,

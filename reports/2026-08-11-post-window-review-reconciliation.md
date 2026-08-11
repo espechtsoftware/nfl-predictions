@@ -58,10 +58,16 @@ review remains unmodified and untracked at
 2. The separately frozen one-factor, mean-invariant Stage A recalibration
    passed and selected `1.025` using only 2019/2021/2022. Its untouched
    2023--2025 calibration gates all passed. The sole exact-80 Stage B lineup
-   replay is running as `replay-lockk1tail-2023-bdhsj`,
+   replay completed successfully as `replay-lockk1tail-2023-bdhsj`,
    `replay-lockk1tail-2024-4727d` and `replay-lockk1tail-2025-6mnfb` from the
-   immutable registered image. Production remains at identity until that score
-   test passes; no second factor or treatment is licensed.
+   immutable registered image; check-only acceptance
+   `accept-replay-panel-mmkps` passed all 54 exact-80 books. The first
+   comparator failed on an overly precise persisted candidate-mean tolerance
+   and an unbounded log diagnostic, not on generation. Its exact failure and
+   already-visible score fields are frozen before one comparator-only repair;
+   no book, factor, selector, threshold or disposition rule may change.
+   Production remains at identity, and no second factor or treatment is
+   licensed.
 3. The immutable 2026 Route Share weekly append path and prospectively frozen
    shadow gate are implemented and pushed. Its all-row CRPS primary, q95/q99
    pinball and calibration checks, paired week-clustered uncertainty and MDE

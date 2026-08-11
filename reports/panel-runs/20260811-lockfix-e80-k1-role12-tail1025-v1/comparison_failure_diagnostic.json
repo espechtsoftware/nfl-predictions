@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "failed_execution": "compare-served-tail-stage-b-pgwcw",
+  "failed_execution_state": false,
+  "failure_kind": "mechanical-comparator-validation",
+  "scientific_treatment_regenerated": false,
+  "candidate_mean_audit": {
+    "common_rows": 13562,
+    "old_absolute_tolerance": 0.000001,
+    "old_mismatches": 4342,
+    "repaired_absolute_tolerance": 0.0001,
+    "repaired_mismatches": 0,
+    "minimum_absolute_delta": 0.0,
+    "maximum_absolute_delta": 0.0000305176,
+    "mean_absolute_delta": 0.0000041449,
+    "p90_absolute_delta": 0.0000152588,
+    "p99_absolute_delta": 0.0000228882
+  },
+  "player_feature_invariance": {
+    "source_rows": 29285,
+    "treatment_rows": 29285,
+    "source_only_rows": 0,
+    "treatment_only_rows": 0,
+    "mismatch_rows": 0,
+    "maximum_numeric_absolute_delta": 3.552713678800501e-15
+  },
+  "score_fields_visible_before_repair": {
+    "source_full_187_194_200_210_220_230_240": [34, 22, 11, 7, 5, 3, 2],
+    "treatment_full_187_194_200_210_220_230_240": [33, 23, 13, 7, 5, 3, 2],
+    "source_full_mean_best": 180.1207476635514,
+    "treatment_full_mean_best": 179.95196261682244,
+    "source_evaluation_187_194_200_210_220_230_240": [15, 9, 2, 2, 1, 1, 0],
+    "treatment_evaluation_187_194_200_210_220_230_240": [14, 10, 4, 2, 1, 1, 0]
+  },
+  "logging_failure": {
+    "structured_json_payload_absent": true,
+    "stdout_report_was_unbounded_by_per_draw_generator_tags": true,
+    "harvested_report_before_repair": false
+  }
+}

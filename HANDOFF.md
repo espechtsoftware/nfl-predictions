@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 08:25 CDT
+## Current state — 2026-08-11 09:32 CDT
 
 Active branch is `main`; Stage B execution-record commit `8bd5588` is pushed.
 The three operator-supplied outside-review documents
@@ -135,14 +135,34 @@ not be staged or modified.
   `82147e17-6c8d-4a99-bd3d-b56475d0724a` succeeded from commit `3431add` and
   published immutable digest
   `sha256:22f0936b307236a2cfc9462f50e9bf4bd31f57dfa0b7975132baec9766db90e8`.
-  The sole Stage B launch is now in progress. Immutable 2024 smoke
+  The sole Stage B launch used immutable 2024 smoke
   `replay-lockk1tail-smoke-md2tb` passed, then the wrapper launched
   `replay-lockk1tail-2023-bdhsj`, `replay-lockk1tail-2024-4727d`, and
   `replay-lockk1tail-2025-6mnfb`. The exact manifest is tracked under
   `reports/panel-runs/20260811-lockfix-e80-k1-role12-tail1025-v1/`. Do not
-  rerun this treatment or test another factor. Next action: wait for all three
-  without reading partial scores, accept the exact 54 treatment slates, run
-  the frozen comparator, and promote only on its stated Stage B disposition.
+  rerun this treatment or test another factor.
+  All three treatment executions subsequently completed successfully.
+  Check-only acceptance `accept-replay-panel-mmkps` passed the exact 54-slate,
+  exact-80 contract. First comparator execution
+  `compare-served-tail-stage-b-pgwcw` failed mechanically: its `1e-6`
+  candidate-mean tolerance was below persisted float resolution, flagging
+  4,342/13,562 shared rosters whose absolute deltas were only
+  `0.000015--0.000031`, while all 29,285 player-input rows were invariant to
+  `3.55e-15`. Its unbounded per-draw generator summary also exceeded a single
+  structured Cloud log payload. Score fields became visible before this was
+  diagnosed and are recorded without alteration in
+  `comparison_failure_diagnostic.json`: the full challenger is
+  `33/23/13/7/5/3/2` at 187/194/200/210/220/230/240 versus incumbent
+  `34/22/11/7/5/3/2`, with means `179.952` versus `180.121`. The repair is
+  frozen after disclosure: keep books and score law unchanged, use an absolute
+  candidate-mean tolerance of `1e-4`, report the max delta, collapse only
+  per-draw role provenance for bounded logging, and run one comparator-only
+  execution from a new immutable image. Thirty-two focused tests pass; the
+  unchanged-books local validation clears all invariants and returns neutral
+  because 240/230/220/210 tie at `2/3/5/7`. This local result is diagnostic,
+  not the durable Cloud adjudication. Production remains identity. Next exact
+  action: commit the disclosed repair, build its exact tree, run the one repair
+  wrapper, and harvest the compact report; never regenerate the treatment.
 - The outside review's prospective Route Share recommendation is now frozen
   before any 2026 Route value or outcome in
   `reports/2026-08-11-route-share-2026-operating-contract.md`. The declarative

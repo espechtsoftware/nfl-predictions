@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 
 import pandas as pd
@@ -16,10 +17,40 @@ HISTORICAL_SEASONS = (2019, 2021, 2022)
 SOURCE_SEASONS = HISTORICAL_SEASONS + EVALUATION_SEASONS
 SOURCE_CODE_SHA = "8677d21"
 SCALE = 1.025
+CANDIDATE_MEAN_ATOL = 1e-4
 ROLE_FEATURES = (
     "target_share_last,carry_share_last,snap_share_last,"
     "target_share_jump,carry_share_jump,snap_share_jump"
 )
+
+
+def _generator_family(value: str) -> str:
+    """Collapse per-draw provenance without losing mechanism identity."""
+    tag = str(value)
+    if tag.startswith("epi:role_draw:"):
+        return "epi:role_draw"
+    return tag
+
+
+def generator_summary(rows: pd.DataFrame) -> list[dict]:
+    """Summarize generator provenance without unbounded per-seed log output."""
+    if rows.empty:
+        return []
+    provenance = rows.all_tags.map(
+        lambda value: json.loads(value) if isinstance(value, str) else []
+    ).map(lambda tags: sorted({_generator_family(tag) for tag in tags}))
+    generators = sorted({tag for tags in provenance for tag in tags})
+    report: list[dict] = []
+    for generator in generators:
+        has = provenance.map(lambda tags, tag=generator: tag in tags)
+        report.append({
+            "generator": generator,
+            "candidates": int(has.sum()),
+            "selected": int((has & rows.selected).sum()),
+            "exclusive_candidates": int(
+                (has & provenance.map(len).eq(1)).sum()),
+        })
+    return report
 
 
 def panel_id(value: str) -> str:

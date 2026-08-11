@@ -213,3 +213,32 @@ executions `replay-lockk1tail-2023-bdhsj`,
 `replay-lockk1tail-2024-4727d`, and
 `replay-lockk1tail-2025-6mnfb`. Wait for all three; read no partial score result.
 Then run the exact-season acceptance and the frozen comparator once.
+
+## Stage B comparator harness repair
+
+All three treatment executions completed successfully, and check-only
+acceptance execution `accept-replay-panel-mmkps` passed all 54 exact-80 books.
+The first comparator execution `compare-served-tail-stage-b-pgwcw` then
+failed mechanically before producing an eligible disposition. It used an
+absolute `1e-6` equality tolerance on persisted candidate `sim_mean` values.
+Although the upstream player inputs were invariant over all 29,285 rows with
+maximum numeric delta `3.55e-15`, float-resolution differences of only
+`0.000015--0.000031` points caused 4,342 of 13,562 shared rosters to fail that
+overly precise audit. A separate output bug expanded every per-draw role tag,
+making the stdout JSON too large for one structured Cloud Logging payload.
+
+This failure exposed score fields before the harness could be repaired. The
+exact visible counts and numerical audit are frozen transparently in
+`comparison_failure_diagnostic.json`; they cannot be used to alter the score
+law, factor, books, or repair tolerance. The only permitted repair is:
+
+1. keep the already-generated source and treatment rows byte-for-byte fixed;
+2. set candidate-mean absolute tolerance to `1e-4`, chosen because the observed
+   maximum is `0.0000305176` and this is still only about one millionth of a
+   typical lineup mean;
+3. report the maximum delta and tolerance explicitly;
+4. collapse `epi:role_draw:<draw>:<seed>` tags to the already-registered
+   `epi:role_draw` mechanism solely to bound log size; and
+5. run one repaired comparator from a new exact-tree immutable image. No
+   treatment generation, selection, scoring, threshold, or disposition code
+   may change.
