@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 20:18 CDT
+## Current state — 2026-08-10 20:23 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -131,9 +131,14 @@ agent or developer:
   were amended to require the accepted direct-role source
   `20260810-lockfix-e80-k1-role12union-8677d21`. The independent no-floor
   treatment remains byte-for-byte the frozen K1 binary ablation. Shell syntax
-  and whitespace checks pass. Generate that pool once, but wait for the Route
-  disposition before choosing the incumbent argument for the single union
-  comparison.
+  and whitespace checks pass. Immutable preflight
+  `replay-locknofloor-smoke-dzrqw` passed, and all six season jobs are running:
+  `replay-locknofloor-2019-4ztp8`, `replay-locknofloor-2021-fjsrj`,
+  `replay-locknofloor-2022-swpsn`, `replay-locknofloor-2023-lsb6k`,
+  `replay-locknofloor-2024-kjftz`, and `replay-locknofloor-2025-kqwdn`.
+  Do not read partial scores. Once complete, run check-only acceptance, but
+  wait for the Route disposition before choosing the incumbent argument for
+  the single no-floor union comparison.
 - The operator's paid-data operations request is implemented on branch `main`
   at commit `ea6dca4`. The README season-start schedule now requires the final
   evidence-selected Fantasy Points reports, exact filters and pre-lock
