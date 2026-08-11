@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 06:08 CDT
+## Current state — 2026-08-11 06:10 CDT
 
-Active branch is `main`; repository work through commit `16eec10` is pushed.
+Active branch is `main`; repository work through commit `f75ac08` is pushed.
 The three operator-supplied outside-review documents
 `reports/2026-08-10-scoring-strategy-recommendations.md`,
 `reports/2026-08-11-fantasy-points-data-utilization.md`, and
@@ -76,8 +76,12 @@ not be staged or modified.
   `scripts/cloud_served_tail_calibration.sh` requires an immutable image and
   records one execution/report. Twelve focused served-tail/Route-component
   tests pass, with compilation, CLI discovery, shell syntax and whitespace
-  clean. Build the exact tree, record its immutable digest, then run the
-  wrapper once; no final-path outcome has been generated yet.
+  clean. Exact-tree Cloud Build
+  `98d988c4-ba7e-4dc6-b36b-73ec5842d761` passed 827 tests with two expected
+  skips and published immutable digest
+  `sha256:4501adb4d4d7389feb931b4f2696eb780c18f3207d5e00732b54c5d616bdf7ff`.
+  Run the wrapper once with that digest; no final-path outcome has been
+  generated yet.
 - The next paid-data correlation study was frozen and pushed before any
   outcome join at commit `8263fe8`:
   `reports/2026-08-10-fantasy-points-coverage-fit-experiment.md`. It tests only

@@ -24,6 +24,12 @@ review remains unmodified and untracked at
 
 ## Necessary qualifications
 
+- Brier loss does not literally discard the roughly 99% non-event rows; every
+  row contributes squared probability error. The review's "one event moving"
+  conversion is an intuitive approximation, not a standard error or power
+  calculation. Its broader concern is still valid, so future paired reports
+  should compute uncertainty from the actual per-row loss differences rather
+  than infer it from event count alone.
 - The 2.688% q99 result is **pre-shaper and pre-market blend**. It does not yet
   establish that the final distribution used for lineup selection is 2.7x too
   thin. `replay_projections(..., return_draws=True)` subsequently applies

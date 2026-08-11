@@ -100,5 +100,12 @@ distribution, while 20/30-point Brier remains mandatory.
 Protocol was frozen and pushed at commit `16eec10`. The exact-population
 alignment, production-environment guard, final-draw scorer, q90/q95/q99
 calibration intervals, pinball/CRPS/Brier diagnostics, CLI and one-shot Cloud
-runner are implemented. Focused offline validation passes. Exact-tree build,
-Cloud Run execution and final metrics have not started.
+runner are implemented. Focused offline validation passes. Cloud Run
+execution and final metrics have not started.
+
+Exact-tree Cloud Build `98d988c4-ba7e-4dc6-b36b-73ec5842d761` from
+implementation commit `f75ac08` passed 827 tests with two expected skips and
+published immutable image digest
+`sha256:4501adb4d4d7389feb931b4f2696eb780c18f3207d5e00732b54c5d616bdf7ff`.
+Use that digest for the one wrapper execution; never run the diagnostic from
+the mutable tag.
