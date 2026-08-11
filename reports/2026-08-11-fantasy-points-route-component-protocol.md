@@ -113,5 +113,14 @@ as independent confirmation.
 
 ## Pre-outcome status
 
-Protocol only. No new component control/treatment has been trained or scored,
-and no lineup outcome has been queried under this intervention.
+The strict-prior full-panel attachment, K=1 control/treatment component
+harness, supported component metrics, efficient empirical CRPS, common-seed
+10,000-draw possession simulation, frozen gate, CLI and one-shot Cloud runner
+are implemented. The four fields are registered as opt-in candidate features;
+with `EXTRA_FEATURES` unset, the production feature matrix is unchanged. The
+live private-table source contract was verified at 26,881 resolved rows, four
+exact hashes and 1,029 resolved players. Thirty-four focused Route,
+component, feature-set and status tests pass, with compilation, CLI discovery,
+shell parsing and whitespace checks clean. No new component control/treatment
+has been trained or scored, and no lineup outcome has been queried under this
+intervention.

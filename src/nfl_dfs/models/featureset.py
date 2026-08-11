@@ -112,6 +112,14 @@ CANDIDATE_FEATURES = (
     "xfp_l4",                     # expected FP from opportunity alone (bucketed pbp rates; FantasyPoints lineage)
     "vacated_capture_tgt",        # vacated targets x empirical (pos,depth) capture rate (Addendum 44 event study)
     "vacated_capture_car",        # vacated carries x empirical capture rate (backfield-concentrated)
+    # Licensed Fantasy Points true Route Share. Research-only unless the
+    # exact four-feature component protocol passes; all values are attached
+    # from strictly earlier player-weeks and the default model remains
+    # unchanged while EXTRA_FEATURES is unset.
+    "fp_route_share_last",
+    "fp_route_share_l4",
+    "fp_route_share_jump",
+    "fp_route_cross_season",
 )
 
 

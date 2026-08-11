@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 04:00 CDT
+## Current state — 2026-08-11 04:06 CDT
 
 Active branch is `main`; the last pushed milestone is commit `5b4c1cf`.
 The two operator-supplied outside-review documents under `reports/` remain
@@ -381,6 +381,17 @@ untracked and must not be staged or modified.
   use QB/RB/WR/TE Sunday-main rows while the composed primary gate uses only
   Route-relevant RB/WR/TE rows, and pins the adopted possession/team-factor
   simulator; no outcome had been generated under either arm.
+  The strict-prior full-panel attachment, K=1 control/treatment harness,
+  supported component metrics, empirical CRPS, common-seed 10,000-draw
+  simulation, frozen gate, CLI and one-shot Cloud runner are now implemented.
+  Route fields are opt-in candidate features only; production is unchanged
+  with `EXTRA_FEATURES` unset. The live source contract is exactly 26,881
+  resolved rows, four hashes and 1,029 players. Thirty-four focused Route,
+  component, feature-set and status tests pass; compilation, CLI discovery,
+  shell syntax and whitespace checks are clean. Commit/push this outcome-free
+  implementation, run the complete suite in an exact-tree Cloud Build, record
+  the immutable digest, then launch the wrapper once. No new component arm
+  has trained or read outcomes.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no
