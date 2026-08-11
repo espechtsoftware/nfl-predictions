@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 00:52 CDT
+## Current state — 2026-08-11 00:56 CDT
 
-Active branch is `main`; the last pushed milestone is commit `e8e1060`.
+Active branch is `main`; the last pushed milestone is commit `719d0ba`.
 The two operator-supplied outside-review documents under `reports/` remain
 untracked and must not be staged or modified.
 
@@ -222,8 +222,19 @@ untracked and must not be staged or modified.
   repeat returned `already-identical`. Backup snapshots
   `fantasy_points_receiver_coverage_l4_20260811` and
   `fantasy_points_defense_coverage_l4_20260811` exist with exact
-  16,482/1,792 rows. The one-shot cloud runner is frozen and outcome-blind;
-  run the diagnostic next with immutable digest `sha256:b1292d1e...7fa7d98`.
+  16,482/1,792 rows. The one-shot cloud runner ran once with immutable digest
+  `sha256:b1292d1e...7fa7d98`.
+- Frozen execution `fantasy-points-same-season-coverage-k2zt2` completed
+  successfully and returned `same-season-coverage-player-tail-fails`.
+  Supported coverage was 23.41%/22.74%/21.79% in held-out 2023/2024/2025,
+  below the frozen 30% gate in every fold, and aggregate 30-point Brier
+  worsened `0.02956174→0.02971345`. Aggregate 20-point Brier also worsened
+  `0.09749424→0.09760344`; residual MAE improved slightly
+  `5.67203→5.66299`. The registered correlations were small and unstable.
+  Durable artifacts are tracked under
+  `reports/fantasy-points-same-season-coverage-runs/20260811-fp-same-season-coverage-l4-v1/`.
+  The exact same-season coverage mechanism is closed with no candidate union
+  or retry; proceed to the already-preregistered Advanced Passing collection.
 - The auditable Playwright downloader under `automation/fantasy_points/` and
   `ops/fantasy_points_downloads.py` is authenticated and operational. It uses
   a persistent profile outside the repository, never commits credentials or

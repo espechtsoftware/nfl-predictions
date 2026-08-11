@@ -1,0 +1,8 @@
+run_id=20260811-fp-same-season-coverage-l4-v1
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:b1292d1ed171e20edf94e8a2f6ded5d63fdb1f83e9daa91e8d3acb6f37fa7d98
+panel=20260810-lockfix-e80-k1-8677d21
+source_run=20260811T053208Z__same-season-coverage-last-four-v1
+receiver_rows=16482
+defense_rows=1792
+held_out=2023 2024 2025
+target_weeks=5-18

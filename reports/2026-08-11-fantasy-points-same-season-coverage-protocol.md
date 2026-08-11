@@ -172,4 +172,24 @@ teams. Both private tables were created and an immediate repeat returned
 rows. The one-shot runner
 `scripts/cloud_fantasy_points_same_season_coverage.sh` requires those counts,
 the one imported source run, the accepted panel and an immutable image before
-launch. The outcome diagnostic still has not run at this milestone.
+launch.
+
+## Frozen result
+
+Cloud Run execution `fantasy-points-same-season-coverage-k2zt2` completed
+successfully from the preregistered immutable image. The single harvested
+result is tracked under
+`reports/fantasy-points-same-season-coverage-runs/20260811-fp-same-season-coverage-l4-v1/`.
+
+The mechanism failed both frozen gates. Supported coverage was only 23.41%,
+22.74% and 21.79% for held-out 2023, 2024 and 2025, below the required 30%
+in every fold. Aggregate 30-point Brier loss also worsened from 0.02956174
+to 0.02971345. The mandatory secondary diagnostics were mixed: 20-point
+Brier worsened from 0.09749424 to 0.09760344, while residual MAE improved
+slightly from 5.67203 to 5.66299. The registered matchup-edge correlations
+were uniformly small and unstable in sign across folds.
+
+The machine disposition is `same-season-coverage-player-tail-fails`. This
+exact four-feature, last-four-week coverage mechanism is closed. It licenses
+no candidate union, field subset, support/window/model retry, or production
+change.
