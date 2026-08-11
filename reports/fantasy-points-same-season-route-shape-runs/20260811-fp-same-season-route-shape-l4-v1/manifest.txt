@@ -1,0 +1,8 @@
+run_id=20260811-fp-same-season-route-shape-l4-v1
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:35283c02d0be0bfb1be32fd4c9f8a3d9ee81da15ff20e6dc6d471772a11f3d76
+panel=20260810-lockfix-e80-k1-8677d21
+source_run=20260811T073453Z__same-season-route-shape-last-four-v1
+route_shape_rows=16482
+supported_rows=9489
+held_out=2023 2024 2025
+target_weeks=5-18

@@ -108,6 +108,23 @@ wrapper is frozen to these counts and provenance. Backup execution
 Cloud Build `1dfbb3a2-9ab5-410a-933c-0913af4f17f1` from commit `3039af9`
 passed 811 tests with two expected skips and published immutable digest
 `sha256:35283c02d0be0bfb1be32fd4c9f8a3d9ee81da15ff20e6dc6d471772a11f3d76`.
-Outcome evaluation and lineup generation have not started. The already known
+At that pre-outcome milestone, evaluation and lineup generation had not
+started. The already known
 same-season coverage and Advanced Passing failures do not contain any Route
 Break treatment value and did not select these count-only coordinates.
+
+## Frozen result
+
+The one permitted execution
+`fantasy-points-same-season-route-shape-fsrdg` completed successfully with
+disposition `same-season-route-shape-player-tail-fails`. Supported accepted
+WR/TE coverage passed at 34.32%/33.60%/34.20% in held-out 2023/2024/2025, but
+aggregate 30-point Brier worsened `0.02080521→0.02094089`. It worsened in
+every fold: `0.02399321→0.02413170`, `0.02069936→0.02086009`, and
+`0.01775559→0.01786374`. Aggregate 20-point Brier also worsened
+`0.07253747→0.07256688`, as did residual MAE `4.92840→4.93420`. All four
+registered descriptive correlations were small.
+
+The exact route-shape mechanism is closed. It receives no candidate-union
+test, support-floor retry, coordinate subset or model retry. No lineup or
+production policy changed.

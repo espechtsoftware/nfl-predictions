@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 03:27 CDT
+## Current state — 2026-08-11 03:30 CDT
 
-Active branch is `main`; the last pushed milestone is commit `3039af9`.
+Active branch is `main`; the last pushed milestone is commit `ab8f79f`.
 The two operator-supplied outside-review documents under `reports/` remain
 untracked and must not be staged or modified.
 
@@ -322,8 +322,17 @@ untracked and must not be staged or modified.
   Build `1dfbb3a2-9ab5-410a-933c-0913af4f17f1` from commit `3039af9` passed
   811 tests with two expected skips and published digest
   `sha256:35283c02d0be0bfb1be32fd4c9f8a3d9ee81da15ff20e6dc6d471772a11f3d76`.
-  Commit/push this durable pre-outcome provenance, then launch the wrapper
-  exactly once with that digest; no outcome query has started.
+  Frozen execution `fantasy-points-same-season-route-shape-fsrdg` completed
+  successfully with disposition `same-season-route-shape-player-tail-fails`.
+  Held-out support passed at 34.32%/33.60%/34.20%, but aggregate 30-point
+  Brier worsened `0.02080521→0.02094089` and worsened in all three folds.
+  Aggregate 20-point Brier worsened `0.07253747→0.07256688`; residual MAE
+  worsened `4.92840→4.93420`, and correlations were small. Durable artifacts
+  are under `reports/fantasy-points-same-season-route-shape-runs/20260811-fp-same-season-route-shape-l4-v1/`.
+  The mechanism is closed with no candidate union or retry. No lineup or
+  production policy changed. Next perform an outcome-blind strict-prior
+  audit of the already downloaded weekly Defense PROE series, the remaining
+  distinct opponent-context question, before licensing any model test.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no
