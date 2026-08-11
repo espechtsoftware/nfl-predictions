@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 07:42 CDT
+## Current state — 2026-08-11 08:17 CDT
 
 Active branch is `main`; Stage B execution-record commit `8bd5588` is pushed.
 The three operator-supplied outside-review documents
@@ -171,13 +171,24 @@ not be staged or modified.
 - The review's other prospective recommendation is frozen, without using the
   stale offseason samples, in
   `reports/2026-08-11-fantasy-points-live-matchup-capture-contract.md`.
-  QB Coverage Matchup, WR Coverage Matchup and OL/DL Matchups will be captured
-  before lock only after every vendor team/opponent pair exactly matches the
-  project-derived 2026 target-week schedule. Exact bytes/manifests will be
-  archived, early weeks retain the vendor's prior-season-input label, and the
-  data is collection-only until a separately frozen prospective scoring gate.
-  Next action after the Route milestone is to extend the downloader for these
-  no-history schedule-week surfaces; no current production path depends on it.
+  The `fantasy-points-matchups` command now captures exactly QB Coverage
+  Matchup, WR Coverage Matchup and OL/DL Matchups before the target week's
+  first kickoff. It selects and verifies Schedule Week W, presses Apply and
+  checks its values-response contract, requires the vendor All/default input
+  scope, downloads grouped-header CSVs, and rejects the whole capture unless
+  every vendor team/opponent pair exactly matches the project-derived 2026
+  target-week schedule. Exact passing bytes/manifests can be archived under
+  create-only hash-addressed GCS names; Weeks 1--3 retain the vendor's
+  prior-season-input regime label and Week 4 onward requires active-season
+  inputs. The UI Weekly guide now includes the exact operating command. The
+  three existing offseason samples were mechanically checked and correctly
+  fail the 2026 Week 1 gate (QB: 33 unexpected/32 missing pairs; WR: 46/32;
+  OL/DL: 32/32). Fifty-eight focused Matchup/Route/downloader/backup/status
+  tests pass, the installed console entry point is discoverable, and diff/
+  shell checks are clean. The first accepted capture must wait for the vendor
+  surface to roll to a matching 2026 schedule. The data remains collection-
+  only until a separately frozen prospective scoring gate passes; no current
+  production path depends on it.
 - The independent Route scoring law is now frozen before 2026 data in
   `reports/2026-08-11-route-share-2026-shadow-gate.md`. It replaces rare-event
   Brier as the sole decision maker with an all-row CRPS primary, q95/q99

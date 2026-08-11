@@ -200,3 +200,22 @@ import never authorizes same-week data in a target-week projection.
 
 The automation intentionally runs sequentially with a delay between exports.
 It uses only the normal authenticated UI and does not bypass access controls.
+
+## Prospective matchup snapshots
+
+QB Coverage Matchup, WR Coverage Matchup and OL/DL Matchups have no historical
+Season surface. They are captured as future research data, never substituted
+for the rejected offseason samples. Before the target week's first kickoff:
+
+```bash
+fantasy-points-matchups --season 2026 --week W --archive
+```
+
+The command selects and verifies Schedule Week W, keeps the vendor's documented
+All/default input window, presses Apply, records each values-response contract,
+downloads the three grouped-header CSVs, and rejects the entire capture unless
+every team/opponent pair exactly matches `nfl_raw.schedules` for 2026 Week W.
+It also labels Weeks 1--3 as the vendor's early-season/prior-season regime and
+requires active-season inputs from Week 4 onward. Passing bytes are archived
+under create-only hash-addressed GCS names. These snapshots are collection-only
+until a separate future scoring protocol passes.

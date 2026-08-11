@@ -232,6 +232,14 @@ unresolved-player audit, then repeat with <code>--write</code>. It remains a
 shadow input until its prospective gate passes. Never select or import Week W
 data for a Week W prediction. Exact commands are in the repository automation
 guide.</td></tr>
+<tr><td>Tue/Wed matchup snapshot<br>(every week)</td><td
+style='text-align:left'><b>Fantasy Points QB Coverage, WR Coverage and OL/DL
+Matchups.</b> Before the target week&#39;s first kickoff, run
+<code>fantasy-points-matchups --season 2026 --week W --archive</code>. The
+collector presses Apply, verifies Schedule Week W and every opponent against
+the project schedule, then archives a fail-closed manifest. These snapshots
+are research-only until a separately frozen prospective gate passes; do not
+substitute the stale offseason samples.</td></tr>
 <tr><td>Tue&ndash;Sat</td><td style='text-align:left'>Optional: tell the
 chat about credible news (usage notes); ban/boost players as opinions
 form. Automation handles stats, retrain, salaries, odds, props,

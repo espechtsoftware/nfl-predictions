@@ -124,6 +124,15 @@ def test_nav_html_has_strict_prior_route_share_checklist():
     assert "Never select or import Week W" in app_main._NAV_HTML
 
 
+def test_nav_html_has_pre_lock_matchup_capture_checklist():
+    assert "QB Coverage, WR Coverage and OL/DL" in app_main._NAV_HTML
+    assert "fantasy-points-matchups --season 2026 --week W --archive" in (
+        app_main._NAV_HTML
+    )
+    assert "first kickoff" in app_main._NAV_HTML
+    assert "stale offseason samples" in app_main._NAV_HTML
+
+
 def test_route_share_status_is_visible_but_shadow_does_not_page():
     feed = next(
         item for item in status.FEEDS

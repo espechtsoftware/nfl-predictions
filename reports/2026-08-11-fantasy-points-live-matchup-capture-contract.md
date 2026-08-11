@@ -18,11 +18,13 @@ training, correlation claims or backtests.
 
 ## Point-in-time and schedule gate
 
-For target season/week, derive the expected games and common Sunday-main lock
-from `nfl_raw.schedules`, not from the vendor `OPP` field. A capture is eligible
-only when all of the following hold:
+For target season/week, derive the expected games and first kickoff from
+`nfl_raw.schedules`, not from the vendor `OPP` field. A capture is eligible only
+when all of the following hold:
 
-- retrieval completed before the project-derived shared slate lock;
+- retrieval completed before the project-derived target week's **first
+  kickoff** (stronger than Sunday-main lock, so Thursday results cannot enter
+  a later capture);
 - the vendor's rendered schedule week is the requested target week;
 - every exported team/opponent pair maps uniquely to the target-season
   schedule, with no stale, missing or extra matchup silently accepted;
@@ -50,9 +52,15 @@ schedule at consumption time.
 
 ## Operating target
 
-Automation should use the existing authenticated Playwright profile, press
-Apply after selecting the schedule week, verify the rendered selection and
-response scope, download sequentially, archive immutably and surface the
-capture status in the Weekly guide. This can be built and dry-run against the
-current schema, but the first accepted snapshot must wait until the schedule
-gate proves the site has actually rolled to 2026.
+Implemented automation uses the existing authenticated Playwright profile,
+presses Apply after selecting the schedule week, verifies the rendered
+selection and response scope, downloads sequentially, archives immutably and
+surfaces the operating command in the Weekly guide and the capture status in a
+durable manifest. This can be built and dry-run against the current schema,
+but the first accepted snapshot must wait until the schedule gate proves the
+site has actually rolled to 2026.
+
+The command is `fantasy-points-matchups --season 2026 --week W --archive`.
+It is frozen to the three named reports and 2026 Weeks 1--18. The stale
+offseason samples are useful for parser tests only and are never accepted by
+the target-schedule gate.
