@@ -226,6 +226,7 @@ def test_provenance_fields_present(monkeypatch):
                            EPISTEMIC_FAMILY="role_draws",
                            ROLE_BELIEF_FEATURES="target_share_last",
                            ROLE_BELIEF_SEED="7331",
+                           SERVED_TAIL_SCALE="1.025",
                            ENSEMBLE_WORLD_MODE="member_sample",
                            ENSEMBLE_WORLD_SEED="8161")
     for col in ("code_sha", "code_dirty", "config_hash", "lever_env",
@@ -236,6 +237,7 @@ def test_provenance_fields_present(monkeypatch):
     assert "EXTRA_FEATURES=target_share_last" in df.lever_env.iloc[0]
     assert "EPISTEMIC_FAMILY=role_draws" in df.lever_env.iloc[0]
     assert "ROLE_BELIEF_FEATURES=target_share_last" in df.lever_env.iloc[0]
+    assert "SERVED_TAIL_SCALE=1.025" in df.lever_env.iloc[0]
     assert "ENSEMBLE_WORLD_MODE=member_sample" in df.lever_env.iloc[0]
     assert "ROLE_BELIEF_SEED=7331" in df.seeds.iloc[0]
     assert "MODEL_ENSEMBLE_SIZE=3" in df.seeds.iloc[0]

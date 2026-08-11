@@ -170,3 +170,31 @@ The durable report is under
 `reports/served-tail-recalibration-runs/20260811-served-tail-recalibration-stage-a-v1/`.
 This result licenses the single Stage B exact-80 lineup treatment at factor
 `1.025`. It does not change the live production policy by itself.
+
+## Stage B implementation status
+
+The guarded partial-panel harness is implemented before any treatment lineup
+or realized-score result was generated. Candidate rows now persist
+`SERVED_TAIL_SCALE` in immutable lever provenance. The canonical acceptance
+gate accepts an explicit season list while retaining the original six-season
+default, requires the exact requested slate set, and rejects unexpected
+slates. The Stage B wrapper is fixed to panel
+`20260811-lockfix-e80-k1-role12-tail1025-v1`, evaluation seasons
+2023--2025, factor `1.025`, 80 entries, 12 direct-role candidates and 40 boom
+candidates. It refuses to launch unless the durable Stage A report records
+the passing disposition and exact fitted factor.
+
+The comparator requires 54 complete treatment slates and the 107-slate
+accepted source, exact-80 unique books, complete labels, identical seeds,
+player keys and every persisted numeric/model input, identity scale in the
+source, factor `1.025` in treatment, and equality of every other replay
+lever. Shared-roster actual scores and simulated means must remain equal;
+candidate rosters and support may change. It constructs the full challenger
+from untouched source 2019/2021/2022 books plus treatment 2023--2025 books,
+reports both full and evaluation-only metrics, season slices, changed weeks,
+pool oracle and generator summaries, and applies the frozen
+240/230/220/210 order. A mixed positive/negative high-threshold result is
+flagged for operator review rather than silently promoted. Focused contracts,
+the complete local test suite, compilation, shell syntax and whitespace
+checks pass. The next action is an exact-tree Cloud Build followed by the one
+immutable replay; production remains pinned to identity meanwhile.

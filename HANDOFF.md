@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 07:06 CDT
+## Current state — 2026-08-11 07:19 CDT
 
-Active branch is `main`; repository work through commit `7562937` is pushed.
+Active branch is `main`; repository work through commit `0afa9e8` is pushed.
 The three operator-supplied outside-review documents
 `reports/2026-08-10-scoring-strategy-recommendations.md`,
 `reports/2026-08-11-fantasy-points-data-utilization.md`, and
@@ -120,8 +120,20 @@ not be staged or modified.
   `reports/served-tail-recalibration-runs/20260811-served-tail-recalibration-stage-a-v1/`.
   This licenses exactly one factor-1.025 direct-role exact-80 treatment on
   2023--2025; it does not yet alter production. The exact next action is to
-  implement/validate the Stage B partial-panel comparator and guarded replay
-  wrapper, then launch that sole lineup test.
+  build and launch the now-implemented Stage B partial panel. Candidate
+  persistence records the scale, canonical acceptance supports and strictly
+  checks the exact requested season set, and the immutable wrapper is fixed
+  to panel `20260811-lockfix-e80-k1-role12-tail1025-v1`, seasons 2023--2025,
+  factor `1.025`, 80 entries, 12 direct-role candidates and 40 boom
+  candidates. The comparator audits exact player-input/mean/seed/lever
+  invariance apart from the scale, combines untouched source 2019/2021/2022
+  with treatment 2023--2025 for 107-slate metrics, and applies the frozen
+  240/230/220/210 decision order. Mixed high-threshold results require
+  operator review. The complete local test suite, focused contracts,
+  compilation, shell syntax and whitespace checks pass. Production is still
+  pinned to identity. The exact next action is to commit and push this
+  harness, run one exact-tree Cloud Build, record its immutable digest, and
+  launch the sole Stage B replay.
 - The next paid-data correlation study was frozen and pushed before any
   outcome join at commit `8263fe8`:
   `reports/2026-08-10-fantasy-points-coverage-fit-experiment.md`. It tests only

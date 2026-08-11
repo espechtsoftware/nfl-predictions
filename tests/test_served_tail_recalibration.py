@@ -1,9 +1,12 @@
+import inspect
+
 import numpy as np
 import pandas as pd
 import pytest
 
 from nfl_dfs.analysis import served_tail_recalibration as recalibration
 from nfl_dfs.backtest.replay import apply_served_tail_scale
+from nfl_dfs.inference import live_lineups
 
 
 def test_apply_served_tail_scale_is_mean_invariant_and_skill_only():
@@ -32,6 +35,14 @@ def test_apply_served_tail_scale_identity_and_bounds():
     with pytest.raises(ValueError, match="\\[1, 1.25\\]"):
         apply_served_tail_scale(
             draws, positions, env={"SERVED_TAIL_SCALE": "1.251"})
+
+
+def test_live_path_uses_shared_scaler_after_market_mean_shift():
+    source = inspect.getsource(live_lineups.build_slate_with_draws)
+    assert "from ..backtest.replay import (" in source
+    assert "apply_served_tail_scale," in source
+    assert source.index("draws = shift_draws_to_means") < source.index(
+        "draws = apply_served_tail_scale")
 
 
 def _fit_fold(season: int) -> tuple[pd.DataFrame, np.ndarray]:

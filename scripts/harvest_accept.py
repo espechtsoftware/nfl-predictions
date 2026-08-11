@@ -171,6 +171,20 @@ def _candidate_count_contract(rows: pd.DataFrame, entries_expected: int,
     return (CAND_RANGE[0], upper), failures
 
 
+def _expected_slate_pairs(seasons: tuple[int, ...]) -> set[tuple[int, int]]:
+    """Return the exact regular-season replay slate keys for a panel.
+
+    The historical 2019 schedule has 17 weeks; the other supported replay
+    seasons have 18. Making this explicit lets a preregistered partial panel
+    pass acceptance without weakening the default six-season contract.
+    """
+    return {
+        (season, week)
+        for season in seasons
+        for week in range(1, 18 if season == 2019 else 19)
+    }
+
+
 def _bits(hexs: str, n: int) -> np.ndarray:
     return np.unpackbits(
         np.frombuffer(bytes.fromhex(hexs), dtype=np.uint8),
@@ -301,11 +315,20 @@ def main() -> int:
     ap.add_argument("--promote", action="store_true")
     ap.add_argument("--entries-expected", type=int, default=40)
     ap.add_argument("--candidate-multiple-expected", type=int, default=2)
+    ap.add_argument("--seasons", type=int, nargs="+",
+                    default=list(EXPECTED_SEASONS))
     a = ap.parse_args()
     if not 1 <= a.entries_expected <= 150:
         ap.error("--entries-expected must be from 1 through 150")
     if not 1 <= a.candidate_multiple_expected <= 10:
         ap.error("--candidate-multiple-expected must be from 1 through 10")
+    if not a.seasons or any(season < 2000 for season in a.seasons):
+        ap.error("--seasons must contain valid four-digit seasons")
+    if len(set(a.seasons)) != len(a.seasons):
+        ap.error("--seasons may not contain duplicates")
+    seasons = tuple(a.seasons)
+    season_sql = ", ".join(map(str, seasons))
+    expected_pairs = _expected_slate_pairs(seasons)
 
     d = query_df(f"""
         SELECT * FROM `{settings.predictions}.{STAGING}`
@@ -325,7 +348,7 @@ def main() -> int:
                  CASE away_team WHEN 'OAK' THEN 'LV' WHEN 'SD' THEN 'LAC'
                       WHEN 'STL' THEN 'LA' ELSE away_team END AS away_team
           FROM `{settings.raw}.schedules`
-          WHERE season IN (2019, 2021, 2022, 2023, 2024, 2025)
+          WHERE season IN ({season_sql})
             AND game_type = 'REG'
             AND weekday = 'Sunday'
             AND SAFE.PARSE_TIME('%H:%M', gametime) >= TIME '13:00:00'
@@ -338,12 +361,12 @@ def main() -> int:
         SELECT season, week, gsis_id AS id,
                dk_points AS authoritative_actual
         FROM `{settings.features}.player_week_actuals`
-        WHERE season IN (2019, 2021, 2022, 2023, 2024, 2025)
+        WHERE season IN ({season_sql})
         UNION ALL
         SELECT season, week, CONCAT('DST_', team) AS id,
                dst_dk_points AS authoritative_actual
         FROM `{settings.features}.team_defense_week`
-        WHERE season IN (2019, 2021, 2022, 2023, 2024, 2025)
+        WHERE season IN ({season_sql})
         """)
     if feature_rows.empty:
         feature_snapshots = pd.DataFrame(columns=[
@@ -367,11 +390,14 @@ def main() -> int:
 
     # 1 completeness
     got = set(map(tuple, d[["season", "week"]].drop_duplicates().values))
-    missing = [(s, w) for s in EXPECTED_SEASONS for w in range(1, 19)
-               if s != 2019 or w <= 17]
-    missing = [x for x in missing if x not in got]
+    missing = sorted(expected_pairs - got)
     if missing:
         fails.append(f"missing slates: {missing[:6]}{'...' if len(missing) > 6 else ''}")
+    unexpected = sorted(got - expected_pairs)
+    if unexpected:
+        fails.append(
+            f"unexpected slates: {unexpected[:6]}"
+            f"{'...' if len(unexpected) > 6 else ''}")
 
     # 2 one slate_run_id per (season, week)
     dup = (d.groupby(["season", "week"]).slate_run_id.nunique() > 1)

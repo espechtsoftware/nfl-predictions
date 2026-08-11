@@ -87,6 +87,20 @@ def test_candidate_count_contract_allows_declared_multiple_four_only():
                for failure in wrong_failures)
 
 
+def test_expected_slate_pairs_supports_frozen_partial_panel():
+    partial = accept._expected_slate_pairs((2023, 2024, 2025))
+    assert len(partial) == 54
+    assert (2023, 1) in partial and (2025, 18) in partial
+    assert (2022, 18) not in partial
+
+
+def test_expected_slate_pairs_preserves_default_107_slate_contract():
+    full = accept._expected_slate_pairs(accept.EXPECTED_SEASONS)
+    assert len(full) == 107
+    assert (2019, 17) in full
+    assert (2019, 18) not in full
+
+
 def test_promotion_sql_is_schema_additive_and_name_aligned():
     insert_sql = accept._promotion_insert_sql(
         "project.dataset", "panel-safe")

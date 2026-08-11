@@ -4,6 +4,8 @@
 # Usage:
 #   bash scripts/cloud_accept_panel.sh <IMAGE@sha256:...> <PANEL_RUN_ID> check [N_ENTRIES] [CAND_MULT]
 #   bash scripts/cloud_accept_panel.sh <IMAGE@sha256:...> <PANEL_RUN_ID> promote [N_ENTRIES] [CAND_MULT]
+# Optional sixth argument is a quoted space-separated season list for a
+# preregistered partial panel, for example "2023 2024 2025".
 set -euo pipefail
 
 IMG=${1:-}
@@ -11,6 +13,7 @@ PANEL=${2:-}
 MODE=${3:-check}
 N_ENTRIES=${4:-40}
 N_CAND_MULT=${5:-2}
+SEASONS=${6:-}
 REGION=us-central1
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$ROOT/reports/panel-runs/$PANEL"
@@ -25,6 +28,16 @@ case "$N_ENTRIES" in ""|*[!0-9]*) echo "ABORT: invalid entry count"; exit 2;; es
 case "$N_CAND_MULT" in ""|*[!0-9]*) echo "ABORT: invalid candidate multiple"; exit 2;; esac
 [ "$N_CAND_MULT" -ge 1 ] && [ "$N_CAND_MULT" -le 10 ] || {
   echo "ABORT: candidate multiple must be from 1 through 10"; exit 2; }
+if [ -n "$SEASONS" ]; then
+  read -r -a SEASON_LIST <<< "$SEASONS"
+  [ "${#SEASON_LIST[@]}" -gt 0 ] || { echo "ABORT: empty seasons"; exit 2; }
+  for season in "${SEASON_LIST[@]}"; do
+    case "$season" in
+      [2-9][0-9][0-9][0-9]) ;;
+      *) echo "ABORT: invalid season '$season'"; exit 2 ;;
+    esac
+  done
+fi
 [ -s "$EXECS" ] || { echo "ABORT: missing execution manifest $EXECS"; exit 2; }
 
 # Never ask acceptance to interpret an incomplete or failed panel.
@@ -45,6 +58,10 @@ while read -r _season _job exec_id; do
 done < "$EXECS"
 
 ARGS="scripts/harvest_accept.py,$PANEL,--entries-expected,$N_ENTRIES,--candidate-multiple-expected,$N_CAND_MULT"
+[ -z "$SEASONS" ] || {
+  ARGS="$ARGS,--seasons"
+  for season in "${SEASON_LIST[@]}"; do ARGS="$ARGS,$season"; done
+}
 [ "$MODE" = "promote" ] && ARGS="$ARGS,--promote"
 JOB="accept-replay-panel"
 gcloud run jobs deploy "$JOB" --image "$IMG" --region "$REGION" \
