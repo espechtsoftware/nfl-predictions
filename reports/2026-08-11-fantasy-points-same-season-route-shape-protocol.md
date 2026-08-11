@@ -95,7 +95,14 @@ The plan and protocol were frozen and pushed at commit `99f665d` before
 implementation. The manifest-locked importer, strict-prior attachment,
 walk-forward diagnostic, CLI and explicit backup member are now implemented;
 the complete 812-test offline suite passes with one expected skip, with
-compilation, CLI discovery and whitespace checks clean. Collection, table write, backup,
+compilation, CLI discovery and whitespace checks clean. Immutable collection
+`20260811T073453Z__same-season-route-shape-last-four-v1` completed all 56
+exports with zero failures. The outcome-blind audit normalized 16,482 receiver
+windows (16,119 resolved, 363 unresolved and zero ambiguous), suppressed three
+duplicate groups, validated the exact component partition for all 16,485
+source rows, and marked 9,489 rows supported. The private table was created
+and the mandatory repeat returned `already-identical`. The one-shot cloud
+wrapper is frozen to these counts and provenance. Backup is in progress;
 outcome evaluation and lineup generation have not started. The already known
 same-season coverage and Advanced Passing failures do not contain any Route
 Break treatment value and did not select these count-only coordinates.

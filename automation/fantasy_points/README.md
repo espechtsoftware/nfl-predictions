@@ -135,6 +135,19 @@ Passing only. Do not run it concurrently with the coverage plan or change its
 80-dropback/model protocol after outcomes. Its importer command is
 `nfl-dfs import-fantasy-points-same-season-passing --input-dir <completed-run>`.
 
+The broad route-composition follow-up is frozen separately in
+`plans/same-season-route-shape-last-four-v1.json`: 56 grouped-header Player
+exports of Receiving Separation by Route Breaks. Its importer consumes only
+the five count buckets after proving they partition Overall routes; it never
+uses the report's outcome-like efficiency or separation fields:
+
+```bash
+fantasy-points-download run \
+  --plan automation/fantasy_points/plans/same-season-route-shape-last-four-v1.json
+nfl-dfs import-fantasy-points-same-season-route-shape \
+  --input-dir fantasy-points/automated/<completed-run>
+```
+
 ## Adding or changing recurring exports
 
 Plans are declarative JSON. `seasons` and `week_windows` form a Cartesian

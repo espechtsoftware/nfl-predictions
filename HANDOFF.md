@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 02:26 CDT
+## Current state — 2026-08-11 03:12 CDT
 
-Active branch is `main`; the last pushed milestone is commit `99f665d`.
+Active branch is `main`; the last pushed milestone is commit `d3c7f5d`.
 The two operator-supplied outside-review documents under `reports/` remain
 untracked and must not be staged or modified.
 
@@ -308,9 +308,18 @@ untracked and must not be staged or modified.
   manifest-locked importer, strict-prior attachment, frozen walk-forward
   diagnostic, CLI and explicit daily-backup member are now implemented.
   The complete 812-test offline suite passes with one expected skip;
-  compilation, CLI discovery and whitespace checks are clean. No collection, table write,
-  backup or outcome query has started. Commit and push this implementation,
-  then collect the one 56-export plan and consume only its complete manifest.
+  compilation, CLI discovery and whitespace checks are clean. Immutable run
+  `20260811T073453Z__same-season-route-shape-last-four-v1` then completed all
+  56 exact exports with zero failures. The outcome-blind importer normalized
+  16,482 receiver windows (16,119 resolved, 363 unresolved, zero ambiguous),
+  suppressed three duplicate groups, validated exact component sums for all
+  16,485 source rows and marked 9,489 rows supported. The private table was
+  created and the mandatory repeat returned `already-identical`. Backup
+  execution `backup-tables-p8ckj` is in progress. One-shot wrapper
+  `scripts/cloud_fantasy_points_same_season_route_shape.sh` is frozen to the
+  source run/counts, accepted panel and an immutable image. Commit/push this
+  intake milestone, obtain a verified backup and exact-tree Cloud Build
+  digest, then launch the wrapper exactly once; no outcome query has started.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no
