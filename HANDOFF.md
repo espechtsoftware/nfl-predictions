@@ -22,8 +22,7 @@ agent or developer:
 
 ## Current state — 2026-08-11 07:42 CDT
 
-Active branch is `main`; prospective Route milestone commit `9cf0965` is
-pushed.
+Active branch is `main`; Stage B execution-record commit `8bd5588` is pushed.
 The three operator-supplied outside-review documents
 `reports/2026-08-10-scoring-strategy-recommendations.md`,
 `reports/2026-08-11-fantasy-points-data-utilization.md`, and
@@ -165,6 +164,10 @@ not be staged or modified.
   local suite passes `850 passed, 2 skipped`, with compilation and whitespace
   checks clean. The implementation and operating docs are pushed in `9cf0965`;
   the three operator review documents remain deliberately untracked.
+  Exact-tree container build `8153b6d9-9e56-406d-b692-1d7cf215f7d4`
+  succeeded from `8bd5588` and published digest
+  `sha256:44b478167ffb39d09357678d5e6469bd67c330805846825edcea325775292377`.
+  This is a build artifact only; no live job has been redeployed from it.
 - The review's other prospective recommendation is frozen, without using the
   stale offseason samples, in
   `reports/2026-08-11-fantasy-points-live-matchup-capture-contract.md`.
@@ -175,6 +178,17 @@ not be staged or modified.
   data is collection-only until a separately frozen prospective scoring gate.
   Next action after the Route milestone is to extend the downloader for these
   no-history schedule-week surfaces; no current production path depends on it.
+- The independent Route scoring law is now frozen before 2026 data in
+  `reports/2026-08-11-route-share-2026-shadow-gate.md`. It replaces rare-event
+  Brier as the sole decision maker with an all-row CRPS primary, q95/q99
+  pinball and exceedance calibration, while retaining 20/30 Brier, paired
+  week-clustered uncertainty and a reported minimum detectable effect. It
+  requires at least 12 paired slates/2,500 covered rows/40 thirty-point events,
+  then permits a future-only exact-80 shadow whose final decision is the
+  operator's 240/230/220/210/200 lexicographic weekly-max objective. No 2026
+  outcome may tune or backfill an earlier forecast. Next implementation step:
+  persist the isolated pre-lock control/treatment player distributions without
+  exposing the Route registry to production.
 - The next paid-data correlation study was frozen and pushed before any
   outcome join at commit `8263fe8`:
   `reports/2026-08-10-fantasy-points-coverage-fit-experiment.md`. It tests only
