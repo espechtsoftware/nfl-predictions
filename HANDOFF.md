@@ -129,9 +129,13 @@ and must not be staged or modified.
   candidate membership. Sixty-six focused calibration/lineup/component/
   simulation/persistence tests pass; compilation, script help, shell parsing
   and whitespace checks are clean. Implementation commit `127b07f` is pushed;
-  exact-tree Cloud Build `c1b80adb-a461-4e30-b293-fc0572f3d7fe` is running
-  from it. Do not launch either lineup arm unless this full build passes and
-  publishes an immutable digest.
+  exact-tree Cloud Build `c1b80adb-a461-4e30-b293-fc0572f3d7fe` passed 913
+  tests with two expected skips and no failures, publishing immutable digest
+  `sha256:55f1f04bc995b0fe73b4040e7c6d4c85d6a00419e6c7966cd89ec0061917eabe`.
+  The launcher revalidated the K report and both sources, then started the
+  control one-week preflight as `replay-lockk1ukctl-smoke-6tdwq`. Monitor the
+  preflight; full control seasons launch only after it succeeds, followed by
+  the separately gated treatment preflight and seasons.
 
 ### Final-served position calibration passed, promoted, and adopted
 
