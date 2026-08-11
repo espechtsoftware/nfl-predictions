@@ -109,5 +109,11 @@ It refuses incomplete/unaccepted panels, validates exact source containment,
 all shared support statistics, twelve correctly tagged novel candidates on
 every treated slate and none elsewhere, strict-prior signal provenance, and
 reproduction of the persisted treatment selection before computing outcomes.
-No arm has been generated or scored; the corrected generator chain remains a
-hard prerequisite.
+The corrected generator chain selected direct-role panel
+`20260810-lockfix-e80-k1-role12union-8677d21` as its incumbent. Before any
+Route lineup was generated, wrapper `scripts/prop_lock_route_tail_union.sh`
+froze treatment panel `20260810-lockfix-e80-k1-role12-route12-aa087b8`, the
+audit-complete generator code identity `aa087b8`, the exact direct-role
+settings, and `N_ROUTE_TAIL=12`. It requires the source's passed comparison
+and promoted acceptance record before launch. No Route arm has yet been
+generated or scored.

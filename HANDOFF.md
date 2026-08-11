@@ -20,11 +20,11 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 17:12 CDT
+## Current state — 2026-08-10 19:34 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
-- Active corrected direct-role confirmation
+- Corrected direct-role confirmation
   `20260810-lockfix-e80-k1-role12union-8677d21` passed immutable 2024
   preflight `replay-lockk1role-smoke-bbg27` and launched all six season jobs
   from corrected generation digest
@@ -32,15 +32,36 @@ agent or developer:
   `replay-lockk1role-2019-7hb9j`, `replay-lockk1role-2021-42gdb`,
   `replay-lockk1role-2022-mhn54`, `replay-lockk1role-2023-qzfdq`,
   `replay-lockk1role-2024-w2ft7`, and `replay-lockk1role-2025-w4bnb`.
-  At 17:12 CDT all six were still running (`Completed=Unknown`) with 79/107
-  complete season/week books in staging: 11/17 in 2019 and 14/15/12/14/13 of
-  18 in 2021--2025. Their exact manifest and execution IDs are tracked under
-  the panel directory at commit `b014748`. No partial score has been read.
-  Monitor only execution state and row completeness; after all 107 slates are
-  complete, use comparison
-  digest
-  `sha256:5319704c23ac40f30771a43b2fb6b4d012a7b2d8f610b980ecfd509ba55deb6b`
-  for check-only acceptance and the frozen 240→230→220→210 comparison.
+  All six completed successfully. Check-only acceptance execution
+  `accept-replay-panel-vlxrz` passed 107 complete exact-80 books. Frozen
+  comparator execution `compare-corrected-k1-direct-role-d2wn4`, using digest
+  `sha256:5319704c23ac40f30771a43b2fb6b4d012a7b2d8f610b980ecfd509ba55deb6b`,
+  returned disposition `pass` with zero source-containment, shared-score,
+  p-line, or support mismatches. At 240/230/220/210 the corrected K1 source is
+  `1/2/4/7` and direct-role is `2/3/5/7`; the broader
+  187/194/200/210/220/230/240 grid is `34/22/11/7/5/3/2`, mean weekly best
+  `180.1207`, median `178.44`, and pool oracle `42/28/16/9/5/3/2`.
+  Direct-role is now the corrected research incumbent. Promotion execution
+  `accept-replay-panel-2prcg` completed successfully and copied the complete
+  candidate books plus player snapshots into the accepted research tables.
+- The next paid-data correlation study was frozen and pushed before any
+  outcome join at commit `8263fe8`:
+  `reports/2026-08-10-fantasy-points-coverage-fit-experiment.md`. It tests only
+  four supported WR/TE matchup-fit features derived from strict season N-1
+  Man/Zone, Coverage Separation, and opponent Defense Coverage Matrix data.
+  It reports Spearman correlation with projection residuals, binary
+  correlation and quintile lift for 30-point events, plus fixed control versus
+  treatment Brier/MAE metrics on held-out 2024/2025. No alignment, individual
+  route, route-break, field, support, or model sweep is licensed.
+- The passed Route Share signal will now be tested from the direct-role
+  incumbent. Before launch, `scripts/prop_lock_route_tail_union.sh` freezes
+  treatment `20260810-lockfix-e80-k1-role12-route12-aa087b8`, generator code
+  `aa087b8`, the exact direct-role settings, and twelve Route candidates on
+  2024/2025 only. Use immutable generation digest
+  `sha256:b907bc6242d6b872cf10e4ff9ea59e56d89a1b99861780007eb767636a97041c`.
+  The wrapper requires the direct-role promotion record. Shell syntax and
+  whitespace checks pass; commit/push the wrapper/protocol/result artifacts,
+  launch it, and do not read partial scores.
 - The operator's paid-data operations request is implemented on branch `main`
   at commit `ea6dca4`. The README season-start schedule now requires the final
   evidence-selected Fantasy Points reports, exact filters and pre-lock

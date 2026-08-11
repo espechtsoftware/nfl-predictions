@@ -83,3 +83,30 @@ count, selection line, threshold order or retry may change after a valid
 result. If it rejects, corrected K1 remains the incumbent and the queue moves
 to the already-preregistered new-data and selector confirmations.
 
+## Result
+
+All six immutable season executions completed successfully:
+`replay-lockk1role-2019-7hb9j`, `replay-lockk1role-2021-42gdb`,
+`replay-lockk1role-2022-mhn54`, `replay-lockk1role-2023-qzfdq`,
+`replay-lockk1role-2024-w2ft7`, and `replay-lockk1role-2025-w4bnb`.
+Check-only acceptance execution `accept-replay-panel-vlxrz` passed all 107
+slates and exact-80 books. Frozen comparator execution
+`compare-corrected-k1-direct-role-d2wn4` returned disposition `pass` with no
+mechanical failures.
+
+The treatment improves at the first active threshold and every other
+non-tied active threshold:
+
+| Arm | >=240 | >=230 | >=220 | >=210 | >=200 | >=194 | >=187 | Mean weekly best |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Corrected K1 | 1 | 2 | 4 | 7 | 11 | 21 | 34 | 178.9327 |
+| Direct role union | **2** | **3** | **5** | 7 | 11 | **22** | 34 | **180.1207** |
+
+The pool oracle also moves from `1/2/4/9` to `2/3/5/9` at
+240/230/220/210. All 25,766 source candidates are contained with zero shared
+actual, simulated-mean, p-line, or support-mask mismatch; the treatment adds
+1,270 novel role candidates and selects 796 role rows. The direct-role union
+therefore passes the frozen tail-first gate and becomes the corrected research
+incumbent. The already-preregistered Route Share union must use this panel as
+its source. This result does not yet alter the live UI while the remaining
+pre-Week-1 arm queue is unresolved.
