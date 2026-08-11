@@ -123,4 +123,10 @@ exact hashes and 1,029 resolved players. Thirty-four focused Route,
 component, feature-set and status tests pass, with compilation, CLI discovery,
 shell parsing and whitespace checks clean. No new component control/treatment
 has been trained or scored, and no lineup outcome has been queried under this
-intervention.
+intervention. Exact-tree Cloud Build
+`fac5d0cb-67d9-4272-9934-80bda8b429ac` from commit `e19df7f` passed 821 tests
+with two expected skips and published immutable digest
+`sha256:39d656915f75f67a41b0543456d16acda951f5b2fb4f5b92c09b2fa209827d7b`.
+The preflight key/provenance audit matched all 28,091 accepted 2023--2025
+QB/RB/WR/TE keys to the canonical training table, with zero position and
+actual-score mismatches.

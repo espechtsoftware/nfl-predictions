@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 04:06 CDT
+## Current state — 2026-08-11 04:17 CDT
 
-Active branch is `main`; the last pushed milestone is commit `5b4c1cf`.
+Active branch is `main`; the last pushed milestone is commit `e19df7f`.
 The two operator-supplied outside-review documents under `reports/` remain
 untracked and must not be staged or modified.
 
@@ -389,9 +389,14 @@ untracked and must not be staged or modified.
   resolved rows, four hashes and 1,029 players. Thirty-four focused Route,
   component, feature-set and status tests pass; compilation, CLI discovery,
   shell syntax and whitespace checks are clean. Commit/push this outcome-free
-  implementation, run the complete suite in an exact-tree Cloud Build, record
-  the immutable digest, then launch the wrapper once. No new component arm
-  has trained or read outcomes.
+  implementation. Exact-tree Cloud Build
+  `fac5d0cb-67d9-4272-9934-80bda8b429ac` from commit `e19df7f` passed 821
+  tests with two expected skips and published immutable digest
+  `sha256:39d656915f75f67a41b0543456d16acda951f5b2fb4f5b92c09b2fa209827d7b`.
+  Outcome-free preflight found all 28,091 accepted 2023--2025 QB/RB/WR/TE
+  keys in the training table, with zero position or actual-score provenance
+  mismatches. Next launch the wrapper exactly once with that digest and
+  record the frozen result. No new component arm has trained or scored.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no
