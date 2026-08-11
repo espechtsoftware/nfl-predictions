@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 21:26 CDT
+## Current state — 2026-08-10 21:30 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -101,8 +101,8 @@ agent or developer:
   `b9a70848-cf5b-469e-83d4-de43f3af9315` from wrapper tree `848d977` passed
   775 tests with 2 skipped and produced immutable digest
   `sha256:d3d53256d8db9c34f120108bead5bb44a3ab2f512c2db4a7c6956eeb1e3d5534`.
-  Wait for Route, then use this digest for the one mechanically selected
-  coverage panel; there is no dose/feature retry.
+  Route selected the corrected direct-role source, so use this digest for the
+  one `direct` coverage panel; there is no dose/feature retry.
 - The operator supplied an outcome-viewed outside review of the paid Fantasy
   Points data. Its repository-verified disposition is tracked in
   `reports/2026-08-11-fantasy-points-utilization-reconciliation.md`. Weekly
@@ -150,12 +150,16 @@ agent or developer:
   are running: `replay-lockk1route-2019-xmlzn`,
   `replay-lockk1route-2021-qqfch`, `replay-lockk1route-2022-mg9ns`,
   `replay-lockk1route-2023-bn27p`, `replay-lockk1route-2024-5lbcf`, and
-  `replay-lockk1route-2025-vm6zd`. As of 21:19 CDT, 2021, 2023, 2024 and
-  2025 are clean successes; 2019 and 2022 remain active with zero failures.
-  Their durable manifest is under the panel directory. Do not read partial
-  scores. Once every season succeeds, run the
-  exact-80 acceptance check and the frozen source-versus-treatment comparator
-  before deciding whether the Route candidate union is adopted.
+  `replay-lockk1route-2025-vm6zd`. All six completed successfully. Exact-80
+  check execution `accept-replay-panel-gw5qm` passed all 107 slates. Frozen
+  comparison `fantasy-points-route-tail-union-nqx99` returned
+  `keep-corrected-incumbent`: the union contained all 27,036 source rows and
+  432 novel Route candidates, changed 25 selected slots in each direction and
+  selected 10 Route rows, but all 107 weekly maxima tied exactly. Selected
+  187/194/200/210/220/230/240 remains `34/22/11/7/5/3/2`, mean weekly best
+  `180.1207`, median `178.44`. The Route lineup arm is closed with no retry;
+  do not promote its staging rows. Use the direct-role incumbent as the
+  coverage source and as the no-floor incumbent unless a later arm promotes.
 - The preregistered corrected no-floor candidate union is still queued. Its
   launcher had required the never-launched CE12+role branch; before any
   corrected no-floor generation or outcome read, the protocol and launcher

@@ -1,0 +1,8 @@
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:d4566a1031efd391ece5758dd294cd01069e5dae3d4f1bee5c04f0af6ec13b33
+source=20260810-lockfix-e80-k1-role12union-8677d21
+treatment=20260810-lockfix-e80-k1-role12-route12-aa087b8
+source_table=replay_candidates
+treatment_table=replay_candidates_staging
+entries=80
+route_candidates=12
+treated_seasons=2024 2025
