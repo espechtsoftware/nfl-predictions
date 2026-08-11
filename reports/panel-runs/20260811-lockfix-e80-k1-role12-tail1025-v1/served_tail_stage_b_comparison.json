@@ -1,0 +1,566 @@
+{
+  "candidate_audit": {
+    "common_actual_mismatch": 0,
+    "common_rows": 13562,
+    "common_sim_mean_mismatch": 0,
+    "max_common_sim_mean_abs_delta": 3.0517578125e-05,
+    "max_pool_delta": 0,
+    "min_pool_delta": 0,
+    "paired_slates": 54,
+    "selected_source_only": 594,
+    "selected_treatment_only": 594,
+    "sim_mean_absolute_tolerance": 0.0001,
+    "source_only_rows": 86,
+    "source_rows": 13648,
+    "treatment_only_rows": 86,
+    "treatment_rows": 13648
+  },
+  "changed_weeks": [
+    {
+      "n_candidates_source": 257,
+      "n_candidates_treatment": 257,
+      "n_selected_source": 80,
+      "n_selected_treatment": 80,
+      "oracle_delta": 0,
+      "oracle_source": 202.5,
+      "oracle_treatment": 202.5,
+      "season": 2025,
+      "selected_best_source": 193.89999999999998,
+      "selected_best_treatment": 202.5,
+      "selected_delta": 8.600000000000023,
+      "week": 9
+    },
+    {
+      "n_candidates_source": 256,
+      "n_candidates_treatment": 256,
+      "n_selected_source": 80,
+      "n_selected_treatment": 80,
+      "oracle_delta": 3.6000000000000227,
+      "oracle_source": 198.7,
+      "oracle_treatment": 202.3,
+      "season": 2023,
+      "selected_best_source": 198.7,
+      "selected_best_treatment": 202.3,
+      "selected_delta": 3.6000000000000227,
+      "week": 9
+    },
+    {
+      "n_candidates_source": 245,
+      "n_candidates_treatment": 245,
+      "n_selected_source": 80,
+      "n_selected_treatment": 80,
+      "oracle_delta": 0,
+      "oracle_source": 182.84,
+      "oracle_treatment": 182.84,
+      "season": 2023,
+      "selected_best_source": 167.95999999999998,
+      "selected_best_treatment": 168.92000000000002,
+      "selected_delta": 0.9600000000000364,
+      "week": 15
+    },
+    {
+      "n_candidates_source": 259,
+      "n_candidates_treatment": 259,
+      "n_selected_source": 80,
+      "n_selected_treatment": 80,
+      "oracle_delta": 0.6000000000000227,
+      "oracle_source": 194.45999999999998,
+      "oracle_treatment": 195.06,
+      "season": 2025,
+      "selected_best_source": 194.45999999999998,
+      "selected_best_treatment": 195.06,
+      "selected_delta": 0.6000000000000227,
+      "week": 2
+    },
+    {
+      "n_candidates_source": 256,
+      "n_candidates_treatment": 256,
+      "n_selected_source": 80,
+      "n_selected_treatment": 80,
+      "oracle_delta": -0.2400000000000091,
+      "oracle_source": 177.72000000000003,
+      "oracle_treatment": 177.48000000000002,
+      "season": 2024,
+      "selected_best_source": 177.72000000000003,
+      "selected_best_treatment": 175.52,
+      "selected_delta": -2.200000000000017,
+      "week": 11
+    },
+    {
+      "n_candidates_source": 258,
+      "n_candidates_treatment": 258,
+      "n_selected_source": 80,
+      "n_selected_treatment": 80,
+      "oracle_delta": 0,
+      "oracle_source": 193.54000000000002,
+      "oracle_treatment": 193.54000000000002,
+      "season": 2023,
+      "selected_best_source": 182.64,
+      "selected_best_treatment": 179.20000000000002,
+      "selected_delta": -3.4399999999999693,
+      "week": 1
+    },
+    {
+      "n_candidates_source": 250,
+      "n_candidates_treatment": 250,
+      "n_selected_source": 80,
+      "n_selected_treatment": 80,
+      "oracle_delta": 0,
+      "oracle_source": 157.68,
+      "oracle_treatment": 157.68,
+      "season": 2024,
+      "selected_best_source": 157.68,
+      "selected_best_treatment": 150.96,
+      "selected_delta": -6.719999999999999,
+      "week": 13
+    },
+    {
+      "n_candidates_source": 250,
+      "n_candidates_treatment": 250,
+      "n_selected_source": 80,
+      "n_selected_treatment": 80,
+      "oracle_delta": 0,
+      "oracle_source": 191.54,
+      "oracle_treatment": 191.54,
+      "season": 2024,
+      "selected_best_source": 191.54,
+      "selected_best_treatment": 172.07999999999998,
+      "selected_delta": -19.460000000000008,
+      "week": 2
+    }
+  ],
+  "combined_treatment_metrics": {
+    "clear_187": 33,
+    "clear_194": 23,
+    "clear_200": 13,
+    "clear_210": 7,
+    "clear_220": 5,
+    "clear_230": 3,
+    "clear_240": 2,
+    "mean_best": 179.95196261682244,
+    "median_best": 178.24,
+    "oracle_187": 42,
+    "oracle_194": 28,
+    "oracle_200": 17,
+    "oracle_210": 9,
+    "oracle_220": 5,
+    "oracle_230": 3,
+    "oracle_240": 2
+  },
+  "disposition": "neutral",
+  "evaluation_source_metrics": {
+    "clear_187": 15,
+    "clear_194": 9,
+    "clear_200": 2,
+    "clear_210": 2,
+    "clear_220": 1,
+    "clear_230": 1,
+    "clear_240": 0,
+    "mean_best": 176.5944444444445,
+    "median_best": 176.96,
+    "oracle_187": 18,
+    "oracle_194": 10,
+    "oracle_200": 3,
+    "oracle_210": 2,
+    "oracle_220": 1,
+    "oracle_230": 1,
+    "oracle_240": 0
+  },
+  "evaluation_treatment_metrics": {
+    "clear_187": 14,
+    "clear_194": 10,
+    "clear_200": 4,
+    "clear_210": 2,
+    "clear_220": 1,
+    "clear_230": 1,
+    "clear_240": 0,
+    "mean_best": 176.26000000000002,
+    "median_best": 175.84000000000003,
+    "oracle_187": 18,
+    "oracle_194": 10,
+    "oracle_200": 4,
+    "oracle_210": 2,
+    "oracle_220": 1,
+    "oracle_230": 1,
+    "oracle_240": 0
+  },
+  "failures": [],
+  "feature_invariance": {
+    "max_numeric_abs_delta": 3.552713678800501e-15,
+    "mismatch_rows": 0,
+    "source_only_rows": 0,
+    "source_rows": 29285,
+    "treatment_only_rows": 0,
+    "treatment_rows": 29285
+  },
+  "mode": "served-tail-scale-1.025-partial-panel",
+  "season_metrics": [
+    {
+      "season": 2019,
+      "slates": 17,
+      "source_187": 9,
+      "source_194": 7,
+      "source_200": 5,
+      "source_210": 5,
+      "source_220": 4,
+      "source_230": 2,
+      "source_240": 2,
+      "source_mean_best": 196.64705882352942,
+      "treatment_187": 9,
+      "treatment_194": 7,
+      "treatment_200": 5,
+      "treatment_210": 5,
+      "treatment_220": 4,
+      "treatment_230": 2,
+      "treatment_240": 2,
+      "treatment_mean_best": 196.64705882352942
+    },
+    {
+      "season": 2021,
+      "slates": 18,
+      "source_187": 4,
+      "source_194": 2,
+      "source_200": 1,
+      "source_210": 0,
+      "source_220": 0,
+      "source_230": 0,
+      "source_240": 0,
+      "source_mean_best": 176.91666666666669,
+      "treatment_187": 4,
+      "treatment_194": 2,
+      "treatment_200": 1,
+      "treatment_210": 0,
+      "treatment_220": 0,
+      "treatment_230": 0,
+      "treatment_240": 0,
+      "treatment_mean_best": 176.91666666666669
+    },
+    {
+      "season": 2022,
+      "slates": 18,
+      "source_187": 6,
+      "source_194": 4,
+      "source_200": 3,
+      "source_210": 0,
+      "source_220": 0,
+      "source_230": 0,
+      "source_240": 0,
+      "source_mean_best": 178.29555555555555,
+      "treatment_187": 6,
+      "treatment_194": 4,
+      "treatment_200": 3,
+      "treatment_210": 0,
+      "treatment_220": 0,
+      "treatment_230": 0,
+      "treatment_240": 0,
+      "treatment_mean_best": 178.29555555555555
+    },
+    {
+      "season": 2023,
+      "slates": 18,
+      "source_187": 6,
+      "source_194": 4,
+      "source_200": 0,
+      "source_210": 0,
+      "source_220": 0,
+      "source_230": 0,
+      "source_240": 0,
+      "source_mean_best": 178.89999999999998,
+      "treatment_187": 6,
+      "treatment_194": 4,
+      "treatment_200": 1,
+      "treatment_210": 0,
+      "treatment_220": 0,
+      "treatment_230": 0,
+      "treatment_240": 0,
+      "treatment_mean_best": 178.9622222222222
+    },
+    {
+      "season": 2024,
+      "slates": 18,
+      "source_187": 5,
+      "source_194": 3,
+      "source_200": 1,
+      "source_210": 1,
+      "source_220": 0,
+      "source_230": 0,
+      "source_240": 0,
+      "source_mean_best": 175.08777777777777,
+      "treatment_187": 4,
+      "treatment_194": 3,
+      "treatment_200": 1,
+      "treatment_210": 1,
+      "treatment_220": 0,
+      "treatment_230": 0,
+      "treatment_240": 0,
+      "treatment_mean_best": 173.51111111111112
+    },
+    {
+      "season": 2025,
+      "slates": 18,
+      "source_187": 4,
+      "source_194": 2,
+      "source_200": 1,
+      "source_210": 1,
+      "source_220": 1,
+      "source_230": 1,
+      "source_240": 0,
+      "source_mean_best": 175.79555555555555,
+      "treatment_187": 4,
+      "treatment_194": 3,
+      "treatment_200": 2,
+      "treatment_210": 1,
+      "treatment_220": 1,
+      "treatment_230": 1,
+      "treatment_240": 0,
+      "treatment_mean_best": 176.30666666666667
+    }
+  ],
+  "source": "20260810-lockfix-e80-k1-role12union-8677d21",
+  "source_evaluation_generator_summary": [
+    {
+      "candidates": 2160,
+      "exclusive_candidates": 2160,
+      "generator": "boom",
+      "selected": 1838
+    },
+    {
+      "candidates": 429,
+      "exclusive_candidates": 349,
+      "generator": "dark",
+      "selected": 267
+    },
+    {
+      "candidates": 765,
+      "exclusive_candidates": 0,
+      "generator": "epi",
+      "selected": 396
+    },
+    {
+      "candidates": 439,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_draw",
+      "selected": 362
+    },
+    {
+      "candidates": 100,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_mean:1",
+      "selected": 11
+    },
+    {
+      "candidates": 85,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_mean:2",
+      "selected": 7
+    },
+    {
+      "candidates": 74,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_mean:3",
+      "selected": 7
+    },
+    {
+      "candidates": 67,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_mean:4",
+      "selected": 9
+    },
+    {
+      "candidates": 648,
+      "exclusive_candidates": 513,
+      "generator": "game",
+      "selected": 349
+    },
+    {
+      "candidates": 8640,
+      "exclusive_candidates": 8074,
+      "generator": "lev",
+      "selected": 1087
+    },
+    {
+      "candidates": 1728,
+      "exclusive_candidates": 1310,
+      "generator": "qbvar",
+      "selected": 535
+    }
+  ],
+  "source_generator_summary": [
+    {
+      "candidates": 4280,
+      "exclusive_candidates": 4280,
+      "generator": "boom",
+      "selected": 3799
+    },
+    {
+      "candidates": 874,
+      "exclusive_candidates": 710,
+      "generator": "dark",
+      "selected": 594
+    },
+    {
+      "candidates": 1485,
+      "exclusive_candidates": 0,
+      "generator": "epi",
+      "selected": 815
+    },
+    {
+      "candidates": 868,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_draw",
+      "selected": 757
+    },
+    {
+      "candidates": 186,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_mean:1",
+      "selected": 14
+    },
+    {
+      "candidates": 161,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_mean:2",
+      "selected": 17
+    },
+    {
+      "candidates": 141,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_mean:3",
+      "selected": 11
+    },
+    {
+      "candidates": 129,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_mean:4",
+      "selected": 16
+    },
+    {
+      "candidates": 1278,
+      "exclusive_candidates": 1009,
+      "generator": "game",
+      "selected": 663
+    },
+    {
+      "candidates": 17120,
+      "exclusive_candidates": 15996,
+      "generator": "lev",
+      "selected": 1964
+    },
+    {
+      "candidates": 3424,
+      "exclusive_candidates": 2570,
+      "generator": "qbvar",
+      "selected": 1026
+    }
+  ],
+  "source_metrics": {
+    "clear_187": 34,
+    "clear_194": 22,
+    "clear_200": 11,
+    "clear_210": 7,
+    "clear_220": 5,
+    "clear_230": 3,
+    "clear_240": 2,
+    "mean_best": 180.12074766355138,
+    "median_best": 178.44,
+    "oracle_187": 42,
+    "oracle_194": 28,
+    "oracle_200": 16,
+    "oracle_210": 9,
+    "oracle_220": 5,
+    "oracle_230": 3,
+    "oracle_240": 2
+  },
+  "tail_first_decision": {
+    "deltas": {
+      "210": 0,
+      "220": 0,
+      "230": 0,
+      "240": 0
+    },
+    "first_difference": null,
+    "improves_210_plus": false,
+    "mechanism_valid": true,
+    "mixed_high_threshold_result": false,
+    "operator_review_required": false,
+    "pareto_nonworse_210_plus": true,
+    "passes": false,
+    "promotion_candidate": false,
+    "threshold_order": [
+      240,
+      230,
+      220,
+      210
+    ],
+    "tie_through_210": true
+  },
+  "treatment": "20260811-lockfix-e80-k1-role12-tail1025-v1",
+  "treatment_generator_summary": [
+    {
+      "candidates": 2160,
+      "exclusive_candidates": 2160,
+      "generator": "boom",
+      "selected": 1854
+    },
+    {
+      "candidates": 429,
+      "exclusive_candidates": 349,
+      "generator": "dark",
+      "selected": 272
+    },
+    {
+      "candidates": 765,
+      "exclusive_candidates": 0,
+      "generator": "epi",
+      "selected": 399
+    },
+    {
+      "candidates": 439,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_draw",
+      "selected": 372
+    },
+    {
+      "candidates": 100,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_mean:1",
+      "selected": 9
+    },
+    {
+      "candidates": 85,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_mean:2",
+      "selected": 4
+    },
+    {
+      "candidates": 74,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_mean:3",
+      "selected": 7
+    },
+    {
+      "candidates": 67,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_mean:4",
+      "selected": 7
+    },
+    {
+      "candidates": 648,
+      "exclusive_candidates": 513,
+      "generator": "game",
+      "selected": 341
+    },
+    {
+      "candidates": 8640,
+      "exclusive_candidates": 8074,
+      "generator": "lev",
+      "selected": 1068
+    },
+    {
+      "candidates": 1728,
+      "exclusive_candidates": 1310,
+      "generator": "qbvar",
+      "selected": 521
+    }
+  ]
+}

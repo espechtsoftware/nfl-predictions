@@ -1,0 +1,758 @@
+[
+  {
+    "insertId": "6a7b364d00042e5f62dc3b47",
+    "jsonPayload": {
+      "candidate_audit": {
+        "common_actual_mismatch": 0,
+        "common_rows": 13562,
+        "common_sim_mean_mismatch": 0,
+        "max_common_sim_mean_abs_delta": 3.0517578125e-05,
+        "max_pool_delta": 0,
+        "min_pool_delta": 0,
+        "paired_slates": 54,
+        "selected_source_only": 594,
+        "selected_treatment_only": 594,
+        "sim_mean_absolute_tolerance": 0.0001,
+        "source_only_rows": 86,
+        "source_rows": 13648,
+        "treatment_only_rows": 86,
+        "treatment_rows": 13648
+      },
+      "changed_weeks": [
+        {
+          "n_candidates_source": 257,
+          "n_candidates_treatment": 257,
+          "n_selected_source": 80,
+          "n_selected_treatment": 80,
+          "oracle_delta": 0,
+          "oracle_source": 202.5,
+          "oracle_treatment": 202.5,
+          "season": 2025,
+          "selected_best_source": 193.89999999999998,
+          "selected_best_treatment": 202.5,
+          "selected_delta": 8.600000000000023,
+          "week": 9
+        },
+        {
+          "n_candidates_source": 256,
+          "n_candidates_treatment": 256,
+          "n_selected_source": 80,
+          "n_selected_treatment": 80,
+          "oracle_delta": 3.6000000000000227,
+          "oracle_source": 198.7,
+          "oracle_treatment": 202.3,
+          "season": 2023,
+          "selected_best_source": 198.7,
+          "selected_best_treatment": 202.3,
+          "selected_delta": 3.6000000000000227,
+          "week": 9
+        },
+        {
+          "n_candidates_source": 245,
+          "n_candidates_treatment": 245,
+          "n_selected_source": 80,
+          "n_selected_treatment": 80,
+          "oracle_delta": 0,
+          "oracle_source": 182.84,
+          "oracle_treatment": 182.84,
+          "season": 2023,
+          "selected_best_source": 167.95999999999998,
+          "selected_best_treatment": 168.92000000000002,
+          "selected_delta": 0.9600000000000364,
+          "week": 15
+        },
+        {
+          "n_candidates_source": 259,
+          "n_candidates_treatment": 259,
+          "n_selected_source": 80,
+          "n_selected_treatment": 80,
+          "oracle_delta": 0.6000000000000227,
+          "oracle_source": 194.45999999999998,
+          "oracle_treatment": 195.06,
+          "season": 2025,
+          "selected_best_source": 194.45999999999998,
+          "selected_best_treatment": 195.06,
+          "selected_delta": 0.6000000000000227,
+          "week": 2
+        },
+        {
+          "n_candidates_source": 256,
+          "n_candidates_treatment": 256,
+          "n_selected_source": 80,
+          "n_selected_treatment": 80,
+          "oracle_delta": -0.2400000000000091,
+          "oracle_source": 177.72000000000003,
+          "oracle_treatment": 177.48000000000002,
+          "season": 2024,
+          "selected_best_source": 177.72000000000003,
+          "selected_best_treatment": 175.52,
+          "selected_delta": -2.200000000000017,
+          "week": 11
+        },
+        {
+          "n_candidates_source": 258,
+          "n_candidates_treatment": 258,
+          "n_selected_source": 80,
+          "n_selected_treatment": 80,
+          "oracle_delta": 0,
+          "oracle_source": 193.54000000000002,
+          "oracle_treatment": 193.54000000000002,
+          "season": 2023,
+          "selected_best_source": 182.64,
+          "selected_best_treatment": 179.20000000000002,
+          "selected_delta": -3.4399999999999693,
+          "week": 1
+        },
+        {
+          "n_candidates_source": 250,
+          "n_candidates_treatment": 250,
+          "n_selected_source": 80,
+          "n_selected_treatment": 80,
+          "oracle_delta": 0,
+          "oracle_source": 157.68,
+          "oracle_treatment": 157.68,
+          "season": 2024,
+          "selected_best_source": 157.68,
+          "selected_best_treatment": 150.96,
+          "selected_delta": -6.719999999999999,
+          "week": 13
+        },
+        {
+          "n_candidates_source": 250,
+          "n_candidates_treatment": 250,
+          "n_selected_source": 80,
+          "n_selected_treatment": 80,
+          "oracle_delta": 0,
+          "oracle_source": 191.54,
+          "oracle_treatment": 191.54,
+          "season": 2024,
+          "selected_best_source": 191.54,
+          "selected_best_treatment": 172.07999999999998,
+          "selected_delta": -19.460000000000008,
+          "week": 2
+        }
+      ],
+      "combined_treatment_metrics": {
+        "clear_187": 33,
+        "clear_194": 23,
+        "clear_200": 13,
+        "clear_210": 7,
+        "clear_220": 5,
+        "clear_230": 3,
+        "clear_240": 2,
+        "mean_best": 179.95196261682244,
+        "median_best": 178.24,
+        "oracle_187": 42,
+        "oracle_194": 28,
+        "oracle_200": 17,
+        "oracle_210": 9,
+        "oracle_220": 5,
+        "oracle_230": 3,
+        "oracle_240": 2
+      },
+      "disposition": "neutral",
+      "evaluation_source_metrics": {
+        "clear_187": 15,
+        "clear_194": 9,
+        "clear_200": 2,
+        "clear_210": 2,
+        "clear_220": 1,
+        "clear_230": 1,
+        "clear_240": 0,
+        "mean_best": 176.5944444444445,
+        "median_best": 176.96,
+        "oracle_187": 18,
+        "oracle_194": 10,
+        "oracle_200": 3,
+        "oracle_210": 2,
+        "oracle_220": 1,
+        "oracle_230": 1,
+        "oracle_240": 0
+      },
+      "evaluation_treatment_metrics": {
+        "clear_187": 14,
+        "clear_194": 10,
+        "clear_200": 4,
+        "clear_210": 2,
+        "clear_220": 1,
+        "clear_230": 1,
+        "clear_240": 0,
+        "mean_best": 176.26000000000002,
+        "median_best": 175.84000000000003,
+        "oracle_187": 18,
+        "oracle_194": 10,
+        "oracle_200": 4,
+        "oracle_210": 2,
+        "oracle_220": 1,
+        "oracle_230": 1,
+        "oracle_240": 0
+      },
+      "failures": [],
+      "feature_invariance": {
+        "max_numeric_abs_delta": 3.552713678800501e-15,
+        "mismatch_rows": 0,
+        "source_only_rows": 0,
+        "source_rows": 29285,
+        "treatment_only_rows": 0,
+        "treatment_rows": 29285
+      },
+      "mode": "served-tail-scale-1.025-partial-panel",
+      "season_metrics": [
+        {
+          "season": 2019,
+          "slates": 17,
+          "source_187": 9,
+          "source_194": 7,
+          "source_200": 5,
+          "source_210": 5,
+          "source_220": 4,
+          "source_230": 2,
+          "source_240": 2,
+          "source_mean_best": 196.64705882352942,
+          "treatment_187": 9,
+          "treatment_194": 7,
+          "treatment_200": 5,
+          "treatment_210": 5,
+          "treatment_220": 4,
+          "treatment_230": 2,
+          "treatment_240": 2,
+          "treatment_mean_best": 196.64705882352942
+        },
+        {
+          "season": 2021,
+          "slates": 18,
+          "source_187": 4,
+          "source_194": 2,
+          "source_200": 1,
+          "source_210": 0,
+          "source_220": 0,
+          "source_230": 0,
+          "source_240": 0,
+          "source_mean_best": 176.91666666666669,
+          "treatment_187": 4,
+          "treatment_194": 2,
+          "treatment_200": 1,
+          "treatment_210": 0,
+          "treatment_220": 0,
+          "treatment_230": 0,
+          "treatment_240": 0,
+          "treatment_mean_best": 176.91666666666669
+        },
+        {
+          "season": 2022,
+          "slates": 18,
+          "source_187": 6,
+          "source_194": 4,
+          "source_200": 3,
+          "source_210": 0,
+          "source_220": 0,
+          "source_230": 0,
+          "source_240": 0,
+          "source_mean_best": 178.29555555555555,
+          "treatment_187": 6,
+          "treatment_194": 4,
+          "treatment_200": 3,
+          "treatment_210": 0,
+          "treatment_220": 0,
+          "treatment_230": 0,
+          "treatment_240": 0,
+          "treatment_mean_best": 178.29555555555555
+        },
+        {
+          "season": 2023,
+          "slates": 18,
+          "source_187": 6,
+          "source_194": 4,
+          "source_200": 0,
+          "source_210": 0,
+          "source_220": 0,
+          "source_230": 0,
+          "source_240": 0,
+          "source_mean_best": 178.89999999999998,
+          "treatment_187": 6,
+          "treatment_194": 4,
+          "treatment_200": 1,
+          "treatment_210": 0,
+          "treatment_220": 0,
+          "treatment_230": 0,
+          "treatment_240": 0,
+          "treatment_mean_best": 178.9622222222222
+        },
+        {
+          "season": 2024,
+          "slates": 18,
+          "source_187": 5,
+          "source_194": 3,
+          "source_200": 1,
+          "source_210": 1,
+          "source_220": 0,
+          "source_230": 0,
+          "source_240": 0,
+          "source_mean_best": 175.08777777777777,
+          "treatment_187": 4,
+          "treatment_194": 3,
+          "treatment_200": 1,
+          "treatment_210": 1,
+          "treatment_220": 0,
+          "treatment_230": 0,
+          "treatment_240": 0,
+          "treatment_mean_best": 173.51111111111112
+        },
+        {
+          "season": 2025,
+          "slates": 18,
+          "source_187": 4,
+          "source_194": 2,
+          "source_200": 1,
+          "source_210": 1,
+          "source_220": 1,
+          "source_230": 1,
+          "source_240": 0,
+          "source_mean_best": 175.79555555555555,
+          "treatment_187": 4,
+          "treatment_194": 3,
+          "treatment_200": 2,
+          "treatment_210": 1,
+          "treatment_220": 1,
+          "treatment_230": 1,
+          "treatment_240": 0,
+          "treatment_mean_best": 176.30666666666667
+        }
+      ],
+      "source": "20260810-lockfix-e80-k1-role12union-8677d21",
+      "source_evaluation_generator_summary": [
+        {
+          "candidates": 2160,
+          "exclusive_candidates": 2160,
+          "generator": "boom",
+          "selected": 1838
+        },
+        {
+          "candidates": 429,
+          "exclusive_candidates": 349,
+          "generator": "dark",
+          "selected": 267
+        },
+        {
+          "candidates": 765,
+          "exclusive_candidates": 0,
+          "generator": "epi",
+          "selected": 396
+        },
+        {
+          "candidates": 439,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_draw",
+          "selected": 362
+        },
+        {
+          "candidates": 100,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:1",
+          "selected": 11
+        },
+        {
+          "candidates": 85,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:2",
+          "selected": 7
+        },
+        {
+          "candidates": 74,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:3",
+          "selected": 7
+        },
+        {
+          "candidates": 67,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:4",
+          "selected": 9
+        },
+        {
+          "candidates": 648,
+          "exclusive_candidates": 513,
+          "generator": "game",
+          "selected": 349
+        },
+        {
+          "candidates": 8640,
+          "exclusive_candidates": 8074,
+          "generator": "lev",
+          "selected": 1087
+        },
+        {
+          "candidates": 1728,
+          "exclusive_candidates": 1310,
+          "generator": "qbvar",
+          "selected": 535
+        }
+      ],
+      "source_generator_summary": [
+        {
+          "candidates": 4280,
+          "exclusive_candidates": 4280,
+          "generator": "boom",
+          "selected": 3799
+        },
+        {
+          "candidates": 874,
+          "exclusive_candidates": 710,
+          "generator": "dark",
+          "selected": 594
+        },
+        {
+          "candidates": 1485,
+          "exclusive_candidates": 0,
+          "generator": "epi",
+          "selected": 815
+        },
+        {
+          "candidates": 868,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_draw",
+          "selected": 757
+        },
+        {
+          "candidates": 186,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:1",
+          "selected": 14
+        },
+        {
+          "candidates": 161,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:2",
+          "selected": 17
+        },
+        {
+          "candidates": 141,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:3",
+          "selected": 11
+        },
+        {
+          "candidates": 129,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:4",
+          "selected": 16
+        },
+        {
+          "candidates": 1278,
+          "exclusive_candidates": 1009,
+          "generator": "game",
+          "selected": 663
+        },
+        {
+          "candidates": 17120,
+          "exclusive_candidates": 15996,
+          "generator": "lev",
+          "selected": 1964
+        },
+        {
+          "candidates": 3424,
+          "exclusive_candidates": 2570,
+          "generator": "qbvar",
+          "selected": 1026
+        }
+      ],
+      "source_metrics": {
+        "clear_187": 34,
+        "clear_194": 22,
+        "clear_200": 11,
+        "clear_210": 7,
+        "clear_220": 5,
+        "clear_230": 3,
+        "clear_240": 2,
+        "mean_best": 180.12074766355138,
+        "median_best": 178.44,
+        "oracle_187": 42,
+        "oracle_194": 28,
+        "oracle_200": 16,
+        "oracle_210": 9,
+        "oracle_220": 5,
+        "oracle_230": 3,
+        "oracle_240": 2
+      },
+      "tail_first_decision": {
+        "deltas": {
+          "210": 0,
+          "220": 0,
+          "230": 0,
+          "240": 0
+        },
+        "first_difference": null,
+        "improves_210_plus": false,
+        "mechanism_valid": true,
+        "mixed_high_threshold_result": false,
+        "operator_review_required": false,
+        "pareto_nonworse_210_plus": true,
+        "passes": false,
+        "promotion_candidate": false,
+        "threshold_order": [
+          240,
+          230,
+          220,
+          210
+        ],
+        "tie_through_210": true
+      },
+      "treatment": "20260811-lockfix-e80-k1-role12-tail1025-v1",
+      "treatment_generator_summary": [
+        {
+          "candidates": 2160,
+          "exclusive_candidates": 2160,
+          "generator": "boom",
+          "selected": 1854
+        },
+        {
+          "candidates": 429,
+          "exclusive_candidates": 349,
+          "generator": "dark",
+          "selected": 272
+        },
+        {
+          "candidates": 765,
+          "exclusive_candidates": 0,
+          "generator": "epi",
+          "selected": 399
+        },
+        {
+          "candidates": 439,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_draw",
+          "selected": 372
+        },
+        {
+          "candidates": 100,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:1",
+          "selected": 9
+        },
+        {
+          "candidates": 85,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:2",
+          "selected": 4
+        },
+        {
+          "candidates": 74,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:3",
+          "selected": 7
+        },
+        {
+          "candidates": 67,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:4",
+          "selected": 7
+        },
+        {
+          "candidates": 648,
+          "exclusive_candidates": 513,
+          "generator": "game",
+          "selected": 341
+        },
+        {
+          "candidates": 8640,
+          "exclusive_candidates": 8074,
+          "generator": "lev",
+          "selected": 1068
+        },
+        {
+          "candidates": 1728,
+          "exclusive_candidates": 1310,
+          "generator": "qbvar",
+          "selected": 521
+        }
+      ]
+    },
+    "labels": {
+      "instanceId": "001548f729fa6f23474edcf4de399dcc1d856980c1f178a3801b327a4c1f677655f622fd76a710862c7ae9c467c3b994d7058672f5f5e1e879c286bc387e2e66892fc76031a8f8e75150b22cf7248ac7d2ba9095e5a1487d4b22be365232ae0537",
+      "run.googleapis.com/execution_name": "compare-served-tail-stage-b-repair-lpgt2",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2026-08-11T14:48:45.280636849Z",
+    "resource": {
+      "labels": {
+        "job_name": "compare-served-tail-stage-b-repair",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "timestamp": "2026-08-11T14:48:45.274015Z"
+  },
+  {
+    "insertId": "6a7b364d0006bea1af615ca0",
+    "labels": {
+      "container_name": "worker",
+      "instanceId": "001548f729fa6f23474edcf4de399dcc1d856980c1f178a3801b327a4c1f677655f622fd76a710862c7ae9c467c3b994d7058672f5f5e1e879c286bc387e2e66892fc76031a8f8e75150b22cf7248ac7d2ba9095e5a1487d4b22be365232ae0537",
+      "run.googleapis.com/execution_name": "compare-served-tail-stage-b-repair-lpgt2",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-11T14:48:45.456767141Z",
+    "resource": {
+      "labels": {
+        "job_name": "compare-served-tail-stage-b-repair",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "INFO",
+    "textPayload": "Container called exit(0).",
+    "timestamp": "2026-08-11T14:48:45.441927Z"
+  },
+  {
+    "insertId": "-xsvse6drk6g",
+    "labels": {
+      "run.googleapis.com/execution_name": "compare-served-tail-stage-b-repair-lpgt2"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/cloudaudit.googleapis.com%2Fsystem_event",
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "methodName": "/Jobs.RunJob",
+      "resourceName": "namespaces/nfl-predictions-503414/executions/compare-served-tail-stage-b-repair-lpgt2",
+      "response": {
+        "@type": "type.googleapis.com/google.cloud.run.v1.Execution",
+        "apiVersion": "run.googleapis.com/v1",
+        "kind": "Execution",
+        "metadata": {
+          "annotations": {
+            "run.googleapis.com/client-name": "gcloud",
+            "run.googleapis.com/client-version": "579.0.0",
+            "run.googleapis.com/creator": "espechtsoftware@gmail.com",
+            "run.googleapis.com/execution-environment": "gen2",
+            "run.googleapis.com/lastModifier": "espechtsoftware@gmail.com",
+            "run.googleapis.com/operation-id": "f85c987a-a65c-4911-8c02-09916fff5ec7"
+          },
+          "creationTimestamp": "2026-08-11T14:46:06.723160Z",
+          "generation": 1,
+          "labels": {
+            "client.knative.dev/nonce": "yok_pan_lix",
+            "cloud.googleapis.com/location": "us-central1",
+            "run.googleapis.com/job": "compare-served-tail-stage-b-repair",
+            "run.googleapis.com/jobGeneration": "1",
+            "run.googleapis.com/jobResourceVersion": "1786459563348908",
+            "run.googleapis.com/jobUid": "d0357cf6-5f52-42d5-addf-23884cc0e4e0"
+          },
+          "name": "compare-served-tail-stage-b-repair-lpgt2",
+          "namespace": "817589974517",
+          "ownerReferences": [
+            {
+              "apiVersion": "serving.knative.dev/v1",
+              "blockOwnerDeletion": true,
+              "controller": true,
+              "kind": "Job",
+              "name": "compare-served-tail-stage-b-repair",
+              "uid": "d0357cf6-5f52-42d5-addf-23884cc0e4e0"
+            }
+          ],
+          "resourceVersion": "AAZYxpHKLyY",
+          "selfLink": "/apis/run.googleapis.com/v1/namespaces/817589974517/executions/compare-served-tail-stage-b-repair-lpgt2",
+          "uid": "9de1acf1-077a-4bbf-a086-4e25c3fdad02"
+        },
+        "spec": {
+          "parallelism": 1,
+          "taskCount": 1,
+          "template": {
+            "spec": {
+              "containers": [
+                {
+                  "args": [
+                    "scripts/compare_served_tail_lineup.py",
+                    "20260811-lockfix-e80-k1-role12-tail1025-v1",
+                    "--source",
+                    "20260810-lockfix-e80-k1-role12union-8677d21",
+                    "--treatment-code-sha",
+                    "3431add"
+                  ],
+                  "command": [
+                    "python"
+                  ],
+                  "env": [
+                    {
+                      "name": "GCP_PROJECT",
+                      "value": "nfl-predictions-503414"
+                    }
+                  ],
+                  "image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:52cf9615755f3c4228accabd180601231d9d605d1a31bd1285a2ab78ea84f937",
+                  "resources": {
+                    "limits": {
+                      "cpu": "2",
+                      "memory": "8Gi"
+                    }
+                  }
+                }
+              ],
+              "maxRetries": 0,
+              "serviceAccountName": "817589974517-compute@developer.gserviceaccount.com",
+              "timeoutSeconds": "3600"
+            }
+          }
+        },
+        "status": {
+          "completionTime": "2026-08-11T14:48:52.102504Z",
+          "conditions": [
+            {
+              "lastTransitionTime": "2026-08-11T14:48:52.102504Z",
+              "message": "Execution completed successfully in 2m5.2s.",
+              "status": "True",
+              "type": "Completed"
+            },
+            {
+              "lastTransitionTime": "2026-08-11T14:46:31.629887Z",
+              "message": "Provisioned imported containers.",
+              "status": "True",
+              "type": "ResourcesAvailable"
+            },
+            {
+              "lastTransitionTime": "2026-08-11T14:48:29.146927Z",
+              "message": "Started deployed execution in 1m57.51s.",
+              "status": "True",
+              "type": "Started"
+            },
+            {
+              "lastTransitionTime": "2026-08-11T14:46:31.475175Z",
+              "message": "Imported container image in 24.75s.",
+              "status": "True",
+              "type": "ContainerReady"
+            },
+            {
+              "lastTransitionTime": "2026-08-11T14:48:52.979494Z",
+              "message": "System will retry after 00:00 from lastTransitionTime for attempt 0.",
+              "reason": "ImmediateRetry",
+              "severity": "Info",
+              "status": "True",
+              "type": "Retry"
+            }
+          ],
+          "logUri": "https://console.cloud.google.com/logs/viewer?project=nfl-predictions-503414&advancedFilter=resource.type%3D%22cloud_run_job%22%0Aresource.labels.job_name%3D%22compare-served-tail-stage-b-repair%22%0Aresource.labels.location%3D%22us-central1%22%0Alabels.%22run.googleapis.com/execution_name%22%3D%22compare-served-tail-stage-b-repair-lpgt2%22",
+          "observedGeneration": 1,
+          "startTime": "2026-08-11T14:46:46.892856Z",
+          "succeededCount": 1
+        }
+      },
+      "serviceName": "run.googleapis.com",
+      "status": {
+        "message": "Execution compare-served-tail-stage-b-repair-lpgt2 has completed successfully."
+      }
+    },
+    "receiveTimestamp": "2026-08-11T14:48:54.031863706Z",
+    "resource": {
+      "labels": {
+        "job_name": "compare-served-tail-stage-b-repair",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "INFO",
+    "timestamp": "2026-08-11T14:48:53.003964Z"
+  }
+]

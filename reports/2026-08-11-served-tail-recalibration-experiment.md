@@ -242,3 +242,35 @@ law, factor, books, or repair tolerance. The only permitted repair is:
 5. run one repaired comparator from a new exact-tree immutable image. No
    treatment generation, selection, scoring, threshold, or disposition code
    may change.
+
+## Final Stage B result
+
+Mechanical repair commit `cb9d851` passed all 859 tests with two expected
+skips in exact-tree Cloud Build
+`56664509-b59c-4005-ad22-720b7d4228d3`. Its immutable image digest is
+`sha256:52cf9615755f3c4228accabd180601231d9d605d1a31bd1285a2ab78ea84f937`.
+The sole comparator-only repair
+`compare-served-tail-stage-b-repair-lpgt2` completed successfully on the
+unchanged accepted books. All 13,562 shared-roster actuals matched, candidate
+mean maximum delta was `0.0000305176` under the frozen `0.0001` persistence
+tolerance, and all 29,285 player rows remained invariant with maximum numeric
+delta `3.55e-15`.
+
+The final disposition is **neutral**:
+
+| Metric | Incumbent | Factor 1.025 |
+|---|---:|---:|
+| weeks >=240 | 2 | 2 |
+| weeks >=230 | 3 | 3 |
+| weeks >=220 | 5 | 5 |
+| weeks >=210 | 7 | 7 |
+| weeks >=200 | 11 | 13 |
+| weeks >=194 | 22 | 23 |
+| weeks >=187 | 34 | 33 |
+| mean weekly best | 180.1207 | 179.9520 |
+| median weekly best | 178.44 | 178.24 |
+
+The treatment ties through every frozen high threshold, so it does not pass
+Stage B and cannot update the live policy. Production remains at identity.
+The two additional 200-point weeks are a prospective diversification clue,
+not authority to retry the factor or change the already-observed gate.

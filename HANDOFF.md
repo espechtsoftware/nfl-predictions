@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 09:32 CDT
+## Current state — 2026-08-11 09:53 CDT
 
 Active branch is `main`; Stage B execution-record commit `8bd5588` is pushed.
 The three operator-supplied outside-review documents
@@ -158,11 +158,19 @@ not be staged or modified.
   candidate-mean tolerance of `1e-4`, report the max delta, collapse only
   per-draw role provenance for bounded logging, and run one comparator-only
   execution from a new immutable image. Thirty-two focused tests pass; the
-  unchanged-books local validation clears all invariants and returns neutral
-  because 240/230/220/210 tie at `2/3/5/7`. This local result is diagnostic,
-  not the durable Cloud adjudication. Production remains identity. Next exact
-  action: commit the disclosed repair, build its exact tree, run the one repair
-  wrapper, and harvest the compact report; never regenerate the treatment.
+  unchanged-books local validation cleared all invariants and returned neutral
+  because 240/230/220/210 tied at `2/3/5/7`. Mechanical repair commit
+  `cb9d851` then passed `859 passed, 2 skipped` in exact-tree Cloud Build
+  `56664509-b59c-4005-ad22-720b7d4228d3`, publishing immutable digest
+  `sha256:52cf9615755f3c4228accabd180601231d9d605d1a31bd1285a2ab78ea84f937`.
+  Comparator-only repair `compare-served-tail-stage-b-repair-lpgt2`
+  completed successfully on the unchanged books and confirmed zero failures,
+  the `0.0000305176` maximum shared-mean delta, and final disposition neutral.
+  The treatment keeps 240/230/220/210 at `2/3/5/7`, improves 200 `11→13` and
+  194 `22→23`, declines 187 `34→33`, and lowers mean/median slightly. It does
+  not pass the frozen high-tail law and is not promoted. Production remains
+  identity; never regenerate this treatment or retry its factor. The lower-
+  threshold gain is retained only as a prospective diversification clue.
 - The outside review's prospective Route Share recommendation is now frozen
   before any 2026 Route value or outcome in
   `reports/2026-08-11-route-share-2026-operating-contract.md`. The declarative

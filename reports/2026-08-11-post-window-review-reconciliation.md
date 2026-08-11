@@ -66,8 +66,11 @@ review remains unmodified and untracked at
    and an unbounded log diagnostic, not on generation. Its exact failure and
    already-visible score fields are frozen before one comparator-only repair;
    no book, factor, selector, threshold or disposition rule may change.
-   Production remains at identity, and no second factor or treatment is
-   licensed.
+   The immutable repair `compare-served-tail-stage-b-repair-lpgt2` subsequently
+   passed every mechanical audit and returned neutral: 240/230/220/210 tied
+   at `2/3/5/7`, while 200 improved `11→13`, 194 improved `22→23`, 187 declined
+   `34→33`, and mean best declined slightly. Production therefore remains at
+   identity, and no second factor or treatment is licensed.
 3. The immutable 2026 Route Share weekly append path and prospectively frozen
    shadow gate are implemented and pushed. Its all-row CRPS primary, q95/q99
    pinball and calibration checks, paired week-clustered uncertainty and MDE
