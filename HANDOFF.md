@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 19:34 CDT
+## Current state — 2026-08-10 19:52 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -65,9 +65,11 @@ agent or developer:
   25% before any outcome query; features, support thresholds, folds, models,
   and score gates are unchanged. Sixteen focused Coverage/Advanced/Route
   tests pass, along with compilation, shell syntax, and whitespace checks.
-  Next: commit/push, run exact-tree Cloud Build, create both private raw
-  tables under the guarded write, verify backup coverage, then run the one
-  frozen diagnostic without inspecting intermediate results.
+  Exact-tree Cloud Build `bfb523d3-0652-42cf-8c36-357e7166afa5` is now
+  running from committed tree `c3fdbc5`. Next after it succeeds: create both
+  private raw tables under the guarded write, verify a repeated write is
+  identical, verify backup coverage, then run the one frozen diagnostic from
+  the resulting immutable digest without inspecting intermediate results.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no
@@ -87,14 +89,15 @@ agent or developer:
   2024/2025 only. Use immutable generation digest
   `sha256:b907bc6242d6b872cf10e4ff9ea59e56d89a1b99861780007eb767636a97041c`.
   The wrapper requires the direct-role promotion record. Shell syntax and
-  whitespace checks passed and the panel is now launched. Immutable 2024
-  preflight `replay-lockk1route-smoke-vg5w8` is running; its manifest and
-  preflight ID are under the panel directory. The still-active wrapper waits
-  for explicit smoke success and then launches all six seasons. Do not read
-  partial scores. If the local wrapper process is lost before the six IDs are
-  recorded, inspect the smoke status and resume the same frozen manifest
-  without changing the panel ID or configuration; never create a replacement
-  treatment after seeing an outcome.
+  whitespace checks passed. Immutable 2024 preflight
+  `replay-lockk1route-smoke-vg5w8` passed, and all six immutable season jobs
+  are running: `replay-lockk1route-2019-xmlzn`,
+  `replay-lockk1route-2021-qqfch`, `replay-lockk1route-2022-mg9ns`,
+  `replay-lockk1route-2023-bn27p`, `replay-lockk1route-2024-5lbcf`, and
+  `replay-lockk1route-2025-vm6zd`. Their durable manifest is under the panel
+  directory. Do not read partial scores. Once every season succeeds, run the
+  exact-80 acceptance check and the frozen source-versus-treatment comparator
+  before deciding whether the Route candidate union is adopted.
 - The operator's paid-data operations request is implemented on branch `main`
   at commit `ea6dca4`. The README season-start schedule now requires the final
   evidence-selected Fantasy Points reports, exact filters and pre-lock
