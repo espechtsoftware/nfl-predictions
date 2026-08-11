@@ -82,6 +82,12 @@ agent or developer:
   winner. Preserve full 2026 standings and payout curves immediately after
   settlement; simulated ROI remains an internal upper-bound diagnostic, not
   a bankroll forecast.
+- The README season-start schedule and in-app Weekly guide now make the
+  ephemeral data requirement explicit: every Monday/Tuesday, upload Entry
+  History and preserve the full standings CSV for one target GPP per slate.
+  Winner-only roster files such as `reports/2025-milly-rosters.csv` contain
+  exactly nine first-place players per week and cannot recover ranks 2--5 or
+  realized ROI. The focused UI/status suite passes 13 tests.
 - The passed Route Share signal will now be tested from the direct-role
   incumbent. Before launch, `scripts/prop_lock_route_tail_union.sh` freezes
   treatment `20260810-lockfix-e80-k1-role12-route12-aa087b8`, generator code

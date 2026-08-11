@@ -125,6 +125,11 @@ def test_nav_html_defers_paid_downloads_until_adoption():
     )
 
 
+def test_nav_html_requires_ephemeral_gpp_standings_capture():
+    assert "full contest standings CSV" in app_main._NAV_HTML
+    assert "exact\nplacement and ROI analysis" in app_main._NAV_HTML
+
+
 def test_candidate_features_env_gate(monkeypatch):
     """EXTRA_FEATURES adds only registered candidates; unset = baseline."""
     from nfl_dfs.models import featureset

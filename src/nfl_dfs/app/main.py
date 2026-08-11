@@ -240,8 +240,10 @@ auto-scoring) &rarr; upload at DraftKings before 1pm ET lock.</td></tr>
 on DK for 3pm/night games if news breaks.</td></tr>
 <tr><td>Mon or Tue</td><td style='text-align:left'>DraftKings &rarr; My
 Contests &rarr; <b>download Entry History CSV</b> &rarr; upload on the
-Season page (fills contests/spent/won). Optional: contest standings CSV
-for rank + real ownership.</td></tr>
+Season page (fills contests/spent/won). For one target GPP per slate,
+<b>download the full contest standings CSV while it is still available</b>
+and upload it too. That preserves ranks, lineups and ownership for exact
+placement and ROI analysis.</td></tr>
 <tr><td>Tue 8:00 (auto)</td><td style='text-align:left'>Lineups scored
 vs actuals; best score fills itself. Click week numbers to review
 entries by score.</td></tr></table></div>
