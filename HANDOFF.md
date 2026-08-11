@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 00:33 CDT
+## Current state — 2026-08-11 00:52 CDT
 
-Active branch is `main`; the last pushed milestone is commit `a6c1c9a`.
+Active branch is `main`; the last pushed milestone is commit `e8e1060`.
 The two operator-supplied outside-review documents under `reports/` remain
 untracked and must not be staged or modified.
 
@@ -213,6 +213,17 @@ untracked and must not be staged or modified.
   Use this digest for both same-season player-tail diagnostics after their
   respective manifest-locked imports; never run from mutable tag
   `same-season-data-34dfaa6`.
+- Corrected same-season coverage run
+  `20260811T053208Z__same-season-coverage-last-four-v1` completed all 168
+  artifacts with zero failures. Audit normalized 16,482 receiver windows
+  (16,119 resolved, 363 unresolved, zero ambiguous, three duplicate groups
+  suppressed and 6,287 supported) and 1,792 defense rows across all 56
+  target windows/32 teams. Both private tables were created; the mandatory
+  repeat returned `already-identical`. Backup snapshots
+  `fantasy_points_receiver_coverage_l4_20260811` and
+  `fantasy_points_defense_coverage_l4_20260811` exist with exact
+  16,482/1,792 rows. The one-shot cloud runner is frozen and outcome-blind;
+  run the diagnostic next with immutable digest `sha256:b1292d1e...7fa7d98`.
 - The auditable Playwright downloader under `automation/fantasy_points/` and
   `ops/fantasy_points_downloads.py` is authenticated and operational. It uses
   a persistent profile outside the repository, never commits credentials or

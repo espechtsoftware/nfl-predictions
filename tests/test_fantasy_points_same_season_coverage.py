@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
+import numpy as np
 
 from nfl_dfs.analysis import fantasy_points_same_season_coverage as diagnostic
 from nfl_dfs.ingest import fantasy_points_same_season_coverage as coverage_import
@@ -133,3 +134,9 @@ def test_manifest_validator_requires_complete_strict_prior_grid(tmp_path):
     (tmp_path / "manifest.json").write_text(json.dumps(manifest))
     with pytest.raises(ValueError, match="source weeks"):
         coverage_import.validate_manifest(tmp_path)
+
+
+def test_bigquery_array_results_have_explicit_list_semantics():
+    values = np.array(["run-1", "run-2"], dtype=object)
+    assert coverage_import._repeated_values(values) == ["run-1", "run-2"]
+    assert coverage_import._repeated_values(None) == []

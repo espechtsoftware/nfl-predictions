@@ -162,3 +162,14 @@ either independent Season check. Focused validation passed, and live run
 plan, filters, hashes, shapes and Season/G scope before copying its 112-file
 successful prefix, then resumed the remaining matrices in a new immutable
 directory. No treatment outcome has been read.
+
+The resumed run completed all 168 exports with zero failed artifacts. The
+locked audit normalized 16,482 receiver windows (16,119 resolved, 363
+unresolved, zero ambiguous, three duplicate groups suppressed and 6,287
+supported) plus 1,792 defense rows spanning all 56 target windows and 32
+teams. Both private tables were created and an immediate repeat returned
+`already-identical`; UTC-date backups contain the exact same 16,482/1,792
+rows. The one-shot runner
+`scripts/cloud_fantasy_points_same_season_coverage.sh` requires those counts,
+the one imported source run, the accepted panel and an immutable image before
+launch. The outcome diagnostic still has not run at this milestone.

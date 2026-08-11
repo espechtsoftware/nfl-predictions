@@ -338,6 +338,11 @@ def read_exports(
     }
 
 
+def _repeated_values(value: object) -> list:
+    """Normalize BigQuery repeated fields without scalar truth testing."""
+    return [] if value is None else list(value)
+
+
 def _write_once(
     table_ref: str,
     rows: pd.DataFrame,
@@ -371,10 +376,12 @@ def _write_once(
         for column in hash_columns
         for value in rows[column].dropna().unique()
     })
+    existing_run_ids = _repeated_values(existing.run_ids)
+    existing_hashes = _repeated_values(existing.hashes)
     if (
         int(existing.n_rows or 0) != len(rows)
-        or list(existing.run_ids or []) != [run_id]
-        or sorted(list(existing.hashes or [])) != expected_hashes
+        or existing_run_ids != [run_id]
+        or sorted(existing_hashes) != expected_hashes
     ):
         raise RuntimeError(f"refusing to overwrite non-identical {table_ref}")
     return "already-identical"
