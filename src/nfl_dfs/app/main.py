@@ -242,8 +242,8 @@ on DK for 3pm/night games if news breaks.</td></tr>
 Contests &rarr; <b>download Entry History CSV</b> &rarr; upload on the
 Season page (fills contests/spent/won). For one target GPP per slate,
 <b>download the full contest standings CSV while it is still available</b>
-and upload it too. That preserves ranks, lineups and ownership for exact
-placement and ROI analysis.</td></tr>
+and save it in the project for import. That preserves ranks, lineups and
+ownership for exact placement and ROI analysis.</td></tr>
 <tr><td>Tue 8:00 (auto)</td><td style='text-align:left'>Lineups scored
 vs actuals; best score fills itself. Click week numbers to review
 entries by score.</td></tr></table></div>
