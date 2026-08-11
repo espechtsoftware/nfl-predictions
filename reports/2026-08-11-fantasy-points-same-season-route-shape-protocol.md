@@ -91,7 +91,11 @@ model, regularization, fold or gate retry is licensed on its outcomes.
 
 ## Pre-outcome status
 
-The plan and protocol are frozen. Importer, diagnostic, table write, backup,
+The plan and protocol were frozen and pushed at commit `99f665d` before
+implementation. The manifest-locked importer, strict-prior attachment,
+walk-forward diagnostic, CLI and explicit backup member are now implemented;
+the complete 812-test offline suite passes with one expected skip, with
+compilation, CLI discovery and whitespace checks clean. Collection, table write, backup,
 outcome evaluation and lineup generation have not started. The already known
 same-season coverage and Advanced Passing failures do not contain any Route
 Break treatment value and did not select these count-only coordinates.

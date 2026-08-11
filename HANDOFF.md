@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 02:20 CDT
+## Current state — 2026-08-11 02:26 CDT
 
-Active branch is `main`; the last pushed milestone is commit `6d46ca2`.
+Active branch is `main`; the last pushed milestone is commit `99f665d`.
 The two operator-supplied outside-review documents under `reports/` remain
 untracked and must not be staged or modified.
 
@@ -304,8 +304,13 @@ untracked and must not be staged or modified.
   routes exactly in both samples; 30-route support covered 58.2%/52.2% of
   accepted WR/TE rows with prior activity. No conditional efficiency,
   separation score, named route or outcome-selected field is licensed.
-  Implement and validate the manifest-locked intake/diagnostic before running
-  the 56-export collection; do not read outcomes first.
+  Preregistration commit `99f665d` was pushed before implementation. The
+  manifest-locked importer, strict-prior attachment, frozen walk-forward
+  diagnostic, CLI and explicit daily-backup member are now implemented.
+  The complete 812-test offline suite passes with one expected skip;
+  compilation, CLI discovery and whitespace checks are clean. No collection, table write,
+  backup or outcome query has started. Commit and push this implementation,
+  then collect the one 56-export plan and consume only its complete manifest.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no
