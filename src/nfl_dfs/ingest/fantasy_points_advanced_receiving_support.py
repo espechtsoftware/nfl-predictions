@@ -266,6 +266,20 @@ def _finite_summary(values: pd.Series) -> dict:
     }
 
 
+def _spearman(left: pd.Series, right: pd.Series) -> float | None:
+    left_numeric = pd.to_numeric(left, errors="coerce")
+    right_numeric = pd.to_numeric(right, errors="coerce")
+    valid = np.isfinite(left_numeric) & np.isfinite(right_numeric)
+    if (
+        valid.sum() < 3
+        or left_numeric[valid].nunique() < 2
+        or right_numeric[valid].nunique() < 2
+    ):
+        return None
+    correlation = left_numeric[valid].corr(right_numeric[valid], method="spearman")
+    return float(correlation) if np.isfinite(correlation) else None
+
+
 def support_summary(rows: pd.DataFrame) -> list[dict]:
     summary: list[dict] = []
     keys = ["season", "target_week", "window_type", "pos"]
@@ -331,10 +345,7 @@ def window_overlap(rows: pd.DataFrame) -> list[dict]:
                 delta = right[valid] - left[valid]
                 metrics[metric] = {
                     "paired_rows": int(valid.sum()),
-                    "spearman": (
-                        float(left[valid].corr(right[valid], method="spearman"))
-                        if valid.sum() >= 3 else None
-                    ),
+                    "spearman": _spearman(left, right),
                     "mean_delta_last_four_minus_cumulative": (
                         float(delta.mean()) if len(delta) else None
                     ),
@@ -350,6 +361,63 @@ def window_overlap(rows: pd.DataFrame) -> list[dict]:
                 "common_resolved_players": int(len(joined)),
                 "metrics": metrics,
             })
+    return output
+
+
+def target_coverage_summary(rows: pd.DataFrame, existing: pd.DataFrame) -> list[dict]:
+    """Measure vendor support against every eligible target-slate player."""
+    needed = {"season", "target_week", "gsis_id", "pos"}
+    if missing := needed - set(existing.columns):
+        raise ValueError(f"target player universe missing {sorted(missing)}")
+    if existing.duplicated(["season", "target_week", "gsis_id"]).any():
+        raise ValueError("target player universe has duplicate target players")
+    output: list[dict] = []
+    for (season, target_week, window_type) in sorted(expected_windows()):
+        for pos in POSITIONS:
+            target = existing[
+                existing.season.eq(season)
+                & existing.target_week.eq(target_week)
+                & existing.pos.eq(pos)
+            ][["gsis_id"]]
+            vendor = rows[
+                rows.season.eq(season)
+                & rows.target_week.eq(target_week)
+                & rows.window_type.eq(window_type)
+                & rows.pos.eq(pos)
+                & rows.gsis_id.notna()
+            ].copy()
+            if vendor.gsis_id.duplicated().any():
+                raise ValueError("resolved vendor support has duplicate target players")
+            joined = target.merge(vendor, on="gsis_id", how="left", validate="one_to_one")
+            denominator = int(len(target))
+            matched = int(joined.source_file.notna().sum()) if denominator else 0
+            entry = {
+                "season": season,
+                "target_week": target_week,
+                "window_type": window_type,
+                "position": pos,
+                "eligible_target_rows": denominator,
+                "matched_vendor_rows": matched,
+                "matched_rate": matched / denominator if denominator else 0.0,
+                "route_floors": {},
+                "metric_availability": {},
+            }
+            route_values = pd.to_numeric(joined.routes, errors="coerce")
+            for floor in ROUTE_FLOORS:
+                count = int(route_values.ge(floor).sum())
+                entry["route_floors"][str(floor)] = {
+                    "rows": count,
+                    "rate": count / denominator if denominator else 0.0,
+                }
+            for metric in METRICS:
+                count = int(
+                    pd.to_numeric(joined[metric], errors="coerce").notna().sum()
+                )
+                entry["metric_availability"][metric] = {
+                    "rows": count,
+                    "rate": count / denominator if denominator else 0.0,
+                }
+            output.append(entry)
     return output
 
 
@@ -388,10 +456,7 @@ def redundancy_summary(rows: pd.DataFrame, existing: pd.DataFrame) -> list[dict]
                         "vendor_metric": metric,
                         "existing_feature": feature,
                         "paired_rows": int(valid.sum()),
-                        "spearman": (
-                            float(left[valid].corr(right[valid], method="spearman"))
-                            if valid.sum() >= 3 else None
-                        ),
+                        "spearman": _spearman(left, right),
                     })
     return output
 
@@ -412,6 +477,7 @@ def build_report(
         "row_audit": row_audit,
         "fixed_route_floors": list(ROUTE_FLOORS),
         "support_by_window": support_summary(rows),
+        "target_universe_coverage": target_coverage_summary(rows, existing),
         "cumulative_last_four_overlap": window_overlap(rows),
         "predictor_redundancy": redundancy_summary(rows, existing),
         "disposition": "support-audit-only-no-predictive-license",
@@ -433,7 +499,7 @@ def run(input_dir: str | Path, *, output: str | Path | None = None) -> dict:
     rows, row_audit = read_windows(manifest, artifacts, snapshots)
     existing = query_df(f"""
       WITH latest AS (
-        SELECT p.season, p.week AS target_week, p.gsis_id,
+        SELECT p.season, p.week AS target_week, p.gsis_id, p.pos,
                f.target_share_l4, p.target_share_last,
                f.snap_share_l4, p.snap_share_last,
                f.air_yards_share_l4, f.wopr_l4, f.adot_l8, f.xfp_l4

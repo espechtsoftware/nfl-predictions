@@ -22,8 +22,8 @@ agent or developer:
 
 ## Current state — 2026-08-11 09:53 CDT
 
-Active branch is `main`; Advanced Receiving collection-protocol commit
-`5627f30` is pushed. The one authenticated support-window collection is active
+Active branch is `main`; outcome-blind support-audit commit `569c3b3` is
+pushed. The one authenticated support-window collection is active
 under run `20260811T145426Z__same-season-advanced-receiving-support-windows-v1`.
 The three operator-supplied outside-review documents
 `reports/2026-08-10-scoring-strategy-recommendations.md`,
@@ -191,9 +191,14 @@ not be staged or modified.
   `fantasy-points-advanced-receiving-support-audit`: it accepts no outcome
   fields; reports fixed 20/40/80-route support, six-field availability,
   cumulative/last-four overlap and predictor-only redundancy; and requires the
-  exact complete hash-locked 108-export manifest. Twenty-seven focused tests,
-  compilation, CLI discovery and whitespace checks pass. The full suite is in
-  progress. Exact next action: let the active headless collection finish,
+  exact complete hash-locked 108-export manifest. The audit was further
+  hardened to emit JSON `null` for undefined constant-column correlations and
+  to measure every route/feature support rate against the full eligible target-
+  slate player universe, not just vendor-returned rows. The exact predictor-
+  only BigQuery query has been schema-validated live. Twenty-seven focused
+  tests, compilation, CLI discovery and whitespace checks pass; the complete
+  866-test collection also finishes successfully with its expected skips.
+  Exact next action: let the active headless collection finish,
   require a complete zero-failure manifest, then run the support audit without
   target outcomes and freeze any subsequent shrinkage/gate before querying
   them.

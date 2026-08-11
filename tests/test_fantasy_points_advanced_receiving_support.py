@@ -108,6 +108,20 @@ def test_advanced_receiving_support_parser_and_summaries(tmp_path):
     overlap = support.window_overlap(rows)
     assert len(overlap) == 52
     assert overlap[0]["common_resolved_players"] == 1
+    target_universe = rows[[
+        "season", "target_week", "gsis_id", "pos",
+    ]].drop_duplicates(["season", "target_week", "gsis_id"])
+    coverage = support.target_coverage_summary(rows, target_universe)
+    assert len(coverage) == 108 * len(support.POSITIONS)
+    wanted = [
+        item for item in coverage
+        if item["season"] == 2025
+        and item["target_week"] == 6
+        and item["window_type"] == "cumulative"
+        and item["position"] == "WR"
+    ][0]
+    assert wanted["eligible_target_rows"] == 1
+    assert wanted["route_floors"]["80"]["rate"] == 1.0
 
 
 def test_redundancy_summary_refuses_outcomes_and_uses_predictors_only():
@@ -140,6 +154,18 @@ def test_redundancy_summary_refuses_outcomes_and_uses_predictors_only():
     ][0]
     assert matching["paired_rows"] == 3
     assert matching["spearman"] == pytest.approx(1.0)
+
+    constant = existing.copy()
+    constant[support.EXISTING_FEATURES[0]] = 1.0
+    constant_summary = support.redundancy_summary(rows, constant)
+    constant_matching = [
+        item for item in constant_summary
+        if item["window_type"] == "cumulative"
+        and item["season"] == 2025
+        and item["vendor_metric"] == support.METRICS[0]
+        and item["existing_feature"] == support.EXISTING_FEATURES[0]
+    ][0]
+    assert constant_matching["spearman"] is None
 
     with pytest.raises(ValueError, match="outcome-bearing"):
         support.redundancy_summary(rows, existing.assign(actual=0.0))

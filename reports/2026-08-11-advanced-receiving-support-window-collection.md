@@ -40,7 +40,9 @@ Before any outcome join, re-hash and parse the final manifest, resolve players
 against point-in-time accepted snapshots, and report by season/target week:
 
 - player and resolved-player counts by position;
-- route-count distributions and coverage at fixed descriptive route floors;
+- route-count distributions and coverage at fixed descriptive route floors,
+  both within vendor-returned rows and against the full eligible target-slate
+  player universe;
 - availability of the six already-registered receiving fields: TPRR, aDOT,
   air-yard share, YPRR, first-read rate and XFP per route;
 - exact cumulative versus last-four overlap and deltas; and

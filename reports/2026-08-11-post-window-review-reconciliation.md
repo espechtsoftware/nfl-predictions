@@ -81,6 +81,12 @@ review remains unmodified and untracked at
    team/opponent pair, requires capture before the target week's first kickoff,
    archives hash-addressed bytes, and keeps all snapshots collection-only. The
    stale offseason samples fail the 2026 Week 1 schedule gate as intended.
-5. Only after the calibration path resolves, reconsider whether the
-   outcome-blind Advanced Rushing pair or a support-aware Advanced Receiving
-   family has enough expected value for one further historical test.
+5. With calibration resolved, the review's preferred remaining historical
+   family has advanced to collection. The frozen Advanced Receiving plan uses
+   both cumulative-prior and last-four-prior windows for 2022--2025, always
+   ending before the target week. Its first phase is outcome-blind: fixed
+   20/40/80-route support, six-field availability, cumulative/last-four
+   agreement and redundancy against strictly prior predictors. The audit code
+   rejects outcome-bearing frames and cannot license a predictive model or
+   lineup arm. Only if this support audit justifies proceeding will an exact
+   shrinkage rule and all-row calibration/loss gate be frozen before outcomes.
