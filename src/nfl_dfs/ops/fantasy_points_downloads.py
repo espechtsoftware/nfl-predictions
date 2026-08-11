@@ -44,6 +44,13 @@ REPORTS: dict[str, ReportDefinition] = {
     report.key: report
     for report in (
         ReportDefinition(
+            "basic-passing",
+            "Passing",
+            "Basic Passing",
+            "passingBasic",
+            "/nfl/tools/player/passing-basic",
+        ),
+        ReportDefinition(
             "advanced-receiving",
             "Receiving",
             "Advanced Receiving",
@@ -70,6 +77,34 @@ REPORTS: dict[str, ReportDefinition] = {
             "Passing Depth of Target",
             "passingDepth",
             "/nfl/tools/player/passing-depth",
+        ),
+        ReportDefinition(
+            "basic-rushing",
+            "Rushing",
+            "Basic Rushing",
+            "rushingBasic",
+            "/nfl/tools/player/rushing-basic",
+        ),
+        ReportDefinition(
+            "bell-cow",
+            "Rushing",
+            "Bell Cow Report",
+            "rushingBellCow",
+            "/nfl/tools/player/rushing-bell-cow",
+        ),
+        ReportDefinition(
+            "basic-receiving",
+            "Receiving",
+            "Basic Receiving",
+            "receivingBasic",
+            "/nfl/tools/player/receiving-basic",
+        ),
+        ReportDefinition(
+            "routes-run",
+            "Receiving",
+            "Routes Run",
+            "receivingRoutesRun",
+            "/nfl/tools/player/receiving-routes-run",
         ),
         ReportDefinition(
             "route-share",
@@ -133,6 +168,20 @@ REPORTS: dict[str, ReportDefinition] = {
             "/nfl/tools/player/receiving-separation-by-coverage",
         ),
         ReportDefinition(
+            "receiving-separation-by-breaks",
+            "Receiving",
+            "Receiving Separation by Route Breaks",
+            "receivingSeparationByBreaks",
+            "/nfl/tools/player/receiving-separation-by-breaks",
+        ),
+        ReportDefinition(
+            "receiving-separation-by-routes",
+            "Receiving",
+            "Receiving Separation by Routes",
+            "receivingSeparationByRoutes",
+            "/nfl/tools/player/receiving-separation-by-routes",
+        ),
+        ReportDefinition(
             "rb-wr-efficiency",
             "Offense",
             "RB + WR Efficiency Report",
@@ -160,7 +209,35 @@ REPORTS: dict[str, ReportDefinition] = {
             "coverageMatrix",
             "/nfl/tools/team/defense/coverage-matrix",
         ),
+        ReportDefinition(
+            "fantasy-points-scored-detail",
+            "Fantasy",
+            "Fantasy Points Scored",
+            "fantasyPointsScored",
+            "/nfl/tools/player/fantasy-points-scored",
+        ),
+        ReportDefinition(
+            "fantasy-points-allowed",
+            "Fantasy",
+            "Fantasy Points Allowed",
+            "fantasyPointsAllowed",
+            "/nfl/tools/player/fantasy-points-allowed",
+        ),
     )
+}
+
+
+# The downloader supports every historical Season + Week(s) surface above.
+# Matchup tools have no historical Season control, but they still belong in
+# the full-menu drift guard so a new report can never appear unnoticed.
+EXPECTED_CATALOG: dict[str, tuple[str, str]] = {
+    **{
+        definition.property: (definition.category, definition.title)
+        for definition in REPORTS.values()
+    },
+    "qbCoverageMatchup": ("Passing", "QB Coverage Matchup"),
+    "wrCoverageMatchup": ("Receiving", "WR Coverage Matchup"),
+    "lineMatchups": ("Team", "OL/DL Matchups"),
 }
 
 
@@ -347,16 +424,22 @@ def validate_catalog(timeout: float = 30.0) -> dict[str, Any]:
             if prop:
                 actual[prop] = (category.get("name", ""), report.get("name", ""))
     drift = []
-    for definition in REPORTS.values():
-        found = actual.get(definition.property)
-        expected = (definition.category, definition.title)
+    for prop, expected in EXPECTED_CATALOG.items():
+        found = actual.get(prop)
         if found != expected:
             drift.append(
-                {"property": definition.property, "expected": expected, "actual": found}
+                {"property": prop, "expected": expected, "actual": found}
             )
+    unexpected = sorted(set(actual) - set(EXPECTED_CATALOG))
+    if unexpected:
+        drift.append({"unexpected_properties": unexpected})
     if drift:
         raise RuntimeError(f"Fantasy Points menu schema drifted: {json.dumps(drift)}")
-    return {"validated_reports": len(REPORTS), "roles": payload.get("session", {}).get("roles", [])}
+    return {
+        "validated_reports": len(EXPECTED_CATALOG),
+        "historical_window_reports": len(REPORTS),
+        "roles": payload.get("session", {}).get("roles", []),
+    }
 
 
 def _utc_stamp(now: datetime | None = None) -> str:
@@ -424,12 +507,16 @@ def _navigate_to_report(page: Any, definition: ReportDefinition, timeout_ms: int
             report_heading = page.get_by_text(
                 re.compile(rf"^{re.escape(definition.title)}(?:\s+-\s+.+)?$")
             )
-            report_heading.first.wait_for(
-                state="visible", timeout=attempt_timeout
-            )
-            page.get_by_text("Season", exact=True).first.wait_for(
-                state="visible", timeout=attempt_timeout
-            )
+            deadline = time.monotonic() + (attempt_timeout / 1000.0)
+            while time.monotonic() < deadline:
+                if (
+                    _visible(report_heading) is not None
+                    and _visible(page.get_by_text("Season", exact=True)) is not None
+                ):
+                    break
+                page.wait_for_timeout(250)
+            else:
+                raise TimeoutError("visible report heading/Season did not load")
             return
         except RuntimeError:
             raise
@@ -608,9 +695,22 @@ def _game_count_from_rendered_row(lines: Sequence[str]) -> int | None:
         and lines[4].isdigit()
     ):
         return int(lines[4])
+    # Fantasy Points Scored's Player context is actually a team-by-position
+    # grid, freezing Rank/Name/POS/G without a separate Team cell.
+    if (
+        len(lines) >= 4
+        and lines[2].upper() in {"QB", "RB", "FB", "WR", "TE"}
+        and lines[3].isdigit()
+    ):
+        return int(lines[3])
     # Coverage Matrix renders Rank/Name/G before the metric cells. Season is
     # carried by the Apply payload and CSV but is not a visible grid column.
-    if len(lines) >= 3 and lines[1] and lines[2].isdigit():
+    if (
+        len(lines) >= 3
+        and lines[1]
+        and not re.fullmatch(r"-?\d+(?:\.\d+)?%?", lines[1])
+        and lines[2].isdigit()
+    ):
         return int(lines[2])
     return None
 

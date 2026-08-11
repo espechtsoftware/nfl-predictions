@@ -81,6 +81,31 @@ candidate after the current coverage test; a smaller rushing-efficiency
 family follows it. These are collection priorities, not predictive claims or
 permission to choose fields after viewing outcomes.
 
+## Remaining catalog screen
+
+The complete live catalog was re-enumerated and the nine remaining
+historical families were exported for exact 2025 Weeks 1--4 and 5--8 without
+reading any realized target-week score or projection residual. Run
+`20260811T062906Z__remaining-catalog-window-semantics-v1` contains 18 valid,
+distinct, `G<=4` artifacts.
+
+Basic Passing/Rushing/Receiving, detailed Fantasy Points Scored/Allowed and
+Bell Cow contain standard box-score, scoring, snap, carry, route, target and
+XFP quantities already supplied by nflverse or the validated weekly/Advanced
+families. Routes Run is also redundant: its Wide, Slot, Inline and Backfield
+route counts correlate 0.9987--0.9998 with the same exact-window counts in
+Separation by Alignment.
+
+Named-route separation is distinct but too sparse for the next test. Across
+the two four-week windows, most of its twelve route types had median support
+of 1--7 routes; only Hitch and Go had as many as 33--61 players with 20
+routes. Route Breaks is the one modest new lead. Horizontal and Vertical
+groups had 104--122 players with at least 20 routes per window, Static had
+41--64, and Shallow only 22--23. Do not search those groups against outcomes.
+After the frozen Advanced Passing diagnostic, first run an outcome-blind
+redundancy/coverage review of a small complete route-break family; only a
+separately preregistered protocol may then read outcomes.
+
 ## Collection decision
 
 Do not bulk-collect Basic stats, Bell Cow, Routes Run, Fantasy Points Scored,
@@ -97,3 +122,8 @@ Only Man/Zone rates and separation enter the first diagnostic. Cover
 2/3/4/6, alignment, route-break, individual-route, red-zone, offense-matrix,
 advanced-passing, advanced-rushing and efficiency fields remain excluded.
 Their availability does not license a second field search after outcomes.
+
+The completed same-season coverage diagnostic later failed both its support
+and aggregate 30-point Brier gates, so its exact mechanism is closed. The
+already-preregistered Advanced Passing family is the next collection. The
+route-break lead above remains outcome-blind and queued behind it.

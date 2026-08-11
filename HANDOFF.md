@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 00:56 CDT
+## Current state — 2026-08-11 01:32 CDT
 
-Active branch is `main`; the last pushed milestone is commit `719d0ba`.
+Active branch is `main`; the last pushed milestone is commit `fb9000c`.
 The two operator-supplied outside-review documents under `reports/` remain
 untracked and must not be staged or modified.
 
@@ -255,6 +255,24 @@ untracked and must not be staged or modified.
   now start a new immutable run with `--reuse-from`; the downloader rechecks
   the exact plan hash, ordered filters, file hash/shape and Season/G scope of
   every copied prefix artifact. The original run is never mutated.
+- The live Fantasy Points menu is now guarded in full: exactly 28 NFL reports,
+  of which 25 support historical Season + Week(s) plans and only QB Coverage,
+  WR Coverage and OL/DL Matchups remain nonhistorical/prospective. The new
+  remainder plan sampled both 2025 Weeks 1--4 and 5--8 for all nine previously
+  unexercised historical families. Immutable resumed run
+  `20260811T062906Z__remaining-catalog-window-semantics-v1` completed all 18
+  exact-scope exports. Two fail-closed DOM repairs were required before that
+  completion: metric halves may render as separate rows, and Routes Run has
+  hidden title copies before its visible heading; Fantasy Points Scored also
+  uses Rank/Name/POS/G identity rows. Twenty focused downloader tests and live
+  scope regressions pass.
+- The remainder audit found no missed immediate priority. Basic stats, Bell
+  Cow, detailed Fantasy Points and Routes Run are redundant; Routes Run's
+  alignment counts correlate 0.9987--0.9998 with Separation by Alignment.
+  Named routes are too sparse over four weeks. Broader Horizontal/Vertical
+  route-break groups are the only new lead, with 104--122 players at 20-route
+  support per window; keep that lead outcome-blind and behind the already
+  preregistered Advanced Passing diagnostic.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no

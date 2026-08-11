@@ -53,22 +53,65 @@ Coverage navigation readiness failure was repaired and independently
 completed in `20260811T035458Z__coverage-matrix-offense-window-semantics-v1`.
 The earlier reset exports are rejected audit artifacts and are not inputs.
 
+## Full-catalog completion
+
+The live menu contains exactly 28 NFL reports. Twenty-five expose historical
+Season + Week(s) controls; QB Coverage Matchup, WR Coverage Matchup and OL/DL
+Matchups are the only three without a replay-safe historical Season surface.
+The downloader now guards the complete 28-report menu, not only the initial
+16 automated families, so a new, removed or renamed vendor report fails the
+catalog check visibly.
+
+Ignored run
+`20260811T062906Z__remaining-catalog-window-semantics-v1` completed the nine
+previously unsampled historical families with exact 2025 Weeks 1--4 and 5--8
+exports:
+
+| report | player/team rows, Weeks 1--4 / 5--8 | columns |
+|---|---:|---:|
+| Basic Passing | 52 / 52 | 32 |
+| Basic Rushing | 101 / 104 | 46 |
+| Bell Cow | 123 / 125 | 24 |
+| Basic Receiving | 252 / 257 | 24 |
+| Routes Run | 392 / 406 | 39 |
+| Separation by Route Breaks | 392 / 404 | 41 |
+| Separation by Routes | 392 / 404 | 95 |
+| Fantasy Points Scored | 32 / 32 | 23 |
+| Fantasy Points Allowed | 32 / 32 | 24 |
+
+Every pair had different hashes, exact Season 2025 and `G<=4`. Routes Run
+alignment route counts were almost identical to the already sampled
+Separation-by-Alignment counts (Pearson 0.9987--0.9998), so it adds no
+collection priority. Individual named-route cells are too sparse over four
+weeks: most route types had median support of only 1--7 routes, and only Hitch
+and Go had even 33--61 players with at least 20 routes. The broader route-break
+groups are more plausible future inputs: Horizontal and Vertical each had
+104--122 players with at least 20 routes, Static had 41--64, while Shallow
+had only 22--23. This licenses only a later outcome-blind redundancy/support
+screen of a small route-break family, not an outcome join or field search.
+
+The completed same-season Man/Zone + Defense Matrix diagnostic subsequently
+failed its preregistered support and 30-point Brier gates. That closes the
+exact coverage mechanism despite its initial catalog priority. The already
+preregistered Advanced Passing family remains next because its process fields
+were materially less redundant in the outcome-blind audit.
+
 ## Catalog disposition
 
 | report family | historical filters | incremental value | disposition |
 |---|---|---|---|
 | Advanced Receiving | Season + Week(s) | recent routes, first reads, air-yard share, XFP and alignment | highest priority; exact-window contract proven |
-| Defense Coverage Matrix | Season + Week(s) | recent opponent shell usage; distinct from receiver traits | highest priority; exact-window contract proven |
-| Advanced Passing | Season + Week(s) | recent QB process and efficiency beyond mean projection | high-priority schema/window sample, then frozen diagnostic |
+| Defense Coverage Matrix | Season + Week(s) | recent opponent shell usage; distinct from receiver traits | exact-window contract proven; N-1 and last-four coverage mechanisms tested without lineup promotion |
+| Advanced Passing | Season + Week(s) | recent QB process and efficiency beyond mean projection | next preregistered collection/diagnostic |
 | Advanced Rushing | Season + Week(s) | recent contact, concept and explosive-rush process | high-priority schema/window sample, then frozen diagnostic |
-| Receiving Man-vs-Zone | Season + Week(s) | same-season receiver scheme performance | high priority paired with defensive shells; require route/dropback support |
-| Separation by Coverage | Season + Week(s) | recent receiver performance by shell | high priority paired with defensive shells; sparse cells require support |
+| Receiving Man-vs-Zone | Season + Week(s) | same-season receiver scheme performance | exact last-four mechanism failed support/tail gate; no retry |
+| Separation by Coverage | Season + Week(s) | recent receiver performance by shell | exact last-four mechanism failed support/tail gate; no retry |
 | Separation by Alignment | Season + Week(s) | recent slot/wide/inline/backfield effectiveness | medium-high; test only as a complete preregistered family |
 | RB + WR Efficiency | Season + Week(s) | recent missed tackles, YAC and explosive-touch rates | medium-high; first remove overlap with Advanced/PBP fields |
 | Detailed Snaps | Season + Week(s) | play-type/field-position usage not present in simple share | medium; audit against nflverse before modeling |
 | Offense Coverage Matrix | Season + Week(s) | schemes recently faced by an offense | medium; likely secondary to player traits plus opposing defense |
 | Passing Depth of Target | Season + Week(s) | recent QB depth distribution | medium-low because PBP/aDOT already cover much of it |
-| Separation by Routes / Route Breaks | Season + Week(s) | granular receiver skill by route shape | medium-low; sparse samples, no post-outcome route subset selection |
+| Separation by Routes / Route Breaks | Season + Week(s) | granular receiver skill by route shape | route-break groups merit later outcome-blind review; individual routes are too sparse, with no post-outcome subset selection |
 | Run/Pass Report | Season + Week(s) | situational play-calling | low because PBP and PROE can derive most fields |
 | Fantasy Points Allowed | Season + Week(s) | defense-vs-position production allowed | low; mostly derivable from authoritative scoring/PBP |
 | Basic Passing/Rushing/Receiving | Season + Week(s) | standard box/PBP production | do not collect; redundant with nflverse |

@@ -97,6 +97,21 @@ season/week payload, waits for the rendered game counts, and validates Season
 and `G` in the downloaded CSV. Controls can update before the table, so none
 of these gates is interchangeable with a fixed sleep.
 
+The full-menu guard covers all 28 current NFL reports. Twenty-five have
+historical Season + Week(s) surfaces supported by the downloader; the three
+upcoming-matchup tools are catalog-guarded but intentionally excluded from
+historical plans. The nine remaining historical families are exercised by:
+
+```bash
+fantasy-points-download run \
+  --plan automation/fantasy_points/plans/remaining-catalog-window-check.json
+```
+
+This is an audit plan, not a recurring download list. Its basic, Bell Cow,
+Routes Run and fantasy-points outputs are redundant operational evidence;
+the sparse route-break/individual-route outputs require a separate frozen
+protocol before any outcome use.
+
 After the outcome-blind catalog/redundancy audit, the first historical
 modeling collection is frozen to three reports and exact last-four-completed
 week windows:

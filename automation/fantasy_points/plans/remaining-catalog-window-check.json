@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "name": "remaining-catalog-window-semantics-v1",
+  "reports": [
+    {
+      "report": "basic-passing",
+      "seasons": [2025],
+      "week_windows": ["1-4", "5-8"],
+      "context": "Player"
+    },
+    {
+      "report": "basic-rushing",
+      "seasons": [2025],
+      "week_windows": ["1-4", "5-8"],
+      "context": "Player"
+    },
+    {
+      "report": "bell-cow",
+      "seasons": [2025],
+      "week_windows": ["1-4", "5-8"],
+      "context": "Player"
+    },
+    {
+      "report": "basic-receiving",
+      "seasons": [2025],
+      "week_windows": ["1-4", "5-8"],
+      "context": "Player"
+    },
+    {
+      "report": "routes-run",
+      "seasons": [2025],
+      "week_windows": ["1-4", "5-8"],
+      "context": "Player"
+    },
+    {
+      "report": "receiving-separation-by-breaks",
+      "seasons": [2025],
+      "week_windows": ["1-4", "5-8"],
+      "context": "Player"
+    },
+    {
+      "report": "receiving-separation-by-routes",
+      "seasons": [2025],
+      "week_windows": ["1-4", "5-8"],
+      "context": "Player"
+    },
+    {
+      "report": "fantasy-points-scored-detail",
+      "seasons": [2025],
+      "week_windows": ["1-4", "5-8"],
+      "context": "Player"
+    },
+    {
+      "report": "fantasy-points-allowed",
+      "seasons": [2025],
+      "week_windows": ["1-4", "5-8"],
+      "context": "Player"
+    }
+  ]
+}

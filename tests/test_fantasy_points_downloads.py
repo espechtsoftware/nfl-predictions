@@ -6,6 +6,8 @@ from types import SimpleNamespace
 import pytest
 
 from nfl_dfs.ops.fantasy_points_downloads import (
+    EXPECTED_CATALOG,
+    REPORTS,
     ExportSpec,
     _assert_values_response_scope,
     _game_count_from_rendered_row,
@@ -114,6 +116,29 @@ def test_load_checked_in_high_priority_window_plan():
     assert payload["name"] == "high-priority-window-semantics-v1"
     assert len(specs) == 16
     assert all(max(spec.weeks) - min(spec.weeks) == 3 for spec in specs)
+
+
+def test_catalog_guard_covers_every_live_menu_report():
+    assert len(EXPECTED_CATALOG) == 28
+    assert len(REPORTS) == 25
+    assert set(EXPECTED_CATALOG) - {
+        definition.property for definition in REPORTS.values()
+    } == {"qbCoverageMatchup", "wrCoverageMatchup", "lineMatchups"}
+
+
+def test_load_checked_in_remaining_catalog_window_plan():
+    root = Path(__file__).resolve().parents[1]
+    payload, specs = load_plan(
+        root
+        / "automation"
+        / "fantasy_points"
+        / "plans"
+        / "remaining-catalog-window-check.json"
+    )
+    assert payload["name"] == "remaining-catalog-window-semantics-v1"
+    assert len(specs) == 18
+    assert len({spec.report for spec in specs}) == 9
+    assert all(spec.context == "Player" for spec in specs)
 
 
 def test_load_checked_in_same_season_coverage_plan():
@@ -244,6 +269,12 @@ def test_rendered_game_count_supports_player_and_team_rows():
     assert _game_count_from_rendered_row(
         ["Rank", "Name", "G", "DB"]
     ) is None
+    assert _game_count_from_rendered_row(
+        ["175", "166", "121", "72.9%", "1119"]
+    ) is None
+    assert _game_count_from_rendered_row(
+        ["1", "Buffalo Bills", "QB", "4", "143"]
+    ) == 4
 
 
 def test_reuse_prefix_revalidates_and_copies_download(tmp_path):
