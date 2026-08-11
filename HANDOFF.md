@@ -322,15 +322,16 @@ and must not be staged or modified.
   create-only NPZ containing aligned base/role draws, both component sets,
   served quantiles, market/model means and Route lineage before candidate
   generation. Candidate player snapshots carry the artifact URI/hash and arm
-  identity. Four new off-season-paused schedulers are included in the Aug 24
-  runbook, and deployment verification covers both new registries and the
-  treatment job. Local validation passed all 874 tests with two expected
+  identity. Five new off-season-paused schedulers are included in the Aug 24
+  runbook: a Thursday post-download feature rebuild, two isolated Thursday
+  retrains, and the two Sunday treatment snapshots. Deployment verification
+  covers both new registries and the treatment job. Local validation passed all 874 tests with two expected
   skips before the final per-component/create-only hardening; the superseding
   focused Route/tail/SQL/persistence set passes 101 tests with one expected
   skip, plus compilation, CLI discovery, shell syntax and whitespace checks.
   Exact next action: commit/push this milestone, build the exact tree, deploy
   only the two new train jobs, treatment shadow, and updated control shadow,
-  create all four new schedulers in PAUSED state, then verify deployment
+  create all five new schedulers in PAUSED state, then verify deployment
   without executing an offseason shadow.
 - The operator-supplied recommendation-scoreboard review was checked against
   the experiment ledger in

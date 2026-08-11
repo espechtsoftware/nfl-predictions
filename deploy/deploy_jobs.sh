@@ -97,8 +97,12 @@ sched s-features    build-features  "30 6 * * 2"
 sched s-train       train-weekly    "30 7 * * 2"
 sched s-train-k1    train-weekly-k1 "30 8 * * 2"
 sched s-train-k1-role train-weekly-k1-role "45 8 * * 2"
-sched s-train-k1-route train-weekly-k1-route "0 9 * * 2"
-sched s-train-k1-route-role train-weekly-k1-route-role "15 9 * * 2"
+# Licensed Route Share is posted after the completed week. Give the operator
+# Tuesday/Wednesday to collect+import it, then rebuild the feature tables and
+# train only the isolated treatment registries on Thursday.
+sched s-features-route build-features "30 6 * * 4"
+sched s-train-k1-route train-weekly-k1-route "30 7 * * 4"
+sched s-train-k1-route-role train-weekly-k1-route-role "0 8 * * 4"
 sched s-project-tu  project-slate   "30 9 * * 2"
 sched s-project-su  project-slate   "0 6-11 * * 7"
 # Two pre-lock snapshots: the early run is resilient to a late-run failure;
