@@ -37,6 +37,8 @@ TABLES: list[tuple[str, str]] = [
     ("raw", "dk_contest_fills"),  # dk_contest_fills_nfl is a VIEW — skip
     ("raw", "fantasy_points_route_share"),
     ("raw", "fantasy_points_advanced_prior"),
+    ("raw", "fantasy_points_receiver_coverage_l4"),
+    ("raw", "fantasy_points_defense_coverage_l4"),
     ("features", "manual_notes"),
     ("features", "player_watch_notes"),
     ("features", "lineup_prefs"),

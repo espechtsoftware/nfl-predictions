@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 23:06 CDT
+## Current state — 2026-08-10 23:15 CDT
 
-Active branch is `main`; the last pushed milestone is commit `9570216`.
+Active branch is `main`; the last pushed milestone is commit `c3e5219`.
 The two operator-supplied outside-review documents under `reports/` remain
 untracked and must not be staged or modified.
 
@@ -113,12 +113,11 @@ untracked and must not be staged or modified.
   `replay-lockk1cov-2019-kh9xl`, `replay-lockk1cov-2021-l9bd9`,
   `replay-lockk1cov-2022-4xgrm`, `replay-lockk1cov-2023-nvhqp`,
   `replay-lockk1cov-2024-tvgnt`, and `replay-lockk1cov-2025-ptnj6`.
-  The 2021 execution completed successfully in 1h13m6.01s and the 2023
-  execution completed successfully in 1h8m49.79s. The 2019, 2022, 2024 and
-  2025 executions still report `Completed=Unknown` with no succeeded/failed
-  count as of 22:59 CDT. Do not read partial scores. After all six complete
-  cleanly, run check-only exact-80
-  acceptance and then the one frozen coverage comparator against direct role.
+  All six executions completed successfully: 2019 in 1h32m28s, 2021 in
+  1h13m6.01s, 2022 in 1h21m13.89s, 2023 in 1h8m49.79s, 2024 in 1h28m5.73s,
+  and 2025 in 1h26m12.01s. Check-only exact-80 acceptance execution
+  `accept-replay-panel-t56n4` is now running; do not read partial scores.
+  After it passes, run the one frozen coverage comparator against direct role.
 - The operator supplied an outcome-viewed outside review of the paid Fantasy
   Points data. Its repository-verified disposition is tracked in
   `reports/2026-08-11-fantasy-points-utilization-reconciliation.md`. Weekly
@@ -158,8 +157,14 @@ untracked and must not be staged or modified.
   `reports/2026-08-11-fantasy-points-same-season-coverage-protocol.md`.
   Its plan contains only Man-vs-Zone, Separation-by-Coverage and Defense
   Coverage Matrix for seasons 2022--2025, target Weeks 5--18 and exact
-  last-four-prior windows. Plan/catalog validation expanded 168 safe exports;
-  collection has not started at this handoff milestone.
+  last-four-prior windows. Plan/catalog validation expanded 168 safe exports.
+  Sequential ignored collection is active under run id ending
+  `__same-season-coverage-last-four-v1`; do not consume it until the command
+  completes and its final manifest passes the locked importer. The importer,
+  same-season PIT attachment/diagnostic, CLI commands and focused tests are
+  implemented in the working milestone without reading outcomes. The two new
+  raw table names are explicit daily-backup members and also match automatic
+  Fantasy Points table discovery.
 - The auditable Playwright downloader under `automation/fantasy_points/` and
   `ops/fantasy_points_downloads.py` is authenticated and operational. It uses
   a persistent profile outside the repository, never commits credentials or

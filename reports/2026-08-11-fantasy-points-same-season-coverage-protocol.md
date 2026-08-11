@@ -116,3 +116,21 @@ A pass licenses one separately preregistered candidate-union test; it does
 not directly change projections or production. A valid failure closes this
 exact mechanism. No threshold, position, feature subset, window, model,
 coefficient, fold or gate retry is licensed on these outcomes.
+
+## Pre-outcome implementation status
+
+The manifest-locked importer is
+`ingest/fantasy_points_same_season_coverage.py`; it requires the full frozen
+168-export grid, validates every file hash/shape/window/context, enforces
+`G<=4`, resolves players without outcomes, requires all 32 defenses per
+window, suppresses duplicate identities, and materializes the frozen support
+flag. The diagnostic is
+`analysis/fantasy_points_same_season_coverage.py`; it enforces exact
+same-season W-4:W-1 receiver and opponent-defense joins and implements only
+the four registered features and aggregate tail gate.
+
+Focused tests cover complete-manifest and target-week rejection, opponent
+joins, support behavior, and the tail-first gate. The two private raw table
+names are explicit members of the daily backup job as well as covered by its
+future `fantasy_points_*` discovery. Historical collection began only after
+this protocol was committed; no new treatment outcome has been read.

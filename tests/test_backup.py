@@ -11,7 +11,9 @@ def test_irreplaceable_tables_covered():
     for must in ("contest_ownership", "manual_notes", "player_watch_notes",
                  "entered_lineups", "dk_salaries_historical",
                  "fantasy_points_route_share",
-                 "fantasy_points_advanced_prior"):
+                 "fantasy_points_advanced_prior",
+                 "fantasy_points_receiver_coverage_l4",
+                 "fantasy_points_defense_coverage_l4"):
         assert must in tables
 
 
