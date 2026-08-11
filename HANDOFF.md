@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 02:13 CDT
+## Current state — 2026-08-11 02:20 CDT
 
-Active branch is `main`; the last pushed milestone is commit `e399ea1`.
+Active branch is `main`; the last pushed milestone is commit `6d46ca2`.
 The two operator-supplied outside-review documents under `reports/` remain
 untracked and must not be staged or modified.
 
@@ -295,6 +295,17 @@ untracked and must not be staged or modified.
   The exact Advanced Passing mechanism is closed with no candidate arm or
   retry. Next use the catalog audit's outcome-blind route-break support lead;
   do not test sparse individual named routes.
+- The next outcome-unseen mechanism is frozen before collection in
+  `reports/2026-08-11-fantasy-points-same-season-route-shape-protocol.md` and
+  plan `same-season-route-shape-last-four-v1.json`. It uses only the four
+  independent Horizontal/Vertical/Static/Shallow route-count shares, with
+  Backfield implicit, Overall routes >=30, seasons 2022--2025, target Weeks
+  5--18 and exact W-4:W-1 windows. The five vendor counts partition Overall
+  routes exactly in both samples; 30-route support covered 58.2%/52.2% of
+  accepted WR/TE rows with prior activity. No conditional efficiency,
+  separation score, named route or outcome-selected field is licensed.
+  Implement and validate the manifest-locked intake/diagnostic before running
+  the 56-export collection; do not read outcomes first.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no
