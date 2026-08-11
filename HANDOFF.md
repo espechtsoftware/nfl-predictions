@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 18:12 CDT
+## Current state — 2026-08-11 18:13 CDT
 
 Active branch is `main`; final-served Route diagnostic implementation commit
 `d5e74c0` is pushed. The position-calibration result, research promotion,
@@ -60,10 +60,14 @@ and must not be staged or modified.
   offseason. `.venv/bin/python scripts/verify_deployment.py --json` reports
   zero contract failures and identifies adopted policy
   `classic-k1-role12-boom40-poscal-v3` with the correct source panel.
-- Exact next action: launch the sole immutable
-  `20260811-route-final-served-calibration-v1` diagnostic from the validated
-  digest above, record its Cloud Run execution ID immediately, and harvest the
-  frozen report. If the registered treatment 30-point Brier gate passes,
+- The sole immutable `20260811-route-final-served-calibration-v1` diagnostic
+  is now running as Cloud Run execution
+  `route-final-served-calibration-lkwk2` from the validated digest above. Its
+  frozen manifest and execution identity are tracked under
+  `reports/route-final-served-calibration-runs/20260811-route-final-served-calibration-v1/`.
+  No calibrated result or gate metric had been produced when the identity was
+  recorded. Exact next action: monitor and harvest the frozen report. If the
+  registered treatment 30-point Brier gate passes,
   freeze a separate exact-80 lineup protocol before querying lineup outcomes;
   if it fails, close this historical Route retry. Do not alter factors, folds,
   feature fields or the decision gate after seeing the result.
