@@ -115,3 +115,42 @@ changes the adopted policy, live jobs, UI, registries or accepted tables.
 - Do not infer a scoring gain from calibration alone.
 - Do not retroactively reclassify a closed feature arm.
 - Do not stage or modify the operator-supplied outside-review documents.
+
+## Result
+
+Exact-tree Cloud Build `fa8677da-1d00-4639-86fc-67622df925d5` passed 880
+tests with two expected skips from preregistration/implementation commit
+`fcbaf0f` and published immutable digest
+`sha256:0c03d5f31eb2f786a02779502bc4ec6ef3dd03708a43d1ced381c83d033f9c00`.
+The one guarded execution `served-position-calibration-47r24` completed
+successfully. Its immutable report is under
+`reports/served-position-calibration-runs/20260811-served-position-calibration-v1/`.
+
+R1's unchanged summary-layer refit selected incremental factors QB 1.00,
+RB 1.00, TE 1.10 and WR 1.05, implying absolute legacy summary factors
+1.50/1.45/1.155/1.155. This does not alter final fully covered TabPFN worlds.
+The separately recorded R1-prime SQL audit confirms that the q99 imbalance is
+already present in the TabPFN cache and is only modestly amplified by the
+market mean shift.
+
+R2 selected the following factors using only 2019/2021/2022:
+
+| Position | Final-served factor |
+|---|---:|
+| QB | 0.970 |
+| RB | 1.005 |
+| TE | 0.940 |
+| WR | 1.070 |
+
+On untouched 2023--2025 rows, position-averaged absolute q90/q95/q99
+calibration gap fell `0.006113 -> 0.003149` (48.5%). The equal-weight
+position/season/quantile pinball ratio was `0.996151`; every position was at
+or below 1.000. Aggregate q90/q95/q99 exceedance moved
+`10.496%/5.365%/1.448% -> 10.366%/5.242%/1.357%`. WR q99 moved
+`1.881% -> 1.439%`, while TE moved `0.737% -> 1.079%`. Both Brier losses
+improved slightly; CRPS worsened 0.3005%, inside the frozen 0.5% limit; and
+maximum row-mean drift was `7.11e-15`.
+
+Every frozen gate passed. This licenses exactly one separately frozen
+exact-80 lineup comparison using these four factors. It does not itself
+change production or retroactively reopen a feature arm.

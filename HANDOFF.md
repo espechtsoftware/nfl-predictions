@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 13:36 CDT
+## Current state — 2026-08-11 15:00 CDT
 
 Active branch is `main`; Advanced Receiving diagnostic implementation commit
 `5aee8aa` is pushed. Its single preregistered outcome run is complete and
@@ -392,10 +392,29 @@ and must not be staged or modified.
   QB/RB/WR/TE factors on 2019/2021/2022 and gates them once on untouched
   2023--2025. It never generates or scores lineups. Five focused calibration
   test files pass 23 tests; compilation, CLI discovery, shell syntax and
-  whitespace checks are clean. Exact next action: commit/push this frozen
-  protocol and implementation, validate the exact tree in Cloud Build, then
-  launch the guarded single diagnostic from that immutable digest. Do not
-  preregister a lineup arm until its gate is known.
+  whitespace checks are clean. Pre-result commit `fcbaf0f` is pushed.
+  Exact-tree Cloud Build `fa8677da-1d00-4639-86fc-67622df925d5` passed 880
+  tests with two expected skips and published immutable digest
+  `sha256:0c03d5f31eb2f786a02779502bc4ec6ef3dd03708a43d1ced381c83d033f9c00`.
+  The corrected outside review now agrees with the TabPFN mechanism audit.
+  Its zero-compute R1-prime decomposition is tracked in
+  `reports/2026-08-11-tabpfn-stage-calibration-audit.md`: cached q99 already
+  measures QB/RB/TE/WR `1.184%/1.439%/0.711%/1.635%`, and the market shift
+  modestly raises final RB/WR to `1.565%/1.881%` while TE ends at `0.737%`.
+  The single immutable execution `served-position-calibration-47r24` passed
+  every frozen final-served gate. Fit factors from 2019/2021/2022 are
+  QB/RB/TE/WR `0.970/1.005/0.940/1.070`. On untouched 2023--2025 rows,
+  position-averaged absolute q90/q95/q99 gap fell `0.006113→0.003149`, mean
+  position/fold/quantile pinball ratio was `0.996151`, WR q99 improved
+  `1.881%→1.439%`, TE improved `0.737%→1.079%`, both Brier losses improved,
+  CRPS worsened only 0.3005% inside the gate, and maximum row-mean drift was
+  `7.11e-15`. Durable report:
+  `reports/served-position-calibration-runs/20260811-served-position-calibration-v1/`.
+  This is positive distribution evidence, not a scoring adoption. Exact next
+  action: freeze and implement the one licensed same-image exact-80 lineup
+  control/treatment on corrected direct-role evaluation seasons only, then
+  apply the standing 240/230/220/210/200 tail-first law. Production remains
+  identity meanwhile.
 - The next paid-data correlation study was frozen and pushed before any
   outcome join at commit `8263fe8`:
   `reports/2026-08-10-fantasy-points-coverage-fit-experiment.md`. It tests only

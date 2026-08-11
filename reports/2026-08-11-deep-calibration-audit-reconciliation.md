@@ -58,3 +58,18 @@ The data-fitted allocation-concentration claim and free unused-feature blocks
 remain lower-priority hypotheses. Neither is authorized until this R1/R2
 diagnostic resolves, and neither may be tuned on the 107 known lineup
 outcomes.
+
+## Corrected-review follow-up and result
+
+The outside audit was revised after this code audit and now explicitly agrees
+that upstream widening is erased on TabPFN-covered rows. Its replacement
+R1-prime stage decomposition was run descriptively and is tracked in
+`reports/2026-08-11-tabpfn-stage-calibration-audit.md`. The imbalance is
+already present in cached TabPFN q99 values (QB/RB/TE/WR
+1.184%/1.439%/0.711%/1.635%); the later market shift raises final RB/WR to
+1.565%/1.881% and leaves TE at 0.737%.
+
+The independently frozen final-served fit then passed every held-out gate at
+factors QB 0.970, RB 1.005, TE 0.940 and WR 1.070. This is positive
+distribution evidence, not yet a scoring result. Its sole licensed next step
+is the separately preregistered exact-80 lineup comparison.

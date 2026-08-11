@@ -1,0 +1,12 @@
+run_id=20260811-served-position-calibration-v1
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:0c03d5f31eb2f786a02779502bc4ec6ef3dd03708a43d1ced381c83d033f9c00
+panel=20260810-lockfix-e80-k1-8677d21
+calibration_seasons=2019 2021 2022
+evaluation_seasons=2023 2024 2025
+positions=QB RB WR TE
+summary_refit=fit_widen_factors unchanged default grid
+position_factor_grid=0.750:0.005:1.500
+position_fit_objective=equal-season-q90-q95-q99-normalized-pinball
+n_sims=10000
+seed=0
+blend_model_weight=0.45
