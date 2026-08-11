@@ -113,3 +113,51 @@ This reconciliation does not claim the $200 purchase will create a large
 lineup lift.  It narrows the plausible value to weekly Route Share plus one
 still-untested Defense PROE question, while preventing descriptive outcome
 cuts from becoming hidden tuning.
+
+## Amendment — vendor `Week(s)` filter changes the stale-prior assumption
+
+The outside review was updated after the operator confirmed that changing the
+Data Suite's `Week(s)` selection changes values in the season-level Advanced
+and coverage reports.  The four tables currently in BigQuery are still
+season aggregates and their completed diagnostics remain exactly as recorded,
+but their staleness is an export choice rather than a product limitation.
+
+This is materially useful.  A report exported with statistics restricted to
+weeks strictly before target Week W can supply same-season, point-in-time
+Advanced Receiving inputs.  That is genuinely different information from the
+failed season-N−1 arm, not an early-week subset retry.  The clearest next
+candidate is Advanced Receiving because it contains air-yard share,
+first-read rate, expected fantasy points per route and the other fields in the
+already frozen receiving family.
+
+Before bulk download or code work, validate the filter contract on one season:
+
+1. preserve separate 2025 Advanced Receiving exports for `Week(s)=1--4` and
+   `Week(s)=5--8`, with filenames that encode the selected weeks;
+2. verify each export's game counts and values establish whether `Week(s)` is
+   an exact selected-window aggregate or an automatic cumulative cutoff;
+3. never trust the vendor `OPP` field for replay joins; derive the target
+   opponent from the project's schedule and assert every source cutoff is
+   `< target week`;
+4. if the filter is an arbitrary window, prefer a frozen last-four definition
+   available for every target week rather than selecting eight convenient
+   cutoffs after outcomes; if it is cumulative, use the exact W−1 cumulative
+   cutoff;
+5. use the season-N−1 prior only as an explicitly flagged fallback until the
+   same-season sample has the preregistered minimum history.
+
+The first diagnostic should reuse the complete registered Advanced feature
+families and position groups rather than selecting only the three fields
+highlighted by the outcome-viewed review.  It must compare same-code control
+and treatment walk-forward, report availability, MAE and 20/30-point Brier by
+position, and prohibit a field/window/minimum-games sweep.  The historical
+result will be labeled operator-directed because this acquisition path was
+recognized after viewing outcomes; prospective 2026 shadow confirmation is
+still required for an independent claim.
+
+The update's coverage-shell arithmetic is consistent with the weak frozen
+coverage result: receiver man/zone traits and defensive shell rates can both
+persist while their product changes expected DK points only slightly.  It
+does not justify modifying the in-flight coverage union.  Individual
+cornerback/shadow assignments would be a different dataset; none of the
+current Fantasy Points exports contains that information.

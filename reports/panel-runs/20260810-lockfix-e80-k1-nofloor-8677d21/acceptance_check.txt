@@ -1,0 +1,50 @@
+rows: 25,890  slates: 107
+=== REPLAY/LIVE MEAN PARITY ===
+{
+  "blend_max_abs_error": 0.0,
+  "candidate_mean_max_abs_error": 2.3725609381131108e-05,
+  "candidate_mean_p95_abs_error": 1.2506642679710467e-05,
+  "candidate_rows": 25890,
+  "covered_offense_rows": 10891,
+  "duplicate_feature_keys": 0,
+  "feature_rows": 50098,
+  "missing_candidate_slates": 0,
+  "missing_roster_players": 0,
+  "passes": true,
+  "slates": 107,
+  "uncovered_max_abs_error": 0.0,
+  "uncovered_offense_rows": 36801
+}
+=== ACCEPTANCE REPORT (plan §6) ===
+definition version: cf-1.0.0
+  >=187: selected  35  pool-oracle  39  recoverable   4
+  >=194: selected  24  pool-oracle  27  recoverable   3
+  >=200: selected  15  pool-oracle  17  recoverable   2
+by season (selected / oracle clears at 194):
+        slates  sel194  orc194  mean_sel  mean_regret
+season                                               
+2019      17.0     8.0     9.0     193.1          1.2
+2021      18.0     3.0     4.0     176.8          2.6
+2022      18.0     4.0     4.0     175.6          1.2
+2023      18.0     4.0     4.0     179.6          1.4
+2024      18.0     3.0     3.0     172.4          1.1
+2025      18.0     2.0     3.0     174.5          1.7
+RECOVERABLE WEEKS (3):
+ season  week  sel_best  oracle  regret  oracle_simrank oracle_tag
+   2019     6    190.50  204.44   13.94              61        lev
+   2021    18    178.82  194.12   15.30             167        lev
+   2025     9    187.60  202.50   14.90              44        lev
+oracle sim-rank: median 81 of median pool 243; oracle already selected 80.4%
+corr(sim-rank, regret): all +0.157  |  oracle-unselected only -0.054
+generator shares (candidate / selected / exclusive):
+  boom     cand  16.5%  sel  45.8%  exclusive  16.5%
+  dark     cand   3.4%  sel   6.8%  exclusive   2.8%
+  game     cand   4.9%  sel   7.9%  exclusive   4.1%
+  lev      cand  66.1%  sel  28.9%  exclusive  62.7%
+  qbvar    cand  13.2%  sel  14.0%  exclusive  10.3%
+=== §6.1 DECISION GATE (preregistered) ===
+  recoverable weeks 3 (need >=4), spread over 3 seasons (need >=3)
+  VERDICT: DO NOT build the reranker — prioritize generation (B/C)
+ACCEPTANCE PASSED — panel eligible for promotion
+Container called exit(0).
+

@@ -1,0 +1,114 @@
+import json
+from pathlib import Path
+
+import pytest
+
+from nfl_dfs.ops.fantasy_points_downloads import (
+    artifact_name,
+    compact_weeks,
+    expand_plan,
+    load_plan,
+    parse_weeks,
+)
+
+
+def test_parse_weeks_accepts_ranges_lists_and_mixtures():
+    assert parse_weeks("1-4") == (1, 2, 3, 4)
+    assert parse_weeks("1,3-5") == (1, 3, 4, 5)
+    assert parse_weeks([4, 2, 2]) == (2, 4)
+
+
+@pytest.mark.parametrize("bad", ["", "5-2", "0", "23", {"week": 1}])
+def test_parse_weeks_rejects_unsafe_windows(bad):
+    with pytest.raises(ValueError):
+        parse_weeks(bad)
+
+
+def test_expand_plan_is_deterministic_and_names_point_in_time_filters():
+    plan = {
+        "schema_version": 1,
+        "reports": [
+            {
+                "report": "advanced-receiving",
+                "seasons": [2024, 2025],
+                "week_windows": ["1-4", "1,3-5"],
+            }
+        ],
+    }
+    specs = expand_plan(plan)
+    assert len(specs) == 4
+    assert specs[0].include_group_headers is True
+    assert artifact_name(specs[-1]) == (
+        "advanced-receiving__season-2025__weeks-01_03-05.csv"
+    )
+    assert compact_weeks((1, 2, 3, 4, 7)) == "01-04_07"
+
+
+def test_load_checked_in_window_plan():
+    root = Path(__file__).resolve().parents[1]
+    payload, specs = load_plan(
+        root
+        / "automation"
+        / "fantasy_points"
+        / "plans"
+        / "advanced-receiving-window-check.json"
+    )
+    assert payload["name"] == "advanced-receiving-window-semantics-v1"
+    assert [spec.weeks for spec in specs] == [(1, 2, 3, 4), (5, 6, 7, 8)]
+    assert all(spec.season == 2025 for spec in specs)
+
+
+def test_plan_rejects_duplicate_export():
+    plan = {
+        "schema_version": 1,
+        "reports": [
+            {
+                "report": "route-share",
+                "seasons": [2025],
+                "week_windows": ["1-4", [1, 2, 3, 4]],
+            }
+        ],
+    }
+    with pytest.raises(ValueError, match="duplicate export"):
+        expand_plan(plan)
+
+
+def test_generated_prior_windows_enforce_target_week_boundary():
+    plan = {
+        "schema_version": 1,
+        "reports": [
+            {
+                "report": "advanced-receiving",
+                "seasons": [2025],
+                "target_weeks": "5-7",
+                "source_window": "last-four-prior",
+                "context": "Player",
+            }
+        ],
+    }
+    specs = expand_plan(plan)
+    assert [(spec.target_week, spec.weeks) for spec in specs] == [
+        (5, (1, 2, 3, 4)),
+        (6, (2, 3, 4, 5)),
+        (7, (3, 4, 5, 6)),
+    ]
+    assert artifact_name(specs[0]) == (
+        "advanced-receiving__season-2025__weeks-01-04"
+        "__target-week-05__context-player.csv"
+    )
+
+
+def test_generated_window_rejects_target_week_one():
+    plan = {
+        "schema_version": 1,
+        "reports": [
+            {
+                "report": "route-share",
+                "seasons": [2025],
+                "target_weeks": [1],
+                "source_window": "cumulative-prior",
+            }
+        ],
+    }
+    with pytest.raises(ValueError, match="target week"):
+        expand_plan(plan)

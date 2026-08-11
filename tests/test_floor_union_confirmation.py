@@ -30,6 +30,19 @@ def _row(ix, players, worlds, selected, actual, salary=49_000):
     }
 
 
+def test_load_panel_requires_eligibility_only_for_accepted_table(monkeypatch):
+    queries = []
+    monkeypatch.setattr(
+        confirmation, "query_df", lambda query: queries.append(query) or pd.DataFrame()
+    )
+
+    confirmation.load_panel("accepted-panel", "replay_candidates")
+    confirmation.load_panel("staging-panel", "replay_candidates_staging")
+
+    assert "AND research_eligible" in queries[0]
+    assert "AND research_eligible" not in queries[1]
+
+
 def test_union_must_beat_source_and_incumbent(monkeypatch):
     monkeypatch.setattr(confirmation, "EXPECTED_SLATES", 1)
     monkeypatch.setattr(confirmation, "EXPECTED_ENTRIES", 2)

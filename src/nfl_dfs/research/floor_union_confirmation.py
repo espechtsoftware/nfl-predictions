@@ -28,13 +28,18 @@ def load_panel(panel: str, table: str) -> pd.DataFrame:
     panel = _identifier(panel, "panel id")
     if table not in ALLOWED_TABLES:
         raise ValueError(f"invalid candidate table {table!r}")
+    # Accepted rows must be explicitly research-eligible.  Staging rows are
+    # false by construction until promotion; check-only acceptance proves the
+    # panel without mutating that flag, so a preregistered staging treatment
+    # must not be filtered away before its one comparison.
+    eligibility = "AND research_eligible" if table == "replay_candidates" else ""
     return query_df(f"""
       SELECT season, week, cand_ix, players, selected, selected_rank,
              actual_score, salary, p_line, sim_mean, n_worlds,
              clear_bits_187, clear_bits_194, clear_bits_200,
              clear_bits_210, clear_bits_220
       FROM `{settings.predictions}.{table}`
-      WHERE panel_run_id = '{panel}' AND research_eligible
+      WHERE panel_run_id = '{panel}' {eligibility}
       ORDER BY season, week, cand_ix
     """)
 

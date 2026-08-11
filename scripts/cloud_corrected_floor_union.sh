@@ -37,9 +37,12 @@ printf 'image=%s\nsource=%s\naddon=%s\nincumbent=%s\nsource_table=%s\naddon_tabl
   "$ADDON_TABLE" "$INCUMBENT_TABLE" > "$OUT/manifest.txt"
 
 JOB=corrected-floor-union
+# gcloud's list parser rejects a repeated argument value.  The source is also
+# the incumbent when no later arm has promoted, so pass the unchanged CLI
+# invocation as one shell argument instead of losing that valid comparison.
+CLI_ARGS="exec nfl-dfs corrected-floor-union --source-panel $SOURCE --addon-panel $ADDON --incumbent-panel $INCUMBENT --source-table $SOURCE_TABLE --addon-table $ADDON_TABLE --incumbent-table $INCUMBENT_TABLE"
 gcloud run jobs deploy "$JOB" --project "$PROJECT" --region "$REGION" \
-  --image "$IMG" --command nfl-dfs \
-  --args "corrected-floor-union,--source-panel,$SOURCE,--addon-panel,$ADDON,--incumbent-panel,$INCUMBENT,--source-table,$SOURCE_TABLE,--addon-table,$ADDON_TABLE,--incumbent-table,$INCUMBENT_TABLE" \
+  --image "$IMG" --command /bin/sh --args "-c,$CLI_ARGS" \
   --set-env-vars "GCP_PROJECT=$PROJECT" --memory 4Gi --cpu 2 \
   --max-retries 0 --task-timeout 1800 >/dev/null
 DEPLOYED=$(gcloud run jobs describe "$JOB" --project "$PROJECT" \

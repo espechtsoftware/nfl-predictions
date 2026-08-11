@@ -34,6 +34,9 @@ app = [
     "uvicorn>=0.24",
     "python-multipart>=0.0.9",
 ]
+browser = [
+    "playwright>=1.49,<2",
+]
 tuning = [
     "optuna>=3.4",
 ]
@@ -44,6 +47,7 @@ dev = [
 
 [project.scripts]
 nfl-dfs = "nfl_dfs.cli:main"
+fantasy-points-download = "nfl_dfs.ops.fantasy_points_downloads:main"
 
 [tool.setuptools.package-data]
 "nfl_dfs.app" = ["static/*"]

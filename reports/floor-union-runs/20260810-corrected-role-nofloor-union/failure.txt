@@ -1,0 +1,5 @@
+execution=corrected-floor-union-6rv2c
+status=failed-before-confirmation
+error=staging add-on candidates were empty after an incorrect research_eligible filter
+confirmation_json_count=0
+repair=omit research_eligible only for the explicitly selected staging table; retain it for accepted rows

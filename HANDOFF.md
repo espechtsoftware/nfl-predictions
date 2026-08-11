@@ -20,7 +20,11 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 21:30 CDT
+## Current state — 2026-08-10 22:08 CDT
+
+Active branch is `main`; this work started from pushed commit `479b9c0`.
+The two operator-supplied outside-review documents under `reports/` remain
+untracked and must not be staged or modified.
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -103,6 +107,15 @@ agent or developer:
   `sha256:d3d53256d8db9c34f120108bead5bb44a3ab2f512c2db4a7c6956eeb1e3d5534`.
   Route selected the corrected direct-role source, so use this digest for the
   one `direct` coverage panel; there is no dose/feature retry.
+- The frozen coverage launch is active. Immutable preflight
+  `replay-lockk1cov-smoke-mnxfg` passed. Panel
+  `20260810-lockfix-e80-k1-role12-cov12-d977d0c` launched all six executions:
+  `replay-lockk1cov-2019-kh9xl`, `replay-lockk1cov-2021-l9bd9`,
+  `replay-lockk1cov-2022-4xgrm`, `replay-lockk1cov-2023-nvhqp`,
+  `replay-lockk1cov-2024-tvgnt`, and `replay-lockk1cov-2025-ptnj6`.
+  All remain active with no completed result as of this handoff. Do not read
+  partial scores. After all six complete cleanly, run check-only exact-80
+  acceptance and then the one frozen coverage comparator against direct role.
 - The operator supplied an outcome-viewed outside review of the paid Fantasy
   Points data. Its repository-verified disposition is tracked in
   `reports/2026-08-11-fantasy-points-utilization-reconciliation.md`. Weekly
@@ -120,6 +133,29 @@ agent or developer:
   and hash-locked. A shareable operator-facing description of all six weekly
   report families and their current priority is tracked in
   `reports/2026-08-11-fantasy-points-weekly-reports-summary.md`.
+- The outside review was updated with a material vendor-UI fact: changing the
+  Data Suite `Week(s)` selection changes Advanced/coverage aggregate values.
+  The existing N-1 tables and verdicts remain valid, but same-season strictly
+  prior-week Advanced exports are a genuinely different information path.
+  The repository reconciliation freezes the first semantics audit as 2025
+  Advanced Receiving Weeks 1--4 versus Weeks 5--8; game counts and values
+  must establish exact-window versus cumulative behavior before bulk
+  collection or any replay join. README's append-only deficiency log records
+  the correction to its earlier product-limitation row.
+- An auditable Playwright downloader is being added under
+  `automation/fantasy_points/` and `ops/fantasy_points_downloads.py`. It uses
+  a persistent profile outside the repository, never commits credentials or
+  licensed CSVs, validates the live vendor catalog, runs sequential exports,
+  names every file by report/season/source weeks/target week, and writes a
+  SHA-256/CSV-shape/retrieval-time manifest. Plans support explicit windows
+  and generated cumulative-prior or last-four-prior target-week policies;
+  invalid same/future-week source windows fail closed. Playwright 1.62,
+  Chromium 151 and its system libraries are installed on this workstation.
+  Fourteen focused Playwright/floor tests pass. The operator's persistent
+  profile login is not yet complete: the remote headed browser could not
+  accept keyboard input, and the terminal-credential fallback was corrected
+  for the vendor's missing email input type and asynchronous Firebase
+  redirect. Never record or request those credentials in chat or Git.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no
@@ -160,22 +196,33 @@ agent or developer:
   `180.1207`, median `178.44`. The Route lineup arm is closed with no retry;
   do not promote its staging rows. Use the direct-role incumbent as the
   coverage source and as the no-floor incumbent unless a later arm promotes.
-- The preregistered corrected no-floor candidate union is still queued. Its
+- The preregistered corrected no-floor candidate union finished generation. Its
   launcher had required the never-launched CE12+role branch; before any
   corrected no-floor generation or outcome read, the protocol and launcher
   were amended to require the accepted direct-role source
   `20260810-lockfix-e80-k1-role12union-8677d21`. The independent no-floor
   treatment remains byte-for-byte the frozen K1 binary ablation. Shell syntax
   and whitespace checks pass. Immutable preflight
-  `replay-locknofloor-smoke-dzrqw` passed, and all six season jobs are running:
+  `replay-locknofloor-smoke-dzrqw` passed, and all six season jobs completed
+  successfully:
   `replay-locknofloor-2019-4ztp8`, `replay-locknofloor-2021-fjsrj`,
   `replay-locknofloor-2022-swpsn`, `replay-locknofloor-2023-lsb6k`,
   `replay-locknofloor-2024-kjftz`, and `replay-locknofloor-2025-kqwdn`.
-  As of 21:19 CDT, 2021 is a clean success and the other five remain active
-  with zero failures. Do not read partial scores. Once complete, run
-  check-only acceptance, but
-  wait for the Route disposition before choosing the incumbent argument for
-  the single no-floor union comparison.
+  Check-only acceptance execution `accept-replay-panel-jbxkq` passed all 107
+  exact-80 slates. The first union execution
+  `corrected-floor-union-6rv2c` failed before producing any confirmation JSON
+  or comparison result: `floor_union_confirmation.load_panel()` incorrectly
+  required `research_eligible=TRUE` even for the staging add-on, whose 25,890
+  valid rows are false by construction after check-only acceptance. A second
+  pre-result launcher defect was also fixed: gcloud rejected the repeated
+  direct-role panel value when source and incumbent were the same, so the
+  unchanged CLI call is now passed as one shell argument. The staging loader
+  now follows the already-validated Route loader rule—eligibility is required
+  only in the accepted table—and a regression test covers both tables. This
+  is an operational repair with no score outcome observed, not a parameter or
+  decision-rule retry. Next action: full exact-tree Cloud Build, record the
+  new immutable evaluator digest, amend the frozen report with the defect,
+  and rerun the single comparison against direct role.
 - The operator's paid-data operations request is implemented on branch `main`
   at commit `ea6dca4`. The README season-start schedule now requires the final
   evidence-selected Fantasy Points reports, exact filters and pre-lock

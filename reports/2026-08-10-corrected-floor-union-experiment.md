@@ -127,3 +127,25 @@ code identity, simulation, candidate budget, selector, or 80-entry output.
 The eventual union source is the accepted direct-role pool; it must additionally
 beat any Route Share incumbent selected before the comparison. This is the only
 source amendment and does not license a retry.
+
+## Pre-result execution repair — 2026-08-10
+
+All six corrected no-floor seasons completed and check-only acceptance
+execution `accept-replay-panel-jbxkq` passed all 107 exact-80 slates. The
+first comparator execution, `corrected-floor-union-6rv2c`, failed before
+emitting `FLOOR_UNION_CONFIRMATION_JSON` or any score comparison. The guarded
+loader required `research_eligible=TRUE` for the add-on even though check-only
+accepted rows in `replay_candidates_staging` are false by construction; all
+25,890 valid no-floor rows were therefore filtered away. The identical rule
+had already been fixed in the Route comparator but was missing here.
+
+The mechanical repair applies the eligibility predicate only to the accepted
+table and reads the explicitly named staging treatment without changing any
+row. A regression test proves accepted queries retain the predicate and
+staging queries omit it. The launcher also passes the unchanged evaluator CLI
+as one shell argument because the current gcloud list parser rejects the same
+direct-role panel value appearing separately as both source and incumbent.
+Neither repair changes a panel, candidate, world, selector, threshold, entry
+count, or decision rule. A new full-test immutable evaluator image is required
+before the one comparison is rerun; the failed execution produced no result
+or new score outcome and does not license any further retry.
