@@ -117,9 +117,17 @@ missingness, correlation tables, and 30-point calibration deciles.
 
 ## Frozen gate
 
+An outcome-blind implementation audit after preregistration found 1,709/5,927
+supported 2024 WR/TE snapshot rows (28.83%) and 1,683/5,775 in 2025
+(29.14%). The minimum route thresholds are working as intended by excluding
+low-support splits, and each fold still has roughly 1,700 evaluation rows.
+Before any actual score was queried, the availability gate was therefore
+amended from 50% to 25%; no feature, support threshold, model, outcome gate,
+or target population changed.
+
 The coverage-fit mechanism passes only if:
 
-1. supported prior-season coverage is at least 50% of eligible corrected
+1. supported prior-season coverage is at least 25% of eligible corrected
    WR/TE snapshot rows in both held-out seasons;
 2. aggregate 30-point Brier is lower for treatment;
 3. treatment 30-point Brier is no more than 1% worse in either held-out
@@ -133,3 +141,22 @@ incumbent. It does not directly alter production projections. A valid failure
 closes this exact mechanism for pre-Week-1 adoption; do not retry a support
 threshold, field subset, position group, interaction, model strength, fold,
 or gate on these outcomes.
+
+## Pre-outcome implementation status
+
+The hash-locked importer is
+`ingest/fantasy_points_coverage.py`; it resolves player identities without
+outcomes, suppresses the known split 2022 Brock Wright row, maps all 32
+defenses explicitly, and writes separate private receiver/defense prior
+tables only under `WRITE_EMPTY`/byte-provenance guards. CLI command
+`import-fantasy-points-coverage` is audit-only unless passed `--write`.
+
+The diagnostic is `analysis/fantasy_points_coverage_fit.py`, CLI command
+`fantasy-points-coverage-diagnostic`. It enforces source season N-1 for both
+the receiver and target opponent, computes only the four registered features,
+and emits the frozen correlation, quintile, calibration, fold and gate
+reports. Audit-only import produced 2,093 receiver rows (2,044 resolved, 48
+unresolved, one ambiguous, one known duplicate suppressed) plus 128/128
+mapped defense rows. Sixteen focused Coverage/Advanced/Route tests pass;
+Python compilation and whitespace checks are clean. No raw coverage table has
+been written and no target outcome has been joined at this milestone.

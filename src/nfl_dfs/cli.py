@@ -233,6 +233,25 @@ def main(argv: list[str] | None = None) -> None:
     )
 
     p = sub.add_parser(
+        "import-fantasy-points-coverage",
+        help="Audit/import hash-locked receiver and defense coverage priors",
+    )
+    p.add_argument("--input-dir", default="fantasy-points")
+    p.add_argument(
+        "--write", action="store_true",
+        help="Create private raw tables; existing non-identical data aborts",
+    )
+
+    p = sub.add_parser(
+        "fantasy-points-coverage-diagnostic",
+        help="Run the frozen prior-season WR/TE coverage-fit correlation gate",
+    )
+    p.add_argument(
+        "--panel", default="20260810-lockfix-e80-k1-8677d21",
+        help="Frozen corrected K1 panel (alternate values fail closed)",
+    )
+
+    p = sub.add_parser(
         "corrected-extreme-selector",
         help="Confirm the frozen 220/210/200 selector on one corrected panel",
     )
@@ -479,6 +498,14 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import fantasy_points_advanced_tail
 
         fantasy_points_advanced_tail.run(args.panel)
+    elif args.command == "import-fantasy-points-coverage":
+        from .ingest import fantasy_points_coverage
+
+        fantasy_points_coverage.run(args.input_dir, write=args.write)
+    elif args.command == "fantasy-points-coverage-diagnostic":
+        from .analysis import fantasy_points_coverage_fit
+
+        fantasy_points_coverage_fit.run(args.panel)
     elif args.command == "corrected-extreme-selector":
         from .research import extreme_selector_confirmation
 

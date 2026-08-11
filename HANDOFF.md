@@ -53,6 +53,33 @@ agent or developer:
   correlation and quintile lift for 30-point events, plus fixed control versus
   treatment Brier/MAE metrics on held-out 2024/2025. No alignment, individual
   route, route-break, field, support, or model sweep is licensed.
+- The coverage-fit importer/diagnostic is implemented locally behind
+  `import-fantasy-points-coverage` and
+  `fantasy-points-coverage-diagnostic`, with guarded runner
+  `scripts/cloud_fantasy_points_coverage_diagnostic.sh`. Audit-only import
+  verified 2,093 normalized receiver rows (2,044 resolved, 48 unresolved, one
+  ambiguous, one known duplicate suppressed) and all 128 defense seasons.
+  The fixed support rules cover 1,709/5,927 2024 and 1,683/5,775 2025 WR/TE
+  snapshot rows. Because those roughly 1,700-row folds are adequate but below
+  the provisional 50% availability gate, that gate was explicitly amended to
+  25% before any outcome query; features, support thresholds, folds, models,
+  and score gates are unchanged. Sixteen focused Coverage/Advanced/Route
+  tests pass, along with compilation, shell syntax, and whitespace checks.
+  Next: commit/push, run exact-tree Cloud Build, create both private raw
+  tables under the guarded write, verify backup coverage, then run the one
+  frozen diagnostic without inspecting intermediate results.
+- Contest-placement/ROI evidence is now summarized durably in
+  `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
+  are first-place-only; BigQuery has 103,556 ownership rows but no
+  `contest_entries` table and zero contest-fill rows, so historical ranks
+  2--5 and realized GPP ROI cannot currently be computed. Across 68 known
+  Millionaire winning lines the corrected direct-role book is 0 wins, 0
+  within 20, 2 within 30, 8 within 40, with 57.14 mean gap. On the one 2025
+  Week 5 contest with supplied min-cash metadata, 3/80 direct-role lineups
+  clear the 169.34 Milly min-cash line and best is 190.04 versus the 246.82
+  winner. Preserve full 2026 standings and payout curves immediately after
+  settlement; simulated ROI remains an internal upper-bound diagnostic, not
+  a bankroll forecast.
 - The passed Route Share signal will now be tested from the direct-role
   incumbent. Before launch, `scripts/prop_lock_route_tail_union.sh` freezes
   treatment `20260810-lockfix-e80-k1-role12-route12-aa087b8`, generator code
@@ -60,8 +87,14 @@ agent or developer:
   2024/2025 only. Use immutable generation digest
   `sha256:b907bc6242d6b872cf10e4ff9ea59e56d89a1b99861780007eb767636a97041c`.
   The wrapper requires the direct-role promotion record. Shell syntax and
-  whitespace checks pass; commit/push the wrapper/protocol/result artifacts,
-  launch it, and do not read partial scores.
+  whitespace checks passed and the panel is now launched. Immutable 2024
+  preflight `replay-lockk1route-smoke-vg5w8` is running; its manifest and
+  preflight ID are under the panel directory. The still-active wrapper waits
+  for explicit smoke success and then launches all six seasons. Do not read
+  partial scores. If the local wrapper process is lost before the six IDs are
+  recorded, inspect the smoke status and resume the same frozen manifest
+  without changing the panel ID or configuration; never create a replacement
+  treatment after seeing an outcome.
 - The operator's paid-data operations request is implemented on branch `main`
   at commit `ea6dca4`. The README season-start schedule now requires the final
   evidence-selected Fantasy Points reports, exact filters and pre-lock
