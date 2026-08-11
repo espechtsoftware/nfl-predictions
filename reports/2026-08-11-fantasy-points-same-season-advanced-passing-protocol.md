@@ -94,3 +94,21 @@ Exact-tree Cloud Build `adc359ee-ee1d-4914-a251-680cf05dd221` passed 801
 tests with 2 skipped and produced immutable image
 `sha256:b1292d1ed171e20edf94e8a2f6ded5d63fdb1f83e9daa91e8d3acb6f37fa7d98`.
 Use that digest only after the future 56-export run passes its locked importer.
+
+## Collection and write milestone
+
+Immutable run
+`20260811T063609Z__same-season-advanced-passing-last-four-v1` completed all 56
+exports with zero failures. The manifest-locked audit normalized 2,879 QB
+windows, resolved 2,868, left 11 unresolved, found zero ambiguous rows, and
+marked 1,636 windows supported at the frozen 80-dropback floor. The private
+table was created once; the mandatory repeat returned `already-identical`.
+Backup `fantasy_points_advanced_passing_l4_20260811` is verified at the exact
+same 2,879 rows.
+
+One-shot runner `scripts/cloud_fantasy_points_same_season_passing.sh` freezes
+that source run/count, the accepted panel, the held-out seasons/weeks, an
+immutable image requirement, and a single harvested JSON report. No target
+outcome has been read at this milestone. Run it once with the validated image
+digest above; do not launch the diagnostic directly or retry its scientific
+result.

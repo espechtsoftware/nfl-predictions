@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 01:32 CDT
+## Current state — 2026-08-11 02:09 CDT
 
-Active branch is `main`; the last pushed milestone is commit `fb9000c`.
+Active branch is `main`; the last pushed milestone is commit `45309f5`.
 The two operator-supplied outside-review documents under `reports/` remain
 untracked and must not be staged or modified.
 
@@ -273,6 +273,17 @@ untracked and must not be staged or modified.
   route-break groups are the only new lead, with 104--122 players at 20-route
   support per window; keep that lead outcome-blind and behind the already
   preregistered Advanced Passing diagnostic.
+- Advanced Passing collection
+  `20260811T063609Z__same-season-advanced-passing-last-four-v1` completed all
+  56 exact W-4:W-1 artifacts with zero failures. Audit normalized 2,879 QB
+  windows (2,868 resolved, 11 unresolved, zero ambiguous, 1,636 supported at
+  80 dropbacks). The private table was created and the required repeat
+  returned `already-identical`; backup
+  `fantasy_points_advanced_passing_l4_20260811` is verified at 2,879 rows.
+  One-shot runner `scripts/cloud_fantasy_points_same_season_passing.sh` is
+  frozen to the source run/count, accepted panel and immutable image. Launch
+  it once with digest `sha256:b1292d1e...7fa7d98`, then record the one
+  preregistered result with no scientific retry.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no
