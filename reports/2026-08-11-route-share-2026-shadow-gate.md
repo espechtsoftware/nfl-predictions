@@ -26,6 +26,44 @@ Persist pre-lock control/treatment player keys, means, draws or reproducible
 draw artifact, component predictions, model/data cutoffs, source manifest/hash,
 coverage and fallback counts. Score them only after authoritative actuals land.
 
+### Frozen operating identities
+
+The then-live lineup policy is the promoted CE/role expanded policy, so the
+paired shadow must compare that complete policy rather than a boom-only
+surrogate:
+
+- control base registry `tail_k1` and role registry `tail_k1_role`;
+- treatment base registry `tail_k1_route` and role registry
+  `tail_k1_route_role`;
+- all four registries use one fitted member and the same training rows,
+  component laws and cutoff;
+- the treatment base adds exactly the four registered Route fields, while the
+  treatment role registry adds those same four fields to the control role
+  registry's exact six role fields; and
+- both arms use the identical `12 CE / 12 role / 28 boom`, seeds, worlds,
+  market blend, salary/stack rules, selector and 80-entry count.
+
+The existing `shadow-k1-roleunion` command is the paired control. New command
+`shadow-k1-route-roleunion` is the treatment. They freeze at the same early
+and late schedule times. The treatment must fail closed if either Route
+registry is missing or if a fitted booster does not contain its exact expected
+feature contract. No process-global Route feature flag may be added to the
+app, ordinary projection job, control registry or control shadow.
+
+Before candidate generation, each arm writes a create-only, hash-addressed
+player artifact containing the ordered skill-player keys, final served draws,
+all eleven component means, the pre/post-market means, source season/week and
+the four Route fields. Its URI/hash and the arm/registry identities are also
+stored on the immutable player snapshot rows. A successful shadow execution
+therefore proves both the exact-80 book and the player-distribution evidence
+needed by this gate were durably frozen before lock.
+
+Week 1 may use only strict prior-season values already present in the historical
+Route table and must label them cross-season. Beginning Week 2, a treatment
+execution also requires that the target week's manifest-locked Week W-1 import
+has completed before training; missing or unresolved players still use the
+explicit row-level fallback.
+
 ## Minimum evidence and resolution
 
 Do not adjudicate early. A 2026 result is gradeable only after all available

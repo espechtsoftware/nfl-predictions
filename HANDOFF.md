@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 12:32 CDT
+## Current state — 2026-08-11 13:02 CDT
 
 Active branch is `main`; Advanced Receiving diagnostic implementation commit
 `5aee8aa` is pushed. Its single preregistered outcome run is complete and
@@ -305,9 +305,16 @@ not be staged or modified.
   requires at least 12 paired slates/2,500 covered rows/40 thirty-point events,
   then permits a future-only exact-80 shadow whose final decision is the
   operator's 240/230/220/210/200 lexicographic weekly-max objective. No 2026
-  outcome may tune or backfill an earlier forecast. Next implementation step:
-  persist the isolated pre-lock control/treatment player distributions without
-  exposing the Route registry to production.
+  outcome may tune or backfill an earlier forecast. A pre-implementation
+  clarification now freezes the exact live pairing: existing `tail_k1` plus
+  `tail_k1_role` control versus isolated `tail_k1_route` plus
+  `tail_k1_route_role` treatment, both under the same promoted 12 CE / 12 role
+  / 28 boom policy. The control and treatment must persist create-only player-
+  draw/component artifacts before candidate generation; Week 1 may use only
+  labeled prior-season Route values and Week 2 onward requires the manifest-
+  locked W-1 import. Exact next action: implement these two treatment
+  registries, the treatment shadow command and the pre-lock artifact contract
+  without exposing the Route registry to production.
 - The next paid-data correlation study was frozen and pushed before any
   outcome join at commit `8263fe8`:
   `reports/2026-08-10-fantasy-points-coverage-fit-experiment.md`. It tests only
