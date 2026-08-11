@@ -273,6 +273,11 @@ def main(argv: list[str] | None = None) -> None:
         help="Frozen corrected K1 panel (alternate values fail closed)",
     )
 
+    sub.add_parser(
+        "usage-dirichlet-calibration-diagnostic",
+        help="Fit and gate within-team target/carry concentration",
+    )
+
     p = sub.add_parser(
         "import-fantasy-points-advanced",
         help="Audit/import hash-locked Fantasy Points Advanced player data",
@@ -703,6 +708,10 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import route_final_served_calibration
 
         route_final_served_calibration.run(args.panel)
+    elif args.command == "usage-dirichlet-calibration-diagnostic":
+        from .analysis import usage_dirichlet_calibration
+
+        usage_dirichlet_calibration.run()
     elif args.command == "import-fantasy-points-advanced":
         from .ingest import fantasy_points_advanced
 

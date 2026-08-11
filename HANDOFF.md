@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 18:14 CDT
+## Current state — 2026-08-11 18:20 CDT
 
 Active branch is `main`; final-served Route diagnostic implementation commit
 `d5e74c0` is pushed. The position-calibration result, research promotion,
@@ -79,8 +79,17 @@ and must not be staged or modified.
   untouched 2023--2025 likelihood versus the production multinomial
   (`K -> infinity`) reference. The estimator uses the simulator's exact
   `max(K*p_i, 0.05)` concentration law. Lineup outcomes and the known K=8/K=20
-  score results are forbidden. Implement and exact-tree validate this
-  diagnostic without generating its estimate or held-out likelihood locally.
+  score results are forbidden. The diagnostic is now implemented behind
+  `usage-dirichlet-calibration-diagnostic` with the immutable one-shot runner
+  `scripts/cloud_usage_dirichlet_calibration.sh`. It reproduces strictly
+  prior-season target/carry component means for 2021--2025, builds the exact
+  simulator-compatible conditional groups, fits the frozen global K, compares
+  untouched 2023--2025 likelihood with the multinomial reference, and emits
+  only aggregate/kind/season diagnostics. Forty focused usage/component/game
+  simulation tests pass; compilation, CLI discovery, shell parsing and
+  whitespace checks are clean. Exact next action after committing this tree:
+  run a new exact-tree Cloud Build. Do not execute the diagnostic or inspect
+  its K/held-out likelihood until that build passes.
 
 ### Final-served position calibration passed, promoted, and adopted
 
