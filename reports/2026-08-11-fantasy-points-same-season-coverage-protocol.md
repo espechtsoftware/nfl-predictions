@@ -134,3 +134,12 @@ joins, support behavior, and the tail-first gate. The two private raw table
 names are explicit members of the daily backup job as well as covered by its
 future `fantasy_points_*` discovery. Historical collection began only after
 this protocol was committed; no new treatment outcome has been read.
+
+The first bulk attempt, run `20260811T040729Z`, was stopped and rejected when
+the importer found `Season=2025,G=17/18` in files whose controls and names
+claimed earlier four-week windows. No row entered an analysis or table. The
+downloader now additionally waits for and validates the exact `values` POST
+contract, waits for the rendered game counts, and validates Season/G inside
+the downloaded CSV. One-file live regression run `20260811T042431Z` proved a
+2022 Weeks 1--4 request returns only Season 2022 with `G=1..4` before the
+historical collection is retried under a new immutable run id.

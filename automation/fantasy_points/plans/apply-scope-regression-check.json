@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "name": "apply-scope-regression-check",
+  "delay_between_downloads_seconds": 2,
+  "reports": [
+    {
+      "report": "receiving-man-vs-zone",
+      "seasons": [2022],
+      "week_windows": ["1-4"],
+      "include_group_headers": true,
+      "context": "Player"
+    }
+  ]
+}

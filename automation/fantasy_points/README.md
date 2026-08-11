@@ -79,6 +79,10 @@ fantasy-points-download run \
 The downloader establishes report context before selecting Season/Week(s),
 presses `Apply`, and reopens Week(s) to verify the exact selection. Do not
 remove that order: the vendor's active context link can reset filters.
+It also waits for the exact report-values response, checks the request's
+season/week payload, waits for the rendered game counts, and validates Season
+and `G` in the downloaded CSV. Controls can update before the table, so none
+of these gates is interchangeable with a fixed sleep.
 
 After the outcome-blind catalog/redundancy audit, the first historical
 modeling collection is frozen to three reports and exact last-four-completed

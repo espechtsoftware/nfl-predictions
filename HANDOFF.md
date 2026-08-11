@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 23:15 CDT
+## Current state — 2026-08-10 23:27 CDT
 
-Active branch is `main`; the last pushed milestone is commit `c3e5219`.
+Active branch is `main`; the last pushed milestone is commit `0ab1c58`.
 The two operator-supplied outside-review documents under `reports/` remain
 untracked and must not be staged or modified.
 
@@ -116,8 +116,10 @@ untracked and must not be staged or modified.
   All six executions completed successfully: 2019 in 1h32m28s, 2021 in
   1h13m6.01s, 2022 in 1h21m13.89s, 2023 in 1h8m49.79s, 2024 in 1h28m5.73s,
   and 2025 in 1h26m12.01s. Check-only exact-80 acceptance execution
-  `accept-replay-panel-t56n4` is now running; do not read partial scores.
-  After it passes, run the one frozen coverage comparator against direct role.
+  `accept-replay-panel-t56n4` passed 27,468 candidates across 107 exact-80
+  slates with replay/live parity. Coverage candidates were 1.6% of the pool
+  and 0.2% of selected slots; acceptance's selected 187/194/200 remained
+  `34/22/11`. Run the one frozen coverage comparator against direct role next.
 - The operator supplied an outcome-viewed outside review of the paid Fantasy
   Points data. Its repository-verified disposition is tracked in
   `reports/2026-08-11-fantasy-points-utilization-reconciliation.md`. Weekly
@@ -158,9 +160,14 @@ untracked and must not be staged or modified.
   Its plan contains only Man-vs-Zone, Separation-by-Coverage and Defense
   Coverage Matrix for seasons 2022--2025, target Weeks 5--18 and exact
   last-four-prior windows. Plan/catalog validation expanded 168 safe exports.
-  Sequential ignored collection is active under run id ending
-  `__same-season-coverage-last-four-v1`; do not consume it until the command
-  completes and its final manifest passes the locked importer. The importer,
+  First bulk run `20260811T040729Z__same-season-coverage-last-four-v1` was
+  stopped and rejected after the importer proved its apparently filtered
+  files contained stale full-2025 rows (`G=17/18`). No row was consumed.
+  The downloader now awaits and validates the exact report-values POST,
+  rendered game counts, and downloaded Season/G scope. Live regression run
+  `20260811T042431Z__apply-scope-regression-check` passed with 299 Season-2022
+  rows and `G=1..4`. Restart the 168-export collection under a new run id and
+  do not consume it until the final manifest passes the locked importer. The importer,
   same-season PIT attachment/diagnostic, CLI commands and focused tests are
   implemented in the working milestone without reading outcomes. The two new
   raw table names are explicit daily-backup members and also match automatic

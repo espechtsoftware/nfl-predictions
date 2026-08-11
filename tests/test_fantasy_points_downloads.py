@@ -1,15 +1,29 @@
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
 from nfl_dfs.ops.fantasy_points_downloads import (
+    ExportSpec,
+    _assert_values_response_scope,
+    _validate_download_scope,
     artifact_name,
     compact_weeks,
     expand_plan,
     load_plan,
     parse_weeks,
 )
+
+
+class _Response:
+    status = 200
+
+    def __init__(self, payload):
+        self.request = SimpleNamespace(post_data=json.dumps(payload))
+
+    def json(self):
+        return {"content": {}, "errors": []}
 
 
 def test_parse_weeks_accepts_ranges_lists_and_mixtures():
@@ -176,3 +190,42 @@ def test_generated_window_rejects_target_week_one():
     }
     with pytest.raises(ValueError, match="target week"):
         expand_plan(plan)
+
+
+def test_apply_response_must_carry_exact_season_and_weeks():
+    spec = ExportSpec(
+        "receiving-man-vs-zone", 2022, (1, 2, 3, 4), True, "Player", 5)
+    response = _Response({
+        "context": {
+            "weeks": {"REG": [1, 2, 3, 4]},
+            "filterMatch": {"game.season": {"eq": 2022}},
+        },
+    })
+    _assert_values_response_scope(response, spec)
+    response.request.post_data = json.dumps({
+        "context": {
+            "weeks": {"REG": [1, 2, 3, 4]},
+            "filterMatch": {"game.season": {"eq": 2025}},
+        },
+    })
+    with pytest.raises(RuntimeError, match="scope differs"):
+        _assert_values_response_scope(response, spec)
+
+
+def test_download_scope_rejects_stale_full_season_csv(tmp_path):
+    spec = ExportSpec(
+        "receiving-man-vs-zone", 2022, (1, 2, 3, 4), True, "Player", 5)
+    path = tmp_path / "window.csv"
+    path.write_text(
+        "Player Details,,,,,,Overall\n"
+        "Rank,Name,Team,POS,G,Season,RTE\n"
+        "1,Receiver,NYJ,WR,4,2022,100\n"
+    )
+    _validate_download_scope(path, spec)
+    path.write_text(
+        "Player Details,,,,,,Overall\n"
+        "Rank,Name,Team,POS,G,Season,RTE\n"
+        "1,Receiver,NYJ,WR,17,2025,600\n"
+    )
+    with pytest.raises(RuntimeError, match="contains seasons"):
+        _validate_download_scope(path, spec)

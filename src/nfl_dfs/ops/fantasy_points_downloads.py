@@ -569,6 +569,111 @@ def _verify_applied_filters(page: Any, spec: ExportSpec) -> None:
         )
 
 
+def _assert_values_response_scope(response: Any, spec: ExportSpec) -> None:
+    if response.status != 200:
+        raise RuntimeError(f"Apply values request returned HTTP {response.status}")
+    try:
+        request = json.loads(response.request.post_data or "{}")
+    except json.JSONDecodeError as exc:
+        raise RuntimeError("Apply values request has no JSON filter contract") from exc
+    context = request.get("context", {})
+    actual_weeks = context.get("weeks", {}).get("REG")
+    actual_season = (
+        context.get("filterMatch", {}).get("game.season", {}).get("eq")
+    )
+    if actual_weeks != list(spec.weeks) or actual_season != spec.season:
+        raise RuntimeError(
+            "Apply values request scope differs from the export: "
+            f"season={actual_season}, weeks={actual_weeks}"
+        )
+    try:
+        payload = response.json()
+    except Exception as exc:
+        raise RuntimeError("Apply values response is not JSON") from exc
+    if payload.get("errors"):
+        raise RuntimeError(f"Apply values response has errors: {payload['errors']}")
+    if not isinstance(payload.get("content"), dict):
+        raise RuntimeError("Apply values response has no content")
+
+
+def _rendered_game_counts(page: Any) -> list[int]:
+    games: list[int] = []
+    rows = page.locator("[role='row']")
+    for index in range(rows.count()):
+        row = rows.nth(index)
+        if not row.is_visible():
+            continue
+        lines = [line.strip() for line in row.inner_text().splitlines()]
+        if not lines or not lines[0].isdigit():
+            continue
+        # Player reports freeze Rank/Name/Team/POS/G at the left edge.
+        if (
+            len(lines) >= 5
+            and lines[3].upper() in {"QB", "RB", "FB", "WR", "TE"}
+        ):
+            if lines[4].isdigit():
+                games.append(int(lines[4]))
+            continue
+        # Team reports freeze Rank/Name/G/Season/Location/Team/DB.
+        if (
+            len(lines) >= 4
+            and lines[2].isdigit()
+            and re.fullmatch(r"20\d{2}", lines[3])
+        ):
+            games.append(int(lines[2]))
+    return games
+
+
+def _wait_for_rendered_scope(page: Any, spec: ExportSpec, timeout_ms: int) -> None:
+    deadline = time.monotonic() + (timeout_ms / 1000.0)
+    while time.monotonic() < deadline:
+        games = _rendered_game_counts(page)
+        if games and min(games) >= 1 and max(games) <= len(spec.weeks):
+            return
+        page.wait_for_timeout(250)
+    raise RuntimeError(
+        f"rendered table did not reach {spec.season} Weeks {list(spec.weeks)}"
+    )
+
+
+def _validate_download_scope(path: Path, spec: ExportSpec) -> None:
+    with path.open(encoding="utf-8-sig", newline="") as handle:
+        rows = list(csv.reader(handle))
+    header_index = next(
+        (
+            index
+            for index, row in enumerate(rows[:2])
+            if "Season" in row and "G" in row
+        ),
+        None,
+    )
+    if header_index is None:
+        raise RuntimeError(f"{path.name} has no Season/G scope columns")
+    header = rows[header_index]
+    season_index = header.index("Season")
+    games_index = header.index("G")
+    seasons: set[int] = set()
+    games: list[int] = []
+    for row in rows[header_index + 1:]:
+        if len(row) <= max(season_index, games_index):
+            raise RuntimeError(f"{path.name} has a malformed scope row")
+        if not row[season_index].strip() and not row[games_index].strip():
+            continue
+        try:
+            seasons.add(int(row[season_index]))
+            games.append(int(float(row[games_index])))
+        except ValueError as exc:
+            raise RuntimeError(f"{path.name} has nonnumeric Season/G") from exc
+    if seasons != {spec.season}:
+        raise RuntimeError(
+            f"{path.name} contains seasons {sorted(seasons)}, expected {spec.season}"
+        )
+    if not games or min(games) < 1 or max(games) > len(spec.weeks):
+        raise RuntimeError(
+            f"{path.name} G range is outside a {len(spec.weeks)}-week window"
+        )
+
+
 def _select_context(page: Any, context: str) -> None:
     expected_segment = {
         "Player": "/player/",
@@ -646,9 +751,21 @@ def _download_one(page: Any, spec: ExportSpec, destination: Path, timeout_ms: in
         _select_context(page, spec.context)
     _select_single_filter(page, "Season", str(spec.season))
     _select_week_filter(page, spec.weeks)
-    _click_visible(page.get_by_role("button", name="Apply", exact=True), "Apply button")
-    page.wait_for_timeout(500)
+    values_path = f"{spec.definition.path}/values"
+    with page.expect_response(
+        lambda response: (
+            response.request.method == "POST"
+            and response.url.split("?", 1)[0].endswith(values_path)
+        ),
+        timeout=timeout_ms,
+    ) as response_info:
+        _click_visible(
+            page.get_by_role("button", name="Apply", exact=True),
+            "Apply button",
+        )
+    _assert_values_response_scope(response_info.value, spec)
     _verify_applied_filters(page, spec)
+    _wait_for_rendered_scope(page, spec, timeout_ms)
 
     _open_export_panel(page)
     _set_checkbox(page, "Include Group Headers", spec.include_group_headers)
@@ -679,6 +796,7 @@ def _download_one(page: Any, spec: ExportSpec, destination: Path, timeout_ms: in
         download_action.click()
     download = event.value
     download.save_as(destination)
+    _validate_download_scope(destination, spec)
     rows, columns = _csv_shape(destination)
     return {
         "status": "downloaded",
