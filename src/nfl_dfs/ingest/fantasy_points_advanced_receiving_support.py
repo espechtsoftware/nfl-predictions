@@ -31,7 +31,11 @@ PLAN_SHA256 = "58199c502ef5c1a1d154b725fc81ce0e7229b36f86543a13527289f781783477"
 SEASONS = (2022, 2023, 2024, 2025)
 CUMULATIVE_TARGET_WEEKS = tuple(range(5, 19))
 LAST_FOUR_TARGET_WEEKS = tuple(range(6, 19))
-POSITIONS = ("RB", "WR", "TE")
+# The authenticated Advanced Receiving export is a receiver-only surface. All
+# 34,227 rows in the frozen 108-file manifest are labeled WR or TE; RB usage is
+# covered by the separate Bell Cow/Advanced Rushing families and must not be
+# counted as an Advanced Receiving support failure.
+POSITIONS = ("WR", "TE")
 ROUTE_FLOORS = (20, 40, 80)
 
 METRIC_SPECS = {

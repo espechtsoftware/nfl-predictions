@@ -20,11 +20,11 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 09:53 CDT
+## Current state — 2026-08-11 12:06 CDT
 
-Active branch is `main`; outcome-blind support-audit commit `569c3b3` is
-pushed. The one authenticated support-window collection is active
-under run `20260811T145426Z__same-season-advanced-receiving-support-windows-v1`.
+Active branch is `main`; hardened outcome-blind support-audit commit `f0d1b21`
+is pushed. Advanced Receiving collection and its outcome-blind audit are
+complete; the exact next diagnostic is frozen but has not read outcomes.
 The three operator-supplied outside-review documents
 `reports/2026-08-10-scoring-strategy-recommendations.md`,
 `reports/2026-08-11-fantasy-points-data-utilization.md`, and
@@ -198,10 +198,32 @@ not be staged or modified.
   only BigQuery query has been schema-validated live. Twenty-seven focused
   tests, compilation, CLI discovery and whitespace checks pass; the complete
   866-test collection also finishes successfully with its expected skips.
-  Exact next action: let the active headless collection finish,
-  require a complete zero-failure manifest, then run the support audit without
-  target outcomes and freeze any subsequent shrinkage/gate before querying
-  them.
+  The first browser run
+  `20260811T145426Z__same-season-advanced-receiving-support-windows-v1`
+  preserved 52 valid files and failed visibly when export 53's Apply response
+  exceeded 120 seconds. Clean recovery run
+  `20260811T155845Z__same-season-advanced-receiving-support-windows-v1`
+  re-hashed/reused those 52 and completed all 108 with zero failed entries.
+  The outcome-blind audit normalized 34,227 WR/TE window rows: 33,432 resolved,
+  795 unresolved, zero ambiguous and ten split duplicates suppressed. The
+  vendor surface contains no RB rows, so the audit universe was mechanically
+  corrected to WR/TE before interpretation. Cumulative target-universe match
+  rates are 66.57% WR/65.58% TE versus 58.28%/58.72% last-four; cumulative
+  >=40-route support is 46.70%/39.48% versus 34.12%/22.93%. TPRR, YPRR and XFP
+  per route are the only stable nonduplicate block (maximum pooled absolute
+  predictor correlations 0.586/0.524/0.604 cumulative), while aDOT, air-yard
+  share and first-read rate are closed by correlations 0.886/0.914/0.928.
+  The machine report and readable disposition are tracked under
+  `reports/fantasy-points-support-runs/20260811-advanced-receiving-support-v1/`
+  and `reports/2026-08-11-advanced-receiving-support-audit.md`.
+  One diagnostic is frozen before outcomes in
+  `reports/2026-08-11-advanced-receiving-same-season-diagnostic.md`: exact
+  cumulative >=20-route support, a fixed last-four/80-route blend, exactly the
+  three retained fields, 2023--2025 walk-forward folds, deterministic residual
+  ensembles, all-row CRPS/q95/q99 primary gates, Brier safeguards and paired
+  week-clustered uncertainty/MDE. Exact next action: commit/push this completed
+  audit and frozen protocol, implement it without changing the contract, then
+  run the one historical diagnostic. No lineup arm is yet licensed.
 - The outside review's prospective Route Share recommendation is now frozen
   before any 2026 Route value or outcome in
   `reports/2026-08-11-route-share-2026-operating-contract.md`. The declarative

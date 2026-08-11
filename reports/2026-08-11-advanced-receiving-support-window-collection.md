@@ -66,6 +66,14 @@ entry point explicitly rejects frames containing `actual`, `selected`, `score`,
 CLI is `fantasy-points-advanced-receiving-support-audit`; it requires a final
 complete manifest with the frozen plan hash and all 108 immutable artifacts.
 
+The final recovery manifest completed all 108 artifacts with zero failures.
+Its 34,227 source rows are exclusively WR/TE; the vendor Advanced Receiving
+surface contains no RB records. The outcome-blind audit therefore uses the
+actual WR/TE vendor scope and does not mislabel absent RBs as unsupported. Full
+results and the next frozen protocol are in
+`reports/2026-08-11-advanced-receiving-support-audit.md` and
+`reports/2026-08-11-advanced-receiving-same-season-diagnostic.md`.
+
 Any later historical result is operator-directed evidence because this path
 was prioritized after other outcomes were known. Production adoption would
 still require an independently frozen 2026 prospective shadow.
