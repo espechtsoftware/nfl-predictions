@@ -58,12 +58,14 @@ folds:
 - target 2024 trains on seasons before 2024; and
 - target 2025 trains on seasons before 2025.
 
-Train all eleven existing component models in both arms. Evaluation is the
-exact common set of active RB/WR/TE player-weeks present on the corrected
-accepted Sunday-main panel `20260810-lockfix-e80-k1-8677d21` in the target
-season. Salary, identity and slate membership come only from that accepted
-panel; actual component labels and point-in-time model inputs come from the
-canonical training table. Duplicate or missing key matches fail closed.
+Train all eleven existing component models in both arms. Component diagnostics
+use the exact common set of active QB/RB/WR/TE player-weeks present on the
+corrected accepted Sunday-main panel `20260810-lockfix-e80-k1-8677d21` in the
+target season. The primary composed metrics and gate use its active RB/WR/TE
+subset, because those are the positions to which Route Share applies. Salary,
+identity and slate membership come only from that accepted panel; actual
+component labels and point-in-time model inputs come from the canonical
+training table. Duplicate or missing key matches fail closed.
 
 The treatment is evaluated on every common row, including rows whose Route
 features are missing. Report strictly-prior Route coverage separately and
@@ -82,9 +84,11 @@ For each fold and aggregate, report:
 - the same composed metrics by position as mandatory diagnostics only.
 
 Use the repository's current component composition and clips. The diagnostic
-must set and validate `MODEL_ENSEMBLE=1`, unset every other model/replay A/B
-lever, and use identical fixed simulation seeds per fold and arm. It must not
-read, generate or select lineups.
+must set and validate `MODEL_ENSEMBLE=1`, use the adopted possession simulator
+with team-asymmetric factors (`GAME_SIM_MODE=possession`,
+`GAME_SIM_TEAM_FACTORS=1`), unset every other model/replay A/B lever, and use
+identical fixed simulation seeds per fold and arm. It must not read, generate
+or select lineups.
 
 ## Frozen gate and consequence
 

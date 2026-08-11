@@ -377,6 +377,10 @@ untracked and must not be staged or modified.
   threshold, position subset, coefficient, window, model or feature retry is
   licensed. Next implement the outcome-free attachment/control/treatment
   harness and focused tests, then commit before its one immutable Cloud run.
+  A pre-implementation clarification makes all eleven component diagnostics
+  use QB/RB/WR/TE Sunday-main rows while the composed primary gate uses only
+  Route-relevant RB/WR/TE rows, and pins the adopted possession/team-factor
+  simulator; no outcome had been generated under either arm.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no
