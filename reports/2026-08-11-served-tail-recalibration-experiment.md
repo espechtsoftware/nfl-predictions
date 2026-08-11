@@ -134,3 +134,39 @@ passed 831 tests with two expected skips and published immutable image digest
 `sha256:a7fb5dd48960cb26292a5ae60f6c71df8789cc06ba87497659916e63ed61972c`.
 Use that digest for the one Stage A wrapper execution; never use its mutable
 tag.
+
+## Stage A result
+
+The one immutable execution `served-tail-recalibration-l49zt` completed from
+the recorded digest with disposition
+`served-tail-recalibration-stage-a-passes`. Calibration folds contained
+4,395/4,755/4,625 exact active rows in 2019/2021/2022. The frozen pinball
+objective selected global factor `1.025`; its calibration objective ratio was
+`0.99907185`.
+
+On the untouched 13,876-row 2023--2025 evaluation population, control versus
+treatment was:
+
+| Metric | Control | Factor 1.025 |
+|---|---:|---:|
+| q90 exceedance | 10.5794% | 10.2767% |
+| q95 exceedance | 5.4627% | 5.2393% |
+| q99 exceedance | 1.4774% | 1.3332% |
+| equal-season q95/q99 pinball ratio | 1.0000 | 0.9978790 |
+| empirical CRPS | 2.620095 | 2.628852 |
+| 20-point Brier | 0.04949545 | 0.04947549 |
+| 30-point Brier | 0.01401709 | 0.01400661 |
+
+Every frozen check passed. Absolute q99 calibration error improved 30.2%,
+q95 and q90 error also improved, both Brier losses improved slightly, and
+the maximum mean change was `7.11e-15`. q99 pinball's paired week-clustered
+mean delta was `-0.0008835` with 95% interval
+`[-0.0016965, -0.0000705]`. CRPS worsened 0.334%, statistically detectable
+but inside the preregistered 0.5% limit; this is the expected central-score
+cost of improving a tail-targeted distribution and must remain visible in the
+decision record.
+
+The durable report is under
+`reports/served-tail-recalibration-runs/20260811-served-tail-recalibration-stage-a-v1/`.
+This result licenses the single Stage B exact-80 lineup treatment at factor
+`1.025`. It does not change the live production policy by itself.

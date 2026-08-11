@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 06:25 CDT
+## Current state — 2026-08-11 07:06 CDT
 
-Active branch is `main`; repository work through commit `3baad2a` is pushed.
+Active branch is `main`; repository work through commit `7562937` is pushed.
 The three operator-supplied outside-review documents
 `reports/2026-08-10-scoring-strategy-recommendations.md`,
 `reports/2026-08-11-fantasy-points-data-utilization.md`, and
@@ -108,9 +108,20 @@ not be staged or modified.
   `623b1b4` passed 831 tests with two expected skips and produced immutable
   digest
   `sha256:a7fb5dd48960cb26292a5ae60f6c71df8789cc06ba87497659916e63ed61972c`.
-  No fitted factor or corrected metric has been generated. The exact next
-  action is the one Stage A wrapper execution from that digest; production
-  remains identity.
+  The one immutable Stage A execution `served-tail-recalibration-l49zt`
+  completed from that digest and passed every frozen gate. The pre-evaluation
+  2019/2021/2022 fit used 4,395/4,755/4,625 rows and selected global factor
+  `1.025`. On the untouched 13,876 evaluation rows, q90/q95/q99 exceedance
+  improved from `10.5794%/5.4627%/1.4774%` to
+  `10.2767%/5.2393%/1.3332%`; q99 absolute error improved 30.2% and the
+  equal-season q95/q99 pinball ratio was `0.997879`. Both 20/30 Brier losses
+  improved slightly. CRPS worsened 0.334%, within the frozen 0.5% limit, and
+  every row mean was preserved within `7.11e-15`. The durable report is under
+  `reports/served-tail-recalibration-runs/20260811-served-tail-recalibration-stage-a-v1/`.
+  This licenses exactly one factor-1.025 direct-role exact-80 treatment on
+  2023--2025; it does not yet alter production. The exact next action is to
+  implement/validate the Stage B partial-panel comparator and guarded replay
+  wrapper, then launch that sole lineup test.
 - The next paid-data correlation study was frozen and pushed before any
   outcome join at commit `8263fe8`:
   `reports/2026-08-10-fantasy-points-coverage-fit-experiment.md`. It tests only

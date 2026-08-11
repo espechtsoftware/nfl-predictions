@@ -1,0 +1,11 @@
+run_id=20260811-served-tail-recalibration-stage-a-v1
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:a7fb5dd48960cb26292a5ae60f6c71df8789cc06ba87497659916e63ed61972c
+panel=20260810-lockfix-e80-k1-8677d21
+calibration_seasons=2019 2021 2022
+evaluation_seasons=2023 2024 2025
+positions=RB WR TE
+factor_grid=1.000:0.005:1.250
+fit_objective=equal-season-q95-q99-normalized-pinball
+expected_evaluation_rows=13876
+n_sims=10000
+blend_model_weight=0.45
