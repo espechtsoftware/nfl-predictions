@@ -15,8 +15,9 @@ from typing import Mapping
 
 @dataclass(frozen=True)
 class ClassicProductionPolicy:
-    policy_id: str = "classic-k1-ce12-role12-boom28-v2"
-    source_panel: str = "20260810-e80-k1-ce12-roleunion-c616390"
+    policy_id: str = "classic-k1-role12-boom40-poscal-v3"
+    source_panel: str = (
+        "20260811-lockfix-e80-k1-role12-position-scales-v1")
     model_variant: str = "tail_k1"
     role_model_variant: str = "tail_k1_role"
     model_ensemble: int = 1
@@ -26,9 +27,11 @@ class ClassicProductionPolicy:
     min_lineup_salary: int = 49_000
     blend_model_weight: float = 0.45
     candidate_multiple: int = 2
-    n_ce: int = 12
+    n_ce: int = 0
     n_role: int = 12
-    n_boom: int = 28
+    n_boom: int = 40
+    served_position_scales: str = (
+        "QB:0.970,RB:1.005,TE:0.940,WR:1.070")
     ce_seed: int = 1701
     role_seed: int = 7331
     role_features: str = (
@@ -65,10 +68,11 @@ class ClassicProductionPolicy:
             "EMP_MARGINALS": "1",
             "EMP_POS": "",
             "SHAPE_MIX": "1",
-            # Identity until both frozen recalibration stages pass. Pinning
-            # this prevents a research shell variable from leaking live.
+            # The final-served position calibration passed its frozen
+            # exact-80 comparison. Pin the four adopted factors so a research
+            # shell variable cannot leak into the money-lineup path.
             "SERVED_TAIL_SCALE": "1",
-            "SERVED_POSITION_SCALES": "",
+            "SERVED_POSITION_SCALES": self.served_position_scales,
             "DST_CORR_DRAWS": "",
             # Optimizer construction.
             "MIN_LINEUP_SALARY": str(self.min_lineup_salary),
@@ -82,7 +86,7 @@ class ClassicProductionPolicy:
             "PUNT_BOOM": "0",
             "PUNT_BOOM_WR": "",
             "WR_BOOM": "0",
-            # Fixed 12-for-12 CE replacement and incumbent generators.
+            # Frozen incumbent generation book: direct-role 12 + boom 40.
             "GEN_TOTAL_BUDGET": "52",
             "N_CE": str(self.n_ce),
             "N_EPISTEMIC": str(self.n_role),
@@ -119,15 +123,23 @@ class ClassicProductionPolicy:
     def fallback_environment(
         self, base: Mapping[str, str] | None = None,
     ) -> dict[str, str]:
-        """The prior accepted CE12/boom28 policy for role-model outages."""
+        """The prior accepted CE12/boom28 policy for role-model outages.
+
+        Position calibration was validated only with the direct-role/boom40
+        candidate book, so the fallback deliberately restores the complete
+        older identity-scale policy rather than mixing untested mechanisms.
+        """
         env = self.engine_environment(base)
         env.update({
             "GEN_TOTAL_BUDGET": "40",
+            "N_CE": "12",
             "N_EPISTEMIC": "0",
+            "N_BOOM": "28",
             "EPISTEMIC_FAMILY": "standard",
             "ROLE_BELIEF_FEATURES": "",
             "ROLE_BELIEF_SEED": str(self.role_seed),
-            "REPLACEMENT_SLOTS": str(self.n_ce),
+            "REPLACEMENT_SLOTS": "12",
+            "SERVED_POSITION_SCALES": "",
         })
         return env
 
@@ -161,6 +173,7 @@ class ClassicProductionPolicy:
                 "total_generation_solves": (
                     self.n_ce + self.n_role + self.n_boom),
             },
+            "served_position_scales": self.served_position_scales,
         }
 
 

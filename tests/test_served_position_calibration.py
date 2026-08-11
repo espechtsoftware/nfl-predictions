@@ -66,11 +66,13 @@ def test_live_path_applies_position_scale_after_market_and_global_scale():
     assert shift < global_scale < position_scale
 
 
-def test_production_policy_pins_position_scale_identity():
+def test_production_policy_pins_promoted_position_scale_and_fallback_identity():
     env = ADOPTED_CLASSIC_POLICY.engine_environment({
-        "SERVED_POSITION_SCALES": FROZEN_SPEC,
+        "SERVED_POSITION_SCALES": "QB:1,RB:1,TE:1,WR:1",
     })
-    assert env["SERVED_POSITION_SCALES"] == ""
+    assert env["SERVED_POSITION_SCALES"] == FROZEN_SPEC
+    assert ADOPTED_CLASSIC_POLICY.fallback_environment(env)[
+        "SERVED_POSITION_SCALES"] == ""
 
 
 def test_position_scales_are_mean_invariant_and_support_narrowing():

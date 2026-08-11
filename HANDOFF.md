@@ -20,12 +20,14 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 17:23 CDT
+## Current state — 2026-08-11 17:43 CDT
 
-Active branch is `main`; Advanced Receiving diagnostic implementation commit
-`5aee8aa` is pushed. Its single preregistered outcome run is complete and
-failed the frozen gate; result commit `6137bad` is pushed. The program-review
-reconciliation is finalized in this milestone.
+Active branch is `main`; served-position comparator repair commit `c1fbb58`
+is pushed. The position-calibration result, research promotion, and live-policy
+adoption described below are the current milestone. Advanced Receiving
+diagnostic implementation commit `5aee8aa` and negative result commit
+`6137bad` remain pushed historical records; that exact vendor arm is closed.
+The program-review reconciliation is finalized in this milestone.
 The paired Route Share live-shadow implementation commit `9e34565` and its
 Thursday post-download scheduler follow-up `b6dbc5e` are also pushed on
 `main`. The five operator-supplied outside-review documents
@@ -35,6 +37,72 @@ Thursday post-download scheduler follow-up `b6dbc5e` are also pushed on
 `reports/2026-08-11-post-window-program-review.md`, and
 `reports/2026-08-11-recommendation-scoreboard-and-pivot.md` remain untracked
 and must not be staged or modified.
+
+### Final-served position calibration passed, promoted, and adopted
+
+- The latest deep-analysis correction was verified in code: positive upstream
+  `_widen_draws` factors preserve each row's ranks, and the fully covered
+  TabPFN rank-remap therefore erases those factors. The historical served-tail
+  imbalance is a final-marginal/TabPFN calibration issue, not a stale-widen
+  effect. The independently fitted final-served correction remains valid
+  because it is applied after TabPFN shaping and the 45/55 market mean shift.
+- Stage A selected frozen mean-invariant factors QB `0.970`, RB `1.005`, TE
+  `0.940`, WR `1.070`. On untouched 2023--2025 rows they improved absolute
+  position q90/q95/q99 gap `0.006113 -> 0.003149`, mean q95/q99 pinball ratio
+  to `0.996151`, WR q99 exceedance `1.881% -> 1.439%`, TE q99
+  `0.737% -> 1.079%`, and both 20/30 Brier losses. CRPS worsened only
+  `0.3005%`, within the frozen limit, with maximum row-mean drift
+  `7.11e-15`.
+- The exact-80 Stage B protocol is tracked in
+  `reports/2026-08-11-served-position-calibration-lineup.md`. Same-image
+  control `20260811-lockfix-e80-k1-role12-position-control-v1` and treatment
+  `20260811-lockfix-e80-k1-role12-position-scales-v1` used CE 0 / direct-role
+  12 / boom 40, line 194, the same seeds, and evaluation seasons 2023--2025.
+  All six replay executions and check-only acceptances succeeded; durable IDs
+  are in the protocol and panel manifests.
+- The first comparator `compare-served-position-stage-b-jr6kl` failed before
+  importing or querying because the image omitted the comparator script. No
+  score field was produced. Packaging-only repair commit `c1fbb58` passed
+  exact-tree Cloud Build `59bfd59c-2c14-4a8c-a226-40b22a31fa57` with 899
+  tests passed and two expected skips, publishing digest
+  `sha256:535230fdce1396d1544abffc69676d5fc3b4f42b485fa7d15e54365148d982a7`.
+  Comparator-only execution `compare-served-position-stage-b-repair-qzwrs`
+  then completed on the unchanged books with zero failures.
+- The control exactly reproduced all 54 accepted-source evaluation weekly
+  maxima. Both arms have 29,285 player-feature rows with zero missing or
+  mismatched rows and maximum numeric delta `3.55e-15`; all shared actuals
+  match and maximum persisted shared served-mean delta is `0.0000305176`,
+  within the registered `1e-4` storage tolerance. All 108 winner-position
+  decompositions resolve every player. Candidate membership changes
+  668/667 rows as expected from a tail-shape mechanism.
+- Full 107-slate selected counts at 187/194/200/210/220/230/240 improve from
+  `34/22/11/7/5/3/2` to `34/24/13/7/5/3/2`. The frozen tail-first order ties
+  through 210 and first differs positively at 200, so machine disposition is
+  `pass`. Pool oracle at 200 improves `16 -> 19`. Mean weekly best declines
+  `180.1207 -> 179.8361`; it is diagnostic and not a veto under the operator's
+  standing maximum-score objective. Threshold gains are 2023w3
+  `197.36 -> 215.56`, 2024w14 `177.46 -> 194.08`, and 2024w17
+  `191.16 -> 204.06`; 2024w5 loses a 210 (`213.48 -> 206.88`) while 2023w3
+  creates its replacement, preserving the aggregate 210 count.
+- Canonical promotion `accept-replay-panel-z784c` passed and copied treatment
+  seasons 2023--2025 to the accepted research tables; accepted historical
+  seasons 2019/2021/2022 remain unchanged. The durable comparison report is
+  `reports/panel-runs/20260811-lockfix-e80-k1-role12-position-scales-v1/served_position_stage_b_comparison.json`.
+- Production policy is now `classic-k1-role12-boom40-poscal-v3`, source panel
+  `20260811-lockfix-e80-k1-role12-position-scales-v1`, K=1, CE 0, direct-role
+  12, boom 40, exact 80, line 194, and the four factors above. This one object
+  drives projections, UI/API and both CSV routes. A role-registry outage
+  restores the complete prior `classic-k1-ce12-boom28-v1` identity-scale
+  book; it does not mix the new calibration into an untested fallback.
+  Focused policy/app/live-order/fallback tests pass. Exact-tree full Cloud
+  Build and deployment of the resulting digest are the next validation step.
+- After deployment, the next scientific action is the preregistered R3
+  question corrected for the TabPFN finding: independently calibrate the
+  **final-served** control and Route Share treatment distributions, freeze the
+  factors without lineup outcomes, then compare once. Do not rerun upstream
+  widen factors, which TabPFN erases. In parallel only after freezing its
+  usage-only estimator, the genuinely new R4 diagnostic may fit Dirichlet K
+  from leave-season model-fitted shares rather than select K from scores.
 
 ### Tail-first law revised; role-union v2 adopted and live
 

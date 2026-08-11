@@ -140,3 +140,56 @@ The books, factors, protocol, tolerances, and decision law remain unchanged.
 The sole permitted repair is to add that Dockerfile copy, pin it with a test,
 run a new exact-tree Cloud Build, and execute the comparator only against the
 already-accepted books. Do not regenerate either panel.
+
+## Final result and disposition
+
+Repair commit `c1fbb58` passed exact-tree Cloud Build
+`59bfd59c-2c14-4a8c-a226-40b22a31fa57` with 899 tests passed and two expected
+skips. Its immutable image digest is
+`sha256:535230fdce1396d1544abffc69676d5fc3b4f42b485fa7d15e54365148d982a7`.
+Comparator-only execution `compare-served-position-stage-b-repair-qzwrs`
+completed on the unchanged books and returned `pass` with no mechanical
+failures.
+
+The control reproduced all 54 accepted-source evaluation weekly maxima
+exactly. Control and treatment each contain 29,285 feature rows with no
+missing or mismatched rows and maximum numeric delta `3.55e-15`. Shared
+candidate actual scores are exact; persisted served means agree within the
+registered `1e-4` storage tolerance (maximum delta `0.0000305176`). All 108
+selected-winner position decompositions resolve every player.
+
+Across the full 107-slate book, selected weekly maxima changed as follows:
+
+| threshold | control | treatment | delta |
+|---:|---:|---:|---:|
+| 240 | 2 | 2 | 0 |
+| 230 | 3 | 3 | 0 |
+| 220 | 5 | 5 | 0 |
+| 210 | 7 | 7 | 0 |
+| 200 | 11 | 13 | **+2** |
+| 194 | 22 | 24 | +2 diagnostic |
+| 187 | 34 | 34 | 0 diagnostic |
+
+The first difference under the frozen law is therefore at 200 and is
+positive. Pool-oracle counts at 200 also improve 16 to 19. Mean weekly best
+declines `180.1207` to `179.8361`, which is a mandatory diagnostic but not a
+veto under the operator's standing maximum-score objective.
+
+The three positive threshold-changing weeks are 2023 Week 3
+`197.36 -> 215.56`, 2024 Week 14 `177.46 -> 194.08`, and 2024 Week 17
+`191.16 -> 204.06`. The book loses one 210 week in 2024 Week 5
+`213.48 -> 206.88`, while 2023 Week 3 creates a replacement 210 week, so the
+aggregate 210 count is preserved. Position decompositions show different
+valid roster constructions, predominantly stronger WR outcomes, rather than
+an input or score mismatch.
+
+Final disposition is **pass**. The treatment is the accepted research
+incumbent and the exact tested configuration is adopted for the live classic
+policy: K=1, CE 0, direct-role 12, boom 40, line 194, and final-served factors
+QB 0.970 / RB 1.005 / TE 0.940 / WR 1.070. The older CE12/boom28
+identity-scale policy remains the labeled role-registry fallback; mixing the
+new factors into that untested fallback is prohibited.
+
+Canonical promotion execution `accept-replay-panel-z784c` passed and copied
+the 2023--2025 treatment candidates and player snapshots into the accepted
+research tables. Historical source seasons 2019/2021/2022 remain unchanged.

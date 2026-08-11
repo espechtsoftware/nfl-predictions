@@ -839,7 +839,7 @@ def test_sim_mode_receives_immutable_adopted_policy(client, monkeypatch):
     assert seen["expected_model_k"] == 1
     env = seen["policy_env"]
     assert (env["N_CE"], env["N_EPISTEMIC"], env["N_BOOM"]) == (
-        "12", "12", "28")
+        "0", "12", "40")
     assert env["EPISTEMIC_FAMILY"] == "role_draws"
     assert env["MIN_LINEUP_SALARY"] == "49000"
     assert env["BLEND_MODEL_WEIGHT"] == "0.45"
@@ -896,12 +896,14 @@ def test_all_three_classic_routes_expose_same_policy(client, monkeypatch):
     entries = client.post("/lineups/entries.csv", json={
         **req, "entries_csv": one_entry})
 
-    policy_id = "classic-k1-ce12-role12-boom28-v2"
+    policy_id = "classic-k1-role12-boom40-poscal-v3"
     assert preview.json()["policy"]["policy_id"] == policy_id
     assert preview.json()["policy"]["model_ensemble"] == 1
     assert preview.json()["policy"]["portfolio_allocation"] == {
-        "ce": 12, "role": 12, "boom": 28,
+        "ce": 0, "role": 12, "boom": 40,
         "total_generation_solves": 52}
+    assert preview.json()["policy"]["served_position_scales"] == (
+        "QB:0.970,RB:1.005,TE:0.940,WR:1.070")
     for response in (generic, entries):
         assert response.status_code == 200
         assert response.headers["x-lineup-policy"] == policy_id
