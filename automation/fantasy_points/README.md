@@ -55,6 +55,31 @@ time, vendor URL and filename, filters, byte count, CSV shape and SHA-256.
 Failures preserve a screenshot and stop the run rather than silently
 continuing with unknown filters.
 
+The paired Defense Coverage Matrix semantics plan uses the same two exact
+windows:
+
+```bash
+fantasy-points-download run \
+  --plan automation/fantasy_points/plans/coverage-matrix-window-check.json
+```
+
+Coverage Matrix is tested separately because same-season, strictly prior-week
+defensive scheme usage is potentially distinct from the prior-season coverage
+aggregates already evaluated. It remains subject to minimum-sample and
+early-season shrinkage rules before any replay or live feature use.
+
+The broader catalog audit plan samples the other highest-priority distinct
+families plus the Offense Coverage Matrix view:
+
+```bash
+fantasy-points-download run \
+  --plan automation/fantasy_points/plans/high-priority-window-check.json
+```
+
+The downloader establishes report context before selecting Season/Week(s),
+presses `Apply`, and reopens Week(s) to verify the exact selection. Do not
+remove that order: the vendor's active context link can reset filters.
+
 ## Adding or changing recurring exports
 
 Plans are declarative JSON. `seasons` and `week_windows` form a Cartesian

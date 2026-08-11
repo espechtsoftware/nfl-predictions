@@ -25,6 +25,7 @@ import requests
 
 
 BASE_URL = "https://data.fantasypoints.com"
+TOOLS_URL = f"{BASE_URL}/nfl/tools"
 MENU_URL = f"{BASE_URL}/v2/ds/menus"
 
 
@@ -34,6 +35,7 @@ class ReportDefinition:
     category: str
     title: str
     property: str
+    path: str
     group_headers: bool = True
 
 
@@ -41,19 +43,39 @@ REPORTS: dict[str, ReportDefinition] = {
     report.key: report
     for report in (
         ReportDefinition(
-            "advanced-receiving", "Receiving", "Advanced Receiving", "receivingAdvanced"
+            "advanced-receiving",
+            "Receiving",
+            "Advanced Receiving",
+            "receivingAdvanced",
+            "/nfl/tools/player/receiving-advanced",
         ),
         ReportDefinition(
-            "advanced-rushing", "Rushing", "Advanced Rushing", "rushingAdvanced"
+            "advanced-rushing",
+            "Rushing",
+            "Advanced Rushing",
+            "rushingAdvanced",
+            "/nfl/tools/player/rushing-advanced",
         ),
         ReportDefinition(
-            "advanced-passing", "Passing", "Advanced Passing", "passingAdvanced"
+            "advanced-passing",
+            "Passing",
+            "Advanced Passing",
+            "passingAdvanced",
+            "/nfl/tools/player/passing-advanced",
+        ),
+        ReportDefinition(
+            "passing-depth",
+            "Passing",
+            "Passing Depth of Target",
+            "passingDepth",
+            "/nfl/tools/player/passing-depth",
         ),
         ReportDefinition(
             "route-share",
             "Weekly Reports",
             "Weekly Route Share Report",
             "receivingRouteShareReport",
+            "/nfl/tools/player/receiving-route-share-report",
             False,
         ),
         ReportDefinition(
@@ -61,6 +83,7 @@ REPORTS: dict[str, ReportDefinition] = {
             "Weekly Reports",
             "Weekly Target Share Report",
             "receivingTargetShareReport",
+            "/nfl/tools/player/receiving-target-share-report",
             False,
         ),
         ReportDefinition(
@@ -68,6 +91,7 @@ REPORTS: dict[str, ReportDefinition] = {
             "Weekly Reports",
             "Weekly Snap Share Report",
             "offenseSnapShareReport",
+            "/nfl/tools/player/offense-snap-share-report",
             False,
         ),
         ReportDefinition(
@@ -75,6 +99,7 @@ REPORTS: dict[str, ReportDefinition] = {
             "Weekly Reports",
             "Weekly Fantasy Points Scored Report",
             "fptsScoredReport",
+            "/nfl/tools/player/fpts-scored-report",
             False,
         ),
         ReportDefinition(
@@ -82,6 +107,7 @@ REPORTS: dict[str, ReportDefinition] = {
             "Weekly Reports",
             "Weekly Pass Rate Over Expectation Report",
             "proeReport",
+            "/nfl/tools/team/offense/proe-report",
             False,
         ),
         ReportDefinition(
@@ -89,9 +115,49 @@ REPORTS: dict[str, ReportDefinition] = {
             "Receiving",
             "Receiving Man vs. Zone",
             "receivingManVsZone",
+            "/nfl/tools/player/receiving-man-vs-zone",
         ),
         ReportDefinition(
-            "coverage-matrix", "Team", "Coverage Matrix", "coverageMatrix"
+            "receiving-separation-by-alignment",
+            "Receiving",
+            "Receiving Separation by Alignment",
+            "receivingSeparationByAlignment",
+            "/nfl/tools/player/receiving-separation-by-alignment",
+        ),
+        ReportDefinition(
+            "receiving-separation-by-coverage",
+            "Receiving",
+            "Receiving Separation by Coverage",
+            "receivingSeparationByCoverage",
+            "/nfl/tools/player/receiving-separation-by-coverage",
+        ),
+        ReportDefinition(
+            "rb-wr-efficiency",
+            "Offense",
+            "RB + WR Efficiency Report",
+            "efficiency",
+            "/nfl/tools/player/efficiency",
+        ),
+        ReportDefinition(
+            "offense-snaps",
+            "Offense",
+            "Snaps Report",
+            "offenseSnaps",
+            "/nfl/tools/player/offense-snaps",
+        ),
+        ReportDefinition(
+            "run-pass",
+            "Offense",
+            "Run/Pass Report",
+            "runPassReport",
+            "/nfl/tools/team/run-pass-report",
+        ),
+        ReportDefinition(
+            "coverage-matrix",
+            "Team",
+            "Coverage Matrix",
+            "coverageMatrix",
+            "/nfl/tools/team/defense/coverage-matrix",
         ),
     )
 }
@@ -336,30 +402,43 @@ def _click_visible(locator: Any, description: str) -> None:
 
 
 def _navigate_to_report(page: Any, definition: ReportDefinition, timeout_ms: int) -> None:
-    page.goto(BASE_URL, wait_until="domcontentloaded", timeout=timeout_ms)
-    page.wait_for_load_state("networkidle", timeout=timeout_ms)
-    category = _visible(page.get_by_text(definition.category, exact=True))
-    if category is None:
-        raise RuntimeError(f"Fantasy Points category is missing: {definition.category}")
-    category.hover()
-    page.wait_for_timeout(250)
-    report = _visible(page.get_by_text(definition.title, exact=True))
-    if report is None:
-        category.click()
-        page.wait_for_timeout(250)
-        category.hover()
-        report = _visible(page.get_by_text(definition.title, exact=True))
-    if report is None:
-        raise RuntimeError(f"Fantasy Points report is missing: {definition.title}")
-    report.click()
-    page.wait_for_load_state("networkidle", timeout=timeout_ms)
-    if "/login" in page.url:
-        raise RuntimeError(
-            "Fantasy Points session is not authenticated; run `fantasy-points-download login`"
-        )
-    heading = page.get_by_text(definition.title, exact=True)
-    if _visible(heading) is None:
-        raise RuntimeError(f"report did not load: {definition.title} ({page.url})")
+    # Direct report routes are materially more reliable than the animated
+    # dashboard menus and are still the vendor's normal authenticated UI.
+    # The SPA occasionally returns an empty shell on first load, so make a
+    # small bounded retry before failing closed.
+    attempt_timeout = max(5_000, min(timeout_ms, 45_000))
+    last_error: Exception | None = None
+    for attempt in range(3):
+        try:
+            page.goto(
+                f"{BASE_URL}{definition.path}",
+                wait_until="domcontentloaded",
+                timeout=attempt_timeout,
+            )
+            if "/login" in page.url:
+                raise RuntimeError(
+                    "Fantasy Points session is not authenticated; run "
+                    "`fantasy-points-download login`"
+                )
+            report_heading = page.get_by_text(
+                re.compile(rf"^{re.escape(definition.title)}(?:\s+-\s+.+)?$")
+            )
+            report_heading.first.wait_for(
+                state="visible", timeout=attempt_timeout
+            )
+            page.get_by_text("Season", exact=True).first.wait_for(
+                state="visible", timeout=attempt_timeout
+            )
+            return
+        except RuntimeError:
+            raise
+        except Exception as exc:
+            last_error = exc
+            if attempt < 2:
+                page.wait_for_timeout(500 * (attempt + 1))
+    raise RuntimeError(
+        f"report did not load after three attempts: {definition.title} ({page.url})"
+    ) from last_error
 
 
 def _filter_container(page: Any, label_text: str) -> Any:
@@ -367,9 +446,13 @@ def _filter_container(page: Any, label_text: str) -> Any:
     if label is None:
         raise RuntimeError(f"filter label is missing: {label_text}")
     current = label
-    for _ in range(4):
+    control_selector = (
+        "select, [role='combobox'], input, "
+        "button.fpts-listbox-button, button.fpts-popover-button"
+    )
+    for _ in range(8):
         current = current.locator("xpath=..")
-        if current.locator("select, [role='combobox'], input").count():
+        if _visible(current.locator(control_selector)) is not None:
             return current
     raise RuntimeError(f"filter control is missing: {label_text}")
 
@@ -383,15 +466,28 @@ def _select_single_filter(page: Any, label_text: str, value: str) -> None:
         except Exception:
             native.select_option(value=value)
         return
-    control = _visible(container.locator("[role='combobox'], input"))
+    control = _visible(
+        container.locator(
+            "[role='combobox'], input, button.fpts-listbox-button"
+        )
+    )
     if control is None:
         control = _visible(container.locator("button"))
     if control is None:
         raise RuntimeError(f"cannot operate filter: {label_text}")
+    if value in {line.strip() for line in control.inner_text().splitlines()}:
+        return
     control.click()
-    option = _visible(page.get_by_role("option", name=value, exact=True))
-    if option is None:
-        option = _visible(page.get_by_text(value, exact=True))
+    option = None
+    options = page.get_by_role("option")
+    for index in range(options.count()):
+        candidate = options.nth(index)
+        if not candidate.is_visible():
+            continue
+        lines = {line.strip() for line in candidate.inner_text().splitlines()}
+        if value in lines:
+            option = candidate
+            break
     if option is None and control.evaluate("el => el.matches('input')"):
         control.fill(value)
         control.press("Enter")
@@ -399,52 +495,107 @@ def _select_single_filter(page: Any, label_text: str, value: str) -> None:
     if option is None:
         raise RuntimeError(f"filter {label_text!r} has no option {value!r}")
     option.click()
-    page.keyboard.press("Escape")
+    if value not in {line.strip() for line in control.inner_text().splitlines()}:
+        raise RuntimeError(f"filter {label_text!r} did not retain {value!r}")
 
 
 def _select_week_filter(page: Any, weeks: Sequence[int]) -> None:
     container = _filter_container(page, "Week(s)")
-    control = _visible(container.locator("[role='combobox'], input"))
-    if control is None:
-        control = _visible(container.locator("button"))
+    control = _visible(container.locator("button.fpts-popover-button"))
     if control is None:
         raise RuntimeError("cannot operate Week(s) filter")
     control.click()
     page.wait_for_timeout(250)
+    panel_id = control.get_attribute("aria-controls")
+    if not panel_id:
+        raise RuntimeError("Week(s) popover has no controlled panel")
+    panel = page.locator(f"#{panel_id}")
+    panel.wait_for(state="visible")
+    none_button = _visible(panel.get_by_role("button", name="None", exact=True))
+    if none_button is None:
+        raise RuntimeError("Week(s) popover is missing its None preset")
+    none_button.click()
 
-    options = page.get_by_role("option")
-    visible_options = [options.nth(i) for i in range(options.count()) if options.nth(i).is_visible()]
-    selected_any = False
-    if visible_options:
-        wanted = set(int(value) for value in weeks)
-        for option in visible_options:
-            text = option.inner_text().strip()
-            match = re.fullmatch(r"(?:Week\s*)?(\d{1,2})", text, flags=re.IGNORECASE)
-            if not match:
-                continue
-            week = int(match.group(1))
-            selected = option.get_attribute("aria-selected") == "true"
-            if selected != (week in wanted):
-                option.click()
-            selected_any = selected_any or week in wanted
-    if not selected_any:
-        # Some Data Suite versions expose Week(s) as a text-capable multiselect.
-        if control.evaluate("el => el.matches('input')"):
-            control.fill(",".join(str(value) for value in weeks))
-            control.press("Enter")
-            selected_any = True
-        else:
-            for week in weeks:
-                option = _visible(page.get_by_text(str(week), exact=True))
-                if option is None:
-                    option = _visible(page.get_by_text(f"Week {week}", exact=True))
-                if option is None:
-                    raise RuntimeError(f"Week(s) filter has no selectable week {week}")
-                option.click()
-            selected_any = True
-    page.keyboard.press("Escape")
-    if not selected_any:
-        raise RuntimeError("Week(s) selection did not change")
+    wanted = {int(value) for value in weeks}
+    for week in sorted(wanted):
+        option = panel.locator(f"[data-option='REG:{week}']")
+        if option.count() != 1 or not option.is_visible():
+            raise RuntimeError(f"Week(s) filter has no selectable regular week {week}")
+        option.click()
+
+    selected = {
+        int(value.split(":", 1)[1])
+        for value in panel.locator("[data-option^='REG:'].selected").evaluate_all(
+            "els => els.map(el => el.dataset.option)"
+        )
+    }
+    if selected != wanted:
+        raise RuntimeError(
+            f"Week(s) filter retained {sorted(selected)}, expected {sorted(wanted)}"
+        )
+    control.click()
+    if control.get_attribute("aria-expanded") != "false":
+        raise RuntimeError("Week(s) popover did not close after selection")
+
+
+def _verify_applied_filters(page: Any, spec: ExportSpec) -> None:
+    season_container = _filter_container(page, "Season")
+    season_control = _visible(season_container.locator("button.fpts-listbox-button"))
+    if season_control is None or str(spec.season) not in {
+        line.strip() for line in season_control.inner_text().splitlines()
+    }:
+        raise RuntimeError(f"applied Season does not show {spec.season}")
+
+    week_container = _filter_container(page, "Week(s)")
+    week_control = _visible(week_container.locator("button.fpts-popover-button"))
+    if week_control is None:
+        raise RuntimeError("applied Week(s) control is missing")
+    week_control.click()
+    panel_id = week_control.get_attribute("aria-controls")
+    panel = page.locator(f"#{panel_id}") if panel_id else None
+    if panel is None:
+        raise RuntimeError("applied Week(s) popover has no controlled panel")
+    selected = {
+        int(value.split(":", 1)[1])
+        for value in panel.locator("[data-option^='REG:'].selected").evaluate_all(
+            "els => els.map(el => el.dataset.option)"
+        )
+    }
+    week_control.click()
+    expected = {int(value) for value in spec.weeks}
+    if selected != expected:
+        raise RuntimeError(
+            f"applied Week(s) shows {sorted(selected)}, expected {sorted(expected)}"
+        )
+
+
+def _select_context(page: Any, context: str) -> None:
+    expected_segment = {
+        "Player": "/player/",
+        "Offense": "/team/offense/",
+        "Defense": "/team/defense/",
+    }[context]
+    if expected_segment in page.url:
+        return
+    current_path = page.url.split(BASE_URL, 1)[-1].split("?", 1)[0]
+    if "/player/" in current_path:
+        target_path = current_path.replace("/player/", expected_segment, 1)
+    elif "/team/offense/" in current_path:
+        target_path = current_path.replace("/team/offense/", expected_segment, 1)
+    elif "/team/defense/" in current_path:
+        target_path = current_path.replace("/team/defense/", expected_segment, 1)
+    else:
+        raise RuntimeError(f"cannot derive context route from {page.url}")
+    target = _visible(page.locator(f"a[href='{target_path}']"))
+    if target is None:
+        raise RuntimeError(
+            f"context {context} route is unavailable: {target_path}"
+        )
+    target.click()
+    page.wait_for_url(re.compile(rf"{re.escape(target_path)}(?:\?|$)"))
+    page.get_by_text("Season", exact=True).first.wait_for(state="visible")
+    if expected_segment not in page.url:
+        raise RuntimeError(f"context {context} did not load ({page.url})")
 
 
 def _set_checkbox(page: Any, label_text: str, checked: bool) -> None:
@@ -455,7 +606,11 @@ def _set_checkbox(page: Any, label_text: str, checked: bool) -> None:
     checkbox = None
     for _ in range(4):
         current = current.locator("xpath=..")
-        checkbox = _visible(current.locator("input[type='checkbox'], [role='checkbox']"))
+        checkbox = _visible(
+            current.locator(
+                "input[type='checkbox'], [role='checkbox'], [role='switch']"
+            )
+        )
         if checkbox is not None:
             break
     if checkbox is None:
@@ -469,6 +624,7 @@ def _open_export_panel(page: Any) -> None:
     if _visible(page.get_by_text("Export Options", exact=True)) is not None:
         return
     candidates = (
+        page.locator("[title='Toggle Export Options']"),
         page.get_by_role("button", name=re.compile("export", re.IGNORECASE)),
         page.locator("[aria-label*='Export' i], [title*='Export' i]"),
         page.locator("button").filter(has=page.locator("svg")),
@@ -486,12 +642,13 @@ def _open_export_panel(page: Any) -> None:
 def _download_one(page: Any, spec: ExportSpec, destination: Path, timeout_ms: int) -> dict[str, Any]:
     started = datetime.now(UTC)
     _navigate_to_report(page, spec.definition, timeout_ms)
+    if spec.context:
+        _select_context(page, spec.context)
     _select_single_filter(page, "Season", str(spec.season))
     _select_week_filter(page, spec.weeks)
-    if spec.context:
-        _click_visible(page.get_by_text(spec.context, exact=True), f"context {spec.context}")
     _click_visible(page.get_by_role("button", name="Apply", exact=True), "Apply button")
-    page.wait_for_load_state("networkidle", timeout=timeout_ms)
+    page.wait_for_timeout(500)
+    _verify_applied_filters(page, spec)
 
     _open_export_panel(page)
     _set_checkbox(page, "Include Group Headers", spec.include_group_headers)
@@ -499,16 +656,27 @@ def _download_one(page: Any, spec: ExportSpec, destination: Path, timeout_ms: in
     _set_checkbox(page, "Only Export Selected Rows", False)
     _set_checkbox(page, "Only Export Selected Range", False)
 
-    download_button = page.get_by_role(
-        "button", name=re.compile(r"download\s+as\s+csv", re.IGNORECASE)
+    # The vendor renders the primary CSV action as a clickable ``div`` next
+    # to a real dropdown button, so accessible button lookup cannot see it.
+    export_heading = _visible(page.get_by_text("Export Options", exact=True))
+    export_panel = export_heading
+    for _ in range(3):
+        if export_panel is not None:
+            export_panel = export_panel.locator("xpath=..")
+    download_icon = (
+        _visible(
+            export_panel.locator(
+                "svg[data-icon='material-symbols:download-sharp']"
+            )
+        )
+        if export_panel is not None
+        else None
     )
-    button = _visible(download_button)
-    if button is None:
-        button = _visible(page.get_by_text(re.compile(r"download\s+as\s+csv", re.IGNORECASE)))
-    if button is None:
+    download_action = download_icon.locator("xpath=..") if download_icon is not None else None
+    if download_action is None:
         raise RuntimeError("Download as CSV button is missing")
     with page.expect_download(timeout=timeout_ms) as event:
-        button.click()
+        download_action.click()
     download = event.value
     download.save_as(destination)
     rows, columns = _csv_shape(destination)

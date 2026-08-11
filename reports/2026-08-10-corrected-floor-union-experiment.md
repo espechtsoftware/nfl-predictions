@@ -149,3 +149,28 @@ Neither repair changes a panel, candidate, world, selector, threshold, entry
 count, or decision rule. A new full-test immutable evaluator image is required
 before the one comparison is rerun; the failed execution produced no result
 or new score outcome and does not license any further retry.
+
+The required exact-tree validation succeeded in Cloud Build
+`cb203be1-0765-479b-8fc4-e5d69c8dd056`, producing immutable evaluator digest
+`sha256:bcb88cff4e7f70ea34e0f52997254f420a39041e680eb4e26752ed2f9596fd69`.
+The repaired execution uses a distinct durable run directory ending in
+`-loaderfix`; the original failed execution record remains untouched.
+
+## Final result — 2026-08-10 CDT
+
+Repaired execution `corrected-floor-union-k8v5b` completed successfully from
+the immutable digest above. All 107 slates passed source-containment, shared
+support-mask and exact-80 checks. The union retained 27,036 source candidates,
+added 6,969 novel no-floor candidates, selected 611 add-on slots, and changed
+723 selected slots in each direction.
+
+The final selected 187/194/200/210/220/230/240 grid changed from
+`34/22/11/7/5/3/2` to `34/22/13/7/5/3/2`. Mean weekly maximum changed from
+`180.1207` to `180.0084`, with 5 weekly wins, 98 ties and 4 losses. The pool
+oracle improved from `42/28/16/9/5/3/2` to `43/28/18/10/6/3/2`.
+
+This is a real candidate and ≥200 improvement, but the registered active
+decision tied at every threshold from 240 through 210 and therefore returned
+`keep-corrected-incumbent`. The no-floor union is not promoted and receives no
+parameter, salary-floor, quota or selector retry on these outcomes. The
+direct-role incumbent remains production policy.

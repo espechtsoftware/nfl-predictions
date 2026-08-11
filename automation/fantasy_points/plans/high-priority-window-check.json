@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "name": "high-priority-window-semantics-v1",
+  "delay_between_downloads_seconds": 2,
+  "reports": [
+    {
+      "report": "advanced-passing",
+      "seasons": [2025],
+      "week_windows": ["1-4", "5-8"],
+      "include_group_headers": true,
+      "context": "Player"
+    },
+    {
+      "report": "advanced-rushing",
+      "seasons": [2025],
+      "week_windows": ["1-4", "5-8"],
+      "include_group_headers": true,
+      "context": "Player"
+    },
+    {
+      "report": "receiving-man-vs-zone",
+      "seasons": [2025],
+      "week_windows": ["1-4", "5-8"],
+      "include_group_headers": true,
+      "context": "Player"
+    },
+    {
+      "report": "receiving-separation-by-coverage",
+      "seasons": [2025],
+      "week_windows": ["1-4", "5-8"],
+      "include_group_headers": true,
+      "context": "Player"
+    },
+    {
+      "report": "receiving-separation-by-alignment",
+      "seasons": [2025],
+      "week_windows": ["1-4", "5-8"],
+      "include_group_headers": true,
+      "context": "Player"
+    },
+    {
+      "report": "rb-wr-efficiency",
+      "seasons": [2025],
+      "week_windows": ["1-4", "5-8"],
+      "include_group_headers": true,
+      "context": "Player"
+    },
+    {
+      "report": "offense-snaps",
+      "seasons": [2025],
+      "week_windows": ["1-4", "5-8"],
+      "include_group_headers": true,
+      "context": "Player"
+    },
+    {
+      "report": "coverage-matrix",
+      "seasons": [2025],
+      "week_windows": ["1-4", "5-8"],
+      "include_group_headers": true,
+      "context": "Offense"
+    }
+  ]
+}

@@ -58,6 +58,47 @@ def test_load_checked_in_window_plan():
     assert all(spec.season == 2025 for spec in specs)
 
 
+def test_load_checked_in_coverage_matrix_window_plan():
+    root = Path(__file__).resolve().parents[1]
+    payload, specs = load_plan(
+        root
+        / "automation"
+        / "fantasy_points"
+        / "plans"
+        / "coverage-matrix-window-check.json"
+    )
+    assert payload["name"] == "coverage-matrix-window-semantics-v1"
+    assert [spec.weeks for spec in specs] == [(1, 2, 3, 4), (5, 6, 7, 8)]
+    assert all(spec.context == "Defense" for spec in specs)
+
+    _, offense_specs = load_plan(
+        root
+        / "automation"
+        / "fantasy_points"
+        / "plans"
+        / "coverage-matrix-offense-window-check.json"
+    )
+    assert [spec.weeks for spec in offense_specs] == [
+        (1, 2, 3, 4),
+        (5, 6, 7, 8),
+    ]
+    assert all(spec.context == "Offense" for spec in offense_specs)
+
+
+def test_load_checked_in_high_priority_window_plan():
+    root = Path(__file__).resolve().parents[1]
+    payload, specs = load_plan(
+        root
+        / "automation"
+        / "fantasy_points"
+        / "plans"
+        / "high-priority-window-check.json"
+    )
+    assert payload["name"] == "high-priority-window-semantics-v1"
+    assert len(specs) == 16
+    assert all(max(spec.weeks) - min(spec.weeks) == 3 for spec in specs)
+
+
 def test_plan_rejects_duplicate_export():
     plan = {
         "schema_version": 1,

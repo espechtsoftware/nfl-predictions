@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "name": "coverage-matrix-offense-window-semantics-v1",
+  "delay_between_downloads_seconds": 2,
+  "reports": [
+    {
+      "report": "coverage-matrix",
+      "seasons": [2025],
+      "week_windows": ["1-4", "5-8"],
+      "include_group_headers": true,
+      "context": "Offense"
+    }
+  ]
+}

@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 22:08 CDT
+## Current state — 2026-08-10 22:59 CDT
 
-Active branch is `main`; this work started from pushed commit `479b9c0`.
+Active branch is `main`; the last pushed milestone is commit `c0d0ffb`.
 The two operator-supplied outside-review documents under `reports/` remain
 untracked and must not be staged or modified.
 
@@ -113,8 +113,11 @@ untracked and must not be staged or modified.
   `replay-lockk1cov-2019-kh9xl`, `replay-lockk1cov-2021-l9bd9`,
   `replay-lockk1cov-2022-4xgrm`, `replay-lockk1cov-2023-nvhqp`,
   `replay-lockk1cov-2024-tvgnt`, and `replay-lockk1cov-2025-ptnj6`.
-  All remain active with no completed result as of this handoff. Do not read
-  partial scores. After all six complete cleanly, run check-only exact-80
+  The 2021 execution completed successfully in 1h13m6.01s and the 2023
+  execution completed successfully in 1h8m49.79s. The 2019, 2022, 2024 and
+  2025 executions still report `Completed=Unknown` with no succeeded/failed
+  count as of 22:59 CDT. Do not read partial scores. After all six complete
+  cleanly, run check-only exact-80
   acceptance and then the one frozen coverage comparator against direct role.
 - The operator supplied an outcome-viewed outside review of the paid Fantasy
   Points data. Its repository-verified disposition is tracked in
@@ -133,29 +136,34 @@ untracked and must not be staged or modified.
   and hash-locked. A shareable operator-facing description of all six weekly
   report families and their current priority is tracked in
   `reports/2026-08-11-fantasy-points-weekly-reports-summary.md`.
-- The outside review was updated with a material vendor-UI fact: changing the
-  Data Suite `Week(s)` selection changes Advanced/coverage aggregate values.
-  The existing N-1 tables and verdicts remain valid, but same-season strictly
-  prior-week Advanced exports are a genuinely different information path.
-  The repository reconciliation freezes the first semantics audit as 2025
-  Advanced Receiving Weeks 1--4 versus Weeks 5--8; game counts and values
-  must establish exact-window versus cumulative behavior before bulk
-  collection or any replay join. README's append-only deficiency log records
-  the correction to its earlier product-limitation row.
-- An auditable Playwright downloader is being added under
-  `automation/fantasy_points/` and `ops/fantasy_points_downloads.py`. It uses
+- The vendor-window semantics audit is now complete for the first priority
+  families. Advanced Receiving Weeks 1--4 versus 5--8 returned 285/299
+  players, every populated `G<=4`, distinct hashes and zero unchanged common
+  players across `G/RTE/TGT/YDS/FP`. Defense and Offense Coverage Matrix each
+  returned 32/32 teams with `G=4` and distinct hashes. Advanced Passing,
+  Advanced Rushing, Man-vs-Zone, Separation by Coverage/Alignment, RB+WR
+  Efficiency and detailed Snaps also returned distinct exact-window files
+  with `G<=4`. This opens same-season strictly prior-week inputs; it does not
+  alter the completed N-1 verdicts or in-flight frozen coverage union. The
+  full catalog/redundancy disposition is tracked in
+  `reports/2026-08-11-fantasy-points-filter-surface-audit.md`.
+- The auditable Playwright downloader under `automation/fantasy_points/` and
+  `ops/fantasy_points_downloads.py` is authenticated and operational. It uses
   a persistent profile outside the repository, never commits credentials or
   licensed CSVs, validates the live vendor catalog, runs sequential exports,
   names every file by report/season/source weeks/target week, and writes a
   SHA-256/CSV-shape/retrieval-time manifest. Plans support explicit windows
   and generated cumulative-prior or last-four-prior target-week policies;
-  invalid same/future-week source windows fail closed. Playwright 1.62,
-  Chromium 151 and its system libraries are installed on this workstation.
-  Fourteen focused Playwright/floor tests pass. The operator's persistent
-  profile login is not yet complete: the remote headed browser could not
-  accept keyboard input, and the terminal-credential fallback was corrected
-  for the vendor's missing email input type and asynchronous Firebase
-  redirect. Never record or request those credentials in chat or Git.
+  invalid same/future-week source windows fail closed. Direct authenticated
+  report routes, custom Headless UI Season/Week controls, context-first
+  navigation, mandatory `Apply`, post-Apply exact-week revalidation, custom
+  export switches/action and bounded empty-SPA retries are implemented.
+  Playwright 1.62, Chromium 151 and system libraries are installed. Sixteen
+  focused Playwright/floor tests pass. Successful ignored manifests include
+  `20260811T033115Z__advanced-receiving-window-semantics-v1`,
+  `20260811T033342Z__coverage-matrix-window-semantics-v1`, and
+  `20260811T035458Z__coverage-matrix-offense-window-semantics-v1`. Never
+  record or request credentials in chat or Git.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no
@@ -220,9 +228,18 @@ untracked and must not be staged or modified.
   now follows the already-validated Route loader rule—eligibility is required
   only in the accepted table—and a regression test covers both tables. This
   is an operational repair with no score outcome observed, not a parameter or
-  decision-rule retry. Next action: full exact-tree Cloud Build, record the
-  new immutable evaluator digest, amend the frozen report with the defect,
-  and rerun the single comparison against direct role.
+  decision-rule retry. Exact-tree Cloud Build
+  `cb203be1-0765-479b-8fc4-e5d69c8dd056` succeeded and produced immutable
+  evaluator digest
+  `sha256:bcb88cff4e7f70ea34e0f52997254f420a39041e680eb4e26752ed2f9596fd69`.
+  Repaired execution `corrected-floor-union-k8v5b` passed all 107 exact-80
+  mechanical checks. It added 6,969 novel candidates and moved selected
+  187/194/200/210/220/230/240 from `34/22/11/7/5/3/2` to
+  `34/22/13/7/5/3/2`, with mean `180.1207→180.0084` and paired 5 wins/98
+  ties/4 losses. Because every active 240→230→220→210 threshold tied, the
+  frozen disposition is `keep-corrected-incumbent`; no-floor is not promoted
+  and receives no retry. Durable artifacts are under
+  `reports/floor-union-runs/20260810-corrected-role-nofloor-union-loaderfix/`.
 - The operator's paid-data operations request is implemented on branch `main`
   at commit `ea6dca4`. The README season-start schedule now requires the final
   evidence-selected Fantasy Points reports, exact filters and pre-lock
@@ -1070,13 +1087,17 @@ untracked and must not be staged or modified.
   30,000 worlds, 4 CPU / 8Gi, retry and timeout settings. Freezers preserve
   their early/late commands and 1 CPU / 1Gi settings. All ten shadow/freezer
   schedulers remain PAUSED. No off-season shadow or freezer was executed.
-- Exact next action: keep all 17 seasonal schedules paused until the Aug 24
-  resume date. On the first real Sunday-main slate, run the authenticated
-  UI -> 80 lineups -> DKEntries smoke and confirm v2 provenance; deliberately
-  exercise and label the CE-only fallback in a controlled smoke. In parallel,
-  continue the passed sub-$200 true-route-data purchase gate and the frozen
-  prospective 11-book selector program. New historical experiments must use
-  the revised tail-first law; do not tune the role seed, six fields, or
+- Exact next action: monitor the six coverage executions without reading
+  partial scores; after all succeed, run check-only exact-80 acceptance and
+  the one frozen comparator against direct role. The no-floor union is closed.
+  For paid data, run outcome-blind redundancy/support audits on the proven
+  exact-window families, then preregister one compact same-season lagged
+  diagnostic before any outcome join or bulk historical collection. Keep all
+  17 seasonal schedules paused until the Aug 24 resume date. On the first real
+  Sunday-main slate, run the authenticated UI -> 80 lineups -> DKEntries smoke
+  and confirm v2 provenance; deliberately exercise and label the CE-only
+  fallback in a controlled smoke. New historical experiments must use the
+  revised tail-first law; do not tune the role seed, six fields, or
   12-candidate dose on these 107 outcomes.
 
 ## Previous state — 2026-08-09 21:05 CDT

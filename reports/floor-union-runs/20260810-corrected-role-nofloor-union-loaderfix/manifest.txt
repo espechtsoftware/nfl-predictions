@@ -1,0 +1,8 @@
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:bcb88cff4e7f70ea34e0f52997254f420a39041e680eb4e26752ed2f9596fd69
+source=20260810-lockfix-e80-k1-role12union-8677d21
+addon=20260810-lockfix-e80-k1-nofloor-8677d21
+incumbent=20260810-lockfix-e80-k1-role12union-8677d21
+source_table=replay_candidates
+addon_table=replay_candidates_staging
+incumbent_table=replay_candidates
+entries=80

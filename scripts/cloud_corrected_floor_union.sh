@@ -15,7 +15,9 @@ INCUMBENT_TABLE=${7:-replay_candidates}
 PROJECT=nfl-predictions-503414
 REGION=us-central1
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-RUN_ID=20260810-corrected-role-nofloor-union
+# The original run directory durably records the pre-result loader failure.
+# Preserve it and use a distinct immutable identity for the repaired rerun.
+RUN_ID=20260810-corrected-role-nofloor-union-loaderfix
 OUT="$ROOT/reports/floor-union-runs/$RUN_ID"
 
 case "$IMG" in *@sha256:*) ;; *) echo "ABORT: immutable image required"; exit 2;; esac

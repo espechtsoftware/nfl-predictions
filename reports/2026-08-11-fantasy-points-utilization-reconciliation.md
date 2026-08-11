@@ -161,3 +161,29 @@ persist while their product changes expected DK points only slightly.  It
 does not justify modifying the in-flight coverage union.  Individual
 cornerback/shadow assignments would be a different dataset; none of the
 current Fantasy Points exports contains that information.
+
+## Semantics result and catalog expansion — 2026-08-10 CDT
+
+The audited Playwright run completed both registered 2025 Advanced Receiving
+exports after explicitly pressing `Apply` and re-verifying the exact controls.
+Weeks 1--4 returned 285 players and Weeks 5--8 returned 299; every populated
+`G` was at most four. All 259 players present in both files changed in at
+least one of `G/RTE/TGT/YDS/FP`. The widget therefore returns the exact
+selected window, not a cumulative season-to-date total. Use a frozen
+last-four-completed-week window as the first modeling candidate rather than
+choosing windows after outcomes.
+
+The operator correctly requested the same test for Defense Coverage Matrix.
+Both windows returned all 32 defenses with `G=4`, different hashes and
+different scheme values, confirming exact-window behavior there too. This
+opens a genuinely same-season point-in-time coverage path distinct from the
+completed N-1 diagnostic; it does not alter the already frozen in-flight
+coverage union.
+
+A live catalog/page audit also found Season + Week(s) on Advanced Passing,
+Advanced Rushing, Passing Depth, Bell Cow, Routes Run, Man-vs-Zone, all four
+Separation reports, RB+WR Efficiency, detailed Snaps, Run/Pass, both Coverage
+Matrix views, Fantasy Points Scored/Allowed and all Weekly Reports. QB/WR
+Coverage Matchup and OL/DL Matchups still lack a historical Season selector
+and remain prospective-only. The full redundancy and collection disposition
+is tracked in `reports/2026-08-11-fantasy-points-filter-surface-audit.md`.
