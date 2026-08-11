@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 
 from nfl_dfs.research import served_position_lineup as lineup
@@ -60,6 +62,12 @@ def test_mechanism_accepts_exact_factors_as_only_treatment_change():
         {"paired_slates": 54, "weekly_max_mismatches": 0},
         experiment_code_sha="new",
     ) == []
+
+
+def test_comparator_is_packaged_in_cloud_run_image():
+    dockerfile = Path("Dockerfile").read_text(encoding="utf-8")
+    assert "COPY scripts/compare_served_position_lineup.py " \
+        "./scripts/compare_served_position_lineup.py" in dockerfile
 
 
 def test_mechanism_allows_treatment_candidate_pool_to_change():

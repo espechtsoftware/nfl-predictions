@@ -123,3 +123,20 @@ The six immutable evaluation executions are:
 Do not inspect partial score output. Wait for six clean completions, run
 check-only acceptance for each exact 2023--2025 panel, and then execute the
 frozen comparator once.
+
+## Comparator packaging repair
+
+All six executions completed cleanly. Check-only acceptance executions
+`accept-replay-panel-w75gc` (control) and `accept-replay-panel-75wpd`
+(treatment) both passed the exact 54-slate, exact-80 contract.
+
+The first comparator execution
+`compare-served-position-stage-b-jr6kl` failed before importing or querying
+the experiment: its immutable image did not copy
+`scripts/compare_served_position_lineup.py` into `/app`. The only application
+log is Python's file-not-found error; no score or mechanism field was produced.
+The books, factors, protocol, tolerances, and decision law remain unchanged.
+
+The sole permitted repair is to add that Dockerfile copy, pin it with a test,
+run a new exact-tree Cloud Build, and execute the comparator only against the
+already-accepted books. Do not regenerate either panel.

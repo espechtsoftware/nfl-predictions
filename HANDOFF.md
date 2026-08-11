@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 15:47 CDT
+## Current state — 2026-08-11 17:23 CDT
 
 Active branch is `main`; Advanced Receiving diagnostic implementation commit
 `5aee8aa` is pushed. Its single preregistered outcome run is complete and
@@ -453,7 +453,18 @@ and must not be staged or modified.
   diagnostic must estimate one K from leave-season component-model fitted
   shares and conditional realized allocation likelihood, then pass an
   untouched usage gate before any lineup replay. Neither follow-up is yet a
-  score-bearing authorization.
+  score-bearing authorization. All six active position-scale executions then
+  completed cleanly. Check-only acceptance `accept-replay-panel-w75gc`
+  (control) and `accept-replay-panel-75wpd` (treatment) both passed the exact
+  54-slate, exact-80 contract. First comparator execution
+  `compare-served-position-stage-b-jr6kl` failed before importing or querying
+  the experiment because its validated image omitted the new comparator
+  script from the Dockerfile. Its only application log is Python's file-not-
+  found error; no mechanism or score output was produced. The frozen books and
+  factor remain untouched. Exact next action: commit/push the Dockerfile-only
+  packaging repair plus regression test, run a new exact-tree Cloud Build,
+  and run one comparator-only repair tied to that failed execution. Never
+  regenerate either panel.
 - The next paid-data correlation study was frozen and pushed before any
   outcome join at commit `8263fe8`:
   `reports/2026-08-10-fantasy-points-coverage-fit-experiment.md`. It tests only
