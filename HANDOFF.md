@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 18:35 CDT
+## Current state — 2026-08-11 18:41 CDT
 
 Active branch is `main`; final-served Route diagnostic implementation commit
 `d5e74c0` is pushed. The position-calibration result, research promotion,
@@ -102,9 +102,27 @@ and must not be staged or modified.
   `usage-dirichlet-calibration-spd5k` from that digest. Its manifest and
   execution identity are tracked under
   `reports/usage-dirichlet-calibration-runs/20260811-data-fitted-usage-k-v1/`.
-  No fitted K or held-out likelihood had been produced when the identity was
-  recorded. Monitor and harvest this execution; only its frozen gate may
-  license a separately preregistered exact-80 K test.
+  The execution completed successfully in 3m17s and machine disposition is
+  `data-fitted-usage-concentration-passes`. Fitted global
+  `K=28.246898139750336` is interior and independently matches the audit's
+  approximately-29 estimate. On untouched 2023--2025 groups, mean conditional
+  NLL improves `14.207682 -> 13.317778` overall, `17.360592 -> 16.824802` for
+  targets and `10.970002 -> 9.716463` for carries; all three seasons improve.
+  The team-week clustered fitted-minus-production 95% interval is
+  `[-0.999386, -0.790824]`. All 68,609 evaluation opportunities have 100%
+  population coverage and no positive usage was dropped for zero predicted
+  mean. The complete result and machine artifacts are tracked in
+  `reports/2026-08-11-data-fitted-dirichlet-result.md` and the run directory.
+- The one licensed exact-80 test is now frozen before producing any finite-K
+  candidate or lineup score in
+  `reports/2026-08-11-data-fitted-dirichlet-exact80.md`. Same-image control and
+  treatment will generate only 2023--2025, splice unchanged source history to
+  107 slates, use the adopted CE0/direct-role12/boom40/position-scale book, and
+  differ only by `GAME_SIM_USAGE=dirichlet` plus the exact unrounded K. The
+  tail-first 240/230/220/210/200 first-difference law governs; mean is not a
+  veto. Before launch, add missing `DIRICHLET_K` persistence to candidate
+  `lever_env`, implement hash/gate/lever/mechanism guards and comparator, test,
+  commit and pass a fresh exact-tree Cloud Build.
 
 ### Final-served position calibration passed, promoted, and adopted
 
