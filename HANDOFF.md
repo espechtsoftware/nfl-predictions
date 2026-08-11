@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 18:20 CDT
+## Current state — 2026-08-11 18:24 CDT
 
 Active branch is `main`; final-served Route diagnostic implementation commit
 `d5e74c0` is pushed. The position-calibration result, research promotion,
@@ -65,12 +65,19 @@ and must not be staged or modified.
   `route-final-served-calibration-lkwk2` from the validated digest above. Its
   frozen manifest and execution identity are tracked under
   `reports/route-final-served-calibration-runs/20260811-route-final-served-calibration-v1/`.
-  No calibrated result or gate metric had been produced when the identity was
-  recorded. Exact next action: monitor and harvest the frozen report. If the
-  registered treatment 30-point Brier gate passes,
-  freeze a separate exact-80 lineup protocol before querying lineup outcomes;
-  if it fails, close this historical Route retry. Do not alter factors, folds,
-  feature fields or the decision gate after seeing the result.
+  The execution completed successfully and the frozen report is harvested.
+  Machine disposition is `route-final-served-calibration-fails`: aggregate
+  calibrated 30-point Brier is exactly `0.0140250212164889` in both arms, as
+  are 20-point Brier and q90/q95/q99 exceedance. Both arms selected identical
+  walk-forward position factors in every target season. TabPFN coverage is
+  100%, all source/key/actual/mean checks pass, and maximum scaling mean drift
+  is `7.11e-15`. The shared TabPFN cache therefore erases the Route component
+  arm's per-player marginal differences; only numerical-scale CRPS and rank
+  coupling differences remain. No exact-80 replay is licensed. The historical
+  retry is closed under the frozen rule; do not alter factors, folds, fields,
+  model or gate. Result interpretation is tracked in
+  `reports/2026-08-11-route-share-final-served-result.md` and the full machine
+  report remains in the immutable run directory.
 - While the Route execution runs, the audit's independent R4 usage-only
   question is now frozen before producing a model-fitted K in
   `reports/2026-08-11-data-fitted-dirichlet-usage.md`. It uses strictly
