@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 23:31 CDT
+## Current state — 2026-08-10 23:45 CDT
 
-Active branch is `main`; the last pushed milestone is commit `2ace0ae`.
+Active branch is `main`; the last pushed milestone is commit `920e545`.
 The two operator-supplied outside-review documents under `reports/` remain
 untracked and must not be staged or modified.
 
@@ -187,6 +187,16 @@ untracked and must not be staged or modified.
   implemented in the working milestone without reading outcomes. The two new
   raw table names are explicit daily-backup members and also match automatic
   Fantasy Points table discovery.
+- The next distinct paid-data family is frozen before any exact-window
+  Advanced Passing outcome join in
+  `reports/2026-08-11-fantasy-points-same-season-advanced-passing-protocol.md`.
+  Its tracked 56-export plan uses seasons 2022--2025, target Weeks 5--18 and
+  exact W-4:W-1 windows. The treatment is the complete predeclared QB
+  process-rate/time block with an 80-dropback support floor; walk-forward
+  held-out seasons are 2023--2025 and only aggregate 30-point Brier plus 50%
+  per-fold coverage gates the mechanism. Collection must wait for the active
+  coverage plan to finish; no importer, outcome diagnostic or lineup arm has
+  started.
 - The auditable Playwright downloader under `automation/fantasy_points/` and
   `ops/fantasy_points_downloads.py` is authenticated and operational. It uses
   a persistent profile outside the repository, never commits credentials or
