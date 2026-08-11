@@ -34,6 +34,7 @@ PRODUCTION_ENV = {
     "EMP_POS": "",
     "SHAPE_MIX": "1",
     "SERVED_TAIL_SCALE": "1",
+    "SERVED_POSITION_SCALES": "",
     "BLEND_MODEL_WEIGHT": "0.45",
     "BIGPLAY": "0",
     "TABPFN_COMPONENTS": "0",

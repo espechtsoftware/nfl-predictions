@@ -3,7 +3,74 @@ import pandas as pd
 import pytest
 
 from nfl_dfs.analysis import served_position_calibration as position_calibration
-from nfl_dfs.backtest.replay import _stable_ordinal_ranks, _widen_draws
+from nfl_dfs.backtest.replay import (
+    _stable_ordinal_ranks,
+    _widen_draws,
+    apply_served_position_scales,
+)
+from nfl_dfs.inference import live_lineups
+from nfl_dfs.inference.production_policy import ADOPTED_CLASSIC_POLICY
+
+
+FROZEN_SPEC = "QB:0.970,RB:1.005,TE:0.940,WR:1.070"
+
+
+def test_runtime_position_scales_are_mean_invariant_and_position_specific():
+    draws = np.array([
+        [0.0, 2.0, 4.0, 10.0],
+        [1.0, 3.0, 7.0, 9.0],
+        [2.0, 5.0, 6.0, 11.0],
+        [0.0, 1.0, 8.0, 12.0],
+        [4.0, 5.0, 6.0, 7.0],
+    ])
+    positions = pd.Series(["QB", "RB", "TE", "WR", "DST"])
+    out = apply_served_position_scales(
+        draws, positions, env={"SERVED_POSITION_SCALES": FROZEN_SPEC})
+    assert out.mean(axis=1) == pytest.approx(draws.mean(axis=1), abs=1e-12)
+    for row, factor in enumerate((0.970, 1.005, 0.940, 1.070)):
+        assert np.ptp(out[row]) == pytest.approx(factor * np.ptp(draws[row]))
+    assert out[4].tolist() == draws[4].tolist()
+
+
+@pytest.mark.parametrize("identity", ["", "0", "off", "false", "identity", "none"])
+def test_runtime_position_scale_identity(identity):
+    draws = np.arange(12, dtype=float).reshape(3, 4)
+    assert apply_served_position_scales(
+        draws, pd.Series(["QB", "RB", "WR"]),
+        env={"SERVED_POSITION_SCALES": identity},
+    ) is draws
+
+
+@pytest.mark.parametrize("spec, message", [
+    ("QB:1,RB:1,TE:1", "exactly once"),
+    ("QB:1,RB:1,TE:1,WR:1,QB:1", "expected"),
+    ("QB:1,RB:1,TE:1,WR:1.51", r"\[0.75, 1.50\]"),
+    ("QB:1,RB:nope,TE:1,WR:1", "expected"),
+])
+def test_runtime_position_scale_contract(spec, message):
+    with pytest.raises(ValueError, match=message):
+        apply_served_position_scales(
+            np.arange(16, dtype=float).reshape(4, 4),
+            pd.Series(["QB", "RB", "TE", "WR"]),
+            env={"SERVED_POSITION_SCALES": spec},
+        )
+
+
+def test_live_path_applies_position_scale_after_market_and_global_scale():
+    import inspect
+
+    source = inspect.getsource(live_lineups.build_slate_with_draws)
+    shift = source.index("draws = shift_draws_to_means")
+    global_scale = source.index("draws = apply_served_tail_scale")
+    position_scale = source.index("draws = apply_served_position_scales")
+    assert shift < global_scale < position_scale
+
+
+def test_production_policy_pins_position_scale_identity():
+    env = ADOPTED_CLASSIC_POLICY.engine_environment({
+        "SERVED_POSITION_SCALES": FROZEN_SPEC,
+    })
+    assert env["SERVED_POSITION_SCALES"] == ""
 
 
 def test_position_scales_are_mean_invariant_and_support_narrowing():

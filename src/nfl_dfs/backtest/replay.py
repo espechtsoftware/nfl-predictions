@@ -383,6 +383,69 @@ def apply_served_tail_scale(
     return out
 
 
+def apply_served_position_scales(
+    draws: np.ndarray,
+    positions: pd.Series,
+    env: dict | None = None,
+) -> np.ndarray:
+    """Apply frozen final-served position spread factors without moving means.
+
+    This research lever intentionally acts after marginal shaping, market mean
+    shifting, and the global served-tail scale. Production pins it to the
+    identity. A non-identity specification must name QB/RB/TE/WR exactly once.
+    """
+    source = os.environ if env is None else env
+    raw = str(source.get("SERVED_POSITION_SCALES", "") or "").strip()
+    if raw.lower() in {"", "0", "off", "false", "identity", "none"}:
+        return draws
+
+    parsed: dict[str, float] = {}
+    try:
+        fields = [field.strip() for field in raw.split(",")]
+        if any(not field for field in fields):
+            raise ValueError
+        for field in fields:
+            position, value = (part.strip() for part in field.split(":", 1))
+            position = position.upper()
+            if position in parsed:
+                raise ValueError
+            parsed[position] = float(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            f"invalid SERVED_POSITION_SCALES={raw!r}; expected "
+            "QB:x,RB:x,TE:x,WR:x") from exc
+    required = {"QB", "RB", "TE", "WR"}
+    if set(parsed) != required:
+        raise ValueError(
+            "SERVED_POSITION_SCALES must specify QB, RB, TE and WR exactly once")
+    if any(not np.isfinite(value) or not 0.75 <= value <= 1.50
+           for value in parsed.values()):
+        raise ValueError("SERVED_POSITION_SCALES factors must be in [0.75, 1.50]")
+    if all(value == 1.0 for value in parsed.values()):
+        return draws
+
+    values = np.asarray(draws)
+    if values.ndim != 2 or len(positions) != values.shape[0]:
+        raise ValueError("served-position scale rows do not align")
+    labels = positions.astype(str).str.upper().to_numpy()
+    out = values.astype(np.float64, copy=True)
+    for position, factor in parsed.items():
+        mask = labels == position
+        if not mask.any() or factor == 1.0:
+            continue
+        before = out[mask].mean(axis=1, dtype=np.float64, keepdims=True)
+        corrected = before + factor * (out[mask] - before)
+        corrected += before - corrected.mean(
+            axis=1, dtype=np.float64, keepdims=True)
+        out[mask] = corrected
+        max_delta = float(np.max(np.abs(
+            out[mask].mean(axis=1, dtype=np.float64, keepdims=True) - before)))
+        if max_delta > 1e-10:
+            raise ValueError(
+                f"served-position scale changed a row mean by {max_delta:.3g}")
+    return out
+
+
 def _stable_ordinal_ranks(values: np.ndarray) -> np.ndarray:
     """Zero-based ranks with reproducible tie-breaking by world index.
 
@@ -1382,8 +1445,11 @@ def run(
     except Exception:
         log.exception("prop market unavailable; replaying unblended")
     draws = apply_served_tail_scale(draws, proj.position)
+    draws = apply_served_position_scales(draws, proj.position)
     if role_proj is not None:
         role_draws = apply_served_tail_scale(role_draws, role_proj.position)
+        role_draws = apply_served_position_scales(
+            role_draws, role_proj.position)
     # A/B lever (env TABPFN_MEAN=w, off by default; 2026-08-04): blend
     # the cached TabPFN walk-forward MEAN into the projection at weight
     # w. Rationale: TabPFN beat the quick-LGB on RMSE everywhere, and

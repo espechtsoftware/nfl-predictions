@@ -54,6 +54,7 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     from ..backtest.field import naive_ownership
     from ..backtest.replay import (
         apply_draw_shape,
+        apply_served_position_scales,
         apply_served_tail_scale,
         punt_boom_flags_live,
     )
@@ -151,6 +152,8 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
                     effective_model_weight(runtime_env))
     draws = shift_draws_to_means(draws, blended)
     draws = apply_served_tail_scale(draws, skill.position, env=runtime_env)
+    draws = apply_served_position_scales(
+        draws, skill.position, env=runtime_env)
 
     frame = pd.DataFrame({
         "id": skill.dk_player_id.astype(int),

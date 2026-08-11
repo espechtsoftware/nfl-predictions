@@ -68,6 +68,7 @@ class ClassicProductionPolicy:
             # Identity until both frozen recalibration stages pass. Pinning
             # this prevents a research shell variable from leaking live.
             "SERVED_TAIL_SCALE": "1",
+            "SERVED_POSITION_SCALES": "",
             "DST_CORR_DRAWS": "",
             # Optimizer construction.
             "MIN_LINEUP_SALARY": str(self.min_lineup_salary),

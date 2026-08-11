@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 15:00 CDT
+## Current state — 2026-08-11 15:10 CDT
 
 Active branch is `main`; Advanced Receiving diagnostic implementation commit
 `5aee8aa` is pushed. Its single preregistered outcome run is complete and
@@ -411,10 +411,28 @@ and must not be staged or modified.
   `7.11e-15`. Durable report:
   `reports/served-position-calibration-runs/20260811-served-position-calibration-v1/`.
   This is positive distribution evidence, not a scoring adoption. Exact next
-  action: freeze and implement the one licensed same-image exact-80 lineup
-  control/treatment on corrected direct-role evaluation seasons only, then
-  apply the standing 240/230/220/210/200 tail-first law. Production remains
-  identity meanwhile.
+  action was to freeze and implement the one licensed same-image exact-80
+  lineup control/treatment on corrected direct-role evaluation seasons only.
+  That pre-result implementation is now complete. Protocol
+  `reports/2026-08-11-served-position-calibration-lineup.md` fixes the fitted
+  QB/RB/TE/WR factors at `0.970/1.005/0.940/1.070`, identity control panel
+  `20260811-lockfix-e80-k1-role12-position-control-v1`, treatment panel
+  `20260811-lockfix-e80-k1-role12-position-scales-v1`, exact-80 CE0/role12/
+  boom40 generation, and the standing 240/230/220/210/200 first-difference
+  score law. The shared replay/live helper acts only after TabPFN shaping,
+  market mean shift and global identity scale; it requires all four positions,
+  permits the frozen narrowing factors, enforces row means within `1e-10`, is
+  persisted in candidate provenance, and is pinned to identity by production
+  and calibration diagnostics. The paired runner requires the durable passing
+  fit and launches both books from the same immutable image. The comparator
+  rejects source-control non-reproduction, player/mean/seed/lever differences,
+  or incomplete books before scoring, then reports changed weeks and winning-
+  roster position contributions. Forty-one focused tests pass with
+  compilation, shell syntax and whitespace clean. Production remains identity.
+  Exact next action: commit/push this preregistered implementation, run one
+  exact-tree full Cloud Build, launch both immutable evaluation panels, wait
+  for all six season executions without reading partial scores, check-accept
+  both, and run the frozen comparator once.
 - The next paid-data correlation study was frozen and pushed before any
   outcome join at commit `8263fe8`:
   `reports/2026-08-10-fantasy-points-coverage-fit-experiment.md`. It tests only
