@@ -1,3 +1,4 @@
+import hashlib
 import json
 from pathlib import Path
 from types import SimpleNamespace
@@ -7,6 +8,7 @@ import pytest
 from nfl_dfs.ops.fantasy_points_downloads import (
     ExportSpec,
     _assert_values_response_scope,
+    _reuse_download_prefix,
     _validate_download_scope,
     artifact_name,
     compact_weeks,
@@ -229,3 +231,50 @@ def test_download_scope_rejects_stale_full_season_csv(tmp_path):
     )
     with pytest.raises(RuntimeError, match="contains seasons"):
         _validate_download_scope(path, spec)
+
+
+def test_reuse_prefix_revalidates_and_copies_download(tmp_path):
+    prior = tmp_path / "prior"
+    destination = tmp_path / "next"
+    prior.mkdir()
+    destination.mkdir()
+    spec = ExportSpec(
+        "receiving-man-vs-zone", 2022, (1, 2, 3, 4), True, "Player", 5)
+    name = artifact_name(spec)
+    source = prior / name
+    source.write_text(
+        "Player Details,,,,,,Overall\n"
+        "Rank,Name,Team,POS,G,Season,RTE\n"
+        "1,Receiver,NYJ,WR,4,2022,100\n"
+    )
+    digest = hashlib.sha256(source.read_bytes()).hexdigest()
+    manifest = {
+        "schema_version": 1,
+        "run_id": "prior-run",
+        "plan_sha256": "plan-hash",
+        "exports": [{
+            "status": "downloaded",
+            "report": spec.report,
+            "season": spec.season,
+            "weeks": list(spec.weeks),
+            "include_group_headers": spec.include_group_headers,
+            "context": spec.context,
+            "target_week": spec.target_week,
+            "path": name,
+            "bytes": source.stat().st_size,
+            "csv_rows_including_headers": 3,
+            "max_csv_columns": 7,
+            "sha256": digest,
+        }],
+    }
+    (prior / "manifest.json").write_text(json.dumps(manifest))
+    reused, run_id = _reuse_download_prefix(
+        prior, destination, [spec], plan_sha256="plan-hash")
+    assert run_id == "prior-run"
+    assert reused[0]["reused_from_run_id"] == "prior-run"
+    assert (destination / name).read_bytes() == source.read_bytes()
+
+    source.write_text(source.read_text() + "2,Other,NYJ,WR,4,2022,90\n")
+    with pytest.raises(ValueError, match="hash differs"):
+        _reuse_download_prefix(
+            prior, destination, [spec], plan_sha256="plan-hash")

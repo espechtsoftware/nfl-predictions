@@ -55,6 +55,19 @@ time, vendor URL and filename, filters, byte count, CSV shape and SHA-256.
 Failures preserve a screenshot and stop the run rather than silently
 continuing with unknown filters.
 
+If a reboot or browser failure interrupts a long plan, start a new immutable
+run while reusing only the old run's mechanically revalidated successful
+prefix:
+
+```bash
+fantasy-points-download run --plan <same-plan.json> \
+  --reuse-from fantasy-points/automated/<interrupted-run-id>
+```
+
+The plan hash, ordered filters, artifact hash/shape and downloaded Season/G
+scope are all checked again before a file is copied. A failed or mismatched
+artifact is never silently resumed in place.
+
 The paired Defense Coverage Matrix semantics plan uses the same two exact
 windows:
 

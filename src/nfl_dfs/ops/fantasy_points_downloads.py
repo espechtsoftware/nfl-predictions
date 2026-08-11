@@ -14,6 +14,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import sys
 import time
 from dataclasses import asdict, dataclass
@@ -825,6 +826,7 @@ def run_downloads(
     *,
     headless: bool,
     timeout_seconds: float,
+    reuse_from: Path | None = None,
 ) -> Path:
     try:
         from playwright.sync_api import sync_playwright
@@ -849,6 +851,19 @@ def run_downloads(
     manifest_path = run_dir / "manifest.json"
     timeout_ms = int(timeout_seconds * 1000)
 
+    if reuse_from is not None:
+        reused, prior_run_id = _reuse_download_prefix(
+            reuse_from,
+            run_dir,
+            specs,
+            plan_sha256=manifest["plan_sha256"],
+        )
+        manifest["exports"].extend(reused)
+        manifest["reused_from_run_id"] = prior_run_id
+        manifest["reused_exports"] = len(reused)
+        manifest_path.write_text(
+            json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+
     with sync_playwright() as playwright:
         profile_dir.mkdir(parents=True, exist_ok=True)
         context = playwright.chromium.launch_persistent_context(
@@ -862,6 +877,12 @@ def run_downloads(
         try:
             for index, spec in enumerate(specs, start=1):
                 destination = run_dir / artifact_name(spec)
+                if index <= len(manifest["exports"]):
+                    print(
+                        f"[{index}/{len(specs)} reused] {destination.name}",
+                        flush=True,
+                    )
+                    continue
                 print(f"[{index}/{len(specs)}] {destination.name}", flush=True)
                 try:
                     result = _download_one(page, spec, destination, timeout_ms)
@@ -891,6 +912,73 @@ def run_downloads(
     manifest["status"] = "complete"
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     return manifest_path
+
+
+def _reuse_download_prefix(
+    prior_run_dir: Path,
+    destination_dir: Path,
+    specs: Sequence[ExportSpec],
+    *,
+    plan_sha256: str,
+) -> tuple[list[dict], str]:
+    """Copy a verified successful prefix into a new immutable run."""
+    prior_run_dir = prior_run_dir.resolve()
+    manifest_path = prior_run_dir / "manifest.json"
+    prior = json.loads(manifest_path.read_text())
+    if prior.get("schema_version") != 1:
+        raise ValueError("reuse manifest schema must be 1")
+    if prior.get("plan_sha256") != plan_sha256:
+        raise ValueError("reuse manifest was produced from another plan")
+    prior_run_id = str(prior.get("run_id", ""))
+    if not prior_run_id:
+        raise ValueError("reuse manifest has no run id")
+    exports = prior.get("exports")
+    if not isinstance(exports, list):
+        raise ValueError("reuse manifest exports must be a list")
+    prefix: list[dict] = []
+    stopped = False
+    for index, item in enumerate(exports):
+        if item.get("status") != "downloaded":
+            stopped = True
+            continue
+        if stopped:
+            raise ValueError("reuse manifest has downloads after a failure")
+        if index >= len(specs):
+            raise ValueError("reuse manifest has more exports than the plan")
+        spec = specs[index]
+        expected = {
+            "report": spec.report,
+            "season": spec.season,
+            "weeks": list(spec.weeks),
+            "include_group_headers": spec.include_group_headers,
+            "context": spec.context,
+            "target_week": spec.target_week,
+        }
+        if any(item.get(key) != value for key, value in expected.items()):
+            raise ValueError(f"reuse export {index + 1} differs from the plan")
+        relative = Path(str(item.get("path", "")))
+        if not relative.name or relative != Path(relative.name):
+            raise ValueError(f"reuse export {index + 1} has an unsafe path")
+        source = prior_run_dir / relative
+        if not source.is_file():
+            raise FileNotFoundError(source)
+        if _sha256(source) != item.get("sha256"):
+            raise ValueError(f"reuse export {index + 1} hash differs")
+        if source.stat().st_size != int(item.get("bytes", -1)):
+            raise ValueError(f"reuse export {index + 1} byte count differs")
+        rows, columns = _csv_shape(source)
+        if rows != int(item.get("csv_rows_including_headers", -1)):
+            raise ValueError(f"reuse export {index + 1} row count differs")
+        if columns != int(item.get("max_csv_columns", -1)):
+            raise ValueError(f"reuse export {index + 1} width differs")
+        _validate_download_scope(source, spec)
+        destination = destination_dir / artifact_name(spec)
+        shutil.copy2(source, destination)
+        copied = dict(item)
+        copied["path"] = destination.name
+        copied["reused_from_run_id"] = prior_run_id
+        prefix.append(copied)
+    return prefix, prior_run_id
 
 
 def interactive_login(
@@ -1002,6 +1090,14 @@ def _build_parser() -> argparse.ArgumentParser:
         "--output-root", type=Path, default=_repo_root() / "fantasy-points" / "automated"
     )
     run.add_argument("--headed", action="store_true", help="show the browser while exporting")
+    run.add_argument(
+        "--reuse-from",
+        type=Path,
+        help=(
+            "start a new run by verifying and copying the successful prefix "
+            "of an interrupted run directory"
+        ),
+    )
     return parser
 
 
@@ -1036,6 +1132,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.profile_dir,
             headless=not args.headed,
             timeout_seconds=args.timeout,
+            reuse_from=args.reuse_from,
         )
         print(f"Completed: {manifest}")
         return 0

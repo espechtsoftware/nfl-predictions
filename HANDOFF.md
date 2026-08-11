@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 00:02 CDT
+## Current state — 2026-08-11 00:10 CDT
 
-Active branch is `main`; the last pushed milestone is commit `6259be1`.
+Active branch is `main`; the last pushed milestone is commit `88cd79b`.
 The two operator-supplied outside-review documents under `reports/` remain
 untracked and must not be staged or modified.
 
@@ -216,7 +216,10 @@ untracked and must not be staged or modified.
   `20260811T033115Z__advanced-receiving-window-semantics-v1`,
   `20260811T033342Z__coverage-matrix-window-semantics-v1`, and
   `20260811T035458Z__coverage-matrix-offense-window-semantics-v1`. Never
-  record or request credentials in chat or Git.
+  record or request credentials in chat or Git. Long interrupted plans can
+  now start a new immutable run with `--reuse-from`; the downloader rechecks
+  the exact plan hash, ordered filters, file hash/shape and Season/G scope of
+  every copied prefix artifact. The original run is never mutated.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no
