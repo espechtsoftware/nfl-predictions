@@ -18,6 +18,7 @@ K3=20260810-lockfix-e80-k3-8677d21
 K1=20260810-lockfix-e80-k1-8677d21
 CE=20260810-lockfix-e80-k1-ce12-8677d21
 ROLE=20260810-lockfix-e80-k1-ce12-roleunion-8677d21
+DIRECT_ROLE=20260810-lockfix-e80-k1-role12union-8677d21
 NOFLOOR=20260810-lockfix-e80-k1-nofloor-8677d21
 
 case "$MODE" in controls|ce|role|nofloor) ;; *)
@@ -107,8 +108,10 @@ fi
 # The no-floor source is deliberately sequenced after the corrected role
 # source, even though its own generation is an isolated K1 binary ablation.
 # This prevents an early score-bearing launch outside the preregistered union
-# protocol. The role rows are used only as a completeness prerequisite.
-accepted_counts "$ROLE" "$TMP_DIR/source_counts.csv"
+# protocol. The corrected chain selected the direct-role union rather than
+# the never-launched CE+role branch, so its accepted rows are the completeness
+# prerequisite. They do not affect the independent no-floor generation.
+accepted_counts "$DIRECT_ROLE" "$TMP_DIR/source_counts.csv"
 launch locknofloor "$NOFLOOR" lockfix_k1_nofloor \
   "MODEL_ENSEMBLE=1|MIN_LINEUP_SALARY=0" 0 0 40
-echo "PROP_LOCK_NOFLOOR_LAUNCHED panel=$NOFLOOR source=$ROLE"
+echo "PROP_LOCK_NOFLOOR_LAUNCHED panel=$NOFLOOR source=$DIRECT_ROLE"

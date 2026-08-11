@@ -109,6 +109,15 @@ agent or developer:
   directory. Do not read partial scores. Once every season succeeds, run the
   exact-80 acceptance check and the frozen source-versus-treatment comparator
   before deciding whether the Route candidate union is adopted.
+- The preregistered corrected no-floor candidate union is still queued. Its
+  launcher had required the never-launched CE12+role branch; before any
+  corrected no-floor generation or outcome read, the protocol and launcher
+  were amended to require the accepted direct-role source
+  `20260810-lockfix-e80-k1-role12union-8677d21`. The independent no-floor
+  treatment remains byte-for-byte the frozen K1 binary ablation. Shell syntax
+  and whitespace checks pass. Generate that pool once, but wait for the Route
+  disposition before choosing the incumbent argument for the single union
+  comparison.
 - The operator's paid-data operations request is implemented on branch `main`
   at commit `ea6dca4`. The README season-start schedule now requires the final
   evidence-selected Fantasy Points reports, exact filters and pre-lock

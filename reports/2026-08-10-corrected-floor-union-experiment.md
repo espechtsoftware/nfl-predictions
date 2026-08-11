@@ -114,3 +114,16 @@ available. Cloud Build `a4079b03-2a23-453f-85b1-917550fc73c0` passed 742
 tests with 2 skipped and produced immutable evaluator digest
 `sha256:ef0747eb3232ad797488dd8f38dcec522ea8815615120d31b2f7a39e332da85f`.
 Only that digest may run the eventual guarded union confirmation.
+
+## Pre-launch source-prerequisite amendment — 2026-08-10
+
+The corrected chain did not launch the anticipated CE12+role branch: CE12 was
+not the corrected incumbent, while the separately tested direct-role union
+`20260810-lockfix-e80-k1-role12union-8677d21` passed and was promoted. Before
+any corrected no-floor generation or outcome read, the launcher's sequencing
+prerequisite is therefore amended from the nonexistent CE12+role panel to that
+accepted direct-role panel. This does not change the no-floor treatment, image,
+code identity, simulation, candidate budget, selector, or 80-entry output.
+The eventual union source is the accepted direct-role pool; it must additionally
+beat any Route Share incumbent selected before the comparison. This is the only
+source amendment and does not license a retry.
