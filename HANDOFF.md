@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 15:10 CDT
+## Current state — 2026-08-11 15:47 CDT
 
 Active branch is `main`; Advanced Receiving diagnostic implementation commit
 `5aee8aa` is pushed. Its single preregistered outcome run is complete and
@@ -429,10 +429,22 @@ and must not be staged or modified.
   or incomplete books before scoring, then reports changed weeks and winning-
   roster position contributions. Forty-one focused tests pass with
   compilation, shell syntax and whitespace clean. Production remains identity.
-  Exact next action: commit/push this preregistered implementation, run one
-  exact-tree full Cloud Build, launch both immutable evaluation panels, wait
-  for all six season executions without reading partial scores, check-accept
-  both, and run the frozen comparator once.
+  Implementation commit `d86e4f6` is pushed. Exact-tree Cloud Build
+  `34e9f490-5059-4e32-bf26-32c6916dc117` passed 898 tests with two expected
+  skips and published immutable digest
+  `sha256:0ade85a514d03f8c6c20ecdf60885be52377bffa4e2e826686baca4505c79ccf`.
+  Control preflight `replay-lockk1posctl-smoke-gm4w5` and treatment preflight
+  `replay-lockk1postrt-smoke-4glbp` both passed. Active control executions are
+  `replay-lockk1posctl-2023-ndv6m`, `replay-lockk1posctl-2024-stsgq`, and
+  `replay-lockk1posctl-2025-hkp7h`; active treatment executions are
+  `replay-lockk1postrt-2023-g2wp4`, `replay-lockk1postrt-2024-jtspx`, and
+  `replay-lockk1postrt-2025-xdj42`. Their exact manifests are tracked under
+  `reports/panel-runs/20260811-lockfix-e80-k1-role12-position-control-v1/`
+  and
+  `reports/panel-runs/20260811-lockfix-e80-k1-role12-position-scales-v1/`.
+  Exact next action: monitor statuses only without reading partial scores;
+  after six clean successes, run check-only exact-season acceptance on both
+  and the frozen comparator exactly once. Production remains identity.
 - The next paid-data correlation study was frozen and pushed before any
   outcome join at commit `8263fe8`:
   `reports/2026-08-10-fantasy-points-coverage-fit-experiment.md`. It tests only

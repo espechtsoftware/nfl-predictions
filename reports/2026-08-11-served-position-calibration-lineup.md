@@ -96,3 +96,30 @@ the primary law.
   lineup outcomes.
 - No second position-factor grid, season-specific factor, or score-selected
   correction is permitted from this result.
+
+## Immutable launch record
+
+Implementation commit `d86e4f6` passed exact-tree Cloud Build
+`34e9f490-5059-4e32-bf26-32c6916dc117`: 898 tests passed with two expected
+skips. The validated image digest is
+`sha256:0ade85a514d03f8c6c20ecdf60885be52377bffa4e2e826686baca4505c79ccf`.
+
+Both 2024 preflights passed from that digest:
+
+- control `replay-lockk1posctl-smoke-gm4w5`;
+- treatment `replay-lockk1postrt-smoke-4glbp`.
+
+The six immutable evaluation executions are:
+
+| Book | Season | Execution |
+|---|---:|---|
+| control | 2023 | `replay-lockk1posctl-2023-ndv6m` |
+| control | 2024 | `replay-lockk1posctl-2024-stsgq` |
+| control | 2025 | `replay-lockk1posctl-2025-hkp7h` |
+| treatment | 2023 | `replay-lockk1postrt-2023-g2wp4` |
+| treatment | 2024 | `replay-lockk1postrt-2024-jtspx` |
+| treatment | 2025 | `replay-lockk1postrt-2025-xdj42` |
+
+Do not inspect partial score output. Wait for six clean completions, run
+check-only acceptance for each exact 2023--2025 panel, and then execute the
+frozen comparator once.
