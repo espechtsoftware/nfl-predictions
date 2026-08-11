@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 18:13 CDT
+## Current state — 2026-08-11 18:14 CDT
 
 Active branch is `main`; final-served Route diagnostic implementation commit
 `d5e74c0` is pushed. The position-calibration result, research promotion,
@@ -71,6 +71,16 @@ and must not be staged or modified.
   freeze a separate exact-80 lineup protocol before querying lineup outcomes;
   if it fails, close this historical Route retry. Do not alter factors, folds,
   feature fields or the decision gate after seeing the result.
+- While the Route execution runs, the audit's independent R4 usage-only
+  question is now frozen before producing a model-fitted K in
+  `reports/2026-08-11-data-fitted-dirichlet-usage.md`. It uses strictly
+  prior-season K=1 component predictions, fits one global K only on 2021--2022
+  target/carry conditional allocation likelihood, and gates it once on
+  untouched 2023--2025 likelihood versus the production multinomial
+  (`K -> infinity`) reference. The estimator uses the simulator's exact
+  `max(K*p_i, 0.05)` concentration law. Lineup outcomes and the known K=8/K=20
+  score results are forbidden. Implement and exact-tree validate this
+  diagnostic without generating its estimate or held-out likelihood locally.
 
 ### Final-served position calibration passed, promoted, and adopted
 
