@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 20:02 CDT
+## Current state — 2026-08-10 20:18 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -65,16 +65,32 @@ agent or developer:
   25% before any outcome query; features, support thresholds, folds, models,
   and score gates are unchanged. Sixteen focused Coverage/Advanced/Route
   tests pass, along with compilation, shell syntax, and whitespace checks.
-  Exact-tree Cloud Build `bfb523d3-0652-42cf-8c36-357e7166afa5` from tree
-  `c3fdbc5` passed 768 tests with 2 skipped and produced digest
-  `sha256:820ecef45c32c44077f996932ee9f847707a25eb5709c090ab05da6314f2a982`.
-  The first guarded write created both private raw tables (2,093 receiver
-  rows and 128 defense rows). The required repeat check exposed a reserved
-  BigQuery alias in the check query; no outcome diagnostic had run. The alias
-  is fixed with a regression test, and the repeated guarded write now reports
-  `already-identical` for both tables. Next: build the corrected exact tree,
-  verify backup coverage, then run the one frozen diagnostic from that
-  immutable digest without inspecting intermediate results.
+  Initial build `bfb523d3-0652-42cf-8c36-357e7166afa5` passed 768 tests with
+  2 skipped. The first guarded write created both private raw tables (2,093
+  receiver rows and 128 defense rows). The required repeat check exposed a
+  reserved BigQuery alias in the check query; no outcome diagnostic had run.
+  The alias was fixed with a regression test, and the repeated guarded write
+  reported `already-identical` for both tables. Corrected exact-tree build
+  `82a58b86-1b13-49b1-a4f9-7e8633d4212d` passed 770 tests with 2 skipped and
+  produced digest
+  `sha256:d7ff29257db2153d95fc3be1f98223c02e6ddd215b8da925386e35239aa68e22`.
+  Backup execution `backup-tables-5bgsw` succeeded with 11 snapshots, 5
+  expected absent tables and zero failures; it created UTC-date snapshots
+  for both new tables with exact 2,093/128 row counts. Frozen execution
+  `fantasy-points-coverage-diagnostic-wbwlf` then returned
+  `coverage-fit-player-tail-passes`: aggregate 30-point Brier improved
+  `0.01813348→0.01809495`, 2024 improved, and 2025 worsened only 0.20%
+  within the frozen 1% limit. Aggregate 20-point Brier worsened 0.24% and MAE
+  worsened 0.0123, both mandatory diagnostics. Coverage was 28.83%/29.14%.
+  This is a narrow signal, not direct adoption.
+- The one licensed coverage lineup test is now preregistered before any
+  coverage candidate or lineup outcome in
+  `reports/2026-08-10-fantasy-points-coverage-tail-union.md`. After Route
+  resolves the source mechanically, it adds exactly twelve novel 2024/2025
+  candidates using `proj_tourney + 30 * (treatment_p30-control_p30)`, keeps
+  earlier seasons byte-identical, reuses unchanged worlds/selection and
+  returns exactly 80. Implement and validate it now, but do not launch it
+  until the Route source branch is fixed; there is no dose/feature retry.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no

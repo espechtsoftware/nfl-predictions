@@ -160,3 +160,35 @@ unresolved, one ambiguous, one known duplicate suppressed) plus 128/128
 mapped defense rows. Sixteen focused Coverage/Advanced/Route tests pass;
 Python compilation and whitespace checks are clean. No raw coverage table has
 been written and no target outcome has been joined at this milestone.
+
+## Frozen result — 2026-08-10
+
+The guarded import created 2,093 receiver rows and 128 defense rows; after a
+reserved-alias defect was found in the repeat-check query and fixed before any
+outcome diagnostic, the second write returned `already-identical` for both
+tables. Backup execution `backup-tables-5bgsw` then created UTC-dated snapshots
+`fantasy_points_receiver_coverage_prior_20260811` (2,093 rows) and
+`fantasy_points_defense_coverage_prior_20260811` (128 rows).
+
+Corrected exact-tree build `82a58b86-1b13-49b1-a4f9-7e8633d4212d` passed 770
+tests with 2 skipped and produced immutable digest
+`sha256:d7ff29257db2153d95fc3be1f98223c02e6ddd215b8da925386e35239aa68e22`.
+The one frozen execution `fantasy-points-coverage-diagnostic-wbwlf` completed
+successfully with disposition **`coverage-fit-player-tail-passes`**.
+
+| Metric | Control | Treatment | Direction |
+|---|---:|---:|---|
+| Aggregate 30-point Brier | 0.01813348 | **0.01809495** | improved 0.00003854 |
+| 2024 30-point Brier | 0.01887666 | **0.01876602** | improved |
+| 2025 30-point Brier | **0.01737883** | 0.01741351 | worsened 0.20%, within frozen 1% limit |
+| Aggregate 20-point Brier | **0.07376448** | 0.07394482 | worsened 0.24%, within frozen 1% limit |
+| Aggregate residual MAE | **4.88346** | 4.89579 | worsened 0.01233; diagnostic only |
+
+Coverage was 28.83% in 2024 and 29.14% in 2025 across 3,392 supported rows
+with 62 observed 30-point events. Individual feature correlations were small
+and season-unstable (absolute Spearman correlations at most 0.0596). The pass
+is therefore a narrow ensemble-calibration signal, not evidence that a single
+coverage metric should be hand-ranked. Per the frozen gate it licenses exactly
+one separately preregistered twelve-candidate coverage-fit union after the
+Route Share union resolves its source incumbent; it does not license direct
+projection or production adoption.
