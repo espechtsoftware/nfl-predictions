@@ -1,8 +1,10 @@
 import numpy as np
 import pandas as pd
 import pytest
+from types import SimpleNamespace
 
 from nfl_dfs.analysis import fantasy_points_coverage_fit as diagnostic
+from nfl_dfs.backtest import engine
 from nfl_dfs.ingest import fantasy_points_coverage as coverage_import
 
 
@@ -124,3 +126,74 @@ def test_receiver_idempotency_query_avoids_reserved_hash_alias():
     assert "AS source_hash" in sql
     assert "DISTINCT source_hash" in sql
     assert ") AS hash\n" not in sql
+
+
+def test_coverage_tail_delta_uses_frozen_models_without_target_outcome(
+        monkeypatch):
+    rows = []
+    for season, actual in ((2023, 35.0), (2024, np.nan)):
+        rows.append({
+            "season": season,
+            "week": 2,
+            "gsis_id": f"p-{season}",
+            "pos": "WR",
+            "opp": "BAL",
+            "actual": actual,
+            "mean_projection": 15.0,
+            "salary": 5000,
+            "target_share_last": 0.20,
+            "target_share_jump": 0.01,
+            "snap_share_last": 0.80,
+            "snap_share_jump": 0.02,
+            "team_vacated_target_share": 0.10,
+            "depth_rank": 1,
+            "games_played_prior": 1,
+            "fp_cov_supported": True,
+            "fp_cov_receiver_source_season": season - 1,
+            "fp_cov_defense_source_season": season - 1,
+            **{feature: 0.01 for feature in diagnostic.COVERAGE_FEATURES},
+        })
+
+    calls = []
+
+    def fake_fit(train, test, numeric):
+        assert train.season.tolist() == [2023]
+        assert test.season.tolist() == [2024]
+        assert test.actual.isna().all()
+        calls.append(numeric)
+        p30 = 0.12 if len(numeric) == len(diagnostic.CONTROL_NUMERIC) else 0.17
+        return np.zeros(len(test)), np.full(len(test), 0.2), np.full(len(test), p30)
+
+    monkeypatch.setattr(diagnostic, "_fit_predict", fake_fit)
+    out = diagnostic.coverage_tail_deltas(pd.DataFrame(rows), 2024)
+    assert len(calls) == 2
+    assert out.coverage_delta_30.tolist() == pytest.approx([0.05])
+    assert out.fp_cov_receiver_source_season.tolist() == [2023]
+    assert out.fp_cov_defense_source_season.tolist() == [2023]
+
+
+def test_coverage_tail_candidates_are_exact_novel_added_budget(monkeypatch):
+    pool = [
+        {"id": f"p{i}", "proj_tourney": 10.0 + i,
+         "coverage_delta_30": 0.01 * i}
+        for i in range(20)
+    ]
+    source = [SimpleNamespace(ids=frozenset({"source"}))]
+    calls = []
+
+    def fake_optimize(scored, **kwargs):
+        calls.append(kwargs)
+        assert scored[1]["proj_coverage_tail"] == pytest.approx(11.3)
+        assert kwargs["objective_col"] == "proj_coverage_tail"
+        assert kwargs["max_overlap"] == 8
+        index = len(calls)
+        return SimpleNamespace(
+            ids=frozenset({f"coverage-{index}"}), tag=None)
+
+    monkeypatch.setattr(engine, "optimize", fake_optimize)
+    added = engine.coverage_tail_candidates(
+        pool, source, stack=None, locks=set(), env={})
+    assert len(added) == 12
+    assert all(lineup.tag == "coverage_tail" for lineup in added)
+    assert [len(call["banned_lineups"]) for call in calls] == list(
+        range(1, 13))

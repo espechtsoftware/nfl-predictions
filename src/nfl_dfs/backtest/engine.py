@@ -576,6 +576,50 @@ def route_tail_candidates(
     return added
 
 
+def coverage_tail_candidates(
+    pool: list[dict],
+    source_candidates: list[Lineup],
+    *,
+    stack: StackRules | None,
+    locks: set,
+    env: dict,
+    n_candidates: int = 12,
+) -> list[Lineup]:
+    """Build the frozen added-budget prior-season coverage-fit batch."""
+    if n_candidates != 12:
+        raise ValueError("the frozen coverage-fit candidate dose is 12")
+    if not pool or any("coverage_delta_30" not in player for player in pool):
+        raise ValueError("coverage-fit candidate signal is missing")
+    delta = pd.to_numeric(pd.Series([
+        player["coverage_delta_30"] for player in pool
+    ]), errors="coerce").fillna(0.0)
+    if not np.isfinite(delta.to_numpy(dtype=float)).all():
+        raise ValueError("coverage-fit candidate signal is non-finite")
+    if any("proj_tourney" not in player for player in pool):
+        raise ValueError("coverage-fit requires the incumbent tourney objective")
+    coverage_pool = [{
+        **player,
+        "proj_coverage_tail": float(
+            player["proj_tourney"] + 30.0 * delta.iloc[index]),
+    } for index, player in enumerate(pool)]
+    banned = [lineup.ids for lineup in source_candidates]
+    seen = set(banned)
+    added: list[Lineup] = []
+    for _ in range(n_candidates):
+        lineup = optimize(
+            coverage_pool, stack=stack, objective_col="proj_coverage_tail",
+            locks=set(locks), banned_lineups=list(banned), max_overlap=8,
+            env=env)
+        if lineup is None or lineup.ids in seen:
+            raise RuntimeError(
+                "coverage-fit generator did not produce a novel roster")
+        lineup.tag = "coverage_tail"
+        banned.append(lineup.ids)
+        seen.add(lineup.ids)
+        added.append(lineup)
+    return added
+
+
 def tail_select_lineups(
     slate: pd.DataFrame,
     pool: list[dict],
@@ -1213,6 +1257,22 @@ def tail_select_lineups(
                 seen.add(lu.ids)
                 cands.append(lu)
             log.info("Route Share added %d novel candidates", len(route_batch))
+    # Prior-season coverage-fit confirmatory arm. It runs after Route so a
+    # combined treatment cannot relabel a Route candidate as coverage novelty.
+    n_coverage_tail = int(runtime_env.get("N_COVERAGE_TAIL", "0") or 0)
+    if n_coverage_tail:
+        if n_coverage_tail != 12:
+            raise ValueError("the frozen coverage-fit candidate dose is 12")
+        if _season in (2024, 2025):
+            coverage_batch = coverage_tail_candidates(
+                pool, cands, stack=stack, locks=set(locks), env=runtime_env,
+                n_candidates=n_coverage_tail)
+            for lu in coverage_batch:
+                _note(lu.ids, "coverage_tail")
+                seen.add(lu.ids)
+                cands.append(lu)
+            log.info(
+                "coverage-fit added %d novel candidates", len(coverage_batch))
     id2row = {pid: i for i, pid in enumerate(slate["id"])}
     cand_totals = np.stack([
         rd[[id2row[p["id"]] for p in lu.players]].sum(axis=0) for lu in cands
@@ -1383,7 +1443,7 @@ def tail_select_lineups(
                 "MODEL_ENSEMBLE_MIX", "MODEL_REGISTRY_VARIANT",
                 "N_BOOM", "N_CE", "N_DARKGAME",
                 "N_EPISTEMIC", "N_GAMESTACK", "N_GUMBEL", "N_LOWSAL",
-                "N_ROUTE_TAIL",
+                "N_ROUTE_TAIL", "N_COVERAGE_TAIL",
                 "N_MIDQB", "N_NOSTACK", "N_QB_VARIANTS", "OWN_BARBELL",
                 "OWN_MODEL", "PEAK_SLICE", "PUNT_BOOM", "PUNT_BOOM_WR",
                 "PUNT_MIN", "PUNT_SLOPE", "PUNT_STRICT", "PUNT_VALUE",
@@ -1559,6 +1619,10 @@ def tail_select_lineups(
                     "fp_route_source_season", "fp_route_source_week",
                     "route_control_p30", "route_treatment_p30",
                     "route_delta_30",
+                    "fp_cov_receiver_source_season",
+                    "fp_cov_defense_source_season",
+                    "coverage_control_p30", "coverage_treatment_p30",
+                    "coverage_delta_30",
                 ):
                     if column in slate.columns:
                         want.append(column)

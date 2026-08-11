@@ -1,0 +1,6 @@
+run_id=20260810-fp-coverage-fit-v1
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:d7ff29257db2153d95fc3be1f98223c02e6ddd215b8da925386e35239aa68e22
+panel=20260810-lockfix-e80-k1-8677d21
+source_seasons=2022 2023 2024
+held_out=2024 2025
+positions=WR TE

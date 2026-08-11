@@ -796,6 +796,10 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
         for _c in (
             "fp_route_source_season", "fp_route_source_week",
             "route_control_p30", "route_treatment_p30", "route_delta_30",
+            "fp_cov_receiver_source_season",
+            "fp_cov_defense_source_season",
+            "coverage_control_p30", "coverage_treatment_p30",
+            "coverage_delta_30",
         ):
             if _c in grp.columns:
                 cols.append(_c)
@@ -820,11 +824,14 @@ def build_slates(proj: pd.DataFrame, dst: pd.DataFrame | None) -> list[pd.DataFr
                         d[c] = np.nan
                     elif c.startswith("proj_p") or c == "proj_std":
                         d[c] = d["proj"] if c != "proj_std" else 0.0
-                    elif c == "route_delta_30":
+                    elif c in ("route_delta_30", "coverage_delta_30"):
                         d[c] = 0.0
                     elif (c.startswith("fp_route_source_")
                           or c.startswith("route_control_")
-                          or c.startswith("route_treatment_")):
+                          or c.startswith("route_treatment_")
+                          or c.startswith("fp_cov_")
+                          or c.startswith("coverage_control_")
+                          or c.startswith("coverage_treatment_")):
                         d[c] = np.nan
                     elif c in PLAYER_SNAPSHOT_FEATURES:
                         # DST rows have no player-role history. Missingness is
@@ -1400,6 +1407,47 @@ def run(
         else:
             for column in signal_columns:
                 proj[column] = 0.0 if column == "route_delta_30" else np.nan
+    n_coverage_tail = int(os.environ.get("N_COVERAGE_TAIL", "0") or 0)
+    if n_coverage_tail:
+        if n_coverage_tail != 12:
+            raise ValueError("the frozen coverage-fit candidate dose is 12")
+        signal_columns = [
+            "opp", "fp_cov_receiver_source_season",
+            "fp_cov_defense_source_season", "coverage_control_p30",
+            "coverage_treatment_p30", "coverage_delta_30",
+        ]
+        if season in (2024, 2025):
+            from ..analysis.fantasy_points_coverage_fit import (
+                load_coverage_tail_deltas,
+            )
+
+            signal = load_coverage_tail_deltas(season)
+            before = len(proj)
+            # `opp` already exists on projection rows and is validated again
+            # after the merge rather than creating an ambiguous suffix.
+            proj = proj.merge(
+                signal[[
+                    "season", "week", "gsis_id",
+                    *[column for column in signal_columns if column != "opp"],
+                ]],
+                on=["season", "week", "gsis_id"], how="left",
+                validate="many_to_one",
+            )
+            if len(proj) != before:
+                raise ValueError("coverage-fit signal merge fanned out rows")
+            proj["coverage_delta_30"] = proj.coverage_delta_30.fillna(0.0)
+            log.info(
+                "coverage-fit tail signal: season=%d covered=%d/%d",
+                season,
+                int(proj.fp_cov_receiver_source_season.notna().sum()),
+                len(proj),
+            )
+        else:
+            for column in signal_columns:
+                if column == "opp":
+                    continue
+                proj[column] = (
+                    0.0 if column == "coverage_delta_30" else np.nan)
     overall, by_pos = replay_metrics(proj)
 
     print(f"\n=== Projection replay: {season} "

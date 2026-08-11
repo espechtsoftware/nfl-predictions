@@ -295,6 +295,23 @@ def main(argv: list[str] | None = None) -> None:
         default="replay_candidates_staging",
     )
 
+    p = sub.add_parser(
+        "coverage-tail-union",
+        help="Evaluate the frozen prior-season coverage-fit candidate union",
+    )
+    p.add_argument("--source-panel", required=True)
+    p.add_argument("--treatment-panel", required=True)
+    p.add_argument(
+        "--source-table",
+        choices=("replay_candidates", "replay_candidates_staging"),
+        default="replay_candidates",
+    )
+    p.add_argument(
+        "--treatment-table",
+        choices=("replay_candidates", "replay_candidates_staging"),
+        default="replay_candidates_staging",
+    )
+
     p = sub.add_parser("archetypes",
                        help="Cluster scoring-consistency archetypes into nfl_features")
     p.add_argument("--seasons", type=int, default=3, help="Trailing seasons to profile")
@@ -525,6 +542,15 @@ def main(argv: list[str] | None = None) -> None:
         from .research import route_tail_union
 
         route_tail_union.run(
+            args.source_panel,
+            args.treatment_panel,
+            args.source_table,
+            args.treatment_table,
+        )
+    elif args.command == "coverage-tail-union":
+        from .research import coverage_tail_union
+
+        coverage_tail_union.run(
             args.source_panel,
             args.treatment_panel,
             args.source_table,

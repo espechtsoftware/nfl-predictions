@@ -256,6 +256,111 @@ def evaluate(rows: pd.DataFrame) -> dict:
     }
 
 
+def coverage_tail_deltas(rows: pd.DataFrame, held_out: int) -> pd.DataFrame:
+    """Construct the frozen score-free 30-point coverage contribution."""
+    if held_out not in HELD_OUT_SEASONS:
+        raise ValueError(f"unsupported coverage-fit held-out season {held_out}")
+    needed = {
+        "season", "week", "gsis_id", "pos", "opp", "actual",
+        "mean_projection", "fp_cov_supported",
+        "fp_cov_receiver_source_season", "fp_cov_defense_source_season",
+        *CONTROL_NUMERIC, *COVERAGE_FEATURES,
+    }
+    if missing := needed - set(rows.columns):
+        raise ValueError(f"coverage-fit rows missing {sorted(missing)}")
+    eligible = rows[
+        rows.pos.isin(["WR", "TE"])
+        & rows.mean_projection.notna()
+        & rows.fp_cov_supported.astype(bool)
+    ].copy()
+    train = eligible[
+        eligible.season.lt(held_out) & eligible.actual.notna()
+    ].copy()
+    target = eligible[eligible.season.eq(held_out)].copy()
+    if train.empty or target.empty:
+        raise ValueError(
+            f"coverage-fit season {held_out} has empty train or target rows")
+    _, _, control_p30 = _fit_predict(train, target, CONTROL_NUMERIC)
+    _, _, treatment_p30 = _fit_predict(
+        train, target, CONTROL_NUMERIC + COVERAGE_FEATURES)
+    out = target[[
+        "season", "week", "gsis_id", "opp",
+        "fp_cov_receiver_source_season", "fp_cov_defense_source_season",
+    ]].copy()
+    out["coverage_control_p30"] = control_p30
+    out["coverage_treatment_p30"] = treatment_p30
+    out["coverage_delta_30"] = (
+        out.coverage_treatment_p30 - out.coverage_control_p30)
+    numeric = out[[
+        "coverage_control_p30", "coverage_treatment_p30",
+        "coverage_delta_30",
+    ]].to_numpy(dtype=float)
+    if not np.isfinite(numeric).all():
+        raise ValueError("coverage-fit tail predictions are non-finite")
+    target_season = out.season.astype(int)
+    if not out.fp_cov_receiver_source_season.astype(int).eq(
+            target_season - 1).all():
+        raise ValueError("coverage-fit receiver signal used non-prior season")
+    if not out.fp_cov_defense_source_season.astype(int).eq(
+            target_season - 1).all():
+        raise ValueError("coverage-fit defense signal used non-prior season")
+    if out.duplicated(["season", "week", "gsis_id"]).any():
+        raise ValueError("coverage-fit signal has duplicate player-weeks")
+    return out.reset_index(drop=True)
+
+
+def load_coverage_tail_deltas(
+    held_out: int,
+    panel_id: str = PANEL_ID,
+) -> pd.DataFrame:
+    """Load and construct the one licensed coverage candidate signal."""
+    if panel_id != PANEL_ID:
+        raise ValueError(f"coverage-fit protocol is frozen to panel {PANEL_ID}")
+    if held_out not in HELD_OUT_SEASONS:
+        raise ValueError(f"unsupported coverage-fit held-out season {held_out}")
+    from ..bq import query_df
+    from ..config import settings
+
+    completeness = query_df(f"""
+        SELECT COUNT(DISTINCT FORMAT('%d-%d', season, week)) AS slates,
+               COUNTIF(selected) AS selected_rows
+        FROM `{settings.predictions}.replay_candidates`
+        WHERE panel_run_id = @panel_id AND research_eligible
+        """, params={"panel_id": panel_id}).iloc[0]
+    if int(completeness.slates or 0) != 107:
+        raise ValueError("corrected K1 panel is incomplete")
+    if int(completeness.selected_rows or 0) != 107 * 80:
+        raise ValueError("corrected K1 panel is not exact true-80")
+    receivers = query_df(f"SELECT * FROM `{settings.raw}.{RECEIVER_TABLE}`")
+    defenses = query_df(f"SELECT * FROM `{settings.raw}.{DEFENSE_TABLE}`")
+    receiver_hashes = set(
+        receivers.man_zone_source_sha256.dropna().astype(str))
+    receiver_hashes |= set(
+        receivers.separation_source_sha256.dropna().astype(str))
+    expected_receiver_hashes = (
+        set(MAN_ZONE_HASHES.values()) | set(SEPARATION_HASHES.values()))
+    if receiver_hashes != expected_receiver_hashes:
+        raise ValueError("receiver coverage provenance does not match protocol")
+    if set(defenses.source_sha256.dropna().astype(str)) != set(
+            DEFENSE_HASHES.values()):
+        raise ValueError("defense coverage provenance does not match protocol")
+    snapshots = query_df(f"""
+        SELECT season, week, gsis_id, pos, opp, mean_projection, salary,
+               target_share_last, target_share_jump,
+               snap_share_last, snap_share_jump,
+               team_vacated_target_share, depth_rank,
+               games_played_prior, actual
+        FROM `{settings.predictions}.slate_player_features`
+        WHERE panel_run_id = @panel_id AND research_eligible
+          AND season BETWEEN 2023 AND @held_out AND pos IN ('WR', 'TE')
+        QUALIFY ROW_NUMBER() OVER (
+          PARTITION BY season, week, gsis_id ORDER BY generated_at DESC
+        ) = 1
+        """, params={"panel_id": panel_id, "held_out": int(held_out)})
+    joined = attach_previous_season_coverage(snapshots, receivers, defenses)
+    return coverage_tail_deltas(joined, held_out)
+
+
 def run(panel_id: str = PANEL_ID) -> dict:
     if panel_id != PANEL_ID:
         raise ValueError(f"coverage-fit protocol is frozen to panel {PANEL_ID}")
