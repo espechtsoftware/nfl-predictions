@@ -103,6 +103,15 @@ and must not be staged or modified.
   widen factors, which TabPFN erases. In parallel only after freezing its
   usage-only estimator, the genuinely new R4 diagnostic may fit Dirichlet K
   from leave-season model-fitted shares rather than select K from scores.
+  That R3 design is now frozen before producing any new calibrated output in
+  `reports/2026-08-11-route-share-final-served-recalibration.md`. It uses
+  strict walk-forward factors per arm and target: 2023 fits only 2022;
+  2024 fits 2022--2023; 2025 fits 2022--2024. Factors act after TabPFN and the
+  market shift, preserve means, and retain the original aggregate 30-point
+  Brier decision. A pass licenses one separately frozen exact-80 comparison;
+  a fail closes the historical retry. Implement this diagnostic without
+  querying its new calibrated results until the implementation commit passes
+  exact-tree validation.
 
 ### Tail-first law revised; role-union v2 adopted and live
 
