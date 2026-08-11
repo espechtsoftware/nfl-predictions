@@ -3,6 +3,7 @@ import pandas as pd
 import pytest
 
 from nfl_dfs.analysis import fantasy_points_coverage_fit as diagnostic
+from nfl_dfs.ingest import fantasy_points_coverage as coverage_import
 
 
 def _receiver(season: int, gsis_id: str = "wr-1") -> dict:
@@ -116,3 +117,10 @@ def test_correlation_report_has_frozen_features_and_complete_bands():
         diagnostic.COVERAGE_FEATURES)
     assert all(sum(band["rows"] for band in row["quintile_bands"]) == n
                for row in rows)
+
+
+def test_receiver_idempotency_query_avoids_reserved_hash_alias():
+    sql = coverage_import._receiver_identity_query("project.dataset.table")
+    assert "AS source_hash" in sql
+    assert "DISTINCT source_hash" in sql
+    assert ") AS hash\n" not in sql

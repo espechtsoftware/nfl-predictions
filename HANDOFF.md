@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 19:52 CDT
+## Current state — 2026-08-10 20:02 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -65,11 +65,16 @@ agent or developer:
   25% before any outcome query; features, support thresholds, folds, models,
   and score gates are unchanged. Sixteen focused Coverage/Advanced/Route
   tests pass, along with compilation, shell syntax, and whitespace checks.
-  Exact-tree Cloud Build `bfb523d3-0652-42cf-8c36-357e7166afa5` is now
-  running from committed tree `c3fdbc5`. Next after it succeeds: create both
-  private raw tables under the guarded write, verify a repeated write is
-  identical, verify backup coverage, then run the one frozen diagnostic from
-  the resulting immutable digest without inspecting intermediate results.
+  Exact-tree Cloud Build `bfb523d3-0652-42cf-8c36-357e7166afa5` from tree
+  `c3fdbc5` passed 768 tests with 2 skipped and produced digest
+  `sha256:820ecef45c32c44077f996932ee9f847707a25eb5709c090ab05da6314f2a982`.
+  The first guarded write created both private raw tables (2,093 receiver
+  rows and 128 defense rows). The required repeat check exposed a reserved
+  BigQuery alias in the check query; no outcome diagnostic had run. The alias
+  is fixed with a regression test, and the repeated guarded write now reports
+  `already-identical` for both tables. Next: build the corrected exact tree,
+  verify backup coverage, then run the one frozen diagnostic from that
+  immutable digest without inspecting intermediate results.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no

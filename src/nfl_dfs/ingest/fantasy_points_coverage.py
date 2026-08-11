@@ -322,6 +322,16 @@ def _ensure_table(table_ref: str, rows: pd.DataFrame, hashes: set[str]) -> str:
     return "already-identical"
 
 
+def _receiver_identity_query(table_ref: str) -> str:
+    """Return the idempotency query using a non-reserved hash alias."""
+    return f"""
+        SELECT COUNT(*) AS n_rows,
+               ARRAY_AGG(DISTINCT source_hash ORDER BY source_hash) AS hashes
+        FROM `{table_ref}`,
+        UNNEST([man_zone_source_sha256, separation_source_sha256]) AS source_hash
+        """
+
+
 def run(input_dir: str | Path, *, write: bool = False) -> dict:
     """Audit the three frozen source families and optionally create tables."""
     from ..bq import query_df
@@ -354,12 +364,8 @@ def run(input_dir: str | Path, *, write: bool = False) -> dict:
             load_dataframe(payload, receiver_ref, write_disposition="WRITE_EMPTY")
             audit["receiver_write_disposition"] = "created"
         else:
-            existing = query_df(f"""
-                SELECT COUNT(*) AS n_rows,
-                       ARRAY_AGG(DISTINCT hash ORDER BY hash) AS hashes
-                FROM `{receiver_ref}`,
-                UNNEST([man_zone_source_sha256, separation_source_sha256]) AS hash
-                """).iloc[0]
+            existing = query_df(
+                _receiver_identity_query(receiver_ref)).iloc[0]
             if (int(existing.n_rows or 0) != 2 * len(receivers)
                     or set(existing.hashes) != receiver_hashes):
                 raise RuntimeError(
