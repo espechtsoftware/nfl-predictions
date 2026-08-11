@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 18:24 CDT
+## Current state — 2026-08-11 18:35 CDT
 
 Active branch is `main`; final-served Route diagnostic implementation commit
 `d5e74c0` is pushed. The position-calibration result, research promotion,
@@ -95,10 +95,16 @@ and must not be staged or modified.
   only aggregate/kind/season diagnostics. Forty focused usage/component/game
   simulation tests pass; compilation, CLI discovery, shell parsing and
   whitespace checks are clean. Implementation commit `5529cc0` is pushed and
-  exact-tree Cloud Build `c2ea3613-f05b-4f65-ae44-788060b436a9` is queued from
-  that commit. Monitor the build and do not execute the diagnostic or inspect
-  its K/held-out likelihood unless the full suite and immutable image publish
-  successfully.
+  exact-tree Cloud Build `c2ea3613-f05b-4f65-ae44-788060b436a9` passed 909
+  tests with two expected skips and no failures, publishing immutable digest
+  `sha256:2d91c90e2b64277f12909c3069f6e7ffecc2cf0436167532c0144642f63e7462`.
+  The sole frozen diagnostic is now running as Cloud Run execution
+  `usage-dirichlet-calibration-spd5k` from that digest. Its manifest and
+  execution identity are tracked under
+  `reports/usage-dirichlet-calibration-runs/20260811-data-fitted-usage-k-v1/`.
+  No fitted K or held-out likelihood had been produced when the identity was
+  recorded. Monitor and harvest this execution; only its frozen gate may
+  license a separately preregistered exact-80 K test.
 
 ### Final-served position calibration passed, promoted, and adopted
 

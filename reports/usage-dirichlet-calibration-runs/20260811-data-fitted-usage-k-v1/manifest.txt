@@ -1,0 +1,11 @@
+run_id=20260811-data-fitted-usage-k-v1
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:2d91c90e2b64277f12909c3069f6e7ffecc2cf0436167532c0144642f63e7462
+calibration_seasons=2021 2022
+evaluation_seasons=2023 2024 2025
+k_bounds=5:500
+optimizer_x_tolerance=0.000001
+minimum_observed_total=15
+minimum_opportunity_coverage=0.95
+model_ensemble=1
+num_boost_round=400
+extra_features=
