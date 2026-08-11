@@ -20,11 +20,14 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 04:27 CDT
+## Current state — 2026-08-11 05:55 CDT
 
-Active branch is `main`; the last pushed milestone is commit `f33c48f`.
-The two operator-supplied outside-review documents under `reports/` remain
-untracked and must not be staged or modified.
+Active branch is `main`; repository work through commit `228368f` is pushed.
+The three operator-supplied outside-review documents
+`reports/2026-08-10-scoring-strategy-recommendations.md`,
+`reports/2026-08-11-fantasy-points-data-utilization.md`, and
+`reports/2026-08-11-post-window-program-review.md` remain untracked and must
+not be staged or modified.
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -48,6 +51,23 @@ untracked and must not be staged or modified.
   Direct-role is now the corrected research incumbent. Promotion execution
   `accept-replay-panel-2prcg` completed successfully and copied the complete
   candidate books plus player snapshots into the accepted research tables.
+- The new operator-supplied post-window review has been reconciled against
+  the actual code and durable results in
+  `reports/2026-08-11-post-window-review-reconciliation.md`. Its strongest
+  lead is valid but not yet a production-path finding: raw component draws
+  exceeded q90/q95/q99 at 11.11%/7.10%/2.69%, before the fitted widening,
+  TabPFN/empirical marginal shaper and 45/55 market blend that score the
+  adopted books. The exact next diagnostic is frozen before generating those
+  unseen final-path quantiles in
+  `reports/2026-08-11-served-tail-calibration-protocol.md`. It must reproduce
+  the exact 13,876 active accepted RB/WR/TE rows for held-out 2023--2025,
+  match every persisted pre/post-blend mean within `1e-4`, report
+  q90/q95/q99 exceedance, pinball, CRPS, 20/30 Brier and week-clustered
+  uncertainty, and confirms the defect only if all three exceedances are
+  high and q99's clustered 95% lower bound remains above 1%. A confirmation
+  licenses one separately frozen mean-invariant recalibration; it cannot
+  reopen a closed vendor arm. Advanced Rushing collection is deliberately
+  deferred until this cheaper, directly relevant calibration path resolves.
 - The next paid-data correlation study was frozen and pushed before any
   outcome join at commit `8263fe8`:
   `reports/2026-08-10-fantasy-points-coverage-fit-experiment.md`. It tests only

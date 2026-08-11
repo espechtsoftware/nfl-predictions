@@ -1,0 +1,55 @@
+# Reconciliation of the post-window program review
+
+Reviewed on 2026-08-11 against the tracked experiment protocols, durable run
+artifacts and current production replay code. The operator-supplied source
+review remains unmodified and untracked at
+`reports/2026-08-11-post-window-program-review.md`.
+
+## Accepted findings
+
+- The raw Route component control's q99 exceedance is 2.688%, with q90/q95
+  also above nominal in every held-out season. This is a much larger and more
+  stable calibration symptom than the tiny paired Brier differences that
+  decided several vendor diagnostics.
+- Route Share improved composed point MAE and empirical CRPS in every fold.
+  Its exact four-feature contract should be implemented as the already
+  licensed, labeled 2026 prospective shadow rather than re-adjudicated on the
+  known historical result.
+- Future distribution experiments should report paired uncertainty and a
+  minimum detectable effect. A binary 30-point event metric alone can be too
+  low-resolution for small changes, although it remains directly relevant to
+  the operator's tail objective.
+- Another historical vendor-family collection should not precede the cheaper
+  and more direct calibration diagnostic.
+
+## Necessary qualifications
+
+- The 2.688% q99 result is **pre-shaper and pre-market blend**. It does not yet
+  establish that the final distribution used for lineup selection is 2.7x too
+  thin. `replay_projections(..., return_draws=True)` subsequently applies
+  fitted widening plus TabPFN/empirical marginal shaping, and
+  `_market_blend_worlds` shifts those draws to the 45/55 blended mean. The
+  newly frozen served-path diagnostic must measure that final distribution.
+- Calling the raw symptom the cause of the 33 missing known-winner slots is a
+  plausible hypothesis, not established causality. Candidate generation,
+  salary/stack feasibility, joint dependence and selector coverage also
+  affect whether a surprising player reaches a lineup.
+- Same-season coverage did not fail only because of support: its aggregate
+  30-point Brier also worsened, as did every fold. A longer-window/shrinkage
+  formulation would be a new mechanism and would need prospective
+  preregistration; it cannot revise the closed last-four result.
+- Defense PROE and Route components remain valid registered failures under
+  their frozen gates. Their tiny deltas should be described as inconclusive
+  effect estimates, but their labels must not be changed after observing
+  other metrics.
+
+## Resulting queue
+
+1. Measure final served-path q90/q95/q99 calibration on the exact held-out
+   population under the frozen protocol.
+2. If confirmed, preregister and test one mean-invariant tail recalibration.
+3. Implement the immutable 2026 Route Share weekly append and shadow path in
+   parallel with preseason operations.
+4. Only after the calibration path resolves, reconsider whether the
+   outcome-blind Advanced Rushing pair or a support-aware Advanced Receiving
+   family has enough expected value for one further historical test.
