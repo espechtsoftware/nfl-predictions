@@ -101,4 +101,29 @@ requirement. Exact-tree Cloud Build
 `6b84f0cc-bda4-434f-92ba-1b829f5a8c3d` from commit `e34a078` passed 815
 tests with two expected skips and published immutable digest
 `sha256:0450ef0f2e3b332d7bf415263e044e081111644c25c001d92e94e71bc9ba6573`.
-No outcome query or lineup generation has started.
+At this pre-outcome checkpoint, no outcome query or lineup generation had
+started.
+
+## Frozen result
+
+Cloud Run execution `fantasy-points-defense-proe-cfvsv` completed
+successfully from the recorded immutable digest with disposition
+`defense-proe-pass-game-tail-fails`. The support gate passed at 100% in each
+of 2023, 2024 and 2025, but the primary aggregate 30-point Brier gate failed:
+control `0.0092894466`, treatment `0.0092929218`. Treatment improved 2023
+`0.0098656725→0.0098286758` and 2025
+`0.0083891707→0.0083600454`, but worsened 2024
+`0.0096231742→0.0096985122`.
+
+Aggregate 20-point Brier worsened
+`0.0334110003→0.0334847264`; residual MAE improved slightly
+`2.7439164→2.7432783`. The per-position 30-point diagnostic improved slightly
+for QB and TE but worsened for WR, and descriptive correlations with the
+30-point event and projection residual were tiny and sign-unstable across
+folds.
+
+The preregistered consequence therefore governs: this exact Defense PROE
+mechanism is closed. No candidate union, feature/window/support/model retry,
+lineup generation or production change is licensed by this result. Durable
+artifacts are tracked in
+`reports/fantasy-points-defense-proe-runs/20260811-fp-defense-proe-l4-v1/`.

@@ -1,0 +1,9 @@
+run_id=20260811-fp-defense-proe-l4-v1
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:0450ef0f2e3b332d7bf415263e044e081111644c25c001d92e94e71bc9ba6573
+panel=20260810-lockfix-e80-k1-8677d21
+source_run=fantasy-points-defense-proe-2022-2025-v1
+source_rows=2174
+source_hashes=4
+held_out=2023 2024 2025
+target_weeks=5-18
+positions=QB WR TE

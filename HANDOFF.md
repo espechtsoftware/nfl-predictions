@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 03:51 CDT
+## Current state — 2026-08-11 03:54 CDT
 
-Active branch is `main`; the last pushed milestone is commit `e34a078`.
+Active branch is `main`; the last pushed milestone is commit `5b4c1cf`.
 The two operator-supplied outside-review documents under `reports/` remain
 untracked and must not be staged or modified.
 
@@ -351,8 +351,19 @@ untracked and must not be staged or modified.
   Build `6b84f0cc-bda4-434f-92ba-1b829f5a8c3d` from commit `e34a078`
   passed 815 tests with two expected skips and published immutable digest
   `sha256:0450ef0f2e3b332d7bf415263e044e081111644c25c001d92e94e71bc9ba6573`.
-  Next launch the one-shot wrapper exactly once with that digest and record
-  the preregistered result. No outcome query has started.
+  Frozen execution `fantasy-points-defense-proe-cfvsv` completed successfully
+  with disposition `defense-proe-pass-game-tail-fails`. Coverage was 100% in
+  all three held-out folds, but aggregate 30-point Brier worsened
+  `0.0092894466→0.0092929218`; 2023 and 2025 improved slightly while 2024
+  worsened. Aggregate 20-point Brier also worsened
+  `0.0334110003→0.0334847264`; residual MAE improved slightly
+  `2.7439164→2.7432783`. Descriptive correlations were tiny and sign-unstable.
+  Durable artifacts are under
+  `reports/fantasy-points-defense-proe-runs/20260811-fp-defense-proe-l4-v1/`.
+  The exact mechanism is closed with no candidate union or retry; no lineup
+  or production policy changed. Next freeze the full weekly Route Share
+  component-model test already left open by the utilization reconciliation,
+  without changing its four registered Route inputs after outcomes.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no
