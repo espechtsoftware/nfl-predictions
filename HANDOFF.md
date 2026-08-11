@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 20:47 CDT
+## Current state — 2026-08-10 21:19 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -103,6 +103,21 @@ agent or developer:
   `sha256:d3d53256d8db9c34f120108bead5bb44a3ab2f512c2db4a7c6956eeb1e3d5534`.
   Wait for Route, then use this digest for the one mechanically selected
   coverage panel; there is no dose/feature retry.
+- The operator supplied an outcome-viewed outside review of the paid Fantasy
+  Points data. Its repository-verified disposition is tracked in
+  `reports/2026-08-11-fantasy-points-utilization-reconciliation.md`. Weekly
+  Route Share remains the clearest incremental asset, but the review omitted
+  that the same four Route features worsened held-out residual MAE in both
+  folds and aggregate (`2.882990→2.892476`) while improving tail Brier; a
+  future full component-model test is therefore open but not a demonstrated
+  mean repair. The review also incorrectly called Defense PROE redundant:
+  current SQL joins only the offense's own lagged PROE, while the vendor
+  Defense PROE is distinct opponent context. Target/Snap require an
+  outcome-blind agreement audit before closure, and an early-week Advanced
+  retry would still be an outcome-viewed subset. Do not alter the frozen
+  unions or restore a significance veto. The eventual 2026 Route path needs
+  an idempotent weekly ingest contract; the current importer is historical
+  and hash-locked.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no
@@ -133,8 +148,10 @@ agent or developer:
   are running: `replay-lockk1route-2019-xmlzn`,
   `replay-lockk1route-2021-qqfch`, `replay-lockk1route-2022-mg9ns`,
   `replay-lockk1route-2023-bn27p`, `replay-lockk1route-2024-5lbcf`, and
-  `replay-lockk1route-2025-vm6zd`. Their durable manifest is under the panel
-  directory. Do not read partial scores. Once every season succeeds, run the
+  `replay-lockk1route-2025-vm6zd`. As of 21:19 CDT, 2021, 2023, 2024 and
+  2025 are clean successes; 2019 and 2022 remain active with zero failures.
+  Their durable manifest is under the panel directory. Do not read partial
+  scores. Once every season succeeds, run the
   exact-80 acceptance check and the frozen source-versus-treatment comparator
   before deciding whether the Route candidate union is adopted.
 - The preregistered corrected no-floor candidate union is still queued. Its
@@ -148,7 +165,9 @@ agent or developer:
   `replay-locknofloor-2019-4ztp8`, `replay-locknofloor-2021-fjsrj`,
   `replay-locknofloor-2022-swpsn`, `replay-locknofloor-2023-lsb6k`,
   `replay-locknofloor-2024-kjftz`, and `replay-locknofloor-2025-kqwdn`.
-  Do not read partial scores. Once complete, run check-only acceptance, but
+  As of 21:19 CDT, 2021 is a clean success and the other five remain active
+  with zero failures. Do not read partial scores. Once complete, run
+  check-only acceptance, but
   wait for the Route disposition before choosing the incumbent argument for
   the single no-floor union comparison.
 - The operator's paid-data operations request is implemented on branch `main`
