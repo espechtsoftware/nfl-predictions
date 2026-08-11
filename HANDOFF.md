@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 02:09 CDT
+## Current state — 2026-08-11 02:13 CDT
 
-Active branch is `main`; the last pushed milestone is commit `45309f5`.
+Active branch is `main`; the last pushed milestone is commit `e399ea1`.
 The two operator-supplied outside-review documents under `reports/` remain
 untracked and must not be staged or modified.
 
@@ -284,6 +284,17 @@ untracked and must not be staged or modified.
   frozen to the source run/count, accepted panel and immutable image. Launch
   it once with digest `sha256:b1292d1e...7fa7d98`, then record the one
   preregistered result with no scientific retry.
+- Frozen execution `fantasy-points-same-season-passing-s887m` completed
+  successfully and returned `same-season-passing-player-tail-fails`.
+  Supported accepted-QB coverage was 28.39%/26.88%/25.96%, below the 50%
+  gate in every fold. Aggregate 30-point Brier worsened
+  `0.06357934→0.06628405` and declined separately in 2023, 2024 and 2025;
+  20-point Brier worsened `0.19692595→0.20648459` and MAE
+  `6.41074→6.67482`. Durable artifacts are under
+  `reports/fantasy-points-same-season-passing-runs/20260811-fp-same-season-passing-l4-v1/`.
+  The exact Advanced Passing mechanism is closed with no candidate arm or
+  retry. Next use the catalog audit's outcome-blind route-break support lead;
+  do not test sparse individual named routes.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no

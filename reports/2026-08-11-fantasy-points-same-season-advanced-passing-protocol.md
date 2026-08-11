@@ -112,3 +112,23 @@ immutable image requirement, and a single harvested JSON report. No target
 outcome has been read at this milestone. Run it once with the validated image
 digest above; do not launch the diagnostic directly or retry its scientific
 result.
+
+## Frozen result
+
+Cloud Run execution `fantasy-points-same-season-passing-s887m` completed
+successfully from the immutable diagnostic image. The one harvested report is
+tracked under
+`reports/fantasy-points-same-season-passing-runs/20260811-fp-same-season-passing-l4-v1/`.
+
+The treatment failed both gates. Supported coverage among accepted QB target
+rows was 28.39%, 26.88% and 25.96% in held-out 2023, 2024 and 2025, below the
+required 50% in every fold. Aggregate 30-point Brier loss worsened from
+0.06357934 to 0.06628405, and it worsened separately in all three seasons.
+The mandatory secondary metrics also declined: aggregate 20-point Brier
+worsened from 0.19692595 to 0.20648459 and residual MAE from 6.41074 to
+6.67482. Individual feature correlations were inconsistent across seasons
+and cannot select a subset under the frozen protocol.
+
+The machine disposition is `same-season-passing-player-tail-fails`. The exact
+last-four Advanced Passing family is closed. It licenses no QB candidate
+union, feature subset, support/window/model retry, or production change.
