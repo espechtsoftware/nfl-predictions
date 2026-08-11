@@ -20,11 +20,12 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 17:43 CDT
+## Current state — 2026-08-11 18:12 CDT
 
-Active branch is `main`; served-position comparator repair commit `c1fbb58`
-is pushed. The position-calibration result, research promotion, and live-policy
-adoption described below are the current milestone. Advanced Receiving
+Active branch is `main`; final-served Route diagnostic implementation commit
+`d5e74c0` is pushed. The position-calibration result, research promotion,
+live-policy adoption and validated production rollout described below are the
+current milestone. Advanced Receiving
 diagnostic implementation commit `5aee8aa` and negative result commit
 `6137bad` remain pushed historical records; that exact vendor arm is closed.
 The program-review reconciliation is finalized in this milestone.
@@ -37,6 +38,35 @@ Thursday post-download scheduler follow-up `b6dbc5e` are also pushed on
 `reports/2026-08-11-post-window-program-review.md`, and
 `reports/2026-08-11-recommendation-scoreboard-and-pivot.md` remain untracked
 and must not be staged or modified.
+
+### Validated production rollout completed; Route diagnostic ready
+
+- Exact-tree Cloud Build `4c0614be-bc8e-4e0f-a578-9e96ada30b77` validated
+  the production-policy adoption tree with 899 tests passed and two expected
+  skips, publishing intermediate digest
+  `sha256:69c5e3b3e0f2ecbe90fadbcaf0315f62124b49eeeb196b35e2e428a9b11c1c06`.
+  It was not deployed because the independently frozen Route diagnostic was
+  implemented immediately afterward.
+- Superseding exact-tree Cloud Build
+  `17a729c8-7fd3-4cd5-a9a1-307ca3a91acd` completed successfully with 904
+  tests passed, two expected skips and no failures. The immutable production
+  and diagnostic digest is
+  `sha256:4dbb7e7658225ca14f28f0d97d87d648682e7471a7e1e26362ad7b4ff9f45fee`.
+- Cloud Run service `nfl-dfs-app` now serves that exact digest from ready
+  revision `nfl-dfs-app-00066-fpz` at 100% traffic. Startup and TCP-probe logs
+  are clean. Existing IAP intentionally blocks an unauthenticated `/health`
+  request, so no authentication bypass was attempted. Cloud Run job
+  `project-slate` is pinned to the same digest and was not executed during the
+  offseason. `.venv/bin/python scripts/verify_deployment.py --json` reports
+  zero contract failures and identifies adopted policy
+  `classic-k1-role12-boom40-poscal-v3` with the correct source panel.
+- Exact next action: launch the sole immutable
+  `20260811-route-final-served-calibration-v1` diagnostic from the validated
+  digest above, record its Cloud Run execution ID immediately, and harvest the
+  frozen report. If the registered treatment 30-point Brier gate passes,
+  freeze a separate exact-80 lineup protocol before querying lineup outcomes;
+  if it fails, close this historical Route retry. Do not alter factors, folds,
+  feature fields or the decision gate after seeing the result.
 
 ### Final-served position calibration passed, promoted, and adopted
 
