@@ -28,6 +28,7 @@ from ..names import norm_name
 
 PLAN_NAME = "same-season-advanced-receiving-support-windows-v1"
 PLAN_SHA256 = "58199c502ef5c1a1d154b725fc81ce0e7229b36f86543a13527289f781783477"
+TABLE = "fantasy_points_advanced_receiving_windows"
 SEASONS = (2022, 2023, 2024, 2025)
 CUMULATIVE_TARGET_WEEKS = tuple(range(5, 19))
 LAST_FOUR_TARGET_WEEKS = tuple(range(6, 19))
@@ -488,10 +489,16 @@ def build_report(
     }
 
 
-def run(input_dir: str | Path, *, output: str | Path | None = None) -> dict:
+def run(
+    input_dir: str | Path,
+    *,
+    output: str | Path | None = None,
+    write: bool = False,
+) -> dict:
     """Run the outcome-blind audit against point-in-time predictor tables."""
     from ..bq import query_df
     from ..config import settings
+    from .fantasy_points_same_season_coverage import _write_once
 
     manifest, artifacts = validate_manifest(input_dir)
     snapshots = query_df(f"""
@@ -522,6 +529,15 @@ def run(input_dir: str | Path, *, output: str | Path | None = None) -> dict:
       SELECT * FROM latest
       """, params={"panel_id": PANEL_ID})
     report = build_report(rows, existing, manifest=manifest, row_audit=row_audit)
+    report["table"] = f"{settings.raw}.{TABLE}"
+    report["write_requested"] = bool(write)
+    if write:
+        report["write_disposition"] = _write_once(
+            report["table"],
+            rows,
+            run_id=manifest["run_id"],
+            hash_columns=("source_sha256",),
+        )
     if output is not None:
         destination = Path(output)
         destination.parent.mkdir(parents=True, exist_ok=True)

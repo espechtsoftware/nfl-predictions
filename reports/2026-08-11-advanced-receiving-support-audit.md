@@ -17,6 +17,11 @@ lineup, score, placement or ROI field. The machine report is
   795 unresolved, zero ambiguous and ten split duplicates suppressed.
 - All source rows are WR or TE. This vendor surface does not contain RBs, so
   RB target rows are not counted as missing support.
+- The normalized collection is durable in create-only private table
+  `nfl_raw.fantasy_points_advanced_receiving_windows` with 34,227 rows. A
+  repeated guarded write returned `already-identical`, and backup snapshot
+  `nfl_backups.fantasy_points_advanced_receiving_windows_20260811` has the
+  same row count.
 
 ## Support result
 

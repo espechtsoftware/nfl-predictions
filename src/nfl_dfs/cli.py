@@ -355,6 +355,21 @@ def main(argv: list[str] | None = None) -> None:
         "--output",
         help="Optional JSON path for the outcome-blind support report",
     )
+    p.add_argument(
+        "--write",
+        action="store_true",
+        help="Create the private normalized window table; conflicts abort",
+    )
+
+    p = sub.add_parser(
+        "fantasy-points-advanced-receiving-diagnostic",
+        help="Run the frozen same-season Advanced Receiving distribution gate",
+    )
+    p.add_argument(
+        "--panel", default="20260810-lockfix-e80-k1-8677d21",
+        help="Frozen corrected K1 panel (alternate values fail closed)",
+    )
+    p.add_argument("--output", help="Optional JSON path for the frozen report")
 
     p = sub.add_parser(
         "import-fantasy-points-defense-proe",
@@ -698,7 +713,11 @@ def main(argv: list[str] | None = None) -> None:
         from .ingest import fantasy_points_advanced_receiving_support
 
         fantasy_points_advanced_receiving_support.run(
-            args.input_dir, output=args.output)
+            args.input_dir, output=args.output, write=args.write)
+    elif args.command == "fantasy-points-advanced-receiving-diagnostic":
+        from .analysis import fantasy_points_advanced_receiving
+
+        fantasy_points_advanced_receiving.run(args.panel, output=args.output)
     elif args.command == "import-fantasy-points-defense-proe":
         from .ingest import fantasy_points_defense_proe
 

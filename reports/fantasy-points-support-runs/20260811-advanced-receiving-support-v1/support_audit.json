@@ -27900,5 +27900,8 @@
       "spearman": 0.6084713439030774
     }
   ],
-  "disposition": "support-audit-only-no-predictive-license"
+  "disposition": "support-audit-only-no-predictive-license",
+  "table": "nfl-predictions-503414.nfl_raw.fantasy_points_advanced_receiving_windows",
+  "write_requested": true,
+  "write_disposition": "created"
 }

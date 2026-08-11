@@ -20,11 +20,11 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 12:06 CDT
+## Current state — 2026-08-11 12:26 CDT
 
-Active branch is `main`; hardened outcome-blind support-audit commit `f0d1b21`
-is pushed. Advanced Receiving collection and its outcome-blind audit are
-complete; the exact next diagnostic is frozen but has not read outcomes.
+Active branch is `main`; completed Advanced Receiving support-audit/protocol
+commit `66d8c9a` is pushed. The exact diagnostic implementation is included in
+the next milestone commit and has not yet read outcomes.
 The three operator-supplied outside-review documents
 `reports/2026-08-10-scoring-strategy-recommendations.md`,
 `reports/2026-08-11-fantasy-points-data-utilization.md`, and
@@ -221,9 +221,20 @@ not be staged or modified.
   cumulative >=20-route support, a fixed last-four/80-route blend, exactly the
   three retained fields, 2023--2025 walk-forward folds, deterministic residual
   ensembles, all-row CRPS/q95/q99 primary gates, Brier safeguards and paired
-  week-clustered uncertainty/MDE. Exact next action: commit/push this completed
-  audit and frozen protocol, implement it without changing the contract, then
-  run the one historical diagnostic. No lineup arm is yet licensed.
+  week-clustered uncertainty/MDE. The completed normalized collection is now
+  create-only in private table
+  `nfl_raw.fantasy_points_advanced_receiving_windows` with 34,227 rows; the
+  mandatory repeated write returned `already-identical`. Backup snapshot
+  `nfl_backups.fantasy_points_advanced_receiving_windows_20260811` contains
+  exactly 34,227 rows, and the table is explicit plus dynamically discoverable
+  in the backup code. The local diagnostic implementation follows the frozen
+  three-field blend, Ridge/logistic laws, deterministic 1,000-member residual
+  ensembles, walk-forward folds, CRPS/pinball/Brier metrics, week-clustered
+  intervals and MDE. Fourteen focused ingestion/diagnostic/backup tests pass,
+  compilation, CLI discovery and whitespace checks are clean; all 871
+  collected repository tests finish successfully with the expected skip.
+  Exact next action: commit/push this implementation, then run it once and
+  freeze the result. No lineup arm is yet licensed.
 - The outside review's prospective Route Share recommendation is now frozen
   before any 2026 Route value or outcome in
   `reports/2026-08-11-route-share-2026-operating-contract.md`. The declarative
