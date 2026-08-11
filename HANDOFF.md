@@ -22,7 +22,8 @@ agent or developer:
 
 ## Current state — 2026-08-11 07:42 CDT
 
-Active branch is `main`; Stage B implementation commit `3431add` is pushed.
+Active branch is `main`; prospective Route milestone commit `9cf0965` is
+pushed.
 The three operator-supplied outside-review documents
 `reports/2026-08-10-scoring-strategy-recommendations.md`,
 `reports/2026-08-11-fantasy-points-data-utilization.md`, and
@@ -135,14 +136,14 @@ not be staged or modified.
   `82147e17-6c8d-4a99-bd3d-b56475d0724a` succeeded from commit `3431add` and
   published immutable digest
   `sha256:22f0936b307236a2cfc9462f50e9bf4bd31f57dfa0b7975132baec9766db90e8`.
-  The sole Stage B launch is now in progress. Its immutable 2024 smoke is
-  `replay-lockk1tail-smoke-md2tb`; the launch manifest is tracked under
-  `reports/panel-runs/20260811-lockfix-e80-k1-role12-tail1025-v1/`. The wrapper
-  will launch the frozen 2023/2024/2025 jobs only after that smoke succeeds.
-  Do not rerun this treatment or test another factor. Next action: let the
-  wrapper finish, record all execution IDs, accept the exact 54 treatment
-  slates, run the frozen comparator, and promote only on its stated Stage B
-  disposition.
+  The sole Stage B launch is now in progress. Immutable 2024 smoke
+  `replay-lockk1tail-smoke-md2tb` passed, then the wrapper launched
+  `replay-lockk1tail-2023-bdhsj`, `replay-lockk1tail-2024-4727d`, and
+  `replay-lockk1tail-2025-6mnfb`. The exact manifest is tracked under
+  `reports/panel-runs/20260811-lockfix-e80-k1-role12-tail1025-v1/`. Do not
+  rerun this treatment or test another factor. Next action: wait for all three
+  without reading partial scores, accept the exact 54 treatment slates, run
+  the frozen comparator, and promote only on its stated Stage B disposition.
 - The outside review's prospective Route Share recommendation is now frozen
   before any 2026 Route value or outcome in
   `reports/2026-08-11-route-share-2026-operating-contract.md`. The declarative
@@ -162,8 +163,8 @@ not be staged or modified.
   validates all 28 reports and expands to exactly one Week-1 artifact; the
   combined Route/training/inference SQL passes a BigQuery dry run. The complete
   local suite passes `850 passed, 2 skipped`, with compilation and whitespace
-  checks clean. This work is ready for its milestone commit; stage and push it
-  without the three operator review documents.
+  checks clean. The implementation and operating docs are pushed in `9cf0965`;
+  the three operator review documents remain deliberately untracked.
 - The review's other prospective recommendation is frozen, without using the
   stale offseason samples, in
   `reports/2026-08-11-fantasy-points-live-matchup-capture-contract.md`.

@@ -207,3 +207,9 @@ immutable 2024 smoke execution is `replay-lockk1tail-smoke-md2tb`; the tracked
 manifest is under
 `reports/panel-runs/20260811-lockfix-e80-k1-role12-tail1025-v1/`. Do not launch
 the treatment again or test another factor.
+
+The smoke passed. The wrapper then launched the complete frozen evaluation as
+executions `replay-lockk1tail-2023-bdhsj`,
+`replay-lockk1tail-2024-4727d`, and
+`replay-lockk1tail-2025-6mnfb`. Wait for all three; read no partial score result.
+Then run the exact-season acceptance and the frozen comparator once.
