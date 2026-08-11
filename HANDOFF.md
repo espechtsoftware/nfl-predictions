@@ -128,8 +128,10 @@ and must not be staged or modified.
   source/control reproduction, snapshot/shared-score parity and changed
   candidate membership. Sixty-six focused calibration/lineup/component/
   simulation/persistence tests pass; compilation, script help, shell parsing
-  and whitespace checks are clean. Commit this implementation and pass a new
-  exact-tree Cloud Build before launching either lineup arm.
+  and whitespace checks are clean. Implementation commit `127b07f` is pushed;
+  exact-tree Cloud Build `c1b80adb-a461-4e30-b293-fc0572f3d7fe` is running
+  from it. Do not launch either lineup arm unless this full build passes and
+  publishes an immutable digest.
 
 ### Final-served position calibration passed, promoted, and adopted
 
