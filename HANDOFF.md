@@ -22,7 +22,9 @@ agent or developer:
 
 ## Current state — 2026-08-11 09:53 CDT
 
-Active branch is `main`; Stage B execution-record commit `8bd5588` is pushed.
+Active branch is `main`; final served-tail Stage B result commit `4b46ce9` is
+pushed. The next local milestone freezes the Advanced Receiving support-window
+collection before any target-week outcome is read.
 The three operator-supplied outside-review documents
 `reports/2026-08-10-scoring-strategy-recommendations.md`,
 `reports/2026-08-11-fantasy-points-data-utilization.md`, and
@@ -171,6 +173,22 @@ not be staged or modified.
   not pass the frozen high-tail law and is not promoted. Production remains
   identity; never regenerate this treatment or retry its factor. The lower-
   threshold gain is retained only as a prospective diversification clue.
+- The next post-window-review action is frozen in
+  `reports/2026-08-11-advanced-receiving-support-window-collection.md` and the
+  declarative plan
+  `automation/fantasy_points/plans/same-season-advanced-receiving-support-windows-v1.json`.
+  It contains exactly 108 unique grouped-header Player exports: 56 cumulative
+  prior windows for 2022--2025 target Weeks 5--18 and 52 last-four-prior
+  windows for target Weeks 6--18; Week 5 is not duplicated because both
+  definitions are Weeks 1--4. Every source week is strictly before its target
+  week. This phase permits only collection and an outcome-blind support and
+  redundancy audit of six preregistered receiving fields; it cannot inspect
+  target outcomes, choose a predictive feature, generate candidates, score a
+  lineup, or alter production. The plan check validates all 28 catalog reports
+  and expands to exactly 108 artifacts, and all 23 focused downloader tests
+  pass. Exact next action: commit this frozen protocol, then run its one
+  headless authenticated download and require one complete zero-failure
+  manifest before writing the outcome-blind audit.
 - The outside review's prospective Route Share recommendation is now frozen
   before any 2026 Route value or outcome in
   `reports/2026-08-11-route-share-2026-operating-contract.md`. The declarative

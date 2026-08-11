@@ -226,6 +226,30 @@ def test_generated_prior_windows_enforce_target_week_boundary():
     )
 
 
+def test_advanced_receiving_support_plan_has_exact_nonduplicate_windows():
+    plan_path = (
+        Path(__file__).parents[1] / "automation" / "fantasy_points" / "plans"
+        / "same-season-advanced-receiving-support-windows-v1.json"
+    )
+    _, specs = load_plan(plan_path)
+    assert len(specs) == 108
+    assert len({
+        (spec.report, spec.season, spec.target_week, spec.weeks)
+        for spec in specs
+    }) == 108
+    assert all(max(spec.weeks) < spec.target_week for spec in specs)
+    week_five = [spec for spec in specs if spec.target_week == 5]
+    assert len(week_five) == 4
+    assert all(spec.weeks == (1, 2, 3, 4) for spec in week_five)
+    week_six_2025 = [
+        spec for spec in specs
+        if spec.season == 2025 and spec.target_week == 6
+    ]
+    assert {spec.weeks for spec in week_six_2025} == {
+        (1, 2, 3, 4, 5), (2, 3, 4, 5),
+    }
+
+
 def test_previous_week_plan_and_runtime_target_selection():
     plan = {
         "schema_version": 1,

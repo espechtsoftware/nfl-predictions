@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "name": "same-season-advanced-receiving-support-windows-v1",
+  "delay_between_downloads_seconds": 2,
+  "reports": [
+    {
+      "report": "advanced-receiving",
+      "seasons": [2022, 2023, 2024, 2025],
+      "target_weeks": "5-18",
+      "source_window": "cumulative-prior",
+      "include_group_headers": true,
+      "context": "Player"
+    },
+    {
+      "report": "advanced-receiving",
+      "seasons": [2022, 2023, 2024, 2025],
+      "target_weeks": "6-18",
+      "source_window": "last-four-prior",
+      "include_group_headers": true,
+      "context": "Player"
+    }
+  ]
+}
