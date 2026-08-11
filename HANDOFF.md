@@ -409,8 +409,9 @@ untracked and must not be staged or modified.
   Under the tail-first gate, the exact historical component mechanism is
   closed with no lineup arm, calibration retry or production change. Preserve
   the exact Route contract only as a 2026 prospective shadow candidate while
-  continuing to the next preregistered paid-data hypothesis; do not describe
-  its mean gain as evidence of improved extreme-lineup selection.
+  continuing to the next paid-data hypothesis, preregistered before its
+  outcomes; do not describe the mean gain as evidence of improved
+  extreme-lineup selection.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no
