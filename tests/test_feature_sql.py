@@ -32,6 +32,27 @@ def test_coverage_table_present_and_ordered_before_training():
     assert cov < names.index("023_player_week_inference.sql")
 
 
+def test_route_shadow_table_is_strict_prior_and_joined_symmetrically():
+    names = [p.name for p in FEATURE_SQL]
+    route_path = SQL_DIR / "features" / "017k_fantasy_points_route.sql"
+    route = route_path.read_text()
+    assert names.index(route_path.name) < names.index("021_player_week_training.sql")
+    assert names.index(route_path.name) < names.index("023_player_week_inference.sql")
+    assert "h.season * 100 + h.week < t.season * 100 + t.week" in route
+    assert "source_rank <= 4" in route
+    assert "route-share-unavailable-fallback" in route
+    for consumer in ("021_player_week_training.sql", "023_player_week_inference.sql"):
+        sql = (SQL_DIR / "features" / consumer).read_text()
+        assert "player_week_fp_route" in sql
+        for column in (
+            "fp_route_source_season", "fp_route_source_week",
+            "fp_route_share_last", "fp_route_share_l4",
+            "fp_route_share_jump", "fp_route_cross_season",
+            "fp_route_fallback",
+        ):
+            assert f"fr.{column}" in sql
+
+
 def test_salary_spine_built_before_actuals_and_usage():
     """Historical player membership starts at the selectable DK universe."""
     names = [p.name for p in FEATURE_SQL]

@@ -77,6 +77,9 @@ FEEDS: tuple[Feed, ...] = (
     # even though the build that produces them runs year-round.
     Feed("player_week_inference", "Feature build (inference)", "features",
          "player_week_inference", 8 * 24, "nfl"),
+    Feed("fantasy_points_route_share", "Fantasy Points Route Share",
+         "raw", "fantasy_points_route_share", 9 * 24, "nfl", alert=False,
+         note="prospective shadow; source Week W-1 begins before target Week 2"),
     Feed("player_projections", "Projections", "predictions",
          "player_projections", 8 * 24, "nfl"),
     Feed("cfb_dk_salaries", "CFB slates/salaries", "raw", "cfb_dk_salaries",

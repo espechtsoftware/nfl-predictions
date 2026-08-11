@@ -160,6 +160,9 @@ For recurring or bulk historical collection, replace `week_windows` with
 
 - `cumulative-prior` selects Weeks 1 through W-1.
 - `last-four-prior` selects at most the four weeks immediately before W.
+- `previous-week` selects only Week W-1. This is the recurring Route Share
+  contract; use `--target-week W` so a weekly run downloads one completed
+  source week rather than every future declaration in the season plan.
 
 The generated filename includes `target-week-W`, and plan validation rejects
 Week 1 or any source week that is not strictly earlier than its target. This
@@ -170,6 +173,30 @@ Do not add every available report to the weekly plan. The recurring plan will
 be frozen only after evidence identifies the reports worth operating. For a
 target Week W, its plan may include only completed source weeks `< W`; the
 downloader records the filters but does not weaken that research rule.
+
+The prospective 2026 Route Share plan is
+`plans/2026-route-share-weekly-v1.json`. Beginning before target Week 2, run:
+
+```bash
+fantasy-points-download check \
+  --plan automation/fantasy_points/plans/2026-route-share-weekly-v1.json \
+  --target-week W
+fantasy-points-download run \
+  --plan automation/fantasy_points/plans/2026-route-share-weekly-v1.json \
+  --target-week W
+nfl-dfs import-fantasy-points-route-weekly \
+  --input-dir fantasy-points/automated/<completed-run> \
+  --target-week W
+```
+
+Run the import first without `--write`: it re-hashes the one artifact, proves
+the manifest is the frozen plan and source Week W-1, checks the single-week CSV
+scope, resolves players against point-in-time 2026 rosters and reports every
+unresolved identity. After reviewing that audit, repeat it with `--write` to
+create the immutable hash-addressed GCS archive and append only novel rows.
+An identical repeat is a no-op; any stored value/hash conflict aborts. The
+shadow feature step remains separately fail-closed, so a completed download or
+import never authorizes same-week data in a target-week projection.
 
 The automation intentionally runs sequentially with a delay between exports.
 It uses only the normal authenticated UI and does not bypass access controls.

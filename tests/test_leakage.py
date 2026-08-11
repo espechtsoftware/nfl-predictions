@@ -11,6 +11,7 @@ from nfl_dfs.features.leakage import (
     assert_first_game_features_null,
     assert_historical_salary_source_reconciled,
     assert_no_leakage,
+    assert_route_source_strict_prior,
     assert_salary_universe_reconciled,
     trailing_mean_excluding_current,
 )
@@ -52,6 +53,20 @@ def test_reference_excludes_current_week():
     assert np.isnan(got.iloc[0])                       # week 1: nothing prior
     assert got.iloc[1] == pytest.approx(vals[0])       # week 2: only week 1
     assert got.iloc[2] == pytest.approx(np.mean(vals[:2]))
+
+
+def test_route_source_must_be_strictly_prior_across_seasons():
+    good = pd.DataFrame([
+        {"season": 2026, "week": 2,
+         "fp_route_source_season": 2026, "fp_route_source_week": 1},
+        {"season": 2026, "week": 1,
+         "fp_route_source_season": 2025, "fp_route_source_week": 18},
+    ])
+    assert_route_source_strict_prior(good)
+    bad = good.copy()
+    bad.loc[0, "fp_route_source_week"] = 2
+    with pytest.raises(LeakageError, match="same/future-week"):
+        assert_route_source_strict_prior(bad)
 
 
 def test_expanding_window():

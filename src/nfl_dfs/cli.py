@@ -205,6 +205,17 @@ def main(argv: list[str] | None = None) -> None:
     )
 
     p = sub.add_parser(
+        "import-fantasy-points-route-weekly",
+        help="Audit/append one manifest-locked prospective Route Share week",
+    )
+    p.add_argument("--input-dir", required=True)
+    p.add_argument("--target-week", required=True, type=int)
+    p.add_argument(
+        "--write", action="store_true",
+        help="Archive licensed bytes and append only novel non-conflicting rows",
+    )
+
+    p = sub.add_parser(
         "fantasy-points-route-diagnostic",
         help="Run the frozen paid true Route Share player-tail gate",
     )
@@ -606,6 +617,14 @@ def main(argv: list[str] | None = None) -> None:
         from .ingest import fantasy_points_route
 
         fantasy_points_route.run(args.input_dir, write=args.write)
+    elif args.command == "import-fantasy-points-route-weekly":
+        from .ingest import fantasy_points_route_weekly
+
+        fantasy_points_route_weekly.run(
+            args.input_dir,
+            target_week=args.target_week,
+            write=args.write,
+        )
     elif args.command == "fantasy-points-route-diagnostic":
         from .analysis import fantasy_points_route_share
 

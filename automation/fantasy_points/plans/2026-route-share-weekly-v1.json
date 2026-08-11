@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "name": "2026-route-share-weekly-v1",
+  "delay_between_downloads_seconds": 2,
+  "reports": [
+    {
+      "report": "route-share",
+      "seasons": [2026],
+      "target_weeks": "2-18",
+      "source_window": "previous-week",
+      "include_group_headers": false
+    }
+  ]
+}

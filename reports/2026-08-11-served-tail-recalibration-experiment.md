@@ -198,3 +198,12 @@ flagged for operator review rather than silently promoted. Focused contracts,
 the complete local test suite, compilation, shell syntax and whitespace
 checks pass. The next action is an exact-tree Cloud Build followed by the one
 immutable replay; production remains pinned to identity meanwhile.
+
+Exact-tree Cloud Build `82147e17-6c8d-4a99-bd3d-b56475d0724a` succeeded from
+implementation commit `3431add` and published immutable image digest
+`sha256:22f0936b307236a2cfc9462f50e9bf4bd31f57dfa0b7975132baec9766db90e8`.
+The sole Stage B wrapper launch began from that digest on 2026-08-11. Its
+immutable 2024 smoke execution is `replay-lockk1tail-smoke-md2tb`; the tracked
+manifest is under
+`reports/panel-runs/20260811-lockfix-e80-k1-role12-tail1025-v1/`. Do not launch
+the treatment again or test another factor.

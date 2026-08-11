@@ -174,6 +174,29 @@ def assert_first_game_features_null(built: pd.DataFrame, feature_cols: list[str]
             )
 
 
+def assert_route_source_strict_prior(rows: pd.DataFrame) -> None:
+    """Every attached licensed Route observation predates its target week."""
+    needed = {
+        "season", "week", "fp_route_source_season", "fp_route_source_week",
+    }
+    if missing := needed - set(rows.columns):
+        raise LeakageError(f"Route source audit missing {sorted(missing)}")
+    attached = rows.dropna(
+        subset=["fp_route_source_season", "fp_route_source_week"]
+    ).copy()
+    source_order = (
+        attached.fp_route_source_season.astype(int) * 100
+        + attached.fp_route_source_week.astype(int)
+    )
+    target_order = attached.season.astype(int) * 100 + attached.week.astype(int)
+    if source_order.ge(target_order).any():
+        bad = attached.loc[source_order.ge(target_order)].head(25)
+        raise LeakageError(
+            "Fantasy Points Route Share contains same/future-week sources. "
+            f"Sample:\n{bad.to_string(index=False)}"
+        )
+
+
 # SQL-side checks used in production against BigQuery ------------------------
 
 CHECKED_FEATURES = [
@@ -549,6 +572,13 @@ def run_leakage_checks() -> None:
         cov_built, [f for f, _ in COVERAGE_CHECKS] + ["top_cb_out"],
         ("team", "season"),
     )
+
+    route_sources = query_df(f"""
+        SELECT season, week, fp_route_source_season, fp_route_source_week
+        FROM `{settings.features}.player_week_fp_route`
+        WHERE fp_route_source_season IS NOT NULL
+        """)
+    assert_route_source_strict_prior(route_sources)
 
     # Training-table sanity: labels exist, features don't correlate perfectly
     # with same-week labels (a 1.0 correlation is a copied column).

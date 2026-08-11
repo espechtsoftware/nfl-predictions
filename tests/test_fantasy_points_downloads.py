@@ -18,6 +18,7 @@ from nfl_dfs.ops.fantasy_points_downloads import (
     expand_plan,
     load_plan,
     parse_weeks,
+    select_target_week,
 )
 
 
@@ -223,6 +224,27 @@ def test_generated_prior_windows_enforce_target_week_boundary():
         "advanced-receiving__season-2025__weeks-01-04"
         "__target-week-05__context-player.csv"
     )
+
+
+def test_previous_week_plan_and_runtime_target_selection():
+    plan = {
+        "schema_version": 1,
+        "reports": [{
+            "report": "route-share",
+            "seasons": [2026],
+            "target_weeks": "2-4",
+            "source_window": "previous-week",
+        }],
+    }
+    specs = expand_plan(plan)
+    assert [(spec.target_week, spec.weeks) for spec in specs] == [
+        (2, (1,)), (3, (2,)), (4, (3,)),
+    ]
+    selected = select_target_week(specs, 3)
+    assert len(selected) == 1
+    assert selected[0].weeks == (2,)
+    with pytest.raises(ValueError, match="declares no exports"):
+        select_target_week(specs, 5)
 
 
 def test_generated_window_rejects_target_week_one():

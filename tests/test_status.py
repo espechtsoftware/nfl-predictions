@@ -117,12 +117,22 @@ def test_nav_html_has_status_button():
     assert "statusmodal" in app_main._NAV_HTML
 
 
-def test_nav_html_defers_paid_downloads_until_adoption():
-    assert "No recurring Fantasy" in app_main._NAV_HTML
-    assert (
-        "Never upload data produced by the games being predicted"
-        in app_main._NAV_HTML
+def test_nav_html_has_strict_prior_route_share_checklist():
+    assert "Fantasy Points Weekly Route Share only" in app_main._NAV_HTML
+    assert "2026-route-share-weekly-v1" in app_main._NAV_HTML
+    assert "only completed source" in app_main._NAV_HTML
+    assert "Never select or import Week W" in app_main._NAV_HTML
+
+
+def test_route_share_status_is_visible_but_shadow_does_not_page():
+    feed = next(
+        item for item in status.FEEDS
+        if item.key == "fantasy_points_route_share"
     )
+    assert feed.table == "fantasy_points_route_share"
+    assert feed.season == "nfl"
+    assert not feed.alert
+    assert "source Week W-1" in feed.note
 
 
 def test_nav_html_requires_ephemeral_gpp_standings_capture():

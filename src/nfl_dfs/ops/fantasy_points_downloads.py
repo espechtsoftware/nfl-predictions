@@ -351,16 +351,23 @@ def expand_plan(payload: dict[str, Any]) -> list[ExportSpec]:
             generated_windows = [(parse_weeks(window), None) for window in windows]
         else:
             target_weeks = parse_weeks(target_weeks_raw)
-            if source_window not in ("cumulative-prior", "last-four-prior"):
+            if source_window not in (
+                "cumulative-prior", "last-four-prior", "previous-week",
+            ):
                 raise ValueError(
                     f"{report_key}: source_window must be cumulative-prior "
-                    "or last-four-prior"
+                    "last-four-prior or previous-week"
                 )
             generated_windows = []
             for target_week in target_weeks:
                 if target_week < 2:
                     raise ValueError(f"{report_key}: target week must be at least 2")
-                first = 1 if source_window == "cumulative-prior" else max(1, target_week - 4)
+                if source_window == "cumulative-prior":
+                    first = 1
+                elif source_window == "last-four-prior":
+                    first = max(1, target_week - 4)
+                else:
+                    first = target_week - 1
                 generated_windows.append((tuple(range(first, target_week)), target_week))
         for season_raw in seasons:
             season = int(season_raw)
@@ -401,6 +408,20 @@ def load_plan(path: Path) -> tuple[dict[str, Any], list[ExportSpec]]:
     if not isinstance(payload, dict):
         raise ValueError("plan root must be an object")
     return payload, expand_plan(payload)
+
+
+def select_target_week(
+    specs: Sequence[ExportSpec], target_week: int | None,
+) -> list[ExportSpec]:
+    """Select one declared target week without weakening plan validation."""
+    if target_week is None:
+        return list(specs)
+    if not 2 <= target_week <= 22:
+        raise ValueError("target week must be between 2 and 22")
+    selected = [spec for spec in specs if spec.target_week == target_week]
+    if not selected:
+        raise ValueError(f"plan declares no exports for target week {target_week}")
+    return selected
 
 
 def artifact_name(spec: ExportSpec) -> str:
@@ -930,6 +951,7 @@ def run_downloads(
     headless: bool,
     timeout_seconds: float,
     reuse_from: Path | None = None,
+    target_week: int | None = None,
 ) -> Path:
     try:
         from playwright.sync_api import sync_playwright
@@ -937,6 +959,7 @@ def run_downloads(
         raise RuntimeError('install browser support with `pip install -e ".[browser]"`') from exc
 
     payload, specs = load_plan(plan_path)
+    specs = select_target_week(specs, target_week)
     catalog = validate_catalog(timeout_seconds)
     run_id = f"{_utc_stamp()}__{re.sub(r'[^a-z0-9-]+', '-', payload.get('name', 'exports').lower()).strip('-')}"
     run_dir = output_root / run_id
@@ -948,6 +971,7 @@ def run_downloads(
         "plan_sha256": _sha256(plan_path),
         "started_at_utc": datetime.now(UTC).isoformat(),
         "point_in_time_contract": "Every target week may use only completed source weeks strictly less than it.",
+        "selected_target_week": target_week,
         "catalog": catalog,
         "exports": [],
     }
@@ -1187,8 +1211,10 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     check = subparsers.add_parser("check", help="validate a plan and the live report catalog")
     check.add_argument("--plan", type=Path, required=True)
+    check.add_argument("--target-week", type=int)
     run = subparsers.add_parser("run", help="run every export in a plan")
     run.add_argument("--plan", type=Path, required=True)
+    run.add_argument("--target-week", type=int)
     run.add_argument(
         "--output-root", type=Path, default=_repo_root() / "fantasy-points" / "automated"
     )
@@ -1215,6 +1241,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
             return 0
         payload, specs = load_plan(args.plan)
+        specs = select_target_week(specs, args.target_week)
         catalog = validate_catalog(args.timeout)
         if args.command == "check":
             print(
@@ -1236,6 +1263,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             headless=not args.headed,
             timeout_seconds=args.timeout,
             reuse_from=args.reuse_from,
+            target_week=args.target_week,
         )
         print(f"Completed: {manifest}")
         return 0

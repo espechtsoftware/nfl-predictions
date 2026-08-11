@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 07:19 CDT
+## Current state — 2026-08-11 07:42 CDT
 
-Active branch is `main`; repository work through commit `0afa9e8` is pushed.
+Active branch is `main`; Stage B implementation commit `3431add` is pushed.
 The three operator-supplied outside-review documents
 `reports/2026-08-10-scoring-strategy-recommendations.md`,
 `reports/2026-08-11-fantasy-points-data-utilization.md`, and
@@ -131,9 +131,49 @@ not be staged or modified.
   240/230/220/210 decision order. Mixed high-threshold results require
   operator review. The complete local test suite, focused contracts,
   compilation, shell syntax and whitespace checks pass. Production is still
-  pinned to identity. The exact next action is to commit and push this
-  harness, run one exact-tree Cloud Build, record its immutable digest, and
-  launch the sole Stage B replay.
+  pinned to identity. Exact-tree Cloud Build
+  `82147e17-6c8d-4a99-bd3d-b56475d0724a` succeeded from commit `3431add` and
+  published immutable digest
+  `sha256:22f0936b307236a2cfc9462f50e9bf4bd31f57dfa0b7975132baec9766db90e8`.
+  The sole Stage B launch is now in progress. Its immutable 2024 smoke is
+  `replay-lockk1tail-smoke-md2tb`; the launch manifest is tracked under
+  `reports/panel-runs/20260811-lockfix-e80-k1-role12-tail1025-v1/`. The wrapper
+  will launch the frozen 2023/2024/2025 jobs only after that smoke succeeds.
+  Do not rerun this treatment or test another factor. Next action: let the
+  wrapper finish, record all execution IDs, accept the exact 54 treatment
+  slates, run the frozen comparator, and promote only on its stated Stage B
+  disposition.
+- The outside review's prospective Route Share recommendation is now frozen
+  before any 2026 Route value or outcome in
+  `reports/2026-08-11-route-share-2026-operating-contract.md`. The declarative
+  2026 plan uses exactly source Week W-1 for target Weeks 2--18, and the
+  downloader can select one target via `--target-week`. The new weekly importer
+  requires one complete frozen-plan manifest, re-hashes and schema-checks the
+  artifact, proves source < target, resolves against point-in-time 2026
+  rosters while retaining unresolved audits, archives exact bytes to a
+  create-only hash-addressed GCS object, and append-only rejects any stored
+  value/hash conflict. `017k_fantasy_points_route.sql` derives last/l4/jump/
+  cross-season features mechanically from strictly earlier observations and
+  joins the same nullable, labeled-fallback fields to training and inference;
+  the production model remains unchanged unless an explicit shadow model opts
+  into the already registered four features. A dedicated leakage assertion
+  enforces source season/week < target season/week, and backup discovery has a
+  focused actual-table guard. The live target-Week-2 plan/catalog check
+  validates all 28 reports and expands to exactly one Week-1 artifact; the
+  combined Route/training/inference SQL passes a BigQuery dry run. The complete
+  local suite passes `850 passed, 2 skipped`, with compilation and whitespace
+  checks clean. This work is ready for its milestone commit; stage and push it
+  without the three operator review documents.
+- The review's other prospective recommendation is frozen, without using the
+  stale offseason samples, in
+  `reports/2026-08-11-fantasy-points-live-matchup-capture-contract.md`.
+  QB Coverage Matchup, WR Coverage Matchup and OL/DL Matchups will be captured
+  before lock only after every vendor team/opponent pair exactly matches the
+  project-derived 2026 target-week schedule. Exact bytes/manifests will be
+  archived, early weeks retain the vendor's prior-season-input label, and the
+  data is collection-only until a separately frozen prospective scoring gate.
+  Next action after the Route milestone is to extend the downloader for these
+  no-history schedule-week surfaces; no current production path depends on it.
 - The next paid-data correlation study was frozen and pushed before any
   outcome join at commit `8263fe8`:
   `reports/2026-08-10-fantasy-points-coverage-fit-experiment.md`. It tests only

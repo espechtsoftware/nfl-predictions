@@ -72,6 +72,15 @@ SELECT
   qn.qb_cpoe_l6,
   qn.qb_time_to_throw_l6,
 
+  -- Licensed Route Share prospective shadow. 017k mechanically selects only
+  -- observations earlier than this target week. These remain inert unless a
+  -- shadow model explicitly opts into the four registered EXTRA_FEATURES.
+  fr.fp_route_source_season, fr.fp_route_source_week,
+  fr.fp_route_prior_observations,
+  fr.fp_route_share_last, fr.fp_route_share_l4,
+  fr.fp_route_share_jump, fr.fp_route_cross_season,
+  fr.fp_route_fallback,
+
   -- Opportunity vacated by teammates ruled Out this week (own share
   -- excluded): the point-in-time next-man-up signal.
   GREATEST(
@@ -183,6 +192,8 @@ LEFT JOIN `${features}.team_week_target_concentration` tc
   ON tc.team = u.team AND tc.season = u.season AND tc.week = u.week
 LEFT JOIN `${features}.qb_week_ngs` qn
   ON qn.gsis_id = u.gsis_id AND qn.season = u.season AND qn.week = u.week
+LEFT JOIN `${features}.player_week_fp_route` fr
+  ON fr.gsis_id = u.gsis_id AND fr.season = u.season AND fr.week = u.week
 WHERE u.position IN ('QB', 'RB', 'WR', 'TE')
   -- Salary-spined history deliberately retains in-season debuts and listed
   -- players with no prior stat line. Cold-start handling is part of the live
