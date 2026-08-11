@@ -102,7 +102,12 @@ windows (16,119 resolved, 363 unresolved and zero ambiguous), suppressed three
 duplicate groups, validated the exact component partition for all 16,485
 source rows, and marked 9,489 rows supported. The private table was created
 and the mandatory repeat returned `already-identical`. The one-shot cloud
-wrapper is frozen to these counts and provenance. Backup is in progress;
-outcome evaluation and lineup generation have not started. The already known
+wrapper is frozen to these counts and provenance. Backup execution
+`backup-tables-p8ckj` completed successfully and snapshot
+`fantasy_points_route_shape_l4_20260811` has exactly 16,482 rows. Exact-tree
+Cloud Build `1dfbb3a2-9ab5-410a-933c-0913af4f17f1` from commit `3039af9`
+passed 811 tests with two expected skips and published immutable digest
+`sha256:35283c02d0be0bfb1be32fd4c9f8a3d9ee81da15ff20e6dc6d471772a11f3d76`.
+Outcome evaluation and lineup generation have not started. The already known
 same-season coverage and Advanced Passing failures do not contain any Route
 Break treatment value and did not select these count-only coordinates.

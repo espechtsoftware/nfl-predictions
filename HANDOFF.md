@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 03:12 CDT
+## Current state — 2026-08-11 03:27 CDT
 
-Active branch is `main`; the last pushed milestone is commit `d3c7f5d`.
+Active branch is `main`; the last pushed milestone is commit `3039af9`.
 The two operator-supplied outside-review documents under `reports/` remain
 untracked and must not be staged or modified.
 
@@ -315,11 +315,15 @@ untracked and must not be staged or modified.
   suppressed three duplicate groups, validated exact component sums for all
   16,485 source rows and marked 9,489 rows supported. The private table was
   created and the mandatory repeat returned `already-identical`. Backup
-  execution `backup-tables-p8ckj` is in progress. One-shot wrapper
+  execution `backup-tables-p8ckj` completed successfully; snapshot
+  `fantasy_points_route_shape_l4_20260811` has exactly 16,482 rows. One-shot wrapper
   `scripts/cloud_fantasy_points_same_season_route_shape.sh` is frozen to the
-  source run/counts, accepted panel and an immutable image. Commit/push this
-  intake milestone, obtain a verified backup and exact-tree Cloud Build
-  digest, then launch the wrapper exactly once; no outcome query has started.
+  source run/counts, accepted panel and an immutable image. Exact-tree Cloud
+  Build `1dfbb3a2-9ab5-410a-933c-0913af4f17f1` from commit `3039af9` passed
+  811 tests with two expected skips and published digest
+  `sha256:35283c02d0be0bfb1be32fd4c9f8a3d9ee81da15ff20e6dc6d471772a11f3d76`.
+  Commit/push this durable pre-outcome provenance, then launch the wrapper
+  exactly once with that digest; no outcome query has started.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no
