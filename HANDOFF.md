@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 23:27 CDT
+## Current state — 2026-08-10 23:31 CDT
 
-Active branch is `main`; the last pushed milestone is commit `0ab1c58`.
+Active branch is `main`; the last pushed milestone is commit `2ace0ae`.
 The two operator-supplied outside-review documents under `reports/` remain
 untracked and must not be staged or modified.
 
@@ -119,7 +119,13 @@ untracked and must not be staged or modified.
   `accept-replay-panel-t56n4` passed 27,468 candidates across 107 exact-80
   slates with replay/live parity. Coverage candidates were 1.6% of the pool
   and 0.2% of selected slots; acceptance's selected 187/194/200 remained
-  `34/22/11`. Run the one frozen coverage comparator against direct role next.
+  `34/22/11`. Frozen comparator execution
+  `fantasy-points-coverage-tail-union-gxfwg` then passed every mechanical
+  check. It added 432 novel candidates and changed 33 selected slots in each
+  direction, but all 107 weekly maxima tied the source exactly. Selected
+  187/194/200/210/220/230/240 remained `34/22/11/7/5/3/2`, as did the pool
+  oracle `42/28/16/9/5/3/2`; disposition is `keep-source-incumbent`. This
+  prior-season coverage candidate arm is closed with no retry.
 - The operator supplied an outcome-viewed outside review of the paid Fantasy
   Points data. Its repository-verified disposition is tracked in
   `reports/2026-08-11-fantasy-points-utilization-reconciliation.md`. Weekly
@@ -166,8 +172,10 @@ untracked and must not be staged or modified.
   The downloader now awaits and validates the exact report-values POST,
   rendered game counts, and downloaded Season/G scope. Live regression run
   `20260811T042431Z__apply-scope-regression-check` passed with 299 Season-2022
-  rows and `G=1..4`. Restart the 168-export collection under a new run id and
-  do not consume it until the final manifest passes the locked importer. The importer,
+  rows and `G=1..4`. Corrected collection run
+  `20260811T042759Z__same-season-coverage-last-four-v1` is active; do not
+  consume it until the command completes and its final manifest passes the
+  locked importer. The importer,
   same-season PIT attachment/diagnostic, CLI commands and focused tests are
   implemented in the working milestone without reading outcomes. The two new
   raw table names are explicit daily-backup members and also match automatic

@@ -108,3 +108,17 @@ direct versus Route source until the recorded Route disposition makes that
 choice mechanical. An exact-tree Cloud Build is still required before launch.
 The original licensed exports remain private and hash-locked; no additional
 vendor table is allowed.
+
+## Completed frozen result
+
+All six treatment seasons and check-only acceptance completed successfully.
+Frozen comparator execution `fantasy-points-coverage-tail-union-gxfwg`
+passed source containment, exact-80 completeness, shared-world parity and
+strict-prior receiver/defense provenance. The union added 432 novel coverage
+candidates and changed 33 selected slots in each direction, but the source
+and union weekly maxima tied on all 107 slates. Both selected grids were
+`34/22/11/7/5/3/2` at 187/194/200/210/220/230/240; both pool-oracle grids
+were `42/28/16/9/5/3/2`. The frozen disposition is
+`keep-source-incumbent`; this exact prior-season coverage-tail arm is closed
+without a retry. Durable artifacts are under
+`reports/coverage-tail-union-runs/20260810-fp-coverage-tail-union-v1/`.

@@ -1,0 +1,8 @@
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:d3d53256d8db9c34f120108bead5bb44a3ab2f512c2db4a7c6956eeb1e3d5534
+source=20260810-lockfix-e80-k1-role12union-8677d21
+treatment=20260810-lockfix-e80-k1-role12-cov12-d977d0c
+source_table=replay_candidates
+treatment_table=replay_candidates_staging
+entries=80
+coverage_candidates=12
+treated_seasons=2024 2025
