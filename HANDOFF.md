@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 20:23 CDT
+## Current state — 2026-08-10 20:47 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -95,8 +95,14 @@ agent or developer:
   suite passed, with compilation and whitespace checks clean. Conditional
   wrapper `scripts/prop_lock_coverage_tail_union.sh` is frozen to code
   `d977d0c` and refuses to launch until the Route report mechanically selects
-  direct or Route source. Next: commit the wrapper/protocol update, run an
-  exact-tree Cloud Build, then wait for Route; there is no dose/feature retry.
+  direct or Route source. Real score-free loader audits produced 1,709 2024
+  rows using source season 2023 and 1,683 2025 rows using source season 2024,
+  with finite deltas throughout. Exact-tree Cloud Build
+  `b9a70848-cf5b-469e-83d4-de43f3af9315` from wrapper tree `848d977` passed
+  775 tests with 2 skipped and produced immutable digest
+  `sha256:d3d53256d8db9c34f120108bead5bb44a3ab2f512c2db4a7c6956eeb1e3d5534`.
+  Wait for Route, then use this digest for the one mechanically selected
+  coverage panel; there is no dose/feature retry.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no
