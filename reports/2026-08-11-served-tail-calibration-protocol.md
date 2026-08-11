@@ -95,17 +95,32 @@ errors and a preregistered minimum detectable effect; CRPS and upper-tail
 pinball/calibration may be primary where the intervention changes a full
 distribution, while 20/30-point Brier remains mandatory.
 
-## Pre-result status
+## Result
 
 Protocol was frozen and pushed at commit `16eec10`. The exact-population
 alignment, production-environment guard, final-draw scorer, q90/q95/q99
 calibration intervals, pinball/CRPS/Brier diagnostics, CLI and one-shot Cloud
-runner are implemented. Focused offline validation passes. Cloud Run
-execution and final metrics have not started.
+runner were implemented and passed focused offline validation.
 
 Exact-tree Cloud Build `98d988c4-ba7e-4dc6-b36b-73ec5842d761` from
 implementation commit `f75ac08` passed 827 tests with two expected skips and
 published immutable image digest
 `sha256:4501adb4d4d7389feb931b4f2696eb780c18f3207d5e00732b54c5d616bdf7ff`.
-Use that digest for the one wrapper execution; never run the diagnostic from
-the mutable tag.
+The one immutable Cloud Run execution `served-tail-calibration-6fk9k`
+completed successfully from that digest. It reproduced exact fold populations
+of 4,666/4,596/4,614 rows with zero actual-score delta, zero post-shaper mean
+delta, and maximum post-blend mean delta `3.55e-15`.
+
+Aggregate q90/q95/q99 exceedance was 10.5794%/5.4627%/1.4774%. The q99
+week-clustered 95% interval was 1.2526%--1.7021%, wholly above the nominal 1%.
+The preregistered gate therefore passes with disposition
+`served-upper-tail-defect-confirmed`. Fold q99 exceedance was
+1.3288%/1.6971%/1.4088% in 2023/2024/2025. By position, q99 exceedance was
+1.5653% RB, 1.8806% WR and 0.7368% TE; these are descriptive and may not
+select position-specific corrections.
+
+The durable report and raw execution record are under
+`reports/served-tail-calibration-runs/20260811-served-tail-calibration-v1/`.
+The confirmation licenses the one separately frozen experiment in
+`reports/2026-08-11-served-tail-recalibration-experiment.md`; it does not by
+itself change production behavior.

@@ -51,9 +51,13 @@ review remains unmodified and untracked at
 
 ## Resulting queue
 
-1. Measure final served-path q90/q95/q99 calibration on the exact held-out
-   population under the frozen protocol.
-2. If confirmed, preregister and test one mean-invariant tail recalibration.
+1. The final served-path diagnostic is complete. It reproduced the exact
+   13,876-row population and confirmed a thin upper tail: q90/q95/q99
+   exceedance was 10.5794%/5.4627%/1.4774%, with q99's week-clustered 95%
+   lower bound at 1.2526%.
+2. Test the separately frozen one-factor, mean-invariant recalibration. Its
+   factor is fit only on 2019/2021/2022 and evaluated untouched on
+   2023--2025 before any lineup replay.
 3. Implement the immutable 2026 Route Share weekly append and shadow path in
    parallel with preseason operations.
 4. Only after the calibration path resolves, reconsider whether the

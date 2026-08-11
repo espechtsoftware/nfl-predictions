@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 06:10 CDT
+## Current state — 2026-08-11 06:25 CDT
 
-Active branch is `main`; repository work through commit `f75ac08` is pushed.
+Active branch is `main`; repository work through commit `5df572f` is pushed.
 The three operator-supplied outside-review documents
 `reports/2026-08-10-scoring-strategy-recommendations.md`,
 `reports/2026-08-11-fantasy-points-data-utilization.md`, and
@@ -80,8 +80,20 @@ not be staged or modified.
   `98d988c4-ba7e-4dc6-b36b-73ec5842d761` passed 827 tests with two expected
   skips and published immutable digest
   `sha256:4501adb4d4d7389feb931b4f2696eb780c18f3207d5e00732b54c5d616bdf7ff`.
-  Run the wrapper once with that digest; no final-path outcome has been
-  generated yet.
+  The one immutable execution `served-tail-calibration-6fk9k` completed and
+  reproduced exact fold populations 4,666/4,596/4,614 with zero actual and
+  post-shaper mean delta and maximum post-blend mean delta `3.55e-15`.
+  Aggregate served q90/q95/q99 exceedance is
+  `10.5794%/5.4627%/1.4774%`; q99's week-clustered 95% interval is
+  `1.2526%--1.7021%`, wholly above nominal. The frozen defect gate therefore
+  passes. The durable report is in
+  `reports/served-tail-calibration-runs/20260811-served-tail-calibration-v1/`.
+  One follow-up is now frozen before producing any corrected metric or score
+  in `reports/2026-08-11-served-tail-recalibration-experiment.md`: fit one
+  global mean-invariant RB/WR/TE spread scale only on 2019/2021/2022 final
+  served draws, gate it on untouched 2023--2025 calibration/loss metrics,
+  and only then run one exact-80 2023--2025 lineup treatment. The exact next
+  action is to implement and validate Stage A; production remains unchanged.
 - The next paid-data correlation study was frozen and pushed before any
   outcome join at commit `8263fe8`:
   `reports/2026-08-10-fantasy-points-coverage-fit-experiment.md`. It tests only

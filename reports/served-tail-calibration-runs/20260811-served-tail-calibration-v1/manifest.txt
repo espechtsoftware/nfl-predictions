@@ -1,0 +1,15 @@
+run_id=20260811-served-tail-calibration-v1
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:4501adb4d4d7389feb931b4f2696eb780c18f3207d5e00732b54c5d616bdf7ff
+panel=20260810-lockfix-e80-k1-8677d21
+held_out=2023 2024 2025
+positions=RB WR TE
+expected_rows=13876
+model_ensemble=1
+n_sims=10000
+game_sim_mode=possession
+game_sim_team_factors=1
+sim_widen_draws=fitted
+tabpfn_marginals=1
+emp_marginals_fallback=1
+shape_mix=1
+blend_model_weight=0.45
