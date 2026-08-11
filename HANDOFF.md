@@ -20,11 +20,11 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 12:26 CDT
+## Current state — 2026-08-11 12:32 CDT
 
-Active branch is `main`; completed Advanced Receiving support-audit/protocol
-commit `66d8c9a` is pushed. The exact diagnostic implementation is included in
-the next milestone commit and has not yet read outcomes.
+Active branch is `main`; Advanced Receiving diagnostic implementation commit
+`5aee8aa` is pushed. Its single preregistered outcome run is complete and
+failed the frozen gate; the result files are tracked in this milestone.
 The three operator-supplied outside-review documents
 `reports/2026-08-10-scoring-strategy-recommendations.md`,
 `reports/2026-08-11-fantasy-points-data-utilization.md`, and
@@ -233,8 +233,19 @@ not be staged or modified.
   intervals and MDE. Fourteen focused ingestion/diagnostic/backup tests pass,
   compilation, CLI discovery and whitespace checks are clean; all 871
   collected repository tests finish successfully with the expected skip.
-  Exact next action: commit/push this implementation, then run it once and
-  freeze the result. No lineup arm is yet licensed.
+  Implementation commit `5aee8aa` was pushed before the one outcome query.
+  The frozen run then evaluated 6,710 supported held-out rows and 101 realized
+  30-point events, clearing both support gates but failing the scientific
+  gate. CRPS worsened `3.009499 -> 3.014598` and MAE worsened
+  `3.976948 -> 3.988477`, each in all three folds; their paired week-clustered
+  95% treatment-minus-control intervals were wholly unfavorable at
+  `+0.001829--+0.008059` and `+0.005517--+0.017644`. Equal-fold q95/q99
+  pinball ratio was `0.999835`, short of the required `0.995`; 30-point Brier
+  was effectively neutral but slightly worse. The durable machine report is
+  `reports/fantasy-points-diagnostic-runs/20260811-advanced-receiving-v1/diagnostic.json`
+  and the readable result is
+  `reports/2026-08-11-advanced-receiving-diagnostic-result.md`. This exact
+  family is closed with no lineup arm, retry or production change.
 - The outside review's prospective Route Share recommendation is now frozen
   before any 2026 Route value or outcome in
   `reports/2026-08-11-route-share-2026-operating-contract.md`. The declarative
