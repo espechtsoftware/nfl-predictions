@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 00:03 CDT
+## Current state — 2026-08-11 00:33 CDT
 
-Active branch is `main`; the last pushed milestone is commit `34dfaa6`.
+Active branch is `main`; the last pushed milestone is commit `a6c1c9a`.
 The two operator-supplied outside-review documents under `reports/` remain
 untracked and must not be staged or modified.
 
@@ -179,10 +179,17 @@ untracked and must not be staged or modified.
   The downloader now awaits and validates the exact report-values POST,
   rendered game counts, and downloaded Season/G scope. Live regression run
   `20260811T042431Z__apply-scope-regression-check` passed with 299 Season-2022
-  rows and `G=1..4`. Corrected collection run
-  `20260811T042759Z__same-season-coverage-last-four-v1` is active; do not
-  consume it until the command completes and its final manifest passes the
-  locked importer. The importer,
+  rows and `G=1..4`. Run
+  `20260811T042759Z__same-season-coverage-last-four-v1` safely completed all
+  112 receiver exports, then stopped before the first matrix export because
+  the rendered-row guard assumed a visible Season cell that the team grid
+  omits. No matrix file was accepted. The guard now recognizes the actual
+  Rank/Name/G layout while Apply and CSV gates still enforce Season. Live
+  regression `20260811T053128Z__coverage-matrix-window-semantics-v1` passed
+  two exact 32-team windows. New immutable run
+  `20260811T053208Z__same-season-coverage-last-four-v1` revalidated and
+  reused the exact 112-file prefix and is collecting the remaining matrices;
+  do not consume it until its final manifest passes the locked importer. The importer,
   same-season PIT attachment/diagnostic, CLI commands and focused tests are
   implemented in the working milestone without reading outcomes. The two new
   raw table names are explicit daily-backup members and also match automatic
@@ -217,8 +224,8 @@ untracked and must not be staged or modified.
   report routes, custom Headless UI Season/Week controls, context-first
   navigation, mandatory `Apply`, post-Apply exact-week revalidation, custom
   export switches/action and bounded empty-SPA retries are implemented.
-  Playwright 1.62, Chromium 151 and system libraries are installed. Sixteen
-  focused Playwright/floor tests pass. Successful ignored manifests include
+  Playwright 1.62, Chromium 151 and system libraries are installed. Seventeen
+  focused downloader tests pass. Successful ignored manifests include
   `20260811T033115Z__advanced-receiving-window-semantics-v1`,
   `20260811T033342Z__coverage-matrix-window-semantics-v1`, and
   `20260811T035458Z__coverage-matrix-offense-window-semantics-v1`. Never

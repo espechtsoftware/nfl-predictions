@@ -149,3 +149,16 @@ tests with 2 skipped and produced immutable diagnostic image
 `sha256:b1292d1ed171e20edf94e8a2f6ded5d63fdb1f83e9daa91e8d3acb6f37fa7d98`.
 No diagnostic may run until the corrected collection completes and passes
 the manifest-locked audit/import contract.
+
+The next corrected run safely finished all 112 receiver exports but stopped
+before its first Defense Matrix export: the rendered-table guard expected a
+visible Season cell, while the live team grid renders Rank/Name/G and keeps
+Season only in the applied request and CSV. No defense artifact was accepted.
+The team-row parser now matches the actual visible layout without weakening
+either independent Season check. Focused validation passed, and live run
+`20260811T053128Z__coverage-matrix-window-semantics-v1` returned two exact
+32-team, 22-column windows with different hashes. Run
+`20260811T053208Z__same-season-coverage-last-four-v1` revalidated the prior
+plan, filters, hashes, shapes and Season/G scope before copying its 112-file
+successful prefix, then resumed the remaining matrices in a new immutable
+directory. No treatment outcome has been read.

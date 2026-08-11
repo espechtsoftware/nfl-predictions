@@ -597,6 +597,24 @@ def _assert_values_response_scope(response: Any, spec: ExportSpec) -> None:
         raise RuntimeError("Apply values response has no content")
 
 
+def _game_count_from_rendered_row(lines: Sequence[str]) -> int | None:
+    """Read G from the frozen identity cells of player or team rows."""
+    if not lines or not lines[0].isdigit():
+        return None
+    # Player reports freeze Rank/Name/Team/POS/G at the left edge.
+    if (
+        len(lines) >= 5
+        and lines[3].upper() in {"QB", "RB", "FB", "WR", "TE"}
+        and lines[4].isdigit()
+    ):
+        return int(lines[4])
+    # Coverage Matrix renders Rank/Name/G before the metric cells. Season is
+    # carried by the Apply payload and CSV but is not a visible grid column.
+    if len(lines) >= 3 and lines[1] and lines[2].isdigit():
+        return int(lines[2])
+    return None
+
+
 def _rendered_game_counts(page: Any) -> list[int]:
     games: list[int] = []
     rows = page.locator("[role='row']")
@@ -605,23 +623,8 @@ def _rendered_game_counts(page: Any) -> list[int]:
         if not row.is_visible():
             continue
         lines = [line.strip() for line in row.inner_text().splitlines()]
-        if not lines or not lines[0].isdigit():
-            continue
-        # Player reports freeze Rank/Name/Team/POS/G at the left edge.
-        if (
-            len(lines) >= 5
-            and lines[3].upper() in {"QB", "RB", "FB", "WR", "TE"}
-        ):
-            if lines[4].isdigit():
-                games.append(int(lines[4]))
-            continue
-        # Team reports freeze Rank/Name/G/Season/Location/Team/DB.
-        if (
-            len(lines) >= 4
-            and lines[2].isdigit()
-            and re.fullmatch(r"20\d{2}", lines[3])
-        ):
-            games.append(int(lines[2]))
+        if (games_played := _game_count_from_rendered_row(lines)) is not None:
+            games.append(games_played)
     return games
 
 

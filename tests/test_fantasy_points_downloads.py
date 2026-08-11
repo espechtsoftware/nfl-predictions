@@ -8,6 +8,7 @@ import pytest
 from nfl_dfs.ops.fantasy_points_downloads import (
     ExportSpec,
     _assert_values_response_scope,
+    _game_count_from_rendered_row,
     _reuse_download_prefix,
     _validate_download_scope,
     artifact_name,
@@ -231,6 +232,18 @@ def test_download_scope_rejects_stale_full_season_csv(tmp_path):
     )
     with pytest.raises(RuntimeError, match="contains seasons"):
         _validate_download_scope(path, spec)
+
+
+def test_rendered_game_count_supports_player_and_team_rows():
+    assert _game_count_from_rendered_row(
+        ["1", "Receiver", "NYJ", "WR", "4", "100"]
+    ) == 4
+    assert _game_count_from_rendered_row(
+        ["1", "Baltimore Ravens", "4", "195", "28.7%"]
+    ) == 4
+    assert _game_count_from_rendered_row(
+        ["Rank", "Name", "G", "DB"]
+    ) is None
 
 
 def test_reuse_prefix_revalidates_and_copies_download(tmp_path):
