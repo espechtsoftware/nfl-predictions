@@ -82,14 +82,17 @@ review remains unmodified and untracked at
    archives hash-addressed bytes, and keeps all snapshots collection-only. The
    stale offseason samples fail the 2026 Week 1 schedule gate as intended.
 5. With calibration resolved, the review's preferred remaining historical
-   family completed collection. The frozen Advanced Receiving plan uses
+   family completed its one permitted test. The frozen Advanced Receiving plan uses
    both cumulative-prior and last-four-prior windows for 2022--2025, always
    ending before the target week. Its first phase is outcome-blind: fixed
    20/40/80-route support, six-field availability, cumulative/last-four
    agreement and redundancy against strictly prior predictors. The completed
    34,227-row audit found cumulative support materially broader than last-four
    support and retained only TPRR, YPRR and XFP per route as a stable
-   nonduplicate block. The audit code rejects outcome-bearing frames and did
-   not license a lineup arm. Its one exact cumulative/last-four shrinkage rule,
-   walk-forward models and all-row calibration/loss gate are now separately
-   frozen before outcomes; only that diagnostic may run next.
+   nonduplicate block. Its exact cumulative/last-four shrinkage rule then ran
+   once on 6,710 supported 2023--2025 rows. Treatment CRPS worsened
+   `3.009499→3.014598` and residual MAE worsened `3.976948→3.988477`, both in
+   all three folds; their paired week-clustered intervals were wholly
+   unfavorable. Equal-fold q95/q99 pinball ratio was `0.999835`, short of the
+   frozen `0.995` requirement. This exact family is closed and no lineup arm
+   is licensed.

@@ -24,7 +24,8 @@ agent or developer:
 
 Active branch is `main`; Advanced Receiving diagnostic implementation commit
 `5aee8aa` is pushed. Its single preregistered outcome run is complete and
-failed the frozen gate; the result files are tracked in this milestone.
+failed the frozen gate; result commit `6137bad` is pushed. The program-review
+reconciliation is finalized in this milestone.
 The three operator-supplied outside-review documents
 `reports/2026-08-10-scoring-strategy-recommendations.md`,
 `reports/2026-08-11-fantasy-points-data-utilization.md`, and
