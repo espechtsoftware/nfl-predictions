@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 23:45 CDT
+## Current state — 2026-08-11 00:02 CDT
 
-Active branch is `main`; the last pushed milestone is commit `920e545`.
+Active branch is `main`; the last pushed milestone is commit `6259be1`.
 The two operator-supplied outside-review documents under `reports/` remain
 untracked and must not be staged or modified.
 
@@ -194,9 +194,12 @@ untracked and must not be staged or modified.
   exact W-4:W-1 windows. The treatment is the complete predeclared QB
   process-rate/time block with an 80-dropback support floor; walk-forward
   held-out seasons are 2023--2025 and only aggregate 30-point Brier plus 50%
-  per-fold coverage gates the mechanism. Collection must wait for the active
-  coverage plan to finish; no importer, outcome diagnostic or lineup arm has
-  started.
+  per-fold coverage gates the mechanism. The manifest-locked importer,
+  strict-prior attachment, walk-forward diagnostic, CLI and explicit backup
+  member are implemented; 12 focused coverage/passing/backup tests pass and
+  the real 52-row schema sample parsed all 22 treatment features. Collection
+  must wait for the active coverage plan to finish; no table write, outcome
+  diagnostic or lineup arm has started.
 - The auditable Playwright downloader under `automation/fantasy_points/` and
   `ops/fantasy_points_downloads.py` is authenticated and operational. It uses
   a persistent profile outside the repository, never commits credentials or

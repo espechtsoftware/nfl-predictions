@@ -84,5 +84,8 @@ or lineup outcomes.
 
 Exact-window behavior is proven on two 2025 samples, and an outcome-blind
 redundancy screen established that several process fields are not reproduced
-by current QB features. The 56-export plan is frozen but collection, importer
-implementation, outcome diagnostic and any lineup test have not started.
+by current QB features. The 56-export plan, manifest-locked importer,
+strict-prior attachment, walk-forward diagnostic, CLI and backup coverage are
+implemented. Focused synthetic tests and a parse of all 52 rows in the real
+2025 Weeks 1--4 schema sample passed. Collection, table writes, outcome
+diagnostic and any lineup test have not started.

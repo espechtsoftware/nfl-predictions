@@ -100,6 +100,13 @@ is `reports/2026-08-11-fantasy-points-same-season-coverage-protocol.md`.
 Do not add other catalog fields to that run or inspect outcomes before the
 protocol's importer and tests are complete.
 
+The next sequential family is frozen in
+`plans/same-season-advanced-passing-last-four-v1.json`: 56 grouped-header
+Player exports covering the same four seasons and target weeks for Advanced
+Passing only. Do not run it concurrently with the coverage plan or change its
+80-dropback/model protocol after outcomes. Its importer command is
+`nfl-dfs import-fantasy-points-same-season-passing --input-dir <completed-run>`.
+
 ## Adding or changing recurring exports
 
 Plans are declarative JSON. `seasons` and `week_windows` form a Cartesian
