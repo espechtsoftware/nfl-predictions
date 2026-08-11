@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 03:54 CDT
+## Current state — 2026-08-11 04:00 CDT
 
 Active branch is `main`; the last pushed milestone is commit `5b4c1cf`.
 The two operator-supplied outside-review documents under `reports/` remain
@@ -364,6 +364,19 @@ untracked and must not be staged or modified.
   or production policy changed. Next freeze the full weekly Route Share
   component-model test already left open by the utilization reconciliation,
   without changing its four registered Route inputs after outcomes.
+- The full Route Share component-model test is now frozen before any new
+  component prediction, simulation or lineup outcome in
+  `reports/2026-08-11-fantasy-points-route-component-protocol.md`. It adds
+  exactly `fp_route_share_last/l4/jump/cross_season` to same-code K=1
+  LightGBM components, evaluates active corrected Sunday-main RB/WR/TE rows
+  in held-out 2023--2025, and gates only on 80% per-fold prior coverage plus
+  strictly improved aggregate 30-point Brier. Component errors, composed
+  point MAE/CRPS, 20-point Brier, quantile exceedance, folds and positions are
+  mandatory diagnostics, not vetoes. This is explicitly retrospectively
+  motivated because the auxiliary Route outcomes are already viewed; no
+  threshold, position subset, coefficient, window, model or feature retry is
+  licensed. Next implement the outcome-free attachment/control/treatment
+  harness and focused tests, then commit before its one immutable Cloud run.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no
