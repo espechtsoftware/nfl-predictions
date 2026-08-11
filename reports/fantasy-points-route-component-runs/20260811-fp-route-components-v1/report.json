@@ -1,0 +1,773 @@
+{
+  "aggregate": {
+    "components": {
+      "control": {
+        "carries": {
+          "mae": 1.060398730563761,
+          "rows": 15396
+        },
+        "catch_rate": {
+          "mae": 0.25124513688224526,
+          "rows": 9449
+        },
+        "interceptions": {
+          "mae": 0.6091877660214875,
+          "rows": 1520
+        },
+        "pass_attempts": {
+          "mae": 6.246253999853828,
+          "rows": 1520
+        },
+        "pass_tds": {
+          "mae": 0.739835362985301,
+          "rows": 1520
+        },
+        "rec_tds": {
+          "mae": 0.19048081788244067,
+          "rows": 13876
+        },
+        "rush_tds": {
+          "mae": 0.09997483144062208,
+          "rows": 15396
+        },
+        "targets": {
+          "mae": 1.4692930551331043,
+          "rows": 13876
+        },
+        "ypa": {
+          "mae": 2.0292672160825016,
+          "rows": 1399
+        },
+        "ypc": {
+          "mae": 2.5686623450443453,
+          "rows": 4971
+        },
+        "ypr": {
+          "mae": 5.016240161024646,
+          "rows": 8517
+        }
+      },
+      "treatment": {
+        "carries": {
+          "mae": 1.0539117322820484,
+          "rows": 15396
+        },
+        "catch_rate": {
+          "mae": 0.251396534714542,
+          "rows": 9449
+        },
+        "interceptions": {
+          "mae": 0.6016755808110831,
+          "rows": 1520
+        },
+        "pass_attempts": {
+          "mae": 6.168180875410837,
+          "rows": 1520
+        },
+        "pass_tds": {
+          "mae": 0.7396834359904686,
+          "rows": 1520
+        },
+        "rec_tds": {
+          "mae": 0.18533658456367075,
+          "rows": 13876
+        },
+        "rush_tds": {
+          "mae": 0.09739937778183742,
+          "rows": 15396
+        },
+        "targets": {
+          "mae": 1.4416822930495,
+          "rows": 13876
+        },
+        "ypa": {
+          "mae": 2.0309035772985267,
+          "rows": 1399
+        },
+        "ypc": {
+          "mae": 2.570177025878871,
+          "rows": 4971
+        },
+        "ypr": {
+          "mae": 5.035291887501699,
+          "rows": 8517
+        }
+      }
+    },
+    "control_brier_20": 0.04991380203588931,
+    "control_brier_30": 0.01400146434419141,
+    "control_crps": 2.5794510249426232,
+    "control_mae": 3.787919323003491,
+    "control_q90_exceedance": 0.11105505909484001,
+    "control_q95_exceedance": 0.07098587489189968,
+    "control_q99_exceedance": 0.026880945517440184,
+    "events_20": 885,
+    "events_30": 211,
+    "fold": "aggregate",
+    "positions": {
+      "RB": {
+        "control_brier_20": 0.06302515731380964,
+        "control_brier_30": 0.018760050643776824,
+        "control_crps": 2.763517136445538,
+        "control_mae": 3.97620068615448,
+        "control_q90_exceedance": 0.12269628881595557,
+        "control_q95_exceedance": 0.08078767987881848,
+        "control_q99_exceedance": 0.0325675334511487,
+        "events_20": 328,
+        "events_30": 81,
+        "fold": "RB",
+        "rows": 3961,
+        "tail_rate_20": 0.08280737187578895,
+        "tail_rate_30": 0.020449381469325928,
+        "treatment_brier_20": 0.06351950674577128,
+        "treatment_brier_30": 0.018890560371118404,
+        "treatment_crps": 2.7535560770742533,
+        "treatment_mae": 3.8931243573407652,
+        "treatment_q90_exceedance": 0.14238828578641757,
+        "treatment_q95_exceedance": 0.08911890936632164,
+        "treatment_q99_exceedance": 0.03837414794243878
+      },
+      "TE": {
+        "control_brier_20": 0.021613282592105258,
+        "control_brier_30": 0.004150988239473684,
+        "control_crps": 1.9014933010293362,
+        "control_mae": 2.833395187544435,
+        "control_q90_exceedance": 0.10421052631578948,
+        "control_q95_exceedance": 0.06605263157894736,
+        "control_q99_exceedance": 0.024473684210526314,
+        "events_20": 92,
+        "events_30": 16,
+        "fold": "TE",
+        "rows": 3800,
+        "tail_rate_20": 0.024210526315789474,
+        "tail_rate_30": 0.004210526315789474,
+        "treatment_brier_20": 0.021533543236842107,
+        "treatment_brier_30": 0.0041302872657894745,
+        "treatment_crps": 1.8870106265019277,
+        "treatment_mae": 2.785780350008151,
+        "treatment_q90_exceedance": 0.10921052631578948,
+        "treatment_q95_exceedance": 0.06868421052631579,
+        "treatment_q99_exceedance": 0.02736842105263158
+      },
+      "WR": {
+        "control_brier_20": 0.0590074889746525,
+        "control_brier_30": 0.01704039302207686,
+        "control_crps": 2.8815202781245435,
+        "control_mae": 4.259122795661439,
+        "control_q90_exceedance": 0.10776778413736714,
+        "control_q95_exceedance": 0.06770237121831561,
+        "control_q99_exceedance": 0.024693376941946035,
+        "events_20": 465,
+        "events_30": 114,
+        "fold": "WR",
+        "rows": 6115,
+        "tail_rate_20": 0.07604251839738348,
+        "tail_rate_30": 0.01864268192968111,
+        "treatment_brier_20": 0.05928536224856909,
+        "treatment_brier_30": 0.01702904153883892,
+        "treatment_crps": 2.8726279528881453,
+        "treatment_mae": 4.214590680756464,
+        "treatment_q90_exceedance": 0.11316434995911692,
+        "treatment_q95_exceedance": 0.0714636140637776,
+        "treatment_q99_exceedance": 0.02714636140637776
+      }
+    },
+    "rows": 13876,
+    "tail_rate_20": 0.06377918708561545,
+    "tail_rate_30": 0.01520611127125973,
+    "treatment_brier_20": 0.05015553622585759,
+    "treatment_brier_30": 0.014028047726289999,
+    "treatment_crps": 2.568722681890275,
+    "treatment_mae": 3.731540279784053,
+    "treatment_q90_exceedance": 0.12042375324300951,
+    "treatment_q95_exceedance": 0.07574228884404728,
+    "treatment_q99_exceedance": 0.03041222254251946
+  },
+  "coverage": {
+    "2023": 0.957136733819117,
+    "2024": 0.9606179286335944,
+    "2025": 0.9659731252709146
+  },
+  "disposition": "route-share-component-tail-fails",
+  "folds": [
+    {
+      "components": {
+        "control": {
+          "carries": {
+            "mae": 1.098578579516338,
+            "rows": 5177
+          },
+          "catch_rate": {
+            "mae": 0.2486111010851959,
+            "rows": 3216
+          },
+          "interceptions": {
+            "mae": 0.6356360336181536,
+            "rows": 511
+          },
+          "pass_attempts": {
+            "mae": 6.284924823040077,
+            "rows": 511
+          },
+          "pass_tds": {
+            "mae": 0.7067720227270591,
+            "rows": 511
+          },
+          "rec_tds": {
+            "mae": 0.18287544430480848,
+            "rows": 4666
+          },
+          "rush_tds": {
+            "mae": 0.09826928430582024,
+            "rows": 5177
+          },
+          "targets": {
+            "mae": 1.4755283751103514,
+            "rows": 4666
+          },
+          "ypa": {
+            "mae": 1.9807271324448676,
+            "rows": 470
+          },
+          "ypc": {
+            "mae": 2.6255291336656517,
+            "rows": 1677
+          },
+          "ypr": {
+            "mae": 5.124149917391336,
+            "rows": 2898
+          }
+        },
+        "treatment": {
+          "carries": {
+            "mae": 1.0896052133236882,
+            "rows": 5177
+          },
+          "catch_rate": {
+            "mae": 0.2511223804151194,
+            "rows": 3216
+          },
+          "interceptions": {
+            "mae": 0.6276708949296069,
+            "rows": 511
+          },
+          "pass_attempts": {
+            "mae": 6.208348343682415,
+            "rows": 511
+          },
+          "pass_tds": {
+            "mae": 0.70570600668976,
+            "rows": 511
+          },
+          "rec_tds": {
+            "mae": 0.1768484621745908,
+            "rows": 4666
+          },
+          "rush_tds": {
+            "mae": 0.09588469576693989,
+            "rows": 5177
+          },
+          "targets": {
+            "mae": 1.448755538319527,
+            "rows": 4666
+          },
+          "ypa": {
+            "mae": 1.9860069576863408,
+            "rows": 470
+          },
+          "ypc": {
+            "mae": 2.6447607061254463,
+            "rows": 1677
+          },
+          "ypr": {
+            "mae": 5.226080411994835,
+            "rows": 2898
+          }
+        }
+      },
+      "control_brier_20": 0.0506633457715388,
+      "control_brier_30": 0.014860118424774967,
+      "control_crps": 2.6032909488684917,
+      "control_mae": 3.7917008421554166,
+      "control_q90_exceedance": 0.11551650235747964,
+      "control_q95_exceedance": 0.07543934847835405,
+      "control_q99_exceedance": 0.028504072010287183,
+      "coverage": 0.957136733819117,
+      "events_20": 303,
+      "events_30": 76,
+      "fold": "2023",
+      "positions": {
+        "RB": {
+          "control_brier_20": 0.06325081462753951,
+          "control_brier_30": 0.014621497050413846,
+          "control_crps": 2.772959038546095,
+          "control_mae": 3.989941776826079,
+          "control_q90_exceedance": 0.11512415349887133,
+          "control_q95_exceedance": 0.0797592174567344,
+          "control_q99_exceedance": 0.03160270880361174,
+          "events_20": 108,
+          "events_30": 20,
+          "fold": "RB",
+          "rows": 1329,
+          "tail_rate_20": 0.08126410835214447,
+          "tail_rate_30": 0.015048908954100828,
+          "treatment_brier_20": 0.06445514543265612,
+          "treatment_brier_30": 0.014700631693002257,
+          "treatment_crps": 2.783817151072475,
+          "treatment_mae": 3.928801451551204,
+          "treatment_q90_exceedance": 0.14296463506395787,
+          "treatment_q95_exceedance": 0.08502633559066967,
+          "treatment_q99_exceedance": 0.042136945071482315
+        },
+        "TE": {
+          "control_brier_20": 0.022785176722891563,
+          "control_brier_30": 0.003954318168674698,
+          "control_crps": 1.9073849970760786,
+          "control_mae": 2.8378761299450623,
+          "control_q90_exceedance": 0.11244979919678715,
+          "control_q95_exceedance": 0.0714859437751004,
+          "control_q99_exceedance": 0.02248995983935743,
+          "events_20": 31,
+          "events_30": 5,
+          "fold": "TE",
+          "rows": 1245,
+          "tail_rate_20": 0.024899598393574297,
+          "tail_rate_30": 0.004016064257028112,
+          "treatment_brier_20": 0.022424524746987952,
+          "treatment_brier_30": 0.003842402064257029,
+          "treatment_crps": 1.8872006245386947,
+          "treatment_mae": 2.784609819294029,
+          "treatment_q90_exceedance": 0.11566265060240964,
+          "treatment_q95_exceedance": 0.07309236947791165,
+          "treatment_q99_exceedance": 0.024096385542168676
+        },
+        "WR": {
+          "control_brier_20": 0.059257788580305934,
+          "control_brier_30": 0.021502015712237095,
+          "control_crps": 2.909655202596991,
+          "control_mae": 4.233407134949193,
+          "control_q90_exceedance": 0.11759082217973231,
+          "control_q95_exceedance": 0.07504780114722753,
+          "control_q99_exceedance": 0.03011472275334608,
+          "events_20": 164,
+          "events_30": 51,
+          "fold": "WR",
+          "rows": 2092,
+          "tail_rate_20": 0.07839388145315487,
+          "tail_rate_30": 0.024378585086042064,
+          "treatment_brier_20": 0.05944263938814532,
+          "treatment_brier_30": 0.02137820052581262,
+          "treatment_crps": 2.8965733778191525,
+          "treatment_mae": 4.171935463669742,
+          "treatment_q90_exceedance": 0.12237093690248566,
+          "treatment_q95_exceedance": 0.07934990439770555,
+          "treatment_q99_exceedance": 0.033460803059273424
+        }
+      },
+      "rows": 4666,
+      "tail_rate_20": 0.06493784826403771,
+      "tail_rate_30": 0.016288041148735534,
+      "treatment_brier_20": 0.05099301825760823,
+      "treatment_brier_30": 0.01479728366695242,
+      "treatment_crps": 2.595132721329546,
+      "treatment_mae": 3.7325129327324738,
+      "treatment_q90_exceedance": 0.1264466352336048,
+      "treatment_q95_exceedance": 0.07929704243463352,
+      "treatment_q99_exceedance": 0.033433347621088724
+    },
+    {
+      "components": {
+        "control": {
+          "carries": {
+            "mae": 1.072477000953926,
+            "rows": 5098
+          },
+          "catch_rate": {
+            "mae": 0.2529491136469622,
+            "rows": 3095
+          },
+          "interceptions": {
+            "mae": 0.6270861063806817,
+            "rows": 502
+          },
+          "pass_attempts": {
+            "mae": 6.234635373456784,
+            "rows": 502
+          },
+          "pass_tds": {
+            "mae": 0.760801165766237,
+            "rows": 502
+          },
+          "rec_tds": {
+            "mae": 0.1945123564464755,
+            "rows": 4596
+          },
+          "rush_tds": {
+            "mae": 0.10098772641592577,
+            "rows": 5098
+          },
+          "targets": {
+            "mae": 1.495609515094513,
+            "rows": 4596
+          },
+          "ypa": {
+            "mae": 2.018466696165116,
+            "rows": 459
+          },
+          "ypc": {
+            "mae": 2.532658236941006,
+            "rows": 1645
+          },
+          "ypr": {
+            "mae": 4.9605359473425885,
+            "rows": 2794
+          }
+        },
+        "treatment": {
+          "carries": {
+            "mae": 1.0726620751194955,
+            "rows": 5098
+          },
+          "catch_rate": {
+            "mae": 0.25186478315925326,
+            "rows": 3095
+          },
+          "interceptions": {
+            "mae": 0.6172863592411593,
+            "rows": 502
+          },
+          "pass_attempts": {
+            "mae": 6.144644986013231,
+            "rows": 502
+          },
+          "pass_tds": {
+            "mae": 0.7652199465226707,
+            "rows": 502
+          },
+          "rec_tds": {
+            "mae": 0.18826897593448427,
+            "rows": 4596
+          },
+          "rush_tds": {
+            "mae": 0.09814967028245847,
+            "rows": 5098
+          },
+          "targets": {
+            "mae": 1.471814348164875,
+            "rows": 4596
+          },
+          "ypa": {
+            "mae": 2.0403993427641267,
+            "rows": 459
+          },
+          "ypc": {
+            "mae": 2.5182862234625967,
+            "rows": 1645
+          },
+          "ypr": {
+            "mae": 4.97258978600642,
+            "rows": 2794
+          }
+        }
+      },
+      "control_brier_20": 0.052804414275456915,
+      "control_brier_30": 0.01316910524586597,
+      "control_crps": 2.620644587437693,
+      "control_mae": 3.8717343149859027,
+      "control_q90_exceedance": 0.11074847693646649,
+      "control_q95_exceedance": 0.0707136640557006,
+      "control_q99_exceedance": 0.024151436031331592,
+      "coverage": 0.9606179286335944,
+      "events_20": 307,
+      "events_30": 64,
+      "fold": "2024",
+      "positions": {
+        "RB": {
+          "control_brier_20": 0.06651596242540168,
+          "control_brier_30": 0.01777478361132364,
+          "control_crps": 2.808366616843301,
+          "control_mae": 4.08003879190597,
+          "control_q90_exceedance": 0.1262433052792655,
+          "control_q95_exceedance": 0.08033664881407804,
+          "control_q99_exceedance": 0.029839326702371844,
+          "events_20": 117,
+          "events_30": 25,
+          "fold": "RB",
+          "rows": 1307,
+          "tail_rate_20": 0.08951798010711554,
+          "tail_rate_30": 0.019127773527161437,
+          "treatment_brier_20": 0.06712163976281561,
+          "treatment_brier_30": 0.017989714276970162,
+          "treatment_crps": 2.781424851782096,
+          "treatment_mae": 3.9576539888275835,
+          "treatment_q90_exceedance": 0.14537107880642694,
+          "treatment_q95_exceedance": 0.08798775822494262,
+          "treatment_q99_exceedance": 0.03442999234889059
+        },
+        "TE": {
+          "control_brier_20": 0.02051063699449253,
+          "control_brier_30": 0.004013680857592447,
+          "control_crps": 1.8932011093511467,
+          "control_mae": 2.8610652539922374,
+          "control_q90_exceedance": 0.1022816679779701,
+          "control_q95_exceedance": 0.06608969315499606,
+          "control_q99_exceedance": 0.022816679779701022,
+          "events_20": 29,
+          "events_30": 5,
+          "fold": "TE",
+          "rows": 1271,
+          "tail_rate_20": 0.022816679779701022,
+          "tail_rate_30": 0.003933910306845004,
+          "treatment_brier_20": 0.020626730841856802,
+          "treatment_brier_30": 0.004009150755310779,
+          "treatment_crps": 1.8719869943305707,
+          "treatment_mae": 2.804987117100151,
+          "treatment_q90_exceedance": 0.10700236034618411,
+          "treatment_q95_exceedance": 0.06766325727773406,
+          "treatment_q99_exceedance": 0.02675059008654603
+        },
+        "WR": {
+          "control_brier_20": 0.06426348141724479,
+          "control_brier_30": 0.015952515936570863,
+          "control_crps": 2.9572293090506117,
+          "control_mae": 4.373372781382545,
+          "control_q90_exceedance": 0.10604558969276512,
+          "control_q95_exceedance": 0.06739345887016848,
+          "control_q99_exceedance": 0.02130822596630327,
+          "events_20": 161,
+          "events_30": 34,
+          "fold": "WR",
+          "rows": 2018,
+          "tail_rate_20": 0.07978196233894945,
+          "tail_rate_30": 0.01684836471754212,
+          "treatment_brier_20": 0.06441966373141726,
+          "treatment_brier_30": 0.016058393260654114,
+          "treatment_crps": 2.9528778785092653,
+          "treatment_mae": 4.352226680122167,
+          "treatment_q90_exceedance": 0.11199207135777998,
+          "treatment_q95_exceedance": 0.06987115956392467,
+          "treatment_q99_exceedance": 0.024777006937561942
+        }
+      },
+      "rows": 4596,
+      "tail_rate_20": 0.06679721496953873,
+      "tail_rate_30": 0.01392515230635335,
+      "treatment_brier_20": 0.05307733670147955,
+      "treatment_brier_30": 0.013275462308529157,
+      "treatment_crps": 2.605205681006321,
+      "treatment_mae": 3.8121379089900955,
+      "treatment_q90_exceedance": 0.12010443864229765,
+      "treatment_q95_exceedance": 0.07441253263707572,
+      "treatment_q99_exceedance": 0.028067885117493474
+    },
+    {
+      "components": {
+        "control": {
+          "carries": {
+            "mae": 1.0097773479282304,
+            "rows": 5121
+          },
+          "catch_rate": {
+            "mae": 0.2522640186657098,
+            "rows": 3138
+          },
+          "interceptions": {
+            "mae": 0.5648090054648568,
+            "rows": 507
+          },
+          "pass_attempts": {
+            "mae": 6.218782125698289,
+            "rows": 507
+          },
+          "pass_tds": {
+            "mae": 0.752400518559131,
+            "rows": 507
+          },
+          "rec_tds": {
+            "mae": 0.19415609353760493,
+            "rows": 4614
+          },
+          "rush_tds": {
+            "mae": 0.10069068360480307,
+            "rows": 5121
+          },
+          "targets": {
+            "mae": 1.4367736678343461,
+            "rows": 4614
+          },
+          "ypa": {
+            "mae": 2.0883550415117944,
+            "rows": 470
+          },
+          "ypc": {
+            "mae": 2.5467467315283123,
+            "rows": 1649
+          },
+          "ypr": {
+            "mae": 4.960634886361636,
+            "rows": 2825
+          }
+        },
+        "treatment": {
+          "carries": {
+            "mae": 0.9991618007964254,
+            "rows": 5121
+          },
+          "catch_rate": {
+            "mae": 0.2512156715184175,
+            "rows": 3138
+          },
+          "interceptions": {
+            "mae": 0.5600183494768347,
+            "rows": 507
+          },
+          "pass_attempts": {
+            "mae": 6.151000284071236,
+            "rows": 507
+          },
+          "pass_tds": {
+            "mae": 0.7486442606166948,
+            "rows": 507
+          },
+          "rec_tds": {
+            "mae": 0.1909994168842577,
+            "rows": 4614
+          },
+          "rush_tds": {
+            "mae": 0.09818370069200312,
+            "rows": 5121
+          },
+          "targets": {
+            "mae": 1.4045148271326797,
+            "rows": 4614
+          },
+          "ypa": {
+            "mae": 2.066526672764521,
+            "rows": 470
+          },
+          "ypc": {
+            "mae": 2.546091845891766,
+            "rows": 1649
+          },
+          "ypr": {
+            "mae": 4.901587295500532,
+            "rows": 2825
+          }
+        }
+      },
+      "control_brier_20": 0.04627647543779801,
+      "control_brier_30": 0.013962245114867794,
+      "control_crps": 2.5143095645469913,
+      "control_mae": 3.7006071705297052,
+      "control_q90_exceedance": 0.10684872128305158,
+      "control_q95_exceedance": 0.06675335934113567,
+      "control_q99_exceedance": 0.027958387516254877,
+      "coverage": 0.9659731252709146,
+      "events_20": 275,
+      "events_30": 71,
+      "fold": "2025",
+      "positions": {
+        "RB": {
+          "control_brier_20": 0.059355435916981135,
+          "control_brier_30": 0.02388298025660377,
+          "control_crps": 2.7098065260519415,
+          "control_mae": 3.8599906380641,
+          "control_q90_exceedance": 0.12679245283018867,
+          "control_q95_exceedance": 0.08226415094339623,
+          "control_q99_exceedance": 0.036226415094339624,
+          "events_20": 103,
+          "events_30": 36,
+          "fold": "RB",
+          "rows": 1325,
+          "tail_rate_20": 0.07773584905660377,
+          "tail_rate_30": 0.027169811320754716,
+          "treatment_brier_20": 0.05902784510943395,
+          "treatment_brier_30": 0.0239817460754717,
+          "treatment_crps": 2.69571346885781,
+          "treatment_mae": 3.793686556164203,
+          "treatment_q90_exceedance": 0.13886792452830188,
+          "treatment_q95_exceedance": 0.09433962264150944,
+          "treatment_q99_exceedance": 0.038490566037735846
+        },
+        "TE": {
+          "control_brier_20": 0.02156846511682243,
+          "control_brier_30": 0.004477601884735203,
+          "control_crps": 1.903988794833686,
+          "control_mae": 2.801660430734514,
+          "control_q90_exceedance": 0.09813084112149532,
+          "control_q95_exceedance": 0.06074766355140187,
+          "control_q99_exceedance": 0.028037383177570093,
+          "events_20": 32,
+          "events_30": 6,
+          "fold": "TE",
+          "rows": 1284,
+          "tail_rate_20": 0.024922118380062305,
+          "tail_rate_30": 0.004672897196261682,
+          "treatment_brier_20": 0.021567255521806855,
+          "treatment_brier_30": 0.004529338341121496,
+          "treatment_crps": 1.9016979231795137,
+          "treatment_mae": 2.767903021164808,
+          "treatment_q90_exceedance": 0.10514018691588785,
+          "treatment_q95_exceedance": 0.06542056074766354,
+          "treatment_q99_exceedance": 0.03115264797507788
+        },
+        "WR": {
+          "control_brier_20": 0.05345625729177057,
+          "control_brier_30": 0.01348010438902743,
+          "control_crps": 2.77596462405713,
+          "control_mae": 4.17096353931472,
+          "control_q90_exceedance": 0.09925187032418953,
+          "control_q95_exceedance": 0.06034912718204489,
+          "control_q99_exceedance": 0.022443890274314215,
+          "events_20": 140,
+          "events_30": 29,
+          "fold": "WR",
+          "rows": 2005,
+          "tail_rate_20": 0.06982543640897755,
+          "tail_rate_30": 0.014463840399002495,
+          "treatment_brier_20": 0.05395366939650873,
+          "treatment_brier_30": 0.013468107685785538,
+          "treatment_crps": 2.7668732502152844,
+          "treatment_mae": 4.120568370245456,
+          "treatment_q90_exceedance": 0.10473815461346633,
+          "treatment_q95_exceedance": 0.06483790523690773,
+          "treatment_q99_exceedance": 0.022942643391521196
+        }
+      },
+      "rows": 4614,
+      "tail_rate_20": 0.05960121369744257,
+      "tail_rate_30": 0.015387949718248807,
+      "treatment_brier_20": 0.04639821369744256,
+      "treatment_brier_30": 0.01399979191374079,
+      "treatment_crps": 2.505674327325691,
+      "treatment_mae": 3.6502734608659133,
+      "treatment_q90_exceedance": 0.11465106198526225,
+      "treatment_q95_exceedance": 0.07347204161248375,
+      "treatment_q99_exceedance": 0.029692241005635025
+    }
+  ],
+  "gate": {
+    "aggregate_30_brier_improves": false,
+    "coverage_at_least_80pct_each_fold": true,
+    "passes": false
+  },
+  "panel": "20260810-lockfix-e80-k1-8677d21",
+  "simulation": {
+    "game_sim_mode": "possession",
+    "game_sim_team_factors": "1",
+    "model_ensemble": 1,
+    "n_sims": 10000
+  },
+  "source_audit": {
+    "accepted_rows": 28091,
+    "resolved_players": 1029,
+    "resolved_rows": 26881,
+    "source_hashes": [
+      "305b5ff5523e09645ef41bd7f3c1f290b035e3d97b5f1d0c942815feebc43717",
+      "45b68bb3fef0cd74c96ad88943141f37865647ef699f1e41553fca895f5408f7",
+      "68c92bcb01a97e9e603807496b44515c599bf6dd091ac7a47ec2c2802f9b4637",
+      "c4940b8d7163b2baf0734b0b70d5c5c9bee456c1c004c61341ebcc5aa97a81d0"
+    ],
+    "training_rows": 96677
+  }
+}

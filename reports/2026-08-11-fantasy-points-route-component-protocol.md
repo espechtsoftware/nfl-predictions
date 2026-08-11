@@ -130,3 +130,32 @@ with two expected skips and published immutable digest
 The preflight key/provenance audit matched all 28,091 accepted 2023--2025
 QB/RB/WR/TE keys to the canonical training table, with zero position and
 actual-score mismatches.
+
+## Frozen result
+
+Cloud Run execution `fantasy-points-route-components-xvvbf` completed
+successfully from the recorded immutable digest with disposition
+`route-share-component-tail-fails`. Strictly-prior Route coverage passed at
+95.71% in 2023, 96.06% in 2024 and 96.60% in 2025. The primary aggregate
+30-point Brier gate failed: control `0.0140014643`, treatment
+`0.0140280477`. Treatment improved 2023
+`0.0148601184→0.0147972837`, but worsened 2024
+`0.0131691052→0.0132754623` and 2025
+`0.0139622451→0.0139997919`.
+
+The mean/distribution diagnostics were genuinely better. Composed point MAE
+improved in every fold and aggregate `3.7879193→3.7315403`; empirical CRPS
+also improved in every fold and aggregate `2.5794510→2.5687227`. Aggregate
+20-point Brier worsened `0.0499138020→0.0501555362`. Treatment q90/q95/q99
+exceedance was 12.04%/7.57%/3.04%, farther above nominal than the control's
+11.11%/7.10%/2.69%. The Route model therefore improved ordinary point and
+distribution accuracy without improving the extreme-tail probability used by
+the operator's lineup objective.
+
+The preregistered consequence governs: this exact historical component
+mechanism is closed. No lineup comparison, tail-calibration retry, feature or
+window variant, model change, production registry or UI policy is licensed.
+The same exact four-feature contract may be retained only as a labeled 2026
+prospective shadow, whose future outcomes would be independent evidence.
+Durable artifacts are tracked in
+`reports/fantasy-points-route-component-runs/20260811-fp-route-components-v1/`.

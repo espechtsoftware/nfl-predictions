@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 04:17 CDT
+## Current state — 2026-08-11 04:27 CDT
 
-Active branch is `main`; the last pushed milestone is commit `e19df7f`.
+Active branch is `main`; the last pushed milestone is commit `f33c48f`.
 The two operator-supplied outside-review documents under `reports/` remain
 untracked and must not be staged or modified.
 
@@ -395,8 +395,22 @@ untracked and must not be staged or modified.
   `sha256:39d656915f75f67a41b0543456d16acda951f5b2fb4f5b92c09b2fa209827d7b`.
   Outcome-free preflight found all 28,091 accepted 2023--2025 QB/RB/WR/TE
   keys in the training table, with zero position or actual-score provenance
-  mismatches. Next launch the wrapper exactly once with that digest and
-  record the frozen result. No new component arm has trained or scored.
+  mismatches. Frozen execution `fantasy-points-route-components-xvvbf`
+  completed successfully with disposition `route-share-component-tail-fails`.
+  Prior coverage passed at 95.71%/96.06%/96.60%, but aggregate 30-point
+  Brier worsened `0.0140014643→0.0140280477`; 2023 improved while 2024 and
+  2025 worsened. This is nevertheless the first paid-data component result
+  with a consistent mean/distribution-quality gain: composed point MAE
+  improved in all three folds and aggregate `3.7879193→3.7315403`, while
+  CRPS improved `2.5794510→2.5687227`. Aggregate 20-point Brier worsened
+  `0.0499138020→0.0501555362`, and q90/q95/q99 exceedance moved farther
+  above nominal. Durable artifacts are under
+  `reports/fantasy-points-route-component-runs/20260811-fp-route-components-v1/`.
+  Under the tail-first gate, the exact historical component mechanism is
+  closed with no lineup arm, calibration retry or production change. Preserve
+  the exact Route contract only as a 2026 prospective shadow candidate while
+  continuing to the next preregistered paid-data hypothesis; do not describe
+  its mean gain as evidence of improved extreme-lineup selection.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no

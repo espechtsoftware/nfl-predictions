@@ -1,0 +1,13 @@
+run_id=20260811-fp-route-components-v1
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:39d656915f75f67a41b0543456d16acda951f5b2fb4f5b92c09b2fa209827d7b
+panel=20260810-lockfix-e80-k1-8677d21
+source_rows=26881
+source_hashes=4
+resolved_players=1029
+held_out=2023 2024 2025
+positions=QB RB WR TE
+primary_positions=RB WR TE
+model_ensemble=1
+n_sims=10000
+game_sim_mode=possession
+game_sim_team_factors=1
