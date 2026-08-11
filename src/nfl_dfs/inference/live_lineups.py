@@ -49,7 +49,11 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
                            ) -> tuple[pd.DataFrame, np.ndarray]:
     """Engine-ready slate frame + aligned draw matrix for the live week."""
     from ..backtest.field import naive_ownership
-    from ..backtest.replay import apply_draw_shape, punt_boom_flags_live
+    from ..backtest.replay import (
+        apply_draw_shape,
+        apply_served_tail_scale,
+        punt_boom_flags_live,
+    )
     from ..models import coldstart, simulate
     from ..models.train_job import load_latest_component_models
     from ..optimizer.lineup import LEVERAGE_PENALTY, PUNT_MAX_SALARY
@@ -128,6 +132,7 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     blended = blend(draws.mean(axis=1), np.asarray(market, dtype=float),
                     effective_model_weight(runtime_env))
     draws = shift_draws_to_means(draws, blended)
+    draws = apply_served_tail_scale(draws, skill.position, env=runtime_env)
 
     frame = pd.DataFrame({
         "id": skill.dk_player_id.astype(int),

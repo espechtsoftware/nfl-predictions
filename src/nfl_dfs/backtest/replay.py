@@ -338,6 +338,51 @@ def apply_draw_shape(draws: np.ndarray, positions: pd.Series,
     return out
 
 
+def apply_served_tail_scale(
+    draws: np.ndarray,
+    positions: pd.Series,
+    env: dict | None = None,
+) -> np.ndarray:
+    """Apply the preregistered mean-invariant final served spread scale.
+
+    The production default is the identity. Research can supply the one
+    global factor through ``SERVED_TAIL_SCALE``; no position-specific dose is
+    accepted. The correction belongs after shaping and the market mean shift
+    because those are the worlds whose calibration it is intended to repair.
+    """
+    source = os.environ if env is None else env
+    spec = str(source.get("SERVED_TAIL_SCALE", "1") or "1").strip()
+    try:
+        factor = float(spec)
+    except ValueError as exc:
+        raise ValueError(f"invalid SERVED_TAIL_SCALE={spec!r}") from exc
+    if factor in (0.0, 1.0):
+        return draws
+    if not np.isfinite(factor) or not 1.0 <= factor <= 1.25:
+        raise ValueError("SERVED_TAIL_SCALE must be identity or in [1, 1.25]")
+    values = np.asarray(draws)
+    if values.ndim != 2 or len(positions) != values.shape[0]:
+        raise ValueError("served-tail scale rows do not align")
+    mask = positions.astype(str).str.upper().isin(("RB", "WR", "TE")) \
+        .to_numpy()
+    if not mask.any():
+        return draws
+    out = values.astype(np.float64, copy=True)
+    before = out[mask].mean(axis=1, dtype=np.float64, keepdims=True)
+    corrected = before + factor * (out[mask] - before)
+    # Remove only floating summation drift; this keeps the transformation
+    # exactly mean-invariant even for long simulation matrices.
+    corrected += before - corrected.mean(
+        axis=1, dtype=np.float64, keepdims=True)
+    out[mask] = corrected
+    max_delta = float(np.max(np.abs(
+        out[mask].mean(axis=1, dtype=np.float64, keepdims=True) - before)))
+    if max_delta > 1e-10:
+        raise ValueError(
+            f"served-tail scale changed a row mean by {max_delta:.3g}")
+    return out
+
+
 def _stable_ordinal_ranks(values: np.ndarray) -> np.ndarray:
     """Zero-based ranks with reproducible tie-breaking by world index.
 
@@ -1336,6 +1381,9 @@ def run(
                 print(f"    w={w:.2f}  MAE={mae:.4f}")
     except Exception:
         log.exception("prop market unavailable; replaying unblended")
+    draws = apply_served_tail_scale(draws, proj.position)
+    if role_proj is not None:
+        role_draws = apply_served_tail_scale(role_draws, role_proj.position)
     # A/B lever (env TABPFN_MEAN=w, off by default; 2026-08-04): blend
     # the cached TabPFN walk-forward MEAN into the projection at weight
     # w. Rationale: TabPFN beat the quick-LGB on RMSE everywhere, and

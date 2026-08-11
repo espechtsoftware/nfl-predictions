@@ -22,7 +22,7 @@ agent or developer:
 
 ## Current state — 2026-08-11 06:25 CDT
 
-Active branch is `main`; repository work through commit `5df572f` is pushed.
+Active branch is `main`; repository work through commit `3baad2a` is pushed.
 The three operator-supplied outside-review documents
 `reports/2026-08-10-scoring-strategy-recommendations.md`,
 `reports/2026-08-11-fantasy-points-data-utilization.md`, and
@@ -94,6 +94,18 @@ not be staged or modified.
   served draws, gate it on untouched 2023--2025 calibration/loss metrics,
   and only then run one exact-80 2023--2025 lineup treatment. The exact next
   action is to implement and validate Stage A; production remains unchanged.
+  Stage A is now implemented locally: the shared scaler runs only after
+  shaping and the market mean shift, changes only RB/WR/TE spread, preserves
+  each mean within `1e-10`, and is pinned to identity by the live production
+  policy. The frozen fitter evaluates `1.000..1.250` by `0.005` using only
+  equal-season normalized q95/q99 pinball on 2019/2021/2022, then gates the
+  one factor on exact untouched 2023--2025 rows. It reports paired
+  week-clustered loss uncertainty and cannot launch a lineup treatment unless
+  Stage A passes. Replay and live paths call the same helper. The complete
+  local test suite passes with the expected skip, plus compilation, CLI,
+  shell and whitespace checks. No fitted factor or corrected metric has been
+  generated. The exact next action is an exact-tree Cloud build followed by
+  the one immutable Stage A wrapper execution; production remains identity.
 - The next paid-data correlation study was frozen and pushed before any
   outcome join at commit `8263fe8`:
   `reports/2026-08-10-fantasy-points-coverage-fit-experiment.md`. It tests only

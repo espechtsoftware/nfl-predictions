@@ -33,6 +33,7 @@ PRODUCTION_ENV = {
     "EMP_MARGINALS": "1",
     "EMP_POS": "",
     "SHAPE_MIX": "1",
+    "SERVED_TAIL_SCALE": "1",
     "BLEND_MODEL_WEIGHT": "0.45",
     "BIGPLAY": "0",
     "TABPFN_COMPONENTS": "0",
@@ -232,8 +233,8 @@ def _align_evaluation(
             f"{missing.to_dict('records')}")
     joined = joined[joined.was_active.fillna(False).astype(bool)].copy()
     joined = joined[joined.position.isin(POSITIONS)].reset_index(drop=True)
-    expected_rows = EXPECTED_FOLD_ROWS[season]
-    if len(joined) != expected_rows:
+    expected_rows = EXPECTED_FOLD_ROWS.get(season)
+    if expected_rows is not None and len(joined) != expected_rows:
         raise ValueError(
             f"served-tail {season} has {len(joined)} active rows; "
             f"expected {expected_rows}")

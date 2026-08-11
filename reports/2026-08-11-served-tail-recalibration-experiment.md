@@ -119,3 +119,14 @@ operator review under the standing tail-first law.
 
 Only a treatment passing both Stage A and Stage B may update the live policy.
 No result from this experiment reopens a closed Fantasy Points feature arm.
+
+## Pre-result implementation status
+
+The shared post-market mean-invariant scaler, identity-pinned production
+policy, replay/live integration, frozen 51-factor fitter, calibration and
+evaluation parity checks, paired loss uncertainty, Stage A gate, CLI and
+one-shot Cloud wrapper are implemented. The complete local test suite passes,
+along with compilation, CLI discovery, shell syntax and whitespace checks.
+No calibration factor, corrected evaluation metric, candidate or lineup has
+yet been generated. An exact-tree Cloud build and one immutable Stage A
+execution remain required.
