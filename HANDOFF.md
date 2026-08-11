@@ -112,6 +112,19 @@ and must not be staged or modified.
   a fail closes the historical retry. Implement this diagnostic without
   querying its new calibrated results until the implementation commit passes
   exact-tree validation.
+  The diagnostic is now implemented behind
+  `route-final-served-calibration-diagnostic` with a one-shot immutable runner
+  `scripts/cloud_route_final_served_calibration.sh`. It reproduces final
+  TabPFN-shaped, market-blended control and exact four-feature Route worlds for
+  2022--2025; fits separate arm/target QB/RB/TE/WR factors on the frozen grid;
+  validates strict row/outcome/coverage alignment and control accepted-mean
+  parity; and reports the frozen metrics, paired week-clustered uncertainty,
+  factor curves and mean invariant. Factor curves use the common registered
+  grid plus aligned objective arrays so the one structured Cloud log stays
+  below its size limit. Twenty-nine focused Route/position tests, compilation,
+  CLI wiring, shell syntax and whitespace checks pass locally. Commit and run
+  a new exact-tree Cloud Build before the sole diagnostic execution; do not
+  inspect or produce its calibrated result before then.
 
 ### Tail-first law revised; role-union v2 adopted and live
 
