@@ -319,6 +319,15 @@ def main(argv: list[str] | None = None) -> None:
     )
 
     p = sub.add_parser(
+        "fantasy-points-defense-proe-diagnostic",
+        help="Run the frozen opponent Defense PROE pass-game tail gate",
+    )
+    p.add_argument(
+        "--panel", default="20260810-lockfix-e80-k1-8677d21",
+        help="Frozen corrected K1 panel (alternate values fail closed)",
+    )
+
+    p = sub.add_parser(
         "corrected-extreme-selector",
         help="Confirm the frozen 220/210/200 selector on one corrected panel",
     )
@@ -621,6 +630,10 @@ def main(argv: list[str] | None = None) -> None:
         from .ingest import fantasy_points_defense_proe
 
         fantasy_points_defense_proe.run(args.input_dir, write=args.write)
+    elif args.command == "fantasy-points-defense-proe-diagnostic":
+        from .analysis import fantasy_points_defense_proe
+
+        fantasy_points_defense_proe.run(args.panel)
     elif args.command == "corrected-extreme-selector":
         from .research import extreme_selector_confirmation
 

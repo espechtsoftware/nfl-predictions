@@ -89,8 +89,12 @@ on its outcomes.
 
 ## Pre-outcome status
 
-The hash-locked importer, strict-prior attachment and source-only redundancy
-audit are implemented; seven focused Defense PROE/backup tests pass, with
-compilation, CLI discovery and whitespace checks clean. The raw table has not
-been written. The outcome diagnostic, cloud runner, outcome query and lineup
-generation have not started.
+The hash-locked importer, strict-prior attachment, source-only redundancy
+audit and frozen diagnostic are implemented; eight focused Defense
+PROE/backup tests pass, with compilation, CLI discovery, shell parsing and
+whitespace checks clean. The private table was created with 2,174 rows and the
+mandatory repeat returned `already-identical`. Backup execution
+`backup-tables-bd497` completed successfully; snapshot
+`fantasy_points_defense_proe_20260811` has exactly 2,174 rows. The one-shot
+runner is frozen to the source counts, hashes, panel and immutable-image
+requirement. No outcome query or lineup generation has started.

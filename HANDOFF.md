@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 03:39 CDT
+## Current state — 2026-08-11 03:40 CDT
 
-Active branch is `main`; the last pushed milestone is commit `86252f5`.
+Active branch is `main`; the last pushed milestone is commit `615f47e`.
 The two operator-supplied outside-review documents under `reports/` remain
 untracked and must not be staged or modified.
 
@@ -342,11 +342,14 @@ untracked and must not be staged or modified.
   QB/WR/TE diagnostic is frozen before outcomes in
   `reports/2026-08-11-fantasy-points-defense-proe-protocol.md`: heldouts
   2023--2025, 90% per-fold coverage and strictly improved aggregate 30-point
-  Brier. The hash-locked importer, PIT attachment, source-only audit, CLI and
-  explicit backup member are implemented; seven focused tests plus
-  compilation/CLI/whitespace checks pass. Commit/push this preregistration
-  and intake, write/repeat/backup the raw table, then implement the frozen
-  diagnostic and runner before reading outcomes.
+  Brier. The private raw table was created with 2,174 rows and the mandatory
+  repeat returned `already-identical`. Backup execution `backup-tables-bd497`
+  completed successfully; snapshot `fantasy_points_defense_proe_20260811`
+  has exactly 2,174 rows. The frozen diagnostic, CLI and one-shot runner are
+  implemented; eight focused Defense PROE/backup tests plus compilation,
+  CLI discovery, shell parsing and whitespace checks pass. Commit/push this
+  implementation, run exact-tree Cloud Build, record its immutable digest,
+  then launch the wrapper exactly once. No outcome query has started.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no

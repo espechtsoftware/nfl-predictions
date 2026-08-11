@@ -2,6 +2,7 @@ import pandas as pd
 import pytest
 
 from nfl_dfs.ingest import fantasy_points_defense_proe as defense_proe
+from nfl_dfs.analysis import fantasy_points_defense_proe as diagnostic
 
 
 def test_defense_proe_attachment_is_strictly_prior_and_bye_tolerant():
@@ -52,3 +53,14 @@ def test_defense_proe_blind_audit_has_no_outcome_contract():
     assert report["outcomes_read"] is False
     assert report["supported_rows"] == 16
     assert report["max_abs_spearman"] == pytest.approx(1.0)
+
+
+def test_defense_proe_gate_is_aggregate_tail_first():
+    aggregate = {"control_brier_30": 0.02, "treatment_brier_30": 0.019}
+    coverage = {2023: 0.95, 2024: 0.90, 2025: 1.0}
+    assert diagnostic.defense_proe_gate(aggregate, coverage)["passes"]
+    coverage[2024] = 0.89
+    assert not diagnostic.defense_proe_gate(aggregate, coverage)["passes"]
+    coverage[2024] = 0.90
+    aggregate["treatment_brier_30"] = 0.021
+    assert not diagnostic.defense_proe_gate(aggregate, coverage)["passes"]
