@@ -128,5 +128,9 @@ evaluation parity checks, paired loss uncertainty, Stage A gate, CLI and
 one-shot Cloud wrapper are implemented. The complete local test suite passes,
 along with compilation, CLI discovery, shell syntax and whitespace checks.
 No calibration factor, corrected evaluation metric, candidate or lineup has
-yet been generated. An exact-tree Cloud build and one immutable Stage A
-execution remain required.
+yet been generated. Exact-tree Cloud Build
+`fc4a2b96-e428-44b4-9f0f-93eff87efc81` from implementation commit `623b1b4`
+passed 831 tests with two expected skips and published immutable image digest
+`sha256:a7fb5dd48960cb26292a5ae60f6c71df8789cc06ba87497659916e63ed61972c`.
+Use that digest for the one Stage A wrapper execution; never use its mutable
+tag.

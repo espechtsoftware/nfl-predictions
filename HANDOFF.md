@@ -103,9 +103,14 @@ not be staged or modified.
   week-clustered loss uncertainty and cannot launch a lineup treatment unless
   Stage A passes. Replay and live paths call the same helper. The complete
   local test suite passes with the expected skip, plus compilation, CLI,
-  shell and whitespace checks. No fitted factor or corrected metric has been
-  generated. The exact next action is an exact-tree Cloud build followed by
-  the one immutable Stage A wrapper execution; production remains identity.
+  shell and whitespace checks. Exact-tree Cloud Build
+  `fc4a2b96-e428-44b4-9f0f-93eff87efc81` from implementation commit
+  `623b1b4` passed 831 tests with two expected skips and produced immutable
+  digest
+  `sha256:a7fb5dd48960cb26292a5ae60f6c71df8789cc06ba87497659916e63ed61972c`.
+  No fitted factor or corrected metric has been generated. The exact next
+  action is the one Stage A wrapper execution from that digest; production
+  remains identity.
 - The next paid-data correlation study was frozen and pushed before any
   outcome join at commit `8263fe8`:
   `reports/2026-08-10-fantasy-points-coverage-fit-experiment.md`. It tests only
