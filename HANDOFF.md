@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 18:41 CDT
+## Current state — 2026-08-11 18:46 CDT
 
 Active branch is `main`; final-served Route diagnostic implementation commit
 `d5e74c0` is pushed. The position-calibration result, research promotion,
@@ -120,9 +120,16 @@ and must not be staged or modified.
   107 slates, use the adopted CE0/direct-role12/boom40/position-scale book, and
   differ only by `GAME_SIM_USAGE=dirichlet` plus the exact unrounded K. The
   tail-first 240/230/220/210/200 first-difference law governs; mean is not a
-  veto. Before launch, add missing `DIRICHLET_K` persistence to candidate
-  `lever_env`, implement hash/gate/lever/mechanism guards and comparator, test,
-  commit and pass a fresh exact-tree Cloud Build.
+  veto. The launcher, check/promote wrapper, comparator, pure guards and image
+  packaging are now implemented. Missing `DIRICHLET_K` persistence was added
+  to candidate `lever_env`, with a provenance regression test. The launcher
+  verifies the K report hash/gate/value/coverage and both immutable source
+  contracts; the comparator requires exact lever equality beyond K/mode,
+  source/control reproduction, snapshot/shared-score parity and changed
+  candidate membership. Sixty-six focused calibration/lineup/component/
+  simulation/persistence tests pass; compilation, script help, shell parsing
+  and whitespace checks are clean. Commit this implementation and pass a new
+  exact-tree Cloud Build before launching either lineup arm.
 
 ### Final-served position calibration passed, promoted, and adopted
 

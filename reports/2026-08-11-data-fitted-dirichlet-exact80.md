@@ -18,15 +18,18 @@ from the treatment definition.
 
 ## Books and evaluation universe
 
-- Accepted source:
+- Accepted evaluation source:
   `20260811-lockfix-e80-k1-role12-position-scales-v1`.
+- Unchanged historical splice source:
+  `20260810-lockfix-e80-k1-role12union-8677d21`.
 - Same-image control:
   `20260811-lockfix-e80-k1-role12-poscal-usage-control-v1`.
 - Same-image treatment:
   `20260811-lockfix-e80-k1-role12-poscal-usage-k28246898-v1`.
 - Generate control and treatment only for the 54 Sunday-main slates in
-  2023--2025. Splice unchanged accepted-source 2019/2021/2022 results into
-  both books for the registered full 107-slate decision.
+  2023--2025. Reproduce the accepted position-scale evaluation source and
+  splice the unchanged direct-role source's 2019/2021/2022 results into both
+  books for the registered full 107-slate decision.
 - Each arm must pass a one-week 2024 Cloud preflight before its three immutable
   full-season executions launch. All generation and comparison use one exact
   immutable image built after this protocol and the K lever-identity guard are

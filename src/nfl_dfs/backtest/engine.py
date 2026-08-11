@@ -1429,7 +1429,7 @@ def tail_select_lineups(
             _lever_keys = {
                 "ALT_CEIL", "BIGPLAY", "BLEND_MODEL_WEIGHT", "CAND_MULT",
                 "CE_GAMES", "CE_SEED",
-                "DIV_TILT", "DROP_FEATURES", "DST_CORR_DRAWS",
+                "DIRICHLET_K", "DIV_TILT", "DROP_FEATURES", "DST_CORR_DRAWS",
                 "DST_PUNT_BONUS", "EMP_MARGINALS", "EMP_POS",
                 "EPISTEMIC_FAMILY", "EPISTEMIC_W", "EXTRA_FEATURES",
                 "ENSEMBLE_WORLD_MODE", "ENSEMBLE_WORLD_SEED",
