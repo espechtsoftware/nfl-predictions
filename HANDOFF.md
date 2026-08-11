@@ -160,7 +160,14 @@ untracked and must not be staged or modified.
   corresponding vendor values closely (typically 0.95--1.00 correlations),
   so they are excluded from bulk model search. Fantasy Points separation is
   distinct from NGS separation, and recent defensive shell deployment has no
-  close existing feature. A compact same-season Man/Zone diagnostic was
+  close existing feature. A second outcome-blind screen found Advanced
+  Passing `HERO %`, deep-throw rate, pressure rate, turnover-worthy throw
+  rate, checkdown rate and `PrROE` only weakly/moderately aligned with the
+  nearest existing QB inputs; that complete process family is the best
+  follow-up after the coverage diagnostic. Advanced Rushing is somewhat more
+  redundant, although missed tackles forced per attempt remains distinct.
+  No target-week outcome or residual was read and no second model test is yet
+  licensed. A compact same-season Man/Zone diagnostic was
   therefore preregistered before any outcome join in
   `reports/2026-08-11-fantasy-points-same-season-coverage-protocol.md`.
   Its plan contains only Man-vs-Zone, Separation-by-Coverage and Defense

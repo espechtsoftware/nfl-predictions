@@ -58,6 +58,29 @@ dropbacks in Weeks 1--4, and complete Man/Zone and shell deployment rates.
 The project's current opponent-secondary fields measure results allowed and
 personnel, not defensive scheme frequency.
 
+## Secondary passing/rushing screen
+
+An additional outcome-blind screen joined the two validated 2025 Advanced
+Passing/Rushing windows to the target-Week 5/9 strictly-prior feature rows.
+It did not read target-week scores or projection residuals. Several passing
+process fields are materially less redundant than the standard efficiency
+columns: their largest absolute Spearman correlation with the nearest of the
+existing QB time-to-throw, CPOE, yards/attempt and trailing-DK-point inputs
+was 0.257 for `HERO %`, 0.141 for `Deep Throw %`, 0.209 for `PrROE`, 0.314
+for `PRESS %`, 0.374 for `TWT %`, and 0.440 for checkdown rate. By contrast,
+vendor time-to-throw and adjusted completion fields remained moderately
+aligned with the existing QB fields (about 0.53--0.63).
+
+Advanced Rushing is a narrower follow-up. Missed tackles forced per attempt
+was only 0.260 correlated with the closest existing RB input and overall
+success rate 0.428, but explosive-run share, expected-yards share, stuff
+rate, and yards before/after contact per attempt were about 0.50--0.72 in
+absolute value against existing yards per carry. This makes a complete,
+predeclared Advanced Passing process family the best secondary historical
+candidate after the current coverage test; a smaller rushing-efficiency
+family follows it. These are collection priorities, not predictive claims or
+permission to choose fields after viewing outcomes.
+
 ## Collection decision
 
 Do not bulk-collect Basic stats, Bell Cow, Routes Run, Fantasy Points Scored,
