@@ -22,9 +22,9 @@ agent or developer:
 
 ## Current state — 2026-08-11 09:53 CDT
 
-Active branch is `main`; final served-tail Stage B result commit `4b46ce9` is
-pushed. The next local milestone freezes the Advanced Receiving support-window
-collection before any target-week outcome is read.
+Active branch is `main`; Advanced Receiving collection-protocol commit
+`5627f30` is pushed. The one authenticated support-window collection is active
+under run `20260811T145426Z__same-season-advanced-receiving-support-windows-v1`.
 The three operator-supplied outside-review documents
 `reports/2026-08-10-scoring-strategy-recommendations.md`,
 `reports/2026-08-11-fantasy-points-data-utilization.md`, and
@@ -186,9 +186,17 @@ not be staged or modified.
   target outcomes, choose a predictive feature, generate candidates, score a
   lineup, or alter production. The plan check validates all 28 catalog reports
   and expands to exactly 108 artifacts, and all 23 focused downloader tests
-  pass. Exact next action: commit this frozen protocol, then run its one
-  headless authenticated download and require one complete zero-failure
-  manifest before writing the outcome-blind audit.
+  pass. Commit `5627f30` freezes and pushes this protocol. The outcome-blind
+  audit implementation is now local behind
+  `fantasy-points-advanced-receiving-support-audit`: it accepts no outcome
+  fields; reports fixed 20/40/80-route support, six-field availability,
+  cumulative/last-four overlap and predictor-only redundancy; and requires the
+  exact complete hash-locked 108-export manifest. Twenty-seven focused tests,
+  compilation, CLI discovery and whitespace checks pass. The full suite is in
+  progress. Exact next action: let the active headless collection finish,
+  require a complete zero-failure manifest, then run the support audit without
+  target outcomes and freeze any subsequent shrinkage/gate before querying
+  them.
 - The outside review's prospective Route Share recommendation is now frozen
   before any 2026 Route value or outcome in
   `reports/2026-08-11-route-share-2026-operating-contract.md`. The declarative

@@ -347,6 +347,16 @@ def main(argv: list[str] | None = None) -> None:
     )
 
     p = sub.add_parser(
+        "fantasy-points-advanced-receiving-support-audit",
+        help="Audit frozen prior-week Advanced Receiving support without outcomes",
+    )
+    p.add_argument("--input-dir", required=True)
+    p.add_argument(
+        "--output",
+        help="Optional JSON path for the outcome-blind support report",
+    )
+
+    p = sub.add_parser(
         "import-fantasy-points-defense-proe",
         help="Audit/import hash-locked weekly Defense PROE reports",
     )
@@ -684,6 +694,11 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import fantasy_points_same_season_route_shape
 
         fantasy_points_same_season_route_shape.run(args.panel)
+    elif args.command == "fantasy-points-advanced-receiving-support-audit":
+        from .ingest import fantasy_points_advanced_receiving_support
+
+        fantasy_points_advanced_receiving_support.run(
+            args.input_dir, output=args.output)
     elif args.command == "import-fantasy-points-defense-proe":
         from .ingest import fantasy_points_defense_proe
 

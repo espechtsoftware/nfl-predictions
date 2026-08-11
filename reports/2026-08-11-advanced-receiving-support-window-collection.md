@@ -54,6 +54,16 @@ feature contract, walk-forward folds, all-row CRPS/tail calibration gate,
 paired uncertainty/MDE and consequence before querying outcomes. If support is
 not adequate, stop; do not sweep windows or thresholds.
 
+The mechanical audit implementation was frozen after the first export exposed
+the grouped column names, but before a complete-grid support summary or any
+target-week outcome was read. It reports descriptive route floors fixed at
+20/40/80 routes. Predictor-only redundancy is limited to target share l4/last,
+snap share l4/last, air-yard share l4, WOPR l4, aDOT l8 and XFP l4. The audit
+entry point explicitly rejects frames containing `actual`, `selected`, `score`,
+`placement`, `rank` or `roi`, and its BigQuery query selects none of them. The
+CLI is `fantasy-points-advanced-receiving-support-audit`; it requires a final
+complete manifest with the frozen plan hash and all 108 immutable artifacts.
+
 Any later historical result is operator-directed evidence because this path
 was prioritized after other outcomes were known. Production adoption would
 still require an independently frozen 2026 prospective shadow.
