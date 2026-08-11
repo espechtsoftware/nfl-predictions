@@ -22,9 +22,13 @@ sys.path.insert(0, "src")
 from nfl_dfs.inference.production_policy import (  # noqa: E402
     ADOPTED_CLASSIC_POLICY,
 )
+from nfl_dfs.inference.route_share_shadow import (  # noqa: E402
+    ROUTE_FEATURES as ROUTE_FEATURE_NAMES,
+)
 
 REGION = "us-central1"
 ROLE_FEATURES = ADOPTED_CLASSIC_POLICY.role_features
+ROUTE_FEATURES = ",".join(ROUTE_FEATURE_NAMES)
 
 # Values that may never be injected into the app service. The adopted mapping
 # owns all of them per request, including the labeled CE-only fallback.
@@ -48,8 +52,28 @@ TARGETS = (
         "MODEL_ENSEMBLE": "1", "MODEL_REGISTRY_VARIANT": "tail_k1_role",
         "EXTRA_FEATURES": ROLE_FEATURES,
     }),
+    ("job", "train-weekly-k1-route", {
+        "MODEL_ENSEMBLE": "1", "MODEL_REGISTRY_VARIANT": "tail_k1_route",
+        "EXTRA_FEATURES": ROUTE_FEATURES,
+    }),
+    ("job", "train-weekly-k1-route-role", {
+        "MODEL_ENSEMBLE": "1",
+        "MODEL_REGISTRY_VARIANT": "tail_k1_route_role",
+        "EXTRA_FEATURES": f"{ROLE_FEATURES},{ROUTE_FEATURES}",
+    }),
     ("job", "shadow-k1-roleunion", {
         "MODEL_ENSEMBLE": "1", "MODEL_REGISTRY_VARIANT": "tail_k1",
+        "GAME_SIM_MODE": "possession", "GEN_TOTAL_BUDGET": "52",
+        "N_CE": "12", "CE_SEED": "1701", "N_EPISTEMIC": "12",
+        "EPISTEMIC_FAMILY": "role_draws",
+        "ROLE_BELIEF_FEATURES": ROLE_FEATURES,
+        "ROLE_BELIEF_SEED": "7331", "N_GUMBEL": "0", "N_BOOM": "28",
+        "REPLACEMENT_SLOTS": "12", "MIN_LINEUP_SALARY": "49000",
+        "BLEND_MODEL_WEIGHT": "0.45", "LIVE_SIMS": "30000",
+    }),
+    ("job", "shadow-k1-route-roleunion", {
+        "MODEL_ENSEMBLE": "1",
+        "MODEL_REGISTRY_VARIANT": "tail_k1_route",
         "GAME_SIM_MODE": "possession", "GEN_TOTAL_BUDGET": "52",
         "N_CE": "12", "CE_SEED": "1701", "N_EPISTEMIC": "12",
         "EPISTEMIC_FAMILY": "role_draws",

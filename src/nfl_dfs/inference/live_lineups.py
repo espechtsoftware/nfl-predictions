@@ -46,6 +46,9 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
                            salary_overrides: dict[int, int] | None = None,
                            policy_env: dict[str, str] | None = None,
                            expected_model_k: int | None = None,
+                           required_model_features: tuple[str, ...] = (),
+                           forbidden_model_features: tuple[str, ...] = (),
+                           route_source_policy: bool = False,
                            ) -> tuple[pd.DataFrame, np.ndarray]:
     """Engine-ready slate frame + aligned draw matrix for the live week."""
     from ..backtest.field import naive_ownership
@@ -83,10 +86,23 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
             raise RuntimeError(
                 f"registry variant {model_variant} contains K={loaded_k}, "
                 f"but MODEL_ENSEMBLE={expected_k}")
+    if required_model_features or forbidden_model_features:
+        from .route_share_shadow import validate_component_feature_contract
+
+        validate_component_feature_contract(
+            model,
+            registry_variant=model_variant or "canonical",
+            required=required_model_features,
+            forbidden=forbidden_model_features,
+        )
     feats = upcoming_slate_features(season, week)
     skill = feats[feats.dk_position.isin(["QB", "RB", "WR", "TE"])] \
         .reset_index(drop=True)
     skill = coldstart.fill_cold_start_features(skill)
+    if route_source_policy:
+        from .route_share_shadow import apply_live_route_policy
+
+        skill = apply_live_route_policy(skill, season, week)
     comps = model.predict_components(skill)
     if apply_notes:
         # Multiplier notes (chat-converted opportunity scalers). Gated by
@@ -110,6 +126,7 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
                              if {"season", "week", "gsis_id"}
                              <= set(_kc) else None,
                              env=runtime_env)
+    model_points_pre = draws.mean(axis=1, dtype=np.float64)
 
     # Market blend as an additive mean shift — draw shape untouched.
     # Props-first (review #5 round 3 parity fix): the replay blend that
@@ -129,7 +146,8 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
                          int(_m.notna().sum()), len(skill))
     except Exception:
         log.exception("live prop market unavailable; DK PPG stand-in")
-    blended = blend(draws.mean(axis=1), np.asarray(market, dtype=float),
+    market_values = np.asarray(market, dtype=float)
+    blended = blend(model_points_pre, market_values,
                     effective_model_weight(runtime_env))
     draws = shift_draws_to_means(draws, blended)
     draws = apply_served_tail_scale(draws, skill.position, env=runtime_env)
@@ -149,6 +167,25 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
         "game_id", frame.team.astype(str) + "@" + frame.opp.astype(str))
     frame["draw_idx"] = np.arange(len(frame))
     frame["proj"] = draws.mean(axis=1)
+    frame["model_points_pre"] = model_points_pre
+    frame["market_points"] = market_values
+    frame["mean_projection"] = draws.mean(axis=1, dtype=np.float64)
+    frame["proj_p10"] = np.percentile(draws, 10, axis=1)
+    frame["proj_p50"] = np.percentile(draws, 50, axis=1)
+    frame["proj_p90"] = np.percentile(draws, 90, axis=1)
+    frame["proj_std"] = draws.std(axis=1, dtype=np.float64)
+    for column in comps.columns:
+        frame[f"component_mean_{column}"] = pd.to_numeric(
+            comps[column], errors="coerce").to_numpy()
+    for column in (
+        "fp_route_source_season", "fp_route_source_week",
+        "fp_route_source_sha256", "fp_route_prior_observations",
+        "fp_route_share_last", "fp_route_share_l4",
+        "fp_route_share_jump", "fp_route_cross_season",
+        "fp_route_fallback", "fp_route_shadow_supported",
+    ):
+        if column in skill:
+            frame[column] = skill[column].to_numpy()
 
     # DST rows: static live projections, no draws (draw_idx -1).
     try:
@@ -302,7 +339,13 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                       candidate_run_type: str | None = None,
                       policy_env: dict[str, str] | None = None,
                       expected_model_k: int | None = None,
-                      belief_model_variant: str | None = None) -> list:
+                      belief_model_variant: str | None = None,
+                      model_required_features: tuple[str, ...] = (),
+                      model_forbidden_features: tuple[str, ...] = (),
+                      belief_required_features: tuple[str, ...] = (),
+                      belief_forbidden_features: tuple[str, ...] = (),
+                      route_source_policy: bool = False,
+                      distribution_artifact_spec=None) -> list:
     """Full validated pipeline on the live slate -> selected entries in
     coverage order (first = broadest boom coverage).
 
@@ -317,7 +360,10 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
         season, week, n_sims=n_sims, seed=seed, lev_scale=lev_scale,
         apply_notes=apply_notes, model_variant=model_variant,
         allowed_ids=allowed_ids, salary_overrides=salary_overrides,
-        policy_env=policy_env, expected_model_k=expected_model_k)
+        policy_env=policy_env, expected_model_k=expected_model_k,
+        required_model_features=model_required_features,
+        forbidden_model_features=model_forbidden_features,
+        route_source_policy=route_source_policy)
     model_version = slate.attrs.get("model_version")
     wants_role = (
         int(runtime_env.get("N_EPISTEMIC", "0") or 0) > 0
@@ -336,7 +382,10 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                 lev_scale=lev_scale, apply_notes=apply_notes,
                 model_variant=belief_model_variant, allowed_ids=allowed_ids,
                 salary_overrides=salary_overrides, policy_env=policy_env,
-                expected_model_k=expected_model_k)
+                expected_model_k=expected_model_k,
+                required_model_features=belief_required_features,
+                forbidden_model_features=belief_forbidden_features,
+                route_source_policy=route_source_policy)
             role_model_version = belief_slate.attrs.get("model_version")
         except Exception as exc:
             raise RoleBeliefUnavailable(
@@ -396,6 +445,26 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
         missing = set(locks) - set(slate.id)
         if missing:
             raise ValueError(f"locked players not in slate: {sorted(missing)}")
+    if distribution_artifact_spec is not None:
+        if belief_slate is None or belief_draws is None:
+            raise RuntimeError(
+                "player-distribution capture requires the paired belief model")
+        from .route_share_shadow import persist_distribution_artifact
+
+        artifact_uri, artifact_sha = persist_distribution_artifact(
+            slate, draws, belief_slate, belief_draws,
+            season=season, week=week,
+            model_version=str(model_version or ""),
+            belief_model_version=str(role_model_version or ""),
+            spec=distribution_artifact_spec,
+        )
+        slate["route_distribution_artifact_uri"] = artifact_uri
+        slate["route_distribution_artifact_sha256"] = artifact_sha
+        slate["route_distribution_arm"] = distribution_artifact_spec.arm
+        slate["route_distribution_model_variant"] = (
+            distribution_artifact_spec.model_variant)
+        slate["route_distribution_belief_variant"] = (
+            distribution_artifact_spec.belief_model_variant)
     pool = slate.to_dict("records")
     # Persist every live candidate (reranker training data, September
     # designs #3 — irrecoverable post-build). App builds use async writes so

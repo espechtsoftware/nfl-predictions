@@ -46,6 +46,7 @@ def test_route_shadow_table_is_strict_prior_and_joined_symmetrically():
         assert "player_week_fp_route" in sql
         for column in (
             "fp_route_source_season", "fp_route_source_week",
+            "fp_route_source_sha256",
             "fp_route_share_last", "fp_route_share_l4",
             "fp_route_share_jump", "fp_route_cross_season",
             "fp_route_fallback",

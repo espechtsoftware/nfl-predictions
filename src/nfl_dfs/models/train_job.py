@@ -38,6 +38,27 @@ def registry_variant(value: str | None = None) -> str:
     return variant
 
 
+def validate_variant_feature_contract(variant: str) -> None:
+    """Pin isolated live-shadow registries to their declared feature sets."""
+    from ..inference.route_share_shadow import ROLE_FEATURES, ROUTE_FEATURES
+
+    expected = {
+        "tail_k1_route": set(ROUTE_FEATURES),
+        "tail_k1_route_role": set((*ROLE_FEATURES, *ROUTE_FEATURES)),
+    }.get(variant)
+    if expected is None:
+        return
+    actual = {
+        value.strip()
+        for value in os.environ.get("EXTRA_FEATURES", "").split(",")
+        if value.strip()
+    }
+    if actual != expected:
+        raise RuntimeError(
+            f"registry variant {variant} requires exact EXTRA_FEATURES="
+            f"{','.join(sorted(expected))}; got {','.join(sorted(actual))}")
+
+
 def _component_label(name: str, variant: str) -> str:
     base = f"comp_{name}"
     return base if variant == CANONICAL_VARIANT else f"{base}__{variant}"
@@ -90,10 +111,17 @@ def train_and_register(today: date | None = None,
     """Retrain the component models on everything up to now, validate the
     baseline walk-forward for the metrics sidecar, and register every
     booster under this ISO week. Returns the model version prefix."""
+    variant = registry_variant(variant)
+    validate_variant_feature_contract(variant)
+    if variant in {"tail_k1_route", "tail_k1_route_role"}:
+        from ..inference.route_share_shadow import require_prior_week_source
+        from ..inference.tail_shadow import upcoming_season_week
+
+        target_season, target_week, _ = upcoming_season_week()
+        require_prior_week_source(target_season, target_week)
     panel = training_panel()
     season = current_season(today)
     iso_week = _iso_week(today)
-    variant = registry_variant(variant)
     train_seasons = sorted(int(s) for s in panel.season.unique() if s < season + 1)
 
     wf = baseline.walk_forward(panel)

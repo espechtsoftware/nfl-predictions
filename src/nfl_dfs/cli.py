@@ -74,6 +74,10 @@ def main(argv: list[str] | None = None) -> None:
         help="Freeze the promoted K=1 CE/role expanded candidate portfolio",
     )
     sub.add_parser(
+        "shadow-k1-route-roleunion",
+        help="Freeze the paired Route Share treatment and player draws",
+    )
+    sub.add_parser(
         "shadow-k3",
         help="Freeze the canonical K=3 Sunday-main reference portfolio",
     )
@@ -530,6 +534,13 @@ def main(argv: list[str] | None = None) -> None:
         from .inference import tail_shadow
 
         tail_shadow.run(shadow_label=tail_shadow.K1_ROLE_UNION_LABEL)
+    elif args.command == "shadow-k1-route-roleunion":
+        from .inference import tail_shadow
+
+        tail_shadow.run(
+            expected_variant=tail_shadow.K1_ROUTE_VARIANT,
+            shadow_label=tail_shadow.K1_ROUTE_ROLE_UNION_LABEL,
+        )
     elif args.command == "shadow-k3":
         from .inference import tail_shadow
 

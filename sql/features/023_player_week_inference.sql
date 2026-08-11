@@ -99,6 +99,7 @@ SELECT
   -- Same strict-prior Route Share fields as training. Missing or late vendor
   -- data stays nullable and labeled; it cannot block the incumbent path.
   fr.fp_route_source_season, fr.fp_route_source_week,
+  fr.fp_route_source_sha256,
   fr.fp_route_prior_observations,
   fr.fp_route_share_last, fr.fp_route_share_l4,
   fr.fp_route_share_jump, fr.fp_route_cross_season,

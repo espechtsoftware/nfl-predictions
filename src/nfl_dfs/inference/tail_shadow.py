@@ -25,19 +25,31 @@ log = logging.getLogger(__name__)
 
 K1_VARIANT = "tail_k1"
 K1_ROLE_VARIANT = "tail_k1_role"
+K1_ROUTE_VARIANT = "tail_k1_route"
+K1_ROUTE_ROLE_VARIANT = "tail_k1_route_role"
 K3_VARIANT = CANONICAL_VARIANT
-VARIANT_K = {K1_VARIANT: 1, K3_VARIANT: 3}
-VARIANT_LABEL = {K1_VARIANT: "tail_k1", K3_VARIANT: "tail_k3"}
+VARIANT_K = {K1_VARIANT: 1, K1_ROUTE_VARIANT: 1, K3_VARIANT: 3}
+VARIANT_LABEL = {
+    K1_VARIANT: "tail_k1",
+    K1_ROUTE_VARIANT: "tail_k1_route",
+    K3_VARIANT: "tail_k3",
+}
 K1_NOFLOOR_LABEL = "tail_k1_nofloor"
 K1_ROLE_UNION_LABEL = "tail_k1_roleunion"
+K1_ROUTE_ROLE_UNION_LABEL = "tail_k1_route_roleunion"
 ROLE_FEATURES = (
     "target_share_last,carry_share_last,snap_share_last,"
     "target_share_jump,carry_share_jump,snap_share_jump"
+)
+ROUTE_FEATURES = (
+    "fp_route_share_last,fp_route_share_l4,fp_route_share_jump,"
+    "fp_route_cross_season"
 )
 POLICY_SPEC = {
     "tail_k1": (K1_VARIANT, 49_000),
     K1_NOFLOOR_LABEL: (K1_VARIANT, 0),
     K1_ROLE_UNION_LABEL: (K1_VARIANT, 49_000),
+    K1_ROUTE_ROLE_UNION_LABEL: (K1_ROUTE_VARIANT, 49_000),
     "tail_k3": (K3_VARIANT, 49_000),
 }
 SHADOW_ENTRIES = 80
@@ -130,9 +142,11 @@ def run(*, expected_variant: str = K1_VARIANT,
         raise RuntimeError(
             f"shadow policy {label} requires MIN_LINEUP_SALARY="
             f"{expected_floor}, got {actual_floor}")
-    if label == K1_ROLE_UNION_LABEL:
+    if label in {K1_ROLE_UNION_LABEL, K1_ROUTE_ROLE_UNION_LABEL}:
         exact = {
+            "GEN_TOTAL_BUDGET": "52",
             "N_CE": "12", "N_EPISTEMIC": "12", "N_BOOM": "28",
+            "N_GUMBEL": "0", "REPLACEMENT_SLOTS": "12",
             "EPISTEMIC_FAMILY": "role_draws",
             "ROLE_BELIEF_FEATURES": ROLE_FEATURES,
             "ROLE_BELIEF_SEED": "7331", "CE_SEED": "1701",
@@ -176,6 +190,49 @@ def run(*, expected_variant: str = K1_VARIANT,
 
     from .live_lineups import build_sim_lineups
 
+    is_control_pair = label == K1_ROLE_UNION_LABEL
+    is_route_pair = label == K1_ROUTE_ROLE_UNION_LABEL
+    if is_route_pair:
+        from .route_share_shadow import require_prior_week_source
+
+        require_prior_week_source(season, week)
+
+    role_model_variant = None
+    artifact_spec = None
+    model_required_features: tuple[str, ...] = ()
+    model_forbidden_features: tuple[str, ...] = ()
+    belief_required_features: tuple[str, ...] = ()
+    belief_forbidden_features: tuple[str, ...] = ()
+    if is_control_pair or is_route_pair:
+        from .route_share_shadow import (
+            DistributionArtifactSpec,
+            ROLE_FEATURES as ROLE_FEATURE_NAMES,
+            ROUTE_FEATURES as ROUTE_FEATURE_NAMES,
+        )
+
+        bucket = os.environ["CAND_ARTIFACT_BUCKET"].strip()
+        if is_control_pair:
+            role_model_variant = K1_ROLE_VARIANT
+            model_forbidden_features = (*ROLE_FEATURE_NAMES,
+                                        *ROUTE_FEATURE_NAMES)
+            belief_required_features = ROLE_FEATURE_NAMES
+            belief_forbidden_features = ROUTE_FEATURE_NAMES
+            arm = "control"
+        else:
+            role_model_variant = K1_ROUTE_ROLE_VARIANT
+            model_required_features = ROUTE_FEATURE_NAMES
+            model_forbidden_features = ROLE_FEATURE_NAMES
+            belief_required_features = (*ROLE_FEATURE_NAMES,
+                                        *ROUTE_FEATURE_NAMES)
+            arm = "treatment"
+        artifact_spec = DistributionArtifactSpec(
+            bucket=bucket,
+            panel_run_id=panel_run_id,
+            arm=arm,
+            model_variant=variant,
+            belief_model_variant=role_model_variant,
+        )
+
     lineups = build_sim_lineups(
         season, week, n_entries=SHADOW_ENTRIES,
         stack=StackRules(qb_stack_min=2, bring_back_min=1,
@@ -188,8 +245,13 @@ def run(*, expected_variant: str = K1_VARIANT,
         panel_run_id=panel_run_id,
         candidate_run_type="live_shadow",
         policy_env=dict(os.environ),
-        belief_model_variant=(
-            K1_ROLE_VARIANT if label == K1_ROLE_UNION_LABEL else None),
+        belief_model_variant=role_model_variant,
+        model_required_features=model_required_features,
+        model_forbidden_features=model_forbidden_features,
+        belief_required_features=belief_required_features,
+        belief_forbidden_features=belief_forbidden_features,
+        route_source_policy=is_route_pair,
+        distribution_artifact_spec=artifact_spec,
     )
     if len(lineups) != SHADOW_ENTRIES:
         raise RuntimeError(
@@ -207,7 +269,7 @@ def run(*, expected_variant: str = K1_VARIANT,
         "tail_line": SHADOW_TAIL_LINE,
         "model_variant": variant,
         "role_model_variant": (
-            K1_ROLE_VARIANT if label == K1_ROLE_UNION_LABEL else None),
+            role_model_variant),
         "shadow_label": label,
         "minimum_lineup_salary": actual_floor,
     }

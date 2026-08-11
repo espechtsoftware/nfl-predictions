@@ -167,6 +167,8 @@ def test_role_union_shadow_requires_and_passes_exact_role_contract(monkeypatch):
     exact = {
         "MODEL_REGISTRY_VARIANT": "tail_k1", "MODEL_ENSEMBLE": "1",
         "MIN_LINEUP_SALARY": "49000", "CAND_ARTIFACT_BUCKET": "artifacts",
+        "GEN_TOTAL_BUDGET": "52", "N_GUMBEL": "0",
+        "REPLACEMENT_SLOTS": "12",
         "N_CE": "12", "N_EPISTEMIC": "12", "N_BOOM": "28",
         "EPISTEMIC_FAMILY": "role_draws",
         "ROLE_BELIEF_FEATURES": tail_shadow.ROLE_FEATURES,
@@ -206,11 +208,66 @@ def test_role_union_shadow_requires_and_passes_exact_role_contract(monkeypatch):
     assert result["role_model_variant"] == "tail_k1_role"
     assert captured["belief_model_variant"] == "tail_k1_role"
     assert captured["policy_env"]["N_EPISTEMIC"] == "12"
+    assert captured["distribution_artifact_spec"].arm == "control"
+    assert captured["model_required_features"] == ()
+    assert "fp_route_share_last" in captured["model_forbidden_features"]
+    assert "target_share_last" in captured["belief_required_features"]
 
     monkeypatch.setenv("N_EPISTEMIC", "11")
     with pytest.raises(RuntimeError, match="incorrect frozen settings"):
         tail_shadow.run(
             shadow_label=tail_shadow.K1_ROLE_UNION_LABEL, store=object())
+
+
+def test_route_role_union_is_exact_isolated_treatment(monkeypatch):
+    from nfl_dfs.inference import tail_shadow
+
+    exact = {
+        "MODEL_REGISTRY_VARIANT": "tail_k1_route", "MODEL_ENSEMBLE": "1",
+        "MIN_LINEUP_SALARY": "49000", "CAND_ARTIFACT_BUCKET": "artifacts",
+        "GEN_TOTAL_BUDGET": "52", "N_CE": "12", "N_EPISTEMIC": "12",
+        "N_BOOM": "28", "N_GUMBEL": "0", "REPLACEMENT_SLOTS": "12",
+        "EPISTEMIC_FAMILY": "role_draws",
+        "ROLE_BELIEF_FEATURES": tail_shadow.ROLE_FEATURES,
+        "ROLE_BELIEF_SEED": "7331", "CE_SEED": "1701",
+    }
+    for key, value in exact.items():
+        monkeypatch.setenv(key, value)
+    monkeypatch.setattr(
+        tail_shadow, "upcoming_season_week",
+        lambda: (2026, 1, date(2026, 9, 13)))
+
+    class Store:
+        def classic_slates(self):
+            return pd.DataFrame([{
+                "draft_group_id": 77,
+                "game_start": "2026-09-13T17:00:00Z",
+                "teams": 20, "players": 100,
+            }])
+
+        def classic_salaries(self, gid):
+            return pd.DataFrame({
+                "dk_player_id": range(100, 200), "salary": [5000] * 100})
+
+    captured = {}
+    monkeypatch.setattr(
+        "nfl_dfs.inference.live_lineups.build_sim_lineups",
+        lambda *args, **kwargs: captured.update(kwargs) or [object()] * 80)
+    result = tail_shadow.run(
+        expected_variant=tail_shadow.K1_ROUTE_VARIANT,
+        shadow_label=tail_shadow.K1_ROUTE_ROLE_UNION_LABEL,
+        store=Store(),
+        generated_at=datetime(2026, 9, 13, 15, 20, tzinfo=timezone.utc),
+    )
+    assert result["shadow_label"] == "tail_k1_route_roleunion"
+    assert result["model_variant"] == "tail_k1_route"
+    assert result["role_model_variant"] == "tail_k1_route_role"
+    assert captured["route_source_policy"] is True
+    assert captured["distribution_artifact_spec"].arm == "treatment"
+    assert set(captured["model_required_features"]) == {
+        "fp_route_share_last", "fp_route_share_l4",
+        "fp_route_share_jump", "fp_route_cross_season"}
+    assert "target_share_last" in captured["belief_required_features"]
 
 
 def test_shadow_refuses_canonical_registry(monkeypatch):

@@ -76,6 +76,7 @@ SELECT
   -- observations earlier than this target week. These remain inert unless a
   -- shadow model explicitly opts into the four registered EXTRA_FEATURES.
   fr.fp_route_source_season, fr.fp_route_source_week,
+  fr.fp_route_source_sha256,
   fr.fp_route_prior_observations,
   fr.fp_route_share_last, fr.fp_route_share_l4,
   fr.fp_route_share_jump, fr.fp_route_cross_season,

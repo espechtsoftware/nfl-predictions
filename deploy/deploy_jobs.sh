@@ -65,6 +65,11 @@ job train-weekly     train           8Gi 4
 job train-weekly-k1  train           8Gi 4 "MODEL_ENSEMBLE=1|MODEL_REGISTRY_VARIANT=tail_k1"
 # Alternate K=1 role registry used by the promoted expanded candidate union.
 job train-weekly-k1-role train        8Gi 4 "MODEL_ENSEMBLE=1|MODEL_REGISTRY_VARIANT=tail_k1_role|EXTRA_FEATURES=target_share_last,carry_share_last,snap_share_last,target_share_jump,carry_share_jump,snap_share_jump"
+# Paired Route Share treatment registries. These never replace the incumbent
+# K=1 registries and fail closed after Week 1 unless the exact W-1 licensed
+# export has been imported before this Tuesday chain reaches them.
+job train-weekly-k1-route train       8Gi 4 "MODEL_ENSEMBLE=1|MODEL_REGISTRY_VARIANT=tail_k1_route|EXTRA_FEATURES=fp_route_share_last,fp_route_share_l4,fp_route_share_jump,fp_route_cross_season"
+job train-weekly-k1-route-role train  8Gi 4 "MODEL_ENSEMBLE=1|MODEL_REGISTRY_VARIANT=tail_k1_route_role|EXTRA_FEATURES=target_share_last,carry_share_last,snap_share_last,target_share_jump,carry_share_jump,snap_share_jump,fp_route_share_last,fp_route_share_l4,fp_route_share_jump,fp_route_cross_season"
 # The command also pins/verifies these values from production_policy.py;
 # keeping them on the job makes the Cloud Run configuration self-describing.
 job project-slate    project         4Gi 2 "GAME_SIM_MODE=possession|MODEL_ENSEMBLE=1|MODEL_REGISTRY_VARIANT=tail_k1|BLEND_MODEL_WEIGHT=0.45"
@@ -73,6 +78,7 @@ job project-slate    project         4Gi 2 "GAME_SIM_MODE=possession|MODEL_ENSEM
 job shadow-k1        shadow-k1       8Gi 4 "MODEL_ENSEMBLE=1|MODEL_REGISTRY_VARIANT=tail_k1|GAME_SIM_MODE=possession|N_CE=0|N_EPISTEMIC=0|N_GUMBEL=0|N_BOOM=40|MIN_LINEUP_SALARY=49000|BLEND_MODEL_WEIGHT=0.45|LIVE_SIMS=30000|CAND_ARTIFACT_BUCKET=${PROJECT}-raw|CODE_SHA=${CODE_SHA}"
 job shadow-k1-nofloor shadow-k1-nofloor 8Gi 4 "MODEL_ENSEMBLE=1|MODEL_REGISTRY_VARIANT=tail_k1|GAME_SIM_MODE=possession|N_CE=0|N_EPISTEMIC=0|N_GUMBEL=0|N_BOOM=40|MIN_LINEUP_SALARY=0|BLEND_MODEL_WEIGHT=0.45|LIVE_SIMS=30000|CAND_ARTIFACT_BUCKET=${PROJECT}-raw|CODE_SHA=${CODE_SHA}"
 job shadow-k1-roleunion shadow-k1-roleunion 8Gi 4 "MODEL_ENSEMBLE=1|MODEL_REGISTRY_VARIANT=tail_k1|GAME_SIM_MODE=possession|GEN_TOTAL_BUDGET=52|N_CE=12|CE_SEED=1701|N_EPISTEMIC=12|EPISTEMIC_FAMILY=role_draws|ROLE_BELIEF_FEATURES=target_share_last,carry_share_last,snap_share_last,target_share_jump,carry_share_jump,snap_share_jump|ROLE_BELIEF_SEED=7331|N_GUMBEL=0|N_BOOM=28|REPLACEMENT_SLOTS=12|MIN_LINEUP_SALARY=49000|BLEND_MODEL_WEIGHT=0.45|LIVE_SIMS=30000|CAND_ARTIFACT_BUCKET=${PROJECT}-raw|CODE_SHA=${CODE_SHA}"
+job shadow-k1-route-roleunion shadow-k1-route-roleunion 8Gi 4 "MODEL_ENSEMBLE=1|MODEL_REGISTRY_VARIANT=tail_k1_route|GAME_SIM_MODE=possession|GEN_TOTAL_BUDGET=52|N_CE=12|CE_SEED=1701|N_EPISTEMIC=12|EPISTEMIC_FAMILY=role_draws|ROLE_BELIEF_FEATURES=target_share_last,carry_share_last,snap_share_last,target_share_jump,carry_share_jump,snap_share_jump|ROLE_BELIEF_SEED=7331|N_GUMBEL=0|N_BOOM=28|REPLACEMENT_SLOTS=12|MIN_LINEUP_SALARY=49000|BLEND_MODEL_WEIGHT=0.45|LIVE_SIMS=30000|CAND_ARTIFACT_BUCKET=${PROJECT}-raw|CODE_SHA=${CODE_SHA}"
 job shadow-k3        shadow-k3       8Gi 4 "MODEL_ENSEMBLE=3|MODEL_REGISTRY_VARIANT=canonical|GAME_SIM_MODE=possession|N_CE=0|N_EPISTEMIC=0|N_GUMBEL=0|N_BOOM=40|MIN_LINEUP_SALARY=49000|BLEND_MODEL_WEIGHT=0.45|LIVE_SIMS=30000|CAND_ARTIFACT_BUCKET=${PROJECT}-raw|CODE_SHA=${CODE_SHA}"
 # Cheap post-processing only: read the four complete pre-lock pools, freeze
 # control/top-p/no-floor/mixed memberships, and never regenerate candidates.
@@ -91,6 +97,8 @@ sched s-features    build-features  "30 6 * * 2"
 sched s-train       train-weekly    "30 7 * * 2"
 sched s-train-k1    train-weekly-k1 "30 8 * * 2"
 sched s-train-k1-role train-weekly-k1-role "45 8 * * 2"
+sched s-train-k1-route train-weekly-k1-route "0 9 * * 2"
+sched s-train-k1-route-role train-weekly-k1-route-role "15 9 * * 2"
 sched s-project-tu  project-slate   "30 9 * * 2"
 sched s-project-su  project-slate   "0 6-11 * * 7"
 # Two pre-lock snapshots: the early run is resilient to a late-run failure;
@@ -101,6 +109,8 @@ sched s-shadow-k1-nofloor-early shadow-k1-nofloor "30 10 * * 7"
 sched s-shadow-k1-nofloor-late  shadow-k1-nofloor "20 11 * * 7"
 sched s-shadow-k1-roleunion-early shadow-k1-roleunion "20 10 * * 7"
 sched s-shadow-k1-roleunion-late  shadow-k1-roleunion "10 11 * * 7"
+sched s-shadow-k1-route-roleunion-early shadow-k1-route-roleunion "20 10 * * 7"
+sched s-shadow-k1-route-roleunion-late  shadow-k1-route-roleunion "10 11 * * 7"
 sched s-shadow-k3-early shadow-k3   "30 10 * * 7"
 sched s-shadow-k3-late  shadow-k3   "20 11 * * 7"
 # Both source jobs start together. These delayed jobs fail closed unless the

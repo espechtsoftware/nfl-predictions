@@ -1618,6 +1618,15 @@ def tail_select_lineups(
                         *PLAYER_SNAPSHOT_FEATURES, "actual"]
                 for column in (
                     "fp_route_source_season", "fp_route_source_week",
+                    "fp_route_source_sha256", "fp_route_prior_observations",
+                    "fp_route_share_last", "fp_route_share_l4",
+                    "fp_route_share_jump", "fp_route_cross_season",
+                    "fp_route_fallback", "fp_route_shadow_supported",
+                    "route_distribution_artifact_uri",
+                    "route_distribution_artifact_sha256",
+                    "route_distribution_arm",
+                    "route_distribution_model_variant",
+                    "route_distribution_belief_variant",
                     "route_control_p30", "route_treatment_p30",
                     "route_delta_30",
                     "fp_cov_receiver_source_season",
@@ -1633,6 +1642,9 @@ def tail_select_lineups(
                 want.extend(sorted(
                     c for c in slate.columns
                     if c.startswith("ensemble_point_")))
+                want.extend(sorted(
+                    c for c in slate.columns
+                    if c.startswith("component_mean_")))
                 have = [c for c in want if c in slate.columns]
                 fdf = slate[have].copy()
                 # BigQuery/pyarrow cannot infer a type for an all-None
@@ -1641,8 +1653,14 @@ def tail_select_lineups(
                 # families become float NaN, missing string families
                 # become a typed string column.
                 _strcols = {"id", "gsis_id", "name", "pos", "team", "opp",
-                            "game_id"}
-                _boolcols = {"is_cold_start"}
+                            "game_id", "fp_route_source_sha256",
+                            "fp_route_fallback",
+                            "route_distribution_artifact_uri",
+                            "route_distribution_artifact_sha256",
+                            "route_distribution_arm",
+                            "route_distribution_model_variant",
+                            "route_distribution_belief_variant"}
+                _boolcols = {"is_cold_start", "fp_route_shadow_supported"}
                 for c in want:  # explicit missingness, never silent
                     if c not in have:
                         if c in _strcols:

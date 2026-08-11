@@ -20,17 +20,18 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 13:02 CDT
+## Current state — 2026-08-11 13:04 CDT
 
 Active branch is `main`; Advanced Receiving diagnostic implementation commit
 `5aee8aa` is pushed. Its single preregistered outcome run is complete and
 failed the frozen gate; result commit `6137bad` is pushed. The program-review
 reconciliation is finalized in this milestone.
-The three operator-supplied outside-review documents
+The four operator-supplied outside-review documents
 `reports/2026-08-10-scoring-strategy-recommendations.md`,
-`reports/2026-08-11-fantasy-points-data-utilization.md`, and
-`reports/2026-08-11-post-window-program-review.md` remain untracked and must
-not be staged or modified.
+`reports/2026-08-11-fantasy-points-data-utilization.md`,
+`reports/2026-08-11-post-window-program-review.md`, and
+`reports/2026-08-11-recommendation-scoreboard-and-pivot.md` remain untracked
+and must not be staged or modified.
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -309,12 +310,42 @@ not be staged or modified.
   clarification now freezes the exact live pairing: existing `tail_k1` plus
   `tail_k1_role` control versus isolated `tail_k1_route` plus
   `tail_k1_route_role` treatment, both under the same promoted 12 CE / 12 role
-  / 28 boom policy. The control and treatment must persist create-only player-
-  draw/component artifacts before candidate generation; Week 1 may use only
-  labeled prior-season Route values and Week 2 onward requires the manifest-
-  locked W-1 import. Exact next action: implement these two treatment
-  registries, the treatment shadow command and the pre-lock artifact contract
-  without exposing the Route registry to production.
+  / 28 boom policy. That implementation is now complete locally without
+  exposing the Route registry to production. Isolated `tail_k1_route` and
+  `tail_k1_route_role` training jobs have exact registered feature contracts;
+  treatment inference masks every row except prior-season/hash-attributed
+  Week 1 values or exact current-season W-1/hash-attributed values, and both
+  training and inference fail closed after Week 1 if the manifest-locked W-1
+  source is absent. Source hashes now propagate through the feature SQL.
+  Existing `shadow-k1-roleunion` is the paired control and new
+  `shadow-k1-route-roleunion` is the treatment; both synchronously persist a
+  create-only NPZ containing aligned base/role draws, both component sets,
+  served quantiles, market/model means and Route lineage before candidate
+  generation. Candidate player snapshots carry the artifact URI/hash and arm
+  identity. Four new off-season-paused schedulers are included in the Aug 24
+  runbook, and deployment verification covers both new registries and the
+  treatment job. Local validation passed all 874 tests with two expected
+  skips before the final per-component/create-only hardening; the superseding
+  focused Route/tail/SQL/persistence set passes 101 tests with one expected
+  skip, plus compilation, CLI discovery, shell syntax and whitespace checks.
+  Exact next action: commit/push this milestone, build the exact tree, deploy
+  only the two new train jobs, treatment shadow, and updated control shadow,
+  create all four new schedulers in PAUSED state, then verify deployment
+  without executing an offseason shadow.
+- The operator-supplied recommendation-scoreboard review was checked against
+  the experiment ledger in
+  `reports/2026-08-11-recommendation-scoreboard-pivot-reconciliation.md`.
+  Its served-tail correction, Stage B joint-tail implication, prohibition on
+  recycling failed marginal families, and prospective contest/payout direction
+  are retained. Its assertion that within-team allocation is untested is
+  incorrect: `GAME_SIM_USAGE=dirichlet` already tested K=20 (`177.3`, 3/17
+  >=194) and K=8 (`175.0`, 11 tails), and the corrected TD ledger lost 19 vs
+  27 on the full panel. That mechanism family remains closed; no relabeled
+  concentration retune is authorized. All previously launched historical
+  non-Fantasy-Points arms are complete. The remaining non-vendor work is
+  prospectively data-blocked: 2026 K1/K3/floor/role/selector shadows and a
+  contest-aware payout/duplication objective after complete standings and
+  payout metadata exist.
 - The next paid-data correlation study was frozen and pushed before any
   outcome join at commit `8263fe8`:
   `reports/2026-08-10-fantasy-points-coverage-fit-experiment.md`. It tests only

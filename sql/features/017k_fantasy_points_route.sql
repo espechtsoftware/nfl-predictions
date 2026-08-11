@@ -11,7 +11,7 @@ WITH targets AS (
 ),
 history AS (
   SELECT gsis_id, CAST(season AS INT64) AS season,
-         CAST(week AS INT64) AS week, route_share
+         CAST(week AS INT64) AS week, route_share, source_sha256
   FROM `${raw}.fantasy_points_route_share`
   WHERE gsis_id IS NOT NULL AND route_share BETWEEN 0 AND 1
   QUALIFY ROW_NUMBER() OVER (
@@ -23,6 +23,7 @@ ranked AS (
   SELECT
     t.gsis_id, t.season, t.week,
     h.season AS source_season, h.week AS source_week, h.route_share,
+    h.source_sha256,
     ROW_NUMBER() OVER (
       PARTITION BY t.gsis_id, t.season, t.week
       ORDER BY h.season DESC, h.week DESC
@@ -36,6 +37,7 @@ SELECT
   gsis_id, season, week,
   MAX(IF(source_rank = 1, source_season, NULL)) AS fp_route_source_season,
   MAX(IF(source_rank = 1, source_week, NULL)) AS fp_route_source_week,
+  MAX(IF(source_rank = 1, source_sha256, NULL)) AS fp_route_source_sha256,
   COUNTIF(route_share IS NOT NULL) AS fp_route_prior_observations,
   MAX(IF(source_rank = 1, route_share, NULL)) AS fp_route_share_last,
   AVG(IF(source_rank <= 4, route_share, NULL)) AS fp_route_share_l4,
