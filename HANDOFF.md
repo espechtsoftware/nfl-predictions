@@ -28,8 +28,9 @@ failed the frozen gate; result commit `6137bad` is pushed. The program-review
 reconciliation is finalized in this milestone.
 The paired Route Share live-shadow implementation commit `9e34565` and its
 Thursday post-download scheduler follow-up `b6dbc5e` are also pushed on
-`main`. The four operator-supplied outside-review documents
+`main`. The five operator-supplied outside-review documents
 `reports/2026-08-10-scoring-strategy-recommendations.md`,
+`reports/2026-08-11-deep-analysis-calibration-and-data-audit.md`,
 `reports/2026-08-11-fantasy-points-data-utilization.md`,
 `reports/2026-08-11-post-window-program-review.md`, and
 `reports/2026-08-11-recommendation-scoreboard-and-pivot.md` remain untracked
@@ -374,6 +375,27 @@ and must not be staged or modified.
   prospectively data-blocked: 2026 K1/K3/floor/role/selector shadows and a
   contest-aware payout/duplication objective after complete standings and
   payout metadata exist.
+- The recommendation-scoreboard file was materially updated at 14:21 CDT and
+  now points to a new outside deep-calibration audit. Its dead-call-site and
+  stale-constant findings are verified, but its causal account misses the
+  actual served order: `DEFAULT_WIDEN` runs before TabPFN marginal mapping,
+  which erases every positive row scale by remapping unchanged ordinal ranks.
+  The accepted served-tail evaluation had 100% TabPFN coverage overall and in
+  every evaluated position, so stale upstream constants cannot explain that
+  final-path positional imbalance. The imbalance itself remains actionable.
+  A reconciliation is tracked in
+  `reports/2026-08-11-deep-calibration-audit-reconciliation.md`, and the one
+  new R1/R2 diagnostic is frozen before execution in
+  `reports/2026-08-11-served-position-calibration-refit.md`. New command
+  `served-position-calibration-diagnostic` first invokes the existing summary
+  refit unchanged, then independently fits mean-invariant final-served
+  QB/RB/WR/TE factors on 2019/2021/2022 and gates them once on untouched
+  2023--2025. It never generates or scores lineups. Five focused calibration
+  test files pass 23 tests; compilation, CLI discovery, shell syntax and
+  whitespace checks are clean. Exact next action: commit/push this frozen
+  protocol and implementation, validate the exact tree in Cloud Build, then
+  launch the guarded single diagnostic from that immutable digest. Do not
+  preregister a lineup arm until its gate is known.
 - The next paid-data correlation study was frozen and pushed before any
   outcome join at commit `8263fe8`:
   `reports/2026-08-10-fantasy-points-coverage-fit-experiment.md`. It tests only
