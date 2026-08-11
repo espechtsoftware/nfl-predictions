@@ -20,13 +20,15 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 13:04 CDT
+## Current state — 2026-08-11 13:36 CDT
 
 Active branch is `main`; Advanced Receiving diagnostic implementation commit
 `5aee8aa` is pushed. Its single preregistered outcome run is complete and
 failed the frozen gate; result commit `6137bad` is pushed. The program-review
 reconciliation is finalized in this milestone.
-The four operator-supplied outside-review documents
+The paired Route Share live-shadow implementation commit `9e34565` and its
+Thursday post-download scheduler follow-up `b6dbc5e` are also pushed on
+`main`. The four operator-supplied outside-review documents
 `reports/2026-08-10-scoring-strategy-recommendations.md`,
 `reports/2026-08-11-fantasy-points-data-utilization.md`,
 `reports/2026-08-11-post-window-program-review.md`, and
@@ -325,14 +327,39 @@ and must not be staged or modified.
   identity. Five new off-season-paused schedulers are included in the Aug 24
   runbook: a Thursday post-download feature rebuild, two isolated Thursday
   retrains, and the two Sunday treatment snapshots. Deployment verification
-  covers both new registries and the treatment job. Local validation passed all 874 tests with two expected
+  covers both new registries and the treatment job. Local validation passed
+  all 874 tests with two expected
   skips before the final per-component/create-only hardening; the superseding
   focused Route/tail/SQL/persistence set passes 101 tests with one expected
   skip, plus compilation, CLI discovery, shell syntax and whitespace checks.
-  Exact next action: commit/push this milestone, build the exact tree, deploy
-  only the two new train jobs, treatment shadow, and updated control shadow,
-  create all five new schedulers in PAUSED state, then verify deployment
-  without executing an offseason shadow.
+  Exact-tree Cloud Build `3be0f6e0-be9c-4566-bb89-5d2b5559e747`
+  subsequently passed 875 tests with two expected skips from code commit
+  `9e34565` and published tag `route-shadow-9e34565` at immutable digest
+  `sha256:cfa61d612568bd3e1e01a40e49f2d74f26f422ccc163fb4a30769706c04fa501`.
+  `build-features` generation 50, `train-weekly-k1-route` generation 1,
+  `train-weekly-k1-route-role` generation 1, control
+  `shadow-k1-roleunion` generation 2 and treatment
+  `shadow-k1-route-roleunion` generation 1 are Ready on that digest;
+  deployment verification passes all app/project/control/treatment registry
+  and job checks. The five new America/Chicago schedulers are present and
+  explicitly PAUSED: Thursday `s-features-route` 06:30,
+  `s-train-k1-route` 07:30 and `s-train-k1-route-role` 08:00, plus Sunday
+  `s-shadow-k1-route-roleunion-early` 10:20 and `...-late` 11:10.
+  Ad hoc infrastructure-only smoke executions `build-features-h5r8q`,
+  `train-weekly-k1-route-fm25f` and
+  `train-weekly-k1-route-role-kpm4s` all completed successfully. The two
+  trainings registered 11 contract-valid component models as
+  `pooled/components__tail_k1_route/2026-W33` and
+  `pooled/components__tail_k1_route_role/2026-W33`. There are currently no
+  2026 Week 1 rows in `nfl_features.player_week_inference`, as expected before
+  a real Week 1 DraftKings slate exists, so live player support/source-hash
+  verification remains pending rather than being inferred from offseason
+  data. No lineup shadow was executed and Cloud Run has zero incomplete
+  executions. Keep all five schedules paused through August 23; on August 24
+  resume the full 22-scheduler season set. After the first genuine vendor W-1
+  download/import, let the Thursday feature/train chain build the treatment,
+  then collect the paired Sunday control/treatment snapshots without changing
+  the production policy.
 - The operator-supplied recommendation-scoreboard review was checked against
   the experiment ledger in
   `reports/2026-08-11-recommendation-scoreboard-pivot-reconciliation.md`.
