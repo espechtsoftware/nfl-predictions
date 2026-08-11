@@ -87,9 +87,11 @@ and must not be staged or modified.
   untouched 2023--2025 likelihood with the multinomial reference, and emits
   only aggregate/kind/season diagnostics. Forty focused usage/component/game
   simulation tests pass; compilation, CLI discovery, shell parsing and
-  whitespace checks are clean. Exact next action after committing this tree:
-  run a new exact-tree Cloud Build. Do not execute the diagnostic or inspect
-  its K/held-out likelihood until that build passes.
+  whitespace checks are clean. Implementation commit `5529cc0` is pushed and
+  exact-tree Cloud Build `c2ea3613-f05b-4f65-ae44-788060b436a9` is queued from
+  that commit. Monitor the build and do not execute the diagnostic or inspect
+  its K/held-out likelihood unless the full suite and immutable image publish
+  successfully.
 
 ### Final-served position calibration passed, promoted, and adopted
 
