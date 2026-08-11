@@ -89,8 +89,14 @@ agent or developer:
   resolves the source mechanically, it adds exactly twelve novel 2024/2025
   candidates using `proj_tourney + 30 * (treatment_p30-control_p30)`, keeps
   earlier seasons byte-identical, reuses unchanged worlds/selection and
-  returns exactly 80. Implement and validate it now, but do not launch it
-  until the Route source branch is fixed; there is no dose/feature retry.
+  returns exactly 80. Implementation commit `d977d0c` adds the score-free
+  signal loader, replay attachment, twelve-novel-candidate generator, strict
+  PIT/parity comparator, CLI and guarded Cloud runner. The full 776-test local
+  suite passed, with compilation and whitespace checks clean. Conditional
+  wrapper `scripts/prop_lock_coverage_tail_union.sh` is frozen to code
+  `d977d0c` and refuses to launch until the Route report mechanically selects
+  direct or Route source. Next: commit the wrapper/protocol update, run an
+  exact-tree Cloud Build, then wait for Route; there is no dose/feature retry.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no

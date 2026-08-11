@@ -98,7 +98,13 @@ window.
 ## Pre-outcome implementation status
 
 No coverage-tail candidate, panel, selected lineup or score exists at this
-milestone. Implementation must add a score-free signal loader, a guarded
-twelve-candidate generator, strict point-in-time/parity tests, an immutable
-panel wrapper and a one-shot comparator before launch. The original licensed
-exports remain private and hash-locked; no additional vendor table is allowed.
+milestone. Score-free walk-forward signal construction, the twelve-novel-
+candidate generator, replay attachment/persistence, strict PIT/parity
+comparator, CLI, and one-shot Cloud runner were implemented at commit
+`d977d0c`. The full 776-test local suite completed successfully, along with
+compilation, shell parsing and whitespace checks. The conditional panel
+wrapper is frozen to implementation identity `d977d0c` and refuses to choose
+direct versus Route source until the recorded Route disposition makes that
+choice mechanical. An exact-tree Cloud Build is still required before launch.
+The original licensed exports remain private and hash-locked; no additional
+vendor table is allowed.
