@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 05:55 CDT
+## Current state — 2026-08-11 06:08 CDT
 
-Active branch is `main`; repository work through commit `228368f` is pushed.
+Active branch is `main`; repository work through commit `16eec10` is pushed.
 The three operator-supplied outside-review documents
 `reports/2026-08-10-scoring-strategy-recommendations.md`,
 `reports/2026-08-11-fantasy-points-data-utilization.md`, and
@@ -68,6 +68,16 @@ not be staged or modified.
   licenses one separately frozen mean-invariant recalibration; it cannot
   reopen a closed vendor arm. Advanced Rushing collection is deliberately
   deferred until this cheaper, directly relevant calibration path resolves.
+  Implementation now reproduces the frozen production environment, aligns
+  final draws to exact accepted rows, checks the accepted pre/post-blend
+  means, and reports pinball, CRPS, Brier and both binomial and week-clustered
+  exceedance uncertainty. The new CLI is
+  `served-tail-calibration-diagnostic`; one-shot runner
+  `scripts/cloud_served_tail_calibration.sh` requires an immutable image and
+  records one execution/report. Twelve focused served-tail/Route-component
+  tests pass, with compilation, CLI discovery, shell syntax and whitespace
+  clean. Build the exact tree, record its immutable digest, then run the
+  wrapper once; no final-path outcome has been generated yet.
 - The next paid-data correlation study was frozen and pushed before any
   outcome join at commit `8263fe8`:
   `reports/2026-08-10-fantasy-points-coverage-fit-experiment.md`. It tests only

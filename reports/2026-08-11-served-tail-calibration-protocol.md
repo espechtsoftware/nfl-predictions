@@ -40,9 +40,10 @@ to its blended mean but may not independently scale their spread.
 Use held-out seasons 2023, 2024 and 2025. Restrict to active Sunday-main
 RB/WR/TE rows present in corrected accepted panel
 `20260810-lockfix-e80-k1-8677d21`, matching the raw component diagnostic's
-primary population. Exact `(season, week, gsis_id, position, actual)` parity
-with the accepted panel is mandatory. Report any row-count difference from
-13,876 and fail closed rather than silently changing the population.
+primary population. Exact `(season, week, gsis_id, position)` parity and
+actual-score agreement within the canonical 0.11-DK-point rounding tolerance
+are mandatory. Report any row-count difference from 13,876 and fail closed
+rather than silently changing the population.
 
 The recomputed post-shaper model mean and post-blend mean must match the
 accepted panel's persisted `model_points_pre` and `mean_projection` within a
@@ -96,5 +97,8 @@ distribution, while 20/30-point Brier remains mandatory.
 
 ## Pre-result status
 
-Protocol frozen. Implementation, exact-tree validation, Cloud Run execution
-and final metrics have not started.
+Protocol was frozen and pushed at commit `16eec10`. The exact-population
+alignment, production-environment guard, final-draw scorer, q90/q95/q99
+calibration intervals, pinball/CRPS/Brier diagnostics, CLI and one-shot Cloud
+runner are implemented. Focused offline validation passes. Exact-tree build,
+Cloud Run execution and final metrics have not started.

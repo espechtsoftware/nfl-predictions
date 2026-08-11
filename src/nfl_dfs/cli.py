@@ -223,6 +223,15 @@ def main(argv: list[str] | None = None) -> None:
     )
 
     p = sub.add_parser(
+        "served-tail-calibration-diagnostic",
+        help="Measure q90/q95/q99 calibration on the final served draws",
+    )
+    p.add_argument(
+        "--panel", default="20260810-lockfix-e80-k1-8677d21",
+        help="Frozen corrected K1 panel (alternate values fail closed)",
+    )
+
+    p = sub.add_parser(
         "import-fantasy-points-advanced",
         help="Audit/import hash-locked Fantasy Points Advanced player data",
     )
@@ -596,6 +605,10 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import fantasy_points_route_components
 
         fantasy_points_route_components.run(args.panel)
+    elif args.command == "served-tail-calibration-diagnostic":
+        from .analysis import served_tail_calibration
+
+        served_tail_calibration.run(args.panel)
     elif args.command == "import-fantasy-points-advanced":
         from .ingest import fantasy_points_advanced
 
