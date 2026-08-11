@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 03:40 CDT
+## Current state — 2026-08-11 03:51 CDT
 
-Active branch is `main`; the last pushed milestone is commit `615f47e`.
+Active branch is `main`; the last pushed milestone is commit `e34a078`.
 The two operator-supplied outside-review documents under `reports/` remain
 untracked and must not be staged or modified.
 
@@ -347,9 +347,12 @@ untracked and must not be staged or modified.
   completed successfully; snapshot `fantasy_points_defense_proe_20260811`
   has exactly 2,174 rows. The frozen diagnostic, CLI and one-shot runner are
   implemented; eight focused Defense PROE/backup tests plus compilation,
-  CLI discovery, shell parsing and whitespace checks pass. Commit/push this
-  implementation, run exact-tree Cloud Build, record its immutable digest,
-  then launch the wrapper exactly once. No outcome query has started.
+  CLI discovery, shell parsing and whitespace checks pass. Exact-tree Cloud
+  Build `6b84f0cc-bda4-434f-92ba-1b829f5a8c3d` from commit `e34a078`
+  passed 815 tests with two expected skips and published immutable digest
+  `sha256:0450ef0f2e3b332d7bf415263e044e081111644c25c001d92e94e71bc9ba6573`.
+  Next launch the one-shot wrapper exactly once with that digest and record
+  the preregistered result. No outcome query has started.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no

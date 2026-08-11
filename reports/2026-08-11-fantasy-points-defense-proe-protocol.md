@@ -97,4 +97,8 @@ mandatory repeat returned `already-identical`. Backup execution
 `backup-tables-bd497` completed successfully; snapshot
 `fantasy_points_defense_proe_20260811` has exactly 2,174 rows. The one-shot
 runner is frozen to the source counts, hashes, panel and immutable-image
-requirement. No outcome query or lineup generation has started.
+requirement. Exact-tree Cloud Build
+`6b84f0cc-bda4-434f-92ba-1b829f5a8c3d` from commit `e34a078` passed 815
+tests with two expected skips and published immutable digest
+`sha256:0450ef0f2e3b332d7bf415263e044e081111644c25c001d92e94e71bc9ba6573`.
+No outcome query or lineup generation has started.
