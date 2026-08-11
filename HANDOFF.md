@@ -445,6 +445,15 @@ and must not be staged or modified.
   Exact next action: monitor statuses only without reading partial scores;
   after six clean successes, run check-only exact-season acceptance on both
   and the frozen comparator exactly once. Production remains identity.
+  While these jobs run, the lower-priority deep-audit recommendations were
+  reconciled without reading lineup outcomes. A route retry must calibrate
+  each arm's **final-served** position scales, not erased upstream widening.
+  The data-fitted Dirichlet recommendation is genuinely new: existing SBI
+  proved only synthetic identifiability and never fit real usage. Its future
+  diagnostic must estimate one K from leave-season component-model fitted
+  shares and conditional realized allocation likelihood, then pass an
+  untouched usage gate before any lineup replay. Neither follow-up is yet a
+  score-bearing authorization.
 - The next paid-data correlation study was frozen and pushed before any
   outcome join at commit `8263fe8`:
   `reports/2026-08-10-fantasy-points-coverage-fit-experiment.md`. It tests only

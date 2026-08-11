@@ -73,3 +73,28 @@ The independently frozen final-served fit then passed every held-out gate at
 factors QB 0.970, RB 1.005, TE 0.940 and WR 1.070. This is positive
 distribution evidence, not yet a scoring result. Its sole licensed next step
 is the separately preregistered exact-80 lineup comparison.
+
+## Remaining recommendation corrections
+
+Two lower-priority items in the revised outside audit survive, with precise
+constraints:
+
+- Its R3 route-share retry cannot refit `DEFAULT_WIDEN`, because that remains
+  upstream of and erased by TabPFN on covered rows. A valid new route
+  comparison would fit **each arm's final-served position factors** on the
+  calibration seasons, gate both on untouched distribution metrics, and only
+  then compare lineups. Whether that work should use identity or the passing
+  position-scale book as control depends on the active lineup experiment, so
+  it is not frozen prematurely here.
+- Its R4 allocation recommendation is genuinely different from selecting
+  another K on known lineup scores. The repository's SBI work established
+  only synthetic identifiability of `usage_dirichlet_k`; it did not fit K to
+  real usage. A valid diagnostic would train the existing component model
+  strictly leave-season-out, normalize its fitted target/carry means within
+  team-week, and estimate K from the conditional realized allocation
+  likelihood. This is lineup-outcome-blind. It must freeze one global value
+  and pass an untouched usage-calibration/likelihood gate before any lineup
+  replay; K=8/K=20 lineup results cannot participate in the fit.
+
+These are queued scientific diagnostics, not authorizations to run score-
+selected grids. The active position-scale exact-80 result remains first.
