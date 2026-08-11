@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-10 21:19 CDT
+## Current state — 2026-08-10 21:26 CDT
 
 ### Tail-first law revised; role-union v2 adopted and live
 
@@ -117,7 +117,9 @@ agent or developer:
   retry would still be an outcome-viewed subset. Do not alter the frozen
   unions or restore a significance veto. The eventual 2026 Route path needs
   an idempotent weekly ingest contract; the current importer is historical
-  and hash-locked.
+  and hash-locked. A shareable operator-facing description of all six weekly
+  report families and their current priority is tracked in
+  `reports/2026-08-11-fantasy-points-weekly-reports-summary.md`.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no
