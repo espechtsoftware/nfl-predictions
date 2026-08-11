@@ -58,10 +58,20 @@ review remains unmodified and untracked at
 2. The separately frozen one-factor, mean-invariant Stage A recalibration
    passed and selected `1.025` using only 2019/2021/2022. Its untouched
    2023--2025 calibration gates all passed. The sole exact-80 Stage B lineup
-   replay is now implemented and is the next immutable Cloud run; production
-   remains at identity until that score test passes.
-3. Implement the immutable 2026 Route Share weekly append and shadow path in
-   parallel with preseason operations.
-4. Only after the calibration path resolves, reconsider whether the
+   replay is running as `replay-lockk1tail-2023-bdhsj`,
+   `replay-lockk1tail-2024-4727d` and `replay-lockk1tail-2025-6mnfb` from the
+   immutable registered image. Production remains at identity until that score
+   test passes; no second factor or treatment is licensed.
+3. The immutable 2026 Route Share weekly append path and prospectively frozen
+   shadow gate are implemented and pushed. Its all-row CRPS primary, q95/q99
+   pinball and calibration checks, paired week-clustered uncertainty and MDE
+   directly incorporate the review's gate-resolution recommendation without
+   re-adjudicating the known historical arm.
+4. The three no-history live matchup tools now have a fail-closed prospective
+   collector. It verifies the target schedule week, Apply response and every
+   team/opponent pair, requires capture before the target week's first kickoff,
+   archives hash-addressed bytes, and keeps all snapshots collection-only. The
+   stale offseason samples fail the 2026 Week 1 schedule gate as intended.
+5. Only after the calibration path resolves, reconsider whether the
    outcome-blind Advanced Rushing pair or a support-aware Advanced Receiving
    family has enough expected value for one further historical test.

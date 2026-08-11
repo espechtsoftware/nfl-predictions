@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 08:17 CDT
+## Current state — 2026-08-11 08:25 CDT
 
 Active branch is `main`; Stage B execution-record commit `8bd5588` is pushed.
 The three operator-supplied outside-review documents
@@ -189,6 +189,10 @@ not be staged or modified.
   surface to roll to a matching 2026 schedule. The data remains collection-
   only until a separately frozen prospective scoring gate passes; no current
   production path depends on it.
+  The complete committed-tree suite subsequently passed all 858 collected
+  tests (856 passed, two expected skips). The durable reconciliation of the
+  outside review now records this completed Route/matchup implementation and
+  the three in-flight immutable Stage B execution IDs.
 - The independent Route scoring law is now frozen before 2026 data in
   `reports/2026-08-11-route-share-2026-shadow-gate.md`. It replaces rare-event
   Brier as the sole decision maker with an all-row CRPS primary, q95/q99
