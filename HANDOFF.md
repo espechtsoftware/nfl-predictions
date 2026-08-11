@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 03:30 CDT
+## Current state — 2026-08-11 03:39 CDT
 
-Active branch is `main`; the last pushed milestone is commit `ab8f79f`.
+Active branch is `main`; the last pushed milestone is commit `86252f5`.
 The two operator-supplied outside-review documents under `reports/` remain
 untracked and must not be staged or modified.
 
@@ -333,6 +333,20 @@ untracked and must not be staged or modified.
   production policy changed. Next perform an outcome-blind strict-prior
   audit of the already downloaded weekly Defense PROE series, the remaining
   distinct opponent-context question, before licensing any model test.
+- The outcome-blind weekly Defense PROE audit is now complete. The four
+  registered licensed files normalized to 2,174 unique defense-game rows.
+  A strict W-4:W-1 mean with at least three games covered all 1,646 scheduled
+  defense-week contexts in target Weeks 5--18 for every 2022--2025 season.
+  Its maximum absolute Spearman correlation with the nine existing opponent
+  inputs was only 0.2955; no outcome column was queried. One single-feature
+  QB/WR/TE diagnostic is frozen before outcomes in
+  `reports/2026-08-11-fantasy-points-defense-proe-protocol.md`: heldouts
+  2023--2025, 90% per-fold coverage and strictly improved aggregate 30-point
+  Brier. The hash-locked importer, PIT attachment, source-only audit, CLI and
+  explicit backup member are implemented; seven focused tests plus
+  compilation/CLI/whitespace checks pass. Commit/push this preregistration
+  and intake, write/repeat/backup the raw table, then implement the frozen
+  diagnostic and runner before reading outcomes.
 - Contest-placement/ROI evidence is now summarized durably in
   `reports/2026-08-10-contest-placement-roi-audit.md`. The local 2025 files
   are first-place-only; BigQuery has 103,556 ownership rows but no

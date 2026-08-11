@@ -127,3 +127,20 @@ The completed same-season coverage diagnostic later failed both its support
 and aggregate 30-point Brier gates, so its exact mechanism is closed. The
 already-preregistered Advanced Passing family is the next collection. The
 route-break lead above remains outcome-blind and queued behind it.
+
+## Weekly Defense PROE outcome-blind follow-up
+
+After the same-season Advanced Passing and broad route-shape mechanisms also
+failed their frozen gates, the remaining distinct team-context question was
+audited without outcomes. The four registered weekly Defense PROE files
+normalize to 2,174 team-game rows. A target Week W last-four-prior mean with a
+three-game support floor covered all 1,646 scheduled defense-week contexts in
+Weeks 5--18 across 2022--2025.
+
+Its largest absolute Spearman correlation with an existing strictly-prior
+opponent feature was only 0.2955 (`wr_fp_allowed_adj_l6`). Correlations with
+adjusted QB fantasy points allowed, EPA/dropback allowed and opponent pressure
+rate were 0.2817, 0.1283 and -0.1840; every other registered comparison was
+at most 0.2065 in absolute value. Defense PROE is therefore distinct enough
+for one separately preregistered single-feature pass-game diagnostic. This is
+a redundancy/support conclusion, not a predictive claim.

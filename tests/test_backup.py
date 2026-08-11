@@ -15,7 +15,8 @@ def test_irreplaceable_tables_covered():
                  "fantasy_points_receiver_coverage_l4",
                  "fantasy_points_defense_coverage_l4",
                  "fantasy_points_advanced_passing_l4",
-                 "fantasy_points_route_shape_l4"):
+                 "fantasy_points_route_shape_l4",
+                 "fantasy_points_defense_proe"):
         assert must in tables
 
 
