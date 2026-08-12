@@ -274,6 +274,14 @@ and must not be staged or modified.
   explicitly not queued. The historical archetype job is not point-in-time for
   this use and must be refit within each target fold; embeddings require the
   participation feed rather than ordinary PBP alone.
+  Two follow-up qualifications are frozen before the fitted-K score is known.
+  G1 recomputes every q90 threshold/rate/lift from final-served draws; the
+  outside review's widened-summary 8.53% rate and lifts are motivation only.
+  G3 branches mechanically on the fitted-K comparator: an adopted K makes the
+  conditional hierarchy incremental to K=28.246898139750336; neutral/reject
+  keeps production K→infinity as lineup control and requires the conditional
+  law to beat both K→infinity and the fixed outcome-free K on score-free
+  likelihood/dependence gates before any exact-80 test.
 
 ### Final-served position calibration passed, promoted, and adopted
 

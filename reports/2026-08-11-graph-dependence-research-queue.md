@@ -56,6 +56,11 @@ Build one target-season diagnostic for 2023, 2024 and 2025:
 This is a calibration instrument, not an adoption arm. Individual player-pair
 edges are explicitly excluded because roughly 1.7 q90 events per player-season
 cannot support them. No lineup outcomes or score thresholds are read.
+The outside review's 8.53% marginal rate and QB/receiver lift values were
+computed from widened-summary `proj_p90`, not the final served draws. They are
+motivation for the preregistered relationship cells only. G1 must recompute all
+thresholds, marginal rates, lifts and absolute gaps from its final-served folds;
+none of the prior numerical levels is an input, baseline or gate target.
 
 ## G2 — upper-tail QB bi-factor copula
 
@@ -94,9 +99,28 @@ lineups or replace the simulator. True pre-debut rookies remain cold because
 they have no NFL participation history, so do not claim this solves Week-1
 rookie cold starts without a separately sourced college bridge.
 
+The fitted-K exact-80 branch is fixed now, before that result is known:
+
+- If fitted K `28.246898139750336` passes and is adopted, G3 control is that
+  accepted global law and treatment is an embedding-conditioned hierarchy
+  regularized around the same exact K. This isolates conditional heterogeneity.
+- If fitted K is neutral or rejected, production K→infinity remains the lineup
+  control. G3 may first run only a score-free heterogeneity diagnostic. Its
+  embedding-conditioned law may still use the already frozen, outcome-free
+  `28.246898139750336` as a regularization center, but it must improve held-out
+  allocation likelihood and the G1 dependence scorecard against **both** the
+  production K→infinity reference and the fixed global-K reference. Failure
+  against either closes the allocation use of embeddings. A dual-reference
+  pass licenses one separately frozen exact-80 comparison of production
+  K→infinity versus the conditional law; the rejected global-K book is not a
+  lineup arm or selector input.
+
+No choice between these branches may be made after viewing the fitted-K score;
+the comparator disposition selects it mechanically.
+
 The first gate is held-out 2023--2025 conditional target/carry allocation
-likelihood versus the accepted global-K law, followed by the G1 dependence
-metrics. Only a pass licenses a fixed mechanism and later exact-80 protocol.
+likelihood under the branch above, followed by the G1 dependence metrics. Only
+a pass licenses a fixed mechanism and later exact-80 protocol.
 Embedding dimension, window, negative sampling, context definition and K
 mapping must be frozen before held-out evaluation; no GNN is included.
 
