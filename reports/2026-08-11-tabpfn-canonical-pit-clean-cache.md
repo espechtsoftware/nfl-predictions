@@ -43,3 +43,22 @@ The old `tabpfn_projections` table is neither overwritten nor promoted by this
 test. Production may switch only after the repaired Tier-1 lineage, refitted
 served-position calibration and complete deployment/fallback verification are
 terminal.
+
+## Execution and validation controls
+
+`scripts/cloud_tabpfn_canonical_pit.sh` requires an immutable GPU image and
+code SHA, proves that the write-once destination does not already exist,
+records the frozen protocol hash and launches the sole registered execution.
+`scripts/cloud_finish_tabpfn_canonical_pit.sh` harvests that execution only
+after a clean Cloud Run completion. The independent validator then requires:
+
+- the exact code, feature-contract, training-table schema, modification time,
+  content checksum and active/inactive counts recorded by the generator;
+- exact equality between every target key in the repaired training table and
+  every cache key for the six frozen target seasons;
+- finite means and quantiles, monotonically ordered quantiles, unique keys and
+  the frozen hyperparameters/context law; and
+- `WRITE_EMPTY` into exactly `tabpfn_projections_pit_v2`.
+
+The validator reads no realized lineup score. Any source-table mutation after
+generation invalidates the cache rather than accepting mixed lineage.

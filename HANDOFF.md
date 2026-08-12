@@ -172,6 +172,14 @@ and must not be staged or modified.
   active-label tables; the prior resolver recognized only v1 names, which
   would have blocked the already-frozen v2 downstream run. K3/K1 must both pin
   the new canonical table explicitly and may not fall back silently.
+- The canonical-cache launch/harvest path is now fail-closed and tracked:
+  `scripts/cloud_tabpfn_canonical_pit.sh` refuses a mutable image or existing
+  destination, while `scripts/validate_tabpfn_canonical_pit.py` independently
+  proves the exact repaired training checksum/schema/modified time, feature
+  contract, target-key equality, hyperparameters, unique finite rows and
+  ordered quantiles before downstream use. Focused tests and shell parsing
+  pass. It remains launch-blocked on the second repaired feature rebuild and
+  clean reconciliation; no cache or repaired lineup score has been queried.
 
 ### Validated production rollout completed; Route diagnostic ready
 
