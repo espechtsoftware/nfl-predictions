@@ -146,9 +146,13 @@ and must not be staged or modified.
   `replay-lockk1uktrt-2024-cf6wr`, and
   `replay-lockk1uktrt-2025-prc9d`. Exact manifests are under
   `reports/panel-runs/20260811-lockfix-e80-k1-role12-poscal-usage-{control-v1,k28246898-v1}/`.
-  Next action: monitor all six season executions to clean completion, run
-  check-only acceptance on both panels, and then execute the frozen comparator
-  once. Do not inspect or act on lineup scores before that comparator.
+  All three control seasons completed cleanly. Check-only acceptance execution
+  `accept-replay-panel-49qbb` passed the complete 54-slate, exact-80 control;
+  its log and execution identity are tracked with the control manifest. The
+  three treatment seasons remain active. Next action: monitor them to clean
+  completion, run treatment check-only acceptance, and then execute the frozen
+  comparator once. Do not inspect or act on lineup scores before that
+  comparator.
 - A separate code audit found that `scripts/tabpfn_gen/gen.py` does not apply
   the component path's `active_training_rows` safeguard. The current training
   table contains 6,202/6,041/6,130/6,021 synthetic inactive zero labels in
