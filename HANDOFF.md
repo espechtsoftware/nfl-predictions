@@ -472,6 +472,11 @@ and must not be staged or modified.
   with tag `nfl-dfs:team-qb-b5b5038`. Older full build
   `1f12be5d-df17-4757-b363-7e9a1cef3025` validates only the pre-final-gate
   source and must not be used for team-QB execution even if it succeeds.
+- Pre-terminal full build `1f12be5d-df17-4757-b363-7e9a1cef3025`
+  succeeded and emitted digest `sha256:b9053c64...`, proving the complete suite
+  for source `301bc94`; it remains execution-ineligible because it predates the
+  final-served/comparator implementation. Terminal build `ecb180f5-...`
+  remains the required exact-tree audit image and is now running.
 - Served-position v2 execution `served-position-calibration-pit-v2-zmm6s`
   completed cleanly and passes every frozen score-free gate. Its unrounded
   treatment factors are `QB=0.975,RB=1.0,TE=0.955,WR=1.075`; aggregate
