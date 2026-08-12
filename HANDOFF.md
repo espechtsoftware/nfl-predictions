@@ -217,8 +217,14 @@ and must not be staged or modified.
   treatment `tabpfn-active-v2-trt-j4vss`. Their immutable manifest is tracked
   under
   `reports/tabpfn-active-label-runs/20260811-tabpfn-active-label-v2-pit-clean/`.
-  Do not query either cache or launch final-served work until both complete
-  and the independent v2 validator passes.
+  Both completed successfully. Independent validation at `validation.json`
+  passes every report/table gate: exactly 52,307 unique shared target keys per
+  arm across 2022--2025; identical repaired source, feature and hyperparameter
+  identity; finite ordered quantiles; positive sampled inactive labels in all
+  control folds and zero in treatment; and materially changed predictions.
+  This licenses the score-free final-served gate only after repaired Tier 1
+  and fitted-K choose its required panel/usage branch; no v2 lineup outcome
+  has been queried.
 - Superseding canonical image build
   `a4a76dcd-738b-48a7-9810-3bc7ac7af1fc` succeeded with immutable digest
   `sha256:2e227119cd5009060b65bfca75ff7e9b4402132c64b478cc90dac519bd193029`.
