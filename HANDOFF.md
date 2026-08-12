@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 18:22 CDT
+## Current state — 2026-08-12 18:26 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -275,8 +275,14 @@ reconciliation when their findings affect the program.
   terminal selection hash; the immutable harvester validates the relationship,
   bootstrap, invariant and G2-license contracts and extracts the label artifact.
   Twelve focused G0/G1 tests, compilation, shell syntax and whitespace checks
-  pass. Next: commit/push the implementation, run an exact-tree full Cloud
-  Build, then launch the one frozen G1 execution from that digest.
+  pass. Implementation commit `0e46292` is pushed. Exact-tree full Cloud Build
+  `760e54f4-ba1b-4054-bad5-12af744eef4b` passed and produced immutable digest
+  `sha256:7de0de88693e97bfb69e8b4c43268a5e652305723a0c5f7babee92b4555234af`.
+  The sole frozen G1 execution is now running as
+  `g1-archetype-topology-v1-ps9vk`; manifest and inherited cache preflight are
+  under `reports/g1-topology-runs/20260812-g1-archetype-topology-v1/`.
+  Next: wait for clean completion, harvest the one report and persisted
+  walk-forward label artifact, then follow the frozen G2 license branch.
 - Review reconciliation and active-label gate milestone commit `83192ca` is
   pushed on `main`. The complete local suite passes all 992 collected tests
   with one expected rear-view dashboard skip. Exact-commit team-passing GPU
