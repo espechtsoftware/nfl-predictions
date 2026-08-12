@@ -28,18 +28,26 @@ TABLE_KEYS = {
     "team_week_ftn_offense": TEAM_KEYS,
 }
 UNCHANGED_TABLES = {
-    "player_week_inference", "defense_week_allowed", "team_week_pace",
-    "defense_week_blitz", "team_week_target_concentration",
-    "team_week_ftn_offense",
+    "player_week_inference", "team_week_pace", "defense_week_blitz",
+    "team_week_target_concentration", "team_week_ftn_offense",
 }
 USAGE_ALLOWED_CHANGES = {
     "rz20_targets_smoothed", "gl3_carries_smoothed",
+}
+DEFENSE_POSITION_REPAIR_COLUMNS = {
+    "qb_fp_allowed_adj_l6", "rb_fp_allowed_adj_l6",
+    "wr_fp_allowed_adj_l6", "te_fp_allowed_adj_l6",
+}
+FLOAT_REBUILD_NOISE_COLUMNS = {
+    "epa_per_dropback_allowed_l6", "epa_per_rush_allowed_l6", "xfp_l4",
 }
 TRAINING_ALLOWED_CHANGES = {
     "rz20_targets_smoothed", "gl3_carries_smoothed",
     "injury_status", "practice_level", "practice_participation_trend",
     "games_missed_l4", "team_vacated_target_share",
-    "team_vacated_carry_share",
+    "team_vacated_carry_share", "xtd_receiving_proxy",
+    "vacated_capture_tgt", "vacated_capture_car", "ref_flags_prior",
+    *DEFENSE_POSITION_REPAIR_COLUMNS,
 }
 
 
@@ -121,6 +129,44 @@ def _column_changes(
     return {aliases[alias]: int(row[alias]) for alias in aliases}
 
 
+def _numeric_delta_profile(
+    client: bigquery.Client,
+    old: str,
+    new: str,
+    keys: tuple[str, ...],
+    columns: set[str],
+) -> dict[str, dict]:
+    """Measure exact and material drift separately for numeric rebuilds."""
+    using = ", ".join(keys)
+    expressions = []
+    aliases: dict[str, tuple[str, str]] = {}
+    for column in sorted(columns):
+        safe = re.sub(r"[^A-Za-z0-9_]", "_", column)
+        for metric, expression in (
+            ("null_mismatches",
+             f"COUNTIF((o.`{column}` IS NULL) != (n.`{column}` IS NULL))"),
+            ("changes_gt_1e12",
+             f"COUNTIF(ABS(o.`{column}` - n.`{column}`) > 1e-12)"),
+            ("max_abs_delta",
+             f"MAX(ABS(o.`{column}` - n.`{column}`))"),
+        ):
+            alias = f"{metric}__{safe}"
+            aliases[alias] = (column, metric)
+            expressions.append(f"{expression} AS `{alias}`")
+    row = client.query(f"""
+        SELECT {', '.join(expressions)}
+        FROM `{old}` o JOIN `{new}` n USING ({using})
+    """).to_dataframe().iloc[0]
+    result = {column: {} for column in sorted(columns)}
+    for alias, (column, metric) in aliases.items():
+        value = row[alias]
+        result[column][metric] = (
+            None if pd.isna(value) else
+            float(value) if metric == "max_abs_delta" else int(value)
+        )
+    return result
+
+
 def run(output: Path) -> dict:
     from nfl_dfs.config import settings
 
@@ -150,6 +196,30 @@ def run(output: Path) -> dict:
         tables["player_week_training"]["rebuilt"],
         PLAYER_KEYS,
     )
+    tables["defense_week_allowed"]["column_changes"] = _column_changes(
+        client,
+        tables["defense_week_allowed"]["snapshot"],
+        tables["defense_week_allowed"]["rebuilt"],
+        TEAM_KEYS,
+    )
+    tables["defense_week_allowed"]["numeric_delta_profile"] = (
+        _numeric_delta_profile(
+            client,
+            tables["defense_week_allowed"]["snapshot"],
+            tables["defense_week_allowed"]["rebuilt"],
+            TEAM_KEYS,
+            FLOAT_REBUILD_NOISE_COLUMNS - {"xfp_l4"},
+        )
+    )
+    tables["player_week_training"]["numeric_delta_profile"] = (
+        _numeric_delta_profile(
+            client,
+            tables["player_week_training"]["snapshot"],
+            tables["player_week_training"]["rebuilt"],
+            PLAYER_KEYS,
+            FLOAT_REBUILD_NOISE_COLUMNS,
+        )
+    )
 
     checks: dict[str, bool] = {}
     for name in ("player_week_usage", "player_week_training"):
@@ -172,11 +242,47 @@ def run(output: Path) -> dict:
 
     training_changes = tables["player_week_training"]["column_changes"]
     checks["training_only_registered_columns_change"] = all(
-        count == 0 or column in TRAINING_ALLOWED_CHANGES
+        count == 0 or column in (
+            TRAINING_ALLOWED_CHANGES | FLOAT_REBUILD_NOISE_COLUMNS)
         for column, count in training_changes.items()
     )
     checks["training_smoothing_repair_reaches_rows"] = all(
         training_changes.get(column, 0) > 0 for column in USAGE_ALLOWED_CHANGES)
+    checks["training_derived_repairs_reach_rows"] = all(
+        training_changes.get(column, 0) > 0
+        for column in (
+            "xtd_receiving_proxy", "vacated_capture_tgt",
+            "vacated_capture_car", "ref_flags_prior",
+        )
+    )
+
+    defense = tables["defense_week_allowed"]
+    defense_changes = defense["column_changes"]
+    checks["defense_exact_keys_and_schema"] = (
+        defense["key_delta"] == {"new_only": 0, "old_only": 0}
+        and defense["before"]["rows"] == defense["after"]["rows"]
+        and defense["before"]["keys"] == defense["after"]["keys"]
+        and defense["schema_before"] == defense["schema_after"]
+    )
+    checks["defense_only_registered_columns_change"] = all(
+        count == 0 or column in (
+            DEFENSE_POSITION_REPAIR_COLUMNS | FLOAT_REBUILD_NOISE_COLUMNS)
+        for column, count in defense_changes.items()
+    )
+    checks["defense_position_repair_reaches_rows"] = all(
+        defense_changes.get(column, 0) > 0
+        for column in DEFENSE_POSITION_REPAIR_COLUMNS
+    )
+
+    noise_profiles = [
+        *defense["numeric_delta_profile"].values(),
+        *tables["player_week_training"]["numeric_delta_profile"].values(),
+    ]
+    checks["floating_rebuild_noise_bounded"] = all(
+        profile["null_mismatches"] == 0
+        and profile["changes_gt_1e12"] == 0
+        for profile in noise_profiles
+    )
 
     injury = tables["player_week_injury"]
     checks["injury_exact_repaired_rows"] = (

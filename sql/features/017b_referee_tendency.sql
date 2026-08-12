@@ -40,6 +40,9 @@ SELECT
 FROM game_pen g
 JOIN ref r ON r.old_game_id = CAST(g.old_game_id AS STRING)
 WINDOW w AS (
-  PARTITION BY r.referee ORDER BY g.season, g.week
+  -- nflverse currently assigns one referee to two distinct 2024 week-8
+  -- game ids. Even anomalous same-week source rows need a total order: a
+  -- partial (season, week) order can change the bounded history on rebuild.
+  PARTITION BY r.referee ORDER BY g.season, g.week, g.game_id
   ROWS BETWEEN 20 PRECEDING AND 1 PRECEDING
 );

@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 22:18 CDT
+## Current state — 2026-08-11 22:48 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -133,10 +133,36 @@ and must not be staged or modified.
   complete.
 - `scripts/pit_repair_reconcile.py` is the fail-closed post-build verifier. It
   compares the ten pre-repair snapshots with live rows/keys/schemas/checksums,
-  requires usage/training key stability, permits changes only in the registered
-  smoothing/injury/vacancy columns, requires exactly 57,550 repaired injury
-  rows and proves all already-repaired context tables remain byte-equivalent.
-  It reads no outcome/score column.
+  requires usage/training/defense key stability, permits material changes only
+  in the registered repair fields and deterministic descendants, requires
+  exactly 57,550 repaired injury rows, bounds rebuild-only floating drift, and
+  proves all unaffected context tables remain byte-equivalent. It reads no
+  outcome/score column.
+- Coordinated feature execution `build-features-nbzk8` completed successfully
+  in 4m46s and passed its full dynamic PIT/universe/live-row suite. The first
+  separate before/after reconciliation then stopped as designed before any
+  training, cache or lineup score: it found that the snapshot still predated
+  the already-declared exact-week positional-defense repair and that the
+  referee tendency's `(season, week)` window had an ambiguous same-week tie.
+  The raw officials source maps Scott Novak to two 2024 Week 8 game ids; a
+  rebuild changed `ref_flags_prior` on 144 training rows (maximum 0.55).
+  Defense/`xfp_l4` float-only differences are bounded at
+  `2.220446049250313e-16`/`7.105427357601002e-15`.
+- The outcome-free addendum
+  `reports/2026-08-11-pit-rebuild-reconciliation-addendum.md` freezes the
+  second-build rule before scores. Referee history now has total order
+  `(season, week, game_id)`. The reconciler recognizes the already-registered
+  exact-week defense repair and deterministic descendants of usage/injury,
+  while separately requiring zero null drift and <=`1e-12` float noise.
+  Focused tests pass. Next: exact-tree build, redeploy `build-features`, run a
+  second coordinated build and require the revised reconciliation to pass;
+  only then train or generate PIT-clean caches.
+- GPU build `0671d1fc-0a2e-4921-8f7e-fff0dd155e74` successfully produced the
+  pre-addendum cache image digest
+  `sha256:d59b1fbf60de8dc51ba05ebf2d19b417920fac04b487ff8223d62a8d58b2d80c`.
+  Do not use it: the final cache lineage must include the referee total-order
+  repair. Superseded CPU build `72d4ed86-ce91-45dc-8287-e83bb7728a94` was
+  cancelled to avoid wasting compute after the gate found the new repair.
 
 ### Validated production rollout completed; Route diagnostic ready
 

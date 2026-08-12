@@ -138,6 +138,7 @@ def test_dst_actuals_credit_event_team_and_exclude_offense_points():
 def test_referee_tiebreak_uses_live_officials_schema():
     sql = (SQL_DIR / "features" / "017b_referee_tendency.sql").read_text()
     assert "ORDER BY official_name, official_id" in sql
+    assert "ORDER BY g.season, g.week, g.game_id" in sql
     assert "ORDER BY name" not in sql
 
 

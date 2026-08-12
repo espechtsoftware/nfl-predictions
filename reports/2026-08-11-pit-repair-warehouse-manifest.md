@@ -57,3 +57,9 @@ reconcile to the position-prior, pre-lock injury/vacancy or already-landed
 exact player-week defense/upcoming-row repairs. The rebuilt table cannot feed
 caches/models until the full dynamic PIT, salary/universe and live-row gates
 pass.
+
+The first post-build verifier correctly stopped before training when exact
+hash comparison exposed a partial-order referee rebuild difference and the
+known defense repair was not represented in its initial allowlist. The
+outcome-free disposition and frozen second-build contract are recorded in
+`reports/2026-08-11-pit-rebuild-reconciliation-addendum.md`.
