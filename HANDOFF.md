@@ -331,8 +331,17 @@ reconciliation when their findings affect the program.
   complete decision-cost disclosure to future tail-first results meanwhile.
   The review also exposes that fitted K's prior lineup verdict cannot transfer
   automatically across the subsequently selected active-only marginal and
-  served-schedule stage. Freeze and run a new active-only fitted-K versus
-  multinomial exact-80 revalidation before final production closure. If a new
+  served-schedule stage. The required retrospective standing-law comparison
+  is now frozen, before its new multinomial control exists, in
+  `reports/2026-08-12-active-label-usage-revalidation-protocol.md`. It reuses
+  the immutable known finite-K active-only book and creates exactly one
+  same-image active-only multinomial control; its known-treatment limitation,
+  seven-threshold law and mandatory decision-cost disclosure are explicit.
+  Launcher, comparator, finisher and four focused tests are implemented; 11
+  combined G1/revalidation tests pass, along with compilation, shell syntax
+  and whitespace checks. Commit/push this exact protocol tree, launch the sole
+  control from frozen generation digest `ad50...`, and build an immutable audit
+  image for the comparator without inspecting partial scores. If a new
   G2 dependence law is later selected, the reconciliation now precommits the
   bounded upstream and marginal revalidation cascade before any G1/G2 result.
 - Repaired G1 exact-tree regional Cloud Build
