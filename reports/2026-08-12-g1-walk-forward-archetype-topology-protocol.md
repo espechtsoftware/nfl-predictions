@@ -52,8 +52,20 @@ mean at least 4.0 DK points. G1 must reproduce all 7,848 G0 supported keys,
 mean drift at most `1e-10` before any G1 disposition is valid.
 
 Each row must have point-in-time team, opponent and game identity. Fail on an
-unresolved/ambiguous game, multiple supported QBs for one team-week, duplicate
-player-week, actual disagreement or archetype position disagreement.
+unresolved/ambiguous game, duplicate player-week, actual disagreement or
+archetype position disagreement. As in the already-frozen G0 construction, a
+QB-sourced pair requires exactly one supported active QB for that team-week.
+Team-weeks with multiple supported QBs remain in non-QB same-position cells
+but are excluded from every QB-source pair; `QB_OPP_QB` requires exactly one on
+both teams. This is an exclusion, not a primary-QB choice.
+
+The first G1 execution stopped on the original fail-on-multiple assertion
+before creating the pair book or computing any G1 pair/topology metric. A
+read-only identity count then found 169 such team-weeks, proving this is not a
+rare malformed key. The v2 amendment above restores the exact G0 unique-QB
+support law rather than selecting a starter post hoc. V1 emitted zero G1 result
+records and is an invalid pre-metric operational run; every other frozen G1
+rule remains unchanged.
 
 ## Frozen pair classes
 

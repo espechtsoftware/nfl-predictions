@@ -167,9 +167,7 @@ def build_pair_book(frame: pd.DataFrame) -> pd.DataFrame:
         ["season", "week", "team"], sort=True
     ):
         qbs = group[group.position.eq("QB")]._row.to_list()
-        if len(qbs) > 1:
-            raise ValueError("G1 team-week has multiple supported QBs")
-        if qbs:
+        if len(qbs) == 1:
             qb = int(qbs[0])
             for position, relationship in (
                 ("WR", "QB_WR"), ("TE", "QB_TE"), ("RB", "QB_RB")):
@@ -198,11 +196,9 @@ def build_pair_book(frame: pd.DataFrame) -> pd.DataFrame:
                 raise ValueError("G1 opponent metadata disagrees with game")
             qbs = left[left.position.eq("QB")]._row.to_list()
             opp_qbs = right[right.position.eq("QB")]._row.to_list()
-            if len(qbs) > 1 or len(opp_qbs) > 1:
-                raise ValueError("G1 game has multiple supported QBs per team")
-            if qbs:
+            if len(qbs) == 1:
                 qb = int(qbs[0])
-                if opp_qbs:
+                if len(opp_qbs) == 1:
                     add("QB_OPP_QB", qb, int(opp_qbs[0]))
                 for position, relationship in (
                     ("WR", "QB_OPP_WR"), ("TE", "QB_OPP_TE")):
@@ -224,7 +220,11 @@ def build_pair_book(frame: pd.DataFrame) -> pd.DataFrame:
             ("WR", "WR", "WR_XGAME_WR"),
         ):
             targets = slate[slate.position.eq(target_pos)]
-            for source_row in slate[slate.position.eq(source_pos)]._row:
+            source_rows = slate[slate.position.eq(source_pos)]
+            if source_pos == "QB":
+                unique_qb = source_rows.groupby("team")._row.transform("size").eq(1)
+                source_rows = source_rows[unique_qb]
+            for source_row in source_rows._row:
                 item = source.iloc[int(source_row)]
                 eligible = targets[
                     targets.game_id.ne(item.game_id)

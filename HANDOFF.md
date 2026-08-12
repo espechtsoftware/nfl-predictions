@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 18:26 CDT
+## Current state — 2026-08-12 18:39 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -278,11 +278,17 @@ reconciliation when their findings affect the program.
   pass. Implementation commit `0e46292` is pushed. Exact-tree full Cloud Build
   `760e54f4-ba1b-4054-bad5-12af744eef4b` passed and produced immutable digest
   `sha256:7de0de88693e97bfb69e8b4c43268a5e652305723a0c5f7babee92b4555234af`.
-  The sole frozen G1 execution is now running as
-  `g1-archetype-topology-v1-ps9vk`; manifest and inherited cache preflight are
-  under `reports/g1-topology-runs/20260812-g1-archetype-topology-v1/`.
-  Next: wait for clean completion, harvest the one report and persisted
-  walk-forward label artifact, then follow the frozen G2 license branch.
+  First G1 execution `g1-archetype-topology-v1-ps9vk` stopped before creating
+  any pair book or G1 metric because the supported population has multiple QB
+  rows in 169 team-weeks. It emitted zero G1 result records. The failure is
+  preserved as an invalid pre-metric execution. Before any G1 result, the
+  protocol/code are amended to restore G0's exact rule: QB-source pairs require
+  exactly one supported QB and ambiguous team-weeks are excluded from those
+  pairs without choosing a primary; their non-QB pairs remain eligible. This
+  avoids a post-hoc highest-projection/depth-chart choice and leaves every G1
+  cell, threshold and gate unchanged. Next: validate and commit the v2
+  operational repair, build the exact tree, and launch the sole replacement
+  execution under a new immutable v2 identity.
 - Review reconciliation and active-label gate milestone commit `83192ca` is
   pushed on `main`. The complete local suite passes all 992 collected tests
   with one expected rear-view dashboard skip. Exact-commit team-passing GPU

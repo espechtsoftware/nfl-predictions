@@ -78,6 +78,20 @@ def test_pair_book_contains_exact_frozen_classes_and_is_deterministic():
         assert frame.iloc[row.source_index].game_id != frame.iloc[row.target_index].game_id
 
 
+def test_pair_book_excludes_ambiguous_qbs_without_selecting_one():
+    frame = _pair_frame()
+    extra = frame[(frame.team == "A") & (frame.position == "QB")].copy()
+    extra["gsis_id"] = "A-extra-qb"
+    frame = pd.concat([frame, extra], ignore_index=True)
+    pairs = g1.build_pair_book(frame)
+    qb_source = pairs[
+        pairs.relationship.str.startswith("QB_")
+        & pairs.source_gsis_id.str.startswith("A-")
+    ]
+    assert qb_source.empty
+    assert len(pairs[pairs.relationship == "WR_WR"]) > 0
+
+
 def test_pair_counts_use_equal_effective_simulation_pair_weight():
     pairs = pd.DataFrame({"source_index": [0, 1], "target_index": [1, 2]})
     actual = np.array([True, True, False])
