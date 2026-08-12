@@ -109,6 +109,30 @@ def trailing_mean_excluding_current(
     return df.groupby(list(group_cols), sort=False)[value_col].transform(_roll)
 
 
+def trailing_std_excluding_current(
+    df: pd.DataFrame,
+    value_col: str,
+    window: int | None = None,
+    group_cols: tuple[str, ...] = ("gsis_id", "season"),
+    order_col: str = "week",
+) -> pd.Series:
+    """Sample standard deviation over strictly-prior non-null rows.
+
+    Pandas ``ddof=1`` matches BigQuery ``STDDEV``/``STDDEV_SAMP``: zero or
+    one prior observation returns NULL, and a NULL observation occupies a row
+    in a bounded ``ROWS`` frame without contributing to the statistic.
+    """
+    df = df.sort_values(list(group_cols) + [order_col])
+
+    def _roll(s: pd.Series) -> pd.Series:
+        shifted = s.shift(1)
+        if window is None:
+            return shifted.expanding().std(ddof=1)
+        return shifted.rolling(window, min_periods=1).std(ddof=1)
+
+    return df.groupby(list(group_cols), sort=False)[value_col].transform(_roll)
+
+
 def assert_no_leakage(
     built: pd.DataFrame,
     source: pd.DataFrame,
@@ -118,6 +142,7 @@ def assert_no_leakage(
     atol: float = 1e-6,
     min_coverage: float = 0.95,
     key_col: str = "gsis_id",
+    statistic: str = "mean",
 ) -> None:
     """Compare a built rolling feature against the reference recomputation.
 
@@ -126,9 +151,14 @@ def assert_no_leakage(
     gsis_id for player features, team for defense features.
     """
     ref = source[[key_col, "season", "week", source_col]].copy()
-    ref["expected"] = trailing_mean_excluding_current(
-        ref, source_col, window=window, group_cols=(key_col, "season")
-    )
+    reference = {
+        "mean": trailing_mean_excluding_current,
+        "std": trailing_std_excluding_current,
+    }.get(statistic)
+    if reference is None:
+        raise ValueError(f"unsupported leakage reference statistic {statistic!r}")
+    ref["expected"] = reference(
+        ref, source_col, window=window, group_cols=(key_col, "season"))
     merged = built.merge(ref[[key_col, "season", "week", "expected"]],
                          on=[key_col, "season", "week"], how="inner")
     if merged.empty:
@@ -267,6 +297,31 @@ LEFT JOIN snaps sn
   ON sn.gsis_id = sal.gsis_id AND sn.season = sal.season AND sn.week = sal.week
 WHERE sal.position IN ('QB', 'RB', 'WR', 'TE')
   AND MOD(FARM_FINGERPRINT(sal.gsis_id), 20) = 0
+"""
+
+
+# Independent source-family reconstruction of 015's active production trail.
+# That transform excludes salary-listed inactive zero labels from rolling
+# production, so the reference uses has_stat_line instead of treating every
+# replay-retained zero as a played game.
+EFFICIENCY_CHECKS = [
+    # (built feature, source column, window, statistic)
+    ("dk_points_l4", "dk_points", 4, "mean"),
+    ("dk_points_std", "dk_points", None, "mean"),
+    ("dk_points_vol", "dk_points", None, "std"),
+]
+
+EFFICIENCY_SAMPLE_SQL = """
+SELECT gsis_id, season, week, {cols}
+FROM `{features}.player_week_efficiency`
+WHERE MOD(FARM_FINGERPRINT(gsis_id), 20) = 0
+"""
+
+EFFICIENCY_SOURCE_SQL = """
+SELECT gsis_id, season, week,
+       IF(has_stat_line, dk_points, NULL) AS dk_points
+FROM `{features}.player_week_actuals`
+WHERE MOD(FARM_FINGERPRINT(gsis_id), 20) = 0
 """
 
 
@@ -561,6 +616,24 @@ def run_leakage_checks() -> None:
     for feature_col, source_col, window in CHECKED_FEATURES:
         assert_no_leakage(built, source, feature_col, source_col, window)
     assert_first_game_features_null(built, [f for f, *_ in CHECKED_FEATURES])
+
+    # Production trail (015): independently rebuild both trailing means and
+    # sample volatility from authoritative actual rows. This catches an
+    # include-current regression that a first-row-null assertion alone cannot.
+    eff_built = query_df(EFFICIENCY_SAMPLE_SQL.format(
+        features=settings.features,
+        cols=", ".join(f for f, *_ in EFFICIENCY_CHECKS),
+    ))
+    eff_source = query_df(EFFICIENCY_SOURCE_SQL.format(
+        features=settings.features))
+    for feature_col, source_col, window, statistic in EFFICIENCY_CHECKS:
+        assert_no_leakage(
+            eff_built, eff_source, feature_col, source_col, window,
+            statistic=statistic,
+        )
+    assert_first_row_features_null(
+        eff_built, [f for f, *_ in EFFICIENCY_CHECKS], ("gsis_id", "season")
+    )
 
     # Exact replay-universe contract. This catches identity, source-spine,
     # actual-label, and cold-start filtering regressions before a new build can

@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 21:36 CDT
+## Current state — 2026-08-11 21:40 CDT
 
 Active branch is `main`; final-served Route diagnostic implementation commit
 `d5e74c0` is pushed. The position-calibration result, research promotion,
@@ -216,7 +216,15 @@ and must not be staged or modified.
   skips, publishing immutable digest
   `sha256:1589cb254c8524d62487d1f51aeca7d69c19a8a9ba1de6e4dc2a7dd13fb5a8a4`.
   Do not rebuild the warehouse mid-panel. Apply it only in the next coordinated
-  feature rebuild with historical key/delta checks and full retraining.
+  feature rebuild with historical key/delta checks and full retraining. The
+  first queued dynamic source-family expansion is also complete locally:
+  `dk_points_l4`, expanding `dk_points_std` and sample `dk_points_vol` are now
+  independently reconstructed from exact actual/provenance rows, preserving
+  the inactive-label missingness law. Synthetic include-current tests and a
+  read-only live comparison pass all three fields on identical 11,686-row
+  deterministic samples. Focused leakage tests, Python compilation and
+  whitespace checks pass. Commit/push and Cloud-validate this guard separately;
+  advanced opportunity/NGS and team-context families remain next.
 - The operator made the end-of-preseason forensic review mandatory after the
   historical arm queue is genuinely exhausted. The strengthened tracked
   protocol is `reports/2026-08-11-final-preseason-forensic-closure-protocol.md`;

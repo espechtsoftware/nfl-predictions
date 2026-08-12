@@ -15,6 +15,7 @@ from nfl_dfs.features.leakage import (
     assert_route_source_strict_prior,
     assert_salary_universe_reconciled,
     trailing_mean_excluding_current,
+    trailing_std_excluding_current,
 )
 
 
@@ -74,6 +75,37 @@ def test_expanding_window():
     source = make_source(n_players=1, n_weeks=6)
     got = trailing_mean_excluding_current(source, "target_share", window=None)
     assert got.iloc[5] == pytest.approx(source.target_share.iloc[:5].mean())
+
+
+def test_expanding_std_excludes_current_and_matches_sample_std():
+    source = pd.DataFrame({
+        "gsis_id": ["a"] * 5,
+        "season": [2025] * 5,
+        "week": [1, 2, 3, 4, 5],
+        "dk_points": [10.0, np.nan, 14.0, 18.0, 22.0],
+    })
+    got = trailing_std_excluding_current(source, "dk_points", window=None)
+    assert np.isnan(got.iloc[0])
+    assert np.isnan(got.iloc[1])
+    assert np.isnan(got.iloc[2])
+    assert got.iloc[3] == pytest.approx(np.std([10.0, 14.0], ddof=1))
+    assert got.iloc[4] == pytest.approx(np.std([10.0, 14.0, 18.0], ddof=1))
+
+
+def test_std_leakage_check_rejects_current_week_window():
+    source = pd.DataFrame({
+        "gsis_id": ["a"] * 5,
+        "season": [2025] * 5,
+        "week": [1, 2, 3, 4, 5],
+        "dk_points": [10.0, 12.0, 14.0, 18.0, 22.0],
+    })
+    built = source[["gsis_id", "season", "week"]].copy()
+    built["dk_points_vol"] = source["dk_points"].expanding().std(ddof=1)
+    with pytest.raises(LeakageError, match="rolling window"):
+        assert_no_leakage(
+            built, source, "dk_points_vol", "dk_points", window=None,
+            statistic="std", min_coverage=1.0,
+        )
 
 
 def test_correct_build_passes():

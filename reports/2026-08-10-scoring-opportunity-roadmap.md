@@ -22,6 +22,10 @@ source-recomputed leakage checks need staged expansion by feature family.
 Those plumbing repairs precede any candidate promotion and the next normal
 feature rebuild; they do not reorder the frozen active-label → SCHED → team-QB
 marginal sequence.
+The first dynamic source-family expansion now independently reconstructs the
+three active trailing-production fields, including sample volatility and the
+inactive-label missingness rule; advanced opportunity/NGS and team-context
+families remain next.
 
 Closure addendum (2026-08-11): after every historical arm reaches a terminal
 state, run the mandatory end-of-preseason forensic protocol in
