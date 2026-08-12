@@ -3,4 +3,6 @@ full_build_id=1f12be5d-df17-4757-b363-7e9a1cef3025
 full_image_tag=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:team-qb-301bc94
 gpu_build_id=e303764a-5371-41a7-a5f0-c6c630b971ec
 gpu_image_tag=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/tabpfn-team-qb:301bc94
-status=running
+gpu_image_digest=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/tabpfn-team-qb@sha256:30c5c295ea07f27ccac4cdf4d3ff2dc40258af33313bbe73e57e407ae181150e
+gpu_status=success
+full_status=running
