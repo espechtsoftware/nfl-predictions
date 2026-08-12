@@ -138,6 +138,46 @@ def trailing_std_excluding_current(
     return df.groupby(list(group_cols), sort=False)[value_col].transform(_roll)
 
 
+def team_qb_cpoe_strict_prior(
+    schedule: pd.DataFrame,
+    dropbacks: pd.DataFrame,
+) -> pd.DataFrame:
+    """Pure reference for the six-prior-team-game CPOE feature.
+
+    ``dropbacks`` is one row per qualifying play with ``team``, ``season``,
+    ``week`` and ``cpoe``. The schedule, not the observation table, defines
+    the bounded six-game window, and the partition intentionally crosses
+    season boundaries. This helper is used only as an independent synthetic
+    contract; the warehouse implementation remains SQL.
+    """
+    keys = ["team", "season", "week"]
+    spine = schedule[keys].drop_duplicates().sort_values(keys).copy()
+    observed = dropbacks.dropna(subset=["team", "cpoe"]).groupby(
+        keys, as_index=False
+    ).agg(cpoe_sum=("cpoe", "sum"), cpoe_dropbacks=("cpoe", "count"))
+    frame = spine.merge(observed, on=keys, how="left", validate="one_to_one")
+    rows: list[dict[str, object]] = []
+    for team, group in frame.groupby("team", sort=False):
+        group = group.sort_values(["season", "week"]).reset_index(drop=True)
+        for idx, target in group.iterrows():
+            prior = group.iloc[max(0, idx - 6):idx]
+            denominator = prior["cpoe_dropbacks"].sum(min_count=1)
+            numerator = prior["cpoe_sum"].sum(min_count=1)
+            rows.append({
+                "team": team,
+                "season": target["season"],
+                "week": target["week"],
+                "team_qb_cpoe_l6": (
+                    numerator / denominator
+                    if pd.notna(denominator) and denominator > 0 else np.nan
+                ),
+                "team_qb_cpoe_dropbacks_l6": denominator,
+                "team_qb_cpoe_games_l6": int(
+                    prior["cpoe_dropbacks"].notna().sum()),
+            })
+    return pd.DataFrame(rows).sort_values(keys).reset_index(drop=True)
+
+
 def assert_no_leakage(
     built: pd.DataFrame,
     source: pd.DataFrame,
@@ -837,6 +877,77 @@ WINDOW w AS (PARTITION BY gsis_id ORDER BY season, week
 """
 
 
+TEAM_QB_QUALITY_FEATURES = [
+    "team_qb_cpoe_l6",
+    "team_qb_cpoe_dropbacks_l6",
+    "team_qb_cpoe_games_l6",
+]
+TEAM_QB_QUALITY_BUILT_SQL = """
+SELECT team, season, week,
+       team_qb_cpoe_l6, team_qb_cpoe_dropbacks_l6,
+       team_qb_cpoe_games_l6
+FROM `{features}.team_week_qb_quality`
+WHERE MOD(FARM_FINGERPRINT(team), 4) = 0
+"""
+TEAM_QB_QUALITY_EXPECTED_SQL = """
+WITH spine AS (
+  SELECT season, week,
+    CASE home_team WHEN 'OAK' THEN 'LV' WHEN 'SD' THEN 'LAC'
+                   WHEN 'STL' THEN 'LA' ELSE home_team END AS team
+  FROM `{raw}.schedules`
+  WHERE game_type = 'REG' AND home_score IS NOT NULL AND away_score IS NOT NULL
+  UNION DISTINCT
+  SELECT season, week,
+    CASE away_team WHEN 'OAK' THEN 'LV' WHEN 'SD' THEN 'LAC'
+                   WHEN 'STL' THEN 'LA' ELSE away_team END AS team
+  FROM `{raw}.schedules`
+  WHERE game_type = 'REG' AND home_score IS NOT NULL AND away_score IS NOT NULL
+  UNION DISTINCT
+  SELECT season, week, team
+  FROM `{features}.player_week_role`
+  WHERE is_upcoming AND team IS NOT NULL
+), weekly AS (
+  SELECT
+    CASE posteam WHEN 'OAK' THEN 'LV' WHEN 'SD' THEN 'LAC'
+                 WHEN 'STL' THEN 'LA' ELSE posteam END AS team,
+    season, week,
+    SUM(CAST(cpoe AS FLOAT64)) AS cpoe_sum,
+    COUNT(cpoe) AS cpoe_dropbacks
+  FROM `{raw}.pbp`
+  WHERE qb_dropback = 1 AND posteam IS NOT NULL AND cpoe IS NOT NULL
+    AND season_type = 'REG'
+  GROUP BY 1, 2, 3
+), prior_schedule AS (
+  SELECT
+    target.team, target.season, target.week,
+    prior.season AS prior_season, prior.week AS prior_week,
+    ROW_NUMBER() OVER (
+      PARTITION BY target.team, target.season, target.week
+      ORDER BY prior.season DESC, prior.week DESC
+    ) AS prior_rank
+  FROM spine target
+  LEFT JOIN spine prior
+    ON prior.team = target.team
+   AND (prior.season < target.season
+        OR (prior.season = target.season AND prior.week < target.week))
+  WHERE MOD(FARM_FINGERPRINT(target.team), 4) = 0
+), expected AS (
+  SELECT
+    p.team, p.season, p.week,
+    SAFE_DIVIDE(SUM(w.cpoe_sum), SUM(w.cpoe_dropbacks)) AS team_qb_cpoe_l6,
+    SUM(w.cpoe_dropbacks) AS team_qb_cpoe_dropbacks_l6,
+    COUNTIF(w.cpoe_dropbacks IS NOT NULL) AS team_qb_cpoe_games_l6
+  FROM prior_schedule p
+  LEFT JOIN weekly w
+    ON w.team = p.team AND w.season = p.prior_season
+   AND w.week = p.prior_week
+  WHERE p.prior_rank <= 6
+  GROUP BY 1, 2, 3
+)
+SELECT * FROM expected
+"""
+
+
 UNIVERSE_GAP_SQL = """
 SELECT s.gsis_id, s.display_name, s.season, s.week, s.position, s.team, s.salary
 FROM `{features}.dk_salary_week` s
@@ -1215,6 +1326,14 @@ def run_leakage_checks() -> None:
     assert_recomputed_features_match(
         qb_built, qb_expected, QB_NGS_FEATURES,
         ("gsis_id", "season", "week"),
+    )
+    team_qb_built = query_df(TEAM_QB_QUALITY_BUILT_SQL.format(
+        features=settings.features))
+    team_qb_expected = query_df(TEAM_QB_QUALITY_EXPECTED_SQL.format(
+        features=settings.features, raw=settings.raw))
+    assert_recomputed_features_match(
+        team_qb_built, team_qb_expected, TEAM_QB_QUALITY_FEATURES,
+        ("team", "season", "week"),
     )
 
     # Exact replay-universe contract. This catches identity, source-spine,

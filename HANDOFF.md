@@ -422,6 +422,18 @@ and must not be staged or modified.
   `selected_position.txt`; do not launch it against an unresolved position
   law. Position execution `served-position-calibration-pit-v2-zmm6s` remains
   running.
+- The already-frozen team-QB-quality branch now has its point-in-time feature
+  implementation while those diagnostics run. `017l_team_qb_quality.sql`
+  creates an isolated side table (it does not alter training/inference or any
+  current cache identity), aggregates play-by-play CPOE by dropback, and uses
+  the previous six completed team games across seasons plus only the single
+  live upcoming target. Independent source recomputation is added to the
+  mandatory leakage suite. Synthetic tests prove same-week exclusion,
+  cross-season ordering, six-game truncation, and historical parity after an
+  upcoming null row is appended. Focused feature/leakage tests pass with one
+  expected skip; the BigQuery SQL dry-run validates at a 24,914,131-byte upper
+  bound. The table has not been built and no team-QB prediction/result exists;
+  cache/gate implementation remains sequenced after terminal SCHED as frozen.
 - The licensed PIT-v2 served-position Stage B is implemented before its
   score-free refit result is known. It derives the selected full panel, K1/K3
   law, role/no-role candidate law, and unrounded four-factor specification;

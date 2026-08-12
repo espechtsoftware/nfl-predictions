@@ -181,6 +181,34 @@ def test_candidate_team_context_features_emit_upcoming_inference_rows():
         assert "UNION ALL" in sql
 
 
+def test_team_qb_quality_is_strict_prior_dropback_weighted_side_table():
+    """The frozen broadcast signal must not mutate the production table."""
+    path = SQL_DIR / "features" / "017l_team_qb_quality.sql"
+    sql = path.read_text()
+    names = [p.name for p in FEATURE_SQL]
+    assert names.index(path.name) < names.index("021_player_week_training.sql")
+    assert "CREATE OR REPLACE TABLE `${features}.team_week_qb_quality`" in sql
+    assert "FROM `${raw}.schedules`" in sql
+    assert "home_score IS NOT NULL AND away_score IS NOT NULL" in sql
+    assert "FROM `${features}.player_week_role`" in sql
+    assert "is_upcoming AND team IS NOT NULL" in sql
+    assert "qb_dropback = 1" in sql
+    assert "posteam IS NOT NULL" in sql
+    assert "cpoe IS NOT NULL" in sql
+    assert "SUM(CAST(cpoe AS FLOAT64))" in sql
+    assert "COUNT(cpoe)" in sql
+    assert "PARTITION BY team" in sql
+    assert "ORDER BY season, week" in sql
+    assert "ROWS BETWEEN 6 PRECEDING AND 1 PRECEDING" in sql
+    assert "SAFE_DIVIDE(" in sql
+    for consumer in ("021_player_week_training.sql", "023_player_week_inference.sql"):
+        # The experiment reads this side table itself. Merely implementing the
+        # candidate must not alter production model/cache source identity.
+        assert "team_week_qb_quality" not in (
+            SQL_DIR / "features" / consumer
+        ).read_text()
+
+
 def test_modeled_defense_position_is_exact_player_week():
     modeled = (
         SQL_DIR / "features" / "017_defense_week_allowed.sql"

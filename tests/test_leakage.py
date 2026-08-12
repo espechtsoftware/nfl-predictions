@@ -17,6 +17,7 @@ from nfl_dfs.features.leakage import (
     assert_salary_universe_reconciled,
     trailing_mean_excluding_current,
     trailing_std_excluding_current,
+    team_qb_cpoe_strict_prior,
     USAGE_RECOMPUTED_EXPECTED_SQL,
     USAGE_RECOMPUTED_FEATURES,
     SMOOTHING_PRIOR_K,
@@ -61,6 +62,50 @@ def test_reference_excludes_current_week():
     assert np.isnan(got.iloc[0])                       # week 1: nothing prior
     assert got.iloc[1] == pytest.approx(vals[0])       # week 2: only week 1
     assert got.iloc[2] == pytest.approx(np.mean(vals[:2]))
+
+
+def test_team_qb_quality_excludes_current_and_crosses_seasons():
+    schedule = pd.DataFrame({
+        "team": ["DET"] * 8,
+        "season": [2024] * 6 + [2025] * 2,
+        "week": [13, 14, 15, 16, 17, 18, 1, 2],
+    })
+    dropbacks = schedule.copy()
+    dropbacks["cpoe"] = [1.0, 2.0, 3.0, 4.0, 5.0, 60.0, 700.0, 8000.0]
+    got = team_qb_cpoe_strict_prior(schedule, dropbacks)
+
+    # 2025 Week 1 uses the six 2024 games, including Week 18, but never its
+    # own deliberately huge current value.
+    week1 = got[(got.season == 2025) & (got.week == 1)].iloc[0]
+    assert week1.team_qb_cpoe_l6 == pytest.approx(12.5)
+    assert week1.team_qb_cpoe_dropbacks_l6 == 6
+    assert week1.team_qb_cpoe_games_l6 == 6
+
+    # Week 2 drops the oldest game and may use Week 1 only because it is now
+    # strictly prior. Its own 8000 value remains excluded.
+    week2 = got[(got.season == 2025) & (got.week == 2)].iloc[0]
+    assert week2.team_qb_cpoe_l6 == pytest.approx((2 + 3 + 4 + 5 + 60 + 700) / 6)
+
+
+def test_team_qb_quality_future_null_row_preserves_history():
+    schedule = pd.DataFrame({
+        "team": ["GB"] * 3,
+        "season": [2025] * 3,
+        "week": [1, 2, 3],
+    })
+    dropbacks = schedule.copy()
+    dropbacks["cpoe"] = [1.0, 2.0, 3.0]
+    before = team_qb_cpoe_strict_prior(schedule, dropbacks)
+    upcoming = pd.concat([
+        schedule,
+        pd.DataFrame({"team": ["GB"], "season": [2025], "week": [4]}),
+    ], ignore_index=True)
+    after = team_qb_cpoe_strict_prior(upcoming, dropbacks)
+    pd.testing.assert_frame_equal(before, after.iloc[:len(before)].reset_index(drop=True))
+    future = after.iloc[-1]
+    assert future.team_qb_cpoe_l6 == pytest.approx(2.0)
+    assert future.team_qb_cpoe_dropbacks_l6 == 3
+    assert future.team_qb_cpoe_games_l6 == 3
 
 
 def test_route_source_must_be_strictly_prior_across_seasons():
