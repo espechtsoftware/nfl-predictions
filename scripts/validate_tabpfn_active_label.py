@@ -18,10 +18,13 @@ QUANTILE_COLUMNS = (
     "q01", "q05", "q10", "q20", "q30", "q40", "q50",
     "q60", "q70", "q80", "q90", "q95", "q99",
 )
-TABLES = {
-    "control": "tabpfn_active_label_control_v1",
-    "active_only": "tabpfn_active_label_treatment_v1",
-}
+def tables_for_version(version: str) -> dict[str, str]:
+    if version not in {"v1", "v2"}:
+        raise ValueError(f"unsupported active-label cache version {version!r}")
+    return {
+        "control": f"tabpfn_active_label_control_{version}",
+        "active_only": f"tabpfn_active_label_treatment_{version}",
+    }
 
 
 def extract_report(path: Path) -> dict:
@@ -34,8 +37,11 @@ def extract_report(path: Path) -> dict:
     return payloads[0]
 
 
-def validate_reports(control: dict, treatment: dict, code_sha: str) -> dict:
+def validate_reports(
+    control: dict, treatment: dict, code_sha: str, version: str = "v1",
+) -> dict:
     checks: dict[str, bool] = {}
+    registered = tables_for_version(version)
     checks["arm_identity"] = (
         control.get("arm") == "control"
         and treatment.get("arm") == "active_only"
@@ -45,6 +51,11 @@ def validate_reports(control: dict, treatment: dict, code_sha: str) -> dict:
     checks["code_identity"] = (
         control.get("code_sha") == code_sha
         and treatment.get("code_sha") == code_sha
+    )
+    checks["output_table_identity"] = (
+        control.get("output_table", "").endswith(registered["control"])
+        and treatment.get("output_table", "").endswith(
+            registered["active_only"])
     )
     checks["same_source_snapshot"] = (
         control.get("training_source") == treatment.get("training_source")
@@ -146,6 +157,7 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--control-log", type=Path, required=True)
     parser.add_argument("--treatment-log", type=Path, required=True)
     parser.add_argument("--code-sha", required=True)
+    parser.add_argument("--version", choices=("v1", "v2"), default="v1")
     parser.add_argument("--output", type=Path, required=True)
     return parser.parse_args()
 
@@ -160,13 +172,14 @@ def main() -> None:
         "treatment": extract_report(args.treatment_log),
     }
     report_validation = validate_reports(
-        reports["control"], reports["treatment"], args.code_sha)
+        reports["control"], reports["treatment"], args.code_sha, args.version)
+    registered_tables = tables_for_version(args.version)
     tables = {
         arm: query_df(
             f"SELECT * FROM `{settings.features}.{table}` "
             "WHERE season IN (2022, 2023, 2024, 2025)"
         )
-        for arm, table in TABLES.items()
+        for arm, table in registered_tables.items()
     }
     table_validation = validate_tables(tables["control"], tables["active_only"])
     output = {
@@ -179,6 +192,8 @@ def main() -> None:
         "report_validation": report_validation,
         "table_validation": table_validation,
         "reports": reports,
+        "version": args.version,
+        "tables": registered_tables,
     }
     args.output.write_text(
         json.dumps(output, indent=2, sort_keys=True) + "\n", encoding="utf-8")

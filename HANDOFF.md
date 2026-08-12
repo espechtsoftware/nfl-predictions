@@ -113,6 +113,16 @@ and must not be staged or modified.
   102,927 unique player-week rows, while old injury has 65,866 rows on 65,862
   keys. Use these snapshots for exact post-build reconciliation; never splice
   them into a new repaired panel.
+- PIT-clean active-label cache generation is preregistered in
+  `reports/2026-08-11-tabpfn-active-label-pit-clean-cache-addendum.md` and
+  implemented without changing its training law. The generator accepts only
+  registered v1/v2 control/treatment names, writes with `WRITE_EMPTY`, and
+  records the training table's modified time, schema hash and full content
+  checksum. Versioned launch/harvest scripts target write-once v2 tables and
+  the validator checks the exact registered pair. Focused active-label tests,
+  shell parsing, compilation and whitespace checks pass. Do not build/launch
+  the GPU pair until the repaired feature build and post-build reconciliation
+  complete.
 
 ### Validated production rollout completed; Route diagnostic ready
 

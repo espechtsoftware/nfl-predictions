@@ -45,11 +45,14 @@ def _reports():
     }
     control = {
         **shared, "arm": "control", "active_context_only": False,
+        "output_table": "project.nfl_features.tabpfn_active_label_control_v1",
         "folds": folds_control,
     }
     treatment = {
         **copy.deepcopy(shared), "arm": "active_only",
-        "active_context_only": True, "folds": folds_treatment,
+        "active_context_only": True,
+        "output_table": "project.nfl_features.tabpfn_active_label_treatment_v1",
+        "folds": folds_treatment,
     }
     return control, treatment
 
@@ -62,6 +65,28 @@ def test_report_validation_requires_only_the_frozen_activity_difference():
     result = validation.validate_reports(control, treatment, "82619ed")
     assert not result["passes"]
     assert not result["checks"]["treatment_contexts_active_only"]
+
+
+def test_versioned_tables_are_registered_without_arbitrary_names():
+    assert validation.tables_for_version("v2") == {
+        "control": "tabpfn_active_label_control_v2",
+        "active_only": "tabpfn_active_label_treatment_v2",
+    }
+    try:
+        validation.tables_for_version("latest")
+    except ValueError as exc:
+        assert "unsupported active-label cache version" in str(exc)
+    else:
+        raise AssertionError("unregistered cache version was accepted")
+
+
+def test_generator_is_version_limited_and_write_once():
+    text = (
+        Path(__file__).parents[1] / "scripts" / "tabpfn_active_label" / "gen.py"
+    ).read_text(encoding="utf-8")
+    assert "(?:1|2)" in text
+    assert "bigquery.WriteDisposition.WRITE_EMPTY" in text
+    assert "bigquery.WriteDisposition.WRITE_TRUNCATE" not in text
 
 
 def test_table_validation_requires_same_keys_ordered_quantiles_and_change(monkeypatch):

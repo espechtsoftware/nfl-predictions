@@ -31,7 +31,8 @@ CONTEXT_MAX = 28_000
 RANDOM_SEED = 7
 N_ESTIMATORS = 4
 OUTPUT_PREFIX = "TABPFN_ACTIVE_LABEL_JSON="
-TABLE_PATTERN = re.compile(r"tabpfn_active_label_(?:control|treatment)_v1")
+TABLE_PATTERN = re.compile(
+    r"tabpfn_active_label_(?:control|treatment)_v(?:1|2)")
 
 
 def _validate_environment() -> None:
@@ -40,11 +41,8 @@ def _validate_environment() -> None:
     if not TABLE_PATTERN.fullmatch(OUTPUT_TABLE):
         raise ValueError(
             "TABPFN_OUTPUT_TABLE must be one frozen active-label research table")
-    expected = (
-        "tabpfn_active_label_control_v1"
-        if ARM == "control"
-        else "tabpfn_active_label_treatment_v1"
-    )
+    version = OUTPUT_TABLE.rsplit("_", 1)[-1]
+    expected = f"tabpfn_active_label_{'control' if ARM == 'control' else 'treatment'}_{version}"
     if OUTPUT_TABLE != expected:
         raise ValueError(f"arm {ARM} requires TABPFN_OUTPUT_TABLE={expected}")
     if not re.fullmatch(r"[0-9a-f]{7,40}", CODE_SHA):
@@ -137,6 +135,15 @@ def main() -> None:
     panel = _prepare(panel, feature_columns)
     if panel.empty or panel.was_active.isna().any():
         raise ValueError("training panel activity provenance is incomplete")
+    source_checksum = int(client.query(f"""
+        SELECT BIT_XOR(FARM_FINGERPRINT(TO_JSON_STRING(t))) AS checksum
+        FROM `{source_table}` t
+    """).to_dataframe().iloc[0]["checksum"])
+    schema_text = json.dumps(
+        [(field.name, field.field_type, field.mode) for field in source_meta.schema],
+        separators=(",", ":"),
+    )
+    source_schema_sha = hashlib.sha256(schema_text.encode()).hexdigest()
 
     active_only = ARMS[ARM]
     rng = np.random.default_rng(RANDOM_SEED)
@@ -179,7 +186,7 @@ def main() -> None:
         combined,
         destination,
         job_config=bigquery.LoadJobConfig(
-            write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE,
+            write_disposition=bigquery.WriteDisposition.WRITE_EMPTY,
         ),
     ).result()
     report = {
@@ -203,6 +210,8 @@ def main() -> None:
         "training_source": {
             "table": source_table,
             "last_modified": source_meta.modified.isoformat(),
+            "schema_sha256": source_schema_sha,
+            "content_checksum": source_checksum,
             "rows": int(len(panel)),
             "active_rows": int(panel.was_active.astype(bool).sum()),
             "inactive_zero_labels_by_season": {
