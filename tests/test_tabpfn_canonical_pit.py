@@ -16,6 +16,12 @@ def test_canonical_pit_cache_is_write_once_and_provenance_bound():
     assert "feature_contract_sha256" in text
     assert "TABPFN_GEN_JSON=" in text
     assert "PIT-clean canonical cache has forbidden envs" in text
+    build = (
+        Path(__file__).parents[1]
+        / "scripts" / "tabpfn_gen" / "cloudbuild.yaml"
+    ).read_text(encoding="utf-8")
+    assert "scripts/tabpfn_gen/Dockerfile" in build
+    assert "${_IMAGE}" in build
 
 
 def test_canonical_pit_validator_is_fail_closed():

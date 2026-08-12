@@ -180,6 +180,8 @@ and must not be staged or modified.
   ordered quantiles before downstream use. Focused tests and shell parsing
   pass. It remains launch-blocked on the second repaired feature rebuild and
   clean reconciliation; no cache or repaired lineup score has been queried.
+  Its dedicated Cloud Build recipe is tracked beside the generator so the
+  canonical image cannot accidentally use the active-label entry point.
 
 ### Validated production rollout completed; Route diagnostic ready
 
