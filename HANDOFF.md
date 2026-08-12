@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 20:11 CDT
+## Current state — 2026-08-11 20:54 CDT
 
 Active branch is `main`; final-served Route diagnostic implementation commit
 `d5e74c0` is pushed. The position-calibration result, research promotion,
@@ -149,10 +149,13 @@ and must not be staged or modified.
   All three control seasons completed cleanly. Check-only acceptance execution
   `accept-replay-panel-49qbb` passed the complete 54-slate, exact-80 control;
   its log and execution identity are tracked with the control manifest. The
-  three treatment seasons remain active. Next action: monitor them to clean
-  completion, run treatment check-only acceptance, and then execute the frozen
-  comparator once. Do not inspect or act on lineup scores before that
-  comparator.
+  2024 treatment `replay-lockk1uktrt-2024-cf6wr` and 2025 treatment
+  `replay-lockk1uktrt-2025-prc9d` have also completed cleanly. Only 2023
+  treatment `replay-lockk1uktrt-2023-xw5qb` remains active; at 20:53 CDT the
+  immutable monitor reports five of six season executions clean. Next action:
+  monitor it to clean completion, run treatment check-only acceptance, and
+  then execute the frozen comparator once. Do not inspect or act on lineup
+  scores before that comparator.
 - A separate code audit found that `scripts/tabpfn_gen/gen.py` does not apply
   the component path's `active_training_rows` safeguard. The current training
   table contains 6,202/6,041/6,130/6,021 synthetic inactive zero labels in
@@ -295,6 +298,26 @@ and must not be staged or modified.
   miss; any later cache change invalidates/requires recomputing G0/G1. G2 fits
   on 2019/2021/2022 and evaluates only 2023--2025. Stable cross-game evidence
   routes to a separate winning-line model, not lineup stacking credit.
+- Fantasy Points' live projected ownership is now explicitly part of the 2026
+  field-model plan. The frozen prospective protocol is tracked in
+  `reports/2026-08-11-fantasy-points-projected-ownership-protocol.md`: capture
+  immutable DraftKings Classic Sunday Main snapshots at first publication,
+  Saturday evening and before both Sunday book freezes; append them to
+  `nfl_raw.fantasy_points_ownership_snapshots`; grade each pre-lock vector
+  against exact-contest realized ownership; and use the source for legal
+  opponent-field simulation, duplicate estimates and payout-aware portfolio
+  research. It is not a scoring feature and does not reopen the rejected
+  generic `milly_fade` arm. The indexed page says Premium access is required
+  and Fantasy Points describes the optimizer ownership as FanShare-powered,
+  so the standalone Data Suite entitlement/export must be confirmed when the
+  2026 page opens. README and the in-app weekly guide now carry the acquisition
+  item, and the old automatic ETR purchase is replaced with a measured
+  second-source/fallback decision. Naming the future raw table
+  `fantasy_points_*` makes the current daily backup discovery include it.
+  Focused app/status and external-import validation passes 19 tests. Next
+  implementation step, without interrupting the active immutable fitted-K
+  panel, is the dedicated authenticated ownership-page collector, append-only
+  importer and status contract before August 24.
 
 ### Final-served position calibration passed, promoted, and adopted
 

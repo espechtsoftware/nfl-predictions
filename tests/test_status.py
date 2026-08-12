@@ -119,6 +119,7 @@ def test_nav_html_has_status_button():
 
 def test_nav_html_has_strict_prior_route_share_checklist():
     assert "Fantasy Points Weekly Route Share only" in app_main._NAV_HTML
+    assert "Fantasy Points projected ownership" in app_main._NAV_HTML
     assert "2026-route-share-weekly-v1" in app_main._NAV_HTML
     assert "only completed source" in app_main._NAV_HTML
     assert "Never select or import Week W" in app_main._NAV_HTML

@@ -232,6 +232,15 @@ unresolved-player audit, then repeat with <code>--write</code>. It remains a
 shadow input until its prospective gate passes. Never select or import Week W
 data for a Week W prediction. Exact commands are in the repository automation
 guide.</td></tr>
+<tr><td>Wed/Sat/Sun ownership<br>(every main slate)</td><td
+style='text-align:left'><b>Fantasy Points projected ownership.</b> The tracked
+collector will archive DraftKings Classic Sunday Main when first posted,
+Saturday evening, and before both Sunday book freezes. Use it to simulate the
+opposing field, estimate duplicates and compare payout-aware portfolios&mdash;
+not as a generic penalty to player scoring. After settlement, the exact
+pre-lock snapshots are graded against imported contest ownership. Until the
+collector is implemented and the Premium-page entitlement is confirmed, this
+row is a preseason setup item rather than a manual copy/paste task.</td></tr>
 <tr><td>Tue/Wed matchup snapshot<br>(every week)</td><td
 style='text-align:left'><b>Fantasy Points QB Coverage, WR Coverage and OL/DL
 Matchups.</b> Before the target week&#39;s first kickoff, run
