@@ -279,6 +279,18 @@ and must not be staged or modified.
   `models_pit_v2` prefix, launch K3/K1/role jobs from one immutable image, and
   validate all component artifacts, ensemble sizes, generations/checksums and
   exact base/role feature contracts without reading scores.
+- The isolated `models_pit_v2` registry qualification is now in flight from
+  frozen generation digest
+  `sha256:ad50fe19bde366ca11180b561127b09e2c79c97ec7dbbd5507282e33d2d5eb62`:
+  canonical K3 execution `train-pit-v2-k3-2d7gh`, K1 execution
+  `train-pit-v2-k1-4t9pc`, and K1 direct-role execution
+  `train-pit-v2-role-5dzlw`. The first two launched normally; the role launch
+  initially stopped before deployment because gcloud parsed its comma-list
+  feature value as environment syntax. The launcher now uses a safe custom
+  delimiter, its focused test passes, and only the missing role execution was
+  resumed under the unchanged frozen manifest. Next action is to wait for all
+  three executions, run the independent registry validator, then launch the
+  exact-80 repaired K3/K1 controls—no partial score inspection.
 
 ### Validated production rollout completed; Route diagnostic ready
 

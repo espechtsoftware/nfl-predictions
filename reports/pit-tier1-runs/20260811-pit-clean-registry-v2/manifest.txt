@@ -1,0 +1,10 @@
+run_id=20260811-pit-clean-registry-v2
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ad50fe19bde366ca11180b561127b09e2c79c97ec7dbbd5507282e33d2d5eb62
+code_sha=a12ab31
+registry_prefix=models_pit_v2
+iso_week=2026-W33
+protocol_sha256=f4e668f9d66a718fbd2e61eee31d6fb8b6122254b2994a5957bf15e9d4eea65b
+reconciliation_sha256=214502f65a8c87a2da0e2f34e8989014999843a2a9b912bfb2e57dc696ba9659
+canonical_cache_validation_sha256=25b1e5c87a99ba04e4e184cca93ee471f0d04c7ce31a6e33acc2be6cdaccfc93
+variants=canonical tail_k1 tail_k1_role
+ensemble_sizes=3 1 1

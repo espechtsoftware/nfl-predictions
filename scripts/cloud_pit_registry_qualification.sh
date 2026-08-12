@@ -64,12 +64,15 @@ printf '%s\n' \
 launch() {
   local suffix=$1 variant=$2 ensemble=$3 extras=$4
   local job="train-pit-v2-$suffix"
-  local envs="GCP_PROJECT=$PROJECT,MODEL_REGISTRY_PREFIX=$PREFIX"
-  envs="$envs,MODEL_REGISTRY_VARIANT=$variant,MODEL_ENSEMBLE=$ensemble"
-  [ -z "$extras" ] || envs="$envs,EXTRA_FEATURES=$extras"
+  # Use a non-comma gcloud delimiter because EXTRA_FEATURES is itself a
+  # comma-separated list. Without this, gcloud interprets every feature after
+  # the first as a malformed environment assignment.
+  local envs="GCP_PROJECT=$PROJECT|MODEL_REGISTRY_PREFIX=$PREFIX"
+  envs="$envs|MODEL_REGISTRY_VARIANT=$variant|MODEL_ENSEMBLE=$ensemble"
+  [ -z "$extras" ] || envs="$envs|EXTRA_FEATURES=$extras"
   gcloud run jobs deploy "$job" --project "$PROJECT" --region "$REGION" \
     --image "$IMG" --command nfl-dfs --args train \
-    --set-env-vars "$envs" --memory 8Gi --cpu 4 --max-retries 0 \
+    --set-env-vars "^|^$envs" --memory 8Gi --cpu 4 --max-retries 0 \
     --task-timeout 3600 --service-account "$SERVICE_ACCOUNT" >/dev/null
   local deployed execution
   deployed=$(gcloud run jobs describe "$job" --project "$PROJECT" \

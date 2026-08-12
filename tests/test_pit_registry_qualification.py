@@ -18,6 +18,8 @@ def test_pit_registry_qualification_is_isolated_and_fail_closed():
     assert "canonical 3" in launch
     assert "tail_k1 1" in launch
     assert "tail_k1_role 1" in launch
+    assert '--set-env-vars "^|^$envs"' in launch
+    assert "EXTRA_FEATURES=$extras" in launch
     assert "canonical PIT cache validation did not pass" in launch
     assert "isolated registry prefix already contains objects" in launch
     assert "status.conditions[0].status" in finish
