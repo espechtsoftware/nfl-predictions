@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 07:36 CDT
+## Current state — 2026-08-12 07:44 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -485,6 +485,18 @@ and must not be staged or modified.
   `reports/tabpfn-sched-runs/20260812-sched-generation-v1/image.txt`; create
   that record only from the next successful full exact-tree build of this
   complete code, before any SCHED cache is launched.
+- Corrected SCHED GPU build
+  `efb515ae-be60-4c42-b779-f8ed29916be0` completed successfully from commit
+  `23da1dd` and published immutable generator digest
+  `sha256:6609587b95e6193c04a1cdc43529bd21e131c191a50ed0e2bf886cfc8e4e423c`.
+  This is the first SCHED generator image containing the inherited RNG warm-up
+  repair. Superseded pre-repair full build
+  `567f53bf-ac05-48ac-98f2-4be96ae9a2cf` was cancelled without producing or
+  using an artifact so corrected full build
+  `94c98907-cf8b-462a-a31d-aa06d485602f` can take its build slot. The latter
+  remains queued; do not create the required tracked `image.txt` or launch
+  SCHED caches until it succeeds and its exact test/digest identity is
+  recorded.
 
 ### Validated production rollout completed; Route diagnostic ready
 
