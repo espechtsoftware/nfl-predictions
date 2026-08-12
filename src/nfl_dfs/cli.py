@@ -292,6 +292,12 @@ def main(argv: list[str] | None = None) -> None:
     )
     p.add_argument("--panel", required=True)
 
+    p = sub.add_parser(
+        "tabpfn-team-qb-final-served",
+        help="Gate the frozen team-QB cache pair on final-served tails",
+    )
+    p.add_argument("--panel", required=True)
+
     sub.add_parser(
         "usage-dirichlet-calibration-diagnostic",
         help="Fit and gate within-team target/carry concentration",
@@ -739,6 +745,10 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import tabpfn_sched_final_served
 
         tabpfn_sched_final_served.run(args.panel)
+    elif args.command == "tabpfn-team-qb-final-served":
+        from .analysis import tabpfn_team_qb_final_served
+
+        tabpfn_team_qb_final_served.run(args.panel)
     elif args.command == "usage-dirichlet-calibration-diagnostic":
         from .analysis import usage_dirichlet_calibration
 

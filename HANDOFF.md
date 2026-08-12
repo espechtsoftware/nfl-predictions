@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 09:39 CDT
+## Current state — 2026-08-12 09:41 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -457,6 +457,16 @@ and must not be staged or modified.
   Full-suite build `1f12be5d-df17-4757-b363-7e9a1cef3025` remains running.
   Do not launch the cache pair until the side table is validated and terminal
   SCHED selection supplies its inherited label/feature laws.
+- The team-QB branch is now implemented through its terminal historical
+  decision before any feature/prediction/result exists: inherited-law
+  final-served Brier-30 gate, separately frozen exact-80 addendum, paired
+  launcher/comparator, promotion record, and fail-closed fallback. The exact-80
+  comparator reuses the proven SCHED mechanism checks with explicit cache-table
+  parameters and applies the seven-threshold tail-first law. Focused team-QB,
+  replay-cache and SCHED tests pass. This implementation is not yet in the
+  running `301bc94` full image; build a new exact-tree audit image after this
+  milestone is committed, and use only that later digest for its side table,
+  gate, comparator and acceptance jobs.
 - Served-position v2 execution `served-position-calibration-pit-v2-zmm6s`
   completed cleanly and passes every frozen score-free gate. Its unrounded
   treatment factors are `QB=0.975,RB=1.0,TE=0.955,WR=1.075`; aggregate

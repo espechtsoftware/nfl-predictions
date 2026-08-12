@@ -61,13 +61,17 @@ def mechanism_failures(
     selected_k: str,
     control_schedules: dict[int, str],
     treatment_schedules: dict[int, str],
+    control_table: str = CONTROL_TABLE,
+    treatment_table: str = TREATMENT_TABLE,
+    mechanism_name: str = "SCHED",
 ) -> list[str]:
     failures: list[str] = []
     if control.empty or treatment.empty:
         return failures
     if not control.code_sha.astype(str).eq(expected_code_sha).all() or not \
             treatment.code_sha.astype(str).eq(expected_code_sha).all():
-        failures.append("books do not share frozen SCHED generation code")
+        failures.append(
+            f"books do not share frozen {mechanism_name} generation code")
     if control.seeds.iloc[0] != treatment.seeds.iloc[0]:
         failures.append("control and treatment seed identities differ")
     control_by_season = _season_levers(control)
@@ -79,7 +83,7 @@ def mechanism_failures(
         failures.append("treatment does not have one lever specification per season")
     if set(control_schedules) != expected_seasons or \
             set(treatment_schedules) != expected_seasons:
-        failures.append("SCHED position schedules are incomplete")
+        failures.append(f"{mechanism_name} position schedules are incomplete")
     expected = _expected_common_levers(
         role_selected=role_selected, allocation=allocation,
         selected_k=selected_k)
@@ -103,9 +107,9 @@ def mechanism_failures(
                 } & set(levers)
                 if unexpected:
                     failures.append(f"{name} {season} has unexpected role levers")
-        if left.get("TABPFN_MARGINAL_TABLE") != CONTROL_TABLE:
+        if left.get("TABPFN_MARGINAL_TABLE") != control_table:
             failures.append(f"control {season} cache table differs")
-        if right.get("TABPFN_MARGINAL_TABLE") != TREATMENT_TABLE:
+        if right.get("TABPFN_MARGINAL_TABLE") != treatment_table:
             failures.append(f"treatment {season} cache table differs")
         if left.get("SERVED_POSITION_SCALES") != control_schedules.get(season):
             failures.append(f"control {season} position schedule differs")
@@ -136,7 +140,8 @@ def mechanism_failures(
     material = sum(int(candidate_audit.get(field, 0)) for field in (
         "left_only_rows", "right_only_rows", "common_sim_mean_mismatch"))
     if material <= 0:
-        failures.append("SCHED treatment did not reach candidate scoring")
+        failures.append(
+            f"{mechanism_name} treatment did not reach candidate scoring")
     return failures
 
 

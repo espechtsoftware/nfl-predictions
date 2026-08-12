@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from nfl_dfs.analysis import tabpfn_team_qb_final_served
+from nfl_dfs.backtest import replay
 from nfl_dfs.research.tabpfn_team_qb import (
     broadcast_team_qb_quality,
     feature_contract,
@@ -195,3 +197,32 @@ def test_team_qb_cloud_path_is_terminal_sched_dependent_and_write_once():
     assert "TABPFN_TEAM_QB_JSON=" in finish
     assert "validate_tabpfn_team_qb.py" in finish
     assert "--inherited-table" in finish
+
+
+def test_team_qb_final_served_cache_scope_is_research_licensed(monkeypatch):
+    monkeypatch.setenv("TABPFN_MARGINAL_TABLE", "outside")
+    for table in tabpfn_team_qb_final_served.TABLES.values():
+        assert replay._tabpfn_marginal_table(
+            {"TABPFN_MARGINAL_TABLE": table}) == table
+        with tabpfn_team_qb_final_served._cache_environment(table):
+            assert tabpfn_team_qb_final_served.os.environ[
+                "TABPFN_MARGINAL_TABLE"] == table
+        assert tabpfn_team_qb_final_served.os.environ[
+            "TABPFN_MARGINAL_TABLE"] == "outside"
+
+
+def test_team_qb_final_served_cloud_path_uses_terminal_laws():
+    cli = (ROOT / "src/nfl_dfs/cli.py").read_text(encoding="utf-8")
+    launch = (
+        ROOT / "scripts/cloud_tabpfn_team_qb_final_served.sh"
+    ).read_text(encoding="utf-8")
+    finish = (
+        ROOT / "scripts/cloud_finish_tabpfn_team_qb_final_served.sh"
+    ).read_text(encoding="utf-8")
+    assert "tabpfn-team-qb-final-served" in cli
+    assert "selected_usage.txt" in launch
+    assert "selected_sched.txt" in launch
+    assert "tabpfn-team-qb-caches-valid" in launch
+    assert "TABPFN_TEAM_QB_LABEL_LAW" in launch
+    assert "TABPFN_TEAM_QB_FEATURE_LAW" in launch
+    assert "TABPFN_TEAM_QB_FINAL_SERVED_JSON=" in finish

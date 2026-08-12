@@ -477,6 +477,8 @@ def _tabpfn_marginal_table(env: dict | None = None) -> str:
         "tabpfn_active_label_treatment_v2",
         "tabpfn_sched_control_v1",
         "tabpfn_sched_treatment_v1",
+        "tabpfn_team_qb_control_v1",
+        "tabpfn_team_qb_treatment_v1",
     }
     if table not in licensed:
         raise ValueError(
