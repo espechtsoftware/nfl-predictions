@@ -247,6 +247,11 @@ and must not be staged or modified.
   averages and season signs are diagnostics. This directly matches the
   operator's current objective and prevents either an obsolete 200-lift gate
   or a post-score branch choice from deciding the repaired baseline.
+- The dedicated Tier-1 comparator reuses the existing K3/K1 and direct-role
+  mechanism audits, adds exact canonical-v2 cache-key coverage, reports the
+  full threshold/season grid, and applies only the newly frozen lexicographic
+  law. Its pure priority tests prove that a 230 improvement wins despite lower
+  thresholds declining and that mean is consulted only after a full grid tie.
 - Isolated registry qualification now has guarded launch/finish scripts. They
   require both warehouse and canonical-cache validation, refuse a nonempty
   `models_pit_v2` prefix, launch K3/K1/role jobs from one immutable image, and
