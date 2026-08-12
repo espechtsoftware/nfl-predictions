@@ -53,6 +53,11 @@ def _rows(*, treatment: bool) -> pd.DataFrame:
 
 
 def test_active_label_v2_mechanism_accepts_cache_and_schedule_only():
+    assert active.DISTRIBUTION_DERIVED_FEATURES == (
+        "consensus_div", "mean_projection", "model_points_pre", "proj",
+        "proj_tourney", "own_est", "proj_p10", "proj_p50", "proj_p90",
+        "proj_std",
+    )
     features = {
         "left_rows": 10, "right_rows": 10,
         "left_only_rows": 0, "right_only_rows": 0,
@@ -82,6 +87,9 @@ def test_active_label_v2_protocol_and_both_terminal_branches_are_tracked():
         encoding="utf-8")
     finish = (root / "scripts/cloud_finish_tabpfn_active_label_exact80_v2.sh").read_text(
         encoding="utf-8")
+    recompare = (
+        root / "scripts/cloud_recompare_tabpfn_active_label_exact80_v2.sh"
+    ).read_text(encoding="utf-8")
     fallback = (root / "scripts/resolve_tabpfn_active_label_fallback_v2.sh").read_text(
         encoding="utf-8")
     final_finish = (
@@ -94,6 +102,8 @@ def test_active_label_v2_protocol_and_both_terminal_branches_are_tracked():
     assert "wrong generation image package or digest" in launch
     assert 'f"{arm}_schedule"' in launch
     assert "TABPFN_ACTIVE_LABEL_STAGE_B_V2_JSON=" in finish
+    assert "compare-tabpfn-active-label-exact80-v2-r1" in recompare
+    assert "superseded_invalid_execution" in recompare
     assert "final-served-gate-failed" in fallback
     assert "tabpfn_projections_pit_v2" in fallback
     assert "PIT_ACTIVE_LABEL_FINAL_SERVED_COMPLETE" in final_finish

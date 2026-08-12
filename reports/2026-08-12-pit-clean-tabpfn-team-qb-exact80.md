@@ -36,7 +36,10 @@ Control uses `tabpfn_team_qb_control_v1`; treatment uses
 prior, pass-catcher-only `team_qb_cpoe_l6` and
 `team_qb_cpoe_cross_season` bundle. The comparator must prove
 exact player keys, invariant point-in-time inputs, actuals, seeds and common
-levers; only registered distribution-derived outputs may differ. Candidate
+levers. Only the ten registered distribution-derived outputs may differ:
+`model_points_pre`, its deterministic `mean_projection` and `consensus_div`
+market descendants, and `proj`, `proj_tourney`, `own_est`, `proj_p10`,
+`proj_p50`, `proj_p90`, and `proj_std`. Candidate
 means/membership and selected lineups must change, and every completed slate
 must contain 80 distinct legal selections.
 

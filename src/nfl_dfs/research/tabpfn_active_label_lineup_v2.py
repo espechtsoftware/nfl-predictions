@@ -13,6 +13,9 @@ TREATMENT_PANEL = "20260812-pitclean-e80-selected-tabpfn-active-v2"
 CONTROL_TABLE = "tabpfn_active_label_control_v2"
 TREATMENT_TABLE = "tabpfn_active_label_treatment_v2"
 DISTRIBUTION_DERIVED_FEATURES = (
+    "consensus_div",
+    "mean_projection",
+    "model_points_pre",
     "proj",
     "proj_tourney",
     "own_est",

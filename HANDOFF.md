@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 13:20 CDT
+## Current state — 2026-08-12 15:45 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -91,24 +91,46 @@ reconciliation when their findings affect the program.
   `reports/tabpfn-active-label-runs/20260811-tabpfn-active-label-final-served-v2-pit-clean/`
   and the concise result is
   `reports/2026-08-12-pit-clean-active-label-final-served-result.md`.
-- That pass licenses the frozen paired exact-80 active-label books. The first
+- That pass licensed the frozen paired exact-80 active-label books. The first
   launch attempt used the right digest in the wrong nonexistent package
   (`nfl-dfs-gen`), so Cloud Run created no execution and no score. Its empty
   execution file/manifest/preflight are preserved under panel id suffix
   `-failed-wrong-image-package`. The launcher now requires the full exact
   `nfl-dfs/nfl-dfs@ad50...` URI. Corrected control smoke execution
   `replay-pitactv2ctl-smoke-4wtwq` and treatment smoke
-  `replay-pitactv2trt-smoke-nzvmv` both passed. All six 2023--2025 books are
-  running: control `replay-pitactv2ctl-2023-7dh98`,
+  `replay-pitactv2trt-smoke-nzvmv` both passed. All six 2023--2025 books
+  completed cleanly: control `replay-pitactv2ctl-2023-7dh98`,
   `replay-pitactv2ctl-2024-bxkmb`, `replay-pitactv2ctl-2025-zrx9k`;
   treatment `replay-pitactv2trt-2023-wjfqn`,
   `replay-pitactv2trt-2024-v8xv6`, `replay-pitactv2trt-2025-48d7j`.
-  Execution manifests are pushed in commit `92632fc`. Wait for all six
-  complete books, run
-  `scripts/cloud_finish_tabpfn_active_label_exact80_v2.sh aec3...`, and then
-  continue SCHED under the mechanically selected active-label law. No partial
-  season score may be inspected. Team-passing remains strictly downstream and
-  will use only rebuilt post-amendment images.
+  Execution manifests are pushed in commit `92632fc`. Independent acceptance
+  executions `accept-replay-panel-wst5w` (control) and
+  `accept-replay-panel-s2ndt` (treatment) passed exact-80 legality and
+  replay/live mean parity.
+- Original comparator execution
+  `compare-tabpfn-active-label-exact80-v2-nr296` correctly stopped invalid
+  before calling the score comparison: its invariant allowed the seven
+  persisted marginal outputs but mistakenly demanded equality for three
+  deterministic descendants of that same marginal. Field reconciliation
+  found only `model_points_pre` (28,411 rows), `mean_projection` (28,411), and
+  `consensus_div` (10,923). Registering exactly those three additional outputs
+  leaves 29,605 equal keys, zero missing/mismatched invariant rows, and maximum
+  remaining drift `3.5527136788e-15`. Raw invalid output, formatted invalid
+  report, acceptance artifacts, and execution ids are tracked under the two
+  panel folders and
+  `reports/tabpfn-active-label-runs/20260812-active-label-exact80-v2-pit-clean/`.
+- The score-independent repair and its observer disclosure are frozen in
+  `reports/2026-08-12-active-label-comparator-invariant-repair.md`. While
+  checking parity evidence, the agent unnecessarily opened ordinary
+  acceptance summaries and saw each evaluation arm's aggregate
+  187/194/200 counts; no 240/230/220/210 count, weekly maximum, 107-slate
+  decision, or comparator selection was exposed. The decision rule, panels,
+  and all causal levers remain unchanged. The same exact ten-output contract
+  is frozen for SCHED and team passing before either downstream result.
+  Focused active-label/SCHED/team-passing tests and shell parsing pass.
+  Next: build an immutable full audit image from this exact repair commit,
+  run `scripts/cloud_recompare_tabpfn_active_label_exact80_v2.sh` on the
+  already-complete books, then continue SCHED under its mechanical selection.
 - Review reconciliation and active-label gate milestone commit `83192ca` is
   pushed on `main`. The complete local suite passes all 992 collected tests
   with one expected rear-view dashboard skip. Exact-commit team-passing GPU

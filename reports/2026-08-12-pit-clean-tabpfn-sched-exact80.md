@@ -34,8 +34,11 @@ Control uses `tabpfn_sched_control_v1`; treatment uses
 `tabpfn_sched_treatment_v1`. The treatment cache's appended
 `net_rest_diff,body_clock_hour` contract and the independently fitted schedule
 it causes are the only arm differences. The comparator must prove exact player
-keys, invariant point-in-time inputs, actuals, seeds and common levers; exactly
-the seven registered distribution-derived player outputs may change. Candidate
+keys, invariant point-in-time inputs, actuals, seeds and common levers. Exactly
+the ten registered distribution-derived player outputs may change:
+`model_points_pre`, its deterministic `mean_projection` and `consensus_div`
+market descendants, and `proj`, `proj_tourney`, `own_est`, `proj_p10`,
+`proj_p50`, `proj_p90`, and `proj_std`. Candidate
 means/membership and selected lineups must change, and every completed slate
 must contain 80 distinct legal selections.
 

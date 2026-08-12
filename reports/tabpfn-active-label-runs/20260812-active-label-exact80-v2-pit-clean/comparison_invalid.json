@@ -1,0 +1,264 @@
+{
+  "allocation": "dirichlet",
+  "cache_validation_sha256": "e6b26ed7e899beb9fb5ef7bd622f644fdbefcbced121e5d15c5ff029fcf7de35",
+  "code_sha": "a12ab31",
+  "control": "20260812-pitclean-e80-selected-tabpfn-current-v2",
+  "control_cache": "tabpfn_active_label_control_v2",
+  "control_generator_summary": [
+    {
+      "candidates": 2160,
+      "exclusive_candidates": 2160,
+      "generator": "boom",
+      "selected": 1611
+    },
+    {
+      "candidates": 433,
+      "exclusive_candidates": 350,
+      "generator": "dark",
+      "selected": 158
+    },
+    {
+      "candidates": 725,
+      "exclusive_candidates": 0,
+      "generator": "epi",
+      "selected": 327
+    },
+    {
+      "candidates": 433,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_draw",
+      "selected": 277
+    },
+    {
+      "candidates": 90,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_mean:1",
+      "selected": 14
+    },
+    {
+      "candidates": 77,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_mean:2",
+      "selected": 17
+    },
+    {
+      "candidates": 68,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_mean:3",
+      "selected": 11
+    },
+    {
+      "candidates": 57,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_mean:4",
+      "selected": 8
+    },
+    {
+      "candidates": 648,
+      "exclusive_candidates": 554,
+      "generator": "game",
+      "selected": 195
+    },
+    {
+      "candidates": 8640,
+      "exclusive_candidates": 8164,
+      "generator": "lev",
+      "selected": 1554
+    },
+    {
+      "candidates": 1728,
+      "exclusive_candidates": 1356,
+      "generator": "qbvar",
+      "selected": 611
+    }
+  ],
+  "control_position_schedules": {
+    "2023": "QB:0.985,RB:0.975,TE:0.96,WR:1.0",
+    "2024": "QB:0.94,RB:0.98,TE:0.975,WR:1.075",
+    "2025": "QB:0.94,RB:0.965,TE:0.945,WR:1.08"
+  },
+  "control_treatment_candidates": {
+    "common_actual_mismatch": 0,
+    "common_rows": 8956,
+    "common_sim_mean_mismatch": 8956,
+    "left_only_rows": 4779,
+    "left_rows": 13735,
+    "max_common_sim_mean_abs_delta": 12.141685485839844,
+    "paired_slates": 54,
+    "right_only_rows": 4794,
+    "right_rows": 13750,
+    "sim_mean_absolute_tolerance": 0.0001
+  },
+  "control_treatment_features": {
+    "ignored_numeric_fields": [
+      "own_est",
+      "proj",
+      "proj_p10",
+      "proj_p50",
+      "proj_p90",
+      "proj_std",
+      "proj_tourney"
+    ],
+    "left_only_rows": 0,
+    "left_rows": 29605,
+    "max_numeric_abs_delta": 10.376225647386619,
+    "mismatch_rows": 28411,
+    "right_only_rows": 0,
+    "right_rows": 29605
+  },
+  "disposition": "invalid",
+  "failures": [
+    "player snapshots differ in mismatch_rows",
+    "player snapshot invariant values differ"
+  ],
+  "final_served_report_sha256": "8df09daf6914881621e2186eda856a8289ef8eae8f116384f3054057bfd8d51a",
+  "historical_source": "20260811-pitclean-e80-k1-role12union-a12ab31",
+  "historical_source_generator_summary": [
+    {
+      "candidates": 4280,
+      "exclusive_candidates": 4280,
+      "generator": "boom",
+      "selected": 3707
+    },
+    {
+      "candidates": 877,
+      "exclusive_candidates": 705,
+      "generator": "dark",
+      "selected": 602
+    },
+    {
+      "candidates": 1451,
+      "exclusive_candidates": 0,
+      "generator": "epi",
+      "selected": 824
+    },
+    {
+      "candidates": 861,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_draw",
+      "selected": 764
+    },
+    {
+      "candidates": 184,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_mean:1",
+      "selected": 16
+    },
+    {
+      "candidates": 154,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_mean:2",
+      "selected": 15
+    },
+    {
+      "candidates": 132,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_mean:3",
+      "selected": 14
+    },
+    {
+      "candidates": 120,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_mean:4",
+      "selected": 15
+    },
+    {
+      "candidates": 1278,
+      "exclusive_candidates": 1004,
+      "generator": "game",
+      "selected": 694
+    },
+    {
+      "candidates": 17120,
+      "exclusive_candidates": 16042,
+      "generator": "lev",
+      "selected": 1945
+    },
+    {
+      "candidates": 3424,
+      "exclusive_candidates": 2592,
+      "generator": "qbvar",
+      "selected": 1080
+    }
+  ],
+  "mode": "pit-clean-tabpfn-active-label-v2",
+  "role_selected": true,
+  "selected_k": "28.154043586960896",
+  "selected_panel": null,
+  "treatment": "20260812-pitclean-e80-selected-tabpfn-active-v2",
+  "treatment_cache": "tabpfn_active_label_treatment_v2",
+  "treatment_generator_summary": [
+    {
+      "candidates": 2160,
+      "exclusive_candidates": 2160,
+      "generator": "boom",
+      "selected": 1581
+    },
+    {
+      "candidates": 434,
+      "exclusive_candidates": 352,
+      "generator": "dark",
+      "selected": 161
+    },
+    {
+      "candidates": 722,
+      "exclusive_candidates": 0,
+      "generator": "epi",
+      "selected": 347
+    },
+    {
+      "candidates": 434,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_draw",
+      "selected": 295
+    },
+    {
+      "candidates": 90,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_mean:1",
+      "selected": 13
+    },
+    {
+      "candidates": 76,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_mean:2",
+      "selected": 17
+    },
+    {
+      "candidates": 63,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_mean:3",
+      "selected": 10
+    },
+    {
+      "candidates": 59,
+      "exclusive_candidates": 0,
+      "generator": "epi:role_mean:4",
+      "selected": 12
+    },
+    {
+      "candidates": 648,
+      "exclusive_candidates": 558,
+      "generator": "game",
+      "selected": 213
+    },
+    {
+      "candidates": 8640,
+      "exclusive_candidates": 8187,
+      "generator": "lev",
+      "selected": 1502
+    },
+    {
+      "candidates": 1728,
+      "exclusive_candidates": 1360,
+      "generator": "qbvar",
+      "selected": 631
+    }
+  ],
+  "treatment_position_schedules": {
+    "2023": "QB:0.965,RB:0.99,TE:0.945,WR:1.03",
+    "2024": "QB:0.905,RB:0.97,TE:0.95,WR:1.06",
+    "2025": "QB:0.925,RB:0.96,TE:0.94,WR:1.04"
+  },
+  "winner_position_contributions": {}
+}
