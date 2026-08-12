@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 21:17 CDT
+## Current state — 2026-08-11 21:21 CDT
 
 Active branch is `main`; final-served Route diagnostic implementation commit
 `d5e74c0` is pushed. The position-calibration result, research promotion,
@@ -199,10 +199,13 @@ and must not be staged or modified.
   `qb_cpoe_l6` diagnostic is added to the already-frozen team-QB protocol; the
   generator passes NaNs directly and has no imputation path. All five changed
   SQL files dry-run against live BigQuery schemas; focused feature/leakage
-  tests pass, Python compiles, and `git diff --check` is clean. Do not rebuild
-  the warehouse mid-panel. Commit/push this repair, validate its exact tree in
-  Cloud Build, then apply it only in the next coordinated feature rebuild with
-  historical key/delta checks and full retraining.
+  tests pass, Python compiles, and `git diff --check` is clean. Repair commit
+  `314aa6a` is pushed and its exact archived tree is running full validation as
+  regional Cloud Build `b691da39-95dd-453e-9e6c-bd07359bd9c6`, publishing
+  tag `pit-314aa6a` only after the complete suite succeeds. Do not rebuild the
+  warehouse mid-panel. After that build passes, record its test result and
+  immutable digest, then apply it only in the next coordinated feature rebuild
+  with historical key/delta checks and full retraining.
 - A separate code audit found that `scripts/tabpfn_gen/gen.py` does not apply
   the component path's `active_training_rows` safeguard. The current training
   table contains 6,202/6,041/6,130/6,021 synthetic inactive zero labels in
