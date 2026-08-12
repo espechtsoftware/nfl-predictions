@@ -202,7 +202,14 @@ and must not be staged or modified.
   validation, test SCHED sync as a separate marginal-cache arm, then a strictly
   prior QB-quality broadcast to pass-catchers. Weather remains conditional on
   proving historical pre-lock forecast provenance; realized game weather may
-  not be used as if it were a forecast.
+  not be used as if it were a forecast. Code inspection confirms the current
+  weather table is unsafe for that historical test: it selects the latest raw
+  forecast snapshot and otherwise falls back to nflverse schedule temperature/
+  wind (observed game conditions). It also found an unused `qb_quality` CTE in
+  `015_player_week_efficiency.sql`: team PBP CPOE is computed but never joined
+  or selected. A strictly-prior, team-level PBP CPOE window broadcast to
+  pass-catchers may be more complete than sparse player-level NGS CPOE and is
+  the preferred D1 design to preregister after active-label and SCHED-sync.
 
 ### Final-served position calibration passed, promoted, and adopted
 
