@@ -27,11 +27,40 @@ repository. The supplied review remains unmodified and untracked.
   diagnostics. Reconsider storage technology only after measured query or
   memory limits appear on several seasons of full contest entries.
 
+## G0 — final-served dependence premise kill test
+
+Priority: first dependence execution, only after the marginal cache queue
+drains. This inexpensive diagnostic decides whether G1/G2 have a premise.
+
+Pin the manifest to the exact accepted cache table identity/hash, immutable
+CPU image digest, common simulator law, source panel and final-served position
+schedule. On same-key 2023--2025 active main-slate rows, recompute nine
+registered metrics from that cache's own point-in-time q90 thresholds:
+
+- team-week multiplicity at >=2, >=3 and >=4 exceeders;
+- conditional QB→WR, QB→TE and QB→RB exceedance lift; and
+- same-team WR↔WR, RB↔RB and TE↔TE lift.
+
+For each team-week, calculate the independence count distribution from its
+heterogeneous per-player exceedance probabilities with an exact
+Poisson-binomial recursion/DFT. The pooled-binomial null is reported only for
+comparison with the outside review; it is not the scientific baseline. The
+protocol must freeze support rules, equivalence/materiality bands and clustered
+uncertainty before one execution. It must also record the directional premise
+that production overstates same-team WR lift, understates QB→WR lift and
+understates >=4 multiplicity relative to realized final-served events.
+
+If production reproduces every registered cell within the frozen equivalence
+rule, G1 and G2 close without a clustering build. A material miss licenses G1.
+If the accepted cache or served calibration changes before G2 launches, G0 and
+any dependent G1 topology must be recomputed against the new immutable identity.
+
 ## G1 — walk-forward archetype-pair dependence topology
 
-Priority: first new dependence diagnostic, after the fitted-K decision fixes
-the common simulator law. It is score-free and may run while later marginal
-cache stages execute.
+Priority: score-free follow-on only if G0 confirms a material dependence miss.
+It runs after the fitted-K and marginal cache queue fixes the common simulator
+and served-cache identities; it may not run concurrently against a cache that
+could be superseded by an in-flight marginal arm.
 
 Build one target-season diagnostic for 2023, 2024 and 2025:
 
@@ -50,8 +79,9 @@ Build one target-season diagnostic for 2023, 2024 and 2025:
    graph with a deterministic spectral or Leiden/Louvain implementation.
 5. Compare realized versus simulated adjacency/topology, role-pair variogram,
    joint-q90 Brier, >=2/>=3/>=4 exceedance multiplicity, and the named QB-hub
-   and WR-competition cells. Use slate-clustered or team-week-clustered
-   uncertainty.
+   and WR-competition cells. Multiplicity uses the exact team-week
+   Poisson-binomial null from G0; pooled-binomial results are diagnostic only.
+   Use slate-clustered or team-week-clustered uncertainty.
 
 This is a calibration instrument, not an adoption arm. Individual player-pair
 edges are explicitly excluded because roughly 1.7 q90 events per player-season
@@ -74,9 +104,11 @@ the name “Gumbel” here would describe a copula link, not the closed
 `N_GUMBEL` candidate generator. A slate factor is omitted unless G1 first finds
 stable cross-game residual dependence.
 
-Fit all link/load parameters on earlier seasons without lineup scores. The
-mechanism must reorder ranks while preserving every player's exact marginal
-draw multiset after TabPFN shaping. Its frozen scientific gate must require
+Fit all link/load parameters on the available early calibration seasons 2019,
+2021 and 2022 without lineup scores. Evaluate the complete G0/G1 grid,
+variogram and joint-q90 metrics only on held-out 2023--2025. The mechanism must
+reorder ranks while preserving every player's exact marginal draw multiset
+after TabPFN shaping. Its frozen scientific gate must require
 aggregate improvement in role-weighted variogram and joint-q90 Brier, reduced
 error in the G1 co-exceedance/multiplicity grid, exact marginal preservation,
 and evidence that the QB factor is active. Per-season declines are reported but
@@ -86,6 +118,12 @@ Only a passing dependence gate licenses one separately frozen exact-80 panel
 under the then-current production book and the 240/230/220/210/200 first-
 nonzero weekly-maximum law. Parameters, link family and graph cells may not be
 tuned on that lineup result.
+
+Cross-game same-slate dependence is retained in G0/G1, but it does not license
+a slate latent inside the lineup copula by itself. Its practical target is the
+distribution of the slate's winning line. Stable cross-game evidence is routed
+to a separately frozen winning-line/target-threshold model; it is not credited
+as stack-construction value in G2.
 
 ## G3 — self-supervised participation embeddings for allocation hierarchy
 
@@ -154,10 +192,11 @@ field distribution.
 ## Execution order
 
 1. Finish fitted-K exact-80 and the already-frozen TabPFN marginal queue.
-2. Run G1 as the next independent, score-free dependence diagnostic.
-3. If G1 supports the mechanism, preregister and run G2.
-4. Develop G3 only after the global-K and G1 evidence define its target.
-5. Begin G4 when complete 2026 standings plus payout ladders accumulate.
+2. Run G0 once against the resulting immutable final-served identity.
+3. Run G1 only if G0 confirms a material dependence miss.
+4. If G1 supports the mechanism, preregister and run G2.
+5. Develop G3 only after the fitted-K branch and G0/G1 evidence define it.
+6. Begin G4 when complete 2026 standings plus payout ladders accumulate.
 
 Every stage must update `HANDOFF.md` with its protocol, immutable code/image,
 data identities, execution IDs, validation, result and exact next action.

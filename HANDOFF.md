@@ -37,6 +37,7 @@ Thursday post-download scheduler follow-up `b6dbc5e` are also pushed on
 `reports/2026-08-11-fantasy-points-data-utilization.md`,
 `reports/2026-08-11-feature-plumbing-defects-and-correlation-gaps.md`,
 `reports/2026-08-11-graph-clustering-and-technology-options.md`,
+`reports/2026-08-11-graph-queue-review-notes.md`,
 `reports/2026-08-11-post-window-program-review.md`, and
 `reports/2026-08-11-recommendation-scoreboard-and-pivot.md` remain untracked
 and must not be staged or modified.
@@ -282,6 +283,14 @@ and must not be staged or modified.
   keeps production K→infinity as lineup control and requires the conditional
   law to beat both K→infinity and the fixed outcome-free K on score-free
   likelihood/dependence gates before any exact-80 test.
+  The complete graph-queue review adds G0 before G1: one immutable-cache-pinned
+  nine-cell final-served premise test covering three multiplicities, three
+  QB→position lifts and three same-position lifts. Multiplicity must use the
+  exact heterogeneous team-week Poisson-binomial null; pooled binomial is
+  diagnostic. G1 runs only after the marginal queue drains and only on a G0
+  miss; any later cache change invalidates/requires recomputing G0/G1. G2 fits
+  on 2019/2021/2022 and evaluates only 2023--2025. Stable cross-game evidence
+  routes to a separate winning-line model, not lineup stacking credit.
 
 ### Final-served position calibration passed, promoted, and adopted
 
