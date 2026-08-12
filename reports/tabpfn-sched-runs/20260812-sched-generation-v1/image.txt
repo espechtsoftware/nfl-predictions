@@ -1,0 +1,7 @@
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:aec3c368dd493b166f99b444f06dc87b892d2220e4b0e544aa7314b9f03bd9a6
+code_sha=23da1dd
+build_id=94c98907-cf8b-462a-a31d-aa06d485602f
+tests_passed=975
+tests_skipped=2
+gpu_image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/tabpfn-sched@sha256:6609587b95e6193c04a1cdc43529bd21e131c191a50ed0e2bf886cfc8e4e423c
+gpu_build_id=efb515ae-be60-4c42-b779-f8ed29916be0

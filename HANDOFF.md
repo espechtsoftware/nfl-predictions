@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 07:44 CDT
+## Current state — 2026-08-12 07:57 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -493,10 +493,17 @@ and must not be staged or modified.
   repair. Superseded pre-repair full build
   `567f53bf-ac05-48ac-98f2-4be96ae9a2cf` was cancelled without producing or
   using an artifact so corrected full build
-  `94c98907-cf8b-462a-a31d-aa06d485602f` can take its build slot. The latter
-  remains queued; do not create the required tracked `image.txt` or launch
-  SCHED caches until it succeeds and its exact test/digest identity is
-  recorded.
+  `94c98907-cf8b-462a-a31d-aa06d485602f` could take its build slot. At that
+  milestone it remained queued and no SCHED cache was launched.
+- Corrected complete SCHED build
+  `94c98907-cf8b-462a-a31d-aa06d485602f` then passed 975 tests with two
+  expected skips and published immutable generation/audit digest
+  `sha256:aec3c368dd493b166f99b444f06dc87b892d2220e4b0e544aa7314b9f03bd9a6`
+  from code `23da1dd`. The required pre-result identity record now exists at
+  `reports/tabpfn-sched-runs/20260812-sched-generation-v1/image.txt`, binding
+  that full digest and the corrected GPU digest before any SCHED cache or
+  lineup launch. SCHED remains dependency-blocked on terminal active-label
+  selection; this milestone licenses the recorded images, not an early run.
 
 ### Validated production rollout completed; Route diagnostic ready
 
