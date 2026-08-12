@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 10:51 CDT
+## Current state — 2026-08-12 11:02 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -527,6 +527,14 @@ and must not be staged or modified.
   The licensed fitted-K usage launcher immediately started control smoke
   `replay-pitusev2ctl-smoke-wws77`; it inherits this selected position law,
   exact K1/direct-role lineage and the canonical PIT-v2 cache.
+- Usage control smoke `replay-pitusev2ctl-smoke-wws77` passed and released
+  2023 `replay-pitusev2ctl-2023-85fsk`, 2024
+  `replay-pitusev2ctl-2024-hfztg`, and 2025
+  `replay-pitusev2ctl-2025-xczd5`. Treatment smoke
+  `replay-pitusev2trt-smoke-xdpnd` is running. After it passes, record its
+  three durable season IDs, wait for all six clean terminal executions without
+  partial score inspection, and run `cloud_finish_usage_dirichlet_exact80_v2.sh`
+  with immutable audit digest `sha256:aec3c368...`.
 - The licensed PIT-v2 served-position Stage B is implemented before its
   score-free refit result is known. It derives the selected full panel, K1/K3
   law, role/no-role candidate law, and unrounded four-factor specification;
