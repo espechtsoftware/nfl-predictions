@@ -1,0 +1,432 @@
+{
+  "cache_coverage": {
+    "source": {
+      "cache_hits": 48012,
+      "cache_misses": 0,
+      "player_keys": 48012
+    },
+    "treatment": {
+      "cache_hits": 48012,
+      "cache_misses": 0,
+      "player_keys": 48012
+    }
+  },
+  "cache_table": "tabpfn_projections_pit_v2",
+  "decision": {
+    "comparison": 1,
+    "deltas": {
+      "187": 2,
+      "194": 2,
+      "200": 1,
+      "210": 1,
+      "220": 1,
+      "230": 1,
+      "240": 1
+    },
+    "first_difference": 240,
+    "threshold_order": [
+      240,
+      230,
+      220,
+      210,
+      200,
+      194,
+      187
+    ],
+    "tiebreaker": null,
+    "treatment_selected": true
+  },
+  "disposition": "valid",
+  "failures": [],
+  "mechanism": {
+    "candidate_pair_audit": {
+      "common_actual_mismatch": 0,
+      "common_p_line_mismatch": 0,
+      "common_rows": 25782,
+      "common_sim_mean_mismatch": 0,
+      "common_support_mismatch": 0,
+      "max_pool_delta": 12,
+      "max_role_per_slate": 12,
+      "min_pool_delta": 11,
+      "min_role_per_slate": 12,
+      "missing_source_ce_rows": 0,
+      "novel_role_rows": 1269,
+      "paired_slates": 107,
+      "selected_role_rows": 813,
+      "selected_source_only": 1007,
+      "selected_treatment_only": 1007,
+      "slates_with_equal_ce_count": 107,
+      "slates_with_equal_pools": 0,
+      "slates_with_larger_treatment": 107,
+      "slates_with_role": 107,
+      "source_only_rows": 0,
+      "source_rows": 25782,
+      "treatment_only_rows": 1269,
+      "treatment_rows": 27051
+    },
+    "feature_invariance": {
+      "bit_exact_mismatch_rows": 2702,
+      "max_numeric_abs_delta": 3.552713678800501e-15,
+      "mismatch_rows": 0,
+      "source_only_rows": 0,
+      "source_rows": 50418,
+      "treatment_only_rows": 0,
+      "treatment_rows": 50418
+    },
+    "role_frontier": {
+      "frontier_weeks": [
+        {
+          "frontier_gain": 47.41999999999999,
+          "oracle": 194.08,
+          "role_best": 241.5,
+          "season": 2019,
+          "week": 4
+        },
+        {
+          "frontier_gain": 29.340000000000003,
+          "oracle": 158.36,
+          "role_best": 187.70000000000002,
+          "season": 2024,
+          "week": 12
+        },
+        {
+          "frontier_gain": 21.900000000000034,
+          "oracle": 168.11999999999998,
+          "role_best": 190.02,
+          "season": 2022,
+          "week": 3
+        },
+        {
+          "frontier_gain": 12.400000000000006,
+          "oracle": 168.2,
+          "role_best": 180.6,
+          "season": 2023,
+          "week": 7
+        },
+        {
+          "frontier_gain": 11.120000000000005,
+          "oracle": 188.54000000000002,
+          "role_best": 199.66000000000003,
+          "season": 2019,
+          "week": 3
+        },
+        {
+          "frontier_gain": 2.9199999999999875,
+          "oracle": 175.48000000000002,
+          "role_best": 178.4,
+          "season": 2022,
+          "week": 10
+        },
+        {
+          "frontier_gain": 2.460000000000008,
+          "oracle": 174.66,
+          "role_best": 177.12,
+          "season": 2023,
+          "week": 15
+        },
+        {
+          "frontier_gain": 2.3200000000000216,
+          "oracle": 188.5,
+          "role_best": 190.82000000000002,
+          "season": 2022,
+          "week": 1
+        },
+        {
+          "frontier_gain": 0.6200000000000045,
+          "oracle": 181.84,
+          "role_best": 182.46,
+          "season": 2022,
+          "week": 12
+        },
+        {
+          "frontier_gain": 0.5800000000000125,
+          "oracle": 175.32,
+          "role_best": 175.9,
+          "season": 2019,
+          "week": 2
+        }
+      ],
+      "max_frontier_gain": 47.41999999999999,
+      "max_role_score": 241.5,
+      "role_frontier_weeks": 10,
+      "role_new_200_weeks": 1,
+      "role_new_210_weeks": 1
+    }
+  },
+  "mode": "direct-role-union",
+  "season_metrics": [
+    {
+      "season": 2019,
+      "source": {
+        "clear_187": 10,
+        "clear_194": 6,
+        "clear_200": 5,
+        "clear_210": 2,
+        "clear_220": 1,
+        "clear_230": 1,
+        "clear_240": 1,
+        "mean_best": 190.54941176470587,
+        "median_best": 188.54000000000002,
+        "oracle_187": 11,
+        "oracle_194": 7,
+        "oracle_200": 5,
+        "oracle_210": 2,
+        "oracle_220": 1,
+        "oracle_230": 1,
+        "oracle_240": 1
+      },
+      "treatment": {
+        "clear_187": 10,
+        "clear_194": 8,
+        "clear_200": 6,
+        "clear_210": 3,
+        "clear_220": 2,
+        "clear_230": 2,
+        "clear_240": 2,
+        "mean_best": 194.16705882352943,
+        "median_best": 193.15999999999997,
+        "oracle_187": 11,
+        "oracle_194": 8,
+        "oracle_200": 6,
+        "oracle_210": 3,
+        "oracle_220": 2,
+        "oracle_230": 2,
+        "oracle_240": 2
+      }
+    },
+    {
+      "season": 2021,
+      "source": {
+        "clear_187": 7,
+        "clear_194": 5,
+        "clear_200": 1,
+        "clear_210": 0,
+        "clear_220": 0,
+        "clear_230": 0,
+        "clear_240": 0,
+        "mean_best": 179.64666666666665,
+        "median_best": 182.47,
+        "oracle_187": 9,
+        "oracle_194": 8,
+        "oracle_200": 2,
+        "oracle_210": 0,
+        "oracle_220": 0,
+        "oracle_230": 0,
+        "oracle_240": 0
+      },
+      "treatment": {
+        "clear_187": 7,
+        "clear_194": 5,
+        "clear_200": 1,
+        "clear_210": 0,
+        "clear_220": 0,
+        "clear_230": 0,
+        "clear_240": 0,
+        "mean_best": 179.64666666666665,
+        "median_best": 182.47,
+        "oracle_187": 9,
+        "oracle_194": 8,
+        "oracle_200": 2,
+        "oracle_210": 0,
+        "oracle_220": 0,
+        "oracle_230": 0,
+        "oracle_240": 0
+      }
+    },
+    {
+      "season": 2022,
+      "source": {
+        "clear_187": 6,
+        "clear_194": 2,
+        "clear_200": 1,
+        "clear_210": 1,
+        "clear_220": 0,
+        "clear_230": 0,
+        "clear_240": 0,
+        "mean_best": 174.98444444444442,
+        "median_best": 177.39000000000001,
+        "oracle_187": 7,
+        "oracle_194": 3,
+        "oracle_200": 1,
+        "oracle_210": 1,
+        "oracle_220": 0,
+        "oracle_230": 0,
+        "oracle_240": 0
+      },
+      "treatment": {
+        "clear_187": 7,
+        "clear_194": 2,
+        "clear_200": 1,
+        "clear_210": 1,
+        "clear_220": 0,
+        "clear_230": 0,
+        "clear_240": 0,
+        "mean_best": 175.64111111111114,
+        "median_best": 178.66000000000003,
+        "oracle_187": 8,
+        "oracle_194": 3,
+        "oracle_200": 1,
+        "oracle_210": 1,
+        "oracle_220": 0,
+        "oracle_230": 0,
+        "oracle_240": 0
+      }
+    },
+    {
+      "season": 2023,
+      "source": {
+        "clear_187": 6,
+        "clear_194": 5,
+        "clear_200": 3,
+        "clear_210": 1,
+        "clear_220": 1,
+        "clear_230": 0,
+        "clear_240": 0,
+        "mean_best": 178.46555555555554,
+        "median_best": 174.14000000000001,
+        "oracle_187": 6,
+        "oracle_194": 5,
+        "oracle_200": 3,
+        "oracle_210": 1,
+        "oracle_220": 1,
+        "oracle_230": 0,
+        "oracle_240": 0
+      },
+      "treatment": {
+        "clear_187": 6,
+        "clear_194": 5,
+        "clear_200": 3,
+        "clear_210": 1,
+        "clear_220": 1,
+        "clear_230": 0,
+        "clear_240": 0,
+        "mean_best": 179.0822222222222,
+        "median_best": 175.33,
+        "oracle_187": 6,
+        "oracle_194": 5,
+        "oracle_200": 3,
+        "oracle_210": 1,
+        "oracle_220": 1,
+        "oracle_230": 0,
+        "oracle_240": 0
+      }
+    },
+    {
+      "season": 2024,
+      "source": {
+        "clear_187": 3,
+        "clear_194": 1,
+        "clear_200": 0,
+        "clear_210": 0,
+        "clear_220": 0,
+        "clear_230": 0,
+        "clear_240": 0,
+        "mean_best": 167.79000000000002,
+        "median_best": 165.0,
+        "oracle_187": 4,
+        "oracle_194": 2,
+        "oracle_200": 1,
+        "oracle_210": 0,
+        "oracle_220": 0,
+        "oracle_230": 0,
+        "oracle_240": 0
+      },
+      "treatment": {
+        "clear_187": 4,
+        "clear_194": 1,
+        "clear_200": 0,
+        "clear_210": 0,
+        "clear_220": 0,
+        "clear_230": 0,
+        "clear_240": 0,
+        "mean_best": 169.49222222222227,
+        "median_best": 170.57,
+        "oracle_187": 5,
+        "oracle_194": 2,
+        "oracle_200": 1,
+        "oracle_210": 0,
+        "oracle_220": 0,
+        "oracle_230": 0,
+        "oracle_240": 0
+      }
+    },
+    {
+      "season": 2025,
+      "source": {
+        "clear_187": 4,
+        "clear_194": 3,
+        "clear_200": 2,
+        "clear_210": 0,
+        "clear_220": 0,
+        "clear_230": 0,
+        "clear_240": 0,
+        "mean_best": 169.26999999999998,
+        "median_best": 168.43,
+        "oracle_187": 6,
+        "oracle_194": 4,
+        "oracle_200": 3,
+        "oracle_210": 0,
+        "oracle_220": 0,
+        "oracle_230": 0,
+        "oracle_240": 0
+      },
+      "treatment": {
+        "clear_187": 4,
+        "clear_194": 3,
+        "clear_200": 2,
+        "clear_210": 0,
+        "clear_220": 0,
+        "clear_230": 0,
+        "clear_240": 0,
+        "mean_best": 169.42999999999998,
+        "median_best": 168.43,
+        "oracle_187": 6,
+        "oracle_194": 4,
+        "oracle_200": 3,
+        "oracle_210": 0,
+        "oracle_220": 0,
+        "oracle_230": 0,
+        "oracle_240": 0
+      }
+    }
+  ],
+  "selected_panel": "20260811-pitclean-e80-k1-role12union-a12ab31",
+  "source": "20260811-pitclean-e80-k1-a12ab31",
+  "source_metrics": {
+    "clear_187": 36,
+    "clear_194": 22,
+    "clear_200": 12,
+    "clear_210": 4,
+    "clear_220": 2,
+    "clear_230": 1,
+    "clear_240": 1,
+    "mean_best": 176.65570093457947,
+    "median_best": 176.28,
+    "oracle_187": 43,
+    "oracle_194": 29,
+    "oracle_200": 15,
+    "oracle_210": 4,
+    "oracle_220": 2,
+    "oracle_230": 1,
+    "oracle_240": 1
+  },
+  "treatment": "20260811-pitclean-e80-k1-role12union-a12ab31",
+  "treatment_metrics": {
+    "clear_187": 38,
+    "clear_194": 24,
+    "clear_200": 13,
+    "clear_210": 5,
+    "clear_220": 3,
+    "clear_230": 2,
+    "clear_240": 2,
+    "mean_best": 177.75794392523363,
+    "median_best": 176.48000000000002,
+    "oracle_187": 45,
+    "oracle_194": 30,
+    "oracle_200": 16,
+    "oracle_210": 5,
+    "oracle_220": 3,
+    "oracle_230": 2,
+    "oracle_240": 2
+  }
+}

@@ -1,0 +1,6 @@
+selected_base=k1
+source_panel=20260811-pitclean-e80-k1-a12ab31
+role_panel=20260811-pitclean-e80-k1-role12union-a12ab31
+selected_panel=20260811-pitclean-e80-k1-role12union-a12ab31
+role_selected=true
+comparison_sha256=ecec383f42975c4648690b3800595b12e0fe05f299ef6fa0187eba6b1999cc19

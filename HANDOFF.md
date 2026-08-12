@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 08:14 CDT
+## Current state — 2026-08-12 08:37 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -386,6 +386,20 @@ and must not be staged or modified.
   choice. Complete the panel and run the unchanged frozen finisher. This is a
   disclosed observer-blindness process deviation, not a row/invariant or
   computational-validity failure.
+- All six K1 direct-role season executions completed cleanly with 107/107
+  slates and exactly 80 selected lineups per slate. Check acceptance
+  `accept-replay-panel-qkhqw`, frozen comparator
+  `compare-pit-tier1-direct-role-x5hdx`, and promotion acceptance
+  `accept-replay-panel-jhfzp` all succeeded. The comparator selected direct
+  role union at the first registered difference, >=240: selected weekly-max
+  counts at `240/230/220/210/200/194/187` improved from
+  `1/1/2/4/12/22/36` to `2/2/3/5/13/24/38`; mean weekly maximum improved
+  `176.6557009346` to `177.7579439252`. Every threshold moved positively and
+  no comparison invariant failed. The role union is therefore the new
+  repaired Tier-1 historical baseline, durably recorded in
+  `reports/pit-tier1-runs/20260811-pit-clean-role-v2/selected_tier1.txt`.
+  Next: launch the already-frozen score-free served-position and fitted-usage
+  calibrations in parallel from this exact selected lineage.
 - The licensed PIT-v2 served-position Stage B is implemented before its
   score-free refit result is known. It derives the selected full panel, K1/K3
   law, role/no-role candidate law, and unrounded four-factor specification;
