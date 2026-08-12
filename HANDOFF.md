@@ -311,6 +311,12 @@ and must not be staged or modified.
   acceptance/comparison only; generation remains pinned to `ad50...` from
   application code `a12ab31`. Next action is to launch both exact-80 repaired
   controls and wait for all 12 season executions before reading scores.
+- The mandatory repaired data-fitted usage retry now has a separate v2
+  launch/finish path prepared before the repaired Tier-1 result. It cannot run
+  until `selected_tier1.txt` exists; it pins the exact `ad50...` generation
+  image and rechecks the reconciled training table's 102,927 keys/rows and
+  checksum `1904430067081090565` immediately before launch. This retains the
+  original score-free estimator/gate while preventing stale-table reuse.
 
 ### Validated production rollout completed; Route diagnostic ready
 
