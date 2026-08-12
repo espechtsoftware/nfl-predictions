@@ -37,3 +37,18 @@ def test_role_finisher_uses_frozen_comparator_and_promotes_only_treatment():
     assert 'if [ "$SELECTED" = "$TREATMENT" ]' in text
     assert '"$TREATMENT" promote 80 2' in text
     assert "role_selected=" in text
+
+
+def test_comparator_packaging_repair_is_locked_to_failed_execution():
+    root = Path(__file__).parents[1]
+    repair = (root / "scripts/cloud_compare_pit_tier1_repair.sh").read_text(
+        encoding="utf-8"
+    )
+    finish = (
+        root / "scripts/cloud_finish_pit_tier1_selection_repair.sh"
+    ).read_text(encoding="utf-8")
+    assert "compare-pit-tier1-ensemble-x8nkn" in repair
+    assert "can't open file '/app/scripts/compare_pit_tier1.py'" in repair
+    assert 'report.get("disposition") != "valid"' in repair
+    assert 'if [ "$SELECTED" = k1 ]' in finish
+    assert '"$K1" promote 80 2' in finish

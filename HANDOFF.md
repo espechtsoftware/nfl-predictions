@@ -328,6 +328,24 @@ and must not be staged or modified.
   in `reports/panel-runs/`. Do not inspect partial scores; next action is to
   finish the K1 launch, wait for all 12 seasons, then run the frozen control
   finisher with audit digest `cc82...`.
+- The served-position retry is now frozen before repaired Tier-1 scores in
+  `reports/2026-08-12-pit-clean-served-position-calibration.md`. Its v2 code
+  derives K=3/K=1 and the full promoted panel from the mechanical Tier-1
+  selection, requires canonical `tabpfn_projections_pit_v2`, retains the v1
+  score-free grid/gate, and rejects old factors. Guarded launch/finish scripts
+  and focused contract tests are prepared; it cannot launch until Tier 1 is
+  terminal and a new diagnostic image containing this code passes validation.
+- All 12 repaired K3/K1 replay executions completed successfully. K3 check
+  `accept-replay-panel-dp5rc` and promotion `accept-replay-panel-sg29h` passed;
+  K1 check `accept-replay-panel-h4nxq` passed. First comparator execution
+  `compare-pit-tier1-ensemble-x8nkn` failed before importing or querying the
+  comparison because the validated audit image omitted
+  `/app/scripts/compare_pit_tier1.py`; it emitted no structured report and no
+  selection occurred. The Dockerfile now packages the already-frozen script,
+  with a focused image-contract test and a repair runner locked to that exact
+  failed execution/error. Next action: validate/build the packaging-only
+  repair image, run the superseding comparator, then mechanically complete
+  base selection.
 
 ### Validated production rollout completed; Route diagnostic ready
 

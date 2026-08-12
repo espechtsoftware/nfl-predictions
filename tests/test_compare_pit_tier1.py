@@ -9,6 +9,16 @@ _MODULE = module_from_spec(_SPEC)
 _SPEC.loader.exec_module(_MODULE)
 
 
+def test_tier1_comparator_is_packaged_in_runtime_image():
+    dockerfile = (Path(__file__).parents[1] / "Dockerfile").read_text(
+        encoding="utf-8"
+    )
+    assert (
+        "COPY scripts/compare_pit_tier1.py "
+        "./scripts/compare_pit_tier1.py"
+    ) in dockerfile
+
+
 def _metrics(values, mean=180.0):
     report = {f"clear_{threshold}": int(values.get(threshold, 0))
               for threshold in _MODULE.THRESHOLDS}

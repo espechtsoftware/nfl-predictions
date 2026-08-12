@@ -15,6 +15,7 @@ COPY scripts/compare_adoption_panel.py ./scripts/compare_adoption_panel.py
 COPY scripts/compare_k1_ce_panel.py ./scripts/compare_k1_ce_panel.py
 COPY scripts/compare_k1_role_belief_panel.py ./scripts/compare_k1_role_belief_panel.py
 COPY scripts/compare_corrected_k1_direct_role.py ./scripts/compare_corrected_k1_direct_role.py
+COPY scripts/compare_pit_tier1.py ./scripts/compare_pit_tier1.py
 COPY scripts/compare_served_tail_lineup.py ./scripts/compare_served_tail_lineup.py
 COPY scripts/compare_served_position_lineup.py ./scripts/compare_served_position_lineup.py
 COPY scripts/compare_usage_dirichlet_lineup.py ./scripts/compare_usage_dirichlet_lineup.py
