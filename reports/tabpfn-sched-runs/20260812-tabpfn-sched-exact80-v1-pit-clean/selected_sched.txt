@@ -1,0 +1,11 @@
+historical_source=20260811-pitclean-e80-k1-role12union-a12ab31
+role_selected=true
+allocation=dirichlet
+selected_k=28.154043586960896
+label_law=active-only
+sched_selected=false
+feature_contract=shared33
+cache_table=tabpfn_active_label_treatment_v2
+selected_eval_panel=20260811-pitclean-e80-k1-role12union-a12ab31
+selection_reason=final-served-gate-failed
+final_served_report_sha256=2c7794cbc9f184a3ded73a59b03f3edc19a165372a33407ae4e361745ceec5e9

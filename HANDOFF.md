@@ -153,11 +153,21 @@ reconciliation when their findings affect the program.
   exact active-only context identity, exact control reproduction of
   `tabpfn_active_label_treatment_v2` at maximum delta `0.0`, the fixed
   33-column control and 35-column treatment contracts, and changed treatment
-  predictions. The frozen SCHED final-served gate is now running from full
-  audit digest `aec3c368...` as execution
-  `tabpfn-sched-final-served-v1-fn9bv`. Wait for clean completion, harvest with
-  `scripts/cloud_finish_tabpfn_sched_final_served.sh`, then follow its frozen
-  pass/exact80 or fail/fallback branch.
+  predictions. Frozen SCHED final-served execution
+  `tabpfn-sched-final-served-v1-fn9bv` completed cleanly from full audit digest
+  `aec3c368...`, but the treatment fails its score-free prerequisite:
+  aggregate calibrated 30-point Brier worsens
+  `0.0140065605 -> 0.0140111906`. CRPS and point MAE improve slightly, while
+  2023 Brier improves minutely and both 2024/2025 worsen; the clustered Brier
+  difference interval crosses zero. All PIT/cache/coverage/mean invariants
+  pass. Per the frozen branch, no SCHED exact-80 lineup or score job is
+  licensed. `scripts/resolve_tabpfn_sched_fallback_v1.sh` selected the
+  incumbent shared-33 active-only cache. Machine and concise results are in
+  `reports/tabpfn-sched-runs/20260812-tabpfn-sched-final-served-v1-pit-clean/`
+  and `reports/2026-08-12-pit-clean-tabpfn-sched-final-served-result.md`.
+  Next scoring action: start the amended team-passing side-table branch using
+  only review-corrected GPU digest `b6a3a896...` and full digest `df3de60e...`,
+  inheriting the terminal no-SCHED context.
 - Review reconciliation and active-label gate milestone commit `83192ca` is
   pushed on `main`. The complete local suite passes all 992 collected tests
   with one expected rear-view dashboard skip. Exact-commit team-passing GPU
