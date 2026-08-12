@@ -30,6 +30,7 @@ PRODUCTION_ENV = {
     "SIM_WIDEN_DRAWS": "fitted",
     "ROOKIE_WIDEN": "",
     "TABPFN_MARGINALS": "1",
+    "TABPFN_MARGINAL_TABLE": "",
     "EMP_MARGINALS": "1",
     "EMP_POS": "",
     "SHAPE_MIX": "1",

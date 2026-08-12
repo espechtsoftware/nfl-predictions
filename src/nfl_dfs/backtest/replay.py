@@ -316,7 +316,7 @@ def apply_draw_shape(draws: np.ndarray, positions: pd.Series,
     # to empirical marginals below. "0"/"" disables.
     if (source.get("TABPFN_MARGINALS", "1") not in ("0", "")
             and keys is not None):
-        shaped = _tabpfn_marginals(out, keys)
+        shaped = _tabpfn_marginals(out, keys, env=source)
     if shaped is not None:
         out = shaped
     elif source.get("EMP_MARGINALS", "1") not in ("0", ""):
@@ -463,7 +463,28 @@ def _stable_ordinal_ranks(values: np.ndarray) -> np.ndarray:
     return ranks
 
 
-def _tabpfn_marginals(draws: np.ndarray, keys: pd.DataFrame) -> np.ndarray:
+def _tabpfn_marginal_table(env: dict | None = None) -> str:
+    """Resolve the canonical or explicitly licensed research cache table."""
+    source = os.environ if env is None else env
+    table = str(source.get("TABPFN_MARGINAL_TABLE", "") or "").strip()
+    if not table:
+        return "tabpfn_projections"
+    licensed = {
+        "tabpfn_active_label_control_v1",
+        "tabpfn_active_label_treatment_v1",
+    }
+    if table not in licensed:
+        raise ValueError(
+            f"unlicensed TABPFN_MARGINAL_TABLE={table!r}; "
+            f"expected one of {sorted(licensed)}")
+    return table
+
+
+def _tabpfn_marginals(
+    draws: np.ndarray,
+    keys: pd.DataFrame,
+    env: dict | None = None,
+) -> np.ndarray:
     """TABPFN_MARGINALS=1 (A/B, off by default; Addenda 43/46): reshape
     each player's marginal onto the TabPFN-v2 walk-forward quantiles
     cached in features.tabpfn_projections (generated on GPU, context =
@@ -477,9 +498,10 @@ def _tabpfn_marginals(draws: np.ndarray, keys: pd.DataFrame) -> np.ndarray:
     from ..config import settings
 
     season = int(keys.season.iloc[0])
+    table = _tabpfn_marginal_table(env)
     try:
         q = query_df(
-            f"SELECT * FROM `{settings.features}.tabpfn_projections` "
+            f"SELECT * FROM `{settings.features}.{table}` "
             f"WHERE season = {season}")
     except Exception:
         # Local tests, a newly-created project, or a transient warehouse
@@ -516,7 +538,8 @@ def _tabpfn_marginals(draws: np.ndarray, keys: pd.DataFrame) -> np.ndarray:
             levels[-1] - levels[-2])
         out[i] = np.maximum(y, 0.0)
         hit += 1
-    log.info("tabpfn marginals: %d/%d rows mapped", hit, len(keys))
+    log.info("tabpfn marginals: %d/%d rows mapped from %s",
+             hit, len(keys), table)
     return out
 
 

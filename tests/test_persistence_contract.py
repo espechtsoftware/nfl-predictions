@@ -228,6 +228,7 @@ def test_provenance_fields_present(monkeypatch):
                            ROLE_BELIEF_SEED="7331",
                            GAME_SIM_USAGE="dirichlet",
                            DIRICHLET_K="28.246898139750336",
+                           TABPFN_MARGINAL_TABLE="tabpfn_active_label_treatment_v1",
                            SERVED_TAIL_SCALE="1.025",
                            SERVED_POSITION_SCALES="QB:0.97,RB:1.005,TE:0.94,WR:1.07",
                            ENSEMBLE_WORLD_MODE="member_sample",
@@ -242,6 +243,8 @@ def test_provenance_fields_present(monkeypatch):
     assert "ROLE_BELIEF_FEATURES=target_share_last" in df.lever_env.iloc[0]
     assert "GAME_SIM_USAGE=dirichlet" in df.lever_env.iloc[0]
     assert "DIRICHLET_K=28.246898139750336" in df.lever_env.iloc[0]
+    assert "TABPFN_MARGINAL_TABLE=tabpfn_active_label_treatment_v1" \
+        in df.lever_env.iloc[0]
     assert "SERVED_TAIL_SCALE=1.025" in df.lever_env.iloc[0]
     assert "SERVED_POSITION_SCALES=QB:0.97,RB:1.005,TE:0.94,WR:1.07" \
         in df.lever_env.iloc[0]

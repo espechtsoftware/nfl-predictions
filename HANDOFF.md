@@ -159,6 +159,17 @@ and must not be staged or modified.
   implementation step is a research-only same-image cache generator plus a
   validated/persisted alternate-cache table selector that production
   explicitly resets to canonical.
+  That implementation is now complete locally: the isolated GPU image builds
+  exact same-code control and active-only caches into two frozen research
+  tables, records feature/source/context manifests, rejects any production
+  table destination, and requires an immutable code SHA. The replay path now
+  accepts only those two explicitly licensed alternate cache names, persists
+  the choice in candidate provenance, and the production policy forcibly
+  resets the selector to the canonical cache. Thirty-four focused replay,
+  persistence, production-policy and calibration tests pass; Python compile,
+  shell parse and whitespace checks are clean. Next action is commit/push,
+  build the dedicated GPU image from that exact tree, then launch both cache
+  arms asynchronously while the six fitted-K season jobs continue.
 
 ### Final-served position calibration passed, promoted, and adopted
 

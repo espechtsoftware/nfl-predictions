@@ -65,6 +65,9 @@ class ClassicProductionPolicy:
             "SIM_WIDEN_DRAWS": "fitted",
             "ROOKIE_WIDEN": "",
             "TABPFN_MARGINALS": "1",
+            # Research caches are explicit and must never leak into money
+            # lineups through a process-level environment variable.
+            "TABPFN_MARGINAL_TABLE": "",
             "EMP_MARGINALS": "1",
             "EMP_POS": "",
             "SHAPE_MIX": "1",

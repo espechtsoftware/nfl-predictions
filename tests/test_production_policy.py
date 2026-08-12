@@ -28,6 +28,7 @@ def test_policy_overwrites_research_levers_without_mutating_base():
         "GEN_POOL_CAP": "99",
     }
     env = ADOPTED_CLASSIC_POLICY.engine_environment(dirty)
+    assert env["TABPFN_MARGINAL_TABLE"] == ""
     assert dirty["MODEL_ENSEMBLE"] == "3"
     assert env["GCP_PROJECT"] == "keep-me"
     assert env["MODEL_ENSEMBLE"] == "1"

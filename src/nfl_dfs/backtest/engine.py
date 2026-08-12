@@ -1456,6 +1456,7 @@ def tail_select_lineups(
                 "SIM_WIDEN_DRAWS",
                 "STACK_BRING_BACK",
                 "STACK_QB_MIN", "TABPFN_COMPONENTS", "TABPFN_MARGINALS",
+                "TABPFN_MARGINAL_TABLE",
                 "TABPFN_MEAN", "TD_LEDGER", "TRAIN_MAX_WEEK",
                 "ROLE_BELIEF_FEATURES", "ROLE_BELIEF_SEED", "WR_BOOM",
             }

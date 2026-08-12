@@ -109,6 +109,8 @@ def collect_defaults() -> tuple[dict[str, Any], list[dict[str, str]]]:
         # marginals with a UI warning when the cache is missing.
         "TABPFN_MARGINALS": _env_default(
             replay_src, "TABPFN_MARGINALS", "replay") not in ("", "0"),
+        "TABPFN_MARGINAL_TABLE": _env_default(
+            replay_src, "TABPFN_MARGINAL_TABLE", "replay"),
         # ENS3 adopted Addendum 56 (+12 tails vs same-build control).
         # Resolve behaviorally from an empty environment, not from the
         # process or a fragile source-text regex.

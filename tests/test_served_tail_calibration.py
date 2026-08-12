@@ -66,6 +66,7 @@ def test_production_environment_restores_process(monkeypatch):
     with diagnostic._production_environment():
         assert diagnostic.os.environ["SHAPE_MIX"] == "1"
         assert diagnostic.os.environ["EXTRA_FEATURES"] == ""
+        assert diagnostic.os.environ["TABPFN_MARGINAL_TABLE"] == ""
     assert diagnostic.os.environ["SHAPE_MIX"] == "0.25"
     assert "EXTRA_FEATURES" not in diagnostic.os.environ
 

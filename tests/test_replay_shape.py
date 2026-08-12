@@ -29,6 +29,42 @@ def test_tabpfn_marginals_maps_and_preserves_ranks(monkeypatch):
     assert (out >= 0).all()
 
 
+def test_tabpfn_research_cache_table_is_exactly_licensed(monkeypatch):
+    import numpy as np
+    import pandas as pd
+    import pytest
+
+    from nfl_dfs.backtest import replay
+    import nfl_dfs.bq as bqmod
+
+    queries = []
+    cache = pd.DataFrame([{
+        "season": 2025, "week": 1, "gsis_id": "A", "mean": 12.0,
+        "q01": 0.5, "q05": 2.0, "q10": 4.0, "q50": 11.0,
+        "q90": 24.0, "q95": 29.0, "q99": 38.0,
+    }])
+
+    def fake_query(sql, **_kwargs):
+        queries.append(sql)
+        return cache
+
+    monkeypatch.setattr(bqmod, "query_df", fake_query)
+    draws = np.arange(100, dtype=float).reshape(1, -1)
+    keys = pd.DataFrame({
+        "season": [2025], "week": [1], "gsis_id": ["A"],
+    })
+    replay._tabpfn_marginals(
+        draws, keys,
+        env={"TABPFN_MARGINAL_TABLE": "tabpfn_active_label_treatment_v1"},
+    )
+    assert "tabpfn_active_label_treatment_v1" in queries[0]
+    with pytest.raises(ValueError, match="unlicensed TABPFN_MARGINAL_TABLE"):
+        replay._tabpfn_marginals(
+            draws, keys,
+            env={"TABPFN_MARGINAL_TABLE": "tabpfn_projections; DROP TABLE x"},
+        )
+
+
 def test_marginal_rank_ties_use_world_index_as_stable_tiebreaker():
     """Equal outcomes cannot acquire CPU-dependent marginal ranks."""
     import numpy as np
