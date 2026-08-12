@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 07:17 CDT
+## Current state — 2026-08-12 07:32 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -440,6 +440,17 @@ and must not be staged or modified.
   `d760751b-e7eb-478f-97d6-e7fc5debb7e8` is running from commit `23e658e`.
   Do not use it until the build succeeds and its immutable digest/test result
   are recorded.
+- The outcome-free SCHED cache stage is implemented before the active-label
+  branch or any SCHED prediction is visible. The protocol now fixes write-once
+  tables `tabpfn_sched_control_v1`/`tabpfn_sched_treatment_v1`, run id
+  `20260812-tabpfn-sched-v1-pit-clean`, and the exact shared-33-plus-appended-
+  two feature order. Its GPU generator inherits the terminal current versus
+  active-only context law identically in both arms; launch refuses existing
+  tables, and independent validation requires exact 52,307 shared keys,
+  repaired source identity, feature contracts, context sampling, finite
+  ordered quantiles and changed predictions. Four focused tests plus shell
+  parsing, compilation and whitespace validation pass. This prepares cache
+  generation only; do not launch it until `selected_active_label.txt` exists.
 
 ### Validated production rollout completed; Route diagnostic ready
 

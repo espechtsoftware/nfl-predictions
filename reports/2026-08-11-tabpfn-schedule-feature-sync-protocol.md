@@ -43,6 +43,17 @@ resampling change, or model-version change is permitted. Each cache must be
 written to a new licensed research table; production
 `features.tabpfn_projections` must not be overwritten.
 
+Mechanical identities fixed before cache generation: the write-once research
+tables are `nfl_features.tabpfn_sched_control_v1` and
+`nfl_features.tabpfn_sched_treatment_v1`; the durable run id is
+`20260812-tabpfn-sched-v1-pit-clean`. The terminal active-label selection maps
+`label_law=current` to all-prior non-null context and
+`label_law=active-only` to strictly active context. Both SCHED arms must carry
+the same mapped law in every report and table row. The effective control
+matrix retains the existing generator's sorted 33-column order; treatment
+appends `net_rest_diff`, then `body_clock_hour`, without reordering the shared
+columns.
+
 ## Staged decision
 
 1. Mechanical validation must prove same source/label law, exact target-key
