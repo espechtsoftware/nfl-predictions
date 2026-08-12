@@ -189,6 +189,28 @@ def test_modeled_defense_position_is_exact_player_week():
     assert "ANY_VALUE(position HAVING MAX week)" not in modeled
 
 
+def test_usage_smoothing_position_prior_is_strictly_prior():
+    usage = (SQL_DIR / "features" / "014_player_week_usage.sql").read_text()
+    assert "position_week AS" in usage
+    assert "position_priors AS" in usage
+    assert "ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING" in usage
+    assert "pp.season = r.season AND pp.week = r.week" in usage
+    # A single all-history AVG by position lets early rows borrow later
+    # seasons even when the player-level window is correctly lagged.
+    assert "AVG(u.rz20_targets) AS prior_rz20_per_game" not in usage
+
+
+def test_injury_rows_are_latest_revision_available_at_slate_lock():
+    injury = (
+        SQL_DIR / "features" / "018_player_week_injury.sql"
+    ).read_text()
+    assert "slate_locks AS" in injury
+    assert "i.date_modified <= l.slate_lock_at" in injury
+    assert "PARTITION BY i.gsis_id" in injury
+    assert "ORDER BY i.date_modified DESC" in injury
+    assert "injury_source_modified_at" in injury
+
+
 @pytest.mark.parametrize("path", FEATURE_SQL, ids=lambda p: p.name)
 def test_renders_without_unresolved_placeholders(path):
     sql = render_sql(path, prior_k=4)

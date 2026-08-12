@@ -4,13 +4,30 @@ Frozen on 2026-08-11 CDT after the preregistered final-served gate passed and
 before generating, querying or inspecting any active-label candidate or lineup
 score.
 
+## Pre-launch PIT invalidation and unchanged repair path
+
+Before launch, the expanded leakage audit found common future information in
+the red-zone smoothing prior and post-lock/duplicate injury revisions. The v1
+cache tables and final-served report named below are therefore blocked as
+prerequisites. Neither exact-80 book has been generated or scored.
+
+This protocol's causal question, books, seasons, generators, selector,
+production-multinomial law, independently fitted schedule rule and tail-first
+decision law remain frozen. A licensed repair must first rebuild common
+features/models, create new write-once control/treatment cache ids using the
+same label definitions, repeat the identical score-free final-served gate and
+commit its manifest. If that PIT-clean gate fails, this exact-80 protocol closes
+without launch. If it passes, a tracked addendum may substitute only the new
+cache ids, report hash and schedules mechanically produced by the unchanged
+walk-forward calibration rule; it may not alter any lineup mechanism or gate.
+
 ## Licensed question
 
 Does removing synthetic inactive zero labels from the TabPFN training context
 improve the extreme weekly maximum of the exact-80 portfolio after each cache
 is independently calibrated using strictly earlier seasons?
 
-Authorization comes only from immutable final-served report
+The original authorization came from immutable final-served report
 `reports/tabpfn-active-label-runs/20260811-tabpfn-active-label-final-served-v1/report.json`
 (SHA-256
 `36982de7412ddd1d77ae92cf7951d42b6a5ea550fe568d2bb279672012c4d2c6`).

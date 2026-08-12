@@ -17,6 +17,11 @@ from nfl_dfs.features.leakage import (
     assert_salary_universe_reconciled,
     trailing_mean_excluding_current,
     trailing_std_excluding_current,
+    USAGE_RECOMPUTED_EXPECTED_SQL,
+    USAGE_RECOMPUTED_FEATURES,
+    SMOOTHING_PRIOR_K,
+    INJURY_EXPECTED_SQL,
+    VACATED_EXPECTED_SQL,
 )
 
 
@@ -151,6 +156,46 @@ def test_independent_recomputation_requires_keys_nulls_and_values():
             missing_key, expected, ["neutral_pass_rate_l6"],
             ("team", "season", "week"),
         )
+    exact_expected = expected.assign(status=["Out", None])
+    exact_wrong = exact_expected.copy()
+    exact_wrong.loc[0, "status"] = "Questionable"
+    with pytest.raises(LeakageError, match="exact source-recomputed"):
+        assert_recomputed_features_match(
+            exact_wrong, exact_expected, ["neutral_pass_rate_l6"],
+            ("team", "season", "week"), exact_cols=("status",),
+        )
+
+
+def test_smoothed_usage_reference_has_two_strictly_prior_levels():
+    assert SMOOTHING_PRIOR_K == 4
+    assert "PARTITION BY gsis_id, season ORDER BY week" in \
+        USAGE_RECOMPUTED_EXPECTED_SQL
+    assert "PARTITION BY position ORDER BY season, week" in \
+        USAGE_RECOMPUTED_EXPECTED_SQL
+    assert USAGE_RECOMPUTED_EXPECTED_SQL.count(
+        "ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING") >= 2
+
+
+def test_usage_reference_covers_active_and_fast_role_fields():
+    for field in (
+        "target_share_l4", "carry_share_l4", "snap_share_l4", "wopr_l4",
+        "rz20_targets_smoothed", "gl3_carries_smoothed",
+        "target_share_last", "carry_share_last", "snap_share_last",
+        "target_share_jump", "carry_share_jump", "snap_share_jump",
+        "target_share_trend", "carry_share_trend",
+    ):
+        assert field in USAGE_RECOMPUTED_FEATURES
+        assert field in USAGE_RECOMPUTED_EXPECTED_SQL
+
+
+def test_injury_and_vacancy_references_enforce_prelock_sources():
+    assert "i.date_modified <= l.slate_lock_at" in INJURY_EXPECTED_SQL
+    assert "ROW_NUMBER() OVER" in INJURY_EXPECTED_SQL
+    assert "ORDER BY i.date_modified DESC" in INJURY_EXPECTED_SQL
+    assert "prior.week BETWEEN i.week - 4 AND i.week - 1" in \
+        INJURY_EXPECTED_SQL
+    assert "u.week <= o.week" in VACATED_EXPECTED_SQL
+    assert "i.injury_status = 'Out'" in VACATED_EXPECTED_SQL
 
 
 def test_correct_build_passes():

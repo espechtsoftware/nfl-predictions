@@ -20,10 +20,12 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 22:10 CDT
+## Current state — 2026-08-11 22:18 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
-leakage-check expansion commits through `7304cfc` are pushed. The
+leakage-check expansion commits through `7304cfc`, the active-label result and
+frozen protocol commit `3966764`, and exact-80 tooling commit `8e3bbb8` are
+pushed. The
 position-calibration result, research promotion, live-policy adoption and
 validated production rollout described below remain the deployed milestone.
 Advanced Receiving
@@ -45,6 +47,51 @@ ten operator-supplied outside-review documents
 `reports/2026-08-11-post-window-program-review.md`, and
 `reports/2026-08-11-recommendation-scoreboard-and-pivot.md` remain untracked
 and must not be staged or modified.
+
+### Critical pre-launch PIT repair — stale active-label caches blocked
+
+- The expanded source-family recomputation found two genuine common-data
+  defects before any active-label exact-80 lineup outcome was generated or
+  queried. `014_player_week_usage.sql` used one all-history position prior in
+  `rz20_targets_smoothed`/`gl3_carries_smoothed`, allowing early seasons to
+  borrow later seasons. `018_player_week_injury.sql` neither deduplicated raw
+  player-week revisions nor restricted same-week statuses to information
+  available at the common Sunday-main lock.
+- Outcome-free warehouse evidence: the deterministic 5% usage sample has
+  identical 4,975 built/reference keys and exact parity on every unaffected
+  field, while 3,625 red-zone-target and 3,640 goal-line-carry smoothers change
+  (maximum absolute deltas `0.0673186009`/`0.0571626124`). The injury source has
+  65,866 rows on 65,862 keys; 24 deterministic latest revisions are after the
+  common lock and four of those are `Out`.
+- Local repair: position priors now accumulate only through the previous
+  `(season, week)`; injury rows choose one deterministic latest pre-lock
+  revision and persist `injury_source_modified_at` plus `slate_lock_at`.
+  `features/leakage.py` independently reconstructs all 29 usage-family fields,
+  injury values/timestamps/status and downstream vacated opportunity with
+  exact key/null/value parity. Dry-runs are 33,165,826 bytes for the full usage
+  reference, 5,541,943 for injury and 10,198,069 for vacancy. Focused tests
+  pass 94 with one expected dashboard-window skip; Python compilation and
+  `git diff --check` are clean.
+- The immutable active-label final-served result remains historically accurate
+  for its v1 inputs but is superseded as a production license. The v1 exact-80
+  protocol is marked pre-launch invalid. Do **not** launch the v1 control or
+  treatment books. The unchanged-law repair path is: commit/build this repair;
+  coordinated feature rebuild and row/key/delta reconciliation; retrain every
+  live registry; generate write-once PIT-clean v2 control/treatment caches with
+  the original respective label laws; repeat the identical score-free
+  final-served gate; launch exact-80 only if that clean gate passes.
+- Context/QB leakage exact-tree Cloud Build
+  `0ae5daf8-23ec-423b-9b83-a31b995c1289` completed successfully with 930
+  tests passed, two expected skips and immutable digest
+  `sha256:e80f78840ec787782eb454e29974e7de0e702fbe05c23ed2b07514f241a773b4`.
+  Active-label exact-80 tooling build
+  `0e216434-a07c-4f82-bd22-f77017a5bcf9` is still running; it may validate the
+  code tree but cannot authorize stale-cache launches.
+- The strengthened final-preseason closure protocol now requires a ninth
+  output, an exhaustion certificate that maps every known idea across all
+  mechanism families to a terminal/prospective/data-blocked disposition, plus
+  an adversarial repository/cloud completeness pass. It still runs only after
+  all viable historical arms are genuinely terminal.
 
 ### Validated production rollout completed; Route diagnostic ready
 

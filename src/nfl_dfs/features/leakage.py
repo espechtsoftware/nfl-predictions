@@ -19,6 +19,11 @@ import pandas as pd
 
 log = logging.getLogger(__name__)
 
+# Must remain identical to the value rendered into 014 by the feature builder.
+# Keeping the independent recomputation explicit makes a smoothing-contract
+# change fail closed rather than silently validating a different estimator.
+SMOOTHING_PRIOR_K = 4
+
 
 class LeakageError(AssertionError):
     """A feature saw data from its own week or later."""
@@ -199,6 +204,7 @@ def assert_recomputed_features_match(
     feature_cols: list[str],
     key_cols: tuple[str, ...],
     atol: float = 1e-6,
+    exact_cols: tuple[str, ...] = (),
 ) -> None:
     """Require exact keys, null support and values from an independent SQL.
 
@@ -232,6 +238,18 @@ def assert_recomputed_features_match(
             raise LeakageError(
                 f"{feature}: {int(mismatch.sum())} source-recomputed rows "
                 f"disagree. Examples:\n{bad.to_string(index=False)}"
+            )
+    for feature in exact_cols:
+        left = merged[f"{feature}_built"]
+        right = merged[f"{feature}_expected"]
+        mismatch = left.isna().ne(right.isna()) | ~(
+            left.eq(right) | (left.isna() & right.isna()))
+        if mismatch.any():
+            cols = [*key_cols, f"{feature}_built", f"{feature}_expected"]
+            bad = merged.loc[mismatch, cols].head(5)
+            raise LeakageError(
+                f"{feature}: {int(mismatch.sum())} exact source-recomputed "
+                f"rows disagree. Examples:\n{bad.to_string(index=False)}"
             )
 
 
@@ -415,6 +433,333 @@ LEFT JOIN target_quality t USING (gsis_id, season, week)
 LEFT JOIN ngs_rec nr USING (gsis_id, season, week)
 LEFT JOIN ngs_rush nu USING (gsis_id, season, week)
 WHERE MOD(FARM_FINGERPRINT(u.gsis_id), 20) = 0
+"""
+
+
+# Independently reconstruct the complete usage-family transform. This covers
+# the active l4/WOPR/snap/smoothing inputs and the fast-role candidate fields,
+# not just one representative rolling mean. The two empirical-Bayes fields
+# additionally require a position prior that is itself strictly point-in-time;
+# a single all-history position average leaks future seasons even though the
+# player window ends at 1 PRECEDING.
+USAGE_RECOMPUTED_FEATURES = [
+    "rz20_targets_l4", "rz10_targets_l4", "targets_l4",
+    "target_share_l4", "air_yards_share_l4",
+    "rz20_target_share_l4", "rz10_target_share_l4",
+    "rz20_carries_l4", "gl3_carries_l4", "carries_l4",
+    "carry_share_l4", "gl3_carry_share_l4", "snap_share_l4",
+    "target_share_last", "carry_share_last", "snap_share_last",
+    "rz20_targets_std", "target_share_std", "targets_std", "carries_std",
+    "target_share_trend", "carry_share_trend", "games_played_prior",
+    "target_share_jump", "carry_share_jump", "snap_share_jump", "wopr_l4",
+    "rz20_targets_smoothed", "gl3_carries_smoothed",
+]
+USAGE_RECOMPUTED_BUILT_SQL = """
+SELECT gsis_id, season, week, {cols}
+FROM `{features}.player_week_usage`
+WHERE MOD(FARM_FINGERPRINT(gsis_id), 20) = 0
+"""
+USAGE_RECOMPUTED_EXPECTED_SQL = """
+WITH snaps AS (
+  SELECT i.gsis_id, CAST(n.season AS INT64) AS season,
+         CAST(n.week AS INT64) AS week, n.offense_pct AS snap_share
+  FROM `{raw}.snap_counts` n
+  JOIN `{raw}.player_ids` i ON i.pfr_id = n.pfr_player_id
+  WHERE i.gsis_id IS NOT NULL
+  QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY i.gsis_id, CAST(n.season AS INT64), CAST(n.week AS INT64)
+    ORDER BY n.offense_pct DESC
+  ) = 1
+), observations AS (
+  SELECT sal.gsis_id, sal.season, sal.week, sal.team, sal.position,
+         COALESCE(a.has_stat_line, FALSE) OR sn.snap_share IS NOT NULL
+           AS is_active,
+         sn.snap_share,
+         IF(COALESCE(a.has_stat_line, FALSE) OR sn.snap_share IS NOT NULL,
+            COALESCE(rec.rz20_targets, 0), NULL) AS rz20_targets,
+         IF(COALESCE(a.has_stat_line, FALSE) OR sn.snap_share IS NOT NULL,
+            COALESCE(rec.rz10_targets, 0), NULL) AS rz10_targets,
+         IF(COALESCE(a.has_stat_line, FALSE) OR sn.snap_share IS NOT NULL,
+            COALESCE(rec.total_targets, 0), NULL) AS total_targets,
+         IF(COALESCE(a.has_stat_line, FALSE) OR sn.snap_share IS NOT NULL,
+            COALESCE(rec.target_share, 0), NULL) AS target_share,
+         IF(COALESCE(a.has_stat_line, FALSE) OR sn.snap_share IS NOT NULL,
+            COALESCE(rec.air_yards_share, 0), NULL) AS air_yards_share,
+         IF(COALESCE(a.has_stat_line, FALSE) OR sn.snap_share IS NOT NULL,
+            COALESCE(rec.rz20_target_share, 0), NULL) AS rz20_target_share,
+         IF(COALESCE(a.has_stat_line, FALSE) OR sn.snap_share IS NOT NULL,
+            COALESCE(rec.rz10_target_share, 0), NULL) AS rz10_target_share,
+         IF(COALESCE(a.has_stat_line, FALSE) OR sn.snap_share IS NOT NULL,
+            COALESCE(rush.rz20_carries, 0), NULL) AS rz20_carries,
+         IF(COALESCE(a.has_stat_line, FALSE) OR sn.snap_share IS NOT NULL,
+            COALESCE(rush.gl3_carries, 0), NULL) AS gl3_carries,
+         IF(COALESCE(a.has_stat_line, FALSE) OR sn.snap_share IS NOT NULL,
+            COALESCE(rush.total_carries, 0), NULL) AS total_carries,
+         IF(COALESCE(a.has_stat_line, FALSE) OR sn.snap_share IS NOT NULL,
+            COALESCE(rush.carry_share, 0), NULL) AS carry_share,
+         IF(COALESCE(a.has_stat_line, FALSE) OR sn.snap_share IS NOT NULL,
+            COALESCE(rush.gl3_carry_share, 0), NULL) AS gl3_carry_share
+  FROM `{features}.dk_salary_week` sal
+  LEFT JOIN `{features}.rz_receiving` rec
+    ON rec.gsis_id = sal.gsis_id AND rec.season = sal.season
+   AND rec.week = sal.week
+   AND CASE rec.team WHEN 'OAK' THEN 'LV' WHEN 'SD' THEN 'LAC'
+                     WHEN 'STL' THEN 'LA' ELSE rec.team END = sal.team
+  LEFT JOIN `{features}.rz_rushing` rush
+    ON rush.gsis_id = sal.gsis_id AND rush.season = sal.season
+   AND rush.week = sal.week
+   AND CASE rush.team WHEN 'OAK' THEN 'LV' WHEN 'SD' THEN 'LAC'
+                      WHEN 'STL' THEN 'LA' ELSE rush.team END = sal.team
+  LEFT JOIN `{features}.player_week_actuals` a
+    ON a.gsis_id = sal.gsis_id AND a.season = sal.season AND a.week = sal.week
+  LEFT JOIN snaps sn
+    ON sn.gsis_id = sal.gsis_id AND sn.season = sal.season AND sn.week = sal.week
+  WHERE sal.position IN ('QB', 'RB', 'WR', 'TE')
+), upcoming AS (
+  SELECT ro.gsis_id, ro.season, ro.week, ro.team, ro.position,
+         FALSE AS is_active,
+         CAST(NULL AS FLOAT64) AS snap_share,
+         CAST(NULL AS INT64) AS rz20_targets,
+         CAST(NULL AS INT64) AS rz10_targets,
+         CAST(NULL AS INT64) AS total_targets,
+         CAST(NULL AS FLOAT64) AS target_share,
+         CAST(NULL AS FLOAT64) AS air_yards_share,
+         CAST(NULL AS FLOAT64) AS rz20_target_share,
+         CAST(NULL AS FLOAT64) AS rz10_target_share,
+         CAST(NULL AS INT64) AS rz20_carries,
+         CAST(NULL AS INT64) AS gl3_carries,
+         CAST(NULL AS INT64) AS total_carries,
+         CAST(NULL AS FLOAT64) AS carry_share,
+         CAST(NULL AS FLOAT64) AS gl3_carry_share
+  FROM `{features}.player_week_role` ro
+  WHERE ro.is_upcoming
+    AND NOT EXISTS (
+      SELECT 1 FROM observations o
+      WHERE o.gsis_id = ro.gsis_id AND o.season = ro.season
+        AND o.week = ro.week
+    )
+), usage_all AS (
+  SELECT * FROM observations
+  UNION ALL
+  SELECT * FROM upcoming
+), rolled AS (
+  SELECT gsis_id, season, week, position,
+         AVG(rz20_targets) OVER w4 AS rz20_targets_l4,
+         AVG(rz10_targets) OVER w4 AS rz10_targets_l4,
+         AVG(total_targets) OVER w4 AS targets_l4,
+         AVG(target_share) OVER w4 AS target_share_l4,
+         AVG(air_yards_share) OVER w4 AS air_yards_share_l4,
+         AVG(rz20_target_share) OVER w4 AS rz20_target_share_l4,
+         AVG(rz10_target_share) OVER w4 AS rz10_target_share_l4,
+         AVG(rz20_carries) OVER w4 AS rz20_carries_l4,
+         AVG(gl3_carries) OVER w4 AS gl3_carries_l4,
+         AVG(total_carries) OVER w4 AS carries_l4,
+         AVG(carry_share) OVER w4 AS carry_share_l4,
+         AVG(gl3_carry_share) OVER w4 AS gl3_carry_share_l4,
+         AVG(snap_share) OVER w4 AS snap_share_l4,
+         LAST_VALUE(target_share IGNORE NULLS) OVER w4 AS target_share_last,
+         LAST_VALUE(carry_share IGNORE NULLS) OVER w4 AS carry_share_last,
+         LAST_VALUE(snap_share IGNORE NULLS) OVER w4 AS snap_share_last,
+         SUM(target_share) OVER w4 AS target_share_sum_l4,
+         SUM(carry_share) OVER w4 AS carry_share_sum_l4,
+         SUM(snap_share) OVER w4 AS snap_share_sum_l4,
+         COUNT(target_share) OVER w4 AS target_share_n_l4,
+         COUNT(carry_share) OVER w4 AS carry_share_n_l4,
+         COUNT(snap_share) OVER w4 AS snap_share_n_l4,
+         AVG(rz20_targets) OVER wprior AS rz20_targets_std,
+         AVG(target_share) OVER wprior AS target_share_std,
+         AVG(total_targets) OVER wprior AS targets_std,
+         AVG(total_carries) OVER wprior AS carries_std,
+         SUM(rz20_targets) OVER w AS rz20_targets_sum_prior,
+         SUM(gl3_carries) OVER w AS gl3_carries_sum_prior,
+         SAFE_DIVIDE(AVG(target_share) OVER w4,
+                     AVG(target_share) OVER wprior) AS target_share_trend,
+         SAFE_DIVIDE(AVG(carry_share) OVER w4,
+                     AVG(carry_share) OVER wprior) AS carry_share_trend,
+         COUNTIF(is_active) OVER wprior AS games_played_prior
+  FROM usage_all
+  WINDOW
+    w4 AS (PARTITION BY gsis_id, season ORDER BY week
+           ROWS BETWEEN 4 PRECEDING AND 1 PRECEDING),
+    wprior AS (PARTITION BY gsis_id, season ORDER BY week
+               ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING),
+    w AS (PARTITION BY gsis_id, season ORDER BY week
+          ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING)
+), position_week AS (
+  SELECT position, season, week,
+         SUM(rz20_targets) AS rz20_targets_sum,
+         COUNT(rz20_targets) AS rz20_targets_n,
+         SUM(gl3_carries) AS gl3_carries_sum,
+         COUNT(gl3_carries) AS gl3_carries_n
+  FROM observations
+  GROUP BY position, season, week
+), position_prior AS (
+  SELECT position, season, week,
+         SAFE_DIVIDE(SUM(rz20_targets_sum) OVER w,
+                     SUM(rz20_targets_n) OVER w) AS prior_rz20_per_game,
+         SAFE_DIVIDE(SUM(gl3_carries_sum) OVER w,
+                     SUM(gl3_carries_n) OVER w) AS prior_gl3_per_game
+  FROM position_week
+  WINDOW w AS (PARTITION BY position ORDER BY season, week
+               ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING)
+)
+SELECT p.gsis_id, p.season, p.week,
+       p.rz20_targets_l4, p.rz10_targets_l4, p.targets_l4,
+       p.target_share_l4, p.air_yards_share_l4,
+       p.rz20_target_share_l4, p.rz10_target_share_l4,
+       p.rz20_carries_l4, p.gl3_carries_l4, p.carries_l4,
+       p.carry_share_l4, p.gl3_carry_share_l4, p.snap_share_l4,
+       p.target_share_last, p.carry_share_last, p.snap_share_last,
+       p.rz20_targets_std, p.target_share_std, p.targets_std, p.carries_std,
+       p.target_share_trend, p.carry_share_trend, p.games_played_prior,
+       CASE WHEN p.target_share_n_l4 >= 2 THEN
+         p.target_share_last - SAFE_DIVIDE(
+           p.target_share_sum_l4 - p.target_share_last,
+           p.target_share_n_l4 - 1)
+       END AS target_share_jump,
+       CASE WHEN p.carry_share_n_l4 >= 2 THEN
+         p.carry_share_last - SAFE_DIVIDE(
+           p.carry_share_sum_l4 - p.carry_share_last,
+           p.carry_share_n_l4 - 1)
+       END AS carry_share_jump,
+       CASE WHEN p.snap_share_n_l4 >= 2 THEN
+         p.snap_share_last - SAFE_DIVIDE(
+           p.snap_share_sum_l4 - p.snap_share_last,
+           p.snap_share_n_l4 - 1)
+       END AS snap_share_jump,
+       1.5 * p.target_share_l4 + 0.7 * p.air_yards_share_l4 AS wopr_l4,
+       SAFE_DIVIDE(
+         p.rz20_targets_sum_prior + ({prior_k} * q.prior_rz20_per_game),
+         p.games_played_prior + {prior_k}
+       ) AS rz20_targets_smoothed,
+       SAFE_DIVIDE(
+         p.gl3_carries_sum_prior + ({prior_k} * q.prior_gl3_per_game),
+         p.games_played_prior + {prior_k}
+       ) AS gl3_carries_smoothed
+FROM rolled p
+LEFT JOIN position_prior q USING (position, season, week)
+WHERE MOD(FARM_FINGERPRINT(p.gsis_id), 20) = 0
+"""
+
+
+# Injury rows are legitimately same-week only when their source timestamp is
+# available at the common Sunday-main lock. The raw feed occasionally contains
+# multiple revisions for one player-week and a handful of post-lock updates,
+# so both latest-pre-lock selection and downstream vacancy composition are
+# rebuilt independently.
+INJURY_FEATURES = [
+    "practice_level", "practice_participation_trend", "games_missed_l4",
+]
+INJURY_EXACT_FIELDS = [
+    "injury_status", "injury_source_modified_at", "slate_lock_at",
+]
+INJURY_BUILT_SQL = """
+SELECT gsis_id, season, week, injury_status, practice_level,
+       practice_participation_trend, games_missed_l4,
+       injury_source_modified_at, slate_lock_at
+FROM `{features}.player_week_injury`
+WHERE MOD(FARM_FINGERPRINT(gsis_id), 20) = 0
+"""
+INJURY_EXPECTED_SQL = """
+WITH slate_locks AS (
+  SELECT season, week,
+    MIN(TIMESTAMP(
+      DATETIME(PARSE_DATE('%Y-%m-%d', gameday),
+               SAFE.PARSE_TIME('%H:%M', gametime)),
+      'America/New_York'
+    )) AS slate_lock_at
+  FROM `{raw}.schedules`
+  WHERE game_type = 'REG' AND weekday = 'Sunday'
+    AND SAFE.PARSE_TIME('%H:%M', gametime) >= TIME '13:00:00'
+    AND SAFE.PARSE_TIME('%H:%M', gametime) < TIME '19:00:00'
+  GROUP BY season, week
+), injury AS (
+  SELECT i.gsis_id, CAST(i.season AS INT64) AS season,
+         CAST(i.week AS INT64) AS week, i.report_status AS injury_status,
+         CASE i.practice_status
+           WHEN 'Did Not Participate In Practice' THEN 0.0
+           WHEN 'Limited Participation in Practice' THEN 1.0
+           WHEN 'Full Participation in Practice' THEN 2.0
+         END AS practice_level,
+         i.date_modified AS injury_source_modified_at, l.slate_lock_at
+  FROM `{raw}.injuries` i
+  JOIN slate_locks l
+    ON l.season = CAST(i.season AS INT64)
+   AND l.week = CAST(i.week AS INT64)
+  WHERE i.gsis_id IS NOT NULL AND i.date_modified <= l.slate_lock_at
+  QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY i.gsis_id, CAST(i.season AS INT64), CAST(i.week AS INT64)
+    ORDER BY i.date_modified DESC, i.team DESC, i.practice_status DESC
+  ) = 1
+), missed AS (
+  SELECT i.gsis_id, i.season, i.week,
+         COUNTIF(prior.injury_status = 'Out') AS games_missed_l4
+  FROM injury i
+  LEFT JOIN injury prior
+    ON prior.gsis_id = i.gsis_id AND prior.season = i.season
+   AND prior.week BETWEEN i.week - 4 AND i.week - 1
+  GROUP BY i.gsis_id, i.season, i.week
+)
+SELECT i.gsis_id, i.season, i.week, i.injury_status, i.practice_level,
+       i.practice_level - LAG(i.practice_level) OVER (
+         PARTITION BY i.gsis_id, i.season ORDER BY i.week
+       ) AS practice_participation_trend,
+       COALESCE(m.games_missed_l4, 0) AS games_missed_l4,
+       i.injury_source_modified_at, i.slate_lock_at
+FROM injury i LEFT JOIN missed m USING (gsis_id, season, week)
+WHERE MOD(FARM_FINGERPRINT(i.gsis_id), 20) = 0
+"""
+
+VACATED_FEATURES = [
+    "team_vacated_target_share", "team_vacated_carry_share",
+]
+VACATED_BUILT_SQL = """
+SELECT gsis_id, season, week,
+       team_vacated_target_share, team_vacated_carry_share
+FROM `{features}.player_week_training`
+WHERE MOD(FARM_FINGERPRINT(gsis_id), 20) = 0
+"""
+VACATED_EXPECTED_SQL = """
+WITH outs AS (
+  SELECT gsis_id, season, week
+  FROM `{features}.player_week_injury`
+  WHERE injury_status = 'Out'
+), asof AS (
+  SELECT o.gsis_id, o.season, o.week, u.team,
+         u.target_share_l4, u.carry_share_l4
+  FROM outs o
+  JOIN `{features}.player_week_usage` u
+    ON u.gsis_id = o.gsis_id AND u.season = o.season AND u.week <= o.week
+  QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY o.gsis_id, o.season, o.week ORDER BY u.week DESC
+  ) = 1
+), vacated AS (
+  SELECT team, season, week,
+         SUM(COALESCE(target_share_l4, 0)) AS vacated_target_share,
+         SUM(COALESCE(carry_share_l4, 0)) AS vacated_carry_share
+  FROM asof GROUP BY team, season, week
+)
+SELECT t.gsis_id, t.season, t.week,
+       GREATEST(
+         COALESCE(v.vacated_target_share, 0)
+           - IF(i.injury_status = 'Out',
+                COALESCE(u.target_share_l4, 0), 0),
+         0
+       ) AS team_vacated_target_share,
+       GREATEST(
+         COALESCE(v.vacated_carry_share, 0)
+           - IF(i.injury_status = 'Out',
+                COALESCE(u.carry_share_l4, 0), 0),
+         0
+       ) AS team_vacated_carry_share
+FROM `{features}.player_week_training` t
+LEFT JOIN `{features}.player_week_usage` u
+  USING (gsis_id, season, week)
+LEFT JOIN `{features}.player_week_injury` i
+  USING (gsis_id, season, week)
+LEFT JOIN vacated v
+  ON v.team = t.team AND v.season = t.season AND v.week = t.week
+WHERE MOD(FARM_FINGERPRINT(t.gsis_id), 20) = 0
 """
 
 
@@ -817,6 +1162,40 @@ def run_leakage_checks() -> None:
         )
     assert_first_row_features_null(
         adv_built, [f for f, *_ in ADVANCED_CHECKS], ("gsis_id", "season")
+    )
+
+    # Reconstruct every usage-family model/candidate field from raw source
+    # observations. This catches bounded-window, last-value, jump, ratio and
+    # empirical-Bayes position-prior regressions with exact key/null parity.
+    usage_built = query_df(USAGE_RECOMPUTED_BUILT_SQL.format(
+        features=settings.features,
+        cols=", ".join(USAGE_RECOMPUTED_FEATURES),
+    ))
+    usage_expected = query_df(USAGE_RECOMPUTED_EXPECTED_SQL.format(
+        features=settings.features, raw=settings.raw,
+        prior_k=SMOOTHING_PRIOR_K,
+    ))
+    assert_recomputed_features_match(
+        usage_built, usage_expected, USAGE_RECOMPUTED_FEATURES,
+        ("gsis_id", "season", "week"),
+    )
+
+    injury_built = query_df(INJURY_BUILT_SQL.format(
+        features=settings.features))
+    injury_expected = query_df(INJURY_EXPECTED_SQL.format(
+        raw=settings.raw))
+    assert_recomputed_features_match(
+        injury_built, injury_expected, INJURY_FEATURES,
+        ("gsis_id", "season", "week"),
+        exact_cols=tuple(INJURY_EXACT_FIELDS),
+    )
+    vacated_built = query_df(VACATED_BUILT_SQL.format(
+        features=settings.features))
+    vacated_expected = query_df(VACATED_EXPECTED_SQL.format(
+        features=settings.features))
+    assert_recomputed_features_match(
+        vacated_built, vacated_expected, VACATED_FEATURES,
+        ("gsis_id", "season", "week"),
     )
 
     # Adopted neutral-pass context is a ratio of rolling sums, while NGS QB

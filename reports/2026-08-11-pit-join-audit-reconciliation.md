@@ -46,7 +46,7 @@ starting with active production fields, and require each reference query to
 reconstruct the transform's actual spine and missingness semantics. Do not
 claim coverage merely by checking first-row nulls.
 
-The first two source-family expansions are now implemented. For the active
+The source-family expansions are now implemented. For the active
 production trail, `dk_points_l4`, `dk_points_std` and `dk_points_vol` are
 independently reconstructed from `player_week_actuals`, preserving the rule
 that salary-retained inactive zero labels are not played observations. The
@@ -59,8 +59,31 @@ support parity is mandatory so missing observations continue to occupy bounded
 its actual ratio of rolling sums, and both QB NGS fields preserve their
 deliberate cross-season window. Read-only live checks passed on identical
 11,686-row efficiency, 4,975-row advanced, 1,336-row neutral-pass and 253-row
-QB NGS built/source samples. Smoothed usage and injury/vacancy are next; they
-are not claimed covered yet.
+QB NGS built/source samples.
+
+The final expansion exposed two real common-data defects before the
+active-label exact-80 score query. First, the empirical-Bayes red-zone fields
+used one all-history position average, so early historical rows borrowed later
+seasons. The repaired transform constructs position-week sufficient statistics
+and windows them through `1 PRECEDING`. Its independent reference now
+reconstructs all 29 usage-family outputs: bounded averages, last values, sums,
+counts, jumps, trends, WOPR, expanding fields and both smoothed opportunities.
+On the current warehouse the 4,975 sampled keys are identical and every field
+except the two known contaminated smoothers matches exactly; 3,625
+`rz20_targets_smoothed` and 3,640 `gl3_carries_smoothed` values change, with
+maximum absolute deltas `0.0673186` and `0.0571626`.
+
+Second, `raw.injuries` contains 65,866 rows on 65,862 player-week keys and the
+old transform neither deduplicated revisions nor enforced the common Sunday-
+main lock. Among deterministic latest revisions, 24 are post-lock and four of
+those say `Out`. The repaired table chooses exactly one latest pre-lock row,
+persists both source and lock timestamps, and independently reconstructs the
+status, practice trend, prior missed games and downstream player-level vacated
+shares with exact key/null/value parity. These repairs change active historical
+features, so they require one coordinated rebuild/retrain and invalidate the
+old active-label cache gate as production evidence. No active-label lineup
+outcome was queried; the exact-80 launch is blocked cleanly pending identical-
+law PIT-clean cache regeneration and final-served revalidation.
 
 ### 3. Team CPOE is computed but unused — confirmed and already frozen
 
@@ -105,18 +128,15 @@ experiment answers the pass-catcher question.
 
 ## Ordered work
 
-1. Land the four upcoming-row repairs, exact-week defense position and the
-   mandatory live-row gap gate. Do not rebuild until active immutable gates
-   finish.
-2. Complete the active-label → SCHED → team-QB marginal sequence in its frozen
-   order. Add the sparse-feature support report during the next cache build.
-3. Continue source-recomputed leakage checks one feature family at a time.
-   Active efficiency, advanced opportunity/NGS, neutral-pass context and QB
-   NGS are complete; smoothed usage and injury/vacancy are next. Every new
-   query must have synthetic positive and negative tests.
-4. On the next coordinated feature rebuild, prove historical row-count/key
-   stability, quantify the intended defense-feature deltas, retrain all live
-   registries and rerun deployment verification before serving Week 1.
+1. Land all PIT repairs and the complete dynamic source-family gate; do not
+   launch the already-frozen exact-80 books from stale caches.
+2. Run one coordinated feature rebuild, prove row-count/key stability, quantify
+   intended deltas and retrain every live registry on the repaired tables.
+3. Regenerate both active-label research caches under their unchanged frozen
+   training laws, including the sparse-QB support report, then repeat the same
+   score-free final-served gate. Only a clean pass may release exact-80.
+4. Resume the active-label → SCHED → team-QB sequence in its frozen order and
+   rerun deployment verification before serving Week 1.
 
 ## Validation completed before commit
 
@@ -127,4 +147,8 @@ experiment answers the pass-catcher question.
 - Active-efficiency, advanced, neutral-pass and QB-NGS expansions pass
   synthetic include-current/null/key/value tests and read-only
   11,686-/4,975-/1,336-/253-row live comparisons.
+- The complete 29-field usage reference dry-runs at 33,165,826 bytes and has
+  exact key/value parity on all uncontaminated current fields; injury and
+  vacancy references dry-run at 5,541,943 and 10,198,069 bytes. The focused
+  suite passes 94 tests with one expected dashboard-window skip.
 - `git diff --check` and Python compilation are clean.

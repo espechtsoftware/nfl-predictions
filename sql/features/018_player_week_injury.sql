@@ -2,27 +2,48 @@
 -- report for week W is published before W's games, so same-week rows are
 -- legitimately knowable. Games missed uses strictly-prior weeks.
 CREATE OR REPLACE TABLE `${features}.player_week_injury` AS
-WITH inj AS (
+WITH slate_locks AS (
+  -- Historical training and replay use the common Sunday-main lock, not a
+  -- later inactive announcement for a 4pm game. nflverse schedule times are
+  -- Eastern; the earliest Sunday-main kickoff is the DraftKings lock.
+  SELECT season, week,
+    MIN(TIMESTAMP(
+      DATETIME(PARSE_DATE('%Y-%m-%d', gameday),
+               SAFE.PARSE_TIME('%H:%M', gametime)),
+      'America/New_York'
+    )) AS slate_lock_at
+  FROM `${raw}.schedules`
+  WHERE game_type = 'REG' AND weekday = 'Sunday'
+    AND SAFE.PARSE_TIME('%H:%M', gametime) >= TIME '13:00:00'
+    AND SAFE.PARSE_TIME('%H:%M', gametime) < TIME '19:00:00'
+  GROUP BY season, week
+), inj AS (
   SELECT
-    gsis_id,
+    i.gsis_id,
     -- nflverse ships these as FLOAT in the injuries dataset (null-driven
     -- upcast); INT64 keeps join keys consistent and windows partitionable.
-    CAST(season AS INT64) AS season,
-    CAST(week AS INT64) AS week,
-    report_status AS injury_status,
+    CAST(i.season AS INT64) AS season,
+    CAST(i.week AS INT64) AS week,
+    i.report_status AS injury_status,
     -- Encode Wed/Thu/Fri practice as 0=DNP, 1=Limited, 2=Full and average
     (SELECT AVG(v) FROM UNNEST([
-       CASE practice_status
+       CASE i.practice_status
          WHEN 'Did Not Participate In Practice' THEN 0.0
          WHEN 'Limited Participation in Practice' THEN 1.0
          WHEN 'Full Participation in Practice' THEN 2.0
        END
-     ]) v WHERE v IS NOT NULL) AS practice_level
-  FROM `${raw}.injuries`
-  WHERE gsis_id IS NOT NULL
-),
-played AS (
-  SELECT gsis_id, season, week FROM `${features}.player_week_actuals`
+    ]) v WHERE v IS NOT NULL) AS practice_level,
+    i.date_modified AS injury_source_modified_at,
+    l.slate_lock_at
+  FROM `${raw}.injuries` i
+  JOIN slate_locks l
+    ON l.season = CAST(i.season AS INT64)
+   AND l.week = CAST(i.week AS INT64)
+  WHERE i.gsis_id IS NOT NULL AND i.date_modified <= l.slate_lock_at
+  QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY i.gsis_id, CAST(i.season AS INT64), CAST(i.week AS INT64)
+    ORDER BY i.date_modified DESC, i.team DESC, i.practice_status DESC
+  ) = 1
 ),
 missed AS (
   -- Weeks on the injury report as Out, in the prior 4 weeks
@@ -42,7 +63,9 @@ SELECT
   i.practice_level - LAG(i.practice_level) OVER (
     PARTITION BY i.gsis_id, i.season ORDER BY i.week
   ) AS practice_participation_trend,
-  COALESCE(m.games_missed_l4, 0) AS games_missed_l4
+  COALESCE(m.games_missed_l4, 0) AS games_missed_l4,
+  i.injury_source_modified_at,
+  i.slate_lock_at
 FROM inj i
 LEFT JOIN missed m USING (gsis_id, season, week);
 

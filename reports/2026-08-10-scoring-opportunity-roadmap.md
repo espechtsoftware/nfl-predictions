@@ -24,9 +24,11 @@ feature rebuild; they do not reorder the frozen active-label → SCHED → team-
 marginal sequence.
 Dynamic source-family expansions now independently reconstruct the three active
 trailing-production fields, four advanced opportunity/NGS fields, the adopted
-neutral-pass ratio and both QB NGS windows, including sample volatility, exact
-missing-spine semantics and cross-season ordering. Smoothed usage and injury/
-vacancy remain next.
+neutral-pass ratio, both QB NGS windows, all 29 usage-family fields and the
+same-week injury/vacancy path. That final sweep found a future-season
+positional smoothing prior and 24 latest injury revisions after the common
+lock. Their code repairs require a coordinated feature rebuild/retrain and
+PIT-clean cache regeneration before the marginal sequence can continue.
 
 TabPFN label addendum (2026-08-11): the active-only training-label correction
 passed its frozen final-served aggregate 30-point Brier gate by a very small
@@ -35,6 +37,10 @@ does not predetermine, one paired exact-80 comparison under production
 multinomial usage. That comparison is frozen before scores in
 `reports/2026-08-11-tabpfn-active-label-exact80-protocol.md`. SCHED feature
 sync inherits active-only labels only if the exact-80 tail-first gate passes.
+The original cache gate is now explicitly superseded pending a mechanism-
+preserving PIT-clean rerun because both caches consumed the contaminated common
+feature history. No exact-80 outcome was queried, so this is a pre-score data
+repair, not a retry or a gate change.
 
 Closure addendum (2026-08-11): after every historical arm reaches a terminal
 state, run the mandatory end-of-preseason forensic protocol in

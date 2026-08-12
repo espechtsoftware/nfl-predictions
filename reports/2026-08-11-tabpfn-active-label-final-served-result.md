@@ -1,9 +1,26 @@
 # TabPFN active-label final-served result
 
-The frozen final-served gate **passed**, but by a very small aggregate
-30-point Brier improvement. This result licenses one separately frozen paired
-exact-80 lineup comparison. It does not promote the active-only cache or
-change production.
+## Superseded pending PIT-clean revalidation
+
+After this immutable run completed—and before any licensed exact-80 lineup
+outcome was queried—the expanded source-recomputation audit found two common
+historical feature defects: an all-history positional prior in the red-zone
+smoothers and non-deduplicated injury revisions without a common-lock cutoff.
+Both control and treatment used that contaminated common history. The result
+below remains the accurate verdict for its named inputs, but it no longer
+licenses an exact-80 launch or production change.
+
+The only permitted continuation is to rebuild features/models, regenerate both
+caches under the same respective label definitions and all other frozen laws,
+and repeat this identical score-free gate with new immutable cache ids. No
+lineup scores have been inspected, and the threshold, schedules, training-label
+definitions and production-multinomial law may not change.
+
+For its now-superseded inputs, the frozen final-served gate **passed**, but by a
+very small aggregate 30-point Brier improvement. It originally licensed one
+separately frozen paired exact-80 lineup comparison; the PIT finding above
+blocks that license. It does not promote the active-only cache or change
+production.
 
 ## Immutable execution
 
@@ -53,15 +70,21 @@ Those season diagnostics do not override the preregistered aggregate gate.
 They do make it especially important not to interpret this stage as evidence
 of a durable lineup-score improvement.
 
-## Decision and next gate
+## Original decision and repaired next gate
 
-Freeze one exact-80 control/treatment protocol before generating or inspecting
-any active-label lineup outcome. Both arms must use the same production
+The original decision was to freeze one exact-80 control/treatment protocol
+before generating or inspecting any active-label lineup outcome. Both arms
+must still use the same production
 multinomial usage law, exact upstream snapshots, seeds, candidate and selector
 settings, market blend, and historical splice. They may differ only in the
 validated TabPFN cache and their independently fitted walk-forward position
 factor schedules. The operator's 240/230/220/210/200 first-nonzero weekly-
 maximum rule decides that comparison.
+
+The repaired next gate is the identical score-free final-served comparison on
+PIT-clean v2 caches. Exact-80 remains blocked unless that gate passes and a
+tracked mechanical addendum replaces only the prerequisite cache/report ids
+and resulting independently fitted schedules.
 
 Only a passing exact-80 comparison may promote active-only TabPFN training or
 let the subsequent SCHED feature-sync arm inherit it. A reject/neutral result

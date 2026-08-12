@@ -11,13 +11,13 @@ import logging
 import sys
 
 from ..bq import SQL_DIR, run_sql_file
-from .leakage import run_leakage_checks
+from .leakage import SMOOTHING_PRIOR_K, run_leakage_checks
 
 log = logging.getLogger(__name__)
 
 # Empirical-Bayes prior weight, in games, for red zone smoothing (guide §5.2;
 # tune on validation — typical optimum 3-5).
-PRIOR_K = 4
+PRIOR_K = SMOOTHING_PRIOR_K
 
 
 def run(check_leakage: bool = True) -> None:

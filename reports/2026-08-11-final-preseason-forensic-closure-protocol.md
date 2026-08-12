@@ -242,6 +242,16 @@ reports:
 7. Week-1 operational readiness checklist with pass/fail owners; and
 8. ranked 2026 prospective charter and opportunity register.
 
+Add a ninth output: an **exhaustion certificate**. It must inventory every
+mechanism family—player marginals/calibration, availability/role change,
+market/vendor data, game/player dependence, candidate generation, roster
+construction, portfolio selection, ownership/field modeling, contest choice,
+entry count/bankroll, data/PIT integrity and operations—and map every known
+idea to one of: terminal historical result, duplicate mechanism, prospective-
+only test, data-blocked, disproven prerequisite or explicitly deferred with a
+falsifiable trigger. An empty research queue without this taxonomy is not proof
+that the preseason program was exhausted.
+
 Each opportunity-register row must include layer, mechanism, evidence class,
 support, effect and interval, expected tail-threshold value, identifiable dollar
 value/range, required data, point-in-time availability, implementation/cloud
@@ -258,10 +268,19 @@ not a disposition.
 5. Run marginal/dependence, generation/selection and data/PIT diagnostics.
 6. Run frozen pre-lock regime and experiment meta-analyses.
 7. Synthesize the register, kill list, 2026 charter and Week-1 checklist.
-8. Have an independent deterministic verifier reproduce every score, legality
-   check, aggregate and report hash from the manifest.
+8. Run an adversarial completeness pass against repository reports, README
+   deficiencies, commit history, cloud executions and the mechanism taxonomy;
+   reconcile every orphaned suggestion/run and publish the exhaustion
+   certificate.
+9. Have an independent deterministic verifier reproduce every score, legality
+   check, aggregate and report hash from the manifest. The verifier must also
+   rerun score-source parity, salary/position legality, duplicate detection and
+   selected-book reconstruction from raw immutable inputs rather than trusting
+   analysis intermediates.
 
-The preseason program is complete only when all eight outputs are committed and
-pushed, the opportunity register has no unresolved unlabeled item, the Week-1
-dress rehearsal passes or has an explicit operator-owned blocker, and no
-historical result has been converted into an unregistered production change.
+The preseason program is complete only when all nine outputs are committed and
+pushed, the opportunity register has no unresolved unlabeled item, the
+exhaustion certificate accounts for every mechanism family and repository
+suggestion, the Week-1 dress rehearsal passes or has an explicit operator-owned
+blocker, and no historical result has been converted into an unregistered
+production change.

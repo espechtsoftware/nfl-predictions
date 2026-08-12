@@ -146,13 +146,31 @@ rolled AS (
     wstd AS (PARTITION BY gsis_id, season ORDER BY week
              ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING)
 ),
-position_priors AS (
-  SELECT COALESCE(u.position, pm.position) AS position,
-         AVG(u.rz20_targets) AS prior_rz20_per_game,
-         AVG(u.gl3_carries) AS prior_gl3_per_game
+position_week AS (
+  SELECT COALESCE(u.position, pm.position) AS position, u.season, u.week,
+         SUM(u.rz20_targets) AS rz20_targets_sum,
+         COUNT(u.rz20_targets) AS rz20_targets_n,
+         SUM(u.gl3_carries) AS gl3_carries_sum,
+         COUNT(u.gl3_carries) AS gl3_carries_n
   FROM usage u
   LEFT JOIN position_map pm USING (gsis_id, season)
-  GROUP BY position
+  GROUP BY position, u.season, u.week
+),
+position_priors AS (
+  SELECT position, season, week,
+    SAFE_DIVIDE(
+      SUM(rz20_targets_sum) OVER wprior,
+      SUM(rz20_targets_n) OVER wprior
+    ) AS prior_rz20_per_game,
+    SAFE_DIVIDE(
+      SUM(gl3_carries_sum) OVER wprior,
+      SUM(gl3_carries_n) OVER wprior
+    ) AS prior_gl3_per_game
+  FROM position_week
+  WINDOW wprior AS (
+    PARTITION BY position ORDER BY season, week
+    ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING
+  )
 )
 SELECT
   r.* EXCEPT(
@@ -185,4 +203,5 @@ SELECT
 FROM rolled r
 LEFT JOIN position_map pm USING (gsis_id, season)
 LEFT JOIN position_priors pp
-  ON pp.position = COALESCE(r.position, pm.position);
+  ON pp.position = COALESCE(r.position, pm.position)
+ AND pp.season = r.season AND pp.week = r.week;
