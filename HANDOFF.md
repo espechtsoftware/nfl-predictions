@@ -373,6 +373,17 @@ and must not be staged or modified.
   role finisher with audit digest `f73e...`, then launch the score-free PIT-v2
   served-position and usage-K calibrations from the resulting terminal Tier-1
   selection.
+- The licensed PIT-v2 served-position Stage B is implemented before its
+  score-free refit result is known. It derives the selected full panel, K1/K3
+  law, role/no-role candidate law, and unrounded four-factor specification;
+  uses fixed control/treatment IDs from the frozen protocol; reproduces the
+  selected source under an identity control; and applies the same complete
+  `240,230,220,210,200,194,187` order with mean only after a seven-count tie.
+  Its cloud comparator requires exact player/candidate/seed/cache invariance,
+  packages separately, and records a mechanical position-law selection for
+  downstream arms. Focused validation passes 30 tests plus shell parsing,
+  compilation, and whitespace checks. An exact-tree audit image still must be
+  built before this comparator can run; generation remains pinned to `ad50...`.
 
 ### Validated production rollout completed; Route diagnostic ready
 

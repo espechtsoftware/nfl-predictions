@@ -18,6 +18,7 @@ COPY scripts/compare_corrected_k1_direct_role.py ./scripts/compare_corrected_k1_
 COPY scripts/compare_pit_tier1.py ./scripts/compare_pit_tier1.py
 COPY scripts/compare_served_tail_lineup.py ./scripts/compare_served_tail_lineup.py
 COPY scripts/compare_served_position_lineup.py ./scripts/compare_served_position_lineup.py
+COPY scripts/compare_served_position_lineup_v2.py ./scripts/compare_served_position_lineup_v2.py
 COPY scripts/compare_usage_dirichlet_lineup.py ./scripts/compare_usage_dirichlet_lineup.py
 COPY scripts/compare_tabpfn_active_label_lineup.py ./scripts/compare_tabpfn_active_label_lineup.py
 COPY scripts/compare_k1_milly_ownership_panel.py ./scripts/compare_k1_milly_ownership_panel.py
