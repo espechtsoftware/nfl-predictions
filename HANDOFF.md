@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 21:31 CDT
+## Current state — 2026-08-11 21:36 CDT
 
 Active branch is `main`; final-served Route diagnostic implementation commit
 `d5e74c0` is pushed. The position-calibration result, research promotion,
@@ -211,12 +211,12 @@ and must not be staged or modified.
   generator passes NaNs directly and has no imputation path. All five changed
   SQL files dry-run against live BigQuery schemas; focused feature/leakage
   tests pass, Python compiles, and `git diff --check` is clean. Repair commit
-  `314aa6a` is pushed and its exact archived tree is queued for full validation as
-  regional Cloud Build `b691da39-95dd-453e-9e6c-bd07359bd9c6`, publishing
-  tag `pit-314aa6a` only after the complete suite succeeds. Do not rebuild the
-  warehouse mid-panel. After that build passes, record its test result and
-  immutable digest, then apply it only in the next coordinated feature rebuild
-  with historical key/delta checks and full retraining.
+  `314aa6a` is pushed. Its exact archived tree passed regional Cloud Build
+  `b691da39-95dd-453e-9e6c-bd07359bd9c6` with 926 tests and two expected
+  skips, publishing immutable digest
+  `sha256:1589cb254c8524d62487d1f51aeca7d69c19a8a9ba1de6e4dc2a7dd13fb5a8a4`.
+  Do not rebuild the warehouse mid-panel. Apply it only in the next coordinated
+  feature rebuild with historical key/delta checks and full retraining.
 - The operator made the end-of-preseason forensic review mandatory after the
   historical arm queue is genuinely exhausted. The strengthened tracked
   protocol is `reports/2026-08-11-final-preseason-forensic-closure-protocol.md`;
