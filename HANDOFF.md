@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 09:00 CDT
+## Current state — 2026-08-12 09:12 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -454,6 +454,17 @@ and must not be staged or modified.
   generation image and exact lineage. Wait for it to pass and release its
   three seasons; inspect no partial scores, then require all six terminal
   season executions before the frozen Stage B finisher.
+- Treatment smoke `replay-pitposv2trt-smoke-gmwcz` passed and released 2023
+  `replay-pitposv2trt-2023-nkkwl`, 2024
+  `replay-pitposv2trt-2024-7r9hm`, and 2025
+  `replay-pitposv2trt-2025-27r57`. All six control/treatment season executions
+  are now running. A guarded local continuation polls only terminal status,
+  stops on any failure, runs the frozen position finisher only after six clean
+  successes, and then launches the already-licensed fitted-K exact-80 pair.
+  The durable recovery action after a machine interruption is identical:
+  inspect the six IDs above, run
+  `cloud_finish_served_position_stage_b_v2.sh` after clean completion, then
+  `prop_lock_usage_dirichlet_exact80_v2.sh` if the position finisher succeeds.
 - The licensed PIT-v2 served-position Stage B is implemented before its
   score-free refit result is known. It derives the selected full panel, K1/K3
   law, role/no-role candidate law, and unrounded four-factor specification;
