@@ -178,8 +178,7 @@ and must not be staged or modified.
   proves the exact repaired training checksum/schema/modified time, feature
   contract, target-key equality, hyperparameters, unique finite rows and
   ordered quantiles before downstream use. Focused tests and shell parsing
-  pass. It remains launch-blocked on the second repaired feature rebuild and
-  clean reconciliation; no cache or repaired lineup score has been queried.
+  pass. No repaired lineup score has been queried.
   Its dedicated Cloud Build recipe is tracked beside the generator so the
   canonical image cannot accidentally use the active-label entry point.
 - Exact referee-repair feature build
@@ -187,8 +186,15 @@ and must not be staged or modified.
   published immutable digest
   `sha256:3dbb81f4e04e8ba55dc82f921d8e35a64198bdb435b973bc0b55fb743d1d105d`.
   `build-features-ktn4b` is the second coordinated rebuild from that digest;
-  run the fail-closed reconciliation to a new v2 artifact only after this
-  execution succeeds. Canonical GPU image build
+  it completed successfully with all dynamic leakage checks passing.
+  Outcome-free reconciliation artifact
+  `reports/pit-repair-runs/20260811-pit-clean-v2/reconciliation.json` then
+  passed all 21 registered checks: exact usage/training/defense keys and
+  schemas, exactly 57,550 unique injury rows, intended usage/injury/defense
+  deltas and descendants only, total-order referee repair, byte-equivalent
+  unaffected tables, and <=`1e-12` rebuild-only floating noise. PIT-clean
+  model/cache work is now licensed; no repaired lineup score has been queried.
+  Canonical GPU image build
   `9211ed35-a6fb-453b-823c-0389b9b60d07` and active-label GPU image build
   `02eea485-c492-402d-943c-e9111a70cbc1` are also running from tracked commit
   `bb1ebc9`; their jobs remain blocked on clean warehouse reconciliation.
@@ -197,9 +203,12 @@ and must not be staged or modified.
   exposed that the legacy Dockerfile still used directory-local `COPY`
   paths. The Dockerfile now names both repo-root paths and a focused test
   guards that context contract; the failed image has no execution/cache data
-  and must be superseded. Active-label image build
+  and is superseded by running build
+  `a4a76dcd-738b-48a7-9810-3bc7ac7af1fc`. Active-label image build
   `02eea485-c492-402d-943c-e9111a70cbc1` succeeded with digest
   `sha256:d0830d9fb79643fd77faa0d8c80f4863c1769adb56d6d1782999d5aa0f40139b`.
+  Full Tier-1 application build `2ce169dc-36a6-4ae2-94c9-37018b0eb0ba`
+  is also running from exact commit `b5d0146`.
 - The repaired active-label final-served dependency is now a separate v2
   runner. It requires explicit validated v2 cache, repaired panel and repaired
   fitted-K comparison inputs; the comparison mechanically supplies either its

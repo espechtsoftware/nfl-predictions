@@ -1,0 +1,3526 @@
+{
+  "checks": {
+    "both_usage_repairs_reach_rows": true,
+    "defense_exact_keys_and_schema": true,
+    "defense_only_registered_columns_change": true,
+    "defense_position_repair_reaches_rows": true,
+    "defense_week_blitz_unchanged": true,
+    "floating_rebuild_noise_bounded": true,
+    "injury_exact_repaired_rows": true,
+    "injury_provenance_columns_added": true,
+    "player_week_inference_unchanged": true,
+    "player_week_training_exact_keys": true,
+    "player_week_training_schema_unchanged": true,
+    "player_week_usage_exact_keys": true,
+    "player_week_usage_schema_unchanged": true,
+    "team_week_ftn_offense_unchanged": true,
+    "team_week_pace_unchanged": true,
+    "team_week_target_concentration_unchanged": true,
+    "training_derived_repairs_reach_rows": true,
+    "training_only_registered_columns_change": true,
+    "training_smoothing_repair_reaches_rows": true,
+    "usage_only_registered_columns_change": true,
+    "vacancy_unique": true
+  },
+  "disposition": "pit-repair-warehouse-reconciled",
+  "passes": true,
+  "snapshot_prefix": "pit_pre_ac9a2c2_",
+  "tables": {
+    "defense_week_allowed": {
+      "after": {
+        "checksum": -186627796387101445,
+        "keys": 6302,
+        "rows": 6302
+      },
+      "before": {
+        "checksum": -5167540829521695331,
+        "keys": 6302,
+        "rows": 6302
+      },
+      "column_changes": {
+        "epa_per_dropback_allowed_l6": 3846,
+        "epa_per_rush_allowed_l6": 3520,
+        "qb_fp_allowed_adj_l6": 221,
+        "rb_fp_allowed_adj_l6": 2781,
+        "rz_td_rate_allowed_l6": 0,
+        "te_fp_allowed_adj_l6": 1146,
+        "wr_fp_allowed_adj_l6": 3892
+      },
+      "key_delta": {
+        "new_only": 0,
+        "old_only": 0
+      },
+      "numeric_delta_profile": {
+        "epa_per_dropback_allowed_l6": {
+          "changes_gt_1e12": 0,
+          "max_abs_delta": 2.220446049250313e-16,
+          "null_mismatches": 0
+        },
+        "epa_per_rush_allowed_l6": {
+          "changes_gt_1e12": 0,
+          "max_abs_delta": 2.220446049250313e-16,
+          "null_mismatches": 0
+        }
+      },
+      "rebuilt": "nfl-predictions-503414.nfl_features.defense_week_allowed",
+      "schema_after": [
+        [
+          "team",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "week",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "epa_per_dropback_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "epa_per_rush_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz_td_rate_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "qb_fp_allowed_adj_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rb_fp_allowed_adj_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "wr_fp_allowed_adj_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "te_fp_allowed_adj_l6",
+          "FLOAT",
+          "NULLABLE"
+        ]
+      ],
+      "schema_before": [
+        [
+          "team",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "week",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "epa_per_dropback_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "epa_per_rush_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz_td_rate_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "qb_fp_allowed_adj_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rb_fp_allowed_adj_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "wr_fp_allowed_adj_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "te_fp_allowed_adj_l6",
+          "FLOAT",
+          "NULLABLE"
+        ]
+      ],
+      "snapshot": "nfl-predictions-503414.nfl_predictions.pit_pre_ac9a2c2_defense_week_allowed"
+    },
+    "defense_week_blitz": {
+      "after": {
+        "checksum": -4361547472751987030,
+        "keys": 2278,
+        "rows": 2278
+      },
+      "before": {
+        "checksum": -4361547472751987030,
+        "keys": 2278,
+        "rows": 2278
+      },
+      "key_delta": {
+        "new_only": 0,
+        "old_only": 0
+      },
+      "rebuilt": "nfl-predictions-503414.nfl_features.defense_week_blitz",
+      "schema_after": [
+        [
+          "team",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "week",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "blitz_rate_l6",
+          "FLOAT",
+          "NULLABLE"
+        ]
+      ],
+      "schema_before": [
+        [
+          "team",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "week",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "blitz_rate_l6",
+          "FLOAT",
+          "NULLABLE"
+        ]
+      ],
+      "snapshot": "nfl-predictions-503414.nfl_predictions.pit_pre_ac9a2c2_defense_week_blitz"
+    },
+    "player_week_inference": {
+      "after": {
+        "checksum": null,
+        "keys": 0,
+        "rows": 0
+      },
+      "before": {
+        "checksum": null,
+        "keys": 0,
+        "rows": 0
+      },
+      "key_delta": {
+        "new_only": 0,
+        "old_only": 0
+      },
+      "rebuilt": "nfl-predictions-503414.nfl_features.player_week_inference",
+      "schema_after": [
+        [
+          "gsis_id",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "week",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "team",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "opponent",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "position",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "game_id",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "targets_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "target_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "air_yards_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "wopr_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz20_targets_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz10_targets_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz20_target_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz10_target_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz20_targets_smoothed",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carries_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carry_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "gl3_carries_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "gl3_carry_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "gl3_carries_smoothed",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "snap_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "target_share_last",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carry_share_last",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "snap_share_last",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "target_share_jump",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carry_share_jump",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "snap_share_jump",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "target_share_std",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "target_share_trend",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carry_share_trend",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "games_played_prior",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "yards_per_target_l8",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "yards_per_reception_l8",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "catch_rate_l8",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "yards_per_carry_l8",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "yards_per_attempt_l8",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "adot_l8",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "dk_points_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "dk_points_std",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "dk_points_vol",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "implied_team_total",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "spread",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "game_total",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "expected_game_script",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "is_home",
+          "BOOLEAN",
+          "NULLABLE"
+        ],
+        [
+          "days_rest",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "plays_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "pass_rate_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "pace_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "proe_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "expected_plays",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "xtd_receiving_proxy",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "epa_per_dropback_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "epa_per_rush_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz_td_rate_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "qb_fp_allowed_adj_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rb_fp_allowed_adj_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "wr_fp_allowed_adj_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "te_fp_allowed_adj_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "cb_ypt_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "cb_comp_rate_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "db_ypt_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "top_cb_out",
+          "BOOLEAN",
+          "NULLABLE"
+        ],
+        [
+          "injury_status",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "practice_level",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "practice_participation_trend",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "games_missed_l4",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "depth_rank",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "depth_rank_delta",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "is_rookie",
+          "BOOLEAN",
+          "NULLABLE"
+        ],
+        [
+          "draft_round",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "ref_flags_prior",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "neutral_pass_rate_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "team_ol_out",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "pace_env_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "opp_blitz_rate_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "pa_rate_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "opp_pressure_rate_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "xfp_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "net_rest_diff",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "body_clock_hour",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "team_top2_target_share_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "qb_cpoe_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "qb_time_to_throw_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_source_season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_source_week",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_source_sha256",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_prior_observations",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_share_last",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_share_jump",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_cross_season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_fallback",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "team_vacated_target_share",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "team_vacated_carry_share",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "vacated_capture_tgt",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "vacated_capture_car",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "ez_targets_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "deep_targets_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "separation_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "stacked_box_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "wind_mph",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "temp_f",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "is_dome",
+          "BOOLEAN",
+          "NULLABLE"
+        ],
+        [
+          "salary_delta_wow",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "is_cold_start",
+          "BOOLEAN",
+          "NULLABLE"
+        ]
+      ],
+      "schema_before": [
+        [
+          "gsis_id",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "week",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "team",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "opponent",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "position",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "game_id",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "targets_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "target_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "air_yards_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "wopr_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz20_targets_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz10_targets_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz20_target_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz10_target_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz20_targets_smoothed",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carries_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carry_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "gl3_carries_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "gl3_carry_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "gl3_carries_smoothed",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "snap_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "target_share_last",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carry_share_last",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "snap_share_last",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "target_share_jump",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carry_share_jump",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "snap_share_jump",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "target_share_std",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "target_share_trend",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carry_share_trend",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "games_played_prior",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "yards_per_target_l8",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "yards_per_reception_l8",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "catch_rate_l8",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "yards_per_carry_l8",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "yards_per_attempt_l8",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "adot_l8",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "dk_points_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "dk_points_std",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "dk_points_vol",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "implied_team_total",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "spread",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "game_total",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "expected_game_script",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "is_home",
+          "BOOLEAN",
+          "NULLABLE"
+        ],
+        [
+          "days_rest",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "plays_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "pass_rate_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "pace_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "proe_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "expected_plays",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "xtd_receiving_proxy",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "epa_per_dropback_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "epa_per_rush_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz_td_rate_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "qb_fp_allowed_adj_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rb_fp_allowed_adj_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "wr_fp_allowed_adj_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "te_fp_allowed_adj_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "cb_ypt_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "cb_comp_rate_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "db_ypt_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "top_cb_out",
+          "BOOLEAN",
+          "NULLABLE"
+        ],
+        [
+          "injury_status",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "practice_level",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "practice_participation_trend",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "games_missed_l4",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "depth_rank",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "depth_rank_delta",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "is_rookie",
+          "BOOLEAN",
+          "NULLABLE"
+        ],
+        [
+          "draft_round",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "ref_flags_prior",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "neutral_pass_rate_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "team_ol_out",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "pace_env_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "opp_blitz_rate_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "pa_rate_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "opp_pressure_rate_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "xfp_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "net_rest_diff",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "body_clock_hour",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "team_top2_target_share_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "qb_cpoe_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "qb_time_to_throw_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_source_season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_source_week",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_source_sha256",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_prior_observations",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_share_last",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_share_jump",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_cross_season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_fallback",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "team_vacated_target_share",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "team_vacated_carry_share",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "vacated_capture_tgt",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "vacated_capture_car",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "ez_targets_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "deep_targets_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "separation_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "stacked_box_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "wind_mph",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "temp_f",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "is_dome",
+          "BOOLEAN",
+          "NULLABLE"
+        ],
+        [
+          "salary_delta_wow",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "is_cold_start",
+          "BOOLEAN",
+          "NULLABLE"
+        ]
+      ],
+      "snapshot": "nfl-predictions-503414.nfl_predictions.pit_pre_ac9a2c2_player_week_inference"
+    },
+    "player_week_injury": {
+      "after": {
+        "checksum": 8339118532844621066,
+        "keys": 57550,
+        "rows": 57550
+      },
+      "before": {
+        "checksum": 6175506643284995870,
+        "keys": 65862,
+        "rows": 65866
+      },
+      "key_delta": {
+        "new_only": 0,
+        "old_only": 8312
+      },
+      "rebuilt": "nfl-predictions-503414.nfl_features.player_week_injury",
+      "schema_after": [
+        [
+          "gsis_id",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "week",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "injury_status",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "practice_level",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "practice_participation_trend",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "games_missed_l4",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "injury_source_modified_at",
+          "TIMESTAMP",
+          "NULLABLE"
+        ],
+        [
+          "slate_lock_at",
+          "TIMESTAMP",
+          "NULLABLE"
+        ]
+      ],
+      "schema_before": [
+        [
+          "gsis_id",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "week",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "injury_status",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "practice_level",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "practice_participation_trend",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "games_missed_l4",
+          "INTEGER",
+          "NULLABLE"
+        ]
+      ],
+      "snapshot": "nfl-predictions-503414.nfl_predictions.pit_pre_ac9a2c2_player_week_injury"
+    },
+    "player_week_training": {
+      "after": {
+        "checksum": 1904430067081090565,
+        "keys": 102927,
+        "rows": 102927
+      },
+      "before": {
+        "checksum": 4718509956564061283,
+        "keys": 102927,
+        "rows": 102927
+      },
+      "column_changes": {
+        "adot_l8": 0,
+        "air_yards_share_l4": 0,
+        "body_clock_hour": 0,
+        "carries_l4": 0,
+        "carry_share_jump": 0,
+        "carry_share_l4": 0,
+        "carry_share_last": 0,
+        "carry_share_trend": 0,
+        "catch_rate_l8": 0,
+        "cb_comp_rate_allowed_l6": 0,
+        "cb_ypt_allowed_l6": 0,
+        "days_rest": 0,
+        "db_ypt_allowed_l6": 0,
+        "deep_targets_l4": 0,
+        "depth_rank": 0,
+        "depth_rank_delta": 0,
+        "dk_points_l4": 0,
+        "dk_points_std": 0,
+        "dk_points_vol": 0,
+        "dk_ppg": 0,
+        "draft_round": 0,
+        "epa_per_dropback_allowed_l6": 63074,
+        "epa_per_rush_allowed_l6": 58208,
+        "expected_game_script": 0,
+        "expected_plays": 0,
+        "ez_targets_l4": 0,
+        "fp_route_cross_season": 0,
+        "fp_route_fallback": 0,
+        "fp_route_prior_observations": 0,
+        "fp_route_share_jump": 0,
+        "fp_route_share_l4": 0,
+        "fp_route_share_last": 0,
+        "fp_route_source_season": 0,
+        "fp_route_source_sha256": 0,
+        "fp_route_source_week": 0,
+        "game_id": 0,
+        "game_total": 0,
+        "games_missed_l4": 492,
+        "games_played_prior": 0,
+        "gl3_carries_l4": 0,
+        "gl3_carries_smoothed": 80537,
+        "gl3_carry_share_l4": 0,
+        "implied_team_total": 0,
+        "injury_status": 803,
+        "is_cold_start": 0,
+        "is_dome": 0,
+        "is_home": 0,
+        "is_rookie": 0,
+        "net_rest_diff": 0,
+        "neutral_pass_rate_l6": 0,
+        "opp_blitz_rate_l6": 0,
+        "opp_pressure_rate_l6": 0,
+        "opponent": 0,
+        "pa_rate_l6": 0,
+        "pace_env_l6": 0,
+        "pace_l4": 0,
+        "pass_rate_l4": 0,
+        "plays_l4": 0,
+        "position": 0,
+        "practice_level": 1716,
+        "practice_participation_trend": 1281,
+        "proe_l4": 0,
+        "qb_cpoe_l6": 0,
+        "qb_fp_allowed_adj_l6": 3980,
+        "qb_time_to_throw_l6": 0,
+        "rb_fp_allowed_adj_l6": 43982,
+        "ref_flags_prior": 144,
+        "rz10_target_share_l4": 0,
+        "rz10_targets_l4": 0,
+        "rz20_target_share_l4": 0,
+        "rz20_targets_l4": 0,
+        "rz20_targets_smoothed": 80537,
+        "rz_td_rate_allowed_l6": 0,
+        "salary": 0,
+        "salary_delta_wow": 0,
+        "separation_l4": 0,
+        "snap_share_jump": 0,
+        "snap_share_l4": 0,
+        "snap_share_last": 0,
+        "spread": 0,
+        "stacked_box_l4": 0,
+        "target_share_jump": 0,
+        "target_share_l4": 0,
+        "target_share_last": 0,
+        "target_share_std": 0,
+        "target_share_trend": 0,
+        "targets_l4": 0,
+        "te_fp_allowed_adj_l6": 18256,
+        "team": 0,
+        "team_ol_out": 0,
+        "team_top2_target_share_l6": 0,
+        "team_vacated_carry_share": 2421,
+        "team_vacated_target_share": 4492,
+        "temp_f": 0,
+        "top_cb_out": 0,
+        "vacated_capture_car": 2421,
+        "vacated_capture_tgt": 4481,
+        "was_active": 0,
+        "wind_mph": 0,
+        "wopr_l4": 0,
+        "wr_fp_allowed_adj_l6": 63378,
+        "xfp_l4": 9861,
+        "xtd_receiving_proxy": 79549,
+        "y_carries": 0,
+        "y_dk_points": 0,
+        "y_interceptions": 0,
+        "y_pass_attempts": 0,
+        "y_pass_tds": 0,
+        "y_pass_yards": 0,
+        "y_rec_tds": 0,
+        "y_rec_yards": 0,
+        "y_receptions": 0,
+        "y_rush_tds": 0,
+        "y_rush_yards": 0,
+        "y_targets": 0,
+        "yards_per_attempt_l8": 0,
+        "yards_per_carry_l8": 0,
+        "yards_per_reception_l8": 0,
+        "yards_per_target_l8": 0
+      },
+      "key_delta": {
+        "new_only": 0,
+        "old_only": 0
+      },
+      "numeric_delta_profile": {
+        "epa_per_dropback_allowed_l6": {
+          "changes_gt_1e12": 0,
+          "max_abs_delta": 2.220446049250313e-16,
+          "null_mismatches": 0
+        },
+        "epa_per_rush_allowed_l6": {
+          "changes_gt_1e12": 0,
+          "max_abs_delta": 2.220446049250313e-16,
+          "null_mismatches": 0
+        },
+        "xfp_l4": {
+          "changes_gt_1e12": 0,
+          "max_abs_delta": 7.105427357601002e-15,
+          "null_mismatches": 0
+        }
+      },
+      "rebuilt": "nfl-predictions-503414.nfl_features.player_week_training",
+      "schema_after": [
+        [
+          "gsis_id",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "week",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "team",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "opponent",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "position",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "game_id",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "was_active",
+          "BOOLEAN",
+          "NULLABLE"
+        ],
+        [
+          "targets_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "target_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "air_yards_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "wopr_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz20_targets_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz10_targets_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz20_target_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz10_target_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz20_targets_smoothed",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carries_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carry_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "gl3_carries_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "gl3_carry_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "gl3_carries_smoothed",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "snap_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "target_share_last",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carry_share_last",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "snap_share_last",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "target_share_jump",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carry_share_jump",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "snap_share_jump",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "target_share_std",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "target_share_trend",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carry_share_trend",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "games_played_prior",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "yards_per_target_l8",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "yards_per_reception_l8",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "catch_rate_l8",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "yards_per_carry_l8",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "yards_per_attempt_l8",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "adot_l8",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "dk_points_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "dk_points_std",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "dk_points_vol",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "implied_team_total",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "spread",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "game_total",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "expected_game_script",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "is_home",
+          "BOOLEAN",
+          "NULLABLE"
+        ],
+        [
+          "days_rest",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "plays_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "pass_rate_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "pace_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "proe_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "expected_plays",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "xtd_receiving_proxy",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "epa_per_dropback_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "epa_per_rush_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz_td_rate_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "qb_fp_allowed_adj_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rb_fp_allowed_adj_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "wr_fp_allowed_adj_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "te_fp_allowed_adj_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "cb_ypt_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "cb_comp_rate_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "db_ypt_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "top_cb_out",
+          "BOOLEAN",
+          "NULLABLE"
+        ],
+        [
+          "injury_status",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "practice_level",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "practice_participation_trend",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "games_missed_l4",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "depth_rank",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "depth_rank_delta",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "is_rookie",
+          "BOOLEAN",
+          "NULLABLE"
+        ],
+        [
+          "draft_round",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "ref_flags_prior",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "neutral_pass_rate_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "team_ol_out",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "pace_env_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "opp_blitz_rate_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "pa_rate_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "opp_pressure_rate_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "xfp_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "net_rest_diff",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "body_clock_hour",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "team_top2_target_share_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "qb_cpoe_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "qb_time_to_throw_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_source_season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_source_week",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_source_sha256",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_prior_observations",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_share_last",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_share_jump",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_cross_season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_fallback",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "team_vacated_target_share",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "team_vacated_carry_share",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "vacated_capture_tgt",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "vacated_capture_car",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "ez_targets_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "deep_targets_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "separation_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "stacked_box_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "wind_mph",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "temp_f",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "is_dome",
+          "BOOLEAN",
+          "NULLABLE"
+        ],
+        [
+          "salary",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "salary_delta_wow",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "dk_ppg",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "is_cold_start",
+          "BOOLEAN",
+          "NULLABLE"
+        ],
+        [
+          "y_targets",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "y_receptions",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "y_rec_yards",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "y_rec_tds",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "y_carries",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "y_rush_yards",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "y_rush_tds",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "y_pass_attempts",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "y_pass_yards",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "y_pass_tds",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "y_interceptions",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "y_dk_points",
+          "FLOAT",
+          "NULLABLE"
+        ]
+      ],
+      "schema_before": [
+        [
+          "gsis_id",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "week",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "team",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "opponent",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "position",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "game_id",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "was_active",
+          "BOOLEAN",
+          "NULLABLE"
+        ],
+        [
+          "targets_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "target_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "air_yards_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "wopr_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz20_targets_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz10_targets_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz20_target_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz10_target_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz20_targets_smoothed",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carries_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carry_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "gl3_carries_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "gl3_carry_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "gl3_carries_smoothed",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "snap_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "target_share_last",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carry_share_last",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "snap_share_last",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "target_share_jump",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carry_share_jump",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "snap_share_jump",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "target_share_std",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "target_share_trend",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carry_share_trend",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "games_played_prior",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "yards_per_target_l8",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "yards_per_reception_l8",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "catch_rate_l8",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "yards_per_carry_l8",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "yards_per_attempt_l8",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "adot_l8",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "dk_points_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "dk_points_std",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "dk_points_vol",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "implied_team_total",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "spread",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "game_total",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "expected_game_script",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "is_home",
+          "BOOLEAN",
+          "NULLABLE"
+        ],
+        [
+          "days_rest",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "plays_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "pass_rate_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "pace_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "proe_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "expected_plays",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "xtd_receiving_proxy",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "epa_per_dropback_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "epa_per_rush_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz_td_rate_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "qb_fp_allowed_adj_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rb_fp_allowed_adj_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "wr_fp_allowed_adj_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "te_fp_allowed_adj_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "cb_ypt_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "cb_comp_rate_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "db_ypt_allowed_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "top_cb_out",
+          "BOOLEAN",
+          "NULLABLE"
+        ],
+        [
+          "injury_status",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "practice_level",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "practice_participation_trend",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "games_missed_l4",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "depth_rank",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "depth_rank_delta",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "is_rookie",
+          "BOOLEAN",
+          "NULLABLE"
+        ],
+        [
+          "draft_round",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "ref_flags_prior",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "neutral_pass_rate_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "team_ol_out",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "pace_env_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "opp_blitz_rate_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "pa_rate_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "opp_pressure_rate_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "xfp_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "net_rest_diff",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "body_clock_hour",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "team_top2_target_share_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "qb_cpoe_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "qb_time_to_throw_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_source_season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_source_week",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_source_sha256",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_prior_observations",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_share_last",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_share_jump",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_cross_season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "fp_route_fallback",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "team_vacated_target_share",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "team_vacated_carry_share",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "vacated_capture_tgt",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "vacated_capture_car",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "ez_targets_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "deep_targets_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "separation_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "stacked_box_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "wind_mph",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "temp_f",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "is_dome",
+          "BOOLEAN",
+          "NULLABLE"
+        ],
+        [
+          "salary",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "salary_delta_wow",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "dk_ppg",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "is_cold_start",
+          "BOOLEAN",
+          "NULLABLE"
+        ],
+        [
+          "y_targets",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "y_receptions",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "y_rec_yards",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "y_rec_tds",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "y_carries",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "y_rush_yards",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "y_rush_tds",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "y_pass_attempts",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "y_pass_yards",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "y_pass_tds",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "y_interceptions",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "y_dk_points",
+          "FLOAT",
+          "NULLABLE"
+        ]
+      ],
+      "snapshot": "nfl-predictions-503414.nfl_predictions.pit_pre_ac9a2c2_player_week_training"
+    },
+    "player_week_usage": {
+      "after": {
+        "checksum": -1838261106471484783,
+        "keys": 102927,
+        "rows": 102927
+      },
+      "before": {
+        "checksum": 3316307623008824498,
+        "keys": 102927,
+        "rows": 102927
+      },
+      "column_changes": {
+        "air_yards_share_l4": 0,
+        "carries_l4": 0,
+        "carries_std": 0,
+        "carry_share_jump": 0,
+        "carry_share_l4": 0,
+        "carry_share_last": 0,
+        "carry_share_trend": 0,
+        "games_played_prior": 0,
+        "gl3_carries_l4": 0,
+        "gl3_carries_smoothed": 80537,
+        "gl3_carries_sum_prior": 0,
+        "gl3_carry_share_l4": 0,
+        "is_upcoming": 0,
+        "position": 0,
+        "rz10_target_share_l4": 0,
+        "rz10_targets_l4": 0,
+        "rz20_carries_l4": 0,
+        "rz20_target_share_l4": 0,
+        "rz20_targets_l4": 0,
+        "rz20_targets_smoothed": 80537,
+        "rz20_targets_std": 0,
+        "rz20_targets_sum_prior": 0,
+        "snap_share_jump": 0,
+        "snap_share_l4": 0,
+        "snap_share_last": 0,
+        "target_share_jump": 0,
+        "target_share_l4": 0,
+        "target_share_last": 0,
+        "target_share_std": 0,
+        "target_share_trend": 0,
+        "targets_l4": 0,
+        "targets_std": 0,
+        "team": 0,
+        "was_active": 0,
+        "wopr_l4": 0
+      },
+      "key_delta": {
+        "new_only": 0,
+        "old_only": 0
+      },
+      "rebuilt": "nfl-predictions-503414.nfl_features.player_week_usage",
+      "schema_after": [
+        [
+          "gsis_id",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "week",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "team",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "is_upcoming",
+          "BOOLEAN",
+          "NULLABLE"
+        ],
+        [
+          "was_active",
+          "BOOLEAN",
+          "NULLABLE"
+        ],
+        [
+          "rz20_targets_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz10_targets_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "targets_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "target_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "air_yards_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz20_target_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz10_target_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz20_carries_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "gl3_carries_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carries_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carry_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "gl3_carry_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "snap_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "target_share_last",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carry_share_last",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "snap_share_last",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz20_targets_std",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "target_share_std",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "targets_std",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carries_std",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz20_targets_sum_prior",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "gl3_carries_sum_prior",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "target_share_trend",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carry_share_trend",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "games_played_prior",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "position",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "target_share_jump",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carry_share_jump",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "snap_share_jump",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "wopr_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz20_targets_smoothed",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "gl3_carries_smoothed",
+          "FLOAT",
+          "NULLABLE"
+        ]
+      ],
+      "schema_before": [
+        [
+          "gsis_id",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "week",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "team",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "is_upcoming",
+          "BOOLEAN",
+          "NULLABLE"
+        ],
+        [
+          "was_active",
+          "BOOLEAN",
+          "NULLABLE"
+        ],
+        [
+          "rz20_targets_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz10_targets_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "targets_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "target_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "air_yards_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz20_target_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz10_target_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz20_carries_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "gl3_carries_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carries_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carry_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "gl3_carry_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "snap_share_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "target_share_last",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carry_share_last",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "snap_share_last",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz20_targets_std",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "target_share_std",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "targets_std",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carries_std",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz20_targets_sum_prior",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "gl3_carries_sum_prior",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "target_share_trend",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carry_share_trend",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "games_played_prior",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "position",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "target_share_jump",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "carry_share_jump",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "snap_share_jump",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "wopr_l4",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "rz20_targets_smoothed",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "gl3_carries_smoothed",
+          "FLOAT",
+          "NULLABLE"
+        ]
+      ],
+      "snapshot": "nfl-predictions-503414.nfl_predictions.pit_pre_ac9a2c2_player_week_usage"
+    },
+    "team_week_ftn_offense": {
+      "after": {
+        "checksum": 7356755772323636278,
+        "keys": 2278,
+        "rows": 2278
+      },
+      "before": {
+        "checksum": 7356755772323636278,
+        "keys": 2278,
+        "rows": 2278
+      },
+      "key_delta": {
+        "new_only": 0,
+        "old_only": 0
+      },
+      "rebuilt": "nfl-predictions-503414.nfl_features.team_week_ftn_offense",
+      "schema_after": [
+        [
+          "team",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "week",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "pa_rate_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "def_pressure_rate_l6",
+          "FLOAT",
+          "NULLABLE"
+        ]
+      ],
+      "schema_before": [
+        [
+          "team",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "week",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "pa_rate_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "def_pressure_rate_l6",
+          "FLOAT",
+          "NULLABLE"
+        ]
+      ],
+      "snapshot": "nfl-predictions-503414.nfl_predictions.pit_pre_ac9a2c2_team_week_ftn_offense"
+    },
+    "team_week_pace": {
+      "after": {
+        "checksum": 3115577818244933737,
+        "keys": 6590,
+        "rows": 6590
+      },
+      "before": {
+        "checksum": 3115577818244933737,
+        "keys": 6590,
+        "rows": 6590
+      },
+      "key_delta": {
+        "new_only": 0,
+        "old_only": 0
+      },
+      "rebuilt": "nfl-predictions-503414.nfl_features.team_week_pace",
+      "schema_after": [
+        [
+          "team",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "week",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "off_plays_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "def_plays_faced_l6",
+          "FLOAT",
+          "NULLABLE"
+        ]
+      ],
+      "schema_before": [
+        [
+          "team",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "week",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "off_plays_l6",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "def_plays_faced_l6",
+          "FLOAT",
+          "NULLABLE"
+        ]
+      ],
+      "snapshot": "nfl-predictions-503414.nfl_predictions.pit_pre_ac9a2c2_team_week_pace"
+    },
+    "team_week_target_concentration": {
+      "after": {
+        "checksum": -4875210801157159949,
+        "keys": 6590,
+        "rows": 6590
+      },
+      "before": {
+        "checksum": -4875210801157159949,
+        "keys": 6590,
+        "rows": 6590
+      },
+      "key_delta": {
+        "new_only": 0,
+        "old_only": 0
+      },
+      "rebuilt": "nfl-predictions-503414.nfl_features.team_week_target_concentration",
+      "schema_after": [
+        [
+          "team",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "week",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "top2_target_share_l6",
+          "FLOAT",
+          "NULLABLE"
+        ]
+      ],
+      "schema_before": [
+        [
+          "team",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "week",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "top2_target_share_l6",
+          "FLOAT",
+          "NULLABLE"
+        ]
+      ],
+      "snapshot": "nfl-predictions-503414.nfl_predictions.pit_pre_ac9a2c2_team_week_target_concentration"
+    },
+    "team_week_vacated": {
+      "after": {
+        "checksum": 561401631956934310,
+        "keys": 2261,
+        "rows": 2261
+      },
+      "before": {
+        "checksum": 1610628163133179312,
+        "keys": 2609,
+        "rows": 2609
+      },
+      "key_delta": {
+        "new_only": 0,
+        "old_only": 348
+      },
+      "rebuilt": "nfl-predictions-503414.nfl_features.team_week_vacated",
+      "schema_after": [
+        [
+          "team",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "week",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "vacated_target_share",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "vacated_carry_share",
+          "FLOAT",
+          "NULLABLE"
+        ]
+      ],
+      "schema_before": [
+        [
+          "team",
+          "STRING",
+          "NULLABLE"
+        ],
+        [
+          "season",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "week",
+          "INTEGER",
+          "NULLABLE"
+        ],
+        [
+          "vacated_target_share",
+          "FLOAT",
+          "NULLABLE"
+        ],
+        [
+          "vacated_carry_share",
+          "FLOAT",
+          "NULLABLE"
+        ]
+      ],
+      "snapshot": "nfl-predictions-503414.nfl_predictions.pit_pre_ac9a2c2_team_week_vacated"
+    }
+  }
+}
