@@ -20,12 +20,13 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 21:48 CDT
+## Current state — 2026-08-11 21:55 CDT
 
-Active branch is `main`; final-served Route diagnostic implementation commit
-`d5e74c0` is pushed. The position-calibration result, research promotion,
-live-policy adoption and validated production rollout described below are the
-current milestone. Advanced Receiving
+Active branch is `main`; point-in-time audit reconciliation and dynamic
+leakage-check expansion commits through `7304cfc` are pushed. The
+position-calibration result, research promotion, live-policy adoption and
+validated production rollout described below remain the deployed milestone.
+Advanced Receiving
 diagnostic implementation commit `5aee8aa` and negative result commit
 `6137bad` remain pushed historical records; that exact vendor arm is closed.
 The program-review reconciliation is finalized in this milestone.
@@ -316,12 +317,25 @@ and must not be staged or modified.
   skips and published immutable CPU digest
   `sha256:ce28df5bccce1a0be8966f5d86b2c53709db4d9dc83d8b1f8050043a93af6762`.
   The fitted-K rejection fixed the common simulator as production multinomial.
-  The sole final-served gate is now running from that digest as Cloud Run
-  execution `tabpfn-active-label-final-served-h5jpq`; its manifest derives and
-  records blank `GAME_SIM_USAGE`/`DIRICHLET_K` from the frozen comparison.
-  Monitor to completion and harvest the one machine report. A passing Brier
-  gate licenses one separately frozen paired exact-80 lineup comparison; a
-  failure closes this exact active-label arm.
+  The sole final-served Cloud Run execution
+  `tabpfn-active-label-final-served-h5jpq` completed successfully from that
+  digest and passed its frozen gate. On 13,876 active RB/WR/TE rows across 54
+  2023--2025 slates, aggregate 30-point Brier improved
+  `0.014021024 -> 0.014010786` (`-0.000010238`). The paired team-week 95%
+  interval `[-0.000048884, 0.000028408]` crosses zero; 2023 and 2024 worsened,
+  2025 improved, 20-point Brier worsened slightly, and CRPS improved. Those
+  were frozen diagnostics rather than vetoes. Both arms have 100% cache
+  coverage, exact common production-multinomial usage, 52,307 cache rows and
+  maximum mean drift `7.11e-15`. Full result is tracked in
+  `reports/2026-08-11-tabpfn-active-label-final-served-result.md` and the
+  immutable run directory. This does not promote the cache. The sole licensed
+  exact-80 comparison is now frozen, before producing a lineup outcome, in
+  `reports/2026-08-11-tabpfn-active-label-exact80-protocol.md`. It compares
+  research current-label versus active-only caches using their exact
+  independently fitted 2023/2024/2025 schedules under common production
+  multinomial usage and the 240/230/220/210/200 first-difference law. Next:
+  commit/push this result and freeze, then implement/validate the launcher and
+  comparator before any active-label lineup-score query.
 - The new read-only outside review
   `reports/2026-08-11-feature-plumbing-defects-and-correlation-gaps.md` was
   reconciled. Its two-channel diagnosis is correct: TabPFN owns covered player

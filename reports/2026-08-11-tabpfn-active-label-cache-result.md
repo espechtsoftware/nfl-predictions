@@ -31,11 +31,15 @@ zero labels were 73 for the 2022 target, 2,860 for 2023, 4,409 for 2024, and
 5,765 for 2025. Before the 28,000-row cap, cumulative eligible inactive labels
 were 129, 6,331, 12,372, and 18,502 respectively.
 
-## Next gate
+## Terminal cache-stage result and next gate
 
-Do not read lineup scores or promote either table from this result. After the
-fitted-K exact-80 comparison fixes the common accepted simulator law, run the
-frozen final-served walk-forward position-calibrated comparison from
-`reports/2026-08-11-tabpfn-active-label-protocol.md`. Only an aggregate
-2023--2025 active RB/WR/TE 30-point Brier improvement licenses one separately
-frozen exact-80 scoring comparison.
+The fitted-K comparison rejected finite K and fixed the common simulator law
+as production multinomial. The sole frozen final-served execution
+`tabpfn-active-label-final-served-h5jpq` then passed its aggregate active
+RB/WR/TE 30-point Brier gate by `0.000010238`, while two of three individual
+seasons declined. Full interpretation is tracked in
+`reports/2026-08-11-tabpfn-active-label-final-served-result.md`.
+
+This licenses one separately frozen exact-80 scoring comparison; it does not
+promote either table. Do not inspect corrected-cache lineup scores until that
+protocol is committed.

@@ -96,3 +96,21 @@ must be persisted in experiment provenance, and the adopted production policy
 must explicitly overwrite it with the canonical default. No corrected cache
 can replace `features.tabpfn_projections` until every licensed gate passes and
 a separate code-reviewed promotion/deployment is validated.
+
+## Terminal final-served gate result
+
+The fitted-K exact-80 arm rejected finite K, so the common law was fixed as
+production multinomial. Immutable execution
+`tabpfn-active-label-final-served-h5jpq` then passed the frozen aggregate
+30-point Brier gate: `0.014021024 -> 0.014010786` on 13,876 active RB/WR/TE
+rows over 54 2023--2025 slates. The delta is only `-0.000010238`; its paired
+team-week clustered 95% interval crosses zero, 2023 and 2024 declined, and
+20-point Brier and MAE worsened slightly. Those were diagnostics rather than
+vetoes under the frozen rule. Mean preservation, cache coverage and all
+mechanical checks passed.
+
+Machine disposition is `tabpfn-active-label-final-served-passes`. The sole
+licensed next step is one separately frozen paired exact-80 comparison. No
+production promotion is authorized by this result alone. See
+`reports/2026-08-11-tabpfn-active-label-final-served-result.md` and the
+immutable run directory for the complete record.

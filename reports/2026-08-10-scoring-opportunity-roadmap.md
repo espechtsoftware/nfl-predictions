@@ -28,6 +28,14 @@ neutral-pass ratio and both QB NGS windows, including sample volatility, exact
 missing-spine semantics and cross-season ordering. Smoothed usage and injury/
 vacancy remain next.
 
+TabPFN label addendum (2026-08-11): the active-only training-label correction
+passed its frozen final-served aggregate 30-point Brier gate by a very small
+`0.000010238`; 2023 and 2024 declined while 2025 improved. This licenses, but
+does not predetermine, one paired exact-80 comparison under production
+multinomial usage. That comparison is frozen before scores in
+`reports/2026-08-11-tabpfn-active-label-exact80-protocol.md`. SCHED feature
+sync inherits active-only labels only if the exact-80 tail-first gate passes.
+
 Closure addendum (2026-08-11): after every historical arm reaches a terminal
 state, run the mandatory end-of-preseason forensic protocol in
 `reports/2026-08-11-final-preseason-forensic-closure-protocol.md`. It corrects
