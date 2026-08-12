@@ -1,0 +1,4 @@
+selected_base=k1
+selected_panel=20260811-pitclean-e80-k1-a12ab31
+comparison_sha256=fd3aa276763742d21a1ce3849a1a69d7e84c041e7143d23937e23350bd929449
+supersedes_failed_comparator=compare-pit-tier1-ensemble-x8nkn

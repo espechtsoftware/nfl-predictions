@@ -1,0 +1,21 @@
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ad50fe19bde366ca11180b561127b09e2c79c97ec7dbbd5507282e33d2d5eb62
+family=pitk1role
+panel_run_id=20260811-pitclean-e80-k1-role12union-a12ab31
+code_sha=a12ab31
+seasons=2019 2021 2022 2023 2024 2025
+arm_label=pit_clean_k1_role12_union
+arm_env=TABPFN_MARGINALS=1|TABPFN_MARGINAL_TABLE=tabpfn_projections_pit_v2|MODEL_ENSEMBLE=1|EPISTEMIC_FAMILY=role_draws|ROLE_BELIEF_FEATURES=target_share_last,carry_share_last,snap_share_last,target_share_jump,carry_share_jump,snap_share_jump|ROLE_BELIEF_SEED=7331|REPLACEMENT_SLOTS=12
+memory=16Gi
+task_timeout=14400
+smoke_season=2024
+n_entries=80
+n_ce=0
+n_epistemic=12
+n_gumbel=0
+n_boom=40
+arm_env_2019=
+arm_env_2021=
+arm_env_2022=
+arm_env_2023=
+arm_env_2024=
+arm_env_2025=

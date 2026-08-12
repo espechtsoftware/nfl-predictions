@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 22:48 CDT
+## Current state — 2026-08-12 06:43 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -346,6 +346,33 @@ and must not be staged or modified.
   failed execution/error. Next action: validate/build the packaging-only
   repair image, run the superseding comparator, then mechanically complete
   base selection.
+- Packaging-repair Cloud Build `494d5160-48f9-4c2a-91c8-2d4543fc6186`
+  passed 959 tests with two expected skips and published immutable audit
+  digest
+  `sha256:f73edb2d6f111bc936a2825cca397f7f35c2762b98673d3440bc88de3b2e7746`.
+  Superseding comparator execution
+  `compare-pit-tier1-ensemble-repair-kmrbv` completed successfully and emitted
+  one valid structured report with complete canonical-v2 cache coverage and
+  no mechanism failures. The report is tracked under the K1 panel directory;
+  it explicitly supersedes packaging-only failure
+  `compare-pit-tier1-ensemble-x8nkn`.
+- The repaired exact-80 comparison mechanically selected K1 at the first
+  difference in the frozen `240,230,220,210,200,194,187` order. K3 to K1
+  weekly-maximum counts changed `0/1/2/5/10/13/28` to
+  `1/1/2/4/12/22/36`, respectively; mean weekly maximum changed
+  `175.0996` to `176.6557`. K1 promotion execution
+  `accept-replay-panel-hxlbc` passed, and
+  `reports/pit-tier1-runs/20260811-pit-clean-controls-v2/selected_base.txt`
+  durably records the selection. The one lost >=210 week is diagnostic and
+  cannot override the predeclared >=240 first difference.
+- Only the predeclared selected K1 direct-role branch is now launching from
+  generation digest `ad50...`, code `a12ab31`, and canonical-v2 cache. Smoke
+  execution is `replay-pitk1role-smoke-bbwjd`; the launcher will release the
+  six season jobs only after clean preflight. Do not inspect partial role
+  scores. Next action is to wait for smoke and all six seasons, run the frozen
+  role finisher with audit digest `f73e...`, then launch the score-free PIT-v2
+  served-position and usage-K calibrations from the resulting terminal Tier-1
+  selection.
 
 ### Validated production rollout completed; Route diagnostic ready
 
