@@ -128,8 +128,11 @@ reconciliation when their findings affect the program.
   and all causal levers remain unchanged. The same exact ten-output contract
   is frozen for SCHED and team passing before either downstream result.
   Focused active-label/SCHED/team-passing tests and shell parsing pass.
-  Next: build an immutable full audit image from this exact repair commit,
-  run `scripts/cloud_recompare_tabpfn_active_label_exact80_v2.sh` on the
+  Repair/evidence commit `f10a7a4` is pushed on `main`. Exact-commit full-test
+  Cloud Build `141d2c9f-908f-4de2-a363-982d7a734490` is running for image tag
+  `nfl-dfs:active-label-comparator-f10a7a4`. When it succeeds, resolve its
+  immutable digest and run
+  `scripts/cloud_recompare_tabpfn_active_label_exact80_v2.sh` on the
   already-complete books, then continue SCHED under its mechanical selection.
 - Review reconciliation and active-label gate milestone commit `83192ca` is
   pushed on `main`. The complete local suite passes all 992 collected tests
