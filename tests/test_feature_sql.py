@@ -147,6 +147,25 @@ def test_target_concentration_tiebreak_uses_weekly_stats_schema():
     assert "ORDER BY t DESC, gsis_id" not in sql
 
 
+def test_adopted_context_features_emit_upcoming_inference_rows():
+    neutral = (
+        SQL_DIR / "features" / "017c_team_neutral_pass.sql"
+    ).read_text()
+    ngs = (SQL_DIR / "features" / "017h_qb_ngs.sql").read_text()
+    for sql in (neutral, ngs):
+        assert "`${features}.player_week_role`" in sql
+        assert "ro.is_upcoming" in sql
+        assert "NOT EXISTS" in sql
+        assert "UNION ALL" in sql
+    assert "FROM tw_with_upcoming" in neutral
+    assert "FROM with_upcoming" in ngs
+    # Only one synthetic live row is appended. Building a complete player-week
+    # spine would change the historical ROWS-window population and invalidate
+    # replay parity.
+    assert "CAST(NULL AS INT64) AS p" in neutral
+    assert "CAST(NULL AS FLOAT64) AS cpoe" in ngs
+
+
 @pytest.mark.parametrize("path", FEATURE_SQL, ids=lambda p: p.name)
 def test_renders_without_unresolved_placeholders(path):
     sql = render_sql(path, prior_k=4)

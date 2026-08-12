@@ -20,11 +20,32 @@ tw AS (
   SELECT team, season, week, SUM(is_pass) AS p, COUNT(*) AS n
   FROM plays
   GROUP BY team, season, week
+),
+-- Preserve every historical window exactly and append only the one live
+-- target row. Without this row the inference join asks for (team, upcoming
+-- season/week), finds nothing, and silently loses an adopted feature.
+tw_with_upcoming AS (
+  SELECT team, season, week, p, n
+  FROM tw
+  UNION ALL
+  SELECT DISTINCT
+    ro.team, ro.season, ro.week,
+    CAST(NULL AS INT64) AS p,
+    CAST(NULL AS INT64) AS n
+  FROM `${features}.player_week_role` ro
+  WHERE ro.is_upcoming
+    AND ro.team IS NOT NULL
+    AND NOT EXISTS (
+      SELECT 1 FROM tw prior
+      WHERE prior.team = ro.team
+        AND prior.season = ro.season
+        AND prior.week = ro.week
+    )
 )
 SELECT
   team, season, week,
   SAFE_DIVIDE(SUM(p) OVER w, SUM(n) OVER w) AS neutral_pass_rate_l6
-FROM tw
+FROM tw_with_upcoming
 WINDOW w AS (
   PARTITION BY team ORDER BY season, week
   ROWS BETWEEN 6 PRECEDING AND 1 PRECEDING

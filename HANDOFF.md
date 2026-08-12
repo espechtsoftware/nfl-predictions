@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 19:42 CDT
+## Current state — 2026-08-11 19:47 CDT
 
 Active branch is `main`; final-served Route diagnostic implementation commit
 `d5e74c0` is pushed. The position-calibration result, research promotion,
@@ -210,6 +210,17 @@ and must not be staged or modified.
   or selected. A strictly-prior, team-level PBP CPOE window broadcast to
   pass-catchers may be more complete than sparse player-level NGS CPOE and is
   the preferred D1 design to preregister after active-label and SCHED-sync.
+  A separate live-plumbing repair now appends exactly one null upcoming row
+  before the adopted `neutral_pass_rate_l6` team window and the adopted
+  `qb_cpoe_l6`/`qb_time_to_throw_l6` player window. This makes their last six
+  completed observations joinable to live inference without changing any
+  historical window population. BigQuery dry-runs validate both DDLs; direct
+  proposed-versus-current warehouse comparisons find zero mismatches across
+  all 6,254 existing neutral-pass rows and all 5,526 existing NGS rows. The
+  complete feature-SQL and config-manifest suites pass (one expected dashboard
+  skip). Commit/push this point-in-time plumbing repair; do not rebuild feature
+  tables mid-panel. Schedule a normal validated feature rebuild after the
+  immutable fitted-K and cache jobs finish.
 
 ### Final-served position calibration passed, promoted, and adopted
 
