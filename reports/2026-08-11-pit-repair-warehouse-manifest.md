@@ -47,9 +47,13 @@ spine during the build.
 
 ## Post-build required comparison
 
-Record new rows/keys/checksums and exact changed-column counts. Row/key changes
-are allowed only for the four intended injury duplicates and already-
-documented upcoming candidate rows; every other difference must reconcile to
-the position-prior, pre-lock injury/vacancy or exact player-week defense
-repairs. The rebuilt table cannot feed caches/models until the full dynamic
-PIT, salary/universe and live-row gates pass.
+Record new rows/keys/checksums and exact changed-column counts. Usage/training
+player-week keys must remain exact. The independently computed pre-lock injury
+target is 57,550 unique rows: 8,312 of the 65,862 old keys have no eligible
+common-Sunday-main pre-lock source and are intentionally absent, while the four
+duplicate revisions collapse. Vacancy rows/values may change only as a
+consequence of that exact repaired `Out` set. Every other difference must
+reconcile to the position-prior, pre-lock injury/vacancy or already-landed
+exact player-week defense/upcoming-row repairs. The rebuilt table cannot feed
+caches/models until the full dynamic PIT, salary/universe and live-row gates
+pass.

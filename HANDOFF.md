@@ -91,7 +91,13 @@ and must not be staged or modified.
   its exact tree passed 935 tests with two expected skips. It validates the
   code tree but cannot authorize stale-cache launches.
   PIT-repair exact-tree build `f7317ad5-f563-458a-a28f-5f2aa85eec79` is
-  running from pushed commit `ac9a2c2`.
+  complete from pushed commit `ac9a2c2`: 940 tests passed, two expected skips,
+  immutable digest
+  `sha256:66ee48456c5c66a290794dae6ee704a6cc42213d346931cfe0e3feb5e06f74c4`.
+  `build-features` is pinned to that digest and coordinated rebuild execution
+  `build-features-nbzk8` is running. Do not train, generate caches or score
+  repaired panels until it completes and the outcome-free reconciliation
+  passes.
 - The strengthened final-preseason closure protocol now requires a ninth
   output, an exhaustion certificate that maps every known idea across all
   mechanism families to a terminal/prospective/data-blocked disposition, plus
@@ -111,8 +117,10 @@ and must not be staged or modified.
   `nfl_predictions.pit_pre_ac9a2c2_*` have 30-day expirations; their durable
   BigQuery job ids are in the manifest. The old training/usage tables each have
   102,927 unique player-week rows, while old injury has 65,866 rows on 65,862
-  keys. Use these snapshots for exact post-build reconciliation; never splice
-  them into a new repaired panel.
+  keys. The independently computed repaired injury target is 57,550 unique
+  pre-lock common-Sunday-main rows; 8,312 old keys have no eligible pre-lock
+  source. Use these snapshots for exact post-build reconciliation; never
+  splice them into a new repaired panel.
 - PIT-clean active-label cache generation is preregistered in
   `reports/2026-08-11-tabpfn-active-label-pit-clean-cache-addendum.md` and
   implemented without changing its training law. The generator accepts only
@@ -123,6 +131,12 @@ and must not be staged or modified.
   shell parsing, compilation and whitespace checks pass. Do not build/launch
   the GPU pair until the repaired feature build and post-build reconciliation
   complete.
+- `scripts/pit_repair_reconcile.py` is the fail-closed post-build verifier. It
+  compares the ten pre-repair snapshots with live rows/keys/schemas/checksums,
+  requires usage/training key stability, permits changes only in the registered
+  smoothing/injury/vacancy columns, requires exactly 57,550 repaired injury
+  rows and proves all already-repaired context tables remain byte-equivalent.
+  It reads no outcome/score column.
 
 ### Validated production rollout completed; Route diagnostic ready
 
