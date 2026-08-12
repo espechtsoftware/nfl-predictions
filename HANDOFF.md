@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 08:37 CDT
+## Current state — 2026-08-12 08:40 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -400,6 +400,17 @@ and must not be staged or modified.
   `reports/pit-tier1-runs/20260811-pit-clean-role-v2/selected_tier1.txt`.
   Next: launch the already-frozen score-free served-position and fitted-usage
   calibrations in parallel from this exact selected lineage.
+- Both frozen score-free diagnostics are now running from the terminal role
+  selection. Served-position v2 execution
+  `served-position-calibration-pit-v2-zmm6s` uses immutable complete audit
+  image `sha256:aec3c368...`/source `23da1dd`; fitted-usage execution
+  `usage-dirichlet-calibration-pit-v2-g9hhw` uses the frozen generation image
+  `sha256:ad50fe19...`/source `a12ab31`. Their manifests are tracked under the
+  corresponding `20260812-*-pit-clean` run directories. Next: wait for both
+  terminal results, harvest without lineup scores, then launch position Stage
+  B only on a passing position gate (otherwise write the identity fallback)
+  and launch fitted-usage exact-80 only on a passing likelihood gate
+  (otherwise write the multinomial fallback).
 - The licensed PIT-v2 served-position Stage B is implemented before its
   score-free refit result is known. It derives the selected full panel, K1/K3
   law, role/no-role candidate law, and unrounded four-factor specification;
