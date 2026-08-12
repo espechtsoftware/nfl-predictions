@@ -104,6 +104,16 @@ reconciliation when their findings affect the program.
   continue SCHED under the mechanically selected active-label law. No partial
   season score may be inspected. Team-passing remains strictly downstream and
   will use only rebuilt post-amendment images.
+- Review reconciliation and active-label gate milestone commit `83192ca` is
+  pushed on `main`. The complete local suite passes all 992 collected tests
+  with one expected rear-view dashboard skip. Exact-commit team-passing GPU
+  build `aa1882ad-ad9a-493c-a6ee-cfc46ea8d811` succeeded with digest
+  `sha256:b6a3a8961afdfbf9cf37934d2558bbe48af0f6743293be4e4d2dbd3752bf3cda`;
+  full audited build `615f182b-2198-4252-84da-1303bbf463a4` succeeded with
+  digest
+  `sha256:df3de60e08f6e88d8f3d4dba551f01e9fc37d7c7de7de2ba41496a43396d5bfd`.
+  These supersede every earlier team-QB image and are the only permitted
+  images for that downstream branch.
 
 ### Critical pre-launch PIT repair — stale active-label caches blocked
 
