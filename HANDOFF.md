@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 18:05 CDT
+## Current state — 2026-08-12 18:22 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -257,11 +257,26 @@ reconciliation when their findings affect the program.
   spectral topology diagnostics, and an exhaustive stable-QB-hub decision.
   The archetype source is explicitly limited to strictly-prior
   `was_active=true` games so inactive zero rows cannot define a player's
-  scoring profile.
+  scoring profile. Broad target-season support is fixed at the one-third
+  thresholds (166 pairweeks, ten source booms), and cross-season stability
+  requires two supported folds without treating a third unsupported fold as
+  an automatic failure.
   G2 requires both broad QB-WR/QB-TE stability across seasons and at least one
   supported material archetype edge for each relationship; graph communities
   themselves cannot gate. Next: implement G1 with exact G0 reproduction tests,
-  then build and run its single immutable score-free execution.
+  then build and run its single immutable score-free execution. G1 is now
+  implemented without reading a target-season metric: the code reconstructs
+  the terminal book, requires exact G0 reproduction, fits strictly-prior
+  position-scoped archetypes, persists the immutable fold labels, builds all
+  13 registered directed pair classes, calculates paired Jeffreys-shrunk cell
+  and broad lifts with slate bootstrap intervals, emits the non-gating spectral
+  topology and variogram/joint-q90 scorecard, and applies only the frozen
+  stable-QB-hub decision. The read-only Cloud Run launcher binds every G0 and
+  terminal selection hash; the immutable harvester validates the relationship,
+  bootstrap, invariant and G2-license contracts and extracts the label artifact.
+  Twelve focused G0/G1 tests, compilation, shell syntax and whitespace checks
+  pass. Next: commit/push the implementation, run an exact-tree full Cloud
+  Build, then launch the one frozen G1 execution from that digest.
 - Review reconciliation and active-label gate milestone commit `83192ca` is
   pushed on `main`. The complete local suite passes all 992 collected tests
   with one expected rear-view dashboard skip. Exact-commit team-passing GPU

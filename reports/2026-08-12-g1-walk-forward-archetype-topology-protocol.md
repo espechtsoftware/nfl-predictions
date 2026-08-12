@@ -89,9 +89,14 @@ estimand is
 `log(simulated lift / realized lift)`.
 
 An archetype cell is supported with at least 100 directed pair-teamweeks and
-at least ten realized source booms. A broad relationship cell uses the G0
-minimum of 500 pair-teamweeks and 30 realized source booms. Unsupported cells
-remain visible but cannot establish a stable topology or G2 license.
+at least ten realized source booms. A broad aggregate relationship cell uses
+the G0 minimum of 500 pair-teamweeks and 30 realized source booms. Its
+separately reported target-season fold uses the precommitted one-third minimum,
+166 pair-teamweeks and ten realized source booms. Unsupported cells remain
+visible but cannot establish a stable topology or G2 license. The cross-season
+stability rule requires at least two supported target-season folds; a third
+unsupported fold is reported but does not by itself make the rule
+unevaluable.
 
 Use 2,000 paired bootstrap resamples of whole `(season, week)` slates, seed
 1702. A supported archetype cell is a material miss when its point gap is

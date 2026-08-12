@@ -304,6 +304,12 @@ def main(argv: list[str] | None = None) -> None:
     )
     p.add_argument("--panel", required=True)
 
+    p = sub.add_parser(
+        "g1-archetype-topology",
+        help="Run the frozen score-free walk-forward archetype topology test",
+    )
+    p.add_argument("--panel", required=True)
+
     sub.add_parser(
         "usage-dirichlet-calibration-diagnostic",
         help="Fit and gate within-team target/carry concentration",
@@ -759,6 +765,10 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import final_served_dependence
 
         final_served_dependence.run(args.panel)
+    elif args.command == "g1-archetype-topology":
+        from .analysis import g1_archetype_topology
+
+        g1_archetype_topology.run(args.panel)
     elif args.command == "usage-dirichlet-calibration-diagnostic":
         from .analysis import usage_dirichlet_calibration
 
