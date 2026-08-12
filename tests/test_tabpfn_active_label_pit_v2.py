@@ -90,6 +90,8 @@ def test_active_label_v2_protocol_and_both_terminal_branches_are_tracked():
     dockerfile = (root / "Dockerfile").read_text(encoding="utf-8")
     assert "240,230,220,210,200,194,187" in protocol
     assert "selected_usage.txt" in launch
+    assert "nfl-dfs/nfl-dfs@sha256:ad50fe19" in launch
+    assert "wrong generation image package or digest" in launch
     assert 'f"{arm}_schedule"' in launch
     assert "TABPFN_ACTIVE_LABEL_STAGE_B_V2_JSON=" in finish
     assert "final-served-gate-failed" in fallback

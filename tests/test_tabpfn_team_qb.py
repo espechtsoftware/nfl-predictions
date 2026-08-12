@@ -27,11 +27,12 @@ def test_feature_contract_changes_only_the_frozen_broadcast_column():
     base = ["z", "a"]
     assert feature_contract(base, "base", "control") == ["a", "z"]
     assert feature_contract(base, "base", "treatment") == [
-        "a", "z", "team_qb_cpoe_l6"]
+        "a", "z", "team_qb_cpoe_l6", "team_qb_cpoe_cross_season"]
     assert feature_contract(base, "sched", "control") == [
         "a", "z", "net_rest_diff", "body_clock_hour"]
     assert feature_contract(base, "sched", "treatment") == [
-        "a", "z", "net_rest_diff", "body_clock_hour", "team_qb_cpoe_l6"]
+        "a", "z", "net_rest_diff", "body_clock_hour",
+        "team_qb_cpoe_l6", "team_qb_cpoe_cross_season"]
     with pytest.raises(ValueError, match="already contains"):
         feature_contract(["team_qb_cpoe_l6"], "base", "control")
 
@@ -48,12 +49,17 @@ def test_team_qb_quality_is_normalized_and_broadcast_only_to_pass_catchers():
         "season": [2022] * 3,
         "week": [1] * 3,
         "team_qb_cpoe_l6": [1.5, 2.5, 3.5],
+        "team_qb_cpoe_cross_season": [1, 0, 1],
     })
     got = broadcast_team_qb_quality(panel, quality)
     assert np.isnan(got.iloc[0].team_qb_cpoe_l6)
     assert got.iloc[1].team_qb_cpoe_l6 == 1.5
     assert got.iloc[2].team_qb_cpoe_l6 == 2.5
     assert got.iloc[3].team_qb_cpoe_l6 == 3.5
+    assert np.isnan(got.iloc[0].team_qb_cpoe_cross_season)
+    assert got.iloc[1].team_qb_cpoe_cross_season == 1
+    assert got.iloc[2].team_qb_cpoe_cross_season == 0
+    assert got.iloc[3].team_qb_cpoe_cross_season == 1
 
 
 def test_team_qb_quality_rejects_duplicate_team_week_keys():
@@ -61,7 +67,8 @@ def test_team_qb_quality_rejects_duplicate_team_week_keys():
         "team": ["LV"], "season": [2022], "week": [1], "position": ["RB"]})
     quality = pd.DataFrame({
         "team": ["LV", "LV"], "season": [2022, 2022], "week": [1, 1],
-        "team_qb_cpoe_l6": [1.0, 2.0]})
+        "team_qb_cpoe_l6": [1.0, 2.0],
+        "team_qb_cpoe_cross_season": [0, 0]})
     with pytest.raises(ValueError, match="not unique"):
         broadcast_team_qb_quality(panel, quality)
 
@@ -77,7 +84,8 @@ def test_team_qb_audits_report_coverage_and_qb_support():
     })
     quality = pd.DataFrame({
         "team": ["LV"], "season": [2022], "week": [1],
-        "team_qb_cpoe_l6": [1.0]})
+        "team_qb_cpoe_l6": [1.0],
+        "team_qb_cpoe_cross_season": [1]})
     joined = broadcast_team_qb_quality(panel, quality)
     coverage = feature_coverage(joined)
     assert {row["position"]: row["supported_rows"] for row in coverage} == {
@@ -128,7 +136,7 @@ def _report(arm: str, features: list[str]) -> dict:
     }
 
 
-def test_team_qb_report_gate_requires_one_column_treatment():
+def test_team_qb_report_gate_requires_frozen_two_column_treatment():
     baseline = ["b", "a"]
     control = feature_contract(baseline, "sched", "control")
     treatment = feature_contract(baseline, "sched", "treatment")

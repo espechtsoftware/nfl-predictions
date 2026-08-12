@@ -7,7 +7,7 @@ IMG=${1:-}
 CODE_SHA=${2:-}
 PROJECT=nfl-predictions-503414
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-FROZEN_DIGEST=sha256:ad50fe19bde366ca11180b561127b09e2c79c97ec7dbbd5507282e33d2d5eb62
+FROZEN_IMAGE=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ad50fe19bde366ca11180b561127b09e2c79c97ec7dbbd5507282e33d2d5eb62
 CONTROL=20260812-pitclean-e80-selected-tabpfn-current-v2
 TREATMENT=20260812-pitclean-e80-selected-tabpfn-active-v2
 CONTROL_TABLE=tabpfn_active_label_control_v2
@@ -18,7 +18,8 @@ FINAL_REPORT="$ROOT/reports/tabpfn-active-label-runs/20260811-tabpfn-active-labe
 CACHE_VALIDATION="$ROOT/reports/tabpfn-active-label-runs/20260811-tabpfn-active-label-v2-pit-clean/validation.json"
 PROTOCOL="$ROOT/reports/2026-08-12-pit-clean-active-label-exact80.md"
 
-case "$IMG" in *@"$FROZEN_DIGEST") ;; *) echo "ABORT: wrong generation digest"; exit 2;; esac
+[ "$IMG" = "$FROZEN_IMAGE" ] || {
+  echo "ABORT: wrong generation image package or digest"; exit 2; }
 [ "$CODE_SHA" = a12ab31 ] || { echo "ABORT: generation code is a12ab31"; exit 2; }
 for path in "$TIER1" "$USAGE" "$FINAL_REPORT" "$CACHE_VALIDATION" "$PROTOCOL"; do
   [ -s "$path" ] || { echo "ABORT: prerequisite missing: $path"; exit 2; }

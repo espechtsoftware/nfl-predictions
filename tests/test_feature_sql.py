@@ -201,6 +201,8 @@ def test_team_qb_quality_is_strict_prior_dropback_weighted_side_table():
     assert "ORDER BY season, week" in sql
     assert "ROWS BETWEEN 6 PRECEDING AND 1 PRECEDING" in sql
     assert "SAFE_DIVIDE(" in sql
+    assert "team_qb_cpoe_cross_season" in sql
+    assert "team_qb_cpoe_min_source_season_l6 < season" in sql
     for consumer in ("021_player_week_training.sql", "023_player_week_inference.sql"):
         # The experiment reads this side table itself. Merely implementing the
         # candidate must not alter production model/cache source identity.
@@ -227,6 +229,16 @@ def test_usage_smoothing_position_prior_is_strictly_prior():
     # A single all-history AVG by position lets early rows borrow later
     # seasons even when the player-level window is correctly lagged.
     assert "AVG(u.rz20_targets) AS prior_rz20_per_game" not in usage
+    assert "ANY_VALUE(position HAVING MAX week)" not in usage
+    assert "COALESCE(r.position" not in usage
+
+
+def test_efficiency_does_not_reintroduce_unused_same_week_team_cpoe():
+    efficiency = (
+        SQL_DIR / "features" / "015_player_week_efficiency.sql"
+    ).read_text()
+    assert "qb_quality AS" not in efficiency
+    assert "team_cpoe" not in efficiency
 
 
 def test_injury_rows_are_latest_revision_available_at_slate_lock():

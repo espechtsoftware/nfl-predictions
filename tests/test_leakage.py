@@ -10,6 +10,7 @@ from nfl_dfs.features.leakage import (
     HISTORICAL_ROSTER_GAP_SQL,
     LeakageError,
     assert_first_game_features_null,
+    assert_injury_slate_lock_coverage,
     assert_historical_salary_source_reconciled,
     assert_no_leakage,
     assert_recomputed_features_match,
@@ -22,6 +23,7 @@ from nfl_dfs.features.leakage import (
     USAGE_RECOMPUTED_FEATURES,
     SMOOTHING_PRIOR_K,
     INJURY_EXPECTED_SQL,
+    INJURY_LOCK_COVERAGE_SQL,
     VACATED_EXPECTED_SQL,
 )
 
@@ -80,11 +82,13 @@ def test_team_qb_quality_excludes_current_and_crosses_seasons():
     assert week1.team_qb_cpoe_l6 == pytest.approx(12.5)
     assert week1.team_qb_cpoe_dropbacks_l6 == 6
     assert week1.team_qb_cpoe_games_l6 == 6
+    assert week1.team_qb_cpoe_cross_season == 1
 
     # Week 2 drops the oldest game and may use Week 1 only because it is now
     # strictly prior. Its own 8000 value remains excluded.
     week2 = got[(got.season == 2025) & (got.week == 2)].iloc[0]
     assert week2.team_qb_cpoe_l6 == pytest.approx((2 + 3 + 4 + 5 + 60 + 700) / 6)
+    assert week2.team_qb_cpoe_cross_season == 1
 
 
 def test_team_qb_quality_future_null_row_preserves_history():
@@ -106,6 +110,7 @@ def test_team_qb_quality_future_null_row_preserves_history():
     assert future.team_qb_cpoe_l6 == pytest.approx(2.0)
     assert future.team_qb_cpoe_dropbacks_l6 == 3
     assert future.team_qb_cpoe_games_l6 == 3
+    assert future.team_qb_cpoe_cross_season == 0
 
 
 def test_route_source_must_be_strictly_prior_across_seasons():
@@ -241,6 +246,32 @@ def test_injury_and_vacancy_references_enforce_prelock_sources():
         INJURY_EXPECTED_SQL
     assert "u.week <= o.week" in VACATED_EXPECTED_SQL
     assert "i.injury_status = 'Out'" in VACATED_EXPECTED_SQL
+    assert "FROM `{features}.player_week_training`" in \
+        INJURY_LOCK_COVERAGE_SQL
+    assert "i.date_modified <= l.slate_lock_at" in \
+        INJURY_LOCK_COVERAGE_SQL
+
+
+def test_injury_slate_lock_coverage_fails_closed_without_erasing_no_feed_weeks():
+    coverage = pd.DataFrame({
+        "season": [2024, 2025],
+        "week": [18, 1],
+        "slate_lock_at": pd.to_datetime([
+            "2025-01-05T18:00:00Z", "2025-09-07T17:00:00Z"]),
+        "eligible_source_rows": [20, 0],
+        "built_rows": [10, 0],
+    })
+    assert_injury_slate_lock_coverage(coverage)
+
+    missing_lock = coverage.copy()
+    missing_lock.loc[0, "slate_lock_at"] = pd.NaT
+    with pytest.raises(LeakageError, match="lock coverage"):
+        assert_injury_slate_lock_coverage(missing_lock)
+
+    silently_dropped = coverage.copy()
+    silently_dropped.loc[0, "built_rows"] = 0
+    with pytest.raises(LeakageError, match="lock coverage"):
+        assert_injury_slate_lock_coverage(silently_dropped)
 
 
 def test_correct_build_passes():

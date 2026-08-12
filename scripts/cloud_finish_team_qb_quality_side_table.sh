@@ -34,12 +34,14 @@ summary = query_df(f"""
 SELECT COUNT(*) AS rows,
        COUNT(DISTINCT CONCAT(team, '|', CAST(season AS STRING), '|', CAST(week AS STRING))) AS unique_keys,
        COUNTIF(team_qb_cpoe_l6 IS NOT NULL) AS supported_rows,
+       COUNTIF(team_qb_cpoe_cross_season = 1) AS cross_season_rows,
        BIT_XOR(FARM_FINGERPRINT(TO_JSON_STRING(t))) AS content_checksum
 FROM `{table}` t
 """).iloc[0]
 coverage = query_df(f"""
 SELECT season, COUNT(*) AS rows,
-       COUNTIF(team_qb_cpoe_l6 IS NOT NULL) AS supported_rows
+       COUNTIF(team_qb_cpoe_l6 IS NOT NULL) AS supported_rows,
+       COUNTIF(team_qb_cpoe_cross_season = 1) AS cross_season_rows
 FROM `{table}` GROUP BY season ORDER BY season
 """)
 report = {
@@ -49,6 +51,7 @@ report = {
     "rows": int(summary.rows),
     "unique_keys": int(summary.unique_keys),
     "supported_rows": int(summary.supported_rows),
+    "cross_season_rows": int(summary.cross_season_rows),
     "content_checksum": int(summary.content_checksum),
     "coverage": coverage.to_dict(orient="records"),
 }

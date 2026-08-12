@@ -10,7 +10,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from nfl_dfs.research.tabpfn_team_qb import feature_contract
+from nfl_dfs.research.tabpfn_team_qb import TEAM_QB_FEATURES, feature_contract
 
 
 PREFIX = "TABPFN_TEAM_QB_JSON="
@@ -81,7 +81,7 @@ def validate_reports(
         "exact_feature_contracts": (
             control.get("feature_columns") == control_features
             and treatment.get("feature_columns") == treatment_features
-            and treatment_features == [*control_features, "team_qb_cpoe_l6"]
+            and treatment_features == [*control_features, *TEAM_QB_FEATURES]
         ),
         "distinct_feature_hashes": (
             bool(control.get("feature_contract_sha256"))

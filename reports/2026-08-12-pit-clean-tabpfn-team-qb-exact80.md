@@ -18,7 +18,7 @@ team-QB-quality protocol.
   `20260812-pitclean-e80-selected-tabpfn-team-qb-control-v1` and
   `20260812-pitclean-e80-selected-tabpfn-team-qb-treatment-v1`.
 - An exact-80 loss or tie retains the terminal SCHED feature/cache law. An
-  exact-80 win selects the treatment's one-column team-QB broadcast for later
+  exact-80 win selects the treatment's two-column team-passing broadcast for later
   preseason handoff and prospective deployment work. Neither result directly
   mutates production.
 
@@ -33,7 +33,8 @@ team-QB final-served report.
 
 Control uses `tabpfn_team_qb_control_v1`; treatment uses
 `tabpfn_team_qb_treatment_v1`. The treatment cache appends only the strictly
-prior, pass-catcher-only `team_qb_cpoe_l6` feature. The comparator must prove
+prior, pass-catcher-only `team_qb_cpoe_l6` and
+`team_qb_cpoe_cross_season` bundle. The comparator must prove
 exact player keys, invariant point-in-time inputs, actuals, seeds and common
 levers; only registered distribution-derived outputs may differ. Candidate
 means/membership and selected lineups must change, and every completed slate

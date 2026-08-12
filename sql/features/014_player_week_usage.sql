@@ -3,13 +3,7 @@
 -- Active no-opportunity weeks are zeros; listed inactive weeks are NULL so
 -- they occupy calendar time without being mistaken for played games.
 CREATE OR REPLACE TABLE `${features}.player_week_usage` AS
-WITH position_map AS (
-  SELECT gsis_id, season, ANY_VALUE(position HAVING MAX week) AS position
-  FROM `${raw}.rosters_weekly`
-  WHERE gsis_id IS NOT NULL
-  GROUP BY gsis_id, season
-),
-snaps AS (
+WITH snaps AS (
   SELECT i.gsis_id, CAST(n.season AS INT64) AS season,
          CAST(n.week AS INT64) AS week, n.offense_pct AS snap_share
   FROM `${raw}.snap_counts` n
@@ -147,13 +141,12 @@ rolled AS (
              ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING)
 ),
 position_week AS (
-  SELECT COALESCE(u.position, pm.position) AS position, u.season, u.week,
+  SELECT u.position, u.season, u.week,
          SUM(u.rz20_targets) AS rz20_targets_sum,
          COUNT(u.rz20_targets) AS rz20_targets_n,
          SUM(u.gl3_carries) AS gl3_carries_sum,
          COUNT(u.gl3_carries) AS gl3_carries_n
   FROM usage u
-  LEFT JOIN position_map pm USING (gsis_id, season)
   GROUP BY position, u.season, u.week
 ),
 position_priors AS (
@@ -178,7 +171,7 @@ SELECT
     target_share_sum_l4, carry_share_sum_l4, snap_share_sum_l4,
     target_share_n_l4, carry_share_n_l4, snap_share_n_l4
   ),
-  COALESCE(r.position, pm.position) AS position,
+  r.position,
   CASE WHEN r.target_share_n_l4 >= 2 THEN
     r.target_share_last - SAFE_DIVIDE(
       r.target_share_sum_l4 - r.target_share_last, r.target_share_n_l4 - 1)
@@ -201,7 +194,6 @@ SELECT
     r.games_played_prior + ${prior_k}
   ) AS gl3_carries_smoothed
 FROM rolled r
-LEFT JOIN position_map pm USING (gsis_id, season)
 LEFT JOIN position_priors pp
-  ON pp.position = COALESCE(r.position, pm.position)
+  ON pp.position = r.position
  AND pp.season = r.season AND pp.week = r.week;

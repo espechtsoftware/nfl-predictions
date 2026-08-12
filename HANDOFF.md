@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 13:08 CDT
+## Current state — 2026-08-12 13:20 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -35,7 +35,7 @@ The program-review reconciliation is finalized in this milestone.
 The paired Route Share live-shadow implementation commit `9e34565` and its
 Thursday post-download scheduler follow-up `b6dbc5e` are also pushed on
 `main`. Comparator-only fitted-K gate repair commit `079de22` is pushed. The
-ten operator-supplied outside-review documents
+ten previously supplied outside-review documents
 `reports/2026-08-10-scoring-strategy-recommendations.md`,
 `reports/2026-08-11-deep-analysis-calibration-and-data-audit.md`,
 `reports/2026-08-11-end-of-program-forensic-analysis-plan.md`,
@@ -45,8 +45,65 @@ ten operator-supplied outside-review documents
 `reports/2026-08-11-graph-queue-review-notes.md`,
 `reports/2026-08-11-pit-join-and-accuracy-code-audit.md`,
 `reports/2026-08-11-post-window-program-review.md`, and
-`reports/2026-08-11-recommendation-scoreboard-and-pivot.md` remain untracked
-and must not be staged or modified.
+`reports/2026-08-11-recommendation-scoreboard-and-pivot.md` are tracked. Treat
+operator-supplied source reviews as immutable inputs; track a separate
+reconciliation when their findings affect the program.
+
+### 2026-08-12 team-passing review reconciliation
+
+- The new operator review
+  `reports/2026-08-12-pit-repair-and-team-qb-feature-review.md` is reconciled
+  in
+  `reports/2026-08-12-pit-repair-team-qb-review-reconciliation.md`. Its note
+  that fitted K was rejected is stale because it covered only through
+  `24c742a`: the completed exact-80 comparison later selected fitted
+  `K=28.154043586960896` at the frozen first threshold (240 count 2 -> 3),
+  and commit `213e963` adopted it.
+- Before any team-passing side-table execution/cache/prediction/result, the
+  arm was amended to append the fixed two-column bundle
+  `team_qb_cpoe_l6` + `team_qb_cpoe_cross_season`. The protocol now correctly
+  calls this team passing efficiency, not pure QB quality, and predesignates a
+  primary-passer-only follow-up only if the whole bundle wins. SQL,
+  independent reconstruction, generator/validator contracts, audit output
+  and focused tests are updated. Existing team-QB GPU/full images
+  `30c5...`/`d3b4...` are superseded before execution and must not be used;
+  rebuild both from this exact amended commit.
+- The dead same-week `qb_quality` CTE is removed. A read-only audit proves the
+  `014` final-season position fallback was unreachable across all 102,927
+  usage-spine rows (zero null or unsupported positions), so future SQL now
+  uses the exact salary/role position directly; the current repaired warehouse
+  is unchanged. The next full feature rebuild must verify byte-equivalent
+  usage/training output. Rear-view-only `022` retains and documents its
+  deliberate final-season mapping.
+- Injury-lock coverage is now fail-closed without inventing data: all 209
+  modeled weeks have a Sunday-main lock; 191 have eligible pre-lock source
+  rows and 18 2025 weeks legitimately have none. The dynamic suite requires
+  every lock and forbids an empty built week whenever eligible source exists.
+  Focused tests pass with one expected dashboard skip; changed SQL and both
+  independent references pass BigQuery dry runs. The broader manifest-driven
+  upcoming-spine check is valid queued work before final closure.
+- Active-label final-served v2 execution
+  `tabpfn-active-label-final-served-v2-mbs5t` completed cleanly from immutable
+  audit digest `aec3...`. The terminal score-free gate passes: active-only
+  aggregate Brier-30 improves `0.0140557446 -> 0.0140065605`, with smaller
+  improvements in all three evaluation seasons; Brier-20, CRPS and point MAE
+  also improve. The machine artifact is under
+  `reports/tabpfn-active-label-runs/20260811-tabpfn-active-label-final-served-v2-pit-clean/`
+  and the concise result is
+  `reports/2026-08-12-pit-clean-active-label-final-served-result.md`.
+- That pass licenses the frozen paired exact-80 active-label books. The first
+  launch attempt used the right digest in the wrong nonexistent package
+  (`nfl-dfs-gen`), so Cloud Run created no execution and no score. Its empty
+  execution file/manifest/preflight are preserved under panel id suffix
+  `-failed-wrong-image-package`. The launcher now requires the full exact
+  `nfl-dfs/nfl-dfs@ad50...` URI. Corrected control smoke execution
+  `replay-pitactv2ctl-smoke-4wtwq` is running; the launcher will release all
+  six 2023--2025 control/treatment seasons only after clean smoke checks.
+  Wait for all six complete books, run
+  `scripts/cloud_finish_tabpfn_active_label_exact80_v2.sh aec3...`, and then
+  continue SCHED under the mechanically selected active-label law. No partial
+  season score may be inspected. Team-passing remains strictly downstream and
+  will use only rebuilt post-amendment images.
 
 ### Critical pre-launch PIT repair — stale active-label caches blocked
 

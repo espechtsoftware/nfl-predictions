@@ -31,15 +31,6 @@ per_game_all AS (
       WHERE g2.gsis_id = ro.gsis_id AND g2.season = ro.season AND g2.week = ro.week
     )
 ),
-qb_quality AS (
-  -- CPOE of the team's primary passer, trailing; a receiver feature.
-  SELECT
-    posteam AS team, season, week,
-    AVG(cpoe) AS team_cpoe
-  FROM `${raw}.pbp`
-  WHERE qb_dropback = 1 AND cpoe IS NOT NULL
-  GROUP BY 1, 2, 3
-),
 adot AS (
   SELECT
     receiver_player_id AS gsis_id, season, week,

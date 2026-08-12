@@ -12,13 +12,14 @@ POSITIONS = ("QB", "RB", "WR", "TE")
 PASS_CATCHER_POSITIONS = frozenset(("RB", "WR", "TE"))
 SCHED_FEATURES = ("net_rest_diff", "body_clock_hour")
 TEAM_QB_FEATURE = "team_qb_cpoe_l6"
+TEAM_QB_FEATURES = (TEAM_QB_FEATURE, "team_qb_cpoe_cross_season")
 TEAM_ALIASES = {"OAK": "LV", "SD": "LAC", "STL": "LA"}
 
 
 def feature_contract(
     baseline: Sequence[str], feature_law: str, arm: str
 ) -> list[str]:
-    """Return the exact inherited control or one-column treatment contract."""
+    """Return the exact inherited control or two-column treatment contract."""
     if feature_law not in {"base", "sched"}:
         raise ValueError(f"unknown feature law {feature_law!r}")
     if arm not in {"control", "treatment"}:
@@ -26,14 +27,14 @@ def feature_contract(
     listed = sorted(baseline)
     if len(listed) != len(set(listed)):
         raise ValueError("baseline feature contract contains duplicates")
-    forbidden = {*SCHED_FEATURES, TEAM_QB_FEATURE}.intersection(listed)
+    forbidden = {*SCHED_FEATURES, *TEAM_QB_FEATURES}.intersection(listed)
     if forbidden:
         raise ValueError(
             f"baseline feature contract already contains {sorted(forbidden)}")
     inherited = (
         listed if feature_law == "base" else [*listed, *SCHED_FEATURES]
     )
-    return inherited if arm == "control" else [*inherited, TEAM_QB_FEATURE]
+    return inherited if arm == "control" else [*inherited, *TEAM_QB_FEATURES]
 
 
 def broadcast_team_qb_quality(
@@ -41,7 +42,7 @@ def broadcast_team_qb_quality(
 ) -> pd.DataFrame:
     """Join the team-week feature and expose it only to RB/WR/TE rows."""
     player_required = {"team", "season", "week", "position"}
-    quality_required = {"team", "season", "week", TEAM_QB_FEATURE}
+    quality_required = {"team", "season", "week", *TEAM_QB_FEATURES}
     if missing := player_required - set(panel.columns):
         raise ValueError(f"training panel lacks {sorted(missing)}")
     if missing := quality_required - set(quality.columns):
@@ -54,13 +55,13 @@ def broadcast_team_qb_quality(
     if team_quality.duplicated(keys).any():
         raise ValueError("team quality keys are not unique")
     joined = players.merge(
-        team_quality[keys + [TEAM_QB_FEATURE]],
+        team_quality[keys + list(TEAM_QB_FEATURES)],
         on=keys,
         how="left",
         validate="many_to_one",
     )
     eligible = joined.position.isin(PASS_CATCHER_POSITIONS)
-    joined.loc[~eligible, TEAM_QB_FEATURE] = np.nan
+    joined.loc[~eligible, list(TEAM_QB_FEATURES)] = np.nan
     return joined
 
 
@@ -70,12 +71,15 @@ def feature_coverage(panel: pd.DataFrame) -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
     for (season, position), group in grouped:
         supported = int(group[TEAM_QB_FEATURE].notna().sum())
+        cross_season = int(group["team_qb_cpoe_cross_season"].eq(1).sum())
         rows.append({
             "season": int(season),
             "position": str(position),
             "rows": int(len(group)),
             "supported_rows": supported,
             "support_rate": float(supported / len(group)),
+            "cross_season_rows": cross_season,
+            "cross_season_rate": float(cross_season / len(group)),
         })
     return rows
 

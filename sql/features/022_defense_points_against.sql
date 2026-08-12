@@ -7,6 +7,8 @@
 -- whose windows end at 1 PRECEDING.
 CREATE OR REPLACE TABLE `${features}.defense_points_against` AS
 WITH pm AS (
+  -- Deliberately resolve completed historical rows to their final recorded
+  -- season position. This table is rear-view UI only and never a model input.
   SELECT gsis_id, season, ANY_VALUE(position HAVING MAX week) AS position
   FROM `${raw}.rosters_weekly`
   WHERE gsis_id IS NOT NULL

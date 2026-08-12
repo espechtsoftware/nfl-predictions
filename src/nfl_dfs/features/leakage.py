@@ -93,6 +93,35 @@ def assert_upcoming_context_rows_reconciled(gaps: pd.DataFrame) -> None:
         )
 
 
+def assert_injury_slate_lock_coverage(coverage: pd.DataFrame) -> None:
+    """Require a Sunday-main lock for every modeled week.
+
+    Some source seasons contain no injury revision available before lock, so
+    an empty built week is valid only when the independently counted eligible
+    source is also empty. A missing schedule lock is never valid: it would make
+    every timestamp comparison false and silently erase the whole week.
+    """
+    required = {
+        "season", "week", "slate_lock_at", "eligible_source_rows",
+        "built_rows",
+    }
+    if missing := required - set(coverage.columns):
+        raise LeakageError(
+            f"injury lock coverage lacks columns {sorted(missing)}")
+    missing_locks = coverage[coverage.slate_lock_at.isna()]
+    dropped = coverage[
+        coverage.eligible_source_rows.gt(0) & coverage.built_rows.eq(0)
+    ]
+    if missing_locks.empty and dropped.empty:
+        return
+    problems = pd.concat([missing_locks, dropped]).drop_duplicates(
+        ["season", "week"])
+    raise LeakageError(
+        "Sunday-main injury lock coverage is incomplete. Sample:\n"
+        + problems.head(25).to_string(index=False)
+    )
+
+
 def trailing_mean_excluding_current(
     df: pd.DataFrame,
     value_col: str,
@@ -163,6 +192,7 @@ def team_qb_cpoe_strict_prior(
             prior = group.iloc[max(0, idx - 6):idx]
             denominator = prior["cpoe_dropbacks"].sum(min_count=1)
             numerator = prior["cpoe_sum"].sum(min_count=1)
+            supported_prior = prior[prior["cpoe_dropbacks"].notna()]
             rows.append({
                 "team": team,
                 "season": target["season"],
@@ -174,6 +204,10 @@ def team_qb_cpoe_strict_prior(
                 "team_qb_cpoe_dropbacks_l6": denominator,
                 "team_qb_cpoe_games_l6": int(
                     prior["cpoe_dropbacks"].notna().sum()),
+                "team_qb_cpoe_cross_season": (
+                    int(supported_prior["season"].min() < target["season"])
+                    if not supported_prior.empty else np.nan
+                ),
             })
     return pd.DataFrame(rows).sort_values(keys).reset_index(drop=True)
 
@@ -750,6 +784,46 @@ FROM injury i LEFT JOIN missed m USING (gsis_id, season, week)
 WHERE MOD(FARM_FINGERPRINT(i.gsis_id), 20) = 0
 """
 
+INJURY_LOCK_COVERAGE_SQL = """
+WITH panel_weeks AS (
+  SELECT DISTINCT season, week
+  FROM `{features}.player_week_training`
+), slate_locks AS (
+  SELECT season, week,
+    MIN(TIMESTAMP(
+      DATETIME(PARSE_DATE('%Y-%m-%d', gameday),
+               SAFE.PARSE_TIME('%H:%M', gametime)),
+      'America/New_York'
+    )) AS slate_lock_at
+  FROM `{raw}.schedules`
+  WHERE game_type = 'REG' AND weekday = 'Sunday'
+    AND SAFE.PARSE_TIME('%H:%M', gametime) >= TIME '13:00:00'
+    AND SAFE.PARSE_TIME('%H:%M', gametime) < TIME '19:00:00'
+  GROUP BY season, week
+), eligible AS (
+  SELECT l.season, l.week, COUNT(*) AS eligible_source_rows
+  FROM slate_locks l
+  JOIN `{raw}.injuries` i
+    ON CAST(i.season AS INT64) = l.season
+   AND CAST(i.week AS INT64) = l.week
+   AND i.gsis_id IS NOT NULL
+   AND i.date_modified <= l.slate_lock_at
+  GROUP BY l.season, l.week
+), built AS (
+  SELECT season, week, COUNT(*) AS built_rows
+  FROM `{features}.player_week_injury`
+  GROUP BY season, week
+)
+SELECT p.season, p.week, l.slate_lock_at,
+       COALESCE(e.eligible_source_rows, 0) AS eligible_source_rows,
+       COALESCE(b.built_rows, 0) AS built_rows
+FROM panel_weeks p
+LEFT JOIN slate_locks l USING (season, week)
+LEFT JOIN eligible e USING (season, week)
+LEFT JOIN built b USING (season, week)
+ORDER BY p.season, p.week
+"""
+
 VACATED_FEATURES = [
     "team_vacated_target_share", "team_vacated_carry_share",
 ]
@@ -881,11 +955,12 @@ TEAM_QB_QUALITY_FEATURES = [
     "team_qb_cpoe_l6",
     "team_qb_cpoe_dropbacks_l6",
     "team_qb_cpoe_games_l6",
+    "team_qb_cpoe_cross_season",
 ]
 TEAM_QB_QUALITY_BUILT_SQL = """
 SELECT team, season, week,
        team_qb_cpoe_l6, team_qb_cpoe_dropbacks_l6,
-       team_qb_cpoe_games_l6
+       team_qb_cpoe_games_l6, team_qb_cpoe_cross_season
 FROM `{features}.team_week_qb_quality`
 WHERE MOD(FARM_FINGERPRINT(team), 4) = 0
 """
@@ -936,7 +1011,14 @@ WITH spine AS (
     p.team, p.season, p.week,
     SAFE_DIVIDE(SUM(w.cpoe_sum), SUM(w.cpoe_dropbacks)) AS team_qb_cpoe_l6,
     SUM(w.cpoe_dropbacks) AS team_qb_cpoe_dropbacks_l6,
-    COUNTIF(w.cpoe_dropbacks IS NOT NULL) AS team_qb_cpoe_games_l6
+    COUNTIF(w.cpoe_dropbacks IS NOT NULL) AS team_qb_cpoe_games_l6,
+    IF(
+      COUNTIF(w.cpoe_dropbacks IS NOT NULL) = 0,
+      NULL,
+      CAST(COUNTIF(
+        w.cpoe_dropbacks IS NOT NULL AND p.prior_season < p.season
+      ) > 0 AS INT64)
+    ) AS team_qb_cpoe_cross_season
   FROM prior_schedule p
   LEFT JOIN weekly w
     ON w.team = p.team AND w.season = p.prior_season
@@ -1315,6 +1397,9 @@ def run_leakage_checks() -> None:
         ("gsis_id", "season", "week"),
         exact_cols=tuple(INJURY_EXACT_FIELDS),
     )
+    injury_lock_coverage = query_df(INJURY_LOCK_COVERAGE_SQL.format(
+        features=settings.features, raw=settings.raw))
+    assert_injury_slate_lock_coverage(injury_lock_coverage)
     vacated_built = query_df(VACATED_BUILT_SQL.format(
         features=settings.features))
     vacated_expected = query_df(VACATED_EXPECTED_SQL.format(

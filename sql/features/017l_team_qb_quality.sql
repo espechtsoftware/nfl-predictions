@@ -55,7 +55,7 @@ spined AS (
   FROM schedule_spine s
   LEFT JOIN weekly_dropbacks d USING (team, season, week)
 ),
-rolled AS (
+rolled_metrics AS (
   SELECT
     team,
     season,
@@ -67,12 +67,24 @@ rolled AS (
     SUM(cpoe_dropbacks) OVER prior_six_team_games
       AS team_qb_cpoe_dropbacks_l6,
     COUNTIF(cpoe_dropbacks IS NOT NULL) OVER prior_six_team_games
-      AS team_qb_cpoe_games_l6
+      AS team_qb_cpoe_games_l6,
+    MIN(IF(cpoe_dropbacks IS NOT NULL, season, NULL))
+      OVER prior_six_team_games AS team_qb_cpoe_min_source_season_l6
   FROM spined
   WINDOW prior_six_team_games AS (
     PARTITION BY team
     ORDER BY season, week
     ROWS BETWEEN 6 PRECEDING AND 1 PRECEDING
   )
+),
+rolled AS (
+  SELECT
+    * EXCEPT(team_qb_cpoe_min_source_season_l6),
+    IF(
+      team_qb_cpoe_min_source_season_l6 IS NULL,
+      NULL,
+      CAST(team_qb_cpoe_min_source_season_l6 < season AS INT64)
+    ) AS team_qb_cpoe_cross_season
+  FROM rolled_metrics
 )
 SELECT * FROM rolled;
