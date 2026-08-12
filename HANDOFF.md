@@ -105,6 +105,14 @@ and must not be staged or modified.
   SCHED/team-QB and G3 branches. Tier 3 preserves unrelated rejected arms
   without automatic retry. This prevents selecting reruns after repaired score
   changes are visible.
+- Pre-repair feature snapshots, natural-key counts and complete-table checksums
+  are tracked in
+  `reports/2026-08-11-pit-repair-warehouse-manifest.md`. Ten snapshots named
+  `nfl_predictions.pit_pre_ac9a2c2_*` have 30-day expirations; their durable
+  BigQuery job ids are in the manifest. The old training/usage tables each have
+  102,927 unique player-week rows, while old injury has 65,866 rows on 65,862
+  keys. Use these snapshots for exact post-build reconciliation; never splice
+  them into a new repaired panel.
 
 ### Validated production rollout completed; Route diagnostic ready
 
