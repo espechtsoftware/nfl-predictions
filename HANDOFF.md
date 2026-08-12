@@ -401,6 +401,14 @@ and must not be staged or modified.
   selection and fallback scripts pass 17 focused tests plus shell parsing,
   compilation and whitespace checks. They require a later exact-tree audit
   image because the already-running `07c0...` build predates this comparator.
+- The prepared active-label v2 final-served runner now consumes the terminal
+  `selected_usage.txt` contract instead of attempting to reinterpret one
+  fitted-K comparison JSON. It verifies that the selected full panel and K1
+  lineage match, then accepts exactly either finite positive Dirichlet K or
+  `multinomial/infinity`. This covers the likelihood-fail fallback as well as
+  exact-80 reject/pass branches without a post-hoc target. Nine focused tests
+  and shell parsing pass; the underlying score-free active-label gate and its
+  validated write-once v2 cache pair are unchanged.
 
 ### Validated production rollout completed; Route diagnostic ready
 

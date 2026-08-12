@@ -74,4 +74,7 @@ def test_cli_and_cloud_runner_are_packaged():
     v2_text = v2_runner.read_text(encoding="utf-8")
     assert "tabpfn_active_label_control_v2" in v2_text
     assert "TABPFN_ACCEPTED_USAGE_LAW" in v2_text
-    assert "decision.get(\"fitted_k\"" in v2_text
+    assert "SELECTED_USAGE.txt" in v2_text
+    assert 'decision.get("allocation")' in v2_text
+    assert 'decision.get("selected_k"' in v2_text
+    assert 'decision.get("historical_source")' in v2_text

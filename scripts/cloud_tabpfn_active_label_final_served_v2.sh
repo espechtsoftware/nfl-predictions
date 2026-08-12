@@ -2,14 +2,14 @@
 # Run the repaired v2 final-served gate from machine-selected dependencies.
 # Usage: bash scripts/cloud_tabpfn_active_label_final_served_v2.sh \
 #   <IMAGE@sha256:...> <CODE_SHA> <REPAIRED_PANEL> \
-#   <CACHE_VALIDATION.json> <FITTED_K_COMPARISON.json>
+#   <CACHE_VALIDATION.json> <SELECTED_USAGE.txt>
 set -euo pipefail
 
 IMG=${1:-}
 CODE_SHA=${2:-}
 PANEL=${3:-}
 CACHE_VALIDATION=${4:-}
-K_COMPARISON=${5:-}
+USAGE_SELECTION=${5:-}
 PROJECT=nfl-predictions-503414
 REGION=us-central1
 RUN_ID=20260811-tabpfn-active-label-final-served-v2-pit-clean
@@ -29,40 +29,43 @@ esac
 [ -s "$PROTOCOL" ] || { echo "ABORT: frozen protocol is missing"; exit 2; }
 [ -s "$REPAIR_PROTOCOL" ] || { echo "ABORT: repair protocol is missing"; exit 2; }
 [ -s "$CACHE_VALIDATION" ] || { echo "ABORT: cache validation is missing"; exit 2; }
-[ -s "$K_COMPARISON" ] || { echo "ABORT: fitted-K decision is missing"; exit 2; }
+[ -s "$USAGE_SELECTION" ] || { echo "ABORT: terminal usage selection is missing"; exit 2; }
 [ ! -e "$OUT/execution.txt" ] || {
   echo "ABORT: immutable v2 final-served execution already recorded"; exit 2; }
 
 DECISION_TEXT=$("$ROOT/.venv/bin/python" - \
-    "$CACHE_VALIDATION" "$K_COMPARISON" <<'PY'
+    "$CACHE_VALIDATION" "$USAGE_SELECTION" "$PANEL" <<'PY'
 import json
 import math
 import sys
 
 cache = json.load(open(sys.argv[1], encoding="utf-8"))
-decision = json.load(open(sys.argv[2], encoding="utf-8"))
+decision = dict(
+    line.rstrip("\n").split("=", 1)
+    for line in open(sys.argv[2], encoding="utf-8") if "=" in line
+)
 if cache.get("version") != "v2" or \
         cache.get("disposition") != "tabpfn-active-label-caches-valid" or \
         not cache.get("passes"):
     raise SystemExit("ABORT: v2 active-label cache validation did not pass")
-if decision.get("failures") or decision.get("disposition") == "invalid":
-    raise SystemExit("ABORT: repaired fitted-K comparison is invalid")
-tail = decision.get("tail_first_decision", {})
-if decision.get("disposition") == "pass":
-    if not tail.get("passes"):
-        raise SystemExit("ABORT: fitted-K pass lacks a passing tail-first decision")
-    value = str(decision.get("fitted_k", ""))
+if decision.get("historical_source") != sys.argv[3]:
+    raise SystemExit("ABORT: terminal usage selection targets another panel")
+if decision.get("selected_base") != "k1":
+    raise SystemExit("ABORT: active-label v2 gate requires selected K1 lineage")
+allocation = decision.get("allocation")
+value = decision.get("selected_k", "")
+if allocation == "dirichlet":
     try:
         number = float(value)
     except ValueError as exc:
         raise SystemExit("ABORT: fitted-K pass lacks numeric fitted_k") from exc
     if not math.isfinite(number) or number <= 0:
-        raise SystemExit("ABORT: fitted_k must be finite and positive")
+        raise SystemExit("ABORT: selected fitted K must be finite and positive")
     print("dirichlet", value)
-elif decision.get("disposition") in ("neutral", "reject"):
+elif allocation == "multinomial" and value == "infinity":
     print("multinomial", "-")
 else:
-    raise SystemExit("ABORT: unknown repaired fitted-K disposition")
+    raise SystemExit("ABORT: unknown terminal usage selection")
 PY
 )
 read -r ACCEPTED_USAGE DIRICHLET_K <<< "$DECISION_TEXT"
@@ -77,8 +80,8 @@ printf '%s\n' \
   "repair_protocol_sha256=$(sha256sum "$REPAIR_PROTOCOL" | awk '{print $1}')" \
   "cache_validation=$CACHE_VALIDATION" \
   "cache_validation_sha256=$(sha256sum "$CACHE_VALIDATION" | awk '{print $1}')" \
-  "fitted_k_comparison=$K_COMPARISON" \
-  "fitted_k_comparison_sha256=$(sha256sum "$K_COMPARISON" | awk '{print $1}')" \
+  "usage_selection=$USAGE_SELECTION" \
+  "usage_selection_sha256=$(sha256sum "$USAGE_SELECTION" | awk '{print $1}')" \
   "accepted_usage_law=$ACCEPTED_USAGE" \
   "dirichlet_k=$DIRICHLET_K" \
   'control_table=nfl_features.tabpfn_active_label_control_v2' \
