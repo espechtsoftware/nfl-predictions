@@ -193,6 +193,15 @@ reconciliation when their findings affect the program.
   `tabpfn-team-qb-final-served-v1-q9tsq`. Harvest it only after clean
   completion; its frozen pass branch licenses exact-80 and its fail branch
   retains the incumbent cache without lineup scoring.
+- G0, the next graph/dependence kill test after the marginal queue drains, is
+  now preregistered before the team-passing result in
+  `reports/2026-08-12-g0-final-served-dependence-protocol.md`. It mechanically
+  binds the eventual terminal cache and selected control/treatment served
+  schedule, uses row-specific final-served q90 thresholds, the exact
+  heterogeneous Poisson-binomial null, nine fixed multiplicity/conditional
+  cells, deterministic slate-cluster bootstrap uncertainty, fixed support and
+  practical-equivalence bands, and three exhaustive dispositions. It reads no
+  lineup score and cannot launch before `selected_team_qb.txt` exists.
 - Review reconciliation and active-label gate milestone commit `83192ca` is
   pushed on `main`. The complete local suite passes all 992 collected tests
   with one expected rear-view dashboard skip. Exact-commit team-passing GPU
