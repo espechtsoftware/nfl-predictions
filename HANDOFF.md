@@ -387,8 +387,12 @@ and must not be staged or modified.
   downstream arms. Focused validation passes 30 tests plus shell parsing,
   compilation, and whitespace checks. An exact-tree audit image still must be
   built before this comparator can run; generation remains pinned to `ad50...`.
-  Exact-tree build `07c0df42-a82b-4034-8a50-f6309e3e85de` is running from
-  implementation commit `2de8898`.
+  Exact-tree build `07c0df42-a82b-4034-8a50-f6309e3e85de` succeeded from
+  implementation commit `2de8898`: 962 tests passed with two expected skips,
+  publishing immutable audit digest
+  `sha256:13b60132ab4b7a2dd1f524e228d9b7f1317e6a95821406f7b18dbb6c9f6780b5`.
+  This image contains the position v2 comparator; generation remains pinned
+  to `ad50...`.
 - The PIT-clean fitted-usage lineup retry is now frozen before its repaired
   likelihood report in `reports/2026-08-12-pit-clean-usage-exact80.md`. It
   mechanically inherits the terminal base/role/position laws, uses fixed v2
