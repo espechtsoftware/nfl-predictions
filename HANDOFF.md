@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 21:21 CDT
+## Current state — 2026-08-11 21:31 CDT
 
 Active branch is `main`; final-served Route diagnostic implementation commit
 `d5e74c0` is pushed. The position-calibration result, research promotion,
@@ -172,12 +172,23 @@ and must not be staged or modified.
   drifts; it does not alter either existing book, K, sources, selectors or the
   frozen tail-first law. Twenty-three focused usage/position/tail/calibration
   tests pass. Repair commit `079de22` is pushed. Regional Cloud Build
-  `2050f11d-4a5c-41f9-be68-265d6a02eb39` is currently validating and
-  publishing comparator tag `comparator-079de22`; it was still `WORKING` at
-  21:17 CDT. Next action: after that build passes, resolve its immutable
-  digest and rerun the frozen comparator against the unchanged books without
-  inspecting intermediate scores. The result fixes the common simulator law
-  for the already-built active-label final-served gate.
+  `2050f11d-4a5c-41f9-be68-265d6a02eb39` passed 923 tests with two expected
+  skips and published immutable digest
+  `sha256:f92acc32c07f8118511366c321781d448ea219ed649ac647f063184bcadee38b`.
+  Repaired frozen comparator execution
+  `compare-usage-dirichlet-exact80-hz9j2` completed successfully against the
+  unchanged books and passed every mechanical check. Machine disposition is
+  `reject`: the full 107-slate control/treatment selected threshold grids are
+  34/24/13/7/5/3/2 versus 37/21/12/6/4/2/2 at
+  187/194/200/210/220/230/240. The frozen tail-first rule ties at 240 and first
+  differs at 230, where fitted K loses 2--3; its +3 187 clears, +0.025 mean and
+  +1.00 median cannot rescue it. Candidate-pool oracles are
+  43/31/19/9/5/3/2 versus 43/27/18/9/4/2/2. Snapshot keys/upstream fields,
+  common actuals and simulated means all pass; treatment materially changes
+  candidate membership. Production retains multinomial allocation
+  (`K -> infinity`); no finite-K retry or deployment is licensed. Full result
+  is `reports/2026-08-11-data-fitted-dirichlet-exact80-result.md` and machine
+  artifacts are in the treatment panel directory.
 - The operator-supplied point-in-time/join audit is reconciled in tracked
   `reports/2026-08-11-pit-join-audit-reconciliation.md`. It correctly found
   that `team_week_pace`, `defense_week_blitz`,
@@ -200,12 +211,27 @@ and must not be staged or modified.
   generator passes NaNs directly and has no imputation path. All five changed
   SQL files dry-run against live BigQuery schemas; focused feature/leakage
   tests pass, Python compiles, and `git diff --check` is clean. Repair commit
-  `314aa6a` is pushed and its exact archived tree is running full validation as
+  `314aa6a` is pushed and its exact archived tree is queued for full validation as
   regional Cloud Build `b691da39-95dd-453e-9e6c-bd07359bd9c6`, publishing
   tag `pit-314aa6a` only after the complete suite succeeds. Do not rebuild the
   warehouse mid-panel. After that build passes, record its test result and
   immutable digest, then apply it only in the next coordinated feature rebuild
   with historical key/delta checks and full retraining.
+- The operator made the end-of-preseason forensic review mandatory after the
+  historical arm queue is genuinely exhausted. The strengthened tracked
+  protocol is `reports/2026-08-11-final-preseason-forensic-closure-protocol.md`;
+  it does not stop or reorder current work. It corrects the outside plan's
+  mathematically zero “best 80-subset from the pool” layer by decomposing the
+  hindsight gap into player support, lineup construction and selection; adds
+  all-entry/entry-count outcomes, identifiable contest ROI, top-finisher and
+  empirical duplication analysis, player capture, marginal/joint-tail
+  calibration, pre-lock regime actionability, complete experiment/PIT/data
+  reconciliation and a Week-1 dress rehearsal. Its first outcome query is
+  forbidden until a tracked closure commit proves every historical arm
+  terminal, all executions/artifacts recorded, final production validated and
+  the analysis manifest frozen. The output is a prospective 2026 charter,
+  opportunity register, kill list and operational readiness gate; it cannot
+  promote or retune a historical arm.
 - A separate code audit found that `scripts/tabpfn_gen/gen.py` does not apply
   the component path's `active_training_rows` safeguard. The current training
   table contains 6,202/6,041/6,130/6,021 synthetic inactive zero labels in
@@ -273,8 +299,13 @@ and must not be staged or modified.
   `fa1b0d0b-c9da-4a66-b5a1-25cf57447edc` passed 922 tests with two expected
   skips and published immutable CPU digest
   `sha256:ce28df5bccce1a0be8966f5d86b2c53709db4d9dc83d8b1f8050043a93af6762`.
-  Launch the sole final-served execution from that digest only after the
-  fitted-K comparator has produced its frozen decision.
+  The fitted-K rejection fixed the common simulator as production multinomial.
+  The sole final-served gate is now running from that digest as Cloud Run
+  execution `tabpfn-active-label-final-served-h5jpq`; its manifest derives and
+  records blank `GAME_SIM_USAGE`/`DIRICHLET_K` from the frozen comparison.
+  Monitor to completion and harvest the one machine report. A passing Brier
+  gate licenses one separately frozen paired exact-80 lineup comparison; a
+  failure closes this exact active-label arm.
 - The new read-only outside review
   `reports/2026-08-11-feature-plumbing-defects-and-correlation-gaps.md` was
   reconciled. Its two-channel diagnosis is correct: TabPFN owns covered player

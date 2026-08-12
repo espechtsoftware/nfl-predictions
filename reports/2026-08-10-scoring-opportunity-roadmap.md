@@ -23,6 +23,15 @@ Those plumbing repairs precede any candidate promotion and the next normal
 feature rebuild; they do not reorder the frozen active-label → SCHED → team-QB
 marginal sequence.
 
+Closure addendum (2026-08-11): after every historical arm reaches a terminal
+state, run the mandatory end-of-preseason forensic protocol in
+`reports/2026-08-11-final-preseason-forensic-closure-protocol.md`. It corrects
+the zero-valued layer in the outside proposal, decomposes player support from
+lineup construction and selection, adds identifiable ROI/contest analysis,
+joint-tail calibration, complete experiment/PIT reconciliation and a Week-1
+dress rehearsal. It is a prospective-charter and readiness gate only; it may
+not promote or retune a historical arm.
+
 ## Evidence that sets the priorities
 
 - The accepted true-80 book clears 200 on 18/107 slates, 210 on 11, and 220

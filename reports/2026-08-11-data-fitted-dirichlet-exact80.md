@@ -128,3 +128,16 @@ check, requires that exact exclusion set mechanically, and leaves the existing
 books, K, sources, candidate and score gates unchanged. A new immutable image
 and comparator execution are required; the failed report is not a scientific
 result.
+
+## Terminal result
+
+Comparator repair commit `079de22` passed regional Cloud Build
+`2050f11d-4a5c-41f9-be68-265d6a02eb39` with 923 tests and two expected skips,
+publishing immutable digest
+`sha256:f92acc32c07f8118511366c321781d448ea219ed649ac647f063184bcadee38b`.
+Valid execution `compare-usage-dirichlet-exact80-hz9j2` passed every mechanical
+gate and returned `reject`: 240 ties at 2--2, then fitted K loses the first
+nonzero comparison at 230 by 2--3. It also loses 220/210/200 by one each.
+Production retains multinomial allocation (`K -> infinity`); no retry or
+finite-K adjustment is licensed. Full result:
+`reports/2026-08-11-data-fitted-dirichlet-exact80-result.md`.
