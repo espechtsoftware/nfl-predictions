@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 18:39 CDT
+## Current state — 2026-08-12 18:50 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -318,6 +318,33 @@ reconciliation when their findings affect the program.
   `scripts/verify_deployment.py --json` reports zero failures across the app,
   production jobs and shadow contracts. `project-slate` was deliberately not
   changed for this web-only visualization release.
+- The operator-supplied marginal-arm/adoption-risk review is reconciled in
+  `reports/2026-08-12-marginal-arm-pattern-adoption-risk-reconciliation.md`.
+  G0's terminal dependence miss is a strong unifying hypothesis, not proof
+  that it caused six old results; fitted K and the corrected direct-role union
+  are current selections rather than failed arms. The fitted-K risk audit
+  confirms that 2023 Week 3 alone supplied its new >=240, >=230 and >=210
+  events (`195.16 -> 240.44`), while the 200/194 grids lost 3/7 weeks. That
+  lineup was 53.94 below the recorded 294.38 Milly winner, shared four winner
+  slots, and used a QB-WR-TE hub directly relevant to G0. Do not fabricate ROI
+  from a payout ladder without full field ranks/scores and duplication; add a
+  complete decision-cost disclosure to future tail-first results meanwhile.
+  The review also exposes that fitted K's prior lineup verdict cannot transfer
+  automatically across the subsequently selected active-only marginal and
+  served-schedule stage. Freeze and run a new active-only fitted-K versus
+  multinomial exact-80 revalidation before final production closure. If a new
+  G2 dependence law is later selected, the reconciliation now precommits the
+  bounded upstream and marginal revalidation cascade before any G1/G2 result.
+- Repaired G1 exact-tree regional Cloud Build
+  `fa42c975-7d5f-42d8-af03-a565d2ba8da4` passed the full suite from source
+  `a58cd61` and produced immutable digest
+  `sha256:80c7289b1399c65899ecd81b2485643aebdddd7f6486e00dcf20243c7440e1f4`.
+  The sole replacement execution `g1-archetype-topology-v2-fqbh6` is running
+  from that digest; its manifest and cache preflight are tracked under
+  `reports/g1-topology-runs/20260812-g1-archetype-topology-v2/`. Wait for its
+  terminal status without inspecting partial result metrics, then run
+  `scripts/cloud_finish_g1_archetype_topology.sh` and apply the frozen G2
+  license. The v1 ambiguous-QB execution remains invalid pre-G1-metric.
 
 ### Critical pre-launch PIT repair — stale active-label caches blocked
 
