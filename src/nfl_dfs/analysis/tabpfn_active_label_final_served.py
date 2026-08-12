@@ -14,8 +14,11 @@ from . import route_final_served_calibration as calibration
 from . import served_tail_calibration as served
 
 
-CONTROL_TABLE = "tabpfn_active_label_control_v1"
-TREATMENT_TABLE = "tabpfn_active_label_treatment_v1"
+VERSION = os.environ.get("TABPFN_ACTIVE_LABEL_VERSION", "v1").strip()
+if VERSION not in {"v1", "v2"}:
+    raise ValueError(f"unsupported TabPFN active-label version {VERSION!r}")
+CONTROL_TABLE = f"tabpfn_active_label_control_{VERSION}"
+TREATMENT_TABLE = f"tabpfn_active_label_treatment_{VERSION}"
 TABLES = {"control": CONTROL_TABLE, "treatment": TREATMENT_TABLE}
 FITTED_K_TEXT = FITTED_K
 OUTPUT_PREFIX = "TABPFN_ACTIVE_LABEL_FINAL_SERVED_JSON="
@@ -25,6 +28,37 @@ def _accepted_usage_law() -> dict[str, str]:
     """Validate the simulator law selected by the earlier frozen decision."""
     mode = os.environ.get("GAME_SIM_USAGE", "").strip().lower()
     value = os.environ.get("DIRICHLET_K", "").strip()
+    if VERSION == "v2":
+        selected = os.environ.get(
+            "TABPFN_ACCEPTED_USAGE_LAW", "").strip().lower()
+        if selected not in {"multinomial", "dirichlet"}:
+            raise ValueError(
+                "v2 active-label gate requires an explicit accepted usage law")
+        selected_k = os.environ.get(
+            "TABPFN_ACCEPTED_DIRICHLET_K", "").strip()
+        if selected == "multinomial":
+            if mode not in ("", "off", "false", "none") or value or selected_k:
+                raise ValueError(
+                    "v2 multinomial branch has stray Dirichlet configuration")
+            return {
+                "mode": "production-multinomial",
+                "game_sim_usage": "",
+                "k": "",
+            }
+        if mode != "dirichlet" or not selected_k or value != selected_k:
+            raise ValueError(
+                "v2 Dirichlet branch differs from its accepted fitted K")
+        try:
+            numeric_k = float(value)
+        except ValueError as exc:
+            raise ValueError("v2 accepted fitted K is not numeric") from exc
+        if not np.isfinite(numeric_k) or numeric_k <= 0:
+            raise ValueError("v2 accepted fitted K must be finite and positive")
+        return {
+            "mode": "data-fitted-dirichlet",
+            "game_sim_usage": "dirichlet",
+            "k": value,
+        }
     if mode in ("", "off", "false", "none"):
         if value:
             raise ValueError("DIRICHLET_K is set while fitted-K usage is inactive")
@@ -82,8 +116,16 @@ def _cache_keys(table: str):
 
 def run(panel_id: str = PANEL_ID) -> dict:
     """Run the one frozen active-label final-served comparison."""
-    if panel_id != PANEL_ID:
-        raise ValueError(f"active-label gate is frozen to panel {PANEL_ID}")
+    expected_panel = PANEL_ID
+    if VERSION == "v2":
+        expected_panel = os.environ.get(
+            "TABPFN_ACTIVE_LABEL_PANEL_ID", "").strip()
+        if not expected_panel:
+            raise ValueError(
+                "v2 active-label gate requires its repaired panel identity")
+    if panel_id != expected_panel:
+        raise ValueError(
+            f"active-label gate is frozen to panel {expected_panel}")
     served._validate_environment()
     usage = _accepted_usage_law()
 
@@ -160,6 +202,7 @@ def run(panel_id: str = PANEL_ID) -> dict:
     )
     report.update({
         "panel": panel_id,
+        "version": VERSION,
         "mode": "same-code-current-label-vs-active-only-tabpfn-cache",
         "cache_tables": TABLES,
         "cache_rows": int(len(cache_keys["control"])),

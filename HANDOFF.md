@@ -192,6 +192,13 @@ and must not be staged or modified.
   `9211ed35-a6fb-453b-823c-0389b9b60d07` and active-label GPU image build
   `02eea485-c492-402d-943c-e9111a70cbc1` are also running from tracked commit
   `bb1ebc9`; their jobs remain blocked on clean warehouse reconciliation.
+- The repaired active-label final-served dependency is now a separate v2
+  runner. It requires explicit validated v2 cache, repaired panel and repaired
+  fitted-K comparison inputs; the comparison mechanically supplies either its
+  exact accepted positive K or the multinomial fallback, and the Python gate
+  revalidates that identity. This prevents the old v1 panel/K constants from
+  contaminating the repaired branch. It is not launchable until Tier 1 and
+  fitted-K are terminal.
 
 ### Validated production rollout completed; Route diagnostic ready
 

@@ -44,3 +44,12 @@ world scaling. The v2 report must be frozen before any exact-80 launch. A v2
 fail closes active-only labels; a v2 pass mechanically substitutes only the
 new cache/report ids and generated schedules into the already-frozen exact-80
 protocol.
+
+The repaired runner is separately identified as
+`scripts/cloud_tabpfn_active_label_final_served_v2.sh`. It requires the
+validated v2 cache report, repaired production-lineage panel and repaired
+fitted-K comparison as explicit immutable inputs. It parses the comparison's
+machine disposition before launch: a valid pass supplies that report's exact
+positive `fitted_k`; a neutral/reject supplies production multinomial. The
+Python gate independently requires the same selected branch and exact K. The
+old hardcoded v1 K and old panel cannot enter this execution.
