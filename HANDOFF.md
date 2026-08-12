@@ -85,13 +85,26 @@ and must not be staged or modified.
   tests passed, two expected skips and immutable digest
   `sha256:e80f78840ec787782eb454e29974e7de0e702fbe05c23ed2b07514f241a773b4`.
   Active-label exact-80 tooling build
-  `0e216434-a07c-4f82-bd22-f77017a5bcf9` is still running; it may validate the
+  `0e216434-a07c-4f82-bd22-f77017a5bcf9` completed successfully and published
+  digest
+  `sha256:09a7c5415abee7f4dd0a2e5271e1d9c6b3db77434d45360508a91d47649254ab`;
+  its exact tree passed 935 tests with two expected skips. It validates the
   code tree but cannot authorize stale-cache launches.
+  PIT-repair exact-tree build `f7317ad5-f563-458a-a28f-5f2aa85eec79` is
+  running from pushed commit `ac9a2c2`.
 - The strengthened final-preseason closure protocol now requires a ninth
   output, an exhaustion certificate that maps every known idea across all
   mechanism families to a terminal/prospective/data-blocked disposition, plus
   an adversarial repository/cloud completeness pass. It still runs only after
   all viable historical arms are genuinely terminal.
+- The exact data-repair rerun set is frozen before repaired outcomes in
+  `reports/2026-08-11-pit-repair-revalidation-scope.md`. Tier 1 rebuilds the
+  accepted Week-1 lineage (K3/K1, direct-role union, canonical TabPFN,
+  score-free position calibration plus licensed exact-80, and fallback). Tier
+  2 rebuilds active-only labels and fitted usage K because they govern the
+  SCHED/team-QB and G3 branches. Tier 3 preserves unrelated rejected arms
+  without automatic retry. This prevents selecting reruns after repaired score
+  changes are visible.
 
 ### Validated production rollout completed; Route diagnostic ready
 
