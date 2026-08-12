@@ -209,6 +209,13 @@ and must not be staged or modified.
   `sha256:d0830d9fb79643fd77faa0d8c80f4863c1769adb56d6d1782999d5aa0f40139b`.
   Full Tier-1 application build `2ce169dc-36a6-4ae2-94c9-37018b0eb0ba`
   is also running from exact commit `b5d0146`.
+- Reconciled active-label v2 cache executions are now running from that exact
+  active-label digest: control `tabpfn-active-v2-ctl-7fhxx` and active-only
+  treatment `tabpfn-active-v2-trt-j4vss`. Their immutable manifest is tracked
+  under
+  `reports/tabpfn-active-label-runs/20260811-tabpfn-active-label-v2-pit-clean/`.
+  Do not query either cache or launch final-served work until both complete
+  and the independent v2 validator passes.
 - The repaired active-label final-served dependency is now a separate v2
   runner. It requires explicit validated v2 cache, repaired panel and repaired
   fitted-K comparison inputs; the comparison mechanically supplies either its
