@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 16:51 CDT
+## Current state — 2026-08-12 16:55 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -208,10 +208,14 @@ reconciliation when their findings affect the program.
   `tests/test_app.py` passes completely; Python compilation, HTML/JS-source
   assertions, and a headless Chromium render/click smoke passed. This UI
   milestone is pushed on `main` as commit `8e82c92`. Exact-tree full-test
-  Cloud Build `cd622cbb-0590-41e8-aec5-7fb49af51658` is running and targets
-  immutable-ready tag `nfl-dfs:ui-portfolio-8e82c92`; it has not been
-  deployed. Wait for a clean build and immutable digest, and do not mix a
-  web-service image switch into the still-running SCHED research execution.
+  Cloud Build `cd622cbb-0590-41e8-aec5-7fb49af51658` passed 991 tests with two
+  expected skips and produced immutable digest `sha256:3ea7f7c7bb0bcee77253d83316d14d3e4367d1577883d55bf8615afeb45c930b`.
+  Cloud Run service `nfl-dfs-app` now serves that exact image from ready
+  revision `nfl-dfs-app-00067-54b` at 100% traffic. Container readiness is
+  clean, revision error logs are empty, and
+  `scripts/verify_deployment.py --json` reports zero failures across the app,
+  production jobs and shadow contracts. `project-slate` was deliberately not
+  changed for this web-only visualization release.
 
 ### Critical pre-launch PIT repair — stale active-label caches blocked
 
