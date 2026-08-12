@@ -97,9 +97,14 @@ reconciliation when their findings affect the program.
   execution file/manifest/preflight are preserved under panel id suffix
   `-failed-wrong-image-package`. The launcher now requires the full exact
   `nfl-dfs/nfl-dfs@ad50...` URI. Corrected control smoke execution
-  `replay-pitactv2ctl-smoke-4wtwq` is running; the launcher will release all
-  six 2023--2025 control/treatment seasons only after clean smoke checks.
-  Wait for all six complete books, run
+  `replay-pitactv2ctl-smoke-4wtwq` and treatment smoke
+  `replay-pitactv2trt-smoke-nzvmv` both passed. All six 2023--2025 books are
+  running: control `replay-pitactv2ctl-2023-7dh98`,
+  `replay-pitactv2ctl-2024-bxkmb`, `replay-pitactv2ctl-2025-zrx9k`;
+  treatment `replay-pitactv2trt-2023-wjfqn`,
+  `replay-pitactv2trt-2024-v8xv6`, `replay-pitactv2trt-2025-48d7j`.
+  Execution manifests are pushed in commit `92632fc`. Wait for all six
+  complete books, run
   `scripts/cloud_finish_tabpfn_active_label_exact80_v2.sh aec3...`, and then
   continue SCHED under the mechanically selected active-label law. No partial
   season score may be inspected. Team-passing remains strictly downstream and
