@@ -1,0 +1,717 @@
+{
+  "artifacts": {
+    "canonical": {
+      "carries": {
+        "models_pit_v2/pooled/comp_carries/2026-W33/ensemble.json": {
+          "crc32c": "84MEpg==",
+          "generation": 1786509191875021,
+          "md5_hash": "fp+rQ6r/svh1lv0CDRDKIA=="
+        },
+        "models_pit_v2/pooled/comp_carries/2026-W33/member_0.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_carries/2026-W33/member_1.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_carries/2026-W33/member_2.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_carries/2026-W33/meta.json": {
+          "crc32c": "J/HdRQ==",
+          "generation": 1786509192005860,
+          "md5_hash": "mYQaEVR0wOHabpktm5ziow=="
+        }
+      },
+      "catch_rate": {
+        "models_pit_v2/pooled/comp_catch_rate/2026-W33/ensemble.json": {
+          "crc32c": "84MEpg==",
+          "generation": 1786509189340001,
+          "md5_hash": "fp+rQ6r/svh1lv0CDRDKIA=="
+        },
+        "models_pit_v2/pooled/comp_catch_rate/2026-W33/member_0.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_catch_rate/2026-W33/member_1.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_catch_rate/2026-W33/member_2.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_catch_rate/2026-W33/meta.json": {
+          "crc32c": "U87DxQ==",
+          "generation": 1786509189475161,
+          "md5_hash": "+6zKQPnIM6SWERHXDCJF+A=="
+        }
+      },
+      "interceptions": {
+        "models_pit_v2/pooled/comp_interceptions/2026-W33/ensemble.json": {
+          "crc32c": "84MEpg==",
+          "generation": 1786509196667824,
+          "md5_hash": "fp+rQ6r/svh1lv0CDRDKIA=="
+        },
+        "models_pit_v2/pooled/comp_interceptions/2026-W33/member_0.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_interceptions/2026-W33/member_1.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_interceptions/2026-W33/member_2.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_interceptions/2026-W33/meta.json": {
+          "crc32c": "ziENjg==",
+          "generation": 1786509196800374,
+          "md5_hash": "cJQIRbVECfh2aGzTW0tnxA=="
+        }
+      },
+      "pass_attempts": {
+        "models_pit_v2/pooled/comp_pass_attempts/2026-W33/ensemble.json": {
+          "crc32c": "84MEpg==",
+          "generation": 1786509194265546,
+          "md5_hash": "fp+rQ6r/svh1lv0CDRDKIA=="
+        },
+        "models_pit_v2/pooled/comp_pass_attempts/2026-W33/member_0.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_pass_attempts/2026-W33/member_1.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_pass_attempts/2026-W33/member_2.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_pass_attempts/2026-W33/meta.json": {
+          "crc32c": "WSm62A==",
+          "generation": 1786509194404949,
+          "md5_hash": "E8/N3zjEkcJMTeW6AeLkMQ=="
+        }
+      },
+      "pass_tds": {
+        "models_pit_v2/pooled/comp_pass_tds/2026-W33/ensemble.json": {
+          "crc32c": "84MEpg==",
+          "generation": 1786509195911538,
+          "md5_hash": "fp+rQ6r/svh1lv0CDRDKIA=="
+        },
+        "models_pit_v2/pooled/comp_pass_tds/2026-W33/member_0.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_pass_tds/2026-W33/member_1.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_pass_tds/2026-W33/member_2.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_pass_tds/2026-W33/meta.json": {
+          "crc32c": "Nby0Ug==",
+          "generation": 1786509196043609,
+          "md5_hash": "aoby7Pth+J3QFPwF4YDpnw=="
+        }
+      },
+      "rec_tds": {
+        "models_pit_v2/pooled/comp_rec_tds/2026-W33/ensemble.json": {
+          "crc32c": "84MEpg==",
+          "generation": 1786509191086752,
+          "md5_hash": "fp+rQ6r/svh1lv0CDRDKIA=="
+        },
+        "models_pit_v2/pooled/comp_rec_tds/2026-W33/member_0.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_rec_tds/2026-W33/member_1.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_rec_tds/2026-W33/member_2.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_rec_tds/2026-W33/meta.json": {
+          "crc32c": "BekqUA==",
+          "generation": 1786509191215315,
+          "md5_hash": "w1IgIRjQUpu4yG1ppcPZDQ=="
+        }
+      },
+      "rush_tds": {
+        "models_pit_v2/pooled/comp_rush_tds/2026-W33/ensemble.json": {
+          "crc32c": "84MEpg==",
+          "generation": 1786509193494335,
+          "md5_hash": "fp+rQ6r/svh1lv0CDRDKIA=="
+        },
+        "models_pit_v2/pooled/comp_rush_tds/2026-W33/member_0.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_rush_tds/2026-W33/member_1.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_rush_tds/2026-W33/member_2.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_rush_tds/2026-W33/meta.json": {
+          "crc32c": "ncPUjQ==",
+          "generation": 1786509193624383,
+          "md5_hash": "msXwXrKRQH11EzH4vn4g6A=="
+        }
+      },
+      "targets": {
+        "models_pit_v2/pooled/comp_targets/2026-W33/ensemble.json": {
+          "crc32c": "84MEpg==",
+          "generation": 1786509188512737,
+          "md5_hash": "fp+rQ6r/svh1lv0CDRDKIA=="
+        },
+        "models_pit_v2/pooled/comp_targets/2026-W33/member_0.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_targets/2026-W33/member_1.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_targets/2026-W33/member_2.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_targets/2026-W33/meta.json": {
+          "crc32c": "pV3ZeQ==",
+          "generation": 1786509188648623,
+          "md5_hash": "tDF1imrxzjvJjc2r98gDMg=="
+        }
+      },
+      "ypa": {
+        "models_pit_v2/pooled/comp_ypa/2026-W33/ensemble.json": {
+          "crc32c": "84MEpg==",
+          "generation": 1786509195037130,
+          "md5_hash": "fp+rQ6r/svh1lv0CDRDKIA=="
+        },
+        "models_pit_v2/pooled/comp_ypa/2026-W33/member_0.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_ypa/2026-W33/member_1.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_ypa/2026-W33/member_2.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_ypa/2026-W33/meta.json": {
+          "crc32c": "xCQIwg==",
+          "generation": 1786509195171381,
+          "md5_hash": "U2D7mabWbvN4RP4Ti5dKPQ=="
+        }
+      },
+      "ypc": {
+        "models_pit_v2/pooled/comp_ypc/2026-W33/ensemble.json": {
+          "crc32c": "84MEpg==",
+          "generation": 1786509192717753,
+          "md5_hash": "fp+rQ6r/svh1lv0CDRDKIA=="
+        },
+        "models_pit_v2/pooled/comp_ypc/2026-W33/member_0.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_ypc/2026-W33/member_1.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_ypc/2026-W33/member_2.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_ypc/2026-W33/meta.json": {
+          "crc32c": "rwIEBg==",
+          "generation": 1786509192846295,
+          "md5_hash": "mYhrQJbDp/Gon1mmMxW4nA=="
+        }
+      },
+      "ypr": {
+        "models_pit_v2/pooled/comp_ypr/2026-W33/ensemble.json": {
+          "crc32c": "84MEpg==",
+          "generation": 1786509190146112,
+          "md5_hash": "fp+rQ6r/svh1lv0CDRDKIA=="
+        },
+        "models_pit_v2/pooled/comp_ypr/2026-W33/member_0.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_ypr/2026-W33/member_1.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_ypr/2026-W33/member_2.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        },
+        "models_pit_v2/pooled/comp_ypr/2026-W33/meta.json": {
+          "crc32c": "zZX/Vw==",
+          "generation": 1786509190277500,
+          "md5_hash": "81QKOnx/9iDWgrLDg0LjOw=="
+        }
+      }
+    },
+    "tail_k1": {
+      "carries": {
+        "models_pit_v2/pooled/comp_carries__tail_k1/2026-W33/meta.json": {
+          "crc32c": "z4Ur6Q==",
+          "generation": 1786509151173592,
+          "md5_hash": "lQR1ndDYwxUSB6TcDQMixQ=="
+        },
+        "models_pit_v2/pooled/comp_carries__tail_k1/2026-W33/model.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        }
+      },
+      "catch_rate": {
+        "models_pit_v2/pooled/comp_catch_rate__tail_k1/2026-W33/meta.json": {
+          "crc32c": "rprTCw==",
+          "generation": 1786509150153344,
+          "md5_hash": "4h/4FxVB8envE1onAQscOQ=="
+        },
+        "models_pit_v2/pooled/comp_catch_rate__tail_k1/2026-W33/model.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        }
+      },
+      "interceptions": {
+        "models_pit_v2/pooled/comp_interceptions__tail_k1/2026-W33/meta.json": {
+          "crc32c": "LLvXgw==",
+          "generation": 1786509153150618,
+          "md5_hash": "aRKzUxDE7H4nQ7jCB1T+UA=="
+        },
+        "models_pit_v2/pooled/comp_interceptions__tail_k1/2026-W33/model.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        }
+      },
+      "pass_attempts": {
+        "models_pit_v2/pooled/comp_pass_attempts__tail_k1/2026-W33/meta.json": {
+          "crc32c": "DUlKLA==",
+          "generation": 1786509152139924,
+          "md5_hash": "wNANrYAfPalHkLh30E+Dmw=="
+        },
+        "models_pit_v2/pooled/comp_pass_attempts__tail_k1/2026-W33/model.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        }
+      },
+      "pass_tds": {
+        "models_pit_v2/pooled/comp_pass_tds__tail_k1/2026-W33/meta.json": {
+          "crc32c": "sbnTZg==",
+          "generation": 1786509152810088,
+          "md5_hash": "YFMq9J61tbO0KFlMc7RIPw=="
+        },
+        "models_pit_v2/pooled/comp_pass_tds__tail_k1/2026-W33/model.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        }
+      },
+      "rec_tds": {
+        "models_pit_v2/pooled/comp_rec_tds__tail_k1/2026-W33/meta.json": {
+          "crc32c": "fN3Opg==",
+          "generation": 1786509150848092,
+          "md5_hash": "JfvFZAh8zxdeLhUVM2j3vQ=="
+        },
+        "models_pit_v2/pooled/comp_rec_tds__tail_k1/2026-W33/model.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        }
+      },
+      "rush_tds": {
+        "models_pit_v2/pooled/comp_rush_tds__tail_k1/2026-W33/meta.json": {
+          "crc32c": "Ml+k/Q==",
+          "generation": 1786509151801990,
+          "md5_hash": "KNphevGWmPAgEqZi/ywxKA=="
+        },
+        "models_pit_v2/pooled/comp_rush_tds__tail_k1/2026-W33/model.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        }
+      },
+      "targets": {
+        "models_pit_v2/pooled/comp_targets__tail_k1/2026-W33/meta.json": {
+          "crc32c": "4kVtOA==",
+          "generation": 1786509149814405,
+          "md5_hash": "delh24hMezD3DDk2qct+LQ=="
+        },
+        "models_pit_v2/pooled/comp_targets__tail_k1/2026-W33/model.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        }
+      },
+      "ypa": {
+        "models_pit_v2/pooled/comp_ypa__tail_k1/2026-W33/meta.json": {
+          "crc32c": "3LJfrA==",
+          "generation": 1786509152481461,
+          "md5_hash": "tc8dNTV/mjFKghzSwaeTcA=="
+        },
+        "models_pit_v2/pooled/comp_ypa__tail_k1/2026-W33/model.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        }
+      },
+      "ypc": {
+        "models_pit_v2/pooled/comp_ypc__tail_k1/2026-W33/meta.json": {
+          "crc32c": "4sP42g==",
+          "generation": 1786509151480972,
+          "md5_hash": "DsNB96TOnmH3bl304gMVwQ=="
+        },
+        "models_pit_v2/pooled/comp_ypc__tail_k1/2026-W33/model.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        }
+      },
+      "ypr": {
+        "models_pit_v2/pooled/comp_ypr__tail_k1/2026-W33/meta.json": {
+          "crc32c": "C5pmIA==",
+          "generation": 1786509150514446,
+          "md5_hash": "uzwlp/BiIJJiIgTH6uRnew=="
+        },
+        "models_pit_v2/pooled/comp_ypr__tail_k1/2026-W33/model.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        }
+      }
+    },
+    "tail_k1_role": {
+      "carries": {
+        "models_pit_v2/pooled/comp_carries__tail_k1_role/2026-W33/meta.json": {
+          "crc32c": "iw5eRw==",
+          "generation": 1786509335487354,
+          "md5_hash": "M7zg9pzg6gn+Bs6qup/DDA=="
+        },
+        "models_pit_v2/pooled/comp_carries__tail_k1_role/2026-W33/model.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        }
+      },
+      "catch_rate": {
+        "models_pit_v2/pooled/comp_catch_rate__tail_k1_role/2026-W33/meta.json": {
+          "crc32c": "hLbX6A==",
+          "generation": 1786509334479464,
+          "md5_hash": "gBwkvKuPcp4G59oeKiW2WA=="
+        },
+        "models_pit_v2/pooled/comp_catch_rate__tail_k1_role/2026-W33/model.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        }
+      },
+      "interceptions": {
+        "models_pit_v2/pooled/comp_interceptions__tail_k1_role/2026-W33/meta.json": {
+          "crc32c": "w0zkZw==",
+          "generation": 1786509337535357,
+          "md5_hash": "XdD73GfvQeYd9xtSC1haIA=="
+        },
+        "models_pit_v2/pooled/comp_interceptions__tail_k1_role/2026-W33/model.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        }
+      },
+      "pass_attempts": {
+        "models_pit_v2/pooled/comp_pass_attempts__tail_k1_role/2026-W33/meta.json": {
+          "crc32c": "gCdl5Q==",
+          "generation": 1786509336528732,
+          "md5_hash": "829wjUdfGQ4R3IcB6y/36g=="
+        },
+        "models_pit_v2/pooled/comp_pass_attempts__tail_k1_role/2026-W33/model.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        }
+      },
+      "pass_tds": {
+        "models_pit_v2/pooled/comp_pass_tds__tail_k1_role/2026-W33/meta.json": {
+          "crc32c": "EO5iFw==",
+          "generation": 1786509337184055,
+          "md5_hash": "TQOWKww7HCqn3HRTnL60iw=="
+        },
+        "models_pit_v2/pooled/comp_pass_tds__tail_k1_role/2026-W33/model.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        }
+      },
+      "rec_tds": {
+        "models_pit_v2/pooled/comp_rec_tds__tail_k1_role/2026-W33/meta.json": {
+          "crc32c": "3+j8Mg==",
+          "generation": 1786509335143868,
+          "md5_hash": "EWVmble/Z5zQj3izAK9ybw=="
+        },
+        "models_pit_v2/pooled/comp_rec_tds__tail_k1_role/2026-W33/model.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        }
+      },
+      "rush_tds": {
+        "models_pit_v2/pooled/comp_rush_tds__tail_k1_role/2026-W33/meta.json": {
+          "crc32c": "R7CJ/Q==",
+          "generation": 1786509336207896,
+          "md5_hash": "1TSZyui2o4mop3En90XVkw=="
+        },
+        "models_pit_v2/pooled/comp_rush_tds__tail_k1_role/2026-W33/model.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        }
+      },
+      "targets": {
+        "models_pit_v2/pooled/comp_targets__tail_k1_role/2026-W33/meta.json": {
+          "crc32c": "sadg7g==",
+          "generation": 1786509334138278,
+          "md5_hash": "YERjsjeeL1ollRvmHBSQIA=="
+        },
+        "models_pit_v2/pooled/comp_targets__tail_k1_role/2026-W33/model.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        }
+      },
+      "ypa": {
+        "models_pit_v2/pooled/comp_ypa__tail_k1_role/2026-W33/meta.json": {
+          "crc32c": "6/cNig==",
+          "generation": 1786509336863728,
+          "md5_hash": "QxlVw8A8u/e1KES5/JPLHQ=="
+        },
+        "models_pit_v2/pooled/comp_ypa__tail_k1_role/2026-W33/model.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        }
+      },
+      "ypc": {
+        "models_pit_v2/pooled/comp_ypc__tail_k1_role/2026-W33/meta.json": {
+          "crc32c": "EeCeKw==",
+          "generation": 1786509335853520,
+          "md5_hash": "Ixxn1dTYyy01rjatkpVFGg=="
+        },
+        "models_pit_v2/pooled/comp_ypc__tail_k1_role/2026-W33/model.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        }
+      },
+      "ypr": {
+        "models_pit_v2/pooled/comp_ypr__tail_k1_role/2026-W33/meta.json": {
+          "crc32c": "JySxXA==",
+          "generation": 1786509334812507,
+          "md5_hash": "c7vELUASuyx7vVnRWCYY8Q=="
+        },
+        "models_pit_v2/pooled/comp_ypr__tail_k1_role/2026-W33/model.txt": {
+          "crc32c": null,
+          "generation": null,
+          "md5_hash": null
+        }
+      }
+    }
+  },
+  "checks": {
+    "canonical_carries_ensemble_descriptor": true,
+    "canonical_carries_feature_consistency": true,
+    "canonical_carries_member_0": true,
+    "canonical_carries_member_1": true,
+    "canonical_carries_member_2": true,
+    "canonical_carries_meta": true,
+    "canonical_catch_rate_ensemble_descriptor": true,
+    "canonical_catch_rate_feature_consistency": true,
+    "canonical_catch_rate_member_0": true,
+    "canonical_catch_rate_member_1": true,
+    "canonical_catch_rate_member_2": true,
+    "canonical_catch_rate_meta": true,
+    "canonical_interceptions_ensemble_descriptor": true,
+    "canonical_interceptions_feature_consistency": true,
+    "canonical_interceptions_member_0": true,
+    "canonical_interceptions_member_1": true,
+    "canonical_interceptions_member_2": true,
+    "canonical_interceptions_meta": true,
+    "canonical_pass_attempts_ensemble_descriptor": true,
+    "canonical_pass_attempts_feature_consistency": true,
+    "canonical_pass_attempts_member_0": true,
+    "canonical_pass_attempts_member_1": true,
+    "canonical_pass_attempts_member_2": true,
+    "canonical_pass_attempts_meta": true,
+    "canonical_pass_tds_ensemble_descriptor": true,
+    "canonical_pass_tds_feature_consistency": true,
+    "canonical_pass_tds_member_0": true,
+    "canonical_pass_tds_member_1": true,
+    "canonical_pass_tds_member_2": true,
+    "canonical_pass_tds_meta": true,
+    "canonical_rec_tds_ensemble_descriptor": true,
+    "canonical_rec_tds_feature_consistency": true,
+    "canonical_rec_tds_member_0": true,
+    "canonical_rec_tds_member_1": true,
+    "canonical_rec_tds_member_2": true,
+    "canonical_rec_tds_meta": true,
+    "canonical_rush_tds_ensemble_descriptor": true,
+    "canonical_rush_tds_feature_consistency": true,
+    "canonical_rush_tds_member_0": true,
+    "canonical_rush_tds_member_1": true,
+    "canonical_rush_tds_member_2": true,
+    "canonical_rush_tds_meta": true,
+    "canonical_targets_ensemble_descriptor": true,
+    "canonical_targets_feature_consistency": true,
+    "canonical_targets_member_0": true,
+    "canonical_targets_member_1": true,
+    "canonical_targets_member_2": true,
+    "canonical_targets_meta": true,
+    "canonical_ypa_ensemble_descriptor": true,
+    "canonical_ypa_feature_consistency": true,
+    "canonical_ypa_member_0": true,
+    "canonical_ypa_member_1": true,
+    "canonical_ypa_member_2": true,
+    "canonical_ypa_meta": true,
+    "canonical_ypc_ensemble_descriptor": true,
+    "canonical_ypc_feature_consistency": true,
+    "canonical_ypc_member_0": true,
+    "canonical_ypc_member_1": true,
+    "canonical_ypc_member_2": true,
+    "canonical_ypc_meta": true,
+    "canonical_ypr_ensemble_descriptor": true,
+    "canonical_ypr_feature_consistency": true,
+    "canonical_ypr_member_0": true,
+    "canonical_ypr_member_1": true,
+    "canonical_ypr_member_2": true,
+    "canonical_ypr_meta": true,
+    "k3_k1_feature_contract_equal": true,
+    "role_adds_exact_registered_features": true,
+    "tail_k1_carries_feature_consistency": true,
+    "tail_k1_carries_meta": true,
+    "tail_k1_carries_single_model": true,
+    "tail_k1_catch_rate_feature_consistency": true,
+    "tail_k1_catch_rate_meta": true,
+    "tail_k1_catch_rate_single_model": true,
+    "tail_k1_interceptions_feature_consistency": true,
+    "tail_k1_interceptions_meta": true,
+    "tail_k1_interceptions_single_model": true,
+    "tail_k1_pass_attempts_feature_consistency": true,
+    "tail_k1_pass_attempts_meta": true,
+    "tail_k1_pass_attempts_single_model": true,
+    "tail_k1_pass_tds_feature_consistency": true,
+    "tail_k1_pass_tds_meta": true,
+    "tail_k1_pass_tds_single_model": true,
+    "tail_k1_rec_tds_feature_consistency": true,
+    "tail_k1_rec_tds_meta": true,
+    "tail_k1_rec_tds_single_model": true,
+    "tail_k1_role_carries_feature_consistency": true,
+    "tail_k1_role_carries_meta": true,
+    "tail_k1_role_carries_single_model": true,
+    "tail_k1_role_catch_rate_feature_consistency": true,
+    "tail_k1_role_catch_rate_meta": true,
+    "tail_k1_role_catch_rate_single_model": true,
+    "tail_k1_role_interceptions_feature_consistency": true,
+    "tail_k1_role_interceptions_meta": true,
+    "tail_k1_role_interceptions_single_model": true,
+    "tail_k1_role_pass_attempts_feature_consistency": true,
+    "tail_k1_role_pass_attempts_meta": true,
+    "tail_k1_role_pass_attempts_single_model": true,
+    "tail_k1_role_pass_tds_feature_consistency": true,
+    "tail_k1_role_pass_tds_meta": true,
+    "tail_k1_role_pass_tds_single_model": true,
+    "tail_k1_role_rec_tds_feature_consistency": true,
+    "tail_k1_role_rec_tds_meta": true,
+    "tail_k1_role_rec_tds_single_model": true,
+    "tail_k1_role_rush_tds_feature_consistency": true,
+    "tail_k1_role_rush_tds_meta": true,
+    "tail_k1_role_rush_tds_single_model": true,
+    "tail_k1_role_targets_feature_consistency": true,
+    "tail_k1_role_targets_meta": true,
+    "tail_k1_role_targets_single_model": true,
+    "tail_k1_role_ypa_feature_consistency": true,
+    "tail_k1_role_ypa_meta": true,
+    "tail_k1_role_ypa_single_model": true,
+    "tail_k1_role_ypc_feature_consistency": true,
+    "tail_k1_role_ypc_meta": true,
+    "tail_k1_role_ypc_single_model": true,
+    "tail_k1_role_ypr_feature_consistency": true,
+    "tail_k1_role_ypr_meta": true,
+    "tail_k1_role_ypr_single_model": true,
+    "tail_k1_rush_tds_feature_consistency": true,
+    "tail_k1_rush_tds_meta": true,
+    "tail_k1_rush_tds_single_model": true,
+    "tail_k1_targets_feature_consistency": true,
+    "tail_k1_targets_meta": true,
+    "tail_k1_targets_single_model": true,
+    "tail_k1_ypa_feature_consistency": true,
+    "tail_k1_ypa_meta": true,
+    "tail_k1_ypa_single_model": true,
+    "tail_k1_ypc_feature_consistency": true,
+    "tail_k1_ypc_meta": true,
+    "tail_k1_ypc_single_model": true,
+    "tail_k1_ypr_feature_consistency": true,
+    "tail_k1_ypr_meta": true,
+    "tail_k1_ypr_single_model": true
+  },
+  "disposition": "pit-clean-registry-qualified",
+  "feature_counts": {
+    "canonical": 36,
+    "tail_k1": 36,
+    "tail_k1_role": 42
+  },
+  "iso_week": "2026-W33",
+  "passes": true,
+  "prefix": "models_pit_v2",
+  "project": "nfl-predictions-503414"
+}

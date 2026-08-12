@@ -296,6 +296,21 @@ and must not be staged or modified.
   It check-validates the one mechanically permitted role panel, runs the same
   frozen 240->187 comparator against its selected base, promotes the role
   panel only if selected, and writes a durable final Tier-1 selection record.
+- Isolated registry qualification is terminal and valid. All three executions
+  above succeeded, and the independent validator passed all 134 checks across
+  11 components per variant: canonical K3 has 36 features and all three
+  members, K1 has the same 36-feature contract and one member, and K1 role has
+  exactly the six registered role features added (42 total). The durable
+  generation/checksum inventory is
+  `reports/pit-tier1-runs/20260811-pit-clean-registry-v2/validation.json`.
+- Tier-1 audit Cloud Build `9d341683-b3e2-4a66-be2f-ba5aa3973dd5`
+  passed 952 tests with two expected skips and published immutable audit
+  digest
+  `sha256:cc82a5ed6528a91708e39c2c1a8eb10fefc5cae952e4ac7f0d3196a0a56cba32`
+  from the frozen comparator/panel-runner source at `26f5b68`. Use it for
+  acceptance/comparison only; generation remains pinned to `ad50...` from
+  application code `a12ab31`. Next action is to launch both exact-80 repaired
+  controls and wait for all 12 season executions before reading scores.
 
 ### Validated production rollout completed; Route diagnostic ready
 
