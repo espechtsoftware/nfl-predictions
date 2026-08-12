@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 20:08 CDT
+## Current state — 2026-08-11 20:11 CDT
 
 Active branch is `main`; final-served Route diagnostic implementation commit
 `d5e74c0` is pushed. The position-calibration result, research promotion,
@@ -211,9 +211,12 @@ and must not be staged or modified.
   multinomial law from that decision and records input hashes. Focused
   active-label/Route/replay/persistence/policy/infrastructure tests pass (55
   tests); Python compilation, shell parsing and whitespace checks are clean.
-  Next action: commit/push this implementation, build an immutable CPU image,
-  and launch the sole final-served execution only after the fitted-K comparator
-  has produced its frozen decision.
+  Implementation commit `bff6f7d` is pushed. Exact-tree Cloud Build
+  `fa1b0d0b-c9da-4a66-b5a1-25cf57447edc` passed 922 tests with two expected
+  skips and published immutable CPU digest
+  `sha256:ce28df5bccce1a0be8966f5d86b2c53709db4d9dc83d8b1f8050043a93af6762`.
+  Launch the sole final-served execution from that digest only after the
+  fitted-K comparator has produced its frozen decision.
 - The new read-only outside review
   `reports/2026-08-11-feature-plumbing-defects-and-correlation-gaps.md` was
   reconciled. Its two-channel diagnosis is correct: TabPFN owns covered player
