@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 07:32 CDT
+## Current state — 2026-08-12 07:36 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -437,9 +437,11 @@ and must not be staged or modified.
   panel, exact cache identities/52,307 keys, version and machine-selected usage
   law before writing `report.json`; this closes the prior async-launch gap.
   Exact-tree active-label audit build
-  `d760751b-e7eb-478f-97d6-e7fc5debb7e8` is running from commit `23e658e`.
-  Do not use it until the build succeeds and its immutable digest/test result
-  are recorded.
+  `d760751b-e7eb-478f-97d6-e7fc5debb7e8` succeeded from commit `23e658e`:
+  967 tests passed with two expected skips, publishing immutable digest
+  `sha256:c219ffce842693c9fa9fc66898c91360d61e82ad9dbedb0018d0d3b9c88f1d56`.
+  It contains the active-label v2 final-served code and exact-80 comparator;
+  generation remains pinned to `ad50...`.
 - The outcome-free SCHED cache stage is implemented before the active-label
   branch or any SCHED prediction is visible. The protocol now fixes write-once
   tables `tabpfn_sched_control_v1`/`tabpfn_sched_treatment_v1`, run id
@@ -451,6 +453,9 @@ and must not be staged or modified.
   ordered quantiles and changed predictions. Four focused tests plus shell
   parsing, compilation and whitespace validation pass. This prepares cache
   generation only; do not launch it until `selected_active_label.txt` exists.
+  GPU image build `cde9270c-973b-4697-a30e-c491b7ac8e51` and exact-tree audit
+  build `dd8cb18a-9434-43f6-95c9-1119905454d6` are running from commit
+  `070110a`; record their immutable digests/test outcomes before use.
 
 ### Validated production rollout completed; Route diagnostic ready
 
