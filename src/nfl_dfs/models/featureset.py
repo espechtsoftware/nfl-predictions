@@ -90,6 +90,16 @@ NUMERIC_FEATURES = [
 
 FEATURES = NUMERIC_FEATURES + ["position"]
 
+# The GPU TabPFN marginal cache currently predates the same-day SCHED
+# adoption. Keep that known mismatch explicit until its separately frozen
+# regeneration arm runs; every other model-feature change automatically lands
+# in this expected contract and will fail the offline features.txt guard.
+TABPFN_KNOWN_OMISSIONS = ("net_rest_diff", "body_clock_hour")
+TABPFN_NUMERIC_FEATURES = tuple(
+    feature for feature in NUMERIC_FEATURES
+    if feature not in TABPFN_KNOWN_OMISSIONS
+)
+
 # Candidate features (2026-08-01): materialized in the feature tables but
 # EXCLUDED from the model unless named in the EXTRA_FEATURES env var
 # (comma-separated) -- so one table rebuild supports N parallel exact

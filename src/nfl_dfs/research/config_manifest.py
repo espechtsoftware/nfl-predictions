@@ -29,7 +29,7 @@ from typing import Any
 
 log = logging.getLogger(__name__)
 
-MANIFEST_SCHEMA_VERSION = 1
+MANIFEST_SCHEMA_VERSION = 2
 
 
 def _module_source(dotted: str) -> str:
@@ -166,9 +166,33 @@ def _norm(literal: str) -> str:
 
 def manifest() -> dict[str, Any]:
     defaults, discrepancies = collect_defaults()
+    from ..models.featureset import (
+        NUMERIC_FEATURES,
+        TABPFN_KNOWN_OMISSIONS,
+        TABPFN_NUMERIC_FEATURES,
+    )
+    tabpfn_contract = {
+        "model_numeric_features": list(NUMERIC_FEATURES),
+        "tabpfn_numeric_features": list(TABPFN_NUMERIC_FEATURES),
+        "known_omissions": list(TABPFN_KNOWN_OMISSIONS),
+        "missing_from_tabpfn": [
+            feature for feature in NUMERIC_FEATURES
+            if feature not in TABPFN_NUMERIC_FEATURES
+        ],
+        "unexpected_in_tabpfn": [
+            feature for feature in TABPFN_NUMERIC_FEATURES
+            if feature not in NUMERIC_FEATURES
+        ],
+        "shared_order_matches": [
+            feature for feature in NUMERIC_FEATURES
+            if feature in TABPFN_NUMERIC_FEATURES
+        ] == list(TABPFN_NUMERIC_FEATURES),
+        "status": "known-sched-omission-frozen-pending-separate-arm",
+    }
     return {
         "schema_version": MANIFEST_SCHEMA_VERSION,
         "defaults": defaults,
+        "tabpfn_feature_contract": tabpfn_contract,
         "discrepancies": sorted(
             discrepancies, key=lambda d: (d["key"], d["path"])),
     }

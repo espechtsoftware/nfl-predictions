@@ -167,6 +167,7 @@ EXPECTED_DEFAULTS = {
     "SELECT_LSE": 0.0,
     "TD_LEDGER": False,
     "TABPFN_MARGINALS": True,
+    "TABPFN_MARGINAL_TABLE": "",
     "MODEL_ENSEMBLE": 3,
     "GAME_SIM_MODE": "lognormal",
     "LIVE_SIMS": 30_000,
@@ -208,6 +209,23 @@ def test_manifest_has_no_config_drift():
     # between code paths fails this test by name.
     m = config_manifest.manifest()
     assert m["discrepancies"] == [], m["discrepancies"]
+
+
+def test_tabpfn_feature_contract_freezes_only_the_known_sched_gap():
+    from pathlib import Path
+
+    from nfl_dfs.models.featureset import TABPFN_NUMERIC_FEATURES
+
+    tracked = tuple((
+        Path(__file__).parents[1] / "scripts" / "tabpfn_gen" / "features.txt"
+    ).read_text(encoding="utf-8").split())
+    assert tracked == TABPFN_NUMERIC_FEATURES
+    contract = config_manifest.manifest()["tabpfn_feature_contract"]
+    assert contract["missing_from_tabpfn"] == [
+        "net_rest_diff", "body_clock_hour"]
+    assert contract["known_omissions"] == contract["missing_from_tabpfn"]
+    assert contract["unexpected_in_tabpfn"] == []
+    assert contract["shared_order_matches"]
 
 
 def test_manifest_hash_stable_and_content_sensitive():

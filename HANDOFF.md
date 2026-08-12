@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 19:31 CDT
+## Current state — 2026-08-11 19:42 CDT
 
 Active branch is `main`; final-served Route diagnostic implementation commit
 `d5e74c0` is pushed. The position-calibration result, research promotion,
@@ -31,10 +31,11 @@ diagnostic implementation commit `5aee8aa` and negative result commit
 The program-review reconciliation is finalized in this milestone.
 The paired Route Share live-shadow implementation commit `9e34565` and its
 Thursday post-download scheduler follow-up `b6dbc5e` are also pushed on
-`main`. The five operator-supplied outside-review documents
+`main`. The six operator-supplied outside-review documents
 `reports/2026-08-10-scoring-strategy-recommendations.md`,
 `reports/2026-08-11-deep-analysis-calibration-and-data-audit.md`,
 `reports/2026-08-11-fantasy-points-data-utilization.md`,
+`reports/2026-08-11-feature-plumbing-defects-and-correlation-gaps.md`,
 `reports/2026-08-11-post-window-program-review.md`, and
 `reports/2026-08-11-recommendation-scoreboard-and-pivot.md` remain untracked
 and must not be staged or modified.
@@ -186,6 +187,22 @@ and must not be staged or modified.
   action: monitor both to clean completion, run the one mechanical harvester,
   and commit its reports/validation. Do not run final-served comparison until
   the fitted-K decision fixes the common simulator law.
+- The new read-only outside review
+  `reports/2026-08-11-feature-plumbing-defects-and-correlation-gaps.md` was
+  reconciled. Its two-channel diagnosis is correct: TabPFN owns covered player
+  marginals while the component path chiefly changes the copula/ranks. The GPU
+  feature list is missing only the adopted SCHED pair (`net_rest_diff`,
+  `body_clock_hour`) and contains no candidate features. The active-label jobs
+  intentionally keep that old 33-feature list; syncing SCHED inside them would
+  confound the frozen question. A schema-v2 config-manifest contract now makes
+  the exact known two-column omission visible, and an offline test requires
+  tracked `scripts/tabpfn_gen/features.txt` to match that contract in exact
+  feature order. Any additional silent drift fails. Forty-eight focused
+  infrastructure/cache/replay/persistence/policy tests pass. After active-label
+  validation, test SCHED sync as a separate marginal-cache arm, then a strictly
+  prior QB-quality broadcast to pass-catchers. Weather remains conditional on
+  proving historical pre-lock forecast provenance; realized game weather may
+  not be used as if it were a forecast.
 
 ### Final-served position calibration passed, promoted, and adopted
 
