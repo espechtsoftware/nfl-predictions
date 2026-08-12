@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 19:51 CDT
+## Current state — 2026-08-11 20:08 CDT
 
 Active branch is `main`; final-served Route diagnostic implementation commit
 `d5e74c0` is pushed. The position-calibration result, research promotion,
@@ -199,6 +199,20 @@ and must not be staged or modified.
   the run directory. Commit/push the validation artifacts and serializer-only
   repair. The next scientific stage remains blocked only on the fitted-K
   decision fixing the common simulator law; cache validation itself is done.
+  The frozen final-served stage is now implemented behind
+  `tabpfn-active-label-final-served`. It compares only the two validated
+  research cache tables, reconstructs 2022--2025 same-seed served worlds under
+  the already-decided common usage law, independently fits the exact
+  walk-forward position-scale schedule for each arm, and applies the frozen
+  aggregate active RB/WR/TE 30-point Brier gate. The Cloud runner fails closed
+  until both the cache-validation artifact and fitted-K exact-80 comparison
+  exist; it derives either the exact unrounded fitted K or the production
+  multinomial law from that decision and records input hashes. Focused
+  active-label/Route/replay/persistence/policy/infrastructure tests pass (55
+  tests); Python compilation, shell parsing and whitespace checks are clean.
+  Next action: commit/push this implementation, build an immutable CPU image,
+  and launch the sole final-served execution only after the fitted-K comparator
+  has produced its frozen decision.
 - The new read-only outside review
   `reports/2026-08-11-feature-plumbing-defects-and-correlation-gaps.md` was
   reconciled. Its two-channel diagnosis is correct: TabPFN owns covered player

@@ -273,6 +273,15 @@ def main(argv: list[str] | None = None) -> None:
         help="Frozen corrected K1 panel (alternate values fail closed)",
     )
 
+    p = sub.add_parser(
+        "tabpfn-active-label-final-served",
+        help="Gate the frozen active-only TabPFN cache on final-served tails",
+    )
+    p.add_argument(
+        "--panel", default="20260810-lockfix-e80-k1-8677d21",
+        help="Frozen corrected K1 panel (alternate values fail closed)",
+    )
+
     sub.add_parser(
         "usage-dirichlet-calibration-diagnostic",
         help="Fit and gate within-team target/carry concentration",
@@ -708,6 +717,10 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import route_final_served_calibration
 
         route_final_served_calibration.run(args.panel)
+    elif args.command == "tabpfn-active-label-final-served":
+        from .analysis import tabpfn_active_label_final_served
+
+        tabpfn_active_label_final_served.run(args.panel)
     elif args.command == "usage-dirichlet-calibration-diagnostic":
         from .analysis import usage_dirichlet_calibration
 
