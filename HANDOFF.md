@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 19:21 CDT
+## Current state — 2026-08-11 19:31 CDT
 
 Active branch is `main`; final-served Route diagnostic implementation commit
 `d5e74c0` is pushed. The position-calibration result, research promotion,
@@ -146,6 +146,19 @@ and must not be staged or modified.
   Next action: monitor all six season executions to clean completion, run
   check-only acceptance on both panels, and then execute the frozen comparator
   once. Do not inspect or act on lineup scores before that comparator.
+- A separate code audit found that `scripts/tabpfn_gen/gen.py` does not apply
+  the component path's `active_training_rows` safeguard. The current training
+  table contains 6,202/6,041/6,130/6,021 synthetic inactive zero labels in
+  2022/2023/2024/2025 versus 7,044/7,043/7,002/6,824 active labels, and the
+  production TabPFN cache contains the expanded 2022--2025 universe. A
+  same-code active-only training-label test is frozen before producing any
+  corrected cache or result in
+  `reports/2026-08-11-tabpfn-active-label-protocol.md`. Cache generation is
+  independent of the fitted-K decision, but the final-served comparison must
+  wait and use whichever common simulator law that decision accepts. Next
+  implementation step is a research-only same-image cache generator plus a
+  validated/persisted alternate-cache table selector that production
+  explicitly resets to canonical.
 
 ### Final-served position calibration passed, promoted, and adopted
 
