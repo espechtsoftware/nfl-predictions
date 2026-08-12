@@ -232,6 +232,22 @@ and must not be staged or modified.
   `tabpfn-canonical-pit-v2-xjm2q`; its immutable manifest is under
   `reports/tabpfn-canonical-runs/20260811-tabpfn-canonical-pit-v2/`. Do not
   use the table until the independent validator passes.
+- Canonical execution `tabpfn-canonical-pit-v2-xjm2q` completed successfully
+  and wrote 65,455 unique rows. Its first independent validation attempt
+  stopped before writing a verdict because `rows` was used as an unquoted
+  BigQuery alias; the validator now uses `row_count`. This is validator-only,
+  does not mutate the write-once cache and did not license downstream work.
+  The corrected independent validation now passes every report/table check:
+  exact 65,455 unique target keys across the six frozen seasons, exact repaired
+  102,927-row source identity/checksum/schema/time, write-once table and code
+  identity, feature/hyperparameter/context law, and finite ordered quantiles.
+  Tier-1 registry/panel qualification may now consume this cache explicitly.
+- Full generation-image build `9d774557-5542-4357-b6a5-548217d0ec10`
+  passed 947 tests with two expected skips and published the frozen Tier-1
+  digest
+  `sha256:ad50fe19bde366ca11180b561127b09e2c79c97ec7dbbd5507282e33d2d5eb62`
+  from application code `a12ab31`. Later runner/comparator commits do not alter
+  that generation image or its frozen code identity.
 - The repaired active-label final-served dependency is now a separate v2
   runner. It requires explicit validated v2 cache, repaired panel and repaired
   fitted-K comparison inputs; the comparison mechanically supplies either its

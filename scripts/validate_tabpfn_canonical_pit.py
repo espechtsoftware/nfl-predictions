@@ -115,7 +115,7 @@ def main() -> None:
     """).to_dataframe().iloc[0]["checksum"])
     source_counts = query_df(f"""
         SELECT
-          COUNT(*) AS rows,
+          COUNT(*) AS row_count,
           COUNTIF(COALESCE(was_active, FALSE)) AS active_rows,
           COUNTIF(NOT COALESCE(was_active, FALSE)) AS inactive_rows
         FROM `{source_table}`
@@ -126,7 +126,7 @@ def main() -> None:
         "last_modified": source_meta.modified.isoformat(),
         "schema_sha256": hashlib.sha256(source_schema.encode()).hexdigest(),
         "content_checksum": source_checksum,
-        "rows": int(source_counts["rows"]),
+        "rows": int(source_counts["row_count"]),
         "active_rows": int(source_counts["active_rows"]),
         "inactive_rows": int(source_counts["inactive_rows"]),
     }

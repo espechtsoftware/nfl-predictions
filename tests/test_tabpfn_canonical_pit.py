@@ -37,6 +37,11 @@ def test_canonical_pit_cache_is_write_once_and_provenance_bound():
     ).read_text(encoding="utf-8")
     assert "COPY scripts/tabpfn_gen/gen.py /app/gen.py" in dockerfile
     assert "COPY scripts/tabpfn_gen/features.txt /app/features.txt" in dockerfile
+    validator = (
+        Path(__file__).parents[1] / "scripts" / "validate_tabpfn_canonical_pit.py"
+    ).read_text(encoding="utf-8")
+    assert "COUNT(*) AS row_count" in validator
+    assert 'source_counts["row_count"]' in validator
 
 
 def test_canonical_pit_validator_is_fail_closed():
