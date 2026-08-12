@@ -108,6 +108,26 @@ def test_std_leakage_check_rejects_current_week_window():
         )
 
 
+def test_exact_spine_check_rejects_null_support_drift():
+    source = pd.DataFrame({
+        "gsis_id": ["a"] * 6,
+        "season": [2025] * 6,
+        "week": [1, 2, 3, 4, 5, 6],
+        "separation": [1.0, np.nan, np.nan, np.nan, np.nan, 2.0],
+    })
+    built = source[["gsis_id", "season", "week"]].copy()
+    built["separation_l4"] = trailing_mean_excluding_current(
+        source, "separation", window=4)
+    # Simulate a transform that incorrectly compresses out the four missing
+    # spine rows and carries the stale week-1 observation into week 6.
+    built.loc[built.week.eq(6), "separation_l4"] = 1.0
+    with pytest.raises(LeakageError, match="NULL support"):
+        assert_no_leakage(
+            built, source, "separation_l4", "separation", window=4,
+            require_null_parity=True,
+        )
+
+
 def test_correct_build_passes():
     source = make_source()
     built = build_correct(source)

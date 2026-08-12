@@ -46,14 +46,18 @@ starting with active production fields, and require each reference query to
 reconstruct the transform's actual spine and missingness semantics. Do not
 claim coverage merely by checking first-row nulls.
 
-The first source-family expansion is now implemented for the active production
-trail. `dk_points_l4`, `dk_points_std` and `dk_points_vol` are independently
-reconstructed from `player_week_actuals`, preserving the transform's rule that
-salary-retained inactive zero labels are not played observations. The pure
-reference adds BigQuery-compatible sample-standard-deviation semantics and a
-negative include-current test. A read-only live check passed all three fields
-on the exact same deterministic 11,686 built/source sample rows. Advanced
-opportunity/NGS fields are the next family; they are not claimed covered yet.
+The first two source-family expansions are now implemented. For the active
+production trail, `dk_points_l4`, `dk_points_std` and `dk_points_vol` are
+independently reconstructed from `player_week_actuals`, preserving the rule
+that salary-retained inactive zero labels are not played observations. The
+pure reference adds BigQuery-compatible sample-standard-deviation semantics
+and a negative include-current test. For advanced opportunity/NGS,
+`ez_targets_l4`, `deep_targets_l4`, `separation_l4` and `stacked_box_l4` are
+reconstructed from PBP/NGS on the exact complete usage spine. Exact null-
+support parity is mandatory so missing observations continue to occupy bounded
+`ROWS` windows. Read-only live checks passed on identical 11,686-row
+efficiency and 4,975-row advanced built/source samples. Team context is next;
+it is not claimed covered yet.
 
 ### 3. Team CPOE is computed but unused — confirmed and already frozen
 
@@ -104,8 +108,9 @@ experiment answers the pass-catcher question.
 2. Complete the active-label → SCHED → team-QB marginal sequence in its frozen
    order. Add the sparse-feature support report during the next cache build.
 3. Continue source-recomputed leakage checks one feature family at a time.
-   Active efficiency is complete; advanced and team-context fields are next.
-   Every new query must have synthetic positive and negative tests.
+   Active efficiency and advanced opportunity/NGS are complete; team-context
+   fields are next. Every new query must have synthetic positive and negative
+   tests.
 4. On the next coordinated feature rebuild, prove historical row-count/key
    stability, quantify the intended defense-feature deltas, retrain all live
    registries and rerun deployment verification before serving Week 1.
@@ -116,6 +121,6 @@ experiment answers the pass-catcher question.
   schemas.
 - Focused feature-SQL and leakage suites pass, including the new exact-week
   position and upcoming-row guards.
-- The first active-efficiency expansion passes its synthetic include-current
-  test and a read-only 11,686-row live source/built comparison.
+- Active-efficiency and advanced-source expansions pass synthetic include-
+  current/null-support tests and read-only 11,686-/4,975-row live comparisons.
 - `git diff --check` and Python compilation are clean.

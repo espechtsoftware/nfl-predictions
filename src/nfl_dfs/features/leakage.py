@@ -143,6 +143,7 @@ def assert_no_leakage(
     min_coverage: float = 0.95,
     key_col: str = "gsis_id",
     statistic: str = "mean",
+    require_null_parity: bool = False,
 ) -> None:
     """Compare a built rolling feature against the reference recomputation.
 
@@ -163,6 +164,17 @@ def assert_no_leakage(
                          on=[key_col, "season", "week"], how="inner")
     if merged.empty:
         raise LeakageError(f"No overlapping rows to check for {feature_col}")
+
+    null_mismatch = merged[feature_col].isna().ne(merged["expected"].isna())
+    if require_null_parity and null_mismatch.any():
+        bad = merged[null_mismatch].head(5)[
+            [key_col, "season", "week", feature_col, "expected"]]
+        raise LeakageError(
+            f"{feature_col}: {int(null_mismatch.sum())} rows disagree with "
+            "the point-in-time reference on NULL support. This usually means "
+            "the rolling spine or eligibility semantics drifted.\n"
+            f"Examples:\n{bad.to_string(index=False)}"
+        )
 
     both = merged.dropna(subset=[feature_col, "expected"])
     n_checked = len(both)
@@ -322,6 +334,45 @@ SELECT gsis_id, season, week,
        IF(has_stat_line, dk_points, NULL) AS dk_points
 FROM `{features}.player_week_actuals`
 WHERE MOD(FARM_FINGERPRINT(gsis_id), 20) = 0
+"""
+
+
+# Independent source reconstruction of 015a on its exact usage spine. Rows
+# with no PBP/NGS observation must remain present and NULL because bounded SQL
+# ROWS windows count calendar/player-spine rows, not only observed values.
+ADVANCED_CHECKS = [
+    ("ez_targets_l4", "ez_targets", 4),
+    ("deep_targets_l4", "deep_targets", 4),
+    ("separation_l4", "avg_separation", 4),
+    ("stacked_box_l4", "stacked_box_pct", 4),
+]
+
+ADVANCED_SOURCE_SQL = """
+WITH target_quality AS (
+  SELECT receiver_player_id AS gsis_id, season, week,
+         COUNTIF(air_yards >= yardline_100) AS ez_targets,
+         COUNTIF(air_yards >= 20) AS deep_targets
+  FROM `{raw}.pbp`
+  WHERE pass_attempt = 1 AND receiver_player_id IS NOT NULL
+    AND air_yards IS NOT NULL AND season_type = 'REG'
+  GROUP BY 1, 2, 3
+), ngs_rec AS (
+  SELECT player_gsis_id AS gsis_id, season, week, avg_separation
+  FROM `{raw}.ngs_receiving`
+  WHERE week > 0
+), ngs_rush AS (
+  SELECT player_gsis_id AS gsis_id, season, week,
+         percent_attempts_gte_eight_defenders AS stacked_box_pct
+  FROM `{raw}.ngs_rushing`
+  WHERE week > 0
+)
+SELECT u.gsis_id, u.season, u.week,
+       t.ez_targets, t.deep_targets, nr.avg_separation, nu.stacked_box_pct
+FROM `{features}.player_week_usage` u
+LEFT JOIN target_quality t USING (gsis_id, season, week)
+LEFT JOIN ngs_rec nr USING (gsis_id, season, week)
+LEFT JOIN ngs_rush nu USING (gsis_id, season, week)
+WHERE MOD(FARM_FINGERPRINT(u.gsis_id), 20) = 0
 """
 
 
@@ -629,10 +680,27 @@ def run_leakage_checks() -> None:
     for feature_col, source_col, window, statistic in EFFICIENCY_CHECKS:
         assert_no_leakage(
             eff_built, eff_source, feature_col, source_col, window,
-            statistic=statistic,
+            statistic=statistic, require_null_parity=True,
         )
     assert_first_row_features_null(
         eff_built, [f for f, *_ in EFFICIENCY_CHECKS], ("gsis_id", "season")
+    )
+
+    # Advanced opportunity and NGS context (015a): retain the complete usage
+    # spine so bounded ROWS windows and missing observations match exactly.
+    adv_built = query_df(SAMPLE_SQL.format(
+        cols=", ".join(f for f, *_ in ADVANCED_CHECKS),
+        table=f"{settings.features}.player_week_advanced",
+    ))
+    adv_source = query_df(ADVANCED_SOURCE_SQL.format(
+        features=settings.features, raw=settings.raw))
+    for feature_col, source_col, window in ADVANCED_CHECKS:
+        assert_no_leakage(
+            adv_built, adv_source, feature_col, source_col, window,
+            require_null_parity=True,
+        )
+    assert_first_row_features_null(
+        adv_built, [f for f, *_ in ADVANCED_CHECKS], ("gsis_id", "season")
     )
 
     # Exact replay-universe contract. This catches identity, source-spine,
