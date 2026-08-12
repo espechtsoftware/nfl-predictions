@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 19:47 CDT
+## Current state — 2026-08-11 19:51 CDT
 
 Active branch is `main`; final-served Route diagnostic implementation commit
 `d5e74c0` is pushed. The position-calibration result, research promotion,
@@ -187,6 +187,18 @@ and must not be staged or modified.
   action: monitor both to clean completion, run the one mechanical harvester,
   and commit its reports/validation. Do not run final-served comparison until
   the fitted-K decision fixes the common simulator law.
+  Both executions completed successfully in 9m19s/9m03s. The repaired local
+  harvester (NumPy booleans normalized at the JSON boundary; caches unchanged)
+  passed every frozen mechanical check. Both tables contain the exact same
+  52,307 unique keys, finite ordered quantiles and identical source/feature/
+  hyperparameter identities, with changed predictions. Control sampled
+  73/2,860/4,409/5,765 inactive zeros for target seasons 2022/2023/2024/2025;
+  treatment sampled zero and retained 28,000 active context rows in every
+  fold. The result is documented in
+  `reports/2026-08-11-tabpfn-active-label-cache-result.md`; full reports are in
+  the run directory. Commit/push the validation artifacts and serializer-only
+  repair. The next scientific stage remains blocked only on the fitted-K
+  decision fixing the common simulator law; cache validation itself is done.
 - The new read-only outside review
   `reports/2026-08-11-feature-plumbing-defects-and-correlation-gaps.md` was
   reconciled. Its two-channel diagnosis is correct: TabPFN owns covered player

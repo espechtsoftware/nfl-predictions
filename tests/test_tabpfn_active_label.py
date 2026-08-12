@@ -1,4 +1,5 @@
 import copy
+import json
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 
@@ -83,6 +84,7 @@ def test_table_validation_requires_same_keys_ordered_quantiles_and_change(monkey
     treatment["mean"] += 0.1
     result = validation.validate_tables(base, treatment)
     assert result["passes"]
+    json.dumps(result)
     treatment.loc[0, "q95"] = -5
     result = validation.validate_tables(base, treatment)
     assert not result["passes"]

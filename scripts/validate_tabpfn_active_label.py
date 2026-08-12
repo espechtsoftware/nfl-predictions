@@ -87,7 +87,8 @@ def validate_reports(control: dict, treatment: dict, code_sha: str) -> dict:
         < control["folds"][str(season)]["eligible_context_rows"]
         for season in TARGET_SEASONS
     )
-    return {"checks": checks, "passes": all(checks.values())}
+    normalized = {name: bool(value) for name, value in checks.items()}
+    return {"checks": normalized, "passes": all(normalized.values())}
 
 
 def validate_tables(control: pd.DataFrame, treatment: pd.DataFrame) -> dict:
@@ -136,7 +137,8 @@ def validate_tables(control: pd.DataFrame, treatment: pd.DataFrame) -> dict:
         for name in ("finite_predictions", "ordered_quantiles",
                      "row_arm_identity", "predictions_changed"):
             checks[name] = False
-    return {"checks": checks, "passes": all(checks.values())}
+    normalized = {name: bool(value) for name, value in checks.items()}
+    return {"checks": normalized, "passes": all(normalized.values())}
 
 
 def _parse_args() -> argparse.Namespace:
