@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -100,6 +102,49 @@ def test_position_scales_require_exact_contract_and_bounds():
     with pytest.raises(ValueError, match=r"\[0.75, 1.50\]"):
         position_calibration.apply_position_scales(
             draws, positions, {"QB": 1, "RB": 1, "WR": 1.51, "TE": 1})
+
+
+def test_pit_v2_position_contract_requires_repaired_panel_cache_and_base_k():
+    panel = "20260811-pitclean-e80-k3-a12ab31"
+    contract = position_calibration.execution_contract(panel, {
+        position_calibration.PIT_V2_FLAG: "1",
+        "MODEL_ENSEMBLE": "3",
+        "TABPFN_MARGINAL_TABLE": position_calibration.PIT_V2_CACHE,
+    })
+    assert contract == {
+        "version": "v2",
+        "panel": panel,
+        "model_ensemble": 3,
+        "tabpfn_table": "tabpfn_projections_pit_v2",
+    }
+    with pytest.raises(ValueError, match="MODEL_ENSEMBLE=1 or 3"):
+        position_calibration.execution_contract(panel, {
+            position_calibration.PIT_V2_FLAG: "1",
+            "MODEL_ENSEMBLE": "2",
+            "TABPFN_MARGINAL_TABLE": position_calibration.PIT_V2_CACHE,
+        })
+    with pytest.raises(ValueError, match="requires tabpfn_projections_pit_v2"):
+        position_calibration.execution_contract(panel, {
+            position_calibration.PIT_V2_FLAG: "1",
+            "MODEL_ENSEMBLE": "1",
+        })
+
+
+def test_pit_v2_served_environment_sets_and_restores_selected_law(monkeypatch):
+    monkeypatch.setenv("MODEL_ENSEMBLE", "outside")
+    monkeypatch.setenv("TABPFN_MARGINAL_TABLE", "outside_cache")
+    contract = {
+        "version": "v2",
+        "panel": "pit-panel",
+        "model_ensemble": 3,
+        "tabpfn_table": position_calibration.PIT_V2_CACHE,
+    }
+    with position_calibration._served_environment(contract):
+        assert os.environ["MODEL_ENSEMBLE"] == "3"
+        assert os.environ["TABPFN_MARGINAL_TABLE"] == \
+            position_calibration.PIT_V2_CACHE
+    assert os.environ["MODEL_ENSEMBLE"] == "outside"
+    assert os.environ["TABPFN_MARGINAL_TABLE"] == "outside_cache"
 
 
 def test_upstream_positive_widening_preserves_tabpfn_rank_input():

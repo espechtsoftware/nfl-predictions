@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+from contextlib import contextmanager
 import json
+import os
 
 import numpy as np
 import pandas as pd
@@ -18,6 +20,73 @@ EVALUATION_SEASONS = (2023, 2024, 2025)
 POSITIONS = ("QB", "RB", "WR", "TE")
 QUANTILES = ((90, 0.90), (95, 0.95), (99, 0.99))
 POSITION_SCALE_GRID = np.round(np.arange(0.75, 1.5001, 0.005), 3)
+PIT_V2_FLAG = "SERVED_POSITION_CALIBRATION_PIT_V2"
+PIT_V2_CACHE = "tabpfn_projections_pit_v2"
+
+
+def execution_contract(panel_id: str, env: dict | None = None) -> dict:
+    """Resolve the immutable v1 or explicitly licensed PIT-clean v2 law."""
+    values = os.environ if env is None else env
+    pit_v2 = str(values.get(PIT_V2_FLAG, "")).strip().lower() in {
+        "1", "true", "yes", "on",
+    }
+    if not pit_v2:
+        if panel_id != PANEL_ID:
+            raise ValueError(
+                f"position calibration protocol is frozen to {PANEL_ID}")
+        control._validate_environment()
+        return {
+            "version": "v1",
+            "panel": PANEL_ID,
+            "model_ensemble": 1,
+            "tabpfn_table": "tabpfn_projections",
+        }
+
+    ensemble_text = str(values.get("MODEL_ENSEMBLE", "")).strip()
+    if ensemble_text not in {"1", "3"}:
+        raise ValueError("PIT-clean position calibration requires MODEL_ENSEMBLE=1 or 3")
+    if str(values.get("EXTRA_FEATURES", "")).strip():
+        raise ValueError("PIT-clean position calibration requires blank EXTRA_FEATURES")
+    active = [
+        key for key in control.FORBIDDEN_ACTIVE_ENVS
+        if str(values.get(key, "")).strip().lower()
+        not in ("", "0", "off", "false", "none")
+    ]
+    if active:
+        raise ValueError(
+            f"PIT-clean position calibration has active levers: {active}")
+    cache = str(values.get("TABPFN_MARGINAL_TABLE", "")).strip()
+    if cache != PIT_V2_CACHE:
+        raise ValueError(
+            f"PIT-clean position calibration requires {PIT_V2_CACHE}")
+    if not panel_id or panel_id == PANEL_ID:
+        raise ValueError("PIT-clean position calibration requires a repaired panel")
+    return {
+        "version": "v2",
+        "panel": panel_id,
+        "model_ensemble": int(ensemble_text),
+        "tabpfn_table": PIT_V2_CACHE,
+    }
+
+
+@contextmanager
+def _served_environment(contract: dict):
+    """Reproduce the selected base while retaining v1 defaults unchanged."""
+    production = dict(control.PRODUCTION_ENV)
+    production["MODEL_ENSEMBLE"] = str(contract["model_ensemble"])
+    production["TABPFN_MARGINAL_TABLE"] = (
+        "" if contract["version"] == "v1" else contract["tabpfn_table"]
+    )
+    prior = {key: os.environ.get(key) for key in production}
+    os.environ.update(production)
+    try:
+        yield
+    finally:
+        for key, value in prior.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
 
 
 def apply_position_scales(
@@ -226,7 +295,7 @@ def position_calibration_gate(
     }
 
 
-def _load_accepted(seasons: tuple[int, ...]) -> pd.DataFrame:
+def _load_accepted(seasons: tuple[int, ...], panel_id: str) -> pd.DataFrame:
     from ..bq import query_df
     from ..config import settings
 
@@ -241,7 +310,7 @@ def _load_accepted(seasons: tuple[int, ...]) -> pd.DataFrame:
           PARTITION BY season, week, gsis_id ORDER BY generated_at DESC
         ) = 1
         """, params={
-            "panel_id": PANEL_ID,
+            "panel_id": panel_id,
             "seasons": list(seasons),
             "positions": list(POSITIONS),
         })
@@ -331,6 +400,7 @@ def _align_fold(
 def _replay_folds(
     seasons: tuple[int, ...],
     accepted: pd.DataFrame,
+    tabpfn_table: str,
 ) -> tuple[dict[int, tuple[pd.DataFrame, np.ndarray]], dict[int, pd.DataFrame], list[dict]]:
     from ..backtest.replay import (
         _market_blend_worlds,
@@ -358,7 +428,7 @@ def _replay_folds(
             projected, draws, market, weight)
         tabpfn_keys = query_df(f"""
             SELECT DISTINCT season, week, gsis_id
-            FROM `{settings.features}.tabpfn_projections`
+            FROM `{settings.features}.{tabpfn_table}`
             WHERE season = @season
             """, params={"season": int(season)})
         frame, final_draws, summary, fold_parity = _align_fold(
@@ -427,13 +497,12 @@ def _summary_refit(
 
 
 def run(panel_id: str = PANEL_ID) -> dict:
-    if panel_id != PANEL_ID:
-        raise ValueError(f"position calibration protocol is frozen to {PANEL_ID}")
-    control._validate_environment()
+    contract = execution_contract(panel_id)
     all_seasons = CALIBRATION_SEASONS + EVALUATION_SEASONS
-    accepted = _load_accepted(all_seasons)
-    with control._production_environment():
-        folds, summary_folds, parity = _replay_folds(all_seasons, accepted)
+    accepted = _load_accepted(all_seasons, panel_id)
+    with _served_environment(contract):
+        folds, summary_folds, parity = _replay_folds(
+            all_seasons, accepted, contract["tabpfn_table"])
     calibration_folds = {
         season: folds[season] for season in CALIBRATION_SEASONS}
     evaluation_folds = {
@@ -494,7 +563,8 @@ def run(panel_id: str = PANEL_ID) -> dict:
         max_mean_delta,
     )
     report = {
-        "panel": PANEL_ID,
+        "panel": panel_id,
+        "contract": contract,
         "r1_summary_refit": r1,
         "r2_final_served_fit": fit,
         "calibration": calibration_reports,
@@ -506,11 +576,12 @@ def run(panel_id: str = PANEL_ID) -> dict:
             "positions": list(POSITIONS),
             "calibration_seasons": list(CALIBRATION_SEASONS),
             "evaluation_seasons": list(EVALUATION_SEASONS),
-            "model_ensemble": 1,
+            "model_ensemble": contract["model_ensemble"],
             "game_sim_mode": "possession",
             "game_sim_team_factors": "1",
             "sim_widen_draws": "fitted",
             "tabpfn_marginals": "1",
+            "tabpfn_marginal_table": contract["tabpfn_table"],
             "shape_mix": 1.0,
             "blend_model_weight": 0.45,
         },
