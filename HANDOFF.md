@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 13:07 CDT
+## Current state — 2026-08-12 13:08 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -555,9 +555,13 @@ and must not be staged or modified.
   selected usage law is Dirichlet `K=28.154043586960896`. The machine record
   is
   `reports/usage-dirichlet-calibration-runs/20260812-usage-exact80-v2-pit-clean/selected_usage.txt`.
-  Next: launch active-label v2 final-served from this terminal usage law and
-  the already-validated v2 cache pair; exact-80 may run only if that score-free
-  gate passes, otherwise record the canonical current-label fallback.
+  Active-label v2 final-served is now running as immutable execution
+  `tabpfn-active-label-final-served-v2-mbs5t` from audit digest
+  `sha256:aec3c368...`, source `23da1dd`, this terminal usage law and the
+  already-validated v2 cache pair. Wait for clean terminal completion and run
+  `cloud_finish_tabpfn_active_label_final_served_v2.sh`; exact-80 may run only
+  if that score-free gate passes, otherwise record the canonical current-label
+  fallback.
 - The licensed PIT-v2 served-position Stage B is implemented before its
   score-free refit result is known. It derives the selected full panel, K1/K3
   law, role/no-role candidate law, and unrounded four-factor specification;
