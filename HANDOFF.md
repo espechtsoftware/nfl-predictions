@@ -389,6 +389,18 @@ and must not be staged or modified.
   built before this comparator can run; generation remains pinned to `ad50...`.
   Exact-tree build `07c0df42-a82b-4034-8a50-f6309e3e85de` is running from
   implementation commit `2de8898`.
+- The PIT-clean fitted-usage lineup retry is now frozen before its repaired
+  likelihood report in `reports/2026-08-12-pit-clean-usage-exact80.md`. It
+  mechanically inherits the terminal base/role/position laws, uses fixed v2
+  control/treatment IDs, tests only the one unrounded fitted K if the
+  score-free gate passes, and applies the same seven-threshold/mean-tiebreak
+  operator law. Both negative branches are explicit: a likelihood-gate fail
+  or exact-80 loss/tie selects multinomial `K -> infinity`; only two passes
+  select finite K. This also predeclares the later G3/graph shrinkage target
+  so it cannot be chosen after seeing K results. Dynamic runner, comparator,
+  selection and fallback scripts pass 17 focused tests plus shell parsing,
+  compilation and whitespace checks. They require a later exact-tree audit
+  image because the already-running `07c0...` build predates this comparator.
 
 ### Validated production rollout completed; Route diagnostic ready
 
