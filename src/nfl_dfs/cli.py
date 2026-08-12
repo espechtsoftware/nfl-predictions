@@ -58,6 +58,10 @@ def main(argv: list[str] | None = None) -> None:
 
     p = sub.add_parser("build-features", help="Run feature SQL + leakage checks")
     p.add_argument("--skip-leakage", action="store_true")
+    sub.add_parser(
+        "build-team-qb-quality",
+        help="Build and validate only the research team-QB-quality side table",
+    )
 
     sub.add_parser("train", help="Weekly retrain + registry write")
     sub.add_parser("project", help="Project the upcoming slate")
@@ -552,6 +556,10 @@ def main(argv: list[str] | None = None) -> None:
         from .features import build
 
         build.run(check_leakage=not args.skip_leakage)
+    elif args.command == "build-team-qb-quality":
+        from .features import build
+
+        build.run_team_qb_quality()
     elif args.command == "train":
         from .models import train_job
 

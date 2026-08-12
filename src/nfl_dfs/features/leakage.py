@@ -1225,6 +1225,21 @@ GROUP BY 1, 2, 3
 """
 
 
+def run_team_qb_quality_checks() -> None:
+    """Validate only the isolated strict-prior team-QB-quality side table."""
+    from ..bq import query_df
+    from ..config import settings
+
+    team_qb_built = query_df(TEAM_QB_QUALITY_BUILT_SQL.format(
+        features=settings.features))
+    team_qb_expected = query_df(TEAM_QB_QUALITY_EXPECTED_SQL.format(
+        features=settings.features, raw=settings.raw))
+    assert_recomputed_features_match(
+        team_qb_built, team_qb_expected, TEAM_QB_QUALITY_FEATURES,
+        ("team", "season", "week"),
+    )
+
+
 def run_leakage_checks() -> None:
     from ..bq import query_df
     from ..config import settings
@@ -1327,14 +1342,7 @@ def run_leakage_checks() -> None:
         qb_built, qb_expected, QB_NGS_FEATURES,
         ("gsis_id", "season", "week"),
     )
-    team_qb_built = query_df(TEAM_QB_QUALITY_BUILT_SQL.format(
-        features=settings.features))
-    team_qb_expected = query_df(TEAM_QB_QUALITY_EXPECTED_SQL.format(
-        features=settings.features, raw=settings.raw))
-    assert_recomputed_features_match(
-        team_qb_built, team_qb_expected, TEAM_QB_QUALITY_FEATURES,
-        ("team", "season", "week"),
-    )
+    run_team_qb_quality_checks()
 
     # Exact replay-universe contract. This catches identity, source-spine,
     # actual-label, and cold-start filtering regressions before a new build can

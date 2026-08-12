@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 09:12 CDT
+## Current state — 2026-08-12 09:29 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -434,6 +434,16 @@ and must not be staged or modified.
   expected skip; the BigQuery SQL dry-run validates at a 24,914,131-byte upper
   bound. The table has not been built and no team-QB prediction/result exists;
   cache/gate implementation remains sequenced after terminal SCHED as frozen.
+- Team-QB implementation now also includes the isolated side-table-only CLI
+  and immutable launch/harvest path, an inherited-law/write-once GPU cache
+  pair, and a mechanical cache validator. The treatment contract appends only
+  `team_qb_cpoe_l6`, normalizes historical team aliases, and broadcasts only
+  to RB/WR/TE. Cache validation will require exact target keys, identical
+  source/label/feature laws, changed predictions, and control reproduction
+  against the terminal SCHED-selected cache within `1e-10`. Focused
+  feature/leakage/team-QB tests pass with one expected skip. No side table or
+  cache has been built and no result has been inspected; immutable image
+  builds and execution remain downstream of the active-label/SCHED decisions.
 - Served-position v2 execution `served-position-calibration-pit-v2-zmm6s`
   completed cleanly and passes every frozen score-free gate. Its unrounded
   treatment factors are `QB=0.975,RB=1.0,TE=0.955,WR=1.075`; aggregate

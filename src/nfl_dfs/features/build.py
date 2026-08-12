@@ -11,7 +11,11 @@ import logging
 import sys
 
 from ..bq import SQL_DIR, run_sql_file
-from .leakage import SMOOTHING_PRIOR_K, run_leakage_checks
+from .leakage import (
+    SMOOTHING_PRIOR_K,
+    run_leakage_checks,
+    run_team_qb_quality_checks,
+)
 
 log = logging.getLogger(__name__)
 
@@ -28,6 +32,14 @@ def run(check_leakage: bool = True) -> None:
         run_sql_file(path, prior_k=PRIOR_K)
     if check_leakage:
         run_leakage_checks()
+
+
+def run_team_qb_quality() -> None:
+    """Build and independently validate only the research side table."""
+    path = SQL_DIR / "features" / "017l_team_qb_quality.sql"
+    run_sql_file(path, prior_k=PRIOR_K)
+    run_team_qb_quality_checks()
+    print("TEAM_QB_QUALITY_SIDE_TABLE_VALIDATED")
 
 
 if __name__ == "__main__":
