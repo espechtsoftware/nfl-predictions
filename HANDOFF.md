@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 11:14 CDT
+## Current state — 2026-08-12 13:07 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -540,6 +540,24 @@ and must not be staged or modified.
   `cloud_finish_usage_dirichlet_exact80_v2.sh` with immutable audit digest
   `sha256:aec3c368...`. If the finisher succeeds, harvest and commit the
   frozen decision before starting active-label final-served v2.
+- All six fitted-usage exact-80 seasons completed cleanly at 18/18 slates and
+  exactly 80 selections. Control/treatment acceptance checks
+  `accept-replay-panel-5bf4g`/`accept-replay-panel-m9264`, comparator
+  `compare-usage-dirichlet-exact80-v2-hg8hk`, and treatment promotion
+  `accept-replay-panel-nzzh9` all passed. The fitted Dirichlet treatment wins
+  at the first tail threshold: full 107-week selected weekly-max counts at
+  `240/230/220/210/200/194/187` move
+  `2/2/3/5/14/26/37 -> 3/3/3/6/11/19/34`; mean moves
+  `177.9486 -> 177.3589`. On the evaluation-only 2023--2025 panel the counts
+  move `0/0/1/1/6/11/13 -> 1/1/1/2/3/4/10`, and mean moves
+  `173.0459 -> 171.8774`. Under the operator's frozen tail-first objective the
+  new >=240 and >=230 weeks dominate the lower-threshold/mean losses, so the
+  selected usage law is Dirichlet `K=28.154043586960896`. The machine record
+  is
+  `reports/usage-dirichlet-calibration-runs/20260812-usage-exact80-v2-pit-clean/selected_usage.txt`.
+  Next: launch active-label v2 final-served from this terminal usage law and
+  the already-validated v2 cache pair; exact-80 may run only if that score-free
+  gate passes, otherwise record the canonical current-label fallback.
 - The licensed PIT-v2 served-position Stage B is implemented before its
   score-free refit result is known. It derives the selected full panel, K1/K3
   law, role/no-role candidate law, and unrounded four-factor specification;
