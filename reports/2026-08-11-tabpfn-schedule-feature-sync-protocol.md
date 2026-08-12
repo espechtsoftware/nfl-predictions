@@ -52,7 +52,11 @@ tables are `nfl_features.tabpfn_sched_control_v1` and
 the same mapped law in every report and table row. The effective control
 matrix retains the existing generator's sorted 33-column order; treatment
 appends `net_rest_diff`, then `body_clock_hour`, without reordering the shared
-columns.
+columns. Before any final-served metric is eligible, the newly generated
+control must reproduce every key and prediction from the terminal inherited
+cache (`tabpfn_projections_pit_v2` for current labels or
+`tabpfn_active_label_treatment_v2` for active-only labels) to absolute
+tolerance `1e-10`; this separates generator drift from the two-feature effect.
 
 ## Staged decision
 

@@ -454,8 +454,29 @@ and must not be staged or modified.
   parsing, compilation and whitespace validation pass. This prepares cache
   generation only; do not launch it until `selected_active_label.txt` exists.
   GPU image build `cde9270c-973b-4697-a30e-c491b7ac8e51` and exact-tree audit
-  build `dd8cb18a-9434-43f6-95c9-1119905454d6` are running from commit
-  `070110a`; record their immutable digests/test outcomes before use.
+  build `dd8cb18a-9434-43f6-95c9-1119905454d6` succeeded from commit
+  `070110a`. The GPU generator digest is
+  `sha256:e196dcdb1f51f661c579550256e00327d406f7c6db4a61f77d252b340635c739`;
+  the audit build passed 971 tests with two expected skips and published
+  digest
+  `sha256:4401b455053888d668aac39688c34264685f65c6aec8ce56166ba2ef7e9ad1bd`.
+  The validator now additionally requires the 33-feature control to reproduce
+  every key and prediction from the terminal inherited cache within `1e-10`,
+  preventing generator drift from masquerading as a SCHED effect.
+- The complete downstream SCHED branch is frozen and implemented before its
+  caches or outcomes exist. The score-free final-served gate inherits the
+  terminal Tier-1 panel, usage law and label law, independently fits each
+  arm's walk-forward position schedule, and has separate async launch/harvest
+  paths. A failed gate writes an incumbent fallback; a pass licenses only the
+  fixed exact-80 panels in
+  `reports/2026-08-12-pit-clean-tabpfn-sched-exact80.md`. Their comparator
+  applies `240,230,220,210,200,194,187` then mean, proves cache/schedule-only
+  changes and writes `selected_sched.txt` for either result. Seventeen focused
+  SCHED/replay tests plus shell parsing, compilation and whitespace validation
+  pass. The exact-80 runner is intentionally blocked on tracked
+  `reports/tabpfn-sched-runs/20260812-sched-generation-v1/image.txt`; create
+  that record only from the next successful full exact-tree build of this
+  complete code, before any SCHED cache is launched.
 
 ### Validated production rollout completed; Route diagnostic ready
 

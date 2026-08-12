@@ -26,9 +26,18 @@ done
   echo "ABORT: immutable SCHED executions already recorded"; exit 2; }
 
 ACTIVE_LAW=$(awk -F= '$1=="label_law" {print $2}' "$ACTIVE_SELECTION")
+INHERITED_TABLE=$(awk -F= '$1=="cache_table" {print $2}' "$ACTIVE_SELECTION")
 case "$ACTIVE_LAW" in
-  current) LABEL_LAW=current ;;
-  active-only) LABEL_LAW=active_only ;;
+  current)
+    LABEL_LAW=current
+    [ "$INHERITED_TABLE" = tabpfn_projections_pit_v2 ] || {
+      echo "ABORT: current-label branch does not select canonical v2 cache"; exit 2; }
+    ;;
+  active-only)
+    LABEL_LAW=active_only
+    [ "$INHERITED_TABLE" = tabpfn_active_label_treatment_v2 ] || {
+      echo "ABORT: active-only branch does not select v2 treatment cache"; exit 2; }
+    ;;
   *) echo "ABORT: active-label terminal law is invalid"; exit 2;;
 esac
 for table in tabpfn_sched_control_v1 tabpfn_sched_treatment_v1; do
@@ -46,6 +55,7 @@ printf '%s\n' \
   "active_selection=$ACTIVE_SELECTION" \
   "active_selection_sha256=$(sha256sum "$ACTIVE_SELECTION" | awk '{print $1}')" \
   "label_law=$LABEL_LAW" \
+  "inherited_cache_table=$INHERITED_TABLE" \
   'target_seasons=2022 2023 2024 2025' \
   'context=strictly earlier seasons' 'context_max=28000' \
   'random_seed=7' 'n_estimators=4' 'tabpfn_version=2.2.1' \

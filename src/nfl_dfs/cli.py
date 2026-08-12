@@ -282,6 +282,12 @@ def main(argv: list[str] | None = None) -> None:
         help="Frozen corrected K1 panel (alternate values fail closed)",
     )
 
+    p = sub.add_parser(
+        "tabpfn-sched-final-served",
+        help="Gate the frozen TabPFN SCHED cache pair on final-served tails",
+    )
+    p.add_argument("--panel", required=True)
+
     sub.add_parser(
         "usage-dirichlet-calibration-diagnostic",
         help="Fit and gate within-team target/carry concentration",
@@ -721,6 +727,10 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import tabpfn_active_label_final_served
 
         tabpfn_active_label_final_served.run(args.panel)
+    elif args.command == "tabpfn-sched-final-served":
+        from .analysis import tabpfn_sched_final_served
+
+        tabpfn_sched_final_served.run(args.panel)
     elif args.command == "usage-dirichlet-calibration-diagnostic":
         from .analysis import usage_dirichlet_calibration
 

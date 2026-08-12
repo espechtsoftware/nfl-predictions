@@ -205,6 +205,41 @@ def validate_tables(control: pd.DataFrame, treatment: pd.DataFrame) -> dict:
     return {"checks": normalized, "passes": all(normalized.values())}
 
 
+def validate_control_reproduction(
+    control: pd.DataFrame, inherited: pd.DataFrame,
+) -> dict:
+    """Prove that the separately generated 33-feature control is inherited law."""
+    keys = ["season", "week", "gsis_id"]
+    columns = ["mean", *QUANTILE_COLUMNS]
+    left = control.sort_values(keys).reset_index(drop=True)
+    right = inherited.sort_values(keys).reset_index(drop=True)
+    same_keys = (
+        len(left) == EXPECTED_ROWS
+        and len(right) == EXPECTED_ROWS
+        and not left.duplicated(keys).any()
+        and not right.duplicated(keys).any()
+        and left[keys].equals(right[keys])
+    )
+    required = set(columns).issubset(left.columns) \
+        and set(columns).issubset(right.columns)
+    maximum_delta = float("inf")
+    if same_keys and required:
+        maximum_delta = float(np.max(np.abs(
+            left[columns].to_numpy(float)
+            - right[columns].to_numpy(float)
+        ), initial=0.0))
+    checks = {
+        "exact_keys": same_keys,
+        "required_prediction_columns": required,
+        "maximum_abs_delta_at_most_1e_10": maximum_delta <= 1e-10,
+    }
+    return {
+        "checks": {name: bool(value) for name, value in checks.items()},
+        "passes": all(checks.values()),
+        "maximum_abs_delta": maximum_delta,
+    }
+
+
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--control-log", type=Path, required=True)
@@ -213,6 +248,9 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--code-sha", required=True)
     parser.add_argument("--label-law", choices=("current", "active_only"),
                         required=True)
+    parser.add_argument("--inherited-table", choices=(
+        "tabpfn_projections_pit_v2", "tabpfn_active_label_treatment_v2",
+    ), required=True)
     parser.add_argument("--output", type=Path, required=True)
     return parser.parse_args()
 
@@ -238,17 +276,27 @@ def main() -> None:
         for arm, table in TABLES.items()
     }
     table_validation = validate_tables(tables["control"], tables["treatment"])
+    inherited = query_df(
+        f"SELECT * FROM `{settings.features}.{args.inherited_table}` "
+        "WHERE season IN (2022, 2023, 2024, 2025)"
+    )
+    control_reproduction = validate_control_reproduction(
+        tables["control"], inherited)
     output = {
         "disposition": (
             "tabpfn-sched-caches-valid"
             if report_validation["passes"] and table_validation["passes"]
+            and control_reproduction["passes"]
             else "tabpfn-sched-caches-invalid"
         ),
-        "passes": bool(report_validation["passes"]
-                       and table_validation["passes"]),
+        "passes": bool(
+            report_validation["passes"] and table_validation["passes"]
+            and control_reproduction["passes"]),
         "label_law": args.label_law,
+        "inherited_table": args.inherited_table,
         "report_validation": report_validation,
         "table_validation": table_validation,
+        "control_reproduction": control_reproduction,
         "reports": reports,
         "tables": TABLES,
     }

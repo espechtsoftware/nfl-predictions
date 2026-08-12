@@ -2,6 +2,11 @@ import importlib.util
 from pathlib import Path
 
 import pandas as pd
+import pytest
+
+from nfl_dfs.analysis import tabpfn_sched_final_served as final_served
+from nfl_dfs.backtest import replay
+from nfl_dfs.research import tabpfn_sched_lineup_v1 as sched_lineup
 
 
 ROOT = Path(__file__).parents[1]
@@ -87,6 +92,12 @@ def test_sched_table_gate_requires_changed_predictions(monkeypatch):
     right.loc[0, "mean"] = 1.1
     result = validator.validate_tables(left, right)
     assert result["passes"]
+    reproduction = validator.validate_control_reproduction(left, left.copy())
+    assert reproduction["passes"]
+    inherited = left.copy()
+    inherited.loc[0, "q90"] += 0.01
+    reproduction = validator.validate_control_reproduction(left, inherited)
+    assert not reproduction["passes"]
 
 
 def test_sched_launch_is_terminal_active_label_dependent_and_write_once():
@@ -102,8 +113,126 @@ def test_sched_launch_is_terminal_active_label_dependent_and_write_once():
         encoding="utf-8").split()
     assert old == control
     assert "selected_active_label.txt" in launch
-    assert "active-only) LABEL_LAW=active_only" in launch
+    assert "inherited_cache_table" in launch
+    assert "active-only)" in launch and "LABEL_LAW=active_only" in launch
     assert "WRITE_EMPTY" in generator
     assert 'SCHED_FEATURES = ("net_rest_diff", "body_clock_hour")' in generator
     assert "TABPFN_SCHED_JSON=" in finish
     assert "validate_tabpfn_sched.py" in finish
+    assert "--inherited-table" in finish
+
+
+def test_sched_final_served_requires_terminal_usage_and_licensed_caches(
+    monkeypatch,
+):
+    monkeypatch.setenv("TABPFN_ACCEPTED_USAGE_LAW", "multinomial")
+    monkeypatch.delenv("TABPFN_ACCEPTED_DIRICHLET_K", raising=False)
+    monkeypatch.delenv("GAME_SIM_USAGE", raising=False)
+    monkeypatch.delenv("DIRICHLET_K", raising=False)
+    assert final_served.accepted_usage_law()["mode"] == \
+        "production-multinomial"
+    monkeypatch.setenv("TABPFN_ACCEPTED_USAGE_LAW", "dirichlet")
+    monkeypatch.setenv("TABPFN_ACCEPTED_DIRICHLET_K", "31.25")
+    monkeypatch.setenv("GAME_SIM_USAGE", "dirichlet")
+    monkeypatch.setenv("DIRICHLET_K", "31.25")
+    assert final_served.accepted_usage_law()["k"] == "31.25"
+    monkeypatch.setenv("DIRICHLET_K", "31.26")
+    with pytest.raises(ValueError, match="differs from accepted fitted K"):
+        final_served.accepted_usage_law()
+    for table in final_served.TABLES.values():
+        assert replay._tabpfn_marginal_table(
+            {"TABPFN_MARGINAL_TABLE": table}) == table
+
+
+def test_sched_final_served_cloud_path_is_async_and_harvested():
+    cli = (ROOT / "src/nfl_dfs/cli.py").read_text(encoding="utf-8")
+    launch = (ROOT / "scripts/cloud_tabpfn_sched_final_served.sh").read_text(
+        encoding="utf-8")
+    finish = (
+        ROOT / "scripts/cloud_finish_tabpfn_sched_final_served.sh"
+    ).read_text(encoding="utf-8")
+    assert "tabpfn-sched-final-served" in cli
+    assert "selected_tier1.txt" in launch
+    assert "selected_usage.txt" in launch
+    assert "selected_active_label.txt" in launch
+    assert "tabpfn-sched-caches-valid" in launch
+    assert "TABPFN_SCHED_FINAL_SERVED_JSON=" in finish
+    assert "TABPFN_SCHED_FINAL_SERVED_COMPLETE" in finish
+
+
+def _sched_rows(table: str, schedules: dict[int, str]) -> pd.DataFrame:
+    rows = []
+    for season in (2023, 2024, 2025):
+        values = {
+            "GAME_SIM_MODE": "possession", "MODEL_ENSEMBLE": "1",
+            "N_CE": "0", "N_EPISTEMIC": "12", "N_GUMBEL": "0",
+            "N_BOOM": "40", "EPISTEMIC_FAMILY": "role_draws",
+            "ROLE_BELIEF_FEATURES": (
+                "target_share_last,carry_share_last,snap_share_last,"
+                "target_share_jump,carry_share_jump,snap_share_jump"
+            ),
+            "ROLE_BELIEF_SEED": "7331", "REPLACEMENT_SLOTS": "12",
+            "TABPFN_MARGINAL_TABLE": table,
+            "SERVED_POSITION_SCALES": schedules[season],
+        }
+        rows.append({
+            "season": season, "code_sha": "abcdef1", "seeds": "fixed",
+            "lever_env": ",".join(f"{key}={value}" for key, value in values.items()),
+        })
+    return pd.DataFrame(rows)
+
+
+def test_sched_exact80_mechanism_allows_only_cache_and_schedule_pair():
+    control_schedules = {
+        season: "QB:0.99,RB:1.0,TE:0.95,WR:1.05"
+        for season in (2023, 2024, 2025)
+    }
+    treatment_schedules = {
+        season: "QB:0.98,RB:1.01,TE:0.96,WR:1.04"
+        for season in (2023, 2024, 2025)
+    }
+    features = {
+        "left_rows": 10, "right_rows": 10, "left_only_rows": 0,
+        "right_only_rows": 0, "mismatch_rows": 0,
+        "max_numeric_abs_delta": 0.0,
+        "ignored_numeric_fields": list(sched_lineup.DISTRIBUTION_DERIVED_FEATURES),
+    }
+    candidates = {
+        "paired_slates": 54, "common_rows": 10, "left_only_rows": 1,
+        "right_only_rows": 1, "common_actual_mismatch": 0,
+        "common_sim_mean_mismatch": 0,
+    }
+    failures = sched_lineup.mechanism_failures(
+        _sched_rows(sched_lineup.CONTROL_TABLE, control_schedules),
+        _sched_rows(sched_lineup.TREATMENT_TABLE, treatment_schedules),
+        features, candidates, expected_code_sha="abcdef1",
+        role_selected=True, allocation="multinomial", selected_k="infinity",
+        control_schedules=control_schedules,
+        treatment_schedules=treatment_schedules,
+    )
+    assert failures == []
+
+
+def test_sched_exact80_has_frozen_launch_finish_and_fallback_paths():
+    protocol = (
+        ROOT / "reports/2026-08-12-pit-clean-tabpfn-sched-exact80.md"
+    ).read_text(encoding="utf-8")
+    launch = (
+        ROOT / "scripts/prop_lock_tabpfn_sched_exact80_v1.sh"
+    ).read_text(encoding="utf-8")
+    finish = (
+        ROOT / "scripts/cloud_finish_tabpfn_sched_exact80_v1.sh"
+    ).read_text(encoding="utf-8")
+    fallback = (
+        ROOT / "scripts/resolve_tabpfn_sched_fallback_v1.sh"
+    ).read_text(encoding="utf-8")
+    dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
+    assert "240,230,220,210,200,194,187" in protocol
+    assert "20260812-sched-generation-v1/image.txt" in launch
+    assert "control_reproduction" in launch
+    assert "code_sha='a12ab31'" in launch
+    assert "TABPFN_SCHED_STAGE_B_V1_JSON=" in finish
+    assert "selected_sched.txt" in finish
+    assert "final-served-gate-failed" in fallback
+    assert "COPY scripts/compare_tabpfn_sched_lineup_v1.py " \
+        "./scripts/compare_tabpfn_sched_lineup_v1.py" in dockerfile

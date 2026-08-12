@@ -17,6 +17,7 @@ MANIFEST="$OUT/manifest.txt"
 [ ! -e "$OUT/validation.json" ] || {
   echo "ABORT: immutable SCHED validation already exists"; exit 2; }
 LABEL_LAW=$(awk -F= '$1=="label_law" {print $2}' "$MANIFEST")
+INHERITED_TABLE=$(awk -F= '$1=="inherited_cache_table" {print $2}' "$MANIFEST")
 case "$LABEL_LAW" in current|active_only) ;; *) echo "ABORT: invalid label law"; exit 2;; esac
 
 while read -r arm _job execution _table; do
@@ -39,5 +40,6 @@ done < "$EXECUTIONS"
   --treatment-log "$OUT/treatment_raw_log.txt" \
   --features "$ROOT/scripts/tabpfn_sched/features_control.txt" \
   --code-sha "$CODE_SHA" --label-law "$LABEL_LAW" \
+  --inherited-table "$INHERITED_TABLE" \
   --output "$OUT/validation.json"
 echo "TabPFN SCHED caches validated: $OUT/validation.json"
