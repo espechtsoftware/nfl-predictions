@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 09:42 CDT
+## Current state — 2026-08-12 09:50 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -472,6 +472,11 @@ and must not be staged or modified.
   with tag `nfl-dfs:team-qb-b5b5038`. Older full build
   `1f12be5d-df17-4757-b363-7e9a1cef3025` validates only the pre-final-gate
   source and must not be used for team-QB execution even if it succeeds.
+- Terminal team-QB full build `ecb180f5-ef76-4326-a83e-5d96f32e5823`
+  succeeded from source `b5b5038`; the exact-tree audit/execution digest is
+  `sha256:d3b46056a25e5dcc2c0bccfa64f45027270e499433be54a785f401d883cef657`.
+  Use this full digest with the already-recorded GPU digest `sha256:30c5c295...`
+  for the later side-table/cache/gate sequence. Production remains unchanged.
 - Pre-terminal full build `1f12be5d-df17-4757-b363-7e9a1cef3025`
   succeeded and emitted digest `sha256:b9053c64...`, proving the complete suite
   for source `301bc94`; it remains execution-ineligible because it predates the

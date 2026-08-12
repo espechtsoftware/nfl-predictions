@@ -10,4 +10,5 @@ full_status=success_pre_terminal_gate_only
 terminal_source_commit=b5b5038
 terminal_full_build_id=ecb180f5-ef76-4326-a83e-5d96f32e5823
 terminal_full_image_tag=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:team-qb-b5b5038
-terminal_full_status=running
+terminal_full_image_digest=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:d3b46056a25e5dcc2c0bccfa64f45027270e499433be54a785f401d883cef657
+terminal_full_status=success
