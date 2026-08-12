@@ -22,6 +22,7 @@ COPY scripts/compare_served_position_lineup_v2.py ./scripts/compare_served_posit
 COPY scripts/compare_usage_dirichlet_lineup.py ./scripts/compare_usage_dirichlet_lineup.py
 COPY scripts/compare_usage_dirichlet_lineup_v2.py ./scripts/compare_usage_dirichlet_lineup_v2.py
 COPY scripts/compare_tabpfn_active_label_lineup.py ./scripts/compare_tabpfn_active_label_lineup.py
+COPY scripts/compare_tabpfn_active_label_lineup_v2.py ./scripts/compare_tabpfn_active_label_lineup_v2.py
 COPY scripts/compare_k1_milly_ownership_panel.py ./scripts/compare_k1_milly_ownership_panel.py
 COPY scripts/compare_exact_replay.py ./scripts/compare_exact_replay.py
 COPY scripts/compare_role_belief_panel.py ./scripts/compare_role_belief_panel.py

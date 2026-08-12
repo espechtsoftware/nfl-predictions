@@ -413,6 +413,18 @@ and must not be staged or modified.
   exact-80 reject/pass branches without a post-hoc target. Nine focused tests
   and shell parsing pass; the underlying score-free active-label gate and its
   validated write-once v2 cache pair are unchanged.
+- The active-label v2 exact-80 addendum is frozen before its repaired
+  final-served result in
+  `reports/2026-08-12-pit-clean-active-label-exact80.md`. A gate fail retains
+  canonical current labels without lineups; a pass licenses only fixed v2
+  current/active panel IDs. The generated arms inherit terminal Tier-1
+  role/no-role and usage laws and differ only by the two validated v2 cache
+  tables plus each arm's unrounded walk-forward schedule from the score-free
+  report. Its comparator uses the repaired seven-threshold/mean-tiebreak law,
+  and both exact-80 rejection and final-served failure have durable canonical
+  fallback records. Dynamic runner/comparator/finisher tests pass 12 focused
+  checks plus shell parsing, compilation and whitespace validation. A later
+  audit image must package the new comparator before use.
 
 ### Validated production rollout completed; Route diagnostic ready
 
