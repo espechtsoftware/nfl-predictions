@@ -247,6 +247,13 @@ and must not be staged or modified.
   skip). Commit/push this point-in-time plumbing repair; do not rebuild feature
   tables mid-panel. Schedule a normal validated feature rebuild after the
   immutable fitted-K and cache jobs finish.
+  The next cache question is now preregistered, without changing the feature
+  list or producing results, in
+  `reports/2026-08-11-tabpfn-schedule-feature-sync-protocol.md`. It starts only
+  after the active-label sequence reaches a terminal decision, inherits that
+  accepted label law in both arms, and changes only the appended adopted SCHED
+  pair. It uses the same independently calibrated final-served Brier30 gate
+  before any separately frozen exact-80 score comparison.
 
 ### Final-served position calibration passed, promoted, and adopted
 
