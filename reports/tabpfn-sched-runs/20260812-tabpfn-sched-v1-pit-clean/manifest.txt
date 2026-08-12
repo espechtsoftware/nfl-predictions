@@ -1,0 +1,16 @@
+run_id=20260812-tabpfn-sched-v1-pit-clean
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/tabpfn-sched@sha256:6609587b95e6193c04a1cdc43529bd21e131c191a50ed0e2bf886cfc8e4e423c
+code_sha=23da1dd
+protocol_sha256=b6bde04dddcdd61cda931bb2f92463a24121ffa2ee6a0a3cd6a0e2a750a3c3d7
+active_selection=/home/erich/projects/nfl-predictions/reports/tabpfn-active-label-runs/20260812-active-label-exact80-v2-pit-clean/selected_active_label.txt
+active_selection_sha256=2d76f41f74402d4cc048fdab98cdbe0ef0eae17bf5df1d289cdc2d7bb150b348
+label_law=active_only
+inherited_cache_table=tabpfn_active_label_treatment_v2
+target_seasons=2022 2023 2024 2025
+context=strictly earlier seasons
+context_max=28000
+random_seed=7
+n_estimators=4
+tabpfn_version=2.2.1
+control_table=nfl_features.tabpfn_sched_control_v1
+treatment_table=nfl_features.tabpfn_sched_treatment_v1

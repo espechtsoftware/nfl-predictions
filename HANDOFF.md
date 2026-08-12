@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 16:10 CDT
+## Current state — 2026-08-12 16:15 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -143,8 +143,15 @@ reconciliation when their findings affect the program.
   `20260812-pitclean-e80-selected-tabpfn-active-v2`. The concise result is
   `reports/2026-08-12-pit-clean-active-label-exact80-result.md`; machine
   artifacts and both comparator executions are in the run folder. Next:
-  commit/push this terminal selection, launch the frozen SCHED cache pair with
-  the prebuilt GPU digest `6609587b...`, and continue its staged gate.
+  terminal selection/result commit `556cb47` is pushed. The frozen score-free
+  SCHED cache pair is now running from GPU digest `6609587b...`, source code
+  `23da1dd`, and terminal `label_law=active_only`: control execution
+  `tabpfn-sched-v1-control-ssmpb`, treatment execution
+  `tabpfn-sched-v1-treatment-8l8nm`. Their run manifest is under
+  `reports/tabpfn-sched-runs/20260812-tabpfn-sched-v1-pit-clean/`. Wait for
+  both clean successes, run `scripts/cloud_finish_tabpfn_sched.sh 23da1dd`,
+  then launch the frozen SCHED final-served gate from full audit digest
+  `aec3c368...`.
 - Review reconciliation and active-label gate milestone commit `83192ca` is
   pushed on `main`. The complete local suite passes all 992 collected tests
   with one expected rear-view dashboard skip. Exact-commit team-passing GPU
