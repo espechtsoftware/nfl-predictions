@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 06:43 CDT
+## Current state — 2026-08-12 07:17 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -413,6 +413,15 @@ and must not be staged or modified.
   exact-80 reject/pass branches without a post-hoc target. Nine focused tests
   and shell parsing pass; the underlying score-free active-label gate and its
   validated write-once v2 cache pair are unchanged.
+- Exact-tree position+usage audit build
+  `cdc76392-03c0-4e77-9b17-d1667958c755` succeeded from commit `f54d4c4`:
+  965 tests passed with two expected skips, publishing immutable digest
+  `sha256:ed3739ef266f3b5435101591b812e75ae7dac9e789e8ce2874afed8e06d1f2ad`.
+  It contains both PIT-clean position and usage comparators; generation remains
+  pinned to `ad50...`. A failed score-free position calibration now has an
+  explicit immutable identity-law resolver, so every calibration outcome
+  writes the required downstream `selected_position.txt` without licensing an
+  untested lineup arm.
 - The active-label v2 exact-80 addendum is frozen before its repaired
   final-served result in
   `reports/2026-08-12-pit-clean-active-label-exact80.md`. A gate fail retains
@@ -423,8 +432,14 @@ and must not be staged or modified.
   report. Its comparator uses the repaired seven-threshold/mean-tiebreak law,
   and both exact-80 rejection and final-served failure have durable canonical
   fallback records. Dynamic runner/comparator/finisher tests pass 12 focused
-  checks plus shell parsing, compilation and whitespace validation. A later
-  audit image must package the new comparator before use.
+  checks plus shell parsing, compilation and whitespace validation. The v2
+  score-free job now also has a separate terminal harvester that validates its
+  panel, exact cache identities/52,307 keys, version and machine-selected usage
+  law before writing `report.json`; this closes the prior async-launch gap.
+  Exact-tree active-label audit build
+  `d760751b-e7eb-478f-97d6-e7fc5debb7e8` is running from commit `23e658e`.
+  Do not use it until the build succeeds and its immutable digest/test result
+  are recorded.
 
 ### Validated production rollout completed; Route diagnostic ready
 

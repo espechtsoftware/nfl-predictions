@@ -78,3 +78,10 @@ def test_cli_and_cloud_runner_are_packaged():
     assert 'decision.get("allocation")' in v2_text
     assert 'decision.get("selected_k"' in v2_text
     assert 'decision.get("historical_source")' in v2_text
+    v2_finish = (
+        root / "scripts/cloud_finish_tabpfn_active_label_final_served_v2.sh"
+    ).read_text(encoding="utf-8")
+    assert "TABPFN_ACTIVE_LABEL_FINAL_SERVED_JSON=" in v2_finish
+    assert 'report.get("version") != "v2"' in v2_finish
+    assert 'int(report.get("cache_rows", -1)) != 52307' in v2_finish
+    assert 'manifest.get("accepted_usage_law")' in v2_finish

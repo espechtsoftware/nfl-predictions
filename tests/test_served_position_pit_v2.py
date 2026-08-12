@@ -113,3 +113,15 @@ def test_position_v2_stage_b_is_dynamic_and_comparator_is_packaged():
     assert "selected_position.txt" in finish
     assert "COPY scripts/compare_served_position_lineup_v2.py " \
         "./scripts/compare_served_position_lineup_v2.py" in dockerfile
+
+
+def test_position_v2_failed_gate_has_terminal_identity_fallback():
+    root = Path(__file__).parents[1]
+    fallback = (
+        root / "scripts/resolve_served_position_fallback_v2.sh"
+    ).read_text(encoding="utf-8")
+    assert "selected_tier1.txt" in fallback
+    assert "selected_position.txt" in fallback
+    assert "position_selected=false" in fallback
+    assert "served_position_scales=identity" in fallback
+    assert "calibration-gate-failed" in fallback

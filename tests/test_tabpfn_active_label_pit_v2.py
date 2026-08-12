@@ -84,6 +84,9 @@ def test_active_label_v2_protocol_and_both_terminal_branches_are_tracked():
         encoding="utf-8")
     fallback = (root / "scripts/resolve_tabpfn_active_label_fallback_v2.sh").read_text(
         encoding="utf-8")
+    final_finish = (
+        root / "scripts/cloud_finish_tabpfn_active_label_final_served_v2.sh"
+    ).read_text(encoding="utf-8")
     dockerfile = (root / "Dockerfile").read_text(encoding="utf-8")
     assert "240,230,220,210,200,194,187" in protocol
     assert "selected_usage.txt" in launch
@@ -91,5 +94,6 @@ def test_active_label_v2_protocol_and_both_terminal_branches_are_tracked():
     assert "TABPFN_ACTIVE_LABEL_STAGE_B_V2_JSON=" in finish
     assert "final-served-gate-failed" in fallback
     assert "tabpfn_projections_pit_v2" in fallback
+    assert "PIT_ACTIVE_LABEL_FINAL_SERVED_COMPLETE" in final_finish
     assert "COPY scripts/compare_tabpfn_active_label_lineup_v2.py " \
         "./scripts/compare_tabpfn_active_label_lineup_v2.py" in dockerfile
