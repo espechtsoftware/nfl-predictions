@@ -193,6 +193,48 @@ def assert_no_leakage(
     log.info("%s: %d rows checked, %.2f%% match", feature_col, n_checked, 100 * rate)
 
 
+def assert_recomputed_features_match(
+    built: pd.DataFrame,
+    expected: pd.DataFrame,
+    feature_cols: list[str],
+    key_cols: tuple[str, ...],
+    atol: float = 1e-6,
+) -> None:
+    """Require exact keys, null support and values from an independent SQL.
+
+    Some transforms are ratios of rolling sums or window across seasons, so
+    they cannot use the simple per-column rolling-mean helper. Their reference
+    query still lives independently here and this comparison fails closed on
+    missing keys, changed missingness or numeric drift.
+    """
+    for label, frame in (("built", built), ("expected", expected)):
+        if frame.duplicated(list(key_cols)).any():
+            raise LeakageError(f"{label} recomputation frame has duplicate keys")
+    merged = built.merge(
+        expected, on=list(key_cols), how="outer", suffixes=("_built", "_expected"),
+        indicator=True, validate="one_to_one",
+    )
+    if not merged["_merge"].eq("both").all():
+        bad = merged.loc[merged["_merge"].ne("both"), [*key_cols, "_merge"]].head(5)
+        raise LeakageError(
+            "source recomputation keys differ from the built table. "
+            f"Examples:\n{bad.to_string(index=False)}"
+        )
+    for feature in feature_cols:
+        left = merged[f"{feature}_built"]
+        right = merged[f"{feature}_expected"]
+        null_mismatch = left.isna().ne(right.isna())
+        numeric_mismatch = ~(np.isclose(left, right, atol=atol) | (left.isna() & right.isna()))
+        mismatch = null_mismatch | numeric_mismatch
+        if mismatch.any():
+            cols = [*key_cols, f"{feature}_built", f"{feature}_expected"]
+            bad = merged.loc[mismatch, cols].head(5)
+            raise LeakageError(
+                f"{feature}: {int(mismatch.sum())} source-recomputed rows "
+                f"disagree. Examples:\n{bad.to_string(index=False)}"
+            )
+
+
 def assert_first_row_features_null(
     built: pd.DataFrame,
     feature_cols: list[str],
@@ -373,6 +415,80 @@ LEFT JOIN target_quality t USING (gsis_id, season, week)
 LEFT JOIN ngs_rec nr USING (gsis_id, season, week)
 LEFT JOIN ngs_rush nu USING (gsis_id, season, week)
 WHERE MOD(FARM_FINGERPRINT(u.gsis_id), 20) = 0
+"""
+
+
+NEUTRAL_PASS_FEATURES = ["neutral_pass_rate_l6"]
+NEUTRAL_PASS_BUILT_SQL = """
+SELECT team, season, week, neutral_pass_rate_l6
+FROM `{features}.team_week_neutral_pass`
+WHERE MOD(FARM_FINGERPRINT(team), 4) = 0
+"""
+NEUTRAL_PASS_EXPECTED_SQL = """
+WITH plays AS (
+  SELECT posteam AS team, season, week, CAST(pass AS INT64) AS is_pass
+  FROM `{raw}.pbp`
+  WHERE posteam IS NOT NULL AND (pass = 1 OR rush = 1)
+    AND ABS(COALESCE(score_differential, 0)) <= 3
+    AND half_seconds_remaining > 120 AND qtr <= 4
+), tw AS (
+  SELECT team, season, week, SUM(is_pass) AS p, COUNT(*) AS n
+  FROM plays GROUP BY team, season, week
+), spine AS (
+  SELECT * FROM tw
+  UNION ALL
+  SELECT DISTINCT ro.team, ro.season, ro.week,
+         CAST(NULL AS INT64) AS p, CAST(NULL AS INT64) AS n
+  FROM `{features}.player_week_role` ro
+  WHERE ro.is_upcoming AND ro.team IS NOT NULL
+    AND NOT EXISTS (
+      SELECT 1 FROM tw prior
+      WHERE prior.team = ro.team AND prior.season = ro.season
+        AND prior.week = ro.week
+    )
+)
+SELECT team, season, week,
+       SAFE_DIVIDE(SUM(p) OVER w, SUM(n) OVER w) AS neutral_pass_rate_l6
+FROM spine
+WHERE MOD(FARM_FINGERPRINT(team), 4) = 0
+WINDOW w AS (PARTITION BY team ORDER BY season, week
+             ROWS BETWEEN 6 PRECEDING AND 1 PRECEDING)
+"""
+
+QB_NGS_FEATURES = ["qb_cpoe_l6", "qb_time_to_throw_l6"]
+QB_NGS_BUILT_SQL = """
+SELECT gsis_id, season, week, qb_cpoe_l6, qb_time_to_throw_l6
+FROM `{features}.qb_week_ngs`
+WHERE MOD(FARM_FINGERPRINT(gsis_id), 20) = 0
+"""
+QB_NGS_EXPECTED_SQL = """
+WITH observations AS (
+  SELECT player_gsis_id AS gsis_id, season, week,
+         completion_percentage_above_expectation AS cpoe,
+         avg_time_to_throw AS time_to_throw
+  FROM `{raw}.ngs_passing`
+  WHERE week > 0
+), spine AS (
+  SELECT * FROM observations
+  UNION ALL
+  SELECT DISTINCT ro.gsis_id, ro.season, ro.week,
+         CAST(NULL AS FLOAT64) AS cpoe,
+         CAST(NULL AS FLOAT64) AS time_to_throw
+  FROM `{features}.player_week_role` ro
+  WHERE ro.is_upcoming AND ro.position = 'QB'
+    AND NOT EXISTS (
+      SELECT 1 FROM observations prior
+      WHERE prior.gsis_id = ro.gsis_id AND prior.season = ro.season
+        AND prior.week = ro.week
+    )
+)
+SELECT gsis_id, season, week,
+       AVG(cpoe) OVER w AS qb_cpoe_l6,
+       AVG(time_to_throw) OVER w AS qb_time_to_throw_l6
+FROM spine
+WHERE MOD(FARM_FINGERPRINT(gsis_id), 20) = 0
+WINDOW w AS (PARTITION BY gsis_id ORDER BY season, week
+             ROWS BETWEEN 6 PRECEDING AND 1 PRECEDING)
 """
 
 
@@ -701,6 +817,25 @@ def run_leakage_checks() -> None:
         )
     assert_first_row_features_null(
         adv_built, [f for f, *_ in ADVANCED_CHECKS], ("gsis_id", "season")
+    )
+
+    # Adopted neutral-pass context is a ratio of rolling sums, while NGS QB
+    # windows deliberately cross season boundaries. Independent SQL references
+    # preserve those exact semantics and fail on any key/null/value drift.
+    neutral_built = query_df(NEUTRAL_PASS_BUILT_SQL.format(
+        features=settings.features))
+    neutral_expected = query_df(NEUTRAL_PASS_EXPECTED_SQL.format(
+        features=settings.features, raw=settings.raw))
+    assert_recomputed_features_match(
+        neutral_built, neutral_expected, NEUTRAL_PASS_FEATURES,
+        ("team", "season", "week"),
+    )
+    qb_built = query_df(QB_NGS_BUILT_SQL.format(features=settings.features))
+    qb_expected = query_df(QB_NGS_EXPECTED_SQL.format(
+        features=settings.features, raw=settings.raw))
+    assert_recomputed_features_match(
+        qb_built, qb_expected, QB_NGS_FEATURES,
+        ("gsis_id", "season", "week"),
     )
 
     # Exact replay-universe contract. This catches identity, source-spine,

@@ -55,9 +55,12 @@ and a negative include-current test. For advanced opportunity/NGS,
 `ez_targets_l4`, `deep_targets_l4`, `separation_l4` and `stacked_box_l4` are
 reconstructed from PBP/NGS on the exact complete usage spine. Exact null-
 support parity is mandatory so missing observations continue to occupy bounded
-`ROWS` windows. Read-only live checks passed on identical 11,686-row
-efficiency and 4,975-row advanced built/source samples. Team context is next;
-it is not claimed covered yet.
+`ROWS` windows. The adopted neutral-pass field is independently recomputed as
+its actual ratio of rolling sums, and both QB NGS fields preserve their
+deliberate cross-season window. Read-only live checks passed on identical
+11,686-row efficiency, 4,975-row advanced, 1,336-row neutral-pass and 253-row
+QB NGS built/source samples. Smoothed usage and injury/vacancy are next; they
+are not claimed covered yet.
 
 ### 3. Team CPOE is computed but unused — confirmed and already frozen
 
@@ -108,9 +111,9 @@ experiment answers the pass-catcher question.
 2. Complete the active-label → SCHED → team-QB marginal sequence in its frozen
    order. Add the sparse-feature support report during the next cache build.
 3. Continue source-recomputed leakage checks one feature family at a time.
-   Active efficiency and advanced opportunity/NGS are complete; team-context
-   fields are next. Every new query must have synthetic positive and negative
-   tests.
+   Active efficiency, advanced opportunity/NGS, neutral-pass context and QB
+   NGS are complete; smoothed usage and injury/vacancy are next. Every new
+   query must have synthetic positive and negative tests.
 4. On the next coordinated feature rebuild, prove historical row-count/key
    stability, quantify the intended defense-feature deltas, retrain all live
    registries and rerun deployment verification before serving Week 1.
@@ -121,6 +124,7 @@ experiment answers the pass-catcher question.
   schemas.
 - Focused feature-SQL and leakage suites pass, including the new exact-week
   position and upcoming-row guards.
-- Active-efficiency and advanced-source expansions pass synthetic include-
-  current/null-support tests and read-only 11,686-/4,975-row live comparisons.
+- Active-efficiency, advanced, neutral-pass and QB-NGS expansions pass
+  synthetic include-current/null/key/value tests and read-only
+  11,686-/4,975-/1,336-/253-row live comparisons.
 - `git diff --check` and Python compilation are clean.

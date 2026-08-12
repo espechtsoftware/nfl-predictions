@@ -12,6 +12,7 @@ from nfl_dfs.features.leakage import (
     assert_first_game_features_null,
     assert_historical_salary_source_reconciled,
     assert_no_leakage,
+    assert_recomputed_features_match,
     assert_route_source_strict_prior,
     assert_salary_universe_reconciled,
     trailing_mean_excluding_current,
@@ -125,6 +126,30 @@ def test_exact_spine_check_rejects_null_support_drift():
         assert_no_leakage(
             built, source, "separation_l4", "separation", window=4,
             require_null_parity=True,
+        )
+
+
+def test_independent_recomputation_requires_keys_nulls_and_values():
+    expected = pd.DataFrame({
+        "team": ["DET", "GB"], "season": [2025, 2025], "week": [1, 1],
+        "neutral_pass_rate_l6": [0.55, np.nan],
+    })
+    assert_recomputed_features_match(
+        expected.copy(), expected, ["neutral_pass_rate_l6"],
+        ("team", "season", "week"),
+    )
+    wrong_value = expected.copy()
+    wrong_value.loc[0, "neutral_pass_rate_l6"] = 0.65
+    with pytest.raises(LeakageError, match="source-recomputed rows"):
+        assert_recomputed_features_match(
+            wrong_value, expected, ["neutral_pass_rate_l6"],
+            ("team", "season", "week"),
+        )
+    missing_key = expected.iloc[:1].copy()
+    with pytest.raises(LeakageError, match="keys differ"):
+        assert_recomputed_features_match(
+            missing_key, expected, ["neutral_pass_rate_l6"],
+            ("team", "season", "week"),
         )
 
 

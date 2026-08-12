@@ -22,10 +22,11 @@ source-recomputed leakage checks need staged expansion by feature family.
 Those plumbing repairs precede any candidate promotion and the next normal
 feature rebuild; they do not reorder the frozen active-label → SCHED → team-QB
 marginal sequence.
-The first two dynamic source-family expansions now independently reconstruct
-the three active trailing-production fields and four advanced opportunity/NGS
-fields, including sample volatility and exact missing-spine semantics; team-
-context families remain next.
+Dynamic source-family expansions now independently reconstruct the three active
+trailing-production fields, four advanced opportunity/NGS fields, the adopted
+neutral-pass ratio and both QB NGS windows, including sample volatility, exact
+missing-spine semantics and cross-season ordering. Smoothed usage and injury/
+vacancy remain next.
 
 Closure addendum (2026-08-11): after every historical arm reaches a terminal
 state, run the mandatory end-of-preseason forensic protocol in
