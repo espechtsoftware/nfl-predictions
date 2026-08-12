@@ -178,15 +178,21 @@ reconciliation when their findings affect the program.
   uses `row_count`, restores the stable JSON `rows` key afterward, and has a
   focused source-contract regression assertion. No model cache or outcome was
   queried before that repair.
-- The frozen amended team-passing cache pair is now running from corrected GPU
+- The frozen amended team-passing cache pair completed cleanly from corrected GPU
   digest `b6a3a896...`, source `83192ca`, terminal active-only labels, base
   shared-33 features (SCHED was not selected), and inherited cache
   `tabpfn_active_label_treatment_v2`: control execution
   `tabpfn-team-qb-v1-control-bcr4l`, treatment execution
-  `tabpfn-team-qb-v1-treatment-dg556`. Wait for both clean completions, then
-  run `scripts/cloud_finish_tabpfn_team_qb.sh 83192ca`; do not launch the
-  final-served gate until its exact control-reproduction, amended feature
-  contract, key/PIT and changed-prediction validations pass.
+  `tabpfn-team-qb-v1-treatment-dg556`. Validation passes every frozen
+  contract: 52,307 exact equal keys, exact control reproduction of the
+  inherited cache at maximum delta `0.0`, distinct amended feature hashes,
+  changed treatment predictions, ordered finite quantiles, catcher-only
+  support, identical PIT/source/coverage identities, and exact RNG/hyperparameter
+  law. The sole score-free final-served gate is now running from corrected full
+  digest `df3de60e...` as execution
+  `tabpfn-team-qb-final-served-v1-q9tsq`. Harvest it only after clean
+  completion; its frozen pass branch licenses exact-80 and its fail branch
+  retains the incumbent cache without lineup scoring.
 - Review reconciliation and active-label gate milestone commit `83192ca` is
   pushed on `main`. The complete local suite passes all 992 collected tests
   with one expected rear-view dashboard skip. Exact-commit team-passing GPU

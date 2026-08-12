@@ -1,0 +1,1537 @@
+{
+  "control_reproduction": {
+    "checks": {
+      "exact_keys": true,
+      "maximum_abs_delta_at_most_1e_10": true,
+      "required_prediction_columns": true
+    },
+    "maximum_abs_delta": 0.0,
+    "passes": true
+  },
+  "disposition": "tabpfn-team-qb-caches-valid",
+  "feature_law": "base",
+  "inherited_table": "tabpfn_active_label_treatment_v2",
+  "label_law": "active_only",
+  "passes": true,
+  "report_validation": {
+    "checks": {
+      "active_context_contract": true,
+      "arm_identity": true,
+      "code_identity": true,
+      "context_counts_match": true,
+      "distinct_feature_hashes": true,
+      "exact_feature_contracts": true,
+      "exact_output_rows": true,
+      "exact_target_seasons": true,
+      "inherited_law_identity": true,
+      "inherited_rng_sequence": true,
+      "output_table_identity": true,
+      "pass_catcher_only_support": true,
+      "same_coverage_audits": true,
+      "same_frozen_hyperparameters": true,
+      "same_source_snapshots": true,
+      "target_counts_match": true
+    },
+    "passes": true
+  },
+  "reports": {
+    "control": {
+      "active_context_only": true,
+      "arm": "control",
+      "code_sha": "83192ca",
+      "context_max": 28000,
+      "device": "cuda",
+      "disposition": "tabpfn-team-qb-cache-generated",
+      "existing_qb_cpoe_support": [
+        {
+          "active": false,
+          "rows": 7,
+          "season": 2014,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": true,
+          "rows": 633,
+          "season": 2014,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": false,
+          "rows": 6,
+          "season": 2015,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": true,
+          "rows": 627,
+          "season": 2015,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": false,
+          "rows": 4,
+          "season": 2016,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": true,
+          "rows": 625,
+          "season": 2016,
+          "support_rate": 0.7296,
+          "supported_rows": 456
+        },
+        {
+          "active": false,
+          "rows": 6,
+          "season": 2017,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": true,
+          "rows": 602,
+          "season": 2017,
+          "support_rate": 0.8205980066445183,
+          "supported_rows": 494
+        },
+        {
+          "active": false,
+          "rows": 1,
+          "season": 2018,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": true,
+          "rows": 634,
+          "season": 2018,
+          "support_rate": 0.7917981072555205,
+          "supported_rows": 502
+        },
+        {
+          "active": false,
+          "rows": 1,
+          "season": 2019,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": true,
+          "rows": 613,
+          "season": 2019,
+          "support_rate": 0.8172920065252854,
+          "supported_rows": 501
+        },
+        {
+          "active": false,
+          "rows": 4,
+          "season": 2020,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": true,
+          "rows": 637,
+          "season": 2020,
+          "support_rate": 0.7802197802197802,
+          "supported_rows": 497
+        },
+        {
+          "active": false,
+          "rows": 2,
+          "season": 2021,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": true,
+          "rows": 691,
+          "season": 2021,
+          "support_rate": 0.768451519536903,
+          "supported_rows": 531
+        },
+        {
+          "active": false,
+          "rows": 1137,
+          "season": 2022,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": true,
+          "rows": 663,
+          "season": 2022,
+          "support_rate": 0.7903469079939668,
+          "supported_rows": 524
+        },
+        {
+          "active": false,
+          "rows": 1081,
+          "season": 2023,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": true,
+          "rows": 679,
+          "season": 2023,
+          "support_rate": 0.7908689248895434,
+          "supported_rows": 537
+        },
+        {
+          "active": false,
+          "rows": 1142,
+          "season": 2024,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": true,
+          "rows": 683,
+          "season": 2024,
+          "support_rate": 0.7833089311859444,
+          "supported_rows": 535
+        },
+        {
+          "active": false,
+          "rows": 1129,
+          "season": 2025,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": true,
+          "rows": 657,
+          "season": 2025,
+          "support_rate": 0.7747336377473364,
+          "supported_rows": 509
+        }
+      ],
+      "feature_columns": [
+        "carry_share_l4",
+        "cb_comp_rate_allowed_l6",
+        "cb_ypt_allowed_l6",
+        "db_ypt_allowed_l6",
+        "deep_targets_l4",
+        "depth_rank",
+        "dk_points_l4",
+        "dk_points_std",
+        "dk_points_vol",
+        "expected_game_script",
+        "ez_targets_l4",
+        "game_total",
+        "games_played_prior",
+        "gl3_carries_smoothed",
+        "implied_team_total",
+        "is_cold_start",
+        "is_dome",
+        "is_home",
+        "neutral_pass_rate_l6",
+        "qb_cpoe_l6",
+        "ref_flags_prior",
+        "rz20_targets_smoothed",
+        "salary",
+        "salary_delta_wow",
+        "separation_l4",
+        "snap_share_l4",
+        "spread",
+        "stacked_box_l4",
+        "target_share_l4",
+        "team_vacated_carry_share",
+        "team_vacated_target_share",
+        "top_cb_out",
+        "wopr_l4"
+      ],
+      "feature_contract_sha256": "3848342f57bd8ac271a42488241b8482a6af168155299f0091946b2ae437f30a",
+      "feature_law": "base",
+      "folds": {
+        "2022": {
+          "context_team_qb_supported": 24993,
+          "elapsed_seconds": 89.16100859642029,
+          "eligible_context_rows": 50491,
+          "sampled_active_rows": 28000,
+          "sampled_context_rows": 28000,
+          "sampled_inactive_rows": 0,
+          "target_rows": 13246,
+          "target_team_qb_supported": 11446,
+          "unfiltered_inactive_labels": 129
+        },
+        "2023": {
+          "context_team_qb_supported": 25044,
+          "elapsed_seconds": 82.74413442611694,
+          "eligible_context_rows": 57535,
+          "sampled_active_rows": 28000,
+          "sampled_context_rows": 28000,
+          "sampled_inactive_rows": 0,
+          "target_rows": 13084,
+          "target_team_qb_supported": 11324,
+          "unfiltered_inactive_labels": 6331
+        },
+        "2024": {
+          "context_team_qb_supported": 25083,
+          "elapsed_seconds": 82.90153861045837,
+          "eligible_context_rows": 64578,
+          "sampled_active_rows": 28000,
+          "sampled_context_rows": 28000,
+          "sampled_inactive_rows": 0,
+          "target_rows": 13132,
+          "target_team_qb_supported": 11307,
+          "unfiltered_inactive_labels": 12372
+        },
+        "2025": {
+          "context_team_qb_supported": 25046,
+          "elapsed_seconds": 83.53307175636292,
+          "eligible_context_rows": 71580,
+          "sampled_active_rows": 28000,
+          "sampled_context_rows": 28000,
+          "sampled_inactive_rows": 0,
+          "target_rows": 12845,
+          "target_team_qb_supported": 11059,
+          "unfiltered_inactive_labels": 18502
+        }
+      },
+      "inherited_rng_warmup": {},
+      "label_law": "active_only",
+      "n_estimators": 4,
+      "output_rows": 52307,
+      "output_table": "nfl-predictions-503414.nfl_features.tabpfn_team_qb_control_v1",
+      "quantiles": [
+        0.01,
+        0.05,
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.5,
+        0.6,
+        0.7,
+        0.8,
+        0.9,
+        0.95,
+        0.99
+      ],
+      "random_seed": 7,
+      "target_seasons": [
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "team_qb_coverage": [
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "QB",
+          "rows": 640,
+          "season": 2014,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "RB",
+          "rows": 1841,
+          "season": 2014,
+          "support_rate": 0.9402498642042368,
+          "supported_rows": 1731
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "TE",
+          "rows": 1378,
+          "season": 2014,
+          "support_rate": 0.9404934687953556,
+          "supported_rows": 1296
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "WR",
+          "rows": 2391,
+          "season": 2014,
+          "support_rate": 0.9422835633626098,
+          "supported_rows": 2253
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "QB",
+          "rows": 633,
+          "season": 2015,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "cross_season_rate": 0.3803713527851459,
+          "cross_season_rows": 717,
+          "position": "RB",
+          "rows": 1885,
+          "season": 2015,
+          "support_rate": 1.0,
+          "supported_rows": 1885
+        },
+        {
+          "cross_season_rate": 0.36468885672937773,
+          "cross_season_rows": 504,
+          "position": "TE",
+          "rows": 1382,
+          "season": 2015,
+          "support_rate": 1.0,
+          "supported_rows": 1382
+        },
+        {
+          "cross_season_rate": 0.3727735368956743,
+          "cross_season_rows": 879,
+          "position": "WR",
+          "rows": 2358,
+          "season": 2015,
+          "support_rate": 1.0,
+          "supported_rows": 2358
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "QB",
+          "rows": 629,
+          "season": 2016,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "cross_season_rate": 0.37739032620922386,
+          "cross_season_rows": 671,
+          "position": "RB",
+          "rows": 1778,
+          "season": 2016,
+          "support_rate": 1.0,
+          "supported_rows": 1778
+        },
+        {
+          "cross_season_rate": 0.3629032258064516,
+          "cross_season_rows": 495,
+          "position": "TE",
+          "rows": 1364,
+          "season": 2016,
+          "support_rate": 1.0,
+          "supported_rows": 1364
+        },
+        {
+          "cross_season_rate": 0.3704769736842105,
+          "cross_season_rows": 901,
+          "position": "WR",
+          "rows": 2432,
+          "season": 2016,
+          "support_rate": 1.0,
+          "supported_rows": 2432
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "QB",
+          "rows": 608,
+          "season": 2017,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "cross_season_rate": 0.3724944320712695,
+          "cross_season_rows": 669,
+          "position": "RB",
+          "rows": 1796,
+          "season": 2017,
+          "support_rate": 1.0,
+          "supported_rows": 1796
+        },
+        {
+          "cross_season_rate": 0.3679890560875513,
+          "cross_season_rows": 538,
+          "position": "TE",
+          "rows": 1462,
+          "season": 2017,
+          "support_rate": 1.0,
+          "supported_rows": 1462
+        },
+        {
+          "cross_season_rate": 0.3652618135376756,
+          "cross_season_rows": 858,
+          "position": "WR",
+          "rows": 2349,
+          "season": 2017,
+          "support_rate": 1.0,
+          "supported_rows": 2349
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "QB",
+          "rows": 635,
+          "season": 2018,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "cross_season_rate": 0.36765561372891215,
+          "cross_season_rows": 632,
+          "position": "RB",
+          "rows": 1719,
+          "season": 2018,
+          "support_rate": 1.0,
+          "supported_rows": 1719
+        },
+        {
+          "cross_season_rate": 0.370446735395189,
+          "cross_season_rows": 539,
+          "position": "TE",
+          "rows": 1455,
+          "season": 2018,
+          "support_rate": 1.0,
+          "supported_rows": 1455
+        },
+        {
+          "cross_season_rate": 0.375052498950021,
+          "cross_season_rows": 893,
+          "position": "WR",
+          "rows": 2381,
+          "season": 2018,
+          "support_rate": 1.0,
+          "supported_rows": 2381
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "QB",
+          "rows": 614,
+          "season": 2019,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "cross_season_rate": 0.37687604224569204,
+          "cross_season_rows": 678,
+          "position": "RB",
+          "rows": 1799,
+          "season": 2019,
+          "support_rate": 1.0,
+          "supported_rows": 1799
+        },
+        {
+          "cross_season_rate": 0.3780487804878049,
+          "cross_season_rows": 527,
+          "position": "TE",
+          "rows": 1394,
+          "season": 2019,
+          "support_rate": 1.0,
+          "supported_rows": 1394
+        },
+        {
+          "cross_season_rate": 0.38238941711451013,
+          "cross_season_rows": 925,
+          "position": "WR",
+          "rows": 2419,
+          "season": 2019,
+          "support_rate": 1.0,
+          "supported_rows": 2419
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "QB",
+          "rows": 641,
+          "season": 2020,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "cross_season_rate": 0.38247011952191234,
+          "cross_season_rows": 672,
+          "position": "RB",
+          "rows": 1757,
+          "season": 2020,
+          "support_rate": 1.0,
+          "supported_rows": 1757
+        },
+        {
+          "cross_season_rate": 0.3755129958960328,
+          "cross_season_rows": 549,
+          "position": "TE",
+          "rows": 1462,
+          "season": 2020,
+          "support_rate": 1.0,
+          "supported_rows": 1462
+        },
+        {
+          "cross_season_rate": 0.3766025641025641,
+          "cross_season_rows": 940,
+          "position": "WR",
+          "rows": 2496,
+          "season": 2020,
+          "support_rate": 1.0,
+          "supported_rows": 2496
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "QB",
+          "rows": 693,
+          "season": 2021,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "cross_season_rate": 0.35755358076319915,
+          "cross_season_rows": 684,
+          "position": "RB",
+          "rows": 1913,
+          "season": 2021,
+          "support_rate": 1.0,
+          "supported_rows": 1913
+        },
+        {
+          "cross_season_rate": 0.3576923076923077,
+          "cross_season_rows": 558,
+          "position": "TE",
+          "rows": 1560,
+          "season": 2021,
+          "support_rate": 1.0,
+          "supported_rows": 1560
+        },
+        {
+          "cross_season_rate": 0.3515965166908563,
+          "cross_season_rows": 969,
+          "position": "WR",
+          "rows": 2756,
+          "season": 2021,
+          "support_rate": 1.0,
+          "supported_rows": 2756
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "QB",
+          "rows": 1800,
+          "season": 2022,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "cross_season_rate": 0.3513681592039801,
+          "cross_season_rows": 1130,
+          "position": "RB",
+          "rows": 3216,
+          "season": 2022,
+          "support_rate": 1.0,
+          "supported_rows": 3216
+        },
+        {
+          "cross_season_rate": 0.3570236903570237,
+          "cross_season_rows": 1070,
+          "position": "TE",
+          "rows": 2997,
+          "season": 2022,
+          "support_rate": 1.0,
+          "supported_rows": 2997
+        },
+        {
+          "cross_season_rate": 0.35027708771259314,
+          "cross_season_rows": 1833,
+          "position": "WR",
+          "rows": 5233,
+          "season": 2022,
+          "support_rate": 1.0,
+          "supported_rows": 5233
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "QB",
+          "rows": 1760,
+          "season": 2023,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "cross_season_rate": 0.35526315789473684,
+          "cross_season_rows": 1134,
+          "position": "RB",
+          "rows": 3192,
+          "season": 2023,
+          "support_rate": 1.0,
+          "supported_rows": 3192
+        },
+        {
+          "cross_season_rate": 0.3538149898717083,
+          "cross_season_rows": 1048,
+          "position": "TE",
+          "rows": 2962,
+          "season": 2023,
+          "support_rate": 1.0,
+          "supported_rows": 2962
+        },
+        {
+          "cross_season_rate": 0.3599613152804642,
+          "cross_season_rows": 1861,
+          "position": "WR",
+          "rows": 5170,
+          "season": 2023,
+          "support_rate": 1.0,
+          "supported_rows": 5170
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "QB",
+          "rows": 1825,
+          "season": 2024,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "cross_season_rate": 0.36132231404958676,
+          "cross_season_rows": 1093,
+          "position": "RB",
+          "rows": 3025,
+          "season": 2024,
+          "support_rate": 1.0,
+          "supported_rows": 3025
+        },
+        {
+          "cross_season_rate": 0.3571191503484899,
+          "cross_season_rows": 1076,
+          "position": "TE",
+          "rows": 3013,
+          "season": 2024,
+          "support_rate": 1.0,
+          "supported_rows": 3013
+        },
+        {
+          "cross_season_rate": 0.3558550009489467,
+          "cross_season_rows": 1875,
+          "position": "WR",
+          "rows": 5269,
+          "season": 2024,
+          "support_rate": 1.0,
+          "supported_rows": 5269
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "QB",
+          "rows": 1786,
+          "season": 2025,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "cross_season_rate": 0.3532258064516129,
+          "cross_season_rows": 1095,
+          "position": "RB",
+          "rows": 3100,
+          "season": 2025,
+          "support_rate": 1.0,
+          "supported_rows": 3100
+        },
+        {
+          "cross_season_rate": 0.35300101729399797,
+          "cross_season_rows": 1041,
+          "position": "TE",
+          "rows": 2949,
+          "season": 2025,
+          "support_rate": 1.0,
+          "supported_rows": 2949
+        },
+        {
+          "cross_season_rate": 0.35708582834331337,
+          "cross_season_rows": 1789,
+          "position": "WR",
+          "rows": 5010,
+          "season": 2025,
+          "support_rate": 1.0,
+          "supported_rows": 5010
+        }
+      ],
+      "team_qb_source": {
+        "content_checksum": -1434411688726941759,
+        "last_modified": "2026-08-12T21:47:24.241000+00:00",
+        "rows": 13934,
+        "schema_sha256": "e701cff1656a9da4ab26ef44b635628c0e1103b5526d490825c27045b7675f73",
+        "table": "nfl-predictions-503414.nfl_features.team_week_qb_quality"
+      },
+      "training_source": {
+        "active_rows": 78404,
+        "content_checksum": 1904430067081090565,
+        "last_modified": "2026-08-12T04:06:47.502000+00:00",
+        "rows": 102927,
+        "schema_sha256": "df9c90731aa11acf4dc39c9c4ead132243b0b15ccace45583ec00704fcb59473",
+        "table": "nfl-predictions-503414.nfl_features.player_week_training"
+      },
+      "unique_keys": 52307
+    },
+    "treatment": {
+      "active_context_only": true,
+      "arm": "treatment",
+      "code_sha": "83192ca",
+      "context_max": 28000,
+      "device": "cuda",
+      "disposition": "tabpfn-team-qb-cache-generated",
+      "existing_qb_cpoe_support": [
+        {
+          "active": false,
+          "rows": 7,
+          "season": 2014,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": true,
+          "rows": 633,
+          "season": 2014,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": false,
+          "rows": 6,
+          "season": 2015,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": true,
+          "rows": 627,
+          "season": 2015,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": false,
+          "rows": 4,
+          "season": 2016,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": true,
+          "rows": 625,
+          "season": 2016,
+          "support_rate": 0.7296,
+          "supported_rows": 456
+        },
+        {
+          "active": false,
+          "rows": 6,
+          "season": 2017,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": true,
+          "rows": 602,
+          "season": 2017,
+          "support_rate": 0.8205980066445183,
+          "supported_rows": 494
+        },
+        {
+          "active": false,
+          "rows": 1,
+          "season": 2018,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": true,
+          "rows": 634,
+          "season": 2018,
+          "support_rate": 0.7917981072555205,
+          "supported_rows": 502
+        },
+        {
+          "active": false,
+          "rows": 1,
+          "season": 2019,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": true,
+          "rows": 613,
+          "season": 2019,
+          "support_rate": 0.8172920065252854,
+          "supported_rows": 501
+        },
+        {
+          "active": false,
+          "rows": 4,
+          "season": 2020,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": true,
+          "rows": 637,
+          "season": 2020,
+          "support_rate": 0.7802197802197802,
+          "supported_rows": 497
+        },
+        {
+          "active": false,
+          "rows": 2,
+          "season": 2021,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": true,
+          "rows": 691,
+          "season": 2021,
+          "support_rate": 0.768451519536903,
+          "supported_rows": 531
+        },
+        {
+          "active": false,
+          "rows": 1137,
+          "season": 2022,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": true,
+          "rows": 663,
+          "season": 2022,
+          "support_rate": 0.7903469079939668,
+          "supported_rows": 524
+        },
+        {
+          "active": false,
+          "rows": 1081,
+          "season": 2023,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": true,
+          "rows": 679,
+          "season": 2023,
+          "support_rate": 0.7908689248895434,
+          "supported_rows": 537
+        },
+        {
+          "active": false,
+          "rows": 1142,
+          "season": 2024,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": true,
+          "rows": 683,
+          "season": 2024,
+          "support_rate": 0.7833089311859444,
+          "supported_rows": 535
+        },
+        {
+          "active": false,
+          "rows": 1129,
+          "season": 2025,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "active": true,
+          "rows": 657,
+          "season": 2025,
+          "support_rate": 0.7747336377473364,
+          "supported_rows": 509
+        }
+      ],
+      "feature_columns": [
+        "carry_share_l4",
+        "cb_comp_rate_allowed_l6",
+        "cb_ypt_allowed_l6",
+        "db_ypt_allowed_l6",
+        "deep_targets_l4",
+        "depth_rank",
+        "dk_points_l4",
+        "dk_points_std",
+        "dk_points_vol",
+        "expected_game_script",
+        "ez_targets_l4",
+        "game_total",
+        "games_played_prior",
+        "gl3_carries_smoothed",
+        "implied_team_total",
+        "is_cold_start",
+        "is_dome",
+        "is_home",
+        "neutral_pass_rate_l6",
+        "qb_cpoe_l6",
+        "ref_flags_prior",
+        "rz20_targets_smoothed",
+        "salary",
+        "salary_delta_wow",
+        "separation_l4",
+        "snap_share_l4",
+        "spread",
+        "stacked_box_l4",
+        "target_share_l4",
+        "team_vacated_carry_share",
+        "team_vacated_target_share",
+        "top_cb_out",
+        "wopr_l4",
+        "team_qb_cpoe_l6",
+        "team_qb_cpoe_cross_season"
+      ],
+      "feature_contract_sha256": "77677f642c9840cf6062d83c4c13544739e0b0d24a085f05d04890d37b1cd941",
+      "feature_law": "base",
+      "folds": {
+        "2022": {
+          "context_team_qb_supported": 24993,
+          "elapsed_seconds": 95.31130003929138,
+          "eligible_context_rows": 50491,
+          "sampled_active_rows": 28000,
+          "sampled_context_rows": 28000,
+          "sampled_inactive_rows": 0,
+          "target_rows": 13246,
+          "target_team_qb_supported": 11446,
+          "unfiltered_inactive_labels": 129
+        },
+        "2023": {
+          "context_team_qb_supported": 25044,
+          "elapsed_seconds": 84.88345694541931,
+          "eligible_context_rows": 57535,
+          "sampled_active_rows": 28000,
+          "sampled_context_rows": 28000,
+          "sampled_inactive_rows": 0,
+          "target_rows": 13084,
+          "target_team_qb_supported": 11324,
+          "unfiltered_inactive_labels": 6331
+        },
+        "2024": {
+          "context_team_qb_supported": 25083,
+          "elapsed_seconds": 85.46865463256836,
+          "eligible_context_rows": 64578,
+          "sampled_active_rows": 28000,
+          "sampled_context_rows": 28000,
+          "sampled_inactive_rows": 0,
+          "target_rows": 13132,
+          "target_team_qb_supported": 11307,
+          "unfiltered_inactive_labels": 12372
+        },
+        "2025": {
+          "context_team_qb_supported": 25046,
+          "elapsed_seconds": 85.30952835083008,
+          "eligible_context_rows": 71580,
+          "sampled_active_rows": 28000,
+          "sampled_context_rows": 28000,
+          "sampled_inactive_rows": 0,
+          "target_rows": 12845,
+          "target_team_qb_supported": 11059,
+          "unfiltered_inactive_labels": 18502
+        }
+      },
+      "inherited_rng_warmup": {},
+      "label_law": "active_only",
+      "n_estimators": 4,
+      "output_rows": 52307,
+      "output_table": "nfl-predictions-503414.nfl_features.tabpfn_team_qb_treatment_v1",
+      "quantiles": [
+        0.01,
+        0.05,
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.5,
+        0.6,
+        0.7,
+        0.8,
+        0.9,
+        0.95,
+        0.99
+      ],
+      "random_seed": 7,
+      "target_seasons": [
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "team_qb_coverage": [
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "QB",
+          "rows": 640,
+          "season": 2014,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "RB",
+          "rows": 1841,
+          "season": 2014,
+          "support_rate": 0.9402498642042368,
+          "supported_rows": 1731
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "TE",
+          "rows": 1378,
+          "season": 2014,
+          "support_rate": 0.9404934687953556,
+          "supported_rows": 1296
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "WR",
+          "rows": 2391,
+          "season": 2014,
+          "support_rate": 0.9422835633626098,
+          "supported_rows": 2253
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "QB",
+          "rows": 633,
+          "season": 2015,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "cross_season_rate": 0.3803713527851459,
+          "cross_season_rows": 717,
+          "position": "RB",
+          "rows": 1885,
+          "season": 2015,
+          "support_rate": 1.0,
+          "supported_rows": 1885
+        },
+        {
+          "cross_season_rate": 0.36468885672937773,
+          "cross_season_rows": 504,
+          "position": "TE",
+          "rows": 1382,
+          "season": 2015,
+          "support_rate": 1.0,
+          "supported_rows": 1382
+        },
+        {
+          "cross_season_rate": 0.3727735368956743,
+          "cross_season_rows": 879,
+          "position": "WR",
+          "rows": 2358,
+          "season": 2015,
+          "support_rate": 1.0,
+          "supported_rows": 2358
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "QB",
+          "rows": 629,
+          "season": 2016,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "cross_season_rate": 0.37739032620922386,
+          "cross_season_rows": 671,
+          "position": "RB",
+          "rows": 1778,
+          "season": 2016,
+          "support_rate": 1.0,
+          "supported_rows": 1778
+        },
+        {
+          "cross_season_rate": 0.3629032258064516,
+          "cross_season_rows": 495,
+          "position": "TE",
+          "rows": 1364,
+          "season": 2016,
+          "support_rate": 1.0,
+          "supported_rows": 1364
+        },
+        {
+          "cross_season_rate": 0.3704769736842105,
+          "cross_season_rows": 901,
+          "position": "WR",
+          "rows": 2432,
+          "season": 2016,
+          "support_rate": 1.0,
+          "supported_rows": 2432
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "QB",
+          "rows": 608,
+          "season": 2017,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "cross_season_rate": 0.3724944320712695,
+          "cross_season_rows": 669,
+          "position": "RB",
+          "rows": 1796,
+          "season": 2017,
+          "support_rate": 1.0,
+          "supported_rows": 1796
+        },
+        {
+          "cross_season_rate": 0.3679890560875513,
+          "cross_season_rows": 538,
+          "position": "TE",
+          "rows": 1462,
+          "season": 2017,
+          "support_rate": 1.0,
+          "supported_rows": 1462
+        },
+        {
+          "cross_season_rate": 0.3652618135376756,
+          "cross_season_rows": 858,
+          "position": "WR",
+          "rows": 2349,
+          "season": 2017,
+          "support_rate": 1.0,
+          "supported_rows": 2349
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "QB",
+          "rows": 635,
+          "season": 2018,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "cross_season_rate": 0.36765561372891215,
+          "cross_season_rows": 632,
+          "position": "RB",
+          "rows": 1719,
+          "season": 2018,
+          "support_rate": 1.0,
+          "supported_rows": 1719
+        },
+        {
+          "cross_season_rate": 0.370446735395189,
+          "cross_season_rows": 539,
+          "position": "TE",
+          "rows": 1455,
+          "season": 2018,
+          "support_rate": 1.0,
+          "supported_rows": 1455
+        },
+        {
+          "cross_season_rate": 0.375052498950021,
+          "cross_season_rows": 893,
+          "position": "WR",
+          "rows": 2381,
+          "season": 2018,
+          "support_rate": 1.0,
+          "supported_rows": 2381
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "QB",
+          "rows": 614,
+          "season": 2019,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "cross_season_rate": 0.37687604224569204,
+          "cross_season_rows": 678,
+          "position": "RB",
+          "rows": 1799,
+          "season": 2019,
+          "support_rate": 1.0,
+          "supported_rows": 1799
+        },
+        {
+          "cross_season_rate": 0.3780487804878049,
+          "cross_season_rows": 527,
+          "position": "TE",
+          "rows": 1394,
+          "season": 2019,
+          "support_rate": 1.0,
+          "supported_rows": 1394
+        },
+        {
+          "cross_season_rate": 0.38238941711451013,
+          "cross_season_rows": 925,
+          "position": "WR",
+          "rows": 2419,
+          "season": 2019,
+          "support_rate": 1.0,
+          "supported_rows": 2419
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "QB",
+          "rows": 641,
+          "season": 2020,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "cross_season_rate": 0.38247011952191234,
+          "cross_season_rows": 672,
+          "position": "RB",
+          "rows": 1757,
+          "season": 2020,
+          "support_rate": 1.0,
+          "supported_rows": 1757
+        },
+        {
+          "cross_season_rate": 0.3755129958960328,
+          "cross_season_rows": 549,
+          "position": "TE",
+          "rows": 1462,
+          "season": 2020,
+          "support_rate": 1.0,
+          "supported_rows": 1462
+        },
+        {
+          "cross_season_rate": 0.3766025641025641,
+          "cross_season_rows": 940,
+          "position": "WR",
+          "rows": 2496,
+          "season": 2020,
+          "support_rate": 1.0,
+          "supported_rows": 2496
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "QB",
+          "rows": 693,
+          "season": 2021,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "cross_season_rate": 0.35755358076319915,
+          "cross_season_rows": 684,
+          "position": "RB",
+          "rows": 1913,
+          "season": 2021,
+          "support_rate": 1.0,
+          "supported_rows": 1913
+        },
+        {
+          "cross_season_rate": 0.3576923076923077,
+          "cross_season_rows": 558,
+          "position": "TE",
+          "rows": 1560,
+          "season": 2021,
+          "support_rate": 1.0,
+          "supported_rows": 1560
+        },
+        {
+          "cross_season_rate": 0.3515965166908563,
+          "cross_season_rows": 969,
+          "position": "WR",
+          "rows": 2756,
+          "season": 2021,
+          "support_rate": 1.0,
+          "supported_rows": 2756
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "QB",
+          "rows": 1800,
+          "season": 2022,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "cross_season_rate": 0.3513681592039801,
+          "cross_season_rows": 1130,
+          "position": "RB",
+          "rows": 3216,
+          "season": 2022,
+          "support_rate": 1.0,
+          "supported_rows": 3216
+        },
+        {
+          "cross_season_rate": 0.3570236903570237,
+          "cross_season_rows": 1070,
+          "position": "TE",
+          "rows": 2997,
+          "season": 2022,
+          "support_rate": 1.0,
+          "supported_rows": 2997
+        },
+        {
+          "cross_season_rate": 0.35027708771259314,
+          "cross_season_rows": 1833,
+          "position": "WR",
+          "rows": 5233,
+          "season": 2022,
+          "support_rate": 1.0,
+          "supported_rows": 5233
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "QB",
+          "rows": 1760,
+          "season": 2023,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "cross_season_rate": 0.35526315789473684,
+          "cross_season_rows": 1134,
+          "position": "RB",
+          "rows": 3192,
+          "season": 2023,
+          "support_rate": 1.0,
+          "supported_rows": 3192
+        },
+        {
+          "cross_season_rate": 0.3538149898717083,
+          "cross_season_rows": 1048,
+          "position": "TE",
+          "rows": 2962,
+          "season": 2023,
+          "support_rate": 1.0,
+          "supported_rows": 2962
+        },
+        {
+          "cross_season_rate": 0.3599613152804642,
+          "cross_season_rows": 1861,
+          "position": "WR",
+          "rows": 5170,
+          "season": 2023,
+          "support_rate": 1.0,
+          "supported_rows": 5170
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "QB",
+          "rows": 1825,
+          "season": 2024,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "cross_season_rate": 0.36132231404958676,
+          "cross_season_rows": 1093,
+          "position": "RB",
+          "rows": 3025,
+          "season": 2024,
+          "support_rate": 1.0,
+          "supported_rows": 3025
+        },
+        {
+          "cross_season_rate": 0.3571191503484899,
+          "cross_season_rows": 1076,
+          "position": "TE",
+          "rows": 3013,
+          "season": 2024,
+          "support_rate": 1.0,
+          "supported_rows": 3013
+        },
+        {
+          "cross_season_rate": 0.3558550009489467,
+          "cross_season_rows": 1875,
+          "position": "WR",
+          "rows": 5269,
+          "season": 2024,
+          "support_rate": 1.0,
+          "supported_rows": 5269
+        },
+        {
+          "cross_season_rate": 0.0,
+          "cross_season_rows": 0,
+          "position": "QB",
+          "rows": 1786,
+          "season": 2025,
+          "support_rate": 0.0,
+          "supported_rows": 0
+        },
+        {
+          "cross_season_rate": 0.3532258064516129,
+          "cross_season_rows": 1095,
+          "position": "RB",
+          "rows": 3100,
+          "season": 2025,
+          "support_rate": 1.0,
+          "supported_rows": 3100
+        },
+        {
+          "cross_season_rate": 0.35300101729399797,
+          "cross_season_rows": 1041,
+          "position": "TE",
+          "rows": 2949,
+          "season": 2025,
+          "support_rate": 1.0,
+          "supported_rows": 2949
+        },
+        {
+          "cross_season_rate": 0.35708582834331337,
+          "cross_season_rows": 1789,
+          "position": "WR",
+          "rows": 5010,
+          "season": 2025,
+          "support_rate": 1.0,
+          "supported_rows": 5010
+        }
+      ],
+      "team_qb_source": {
+        "content_checksum": -1434411688726941759,
+        "last_modified": "2026-08-12T21:47:24.241000+00:00",
+        "rows": 13934,
+        "schema_sha256": "e701cff1656a9da4ab26ef44b635628c0e1103b5526d490825c27045b7675f73",
+        "table": "nfl-predictions-503414.nfl_features.team_week_qb_quality"
+      },
+      "training_source": {
+        "active_rows": 78404,
+        "content_checksum": 1904430067081090565,
+        "last_modified": "2026-08-12T04:06:47.502000+00:00",
+        "rows": 102927,
+        "schema_sha256": "df9c90731aa11acf4dc39c9c4ead132243b0b15ccace45583ec00704fcb59473",
+        "table": "nfl-predictions-503414.nfl_features.player_week_training"
+      },
+      "unique_keys": 52307
+    }
+  },
+  "table_validation": {
+    "checks": {
+      "distinct_feature_hashes": true,
+      "exact_key_equality": true,
+      "exact_seasons": true,
+      "finite_predictions": true,
+      "ordered_quantiles": true,
+      "predictions_changed": true,
+      "required_columns": true,
+      "row_arm_identity": true,
+      "row_common_law": true,
+      "row_counts": true,
+      "unique_keys": true
+    },
+    "passes": true
+  },
+  "tables": {
+    "control": "tabpfn_team_qb_control_v1",
+    "treatment": "tabpfn_team_qb_treatment_v1"
+  }
+}
