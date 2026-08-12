@@ -192,6 +192,14 @@ and must not be staged or modified.
   `9211ed35-a6fb-453b-823c-0389b9b60d07` and active-label GPU image build
   `02eea485-c492-402d-943c-e9111a70cbc1` are also running from tracked commit
   `bb1ebc9`; their jobs remain blocked on clean warehouse reconciliation.
+- Canonical GPU image build `9211ed35-a6fb-453b-823c-0389b9b60d07`
+  failed before publishing because the newly tracked root-context recipe
+  exposed that the legacy Dockerfile still used directory-local `COPY`
+  paths. The Dockerfile now names both repo-root paths and a focused test
+  guards that context contract; the failed image has no execution/cache data
+  and must be superseded. Active-label image build
+  `02eea485-c492-402d-943c-e9111a70cbc1` succeeded with digest
+  `sha256:d0830d9fb79643fd77faa0d8c80f4863c1769adb56d6d1782999d5aa0f40139b`.
 - The repaired active-label final-served dependency is now a separate v2
   runner. It requires explicit validated v2 cache, repaired panel and repaired
   fitted-K comparison inputs; the comparison mechanically supplies either its

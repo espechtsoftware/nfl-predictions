@@ -22,6 +22,11 @@ def test_canonical_pit_cache_is_write_once_and_provenance_bound():
     ).read_text(encoding="utf-8")
     assert "scripts/tabpfn_gen/Dockerfile" in build
     assert "${_IMAGE}" in build
+    dockerfile = (
+        Path(__file__).parents[1] / "scripts" / "tabpfn_gen" / "Dockerfile"
+    ).read_text(encoding="utf-8")
+    assert "COPY scripts/tabpfn_gen/gen.py /app/gen.py" in dockerfile
+    assert "COPY scripts/tabpfn_gen/features.txt /app/features.txt" in dockerfile
 
 
 def test_canonical_pit_validator_is_fail_closed():
