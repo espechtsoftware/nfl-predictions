@@ -25,3 +25,15 @@ def test_control_finisher_promotes_only_selected_k1():
     assert 'if [ "$SELECTED" = k1 ]' in text
     assert '"$K1" promote 80 2' in text
     assert "cloud_compare_pit_tier1.sh" in text
+
+
+def test_role_finisher_uses_frozen_comparator_and_promotes_only_treatment():
+    text = (
+        Path(__file__).parents[1]
+        / "scripts" / "cloud_finish_pit_tier1_role.sh"
+    ).read_text(encoding="utf-8")
+    assert '"$TREATMENT" check 80 2' in text
+    assert '"$IMG" "$SOURCE" "$TREATMENT" direct-role a12ab31' in text
+    assert 'if [ "$SELECTED" = "$TREATMENT" ]' in text
+    assert '"$TREATMENT" promote 80 2' in text
+    assert "role_selected=" in text

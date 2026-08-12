@@ -40,7 +40,10 @@ The role arm adds exactly 12 `role_draws` candidates per slate, with frozen
 features `target_share_last,carry_share_last,snap_share_last,target_share_jump,
 carry_share_jump,snap_share_jump`, seed 7331 and `REPLACEMENT_SLOTS=12`, while
 retaining boom 40 and the selected base's ensemble law. It still returns
-exactly 80 final entries. The unselected branch is never launched.
+exactly 80 final entries. The unselected branch is never launched. The
+launched branch is check-only accepted, compared with the selected base under
+the same frozen tail-first law, and promoted only if that comparison selects
+it; `selected_tier1.txt` durably records either outcome.
 
 ## Operator decision law
 

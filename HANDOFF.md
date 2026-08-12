@@ -291,6 +291,11 @@ and must not be staged or modified.
   resumed under the unchanged frozen manifest. Next action is to wait for all
   three executions, run the independent registry validator, then launch the
   exact-80 repaired K3/K1 controls—no partial score inspection.
+- The previously predeclared selected-base role stage now also has a
+  fail-closed finisher, added before any repaired panel scores were visible.
+  It check-validates the one mechanically permitted role panel, runs the same
+  frozen 240->187 comparator against its selected base, promotes the role
+  panel only if selected, and writes a durable final Tier-1 selection record.
 
 ### Validated production rollout completed; Route diagnostic ready
 
