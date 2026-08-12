@@ -182,6 +182,16 @@ and must not be staged or modified.
   clean reconciliation; no cache or repaired lineup score has been queried.
   Its dedicated Cloud Build recipe is tracked beside the generator so the
   canonical image cannot accidentally use the active-label entry point.
+- Exact referee-repair feature build
+  `7344650c-38b9-40b8-9eb0-84310f0fc21b` passed the full cloud suite and
+  published immutable digest
+  `sha256:3dbb81f4e04e8ba55dc82f921d8e35a64198bdb435b973bc0b55fb743d1d105d`.
+  `build-features-ktn4b` is the second coordinated rebuild from that digest;
+  run the fail-closed reconciliation to a new v2 artifact only after this
+  execution succeeds. Canonical GPU image build
+  `9211ed35-a6fb-453b-823c-0389b9b60d07` and active-label GPU image build
+  `02eea485-c492-402d-943c-e9111a70cbc1` are also running from tracked commit
+  `bb1ebc9`; their jobs remain blocked on clean warehouse reconciliation.
 
 ### Validated production rollout completed; Route diagnostic ready
 
