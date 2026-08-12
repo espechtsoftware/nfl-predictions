@@ -168,6 +168,13 @@ reconciliation when their findings affect the program.
   Next scoring action: start the amended team-passing side-table branch using
   only review-corrected GPU digest `b6a3a896...` and full digest `df3de60e...`,
   inheriting the terminal no-SCHED context.
+- That next action is now in progress. The isolated amended team-passing
+  side-table execution is `build-team-qb-quality-v1-j4rh6`, launched from
+  review-corrected full digest `df3de60e...` and source `83192ca`. It builds
+  only `017l_team_qb_quality.sql`; after clean completion run
+  `scripts/cloud_finish_team_qb_quality_side_table.sh`, inspect its independent
+  strict-prior validation report, and only then launch the control/treatment
+  caches from corrected GPU digest `b6a3a896...`.
 - Review reconciliation and active-label gate milestone commit `83192ca` is
   pushed on `main`. The complete local suite passes all 992 collected tests
   with one expected rear-view dashboard skip. Exact-commit team-passing GPU
