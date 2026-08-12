@@ -365,11 +365,14 @@ and must not be staged or modified.
   `reports/pit-tier1-runs/20260811-pit-clean-controls-v2/selected_base.txt`
   durably records the selection. The one lost >=210 week is diagnostic and
   cannot override the predeclared >=240 first difference.
-- Only the predeclared selected K1 direct-role branch is now launching from
+- Only the predeclared selected K1 direct-role branch is running from
   generation digest `ad50...`, code `a12ab31`, and canonical-v2 cache. Smoke
-  execution is `replay-pitk1role-smoke-bbwjd`; the launcher will release the
-  six season jobs only after clean preflight. Do not inspect partial role
-  scores. Next action is to wait for smoke and all six seasons, run the frozen
+  execution `replay-pitk1role-smoke-bbwjd` passed in 10m47s. The six immutable
+  season executions are 2019 `replay-pitk1role-2019-gwj7p`, 2021
+  `replay-pitk1role-2021-vgs79`, 2022 `replay-pitk1role-2022-t7kbj`, 2023
+  `replay-pitk1role-2023-twq2p`, 2024 `replay-pitk1role-2024-j4bq9`, and 2025
+  `replay-pitk1role-2025-dbgwf`. Do not inspect partial role scores. Next
+  action is to wait for all six seasons, run the frozen
   role finisher with audit digest `f73e...`, then launch the score-free PIT-v2
   served-position and usage-K calibrations from the resulting terminal Tier-1
   selection.
@@ -384,6 +387,8 @@ and must not be staged or modified.
   downstream arms. Focused validation passes 30 tests plus shell parsing,
   compilation, and whitespace checks. An exact-tree audit image still must be
   built before this comparator can run; generation remains pinned to `ad50...`.
+  Exact-tree build `07c0df42-a82b-4034-8a50-f6309e3e85de` is running from
+  implementation commit `2de8898`.
 
 ### Validated production rollout completed; Route diagnostic ready
 
