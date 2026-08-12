@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 16:15 CDT
+## Current state — 2026-08-12 16:30 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -149,9 +149,15 @@ reconciliation when their findings affect the program.
   `tabpfn-sched-v1-control-ssmpb`, treatment execution
   `tabpfn-sched-v1-treatment-8l8nm`. Their run manifest is under
   `reports/tabpfn-sched-runs/20260812-tabpfn-sched-v1-pit-clean/`. Wait for
-  both clean successes, run `scripts/cloud_finish_tabpfn_sched.sh 23da1dd`,
-  then launch the frozen SCHED final-served gate from full audit digest
-  `aec3c368...`.
+  both clean successes, then validation passed. It proves 52,307 output rows,
+  exact active-only context identity, exact control reproduction of
+  `tabpfn_active_label_treatment_v2` at maximum delta `0.0`, the fixed
+  33-column control and 35-column treatment contracts, and changed treatment
+  predictions. The frozen SCHED final-served gate is now running from full
+  audit digest `aec3c368...` as execution
+  `tabpfn-sched-final-served-v1-fn9bv`. Wait for clean completion, harvest with
+  `scripts/cloud_finish_tabpfn_sched_final_served.sh`, then follow its frozen
+  pass/exact80 or fail/fallback branch.
 - Review reconciliation and active-label gate milestone commit `83192ca` is
   pushed on `main`. The complete local suite passes all 992 collected tests
   with one expected rear-view dashboard skip. Exact-commit team-passing GPU

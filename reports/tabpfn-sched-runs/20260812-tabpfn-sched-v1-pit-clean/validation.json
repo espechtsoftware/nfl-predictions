@@ -1,0 +1,295 @@
+{
+  "control_reproduction": {
+    "checks": {
+      "exact_keys": true,
+      "maximum_abs_delta_at_most_1e_10": true,
+      "required_prediction_columns": true
+    },
+    "maximum_abs_delta": 0.0,
+    "passes": true
+  },
+  "disposition": "tabpfn-sched-caches-valid",
+  "inherited_table": "tabpfn_active_label_treatment_v2",
+  "label_law": "active_only",
+  "passes": true,
+  "report_validation": {
+    "checks": {
+      "active_context_contract": true,
+      "arm_identity": true,
+      "code_identity": true,
+      "context_counts_match": true,
+      "distinct_feature_hashes": true,
+      "exact_feature_contracts": true,
+      "exact_output_rows": true,
+      "exact_target_seasons": true,
+      "inherited_rng_sequence": true,
+      "label_law_identity": true,
+      "output_table_identity": true,
+      "same_frozen_hyperparameters": true,
+      "same_source_snapshot": true,
+      "target_counts_match": true
+    },
+    "passes": true
+  },
+  "reports": {
+    "control": {
+      "active_context_only": true,
+      "arm": "control",
+      "code_sha": "23da1dd",
+      "context_max": 28000,
+      "device": "cuda",
+      "disposition": "tabpfn-sched-cache-generated",
+      "feature_columns": [
+        "carry_share_l4",
+        "cb_comp_rate_allowed_l6",
+        "cb_ypt_allowed_l6",
+        "db_ypt_allowed_l6",
+        "deep_targets_l4",
+        "depth_rank",
+        "dk_points_l4",
+        "dk_points_std",
+        "dk_points_vol",
+        "expected_game_script",
+        "ez_targets_l4",
+        "game_total",
+        "games_played_prior",
+        "gl3_carries_smoothed",
+        "implied_team_total",
+        "is_cold_start",
+        "is_dome",
+        "is_home",
+        "neutral_pass_rate_l6",
+        "qb_cpoe_l6",
+        "ref_flags_prior",
+        "rz20_targets_smoothed",
+        "salary",
+        "salary_delta_wow",
+        "separation_l4",
+        "snap_share_l4",
+        "spread",
+        "stacked_box_l4",
+        "target_share_l4",
+        "team_vacated_carry_share",
+        "team_vacated_target_share",
+        "top_cb_out",
+        "wopr_l4"
+      ],
+      "feature_contract_sha256": "3848342f57bd8ac271a42488241b8482a6af168155299f0091946b2ae437f30a",
+      "folds": {
+        "2022": {
+          "elapsed_seconds": 94.79637455940247,
+          "eligible_context_rows": 50491,
+          "sampled_active_rows": 28000,
+          "sampled_context_rows": 28000,
+          "sampled_inactive_rows": 0,
+          "target_rows": 13246,
+          "unfiltered_inactive_labels": 129
+        },
+        "2023": {
+          "elapsed_seconds": 82.97370910644531,
+          "eligible_context_rows": 57535,
+          "sampled_active_rows": 28000,
+          "sampled_context_rows": 28000,
+          "sampled_inactive_rows": 0,
+          "target_rows": 13084,
+          "unfiltered_inactive_labels": 6331
+        },
+        "2024": {
+          "elapsed_seconds": 82.8375186920166,
+          "eligible_context_rows": 64578,
+          "sampled_active_rows": 28000,
+          "sampled_context_rows": 28000,
+          "sampled_inactive_rows": 0,
+          "target_rows": 13132,
+          "unfiltered_inactive_labels": 12372
+        },
+        "2025": {
+          "elapsed_seconds": 83.19587469100952,
+          "eligible_context_rows": 71580,
+          "sampled_active_rows": 28000,
+          "sampled_context_rows": 28000,
+          "sampled_inactive_rows": 0,
+          "target_rows": 12845,
+          "unfiltered_inactive_labels": 18502
+        }
+      },
+      "inherited_rng_warmup": {},
+      "label_law": "active_only",
+      "n_estimators": 4,
+      "output_rows": 52307,
+      "output_table": "nfl-predictions-503414.nfl_features.tabpfn_sched_control_v1",
+      "quantiles": [
+        0.01,
+        0.05,
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.5,
+        0.6,
+        0.7,
+        0.8,
+        0.9,
+        0.95,
+        0.99
+      ],
+      "random_seed": 7,
+      "target_seasons": [
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "training_source": {
+        "active_rows": 78404,
+        "content_checksum": 1904430067081090565,
+        "last_modified": "2026-08-12T04:06:47.502000+00:00",
+        "rows": 102927,
+        "schema_sha256": "df9c90731aa11acf4dc39c9c4ead132243b0b15ccace45583ec00704fcb59473",
+        "table": "nfl-predictions-503414.nfl_features.player_week_training"
+      },
+      "unique_keys": 52307
+    },
+    "treatment": {
+      "active_context_only": true,
+      "arm": "treatment",
+      "code_sha": "23da1dd",
+      "context_max": 28000,
+      "device": "cuda",
+      "disposition": "tabpfn-sched-cache-generated",
+      "feature_columns": [
+        "carry_share_l4",
+        "cb_comp_rate_allowed_l6",
+        "cb_ypt_allowed_l6",
+        "db_ypt_allowed_l6",
+        "deep_targets_l4",
+        "depth_rank",
+        "dk_points_l4",
+        "dk_points_std",
+        "dk_points_vol",
+        "expected_game_script",
+        "ez_targets_l4",
+        "game_total",
+        "games_played_prior",
+        "gl3_carries_smoothed",
+        "implied_team_total",
+        "is_cold_start",
+        "is_dome",
+        "is_home",
+        "neutral_pass_rate_l6",
+        "qb_cpoe_l6",
+        "ref_flags_prior",
+        "rz20_targets_smoothed",
+        "salary",
+        "salary_delta_wow",
+        "separation_l4",
+        "snap_share_l4",
+        "spread",
+        "stacked_box_l4",
+        "target_share_l4",
+        "team_vacated_carry_share",
+        "team_vacated_target_share",
+        "top_cb_out",
+        "wopr_l4",
+        "net_rest_diff",
+        "body_clock_hour"
+      ],
+      "feature_contract_sha256": "9b1516c24d0f74f0ac31231542d2405277af577087e96ebb5d74d9b5741238ae",
+      "folds": {
+        "2022": {
+          "elapsed_seconds": 95.14051866531372,
+          "eligible_context_rows": 50491,
+          "sampled_active_rows": 28000,
+          "sampled_context_rows": 28000,
+          "sampled_inactive_rows": 0,
+          "target_rows": 13246,
+          "unfiltered_inactive_labels": 129
+        },
+        "2023": {
+          "elapsed_seconds": 87.56430649757385,
+          "eligible_context_rows": 57535,
+          "sampled_active_rows": 28000,
+          "sampled_context_rows": 28000,
+          "sampled_inactive_rows": 0,
+          "target_rows": 13084,
+          "unfiltered_inactive_labels": 6331
+        },
+        "2024": {
+          "elapsed_seconds": 88.90735960006714,
+          "eligible_context_rows": 64578,
+          "sampled_active_rows": 28000,
+          "sampled_context_rows": 28000,
+          "sampled_inactive_rows": 0,
+          "target_rows": 13132,
+          "unfiltered_inactive_labels": 12372
+        },
+        "2025": {
+          "elapsed_seconds": 88.5244345664978,
+          "eligible_context_rows": 71580,
+          "sampled_active_rows": 28000,
+          "sampled_context_rows": 28000,
+          "sampled_inactive_rows": 0,
+          "target_rows": 12845,
+          "unfiltered_inactive_labels": 18502
+        }
+      },
+      "inherited_rng_warmup": {},
+      "label_law": "active_only",
+      "n_estimators": 4,
+      "output_rows": 52307,
+      "output_table": "nfl-predictions-503414.nfl_features.tabpfn_sched_treatment_v1",
+      "quantiles": [
+        0.01,
+        0.05,
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.5,
+        0.6,
+        0.7,
+        0.8,
+        0.9,
+        0.95,
+        0.99
+      ],
+      "random_seed": 7,
+      "target_seasons": [
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "training_source": {
+        "active_rows": 78404,
+        "content_checksum": 1904430067081090565,
+        "last_modified": "2026-08-12T04:06:47.502000+00:00",
+        "rows": 102927,
+        "schema_sha256": "df9c90731aa11acf4dc39c9c4ead132243b0b15ccace45583ec00704fcb59473",
+        "table": "nfl-predictions-503414.nfl_features.player_week_training"
+      },
+      "unique_keys": 52307
+    }
+  },
+  "table_validation": {
+    "checks": {
+      "distinct_feature_hashes": true,
+      "exact_key_equality": true,
+      "exact_seasons": true,
+      "finite_predictions": true,
+      "ordered_quantiles": true,
+      "predictions_changed": true,
+      "required_columns": true,
+      "row_arm_identity": true,
+      "row_code_identity": true,
+      "row_common_law": true,
+      "row_counts": true,
+      "unique_keys": true
+    },
+    "passes": true
+  },
+  "tables": {
+    "control": "tabpfn_sched_control_v1",
+    "treatment": "tabpfn_sched_treatment_v1"
+  }
+}
