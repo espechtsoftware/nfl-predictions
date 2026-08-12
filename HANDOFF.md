@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 09:41 CDT
+## Current state — 2026-08-12 09:42 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -467,6 +467,11 @@ and must not be staged or modified.
   running `301bc94` full image; build a new exact-tree audit image after this
   milestone is committed, and use only that later digest for its side table,
   gate, comparator and acceptance jobs.
+- Exact-tree terminal team-QB full build
+  `ecb180f5-ef76-4326-a83e-5d96f32e5823` is running from source `b5b5038`
+  with tag `nfl-dfs:team-qb-b5b5038`. Older full build
+  `1f12be5d-df17-4757-b363-7e9a1cef3025` validates only the pre-final-gate
+  source and must not be used for team-QB execution even if it succeeds.
 - Served-position v2 execution `served-position-calibration-pit-v2-zmm6s`
   completed cleanly and passes every frozen score-free gate. Its unrounded
   treatment factors are `QB=0.975,RB=1.0,TE=0.955,WR=1.075`; aggregate

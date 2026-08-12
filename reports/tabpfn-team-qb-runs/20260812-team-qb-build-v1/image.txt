@@ -6,3 +6,7 @@ gpu_image_tag=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/tabpfn-t
 gpu_image_digest=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/tabpfn-team-qb@sha256:30c5c295ea07f27ccac4cdf4d3ff2dc40258af33313bbe73e57e407ae181150e
 gpu_status=success
 full_status=running
+terminal_source_commit=b5b5038
+terminal_full_build_id=ecb180f5-ef76-4326-a83e-5d96f32e5823
+terminal_full_image_tag=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:team-qb-b5b5038
+terminal_full_status=running
