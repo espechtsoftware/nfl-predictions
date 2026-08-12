@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 15:45 CDT
+## Current state — 2026-08-12 16:10 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -129,11 +129,22 @@ reconciliation when their findings affect the program.
   is frozen for SCHED and team passing before either downstream result.
   Focused active-label/SCHED/team-passing tests and shell parsing pass.
   Repair/evidence commit `f10a7a4` is pushed on `main`. Exact-commit full-test
-  Cloud Build `141d2c9f-908f-4de2-a363-982d7a734490` is running for image tag
-  `nfl-dfs:active-label-comparator-f10a7a4`. When it succeeds, resolve its
-  immutable digest and run
-  `scripts/cloud_recompare_tabpfn_active_label_exact80_v2.sh` on the
-  already-complete books, then continue SCHED under its mechanical selection.
+  Cloud Build `141d2c9f-908f-4de2-a363-982d7a734490` passed 991 tests with two
+  expected skips and produced immutable audit digest
+  `sha256:43160f9416035183794477c6003177de2e948ebc0d0597f35a28180d400a1d9b`.
+- Repaired comparator execution
+  `compare-tabpfn-active-label-exact80-v2-r1-brmrp` is valid and selects
+  active-only labels at the first nonzero frozen threshold: 240/230/220 tie
+  `2/2`, while 210 improves `4 -> 6`. Lower diagnostics also improve:
+  200 `12 -> 14`, 194 `22 -> 23`, 187 `33 -> 35`, and mean weekly maximum
+  `176.3566 -> 176.8692`. Promotion acceptance
+  `accept-replay-panel-rbjxg` passed. Terminal selection is
+  `label_law=active-only`, cache `tabpfn_active_label_treatment_v2`, panel
+  `20260812-pitclean-e80-selected-tabpfn-active-v2`. The concise result is
+  `reports/2026-08-12-pit-clean-active-label-exact80-result.md`; machine
+  artifacts and both comparator executions are in the run folder. Next:
+  commit/push this terminal selection, launch the frozen SCHED cache pair with
+  the prebuilt GPU digest `6609587b...`, and continue its staged gate.
 - Review reconciliation and active-label gate milestone commit `83192ca` is
   pushed on `main`. The complete local suite passes all 992 collected tests
   with one expected rear-view dashboard skip. Exact-commit team-passing GPU
