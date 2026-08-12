@@ -6,6 +6,8 @@
 #   bash scripts/cloud_accept_panel.sh <IMAGE@sha256:...> <PANEL_RUN_ID> promote [N_ENTRIES] [CAND_MULT]
 # Optional sixth argument is a quoted space-separated season list for a
 # preregistered partial panel, for example "2023 2024 2025".
+# Optional seventh argument is `season-varying-config` for a frozen experiment
+# that deliberately uses one registered config/lever specification per season.
 set -euo pipefail
 
 IMG=${1:-}
@@ -14,6 +16,7 @@ MODE=${3:-check}
 N_ENTRIES=${4:-40}
 N_CAND_MULT=${5:-2}
 SEASONS=${6:-}
+CONFIG_MODE=${7:-uniform-config}
 REGION=us-central1
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$ROOT/reports/panel-runs/$PANEL"
@@ -22,6 +25,10 @@ EXECS="$OUT/executions.txt"
 case "$IMG" in *@sha256:*) ;; *) echo "ABORT: immutable image required"; exit 2;; esac
 case "$PANEL" in ""|*[!A-Za-z0-9_-]*) echo "ABORT: invalid panel id"; exit 2;; esac
 case "$MODE" in check|promote) ;; *) echo "ABORT: mode is check or promote"; exit 2;; esac
+case "$CONFIG_MODE" in
+  uniform-config|season-varying-config) ;;
+  *) echo "ABORT: config mode is uniform-config or season-varying-config"; exit 2;;
+esac
 case "$N_ENTRIES" in ""|*[!0-9]*) echo "ABORT: invalid entry count"; exit 2;; esac
 [ "$N_ENTRIES" -ge 1 ] && [ "$N_ENTRIES" -le 150 ] || {
   echo "ABORT: entry count must be from 1 through 150"; exit 2; }
@@ -58,6 +65,8 @@ while read -r _season _job exec_id; do
 done < "$EXECS"
 
 ARGS="scripts/harvest_accept.py,$PANEL,--entries-expected,$N_ENTRIES,--candidate-multiple-expected,$N_CAND_MULT"
+[ "$CONFIG_MODE" != season-varying-config ] || \
+  ARGS="$ARGS,--allow-season-varying-config"
 [ -z "$SEASONS" ] || {
   ARGS="$ARGS,--seasons"
   for season in "${SEASON_LIST[@]}"; do ARGS="$ARGS,$season"; done

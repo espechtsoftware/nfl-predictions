@@ -28,6 +28,11 @@ PANEL_N_GUMBEL=${PANEL_N_GUMBEL:-0}
 PANEL_N_BOOM=${PANEL_N_BOOM:-40}
 PANEL_N_ENTRIES=${PANEL_N_ENTRIES:-40}
 
+season_arm_env() {
+  local KEY="PANEL_ARM_ENV_$1"
+  printf '%s' "${!KEY:-}"
+}
+
 case "$IMG" in
   *@sha256:*) ;;
   *) echo "ABORT: immutable @sha256 image required, got '$IMG'"; exit 2 ;;
@@ -50,8 +55,15 @@ case "$PANEL_N_ENTRIES" in
 esac
 [ "$PANEL_N_ENTRIES" -ge 1 ] && [ "$PANEL_N_ENTRIES" -le 150 ] || {
   echo "ABORT: PANEL_N_ENTRIES must be an integer from 1 through 150"; exit 2; }
-[ -z "$ARM_ENV" ] || [ "${PANEL_ALLOW_TREATMENT:-0}" = "1" ] || {
-  echo "ABORT: baseline runner refuses treatment env without reviewed wrapper"; exit 2; }
+HAS_SEASON_ARM_ENV=0
+for S in $SEASONS; do
+  [ -z "$(season_arm_env "$S")" ] || HAS_SEASON_ARM_ENV=1
+done
+if { [ -n "$ARM_ENV" ] || [ "$HAS_SEASON_ARM_ENV" = 1 ]; } \
+    && [ "${PANEL_ALLOW_TREATMENT:-0}" != "1" ]; then
+  echo "ABORT: baseline runner refuses treatment env without reviewed wrapper"
+  exit 2
+fi
 if [ "$PANEL_N_CE" != 0 ] || [ "$PANEL_N_EPISTEMIC" != 0 ] \
    || [ "$PANEL_N_GUMBEL" != 0 ] || [ "$PANEL_N_BOOM" != 40 ]; then
   [ "${PANEL_ALLOW_TREATMENT:-0}" = "1" ] || {
@@ -89,11 +101,15 @@ printf 'image=%s\nfamily=%s\npanel_run_id=%s\ncode_sha=%s\nseasons=%s\narm_label
   "$PANEL_N_ENTRIES" "$PANEL_N_CE" "$PANEL_N_EPISTEMIC" \
   "$PANEL_N_GUMBEL" "$PANEL_N_BOOM" \
   > "$OUT/manifest.txt"
+for S in $SEASONS; do
+  printf 'arm_env_%s=%s\n' "$S" "$(season_arm_env "$S")" \
+    >> "$OUT/manifest.txt"
+done
 : > "$EXECS"
 : > "$PREFLIGHT"
 
 launch_one() {
-  local S=$1 MODE=${2:-panel} JOB LINEUPS ENVS ARGS RECORD EXEC GOT
+  local S=$1 MODE=${2:-panel} JOB LINEUPS ENVS ARGS RECORD EXEC GOT SEASON_ENV
   if [ "$MODE" = "smoke" ]; then
     JOB="replay-$FAM-smoke"
     LINEUPS="$PROJECT.nfl_features.replay_lineups_${FAM}_smoke"
@@ -110,6 +126,8 @@ launch_one() {
     RECORD="$EXECS"
   fi
   [ -z "$ARM_ENV" ] || ENVS="$ENVS|$ARM_ENV"
+  SEASON_ENV=$(season_arm_env "$S")
+  [ -z "$SEASON_ENV" ] || ENVS="$ENVS|$SEASON_ENV"
   gcloud run jobs deploy "$JOB" --image "$IMG" --region "$REGION" \
     --command nfl-dfs --args "$ARGS" \
     --set-env-vars "^|^$ENVS" --memory "$PANEL_MEMORY" --cpu 4 --max-retries 0 \

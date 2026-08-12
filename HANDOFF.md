@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 21:55 CDT
+## Current state — 2026-08-11 22:10 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc` are pushed. The
@@ -229,11 +229,15 @@ and must not be staged or modified.
   read-only live comparisons pass on identical 11,686-/4,975-/1,336-/253-row
   efficiency/advanced/neutral-pass/QB-NGS samples. Focused leakage tests,
   Python compilation and whitespace checks pass. Efficiency-only commit
-  `13549d8` is pushed with active build
-  `d7b3e601-9088-4026-9819-e0987b997d4e`; advanced commit `4c7e986` is pushed
-  with queued superseding build `eef87cfa-7659-4f7f-a09b-985dfa753b1d`.
-  Commit/push and Cloud-validate the neutral-pass/QB-NGS expansion separately.
-  Smoothed usage and injury/vacancy remain next.
+  `13549d8` is pushed and regional Cloud Build
+  `d7b3e601-9088-4026-9819-e0987b997d4e` passed 928 tests with two expected
+  skips, publishing intermediate digest
+  `sha256:472e43b2f949dfe50da0e1e1908738d18f26f130cf3d39d78323e10d11cb2da5`.
+  Advanced commit `4c7e986` is pushed with active superseding build
+  `eef87cfa-7659-4f7f-a09b-985dfa753b1d`; neutral-pass/QB-NGS commit `7304cfc`
+  is pushed with queued final build
+  `0ae5daf8-23ec-423b-9b83-a31b995c1289`. Monitor both and record the final
+  exact-tree result. Smoothed usage and injury/vacancy remain next.
 - The operator made the end-of-preseason forensic review mandatory after the
   historical arm queue is genuinely exhausted. The strengthened tracked
   protocol is `reports/2026-08-11-final-preseason-forensic-closure-protocol.md`;
@@ -333,9 +337,23 @@ and must not be staged or modified.
   `reports/2026-08-11-tabpfn-active-label-exact80-protocol.md`. It compares
   research current-label versus active-only caches using their exact
   independently fitted 2023/2024/2025 schedules under common production
-  multinomial usage and the 240/230/220/210/200 first-difference law. Next:
-  commit/push this result and freeze, then implement/validate the launcher and
-  comparator before any active-label lineup-score query.
+  multinomial usage and the 240/230/220/210/200 first-difference law. Result
+  and protocol commit `3966764` is pushed. The exact-80 implementation is now
+  complete locally without querying a lineup outcome: the shared panel runner
+  supports a frozen per-season arm environment, while acceptance and pure
+  panel validation allow exactly one config/lever identity per season only
+  when the reviewed wrapper opts in. The launcher revalidates both prerequisite
+  hashes, pass, cache tables, production-multinomial law, row count, mean
+  preservation, exact factor schedules and 107-slate splice before deployment.
+  The comparator requires identical upstream snapshots, registers exactly the
+  seven served-distribution outputs that may differ, validates cache/schedule
+  provenance by season, proves the mechanism reaches candidate scoring, and
+  applies the frozen tail-first law. Direct promotion of either research panel
+  is refused; a pass requires separate canonical cache regeneration. Forty-five
+  focused active-label/replay/acceptance/tail tests pass; shell parsing, Python
+  compilation and whitespace checks are clean. Next: commit/push this
+  implementation, run an exact-tree Cloud Build, and only then launch the two
+  immutable books from its digest.
 - The new read-only outside review
   `reports/2026-08-11-feature-plumbing-defects-and-correlation-gaps.md` was
   reconciled. Its two-channel diagnosis is correct: TabPFN owns covered player

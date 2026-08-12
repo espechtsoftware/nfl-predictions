@@ -315,6 +315,8 @@ def main() -> int:
     ap.add_argument("--promote", action="store_true")
     ap.add_argument("--entries-expected", type=int, default=40)
     ap.add_argument("--candidate-multiple-expected", type=int, default=2)
+    ap.add_argument("--allow-season-varying-config", action="store_true",
+                    help="allow one config_hash/lever_env per season")
     ap.add_argument("--seasons", type=int, nargs="+",
                     default=list(EXPECTED_SEASONS))
     a = ap.parse_args()
@@ -437,8 +439,17 @@ def main() -> int:
             fails.append(f"missing {col} provenance")
     if d.code_sha.astype(str).eq("unknown").any():
         fails.append("unknown code_sha provenance")
-    for col in ("code_sha", "config_hash", "lever_env", "seeds"):
+    for col in ("code_sha", "seeds"):
         if d[col].fillna("").astype(str).nunique(dropna=False) != 1:
+            fails.append(f"mixed {col} provenance within panel")
+    for col in ("config_hash", "lever_env"):
+        if a.allow_season_varying_config:
+            counts = d.groupby("season")[col].apply(
+                lambda values: values.fillna("").astype(str).nunique(
+                    dropna=False))
+            if not counts.eq(1).all():
+                fails.append(f"mixed {col} provenance within a season")
+        elif d[col].fillna("").astype(str).nunique(dropna=False) != 1:
             fails.append(f"mixed {col} provenance within panel")
     # Candidate rows alone are insufficient for missed-player/reranker work:
     # the point-in-time player snapshot must cover the exact same immutable

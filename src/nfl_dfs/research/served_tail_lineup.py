@@ -86,6 +86,7 @@ def validate_candidate_panel(
     seasons: tuple[int, ...],
     promoted: bool,
     expected_code_sha: str | None = None,
+    allow_season_config: bool = False,
 ) -> list[str]:
     """Validate exact slate/entry/label/provenance mechanics."""
     failures: list[str] = []
@@ -117,8 +118,17 @@ def validate_candidate_panel(
         failures.append(f"{name} has missing actual scores")
     if not rows.research_eligible.eq(promoted).all():
         failures.append(f"{name} has wrong research eligibility")
-    for column in ("code_sha", "config_hash", "lever_env", "seeds"):
+    for column in ("code_sha", "seeds"):
         if rows[column].fillna("").astype(str).nunique(dropna=False) != 1:
+            failures.append(f"{name} has mixed {column}")
+    for column in ("config_hash", "lever_env"):
+        if allow_season_config:
+            counts = rows.groupby("season")[column].apply(
+                lambda values: values.fillna("").astype(str).nunique(
+                    dropna=False))
+            if not counts.eq(1).all():
+                failures.append(f"{name} has mixed {column} within a season")
+        elif rows[column].fillna("").astype(str).nunique(dropna=False) != 1:
             failures.append(f"{name} has mixed {column}")
     if expected_code_sha is not None and not rows.code_sha.astype(str).eq(
             expected_code_sha).all():
