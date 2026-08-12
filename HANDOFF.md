@@ -171,15 +171,21 @@ and must not be staged or modified.
   build the dedicated GPU image from that exact tree, then launch both cache
   arms asynchronously while the six fitted-K season jobs continue.
   Implementation commit `82619ed` is pushed. Dedicated GPU Cloud Build
-  `854ef4b7-d0f9-49e4-be80-c939e6e7389c` is running for the exact image tree.
+  `854ef4b7-d0f9-49e4-be80-c939e6e7389c` passed and published immutable image
+  digest `sha256:1e6a57f60c962f155c227e3fa6b3e3691d10752935401b906a0f5db53b3f2d8a`.
   A separate immutable-result harvester/validator now checks the two Cloud Run
   reports, same source/code/feature/hyperparameter identity, exact 52,307-key
   equality, finite ordered quantiles, treatment removal of every inactive
   context label, and an actual prediction change before licensing the later
   final-served stage. Thirty-six focused tests pass after adding the validator;
-  its Python compile and shell parsing are clean. Next action: commit/push the
-  validator, wait for the build digest, launch both GPU arms with code identity
-  `82619ed`, and record their execution IDs.
+  its Python compile and shell parsing are clean. Validator commit `f249225`
+  is pushed. Both same-image cache arms are now running: current-label control
+  `tabpfn-active-ctl-gh6f4` and active-only treatment
+  `tabpfn-active-trt-lj66c`. Their immutable manifest is tracked under
+  `reports/tabpfn-active-label-runs/20260811-tabpfn-active-label-v1/`. Next
+  action: monitor both to clean completion, run the one mechanical harvester,
+  and commit its reports/validation. Do not run final-served comparison until
+  the fitted-K decision fixes the common simulator law.
 
 ### Final-served position calibration passed, promoted, and adopted
 
