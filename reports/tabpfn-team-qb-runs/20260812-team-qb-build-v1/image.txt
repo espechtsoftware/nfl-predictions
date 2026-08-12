@@ -1,0 +1,6 @@
+source_commit=301bc94
+full_build_id=1f12be5d-df17-4757-b363-7e9a1cef3025
+full_image_tag=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:team-qb-301bc94
+gpu_build_id=e303764a-5371-41a7-a5f0-c6c630b971ec
+gpu_image_tag=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/tabpfn-team-qb:301bc94
+status=running

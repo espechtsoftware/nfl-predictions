@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 09:29 CDT
+## Current state — 2026-08-12 09:32 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -444,6 +444,13 @@ and must not be staged or modified.
   feature/leakage/team-QB tests pass with one expected skip. No side table or
   cache has been built and no result has been inspected; immutable image
   builds and execution remain downstream of the active-label/SCHED decisions.
+- Exact-tree team-QB source `301bc94` is now building in parallel. Full audit
+  build `1f12be5d-df17-4757-b363-7e9a1cef3025` must pass the complete suite;
+  GPU generator build `e303764a-5371-41a7-a5f0-c6c630b971ec` must also pass.
+  Their tags and pending status are tracked under
+  `reports/tabpfn-team-qb-runs/20260812-team-qb-build-v1/image.txt`. Record
+  immutable digests only after terminal success; do not launch the side-table
+  or cache stages from mutable tags.
 - Served-position v2 execution `served-position-calibration-pit-v2-zmm6s`
   completed cleanly and passes every frozen score-free gate. Its unrounded
   treatment factors are `QB=0.975,RB=1.0,TE=0.955,WR=1.075`; aggregate
