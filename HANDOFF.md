@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 08:40 CDT
+## Current state — 2026-08-12 08:47 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -411,6 +411,17 @@ and must not be staged or modified.
   B only on a passing position gate (otherwise write the identity fallback)
   and launch fitted-usage exact-80 only on a passing likelihood gate
   (otherwise write the multinomial fallback).
+- Fitted-usage execution `usage-dirichlet-calibration-pit-v2-g9hhw`
+  completed cleanly and its harvested score-free report passes every frozen
+  gate. The selected unrounded concentration is
+  `K=28.154043586960896`; aggregate held-out mean NLL per group improves
+  `14.2216508181 -> 13.3257002097`, targets and carries both improve, and all
+  three evaluation seasons improve. The clustered 95% interval for fitted
+  minus multinomial is `[-1.0051, -0.7946]`. This licenses exactly one fitted-K
+  exact-80 comparison, but its frozen launcher must wait for terminal
+  `selected_position.txt`; do not launch it against an unresolved position
+  law. Position execution `served-position-calibration-pit-v2-zmm6s` remains
+  running.
 - The licensed PIT-v2 served-position Stage B is implemented before its
   score-free refit result is known. It derives the selected full panel, K1/K3
   law, role/no-role candidate law, and unrounded four-factor specification;
