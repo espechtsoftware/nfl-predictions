@@ -21,12 +21,27 @@ tw AS (
     FROM pw
   )
   GROUP BY team, season, week
+),
+with_upcoming AS (
+  SELECT * FROM tw
+  UNION ALL
+  SELECT DISTINCT
+    ro.team, ro.season, ro.week,
+    CAST(NULL AS INT64) AS team_targets,
+    CAST(NULL AS INT64) AS top2_targets
+  FROM `${features}.player_week_role` ro
+  WHERE ro.is_upcoming
+    AND NOT EXISTS (
+      SELECT 1 FROM tw prior
+      WHERE prior.team = ro.team AND prior.season = ro.season
+        AND prior.week = ro.week
+    )
 )
 SELECT
   team, season, week,
   SAFE_DIVIDE(SUM(top2_targets) OVER w, SUM(team_targets) OVER w)
     AS top2_target_share_l6
-FROM tw
+FROM with_upcoming
 WINDOW w AS (
   PARTITION BY team ORDER BY season, week
   ROWS BETWEEN 6 PRECEDING AND 1 PRECEDING

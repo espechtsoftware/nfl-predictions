@@ -15,11 +15,26 @@ WITH plays AS (
 tw AS (
   SELECT team, season, week, SUM(blitzed) AS b, COUNT(*) AS n
   FROM plays GROUP BY team, season, week
+),
+with_upcoming AS (
+  SELECT * FROM tw
+  UNION ALL
+  SELECT DISTINCT
+    ro.team, ro.season, ro.week,
+    CAST(NULL AS INT64) AS b,
+    CAST(NULL AS INT64) AS n
+  FROM `${features}.player_week_role` ro
+  WHERE ro.is_upcoming
+    AND NOT EXISTS (
+      SELECT 1 FROM tw prior
+      WHERE prior.team = ro.team AND prior.season = ro.season
+        AND prior.week = ro.week
+    )
 )
 SELECT
   team, season, week,
   SAFE_DIVIDE(SUM(b) OVER w, SUM(n) OVER w) AS blitz_rate_l6
-FROM tw
+FROM with_upcoming
 WINDOW w AS (
   PARTITION BY team ORDER BY season, week
   ROWS BETWEEN 6 PRECEDING AND 1 PRECEDING

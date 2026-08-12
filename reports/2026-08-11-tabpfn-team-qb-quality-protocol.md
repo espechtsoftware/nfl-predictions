@@ -46,6 +46,12 @@ contribute, historical parity tests when an upcoming null row is appended, and
 coverage reporting by season and position. Do not use depth-chart hindsight or
 choose a primary QB for the target week; the signal is deliberately team-level.
 
+The cache report must also stratify the existing QB-only `qb_cpoe_l6` support
+and treatment behavior by active status and feature presence. The generator
+passes NaNs directly to TabPFN and performs no imputation, so this is a sparse-
+support/proxy diagnostic only; it does not authorize filling, dropping or
+broadcasting the existing field.
+
 ## Frozen cache arms
 
 Both arms use the same immutable GPU image/code, inherited label and feature

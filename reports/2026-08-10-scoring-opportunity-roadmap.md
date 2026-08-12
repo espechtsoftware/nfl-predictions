@@ -14,6 +14,15 @@ an upper-tail QB bi-factor copula is conditional on that evidence. Participation
 embeddings are exploratory, the field-neighbourhood graph waits for complete
 2026 standings/payout ladders, and Neo4j/GNN/LLM projection work is not queued.
 
+Point-in-time addendum (2026-08-11): the latest static join/accuracy review is
+reconciled in `reports/2026-08-11-pit-join-audit-reconciliation.md`. Four
+candidate team-context tables require live upcoming rows, the modeled defense
+position aggregation must use exact player-week positions, and dynamic
+source-recomputed leakage checks need staged expansion by feature family.
+Those plumbing repairs precede any candidate promotion and the next normal
+feature rebuild; they do not reorder the frozen active-label → SCHED → team-QB
+marginal sequence.
+
 ## Evidence that sets the priorities
 
 - The accepted true-80 book clears 200 on 18/107 slates, 210 on 11, and 220

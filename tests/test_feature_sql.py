@@ -166,6 +166,29 @@ def test_adopted_context_features_emit_upcoming_inference_rows():
     assert "CAST(NULL AS FLOAT64) AS cpoe" in ngs
 
 
+def test_candidate_team_context_features_emit_upcoming_inference_rows():
+    for name in (
+        "017e_team_pace.sql",
+        "017f_opp_blitz.sql",
+        "017g_target_concentration.sql",
+        "017i_ftn_offense.sql",
+    ):
+        sql = (SQL_DIR / "features" / name).read_text()
+        assert "`${features}.player_week_role`" in sql
+        assert "is_upcoming" in sql
+        assert "NOT EXISTS" in sql
+        assert "UNION ALL" in sql
+
+
+def test_modeled_defense_position_is_exact_player_week():
+    modeled = (
+        SQL_DIR / "features" / "017_defense_week_allowed.sql"
+    ).read_text()
+    assert "position_week AS" in modeled
+    assert "pm.week = a.week" in modeled
+    assert "ANY_VALUE(position HAVING MAX week)" not in modeled
+
+
 @pytest.mark.parametrize("path", FEATURE_SQL, ids=lambda p: p.name)
 def test_renders_without_unresolved_placeholders(path):
     sql = render_sql(path, prior_k=4)

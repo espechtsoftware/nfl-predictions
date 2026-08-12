@@ -6,6 +6,7 @@ import pytest
 
 from nfl_dfs.features.leakage import (
     assert_dst_actual_universe_reconciled,
+    assert_upcoming_context_rows_reconciled,
     HISTORICAL_ROSTER_GAP_SQL,
     LeakageError,
     assert_first_game_features_null,
@@ -147,6 +148,16 @@ def test_dst_actual_universe_gate_rejects_missing_team_weeks():
     ])
     with pytest.raises(LeakageError, match="team_defense_week"):
         assert_dst_actual_universe_reconciled(gaps)
+
+
+def test_upcoming_context_gate_rejects_missing_exact_week_rows():
+    assert_upcoming_context_rows_reconciled(pd.DataFrame())
+    gaps = pd.DataFrame([{
+        "source_table": "team_week_target_concentration",
+        "season": 2026, "week": 1, "team": "DET",
+    }])
+    with pytest.raises(LeakageError, match="serve candidate features as NULL"):
+        assert_upcoming_context_rows_reconciled(gaps)
 
 
 def test_salary_universe_reconciliation():

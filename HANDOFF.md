@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 21:11 CDT
+## Current state — 2026-08-11 21:17 CDT
 
 Active branch is `main`; final-served Route diagnostic implementation commit
 `d5e74c0` is pushed. The position-calibration result, research promotion,
@@ -31,13 +31,16 @@ diagnostic implementation commit `5aee8aa` and negative result commit
 The program-review reconciliation is finalized in this milestone.
 The paired Route Share live-shadow implementation commit `9e34565` and its
 Thursday post-download scheduler follow-up `b6dbc5e` are also pushed on
-`main`. The six operator-supplied outside-review documents
+`main`. Comparator-only fitted-K gate repair commit `079de22` is pushed. The
+ten operator-supplied outside-review documents
 `reports/2026-08-10-scoring-strategy-recommendations.md`,
 `reports/2026-08-11-deep-analysis-calibration-and-data-audit.md`,
+`reports/2026-08-11-end-of-program-forensic-analysis-plan.md`,
 `reports/2026-08-11-fantasy-points-data-utilization.md`,
 `reports/2026-08-11-feature-plumbing-defects-and-correlation-gaps.md`,
 `reports/2026-08-11-graph-clustering-and-technology-options.md`,
 `reports/2026-08-11-graph-queue-review-notes.md`,
+`reports/2026-08-11-pit-join-and-accuracy-code-audit.md`,
 `reports/2026-08-11-post-window-program-review.md`, and
 `reports/2026-08-11-recommendation-scoreboard-and-pivot.md` remain untracked
 and must not be staged or modified.
@@ -168,9 +171,38 @@ and must not be staged or modified.
   exactly those seven registered downstream outputs and fails if the set
   drifts; it does not alter either existing book, K, sources, selectors or the
   frozen tail-first law. Twenty-three focused usage/position/tail/calibration
-  tests pass.
-  Next action: commit/push the invalid artifact and guard repair, build one
-  immutable image, then rerun the comparator against the unchanged books.
+  tests pass. Repair commit `079de22` is pushed. Regional Cloud Build
+  `2050f11d-4a5c-41f9-be68-265d6a02eb39` is currently validating and
+  publishing comparator tag `comparator-079de22`; it was still `WORKING` at
+  21:17 CDT. Next action: after that build passes, resolve its immutable
+  digest and rerun the frozen comparator against the unchanged books without
+  inspecting intermediate scores. The result fixes the common simulator law
+  for the already-built active-label final-served gate.
+- The operator-supplied point-in-time/join audit is reconciled in tracked
+  `reports/2026-08-11-pit-join-audit-reconciliation.md`. It correctly found
+  that `team_week_pace`, `defense_week_blitz`,
+  `team_week_target_concentration`, and `team_week_ftn_offense` lacked target
+  rows for exact-week live inference. The local repair appends only null
+  upcoming observations before each strictly-prior window and adds a
+  mandatory post-build reconciliation query across all four tables. It also
+  replaces season-final roster position with exact player-week position in
+  the modeled defense aggregation. The audit's claim that Week-18 position
+  directly overwrote the player model feature is too broad: that feature is
+  sourced from the exact salary/player week, while the genuine leak was the
+  opponent positional-defense aggregate. Outcome-free warehouse counts found
+  403 exact-week/final-season position differences over 2019--2025, with
+  annual incidence 0.11%--0.64%; nine otherwise missing rows were zero-point,
+  unsalaried 2020 records from one unrostered ID. Its “7 of 54” leakage-check
+  count also omits existing defense-EPA recomputations, first-row invariants,
+  Route source-order checking and static SQL-window guards, though broader
+  source-family dynamic recomputation remains valid queued work. The sparse
+  `qb_cpoe_l6` diagnostic is added to the already-frozen team-QB protocol; the
+  generator passes NaNs directly and has no imputation path. All five changed
+  SQL files dry-run against live BigQuery schemas; focused feature/leakage
+  tests pass, Python compiles, and `git diff --check` is clean. Do not rebuild
+  the warehouse mid-panel. Commit/push this repair, validate its exact tree in
+  Cloud Build, then apply it only in the next coordinated feature rebuild with
+  historical key/delta checks and full retraining.
 - A separate code audit found that `scripts/tabpfn_gen/gen.py` does not apply
   the component path's `active_training_rows` safeguard. The current training
   table contains 6,202/6,041/6,130/6,021 synthetic inactive zero labels in

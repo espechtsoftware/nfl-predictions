@@ -75,6 +75,19 @@ def assert_dst_actual_universe_reconciled(gaps: pd.DataFrame) -> None:
         )
 
 
+def assert_upcoming_context_rows_reconciled(gaps: pd.DataFrame) -> None:
+    """Every post-game-only candidate table must emit its live target row."""
+    if not gaps.empty:
+        cols = [c for c in (
+            "source_table", "season", "week", "team",
+        ) if c in gaps.columns]
+        sample = gaps[cols].head(25).to_string(index=False)
+        raise LeakageError(
+            f"{len(gaps)} upcoming team-context rows are absent. Exact-week "
+            f"inference would serve candidate features as NULL. Sample:\n{sample}"
+        )
+
+
 def trailing_mean_excluding_current(
     df: pd.DataFrame,
     value_col: str,
@@ -440,6 +453,36 @@ ORDER BY e.season, e.week, e.team
 """
 
 
+UPCOMING_CONTEXT_GAP_SQL = """
+WITH spine AS (
+  SELECT DISTINCT team, season, week
+  FROM `{features}.player_week_role`
+  WHERE is_upcoming
+), gaps AS (
+  SELECT 'team_week_pace' AS source_table, s.*
+  FROM spine s LEFT JOIN `{features}.team_week_pace` t
+    USING (team, season, week)
+  WHERE t.team IS NULL
+  UNION ALL
+  SELECT 'defense_week_blitz', s.*
+  FROM spine s LEFT JOIN `{features}.defense_week_blitz` t
+    USING (team, season, week)
+  WHERE t.team IS NULL
+  UNION ALL
+  SELECT 'team_week_target_concentration', s.*
+  FROM spine s LEFT JOIN `{features}.team_week_target_concentration` t
+    USING (team, season, week)
+  WHERE t.team IS NULL
+  UNION ALL
+  SELECT 'team_week_ftn_offense', s.*
+  FROM spine s LEFT JOIN `{features}.team_week_ftn_offense` t
+    USING (team, season, week)
+  WHERE t.team IS NULL
+)
+SELECT * FROM gaps ORDER BY source_table, season, week, team
+"""
+
+
 DEFENSE_L6_FEATURES = ["epa_per_dropback_allowed_l6", "epa_per_rush_allowed_l6"]
 DEFENSE_SOURCE_COLS = ["epa_per_dropback_allowed", "epa_per_rush_allowed"]
 DEFENSE_ADJ_FEATURES = [
@@ -531,6 +574,9 @@ def run_leakage_checks() -> None:
         features=settings.features, raw=settings.raw,
         first_season=settings.first_season))
     assert_dst_actual_universe_reconciled(dst_gaps)
+    upcoming_gaps = query_df(UPCOMING_CONTEXT_GAP_SQL.format(
+        features=settings.features))
+    assert_upcoming_context_rows_reconciled(upcoming_gaps)
 
     # Defense features: same discipline, team grain. EPA-allowed is
     # recomputed per-week from raw pbp on a deterministic team sample and

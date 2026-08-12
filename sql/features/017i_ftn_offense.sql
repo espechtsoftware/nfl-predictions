@@ -27,17 +27,46 @@ def_tw AS (
   SELECT defteam AS team, season, week, SUM(pressured) AS pr, COUNT(*) AS n
   FROM plays WHERE defteam IS NOT NULL GROUP BY defteam, season, week
 ),
+upcoming AS (
+  SELECT DISTINCT team, season, week
+  FROM `${features}.player_week_role`
+  WHERE is_upcoming
+),
+off_tw_with_upcoming AS (
+  SELECT * FROM off_tw
+  UNION ALL
+  SELECT u.team, u.season, u.week,
+         CAST(NULL AS INT64) AS pa, CAST(NULL AS INT64) AS n
+  FROM upcoming u
+  WHERE NOT EXISTS (
+    SELECT 1 FROM off_tw prior
+    WHERE prior.team = u.team AND prior.season = u.season
+      AND prior.week = u.week
+  )
+),
+def_tw_with_upcoming AS (
+  SELECT * FROM def_tw
+  UNION ALL
+  SELECT u.team, u.season, u.week,
+         CAST(NULL AS INT64) AS pr, CAST(NULL AS INT64) AS n
+  FROM upcoming u
+  WHERE NOT EXISTS (
+    SELECT 1 FROM def_tw prior
+    WHERE prior.team = u.team AND prior.season = u.season
+      AND prior.week = u.week
+  )
+),
 off_roll AS (
   SELECT team, season, week,
          SAFE_DIVIDE(SUM(pa) OVER w, SUM(n) OVER w) AS pa_rate_l6
-  FROM off_tw
+  FROM off_tw_with_upcoming
   WINDOW w AS (PARTITION BY team ORDER BY season, week
                ROWS BETWEEN 6 PRECEDING AND 1 PRECEDING)
 ),
 def_roll AS (
   SELECT team, season, week,
          SAFE_DIVIDE(SUM(pr) OVER w, SUM(n) OVER w) AS def_pressure_rate_l6
-  FROM def_tw
+  FROM def_tw_with_upcoming
   WINDOW w AS (PARTITION BY team ORDER BY season, week
                ROWS BETWEEN 6 PRECEDING AND 1 PRECEDING)
 )

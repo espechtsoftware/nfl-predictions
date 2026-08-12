@@ -3,7 +3,19 @@
 -- points allowed are expressed relative to what those offenses scored
 -- against everyone else (a simple two-pass adjustment).
 CREATE OR REPLACE TABLE `${features}.defense_week_allowed` AS
-WITH def_games AS (
+WITH position_week AS (
+  -- Exact player-week position only. A season-final position leaks future
+  -- RB/FB or WR/TE reclassifications into early-week positional concessions.
+  SELECT gsis_id, CAST(season AS INT64) AS season,
+         CAST(week AS INT64) AS week, UPPER(position) AS position
+  FROM `${raw}.rosters_weekly`
+  WHERE gsis_id IS NOT NULL AND position IS NOT NULL
+  QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY gsis_id, CAST(season AS INT64), CAST(week AS INT64)
+    ORDER BY UPPER(position)
+  ) = 1
+),
+def_games AS (
   SELECT
     defteam AS team, season, week, game_id,
     AVG(IF(qb_dropback = 1, epa, NULL)) AS epa_per_dropback_allowed,
@@ -27,11 +39,8 @@ pos_allowed AS (
   FROM `${features}.player_week_actuals` a
   JOIN `${features}.schedule_long` s
     ON s.team = a.team AND s.season = a.season AND s.week = a.week
-  JOIN (
-    SELECT gsis_id, season, ANY_VALUE(position HAVING MAX week) AS position
-    FROM `${raw}.rosters_weekly` WHERE gsis_id IS NOT NULL
-    GROUP BY gsis_id, season
-  ) pm ON pm.gsis_id = a.gsis_id AND pm.season = a.season
+  JOIN position_week pm
+    ON pm.gsis_id = a.gsis_id AND pm.season = a.season AND pm.week = a.week
   WHERE pm.position IN ('QB', 'RB', 'WR', 'TE')
   GROUP BY 1, 2, 3, 4
 ),
@@ -43,11 +52,8 @@ off_week AS (
   SELECT a.team, a.season, a.week, pm.position,
          SUM(a.dk_points) AS pos_dk_points
   FROM `${features}.player_week_actuals` a
-  JOIN (
-    SELECT gsis_id, season, ANY_VALUE(position HAVING MAX week) AS position
-    FROM `${raw}.rosters_weekly` WHERE gsis_id IS NOT NULL
-    GROUP BY gsis_id, season
-  ) pm ON pm.gsis_id = a.gsis_id AND pm.season = a.season
+  JOIN position_week pm
+    ON pm.gsis_id = a.gsis_id AND pm.season = a.season AND pm.week = a.week
   WHERE pm.position IN ('QB', 'RB', 'WR', 'TE')
   GROUP BY 1, 2, 3, 4
 ),
