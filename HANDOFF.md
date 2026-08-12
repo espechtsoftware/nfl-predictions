@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 09:50 CDT
+## Current state — 2026-08-12 10:51 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -513,6 +513,20 @@ and must not be staged or modified.
   inspect the six IDs above, run
   `cloud_finish_served_position_stage_b_v2.sh` after clean completion, then
   `prop_lock_usage_dirichlet_exact80_v2.sh` if the position finisher succeeds.
+- All six position Stage B seasons completed cleanly at 18/18 slates and exact
+  80 selections. Control/treatment acceptance checks
+  `accept-replay-panel-b5dc2`/`accept-replay-panel-ghfw2` passed; comparator
+  `compare-served-position-stage-b-v2-vlgk2` passed; treatment promotion
+  `accept-replay-panel-zxcvx` passed. The treatment wins at the first nonzero
+  tail threshold: full 107-week 240/230/220/210 counts tie `2/2/3/5`, while
+  >=200 improves `13 -> 14`; >=194 improves `24 -> 26`, >=187 moves
+  `38 -> 37`, and mean weekly max improves `177.7579 -> 177.9486`.
+  The selected research position law is therefore
+  `QB:0.975,RB:1.0,TE:0.955,WR:1.075`, durably written to
+  `reports/served-position-calibration-runs/20260812-served-position-stage-b-v2-pit-clean/selected_position.txt`.
+  The licensed fitted-K usage launcher immediately started control smoke
+  `replay-pitusev2ctl-smoke-wws77`; it inherits this selected position law,
+  exact K1/direct-role lineage and the canonical PIT-v2 cache.
 - The licensed PIT-v2 served-position Stage B is implemented before its
   score-free refit result is known. It derives the selected full panel, K1/K3
   law, role/no-role candidate law, and unrounded four-factor specification;

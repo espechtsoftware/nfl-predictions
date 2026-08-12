@@ -1,0 +1,8 @@
+selected_base=k1
+source_panel=20260811-pitclean-e80-k1-role12union-a12ab31
+role_selected=true
+position_selected=true
+selected_eval_panel=20260812-pitclean-e80-selected-position-scales-v2
+served_position_scales=QB:0.975,RB:1.0,TE:0.955,WR:1.075
+comparison_execution=compare-served-position-stage-b-v2-vlgk2
+comparison_sha256=bff58f754210627b78bf9c1a0002e35283bc929c8f48ac48771a5df69a11896a
