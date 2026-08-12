@@ -1,0 +1,21 @@
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ad50fe19bde366ca11180b561127b09e2c79c97ec7dbbd5507282e33d2d5eb62
+family=pitk1
+panel_run_id=20260811-pitclean-e80-k1-a12ab31
+code_sha=a12ab31
+seasons=2019 2021 2022 2023 2024 2025
+arm_label=pit_clean_k1
+arm_env=TABPFN_MARGINALS=1|TABPFN_MARGINAL_TABLE=tabpfn_projections_pit_v2|MODEL_ENSEMBLE=1
+memory=16Gi
+task_timeout=14400
+smoke_season=2024
+n_entries=80
+n_ce=0
+n_epistemic=0
+n_gumbel=0
+n_boom=40
+arm_env_2019=
+arm_env_2021=
+arm_env_2022=
+arm_env_2023=
+arm_env_2024=
+arm_env_2025=

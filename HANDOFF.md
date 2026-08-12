@@ -317,6 +317,17 @@ and must not be staged or modified.
   image and rechecks the reconciled training table's 102,927 keys/rows and
   checksum `1904430067081090565` immediately before launch. This retains the
   original score-free estimator/gate while preventing stale-table reuse.
+- Exact-80 repaired Tier-1 launch is in progress from the frozen `ad50...`
+  generation digest. K3 smoke `replay-pitk3-smoke-5strh` succeeded with exact
+  canonical-v2 cache coverage; six K3 executions are now running: 2019
+  `replay-pitk3-2019-bfwz5`, 2021 `replay-pitk3-2021-qr5cs`, 2022
+  `replay-pitk3-2022-hm74l`, 2023 `replay-pitk3-2023-724d6`, 2024
+  `replay-pitk3-2024-97p5d`, and 2025 `replay-pitk3-2025-dh9nh`. K1 smoke
+  `replay-pitk1-smoke-t4mp6` is running; the launcher will release its six
+  seasons only on a clean preflight. Manifests are under the exact panel IDs
+  in `reports/panel-runs/`. Do not inspect partial scores; next action is to
+  finish the K1 launch, wait for all 12 seasons, then run the frozen control
+  finisher with audit digest `cc82...`.
 
 ### Validated production rollout completed; Route diagnostic ready
 
