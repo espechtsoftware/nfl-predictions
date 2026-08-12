@@ -178,8 +178,11 @@ reconciliation when their findings affect the program.
   portfolio and are explicitly descriptive—not an outcome-based selector.
   `tests/test_app.py` passes completely; Python compilation, HTML/JS-source
   assertions, and a headless Chromium render/click smoke passed. This UI
-  milestone is committed but not yet deployed; do not mix a web-service
-  rollout into the still-running SCHED research execution.
+  milestone is pushed on `main` as commit `8e82c92`. Exact-tree full-test
+  Cloud Build `cd622cbb-0590-41e8-aec5-7fb49af51658` is running and targets
+  immutable-ready tag `nfl-dfs:ui-portfolio-8e82c92`; it has not been
+  deployed. Wait for a clean build and immutable digest, and do not mix a
+  web-service image switch into the still-running SCHED research execution.
 
 ### Critical pre-launch PIT repair — stale active-label caches blocked
 
