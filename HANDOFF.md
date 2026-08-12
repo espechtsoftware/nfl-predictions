@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 21:03 CDT
+## Current state — 2026-08-11 21:11 CDT
 
 Active branch is `main`; final-served Route diagnostic implementation commit
 `d5e74c0` is pushed. The position-calibration result, research promotion,
@@ -155,9 +155,22 @@ and must not be staged or modified.
   making all six fixed season executions successful. Treatment check-only
   acceptance execution `accept-replay-panel-k6lgb` then passed the complete
   54-slate exact-80 treatment in 3m00s; its execution identity and acceptance
-  log are tracked in the treatment manifest directory. Next action: commit
-  this acceptance milestone and execute the frozen comparator once. Do not
-  inspect or act on lineup scores before that comparator.
+  log are tracked in the treatment manifest directory. First comparator
+  execution `compare-usage-dirichlet-exact80-cfvdb` returned `invalid` before
+  computing any threshold/weekly-score report: its inherited feature gate
+  incorrectly required distribution-derived `proj`, p10/p50/p90/std,
+  `proj_tourney`, and `own_est` to remain fixed even though usage allocation
+  is intended to change those fields. Keys, actuals, salaries, all
+  point-in-time inputs, market/model values, ensemble points and
+  `mean_projection` are invariant; candidate actuals and common simulated
+  means also pass. The invalid artifacts are preserved with
+  `invalid_feature_gate` filenames. A comparator-only repair now excludes
+  exactly those seven registered downstream outputs and fails if the set
+  drifts; it does not alter either existing book, K, sources, selectors or the
+  frozen tail-first law. Twenty-three focused usage/position/tail/calibration
+  tests pass.
+  Next action: commit/push the invalid artifact and guard repair, build one
+  immutable image, then rerun the comparator against the unchanged books.
 - A separate code audit found that `scripts/tabpfn_gen/gen.py` does not apply
   the component path's `active_training_rows` safeguard. The current training
   table contains 6,202/6,041/6,130/6,021 synthetic inactive zero labels in

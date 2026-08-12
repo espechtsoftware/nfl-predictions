@@ -79,6 +79,7 @@ def main() -> int:
                 args.treatment,
                 left_promoted=False,
                 right_promoted=False,
+                ignored_numeric_fields=experiment.DISTRIBUTION_DERIVED_FEATURES,
             ),
             "source_control_candidates": _candidate_audit(
                 args.evaluation_source,

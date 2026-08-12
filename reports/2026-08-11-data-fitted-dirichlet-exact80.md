@@ -70,9 +70,13 @@ Dirichlet mode only in treatment, and equality of every other persisted lever.
    season books of 80 selected lineups per slate. Candidate acceptance is
    check-only before comparison.
 3. Control must reproduce all 54 accepted-source evaluation weekly maxima and
-   the accepted candidate pool. Source/control and control/treatment player
-   snapshots must have identical keys, actuals, features, market values,
-   marginal summaries and means within registered storage tolerances.
+   the accepted candidate pool. Source/control player snapshots must be fully
+   identical. Control/treatment snapshots must have identical keys, actuals,
+   point-in-time inputs, market/model values, ensemble points and
+   pre-simulation means within registered storage tolerances. The following
+   seven distribution-derived fields are expected treatment outputs and are
+   excluded from that invariance comparison only: `proj`, `proj_tourney`,
+   `own_est`, `proj_p10`, `proj_p50`, `proj_p90`, and `proj_std`.
 4. Shared candidate actuals must be exact and shared simulated means must be
    within the existing `1e-4` tolerance. Seeds must be identical.
 5. Treatment must change candidate membership on at least one slate, proving
@@ -102,4 +106,25 @@ operator's standing objective.
 
 No K adjustment, target/carry-specific concentration, selector line, candidate
 budget, seed, season exclusion, or second historical retry may follow this
+result.
+
+## Comparator-only repair before a score decision
+
+First comparator execution `compare-usage-dirichlet-exact80-cfvdb` exited
+invalid before creating any threshold, weekly-score or position-contribution
+report. Its guard had inherited the position-scale experiment's requirement
+that marginal summaries remain identical. That requirement is inapplicable to
+this mechanism: changing target/carry allocation is intended to change player
+marginal widths and tails; p90 punt valuation then changes `proj`, and the
+naive ownership proxy and tournament objective change downstream.
+
+The invalid execution proved that every upstream field is invariant: keys,
+actuals, salaries, point-in-time features, market/model values, ensemble
+points and `mean_projection` match, while differences are confined to the
+seven fields registered in gate 3. The invalid report and execution are
+preserved under filenames containing `invalid_feature_gate`. The repair only
+excludes those seven outputs from the control/treatment input-invariance
+check, requires that exact exclusion set mechanically, and leaves the existing
+books, K, sources, candidate and score gates unchanged. A new immutable image
+and comparator execution are required; the failed report is not a scientific
 result.

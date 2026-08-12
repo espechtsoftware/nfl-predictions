@@ -29,6 +29,21 @@ K_REPORT_SHA256 = (
     "7fd2a735d22294a9f75469eda4ce5230c9e20b52620bbb0bb0d01e5a478a6996"
 )
 
+# These persisted player fields are outputs of the allocation mechanism, not
+# invariant inputs. Dirichlet target/carry allocation is supposed to change
+# each player's simulated marginal width/tail. Punt valuation then reads p90,
+# and naive ownership reads that valuation, so all seven change downstream
+# while the pre-simulation mean and every point-in-time input remain fixed.
+DISTRIBUTION_DERIVED_FEATURES = (
+    "proj",
+    "proj_tourney",
+    "own_est",
+    "proj_p10",
+    "proj_p50",
+    "proj_p90",
+    "proj_std",
+)
+
 
 def _frozen_levers() -> dict[str, str]:
     return {
@@ -110,6 +125,12 @@ def mechanism_failures(
                 failures.append(f"{name} player snapshots differ in {field}")
         if float(audit.get("max_numeric_abs_delta", 0.0)) > 1e-12:
             failures.append(f"{name} player snapshot numeric values differ")
+    ignored = set(control_treatment_features.get(
+        "ignored_numeric_fields", ()))
+    if ignored != set(DISTRIBUTION_DERIVED_FEATURES):
+        failures.append(
+            "control/treatment invariance did not exclude exactly the "
+            "registered distribution-derived fields")
 
     for name, audit in (
         ("source/control", source_control_candidates),
@@ -142,6 +163,7 @@ def mechanism_failures(
 __all__ = [
     "CANDIDATE_MEAN_ATOL",
     "CONTROL_PANEL",
+    "DISTRIBUTION_DERIVED_FEATURES",
     "EVALUATION_SEASONS",
     "EVALUATION_SOURCE_CODE_SHA",
     "EVALUATION_SOURCE_PANEL",

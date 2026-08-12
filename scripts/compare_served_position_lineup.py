@@ -38,13 +38,14 @@ def _feature_invariance(
     *,
     left_promoted: bool,
     right_promoted: bool,
+    ignored_numeric_fields: tuple[str, ...] = (),
 ) -> dict:
     """Compare every persisted player input except run/code identity."""
     exact_fields = (
         "gsis_id", "name", "pos", "team", "opp", "game_id",
         "is_cold_start", "feature_missing", "model_member_spec",
     )
-    numeric_fields = (
+    all_numeric_fields = (
         "salary", "proj", "proj_tourney", "own_est", "consensus_div",
         "market_points", "model_points_pre", "mean_projection",
         "proj_p10", "proj_p50", "proj_p90", "proj_std",
@@ -57,6 +58,12 @@ def _feature_invariance(
         "games_played_prior", "actual", "ensemble_point_0",
         "ensemble_point_1", "ensemble_point_2", "model_ensemble_size",
     )
+    ignored = set(ignored_numeric_fields)
+    unknown = ignored - set(all_numeric_fields)
+    if unknown:
+        raise ValueError(f"unknown ignored numeric fields: {sorted(unknown)}")
+    numeric_fields = tuple(
+        field for field in all_numeric_fields if field not in ignored)
     checks = [f"l.{field} IS DISTINCT FROM r.{field}" for field in exact_fields]
     checks.extend(
         f"((l.{field} IS NULL) != (r.{field} IS NULL) OR "
@@ -103,6 +110,7 @@ def _feature_invariance(
     }
     report["max_numeric_abs_delta"] = float(
         row.max_numeric_abs_delta or 0.0)
+    report["ignored_numeric_fields"] = sorted(ignored)
     return report
 
 

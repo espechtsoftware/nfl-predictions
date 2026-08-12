@@ -31,8 +31,8 @@ def _provenance(kind: str, code: str) -> pd.DataFrame:
     }])
 
 
-def _features() -> dict:
-    return {
+def _features(*, distribution_outputs: bool = False) -> dict:
+    report = {
         "left_rows": 100,
         "right_rows": 100,
         "left_only_rows": 0,
@@ -40,6 +40,10 @@ def _features() -> dict:
         "mismatch_rows": 0,
         "max_numeric_abs_delta": 0.0,
     }
+    if distribution_outputs:
+        report["ignored_numeric_fields"] = list(
+            lineup.DISTRIBUTION_DERIVED_FEATURES)
+    return report
 
 
 def _candidates(*, changed: bool = False) -> dict:
@@ -62,7 +66,7 @@ def test_mechanism_accepts_exact_fitted_k_as_only_change():
         control,
         treatment,
         _features(),
-        _features(),
+        _features(distribution_outputs=True),
         _candidates(),
         _candidates(changed=True),
         {"paired_slates": 54, "weekly_max_mismatches": 0},
@@ -81,7 +85,7 @@ def test_mechanism_rejects_wrong_k_and_silent_noop():
         control,
         treatment,
         _features(),
-        _features(),
+        _features(distribution_outputs=True),
         _candidates(),
         _candidates(changed=False),
         {"paired_slates": 54, "weekly_max_mismatches": 0},
@@ -101,13 +105,32 @@ def test_mechanism_rejects_unregistered_second_change():
         control,
         treatment,
         _features(),
-        _features(),
+        _features(distribution_outputs=True),
         _candidates(),
         _candidates(changed=True),
         {"paired_slates": 54, "weekly_max_mismatches": 0},
         experiment_code_sha="new",
     )
     assert "treatment changes replay levers beyond fitted usage K" in failures
+
+
+def test_mechanism_rejects_unregistered_invariance_exclusions():
+    source = _provenance("source", lineup.EVALUATION_SOURCE_CODE_SHA)
+    control = _provenance("control", "new")
+    treatment = _provenance("treatment", "new")
+    failures = lineup.mechanism_failures(
+        source,
+        control,
+        treatment,
+        _features(),
+        _features(),
+        _candidates(),
+        _candidates(changed=True),
+        {"paired_slates": 54, "weekly_max_mismatches": 0},
+        experiment_code_sha="new",
+    )
+    assert any("registered distribution-derived fields" in f
+               for f in failures)
 
 
 def test_fitted_k_comparator_and_runners_are_packaged():

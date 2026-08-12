@@ -1,0 +1,340 @@
+[
+  {
+    "jsonPayload": {
+      "control": "20260811-lockfix-e80-k1-role12-poscal-usage-control-v1",
+      "control_generator_summary": [
+        {
+          "candidates": 2160,
+          "exclusive_candidates": 2160,
+          "generator": "boom",
+          "selected": 1861
+        },
+        {
+          "candidates": 429,
+          "exclusive_candidates": 349,
+          "generator": "dark",
+          "selected": 272
+        },
+        {
+          "candidates": 765,
+          "exclusive_candidates": 0,
+          "generator": "epi",
+          "selected": 399
+        },
+        {
+          "candidates": 439,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_draw",
+          "selected": 371
+        },
+        {
+          "candidates": 100,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:1",
+          "selected": 9
+        },
+        {
+          "candidates": 85,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:2",
+          "selected": 7
+        },
+        {
+          "candidates": 74,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:3",
+          "selected": 7
+        },
+        {
+          "candidates": 67,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:4",
+          "selected": 5
+        },
+        {
+          "candidates": 648,
+          "exclusive_candidates": 513,
+          "generator": "game",
+          "selected": 350
+        },
+        {
+          "candidates": 8640,
+          "exclusive_candidates": 8073,
+          "generator": "lev",
+          "selected": 1063
+        },
+        {
+          "candidates": 1728,
+          "exclusive_candidates": 1309,
+          "generator": "qbvar",
+          "selected": 520
+        }
+      ],
+      "control_treatment_candidates": {
+        "common_actual_mismatch": 0,
+        "common_rows": 3470,
+        "common_sim_mean_mismatch": 0,
+        "left_only_rows": 10177,
+        "left_rows": 13647,
+        "max_common_sim_mean_abs_delta": 3.0517578125e-05,
+        "paired_slates": 54,
+        "right_only_rows": 10278,
+        "right_rows": 13748,
+        "sim_mean_absolute_tolerance": 0.0001
+      },
+      "control_treatment_features": {
+        "left_only_rows": 0,
+        "left_rows": 29285,
+        "max_numeric_abs_delta": 17.46729097945221,
+        "mismatch_rows": 28091,
+        "right_only_rows": 0,
+        "right_rows": 29285
+      },
+      "disposition": "invalid",
+      "evaluation_source": "20260811-lockfix-e80-k1-role12-position-scales-v1",
+      "evaluation_source_generator_summary": [
+        {
+          "candidates": 2160,
+          "exclusive_candidates": 2160,
+          "generator": "boom",
+          "selected": 1861
+        },
+        {
+          "candidates": 429,
+          "exclusive_candidates": 349,
+          "generator": "dark",
+          "selected": 272
+        },
+        {
+          "candidates": 765,
+          "exclusive_candidates": 0,
+          "generator": "epi",
+          "selected": 399
+        },
+        {
+          "candidates": 439,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_draw",
+          "selected": 371
+        },
+        {
+          "candidates": 100,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:1",
+          "selected": 9
+        },
+        {
+          "candidates": 85,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:2",
+          "selected": 7
+        },
+        {
+          "candidates": 74,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:3",
+          "selected": 7
+        },
+        {
+          "candidates": 67,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:4",
+          "selected": 5
+        },
+        {
+          "candidates": 648,
+          "exclusive_candidates": 513,
+          "generator": "game",
+          "selected": 350
+        },
+        {
+          "candidates": 8640,
+          "exclusive_candidates": 8073,
+          "generator": "lev",
+          "selected": 1063
+        },
+        {
+          "candidates": 1728,
+          "exclusive_candidates": 1309,
+          "generator": "qbvar",
+          "selected": 520
+        }
+      ],
+      "failures": [
+        "control/treatment player snapshots differ in mismatch_rows",
+        "control/treatment player snapshot numeric values differ"
+      ],
+      "fitted_k": "28.246898139750336",
+      "historical_source": "20260810-lockfix-e80-k1-role12union-8677d21",
+      "historical_source_generator_summary": [
+        {
+          "candidates": 4280,
+          "exclusive_candidates": 4280,
+          "generator": "boom",
+          "selected": 3799
+        },
+        {
+          "candidates": 874,
+          "exclusive_candidates": 710,
+          "generator": "dark",
+          "selected": 594
+        },
+        {
+          "candidates": 1485,
+          "exclusive_candidates": 0,
+          "generator": "epi",
+          "selected": 815
+        },
+        {
+          "candidates": 868,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_draw",
+          "selected": 757
+        },
+        {
+          "candidates": 186,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:1",
+          "selected": 14
+        },
+        {
+          "candidates": 161,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:2",
+          "selected": 17
+        },
+        {
+          "candidates": 141,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:3",
+          "selected": 11
+        },
+        {
+          "candidates": 129,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:4",
+          "selected": 16
+        },
+        {
+          "candidates": 1278,
+          "exclusive_candidates": 1009,
+          "generator": "game",
+          "selected": 663
+        },
+        {
+          "candidates": 17120,
+          "exclusive_candidates": 15996,
+          "generator": "lev",
+          "selected": 1964
+        },
+        {
+          "candidates": 3424,
+          "exclusive_candidates": 2570,
+          "generator": "qbvar",
+          "selected": 1026
+        }
+      ],
+      "k_report_sha256": "7fd2a735d22294a9f75469eda4ce5230c9e20b52620bbb0bb0d01e5a478a6996",
+      "mode": "data-fitted-dirichlet-k-same-image-control-treatment",
+      "source_control_candidates": {
+        "common_actual_mismatch": 0,
+        "common_rows": 13647,
+        "common_sim_mean_mismatch": 0,
+        "left_only_rows": 0,
+        "left_rows": 13647,
+        "max_common_sim_mean_abs_delta": 0,
+        "paired_slates": 54,
+        "right_only_rows": 0,
+        "right_rows": 13647,
+        "sim_mean_absolute_tolerance": 0.0001
+      },
+      "source_control_features": {
+        "left_only_rows": 0,
+        "left_rows": 29285,
+        "max_numeric_abs_delta": 3.552713678800501e-15,
+        "mismatch_rows": 0,
+        "right_only_rows": 0,
+        "right_rows": 29285
+      },
+      "source_control_reproduction": {
+        "max_weekly_max_abs_delta": 0,
+        "paired_slates": 54,
+        "weekly_max_mismatches": 0
+      },
+      "tail_first_decision": {
+        "mechanism_valid": false,
+        "passes": false
+      },
+      "treatment": "20260811-lockfix-e80-k1-role12-poscal-usage-k28246898-v1",
+      "treatment_generator_summary": [
+        {
+          "candidates": 2160,
+          "exclusive_candidates": 2160,
+          "generator": "boom",
+          "selected": 1666
+        },
+        {
+          "candidates": 431,
+          "exclusive_candidates": 344,
+          "generator": "dark",
+          "selected": 161
+        },
+        {
+          "candidates": 743,
+          "exclusive_candidates": 0,
+          "generator": "epi",
+          "selected": 342
+        },
+        {
+          "candidates": 433,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_draw",
+          "selected": 301
+        },
+        {
+          "candidates": 97,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:1",
+          "selected": 6
+        },
+        {
+          "candidates": 84,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:2",
+          "selected": 13
+        },
+        {
+          "candidates": 69,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:3",
+          "selected": 10
+        },
+        {
+          "candidates": 60,
+          "exclusive_candidates": 0,
+          "generator": "epi:role_mean:4",
+          "selected": 12
+        },
+        {
+          "candidates": 648,
+          "exclusive_candidates": 543,
+          "generator": "game",
+          "selected": 211
+        },
+        {
+          "candidates": 8640,
+          "exclusive_candidates": 8174,
+          "generator": "lev",
+          "selected": 1428
+        },
+        {
+          "candidates": 1728,
+          "exclusive_candidates": 1383,
+          "generator": "qbvar",
+          "selected": 633
+        }
+      ],
+      "winner_position_contributions": {}
+    }
+  }
+]
