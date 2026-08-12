@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 08:52 CDT
+## Current state — 2026-08-12 09:00 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -445,6 +445,15 @@ and must not be staged or modified.
   2023--2025 control seasons, then treatment smoke/seasons, only after each
   prior preflight succeeds. Do not launch fitted-K exact-80 until this stage
   writes terminal `selected_position.txt`.
+- Position Stage B control smoke `replay-pitposv2ctl-smoke-52q6k` passed and
+  released the three registered season executions: 2023
+  `replay-pitposv2ctl-2023-tr95d`, 2024
+  `replay-pitposv2ctl-2024-9jgkf`, and 2025
+  `replay-pitposv2ctl-2025-t87lh`. Treatment smoke
+  `replay-pitposv2trt-smoke-gmwcz` is provisioning from the same immutable
+  generation image and exact lineage. Wait for it to pass and release its
+  three seasons; inspect no partial scores, then require all six terminal
+  season executions before the frozen Stage B finisher.
 - The licensed PIT-v2 served-position Stage B is implemented before its
   score-free refit result is known. It derives the selected full panel, K1/K3
   law, role/no-role candidate law, and unrounded four-factor specification;
