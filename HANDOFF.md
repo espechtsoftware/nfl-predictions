@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-11 19:09 CDT
+## Current state — 2026-08-11 19:21 CDT
 
 Active branch is `main`; final-served Route diagnostic implementation commit
 `d5e74c0` is pushed. The position-calibration result, research promotion,
@@ -136,13 +136,16 @@ and must not be staged or modified.
   preflight `replay-lockk1ukctl-smoke-6tdwq` completed successfully, releasing
   immutable 2023/2024/2025 control executions
   `replay-lockk1ukctl-2023-464ks`, `replay-lockk1ukctl-2024-qhczz`, and
-  `replay-lockk1ukctl-2025-d8cn6`. The separately gated fitted-K preflight is
-  now running as `replay-lockk1uktrt-smoke-42q8j`; the launcher will release
-  the three treatment seasons only if it succeeds. Exact manifests are under
+  `replay-lockk1ukctl-2025-d8cn6`. Separately gated fitted-K preflight
+  `replay-lockk1uktrt-smoke-42q8j` also completed successfully in 11m21s,
+  after which the launcher released immutable 2023/2024/2025 treatment
+  executions `replay-lockk1uktrt-2023-xw5qb`,
+  `replay-lockk1uktrt-2024-cf6wr`, and
+  `replay-lockk1uktrt-2025-prc9d`. Exact manifests are under
   `reports/panel-runs/20260811-lockfix-e80-k1-role12-poscal-usage-{control-v1,k28246898-v1}/`.
-  Next action: wait for the treatment preflight, record its three immutable
-  season execution IDs, monitor all six, run check-only acceptance on both
-  panels, and then execute the frozen comparator once.
+  Next action: monitor all six season executions to clean completion, run
+  check-only acceptance on both panels, and then execute the frozen comparator
+  once. Do not inspect or act on lineup scores before that comparator.
 
 ### Final-served position calibration passed, promoted, and adopted
 
