@@ -248,10 +248,17 @@ reconciliation when their findings affect the program.
   frozen rare-event minimums; other cells are inconclusive or unsupported.
   No lineup was generated or scored. Machine report is in the v2 run folder;
   concise result is
-  `reports/2026-08-12-g0-final-served-dependence-result.md`. Next: freeze G1's
-  exact walk-forward archetype, shrinkage, topology, support and stable-QB-hub
-  rules against this same terminal identity before implementing or computing
-  any G1 target-season metric.
+  `reports/2026-08-12-g0-final-served-dependence-result.md`. G1 is now frozen,
+  before any target-season G1 metric, in
+  `reports/2026-08-12-g1-walk-forward-archetype-topology-protocol.md`. It fixes
+  strictly-prior per-target archetype refits, history-short fallbacks, 13 pair
+  classes including separately routed cross-game controls, Jeffreys
+  shrinkage, cell support, a 2,000-slate bootstrap, deterministic positive-lift
+  spectral topology diagnostics, and an exhaustive stable-QB-hub decision.
+  G2 requires both broad QB-WR/QB-TE stability across seasons and at least one
+  supported material archetype edge for each relationship; graph communities
+  themselves cannot gate. Next: implement G1 with exact G0 reproduction tests,
+  then build and run its single immutable score-free execution.
 - Review reconciliation and active-label gate milestone commit `83192ca` is
   pushed on `main`. The complete local suite passes all 992 collected tests
   with one expected rear-view dashboard skip. Exact-commit team-passing GPU
