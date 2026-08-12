@@ -298,6 +298,12 @@ def main(argv: list[str] | None = None) -> None:
     )
     p.add_argument("--panel", required=True)
 
+    p = sub.add_parser(
+        "g0-final-served-dependence",
+        help="Run the frozen score-free terminal teammate-dependence premise test",
+    )
+    p.add_argument("--panel", required=True)
+
     sub.add_parser(
         "usage-dirichlet-calibration-diagnostic",
         help="Fit and gate within-team target/carry concentration",
@@ -749,6 +755,10 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import tabpfn_team_qb_final_served
 
         tabpfn_team_qb_final_served.run(args.panel)
+    elif args.command == "g0-final-served-dependence":
+        from .analysis import final_served_dependence
+
+        final_served_dependence.run(args.panel)
     elif args.command == "usage-dirichlet-calibration-diagnostic":
         from .analysis import usage_dirichlet_calibration
 

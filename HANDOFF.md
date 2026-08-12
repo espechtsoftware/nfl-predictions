@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 16:55 CDT
+## Current state — 2026-08-12 17:24 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -188,11 +188,20 @@ reconciliation when their findings affect the program.
   inherited cache at maximum delta `0.0`, distinct amended feature hashes,
   changed treatment predictions, ordered finite quantiles, catcher-only
   support, identical PIT/source/coverage identities, and exact RNG/hyperparameter
-  law. The sole score-free final-served gate is now running from corrected full
-  digest `df3de60e...` as execution
-  `tabpfn-team-qb-final-served-v1-q9tsq`. Harvest it only after clean
-  completion; its frozen pass branch licenses exact-80 and its fail branch
-  retains the incumbent cache without lineup scoring.
+  law. The sole score-free final-served execution
+  `tabpfn-team-qb-final-served-v1-q9tsq` completed cleanly from corrected full
+  digest `df3de60e...`, but failed the frozen primary gate: aggregate active
+  RB/WR/TE Brier-30 worsened `0.0140065605 -> 0.0140127100` (delta
+  `+0.0000061495`; paired slate-cluster 95% interval
+  `[-0.0000060903, 0.0000183893]`). CRPS and all three tail pinball losses also
+  worsened slightly; point MAE improved `3.63282 -> 3.61681`. All PIT,
+  alignment, selected-cache, coverage, market-blend and mean-preservation
+  invariants passed. No exact-80 score job was licensed. The fail-closed
+  terminal selection retains active-only/shared-33 cache
+  `tabpfn_active_label_treatment_v2`, fitted `K=28.154043586960896`, and panel
+  `20260811-pitclean-e80-k1-role12union-a12ab31`. Machine artifacts are under
+  the two terminal team-QB run folders; concise result:
+  `reports/2026-08-12-pit-clean-tabpfn-team-qb-final-served-result.md`.
 - G0, the next graph/dependence kill test after the marginal queue drains, is
   now preregistered before the team-passing result in
   `reports/2026-08-12-g0-final-served-dependence-protocol.md`. It mechanically
@@ -201,7 +210,18 @@ reconciliation when their findings affect the program.
   heterogeneous Poisson-binomial null, nine fixed multiplicity/conditional
   cells, deterministic slate-cluster bootstrap uncertainty, fixed support and
   practical-equivalence bands, and three exhaustive dispositions. It reads no
-  lineup score and cannot launch before `selected_team_qb.txt` exists.
+  lineup score and could not launch before `selected_team_qb.txt` existed.
+  The terminal selection now exists and the G0 implementation is ready: it
+  reconstructs the exact selected 10,000-draw final-served book, preserves
+  row means while applying the selected walk-forward position schedule,
+  computes the exact heterogeneous Poisson-binomial null and six conditional
+  teammate lifts, and applies the frozen 2,000-replicate slate bootstrap and
+  exhaustive decision. Its launch manifest binds the terminal cache metadata,
+  active-label/SCHED/team-QB/usage selections, served report, protocol, image,
+  code and schedule hashes. Focused G0/team-QB tests pass 15/15; both cloud
+  scripts pass shell syntax and the Python entry points compile. Next: commit
+  this terminal result and G0 implementation, build the exact full image, then
+  launch the sole G0 execution from its immutable digest.
 - Review reconciliation and active-label gate milestone commit `83192ca` is
   pushed on `main`. The complete local suite passes all 992 collected tests
   with one expected rear-view dashboard skip. Exact-commit team-passing GPU
