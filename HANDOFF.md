@@ -252,6 +252,12 @@ and must not be staged or modified.
   full threshold/season grid, and applies only the newly frozen lexicographic
   law. Its pure priority tests prove that a 230 improvement wins despite lower
   thresholds declining and that mean is consulted only after a full grid tie.
+- The Tier-1 panel/finish wrappers now pin the exact validated generation
+  digest, canonical v2 cache and predeclared IDs, require cache/registry
+  qualification, launch both exact-80 controls, promote K3 only as comparison
+  source, and promote K1 only if the frozen comparator selects it. The role
+  runner then refuses either branch unless it matches the durable mechanical
+  selection record.
 - Isolated registry qualification now has guarded launch/finish scripts. They
   require both warehouse and canonical-cache validation, refuse a nonempty
   `models_pit_v2` prefix, launch K3/K1/role jobs from one immutable image, and
