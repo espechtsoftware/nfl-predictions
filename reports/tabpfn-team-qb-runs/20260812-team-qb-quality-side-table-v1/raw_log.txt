@@ -1,0 +1,4 @@
+2026-08-12 21:47:20,836 nfl_dfs.bq INFO Running /app/sql/features/017l_team_qb_quality.sql
+TEAM_QB_QUALITY_SIDE_TABLE_VALIDATED
+Container called exit(0).
+

@@ -196,6 +196,11 @@ def test_team_qb_cloud_path_is_terminal_sched_dependent_and_write_once():
     assert "build-team-qb-quality" in cli
     assert "017l_team_qb_quality.sql only" in launch_side
     assert "TEAM_QB_QUALITY_SIDE_TABLE_VALIDATED" in finish_side
+    # ROWS is a BigQuery keyword; the read-only post-build audit must use a
+    # parser-safe alias and then restore the stable JSON field name.
+    assert "AS row_count" in finish_side
+    assert "AS rows" not in finish_side
+    assert 'rename(columns={"row_count": "rows"})' in finish_side
     assert "selected_sched.txt" in launch
     assert "side-table-valid" in launch
     assert "tabpfn_sched_treatment_v1" in launch

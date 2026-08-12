@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 16:43 CDT
+## Current state — 2026-08-12 16:51 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -168,13 +168,25 @@ reconciliation when their findings affect the program.
   Next scoring action: start the amended team-passing side-table branch using
   only review-corrected GPU digest `b6a3a896...` and full digest `df3de60e...`,
   inheriting the terminal no-SCHED context.
-- That next action is now in progress. The isolated amended team-passing
-  side-table execution is `build-team-qb-quality-v1-j4rh6`, launched from
-  review-corrected full digest `df3de60e...` and source `83192ca`. It builds
-  only `017l_team_qb_quality.sql`; after clean completion run
-  `scripts/cloud_finish_team_qb_quality_side_table.sh`, inspect its independent
-  strict-prior validation report, and only then launch the control/treatment
-  caches from corrected GPU digest `b6a3a896...`.
+- The isolated amended team-passing side-table execution
+  `build-team-qb-quality-v1-j4rh6` completed cleanly from review-corrected full
+  digest `df3de60e...` and source `83192ca`. Its independent strict-prior
+  marker and warehouse audit pass: 13,934 unique team-season-week keys, 6,270
+  supported lagged-CPOE rows, 2,112 cross-season flagged rows, and no duplicate
+  key. The first local read-only summary stopped before writing a report
+  because it used reserved BigQuery alias `rows`; the fail-closed harvester now
+  uses `row_count`, restores the stable JSON `rows` key afterward, and has a
+  focused source-contract regression assertion. No model cache or outcome was
+  queried before that repair.
+- The frozen amended team-passing cache pair is now running from corrected GPU
+  digest `b6a3a896...`, source `83192ca`, terminal active-only labels, base
+  shared-33 features (SCHED was not selected), and inherited cache
+  `tabpfn_active_label_treatment_v2`: control execution
+  `tabpfn-team-qb-v1-control-bcr4l`, treatment execution
+  `tabpfn-team-qb-v1-treatment-dg556`. Wait for both clean completions, then
+  run `scripts/cloud_finish_tabpfn_team_qb.sh 83192ca`; do not launch the
+  final-served gate until its exact control-reproduction, amended feature
+  contract, key/PIT and changed-prediction validations pass.
 - Review reconciliation and active-label gate milestone commit `83192ca` is
   pushed on `main`. The complete local suite passes all 992 collected tests
   with one expected rear-view dashboard skip. Exact-commit team-passing GPU

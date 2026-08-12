@@ -1,0 +1,174 @@
+{
+  "content_checksum": -1434411688726941759,
+  "coverage": [
+    {
+      "cross_season_rows": 0,
+      "rows": 496,
+      "season": 1999,
+      "supported_rows": 0
+    },
+    {
+      "cross_season_rows": 0,
+      "rows": 496,
+      "season": 2000,
+      "supported_rows": 0
+    },
+    {
+      "cross_season_rows": 0,
+      "rows": 496,
+      "season": 2001,
+      "supported_rows": 0
+    },
+    {
+      "cross_season_rows": 0,
+      "rows": 512,
+      "season": 2002,
+      "supported_rows": 0
+    },
+    {
+      "cross_season_rows": 0,
+      "rows": 512,
+      "season": 2003,
+      "supported_rows": 0
+    },
+    {
+      "cross_season_rows": 0,
+      "rows": 512,
+      "season": 2004,
+      "supported_rows": 0
+    },
+    {
+      "cross_season_rows": 0,
+      "rows": 512,
+      "season": 2005,
+      "supported_rows": 0
+    },
+    {
+      "cross_season_rows": 0,
+      "rows": 512,
+      "season": 2006,
+      "supported_rows": 0
+    },
+    {
+      "cross_season_rows": 0,
+      "rows": 512,
+      "season": 2007,
+      "supported_rows": 0
+    },
+    {
+      "cross_season_rows": 0,
+      "rows": 512,
+      "season": 2008,
+      "supported_rows": 0
+    },
+    {
+      "cross_season_rows": 0,
+      "rows": 512,
+      "season": 2009,
+      "supported_rows": 0
+    },
+    {
+      "cross_season_rows": 0,
+      "rows": 512,
+      "season": 2010,
+      "supported_rows": 0
+    },
+    {
+      "cross_season_rows": 0,
+      "rows": 512,
+      "season": 2011,
+      "supported_rows": 0
+    },
+    {
+      "cross_season_rows": 0,
+      "rows": 512,
+      "season": 2012,
+      "supported_rows": 0
+    },
+    {
+      "cross_season_rows": 0,
+      "rows": 512,
+      "season": 2013,
+      "supported_rows": 0
+    },
+    {
+      "cross_season_rows": 0,
+      "rows": 512,
+      "season": 2014,
+      "supported_rows": 480
+    },
+    {
+      "cross_season_rows": 192,
+      "rows": 512,
+      "season": 2015,
+      "supported_rows": 512
+    },
+    {
+      "cross_season_rows": 192,
+      "rows": 512,
+      "season": 2016,
+      "supported_rows": 512
+    },
+    {
+      "cross_season_rows": 192,
+      "rows": 512,
+      "season": 2017,
+      "supported_rows": 512
+    },
+    {
+      "cross_season_rows": 192,
+      "rows": 512,
+      "season": 2018,
+      "supported_rows": 512
+    },
+    {
+      "cross_season_rows": 192,
+      "rows": 512,
+      "season": 2019,
+      "supported_rows": 512
+    },
+    {
+      "cross_season_rows": 192,
+      "rows": 512,
+      "season": 2020,
+      "supported_rows": 512
+    },
+    {
+      "cross_season_rows": 192,
+      "rows": 544,
+      "season": 2021,
+      "supported_rows": 544
+    },
+    {
+      "cross_season_rows": 192,
+      "rows": 542,
+      "season": 2022,
+      "supported_rows": 542
+    },
+    {
+      "cross_season_rows": 192,
+      "rows": 544,
+      "season": 2023,
+      "supported_rows": 544
+    },
+    {
+      "cross_season_rows": 192,
+      "rows": 544,
+      "season": 2024,
+      "supported_rows": 544
+    },
+    {
+      "cross_season_rows": 192,
+      "rows": 544,
+      "season": 2025,
+      "supported_rows": 544
+    }
+  ],
+  "cross_season_rows": 2112,
+  "disposition": "team-qb-quality-side-table-valid",
+  "execution": "build-team-qb-quality-v1-j4rh6",
+  "rows": 13934,
+  "supported_rows": 6270,
+  "table": "nfl-predictions-503414.nfl_features.team_week_qb_quality",
+  "unique_keys": 13934
+}

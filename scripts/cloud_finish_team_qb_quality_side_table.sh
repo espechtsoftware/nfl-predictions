@@ -31,7 +31,7 @@ from nfl_dfs.config import settings
 
 table = f"{settings.features}.team_week_qb_quality"
 summary = query_df(f"""
-SELECT COUNT(*) AS rows,
+SELECT COUNT(*) AS row_count,
        COUNT(DISTINCT CONCAT(team, '|', CAST(season AS STRING), '|', CAST(week AS STRING))) AS unique_keys,
        COUNTIF(team_qb_cpoe_l6 IS NOT NULL) AS supported_rows,
        COUNTIF(team_qb_cpoe_cross_season = 1) AS cross_season_rows,
@@ -39,16 +39,17 @@ SELECT COUNT(*) AS rows,
 FROM `{table}` t
 """).iloc[0]
 coverage = query_df(f"""
-SELECT season, COUNT(*) AS rows,
+SELECT season, COUNT(*) AS row_count,
        COUNTIF(team_qb_cpoe_l6 IS NOT NULL) AS supported_rows,
        COUNTIF(team_qb_cpoe_cross_season = 1) AS cross_season_rows
 FROM `{table}` GROUP BY season ORDER BY season
 """)
+coverage = coverage.rename(columns={"row_count": "rows"})
 report = {
     "disposition": "team-qb-quality-side-table-valid",
     "execution": sys.argv[2],
     "table": table,
-    "rows": int(summary.rows),
+    "rows": int(summary.row_count),
     "unique_keys": int(summary.unique_keys),
     "supported_rows": int(summary.supported_rows),
     "cross_season_rows": int(summary.cross_season_rows),
