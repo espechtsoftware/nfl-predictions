@@ -170,6 +170,16 @@ and must not be staged or modified.
   shell parse and whitespace checks are clean. Next action is commit/push,
   build the dedicated GPU image from that exact tree, then launch both cache
   arms asynchronously while the six fitted-K season jobs continue.
+  Implementation commit `82619ed` is pushed. Dedicated GPU Cloud Build
+  `854ef4b7-d0f9-49e4-be80-c939e6e7389c` is running for the exact image tree.
+  A separate immutable-result harvester/validator now checks the two Cloud Run
+  reports, same source/code/feature/hyperparameter identity, exact 52,307-key
+  equality, finite ordered quantiles, treatment removal of every inactive
+  context label, and an actual prediction change before licensing the later
+  final-served stage. Thirty-six focused tests pass after adding the validator;
+  its Python compile and shell parsing are clean. Next action: commit/push the
+  validator, wait for the build digest, launch both GPU arms with code identity
+  `82619ed`, and record their execution IDs.
 
 ### Final-served position calibration passed, promoted, and adopted
 
