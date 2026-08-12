@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 17:52 CDT
+## Current state — 2026-08-12 18:05 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -236,11 +236,22 @@ reconciliation when their findings affect the program.
   Cloud Build `a708bbf2-435e-4184-9b2e-41ad9f2fab3a` passed the full suite and
   produced immutable digest
   `sha256:e56549d12c58137d0250a1b4b93698cd5965e88d88f9c32a67b27f4bc500f76f`.
-  Replacement execution `g0-final-served-dependence-v2-7fsx6` is now running;
-  its new immutable manifest and cache preflight are under the v2 run folder.
-  Next: wait for a clean terminal execution, harvest once, then follow its
-  precommitted branch—only a material dependence miss licenses G1;
-  equivalence or inconclusive evidence closes G1/G2.
+  Replacement execution `g0-final-served-dependence-v2-7fsx6` completed
+  cleanly and passed every terminal identity/alignment/mean invariant. Its
+  frozen disposition is `dependence-premise-miss`, licensing G1. On 7,848
+  supported rows and 54 slates, the simulator materially understates QB-WR
+  lift (`3.321` realized vs `1.053` simulated), QB-TE lift (`2.359` vs
+  `1.048`), and same-team q90 multiplicity at `>=2` (`1.148` vs `1.003`) and
+  `>=3` (`1.835` vs `1.013`). Every corresponding slate-bootstrap interval
+  excludes zero on log(simulated/realized). The `>=4` point estimate also
+  shows underprediction (`2.333` vs `1.037`) but is unsupported under the
+  frozen rare-event minimums; other cells are inconclusive or unsupported.
+  No lineup was generated or scored. Machine report is in the v2 run folder;
+  concise result is
+  `reports/2026-08-12-g0-final-served-dependence-result.md`. Next: freeze G1's
+  exact walk-forward archetype, shrinkage, topology, support and stable-QB-hub
+  rules against this same terminal identity before implementing or computing
+  any G1 target-season metric.
 - Review reconciliation and active-label gate milestone commit `83192ca` is
   pushed on `main`. The complete local suite passes all 992 collected tests
   with one expected rear-view dashboard skip. Exact-commit team-passing GPU
