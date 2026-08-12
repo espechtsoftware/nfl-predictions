@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 08:47 CDT
+## Current state — 2026-08-12 08:52 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -434,6 +434,17 @@ and must not be staged or modified.
   expected skip; the BigQuery SQL dry-run validates at a 24,914,131-byte upper
   bound. The table has not been built and no team-QB prediction/result exists;
   cache/gate implementation remains sequenced after terminal SCHED as frozen.
+- Served-position v2 execution `served-position-calibration-pit-v2-zmm6s`
+  completed cleanly and passes every frozen score-free gate. Its unrounded
+  treatment factors are `QB=0.975,RB=1.0,TE=0.955,WR=1.075`; aggregate
+  position-quantile calibration gap improves `0.0060123 -> 0.0036604`, all
+  position mean pinball ratios are <=1, Brier/CRPS guardrails pass, and the
+  maximum mean drift is only `7.11e-15`. This licenses the one paired exact-80
+  Stage B. Its control smoke is now provisioning as immutable execution
+  `replay-pitposv2ctl-smoke-52q6k`; the launcher will release the registered
+  2023--2025 control seasons, then treatment smoke/seasons, only after each
+  prior preflight succeeds. Do not launch fitted-K exact-80 until this stage
+  writes terminal `selected_position.txt`.
 - The licensed PIT-v2 served-position Stage B is implemented before its
   score-free refit result is known. It derives the selected full panel, K1/K3
   law, role/no-role candidate law, and unrounded four-factor specification;
