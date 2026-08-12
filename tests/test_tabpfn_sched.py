@@ -49,6 +49,12 @@ def _report(arm: str, features: list[str], *, label_law: str = "active_only"):
         "output_rows": validator.EXPECTED_ROWS,
         "unique_keys": validator.EXPECTED_ROWS,
         "folds": folds,
+        "inherited_rng_warmup": (
+            {} if active_only else {
+                "2019": {"eligible_context_rows": 1, "sampled_context_rows": 1},
+                "2021": {"eligible_context_rows": 2, "sampled_context_rows": 2},
+            }
+        ),
     }
 
 
@@ -116,6 +122,8 @@ def test_sched_launch_is_terminal_active_label_dependent_and_write_once():
     assert "inherited_cache_table" in launch
     assert "active-only)" in launch and "LABEL_LAW=active_only" in launch
     assert "WRITE_EMPTY" in generator
+    assert "_advance_inherited_rng(panel, rng)" in generator
+    assert "CANONICAL_WARMUP_SEASONS = (2019, 2021)" in generator
     assert 'SCHED_FEATURES = ("net_rest_diff", "body_clock_hour")' in generator
     assert "TABPFN_SCHED_JSON=" in finish
     assert "validate_tabpfn_sched.py" in finish

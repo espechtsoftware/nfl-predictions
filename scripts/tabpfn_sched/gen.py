@@ -30,6 +30,7 @@ TABLES = {
 }
 SCHED_FEATURES = ("net_rest_diff", "body_clock_hour")
 TARGET_SEASONS = (2022, 2023, 2024, 2025)
+CANONICAL_WARMUP_SEASONS = (2019, 2021)
 POSITIONS = ("QB", "RB", "WR", "TE")
 QUANTILES = (0.01, 0.05, 0.10, 0.20, 0.30, 0.40, 0.50,
              0.60, 0.70, 0.80, 0.90, 0.95, 0.99)
@@ -127,6 +128,32 @@ def _fit_predict(
     }
 
 
+def _advance_inherited_rng(panel: pd.DataFrame, rng: np.random.Generator) -> dict:
+    """Match the current-label canonical cache's pre-2022 sampler state.
+
+    The active-only cache begins at 2022, but the canonical current-label
+    generator visits 2019 and 2021 first. Only context subsampling advances
+    its shared RNG; model fitting does not. Replaying those exact choice calls
+    avoids two needless GPU fits while preserving bit-for-bit 2022+ contexts.
+    """
+    audit = {}
+    if LABEL_LAW != "current":
+        return audit
+    for season in CANONICAL_WARMUP_SEASONS:
+        train = panel[(panel.season < season) & panel.y_dk_points.notna()]
+        if train.empty or panel[panel.season.eq(season)].empty:
+            raise ValueError(f"canonical RNG warm-up lacks season {season}")
+        sampled = len(train)
+        if len(train) > CONTEXT_MAX:
+            rng.choice(len(train), CONTEXT_MAX, replace=False)
+            sampled = CONTEXT_MAX
+        audit[str(season)] = {
+            "eligible_context_rows": int(len(train)),
+            "sampled_context_rows": int(sampled),
+        }
+    return audit
+
+
 def main() -> None:
     _validate_environment()
     features, feature_sha = _feature_contract(
@@ -156,6 +183,7 @@ def main() -> None:
 
     active_only = LABEL_LAWS[LABEL_LAW]
     rng = np.random.default_rng(RANDOM_SEED)
+    inherited_rng_warmup = _advance_inherited_rng(panel, rng)
     frames: list[pd.DataFrame] = []
     folds: dict[str, dict] = {}
     for season in TARGET_SEASONS:
@@ -224,6 +252,7 @@ def main() -> None:
             "active_rows": int(panel.was_active.astype(bool).sum()),
         },
         "folds": folds,
+        "inherited_rng_warmup": inherited_rng_warmup,
     }
     print(OUTPUT_PREFIX + json.dumps(report, sort_keys=True), flush=True)
 

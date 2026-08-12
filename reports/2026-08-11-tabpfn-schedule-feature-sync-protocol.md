@@ -57,6 +57,10 @@ control must reproduce every key and prediction from the terminal inherited
 cache (`tabpfn_projections_pit_v2` for current labels or
 `tabpfn_active_label_treatment_v2` for active-only labels) to absolute
 tolerance `1e-10`; this separates generator drift from the two-feature effect.
+For the current-label branch, both new arms advance their seed-7 context
+sampler through the canonical generator's 2019 and 2021 context-choice calls
+before fitting 2022, exactly matching the inherited cache's RNG state. The
+active-only inherited cache begins at 2022 and therefore performs no warm-up.
 
 ## Staged decision
 

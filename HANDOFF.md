@@ -463,6 +463,14 @@ and must not be staged or modified.
   The validator now additionally requires the 33-feature control to reproduce
   every key and prediction from the terminal inherited cache within `1e-10`,
   preventing generator drift from masquerading as a SCHED effect.
+  Before launch, that guard exposed a deterministic sampler-sequence mismatch:
+  the canonical current-label job visits 2019/2021 before 2022, while the new
+  SCHED target starts at 2022. The SCHED generator now replays the exact two
+  pre-2022 seed-7 context-choice calls for current labels (but no unnecessary
+  model fits), while active-only correctly has no warm-up. Both arm reports and
+  validation prove the inherited sequence. The earlier GPU digest `e196...`
+  predates this repair and must not generate SCHED caches; build a replacement
+  from the repaired commit.
 - The complete downstream SCHED branch is frozen and implemented before its
   caches or outcomes exist. The score-free final-served gate inherits the
   terminal Tier-1 panel, usage law and label law, independently fits each

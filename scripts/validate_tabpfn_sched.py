@@ -50,6 +50,8 @@ def validate_reports(
     treatment_features: list[str],
 ) -> dict:
     active_only = label_law == "active_only"
+    warmup = control.get("inherited_rng_warmup", {})
+    treatment_warmup = treatment.get("inherited_rng_warmup", {})
     checks = {
         "arm_identity": (
             control.get("arm") == "control"
@@ -111,6 +113,12 @@ def validate_reports(
             == treatment.get("folds", {}).get(str(season), {}).get(
                 "sampled_context_rows")
             for season in TARGET_SEASONS
+        ),
+        "inherited_rng_sequence": (
+            set(warmup) == {"2019", "2021"}
+            and set(treatment_warmup) == {"2019", "2021"}
+            if label_law == "current"
+            else warmup == {} and treatment_warmup == {}
         ),
         "active_context_contract": all(
             (
