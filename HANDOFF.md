@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 16:30 CDT
+## Current state — 2026-08-12 16:43 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -168,6 +168,18 @@ reconciliation when their findings affect the program.
   `sha256:df3de60e08f6e88d8f3d4dba551f01e9fc37d7c7de7de2ba41496a43396d5bfd`.
   These supersede every earlier team-QB image and are the only permitted
   images for that downstream branch.
+- The Lineups UI now has a dependency-free post-build Portfolio map for both
+  Classic and Showdown payloads. It reports lineup count, unique players,
+  roster-overlap families, average/maximum overlap, top-five-player
+  concentration, and exact duplicates. One linked SVG groups lineups that
+  share at least 55% of a family seed's roster; the other is an exposure-sized
+  player co-occurrence network. Clicking a lineup or player highlights the
+  corresponding rendered cards. Both views use only the just-generated
+  portfolio and are explicitly descriptive—not an outcome-based selector.
+  `tests/test_app.py` passes completely; Python compilation, HTML/JS-source
+  assertions, and a headless Chromium render/click smoke passed. This UI
+  milestone is committed but not yet deployed; do not mix a web-service
+  rollout into the still-running SCHED research execution.
 
 ### Critical pre-launch PIT repair — stale active-label caches blocked
 

@@ -612,6 +612,15 @@ def test_lineups_view_page(client):
     assert "/lineups/record" in r.text
     assert "CSV always downloads that exact preview" in r.text
     assert "setModeControls" in r.text
+    # The post-build portfolio views are computed only from the generated
+    # roster set and link back to the exact lineup cards.
+    assert "Portfolio map" in r.text
+    assert "Lineup families" in r.text
+    assert "Player co-occurrence" in r.text
+    assert "renderPortfolio(j.lineups)" in r.text
+    assert "sharedPlayers" in r.text
+    assert "dataset.lineupIndex" in r.text
+    assert "do not use future results" in r.text
 
 
 def test_showdown_any_game_selectable(showdown_client):

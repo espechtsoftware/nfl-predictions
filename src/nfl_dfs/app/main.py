@@ -331,11 +331,194 @@ _LINEUPS_CSS = """
   color:#1a1a2e}
 .card tfoot td{font-weight:600;background:#fafafa}
 #status{margin:.8rem 0;color:#666}
+#portfolio{margin:1rem 0;background:#fff;border:1px solid #e5e5ef;
+  border-radius:10px;padding:1rem;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+#portfolio h2{margin:0 0 .25rem;font-size:1.15rem}
+.portfolio-note{margin:0 0 .8rem;color:#666;font-size:.82rem}
+#portfolio-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));
+  gap:.55rem;margin-bottom:.8rem}
+.portfolio-metric{background:#f7f8fb;border:1px solid #e5e5ef;border-radius:8px;
+  padding:.55rem .65rem}
+.portfolio-metric b{display:block;font-size:1.15rem;color:#1a1a2e}
+.portfolio-metric small{color:#666}
+.portfolio-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));
+  gap:.8rem}
+.portfolio-chart{border:1px solid #e5e5ef;border-radius:8px;padding:.6rem;
+  min-width:0}
+.portfolio-chart h3{margin:0;font-size:.95rem}
+.portfolio-chart p{margin:.2rem 0 .45rem;color:#666;font-size:.76rem}
+.portfolio-chart svg{display:block;width:100%;height:auto;background:#fbfbfd;
+  border-radius:6px}
+.portfolio-legend{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.4rem;
+  font-size:.72rem;color:#555}
+.portfolio-legend span{white-space:nowrap}
+.portfolio-dot{display:inline-block;width:.65rem;height:.65rem;border-radius:50%;
+  margin-right:.2rem;vertical-align:-.05rem}
+.portfolio-clear{border:1px solid #aaa;background:#fff;border-radius:5px;
+  padding:.25rem .5rem;cursor:pointer;font-size:.75rem;float:right}
+.card.portfolio-match{outline:3px solid #7b61ff;box-shadow:0 2px 12px rgba(91,65,220,.28)}
+.card.portfolio-dim{opacity:.28}
+@media(max-width:520px){.portfolio-grid{grid-template-columns:1fr}}
 """
 
 _LINEUPS_JS = """
 let lastBuild=null;
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+const SVG_NS='http://www.w3.org/2000/svg';
+const PORTFOLIO_COLORS=['#6544d9','#008f8c','#e76f51','#2d6a9f','#d69e00',
+  '#8f4f9f','#3b8d4c','#d1495b','#557a95','#9c6644','#5c677d','#bc6c25'];
+const POS_COLORS={QB:'#6f42c1',RB:'#198754',WR:'#0d6efd',TE:'#fd7e14',DST:'#6c757d'};
+function svgEl(tag,attrs={}){
+  const e=document.createElementNS(SVG_NS,tag);
+  for(const [k,v] of Object.entries(attrs))e.setAttribute(k,v);
+  return e;
+}
+function playerKey(p){return String(p.id??p.dk_id??p.name);}
+function lineupIds(lu){return new Set(lu.players.map(playerKey));}
+function sharedPlayers(a,b){let n=0;for(const x of a)if(b.has(x))n++;return n;}
+function clearPortfolioSelection(){
+  document.querySelectorAll('#cards .card[data-lineup-index]').forEach(c=>
+    c.classList.remove('portfolio-match','portfolio-dim'));
+}
+function highlightPortfolio(test){
+  document.querySelectorAll('#cards .card[data-lineup-index]').forEach(c=>{
+    const yes=test(c);
+    c.classList.toggle('portfolio-match',yes);
+    c.classList.toggle('portfolio-dim',!yes);});
+  const first=document.querySelector('#cards .card.portfolio-match');
+  if(first)first.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function lineupFamilies(lineups,sets){
+  const groups=[];
+  lineups.forEach((lu,i)=>{
+    let best=-1,bestShared=-1;
+    groups.forEach((g,gi)=>{
+      const n=sharedPlayers(sets[i],sets[g.seed]);
+      if(n>bestShared){best=gi;bestShared=n;}});
+    const need=Math.ceil(Math.min(sets[i].size,
+      best<0?sets[i].size:sets[groups[best].seed].size)*.55);
+    if(best>=0&&bestShared>=need)groups[best].members.push(i);
+    else groups.push({seed:i,members:[i]});
+  });
+  return groups;
+}
+function renderLineupMap(lineups,sets,groups){
+  const box=document.getElementById('lineup-map');box.innerHTML='';
+  const shown=lineups.length<=120
+    ?lineups.map((_,i)=>i)
+    :Array.from({length:120},(_,i)=>Math.floor(i*(lineups.length-1)/119));
+  const visible=new Set(shown),w=620,h=360;
+  const svg=svgEl('svg',{viewBox:`0 0 ${w} ${h}`,
+    role:'img','aria-label':'Lineup families grouped by shared players'});
+  const cols=Math.max(1,Math.ceil(Math.sqrt(groups.length*w/h))),
+        rows=Math.ceil(groups.length/cols),cw=w/cols,ch=h/rows;
+  groups.forEach((g,gi)=>{
+    const members=g.members.filter(i=>visible.has(i));if(!members.length)return;
+    const cx=(gi%cols+.5)*cw,cy=(Math.floor(gi/cols)+.54)*ch,
+          ring=Math.min(cw,ch)*.31;
+    const label=svgEl('text',{x:cx,y:Math.max(13,cy-ring-10),
+      'text-anchor':'middle','font-size':'11',fill:'#555'});
+    label.textContent=`Family ${gi+1} · ${g.members.length}`;svg.appendChild(label);
+    members.forEach((idx,j)=>{
+      const angle=2*Math.PI*j/Math.max(1,members.length),
+            radius=members.length===1?0:ring*(.4+.6*((j%3)+1)/3),
+            x=cx+Math.cos(angle)*radius,y=cy+Math.sin(angle)*radius,
+            c=svgEl('circle',{cx:x,cy:y,r:members.length>35?5:7,
+              fill:PORTFOLIO_COLORS[gi%PORTFOLIO_COLORS.length],
+              stroke:'#fff','stroke-width':'1.5',tabindex:'0',
+              style:'cursor:pointer'}),
+            near=Math.max(...sets.map((s,k)=>k===idx?0:sharedPlayers(sets[idx],s)));
+      const title=svgEl('title');
+      title.textContent=`Lineup #${lineups[idx].rank??idx+1}; family ${gi+1}; closest lineup shares ${near} players`;
+      c.appendChild(title);
+      c.addEventListener('click',()=>highlightPortfolio(card=>+card.dataset.lineupIndex===idx));
+      c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();c.click();}});
+      svg.appendChild(c);
+    });
+  });
+  box.appendChild(svg);
+  const note=document.getElementById('lineup-map-note');
+  note.textContent=(lineups.length>120?'Showing an even sample of 120 entries. ':'')+
+    'A family shares at least 55% of its roster with the family seed. Click a dot to find that entry.';
+}
+function renderPlayerNetwork(lineups){
+  const box=document.getElementById('player-map');box.innerHTML='';
+  const counts=new Map(),meta=new Map(),pairCounts=new Map();
+  for(const lu of lineups){
+    const ps=lu.players.map(p=>{const id=playerKey(p);meta.set(id,p);
+      counts.set(id,(counts.get(id)||0)+1);return id;});
+    for(let i=0;i<ps.length;i++)for(let j=i+1;j<ps.length;j++){
+      const key=[ps[i],ps[j]].sort().join('\u001f');
+      pairCounts.set(key,(pairCounts.get(key)||0)+1);}}
+  const ids=[...counts].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]))
+    .slice(0,50).map(x=>x[0]),keep=new Set(ids),w=620,h=360;
+  const nodes=ids.map((id,i)=>({id,p:meta.get(id),count:counts.get(id),
+    x:w/2+135*Math.cos(2*Math.PI*i/ids.length),
+    y:h/2+135*Math.sin(2*Math.PI*i/ids.length),vx:0,vy:0}));
+  const byId=new Map(nodes.map(n=>[n.id,n])),minPair=Math.max(2,Math.ceil(lineups.length*.04));
+  let edges=[...pairCounts].map(([key,count])=>{const [a,b]=key.split('\u001f');
+      return{a,b,count};}).filter(e=>keep.has(e.a)&&keep.has(e.b)&&e.count>=minPair)
+    .sort((a,b)=>b.count-a.count).slice(0,140);
+  for(let it=0;it<90;it++){
+    for(const n of nodes){n.vx+=(w/2-n.x)*.006;n.vy+=(h/2-n.y)*.006;}
+    for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){
+      const a=nodes[i],b=nodes[j],dx=a.x-b.x,dy=a.y-b.y,
+            d2=Math.max(36,dx*dx+dy*dy),f=35/d2;
+      a.vx+=dx*f;a.vy+=dy*f;b.vx-=dx*f;b.vy-=dy*f;}
+    for(const e of edges){const a=byId.get(e.a),b=byId.get(e.b),
+      dx=b.x-a.x,dy=b.y-a.y,d=Math.max(1,Math.hypot(dx,dy)),
+      target=105-45*Math.min(1,e.count/Math.max(1,Math.min(a.count,b.count))),
+      f=(d-target)*.007,fx=dx/d*f,fy=dy/d*f;
+      a.vx+=fx;a.vy+=fy;b.vx-=fx;b.vy-=fy;}
+    for(const n of nodes){n.vx*=.74;n.vy*=.74;n.x=Math.max(28,Math.min(w-75,n.x+n.vx));
+      n.y=Math.max(24,Math.min(h-24,n.y+n.vy));}}
+  const svg=svgEl('svg',{viewBox:`0 0 ${w} ${h}`,
+    role:'img','aria-label':'Player co-occurrence network'});
+  for(const e of edges){const a=byId.get(e.a),b=byId.get(e.b),
+    line=svgEl('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:'#aab0bf',
+      'stroke-opacity':Math.min(.7,.12+e.count/lineups.length),
+      'stroke-width':Math.min(4,.5+4*e.count/lineups.length)});
+    const title=svgEl('title');title.textContent=`Together in ${e.count} lineups`;
+    line.appendChild(title);svg.appendChild(line);}
+  nodes.forEach((n,i)=>{
+    const r=5+12*Math.sqrt(n.count/lineups.length),
+          c=svgEl('circle',{cx:n.x,cy:n.y,r,
+            fill:POS_COLORS[n.p.pos]||'#555',stroke:'#fff','stroke-width':'1.5',
+            tabindex:'0',style:'cursor:pointer'}),title=svgEl('title');
+    title.textContent=`${n.p.name} · ${n.p.team} ${n.p.pos} · ${n.count}/${lineups.length} lineups (${(100*n.count/lineups.length).toFixed(1)}%)`;
+    c.appendChild(title);
+    c.addEventListener('click',()=>highlightPortfolio(card=>
+      (card.dataset.playerIds||'').split(',').includes(n.id)));
+    c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();c.click();}});
+    svg.appendChild(c);
+    if(i<15){const t=svgEl('text',{x:n.x+r+2,y:n.y+3,'font-size':'9',fill:'#333'});
+      t.textContent=n.p.name.split(' ').slice(-1)[0];svg.appendChild(t);}
+  });
+  box.appendChild(svg);
+  document.getElementById('player-map-note').textContent=
+    `${ids.length} highest-exposure players shown; a line connects players used together in at least ${minPair} entries. Click a player to find every lineup containing them.`;
+}
+function renderPortfolio(lineups){
+  const panel=document.getElementById('portfolio');
+  if(!lineups||!lineups.length){panel.hidden=true;return;}
+  panel.hidden=false;clearPortfolioSelection();
+  const sets=lineups.map(lineupIds),groups=lineupFamilies(lineups,sets);
+  let pairs=0,totalShared=0,maxShared=0;
+  for(let i=0;i<sets.length;i++)for(let j=i+1;j<sets.length;j++){
+    const n=sharedPlayers(sets[i],sets[j]);pairs++;totalShared+=n;maxShared=Math.max(maxShared,n);}
+  const counts=new Map();for(const lu of lineups)for(const p of lu.players){
+    const id=playerKey(p);counts.set(id,(counts.get(id)||0)+1);}
+  const top5=[...counts.values()].sort((a,b)=>b-a).slice(0,5)
+    .reduce((a,b)=>a+b,0)/(lineups.length*(lineups[0].players.length||1));
+  const uniqueRosters=new Set(sets.map(s=>[...s].sort().join('|'))).size;
+  const metrics=[['Lineups',lineups.length],['Unique players',counts.size],
+    ['Lineup families',groups.length],['Avg. shared players',pairs?(totalShared/pairs).toFixed(2):'—'],
+    ['Maximum overlap',pairs?maxShared:'—'],['Top-5 concentration',(100*top5).toFixed(1)+'%'],
+    ['Exact duplicates',lineups.length-uniqueRosters]];
+  document.getElementById('portfolio-metrics').innerHTML=metrics.map(([k,v])=>
+    `<div class='portfolio-metric'><b>${esc(v)}</b><small>${esc(k)}</small></div>`).join('');
+  renderLineupMap(lineups,sets,groups);renderPlayerNetwork(lineups);
+}
 async function loadSlates(){
   try{const r=await fetch('/slates');const s=await r.json();
     if(s.length){const last=s[s.length-1];
@@ -429,7 +612,8 @@ async function build(){
         cards=document.getElementById('cards'),
         sd=slateSel().sd;
   st.textContent='Building lineups (simulating 30k worlds + candidate solves; ~1-4 min, first build of the day slowest)...';
-  cards.innerHTML=''; document.getElementById('go').disabled=true;
+  cards.innerHTML=''; document.getElementById('portfolio').hidden=true;
+  document.getElementById('go').disabled=true;
   try{
     const body=reqBody();
     const r=await fetch(sd?'/showdown/lineups':'/lineups',{method:'POST',
@@ -478,6 +662,8 @@ async function build(){
           `<span class='conf'>${lu.confidence}%</span>`+
           `<span>${lu.proj_mean} pts proj</span></header>`;
       const el=document.createElement('div'); el.className='card';
+      el.dataset.lineupIndex=i;
+      el.dataset.playerIds=lu.players.map(playerKey).join(',');
       el.innerHTML=head+
         `<table><tr><th></th><th style='text-align:left'>Player</th>`+
         `<th>Game</th><th>Salary</th><th>Proj</th></tr>${rows}`+
@@ -485,6 +671,7 @@ async function build(){
         `<td>$${lu.salary.toLocaleString()}</td>`+
         `<td>${lu.proj.toFixed(1)}</td></tr></tfoot></table>`;
       cards.appendChild(el);});
+    renderPortfolio(j.lineups);
     if(sd&&j.captain_board&&j.captain_board.length){
       const cb=j.captain_board.slice(0,12),
             pc=v=>v==null?'&mdash;':(100*v).toFixed(1)+'%';
@@ -674,6 +861,25 @@ def lineups_page() -> str:
         f"apply automatically: {ADOPTED_CLASSIC_POLICY.policy_id}, 80 entries, "
         f"fixed 194 coverage, QB+2 stack, bring-back and chalk fade — showdown "
         f"leverages captain diversity instead.</div>"
+        f"<section id='portfolio' hidden><button class='portfolio-clear' "
+        f"onclick='clearPortfolioSelection()'>Clear highlight</button>"
+        f"<h2>Portfolio map</h2>"
+        f"<p class='portfolio-note'>These views describe diversification and "
+        f"co-occurrence inside the entries you just built; they do not use "
+        f"future results or imply that a visual cluster is stronger.</p>"
+        f"<div id='portfolio-metrics'></div><div class='portfolio-grid'>"
+        f"<section class='portfolio-chart'><h3>Lineup families</h3>"
+        f"<p id='lineup-map-note'></p><div id='lineup-map'></div></section>"
+        f"<section class='portfolio-chart'><h3>Player co-occurrence</h3>"
+        f"<p id='player-map-note'></p><div id='player-map'></div>"
+        f"<div class='portfolio-legend'>"
+        + "".join(
+            f"<span><i class='portfolio-dot' style='background:{color}'></i>{pos}</span>"
+            for pos, color in (("QB", "#6f42c1"), ("RB", "#198754"),
+                               ("WR", "#0d6efd"), ("TE", "#fd7e14"),
+                               ("DST", "#6c757d"))
+        )
+        + f"</div></section></div></section>"
         f"<div id='cards'></div>"
         f"</main><script>{_LINEUPS_JS}</script></body></html>"
     )
