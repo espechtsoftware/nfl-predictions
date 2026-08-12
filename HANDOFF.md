@@ -208,7 +208,10 @@ and must not be staged or modified.
   `02eea485-c492-402d-943c-e9111a70cbc1` succeeded with digest
   `sha256:d0830d9fb79643fd77faa0d8c80f4863c1769adb56d6d1782999d5aa0f40139b`.
   Full Tier-1 application build `2ce169dc-36a6-4ae2-94c9-37018b0eb0ba`
-  is also running from exact commit `b5d0146`.
+  failed during test collection only: a new test imported a non-packaged
+  `scripts` namespace that happened to be on the local pytest path. The test
+  now loads the validator explicitly by tracked path; no application or
+  warehouse execution occurred from that failed build.
 - Reconciled active-label v2 cache executions are now running from that exact
   active-label digest: control `tabpfn-active-v2-ctl-7fhxx` and active-only
   treatment `tabpfn-active-v2-trt-j4vss`. Their immutable manifest is tracked
@@ -216,6 +219,13 @@ and must not be staged or modified.
   `reports/tabpfn-active-label-runs/20260811-tabpfn-active-label-v2-pit-clean/`.
   Do not query either cache or launch final-served work until both complete
   and the independent v2 validator passes.
+- Superseding canonical image build
+  `a4a76dcd-738b-48a7-9810-3bc7ac7af1fc` succeeded with immutable digest
+  `sha256:2e227119cd5009060b65bfca75ff7e9b4402132c64b478cc90dac519bd193029`.
+  The sole write-once canonical cache execution is now
+  `tabpfn-canonical-pit-v2-xjm2q`; its immutable manifest is under
+  `reports/tabpfn-canonical-runs/20260811-tabpfn-canonical-pit-v2/`. Do not
+  use the table until the independent validator passes.
 - The repaired active-label final-served dependency is now a separate v2
   runner. It requires explicit validated v2 cache, repaired panel and repaired
   fitted-K comparison inputs; the comparison mechanically supplies either its

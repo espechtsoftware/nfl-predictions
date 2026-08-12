@@ -1,8 +1,18 @@
+from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 
 import pandas as pd
 
-from scripts.validate_tabpfn_canonical_pit import validate_report, validate_table
+
+_VALIDATOR_PATH = (
+    Path(__file__).parents[1] / "scripts" / "validate_tabpfn_canonical_pit.py"
+)
+_SPEC = spec_from_file_location("_tabpfn_canonical_validator", _VALIDATOR_PATH)
+assert _SPEC and _SPEC.loader
+_VALIDATOR = module_from_spec(_SPEC)
+_SPEC.loader.exec_module(_VALIDATOR)
+validate_report = _VALIDATOR.validate_report
+validate_table = _VALIDATOR.validate_table
 
 
 def test_canonical_pit_cache_is_write_once_and_provenance_bound():

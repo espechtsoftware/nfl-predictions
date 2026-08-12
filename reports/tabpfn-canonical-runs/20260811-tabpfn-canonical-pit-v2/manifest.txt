@@ -1,0 +1,12 @@
+run_id=20260811-tabpfn-canonical-pit-v2
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/tabpfn-gen@sha256:2e227119cd5009060b65bfca75ff7e9b4402132c64b478cc90dac519bd193029
+code_sha=b5d0146
+protocol_sha256=c6b1bc55f0ee70fa661f26555df0f6b23fad4c3bbc24b6f566d04bae321ee0ed
+output_table=nfl_features.tabpfn_projections_pit_v2
+write_disposition=WRITE_EMPTY
+target_seasons=2019 2021 2022 2023 2024 2025
+context=all strictly earlier non-null labels, including inactive rows
+context_max=28000
+random_seed=7
+n_estimators=4
+tabpfn_version=2.2.1
