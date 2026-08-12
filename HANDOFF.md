@@ -36,6 +36,7 @@ Thursday post-download scheduler follow-up `b6dbc5e` are also pushed on
 `reports/2026-08-11-deep-analysis-calibration-and-data-audit.md`,
 `reports/2026-08-11-fantasy-points-data-utilization.md`,
 `reports/2026-08-11-feature-plumbing-defects-and-correlation-gaps.md`,
+`reports/2026-08-11-graph-clustering-and-technology-options.md`,
 `reports/2026-08-11-post-window-program-review.md`, and
 `reports/2026-08-11-recommendation-scoreboard-and-pivot.md` remain untracked
 and must not be staged or modified.
@@ -254,6 +255,22 @@ and must not be staged or modified.
   accepted label law in both arms, and changes only the appended adopted SCHED
   pair. It uses the same independently calibrated final-served Brier30 gate
   before any separately frozen exact-80 score comparison.
+  The following QB-hub question is also preregistered, outcome-blind, in
+  `reports/2026-08-11-tabpfn-team-qb-quality-protocol.md`. It deliberately uses
+  dropback-weighted, strictly-prior six-team-game PBP CPOE broadcast only to
+  RB/WR/TE instead of the sparse NGS player field, and inherits all terminal
+  active-label/SCHED decisions before changing one feature. Do not implement or
+  launch it ahead of those prior stages.
+  The operator's graph/clustering/technology suggestions are now reconciled in
+  `reports/2026-08-11-graph-dependence-research-queue.md` and linked from the
+  scoring roadmap. G1 is a walk-forward archetype-pair co-exceedance topology
+  diagnostic; G2 is a conditional upper-tail QB bi-factor copula; G3 is a
+  strictly-prior participation-embedding allocation hierarchy; G4 is a
+  prospective field-neighbourhood/payout objective once full 2026 standings
+  and payout ladders exist. Neo4j, a slate-label GNN and LLM projections are
+  explicitly not queued. The historical archetype job is not point-in-time for
+  this use and must be refit within each target fold; embeddings require the
+  participation feed rather than ordinary PBP alone.
 
 ### Final-served position calibration passed, promoted, and adopted
 

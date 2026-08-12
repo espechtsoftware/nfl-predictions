@@ -7,6 +7,13 @@ the complete compatible-arm review is in
 remain immutable, but an explicitly labeled operator override may promote a
 mechanically valid arm when an older score gate conflicts with that utility.
 
+Queue addendum (2026-08-11): graph/dependence ideas are reconciled and ordered
+in `reports/2026-08-11-graph-dependence-research-queue.md`. The first new item
+is a score-free, walk-forward archetype-pair co-exceedance topology diagnostic;
+an upper-tail QB bi-factor copula is conditional on that evidence. Participation
+embeddings are exploratory, the field-neighbourhood graph waits for complete
+2026 standings/payout ladders, and Neo4j/GNN/LLM projection work is not queued.
+
 ## Evidence that sets the priorities
 
 - The accepted true-80 book clears 200 on 18/107 slates, 210 on 11, and 220

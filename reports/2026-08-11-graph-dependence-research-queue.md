@@ -1,0 +1,139 @@
+# Graph and dependence research queue
+
+Date: 2026-08-11. This tracked queue reconciles the operator-supplied
+`reports/2026-08-11-graph-clustering-and-technology-options.md` with the live
+repository. The supplied review remains unmodified and untracked.
+
+## Corrections and constraints
+
+- Joint dependence is an important open channel, but it is not literally the
+  only one left. The fitted-K exact-80 decision and the active-label, SCHED-sync
+  and team-QB-quality TabPFN marginal sequence are still open. Do not displace
+  or combine those frozen questions.
+- The existing `player_archetypes` table is not safe as a historical label for
+  this diagnostic: its normal job fits a trailing window ending at the latest
+  completed season. Historical evaluation must refit archetypes separately for
+  each target season using only prior seasons.
+- Standard play-by-play rows do not identify all eleven players on the field.
+  Any co-occurrence embedding must use the audited nflverse participation feed
+  (or another provenance-locked participation source), joined to PBP, rather
+  than claiming ordinary PBP alone supplies on-field co-occurrence.
+- Full contest-entry lineups are already preserved prospectively by
+  `import-ownership` in `nfl_raw.contest_entries`. The field-graph item is data-
+  gated until 2026 large-field standings and payout ladders are captured; it
+  does not require a new importer or a graph database.
+- Neo4j is not queued. The player graph fits in memory, BigQuery remains the
+  source of truth, and sparse arrays/NetworkX are enough for the proposed
+  diagnostics. Reconsider storage technology only after measured query or
+  memory limits appear on several seasons of full contest entries.
+
+## G1 — walk-forward archetype-pair dependence topology
+
+Priority: first new dependence diagnostic, after the fitted-K decision fixes
+the common simulator law. It is score-free and may run while later marginal
+cache stages execute.
+
+Build one target-season diagnostic for 2023, 2024 and 2025:
+
+1. Fit position-specific marginal archetypes from seasons strictly before the
+   target. Freeze component count, seed, minimum games and feature definitions
+   before reading target outcomes.
+2. On accepted active main-slate rows, define player exceedance against that
+   player's point-in-time final-served q90. Do not estimate a realized-season
+   q90 with the target outcomes.
+3. Aggregate edges by walk-forward archetype pair plus relationship class:
+   same-team QB→WR/TE/RB, same-team WR↔WR, opposing pass-game pairs and other
+   justified bring-backs. Report cross-game same-slate cells separately; do
+   not assume a slate factor unless those cells show stable residual lift.
+4. Estimate realized and simulated co-exceedance lift with minimum-support
+   rules and shrinkage. Cluster the resulting small relationship/archetype
+   graph with a deterministic spectral or Leiden/Louvain implementation.
+5. Compare realized versus simulated adjacency/topology, role-pair variogram,
+   joint-q90 Brier, >=2/>=3/>=4 exceedance multiplicity, and the named QB-hub
+   and WR-competition cells. Use slate-clustered or team-week-clustered
+   uncertainty.
+
+This is a calibration instrument, not an adoption arm. Individual player-pair
+edges are explicitly excluded because roughly 1.7 q90 events per player-season
+cannot support them. No lineup outcomes or score thresholds are read.
+
+## G2 — upper-tail QB bi-factor copula
+
+Priority: highest-upside new mechanism, conditional on G1 confirming a stable
+QB-hub residual that the accepted simulator misses.
+
+Add one explicit team passing/QB latent factor inside each game, loading on the
+QB and that team's pass-catchers, while retaining the accepted game factor and
+within-team allocation law. Use one preregistered upper-tail-dependent link;
+the name “Gumbel” here would describe a copula link, not the closed
+`N_GUMBEL` candidate generator. A slate factor is omitted unless G1 first finds
+stable cross-game residual dependence.
+
+Fit all link/load parameters on earlier seasons without lineup scores. The
+mechanism must reorder ranks while preserving every player's exact marginal
+draw multiset after TabPFN shaping. Its frozen scientific gate must require
+aggregate improvement in role-weighted variogram and joint-q90 Brier, reduced
+error in the G1 co-exceedance/multiplicity grid, exact marginal preservation,
+and evidence that the QB factor is active. Per-season declines are reported but
+are not an automatic veto under the operator's aggregate-tail objective.
+
+Only a passing dependence gate licenses one separately frozen exact-80 panel
+under the then-current production book and the 240/230/220/210/200 first-
+nonzero weekly-maximum law. Parameters, link family and graph cells may not be
+tuned on that lineup result.
+
+## G3 — self-supervised participation embeddings for allocation hierarchy
+
+Priority: exploratory follow-on after G1/G2, not a near-term lineup arm.
+
+Train walk-forward player embeddings with a fixed skip-gram-style objective on
+strictly-prior nflverse participation plus PBP target/action co-occurrence.
+First use them only to inform a shrinkage model for team target/carry
+concentration around the globally fitted K; embeddings do not directly choose
+lineups or replace the simulator. True pre-debut rookies remain cold because
+they have no NFL participation history, so do not claim this solves Week-1
+rookie cold starts without a separately sourced college bridge.
+
+The first gate is held-out 2023--2025 conditional target/carry allocation
+likelihood versus the accepted global-K law, followed by the G1 dependence
+metrics. Only a pass licenses a fixed mechanism and later exact-80 protocol.
+Embedding dimension, window, negative sampling, context definition and K
+mapping must be frozen before held-out evaluation; no GNN is included.
+
+## G4 — field neighbourhood graph and payout objective
+
+Priority: prospective 2026 data-gated work.
+
+After several complete large-field standings exports exist, represent entries
+as compact player bitsets or a sparse entry×player matrix. Measure exact
+duplicate classes, one-/two-swap neighbourhood mass, stack communities and the
+distance from each submitted lineup to concentrated field mass. Use BigQuery
+for durable rows and local sparse/MinHash/LSH tooling only if exact pairwise
+work becomes too expensive. NetworkX may visualize aggregated communities;
+Neo4j is unnecessary.
+
+Before optimizing dollars, also preserve each contest's entry fee, field size
+and payout ladder. Calibrate the existing conditional field sampler against
+real duplication, salary-leftover and neighbourhood distributions, then compare
+the current tail selector with a preregistered expected-payout/portfolio-win
+objective. Historical winner-only files cannot substitute for the missing
+field distribution.
+
+## Not queued
+
+- Neo4j or another graph database without a measured scale failure.
+- A player-graph GNN trained on 107 slate outcomes.
+- LLM-generated projections or numerical adjustments.
+- Individual player-pair community detection from 17-game seasons.
+- A new generic marginal model outside the TabPFN feature/cache sequence.
+
+## Execution order
+
+1. Finish fitted-K exact-80 and the already-frozen TabPFN marginal queue.
+2. Run G1 as the next independent, score-free dependence diagnostic.
+3. If G1 supports the mechanism, preregister and run G2.
+4. Develop G3 only after the global-K and G1 evidence define its target.
+5. Begin G4 when complete 2026 standings plus payout ladders accumulate.
+
+Every stage must update `HANDOFF.md` with its protocol, immutable code/image,
+data identities, execution IDs, validation, result and exact next action.
