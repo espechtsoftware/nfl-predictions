@@ -241,6 +241,11 @@ and must not be staged or modified.
   averages and season signs are diagnostics. This directly matches the
   operator's current objective and prevents either an obsolete 200-lift gate
   or a post-score branch choice from deciding the repaired baseline.
+- Isolated registry qualification now has guarded launch/finish scripts. They
+  require both warehouse and canonical-cache validation, refuse a nonempty
+  `models_pit_v2` prefix, launch K3/K1/role jobs from one immutable image, and
+  validate all component artifacts, ensemble sizes, generations/checksums and
+  exact base/role feature contracts without reading scores.
 
 ### Validated production rollout completed; Route diagnostic ready
 
