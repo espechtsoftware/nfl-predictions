@@ -1,0 +1,8 @@
+{
+  "content_checksum": 8135680550522268534,
+  "last_modified": "2026-08-12T04:20:11.114000+00:00",
+  "rows": 52307,
+  "schema_sha256": "99099e5921ada524b201311fed3743f40083fb75cff56a2d5a131ba183abbc4c",
+  "table": "nfl-predictions-503414.nfl_features.tabpfn_active_label_treatment_v2",
+  "unique_keys": 52307
+}
