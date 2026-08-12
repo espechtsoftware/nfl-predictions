@@ -233,6 +233,14 @@ and must not be staged or modified.
   revalidates that identity. This prevents the old v1 panel/K constants from
   contaminating the repaired branch. It is not launchable until Tier 1 and
   fitted-K are terminal.
+- Tier-1 scoring is now frozen before repaired outcomes in
+  `reports/2026-08-11-pit-clean-tier1-revalidation.md`: exact code/cache,
+  isolated `models_pit_v2` registry qualification, exact-80 K3/K1 controls,
+  predeclared K3 and K1 direct-role branches, and a 240->230->220->210->200->
+  194->187 lexicographic operator law. The first non-tied high threshold wins;
+  averages and season signs are diagnostics. This directly matches the
+  operator's current objective and prevents either an obsolete 200-lift gate
+  or a post-score branch choice from deciding the repaired baseline.
 
 ### Validated production rollout completed; Route diagnostic ready
 
