@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 07:57 CDT
+## Current state — 2026-08-12 08:14 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -376,6 +376,16 @@ and must not be staged or modified.
   role finisher with audit digest `f73e...`, then launch the score-free PIT-v2
   served-position and usage-K calibrations from the resulting terminal Tier-1
   selection.
+- Observer-blinding deviation during that wait: after the aggregate staging
+  count held at 102/107, a broad Cloud Logging health query intended to check
+  for a stalled optimizer returned score-bearing lines for three already
+  completed slates (2019 Week 15, 2022 Week 16 and 2023 Week 17). No code,
+  threshold, panel, branch, protocol or downstream action was changed; the
+  seven-threshold comparator and both next-stage launches were already frozen
+  and remain mechanical. Do not use those accidentally exposed values for any
+  choice. Complete the panel and run the unchanged frozen finisher. This is a
+  disclosed observer-blindness process deviation, not a row/invariant or
+  computational-validity failure.
 - The licensed PIT-v2 served-position Stage B is implemented before its
   score-free refit result is known. It derives the selected full panel, K1/K3
   law, role/no-role candidate law, and unrounded four-factor specification;
