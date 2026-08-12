@@ -470,8 +470,11 @@ def _tabpfn_marginal_table(env: dict | None = None) -> str:
     if not table:
         return "tabpfn_projections"
     licensed = {
+        "tabpfn_projections_pit_v2",
         "tabpfn_active_label_control_v1",
         "tabpfn_active_label_treatment_v1",
+        "tabpfn_active_label_control_v2",
+        "tabpfn_active_label_treatment_v2",
     }
     if table not in licensed:
         raise ValueError(

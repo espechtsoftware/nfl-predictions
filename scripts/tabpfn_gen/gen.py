@@ -8,7 +8,10 @@ Modes:
   player_week_inference (context = all prior TRAINING rows) and append
   them — this is what makes the lever live on Sundays. Run weekly.
 """
+import hashlib
+import json
 import os
+import re
 import time
 
 import numpy as np
@@ -17,6 +20,11 @@ import torch
 from google.cloud import bigquery
 
 PROJECT = os.environ["GCP_PROJECT"]
+OUTPUT_TABLE = os.environ.get(
+    "TABPFN_OUTPUT_TABLE", "tabpfn_projections").strip()
+CODE_SHA = os.environ.get("CODE_SHA", "").strip()
+PIT_OUTPUT_TABLE = "tabpfn_projections_pit_v2"
+OUTPUT_PREFIX = "TABPFN_GEN_JSON="
 QS = [0.01, 0.05, 0.10, 0.20, 0.30, 0.40, 0.50,
       0.60, 0.70, 0.80, 0.90, 0.95, 0.99]
 QCOLS = [f"q{int(q*100):02d}" for q in QS]
@@ -24,7 +32,24 @@ CTX_MAX = 28_000
 SEASONS = [2019, 2021, 2022, 2023, 2024, 2025]
 
 bq = bigquery.Client(project=PROJECT)
-feats = open("/app/features.txt").read().split()
+feature_bytes = open("/app/features.txt", "rb").read()
+feats = feature_bytes.decode("utf-8").split()
+feature_sha = hashlib.sha256(feature_bytes).hexdigest()
+if OUTPUT_TABLE not in {"tabpfn_projections", PIT_OUTPUT_TABLE}:
+    raise ValueError(f"unlicensed TABPFN_OUTPUT_TABLE={OUTPUT_TABLE!r}")
+if OUTPUT_TABLE == PIT_OUTPUT_TABLE:
+    if not re.fullmatch(r"[0-9a-f]{7,40}", CODE_SHA):
+        raise ValueError("PIT-clean canonical cache requires immutable CODE_SHA")
+    forbidden = {
+        "TABPFN_COMPONENTS": os.environ.get("TABPFN_COMPONENTS", ""),
+        "TABPFN_UPCOMING": os.environ.get("TABPFN_UPCOMING", ""),
+        "TABPFN_SEASONS": os.environ.get("TABPFN_SEASONS", ""),
+        "TABPFN_WRITE": os.environ.get("TABPFN_WRITE", ""),
+    }
+    active = sorted(name for name, value in forbidden.items() if value.strip())
+    if active:
+        raise ValueError(
+            f"PIT-clean canonical cache has forbidden envs: {active}")
 
 
 def prep(df):
@@ -39,9 +64,19 @@ def prep(df):
 
 
 X_cols = sorted(feats) + ["pos_code"]
-panel = bq.query(
-    f"SELECT * FROM `{PROJECT}.nfl_features.player_week_training`"
-).to_dataframe()
+source_table = f"{PROJECT}.nfl_features.player_week_training"
+source_meta = bq.get_table(source_table)
+panel = bq.query(f"SELECT * FROM `{source_table}`").to_dataframe()
+source_checksum = int(bq.query(f"""
+    SELECT BIT_XOR(FARM_FINGERPRINT(TO_JSON_STRING(t))) AS checksum
+    FROM `{source_table}` t
+""").to_dataframe().iloc[0]["checksum"])
+source_schema = json.dumps(
+    [(field.name, field.field_type, field.mode)
+     for field in source_meta.schema],
+    separators=(",", ":"),
+)
+source_schema_sha = hashlib.sha256(source_schema.encode()).hexdigest()
 panel = prep(panel)
 print(f"panel {len(panel):,} rows {panel.season.min()}-{panel.season.max()}",
       flush=True)
@@ -163,8 +198,43 @@ if up:
 
 allf = pd.concat(out, ignore_index=True).drop_duplicates(
     ["season", "week", "gsis_id"], keep="last")
+if allf.duplicated(["season", "week", "gsis_id"]).any():
+    raise ValueError("TabPFN canonical cache target keys are not unique")
+values = allf[["mean", *QCOLS]].to_numpy(float)
+if not np.isfinite(values).all():
+    raise ValueError("TabPFN canonical cache contains non-finite predictions")
+if np.any(np.diff(allf[QCOLS].to_numpy(float), axis=1) < -1e-8):
+    raise ValueError("TabPFN canonical cache contains unordered quantiles")
+disposition = (bigquery.WriteDisposition.WRITE_EMPTY
+               if OUTPUT_TABLE == PIT_OUTPUT_TABLE
+               else bigquery.WriteDisposition.WRITE_TRUNCATE)
 job = bq.load_table_from_dataframe(
-    allf, f"{PROJECT}.nfl_features.tabpfn_projections",
-    job_config=bigquery.LoadJobConfig(write_disposition="WRITE_TRUNCATE"))
+    allf, f"{PROJECT}.nfl_features.{OUTPUT_TABLE}",
+    job_config=bigquery.LoadJobConfig(write_disposition=disposition))
 job.result()
+report = {
+    "disposition": "tabpfn-canonical-cache-generated",
+    "code_sha": CODE_SHA,
+    "output_table": f"{PROJECT}.nfl_features.{OUTPUT_TABLE}",
+    "write_disposition": str(disposition),
+    "output_rows": int(len(allf)),
+    "unique_keys": int(
+        allf[["season", "week", "gsis_id"]].drop_duplicates().shape[0]),
+    "target_seasons": SEASONS,
+    "context_law": "all-prior-nonnull-labels",
+    "context_max": CTX_MAX,
+    "random_seed": 7,
+    "n_estimators": 4,
+    "feature_contract_sha256": feature_sha,
+    "training_source": {
+        "table": source_table,
+        "last_modified": source_meta.modified.isoformat(),
+        "schema_sha256": source_schema_sha,
+        "content_checksum": source_checksum,
+        "rows": int(len(panel)),
+        "active_rows": int(panel.was_active.fillna(False).astype(bool).sum()),
+        "inactive_rows": int((~panel.was_active.fillna(False).astype(bool)).sum()),
+    },
+}
 print(f"loaded {len(allf):,} rows; TABPFN_GEN_DONE", flush=True)
+print(OUTPUT_PREFIX + json.dumps(report, sort_keys=True), flush=True)

@@ -163,6 +163,15 @@ and must not be staged or modified.
   Do not use it: the final cache lineage must include the referee total-order
   repair. Superseded CPU build `72d4ed86-ce91-45dc-8287-e83bb7728a94` was
   cancelled to avoid wasting compute after the gate found the new repair.
+- The Tier-1 canonical TabPFN regeneration is now frozen separately in
+  `reports/2026-08-11-tabpfn-canonical-pit-clean-cache.md`. It writes the
+  unchanged six-season/all-prior/current-label law once to
+  `nfl_features.tabpfn_projections_pit_v2`, records the complete repaired
+  training-table identity and never overwrites the old production table. The
+  replay cache resolver now licenses that exact table and both registered v2
+  active-label tables; the prior resolver recognized only v1 names, which
+  would have blocked the already-frozen v2 downstream run. K3/K1 must both pin
+  the new canonical table explicitly and may not fall back silently.
 
 ### Validated production rollout completed; Route diagnostic ready
 

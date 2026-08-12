@@ -44,6 +44,10 @@ mechanisms, seeds, exact-80 requirement and tail-first law:
    the stronger mechanically valid repaired book rather than preserving the
    policy name.
 3. The canonical current-label TabPFN cache and final-served diagnostics.
+   The repaired historical cache is write-once
+   `nfl_features.tabpfn_projections_pit_v2` under the unchanged six-season
+   all-prior/non-null-label context law; both K3/K1 controls must name it
+   explicitly so no stale-cache or empirical fallback can enter one arm.
 4. Served-position calibration: refit the factors score-free using the same
    walk-forward grid/rule, then run one exact-80 comparison only if its original
    calibration gate passes. Old factors may not be copied onto repaired draws.
