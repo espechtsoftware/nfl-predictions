@@ -379,7 +379,11 @@ def _selected_schedule(env: dict[str, str] | None = None) -> dict[int, dict]:
     if not encoded:
         raise ValueError("G0 selected position schedule is missing")
     try:
-        decoded = base64.b64decode(encoded, validate=True).decode("utf-8")
+        # Cloud Run/gcloud removes terminal ``=`` padding from values passed
+        # through --set-env-vars. Restore only the deterministic base64
+        # padding; validation still rejects any non-alphabet bytes.
+        padded = encoded + "=" * (-len(encoded) % 4)
+        decoded = base64.b64decode(padded, validate=True).decode("utf-8")
         raw = json.loads(decoded)
     except Exception as exc:
         raise ValueError("G0 selected position schedule is invalid") from exc

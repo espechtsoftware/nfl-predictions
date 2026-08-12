@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 17:38 CDT
+## Current state — 2026-08-12 17:43 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -225,13 +225,17 @@ reconciliation when their findings affect the program.
   `28ef097d-9067-48ed-bb26-670ec2fd1ef4` passed the full suite and produced
   immutable digest
   `sha256:92a9c6f8bbf6964a4153e1e054a4ac7e18bc2aeece11bab8417904cb09b35cda`.
-  The sole frozen G0 execution is now running as
-  `g0-final-served-dependence-v1-8mhvg`; its hash-locked manifest and selected
-  cache preflight are under
-  `reports/g0-dependence-runs/20260812-g0-final-served-dependence-v1/`.
-  Next: wait for a clean terminal execution, run the immutable G0 harvester,
-  and follow its precommitted branch—only a material dependence miss licenses
-  G1; equivalence or inconclusive evidence closes G1/G2.
+  First execution `g0-final-served-dependence-v1-8mhvg` failed before loading
+  data or computing any metric because Cloud Run's `--set-env-vars` transport
+  stripped terminal base64 padding from the selected schedule. Logs contain
+  zero G0 scientific output prefixes. The failure is preserved under v1 and
+  classified `invalid-pre-data-operational-failure`. The transport-only repair
+  restores deterministic base64 padding before strict decode; protocol, data,
+  schedule, cells, uncertainty and decision rules are unchanged. V2 uses a
+  new immutable run/job identity. Next: validate/commit the transport repair,
+  rebuild the exact full image, launch v2, then follow its precommitted branch—
+  only a material dependence miss licenses G1; equivalence or inconclusive
+  evidence closes G1/G2.
 - Review reconciliation and active-label gate milestone commit `83192ca` is
   pushed on `main`. The complete local suite passes all 992 collected tests
   with one expected rear-view dashboard skip. Exact-commit team-passing GPU

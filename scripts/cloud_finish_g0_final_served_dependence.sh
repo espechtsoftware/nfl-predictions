@@ -4,7 +4,7 @@ set -euo pipefail
 
 PROJECT=nfl-predictions-503414
 REGION=us-central1
-RUN_ID=20260812-g0-final-served-dependence-v1
+RUN_ID=20260812-g0-final-served-dependence-v2
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$ROOT/reports/g0-dependence-runs/$RUN_ID"
 MANIFEST="$OUT/manifest.txt"

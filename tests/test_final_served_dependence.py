@@ -92,6 +92,10 @@ def test_terminal_schedule_and_cache_contracts_restore_environment(monkeypatch):
     encoded = base64.b64encode(json.dumps(schedule).encode()).decode()
     assert set(g0._selected_schedule({"G0_POSITION_SCHEDULE_B64": encoded})) == {
         2023, 2024, 2025}
+    # Cloud Run's --set-env-vars transport strips trailing base64 padding.
+    assert set(g0._selected_schedule({
+        "G0_POSITION_SCHEDULE_B64": encoded.rstrip("=")
+    })) == {2023, 2024, 2025}
     with pytest.raises(ValueError, match="wrong seasons"):
         g0._selected_schedule({
             "G0_POSITION_SCHEDULE_B64": base64.b64encode(
