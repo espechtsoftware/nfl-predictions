@@ -255,6 +255,9 @@ reconciliation when their findings affect the program.
   classes including separately routed cross-game controls, Jeffreys
   shrinkage, cell support, a 2,000-slate bootstrap, deterministic positive-lift
   spectral topology diagnostics, and an exhaustive stable-QB-hub decision.
+  The archetype source is explicitly limited to strictly-prior
+  `was_active=true` games so inactive zero rows cannot define a player's
+  scoring profile.
   G2 requires both broad QB-WR/QB-TE stability across seasons and at least one
   supported material archetype edge for each relationship; graph communities
   themselves cannot gate. Next: implement G1 with exact G0 reproduction tests,

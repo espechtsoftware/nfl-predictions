@@ -25,10 +25,11 @@ may not run against a mutable/latest image or warehouse archetype table.
 ## Walk-forward archetypes
 
 For target season `t`, compute each player's scoring-consistency profile only
-from complete player-week training rows with `season < t`, excluding the
-repository-wide omitted 2020 season. Inputs are player ID, QB/RB/WR/TE
-position and authoritative DK points. Target-season outcomes never enter the
-profile or label.
+from complete `was_active=true` player-week training rows with `season < t`,
+excluding the repository-wide omitted 2020 season. Inputs are player ID,
+QB/RB/WR/TE position and authoritative DK points. Inactive zero rows cannot
+define a scoring profile. Target-season outcomes never enter the profile or
+label.
 
 Reuse `analysis/archetypes.py` exactly: features `avg_pts`, `cv`, `pct_20_plus`,
 `pct_10_plus`, and `skew`; minimum 16 prior games; within-position Gaussian
