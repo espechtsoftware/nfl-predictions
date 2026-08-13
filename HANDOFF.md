@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 03:38 CDT
+## Current state — 2026-08-13 03:52 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -147,9 +147,29 @@ reconciliation when their findings affect the program.
   `bf133686-f4e2-48e2-a766-480220f3b4e3` from pushed repair/source commit
   `55451fb` passed and produced immutable digest
   `sha256:58f70494f6da7647d871e11f800306f5883093dd6b48164d84b906dd1e0493a9`.
-  Score-free execution `td-ledger-final-served-v1-pb4fh` is running from that
-  digest. Poll it, harvest only after clean completion, and apply the frozen
-  gate without querying lineup scores.
+  Score-free execution `td-ledger-final-served-v1-pb4fh` completed cleanly
+  from that digest in 28m22s. Its immutable machine artifact is under
+  `reports/td-ledger-runs/20260813-td-ledger-final-served-v1/`, with concise
+  interpretation in
+  `reports/2026-08-13-td-ledger-final-served-result.md`. The frozen disposition
+  is `td-ledger-invalid-or-inconclusive`, so no exact-80 is licensed and no
+  lineup score was queried. All substantive score-free gates improved and all
+  material-regression guards passed: joint-q90 Brier
+  `0.0184902457 -> 0.0184693402`, variogram
+  `1.4349192382 -> 1.4291390592`, G0 absolute-log-error sum
+  `3.3128520397 -> 3.0074140876`, weighted G1 error
+  `6.9441769599 -> 6.2018347057`, and QB-WR error
+  `1.1383728859 -> 1.0024590461`. Both primary paired-slate bootstrap intervals
+  exclude zero favorably. The only failed invariant is exact final-served
+  player marginals: maximum player-mean drift was
+  `3.814697269177714e-06` rather than at most `1e-10`; frame/actual alignment,
+  deterministic replay, finite output, terminal identity, and control
+  reproduction all passed. Treat this as promising but invalid, not as a
+  scientific rejection. Exact next action is a score-free, stage-boundary
+  precision/ULP diagnostic for the TabPFN -> market shift -> position-scale
+  path. Repair only a demonstrated general numerical defect, prove exact
+  marginal preservation and default-path safety, then rerun the unchanged
+  gate; never waive the invariant or inspect lineup scores.
 
 ### 2026-08-12 team-passing review reconciliation
 
