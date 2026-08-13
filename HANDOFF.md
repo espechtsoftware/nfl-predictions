@@ -232,6 +232,13 @@ agent or developer:
   the original decision already sums them into a single Slot bucket. Exactly
   six Submit calls remain for exactly six artifacts; no game, identity,
   volume-only calculation, mapping or threshold changes.
+  The repaired attempt sent one exact validated Submit payload but received no
+  accepted response/artifact, leaving the immutable counter `7/12`. Stop this
+  acquisition for now: no raw SIS alignment row has been inspected, so this is
+  neither a feasibility pass nor fail. Preserve the private run-state and the
+  five remaining requests. Diagnose/replay the response listener with blocked
+  networking or defer until the provider weekly counter resets; do not reset
+  the local counter or spend another live query speculatively.
 - The SIS QB-line cache mechanical gate passed and the score-free
   final-served execution
   `tabpfn-sis-qb-line-final-served-v1-vkx49` completed from audit image
