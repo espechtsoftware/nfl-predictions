@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 
 from nfl_dfs.research import active_label_usage_revalidation as arm
@@ -111,3 +113,10 @@ def test_exact_tie_retains_finite_k_incumbent():
     assert report["decision"]["comparison"] == 0
     assert report["decision"]["treatment_selected"]
     assert report["decision"]["incumbent_retained_on_exact_tie"]
+
+
+def test_main_image_contains_registered_comparator():
+    dockerfile = (Path(__file__).parents[1] / "Dockerfile").read_text(
+        encoding="utf-8")
+    assert "COPY scripts/compare_active_label_usage_revalidation.py " \
+        "./scripts/compare_active_label_usage_revalidation.py" in dockerfile

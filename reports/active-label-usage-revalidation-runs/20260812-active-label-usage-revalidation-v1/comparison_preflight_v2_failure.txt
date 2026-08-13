@@ -1,0 +1,12 @@
+classification=invalid-pre-data-image-entrypoint-preflight
+execution=compare-active-label-usage-preflight-v2-545br
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:6c244bdea25d7fe02212f016c9cc41bac55c5dd1f1b136557a9f5eef348a6094
+completed=false
+failed_count=1
+exit_code=2
+error=/usr/local/bin/python could not open /app/scripts/compare_active_label_usage_revalidation.py (file not found)
+preflight_only=true
+panels_loaded=false
+metric_computed=false
+comparator_launched=false
+scientific_records=0

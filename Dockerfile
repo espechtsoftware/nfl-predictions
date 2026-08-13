@@ -25,12 +25,14 @@ COPY scripts/compare_tabpfn_active_label_lineup.py ./scripts/compare_tabpfn_acti
 COPY scripts/compare_tabpfn_active_label_lineup_v2.py ./scripts/compare_tabpfn_active_label_lineup_v2.py
 COPY scripts/compare_tabpfn_sched_lineup_v1.py ./scripts/compare_tabpfn_sched_lineup_v1.py
 COPY scripts/compare_tabpfn_team_qb_lineup_v1.py ./scripts/compare_tabpfn_team_qb_lineup_v1.py
+COPY scripts/compare_active_label_usage_revalidation.py ./scripts/compare_active_label_usage_revalidation.py
 COPY scripts/compare_k1_milly_ownership_panel.py ./scripts/compare_k1_milly_ownership_panel.py
 COPY scripts/compare_exact_replay.py ./scripts/compare_exact_replay.py
 COPY scripts/compare_role_belief_panel.py ./scripts/compare_role_belief_panel.py
 COPY scripts/evaluate_milly_ownership.py ./scripts/evaluate_milly_ownership.py
 COPY scripts/evaluate_k1_ce_reranker.py ./scripts/evaluate_k1_ce_reranker.py
 COPY scripts/run_conditional_schaake_smoke.py ./scripts/run_conditional_schaake_smoke.py
+COPY scripts/analyze_portfolio_effective_rank.py ./scripts/analyze_portfolio_effective_rank.py
 
 RUN pip install --no-cache-dir ".[gcp,app]"
 

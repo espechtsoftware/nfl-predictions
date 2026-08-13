@@ -402,6 +402,15 @@ reconciliation when their findings affect the program.
   `efcfc71`; after it passes, use its immutable digest with the repaired
   finisher and record the new preflight/comparator IDs before reading the sole
   valid comparison.
+- Global replacement build `14272a43-ea6a-4ba4-85e9-b6fe7802bbfd` passed 1,014
+  tests with two expected skips and produced digest `sha256:6c244b...`, but the
+  new executable image preflight `compare-active-label-usage-preflight-v2-545br`
+  correctly failed: the Dockerfile's explicit script allowlist still omitted
+  the comparator. No v2 comparator was launched and no panel was read. The
+  Dockerfile now copies the registered comparator (and the new effective-rank
+  analyzer), with source-contract regression tests. Build another full-test
+  immutable image from this repair, rerun the same entrypoint preflight, and
+  only then allow the v2 comparator.
 - The operator-supplied alternative-frames review is retained unchanged at
   `reports/2026-08-12-alternative-analytical-frames.md` and reconciled in
   `reports/2026-08-12-alternative-analytical-frames-reconciliation.md`. The

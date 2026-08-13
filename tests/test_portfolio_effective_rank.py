@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import io
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -123,3 +124,10 @@ def test_selected_diversification_exceeds_same_pool_controls():
     random_summary = report["same_world_controls"]["random_books"][
         "deflated_correlation_participation_ratio"]
     assert random_summary["mean"] > 70
+
+
+def test_main_image_contains_effective_rank_analyzer():
+    dockerfile = (Path(__file__).parents[1] / "Dockerfile").read_text(
+        encoding="utf-8")
+    assert "COPY scripts/analyze_portfolio_effective_rank.py " \
+        "./scripts/analyze_portfolio_effective_rank.py" in dockerfile

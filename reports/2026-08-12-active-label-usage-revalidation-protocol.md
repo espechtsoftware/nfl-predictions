@@ -113,3 +113,14 @@ harvest and retries bounded Cloud Logging reads for propagation. Panels,
 features, candidate books, K, allocation laws, thresholds and decision remain
 unchanged. Preserve the v1 execution id and empty raw result as invalid
 operational evidence.
+
+The first replacement full-test build
+`14272a43-ea6a-4ba4-85e9-b6fe7802bbfd` passed 1,014 tests with two expected
+skips and produced digest `sha256:6c244bdea25d7fe02212f016c9cc41bac55c5dd1f1b136557a9f5eef348a6094`,
+but image-entrypoint preflight
+`compare-active-label-usage-preflight-v2-545br` proved the Dockerfile still did
+not copy the comparator into `/app/scripts`. No comparator execution was
+launched and no panel was read. The next image must add that exact `COPY` plus
+a source-contract test, pass the full suite, and pass the same entrypoint
+preflight. This remains the same packaging-only repair and does not license a
+scientific change.
