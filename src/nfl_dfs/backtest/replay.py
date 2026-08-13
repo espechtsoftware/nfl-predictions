@@ -177,10 +177,12 @@ def replay_projections(
             target_allocation_multipliers=multipliers,
             keep_draws=False, keep_target_receiving=True,
         )
-        asoe_raw = (
-            sim.draws
-            - sim.target_receiving_draws
-            + treatment_sim.target_receiving_draws
+        changed_rows = ~np.isclose(multipliers, 1.0, rtol=0, atol=1e-15)
+        asoe_raw = sim.draws.copy()
+        asoe_raw[changed_rows] = (
+            sim.draws[changed_rows]
+            - sim.target_receiving_draws[changed_rows]
+            + treatment_sim.target_receiving_draws[changed_rows]
         )
         sim.draws = asoe.rank_transport(sim.draws, asoe_raw)
         log.info("SIS ASOE target allocation audit=%s", asoe_audit)

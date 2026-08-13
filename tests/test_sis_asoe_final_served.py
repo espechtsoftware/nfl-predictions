@@ -89,3 +89,16 @@ def test_target_receiving_delta_does_not_import_unrelated_treatment_rng():
         + same.target_receiving_draws
     )
     np.testing.assert_allclose(composed, control.draws, rtol=0, atol=2e-15)
+
+
+def test_fallback_rows_can_remain_bit_exact_without_arithmetic_round_trip():
+    control = np.array([[1.0, 1.0, 2.0], [3.0, 4.0, 5.0]])
+    control_receiving = np.array([[0.1, 0.1, 0.2], [0.3, 0.4, 0.5]])
+    treatment_receiving = control_receiving.copy()
+    changed = np.array([False, True])
+    composed = control.copy()
+    composed[changed] = (
+        control[changed] - control_receiving[changed]
+        + treatment_receiving[changed]
+    )
+    np.testing.assert_array_equal(composed[~changed], control[~changed])
