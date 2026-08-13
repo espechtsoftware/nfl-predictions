@@ -178,6 +178,15 @@ agent or developer:
   canonical-schema regression test. Build v2 images from the repaired commit
   and relaunch the same still-absent write-once cache tables under distinct v2
   execution/run IDs.
+  The outcome-blind SIS filter audit confirmed exact separate receiving
+  alignment and pass-defense receiver/defender alignment controls using three
+  UI query calls. The one-game feasibility decision is frozen before sample
+  output in `reports/2026-08-13-sis-alignment-feasibility-protocol.md`:
+  2025 Week 1 Arizona offense versus New Orleans defense, four WR alignment
+  buckets and three CB alignment buckets, Routes/Coverage Snaps only, a hard
+  12-query ceiling, and predeclared concentration/overlap thresholds. Implement
+  a guarded UI sample acquisition next; do not inspect outcome columns or
+  expand to a backfill unless this screen passes.
 - The SIS QB-line cache mechanical gate passed and the score-free
   final-served execution
   `tabpfn-sis-qb-line-final-served-v1-vkx49` completed from audit image
