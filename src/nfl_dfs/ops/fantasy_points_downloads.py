@@ -1211,6 +1211,38 @@ def interactive_login(
         context.close()
 
 
+def verify_login(profile_dir: Path, timeout_seconds: float) -> None:
+    """Headlessly prove that the saved paid-data session still works."""
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError as exc:  # pragma: no cover
+        raise RuntimeError('install browser support with `pip install -e ".[browser]"`') from exc
+
+    timeout_ms = int(timeout_seconds * 1000)
+    if not profile_dir.is_dir():
+        raise RuntimeError(
+            "Fantasy Points browser profile is missing; run "
+            "`fantasy-points-download login --terminal-credentials`"
+        )
+    with sync_playwright() as playwright:
+        context = playwright.chromium.launch_persistent_context(
+            str(profile_dir), headless=True, viewport={"width": 1800, "height": 1200}
+        )
+        page = context.pages[0] if context.pages else context.new_page()
+        page.set_default_timeout(timeout_ms)
+        try:
+            _navigate_to_report(page, REPORTS["route-share"], timeout_ms)
+            print(f"Fantasy Points session verified: {page.url}")
+        except Exception as exc:
+            raise RuntimeError(
+                "Fantasy Points saved session could not open the protected Route "
+                "Share report; run `fantasy-points-download login "
+                "--terminal-credentials`"
+            ) from exc
+        finally:
+            context.close()
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="fantasy-points-download",
@@ -1224,6 +1256,9 @@ def _build_parser() -> argparse.ArgumentParser:
         "--terminal-credentials",
         action="store_true",
         help="prompt securely in the terminal and fill the browser automatically",
+    )
+    subparsers.add_parser(
+        "verify-login", help="headlessly verify the saved Fantasy Points session"
     )
     check = subparsers.add_parser("check", help="validate a plan and the live report catalog")
     check.add_argument("--plan", type=Path, required=True)
@@ -1255,6 +1290,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                 args.timeout,
                 terminal_credentials=args.terminal_credentials,
             )
+            return 0
+        if args.command == "verify-login":
+            verify_login(args.profile_dir, args.timeout)
             return 0
         payload, specs = load_plan(args.plan)
         specs = select_target_week(specs, args.target_week)

@@ -109,6 +109,18 @@ or import it until its reduced recovery plan is frozen; its durable counter is
 The first paid month is NFL-only. College acquisition is deferred to the 2027
 CFB go/no-go review.
 
+## Weekly operator integration
+
+The Wednesday 10:00am CT command `nfl-weekly-data run --week W` verifies the
+saved SIS session alongside Fantasy Points before unattended data work starts.
+It intentionally submits **zero SIS queries** unless `--sis-plan` names a
+tracked, evidence-approved recurring plan. The present team-context and
+alignment files are historical research plans, not weekly production plans.
+When a recurring SIS mechanism passes its gate, check in its bounded plan and
+add that exact path to the command documented here and in the UI Weekly guide.
+This preserves the one-login-then-leave workflow without silently spending SIS
+requests on rejected features.
+
 The frozen, one-game receiver/corner alignment feasibility sample is run as:
 
 ```bash

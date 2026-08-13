@@ -214,6 +214,39 @@ import never authorizes same-week data in a target-week projection.
 The automation intentionally runs sequentially with a delay between exports.
 It uses only the normal authenticated UI and does not bypass access controls.
 
+## Weekly operator command
+
+Run the combined acquisition workflow every Wednesday at **10:00am America/
+Chicago**. Week 1 captures odds/matchups and automatically skips Route Share;
+strict-prior Route Share begins with target Week 2:
+
+```bash
+source .venv/bin/activate
+nfl-weekly-data run --week W
+```
+
+It verifies the saved Fantasy Points and SIS sessions before starting the
+long work. If either session expired, it prompts securely for that login and
+then continues on its own. The run triggers the deployed `ingest-odds` Cloud
+Run job (whose API key stays in Secret Manager), downloads and writes the
+strict-prior Route Share import, and captures/archives the three Fantasy
+Points matchup reports. It records a durable local manifest below ignored
+`weekly-data-runs/`. From Week 2, if Fantasy Points has not posted Week W-1 by 10:00am,
+retry Wednesday evening; it must finish before `s-features-route` begins
+Thursday at 6:30am CT.
+
+This on-demand Odds API snapshot supplements rather than replaces the normal
+game-odds schedule (9:00am and 3:00pm CT Wednesday-Sunday). Player props keep
+their Thursday 11:00am CT cloud schedule; use `--include-props` only for an
+intentional extra snapshot because each provider request consumes quota.
+
+SIS is deliberately session-checked but does not spend paid queries in the
+default command: no SIS family has yet passed into a recurring production or
+prospective plan. Once a recurring plan is evidence-approved and checked in,
+add `--sis-plan automation/sis/plans/<approved-plan>.json`; the same command
+will then execute it after both logins. Never point this weekly command at a
+closed historical research tranche.
+
 ## Prospective matchup snapshots
 
 QB Coverage Matchup, WR Coverage Matchup and OL/DL Matchups have no historical

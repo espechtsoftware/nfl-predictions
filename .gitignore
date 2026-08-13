@@ -17,6 +17,7 @@ venv/
 /fantasy-points/
 /sis-trial/
 /sis/
+/weekly-data-runs/
 .env
 .DS_Store
 notebooks/.ipynb_checkpoints/

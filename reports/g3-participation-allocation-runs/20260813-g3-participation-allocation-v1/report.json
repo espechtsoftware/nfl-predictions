@@ -1,0 +1,596 @@
+{
+  "branch": {
+    "accepted_cache": "tabpfn_active_label_treatment_v2",
+    "control": "accepted-global-dirichlet-k",
+    "global_k": 28.154043586960896,
+    "historical_panel": "20260811-pitclean-e80-k1-role12union-a12ab31",
+    "treatment": "participation-conditioned-dirichlet-hierarchy"
+  },
+  "calibration": {
+    "aggregate": {
+      "control_mean_nll_per_group": 13.833714471173643,
+      "control_nll_sum": 21981.772294694918,
+      "geometry_coverage": 0.7507866582756451,
+      "groups": 1589,
+      "mean_treatment_minus_control": -0.0011578835996782061,
+      "opportunities": 47765,
+      "treatment_k_max": 32.069315063948025,
+      "treatment_k_median": 28.154043586960896,
+      "treatment_k_min": 25.777365817369347,
+      "treatment_mean_nll_per_group": 13.832556587573965,
+      "treatment_nll_sum": 21979.93241765503
+    },
+    "by_kind": {
+      "carries": {
+        "control_mean_nll_per_group": 10.256035483879327,
+        "control_nll_sum": 8020.219748393633,
+        "geometry_coverage": 0.7289002557544757,
+        "groups": 782,
+        "mean_treatment_minus_control": -0.0008892491649729321,
+        "opportunities": 21576,
+        "treatment_k_max": 32.069315063948025,
+        "treatment_k_median": 28.154043586960896,
+        "treatment_k_min": 26.05134747506894,
+        "treatment_mean_nll_per_group": 10.255146234714353,
+        "treatment_nll_sum": 8019.524355546624
+      },
+      "targets": {
+        "control_mean_nll_per_group": 17.300560776085852,
+        "control_nll_sum": 13961.552546301284,
+        "geometry_coverage": 0.7719950433705081,
+        "groups": 807,
+        "mean_treatment_minus_control": -0.0014181960258734037,
+        "opportunities": 26189,
+        "treatment_k_max": 31.159216998402538,
+        "treatment_k_median": 28.154043586960896,
+        "treatment_k_min": 25.777365817369347,
+        "treatment_mean_nll_per_group": 17.299142580059982,
+        "treatment_nll_sum": 13960.408062108405
+      }
+    }
+  },
+  "disposition": "g3-stage-a-conditional-allocation-fails",
+  "evaluation": {
+    "aggregate": {
+      "control_mean_nll_per_group": 13.325700209731265,
+      "control_nll_sum": 31142.161390141966,
+      "geometry_coverage": 0.732135216089003,
+      "groups": 2337,
+      "mean_treatment_minus_control": 0.0015679276183471031,
+      "opportunities": 68609,
+      "treatment_k_max": 31.872420895732326,
+      "treatment_k_median": 28.154043586960896,
+      "treatment_k_min": 25.550939972780508,
+      "treatment_mean_nll_per_group": 13.327268137349611,
+      "treatment_nll_sum": 31145.82563698604
+    },
+    "by_kind": {
+      "carries": {
+        "control_mean_nll_per_group": 9.724376303596243,
+        "control_nll_sum": 11212.205878046469,
+        "geometry_coverage": 0.7450130095403296,
+        "groups": 1153,
+        "mean_treatment_minus_control": 0.003926664340334722,
+        "opportunities": 31608,
+        "treatment_k_max": 31.872420895732326,
+        "treatment_k_median": 28.154043586960896,
+        "treatment_k_min": 26.06646424582529,
+        "treatment_mean_nll_per_group": 9.728302967936578,
+        "treatment_nll_sum": 11216.733322030874
+      },
+      "targets": {
+        "control_mean_nll_per_group": 16.832732696026603,
+        "control_nll_sum": 19929.955512095497,
+        "geometry_coverage": 0.7195945945945946,
+        "groups": 1184,
+        "mean_treatment_minus_control": -0.0007290516387911777,
+        "opportunities": 37001,
+        "treatment_k_max": 31.162173230527507,
+        "treatment_k_median": 28.154043586960896,
+        "treatment_k_min": 25.550939972780508,
+        "treatment_mean_nll_per_group": 16.83200364438781,
+        "treatment_nll_sum": 19929.092314955167
+      }
+    },
+    "by_season": {
+      "2023": {
+        "control_mean_nll_per_group": 13.689859728453808,
+        "control_nll_sum": 10746.539886836239,
+        "geometry_coverage": 0.7515923566878981,
+        "groups": 785,
+        "mean_treatment_minus_control": 0.004142150793568368,
+        "opportunities": 23392,
+        "treatment_k_max": 31.85946204614135,
+        "treatment_k_median": 28.154043586960896,
+        "treatment_k_min": 25.759887025723426,
+        "treatment_mean_nll_per_group": 13.694001879247377,
+        "treatment_nll_sum": 10749.791475209191
+      },
+      "2024": {
+        "control_mean_nll_per_group": 13.147012376449776,
+        "control_nll_sum": 10267.816666007275,
+        "geometry_coverage": 0.7669654289372599,
+        "groups": 781,
+        "mean_treatment_minus_control": 0.001888789526295747,
+        "opportunities": 22881,
+        "treatment_k_max": 31.872420895732326,
+        "treatment_k_median": 28.154043586960896,
+        "treatment_k_min": 25.712381677237854,
+        "treatment_mean_nll_per_group": 13.148901165976072,
+        "treatment_nll_sum": 10269.291810627312
+      },
+      "2025": {
+        "control_mean_nll_per_group": 13.135933641113427,
+        "control_nll_sum": 10127.804837298452,
+        "geometry_coverage": 0.6770428015564203,
+        "groups": 771,
+        "mean_treatment_minus_control": -0.0013780624499493735,
+        "opportunities": 22336,
+        "treatment_k_max": 31.228018216734167,
+        "treatment_k_median": 28.154043586960896,
+        "treatment_k_min": 25.550939972780508,
+        "treatment_mean_nll_per_group": 13.134555578663479,
+        "treatment_nll_sum": 10126.742351149542
+      }
+    }
+  },
+  "fits": {
+    "carries": {
+      "beta": 0.056981750656179775,
+      "beta_display": 0.056982,
+      "bounds": [
+        -1.5,
+        1.5
+      ],
+      "l2_penalty": 0.05,
+      "objective": 10.255308580709745,
+      "optimizer_iterations": 14,
+      "optimizer_message": "Solution found.",
+      "optimizer_success": true,
+      "x_tolerance": 1e-06
+    },
+    "targets": {
+      "beta": -0.05285937494189718,
+      "beta_display": -0.052859,
+      "bounds": [
+        -1.5,
+        1.5
+      ],
+      "l2_penalty": 0.05,
+      "objective": 17.299282285735945,
+      "optimizer_iterations": 9,
+      "optimizer_message": "Solution found.",
+      "optimizer_success": true,
+      "x_tolerance": 1e-06
+    }
+  },
+  "gate": {
+    "active_kinds": [
+      "targets",
+      "carries"
+    ],
+    "aggregate_mean_nll_improves": false,
+    "at_least_two_of_three_seasons_improve": false,
+    "bootstrap": {
+      "bootstrap_mean": 0.0015869433808747525,
+      "ci95": [
+        -0.00013339370473826277,
+        0.003293452090505314
+      ],
+      "clusters": 1194,
+      "observed_mean_treatment_minus_control": 0.0015679276183471031,
+      "resamples": 2000,
+      "seed": 8113026
+    },
+    "carry_mean_nll_improves": false,
+    "clustered_bootstrap_upper_below_zero": false,
+    "conditional_law_active": true,
+    "coverage_cells": {
+      "2023:carries": 0.7751937984496124,
+      "2023:targets": 0.7286432160804021,
+      "2024:carries": 0.7901554404145078,
+      "2024:targets": 0.7443037974683544,
+      "2025:carries": 0.6684210526315789,
+      "2025:targets": 0.6854219948849105
+    },
+    "evaluation_geometry_coverage_each_cell_at_least_80pct": false,
+    "optimizers_succeeded": true,
+    "passes": false,
+    "point_in_time_sources": true,
+    "source_identities_present": true,
+    "target_mean_nll_improves": true,
+    "treatment_k_in_bounds": true
+  },
+  "population": {
+    "2021": {
+      "carries": {
+        "active_rows": 5293,
+        "excluded_zero_mean_groups": 0,
+        "excluded_zero_mean_opportunities": 0,
+        "maximum_group_size": 16,
+        "minimum_group_size": 9,
+        "opportunity_coverage": 1.0,
+        "otherwise_eligible_groups": 402,
+        "otherwise_eligible_opportunities": 11038,
+        "retained_groups": 402,
+        "retained_opportunities": 11038,
+        "retained_players": 5086,
+        "season": 2021
+      },
+      "targets": {
+        "active_rows": 4755,
+        "excluded_zero_mean_groups": 0,
+        "excluded_zero_mean_opportunities": 0,
+        "maximum_group_size": 14,
+        "minimum_group_size": 8,
+        "opportunity_coverage": 1.0,
+        "otherwise_eligible_groups": 417,
+        "otherwise_eligible_opportunities": 13658,
+        "retained_groups": 417,
+        "retained_opportunities": 13658,
+        "retained_players": 4745,
+        "season": 2021
+      }
+    },
+    "2022": {
+      "carries": {
+        "active_rows": 5115,
+        "excluded_zero_mean_groups": 0,
+        "excluded_zero_mean_opportunities": 0,
+        "maximum_group_size": 16,
+        "minimum_group_size": 9,
+        "opportunity_coverage": 1.0,
+        "otherwise_eligible_groups": 380,
+        "otherwise_eligible_opportunities": 10538,
+        "retained_groups": 380,
+        "retained_opportunities": 10538,
+        "retained_players": 4935,
+        "season": 2022
+      },
+      "targets": {
+        "active_rows": 4625,
+        "excluded_zero_mean_groups": 0,
+        "excluded_zero_mean_opportunities": 0,
+        "maximum_group_size": 14,
+        "minimum_group_size": 8,
+        "opportunity_coverage": 1.0,
+        "otherwise_eligible_groups": 390,
+        "otherwise_eligible_opportunities": 12531,
+        "retained_groups": 390,
+        "retained_opportunities": 12531,
+        "retained_players": 4575,
+        "season": 2022
+      }
+    },
+    "2023": {
+      "carries": {
+        "active_rows": 5177,
+        "excluded_zero_mean_groups": 0,
+        "excluded_zero_mean_opportunities": 0,
+        "maximum_group_size": 16,
+        "minimum_group_size": 10,
+        "opportunity_coverage": 1.0,
+        "otherwise_eligible_groups": 387,
+        "otherwise_eligible_opportunities": 10601,
+        "retained_groups": 387,
+        "retained_opportunities": 10601,
+        "retained_players": 5007,
+        "season": 2023
+      },
+      "targets": {
+        "active_rows": 4666,
+        "excluded_zero_mean_groups": 0,
+        "excluded_zero_mean_opportunities": 0,
+        "maximum_group_size": 14,
+        "minimum_group_size": 9,
+        "opportunity_coverage": 1.0,
+        "otherwise_eligible_groups": 398,
+        "otherwise_eligible_opportunities": 12791,
+        "retained_groups": 398,
+        "retained_opportunities": 12791,
+        "retained_players": 4644,
+        "season": 2023
+      }
+    },
+    "2024": {
+      "carries": {
+        "active_rows": 5098,
+        "excluded_zero_mean_groups": 0,
+        "excluded_zero_mean_opportunities": 0,
+        "maximum_group_size": 15,
+        "minimum_group_size": 9,
+        "opportunity_coverage": 1.0,
+        "otherwise_eligible_groups": 386,
+        "otherwise_eligible_opportunities": 10636,
+        "retained_groups": 386,
+        "retained_opportunities": 10636,
+        "retained_players": 4944,
+        "season": 2024
+      },
+      "targets": {
+        "active_rows": 4596,
+        "excluded_zero_mean_groups": 0,
+        "excluded_zero_mean_opportunities": 0,
+        "maximum_group_size": 14,
+        "minimum_group_size": 8,
+        "opportunity_coverage": 1.0,
+        "otherwise_eligible_groups": 395,
+        "otherwise_eligible_opportunities": 12245,
+        "retained_groups": 395,
+        "retained_opportunities": 12245,
+        "retained_players": 4562,
+        "season": 2024
+      }
+    },
+    "2025": {
+      "carries": {
+        "active_rows": 5121,
+        "excluded_zero_mean_groups": 0,
+        "excluded_zero_mean_opportunities": 0,
+        "maximum_group_size": 16,
+        "minimum_group_size": 9,
+        "opportunity_coverage": 1.0,
+        "otherwise_eligible_groups": 380,
+        "otherwise_eligible_opportunities": 10371,
+        "retained_groups": 380,
+        "retained_opportunities": 10371,
+        "retained_players": 4918,
+        "season": 2025
+      },
+      "targets": {
+        "active_rows": 4614,
+        "excluded_zero_mean_groups": 0,
+        "excluded_zero_mean_opportunities": 0,
+        "maximum_group_size": 14,
+        "minimum_group_size": 10,
+        "opportunity_coverage": 1.0,
+        "otherwise_eligible_groups": 391,
+        "otherwise_eligible_opportunities": 11965,
+        "retained_groups": 391,
+        "retained_opportunities": 11965,
+        "retained_players": 4559,
+        "season": 2025
+      }
+    }
+  },
+  "representation": {
+    "actor_context_bonus": 3.0,
+    "embedding_dimension": 16,
+    "minimum_geometry_probability_mass": 0.8,
+    "negative_samples": 5,
+    "objective": "symmetric-positive-shifted-pmi-sgns",
+    "svd_iterations": 7,
+    "svd_seed": 8112026
+  },
+  "scaling": {
+    "carries": {
+      "calibration_groups": 570,
+      "mean": 0.2678246690551013,
+      "standard_deviation": 0.19612173115633708
+    },
+    "targets": {
+      "calibration_groups": 623,
+      "mean": 0.40526355206780357,
+      "standard_deviation": 0.20958322338095708
+    }
+  },
+  "source_audit": {
+    "folds": {
+      "2021": {
+        "dimension": 16,
+        "embedded_players": 3326,
+        "maximum_source_season": 2020,
+        "negative_samples": 5,
+        "pit_valid": true,
+        "players": 3326,
+        "shifted_pmi_nonzero": 154122,
+        "source_seasons": [
+          2016,
+          2017,
+          2018,
+          2019,
+          2020
+        ],
+        "svd_iterations": 7,
+        "svd_seed": 8112026,
+        "undirected_edges": 89436
+      },
+      "2022": {
+        "dimension": 16,
+        "embedded_players": 3728,
+        "maximum_source_season": 2021,
+        "negative_samples": 5,
+        "pit_valid": true,
+        "players": 3728,
+        "shifted_pmi_nonzero": 186544,
+        "source_seasons": [
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021
+        ],
+        "svd_iterations": 7,
+        "svd_seed": 8112026,
+        "undirected_edges": 109692
+      },
+      "2023": {
+        "dimension": 16,
+        "embedded_players": 4103,
+        "maximum_source_season": 2022,
+        "negative_samples": 5,
+        "pit_valid": true,
+        "players": 4103,
+        "shifted_pmi_nonzero": 214586,
+        "source_seasons": [
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022
+        ],
+        "svd_iterations": 7,
+        "svd_seed": 8112026,
+        "undirected_edges": 127249
+      },
+      "2024": {
+        "dimension": 16,
+        "embedded_players": 4462,
+        "maximum_source_season": 2023,
+        "negative_samples": 5,
+        "pit_valid": true,
+        "players": 4462,
+        "shifted_pmi_nonzero": 241972,
+        "source_seasons": [
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023
+        ],
+        "svd_iterations": 7,
+        "svd_seed": 8112026,
+        "undirected_edges": 144597
+      },
+      "2025": {
+        "dimension": 16,
+        "embedded_players": 4836,
+        "maximum_source_season": 2024,
+        "negative_samples": 5,
+        "pit_valid": true,
+        "players": 4836,
+        "shifted_pmi_nonzero": 270152,
+        "source_seasons": [
+          2016,
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024
+        ],
+        "svd_iterations": 7,
+        "svd_seed": 8112026,
+        "undirected_edges": 162028
+      }
+    },
+    "sources": {
+      "2016": {
+        "actor_mentions": 49782,
+        "edge_weight_sum": 3764190.0,
+        "participation_rows": 48434,
+        "participation_sha256": "f6cb76515f8faacc02deec00a5e465cd5f22f105cdf8df7419c243e5bf837869",
+        "pbp_rows": 47651,
+        "pbp_sha256": "732aa8755aea1d8ff176ee8efc3c7a673e63843784ad4d19a9536df0af5f1501",
+        "players": 1624,
+        "rows_with_explicit_actor": 32071,
+        "undirected_edges": 21778,
+        "valid_11_player_rows": 41286
+      },
+      "2017": {
+        "actor_mentions": 52040,
+        "edge_weight_sum": 3977515.0,
+        "participation_rows": 47998,
+        "participation_sha256": "157a5947c8ff5ebaf97288eddc25cf6ecc016728ca3c47af8e1a2ffdb41487df",
+        "pbp_rows": 47245,
+        "pbp_sha256": "e97ad36af0498dcb0d45f53cd79375d1c626e5bf682c0086ee8902b06e9b0a00",
+        "players": 1649,
+        "rows_with_explicit_actor": 33980,
+        "undirected_edges": 23175,
+        "valid_11_player_rows": 43933
+      },
+      "2018": {
+        "actor_mentions": 48775,
+        "edge_weight_sum": 3748940.0,
+        "participation_rows": 47875,
+        "participation_sha256": "176dfc282daf0c97cbf1765b61aeaf44060edb8b94028d6324f713849afdf18c",
+        "pbp_rows": 47109,
+        "pbp_sha256": "ce76846b7474624c3570d715c40bb8c1ed0a7a82bb6af7b80fc45eb381fd0744",
+        "players": 1654,
+        "rows_with_explicit_actor": 31783,
+        "undirected_edges": 23070,
+        "valid_11_player_rows": 41558
+      },
+      "2019": {
+        "actor_mentions": 50685,
+        "edge_weight_sum": 3891160.0,
+        "participation_rows": 48034,
+        "participation_sha256": "ea8ea1e0035f646b20096230d46960b0ca6298604799f0ef3a3c3b68870696d7",
+        "pbp_rows": 47260,
+        "pbp_sha256": "e748e02980698dfd5ca3c798b28dd8fe093da76697668432496c47f3c7aa88d5",
+        "players": 1665,
+        "rows_with_explicit_actor": 33215,
+        "undirected_edges": 22928,
+        "valid_11_player_rows": 43102
+      },
+      "2020": {
+        "actor_mentions": 53098,
+        "edge_weight_sum": 4031750.0,
+        "participation_rows": 48513,
+        "participation_sha256": "34508dde5f47736db3f6bd3ec8fe5360e9000f7ea36360c71de2bb527f2d9bf8",
+        "pbp_rows": 47705,
+        "pbp_sha256": "6ab35f0bf41ed6179250ef5b9b352ef7495cc50cf91ab427dc772ad2be8aa670",
+        "players": 1792,
+        "rows_with_explicit_actor": 34771,
+        "undirected_edges": 25371,
+        "valid_11_player_rows": 44342
+      },
+      "2021": {
+        "actor_mentions": 55324,
+        "edge_weight_sum": 4206990.0,
+        "participation_rows": 50714,
+        "participation_sha256": "990e26dee0467591f7d7afc856e14d9badc1ad8dc6344a9d96fffb05100280bb",
+        "pbp_rows": 49922,
+        "pbp_sha256": "bad5388ccc017727e1b8f517c249c702295f1aa0b551774227b297aa16fef96f",
+        "players": 1877,
+        "rows_with_explicit_actor": 36249,
+        "undirected_edges": 27848,
+        "valid_11_player_rows": 46314
+      },
+      "2022": {
+        "actor_mentions": 54210,
+        "edge_weight_sum": 4147665.0,
+        "participation_rows": 50150,
+        "participation_sha256": "95d830692df86f7a636e4a653e56a66d52af138eff6f75e4f089718a411720b6",
+        "pbp_rows": 49434,
+        "pbp_sha256": "159bad8f914142444b24176410e1d751f04719fa3526bac706e4af36d979d7a6",
+        "players": 1746,
+        "rows_with_explicit_actor": 35934,
+        "undirected_edges": 24844,
+        "valid_11_player_rows": 45843
+      },
+      "2023": {
+        "actor_mentions": 54568,
+        "edge_weight_sum": 4175290.0,
+        "participation_rows": 46168,
+        "participation_sha256": "022540e39a9f1948714bb8844656648174fa73413fb36a732905cb769cf4158c",
+        "pbp_rows": 49665,
+        "pbp_sha256": "5111581db675da225425bec2f9d7ee8f25833eee15f6fc738c54f4a807c32b59",
+        "players": 1686,
+        "rows_with_explicit_actor": 36124,
+        "undirected_edges": 23874,
+        "valid_11_player_rows": 46150
+      },
+      "2024": {
+        "actor_mentions": 53407,
+        "edge_weight_sum": 4126985.0,
+        "participation_rows": 45919,
+        "participation_sha256": "2378517a01da9daa3de7c88493d7d023c5bf42c49ebcd382293acca40d7b1bab",
+        "pbp_rows": 49492,
+        "pbp_sha256": "df6adc64e17c21f5c75bd98e6dc6cb2ebb3ee6273a0e29bb27237c728b246fa7",
+        "players": 1708,
+        "rows_with_explicit_actor": 35561,
+        "undirected_edges": 24567,
+        "valid_11_player_rows": 45905
+      }
+    }
+  }
+}

@@ -223,15 +223,20 @@ padding:1.4rem 1.6rem;max-height:80vh;overflow-y:auto'>
 .style.display='none';document.getElementById('modalbg').style.display=
 'none'">&times;</button><h2>Your weekly schedule</h2>
 <table><tr><th>When</th><th>What you do</th></tr>
-<tr><td>Tue/Wed paid data<br>(from Week 2)</td><td style='text-align:left'>
-<b>Fantasy Points Weekly Route Share only.</b> For target Week W, run the
-tracked <code>2026-route-share-weekly-v1</code> download with
-<code>--target-week W</code>; it selects Season 2026 and only completed source
-Week W&minus;1. Run the read-only weekly Route import, review its hash and
-unresolved-player audit, then repeat with <code>--write</code>. It remains a
-shadow input until its prospective gate passes. Never select or import Week W
-data for a Week W prediction. Exact commands are in the repository automation
-guide.</td></tr>
+<tr><td>Wed 10:00am CT<br>(every target week)</td><td style='text-align:left'>
+<b>Combined weekly data run.</b> From the repository environment run
+<code>nfl-weekly-data run --week W</code>. It verifies both saved vendor
+sessions first and prompts for either expired login before starting the
+unattended work. It triggers a secret-backed Odds API game-lines snapshot,
+downloads only Fantasy Points source Week W&minus;1 Route Share, performs the
+guarded archive/import, and captures the three pre-lock matchup reports. If
+the prior-week report is not posted yet, retry Wednesday evening; finish
+before Thursday 6:30am CT. The existing Wed&ndash;Sun game-odds and Thursday
+props cloud schedules still run independently. SIS is preflighted every week,
+but makes no paid queries until an evidence-approved recurring plan is passed
+with <code>--sis-plan</code>. Never select or import Week W data for a Week W
+prediction. Week 1 automatically skips Route Share because there is no prior
+2026 week.</td></tr>
 <tr><td>Wed/Sat/Sun ownership<br>(every main slate)</td><td
 style='text-align:left'><b>Fantasy Points projected ownership.</b> The tracked
 collector will archive DraftKings Classic Sunday Main when first posted,

@@ -118,11 +118,19 @@ def test_nav_html_has_status_button():
 
 
 def test_nav_html_has_strict_prior_route_share_checklist():
-    assert "Fantasy Points Weekly Route Share only" in app_main._NAV_HTML
+    assert "Combined weekly data run" in app_main._NAV_HTML
     assert "Fantasy Points projected ownership" in app_main._NAV_HTML
-    assert "2026-route-share-weekly-v1" in app_main._NAV_HTML
-    assert "only completed source" in app_main._NAV_HTML
+    assert "nfl-weekly-data run --week W" in app_main._NAV_HTML
+    assert "source Week W&minus;1 Route Share" in app_main._NAV_HTML
     assert "Never select or import Week W" in app_main._NAV_HTML
+
+
+def test_nav_html_has_weekly_odds_and_sis_operating_contract():
+    assert "Wed 10:00am CT" in app_main._NAV_HTML
+    assert "secret-backed Odds API game-lines snapshot" in app_main._NAV_HTML
+    assert "cloud schedules still run independently" in app_main._NAV_HTML
+    assert "SIS is preflighted every week" in app_main._NAV_HTML
+    assert "--sis-plan" in app_main._NAV_HTML
 
 
 def test_nav_html_has_pre_lock_matchup_capture_checklist():

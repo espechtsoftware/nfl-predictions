@@ -20,7 +20,68 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 09:30 CDT
+## Current state — 2026-08-13 14:08 CDT
+
+### 2026-08-13 unified Wednesday vendor/Odds workflow
+
+- Branch is `main`; the workflow, G3 result artifacts, and this durable state
+  are committed together in the milestone commit that contains this entry.
+- The single operator-started weekly acquisition command is now
+  `nfl-weekly-data run --week W`, scheduled/documented for every Wednesday at
+  10:00am America/Chicago. It verifies the saved Fantasy Points and SIS
+  sessions before starting any long work and securely prompts for either
+  expired login; after those prompts it can run unattended. A live headless
+  validation on this machine opened the protected Fantasy Points Route Share
+  report and SIS NFL Player Leaderboards successfully. No credentials or
+  browser state are stored in Git.
+- The combined run executes the deployed `ingest-odds` Cloud Run job, keeping
+  `ODDS_API_KEY` in Secret Manager rather than requiring it in the replacement
+  computer's `.env`. This is a supplemental Wednesday snapshot: existing
+  `s-odds` remains `0 9,15 * * 3-7` and `s-props` remains `0 11 * * 4`, both
+  America/Chicago. `--include-props` is opt-in so a manual run does not
+  silently spend extra provider quota.
+- Week 1 captures odds plus Fantasy Points matchup reports and automatically
+  skips Route Share. From Week 2, the command validates the frozen plan,
+  downloads only source Week W-1 Route Share, performs the guarded immutable
+  archive/append, and captures/archives QB Coverage, WR Coverage, and OL/DL
+  Matchups. Each step is durably recorded in ignored
+  `weekly-data-runs/<run-id>/manifest.json`; failures persist before raising.
+  If Week W-1 has not posted at 10:00am, retry Wednesday evening and finish
+  before `s-features-route` Thursday 6:30am CT.
+- SIS is always session-preflighted but the default command makes zero SIS
+  data queries. No SIS family has an evidence-approved recurring plan yet.
+  Once one passes, check in its bounded plan and add `--sis-plan <path>`; never
+  point the weekly command at closed historical tranche plans. The UI Weekly
+  guide, main season schedule, and both vendor automation guides carry this
+  exact contract. The new Fantasy Points `verify-login` command, workflow
+  entry point, fail-closed manifest, plan validation, Cloud execution wrapper,
+  and operating-text checks have 45 focused tests passing. Full local
+  validation passed 1,117 tests with 2 skipped.
+
+### 2026-08-13 G3 image and independent Stage A execution
+
+- Full Cloud Build `85c91487-a191-41ce-ac30-c65848c03493` passed for G3 code
+  commit `72420c7`, producing immutable audit image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:17771b0e6a44bf2e2c13b04ecf21a9cc96d6b08ad8b76d5193ea1765fbfa7ae3`.
+  The sole preregistered score-free G3 Stage A execution is
+  `g3-participation-allocation-v1-tl2cr`, with immutable manifest under
+  `reports/g3-participation-allocation-runs/20260813-g3-participation-allocation-v1/`.
+  It completed and the immutable report was harvested. Stage A fails and is
+  closed: evaluation aggregate mean treatment-minus-control NLL is
+  `+0.001568` (worse); carry allocation is `+0.003927` (worse), target
+  allocation is `-0.000729` (better), only 2025 improves, and the clustered
+  bootstrap 95% interval is `[-0.000133, +0.003293]`. Geometry coverage also
+  misses the preregistered 80% floor in every held-out kind-season cell. The
+  fitted conditional law was active and PIT-valid, but it is not licensed to
+  proceed to dependence or lineup scoring. Do not tune its embeddings,
+  coefficients, support threshold, seeds or representation on this result.
+- The twelve incumbent Monte Carlo seed replays are still running. A compact
+  status read was briefly misinterpreted because the condition type is named
+  `Completed` while its value is `Unknown`; the fail-closed finisher correctly
+  refused to proceed, and no partial scores were read. Require
+  `status.conditions[0].status=True` for all twelve, then run
+  `scripts/cloud_finish_incumbent_seed_variance_panel.sh`, poll its analyzer,
+  and harvest via the tracked seed-variance harvester.
 
 ### 2026-08-13 G3 conditional allocation Stage A frozen
 
