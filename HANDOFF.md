@@ -72,6 +72,18 @@ agent or developer:
   deliberately reports rather than vetoes on individual-season/bootstrap
   stability. A pass advances to a final-served marginal-preserving exact-80
   tail comparison. A failure leaves the player-grain SIS branch open.
+- The fixed importers and Stage A analyzer are implemented. The private,
+  write-once BigQuery sources were created as
+  `nfl_raw.fantasy_points_alignment_player_l4` (16,482 rows; 16,119 resolved;
+  9,452 supported), `nfl_raw.fantasy_points_alignment_team_l4` (1,792/1,792
+  supported team windows), and `nfl_raw.sis_alignment_attempt_game` (4,077
+  rows, 32,587 attempts). The SIS reader reproduced the acquisition result
+  exactly and consumed no performance values. Forty-one focused tests pass,
+  including manifest/PIT/partition checks, explicit schedule-spine zero-cell
+  reconstruction, opponent-direction geometry and probability-simplex
+  preservation. Exact next action: commit/push the implementation, build one
+  immutable audit image, run `sis-asoe-allocation`, and follow its frozen
+  pass/fail branch without revising the aggregate held-out likelihood gate.
 
 ### 2026-08-13 SIS ASOE path reopened and acquisition frozen
 

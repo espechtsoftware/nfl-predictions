@@ -389,6 +389,25 @@ def main(argv: list[str] | None = None) -> None:
         help="Run the frozen score-free participation-conditioned usage gate",
     )
 
+    sub.add_parser(
+        "sis-asoe-allocation",
+        help="Run the frozen score-free SIS ASOE target-allocation gate",
+    )
+
+    p = sub.add_parser(
+        "import-fantasy-points-alignment-l4",
+        help="Audit/import manifest-locked prior-window alignment routes",
+    )
+    p.add_argument("--input-dir", required=True)
+    p.add_argument("--write", action="store_true")
+
+    p = sub.add_parser(
+        "import-sis-asoe",
+        help="Audit/import validated SIS Wide/Slot attempt history",
+    )
+    p.add_argument("--input-dir", required=True)
+    p.add_argument("--write", action="store_true")
+
     p = sub.add_parser(
         "import-fantasy-points-advanced",
         help="Audit/import hash-locked Fantasy Points Advanced player data",
@@ -918,6 +937,18 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import g3_participation_allocation
 
         g3_participation_allocation.run()
+    elif args.command == "sis-asoe-allocation":
+        from .analysis import sis_asoe_allocation
+
+        sis_asoe_allocation.run()
+    elif args.command == "import-fantasy-points-alignment-l4":
+        from .ingest import fantasy_points_alignment_l4
+
+        fantasy_points_alignment_l4.run(args.input_dir, write=args.write)
+    elif args.command == "import-sis-asoe":
+        from .ingest import sis_asoe
+
+        sis_asoe.run(args.input_dir, write=args.write)
     elif args.command == "import-fantasy-points-advanced":
         from .ingest import fantasy_points_advanced
 
