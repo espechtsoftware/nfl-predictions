@@ -13,7 +13,8 @@ profiles?
 
 The control is the accepted target-allocation law:
 
-- active-label component target means;
+- the existing walk-forward component target means used by
+  `analysis/usage_dirichlet_calibration.py`;
 - within-team Dirichlet concentration
   `K = 28.154043586960896`; and
 - historical panel identity
