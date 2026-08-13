@@ -379,7 +379,7 @@ def test_asoe_acquisition_analyzer_reads_attempts_not_performance(tmp_path):
                     "PassDefenseFilters.Schemes": list(sis.ASOE_ALL_SCHEMES),
                     "PassDefenseFilters.ReceiverPos": ["4"],
                     "PassDefenseFilters.MinTargets": ["0"],
-                    "PassDefenseFilters.MinAttempts": ["0"],
+                    "PassDefenseFilters.MinAttempts": ["1"],
                 }
                 artifacts.append({
                     "season": season,

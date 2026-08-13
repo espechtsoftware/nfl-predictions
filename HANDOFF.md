@@ -28,13 +28,16 @@ agent or developer:
   passed against the protected NFL Player Leaderboards. Historical collection
   is happening now; point-in-time means that a target Week W may use only
   completed Weeks `< W`, not that acquisition must wait until the season.
-- The ASOE request ledger now honestly records three identical setup submits
+- The ASOE request ledger now honestly records four identical setup submits
   that reached SIS while the response listener was repaired. None produced an
   artifact, and no historical attempt/performance value was persisted or
-  read. Before any artifact or value read, the protocol was amended from a
-  26-call to a 27-call operational ceiling, with the scientific 24-artifact
-  grid and every report/filter/field/decision unchanged. The ignored durable
-  counter is corrected to `3/27`, leaving exactly 24 calls for the 24 files.
+  read. The fourth proved that SIS coerces minimum attempts from zero to one;
+  missing zero-attempt cells will be reconstructed from the schedule. Before
+  any artifact or value read, the protocol was amended from a 26-call to a
+  28-call operational ceiling, with the scientific 24-artifact grid and every
+  report/alignment/shell/consumed-field/decision unchanged. The ignored
+  durable counter is corrected to `4/28`, leaving exactly 24 calls for the 24
+  files.
 - SIS login now supports `sis-download login --terminal-credentials --fresh`.
   It deliberately signs out, clears the old browser cookies/storage state,
   requires a replacement login, reloads the protected NFL page and saves only
@@ -42,9 +45,10 @@ agent or developer:
   fresh SIS login every run before it can proceed unattended. Thirty-six
   focused SIS/weekly-workflow tests, Python compilation and whitespace checks
   pass; operator documentation and the main schedule carry the same contract.
-- Fantasy Points exact prior-window Separation by Alignment acquisition is
-  concurrently healthy at 42/56 artifacts through all 2022--2024 target
-  windows. Exact next action: commit/push this milestone, resume the SIS ASOE
+- Fantasy Points exact prior-window Separation by Alignment acquisition
+  completed all 56 artifacts and wrote its validated complete manifest at
+  `fantasy-points/automated/20260813T202926Z__same-season-alignment-last-four-v1/`.
+  Exact next action: commit/push this milestone, resume the SIS ASOE
   downloader on the verified session, finish/validate both manifests, then
   implement and run the frozen score-free conditional-allocation gate.
 

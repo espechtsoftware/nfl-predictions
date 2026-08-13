@@ -27,7 +27,8 @@ season, all teams and Split by Game. Every Submit must set:
 - receiver position WR (`PassDefenseFilters.ReceiverPos=4`);
 - target alignment to exactly Wide (`2`) or Slot (`3`);
 - all seven mutually exhaustive coverage schemes (`0,1,2,3,4,5,6`);
-- minimum targets and attempts to zero; and
+- minimum targets to zero and minimum attempts to the site's enforced value
+  of one; and
 - one season and one of the disjoint source windows Weeks 1--6, 7--12 or
   13--17.
 
@@ -35,18 +36,23 @@ Collect seasons 2022--2025, for 24 planned artifacts total. Six-week windows
 cap the theoretical all-team maximum at 192 game rows, below the paid
 200-row limit. Week 18 is not acquired: the latest target Week 18 input is
 Weeks 14--17. Incidental UI refreshes are blocked. Only an explicitly armed
-Submit may consume the request meter. The hard durable ceiling is 27 requests;
+Submit may consume the request meter. The hard durable ceiling is 28 requests;
 it may not be spent on another season, week, alignment, shell, report, entity
 or value view.
 
 The ceiling was originally 26 for 24 planned artifacts plus two identical
 operational retries. During response-listener repair, two routed submits and
 one identical manual scope-capture submit reached the normal SIS endpoint.
-None produced an artifact, and no historical attempt or performance value was
-persisted or read. The durable counter is therefore corrected to three and the
-ceiling to 27 so the same 24-file scientific grid can finish. This is an
-operational-accounting amendment only: the report, entity, seasons, windows,
-alignments, shells, fields, row cap and downstream decision law are unchanged.
+After the listener repair, one more submit proved that SIS coerces the typed
+minimum-attempt value zero to one in its submitted payload. None of these four
+requests produced an artifact, and no historical attempt or performance value
+was persisted or read. The durable counter is therefore corrected to four and
+the ceiling to 28 so the same 24-file scientific grid can finish. The UI's
+one-attempt minimum omits only structural zero alignment cells, which will be
+reconstructed from the project schedule before ASOE is computed. This is an
+operational/schema amendment only: the report, entity, seasons, windows,
+alignments, shells, consumed field, row cap and downstream decision law are
+unchanged.
 
 Each raw licensed CSV remains gitignored under
 `sis/team-pass-defense-asoe-v1/`. Its manifest must bind the protocol hash,

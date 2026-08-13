@@ -74,7 +74,7 @@ ASOE_ALIGNMENTS = (("wide", ("2",)), ("slot", ("3",)))
 # Retain the normal UI's DOM serialization order. The values are the complete
 # frozen set; request-scope checks deliberately compare the actual form order.
 ASOE_ALL_SCHEMES = ("0", "1", "2", "5", "3", "4", "6")
-ASOE_API_REQUEST_CEILING = 27
+ASOE_API_REQUEST_CEILING = 28
 
 
 @dataclass(frozen=True)
@@ -1349,7 +1349,7 @@ def analyze_team_pass_defense_asoe_acquisition(
             "PassDefenseFilters.Schemes": list(ASOE_ALL_SCHEMES),
             "PassDefenseFilters.ReceiverPos": ["4"],
             "PassDefenseFilters.MinTargets": ["0"],
-            "PassDefenseFilters.MinAttempts": ["0"],
+            "PassDefenseFilters.MinAttempts": ["1"],
         }
         submitted = item.get("submitted_scope", {})
         for name, values in expected_scope.items():
@@ -1510,7 +1510,7 @@ def run_team_pass_defense_asoe_acquisition(
             _set_checkbox_values(
                 page, "PassDefenseFilters.Schemes", ASOE_ALL_SCHEMES)
             _set_input_value(page, "PassDefenseFilters.MinTargets", "0")
-            _set_input_value(page, "PassDefenseFilters.MinAttempts", "0")
+            _set_input_value(page, "PassDefenseFilters.MinAttempts", "1")
             for season in ASOE_SEASONS:
                 _set_select(page, "#TimeFilters_SeasonFrom", str(season))
                 _set_select(page, "#TimeFilters_SeasonTo", str(season))
@@ -1548,7 +1548,7 @@ def run_team_pass_defense_asoe_acquisition(
                                 ASOE_ALL_SCHEMES),
                             "PassDefenseFilters.ReceiverPos": ["4"],
                             "PassDefenseFilters.MinTargets": ["0"],
-                            "PassDefenseFilters.MinAttempts": ["0"],
+                            "PassDefenseFilters.MinAttempts": ["1"],
                         }
                         spec = ExportSpec(
                             entity="teams", report="pass-defense-totals",
