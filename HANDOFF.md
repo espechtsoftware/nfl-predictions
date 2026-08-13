@@ -57,6 +57,22 @@ agent or developer:
   window slicing rather than assuming a week-by-team query explosion. The QB
   protocol now predeclares that an MAE/CRPS-only improvement with a Brier-30
   miss closes only its two-column marginal arm, not SIS.
+- The frozen SIS QB line arm is now implemented locally: strict same-season
+  shift-one last-four features, QB-only attachment, active-only/shared-33
+  same-code cache pair, exact inherited-cache reproduction validator,
+  licensed replay tables, QB-only walk-forward final-served gate, CLI and
+  immutable Cloud launch/harvest scripts. A live read-only warehouse audit
+  reconstructed all 3,230 SIS team-games against 102,927 training rows with
+  unchanged row count and zero non-QB supported rows. Active-QB support is
+  88.54% / 88.95% / 88.43% / 88.43% in 2022--2025, above the frozen 80%
+  mechanical floor. Thirty-one focused SIS/team-QB/replay tests pass and all
+  new shell scripts parse. The final-served launcher explicitly binds the
+  active-label selection's historical source panel
+  `20260811-pitclean-e80-k1-role12union-a12ab31`; its selected evaluation panel
+  has only 2023--2025 and cannot provide the frozen 2022 calibration fold.
+  Exact next action: commit/push this implementation, run a full Cloud Build,
+  build the GPU generator image from the same commit, then launch both
+  write-once caches and require exact reproduction before the score-free gate.
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and

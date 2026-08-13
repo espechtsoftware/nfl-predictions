@@ -316,6 +316,12 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--panel", required=True)
 
     p = sub.add_parser(
+        "tabpfn-sis-qb-line-final-served",
+        help="Gate the frozen SIS QB line cache pair on final-served tails",
+    )
+    p.add_argument("--panel", required=True)
+
+    p = sub.add_parser(
         "g0-final-served-dependence",
         help="Run the frozen score-free terminal teammate-dependence premise test",
     )
@@ -799,6 +805,10 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import tabpfn_team_qb_final_served
 
         tabpfn_team_qb_final_served.run(args.panel)
+    elif args.command == "tabpfn-sis-qb-line-final-served":
+        from .analysis import tabpfn_sis_qb_line_final_served
+
+        tabpfn_sis_qb_line_final_served.run(args.panel)
     elif args.command == "g0-final-served-dependence":
         from .analysis import final_served_dependence
 

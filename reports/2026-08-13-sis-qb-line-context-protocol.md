@@ -91,6 +91,13 @@ position-scale schedule on strictly prior out-of-sample folds: 2022 for 2023,
 2022--2023 for 2024 and 2022--2024 for 2025. Applying a scale must preserve
 each row mean within `1e-10`.
 
+The historical reconstruction panel is
+`20260811-pitclean-e80-k1-role12union-a12ab31`, the `historical_source` bound
+by the terminal active-label selection. The later
+`20260812-pitclean-e80-selected-tabpfn-active-v2` panel contains only the
+2023--2025 exact-80 comparison folds and therefore cannot supply the required
+2022 walk-forward calibration fold; it is not an interchangeable source.
+
 The primary population is active QBs in 2023--2025. The arm passes if and only
 if treatment aggregate 30-point Brier is strictly lower than control and all
 mechanical/mean invariants pass. Brier-20, CRPS, pinball losses, point MAE,
