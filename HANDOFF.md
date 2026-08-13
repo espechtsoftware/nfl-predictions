@@ -507,6 +507,23 @@ agent or developer:
   `reports/panel-runs/20260813-incumbent-seed-zero-parity-v1/`.
   Poll/finish it next. Only exact parity licenses the four new seed-pair
   season panels.
+  The replay completed successfully and exact comparator execution
+  `compare-exact-replay-hmbpg` passed with zero failures; the explicit-zero
+  staging slate reproduces the accepted incumbent under the strengthened
+  candidate/player-feature/210-220-mask/score-artifact contract. All twelve
+  licensed nonzero-seed jobs are now launched concurrently from the same
+  digest: R1 `replay-mcseedr1-2023-bmgsd`,
+  `replay-mcseedr1-2024-s86n9`, `replay-mcseedr1-2025-6xbzc`; R2
+  `replay-mcseedr2-2023-phg9m`, `replay-mcseedr2-2024-9qdb7`,
+  `replay-mcseedr2-2025-th5ss`; R3 `replay-mcseedr3-2023-95rzq`,
+  `replay-mcseedr3-2024-44tk5`, `replay-mcseedr3-2025-457pw`; and R4
+  `replay-mcseedr4-2023-sbf94`, `replay-mcseedr4-2024-thmjx`,
+  `replay-mcseedr4-2025-srm7p`. Their frozen manifest and execution lists are
+  under
+  `reports/incumbent-seed-variance-runs/20260813-incumbent-seed-variance-v1/`.
+  Poll all twelve without inspecting partial scores; after every clean
+  success, launch the single frozen analyzer with
+  `scripts/cloud_finish_incumbent_seed_variance_panel.sh`.
   The post-parity path is also implemented before any output: fixed R1--R4
   launch wrappers, twelve durable season executions, and one Cloud analyzer
   that withholds the five-replicate tail report unless all panels have exact
