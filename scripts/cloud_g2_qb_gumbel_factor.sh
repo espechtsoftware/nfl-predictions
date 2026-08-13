@@ -7,7 +7,7 @@ IMG=${1:-}
 CODE_SHA=${2:-}
 PROJECT=nfl-predictions-503414
 REGION=us-central1
-RUN_ID=20260812-g2-qb-gumbel-factor-v2
+RUN_ID=20260812-g2-qb-gumbel-factor-v3
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$ROOT/reports/g2-qb-gumbel-runs/$RUN_ID"
 PROTOCOL="$ROOT/reports/2026-08-12-g2-qb-gumbel-factor-protocol.md"
@@ -110,19 +110,22 @@ printf '%s\n' \
   'evaluation_seasons=2023 2024 2025' \
   'theta_grid=1.00 1.05 1.10 1.15 1.20 1.30 1.40 1.60 2.00' \
   'n_sims=10000' 'seed=0' 'bootstrap_replicates=2000' \
-  'bootstrap_seed=1703' > "$OUT/manifest.txt"
+  'bootstrap_seed=1703' \
+  'frozen_calibration_json_sha256=e387a6983df58a18f7f70200c574453e3cc7819ef12b0ce591b222e426f14f69' \
+  > "$OUT/manifest.txt"
 
 ENVS="GCP_PROJECT=$PROJECT,MODEL_ENSEMBLE=1"
 ENVS="$ENVS,G2_PANEL_ID=${resolved[panel]}"
 ENVS="$ENVS,G2_HISTORICAL_PANEL_ID=${resolved[panel]}"
 ENVS="$ENVS,G2_SELECTED_EVAL_PANEL_ID=${resolved[selected_eval_panel]}"
 ENVS="$ENVS,G2_G0_REPORT_SHA256=$G0_SHA,G2_G1_REPORT_SHA256=$G1_SHA"
+ENVS="$ENVS,G2_CALIBRATION_JSON_SHA256=e387a6983df58a18f7f70200c574453e3cc7819ef12b0ce591b222e426f14f69"
 ENVS="$ENVS,G1_PANEL_ID=${resolved[panel]},G1_CACHE_TABLE=${resolved[cache]}"
 ENVS="$ENVS,G1_POSITION_SCHEDULE_B64=${resolved[schedule_b64]}"
 ENVS="$ENVS,TABPFN_ACCEPTED_USAGE_LAW=dirichlet"
 ENVS="$ENVS,TABPFN_ACCEPTED_DIRICHLET_K=${resolved[k]}"
 ENVS="$ENVS,GAME_SIM_USAGE=dirichlet,DIRICHLET_K=${resolved[k]}"
-JOB=g2-qb-gumbel-factor-v2
+JOB=g2-qb-gumbel-factor-v3
 gcloud run jobs deploy "$JOB" --project "$PROJECT" --region "$REGION" \
   --image "$IMG" --command nfl-dfs \
   --args "g2-qb-gumbel-factor,--panel,${resolved[panel]}" \

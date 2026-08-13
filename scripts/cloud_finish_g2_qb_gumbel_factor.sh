@@ -4,7 +4,7 @@ set -euo pipefail
 
 PROJECT=nfl-predictions-503414
 REGION=us-central1
-RUN_ID=20260812-g2-qb-gumbel-factor-v2
+RUN_ID=20260812-g2-qb-gumbel-factor-v3
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$ROOT/reports/g2-qb-gumbel-runs/$RUN_ID"
 MANIFEST="$OUT/manifest.txt"
@@ -68,6 +68,11 @@ def decode(meta_prefix, chunk_prefix, label):
 calibration = decode(
     "G2_QB_GUMBEL_CALIBRATION_META=",
     "G2_QB_GUMBEL_CALIBRATION_CHUNK=", "calibration")
+if hashlib.sha256(json.dumps(
+        calibration, sort_keys=True, allow_nan=False,
+        separators=(",", ":")).encode()).hexdigest() != \
+        "e387a6983df58a18f7f70200c574453e3cc7819ef12b0ce591b222e426f14f69":
+    raise SystemExit("ABORT: G2 calibration differs from frozen v2 artifact")
 report = decode(
     "G2_QB_GUMBEL_FACTOR_META=",
     "G2_QB_GUMBEL_FACTOR_CHUNK=", "report")

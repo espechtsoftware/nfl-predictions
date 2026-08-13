@@ -186,8 +186,8 @@ def _g0_abs_log_error(report: dict) -> tuple[float, dict]:
         value = row.get("log_simulated_to_realized")
         if row.get("supported") and value is not None and np.isfinite(value):
             values[cell] = abs(float(value))
-    if set(values) != set(g0.CELL_BANDS):
-        raise ValueError("G2 held-out G0 support is incomplete")
+    if not values:
+        raise ValueError("G2 held-out G0 has no supported cells")
     return float(sum(values.values())), values
 
 
@@ -196,12 +196,16 @@ def _g1_abs_log_error(broad: dict) -> tuple[float, dict]:
     for relationship, weight in PRIMARY_WEIGHTS.items():
         row = broad.get(relationship, {})
         value = row.get("log_simulated_to_realized")
-        if not row.get("supported") or value is None or not np.isfinite(value):
-            raise ValueError(f"G2 held-out G1 support missing for {relationship}")
+        if not row.get("supported"):
+            continue
+        if value is None or not np.isfinite(value):
+            raise ValueError(f"G2 held-out G1 value missing for {relationship}")
         values[relationship] = {
             "absolute_log_error": abs(float(value)),
             "weight": float(weight),
         }
+    if not set(TARGET_RELATIONSHIPS).issubset(values):
+        raise ValueError("G2 held-out QB-receiver support is incomplete")
     total = float(sum(
         row["weight"] * row["absolute_log_error"] for row in values.values()
     ))
@@ -712,6 +716,15 @@ def run(panel_id: str) -> dict:
             **fit_audit,
         },
     }
+    expected_calibration_sha = os.environ.get(
+        "G2_CALIBRATION_JSON_SHA256", "").strip()
+    if expected_calibration_sha:
+        content = json.dumps(
+            calibration_artifact, sort_keys=True, allow_nan=False,
+            separators=(",", ":"),
+        ).encode()
+        if sha256(content).hexdigest() != expected_calibration_sha:
+            raise ValueError("G2 calibration artifact differs from frozen v2")
     # The frozen protocol requires all grid scores to be durable before any
     # held-out reconstruction or outcome evaluation begins.
     _emit_transport(

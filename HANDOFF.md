@@ -524,6 +524,25 @@ reconciliation when their findings affect the program.
   `reports/g2-qb-gumbel-runs/20260812-g2-qb-gumbel-factor-v2/`. Poll this exact
   execution without reading partial metrics and require both the durable
   calibration artifact and terminal report at harvest.
+  V2 passed the v1 memory boundary and durably emitted its complete calibration
+  artifact, then stopped with exit 1 while assembling the held-out control
+  report: code incorrectly required all nine G0 cells to be supported, while
+  the frozen protocol explicitly sums error over supported cells and G0
+  intentionally leaves rare cells unsupported. No terminal report, held-out
+  metric value, disposition or license was emitted/observed; the calibration
+  grid/selected theta was not decoded or inspected. V2 is preserved as
+  `invalid-post-calibration-supported-cell-code-defect`; its opaque JSON hash
+  is `e387a698...14f69`. Before any v3 output, the protocol/code/launcher now
+  bind the recomputed calibration artifact to that exact hash, accept only a
+  nonempty supported G0 subset, and otherwise retain every rule. The adjacent
+  G1 aggregation had the same unexecuted overconstraint; before v3 output it
+  is also corrected to sum only supported primary cells while still requiring
+  QB-WR and QB-TE support for their separate gates. Next: validate/commit/push,
+  full-test build, then launch/poll/harvest v3.
+  The complete local suite passes all 1,029 collected tests with only expected
+  skips; the focused suite is 30/30 and compilation, shell syntax and
+  whitespace checks pass. Commit/push this exact v3 repair tree and submit its
+  full-test Cloud Build next.
 - The operator-supplied alternative-frames review is retained unchanged at
   `reports/2026-08-12-alternative-analytical-frames.md` and reconciled in
   `reports/2026-08-12-alternative-analytical-frames-reconciliation.md`. The

@@ -1,0 +1,10 @@
+classification=invalid-post-calibration-supported-cell-code-defect
+execution=g2-qb-gumbel-factor-v2-wfkgw
+terminal_status=False
+failed_count=1
+failure_reason=implementation incorrectly required all nine G0 cells supported
+calibration_json_sha256=e387a6983df58a18f7f70200c574453e3cc7819ef12b0ce591b222e426f14f69
+calibration_gzip_sha256=505c268c6cf757d6be14c3f82145587bc8951534345fb4d32fe98b1147864bc1
+terminal_report_prefixes=0
+scientific_disposition=none
+replacement_identity=20260812-g2-qb-gumbel-factor-v3

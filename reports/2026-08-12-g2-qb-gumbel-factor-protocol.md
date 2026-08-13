@@ -159,3 +159,33 @@ the early-season matrices before held-out reconstruction and uses 32 GiB
 memory. V2 receives a new run/job identity and full-test immutable image. The
 data, seasons, grid, objectives, tiebreaks, mechanism, metrics, gates, seeds,
 terminal law and bootstrap are unchanged.
+
+## Supported-cell implementation repair — frozen before v3
+
+V2 `g2-qb-gumbel-factor-v2-wfkgw` completed and durably checksummed its full
+early-season calibration artifact before held-out loading, as required. The
+artifact JSON identity is frozen as
+`e387a6983df58a18f7f70200c574453e3cc7819ef12b0ce591b222e426f14f69`.
+The grid contents and selected theta were not decoded or inspected during the
+repair. V2 then stopped while assembling the control report because the
+implementation demanded support in all nine G0 cells. That contradicts the
+original gate's explicit wording, which sums absolute error over *supported*
+G0 cells; G0 intentionally classifies rare cells as unsupported. No terminal
+report, held-out metric value, disposition or exact-80 license was emitted or
+observed. V2 is invalid, not a gate result.
+
+V3 accepts the nonempty supported G0 subset, while still recomputing and
+disclosing all nine cells and requiring exact control reproduction. It binds
+the newly recomputed early calibration artifact to the opaque v2 JSON checksum
+before held-out loading, and the harvester repeats that check. Nothing about
+the fitted cell, grid, mechanism, data, held-out population, scorecard, gate,
+bootstrap or decision changes. V3 receives a new run/job identity and a new
+full-test immutable image.
+
+The same pre-v3 code audit found and repairs the adjacent identical issue in
+the G1 aggregation: the frozen gate says supported primary broad cells, while
+the implementation demanded every primary relationship even when G1's
+registered count threshold marks one unsupported. V3 sums the fixed weights
+over the supported subset and still requires both QB-WR and QB-TE support for
+their separate mandatory gates. This was corrected before any v3 output and
+before v2 could reach that line.

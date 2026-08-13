@@ -3,6 +3,8 @@ import json
 
 from nfl_dfs.analysis.g2_qb_gumbel_factor import (
     _emit_transport,
+    _g0_abs_log_error,
+    _g1_abs_log_error,
     gate_decision,
     select_grid_cell,
 )
@@ -78,3 +80,35 @@ def test_calibration_transport_is_checksummed_and_round_trips(capsys):
     meta = json.loads(lines[0].split("META=", 1)[1])
     chunks = [line.split(":", 1)[1] for line in lines[1:]]
     assert decode_report_transport(meta, chunks) == report
+
+
+def test_g0_error_sum_uses_only_supported_cells():
+    report = {"cells": {
+        "multiplicity_ge2": {
+            "supported": True, "log_simulated_to_realized": -0.5},
+        "multiplicity_ge3": {
+            "supported": False, "log_simulated_to_realized": -2.0},
+    }}
+    for cell in (
+            "multiplicity_ge4", "qb_wr", "qb_te", "qb_rb", "wr_wr",
+            "rb_rb", "te_te"):
+        report["cells"][cell] = {
+            "supported": False, "log_simulated_to_realized": None}
+    total, cells = _g0_abs_log_error(report)
+    assert total == 0.5
+    assert cells == {"multiplicity_ge2": 0.5}
+
+
+def test_g1_error_sum_uses_supported_cells_and_requires_qb_targets():
+    broad = {
+        relationship: {
+            "supported": relationship in {"QB_WR", "QB_TE", "QB_RB"},
+            "log_simulated_to_realized": -0.5,
+        }
+        for relationship in (
+            "QB_WR", "QB_TE", "QB_RB", "WR_WR", "RB_RB", "TE_TE",
+            "QB_OPP_QB", "QB_OPP_WR", "QB_OPP_TE", "WR_OPP_WR")
+    }
+    total, values = _g1_abs_log_error(broad)
+    assert total == 3.0  # weights 3 + 2 + 1, each at absolute error 0.5
+    assert set(values) == {"QB_WR", "QB_TE", "QB_RB"}
