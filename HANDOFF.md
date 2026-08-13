@@ -94,6 +94,13 @@ agent or developer:
   with no explicit failure. Exact next action: use
   `scripts/poll_game_team_usage_phase_r.sh`; when all 30 are `True`, run the
   guarded finisher and harvester. Do not query partial staging scores.
+- Phase S runner/analyzer is now prepared and pushed through commits
+  `66ff2dd` and `ca1eea0`. It binds the Phase R-selected allocation law,
+  regenerates five same-image controls and five ASOE treatments (30 season
+  jobs total), requires exact marginal-feature/common-candidate mean parity,
+  and requires the new controls to reproduce Phase R before scoring SIS.
+  Full-test Phase S build `c1bae3b3-8656-46c8-9289-7a72fe1ab67e` is running.
+  Latest Phase R poll: 30 `Unknown`/active, zero explicit failures.
 
 ### 2026-08-13 SIS ASOE Stage A launched
 
