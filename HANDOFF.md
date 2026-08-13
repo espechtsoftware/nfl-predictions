@@ -105,6 +105,15 @@ agent or developer:
   usage is 869 before the small surface audits. Run it only into
   `sis/team-context-tranche-2-recovery`; never reset or reuse the original
   plan state.
+- The frozen recovery completed all 22/22 guarded artifacts under
+  `sis/team-context-tranche-2-recovery` using 88/92 requests; a second
+  validation-only run reverified every CSV/manifest pair without another
+  request. This restores all remaining valid Passing Totals, Rushing
+  Totals/Value and Run Defense Totals/Value windows through 2025. It does not
+  repair or authorize any Passing Value artifact. Before import, implement a
+  merged tranche-2 importer that requires the original/recovery exact universe,
+  explicitly excludes all Passing Value files, and records both plan/state
+  hashes. The combined upper-bound plan usage is now 865, not 869.
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
