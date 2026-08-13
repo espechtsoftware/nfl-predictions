@@ -152,10 +152,13 @@ reconciliation when their findings affect the program.
   normalizes percentages, canonicalizes all historical WAS names, and is
   audit-only unless `--write` is explicit. Backup discovery now includes all
   private `sis_*` base tables. Twenty-four combined SIS/backup tests pass.
-  Exact next SIS action: commit the importer, create
-  `nfl_raw.sis_team_context_game` with write-once semantics, immediately run
-  the backup job, then build a strictly-prior correlation/redundancy audit
-  before freezing small feature bundles. Team passing/receiving and run
+  Write-once import created `nfl_raw.sis_team_context_game` with exactly 3,230
+  rows. Backup verification created
+  `nfl_backups.sis_team_context_game_20260813_sisctx`; the backup invocation
+  had zero failed tables. The durable intake record is
+  `reports/2026-08-13-sis-team-context-intake.md`. Exact next SIS action: build
+  a strictly-prior correlation/redundancy audit before freezing small feature
+  bundles. Team passing/receiving and run
   defense are the next acquisition candidates; granular gap/player/special
   teams remain deferred. Do not exceed the subscription's 1,000-query weekly
   allowance.
