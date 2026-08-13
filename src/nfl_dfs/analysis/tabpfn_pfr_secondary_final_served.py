@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import base64
+import gzip
+from hashlib import sha256
 import json
 import os
 from contextlib import contextmanager
@@ -31,9 +34,33 @@ ARM_DROPS = {
     ),
 }
 TABLES = {arm: f"tabpfn_pfr_secondary_{arm}_v1" for arm in ARMS}
-OUTPUT_PREFIX = "TABPFN_PFR_SECONDARY_FINAL_SERVED_JSON="
+OUTPUT_META_PREFIX = "TABPFN_PFR_SECONDARY_FINAL_SERVED_META="
+OUTPUT_CHUNK_PREFIX = "TABPFN_PFR_SECONDARY_FINAL_SERVED_CHUNK="
+REPORT_CHUNK_CHARS = 48_000
 EXPECTED_CACHE_ROWS = 52_307
 TIE_ORDER = ("drop_rates", "drop_top_cb", "drop_all")
+
+
+def encode_report_transport(report: dict) -> tuple[dict, list[str]]:
+    """Compress and chunk a report below Cloud Logging's entry limit."""
+    content = json.dumps(
+        report, sort_keys=True, allow_nan=False,
+        separators=(",", ":")).encode()
+    compressed = gzip.compress(content, mtime=0)
+    encoded = base64.b64encode(compressed).decode("ascii")
+    chunks = [
+        encoded[start:start + REPORT_CHUNK_CHARS]
+        for start in range(0, len(encoded), REPORT_CHUNK_CHARS)
+    ]
+    meta = {
+        "version": "v1",
+        "chunks": len(chunks),
+        "json_bytes": len(content),
+        "json_sha256": sha256(content).hexdigest(),
+        "gzip_bytes": len(compressed),
+        "gzip_sha256": sha256(compressed).hexdigest(),
+    }
+    return meta, chunks
 
 
 @contextmanager
@@ -265,9 +292,12 @@ def run(panel_id: str) -> dict:
             "position_factor_grid": "0.750:0.005:1.500",
         },
     })
-    print(OUTPUT_PREFIX + json.dumps(report, sort_keys=True))
+    meta, chunks = encode_report_transport(report)
+    print(OUTPUT_META_PREFIX + json.dumps(meta, sort_keys=True))
+    for index, chunk in enumerate(chunks):
+        print(f"{OUTPUT_CHUNK_PREFIX}{index}/{len(chunks)}:{chunk}")
     return report
 
 
 __all__ = ["ARMS", "ARM_DROPS", "TABLES", "_arm_environment",
-           "_evaluate_arms", "run"]
+           "_evaluate_arms", "encode_report_transport", "run"]

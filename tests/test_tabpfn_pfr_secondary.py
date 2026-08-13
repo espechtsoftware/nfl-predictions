@@ -1,8 +1,31 @@
+import json
+
 import numpy as np
 import pandas as pd
 
 from nfl_dfs.analysis import tabpfn_pfr_secondary_final_served as final_served
 from nfl_dfs.backtest import replay
+
+
+def test_pfr_secondary_report_transport_round_trip():
+    report = {
+        "gate": {"passes": False},
+        "large": [float(index) / 7 for index in range(50_000)],
+    }
+    meta, chunks = final_served.encode_report_transport(report)
+    assert len(chunks) > 1
+    assert all(len(chunk) <= final_served.REPORT_CHUNK_CHARS
+               for chunk in chunks)
+
+    import base64
+    import gzip
+    import hashlib
+
+    compressed = base64.b64decode("".join(chunks), validate=True)
+    content = gzip.decompress(compressed)
+    assert len(content) == meta["json_bytes"]
+    assert hashlib.sha256(content).hexdigest() == meta["json_sha256"]
+    assert json.loads(content) == report
 
 
 def test_pfr_secondary_arm_environment_coordinates_drop_and_cache(monkeypatch):

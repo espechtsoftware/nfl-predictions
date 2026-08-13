@@ -409,6 +409,33 @@ agent or developer:
   ID are in the same final-served run directory. Exact next action: poll it;
   after clean completion harvest only its structured report with the frozen
   finish script and follow the machine-selected branch.
+  That execution completed cleanly at `2026-08-13T16:46:20Z`, but the local
+  harvester found that Cloud Logging truncated the single report line at
+  exactly 102,400 bytes, leaving invalid JSON. The retained record is now
+  `truncated_raw_log.txt`. Diagnosis necessarily exposed the already-computed
+  top-level disposition `tabpfn-pfr-secondary-final-served-no-eligible-drop`:
+  all three drops had worse aggregate active-player 30-point Brier than
+  control. Do not treat this as terminal until the complete fold, position and
+  uncertainty report is harvested. The frozen transport-only repair is
+  `reports/2026-08-13-pfr-secondary-report-transport-repair.md`: canonical
+  gzip/base64 chunks of at most 48,000 characters with compressed and
+  uncompressed SHA-256 identities, plus a strict all-chunk harvester. No arm,
+  row, seed, cache, fit, factor, metric, gate or branch changed. Focused tests,
+  shell syntax and compilation pass. Exact next action: commit/build this
+  narrow repair, run the deterministic score-free task once from the new
+  immutable image, then harvest the complete report. No exact-80 branch is
+  currently licensed.
+  The operator-supplied Monte Carlo review is tracked as
+  `reports/2026-08-13-monte-carlo-review-and-seed-variance-protocol.md` and is
+  being reconciled against the actual multi-stream RNG path. The first
+  outcome-free support audit is decisive: on terminal active-label panel
+  `20260812-pitclean-e80-selected-tabpfn-active-v2`, every one of 13,750
+  candidates has fewer than 30 supporting worlds at both 210 and 220; median
+  support is one world at 210 and zero at 220, and 61.738% have zero 220
+  worlds. This is a serious warning for the prospective 220-first selector,
+  not evidence against the adopted 194 selector. Freeze a corrected five-run
+  incumbent seed-envelope protocol and the durable support report before any
+  policy change.
   The outside oddsmaking proposal
   `reports/2026-08-13-oddsmaking-techniques-and-market-implied-dependence.md`
   is reconciled in
