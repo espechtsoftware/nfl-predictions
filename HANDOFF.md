@@ -519,7 +519,11 @@ reconciliation when their findings affect the program.
   `3caf0362-eef6-4d3c-843a-3c2be787e28d` passed 1,026 tests with two expected
   skips and produced immutable v2 digest
   `sha256:9d00a848c1f55f172c6c7e092bd40a1dadbc6cc2015e06b9313033f29ef155d5`.
-  Use only that digest to launch the frozen 32 GiB v2 replacement next.
+  Frozen 32 GiB v2 execution `g2-qb-gumbel-factor-v2-wfkgw` is now launched
+  from that exact digest. Its manifest is under
+  `reports/g2-qb-gumbel-runs/20260812-g2-qb-gumbel-factor-v2/`. Poll this exact
+  execution without reading partial metrics and require both the durable
+  calibration artifact and terminal report at harvest.
 - The operator-supplied alternative-frames review is retained unchanged at
   `reports/2026-08-12-alternative-analytical-frames.md` and reconciled in
   `reports/2026-08-12-alternative-analytical-frames-reconciliation.md`. The
