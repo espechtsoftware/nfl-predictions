@@ -167,14 +167,13 @@ def test_alignment_sample_analysis_uses_only_frozen_volume_columns(tmp_path):
     artifacts = []
     rows = {
         "left": [(101, "Alpha WR", "WR", 1), (102, "Beta WR", "WR", 3)],
-        "left-slot": [(101, "Alpha WR", "WR", 1), (102, "Beta WR", "WR", 8)],
-        "right-slot": [(101, "Alpha WR", "WR", 2), (102, "Beta WR", "WR", 7)],
+        "slot": [(101, "Alpha WR", "WR", 3), (102, "Beta WR", "WR", 15)],
         "right": [(101, "Alpha WR", "WR", 16), (102, "Beta WR", "WR", 2)],
         "lcb": [(201, "Corner A", "CB", 18), (202, "Corner B", "CB", 2)],
         "rcb": [(201, "Corner A", "CB", 1), (202, "Corner B", "CB", 2)],
         "scb": [(201, "Corner A", "CB", 1), (202, "Corner B", "CB", 16)],
     }
-    for family, filter_name, filter_value, slice_name in sis.ALIGNMENT_SAMPLE_SLICES:
+    for family, filter_name, filter_values, slice_name in sis.ALIGNMENT_SAMPLE_SLICES:
         path = tmp_path / sis._alignment_sample_artifact(slice_name)
         volume = "Routes" if family == "receiving" else "Cov. Snaps"
         path.write_text(
@@ -185,7 +184,7 @@ def test_alignment_sample_analysis_uses_only_frozen_volume_columns(tmp_path):
             ), encoding="utf-8")
         artifacts.append({
             "family": family, "filter_name": filter_name,
-            "filter_value": filter_value, "slice": slice_name,
+            "filter_values": list(filter_values), "slice": slice_name,
             "artifact": path.name, "sha256": sis._sha256(path),
             "identities": [
                 {"playerId": pid, "player": name}
@@ -287,6 +286,12 @@ def test_api_request_budget_persists_across_processes(tmp_path):
 def test_alignment_sampler_loads_existing_request_count():
     source = sis.run_alignment_feasibility_sample.__code__
     assert "used" in source.co_varnames
+
+
+def test_alignment_sample_slices_are_exact_six_call_repair():
+    assert len(sis.ALIGNMENT_SAMPLE_SLICES) == 6
+    assert sis.ALIGNMENT_SAMPLE_SLICES[1] == (
+        "receiving", "ReceivingFilters.RecAlignment", ("2", "5"), "slot")
 
 
 def test_identity_rows_retain_ids_and_scope_without_metrics():

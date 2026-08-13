@@ -49,13 +49,12 @@ CSV_REQUIRED_COLUMNS: dict[str, frozenset[str]] = {
 }
 
 ALIGNMENT_SAMPLE_SLICES = (
-    ("receiving", "ReceivingFilters.RecAlignment", "1", "left"),
-    ("receiving", "ReceivingFilters.RecAlignment", "2", "left-slot"),
-    ("receiving", "ReceivingFilters.RecAlignment", "5", "right-slot"),
-    ("receiving", "ReceivingFilters.RecAlignment", "6", "right"),
-    ("pass-defense", "PassDefenseFilters.DefenderLinedUp", "1", "lcb"),
-    ("pass-defense", "PassDefenseFilters.DefenderLinedUp", "2", "rcb"),
-    ("pass-defense", "PassDefenseFilters.DefenderLinedUp", "3", "scb"),
+    ("receiving", "ReceivingFilters.RecAlignment", ("1",), "left"),
+    ("receiving", "ReceivingFilters.RecAlignment", ("2", "5"), "slot"),
+    ("receiving", "ReceivingFilters.RecAlignment", ("6",), "right"),
+    ("pass-defense", "PassDefenseFilters.DefenderLinedUp", ("1",), "lcb"),
+    ("pass-defense", "PassDefenseFilters.DefenderLinedUp", ("2",), "rcb"),
+    ("pass-defense", "PassDefenseFilters.DefenderLinedUp", ("3",), "scb"),
 )
 
 
@@ -970,7 +969,7 @@ def run_alignment_feasibility_sample(
             _assert_authenticated(page, timeout_ms)
             page.locator("#querybuilder").wait_for(state="attached")
             current_family = None
-            for family, filter_name, filter_value, slice_name in ALIGNMENT_SAMPLE_SLICES:
+            for family, filter_name, filter_values, slice_name in ALIGNMENT_SAMPLE_SLICES:
                 if family != current_family:
                     spec = ExportSpec(
                         entity="players",
@@ -1001,8 +1000,8 @@ def run_alignment_feasibility_sample(
                         _set_checkbox_values(
                             page, "PassDefenseFilters.ReceiverPos", ["4"])
                     current_family = family
-                _set_checkbox_values(page, filter_name, [filter_value])
-                expected_filters = {filter_name: [filter_value]}
+                _set_checkbox_values(page, filter_name, filter_values)
+                expected_filters = {filter_name: list(filter_values)}
                 if family == "receiving":
                     expected_filters["ReceivingFilters.TargetPos"] = ["4"]
                 else:
@@ -1044,7 +1043,7 @@ def run_alignment_feasibility_sample(
                 partial.replace(destination)
                 artifacts.append({
                     "family": family, "filter_name": filter_name,
-                    "filter_value": filter_value, "slice": slice_name,
+                    "filter_values": list(filter_values), "slice": slice_name,
                     "spec": asdict(spec), "artifact": destination.name,
                     "rows": expected_rows, "bytes": destination.stat().st_size,
                     "sha256": _sha256(destination),
@@ -1078,10 +1077,7 @@ def analyze_alignment_feasibility_sample(
         raise RuntimeError("SIS alignment manifest is not the frozen seven slices")
     receiver: dict[tuple[int, str], dict[str, float]] = {}
     defenders: dict[tuple[int, str], dict[str, float]] = {}
-    receiver_bucket = {
-        "left": "left", "right": "right",
-        "left-slot": "slot", "right-slot": "slot",
-    }
+    receiver_bucket = {"left": "left", "right": "right", "slot": "slot"}
 
     def number(value: str) -> float:
         return float(value.replace(",", "").strip() or 0)

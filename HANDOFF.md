@@ -225,6 +225,13 @@ agent or developer:
   arms the durable route only around each visible Submit. Exactly seven calls
   remain for exactly seven frozen slices; do not retry unless this guarded
   implementation and its counter test pass.
+  The first armed Submit also failed closed before accepting an artifact,
+  leaving `6/12`. Operational scope repair
+  `reports/2026-08-13-sis-alignment-sample-scope-repair.md` is frozen before
+  sample output: Left Slot and Right Slot are now one multi-value Submit because
+  the original decision already sums them into a single Slot bucket. Exactly
+  six Submit calls remain for exactly six artifacts; no game, identity,
+  volume-only calculation, mapping or threshold changes.
 - The SIS QB-line cache mechanical gate passed and the score-free
   final-served execution
   `tabpfn-sis-qb-line-final-served-v1-vkx49` completed from audit image
