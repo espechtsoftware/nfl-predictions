@@ -96,6 +96,16 @@ itself blocks any request beyond the declared ceiling. Each manifest retains
 the stable SIS IDs and readable scope keys from the exact submitted response,
 because the visible CSV omits the IDs.
 
+Each family/view is also checked against a small required-column signature and
+the exact submitted `MetricGroupSubType`. This is necessary because a 2026-08-13
+audit found that SIS team Passing Value can return Value fields in its API
+response but render/export the Totals table after a split-by-game Submit. Those
+artifacts are invalid even when their row count, season, week and opponent
+scope are correct. See
+`reports/2026-08-13-sis-tranche-2-subtype-defect.md`. Do not resume tranche 2
+or import it until its reduced recovery plan is frozen; its durable counter is
+337/440 and must not be reset.
+
 The first paid month is NFL-only. College acquisition is deferred to the 2027
 CFB go/no-go review.
 

@@ -73,6 +73,32 @@ agent or developer:
   Exact next action: commit/push this implementation, run a full Cloud Build,
   build the GPU generator image from the same commit, then launch both
   write-once caches and require exact reproduction before the score-free gate.
+- Full Cloud validation build
+  `bce536c7-6d8b-4900-ba79-9f8dc5dfeca2` passed and produced audit digest
+  `sha256:c536b05c33b120cea860fb6d0067192c740a33cfe9fd60461195c039ecd40db5`.
+  GPU build `a6f7fbff-50a2-4722-8a26-003d1a1b0943` passed and produced
+  `sha256:90e1643723c1f7084cd729b8e24ddb92812f6322602310d6a30f38074a95b91e`.
+  Frozen cache executions are now running: control
+  `tabpfn-sis-qb-line-v1-control-gkzlj` and treatment
+  `tabpfn-sis-qb-line-v1-treatment-567t2`. Their manifest is under
+  `reports/tabpfn-sis-qb-line-runs/20260813-tabpfn-sis-qb-line-v1/`.
+  Wait for both clean completions, harvest, and require exact inherited-cache
+  reproduction before launching the score-free gate.
+- SIS tranche-2 resume exposed a new acquisition defect before import. The
+  site submits team Passing Value (`MetricGroupSubType=1.3`) correctly but its
+  split-by-game Download renders/exports the Totals schema. Fourteen completed
+  Passing Totals/Value scope pairs are therefore byte-identical; none is a
+  valid Passing Value artifact. The 108-file tranche-1 audit has zero
+  cross-view duplicate hashes and exact expected schemas, so the already
+  imported SIS QB source and running arm are unaffected. The resumed process
+  was stopped at 82/108 local CSV pairs and a durable 337/440 requests. Export
+  code now requires exact submitted subtype plus per-report CSV schema
+  signatures and waits for both row count and view columns, so stale views
+  fail closed. Do not resume the original plan unchanged or import tranche 2.
+  Track/quarantine the 14 invalid Passing Value pairs, preserve the request
+  counter, and freeze a reduced recovery plan for only missing/valid Passing
+  Totals, Rushing Totals/Value and Run Defense Totals/Value. Team Passing Value
+  requires a different verified UI workflow or is unavailable at game grain.
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and

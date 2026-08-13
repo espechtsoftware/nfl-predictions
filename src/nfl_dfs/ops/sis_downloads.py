@@ -28,6 +28,25 @@ NFL_LEADERS_URL = f"{BASE_URL}/NFL/Leaders/Players"
 AUTH_HOST = "auth.sportsinfosolutions.com"
 MIN_API_REQUESTS_PER_EXPORT = 4
 
+# View identity cannot be inferred from row count or season/week scope. SIS's
+# submenu anchors do not consistently write MetricGroupSubType themselves, and
+# a stale DataTables export can therefore look complete while carrying another
+# view's columns. These small schema signatures fail closed on that condition.
+CSV_REQUIRED_COLUMNS: dict[str, frozenset[str]] = {
+    "passing-totals": frozenset(("Games", "Dropbacks", "Gross Yds")),
+    "passing-value": frozenset(("Points Earned", "PE Per Play", "Boom%", "Bust%")),
+    "rushing-totals": frozenset(("Games", "YAContact", "Hit at Line")),
+    "rushing-value": frozenset(("Points Earned", "PE Per Play", "Boom%", "Bust%")),
+    "pass-defense-totals": frozenset(("Games", "Catchable", "Pass Def.")),
+    "pass-defense-value": frozenset(("Points Saved", "PS Per Play", "Boom%", "Bust%")),
+    "pass-rush-totals": frozenset(("Games", "Pressures", "Passes Batted")),
+    "pass-rush-value": frozenset(("Points Saved", "PS Per Play", "PAR", "WAR")),
+    "run-defense-totals": frozenset(("Games", "Tackle Broken", "TFL")),
+    "run-defense-value": frozenset(("Points Saved", "PS Per Play", "Boom%", "Bust%")),
+    "blocking-totals": frozenset(("Games", "PassSnap", "RushSnap")),
+    "blocking-value": frozenset(("Points Earned", "PE Per Play", "PAR", "WAR")),
+}
+
 
 @dataclass(frozen=True)
 class ReportDefinition:
@@ -435,6 +454,34 @@ def _click_ui_control(page: Any, selector: str) -> None:
         control.evaluate("element => element.click()")
 
 
+def _select_report_subtype(page: Any, definition: ReportDefinition) -> None:
+    """Bind the hidden subtype to the visible submenu choice before clicking.
+
+    Several SIS submenu anchors advertise their subtype in ``value`` but omit
+    the corresponding ``setMetricGroupSubType`` call from ``onclick``. Setting
+    the page's own hidden form control from that visible value is equivalent to
+    retaining the user's menu selection and keeps the subsequent Submit on the
+    ordinary UI path.
+    """
+    if not definition.subtab:
+        return
+    control = page.locator(f"#{definition.subtab}")
+    control.wait_for(state="attached")
+    advertised = control.get_attribute("value")
+    if advertised is None or float(advertised) != float(definition.subtype):
+        raise RuntimeError("SIS report submenu does not advertise its subtype")
+    retained = page.locator("#MetricGroupSubType").evaluate(
+        """(element, value) => {
+          element.value = value;
+          element.dispatchEvent(new Event('change', {bubbles: true}));
+          return element.value === value;
+        }""",
+        str(definition.subtype),
+    )
+    if not retained:
+        raise RuntimeError("SIS report subtype did not retain the menu value")
+
+
 def _request_scope(request: Any) -> dict[str, list[str]]:
     from urllib.parse import parse_qs
 
@@ -463,6 +510,7 @@ def _response_matches_spec(response: Any, spec: ExportSpec) -> bool:
     scope = _request_scope(response.request)
     expected = {
         "MetricGroup": [str(spec.definition.metric_group)],
+        "MetricGroupSubType": [str(spec.definition.subtype)],
         "TimeFilters.SeasonFrom": [str(spec.season)],
         "TimeFilters.SeasonTo": [str(spec.season)],
         "TimeFilters.StartWeek": [str(spec.start_week)],
@@ -520,20 +568,33 @@ def _identity_rows(response: Any) -> list[dict[str, Any]]:
     return identities
 
 
-def _wait_for_table(page: Any, expected_rows: int, timeout_ms: int) -> None:
+def _wait_for_table(
+    page: Any,
+    expected_rows: int,
+    timeout_ms: int,
+    expected_columns: frozenset[str] = frozenset(),
+) -> None:
     deadline = time.monotonic() + timeout_ms / 1000.0
     while time.monotonic() < deadline:
         try:
-            current = int(page.evaluate(
+            state = page.evaluate(
                 "typeof dataTbl === 'undefined' ? -1 : dataTbl.data().count()"
+            )
+            current = int(state)
+            headers = set(page.evaluate(
+                """typeof dataTbl === 'undefined' ? [] :
+                [...dataTbl.table().header().querySelectorAll('th')]
+                  .map(element => element.innerText.trim())"""
             ))
         except Exception:
             current = -1
-        if current == expected_rows:
+            headers = set()
+        if current == expected_rows and expected_columns <= headers:
             return
         page.wait_for_timeout(200)
     raise RuntimeError(
-        f"SIS rendered table has not reached the API row count {expected_rows}"
+        "SIS rendered table has not reached the submitted response state: "
+        f"rows={expected_rows}, required columns={sorted(expected_columns)}"
     )
 
 
@@ -548,6 +609,12 @@ def _read_csv(path: Path) -> list[list[str]]:
 def _validate_csv_scope(path: Path, spec: ExportSpec, expected_rows: int) -> None:
     rows = _read_csv(path)
     header = rows[0]
+    required_view = CSV_REQUIRED_COLUMNS.get(spec.report, frozenset())
+    if missing_view := required_view - set(header):
+        raise RuntimeError(
+            f"SIS CSV view differs from {spec.report}: missing "
+            f"{sorted(missing_view)}; exported columns={header}"
+        )
     if len(rows) - 1 != expected_rows:
         raise RuntimeError(
             f"SIS CSV has {len(rows) - 1} rows; API returned {expected_rows}"
@@ -647,20 +714,23 @@ def export_one(
                 # SIS's tab request is immediate but the UI replaces the
                 # DataTable asynchronously. Wait for its own API response and
                 # rendered row count before mutating filters for Submit.
+                _select_report_subtype(page, spec.definition)
                 with page.expect_response(
                     lambda response: (
                         f"/api/v1/nfl/{spec.entity}/query" in response.url
-                        and _request_scope(response.request).get("MetricGroup")
-                        == [str(spec.definition.metric_group)]
+                        and _request_scope(response.request).get(
+                            "MetricGroup") == [str(spec.definition.metric_group)]
+                        and _request_scope(response.request).get(
+                            "MetricGroupSubType") == [str(spec.definition.subtype)]
                     ), timeout=timeout_ms,
                 ) as subtab_response:
                     _click_ui_control(page, f"#{spec.definition.subtab}")
                 subtab_rows = _api_rows(subtab_response.value, "report-view")
-                _wait_for_table(page, len(subtab_rows), timeout_ms)
-                active = page.locator(
-                    f"#{spec.definition.subtab}"
-                ).get_attribute("value")
-                if active is not None and float(active) != float(spec.definition.subtype):
+                _wait_for_table(
+                    page, len(subtab_rows), timeout_ms,
+                    CSV_REQUIRED_COLUMNS.get(spec.report, frozenset()))
+                active = page.locator("#MetricGroupSubType").input_value()
+                if float(active) != float(spec.definition.subtype):
                     raise RuntimeError("SIS report view did not retain its declared subtype")
             _set_select(page, "#TimeFilters_SeasonFrom", str(spec.season))
             _set_select(page, "#TimeFilters_SeasonTo", str(spec.season))
@@ -680,7 +750,9 @@ def export_one(
             identities = _identity_rows(response)
             if expected_rows == 0:
                 raise RuntimeError("SIS query returned no rows")
-            _wait_for_table(page, expected_rows, timeout_ms)
+            _wait_for_table(
+                page, expected_rows, timeout_ms,
+                CSV_REQUIRED_COLUMNS.get(spec.report, frozenset()))
             button = page.locator("a.dt-button.buttons-csv:visible")
             if button.count() != 1:
                 raise RuntimeError("SIS page has an ambiguous Download control")

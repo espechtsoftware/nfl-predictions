@@ -86,7 +86,7 @@ def test_response_scope_and_row_cap_fail_closed():
         start_week=1, end_week=1, team_id=2,
     )
     post = (
-        "MetricGroup=9&TimeFilters.SeasonFrom=2025&"
+        "MetricGroup=9&MetricGroupSubType=9.1&TimeFilters.SeasonFrom=2025&"
         "TimeFilters.SeasonTo=2025&TimeFilters.StartWeek=1&"
         "TimeFilters.EndWeek=1&TimeFilters.ByGame=1&GameFilters.Team=2"
     )
@@ -98,6 +98,20 @@ def test_response_scope_and_row_cap_fail_closed():
     capped = _Response(post, response._data * 200)
     with pytest.raises(sis.RowCapError, match="paid row cap"):
         sis._assert_api_scope(capped, spec, row_cap=200)
+
+
+def test_response_scope_rejects_wrong_report_subtype():
+    spec = sis.ExportSpec(
+        entity="players", report="pass-defense-value", season=2025,
+        start_week=1, end_week=1,
+    )
+    wrong = _Response(
+        "MetricGroup=9&MetricGroupSubType=9.1&TimeFilters.SeasonFrom=2025&"
+        "TimeFilters.SeasonTo=2025&TimeFilters.StartWeek=1&"
+        "TimeFilters.EndWeek=1&TimeFilters.ByGame=1",
+        [{"season": 2025, "week": 1, "games": 1}],
+    )
+    assert not sis._response_matches_spec(wrong, spec)
 
 
 def test_non_json_api_response_has_audit_error():
@@ -113,8 +127,8 @@ def test_csv_scope_validation(tmp_path):
     )
     path = tmp_path / "sis.csv"
     path.write_text(
-        "Rank,Season,Week,Opp.,Games,Player\n"
-        "1,2025,1,ATL,1,A\n2,2025,2,BUF,1,B\n",
+        "Rank,Season,Week,Opp.,Games,Player,Catchable,Pass Def.\n"
+        "1,2025,1,ATL,1,A,2,1\n2,2025,2,BUF,1,B,3,1\n",
         encoding="utf-8",
     )
     sis._validate_csv_scope(path, spec, expected_rows=2)
@@ -129,11 +143,24 @@ def test_value_csv_can_omit_games_when_api_proved_game_grain(tmp_path):
     )
     path = tmp_path / "sis-value.csv"
     path.write_text(
-        "Rank,Season,Week,Opp.,Player,Points Saved\n"
-        "[object Object],2025,1,ATL,A,0.5\n",
+        "Rank,Season,Week,Opp.,Player,Points Saved,PS Per Play,Boom%,Bust%\n"
+        "[object Object],2025,1,ATL,A,0.5,0.1,10%,5%\n",
         encoding="utf-8",
     )
     sis._validate_csv_scope(path, spec, expected_rows=1)
+
+
+def test_value_csv_rejects_stale_totals_view(tmp_path):
+    spec = sis.ExportSpec(
+        entity="teams", report="passing-value", season=2025,
+        start_week=1, end_week=1,
+    )
+    path = tmp_path / "stale.csv"
+    path.write_text(
+        "Rank,Season,Team,Week,Opp.,Games,Dropbacks,Gross Yds\n"
+        "1,2025,ARI,1,DET,1,30,250\n", encoding="utf-8")
+    with pytest.raises(RuntimeError, match="view differs"):
+        sis._validate_csv_scope(path, spec, expected_rows=1)
 
 
 def test_blocking_csv_can_call_season_year(tmp_path):
@@ -143,8 +170,8 @@ def test_blocking_csv_can_call_season_year(tmp_path):
     )
     path = tmp_path / "sis-blocking.csv"
     path.write_text(
-        "Rank,Year,Team,Week,Opp.,Games,Snaps\n"
-        "1,2019,ARI,1,DET,1,60\n", encoding="utf-8")
+        "Rank,Year,Team,Week,Opp.,Games,Snaps,PassSnap,RushSnap\n"
+        "1,2019,ARI,1,DET,1,60,40,20\n", encoding="utf-8")
     sis._validate_csv_scope(path, spec, expected_rows=1)
 
 
@@ -226,8 +253,9 @@ def test_verified_existing_is_resumable_and_fails_on_hash_drift(tmp_path):
     )
     artifact = tmp_path / sis.artifact_name(spec)
     artifact.write_text(
-        "Rank,Season,Week,Opp.,Player,Points Saved\n"
-        "[object Object],2025,1,ATL,A,0.5\n", encoding="utf-8")
+        "Rank,Season,Week,Opp.,Player,Points Saved,PS Per Play,Boom%,Bust%\n"
+        "[object Object],2025,1,ATL,A,0.5,0.1,10%,5%\n",
+        encoding="utf-8")
     manifest = sis._manifest_path(tmp_path, artifact.name)
     manifest.write_text(json.dumps({
         "spec": asdict(spec), "sha256": sis._sha256(artifact), "rows": 1,
