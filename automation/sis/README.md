@@ -74,11 +74,13 @@ without spending a query:
 sis-download plan --file automation/sis/plans/team-context-tranche-1.json
 ```
 
-It declares 108 exports (six replay seasons, three six-week windows, six
-team-context reports), leaving substantial room below the weekly allowance
-for retries and capped-query splitting. Bulk resumable execution is the next
-step; the plan command currently validates and prints artifacts but does not
-download them.
+It declares 108 artifacts (six replay seasons, three six-week windows, six
+team-context reports) and a hard 500-API-request ceiling. An artifact can cost
+several API requests because the normal UI refreshes on page, family, view and
+Submit actions; do not equate artifacts with queries. The ceiling leaves half
+the documented weekly allowance for retries and capped-query splitting. Bulk
+resumable execution is the next step; the plan command currently validates
+and prints artifacts but does not download them.
 
 The first paid month is NFL-only. College acquisition is deferred to the 2027
 CFB go/no-go review.

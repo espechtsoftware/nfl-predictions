@@ -182,12 +182,20 @@ def load_plan(path: Path) -> list[ExportSpec]:
                                 f"duplicate SIS planned artifact: {name}")
                         names.add(name)
                         specs.append(spec)
-    budget = int(payload.get("max_queries", len(specs)))
+    budget = int(payload.get("max_exports", payload.get("max_queries", len(specs))))
     if len(specs) > budget:
         raise ValueError(
-            f"SIS plan expands to {len(specs)} exports, above max_queries={budget}"
+            f"SIS plan expands to {len(specs)} exports, above max_exports={budget}"
         )
     return specs
+
+
+def plan_request_ceiling(path: Path) -> int:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    ceiling = int(payload.get("max_api_requests", 0))
+    if ceiling < 1 or ceiling > 1_000:
+        raise ValueError("SIS plan max_api_requests must be within 1..1000")
+    return ceiling
 
 
 def default_profile_dir() -> Path:
@@ -659,7 +667,11 @@ def main(argv: Sequence[str] | None = None) -> int:
                 )
         elif args.command == "plan":
             specs = load_plan(args.file)
-            print(f"SIS plan valid: {len(specs)} guarded exports")
+            ceiling = plan_request_ceiling(args.file)
+            print(
+                f"SIS plan valid: {len(specs)} guarded exports; "
+                f"hard API-request ceiling {ceiling}"
+            )
             for spec in specs:
                 print(artifact_name(spec))
         else:

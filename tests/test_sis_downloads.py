@@ -127,7 +127,8 @@ def test_load_plan_expands_seasons_windows_and_enforces_budget(tmp_path):
     plan.write_text(
         """{
           "schema_version": 1,
-          "max_queries": 4,
+          "max_exports": 4,
+          "max_api_requests": 20,
           "exports": [{
             "entity": "teams",
             "seasons": [2024, 2025],
@@ -140,6 +141,7 @@ def test_load_plan_expands_seasons_windows_and_enforces_budget(tmp_path):
     specs = sis.load_plan(plan)
     assert len(specs) == 4
     assert {spec.season for spec in specs} == {2024, 2025}
-    plan.write_text(plan.read_text().replace('"max_queries": 4', '"max_queries": 3'))
-    with pytest.raises(ValueError, match="above max_queries"):
+    assert sis.plan_request_ceiling(plan) == 20
+    plan.write_text(plan.read_text().replace('"max_exports": 4', '"max_exports": 3'))
+    with pytest.raises(ValueError, match="above max_exports"):
         sis.load_plan(plan)

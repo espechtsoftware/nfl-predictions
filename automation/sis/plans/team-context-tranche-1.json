@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "max_queries": 108,
+  "max_exports": 108,
+  "max_api_requests": 500,
   "description": "First game-grain team defense, pressure and blocking context tranche; target-week joins must use only prior completed games.",
   "exports": [
     {
