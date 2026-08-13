@@ -52,6 +52,27 @@ agent or developer:
   downloader on the verified session, finish/validate both manifests, then
   implement and run the frozen score-free conditional-allocation gate.
 
+### 2026-08-13 SIS/Fantasy Points ASOE acquisition passed
+
+- SIS acquisition completed and passed its immutable gate: 24/24 artifacts,
+  4,077 team-game/alignment rows, 32 teams, 32,587 Wide/Slot attempts, no
+  row-cap/schema/scope/hash/identity failures, and `performance_values_read=[]`.
+  Its ignored durable manifest/result live under
+  `sis/team-pass-defense-asoe-v1/`; the request ledger finished exactly
+  `28/28` including the four documented setup calls.
+- Fantasy Points acquisition completed and passed its manifest contracts:
+  56/56 exact target Week 5--18 prior windows across 2022--2025, all with
+  source Weeks W-4..W-1, Player context and group headers. Its ignored run is
+  `fantasy-points/automated/20260813T202926Z__same-season-alignment-last-four-v1/`.
+- Before reading any historical player target allocation outcome, the fixed
+  score-free construction and gate were registered at
+  `reports/2026-08-13-sis-asoe-allocation-stage-a-protocol.md`. It calibrates
+  one nonnegative schedule-adjusted Wide/Slot allocation coefficient on 2022,
+  evaluates 2023--2025 aggregate target Dirichlet-multinomial likelihood, and
+  deliberately reports rather than vetoes on individual-season/bootstrap
+  stability. A pass advances to a final-served marginal-preserving exact-80
+  tail comparison. A failure leaves the player-grain SIS branch open.
+
 ### 2026-08-13 SIS ASOE path reopened and acquisition frozen
 
 - The operator-supplied scope challenge is tracked at
