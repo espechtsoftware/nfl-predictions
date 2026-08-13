@@ -27,6 +27,11 @@ def default_profile_dir() -> Path:
     return base / "nfl-dfs" / "sis-playwright"
 
 
+def default_storage_state_path(profile_dir: Path) -> Path:
+    """Sensitive Playwright state, colocated with the external browser profile."""
+    return profile_dir.parent / "sis-playwright-storage-state.json"
+
+
 def _authenticated_url(url: str) -> bool:
     return url.startswith(BASE_URL) and AUTH_HOST not in url
 
@@ -92,6 +97,7 @@ def interactive_login(
         raise RuntimeError('install browser support with `pip install -e ".[browser]"`') from exc
 
     timeout_ms = int(timeout_seconds * 1000)
+    state_path = default_storage_state_path(profile_dir)
     with sync_playwright() as playwright:
         profile_dir.mkdir(parents=True, exist_ok=True)
         context = playwright.chromium.launch_persistent_context(
@@ -106,8 +112,7 @@ def interactive_login(
             page.goto(NFL_LEADERS_URL, wait_until="domcontentloaded", timeout=timeout_ms)
             if _authenticated_url(page.url):
                 print("The saved SIS browser profile is already authenticated.")
-                return
-            if terminal_credentials:
+            elif terminal_credentials:
                 _login_with_terminal_credentials(page, timeout_ms)
             else:
                 print("Sign in to SIS in the opened browser.")
@@ -120,6 +125,12 @@ def interactive_login(
             # rather than accepting a transient login callback page.
             page.goto(NFL_LEADERS_URL, wait_until="domcontentloaded", timeout=timeout_ms)
             _assert_authenticated(page, timeout_ms)
+            # SIS's identity cookie is session-scoped even with Remember Login.
+            # Chromium removes it on a clean persistent-context shutdown, so
+            # preserve Playwright storage state explicitly outside the repo.
+            # This captures the already-authenticated session, never the
+            # plaintext credentials.
+            context.storage_state(path=str(state_path))
             print("SIS login completed and the persistent session was verified.")
         finally:
             context.close()
@@ -131,9 +142,16 @@ def verify_login(profile_dir: Path, timeout_seconds: float) -> None:
     except ImportError as exc:  # pragma: no cover
         raise RuntimeError('install browser support with `pip install -e ".[browser]"`') from exc
     timeout_ms = int(timeout_seconds * 1000)
+    state_path = default_storage_state_path(profile_dir)
+    if not state_path.is_file():
+        raise RuntimeError(
+            "SIS saved storage state is missing; run "
+            "`sis-download login --terminal-credentials`"
+        )
     with sync_playwright() as playwright:
-        context = playwright.chromium.launch_persistent_context(
-            str(profile_dir), headless=True, viewport={"width": 1800, "height": 1200}
+        browser = playwright.chromium.launch(headless=True)
+        context = browser.new_context(
+            storage_state=str(state_path), viewport={"width": 1800, "height": 1200}
         )
         page = context.pages[0] if context.pages else context.new_page()
         try:
@@ -149,6 +167,7 @@ def verify_login(profile_dir: Path, timeout_seconds: float) -> None:
             ) from exc
         finally:
             context.close()
+            browser.close()
 
 
 def _build_parser() -> argparse.ArgumentParser:

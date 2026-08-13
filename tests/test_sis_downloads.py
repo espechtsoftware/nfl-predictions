@@ -5,7 +5,11 @@ from nfl_dfs.ops import sis_downloads as sis
 
 def test_default_profile_is_outside_repository(monkeypatch, tmp_path):
     monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path))
-    assert sis.default_profile_dir() == tmp_path / "nfl-dfs" / "sis-playwright"
+    profile = tmp_path / "nfl-dfs" / "sis-playwright"
+    assert sis.default_profile_dir() == profile
+    assert sis.default_storage_state_path(profile) == (
+        tmp_path / "nfl-dfs" / "sis-playwright-storage-state.json"
+    )
 
 
 def test_authenticated_url_requires_protected_sis_host():

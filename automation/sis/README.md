@@ -10,19 +10,19 @@ One-time login:
 source .venv/bin/activate
 pip install -e ".[browser]"
 playwright install chromium
-sis-download login
-sis-download verify-login
-```
-
-If the opened browser cannot accept keyboard input, cancel and use the secure
-terminal fallback:
-
-```bash
 sis-download login --terminal-credentials
+sis-download verify-login
 ```
 
 The password is read with hidden terminal input, used only to fill the SIS
 login form, and discarded. It is never logged or written to the repository.
+SIS uses a session-scoped identity cookie that Chromium removes at clean
+shutdown even when Remember Login is checked. The command therefore writes a
+Playwright storage-state file next to (not inside) the external browser
+profile. It contains the authenticated session but no plaintext password and
+must be guarded like a credential. `verify-login` starts a fresh headless
+browser from that state, so a successful verification proves later unattended
+downloads can authenticate.
 
 The bulk NFL exporter is being built around these fail-closed rules established
 by the first trial files:
