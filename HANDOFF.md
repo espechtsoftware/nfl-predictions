@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 03:27 CDT
+## Current state — 2026-08-13 03:38 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -105,6 +105,14 @@ reconciliation when their findings affect the program.
   Playwright acquisition workflow for NFL only, with persistent-session,
   mandatory-Submit, rendered-scope, stale-download, row-cap and completeness
   guards.
+  SIS login tooling is pushed through `e68da11`. It deliberately standardizes
+  on the secure terminal-credentials flow used for Fantasy Points. SIS's main
+  identity cookie is session-scoped, so a normal persistent Chromium shutdown
+  removed it despite Remember Login; the repaired command captures Playwright
+  storage state outside the repo before closing. Fresh headless verification
+  passed at 03:37 CDT and reached the protected NFL Player Leaderboards URL.
+  No further operator authentication is currently required. Continue the
+  guarded NFL-only exporter using that external state; never log or commit it.
 - Incumbent effective-rank v2 completed cleanly in execution
   `portfolio-effective-rank-v2-pbxps`, image
   `sha256:450f22cbdae94e23c8322330fe3f445d256cd82dbfc96ca086593a0f80eee90e`,
