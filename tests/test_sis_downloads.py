@@ -120,3 +120,26 @@ def test_value_csv_can_omit_games_when_api_proved_game_grain(tmp_path):
         encoding="utf-8",
     )
     sis._validate_csv_scope(path, spec, expected_rows=1)
+
+
+def test_load_plan_expands_seasons_windows_and_enforces_budget(tmp_path):
+    plan = tmp_path / "plan.json"
+    plan.write_text(
+        """{
+          "schema_version": 1,
+          "max_queries": 4,
+          "exports": [{
+            "entity": "teams",
+            "seasons": [2024, 2025],
+            "week_windows": [[1, 6]],
+            "reports": ["pass-defense-totals", "pass-defense-value"]
+          }]
+        }""",
+        encoding="utf-8",
+    )
+    specs = sis.load_plan(plan)
+    assert len(specs) == 4
+    assert {spec.season for spec in specs} == {2024, 2025}
+    plan.write_text(plan.read_text().replace('"max_queries": 4', '"max_queries": 3'))
+    with pytest.raises(ValueError, match="above max_queries"):
+        sis.load_plan(plan)

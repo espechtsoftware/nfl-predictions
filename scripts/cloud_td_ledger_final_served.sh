@@ -1,13 +1,14 @@
 #!/bin/bash
 # Launch the sole frozen score-free current-incumbent TD-ledger gate.
-# Usage: cloud_td_ledger_final_served.sh <AUDIT_IMAGE@sha256:...> <CODE_SHA>
+# Usage: cloud_td_ledger_final_served.sh <AUDIT_IMAGE@sha256:...> <CODE_SHA> [RUN_ID] [JOB]
 set -euo pipefail
 
 IMG=${1:-}
 CODE_SHA=${2:-}
 PROJECT=nfl-predictions-503414
 REGION=us-central1
-RUN_ID=20260813-td-ledger-final-served-v1
+RUN_ID=${3:-20260813-td-ledger-final-served-v1}
+JOB=${4:-td-ledger-final-served-v1}
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$ROOT/reports/td-ledger-runs/$RUN_ID"
 PROTOCOL="$ROOT/reports/2026-08-13-td-ledger-final-served-protocol.md"
@@ -107,7 +108,6 @@ ENVS="$ENVS,G1_POSITION_SCHEDULE_B64=${resolved[schedule_b64]}"
 ENVS="$ENVS,TABPFN_ACCEPTED_USAGE_LAW=dirichlet"
 ENVS="$ENVS,TABPFN_ACCEPTED_DIRICHLET_K=${resolved[k]}"
 ENVS="$ENVS,GAME_SIM_USAGE=dirichlet,DIRICHLET_K=${resolved[k]}"
-JOB=td-ledger-final-served-v1
 gcloud run jobs deploy "$JOB" --project "$PROJECT" --region "$REGION" \
   --image "$IMG" --command nfl-dfs \
   --args "td-ledger-final-served,--panel,${resolved[panel]}" \

@@ -135,6 +135,61 @@ def artifact_name(spec: ExportSpec) -> str:
     )
 
 
+def load_plan(path: Path) -> list[ExportSpec]:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if payload.get("schema_version") != 1:
+        raise ValueError("SIS plan schema_version must be 1")
+    exports = payload.get("exports")
+    if not isinstance(exports, list) or not exports:
+        raise ValueError("SIS plan exports must be a non-empty list")
+    specs: list[ExportSpec] = []
+    names: set[str] = set()
+    for item in exports:
+        if not isinstance(item, dict):
+            raise ValueError("SIS plan exports must contain objects")
+        entity = item["entity"]
+        seasons = item.get("seasons")
+        if seasons is None:
+            seasons = [item["season"]]
+        windows = item.get("week_windows")
+        if windows is None:
+            windows = [[item["start_week"], item["end_week"]]]
+        if not isinstance(seasons, list) or not seasons:
+            raise ValueError("SIS plan seasons must be a non-empty list")
+        if not isinstance(windows, list) or not windows:
+            raise ValueError("SIS plan week_windows must be a non-empty list")
+        reports = item.get("reports")
+        if not isinstance(reports, list) or not reports:
+            raise ValueError("SIS plan export reports must be non-empty")
+        team_ids = item.get("team_ids", [None])
+        if not isinstance(team_ids, list) or not team_ids:
+            raise ValueError("SIS plan team_ids must be a non-empty list")
+        for season in seasons:
+            for window in windows:
+                if not isinstance(window, list) or len(window) != 2:
+                    raise ValueError("SIS plan week windows must be [start, end]")
+                for report in reports:
+                    for team_id in team_ids:
+                        spec = ExportSpec(
+                            entity=entity, report=report, season=int(season),
+                            start_week=int(window[0]), end_week=int(window[1]),
+                            split_by_game=bool(item.get("split_by_game", True)),
+                            team_id=team_id,
+                        )
+                        name = artifact_name(spec)
+                        if name in names:
+                            raise ValueError(
+                                f"duplicate SIS planned artifact: {name}")
+                        names.add(name)
+                        specs.append(spec)
+    budget = int(payload.get("max_queries", len(specs)))
+    if len(specs) > budget:
+        raise ValueError(
+            f"SIS plan expands to {len(specs)} exports, above max_queries={budget}"
+        )
+    return specs
+
+
 def default_profile_dir() -> Path:
     base = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local" / "share"))
     return base / "nfl-dfs" / "sis-playwright"
@@ -578,6 +633,9 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     export.add_argument("--row-cap", type=int, default=200)
     export.add_argument("--output-dir", type=Path, default=Path("sis/downloads"))
+    plan = subparsers.add_parser(
+        "plan", help="validate and summarize a declarative SIS query plan")
+    plan.add_argument("--file", type=Path, required=True)
     return parser
 
 
@@ -599,6 +657,11 @@ def main(argv: Sequence[str] | None = None) -> int:
                     f"P{definition.priority} {definition.key}: "
                     f"{definition.rationale}"
                 )
+        elif args.command == "plan":
+            specs = load_plan(args.file)
+            print(f"SIS plan valid: {len(specs)} guarded exports")
+            for spec in specs:
+                print(artifact_name(spec))
         else:
             spec = ExportSpec(
                 entity=args.entity,

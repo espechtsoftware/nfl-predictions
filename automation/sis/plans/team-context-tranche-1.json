@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "max_queries": 108,
+  "description": "First game-grain team defense, pressure and blocking context tranche; target-week joins must use only prior completed games.",
+  "exports": [
+    {
+      "entity": "teams",
+      "seasons": [2019, 2021, 2022, 2023, 2024, 2025],
+      "week_windows": [[1, 6], [7, 12], [13, 18]],
+      "split_by_game": true,
+      "reports": ["pass-defense-totals", "pass-defense-value", "pass-rush-totals", "pass-rush-value", "blocking-totals", "blocking-value"]
+    }
+  ]
+}

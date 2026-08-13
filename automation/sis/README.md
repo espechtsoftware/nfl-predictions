@@ -66,5 +66,19 @@ Every model feature built from these files must be point-in-time: for a target
 week, aggregate only games completed before that target week's lock. A target
 week's own SIS row is an outcome and may never predict that same week.
 
+The first budgeted plan is tracked at
+`automation/sis/plans/team-context-tranche-1.json`. Validate its expansion
+without spending a query:
+
+```bash
+sis-download plan --file automation/sis/plans/team-context-tranche-1.json
+```
+
+It declares 108 exports (six replay seasons, three six-week windows, six
+team-context reports), leaving substantial room below the weekly allowance
+for retries and capped-query splitting. Bulk resumable execution is the next
+step; the plan command currently validates and prints artifacts but does not
+download them.
+
 The first paid month is NFL-only. College acquisition is deferred to the 2027
 CFB go/no-go review.

@@ -4,7 +4,7 @@ set -euo pipefail
 
 PROJECT=nfl-predictions-503414
 REGION=us-central1
-RUN_ID=20260813-td-ledger-final-served-v1
+RUN_ID=${1:-20260813-td-ledger-final-served-v1}
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$ROOT/reports/td-ledger-runs/$RUN_ID"
 MANIFEST="$OUT/manifest.txt"

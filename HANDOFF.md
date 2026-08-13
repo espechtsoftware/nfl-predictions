@@ -132,6 +132,13 @@ reconciliation when their findings affect the program.
   same-week data remains forbidden. Exact next SIS action is declarative
   query planning and identity sidecars, then a budgeted 2019/2021--2025
   backfill—do not indiscriminately consume the 1,000-query weekly allowance.
+  Declarative plan parsing now expands seasons/week windows/report bundles,
+  rejects duplicate artifacts and fails when expansion exceeds the declared
+  budget. `automation/sis/plans/team-context-tranche-1.json` validates to 108
+  guarded team-context exports: six replay seasons x three six-week windows x
+  pass-defense/pass-rush/blocking totals and value. The plan command is
+  validation-only; resumable bulk execution and stable-ID sidecars remain the
+  next implementation step, so it has not consumed those 108 queries yet.
 - Incumbent effective-rank v2 completed cleanly in execution
   `portfolio-effective-rank-v2-pbxps`, image
   `sha256:450f22cbdae94e23c8322330fe3f445d256cd82dbfc96ca086593a0f80eee90e`,
@@ -202,6 +209,14 @@ reconciliation when their findings affect the program.
   validation, a default-output
   safety check, then a new immutable score-free rerun of the unchanged frozen
   gate. Do not reuse the inconclusive execution as a pass.
+  The first incomplete repair build
+  `2a36bc49-defa-46c3-b688-b6fa554b7509` was intentionally cancelled while
+  still testing because the next stage retained ~`1e-15` order drift; it is
+  not validation. Superseding full validation build
+  `40e20dcd-f040-451d-88e7-cd5afa318f18` is running from exact-marginal commit
+  `89615a6`. After it passes, resolve its immutable digest and use a new run ID
+  and Cloud Run job name with the parameterized TD launcher; never overwrite
+  the v1 inconclusive artifact.
 
 ### 2026-08-12 team-passing review reconciliation
 
