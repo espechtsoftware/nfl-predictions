@@ -305,11 +305,16 @@ agent or developer:
   exactly at target week minus one. Backup snapshot
   `nfl_backups.fantasy_points_qb_shell_l4_20260813_fpshell` has all 1,792 rows.
   Implementation/review commit `62d4eb0` is pushed on `main`. Full Cloud
-  validation build `c42bb2a2-727a-4880-83ca-8fa0f0da99d1` is running and will
-  publish immutable tag `fp-qb-shell-62d4eb0` only after the complete suite
-  passes. Poll it; on success resolve the digest, launch exactly one frozen
-  diagnostic with `scripts/cloud_fantasy_points_qb_shell.sh`, and poll/harvest
-  that execution.
+  validation build `c42bb2a2-727a-4880-83ca-8fa0f0da99d1` passed 1,094 tests
+  (2 skipped) and produced immutable digest
+  `sha256:9aa494e18c6dd2fbd855a200dc5101208f63eeb3279af595fb0430d6e0770ad5`.
+  The sole frozen diagnostic is running as Cloud Run execution
+  `fantasy-points-qb-shell-pgnfj`; its manifest is under
+  `reports/fantasy-points-qb-shell-runs/20260813-fp-qb-shell-l4-v1/`.
+  Poll it to clean success, harvest exactly one report, and apply the frozen
+  >=70%-each-fold plus aggregate Brier-30 gate. A fail closes this mechanism;
+  a pass licenses only a separately preregistered exact-80 candidate-union
+  test.
   The outside oddsmaking proposal
   `reports/2026-08-13-oddsmaking-techniques-and-market-implied-dependence.md`
   is reconciled in

@@ -1,0 +1,8 @@
+run_id=20260813-fp-qb-shell-l4-v1
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:9aa494e18c6dd2fbd855a200dc5101208f63eeb3279af595fb0430d6e0770ad5
+panel=20260810-lockfix-e80-k1-8677d21
+offense_run=20260813T141434Z__same-season-qb-shell-fit-last-four-v1
+defense_run=20260811T053208Z__same-season-coverage-last-four-v1
+source_rows=1792
+held_out=2023 2024 2025
+target_weeks=5-18
