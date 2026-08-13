@@ -430,6 +430,10 @@ agent or developer:
   next action: commit/build this narrow repair, run the deterministic
   score-free task once from the new immutable image, then harvest the complete
   report. No exact-80 branch is currently licensed.
+  Provenance-binding repair commit `5502f90` is pushed on `main`. Full-test
+  immutable transport build `dc36bc56-e291-46ab-9761-e2270ec2156e` is now in
+  progress for tag `pfr-transport-5502f90`. On a clean build, resolve its
+  digest and invoke the transport-only rerun launcher with code SHA `5502f90`.
   The operator-supplied Monte Carlo review is tracked as
   `reports/2026-08-13-monte-carlo-review-and-seed-variance-protocol.md` and is
   being reconciled against the actual multi-stream RNG path. The first
