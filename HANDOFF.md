@@ -20,7 +20,50 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 15:04 CDT
+## Current state — 2026-08-13 16:10 CDT
+
+### 2026-08-13 SIS ASOE path reopened and acquisition frozen
+
+- The operator-supplied scope challenge is tracked at
+  `reports/2026-08-13-sis-schema-gate-scope-challenge.md`; the accepted,
+  bounded reconciliation is
+  `reports/2026-08-13-sis-schema-gate-scope-challenge-reconciliation.md`.
+  The completed team Pass Defense schema failure remains valid only for the
+  registered coverage-snap-normalized estimand. It did not test player-grain
+  denominators, team Wide-versus-Slot `Att` composition, or conditional
+  receiver allocation. The coverage grain-bind/kill list now records that
+  exact limit; ASOE is active rather than dead.
+- Historical data is available now. "Strictly prior" describes the leakage
+  boundary, not a wait for the 2026 season. Before reading any historical SIS
+  alignment attempt or score, the exact acquisition was frozen in
+  `reports/2026-08-13-sis-asoe-acquisition-protocol.md`. SIS will collect 24
+  normal-UI Team Pass Defense Totals artifacts: 2022--2025, disjoint Weeks
+  1--6/7--12/13--17, Wide and Slot, all shells, WR targets, all teams, game
+  grain. Six-week windows are theoretically at most 192 rows, below the
+  200-row cap. Only explicit Submit calls are armed; the 24-call plan has a
+  hard durable 26-call ceiling for two identical retries. Only `Att` and
+  identity/scope fields may be read at this acquisition gate.
+- Matching strictly-prior player alignment routes are frozen in
+  `automation/fantasy_points/plans/same-season-alignment-last-four-v1.json`:
+  exactly 56 Receiving Separation by Alignment exports across seasons
+  2022--2025 and target Weeks 5--18, always source Weeks W-4 through W-1.
+  The four manually downloaded full-season summaries remain ineligible for a
+  historical target-week join.
+- Resumable SIS acquisition/manifests and the outcome-limited acquisition
+  analyzer are implemented as `sis-download team-pass-defense-asoe`; licensed
+  artifacts remain ignored under `sis/team-pass-defense-asoe-v1/`. Python
+  compilation and 55 focused SIS/Fantasy Points downloader tests pass. Exact
+  next action: commit/push this protocol and implementation, then launch both
+  authenticated historical downloads immediately. On an acquisition pass,
+  freeze/implement the ASOE allocation/dependence gate; on its pass, run the
+  exact-80 score comparison.
+- Independently, the completed 12-run incumbent seed analyzer execution
+  `analyze-incumbent-seed-variance-v1-kkg6q` failed mechanically before
+  emitting a score report because pandas rejected boolean subtraction in its
+  equality helper. The local boolean-safe repair and regression test pass but
+  remain uncommitted at this milestone; build and relaunch only the analyzer
+  after the SIS acquisition is safely running. Do not rerun the 12 completed
+  seed replays.
 
 ### 2026-08-13 SIS warehouse/join audit reconciled
 

@@ -67,6 +67,10 @@ TEAM_PASS_DEFENSE_PROFILE_REPORTS = (
     "pass-defense-totals",
     "pass-defense-value",
 )
+ASOE_SEASONS = (2022, 2023, 2024, 2025)
+ASOE_WINDOWS = ((1, 6), (7, 12), (13, 17))
+ASOE_ALIGNMENTS = (("wide", ("2",)), ("slot", ("3",)))
+ASOE_ALL_SCHEMES = ("0", "1", "2", "3", "4", "5", "6")
 
 
 @dataclass(frozen=True)
@@ -1233,6 +1237,359 @@ def _team_pass_defense_artifact(report: str, slice_name: str) -> str:
     return f"2025-week01-team-pass-defense__{slice_name}__{report}.csv"
 
 
+def _asoe_artifact(
+    season: int, start_week: int, end_week: int, alignment: str,
+) -> str:
+    if season not in ASOE_SEASONS:
+        raise ValueError(f"unsupported ASOE season {season}")
+    if (start_week, end_week) not in ASOE_WINDOWS:
+        raise ValueError(f"unsupported ASOE window {(start_week, end_week)}")
+    if alignment not in dict(ASOE_ALIGNMENTS):
+        raise ValueError(f"unsupported ASOE alignment {alignment!r}")
+    return (
+        f"{season}-weeks{start_week:02d}-{end_week:02d}"
+        f"-team-pass-defense__{alignment}__pass-defense-totals.csv"
+    )
+
+
+def analyze_team_pass_defense_asoe_acquisition(
+    output_dir: Path, manifest: dict[str, Any],
+) -> dict[str, Any]:
+    """Validate the frozen ASOE opportunity-only acquisition."""
+    artifacts = manifest.get("artifacts", [])
+    expected = {
+        (season, start, end, alignment)
+        for season in ASOE_SEASONS
+        for start, end in ASOE_WINDOWS
+        for alignment, _values in ASOE_ALIGNMENTS
+    }
+    observed = {
+        (
+            int(item.get("season", -1)), int(item.get("start_week", -1)),
+            int(item.get("end_week", -1)), str(item.get("alignment")),
+        )
+        for item in artifacts
+    }
+    if len(artifacts) != len(expected) or observed != expected:
+        raise RuntimeError("SIS ASOE manifest is not the frozen 24-artifact grid")
+
+    failures: list[str] = []
+    all_teams: set[int] = set()
+    total_rows = 0
+    total_attempts = 0
+    for item in artifacts:
+        season = int(item["season"])
+        start = int(item["start_week"])
+        end = int(item["end_week"])
+        alignment = str(item["alignment"])
+        path = output_dir / str(item["artifact"])
+        if not path.is_file() or _sha256(path) != item.get("sha256"):
+            raise RuntimeError("SIS ASOE artifact is missing or changed")
+        rows = int(item.get("rows", -1))
+        total_rows += rows
+        if rows >= 200:
+            failures.append(f"{season}:{start}-{end}:{alignment}:row-cap")
+        headers = set(item.get("headers", []))
+        if not {"Season", "Team", "Week", "Opp.", "Att"} <= headers:
+            failures.append(f"{season}:{start}-{end}:{alignment}:schema")
+        expected_scope = {
+            "PassDefenseFilters.TargetLinedUp": list(
+                dict(ASOE_ALIGNMENTS)[alignment]),
+            "PassDefenseFilters.Schemes": list(ASOE_ALL_SCHEMES),
+            "PassDefenseFilters.ReceiverPos": ["4"],
+            "PassDefenseFilters.MinTargets": ["0"],
+            "PassDefenseFilters.MinAttempts": ["0"],
+        }
+        submitted = item.get("submitted_scope", {})
+        for name, values in expected_scope.items():
+            if submitted.get(name) != values:
+                failures.append(
+                    f"{season}:{start}-{end}:{alignment}:scope:{name}")
+        identities = item.get("identities", [])
+        if len(identities) != rows:
+            failures.append(
+                f"{season}:{start}-{end}:{alignment}:identity-row-count")
+        keys: set[tuple[int, int]] = set()
+        for identity in identities:
+            required = {"season", "week", "games", "teamId", "team", "opp"}
+            if missing := required - set(identity):
+                raise RuntimeError(
+                    f"SIS ASOE identity lacks {sorted(missing)}")
+            team_id = int(identity["teamId"])
+            key = (team_id, int(identity["week"]))
+            if key in keys:
+                failures.append(
+                    f"{season}:{start}-{end}:{alignment}:duplicate-team-week")
+            keys.add(key)
+            all_teams.add(team_id)
+            if (
+                int(identity["season"]) != season
+                or not start <= int(identity["week"]) <= end
+                or int(identity["games"]) != 1
+            ):
+                failures.append(
+                    f"{season}:{start}-{end}:{alignment}:identity-scope")
+
+        with path.open(encoding="utf-8-sig", newline="") as handle:
+            csv_rows = list(csv.DictReader(handle))
+        if len(csv_rows) != rows:
+            failures.append(f"{season}:{start}-{end}:{alignment}:csv-row-count")
+        for row in csv_rows:
+            raw = str(row.get("Att", "")).replace(",", "").strip()
+            try:
+                attempts = float(raw)
+            except ValueError:
+                failures.append(
+                    f"{season}:{start}-{end}:{alignment}:invalid-attempt")
+                continue
+            if attempts < 0 or not attempts.is_integer():
+                failures.append(
+                    f"{season}:{start}-{end}:{alignment}:invalid-attempt")
+            else:
+                total_attempts += int(attempts)
+    if len(all_teams) != 32:
+        failures.append(f"union-team-count:{len(all_teams)}")
+    used = int(manifest.get("api_requests_used", -1))
+    ceiling = int(manifest.get("api_request_ceiling", -1))
+    if ceiling != 26 or not 24 <= used <= ceiling:
+        failures.append(f"request-budget:{used}/{ceiling}")
+    passes = not failures
+    return {
+        "schema_version": 1,
+        "disposition": (
+            "sis-asoe-acquisition-passes" if passes
+            else "sis-asoe-acquisition-fails"
+        ),
+        "passes": passes,
+        "failures": failures,
+        "artifact_count": len(artifacts),
+        "rows": total_rows,
+        "attempts": total_attempts,
+        "union_team_count": len(all_teams),
+        "api_requests_used": used,
+        "api_request_ceiling": ceiling,
+        "opportunity_columns_read": ["Att"],
+        "performance_values_read": [],
+    }
+
+
+def run_team_pass_defense_asoe_acquisition(
+    profile_dir: Path,
+    timeout_seconds: float,
+    output_dir: Path,
+) -> dict[str, Any]:
+    """Acquire the frozen 24-artifact SIS team/game ASOE history."""
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError as exc:  # pragma: no cover
+        raise RuntimeError('install browser support with `pip install -e "[browser]"`') from exc
+    protocol = Path("reports/2026-08-13-sis-asoe-acquisition-protocol.md")
+    if not protocol.is_file():
+        raise RuntimeError("frozen SIS ASOE acquisition protocol is missing")
+    storage_state = default_storage_state_path(profile_dir)
+    if not storage_state.is_file():
+        raise RuntimeError("SIS saved storage state is missing; run `sis-download login`")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    run_state = output_dir / ".team-pass-defense-asoe.run-state.json"
+    partial_manifest_path = output_dir / ".team-pass-defense-asoe.partial-manifest.json"
+    manifest_path = output_dir / "team-pass-defense-asoe.manifest.json"
+    result_path = output_dir / "team-pass-defense-asoe.result.json"
+    if manifest_path.exists() or result_path.exists():
+        raise RuntimeError("refusing to overwrite SIS ASOE acquisition result")
+    protocol_hash = _sha256(protocol)
+    used = 0
+    if run_state.exists():
+        state = json.loads(run_state.read_text(encoding="utf-8"))
+        if state.get("plan_sha256") != protocol_hash or int(
+            state.get("ceiling", -1)
+        ) != 26:
+            raise RuntimeError("SIS ASOE request-state identity differs")
+        used = int(state.get("used", -1))
+        if not 0 <= used <= 26:
+            raise RuntimeError("SIS ASOE request count is invalid")
+    budget = APIRequestBudget(
+        ceiling=26, used=used, state_path=run_state,
+        plan_sha256=protocol_hash,
+    )
+    budget.persist()
+    submit_budget = SubmitOnlyAPIRequestBudget(budget)
+    timeout_ms = int(timeout_seconds * 1000)
+    artifacts: list[dict[str, Any]] = []
+    if partial_manifest_path.exists():
+        partial = json.loads(partial_manifest_path.read_text(encoding="utf-8"))
+        if partial.get("protocol_sha256") != protocol_hash:
+            raise RuntimeError("SIS ASOE partial-manifest identity differs")
+        artifacts = partial.get("artifacts", [])
+        keys = [
+            (
+                item.get("season"), item.get("start_week"),
+                item.get("end_week"), item.get("alignment"),
+            )
+            for item in artifacts
+        ]
+        if len(keys) != len(set(keys)):
+            raise RuntimeError("SIS ASOE partial manifest has duplicate artifacts")
+        for item in artifacts:
+            path = output_dir / item["artifact"]
+            if not path.is_file() or _sha256(path) != item.get("sha256"):
+                raise RuntimeError("SIS ASOE partial artifact is missing or changed")
+
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(headless=True)
+        context = browser.new_context(
+            storage_state=str(storage_state), accept_downloads=True,
+            viewport={"width": 1800, "height": 1200},
+        )
+        context.route("**/api/v1/nfl/**/query", submit_budget.route)
+        page = context.new_page()
+        page.set_default_timeout(timeout_ms)
+        try:
+            page.goto(
+                f"{BASE_URL}/NFL/Leaders/Teams",
+                wait_until="domcontentloaded", timeout=timeout_ms,
+            )
+            _assert_authenticated(page, timeout_ms)
+            page.locator("#querybuilder").wait_for(state="attached")
+            spec_definition = REPORTS["pass-defense-totals"]
+            _activate_report_view_without_refresh(page, spec_definition)
+            _set_select(page, "#Teams", "-1")
+            _set_checkbox(page, "#chkIncludePlayoffs", False)
+            _set_checkbox(page, "#chkByGame", True)
+            _set_checkbox_values(page, "PassDefenseFilters.ReceiverPos", ["4"])
+            _set_checkbox_values(
+                page, "PassDefenseFilters.Schemes", ASOE_ALL_SCHEMES)
+            _set_input_value(page, "PassDefenseFilters.MinTargets", "0")
+            _set_input_value(page, "PassDefenseFilters.MinAttempts", "0")
+            for season in ASOE_SEASONS:
+                _set_select(page, "#TimeFilters_SeasonFrom", str(season))
+                _set_select(page, "#TimeFilters_SeasonTo", str(season))
+                for start, end in ASOE_WINDOWS:
+                    _set_select(page, "#TimeFilters_StartWeek", str(start))
+                    _set_select(page, "#TimeFilters_EndWeek", str(end))
+                    for alignment, alignment_values in ASOE_ALIGNMENTS:
+                        prior = next((
+                            item for item in artifacts
+                            if int(item["season"]) == season
+                            and int(item["start_week"]) == start
+                            and int(item["end_week"]) == end
+                            and item["alignment"] == alignment
+                        ), None)
+                        if prior is not None:
+                            print(
+                                "SIS ASOE verified existing: "
+                                f"{season}/{start}-{end}/{alignment}",
+                                flush=True,
+                            )
+                            continue
+                        destination = output_dir / _asoe_artifact(
+                            season, start, end, alignment)
+                        if destination.exists():
+                            raise RuntimeError(
+                                f"unmanifested SIS ASOE artifact: {destination}")
+                        _set_checkbox_values(
+                            page, "PassDefenseFilters.TargetLinedUp",
+                            alignment_values,
+                        )
+                        filters = {
+                            "PassDefenseFilters.TargetLinedUp": list(
+                                alignment_values),
+                            "PassDefenseFilters.Schemes": list(
+                                ASOE_ALL_SCHEMES),
+                            "PassDefenseFilters.ReceiverPos": ["4"],
+                            "PassDefenseFilters.MinTargets": ["0"],
+                            "PassDefenseFilters.MinAttempts": ["0"],
+                        }
+                        spec = ExportSpec(
+                            entity="teams", report="pass-defense-totals",
+                            season=season, start_week=start, end_week=end,
+                            split_by_game=True,
+                        )
+                        submit_budget.armed = True
+                        try:
+                            with page.expect_response(
+                                lambda response, expected=filters, current=spec:
+                                _response_matches_filters(
+                                    response, current, expected),
+                                timeout=timeout_ms,
+                            ) as response_info:
+                                page.locator("#submit").click()
+                        finally:
+                            submit_budget.armed = False
+                        response = response_info.value
+                        expected_rows = _assert_api_scope(
+                            response, spec, row_cap=200)
+                        if expected_rows == 0:
+                            raise RuntimeError(
+                                f"SIS ASOE slice is empty: "
+                                f"{season}/{start}-{end}/{alignment}")
+                        _wait_for_table(
+                            page, expected_rows, timeout_ms,
+                            CSV_REQUIRED_COLUMNS["pass-defense-totals"],
+                        )
+                        button = page.locator(
+                            "a.dt-button.buttons-csv:visible")
+                        if button.count() != 1:
+                            raise RuntimeError(
+                                "SIS page has an ambiguous Download control")
+                        temporary = destination.with_suffix(
+                            destination.suffix + ".partial")
+                        with page.expect_download(
+                            timeout=timeout_ms) as download_info:
+                            button.click()
+                        download_info.value.save_as(str(temporary))
+                        try:
+                            _validate_csv_scope(
+                                temporary, spec, expected_rows)
+                        except Exception:
+                            temporary.unlink(missing_ok=True)
+                            raise
+                        temporary.replace(destination)
+                        artifacts.append({
+                            "season": season,
+                            "start_week": start,
+                            "end_week": end,
+                            "alignment": alignment,
+                            "artifact": destination.name,
+                            "sha256": _sha256(destination),
+                            "bytes": destination.stat().st_size,
+                            "rows": expected_rows,
+                            "headers": _csv_header(destination),
+                            "spec": asdict(spec),
+                            "filters": filters,
+                            "submitted_scope": _request_scope(response.request),
+                            "identities": _identity_rows(response),
+                        })
+                        _write_json_atomic(partial_manifest_path, {
+                            "schema_version": 1,
+                            "protocol_sha256": protocol_hash,
+                            "api_requests_used": budget.used,
+                            "api_request_ceiling": budget.ceiling,
+                            "artifacts": artifacts,
+                        })
+                        print(
+                            "SIS ASOE acquired: "
+                            f"{season}/{start}-{end}/{alignment} "
+                            f"({expected_rows} rows; {budget.used}/26 requests)",
+                            flush=True,
+                        )
+        finally:
+            context.close()
+            browser.close()
+    manifest = {
+        "schema_version": 1,
+        "protocol_sha256": protocol_hash,
+        "retrieved_at_utc": datetime.now(UTC).isoformat(),
+        "api_requests_used": budget.used,
+        "api_request_ceiling": budget.ceiling,
+        "artifacts": artifacts,
+    }
+    _write_json_atomic(manifest_path, manifest)
+    result = analyze_team_pass_defense_asoe_acquisition(output_dir, manifest)
+    _write_json_atomic(result_path, result)
+    partial_manifest_path.unlink(missing_ok=True)
+    return result
+
+
 def analyze_team_pass_defense_schema_sample(
     output_dir: Path, manifest: dict[str, Any],
 ) -> dict[str, Any]:
@@ -1707,6 +2064,15 @@ def _build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path("sis/team-pass-defense-schema-v1"),
     )
+    asoe = subparsers.add_parser(
+        "team-pass-defense-asoe",
+        help="run the frozen historical team/game alignment-attempt acquisition",
+    )
+    asoe.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("sis/team-pass-defense-asoe-v1"),
+    )
     return parser
 
 
@@ -1754,6 +2120,14 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
             print(
                 "SIS team pass-defense schema sample complete: "
+                + json.dumps(result, sort_keys=True)
+            )
+        elif args.command == "team-pass-defense-asoe":
+            result = run_team_pass_defense_asoe_acquisition(
+                args.profile_dir, args.timeout, args.output_dir
+            )
+            print(
+                "SIS ASOE acquisition complete: "
                 + json.dumps(result, sort_keys=True)
             )
         else:

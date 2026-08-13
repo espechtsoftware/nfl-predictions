@@ -31,6 +31,11 @@ availability and individual WR/CB assignment are four different constructs.
 | `top_cb_out` | opponent team's prior-snap CB1 with a current pre-lock Out designation, broadcast to player rows | point-in-time and join checks pass; no isolated value ablation exists | **active but unvalidated**; test separately from quality rates |
 | Fantasy Points prospective QB/WR matchup grades | vendor current-week player/team matchup output | no honest historical season replay exists | **prospective-only**; capture and freeze a 2026 protocol before outcomes |
 | Individual WR/CB assignment | named defender, receiver alignment, coverage snaps and preferably shadow rate | no held historical source with the required identities/grain | **data-blocked, not disproven**; SIS alignment work is a feasibility lead |
+| SIS team alignment attempt composition | team/game Wide-versus-Slot WR attempts, schedule-adjusted by strictly-prior offensive alignment routes | the per-snap team schema screen did not test this distinct self-normalizing composition; historical acquisition is frozen separately | **active test, not closed**; the prior screen killed only per-coverage-snap efficiency at team grain |
+
+The final row was added before any historical SIS alignment-attempt value or
+lineup score was read. It narrows, but does not overturn, the completed schema
+failure.
 
 The first three rows are the current historical shell-proxy kill-list entries.
 They do not authorize deletion of the next two production-feature rows and do

@@ -166,6 +166,28 @@ def test_load_checked_in_same_season_coverage_plan():
     )
 
 
+def test_load_checked_in_same_season_alignment_plan():
+    root = Path(__file__).resolve().parents[1]
+    payload, specs = load_plan(
+        root
+        / "automation"
+        / "fantasy_points"
+        / "plans"
+        / "same-season-alignment-last-four-v1.json"
+    )
+    assert payload["name"] == "same-season-alignment-last-four-v1"
+    assert len(specs) == 4 * 14
+    assert {spec.report for spec in specs} == {
+        "receiving-separation-by-alignment"
+    }
+    assert all(spec.context == "Player" for spec in specs)
+    assert all(spec.target_week in range(5, 19) for spec in specs)
+    assert all(
+        spec.weeks == tuple(range(spec.target_week - 4, spec.target_week))
+        for spec in specs
+    )
+
+
 def test_load_checked_in_same_season_qb_shell_fit_plan():
     root = Path(__file__).resolve().parents[1]
     payload, specs = load_plan(

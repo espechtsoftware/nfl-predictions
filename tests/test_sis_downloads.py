@@ -308,6 +308,77 @@ def test_team_pass_defense_schema_slices_are_frozen_and_bounded():
     ) == 8
 
 
+def test_asoe_acquisition_grid_is_frozen_and_subcap():
+    assert sis.ASOE_SEASONS == (2022, 2023, 2024, 2025)
+    assert sis.ASOE_WINDOWS == ((1, 6), (7, 12), (13, 17))
+    assert sis.ASOE_ALIGNMENTS == (("wide", ("2",)), ("slot", ("3",)))
+    assert len(sis.ASOE_SEASONS) * len(sis.ASOE_WINDOWS) * len(
+        sis.ASOE_ALIGNMENTS
+    ) == 24
+    assert max(end - start + 1 for start, end in sis.ASOE_WINDOWS) * 32 < 200
+    assert sis._asoe_artifact(2025, 13, 17, "slot") == (
+        "2025-weeks13-17-team-pass-defense__slot__pass-defense-totals.csv"
+    )
+
+
+def test_asoe_acquisition_analyzer_reads_attempts_not_performance(tmp_path):
+    artifacts = []
+    for season in sis.ASOE_SEASONS:
+        for start, end in sis.ASOE_WINDOWS:
+            for alignment, values in sis.ASOE_ALIGNMENTS:
+                path = tmp_path / sis._asoe_artifact(
+                    season, start, end, alignment)
+                path.write_text(
+                    "Rank,Season,Team,Week,Opp.,Games,Att,Catchable,Pass Def.\n"
+                    + "\n".join(
+                        f"1,{season},T{team}," + str(start)
+                        + ",O,1,2,1,0"
+                        for team in range(1, 33)
+                    )
+                    + "\n",
+                    encoding="utf-8",
+                )
+                filters = {
+                    "PassDefenseFilters.TargetLinedUp": list(values),
+                    "PassDefenseFilters.Schemes": list(sis.ASOE_ALL_SCHEMES),
+                    "PassDefenseFilters.ReceiverPos": ["4"],
+                    "PassDefenseFilters.MinTargets": ["0"],
+                    "PassDefenseFilters.MinAttempts": ["0"],
+                }
+                artifacts.append({
+                    "season": season,
+                    "start_week": start,
+                    "end_week": end,
+                    "alignment": alignment,
+                    "artifact": path.name,
+                    "sha256": sis._sha256(path),
+                    "rows": 32,
+                    "headers": [
+                        "Rank", "Season", "Team", "Week", "Opp.",
+                        "Games", "Att", "Catchable", "Pass Def.",
+                    ],
+                    "submitted_scope": filters,
+                    "identities": [{
+                        "season": season,
+                        "week": start,
+                        "games": 1,
+                        "teamId": team,
+                        "team": f"T{team}",
+                        "opp": "O",
+                    } for team in range(1, 33)],
+                })
+    result = sis.analyze_team_pass_defense_asoe_acquisition(tmp_path, {
+        "api_requests_used": 24,
+        "api_request_ceiling": 26,
+        "artifacts": artifacts,
+    })
+    assert result["passes"]
+    assert result["artifact_count"] == 24
+    assert result["attempts"] == 24 * 32 * 2
+    assert result["opportunity_columns_read"] == ["Att"]
+    assert result["performance_values_read"] == []
+
+
 class _SubtypeParent:
     def __init__(self):
         self.class_name = ""
