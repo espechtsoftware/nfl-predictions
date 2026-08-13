@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 21:53 CDT
+## Current state — 2026-08-12 22:06 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -469,6 +469,27 @@ reconciliation when their findings affect the program.
   immutable early-fit/held-out evaluator and transport/launcher contracts,
   reproduce the G0/G1 control exactly, then build and run the sole score-free
   G2 execution.
+- That frozen G2 evaluator is now implemented, still without computing any
+  calibration or held-out result. It reconstructs the canonical
+  2019/2021/2022 historical book with exact accepted-snapshot/cache/blend
+  parity, scores and persists all 81 registered theta cells before touching
+  held-out outcomes, then reconstructs the exact finite-K active-label G1
+  terminal book. It requires `1e-12` G0/G1 control reproduction, exact
+  marginal multisets, deterministic output, unchanged non-receivers, and
+  bounded mean drift; recomputes the full G0/G1 cell/broad/season/topology
+  disclosures; applies every frozen gate; and adds 2,000 paired whole-slate
+  bootstrap intervals for the fixed-weight Brier and variogram changes.
+  Immutable launch/harvest scripts bind both prerequisite reports inside the
+  image by checksum, all terminal selection/protocol hashes, finite
+  `K=28.154043586960896`, the walk-forward position schedule, source SHA and
+  image digest. Twenty-seven focused G0/G1/G2/effective-rank tests pass;
+  Python compilation and both new shell syntax checks pass. The complete local
+  suite also passes all 1,026 collected tests with only the expected skips.
+  Current uncommitted implementation is based on `c4415d7`. Exact next action:
+  commit/push the G2 evaluator milestone, build a full-test
+  immutable image, launch `20260812-g2-qb-gumbel-factor-v1`, and poll/harvest
+  it through a terminal result. Only a valid passing dependence gate may
+  license the separately frozen exact-80 comparison.
 - The operator-supplied alternative-frames review is retained unchanged at
   `reports/2026-08-12-alternative-analytical-frames.md` and reconciled in
   `reports/2026-08-12-alternative-analytical-frames-reconciliation.md`. The

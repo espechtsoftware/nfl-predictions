@@ -310,6 +310,12 @@ def main(argv: list[str] | None = None) -> None:
     )
     p.add_argument("--panel", required=True)
 
+    p = sub.add_parser(
+        "g2-qb-gumbel-factor",
+        help="Fit and gate the frozen score-free QB-rooted Gumbel factor",
+    )
+    p.add_argument("--panel", required=True)
+
     sub.add_parser(
         "usage-dirichlet-calibration-diagnostic",
         help="Fit and gate within-team target/carry concentration",
@@ -769,6 +775,10 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import g1_archetype_topology
 
         g1_archetype_topology.run(args.panel)
+    elif args.command == "g2-qb-gumbel-factor":
+        from .analysis import g2_qb_gumbel_factor
+
+        g2_qb_gumbel_factor.run(args.panel)
     elif args.command == "usage-dirichlet-calibration-diagnostic":
         from .analysis import usage_dirichlet_calibration
 
