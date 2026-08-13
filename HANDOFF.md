@@ -471,6 +471,14 @@ agent or developer:
   this narrow lever, run the explicit-zero smoke and require exact parity,
   then run only the four registered 2023--2025 panels after PFR transport
   closure.
+  The post-parity path is also implemented before any output: fixed R1--R4
+  launch wrappers, twelve durable season executions, and one Cloud analyzer
+  that withholds the five-replicate tail report unless all panels have exact
+  slate/entry/world/label/seed/nonseed-lever/stable-feature checks and each
+  nonzero seed materially changes candidates. Its frozen report includes both
+  selected and oracle tail envelopes, per-slate selected-roster overlap,
+  candidate-pool Jaccard, selected mask support, and week-level score ranges.
+  Three focused analyzer tests pass; all new shell scripts parse cleanly.
   The outside oddsmaking proposal
   `reports/2026-08-13-oddsmaking-techniques-and-market-implied-dependence.md`
   is reconciled in
