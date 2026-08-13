@@ -626,6 +626,21 @@ reconciliation when their findings affect the program.
   Poll without reading partial payloads, then run
   `scripts/cloud_finish_portfolio_effective_rank_v2.sh` only after a clean
   terminal success. No effective-rank result is accepted yet.
+  The execution completed cleanly and the strict harvester accepted the full
+  107-slate report. Result interpretation is frozen in
+  `reports/2026-08-13-portfolio-effective-rank-v2-result.md`; machine evidence
+  is under the v2 run folder. The selected 80-entry book's first-PC-deflated
+  correlation participation ratio averages 20.40 (median 20.37), versus 13.66
+  for random-80 and 11.48 for top-simulated-mean-80 controls. Its modeled
+  covered-world rate averages 13.67% at 200 and 0.67% at 240, versus
+  8.15%/0.31% for random-80 and 9.68%/0.39% for top-mean-80. Thus the selector
+  adds meaningful simulator-implied conditional diversity/tail coverage, but
+  80 entries behave like roughly 20 independent post-common-factor directions,
+  not 80 independent bets. This is outcome-blind, likely optimistic while
+  QB-receiver upper-tail dependence remains under-modelled, and cannot change
+  production or claim a score/ROI improvement. Next: freeze and run the queued
+  score-free team TD-ledger evaluation against the unchanged finite-K terminal
+  incumbent.
 - The operator asked explicitly whether defense-coverage effects on WRs and
   QBs are in the test plan. WR/TE coverage has already received two honest
   historical tests: the N-1 receiver/opponent fit slightly improved the
