@@ -15,6 +15,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from nfl_dfs.bq import query_df  # noqa: E402
 from nfl_dfs.config import settings  # noqa: E402
+from nfl_dfs.research.served_tail_lineup import lever_values  # noqa: E402
 
 
 REFERENCE = "20260812-pitclean-e80-selected-tabpfn-active-v2"
@@ -163,7 +164,10 @@ def mechanical_failures(candidates: pd.DataFrame, features: pd.DataFrame,
             if len(values) != 1:
                 failures.append(f"{label} {season} lever identity is not unique")
                 continue
-            lever = _parse_pairs(values[0], ",")
+            # Values such as ROLE_BELIEF_FEATURES and position schedules
+            # themselves contain commas. The repository parser recognizes
+            # only the next upper-case KEY= boundary and preserves them.
+            lever = lever_values(values[0])
             if lever.get("ROLE_BELIEF_SEED", "7331") != str(role_seed):
                 failures.append(f"{label} {season} role seed lever differs")
             if int(lever.get("REPLAY_PROJECTION_SEED", "0")) != base_seed:

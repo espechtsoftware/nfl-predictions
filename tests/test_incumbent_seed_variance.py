@@ -32,6 +32,17 @@ def test_support_count_decodes_hex_not_base64():
     assert audit._canonical_roster("b,a,c") == "a,b,c"
 
 
+def test_lever_parser_preserves_comma_valued_fields():
+    parsed = audit.lever_values(
+        "REPLAY_PROJECTION_SEED=7,ROLE_BELIEF_FEATURES=a,b,c,"
+        "SERVED_POSITION_SCALES=QB:1,RB:.9")
+    assert parsed == {
+        "REPLAY_PROJECTION_SEED": "7",
+        "ROLE_BELIEF_FEATURES": "a,b,c",
+        "SERVED_POSITION_SCALES": "QB:1,RB:.9",
+    }
+
+
 def test_replicate_metrics_uses_selected_and_pool_oracle():
     metrics, weekly, rosters, pools = audit.replicate_metrics(
         _frame([[190.0, 210.0, 230.0], [180.0, 195.0, 205.0]]))
