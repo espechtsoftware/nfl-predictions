@@ -22,6 +22,37 @@ agent or developer:
 
 ## Current state — 2026-08-13 16:42 CDT
 
+### 2026-08-13 ASOE passed; incumbent seed sensitivity measured
+
+- ASOE execution `sis-asoe-allocation-v1-nxhvc` completed successfully and
+  passed every frozen Stage A gate. The 2022-only fit selected
+  `beta=0.07771181538347656`; untouched 2023--2025 aggregate target-allocation
+  NLL improved by `-0.0003686816` per group, each season improved, evaluation
+  geometry covered 93.00%/88.26%/84.41%, and the clustered 95% interval was
+  wholly favorable `[-0.000663052,-0.000077982]`. This licenses final-served
+  exact-80 evaluation but is not a scoring result. The immutable result is in
+  `reports/sis-asoe-allocation-runs/20260813-sis-asoe-allocation-v1/` and the
+  concise interpretation is
+  `reports/2026-08-13-sis-asoe-allocation-stage-a-result.md`.
+- Repaired seed analyzer `analyze-incumbent-seed-variance-v1-qh9l8` completed
+  and passed all mechanical gates without rerunning any replay. The incumbent
+  is materially seed-sensitive: selected >=194 ranges 3--9, >=210 ranges
+  0--2, mean per-slate best-score range is 22.31, and pairwise selected-book
+  overlap averages only 12.21/80. Full immutable JSON is under
+  `reports/incumbent-seed-variance-runs/20260813-incumbent-seed-variance-v1/`;
+  concise result is `reports/2026-08-13-incumbent-seed-variance-result.md`.
+- Before Stage B launch, code review found the accepted finite-K replay's
+  allocation unit is wrong for season-wide replay: `simulate.py` factorizes
+  only team abbreviation, pooling the same team's rows across games/weeks.
+  Live single-week inference is unaffected, and the ASOE Stage A evaluator
+  used explicit team-week groups, so neither result above is invalidated.
+  Historical finite-K lineup panels are not a faithful direct control and
+  must be revalidated after changing the unit to `(game, team)`.
+- Exact next action: repair/test the finite-K game-team grouping, implement
+  ASOE target-center tilting before the existing final marginal remap, freeze
+  a paired multi-seed corrected-control versus ASOE exact-80 protocol, build
+  one immutable image, and launch its control/treatment panels in parallel.
+
 ### 2026-08-13 SIS ASOE Stage A launched
 
 - Superseding full Cloud Build `5c2d59d5-25f1-4b4d-a8dd-3707a255975f`

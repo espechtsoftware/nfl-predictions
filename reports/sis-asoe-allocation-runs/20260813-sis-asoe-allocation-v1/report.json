@@ -1,0 +1,174 @@
+{
+  "asoe": {
+    "rows": 1792,
+    "structural_zero_cells_reconstructed": 16,
+    "supported_fraction": 0.9241071428571429,
+    "supported_rows": 1656
+  },
+  "calibration": {
+    "changed_groups": 239,
+    "control_mean_nll_per_group": 17.149204112292637,
+    "geometry_coverage": 0.8241379310344827,
+    "groups": 290,
+    "mean_treatment_minus_control": -0.00013382667490747062,
+    "opportunities": 9226,
+    "treatment_mean_nll_per_group": 17.149070285617732
+  },
+  "control": {
+    "allocation": "dirichlet",
+    "k": 28.154043586960896
+  },
+  "disposition": "sis-asoe-allocation-passes-to-final-served",
+  "evaluation": {
+    "aggregate": {
+      "changed_groups": 791,
+      "control_mean_nll_per_group": 16.79807201241129,
+      "geometry_coverage": 0.8857782754759238,
+      "groups": 893,
+      "mean_treatment_minus_control": -0.0003686816285036402,
+      "opportunities": 27917,
+      "treatment_mean_nll_per_group": 16.797703330782788
+    },
+    "by_season": {
+      "2023": {
+        "changed_groups": 279,
+        "control_mean_nll_per_group": 17.154876857782114,
+        "geometry_coverage": 0.93,
+        "groups": 300,
+        "mean_treatment_minus_control": -0.0004522857355881508,
+        "opportunities": 9597,
+        "treatment_mean_nll_per_group": 17.15442457204653
+      },
+      "2024": {
+        "changed_groups": 263,
+        "control_mean_nll_per_group": 16.604251701610956,
+        "geometry_coverage": 0.8825503355704698,
+        "groups": 298,
+        "mean_treatment_minus_control": -0.0005324599832430053,
+        "opportunities": 9337,
+        "treatment_mean_nll_per_group": 16.60371924162771
+      },
+      "2025": {
+        "changed_groups": 249,
+        "control_mean_nll_per_group": 16.631010992096886,
+        "geometry_coverage": 0.8440677966101695,
+        "groups": 295,
+        "mean_treatment_minus_control": -0.00011821660532505033,
+        "opportunities": 8983,
+        "treatment_mean_nll_per_group": 16.630892775491564
+      }
+    },
+    "clustered_bootstrap_diagnostic": {
+      "bootstrap_mean": -0.0003674846226114182,
+      "ci95": [
+        -0.0006630523282738411,
+        -7.798194329363039e-05
+      ],
+      "clusters": 893,
+      "resamples": 2000,
+      "seed": 8113126
+    }
+  },
+  "fit": {
+    "beta": 0.07771181538347656,
+    "beta_display": 0.077712,
+    "bounds": [
+      0.0,
+      8.0
+    ],
+    "l2_penalty": 0.01,
+    "objective": 17.149130676880233,
+    "optimizer_iterations": 12,
+    "optimizer_message": "Solution found.",
+    "optimizer_success": true
+  },
+  "forbidden_outcomes_read": [],
+  "gate": {
+    "aggregate_mean_target_nll_improves": true,
+    "conditional_law_active": true,
+    "coverage_by_season": {
+      "2023": 0.93,
+      "2024": 0.8825503355704698,
+      "2025": 0.8440677966101695
+    },
+    "evaluation_geometry_coverage_at_least_50pct_each_season": true,
+    "optimizer_succeeded": true,
+    "passes": true
+  },
+  "outcomes_read": [
+    "within-team target counts"
+  ],
+  "panel": "20260811-pitclean-e80-k1-role12union-a12ab31",
+  "population": {
+    "2022": {
+      "target_groups_weeks_5_18": 290,
+      "usage_audit": {
+        "active_rows": 4625,
+        "excluded_zero_mean_groups": 0,
+        "excluded_zero_mean_opportunities": 0,
+        "maximum_group_size": 14,
+        "minimum_group_size": 8,
+        "opportunity_coverage": 1.0,
+        "otherwise_eligible_groups": 390,
+        "otherwise_eligible_opportunities": 12531,
+        "retained_groups": 390,
+        "retained_opportunities": 12531,
+        "retained_players": 4575,
+        "season": 2022
+      }
+    },
+    "2023": {
+      "target_groups_weeks_5_18": 300,
+      "usage_audit": {
+        "active_rows": 4666,
+        "excluded_zero_mean_groups": 0,
+        "excluded_zero_mean_opportunities": 0,
+        "maximum_group_size": 14,
+        "minimum_group_size": 9,
+        "opportunity_coverage": 1.0,
+        "otherwise_eligible_groups": 398,
+        "otherwise_eligible_opportunities": 12791,
+        "retained_groups": 398,
+        "retained_opportunities": 12791,
+        "retained_players": 4644,
+        "season": 2023
+      }
+    },
+    "2024": {
+      "target_groups_weeks_5_18": 298,
+      "usage_audit": {
+        "active_rows": 4596,
+        "excluded_zero_mean_groups": 0,
+        "excluded_zero_mean_opportunities": 0,
+        "maximum_group_size": 14,
+        "minimum_group_size": 8,
+        "opportunity_coverage": 1.0,
+        "otherwise_eligible_groups": 395,
+        "otherwise_eligible_opportunities": 12245,
+        "retained_groups": 395,
+        "retained_opportunities": 12245,
+        "retained_players": 4562,
+        "season": 2024
+      }
+    },
+    "2025": {
+      "target_groups_weeks_5_18": 295,
+      "usage_audit": {
+        "active_rows": 4614,
+        "excluded_zero_mean_groups": 0,
+        "excluded_zero_mean_opportunities": 0,
+        "maximum_group_size": 14,
+        "minimum_group_size": 10,
+        "opportunity_coverage": 1.0,
+        "otherwise_eligible_groups": 391,
+        "otherwise_eligible_opportunities": 11965,
+        "retained_groups": 391,
+        "retained_opportunities": 11965,
+        "retained_players": 4559,
+        "season": 2025
+      }
+    }
+  },
+  "treatment": "sis-asoe-conditional-target-center",
+  "version": "v1"
+}
