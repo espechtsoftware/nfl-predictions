@@ -76,6 +76,9 @@ class _Response:
     def json(self):
         return {"data": self._data}
 
+    def header_value(self, _name):
+        return "application/json"
+
 
 def test_response_scope_and_row_cap_fail_closed():
     spec = sis.ExportSpec(
@@ -95,6 +98,12 @@ def test_response_scope_and_row_cap_fail_closed():
     capped = _Response(post, response._data * 200)
     with pytest.raises(sis.RowCapError, match="paid row cap"):
         sis._assert_api_scope(capped, spec, row_cap=200)
+
+
+def test_non_json_api_response_has_audit_error():
+    response = _Response("", [], status=429)
+    with pytest.raises(RuntimeError, match="HTTP 429"):
+        sis._api_rows(response, "submitted")
 
 
 def test_csv_scope_validation(tmp_path):

@@ -102,3 +102,43 @@ alignment and opponent pass-defense context; RB line/run-front context; and
 DST opponent pressure/blocking context. Only score-free feature/calibration
 passes should proceed to an exact-80 lineup comparison. Same-week rows are
 outcomes and are forbidden as predictors.
+
+## Remaining paid-surface audit and bounded follow-ups
+
+An authenticated navigation audit on 2026-08-13 found that this account's
+visible NFL surface consists of Player Leaderboards, Player Lookup, Team
+Leaderboards and Team Lookup. The first three broad team-game families are
+already captured or in the resumable second tranche. Player/Team Lookup is
+useful for identity reconciliation and role history, but it is not a distinct
+bulk statistical family.
+
+SIS advertises several other football products outside the visible
+leaderboard navigation: injury data, weekly projections, tendency reports,
+on/off splits, participation/frame-timer feeds and player/snap projections.
+They must not be assumed to be included in the current DataHub subscription.
+The public store lists SIS NFL Weekly Projections as a separate subscription,
+and the current account did not expose injury, on/off or tendency downloads in
+its authenticated navigation. Those products require a separate entitlement
+or vendor confirmation before automation. They are potentially useful, but
+the current paid leaderboard data should be evaluated first.
+
+The highest-value remaining leaderboard information is not another broad
+tab; it is a small number of *predeclared filtered views* from the existing
+families:
+
+| Candidate | Intended use | Acquisition priority | Guardrail |
+|---|---|---:|---|
+| QB passing split by clean pocket/pressure and man/zone | QB tail shape and opponent-pressure sensitivity | 1 | Require volume denominators and shrink sparse splits |
+| Receiver value/volume split by man/zone, alignment and coarse route family | WR/TE matchup and stack dependence | 1 | Do not mine individual shells/routes after outcomes |
+| Team defensive coverage-shell deployment | Join opponent scheme to QB/receiver split history | 1 | Freeze shell groups before export; lag by at least one game |
+| Runs to Gap plus run-defense split by box count/concept | RB line/front fit and run-tail context | 2 | Wait for broad rushing/run-defense tranche audit |
+| Adjusted Blown Blocks, ideally team and line-unit | Improve the QB/RB blocking signal found in tranche 1 | 2 | Establish incremental value beyond broad blocking first |
+| Punting and returning | DST return-TD/field-position tail diagnostic | 3 | Do not spend the weekly budget until higher-value bundles finish |
+| Kicking | Team scoring-opportunity context only | 3 | NFL classic has no kicker roster slot |
+
+This is deliberately not a combinatorial export plan. Every extra filter
+multiplies the normal-UI request cost, and the account documents a 1,000-query
+weekly allowance. First finish and audit broad team context. Then freeze one
+compact coverage/receiver split plan and one compact line/run plan before
+issuing those requests. Raw rows and session state remain private; only
+schemas, hashes, manifests, protocols and aggregate findings belong in Git.

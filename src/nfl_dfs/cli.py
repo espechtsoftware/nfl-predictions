@@ -224,6 +224,11 @@ def main(argv: list[str] | None = None) -> None:
         help="Create the private raw table; existing non-identical data aborts",
     )
 
+    sub.add_parser(
+        "sis-team-context-audit",
+        help="Audit strictly-prior SIS team context against the terminal panel",
+    )
+
     p = sub.add_parser(
         "import-fantasy-points-route-weekly",
         help="Audit/append one manifest-locked prospective Route Share week",
@@ -746,6 +751,10 @@ def main(argv: list[str] | None = None) -> None:
 
         sis_team_context.run(
             args.input_dir, plan_path=args.plan, write=args.write)
+    elif args.command == "sis-team-context-audit":
+        from .analysis import sis_team_context
+
+        sis_team_context.run()
     elif args.command == "import-fantasy-points-route-weekly":
         from .ingest import fantasy_points_route_weekly
 

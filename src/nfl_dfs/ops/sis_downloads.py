@@ -441,6 +441,22 @@ def _request_scope(request: Any) -> dict[str, list[str]]:
     return parse_qs(request.post_data or "", keep_blank_values=True)
 
 
+def _api_rows(response: Any, stage: str) -> list[dict[str, Any]]:
+    if response.status != 200:
+        raise RuntimeError(f"SIS {stage} query returned HTTP {response.status}")
+    try:
+        payload = response.json()
+    except Exception as exc:
+        content_type = response.header_value("content-type") or "unknown"
+        raise RuntimeError(
+            f"SIS {stage} query returned non-JSON content ({content_type})"
+        ) from exc
+    rows = payload.get("data") if isinstance(payload, dict) else None
+    if not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows):
+        raise RuntimeError(f"SIS {stage} query response has invalid data rows")
+    return rows
+
+
 def _response_matches_spec(response: Any, spec: ExportSpec) -> bool:
     if f"/api/v1/nfl/{spec.entity}/query" not in response.url:
         return False
@@ -466,12 +482,7 @@ def _response_matches_spec(response: Any, spec: ExportSpec) -> bool:
 
 
 def _assert_api_scope(response: Any, spec: ExportSpec, row_cap: int) -> int:
-    if response.status != 200:
-        raise RuntimeError(f"SIS query returned HTTP {response.status}")
-    payload = response.json()
-    rows = payload.get("data")
-    if not isinstance(rows, list):
-        raise RuntimeError("SIS query response has no data rows")
+    rows = _api_rows(response, "submitted")
     if len(rows) == row_cap:
         raise RowCapError(
             f"SIS query returned exactly the paid row cap ({row_cap}); "
@@ -492,9 +503,7 @@ def _assert_api_scope(response: Any, spec: ExportSpec, row_cap: int) -> int:
 
 def _identity_rows(response: Any) -> list[dict[str, Any]]:
     """Retain stable SIS IDs and human-readable join keys omitted by CSV."""
-    rows = response.json().get("data", [])
-    if not isinstance(rows, list):
-        raise RuntimeError("SIS query response has no data rows")
+    rows = _api_rows(response, "submitted identity")
     descriptive = {
         "season", "week", "games", "player", "team", "opp", "opponent",
         "pos", "position", "name",
@@ -646,9 +655,7 @@ def export_one(
                     ), timeout=timeout_ms,
                 ) as subtab_response:
                     _click_ui_control(page, f"#{spec.definition.subtab}")
-                subtab_rows = subtab_response.value.json().get("data", [])
-                if not isinstance(subtab_rows, list):
-                    raise RuntimeError("SIS report-view response has no data rows")
+                subtab_rows = _api_rows(subtab_response.value, "report-view")
                 _wait_for_table(page, len(subtab_rows), timeout_ms)
                 active = page.locator(
                     f"#{spec.definition.subtab}"
