@@ -120,3 +120,20 @@ def test_main_image_contains_registered_comparator():
         encoding="utf-8")
     assert "COPY scripts/compare_active_label_usage_revalidation.py " \
         "./scripts/compare_active_label_usage_revalidation.py" in dockerfile
+
+
+def test_comparator_allows_only_within_season_config_identity():
+    """The registered position schedule changes between evaluation seasons."""
+    source = (Path(__file__).parents[1]
+              / "scripts/compare_active_label_usage_revalidation.py").read_text(
+                  encoding="utf-8")
+    assert source.count("allow_season_config=True") == 2
+
+
+def test_repaired_finisher_uses_new_v3_execution_identity():
+    source = (Path(__file__).parents[1]
+              / "scripts/cloud_finish_active_label_usage_revalidation.sh").read_text(
+                  encoding="utf-8")
+    assert "JOB=compare-active-label-usage-revalidation-v3" in source
+    assert "comparison_execution_v3.txt" in source
+    assert "comparison_execution_v2.txt" not in source

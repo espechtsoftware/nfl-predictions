@@ -1,0 +1,5 @@
+execution=compare-active-label-usage-revalidation-v2-7v4p4
+disposition=invalid_before_score_comparison
+exit_code=2
+failures=control has mixed lever_env; treatment has mixed lever_env
+repair=allow registered season-specific config identity while retaining within-season validation

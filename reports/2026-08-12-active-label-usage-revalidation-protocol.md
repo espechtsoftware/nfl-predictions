@@ -124,3 +124,21 @@ launched and no panel was read. The next image must add that exact `COPY` plus
 a source-contract test, pass the full suite, and pass the same entrypoint
 preflight. This remains the same packaging-only repair and does not license a
 scientific change.
+
+## Operational comparator-validation repair
+
+Comparator execution `compare-active-label-usage-revalidation-v2-7v4p4`
+loaded and audited both evaluation panels but stopped before calculating any
+score metric or applying the frozen decision. Its generic panel-validation
+calls required one `lever_env` for the full three-season panel even though this
+protocol explicitly registers a different served-position scale schedule for
+each evaluation season. The subsequent arm-specific mechanism audit already
+requires exactly one lever identity within each season and exact agreement
+with the three registered schedules.
+
+The licensed repair sets `allow_season_config=True` only for the control and
+treatment evaluation-panel validation calls. It does not relax within-season
+identity, code/image/seed identity, expected levers, feature invariance,
+candidate invariance, K, allocation law, panels, thresholds, or decision. Use
+a new full-test immutable image and a new v3 comparator job identity. Preserve
+the v2 JSON as an invalid pre-score validation record.

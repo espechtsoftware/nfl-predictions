@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 20:04 CDT
+## Current state — 2026-08-12 21:28 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -411,6 +411,27 @@ reconciliation when their findings affect the program.
   analyzer), with source-contract regression tests. Build another full-test
   immutable image from this repair, rerun the same entrypoint preflight, and
   only then allow the v2 comparator.
+- The corrected Dockerfile build
+  `5e210824-6bbb-4623-a992-3a97365ebb86` passed 1,016 tests with two expected
+  skips and produced audit digest
+  `sha256:599f44746b423184c06d6ddf63d4f6170141373e2135a8c733f39e9c9bffbb59`.
+  Independent control acceptance `accept-replay-panel-clf22` and comparator
+  entrypoint preflight `compare-active-label-usage-preflight-v2-dj5rj`
+  passed. Comparator execution
+  `compare-active-label-usage-revalidation-v2-7v4p4` loaded both evaluation
+  panels and completed the invariant audits, but stopped before calculating
+  any score metric or applying the frozen decision: its generic validation
+  calls incorrectly required one `lever_env` across all three seasons despite
+  the protocol's registered season-varying served-position schedule. The
+  invalid pre-score record and execution id are retained in the run folder.
+  The narrowly licensed repair sets `allow_season_config=True` for only the
+  two evaluation panels; the arm-specific audit still requires one exact
+  registered identity within each season and every other identity/invariance
+  rule remains unchanged. Focused validation passes 20 tests plus shell
+  syntax. Next: commit/push this repair, run a new full-test immutable build,
+  and use only v3 preflight/comparator identities. Do not inspect partial v3
+  output; after a valid terminal comparison, record the frozen 107-slate grid
+  and branch to either G2 (finite K retained) or multinomial G0/G1 reruns.
 - The operator-supplied alternative-frames review is retained unchanged at
   `reports/2026-08-12-alternative-analytical-frames.md` and reconciled in
   `reports/2026-08-12-alternative-analytical-frames-reconciliation.md`. The

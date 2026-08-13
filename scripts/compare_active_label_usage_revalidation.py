@@ -58,10 +58,12 @@ def main() -> int:
         promoted=True, expected_code_sha=args.code_sha)
     failures.extend(validate_candidate_panel(
         "control", control, seasons=EVALUATION_SEASONS,
-        promoted=False, expected_code_sha=args.code_sha))
+        promoted=False, expected_code_sha=args.code_sha,
+        allow_season_config=True))
     failures.extend(validate_candidate_panel(
         "treatment", treatment, seasons=EVALUATION_SEASONS,
-        promoted=True, expected_code_sha=args.code_sha))
+        promoted=True, expected_code_sha=args.code_sha,
+        allow_season_config=True))
 
     audits: dict = {}
     scores: dict = {}
