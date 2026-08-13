@@ -25,6 +25,7 @@ from typing import Any, Sequence
 
 BASE_URL = "https://pro.sisdatahub.com"
 NFL_LEADERS_URL = f"{BASE_URL}/NFL/Leaders/Players"
+SIS_LOGOUT_URL = f"{BASE_URL}/Home/SignoutOidc"
 AUTH_HOST = "auth.sportsinfosolutions.com"
 MIN_API_REQUESTS_PER_EXPORT = 4
 
@@ -73,6 +74,7 @@ ASOE_ALIGNMENTS = (("wide", ("2",)), ("slot", ("3",)))
 # Retain the normal UI's DOM serialization order. The values are the complete
 # frozen set; request-scope checks deliberately compare the actual form order.
 ASOE_ALL_SCHEMES = ("0", "1", "2", "5", "3", "4", "6")
+ASOE_API_REQUEST_CEILING = 27
 
 
 @dataclass(frozen=True)
@@ -373,6 +375,7 @@ def interactive_login(
     timeout_seconds: float,
     *,
     terminal_credentials: bool = False,
+    force_fresh: bool = False,
 ) -> None:
     try:
         from playwright.sync_api import sync_playwright
@@ -393,6 +396,22 @@ def interactive_login(
         page.set_default_timeout(timeout_ms)
         try:
             page.goto(NFL_LEADERS_URL, wait_until="domcontentloaded", timeout=timeout_ms)
+            if force_fresh:
+                if _authenticated_url(page.url):
+                    page.goto(
+                        SIS_LOGOUT_URL,
+                        wait_until="domcontentloaded",
+                        timeout=timeout_ms,
+                    )
+                context.clear_cookies()
+                state_path.unlink(missing_ok=True)
+                page.goto(
+                    NFL_LEADERS_URL,
+                    wait_until="domcontentloaded",
+                    timeout=timeout_ms,
+                )
+                if _authenticated_url(page.url):
+                    raise RuntimeError("SIS forced logout did not end the saved session")
             if _authenticated_url(page.url):
                 print("The saved SIS browser profile is already authenticated.")
             elif terminal_credentials:
@@ -1383,7 +1402,7 @@ def analyze_team_pass_defense_asoe_acquisition(
         failures.append(f"union-team-count:{len(all_teams)}")
     used = int(manifest.get("api_requests_used", -1))
     ceiling = int(manifest.get("api_request_ceiling", -1))
-    if ceiling != 26 or not 24 <= used <= ceiling:
+    if ceiling != ASOE_API_REQUEST_CEILING or not 24 <= used <= ceiling:
         failures.append(f"request-budget:{used}/{ceiling}")
     passes = not failures
     return {
@@ -1434,13 +1453,13 @@ def run_team_pass_defense_asoe_acquisition(
         state = json.loads(run_state.read_text(encoding="utf-8"))
         if state.get("plan_sha256") != protocol_hash or int(
             state.get("ceiling", -1)
-        ) != 26:
+        ) != ASOE_API_REQUEST_CEILING:
             raise RuntimeError("SIS ASOE request-state identity differs")
         used = int(state.get("used", -1))
-        if not 0 <= used <= 26:
+        if not 0 <= used <= ASOE_API_REQUEST_CEILING:
             raise RuntimeError("SIS ASOE request count is invalid")
     budget = APIRequestBudget(
-        ceiling=26, used=used, state_path=run_state,
+        ceiling=ASOE_API_REQUEST_CEILING, used=used, state_path=run_state,
         plan_sha256=protocol_hash,
     )
     budget.persist()
@@ -1603,7 +1622,8 @@ def run_team_pass_defense_asoe_acquisition(
                         print(
                             "SIS ASOE acquired: "
                             f"{season}/{start}-{end}/{alignment} "
-                            f"({expected_rows} rows; {budget.used}/26 requests)",
+                            f"({expected_rows} rows; {budget.used}/"
+                            f"{ASOE_API_REQUEST_CEILING} requests)",
                             flush=True,
                         )
         finally:
@@ -2058,6 +2078,11 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="prompt securely in the terminal and fill the browser automatically",
     )
+    login.add_argument(
+        "--fresh",
+        action="store_true",
+        help="force logout and replace the saved SIS session before login",
+    )
     subparsers.add_parser("verify-login", help="headlessly verify the saved SIS session")
     subparsers.add_parser(
         "catalog", help="list inventoried SIS NFL report views and priorities")
@@ -2118,6 +2143,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 args.profile_dir,
                 args.timeout,
                 terminal_credentials=args.terminal_credentials,
+                force_fresh=args.fresh,
             )
         elif args.command == "verify-login":
             verify_login(args.profile_dir, args.timeout)

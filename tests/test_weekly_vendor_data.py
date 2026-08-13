@@ -101,6 +101,38 @@ def test_run_week_preflights_sessions_then_runs_all_selected_steps(
     assert [step["status"] for step in manifest["steps"]] == ["complete"] * 8
 
 
+def test_run_week_forces_fresh_sis_login(monkeypatch, tmp_path):
+    events = []
+    monkeypatch.setattr(
+        weekly.fp, "verify_login", lambda *_: events.append("verify-fp")
+    )
+    monkeypatch.setattr(
+        weekly.sis,
+        "interactive_login",
+        lambda *_args, **kwargs: events.append(
+            ("login-sis", kwargs["terminal_credentials"], kwargs["force_fresh"])
+        ),
+    )
+    monkeypatch.setattr(
+        weekly.sis, "verify_login", lambda *_: events.append("verify-sis")
+    )
+
+    weekly.run_week(
+        week=1,
+        fp_profile_dir=tmp_path / "fp-profile",
+        sis_profile_dir=tmp_path / "sis-profile",
+        timeout_seconds=10,
+        output_root=tmp_path / "runs",
+        fp_output_root=tmp_path / "fp-output",
+        sis_output_root=tmp_path / "sis-output",
+        capture_matchups=False,
+        ingest_odds=False,
+        login_if_needed=True,
+        now=datetime(2026, 9, 2, 14, tzinfo=UTC),
+    )
+    assert events == [("login-sis", True, True), "verify-sis"]
+
+
 def test_run_week_verifies_sis_but_does_not_query_without_approved_plan(
     monkeypatch, tmp_path
 ):

@@ -29,6 +29,22 @@ def test_cli_help_exits_cleanly():
     assert exc_info.value.code == 0
 
 
+def test_login_cli_exposes_fresh_session_switch(monkeypatch, tmp_path):
+    observed = {}
+
+    def fake_login(profile_dir, timeout, **kwargs):
+        observed.update(
+            profile_dir=profile_dir, timeout=timeout, **kwargs)
+
+    monkeypatch.setattr(sis, "interactive_login", fake_login)
+    assert sis.main([
+        "--profile-dir", str(tmp_path), "login",
+        "--terminal-credentials", "--fresh",
+    ]) == 0
+    assert observed["terminal_credentials"] is True
+    assert observed["force_fresh"] is True
+
+
 def test_catalog_covers_high_priority_value_and_denominator_views():
     expected = {
         "passing-totals", "passing-value",
@@ -389,7 +405,7 @@ def test_asoe_acquisition_analyzer_reads_attempts_not_performance(tmp_path):
                 })
     result = sis.analyze_team_pass_defense_asoe_acquisition(tmp_path, {
         "api_requests_used": 24,
-        "api_request_ceiling": 26,
+        "api_request_ceiling": sis.ASOE_API_REQUEST_CEILING,
         "artifacts": artifacts,
     })
     assert result["passes"]

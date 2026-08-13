@@ -225,9 +225,9 @@ source .venv/bin/activate
 nfl-weekly-data run --week W
 ```
 
-It verifies the saved Fantasy Points and SIS sessions before starting the
-long work. If either session expired, it prompts securely for that login and
-then continues on its own. The run triggers the deployed `ingest-odds` Cloud
+It verifies the saved Fantasy Points session and deliberately forces a fresh
+SIS logout/login before starting the long work. It then continues on its own.
+The run triggers the deployed `ingest-odds` Cloud
 Run job (whose API key stays in Secret Manager), downloads and writes the
 strict-prior Route Share import, and captures/archives the three Fantasy
 Points matchup reports. It records a durable local manifest below ignored

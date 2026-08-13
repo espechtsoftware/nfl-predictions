@@ -14,6 +14,17 @@ sis-download login --terminal-credentials
 sis-download verify-login
 ```
 
+For each standalone SIS retrieval session, deliberately replace the old token
+before starting the unattended download:
+
+```bash
+sis-download login --terminal-credentials --fresh
+```
+
+The combined Wednesday workflow does this forced SIS logout/login
+automatically every time it runs. This avoids beginning a long acquisition on
+an apparently valid but aging SIS session.
+
 The password is read with hidden terminal input, used only to fill the SIS
 login form, and discarded. It is never logged or written to the repository.
 SIS uses a session-scoped identity cookie that Chromium removes at clean
@@ -111,8 +122,9 @@ CFB go/no-go review.
 
 ## Weekly operator integration
 
-The Wednesday 10:00am CT command `nfl-weekly-data run --week W` verifies the
-saved SIS session alongside Fantasy Points before unattended data work starts.
+The Wednesday 10:00am CT command `nfl-weekly-data run --week W` forces a fresh
+SIS logout/login, then verifies the replacement session alongside Fantasy
+Points before unattended data work starts.
 It intentionally submits **zero SIS queries** unless `--sis-plan` names a
 tracked, evidence-approved recurring plan. The present team-context and
 alignment files are historical research plans, not weekly production plans.

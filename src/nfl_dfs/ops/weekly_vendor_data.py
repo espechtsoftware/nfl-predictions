@@ -196,12 +196,14 @@ def run_week(
     if login_if_needed:
         step(
             "sis-session",
-            lambda: _ensure_session(
-                "SIS",
-                lambda: sis.verify_login(sis_profile_dir, timeout_seconds),
-                lambda: sis.interactive_login(
-                    sis_profile_dir, timeout_seconds, terminal_credentials=True
+            lambda: (
+                sis.interactive_login(
+                    sis_profile_dir,
+                    timeout_seconds,
+                    terminal_credentials=True,
+                    force_fresh=True,
                 ),
+                sis.verify_login(sis_profile_dir, timeout_seconds),
             ),
         )
     else:
@@ -328,6 +330,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.sis_profile_dir,
             args.timeout,
             terminal_credentials=args.terminal_credentials,
+            force_fresh=True,
         )
         return 0
     manifest = run_week(

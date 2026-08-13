@@ -2,7 +2,9 @@
 
 Date frozen: 2026-08-13, before any historical SIS alignment-attempt value,
 target-allocation likelihood, dependence metric, candidate score or lineup
-score is read.
+score is read. Operational accounting was amended later the same day, still
+before any artifact or historical attempt value was persisted or read, as
+described below.
 
 ## Question and relation to the failed schema screen
 
@@ -33,9 +35,18 @@ Collect seasons 2022--2025, for 24 planned artifacts total. Six-week windows
 cap the theoretical all-team maximum at 192 game rows, below the paid
 200-row limit. Week 18 is not acquired: the latest target Week 18 input is
 Weeks 14--17. Incidental UI refreshes are blocked. Only an explicitly armed
-Submit may consume the request meter. The hard durable ceiling is 26 requests,
-allowing at most two identical operational retries; it may not be spent on
-another season, week, alignment, shell, report, entity or value view.
+Submit may consume the request meter. The hard durable ceiling is 27 requests;
+it may not be spent on another season, week, alignment, shell, report, entity
+or value view.
+
+The ceiling was originally 26 for 24 planned artifacts plus two identical
+operational retries. During response-listener repair, two routed submits and
+one identical manual scope-capture submit reached the normal SIS endpoint.
+None produced an artifact, and no historical attempt or performance value was
+persisted or read. The durable counter is therefore corrected to three and the
+ceiling to 27 so the same 24-file scientific grid can finish. This is an
+operational-accounting amendment only: the report, entity, seasons, windows,
+alignments, shells, fields, row cap and downstream decision law are unchanged.
 
 Each raw licensed CSV remains gitignored under
 `sis/team-pass-defense-asoe-v1/`. Its manifest must bind the protocol hash,
