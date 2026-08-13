@@ -547,7 +547,11 @@ reconciliation when their findings affect the program.
   `29f0c714-8125-48da-8f60-8da1f0adb4ca` passed 1,028 tests with two expected
   skips and produced immutable v3 digest
   `sha256:c81abd2a3887593c35445f0f2b965da0dfc2293496084af770e9e0d64d984342`.
-  Use only that digest to launch the checksum-bound 32 GiB v3 replacement.
+  Checksum-bound 32 GiB v3 execution `g2-qb-gumbel-factor-v3-75thv` is now
+  launched from that exact digest. Its manifest is under
+  `reports/g2-qb-gumbel-runs/20260812-g2-qb-gumbel-factor-v3/`. Poll this exact
+  execution to terminal and require the calibration checksum and final report
+  to validate before interpreting any metric.
 - The operator-supplied alternative-frames review is retained unchanged at
   `reports/2026-08-12-alternative-analytical-frames.md` and reconciled in
   `reports/2026-08-12-alternative-analytical-frames-reconciliation.md`. The
