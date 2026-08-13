@@ -1,0 +1,11 @@
+classification=invalid-pre-science-image-contract-failure
+execution=compare-active-label-usage-revalidation-v1-6jftk
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:72002d1b1c49783e9eda5d0b60314c3a84cfde7ea749968eae520d5eeb205a5e
+completed=false
+failed_count=1
+exit_code=2
+error=/usr/local/bin/python could not open /app/scripts/compare_active_label_usage_revalidation.py (file not found)
+scientific_records=0
+panels_loaded=false
+metric_computed=false
+selection_created=false

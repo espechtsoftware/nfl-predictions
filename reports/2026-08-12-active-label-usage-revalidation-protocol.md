@@ -94,3 +94,22 @@ No payout dollars or ROI may be imputed without a contest field score/rank
 distribution and duplication/tie model. If such evidence later becomes
 available, payout grading is a separately frozen diagnostic of these same
 immutable books.
+
+## Operational comparator-image repair
+
+The first comparator execution
+`compare-active-label-usage-revalidation-v1-6jftk` is invalid before loading
+either panel or calculating any metric. Immutable audit image digest
+`sha256:72002d1b1c49783e9eda5d0b60314c3a84cfde7ea749968eae520d5eeb205a5e`
+did not contain `scripts/compare_active_label_usage_revalidation.py`; Python
+exited with file-not-found and emitted zero scientific result records. The
+control acceptance had already passed and remains valid.
+
+The licensed repair changes only comparator packaging/launch safety. Use a new
+full-test immutable image which contains the unchanged registered comparator,
+run `--help` as an image-entrypoint preflight, then execute under the new v2
+job identity. The finisher now also requires terminal success before result
+harvest and retries bounded Cloud Logging reads for propagation. Panels,
+features, candidate books, K, allocation laws, thresholds and decision remain
+unchanged. Preserve the v1 execution id and empty raw result as invalid
+operational evidence.

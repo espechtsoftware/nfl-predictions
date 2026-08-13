@@ -30,7 +30,26 @@ grep -q 'ACCEPTANCE PASSED' \
   echo "ABORT: finite-K active-only treatment lacks prior acceptance"; exit 2; }
 
 mkdir -p "$OUT"
-JOB=compare-active-label-usage-revalidation-v1
+PREFLIGHT_JOB=compare-active-label-usage-preflight-v2
+gcloud run jobs deploy "$PREFLIGHT_JOB" --project "$PROJECT" --region "$REGION" \
+  --image "$IMG" --command python \
+  --args "scripts/compare_active_label_usage_revalidation.py,--help" \
+  --memory 1Gi --cpu 1 --max-retries 0 --task-timeout 300 >/dev/null
+PREFLIGHT_EXEC=$(gcloud run jobs execute "$PREFLIGHT_JOB" --project "$PROJECT" \
+  --region "$REGION" --async --format='value(metadata.name)')
+[ -n "$PREFLIGHT_EXEC" ] || { echo "ABORT: comparator preflight id missing"; exit 1; }
+printf '%s\n' "$PREFLIGHT_EXEC" > "$OUT/comparison_preflight_v2.txt"
+while true; do
+  PREFLIGHT_STATE=$(gcloud run jobs executions describe "$PREFLIGHT_EXEC" \
+    --project "$PROJECT" --region "$REGION" \
+    --format='value(status.conditions[0].status)')
+  [ "$PREFLIGHT_STATE" = True ] && break
+  [ "$PREFLIGHT_STATE" != False ] || {
+    echo "ABORT: comparator image entrypoint preflight failed"; exit 1; }
+  sleep 10
+done
+
+JOB=compare-active-label-usage-revalidation-v2
 ARGS="scripts/compare_active_label_usage_revalidation.py,--historical-source,$HISTORICAL_SOURCE,--control,$CONTROL,--treatment,$TREATMENT,--code-sha,a12ab31"
 gcloud run jobs deploy "$JOB" --project "$PROJECT" --region "$REGION" \
   --image "$IMG" --command python --args "$ARGS" \
@@ -44,7 +63,7 @@ DEPLOYED=$(gcloud run jobs describe "$JOB" --project "$PROJECT" \
 EXEC=$(gcloud run jobs execute "$JOB" --project "$PROJECT" --region "$REGION" \
   --async --format='value(metadata.name)')
 [ -n "$EXEC" ] || { echo "ABORT: comparator execution id missing"; exit 1; }
-printf '%s\n' "$EXEC" > "$OUT/comparison_execution.txt"
+printf '%s\n' "$EXEC" > "$OUT/comparison_execution_v2.txt"
 while true; do
   STATE=$(gcloud run jobs executions describe "$EXEC" --project "$PROJECT" \
     --region "$REGION" --format='value(status.conditions[0].status)')
@@ -52,10 +71,17 @@ while true; do
   [ "$STATE" != False ] || break
   sleep 20
 done
+[ "$STATE" = True ] || { echo "ABORT: comparator execution failed"; exit 1; }
 FILTER="resource.type=\"cloud_run_job\" AND labels.\"run.googleapis.com/execution_name\"=\"$EXEC\" AND textPayload:\"ACTIVE_LABEL_USAGE_REVALIDATION_JSON=\""
-gcloud logging read "$FILTER" --project "$PROJECT" --limit 10 --order asc \
-  --format='value(textPayload)' > "$OUT/comparison_raw.txt"
-"$ROOT/.venv/bin/python" - "$OUT/comparison_raw.txt" "$REPORT" <<'PY'
+RAW="$OUT/comparison_raw_v2.txt"
+for _ in $(seq 1 12); do
+  gcloud logging read "$FILTER" --project "$PROJECT" --limit 10 --order asc \
+    --format='value(textPayload)' > "$RAW"
+  [ "$(grep -c 'ACTIVE_LABEL_USAGE_REVALIDATION_JSON=' "$RAW" || true)" = 1 ] \
+    && break
+  sleep 5
+done
+"$ROOT/.venv/bin/python" - "$RAW" "$REPORT" <<'PY'
 import json
 import sys
 prefix = "ACTIVE_LABEL_USAGE_REVALIDATION_JSON="
@@ -71,7 +97,6 @@ with open(sys.argv[2], "w", encoding="utf-8") as handle:
     json.dump(report, handle, indent=2, sort_keys=True)
     handle.write("\n")
 PY
-[ "$STATE" = True ] || { echo "ABORT: comparator execution failed"; exit 1; }
 
 SELECTED=$("$ROOT/.venv/bin/python" - "$REPORT" "$CONTROL" "$TREATMENT" <<'PY'
 import json

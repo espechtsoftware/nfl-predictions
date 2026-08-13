@@ -383,7 +383,25 @@ reconciliation when their findings affect the program.
   `replay-pitactusemult-2025-lcpx7`. Their immutable manifest is tracked under
   `reports/panel-runs/20260812-pitclean-e80-active-label-usage-multinomial-v1/`.
   Wait for all three terminal successes without partial score inspection,
-  then use the audit image built from `64e0428` to run the frozen finisher.
+  then run the frozen finisher. The later image-contract failure and licensed
+  replacement digest supersede the originally intended `64e0428` audit image
+  for that comparator only, as described immediately below.
+- All three registered multinomial controls later completed successfully:
+  `replay-pitactusemult-2023-k9ncc`,
+  `replay-pitactusemult-2024-9sjjp`, and
+  `replay-pitactusemult-2025-lcpx7`. Independent acceptance execution
+  `accept-replay-panel-zhlb4` passed the complete staged panel. First comparator
+  `compare-active-label-usage-revalidation-v1-6jftk` is invalid before science:
+  digest `72002...` lacked the comparator script, Python exited file-not-found,
+  and no panel/metric/result was loaded or emitted. The failure is preserved in
+  the run folder. The protocol and finisher license a packaging-only v2 repair:
+  use a new full-test immutable image, require an image-entrypoint `--help`
+  preflight, terminal comparator success and bounded log-propagation harvest,
+  while preserving the exact panels and frozen decision. Build
+  `f0796f88-924a-4f77-bd12-abfdba491586` was already queued from source
+  `efcfc71`; after it passes, use its immutable digest with the repaired
+  finisher and record the new preflight/comparator IDs before reading the sole
+  valid comparison.
 - The operator-supplied alternative-frames review is retained unchanged at
   `reports/2026-08-12-alternative-analytical-frames.md` and reconciled in
   `reports/2026-08-12-alternative-analytical-frames-reconciliation.md`. The
