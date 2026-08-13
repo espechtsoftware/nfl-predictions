@@ -431,9 +431,14 @@ agent or developer:
   score-free task once from the new immutable image, then harvest the complete
   report. No exact-80 branch is currently licensed.
   Provenance-binding repair commit `5502f90` is pushed on `main`. Full-test
-  immutable transport build `dc36bc56-e291-46ab-9761-e2270ec2156e` is now in
-  progress for tag `pfr-transport-5502f90`. On a clean build, resolve its
-  digest and invoke the transport-only rerun launcher with code SHA `5502f90`.
+  immutable transport build `dc36bc56-e291-46ab-9761-e2270ec2156e` passed and
+  produced digest
+  `sha256:7ee3c5c30b21939b07dbefb9660b23b25e1c1684ecf9ce078c35c0521b24fbfe`.
+  The sole transport-only deterministic rerun is active as Cloud Run execution
+  `tabpfn-pfr-secondary-final-served-v1-w4k8f`; its write-once manifest binds
+  prior completed execution `tabpfn-pfr-secondary-final-served-v1-f2zrw` and
+  exact truncated-log identity. Exact next action: poll `w4k8f`, harvest the
+  complete chunked report on success, then close or follow the frozen branch.
   The operator-supplied Monte Carlo review is tracked as
   `reports/2026-08-13-monte-carlo-review-and-seed-variance-protocol.md` and is
   being reconciled against the actual multi-stream RNG path. The first
