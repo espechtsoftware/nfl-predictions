@@ -663,7 +663,11 @@ reconciliation when their findings affect the program.
   trial before payment. FTN (Football Outsiders' DVOA successor) is a credible
   second research option, but arbitrary consumer-plan CSV export is not yet
   established; PFF+ is only a secondary coverage-quality prior on current
-  evidence.
+  evidence. NFL Pro is a cheap live cross-check ($14.99/month with NFL+
+  Premium) but has no verified export contract. MatchQuarters, Sharp,
+  Reception Perception and SumerLive have useful interpretation/current or
+  player-trait data, but none currently displaces nflverse history plus the
+  already-purchased Fantasy Points train/serve path.
   The new outside review
   `reports/2026-08-13-g2-failure-analysis-and-next-mechanism.md` is reconciled
   in `reports/2026-08-13-g2-failure-analysis-reconciliation.md`. Its core

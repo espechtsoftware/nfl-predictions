@@ -121,6 +121,74 @@ that raw shell labels, receiver assignments, or arbitrary coverage-query CSVs
 are included. It is therefore a secondary option for the planned PFR coverage-
 quality ablation, not the preferred source for the QB/WR shell mechanism.
 
+## 5. Lower-cost and secondary sources
+
+### NFL Pro / Next Gen Stats
+
+Official sources:
+
+- <https://pro.nfl.com/nflpro>
+- <https://support.nfl.com/hc/en-us/articles/35869706651156-NFL-Pro-FAQ-s-and-Answers>
+- <https://support.nfl.com/hc/en-us/articles/35869716246804-How-much-does-NFL-cost-Monthly-and-Annual-Regular-and-Premium>
+
+NFL Pro is included in NFL+ Premium ($14.99/month or $99.99/year at this
+audit), updates Next Gen Stats the day after games, and publishes coverage and
+man/zone splits in its analysis. It is attractive as a cheap live cross-check.
+The public documentation does not establish bulk export, a stable API, or the
+historical depth of each coverage field, so it is not yet a model-ingestion
+recommendation. If subscribed for video/RedZone anyway, inspect it before
+paying for another dashboard.
+
+### MatchQuarters
+
+Official/example sources:
+
+- <https://www.matchquarters.com/p/2025-nfl-weekly-data-download-end-of-season-2025>
+- <https://www.matchquarters.com/p/2024-nfl-weekly-data-download-end-of-season>
+
+MatchQuarters publishes weekly defensive data downloads with coverage stats,
+team dashboards and coverage matrices. It is useful for football interpretation
+and independent spot checks, but the underlying provider changed from Field
+Vision in 2024 to FTN in 2025 and the public pages do not establish machine-
+readable bulk export. That makes it a research subscription, not a clean
+longitudinal training feed.
+
+### Sharp Football Analysis
+
+Official sources:
+
+- <https://www.sharpfootballanalysis.com/stats-nfl/nfl-coverage-schemes/>
+- <https://www.sharpfootballanalysis.com/stats-nfl/nfl-coverage-stats-by-position/>
+
+Sharp publicly displays team man/zone and middle-open/middle-closed rates plus
+yards per target allowed by receiver position/alignment. These are useful
+current-season sanity checks. No verified weekly historical CSV/API was found,
+so they do not fill the replay requirement.
+
+### Reception Perception
+
+Official source:
+
+- <https://receptionperception.com/subscription-page-new/>
+
+Reception Perception advertises all historical NFL receiver data tables for
+$99.99/year. Its charting is valuable for persistent receiver skill against
+man, zone and press, but it is sampled receiver evaluation rather than a full
+weekly opponent-coverage deployment feed. It could support a distinct receiver
+trait prior, not replace the Fantasy Points/SIS defense matrices.
+
+### SumerSports
+
+Official sources:
+
+- <https://sumersports.com/live/>
+- <https://sumersports.com/the-zone/how-sumerlive-tracks-the-game/>
+
+SumerLive now identifies formations, routes and coverages in real time from a
+tracking-data model. Public access currently emphasizes live/postseason game
+analysis, and no consumer historical export or API was verified. Monitor it;
+do not base the 2026 pipeline on it yet.
+
 ## Recommended queue
 
 1. Add a non-production audit loader for nflverse participation and quantify
@@ -129,8 +197,11 @@ quality ablation, not the preferred source for the QB/WR shell mechanism.
    production feature table because 2023+ data is postseason-only.
 3. Complete the already-frozen Fantasy Points QB shell-fit test; it is the
    cleanest train/serve-aligned path with data already purchased.
-4. If that mechanism is promising but needs defender-level detail, take the
-   SIS seven-day trial and run the six pre-purchase checks above.
+4. If that mechanism is promising but needs defender-level detail, inspect
+   NFL Pro first if it is already included in an NFL+ subscription, then take
+   the SIS seven-day trial and run the six pre-purchase checks above.
 5. Consider FTN Stats only if its consumer plan demonstrates exportable weekly
-   history; consider PFF+ only for a separately frozen player-quality prior.
-
+   history; consider PFF+ or Reception Perception only for separately frozen
+   player-quality priors.
+6. Use MatchQuarters, Sharp and SumerLive as cross-check/research sources unless
+   they document stable historical exports and private-model usage rights.
