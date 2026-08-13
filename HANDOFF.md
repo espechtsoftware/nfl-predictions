@@ -584,6 +584,24 @@ reconciliation when their findings affect the program.
   image/code identities, complete transport and every registered report
   invariant. Next: focused validation, commit/push, full-test Cloud Build,
   launch the outcome-blind incumbent diagnostic, and poll/harvest it.
+  The new outside review
+  `reports/2026-08-13-g2-failure-analysis-and-next-mechanism.md` is reconciled
+  in `reports/2026-08-13-g2-failure-analysis-reconciliation.md`. Its core
+  diagnosis is accepted: G2's identity WR choice plus clean TE repair motivates
+  one distinct score-free test of the already-implemented `(game, team)` TD
+  ledger under the current final-served finite-K incumbent. Two claims are
+  corrected before use. G2 retains competitive residuals, so the shared-factor
+  problem is a measured structural tension rather than a universal
+  impossibility proof; and Poisson thinning makes fixed-share multinomial
+  receiver TD counts conditionally independent after marginalizing the total,
+  not persistently negative, with the random game factor adding positive
+  covariance. The ledger may still add exact QB-catcher same-event coupling
+  without G2's direct all-WR shared-root coupling. Effective rank remains
+  `likely optimistic; not a formal bound`. Finish effective rank first, then
+  freeze one no-retuning ledger-only score-free evaluator. Any pass licenses
+  only a separately frozen exact-80 comparison plus explicit adaptive-history
+  disclosure; do not automatically compose the failed G2 TE factor or tune a
+  TD-allocation parameter.
 - The operator-supplied alternative-frames review is retained unchanged at
   `reports/2026-08-12-alternative-analytical-frames.md` and reconciled in
   `reports/2026-08-12-alternative-analytical-frames-reconciliation.md`. The
