@@ -308,13 +308,18 @@ agent or developer:
   validation build `c42bb2a2-727a-4880-83ca-8fa0f0da99d1` passed 1,094 tests
   (2 skipped) and produced immutable digest
   `sha256:9aa494e18c6dd2fbd855a200dc5101208f63eeb3279af595fb0430d6e0770ad5`.
-  The sole frozen diagnostic is running as Cloud Run execution
-  `fantasy-points-qb-shell-pgnfj`; its manifest is under
+  The sole frozen diagnostic completed cleanly as Cloud Run execution
+  `fantasy-points-qb-shell-pgnfj`; its manifest and machine report are under
   `reports/fantasy-points-qb-shell-runs/20260813-fp-qb-shell-l4-v1/`.
-  Poll it to clean success, harvest exactly one report, and apply the frozen
-  >=70%-each-fold plus aggregate Brier-30 gate. A fail closes this mechanism;
-  a pass licenses only a separately preregistered exact-80 candidate-union
-  test.
+  Coverage passed at `100.00%/99.30%/99.39%`, but the arm **failed** its
+  registered aggregate 30-point Brier gate: `0.0187107295 -> 0.0187176038`
+  (treatment minus control `+0.0000068743`; lower is better). Aggregate
+  20-point Brier also worsened `+0.0001364522` and residual MAE worsened
+  `+0.005205585`; the two shell grades had small, season-unstable descriptive
+  correlations. No lineup score was read and no exact-80 comparison is
+  licensed. Close this exact two-grade last-four team-shell mechanism without
+  tuning. The concise decision record is
+  `reports/2026-08-13-fantasy-points-qb-shell-fit-result.md`.
   The outside oddsmaking proposal
   `reports/2026-08-13-oddsmaking-techniques-and-market-implied-dependence.md`
   is reconciled in

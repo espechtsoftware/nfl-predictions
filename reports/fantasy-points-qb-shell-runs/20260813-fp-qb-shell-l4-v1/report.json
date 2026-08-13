@@ -1,0 +1,631 @@
+{
+  "aggregate": {
+    "control_brier_20": 0.06631047932682058,
+    "control_brier_30": 0.018710729509087465,
+    "control_calibration_deciles_30": [
+      {
+        "decile": 1,
+        "event_rate": 0.0,
+        "mean_probability": 0.0007205245913438753,
+        "rows": 292
+      },
+      {
+        "decile": 2,
+        "event_rate": 0.0,
+        "mean_probability": 0.001324727614954039,
+        "rows": 292
+      },
+      {
+        "decile": 3,
+        "event_rate": 0.0,
+        "mean_probability": 0.0015817414806972906,
+        "rows": 292
+      },
+      {
+        "decile": 4,
+        "event_rate": 0.0,
+        "mean_probability": 0.0017467905378607965,
+        "rows": 292
+      },
+      {
+        "decile": 5,
+        "event_rate": 0.0,
+        "mean_probability": 0.0025137688551874916,
+        "rows": 291
+      },
+      {
+        "decile": 6,
+        "event_rate": 0.0,
+        "mean_probability": 0.003661086435989014,
+        "rows": 292
+      },
+      {
+        "decile": 7,
+        "event_rate": 0.003424657534246575,
+        "mean_probability": 0.006924154995997936,
+        "rows": 292
+      },
+      {
+        "decile": 8,
+        "event_rate": 0.02054794520547945,
+        "mean_probability": 0.021480509297965553,
+        "rows": 292
+      },
+      {
+        "decile": 9,
+        "event_rate": 0.06506849315068493,
+        "mean_probability": 0.04892571308670563,
+        "rows": 292
+      },
+      {
+        "decile": 10,
+        "event_rate": 0.12027491408934708,
+        "mean_probability": 0.11833870635072236,
+        "rows": 291
+      }
+    ],
+    "control_mae": 3.4004139042179498,
+    "events_20": 321,
+    "events_30": 61,
+    "fold": "aggregate",
+    "rows": 2918,
+    "tail_rate_20": 0.11000685400959562,
+    "tail_rate_30": 0.020904729266620972,
+    "treatment_brier_20": 0.0664469315346424,
+    "treatment_brier_30": 0.018717603791062982,
+    "treatment_calibration_deciles_30": [
+      {
+        "decile": 1,
+        "event_rate": 0.0,
+        "mean_probability": 0.0007125096585589082,
+        "rows": 292
+      },
+      {
+        "decile": 2,
+        "event_rate": 0.0,
+        "mean_probability": 0.0012336380477240027,
+        "rows": 292
+      },
+      {
+        "decile": 3,
+        "event_rate": 0.0,
+        "mean_probability": 0.0015574452736636523,
+        "rows": 292
+      },
+      {
+        "decile": 4,
+        "event_rate": 0.0,
+        "mean_probability": 0.0018442537254893593,
+        "rows": 292
+      },
+      {
+        "decile": 5,
+        "event_rate": 0.0,
+        "mean_probability": 0.002480314350992344,
+        "rows": 291
+      },
+      {
+        "decile": 6,
+        "event_rate": 0.0,
+        "mean_probability": 0.0035941269831742464,
+        "rows": 292
+      },
+      {
+        "decile": 7,
+        "event_rate": 0.003424657534246575,
+        "mean_probability": 0.007022163722677321,
+        "rows": 292
+      },
+      {
+        "decile": 8,
+        "event_rate": 0.0273972602739726,
+        "mean_probability": 0.02082571018583176,
+        "rows": 292
+      },
+      {
+        "decile": 9,
+        "event_rate": 0.0547945205479452,
+        "mean_probability": 0.04830369468597551,
+        "rows": 292
+      },
+      {
+        "decile": 10,
+        "event_rate": 0.12371134020618557,
+        "mean_probability": 0.11789265332791565,
+        "rows": 291
+      }
+    ],
+    "treatment_mae": 3.4056194891439917
+  },
+  "correlations": [
+    {
+      "feature": "fp_qb_shell_mz_grade",
+      "fold": 2023,
+      "point_biserial_tail_30": -0.007943906802430005,
+      "rows": 944,
+      "spearman_projection_residual": -0.0327851294958807
+    },
+    {
+      "feature": "fp_qb_shell_mof_grade",
+      "fold": 2023,
+      "point_biserial_tail_30": -0.034950939201433974,
+      "rows": 944,
+      "spearman_projection_residual": -0.02045651361310402
+    },
+    {
+      "feature": "fp_qb_shell_mz_grade",
+      "fold": 2024,
+      "point_biserial_tail_30": 0.033525567072318824,
+      "rows": 990,
+      "spearman_projection_residual": 0.01667391738209453
+    },
+    {
+      "feature": "fp_qb_shell_mof_grade",
+      "fold": 2024,
+      "point_biserial_tail_30": -0.07154512881012358,
+      "rows": 990,
+      "spearman_projection_residual": -0.02048288670024233
+    },
+    {
+      "feature": "fp_qb_shell_mz_grade",
+      "fold": 2025,
+      "point_biserial_tail_30": -0.04639537289596329,
+      "rows": 984,
+      "spearman_projection_residual": 0.02182119915470732
+    },
+    {
+      "feature": "fp_qb_shell_mof_grade",
+      "fold": 2025,
+      "point_biserial_tail_30": 0.007425260550802054,
+      "rows": 984,
+      "spearman_projection_residual": 0.020354133084814634
+    }
+  ],
+  "coverage": {
+    "2023": 1.0,
+    "2024": 0.9929789368104313,
+    "2025": 0.9939393939393939
+  },
+  "defense_source_run_id": "20260811T053208Z__same-season-coverage-last-four-v1",
+  "disposition": "fp-qb-shell-player-tail-fails",
+  "folds": [
+    {
+      "control_brier_20": 0.06353503539821743,
+      "control_brier_30": 0.017793726984773214,
+      "control_calibration_deciles_30": [
+        {
+          "decile": 1,
+          "event_rate": 0.0,
+          "mean_probability": 0.0017812973179813397,
+          "rows": 95
+        },
+        {
+          "decile": 2,
+          "event_rate": 0.0,
+          "mean_probability": 0.002614691339110832,
+          "rows": 94
+        },
+        {
+          "decile": 3,
+          "event_rate": 0.0,
+          "mean_probability": 0.002717671722977666,
+          "rows": 95
+        },
+        {
+          "decile": 4,
+          "event_rate": 0.0,
+          "mean_probability": 0.003693507060748171,
+          "rows": 94
+        },
+        {
+          "decile": 5,
+          "event_rate": 0.0,
+          "mean_probability": 0.0044813719836023815,
+          "rows": 94
+        },
+        {
+          "decile": 6,
+          "event_rate": 0.0,
+          "mean_probability": 0.0056866729619017495,
+          "rows": 95
+        },
+        {
+          "decile": 7,
+          "event_rate": 0.0,
+          "mean_probability": 0.009822285904144988,
+          "rows": 94
+        },
+        {
+          "decile": 8,
+          "event_rate": 0.021052631578947368,
+          "mean_probability": 0.028673030493435656,
+          "rows": 95
+        },
+        {
+          "decile": 9,
+          "event_rate": 0.05319148936170213,
+          "mean_probability": 0.05501995223200205,
+          "rows": 94
+        },
+        {
+          "decile": 10,
+          "event_rate": 0.1276595744680851,
+          "mean_probability": 0.13906162382096784,
+          "rows": 94
+        }
+      ],
+      "control_mae": 4.130671578727129,
+      "events_20": 100,
+      "events_30": 19,
+      "fold": "2023",
+      "rows": 944,
+      "tail_rate_20": 0.1059322033898305,
+      "tail_rate_30": 0.020127118644067795,
+      "treatment_brier_20": 0.06392963732341717,
+      "treatment_brier_30": 0.017750021579306646,
+      "treatment_calibration_deciles_30": [
+        {
+          "decile": 1,
+          "event_rate": 0.0,
+          "mean_probability": 0.001547248900684886,
+          "rows": 95
+        },
+        {
+          "decile": 2,
+          "event_rate": 0.0,
+          "mean_probability": 0.0024395042434799032,
+          "rows": 94
+        },
+        {
+          "decile": 3,
+          "event_rate": 0.0,
+          "mean_probability": 0.0028223281896425454,
+          "rows": 95
+        },
+        {
+          "decile": 4,
+          "event_rate": 0.0,
+          "mean_probability": 0.0034732869858873023,
+          "rows": 94
+        },
+        {
+          "decile": 5,
+          "event_rate": 0.0,
+          "mean_probability": 0.004266511802077275,
+          "rows": 94
+        },
+        {
+          "decile": 6,
+          "event_rate": 0.0,
+          "mean_probability": 0.005667027899256357,
+          "rows": 95
+        },
+        {
+          "decile": 7,
+          "event_rate": 0.0,
+          "mean_probability": 0.00986964264674092,
+          "rows": 94
+        },
+        {
+          "decile": 8,
+          "event_rate": 0.010526315789473684,
+          "mean_probability": 0.026067144418757186,
+          "rows": 95
+        },
+        {
+          "decile": 9,
+          "event_rate": 0.06382978723404255,
+          "mean_probability": 0.05347338738677613,
+          "rows": 94
+        },
+        {
+          "decile": 10,
+          "event_rate": 0.1276595744680851,
+          "mean_probability": 0.13809195518368667,
+          "rows": 94
+        }
+      ],
+      "treatment_mae": 4.146762285951074
+    },
+    {
+      "control_brier_20": 0.07009306240477815,
+      "control_brier_30": 0.021359883545746597,
+      "control_calibration_deciles_30": [
+        {
+          "decile": 1,
+          "event_rate": 0.0,
+          "mean_probability": 0.0008529962936604637,
+          "rows": 99
+        },
+        {
+          "decile": 2,
+          "event_rate": 0.0,
+          "mean_probability": 0.0015792523919914243,
+          "rows": 99
+        },
+        {
+          "decile": 3,
+          "event_rate": 0.0,
+          "mean_probability": 0.0016099514957143436,
+          "rows": 99
+        },
+        {
+          "decile": 4,
+          "event_rate": 0.0,
+          "mean_probability": 0.0016619122347054417,
+          "rows": 99
+        },
+        {
+          "decile": 5,
+          "event_rate": 0.0,
+          "mean_probability": 0.00201036884617825,
+          "rows": 99
+        },
+        {
+          "decile": 6,
+          "event_rate": 0.0,
+          "mean_probability": 0.0027780396512187035,
+          "rows": 99
+        },
+        {
+          "decile": 7,
+          "event_rate": 0.0,
+          "mean_probability": 0.006154894070134399,
+          "rows": 99
+        },
+        {
+          "decile": 8,
+          "event_rate": 0.030303030303030304,
+          "mean_probability": 0.01931958975370061,
+          "rows": 99
+        },
+        {
+          "decile": 9,
+          "event_rate": 0.0707070707070707,
+          "mean_probability": 0.047339071632391864,
+          "rows": 99
+        },
+        {
+          "decile": 10,
+          "event_rate": 0.1414141414141414,
+          "mean_probability": 0.11694253523159372,
+          "rows": 99
+        }
+      ],
+      "control_mae": 3.4603878588076786,
+      "events_20": 113,
+      "events_30": 24,
+      "fold": "2024",
+      "rows": 990,
+      "tail_rate_20": 0.11414141414141414,
+      "tail_rate_30": 0.024242424242424242,
+      "treatment_brier_20": 0.07031627475754755,
+      "treatment_brier_30": 0.021371797736588816,
+      "treatment_calibration_deciles_30": [
+        {
+          "decile": 1,
+          "event_rate": 0.0,
+          "mean_probability": 0.0008465096075877312,
+          "rows": 99
+        },
+        {
+          "decile": 2,
+          "event_rate": 0.0,
+          "mean_probability": 0.001446927622055346,
+          "rows": 99
+        },
+        {
+          "decile": 3,
+          "event_rate": 0.0,
+          "mean_probability": 0.0016397836179565118,
+          "rows": 99
+        },
+        {
+          "decile": 4,
+          "event_rate": 0.0,
+          "mean_probability": 0.0017864048671601732,
+          "rows": 99
+        },
+        {
+          "decile": 5,
+          "event_rate": 0.0,
+          "mean_probability": 0.0020763740877929493,
+          "rows": 99
+        },
+        {
+          "decile": 6,
+          "event_rate": 0.0,
+          "mean_probability": 0.0028210244500987466,
+          "rows": 99
+        },
+        {
+          "decile": 7,
+          "event_rate": 0.0,
+          "mean_probability": 0.006312005649837758,
+          "rows": 99
+        },
+        {
+          "decile": 8,
+          "event_rate": 0.04040404040404041,
+          "mean_probability": 0.01947058530266309,
+          "rows": 99
+        },
+        {
+          "decile": 9,
+          "event_rate": 0.050505050505050504,
+          "mean_probability": 0.04696712592866558,
+          "rows": 99
+        },
+        {
+          "decile": 10,
+          "event_rate": 0.15151515151515152,
+          "mean_probability": 0.11727697048977505,
+          "rows": 99
+        }
+      ],
+      "treatment_mae": 3.461666371411911
+    },
+    {
+      "control_brier_20": 0.06516745272257603,
+      "control_brier_30": 0.01692514809309165,
+      "control_calibration_deciles_30": [
+        {
+          "decile": 1,
+          "event_rate": 0.0,
+          "mean_probability": 0.0005897310013549911,
+          "rows": 99
+        },
+        {
+          "decile": 2,
+          "event_rate": 0.0,
+          "mean_probability": 0.0007575064070343959,
+          "rows": 98
+        },
+        {
+          "decile": 3,
+          "event_rate": 0.0,
+          "mean_probability": 0.0011746078417928308,
+          "rows": 99
+        },
+        {
+          "decile": 4,
+          "event_rate": 0.0,
+          "mean_probability": 0.001346102770063232,
+          "rows": 98
+        },
+        {
+          "decile": 5,
+          "event_rate": 0.0,
+          "mean_probability": 0.0014577333319013405,
+          "rows": 98
+        },
+        {
+          "decile": 6,
+          "event_rate": 0.0,
+          "mean_probability": 0.0015890630136684845,
+          "rows": 99
+        },
+        {
+          "decile": 7,
+          "event_rate": 0.0,
+          "mean_probability": 0.002738540045577481,
+          "rows": 98
+        },
+        {
+          "decile": 8,
+          "event_rate": 0.04040404040404041,
+          "mean_probability": 0.017147125660260897,
+          "rows": 99
+        },
+        {
+          "decile": 9,
+          "event_rate": 0.04081632653061224,
+          "mean_probability": 0.04435863622705976,
+          "rows": 98
+        },
+        {
+          "decile": 10,
+          "event_rate": 0.10204081632653061,
+          "mean_probability": 0.0989312915567443,
+          "rows": 98
+        }
+      ],
+      "control_mae": 2.6395018515954938,
+      "events_20": 108,
+      "events_30": 18,
+      "fold": "2025",
+      "rows": 984,
+      "tail_rate_20": 0.10975609756097561,
+      "tail_rate_30": 0.018292682926829267,
+      "treatment_brier_20": 0.06496895993374863,
+      "treatment_brier_30": 0.016975475337635545,
+      "treatment_calibration_deciles_30": [
+        {
+          "decile": 1,
+          "event_rate": 0.0,
+          "mean_probability": 0.000547513492457805,
+          "rows": 99
+        },
+        {
+          "decile": 2,
+          "event_rate": 0.0,
+          "mean_probability": 0.0007852850662505876,
+          "rows": 98
+        },
+        {
+          "decile": 3,
+          "event_rate": 0.0,
+          "mean_probability": 0.001089768043764574,
+          "rows": 99
+        },
+        {
+          "decile": 4,
+          "event_rate": 0.0,
+          "mean_probability": 0.0013181792828348311,
+          "rows": 98
+        },
+        {
+          "decile": 5,
+          "event_rate": 0.0,
+          "mean_probability": 0.0014663437659180561,
+          "rows": 98
+        },
+        {
+          "decile": 6,
+          "event_rate": 0.0,
+          "mean_probability": 0.0016842486586457267,
+          "rows": 99
+        },
+        {
+          "decile": 7,
+          "event_rate": 0.0,
+          "mean_probability": 0.0028742466340011177,
+          "rows": 98
+        },
+        {
+          "decile": 8,
+          "event_rate": 0.04040404040404041,
+          "mean_probability": 0.016975915359993723,
+          "rows": 99
+        },
+        {
+          "decile": 9,
+          "event_rate": 0.05102040816326531,
+          "mean_probability": 0.044787642186840115,
+          "rows": 98
+        },
+        {
+          "decile": 10,
+          "event_rate": 0.09183673469387756,
+          "mean_probability": 0.09857518154776301,
+          "rows": 98
+        }
+      ],
+      "treatment_mae": 2.638215816754635
+    }
+  ],
+  "gate": {
+    "aggregate_30_brier_improves": false,
+    "coverage_at_least_70pct_each_fold": true,
+    "passes": false
+  },
+  "identity": {
+    "base_rows": 3884,
+    "held_out_seasons": [
+      2023,
+      2024,
+      2025
+    ],
+    "supported_rows": 3830,
+    "target_weeks": [
+      5,
+      18
+    ]
+  },
+  "missingness": {
+    "fp_qb_shell_mof_grade": 54,
+    "fp_qb_shell_mz_grade": 54
+  },
+  "offense_source_run_id": "20260813T141434Z__same-season-qb-shell-fit-last-four-v1",
+  "panel": "20260810-lockfix-e80-k1-8677d21"
+}
