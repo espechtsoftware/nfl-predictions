@@ -175,9 +175,17 @@ agent or developer:
   `opp`. The shared failure is recorded by those execution IDs and is
   operational, not a model result. The helper now resolves both known schemas
   into a private join key without changing either input contract, with a
-  canonical-schema regression test. Build v2 images from the repaired commit
-  and relaunch the same still-absent write-once cache tables under distinct v2
-  execution/run IDs.
+  canonical-schema regression test. GPU build
+  `c013c82d-324c-4df7-8f69-e53754609a19` passed from repaired source
+  `fedeaa8` and produced digest
+  `sha256:b8e1520dc2f2ebc6574488c1d90226751868631297bd6861aeb8c6dd1fb77e6e`;
+  full validation build `9c9a2f56-280f-4d14-b318-a11ecdbd06c1` remains
+  running. After proving both write-once tables were still absent, the v2 pair
+  launched as control `tabpfn-sis-rb-rdef-v2-control-mzrgt` and treatment
+  `tabpfn-sis-rb-rdef-v2-treatment-smlvr`; immutable manifest is under
+  `reports/tabpfn-sis-rb-rdef-runs/20260813-tabpfn-sis-rb-rdef-v2/`.
+  Poll and harvest the v2 pair when complete, but do not launch the score-free
+  final-served gate until the full build also passes and its digest is bound.
   The outcome-blind SIS filter audit confirmed exact separate receiving
   alignment and pass-defense receiver/defender alignment controls using three
   UI query calls. The one-game feasibility decision is frozen before sample
