@@ -22,6 +22,22 @@ agent or developer:
 
 ## Current state — 2026-08-13 14:08 CDT
 
+### 2026-08-13 next SIS allocation prerequisite frozen
+
+- With G3 closed and the seed panel still running, the next independent data
+  prerequisite is frozen before any response or performance value in
+  `reports/2026-08-13-sis-team-pass-defense-schema-protocol.md`. It permits
+  exactly eight normal-UI team Pass Defense submits for 2025 Week 1: Wide and
+  Slot crossed with predeclared Man and Zone shell sets, in Totals and Value.
+  It may inspect only scope, IDs, schemas, row counts and hashes; all outcome
+  values are forbidden. The eight-call scientific plan has a hard ten-call
+  durable ceiling only for two identical operational retries. A complete
+  32-team, sub-cap, matching-identity, denominator/value schema pass licenses
+  a separately frozen PIT historical acquisition plan; a fail closes this
+  exact consumer-UI path. The retired individual-CB sample remains untouched
+  at `7/12`. Exact next action: implement and offline-test the guarded sampler
+  and outcome-blind analyzer, then commit/push before making any live Submit.
+
 ### 2026-08-13 unified Wednesday vendor/Odds workflow
 
 - Branch is `main`; the workflow, G3 result artifacts, and this durable state
