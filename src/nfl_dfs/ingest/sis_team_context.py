@@ -1,4 +1,10 @@
-"""Audited SIS team-game context intake for historical PIT features."""
+"""Audited SIS team-game defense/line intake for historical PIT features.
+
+The write-once raw table name predates its final content: this tranche contains
+team pass defense, pass rush and blocking. Team passing/rushing offense and run
+defense live in ``sis_team_run_context_game``. Keep that acquisition split
+explicit rather than renaming provenance-bound raw tables.
+"""
 
 from __future__ import annotations
 

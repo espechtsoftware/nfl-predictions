@@ -1,9 +1,14 @@
-"""Fail-closed merged intake for valid SIS tranche-2 run context.
+"""Fail-closed merged intake for valid SIS tranche-2 offense/run context.
 
 The original acquisition stopped after SIS exported team Passing Value with
 the Passing Totals schema.  This importer binds the original and recovery
 plans/states, quarantines every Passing Value artifact, and accepts only the
 five report families whose CSV schemas were independently verified.
+
+Despite the raw table's historical ``run_context`` name, its valid contents
+are team passing offense, rushing offense and run defense. Pass defense, pass
+rush and blocking live in ``sis_team_context_game``. Preserve those write-once
+names and use this map when adding consumers.
 """
 
 from __future__ import annotations

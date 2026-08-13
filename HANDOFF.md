@@ -20,7 +20,49 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 14:08 CDT
+## Current state — 2026-08-13 15:04 CDT
+
+### 2026-08-13 SIS warehouse/join audit reconciled
+
+- The operator-supplied structural review is tracked at
+  `reports/2026-08-13-sis-warehouse-and-join-audit.md`; the code/warehouse
+  reconciliation is
+  `reports/2026-08-13-sis-warehouse-and-join-audit-reconciliation.md`.
+  Outcome-free BigQuery checks independently confirm both SIS raw tables have
+  3,230 unique, non-null team-game rows, identical row sets, complete report
+  provenance, and a perfect 3,230/3,230 schedule join with matching opponent.
+  The strict-prior rolling joins are valid. No completed SIS result, baseline,
+  or production policy is invalidated.
+- Correct one claim from the source review: both SIS cache arms did compute,
+  persist and enforce active-position feature support with an 80% fold floor.
+  Exact final-served support is QB 88.85%/88.05%/88.17% and RB
+  87.06%/87.22%/87.62% in 2023/24/25. No evaluation rows were dropped and
+  these TabPFN generators pass nulls directly rather than using the cited
+  median imputer. The omission was confined to concise result prose, so the
+  registered failures remain closed and require no rerun.
+- Correct a second claim: centralized `src/nfl_dfs/features/leakage.py` has no
+  SIS-specific checks. Research helpers/tests do enforce unique keys,
+  target-week exclusion, source-week ordering, opponent direction, unchanged
+  row counts, support and source identity. If a future SIS arm passes, it must
+  still gain a schedule-spined as-of feature for both training and live
+  inference plus centralized leakage registration before production. Also
+  document the intentional season-boundary policy before the next SIS
+  consumer. The misleading raw-table content map is now explicit in both
+  ingest module docstrings. No SIS feature currently ships.
+- The first schema sampler process stopped safely after four complete Totals
+  artifacts; durable state is 5/10 requests because the first Value-view
+  transition consumed one identical-scope Submit without persisting an
+  artifact. Do not spend the remaining reserve blindly: diagnose and harden
+  subtype/view activation, then resume the same frozen eight-view sample. The
+  retired individual-CB sample remains untouched at 7/12.
+- Incumbent seed jobs remain healthy. A poll bug briefly printed the condition
+  type (`Completed`) instead of its boolean status; the fail-closed finisher
+  rejected launch and no partial result was read. At the corrected poll, ten
+  of twelve were `True`; `replay-mcseedr3-2025-457pw` and
+  `replay-mcseedr4-2023-sbf94` were still `Unknown`. Continue polling the
+  boolean status, then run
+  `scripts/cloud_finish_incumbent_seed_variance_panel.sh` only when all twelve
+  are `True`.
 
 ### 2026-08-13 next SIS allocation prerequisite frozen
 
