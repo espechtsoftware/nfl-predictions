@@ -574,6 +574,16 @@ reconciliation when their findings affect the program.
   on the unchanged incumbent, then continue the distinct G3 participation-
   conditioned allocation hierarchy around accepted finite
   `K=28.154043586960896`. Do not retune G2 or run a post-result TE-only panel.
+  Result commit `f04b93d` is pushed on `main`. Before running effective rank,
+  its output contract is being hardened from one oversized JSON log entry to
+  deterministic checksummed gzip/base64 chunks. The exact incumbent panel,
+  promoted source, 107-slate universe, 80 entries, 10,000 worlds, seven tail
+  lines, nested books and controls are frozen in
+  `reports/2026-08-13-portfolio-effective-rank-protocol.md`. Dedicated Cloud
+  launch/harvest scripts fail closed on the terminal G2 failure, immutable
+  image/code identities, complete transport and every registered report
+  invariant. Next: focused validation, commit/push, full-test Cloud Build,
+  launch the outcome-blind incumbent diagnostic, and poll/harvest it.
 - The operator-supplied alternative-frames review is retained unchanged at
   `reports/2026-08-12-alternative-analytical-frames.md` and reconciled in
   `reports/2026-08-12-alternative-analytical-frames-reconciliation.md`. The

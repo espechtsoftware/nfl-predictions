@@ -131,3 +131,9 @@ def test_main_image_contains_effective_rank_analyzer():
         encoding="utf-8")
     assert "COPY scripts/analyze_portfolio_effective_rank.py " \
         "./scripts/analyze_portfolio_effective_rank.py" in dockerfile
+    analyzer = (Path(__file__).parents[1] /
+                "scripts/analyze_portfolio_effective_rank.py").read_text(
+                    encoding="utf-8")
+    assert 'META_PREFIX = "PORTFOLIO_EFFECTIVE_RANK_META="' in analyzer
+    assert 'CHUNK_PREFIX = "PORTFOLIO_EFFECTIVE_RANK_CHUNK="' in analyzer
+    assert "encode_report_transport(report)" in analyzer

@@ -14,13 +14,17 @@ from google.cloud import storage  # noqa: E402
 
 from nfl_dfs.bq import query_df  # noqa: E402
 from nfl_dfs.config import settings  # noqa: E402
+from nfl_dfs.analysis.g1_archetype_topology import (  # noqa: E402
+    encode_report_transport,
+)
 from nfl_dfs.research.portfolio_effective_rank import (  # noqa: E402
     analyze_selected_book,
     decode_score_artifact,
 )
 
 
-PREFIX = "PORTFOLIO_EFFECTIVE_RANK_JSON="
+META_PREFIX = "PORTFOLIO_EFFECTIVE_RANK_META="
+CHUNK_PREFIX = "PORTFOLIO_EFFECTIVE_RANK_CHUNK="
 
 
 def _download(uri: str) -> bytes:
@@ -78,7 +82,10 @@ def main() -> int:
         "simulator_implied_only": True,
         "reads_realized_outcomes": False,
     }
-    print(PREFIX + json.dumps(report, separators=(",", ":"), sort_keys=True))
+    meta, chunks = encode_report_transport(report)
+    print(META_PREFIX + json.dumps(meta, separators=(",", ":"), sort_keys=True))
+    for index, chunk in enumerate(chunks):
+        print(f"{CHUNK_PREFIX}{index}/{len(chunks)}:{chunk}")
     return 0
 
 
