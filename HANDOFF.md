@@ -320,6 +320,22 @@ agent or developer:
   licensed. Close this exact two-grade last-four team-shell mechanism without
   tuning. The concise decision record is
   `reports/2026-08-13-fantasy-points-qb-shell-fit-result.md`.
+  Follow-up grain review confirms this failure does **not** validate or refute
+  the active PFR `cb_ypt_allowed_l6`, `cb_comp_rate_allowed_l6`,
+  `db_ypt_allowed_l6`, or `top_cb_out` fields. The first three are opponent
+  secondary quality at team/six-game grain; the fourth is current CB1
+  availability. The tracked grain-bound taxonomy and shell-proxy kill-list
+  seed are in
+  `reports/2026-08-13-coverage-grain-bind-and-kill-list.md`. A current-stack
+  four-cache ablation is now frozen before treatment output in
+  `reports/2026-08-13-pfr-secondary-drop-features-protocol.md`: unchanged
+  control, drop three rates, drop `top_cb_out`, and drop all, with the combined
+  branch declared now. It requires exact inherited-control reproduction and a
+  score-free aggregate active-player Brier-30 improvement before one
+  predeclared branch can reach an exact-80 tail-grid comparison. Genuine named
+  WR/CB assignment remains data-blocked rather than disproven. Exact next
+  action: implement the write-once cache generator/validator and final-served
+  evaluator without reading any treatment output.
   The outside oddsmaking proposal
   `reports/2026-08-13-oddsmaking-techniques-and-market-implied-dependence.md`
   is reconciled in

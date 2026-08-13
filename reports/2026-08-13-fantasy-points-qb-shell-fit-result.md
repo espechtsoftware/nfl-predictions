@@ -57,3 +57,9 @@ This does not invalidate the vendor's prospective QB/WR matchup tools or the
 separately scoped player-alignment/conditional receiver-allocation lead; those
 are different data and mechanisms. No lineup score was read, and the active
 production/scoring baseline remains unchanged.
+
+The same grain boundary also leaves the active PFR `cb_*` secondary-quality
+rates and `top_cb_out` unresolved. They are opponent quality/availability
+features rather than shell deployment. Their status and required ablation are
+bound explicitly in
+`reports/2026-08-13-coverage-grain-bind-and-kill-list.md`.

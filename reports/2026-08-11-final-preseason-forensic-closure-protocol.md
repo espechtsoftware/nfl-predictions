@@ -252,6 +252,16 @@ only test, data-blocked, disproven prerequisite or explicitly deferred with a
 falsifiable trigger. An empty research queue without this taxonomy is not proof
 that the preseason program was exhausted.
 
+The kill list and exhaustion certificate are grain-bound. Every coverage entry
+must name its source construct, player/defender/team grain, lookback, matchup
+crossing, model location and gate. Seed them from
+`reports/2026-08-13-coverage-grain-bind-and-kill-list.md`: historical team-shell
+proxies may be closed while PFR secondary quality, `top_cb_out`, prospective
+vendor matchup grades and named WR/CB assignment retain separate dispositions.
+The final closure cannot silently call an active production feature validated
+because an adjacent construct failed. The frozen PFR `DROP_FEATURES` obligation
+must be terminal or explicitly deferred with a prospective falsifier.
+
 Each opportunity-register row must include layer, mechanism, evidence class,
 support, effect and interval, expected tail-threshold value, identifiable dollar
 value/range, required data, point-in-time availability, implementation/cloud
