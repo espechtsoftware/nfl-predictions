@@ -298,9 +298,12 @@ forensic outcome query:
    leave-one-season-out and influential-week sensitivity. It is a diagnostic,
    never a retroactive or extrapolation-only adoption gate.
 2. Per-slate covariance- and correlation-participation ratios, eigenvalue
-   concentration, tail-event overlap and nested 20/40/80 marginal diversity
-   from the checksummed candidate-by-world score artifacts. Label the results
-   model-implied and repeat them for any selected dependence law.
+   concentration, first-PC-deflated spectra, tail-event counts/overlap and
+   nested 20/40/80 marginal diversity from the checksummed
+   candidate-by-world score artifacts. Include same-world top-mean and twenty
+   deterministic random-book controls. Label the results model-implied and
+   likely optimistic rather than a formal bound, and repeat them for any
+   selected dependence law.
 3. Slate-relative rank diagnostics by position and salary-relevant strata:
    Spearman, top-tail average precision, preregistered NDCG and whether each
    treatment changed the actual ordering used by construction.
@@ -318,3 +321,9 @@ forensic outcome query:
 
 These additions remain subject to the protocol's no-historical-promotion rule.
 They may size and rank the prospective 2026 charter, not revive an arm.
+For a future G2 book, freeze independent selection and measurement world halves
+or independent seeded world books before generation; same-world controls alone
+do not remove selector in-sample bias. In a future not-yet-frozen exact-80
+protocol, a stable valid EVT result that materially contradicts an empirical
+grid pass triggers mandatory disclosure and an explicit operator production
+decision, not an automatic veto or a new promotion path.

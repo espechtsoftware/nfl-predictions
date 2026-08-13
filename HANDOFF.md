@@ -419,6 +419,21 @@ reconciliation when their findings affect the program.
   pass. Do not execute or interpret it scientifically until the final
   dependence law is known; then run it on the incumbent and any passing G2
   treatment from an immutable validated image.
+- The follow-up implementation review
+  `reports/2026-08-12-effective-rank-implementation-review.md` is reconciled in
+  `reports/2026-08-12-effective-rank-implementation-review-reconciliation.md`.
+  Before any scientific run, effective-rank tooling now also reports exact
+  first-PC-deflated spectra, same-pool top-simulated-mean and twenty
+  deterministic random-book controls, and raw tail event/pair support counts.
+  Deflated correlation rank is the conditional-diversity headline; raw rank
+  remains visible. The current result is labelled likely optimistic under the
+  measured QB-receiver miss, not a formal bound. Same-world controls remain
+  in-sample; any future G2 exact-80 protocol must freeze independent
+  selection/evaluation worlds for an out-of-world claim. A stable valid EVT
+  diagnostic that contradicts a future empirical-grid pass requires explicit
+  operator production review, but cannot promote a grid failure or silently
+  veto/retune an arm. Five effective-rank tests and the active-usage/G1 suites
+  pass 17/17; no outcome column has been queried and no panel has been analyzed.
 
 ### Critical pre-launch PIT repair — stale active-label caches blocked
 

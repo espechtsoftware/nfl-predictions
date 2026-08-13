@@ -58,15 +58,25 @@ artifact rows and report:
 - covariance participation ratio `(sum(lambda))^2 / sum(lambda^2)`;
 - the same measure on the correlation matrix so unequal lineup variances do
   not dominate the answer;
+- both raw spectra and the spectra after projecting out the covariance
+  matrix's leading principal component, with deflated correlation rank as the
+  conditional-diversity headline;
 - variance share of the first five eigenvectors and their identifiable
   player/game/stack loadings;
 - pairwise joint exceedance and overlap of covered worlds at the frozen tail
   lines; and
 - marginal effective-rank/tail-coverage gain in nested 20, 40 and 80 books.
 
+Also report the same-world top-80-by-simulated-mean book and twenty
+deterministic random-80 books, and raw event counts beside every tail ratio.
+These controls expose selector-versus-pool structure but remain in-sample. A
+future G2 protocol must use independent selection/evaluation world halves or
+independent seeded books for a clean out-of-world claim.
+
 Run this first on the final incumbent and then on any passing G2 book. It is
 descriptive under the current dependence law, not evidence that the real-world
-book contains the same number of independent bets.
+book contains the same number of independent bets. G0/G1 make the current rank
+likely optimistic, but not a formal mathematical upper bound.
 
 ## A3/A4 — variance and inverse-belief forensics
 
@@ -125,4 +135,3 @@ cannot set 2026 entry volume until a prospective falsification rule is frozen.
    `H/P/C/S` decomposition identifies the dominant layer.
 6. Route only stable pre-lock slate-regime findings into a prospective 2026
    entry-allocation rule.
-

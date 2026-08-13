@@ -46,7 +46,7 @@ def main() -> int:
     rows = query_df(
         f"""
         SELECT panel_run_id, season, week, cand_ix, players, selected,
-               selected_rank, n_worlds, tail_line,
+               selected_rank, n_worlds, tail_line, sim_mean,
                score_artifact_uri, score_artifact_sha256
         FROM `{table}`
         WHERE panel_run_id = @panel {eligible}
@@ -84,4 +84,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

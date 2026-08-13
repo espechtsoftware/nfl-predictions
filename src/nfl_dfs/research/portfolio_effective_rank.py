@@ -18,6 +18,8 @@ import pandas as pd
 
 DEFAULT_LINES = (187.0, 194.0, 200.0, 210.0, 220.0, 230.0, 240.0)
 DEFAULT_BOOK_SIZES = (20, 40, 80)
+RANDOM_CONTROL_BOOKS = 20
+RANDOM_CONTROL_SEED = 20260812
 REQUIRED_ARTIFACT_MEMBERS = frozenset({"cand_ix", "totals", "tail_line"})
 
 
@@ -102,6 +104,15 @@ def _tail_metrics(matrix: np.ndarray, line: float) -> dict:
     expected_joint = float(independent.sum())
     return {
         "line": float(line),
+        "worlds": int(n_worlds),
+        "entry_events": int(events.sum()),
+        "worlds_with_any_event": int((multiplicity >= 1).sum()),
+        "worlds_with_ge_2_entries": int((multiplicity >= 2).sum()),
+        "worlds_with_ge_3_entries": int((multiplicity >= 3).sum()),
+        "pair_cells": int(len(joint_values)),
+        "pair_joint_events": int(np.rint(joint_values.sum() * n_worlds)),
+        "pair_cells_with_joint_event": int((joint_values > 0).sum()),
+        "pair_cells_with_union_event": int(valid_jaccard.sum()),
         "entry_rate_mean": float(rates.mean()),
         "entry_rate_min": float(rates.min()),
         "entry_rate_max": float(rates.max()),
@@ -119,6 +130,108 @@ def _tail_metrics(matrix: np.ndarray, line: float) -> dict:
         "pair_jaccard_median": (
             float(np.median(jaccard[valid_jaccard]))
             if valid_jaccard.any() else None),
+    }
+
+
+def _deflate_first_pc(matrix: np.ndarray, leading: np.ndarray) -> np.ndarray:
+    centered = matrix - matrix.mean(axis=1, keepdims=True)
+    return centered - np.outer(leading, leading @ centered)
+
+
+def _public_spectrum(value: dict) -> tuple[dict, np.ndarray]:
+    value = dict(value)
+    leading = np.asarray(value.pop("leading_eigenvector"), dtype=float)
+    return value, leading
+
+
+def _deflated_spectra(matrix: np.ndarray, leading: np.ndarray) -> dict:
+    residual = _deflate_first_pc(matrix, leading)
+    tolerance = np.finfo(float).eps * max(1.0, float(np.square(matrix).mean()))
+    if float(np.square(residual).mean()) <= tolerance:
+        return {
+            "status": "degenerate-after-first-pc",
+            "covariance": None,
+            "correlation": None,
+        }
+    covariance, _ = _public_spectrum(_spectrum(residual, correlation=False))
+    try:
+        correlation, _ = _public_spectrum(_spectrum(residual, correlation=True))
+        status = "valid"
+    except ValueError as exc:
+        correlation = None
+        status = f"correlation-unavailable: {exc}"
+    return {
+        "status": status,
+        "covariance": covariance,
+        "correlation": correlation,
+    }
+
+
+def _book_metrics(matrix: np.ndarray, lines: Iterable[float]) -> tuple[dict, np.ndarray]:
+    covariance, leading = _public_spectrum(
+        _spectrum(matrix, correlation=False))
+    correlation, _ = _public_spectrum(_spectrum(matrix, correlation=True))
+    return {
+        "covariance": covariance,
+        "correlation": correlation,
+        "after_first_pc_deflation": _deflated_spectra(matrix, leading),
+        "tails": [_tail_metrics(matrix, float(line)) for line in lines],
+    }, leading
+
+
+def _numeric_summary(values: list[float]) -> dict:
+    array = np.asarray(values, dtype=float)
+    if not len(array) or not np.isfinite(array).all():
+        raise ValueError("random-control summary contains invalid values")
+    return {
+        "mean": float(array.mean()),
+        "p10": float(np.quantile(array, 0.10)),
+        "median": float(np.median(array)),
+        "p90": float(np.quantile(array, 0.90)),
+        "min": float(array.min()),
+        "max": float(array.max()),
+    }
+
+
+def _random_control_summary(
+    totals: np.ndarray,
+    *,
+    entries: int,
+    lines: tuple[float, ...],
+    season: int,
+    week: int,
+    count: int = RANDOM_CONTROL_BOOKS,
+) -> dict:
+    seed = np.random.SeedSequence([RANDOM_CONTROL_SEED, season, week])
+    rng = np.random.default_rng(seed)
+    covariance_pr: list[float] = []
+    correlation_pr: list[float] = []
+    deflated_correlation_pr: list[float] = []
+    coverage = {line: [] for line in lines}
+    for _ in range(count):
+        indices = rng.choice(totals.shape[0], size=entries, replace=False)
+        matrix = totals[indices]
+        metrics, _ = _book_metrics(matrix, ())
+        covariance_pr.append(metrics["covariance"]["participation_ratio"])
+        correlation_pr.append(metrics["correlation"]["participation_ratio"])
+        deflated = metrics["after_first_pc_deflation"]["correlation"]
+        if deflated is not None:
+            deflated_correlation_pr.append(deflated["participation_ratio"])
+        for line in lines:
+            coverage[line].append(float((matrix >= line).any(axis=0).mean()))
+    return {
+        "books": int(count),
+        "base_seed": RANDOM_CONTROL_SEED,
+        "seed_components": [RANDOM_CONTROL_SEED, int(season), int(week)],
+        "covariance_participation_ratio": _numeric_summary(covariance_pr),
+        "correlation_participation_ratio": _numeric_summary(correlation_pr),
+        "deflated_correlation_participation_ratio": (
+            _numeric_summary(deflated_correlation_pr)
+            if deflated_correlation_pr else None),
+        "covered_world_rate": {
+            f"{line:g}": _numeric_summary(values)
+            for line, values in coverage.items()
+        },
     }
 
 
@@ -153,7 +266,7 @@ def analyze_selected_book(
     """Describe one slate's exact selected book without realized outcomes."""
     required = {
         "season", "week", "cand_ix", "players", "selected", "selected_rank",
-        "n_worlds", "tail_line",
+        "n_worlds", "tail_line", "sim_mean",
     }
     missing = required - set(rows.columns)
     if missing:
@@ -173,6 +286,10 @@ def analyze_selected_book(
     if not np.array_equal(
             ordered_all.cand_ix.astype(int).to_numpy(), artifact_ix):
         raise ValueError("candidate rows are not the artifact universe")
+    sim_mean = pd.to_numeric(ordered_all.sim_mean, errors="raise").to_numpy()
+    if not np.isfinite(sim_mean).all() or not np.allclose(
+            sim_mean, totals.mean(axis=1), rtol=0.0, atol=1e-3):
+        raise ValueError("candidate sim_mean differs from the score artifact")
     n_worlds = pd.to_numeric(rows.n_worlds, errors="raise").astype(int)
     if n_worlds.nunique() != 1 or int(n_worlds.iloc[0]) != totals.shape[1]:
         raise ValueError("candidate n_worlds differs from the artifact")
@@ -184,27 +301,23 @@ def analyze_selected_book(
         raise ValueError("selected ranks are not complete and zero-based")
     selected_ix = selected.cand_ix.astype(int).to_numpy()
     selected_totals = totals[selected_ix]
-    covariance = _spectrum(selected_totals, correlation=False)
-    correlation = _spectrum(selected_totals, correlation=True)
-    leading = np.asarray(covariance.pop("leading_eigenvector"))
-    correlation.pop("leading_eigenvector")
+    line_values = tuple(float(line) for line in lines)
+    selected_metrics, leading = _book_metrics(selected_totals, line_values)
 
     nested: dict[str, dict] = {}
     for size in sorted(set(int(value) for value in book_sizes)):
         if size < 2 or size > len(selected):
             continue
         matrix = selected_totals[:size]
-        cov = _spectrum(matrix, correlation=False)
-        corr = _spectrum(matrix, correlation=True)
-        cov.pop("leading_eigenvector")
-        corr.pop("leading_eigenvector")
-        nested[str(size)] = {
-            "covariance": cov,
-            "correlation": corr,
-            "tails": [
-                _tail_metrics(matrix, float(line)) for line in lines
-            ],
-        }
+        nested[str(size)], _ = _book_metrics(matrix, line_values)
+
+    entries = len(selected)
+    if len(rows) < entries:
+        raise ValueError("candidate pool is smaller than the selected book")
+    top_mean_ix = (ordered_all.sort_values(
+        ["sim_mean", "cand_ix"], ascending=[False, True])
+        .head(entries).cand_ix.astype(int).to_numpy())
+    top_mean_metrics, _ = _book_metrics(totals[top_mean_ix], line_values)
 
     return {
         "season": int(rows.season.iloc[0]),
@@ -213,8 +326,10 @@ def analyze_selected_book(
         "selected_entries": int(len(selected)),
         "worlds": int(totals.shape[1]),
         "simulator_implied_only": True,
-        "covariance": covariance,
-        "correlation": correlation,
+        "expected_bias": (
+            "likely optimistic effective rank while QB-receiver upper-tail "
+            "dependence is under-modelled; not a formal bound"),
+        **selected_metrics,
         "leading_factor_top_entries": [
             {
                 "selected_rank": int(selected.iloc[ix].selected_rank),
@@ -225,5 +340,17 @@ def analyze_selected_book(
         ],
         "leading_factor_top_players": _player_loadings(selected, leading),
         "nested_books": nested,
+        "same_world_controls": {
+            "interpretation": (
+                "All controls remain in-sample because selection consumed "
+                "the same worlds; they isolate selector versus pool structure."),
+            "top_sim_mean": top_mean_metrics,
+            "random_books": _random_control_summary(
+                totals,
+                entries=entries,
+                lines=line_values,
+                season=int(rows.season.iloc[0]),
+                week=int(rows.week.iloc[0]),
+            ),
+        },
     }
-
