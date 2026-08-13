@@ -16,6 +16,7 @@ venv/
 # Licensed vendor exports are local inputs and must never be committed.
 /fantasy-points/
 /sis-trial/
+/sis/
 .env
 .DS_Store
 notebooks/.ipynb_checkpoints/

@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 03:02 CDT
+## Current state — 2026-08-13 03:12 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -82,6 +82,15 @@ reconciliation when their findings affect the program.
   CoverageIQ alternative was also found, but its published terms explicitly
   forbid automated extraction and ML/AI ingestion, so it is not a model data
   source.
+  The operator started the combined trial and supplied the first raw export at
+  `sis/2025-pass-defense.csv`; `/sis/` is now root-gitignored. Audit report
+  `reports/2026-08-13-sis-first-export-audit.md` records its hash and schema
+  without committing vendor rows. The CSV confirms useful defender volume and
+  outcome fields but is only the 20-row trial cap, has broken literal Rank
+  values, lacks week/game/opponent/stable ID, and still contains season totals
+  (`Games=12..17`) despite the visible Split-by-Game check. Exact next user
+  smoke: 2025 Week 1--1, Split by Game, press Submit, verify rendered
+  `Games=1`, then download `sis/2025-week01-pass-defense-all.csv`.
 - Incumbent effective-rank v2 completed cleanly in execution
   `portfolio-effective-rank-v2-pbxps`, image
   `sha256:450f22cbdae94e23c8322330fe3f445d256cd82dbfc96ca086593a0f80eee90e`,

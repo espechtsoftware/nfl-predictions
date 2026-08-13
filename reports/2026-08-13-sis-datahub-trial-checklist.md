@@ -84,6 +84,14 @@ The official FAQ says trial leaderboards return only 20 rows. That is enough
 to inspect the file and feature schema, but not enough to run a historical
 arm. Do not work around a trial limit by scraping or account manipulation.
 
+The first Pass Defense export is audited in
+`reports/2026-08-13-sis-first-export-audit.md`. It confirmed the 20-row cap
+and useful coverage-opportunity columns, but returned full-season aggregates,
+no week/game/opponent or stable ID, and a broken `[object Object]` Rank field
+despite the visible Split-by-Game check. The next required smoke is a 2025
+Week-1-only query after explicitly pressing Submit and verifying `Games=1`
+before download.
+
 ## Acceptance checks for each CSV
 
 - Season and selected week range are present or can be encoded unambiguously.
