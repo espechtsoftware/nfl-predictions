@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 03:00 CDT
+## Current state — 2026-08-13 03:02 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -109,9 +109,11 @@ reconciliation when their findings affect the program.
   allows maximum mean drift `1e-10`. No treatment or scientific metric ran.
   The transport-neutral fix leaves actual outcomes exact and delegates mean
   checking to the registered tolerance, with a regression test. Exact next
-  action: commit/push the fix, run a replacement full-test Cloud Build, launch
+  action: wait for replacement full-test Cloud Build
+  `bf133686-f4e2-48e2-a766-480220f3b4e3` from pushed repair/source commit
+  `55451fb` to finish, then launch
   `scripts/cloud_td_ledger_final_served.sh` from its immutable digest, harvest
-  only after clean completion, then apply the frozen gate without querying
+  only after clean completion, and apply the frozen gate without querying
   lineup scores.
 
 ### 2026-08-12 team-passing review reconciliation
