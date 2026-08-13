@@ -1,0 +1,16 @@
+2026-08-13T15:55:58.416563Z		2026-08-13 15:55:58,415 nfl_dfs.models.simulate INFO simulation components raw_sha256=457455015e61d2deb820568100f71be0bae90750ef8ed2e2a3500fa7cf1fffd1 stable_sha256=f3ee450907bdbc3d0fa7244c7613c1a05b8e281ccc0d8e8c2a54bb7d6e480c04 decimals=10 max_adjustment=5e-11
+2026-08-13T15:57:24.347324Z		2026-08-13 15:57:24,346 nfl_dfs.backtest.replay INFO tabpfn marginals: 9641/9641 rows mapped from tabpfn_pfr_secondary_control_v1
+2026-08-13T15:57:24.948514Z	ERROR	Traceback (most recent call last):
+  File "/usr/local/bin/nfl-dfs", line 8, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/nfl_dfs/cli.py", line 887, in main
+    tabpfn_pfr_secondary_final_served.run(args.panel)
+  File "/usr/local/lib/python3.11/site-packages/nfl_dfs/analysis/tabpfn_pfr_secondary_final_served.py", line 228, in run
+    frame, aligned, arm_parity = calibration._align_arm(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/nfl_dfs/analysis/route_final_served_calibration.py", line 309, in _align_arm
+    raise ValueError("Route control post-shaper mean differs")
+ValueError: Route control post-shaper mean differs
+2026-08-13T15:57:25.284855Z	WARNING	Container called exit(1).
+2026-08-13T15:57:29.331845Z	ERROR

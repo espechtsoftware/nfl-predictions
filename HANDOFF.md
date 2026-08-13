@@ -389,6 +389,18 @@ agent or developer:
   `scripts/cloud_finish_tabpfn_pfr_secondary_final_served.sh`, then follow its
   frozen branch-selection result. No eligible arm means close/retain; exactly
   the machine-selected eligible arm licenses one exact-80 comparison.
+  That execution failed before any structured report or treatment replay:
+  the added no-drop assertion compared active-only forecasts to the pre-
+  adoption source panel and raised `Route control post-shaper mean differs` in
+  the 2022 control fold. The accepted active-label evaluator records that
+  panel parity as intentionally false; the valid cache-level identity already
+  passed bit-for-bit. Failure provenance is retained in `invalid_raw_log.txt`,
+  and the outcome-blind narrow repair is frozen in
+  `reports/2026-08-13-pfr-secondary-control-parity-repair.md`: restore the
+  accepted evaluator's `require_control_parity=false` while preserving every
+  arm, row, forecast gate and branch rule. Exact next action: full-test/build
+  a new immutable repair image and launch exactly one repair execution using
+  the same validated caches, without reading partial output.
   The outside oddsmaking proposal
   `reports/2026-08-13-oddsmaking-techniques-and-market-implied-dependence.md`
   is reconciled in

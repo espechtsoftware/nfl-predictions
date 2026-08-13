@@ -7,7 +7,7 @@ REGION=us-central1
 RUN_ID=20260813-tabpfn-pfr-secondary-final-served-v1
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$ROOT/reports/tabpfn-pfr-secondary-runs/$RUN_ID"
-EXEC=$(cat "$OUT/execution.txt")
+EXEC=$(cat "$OUT/repair_execution.txt")
 [ -n "$EXEC" ] || { echo "ABORT: PFR gate execution missing"; exit 2; }
 [ ! -e "$OUT/report.json" ] || {
   echo "ABORT: immutable PFR report already exists"; exit 2; }

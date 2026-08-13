@@ -11,7 +11,7 @@ RUN_ID=20260813-tabpfn-pfr-secondary-final-served-v1
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$ROOT/reports/tabpfn-pfr-secondary-runs/$RUN_ID"
 PROTOCOL="$ROOT/reports/2026-08-13-pfr-secondary-drop-features-protocol.md"
-PARITY_ADDENDUM="$ROOT/reports/2026-08-13-pfr-secondary-control-parity-addendum.md"
+PARITY_REPAIR="$ROOT/reports/2026-08-13-pfr-secondary-control-parity-repair.md"
 ACTIVE="$ROOT/reports/tabpfn-active-label-runs/20260812-active-label-exact80-v2-pit-clean/selected_active_label.txt"
 USAGE="$ROOT/reports/usage-dirichlet-calibration-runs/20260812-usage-exact80-v2-pit-clean/selected_usage.txt"
 CACHE="$ROOT/reports/tabpfn-pfr-secondary-runs/20260813-tabpfn-pfr-secondary-v1/validation.json"
@@ -21,11 +21,13 @@ case "$CODE_SHA" in
   [0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]*) ;;
   *) echo "ABORT: immutable code SHA required"; exit 2;;
 esac
-for path in "$PROTOCOL" "$PARITY_ADDENDUM" "$ACTIVE" "$USAGE" "$CACHE"; do
+for path in "$PROTOCOL" "$PARITY_REPAIR" "$ACTIVE" "$USAGE" "$CACHE"; do
   [ -s "$path" ] || { echo "ABORT: prerequisite missing: $path"; exit 2; }
 done
-[ ! -e "$OUT/execution.txt" ] || {
-  echo "ABORT: immutable PFR final-served gate already recorded"; exit 2; }
+[ ! -e "$OUT/repair_execution.txt" ] || {
+  echo "ABORT: immutable PFR repair execution already recorded"; exit 2; }
+[ -s "$OUT/execution.txt" ] && [ -s "$OUT/invalid_raw_log.txt" ] || {
+  echo "ABORT: failed original execution provenance is incomplete"; exit 2; }
 
 read -r PANEL DIRICHLET_K <<< "$(
   "$ROOT/.venv/bin/python" - "$ACTIVE" "$USAGE" "$CACHE" <<'PY'
@@ -57,7 +59,7 @@ mkdir -p "$OUT"
 printf '%s\n' \
   "run_id=$RUN_ID" "image=$IMG" "code_sha=$CODE_SHA" "panel=$PANEL" \
   "protocol_sha256=$(sha256sum "$PROTOCOL" | awk '{print $1}')" \
-  "parity_addendum_sha256=$(sha256sum "$PARITY_ADDENDUM" | awk '{print $1}')" \
+  "parity_repair_sha256=$(sha256sum "$PARITY_REPAIR" | awk '{print $1}')" \
   "active_selection_sha256=$(sha256sum "$ACTIVE" | awk '{print $1}')" \
   "usage_selection_sha256=$(sha256sum "$USAGE" | awk '{print $1}')" \
   "cache_validation_sha256=$(sha256sum "$CACHE" | awk '{print $1}')" \
@@ -68,7 +70,7 @@ printf '%s\n' \
   'branch_choice=lowest-unrounded-brier-then-drop_rates-drop_top_cb-drop_all' \
   'calibration_fold=2022' 'evaluation_folds=2023 2024 2025' \
   'position_factor_grid=0.750:0.005:1.500' 'n_sims=10000' 'seed=0' \
-  'blend_model_weight=0.45' > "$OUT/manifest.txt"
+  'blend_model_weight=0.45' > "$OUT/repair_manifest.txt"
 
 ENVS="GCP_PROJECT=$PROJECT,MODEL_ENSEMBLE=1,TABPFN_PFR_SECONDARY_PANEL_ID=$PANEL"
 ENVS="$ENVS,TABPFN_ACCEPTED_USAGE_LAW=dirichlet"
@@ -88,5 +90,5 @@ DEPLOYED=$(gcloud run jobs describe "$JOB" --project "$PROJECT" \
 EXEC=$(gcloud run jobs execute "$JOB" --project "$PROJECT" --region "$REGION" \
   --async --format='value(metadata.name)')
 [ -n "$EXEC" ] || { echo "ABORT: PFR gate execution missing"; exit 1; }
-printf '%s\n' "$EXEC" > "$OUT/execution.txt"
-echo "TABPFN_PFR_SECONDARY_FINAL_SERVED_LAUNCHED $EXEC"
+printf '%s\n' "$EXEC" > "$OUT/repair_execution.txt"
+echo "TABPFN_PFR_SECONDARY_FINAL_SERVED_REPAIR_LAUNCHED $EXEC"
