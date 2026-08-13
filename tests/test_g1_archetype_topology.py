@@ -1,4 +1,5 @@
 from pathlib import Path
+from hashlib import sha256
 
 import numpy as np
 import pandas as pd
@@ -182,6 +183,29 @@ def test_g1_cli_is_registered():
     assert "selected_sched.txt" in launch
     assert "selected_usage.txt" in launch
     assert "WRITE_" not in launch
-    assert "G1_ARCHETYPE_TOPOLOGY_JSON=" in finish
+    assert "G1_ARCHETYPE_TOPOLOGY_META=" in finish
+    assert "G1_ARCHETYPE_TOPOLOGY_CHUNK=" in finish
     assert "archetype_labels.csv.gz" in finish
     assert "immutable G1 report already exists" in finish
+
+
+def test_g1_report_transport_round_trip_and_chunks_below_log_limit():
+    report = {
+        "version": "v1",
+        "large": {
+            str(index): sha256(str(index).encode()).hexdigest()
+            for index in range(5_000)
+        },
+    }
+    meta, chunks = g1.encode_report_transport(report)
+    assert len(chunks) > 1
+    assert all(len(chunk) <= 48_000 for chunk in chunks)
+    assert g1.decode_report_transport(meta, chunks) == report
+    broken = chunks.copy()
+    broken[0] = "!" + broken[0][1:]
+    try:
+        g1.decode_report_transport(meta, broken)
+    except ValueError as exc:
+        assert "invalid" in str(exc)
+    else:
+        raise AssertionError("corrupt G1 transport unexpectedly decoded")

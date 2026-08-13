@@ -7,7 +7,7 @@ IMG=${1:-}
 CODE_SHA=${2:-}
 PROJECT=nfl-predictions-503414
 REGION=us-central1
-RUN_ID=20260812-g1-archetype-topology-v2
+RUN_ID=20260812-g1-archetype-topology-v3
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$ROOT/reports/g1-topology-runs/$RUN_ID"
 PROTOCOL="$ROOT/reports/2026-08-12-g1-walk-forward-archetype-topology-protocol.md"
@@ -118,7 +118,7 @@ if [ "${resolved[accepted_usage]}" = dirichlet ]; then
   ENVS="$ENVS,TABPFN_ACCEPTED_DIRICHLET_K=${resolved[accepted_k]}"
   ENVS="$ENVS,GAME_SIM_USAGE=dirichlet,DIRICHLET_K=${resolved[accepted_k]}"
 fi
-JOB=g1-archetype-topology-v2
+JOB=g1-archetype-topology-v3
 gcloud run jobs deploy "$JOB" --project "$PROJECT" --region "$REGION" \
   --image "$IMG" --command nfl-dfs \
   --args "g1-archetype-topology,--panel,${resolved[panel]}" \

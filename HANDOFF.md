@@ -348,12 +348,26 @@ reconciliation when their findings affect the program.
   `fa42c975-7d5f-42d8-af03-a565d2ba8da4` passed the full suite from source
   `a58cd61` and produced immutable digest
   `sha256:80c7289b1399c65899ecd81b2485643aebdddd7f6486e00dcf20243c7440e1f4`.
-  The sole replacement execution `g1-archetype-topology-v2-fqbh6` is running
-  from that digest; its manifest and cache preflight are tracked under
-  `reports/g1-topology-runs/20260812-g1-archetype-topology-v2/`. Wait for its
-  terminal status without inspecting partial result metrics, then run
-  `scripts/cloud_finish_g1_archetype_topology.sh` and apply the frozen G2
-  license. The v1 ambiguous-QB execution remains invalid pre-G1-metric.
+  Replacement execution `g1-archetype-topology-v2-fqbh6` completed its
+  computation, but its single JSON text payload was truncated by Cloud
+  Logging at exactly 102,400 bytes. No complete report, broad QB-WR/QB-TE
+  result, disposition or G2 license is recoverable, so v2 is an invalid
+  post-compute transport execution. Diagnosing it exposed only one incomplete
+  unsupported cross-game cell fragment; that observer deviation is recorded
+  and cannot enter a gate. The protocol's transport-only addendum now fixes a
+  deterministic gzip/base64 manifest plus indexed 48,000-character chunks;
+  the harvester requires every chunk and compressed/JSON checksum. Twelve
+  focused G1/revalidation tests pass. Commit/build this exact v3 transport
+  repair and launch the sole v3 replacement without changing any scientific
+  calculation. The v1 ambiguous-QB execution remains invalid pre-G1-metric.
+- The active-only usage revalidation multinomial preflight is immutable
+  execution `replay-pitactusemult-smoke-jbrgl` on generation digest `ad50...`.
+  It was still running at this milestone; `executions.txt` remains empty until
+  the smoke passes and the launcher releases all 2023--2025 controls. The
+  original launcher process remains resumable; after interruption, inspect the
+  smoke, then allow the same driver to continue. Do not inspect panel scores
+  before all three registered season controls finish and the comparator is
+  built from the frozen revalidation code.
 
 ### Critical pre-launch PIT repair — stale active-label caches blocked
 

@@ -22,7 +22,9 @@ from . import archetypes
 from . import final_served_dependence as g0
 
 
-OUTPUT_PREFIX = "G1_ARCHETYPE_TOPOLOGY_JSON="
+OUTPUT_META_PREFIX = "G1_ARCHETYPE_TOPOLOGY_META="
+OUTPUT_CHUNK_PREFIX = "G1_ARCHETYPE_TOPOLOGY_CHUNK="
+REPORT_CHUNK_CHARS = 48_000
 EVALUATION_SEASONS = (2023, 2024, 2025)
 HISTORY_SEASONS = (2019, 2021, 2022, 2023, 2024)
 POSITIONS = ("QB", "RB", "WR", "TE")
@@ -44,6 +46,46 @@ COUNT_COLUMNS = (
     "actual_n00", "actual_n01", "actual_n10", "actual_n11",
     "sim_n00", "sim_n01", "sim_n10", "sim_n11",
 )
+
+
+def encode_report_transport(report: dict) -> tuple[dict, list[str]]:
+    """Compress and chunk a report below Cloud Logging's entry limit."""
+    content = json.dumps(
+        report, sort_keys=True, allow_nan=False,
+        separators=(",", ":")).encode()
+    compressed = gzip.compress(content, mtime=0)
+    encoded = base64.b64encode(compressed).decode("ascii")
+    chunks = [
+        encoded[start:start + REPORT_CHUNK_CHARS]
+        for start in range(0, len(encoded), REPORT_CHUNK_CHARS)
+    ]
+    meta = {
+        "version": "v1",
+        "chunks": len(chunks),
+        "json_bytes": len(content),
+        "json_sha256": sha256(content).hexdigest(),
+        "gzip_bytes": len(compressed),
+        "gzip_sha256": sha256(compressed).hexdigest(),
+    }
+    return meta, chunks
+
+
+def decode_report_transport(meta: dict, chunks: list[str]) -> dict:
+    """Strict inverse used by tests and transport-aware harvesters."""
+    if meta.get("version") != "v1" or meta.get("chunks") != len(chunks):
+        raise ValueError("G1 report transport metadata differs")
+    try:
+        compressed = base64.b64decode("".join(chunks), validate=True)
+        content = gzip.decompress(compressed)
+    except Exception as exc:
+        raise ValueError("G1 report transport payload is invalid") from exc
+    if len(compressed) != meta.get("gzip_bytes") or \
+            sha256(compressed).hexdigest() != meta.get("gzip_sha256"):
+        raise ValueError("G1 report compressed identity differs")
+    if len(content) != meta.get("json_bytes") or \
+            sha256(content).hexdigest() != meta.get("json_sha256"):
+        raise ValueError("G1 report JSON identity differs")
+    return json.loads(content)
 
 
 def fit_walk_forward_archetypes(
@@ -819,5 +861,11 @@ def run(panel_id: str) -> dict:
         "invariants": terminal_invariants,
         **decision,
     }
-    print(OUTPUT_PREFIX + json.dumps(report, sort_keys=True, allow_nan=False))
+    meta, chunks = encode_report_transport(report)
+    print(OUTPUT_META_PREFIX + json.dumps(meta, sort_keys=True), flush=True)
+    for index, chunk in enumerate(chunks):
+        print(
+            f"{OUTPUT_CHUNK_PREFIX}{index}/{len(chunks)}:{chunk}",
+            flush=True,
+        )
     return report

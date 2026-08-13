@@ -1,0 +1,8 @@
+classification=invalid-post-compute-transport-failure
+execution=g1-archetype-topology-v2-fqbh6
+execution_status=success
+scientific_result_available=false
+raw_log_bytes=102400
+failure=Cloud Logging truncated the single G1 JSON textPayload at its entry limit
+observer_deviation=diagnostic inspection exposed only one truncated unsupported QB_XGAME_WR archetype-cell fragment; no broad QB_WR/QB_TE result, stable-hub disposition, G2 license, or complete G1 report was visible
+repair=compress the identical complete JSON and split it into checksummed sub-limit log entries; change no data, metric, archetype, threshold, bootstrap, decision, or gate

@@ -162,3 +162,20 @@ No threshold, cluster count, fallback label, pair class, cross-game matching
 rule, pseudocount, support minimum, bootstrap setting, band or G2 decision may
 change after the first G1 target-season metric is visible. Any later
 sensitivity is exploratory and cannot license G2.
+
+## Transport-only operational addendum
+
+Execution `g1-archetype-topology-v2-fqbh6` completed its computation, but its
+single JSON log entry exceeded Cloud Logging's per-entry transport limit and
+was truncated at 102,400 bytes. No complete report, broad QB-WR/QB-TE result,
+stable-hub disposition or G2 license could be recovered. Diagnosing the
+truncation exposed only one incomplete unsupported cross-game archetype-cell
+fragment; it cannot enter any gate.
+
+The sole v3 repair serializes the identical report, gzip-compresses it
+deterministically, base64-encodes it, and emits a checksummed manifest plus
+48,000-character indexed chunks. The harvester requires every chunk and both
+compressed/JSON hashes before parsing. It changes no query, population, draw,
+pair, archetype, support rule, estimate, bootstrap, topology, decision or gate.
+V2 remains an invalid post-compute transport execution, not a scientific
+result.
