@@ -499,6 +499,22 @@ reconciliation when their findings affect the program.
   `reports/g2-qb-gumbel-runs/20260812-g2-qb-gumbel-factor-v1/`. Poll this exact
   execution without reading partial scientific output, then harvest only a
   clean terminal result.
+  V1 later terminated after 37m55s because its configured 16 GiB memory limit
+  was reached while beginning held-out reconstruction. It emitted zero G2
+  scientific prefixes, so no calibration cell, selected theta, held-out
+  metric, disposition or license was observed. The execution is preserved as
+  `invalid-operational-memory-limit` in its run folder. Before any replacement
+  output, the operational addendum now requires v2 to checksummed-chunk and
+  persist the complete 81-cell calibration artifact before held-out loading;
+  the harvester must prove exact equality with the terminal fit section. Code
+  releases calibration matrices before held-out reconstruction and v2 uses
+  32 GiB. No scientific rule/data/seed/grid/gate changed. Next: validate and
+  commit this operational/durability repair, build a new full-test immutable
+  image, launch the sole v2 replacement, and poll/harvest it to terminal.
+  The complete local suite passes all 1,027 collected tests with only the
+  expected skips; 28 focused G0/G1/G2/effective-rank tests, compilation,
+  shell syntax and whitespace checks also pass. Commit/push this exact repair
+  tree and submit its full-test Cloud Build next.
 - The operator-supplied alternative-frames review is retained unchanged at
   `reports/2026-08-12-alternative-analytical-frames.md` and reconciled in
   `reports/2026-08-12-alternative-analytical-frames-reconciliation.md`. The

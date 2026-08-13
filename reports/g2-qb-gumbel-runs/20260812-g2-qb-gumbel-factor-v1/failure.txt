@@ -1,0 +1,8 @@
+classification=invalid-operational-memory-limit
+execution=g2-qb-gumbel-factor-v1-jz54s
+terminal_status=False
+failed_count=1
+failure_reason=configured 16 GiB memory limit reached
+scientific_output_prefixes=0
+scientific_result=none
+replacement_identity=20260812-g2-qb-gumbel-factor-v2

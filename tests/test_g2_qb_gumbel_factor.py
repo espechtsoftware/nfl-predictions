@@ -1,9 +1,12 @@
 from copy import deepcopy
+import json
 
 from nfl_dfs.analysis.g2_qb_gumbel_factor import (
+    _emit_transport,
     gate_decision,
     select_grid_cell,
 )
+from nfl_dfs.analysis.g1_archetype_topology import decode_report_transport
 
 
 def _arm(value: float) -> dict:
@@ -66,3 +69,12 @@ def test_failed_invariant_is_invalid_not_a_valid_gate_failure():
     )
     assert result["disposition"] == "g2-invalid-or-inconclusive"
     assert not result["exact80_licensed"]
+
+
+def test_calibration_transport_is_checksummed_and_round_trips(capsys):
+    report = {"version": "v1", "grid": [{"theta_wr": 1.0}] * 81}
+    _emit_transport(report, "META=", "CHUNK=")
+    lines = capsys.readouterr().out.splitlines()
+    meta = json.loads(lines[0].split("META=", 1)[1])
+    chunks = [line.split(":", 1)[1] for line in lines[1:]]
+    assert decode_report_transport(meta, chunks) == report

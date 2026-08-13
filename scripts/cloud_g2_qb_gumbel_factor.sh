@@ -7,7 +7,7 @@ IMG=${1:-}
 CODE_SHA=${2:-}
 PROJECT=nfl-predictions-503414
 REGION=us-central1
-RUN_ID=20260812-g2-qb-gumbel-factor-v1
+RUN_ID=20260812-g2-qb-gumbel-factor-v2
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$ROOT/reports/g2-qb-gumbel-runs/$RUN_ID"
 PROTOCOL="$ROOT/reports/2026-08-12-g2-qb-gumbel-factor-protocol.md"
@@ -122,11 +122,11 @@ ENVS="$ENVS,G1_POSITION_SCHEDULE_B64=${resolved[schedule_b64]}"
 ENVS="$ENVS,TABPFN_ACCEPTED_USAGE_LAW=dirichlet"
 ENVS="$ENVS,TABPFN_ACCEPTED_DIRICHLET_K=${resolved[k]}"
 ENVS="$ENVS,GAME_SIM_USAGE=dirichlet,DIRICHLET_K=${resolved[k]}"
-JOB=g2-qb-gumbel-factor-v1
+JOB=g2-qb-gumbel-factor-v2
 gcloud run jobs deploy "$JOB" --project "$PROJECT" --region "$REGION" \
   --image "$IMG" --command nfl-dfs \
   --args "g2-qb-gumbel-factor,--panel,${resolved[panel]}" \
-  --set-env-vars "$ENVS" --memory 16Gi --cpu 8 \
+  --set-env-vars "$ENVS" --memory 32Gi --cpu 8 \
   --max-retries 0 --task-timeout 21600 >/dev/null
 DEPLOYED=$(gcloud run jobs describe "$JOB" --project "$PROJECT" \
   --region "$REGION" \

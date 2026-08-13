@@ -139,3 +139,23 @@ A stable valid EVT contradiction to an empirical-grid pass requires an
 explicit operator production decision. If G2 is selected, run the already
 frozen bounded upstream/marginal revalidation cascade and rerun effective rank
 on the final selected dependence law.
+
+## Operational replacement addendum — frozen before v2
+
+The first implementation execution `g2-qb-gumbel-factor-v1-jz54s` was killed
+by Cloud Run after reaching its 16 GiB memory limit. It emitted no G2 report or
+scientific output prefix; no calibration-grid cell, selected theta, held-out
+metric, disposition or license was observed. Logs show only ordinary replay
+progress through the three early-season books and the beginning of held-out
+reconstruction. V1 is an invalid operational execution, not a gate result.
+
+Before any replacement output, v2 makes two non-scientific repairs. First, it
+emits a checksum-verified, chunked calibration artifact containing all 81
+registered grid cells and the selected cell before loading any held-out book;
+the final harvester requires that immutable artifact to exactly equal the fit
+section of the terminal report. This enforces the original requirement to
+persist the grid before held-out evaluation. Second, it explicitly releases
+the early-season matrices before held-out reconstruction and uses 32 GiB
+memory. V2 receives a new run/job identity and full-test immutable image. The
+data, seasons, grid, objectives, tiebreaks, mechanism, metrics, gates, seeds,
+terminal law and bootstrap are unchanged.

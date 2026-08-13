@@ -8,6 +8,7 @@ lineup-free.  It may license, but never performs, a later exact-80 replay.
 from __future__ import annotations
 
 from contextlib import contextmanager
+import gc
 from hashlib import sha256
 import json
 import os
@@ -23,6 +24,8 @@ from ..research.qb_gumbel_factor import apply_qb_gumbel_factor
 
 OUTPUT_META_PREFIX = "G2_QB_GUMBEL_FACTOR_META="
 OUTPUT_CHUNK_PREFIX = "G2_QB_GUMBEL_FACTOR_CHUNK="
+CALIBRATION_META_PREFIX = "G2_QB_GUMBEL_CALIBRATION_META="
+CALIBRATION_CHUNK_PREFIX = "G2_QB_GUMBEL_CALIBRATION_CHUNK="
 CALIBRATION_SEASONS = (2019, 2021, 2022)
 EVALUATION_SEASONS = (2023, 2024, 2025)
 THETA_GRID = (1.00, 1.05, 1.10, 1.15, 1.20, 1.30, 1.40, 1.60, 2.00)
@@ -48,6 +51,13 @@ FLOAT_TOLERANCE = 1e-12
 def _load_json(path: str | Path) -> dict:
     with open(path, encoding="utf-8") as handle:
         return json.load(handle)
+
+
+def _emit_transport(report: dict, meta_prefix: str, chunk_prefix: str) -> None:
+    meta, chunks = g1.encode_report_transport(report)
+    print(meta_prefix + json.dumps(meta, sort_keys=True), flush=True)
+    for index, chunk in enumerate(chunks):
+        print(f"{chunk_prefix}{index}/{len(chunks)}:{chunk}", flush=True)
 
 
 def _require_reference_hash(path: str | Path, environment_name: str) -> dict:
@@ -690,6 +700,30 @@ def run(panel_id: str) -> dict:
     calibration_draws = historical_draws[historical_mask]
     selected, grid, fit_audit = fit_theta_grid(
         calibration_frame, calibration_draws, calibration_pairs)
+    calibration_artifact = {
+        "version": "v1",
+        "historical_panel": historical_panel,
+        "historical": historical_audit,
+        "fit": {
+            "calibration_seasons": list(CALIBRATION_SEASONS),
+            "theta_grid": list(THETA_GRID),
+            "selected": selected,
+            "grid": grid,
+            **fit_audit,
+        },
+    }
+    # The frozen protocol requires all grid scores to be durable before any
+    # held-out reconstruction or outcome evaluation begins.
+    _emit_transport(
+        calibration_artifact,
+        CALIBRATION_META_PREFIX,
+        CALIBRATION_CHUNK_PREFIX,
+    )
+    del (
+        historical_frame, historical_draws, calibration_frame,
+        calibration_draws, calibration_pairs,
+    )
+    gc.collect()
 
     heldout_frame, heldout_draws, terminal = g1._load_terminal_book(panel_id)
     games = _load_games()
@@ -729,6 +763,8 @@ def run(panel_id: str) -> dict:
         "maximum_mean_delta": float(treatment_audit["maximum_mean_delta"]),
         "passes": False,
     }
+    del deterministic, repeated_audit
+    gc.collect()
     invariants["passes"] = bool(
         not reproduction_failures
         and invariants["historical_parity_passes"]
@@ -768,10 +804,7 @@ def run(panel_id: str) -> dict:
         "bootstrap": bootstrap,
         **decision,
     }
-    meta, chunks = g1.encode_report_transport(report)
-    print(OUTPUT_META_PREFIX + json.dumps(meta, sort_keys=True), flush=True)
-    for index, chunk in enumerate(chunks):
-        print(f"{OUTPUT_CHUNK_PREFIX}{index}/{len(chunks)}:{chunk}", flush=True)
+    _emit_transport(report, OUTPUT_META_PREFIX, OUTPUT_CHUNK_PREFIX)
     return report
 
 
