@@ -52,6 +52,13 @@ agent or developer:
   ASOE target-center tilting before the existing final marginal remap, freeze
   a paired multi-seed corrected-control versus ASOE exact-80 protocol, build
   one immutable image, and launch its control/treatment panels in parallel.
+- The grouping repair and its focused 45-test simulator/ledger/SBI suite now
+  pass. The pre-outcome Phase R standing-law and Phase S ASOE protocol is
+  frozen in
+  `reports/2026-08-13-game-team-usage-repair-and-sis-asoe-exact80-protocol.md`.
+  It binds the finite-K/multinomial branch before repaired results exist, uses
+  all five registered seed pairs, and requires exact player-marginal rank
+  transport for ASOE.
 
 ### 2026-08-13 SIS ASOE Stage A launched
 

@@ -56,6 +56,43 @@ def simulation_component_sha256(comps: pd.DataFrame) -> str:
     payload = "\x1f".join(map(str, comps.columns)).encode() + values.tobytes()
     return hashlib.sha256(payload).hexdigest()
 
+
+def _game_team_unit_codes(
+    n: int,
+    game_ids: pd.Series | None,
+    team_ids: pd.Series,
+) -> np.ndarray:
+    """Factorize the allocation unit available to a live weekly slate.
+
+    Season replay passes many weeks to :func:`simulate` at once. Team alone
+    is therefore not an allocation unit: it would make every appearance by a
+    franchise share one season-wide opportunity pool. Missing identifiers get
+    row-unique sentinels so unknown fringe players cannot acquire synthetic
+    dependence merely because their metadata are absent.
+
+    ``game_ids=None`` retains the narrow unit-test/research behavior where the
+    supplied frame itself is one game and teams are the available unit.
+    """
+    teams = pd.Series(team_ids).reset_index(drop=True)
+    if len(teams) != n:
+        raise ValueError("team_ids must align one-to-one with components")
+    teams = teams.where(
+        teams.notna(), "_none_team_" + teams.index.astype(str)
+    ).astype(str)
+
+    if game_ids is None:
+        games = pd.Series(["_game"] * n)
+    else:
+        games = pd.Series(game_ids).reset_index(drop=True)
+        if len(games) != n:
+            raise ValueError("game_ids must align one-to-one with components")
+        games = games.where(
+            games.notna(), "_none_game_" + games.index.astype(str)
+        ).astype(str)
+
+    units = pd.MultiIndex.from_arrays([games, teams])
+    return pd.factorize(units)[0]
+
 # Gamma shape per unit of opportunity: higher = tighter yardage around the
 # predicted rate. ~2 per touch reproduces observed per-catch/carry variance.
 _YARDS_SHAPE = 2.0
@@ -302,7 +339,7 @@ def simulate(
                        and team_ids is not None)
     team_codes = None
     if usage_dirichlet:
-        team_codes, _ = pd.factorize(pd.Series(team_ids).fillna("_none").to_numpy())
+        team_codes = _game_team_unit_codes(n, game_ids, team_ids)
 
     def opp_draw(name: str) -> np.ndarray:
         """Integer opportunity draws for stat `name` (targets/carries)."""
@@ -339,11 +376,7 @@ def simulate(
         # group by (game, team): a season-level frame has each team in
         # ~17 games — factorizing team alone pooled a team's whole
         # season into one TD draw (the invalid TDLEDGER arm).
-        _g = (pd.Series(game_ids).reset_index(drop=True).astype(str)
-              if game_ids is not None else
-              pd.Series(["_g"] * n))
-        _t = pd.Series(team_ids).fillna("_none").reset_index(drop=True).astype(str)
-        _unit_codes = pd.factorize((_g + "|" + _t).to_numpy())[0]
+        _unit_codes = _game_team_unit_codes(n, game_ids, team_ids)
 
     targets = opp_draw("targets")
     receptions = rng.binomial(targets, col("catch_rate"))

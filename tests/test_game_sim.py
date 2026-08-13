@@ -268,6 +268,32 @@ def test_usage_dirichlet_off_by_default(monkeypatch):
     simulate.simulate(_team_usage_comps(), n_sims=500, seed=2, **_USAGE_IDS)
 
 
+def test_usage_dirichlet_allocates_each_game_team_separately(monkeypatch):
+    """A season frame must never pool one franchise across its games."""
+    monkeypatch.delenv("GAME_SIM_MODE", raising=False)
+    monkeypatch.setenv("GAME_SIM_USAGE", "dirichlet")
+    comps = _team_usage_comps()
+    comps["targets"] = [8.0, 2.0, 3.0, 7.0]
+    game_ids = pd.Series(["g1", "g1", "g2", "g2"])
+    team_ids = pd.Series(["TA", "TA", "TA", "TA"])
+
+    observed = []
+    original = game_sim.allocate_drive_usage
+
+    def _record(rng, total_mean, usage_shares, **kwargs):
+        observed.append(np.asarray(usage_shares).copy())
+        return original(rng, total_mean, usage_shares, **kwargs)
+
+    monkeypatch.setattr(game_sim, "allocate_drive_usage", _record)
+    simulate.simulate(
+        comps, n_sims=50, seed=21, game_ids=game_ids, team_ids=team_ids
+    )
+
+    assert len(observed) == 2
+    np.testing.assert_allclose(observed[0], [0.8, 0.2])
+    np.testing.assert_allclose(observed[1], [0.3, 0.7])
+
+
 def test_usage_dirichlet_mean_preserving(monkeypatch):
     monkeypatch.delenv("GAME_SIM_MODE", raising=False)
     monkeypatch.delenv("GAME_SIM_USAGE", raising=False)
