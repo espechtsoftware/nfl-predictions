@@ -348,10 +348,21 @@ agent or developer:
   law to component models and the matching cache, independently refits each
   arm's walk-forward position factors, evaluates all active QB/RB/WR/TE rows,
   and applies the frozen lowest-Brier/tie-order choice. Focused tests pass;
-  no cache or treatment outcome existed at this milestone. Exact next action:
-  commit/push, run the Cloud full-test image build and immutable GPU image
-  build, then launch all four write-once cache jobs without inspecting partial
-  logs.
+  no cache or treatment outcome existed at this milestone. Implementation
+  commit `50a20b1` is pushed on `main`. GPU image build
+  `87ec1e8f-15d4-4ad0-b720-34094473360e` passed and produced immutable digest
+  `sha256:e5d0e06b183afec2873a2a810557c3fa7008e2c82d8e1d67a3a83ac8e764e668`.
+  Full-test application build `da65723a-fc0f-4b9e-9972-fbac9b3f8440` is in
+  progress. Four cache executions were launched without reading treatment
+  logs: control `tabpfn-pfr-secondary-ctl-wsjkp`, rate drop
+  `tabpfn-pfr-secondary-rates-44qvk`, availability drop
+  `tabpfn-pfr-secondary-topcb-nl28w`, and combined drop
+  `tabpfn-pfr-secondary-all-nfw5s`. Their immutable manifest is under
+  `reports/tabpfn-pfr-secondary-runs/20260813-tabpfn-pfr-secondary-v1/`.
+  Exact next action: poll all four executions and the full-test build; only
+  after clean completion run `scripts/cloud_finish_tabpfn_pfr_secondary.sh
+  50a20b1`. Launch the score-free job only if that mechanical validation
+  passes.
   The outside oddsmaking proposal
   `reports/2026-08-13-oddsmaking-techniques-and-market-implied-dependence.md`
   is reconciled in

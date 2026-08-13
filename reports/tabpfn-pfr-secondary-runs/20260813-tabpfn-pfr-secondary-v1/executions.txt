@@ -1,0 +1,4 @@
+control tabpfn-pfr-secondary-ctl tabpfn-pfr-secondary-ctl-wsjkp tabpfn_pfr_secondary_control_v1
+drop_rates tabpfn-pfr-secondary-rates tabpfn-pfr-secondary-rates-44qvk tabpfn_pfr_secondary_drop_rates_v1
+drop_top_cb tabpfn-pfr-secondary-topcb tabpfn-pfr-secondary-topcb-nl28w tabpfn_pfr_secondary_drop_top_cb_v1
+drop_all tabpfn-pfr-secondary-all tabpfn-pfr-secondary-all-nfw5s tabpfn_pfr_secondary_drop_all_v1
