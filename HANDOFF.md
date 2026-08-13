@@ -113,6 +113,25 @@ reconciliation when their findings affect the program.
   passed at 03:37 CDT and reached the protected NFL Player Leaderboards URL.
   No further operator authentication is currently required. Continue the
   guarded NFL-only exporter using that external state; never log or commit it.
+  The paid subscription surface is now fully inventoried in
+  `reports/2026-08-13-sis-nfl-subscription-inventory.md`: Player and Team
+  Passing/Rushing/Receiving/Pass Defense/Pass Rush/Run Defense expose
+  Totals/Rates/Value; Blocking adds Overall, Runs to Gap and Adjusted Blown
+  Blocks; special teams is lower-priority. Proprietary Value views include
+  Points Earned/Saved, PAA, EPA, PAR, WAR and boom/bust. Coverage/route/
+  alignment/pressure/run-concept/box/technique/personnel filters are available,
+  with history back to 2015. `sis-download catalog` and guarded single-export
+  support are implemented. A real paid smoke for 2025 Week 1 player
+  pass-defense Value, team ID 1, passed end-to-end with 11 API/CSV rows, exact
+  submitted scope, API `Games=1`, rendered/download parity and hash manifest.
+  The raw licensed artifact remains gitignored under `sis/smoke-v4/`. An
+  unsliced Week 1 pass-defense query returned exactly 200 rows, proving the
+  paid cap is binding; exporter therefore fails closed at 200 and requires
+  team/week splitting. Priority is team/player pass-game, coverage, pressure
+  and blocking Value plus volume denominators, followed by rush/run defense;
+  same-week data remains forbidden. Exact next SIS action is declarative
+  query planning and identity sidecars, then a budgeted 2019/2021--2025
+  backfill—do not indiscriminately consume the 1,000-query weekly allowance.
 - Incumbent effective-rank v2 completed cleanly in execution
   `portfolio-effective-rank-v2-pbxps`, image
   `sha256:450f22cbdae94e23c8322330fe3f445d256cd82dbfc96ca086593a0f80eee90e`,

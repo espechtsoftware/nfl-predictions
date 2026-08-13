@@ -9,17 +9,130 @@ authentication before bulk export logic is enabled.
 from __future__ import annotations
 
 import argparse
+import csv
 import getpass
+import hashlib
+import json
 import os
 import re
 import sys
+import time
+from dataclasses import asdict, dataclass
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Sequence
+from typing import Any, Sequence
 
 
 BASE_URL = "https://pro.sisdatahub.com"
 NFL_LEADERS_URL = f"{BASE_URL}/NFL/Leaders/Players"
 AUTH_HOST = "auth.sportsinfosolutions.com"
+
+
+@dataclass(frozen=True)
+class ReportDefinition:
+    key: str
+    main_tab: str
+    subtab: str | None
+    metric_group: int
+    subtype: float | int
+    priority: int
+    rationale: str
+
+
+def _family(
+    stem: str,
+    main_tab: str,
+    metric_group: int,
+    priority: int,
+    rationale: str,
+) -> tuple[ReportDefinition, ...]:
+    names = (("totals", 1, "Total"), ("rates", 2, "Rates"), ("value", 3, "Value"))
+    prefixes = {
+        "passing": ("passTotalTabNFL", "passRatesTabNFL", "passValuesTabNFL"),
+        "rushing": ("rushingTotalTabNFL", "rushRatesTabNFL", "rushValuesTabNFL"),
+        "receiving": ("recTotalTabNFL", "recRatesTabNFL", "recValuesTabNFL"),
+        "pass-defense": (
+            "passdefTotalTabNFL", "passdefRatesTabNFL", "passdefValuesTabNFL"),
+        "pass-rush": (
+            "passrushTotalTabNFL", "passrushRatesTabNFL", "passrushValuesTabNFL"),
+        "run-defense": (
+            "rundefTotalTabNFL", "rundefRatesTabNFL", "rundefValuesTabNFL"),
+        "blocking": ("blockTotalTab", "blockRatesTab", "blockValuesTabNFL"),
+    }
+    tabs = prefixes[stem]
+    return tuple(
+        ReportDefinition(
+            f"{stem}-{name}", main_tab, tabs[index - 1], metric_group,
+            metric_group + index / 10, priority if name == "value" else priority + 1,
+            f"{rationale} ({label.lower()} view).",
+        )
+        for name, index, label in names
+    )
+
+
+REPORTS: dict[str, ReportDefinition] = {
+    report.key: report
+    for report in (
+        *_family("passing", "passTab", 1, 1, "QB/team efficiency and tail quality"),
+        *_family("rushing", "rushTab", 3, 2, "RB/team efficiency and contact quality"),
+        *_family("receiving", "receiveTab", 5, 1, "Routes, target quality and receiver value"),
+        *_family("pass-defense", "passdefTab", 9, 1, "Coverage volume, quality and value"),
+        *_family("pass-rush", "passrushTab", 10, 1, "Pressure creation and defensive value"),
+        *_family("run-defense", "rundefTab", 11, 2, "Run-front quality and defensive value"),
+        *_family("blocking", "blocktab", 14, 1, "Pass/run blocking quality and value"),
+        ReportDefinition(
+            "returning-totals", "returnTab", None, 12, 12, 3,
+            "Lower-priority special-teams return volume"),
+        ReportDefinition(
+            "punting-totals", "puntTab", None, 13, 13, 3,
+            "Lower-priority field-position and DST context"),
+        ReportDefinition(
+            "kicking-totals", "kickTab", None, 8, 8, 3,
+            "Lower-priority kicker and scoring-opportunity context"),
+    )
+}
+
+
+@dataclass(frozen=True)
+class ExportSpec:
+    entity: str
+    report: str
+    season: int
+    start_week: int
+    end_week: int
+    split_by_game: bool = True
+    team_id: int | None = None
+
+    @property
+    def definition(self) -> ReportDefinition:
+        return REPORTS[self.report]
+
+
+class RowCapError(RuntimeError):
+    """The normal UI returned exactly the paid-account row limit."""
+
+
+def validate_spec(spec: ExportSpec) -> None:
+    if spec.entity not in {"players", "teams"}:
+        raise ValueError("entity must be players or teams")
+    if spec.report not in REPORTS:
+        raise ValueError(f"unknown SIS report: {spec.report!r}")
+    if not 2015 <= spec.season <= 2100:
+        raise ValueError("SIS season must be at least 2015")
+    if not 1 <= spec.start_week <= spec.end_week <= 22:
+        raise ValueError("SIS week range must be within 1..22")
+    if spec.team_id is not None and spec.team_id < 1:
+        raise ValueError("SIS team_id must be positive")
+
+
+def artifact_name(spec: ExportSpec) -> str:
+    validate_spec(spec)
+    team = f"__team-{spec.team_id}" if spec.team_id is not None else "__all-teams"
+    grain = "game" if spec.split_by_game else "aggregate"
+    return (
+        f"{spec.entity}__{spec.report}__season-{spec.season}"
+        f"__weeks-{spec.start_week:02d}-{spec.end_week:02d}{team}__{grain}.csv"
+    )
 
 
 def default_profile_dir() -> Path:
@@ -170,6 +283,270 @@ def verify_login(profile_dir: Path, timeout_seconds: float) -> None:
             browser.close()
 
 
+def _set_select(page: Any, selector: str, value: str) -> None:
+    """Set a styled native SIS select, including controls hidden by CSS."""
+    retained = page.locator(selector).evaluate(
+        """(element, value) => {
+          const option = [...element.options].find(item => item.value === value);
+          if (!option) return false;
+          element.value = value;
+          element.dispatchEvent(new Event('change', {bubbles: true}));
+          return element.value === value;
+        }""",
+        value,
+    )
+    if not retained:
+        raise RuntimeError(f"SIS filter {selector} has no value {value!r}")
+
+
+def _set_checkbox(page: Any, selector: str, checked: bool) -> None:
+    retained = page.locator(selector).evaluate(
+        """(element, checked) => {
+          element.checked = checked;
+          element.dispatchEvent(new Event('change', {bubbles: true}));
+          return element.checked === checked;
+        }""",
+        checked,
+    )
+    if not retained:
+        raise RuntimeError(f"SIS filter {selector} did not retain {checked}")
+
+
+def _request_scope(request: Any) -> dict[str, list[str]]:
+    from urllib.parse import parse_qs
+
+    return parse_qs(request.post_data or "", keep_blank_values=True)
+
+
+def _response_matches_spec(response: Any, spec: ExportSpec) -> bool:
+    if f"/api/v1/nfl/{spec.entity}/query" not in response.url:
+        return False
+    scope = _request_scope(response.request)
+    expected = {
+        "MetricGroup": [str(spec.definition.metric_group)],
+        "TimeFilters.SeasonFrom": [str(spec.season)],
+        "TimeFilters.SeasonTo": [str(spec.season)],
+        "TimeFilters.StartWeek": [str(spec.start_week)],
+        "TimeFilters.EndWeek": [str(spec.end_week)],
+    }
+    if any(scope.get(key) != value for key, value in expected.items()):
+        return False
+    if spec.split_by_game and scope.get("TimeFilters.ByGame") != ["1"]:
+        return False
+    if not spec.split_by_game and "TimeFilters.ByGame" in scope:
+        return False
+    if spec.team_id is not None and scope.get("GameFilters.Team") != [
+        str(spec.team_id)
+    ]:
+        return False
+    return True
+
+
+def _assert_api_scope(response: Any, spec: ExportSpec, row_cap: int) -> int:
+    if response.status != 200:
+        raise RuntimeError(f"SIS query returned HTTP {response.status}")
+    payload = response.json()
+    rows = payload.get("data")
+    if not isinstance(rows, list):
+        raise RuntimeError("SIS query response has no data rows")
+    if len(rows) == row_cap:
+        raise RowCapError(
+            f"SIS query returned exactly the paid row cap ({row_cap}); "
+            "split into narrower team or week queries"
+        )
+    for row in rows:
+        if int(row.get("season", -1)) != spec.season:
+            raise RuntimeError("SIS API returned an unexpected season")
+        week = int(row.get("week", -1))
+        if spec.split_by_game and not spec.start_week <= week <= spec.end_week:
+            raise RuntimeError("SIS API returned a row outside the requested weeks")
+        if spec.split_by_game and int(row.get("games", -1)) != 1:
+            raise RuntimeError("SIS split-by-game API row does not have Games=1")
+        if spec.team_id is not None and int(row.get("teamId", -1)) != spec.team_id:
+            raise RuntimeError("SIS API returned an unexpected team")
+    return len(rows)
+
+
+def _wait_for_table(page: Any, expected_rows: int, timeout_ms: int) -> None:
+    deadline = time.monotonic() + timeout_ms / 1000.0
+    while time.monotonic() < deadline:
+        try:
+            current = int(page.evaluate(
+                "typeof dataTbl === 'undefined' ? -1 : dataTbl.data().count()"
+            ))
+        except Exception:
+            current = -1
+        if current == expected_rows:
+            return
+        page.wait_for_timeout(200)
+    raise RuntimeError(
+        f"SIS rendered table has not reached the API row count {expected_rows}"
+    )
+
+
+def _read_csv(path: Path) -> list[list[str]]:
+    with path.open(encoding="utf-8-sig", newline="") as handle:
+        rows = list(csv.reader(handle))
+    if len(rows) < 2 or len(rows[0]) < 2:
+        raise RuntimeError(f"SIS download is not a populated CSV: {path}")
+    return rows
+
+
+def _validate_csv_scope(path: Path, spec: ExportSpec, expected_rows: int) -> None:
+    rows = _read_csv(path)
+    header = rows[0]
+    if len(rows) - 1 != expected_rows:
+        raise RuntimeError(
+            f"SIS CSV has {len(rows) - 1} rows; API returned {expected_rows}"
+        )
+    required = {"Season"}
+    if spec.split_by_game:
+        # Rates/value views deliberately omit Games from their visible CSV,
+        # although the API row still carries Games=1. Week + opponent prove
+        # the CSV's game grain; validate Games too whenever it is exported.
+        required.update({"Week", "Opp."})
+    missing = required - set(header)
+    if missing:
+        raise RuntimeError(f"SIS CSV lacks scope columns: {sorted(missing)}")
+    season_index = header.index("Season")
+    if {int(row[season_index]) for row in rows[1:]} != {spec.season}:
+        raise RuntimeError("SIS CSV contains an unexpected season")
+    if spec.split_by_game:
+        week_index = header.index("Week")
+        weeks = {int(row[week_index]) for row in rows[1:]}
+        if min(weeks) < spec.start_week or max(weeks) > spec.end_week:
+            raise RuntimeError("SIS CSV contains an unexpected week")
+        if "Games" in header:
+            games_index = header.index("Games")
+            if {int(row[games_index]) for row in rows[1:]} != {1}:
+                raise RuntimeError("SIS split-by-game CSV contains Games != 1")
+
+
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def export_one(
+    profile_dir: Path,
+    timeout_seconds: float,
+    output_dir: Path,
+    spec: ExportSpec,
+    *,
+    row_cap: int = 200,
+) -> dict[str, Any]:
+    """Run one normal-UI SIS export and fail closed on ambiguous scope."""
+    validate_spec(spec)
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError as exc:  # pragma: no cover
+        raise RuntimeError('install browser support with `pip install -e ".[browser]"`') from exc
+    timeout_ms = int(timeout_seconds * 1000)
+    state_path = default_storage_state_path(profile_dir)
+    if not state_path.is_file():
+        raise RuntimeError("SIS saved storage state is missing; run `sis-download login`")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    destination = output_dir / artifact_name(spec)
+    partial = destination.with_suffix(destination.suffix + ".partial")
+    if destination.exists():
+        raise RuntimeError(f"refusing to overwrite SIS artifact: {destination}")
+    if partial.exists():
+        raise RuntimeError(f"remove stale incomplete SIS artifact first: {partial}")
+    url = f"{BASE_URL}/NFL/Leaders/{spec.entity.title()}"
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(headless=True)
+        context = browser.new_context(
+            storage_state=str(state_path), accept_downloads=True,
+            viewport={"width": 1800, "height": 1200},
+        )
+        page = context.new_page()
+        page.set_default_timeout(timeout_ms)
+        try:
+            page.goto(url, wait_until="domcontentloaded", timeout=timeout_ms)
+            _assert_authenticated(page, timeout_ms)
+            page.locator("#querybuilder").wait_for(state="attached")
+            # Clicking the family starts a request with its old scope. Wait
+            # for that request so the later Submit response cannot be confused
+            # with it, then apply every hidden/native filter deliberately.
+            with page.expect_response(
+                lambda response: (
+                    f"/api/v1/nfl/{spec.entity}/query" in response.url
+                    and _request_scope(response.request).get("MetricGroup")
+                    == [str(spec.definition.metric_group)]
+                ), timeout=timeout_ms,
+            ):
+                page.locator(f"#{spec.definition.main_tab}").click()
+            if spec.definition.subtab:
+                # SIS's tab request is immediate but the UI replaces the
+                # DataTable asynchronously. Wait for its own API response and
+                # rendered row count before mutating filters for Submit.
+                with page.expect_response(
+                    lambda response: (
+                        f"/api/v1/nfl/{spec.entity}/query" in response.url
+                        and _request_scope(response.request).get("MetricGroup")
+                        == [str(spec.definition.metric_group)]
+                    ), timeout=timeout_ms,
+                ) as subtab_response:
+                    page.locator(f"#{spec.definition.subtab}").click()
+                subtab_rows = subtab_response.value.json().get("data", [])
+                if not isinstance(subtab_rows, list):
+                    raise RuntimeError("SIS report-view response has no data rows")
+                _wait_for_table(page, len(subtab_rows), timeout_ms)
+                active = page.locator(
+                    f"#{spec.definition.subtab}"
+                ).get_attribute("value")
+                if active is not None and float(active) != float(spec.definition.subtype):
+                    raise RuntimeError("SIS report view did not retain its declared subtype")
+            _set_select(page, "#TimeFilters_SeasonFrom", str(spec.season))
+            _set_select(page, "#TimeFilters_SeasonTo", str(spec.season))
+            _set_select(page, "#TimeFilters_StartWeek", str(spec.start_week))
+            _set_select(page, "#TimeFilters_EndWeek", str(spec.end_week))
+            _set_select(
+                page, "#Teams", str(spec.team_id) if spec.team_id is not None else "-1")
+            _set_checkbox(page, "#chkIncludePlayoffs", False)
+            _set_checkbox(page, "#chkByGame", spec.split_by_game)
+            with page.expect_response(
+                lambda response: _response_matches_spec(response, spec),
+                timeout=timeout_ms,
+            ) as response_info:
+                page.locator("#submit").click()
+            response = response_info.value
+            expected_rows = _assert_api_scope(response, spec, row_cap)
+            if expected_rows == 0:
+                raise RuntimeError("SIS query returned no rows")
+            _wait_for_table(page, expected_rows, timeout_ms)
+            button = page.locator("a.dt-button.buttons-csv:visible")
+            if button.count() != 1:
+                raise RuntimeError("SIS page has an ambiguous Download control")
+            with page.expect_download(timeout=timeout_ms) as download_info:
+                button.click()
+            download_info.value.save_as(str(partial))
+        finally:
+            context.close()
+            browser.close()
+    try:
+        _validate_csv_scope(partial, spec, expected_rows)
+    except Exception:
+        # This file was created by this invocation and failed its declared
+        # scope contract. Never leave it looking like an accepted raw input.
+        partial.unlink(missing_ok=True)
+        raise
+    partial.replace(destination)
+    return {
+        "spec": asdict(spec),
+        "definition": asdict(spec.definition),
+        "artifact": destination.name,
+        "rows": expected_rows,
+        "bytes": destination.stat().st_size,
+        "sha256": _sha256(destination),
+        "retrieved_at_utc": datetime.now(UTC).isoformat(),
+        "row_cap": row_cap,
+    }
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="sis-download",
@@ -185,6 +562,22 @@ def _build_parser() -> argparse.ArgumentParser:
         help="prompt securely in the terminal and fill the browser automatically",
     )
     subparsers.add_parser("verify-login", help="headlessly verify the saved SIS session")
+    subparsers.add_parser(
+        "catalog", help="list inventoried SIS NFL report views and priorities")
+    export = subparsers.add_parser(
+        "export", help="download one guarded SIS NFL report through the normal UI")
+    export.add_argument("--entity", choices=("players", "teams"), required=True)
+    export.add_argument("--report", choices=sorted(REPORTS), required=True)
+    export.add_argument("--season", type=int, required=True)
+    export.add_argument("--start-week", type=int, required=True)
+    export.add_argument("--end-week", type=int, required=True)
+    export.add_argument("--team-id", type=int)
+    export.add_argument(
+        "--aggregate", action="store_true",
+        help="aggregate the requested window instead of one row per game",
+    )
+    export.add_argument("--row-cap", type=int, default=200)
+    export.add_argument("--output-dir", type=Path, default=Path("sis/downloads"))
     return parser
 
 
@@ -197,10 +590,43 @@ def main(argv: Sequence[str] | None = None) -> int:
                 args.timeout,
                 terminal_credentials=args.terminal_credentials,
             )
-        else:
+        elif args.command == "verify-login":
             verify_login(args.profile_dir, args.timeout)
+        elif args.command == "catalog":
+            for definition in sorted(
+                REPORTS.values(), key=lambda item: (item.priority, item.key)):
+                print(
+                    f"P{definition.priority} {definition.key}: "
+                    f"{definition.rationale}"
+                )
+        else:
+            spec = ExportSpec(
+                entity=args.entity,
+                report=args.report,
+                season=args.season,
+                start_week=args.start_week,
+                end_week=args.end_week,
+                split_by_game=not args.aggregate,
+                team_id=args.team_id,
+            )
+            result = export_one(
+                args.profile_dir, args.timeout, args.output_dir, spec,
+                row_cap=args.row_cap,
+            )
+            manifest = args.output_dir / (
+                Path(result["artifact"]).stem + ".manifest.json")
+            if manifest.exists():
+                raise RuntimeError(f"refusing to overwrite SIS manifest: {manifest}")
+            manifest.write_text(
+                json.dumps(result, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            print(
+                f"SIS export complete: {result['artifact']} "
+                f"({result['rows']} rows; manifest {manifest.name})"
+            )
         return 0
-    except (OSError, RuntimeError) as exc:
+    except (OSError, RuntimeError, ValueError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
 
