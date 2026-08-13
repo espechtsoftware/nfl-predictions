@@ -189,6 +189,20 @@ class APIRequestBudget:
         route.continue_()
 
 
+@dataclass
+class SubmitOnlyAPIRequestBudget:
+    """Block incidental UI refreshes and meter only an explicitly armed Submit."""
+
+    budget: APIRequestBudget
+    armed: bool = False
+
+    def route(self, route: Any) -> None:
+        if not self.armed:
+            route.abort("blockedbyclient")
+            return
+        self.budget.route(route)
+
+
 def validate_spec(spec: ExportSpec) -> None:
     if spec.entity not in {"players", "teams"}:
         raise ValueError("entity must be players or teams")
@@ -939,6 +953,7 @@ def run_alignment_feasibility_sample(
         ceiling=12, used=used, state_path=run_state,
         plan_sha256=protocol_hash)
     budget.persist()
+    submit_budget = SubmitOnlyAPIRequestBudget(budget)
     timeout_ms = int(timeout_seconds * 1000)
     artifacts: list[dict[str, Any]] = []
     with sync_playwright() as playwright:
@@ -947,7 +962,7 @@ def run_alignment_feasibility_sample(
             storage_state=str(state_path), accept_downloads=True,
             viewport={"width": 1800, "height": 1200},
         )
-        context.route("**/api/v1/nfl/**/query", budget.route)
+        context.route("**/api/v1/nfl/**/query", submit_budget.route)
         page = context.new_page()
         page.set_default_timeout(timeout_ms)
         try:
@@ -995,12 +1010,16 @@ def run_alignment_feasibility_sample(
                         "PassDefenseFilters.DefenderPos": ["12"],
                         "PassDefenseFilters.ReceiverPos": ["4"],
                     })
-                with page.expect_response(
-                    lambda response, expected=expected_filters, current=spec:
-                    _response_matches_filters(response, current, expected),
-                    timeout=timeout_ms,
-                ) as response_info:
-                    page.locator("#submit").click()
+                submit_budget.armed = True
+                try:
+                    with page.expect_response(
+                        lambda response, expected=expected_filters, current=spec:
+                        _response_matches_filters(response, current, expected),
+                        timeout=timeout_ms,
+                    ) as response_info:
+                        page.locator("#submit").click()
+                finally:
+                    submit_budget.armed = False
                 response = response_info.value
                 expected_rows = _assert_api_scope(response, spec, row_cap=200)
                 if expected_rows == 0:

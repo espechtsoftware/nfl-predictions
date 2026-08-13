@@ -219,6 +219,12 @@ agent or developer:
   visible menu and lets each visible Submit perform the needed refresh, while
   resuming the existing counter. This is a query-efficiency repair only; the
   frozen sample, filters, volume calculations and thresholds are unchanged.
+  A second recovery attempt created no artifact and raised the durable counter
+  to `5/12` because filter-change refreshes were still metered. The final
+  budget-safe repair now blocks all incidental UI API refreshes client-side and
+  arms the durable route only around each visible Submit. Exactly seven calls
+  remain for exactly seven frozen slices; do not retry unless this guarded
+  implementation and its counter test pass.
 - The SIS QB-line cache mechanical gate passed and the score-free
   final-served execution
   `tabpfn-sis-qb-line-final-served-v1-vkx49` completed from audit image

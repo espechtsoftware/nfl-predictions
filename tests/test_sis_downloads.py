@@ -260,6 +260,19 @@ def test_api_request_budget_blocks_before_overage():
     assert budget.used == 2
 
 
+def test_submit_only_budget_does_not_count_incidental_refreshes():
+    budget = sis.APIRequestBudget(ceiling=2)
+    guarded = sis.SubmitOnlyAPIRequestBudget(budget)
+    incidental, submit = _Route(), _Route()
+    guarded.route(incidental)
+    assert incidental.action == "blockedbyclient"
+    assert budget.used == 0
+    guarded.armed = True
+    guarded.route(submit)
+    assert submit.action == "continue"
+    assert budget.used == 1
+
+
 def test_api_request_budget_persists_across_processes(tmp_path):
     state_path = tmp_path / "state.json"
     budget = sis.APIRequestBudget(
