@@ -294,6 +294,106 @@ def test_alignment_sample_slices_are_exact_six_call_repair():
         "receiving", "ReceivingFilters.RecAlignment", ("2", "5"), "slot")
 
 
+def test_team_pass_defense_schema_slices_are_frozen_and_bounded():
+    assert sis.TEAM_PASS_DEFENSE_PROFILE_REPORTS == (
+        "pass-defense-totals", "pass-defense-value")
+    assert sis.TEAM_PASS_DEFENSE_PROFILE_SLICES == (
+        ("wide-man", ("2",), ("0", "1", "5")),
+        ("wide-zone", ("2",), ("2", "3", "4", "6")),
+        ("slot-man", ("3",), ("0", "1", "5")),
+        ("slot-zone", ("3",), ("2", "3", "4", "6")),
+    )
+    assert len(sis.TEAM_PASS_DEFENSE_PROFILE_REPORTS) * len(
+        sis.TEAM_PASS_DEFENSE_PROFILE_SLICES
+    ) == 8
+
+
+def _defense_profile_fixture(tmp_path, *, team_count=32, mismatched=False):
+    artifacts = []
+    for report in sis.TEAM_PASS_DEFENSE_PROFILE_REPORTS:
+        for slice_name, alignment, schemes in sis.TEAM_PASS_DEFENSE_PROFILE_SLICES:
+            path = tmp_path / sis._team_pass_defense_artifact(report, slice_name)
+            if report == "pass-defense-totals":
+                header = (
+                    "Rank,Season,Team,Week,Opp.,Games,Cov. Snaps,Tgts,"
+                    "Catchable,Pass Def.\n"
+                )
+            else:
+                header = (
+                    "Rank,Season,Team,Week,Opp.,Points Saved,PS Per Play,"
+                    "Boom%,Bust%\n"
+                )
+            path.write_text(header + "\n".join(
+                f"1,2025,T{team_id},1,O,1,1,1,1,1"
+                if report == "pass-defense-totals"
+                else f"1,2025,T{team_id},1,O,0.0,0.0,0%,0%"
+                for team_id in range(
+                    1, team_count + 1 - (
+                        1 if mismatched and report == "pass-defense-value"
+                        and slice_name == "wide-man" else 0
+                    )
+                )
+            ) + "\n", encoding="utf-8")
+            ids = list(range(
+                1, team_count + 1 - (
+                    1 if mismatched and report == "pass-defense-value"
+                    and slice_name == "wide-man" else 0
+                )
+            ))
+            artifacts.append({
+                "report": report,
+                "slice": slice_name,
+                "artifact": path.name,
+                "sha256": sis._sha256(path),
+                "rows": len(ids),
+                "headers": header.strip().split(","),
+                "submitted_scope": {
+                    "PassDefenseFilters.TargetLinedUp": list(alignment),
+                    "PassDefenseFilters.Schemes": list(schemes),
+                    "PassDefenseFilters.ReceiverPos": ["4"],
+                    "PassDefenseFilters.MinTargets": ["0"],
+                    "PassDefenseFilters.MinAttempts": ["0"],
+                },
+                "identities": [{
+                    "season": 2025, "week": 1, "games": 1,
+                    "teamId": team_id, "team": f"T{team_id}", "opp": "O",
+                } for team_id in ids],
+            })
+    return {
+        "api_requests_used": 8,
+        "api_request_ceiling": 10,
+        "artifacts": artifacts,
+    }
+
+
+def test_team_pass_defense_schema_analysis_reads_only_schema_and_identity(tmp_path):
+    result = sis.analyze_team_pass_defense_schema_sample(
+        tmp_path, _defense_profile_fixture(tmp_path)
+    )
+    assert result["passes"]
+    assert result["disposition"] == "sis-team-pass-defense-schema-passes"
+    assert result["union_team_count"] == 32
+    assert set(result["slice_team_counts"].values()) == {32}
+    assert result["outcome_values_read"] == []
+
+
+def test_team_pass_defense_schema_rejects_mismatched_views(tmp_path):
+    result = sis.analyze_team_pass_defense_schema_sample(
+        tmp_path, _defense_profile_fixture(tmp_path, mismatched=True)
+    )
+    assert not result["passes"]
+    assert "wide-man:totals-value-team-mismatch" in result["failures"]
+
+
+def test_team_pass_defense_schema_rejects_missing_teams_and_cap(tmp_path):
+    manifest = _defense_profile_fixture(tmp_path, team_count=31)
+    manifest["artifacts"][0]["rows"] = 200
+    result = sis.analyze_team_pass_defense_schema_sample(tmp_path, manifest)
+    assert not result["passes"]
+    assert "union-team-count:31" in result["failures"]
+    assert any(failure.endswith(":row-cap") for failure in result["failures"])
+
+
 def test_identity_rows_retain_ids_and_scope_without_metrics():
     response = _Response("", [{
         "season": 2025, "week": 1, "games": 1, "playerId": 77,

@@ -57,6 +57,17 @@ ALIGNMENT_SAMPLE_SLICES = (
     ("pass-defense", "PassDefenseFilters.DefenderLinedUp", ("3",), "scb"),
 )
 
+TEAM_PASS_DEFENSE_PROFILE_SLICES = (
+    ("wide-man", ("2",), ("0", "1", "5")),
+    ("wide-zone", ("2",), ("2", "3", "4", "6")),
+    ("slot-man", ("3",), ("0", "1", "5")),
+    ("slot-zone", ("3",), ("2", "3", "4", "6")),
+)
+TEAM_PASS_DEFENSE_PROFILE_REPORTS = (
+    "pass-defense-totals",
+    "pass-defense-value",
+)
+
 
 @dataclass(frozen=True)
 class ReportDefinition:
@@ -488,6 +499,21 @@ def _set_checkbox_values(page: Any, name: str, values: Sequence[str]) -> None:
         )
 
 
+def _set_input_value(page: Any, name: str, value: str) -> None:
+    retained = page.locator(f'input[name="{name}"]').evaluate(
+        """(element, value) => {
+          element.value = value;
+          element.dispatchEvent(new Event('change', {bubbles: true}));
+          return element.value;
+        }""",
+        value,
+    )
+    if retained != value:
+        raise RuntimeError(
+            f"SIS input {name} retained {retained!r}, expected {value!r}"
+        )
+
+
 def _click_ui_control(page: Any, selector: str) -> None:
     """Activate a SIS control, including submenu links hidden until hover."""
     control = page.locator(selector)
@@ -689,6 +715,14 @@ def _read_csv(path: Path) -> list[list[str]]:
     return rows
 
 
+def _csv_header(path: Path) -> list[str]:
+    with path.open(encoding="utf-8-sig", newline="") as handle:
+        header = next(csv.reader(handle), [])
+    if len(header) < 2:
+        raise RuntimeError(f"SIS download has no usable CSV header: {path}")
+    return header
+
+
 def _validate_csv_scope(path: Path, spec: ExportSpec, expected_rows: int) -> None:
     rows = _read_csv(path)
     header = rows[0]
@@ -738,6 +772,14 @@ def _sha256(path: Path) -> str:
         for block in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def _write_json_atomic(path: Path, payload: dict[str, Any]) -> None:
+    temporary = path.with_suffix(path.suffix + ".partial")
+    temporary.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    temporary.replace(path)
 
 
 def export_one(
@@ -1159,6 +1201,337 @@ def analyze_alignment_feasibility_sample(
     }
 
 
+def _team_pass_defense_artifact(report: str, slice_name: str) -> str:
+    if report not in TEAM_PASS_DEFENSE_PROFILE_REPORTS:
+        raise ValueError(f"unsupported SIS defense-profile report {report!r}")
+    if slice_name not in {row[0] for row in TEAM_PASS_DEFENSE_PROFILE_SLICES}:
+        raise ValueError(f"unsupported SIS defense-profile slice {slice_name!r}")
+    return f"2025-week01-team-pass-defense__{slice_name}__{report}.csv"
+
+
+def analyze_team_pass_defense_schema_sample(
+    output_dir: Path, manifest: dict[str, Any],
+) -> dict[str, Any]:
+    """Apply the frozen schema/identity/cap gate without reading values."""
+    artifacts = manifest.get("artifacts", [])
+    expected = {
+        (report, slice_name)
+        for report in TEAM_PASS_DEFENSE_PROFILE_REPORTS
+        for slice_name, _alignment, _schemes in TEAM_PASS_DEFENSE_PROFILE_SLICES
+    }
+    observed = {
+        (str(item.get("report")), str(item.get("slice"))) for item in artifacts
+    }
+    if len(artifacts) != 8 or observed != expected:
+        raise RuntimeError("SIS defense-profile manifest is not the frozen eight views")
+
+    by_key = {(item["report"], item["slice"]): item for item in artifacts}
+    all_teams: set[int] = set()
+    totals_headers: set[str] = set()
+    value_headers: set[str] = set()
+    slice_team_counts: dict[str, int] = {}
+    slice_report_team_ids: dict[str, dict[str, list[int]]] = {}
+    failures: list[str] = []
+    used = int(manifest.get("api_requests_used", -1))
+    ceiling = int(manifest.get("api_request_ceiling", -1))
+    if ceiling != 10 or not 8 <= used <= 10:
+        failures.append(f"request-budget:{used}/{ceiling}")
+    expected_filters = {
+        slice_name: (list(alignment), list(schemes))
+        for slice_name, alignment, schemes in TEAM_PASS_DEFENSE_PROFILE_SLICES
+    }
+    for report, slice_name in sorted(expected):
+        item = by_key[(report, slice_name)]
+        path = output_dir / item["artifact"]
+        if not path.is_file() or _sha256(path) != item.get("sha256"):
+            raise RuntimeError("SIS defense-profile artifact hash differs")
+        if int(item.get("rows", -1)) >= 200:
+            failures.append(f"{report}:{slice_name}:row-cap")
+        headers = {str(value) for value in item.get("headers", [])}
+        if report == "pass-defense-totals":
+            totals_headers |= headers
+            if not ({"Cov. Snaps", "Coverage Snaps"} & headers):
+                failures.append(f"{report}:{slice_name}:missing-coverage-snaps")
+            if not ({"Tgts", "Targets"} & headers):
+                failures.append(f"{report}:{slice_name}:missing-targets")
+        else:
+            value_headers |= headers
+            if not {"Points Saved", "PS Per Play"} <= headers:
+                failures.append(f"{report}:{slice_name}:missing-value-fields")
+        alignment, schemes = expected_filters[slice_name]
+        expected_scope = {
+            "PassDefenseFilters.TargetLinedUp": alignment,
+            "PassDefenseFilters.Schemes": schemes,
+            "PassDefenseFilters.ReceiverPos": ["4"],
+            "PassDefenseFilters.MinTargets": ["0"],
+            "PassDefenseFilters.MinAttempts": ["0"],
+        }
+        submitted = item.get("submitted_scope", {})
+        for name, values in expected_scope.items():
+            if submitted.get(name) != values:
+                failures.append(f"{report}:{slice_name}:scope:{name}")
+        team_ids: list[int] = []
+        for identity in item.get("identities", []):
+            required = {"season", "week", "games", "teamId", "team", "opp"}
+            if missing := required - set(identity):
+                raise RuntimeError(
+                    f"SIS defense-profile identity lacks {sorted(missing)}"
+                )
+            if (
+                int(identity["season"]) != 2025
+                or int(identity["week"]) != 1
+                or int(identity["games"]) != 1
+            ):
+                raise RuntimeError("SIS defense-profile identity scope differs")
+            team_ids.append(int(identity["teamId"]))
+        if len(team_ids) != int(item.get("rows", -1)):
+            failures.append(f"{report}:{slice_name}:identity-row-count")
+        if len(set(team_ids)) != len(team_ids):
+            failures.append(f"{report}:{slice_name}:duplicate-team")
+        if len(team_ids) > 32:
+            failures.append(f"{report}:{slice_name}:more-than-32-teams")
+        all_teams.update(team_ids)
+        slice_report_team_ids.setdefault(slice_name, {})[report] = sorted(team_ids)
+
+    for slice_name, reports in sorted(slice_report_team_ids.items()):
+        totals = reports.get("pass-defense-totals", [])
+        value = reports.get("pass-defense-value", [])
+        if totals != value:
+            failures.append(f"{slice_name}:totals-value-team-mismatch")
+        slice_team_counts[slice_name] = len(set(totals))
+    if len(all_teams) != 32:
+        failures.append(f"union-team-count:{len(all_teams)}")
+    passes = not failures
+    return {
+        "schema_version": 1,
+        "disposition": (
+            "sis-team-pass-defense-schema-passes"
+            if passes else "sis-team-pass-defense-schema-fails"
+        ),
+        "passes": passes,
+        "failures": failures,
+        "artifact_count": len(artifacts),
+        "union_team_count": len(all_teams),
+        "slice_team_counts": slice_team_counts,
+        "totals_headers": sorted(totals_headers),
+        "value_headers": sorted(value_headers),
+        "api_requests_used": manifest.get("api_requests_used"),
+        "api_request_ceiling": manifest.get("api_request_ceiling"),
+        "outcome_values_read": [],
+    }
+
+
+def run_team_pass_defense_schema_sample(
+    profile_dir: Path,
+    timeout_seconds: float,
+    output_dir: Path,
+) -> dict[str, Any]:
+    """Acquire the frozen eight-view team defense-profile feasibility sample."""
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError as exc:  # pragma: no cover
+        raise RuntimeError('install browser support with `pip install -e ".[browser]"`') from exc
+    protocol = Path("reports/2026-08-13-sis-team-pass-defense-schema-protocol.md")
+    if not protocol.is_file():
+        raise RuntimeError("frozen SIS team pass-defense protocol is missing")
+    storage_state = default_storage_state_path(profile_dir)
+    if not storage_state.is_file():
+        raise RuntimeError("SIS saved storage state is missing; run `sis-download login`")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    run_state = output_dir / ".team-pass-defense-schema.run-state.json"
+    partial_manifest_path = (
+        output_dir / ".team-pass-defense-schema.partial-manifest.json"
+    )
+    manifest_path = output_dir / "team-pass-defense-schema.manifest.json"
+    result_path = output_dir / "team-pass-defense-schema.result.json"
+    if manifest_path.exists() or result_path.exists():
+        raise RuntimeError("refusing to overwrite SIS defense-profile result")
+    protocol_hash = _sha256(protocol)
+    used = 0
+    if run_state.exists():
+        state = json.loads(run_state.read_text(encoding="utf-8"))
+        if state.get("plan_sha256") != protocol_hash or int(
+            state.get("ceiling", -1)
+        ) != 10:
+            raise RuntimeError("SIS defense-profile request state identity differs")
+        used = int(state.get("used", -1))
+        if not 0 <= used <= 10:
+            raise RuntimeError("SIS defense-profile request state count is invalid")
+    budget = APIRequestBudget(
+        ceiling=10, used=used, state_path=run_state, plan_sha256=protocol_hash
+    )
+    budget.persist()
+    submit_budget = SubmitOnlyAPIRequestBudget(budget)
+    timeout_ms = int(timeout_seconds * 1000)
+    artifacts: list[dict[str, Any]] = []
+    if partial_manifest_path.exists():
+        partial_manifest = json.loads(
+            partial_manifest_path.read_text(encoding="utf-8")
+        )
+        if partial_manifest.get("protocol_sha256") != protocol_hash:
+            raise RuntimeError("SIS defense-profile partial manifest identity differs")
+        artifacts = partial_manifest.get("artifacts", [])
+        keys = [(item.get("report"), item.get("slice")) for item in artifacts]
+        if len(keys) != len(set(keys)):
+            raise RuntimeError("SIS defense-profile partial manifest has duplicates")
+        expected_keys = {
+            (report, slice_name)
+            for report in TEAM_PASS_DEFENSE_PROFILE_REPORTS
+            for slice_name, _alignment, _schemes in TEAM_PASS_DEFENSE_PROFILE_SLICES
+        }
+        if not set(keys) <= expected_keys:
+            raise RuntimeError("SIS defense-profile partial manifest scope differs")
+        for item in artifacts:
+            artifact_path = output_dir / item["artifact"]
+            if not artifact_path.is_file() or _sha256(artifact_path) != item.get(
+                "sha256"
+            ):
+                raise RuntimeError(
+                    "SIS defense-profile partial artifact is missing or changed"
+                )
+            _validate_csv_scope(
+                artifact_path,
+                ExportSpec(**item["spec"]),
+                int(item["rows"]),
+            )
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(headless=True)
+        context = browser.new_context(
+            storage_state=str(storage_state), accept_downloads=True,
+            viewport={"width": 1800, "height": 1200},
+        )
+        context.route("**/api/v1/nfl/**/query", submit_budget.route)
+        page = context.new_page()
+        page.set_default_timeout(timeout_ms)
+        try:
+            page.goto(
+                f"{BASE_URL}/NFL/Leaders/Teams",
+                wait_until="domcontentloaded",
+                timeout=timeout_ms,
+            )
+            _assert_authenticated(page, timeout_ms)
+            page.locator("#querybuilder").wait_for(state="attached")
+            for report in TEAM_PASS_DEFENSE_PROFILE_REPORTS:
+                spec = ExportSpec(
+                    entity="teams", report=report, season=2025,
+                    start_week=1, end_week=1, split_by_game=True,
+                )
+                _select_report_without_refresh(page, spec.definition)
+                _set_select(page, "#TimeFilters_SeasonFrom", "2025")
+                _set_select(page, "#TimeFilters_SeasonTo", "2025")
+                _set_select(page, "#TimeFilters_StartWeek", "1")
+                _set_select(page, "#TimeFilters_EndWeek", "1")
+                _set_select(page, "#Teams", "-1")
+                _set_checkbox(page, "#chkIncludePlayoffs", False)
+                _set_checkbox(page, "#chkByGame", True)
+                _set_checkbox_values(page, "PassDefenseFilters.ReceiverPos", ["4"])
+                _set_input_value(page, "PassDefenseFilters.MinTargets", "0")
+                _set_input_value(page, "PassDefenseFilters.MinAttempts", "0")
+                for slice_name, alignment, schemes in TEAM_PASS_DEFENSE_PROFILE_SLICES:
+                    destination = output_dir / _team_pass_defense_artifact(
+                        report, slice_name
+                    )
+                    prior = next(
+                        (
+                            item for item in artifacts
+                            if item["report"] == report and item["slice"] == slice_name
+                        ),
+                        None,
+                    )
+                    if prior is not None:
+                        print(
+                            "SIS defense-profile verified existing: "
+                            f"{report}/{slice_name}"
+                        )
+                        continue
+                    if destination.exists():
+                        raise RuntimeError(
+                            f"unmanifested SIS defense-profile artifact: {destination}"
+                        )
+                    _set_checkbox_values(
+                        page, "PassDefenseFilters.TargetLinedUp", alignment
+                    )
+                    _set_checkbox_values(
+                        page, "PassDefenseFilters.Schemes", schemes
+                    )
+                    filters = {
+                        "PassDefenseFilters.TargetLinedUp": list(alignment),
+                        "PassDefenseFilters.Schemes": list(schemes),
+                        "PassDefenseFilters.ReceiverPos": ["4"],
+                        "PassDefenseFilters.MinTargets": ["0"],
+                        "PassDefenseFilters.MinAttempts": ["0"],
+                    }
+                    submit_budget.armed = True
+                    try:
+                        with page.expect_response(
+                            lambda response, expected=filters, current=spec:
+                            _response_matches_filters(response, current, expected),
+                            timeout=timeout_ms,
+                        ) as response_info:
+                            page.locator("#submit").click()
+                    finally:
+                        submit_budget.armed = False
+                    response = response_info.value
+                    expected_rows = _assert_api_scope(response, spec, row_cap=200)
+                    if expected_rows == 0:
+                        raise RuntimeError(
+                            f"SIS defense-profile slice {report}/{slice_name} is empty"
+                        )
+                    _wait_for_table(
+                        page, expected_rows, timeout_ms,
+                        CSV_REQUIRED_COLUMNS[report],
+                    )
+                    button = page.locator("a.dt-button.buttons-csv:visible")
+                    if button.count() != 1:
+                        raise RuntimeError("SIS page has an ambiguous Download control")
+                    partial = destination.with_suffix(destination.suffix + ".partial")
+                    with page.expect_download(timeout=timeout_ms) as download_info:
+                        button.click()
+                    download_info.value.save_as(str(partial))
+                    try:
+                        _validate_csv_scope(partial, spec, expected_rows)
+                    except Exception:
+                        partial.unlink(missing_ok=True)
+                        raise
+                    partial.replace(destination)
+                    artifacts.append({
+                        "report": report,
+                        "slice": slice_name,
+                        "artifact": destination.name,
+                        "sha256": _sha256(destination),
+                        "bytes": destination.stat().st_size,
+                        "rows": expected_rows,
+                        "headers": _csv_header(destination),
+                        "spec": asdict(spec),
+                        "filters": filters,
+                        "submitted_scope": _request_scope(response.request),
+                        "identities": _identity_rows(response),
+                    })
+                    _write_json_atomic(partial_manifest_path, {
+                        "schema_version": 1,
+                        "protocol_sha256": protocol_hash,
+                        "api_requests_used": budget.used,
+                        "api_request_ceiling": budget.ceiling,
+                        "artifacts": artifacts,
+                    })
+        finally:
+            context.close()
+            browser.close()
+    manifest = {
+        "schema_version": 1,
+        "protocol_sha256": protocol_hash,
+        "retrieved_at_utc": datetime.now(UTC).isoformat(),
+        "api_requests_used": budget.used,
+        "api_request_ceiling": budget.ceiling,
+        "artifacts": artifacts,
+    }
+    _write_json_atomic(manifest_path, manifest)
+    result = analyze_team_pass_defense_schema_sample(output_dir, manifest)
+    _write_json_atomic(result_path, result)
+    partial_manifest_path.unlink(missing_ok=True)
+    return result
+
+
 def _manifest_path(output_dir: Path, artifact: str) -> Path:
     return output_dir / (Path(artifact).stem + ".manifest.json")
 
@@ -1301,6 +1674,15 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     alignment.add_argument(
         "--output-dir", type=Path, default=Path("sis/alignment-feasibility-v1"))
+    defense_profile = subparsers.add_parser(
+        "team-pass-defense-schema-sample",
+        help="run the frozen outcome-blind team defense-profile schema/cap sample",
+    )
+    defense_profile.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("sis/team-pass-defense-schema-v1"),
+    )
     return parser
 
 
@@ -1342,6 +1724,14 @@ def main(argv: Sequence[str] | None = None) -> int:
                 args.profile_dir, args.timeout, args.output_dir)
             print("SIS alignment sample complete: " + json.dumps(
                 result, sort_keys=True))
+        elif args.command == "team-pass-defense-schema-sample":
+            result = run_team_pass_defense_schema_sample(
+                args.profile_dir, args.timeout, args.output_dir
+            )
+            print(
+                "SIS team pass-defense schema sample complete: "
+                + json.dumps(result, sort_keys=True)
+            )
         else:
             spec = ExportSpec(
                 entity=args.entity,

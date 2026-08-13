@@ -121,6 +121,20 @@ add that exact path to the command documented here and in the UI Weekly guide.
 This preserves the one-login-then-leave workflow without silently spending SIS
 requests on rejected features.
 
+The next bounded nonweekly feasibility screen is frozen separately:
+
+```bash
+sis-download team-pass-defense-schema-sample
+```
+
+It makes exactly eight scientific normal-UI Submit requests for 2025 Week 1
+team pass defense: Wide/Slot crossed with broad Man/Zone, each in Totals and
+Value. Its analyzer reads only scope, identity, row counts, headers and hashes;
+it never reads performance values. A ten-call durable ceiling permits no more
+than two identical operational retries. This is a one-time schema/cap gate,
+not a recurring SIS plan and not a model feature. Its frozen protocol is
+`reports/2026-08-13-sis-team-pass-defense-schema-protocol.md`.
+
 The frozen, one-game receiver/corner alignment feasibility sample is run as:
 
 ```bash

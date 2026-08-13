@@ -35,8 +35,14 @@ agent or developer:
   32-team, sub-cap, matching-identity, denominator/value schema pass licenses
   a separately frozen PIT historical acquisition plan; a fail closes this
   exact consumer-UI path. The retired individual-CB sample remains untouched
-  at `7/12`. Exact next action: implement and offline-test the guarded sampler
-  and outcome-blind analyzer, then commit/push before making any live Submit.
+  at `7/12`. The guarded sampler and outcome-blind analyzer are now
+  implemented: incidental API refreshes are blocked, only visible Submit is
+  armed, the counter and partial manifest are durable/resumable, all eight
+  filters/subtypes are exact, and only header/scope/identity/hash data reach
+  the gate. Twenty-six focused SIS tests, compilation and whitespace checks
+  pass. Exact next action: commit/push this implementation before making the
+  first live Submit, then run the one immutable sample and follow its frozen
+  pass/fail branch without inspecting performance values.
 
 ### 2026-08-13 unified Wednesday vendor/Odds workflow
 
