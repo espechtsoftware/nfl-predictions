@@ -15,25 +15,56 @@ import torch
 from google.cloud import bigquery
 from tabpfn import TabPFNRegressor
 
-from sis_qb_line import (
-    SIS_QB_FEATURES,
-    active_qb_coverage,
-    attach_sis_qb_line,
-    build_strict_prior_sis_qb_line,
-    feature_contract,
-)
+if os.environ.get("TABPFN_SIS_RB_RDEF_ARM", "").strip():
+    from sis_rb_rdef import (
+        SIS_RB_FEATURE,
+        SIS_SOURCE_RUN,
+        SOURCE_HASH_COLUMNS,
+        active_rb_coverage as active_coverage,
+        attach_sis_rb_rdef as attach_features,
+        build_strict_prior_sis_rb_rdef as build_strict_prior,
+        feature_contract,
+    )
+    ARM_FEATURES = (SIS_RB_FEATURE,)
+    EXPERIMENT = "sis-rb-rdef"
+    ARM_ENV = "TABPFN_SIS_RB_RDEF_ARM"
+    OUTPUT_PREFIX = "TABPFN_SIS_RB_RDEF_JSON="
+    COVERAGE_KEY = "active_rb_coverage"
+    SUPPORT_STEM = "sis_rb"
+    SIS_TABLE = "sis_team_run_context_game"
+    TABLES = {
+        "control": "tabpfn_sis_rb_rdef_control_v1",
+        "treatment": "tabpfn_sis_rb_rdef_treatment_v1",
+    }
+else:
+    from sis_qb_line import (
+        SIS_QB_FEATURES,
+        SIS_SOURCE_RUN,
+        active_qb_coverage as active_coverage,
+        attach_sis_qb_line as attach_features,
+        build_strict_prior_sis_qb_line as build_strict_prior,
+        feature_contract,
+    )
+    ARM_FEATURES = SIS_QB_FEATURES
+    SOURCE_HASH_COLUMNS = ()
+    EXPERIMENT = "sis-qb-line"
+    ARM_ENV = "TABPFN_SIS_QB_LINE_ARM"
+    OUTPUT_PREFIX = "TABPFN_SIS_QB_LINE_JSON="
+    COVERAGE_KEY = "active_qb_coverage"
+    SUPPORT_STEM = "sis_qb"
+    SIS_TABLE = "sis_team_context_game"
+    TABLES = {
+        "control": "tabpfn_sis_qb_line_control_v1",
+        "treatment": "tabpfn_sis_qb_line_treatment_v1",
+    }
 
 
 PROJECT = os.environ["GCP_PROJECT"]
-ARM = os.environ["TABPFN_SIS_QB_LINE_ARM"].strip()
+ARM = os.environ[ARM_ENV].strip()
 OUTPUT_TABLE = os.environ["TABPFN_OUTPUT_TABLE"].strip()
 CODE_SHA = os.environ.get("CODE_SHA", "").strip()
 
 ARMS = ("control", "treatment")
-TABLES = {
-    "control": "tabpfn_sis_qb_line_control_v1",
-    "treatment": "tabpfn_sis_qb_line_treatment_v1",
-}
 TARGET_SEASONS = (2022, 2023, 2024, 2025)
 POSITIONS = ("QB", "RB", "WR", "TE")
 QUANTILES = (0.01, 0.05, 0.10, 0.20, 0.30, 0.40, 0.50,
@@ -42,12 +73,11 @@ QUANTILE_COLUMNS = tuple(f"q{int(value * 100):02d}" for value in QUANTILES)
 CONTEXT_MAX = 28_000
 RANDOM_SEED = 7
 N_ESTIMATORS = 4
-OUTPUT_PREFIX = "TABPFN_SIS_QB_LINE_JSON="
 
 
 def _validate_environment() -> None:
     if ARM not in ARMS:
-        raise ValueError(f"unknown TABPFN_SIS_QB_LINE_ARM={ARM!r}")
+        raise ValueError(f"unknown {ARM_ENV}={ARM!r}")
     if OUTPUT_TABLE != TABLES[ARM]:
         raise ValueError(f"arm {ARM} requires TABPFN_OUTPUT_TABLE={TABLES[ARM]}")
     if not re.fullmatch(r"[0-9a-f]{7,40}", CODE_SHA):
@@ -58,7 +88,7 @@ def _validate_environment() -> None:
     )
     active = [name for name in forbidden if os.environ.get(name, "").strip()]
     if active:
-        raise ValueError(f"SIS QB line cache has forbidden envs: {active}")
+        raise ValueError(f"{EXPERIMENT} cache has forbidden envs: {active}")
 
 
 def _prepare(frame: pd.DataFrame, features: list[str]) -> pd.DataFrame:
@@ -113,11 +143,11 @@ def _fit_predict(
         "sampled_context_rows": int(len(context)),
         "sampled_active_rows": int(context.was_active.fillna(False).sum()),
         "sampled_inactive_rows": int((~context.was_active.fillna(False)).sum()),
-        "context_sis_qb_supported": int(
-            context[list(SIS_QB_FEATURES)].notna().all(axis=1).sum()),
+        f"context_{SUPPORT_STEM}_supported": int(
+            context[list(ARM_FEATURES)].notna().all(axis=1).sum()),
         "target_rows": int(len(test)),
-        "target_sis_qb_supported": int(
-            test[list(SIS_QB_FEATURES)].notna().all(axis=1).sum()),
+        f"target_{SUPPORT_STEM}_supported": int(
+            test[list(ARM_FEATURES)].notna().all(axis=1).sum()),
     }
 
 
@@ -132,19 +162,19 @@ def main() -> None:
 
     client = bigquery.Client(project=PROJECT)
     source_table = f"{PROJECT}.nfl_features.player_week_training"
-    sis_table = f"{PROJECT}.nfl_raw.sis_team_context_game"
+    sis_table = f"{PROJECT}.nfl_raw.{SIS_TABLE}"
     source_meta = client.get_table(source_table)
     sis_meta = client.get_table(sis_table)
     panel = client.query(f"SELECT * FROM `{source_table}`").to_dataframe()
     sis = client.query(f"SELECT * FROM `{sis_table}`").to_dataframe()
     source_rows = len(panel)
-    strict_prior = build_strict_prior_sis_qb_line(sis)
-    panel = attach_sis_qb_line(panel, strict_prior)
+    strict_prior = build_strict_prior(sis)
+    panel = attach_features(panel, strict_prior)
     if len(panel) != source_rows:
-        raise ValueError("SIS QB line join changed training-panel row count")
+        raise ValueError(f"{EXPERIMENT} join changed training-panel row count")
     required = {
         "season", "week", "gsis_id", "position", "was_active",
-        "y_dk_points", *SIS_QB_FEATURES, *features,
+        "y_dk_points", *ARM_FEATURES, *features,
     }
     if missing := required - set(panel.columns):
         raise ValueError(f"training panel lacks {sorted(missing)}")
@@ -184,7 +214,7 @@ def main() -> None:
             "elapsed_seconds": float(time.time() - started),
         })
         if active_only and audit["sampled_inactive_rows"]:
-            raise ValueError("active-only SIS QB line context retained inactive labels")
+            raise ValueError(f"active-only {EXPERIMENT} context retained inactive labels")
         frames.append(predicted)
         folds[str(season)] = audit
         print(
@@ -195,7 +225,7 @@ def main() -> None:
 
     combined = pd.concat(frames, ignore_index=True)
     if combined.duplicated(["season", "week", "gsis_id"]).any():
-        raise ValueError("SIS QB line cache target keys are not unique")
+        raise ValueError(f"{EXPERIMENT} cache target keys are not unique")
     combined["arm"] = ARM
     combined["label_law"] = "active_only"
     combined["feature_law"] = "base"
@@ -209,7 +239,7 @@ def main() -> None:
             write_disposition=bigquery.WriteDisposition.WRITE_EMPTY),
     ).result()
     report = {
-        "disposition": "tabpfn-sis-qb-line-cache-generated",
+        "disposition": f"tabpfn-{EXPERIMENT}-cache-generated",
         "arm": ARM,
         "label_law": "active_only",
         "feature_law": "base",
@@ -228,7 +258,7 @@ def main() -> None:
         "unique_keys": int(combined[[
             "season", "week", "gsis_id"
         ]].drop_duplicates().shape[0]),
-        "active_qb_coverage": active_qb_coverage(panel),
+        COVERAGE_KEY: active_coverage(panel),
         "training_source": {
             "table": source_table,
             "last_modified": source_meta.modified.isoformat(),
@@ -244,6 +274,11 @@ def main() -> None:
             "content_checksum": checksum(sis_table),
             "rows": int(len(sis)),
             "source_run_ids": sorted(sis.source_run_id.dropna().unique().tolist()),
+            "expected_source_run": SIS_SOURCE_RUN,
+            "source_hash_identities": {
+                column: sorted(sis[column].dropna().astype(str).unique().tolist())
+                for column in SOURCE_HASH_COLUMNS
+            },
         },
         "folds": folds,
     }

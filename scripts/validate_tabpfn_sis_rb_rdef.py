@@ -1,0 +1,238 @@
+#!/usr/bin/env python3
+"""Mechanical validation for the frozen SIS RB run-defense cache pair."""
+
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+from nfl_dfs.research.tabpfn_sis_rb_rdef import (
+    SIS_RB_FEATURE,
+    SIS_SOURCE_RUN,
+    SOURCE_HASH_COLUMNS,
+    feature_contract,
+)
+
+
+PREFIX = "TABPFN_SIS_RB_RDEF_JSON="
+TARGET_SEASONS = [2022, 2023, 2024, 2025]
+EXPECTED_ROWS = 52_307
+TABLES = {
+    "control": "tabpfn_sis_rb_rdef_control_v1",
+    "treatment": "tabpfn_sis_rb_rdef_treatment_v1",
+}
+QUANTILE_COLUMNS = (
+    "q01", "q05", "q10", "q20", "q30", "q40", "q50",
+    "q60", "q70", "q80", "q90", "q95", "q99",
+)
+
+
+def extract_report(path: Path) -> dict:
+    payloads = [
+        json.loads(line.split(PREFIX, 1)[1])
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if PREFIX in line
+    ]
+    if len(payloads) != 1:
+        raise ValueError(f"expected one SIS RB report in {path}; got {len(payloads)}")
+    return payloads[0]
+
+
+def validate_reports(
+    control: dict, treatment: dict, code_sha: str,
+    baseline_features: list[str],
+) -> dict:
+    control_features = feature_contract(baseline_features, "control")
+    treatment_features = feature_contract(baseline_features, "treatment")
+    checks = {
+        "arm_identity": control.get("arm") == "control"
+        and treatment.get("arm") == "treatment",
+        "inherited_law_identity": all(
+            report.get("label_law") == "active_only"
+            and report.get("feature_law") == "base"
+            and report.get("active_context_only") is True
+            for report in (control, treatment)),
+        "code_identity": control.get("code_sha") == code_sha
+        and treatment.get("code_sha") == code_sha,
+        "output_table_identity": control.get("output_table", "").endswith(
+            TABLES["control"])
+        and treatment.get("output_table", "").endswith(TABLES["treatment"]),
+        "same_source_snapshots": control.get("training_source")
+        == treatment.get("training_source")
+        and control.get("sis_source") == treatment.get("sis_source"),
+        "exact_source_identity": all(
+            report.get("sis_source", {}).get("source_run_ids") == [SIS_SOURCE_RUN]
+            and report.get("sis_source", {}).get("expected_source_run")
+            == SIS_SOURCE_RUN
+            and set(report.get("sis_source", {}).get(
+                "source_hash_identities", {})) == set(SOURCE_HASH_COLUMNS)
+            and all(len(values) == 1 for values in report.get(
+                "sis_source", {}).get("source_hash_identities", {}).values())
+            for report in (control, treatment)),
+        "exact_feature_contracts": control.get("feature_columns")
+        == control_features and treatment.get("feature_columns")
+        == treatment_features and treatment_features
+        == [*control_features, SIS_RB_FEATURE],
+        "distinct_feature_hashes": bool(control.get("feature_contract_sha256"))
+        and bool(treatment.get("feature_contract_sha256"))
+        and control.get("feature_contract_sha256")
+        != treatment.get("feature_contract_sha256"),
+        "same_frozen_hyperparameters": all(
+            control.get(key) == treatment.get(key)
+            for key in ("target_seasons", "quantiles", "context_max",
+                        "random_seed", "n_estimators", "device")),
+        "exact_target_seasons": control.get("target_seasons") == TARGET_SEASONS
+        and treatment.get("target_seasons") == TARGET_SEASONS,
+        "exact_output_rows": all(
+            report.get(key) == EXPECTED_ROWS
+            for report in (control, treatment)
+            for key in ("output_rows", "unique_keys")),
+        "same_coverage_audits": control.get("active_rb_coverage")
+        == treatment.get("active_rb_coverage"),
+        "active_rb_minimum_coverage": all(any(
+            row.get("season") == season and row.get("support_rate", 0) >= 0.80
+            for row in control.get("active_rb_coverage", []))
+            for season in (2023, 2024, 2025)),
+        "target_counts_match": all(
+            control.get("folds", {}).get(str(season), {}).get("target_rows")
+            == treatment.get("folds", {}).get(str(season), {}).get("target_rows")
+            for season in TARGET_SEASONS),
+        "context_counts_match": all(
+            control.get("folds", {}).get(str(season), {}).get(
+                "sampled_context_rows")
+            == treatment.get("folds", {}).get(str(season), {}).get(
+                "sampled_context_rows") for season in TARGET_SEASONS),
+        "active_context_contract": all(
+            report.get("folds", {}).get(str(season), {}).get(
+                "sampled_inactive_rows", -1) == 0
+            for report in (control, treatment) for season in TARGET_SEASONS),
+    }
+    normalized = {key: bool(value) for key, value in checks.items()}
+    return {"checks": normalized, "passes": all(normalized.values())}
+
+
+def validate_tables(control: pd.DataFrame, treatment: pd.DataFrame) -> dict:
+    keys = ["season", "week", "gsis_id"]
+    left = control.sort_values(keys).reset_index(drop=True)
+    right = treatment.sort_values(keys).reset_index(drop=True)
+    required = {
+        "mean", *QUANTILE_COLUMNS, "arm", "label_law", "feature_law",
+        "active_context_only", "feature_contract_sha256", "code_sha",
+    }
+    checks = {
+        "row_counts": len(left) == EXPECTED_ROWS and len(right) == EXPECTED_ROWS,
+        "unique_keys": not left.duplicated(keys).any()
+        and not right.duplicated(keys).any(),
+        "exact_key_equality": left[keys].equals(right[keys]),
+        "exact_seasons": sorted(left.season.astype(int).unique()) == TARGET_SEASONS
+        and sorted(right.season.astype(int).unique()) == TARGET_SEASONS,
+        "required_columns": required.issubset(left) and required.issubset(right),
+    }
+    if checks["required_columns"]:
+        columns = ["mean", *QUANTILE_COLUMNS]
+        lv = left[columns].to_numpy(float)
+        rv = right[columns].to_numpy(float)
+        checks.update({
+            "finite_predictions": np.isfinite(lv).all() and np.isfinite(rv).all(),
+            "ordered_quantiles": np.all(np.diff(lv[:, 1:], axis=1) >= -1e-8)
+            and np.all(np.diff(rv[:, 1:], axis=1) >= -1e-8),
+            "row_arm_identity": left.arm.eq("control").all()
+            and right.arm.eq("treatment").all(),
+            "row_common_law": all(
+                left[column].nunique() == 1 and right[column].nunique() == 1
+                and left[column].iloc[0] == right[column].iloc[0]
+                for column in ("label_law", "feature_law",
+                               "active_context_only", "code_sha")),
+            "distinct_feature_hashes": left.feature_contract_sha256.nunique() == 1
+            and right.feature_contract_sha256.nunique() == 1
+            and left.feature_contract_sha256.iloc[0]
+            != right.feature_contract_sha256.iloc[0],
+            "predictions_changed": bool(np.any(np.abs(lv - rv) > 1e-8)),
+        })
+    else:
+        for name in ("finite_predictions", "ordered_quantiles",
+                     "row_arm_identity", "row_common_law",
+                     "distinct_feature_hashes", "predictions_changed"):
+            checks[name] = False
+    normalized = {key: bool(value) for key, value in checks.items()}
+    return {"checks": normalized, "passes": all(normalized.values())}
+
+
+def validate_control_reproduction(
+    control: pd.DataFrame, inherited: pd.DataFrame,
+) -> dict:
+    keys = ["season", "week", "gsis_id"]
+    columns = ["mean", *QUANTILE_COLUMNS]
+    left = control.sort_values(keys).reset_index(drop=True)
+    right = inherited.sort_values(keys).reset_index(drop=True)
+    same_keys = len(left) == EXPECTED_ROWS and len(right) == EXPECTED_ROWS \
+        and not left.duplicated(keys).any() and not right.duplicated(keys).any() \
+        and left[keys].equals(right[keys])
+    required = set(columns).issubset(left) and set(columns).issubset(right)
+    maximum_delta = float("inf")
+    if same_keys and required:
+        maximum_delta = float(np.max(np.abs(
+            left[columns].to_numpy(float) - right[columns].to_numpy(float)),
+            initial=0.0))
+    checks = {
+        "exact_keys": same_keys,
+        "required_prediction_columns": required,
+        "maximum_abs_delta_at_most_1e_10": maximum_delta <= 1e-10,
+    }
+    return {
+        "checks": {key: bool(value) for key, value in checks.items()},
+        "passes": all(checks.values()), "maximum_abs_delta": maximum_delta,
+    }
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--control-log", type=Path, required=True)
+    parser.add_argument("--treatment-log", type=Path, required=True)
+    parser.add_argument("--features", type=Path, required=True)
+    parser.add_argument("--code-sha", required=True)
+    parser.add_argument("--inherited-table", choices=(
+        "tabpfn_active_label_treatment_v2",), required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    from nfl_dfs.bq import query_df
+    from nfl_dfs.config import settings
+
+    reports = {
+        "control": extract_report(args.control_log),
+        "treatment": extract_report(args.treatment_log),
+    }
+    frames = {
+        arm: query_df(f"SELECT * FROM `{settings.features}.{table}`")
+        for arm, table in TABLES.items()
+    }
+    inherited = query_df(
+        f"SELECT * FROM `{settings.features}.{args.inherited_table}`")
+    report_validation = validate_reports(
+        reports["control"], reports["treatment"], args.code_sha,
+        args.features.read_text(encoding="utf-8").split())
+    table_validation = validate_tables(frames["control"], frames["treatment"])
+    reproduction = validate_control_reproduction(frames["control"], inherited)
+    passes = report_validation["passes"] and table_validation["passes"] \
+        and reproduction["passes"]
+    output = {
+        "disposition": "tabpfn-sis-rb-rdef-caches-valid" if passes
+        else "tabpfn-sis-rb-rdef-caches-invalid",
+        "passes": passes, "label_law": "active_only", "feature_law": "base",
+        "inherited_table": args.inherited_table, "tables": TABLES,
+        "reports": reports, "report_validation": report_validation,
+        "table_validation": table_validation,
+        "control_reproduction": reproduction,
+    }
+    args.output.write_text(
+        json.dumps(output, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    if not passes:
+        raise SystemExit("SIS RB run-defense cache validation failed")
+
+
+if __name__ == "__main__":
+    main()

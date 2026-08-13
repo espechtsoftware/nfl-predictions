@@ -151,17 +151,28 @@ agent or developer:
   while offense Boom% is weaker and reverses on important 2025 views. The
   one-column RB-only model question is frozen before treatment output in
   `reports/2026-08-13-sis-rb-run-defense-protocol.md`; YAC, EPA, positive
-  rate, Boom% and every offense field are explicitly excluded. Fifteen
-  focused importer/audit/QB-line tests pass. Implement this cache pair only
-  after preserving the frozen protocol commit.
-- The SIS QB-line cache mechanical gate passed and licensed the score-free
-  final-served stage. Execution
-  `tabpfn-sis-qb-line-final-served-v1-vkx49` is running from audit image
+  rate, Boom% and every offense field are explicitly excluded. The cache
+  generator, exact-control validator, licensed replay tables, active-RB
+  final-served evaluator, CLI, immutable GPU/audit launchers and harvesters
+  are now implemented; 32 focused SIS/import/replay tests pass and all scripts
+  parse. Run a full Cloud Build, build the GPU image from the same immutable
+  code, launch both write-once caches, and require exact inherited-cache
+  reproduction before the score-free RB gate.
+- The SIS QB-line cache mechanical gate passed and the score-free
+  final-served execution
+  `tabpfn-sis-qb-line-final-served-v1-vkx49` completed from audit image
   `sha256:c536b05c33b120cea860fb6d0067192c740a33cfe9fd60461195c039ecd40db5`;
-  its immutable launch manifest is under
+  its immutable report is under
   `reports/tabpfn-sis-qb-line-runs/20260813-tabpfn-sis-qb-line-final-served-v1/`.
-  Poll and harvest it. A pass licenses a separately frozen exact-80; a fail
-  reads no lineup scores and closes only the two-column QB marginal arm.
+  It **failed** the frozen Brier-30 gate, `0.0463863454 -> 0.0464094132`
+  (treatment minus control `+0.0000230678`; paired slate-cluster CI
+  `[-0.00007963,+0.00012577]`). No lineup score was read. The expected
+  marginal-versus-tail pattern occurred: MAE improved `0.0109370`, CRPS
+  improved `0.0049238`, and Brier-20 improved `0.0003108`, but the registered
+  30-point event did not. The exact two-column arm is closed; SIS alignment,
+  conditional allocation and the separately frozen RB run-defense arm remain
+  open. Concise interpretation is
+  `reports/2026-08-13-sis-qb-line-final-served-result.md`.
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
