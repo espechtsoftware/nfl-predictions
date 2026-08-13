@@ -13,7 +13,7 @@ OUT="$ROOT/reports/tabpfn-sis-rb-rdef-runs/$RUN_ID"
 PROTOCOL="$ROOT/reports/2026-08-13-sis-rb-run-defense-protocol.md"
 ACTIVE="$ROOT/reports/tabpfn-active-label-runs/20260812-active-label-exact80-v2-pit-clean/selected_active_label.txt"
 USAGE="$ROOT/reports/usage-dirichlet-calibration-runs/20260812-usage-exact80-v2-pit-clean/selected_usage.txt"
-CACHE="$ROOT/reports/tabpfn-sis-rb-rdef-runs/20260813-tabpfn-sis-rb-rdef-v1/validation.json"
+CACHE="$ROOT/reports/tabpfn-sis-rb-rdef-runs/20260813-tabpfn-sis-rb-rdef-v2/validation.json"
 
 case "$IMG" in *@sha256:*) ;; *) echo "ABORT: immutable audit image required"; exit 2;; esac
 case "$CODE_SHA" in

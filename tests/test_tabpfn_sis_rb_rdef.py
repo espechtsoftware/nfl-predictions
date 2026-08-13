@@ -161,4 +161,5 @@ def test_cloud_path_is_write_once_and_gate_bound():
     assert "selected_active_label.txt" in launch
     assert "TABPFN_SIS_RB_RDEF_JSON=" in finish
     assert "tabpfn-sis-rb-rdef-caches-valid" in gate
+    assert "20260813-tabpfn-sis-rb-rdef-v2/validation.json" in gate
     assert "aggregate-active-rb-30-point-brier" in gate

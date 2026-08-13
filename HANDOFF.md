@@ -186,6 +186,15 @@ agent or developer:
   `reports/tabpfn-sis-rb-rdef-runs/20260813-tabpfn-sis-rb-rdef-v2/`.
   Poll and harvest the v2 pair when complete, but do not launch the score-free
   final-served gate until the full build also passes and its digest is bound.
+  Both v2 caches completed successfully and their mechanical validation passes:
+  52,307 exact matching keys per arm; maximum inherited-control delta `0.0`;
+  changed treatment predictions; ordered finite quantiles; and active-RB
+  support `87.93%/88.02%/87.84%` in 2023/24/25. Full validation build
+  `9c9a2f56-280f-4d14-b318-a11ecdbd06c1` also passed and produced audit digest
+  `sha256:e86c6f963bbceca71d8f6cbd15f28c25651b1be75c4947494b604df3dcdee0e0`.
+  The final launcher now binds the v2 validation. Launch and poll the frozen
+  score-free final-served gate next; do not inspect lineup scores unless it
+  passes.
   The outcome-blind SIS filter audit confirmed exact separate receiving
   alignment and pass-defense receiver/defender alignment controls using three
   UI query calls. The one-game feasibility decision is frozen before sample
