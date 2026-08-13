@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from nfl_dfs.research.extreme_selector_confirmation import evaluate_panel
+from nfl_dfs.research.extreme_selector_confirmation import evaluate_panel, run
 
 
 def _bits(worlds: list[int], n: int = 8) -> str:
@@ -54,3 +54,12 @@ def test_confirmation_fails_if_persisted_book_does_not_reproduce():
     panel["selected"] = [True, False, True]
     with pytest.raises(ValueError, match="does not reproduce"):
         evaluate_panel(panel, expected_slates=1, entry_count=2)
+
+
+def test_run_rejects_unregistered_slate_scope_before_loading(monkeypatch):
+    monkeypatch.setattr(
+        "nfl_dfs.research.extreme_selector_confirmation.load_panel",
+        lambda *_args: pytest.fail("must reject before warehouse read"),
+    )
+    with pytest.raises(ValueError, match="unregistered expected slate count"):
+        run("panel", expected_slates=55)

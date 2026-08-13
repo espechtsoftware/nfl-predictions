@@ -175,8 +175,16 @@ def evaluate_panel(
     }
 
 
-def run(panel: str, table: str = "replay_candidates") -> dict:
-    report = evaluate_panel(load_panel(panel, table))
+def run(
+    panel: str,
+    table: str = "replay_candidates",
+    *,
+    expected_slates: int = EXPECTED_SLATES,
+) -> dict:
+    if expected_slates not in {54, EXPECTED_SLATES}:
+        raise ValueError(f"unregistered expected slate count {expected_slates}")
+    report = evaluate_panel(
+        load_panel(panel, table), expected_slates=expected_slates)
     report["panel_run_id"] = panel
     report["candidate_table"] = table
     print("EXTREME_SELECTOR_CONFIRMATION_JSON=" + json.dumps(

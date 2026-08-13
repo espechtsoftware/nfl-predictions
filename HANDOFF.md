@@ -499,6 +499,14 @@ agent or developer:
   this narrow lever, run the explicit-zero smoke and require exact parity,
   then run only the four registered 2023--2025 panels after PFR transport
   closure.
+  Full-test Cloud Build `79fbcef4-ee0a-4390-995c-0c8b2249ae1f` passed from
+  packaged implementation source `8fb2585` and produced immutable digest
+  `sha256:248bb8edd08625b1c6af7d3fc339662975131363d2b31d806c7eea5e32468c82`.
+  The explicit seed-0 one-slate parity replay is active as Cloud Run execution
+  `replay-mcseed-zero-parity-s9vps`; its write-once manifest is under
+  `reports/panel-runs/20260813-incumbent-seed-zero-parity-v1/`.
+  Poll/finish it next. Only exact parity licenses the four new seed-pair
+  season panels.
   The post-parity path is also implemented before any output: fixed R1--R4
   launch wrappers, twelve durable season executions, and one Cloud analyzer
   that withholds the five-replicate tail report unless all panels have exact

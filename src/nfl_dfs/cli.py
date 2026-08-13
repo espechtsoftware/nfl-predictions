@@ -553,6 +553,10 @@ def main(argv: list[str] | None = None) -> None:
         choices=("replay_candidates", "replay_candidates_staging"),
         default="replay_candidates",
     )
+    p.add_argument(
+        "--expected-slates", type=int, choices=(54, 107), default=107,
+        help="Frozen comparison scope; only registered 54/107-slate books",
+    )
 
     p = sub.add_parser(
         "corrected-floor-union",
@@ -977,7 +981,8 @@ def main(argv: list[str] | None = None) -> None:
     elif args.command == "corrected-extreme-selector":
         from .research import extreme_selector_confirmation
 
-        extreme_selector_confirmation.run(args.panel, args.table)
+        extreme_selector_confirmation.run(
+            args.panel, args.table, expected_slates=args.expected_slates)
     elif args.command == "corrected-floor-union":
         from .research import floor_union_confirmation
 
