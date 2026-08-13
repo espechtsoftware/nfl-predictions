@@ -593,6 +593,12 @@ reconciliation when their findings affect the program.
   build tree. Next: commit/push this build identity, launch with
   `scripts/cloud_portfolio_effective_rank.sh`, then poll/harvest only a clean
   terminal result.
+  Frozen execution `portfolio-effective-rank-v1-jbgtr` is launched from that
+  exact digest with code identity `e124004`. Its checksummed manifest is under
+  `reports/portfolio-effective-rank-runs/20260813-incumbent-effective-rank-v1/`.
+  Poll this exact execution without reading partial diagnostic output; on a
+  clean terminal success, run the fail-closed harvester and summarize the full
+  107-slate result.
   The new outside review
   `reports/2026-08-13-g2-failure-analysis-and-next-mechanism.md` is reconciled
   in `reports/2026-08-13-g2-failure-analysis-reconciliation.md`. Its core

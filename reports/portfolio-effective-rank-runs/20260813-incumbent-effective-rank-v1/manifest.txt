@@ -1,0 +1,17 @@
+run_id=20260813-incumbent-effective-rank-v1
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:8fab83020f0a9b24253727e5ae352d550f10c9286eb10f27e2c0c51e34cce486
+code_sha=e124004
+panel=20260812-pitclean-e80-selected-tabpfn-active-v2
+source=promoted
+protocol_sha256=1052450f1ad17f58ef805fe42e6d2c23cbef42da441afd44319198b28d86d0ba
+g2_report_sha256=aff43f6be30b66178a753938f6324b408789bf1c2ec1ccae5b4dfc9853945dbd
+panel_manifest_sha256=dd5003359a6962b65286305461ab8b16e5d4b175e50faa55d4316f0b2057a85c
+panel_acceptance_sha256=3c1db12dbae836e10d38eedf136d2faf907dbe799bb7432e382629af3f10f15f
+expected_slates=107
+entries=80
+worlds=10000
+seasons=2019 2021 2022 2023 2024 2025
+lines=187 194 200 210 220 230 240
+book_sizes=20 40 80
+random_books=20
+random_seed=20260812
