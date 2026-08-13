@@ -78,6 +78,15 @@ agent or developer:
   `a65ee32e-4a87-443e-b205-b6f9a1976aba` is the intended generation/audit
   image. The launcher runs one corrected finite-K cloud-week smoke before
   fanning out all five paired seeds and both laws.
+- Superseding build `a65ee32e-4a87-443e-b205-b6f9a1976aba` succeeded;
+  immutable image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:4c59f038898d7a21aa2d6067c78238b0349f1e3b090999a6e9da8703ea316e43`
+  with embedded code `45ece38`. Phase R run
+  `20260813-game-team-usage-phase-r-v1` is launched and currently at its
+  outcome-blind preflight `replay-gtrphase-r-smoke-5z6xn`. The still-running
+  local launcher session `63787` will automatically fan out 30 jobs after
+  that smoke succeeds. Exact next action: poll/resume that session; do not
+  relaunch the immutable run.
 
 ### 2026-08-13 SIS ASOE Stage A launched
 
