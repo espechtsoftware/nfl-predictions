@@ -189,6 +189,16 @@ reconciliation when their findings affect the program.
   path. Repair only a demonstrated general numerical defect, prove exact
   marginal preservation and default-path safety, then rerun the unchanged
   gate; never waive the invariant or inspect lineup scores.
+  The first stage-boundary diagnosis found a general numerical cause in
+  `shift_draws_to_means`: float32 inputs were reduced in float32, so changing
+  only world order changed the computed mean and therefore applied a
+  `2^-19`/`2^-18`-scale uniform shift. The shared helper now promotes to
+  float64 before reduction. A regression test constructs permutations with
+  demonstrably unequal float32 means and proves exact sorted post-shift
+  marginals plus target means within `1e-12`; 44 focused blend/position/ledger
+  tests pass. Exact next action is full Cloud validation, a default-output
+  safety check, then a new immutable score-free rerun of the unchanged frozen
+  gate. Do not reuse the inconclusive execution as a pass.
 
 ### 2026-08-12 team-passing review reconciliation
 

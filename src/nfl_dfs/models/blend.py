@@ -70,12 +70,20 @@ def shift_draws_to_means(draws: np.ndarray,
     Altering only the projection frame changes deterministic optimization but
     leaves boom generation and coverage selection on a different model.
     """
-    values = np.asarray(draws)
+    # Dependence-only mechanisms deliberately permute identical marginal
+    # values across worlds. NumPy accumulates float32 means in float32 and
+    # floating addition is order-sensitive, so two permutations used to get
+    # slightly different market shifts (observed max 2^-18 points). Promote
+    # before reducing: the shift must be a function of the marginal multiset,
+    # not its world order.
+    values = np.asarray(draws, dtype=np.float64)
     targets = np.asarray(target_means, dtype=float)
     if values.ndim != 2 or targets.shape != (values.shape[0],):
         raise ValueError(
             "draw rows and target means must have matching player counts")
-    return values + (targets - values.mean(axis=1))[:, None]
+    return values + (
+        targets - values.mean(axis=1, dtype=np.float64)
+    )[:, None]
 
 
 def market_projection_frame(feats: pd.DataFrame) -> pd.Series:

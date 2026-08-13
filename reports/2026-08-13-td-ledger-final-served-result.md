@@ -60,3 +60,15 @@ the problem is a shared numerical implementation defect, fix it with unit
 tests proving exact marginal preservation and default-output safety, run full
 validation, then rerun this unchanged gate. If the ledger intrinsically
 changes final marginals, the mechanism fails the frozen premise and closes.
+
+The first diagnostic isolated a general defect in the shared market-shift
+helper: it reduced float32 draw matrices in float32. Because floating
+summation depends on order, rank-permuting an identical marginal could change
+its computed mean by `2^-19`/`2^-18`, after which the helper shifted every
+world by that artifact. The helper now promotes to float64 before its mean
+reduction. A deterministic regression construction proves that two float32
+permutations with unequal float32 means receive exact identical sorted
+post-shift marginals and target means within `1e-12`. Focused blend,
+position-scale and TD-ledger suites pass. This is a general numerical repair,
+not a gate waiver; full validation and a new immutable score-free rerun remain
+required.
