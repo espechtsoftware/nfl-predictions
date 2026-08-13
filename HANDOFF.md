@@ -22,6 +22,25 @@ agent or developer:
 
 ## Current state — 2026-08-13 09:30 CDT
 
+### 2026-08-13 G3 conditional allocation Stage A frozen
+
+- While the twelve immutable incumbent seed-variance season jobs remain
+  active, the next independent score-facing mechanism has advanced without
+  reading partial seed outcomes. G3 Stage A is frozen in
+  `reports/2026-08-13-g3-participation-conditioned-allocation-protocol.md`.
+  The current accepted branch is unambiguous: global Dirichlet
+  `K=28.154043586960896` is the control and a strictly-prior
+  participation/action embedding-conditioned hierarchy regularized around that
+  exact K is treatment. The fixed representation is a 16-dimensional shifted-
+  PMI/negative-sampling skip-gram factorization of valid 11-player offensive
+  participation with passer/target/rusher context upweighting. Only 2021--2022
+  can fit the two kind-specific coefficients; 2023--2025 are held out. Its
+  score-free likelihood, coverage, activity and clustered-bootstrap gate must
+  pass before G1 dependence evaluation, and G1 must pass before any exact-80
+  test. Exact next action: implement and validate the frozen Stage A analyzer
+  and immutable runner while polling the seed envelope; do not inspect partial
+  seed scores.
+
 ### 2026-08-13 incumbent numeric path restored before new arms
 
 - TD-ledger v2 fixed the world-order marginal drift but proved that the shared
