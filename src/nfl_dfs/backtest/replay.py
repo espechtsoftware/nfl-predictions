@@ -367,16 +367,18 @@ def apply_served_tail_scale(
         .to_numpy()
     if not mask.any():
         return draws
+    from ..models.blend import permutation_invariant_row_mean
+
     out = values.astype(np.float64, copy=True)
-    before = out[mask].mean(axis=1, dtype=np.float64, keepdims=True)
+    before = permutation_invariant_row_mean(out[mask], keepdims=True)
     corrected = before + factor * (out[mask] - before)
     # Remove only floating summation drift; this keeps the transformation
     # exactly mean-invariant even for long simulation matrices.
-    corrected += before - corrected.mean(
-        axis=1, dtype=np.float64, keepdims=True)
+    corrected += before - permutation_invariant_row_mean(
+        corrected, keepdims=True)
     out[mask] = corrected
     max_delta = float(np.max(np.abs(
-        out[mask].mean(axis=1, dtype=np.float64, keepdims=True) - before)))
+        permutation_invariant_row_mean(out[mask], keepdims=True) - before)))
     if max_delta > 1e-10:
         raise ValueError(
             f"served-tail scale changed a row mean by {max_delta:.3g}")
@@ -428,18 +430,21 @@ def apply_served_position_scales(
     if values.ndim != 2 or len(positions) != values.shape[0]:
         raise ValueError("served-position scale rows do not align")
     labels = positions.astype(str).str.upper().to_numpy()
+    from ..models.blend import permutation_invariant_row_mean
+
     out = values.astype(np.float64, copy=True)
     for position, factor in parsed.items():
         mask = labels == position
         if not mask.any() or factor == 1.0:
             continue
-        before = out[mask].mean(axis=1, dtype=np.float64, keepdims=True)
+        before = permutation_invariant_row_mean(out[mask], keepdims=True)
         corrected = before + factor * (out[mask] - before)
-        corrected += before - corrected.mean(
-            axis=1, dtype=np.float64, keepdims=True)
+        corrected += before - permutation_invariant_row_mean(
+            corrected, keepdims=True)
         out[mask] = corrected
         max_delta = float(np.max(np.abs(
-            out[mask].mean(axis=1, dtype=np.float64, keepdims=True) - before)))
+            permutation_invariant_row_mean(
+                out[mask], keepdims=True) - before)))
         if max_delta > 1e-10:
             raise ValueError(
                 f"served-position scale changed a row mean by {max_delta:.3g}")
@@ -1382,7 +1387,11 @@ def _market_blend_worlds(
     replay frames and also runs when ``market`` is empty: uncovered players
     remain model-only without taking a different alignment branch.
     """
-    from ..models.blend import blend as _blend, shift_draws_to_means
+    from ..models.blend import (
+        blend as _blend,
+        permutation_invariant_row_mean,
+        shift_draws_to_means,
+    )
 
     n_before = len(frame)
     if frame_draws.shape[0] != n_before:
@@ -1392,7 +1401,7 @@ def _market_blend_worlds(
         sort=False, validate="many_to_one")
     if len(frame) != n_before:
         raise ValueError("market merge fanned out rows")
-    pre = frame_draws.mean(axis=1, dtype=np.float64)
+    pre = permutation_invariant_row_mean(frame_draws)
     frame["proj_points"] = _blend(
         pre, frame.market_points.to_numpy(), model_weight)
     frame_draws = shift_draws_to_means(

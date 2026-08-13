@@ -65,10 +65,13 @@ The first diagnostic isolated a general defect in the shared market-shift
 helper: it reduced float32 draw matrices in float32. Because floating
 summation depends on order, rank-permuting an identical marginal could change
 its computed mean by `2^-19`/`2^-18`, after which the helper shifted every
-world by that artifact. The helper now promotes to float64 before its mean
-reduction. A deterministic regression construction proves that two float32
-permutations with unequal float32 means receive exact identical sorted
-post-shift marginals and target means within `1e-12`. Focused blend,
-position-scale and TD-ledger suites pass. This is a general numerical repair,
-not a gate waiver; full validation and a new immutable score-free rerun remain
-required.
+world by that artifact. The shared final-served transforms now use a
+deterministic float64 row mean over the sorted marginal values. That definition
+depends only on the marginal multiset rather than world order and is used for
+market blending, live projections, global/position spread scaling and the
+diagnostic position scale. Deterministic regression constructions prove that
+two float32 permutations with unequal native float32 means finish the complete
+shift plus position-scale chain with bit-exact identical sorted marginals.
+Fifty-one focused blend, position-scale, served-tail and TD-ledger tests pass.
+This is a general numerical repair, not a gate waiver; full validation and a
+new immutable score-free rerun remain required.

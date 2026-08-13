@@ -13,6 +13,7 @@ from . import served_tail_calibration as control
 from . import served_tail_recalibration as global_recalibration
 from ..ingest.fantasy_points_route import PANEL_ID
 from ..models import calibration
+from ..models.blend import permutation_invariant_row_mean
 
 
 CALIBRATION_SEASONS = (2019, 2021, 2022)
@@ -109,11 +110,11 @@ def apply_position_scales(
     scale = positions.astype(str).str.upper().map(normalized)
     if scale.isna().any():
         raise ValueError("position-scale frame contains an unsupported position")
-    before = values.mean(axis=1, dtype=np.float64, keepdims=True)
+    before = permutation_invariant_row_mean(values, keepdims=True)
     out = before + scale.to_numpy(dtype=np.float64)[:, None] * (values - before)
-    out += before - out.mean(axis=1, dtype=np.float64, keepdims=True)
+    out += before - permutation_invariant_row_mean(out, keepdims=True)
     max_delta = float(np.max(np.abs(
-        out.mean(axis=1, dtype=np.float64, keepdims=True) - before
+        permutation_invariant_row_mean(out, keepdims=True) - before
     )))
     if max_delta > 1e-10:
         raise ValueError(f"position scale changed a row mean by {max_delta:.3g}")

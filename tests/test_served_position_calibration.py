@@ -93,6 +93,24 @@ def test_position_scales_are_mean_invariant_and_support_narrowing():
     assert np.ptp(out[3]) == pytest.approx(0.8 * np.ptp(draws[3]))
 
 
+def test_shift_and_position_scale_preserve_exact_permuted_marginals():
+    from nfl_dfs.models.blend import shift_draws_to_means
+
+    rng = np.random.default_rng(0)
+    source = rng.uniform(0.0, 50.0, (4, 10_000)).astype(np.float32)
+    permuted = np.stack([
+        row[rng.permutation(row.size)] for row in source
+    ])
+    target = np.array([21.0, 17.5, 10.0, 8.0])
+    positions = pd.Series(["QB", "RB", "WR", "TE"])
+    factors = {"QB": 0.925, "RB": 0.96, "WR": 1.04, "TE": 0.94}
+    left = position_calibration.apply_position_scales(
+        shift_draws_to_means(source, target), positions, factors)
+    right = position_calibration.apply_position_scales(
+        shift_draws_to_means(permuted, target), positions, factors)
+    assert np.array_equal(np.sort(left, axis=1), np.sort(right, axis=1))
+
+
 def test_position_scales_require_exact_contract_and_bounds():
     draws = np.arange(24, dtype=float).reshape(4, 6)
     positions = pd.Series(["QB", "RB", "WR", "TE"])

@@ -19,6 +19,23 @@ from scipy import optimize, stats
 BLEND_W = 0.45  # model weight; refit on validation
 
 
+def permutation_invariant_row_mean(
+    draws: np.ndarray, *, keepdims: bool = False,
+) -> np.ndarray:
+    """Float64 row means that depend only on each row's value multiset.
+
+    The simulation copula is encoded by column order. Dependence mechanisms
+    are allowed to permute worlds while retaining exact player marginals, so
+    a downstream marginal transform must not acquire order-sensitive floating
+    drift. Sorting is deterministic and also removes float32 accumulator loss.
+    """
+    values = np.asarray(draws, dtype=np.float64)
+    if values.ndim != 2:
+        raise ValueError("draws must be a two-dimensional matrix")
+    return np.sort(values, axis=1).mean(
+        axis=1, dtype=np.float64, keepdims=keepdims)
+
+
 def effective_model_weight(env: dict | None = None) -> float:
     """Return the model share of the model/prop-market blend.
 
@@ -82,7 +99,7 @@ def shift_draws_to_means(draws: np.ndarray,
         raise ValueError(
             "draw rows and target means must have matching player counts")
     return values + (
-        targets - values.mean(axis=1, dtype=np.float64)
+        targets - permutation_invariant_row_mean(values)
     )[:, None]
 
 
