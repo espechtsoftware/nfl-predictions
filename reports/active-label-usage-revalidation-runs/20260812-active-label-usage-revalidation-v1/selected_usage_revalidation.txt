@@ -1,0 +1,9 @@
+historical_source=20260811-pitclean-e80-k1-role12union-a12ab31
+active_cache=tabpfn_active_label_treatment_v2
+allocation=dirichlet
+selected_k=28.154043586960896
+selected_eval_panel=20260812-pitclean-e80-selected-tabpfn-active-v2
+comparison_execution=compare-active-label-usage-revalidation-v3-8kzc6
+known_treatment_before_protocol=true
+protocol_sha256=f8e53d640b4cb6dbacfe6a828d413be47ad61a705d85f2185c94228be201e5fc
+comparison_sha256=f77106615e1a6f1a01e940a42e9735b9387cde85df1642b0f7c656956d59b36a

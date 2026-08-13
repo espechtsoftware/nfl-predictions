@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 21:28 CDT
+## Current state — 2026-08-12 21:53 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -432,6 +432,25 @@ reconciliation when their findings affect the program.
   and use only v3 preflight/comparator identities. Do not inspect partial v3
   output; after a valid terminal comparison, record the frozen 107-slate grid
   and branch to either G2 (finite K retained) or multinomial G0/G1 reruns.
+- The exact repair-tree Cloud Build
+  `f0b7a163-86c1-4e9e-9a39-2adf43880659` passed 1,018 tests with two expected
+  skips and produced immutable digest
+  `sha256:f77377c4ce6be26f36f3b2d3718a515a699e4613b3c1def274340dbe2741e59a`.
+  Final independent acceptance `accept-replay-panel-4299w`, entrypoint
+  preflight `compare-active-label-usage-preflight-v3-vkg6n`, and sole valid
+  comparator `compare-active-label-usage-revalidation-v3-8kzc6` all passed.
+  The frozen 107-slate law retains finite K at the first difference: thresholds
+  240/230/220 tie `2/2`; 210 is `4 -> 6` in favor of finite K; lower disclosure
+  is 200 `10 -> 14`, 194 `19 -> 23`, 187 `35 -> 35`, and mean weekly maximum
+  `176.70243 -> 176.86916`. The terminal allocation remains Dirichlet
+  `K=28.154043586960896`, panel
+  `20260812-pitclean-e80-selected-tabpfn-active-v2`. Full evaluation-panel
+  crossings, >=10-point deltas, overlap and known-treatment/observer limits
+  are in `reports/2026-08-12-active-label-usage-revalidation-result.md` and
+  its machine run folder. G0/G1 remain applicable; proceed directly to freeze
+  and implement G2 rather than rerunning them under multinomial. Run the
+  effective-rank diagnostic only after G2 establishes the final dependence
+  law.
 - The operator-supplied alternative-frames review is retained unchanged at
   `reports/2026-08-12-alternative-analytical-frames.md` and reconciled in
   `reports/2026-08-12-alternative-analytical-frames-reconciliation.md`. The
