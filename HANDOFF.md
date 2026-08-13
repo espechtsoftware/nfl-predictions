@@ -20,7 +20,27 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 15:58 CDT
+## Current state — 2026-08-13 16:42 CDT
+
+### 2026-08-13 SIS ASOE Stage A launched
+
+- Superseding full Cloud Build `5c2d59d5-25f1-4b4d-a8dd-3707a255975f`
+  passed the complete repository test suite and published immutable image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:d172587c0a45d8e6ebdcec14c941bde022622551ab3dd7f8f54793038e1cd565`
+  from code `8226b04`.
+- The one frozen score-free ASOE conditional target-allocation gate is now
+  running as Cloud Run execution `sis-asoe-allocation-v1-nxhvc`. Its durable
+  manifest and execution ID are in
+  `reports/sis-asoe-allocation-runs/20260813-sis-asoe-allocation-v1/`.
+  It reads the already imported write-once Fantasy Points/SIS BigQuery tables;
+  no local vendor CSV is required by the cloud job.
+- Exact next action: poll `sis-asoe-allocation-v1-nxhvc` to terminal state,
+  run `scripts/cloud_harvest_sis_asoe_allocation.sh` only after success, and
+  follow the frozen result. A pass immediately freezes/implements the
+  mean-preserving final-served ASOE treatment and runs the exact-80 tail
+  comparison; a fail closes only this team-ASOE law and advances the
+  player-grain SIS denominator branch. Independently rerun only the repaired
+  incumbent seed analyzer against its twelve completed replay tables.
 
 ### 2026-08-13 SIS session freshness and ASOE acquisition resumed
 

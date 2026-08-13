@@ -1,0 +1,17 @@
+run_id=20260813-sis-asoe-allocation-v1
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:d172587c0a45d8e6ebdcec14c941bde022622551ab3dd7f8f54793038e1cd565
+code_sha=8226b04
+protocol_sha256=170621ed95eb5fb7f251037ac4f86b63946f4d10a4692d06db6ac4714dafcd7b
+acquisition_protocol_sha256=ae73d25803c7cd971db68089c2e1fac25e5d8060868bf10df98cba389f736c7e
+active_label_selection_sha256=2d76f41f74402d4cc048fdab98cdbe0ef0eae17bf5df1d289cdc2d7bb150b348
+usage_selection_sha256=a73f0e9c0180afce6fefefacf173b0fa0939e0557c06ef2b817cc538f33993af
+calibration_season=2022
+evaluation_seasons=2023 2024 2025
+target_weeks=5 6 7 8 9 10 11 12 13 14 15 16 17 18
+global_k=28.154043586960896
+beta_bounds=0:8
+beta_l2=0.01
+minimum_group_probability_mass=0.50
+minimum_evaluation_group_coverage=0.50
+bootstrap_resamples=2000
+bootstrap_seed=8113126
