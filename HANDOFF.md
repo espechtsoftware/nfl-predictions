@@ -195,6 +195,14 @@ agent or developer:
   12-query ceiling, and predeclared concentration/overlap thresholds. Implement
   a guarded UI sample acquisition next; do not inspect outcome columns or
   expand to a backfill unless this screen passes.
+  The first sampler invocation spent three of its 12 guarded requests but
+  created no artifact: opening the Receiving family and Totals subtab consumed
+  two intermediate refreshes, leaving insufficient reserve for the seven
+  frozen Submit slices. The durable state remains `3/12`; it was not reset.
+  The recovery now sets only the exact group/subtype values advertised by the
+  visible menu and lets each visible Submit perform the needed refresh, while
+  resuming the existing counter. This is a query-efficiency repair only; the
+  frozen sample, filters, volume calculations and thresholds are unchanged.
 - The SIS QB-line cache mechanical gate passed and the score-free
   final-served execution
   `tabpfn-sis-qb-line-final-served-v1-vkx49` completed from audit image

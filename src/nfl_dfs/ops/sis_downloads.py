@@ -516,6 +516,33 @@ def _select_report_subtype(page: Any, definition: ReportDefinition) -> None:
         raise RuntimeError("SIS report subtype did not retain the menu value")
 
 
+def _select_report_without_refresh(page: Any, definition: ReportDefinition) -> None:
+    """Set the exact visible menu identities for the next normal UI Submit.
+
+    This is the query-budget recovery path: the report menu controls advertise
+    the same group/subtype values that their click handlers write, but clicking
+    each one spends an intermediate query whose rows are not used.
+    """
+    main = page.locator(f"#{definition.main_tab}")
+    main.wait_for(state="attached")
+    advertised_group = main.get_attribute("value")
+    if advertised_group is not None and float(advertised_group) != float(
+        definition.metric_group
+    ):
+        raise RuntimeError("SIS report menu does not advertise its metric group")
+    retained = page.locator("#MetricGroup").evaluate(
+        """(element, value) => {
+          element.value = value;
+          element.dispatchEvent(new Event('change', {bubbles: true}));
+          return element.value === value;
+        }""",
+        str(definition.metric_group),
+    )
+    if not retained:
+        raise RuntimeError("SIS report group did not retain the menu value")
+    _select_report_subtype(page, definition)
+
+
 def _request_scope(request: Any) -> dict[str, list[str]]:
     from urllib.parse import parse_qs
 
@@ -898,8 +925,19 @@ def run_alignment_feasibility_sample(
     if any((output_dir / _alignment_sample_artifact(row[3])).exists()
            for row in ALIGNMENT_SAMPLE_SLICES):
         raise RuntimeError("partial SIS alignment sample already exists")
+    protocol_hash = _sha256(protocol)
+    used = 0
+    if run_state.exists():
+        state = json.loads(run_state.read_text(encoding="utf-8"))
+        if (state.get("plan_sha256") != protocol_hash
+                or int(state.get("ceiling", -1)) != 12):
+            raise RuntimeError("SIS alignment request state identity differs")
+        used = int(state.get("used", -1))
+        if not 0 <= used <= 12:
+            raise RuntimeError("SIS alignment request state count is invalid")
     budget = APIRequestBudget(
-        ceiling=12, state_path=run_state, plan_sha256=_sha256(protocol))
+        ceiling=12, used=used, state_path=run_state,
+        plan_sha256=protocol_hash)
     budget.persist()
     timeout_ms = int(timeout_seconds * 1000)
     artifacts: list[dict[str, Any]] = []
@@ -926,7 +964,19 @@ def run_alignment_feasibility_sample(
                         season=2025, start_week=1, end_week=1,
                         team_id=1 if family == "receiving" else 20,
                     )
-                    _prepare_sample_report(page, spec, timeout_ms)
+                    # Use the report menu's declared group/subtype values and
+                    # let the next visible Submit perform the only needed
+                    # refresh. This avoids spending two intermediate queries
+                    # per family and permits a fail-closed retry without
+                    # resetting the durable 12-query counter.
+                    _select_report_without_refresh(page, spec.definition)
+                    _set_select(page, "#TimeFilters_SeasonFrom", "2025")
+                    _set_select(page, "#TimeFilters_SeasonTo", "2025")
+                    _set_select(page, "#TimeFilters_StartWeek", "1")
+                    _set_select(page, "#TimeFilters_EndWeek", "1")
+                    _set_select(page, "#Teams", str(spec.team_id))
+                    _set_checkbox(page, "#chkIncludePlayoffs", False)
+                    _set_checkbox(page, "#chkByGame", True)
                     if family == "receiving":
                         _set_checkbox_values(
                             page, "ReceivingFilters.TargetPos", ["4"])

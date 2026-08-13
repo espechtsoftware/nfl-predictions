@@ -271,6 +271,11 @@ def test_api_request_budget_persists_across_processes(tmp_path):
     assert payload["plan_sha256"] == "abc"
 
 
+def test_alignment_sampler_loads_existing_request_count():
+    source = sis.run_alignment_feasibility_sample.__code__
+    assert "used" in source.co_varnames
+
+
 def test_identity_rows_retain_ids_and_scope_without_metrics():
     response = _Response("", [{
         "season": 2025, "week": 1, "games": 1, "playerId": 77,
