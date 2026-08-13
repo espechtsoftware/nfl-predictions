@@ -57,6 +57,12 @@ agent or developer:
   entry point, fail-closed manifest, plan validation, Cloud execution wrapper,
   and operating-text checks have 45 focused tests passing. Full local
   validation passed 1,117 tests with 2 skipped.
+- Full Cloud validation/image build for the pushed workflow commit is
+  `fac7cbe4-d316-423b-8ba7-a6a885cfaa61`, tagged `weekly-4b6b8e9`; it is
+  currently running. On success, deploy only `nfl-dfs-app` from its immutable
+  digest (preserving the service's existing environment/secrets/IAP), verify
+  the live Weekly guide and run `scripts/verify_deployment.py`. Do not redeploy
+  the scheduled jobs merely for this UI/desktop-workflow milestone.
 
 ### 2026-08-13 G3 image and independent Stage A execution
 
