@@ -7,7 +7,10 @@ REGION=us-central1
 RUN_ID=20260813-incumbent-seed-variance-v1
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$ROOT/reports/incumbent-seed-variance-runs/$RUN_ID"
-EXEC=$(cat "$OUT/analyzer_execution.txt")
+EXEC_FILE="$OUT/analyzer_execution.txt"
+[ ! -s "$OUT/analyzer_repair_execution.txt" ] || \
+  EXEC_FILE="$OUT/analyzer_repair_execution.txt"
+EXEC=$(cat "$EXEC_FILE")
 [ -n "$EXEC" ] || { echo "ABORT: seed analyzer execution missing"; exit 2; }
 [ ! -e "$OUT/report.json" ] || {
   echo "ABORT: immutable seed report already exists"; exit 2; }
