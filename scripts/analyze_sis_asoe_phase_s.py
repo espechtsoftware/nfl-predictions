@@ -91,7 +91,8 @@ def _load_candidates(control_arm: str) -> dict[tuple[str, int], pd.DataFrame]:
     fields = (
         "panel_run_id,code_sha,lever_env,seeds,labels_complete,season,week,"
         "cand_ix,selected,selected_rank,players,actual_score,sim_mean,"
-        "n_entries,n_sims,n_worlds"
+        "n_entries,n_sims,n_worlds,score_artifact_uri,"
+        "score_artifact_sha256"
     )
     return {
         (arm, replicate): query_df(f"""
@@ -144,6 +145,21 @@ def mechanical_failures(candidates, features, code_sha, control_arm):
             failures.append(f"{label} exact-80 contract differs")
         if frame.duplicated(["season", "week", "cand_ix"]).any():
             failures.append(f"{label} candidate indices repeat")
+        artifacts = frame[[
+            "season", "week", "score_artifact_uri", "score_artifact_sha256",
+        ]].drop_duplicates()
+        if len(artifacts) != 54 or artifacts.duplicated(
+            ["season", "week"]
+        ).any():
+            failures.append(f"{label} artifact identity differs by slate")
+        elif (
+            ~artifacts.score_artifact_uri.astype(str).str.startswith("gs://")
+        ).any() or (
+            ~artifacts.score_artifact_sha256.astype(str).str.fullmatch(
+                r"[0-9a-f]{64}"
+            )
+        ).any():
+            failures.append(f"{label} player-world artifact provenance invalid")
         seeds = frame.seeds.fillna("").astype(str).unique()
         if len(seeds) != 1:
             failures.append(f"{label} seed identity mixed")
@@ -170,6 +186,7 @@ def mechanical_failures(candidates, features, code_sha, control_arm):
                 "REPLACEMENT_SLOTS": "12", "N_CE": "0",
                 "N_EPISTEMIC": "12", "N_GUMBEL": "0", "N_BOOM": "40",
                 "SERVED_POSITION_SCALES": spec,
+                "CAND_ARTIFACT_PLAYER_WORLDS": "1",
             }
             for key, value in expected.items():
                 if lever.get(key) != value:

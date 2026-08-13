@@ -21,6 +21,7 @@ DEFAULT_BOOK_SIZES = (20, 40, 80)
 RANDOM_CONTROL_BOOKS = 20
 RANDOM_CONTROL_SEED = 20260812
 REQUIRED_ARTIFACT_MEMBERS = frozenset({"cand_ix", "totals", "tail_line"})
+PLAYER_WORLD_MEMBERS = frozenset({"player_ids", "player_draws"})
 
 
 def decode_score_artifact(payload: bytes, expected_sha256: str) -> dict[str, np.ndarray]:
@@ -31,7 +32,11 @@ def decode_score_artifact(payload: bytes, expected_sha256: str) -> dict[str, np.
             f"score artifact sha256 differs: {digest} != {expected_sha256}")
     with np.load(io.BytesIO(payload), allow_pickle=False) as archive:
         members = set(archive.files)
-        if members != REQUIRED_ARTIFACT_MEMBERS:
+        allowed = (
+            members == REQUIRED_ARTIFACT_MEMBERS
+            or members == REQUIRED_ARTIFACT_MEMBERS | PLAYER_WORLD_MEMBERS
+        )
+        if not allowed:
             raise ValueError(
                 f"score artifact members differ: {sorted(members)}")
         artifact = {name: archive[name].copy() for name in archive.files}
@@ -44,6 +49,17 @@ def decode_score_artifact(payload: bytes, expected_sha256: str) -> dict[str, np.
     expected_ix = np.arange(totals.shape[0], dtype=np.int64)
     if not np.array_equal(cand_ix.astype(np.int64), expected_ix):
         raise ValueError("score artifact cand_ix is not canonical")
+    if PLAYER_WORLD_MEMBERS <= set(artifact):
+        player_ids = np.asarray(artifact["player_ids"]).astype(str)
+        player_draws = np.asarray(artifact["player_draws"])
+        if player_ids.ndim != 1 or len(set(player_ids.tolist())) != len(player_ids):
+            raise ValueError("score artifact player ids are not unique")
+        if player_draws.ndim != 2 or player_draws.shape != (
+            len(player_ids), totals.shape[1]
+        ):
+            raise ValueError("score artifact player worlds are misaligned")
+        if not np.isfinite(player_draws).all():
+            raise ValueError("score artifact player worlds contain non-finite values")
     return artifact
 
 

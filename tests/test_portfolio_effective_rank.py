@@ -56,6 +56,25 @@ def test_decodes_only_exact_checksummed_artifact():
         decode_score_artifact(payload, "0" * 64)
 
 
+def test_decoder_accepts_and_validates_optional_player_worlds():
+    totals = np.arange(60, dtype=np.float32).reshape(6, 10)
+    buffer = io.BytesIO()
+    np.savez_compressed(
+        buffer,
+        cand_ix=np.arange(len(totals), dtype=np.int32),
+        totals=totals,
+        tail_line=np.float32(194.0),
+        player_ids=np.asarray(["p1", "p2"]),
+        player_draws=np.arange(20, dtype=np.float32).reshape(2, 10),
+    )
+    payload = buffer.getvalue()
+    artifact = decode_score_artifact(
+        payload, hashlib.sha256(payload).hexdigest()
+    )
+    assert artifact["player_ids"].tolist() == ["p1", "p2"]
+    assert artifact["player_draws"].shape == (2, 10)
+
+
 def test_identical_selected_entries_have_effective_rank_one():
     rng = np.random.default_rng(7331)
     one = rng.normal(190, 20, size=5000)

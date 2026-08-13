@@ -116,6 +116,20 @@ agent or developer:
   or score rows. After all 30 are successful, run the guarded Phase R
   finisher and harvester, follow its mechanically selected law, then launch
   Phase S using the final post-fingerprint immutable image.
+- The follow-on multi-seed experiment is now frozen before any Phase R/S
+  result in
+  `reports/2026-08-13-multiseed-candidate-world-factorial-protocol.md`. It is
+  a four-arm exact-80 factorial separating R0-versus-union candidates from
+  R0-versus-five-seed worlds, with a tail-first decision and no season veto.
+  Existing candidate-total artifacts cannot cross-score a roster in another
+  seed's worlds, so the engine now has an opt-in, checksum-covered
+  player-id/player-draw payload. Phase S requests it for all ten panels and
+  fails the run if its upload fails. The existing effective-rank decoder
+  accepts and validates both legacy and extended artifacts; 32 focused tests
+  pass. Build a superseding image from this milestone; do not use builds
+  `54a0e163-1794-496f-bb85-45dd19d8beb8` or
+  `e5588fea-857a-459a-a0a7-ed5920854212` to launch Phase S because neither
+  contains the complete player-world contract.
 
 ### 2026-08-13 SIS ASOE Stage A launched
 

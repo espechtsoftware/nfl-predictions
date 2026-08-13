@@ -10,6 +10,7 @@ first persistence patch (34432a5):
        and selection reconstructable from the persisted masks alone
 """
 import json
+import io
 from types import SimpleNamespace
 
 import numpy as np
@@ -179,6 +180,30 @@ def test_masks_full_length_and_grid_decodes(monkeypatch):
     assert count("clear_bits_187") >= count("clear_bits_194") >= \
         count("clear_bits_200") >= count("clear_bits_210") >= \
         count("clear_bits_220")
+
+
+def test_score_artifact_can_retain_aligned_player_worlds():
+    slate = pd.DataFrame({"id": ["p2", "DST-p1"]})
+    player_draws = np.array([[1, 2, 3], [4, 5, 6]], dtype=np.float32)
+    totals = np.array([[5, 7, 9]], dtype=np.float32)
+    payload = engine._score_artifact_payload(
+        totals, 194.0, slate=slate, row_draws=player_draws,
+        include_player_worlds=True,
+    )
+    with np.load(io.BytesIO(payload), allow_pickle=False) as artifact:
+        assert artifact["player_ids"].tolist() == ["p2", "DST-p1"]
+        np.testing.assert_array_equal(artifact["player_draws"], player_draws)
+        np.testing.assert_array_equal(artifact["totals"], totals)
+        assert float(artifact["tail_line"]) == 194.0
+
+
+def test_score_artifact_omits_player_worlds_by_default():
+    payload = engine._score_artifact_payload(
+        np.array([[5, 7, 9]], dtype=np.float32), 194.0,
+    )
+    with np.load(io.BytesIO(payload), allow_pickle=False) as artifact:
+        assert "player_ids" not in artifact.files
+        assert "player_draws" not in artifact.files
 
 
 def test_selection_reproducible_from_persisted_masks(monkeypatch):

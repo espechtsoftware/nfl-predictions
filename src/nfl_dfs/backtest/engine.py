@@ -445,6 +445,52 @@ def _row_draws(slate: pd.DataFrame, draws: np.ndarray,
     return out
 
 
+def _score_artifact_payload(
+    cand_totals: np.ndarray,
+    tail_line: float,
+    *,
+    slate: pd.DataFrame | None = None,
+    row_draws: np.ndarray | None = None,
+    include_player_worlds: bool = False,
+) -> bytes:
+    """Encode the immutable per-slate simulation artifact.
+
+    Candidate totals are always retained.  Research panels may additionally
+    retain the aligned player-by-world matrix so a roster found by one
+    independent search seed can be scored honestly in every other seed's
+    worlds.  The opt-in payload is deliberately stored in the same
+    checksummed object; it does not change simulation or selection behavior.
+    """
+    import io
+
+    totals = np.asarray(cand_totals, dtype=np.float32)
+    if totals.ndim != 2:
+        raise ValueError("candidate totals must be a two-dimensional matrix")
+    arrays: dict[str, np.ndarray] = {
+        "cand_ix": np.arange(len(totals), dtype=np.int32),
+        "totals": totals,
+        "tail_line": np.asarray(tail_line, dtype=np.float32),
+    }
+    if include_player_worlds:
+        if slate is None or row_draws is None:
+            raise ValueError(
+                "player-world artifacts require the aligned slate and draws"
+            )
+        worlds = np.asarray(row_draws, dtype=np.float32)
+        if worlds.ndim != 2 or worlds.shape[0] != len(slate):
+            raise ValueError("player worlds do not align with the slate")
+        if worlds.shape[1] != totals.shape[1]:
+            raise ValueError("player and candidate world counts differ")
+        player_ids = slate["id"].astype(str).to_numpy(dtype=str)
+        if len(set(player_ids.tolist())) != len(player_ids):
+            raise ValueError("player-world artifact ids are not unique")
+        arrays["player_ids"] = player_ids
+        arrays["player_draws"] = worlds
+    buffer = io.BytesIO()
+    np.savez_compressed(buffer, **arrays)
+    return buffer.getvalue()
+
+
 def _tier_thresholds(contest: Contest) -> tuple[np.ndarray, np.ndarray]:
     """Vectorized form of Contest.payout_for_rank: cumulative field
     fractions and dollar payouts per tier."""
@@ -1453,6 +1499,7 @@ def tail_select_lineups(
                 "N_BOOM", "N_CE", "N_DARKGAME",
                 "N_EPISTEMIC", "N_GAMESTACK", "N_GUMBEL", "N_LOWSAL",
                 "N_ROUTE_TAIL", "N_COVERAGE_TAIL",
+                "CAND_ARTIFACT_PLAYER_WORLDS",
                 "N_MIDQB", "N_NOSTACK", "N_QB_VARIANTS", "OWN_BARBELL",
                 "OWN_MODEL", "PEAK_SLICE", "PUNT_BOOM", "PUNT_BOOM_WR",
                 "PUNT_MIN", "PUNT_SLOPE", "PUNT_STRICT", "PUNT_VALUE",
@@ -1575,20 +1622,22 @@ def tail_select_lineups(
             art_uri = ""
             art_sha = ""
             bucket = runtime_env.get("CAND_ARTIFACT_BUCKET", "")
+            include_player_worlds = (
+                runtime_env.get("CAND_ARTIFACT_PLAYER_WORLDS") == "1"
+            )
             if bucket and persist_panel_run_id:
                 try:
                     import hashlib
-                    import io
 
                     from google.cloud import storage
 
-                    buf = io.BytesIO()
-                    np.savez_compressed(
-                        buf,
-                        cand_ix=np.arange(len(cands), dtype=np.int32),
-                        totals=np.asarray(cand_totals, dtype=np.float32),
-                        tail_line=np.float32(tail_line))
-                    payload = buf.getvalue()
+                    payload = _score_artifact_payload(
+                        cand_totals,
+                        tail_line,
+                        slate=slate,
+                        row_draws=rd,
+                        include_player_worlds=include_player_worlds,
+                    )
                     art_sha = hashlib.sha256(payload).hexdigest()
                     season_i = int(slate["season"].iloc[0])
                     week_i = int(slate["week"].iloc[0])
@@ -1602,7 +1651,11 @@ def tail_select_lineups(
                              art_uri, len(payload))
                 except Exception:
                     log.exception("score-artifact upload failed")
-                    if cand_log_required:
+                    # An explicitly requested player-world payload exists to
+                    # prevent an otherwise mandatory multi-seed replay.  Its
+                    # absence therefore fails the research run even though
+                    # ordinary replay candidate persistence is best-effort.
+                    if cand_log_required or include_player_worlds:
                         raise
             df["score_artifact_uri"] = art_uri
             df["score_artifact_sha256"] = art_sha

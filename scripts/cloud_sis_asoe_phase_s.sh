@@ -42,7 +42,7 @@ printf '%s\n' \
   'arms=same-image-control sis-asoe-treatment' \
   'beta=0.07771181538347656' 'replicates=R0 R1 R2 R3 R4' \
   'seasons=2023 2024 2025' 'n_entries=80' 'n_sims=10000' \
-  'tail_line=194' > "$OUT/manifest.txt"
+  'tail_line=194' 'candidate_artifact_player_worlds=1' > "$OUT/manifest.txt"
 : > "$OUT/executions.txt"
 : > "$OUT/preflight.txt"
 
@@ -127,7 +127,8 @@ for ARM in control treatment; do
       ENVS="$ENVS|PANEL_RUN_ID=$PANEL|CODE_SHA=$CODE_SHA"
       ENVS="$ENVS|CAND_LOG_TABLE=$PROJECT.nfl_predictions.replay_candidates_staging"
       ENVS="$ENVS|CAND_FEATURE_TABLE=$PROJECT.nfl_predictions.slate_player_features"
-      ENVS="$ENVS|CAND_ARTIFACT_BUCKET=${PROJECT}-raw|REPLAY_LINEUPS_TABLE=$LINEUPS"
+      ENVS="$ENVS|CAND_ARTIFACT_BUCKET=${PROJECT}-raw|CAND_ARTIFACT_PLAYER_WORLDS=1"
+      ENVS="$ENVS|REPLAY_LINEUPS_TABLE=$LINEUPS"
       gcloud run jobs deploy "$JOB" --project "$PROJECT" --region "$REGION" \
         --image "$IMG" --command nfl-dfs \
         --args "replay,--season,$SEASON,--contest,gpp,--entries,80" \
