@@ -1,6 +1,8 @@
 import copy
 from math import log
 
+import pandas as pd
+
 from nfl_dfs.analysis import td_ledger_final_served as ledger
 
 
@@ -91,3 +93,19 @@ def test_invalid_invariants_cannot_license_exact80():
         _score(), _score(), invariants_pass=False, changed_rows=0)
     assert result["disposition"] == "td-ledger-invalid-or-inconclusive"
     assert not result["exact80_licensed"]
+
+
+def test_frame_alignment_leaves_mean_drift_to_registered_tolerance():
+    control = pd.DataFrame({
+        "season": [2025], "week": [1], "gsis_id": ["00-1"],
+        "position": ["WR"], "team": ["KC"], "opp": ["LAC"],
+        "game_id": ["2025_01_LAC_KC"], "actual": [20.0],
+        "mean_projection": [14.0],
+    })
+    treatment = control.copy()
+    treatment.loc[0, "mean_projection"] += 1e-12
+
+    assert ledger._frame_alignment_failures(control, treatment) == []
+
+    treatment.loc[0, "actual"] += 1e-12
+    assert ledger._frame_alignment_failures(control, treatment) == ["frame:actual"]

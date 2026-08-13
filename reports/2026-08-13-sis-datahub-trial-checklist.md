@@ -2,26 +2,18 @@
 
 Date: 2026-08-13
 
-Use the NFL-only seven-day trial. Do not buy the NFL+NCAA plan for this
-project. The purpose of the trial is to establish fitness and licensing, not
-to assume that a top-20 trial export is a complete training dataset.
+SIS offers the seven-day trial as a combined NFL and college-football trial,
+not an NFL-only trial. Use both parts. The primary purpose is to establish NFL
+fitness; the college portion should also determine whether SIS can fill the
+historical-performance gap behind the repo's existing 2026 CFB
+salary/contest-collection scaffold. Do not assume that a top-20 trial export
+is a complete training dataset.
 
-## Before downloading in bulk
+## Data handling
 
-Email `sales@sportsinfosolutions.com` with this question:
-
-> I am evaluating NFL DataHub Pro for a private, personal, noncommercial DFS
-> prediction model. May I download the CSV leaderboards, retain those files
-> after my trial or subscription ends, derive model features from them, and
-> use those features privately? I will not republish, resell, transfer, or
-> expose the source data. If permitted, what historical NFL seasons include
-> coverage-type filters, when are new weekly games available, and is there an
-> export/API option that returns every qualifying player rather than only the
-> top 200 leaderboard rows?
-
-Retain their written answer outside the public repository and record only the
-permission/limitations—not contact details or credentials—in `HANDOFF.md`.
-Do not ingest SIS rows until the answer permits the intended use.
+Keep unedited exports under the gitignored `sis-trial/` directory. Do not
+commit raw vendor files, account credentials or browser state. Licensing
+correspondence is not a prerequisite for this technical evaluation.
 
 ## Trial smoke exports
 
@@ -52,6 +44,33 @@ and use filenames that encode season, week range, leaderboard and coverage.
    2021 and 2022. Record the earliest selectable season and whether the column
    schema changes.
 
+## College-football smoke exports
+
+This is an audit extension, not authorization to build or deploy a CFB model.
+The current repo intentionally collects only DraftKings CFB slates, salaries
+and contest fills during 2026 for a 2027 go/no-go decision. Use the included
+trial access to learn whether SIS could supply the missing historical inputs:
+
+1. Record the earliest available college season, selectable week ranges and
+   whether regular season, conference championships and bowls are separable.
+2. Export one complete-looking season and one individual week from each
+   available team-offense, team-defense, passing, rushing and receiving
+   leaderboard. Prefer 2023--2025 when selectable.
+3. Repeat the NFL coverage smoke tests for college where those filters exist:
+   defensive shell deployment, QB performance by coverage, receiver
+   performance by coverage/route/alignment and pass-defense/DB results.
+4. Capture school, conference, opponent, game/date, season/week, position and
+   stable player/team identifiers. Record transfer-player and duplicate-name
+   behavior explicitly; NFL/GSIS matching assumptions do not transfer to CFB.
+5. Record whether the 20-row trial cap also applies to college, whether CSV
+   exports preserve the active filters, and when a completed Saturday's data
+   becomes available.
+
+The college audit can materially strengthen the 2027 decision even if the
+trial is too row-limited to form a training panel: it tells us whether a paid
+month could backfill history instead of waiting several seasons for our own
+collection.
+
 The official FAQ says trial leaderboards return only 20 rows. That is enough
 to inspect the file and feature schema, but not enough to run a historical
 arm. Do not work around a trial limit by scraping or account manipulation.
@@ -72,20 +91,25 @@ arm. Do not work around a trial limit by scraping or account manipulation.
 
 ## Purchase decision
 
-Buy at most one NFL monthly subscription initially, and only if:
+Buy at most one paid month initially, selecting the product required after the
+combined trial, and only if:
 
-1. written private-model and retention permission is affirmative;
-2. coverage history reaches enough of 2019--2025 to support walk-forward
+1. coverage history reaches enough of 2019--2025 to support walk-forward
    tests (or provides a clearly useful independent 2026 live signal);
-3. full paid exports can recover all relevant players, not merely the top 200;
-4. stable identifiers and opportunity denominators are present; and
-5. weekly updates arrive before lineup lock.
+2. full paid exports can recover all relevant players, not merely the top 200;
+3. stable identifiers and opportunity denominators are present; and
+4. weekly updates arrive before lineup lock.
+
+Treat useful college history as additional value, not as a substitute for
+failing the NFL requirements. Conversely, record a separate CFB-only purchase
+case if its historical coverage is strong enough to accelerate the 2027
+decision.
 
 If any condition fails, cancel by emailing SIS before renewal. The official
 FAQ says cancellation is handled by email and continues through the current
 subscription period.
 
-## Planned modeling use if licensed
+## Planned modeling use
 
 First import and audit the raw files with source hashes, schemas and explicit
 availability timestamps. Then run a score-free coverage diagnostic using only

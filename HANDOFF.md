@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 14:35 CDT
+## Current state — 2026-08-13 03:00 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -65,15 +65,20 @@ reconciliation when their findings affect the program.
   Football Outsiders/DVOA successor but arbitrary consumer CSV export remains
   unverified. SIS DataHub Pro is the strongest paid live/export candidate
   under the operator's budget ($99.99/month, seven-day trial); do not purchase
-  until the report's six history/export/latency/license checks are confirmed.
+  until the report's history/export/latency/identifier checks are confirmed.
   Follow-up trial due diligence found that SIS trial leaderboards are capped
   at 20 rows (paid leaderboards at 200) and the agreement caps 1,000 queries
-  per week. It allows private uses but is not explicit enough about retaining
-  exports as private model inputs; get written confirmation before ingestion.
+  per week. The operator clarified that SIS offers one combined NFL/college
+  trial, not an NFL-only trial, and asked that licensing review not block the
+  technical evaluation. Raw exports remain private and gitignored.
   The exact smoke-export, schema and purchase checklist is tracked in
-  `reports/2026-08-13-sis-datahub-trial-checklist.md`. A cheaper CoverageIQ
-  alternative was also found, but its published terms explicitly forbid
-  automated extraction and ML/AI ingestion, so it is not a model data source.
+  `reports/2026-08-13-sis-datahub-trial-checklist.md`; it now includes a
+  compact CFB audit of historical depth, stable identifiers, filtered exports,
+  coverage fields and update latency. This complements but does not change the
+  existing collection-only CFB scaffold or authorize a CFB model. A cheaper
+  CoverageIQ alternative was also found, but its published terms explicitly
+  forbid automated extraction and ML/AI ingestion, so it is not a model data
+  source.
 - Incumbent effective-rank v2 completed cleanly in execution
   `portfolio-effective-rank-v2-pbxps`, image
   `sha256:450f22cbdae94e23c8322330fe3f445d256cd82dbfc96ca086593a0f80eee90e`,
@@ -96,12 +101,18 @@ reconciliation when their findings affect the program.
   a fail closes the mechanism without TD-allocation, game-sigma, usage-K,
   yardage-ledger or G2-TE retuning.
 - TD-ledger evaluator, CLI, immutable launcher/harvester and focused tests are
-  implemented locally. Thirty focused dependence/ledger tests pass and both
-  shell scripts pass `bash -n`. Heavy/full validation and treatment have not
-  run yet. Exact next action: commit/push this frozen implementation, run a
-  full-test Cloud Build, launch `scripts/cloud_td_ledger_final_served.sh` from
-  its immutable digest, harvest only after clean completion, then apply the
-  frozen gate without querying lineup scores.
+  implemented and pushed in `08d5a87`. Thirty focused dependence/ledger tests
+  passed and both shell scripts passed `bash -n`. Cloud Build
+  `dc9c0b6a-f393-4ede-b97a-562fd4ddf56c` was intentionally cancelled before
+  treatment because a review found the frame-alignment helper incorrectly
+  demanded bitwise `mean_projection` equality even though the frozen protocol
+  allows maximum mean drift `1e-10`. No treatment or scientific metric ran.
+  The transport-neutral fix leaves actual outcomes exact and delegates mean
+  checking to the registered tolerance, with a regression test. Exact next
+  action: commit/push the fix, run a replacement full-test Cloud Build, launch
+  `scripts/cloud_td_ledger_final_served.sh` from its immutable digest, harvest
+  only after clean completion, then apply the frozen gate without querying
+  lineup scores.
 
 ### 2026-08-12 team-passing review reconciliation
 
@@ -738,8 +749,10 @@ reconciliation when their findings affect the program.
   after the already-frozen Fantasy Points QB shell-fit test, SIS DataHub Pro is
   the first paid trial: its $99.99/month NFL plan advertises time/coverage
   filters and CSV export. Verify history, week filters, player assignments,
-  latency, identifiers and private-model license rights during the seven-day
-  trial before payment. FTN (Football Outsiders' DVOA successor) is a credible
+  latency and identifiers during the combined NFL/college seven-day trial
+  before payment. Also audit whether its college history can fill the
+  collection-only CFB scaffold's current statistical gap without prematurely
+  building a CFB model. FTN (Football Outsiders' DVOA successor) is a credible
   second research option, but arbitrary consumer-plan CSV export is not yet
   established; PFF+ is only a secondary coverage-quality prior on current
   evidence. NFL Pro is a cheap live cross-check ($14.99/month with NFL+

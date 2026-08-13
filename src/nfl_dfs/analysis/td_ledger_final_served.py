@@ -188,10 +188,18 @@ def _frame_alignment_failures(control: pd.DataFrame, treatment: pd.DataFrame) ->
         if column not in control or column not in treatment or not control[column].equals(
                 treatment[column]):
             failures.append(f"frame:{column}")
-    for column in ("actual", "mean_projection"):
-        if column not in control or column not in treatment or not np.array_equal(
-                control[column].to_numpy(), treatment[column].to_numpy()):
-            failures.append(f"frame:{column}")
+    # Actual outcomes are input identity and must reproduce exactly. The
+    # protocol deliberately audits simulated means separately with a 1e-10
+    # tolerance, so requiring bitwise frame equality for mean_projection here
+    # would contradict that frozen tolerance and could reject harmless
+    # floating-point summation drift before the intended audit runs.
+    if (
+        "actual" not in control
+        or "actual" not in treatment
+        or not np.array_equal(
+            control["actual"].to_numpy(), treatment["actual"].to_numpy())
+    ):
+        failures.append("frame:actual")
     return failures
 
 

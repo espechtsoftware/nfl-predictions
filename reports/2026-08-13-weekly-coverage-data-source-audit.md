@@ -63,7 +63,9 @@ Official sources:
 - <https://pro.sisdatahub.com/Home/FAQ>
 - <https://www.sportsinfosolutions.com/football/>
 
-SIS is the strongest paid candidate under the operator's stated $200 ceiling:
+SIS is the strongest paid candidate under the operator's stated $200 ceiling.
+The operator confirmed that the trial is offered as combined NFL and college
+football access rather than an NFL-only trial:
 
 - NFL plan: $99.99/month or $749.99/year at the time of this audit;
 - seven-day trial;
@@ -80,18 +82,15 @@ on marketing copy:
 3. defender coverage snaps, targets, alignment and any receiver assignment;
 4. CSV exports at the required grain with stable player/game identifiers;
 5. regular in-season availability early enough for the next slate;
-6. license terms permitting retained private model inputs and evaluation.
+6. whether the included college product provides historical team/player data
+   that can complement the repo's CFB salary/contest collection scaffold.
 
 The official FAQ adds two important trial constraints: trial accounts return
 only the top 20 rows per leaderboard (paid accounts return the top 200), and
 the subscription agreement caps use at 1,000 queries per week. Therefore the
 trial can validate schemas, filters, dates and exports, but cannot by itself
-produce a complete historical player panel. The current agreement permits
-private use but restricts copying/transferring SIS content outside its stated
-uses. Obtain written confirmation from `sales@sportsinfosolutions.com` that
-downloaded CSVs may be retained and used as inputs to this private,
-noncommercial prediction model after the trial/subscription ends before
-ingesting the data. The exact audit sequence is in
+produce a complete historical player panel. The exact NFL and college audit
+sequence is in
 `reports/2026-08-13-sis-datahub-trial-checklist.md`.
 
 If these checks pass, SIS can fill a more distinct gap than another aggregate
@@ -227,7 +226,10 @@ the model, or treat the price as a substitute for a licensed feed.
    cleanest train/serve-aligned path with data already purchased.
 4. If that mechanism is promising but needs defender-level detail, inspect
    NFL Pro first if it is already included in an NFL+ subscription, then take
-   the SIS seven-day trial and run the six pre-purchase checks above.
+   the combined SIS NFL/college seven-day trial and run the technical checks
+   above. Use the college access to audit historical depth, identifiers,
+   week-level exports and coverage availability for the existing CFB
+   collection-only roadmap.
 5. Consider FTN Stats only if its consumer plan demonstrates exportable weekly
    history; consider PFF+ or Reception Perception only for separately frozen
    player-quality priors.
