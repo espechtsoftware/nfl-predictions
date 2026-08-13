@@ -378,9 +378,17 @@ agent or developer:
   and produced digest
   `sha256:c9a548337c42574d6b2e47536a3712d0410ec5a514d01712d9a10551e7b22ebf`.
   Parity-hardened full-test build `2e1b52b4-9ccb-48ec-87cb-f599d19019e3`
-  is queued/in progress. Exact next action: after that build passes, resolve
-  its immutable digest and launch the sole four-arm score-free final-served
-  job; do not inspect partial logs.
+  passed and produced immutable digest
+  `sha256:69d7ff1a7857c6fe5717ecd5ca5318126eb084c595074f20196197186700968e`.
+  The sole score-free final-served comparison is running as durable Cloud Run
+  execution `tabpfn-pfr-secondary-final-served-v1-rgvmc`; its manifest is
+  under
+  `reports/tabpfn-pfr-secondary-runs/20260813-tabpfn-pfr-secondary-final-served-v1/`.
+  No partial metric has been read. Exact next action: poll that execution; on
+  clean completion run
+  `scripts/cloud_finish_tabpfn_pfr_secondary_final_served.sh`, then follow its
+  frozen branch-selection result. No eligible arm means close/retain; exactly
+  the machine-selected eligible arm licenses one exact-80 comparison.
   The outside oddsmaking proposal
   `reports/2026-08-13-oddsmaking-techniques-and-market-implied-dependence.md`
   is reconciled in
