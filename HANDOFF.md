@@ -616,6 +616,16 @@ reconciliation when their findings affect the program.
   checks are clean. Next: commit/push the v2 repair, build a full-test immutable
   image, launch the sole v2 replacement, and harvest only if every composite
   scope and transport check passes.
+  V2 full-test Cloud Build `399e8bb1-5117-43c3-ae38-af6420a1a8c4`
+  completed successfully and published immutable digest
+  `sha256:450f22cbdae94e23c8322330fe3f445d256cd82dbfc96ca086593a0f80eee90e`.
+  The sole frozen composite execution is now
+  `portfolio-effective-rank-v2-pbxps`, launched from that digest with analysis
+  code identity `f4ccbcf`; its checksummed manifest is under
+  `reports/portfolio-effective-rank-runs/20260813-incumbent-effective-rank-v2/`.
+  Poll without reading partial payloads, then run
+  `scripts/cloud_finish_portfolio_effective_rank_v2.sh` only after a clean
+  terminal success. No effective-rank result is accepted yet.
 - The operator asked explicitly whether defense-coverage effects on WRs and
   QBs are in the test plan. WR/TE coverage has already received two honest
   historical tests: the N-1 receiver/opponent fit slightly improved the
