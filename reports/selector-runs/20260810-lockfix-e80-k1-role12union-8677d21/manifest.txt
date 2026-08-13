@@ -1,0 +1,5 @@
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:370695d6f576b6d71d770b4a0f9fa6745376167600188a481db51e9eedc34fce
+panel=20260810-lockfix-e80-k1-role12union-8677d21
+table=replay_candidates
+selector=220-210-200-lex
+entries=80

@@ -439,6 +439,25 @@ agent or developer:
   prior completed execution `tabpfn-pfr-secondary-final-served-v1-f2zrw` and
   exact truncated-log identity. Exact next action: poll `w4k8f`, harvest the
   complete chunked report on success, then close or follow the frozen branch.
+  The execution subsequently completed and the strict harvester reconstructed
+  the complete checksum-bound report. All three registered drops worsened the
+  primary aggregate active-player Brier-30 versus control `0.017203317646`:
+  drop-rates `+0.000003420242`, drop-`top_cb_out` `+0.000011806401`, and
+  drop-all `+0.000022000121`. Each arm preserved means within `7.11e-15`, but
+  none passes the frozen point-estimate gate. The terminal disposition is
+  `tabpfn-pfr-secondary-final-served-no-eligible-drop`; no exact-80 score was
+  read or licensed. Retain the four fields and close these exact ablations.
+  The concise decision record is
+  `reports/2026-08-13-pfr-secondary-drop-features-result.md`.
+  To stop score-free/data prerequisites from serializing outcome-facing work,
+  the already-frozen corrected-history extreme-selector confirmation was
+  independently bound to its original final corrected source panel
+  `20260810-lockfix-e80-k1-role12union-8677d21` and immutable preregistered
+  image `sha256:370695d6...34fce`. Cloud Run execution
+  `corrected-extreme-selector-cjqq6` is active. It is the one allowed 107-slate
+  same-pool exact-80 comparison of persisted 194 coverage against the frozen
+  220->210->200 selector. Poll/harvest that execution without changing its
+  source, thresholds or tie rules.
   The operator-supplied Monte Carlo review is tracked as
   `reports/2026-08-13-monte-carlo-review-and-seed-variance-protocol.md` and is
   being reconciled against the actual multi-stream RNG path. The first
