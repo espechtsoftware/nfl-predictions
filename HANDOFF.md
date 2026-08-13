@@ -71,6 +71,29 @@ agent or developer:
   `scripts/cloud_finish_incumbent_seed_variance_panel.sh` only when all twelve
   are `True`.
 
+### 2026-08-13 SIS team pass-defense schema screen completed
+
+- The frozen outcome-blind team defense-profile sampler finished all eight
+  registered 2025 Week 1 views within 9/10 durable requests. Local licensed
+  artifacts remain ignored under `sis/team-pass-defense-schema-v1/`; manifest
+  SHA-256 is `1516b5b92df642329cce9163110ceaf43424ebf94f2e3011fe31549df320204a`
+  and machine-result SHA-256 is
+  `4a6d6b1a80f96e723dc5582095c3ea77c6c61d559c8f17e47e82638e3908511a`.
+  Concise result is
+  `reports/2026-08-13-sis-team-pass-defense-schema-result.md`.
+- The exact consumer-UI path **fails and closes**. All scopes were sub-cap,
+  Totals/Value team IDs matched per slice, their union covered 32 teams, and
+  Value exposed Points Saved/PS Per Play. However, all four team Totals slices
+  expose only `Att`, not coverage snaps or targets. The frozen gate required
+  both denominators for an opportunity-controlled receiver allocation law.
+  Do not substitute `Att`, retry, narrow filters, bulk-acquire history, or read
+  performance values for this path. `outcome_values_read=[]`; no dependence or
+  lineup score was computed.
+- All twelve incumbent seed replays subsequently reached boolean completion
+  `True`. The guarded finisher launched immutable analyzer execution
+  `analyze-incumbent-seed-variance-v1-kkg6q`. Poll that execution, then run the
+  tracked harvester only after it succeeds; do not read partial analyzer logs.
+
 ### 2026-08-13 next SIS allocation prerequisite frozen
 
 - With G3 closed and the seed panel still running, the next independent data
