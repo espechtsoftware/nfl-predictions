@@ -360,14 +360,15 @@ reconciliation when their findings affect the program.
   focused G1/revalidation tests pass. Commit/build this exact v3 transport
   repair and launch the sole v3 replacement without changing any scientific
   calculation. The v1 ambiguous-QB execution remains invalid pre-G1-metric.
-- The active-only usage revalidation multinomial preflight is immutable
-  execution `replay-pitactusemult-smoke-jbrgl` on generation digest `ad50...`.
-  It was still running at this milestone; `executions.txt` remains empty until
-  the smoke passes and the launcher releases all 2023--2025 controls. The
-  original launcher process remains resumable; after interruption, inspect the
-  smoke, then allow the same driver to continue. Do not inspect panel scores
-  before all three registered season controls finish and the comparator is
-  built from the frozen revalidation code.
+- The active-only usage revalidation multinomial preflight
+  `replay-pitactusemult-smoke-jbrgl` passed on generation digest `ad50...` and
+  released the exact registered controls: 2023
+  `replay-pitactusemult-2023-k9ncc`, 2024
+  `replay-pitactusemult-2024-9sjjp`, and 2025
+  `replay-pitactusemult-2025-lcpx7`. Their immutable manifest is tracked under
+  `reports/panel-runs/20260812-pitclean-e80-active-label-usage-multinomial-v1/`.
+  Wait for all three terminal successes without partial score inspection,
+  then use the audit image built from `64e0428` to run the frozen finisher.
 
 ### Critical pre-launch PIT repair — stale active-label caches blocked
 
