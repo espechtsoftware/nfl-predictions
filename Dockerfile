@@ -36,6 +36,7 @@ COPY scripts/evaluate_k1_ce_reranker.py ./scripts/evaluate_k1_ce_reranker.py
 COPY scripts/run_conditional_schaake_smoke.py ./scripts/run_conditional_schaake_smoke.py
 COPY scripts/analyze_portfolio_effective_rank.py ./scripts/analyze_portfolio_effective_rank.py
 COPY scripts/analyze_incumbent_seed_variance.py ./scripts/analyze_incumbent_seed_variance.py
+COPY scripts/analyze_game_team_usage_phase_r.py ./scripts/analyze_game_team_usage_phase_r.py
 
 RUN pip install --no-cache-dir ".[gcp,app]"
 
