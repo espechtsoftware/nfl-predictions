@@ -304,8 +304,12 @@ agent or developer:
   offense run, one defense run, 56 windows, 32 teams and every source ending
   exactly at target week minus one. Backup snapshot
   `nfl_backups.fantasy_points_qb_shell_l4_20260813_fpshell` has all 1,792 rows.
-  Commit/push the implementation, run full Cloud validation, then launch and
-  poll one gate.
+  Implementation/review commit `62d4eb0` is pushed on `main`. Full Cloud
+  validation build `c42bb2a2-727a-4880-83ca-8fa0f0da99d1` is running and will
+  publish immutable tag `fp-qb-shell-62d4eb0` only after the complete suite
+  passes. Poll it; on success resolve the digest, launch exactly one frozen
+  diagnostic with `scripts/cloud_fantasy_points_qb_shell.sh`, and poll/harvest
+  that execution.
   The outside oddsmaking proposal
   `reports/2026-08-13-oddsmaking-techniques-and-market-implied-dependence.md`
   is reconciled in
