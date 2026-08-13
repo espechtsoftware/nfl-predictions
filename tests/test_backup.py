@@ -48,6 +48,19 @@ def test_actual_route_table_is_selected_by_dynamic_backup_discovery():
     assert ("raw", "fantasy_points_route_share") in tables
 
 
+def test_future_sis_tables_are_discovered():
+    class FakeClient:
+        def list_tables(self, _dataset):
+            return [
+                SimpleNamespace(table_id="sis_team_context_game", table_type="TABLE"),
+                SimpleNamespace(table_id="sis_view", table_type="VIEW"),
+            ]
+
+    tables = set(backup._tables_to_backup(FakeClient()))
+    assert ("raw", "sis_team_context_game") in tables
+    assert ("raw", "sis_view") not in tables
+
+
 def test_dataset_attrs_resolve():
     from nfl_dfs.config import settings
 

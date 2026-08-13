@@ -75,3 +75,35 @@ shift plus position-scale chain with bit-exact identical sorted marginals.
 Fifty-one focused blend, position-scale, served-tail and TD-ledger tests pass.
 This is a general numerical repair, not a gate waiver; full validation and a
 new immutable score-free rerun remain required.
+
+## Precision rerun
+
+The superseding full-test build
+`40e20dcd-f040-451d-88e7-cd5afa318f18` passed from source `89615a6` and
+immutable image
+`sha256:66fbf519b4b1c8596473bef5f11e952fbb1afff9592b31f4cf9924978b06c09f`.
+Replacement score-free execution
+`td-ledger-final-served-v2-precision-h5ck6` completed cleanly in 26m31s. Its
+machine report is under
+`reports/td-ledger-runs/20260813-td-ledger-final-served-v2-precision/`.
+
+The precision repair resolved the original invalidity: the final sorted draw
+multisets are now exactly equal, deterministic replay passes, and maximum
+control/treatment player-mean drift is `7.105427357601002e-15`. All substantive
+scientific gates and material-regression guards still pass. The v2 disposition
+nevertheless remains **`td-ledger-invalid-or-inconclusive`** because its
+control does not reproduce the frozen G1 variogram values within `1e-12`.
+All 13 relationship variograms move by approximately `2.8e-10` to `1.28e-8`;
+joint-q90 Brier and the registered population/lift values still reproduce.
+This is the expected consequence of changing the incumbent's shared
+floating-point transform, but the frozen protocol explicitly requires the
+old control scores, so it cannot be waived after seeing the result.
+
+Do not run an exact-80 from v2. The next mechanism-safe option is to leave the
+incumbent pipeline byte-for-byte unchanged and preregister a terminal
+rank-coupling treatment: obtain world ranks from the existing `TD_LEDGER=1`
+simulation, then permute each unchanged incumbent final-served marginal by
+those ranks. That tests the same ledger dependence signal while making exact
+marginal preservation true by construction and avoiding a production-wide
+numeric change. It is a new adaptive repair protocol—not a reinterpretation
+of v1/v2—and must be frozen before its output is computed.

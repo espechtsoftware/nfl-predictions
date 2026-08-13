@@ -213,6 +213,18 @@ def main(argv: list[str] | None = None) -> None:
     )
 
     p = sub.add_parser(
+        "import-sis-team-context",
+        help="Audit/import the manifest-locked SIS team-game context tranche",
+    )
+    p.add_argument("--input-dir", default="sis/team-context-tranche-1")
+    p.add_argument(
+        "--plan", default="automation/sis/plans/team-context-tranche-1.json")
+    p.add_argument(
+        "--write", action="store_true",
+        help="Create the private raw table; existing non-identical data aborts",
+    )
+
+    p = sub.add_parser(
         "import-fantasy-points-route-weekly",
         help="Audit/append one manifest-locked prospective Route Share week",
     )
@@ -729,6 +741,11 @@ def main(argv: list[str] | None = None) -> None:
         from .ingest import fantasy_points_route
 
         fantasy_points_route.run(args.input_dir, write=args.write)
+    elif args.command == "import-sis-team-context":
+        from .ingest import sis_team_context
+
+        sis_team_context.run(
+            args.input_dir, plan_path=args.plan, write=args.write)
     elif args.command == "import-fantasy-points-route-weekly":
         from .ingest import fantasy_points_route_weekly
 

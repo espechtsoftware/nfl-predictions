@@ -59,6 +59,7 @@ TABLES: list[tuple[str, str]] = [
 # tables only.
 DISCOVER_PREFIXES: tuple[tuple[str, str], ...] = (
     ("raw", "fantasy_points_"),
+    ("raw", "sis_"),
 )
 
 

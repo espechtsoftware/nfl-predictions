@@ -142,11 +142,23 @@ reconciliation when their findings affect the program.
   authenticated surface audit also added explicit Runs to Gap (group 15) and
   Adjusted Blown Blocks (group 17) catalog entries; these remain priority 2
   behind the initial broad team context tranche. The audit itself made a small
-  number of ordinary UI requests but the 108-artifact plan has not started.
-  Exact next SIS action: commit this guarded runner, then execute tranche 1
-  into gitignored `sis/team-context-tranche-1/`, preserving its run-state and
-  stopping on any exact-200/cross-scope failure. Do not exceed its 500-request
-  ceiling or the subscription's 1,000-query weekly allowance.
+  number of ordinary UI requests. Tranche 1 then completed all 108 artifacts
+  under gitignored `sis/team-context-tranche-1/`, using 440/500 planned API
+  requests; every artifact has its verified scope/hash/identity manifest and
+  no exact-200 result was accepted. The audited importer reconstructs one
+  complete 3,230-row / 1,615-game table over 2019 and 2021--2025, with both
+  sides of every game and exact team-game universe equality across all six
+  report families. It preserves duplicate SIS blocking headers positionally,
+  normalizes percentages, canonicalizes all historical WAS names, and is
+  audit-only unless `--write` is explicit. Backup discovery now includes all
+  private `sis_*` base tables. Twenty-four combined SIS/backup tests pass.
+  Exact next SIS action: commit the importer, create
+  `nfl_raw.sis_team_context_game` with write-once semantics, immediately run
+  the backup job, then build a strictly-prior correlation/redundancy audit
+  before freezing small feature bundles. Team passing/receiving and run
+  defense are the next acquisition candidates; granular gap/player/special
+  teams remain deferred. Do not exceed the subscription's 1,000-query weekly
+  allowance.
 - Incumbent effective-rank v2 completed cleanly in execution
   `portfolio-effective-rank-v2-pbxps`, image
   `sha256:450f22cbdae94e23c8322330fe3f445d256cd82dbfc96ca086593a0f80eee90e`,
@@ -224,14 +236,24 @@ reconciliation when their findings affect the program.
   `40e20dcd-f040-451d-88e7-cd5afa318f18` passed from exact-marginal commit
   `89615a6` and produced immutable digest
   `sha256:66fbf519b4b1c8596473bef5f11e952fbb1afff9592b31f4cf9924978b06c09f`.
-  The unchanged frozen score-free replacement is running as execution
+  The unchanged frozen score-free replacement ran as execution
   `td-ledger-final-served-v2-precision-h5ck6`, job
   `td-ledger-final-served-v2-precision`, run ID
   `20260813-td-ledger-final-served-v2-precision`. Its launch manifest is
-  tracked under the corresponding `reports/td-ledger-runs/` folder. Poll to
-  terminal without inspecting partial scientific output, harvest under the
-  new run ID after success, and apply the unchanged frozen gate; never
-  overwrite or reinterpret the v1 inconclusive artifact.
+  tracked under the corresponding `reports/td-ledger-runs/` folder. It
+  completed cleanly in 26m31s and was harvested with intact checksums. The
+  original marginal defect is fixed: exact sorted multisets and deterministic
+  replay pass, with maximum mean drift `7.105e-15`; all scientific gates and
+  material-regression guards remain favorable. V2 is still formally
+  `td-ledger-invalid-or-inconclusive` because the shared precision repair
+  changes all 13 frozen G1 control variograms by `2.8e-10..1.28e-8`, beyond
+  the registered `1e-12` reproduction tolerance. No exact-80 is licensed.
+  Full interpretation is appended to
+  `reports/2026-08-13-td-ledger-final-served-result.md`. Next dependence
+  action: keep the incumbent path byte-identical and freeze a distinct
+  adaptive terminal rank-coupling protocol that derives ranks from the
+  existing TD-ledger simulator but permutes unchanged incumbent final-served
+  marginals. Never reinterpret v1/v2 or inspect their lineup scores.
 
 ### 2026-08-12 team-passing review reconciliation
 

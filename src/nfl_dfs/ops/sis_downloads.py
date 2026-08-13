@@ -543,7 +543,11 @@ def _validate_csv_scope(path: Path, spec: ExportSpec, expected_rows: int) -> Non
         raise RuntimeError(
             f"SIS CSV has {len(rows) - 1} rows; API returned {expected_rows}"
         )
-    required = {"Season"}
+    season_column = next(
+        (column for column in ("Season", "Year") if column in header), None)
+    required: set[str] = set()
+    if season_column is None:
+        required.add("Season or Year")
     if spec.split_by_game:
         # Rates/value views deliberately omit Games from their visible CSV,
         # although the API row still carries Games=1. Week + opponent prove
@@ -551,8 +555,11 @@ def _validate_csv_scope(path: Path, spec: ExportSpec, expected_rows: int) -> Non
         required.update({"Week", "Opp."})
     missing = required - set(header)
     if missing:
-        raise RuntimeError(f"SIS CSV lacks scope columns: {sorted(missing)}")
-    season_index = header.index("Season")
+        raise RuntimeError(
+            f"SIS CSV lacks scope columns: {sorted(missing)}; "
+            f"exported columns={header}"
+        )
+    season_index = header.index(season_column)
     if {int(row[season_index]) for row in rows[1:]} != {spec.season}:
         raise RuntimeError("SIS CSV contains an unexpected season")
     if spec.split_by_game:

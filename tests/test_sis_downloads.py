@@ -127,6 +127,18 @@ def test_value_csv_can_omit_games_when_api_proved_game_grain(tmp_path):
     sis._validate_csv_scope(path, spec, expected_rows=1)
 
 
+def test_blocking_csv_can_call_season_year(tmp_path):
+    spec = sis.ExportSpec(
+        entity="teams", report="blocking-totals", season=2019,
+        start_week=1, end_week=1,
+    )
+    path = tmp_path / "sis-blocking.csv"
+    path.write_text(
+        "Rank,Year,Team,Week,Opp.,Games,Snaps\n"
+        "1,2019,ARI,1,DET,1,60\n", encoding="utf-8")
+    sis._validate_csv_scope(path, spec, expected_rows=1)
+
+
 def test_load_plan_expands_seasons_windows_and_enforces_budget(tmp_path):
     plan = tmp_path / "plan.json"
     plan.write_text(
