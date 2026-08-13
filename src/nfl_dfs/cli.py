@@ -384,6 +384,11 @@ def main(argv: list[str] | None = None) -> None:
         help="Fit and gate within-team target/carry concentration",
     )
 
+    sub.add_parser(
+        "g3-participation-allocation",
+        help="Run the frozen score-free participation-conditioned usage gate",
+    )
+
     p = sub.add_parser(
         "import-fantasy-points-advanced",
         help="Audit/import hash-locked Fantasy Points Advanced player data",
@@ -909,6 +914,10 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import usage_dirichlet_calibration
 
         usage_dirichlet_calibration.run()
+    elif args.command == "g3-participation-allocation":
+        from .analysis import g3_participation_allocation
+
+        g3_participation_allocation.run()
     elif args.command == "import-fantasy-points-advanced":
         from .ingest import fantasy_points_advanced
 

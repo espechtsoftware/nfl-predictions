@@ -40,6 +40,19 @@ agent or developer:
   test. Exact next action: implement and validate the frozen Stage A analyzer
   and immutable runner while polling the seed envelope; do not inspect partial
   seed scores.
+- The frozen G3 Stage A analyzer and immutable Cloud launch/harvest path are
+  implemented. It loads each 2016--2024 nflverse participation/PBP source only
+  once, constructs cumulative strictly-prior embedding folds for target years
+  2021--2025, reuses the PIT-clean usage-group/model law, fits only two
+  calibration coefficients, and withholds any lineup path unless the complete
+  likelihood gate passes. Ten focused G3/usage tests, Python compilation,
+  shell parsing and whitespace validation pass. A real 2016 source smoke
+  retained 41,286 valid 11-player offensive plays, 1,624 players and 21,778
+  weighted edges; its 16-dimensional shifted-PMI factorization embedded all
+  1,624 players with unit-normalized rows. Exact next action: commit/push the
+  implementation, run the full Cloud test/image build from that exact tree,
+  then launch Stage A only from the immutable digest while the seed envelope
+  continues.
 
 ### 2026-08-13 incumbent numeric path restored before new arms
 
