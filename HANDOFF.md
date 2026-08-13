@@ -87,6 +87,13 @@ agent or developer:
   local launcher session `63787` will automatically fan out 30 jobs after
   that smoke succeeds. Exact next action: poll/resume that session; do not
   relaunch the immutable run.
+- Phase R smoke `replay-gtrphase-r-smoke-5z6xn` passed. All 30 immutable
+  season jobs are now launched and recorded in
+  `reports/game-team-usage-runs/20260813-game-team-usage-phase-r-v1/executions.txt`;
+  the launcher completed normally. Initial poll has all jobs active/pending
+  with no explicit failure. Exact next action: use
+  `scripts/poll_game_team_usage_phase_r.sh`; when all 30 are `True`, run the
+  guarded finisher and harvester. Do not query partial staging scores.
 
 ### 2026-08-13 SIS ASOE Stage A launched
 
