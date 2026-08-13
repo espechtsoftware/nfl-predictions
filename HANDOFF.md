@@ -195,6 +195,13 @@ agent or developer:
   The final launcher now binds the v2 validation. Launch and poll the frozen
   score-free final-served gate next; do not inspect lineup scores unless it
   passes.
+  The score-free gate is now running as execution
+  `tabpfn-sis-rb-rdef-final-served-v1-lmb74` from that immutable audit digest;
+  manifest is under
+  `reports/tabpfn-sis-rb-rdef-runs/20260813-tabpfn-sis-rb-rdef-final-served-v1/`.
+  Poll it to completion and harvest exactly one machine report. A pass licenses
+  only a separately frozen exact-80 comparison; a fail closes this one-column
+  arm without reading lineup scores.
   The outcome-blind SIS filter audit confirmed exact separate receiving
   alignment and pass-defense receiver/defender alignment controls using three
   UI query calls. The one-game feasibility decision is frozen before sample
