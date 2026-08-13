@@ -1,10 +1,12 @@
 #!/bin/bash
 # Launch the frozen five-seed SIS ASOE treatment after Phase R selects control.
-# Usage: cloud_sis_asoe_phase_s.sh
+# Usage: cloud_sis_asoe_phase_s.sh <IMAGE@sha256:...> <CODE_SHA>
 set -euo pipefail
 
 PROJECT=nfl-predictions-503414
 REGION=us-central1
+IMG=${1:-}
+CODE_SHA=${2:-}
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 PHASE_R="$ROOT/reports/game-team-usage-runs/20260813-game-team-usage-phase-r-v1"
 REPORT="$PHASE_R/report.json"
@@ -28,8 +30,6 @@ PY
 )"
 [ "$MECHANICAL" = true ] || { echo "ABORT: Phase R did not pass"; exit 2; }
 case "$SELECTED" in mult|k) ;; *) echo "ABORT: invalid Phase R arm $SELECTED"; exit 2;; esac
-IMG=$(awk -F= '$1=="image" {print $2}' "$MANIFEST_R")
-CODE_SHA=$(awk -F= '$1=="code_sha" {print $2}' "$MANIFEST_R")
 case "$IMG" in *@sha256:*) ;; *) echo "ABORT: immutable image missing"; exit 2;; esac
 [ -n "$CODE_SHA" ] || { echo "ABORT: embedded code SHA missing"; exit 2; }
 
@@ -39,7 +39,7 @@ printf '%s\n' \
   "protocol_sha256=$(sha256sum "$PROTOCOL" | awk '{print $1}')" \
   "phase_r_report_sha256=$(sha256sum "$REPORT" | awk '{print $1}')" \
   "selected_control_arm=$SELECTED" \
-  'treatment=sis-asoe-conditional-target-center' \
+  'arms=same-image-control sis-asoe-treatment' \
   'beta=0.07771181538347656' 'replicates=R0 R1 R2 R3 R4' \
   'seasons=2023 2024 2025' 'n_entries=80' 'n_sims=10000' \
   'tail_line=194' > "$OUT/manifest.txt"
@@ -107,38 +107,42 @@ while true; do
 done
 echo "Phase S smoke passed: $SMOKE_EXEC"
 
-for REP in 0 1 2 3 4; do
-  PANEL="20260813-sis-asoe-r${REP}-v1"
-  EXISTING=$(bq query --project_id="$PROJECT" --use_legacy_sql=false \
-    --format=csv \
-    "SELECT COUNT(*) AS n FROM \`$PROJECT.nfl_predictions.replay_candidates_staging\` WHERE panel_run_id='$PANEL'" \
-    | tail -1 | tr -d '[:space:]')
-  [ "${EXISTING:-0}" = 0 ] || {
-    echo "ABORT: $PANEL already has $EXISTING rows"; exit 2; }
-  for SEASON in 2023 2024 2025; do
-    FAMILY="sisasoe${REP}"
-    JOB="replay-${FAMILY}-${SEASON}"
-    LINEUPS="$PROJECT.nfl_features.replay_lineups_${FAMILY}_${SEASON}"
-    ENVS="$(common_env "$REP" "$SEASON")"
-    ENVS="$ENVS|SIS_ASOE_TARGET_ALLOCATION=1|SIS_ASOE_BETA=0.07771181538347656"
-    ENVS="$ENVS|PANEL_RUN_ID=$PANEL|CODE_SHA=$CODE_SHA"
-    ENVS="$ENVS|CAND_LOG_TABLE=$PROJECT.nfl_predictions.replay_candidates_staging"
-    ENVS="$ENVS|CAND_FEATURE_TABLE=$PROJECT.nfl_predictions.slate_player_features"
-    ENVS="$ENVS|CAND_ARTIFACT_BUCKET=${PROJECT}-raw|REPLAY_LINEUPS_TABLE=$LINEUPS"
-    gcloud run jobs deploy "$JOB" --project "$PROJECT" --region "$REGION" \
-      --image "$IMG" --command nfl-dfs \
-      --args "replay,--season,$SEASON,--contest,gpp,--entries,80" \
-      --set-env-vars "^|^$ENVS" --memory 32Gi --cpu 8 --max-retries 0 \
-      --task-timeout 14400 >/dev/null
-    EXEC=$(gcloud run jobs execute "$JOB" --project "$PROJECT" \
-      --region "$REGION" --async --format='value(metadata.name)')
-    [ -n "$EXEC" ] || { echo "ABORT: no execution for $JOB"; exit 1; }
-    GOT=$(gcloud run jobs executions describe "$EXEC" --project "$PROJECT" \
-      --region "$REGION" --format='value(spec.template.spec.containers[0].image)')
-    [ "$GOT" = "$IMG" ] || {
-      echo "ABORT: $EXEC runs $GOT, expected $IMG"; exit 1; }
-    printf '%s %s %s %s %s\n' \
-      "$REP" "$SEASON" "$PANEL" "$JOB" "$EXEC" | tee -a "$OUT/executions.txt"
+for ARM in control treatment; do
+  for REP in 0 1 2 3 4; do
+    PANEL="20260813-sis-asoe-${ARM}-r${REP}-v1"
+    EXISTING=$(bq query --project_id="$PROJECT" --use_legacy_sql=false \
+      --format=csv \
+      "SELECT COUNT(*) AS n FROM \`$PROJECT.nfl_predictions.replay_candidates_staging\` WHERE panel_run_id='$PANEL'" \
+      | tail -1 | tr -d '[:space:]')
+    [ "${EXISTING:-0}" = 0 ] || {
+      echo "ABORT: $PANEL already has $EXISTING rows"; exit 2; }
+    for SEASON in 2023 2024 2025; do
+      FAMILY="sisasoe${ARM:0:1}${REP}"
+      JOB="replay-${FAMILY}-${SEASON}"
+      LINEUPS="$PROJECT.nfl_features.replay_lineups_${FAMILY}_${SEASON}"
+      ENVS="$(common_env "$REP" "$SEASON")"
+      if [ "$ARM" = treatment ]; then
+        ENVS="$ENVS|SIS_ASOE_TARGET_ALLOCATION=1|SIS_ASOE_BETA=0.07771181538347656"
+      fi
+      ENVS="$ENVS|PANEL_RUN_ID=$PANEL|CODE_SHA=$CODE_SHA"
+      ENVS="$ENVS|CAND_LOG_TABLE=$PROJECT.nfl_predictions.replay_candidates_staging"
+      ENVS="$ENVS|CAND_FEATURE_TABLE=$PROJECT.nfl_predictions.slate_player_features"
+      ENVS="$ENVS|CAND_ARTIFACT_BUCKET=${PROJECT}-raw|REPLAY_LINEUPS_TABLE=$LINEUPS"
+      gcloud run jobs deploy "$JOB" --project "$PROJECT" --region "$REGION" \
+        --image "$IMG" --command nfl-dfs \
+        --args "replay,--season,$SEASON,--contest,gpp,--entries,80" \
+        --set-env-vars "^|^$ENVS" --memory 32Gi --cpu 8 --max-retries 0 \
+        --task-timeout 14400 >/dev/null
+      EXEC=$(gcloud run jobs execute "$JOB" --project "$PROJECT" \
+        --region "$REGION" --async --format='value(metadata.name)')
+      [ -n "$EXEC" ] || { echo "ABORT: no execution for $JOB"; exit 1; }
+      GOT=$(gcloud run jobs executions describe "$EXEC" --project "$PROJECT" \
+        --region "$REGION" --format='value(spec.template.spec.containers[0].image)')
+      [ "$GOT" = "$IMG" ] || {
+        echo "ABORT: $EXEC runs $GOT, expected $IMG"; exit 1; }
+      printf '%s %s %s %s %s %s\n' \
+        "$ARM" "$REP" "$SEASON" "$PANEL" "$JOB" "$EXEC" | tee -a "$OUT/executions.txt"
+    done
   done
 done
-echo "SIS_ASOE_PHASE_S_LAUNCHED $RUN_ID control=$SELECTED"
+echo "SIS_ASOE_PHASE_S_LAUNCHED $RUN_ID control_law=$SELECTED"

@@ -56,9 +56,7 @@ OUTPUT_PREFIX = "SIS_ASOE_PHASE_S_JSON="
 
 
 def _panel(arm: str, replicate: int, control_arm: str) -> str:
-    if arm == "control":
-        return f"20260813-game-team-{control_arm}-r{replicate}-v1"
-    return f"20260813-sis-asoe-r{replicate}-v1"
+    return f"20260813-sis-asoe-{arm}-r{replicate}-v1"
 
 
 def _parse_pairs(value: str) -> dict[str, str]:
@@ -232,6 +230,34 @@ def mechanical_failures(candidates, features, code_sha, control_arm):
     return failures
 
 
+def phase_r_reproduction_failures(candidates, control_arm):
+    """Same-image Phase S control must reproduce Phase R's selected law."""
+    failures = []
+    for replicate in SEEDS:
+        phase_r_panel = f"20260813-game-team-{control_arm}-r{replicate}-v1"
+        prior = query_df(f"""
+            SELECT season, week, MAX(IF(selected, actual_score, NULL)) best
+            FROM `{settings.predictions}.replay_candidates_staging`
+            WHERE panel_run_id=@panel AND season IN UNNEST(@seasons)
+            GROUP BY season, week
+            """, params={
+                "panel": phase_r_panel, "seasons": sorted(POSITION_SPECS),
+            })
+        current = candidates[("control", replicate)]
+        current = current[current.selected].groupby(
+            ["season", "week"], as_index=False
+        ).actual_score.max().rename(columns={"actual_score": "best"})
+        joined = prior.merge(
+            current, on=["season", "week"], suffixes=("_prior", "_current"),
+            validate="one_to_one",
+        )
+        if len(joined) != 54 or not _equal_series(
+            joined.best_prior, joined.best_current
+        ).all():
+            failures.append(f"R{replicate} same-image control does not reproduce Phase R")
+    return failures
+
+
 def arm_metrics(frame):
     selected = frame[frame.selected].groupby(["season", "week"]).actual_score.max().sort_index()
     oracle = frame.groupby(["season", "week"]).actual_score.max().sort_index()
@@ -318,6 +344,7 @@ def main():
     failures = mechanical_failures(
         candidates, features, args.expected_code_sha, args.control_arm
     )
+    failures.extend(phase_r_reproduction_failures(candidates, args.control_arm))
     report = {
         "protocol": "2026-08-13-game-team-usage-repair-and-sis-asoe-exact80",
         "phase": "S", "mechanical_passes": not failures, "failures": failures,
