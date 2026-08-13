@@ -284,3 +284,37 @@ exhaustion certificate accounts for every mechanism family and repository
 suggestion, the Week-1 dress rehearsal passes or has an explicit operator-owned
 blocker, and no historical result has been converted into an unregistered
 production change.
+
+## 11. Alternative analytical frames addendum
+
+The later operator-supplied
+`reports/2026-08-12-alternative-analytical-frames.md` is incorporated through
+`reports/2026-08-12-alternative-analytical-frames-reconciliation.md`. Freeze
+the following additions with the main analysis manifest before the first
+forensic outcome query:
+
+1. A paired, nonstationarity-aware GEV/EVT diagnostic of exact-80 weekly
+   maxima, with empirical threshold estimates, paired slate bootstrap,
+   leave-one-season-out and influential-week sensitivity. It is a diagnostic,
+   never a retroactive or extrapolation-only adoption gate.
+2. Per-slate covariance- and correlation-participation ratios, eigenvalue
+   concentration, tail-event overlap and nested 20/40/80 marginal diversity
+   from the checksummed candidate-by-world score artifacts. Label the results
+   model-implied and repeat them for any selected dependence law.
+3. Slate-relative rank diagnostics by position and salary-relevant strata:
+   Spearman, top-tail average precision, preregistered NDCG and whether each
+   treatment changed the actual ordering used by construction.
+4. Historical ownership as a player-slate crowd-consensus diagnostic after
+   field-size-weighted aggregation of repeated contests. Live use requires a
+   timestamped pre-lock projection; realized ownership may not enter a lineup
+   decision.
+5. Position-stratified player/team-game/game/opponent/residual variance
+   components and separately reported upper-tail dependence.
+6. Winner inverse-belief distance only after `H/P/C/S` assigns the first failed
+   layer, with fixed L1/L2 norms and both candidate-set and legal-universe
+   feasibility where tractable.
+7. A small, fixed, leave-one-season-out pre-lock slate-opportunity diagnostic.
+   No realized chalk state or post-lock input may drive entry allocation.
+
+These additions remain subject to the protocol's no-historical-promotion rule.
+They may size and rank the prospective 2026 charter, not revive an arm.

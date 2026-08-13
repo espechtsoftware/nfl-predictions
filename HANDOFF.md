@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 18:50 CDT
+## Current state — 2026-08-12 20:04 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -384,6 +384,29 @@ reconciliation when their findings affect the program.
   `reports/panel-runs/20260812-pitclean-e80-active-label-usage-multinomial-v1/`.
   Wait for all three terminal successes without partial score inspection,
   then use the audit image built from `64e0428` to run the frozen finisher.
+- The operator-supplied alternative-frames review is retained unchanged at
+  `reports/2026-08-12-alternative-analytical-frames.md` and reconciled in
+  `reports/2026-08-12-alternative-analytical-frames-reconciliation.md`. The
+  mandatory final-preseason closure protocol now includes: paired,
+  nonstationarity-aware EVT as a diagnostic rather than a promotion gate;
+  model-implied portfolio effective rank/eigenspectrum and tail overlap from
+  the existing checksummed candidate-by-world artifacts; corrected
+  slate-relative rank and ownership-consensus diagnostics; variance
+  components; layer-aware inverse winner-belief distance; and a restricted
+  pre-lock slate-opportunity analysis. None may retroactively reopen or promote
+  a historical arm. Add EVT to the next not-yet-frozen exact-80 protocol and
+  run effective-rank diagnostics after the final dependence law is known.
+- The long replay runtime is not caused by Cloud Run resource contention.
+  Each active usage-control execution already has 4 vCPU/16 GiB and all three
+  seasons run concurrently. Over the measured window they averaged about
+  23.8%, 25.0% and 25.2% CPU (roughly one busy core each) and about 11.9%,
+  13.9% and 12.6% memory; 2024 briefly reached about 69.6% memory, so 16 GiB
+  remains prudent. `us-central1` quota is 200 vCPU, 400 GiB and 1,000 running
+  executions versus the active 12 vCPU/48 GiB/3 executions. Do not resize or
+  cancel the frozen runs. Queue deterministic week-level replay sharding with
+  bounded concurrency and exact season-run equivalence tests after this
+  comparison; adding CPU/RAM to the current single-task process will not
+  materially accelerate it.
 
 ### Critical pre-launch PIT repair — stale active-label caches blocked
 
