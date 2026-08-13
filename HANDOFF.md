@@ -494,6 +494,9 @@ agent or developer:
   position-scale values on commas. Four focused analyzer tests pass. Commit
   that correction and run a fresh full-test build; on success, run only the
   explicit seed-zero parity smoke first. Use no earlier seed-envelope tag.
+  Parser correction commit `98ffe4e` is pushed. Fresh full-test build
+  `974845fc-29f2-4062-9982-965bb9877872` is queued for immutable tag
+  `mcseed-98ffe4e`.
   The outside oddsmaking proposal
   `reports/2026-08-13-oddsmaking-techniques-and-market-implied-dependence.md`
   is reconciled in
