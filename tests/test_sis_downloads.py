@@ -114,6 +114,25 @@ def test_response_scope_rejects_wrong_report_subtype():
     assert not sis._response_matches_spec(wrong, spec)
 
 
+def test_submitted_scope_assertion_reports_exact_filter_difference():
+    spec = sis.ExportSpec(
+        entity="teams", report="pass-defense-totals", season=2022,
+        start_week=1, end_week=6,
+    )
+    post = (
+        "MetricGroup=9&MetricGroupSubType=9.1&TimeFilters.SeasonFrom=2022&"
+        "TimeFilters.SeasonTo=2022&TimeFilters.StartWeek=1&"
+        "TimeFilters.EndWeek=6&TimeFilters.ByGame=1&"
+        "PassDefenseFilters.TargetLinedUp=3"
+    )
+    response = _Response(post, [])
+    response.url = "https://api.sisdatahub.com/api/v1/nfl/teams/query"
+    with pytest.raises(RuntimeError, match="TargetLinedUp"):
+        sis._assert_submitted_scope(response, spec, {
+            "PassDefenseFilters.TargetLinedUp": ["2"],
+        })
+
+
 def test_non_json_api_response_has_audit_error():
     response = _Response("", [], status=429)
     with pytest.raises(RuntimeError, match="HTTP 429"):

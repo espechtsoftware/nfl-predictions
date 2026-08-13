@@ -668,6 +668,36 @@ def _response_matches_filters(
     return all(scope.get(name) == values for name, values in filters.items())
 
 
+def _assert_submitted_scope(
+    response: Any, spec: ExportSpec, filters: dict[str, list[str]],
+) -> None:
+    """Fail immediately with the exact request-scope difference."""
+    scope = _request_scope(response.request)
+    expected = {
+        "MetricGroup": [str(spec.definition.metric_group)],
+        "MetricGroupSubType": [str(spec.definition.subtype)],
+        "TimeFilters.SeasonFrom": [str(spec.season)],
+        "TimeFilters.SeasonTo": [str(spec.season)],
+        "TimeFilters.StartWeek": [str(spec.start_week)],
+        "TimeFilters.EndWeek": [str(spec.end_week)],
+        **filters,
+    }
+    if spec.split_by_game:
+        expected["TimeFilters.ByGame"] = ["1"]
+    if spec.team_id is not None:
+        expected["GameFilters.Team"] = [str(spec.team_id)]
+    differences = {
+        name: {"expected": values, "actual": scope.get(name)}
+        for name, values in expected.items()
+        if scope.get(name) != values
+    }
+    if differences:
+        raise RuntimeError(
+            "SIS submitted scope differs: "
+            + json.dumps(differences, sort_keys=True)
+        )
+
+
 def _assert_api_scope(response: Any, spec: ExportSpec, row_cap: int) -> int:
     rows = _api_rows(response, "submitted")
     if len(rows) == row_cap:
@@ -1509,15 +1539,17 @@ def run_team_pass_defense_asoe_acquisition(
                         submit_budget.armed = True
                         try:
                             with page.expect_response(
-                                lambda response, expected=filters, current=spec:
-                                _response_matches_filters(
-                                    response, current, expected),
+                                lambda response, current=spec: (
+                                    f"/api/v1/nfl/{current.entity}/query"
+                                    in response.url
+                                ),
                                 timeout=timeout_ms,
                             ) as response_info:
                                 page.locator("#submit").click()
                         finally:
                             submit_budget.armed = False
                         response = response_info.value
+                        _assert_submitted_scope(response, spec, filters)
                         expected_rows = _assert_api_scope(
                             response, spec, row_cap=200)
                         if expected_rows == 0:
