@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import io
 from pathlib import Path
+import sys
 
 import numpy as np
 import pandas as pd
@@ -137,3 +139,94 @@ def test_main_image_contains_effective_rank_analyzer():
     assert 'META_PREFIX = "PORTFOLIO_EFFECTIVE_RANK_META="' in analyzer
     assert 'CHUNK_PREFIX = "PORTFOLIO_EFFECTIVE_RANK_CHUNK="' in analyzer
     assert "encode_report_transport(report)" in analyzer
+
+
+def _load_analyzer_module():
+    path = Path(__file__).parents[1] / \
+        "scripts/analyze_portfolio_effective_rank.py"
+    spec = importlib.util.spec_from_file_location(
+        "test_portfolio_effective_rank_analyzer", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_analyzer_composes_terminal_incumbent_by_frozen_seasons(
+        monkeypatch, capsys):
+    module = _load_analyzer_module()
+    historical = "historical-panel"
+    evaluation = "evaluation-panel"
+    rows = []
+    for season in (2019, 2021, 2022, 2023, 2024, 2025):
+        source = historical if season <= 2022 else evaluation
+        rows.append({
+            "panel_run_id": source,
+            "season": season,
+            "week": 1,
+            "cand_ix": 0,
+            "players": "a,b,c,d,e,f,g,h,i",
+            "selected": True,
+            "selected_rank": 0,
+            "n_worlds": 10000,
+            "tail_line": 194.0,
+            "sim_mean": 180.0,
+            "score_artifact_uri": f"gs://bucket/{season}",
+            "score_artifact_sha256": str(season),
+        })
+    frame = pd.DataFrame(rows)
+    captured = {}
+
+    monkeypatch.setattr(module, "query_df", lambda *args, **kwargs: frame)
+    monkeypatch.setattr(module, "_download", lambda uri: b"artifact")
+    monkeypatch.setattr(
+        module, "decode_score_artifact", lambda payload, digest: {})
+    monkeypatch.setattr(
+        module,
+        "analyze_selected_book",
+        lambda group, artifact: {
+            "season": int(group.season.iloc[0]),
+            "week": int(group.week.iloc[0]),
+        },
+    )
+
+    def encode(report):
+        captured.update(report)
+        return {"chunks": 1}, ["payload"]
+
+    monkeypatch.setattr(module, "encode_report_transport", encode)
+    monkeypatch.setattr(sys, "argv", [
+        "analyze_portfolio_effective_rank.py",
+        "--historical-panel", historical,
+        "--selected-eval-panel", evaluation,
+        "--source", "promoted",
+    ])
+    assert module.main() == 0
+    assert captured["version"] == "v2"
+    assert captured["slate_count"] == 6
+    assert captured["historical_panel"] == historical
+    assert captured["selected_eval_panel"] == evaluation
+    by_season = {row["season"]: row["source_panel"]
+                 for row in captured["slates"]}
+    assert by_season == {
+        2019: historical,
+        2021: historical,
+        2022: historical,
+        2023: evaluation,
+        2024: evaluation,
+        2025: evaluation,
+    }
+    assert "PORTFOLIO_EFFECTIVE_RANK_META=" in capsys.readouterr().out
+
+
+def test_effective_rank_v2_scripts_bind_composite_scope():
+    root = Path(__file__).parents[1]
+    launcher = (root / "scripts/cloud_portfolio_effective_rank_v2.sh").read_text(
+        encoding="utf-8")
+    finisher = (
+        root / "scripts/cloud_finish_portfolio_effective_rank_v2.sh"
+    ).read_text(encoding="utf-8")
+    assert "--historical-panel,$HISTORICAL_PANEL" in launcher
+    assert "--selected-eval-panel,$EVAL_PANEL" in launcher
+    assert 'report.get("slate_count") != 107' in finisher
+    assert 'row.get("source_panel") != expected_panel' in finisher

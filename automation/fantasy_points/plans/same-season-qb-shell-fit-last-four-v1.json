@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "name": "same-season-qb-shell-fit-last-four-v1",
+  "delay_between_downloads_seconds": 2,
+  "reports": [
+    {
+      "report": "coverage-matrix",
+      "seasons": [2022, 2023, 2024, 2025],
+      "target_weeks": "5-18",
+      "source_window": "last-four-prior",
+      "include_group_headers": true,
+      "context": "Offense"
+    }
+  ]
+}

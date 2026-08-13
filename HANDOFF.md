@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-12 22:06 CDT
+## Current state — 2026-08-13 02:03 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -599,6 +599,54 @@ reconciliation when their findings affect the program.
   Poll this exact execution without reading partial diagnostic output; on a
   clean terminal success, run the fail-closed harvester and summarize the full
   107-slate result.
+  The execution completed cleanly, but the harvester correctly rejected its
+  checksummed terminal payload before writing a report: it contained only the
+  54 evaluation slates from 2023--2025, not the registered 107. The protocol
+  had incorrectly described selected evaluation panel
+  `20260812-pitclean-e80-selected-tabpfn-active-v2` as the whole terminal
+  policy; G2 and the active-label selection records prove that 2019/2021/2022
+  remain on historical panel
+  `20260811-pitclean-e80-k1-role12union-a12ab31`. V1 is preserved as
+  `invalid-post-compute-input-scope-mismatch`; no effective-rank metric or
+  result is accepted from it. The v2 operational addendum freezes the intended
+  season composite without changing any diagnostic, world, book, tail,
+  control or seed. The analyzer, launcher and harvester now require the exact
+  two-panel season map and 107 unique slates. Twenty-three focused effective-
+  rank/active-usage/G1 tests pass; compilation, shell syntax and whitespace
+  checks are clean. Next: commit/push the v2 repair, build a full-test immutable
+  image, launch the sole v2 replacement, and harvest only if every composite
+  scope and transport check passes.
+- The operator asked explicitly whether defense-coverage effects on WRs and
+  QBs are in the test plan. WR/TE coverage has already received two honest
+  historical tests: the N-1 receiver/opponent fit slightly improved the
+  player-level 30-point Brier gate but its licensed 12-candidate exact-80 union
+  tied all 107 weekly maxima and every threshold; the same-season last-four
+  fit failed support and worsened aggregate 30-point Brier. Both exact WR/TE
+  mechanisms remain closed. QB Coverage Matchup and WR Coverage Matchup still
+  have no historical-season selector and remain pre-lock 2026 capture-only.
+  A genuine QB gap did remain: no test combined recent offense shell
+  efficiency with recent opponent Defense Coverage Matrix deployment. The new
+  operator-directed protocol
+  `reports/2026-08-13-fantasy-points-qb-shell-fit-protocol.md` freezes exactly
+  two last-four grades (Man/Zone and one-high/two-high), the walk-forward
+  2023--2025 tail test and its gate before the required offense-window grid is
+  collected. Its 56-export Playwright plan is
+  `same-season-qb-shell-fit-last-four-v1.json`. It reuses the accepted defense
+  windows and never uses the stale QB Matchup sample. Queue it behind the
+  current effective-rank/TD-ledger boundary; a pass can license only a
+  separately frozen exact-80 union.
+- A concurrently added outside inventory,
+  `reports/2026-08-13-wr-defense-coverage-test-inventory.md`, exposed an
+  adjacent untested production question. Reconciliation in
+  `reports/2026-08-13-wr-defense-coverage-inventory-reconciliation.md`
+  verifies that the three PFR secondary-quality rates and `top_cb_out` are in
+  both `NUMERIC_FEATURES` and the selected active-only TabPFN feature contract,
+  while no isolated ablation is recorded. PIT checks prove safety, not value.
+  Queue a current-stack score-free then exact-80 conditional ablation of the
+  three rate fields as one block and `top_cb_out` separately, with a combined
+  branch declared before treatment metrics. Do not remove them merely because
+  adjacent Fantasy Points receiver-shell arms failed, and do not let this live
+  feature question vanish into a non-promotional final forensic report.
   The new outside review
   `reports/2026-08-13-g2-failure-analysis-and-next-mechanism.md` is reconciled
   in `reports/2026-08-13-g2-failure-analysis-reconciliation.md`. Its core

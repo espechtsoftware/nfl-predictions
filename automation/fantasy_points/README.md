@@ -97,6 +97,19 @@ season/week payload, waits for the rendered game counts, and validates Season
 and `G` in the downloaded CSV. Controls can update before the table, so none
 of these gates is interchangeable with a fixed sleep.
 
+The frozen QB shell-fit follow-up collects the complete strictly-prior
+Offense Coverage Matrix grid with:
+
+```bash
+fantasy-points-download run \
+  --plan automation/fantasy_points/plans/same-season-qb-shell-fit-last-four-v1.json
+```
+
+This is a one-time historical research plan, not a weekly download. It must be
+paired with the already accepted last-four Defense Coverage Matrix windows and
+used only under
+`reports/2026-08-13-fantasy-points-qb-shell-fit-protocol.md`.
+
 The full-menu guard covers all 28 current NFL reports. Twenty-five have
 historical Season + Week(s) surfaces supported by the downloader; the three
 upcoming-matchup tools are catalog-guarded but intentionally excluded from

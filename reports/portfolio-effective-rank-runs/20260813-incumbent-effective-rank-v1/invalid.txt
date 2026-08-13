@@ -1,0 +1,7 @@
+classification=invalid-post-compute-input-scope-mismatch
+execution=portfolio-effective-rank-v1-jbgtr
+expected_slates=107
+observed_terminal_slates=54
+report_written=false
+scientific_result_accepted=false
+reason=selected evaluation panel contains only 2023-2025; terminal incumbent is a two-panel season composite
