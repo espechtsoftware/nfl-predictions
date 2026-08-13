@@ -357,9 +357,15 @@ reconciliation when their findings affect the program.
   and cannot enter a gate. The protocol's transport-only addendum now fixes a
   deterministic gzip/base64 manifest plus indexed 48,000-character chunks;
   the harvester requires every chunk and compressed/JSON checksum. Twelve
-  focused G1/revalidation tests pass. Commit/build this exact v3 transport
-  repair and launch the sole v3 replacement without changing any scientific
-  calculation. The v1 ambiguous-QB execution remains invalid pre-G1-metric.
+  focused G1/revalidation tests pass. Regional Cloud Build
+  `af20aac6-27da-422b-a761-853fc6f75449` passed 1,009 tests with two expected
+  skips from exact repair source `64e0428` and produced immutable digest
+  `sha256:72002d1b1c49783e9eda5d0b60314c3a84cfde7ea749968eae520d5eeb205a5e`.
+  The sole v3 replacement is running as
+  `g1-archetype-topology-v3-gq47v`; its manifest is under the v3 run folder.
+  Wait for clean completion, harvest only the complete checksummed chunks, and
+  then apply the frozen G2 license. The v1 ambiguous-QB execution remains
+  invalid pre-G1-metric.
 - The active-only usage revalidation multinomial preflight
   `replay-pitactusemult-smoke-jbrgl` passed on generation digest `ad50...` and
   released the exact registered controls: 2023
