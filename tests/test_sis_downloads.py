@@ -163,6 +163,44 @@ def test_value_csv_rejects_stale_totals_view(tmp_path):
         sis._validate_csv_scope(path, spec, expected_rows=1)
 
 
+def test_alignment_sample_analysis_uses_only_frozen_volume_columns(tmp_path):
+    artifacts = []
+    rows = {
+        "left": [(101, "Alpha WR", "WR", 1), (102, "Beta WR", "WR", 3)],
+        "left-slot": [(101, "Alpha WR", "WR", 1), (102, "Beta WR", "WR", 8)],
+        "right-slot": [(101, "Alpha WR", "WR", 2), (102, "Beta WR", "WR", 7)],
+        "right": [(101, "Alpha WR", "WR", 16), (102, "Beta WR", "WR", 2)],
+        "lcb": [(201, "Corner A", "CB", 18), (202, "Corner B", "CB", 2)],
+        "rcb": [(201, "Corner A", "CB", 1), (202, "Corner B", "CB", 2)],
+        "scb": [(201, "Corner A", "CB", 1), (202, "Corner B", "CB", 16)],
+    }
+    for family, filter_name, filter_value, slice_name in sis.ALIGNMENT_SAMPLE_SLICES:
+        path = tmp_path / sis._alignment_sample_artifact(slice_name)
+        volume = "Routes" if family == "receiving" else "Cov. Snaps"
+        path.write_text(
+            f"Rank,Season,Player,Team,Week,Opp.,Pos.,Games,{volume}\n" +
+            "".join(
+                f"1,2025,{name},T,1,O,{position},1,{value}\n"
+                for _pid, name, position, value in rows[slice_name]
+            ), encoding="utf-8")
+        artifacts.append({
+            "family": family, "filter_name": filter_name,
+            "filter_value": filter_value, "slice": slice_name,
+            "artifact": path.name, "sha256": sis._sha256(path),
+            "identities": [
+                {"playerId": pid, "player": name}
+                for pid, name, _position, _value in rows[slice_name]
+            ],
+        })
+    result = sis.analyze_alignment_feasibility_sample(tmp_path, {
+        "api_requests_used": 12, "artifacts": artifacts})
+    assert result["passes"]
+    assert result["receiver"]["player"] == "Alpha WR"
+    assert result["receiver"]["shares"]["right"] == pytest.approx(0.8)
+    assert result["best_alignment_overlap"] == pytest.approx(0.73)
+    assert result["outcome_columns_read"] == []
+
+
 def test_blocking_csv_can_call_season_year(tmp_path):
     spec = sis.ExportSpec(
         entity="teams", report="blocking-totals", season=2019,

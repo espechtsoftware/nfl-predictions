@@ -109,6 +109,18 @@ or import it until its reduced recovery plan is frozen; its durable counter is
 The first paid month is NFL-only. College acquisition is deferred to the 2027
 CFB go/no-go review.
 
+The frozen, one-game receiver/corner alignment feasibility sample is run as:
+
+```bash
+sis-download alignment-sample
+```
+
+It uses one browser session, seven predeclared alignment slices and a durable
+12-request ceiling. It reads only receiver Routes and defender Coverage Snaps
+for its concentration decision; raw rows and the durable request state remain
+under `sis/alignment-feasibility-v1/`. Its frozen protocol is
+`reports/2026-08-13-sis-alignment-feasibility-protocol.md`.
+
 After tranche 1 completes and its private table is verified, the bounded
 second plan is `plans/team-context-tranche-2.json`: team Passing,
 Rushing and Run Defense Totals/Value for the same six replay seasons. These

@@ -37,6 +37,7 @@ CSV_REQUIRED_COLUMNS: dict[str, frozenset[str]] = {
     "passing-value": frozenset(("Points Earned", "PE Per Play", "Boom%", "Bust%")),
     "rushing-totals": frozenset(("Games", "YAContact", "Hit at Line")),
     "rushing-value": frozenset(("Points Earned", "PE Per Play", "Boom%", "Bust%")),
+    "receiving-totals": frozenset(("Games", "Routes", "Tgts")),
     "pass-defense-totals": frozenset(("Games", "Catchable", "Pass Def.")),
     "pass-defense-value": frozenset(("Points Saved", "PS Per Play", "Boom%", "Bust%")),
     "pass-rush-totals": frozenset(("Games", "Pressures", "Passes Batted")),
@@ -46,6 +47,16 @@ CSV_REQUIRED_COLUMNS: dict[str, frozenset[str]] = {
     "blocking-totals": frozenset(("Games", "PassSnap", "RushSnap")),
     "blocking-value": frozenset(("Points Earned", "PE Per Play", "PAR", "WAR")),
 }
+
+ALIGNMENT_SAMPLE_SLICES = (
+    ("receiving", "ReceivingFilters.RecAlignment", "1", "left"),
+    ("receiving", "ReceivingFilters.RecAlignment", "2", "left-slot"),
+    ("receiving", "ReceivingFilters.RecAlignment", "5", "right-slot"),
+    ("receiving", "ReceivingFilters.RecAlignment", "6", "right"),
+    ("pass-defense", "PassDefenseFilters.DefenderLinedUp", "1", "lcb"),
+    ("pass-defense", "PassDefenseFilters.DefenderLinedUp", "2", "rcb"),
+    ("pass-defense", "PassDefenseFilters.DefenderLinedUp", "3", "scb"),
+)
 
 
 @dataclass(frozen=True)
@@ -441,6 +452,29 @@ def _set_checkbox(page: Any, selector: str, checked: bool) -> None:
         raise RuntimeError(f"SIS filter {selector} did not retain {checked}")
 
 
+def _set_checkbox_values(page: Any, name: str, values: Sequence[str]) -> None:
+    """Select an exact subset of one SIS checkbox group."""
+    retained = page.locator(f'input[name="{name}"]').evaluate_all(
+        """(elements, values) => {
+          const wanted = new Set(values);
+          for (const element of elements) {
+            const checked = wanted.has(element.value);
+            if (element.checked !== checked) {
+              element.checked = checked;
+              element.dispatchEvent(new Event('change', {bubbles: true}));
+            }
+          }
+          return elements.filter(element => element.checked)
+            .map(element => element.value).sort();
+        }""",
+        list(values),
+    )
+    if retained != sorted(values):
+        raise RuntimeError(
+            f"SIS checkbox group {name} retained {retained}, expected {sorted(values)}"
+        )
+
+
 def _click_ui_control(page: Any, selector: str) -> None:
     """Activate a SIS control, including submenu links hidden until hover."""
     control = page.locator(selector)
@@ -527,6 +561,15 @@ def _response_matches_spec(response: Any, spec: ExportSpec) -> bool:
     ]:
         return False
     return True
+
+
+def _response_matches_filters(
+    response: Any, spec: ExportSpec, filters: dict[str, list[str]],
+) -> bool:
+    if not _response_matches_spec(response, spec):
+        return False
+    scope = _request_scope(response.request)
+    return all(scope.get(name) == values for name, values in filters.items())
 
 
 def _assert_api_scope(response: Any, spec: ExportSpec, row_cap: int) -> int:
@@ -788,6 +831,269 @@ def export_one(
     }
 
 
+def _alignment_sample_artifact(slice_name: str) -> str:
+    return f"2025-week01-ari-no__{slice_name}.csv"
+
+
+def _prepare_sample_report(
+    page: Any, spec: ExportSpec, timeout_ms: int,
+) -> None:
+    """Select one report and its frozen game/team scope on an existing page."""
+    with page.expect_response(
+        lambda response: (
+            f"/api/v1/nfl/{spec.entity}/query" in response.url
+            and _request_scope(response.request).get("MetricGroup")
+            == [str(spec.definition.metric_group)]
+        ), timeout=timeout_ms,
+    ):
+        _click_ui_control(page, f"#{spec.definition.main_tab}")
+    _select_report_subtype(page, spec.definition)
+    if spec.definition.subtab:
+        with page.expect_response(
+            lambda response: (
+                f"/api/v1/nfl/{spec.entity}/query" in response.url
+                and _request_scope(response.request).get("MetricGroup")
+                == [str(spec.definition.metric_group)]
+                and _request_scope(response.request).get("MetricGroupSubType")
+                == [str(spec.definition.subtype)]
+            ), timeout=timeout_ms,
+        ) as response_info:
+            _click_ui_control(page, f"#{spec.definition.subtab}")
+        rows = _api_rows(response_info.value, "alignment report-view")
+        _wait_for_table(
+            page, len(rows), timeout_ms,
+            CSV_REQUIRED_COLUMNS.get(spec.report, frozenset()),
+        )
+    _set_select(page, "#TimeFilters_SeasonFrom", str(spec.season))
+    _set_select(page, "#TimeFilters_SeasonTo", str(spec.season))
+    _set_select(page, "#TimeFilters_StartWeek", str(spec.start_week))
+    _set_select(page, "#TimeFilters_EndWeek", str(spec.end_week))
+    _set_select(page, "#Teams", str(spec.team_id))
+    _set_checkbox(page, "#chkIncludePlayoffs", False)
+    _set_checkbox(page, "#chkByGame", True)
+
+
+def run_alignment_feasibility_sample(
+    profile_dir: Path,
+    timeout_seconds: float,
+    output_dir: Path,
+) -> dict[str, Any]:
+    """Acquire the frozen seven-slice ARI/NO alignment sample in one session."""
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError as exc:  # pragma: no cover
+        raise RuntimeError('install browser support with `pip install -e ".[browser]"`') from exc
+    protocol = Path("reports/2026-08-13-sis-alignment-feasibility-protocol.md")
+    if not protocol.is_file():
+        raise RuntimeError("frozen SIS alignment protocol is missing")
+    state_path = default_storage_state_path(profile_dir)
+    if not state_path.is_file():
+        raise RuntimeError("SIS saved storage state is missing; run `sis-download login`")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    run_state = output_dir / ".alignment-feasibility.run-state.json"
+    manifest_path = output_dir / "alignment-feasibility.manifest.json"
+    result_path = output_dir / "alignment-feasibility.result.json"
+    if manifest_path.exists() or result_path.exists():
+        raise RuntimeError("refusing to overwrite SIS alignment sample result")
+    if any((output_dir / _alignment_sample_artifact(row[3])).exists()
+           for row in ALIGNMENT_SAMPLE_SLICES):
+        raise RuntimeError("partial SIS alignment sample already exists")
+    budget = APIRequestBudget(
+        ceiling=12, state_path=run_state, plan_sha256=_sha256(protocol))
+    budget.persist()
+    timeout_ms = int(timeout_seconds * 1000)
+    artifacts: list[dict[str, Any]] = []
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(headless=True)
+        context = browser.new_context(
+            storage_state=str(state_path), accept_downloads=True,
+            viewport={"width": 1800, "height": 1200},
+        )
+        context.route("**/api/v1/nfl/**/query", budget.route)
+        page = context.new_page()
+        page.set_default_timeout(timeout_ms)
+        try:
+            page.goto(NFL_LEADERS_URL, wait_until="domcontentloaded", timeout=timeout_ms)
+            _assert_authenticated(page, timeout_ms)
+            page.locator("#querybuilder").wait_for(state="attached")
+            current_family = None
+            for family, filter_name, filter_value, slice_name in ALIGNMENT_SAMPLE_SLICES:
+                if family != current_family:
+                    spec = ExportSpec(
+                        entity="players",
+                        report=("receiving-totals" if family == "receiving"
+                                else "pass-defense-totals"),
+                        season=2025, start_week=1, end_week=1,
+                        team_id=1 if family == "receiving" else 20,
+                    )
+                    _prepare_sample_report(page, spec, timeout_ms)
+                    if family == "receiving":
+                        _set_checkbox_values(
+                            page, "ReceivingFilters.TargetPos", ["4"])
+                    else:
+                        _set_checkbox_values(
+                            page, "PassDefenseFilters.DefenderPos", ["12"])
+                        _set_checkbox_values(
+                            page, "PassDefenseFilters.ReceiverPos", ["4"])
+                    current_family = family
+                _set_checkbox_values(page, filter_name, [filter_value])
+                expected_filters = {filter_name: [filter_value]}
+                if family == "receiving":
+                    expected_filters["ReceivingFilters.TargetPos"] = ["4"]
+                else:
+                    expected_filters.update({
+                        "PassDefenseFilters.DefenderPos": ["12"],
+                        "PassDefenseFilters.ReceiverPos": ["4"],
+                    })
+                with page.expect_response(
+                    lambda response, expected=expected_filters, current=spec:
+                    _response_matches_filters(response, current, expected),
+                    timeout=timeout_ms,
+                ) as response_info:
+                    page.locator("#submit").click()
+                response = response_info.value
+                expected_rows = _assert_api_scope(response, spec, row_cap=200)
+                if expected_rows == 0:
+                    raise RuntimeError(f"SIS alignment slice {slice_name} is empty")
+                _wait_for_table(
+                    page, expected_rows, timeout_ms,
+                    CSV_REQUIRED_COLUMNS[spec.report],
+                )
+                button = page.locator("a.dt-button.buttons-csv:visible")
+                if button.count() != 1:
+                    raise RuntimeError("SIS page has an ambiguous Download control")
+                destination = output_dir / _alignment_sample_artifact(slice_name)
+                partial = destination.with_suffix(destination.suffix + ".partial")
+                with page.expect_download(timeout=timeout_ms) as download_info:
+                    button.click()
+                download_info.value.save_as(str(partial))
+                try:
+                    _validate_csv_scope(partial, spec, expected_rows)
+                except Exception:
+                    partial.unlink(missing_ok=True)
+                    raise
+                partial.replace(destination)
+                artifacts.append({
+                    "family": family, "filter_name": filter_name,
+                    "filter_value": filter_value, "slice": slice_name,
+                    "spec": asdict(spec), "artifact": destination.name,
+                    "rows": expected_rows, "bytes": destination.stat().st_size,
+                    "sha256": _sha256(destination),
+                    "identities": _identity_rows(response),
+                    "submitted_scope": _request_scope(response.request),
+                })
+        finally:
+            context.close()
+            browser.close()
+    manifest = {
+        "schema_version": 1,
+        "protocol_sha256": _sha256(protocol),
+        "retrieved_at_utc": datetime.now(UTC).isoformat(),
+        "api_requests_used": budget.used,
+        "api_request_ceiling": budget.ceiling,
+        "artifacts": artifacts,
+    }
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    result = analyze_alignment_feasibility_sample(output_dir, manifest)
+    result_path.write_text(
+        json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return result
+
+
+def analyze_alignment_feasibility_sample(
+    output_dir: Path, manifest: dict[str, Any],
+) -> dict[str, Any]:
+    """Apply the frozen volume-only concentration calculation."""
+    if len(manifest.get("artifacts", [])) != len(ALIGNMENT_SAMPLE_SLICES):
+        raise RuntimeError("SIS alignment manifest is not the frozen seven slices")
+    receiver: dict[tuple[int, str], dict[str, float]] = {}
+    defenders: dict[tuple[int, str], dict[str, float]] = {}
+    receiver_bucket = {
+        "left": "left", "right": "right",
+        "left-slot": "slot", "right-slot": "slot",
+    }
+
+    def number(value: str) -> float:
+        return float(value.replace(",", "").strip() or 0)
+
+    for artifact in manifest["artifacts"]:
+        path = output_dir / artifact["artifact"]
+        if _sha256(path) != artifact["sha256"]:
+            raise RuntimeError("SIS alignment artifact hash differs")
+        id_by_name = {
+            str(row.get("player")): int(row["playerId"])
+            for row in artifact["identities"] if row.get("playerId") is not None
+        }
+        with path.open(encoding="utf-8-sig", newline="") as handle:
+            rows = list(csv.DictReader(handle))
+        for row in rows:
+            name = row["Player"]
+            if name not in id_by_name:
+                raise RuntimeError("SIS alignment CSV row lacks stable player identity")
+            key = (id_by_name[name], name)
+            if artifact["family"] == "receiving":
+                if row.get("Pos.") != "WR":
+                    raise RuntimeError("SIS receiver sample contains a non-WR")
+                bucket = receiver_bucket[artifact["slice"]]
+                player = receiver.setdefault(
+                    key, {"left": 0.0, "right": 0.0, "slot": 0.0})
+                player[bucket] += number(row["Routes"])
+            else:
+                if row.get("Pos.") != "CB":
+                    raise RuntimeError("SIS defender sample contains a non-CB")
+                player = defenders.setdefault(
+                    key, {"lcb": 0.0, "rcb": 0.0, "scb": 0.0})
+                player[artifact["slice"]] += number(row["Cov. Snaps"])
+    eligible_wr = [(key, values, sum(values.values()))
+                   for key, values in receiver.items() if sum(values.values()) >= 5]
+    eligible_cb = [(key, values, sum(values.values()))
+                   for key, values in defenders.items() if sum(values.values()) >= 5]
+    if not eligible_wr or len(eligible_cb) < 2:
+        raise RuntimeError("SIS alignment sample lacks frozen minimum volume support")
+    wr_key, wr_values, wr_total = sorted(
+        eligible_wr, key=lambda row: (-row[2], row[0][0]))[0]
+    top_cbs = sorted(eligible_cb, key=lambda row: (-row[2], row[0][0]))[:2]
+    wr_share = {name: value / wr_total for name, value in wr_values.items()}
+    cb_results = []
+    for key, values, total in top_cbs:
+        share = {name: value / total for name, value in values.items()}
+        overlap = (
+            wr_share["right"] * share["lcb"]
+            + wr_share["left"] * share["rcb"]
+            + wr_share["slot"] * share["scb"]
+        )
+        cb_results.append({
+            "player_id": key[0], "player": key[1], "coverage_snaps": total,
+            "shares": share, "largest_share": max(share.values()),
+            "alignment_overlap": overlap,
+        })
+    wr_largest = max(wr_share.values())
+    best_cb_largest = max(row["largest_share"] for row in cb_results)
+    best_overlap = max(row["alignment_overlap"] for row in cb_results)
+    passes = wr_largest >= 0.55 and best_cb_largest >= 0.55 and best_overlap >= 0.50
+    return {
+        "disposition": (
+            "sis-alignment-feasibility-passes" if passes
+            else "sis-alignment-feasibility-fails"),
+        "passes": passes,
+        "receiver": {
+            "player_id": wr_key[0], "player": wr_key[1], "routes": wr_total,
+            "shares": wr_share, "largest_share": wr_largest,
+        },
+        "defenders": cb_results,
+        "best_defender_largest_share": best_cb_largest,
+        "best_alignment_overlap": best_overlap,
+        "thresholds": {
+            "receiver_largest_share": 0.55,
+            "defender_largest_share": 0.55,
+            "alignment_overlap": 0.50,
+        },
+        "outcome_columns_read": [],
+        "api_requests_used": manifest["api_requests_used"],
+    }
+
+
 def _manifest_path(output_dir: Path, artifact: str) -> Path:
     return output_dir / (Path(artifact).stem + ".manifest.json")
 
@@ -924,6 +1230,12 @@ def _build_parser() -> argparse.ArgumentParser:
     run.add_argument("--file", type=Path, required=True)
     run.add_argument("--row-cap", type=int, default=200)
     run.add_argument("--output-dir", type=Path, default=Path("sis/downloads"))
+    alignment = subparsers.add_parser(
+        "alignment-sample",
+        help="run the frozen outcome-blind ARI/NO alignment feasibility sample",
+    )
+    alignment.add_argument(
+        "--output-dir", type=Path, default=Path("sis/alignment-feasibility-v1"))
     return parser
 
 
@@ -960,6 +1272,11 @@ def main(argv: Sequence[str] | None = None) -> int:
                 row_cap=args.row_cap,
             )
             print("SIS plan complete: " + json.dumps(summary, sort_keys=True))
+        elif args.command == "alignment-sample":
+            result = run_alignment_feasibility_sample(
+                args.profile_dir, args.timeout, args.output_dir)
+            print("SIS alignment sample complete: " + json.dumps(
+                result, sort_keys=True))
         else:
             spec = ExportSpec(
                 entity=args.entity,
