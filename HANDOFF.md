@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 03:52 CDT
+## Current state — 2026-08-13 04:45 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -129,16 +129,24 @@ reconciliation when their findings affect the program.
   paid cap is binding; exporter therefore fails closed at 200 and requires
   team/week splitting. Priority is team/player pass-game, coverage, pressure
   and blocking Value plus volume denominators, followed by rush/run defense;
-  same-week data remains forbidden. Exact next SIS action is declarative
-  query planning and identity sidecars, then a budgeted 2019/2021--2025
-  backfill—do not indiscriminately consume the 1,000-query weekly allowance.
+  same-week data remains forbidden.
   Declarative plan parsing now expands seasons/week windows/report bundles,
   rejects duplicate artifacts and fails when expansion exceeds the declared
   budget. `automation/sis/plans/team-context-tranche-1.json` validates to 108
   guarded team-context exports: six replay seasons x three six-week windows x
-  pass-defense/pass-rush/blocking totals and value. The plan command is
-  validation-only; resumable bulk execution and stable-ID sidecars remain the
-  next implementation step, so it has not consumed those 108 queries yet.
+  pass-defense/pass-rush/blocking totals and value. Resumable normal-UI bulk
+  execution is implemented with a durable per-plan API-request counter, a hard
+  browser-route ceiling, a four-request reserve before each artifact, verified
+  restart skips, and stable SIS identity rows from the exact submitted API
+  response in each local manifest. Fourteen focused SIS tests pass. A broader
+  authenticated surface audit also added explicit Runs to Gap (group 15) and
+  Adjusted Blown Blocks (group 17) catalog entries; these remain priority 2
+  behind the initial broad team context tranche. The audit itself made a small
+  number of ordinary UI requests but the 108-artifact plan has not started.
+  Exact next SIS action: commit this guarded runner, then execute tranche 1
+  into gitignored `sis/team-context-tranche-1/`, preserving its run-state and
+  stopping on any exact-200/cross-scope failure. Do not exceed its 500-request
+  ceiling or the subscription's 1,000-query weekly allowance.
 - Incumbent effective-rank v2 completed cleanly in execution
   `portfolio-effective-rank-v2-pbxps`, image
   `sha256:450f22cbdae94e23c8322330fe3f445d256cd82dbfc96ca086593a0f80eee90e`,
@@ -213,10 +221,17 @@ reconciliation when their findings affect the program.
   `2a36bc49-defa-46c3-b688-b6fa554b7509` was intentionally cancelled while
   still testing because the next stage retained ~`1e-15` order drift; it is
   not validation. Superseding full validation build
-  `40e20dcd-f040-451d-88e7-cd5afa318f18` is running from exact-marginal commit
-  `89615a6`. After it passes, resolve its immutable digest and use a new run ID
-  and Cloud Run job name with the parameterized TD launcher; never overwrite
-  the v1 inconclusive artifact.
+  `40e20dcd-f040-451d-88e7-cd5afa318f18` passed from exact-marginal commit
+  `89615a6` and produced immutable digest
+  `sha256:66fbf519b4b1c8596473bef5f11e952fbb1afff9592b31f4cf9924978b06c09f`.
+  The unchanged frozen score-free replacement is running as execution
+  `td-ledger-final-served-v2-precision-h5ck6`, job
+  `td-ledger-final-served-v2-precision`, run ID
+  `20260813-td-ledger-final-served-v2-precision`. Its launch manifest is
+  tracked under the corresponding `reports/td-ledger-runs/` folder. Poll to
+  terminal without inspecting partial scientific output, harvest under the
+  new run ID after success, and apply the unchanged frozen gate; never
+  overwrite or reinterpret the v1 inconclusive artifact.
 
 ### 2026-08-12 team-passing review reconciliation
 

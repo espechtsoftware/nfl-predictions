@@ -1,3 +1,6 @@
+import json
+from dataclasses import asdict
+
 import pytest
 
 from nfl_dfs.ops import sis_downloads as sis
@@ -34,6 +37,8 @@ def test_catalog_covers_high_priority_value_and_denominator_views():
         "pass-rush-totals", "pass-rush-value",
         "run-defense-totals", "run-defense-value",
         "blocking-totals", "blocking-value",
+        "runs-to-gap-totals", "runs-to-gap-value",
+        "adjusted-blown-blocks",
     }
     assert expected <= set(sis.REPORTS)
     assert sis.REPORTS["pass-defense-value"].subtype == 9.3
@@ -145,3 +150,85 @@ def test_load_plan_expands_seasons_windows_and_enforces_budget(tmp_path):
     plan.write_text(plan.read_text().replace('"max_exports": 4', '"max_exports": 3'))
     with pytest.raises(ValueError, match="above max_exports"):
         sis.load_plan(plan)
+
+
+class _Route:
+    def __init__(self):
+        self.action = None
+
+    def continue_(self):
+        self.action = "continue"
+
+    def abort(self, reason):
+        self.action = reason
+
+
+def test_api_request_budget_blocks_before_overage():
+    budget = sis.APIRequestBudget(ceiling=2)
+    first, second, third = _Route(), _Route(), _Route()
+    budget.route(first)
+    budget.route(second)
+    budget.route(third)
+    assert first.action == second.action == "continue"
+    assert third.action == "blockedbyclient"
+    assert budget.used == 2
+
+
+def test_api_request_budget_persists_across_processes(tmp_path):
+    state_path = tmp_path / "state.json"
+    budget = sis.APIRequestBudget(
+        ceiling=5, state_path=state_path, plan_sha256="abc")
+    budget.route(_Route())
+    payload = json.loads(state_path.read_text())
+    assert payload["used"] == 1
+    assert payload["ceiling"] == 5
+    assert payload["plan_sha256"] == "abc"
+
+
+def test_identity_rows_retain_ids_and_scope_without_metrics():
+    response = _Response("", [{
+        "season": 2025, "week": 1, "games": 1, "playerId": 77,
+        "playerTeamId": 3, "teamId": 4, "player": "A", "team": "B",
+        "opp": "C", "pointsSaved": 2.5,
+    }])
+    assert sis._identity_rows(response) == [{
+        "games": 1, "opp": "C", "player": "A", "playerId": 77,
+        "playerTeamId": 3, "season": 2025, "team": "B", "teamId": 4,
+        "week": 1,
+    }]
+
+
+def test_verified_existing_is_resumable_and_fails_on_hash_drift(tmp_path):
+    spec = sis.ExportSpec(
+        entity="players", report="pass-defense-value", season=2025,
+        start_week=1, end_week=1, team_id=1,
+    )
+    artifact = tmp_path / sis.artifact_name(spec)
+    artifact.write_text(
+        "Rank,Season,Week,Opp.,Player,Points Saved\n"
+        "[object Object],2025,1,ATL,A,0.5\n", encoding="utf-8")
+    manifest = sis._manifest_path(tmp_path, artifact.name)
+    manifest.write_text(json.dumps({
+        "spec": asdict(spec), "sha256": sis._sha256(artifact), "rows": 1,
+    }), encoding="utf-8")
+    assert sis._verified_existing(tmp_path, spec)
+    artifact.write_text(artifact.read_text() + "corrupt\n", encoding="utf-8")
+    with pytest.raises(RuntimeError, match="hash differs"):
+        sis._verified_existing(tmp_path, spec)
+
+
+def test_run_plan_refuses_existing_artifact_without_budget_state(tmp_path):
+    plan = tmp_path / "plan.json"
+    plan.write_text(json.dumps({
+        "schema_version": 1, "max_exports": 1, "max_api_requests": 10,
+        "exports": [{
+            "entity": "players", "season": 2025, "start_week": 1,
+            "end_week": 1, "reports": ["pass-defense-value"],
+        }],
+    }), encoding="utf-8")
+    spec = sis.load_plan(plan)[0]
+    output = tmp_path / "output"
+    output.mkdir()
+    (output / sis.artifact_name(spec)).write_text("partial history")
+    with pytest.raises(RuntimeError, match="request state is missing"):
+        sis.run_plan(tmp_path / "profile", 1, output, plan)

@@ -26,6 +26,7 @@ from typing import Any, Sequence
 BASE_URL = "https://pro.sisdatahub.com"
 NFL_LEADERS_URL = f"{BASE_URL}/NFL/Leaders/Players"
 AUTH_HOST = "auth.sportsinfosolutions.com"
+MIN_API_REQUESTS_PER_EXPORT = 4
 
 
 @dataclass(frozen=True)
@@ -89,6 +90,21 @@ REPORTS: dict[str, ReportDefinition] = {
         ReportDefinition(
             "kicking-totals", "kickTab", None, 8, 8, 3,
             "Lower-priority kicker and scoring-opportunity context"),
+        ReportDefinition(
+            "runs-to-gap-totals", "runtogapTab", "runsToGapTotalTab",
+            15, 15.1, 2,
+            "Designed gap, bounce behavior and yards-before-contact volume"),
+        ReportDefinition(
+            "runs-to-gap-rates", "runtogapTab", "runsToGapRatesTab",
+            15, 15.2, 3,
+            "Designed gap, bounce behavior and yards-before-contact rates"),
+        ReportDefinition(
+            "runs-to-gap-value", "runtogapTab", "runsToGapValuesTab",
+            15, 15.3, 2,
+            "Designed gap and blocking-result value"),
+        ReportDefinition(
+            "adjusted-blown-blocks", "adjBlownBlockTab", None, 17, 17, 2,
+            "Pass/run blown blocks adjusted for blocking opportunity"),
     )
 }
 
@@ -110,6 +126,37 @@ class ExportSpec:
 
 class RowCapError(RuntimeError):
     """The normal UI returned exactly the paid-account row limit."""
+
+
+@dataclass
+class APIRequestBudget:
+    ceiling: int
+    used: int = 0
+    state_path: Path | None = None
+    plan_sha256: str | None = None
+
+    def persist(self) -> None:
+        if self.state_path is None:
+            return
+        payload = {
+            "schema_version": 1,
+            "plan_sha256": self.plan_sha256,
+            "ceiling": self.ceiling,
+            "used": self.used,
+            "updated_at_utc": datetime.now(UTC).isoformat(),
+        }
+        temporary = self.state_path.with_suffix(self.state_path.suffix + ".partial")
+        temporary.write_text(
+            json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        temporary.replace(self.state_path)
+
+    def route(self, route: Any) -> None:
+        if self.used >= self.ceiling:
+            route.abort("blockedbyclient")
+            return
+        self.used += 1
+        self.persist()
+        route.continue_()
 
 
 def validate_spec(spec: ExportSpec) -> None:
@@ -375,6 +422,19 @@ def _set_checkbox(page: Any, selector: str, checked: bool) -> None:
         raise RuntimeError(f"SIS filter {selector} did not retain {checked}")
 
 
+def _click_ui_control(page: Any, selector: str) -> None:
+    """Activate a SIS control, including submenu links hidden until hover."""
+    control = page.locator(selector)
+    control.wait_for(state="attached")
+    if control.is_visible():
+        control.click()
+    else:
+        # SIS implements hover menus as ordinary anchors with click handlers.
+        # Dispatch that same DOM click; all request/response and rendered-table
+        # checks below continue to apply.
+        control.evaluate("element => element.click()")
+
+
 def _request_scope(request: Any) -> dict[str, list[str]]:
     from urllib.parse import parse_qs
 
@@ -428,6 +488,27 @@ def _assert_api_scope(response: Any, spec: ExportSpec, row_cap: int) -> int:
         if spec.team_id is not None and int(row.get("teamId", -1)) != spec.team_id:
             raise RuntimeError("SIS API returned an unexpected team")
     return len(rows)
+
+
+def _identity_rows(response: Any) -> list[dict[str, Any]]:
+    """Retain stable SIS IDs and human-readable join keys omitted by CSV."""
+    rows = response.json().get("data", [])
+    if not isinstance(rows, list):
+        raise RuntimeError("SIS query response has no data rows")
+    descriptive = {
+        "season", "week", "games", "player", "team", "opp", "opponent",
+        "pos", "position", "name",
+    }
+    identities: list[dict[str, Any]] = []
+    for row in rows:
+        if not isinstance(row, dict):
+            raise RuntimeError("SIS query response contains a non-object row")
+        identities.append({
+            key: row[key]
+            for key in sorted(row)
+            if key in descriptive or key.lower().endswith("id")
+        })
+    return identities
 
 
 def _wait_for_table(page: Any, expected_rows: int, timeout_ms: int) -> None:
@@ -500,6 +581,7 @@ def export_one(
     spec: ExportSpec,
     *,
     row_cap: int = 200,
+    request_budget: APIRequestBudget | None = None,
 ) -> dict[str, Any]:
     """Run one normal-UI SIS export and fail closed on ambiguous scope."""
     validate_spec(spec)
@@ -520,11 +602,14 @@ def export_one(
         raise RuntimeError(f"remove stale incomplete SIS artifact first: {partial}")
     url = f"{BASE_URL}/NFL/Leaders/{spec.entity.title()}"
     with sync_playwright() as playwright:
+        requests_before = request_budget.used if request_budget is not None else 0
         browser = playwright.chromium.launch(headless=True)
         context = browser.new_context(
             storage_state=str(state_path), accept_downloads=True,
             viewport={"width": 1800, "height": 1200},
         )
+        if request_budget is not None:
+            context.route("**/api/v1/nfl/**/query", request_budget.route)
         page = context.new_page()
         page.set_default_timeout(timeout_ms)
         try:
@@ -541,7 +626,7 @@ def export_one(
                     == [str(spec.definition.metric_group)]
                 ), timeout=timeout_ms,
             ):
-                page.locator(f"#{spec.definition.main_tab}").click()
+                _click_ui_control(page, f"#{spec.definition.main_tab}")
             if spec.definition.subtab:
                 # SIS's tab request is immediate but the UI replaces the
                 # DataTable asynchronously. Wait for its own API response and
@@ -553,7 +638,7 @@ def export_one(
                         == [str(spec.definition.metric_group)]
                     ), timeout=timeout_ms,
                 ) as subtab_response:
-                    page.locator(f"#{spec.definition.subtab}").click()
+                    _click_ui_control(page, f"#{spec.definition.subtab}")
                 subtab_rows = subtab_response.value.json().get("data", [])
                 if not isinstance(subtab_rows, list):
                     raise RuntimeError("SIS report-view response has no data rows")
@@ -578,6 +663,7 @@ def export_one(
                 page.locator("#submit").click()
             response = response_info.value
             expected_rows = _assert_api_scope(response, spec, row_cap)
+            identities = _identity_rows(response)
             if expected_rows == 0:
                 raise RuntimeError("SIS query returned no rows")
             _wait_for_table(page, expected_rows, timeout_ms)
@@ -607,6 +693,109 @@ def export_one(
         "sha256": _sha256(destination),
         "retrieved_at_utc": datetime.now(UTC).isoformat(),
         "row_cap": row_cap,
+        "identities": identities,
+        "api_requests_used_total": (
+            request_budget.used if request_budget is not None else None),
+        "api_requests_for_artifact": (
+            request_budget.used - requests_before
+            if request_budget is not None else None),
+    }
+
+
+def _manifest_path(output_dir: Path, artifact: str) -> Path:
+    return output_dir / (Path(artifact).stem + ".manifest.json")
+
+
+def _verified_existing(output_dir: Path, spec: ExportSpec) -> bool:
+    artifact = output_dir / artifact_name(spec)
+    manifest = _manifest_path(output_dir, artifact.name)
+    if not artifact.exists() and not manifest.exists():
+        return False
+    if not artifact.is_file() or not manifest.is_file():
+        raise RuntimeError(f"incomplete existing SIS artifact pair: {artifact.name}")
+    try:
+        payload = json.loads(manifest.read_text(encoding="utf-8"))
+    except Exception as exc:
+        raise RuntimeError(f"invalid SIS manifest: {manifest}") from exc
+    if payload.get("spec") != asdict(spec):
+        raise RuntimeError(f"existing SIS manifest scope differs: {manifest}")
+    if payload.get("sha256") != _sha256(artifact):
+        raise RuntimeError(f"existing SIS artifact hash differs: {artifact}")
+    _validate_csv_scope(artifact, spec, int(payload.get("rows", -1)))
+    return True
+
+
+def run_plan(
+    profile_dir: Path,
+    timeout_seconds: float,
+    output_dir: Path,
+    plan_path: Path,
+    *,
+    row_cap: int = 200,
+) -> dict[str, int]:
+    specs = load_plan(plan_path)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    ceiling = plan_request_ceiling(plan_path)
+    plan_hash = _sha256(plan_path)
+    state_path = output_dir / f".{plan_path.stem}.run-state.json"
+    used = 0
+    has_existing_artifacts = any(
+        (output_dir / artifact_name(spec)).exists()
+        or _manifest_path(output_dir, artifact_name(spec)).exists()
+        for spec in specs
+    )
+    if has_existing_artifacts and not state_path.exists():
+        raise RuntimeError(
+            "SIS artifacts exist but their durable API-request state is missing; "
+            "do not reset the weekly request counter implicitly"
+        )
+    if state_path.exists():
+        try:
+            state = json.loads(state_path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            raise RuntimeError(f"invalid SIS plan run state: {state_path}") from exc
+        if state.get("plan_sha256") != plan_hash or int(
+            state.get("ceiling", -1)
+        ) != ceiling:
+            raise RuntimeError(
+                "SIS plan or request ceiling changed after execution began; "
+                f"preserve and review {state_path} before starting a new tranche"
+            )
+        used = int(state.get("used", -1))
+        if not 0 <= used <= ceiling:
+            raise RuntimeError(f"invalid SIS API count in {state_path}: {used}")
+    budget = APIRequestBudget(
+        ceiling=ceiling, used=used, state_path=state_path, plan_sha256=plan_hash)
+    budget.persist()
+    completed = skipped = 0
+    for index, spec in enumerate(specs, start=1):
+        if _verified_existing(output_dir, spec):
+            skipped += 1
+            print(f"SIS plan {index}/{len(specs)} verified existing: {artifact_name(spec)}")
+            continue
+        if budget.ceiling - budget.used < MIN_API_REQUESTS_PER_EXPORT:
+            raise RuntimeError(
+                "SIS API-request ceiling has insufficient reserve for one guarded "
+                f"export ({budget.used}/{budget.ceiling} used; "
+                f"{MIN_API_REQUESTS_PER_EXPORT} required)"
+            )
+        result = export_one(
+            profile_dir, timeout_seconds, output_dir, spec,
+            row_cap=row_cap, request_budget=budget,
+        )
+        manifest = _manifest_path(output_dir, result["artifact"])
+        if manifest.exists():
+            raise RuntimeError(f"refusing to overwrite SIS manifest: {manifest}")
+        manifest.write_text(
+            json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        completed += 1
+        print(
+            f"SIS plan {index}/{len(specs)} complete: {result['artifact']} "
+            f"({result['rows']} rows; API requests {budget.used}/{budget.ceiling})"
+        )
+    return {
+        "planned": len(specs), "completed": completed, "skipped": skipped,
+        "api_requests": budget.used, "api_request_ceiling": budget.ceiling,
     }
 
 
@@ -644,6 +833,11 @@ def _build_parser() -> argparse.ArgumentParser:
     plan = subparsers.add_parser(
         "plan", help="validate and summarize a declarative SIS query plan")
     plan.add_argument("--file", type=Path, required=True)
+    run = subparsers.add_parser(
+        "run-plan", help="resumably execute a guarded SIS query plan")
+    run.add_argument("--file", type=Path, required=True)
+    run.add_argument("--row-cap", type=int, default=200)
+    run.add_argument("--output-dir", type=Path, default=Path("sis/downloads"))
     return parser
 
 
@@ -674,6 +868,12 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
             for spec in specs:
                 print(artifact_name(spec))
+        elif args.command == "run-plan":
+            summary = run_plan(
+                args.profile_dir, args.timeout, args.output_dir, args.file,
+                row_cap=args.row_cap,
+            )
+            print("SIS plan complete: " + json.dumps(summary, sort_keys=True))
         else:
             spec = ExportSpec(
                 entity=args.entity,

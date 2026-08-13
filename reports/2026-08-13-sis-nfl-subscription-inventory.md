@@ -83,6 +83,15 @@ count, retrieval time and stable identity mapping. This keeps the pull under
 the documented 1,000-query weekly allowance and provides explicit
 completeness evidence.
 
+The paid-surface automation audit confirmed that Runs to Gap is metric group
+15 and Adjusted Blown Blocks is group 17. Runs to Gap exposes designed-run
+share, same-side share, bounces/bounce rate, yards before contact, EPA and
+per-carry fields. Adjusted Blown Blocks separates pass/run plays, raw blown
+blocks, adjusted blown blocks and position. These are now explicit catalog
+entries, but they remain priority 2: the first tranche should establish
+whether broad team blocking and pass-game context add signal before spending
+more requests on granular gap or individual-lineman features.
+
 ## Modeling order
 
 Do not add every column to TabPFN at once. First create lagged, shrinkage-aware

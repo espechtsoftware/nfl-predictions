@@ -79,8 +79,22 @@ team-context reports) and a hard 500-API-request ceiling. An artifact can cost
 several API requests because the normal UI refreshes on page, family, view and
 Submit actions; do not equate artifacts with queries. The ceiling leaves half
 the documented weekly allowance for retries and capped-query splitting. Bulk
-resumable execution is the next step; the plan command currently validates
-and prints artifacts but does not download them.
+execution is resumable and writes licensed data only below the ignored `sis/`
+tree:
+
+```bash
+sis-download run-plan \
+  --file automation/sis/plans/team-context-tranche-1.json \
+  --output-dir sis/team-context-tranche-1
+```
+
+Every API request increments a durable run-state counter before it is sent;
+restarts cannot reset the plan's hard ceiling. Existing artifacts are skipped
+only after their manifest scope, SHA-256 and CSV scope revalidate. The runner
+reserves four requests before beginning an artifact and the browser route
+itself blocks any request beyond the declared ceiling. Each manifest retains
+the stable SIS IDs and readable scope keys from the exact submitted response,
+because the visible CSV omits the IDs.
 
 The first paid month is NFL-only. College acquisition is deferred to the 2027
 CFB go/no-go review.
