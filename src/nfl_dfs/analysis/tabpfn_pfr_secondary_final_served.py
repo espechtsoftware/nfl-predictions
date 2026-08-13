@@ -227,7 +227,7 @@ def run(panel_id: str) -> dict:
                     cache_keys[arm].season.eq(season)]
                 frame, aligned, arm_parity = calibration._align_arm(
                     projected, draws, accepted, season_keys, season,
-                    require_control_parity=False)
+                    require_control_parity=(arm == "control"))
                 folds[arm][season] = (frame, aligned)
                 parity[arm].append(arm_parity)
 

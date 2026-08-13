@@ -359,6 +359,10 @@ agent or developer:
   `tabpfn-pfr-secondary-topcb-nl28w`, and combined drop
   `tabpfn-pfr-secondary-all-nfw5s`. Their immutable manifest is under
   `reports/tabpfn-pfr-secondary-runs/20260813-tabpfn-pfr-secondary-v1/`.
+  Before any cache log or outcome was read, the final-served no-drop replay
+  was also bound to the inherited panel mean-parity check in
+  `reports/2026-08-13-pfr-secondary-control-parity-addendum.md`; this is a
+  mechanical abort check and does not change the frozen outcome gate.
   Exact next action: poll all four executions and the full-test build; only
   after clean completion run `scripts/cloud_finish_tabpfn_pfr_secondary.sh
   50a20b1`. Launch the score-free job only if that mechanical validation
