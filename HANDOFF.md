@@ -70,7 +70,9 @@ agent or developer:
   immutable image, then launch the frozen Phase R multi-seed standing-law
   panel.
 - Implementation commit `d6b0e5d` is pushed. Full-test mechanism build
-  `d6ee547b-e406-4852-a9e0-3ee7cbc56e2c` is still running. A guarded
+  `d6ee547b-e406-4852-a9e0-3ee7cbc56e2c` succeeded with immutable digest
+  `sha256:c1ad0d5bf39ec7af663bc0124e7a832550d03e1b9cc9b6875b60f265d1775612`.
+  A guarded
   30-season-execution Phase R launcher, score-blind poller and mechanical
   analyzer were then added/pushed in `45ece38`; superseding full-test build
   `a65ee32e-4a87-443e-b205-b6f9a1976aba` is the intended generation/audit
