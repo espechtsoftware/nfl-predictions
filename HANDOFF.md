@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 07:24 CDT
+## Current state — 2026-08-13 08:03 CDT
 
 ### 2026-08-13 incumbent numeric path restored before new arms
 
@@ -155,9 +155,20 @@ agent or developer:
   generator, exact-control validator, licensed replay tables, active-RB
   final-served evaluator, CLI, immutable GPU/audit launchers and harvesters
   are now implemented; 32 focused SIS/import/replay tests pass and all scripts
-  parse. Run a full Cloud Build, build the GPU image from the same immutable
-  code, launch both write-once caches, and require exact inherited-cache
-  reproduction before the score-free RB gate.
+  parse. Full validation build `a18342e0-85fb-497d-be8e-678be55f99b9`
+  passed from immutable source `7a63350` and produced audit digest
+  `sha256:c866d39875a81532f209a2e33c16d0a17c538724312efdae2d26dd30a0768267`.
+  GPU build `3cd4d6a5-9d24-49ec-bec8-b86d96e86566` passed from the same
+  source and produced generator digest
+  `sha256:cef2543d77b0632e4cf7e57da6b52a191ceabd851977a97a2d3bf24972664540`.
+  The write-once cache pair is running as control execution
+  `tabpfn-sis-rb-rdef-v1-control-wpqn6` and treatment execution
+  `tabpfn-sis-rb-rdef-v1-treatment-7rb8c`; their immutable manifest is under
+  `reports/tabpfn-sis-rb-rdef-runs/20260813-tabpfn-sis-rb-rdef-v1/`.
+  Exact next action: poll both executions; when both succeed, harvest and
+  require exact inherited-cache reproduction before launching the score-free
+  final-served RB gate from the audit digest. Do not inspect lineup scores
+  unless that gate passes.
 - The SIS QB-line cache mechanical gate passed and the score-free
   final-served execution
   `tabpfn-sis-qb-line-final-served-v1-vkx49` completed from audit image
