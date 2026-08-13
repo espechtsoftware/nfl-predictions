@@ -461,9 +461,16 @@ agent or developer:
   `replay_projections`; and explicit seeds are recorded in both `lever_env` and
   `seeds` beside `ROLE_BELIEF_SEED`. Focused replay, generation-config and
   persistence tests pass, including default-zero and changed-seed assertions.
-  Exact next Monte Carlo action: commit/build this narrow lever, mechanically
-  reproduce an incumbent seed-0 smoke, then run only the four registered
-  2023--2025 panels after PFR transport closure.
+  The seed-0 parity gate is also implemented. It persists one explicit-zero
+  2024 main slate and uses the strengthened exact-replay comparator in
+  candidate-slate-only mode against the accepted panel. The comparator now
+  includes 210/220 masks and all currently served component/ensemble/coverage/
+  route fields, plus exact score artifacts; no reduced summary can satisfy the
+  gate. Nineteen focused seed, persistence, runner, and exact-comparator tests
+  pass and shell syntax is clean. Exact next Monte Carlo action: commit/build
+  this narrow lever, run the explicit-zero smoke and require exact parity,
+  then run only the four registered 2023--2025 panels after PFR transport
+  closure.
   The outside oddsmaking proposal
   `reports/2026-08-13-oddsmaking-techniques-and-market-implied-dependence.md`
   is reconciled in

@@ -117,3 +117,15 @@ def test_artifact_alignment_rejects_roster_difference():
     _, _, _, failures = compare._align_artifacts_by_roster(
         source_rows, candidate_rows, arrays, arrays)
     assert "artifact roster universes differ" in failures
+
+
+def test_current_tail_masks_are_in_exact_candidate_contract():
+    assert "clear_bits_210" in compare.CANDIDATE_COLUMNS
+    assert "clear_bits_220" in compare.CANDIDATE_COLUMNS
+
+
+def test_current_served_feature_fields_are_in_exact_contract():
+    for field in (
+            "component_mean_targets", "model_member_spec",
+            "coverage_treatment_p30", "route_treatment_p30"):
+        assert field in compare.FEATURE_FIELDS

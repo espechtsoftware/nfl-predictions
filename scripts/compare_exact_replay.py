@@ -30,6 +30,7 @@ CANDIDATE_COLUMNS = [
     "actual_rank", "tail_line", "n_entries", "n_sims", "n_locks",
     "n_theses", "players", "n_worlds", "bitorder", "clear_bits",
     "clear_bits_187", "clear_bits_194", "clear_bits_200",
+    "clear_bits_210", "clear_bits_220",
 ]
 CANDIDATE_COMPARE_FIELDS = [
     field for field in CANDIDATE_COLUMNS
@@ -62,6 +63,17 @@ FEATURE_FIELDS = [
     "team_vacated_carry_share", "salary_delta_wow", "games_played_prior",
     "actual", "consensus_div", "market_points", "model_points_pre",
     "feature_missing",
+    "component_mean_carries", "component_mean_catch_rate",
+    "component_mean_interceptions", "component_mean_pass_attempts",
+    "component_mean_pass_tds", "component_mean_rec_tds",
+    "component_mean_rush_tds", "component_mean_targets",
+    "component_mean_ypa", "component_mean_ypc", "component_mean_ypr",
+    "model_ensemble_size", "model_member_spec", "ensemble_point_0",
+    "ensemble_point_1", "ensemble_point_2",
+    "fp_cov_receiver_source_season", "fp_cov_defense_source_season",
+    "coverage_control_p30", "coverage_treatment_p30", "coverage_delta_30",
+    "fp_route_source_season", "fp_route_source_week",
+    "route_control_p30", "route_treatment_p30", "route_delta_30",
 ]
 FEATURE_COMPARE_FIELDS = [
     field for field in FEATURE_FIELDS
@@ -71,7 +83,7 @@ FEATURE_TOLERANCES = {
     field: 1e-8 for field in FEATURE_COMPARE_FIELDS
     if field not in {
         "gsis_id", "name", "pos", "team", "opp", "game_id",
-        "is_cold_start", "feature_missing",
+        "is_cold_start", "feature_missing", "model_member_spec",
     }
 }
 
@@ -297,19 +309,39 @@ def main() -> int:
     parser.add_argument(
         "--reference-staging", action="store_true",
         help="read the reference from staging (for non-promotable smoke probes)")
+    parser.add_argument(
+        "--candidate-slate-only", action="store_true",
+        help=("compare only the season/week keys present in the candidate; "
+              "used by a persisted one-week seed-zero parity smoke"))
     parser.add_argument("--output")
     args = parser.parse_args()
 
     source_candidates = _candidates(
         args.reference, promoted=not args.reference_staging)
     rebuilt_candidates = _candidates(args.candidate, promoted=False)
+    source_features = _features(
+        args.reference, promoted=not args.reference_staging)
+    rebuilt_features = _features(args.candidate, promoted=False)
+    if args.candidate_slate_only:
+        slate_keys = rebuilt_candidates[["season", "week"]].drop_duplicates()
+        if slate_keys.empty:
+            raise SystemExit("candidate-slate-only candidate is empty")
+        if len(slate_keys) != 1:
+            raise SystemExit(
+                "candidate-slate-only requires exactly one candidate slate")
+        season, week = map(int, slate_keys.iloc[0])
+        source_candidates = source_candidates[
+            source_candidates.season.eq(season)
+            & source_candidates.week.eq(week)].copy()
+        source_features = source_features[
+            source_features.season.eq(season)
+            & source_features.week.eq(week)].copy()
     candidate_report, candidate_failures = _frame_report(
         source_candidates, rebuilt_candidates,
         ["season", "week", "players"], CANDIDATE_COMPARE_FIELDS,
         CANDIDATE_TOLERANCES)
     feature_report, feature_failures = _frame_report(
-        _features(args.reference, promoted=not args.reference_staging),
-        _features(args.candidate, promoted=False),
+        source_features, rebuilt_features,
         ["season", "week", "id"], FEATURE_COMPARE_FIELDS,
         FEATURE_TOLERANCES)
     artifact_report, artifact_failures = _artifact_report(
