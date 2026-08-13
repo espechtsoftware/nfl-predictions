@@ -407,6 +407,18 @@ reconciliation when their findings affect the program.
   bounded concurrency and exact season-run equivalence tests after this
   comparison; adding CPU/RAM to the current single-task process will not
   materially accelerate it.
+- Generic outcome-blind portfolio diversity tooling is now implemented in
+  `src/nfl_dfs/research/portfolio_effective_rank.py` with the read-only entry
+  point `scripts/analyze_portfolio_effective_rank.py`. It checksum-verifies the
+  exact candidate-by-world artifact, requires canonical candidate and complete
+  selected-rank identities, and reports covariance/correlation participation
+  ratios, entropy rank, leading factor/entry/player loadings, seven-line pair
+  and multiplicity overlap, and nested 20/40/80 books. It deliberately selects
+  no arm and queries no realized score. Four new tests plus the active-usage
+  and G1 suites pass 16/16; compilation, shell syntax and whitespace checks
+  pass. Do not execute or interpret it scientifically until the final
+  dependence law is known; then run it on the incumbent and any passing G2
+  treatment from an immutable validated image.
 
 ### Critical pre-launch PIT repair — stale active-label caches blocked
 
