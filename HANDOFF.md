@@ -401,6 +401,14 @@ agent or developer:
   arm, row, forecast gate and branch rule. Exact next action: full-test/build
   a new immutable repair image and launch exactly one repair execution using
   the same validated caches, without reading partial output.
+  Repair commit `8ee7387` is pushed. Cloud full-test build
+  `707244eb-881b-4f07-b8d6-e0592f278759` passed and produced immutable digest
+  `sha256:e2149e596e7cb58c6e59d466205c4c9b3202ed38f1e94672ad507e6619316305`.
+  The single repaired execution is running as
+  `tabpfn-pfr-secondary-final-served-v1-f2zrw`; its repair manifest and durable
+  ID are in the same final-served run directory. Exact next action: poll it;
+  after clean completion harvest only its structured report with the frozen
+  finish script and follow the machine-selected branch.
   The outside oddsmaking proposal
   `reports/2026-08-13-oddsmaking-techniques-and-market-implied-dependence.md`
   is reconciled in
