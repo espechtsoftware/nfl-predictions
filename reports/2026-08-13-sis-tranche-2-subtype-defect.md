@@ -42,3 +42,14 @@ exclude them from all import completeness checks. The durable plan counter
 must remain 337/440. Freeze a reduced recovery plan before further queries; do
 not retry Passing Value until a distinct normal-UI workflow proves both the
 rendered and downloaded Value schema at game grain.
+
+The reduced recovery plan is now frozen before execution at
+`automation/sis/plans/team-context-tranche-2-recovery.json`. It contains only
+the 22 valid-family artifacts still missing when the original runner was
+stopped: two 2024 Week 7--12 Run Defense views; five 2024 Week 13--18 views;
+and five views across each of the three 2025 windows. Passing Value is absent.
+Its independent hard ceiling is 92 API requests (22 expected artifacts × four,
+plus a four-request reserve). Combined known plan usage is therefore bounded
+at 440 + 337 + 92 = 869 before the small authenticated surface audits, below
+the documented weekly 1,000 ceiling. Execute it into a new private recovery
+directory; never point it at or reset the original plan state.

@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "description": "Score-free recovery of only the 22 still-missing valid tranche-2 artifacts after the SIS team Passing Value split-by-game defect. Existing original-tranche files are preserved; Passing Value is excluded.",
+  "max_exports": 22,
+  "max_api_requests": 92,
+  "exports": [
+    {
+      "entity": "teams",
+      "seasons": [2024],
+      "week_windows": [[7, 12]],
+      "reports": ["run-defense-totals", "run-defense-value"],
+      "split_by_game": true
+    },
+    {
+      "entity": "teams",
+      "seasons": [2024],
+      "week_windows": [[13, 18]],
+      "reports": [
+        "passing-totals",
+        "rushing-totals",
+        "rushing-value",
+        "run-defense-totals",
+        "run-defense-value"
+      ],
+      "split_by_game": true
+    },
+    {
+      "entity": "teams",
+      "seasons": [2025],
+      "week_windows": [[1, 6], [7, 12], [13, 18]],
+      "reports": [
+        "passing-totals",
+        "rushing-totals",
+        "rushing-value",
+        "run-defense-totals",
+        "run-defense-value"
+      ],
+      "split_by_game": true
+    }
+  ]
+}

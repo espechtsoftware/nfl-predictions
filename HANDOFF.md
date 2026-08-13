@@ -99,6 +99,12 @@ agent or developer:
   counter, and freeze a reduced recovery plan for only missing/valid Passing
   Totals, Rushing Totals/Value and Run Defense Totals/Value. Team Passing Value
   requires a different verified UI workflow or is unavailable at game grain.
+  The reduced 22-artifact recovery plan is frozen at
+  `automation/sis/plans/team-context-tranche-2-recovery.json` with its own
+  92-request ceiling and excludes Passing Value. Combined maximum known plan
+  usage is 869 before the small surface audits. Run it only into
+  `sis/team-context-tranche-2-recovery`; never reset or reuse the original
+  plan state.
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
