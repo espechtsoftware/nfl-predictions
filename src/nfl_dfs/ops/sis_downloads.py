@@ -70,7 +70,9 @@ TEAM_PASS_DEFENSE_PROFILE_REPORTS = (
 ASOE_SEASONS = (2022, 2023, 2024, 2025)
 ASOE_WINDOWS = ((1, 6), (7, 12), (13, 17))
 ASOE_ALIGNMENTS = (("wide", ("2",)), ("slot", ("3",)))
-ASOE_ALL_SCHEMES = ("0", "1", "2", "3", "4", "5", "6")
+# Retain the normal UI's DOM serialization order. The values are the complete
+# frozen set; request-scope checks deliberately compare the actual form order.
+ASOE_ALL_SCHEMES = ("0", "1", "2", "5", "3", "4", "6")
 
 
 @dataclass(frozen=True)

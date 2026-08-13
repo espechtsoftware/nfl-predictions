@@ -312,6 +312,7 @@ def test_asoe_acquisition_grid_is_frozen_and_subcap():
     assert sis.ASOE_SEASONS == (2022, 2023, 2024, 2025)
     assert sis.ASOE_WINDOWS == ((1, 6), (7, 12), (13, 17))
     assert sis.ASOE_ALIGNMENTS == (("wide", ("2",)), ("slot", ("3",)))
+    assert set(sis.ASOE_ALL_SCHEMES) == {"0", "1", "2", "3", "4", "5", "6"}
     assert len(sis.ASOE_SEASONS) * len(sis.ASOE_WINDOWS) * len(
         sis.ASOE_ALIGNMENTS
     ) == 24
