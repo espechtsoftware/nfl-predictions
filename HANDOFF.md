@@ -130,6 +130,15 @@ agent or developer:
   `54a0e163-1794-496f-bb85-45dd19d8beb8` or
   `e5588fea-857a-459a-a0a7-ed5920854212` to launch Phase S because neither
   contains the complete player-world contract.
+- Phase R finite-K R1/2024 execution `replay-gtrk1-2024-wc8wv` failed after
+  provisioning with Cloud Run internal code 14, reported application exit 0,
+  and emitted no application logs. Read-only completeness checks found zero
+  candidate rows, zero feature rows, and zero score artifacts, so it had no
+  partial scientific output. The identical already-deployed immutable job was
+  retried once as `replay-gtrk1-2024-r59l9`; the active execution ledger now
+  points to that retry and preserves the failed ID/reason in
+  `infrastructure_retries.txt`. Poll the replacement with the other 29 jobs;
+  do not relaunch the entire panel or query partial scores.
 
 ### 2026-08-13 SIS ASOE Stage A launched
 
