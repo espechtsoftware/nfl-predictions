@@ -480,6 +480,14 @@ agent or developer:
   still requires the already-frozen mask/seed stability check before any live
   selector change. Poll and harvest with
   `scripts/cloud_finish_current_extreme_selector_replication.sh`.
+  The execution completed successfully and all mechanics passed. Persisted
+  194 versus extreme grids at 240/230/220/210/200/194/187 are
+  `0/0/0/2/6/8/11` versus `0/0/0/1/5/6/9`; means are `170.9070` versus
+  `170.9893`. The first registered difference is the lost >=210 week. Paired
+  weekly maxima are 11 wins, 30 ties and 13 losses. Terminal disposition is
+  `keep-coverage194-selector`, matching the older-universe rejection. Close
+  historical 220-first selector variants; result record is
+  `reports/2026-08-13-current-stack-extreme-selector-result.md`.
   The operator-supplied Monte Carlo review is tracked as
   `reports/2026-08-13-monte-carlo-review-and-seed-variance-protocol.md` and is
   being reconciled against the actual multi-stream RNG path. The first
