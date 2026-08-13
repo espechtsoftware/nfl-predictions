@@ -195,6 +195,12 @@ agent or developer:
   The final launcher now binds the v2 validation. Launch and poll the frozen
   score-free final-served gate next; do not inspect lineup scores unless it
   passes.
+  Conditional exact-80 mechanics are now fixed pre-result in
+  `reports/2026-08-13-sis-rb-run-defense-exact80-protocol.md`: exact panel IDs,
+  inherited active-only/shared-33/finite-K laws, arm-specific unrounded
+  position schedules, strict mechanism invariants and the operator's terminal
+  `240..187` first-difference rule. It remains dormant unless the running
+  score-free gate passes; no candidate or lineup score may be read otherwise.
   The score-free gate is now running as execution
   `tabpfn-sis-rb-rdef-final-served-v1-lmb74` from that immutable audit digest;
   manifest is under
