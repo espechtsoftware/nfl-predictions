@@ -584,6 +584,15 @@ reconciliation when their findings affect the program.
   image/code identities, complete transport and every registered report
   invariant. Next: focused validation, commit/push, full-test Cloud Build,
   launch the outcome-blind incumbent diagnostic, and poll/harvest it.
+  Implementation/protocol commit `e124004` is pushed. Regional exact-tree
+  Cloud Build `7538fcd8-9da3-4200-9f81-3bd4d66c86ac` passed 1,028 tests with
+  two expected skips and published immutable effective-rank digest
+  `sha256:8fab83020f0a9b24253727e5ae352d550f10c9286eb10f27e2c0c51e34cce486`.
+  Use that digest with code identity `e124004` for the sole frozen incumbent
+  execution; later review-only commit `2edd7eb` does not alter the archived
+  build tree. Next: commit/push this build identity, launch with
+  `scripts/cloud_portfolio_effective_rank.sh`, then poll/harvest only a clean
+  terminal result.
   The new outside review
   `reports/2026-08-13-g2-failure-analysis-and-next-mechanism.md` is reconciled
   in `reports/2026-08-13-g2-failure-analysis-reconciliation.md`. Its core
