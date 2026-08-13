@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 03:12 CDT
+## Current state — 2026-08-13 03:17 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -91,6 +91,12 @@ reconciliation when their findings affect the program.
   (`Games=12..17`) despite the visible Split-by-Game check. Exact next user
   smoke: 2025 Week 1--1, Split by Game, press Submit, verify rendered
   `Games=1`, then download `sis/2025-week01-pass-defense-all.csv`.
+  The retry was supplied and is byte-identical to the full-season file (same
+  SHA-256), retaining `Games=12..17`. This confirms that the CSV did not apply
+  Week 1/Split-by-Game. Pause bulk Pass Defense exports and ask whether the
+  visible table changed to `Games=1` after Submit; if not, query submission is
+  failing, while a changed table plus unchanged CSV proves stale Download
+  behavior.
 - Incumbent effective-rank v2 completed cleanly in execution
   `portfolio-effective-rank-v2-pbxps`, image
   `sha256:450f22cbdae94e23c8322330fe3f445d256cd82dbfc96ca086593a0f80eee90e`,

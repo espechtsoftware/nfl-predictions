@@ -35,6 +35,21 @@ and `Submit` had not yet refreshed the rendered table, or that this report's
 CSV ignores that control. We must distinguish those possibilities before
 judging the product.
 
+## Week-1 retry result
+
+The requested retry was saved as
+`sis/2025-week01-pass-defense-all.csv`. It has SHA-256
+`cb9d1ebd32a9e5d97a9e4e84e858860a685d972fe58c5003f9142bef19d5daa8`,
+which is exactly identical to the first full-season file at both the hash and
+byte level. It therefore did not apply the Week 1 window or Split-by-Game
+state to the downloaded result. Do not make additional season downloads from
+this report until the rendered-table-versus-download behavior is isolated.
+
+The remaining distinction is observable in the browser: after pressing
+`Submit`, did the visible table itself change to rows with `Games=1`? If no,
+the query/filter submission failed. If yes, the Download button returned a
+stale or unfiltered CSV.
+
 ## Exact next smoke export
 
 On the same Pass Defense page:
@@ -44,7 +59,7 @@ On the same Pass Defense page:
 3. keep playoffs off, Split by Game on, and minimum targets 1;
 4. press `Submit`;
 5. wait for the table to refresh and verify the visible `Games` values are 1;
-6. download as `sis/2025-week01-pass-defense-all.csv`.
+6. download as `sis/2025-week01-pass-defense-all-v2.csv`.
 
 If the new file still has season totals, the export/control is defective. If
 it has one-game values but no explicit week/game key, a manifest-encoded

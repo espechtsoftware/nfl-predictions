@@ -92,6 +92,12 @@ despite the visible Split-by-Game check. The next required smoke is a 2025
 Week-1-only query after explicitly pressing Submit and verifying `Games=1`
 before download.
 
+That retry was byte-identical to the full-season export, confirming that the
+downloaded result did not apply the requested Week 1 range. Pause Pass Defense
+bulk exports. First determine whether the rendered table changes to `Games=1`
+after Submit; that separates a failed query refresh from a stale Download
+action.
+
 ## Acceptance checks for each CSV
 
 - Season and selected week range are present or can be encoded unambiguously.
