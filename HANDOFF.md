@@ -500,6 +500,9 @@ agent or developer:
   analyzer; the third build was cancelled before use and no replay launched.
   The analyzer is now copied into the image. Commit and run a new full-test
   build from this exact tree.
+  Packaging correction `8fb2585` is pushed. Replacement full-test build
+  `79fbcef4-ee0a-4390-995c-0c8b2249ae1f` is queued for immutable tag
+  `mcseed-8fb2585`; no earlier seed build may be used.
   The outside oddsmaking proposal
   `reports/2026-08-13-oddsmaking-techniques-and-market-implied-dependence.md`
   is reconciled in
