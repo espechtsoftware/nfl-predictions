@@ -44,27 +44,49 @@ COMMON="MODEL_ENSEMBLE=1|TABPFN_MARGINALS=1|TABPFN_MARGINAL_TABLE=tabpfn_active_
 
 launch_replicate() {
   local LABEL=$1 FAMILY=$2 PANEL=$3 BASE_SEED=$4 ROLE_SEED=$5
-  PANEL_CODE_SHA="$CODE_SHA" PANEL_ALLOW_TREATMENT=1 \
-  PANEL_SEASONS="2023 2024 2025" \
-  PANEL_ARM_LABEL="incumbent_mcseed_${LABEL}_v1" \
-  PANEL_ARM_ENV="$COMMON|REPLAY_PROJECTION_SEED=$BASE_SEED|ROLE_BELIEF_SEED=$ROLE_SEED" \
-  PANEL_ARM_ENV_2023="SERVED_POSITION_SCALES=QB:0.965,RB:0.99,TE:0.945,WR:1.03" \
-  PANEL_ARM_ENV_2024="SERVED_POSITION_SCALES=QB:0.905,RB:0.97,TE:0.95,WR:1.06" \
-  PANEL_ARM_ENV_2025="SERVED_POSITION_SCALES=QB:0.925,RB:0.96,TE:0.94,WR:1.04" \
-  PANEL_N_ENTRIES=80 PANEL_N_CE=0 PANEL_N_EPISTEMIC=12 \
-  PANEL_N_GUMBEL=0 PANEL_N_BOOM=40 PANEL_SMOKE_SEASON=2024 \
-  PANEL_TASK_TIMEOUT=14400 \
-  bash "$ROOT/scripts/baseline_panel.sh" "$IMG" "$FAMILY" "$PANEL"
+  local LIST="$OUT/${LABEL}_executions.txt" EXISTING SEASON SPEC JOB LINEUPS ENVS EXEC GOT
+  [ ! -e "$LIST" ] || { echo "ABORT: $LIST already exists"; exit 2; }
+  EXISTING=$(bq query --project_id="$PROJECT" --use_legacy_sql=false \
+    --format=csv \
+    "SELECT COUNT(*) AS n FROM \`$PROJECT.nfl_predictions.replay_candidates_staging\` WHERE panel_run_id='$PANEL'" \
+    | tail -1 | tr -d '[:space:]')
+  [ "${EXISTING:-0}" = 0 ] || {
+    echo "ABORT: $PANEL already has $EXISTING staging rows"; exit 2; }
+  : > "$LIST"
+  for SEASON in 2023 2024 2025; do
+    case "$SEASON" in
+      2023) SPEC="QB:0.965,RB:0.99,TE:0.945,WR:1.03" ;;
+      2024) SPEC="QB:0.905,RB:0.97,TE:0.95,WR:1.06" ;;
+      2025) SPEC="QB:0.925,RB:0.96,TE:0.94,WR:1.04" ;;
+    esac
+    JOB="replay-${FAMILY}-${SEASON}"
+    LINEUPS="$PROJECT.nfl_features.replay_lineups_${FAMILY}_${SEASON}"
+    ENVS="GCP_PROJECT=$PROJECT|GAME_SIM_MODE=possession|N_CE=0|N_EPISTEMIC=12|N_GUMBEL=0|N_BOOM=40"
+    ENVS="$ENVS|PANEL_RUN_ID=$PANEL|CODE_SHA=$CODE_SHA"
+    ENVS="$ENVS|CAND_LOG_TABLE=$PROJECT.nfl_predictions.replay_candidates_staging"
+    ENVS="$ENVS|CAND_FEATURE_TABLE=$PROJECT.nfl_predictions.slate_player_features"
+    ENVS="$ENVS|CAND_ARTIFACT_BUCKET=${PROJECT}-raw|REPLAY_LINEUPS_TABLE=$LINEUPS"
+    ENVS="$ENVS|$COMMON|REPLAY_PROJECTION_SEED=$BASE_SEED|ROLE_BELIEF_SEED=$ROLE_SEED"
+    ENVS="$ENVS|SERVED_POSITION_SCALES=$SPEC"
+    gcloud run jobs deploy "$JOB" --project "$PROJECT" --region us-central1 \
+      --image "$IMG" --command nfl-dfs \
+      --args "replay,--season,$SEASON,--contest,gpp,--entries,80" \
+      --set-env-vars "^|^$ENVS" --memory 16Gi --cpu 4 --max-retries 0 \
+      --task-timeout 14400 >/dev/null
+    EXEC=$(gcloud run jobs execute "$JOB" --project "$PROJECT" \
+      --region us-central1 --async --format='value(metadata.name)')
+    [ -n "$EXEC" ] || { echo "ABORT: no execution for $JOB"; exit 1; }
+    GOT=$(gcloud run jobs executions describe "$EXEC" --project "$PROJECT" \
+      --region us-central1 \
+      --format='value(spec.template.spec.containers[0].image)')
+    [ "$GOT" = "$IMG" ] || {
+      echo "ABORT: $EXEC runs $GOT, expected $IMG"; exit 1; }
+    printf '%s %s %s\n' "$SEASON" "$JOB" "$EXEC" | tee -a "$LIST"
+  done
 }
 
 launch_replicate r1 mcseedr1 20260813-incumbent-mcseed-r1-v1 1137260708 2690847602
 launch_replicate r2 mcseedr2 20260813-incumbent-mcseed-r2-v1 2875959182 1630284992
 launch_replicate r3 mcseedr3 20260813-incumbent-mcseed-r3-v1 253722715 3374646876
 launch_replicate r4 mcseedr4 20260813-incumbent-mcseed-r4-v1 1643280042 3977633467
-
-for label in r1 r2 r3 r4; do
-  cp "$ROOT/reports/panel-runs/20260813-incumbent-mcseed-${label}-v1/executions.txt" \
-    "$OUT/${label}_executions.txt"
-done
 echo "INCUMBENT_SEED_VARIANCE_PANEL_LAUNCHED $RUN_ID"
-

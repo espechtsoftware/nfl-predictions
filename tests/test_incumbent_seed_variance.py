@@ -29,6 +29,7 @@ def _frame(scores):
 def test_support_count_decodes_hex_not_base64():
     assert audit._support_count("00ff") == 8
     assert audit._support_count("8001") == 2
+    assert audit._canonical_roster("b,a,c") == "a,b,c"
 
 
 def test_replicate_metrics_uses_selected_and_pool_oracle():

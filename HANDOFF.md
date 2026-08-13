@@ -478,13 +478,18 @@ agent or developer:
   nonzero seed materially changes candidates. Its frozen report includes both
   selected and oracle tail envelopes, per-slate selected-roster overlap,
   candidate-pool Jaccard, selected mask support, and week-level score ranges.
-  Three focused analyzer tests pass; all new shell scripts parse cleanly.
+  Pre-build review corrected two outcome-blind implementation defects: overlap
+  now canonicalizes player IDs inside each same-slate roster, and the R1--R4
+  launcher starts the twelve season executions directly after the one shared
+  parity gate instead of serializing four redundant generic preflights. Three
+  focused analyzer tests pass; all new shell scripts parse cleanly.
   Implementation commits are `84e0aea` (seed lever), `e0737c9` (exact parity
   gate), and `48237b5` (four-replicate launcher/analyzer), all pushed on
-  `main`. Full-test immutable build
-  `7cd6d49f-1ec6-4288-9f55-c3c8ee4a0d05` is in progress for tag
-  `mcseed-48237b5`. On success, resolve the digest and run only the explicit
-  seed-zero parity smoke first.
+  `main`. Build `7cd6d49f-1ec6-4288-9f55-c3c8ee4a0d05` was cancelled before
+  use after that review found the two defects; it is not a valid seed-envelope
+  image and launched no replay. Commit the corrections and run a fresh
+  full-test build. On success, run only the explicit seed-zero parity smoke
+  first.
   The outside oddsmaking proposal
   `reports/2026-08-13-oddsmaking-techniques-and-market-implied-dependence.md`
   is reconciled in

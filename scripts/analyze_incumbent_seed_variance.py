@@ -217,6 +217,11 @@ def _support_count(value: str) -> int:
     return int.from_bytes(bytes.fromhex(value), "big").bit_count()
 
 
+def _canonical_roster(value: str) -> str:
+    players = [player for player in str(value).split(",") if player]
+    return ",".join(sorted(players))
+
+
 def replicate_metrics(frame: pd.DataFrame) -> tuple[dict, pd.Series, dict, dict]:
     weekly_selected = frame[frame.selected].groupby(
         ["season", "week"]).actual_score.max().sort_index()
@@ -251,11 +256,13 @@ def replicate_metrics(frame: pd.DataFrame) -> tuple[dict, pd.Series, dict, dict]
         for (season, week), score in weekly_selected.items()
     ]
     rosters = {
-        (int(season), int(week)): set(group.players.astype(str))
+        (int(season), int(week)): set(
+            group.players.astype(str).map(_canonical_roster))
         for (season, week), group in selected.groupby(["season", "week"])
     }
     pools = {
-        (int(season), int(week)): set(group.players.astype(str))
+        (int(season), int(week)): set(
+            group.players.astype(str).map(_canonical_roster))
         for (season, week), group in frame.groupby(["season", "week"])
     }
     return result, weekly_selected, rosters, pools
