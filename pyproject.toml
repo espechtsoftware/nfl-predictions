@@ -49,6 +49,7 @@ dev = [
 nfl-dfs = "nfl_dfs.cli:main"
 fantasy-points-download = "nfl_dfs.ops.fantasy_points_downloads:main"
 fantasy-points-matchups = "nfl_dfs.ops.fantasy_points_matchups:main"
+sis-download = "nfl_dfs.ops.sis_downloads:main"
 
 [tool.setuptools.package-data]
 "nfl_dfs.app" = ["static/*"]

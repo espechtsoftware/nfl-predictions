@@ -105,6 +105,9 @@ sequence is in
 
 If these checks pass, SIS can fill a more distinct gap than another aggregate
 matchup grade: individual defensive responsibility and coverage efficiency.
+The paid decision is NFL-only for the first month. The combined trial was
+useful for establishing future CFB potential, but the extra $100/month is not
+justified by the current NFL scoring objective.
 
 ## 3. FTN Stats (Football Outsiders successor)
 

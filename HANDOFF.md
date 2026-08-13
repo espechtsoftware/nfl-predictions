@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 03:22 CDT
+## Current state — 2026-08-13 03:27 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -99,6 +99,12 @@ reconciliation when their findings affect the program.
   change filters -> Submit -> verify rendered table -> Download. Remaining
   purchase question: whether paid/API output can return every qualifier rather
   than top 200.
+  Purchase decision: take only the `$99.99` NFL month. Do not pay `$199.99`
+  for NFL+college now; the combined trial established future CFB potential,
+  but college remains deferred to the existing 2027 go/no-go path. Build the
+  Playwright acquisition workflow for NFL only, with persistent-session,
+  mandatory-Submit, rendered-scope, stale-download, row-cap and completeness
+  guards.
 - Incumbent effective-rank v2 completed cleanly in execution
   `portfolio-effective-rank-v2-pbxps`, image
   `sha256:450f22cbdae94e23c8322330fe3f445d256cd82dbfc96ca086593a0f80eee90e`,

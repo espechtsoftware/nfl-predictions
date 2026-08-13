@@ -116,8 +116,7 @@ Download.
 
 ## Purchase decision
 
-Buy at most one paid month initially, selecting the product required after the
-combined trial, and only if:
+Buy the NFL-only month (`$99.99` at this audit) initially, and only if:
 
 1. coverage history reaches enough of 2019--2025 to support walk-forward
    tests (or provides a clearly useful independent 2026 live signal);
@@ -125,10 +124,10 @@ combined trial, and only if:
 3. stable identifiers and opportunity denominators are present; and
 4. weekly updates arrive before lineup lock.
 
-Treat useful college history as additional value, not as a substitute for
-failing the NFL requirements. Conversely, record a separate CFB-only purchase
-case if its historical coverage is strong enough to accelerate the 2027
-decision.
+The combined trial established that the college product may eventually help,
+but the additional $100/month is not justified for the current NFL objective.
+Defer a CFB purchase to the repo's 2027 go/no-go review or to a separately
+budgeted college project; do not let it expand the present acquisition scope.
 
 If any condition fails, cancel by emailing SIS before renewal. The official
 FAQ says cancellation is handled by email and continues through the current
