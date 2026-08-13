@@ -490,6 +490,9 @@ agent or developer:
   image and launched no replay. Commit the corrections and run a fresh
   full-test build. On success, run only the explicit seed-zero parity smoke
   first.
+  Corrections are pushed at `a216d8c`. Replacement full-test build
+  `708c345d-39fc-4e9a-a381-aae443375854` is queued for immutable tag
+  `mcseed-a216d8c`; use no earlier seed-envelope tag or build.
   The outside oddsmaking proposal
   `reports/2026-08-13-oddsmaking-techniques-and-market-implied-dependence.md`
   is reconciled in
