@@ -109,8 +109,21 @@ def _load_features() -> pd.DataFrame:
 def _equal_series(left: pd.Series, right: pd.Series,
                   tolerance: float = 1e-10) -> pd.Series:
     both_null = left.isna() & right.isna()
-    ln = pd.to_numeric(left, errors="coerce")
-    rn = pd.to_numeric(right, errors="coerce")
+    # BigQuery BOOL columns become pandas BooleanArray. Although numeric
+    # coercion accepts them, pandas intentionally rejects boolean subtraction.
+    # Compare those as exact values; cast every other numeric candidate to
+    # float before applying the registered tolerance.
+    boolean = (
+        pd.api.types.is_bool_dtype(left.dtype)
+        or pd.api.types.is_bool_dtype(right.dtype)
+    )
+    if boolean:
+        return both_null | (
+            left.notna() & right.notna()
+            & left.astype("boolean").eq(right.astype("boolean"))
+        )
+    ln = pd.to_numeric(left, errors="coerce").astype("Float64")
+    rn = pd.to_numeric(right, errors="coerce").astype("Float64")
     numeric = left.notna() & right.notna() & ln.notna() & rn.notna()
     close = numeric & (ln - rn).abs().le(tolerance)
     text = (~numeric) & left.astype(str).eq(right.astype(str))

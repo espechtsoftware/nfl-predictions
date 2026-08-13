@@ -84,6 +84,13 @@ agent or developer:
   preservation. Exact next action: commit/push the implementation, build one
   immutable audit image, run `sis-asoe-allocation`, and follow its frozen
   pass/fail branch without revising the aggregate held-out likelihood gate.
+- Implementation commit `e239f79` is pushed on `main`. Full Cloud Build
+  `fb2f7943-7389-4644-9653-afe67439a5ea` is running for tagged audit image
+  `nfl-dfs:asoe-e239f79`; after success, resolve its digest and launch the one
+  Stage A execution. The completed seed-panel analyzer's independent nullable-
+  boolean repair also passes its five focused tests and is ready to commit;
+  rerun only that analyzer after the ASOE launch, never the 12 completed seed
+  replays.
 
 ### 2026-08-13 SIS ASOE path reopened and acquisition frozen
 

@@ -1,6 +1,7 @@
 import importlib.util
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 
@@ -41,6 +42,20 @@ def test_lever_parser_preserves_comma_valued_fields():
         "ROLE_BELIEF_FEATURES": "a,b,c",
         "SERVED_POSITION_SCALES": "QB:1,RB:.9",
     }
+
+
+def test_equal_series_handles_nullable_boolean_and_numeric_tolerance():
+    left = pd.Series([True, False, pd.NA], dtype="boolean")
+    same = pd.Series([True, False, pd.NA], dtype="boolean")
+    changed = pd.Series([True, True, pd.NA], dtype="boolean")
+    assert audit._equal_series(left, same).all()
+    assert audit._equal_series(left, changed).tolist() == [True, False, True]
+
+    numeric = audit._equal_series(
+        pd.Series([1, 2, np.nan]),
+        pd.Series([1 + 1e-11, 2 + 2e-10, np.nan]),
+    )
+    assert numeric.tolist() == [True, False, True]
 
 
 def test_replicate_metrics_uses_selected_and_pool_oracle():
