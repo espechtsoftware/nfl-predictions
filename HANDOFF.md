@@ -467,6 +467,19 @@ agent or developer:
   Paired weekly maxima are 10 wins, 76 ties and 21 losses. Terminal disposition
   is `keep-coverage194-selector`; do not tune this selector. Decision record:
   `reports/2026-08-13-corrected-extreme-selector-result.md`.
+  A separately labeled current-stack replication was frozen after that
+  original result but before querying terminal panel
+  `20260812-pitclean-e80-selected-tabpfn-active-v2`; protocol is
+  `reports/2026-08-13-current-stack-extreme-selector-replication.md`.
+  Full-test Cloud Build `635a1c70-9854-45bd-81cb-988e1515fca6` passed from
+  source `262c96d` and produced immutable digest
+  `sha256:0d766c187f493c240cd6a5524c53b1a1236b4a32e30caa3843ad5c8d2b6080b5`.
+  The unchanged 220->210->200 law is now running across the 54 terminal
+  2023--2025 slates as Cloud Run execution
+  `current-extreme-selector-replication-95mnt`. A loss/tie closes it; a win
+  still requires the already-frozen mask/seed stability check before any live
+  selector change. Poll and harvest with
+  `scripts/cloud_finish_current_extreme_selector_replication.sh`.
   The operator-supplied Monte Carlo review is tracked as
   `reports/2026-08-13-monte-carlo-review-and-seed-variance-protocol.md` and is
   being reconciled against the actual multi-stream RNG path. The first

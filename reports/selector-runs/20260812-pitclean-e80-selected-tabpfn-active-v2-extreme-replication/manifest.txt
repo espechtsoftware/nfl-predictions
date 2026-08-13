@@ -1,0 +1,7 @@
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:0d766c187f493c240cd6a5524c53b1a1236b4a32e30caa3843ad5c8d2b6080b5
+panel=20260812-pitclean-e80-selected-tabpfn-active-v2
+table=replay_candidates
+selector=220-210-200-lex
+entries=80
+expected_slates=54
+label=post-original-result-current-stack-replication
