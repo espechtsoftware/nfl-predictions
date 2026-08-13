@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 08:03 CDT
+## Current state — 2026-08-13 09:08 CDT
 
 ### 2026-08-13 incumbent numeric path restored before new arms
 
@@ -208,6 +208,17 @@ agent or developer:
   Poll it to completion and harvest exactly one machine report. A pass licenses
   only a separately frozen exact-80 comparison; a fail closes this one-column
   arm without reading lineup scores.
+  The execution completed cleanly and the immutable score-free report was
+  harvested. The arm **failed** its frozen gate: aggregate active-RB Brier-30
+  moved `0.0188522320 -> 0.0188536595` (treatment-minus-control
+  `+0.0000014275`; lower is better), with paired slate-cluster 95% interval
+  `[-0.0000234100,+0.0000262650]`. Point MAE improved about `0.00978`, but
+  CRPS, Brier-20 and q90/q95/q99 pinball all worsened. Both arms preserved
+  means to approximately `7.11e-15`. No lineup score was read and the
+  conditional exact-80 protocol remains permanently dormant for this result.
+  The decision record is
+  `reports/2026-08-13-sis-rb-run-defense-final-served-result.md`; raw evidence
+  is in the final-served run directory. This exact one-column arm is closed.
   The outcome-blind SIS filter audit confirmed exact separate receiving
   alignment and pass-defense receiver/defender alignment controls using three
   UI query calls. The one-game feasibility decision is frozen before sample
