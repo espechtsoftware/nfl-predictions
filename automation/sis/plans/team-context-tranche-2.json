@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "max_exports": 108,
+  "max_api_requests": 440,
+  "description": "Second game-grain team offense/run-context tranche: passing, rushing and run defense. Target-week joins may use only prior completed games.",
+  "exports": [
+    {
+      "entity": "teams",
+      "seasons": [2019, 2021, 2022, 2023, 2024, 2025],
+      "week_windows": [[1, 6], [7, 12], [13, 18]],
+      "split_by_game": true,
+      "reports": ["passing-totals", "passing-value", "rushing-totals", "rushing-value", "run-defense-totals", "run-defense-value"]
+    }
+  ]
+}

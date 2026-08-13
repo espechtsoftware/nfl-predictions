@@ -158,8 +158,12 @@ reconciliation when their findings affect the program.
   had zero failed tables. The durable intake record is
   `reports/2026-08-13-sis-team-context-intake.md`. Exact next SIS action: build
   a strictly-prior correlation/redundancy audit before freezing small feature
-  bundles. Team passing/receiving and run
-  defense are the next acquisition candidates; granular gap/player/special
+  bundles. Bounded tranche 2 is frozen in
+  `automation/sis/plans/team-context-tranche-2.json`: team Passing, Rushing
+  and Run Defense Totals/Value for the same seasons, 108 artifacts and a hard
+  440-request ceiling. Team Receiving remains next-week priority because it
+  overlaps Passing more than the chosen run-context bundle; granular
+  gap/player/special
   teams remain deferred. Do not exceed the subscription's 1,000-query weekly
   allowance.
 - Incumbent effective-rank v2 completed cleanly in execution
