@@ -552,6 +552,28 @@ reconciliation when their findings affect the program.
   `reports/g2-qb-gumbel-runs/20260812-g2-qb-gumbel-factor-v3/`. Poll this exact
   execution to terminal and require the calibration checksum and final report
   to validate before interpreting any metric.
+  V3 completed cleanly and the fail-closed harvester validated both chunked
+  artifacts. The recomputed calibration exactly matches the opaque V2 JSON
+  hash `e387a698...14f69`, proving the operational repairs did not change the
+  frozen fit. The selected cell is `theta_WR=1.0`, `theta_TE=1.05`. Across 54
+  held-out 2023--2025 slates, joint-q90 Brier improves
+  `0.0184902457 -> 0.0184671203` (paired-slate 95% interval
+  `[-0.0000403198, -0.0000071706]`) and variogram p=0.5 improves
+  `1.4349192382 -> 1.4338178790` (interval
+  `[-0.0018369176, -0.0003662747]`). Supported G0 absolute-log-error sum
+  improves `3.312852 -> 2.747302`, G1 weighted error improves
+  `6.944177 -> 5.965699`, and QB-TE error improves
+  `0.787420 -> 0.307184`. QB-WR remains exactly unchanged at `1.138373`
+  because its selected theta is identity, so the mandatory separate QB-WR
+  gate fails. Disposition is `g2-dependence-gate-fails`; no exact-80 panel is
+  licensed and production remains unchanged. All marginal/determinism/scope/
+  reproduction invariants pass. Machine report SHA-256 is
+  `aff43f6b...3945dbd`; full evidence and interpretation are in
+  `reports/2026-08-13-g2-qb-gumbel-factor-result.md`. Next: commit/push the
+  immutable result, run the registered effective-rank/tail-overlap diagnostic
+  on the unchanged incumbent, then continue the distinct G3 participation-
+  conditioned allocation hierarchy around accepted finite
+  `K=28.154043586960896`. Do not retune G2 or run a post-result TE-only panel.
 - The operator-supplied alternative-frames review is retained unchanged at
   `reports/2026-08-12-alternative-analytical-frames.md` and reconciled in
   `reports/2026-08-12-alternative-analytical-frames-reconciliation.md`. The
