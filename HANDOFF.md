@@ -485,18 +485,21 @@ agent or developer:
   focused analyzer tests pass; all new shell scripts parse cleanly.
   Implementation commits are `84e0aea` (seed lever), `e0737c9` (exact parity
   gate), and `48237b5` (four-replicate launcher/analyzer), all pushed on
-  `main`. Builds `7cd6d49f-1ec6-4288-9f55-c3c8ee4a0d05` and
-  `708c345d-39fc-4e9a-a381-aae443375854` were cancelled before use after
-  pre-execution reviews found mechanical issues; neither is a valid
+  `main`. Builds `7cd6d49f-1ec6-4288-9f55-c3c8ee4a0d05`,
+  `708c345d-39fc-4e9a-a381-aae443375854`, and
+  `974845fc-29f2-4062-9982-965bb9877872` were cancelled before use after
+  pre-execution reviews found mechanical issues; none is a valid
   seed-envelope image and neither launched a replay. The first correction is
   pushed at `a216d8c`; a second correction now uses the repository's validated
   comma-bearing `lever_values` parser, rather than splitting role-feature and
   position-scale values on commas. Four focused analyzer tests pass. Commit
   that correction and run a fresh full-test build; on success, run only the
   explicit seed-zero parity smoke first. Use no earlier seed-envelope tag.
-  Parser correction commit `98ffe4e` is pushed. Fresh full-test build
-  `974845fc-29f2-4062-9982-965bb9877872` is queued for immutable tag
-  `mcseed-98ffe4e`.
+  Parser correction commit `98ffe4e` is pushed. Final packaging review then
+  found that the Dockerfile's explicit script allowlist omitted the new seed
+  analyzer; the third build was cancelled before use and no replay launched.
+  The analyzer is now copied into the image. Commit and run a new full-test
+  build from this exact tree.
   The outside oddsmaking proposal
   `reports/2026-08-13-oddsmaking-techniques-and-market-implied-dependence.md`
   is reconciled in
