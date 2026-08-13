@@ -582,6 +582,30 @@ def _select_report_without_refresh(page: Any, definition: ReportDefinition) -> N
     _select_report_subtype(page, definition)
 
 
+def _activate_report_view_without_refresh(
+    page: Any, definition: ReportDefinition,
+) -> None:
+    """Activate SIS's visible subtype tab while API refreshes stay blocked.
+
+    The normal Submit serializer derives ``MetricGroupSubType`` from the active
+    ``li`` in the report-family tab list, not only from the hidden input. SIS's
+    subtype click handler also attempts an incidental API refresh; callers must
+    keep a ``SubmitOnlyAPIRequestBudget`` route disarmed while using this helper.
+    """
+    _select_report_without_refresh(page, definition)
+    if not definition.subtab:
+        return
+    control = page.locator(f"#{definition.subtab}")
+    control.wait_for(state="attached")
+    control.evaluate("element => element.click()")
+    parent_class = control.evaluate("element => element.parentElement.className")
+    if "active" not in str(parent_class).split():
+        raise RuntimeError("SIS report subtype tab did not become active")
+    retained = page.locator("#MetricGroupSubType").input_value()
+    if float(retained) != float(definition.subtype):
+        raise RuntimeError("SIS active report subtype differs from hidden scope")
+
+
 def _request_scope(request: Any) -> dict[str, list[str]]:
     from urllib.parse import parse_qs
 
@@ -1416,7 +1440,7 @@ def run_team_pass_defense_schema_sample(
                     entity="teams", report=report, season=2025,
                     start_week=1, end_week=1, split_by_game=True,
                 )
-                _select_report_without_refresh(page, spec.definition)
+                _activate_report_view_without_refresh(page, spec.definition)
                 _set_select(page, "#TimeFilters_SeasonFrom", "2025")
                 _set_select(page, "#TimeFilters_SeasonTo", "2025")
                 _set_select(page, "#TimeFilters_StartWeek", "1")

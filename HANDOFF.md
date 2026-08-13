@@ -52,9 +52,16 @@ agent or developer:
 - The first schema sampler process stopped safely after four complete Totals
   artifacts; durable state is 5/10 requests because the first Value-view
   transition consumed one identical-scope Submit without persisting an
-  artifact. Do not spend the remaining reserve blindly: diagnose and harden
-  subtype/view activation, then resume the same frozen eight-view sample. The
-  retired individual-CB sample remains untouched at 7/12.
+  artifact. Root cause is now proven from the live page without another
+  Submit: the site's Submit serializer derives subtype from the visibly active
+  family tab, while the first implementation set only its hidden subtype
+  field. The repair activates that exact visible subtype while the guarded
+  route is disarmed, verifies both active-tab and hidden identities, and then
+  permits only the registered Submit. Twenty-seven focused acquisition tests,
+  compilation and an authenticated no-Submit browser check pass. Commit/push
+  the repair, then resume the same sample once; it has exactly five requests
+  remaining for four Value artifacts. The retired individual-CB sample remains
+  untouched at 7/12.
 - Incumbent seed jobs remain healthy. A poll bug briefly printed the condition
   type (`Completed`) instead of its boolean status; the fail-closed finisher
   rejected launch and no partial result was read. At the corrected poll, ten

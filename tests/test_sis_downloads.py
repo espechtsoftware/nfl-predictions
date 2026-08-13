@@ -308,6 +308,96 @@ def test_team_pass_defense_schema_slices_are_frozen_and_bounded():
     ) == 8
 
 
+class _SubtypeParent:
+    def __init__(self):
+        self.class_name = ""
+
+
+class _SubtypeControl:
+    def __init__(self, page):
+        self.page = page
+        self.parent = _SubtypeParent()
+
+    def wait_for(self, **_kwargs):
+        return None
+
+    def get_attribute(self, name):
+        return str(self.page.definition.subtype) if name == "value" else None
+
+    def evaluate(self, script, *args):
+        if "parentElement.className" in script:
+            return self.parent.class_name
+        if "element.click()" in script:
+            self.page.incidental_refreshes += 1
+            self.parent.class_name = "active"
+            return None
+        raise AssertionError(script)
+
+
+class _HiddenSubtype:
+    def __init__(self, page):
+        self.page = page
+
+    def evaluate(self, _script, value):
+        self.page.hidden_subtype = value
+        return True
+
+    def input_value(self):
+        return self.page.hidden_subtype
+
+
+class _MainTab:
+    def __init__(self, page):
+        self.page = page
+
+    def wait_for(self, **_kwargs):
+        return None
+
+    def get_attribute(self, name):
+        return str(self.page.definition.metric_group) if name == "value" else None
+
+
+class _HiddenGroup:
+    def __init__(self, page):
+        self.page = page
+
+    def evaluate(self, _script, value):
+        self.page.hidden_group = value
+        return True
+
+
+class _SubtypePage:
+    def __init__(self, definition):
+        self.definition = definition
+        self.hidden_group = "1"
+        self.hidden_subtype = "1"
+        self.incidental_refreshes = 0
+        self.main = _MainTab(self)
+        self.subtype = _SubtypeControl(self)
+        self.hidden_group_control = _HiddenGroup(self)
+        self.hidden_subtype_control = _HiddenSubtype(self)
+
+    def locator(self, selector):
+        return {
+            f"#{self.definition.main_tab}": self.main,
+            f"#{self.definition.subtab}": self.subtype,
+            "#MetricGroup": self.hidden_group_control,
+            "#MetricGroupSubType": self.hidden_subtype_control,
+        }[selector]
+
+
+def test_report_activation_sets_hidden_scope_and_visible_active_tab():
+    definition = sis.REPORTS["pass-defense-value"]
+    page = _SubtypePage(definition)
+    sis._activate_report_view_without_refresh(page, definition)
+    assert page.hidden_group == "9"
+    assert page.hidden_subtype == "9.3"
+    assert page.subtype.parent.class_name == "active"
+    # The helper deliberately triggers the site's refresh handler; the live
+    # sampler route remains disarmed and blocks that unmetered request.
+    assert page.incidental_refreshes == 1
+
+
 def _defense_profile_fixture(tmp_path, *, team_count=32, mismatched=False):
     artifacts = []
     for report in sis.TEAM_PASS_DEFENSE_PROFILE_REPORTS:
