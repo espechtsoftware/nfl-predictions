@@ -150,12 +150,40 @@ def replay_projections(
         raise ValueError(
             "ENSEMBLE_WORLD_MODE is research-only and requires "
             "return_draws=True")
+    asoe_module = None
+    asoe_enabled = False
+    if return_draws:
+        from ..research import sis_asoe_final_served as asoe_module
+        asoe_enabled = asoe_module.treatment_enabled()
     sim = simulate.simulate(comps, n_sims=n_sims,
                         seed=seed, game_ids=rows.get("game_id"),
                         team_ids=rows.get("team"),
                         game_totals=rows.get("game_total"),
                         bigplay_rate=bigplay,
-                        keep_draws=return_draws)
+                        keep_draws=return_draws,
+                        keep_target_receiving=asoe_enabled)
+    if asoe_enabled:
+        asoe = asoe_module
+        if member_world_mode:
+            raise ValueError(
+                "SIS ASOE rank transport cannot bundle ensemble-member worlds")
+        multipliers, asoe_audit = asoe.frozen_target_allocation_multipliers(
+            rows, comps
+        )
+        treatment_sim = simulate.simulate(
+            comps, n_sims=n_sims, seed=seed,
+            game_ids=rows.get("game_id"), team_ids=rows.get("team"),
+            game_totals=rows.get("game_total"), bigplay_rate=bigplay,
+            target_allocation_multipliers=multipliers,
+            keep_draws=False, keep_target_receiving=True,
+        )
+        asoe_raw = (
+            sim.draws
+            - sim.target_receiving_draws
+            + treatment_sim.target_receiving_draws
+        )
+        sim.draws = asoe.rank_transport(sim.draws, asoe_raw)
+        log.info("SIS ASOE target allocation audit=%s", asoe_audit)
     summary = sim.summary
     if widen:
         summary = calibration.apply_widen(summary, rows.position)

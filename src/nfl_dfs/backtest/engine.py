@@ -188,6 +188,7 @@ def effective_generation_config(env: dict | None = None) -> dict:
     research_only = (
         "EPISTEMIC_FAMILY", "ROLE_BELIEF_FEATURES", "ROLE_BELIEF_SEED",
         "REPLAY_PROJECTION_SEED",
+        "SIS_ASOE_TARGET_ALLOCATION", "SIS_ASOE_BETA",
         "GEN_POOL_CAP", "GEN_POOL_CAP_MAP", "GEN_TOTAL_BUDGET",
         "REPLACEMENT_SLOTS",
     )
@@ -211,6 +212,7 @@ def effective_generation_config(env: dict | None = None) -> dict:
                            "EPISTEMIC_FAMILY", "ROLE_BELIEF_FEATURES",
                            "ROLE_BELIEF_SEED",
                            "REPLAY_PROJECTION_SEED",
+                           "SIS_ASOE_TARGET_ALLOCATION", "SIS_ASOE_BETA",
                            "N_GUMBEL", "GUMBEL_SEED", "GUMBEL_SCALE",
                            "GUMBEL_MODE",
                            "REPLACEMENT_SLOTS", "GEN_TOTAL_BUDGET",
@@ -1457,6 +1459,7 @@ def tail_select_lineups(
                 "Q99_WILD", "QD_CELLS", "RATE_DENOM_WEIGHTS",
                 "REPLACEMENT_SLOTS", "ROOKIE_WIDEN", "SCHAAKE_DIAG",
                 "REPLAY_PROJECTION_SEED",
+                "SIS_ASOE_BETA", "SIS_ASOE_TARGET_ALLOCATION",
                 "SCHAAKE_DIAG_ONLY", "SCHAAKE_DIAG_STRICT",
                 "SCHAAKE_TEMPLATE_MODE",
                 "SELECT_LSE", "SELECT_OBJ",

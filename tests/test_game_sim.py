@@ -294,6 +294,31 @@ def test_usage_dirichlet_allocates_each_game_team_separately(monkeypatch):
     np.testing.assert_allclose(observed[1], [0.3, 0.7])
 
 
+def test_target_center_changes_only_target_shares(monkeypatch):
+    """ASOE's simulator hook preserves the team mean and leaves carries."""
+    monkeypatch.delenv("GAME_SIM_MODE", raising=False)
+    monkeypatch.delenv("GAME_SIM_USAGE", raising=False)
+    comps = _team_usage_comps().iloc[:2].copy()
+    comps["targets"] = [8.0, 2.0]
+    ids = {
+        "game_ids": pd.Series(["g1", "g1"]),
+        "team_ids": pd.Series(["TA", "TA"]),
+    }
+    base = simulate.simulate(
+        comps, n_sims=100_000, seed=22, keep_draws=True, **ids
+    )
+    tilted = simulate.simulate(
+        comps, n_sims=100_000, seed=22, keep_draws=True,
+        target_allocation_multipliers=np.array([0.625, 2.5]), **ids
+    )
+    # Base target means 8/2 become 5/5, while their total stays ten.
+    base_points = base.summary.proj_points.to_numpy()
+    tilted_points = tilted.summary.proj_points.to_numpy()
+    assert tilted_points[0] < base_points[0]
+    assert tilted_points[1] > base_points[1]
+    assert tilted_points.sum() == pytest.approx(base_points.sum(), rel=0.02)
+
+
 def test_usage_dirichlet_mean_preserving(monkeypatch):
     monkeypatch.delenv("GAME_SIM_MODE", raising=False)
     monkeypatch.delenv("GAME_SIM_USAGE", raising=False)

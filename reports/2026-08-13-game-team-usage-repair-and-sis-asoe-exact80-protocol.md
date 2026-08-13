@@ -96,14 +96,19 @@ The concentration branch is fixed now:
 - if Phase R selects multinomial, both omit finite K and ASOE changes only
   the normalized target centers before independent opportunity sampling.
 
-For the treatment, generate paired control and ASOE raw worlds from the same
-seed and inputs. For each player, assign the sorted control raw values by the
-stable rank order of the ASOE raw values. The treatment therefore retains the
-control player's exact raw draw multiset while inheriting only ASOE joint
-world ordering. Apply the common active-only marginal shaper, position scale
-and market blend afterward. Require exact row-level marginal multiset/mean
-parity at every available checkpoint; only joint ranks, candidate membership
-and selected membership may differ.
+For the treatment, generate paired control and ASOE target/reception/receiving-
+yard worlds from the same seed and inputs. Form the ASOE raw world by replacing
+only the control receptions/receiving-yard contribution (including the DK
+100-yard bonus) with its ASOE counterpart; control rushing, passing,
+receiving-TD and big-play contributions remain exact. This prevents unrelated
+downstream random-number consumption from masquerading as ASOE dependence.
+For each player, assign the sorted complete control raw values by the stable
+rank order of that composed ASOE raw world. The treatment therefore retains
+the control player's exact raw draw multiset while inheriting only the
+target-allocation joint ordering. Apply the common active-only marginal
+shaper, position scale and market blend afterward. Require exact row-level
+marginal multiset/mean parity at every available checkpoint; only joint ranks,
+candidate membership and selected membership may differ.
 
 ## Mechanical gates
 

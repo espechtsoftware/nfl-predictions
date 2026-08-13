@@ -102,6 +102,7 @@ _YARDS_SHAPE = 2.0
 class SimResult:
     summary: pd.DataFrame
     draws: np.ndarray | None = None
+    target_receiving_draws: np.ndarray | None = None
 
 
 def _gamma_yards(
@@ -205,6 +206,8 @@ def simulate(
     team_ids: pd.Series | None = None,
     game_totals: pd.Series | None = None,
     bigplay_rate: pd.Series | None = None,
+    target_allocation_multipliers: pd.Series | np.ndarray | None = None,
+    keep_target_receiving: bool = False,
     params: dict[str, float] | None = None,
     env: Mapping[str, str] | None = None,
 ) -> SimResult:
@@ -337,28 +340,51 @@ def simulate(
     # env pattern as GAME_SIM_MODE.
     usage_dirichlet = (runtime_env.get("GAME_SIM_USAGE", "") == "dirichlet"
                        and team_ids is not None)
+    target_center = None
+    if target_allocation_multipliers is not None:
+        if team_ids is None:
+            raise ValueError(
+                "target allocation multipliers require aligned team_ids")
+        target_center = np.asarray(
+            target_allocation_multipliers, dtype=np.float64)
+        if target_center.shape != (n,):
+            raise ValueError(
+                "target allocation multipliers must align one-to-one with components")
+        if not np.isfinite(target_center).all() or (target_center <= 0).any():
+            raise ValueError(
+                "target allocation multipliers must be finite and positive")
     team_codes = None
-    if usage_dirichlet:
+    if usage_dirichlet or target_center is not None:
         team_codes = _game_team_unit_codes(n, game_ids, team_ids)
 
     def opp_draw(name: str) -> np.ndarray:
         """Integer opportunity draws for stat `name` (targets/carries)."""
         means = opp(name)
-        if not usage_dirichlet:
+        if not usage_dirichlet and target_center is None:
             return rng.poisson(means)
         from . import game_sim
         base = np.nan_to_num(comps[name].to_numpy(dtype=float))
         means = means.copy()
+        has_target_center = name == "targets" and target_center is not None
+        if not usage_dirichlet and not has_target_center:
+            return rng.poisson(means)
         for t in np.unique(team_codes):
             rows = np.flatnonzero((team_codes == t) & (base > 0))
             if len(rows) < 2:
                 continue  # nothing to reallocate within
-            shares = base[rows] / base[rows].sum()
+            centered = (
+                base[rows] * target_center[rows]
+                if has_target_center else base[rows]
+            )
+            shares = centered / centered.sum()
             totals = means[rows].sum(axis=0)  # (n_sims,) game-factor-scaled
-            alloc = game_sim.allocate_drive_usage(
-                rng, totals, shares, n_sims=n_sims,
-                concentration_scale=_usage_k)
-            means[rows] = np.atleast_2d(alloc).T
+            if usage_dirichlet:
+                alloc = game_sim.allocate_drive_usage(
+                    rng, totals, shares, n_sims=n_sims,
+                    concentration_scale=_usage_k)
+                means[rows] = np.atleast_2d(alloc).T
+            else:
+                means[rows] = shares[:, None] * totals[None, :]
         return rng.poisson(means)
 
     # TD_LEDGER=1 (review #5, Sol; grouping + RNG-parity fixes from
@@ -381,6 +407,14 @@ def simulate(
     targets = opp_draw("targets")
     receptions = rng.binomial(targets, col("catch_rate"))
     rec_yards = _gamma_yards(rng, receptions, col("ypr"))
+    # Target-allocation experiments need a paired, mechanism-local delta.
+    # Isolate exactly the receptions/receiving-yards portion affected by the
+    # target center (including DK's 100-yard cliff), so unrelated later RNG
+    # consumption in a second simulation can never masquerade as dependence.
+    target_receiving_draws = (
+        receptions + rec_yards / 10.0 + 3.0 * (rec_yards >= 100.0)
+        if keep_target_receiving else None
+    )
     if not td_ledger:
         rec_tds = rng.poisson(col("rec_tds"), (n, n_sims))
 
@@ -451,4 +485,8 @@ def simulate(
         },
         index=comps.index,
     )
-    return SimResult(summary=summary, draws=draws if keep_draws else None)
+    return SimResult(
+        summary=summary,
+        draws=draws if keep_draws else None,
+        target_receiving_draws=target_receiving_draws,
+    )

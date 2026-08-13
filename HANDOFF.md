@@ -59,6 +59,16 @@ agent or developer:
   It binds the finite-K/multinomial branch before repaired results exist, uses
   all five registered seed pairs, and requires exact player-marginal rank
   transport for ASOE.
+- ASOE final-served implementation is complete locally. It validates the
+  three hash-bound warehouse sources, applies the frozen beta only to target
+  centers, composes only the target/reception/receiving-yard contribution,
+  and rank-transports exact control draw multisets. A real 2023 replay smoke
+  preserved all 9,614 projection summaries and every sorted player draw
+  exactly while changing 8,333 rows' joint ordering. The full repository
+  suite passed with one expected skip; the post-provenance focused suite
+  passed 70 tests. Exact next action: commit/push, build one full-test
+  immutable image, then launch the frozen Phase R multi-seed standing-law
+  panel.
 
 ### 2026-08-13 SIS ASOE Stage A launched
 
