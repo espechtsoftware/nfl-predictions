@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 03:17 CDT
+## Current state — 2026-08-13 03:22 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -91,12 +91,14 @@ reconciliation when their findings affect the program.
   (`Games=12..17`) despite the visible Split-by-Game check. Exact next user
   smoke: 2025 Week 1--1, Split by Game, press Submit, verify rendered
   `Games=1`, then download `sis/2025-week01-pass-defense-all.csv`.
-  The retry was supplied and is byte-identical to the full-season file (same
-  SHA-256), retaining `Games=12..17`. This confirms that the CSV did not apply
-  Week 1/Split-by-Game. Pause bulk Pass Defense exports and ask whether the
-  visible table changed to `Games=1` after Submit; if not, query submission is
-  failing, while a changed table plus unchanged CSV proves stale Download
-  behavior.
+  The first retry was byte-identical only because Submit had not been pressed.
+  Correctly submitted `sis/SIS DataHub - NFL.csv` (hash recorded in the audit)
+  passes the game-grain smoke: explicit Week/Opponent, all `Games=1`, 12 weeks,
+  values changed, no duplicate player/team/week key. It remains only the top
+  20 player-games, lacks stable IDs, and has broken Rank. The exact workflow is
+  change filters -> Submit -> verify rendered table -> Download. Remaining
+  purchase question: whether paid/API output can return every qualifier rather
+  than top 200.
 - Incumbent effective-rank v2 completed cleanly in execution
   `portfolio-effective-rank-v2-pbxps`, image
   `sha256:450f22cbdae94e23c8322330fe3f445d256cd82dbfc96ca086593a0f80eee90e`,
@@ -127,12 +129,13 @@ reconciliation when their findings affect the program.
   allows maximum mean drift `1e-10`. No treatment or scientific metric ran.
   The transport-neutral fix leaves actual outcomes exact and delegates mean
   checking to the registered tolerance, with a regression test. Exact next
-  action: wait for replacement full-test Cloud Build
+  action: replacement full-test Cloud Build
   `bf133686-f4e2-48e2-a766-480220f3b4e3` from pushed repair/source commit
-  `55451fb` to finish, then launch
-  `scripts/cloud_td_ledger_final_served.sh` from its immutable digest, harvest
-  only after clean completion, and apply the frozen gate without querying
-  lineup scores.
+  `55451fb` passed and produced immutable digest
+  `sha256:58f70494f6da7647d871e11f800306f5883093dd6b48164d84b906dd1e0493a9`.
+  Score-free execution `td-ledger-final-served-v1-pb4fh` is running from that
+  digest. Poll it, harvest only after clean completion, and apply the frozen
+  gate without querying lineup scores.
 
 ### 2026-08-12 team-passing review reconciliation
 

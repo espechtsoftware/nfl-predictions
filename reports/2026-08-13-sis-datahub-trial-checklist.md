@@ -92,11 +92,13 @@ despite the visible Split-by-Game check. The next required smoke is a 2025
 Week-1-only query after explicitly pressing Submit and verifying `Games=1`
 before download.
 
-That retry was byte-identical to the full-season export, confirming that the
-downloaded result did not apply the requested Week 1 range. Pause Pass Defense
-bulk exports. First determine whether the rendered table changes to `Games=1`
-after Submit; that separates a failed query refresh from a stale Download
-action.
+That retry was byte-identical to the full-season export because Submit had not
+been pressed. A subsequent correctly submitted full-2025 Split-by-Game export
+passes the grain test: it includes `Week` and `Opp.`, every row has `Games=1`,
+and values differ from the aggregate. It remains limited to the top 20
+player-games and has no stable IDs. This confirms the workflow rule: after
+every filter change, press Submit and verify the rendered table before
+Download.
 
 ## Acceptance checks for each CSV
 

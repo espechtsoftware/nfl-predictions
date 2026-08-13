@@ -50,6 +50,29 @@ The remaining distinction is observable in the browser: after pressing
 the query/filter submission failed. If yes, the Download button returned a
 stale or unfiltered CSV.
 
+## Correct submitted split-by-game export
+
+The operator identified that Submit had not been pressed on the failed retry
+and then supplied `sis/SIS DataHub - NFL.csv` after applying the full-2025
+Split-by-Game query. SHA-256:
+`23e39cf6413a39429e9818573d4b1f58efcb52bab667b2a6f82461376beba55c`.
+
+This file behaves correctly:
+
+- it adds explicit `Week` and `Opp.` columns;
+- all 20 rows have `Games=1`;
+- it contains 12 distinct weeks, 19 players, and no duplicate
+  `(Player, Team, Week)` key;
+- all fields are populated and numeric fields parse;
+- its contents differ from the season aggregate.
+
+The report therefore supports filterable game-level CSV export. The file is
+still only the top 20 player-games across the requested season because of the
+trial cap; it is a successful schema/PIT-grain smoke test, not a complete
+historical panel. `Rank` remains broken and there is still no stable player or
+game ID, although `(Season, Week, Team, Opp., Player)` provides a workable
+auditable bridge candidate.
+
 ## Exact next smoke export
 
 On the same Pass Defense page:
@@ -61,7 +84,8 @@ On the same Pass Defense page:
 5. wait for the table to refresh and verify the visible `Games` values are 1;
 6. download as `sis/2025-week01-pass-defense-all-v2.csv`.
 
-If the new file still has season totals, the export/control is defective. If
-it has one-game values but no explicit week/game key, a manifest-encoded
-season/week window can still support carefully controlled weekly files, though
-the missing stable ID remains a material matching risk.
+This retry is no longer required: the correctly submitted full-season
+Split-by-Game export already proves game-level filtering. The next useful
+technical test is whether a paid account returns all qualifying player-games
+or only its documented top 200, and whether an API/full-export option avoids
+that truncation.
