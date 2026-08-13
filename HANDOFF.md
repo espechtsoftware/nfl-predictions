@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 16:42 CDT
+## Current state — 2026-08-13 18:30 CDT
 
 ### 2026-08-13 ASOE passed; incumbent seed sensitivity measured
 
@@ -101,6 +101,21 @@ agent or developer:
   and requires the new controls to reproduce Phase R before scoring SIS.
   Full-test Phase S build `c1bae3b3-8656-46c8-9289-7a72fe1ab67e` is running.
   Latest Phase R poll: 30 `Unknown`/active, zero explicit failures.
+- Phase S's diagnostic slate-cluster bootstrap and guarded finisher/harvester
+  were frozen/pushed in `9837ea4`; build
+  `54a0e163-1794-496f-bb85-45dd19d8beb8` is running but will be superseded by
+  the next image because its reproduction check compared only weekly maxima.
+  The local follow-up now requires the complete Phase S control candidate
+  fingerprint (index, roster, selected flag/rank, actual and simulated mean)
+  to reproduce Phase R, preventing an equal weekly maximum from masking a
+  changed pool or book. Its five focused tests pass. Commit/push it and build
+  the final Phase S image before launching Phase S.
+- Latest score-blind Phase R poll still has all 30 jobs `Unknown`/active and
+  zero explicit failures. Continue with
+  `scripts/poll_game_team_usage_phase_r.sh`; do not inspect partial candidate
+  or score rows. After all 30 are successful, run the guarded Phase R
+  finisher and harvester, follow its mechanically selected law, then launch
+  Phase S using the final post-fingerprint immutable image.
 
 ### 2026-08-13 SIS ASOE Stage A launched
 

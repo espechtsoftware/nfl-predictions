@@ -233,30 +233,53 @@ def mechanical_failures(candidates, features, code_sha, control_arm):
 
 
 def phase_r_reproduction_failures(candidates, control_arm):
-    """Same-image Phase S control must reproduce Phase R's selected law."""
+    """Same-image Phase S control must reproduce every Phase R candidate.
+
+    A weekly maximum alone is too weak: a changed pool or selected portfolio
+    can happen to retain the same best realized score. Candidate index is
+    deterministic within a replay, so the complete roster identity, selected
+    status/rank, label, and simulated mean form a compact replay fingerprint.
+    """
     failures = []
+    key = ["season", "week", "cand_ix"]
     for replicate in SEEDS:
         phase_r_panel = f"20260813-game-team-{control_arm}-r{replicate}-v1"
         prior = query_df(f"""
-            SELECT season, week, MAX(IF(selected, actual_score, NULL)) best
+            SELECT season, week, cand_ix, players, selected, selected_rank,
+                   actual_score, sim_mean
             FROM `{settings.predictions}.replay_candidates_staging`
             WHERE panel_run_id=@panel AND season IN UNNEST(@seasons)
-            GROUP BY season, week
             """, params={
                 "panel": phase_r_panel, "seasons": sorted(POSITION_SPECS),
             })
         current = candidates[("control", replicate)]
-        current = current[current.selected].groupby(
-            ["season", "week"], as_index=False
-        ).actual_score.max().rename(columns={"actual_score": "best"})
+        if prior.empty or current.empty or prior.duplicated(key).any() or \
+                current.duplicated(key).any():
+            failures.append(f"R{replicate} Phase R reproduction frames invalid")
+            continue
+        columns = key + [
+            "players", "selected", "selected_rank", "actual_score", "sim_mean",
+        ]
         joined = prior.merge(
-            current, on=["season", "week"], suffixes=("_prior", "_current"),
+            current[columns], on=key, suffixes=("_prior", "_current"),
             validate="one_to_one",
         )
-        if len(joined) != 54 or not _equal_series(
-            joined.best_prior, joined.best_current
-        ).all():
-            failures.append(f"R{replicate} same-image control does not reproduce Phase R")
+        if len(joined) != len(prior) or len(joined) != len(current):
+            failures.append(
+                f"R{replicate} same-image control candidate membership differs"
+            )
+            continue
+        for field, tolerance in (
+            ("players", 0.0), ("selected", 0.0), ("selected_rank", 0.0),
+            ("actual_score", 1e-10), ("sim_mean", 1e-10),
+        ):
+            if not _equal_series(
+                joined[f"{field}_prior"], joined[f"{field}_current"],
+                atol=tolerance,
+            ).all():
+                failures.append(
+                    f"R{replicate} same-image control {field} differs from Phase R"
+                )
     return failures
 
 
