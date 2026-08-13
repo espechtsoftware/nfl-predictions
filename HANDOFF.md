@@ -647,6 +647,23 @@ reconciliation when their findings affect the program.
   branch declared before treatment metrics. Do not remove them merely because
   adjacent Fantasy Points receiver-shell arms failed, and do not let this live
   feature question vanish into a non-promotional final forensic report.
+- The external weekly-coverage source audit is now recorded in
+  `reports/2026-08-13-weekly-coverage-data-source-audit.md`. Direct inspection
+  verified that free nflverse participation releases contain roughly
+  19k--23k nonblank play-level man/zone and named-shell rows per season for
+  2022--2025 (with earlier NGS participation back to 2016). This is immediately
+  useful for a historical diagnostic but not a live production feature:
+  nflverse documents that its 2023+ FTN participation replacement is delivered
+  only after the postseason, and the NGS-to-FTN source break must be measured.
+  Do not purchase another feed yet. If a distinct live source is still needed
+  after the already-frozen Fantasy Points QB shell-fit test, SIS DataHub Pro is
+  the first paid trial: its $99.99/month NFL plan advertises time/coverage
+  filters and CSV export. Verify history, week filters, player assignments,
+  latency, identifiers and private-model license rights during the seven-day
+  trial before payment. FTN (Football Outsiders' DVOA successor) is a credible
+  second research option, but arbitrary consumer-plan CSV export is not yet
+  established; PFF+ is only a secondary coverage-quality prior on current
+  evidence.
   The new outside review
   `reports/2026-08-13-g2-failure-analysis-and-next-mechanism.md` is reconciled
   in `reports/2026-08-13-g2-failure-analysis-reconciliation.md`. Its core
