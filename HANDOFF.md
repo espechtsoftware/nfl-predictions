@@ -494,8 +494,11 @@ reconciliation when their findings affect the program.
   Build `bcfe3f45-de07-4dd6-8beb-f690627c22d3` passed 1,025 tests with two
   expected skips and produced immutable G2 audit digest
   `sha256:fa20d36852b6eb6901b6f8b6619730afece81608c8d8bf03800c955a24817b49`.
-  Use only that digest for the frozen v1 execution; the immediate next action
-  is launch, record its durable execution id, and poll/harvest it to terminal.
+  Frozen v1 execution `g2-qb-gumbel-factor-v1-jz54s` is now launched from
+  that exact digest; its checksummed manifest is under
+  `reports/g2-qb-gumbel-runs/20260812-g2-qb-gumbel-factor-v1/`. Poll this exact
+  execution without reading partial scientific output, then harvest only a
+  clean terminal result.
 - The operator-supplied alternative-frames review is retained unchanged at
   `reports/2026-08-12-alternative-analytical-frames.md` and reconciled in
   `reports/2026-08-12-alternative-analytical-frames-reconciliation.md`. The
