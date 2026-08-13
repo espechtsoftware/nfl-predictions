@@ -66,6 +66,14 @@ reconciliation when their findings affect the program.
   unverified. SIS DataHub Pro is the strongest paid live/export candidate
   under the operator's budget ($99.99/month, seven-day trial); do not purchase
   until the report's six history/export/latency/license checks are confirmed.
+  Follow-up trial due diligence found that SIS trial leaderboards are capped
+  at 20 rows (paid leaderboards at 200) and the agreement caps 1,000 queries
+  per week. It allows private uses but is not explicit enough about retaining
+  exports as private model inputs; get written confirmation before ingestion.
+  The exact smoke-export, schema and purchase checklist is tracked in
+  `reports/2026-08-13-sis-datahub-trial-checklist.md`. A cheaper CoverageIQ
+  alternative was also found, but its published terms explicitly forbid
+  automated extraction and ML/AI ingestion, so it is not a model data source.
 - Incumbent effective-rank v2 completed cleanly in execution
   `portfolio-effective-rank-v2-pbxps`, image
   `sha256:450f22cbdae94e23c8322330fe3f445d256cd82dbfc96ca086593a0f80eee90e`,

@@ -82,6 +82,18 @@ on marketing copy:
 5. regular in-season availability early enough for the next slate;
 6. license terms permitting retained private model inputs and evaluation.
 
+The official FAQ adds two important trial constraints: trial accounts return
+only the top 20 rows per leaderboard (paid accounts return the top 200), and
+the subscription agreement caps use at 1,000 queries per week. Therefore the
+trial can validate schemas, filters, dates and exports, but cannot by itself
+produce a complete historical player panel. The current agreement permits
+private use but restricts copying/transferring SIS content outside its stated
+uses. Obtain written confirmation from `sales@sportsinfosolutions.com` that
+downloaded CSVs may be retained and used as inputs to this private,
+noncommercial prediction model after the trial/subscription ends before
+ingesting the data. The exact audit sequence is in
+`reports/2026-08-13-sis-datahub-trial-checklist.md`.
+
 If these checks pass, SIS can fill a more distinct gap than another aggregate
 matchup grade: individual defensive responsibility and coverage efficiency.
 
@@ -188,6 +200,22 @@ SumerLive now identifies formations, routes and coverages in real time from a
 tracking-data model. Public access currently emphasizes live/postseason game
 analysis, and no consumer historical export or API was verified. Monitor it;
 do not base the 2026 pipeline on it yet.
+
+### StatRankings CoverageIQ
+
+Official sources:
+
+- <https://statrankings.com/nfl/coverage-intelligence>
+- <https://statrankings.com/checkout>
+- <https://statrankings.com/terms-of-service>
+
+CoverageIQ is much cheaper (`$24.99/month` or the displayed annual offer) and
+has excellent-looking week filters, all eight common coverage shells, and
+offensive/defensive player splits. It is **not an ingestion option under its
+published terms**: automated extraction and ingestion into machine-learning
+or AI models are explicitly prohibited. It can be used manually for a small
+number of personal sanity checks, but do not scrape, automate, download into
+the model, or treat the price as a substitute for a licensed feed.
 
 ## Recommended queue
 
