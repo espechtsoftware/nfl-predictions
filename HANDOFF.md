@@ -515,6 +515,11 @@ reconciliation when their findings affect the program.
   expected skips; 28 focused G0/G1/G2/effective-rank tests, compilation,
   shell syntax and whitespace checks also pass. Commit/push this exact repair
   tree and submit its full-test Cloud Build next.
+  Repair commit `c1ac40f` is pushed. Exact-tree Cloud Build
+  `3caf0362-eef6-4d3c-843a-3c2be787e28d` passed 1,026 tests with two expected
+  skips and produced immutable v2 digest
+  `sha256:9d00a848c1f55f172c6c7e092bd40a1dadbc6cc2015e06b9313033f29ef155d5`.
+  Use only that digest to launch the frozen 32 GiB v2 replacement next.
 - The operator-supplied alternative-frames review is retained unchanged at
   `reports/2026-08-12-alternative-analytical-frames.md` and reconciled in
   `reports/2026-08-12-alternative-analytical-frames-reconciliation.md`. The
