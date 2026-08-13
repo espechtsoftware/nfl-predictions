@@ -641,7 +641,11 @@ def _decode_json_env(name: str) -> dict:
         raise ValueError(f"G1 environment {name} is invalid") from exc
 
 
-def _load_terminal_book(panel_id: str) -> tuple[pd.DataFrame, np.ndarray, dict]:
+def _load_terminal_book(
+    panel_id: str,
+    *,
+    simulator_overrides: dict[str, str] | None = None,
+) -> tuple[pd.DataFrame, np.ndarray, dict]:
     expected_panel = os.environ.get("G1_PANEL_ID", "").strip()
     table = os.environ.get("G1_CACHE_TABLE", "").strip()
     if panel_id != expected_panel or not panel_id:
@@ -694,46 +698,59 @@ def _load_terminal_book(panel_id: str) -> tuple[pd.DataFrame, np.ndarray, dict]:
     draw_parts = []
     parity = []
     max_mean_delta = 0.0
+    overrides = dict(simulator_overrides or {})
+    unknown = set(overrides) - {"TD_LEDGER"}
+    if unknown:
+        raise ValueError(f"G1 terminal loader has unknown overrides: {sorted(unknown)}")
     with inherited._common_environment(usage):
+        prior_overrides = {key: os.environ.get(key) for key in overrides}
+        os.environ.update(overrides)
         weight = effective_model_weight()
         if not np.isclose(weight, 0.45, rtol=0, atol=0):
             raise ValueError("G1 blend weight differs from terminal law")
-        for season in EVALUATION_SEASONS:
-            panel, _ = load_panel_and_dst(season)
-            market = market_points((season,)).drop_duplicates(
-                ["season", "week", "gsis_id"])
-            with g0._selected_cache(table):
-                projected, draws = replay_projections(
-                    panel, season, n_sims=10_000, seed=0, return_draws=True)
-            projected, draws, _ = _market_blend_worlds(
-                projected, draws, market, weight)
-            frame, aligned, arm_parity = calibration._align_arm(
-                projected, draws, accepted,
-                cache_keys[cache_keys.season.eq(season)], season,
-                require_control_parity=False,
-            )
-            metadata = accepted[accepted.season.eq(season)][[
-                "season", "week", "gsis_id", "pos", "team", "opp", "game_id",
-            ]].rename(columns={"pos": "position"})
-            frame = frame.merge(
-                metadata,
-                on=["season", "week", "gsis_id", "position"],
-                how="left", validate="one_to_one",
-            )
-            if frame[["team", "opp", "game_id"]].isna().any().any():
-                raise ValueError(f"G1 {season} game metadata does not align")
-            corrected = position_calibration.apply_position_scales(
-                aligned, frame.position, schedule[season]["factors"])
-            before = np.asarray(aligned, dtype=float).mean(axis=1)
-            after = corrected.mean(axis=1)
-            max_mean_delta = max(
-                max_mean_delta,
-                float(np.max(np.abs(after - before), initial=0.0)),
-            )
-            frame["mean_projection"] = after
-            frames.append(frame)
-            draw_parts.append(corrected)
-            parity.append(arm_parity)
+        try:
+            for season in EVALUATION_SEASONS:
+                panel, _ = load_panel_and_dst(season)
+                market = market_points((season,)).drop_duplicates(
+                    ["season", "week", "gsis_id"])
+                with g0._selected_cache(table):
+                    projected, draws = replay_projections(
+                        panel, season, n_sims=10_000, seed=0, return_draws=True)
+                projected, draws, _ = _market_blend_worlds(
+                    projected, draws, market, weight)
+                frame, aligned, arm_parity = calibration._align_arm(
+                    projected, draws, accepted,
+                    cache_keys[cache_keys.season.eq(season)], season,
+                    require_control_parity=False,
+                )
+                metadata = accepted[accepted.season.eq(season)][[
+                    "season", "week", "gsis_id", "pos", "team", "opp", "game_id",
+                ]].rename(columns={"pos": "position"})
+                frame = frame.merge(
+                    metadata,
+                    on=["season", "week", "gsis_id", "position"],
+                    how="left", validate="one_to_one",
+                )
+                if frame[["team", "opp", "game_id"]].isna().any().any():
+                    raise ValueError(f"G1 {season} game metadata does not align")
+                corrected = position_calibration.apply_position_scales(
+                    aligned, frame.position, schedule[season]["factors"])
+                before = np.asarray(aligned, dtype=float).mean(axis=1)
+                after = corrected.mean(axis=1)
+                max_mean_delta = max(
+                    max_mean_delta,
+                    float(np.max(np.abs(after - before), initial=0.0)),
+                )
+                frame["mean_projection"] = after
+                frames.append(frame)
+                draw_parts.append(corrected)
+                parity.append(arm_parity)
+        finally:
+            for key, value in prior_overrides.items():
+                if value is None:
+                    os.environ.pop(key, None)
+                else:
+                    os.environ[key] = value
     frame = pd.concat(frames, ignore_index=True)
     draws = np.concatenate(draw_parts, axis=0)
     return frame, draws, {

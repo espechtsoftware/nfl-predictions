@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 02:03 CDT
+## Current state — 2026-08-13 14:35 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
@@ -48,6 +48,52 @@ ten previously supplied outside-review documents
 `reports/2026-08-11-recommendation-scoreboard-and-pivot.md` are tracked. Treat
 operator-supplied source reviews as immutable inputs; track a separate
 reconciliation when their findings affect the program.
+
+### 2026-08-13 coverage-source audit and active next mechanism
+
+- The current selected scoring baseline is unchanged: active-only TabPFN,
+  finite Dirichlet `K=28.154043586960896`, and selected weekly maxima counts
+  at 240/230/220/210/200/194/187 of `2/2/2/6/14/23/35`, with mean weekly
+  maximum `176.8692`. No result in this milestone changes production.
+- Weekly coverage alternatives were researched and recorded in
+  `reports/2026-08-13-weekly-coverage-data-source-audit.md`. Free nflverse
+  participation files contain play-level man/zone and named coverage shells;
+  direct checks found 18,975 / 22,916 / 22,408 / 22,055 populated shell rows
+  for 2022--2025. They are useful historical diagnostics, but nflverse states
+  2023+ FTN participation arrives after the postseason, so this is not a live
+  2026 feed and the NGS-to-FTN source break must remain explicit. FTN is the
+  Football Outsiders/DVOA successor but arbitrary consumer CSV export remains
+  unverified. SIS DataHub Pro is the strongest paid live/export candidate
+  under the operator's budget ($99.99/month, seven-day trial); do not purchase
+  until the report's six history/export/latency/license checks are confirmed.
+- Incumbent effective-rank v2 completed cleanly in execution
+  `portfolio-effective-rank-v2-pbxps`, image
+  `sha256:450f22cbdae94e23c8322330fe3f445d256cd82dbfc96ca086593a0f80eee90e`,
+  source `f4ccbcf`, build `399e8bb1-5117-43c3-ae38-af6420a1a8c4`.
+  The valid 107-slate selected-80 mean raw/deflated correlation participation
+  ranks are `11.8749/20.3979` (entropy rank `31.3393`), versus random-80
+  `4.9952/13.6646`. This is score-free evidence that selection adds useful
+  tail/diversity structure, but the simulator's unresolved QB-receiver miss
+  likely makes its independent-bet count optimistic. Full result and machine
+  artifacts are tracked under
+  `reports/portfolio-effective-rank-runs/20260813-incumbent-effective-rank-v2/`.
+- The next distinct dependence mechanism is frozen before treatment output in
+  `reports/2026-08-13-td-ledger-final-served-protocol.md`. It changes only
+  `TD_LEDGER=1`, keeps fixed-share multinomial allocation (`td_alloc_k=None`),
+  and is explicitly adaptive/retrospective. The score-free gate requires exact
+  final-served marginal multisets and G0/G1 reproduction, improved aggregate
+  Brier/variogram/QB-WR/G0/G1 error, no WR-WR regression beyond `1e-12`, and
+  no greater than `log(1.05)` error regression for QB-TE, RB-RB or
+  multiplicity >=2/>=3. A pass only licenses a separately frozen exact-80;
+  a fail closes the mechanism without TD-allocation, game-sigma, usage-K,
+  yardage-ledger or G2-TE retuning.
+- TD-ledger evaluator, CLI, immutable launcher/harvester and focused tests are
+  implemented locally. Thirty focused dependence/ledger tests pass and both
+  shell scripts pass `bash -n`. Heavy/full validation and treatment have not
+  run yet. Exact next action: commit/push this frozen implementation, run a
+  full-test Cloud Build, launch `scripts/cloud_td_ledger_final_served.sh` from
+  its immutable digest, harvest only after clean completion, then apply the
+  frozen gate without querying lineup scores.
 
 ### 2026-08-12 team-passing review reconciliation
 
