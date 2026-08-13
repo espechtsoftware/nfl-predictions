@@ -138,6 +138,30 @@ agent or developer:
   opponent Run Defense; freeze a small model arm only if directions/support
   justify it. This does not supersede the higher-priority alignment and
   conditional-allocation feasibility path from the SIS usage review.
+- The strictly-prior active-RB audit is implemented as
+  `nfl-dfs sis-team-run-context-audit` and interpreted in
+  `reports/2026-08-13-sis-team-run-context-feature-audit.md`. It uses
+  volume-weighted numerator/denominator sums over four completed same-season
+  games, minimum two and shift one. Support is 3,458/3,961 active RB rows
+  (87.30%) over 48 evaluation slates. Opponent run-defense Points Saved/play
+  has aggregate residual/beat-10/25+/30+ correlations
+  `-0.0486/-0.0434/-0.0506/-0.0304`, with residual and beat-10 negative in
+  each 2023/24/25 fold. It is moderately distinct from existing opponent
+  rush EPA (`r=-0.4531`). SIS opponent EPA is too redundant (`r=0.8029`),
+  while offense Boom% is weaker and reverses on important 2025 views. The
+  one-column RB-only model question is frozen before treatment output in
+  `reports/2026-08-13-sis-rb-run-defense-protocol.md`; YAC, EPA, positive
+  rate, Boom% and every offense field are explicitly excluded. Fifteen
+  focused importer/audit/QB-line tests pass. Implement this cache pair only
+  after preserving the frozen protocol commit.
+- The SIS QB-line cache mechanical gate passed and licensed the score-free
+  final-served stage. Execution
+  `tabpfn-sis-qb-line-final-served-v1-vkx49` is running from audit image
+  `sha256:c536b05c33b120cea860fb6d0067192c740a33cfe9fd60461195c039ecd40db5`;
+  its immutable launch manifest is under
+  `reports/tabpfn-sis-qb-line-runs/20260813-tabpfn-sis-qb-line-final-served-v1/`.
+  Poll and harvest it. A pass licenses a separately frozen exact-80; a fail
+  reads no lineup scores and closes only the two-column QB marginal arm.
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
