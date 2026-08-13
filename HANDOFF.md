@@ -78,12 +78,18 @@ agent or developer:
   `sha256:c536b05c33b120cea860fb6d0067192c740a33cfe9fd60461195c039ecd40db5`.
   GPU build `a6f7fbff-50a2-4722-8a26-003d1a1b0943` passed and produced
   `sha256:90e1643723c1f7084cd729b8e24ddb92812f6322602310d6a30f38074a95b91e`.
-  Frozen cache executions are now running: control
+  Frozen cache executions completed successfully: control
   `tabpfn-sis-qb-line-v1-control-gkzlj` and treatment
-  `tabpfn-sis-qb-line-v1-treatment-567t2`. Their manifest is under
+  `tabpfn-sis-qb-line-v1-treatment-567t2`. The harvested mechanical gate
+  passes every registered check: both tables contain the same 52,307 unique
+  target keys over 2022--2025; the control reproduces inherited cache
+  `tabpfn_active_label_treatment_v2` with maximum absolute delta `0.0`; the
+  treatment predictions changed; and 2023/24/25 active-QB support is
+  88.95%/88.43%/88.43%. Their manifest, raw reports and immutable
+  `validation.json` are under
   `reports/tabpfn-sis-qb-line-runs/20260813-tabpfn-sis-qb-line-v1/`.
-  Wait for both clean completions, harvest, and require exact inherited-cache
-  reproduction before launching the score-free gate.
+  Exact next action is the now-licensed score-free final-served gate from the
+  immutable audit image; do not read lineup scores unless that gate passes.
 - SIS tranche-2 resume exposed a new acquisition defect before import. The
   site submits team Passing Value (`MetricGroupSubType=1.3`) correctly but its
   split-by-game Download renders/exports the Totals schema. Fourteen completed
