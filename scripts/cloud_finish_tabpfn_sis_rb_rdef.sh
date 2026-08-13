@@ -6,7 +6,7 @@ set -euo pipefail
 CODE_SHA=${1:-}
 PROJECT=nfl-predictions-503414
 REGION=us-central1
-RUN_ID=20260813-tabpfn-sis-rb-rdef-v1
+RUN_ID=20260813-tabpfn-sis-rb-rdef-v2
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$ROOT/reports/tabpfn-sis-rb-rdef-runs/$RUN_ID"
 EXECUTIONS="$OUT/executions.txt"

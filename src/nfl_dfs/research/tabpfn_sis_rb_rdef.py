@@ -70,7 +70,12 @@ def build_strict_prior_sis_rb_rdef(source: pd.DataFrame) -> pd.DataFrame:
 def attach_sis_rb_rdef(
     panel: pd.DataFrame, strict_prior: pd.DataFrame,
 ) -> pd.DataFrame:
-    required = {"season", "week", "opp", "position"}
+    # The canonical warehouse training table spells this field ``opponent``;
+    # replay/audit frames historically expose the equivalent short name
+    # ``opp``.  Resolve that schema difference explicitly and use a private
+    # join key so neither input contract is mutated.
+    opponent_column = "opponent" if "opponent" in panel else "opp"
+    required = {"season", "week", opponent_column, "position"}
     if missing := required - set(panel):
         raise ValueError(f"training panel lacks {sorted(missing)}")
     feature_required = {
@@ -80,9 +85,9 @@ def attach_sis_rb_rdef(
     if missing := feature_required - set(strict_prior):
         raise ValueError(f"strict-prior SIS RB features lack {sorted(missing)}")
     players = panel.copy()
-    players["opp"] = players.opp.replace(TEAM_ALIASES)
-    features = strict_prior.rename(columns={"team": "opp"}).copy()
-    keys = ["season", "week", "opp"]
+    players["_sis_opponent"] = players[opponent_column].replace(TEAM_ALIASES)
+    features = strict_prior.rename(columns={"team": "_sis_opponent"}).copy()
+    keys = ["season", "week", "_sis_opponent"]
     if features.duplicated(keys).any():
         raise ValueError("strict-prior SIS RB run-defense keys are not unique")
     columns = [
@@ -104,7 +109,7 @@ def attach_sis_rb_rdef(
         supported, "sis_rb_rdef_source_week_end"
     ].lt(joined.loc[supported, "week"]).all():
         raise ValueError("attached SIS RB run-defense feature violates PIT scope")
-    return joined
+    return joined.drop(columns="_sis_opponent")
 
 
 def active_rb_coverage(panel: pd.DataFrame) -> list[dict[str, object]]:

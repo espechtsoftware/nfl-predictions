@@ -8,7 +8,7 @@ CODE_SHA=${2:-}
 PROJECT=nfl-predictions-503414
 REGION=us-central1
 SERVICE_ACCOUNT=817589974517-compute@developer.gserviceaccount.com
-RUN_ID=20260813-tabpfn-sis-rb-rdef-v1
+RUN_ID=20260813-tabpfn-sis-rb-rdef-v2
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$ROOT/reports/tabpfn-sis-rb-rdef-runs/$RUN_ID"
 PROTOCOL="$ROOT/reports/2026-08-13-sis-rb-run-defense-protocol.md"
@@ -75,7 +75,7 @@ printf '%s\n' \
 : > "$OUT/executions.txt"
 
 launch_arm() {
-  local arm=$1 table=$2 job="tabpfn-sis-rb-rdef-v1-$1"
+  local arm=$1 table=$2 job="tabpfn-sis-rb-rdef-v2-$1"
   gcloud run jobs deploy "$job" --project "$PROJECT" --region "$REGION" \
     --image "$IMG" \
     --set-env-vars "GCP_PROJECT=$PROJECT,TABPFN_SIS_RB_RDEF_ARM=$arm,TABPFN_OUTPUT_TABLE=$table,CODE_SHA=$CODE_SHA" \

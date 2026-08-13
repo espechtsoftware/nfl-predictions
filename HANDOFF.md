@@ -169,6 +169,15 @@ agent or developer:
   require exact inherited-cache reproduction before launching the score-free
   final-served RB gate from the audit digest. Do not inspect lineup scores
   unless that gate passes.
+  The first poll instead found that both v1 executions failed before fitting
+  or writing a cache: `player_week_training` uses canonical column
+  `opponent`, while the new attachment helper expected the replay/audit alias
+  `opp`. The shared failure is recorded by those execution IDs and is
+  operational, not a model result. The helper now resolves both known schemas
+  into a private join key without changing either input contract, with a
+  canonical-schema regression test. Build v2 images from the repaired commit
+  and relaunch the same still-absent write-once cache tables under distinct v2
+  execution/run IDs.
 - The SIS QB-line cache mechanical gate passed and the score-free
   final-served execution
   `tabpfn-sis-qb-line-final-served-v1-vkx49` completed from audit image

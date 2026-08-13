@@ -74,6 +74,19 @@ def test_attach_uses_opponent_only_on_rb_and_preserves_rows():
     }]
 
 
+def test_attach_accepts_canonical_training_opponent_schema():
+    features = build_strict_prior_sis_rb_rdef(_source())
+    panel = pd.DataFrame({
+        "season": [2025, 2025], "week": [3, 3],
+        "opponent": ["ATL", "ARI"], "position": ["RB", "RB"],
+        "was_active": [True, True],
+    })
+    got = attach_sis_rb_rdef(panel, features)
+    assert list(got["opponent"]) == ["ATL", "ARI"]
+    assert "_sis_opponent" not in got
+    assert got[SIS_RB_FEATURE].tolist() == pytest.approx([3 / 40, 3 / 40])
+
+
 def test_source_identity_and_duplicate_keys_fail_closed():
     wrong = _source()
     wrong["source_run_id"] = "wrong"
