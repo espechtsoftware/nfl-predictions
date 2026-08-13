@@ -421,10 +421,15 @@ agent or developer:
   gzip/base64 chunks of at most 48,000 characters with compressed and
   uncompressed SHA-256 identities, plus a strict all-chunk harvester. No arm,
   row, seed, cache, fit, factor, metric, gate or branch changed. Focused tests,
-  shell syntax and compilation pass. Exact next action: commit/build this
-  narrow repair, run the deterministic score-free task once from the new
-  immutable image, then harvest the complete report. No exact-80 branch is
-  currently licensed.
+  shell syntax and compilation pass. Transport rerun launcher
+  `scripts/cloud_rerun_tabpfn_pfr_secondary_final_served_transport.sh` now
+  binds the completed scientific execution, exact 102,401-byte retained log
+  identity, all original selections/caches, and the new immutable image in a
+  write-once manifest. The harvester accepts only that new execution, rather
+  than accidentally rereading the already-truncated repair execution. Exact
+  next action: commit/build this narrow repair, run the deterministic
+  score-free task once from the new immutable image, then harvest the complete
+  report. No exact-80 branch is currently licensed.
   The operator-supplied Monte Carlo review is tracked as
   `reports/2026-08-13-monte-carlo-review-and-seed-variance-protocol.md` and is
   being reconciled against the actual multi-stream RNG path. The first

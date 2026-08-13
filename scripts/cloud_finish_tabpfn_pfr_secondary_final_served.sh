@@ -7,8 +7,11 @@ REGION=us-central1
 RUN_ID=20260813-tabpfn-pfr-secondary-final-served-v1
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$ROOT/reports/tabpfn-pfr-secondary-runs/$RUN_ID"
-EXEC=$(cat "$OUT/repair_execution.txt")
-[ -n "$EXEC" ] || { echo "ABORT: PFR gate execution missing"; exit 2; }
+TRANSPORT_MANIFEST="$OUT/transport_manifest.txt"
+[ -s "$TRANSPORT_MANIFEST" ] || {
+  echo "ABORT: PFR transport rerun manifest missing"; exit 2; }
+EXEC=$(cat "$OUT/transport_execution.txt")
+[ -n "$EXEC" ] || { echo "ABORT: PFR transport execution missing"; exit 2; }
 [ ! -e "$OUT/report.json" ] || {
   echo "ABORT: immutable PFR report already exists"; exit 2; }
 STATE=$(gcloud run jobs executions describe "$EXEC" --project "$PROJECT" \
