@@ -187,6 +187,7 @@ def effective_generation_config(env: dict | None = None) -> dict:
     n_gumbel = int(e.get("N_GUMBEL", "0") or 0)
     research_only = (
         "EPISTEMIC_FAMILY", "ROLE_BELIEF_FEATURES", "ROLE_BELIEF_SEED",
+        "REPLAY_PROJECTION_SEED",
         "GEN_POOL_CAP", "GEN_POOL_CAP_MAP", "GEN_TOTAL_BUDGET",
         "REPLACEMENT_SLOTS",
     )
@@ -201,12 +202,15 @@ def effective_generation_config(env: dict | None = None) -> dict:
             "epistemic_family": e.get("EPISTEMIC_FAMILY", "standard"),
             "role_belief_seed": int(e.get("ROLE_BELIEF_SEED", "7331")
                                     or 7331),
+            "replay_projection_seed": int(
+                e.get("REPLAY_PROJECTION_SEED", "0") or 0),
             "gumbel_seed": int(e.get("GUMBEL_SEED", "4700") or 4700),
             "gumbel_mode": e.get("GUMBEL_MODE", "independent"),
             "overrides": {k: e[k] for k in
                           ("N_CE", "N_EPISTEMIC", "N_BOOM", "CE_SEED",
                            "EPISTEMIC_FAMILY", "ROLE_BELIEF_FEATURES",
                            "ROLE_BELIEF_SEED",
+                           "REPLAY_PROJECTION_SEED",
                            "N_GUMBEL", "GUMBEL_SEED", "GUMBEL_SCALE",
                            "GUMBEL_MODE",
                            "REPLACEMENT_SLOTS", "GEN_TOTAL_BUDGET",
@@ -1404,6 +1408,9 @@ def tail_select_lineups(
             # that produced candidates are stored with the rows.
             _seeds = ";".join(x for x in (
                 _seeds,
+                (f"REPLAY_PROJECTION_SEED="
+                 f"{runtime_env['REPLAY_PROJECTION_SEED']}"
+                 if "REPLAY_PROJECTION_SEED" in runtime_env else ""),
                 f"CE_SEED={runtime_env.get('CE_SEED', '1701')}",
                 f"ROLE_BELIEF_SEED={runtime_env.get('ROLE_BELIEF_SEED', '7331')}",
                 f"GUMBEL_SEED={runtime_env.get('GUMBEL_SEED', '4700')}",
@@ -1449,6 +1456,7 @@ def tail_select_lineups(
                 "PUNT_MIN", "PUNT_SLOPE", "PUNT_STRICT", "PUNT_VALUE",
                 "Q99_WILD", "QD_CELLS", "RATE_DENOM_WEIGHTS",
                 "REPLACEMENT_SLOTS", "ROOKIE_WIDEN", "SCHAAKE_DIAG",
+                "REPLAY_PROJECTION_SEED",
                 "SCHAAKE_DIAG_ONLY", "SCHAAKE_DIAG_STRICT",
                 "SCHAAKE_TEMPLATE_MODE",
                 "SELECT_LSE", "SELECT_OBJ",

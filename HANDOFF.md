@@ -456,9 +456,14 @@ agent or developer:
   `reports/2026-08-13-incumbent-seed-variance-protocol.md`. The protocol binds
   the actual two active RNG streams: incumbent `(0,7331)` plus four declared
   baseline/role pairs, with all nonseed laws held fixed. It cannot relabel old
-  arms. Exact next Monte Carlo action: implement an explicit default-zero
-  baseline projection seed with seed-0 reproduction tests, then build/run only
-  the four new 2023--2025 panels after PFR transport closure.
+  arms. The explicit `REPLAY_PROJECTION_SEED` implementation is now complete:
+  unset remains legacy seed 0; explicit nonnegative values reach
+  `replay_projections`; and explicit seeds are recorded in both `lever_env` and
+  `seeds` beside `ROLE_BELIEF_SEED`. Focused replay, generation-config and
+  persistence tests pass, including default-zero and changed-seed assertions.
+  Exact next Monte Carlo action: commit/build this narrow lever, mechanically
+  reproduce an incumbent seed-0 smoke, then run only the four registered
+  2023--2025 panels after PFR transport closure.
   The outside oddsmaking proposal
   `reports/2026-08-13-oddsmaking-techniques-and-market-implied-dependence.md`
   is reconciled in

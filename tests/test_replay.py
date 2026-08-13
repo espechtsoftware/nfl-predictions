@@ -61,6 +61,32 @@ def test_dependence_only_run_exits_before_candidate_path(monkeypatch):
     replay.run(2025)
 
 
+def test_replay_run_uses_explicit_projection_seed_and_legacy_default(
+        monkeypatch):
+    panel = pd.DataFrame({"season": [2025]})
+    observed = []
+    monkeypatch.setenv("SCHAAKE_DIAG", "1")
+    monkeypatch.setenv("SCHAAKE_DIAG_ONLY", "1")
+    monkeypatch.setattr(
+        replay, "load_panel_and_dst", lambda season: (panel, None))
+
+    def capture(*args, **kwargs):
+        observed.append(kwargs["seed"])
+        return pd.DataFrame(), np.empty((0, 10))
+
+    monkeypatch.setattr(replay, "replay_projections", capture)
+    monkeypatch.delenv("REPLAY_PROJECTION_SEED", raising=False)
+    replay.run(2025)
+    monkeypatch.setenv("REPLAY_PROJECTION_SEED", "1137260708")
+    replay.run(2025)
+    assert observed == [0, 1137260708]
+
+
+def test_replay_projection_seed_rejects_negative():
+    with pytest.raises(ValueError, match="must be nonnegative"):
+        replay.replay_projection_seed({"REPLAY_PROJECTION_SEED": "-1"})
+
+
 def test_role_belief_projection_is_exact_and_restores_baseline_env(
         small_panel, monkeypatch):
     features = ",".join(replay.ROLE_BELIEF_FEATURES)

@@ -156,6 +156,17 @@ def test_ce_seed_is_configurable_and_recorded():
     assert (cfg["n_ce"], cfg["n_boom"]) == (0, 40)
 
 
+def test_replay_projection_seed_is_visible_and_marks_research_override():
+    from nfl_dfs.backtest.engine import effective_generation_config
+
+    assert effective_generation_config(env={})["replay_projection_seed"] == 0
+    cfg = effective_generation_config(
+        env={"REPLAY_PROJECTION_SEED": "1137260708"})
+    assert cfg["replay_projection_seed"] == 1137260708
+    assert cfg["overrides"]["REPLAY_PROJECTION_SEED"] == "1137260708"
+    assert not cfg["matches_adopted_default"]
+
+
 def test_ce_seed_changes_the_sampled_worlds():
     import numpy as np
 

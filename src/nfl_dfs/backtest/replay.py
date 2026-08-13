@@ -40,6 +40,21 @@ ROLE_BELIEF_FEATURES = (
 )
 
 
+def replay_projection_seed(env: dict | None = None) -> int:
+    """Baseline projection/simulator seed, defaulting to the legacy zero.
+
+    The role-belief candidate path has a separate registered seed.  Keeping
+    this lever explicit makes independent incumbent Monte Carlo replicas real
+    rather than silently reusing seed zero, while the unset production path
+    remains bit-for-bit unchanged.
+    """
+    e = os.environ if env is None else env
+    seed = int(e.get("REPLAY_PROJECTION_SEED", "0") or 0)
+    if seed < 0:
+        raise ValueError("REPLAY_PROJECTION_SEED must be nonnegative")
+    return seed
+
+
 def own_mode(env: dict | None = None) -> str:
     """OWN_MODEL env, normalized. Default "" ADOPTED 2026-08-05
     (Addenda 77/80/84): the chalk fade STAYS (its true deletion cost
@@ -1427,8 +1442,9 @@ def run(
     if diagnostic_only and not os.environ.get("SCHAAKE_DIAG"):
         raise ValueError("SCHAAKE_DIAG_ONLY requires SCHAAKE_DIAG")
     panel, dst = load_panel_and_dst(season)
-    proj, draws = replay_projections(panel, season, n_sims=n_sims,
-                                     return_draws=True)
+    proj, draws = replay_projections(
+        panel, season, n_sims=n_sims,
+        seed=replay_projection_seed(), return_draws=True)
     if diagnostic_only:
         log.info(
             "Schaake dependence-only run complete for season %d; "
