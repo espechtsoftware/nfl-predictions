@@ -441,10 +441,19 @@ agent or developer:
   `20260812-pitclean-e80-selected-tabpfn-active-v2`, every one of 13,750
   candidates has fewer than 30 supporting worlds at both 210 and 220; median
   support is one world at 210 and zero at 220, and 61.738% have zero 220
-  worlds. This is a serious warning for the prospective 220-first selector,
-  not evidence against the adopted 194 selector. Freeze a corrected five-run
-  incumbent seed-envelope protocol and the durable support report before any
-  policy change.
+  worlds. Selected candidates average 15.341 supporting worlds at 194 but
+  only 0.781 at 220, and 42.25% of selected candidates have zero 220 support.
+  This is a serious warning for the prospective 220-first selector, not
+  evidence against the adopted 194 selector. The corrected review, durable
+  audit, and five-replicate incumbent protocol are now frozen in
+  `reports/2026-08-13-monte-carlo-review-reconciliation.md`,
+  `reports/2026-08-13-incumbent-tail-mask-support-audit.md`, and
+  `reports/2026-08-13-incumbent-seed-variance-protocol.md`. The protocol binds
+  the actual two active RNG streams: incumbent `(0,7331)` plus four declared
+  baseline/role pairs, with all nonseed laws held fixed. It cannot relabel old
+  arms. Exact next Monte Carlo action: implement an explicit default-zero
+  baseline projection seed with seed-0 reproduction tests, then build/run only
+  the four new 2023--2025 panels after PFR transport closure.
   The outside oddsmaking proposal
   `reports/2026-08-13-oddsmaking-techniques-and-market-implied-dependence.md`
   is reconciled in

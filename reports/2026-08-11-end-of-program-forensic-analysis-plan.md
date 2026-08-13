@@ -270,9 +270,13 @@ State these limits in the output so the register is not over-read:
 - **107 slates, 2 weeks above 240.** Anything conditioned on the extreme tail is
   descriptive. Regime cuts (§4) subdivide further and will be underpowered by
   construction — report intervals, never point estimates alone.
-- **Deterministic pipeline.** There is no sampling variance to average over;
-  apparent differences between arms are exact but that does not make them
-  *generalisable*. §6.4 is the closest available proxy for generalisation error.
+- **Determinism is not seed stability.** Same inputs and seeds reproduce
+  exactly, but candidate worlds and portfolios still have Monte Carlo
+  variability across seeds. Incorporate the preregistered five-replicate
+  incumbent envelope from
+  `2026-08-13-incumbent-seed-variance-protocol.md`; keep that algorithmic
+  uncertainty separate from across-slate generalisation error and from §6.4's
+  selected-arm/configuration dispersion.
 - **Survivorship.** The 14 panels are the arms that were launched, which were
   chosen by earlier evidence. Pooling them (§6.4) inherits that selection.
 - **This is history.** Rule changes, pace drift and roster turnover mean 2019

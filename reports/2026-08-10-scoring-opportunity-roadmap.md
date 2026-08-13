@@ -305,6 +305,16 @@ masks. Freeze one deterministic lexicographic book that maximizes uncovered
 simulated mean as fixed tiebreakers. Do not back-select its rules from the 107
 known weekly scores, and do not change the adopted 194 book.
 
+The outcome-free support audit in
+`reports/2026-08-13-incumbent-tail-mask-support-audit.md` now establishes the
+prerequisite measurement: on the 54-slate accepted panel, all 13,750
+candidates have fewer than 30 supporting worlds at both 210 and 220; selected
+candidates average 0.78 worlds at 220 and 42.25% have none. Before developing
+a new weighted estimator, run the frozen current-incumbent seed envelope in
+`reports/2026-08-13-incumbent-seed-variance-protocol.md`, then benchmark the
+30,000-world prospective book against a higher-world ordinary reference on a
+small fixed slate set. The 220-first book remains shadow-only.
+
 The deeper follow-on is an estimator test, not another CE candidate retry.
 The adopted CE generator already uses learned rare worlds to create lineups,
 but its importance weights are explicitly candidate-only; every candidate's
@@ -313,9 +323,10 @@ Those weights **cannot be reused directly** for support estimation: CE's
 bounded knobs deform deterministic player means and do not constitute an
 alternate draw from the possession simulator with a known density ratio.
 
-The first prerequisite is therefore to expose a small set of the production
-simulator's own continuous latent variables and their exact log density, then
-define an absolutely continuous mixture proposal over those same variables.
+If ordinary-world scaling proves insufficient, the next prerequisite is to
+expose a small set of the production simulator's own continuous latent
+variables and their exact log density, then define an absolutely continuous
+mixture proposal over those same variables.
 Only a proposal whose likelihood ratio reproduces analytically solvable toy
 events and ordinary Monte Carlo estimates may attempt to estimate lineup
 `P(score >= 210)` and `P(score >= 220)`. Preserve an ordinary-mixture
