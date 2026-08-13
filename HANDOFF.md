@@ -42,6 +42,21 @@ agent or developer:
   prior feature builder, paired control/treatment cache generator and
   score-free final-served gate next. Production and the selected scoring
   baseline remain unchanged.
+- Operator review
+  `reports/2026-08-13-sis-usage-review-and-priorities.md` is tracked and
+  reconciled in
+  `reports/2026-08-13-sis-usage-review-reconciliation.md`. Its strongest
+  recommendation is accepted: after the unchanged QB-line gate, prioritize an
+  outcome-blind player-level pass-defense/alignment feasibility sample, retain
+  lagged Boom%/Bust% plus volume denominators, and—only if alignment crossing
+  is concentrated—freeze a conditional competitive receiver-allocation arm
+  against the G0/G1 dependence scorecard. This is distinct from the failed
+  diffuse team-shell family and can eventually compose with ledger coupling.
+  Corrections: fitted K and the direct role union are current selections, G2
+  was a dependence arm, and the 200-row cap requires adaptive team-season/
+  window slicing rather than assuming a week-by-team query explosion. The QB
+  protocol now predeclares that an MAE/CRPS-only improvement with a Brier-30
+  miss closes only its two-column marginal arm, not SIS.
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and

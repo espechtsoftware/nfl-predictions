@@ -106,6 +106,15 @@ the operator's terminal weekly-maximum law in order
 `240,230,220,210,200,194,187`, with the first nonzero count deciding and mean
 weekly maximum only breaking a complete threshold tie.
 
+The expected failure mode is declared before output: this is a QB marginal
+feature entering a simulator whose principal measured defect is QB-to-receiver
+joint-tail dependence. If the treatment improves MAE and/or CRPS but not the
+registered QB Brier-30 gate, that confirms the recurring marginal-versus-tail
+pattern and closes only this two-column arm. It does **not** imply that SIS is
+uninformative. In particular, it does not close player-level defender/
+receiver-alignment or conditional target-allocation mechanisms, which act on a
+different channel and require separately frozen protocols.
+
 ## Production and acquisition safety
 
 The feature is research-only until every licensed stage passes. Current live
