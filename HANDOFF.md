@@ -367,6 +367,20 @@ agent or developer:
   after clean completion run `scripts/cloud_finish_tabpfn_pfr_secondary.sh
   50a20b1`. Launch the score-free job only if that mechanical validation
   passes.
+  All four cache executions then completed cleanly and mechanical validation
+  passed in full. The tracked raw records and `validation.json` are under the
+  same run directory. Control is bit-for-bit equal to inherited
+  `tabpfn_active_label_treatment_v2`; all arms have the exact same 52,307
+  unique keys and finite ordered quantiles; declared feature subtraction is
+  exact; and every treatment is changed and mutually distinct. This licenses
+  the score-free comparison but reveals no forecast outcome. Full-test build
+  `da65723a-fc0f-4b9e-9972-fbac9b3f8440` passed for the original implementation
+  and produced digest
+  `sha256:c9a548337c42574d6b2e47536a3712d0410ec5a514d01712d9a10551e7b22ebf`.
+  Parity-hardened full-test build `2e1b52b4-9ccb-48ec-87cb-f599d19019e3`
+  is queued/in progress. Exact next action: after that build passes, resolve
+  its immutable digest and launch the sole four-arm score-free final-served
+  job; do not inspect partial logs.
   The outside oddsmaking proposal
   `reports/2026-08-13-oddsmaking-techniques-and-market-implied-dependence.md`
   is reconciled in

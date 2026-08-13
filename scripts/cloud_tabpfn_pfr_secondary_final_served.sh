@@ -11,6 +11,7 @@ RUN_ID=20260813-tabpfn-pfr-secondary-final-served-v1
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$ROOT/reports/tabpfn-pfr-secondary-runs/$RUN_ID"
 PROTOCOL="$ROOT/reports/2026-08-13-pfr-secondary-drop-features-protocol.md"
+PARITY_ADDENDUM="$ROOT/reports/2026-08-13-pfr-secondary-control-parity-addendum.md"
 ACTIVE="$ROOT/reports/tabpfn-active-label-runs/20260812-active-label-exact80-v2-pit-clean/selected_active_label.txt"
 USAGE="$ROOT/reports/usage-dirichlet-calibration-runs/20260812-usage-exact80-v2-pit-clean/selected_usage.txt"
 CACHE="$ROOT/reports/tabpfn-pfr-secondary-runs/20260813-tabpfn-pfr-secondary-v1/validation.json"
@@ -20,7 +21,7 @@ case "$CODE_SHA" in
   [0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]*) ;;
   *) echo "ABORT: immutable code SHA required"; exit 2;;
 esac
-for path in "$PROTOCOL" "$ACTIVE" "$USAGE" "$CACHE"; do
+for path in "$PROTOCOL" "$PARITY_ADDENDUM" "$ACTIVE" "$USAGE" "$CACHE"; do
   [ -s "$path" ] || { echo "ABORT: prerequisite missing: $path"; exit 2; }
 done
 [ ! -e "$OUT/execution.txt" ] || {
@@ -56,6 +57,7 @@ mkdir -p "$OUT"
 printf '%s\n' \
   "run_id=$RUN_ID" "image=$IMG" "code_sha=$CODE_SHA" "panel=$PANEL" \
   "protocol_sha256=$(sha256sum "$PROTOCOL" | awk '{print $1}')" \
+  "parity_addendum_sha256=$(sha256sum "$PARITY_ADDENDUM" | awk '{print $1}')" \
   "active_selection_sha256=$(sha256sum "$ACTIVE" | awk '{print $1}')" \
   "usage_selection_sha256=$(sha256sum "$USAGE" | awk '{print $1}')" \
   "cache_validation_sha256=$(sha256sum "$CACHE" | awk '{print $1}')" \
