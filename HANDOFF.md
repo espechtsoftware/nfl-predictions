@@ -336,6 +336,22 @@ agent or developer:
   WR/CB assignment remains data-blocked rather than disproven. Exact next
   action: implement the write-once cache generator/validator and final-served
   evaluator without reading any treatment output.
+  That implementation is now complete and outcome-blind: immutable GPU cache
+  generation/validation lives under `scripts/tabpfn_pfr_secondary/` plus
+  `scripts/cloud_*tabpfn_pfr_secondary*`; the coordinated LightGBM + TabPFN
+  final-served evaluator is
+  `src/nfl_dfs/analysis/tabpfn_pfr_secondary_final_served.py`. The mechanical
+  validator requires bit-for-bit control equality with
+  `tabpfn_active_label_treatment_v2`, exact 52,307-key equality, exact declared
+  feature subtraction and distinct changed treatments before the score-free
+  job is licensed. The final-served evaluator applies the same `DROP_FEATURES`
+  law to component models and the matching cache, independently refits each
+  arm's walk-forward position factors, evaluates all active QB/RB/WR/TE rows,
+  and applies the frozen lowest-Brier/tie-order choice. Focused tests pass;
+  no cache or treatment outcome existed at this milestone. Exact next action:
+  commit/push, run the Cloud full-test image build and immutable GPU image
+  build, then launch all four write-once cache jobs without inspecting partial
+  logs.
   The outside oddsmaking proposal
   `reports/2026-08-13-oddsmaking-techniques-and-market-implied-dependence.md`
   is reconciled in

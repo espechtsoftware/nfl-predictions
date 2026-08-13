@@ -350,6 +350,12 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--panel", required=True)
 
     p = sub.add_parser(
+        "tabpfn-pfr-secondary-final-served",
+        help="Gate frozen PFR secondary feature-drop caches on final-served tails",
+    )
+    p.add_argument("--panel", required=True)
+
+    p = sub.add_parser(
         "g0-final-served-dependence",
         help="Run the frozen score-free terminal teammate-dependence premise test",
     )
@@ -875,6 +881,10 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import tabpfn_sis_rb_rdef_final_served
 
         tabpfn_sis_rb_rdef_final_served.run(args.panel)
+    elif args.command == "tabpfn-pfr-secondary-final-served":
+        from .analysis import tabpfn_pfr_secondary_final_served
+
+        tabpfn_pfr_secondary_final_served.run(args.panel)
     elif args.command == "g0-final-served-dependence":
         from .analysis import final_served_dependence
 
