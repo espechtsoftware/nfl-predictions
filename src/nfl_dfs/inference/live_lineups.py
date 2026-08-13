@@ -127,8 +127,7 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
                              if {"season", "week", "gsis_id"}
                              <= set(_kc) else None,
                              env=runtime_env)
-    from ..models.blend import permutation_invariant_row_mean
-    model_points_pre = permutation_invariant_row_mean(draws)
+    model_points_pre = draws.mean(axis=1, dtype=np.float64)
 
     # Market blend as an additive mean shift — draw shape untouched.
     # Props-first (review #5 round 3 parity fix): the replay blend that

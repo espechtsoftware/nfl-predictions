@@ -49,36 +49,6 @@ def test_shift_draws_to_means_preserves_shape_and_sets_each_mean():
         blend.shift_draws_to_means(draws, np.array([5.0]))
 
 
-def test_shift_draws_to_means_is_exactly_permutation_invariant_for_float32():
-    rng = np.random.default_rng(1)
-    source = rng.uniform(0.0, 50.0, (2, 10_000)).astype(np.float32)
-    permuted = np.stack([
-        row[rng.permutation(row.size)] for row in source
-    ])
-    # This construction is known to produce an order-dependent float32 mean;
-    # the helper must promote before reducing and preserve exact marginals.
-    assert not np.array_equal(
-        source.mean(axis=1), permuted.mean(axis=1))
-    target = np.array([21.0, 17.5])
-    left = blend.shift_draws_to_means(source, target)
-    right = blend.shift_draws_to_means(permuted, target)
-    assert left.dtype == right.dtype == np.float64
-    assert np.array_equal(np.sort(left, axis=1), np.sort(right, axis=1))
-    assert left.mean(axis=1) == pytest.approx(target, abs=1e-12)
-
-
-def test_permutation_invariant_row_mean_is_bit_exact_for_float32():
-    rng = np.random.default_rng(1)
-    source = rng.uniform(0.0, 50.0, (2, 10_000)).astype(np.float32)
-    permuted = np.stack([
-        row[rng.permutation(row.size)] for row in source
-    ])
-    assert np.array_equal(
-        blend.permutation_invariant_row_mean(source),
-        blend.permutation_invariant_row_mean(permuted),
-    )
-
-
 def test_replay_market_blend_uses_post_shape_world_mean_when_market_empty():
     from nfl_dfs.backtest.replay import _market_blend_worlds
 

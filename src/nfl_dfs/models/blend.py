@@ -19,23 +19,6 @@ from scipy import optimize, stats
 BLEND_W = 0.45  # model weight; refit on validation
 
 
-def permutation_invariant_row_mean(
-    draws: np.ndarray, *, keepdims: bool = False,
-) -> np.ndarray:
-    """Float64 row means that depend only on each row's value multiset.
-
-    The simulation copula is encoded by column order. Dependence mechanisms
-    are allowed to permute worlds while retaining exact player marginals, so
-    a downstream marginal transform must not acquire order-sensitive floating
-    drift. Sorting is deterministic and also removes float32 accumulator loss.
-    """
-    values = np.asarray(draws, dtype=np.float64)
-    if values.ndim != 2:
-        raise ValueError("draws must be a two-dimensional matrix")
-    return np.sort(values, axis=1).mean(
-        axis=1, dtype=np.float64, keepdims=keepdims)
-
-
 def effective_model_weight(env: dict | None = None) -> float:
     """Return the model share of the model/prop-market blend.
 
@@ -87,20 +70,12 @@ def shift_draws_to_means(draws: np.ndarray,
     Altering only the projection frame changes deterministic optimization but
     leaves boom generation and coverage selection on a different model.
     """
-    # Dependence-only mechanisms deliberately permute identical marginal
-    # values across worlds. NumPy accumulates float32 means in float32 and
-    # floating addition is order-sensitive, so two permutations used to get
-    # slightly different market shifts (observed max 2^-18 points). Promote
-    # before reducing: the shift must be a function of the marginal multiset,
-    # not its world order.
-    values = np.asarray(draws, dtype=np.float64)
+    values = np.asarray(draws)
     targets = np.asarray(target_means, dtype=float)
     if values.ndim != 2 or targets.shape != (values.shape[0],):
         raise ValueError(
             "draw rows and target means must have matching player counts")
-    return values + (
-        targets - permutation_invariant_row_mean(values)
-    )[:, None]
+    return values + (targets - values.mean(axis=1))[:, None]
 
 
 def market_projection_frame(feats: pd.DataFrame) -> pd.Series:

@@ -20,7 +20,28 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 06:10 CDT
+## Current state — 2026-08-13 06:35 CDT
+
+### 2026-08-13 incumbent numeric path restored before new arms
+
+- TD-ledger v2 fixed the world-order marginal drift but proved that the shared
+  sorted-float64 repair changed all 13 frozen incumbent G1 variograms beyond
+  the registered `1e-12` control tolerance. Neither TD-ledger run licensed a
+  lineup comparison, so the unadopted shared repair has been removed and the
+  default replay/live transforms are restored to their pre-`b9c47e6` /
+  pre-`89615a6` byte-compatible behavior. The diagnostic code and immutable
+  results remain in Git history and artifacts. The decision record is
+  `reports/2026-08-13-incumbent-numeric-path-restoration.md`; 48 focused
+  blend/replay/served-position tests pass. Any future dependence arm must be
+  frozen as an isolated terminal rank permutation of unchanged incumbent
+  final-served marginals. It must not alter shared transforms or reinterpret
+  TD-ledger v1/v2.
+- The currently frozen next marginal arm is the active-QB-only SIS
+  offensive-line bundle in
+  `reports/2026-08-13-sis-qb-line-context-protocol.md`. Implement its strict
+  prior feature builder, paired control/treatment cache generator and
+  score-free final-served gate next. Production and the selected scoring
+  baseline remain unchanged.
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
