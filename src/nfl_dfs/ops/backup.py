@@ -41,6 +41,7 @@ TABLES: list[tuple[str, str]] = [
     ("raw", "fantasy_points_defense_coverage_l4"),
     ("raw", "fantasy_points_advanced_passing_l4"),
     ("raw", "fantasy_points_route_shape_l4"),
+    ("raw", "fantasy_points_qb_shell_l4"),
     ("raw", "fantasy_points_defense_proe"),
     ("raw", "fantasy_points_advanced_receiving_windows"),
     ("features", "manual_notes"),

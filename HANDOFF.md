@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 09:08 CDT
+## Current state — 2026-08-13 09:30 CDT
 
 ### 2026-08-13 incumbent numeric path restored before new arms
 
@@ -283,6 +283,43 @@ agent or developer:
   `20260813T140405Z__same-season-qb-shell-fit-last-four-v1` has zero accepted
   artifacts. Run focused downloader tests, commit/push, then start a new
   immutable 56-export run under the unchanged frozen plan.
+  The context repair passed 25 focused downloader tests and was pushed at
+  `ee75e58`. Fresh immutable run
+  `20260813T141434Z__same-season-qb-shell-fit-last-four-v1` completed all 56/56
+  Offense exports with manifest status `complete`. A dry import independently
+  validated every manifest hash/schema plus all 168 artifacts in accepted
+  Defense run `20260811T053208Z__same-season-coverage-last-four-v1`, yielding
+  the exact 1,792-row, 56-window, 32-team source universe. The manifest-locked
+  two-source importer and frozen walk-forward diagnostic are implemented along
+  with immutable Cloud launch/harvest scripts. They bind the new Offense run to
+  accepted Defense run
+  `20260811T053208Z__same-season-coverage-last-four-v1`, parse the repeated
+  `FP/DB` fields by exact column position, enforce 80-dropback/two-shell support,
+  build only the two registered grades, and gate on >=70% coverage plus strict
+  aggregate Brier-30 improvement. Forty focused downloader/import/diagnostic/
+  backup tests pass and shell syntax is clean. No outcome has been evaluated.
+  Write-once import then created
+  `nfl_raw.fantasy_points_qb_shell_l4`; a second write returned
+  `already-identical`. Warehouse audit independently confirms 1,792 rows, one
+  offense run, one defense run, 56 windows, 32 teams and every source ending
+  exactly at target week minus one. Backup snapshot
+  `nfl_backups.fantasy_points_qb_shell_l4_20260813_fpshell` has all 1,792 rows.
+  Commit/push the implementation, run full Cloud validation, then launch and
+  poll one gate.
+  The outside oddsmaking proposal
+  `reports/2026-08-13-oddsmaking-techniques-and-market-implied-dependence.md`
+  is reconciled in
+  `reports/2026-08-13-market-implied-dependence-reconciliation.md`. Its joint-
+  probability algebra is useful, but an SGP payout haircut inflates rather than
+  compresses a naively inverted multiplier; one joint quote cannot be
+  conventionally de-vigged; and passing/receiving-yard overs are not G0's
+  player-DK-q90 events. The official Odds API market surface and current
+  importer expose individual/alternate props, not SGP quotes or correlation
+  factors. Preserve this as a prospective product-availability inquiry without
+  quota spend. If a licensed source exists, require fair-probability metadata
+  or empirical held-out quote calibration and compare the simulator on exact
+  matched prop events before any fitting/live use. This review changes no
+  baseline or model.
 - The SIS QB-line cache mechanical gate passed and the score-free
   final-served execution
   `tabpfn-sis-qb-line-final-served-v1-vkx49` completed from audit image
