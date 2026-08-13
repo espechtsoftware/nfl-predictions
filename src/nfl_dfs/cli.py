@@ -224,6 +224,24 @@ def main(argv: list[str] | None = None) -> None:
         help="Create the private raw table; existing non-identical data aborts",
     )
 
+    p = sub.add_parser(
+        "import-sis-team-run-context",
+        help="Audit/import the valid merged SIS tranche-2 run context",
+    )
+    p.add_argument("--original-dir", default="sis/team-context-tranche-2")
+    p.add_argument(
+        "--recovery-dir", default="sis/team-context-tranche-2-recovery")
+    p.add_argument(
+        "--original-plan",
+        default="automation/sis/plans/team-context-tranche-2.json")
+    p.add_argument(
+        "--recovery-plan",
+        default="automation/sis/plans/team-context-tranche-2-recovery.json")
+    p.add_argument(
+        "--write", action="store_true",
+        help="Create the private raw table; existing non-identical data aborts",
+    )
+
     sub.add_parser(
         "sis-team-context-audit",
         help="Audit strictly-prior SIS team context against the terminal panel",
@@ -757,6 +775,16 @@ def main(argv: list[str] | None = None) -> None:
 
         sis_team_context.run(
             args.input_dir, plan_path=args.plan, write=args.write)
+    elif args.command == "import-sis-team-run-context":
+        from .ingest import sis_team_run_context
+
+        sis_team_run_context.run(
+            args.original_dir,
+            args.recovery_dir,
+            original_plan_path=args.original_plan,
+            recovery_plan_path=args.recovery_plan,
+            write=args.write,
+        )
     elif args.command == "sis-team-context-audit":
         from .analysis import sis_team_context
 

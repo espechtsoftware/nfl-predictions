@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 06:35 CDT
+## Current state — 2026-08-13 07:24 CDT
 
 ### 2026-08-13 incumbent numeric path restored before new arms
 
@@ -114,6 +114,24 @@ agent or developer:
   merged tranche-2 importer that requires the original/recovery exact universe,
   explicitly excludes all Passing Value files, and records both plan/state
   hashes. The combined upper-bound plan usage is now 865, not 869.
+- The merged tranche-2 importer is implemented as
+  `nfl-dfs import-sis-team-run-context`. It binds both frozen plan hashes and
+  both durable state hashes; proves the exact 82-file original stop and the
+  exact 22-file recovery; proves all 14 excluded Passing Value artifacts have
+  the known byte-identical Totals-schema defect; then merges only the exact 68
+  valid original plus 22 recovered artifacts. Audit reproduced a common
+  3,230-row / 1,615-game universe for Passing Totals, Rushing Totals/Value and
+  Run Defense Totals/Value over 2019 and 2021--2025. Write-once import created
+  `nfl_raw.sis_team_run_context_game`; a second write returned
+  `already-identical`. Backup snapshot
+  `nfl_backups.sis_team_run_context_game_20260813_sisrun` independently has
+  all 3,230 rows, and 29 focused SIS/import/backup tests pass. The README data
+  deficiency log records the Passing Value defect. Exact next data action:
+  run a strictly-prior outcome/redundancy audit of the new run context, with
+  special attention to lagged RB Boom%/Bust%, volume denominators and
+  opponent Run Defense; freeze a small model arm only if directions/support
+  justify it. This does not supersede the higher-priority alignment and
+  conditional-allocation feasibility path from the SIS usage review.
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
