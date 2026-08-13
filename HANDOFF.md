@@ -20,12 +20,14 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 04:45 CDT
+## Current state — 2026-08-13 06:10 CDT
 
 Active branch is `main`; point-in-time audit reconciliation and dynamic
 leakage-check expansion commits through `7304cfc`, the active-label result and
 frozen protocol commit `3966764`, and exact-80 tooling commit `8e3bbb8` are
-pushed. The
+pushed. SIS strictly-prior audit implementation and paid-surface inventory
+commit `d75af8b` is committed locally and is included in the next handoff push.
+The
 position-calibration result, research promotion, live-policy adoption and
 validated production rollout described below remain the deployed milestone.
 Advanced Receiving
@@ -166,6 +168,49 @@ reconciliation when their findings affect the program.
   gap/player/special
   teams remain deferred. Do not exceed the subscription's 1,000-query weekly
   allowance.
+- The reproducible tranche-1 audit is now implemented as
+  `nfl-dfs sis-team-context-audit`; the concise result is
+  `reports/2026-08-13-sis-team-context-feature-audit.md`. It constructs seven
+  four-completed-game features with `shift(1)`, minimum two prior games and
+  explicit source-week checks, then attaches both the player's offense and
+  opponent to terminal panel
+  `20260812-pitclean-e80-selected-tabpfn-active-v2`. Target-week mutation and
+  strict-prior tests pass. Coverage is 24,709 of 28,411 QB/RB/WR/TE rows
+  (86.97%) over 48 slates. This is explicitly exploratory/adaptive and does
+  not license model or lineup scoring.
+- Outcome-blind redundancy shows SIS pass-defense EPA is mostly duplicative of
+  existing opponent EPA (`r=0.8803`), while SIS pressure is more distinct
+  (`r=0.4573`). The clearest outcome-viewed lead is a fixed two-feature QB
+  offensive-line bundle: pass blown-block rate has residual/beat-10
+  correlations `-0.0566/-0.0407` and both are negative in 2023/24/25;
+  blocking Points Earned/play is `+0.0545/+0.0264` and both are positive in
+  all three seasons. RB run blown blocks and blocking value also have stable
+  directions, but the RB decision is held until direct tranche-2 run context
+  is complete. Broad WR defense effects are too small; future WR/TE work
+  should use a separately frozen coverage/alignment split design. Twenty
+  focused SIS acquisition/audit tests pass. Any chosen feature bundle still
+  requires a frozen score-free walk-forward model protocol before output.
+- Tranche 2 is resumably paused, not lost. It has 50/108 verified CSV/manifest
+  pairs through 2022 weeks 13--18 Passing Value under
+  `sis/team-context-tranche-2/`; durable state records 206/440 API requests.
+  A controlled retry stopped clearly at HTTP 429 on artifact 51, with no
+  partial artifact accepted. Do not reset the state or retry rapidly; allow
+  SIS's rate window to cool and resume the same plan. Tranche 1 used 440
+  requests, so known plan usage is 646 plus the bounded surface audits, still
+  below the documented 1,000-query weekly allowance.
+- The paid-surface inventory now distinguishes included navigation from
+  adjacent SIS products. The authenticated account exposes Player/Team
+  Leaderboards and Player/Team Lookup. Injury data, weekly projections,
+  tendency reports, on/off splits, participation/frame-timer feeds and
+  player/snap projections are advertised by SIS but are not visible as
+  included download surfaces; public materials list weekly projections as a
+  separate subscription. Do not assume access. The highest-value remaining
+  included data are predeclared filtered views: QB pressure/coverage splits,
+  receiver man/zone/alignment/coarse-route splits plus defensive shell
+  deployment, followed by Runs to Gap/box/concept and Adjusted Blown Blocks.
+  Punting/returning are lower-priority DST diagnostics and kicking is lowest
+  because DraftKings classic has no kicker slot. Freeze compact plans before
+  making requests; never issue a combinatorial filter sweep.
 - Incumbent effective-rank v2 completed cleanly in execution
   `portfolio-effective-rank-v2-pbxps`, image
   `sha256:450f22cbdae94e23c8322330fe3f445d256cd82dbfc96ca086593a0f80eee90e`,
