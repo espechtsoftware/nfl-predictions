@@ -361,11 +361,20 @@ reconciliation when their findings affect the program.
   `af20aac6-27da-422b-a761-853fc6f75449` passed 1,009 tests with two expected
   skips from exact repair source `64e0428` and produced immutable digest
   `sha256:72002d1b1c49783e9eda5d0b60314c3a84cfde7ea749968eae520d5eeb205a5e`.
-  The sole v3 replacement is running as
-  `g1-archetype-topology-v3-gq47v`; its manifest is under the v3 run folder.
-  Wait for clean completion, harvest only the complete checksummed chunks, and
-  then apply the frozen G2 license. The v1 ambiguous-QB execution remains
-  invalid pre-G1-metric.
+  The sole v3 replacement `g1-archetype-topology-v3-gq47v` completed cleanly;
+  all checksummed chunks reconstructed and every invariant passed. Its frozen
+  disposition is `stable-qb-hub-confirmed`, licensing G2 for the finite-K
+  terminal identity. Broad QB-WR is `3.323` realized vs `1.064` simulated and
+  material in all three held-out seasons; QB-TE is `2.371` vs `1.079`, material
+  in 2023/2025 and directionally under in 2024. Seven supported QB-WR
+  archetype cells and one QB-TE cell are material underpredictions. Cross-game
+  controls are inconclusive, so no slate factor is licensed. The descriptive
+  graph mismatch is large (relative Frobenius `0.8838`, ARI `0.4949`). Machine
+  artifacts are in the v3 run folder and the concise result is
+  `reports/2026-08-12-g1-walk-forward-archetype-topology-result.md`. Do not
+  launch G2 until active-only fitted-K revalidation resolves: a multinomial
+  selection requires G0/G1 reruns; a retained finite K permits G2 to proceed.
+  The v1/v2 executions remain invalid as documented.
 - The active-only usage revalidation multinomial preflight
   `replay-pitactusemult-smoke-jbrgl` passed on generation digest `ad50...` and
   released the exact registered controls: 2023
