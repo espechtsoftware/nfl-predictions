@@ -256,6 +256,33 @@ agent or developer:
   five remaining requests. Diagnose/replay the response listener with blocked
   networking or defer until the provider weekly counter resets; do not reset
   the local counter or spend another live query speculatively.
+  The subsequent outside review
+  `reports/2026-08-13-sis-rb-qb-failures-and-alignment-feasibility.md` is
+  reconciled in
+  `reports/2026-08-13-sis-rb-qb-failures-alignment-reconciliation.md`.
+  Independent parsing exactly reproduced its 2025 full-season receiver modal
+  alignment shares (WR median `0.67345`, TE `0.54220`, RB `0.85819` for
+  players with at least 100 routes). That makes spending the five remaining
+  calls on inferred individual-CB crossing low-value, so keep the original
+  sample dormant and preserve its state. Do not call it a scientific failure:
+  the aggregate file has no defender side, is coarser than the registered SIS
+  buckets, and its full-season rows cannot be used as PIT in-season features.
+  The revised distinct lead is a separately frozen defense-profile-by-player-
+  alignment allocation interaction. It requires a guarded SIS team-view
+  schema/cap sample and a new strictly-prior receiver-alignment collection
+  before a G0/G1 dependence gate; the failed TD ledger is not an accepted
+  component and cannot be composed post hoc.
+  In parallel, the already-frozen Fantasy Points QB shell-fit collector's first
+  run failed closed before writing a CSV. The rendered filters/table were exact,
+  but after the visible Defense-to-Offense context switch the listener still
+  awaited the catalog's Defense `/values` route; the site correctly responded
+  on the active Offense route. The acquisition-only repair now derives the
+  response endpoint from the authenticated page URL while retaining all JSON,
+  rendered-table and CSV scope guards. It is documented in
+  `reports/2026-08-13-fp-qb-shell-download-context-repair.md`; the failed run
+  `20260813T140405Z__same-season-qb-shell-fit-last-four-v1` has zero accepted
+  artifacts. Run focused downloader tests, commit/push, then start a new
+  immutable 56-export run under the unchanged frozen plan.
 - The SIS QB-line cache mechanical gate passed and the score-free
   final-served execution
   `tabpfn-sis-qb-line-final-served-v1-vkx49` completed from audit image

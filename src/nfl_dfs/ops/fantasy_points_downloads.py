@@ -21,6 +21,7 @@ from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Iterable, Sequence
+from urllib.parse import urlsplit
 
 import requests
 
@@ -705,6 +706,17 @@ def _assert_values_response_scope(response: Any, spec: ExportSpec) -> None:
         raise RuntimeError("Apply values response has no content")
 
 
+def _values_response_path(page_url: str) -> str:
+    """Return the values route for the report context actually on screen."""
+    parsed = urlsplit(page_url)
+    if parsed.scheme != "https" or parsed.netloc != urlsplit(BASE_URL).netloc:
+        raise RuntimeError(f"unexpected Fantasy Points report URL: {page_url}")
+    path = parsed.path.rstrip("/")
+    if not path.startswith("/nfl/tools/") or path.endswith("/values"):
+        raise RuntimeError(f"unexpected Fantasy Points report path: {path}")
+    return f"{path}/values"
+
+
 def _game_count_from_rendered_row(lines: Sequence[str]) -> int | None:
     """Read G from the frozen identity cells of player or team rows."""
     if not lines or not lines[0].isdigit():
@@ -876,7 +888,11 @@ def _download_one(page: Any, spec: ExportSpec, destination: Path, timeout_ms: in
         _select_context(page, spec.context)
     _select_single_filter(page, "Season", str(spec.season))
     _select_week_filter(page, spec.weeks)
-    values_path = f"{spec.definition.path}/values"
+    # Context switching changes the route (for example team/defense to
+    # team/offense). Listen to the report route that is actually on screen;
+    # the submitted JSON scope and downloaded CSV remain independently
+    # validated below.
+    values_path = _values_response_path(page.url)
     with page.expect_response(
         lambda response: (
             response.request.method == "POST"

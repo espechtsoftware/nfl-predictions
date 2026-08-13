@@ -13,6 +13,7 @@ from nfl_dfs.ops.fantasy_points_downloads import (
     _game_count_from_rendered_row,
     _reuse_download_prefix,
     _validate_download_scope,
+    _values_response_path,
     artifact_name,
     compact_weeks,
     expand_plan,
@@ -325,6 +326,17 @@ def test_apply_response_must_carry_exact_season_and_weeks():
     })
     with pytest.raises(RuntimeError, match="scope differs"):
         _assert_values_response_scope(response, spec)
+
+
+def test_values_response_path_follows_active_context():
+    assert _values_response_path(
+        "https://data.fantasypoints.com/nfl/tools/team/offense/coverage-matrix"
+    ) == "/nfl/tools/team/offense/coverage-matrix/values"
+    assert _values_response_path(
+        "https://data.fantasypoints.com/nfl/tools/team/defense/coverage-matrix?x=1"
+    ) == "/nfl/tools/team/defense/coverage-matrix/values"
+    with pytest.raises(RuntimeError, match="unexpected Fantasy Points"):
+        _values_response_path("https://example.com/nfl/tools/team/offense/x")
 
 
 def test_download_scope_rejects_stale_full_season_csv(tmp_path):
