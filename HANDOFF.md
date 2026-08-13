@@ -175,16 +175,20 @@ reconciliation when their findings affect the program.
   explicit source-week checks, then attaches both the player's offense and
   opponent to terminal panel
   `20260812-pitclean-e80-selected-tabpfn-active-v2`. Target-week mutation and
-  strict-prior tests pass. Coverage is 24,709 of 28,411 QB/RB/WR/TE rows
-  (86.97%) over 48 slates. This is explicitly exploratory/adaptive and does
-  not license model or lineup scoring.
+  strict-prior tests pass. A broad-population first run was discarded before
+  arm freeze because it included inactive zero rows; the corrected v2 audit
+  uses the exact `was_active=true` gate population. It contains 15,396 active
+  rows, of which 13,476 (87.53%) have strict-prior SIS support over 48 slates.
+  This is explicitly exploratory/adaptive and does not license model or lineup
+  scoring.
 - Outcome-blind redundancy shows SIS pass-defense EPA is mostly duplicative of
   existing opponent EPA (`r=0.8803`), while SIS pressure is more distinct
   (`r=0.4573`). The clearest outcome-viewed lead is a fixed two-feature QB
   offensive-line bundle: pass blown-block rate has residual/beat-10
-  correlations `-0.0566/-0.0407` and both are negative in 2023/24/25;
-  blocking Points Earned/play is `+0.0545/+0.0264` and both are positive in
-  all three seasons. RB run blown blocks and blocking value also have stable
+  correlations `-0.0485/-0.0649` and both are negative in 2023/24/25;
+  blocking Points Earned/play is `+0.0359/+0.0442`, with beat-10 positive in
+  all three seasons but residual slightly negative in 2025. RB run blown
+  blocks and blocking value also have stable
   directions, but the RB decision is held until direct tranche-2 run context
   is complete. Broad WR defense effects are too small; future WR/TE work
   should use a separately frozen coverage/alignment split design. Twenty

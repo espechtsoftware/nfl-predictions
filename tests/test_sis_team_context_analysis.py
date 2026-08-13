@@ -48,7 +48,7 @@ def test_attach_context_requires_both_strict_prior_sides():
     panel = pd.DataFrame([{
         "season": 2025, "week": 3, "gsis_id": "p1", "position": "QB",
         "team": "ARI", "opp": "ATL", "actual": 25.0,
-        "mean_projection": 18.0,
+        "mean_projection": 18.0, "was_active": True,
     }])
     attached = sis.attach_context(panel, context)
     assert attached.sis_supported.iloc[0]
@@ -60,3 +60,24 @@ def test_duplicate_source_key_fails():
     source = pd.concat([_source(), _source().iloc[[0]]], ignore_index=True)
     with pytest.raises(ValueError, match="repeats team-week"):
         sis.build_strict_prior_context(source)
+
+
+def test_outcome_audit_excludes_inactive_zero_rows():
+    rows = pd.DataFrame({
+        "sis_supported": [True, True, True],
+        "was_active": [True, True, False],
+        "position": ["QB", "QB", "QB"],
+        "season": [2025, 2025, 2025],
+        "week": [3, 4, 4],
+        "residual": [1.0, 2.0, -20.0],
+        "beat_10": [0.0, 1.0, 0.0],
+        "actual_20": [0.0, 1.0, 0.0],
+        "actual_30": [0.0, 1.0, 0.0],
+        **{
+            feature: [1.0, 2.0, 100.0]
+            for feature in sis.FEATURES
+        },
+    })
+    report = sis.outcome_audit(rows)
+    assert report["rows"] == 2
+    assert all(row["rows"] == 2 for row in report["aggregate"][:7])

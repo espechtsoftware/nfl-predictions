@@ -62,7 +62,7 @@ def build_strict_prior_context(source: pd.DataFrame) -> pd.DataFrame:
 def attach_context(panel: pd.DataFrame, context: pd.DataFrame) -> pd.DataFrame:
     needed = {
         "season", "week", "gsis_id", "position", "team", "opp", "actual",
-        "mean_projection",
+        "mean_projection", "was_active",
     }
     if missing := needed - set(panel):
         raise ValueError(f"SIS audit panel missing {sorted(missing)}")
@@ -118,7 +118,11 @@ def _correlation(left: pd.Series, right: pd.Series) -> float | None:
 
 
 def outcome_audit(rows: pd.DataFrame) -> dict:
-    supported = rows[rows.sis_supported & rows.position.isin(POSITIONS)].copy()
+    supported = rows[
+        rows.sis_supported
+        & rows.was_active.fillna(False).astype(bool)
+        & rows.position.isin(POSITIONS)
+    ].copy()
     aggregate = []
     folds = []
     for position in POSITIONS:
@@ -188,13 +192,15 @@ def run() -> dict:
     source = query_df(f"SELECT * FROM `{settings.raw}.sis_team_context_game`")
     context = build_strict_prior_context(source)
     panel = query_df(f"""
-        SELECT season, week, gsis_id, pos AS position, team, opp, actual,
-               mean_projection
-        FROM `{settings.predictions}.slate_player_features`
-        WHERE panel_run_id = @panel AND research_eligible
-          AND pos IN UNNEST(@positions)
+        SELECT s.season, s.week, s.gsis_id, s.pos AS position, s.team, s.opp,
+               s.actual, s.mean_projection, t.was_active
+        FROM `{settings.predictions}.slate_player_features` s
+        JOIN `{settings.features}.player_week_training` t
+          USING (season, week, gsis_id)
+        WHERE s.panel_run_id = @panel AND s.research_eligible
+          AND s.pos IN UNNEST(@positions)
         QUALIFY ROW_NUMBER() OVER (
-          PARTITION BY season, week, gsis_id ORDER BY generated_at DESC
+          PARTITION BY season, week, gsis_id ORDER BY s.generated_at DESC
         ) = 1
         """, params={"panel": PANEL_ID, "positions": list(POSITIONS)})
     existing = query_df(f"""
@@ -207,7 +213,7 @@ def run() -> dict:
         """, params={"seasons": sorted(map(int, source.season.unique()))})
     attached = attach_context(panel, context)
     report = {
-        "version": "v1",
+        "version": "v2-active-only",
         "panel": PANEL_ID,
         "source_table": f"{settings.raw}.sis_team_context_game",
         "strict_prior": True,
@@ -215,8 +221,17 @@ def run() -> dict:
         "features": list(FEATURES),
         "coverage": {
             "panel_rows": int(len(attached)),
-            "supported_rows": int(attached.sis_supported.sum()),
-            "supported_fraction": float(attached.sis_supported.mean()),
+            "active_rows": int(attached.was_active.fillna(False).sum()),
+            "supported_active_rows": int((
+                attached.sis_supported
+                & attached.was_active.fillna(False).astype(bool)
+            ).sum()),
+            "supported_active_fraction": float(
+                attached.loc[
+                    attached.was_active.fillna(False).astype(bool),
+                    "sis_supported",
+                ].mean()
+            ),
         },
         "redundancy": redundancy_audit(context, existing),
         "outcomes": outcome_audit(attached),
