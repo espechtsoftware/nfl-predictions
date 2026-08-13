@@ -458,6 +458,15 @@ agent or developer:
   same-pool exact-80 comparison of persisted 194 coverage against the frozen
   220->210->200 selector. Poll/harvest that execution without changing its
   source, thresholds or tie rules.
+  The execution completed successfully and all mechanical checks passed. The
+  persisted 194 selector versus extreme selector grids at
+  240/230/220/210/200/194/187 are `2/3/5/7/11/22/34` versus
+  `2/3/5/6/12/22/34`; means are `180.1207` versus `179.6650`. The books tie
+  through 220, then the extreme selector loses one >=210 week, so its one
+  additional >=200 week cannot override the first registered difference.
+  Paired weekly maxima are 10 wins, 76 ties and 21 losses. Terminal disposition
+  is `keep-coverage194-selector`; do not tune this selector. Decision record:
+  `reports/2026-08-13-corrected-extreme-selector-result.md`.
   The operator-supplied Monte Carlo review is tracked as
   `reports/2026-08-13-monte-carlo-review-and-seed-variance-protocol.md` and is
   being reconciled against the actual multi-stream RNG path. The first

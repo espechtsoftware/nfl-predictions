@@ -1,0 +1,224 @@
+{
+  "by_season": [
+    {
+      "control": {
+        "clear_187": 9,
+        "clear_194": 7,
+        "clear_200": 5,
+        "clear_210": 5,
+        "clear_220": 4,
+        "clear_230": 2,
+        "clear_240": 2,
+        "mean_weekly_max": 196.64705882352942,
+        "median_weekly_max": 190.5
+      },
+      "extreme": {
+        "clear_187": 11,
+        "clear_194": 8,
+        "clear_200": 6,
+        "clear_210": 5,
+        "clear_220": 4,
+        "clear_230": 2,
+        "clear_240": 2,
+        "mean_weekly_max": 198.16588235294122,
+        "median_weekly_max": 191.62
+      },
+      "season": 2019
+    },
+    {
+      "control": {
+        "clear_187": 4,
+        "clear_194": 2,
+        "clear_200": 1,
+        "clear_210": 0,
+        "clear_220": 0,
+        "clear_230": 0,
+        "clear_240": 0,
+        "mean_weekly_max": 176.91666666666669,
+        "median_weekly_max": 179.17000000000002
+      },
+      "extreme": {
+        "clear_187": 4,
+        "clear_194": 3,
+        "clear_200": 2,
+        "clear_210": 0,
+        "clear_220": 0,
+        "clear_230": 0,
+        "clear_240": 0,
+        "mean_weekly_max": 177.6611111111111,
+        "median_weekly_max": 178.45000000000002
+      },
+      "season": 2021
+    },
+    {
+      "control": {
+        "clear_187": 6,
+        "clear_194": 4,
+        "clear_200": 3,
+        "clear_210": 0,
+        "clear_220": 0,
+        "clear_230": 0,
+        "clear_240": 0,
+        "mean_weekly_max": 178.29555555555555,
+        "median_weekly_max": 177.07
+      },
+      "extreme": {
+        "clear_187": 5,
+        "clear_194": 3,
+        "clear_200": 3,
+        "clear_210": 0,
+        "clear_220": 0,
+        "clear_230": 0,
+        "clear_240": 0,
+        "mean_weekly_max": 177.17222222222222,
+        "median_weekly_max": 174.38
+      },
+      "season": 2022
+    },
+    {
+      "control": {
+        "clear_187": 6,
+        "clear_194": 4,
+        "clear_200": 0,
+        "clear_210": 0,
+        "clear_220": 0,
+        "clear_230": 0,
+        "clear_240": 0,
+        "mean_weekly_max": 178.89999999999998,
+        "median_weekly_max": 176.31
+      },
+      "extreme": {
+        "clear_187": 6,
+        "clear_194": 4,
+        "clear_200": 0,
+        "clear_210": 0,
+        "clear_220": 0,
+        "clear_230": 0,
+        "clear_240": 0,
+        "mean_weekly_max": 178.70333333333332,
+        "median_weekly_max": 176.31
+      },
+      "season": 2023
+    },
+    {
+      "control": {
+        "clear_187": 5,
+        "clear_194": 3,
+        "clear_200": 1,
+        "clear_210": 1,
+        "clear_220": 0,
+        "clear_230": 0,
+        "clear_240": 0,
+        "mean_weekly_max": 175.08777777777777,
+        "median_weekly_max": 177.59000000000003
+      },
+      "extreme": {
+        "clear_187": 5,
+        "clear_194": 2,
+        "clear_200": 0,
+        "clear_210": 0,
+        "clear_220": 0,
+        "clear_230": 0,
+        "clear_240": 0,
+        "mean_weekly_max": 173.1588888888889,
+        "median_weekly_max": 175.41000000000003
+      },
+      "season": 2024
+    },
+    {
+      "control": {
+        "clear_187": 4,
+        "clear_194": 2,
+        "clear_200": 1,
+        "clear_210": 1,
+        "clear_220": 1,
+        "clear_230": 1,
+        "clear_240": 0,
+        "mean_weekly_max": 175.79555555555555,
+        "median_weekly_max": 175.57
+      },
+      "extreme": {
+        "clear_187": 3,
+        "clear_194": 2,
+        "clear_200": 1,
+        "clear_210": 1,
+        "clear_220": 1,
+        "clear_230": 1,
+        "clear_240": 0,
+        "mean_weekly_max": 174.15666666666667,
+        "median_weekly_max": 173.39000000000001
+      },
+      "season": 2025
+    }
+  ],
+  "candidate_table": "replay_candidates",
+  "control": {
+    "clear_187": 34,
+    "clear_194": 22,
+    "clear_200": 11,
+    "clear_210": 7,
+    "clear_220": 5,
+    "clear_230": 3,
+    "clear_240": 2,
+    "mean_weekly_max": 180.12074766355138,
+    "median_weekly_max": 178.44
+  },
+  "disposition": "keep-coverage194-selector",
+  "extreme": {
+    "clear_187": 34,
+    "clear_194": 22,
+    "clear_200": 12,
+    "clear_210": 6,
+    "clear_220": 5,
+    "clear_230": 3,
+    "clear_240": 2,
+    "mean_weekly_max": 179.66504672897196,
+    "median_weekly_max": 177.0
+  },
+  "mechanical_checks": {
+    "complete_slates": 107,
+    "entries_per_slate": 80,
+    "fixed_candidate_pool": true,
+    "nested_extreme_masks_valid": true,
+    "persisted_control_reproduced": true
+  },
+  "paired": {
+    "changed_slots_each_direction": 2208,
+    "largest_gain": 13.939999999999998,
+    "largest_loss": -24.52000000000001,
+    "losses": 21,
+    "ties": 76,
+    "wins": 10
+  },
+  "panel_run_id": "20260810-lockfix-e80-k1-role12union-8677d21",
+  "pool_oracle_identical": {
+    "clear_187": 42,
+    "clear_194": 28,
+    "clear_200": 16,
+    "clear_210": 9,
+    "clear_220": 5,
+    "clear_230": 3,
+    "clear_240": 2,
+    "mean_weekly_max": 182.17831775700935,
+    "median_weekly_max": 179.86
+  },
+  "tail_first_decision": {
+    "deltas": {
+      "210": -1,
+      "220": 0,
+      "230": 0,
+      "240": 0
+    },
+    "first_difference": 210,
+    "improves_210_plus": false,
+    "pareto_nonworse_210_plus": false,
+    "promotion_candidate": false,
+    "threshold_order": [
+      240,
+      230,
+      220,
+      210
+    ],
+    "tie_through_210": false
+  }
+}
