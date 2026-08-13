@@ -53,6 +53,8 @@ FEATURE_FIELDS = (
     "ensemble_point_0", "ensemble_point_1", "ensemble_point_2",
 )
 OUTPUT_PREFIX = "SIS_ASOE_PHASE_S_JSON="
+BOOTSTRAP_SEED = 8_132_026
+BOOTSTRAP_RESAMPLES = 2_000
 
 
 def _panel(arm: str, replicate: int, control_arm: str) -> str:
@@ -326,10 +328,34 @@ def result_report(candidates, control_arm):
             "weeks_abs_delta_at_least_10": int(delta.abs().ge(10).sum()),
             "mean_selected_overlap_of_80": float(overlap.mean()),
         })
+    aligned = pd.DataFrame({
+        f"R{replicate}": (
+            weekly[("treatment", replicate)]
+            - weekly[("control", replicate)]
+        )
+        for replicate in SEEDS
+    })
+    cluster_delta = aligned.mean(axis=1).to_numpy(dtype=float)
+    rng = np.random.default_rng(BOOTSTRAP_SEED)
+    draws = np.empty(BOOTSTRAP_RESAMPLES, dtype=float)
+    for index in range(BOOTSTRAP_RESAMPLES):
+        sample = rng.integers(0, len(cluster_delta), size=len(cluster_delta))
+        draws[index] = float(cluster_delta[sample].mean())
     return {
         "control_allocation": control_arm,
         "metrics": metrics,
         "paired_seed_diagnostics": paired,
+        "slate_clustered_bootstrap_diagnostic": {
+            "clusters": int(len(cluster_delta)),
+            "seed_replicates_averaged_within_cluster": len(SEEDS),
+            "resamples": BOOTSTRAP_RESAMPLES,
+            "seed": BOOTSTRAP_SEED,
+            "mean_delta": float(cluster_delta.mean()),
+            "ci95": [
+                float(np.quantile(draws, 0.025)),
+                float(np.quantile(draws, 0.975)),
+            ],
+        },
         "decision": frozen_decision(metrics),
     }
 

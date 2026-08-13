@@ -143,6 +143,11 @@ ties, select the higher mean across all 270 paired weekly maxima; an exact tie
 retains control. There is no average-score or per-season veto. Disclose how
 many of the five paired seeds favor each arm and a slate-clustered paired
 bootstrap as diagnostics only; they do not override the tail-first choice.
+For that bootstrap, first average the five treatment-minus-control weekly-best
+deltas within each of the 54 `(season, week)` clusters, then sample 54 clusters
+with replacement for 2,000 resamples using seed `8,132,026`; report the mean
+and percentile 95% interval. Seeds are never treated as extra historical
+weeks.
 
 If ASOE wins, it becomes the research/production conditional target law. If
 it ties or loses, retain the repaired Phase R incumbent and close only this

@@ -41,3 +41,8 @@ def test_phase_s_exact_tie_retains_control():
     result = phase_s.frozen_decision(_metrics({}, {}))
     assert result["selected_arm"] == "control"
     assert result["control_retained_on_exact_tie"]
+
+
+def test_phase_s_bootstrap_constants_are_frozen():
+    assert phase_s.BOOTSTRAP_RESAMPLES == 2_000
+    assert phase_s.BOOTSTRAP_SEED == 8_132_026
