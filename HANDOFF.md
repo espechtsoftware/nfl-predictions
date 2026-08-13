@@ -451,6 +451,24 @@ reconciliation when their findings affect the program.
   and implement G2 rather than rerunning them under multinomial. Run the
   effective-rank diagnostic only after G2 establishes the final dependence
   law.
+- G2 is now frozen before any calibration-grid or held-out treatment metric in
+  `reports/2026-08-12-g2-qb-gumbel-factor-protocol.md`. It uses one
+  QB-rooted bivariate Gumbel conditional-rank overlay for same-team WR/TE only,
+  skips ambiguous/unsupported QB team-weeks under G1's exact rule, preserves
+  every row's marginal multiset, omits unlicensed RB/slate loadings, selects
+  only `theta_WR/theta_TE` on a fixed 2019/2021/2022 score-free grid, and
+  evaluates the full G0/G1 scorecard only on held-out 2023--2025. The frozen
+  aggregate gate requires both variogram and joint-q90 Brier improvement,
+  lower G0/G1 grid error and separate QB-WR/QB-TE error reductions before any
+  exact-80 panel. The core deterministic link/inversion and exact-marginal
+  overlay are implemented in
+  `src/nfl_dfs/research/qb_gumbel_factor.py`; 24 focused G0/G1/G2/effective-
+  rank tests pass, including identity at theta one, conditional inversion,
+  exact multiset preservation, scope and upper-tail activation. No G2
+  calibration or held-out result has been computed. Next: implement the
+  immutable early-fit/held-out evaluator and transport/launcher contracts,
+  reproduce the G0/G1 control exactly, then build and run the sole score-free
+  G2 execution.
 - The operator-supplied alternative-frames review is retained unchanged at
   `reports/2026-08-12-alternative-analytical-frames.md` and reconciled in
   `reports/2026-08-12-alternative-analytical-frames-reconciliation.md`. The
