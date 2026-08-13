@@ -91,6 +91,15 @@ agent or developer:
   boolean repair also passes its five focused tests and is ready to commit;
   rerun only that analyzer after the ASOE launch, never the 12 completed seed
   replays.
+- A local outcome-free source-construction smoke found and fixed one scope
+  defect after that build began: the schedule spine initially required source
+  Week 18 even though the frozen acquisition correctly stops at Week 17.
+  Week 18 is now excluded before the source join and covered by regression.
+  The real source build yields 1,792 defense-target-week rows, 1,656 supported
+  (92.41%), 16 explicit zero alignment cells reconstructed, and supported
+  counts 406/425/415/410 in 2022/23/24/25. These are input/support statistics,
+  not target-allocation or scoring outcomes. Build a superseding image from
+  the scope-fix commit; do not launch Stage A on the earlier image.
 
 ### 2026-08-13 SIS ASOE path reopened and acquisition frozen
 

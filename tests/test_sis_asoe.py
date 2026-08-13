@@ -91,6 +91,25 @@ def test_defense_asoe_reconstructs_zero_alignment_cells_from_schedule():
     assert audit["structural_zero_cells_reconstructed"] == 1
 
 
+def test_defense_asoe_excludes_unacquired_source_week_18():
+    schedule = pd.DataFrame([
+        {"season": 2025, "week": week, "team": "ARI", "opponent": "HOU"}
+        for week in (*range(1, 5), 18)
+    ])
+    attempts = pd.DataFrame([
+        {"season": 2025, "week": week, "defense": "ARI",
+         "offense": "HOU", "alignment": alignment, "attempts": 10}
+        for week in range(1, 5) for alignment in ("wide", "slot")
+    ])
+    offense = pd.DataFrame([{
+        "season": 2025, "target_week": 5, "team": "HOU",
+        "offense_wide_share": 0.5, "offense_alignment_supported": True,
+    }])
+    output, _ = sis_asoe.build_defense_asoe(attempts, offense, schedule)
+    assert 18 not in set(output.target_week)
+    assert output.source_week_end.max() <= 7
+
+
 def test_sis_attempt_reader_accepts_vendor_zero_even_with_minimum_one(tmp_path):
     # The site can return a displayed zero after applying its serialized
     # minimum-attempt value of one; zero remains a valid opportunity count.

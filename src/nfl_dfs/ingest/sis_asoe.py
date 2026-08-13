@@ -87,6 +87,9 @@ def build_defense_asoe(
     if missing := schedule_needed - set(schedule):
         raise ValueError(f"ASOE schedule missing {sorted(missing)}")
     spine = schedule[list(schedule_needed)].drop_duplicates().copy()
+    # Week 18 was deliberately not acquired: the latest target Week 18
+    # window ends at Week 17. Do not require an out-of-scope source game.
+    spine = spine[spine.week.between(1, 17)].copy()
     if spine.duplicated(["season", "week", "team"]).any():
         raise ValueError("ASOE schedule repeats team-week")
     if attempts.duplicated(["season", "week", "defense", "alignment"]).any():
