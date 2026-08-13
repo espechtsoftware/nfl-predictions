@@ -62,6 +62,7 @@ Official sources:
 - <https://store.sportsinfosolutions.com/>
 - <https://pro.sisdatahub.com/Home/FAQ>
 - <https://www.sportsinfosolutions.com/football/>
+- <https://www.sportsinfosolutions.com/2021/04/27/datahub-pro-features-many-new-nfl-cfb-additions/>
 
 SIS is the strongest paid candidate under the operator's stated $200 ceiling.
 The operator confirmed that the trial is offered as combined NFL and college
@@ -73,6 +74,15 @@ football access rather than an NFL-only trial:
 - advanced filters explicitly include routes and coverage types;
 - the FAQ specifically describes querying the coverages WRs/QBs face and the
   coverages DBs play.
+
+SIS's football page says it covers every NFL and FBS game and offers Universal
+Player IDs, offensive/defensive/special-teams charting, participation and
+advanced analytics. Its CFB product announcement says the same filters and
+statistics are available across NFL/CFB player and team leaderboards. If those
+claims hold in current CSV exports, the college trial is valuable beyond
+coverage alone: it could supply the historical player/team foundation,
+availability context and stable identities that the repo's prospective DK
+salary/contest-only CFB collection currently lacks.
 
 Before buying, use the trial to verify all of the following rather than relying
 on marketing copy:

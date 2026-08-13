@@ -74,8 +74,11 @@ reconciliation when their findings affect the program.
   The exact smoke-export, schema and purchase checklist is tracked in
   `reports/2026-08-13-sis-datahub-trial-checklist.md`; it now includes a
   compact CFB audit of historical depth, stable identifiers, filtered exports,
-  coverage fields and update latency. This complements but does not change the
-  existing collection-only CFB scaffold or authorize a CFB model. A cheaper
+  coverage fields, injuries, line play, pace and update latency. SIS materials
+  claim every-FBS-game coverage, Universal Player IDs and consistent NFL/CFB
+  filters; the trial must verify those claims in CSVs. This complements but
+  does not change the existing collection-only CFB scaffold or authorize a CFB
+  model. A cheaper
   CoverageIQ alternative was also found, but its published terms explicitly
   forbid automated extraction and ML/AI ingestion, so it is not a model data
   source.

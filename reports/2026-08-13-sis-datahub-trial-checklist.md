@@ -65,11 +65,20 @@ trial access to learn whether SIS could supply the missing historical inputs:
 5. Record whether the 20-row trial cap also applies to college, whether CSV
    exports preserve the active filters, and when a completed Saturday's data
    becomes available.
+6. Sample the injury, blocking/pass-rush and team pace/pass-rate views if they
+   are exposed in the trial. These address CFB availability, line-play and
+   play-volume gaps that our DraftKings collection cannot reconstruct.
 
 The college audit can materially strengthen the 2027 decision even if the
 trial is too row-limited to form a training panel: it tells us whether a paid
 month could backfill history instead of waiting several seasons for our own
 collection.
+
+SIS's own product materials say it charts every NFL and FBS game, exposes
+Universal Player IDs, and aims to keep statistics and filters consistent
+across NFL/CFB player and team leaderboards. Treat those as claims for the
+trial to verify in the actual CSVs, especially stable IDs and week-level CFB
+filters.
 
 The official FAQ says trial leaderboards return only 20 rows. That is enough
 to inspect the file and feature schema, but not enough to run a historical
