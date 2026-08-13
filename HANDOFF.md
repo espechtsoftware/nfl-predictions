@@ -41,6 +41,12 @@ agent or developer:
   comparison; a fail closes only this team-ASOE law and advances the
   player-grain SIS denominator branch. Independently rerun only the repaired
   incumbent seed analyzer against its twelve completed replay tables.
+- The guarded analyzer-only repair was subsequently launched as
+  `analyze-incumbent-seed-variance-v1-qh9l8` using that same immutable image.
+  It expects the original panel code identity `8fb2585`, leaves failed
+  execution `analyze-incumbent-seed-variance-v1-kkg6q` intact, and reads the
+  twelve already-completed replay tables; no replay or score generation was
+  repeated. Poll it alongside ASOE and harvest only after terminal success.
 
 ### 2026-08-13 SIS session freshness and ASOE acquisition resumed
 
