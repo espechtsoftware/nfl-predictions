@@ -1481,6 +1481,31 @@ def run(
     proj, draws = replay_projections(
         panel, season, n_sims=n_sims,
         seed=replay_projection_seed(), return_draws=True)
+    td_rank = None
+    td_rank_source_draws = None
+    td_rank_repeat_draws = None
+    from ..research import td_ledger_rank_lineup as td_rank_module
+    if td_rank_module.treatment_enabled():
+        td_rank_module.validate_frozen_environment(season)
+        rank_frames = []
+        rank_books = []
+        for _ in range(2):
+            with td_rank_module.rank_source_environment():
+                rank_frame, rank_draws = replay_projections(
+                    panel,
+                    season,
+                    n_sims=n_sims,
+                    seed=replay_projection_seed(),
+                    return_draws=True,
+                )
+            rank_frames.append(rank_frame)
+            rank_books.append(rank_draws)
+        keys = ["season", "week", "gsis_id"]
+        if not proj[keys].equals(rank_frames[0][keys]) or not (
+            rank_frames[0][keys].equals(rank_frames[1][keys])
+        ):
+            raise ValueError("TD rank-source projection rows differ")
+        td_rank_source_draws, td_rank_repeat_draws = rank_books
     if diagnostic_only:
         log.info(
             "Schaake dependence-only run complete for season %d; "
@@ -1536,6 +1561,10 @@ def run(
         log.exception("prop market unavailable; replaying unblended")
     draws = apply_served_tail_scale(draws, proj.position)
     draws = apply_served_position_scales(draws, proj.position)
+    if td_rank_source_draws is not None:
+        draws, td_rank = td_rank_module.rank_couple_final_served(
+            draws, td_rank_source_draws, td_rank_repeat_draws)
+        log.info("TD-ledger final-served rank coupling audit=%s", td_rank)
     if role_proj is not None:
         role_draws = apply_served_tail_scale(role_draws, role_proj.position)
         role_draws = apply_served_position_scales(

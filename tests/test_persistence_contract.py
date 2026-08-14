@@ -271,6 +271,7 @@ def test_provenance_fields_present(monkeypatch):
                            REPLAY_PROJECTION_SEED="1137260708",
                            SIS_ASOE_TARGET_ALLOCATION="1",
                            SIS_ASOE_BETA="0.07771181538347656",
+                           TD_LEDGER_RANK_COUPLING="1",
                            GAME_SIM_USAGE="dirichlet",
                            DIRICHLET_K="28.246898139750336",
                            TABPFN_MARGINAL_TABLE="tabpfn_active_label_treatment_v1",
@@ -289,6 +290,7 @@ def test_provenance_fields_present(monkeypatch):
     assert "REPLAY_PROJECTION_SEED=1137260708" in df.lever_env.iloc[0]
     assert "SIS_ASOE_TARGET_ALLOCATION=1" in df.lever_env.iloc[0]
     assert "SIS_ASOE_BETA=0.07771181538347656" in df.lever_env.iloc[0]
+    assert "TD_LEDGER_RANK_COUPLING=1" in df.lever_env.iloc[0]
     assert "GAME_SIM_USAGE=dirichlet" in df.lever_env.iloc[0]
     assert "DIRICHLET_K=28.246898139750336" in df.lever_env.iloc[0]
     assert "TABPFN_MARGINAL_TABLE=tabpfn_active_label_treatment_v1" \

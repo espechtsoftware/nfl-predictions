@@ -88,6 +88,14 @@ launch manifest must pin a full code SHA and immutable full-test image digest
 built after focused exact-permutation, repeatability, control-parity and
 incompatibility tests pass.
 
+The permutation applies only to the incumbent baseline draw matrix used for
+boom generation, candidate scoring and coverage selection. The separately
+trained role-belief draw matrix is an alternate candidate generator and stays
+bit-identical between arms. Applying TD-ledger ranks to that matrix would be a
+second, score-free-unvalidated coupling and is prohibited. This binding was
+added while the upstream execution remained nonterminal and before either
+exact-80 arm existed; the launch manifest pins this final addendum hash.
+
 ## Mechanical gate before realized scoring
 
 Require all of the following before comparing realized lineup scores:

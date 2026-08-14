@@ -239,6 +239,7 @@ def effective_generation_config(env: dict | None = None) -> dict:
         "EPISTEMIC_FAMILY", "ROLE_BELIEF_FEATURES", "ROLE_BELIEF_SEED",
         "REPLAY_PROJECTION_SEED",
         "SIS_ASOE_TARGET_ALLOCATION", "SIS_ASOE_BETA",
+        "TD_LEDGER_RANK_COUPLING",
         "GEN_POOL_CAP", "GEN_POOL_CAP_MAP", "GEN_TOTAL_BUDGET",
         "REPLACEMENT_SLOTS",
     )
@@ -263,6 +264,7 @@ def effective_generation_config(env: dict | None = None) -> dict:
                            "ROLE_BELIEF_SEED",
                            "REPLAY_PROJECTION_SEED",
                            "SIS_ASOE_TARGET_ALLOCATION", "SIS_ASOE_BETA",
+                           "TD_LEDGER_RANK_COUPLING",
                            "N_GUMBEL", "GUMBEL_SEED", "GUMBEL_SCALE",
                            "GUMBEL_MODE",
                            "REPLACEMENT_SLOTS", "GEN_TOTAL_BUDGET",
@@ -1615,7 +1617,8 @@ def tail_select_lineups(
                 "STACK_BRING_BACK",
                 "STACK_QB_MIN", "TABPFN_COMPONENTS", "TABPFN_MARGINALS",
                 "TABPFN_MARGINAL_TABLE",
-                "TABPFN_MEAN", "TD_LEDGER", "TRAIN_MAX_WEEK",
+                "TABPFN_MEAN", "TD_LEDGER", "TD_LEDGER_RANK_COUPLING",
+                "TRAIN_MAX_WEEK",
                 "ROLE_BELIEF_FEATURES", "ROLE_BELIEF_SEED", "WR_BOOM",
             }
             _levers = ",".join(sorted(

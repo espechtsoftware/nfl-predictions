@@ -91,6 +91,10 @@ def test_effective_config_flags_a_deployment_override():
     assert role["epistemic_family"] == "role_draws"
     assert role["role_belief_seed"] == 91
     assert role["overrides"]["ROLE_BELIEF_FEATURES"] == "target_share_last"
+    td_rank = effective_generation_config(
+        env={"TD_LEDGER_RANK_COUPLING": "1"})
+    assert not td_rank["matches_adopted_default"]
+    assert td_rank["overrides"] == {"TD_LEDGER_RANK_COUPLING": "1"}
 
 
 # --- fair pool-size control ---------------------------------------------

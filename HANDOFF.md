@@ -20,7 +20,35 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 14:20 CDT
+## Current state — 2026-08-14 14:27 CDT
+
+### 2026-08-14 conditional TD exact-80 replay lever implemented and tested
+
+- While the upstream score-free execution remained nonterminal, the
+  preregistered exact-80 treatment was implemented as the off-by-default
+  `TD_LEDGER_RANK_COUPLING=1` replay lever. It independently regenerates the
+  frozen `TD_LEDGER=1` rank source twice, verifies aligned rows and bit-exact
+  repeatability, and then stably permutes only the incumbent final-served
+  baseline draw matrix. Every treatment row must retain its exact sorted
+  control multiset, float64 mean drift at most `1e-10`, finite output and at
+  least one changed world cell. The separately trained role-belief candidate
+  draw matrix remains common and unchanged; the addendum now explicitly
+  prohibits extending the unvalidated rank treatment to it.
+- The lever fails closed unless cache, finite K, possession simulation, served
+  schedule, five registered seed pairs, model/generator counts and role
+  features exactly match the frozen incumbent. It rejects direct TD-ledger,
+  SIS ASOE, route/coverage-tail, ensemble-world and Schaake composition. Its
+  identity is now present in both the effective research config and persisted
+  candidate `lever_env`.
+- Thirty-eight focused tests pass across the new lever, terminal score-free
+  rank coupling, generation config, candidate provenance and unchanged
+  default replay/seed behavior. Python compilation and whitespace validation
+  also pass. No exact-80 lineup has been generated or scored, and this local
+  implementation may launch only after a valid upstream score-free pass and a
+  new exact-code full-test image build.
+- `td-ledger-rank-coupling-v1-d9zdr` remains running. It completed the first
+  six visible season-book simulations by `19:25Z` and is progressing through
+  the independent repeat book. Continue polling it before any SIS job.
 
 ### 2026-08-14 Full Access restored and TD exact-80 branch preregistered
 
