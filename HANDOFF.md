@@ -20,7 +20,40 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 14:27 CDT
+## Current state — 2026-08-14 14:41 CDT
+
+### 2026-08-14 TD ledger terminally invalid; SIS run-tail build released
+
+- Cloud Run execution `td-ledger-rank-coupling-v1-d9zdr` completed cleanly in
+  22m25.91s. The strict harvester produced immutable report
+  `reports/td-ledger-rank-coupling-runs/20260814-td-ledger-rank-coupling-v1/report.json`
+  with SHA-256
+  `6342eab48c2a3b7f417f60d18a2c58111388b03a60a7917e4ad5fee3c833c0c1`.
+  Disposition is `td-ledger-rank-coupling-invalid-or-inconclusive` and
+  `exact80_licensed=false`; the conditional exact-80 branch expires and no TD
+  lineup may be generated or scored.
+- The rank mechanism itself passed its local invariants: bit-exact sorted
+  player marginals, bit-exact independent repeat, finite output, maximum mean
+  drift `7.11e-15`, 15,396 changed rows, 137,300,516 changed cells and exact
+  frame alignment. The terminal failure was the supposedly unchanged control:
+  48 G0/G1 simulated values missed the frozen `1e-12` reproduction gate, with
+  deltas as large as `+5.1384`.
+- The evidence points to a stale-reference/current-code mismatch. Frozen G0
+  and G1 were generated from 2026-08-12 commits `ee94725` and `64e0428`; the
+  2026-08-13 PIT repair `26e73c5` changed finite-Dirichlet season replay from a
+  franchise-wide season allocation pool to correct `(game, team)` units. The
+  terminal run used that repaired path, which materially changes dependence.
+  This enters the forensic chronology but does not license a fourth TD repair.
+  Full result and diagnostic deltas are in
+  `reports/2026-08-14-td-ledger-rank-coupling-result.md`.
+- With TD terminal, exact-commit GPU Cloud Build
+  `039902ab-0f13-4a66-b0d7-9a657444199a` was submitted from a clean
+  `git archive` of full SIS run-tail SHA
+  `23fdbba47590af3ba7594ae22bdbf2e764d86389`, targeting
+  `tabpfn-sis-rb-runtail:23fdbba`. Poll the build; on success resolve its
+  immutable digest, launch the write-once control/treatment GPU cache pair,
+  poll and run `scripts/cloud_finish_tabpfn_sis_rb_runtail.sh` with that full
+  SHA. Do not launch the expired TD exact-80 implementation.
 
 ### 2026-08-14 conditional TD exact-80 replay lever implemented and tested
 
