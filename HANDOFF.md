@@ -38,6 +38,17 @@ agent or developer:
   `scripts/cloud_finish_td_competitive_wr_reference.sh`; launch Stage T only
   if the strict disposition is exactly
   `td-competitive-wr-reference-passes` and all reference invariants pass.
+- While Stage R remained nonterminal and before any reference or treatment
+  result was read, the frozen exact-80 addendum's replay treatment hook was
+  implemented. `TD_COMPETITIVE_WR_ALLOCATION=1` is fail-closed on the two
+  score-free report hashes, protocol hash, explicit license, incumbent stack
+  and one of the five frozen seed pairs. It generates the independent TD rank
+  source twice, applies only the centered competitive-WR final-served
+  permutation, and enforces exact marginals, deterministic output and
+  bit-exact ineligible rows before candidates can be generated. Twenty-seven
+  focused TD reference/treatment/lineup tests pass, plus Python compilation
+  and whitespace checks. This implementation does not license or launch any
+  exact-80 cell; the Stage R and Stage T conditions remain mandatory.
 
 ### 2026-08-14 SIS run-tail validly fails; TD full build queued
 

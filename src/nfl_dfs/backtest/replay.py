@@ -1485,12 +1485,22 @@ def run(
     td_rank_source_draws = None
     td_rank_repeat_draws = None
     from ..research import td_ledger_rank_lineup as td_rank_module
-    if td_rank_module.treatment_enabled():
-        td_rank_module.validate_frozen_environment(season)
+    from ..research import td_competitive_wr_lineup as td_comp_wr_module
+    td_rank_enabled = td_rank_module.treatment_enabled()
+    td_comp_wr_enabled = td_comp_wr_module.treatment_enabled()
+    if td_rank_enabled and td_comp_wr_enabled:
+        raise ValueError("global TD ranks and competitive-WR cannot compose")
+    active_td_module = None
+    if td_rank_enabled:
+        active_td_module = td_rank_module
+    elif td_comp_wr_enabled:
+        active_td_module = td_comp_wr_module
+    if active_td_module is not None:
+        active_td_module.validate_frozen_environment(season)
         rank_frames = []
         rank_books = []
         for _ in range(2):
-            with td_rank_module.rank_source_environment():
+            with active_td_module.rank_source_environment():
                 rank_frame, rank_draws = replay_projections(
                     panel,
                     season,
@@ -1562,9 +1572,24 @@ def run(
     draws = apply_served_tail_scale(draws, proj.position)
     draws = apply_served_position_scales(draws, proj.position)
     if td_rank_source_draws is not None:
-        draws, td_rank = td_rank_module.rank_couple_final_served(
-            draws, td_rank_source_draws, td_rank_repeat_draws)
-        log.info("TD-ledger final-served rank coupling audit=%s", td_rank)
+        if td_comp_wr_enabled:
+            allocation_frame = proj.copy()
+            allocation_frame["mean_projection"] = draws.mean(
+                axis=1, dtype=np.float64,
+            )
+            draws, td_rank = td_comp_wr_module.allocate_final_served(
+                draws,
+                td_rank_source_draws,
+                td_rank_repeat_draws,
+                allocation_frame,
+            )
+            log.info(
+                "TD competitive-WR final-served allocation audit=%s", td_rank,
+            )
+        else:
+            draws, td_rank = td_rank_module.rank_couple_final_served(
+                draws, td_rank_source_draws, td_rank_repeat_draws)
+            log.info("TD-ledger final-served rank coupling audit=%s", td_rank)
     if role_proj is not None:
         role_draws = apply_served_tail_scale(role_draws, role_proj.position)
         role_draws = apply_served_position_scales(
