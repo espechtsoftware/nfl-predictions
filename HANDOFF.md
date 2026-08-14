@@ -117,11 +117,11 @@ agent or developer:
   This supersedes `e6ba5e2...` for Phase S because it contains the prospective
   seed-noise, proper-score and fixed-budget factorial amendments. Use code
   identity `4d6f5cf` when Phase S launches.
-- Phase R remains at 28 clean successes plus active identical R4/2024 and
-  R4/2025 infrastructure retries `replay-gtrk4-2024-rdpd4` and
-  `replay-gtrk4-2025-66fnq`. Continue status-only polling; after both cleanly
-  succeed, run the guarded Phase R finisher/harvester and launch Phase S on the
-  digest above.
+- Phase R now has 29 clean successes: identical R4/2024 infrastructure retry
+  `replay-gtrk4-2024-rdpd4` completed successfully. R4/2025 retry
+  `replay-gtrk4-2025-66fnq` remains active. Continue status-only polling;
+  after it cleanly succeeds, run the guarded Phase R finisher/harvester and
+  launch Phase S on the digest above.
 
 ### 2026-08-13 multi-seed implementation review incorporated prospectively
 
