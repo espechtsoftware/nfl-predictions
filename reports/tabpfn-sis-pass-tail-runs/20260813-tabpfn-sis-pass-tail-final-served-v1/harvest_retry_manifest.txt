@@ -1,0 +1,3 @@
+harvest_retry_image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:018f0def471ba3f0a304cafb77e301c35e43d51658798f64a9ec85c95751d358
+harvest_retry_code_sha=f92ce05
+harvest_retry_reason=cloud_logging_text_entry_truncation

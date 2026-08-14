@@ -53,8 +53,11 @@ agent or developer:
   `37/21/12/3`. Average weekly best is `173.82163` versus `173.56993`.
   Multinomial has more 187 weeks (`62` versus `58`), but that is downstream
   of every registered higher threshold and cannot override the decision.
-  Launch Phase S on selected control law `k` using the already validated
-  `4d6f5cf` analyzer image digest recorded below.
+  Phase S is launching on selected control law `k` using the already validated
+  `4d6f5cf` image digest recorded below. Its mandatory 32-GiB smoke execution
+  is `replay-sisasoe-phase-s-smoke-lwh7r`; launcher session must be allowed to
+  continue so it can release the 30 registered cells only after the smoke
+  succeeds.
 
 ### 2026-08-13 SIS pass-tail caches validated; frozen score gate running
 
@@ -93,8 +96,12 @@ agent or developer:
 - The evaluator now emits the same deterministic JSON as zlib-compressed,
   base64, numbered chunks capped at 80,000 characters, and the finish script
   verifies complete framing before decoding. A round-trip regression test and
-  the full focused pass-tail/replay suite pass. Build an exact-commit image,
-  run the one transport-only harvest retry, then harvest the registered report.
+  the full focused pass-tail/replay suite pass. Commit `f92ce05` exact Cloud
+  Build `5fc982be-181a-4ecf-b34b-31e73ff44bd5` passed the full suite and
+  published digest
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:018f0def471ba3f0a304cafb77e301c35e43d51658798f64a9ec85c95751d358`.
+  Transport-only execution `tabpfn-sis-pass-tail-final-served-v1-c7dsz` is
+  active; poll it, run the ordinary finish script, and record the frozen gate.
 
 ### 2026-08-13 SIS pass-tail cache and score gate implemented prospectively
 
