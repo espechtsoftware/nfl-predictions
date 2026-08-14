@@ -26,6 +26,7 @@ import gzip
 import hashlib
 import json
 import math
+import re
 import sys
 
 lines = list(open(sys.argv[1], encoding="utf-8"))
@@ -82,6 +83,13 @@ if report.get("disposition") not in valid:
 if bool(report.get("treatment_licensed")) != (
         report.get("disposition") == "td-competitive-wr-reference-passes"):
     raise SystemExit("ABORT: reference license differs")
+score_content = json.dumps(
+    report.get("score"), sort_keys=True, separators=(",", ":"),
+    allow_nan=False,
+).encode()
+if not re.fullmatch(r"[0-9a-f]{64}", report.get("score_sha256", "")) or \
+        hashlib.sha256(score_content).hexdigest() != report.get("score_sha256"):
+    raise SystemExit("ABORT: reference score fingerprint differs")
 if report.get("disposition") == "td-competitive-wr-reference-passes" and \
         not report.get("invariants", {}).get("passes"):
     raise SystemExit("ABORT: passing reference lacks passing invariants")

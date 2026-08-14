@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 from hashlib import sha256
 import json
 import math
@@ -28,10 +29,6 @@ PRIOR_RELATIVE_PATH = (
     "td-ledger-rank-coupling-runs/"
     "20260814-td-ledger-rank-coupling-v1/report.json"
 )
-REFERENCE_RELATIVE_PATH = (
-    "td-competitive-wr-runs/20260814-td-competitive-wr-v1/"
-    "reference/report.json"
-)
 UNCHANGED_G1_RELATIONSHIPS = ("QB_TE", "QB_RB", "RB_RB")
 UNCHANGED_G0_CELLS = ("qb_te", "qb_rb", "rb_rb")
 
@@ -42,6 +39,46 @@ def _runtime_identity(run_environment: str, code_environment: str) -> dict:
     if not run_id or not re.fullmatch(r"[0-9a-f]{40}", code_sha):
         raise ValueError("competitive-WR immutable runtime identity is missing")
     return {"run_id": run_id, "code_sha": code_sha}
+
+
+def _canonical_sha256(value: Any) -> str:
+    content = json.dumps(
+        value, sort_keys=True, separators=(",", ":"), allow_nan=False,
+    ).encode()
+    return sha256(content).hexdigest()
+
+
+def _load_reference_attestation(panel_id: str) -> dict:
+    encoded = os.environ.get("TD_COMP_WR_REFERENCE_ATTESTATION_B64", "").strip()
+    expected = os.environ.get(
+        "TD_COMP_WR_REFERENCE_ATTESTATION_SHA256", "",
+    ).strip()
+    if not encoded or not re.fullmatch(r"[0-9a-f]{64}", expected):
+        raise ValueError("competitive-WR reference attestation is missing")
+    try:
+        content = base64.b64decode(encoded, validate=True)
+        attestation = json.loads(content)
+    except Exception as exc:
+        raise ValueError("competitive-WR reference attestation is invalid") from exc
+    if sha256(content).hexdigest() != expected:
+        raise ValueError("competitive-WR reference attestation hash differs")
+    expected_identity = _runtime_identity(
+        "TD_COMP_WR_REFERENCE_RUN_ID", "TD_COMP_WR_REFERENCE_CODE_SHA",
+    )
+    expected_report_sha = os.environ.get(
+        "TD_COMP_WR_REFERENCE_REPORT_SHA256", "",
+    ).strip()
+    if (
+        attestation.get("version") != "td-competitive-wr-reference-v1"
+        or attestation.get("disposition") != "td-competitive-wr-reference-passes"
+        or attestation.get("treatment_licensed") is not True
+        or attestation.get("panel") != panel_id
+        or attestation.get("run_identity") != expected_identity
+        or attestation.get("report_sha256") != expected_report_sha
+        or not re.fullmatch(r"[0-9a-f]{64}", attestation.get("score_sha256", ""))
+    ):
+        raise ValueError("competitive-WR reference attestation differs")
+    return attestation
 
 
 def _load_hashed_json(
@@ -269,6 +306,7 @@ def run_reference(panel_id: str) -> dict:
         "run_identity": runtime_identity,
         "prior_treatment_and_disposition_ignored": True,
         "reference_tolerance": FLOAT_TOLERANCE,
+        "score_sha256": _canonical_sha256(score),
         "score": score,
         "invariants": invariants,
         "disposition": disposition,
@@ -463,23 +501,8 @@ def run_treatment(panel_id: str) -> dict:
     expected_panel = os.environ.get("TD_COMP_WR_PANEL_ID", "").strip()
     if not expected_panel or panel_id != expected_panel:
         raise ValueError("competitive-WR treatment panel differs")
-    root = Path(os.environ.get("TD_COMP_WR_REFERENCE_ROOT", "/app/reports"))
-    reference = _load_hashed_json(
-        root / REFERENCE_RELATIVE_PATH,
-        "TD_COMP_WR_REFERENCE_REPORT_SHA256",
-        label="competitive-WR treatment",
-    )
-    expected_reference_identity = _runtime_identity(
-        "TD_COMP_WR_REFERENCE_RUN_ID", "TD_COMP_WR_REFERENCE_CODE_SHA",
-    )
-    if (
-        reference.get("version") != "td-competitive-wr-reference-v1"
-        or reference.get("disposition") != "td-competitive-wr-reference-passes"
-        or reference.get("treatment_licensed") is not True
-        or reference.get("panel") != panel_id
-        or reference.get("run_identity") != expected_reference_identity
-    ):
-        raise ValueError("competitive-WR clean reference does not license treatment")
+    reference = _load_reference_attestation(panel_id)
+    expected_reference_identity = reference["run_identity"]
 
     games = g2._load_games()
     control_frame, control_draws, control_terminal = g1._load_terminal_book(panel_id)
@@ -503,8 +526,13 @@ def run_treatment(panel_id: str) -> dict:
     )
 
     control = g2.score_heldout(control_frame, control_draws, games)
-    reference_failures = nested_reproduction_failures(
-        control, reference["score"], path="control",
+    observed_score_sha = _canonical_sha256(control)
+    reference_failures = (
+        [] if observed_score_sha == reference["score_sha256"]
+        else [
+            "control:score_sha256:"
+            f"observed={observed_score_sha}:expected={reference['score_sha256']}"
+        ]
     )
     treatment_draws, allocation_audit, eligible = apply_competitive_wr_allocation(
         control_draws, source_draws, control_frame,
@@ -595,6 +623,7 @@ def run_treatment(panel_id: str) -> dict:
         "panel": panel_id,
         "adaptive_retrospective": True,
         "reference_identity": expected_reference_identity,
+        "reference_attestation": reference,
         "intervention": {
             "changed_positions": ["WR"],
             "rank_source": {"TD_LEDGER": "1", "td_alloc_k": None},

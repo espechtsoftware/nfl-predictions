@@ -45,6 +45,7 @@ active = selection(sys.argv[1])
 usage = selection(sys.argv[2])
 g1 = json.load(open(sys.argv[3], encoding="utf-8"))
 reference = json.load(open(sys.argv[4], encoding="utf-8"))
+reference_bytes = open(sys.argv[4], "rb").read()
 reference_manifest = selection(sys.argv[5])
 if reference.get("disposition") != "td-competitive-wr-reference-passes" or \
         not reference.get("treatment_licensed") or \
@@ -65,6 +66,10 @@ if reference.get("run_identity") != {
         "code_sha": reference_manifest.get("code_sha"),
 }:
     raise SystemExit("ABORT: competitive-WR reference run/code identity differs")
+score_sha = reference.get("score_sha256", "")
+if len(score_sha) != 64 or any(
+        value not in "0123456789abcdef" for value in score_sha):
+    raise SystemExit("ABORT: competitive-WR reference score fingerprint differs")
 if reference_manifest.get("cache_table") != active.get("cache_table") or \
         reference_manifest.get("dirichlet_k") != active.get("selected_k"):
     raise SystemExit("ABORT: competitive-WR reference runtime differs")
@@ -82,6 +87,21 @@ print(f"k={active['selected_k']}")
 print(f"schedule_b64={base64.b64encode(payload).decode()}")
 print(f"reference_run_id={reference['run_identity']['run_id']}")
 print(f"reference_code_sha={reference['run_identity']['code_sha']}")
+attestation = {
+    "version": reference["version"],
+    "panel": reference["panel"],
+    "disposition": reference["disposition"],
+    "treatment_licensed": reference["treatment_licensed"],
+    "run_identity": reference["run_identity"],
+    "report_sha256": hashlib.sha256(reference_bytes).hexdigest(),
+    "score_sha256": score_sha,
+}
+attestation_bytes = json.dumps(
+    attestation, sort_keys=True, separators=(",", ":"),
+).encode()
+print(f"reference_score_sha256={score_sha}")
+print(f"reference_attestation_b64={base64.b64encode(attestation_bytes).decode()}")
+print(f"reference_attestation_sha256={hashlib.sha256(attestation_bytes).hexdigest()}")
 PY
 )
 
@@ -97,6 +117,8 @@ printf '%s\n' \
   "reference_manifest_sha256=$(sha256sum "$REFERENCE/manifest.txt" | awk '{print $1}')" \
   "reference_run_id=${resolved[reference_run_id]}" \
   "reference_code_sha=${resolved[reference_code_sha]}" \
+  "reference_score_sha256=${resolved[reference_score_sha256]}" \
+  "reference_attestation_sha256=${resolved[reference_attestation_sha256]}" \
   "g1_report_sha256=$(sha256sum "$G1/report.json" | awk '{print $1}')" \
   "g1_manifest_sha256=$(sha256sum "$G1/manifest.txt" | awk '{print $1}')" \
   "active_label_selection_sha256=$(sha256sum "$ACTIVE" | awk '{print $1}')" \
@@ -114,6 +136,8 @@ ENVS="$ENVS,TD_COMP_WR_PANEL_ID=${resolved[panel]}"
 ENVS="$ENVS,TD_COMP_WR_REFERENCE_REPORT_SHA256=$REFERENCE_SHA"
 ENVS="$ENVS,TD_COMP_WR_REFERENCE_RUN_ID=${resolved[reference_run_id]}"
 ENVS="$ENVS,TD_COMP_WR_REFERENCE_CODE_SHA=${resolved[reference_code_sha]}"
+ENVS="$ENVS,TD_COMP_WR_REFERENCE_ATTESTATION_B64=${resolved[reference_attestation_b64]}"
+ENVS="$ENVS,TD_COMP_WR_REFERENCE_ATTESTATION_SHA256=${resolved[reference_attestation_sha256]}"
 ENVS="$ENVS,G1_PANEL_ID=${resolved[panel]},G1_CACHE_TABLE=${resolved[cache]}"
 ENVS="$ENVS,G1_POSITION_SCHEDULE_B64=${resolved[schedule_b64]}"
 ENVS="$ENVS,TABPFN_ACCEPTED_USAGE_LAW=dirichlet"

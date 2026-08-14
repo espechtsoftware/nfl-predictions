@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 15:32 CDT
+## Current state — 2026-08-14 15:34 CDT
 
 ### 2026-08-14 SIS run-tail validly fails; TD full build queued
 
@@ -33,6 +33,13 @@ agent or developer:
   ratio was `1.005691`, above the required `<1`. Mean preservation passed and
   point MAE improved slightly, but the registered extreme-tail gate failed.
   Full details are in `reports/2026-08-14-sis-run-tail-final-served-result.md`.
+- Review `reports/2026-08-14-sis-run-tail-result-review.md` confirms both CRPS
+  and q99 adverse intervals exclude zero and elevates the finding from one
+  field to its proper channel scope. SIS marginal-feature work is closed on
+  this historical panel; do not run the lower-priority pass-rush,
+  catchable/on-target or unretrieved receiving/player-grain fields merely as
+  more marginal columns. SIS allocation/copula mechanisms remain distinct and
+  ASOE is unaffected.
 - The conditional five-seed SIS exact-80 branch expires without launching any
   lineup cells. Its exact-commit build
   `0a149a8b-f1d8-4bec-b496-42fbb2f7b007` succeeded with immutable digest
@@ -41,9 +48,14 @@ agent or developer:
 - New TD competitive-WR implementation is pushed as full commit
   `57c5a5ab60c6ddba7805d5b99ad80c325d3c36cc`. Its exact archived full-test
   Cloud Build is `c0781ece-1086-4e9c-9ea9-a7a8b24a7e4e`, targeting
-  `nfl-dfs:td-comp-wr-57c5a5a`; it is queued. On success, resolve the immutable
-  digest and launch only the clean Stage R reference. Stage T remains
-  prohibited unless strict Stage R disposition passes.
+  `nfl-dfs:td-comp-wr-57c5a5a`. Before any Stage R output, deployment review
+  found that its future harvested reference report would not exist inside the
+  pre-result image at Stage T. That build is superseded even if tests pass; do
+  not launch it. The frozen code now emits a canonical Stage R score SHA and
+  Stage T consumes a small hash-verified attestation carrying run ID, code SHA,
+  report SHA and score SHA. Commit this plumbing and submit a replacement exact
+  build, then launch only Stage R. Stage T remains prohibited unless strict
+  Stage R disposition passes.
 
 ### 2026-08-14 new TD shape-aware mechanism frozen pre-result
 
@@ -72,10 +84,10 @@ agent or developer:
   composable if the WR arm passes.
 - Both Stage R and Stage T commands, deterministic centered-rank mechanism,
   frozen gate, strict harvesters and immutable GCP launchers are implemented.
-  Fifteen focused TD tests pass, along with Python compilation, shell syntax
-  and whitespace checks. Commit these files, run a full-test immutable image
-  build, then launch only Stage R. Stage T remains conditional on a strictly
-  harvested Stage R pass.
+  Sixteen focused TD tests pass, including exact reference-attestation binding,
+  along with Python compilation, shell syntax and whitespace checks. Run the
+  replacement full-test immutable image build, then launch only Stage R. Stage
+  T remains conditional on a strictly harvested Stage R pass.
 
 ### 2026-08-14 SIS conditional exact-80 harness implemented pre-result
 

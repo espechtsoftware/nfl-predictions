@@ -41,3 +41,20 @@ build `0a149a8b-f1d8-4bec-b496-42fbb2f7b007` and its immutable digest are retain
 as validation evidence only. No production cache or served schedule changes.
 The SIS run-tail marginal mechanism is closed on this historical panel; its
 source features remain available for future genuinely distinct mechanisms.
+
+## Channel-level consequence
+
+Review in `2026-08-14-sis-run-tail-result-review.md` establishes the broader,
+properly scoped inference. Boom%/Bust% was the most distinct and most
+tail-shaped remaining SIS marginal candidate, yet it reproduced the prior
+signature with statistically adverse CRPS and q99 intervals: a small point-MAE
+gain paired with worse served tails. This removes the remaining objection that
+earlier SIS marginal failures merely used the wrong kind of field.
+
+Therefore the **SIS marginal-feature channel is closed on this historical
+panel**. Do not proceed to lower-priority pass-rush, catchable/on-target, or
+unretrieved receiving/player-grain fields merely as additional TabPFN marginal
+columns. This does not close SIS data used in a genuinely different
+allocation/copula mechanism. The adopted ASOE allocation work is unaffected,
+and a future run-tail field used to modulate allocation concentration would
+require its own mechanism protocol rather than inherit this marginal result.

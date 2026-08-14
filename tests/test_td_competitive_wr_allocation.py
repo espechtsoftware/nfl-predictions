@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import base64
 import copy
+from hashlib import sha256
+import json
 
 import numpy as np
 import pandas as pd
@@ -191,3 +194,37 @@ def test_multiplicity_ge4_is_reported_but_not_gated():
     assert not diagnostic["supported"]
     assert diagnostic["realized_events"] == 7
     assert diagnostic["movement"] == "toward-realized"
+
+
+def test_reference_attestation_binds_run_code_report_and_score(monkeypatch):
+    run_id = "20260814-td-competitive-wr-v1"
+    code_sha = "a" * 40
+    report_sha = "b" * 64
+    attestation = {
+        "version": "td-competitive-wr-reference-v1",
+        "panel": "panel-1",
+        "disposition": "td-competitive-wr-reference-passes",
+        "treatment_licensed": True,
+        "run_identity": {"run_id": run_id, "code_sha": code_sha},
+        "report_sha256": report_sha,
+        "score_sha256": "c" * 64,
+    }
+    content = json.dumps(
+        attestation, sort_keys=True, separators=(",", ":"),
+    ).encode()
+    monkeypatch.setenv(
+        "TD_COMP_WR_REFERENCE_ATTESTATION_B64",
+        base64.b64encode(content).decode(),
+    )
+    monkeypatch.setenv(
+        "TD_COMP_WR_REFERENCE_ATTESTATION_SHA256", sha256(content).hexdigest(),
+    )
+    monkeypatch.setenv("TD_COMP_WR_REFERENCE_RUN_ID", run_id)
+    monkeypatch.setenv("TD_COMP_WR_REFERENCE_CODE_SHA", code_sha)
+    monkeypatch.setenv("TD_COMP_WR_REFERENCE_REPORT_SHA256", report_sha)
+
+    assert allocation._load_reference_attestation("panel-1") == attestation
+
+    monkeypatch.setenv("TD_COMP_WR_REFERENCE_REPORT_SHA256", "d" * 64)
+    with np.testing.assert_raises_regex(ValueError, "attestation differs"):
+        allocation._load_reference_attestation("panel-1")

@@ -60,15 +60,21 @@ That prior report's treatment and invalid disposition are not evidence for
 this arm. Its repaired current-control payload is used only as a frozen
 cross-check. A passing Stage R report becomes the sole clean comparator for
 Stage T. Failure is terminally invalid/inconclusive and prohibits Stage T.
-The Stage R report must carry its immutable run ID and full 40-character code
-SHA, and those values must match its launch manifest.
+The Stage R report must carry its immutable run ID, full 40-character code SHA
+and canonical exact score-book SHA-256, and those values must match its launch
+manifest.
 
 ## Stage T: sole centered competitive allocation
 
 Stage T must pin the passing Stage R report and manifest hashes plus the same
 immutable cache, schedule, panel, usage, blend, world count and seed. Its
 launcher and runtime must assert that the report's Stage R run ID and full
-code SHA equal the values in the pinned Stage R manifest. It
+code SHA equal the values in the pinned Stage R manifest. The launcher derives
+a compact canonical attestation from the strictly harvested report containing
+the report SHA-256, score-book SHA-256, identity, panel, disposition and
+license. Stage T must verify the attestation hash and reproduce the exact Stage
+R score-book SHA-256. This transports the clean reference into the already
+frozen image without rebuilding scientific code after seeing Stage R output. It
 generates four aligned books: incumbent control and its independent repeat,
 and `TD_LEDGER=1` rank source and its independent repeat. The TD-ledger source
 uses `td_alloc_k=None`; no TD value is copied into output.

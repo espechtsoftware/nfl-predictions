@@ -70,6 +70,11 @@ if report.get("reference_identity") != {
         "code_sha": manifest.get("reference_code_sha"),
 }:
     raise SystemExit("ABORT: allocation reference identity differs")
+attestation = report.get("reference_attestation", {})
+if attestation.get("run_identity") != report.get("reference_identity") or \
+        attestation.get("report_sha256") != manifest.get("reference_report_sha256") or \
+        attestation.get("score_sha256") != manifest.get("reference_score_sha256"):
+    raise SystemExit("ABORT: allocation reference attestation differs")
 expected = {
     "changed_positions": ["WR"],
     "rank_source": {"TD_LEDGER": "1", "td_alloc_k": None},
