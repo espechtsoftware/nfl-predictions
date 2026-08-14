@@ -39,7 +39,11 @@ agent or developer:
   lineup is launched unless final-served disposition and every q95/q99,
   mechanical, PIT and mean gate pass. Build a full-test immutable image from
   this pre-result commit while the score-free job runs so a pass can proceed
-  without a post-result implementation choice.
+  without a post-result implementation choice. Exact-commit Cloud Build
+  `0a149a8b-f1d8-4bec-b496-42fbb2f7b007` is now working from full commit
+  `148f23f155ae5e921118dea03d00722136ab9b23`, targeting
+  `nfl-dfs:sis-runtail-e80-148f23f`. Poll it and retain only a successful
+  immutable digest.
 
 ### 2026-08-14 TD closure strengthened; SIS RB run-tail caches validate
 
