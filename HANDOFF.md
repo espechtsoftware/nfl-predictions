@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 19:13 CDT
+## Current state — 2026-08-14 19:21 CDT
 
 ### 2026-08-14 final-forensic audit expanded; decision-structure queue registered
 
@@ -125,13 +125,21 @@ agent or developer:
   `470d336085c04ffcca5ae2e28d42deb3fb3f8037f195855845f49e7975a86776`;
   file SHA-256 is
   `966bec4d2f72a36d7fcd4d580263c06dfa44b955a4d8ea0d6c5315e26a632443`.
-- Next concrete action: commit/push the repaired pre-outcome manifest, upload
-  it under a new create-only GCS object while retaining the invalid original,
-  cloud-compare it to the exact panel fingerprints, then allow exactly one
-  repaired execution. Download and validate all nine create-only outputs plus
-  the four WRITE_EMPTY corpus tables, write the result/closure report and
-  retain the corpus for independent review. Delete it before the first 2026
-  production build.
+- Repair commit `d47736e` is pushed. The corrected file is uploaded under new
+  create-only object `freeze_manifest-repair1.json` and its bytes match the
+  tracked file; the invalid original object remains retained. Exact-image,
+  exact-service-account outcome-free comparison execution
+  `final-forensic-prelock-compare-v1-ndgwj` completed successfully and logged
+  `PRELOCK_EQUAL_PASS` across all three panel scopes.
+- The single repaired outcome-facing execution is now
+  `final-preseason-forensic-v1-tn6j2`. It uses the corrected manifest and a new
+  create-only `outputs-repair1` prefix; image, code SHA, resources, retry count,
+  evidence scopes and warehouse schemas are unchanged.
+- Next concrete action: poll `final-preseason-forensic-v1-tn6j2` to terminal
+  state without launching another execution. Download and validate all nine
+  create-only outputs plus the four WRITE_EMPTY corpus tables, write the
+  result/closure report and retain the corpus for independent review. Delete
+  it before the first 2026 production build.
 
 ### 2026-08-14 seed executions reverified; TE prerequisite closes queue
 
