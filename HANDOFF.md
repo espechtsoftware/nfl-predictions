@@ -20,12 +20,46 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 00:54 CDT
+## Current state — 2026-08-14 01:15 CDT
+
+### 2026-08-14 Phase S at 11 successes; future replay startup hardened
+
+- Branch is `main` at pushed commit `d2f95c7`; the ledger and infrastructure
+  hardening described here travel together in the next pushed commit. The
+  bounded Phase S recovery has reached 11 clean successes, ten active cells
+  and nine queued failures. The latest controlled replacement is treatment
+  R2/2024 execution `replay-sisasoet2-2024-p4zpk`. The releaser was stopped
+  only to make this ledger milestone atomic; status-only monitor session
+  `72912` remains active. Restart the bounded releaser immediately after the
+  commit and continue at the ten-cell cap.
+- Exact-commit Cloud Build `b2f7fdd4-3eac-4d4c-89ee-cde17efd991f` succeeded
+  and published the pass-tail audit image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:1940ccc6aa6969111ce89abf7b16719c150dbf97c9e8aa8d151784f963890c1a`.
+  This is an audit/harvest image for the already-frozen `d2f95c7` code; the
+  conditional exact-80 generation image remains the preregistered `f92ce05`
+  digest recorded below.
+- The remaining low-risk recommendations from the Phase S infrastructure
+  review are implemented for future images without changing any current
+  Phase S cell: `query_df` retries only BigQuery 429/500/502/503/504 read
+  failures, starts a fresh query/download each time, uses bounded 2/4/8-second
+  backoff and exposes no partial DataFrame. Replay now verifies fixed
+  NumPy/SciPy solve, CDF and checksum results before importing the expensive
+  replay stack. Authentication, SQL, schema and permission errors still fail
+  immediately. Focused tests, Python compilation and whitespace validation
+  pass; run the complete suite before committing.
+- True per-slate resumability is deliberately not claimed yet. The current
+  candidate/artifact writer is per slate, but the human-review lineup table is
+  written only after the season engine returns. A correct resume path must
+  validate all candidate, feature and GCS stores and reconstruct a complete
+  lineup table rather than merely skipping weeks. Keep the partial-output
+  cleanup procedure for the immutable Phase S/pass-tail images and implement
+  this redesign before a later multi-cell scientific panel.
 
 ### 2026-08-14 Phase S bounded recovery advancing; pass-tail exact-80 frozen
 
-- Branch is `main`, based on pushed commit `b286de4`; the implementation and
-  handoff milestone described here travel together in the next pushed commit.
+- Branch was `main`, based on pushed commit `b286de4`; this historical
+  milestone and its exact-80 implementation were subsequently pushed as
+  `d2f95c7`.
   Phase S's scientific arms, seeds and decision law remain unchanged and no
   incomplete-panel outcome has been used.
 - The bounded controller reduced the current ledger from 18 failed cells to

@@ -88,3 +88,28 @@ three candidate stores were then verified empty, the cleanup was recorded in
 `partial_infrastructure_recoveries.txt`, and the cell was added to the bounded
 retry queue. No outcome was used in making that classification or recovery
 decision.
+
+## Future-image read and startup hardening
+
+The two small protections recommended in sections 4.2 and 4.4 are now in the
+source tree for future builds; they do not alter the immutable image or any
+execution in the current Phase S panel.
+
+- `bq.query_df` retries only transport/server read failures represented by
+  BigQuery 429/500/502/503/504 exceptions. It starts a new query and complete
+  DataFrame download on every attempt, backs off for 2/4/8 seconds, and stops
+  after four attempts. Invalid queries, authentication, permission and schema
+  errors still fail immediately.
+- The replay CLI runs a fixed NumPy/SciPy linear solve, normal-CDF vector and
+  checksum before importing the replay engine. Any import, execution,
+  non-finite or tolerance failure aborts the worker with an explicit numeric
+  stack self-check error.
+
+Per-slate resumability remains the nontrivial open recommendation. Candidate,
+feature and score-artifact persistence is already per slate, but the replay's
+human-review lineup table is written only when the full season engine returns.
+A safe implementation must verify all three persisted stores for a checkpoint
+and reconstruct one complete lineup table; simply skipping weeks would create
+an incomplete secondary artifact. Until that redesign is frozen and tested,
+partial immutable-panel output is cleaned at exact panel/season scope before a
+byte-identical retry.

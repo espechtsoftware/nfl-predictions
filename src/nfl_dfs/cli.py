@@ -754,6 +754,9 @@ def main(argv: list[str] | None = None) -> None:
 
         pricing_lag.run(args.season, args.week)
     elif args.command == "replay":
+        from .ops.runtime_selfcheck import verify_numeric_stack
+
+        verify_numeric_stack()
         from .backtest import payout, replay
 
         contest = payout.gpp() if args.contest == "gpp" else payout.double_up()

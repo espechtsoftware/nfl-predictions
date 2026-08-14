@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 import re
+import time
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -20,6 +21,9 @@ if TYPE_CHECKING:  # pragma: no cover
     from google.cloud import bigquery
 
 log = logging.getLogger(__name__)
+
+_QUERY_DF_MAX_ATTEMPTS = 4
+_QUERY_DF_RETRY_DELAYS = (2.0, 4.0, 8.0)
 
 def _sql_dir() -> Path:
     """sql/ lives at the repo root, NOT inside the package. Two layouts:
@@ -79,7 +83,44 @@ def query_df(sql: str, params: dict[str, Any] | None = None) -> pd.DataFrame:
         job_config = bigquery.QueryJobConfig(
             query_parameters=[_to_bq_param(k, v) for k, v in params.items()]
         )
-    return client().query(sql, job_config=job_config).to_dataframe()
+    for attempt in range(1, _QUERY_DF_MAX_ATTEMPTS + 1):
+        try:
+            # Start a new query/download on every attempt. A failed BigQuery
+            # Storage stream is not safe to continue from an unknown row
+            # boundary, whereas rerunning a SELECT produces one complete
+            # DataFrame or raises without exposing a partial frame.
+            return client().query(sql, job_config=job_config).to_dataframe()
+        except Exception as exc:
+            if attempt >= _QUERY_DF_MAX_ATTEMPTS or not _retryable_read_error(exc):
+                raise
+            delay = _QUERY_DF_RETRY_DELAYS[attempt - 1]
+            log.warning(
+                "transient BigQuery read failed (attempt %d/%d); "
+                "retrying in %.1fs: %s",
+                attempt, _QUERY_DF_MAX_ATTEMPTS, delay, exc,
+            )
+            time.sleep(delay)
+    raise AssertionError("BigQuery retry loop exhausted without returning")
+
+
+def _retryable_read_error(exc: Exception) -> bool:
+    """True only for transport/server failures safe for a SELECT replay.
+
+    Authentication, permission, invalid-query and schema errors intentionally
+    fail immediately. Importing google-api-core remains deferred with the
+    rest of this optional GCP dependency.
+    """
+    try:
+        from google.api_core import exceptions
+    except ImportError:  # pragma: no cover - query_df already needs GCP deps
+        return False
+    return isinstance(exc, (
+        exceptions.TooManyRequests,
+        exceptions.InternalServerError,
+        exceptions.BadGateway,
+        exceptions.ServiceUnavailable,
+        exceptions.GatewayTimeout,
+    ))
 
 
 def _to_bq_param(name: str, value: Any):
