@@ -47,6 +47,18 @@ def test_health(client):
     assert client.get("/health").json() == {"status": "ok"}
 
 
+def test_explainer_is_a_first_class_ui_page(client):
+    response = client.get("/explainer")
+    assert response.status_code == 200
+    assert "A machine for finding out we're wrong" in response.text
+    assert "Weeks the top prize was beaten" in response.text
+    assert 'href="/explainer" class="current"' in response.text
+    assert "Fingerblasters&#39; <span>Brain</span>" in response.text
+
+    home = client.get("/")
+    assert "<a href='/explainer'>About</a>" in home.text
+
+
 def test_slates(client):
     slates = client.get("/slates").json()
     assert slates == [{"season": 2025, "week": 3, "players": 72}]

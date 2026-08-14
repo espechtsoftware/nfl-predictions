@@ -37,6 +37,10 @@ from pathlib import Path as _Path
 app.mount("/static", StaticFiles(directory=_Path(__file__).parent / "static"),
           name="static")
 log = logging.getLogger(__name__)
+_EXPLAINER_PATH = (
+    _Path(__file__).resolve().parents[3]
+    / "docs" / "explainer" / "what-we-built.html"
+)
 
 
 @lru_cache
@@ -202,7 +206,8 @@ _NAV_HTML = """
 <div class='topbar'><img src='/static/logo.png' class='logo' alt=''><div class='brand'>Fingerblasters&#39; <span>Brain</span></div>
 <a href='/'>Season</a><a href='/lineups/view'>Lineups</a>
 <a href='/defense'>Defense</a><a href='/market'>Market</a>
-<a href='/watchlist'>Watchlist</a><a href='/docs'>API</a>
+<a href='/watchlist'>Watchlist</a><a href='/explainer'>About</a>
+<a href='/docs'>API</a>
 <button class='guide' onclick="document.getElementById('modal').style.display=
 'block';document.getElementById('modalbg').style.display='block'">
 &#128197; Weekly guide</button>
@@ -314,6 +319,34 @@ async function openStatus(){
     b.innerHTML=h;
   }catch(e){b.innerHTML="<small>Failed to load status: "+e+"</small>";}
 }</script>
+"""
+
+_EXPLAINER_APPBAR = """
+<style>
+.explainer-appbar{margin:0 -6vw 2rem;padding:.7rem 6vw;display:flex;
+  align-items:center;gap:1rem;background:#0d1b2a;color:#fff;
+  box-shadow:0 2px 12px rgba(13,27,42,.35);
+  font-family:system-ui,-apple-system,'Segoe UI',sans-serif}
+.explainer-appbar img{height:32px;width:32px;border-radius:8px;object-fit:cover;
+  box-shadow:0 0 0 2px rgba(255,255,255,.25)}
+.explainer-appbar .explainer-brand{font-weight:800;letter-spacing:.03em;
+  white-space:nowrap}
+.explainer-appbar .explainer-brand span{color:#53d337}
+.explainer-appbar a{color:#c8cede;text-decoration:none;font-size:.88rem;
+  padding:.35rem .75rem;border-radius:999px}
+.explainer-appbar a:hover{color:#fff;background:rgba(255,255,255,.1)}
+.explainer-appbar .current{color:#0d1b2a;background:#53d337;font-weight:700}
+@media(max-width:42rem){.explainer-appbar{gap:.35rem;flex-wrap:wrap}
+  .explainer-appbar a{padding:.25rem .45rem}
+  .explainer-brand{width:calc(100% - 42px)}}
+</style>
+<nav class="explainer-appbar" aria-label="Product navigation">
+  <img src="/static/logo.png" alt="">
+  <div class="explainer-brand">Fingerblasters&#39; <span>Brain</span></div>
+  <a href="/">Season</a>
+  <a href="/lineups/view">Lineups</a>
+  <a href="/explainer" class="current" aria-current="page">About</a>
+</nav>
 """
 
 _LINEUPS_CSS = """
@@ -1066,6 +1099,22 @@ def season_dashboard() -> str:
                 f"{_CHAT_HTML}"
         f"</main><script>{_SEASON_JS}</script></body></html>"
     )
+
+
+@app.get("/explainer", response_class=HTMLResponse)
+def explainer() -> str:
+    """Render the evolving, non-technical repository explainer in the UI."""
+    try:
+        source = _EXPLAINER_PATH.read_text(encoding="utf-8")
+    except OSError as exc:
+        log.exception("Unable to read project explainer")
+        raise HTTPException(
+            status_code=503, detail="Project explainer unavailable") from exc
+    marker = "</style>"
+    if marker not in source:
+        raise HTTPException(
+            status_code=503, detail="Project explainer is malformed")
+    return source.replace(marker, marker + _EXPLAINER_APPBAR, 1)
 
 
 @app.get("/defense", response_class=HTMLResponse)

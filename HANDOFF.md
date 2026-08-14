@@ -20,7 +20,24 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 21:12 CDT
+## Current state — 2026-08-13 21:25 CDT
+
+### 2026-08-13 repository explainer promoted into the product UI
+
+- On branch `main` from parent `102a4e8`, the existing non-technical source
+  `docs/explainer/what-we-built.html` is now served at `/explainer` and linked
+  as **About** in the common product navigation. The UI wrapper reads the
+  repository HTML instead of duplicating its prose, so future explainer edits
+  remain a normal tracked-document-and-deploy change.
+- The production Dockerfile copies `docs/explainer/` into the app image. The
+  page adds a small product navigation bar while preserving the standalone
+  explainer styling and sharing artifact. `docs/explainer/README.md` documents
+  the update contract.
+- Validation passes: the full `tests/test_app.py` plus the in-progress SIS
+  pass-tail helper tests, Python compilation and whitespace checks. Exact next
+  UI action is build the associated main commit and deploy its immutable image
+  to the existing Cloud Run UI service after the current code milestone is
+  pushed.
 
 ### 2026-08-13 SIS paid-surface gaps reopened with bounded next tests
 

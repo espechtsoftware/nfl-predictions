@@ -1,0 +1,284 @@
+<title>A machine for finding out we're wrong</title>
+<style>
+  :root {
+    --ground:   #f1f4f2;
+    --raised:   #fbfcfb;
+    --ink:      #13181a;
+    --ink-soft: #4a5553;
+    --rule:     #c5ccc8;
+    --accent:   #106b60;
+    --muted:    #8a9491;
+    --measure:  62ch;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:   #0e1211;
+      --raised:   #171d1c;
+      --ink:      #e8edea;
+      --ink-soft: #9aa6a3;
+      --rule:     #2c3634;
+      --accent:   #4fbfa9;
+      --muted:    #6b7674;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground:   #0e1211;
+    --raised:   #171d1c;
+    --ink:      #e8edea;
+    --ink-soft: #9aa6a3;
+    --rule:     #2c3634;
+    --accent:   #4fbfa9;
+    --muted:    #6b7674;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+    font-size: 17px;
+    line-height: 1.62;
+    margin: 0;
+    padding: 0 6vw 6rem;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: var(--measure); margin: 0 auto; }
+
+  .mono {
+    font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  }
+
+  /* ---- masthead ---- */
+  header { padding: 5.5rem 0 2.75rem; }
+  .eyebrow {
+    font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 1.75rem;
+  }
+  h1 {
+    font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+    font-size: clamp(1.6rem, 4.4vw, 2.5rem);
+    line-height: 1.14;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-wrap: balance;
+    margin: 0 0 1.5rem;
+  }
+  .lede {
+    font-size: 1.14rem;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+
+  hr {
+    border: 0;
+    border-top: 1px solid var(--rule);
+    margin: 3rem 0;
+  }
+
+  /* ---- sections ---- */
+  section { margin: 0 0 3rem; }
+  h2 {
+    font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--accent);
+    margin: 0 0 1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  p { margin: 0 0 1.1rem; }
+  p:last-child { margin-bottom: 0; }
+  em { font-style: italic; }
+  strong { font-weight: 700; }
+
+  /* ---- the measurement ---- */
+  .measurement {
+    max-width: 46rem;
+    margin: 3.25rem auto;
+    background: var(--raised);
+    border: 1px solid var(--rule);
+    padding: 2.25rem 2rem 1.75rem;
+  }
+  .pair {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: end;
+    gap: 1.25rem;
+  }
+  .side { text-align: center; }
+  .figure {
+    font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: clamp(2.6rem, 9vw, 4.2rem);
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    display: block;
+  }
+  .side--belief .figure { color: var(--muted); }
+  .side--truth  .figure { color: var(--accent); }
+  .caption {
+    font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+    font-size: 0.66rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0.85rem 0 0;
+    line-height: 1.5;
+  }
+  .versus {
+    font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    color: var(--muted);
+    padding-bottom: 1.1rem;
+  }
+  .measurement footer {
+    margin-top: 1.9rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--rule);
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+
+  /* ---- scoreboard ---- */
+  .scoreboard { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1.4rem; }
+  .scoreboard th { display: none; }
+  .scoreboard td {
+    border-bottom: 1px solid var(--rule);
+    padding: 0.7rem 0;
+    vertical-align: baseline;
+  }
+  .scoreboard td:last-child {
+    text-align: right;
+    font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.95rem;
+    font-weight: 700;
+    white-space: nowrap;
+    padding-left: 1.5rem;
+  }
+  .scoreboard tr:last-child td { border-bottom: 0; }
+
+  /* ---- close ---- */
+  .close {
+    margin-top: 3.5rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--ink);
+    font-size: 1.14rem;
+    text-wrap: pretty;
+  }
+
+  @media (max-width: 30rem) {
+    .pair { grid-template-columns: 1fr; gap: 2rem; }
+    .versus { padding: 0; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">What we built &mdash; and what it just told us</p>
+    <h1>A machine for finding out we're wrong</h1>
+    <p class="lede">It plays daily fantasy football. But the interesting part was never the
+    predictions &mdash; it's that the whole thing is built, above all, to catch itself being
+    wrong. Recently it did, and the answer was surprising.</p>
+  </header>
+
+  <hr>
+
+  <section>
+    <h2>The game</h2>
+    <p>Pick nine NFL players under a salary cap. Enter eighty different lineups against a field
+    of roughly 160,000 opponents. Only scores at the very top win real money &mdash; finishing
+    five hundredth out of 160,000 pays close to nothing.</p>
+  </section>
+
+  <section>
+    <h2>The counterintuitive part</h2>
+    <p>That makes <em>accuracy</em> nearly worthless. If all eighty lineups are pretty good, you
+    win nothing at all. You need one of them to be extraordinary.</p>
+    <p>So the system optimises for its single best entry and deliberately ignores the average.
+    Which is why we can say, without contradicting ourselves, that our player forecasts got
+    better while our results got worse.</p>
+  </section>
+
+  <section>
+    <h2>The discovery</h2>
+    <p>Imagine a weather service that predicts each city's chance of rain beautifully, but has no
+    concept of storms &mdash; it treats every city as independent. City by city, it looks
+    perfectly calibrated. Ask it whether it will rain in five cities at once and it's hopeless.</p>
+    <p>That was our system. The individual player forecasts were fine. But when a quarterback has
+    a monster game, his own receivers are more than <strong>three times</strong> as likely to have
+    monster games too &mdash; and our simulator believed that number was about <strong>one</strong>.
+    It thought teammates were essentially unrelated.</p>
+  </section>
+
+  <div class="measurement">
+    <div class="pair">
+      <div class="side side--belief">
+        <span class="figure">1.05</span>
+        <p class="caption">What our<br>simulator believed</p>
+      </div>
+      <div class="versus">vs</div>
+      <div class="side side--truth">
+        <span class="figure">3.32</span>
+        <p class="caption">What actually<br>happens</p>
+      </div>
+    </div>
+    <footer>How much more likely a receiver is to have a huge game once his own quarterback has
+    one, compared with chance alone. A value of 1.00 would mean teammates are completely
+    unrelated.</footer>
+  </div>
+
+  <section>
+    <p>Winning requires several players on one team erupting together. We were systematically
+    failing to imagine the exact scenarios that win.</p>
+    <p>We didn't guess this. We measured it &mdash; and that one number went on to explain a year
+    of otherwise baffling failures.</p>
+  </section>
+
+  <section>
+    <h2>Why the method is the real product</h2>
+    <p>Before every experiment, we write down in advance what would count as success. Then the
+    code is frozen into a sealed image so it can't be quietly adjusted afterwards. The experiment
+    runs once. If the result is disappointing, it gets recorded as disappointing.</p>
+    <p>There are now around 120 numbered entries in the project's lab record, including
+    retractions of our own earlier conclusions. More than twenty experiments are closed as
+    failures, each with the reason it failed.</p>
+    <p>We have also repeatedly found bugs that were making our own past results look better than
+    they were &mdash; injury news that arrived after lineups locked, betting lines from after the
+    deadline, a player's end-of-season position leaking backwards into September. Every time, we
+    threw out the flattering numbers and ran it again.</p>
+    <p>That sounds like bureaucracy. It's the opposite. It's the only reason anything we've found
+    can be believed.</p>
+  </section>
+
+  <section>
+    <h2>Where it stands</h2>
+    <table class="scoreboard">
+      <tr><td>Weeks the top prize was beaten</td><td>0 of 68</td></tr>
+      <tr><td>Typical gap to the winning score</td><td>~57 pts</td></tr>
+      <tr><td>Weeks the portfolio wins its money back</td><td>~7 in 10</td></tr>
+      <tr><td>Weeks it wins the tournament</td><td>~0</td></tr>
+    </table>
+    <p>The system is not yet profitable at the top prize, and it says so in writing. What it has
+    produced instead is a specific, measured explanation of <em>why</em> &mdash; which is a far
+    better position than a good-looking result nobody can trust.</p>
+  </section>
+
+  <p class="close">Most projects build a machine that tries to be right. This one is a machine for
+  finding out exactly how it's wrong &mdash; and it just told us something specific and
+  surprising.</p>
+
+</div>

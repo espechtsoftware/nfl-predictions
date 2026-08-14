@@ -10,6 +10,7 @@ COPY pyproject.toml README.md CLAUDE.md ./
 COPY reports/model-primer.md ./reports/model-primer.md
 COPY reports/g0-dependence-runs/20260812-g0-final-served-dependence-v2/report.json ./reports/g0-dependence-runs/20260812-g0-final-served-dependence-v2/report.json
 COPY reports/g1-topology-runs/20260812-g1-archetype-topology-v3/report.json ./reports/g1-topology-runs/20260812-g1-archetype-topology-v3/report.json
+COPY docs/explainer ./docs/explainer
 COPY src ./src
 COPY sql ./sql
 COPY scripts/harvest_accept.py ./scripts/harvest_accept.py
