@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 13:35 CDT
+## Current state — 2026-08-14 13:22 CDT
 
 ### 2026-08-14 pre-forensic exhaustion review reopens two bounded gates
 
@@ -58,6 +58,18 @@ agent or developer:
   tests pass. The terminal launch/harvest scripts require a full immutable code
   SHA and image digest, pin every G0/G1/cache/schedule/protocol input, use 32 GiB
   and 8 CPU, enforce write-once run artifacts and validate chunked transport.
+- Terminal repair commit `934d2c3` is pushed on `main`. Exact-commit full-test
+  Cloud Build `ac8758bc-712b-4cda-a9fc-fc6e1252bdc2` is `WORKING`, targeting
+  tag `nfl-dfs:td-rank-934d2c3`. Only its immutable success digest may launch
+  the frozen ledger job.
+- The formal exact-panel SIS run-tail prerequisite completed as read-only
+  BigQuery job `bqjob_r7410ee58c589ee60_000001a001818c04_1`. It queried no
+  player/lineup outcome. Strict-prior support is 5,842/6,731 salary RB rows
+  overall and 86.14%/86.05%/88.13% across 2023/2024/2025. Aggregate correlations
+  are Boom/Bust versus existing RB-FP-allowed `+0.1906/-0.0829` and versus rush
+  EPA `+0.4820/-0.2726`. The prerequisite passes. The two-feature RB-only
+  score-free protocol is frozen, explicitly adaptive, and queued behind the
+  ledger; no cache/model output exists.
 - Uncommitted final-forensic diagnostic/corpus improvements are locally tested
   but do not license a freeze and must not be included in the TD-ledger image
   identity accidentally. The last forensic Cloud Build
