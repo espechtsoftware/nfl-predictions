@@ -42,7 +42,8 @@ agent or developer:
   panel, retains provenance rows, and launches the unchanged frozen analyzer.
   No arm definition or decision rule changes. Exact next action is launch the
   repair, poll it, run its finish script, then harvest the successful analyzer
-  and launch Phase S.
+  and launch Phase S. The repair is now running as execution
+  `replay-gtrmult0-2025-w4-repair1-5v4jq`.
 
 ### 2026-08-13 SIS pass-tail caches validated; frozen score gate running
 
@@ -68,9 +69,12 @@ agent or developer:
   The allowlist now explicitly includes only those two exact tables and a
   regression test covers both direct resolution and context restoration; 18
   focused replay/pass-tail tests pass. Repair commit `0c86821` is pushed;
-  exact-commit Cloud Build `ac2ceacb-b0f1-446a-a5fe-305546fa60f4` is active.
-  When it passes, resolve its immutable digest and retry the unchanged
-  final-served evaluation once on that digest.
+  exact-commit Cloud Build `ac2ceacb-b0f1-446a-a5fe-305546fa60f4` passed the
+  full suite and published immutable digest
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:1a51a8132bca8a58caff0f7bca4c3bdd594c4a75ad26bd2cac7ce7c289946e6f`.
+  The tracked one-retry wrapper preserves the failed execution and frozen
+  manifest. Launch it once on this digest, then use the ordinary finish script,
+  which prefers the recorded retry execution.
 
 ### 2026-08-13 SIS pass-tail cache and score gate implemented prospectively
 

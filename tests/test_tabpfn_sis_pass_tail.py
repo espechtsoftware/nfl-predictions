@@ -210,6 +210,12 @@ def test_cloud_path_is_write_once_and_score_gate_is_separate():
     served_launch = (
         ROOT / "scripts/cloud_tabpfn_sis_pass_tail_final_served.sh"
     ).read_text()
+    served_retry = (
+        ROOT / "scripts/cloud_retry_tabpfn_sis_pass_tail_final_served.sh"
+    ).read_text()
+    served_finish = (
+        ROOT / "scripts/cloud_finish_tabpfn_sis_pass_tail_final_served.sh"
+    ).read_text()
     generator = (ROOT / "scripts/tabpfn_sis_qb_line/gen.py").read_text()
     assert "WRITE_EMPTY" in generator
     assert "TABPFN_SIS_PASS_TAIL_ARM" in generator
@@ -217,3 +223,6 @@ def test_cloud_path_is_write_once_and_score_gate_is_separate():
     assert "equal-position-equal-q95-q99" in served_launch
     assert "executions.txt" in launch
     assert "TABPFN_SIS_PASS_TAIL_JSON=" in finish
+    assert "execution_retry.txt" in served_retry
+    assert "research_table_allowlist_omission" in served_retry
+    assert "execution_retry.txt" in served_finish
