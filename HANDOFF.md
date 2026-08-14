@@ -91,6 +91,13 @@ agent or developer:
   along with Python compilation, shell syntax and whitespace checks. Run the
   replacement full-test immutable image build, then launch only Stage R. Stage
   T remains conditional on a strictly harvested Stage R pass.
+- Before either TD stage launched, the sole conditional lineup branch was
+  frozen in `reports/2026-08-14-td-competitive-wr-exact80-addendum.md`. A valid
+  Stage R plus Stage T pass licenses one paired five-seed exact-80 experiment;
+  both arms retain the finite-K incumbent and differ only in eligible WR world
+  order. The aggregate decision is tail-first at
+  `240,230,220,210,200,194,187`, with whole-slate bootstrap seed `8,142,029`.
+  It expires without lineup scoring if either score-free stage does not pass.
 
 ### 2026-08-14 SIS conditional exact-80 harness implemented pre-result
 
