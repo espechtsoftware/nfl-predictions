@@ -33,14 +33,20 @@ agent or developer:
   feature contracts, context counts and support audits. The durable validation
   artifact is
   `reports/tabpfn-sis-pass-tail-runs/20260813-tabpfn-sis-pass-tail-v1/validation.json`.
-- The preregistered final-served calibration evaluation is now running as
+- The preregistered final-served calibration evaluation was launched as
   Cloud Run execution `tabpfn-sis-pass-tail-final-served-v1-mn64m` on audit
   digest
   `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:fdd00d6bf36778c38415068bda5809b8d3324a5ee77ecb5ba3feefafc73da339`.
-  Poll execution status only. When it completes, run
-  `scripts/cloud_finish_tabpfn_sis_pass_tail_final_served.sh`, interpret the
-  persisted result under the frozen equal-position q95/q99 gate, and record
-  the disposition without post-hoc changes.
+  It did not produce a report; the immediately following bullet records the
+  failure and unchanged retry path.
+- Execution `tabpfn-sis-pass-tail-final-served-v1-mn64m` failed before
+  producing a report because the shared replay fail-closed research-table
+  allowlist omitted the two newly generated pass-tail table names. The cache
+  data, arm, panel and frozen evaluation rules were not implicated or changed.
+  The allowlist now explicitly includes only those two exact tables and a
+  regression test covers both direct resolution and context restoration; 18
+  focused replay/pass-tail tests pass. Build an exact-commit audit image and
+  retry the unchanged final-served evaluation once on that digest.
 
 ### 2026-08-13 SIS pass-tail cache and score gate implemented prospectively
 

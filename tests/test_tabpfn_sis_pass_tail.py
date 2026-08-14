@@ -6,6 +6,7 @@ import pandas as pd
 import pytest
 
 from nfl_dfs.analysis import tabpfn_sis_pass_tail_final_served as final_served
+from nfl_dfs.backtest import replay
 from nfl_dfs.research.tabpfn_sis_pass_tail import (
     SIS_PASS_TAIL_FEATURES,
     active_pass_tail_coverage,
@@ -191,6 +192,16 @@ def test_final_served_gate_reports_all_frozen_diagnostics(monkeypatch):
     assert "brier_25" in report["control"]["aggregate"]
     assert "reliability_gap_25" in report["control"]["aggregate"]
     assert "pinball_q99" in report["paired_loss_uncertainty"]
+
+
+def test_cache_tables_are_research_licensed_and_context_restores(monkeypatch):
+    monkeypatch.setenv("TABPFN_MARGINAL_TABLE", "outside")
+    for table in final_served.TABLES.values():
+        assert replay._tabpfn_marginal_table(
+            {"TABPFN_MARGINAL_TABLE": table}) == table
+        with final_served._cache_environment(table):
+            assert replay._tabpfn_marginal_table() == table
+        assert final_served.os.environ["TABPFN_MARGINAL_TABLE"] == "outside"
 
 
 def test_cloud_path_is_write_once_and_score_gate_is_separate():
