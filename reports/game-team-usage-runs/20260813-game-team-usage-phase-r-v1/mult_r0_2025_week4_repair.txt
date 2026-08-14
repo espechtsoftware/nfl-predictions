@@ -1,0 +1,8 @@
+source_execution=replay-gtrmult0-2025-w4-repair1-5v4jq
+source_panel=20260813-game-team-mult-r0-2025-w4-repair1
+target_panel=20260813-game-team-mult-r0-v1
+season=2025
+week=4
+candidate_rows=256
+selected_rows=80
+repair_kind=append-only-exact-image-seed-and-lever-reproduction

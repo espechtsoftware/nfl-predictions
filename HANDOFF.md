@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 22:25 CDT
+## Current state — 2026-08-13 22:50 CDT
 
-### 2026-08-13 Phase R source panel complete; one quota-lost slice repairing
+### 2026-08-13 Phase R complete; finite K selected
 
 - All 30 registered multinomial/finite-K replay executions are now clean
   Cloud Run successes. The final clean retry was 2025 finite-K R4 execution
@@ -40,10 +40,21 @@ agent or developer:
   seeds, levers and lineup table into a provenance-only panel; the finish
   script validates Week 4, appends only that absent slice to the original
   panel, retains provenance rows, and launches the unchanged frozen analyzer.
-  No arm definition or decision rule changes. Exact next action is launch the
-  repair, poll it, run its finish script, then harvest the successful analyzer
-  and launch Phase S. The repair is now running as execution
+  No arm definition or decision rule changed. The repair execution was
   `replay-gtrmult0-2025-w4-repair1-5v4jq`.
+- The exact repair succeeded and its 256 unique, label-complete Week 4
+  candidate rows (80 selected) were appended to the original panel. Frozen
+  analyzer retry `analyze-game-team-usage-phase-r-v1-msp2x` passed and the
+  report is harvested at
+  `reports/game-team-usage-runs/20260813-game-team-usage-phase-r-v1/report.json`.
+- Under the registered high-tail-first decision, finite K is retained:
+  across five seeds it wins first at the 230 threshold (`1` week versus `0`),
+  with 194/200/210/220 totals `42/26/14/5` versus multinomial
+  `37/21/12/3`. Average weekly best is `173.82163` versus `173.56993`.
+  Multinomial has more 187 weeks (`62` versus `58`), but that is downstream
+  of every registered higher threshold and cannot override the decision.
+  Launch Phase S on selected control law `k` using the already validated
+  `4d6f5cf` analyzer image digest recorded below.
 
 ### 2026-08-13 SIS pass-tail caches validated; frozen score gate running
 
@@ -72,9 +83,18 @@ agent or developer:
   exact-commit Cloud Build `ac2ceacb-b0f1-446a-a5fe-305546fa60f4` passed the
   full suite and published immutable digest
   `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:1a51a8132bca8a58caff0f7bca4c3bdd594c4a75ad26bd2cac7ce7c289946e6f`.
-  The tracked one-retry wrapper preserves the failed execution and frozen
-  manifest. Launch it once on this digest, then use the ordinary finish script,
-  which prefers the recorded retry execution.
+  The tracked one-retry wrapper preserved the failed execution and frozen
+  manifest while launching the repaired evaluator on that digest.
+- Repaired evaluator execution `tabpfn-sis-pass-tail-final-served-v1-k9w8n`
+  completed successfully, but its single JSON log entry exceeded Cloud
+  Logging's 100-KiB text limit and was truncated at 102,400 bytes before the
+  local harvester could parse it. The frozen computation succeeded; no
+  disposition is yet recoverable from the truncated transport.
+- The evaluator now emits the same deterministic JSON as zlib-compressed,
+  base64, numbered chunks capped at 80,000 characters, and the finish script
+  verifies complete framing before decoding. A round-trip regression test and
+  the full focused pass-tail/replay suite pass. Build an exact-commit image,
+  run the one transport-only harvest retry, then harvest the registered report.
 
 ### 2026-08-13 SIS pass-tail cache and score gate implemented prospectively
 

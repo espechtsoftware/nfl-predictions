@@ -9,6 +9,8 @@ ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$ROOT/reports/tabpfn-sis-pass-tail-runs/$RUN_ID"
 EXEC_FILE="$OUT/execution.txt"
 [ ! -s "$OUT/execution_retry.txt" ] || EXEC_FILE="$OUT/execution_retry.txt"
+[ ! -s "$OUT/execution_harvest_retry.txt" ] || \
+  EXEC_FILE="$OUT/execution_harvest_retry.txt"
 EXEC=$(cat "$EXEC_FILE")
 [ -n "$EXEC" ] || { echo "ABORT: SIS pass-tail gate execution missing"; exit 2; }
 [ ! -e "$OUT/report.json" ] || {
@@ -17,20 +19,32 @@ STATE=$(gcloud run jobs executions describe "$EXEC" --project "$PROJECT" \
   --region "$REGION" --format='value(status.conditions[0].status)')
 [ "$STATE" = True ] || {
   echo "ABORT: SIS pass-tail gate $EXEC is not complete ($STATE)"; exit 1; }
-FILTER="resource.type=\"cloud_run_job\" AND labels.\"run.googleapis.com/execution_name\"=\"$EXEC\" AND textPayload:\"TABPFN_SIS_PASS_TAIL_FINAL_SERVED_JSON=\""
+FILTER="resource.type=\"cloud_run_job\" AND labels.\"run.googleapis.com/execution_name\"=\"$EXEC\" AND textPayload:\"TABPFN_SIS_PASS_TAIL_FINAL_SERVED_CHUNK=\""
 gcloud logging read "$FILTER" --project "$PROJECT" --limit 10 --order asc \
   --format='value(textPayload)' > "$OUT/raw_log.txt"
 "$ROOT/.venv/bin/python" - "$OUT/raw_log.txt" "$OUT/report.json" <<'PY'
+import base64
 import json
 import sys
+import zlib
 
-prefix = "TABPFN_SIS_PASS_TAIL_FINAL_SERVED_JSON="
-payloads = [json.loads(line.split(prefix, 1)[1])
-            for line in open(sys.argv[1], encoding="utf-8") if prefix in line]
-if len(payloads) != 1:
-    raise SystemExit(
-        f"ABORT: expected one SIS pass-tail report, got {len(payloads)}")
-report = payloads[0]
+prefix = "TABPFN_SIS_PASS_TAIL_FINAL_SERVED_CHUNK="
+chunks = {}
+expected_total = None
+for line in open(sys.argv[1], encoding="utf-8"):
+    if prefix not in line:
+        continue
+    header, chunk = line.split(prefix, 1)[1].rstrip("\n").split(":", 1)
+    index, total = map(int, header.split("/", 1))
+    if expected_total is None:
+        expected_total = total
+    if total != expected_total or index in chunks:
+        raise SystemExit("ABORT: invalid SIS pass-tail chunk framing")
+    chunks[index] = chunk
+if expected_total is None or set(chunks) != set(range(1, expected_total + 1)):
+    raise SystemExit("ABORT: incomplete SIS pass-tail report chunks")
+encoded = "".join(chunks[index] for index in range(1, expected_total + 1))
+report = json.loads(zlib.decompress(base64.b64decode(encoded)))
 if report.get("disposition") not in {
         "tabpfn-sis-pass-tail-final-served-passes",
         "tabpfn-sis-pass-tail-final-served-fails"}:

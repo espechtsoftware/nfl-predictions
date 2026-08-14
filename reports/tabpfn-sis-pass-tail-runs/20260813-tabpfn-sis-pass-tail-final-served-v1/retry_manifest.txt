@@ -1,0 +1,3 @@
+retry_image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:1a51a8132bca8a58caff0f7bca4c3bdd594c4a75ad26bd2cac7ce7c289946e6f
+retry_code_sha=0c86821
+retry_reason=research_table_allowlist_omission

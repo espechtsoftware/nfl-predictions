@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import base64
 import json
 import os
+import zlib
 from contextlib import contextmanager
 
 import numpy as np
@@ -20,6 +22,8 @@ TABLES = {
     "treatment": "tabpfn_sis_pass_tail_treatment_v1",
 }
 OUTPUT_PREFIX = "TABPFN_SIS_PASS_TAIL_FINAL_SERVED_JSON="
+OUTPUT_CHUNK_PREFIX = "TABPFN_SIS_PASS_TAIL_FINAL_SERVED_CHUNK="
+OUTPUT_CHUNK_SIZE = 80_000
 EXPECTED_CACHE_ROWS = 52_307
 PASS_POSITIONS = ("QB", "WR", "TE")
 EXPECTED_PASS_ROWS = {2023: 3_848, 2024: 3_791, 2025: 3_796}
@@ -232,6 +236,22 @@ def evaluate_pass_tail_arms(
     }
 
 
+def encoded_report_lines(report: dict) -> list[str]:
+    """Encode a report below Cloud Logging's per-entry text size limit."""
+    payload = json.dumps(
+        report, separators=(",", ":"), sort_keys=True).encode("utf-8")
+    encoded = base64.b64encode(zlib.compress(payload, level=9)).decode("ascii")
+    chunks = [
+        encoded[start:start + OUTPUT_CHUNK_SIZE]
+        for start in range(0, len(encoded), OUTPUT_CHUNK_SIZE)
+    ] or [""]
+    total = len(chunks)
+    return [
+        f"{OUTPUT_CHUNK_PREFIX}{index}/{total}:{chunk}"
+        for index, chunk in enumerate(chunks, start=1)
+    ]
+
+
 def run(panel_id: str) -> dict:
     expected_panel = os.environ.get("TABPFN_SIS_PASS_TAIL_PANEL_ID", "").strip()
     if not expected_panel or panel_id != expected_panel:
@@ -327,10 +347,12 @@ def run(panel_id: str) -> dict:
             "position_factor_grid": "0.750:0.005:1.500",
         },
     })
-    print(OUTPUT_PREFIX + json.dumps(report, sort_keys=True))
+    for line in encoded_report_lines(report):
+        print(line)
     return report
 
 
 __all__ = [
-    "TABLES", "_cache_environment", "evaluate_pass_tail_arms", "run",
+    "TABLES", "_cache_environment", "encoded_report_lines",
+    "evaluate_pass_tail_arms", "run",
 ]

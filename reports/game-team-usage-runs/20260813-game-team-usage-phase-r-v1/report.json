@@ -1,0 +1,343 @@
+{
+    "failures": [],
+    "mechanical_passes": true,
+    "phase": "R",
+    "protocol": "2026-08-13-game-team-usage-repair-and-sis-asoe-exact80",
+    "result": {
+        "decision": {
+            "aggregate_weekly_best_mean": {
+                "k": 173.82162962962963,
+                "mult": 173.56992592592593
+            },
+            "deciding_threshold": 230,
+            "finite_k_retained_on_exact_tie": false,
+            "selected_arm": "k",
+            "selected_tail_means": {
+                "k": {
+                    "187": 11.6,
+                    "194": 8.4,
+                    "200": 5.2,
+                    "210": 2.8,
+                    "220": 1.0,
+                    "230": 0.2,
+                    "240": 0.0
+                },
+                "mult": {
+                    "187": 12.4,
+                    "194": 7.4,
+                    "200": 4.2,
+                    "210": 2.4,
+                    "220": 0.6,
+                    "230": 0.0,
+                    "240": 0.0
+                }
+            },
+            "selected_tail_sums": {
+                "k": {
+                    "187": 58,
+                    "194": 42,
+                    "200": 26,
+                    "210": 14,
+                    "220": 5,
+                    "230": 1,
+                    "240": 0
+                },
+                "mult": {
+                    "187": 62,
+                    "194": 37,
+                    "200": 21,
+                    "210": 12,
+                    "220": 3,
+                    "230": 0,
+                    "240": 0
+                }
+            }
+        },
+        "metrics": {
+            "k-R0": {
+                "candidate_rows": 13706,
+                "oracle_tail": {
+                    "187": 18,
+                    "194": 13,
+                    "200": 9,
+                    "210": 4,
+                    "220": 1,
+                    "230": 0,
+                    "240": 0
+                },
+                "selected_mean": 174.92000000000004,
+                "selected_median": 172.4,
+                "selected_tail": {
+                    "187": 15,
+                    "194": 11,
+                    "200": 5,
+                    "210": 3,
+                    "220": 1,
+                    "230": 0,
+                    "240": 0
+                }
+            },
+            "k-R1": {
+                "candidate_rows": 13696,
+                "oracle_tail": {
+                    "187": 16,
+                    "194": 11,
+                    "200": 8,
+                    "210": 3,
+                    "220": 1,
+                    "230": 0,
+                    "240": 0
+                },
+                "selected_mean": 175.17185185185184,
+                "selected_median": 173.85,
+                "selected_tail": {
+                    "187": 12,
+                    "194": 9,
+                    "200": 6,
+                    "210": 3,
+                    "220": 1,
+                    "230": 0,
+                    "240": 0
+                }
+            },
+            "k-R2": {
+                "candidate_rows": 13690,
+                "oracle_tail": {
+                    "187": 14,
+                    "194": 9,
+                    "200": 8,
+                    "210": 4,
+                    "220": 2,
+                    "230": 1,
+                    "240": 0
+                },
+                "selected_mean": 175.4503703703704,
+                "selected_median": 172.26999999999998,
+                "selected_tail": {
+                    "187": 10,
+                    "194": 7,
+                    "200": 6,
+                    "210": 4,
+                    "220": 2,
+                    "230": 1,
+                    "240": 0
+                }
+            },
+            "k-R3": {
+                "candidate_rows": 13703,
+                "oracle_tail": {
+                    "187": 16,
+                    "194": 12,
+                    "200": 8,
+                    "210": 3,
+                    "220": 1,
+                    "230": 0,
+                    "240": 0
+                },
+                "selected_mean": 171.40111111111113,
+                "selected_median": 171.46,
+                "selected_tail": {
+                    "187": 10,
+                    "194": 7,
+                    "200": 3,
+                    "210": 2,
+                    "220": 0,
+                    "230": 0,
+                    "240": 0
+                }
+            },
+            "k-R4": {
+                "candidate_rows": 13698,
+                "oracle_tail": {
+                    "187": 14,
+                    "194": 10,
+                    "200": 9,
+                    "210": 3,
+                    "220": 1,
+                    "230": 0,
+                    "240": 0
+                },
+                "selected_mean": 172.16481481481483,
+                "selected_median": 172.76999999999998,
+                "selected_tail": {
+                    "187": 11,
+                    "194": 8,
+                    "200": 6,
+                    "210": 2,
+                    "220": 1,
+                    "230": 0,
+                    "240": 0
+                }
+            },
+            "mult-R0": {
+                "candidate_rows": 13686,
+                "oracle_tail": {
+                    "187": 15,
+                    "194": 7,
+                    "200": 6,
+                    "210": 1,
+                    "220": 0,
+                    "230": 0,
+                    "240": 0
+                },
+                "selected_mean": 170.5766666666667,
+                "selected_median": 170.13,
+                "selected_tail": {
+                    "187": 11,
+                    "194": 4,
+                    "200": 2,
+                    "210": 0,
+                    "220": 0,
+                    "230": 0,
+                    "240": 0
+                }
+            },
+            "mult-R1": {
+                "candidate_rows": 13703,
+                "oracle_tail": {
+                    "187": 16,
+                    "194": 12,
+                    "200": 10,
+                    "210": 3,
+                    "220": 0,
+                    "230": 0,
+                    "240": 0
+                },
+                "selected_mean": 174.4181481481482,
+                "selected_median": 174.8,
+                "selected_tail": {
+                    "187": 12,
+                    "194": 9,
+                    "200": 6,
+                    "210": 3,
+                    "220": 0,
+                    "230": 0,
+                    "240": 0
+                }
+            },
+            "mult-R2": {
+                "candidate_rows": 13678,
+                "oracle_tail": {
+                    "187": 16,
+                    "194": 13,
+                    "200": 9,
+                    "210": 4,
+                    "220": 2,
+                    "230": 0,
+                    "240": 0
+                },
+                "selected_mean": 175.55296296296297,
+                "selected_median": 176.29000000000002,
+                "selected_tail": {
+                    "187": 14,
+                    "194": 9,
+                    "200": 6,
+                    "210": 3,
+                    "220": 2,
+                    "230": 0,
+                    "240": 0
+                }
+            },
+            "mult-R3": {
+                "candidate_rows": 13683,
+                "oracle_tail": {
+                    "187": 19,
+                    "194": 12,
+                    "200": 6,
+                    "210": 2,
+                    "220": 0,
+                    "230": 0,
+                    "240": 0
+                },
+                "selected_mean": 174.55444444444444,
+                "selected_median": 173.21000000000004,
+                "selected_tail": {
+                    "187": 15,
+                    "194": 8,
+                    "200": 3,
+                    "210": 2,
+                    "220": 0,
+                    "230": 0,
+                    "240": 0
+                }
+            },
+            "mult-R4": {
+                "candidate_rows": 13679,
+                "oracle_tail": {
+                    "187": 14,
+                    "194": 11,
+                    "200": 7,
+                    "210": 4,
+                    "220": 1,
+                    "230": 0,
+                    "240": 0
+                },
+                "selected_mean": 172.74740740740742,
+                "selected_median": 172.0,
+                "selected_tail": {
+                    "187": 10,
+                    "194": 7,
+                    "200": 4,
+                    "210": 4,
+                    "220": 1,
+                    "230": 0,
+                    "240": 0
+                }
+            }
+        },
+        "paired_seed_diagnostics": [
+            {
+                "finite_k_weeks_better": 32,
+                "mean_delta": 4.343333333333332,
+                "multinomial_weeks_better": 15,
+                "replicate": "R0",
+                "ties": 7,
+                "weeks_abs_delta_at_least_10": 24
+            },
+            {
+                "finite_k_weeks_better": 26,
+                "mean_delta": 0.7537037037037003,
+                "multinomial_weeks_better": 26,
+                "replicate": "R1",
+                "ties": 2,
+                "weeks_abs_delta_at_least_10": 26
+            },
+            {
+                "finite_k_weeks_better": 24,
+                "mean_delta": -0.10259259259259614,
+                "multinomial_weeks_better": 29,
+                "replicate": "R2",
+                "ties": 1,
+                "weeks_abs_delta_at_least_10": 25
+            },
+            {
+                "finite_k_weeks_better": 18,
+                "mean_delta": -3.153333333333333,
+                "multinomial_weeks_better": 30,
+                "replicate": "R3",
+                "ties": 6,
+                "weeks_abs_delta_at_least_10": 19
+            },
+            {
+                "finite_k_weeks_better": 23,
+                "mean_delta": -0.582592592592597,
+                "multinomial_weeks_better": 26,
+                "replicate": "R4",
+                "ties": 5,
+                "weeks_abs_delta_at_least_10": 23
+            }
+        ],
+        "panels": {
+            "k-R0": "20260813-game-team-k-r0-v1",
+            "k-R1": "20260813-game-team-k-r1-v1",
+            "k-R2": "20260813-game-team-k-r2-v1",
+            "k-R3": "20260813-game-team-k-r3-v1",
+            "k-R4": "20260813-game-team-k-r4-v1",
+            "mult-R0": "20260813-game-team-mult-r0-v1",
+            "mult-R1": "20260813-game-team-mult-r1-v1",
+            "mult-R2": "20260813-game-team-mult-r2-v1",
+            "mult-R3": "20260813-game-team-mult-r3-v1",
+            "mult-R4": "20260813-game-team-mult-r4-v1"
+        }
+    }
+}

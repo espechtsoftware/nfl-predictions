@@ -7,6 +7,8 @@ REGION=us-central1
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$ROOT/reports/game-team-usage-runs/20260813-game-team-usage-phase-r-v1"
 EXEC_FILE="$OUT/analyzer_execution.txt"
+[ ! -s "$OUT/analyzer_retry_execution.txt" ] || \
+  EXEC_FILE="$OUT/analyzer_retry_execution.txt"
 [ -s "$EXEC_FILE" ] || { echo "ABORT: analyzer execution missing"; exit 2; }
 [ ! -e "$OUT/report.json" ] || {
   echo "ABORT: immutable Phase R report already exists"; exit 2; }

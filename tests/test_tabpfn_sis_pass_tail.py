@@ -1,5 +1,8 @@
 import importlib.util
+import base64
+import json
 from pathlib import Path
+import zlib
 
 import numpy as np
 import pandas as pd
@@ -204,6 +207,23 @@ def test_cache_tables_are_research_licensed_and_context_restores(monkeypatch):
         assert final_served.os.environ["TABPFN_MARGINAL_TABLE"] == "outside"
 
 
+def test_large_report_is_chunked_and_round_trips_below_log_limit(monkeypatch):
+    monkeypatch.setattr(final_served, "OUTPUT_CHUNK_SIZE", 100)
+    report = {"rows": [{"value": index, "detail": f"row-{index:06d}"}
+                       for index in range(200)]}
+    lines = final_served.encoded_report_lines(report)
+    assert len(lines) > 1
+    assert max(map(len, lines)) < 100_000
+    prefix = final_served.OUTPUT_CHUNK_PREFIX
+    chunks = {}
+    for line in lines:
+        header, chunk = line.removeprefix(prefix).split(":", 1)
+        index, total = map(int, header.split("/"))
+        chunks[index] = chunk
+    encoded = "".join(chunks[index] for index in range(1, total + 1))
+    assert json.loads(zlib.decompress(base64.b64decode(encoded))) == report
+
+
 def test_cloud_path_is_write_once_and_score_gate_is_separate():
     launch = (ROOT / "scripts/cloud_tabpfn_sis_pass_tail.sh").read_text()
     finish = (ROOT / "scripts/cloud_finish_tabpfn_sis_pass_tail.sh").read_text()
@@ -212,6 +232,9 @@ def test_cloud_path_is_write_once_and_score_gate_is_separate():
     ).read_text()
     served_retry = (
         ROOT / "scripts/cloud_retry_tabpfn_sis_pass_tail_final_served.sh"
+    ).read_text()
+    harvest_retry = (
+        ROOT / "scripts/cloud_retry_tabpfn_sis_pass_tail_harvest.sh"
     ).read_text()
     served_finish = (
         ROOT / "scripts/cloud_finish_tabpfn_sis_pass_tail_final_served.sh"
@@ -226,3 +249,6 @@ def test_cloud_path_is_write_once_and_score_gate_is_separate():
     assert "execution_retry.txt" in served_retry
     assert "research_table_allowlist_omission" in served_retry
     assert "execution_retry.txt" in served_finish
+    assert "execution_harvest_retry.txt" in served_finish
+    assert "TABPFN_SIS_PASS_TAIL_FINAL_SERVED_CHUNK=" in served_finish
+    assert "cloud_logging_text_entry_truncation" in harvest_retry
