@@ -20,14 +20,14 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 02:25 CDT
+## Current state — 2026-08-14 02:37 CDT
 
-### 2026-08-14 Phase S at 12 successes; Route marginal channel frozen
+### 2026-08-14 Phase S at 21 successes; Route marginal channel frozen
 
 - Branch is `main`; the cache freeze shipped in pushed commit `9052868`, the
   score-free evaluator shipped in `975a223`, and the rank/dependence screen
-  described below travels in the next pushed commit. Phase S is at 20 clean
-  successes and ten active cells. All bounded infrastructure replacements
+  shipped in pushed commit `799a27e`. Phase S is at 21 clean successes and
+  nine active cells. All bounded infrastructure replacements
   have now been released; controller session `98021` exited normally with
   `PHASE_S_RETRY_QUEUE_EMPTY`. Status-only monitor session `72912` remains
   live. The final verified release was control R3/2025 execution
@@ -90,8 +90,14 @@ agent or developer:
   by over 10%. Its launcher also rechecks the frozen training-table checksum
   and cannot run without the complete Phase S decision. Focused tests, shell
   validation, whitespace checks and the complete offline suite pass with one
-  existing skip. Commit/push this milestone, build a new exact audit image,
-  then continue status polling until Phase S is 30/30.
+  existing skip.
+- Exact-commit Route rank audit Cloud Build
+  `9a2f826e-dfba-476a-ab98-234cdd2418d6` succeeded from `799a27e` and
+  published immutable digest
+  `sha256:bd2e744c2f7da238ec8937b2ce38f7827d7d8f6081cd73405c53e985247805f2`.
+  Use this digest for the registered `R` screen after Phase S is complete;
+  do not substitute the older score-free-audit image because it predates the
+  rank implementation. Continue status polling until Phase S is 30/30.
 
 ### 2026-08-14 Phase S at 11 successes; future replay startup hardened
 
