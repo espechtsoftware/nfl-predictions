@@ -286,6 +286,13 @@ def _write_warehouse_frames(
     if set(frames) != set(WAREHOUSE_TABLE_SCHEMAS):
         raise RuntimeError("warehouse frames do not match the frozen four-table contract")
     tables = {row["id"]: row for row in contract["tables"]}
+    dataset = client.get_dataset(contract["isolation_dataset"])
+    expected_expiration_ms = int(contract["retention_days"]) * 86_400_000
+    if (
+        dataset.default_table_expiration_ms != expected_expiration_ms
+        or (dataset.labels or {}).get("production_use") != "forbidden"
+    ):
+        raise RuntimeError("forensic isolation dataset contract differs")
     expires = datetime.now(timezone.utc) + timedelta(
         days=int(contract["retention_days"])
     )
@@ -322,6 +329,7 @@ def _write_warehouse_frames(
                 "expires_at": existing.expires.isoformat(),
                 "write_disposition": "WRITE_EMPTY",
                 "manifest_sha256": manifest["manifest_sha256"],
+                "cleanup_deadline": contract["cleanup_deadline"],
                 "reused_after_verified_retry": True,
             })
             continue
@@ -366,6 +374,7 @@ def _write_warehouse_frames(
             "expires_at": table.expires.isoformat(),
             "write_disposition": "WRITE_EMPTY",
             "manifest_sha256": manifest["manifest_sha256"],
+            "cleanup_deadline": contract["cleanup_deadline"],
         })
     return materialized
 

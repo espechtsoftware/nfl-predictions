@@ -470,6 +470,16 @@ def registry_outputs(manifest: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
                 "owner_action": "Download target GPP standings/payout CSV within ten days.",
                 "deadline": "after every settled 2026 contest",
             },
+            {
+                "check": "forensic review corpus removed from BigQuery",
+                "status": "required_before_production_build",
+                "evidence": manifest["warehouse_retention"],
+                "owner_action": (
+                    "Run the manifest-bound cleanup, verify all four tables "
+                    "absent, and commit the receipt."
+                ),
+                "deadline": "before first 2026 production feature/lineup build",
+            },
         ]
     }
     prospective_rows = [

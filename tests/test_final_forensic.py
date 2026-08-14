@@ -178,7 +178,10 @@ def _warehouse_retention():
     return {
         "retention_days": 90,
         "write_disposition": "WRITE_EMPTY",
-        "extension_policy": "extend_only_before_expiry",
+        "extension_policy": "extend_only_until_cleanup_deadline",
+        "isolation_dataset": "nfl-predictions-503414.nfl_forensic_review",
+        "cleanup_policy": "delete_after_review_before_week1",
+        "cleanup_deadline": "before_first_2026_production_build",
         "tables": [
             {
                 "id": table_id,

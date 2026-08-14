@@ -133,7 +133,7 @@ WAREHOUSE_TABLE_SCHEMAS = {
     ],
 }
 WAREHOUSE_TABLE_PREFIX = (
-    "nfl-predictions-503414.nfl_predictions.final_forensic_20260814_"
+    "nfl-predictions-503414.nfl_forensic_review.final_forensic_20260814_"
 )
 LEDGER_STATUSES = frozenset({
     "selected",
@@ -381,14 +381,23 @@ def validate_freeze_manifest(
     warehouse = manifest.get("warehouse_retention", {})
     if set(warehouse) != {
         "retention_days", "write_disposition", "extension_policy", "tables",
+        "isolation_dataset", "cleanup_policy", "cleanup_deadline",
     }:
         failures.append("warehouse retention contract has unknown/missing fields")
     if warehouse.get("retention_days") != 90:
         failures.append("warehouse retention_days must be exactly 90")
     if warehouse.get("write_disposition") != "WRITE_EMPTY":
         failures.append("warehouse write disposition must be WRITE_EMPTY")
-    if warehouse.get("extension_policy") != "extend_only_before_expiry":
-        failures.append("warehouse extension policy is not extend-only")
+    if warehouse.get("extension_policy") != "extend_only_until_cleanup_deadline":
+        failures.append("warehouse extension policy differs")
+    if warehouse.get("isolation_dataset") != (
+        "nfl-predictions-503414.nfl_forensic_review"
+    ):
+        failures.append("warehouse isolation dataset differs")
+    if warehouse.get("cleanup_policy") != "delete_after_review_before_week1":
+        failures.append("warehouse cleanup policy differs")
+    if warehouse.get("cleanup_deadline") != "before_first_2026_production_build":
+        failures.append("warehouse cleanup deadline differs")
     warehouse_tables = warehouse.get("tables", [])
     table_by_id = {str(row.get("id", "")): row for row in warehouse_tables}
     if len(warehouse_tables) != 4 or set(table_by_id) != set(WAREHOUSE_TABLE_SCHEMAS):

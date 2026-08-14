@@ -30,7 +30,8 @@ agent or developer:
   new realized outcome query was run and no forensic destination table has
   been created by this implementation work.
 - The manifest pins four fully qualified, write-once (`WRITE_EMPTY`) BigQuery
-  tables in `nfl-predictions-503414.nfl_predictions`: suffixes
+  tables in the dedicated, production-inaccessible
+  `nfl-predictions-503414.nfl_forensic_review` dataset: suffixes
   `final_forensic_20260814_player_corpus`, `_candidate_corpus`,
   `_actual_selections` and `_oracle_rosters`. Their exact field/type/mode
   schemas are code-frozen. Every row includes the manifest hash, immutable
@@ -39,13 +40,27 @@ agent or developer:
   distribution fields; the candidate table retains every roster and frozen
   selection metric; the selection table retains the ordered exact-80 books;
   and the oracle table retains independently audited H/P/C/S rosters and gaps.
-- Retention is exactly 90 days from materialization. The runner attaches and
-  verifies expiration metadata, records table ids/row counts/expiry timestamps
-  in the provenance output, supports only a verified same-manifest retry after
-  a completed partial multi-table write, and refuses an unrelated or
-  schema/row-count-drifted existing destination. Expiry may be extended before
-  it occurs; the protocol forbids shortening retention, replacing/truncating a
-  table or deleting it before its recorded expiry.
+- Automatic expiration is 90 days from materialization as a failure backstop,
+  but the operator subsequently required removal before Week 1. The binding
+  cleanup deadline is now before the first 2026 production feature/lineup
+  build and, operationally, before the Aug 24 scheduler resume. The runner
+  attaches and verifies expiration metadata, records table ids/row counts/
+  expiry timestamps in provenance, supports only a verified same-manifest
+  retry after a completed partial multi-table write, and refuses an unrelated
+  or schema/row-count-drifted existing destination.
+- New manifest-bound cleanup command
+  `scripts/cleanup_final_forensic_warehouse.py` requires all four exact schemas,
+  full manifest identity, labels and expirations before deleting anything. It
+  deletes only the four frozen tables, independently proves each is absent and
+  emits a write-once receipt; `--verify-only` requires that receipt and fails
+  if any table reappears. The receipt must be committed/pushed before production
+  schedulers resume. Production configuration names only `nfl_raw`,
+  `nfl_features` and `nfl_predictions`, never the isolated review dataset.
+- Dataset `nfl-predictions-503414:nfl_forensic_review` now exists in `US` with
+  `defaultTableExpirationMs=7776000000` (90 days), labels
+  `purpose=final_preseason_forensic` and `production_use=forbidden`, and an
+  explicit temporary-review description. It is empty; creation did not query
+  or write a historical outcome.
 - The forensic runner now emits the exact nine-output JSON contract in
   addition to the queryable corpus: H/P/C/S, exact-80 and nested 20/40/80
   portfolio distributions, available first-place context, the limited 2025
@@ -54,8 +69,13 @@ agent or developer:
   outputs. It labels places 2--5 and exact multi-season ROI unidentifiable
   because complete standings/payout rows are absent rather than fabricating
   them.
-- Focused manifest, H/P/C/S, corpus, output-builder and multi-seed validation
-  passes 24 tests; Python compilation and whitespace validation pass. The
+- The arm registry now has 46 rows and every one of the 12 certificate families
+  has an explicit disposition: role12 availability, the historical construction
+  census, the contest-choice evidence gap and the pre-Week-1 operations blocker
+  fill the four previously empty taxonomy families without fabricating a new
+  experiment or result.
+- Focused manifest, H/P/C/S, corpus, cleanup, output-builder and multi-seed
+  validation passes 26 tests; Python compilation and whitespace validation pass. The
   exact-80 corpus test proves 80 ordered selections and four independently
   legal H/P/C/S rows are preserved.
 - Validation-only Cloud Builds are terminal success:
@@ -66,12 +86,16 @@ agent or developer:
   `sha256:347a922effeef5b5f26403dd2ca057c740e632664c76677a035f9ef5fb423e34`
   from commit `830729c`. Neither digest contains this retained-corpus extension
   and neither may be named in the final freeze manifest.
+- Exact-commit build `ff5d548f-89f6-4dea-a1de-fb877bf618dc` was launched from
+  pushed commit `3557cf1` and is currently `WORKING`; the later review-dataset
+  isolation/cleanup requirement means its eventual image is validation-only.
+  A superseding exact-commit build is required after the cleanup-gate commit.
 - Next concrete action: commit/push this outcome-free extension, run the full
-  exact-commit Cloud Build, then create and commit the freeze inputs/manifest
-  pinned to that digest and these four table contracts. Only after that commit
-  may the first new outcome query or forensic table write occur. After the run,
-  record exact expirations here so an independent reviewer can request an
-  extension before the 90-day window closes.
+  exact-commit Cloud Build, create/verify the isolated dataset, then create and
+  commit the freeze inputs/manifest pinned to that digest and these four table
+  contracts. Only after that commit may the first new outcome query or forensic
+  table write occur. After the independent review, run/commit the deletion
+  receipt before Aug 24; the production resume is blocked until absence verifies.
 
 ### 2026-08-14 final-forensic freeze/analyzer primitives implemented outcome-free
 

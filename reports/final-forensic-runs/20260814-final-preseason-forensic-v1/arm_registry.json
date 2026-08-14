@@ -466,5 +466,67 @@
     "gate": "The current-stack replication rejected the extreme selector and retained line 194.",
     "production_relevance": "none",
     "transfer_boundary": "No post-result threshold or hybrid retry."
+  },
+  {
+    "id": "role12-availability-union",
+    "family": "availability_and_role_change",
+    "stage": "role-change candidate union and production transport",
+    "status": "selected",
+    "protocol_paths": [],
+    "result_paths": [],
+    "supporting_paths": [
+      "reports/2026-08-10-scoring-opportunity-roadmap.md",
+      "reports/2026-08-10-tail-first-adoption-review.md"
+    ],
+    "gate": "The exact-80 role12 union improved the operator's weekly-maximum tail objective and was adopted under an explicit objective override while its original season-stability verdict remained failed.",
+    "operator_override": "Tail-first weekly-maximum utility superseded the older season-stability adoption gate without rewriting that gate result.",
+    "production_relevance": "direct-role12 remains in deployed K=1 CBWU v4",
+    "transfer_boundary": "Does not license a new role dose, feature set, seed, vacancy rule or retrospective role-change subset."
+  },
+  {
+    "id": "historical-roster-construction-census",
+    "family": "roster_construction",
+    "stage": "terminal construction-mechanism census",
+    "status": "operational_complete",
+    "protocol_paths": [],
+    "result_paths": [],
+    "supporting_paths": [
+      "reports/2026-08-08-80-entry-tail-audit.md",
+      "reports/2026-08-10-scoring-opportunity-roadmap.md",
+      "reports/2026-08-10-corrected-floor-union-experiment.md",
+      "reports/2026-07-25-system-study.md"
+    ],
+    "gate": "The construction census records the terminal no-floor, stack/bring-back, salary-shape, punt and qualifier findings and retains the deployed salary/legality/stack constraints; H/P/C/S will quantify remaining support-versus-construction loss without retroactive tuning.",
+    "production_relevance": "current legal roster constraints and H/P/C/S construction-gap audit",
+    "transfer_boundary": "A genuinely new legal generator remains prospective; no observed-week construction parameter sweep is licensed."
+  },
+  {
+    "id": "contest-choice-evidence-gap",
+    "family": "contest_choice",
+    "stage": "contest and standings identifiability audit",
+    "status": "prospective_only",
+    "protocol_paths": [],
+    "result_paths": [],
+    "supporting_paths": [
+      "reports/2026-08-10-contest-placement-roi-audit.md"
+    ],
+    "gate": "Historical contest choice cannot be optimized from first-place-only files; complete field standings, payouts, fees, duplication and operator entry history are required.",
+    "production_relevance": "2026 standings/payout acquisition and contest-choice shadow",
+    "transfer_boundary": "Freeze contest attributes and an allocation rule before outcomes; do not infer contest choice or ROI from score thresholds alone."
+  },
+  {
+    "id": "week1-operational-dress-rehearsal",
+    "family": "operations",
+    "stage": "end-to-end production readiness",
+    "status": "deferred_with_falsifier",
+    "protocol_paths": [],
+    "result_paths": [],
+    "supporting_paths": [
+      "README.md",
+      "reports/2026-08-11-final-preseason-forensic-closure-protocol.md"
+    ],
+    "gate": "Cloud deployment, vendor launchers, backups and fallback are implemented; the final authenticated 2026 Week-1 slate-to-DraftKings exact-80 rehearsal is explicitly blocked until a real upcoming slate exists.",
+    "production_relevance": "mandatory operator-owned blocker before first paid Week-1 entry",
+    "transfer_boundary": "Close only after one outcome-unseen slate proves acquisition, feature build, five-search CBWU transport, UI/API identity, exact draftable IDs, CSV, alerts, backup and fallback."
   }
 ]

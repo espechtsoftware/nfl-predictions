@@ -410,10 +410,15 @@ new outcome.
    the salary/player corpus, every reconstructed candidate, the exact submitted
    selections and the H/P/C/S oracle rosters. The freeze manifest pins each
    fully qualified table name, field/type/mode schema, write disposition and a
-   minimum 90-day retention period. Every row carries the manifest hash,
+   90-day automatic-expiration backstop. Put the tables in the dedicated
+   `nfl_forensic_review` dataset, which no production feature, projection,
+   candidate or selection path may read. Every row carries the manifest hash,
    analysis image, analysis code SHA, evidence scope, season and week. The run
    records the actual table expiration timestamps and row counts in the
-   provenance output and `HANDOFF.md`. Retention may be extended before expiry;
-   it may not be shortened and the tables may not be replaced, truncated or
-   deleted before their recorded expiry. Summary JSON is not a substitute for
-   this queryable corpus.
+   provenance output and `HANDOFF.md`. Keep them only through the independent
+   review, then run the manifest-bound deletion/absence verifier and commit its
+   receipt before the first 2026 production feature/lineup build. The 90-day
+   expiry is a failure backstop, not permission to retain them into the season;
+   any extension must still end before that cleanup gate. Until cleanup, the
+   tables may not be replaced or truncated. Summary JSON is not a substitute
+   for the temporary queryable corpus.
