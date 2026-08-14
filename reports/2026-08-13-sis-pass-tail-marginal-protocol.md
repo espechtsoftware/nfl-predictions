@@ -67,6 +67,16 @@ They are diagnostics without a season veto. This gate deliberately prioritizes
 proper tail scores over average error while preventing one populous position
 from deciding the result alone.
 
+Implementation clarification frozen before either cache was generated: use
+historical reconstruction panel
+`20260811-pitclean-e80-k1-role12union-a12ab31`, because the later selected
+exact-80 panel contains only 2023--2025 and cannot supply the required 2022
+calibration fold. Reconstruct both arms under the already accepted finite
+Dirichlet `K=28.154043586960896`, possession simulator, 10,000 worlds, seed 0,
+fitted widening and 45/55 model/market blend. This is the current marginal
+context only; the conditional exact-80 follow-on still must use whichever
+allocation law Phase S ultimately selects.
+
 ## Conditional exact-80 follow-on
 
 A pass licenses one separately frozen five-seed exact-80 control/treatment

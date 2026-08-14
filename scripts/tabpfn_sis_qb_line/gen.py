@@ -15,7 +15,28 @@ import torch
 from google.cloud import bigquery
 from tabpfn import TabPFNRegressor
 
-if os.environ.get("TABPFN_SIS_RB_RDEF_ARM", "").strip():
+if os.environ.get("TABPFN_SIS_PASS_TAIL_ARM", "").strip():
+    from sis_pass_tail import (
+        SIS_PASS_TAIL_FEATURES,
+        SIS_SOURCE_RUN,
+        active_pass_tail_coverage as active_coverage,
+        attach_sis_pass_tail as attach_features,
+        build_strict_prior_sis_pass_tail as build_strict_prior,
+        feature_contract,
+    )
+    ARM_FEATURES = SIS_PASS_TAIL_FEATURES
+    SOURCE_HASH_COLUMNS = ()
+    EXPERIMENT = "sis-pass-tail"
+    ARM_ENV = "TABPFN_SIS_PASS_TAIL_ARM"
+    OUTPUT_PREFIX = "TABPFN_SIS_PASS_TAIL_JSON="
+    COVERAGE_KEY = "active_pass_tail_coverage"
+    SUPPORT_STEM = "sis_pass_tail"
+    SIS_TABLE = "sis_team_context_game"
+    TABLES = {
+        "control": "tabpfn_sis_pass_tail_control_v1",
+        "treatment": "tabpfn_sis_pass_tail_treatment_v1",
+    }
+elif os.environ.get("TABPFN_SIS_RB_RDEF_ARM", "").strip():
     from sis_rb_rdef import (
         SIS_RB_FEATURE,
         SIS_SOURCE_RUN,
@@ -82,6 +103,16 @@ def _validate_environment() -> None:
         raise ValueError(f"arm {ARM} requires TABPFN_OUTPUT_TABLE={TABLES[ARM]}")
     if not re.fullmatch(r"[0-9a-f]{7,40}", CODE_SHA):
         raise ValueError("CODE_SHA must be an immutable Git commit identity")
+    other_arm_envs = [
+        name for name in (
+            "TABPFN_SIS_PASS_TAIL_ARM", "TABPFN_SIS_RB_RDEF_ARM",
+            "TABPFN_SIS_QB_LINE_ARM",
+        )
+        if name != ARM_ENV and os.environ.get(name, "").strip()
+    ]
+    if other_arm_envs:
+        raise ValueError(
+            f"{EXPERIMENT} cache has competing arm envs: {other_arm_envs}")
     forbidden = (
         "EXTRA_FEATURES", "DROP_FEATURES", "TABPFN_COMPONENTS",
         "TABPFN_UPCOMING", "TABPFN_SEASONS", "TABPFN_WRITE",

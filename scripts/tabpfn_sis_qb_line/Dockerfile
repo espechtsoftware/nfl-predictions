@@ -9,5 +9,6 @@ RUN python -c "from tabpfn import TabPFNRegressor; TabPFNRegressor(device='cpu')
 COPY scripts/tabpfn_sis_qb_line/gen.py /app/gen.py
 COPY scripts/tabpfn_gen/features.txt /app/features_control.txt
 COPY src/nfl_dfs/research/tabpfn_sis_qb_line.py /app/sis_qb_line.py
+COPY src/nfl_dfs/research/tabpfn_sis_pass_tail.py /app/sis_pass_tail.py
 
 CMD ["python", "/app/gen.py"]

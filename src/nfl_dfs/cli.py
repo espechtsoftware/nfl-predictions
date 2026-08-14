@@ -348,6 +348,12 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--panel", required=True)
 
     p = sub.add_parser(
+        "tabpfn-sis-pass-tail-final-served",
+        help="Gate frozen SIS opponent pass-tail caches on served upper tails",
+    )
+    p.add_argument("--panel", required=True)
+
+    p = sub.add_parser(
         "tabpfn-sis-rb-rdef-final-served",
         help="Gate frozen SIS RB run-defense caches on final-served tails",
     )
@@ -913,6 +919,10 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import tabpfn_sis_qb_line_final_served
 
         tabpfn_sis_qb_line_final_served.run(args.panel)
+    elif args.command == "tabpfn-sis-pass-tail-final-served":
+        from .analysis import tabpfn_sis_pass_tail_final_served
+
+        tabpfn_sis_pass_tail_final_served.run(args.panel)
     elif args.command == "tabpfn-sis-rb-rdef-final-served":
         from .analysis import tabpfn_sis_rb_rdef_final_served
 

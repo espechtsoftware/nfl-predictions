@@ -20,7 +20,29 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 21:25 CDT
+## Current state — 2026-08-13 21:45 CDT
+
+### 2026-08-13 SIS pass-tail cache and score gate implemented prospectively
+
+- On `main` from UI commit `be255fc`, the frozen pass-tail arm now has a
+  dedicated strict-prior helper, the common TabPFN GPU generator supports its
+  exact three-column treatment, and write-once launch/finish/validation
+  scripts target `tabpfn_sis_pass_tail_{control,treatment}_v1`.
+- Before either cache was generated, implementation reconciled the required
+  2022 calibration fold: final-served reconstruction is bound to historical
+  panel `20260811-pitclean-e80-k1-role12union-a12ab31`, finite Dirichlet
+  `K=28.154043586960896`, 10,000 worlds, seed 0, fitted widening and the 45/55
+  model/market blend. The protocol records this prospective clarification;
+  the exact-80 follow-on still inherits the later Phase-S allocation law.
+- The separate score gate independently fits each arm's walk-forward position
+  schedule and applies the registered equal-position/equal-q95/q99 pinball
+  gate on active QB/WR/TE. It also persists every position/season fold,
+  Brier/reliability at 20/25/30, q90/q95/q99 calibration and pinball, CRPS,
+  MAE, mean preservation and paired slate-cluster uncertainty.
+- Validation passes: 22 focused new/regression TabPFN SIS tests, Python
+  compilation, shell syntax and whitespace checks. Exact next action is commit
+  and push, build both exact-commit audit and GPU images, then launch the
+  write-once cache pair. No treatment prediction or score has been read.
 
 ### 2026-08-13 repository explainer promoted into the product UI
 
@@ -33,11 +55,14 @@ agent or developer:
 - The app package already includes `static/*`, so the normal production image
   carries the page without a separate Docker copy. The route adds a small
   product navigation bar while preserving the standalone explainer styling.
-- Validation passes: the full `tests/test_app.py` plus the in-progress SIS
-  pass-tail helper tests, Python compilation and whitespace checks. Exact next
-  UI action is build the associated main commit and deploy its immutable image
-  to the existing Cloud Run UI service after the current code milestone is
-  pushed.
+- Validation passes: the full `tests/test_app.py`, focused route checks,
+  Python compilation and whitespace checks. Exact-commit Cloud Build
+  `be0dfcad-c9d9-4aef-884a-3c446d1c328d` passed and produced digest
+  `sha256:3f91211d7837d6705e8e8824d33f682cac87e4c814f8fb75aa7887ca11ccebb2`.
+  Cloud Run service `nfl-dfs-app` is ready on revision
+  `nfl-dfs-app-00069-np4` with that digest. Anonymous HTTP redirects through
+  the existing IAP login as expected; the exact page/navigation assertions
+  passed in Cloud Build.
 
 ### 2026-08-13 SIS paid-surface gaps reopened with bounded next tests
 
