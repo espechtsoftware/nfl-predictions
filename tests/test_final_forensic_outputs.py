@@ -104,6 +104,7 @@ def test_warehouse_frames_retain_full_corpus_exact80_and_hpcs_rosters():
     )
 
     assert len(frames["player_corpus"]) == 89
+    assert not frames["player_corpus"].feature_missing_any.any()
     assert len(frames["candidate_corpus"]) == 80
     assert frames["actual_selections"].selected_rank.tolist() == list(range(80))
     assert frames["oracle_rosters"].layer.tolist() == ["H", "P", "C", "S"]

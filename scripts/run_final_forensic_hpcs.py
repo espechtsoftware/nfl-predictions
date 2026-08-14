@@ -682,7 +682,8 @@ def main() -> int:
                 "candidate_rows": len(combined_candidates),
                 "player_rows": len(features),
                 "feature_missing_rows": int(
-                    features.feature_missing.fillna(False).astype(bool).sum()
+                    features.feature_missing.fillna("[]").astype(str)
+                    .str.strip().str.lower().ne("[]").sum()
                 ),
             },
         })

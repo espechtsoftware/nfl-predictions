@@ -249,6 +249,14 @@ def _nullable_float(value: Any) -> float | None:
     return float(value)
 
 
+def _feature_missing(value: Any) -> tuple[str, bool]:
+    raw = _nullable_string(value)
+    if raw is None:
+        return "[]", False
+    normalized = raw.strip()
+    return raw, normalized.lower() not in {"", "[]", "null", "none"}
+
+
 def _ordered_warehouse_frame(table_id: str, rows: list[dict[str, Any]]) -> pd.DataFrame:
     fields = WAREHOUSE_TABLE_SCHEMAS[table_id]
     columns = [field["name"] for field in fields]
@@ -304,6 +312,9 @@ def warehouse_slate_frames(
     player_by_id = player_frame.set_index("id")
     player_rows = []
     for row in player_frame.itertuples(index=False):
+        missing_raw, missing_any = _feature_missing(
+            getattr(row, "feature_missing", None)
+        )
         player_rows.append({
             **provenance,
             "slate_run_id": _nullable_string(getattr(row, "slate_run_id", None)),
@@ -321,11 +332,8 @@ def warehouse_slate_frames(
             "proj_p50": _nullable_float(getattr(row, "proj_p50", None)),
             "proj_p90": _nullable_float(getattr(row, "proj_p90", None)),
             "proj_std": _nullable_float(getattr(row, "proj_std", None)),
-            "feature_missing": (
-                False
-                if pd.isna(getattr(row, "feature_missing", False))
-                else bool(getattr(row, "feature_missing", False))
-            ),
+            "feature_missing": missing_raw,
+            "feature_missing_any": missing_any,
         })
 
     candidate_rows = []

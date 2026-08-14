@@ -71,7 +71,8 @@ WAREHOUSE_TABLE_SCHEMAS = {
         {"name": "proj_p50", "type": "FLOAT", "mode": "NULLABLE"},
         {"name": "proj_p90", "type": "FLOAT", "mode": "NULLABLE"},
         {"name": "proj_std", "type": "FLOAT", "mode": "NULLABLE"},
-        {"name": "feature_missing", "type": "BOOLEAN", "mode": "REQUIRED"},
+        {"name": "feature_missing", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "feature_missing_any", "type": "BOOLEAN", "mode": "REQUIRED"},
     ],
     "candidate_corpus": [
         {"name": "manifest_sha256", "type": "STRING", "mode": "REQUIRED"},

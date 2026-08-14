@@ -61,6 +61,16 @@ agent or developer:
   `purpose=final_preseason_forensic` and `production_use=forbidden`, and an
   explicit temporary-review description. It is empty; creation did not query
   or write a historical outcome.
+- A live outcome-free schema audit caught that
+  `slate_player_features.feature_missing` is a required STRING containing a
+  serialized feature-name list (`[]` on all 228,048 relevant source rows), not
+  a BOOL. The retained player schema now preserves that raw STRING and derives
+  a separate required `feature_missing_any` BOOL; the summary count uses the
+  same empty-list semantics. This prevents the truthiness of string `[]` from
+  falsely labeling every player row as missing. Candidate preflight also found
+  zero null roster/index/salary/selection/score-metric fields and zero incomplete
+  labels across 40,724 replay plus 68,493 staging rows; no actual score was
+  selected or aggregated in these checks.
 - The forensic runner now emits the exact nine-output JSON contract in
   addition to the queryable corpus: H/P/C/S, exact-80 and nested 20/40/80
   portfolio distributions, available first-place context, the limited 2025
@@ -96,6 +106,9 @@ agent or developer:
   `forensic-a8ca7b5`; if successful, its immutable digest is the only current
   analyzer image eligible for the freeze manifest. Later HANDOFF-only commits
   do not change that analyzer-code identity.
+- The subsequent live STRING/list schema correction changes analyzer code and
+  makes both in-flight builds validation-only. Commit it and launch one final
+  superseding full build; do not freeze `a8ca7b5` or either in-flight digest.
 - Next concrete action: commit/push this outcome-free extension, run the full
   exact-commit Cloud Build, create/verify the isolated dataset, then create and
   commit the freeze inputs/manifest pinned to that digest and these four table
