@@ -20,7 +20,29 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 22:05 CDT
+## Current state — 2026-08-13 22:25 CDT
+
+### 2026-08-13 Phase R source panel complete; one quota-lost slice repairing
+
+- All 30 registered multinomial/finite-K replay executions are now clean
+  Cloud Run successes. The final clean retry was 2025 finite-K R4 execution
+  `replay-gtrk4-2025-66fnq`.
+- Frozen analyzer execution `analyze-game-team-usage-phase-r-v1-phwnl`
+  correctly failed its completeness gate because multinomial R0 had 53 rather
+  than 54 slates. The original successful 2025 execution log proves the
+  missing slice is Week 4: its candidate artifact and feature rows persisted,
+  but the 256-row candidate-table append received BigQuery HTTP 429 (too many
+  concurrent table update operations). The replay continued, so Cloud Run's
+  success status alone did not expose the missing append.
+- The append-only repair path is now tracked in
+  `scripts/cloud_repair_game_team_usage_phase_r_week4.sh` and its finish
+  script. It reproduces weeks 1--4 under the exact original immutable image,
+  seeds, levers and lineup table into a provenance-only panel; the finish
+  script validates Week 4, appends only that absent slice to the original
+  panel, retains provenance rows, and launches the unchanged frozen analyzer.
+  No arm definition or decision rule changes. Exact next action is launch the
+  repair, poll it, run its finish script, then harvest the successful analyzer
+  and launch Phase S.
 
 ### 2026-08-13 SIS pass-tail caches validated; frozen score gate running
 
@@ -45,8 +67,10 @@ agent or developer:
   data, arm, panel and frozen evaluation rules were not implicated or changed.
   The allowlist now explicitly includes only those two exact tables and a
   regression test covers both direct resolution and context restoration; 18
-  focused replay/pass-tail tests pass. Build an exact-commit audit image and
-  retry the unchanged final-served evaluation once on that digest.
+  focused replay/pass-tail tests pass. Repair commit `0c86821` is pushed;
+  exact-commit Cloud Build `ac2ceacb-b0f1-446a-a5fe-305546fa60f4` is active.
+  When it passes, resolve its immutable digest and retry the unchanged
+  final-served evaluation once on that digest.
 
 ### 2026-08-13 SIS pass-tail cache and score gate implemented prospectively
 
