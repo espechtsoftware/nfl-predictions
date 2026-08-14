@@ -68,6 +68,11 @@ release check detected treatment R2/2023 replacement
 logs beyond the platform error, zero candidate rows, zero feature rows and
 zero candidate-world artifacts, so it was returned to the pending queue. The
 releaser launched nothing and edited no ledger before this classification.
+Two other replacements from the same overloaded wave subsequently terminated
+with the identical signature: control R0/2025
+`replay-sisasoec0-2025-v6jfr` and treatment R4/2023
+`replay-sisasoet4-2023-hqskx`. Each also has zero candidate rows, feature rows
+and artifacts and is queued without a new launch.
 
 This response preserves Phase S's scientific validity while removing the two
 actionable operational hazards: resource over-release and trust in manual

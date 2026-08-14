@@ -55,6 +55,13 @@ agent or developer:
   zero feature rows and zero candidate-world artifacts. It is now back in
   `pending_infrastructure_retries.txt`. No outcome was read and the main
   execution ledger was not changed.
+- The status-only monitor then found two more replacements from the overloaded
+  wave had the identical 30-minute internal-error/exit-0 signature: control
+  R0/2025 `replay-sisasoec0-2025-v6jfr` and treatment R4/2023
+  `replay-sisasoet4-2023-hqskx`. Both have only the platform error log and zero
+  candidate rows, feature rows and candidate-world artifacts, so both are also
+  in the pending bounded queue. No replacement was launched at the still-high
+  active occupancy.
 - Continue status-only polling. Do not release any queued retry until the
   current nonterminal count is below ten; then run
   `scripts/cloud_release_sis_asoe_phase_s_retry.sh`, which releases at most one
