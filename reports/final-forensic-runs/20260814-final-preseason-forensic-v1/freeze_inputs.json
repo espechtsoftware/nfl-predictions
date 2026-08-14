@@ -1,0 +1,650 @@
+{
+  "analysis_image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:1d4241a5bcb6e4f540595cf48d77b8e32344ef96d359e88022a291350bd9b50e",
+  "analysis_code_sha": "0a50bfbef72210ed7a6bad7fb193671bc66db414",
+  "production": {
+    "policy_id": "classic-k1-role12-boom40-poscal-cbwu-v4",
+    "fallback_policy_id": "classic-k1-ce12-boom28-v1",
+    "service_revision": "nfl-dfs-app-00071-njm",
+    "service_image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:c46b5a3b7244b3c25a62cb6cf4735583f79bc4fed006d113280b7255e3a377df",
+    "component_panel": "20260811-pitclean-e80-k1-role12union-a12ab31",
+    "position_panel": "20260812-pitclean-e80-selected-position-scales-v2",
+    "cbwu_panel": "20260813-multiseed-candidate-world-v1"
+  },
+  "panels": [
+    {
+      "estimand": "107-slate component/candidate/selector evidence",
+      "expected_player_rows": 50418,
+      "expected_rows": 27051,
+      "expected_slates": 107,
+      "id": "component-107",
+      "outcome_columns_excluded": [
+        "replay_candidates.actual_score",
+        "replay_candidates.actual_rank",
+        "slate_player_features.actual"
+      ],
+      "panel_ids": [
+        "20260811-pitclean-e80-k1-role12union-a12ab31"
+      ],
+      "prelock_candidate_summary": {
+        "row_count": 27051,
+        "row_max": 9222852004600353000,
+        "row_min": -9222917006920500000,
+        "row_sum": "1037021044469016917342",
+        "row_xor": -2045065899662479600,
+        "seasons": [
+          2019,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "slate_count": 107
+      },
+      "prelock_feature_summary": {
+        "row_count": 50418,
+        "row_max": 9223209806275316000,
+        "row_min": -9222660106227041000,
+        "row_sum": "-2051534357438685893573",
+        "row_xor": -2109972890134630100,
+        "seasons": [
+          2019,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "slate_count": 107
+      },
+      "prelock_row_hash": "ab3720efba6427210d0ae2d306abfba56a0315aa43fab2345c1e78d3f5363e2c",
+      "scope_boundary": "2019 and 2021-2025 component policy; not position/ASOE/CBWU v4",
+      "seasons": [
+        2019,
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "table": "nfl-predictions-503414.nfl_predictions.replay_candidates + nfl-predictions-503414.nfl_predictions.slate_player_features"
+    },
+    {
+      "estimand": "54-slate position-calibrated finite-K evidence",
+      "expected_player_rows": 29605,
+      "expected_rows": 13673,
+      "expected_slates": 54,
+      "id": "position-54",
+      "outcome_columns_excluded": [
+        "replay_candidates.actual_score",
+        "replay_candidates.actual_rank",
+        "slate_player_features.actual"
+      ],
+      "panel_ids": [
+        "20260812-pitclean-e80-selected-position-scales-v2"
+      ],
+      "prelock_candidate_summary": {
+        "row_count": 13673,
+        "row_max": 9222750864269868000,
+        "row_min": -9223350239856663000,
+        "row_sum": "-532976740523322362558",
+        "row_xor": -9130643030763897000,
+        "seasons": [
+          2023,
+          2024,
+          2025
+        ],
+        "slate_count": 54
+      },
+      "prelock_feature_summary": {
+        "row_count": 29605,
+        "row_max": 9222477390844264000,
+        "row_min": -9221807178924199000,
+        "row_sum": "-858255317604653737169",
+        "row_xor": 2364741270666298400,
+        "seasons": [
+          2023,
+          2024,
+          2025
+        ],
+        "slate_count": 54
+      },
+      "prelock_row_hash": "8cb6f8f5b0b861cbe3f5b99d778373a6bc76d254d583957e0607f0e0d1e8342b",
+      "scope_boundary": "2023-2025 only; not a 107-slate CBWU v4 book",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "table": "nfl-predictions-503414.nfl_predictions.replay_candidates + nfl-predictions-503414.nfl_predictions.slate_player_features"
+    },
+    {
+      "estimand": "54-slate five-search/five-world CBWU reconstruction evidence",
+      "expected_player_rows": 148025,
+      "expected_rows": 68493,
+      "expected_slates": 54,
+      "id": "phase-s-cbwu-54",
+      "outcome_columns_excluded": [
+        "replay_candidates.actual_score",
+        "replay_candidates.actual_rank",
+        "slate_player_features.actual"
+      ],
+      "panel_ids": [
+        "20260813-sis-asoe-treatment-r0-v1",
+        "20260813-sis-asoe-treatment-r1-v1",
+        "20260813-sis-asoe-treatment-r2-v1",
+        "20260813-sis-asoe-treatment-r3-v1",
+        "20260813-sis-asoe-treatment-r4-v1"
+      ],
+      "prelock_candidate_summary": {
+        "row_count": 68493,
+        "row_max": 9223349435193717000,
+        "row_min": -9222899301205158000,
+        "row_sum": "-1488571854430793341898",
+        "row_xor": 1771716831806207200,
+        "seasons": [
+          2023,
+          2024,
+          2025
+        ],
+        "slate_count": 54
+      },
+      "prelock_feature_summary": {
+        "row_count": 148025,
+        "row_max": 9223370687994906000,
+        "row_min": -9223353789631752000,
+        "row_sum": "-825081132763371553218",
+        "row_xor": -2432710597272234000,
+        "seasons": [
+          2023,
+          2024,
+          2025
+        ],
+        "slate_count": 54
+      },
+      "prelock_row_hash": "869a648ade3919b8942d8489795b208484c448ca73873cfcacede84effb13e7e",
+      "scope_boundary": "2023-2025 Phase S treatment R0-R4 plus frozen fixed-budget CBWU analyzer; no persisted standalone CBWU panel and no 107-slate claim",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "table": "nfl-predictions-503414.nfl_predictions.replay_candidates_staging + nfl-predictions-503414.nfl_predictions.slate_player_features"
+    }
+  ],
+  "warehouse_retention": {
+    "retention_days": 90,
+    "write_disposition": "WRITE_EMPTY",
+    "extension_policy": "extend_only_until_cleanup_deadline",
+    "tables": [
+      {
+        "id": "actual_selections",
+        "table": "nfl-predictions-503414.nfl_forensic_review.final_forensic_20260814_actual_selections",
+        "schema": [
+          {
+            "mode": "REQUIRED",
+            "name": "manifest_sha256",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "analysis_code_sha",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "analysis_image",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "scope",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "season",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "week",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "selected_rank",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "candidate_index",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "roster_ordered",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "roster_key",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "salary",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "actual_score",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "p_line",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "sim_mean",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "sim_q99",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "tag",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "all_tags",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "source_candidate_json",
+            "type": "STRING"
+          }
+        ]
+      },
+      {
+        "id": "candidate_corpus",
+        "table": "nfl-predictions-503414.nfl_forensic_review.final_forensic_20260814_candidate_corpus",
+        "schema": [
+          {
+            "mode": "REQUIRED",
+            "name": "manifest_sha256",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "analysis_code_sha",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "analysis_image",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "scope",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "season",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "week",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "panel_run_id",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "source_seed",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "candidate_index",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "roster_ordered",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "roster_key",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "salary",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "actual_score",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "selected",
+            "type": "BOOLEAN"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "selected_rank",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "p_line",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "sim_mean",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "sim_q99",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "tag",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "all_tags",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "source_candidate_json",
+            "type": "STRING"
+          }
+        ]
+      },
+      {
+        "id": "oracle_rosters",
+        "table": "nfl-predictions-503414.nfl_forensic_review.final_forensic_20260814_oracle_rosters",
+        "schema": [
+          {
+            "mode": "REQUIRED",
+            "name": "manifest_sha256",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "analysis_code_sha",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "analysis_image",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "scope",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "season",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "week",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "layer",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "roster_key",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "salary",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "actual_score",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "solver_status",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "legality_verified",
+            "type": "BOOLEAN"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "player_support_gap",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "construction_gap",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "selection_gap",
+            "type": "FLOAT"
+          }
+        ]
+      },
+      {
+        "id": "player_corpus",
+        "table": "nfl-predictions-503414.nfl_forensic_review.final_forensic_20260814_player_corpus",
+        "schema": [
+          {
+            "mode": "REQUIRED",
+            "name": "manifest_sha256",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "analysis_code_sha",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "analysis_image",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "scope",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "season",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "week",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "slate_run_id",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "player_id",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "player_name",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "position",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "team",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "opponent",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "game_id",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "kickoff_time",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "salary",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "actual_score",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "mean_projection",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "proj_p10",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "proj_p50",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "proj_p90",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "proj_std",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "fp_route_source_season",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "fp_route_source_week",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "fp_route_prior_observations",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "fp_route_share_last",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "fp_route_share_l4",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "fp_route_share_jump",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "fp_route_cross_season",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "estimated_ownership",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "actual_ownership",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "actual_ownership_contests",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "feature_missing",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "feature_missing_any",
+            "type": "BOOLEAN"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "source_features_json",
+            "type": "STRING"
+          }
+        ]
+      }
+    ],
+    "isolation_dataset": "nfl-predictions-503414.nfl_forensic_review",
+    "cleanup_policy": "delete_after_review_before_week1",
+    "cleanup_deadline": "before_first_2026_production_build"
+  }
+}
+

@@ -94,12 +94,16 @@ agent or developer:
   US with a 90-day default expiration and labels
   `production_use=forbidden,purpose=final_preseason_forensic`; no forensic
   tables or outcome outputs have been materialized yet.
-- Next concrete action: freeze the immutable analyzer identity, deployed
-  production identity and the three existing outcome-free panel fingerprints
-  in the tracked manifest; commit/push that freeze before any outcome query;
-  upload the manifest with create-only semantics; then execute the one-time
-  isolated Cloud Run forensic job. Retain all four corpus tables for
-  independent review and delete them before the first 2026 production build.
+- The tracked freeze inputs and manifest now pin that analyzer digest/SHA,
+  deployed revision/image/policy/fallback, component/position/CBWU evidence
+  scopes, all 228 reports, all 56 ledger entries, the 36-item checklist and
+  four WRITE_EMPTY warehouse schemas. Outcome-free validation passes with
+  manifest SHA-256
+  `1b18161abb32ca4544d1184f7e3c9a4a5bea4577eb4e6a65ba58e62dcaf11c2f`.
+- Next concrete action: commit/push the freeze before any outcome query; upload
+  the manifest with create-only semantics; then execute the one-time isolated
+  Cloud Run forensic job. Retain all four corpus tables for independent review
+  and delete them before the first 2026 production build.
 
 ### 2026-08-14 seed executions reverified; TE prerequisite closes queue
 
