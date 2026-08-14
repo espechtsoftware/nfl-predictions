@@ -169,6 +169,15 @@ agent or developer:
   `cc1ddc35-d1e2-4971-b110-fa1623091e87` is running from `24ced17` with tag
   `nfl-dfs:multiseed-transport-24ced17`; use only its successful immutable
   digest for the guarded retry.
+- Exact-code build `cc1ddc35-d1e2-4971-b110-fa1623091e87` succeeded from
+  `24ced17`, passed 1,222 tests with 2 skipped, and published immutable digest
+  `sha256:279b81a693a786fdbea2ba2fecf61075c056561f5933e5b9582551cbebb48bac`.
+  The first guarded launch then exposed a provenance-check mismatch: the
+  deliberately empty `truncated_report.json` placeholder was incorrectly
+  required to be nonempty. The guard now validates the unterminated JSON
+  directly from the preserved first log line; this changes no scientific
+  input or computation. Validate and push this guard-only repair, then launch
+  the exact transport retry on that already-validated digest.
 
 ### 2026-08-14 Phase S complete; SIS ASOE selected; Route follow-ups ready
 

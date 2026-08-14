@@ -15,8 +15,10 @@ and decision checks.
 
 The retry must verify that the original execution is terminal successful, the
 stored log begins with the old report marker and is at least 100,000 bytes, and
-the stored partial report fails only with the registered unterminated-string
-signature. It preserves the source panels, code, source arm, candidate/world
-cells, metrics, gate, CPU, memory and timeout. The retry image/code and durable
-execution are recorded separately. The truncated log and partial JSON remain
-tracked as failure evidence and may not be cited as a result.
+the first log line's JSON payload fails only with the registered
+unterminated-string signature. It preserves the source panels, code, source
+arm, candidate/world cells, metrics, gate, CPU, memory and timeout. The retry
+image/code and durable execution are recorded separately. The truncated log
+and zero-byte report placeholder remain tracked as failure evidence; the
+placeholder records that no parseable report was materialized, and neither
+artifact may be cited as a result.

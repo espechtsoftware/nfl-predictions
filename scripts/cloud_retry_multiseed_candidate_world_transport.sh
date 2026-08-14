@@ -17,7 +17,7 @@ RETRY_MANIFEST="$OUT/analyzer_retry_manifest.txt"
 case "$IMG" in *@sha256:*) ;; *) echo "ABORT: immutable retry image required"; exit 2;; esac
 case "$CODE_SHA" in ''|*[!0-9a-f]*) echo "ABORT: lowercase hexadecimal retry code required"; exit 2;; esac
 [ -s "$MANIFEST" ] && [ -s "$OUT/raw_log_truncated.txt" ] && \
-  [ -s "$OUT/truncated_report.json" ] || {
+  [ -e "$OUT/truncated_report.json" ] || {
     echo "ABORT: original truncation evidence is incomplete"; exit 2; }
 [ ! -e "$RETRY_EXEC" ] && [ ! -e "$RETRY_MANIFEST" ] && \
   [ ! -e "$OUT/report.json" ] || {
@@ -25,17 +25,17 @@ case "$CODE_SHA" in ''|*[!0-9a-f]*) echo "ABORT: lowercase hexadecimal retry cod
 STATE=$(gcloud run jobs executions describe "$PRIOR" --project "$PROJECT" \
   --region "$REGION" --format='value(status.conditions[0].status)')
 [ "$STATE" = True ] || { echo "ABORT: original analyzer was not successful"; exit 2; }
-"$ROOT/.venv/bin/python" - "$OUT/raw_log_truncated.txt" \
-  "$OUT/truncated_report.json" <<'PY'
+"$ROOT/.venv/bin/python" - "$OUT/raw_log_truncated.txt" <<'PY'
 import json
 import sys
 
 raw = open(sys.argv[1], encoding="utf-8").read()
-if len(raw.encode("utf-8")) < 100_000 or \
-        not raw.startswith("MULTISEED_CANDIDATE_WORLD_JSON="):
+prefix = "MULTISEED_CANDIDATE_WORLD_JSON="
+if len(raw.encode("utf-8")) < 100_000 or not raw.startswith(prefix):
     raise SystemExit("ABORT: Cloud Logging truncation signature absent")
+partial = raw.splitlines()[0][len(prefix):]
 try:
-    json.load(open(sys.argv[2], encoding="utf-8"))
+    json.loads(partial)
 except json.JSONDecodeError as exc:
     if "Unterminated string" not in str(exc):
         raise SystemExit("ABORT: unexpected truncated JSON error") from exc
