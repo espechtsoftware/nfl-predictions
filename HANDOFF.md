@@ -70,6 +70,13 @@ agent or developer:
   `cloudbuild.yaml` suite on the exact commit (including the five-search
   true-80 DK CSV test), record its durable build/digest, and only then deploy
   or call the production integration validated.
+- Implementation commit `74c22b5` is pushed on `main`. Exact-commit Cloud
+  Build `78f7ea3a-5503-47e3-b6b9-57359695c4a3` is running with image tag
+  `nfl-dfs:cbwu-74c22b5`; it includes the complete suite and the real
+  five-search exact-80 DK CSV smoke. Poll this build to terminal state. On
+  success, record its test count and immutable digest before any deployment;
+  on failure, preserve the exact failing output and repair without weakening
+  the CBWU invariants.
 
 ### 2026-08-14 selector-resampling feedback reconciled; pass-tail analyzer live
 
