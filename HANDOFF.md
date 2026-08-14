@@ -118,7 +118,13 @@ agent or developer:
   published digest
   `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:018f0def471ba3f0a304cafb77e301c35e43d51658798f64a9ec85c95751d358`.
   Transport-only execution `tabpfn-sis-pass-tail-final-served-v1-c7dsz` is
-  active; poll it, run the ordinary finish script, and record the frozen gate.
+  a clean success and its chunked report harvested. The frozen gate **passes**:
+  equal-position/equal-q95/q99 ratio `0.9950319868`, improving positions QB
+  and TE, and maximum row-mean change `7.11e-15`. CRPS also improves by
+  `0.0089196` with a slate-cluster 95% interval wholly below zero. This
+  licenses exactly one Phase-S-law exact-80 lineup test; do not launch it until
+  Phase S is harvested and selects the allocation law. Human-readable result:
+  `reports/2026-08-13-sis-pass-tail-final-served-result.md`.
 
 ### 2026-08-13 SIS pass-tail cache and score gate implemented prospectively
 
