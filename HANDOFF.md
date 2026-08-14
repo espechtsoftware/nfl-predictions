@@ -75,6 +75,13 @@ agent or developer:
   a pass or directly promote it. Freeze one new fixed 50% rank-score
   shrinkage screen, with exact control-marginal remapping and no tuned grid,
   before executing it; I1-R score outcomes remain unseen.
+- The follow-up is now frozen in
+  `reports/2026-08-14-route-rank-r2-shrinkage-protocol.md` before
+  implementation. R2 uses exactly one midpoint rank score,
+  `0.5 * control + 0.5 * Route`, then stable-rank maps the exact sorted control
+  values back to each player. There is no weight grid or field subset. It
+  inherits the same population and five-family gate, and cannot score lineups
+  unless it first passes with exact marginal/mean reproduction at `1e-10`.
 - The first SIS pass-tail exact-80 launcher invocation stopped before creating
   a run manifest or allocating compute because its prerequisite guard treated
   the frozen report's per-arm `maximum_mean_delta` object as a scalar. The
