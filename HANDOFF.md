@@ -39,10 +39,18 @@ agent or developer:
   gate on active QB/WR/TE. It also persists every position/season fold,
   Brier/reliability at 20/25/30, q90/q95/q99 calibration and pinball, CRPS,
   MAE, mean preservation and paired slate-cluster uncertainty.
-- Validation passes: 22 focused new/regression TabPFN SIS tests, Python
-  compilation, shell syntax and whitespace checks. Exact next action is commit
-  and push, build both exact-commit audit and GPU images, then launch the
-  write-once cache pair. No treatment prediction or score has been read.
+- Commit `f2560d1` is pushed. Validation passes: 22 focused new/regression
+  TabPFN SIS tests, Python compilation, shell syntax and whitespace checks.
+  GPU Cloud Build `b907b29c-4161-4a5a-9819-e061dc931d6d` passed and published
+  immutable digest
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/tabpfn-sis-pass-tail@sha256:21067518a2f013cdea4a43a1eb0ef224b6d81bc4ced8bddef4ebdf30959a81e7`.
+  The write-once executions are control
+  `tabpfn-sis-pass-tail-v1-control-8hkl2` and treatment
+  `tabpfn-sis-pass-tail-v1-treatment-z7hv4`. Exact-commit audit build
+  `4d4d00c4-24ce-432c-a177-1215bee9dee5` remains active. Poll cache status
+  only; when both succeed run `scripts/cloud_finish_tabpfn_sis_pass_tail.sh
+  f2560d1`, then launch the score-free final-served gate on the audit digest.
+  No treatment prediction or score had been read at launch.
 
 ### 2026-08-13 repository explainer promoted into the product UI
 
