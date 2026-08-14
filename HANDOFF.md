@@ -20,7 +20,24 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 15:34 CDT
+## Current state — 2026-08-14 15:54 CDT
+
+### 2026-08-14 TD competitive-WR repaired reference launched
+
+- Replacement exact-commit Cloud Build
+  `9d73eef0-4611-4851-bcc4-cc59c740103b` completed successfully from full
+  source commit `74df236087664208235a9cf5028abe4a86187e34`; its repository-wide
+  test step passed and it published immutable digest
+  `sha256:eb2902ab0d5ba07e4981875513f4c59ae5ea14055ea82160b0c9cb751b3c80c5`.
+- Only the frozen Stage R clean repaired-path reference was released. Cloud Run
+  execution `td-competitive-wr-reference-v1-2trhj` is live, with immutable
+  manifest and execution identity under
+  `reports/td-competitive-wr-runs/20260814-td-competitive-wr-v1/reference/`.
+  Poll the execution without reading partial scientific output. After terminal
+  success, harvest exactly once with
+  `scripts/cloud_finish_td_competitive_wr_reference.sh`; launch Stage T only
+  if the strict disposition is exactly
+  `td-competitive-wr-reference-passes` and all reference invariants pass.
 
 ### 2026-08-14 SIS run-tail validly fails; TD full build queued
 
