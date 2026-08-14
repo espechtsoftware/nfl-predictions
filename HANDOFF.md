@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 15:54 CDT
+## Current state — 2026-08-14 16:11 CDT
 
 ### 2026-08-14 TD competitive-WR repaired reference launched
 
@@ -56,6 +56,23 @@ agent or developer:
   `nfl-dfs:td-comp-wr-e80-ce34696`. This is preparation only. Retain a digest
   only after build success, and do not release an exact-80 cell unless both
   frozen score-free stages strictly pass.
+- Stage R execution `td-competitive-wr-reference-v1-2trhj` completed cleanly.
+  Strict report SHA-256 is
+  `748822294c90f3178ca79989bac17f065662589230bf0fab24897d2c59898e2b`,
+  canonical control score SHA-256 is
+  `2584120b13fa99da99a6f916015c70eb985cb1f06396750de829593d7fd8979e`,
+  and disposition is exactly `td-competitive-wr-reference-passes`. Frames,
+  repeated draws, terminal identity, finiteness and pinned prior-control
+  reproduction all pass; there are no reproduction failures. Details are in
+  `reports/2026-08-14-td-competitive-wr-reference-result.md`.
+- The sole frozen Stage T treatment is now live as Cloud Run execution
+  `td-competitive-wr-allocation-v1-k46pl`, using the same immutable digest and
+  code SHA. Its manifest binds the exact Stage R report/run/code/score
+  identities through a hash-verified attestation. Poll without reading partial
+  scientific output, then harvest exactly once with
+  `scripts/cloud_finish_td_competitive_wr_allocation.sh`. Exact-80 remains
+  prohibited unless strict disposition is exactly
+  `td-competitive-wr-allocation-gate-passes` with every gate/invariant true.
 
 ### 2026-08-14 SIS run-tail validly fails; TD full build queued
 
