@@ -54,13 +54,29 @@ agent or developer:
   unaccounted protocols/results and open statuses fail, file drift fails, and
   a mutated manifest self-digest fails. No real historical outcome has been
   queried by this implementation or validation.
-- Next concrete action: finish the curated terminal arm registry and
-  outcome-free panel prelock hashes, commit the analyzer contract, run a full
-  immutable Cloud Build, then commit the freeze manifest pinned to that digest.
-  Only after that second commit may the first new outcome-facing H/P/C/S query
-  run. Keep the evidence scopes explicit: component evidence spans 107 slates,
-  position/Phase-S/CBWU evidence spans 54; there is no 107-slate CBWU book and
-  one must never be fabricated.
+- The reviewed terminal registry now contains 42 rows and accounts for all 35
+  prior `*-protocol.md` arm files plus all 30 `*-result.md` files; the only
+  excluded protocol is the governing final-closure protocol itself. It keeps
+  the narrow SIS team-defense schema disposition, both failed Route channels,
+  the selector reproducibility/economic boundary and every selected/rejected/
+  neutral/prerequisite/prospective disposition explicit. The manifest builder
+  expands defaults, pins hashes and exact output schemas, and validates the
+  result before it can be written.
+- Outcome-free BigQuery prelock capture excludes `actual_score`, `actual_rank`
+  and player `actual` by construction. It froze candidate/player counts and
+  combined row hashes for component-107 (`27,051`/`50,418`, 107 slates,
+  `ab3720ef...3e2c`), position-54 (`13,673`/`29,605`, 54 slates,
+  `8cb6f8f5...342b`) and the five Phase-S CBWU source books (`68,493`/
+  `148,025`, 54 slates, `869a648a...e7e`). The complete signed-summary inputs
+  are tracked in the run directory; these are metadata/provenance queries, not
+  a new outcome read.
+- Next concrete action: commit the completed registry, prelock hashes and
+  analyzer contract, then run an exact-commit full immutable Cloud Build and
+  commit the freeze manifest pinned to that digest. Only after that manifest
+  commit may the first new outcome-facing H/P/C/S query run. Keep the evidence
+  scopes explicit: component evidence spans 107 slates, position/Phase-S/CBWU
+  evidence spans 54; there is no 107-slate CBWU book and one must never be
+  fabricated.
 
 ### 2026-08-14 licensed CBWU mechanism validated and deployed in K=1 production
 

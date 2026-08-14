@@ -75,6 +75,59 @@ REQUIRED_LEDGER_FIELDS = frozenset({
     "production_relevance",
     "transfer_boundary",
 })
+OUTPUT_SCHEMAS = {
+    "provenance_and_arm_ledger": [
+        "manifest_sha256", "production", "panels", "arm_ledger",
+        "report_inventory", "artifact_inventory",
+    ],
+    "opportunity_decomposition": [
+        "season", "week", "scope", "H", "P", "C", "S", "gaps",
+        "thresholds", "first_failed_layer",
+    ],
+    "portfolio_entry_count_and_money": [
+        "scope", "entry_count", "portfolio_prefix", "contest_assumptions",
+        "payout_scenarios", "duplication_scenarios", "roi_bounds",
+    ],
+    "player_capture_calibration_and_dependence": [
+        "position", "tail_bucket", "support_capture", "calibration",
+        "dependence", "known_winner_context",
+    ],
+    "construction_selection_regime_and_data_quality": [
+        "mechanism", "regime", "construction_gap", "selection_gap",
+        "distinct_improved_slates", "distinct_worsened_slates",
+        "data_quality",
+    ],
+    "experiment_meta_analysis_and_kill_list": [
+        "arm_id", "family", "status", "effect", "breadth", "uncertainty",
+        "cost", "kill_reason", "falsifier",
+    ],
+    "week1_operational_readiness": [
+        "check", "status", "evidence", "owner_action", "deadline",
+    ],
+    "prospective_charter_and_opportunity_register": [
+        "item", "priority", "predeclared_question", "trigger", "decision_law",
+        "transfer_boundary",
+    ],
+    "exhaustion_certificate": [
+        "taxonomy_family", "terminal_arms", "open_historical_arms",
+        "prospective_items", "falsifier", "certified",
+    ],
+}
+TAXONOMY_RULES = {
+    family: {
+        "disposition_rule": (
+            "Every historical arm in this family must be selected, rejected, "
+            "neutral, repaired, prerequisite-closed, prospective-only, "
+            "duplicate, operationally complete, or deferred with a falsifier."
+        ),
+        "falsifier_rule": (
+            "Reopen only with outcome-unseen prospective evidence, a genuinely "
+            "new data grain/mechanism, or a documented integrity defect that "
+            "invalidates the cited evidence."
+        ),
+    }
+    for family in REQUIRED_MECHANISM_FAMILIES
+}
 
 
 class FreezeManifestError(ValueError):
@@ -142,6 +195,72 @@ def manifest_digest(manifest: Mapping[str, Any]) -> str:
         payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True
     ).encode("utf-8")
     return hashlib.sha256(encoded).hexdigest()
+
+
+def build_freeze_manifest(
+    *,
+    repo_root: str | Path,
+    analysis_image: str,
+    production: Mapping[str, Any],
+    panels: Sequence[Mapping[str, Any]],
+    registry_path: str | Path,
+    output_root: str = (
+        "reports/final-forensic-runs/"
+        "20260814-final-preseason-forensic-v1"
+    ),
+) -> dict[str, Any]:
+    """Build the outcome-free manifest from a reviewed terminal registry."""
+    root = Path(repo_root).resolve()
+    source = Path(registry_path)
+    if not source.is_absolute():
+        source = root / source
+    registry = json.loads(source.read_text(encoding="utf-8"))
+    if not isinstance(registry, list):
+        raise FreezeManifestError("arm registry must be a JSON list")
+    ledger: list[dict[str, Any]] = []
+    for raw in registry:
+        row = dict(raw)
+        row.setdefault("execution_ids", [])
+        row.setdefault("operator_override", "none")
+        row.setdefault(
+            "cloud_cost_status", "recorded in cited evidence or not separately metered"
+        )
+        ledger.append(row)
+
+    artifact_path = source.relative_to(root).as_posix()
+    manifest: dict[str, Any] = {
+        "protocol_id": PROTOCOL_ID,
+        "analysis_image": analysis_image,
+        "outcome_query_after_freeze_only": True,
+        "production": dict(production),
+        "panels": [dict(panel) for panel in panels],
+        "artifacts": [{"path": artifact_path, "sha256": sha256_file(source)}],
+        "report_inventory": report_inventory(root),
+        "protocol_exclusions": [{
+            "path": "reports/2026-08-11-final-preseason-forensic-closure-protocol.md",
+            "reason": (
+                "This is the governing closure protocol being frozen, not a "
+                "prior experimental arm."
+            ),
+        }],
+        "result_exclusions": [],
+        "arm_ledger": ledger,
+        "analysis_contract": [
+            {
+                "id": output_id,
+                "output_path": f"{output_root}/{index:02d}-{output_id}.json",
+                "schema": OUTPUT_SCHEMAS[output_id],
+            }
+            for index, output_id in enumerate(REQUIRED_OUTPUTS, start=1)
+        ],
+        "mechanism_taxonomy": [
+            {"id": family, **TAXONOMY_RULES[family]}
+            for family in REQUIRED_MECHANISM_FAMILIES
+        ],
+    }
+    manifest["manifest_sha256"] = manifest_digest(manifest)
+    validate_freeze_manifest(manifest, repo_root=root)
+    return manifest
 
 
 def validate_freeze_manifest(
@@ -579,6 +698,7 @@ __all__ = [
     "REQUIRED_OUTPUTS",
     "TAILS",
     "audit_roster",
+    "build_freeze_manifest",
     "decompose_slate",
     "manifest_digest",
     "report_inventory",

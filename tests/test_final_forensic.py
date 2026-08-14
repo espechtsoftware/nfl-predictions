@@ -11,6 +11,7 @@ from nfl_dfs.research.final_forensic import (
     REQUIRED_MECHANISM_FAMILIES,
     REQUIRED_OUTPUTS,
     audit_roster,
+    build_freeze_manifest,
     decompose_slate,
     manifest_digest,
     report_inventory,
@@ -213,3 +214,62 @@ def test_freeze_manifest_rejects_mutated_self_digest(tmp_path):
     bad["production"]["policy_id"] = "mutated"
     with pytest.raises(FreezeManifestError, match="manifest_sha256 differs"):
         validate_freeze_manifest(bad, repo_root=tmp_path)
+
+
+def test_build_freeze_manifest_expands_reviewed_registry(tmp_path):
+    reports = tmp_path / "reports"
+    reports.mkdir()
+    protocol = reports / "arm-protocol.md"
+    result = reports / "arm-result.md"
+    protocol.write_text("protocol\n", encoding="utf-8")
+    result.write_text("result\n", encoding="utf-8")
+    closure = reports / "2026-08-11-final-preseason-forensic-closure-protocol.md"
+    closure.write_text("closure\n", encoding="utf-8")
+    registry = reports / "registry.json"
+    registry.write_text(
+        "["
+        "{\"id\":\"arm\","
+        f"\"family\":\"{REQUIRED_MECHANISM_FAMILIES[0]}\","
+        "\"stage\":\"fixture\",\"status\":\"rejected\","
+        "\"protocol_paths\":[\"reports/arm-protocol.md\"],"
+        "\"result_paths\":[\"reports/arm-result.md\"],"
+        "\"gate\":\"failed fixture gate\","
+        "\"production_relevance\":\"none\","
+        "\"transfer_boundary\":\"fixture only\"}"
+        "]",
+        encoding="utf-8",
+    )
+    production = {
+        "policy_id": "policy",
+        "fallback_policy_id": "fallback",
+        "service_revision": "revision",
+        "service_image": "repo/service@sha256:" + "b" * 64,
+        "component_panel": "component",
+        "position_panel": "position",
+        "cbwu_panel": "cbwu",
+    }
+    panels = [
+        {
+            "id": name,
+            "table": "project.dataset.table",
+            "expected_rows": 1,
+            "expected_slates": 1,
+            "seasons": [2025],
+            "prelock_row_hash": "1",
+            "estimand": name,
+            "scope_boundary": "fixture",
+        }
+        for name in ("component", "position", "cbwu")
+    ]
+
+    manifest = build_freeze_manifest(
+        repo_root=tmp_path,
+        analysis_image="repo/analyzer@sha256:" + "a" * 64,
+        production=production,
+        panels=panels,
+        registry_path=registry,
+    )
+
+    assert manifest["arm_ledger"][0]["operator_override"] == "none"
+    assert manifest["arm_ledger"][0]["execution_ids"] == []
+    assert manifest["manifest_sha256"] == manifest_digest(manifest)
