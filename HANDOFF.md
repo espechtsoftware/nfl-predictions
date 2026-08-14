@@ -49,6 +49,13 @@ agent or developer:
   focused TD reference/treatment/lineup tests pass, plus Python compilation
   and whitespace checks. This implementation does not license or launch any
   exact-80 cell; the Stage R and Stage T conditions remain mandatory.
+- Exact-commit full-test Cloud Build
+  `9e215bf5-6d9f-4b8e-a72f-e919c2d13205` was submitted from a clean
+  `git archive` of full commit
+  `ce3469663c4b143527eed475ad8a099e229f99a7`, targeting
+  `nfl-dfs:td-comp-wr-e80-ce34696`. This is preparation only. Retain a digest
+  only after build success, and do not release an exact-80 cell unless both
+  frozen score-free stages strictly pass.
 
 ### 2026-08-14 SIS run-tail validly fails; TD full build queued
 
