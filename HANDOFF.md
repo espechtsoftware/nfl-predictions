@@ -83,12 +83,16 @@ agent or developer:
   `65db620b-1c95-4864-b916-0c52d9b8e34a` from `2ff57b4` was cancelled after
   the analyzer exposed this repair need; it did not publish an eligible
   immutable image. Superseding exact-commit full-test build
-  `feea8d38-ba32-43e3-8717-2b5511e4fdb8` is running from pushed commit
-  `2a336d3`; it contains both the BOOL repair and selector diagnostic. On
-  success resolve its immutable digest, then run the guarded pass-tail
-  analyzer retry.
-- Current concrete GCP queue is: publish the repaired image and run/harvest the
-  pass-tail exact-80 analyzer retry; run/harvest the score-free
+  `feea8d38-ba32-43e3-8717-2b5511e4fdb8` completed from pushed commit
+  `2a336d3`; it passed 1,220 tests with 2 skipped and published immutable
+  digest
+  `sha256:a39e28b155d607af5c1757091979652908f1c18a8389cb044d58585380821345`.
+  The guarded retry verified the original failure signature and launched
+  execution `analyze-sis-pass-tail-exact80-v1-6cchk` with every scientific
+  input and resource unchanged. Poll and harvest that execution; retry
+  provenance is tracked separately from the failed original.
+- Current concrete GCP queue is: harvest the active pass-tail exact-80
+  analyzer retry; run/harvest the score-free
   selector-resampling analyzer; then run/harvest the frozen multi-seed
   candidate/world factorial. Apply any licensed production decision only
   after those immutable reports, then prepare the registered final forensic
