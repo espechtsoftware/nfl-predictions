@@ -22,7 +22,7 @@ agent or developer:
 
 ## Current state — 2026-08-14 08:36 CDT
 
-### 2026-08-14 selector-resampling feedback reconciled; pass-tail 29/30
+### 2026-08-14 selector-resampling feedback reconciled; pass-tail analyzer live
 
 - The external selector-stability review in
   `reports/2026-08-14-selector-stability-under-world-resampling.md` has been
@@ -61,18 +61,25 @@ agent or developer:
   the selection worlds change from R0's 10,000 to the equal R0--R4 50,000
   union. `C0` versus `CU` is the candidate-generation contrast. The new
   within-R0 resampling diagnostic complements rather than replaces it.
-- Pass-tail exact-80 is now at 29 terminal successes, one active cell and zero
-  failures. Treatment R4/2023 `replay-sisptt4-2023-lsxbs` and R4/2024
-  `replay-sisptt4-2024-kqrhh` completed successfully. The only remaining cell
-  is treatment R4/2025 `replay-sisptt4-2025-ph97f`, which started at
-  `2026-08-14T12:14:19Z` and remains `Completed=Unknown`/running. Do not read
-  partial scores.
-- Current concrete GCP queue is: wait for that final cell; run and harvest the
-  guarded pass-tail exact-80 analyzer; publish/run/harvest the score-free
-  selector-resampling analyzer; then run/harvest the frozen multi-seed
-  candidate/world factorial. Apply any licensed production decision only
-  after those immutable reports, then prepare the registered final forensic
-  closure. No other replay-score panel is currently licensed or queued.
+- Pass-tail exact-80 has all 30 terminal successes and zero failures. The final
+  treatment R4/2025 cell `replay-sisptt4-2025-ph97f` completed in 1h30m59s.
+  The guarded finisher independently verified the full arm/replicate/season,
+  panel, image, code and terminal-status provenance for every cell, then
+  launched exact-80 analyzer execution
+  `analyze-sis-pass-tail-exact80-v1-pvd6b` on the frozen audit digest. Poll
+  terminal status only and harvest it before launching another
+  outcome-bearing analyzer.
+- Exact-commit selector diagnostic Cloud Build
+  `65db620b-1c95-4864-b916-0c52d9b8e34a` is running from pushed commit
+  `2ff57b4`. It runs the complete suite before publishing tag
+  `nfl-dfs:selector-resampling-2ff57b4`; use its immutable digest only after
+  successful completion.
+- Current concrete GCP queue is: harvest the active pass-tail exact-80
+  analyzer; publish/run/harvest the score-free selector-resampling analyzer;
+  then run/harvest the frozen multi-seed candidate/world factorial. Apply any
+  licensed production decision only after those immutable reports, then
+  prepare the registered final forensic closure. No other replay-score panel
+  is currently licensed or queued.
 
 ### 2026-08-14 Phase S complete; SIS ASOE selected; Route follow-ups ready
 
