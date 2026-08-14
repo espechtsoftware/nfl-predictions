@@ -20,7 +20,42 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 14:49 CDT
+## Current state — 2026-08-14 14:59 CDT
+
+### 2026-08-14 TD closure strengthened; SIS RB run-tail caches validate
+
+- Independent review in
+  `reports/2026-08-14-td-ledger-closure-agreement-and-scorecard-invalidation.md`
+  was reconciled against the immutable TD report. The terminal protocol
+  disposition remains invalid/inconclusive and no exact-80 run or identical
+  retry is licensed. The repaired-path evidence adds a substantive closure:
+  current control under-couples QB→WR but already over-couples supported ≥3
+  multiplicity, QB→RB, WR–WR and RB–RB; ledger ranks improve QB→WR while
+  worsening every listed over-coupled cell, variogram and aggregate/guard
+  errors. TD is therefore descriptively wrong-signed, not merely promising but
+  blocked. The ≥4 cell is directionally extreme but explicitly unsupported.
+  `reports/2026-08-14-td-ledger-closure-reconciliation.md` establishes the
+  pre-`26e73c5`/post-`26e73c5` evidence boundary: old G0/G1 numeric references
+  and G2 empirical calibration are not current-path validations. Any future
+  dependence mechanism first needs a frozen repaired-path G0/G1 reference.
+- SIS RB run-tail cache executions
+  `tabpfn-sis-rb-runtail-v1-control-7p9f7` and
+  `tabpfn-sis-rb-runtail-v1-treatment-s6p4d` both completed successfully.
+  Strict harvester output
+  `reports/tabpfn-sis-rb-runtail-runs/20260814-tabpfn-sis-rb-runtail-v1/validation.json`
+  has SHA-256
+  `f834ee39d403a7566767a713a43ad09b26655565514ee779f604729b777c60ff`
+  and disposition `tabpfn-sis-rb-runtail-caches-valid`. Every mechanical,
+  source, PIT, row/key, quantile and feature-contract check passes. Control
+  reproduces the inherited cache exactly (`maximum_abs_delta=0.0`), treatment
+  predictions change, and active-RB support is 87.93%/88.02%/87.84% in
+  2023/2024/2025.
+- Full-test exact-commit audit build
+  `b8a3e085-fbab-4ef4-80bd-e410eb354c3b` is still working. Poll it; after
+  success resolve its immutable digest and immediately launch
+  `scripts/cloud_tabpfn_sis_rb_runtail_final_served.sh` with full SHA
+  `23fdbba47590af3ba7594ae22bdbf2e764d86389`. The score-free final-served gate
+  is now licensed; no lineup outcome may be read unless it passes.
 
 ### 2026-08-14 SIS RB run-tail cache pair launched
 

@@ -69,5 +69,18 @@ composition is permitted. The stale-reference finding must enter the final
 forensic code/evidence chronology so earlier G0/G1-dependent conclusions are
 not presented as current-path validations.
 
+Subsequent reconciliation adds a stronger descriptive reason for closure. On
+the repaired path, the control is still low at the QB→WR hub (`2.4115` versus
+`3.3214` realized), but it already over-couples supported multiplicity ≥3
+(`2.3770` versus `1.8348`), QB→RB (`2.5975` versus `0.9843`), WR–WR (`1.5781`
+versus `1.1321`) and RB–RB (`1.8290` versus `0.6728`). The rank treatment moves
+QB→WR in the desired direction but worsens every listed over-coupled cell,
+along with the variogram and registered aggregate/guard errors. This does not
+retroactively turn the invalid experiment into a valid scientific failure; it
+does establish that another global positive-coupling ledger is wrong-signed
+for the current shape error. Full evidence boundaries and the caveat that the
+≥4 cell is unsupported are recorded in
+`2026-08-14-td-ledger-closure-reconciliation.md`.
+
 The next frozen mechanism is the adaptive SIS RB opponent run-defense
 Boom%/Bust% marginal arm. Its exact source commit is `23fdbba47590af3ba7594ae22bdbf2e764d86389`.
