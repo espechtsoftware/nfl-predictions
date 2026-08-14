@@ -295,7 +295,8 @@ def dependence_gate(
 
 def encoded_report_lines(report: dict) -> list[str]:
     payload = json.dumps(
-        report, separators=(",", ":"), sort_keys=True).encode("utf-8")
+        report, default=_json_default,
+        separators=(",", ":"), sort_keys=True).encode("utf-8")
     encoded = base64.b64encode(zlib.compress(payload, level=9)).decode("ascii")
     chunks = [
         encoded[start:start + OUTPUT_CHUNK_SIZE]
@@ -306,6 +307,16 @@ def encoded_report_lines(report: dict) -> list[str]:
         f"{OUTPUT_CHUNK_PREFIX}{index}/{total}:{chunk}"
         for index, chunk in enumerate(chunks, start=1)
     ]
+
+
+def _json_default(value):
+    """Convert NumPy scalars/arrays emitted by the frozen diagnostics."""
+    if isinstance(value, np.generic):
+        return value.item()
+    if isinstance(value, np.ndarray):
+        return value.tolist()
+    raise TypeError(
+        f"Object of type {value.__class__.__name__} is not JSON serializable")
 
 
 def run(panel_id: str) -> dict:

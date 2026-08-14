@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import zlib
 
+import numpy as np
 import pytest
 
 from nfl_dfs.analysis import g1_archetype_topology as g1
@@ -110,6 +111,18 @@ def test_rank_report_chunks_round_trip(monkeypatch):
         chunks[index] = chunk
     encoded = "".join(chunks[index] for index in range(1, total + 1))
     assert json.loads(zlib.decompress(base64.b64decode(encoded))) == report
+
+
+def test_rank_report_chunks_normalize_numpy_results():
+    report = {
+        "passes": np.bool_(True),
+        "count": np.int64(3),
+        "losses": np.array([0.2, 0.4]),
+    }
+    lines = rank_gate.encoded_report_lines(report)
+    encoded = "".join(line.split(":", 1)[1] for line in lines)
+    decoded = json.loads(zlib.decompress(base64.b64decode(encoded)))
+    assert decoded == {"passes": True, "count": 3, "losses": [0.2, 0.4]}
 
 
 def test_cloud_path_requires_phase_s_and_registered_loss_families():

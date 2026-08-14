@@ -7,7 +7,9 @@ REGION=us-central1
 RUN_ID=20260814-tabpfn-route-channel-final-served-i1-v1
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$ROOT/reports/tabpfn-route-channel-runs/$RUN_ID"
-EXEC=$(tr -d '[:space:]' < "$OUT/execution.txt")
+EXEC_FILE="$OUT/execution.txt"
+[ ! -s "$OUT/retry_execution.txt" ] || EXEC_FILE="$OUT/retry_execution.txt"
+EXEC=$(tr -d '[:space:]' < "$EXEC_FILE")
 [ -n "$EXEC" ] || { echo "ABORT: Route gate execution missing"; exit 2; }
 [ ! -e "$OUT/report.json" ] || {
   echo "ABORT: immutable Route gate report already exists"; exit 2; }

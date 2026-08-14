@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 04:11 CDT
+## Current state — 2026-08-14 04:29 CDT
 
 ### 2026-08-14 Phase S complete; SIS ASOE selected; Route follow-ups ready
 
@@ -48,8 +48,13 @@ agent or developer:
   fields, treatment predictions change, and all source/context/output checks
   pass. Score-free evaluator execution
   `tabpfn-route-channel-final-served-i1-v1-c8hkl` is active. Separately,
-  Route component/rank execution `route-rank-dependence-i1-v1-j6xfl` is
-  active under the same selected Phase S treatment state.
+  Route component/rank execution `route-rank-dependence-i1-v1-j6xfl`
+  completed all computation but failed while encoding its report because a
+  NumPy boolean was not JSON serializable. No incomplete metrics were read.
+  Report transport now normalizes NumPy scalars/arrays, a regression test
+  exercises the actual failure class, and the complete local suite passes
+  with one existing skip. Build a new exact image and retry the unchanged
+  deterministic screen; record the retry execution separately.
 - The first SIS pass-tail exact-80 launcher invocation stopped before creating
   a run manifest or allocating compute because its prerequisite guard treated
   the frozen report's per-arm `maximum_mean_delta` object as a scalar. The
@@ -61,6 +66,18 @@ agent or developer:
   all prerequisite/write-once checks and launched treatment smoke execution
   `replay-sis-pass-tail-e80-smoke-ppsk6`. The smoke is active; on success the
   launcher will release the 30 registered cells at a ten-cell cap.
+- The pass-tail smoke succeeded and the first ten registered control cells,
+  control R0/2023 through R3/2023, were released with live provenance checks.
+  The launcher remains active and is holding at its ten-cell cap; continue
+  polling session `51675` so later cells are released as capacity frees.
+- Route score-free execution
+  `tabpfn-route-channel-final-served-i1-v1-c8hkl` failed without a report when
+  Cloud Run reached the registered launcher's 16Gi memory limit. Its failure
+  condition is a verified OOM, not a scientific result. A dedicated retry
+  path now verifies the entire original execution contract and changes only
+  memory to 32Gi, records `retry_execution.txt`, and leaves the frozen image,
+  inputs, seed, Phase S state and finisher gate unchanged. Focused tests and
+  shell/whitespace validation pass; run this retry after committing it.
 - The current-stack I1 Route Share marginal-channel experiment is frozen in
   `reports/2026-08-14-route-channel-i1-protocol.md`, before Phase S is
   harvested and before either new cache exists. It compares accepted

@@ -117,8 +117,14 @@ def test_cloud_gate_requires_phase_s_and_cache_completion():
     finish = (
         ROOT / "scripts/cloud_finish_tabpfn_route_channel_final_served_i1.sh"
     ).read_text()
+    retry = (
+        ROOT / "scripts/cloud_retry_tabpfn_route_channel_final_served_i1.sh"
+    ).read_text()
     assert "tabpfn-route-channel-caches-valid" in launch
     assert "Phase S mechanical audit did not pass" in launch
     assert "TABPFN_ROUTE_PHASE_S_ARM" in launch
     assert "equal-position-equal-q95-q99" in launch
     assert "TABPFN_ROUTE_CHANNEL_FINAL_SERVED_CHUNK=" in finish
+    assert "retry_execution.txt" in finish
+    assert "configured memory limit was reached" in retry
+    assert "--memory 32Gi" in retry
