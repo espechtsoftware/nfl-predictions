@@ -78,6 +78,15 @@ agent or developer:
   `scripts/cloud_finish_td_competitive_wr_allocation.sh`. Exact-80 remains
   prohibited unless strict disposition is exactly
   `td-competitive-wr-allocation-gate-passes` with every gate/invariant true.
+- Before Stage T became terminal or any treatment output was read, the exact-80
+  paired audit/tail-law module was also implemented. It pins the 30 panel IDs,
+  five seed pairs, common cache/K/schedules and the three report/protocol
+  hashes; rejects all named composition; requires unchanged labels and lineup
+  means; and proves the dependence treatment reaches candidate tail
+  probabilities and checksummed world artifacts. It reuses the frozen
+  `240,230,220,210,200,194,187` decision order. Thirty-two focused
+  persistence/lineup/exact-80 tests pass. No lineup cell is launched by this
+  preparation.
 
 ### 2026-08-14 SIS run-tail validly fails; TD full build queued
 
