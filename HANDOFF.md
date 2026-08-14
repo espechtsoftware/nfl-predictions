@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 06:00 CDT
+## Current state — 2026-08-14 06:54 CDT
 
 ### 2026-08-14 Phase S complete; SIS ASOE selected; Route follow-ups ready
 
@@ -60,10 +60,12 @@ agent or developer:
   `0.216526`, with material regressions for QB_TE, QB_RB, WR_WR and RB_RB.
   Disposition is `route-rank-dependence-r2-fails`. Close midpoint Route-rank
   shrinkage on this panel and do not launch an R2 exact-80 score experiment.
-- SIS pass-tail exact-80 has released 20 of 30 registered cells under its hard
-  ten-cell cap; the control half and treatment R0 are fully released, and the
-  newest cell is treatment R1/2024 execution
-  `replay-sisptt1-2024-2l7ht`. Launcher session `51675` is active. Continue
+- SIS pass-tail exact-80 has released 25 of 30 registered cells under its hard
+  ten-cell cap; the control half and treatment R0/R1/R2 are fully released,
+  and the newest cell is treatment R3/2023 execution
+  `replay-sisptt3-2023-m8h72`. Ten earlier cells are clean successes and the
+  launcher has encountered no failure. Launcher session `51675` is active.
+  Continue
   polling it so the remaining cells are released as successful cells free
   capacity; do not read partial score outcomes.
 

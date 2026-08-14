@@ -18,3 +18,8 @@ treatment 0 2024 20260814-sis-pass-tail-treatment-r0-v1 replay-sisptt0-2024 repl
 treatment 0 2025 20260814-sis-pass-tail-treatment-r0-v1 replay-sisptt0-2025 replay-sisptt0-2025-69ctc
 treatment 1 2023 20260814-sis-pass-tail-treatment-r1-v1 replay-sisptt1-2023 replay-sisptt1-2023-mpsxf
 treatment 1 2024 20260814-sis-pass-tail-treatment-r1-v1 replay-sisptt1-2024 replay-sisptt1-2024-2l7ht
+treatment 1 2025 20260814-sis-pass-tail-treatment-r1-v1 replay-sisptt1-2025 replay-sisptt1-2025-h7zjb
+treatment 2 2023 20260814-sis-pass-tail-treatment-r2-v1 replay-sisptt2-2023 replay-sisptt2-2023-lmftj
+treatment 2 2024 20260814-sis-pass-tail-treatment-r2-v1 replay-sisptt2-2024 replay-sisptt2-2024-w9z2k
+treatment 2 2025 20260814-sis-pass-tail-treatment-r2-v1 replay-sisptt2-2025 replay-sisptt2-2025-wz78l
+treatment 3 2023 20260814-sis-pass-tail-treatment-r3-v1 replay-sisptt3-2023 replay-sisptt3-2023-m8h72
