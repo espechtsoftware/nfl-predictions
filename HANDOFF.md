@@ -20,12 +20,13 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 18:08 CDT
+## Current state — 2026-08-14 18:48 CDT
 
 ### 2026-08-14 final-forensic audit expanded; decision-structure queue registered
 
-- Branch is `main`; the last pushed parent is `cdfb0c0`. This milestone is the
-  outcome-free final-forensic implementation commit that follows that parent.
+- Branch is `main`; outcome-free implementation commit `0a50bfb` is pushed to
+  `origin/main`. No later report file has changed, so the report inventory in
+  the exact image remains identical to the local inventory being frozen.
   No new player, lineup, or contest outcome was queried while implementing or
   validating it. All 12 incumbent seed executions remain terminal and a live
   Cloud Run execution list returned no active jobs.
@@ -84,13 +85,21 @@ agent or developer:
   caps. Contest-specific target-line/extreme slicing remains a 2026 shadow and
   must not silently replace the adopted fixed-194 selector from estimated field
   size alone.
-- Next concrete action: commit/push this milestone, run the complete suite in
-  Cloud Build from that exact commit, publish the immutable forensic analyzer
-  image, freeze its digest/code SHA/panel hashes/production identity in the
-  manifest, commit that freeze before any outcome query, and execute the
-  one-time isolated forensic job. Retain all four corpus tables for independent
-  review and delete them before the first 2026 production build as already
-  required.
+- Exact-commit Cloud Build `329323c2-a4c0-418f-84f0-c1c4fb2861e2`
+  succeeded. The complete suite passed 1,329 tests with 2 skipped and 5
+  warnings in 734.02 seconds. It published immutable analyzer image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:1d4241a5bcb6e4f540595cf48d77b8e32344ef96d359e88022a291350bd9b50e`
+  from full code SHA `0a50bfbef72210ed7a6bad7fb193671bc66db414`.
+- The isolated dataset `nfl-predictions-503414.nfl_forensic_review` exists in
+  US with a 90-day default expiration and labels
+  `production_use=forbidden,purpose=final_preseason_forensic`; no forensic
+  tables or outcome outputs have been materialized yet.
+- Next concrete action: freeze the immutable analyzer identity, deployed
+  production identity and the three existing outcome-free panel fingerprints
+  in the tracked manifest; commit/push that freeze before any outcome query;
+  upload the manifest with create-only semantics; then execute the one-time
+  isolated Cloud Run forensic job. Retain all four corpus tables for
+  independent review and delete them before the first 2026 production build.
 
 ### 2026-08-14 seed executions reverified; TE prerequisite closes queue
 
