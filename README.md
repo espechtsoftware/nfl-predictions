@@ -6,7 +6,7 @@ A complete blueprint for a DraftKings NFL daily-fantasy prediction and lineup-co
 > first. It is the tracked, current state and must be updated before every
 > development pause or machine transfer.
 
-> **Current 80-entry production policy (2026-08-11):** K=1 role12 + boom40
+> **Current 80-entry production policy (2026-08-14):** K=1 role12 + boom40
 > with final-served position calibration is the adopted tail-first
 > money-lineup policy under the operator's extreme-high-score utility. Over
 > 107 historical slates, the frozen treatment produced
@@ -14,7 +14,11 @@ A complete blueprint for a DraftKings NFL daily-fantasy prediction and lineup-co
 > 187/194/200/210/220/230/240, versus 34/22/11/7/5/3/2 for the corrected
 > identity-calibration book. Its candidate-pool oracle produced
 > 43/31/19/9/5/3/2. The UI/API and both CSV exports use policy
-> `classic-k1-role12-boom40-poscal-v3`; the prior CE12/boom28 identity-scale
+> `classic-k1-role12-boom40-poscal-cbwu-v4`. Its licensed `CBWU` portfolio
+> holds the total candidate budget fixed while sourcing it by deterministic
+> quota/fill from five registered searches, then selects against five equal
+> 10,000-world blocks. Every block is required; a partial build fails closed.
+> The prior CE12/boom28 identity-scale
 > policy is a clearly labeled fallback only when the separately trained role
 > registry is unavailable. See `HANDOFF.md` for validation and promotion
 > provenance.
@@ -189,17 +193,23 @@ nfl-dfs serve --port 8080
 
 Endpoints: `GET /health`, `GET /slates`, `GET /classic/slates` (upcoming classic slates with labels like `Sun 1:00 PM–4:25 PM · 12 games`; the Sunday main slate is flagged `main`), `GET /projections`, `POST /lineups` (optimize; pass `draft_group_id` from `/classic/slates` to build for a specific slate — Sunday main, full Thu–Mon, etc. — restricting the pool to that slate's players at its salaries and draftable IDs; omit it for the whole projected week pool), `POST /lineups.csv` (DK upload file), `POST /lineups/entries.csv` (fill a downloaded DKEntries.csv, one lineup per entry; both accept `draft_group_id` too, as does `POST /lineups/core`), `GET /showdown/slates` and `POST /showdown/lineups[.csv]` / `POST /showdown/lineups/entries.csv` (Captain Mode single-game lineups, default filtered to the Thursday/Monday night games — see §9.5).
 
-**Adopted classic money-lineup policy (2026-08-11).** The app and projection
+**Adopted classic money-lineup policy (2026-08-14).** The app and projection
 job consume `inference/production_policy.py` directly: policy
-`classic-k1-role12-boom40-poscal-v3`, validated panel
-`20260811-lockfix-e80-k1-role12-position-scales-v1`, baseline K=1 `tail_k1`
+`classic-k1-role12-boom40-poscal-cbwu-v4`, source experiment
+`20260813-multiseed-candidate-world-v1`, baseline K=1 `tail_k1`
 model plus K=1 `tail_k1_role` model trained on the exact six frozen fast-role
 fields, possession simulation, 45/55 model/prop-market blend, $49,000 salary
 floor, greedy coverage at line 194, 80 default entries, and 0 CE / 12 role / 40
 boom generation. After TabPFN shaping and the market mean shift, the live path
 applies the frozen mean-invariant final-served spread factors QB 0.970, RB
 1.005, TE 0.940 and WR 1.070. The final portfolio remains 80 entries; role
-generation adds pre-selection candidates only. The mapping overrides
+generation adds pre-selection candidates only. The `CBWU` transport runs the
+five registered projection/role seed pairs, allocates exactly the R0 candidate
+count across their score-blind deduplicated pools, cross-scores those rosters
+in five equal 10,000-world blocks, and applies the unchanged greedy selector.
+It retains the 80-entry candidate-generation basis when a smaller reserved
+entry count is requested, and never imports the separately tested finite-K
+pass-tail cache or schedules. The mapping overrides
 lineup-changing research variables as request-local data without mutating
 process environment. If the role registry cannot load or realize its exact
 quota, the app restores the complete prior identity-scale policy
@@ -1694,7 +1704,7 @@ validated default is the TabPFN shapes.
 |---|---|
 | **Every Wed 10:00am CT — paid data + Odds API** | Run `source .venv/bin/activate && nfl-weekly-data run --week W`. The command verifies Fantasy Points, deliberately forces a fresh SIS logout/login, verifies the replacement session, then can be left unattended. It triggers the secret-backed Cloud Run `ingest-odds` job and captures the three prospective matchup reports before first kickoff. From Week 2 it also downloads only Fantasy Points source Week W-1 Route Share and performs its guarded hash-addressed archive/append; Week 1 automatically skips Route Share. If Week W-1 has not posted, retry Wednesday evening; finish before Thursday's `s-features-route` at 6:30am CT. The cloud Odds API schedules remain independent: game lines at 9:00am/3:00pm CT Wed-Sun and props Thursday 11:00am CT. SIS is preflighted but spends no queries unless a future evidence-approved recurring plan is passed with `--sis-plan`; never reuse closed historical tranches. Never use Week W results to predict Week W. Full behavior is in `automation/fantasy_points/README.md`. |
 | **Before Mon Aug 24 — projected ownership collector** | Implement and smoke-test the frozen Fantasy Points ownership protocol in `reports/2026-08-11-fantasy-points-projected-ownership-protocol.md`. Confirm the current subscription can open/export the Premium ownership page; the standalone Data Suite purchase may not include it. Capture DraftKings Classic Sunday Main when first posted, Saturday evening, and twice before the early/final Sunday freezes. Archive bytes/hash/context and append to `nfl_raw.fantasy_points_ownership_snapshots`, which the existing `fantasy_points_*` backup discovery will protect. Use projected ownership for opponent-field simulation, duplication and payout-aware portfolio research—not as a generic penalty to projected player points. Grade every pre-lock snapshot against exact-contest realized ownership after settlement. |
-| **Before Mon Aug 24 — calibrated tail-first promotion (completed Aug 11)** | Policy `classic-k1-role12-boom40-poscal-v3` uses the frozen 12-candidate role / 40-boom book and the post-TabPFN, post-market mean-invariant position factors QB 0.970, RB 1.005, TE 0.940 and WR 1.070 while still submitting exactly 80 lineups. Isolated registry `tail_k1_role` is trained and verified; the prior CE12/boom28 identity-scale fallback remains labeled. Keep all role-union and baseline shadows plus both freezers paused until the season-start resume. The authenticated UI → 80 lineups → DKEntries smoke requires the first real slate. Durable validation, revisions, and execution IDs are in `HANDOFF.md`. |
+| **Before Mon Aug 24 — calibrated tail-first promotion (completed Aug 14)** | Policy `classic-k1-role12-boom40-poscal-cbwu-v4` uses the frozen 12-candidate role / 40-boom book, the post-TabPFN/post-market mean-invariant position factors QB 0.970, RB 1.005, TE 0.940 and WR 1.070, and the fixed-budget five-search/five-world `CBWU` portfolio. It still returns at most the licensed 80-entry book and fails closed if any registered search/world block is absent. Isolated registry `tail_k1_role` is trained and verified; the prior CE12/boom28 identity-scale fallback remains labeled and single-seed. Keep all role-union and baseline shadows plus both freezers paused until the season-start resume. The authenticated UI → 80 lineups → DKEntries smoke requires the first real slate. Durable validation, revisions, and execution IDs are in `HANDOFF.md`. |
 | **Mon Aug 24** | Resume the Tuesday/Thursday chains, projections, paired prospective shadows, and frozen selector post-processing: `for s in s-nflverse s-features s-features-route s-train s-train-k1 s-train-k1-role s-train-k1-route s-train-k1-route-role s-project-tu s-project-su s-shadow-k1-early s-shadow-k1-late s-shadow-k1-nofloor-early s-shadow-k1-nofloor-late s-shadow-k3-early s-shadow-k3-late s-shadow-k1-roleunion-early s-shadow-k1-roleunion-late s-shadow-k1-route-roleunion-early s-shadow-k1-route-roleunion-late s-freeze-tail-early s-freeze-tail-late; do gcloud scheduler jobs resume $s --location us-central1; done`. Incumbent training first runs Tue Aug 25 and the isolated Route treatment first runs Thu Aug 27. Baseline/no-floor/K3 pools freeze Sunday-main at 10:30 and 11:20 CT; the role-union control and Route Share treatment freeze at 10:20 and 11:10 CT, then the delayed jobs freeze the predeclared incumbent selector memberships. |
 | **Sat Aug 29** (CFB week 0) | Nothing to start — `ingest-cfb` is already live and self-activating. Verify it caught real slates: System status popup → "CFB slates/salaries" shows rows (or query `nfl_raw.cfb_dk_salaries`). If still 0 after slates exist on DK, the `sportId == 5` filter guess was wrong — check the `ingest-cfb` logs. |
 | **Tue-Wed Sep 8-9** | Use Fantasy Points' DraftKings main-slate ownership first if the subscription entitlement and collector check pass. Do **not** automatically buy the previously scheduled ETR weekly pass. Purchase ETR only as a deliberately measured independent second source, or if Fantasy Points ownership is unavailable; if purchased, preserve its own pre-lock snapshot and compare it prospectively rather than silently blending vendors. External point/ceiling divergences remain watchlist evidence, while ownership belongs in field/duplication/payout modeling. |

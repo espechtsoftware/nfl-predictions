@@ -20,7 +20,56 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 08:36 CDT
+## Current state — 2026-08-14 10:39 CDT
+
+### 2026-08-14 licensed CBWU mechanism wired into K=1 production; cloud validation next
+
+- On `main` from parent commit `8ba41f7`, the frozen multi-seed production
+  verdict is now implemented as policy
+  `classic-k1-role12-boom40-poscal-cbwu-v4`, sourced to
+  `20260813-multiseed-candidate-world-v1`. It preserves K=1 `tail_k1`/
+  `tail_k1_role`, model ensemble 1, role12 + boom40, the 45/55 blend, the
+  $49,000 floor, position scales and the unchanged line-194 greedy selector.
+  It does not enable the separately tested finite-K pass-tail cache/schedules.
+- The production transport runs the exact registered R0--R4 projection/role
+  seed pairs. Each native preselection book is captured inside the existing
+  engine. `inference/multiseed_portfolio.py` validates native candidate totals
+  against aligned player worlds, requires identical unique player universes,
+  deduplicates by first supplying seed, allocates exactly the R0 candidate
+  budget by the frozen score-blind quota/fill order, and cross-scores every
+  retained roster in five equal 10,000-world blocks. Missing, extra,
+  malformed, short or misaligned books fail closed before a final lineup is
+  returned or persisted.
+- The engine capture/transform seam retains the existing selection, thesis,
+  oracle, full candidate persistence, clear-mask and score-artifact paths for
+  the final 50,000-world CBWU book. Non-base native searches explicitly
+  disable candidate persistence, so the warehouse cannot contain five
+  misleading native `selected` books. Candidate provenance records its source
+  seed in `all_tags`, and the multi-seed contract is now included in
+  `lever_env` and the API/CSV/UI public policy identity.
+- A live/replay parity defect was repaired: role-belief worlds now use the
+  registered `ROLE_BELIEF_SEED`, not the baseline projection seed. Ownership
+  shadow capture is emitted only for the final R0 baseline slate; the four
+  auxiliary baselines and all five alternate role builds no longer create
+  duplicate calibration snapshots.
+- Candidate generation retains the licensed 80-entry basis even if the user
+  has fewer reserved entries; the unchanged greedy prefix selects the
+  requested count. Requests above 80 fail clearly instead of silently
+  extrapolating an unvalidated mechanism. The older CE12/boom28 outage
+  fallback remains complete, labeled and single-seed because CBWU did not
+  validate that candidate mix.
+- Pure fixed-budget/cross-score, fail-closed, live seed-orchestration, role
+  seed, policy identity, app identity and persistence tests pass. The broad
+  local suite excluding the deliberately expensive real five-search
+  `test_adopted_policy_builds_true80_dk_csv` collected 1,230 tests and reached
+  100% with no failures; the ordinary live-chain smoke also passes. A local
+  attempt at the new exact true-80 smoke was manually stopped after six
+  minutes while actively solving CBC jobs, in accordance with the repository
+  rule that sustained heavy validation runs in GCP; this is not a test
+  failure. Next exact action: commit and push this milestone, launch the full
+  `cloudbuild.yaml` suite on the exact commit (including the five-search
+  true-80 DK CSV test), record its durable build/digest, and only then deploy
+  or call the production integration validated.
 
 ### 2026-08-14 selector-resampling feedback reconciled; pass-tail analyzer live
 

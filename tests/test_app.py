@@ -917,7 +917,7 @@ def test_all_three_classic_routes_expose_same_policy(client, monkeypatch):
     entries = client.post("/lineups/entries.csv", json={
         **req, "entries_csv": one_entry})
 
-    policy_id = "classic-k1-role12-boom40-poscal-v3"
+    policy_id = "classic-k1-role12-boom40-poscal-cbwu-v4"
     assert preview.json()["policy"]["policy_id"] == policy_id
     assert preview.json()["policy"]["model_ensemble"] == 1
     assert preview.json()["policy"]["portfolio_allocation"] == {
@@ -925,6 +925,12 @@ def test_all_three_classic_routes_expose_same_policy(client, monkeypatch):
         "total_generation_solves": 52}
     assert preview.json()["policy"]["served_position_scales"] == (
         "QB:0.970,RB:1.005,TE:0.940,WR:1.070")
+    assert preview.json()["policy"]["candidate_world_portfolio"] == {
+        "arm": "CBWU", "candidate_searches": 5,
+        "fixed_candidate_budget": True, "candidate_entry_basis": 80,
+        "world_blocks": 5, "worlds_per_block": 10000,
+        "selection_worlds": 50000, "fail_closed": True,
+    }
     for response in (generic, entries):
         assert response.status_code == 200
         assert response.headers["x-lineup-policy"] == policy_id

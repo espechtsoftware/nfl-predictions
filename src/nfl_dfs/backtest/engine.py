@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import logging
 import os
+from collections.abc import Callable
 from dataclasses import dataclass, field as dc_field
 
 import numpy as np
@@ -40,6 +41,55 @@ DEFAULT_N_BOOM = GEN_TOTAL_BUDGET                  # 40
 # Replacement slots used by the archived CE paired-panel protocol. Both
 # arms protect this many: 12 CE in treatment, 12 boom in control.
 REPLACEMENT_SLOTS = 12
+
+
+@dataclass(frozen=True)
+class CandidateBatch:
+    """A complete preselection candidate book and its aligned worlds.
+
+    The live multi-seed portfolio needs to combine independently generated
+    candidate books before running the unchanged production selector.  Keeping
+    this boundary inside the engine means the final combined book still uses
+    the existing oracle diagnostics, candidate persistence, score artifacts,
+    thesis repair and selection code rather than a parallel implementation.
+    """
+
+    candidates: tuple[Lineup, ...]
+    candidate_totals: np.ndarray
+    player_ids: tuple[object, ...]
+    player_rows: tuple[dict, ...]
+    row_draws: np.ndarray
+    all_tags: dict[frozenset, tuple[str, ...]]
+    metadata: dict = dc_field(default_factory=dict)
+
+
+def _validate_candidate_batch(batch: CandidateBatch) -> None:
+    """Fail closed on a malformed capture/transform boundary."""
+    if not isinstance(batch, CandidateBatch):
+        raise TypeError("candidate transform must return CandidateBatch")
+    n_candidates = len(batch.candidates)
+    totals = np.asarray(batch.candidate_totals)
+    row_draws = np.asarray(batch.row_draws)
+    if totals.ndim != 2 or totals.shape[0] != n_candidates:
+        raise ValueError("candidate batch totals are misaligned")
+    if row_draws.ndim != 2 or row_draws.shape[0] != len(batch.player_ids):
+        raise ValueError("candidate batch player worlds are misaligned")
+    if totals.shape[1] != row_draws.shape[1]:
+        raise ValueError("candidate and player world counts differ")
+    if len(batch.player_rows) != len(batch.player_ids):
+        raise ValueError("candidate batch player rows are misaligned")
+    if len(set(batch.player_ids)) != len(batch.player_ids):
+        raise ValueError("candidate batch player ids repeat")
+    universe = set(batch.player_ids)
+    roster_keys = []
+    for lineup in batch.candidates:
+        if len(lineup.players) != 9 or len(lineup.ids) != 9:
+            raise ValueError("candidate batch contains an invalid roster")
+        if not lineup.ids <= universe:
+            raise ValueError("candidate roster is outside the player universe")
+        roster_keys.append(lineup.ids)
+    if len(set(roster_keys)) != len(roster_keys):
+        raise ValueError("candidate batch contains duplicate rosters")
 
 
 def pool_cap_for_slate(season: int, week: int, env: dict | None = None
@@ -681,6 +731,7 @@ def tail_select_lineups(
     stack: StackRules | None,
     objective_col: str,
     candidate_multiple: int = 2,
+    candidate_generation_entries: int | None = None,
     n_boom_solves: int = 40,
     n_game_stacks: int = 4,
     n_per_game: int = 3,
@@ -696,6 +747,10 @@ def tail_select_lineups(
     belief_slate: pd.DataFrame | None = None,
     belief_draws: np.ndarray | None = None,
     policy_env: dict | None = None,
+    candidate_capture: Callable[[CandidateBatch], None] | None = None,
+    candidate_transform: (
+        Callable[[CandidateBatch], CandidateBatch] | None
+    ) = None,
 ) -> list[Lineup]:
     """Entry selection on P(best-of-N >= tail_line) (guide: issue #5).
 
@@ -715,7 +770,15 @@ def tail_select_lineups(
     baseline_boom_solves = n_boom_solves
     n_ce, n_epi, n_boom_solves = resolve_generation_budget(
         n_boom_solves, env=runtime_env)
-    cands = optimize_many(pool, n_lineups=candidate_multiple * n_entries,
+    generation_entries = (
+        n_entries if candidate_generation_entries is None
+        else int(candidate_generation_entries)
+    )
+    if generation_entries < n_entries:
+        raise ValueError(
+            "candidate generation entry basis cannot be below selected entries")
+    cands = optimize_many(pool,
+                          n_lineups=candidate_multiple * generation_entries,
                           stack=stack, objective_col=objective_col,
                           locks=set(locks), env=runtime_env)
     # Multi-tag provenance (review #6, Sol): `seen` dedupes rosters, so a
@@ -1329,6 +1392,40 @@ def tail_select_lineups(
     cand_totals = np.stack([
         rd[[id2row[p["id"]] for p in lu.players]].sum(axis=0) for lu in cands
     ])
+    native_batch = CandidateBatch(
+        candidates=tuple(cands),
+        candidate_totals=cand_totals,
+        player_ids=tuple(slate["id"].tolist()),
+        player_rows=tuple(slate.to_dict("records")),
+        row_draws=rd,
+        all_tags={key: tuple(value) for key, value in all_tags.items()},
+        metadata={
+            "season": _season,
+            "week": _week,
+            "tail_line": float(tail_line),
+            "n_entries": int(n_entries),
+            "candidate_generation_entries": generation_entries,
+        },
+    )
+    _validate_candidate_batch(native_batch)
+    if candidate_capture is not None:
+        candidate_capture(native_batch)
+    if candidate_transform is not None:
+        transformed = candidate_transform(native_batch)
+        _validate_candidate_batch(transformed)
+        if transformed.player_ids != native_batch.player_ids:
+            raise ValueError(
+                "candidate transform changed the canonical player order")
+        cands = list(transformed.candidates)
+        cand_totals = np.asarray(
+            transformed.candidate_totals, dtype=np.float32)
+        rd = np.asarray(transformed.row_draws, dtype=np.float32)
+        all_tags = {
+            key: list(value) for key, value in transformed.all_tags.items()
+        }
+        log.info(
+            "candidate transform: %d candidates, %d worlds, metadata=%s",
+            len(cands), cand_totals.shape[1], transformed.metadata)
     if runtime_env.get("SELECT_OBJ") == "dollars" and contest is not None:
         picked = select_dollar_entries(slate, rd, cands, cand_totals,
                                        n_entries, contest,
@@ -1401,7 +1498,8 @@ def tail_select_lineups(
     # to tell repeated/custom builds apart. Live passes
     # cand_log_async=True so a stalled warehouse call can never block
     # lineup generation (review #5 round 3).
-    _cand_tbl = cand_log_table or runtime_env.get("CAND_LOG_TABLE")
+    _cand_tbl = (cand_log_table if cand_log_table is not None
+                 else runtime_env.get("CAND_LOG_TABLE"))
     if _cand_tbl:
         try:
             import json
@@ -1495,6 +1593,8 @@ def tail_select_lineups(
                 "GUMBEL_SEED", "HYPER_BOOM", "LEV_PENALTY",
                 "LEV_POS_WEIGHTS", "LEV_SHAPE", "M4_QBLOCK", "MAX_QBS",
                 "MIN_LINEUP_SALARY", "MODEL_ENSEMBLE",
+                "MULTISEED_CANDIDATE_ENTRY_BASIS", "MULTISEED_PORTFOLIO",
+                "MULTISEED_SEED_PAIRS", "MULTISEED_WORLDS_PER_BLOCK",
                 "MODEL_ENSEMBLE_MIX", "MODEL_REGISTRY_VARIANT",
                 "N_BOOM", "N_CE", "N_DARKGAME",
                 "N_EPISTEMIC", "N_GAMESTACK", "N_GUMBEL", "N_LOWSAL",

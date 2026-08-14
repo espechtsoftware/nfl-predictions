@@ -15,9 +15,9 @@ from typing import Mapping
 
 @dataclass(frozen=True)
 class ClassicProductionPolicy:
-    policy_id: str = "classic-k1-role12-boom40-poscal-v3"
+    policy_id: str = "classic-k1-role12-boom40-poscal-cbwu-v4"
     source_panel: str = (
-        "20260811-lockfix-e80-k1-role12-position-scales-v1")
+        "20260813-multiseed-candidate-world-v1")
     model_variant: str = "tail_k1"
     role_model_variant: str = "tail_k1_role"
     model_ensemble: int = 1
@@ -38,6 +38,16 @@ class ClassicProductionPolicy:
         "target_share_last,carry_share_last,snap_share_last,"
         "target_share_jump,carry_share_jump,snap_share_jump"
     )
+    multiseed_portfolio: str = "CBWU"
+    multiseed_seed_pairs: tuple[tuple[int, int], ...] = (
+        (0, 7331),
+        (1137260708, 2690847602),
+        (2875959182, 1630284992),
+        (253722715, 3374646876),
+        (1643280042, 3977633467),
+    )
+    multiseed_worlds_per_block: int = 10_000
+    multiseed_candidate_entry_basis: int = 80
 
     def engine_environment(
         self, base: Mapping[str, str] | None = None,
@@ -120,6 +130,20 @@ class ClassicProductionPolicy:
             "EPISTEMIC_FAMILY": "role_draws",
             "ROLE_BELIEF_FEATURES": self.role_features,
             "ROLE_BELIEF_SEED": str(self.role_seed),
+            # Frozen multi-seed production mechanism.  Every search retains
+            # the K=1 marginals and direct-role/boom candidate mix above;
+            # only the registered random streams, fixed candidate allocation
+            # and equal selection-world evidence change.
+            "MULTISEED_PORTFOLIO": self.multiseed_portfolio,
+            "MULTISEED_SEED_PAIRS": ";".join(
+                f"R{index}={projection}:{role}"
+                for index, (projection, role) in enumerate(
+                    self.multiseed_seed_pairs)
+            ),
+            "MULTISEED_WORLDS_PER_BLOCK": str(
+                self.multiseed_worlds_per_block),
+            "MULTISEED_CANDIDATE_ENTRY_BASIS": str(
+                self.multiseed_candidate_entry_basis),
         })
         return env
 
@@ -143,6 +167,12 @@ class ClassicProductionPolicy:
             "ROLE_BELIEF_SEED": str(self.role_seed),
             "REPLACEMENT_SLOTS": "12",
             "SERVED_POSITION_SCALES": "",
+            # The historical CE12/boom28 outage fallback was not part of the
+            # CBWU confirmation. Keep that complete older path single-seed.
+            "MULTISEED_PORTFOLIO": "",
+            "MULTISEED_SEED_PAIRS": "",
+            "MULTISEED_WORLDS_PER_BLOCK": "",
+            "MULTISEED_CANDIDATE_ENTRY_BASIS": "",
         })
         return env
 
@@ -177,6 +207,18 @@ class ClassicProductionPolicy:
                     self.n_ce + self.n_role + self.n_boom),
             },
             "served_position_scales": self.served_position_scales,
+            "candidate_world_portfolio": {
+                "arm": self.multiseed_portfolio,
+                "candidate_searches": len(self.multiseed_seed_pairs),
+                "fixed_candidate_budget": True,
+                "candidate_entry_basis": self.multiseed_candidate_entry_basis,
+                "world_blocks": len(self.multiseed_seed_pairs),
+                "worlds_per_block": self.multiseed_worlds_per_block,
+                "selection_worlds": (
+                    len(self.multiseed_seed_pairs)
+                    * self.multiseed_worlds_per_block),
+                "fail_closed": True,
+            },
         }
 
 

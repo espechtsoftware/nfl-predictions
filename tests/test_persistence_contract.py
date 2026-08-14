@@ -149,6 +149,23 @@ def test_required_persistence_rejects_async_mode():
         )
 
 
+def test_explicit_empty_candidate_table_disables_process_default(monkeypatch):
+    """Auxiliary CBWU searches must never persist native selected books."""
+    slate, pool, draws = _slate()
+    monkeypatch.setenv("MIN_LINEUP_SALARY", "0")
+    monkeypatch.setenv("CAND_LOG_TABLE", "proj.ds.must-not-write")
+    monkeypatch.setattr(
+        "nfl_dfs.bq.load_dataframe",
+        lambda *a, **k: (_ for _ in ()).throw(
+            AssertionError("explicit empty table was ignored")),
+    )
+    lineups = engine.tail_select_lineups(
+        slate, pool, draws, tail_line=95.0, n_entries=8, stack=None,
+        objective_col="proj", cand_log_table="",
+    )
+    assert len(lineups) == 8
+
+
 def test_multi_generator_provenance_records_every_producer(monkeypatch):
     df, _, _, _ = _capture(monkeypatch, PANEL_RUN_ID="p", N_GUMBEL="6",
                            HYPER_BOOM="2")

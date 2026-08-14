@@ -135,6 +135,10 @@ def test_adopted_policy_builds_true80_dk_csv(monkeypatch, panel, live_slate):
                         lambda s, w, model_version=None: dst)
 
     policy = ADOPTED_CLASSIC_POLICY
+    policy_env = policy.engine_environment()
+    # Keep the full five-search/five-world orchestration while using compact
+    # world blocks in this offline integration test.
+    policy_env["MULTISEED_WORLDS_PER_BLOCK"] = "300"
     lineups = live_lineups.build_sim_lineups(
         season, 3, n_entries=policy.default_entries,
         stack=StackRules(qb_stack_min=2, bring_back_min=1),
@@ -142,7 +146,7 @@ def test_adopted_policy_builds_true80_dk_csv(monkeypatch, panel, live_slate):
         apply_notes=False, model_variant=policy.model_variant,
         belief_model_variant=policy.role_model_variant,
         expected_model_k=policy.model_ensemble,
-        policy_env=policy.engine_environment())
+        policy_env=policy_env)
     assert len(lineups) == 80
     assert all(lu.salary >= 49_000 for lu in lineups)
     assert all(getattr(lu, "model_version", "").endswith("2026-W36")

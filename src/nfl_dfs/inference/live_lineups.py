@@ -38,6 +38,59 @@ class RoleBeliefUnavailable(RuntimeError):
     """The promoted role-union path could not reproduce its alternate model."""
 
 
+def _log_ownership_shadow(
+    frame: pd.DataFrame,
+    own: np.ndarray,
+    own_source: str,
+    season: int,
+    week: int,
+) -> None:
+    """Best-effort asynchronous capture of the irrecoverable live own vector."""
+    try:
+        from datetime import datetime, timezone
+
+        from ..bq import load_dataframe
+        from ..config import settings
+
+        # The booster prediction is what the in-season calibration grades
+        # even when construction falls back to the naive fade.
+        booster_own = None
+        if own_source != "booster":
+            try:
+                from ..backtest.replay import (
+                    _model_ownership, _ownership_booster)
+
+                booster = _ownership_booster(int(season))
+                if booster is not None:
+                    booster_own = _model_ownership(booster, frame)
+            except Exception:
+                log.info("own-shadow: booster unavailable, logging naive only")
+        shadow = pd.DataFrame({
+            "generated_at": datetime.now(timezone.utc),
+            "season": int(season), "week": int(week),
+            "gsis_id": frame.get("gsis_id"),
+            "name": frame.get("name"),
+            "pos": frame.pos, "salary": frame.salary,
+            "n_pool": len(frame),
+            "pred_own": own, "source": own_source,
+            "booster_own": (own if own_source == "booster" else booster_own),
+        })
+
+        def _write_shadow(df=shadow, src=own_source):
+            try:
+                load_dataframe(
+                    df, f"{settings.predictions}.own_shadow",
+                    write_disposition="WRITE_APPEND")
+                log.info("own-shadow: %d rows (%s)", len(df), src)
+            except Exception:
+                log.exception("own-shadow write failed")
+
+        import threading
+        threading.Thread(target=_write_shadow, daemon=True).start()
+    except Exception:
+        log.exception("own-shadow logging failed; build unaffected")
+
+
 def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
                            seed: int = 42, lev_scale: float = 1.0,
                            apply_notes: bool = True,
@@ -49,6 +102,7 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
                            required_model_features: tuple[str, ...] = (),
                            forbidden_model_features: tuple[str, ...] = (),
                            route_source_policy: bool = False,
+                           log_ownership_shadow: bool = True,
                            ) -> tuple[pd.DataFrame, np.ndarray]:
     """Engine-ready slate frame + aligned draw matrix for the live week."""
     from ..backtest.field import naive_ownership
@@ -262,48 +316,8 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     # at BUILD TIME is what the in-season calibration (queue item 4)
     # grades against imported real ownership — and it is irrecoverable
     # after the build (late scratches shift the pool). Best-effort.
-    try:
-        from datetime import datetime, timezone
-
-        from ..bq import load_dataframe
-        from ..config import settings
-        # the BOOSTER prediction is the one worth grading vs real
-        # ownership (queue item 4) even though construction now uses
-        # the naive fade (Addendum 80) — compute it for the log only.
-        booster_own = None
-        if _own_src != "booster":
-            try:
-                from ..backtest.replay import (_model_ownership,
-                                               _ownership_booster)
-                _b = _ownership_booster(int(season))
-                if _b is not None:
-                    booster_own = _model_ownership(_b, frame)
-            except Exception:
-                log.info("own-shadow: booster unavailable, logging naive only")
-        shadow = pd.DataFrame({
-            "generated_at": datetime.now(timezone.utc),
-            "season": int(season), "week": int(week),
-            "gsis_id": frame.get("gsis_id"),
-            "name": frame.get("name"),
-            "pos": frame.pos, "salary": frame.salary,
-            "n_pool": len(frame),  # slate-restricted universe size
-            "pred_own": own, "source": _own_src,
-            "booster_own": (own if _own_src == "booster"
-                            else booster_own),
-        })
-
-        def _write_shadow(df=shadow, src=_own_src):
-            try:
-                load_dataframe(df, f"{settings.predictions}.own_shadow",
-                               write_disposition="WRITE_APPEND")
-                log.info("own-shadow: %d rows (%s)", len(df), src)
-            except Exception:
-                log.exception("own-shadow write failed")
-
-        import threading
-        threading.Thread(target=_write_shadow, daemon=True).start()
-    except Exception:
-        log.exception("own-shadow logging failed; build unaffected")
+    if log_ownership_shadow:
+        _log_ownership_shadow(frame, own, _own_src, season, week)
     frame["proj_tourney"] = frame.proj - LEVERAGE_PENALTY * lev_scale * own
     # PUNT_BOOM default 0 ADOPTED 2026-08-05 (Addendum 77/79b — mirror
     # of the replay default): the archetype boost is deleted; env
@@ -348,7 +362,11 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                       belief_required_features: tuple[str, ...] = (),
                       belief_forbidden_features: tuple[str, ...] = (),
                       route_source_policy: bool = False,
-                      distribution_artifact_spec=None) -> list:
+                      distribution_artifact_spec=None,
+                      _candidate_capture=None,
+                      _candidate_transform=None,
+                      _multiseed_inner: bool = False,
+                      _log_ownership_shadow: bool = True) -> list:
     """Full validated pipeline on the live slate -> selected entries in
     coverage order (first = broadest boom coverage).
 
@@ -359,6 +377,102 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
     from ..backtest.engine import tail_select_lineups
 
     runtime_env = policy_env or {}
+    portfolio = runtime_env.get("MULTISEED_PORTFOLIO", "").upper()
+    if portfolio and portfolio != "CBWU":
+        raise ValueError(f"unknown MULTISEED_PORTFOLIO={portfolio!r}")
+    if portfolio == "CBWU" and not _multiseed_inner:
+        if _candidate_capture is not None or _candidate_transform is not None:
+            raise ValueError("outer CBWU build cannot accept candidate hooks")
+        if distribution_artifact_spec is not None:
+            raise ValueError(
+                "CBWU live build cannot capture a single-seed distribution artifact")
+        from .multiseed_portfolio import combine_cbwu_books
+
+        raw_pairs = runtime_env.get("MULTISEED_SEED_PAIRS", "")
+        parsed: list[tuple[str, int, int]] = []
+        try:
+            for item in raw_pairs.split(";"):
+                label, values = item.split("=", 1)
+                projection_seed, role_seed = values.split(":", 1)
+                parsed.append((label, int(projection_seed), int(role_seed)))
+        except (TypeError, ValueError) as exc:
+            raise ValueError("MULTISEED_SEED_PAIRS is malformed") from exc
+        labels = tuple(label for label, _, _ in parsed)
+        if labels != ("R0", "R1", "R2", "R3", "R4"):
+            raise ValueError("CBWU requires registered R0--R4 seed order")
+        try:
+            worlds_per_block = int(
+                runtime_env["MULTISEED_WORLDS_PER_BLOCK"])
+            candidate_entry_basis = int(
+                runtime_env["MULTISEED_CANDIDATE_ENTRY_BASIS"])
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError("CBWU world/budget contract is missing") from exc
+        if worlds_per_block <= 0 or candidate_entry_basis != 80:
+            raise ValueError("CBWU requires positive worlds and an 80-entry basis")
+        if n_entries > candidate_entry_basis:
+            raise ValueError(
+                "CBWU supports at most its licensed 80-entry selection book")
+        if n_sims is not None and int(n_sims) != worlds_per_block:
+            raise ValueError(
+                "CBWU n_sims must match MULTISEED_WORLDS_PER_BLOCK")
+
+        captured = {}
+
+        def _run_seed(
+            label: str, projection_seed: int, role_seed: int, *,
+            transform=None, persist: bool = False,
+        ):
+            seed_env = dict(runtime_env)
+            seed_env["REPLAY_PROJECTION_SEED"] = str(projection_seed)
+            seed_env["ROLE_BELIEF_SEED"] = str(role_seed)
+            holder = []
+            result = build_sim_lineups(
+                season, week, n_entries=n_entries, stack=stack,
+                tail_line=tail_line, n_sims=worlds_per_block,
+                seed=projection_seed, lev_scale=lev_scale,
+                locks=locks, bans=bans, allowed_ids=allowed_ids,
+                salary_overrides=salary_overrides, theses=theses,
+                apply_notes=apply_notes, model_variant=model_variant,
+                cand_log_table=(cand_log_table if persist else ""),
+                cand_log_async=(cand_log_async if persist else False),
+                cand_log_required=(cand_log_required if persist else False),
+                panel_run_id=panel_run_id,
+                candidate_run_type=candidate_run_type,
+                policy_env=seed_env, expected_model_k=expected_model_k,
+                belief_model_variant=belief_model_variant,
+                model_required_features=model_required_features,
+                model_forbidden_features=model_forbidden_features,
+                belief_required_features=belief_required_features,
+                belief_forbidden_features=belief_forbidden_features,
+                route_source_policy=route_source_policy,
+                _candidate_capture=(holder.append if transform is None else None),
+                _candidate_transform=transform,
+                _multiseed_inner=True,
+                _log_ownership_shadow=(persist and _log_ownership_shadow),
+            )
+            if transform is None:
+                if len(holder) != 1:
+                    raise RuntimeError(
+                        f"CBWU {label} produced {len(holder)} candidate books")
+                captured[label] = holder[0]
+            return result
+
+        # Produce the non-base books first.  No partial result is returned or
+        # persisted; the final R0 call runs only after all four succeeded.
+        for label, projection_seed, role_seed in parsed[1:]:
+            _run_seed(label, projection_seed, role_seed)
+
+        def _combine(r0_batch):
+            books = {"R0": r0_batch, **captured}
+            return combine_cbwu_books(
+                books, labels,
+                expected_worlds_per_book=worlds_per_block)
+
+        label, projection_seed, role_seed = parsed[0]
+        return _run_seed(
+            label, projection_seed, role_seed,
+            transform=_combine, persist=True)
+
     slate, draws = build_slate_with_draws(
         season, week, n_sims=n_sims, seed=seed, lev_scale=lev_scale,
         apply_notes=apply_notes, model_variant=model_variant,
@@ -366,7 +480,8 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
         policy_env=policy_env, expected_model_k=expected_model_k,
         required_model_features=model_required_features,
         forbidden_model_features=model_forbidden_features,
-        route_source_policy=route_source_policy)
+        route_source_policy=route_source_policy,
+        log_ownership_shadow=_log_ownership_shadow)
     model_version = slate.attrs.get("model_version")
     wants_role = (
         int(runtime_env.get("N_EPISTEMIC", "0") or 0) > 0
@@ -380,15 +495,17 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
             raise RoleBeliefUnavailable(
                 "role-union policy requires a role model registry variant")
         try:
+            belief_seed = int(runtime_env.get("ROLE_BELIEF_SEED", seed))
             belief_slate, belief_draws = build_slate_with_draws(
-                season, week, n_sims=n_sims, seed=seed,
+                season, week, n_sims=n_sims, seed=belief_seed,
                 lev_scale=lev_scale, apply_notes=apply_notes,
                 model_variant=belief_model_variant, allowed_ids=allowed_ids,
                 salary_overrides=salary_overrides, policy_env=policy_env,
                 expected_model_k=expected_model_k,
                 required_model_features=belief_required_features,
                 forbidden_model_features=belief_forbidden_features,
-                route_source_policy=route_source_policy)
+                route_source_policy=route_source_policy,
+                log_ownership_shadow=False)
             role_model_version = belief_slate.attrs.get("model_version")
         except Exception as exc:
             raise RoleBeliefUnavailable(
@@ -482,13 +599,17 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
             slate, pool, draws, tail_line=tail_line, n_entries=n_entries,
             stack=stack, objective_col="proj_tourney",
             candidate_multiple=int(runtime_env.get("CAND_MULT", "2")),
+            candidate_generation_entries=int(runtime_env.get(
+                "MULTISEED_CANDIDATE_ENTRY_BASIS", n_entries) or n_entries),
             n_game_stacks=int(runtime_env.get("N_GAMESTACK", "4")),
             locks=set(locks or ()), theses=theses,
             cand_log_table=cand_log_table, cand_log_async=cand_log_async,
             cand_log_required=cand_log_required,
             panel_run_id=panel_run_id, candidate_run_type=candidate_run_type,
             policy_env=policy_env, belief_slate=belief_slate,
-            belief_draws=belief_draws)
+            belief_draws=belief_draws,
+            candidate_capture=_candidate_capture,
+            candidate_transform=_candidate_transform)
     except RuntimeError as exc:
         if wants_role and "role-belief generator produced" in str(exc):
             raise RoleBeliefUnavailable(str(exc)) from exc
