@@ -84,6 +84,9 @@ agent or developer:
   batches only as active slots finish; move each launched row to
   `infrastructure_retries.txt` and substitute its execution ID in the main
   ledger. No scores may be read while this repair queue is active.
+- Treatment R3 2023 replacement `replay-sisasoet3-2023-fsnmw` itself then hit
+  the same 30-minute internal-error/exit-0 path with zero rows. It has been
+  returned to the pending staggered queue rather than relaunched at capacity.
 
 ### 2026-08-13 SIS pass-tail caches validated; frozen score gate running
 
