@@ -20,7 +20,59 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 07:01 CDT
+## Current state — 2026-08-14 08:36 CDT
+
+### 2026-08-14 selector-resampling feedback reconciled; pass-tail 29/30
+
+- The external selector-stability review in
+  `reports/2026-08-14-selector-stability-under-world-resampling.md` has been
+  reconciled before reading any pass-tail outcome. Its fixed-candidate
+  world-resampling diagnostic is useful and is now frozen separately in
+  `reports/2026-08-14-selector-resampling-score-free-protocol.md`; the exact
+  technical reconciliation is
+  `reports/2026-08-14-selector-stability-resampling-reconciliation.md`.
+- Do not implement the review's proposed mean-bagged selector as written. For
+  a fixed covered set, the equal-half mean of marginal clear counts is exactly
+  the full-sample marginal clear count, and the expectation over ordinary
+  bootstrap resamples is the same empirical objective. Finite resampling only
+  adds noise. A genuinely new selector would require a separately frozen
+  stability penalty/lower-confidence objective or new independent worlds.
+  The realized-maximum diagnostic is outcome-facing and is deferred to the
+  final forensic closure.
+- The adopted score-free diagnostic holds the selected Phase S treatment R0
+  candidate set fixed and uses its checksum-verified 10,000 worlds on all 54
+  2023--2025 slates. It requires exact reproduction of the persisted ordered
+  80-entry book, uses one deterministic reciprocal 5,000/5,000 split and 32
+  deterministic 10,000-world bootstrap resamples, and reports exact-80 plus
+  prefix overlap, reciprocal coverage optimism, and per-candidate selection
+  frequency. Frequencies go to a write-once checksum-addressed gzip artifact;
+  the tracked report remains score-free and has no production authority.
+- Implementation is in `src/nfl_dfs/research/selector_resampling.py`,
+  `scripts/analyze_selector_resampling.py`, and the guarded launch/harvest
+  scripts. The BigQuery query deliberately excludes players and realized
+  scores, the launcher pins the original feedback, reconciliation, protocol,
+  Phase S report/manifest, source image/code/beta/panel and the new immutable
+  analyzer image. Focused selector plus multi-seed validation passes 10 tests;
+  Python/shell syntax and whitespace validation pass. The complete local
+  suite passes 1,218 tests with 2 skipped. Publish one exact-commit immutable
+  image before launch.
+- The pending multi-seed factorial already isolates fixed candidates versus
+  new worlds: `C0W0` and `C0WU` use the identical R0 candidate set while only
+  the selection worlds change from R0's 10,000 to the equal R0--R4 50,000
+  union. `C0` versus `CU` is the candidate-generation contrast. The new
+  within-R0 resampling diagnostic complements rather than replaces it.
+- Pass-tail exact-80 is now at 29 terminal successes, one active cell and zero
+  failures. Treatment R4/2023 `replay-sisptt4-2023-lsxbs` and R4/2024
+  `replay-sisptt4-2024-kqrhh` completed successfully. The only remaining cell
+  is treatment R4/2025 `replay-sisptt4-2025-ph97f`, which started at
+  `2026-08-14T12:14:19Z` and remains `Completed=Unknown`/running. Do not read
+  partial scores.
+- Current concrete GCP queue is: wait for that final cell; run and harvest the
+  guarded pass-tail exact-80 analyzer; publish/run/harvest the score-free
+  selector-resampling analyzer; then run/harvest the frozen multi-seed
+  candidate/world factorial. Apply any licensed production decision only
+  after those immutable reports, then prepare the registered final forensic
+  closure. No other replay-score panel is currently licensed or queued.
 
 ### 2026-08-14 Phase S complete; SIS ASOE selected; Route follow-ups ready
 
