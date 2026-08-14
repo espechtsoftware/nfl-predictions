@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 05:39 CDT
+## Current state — 2026-08-14 06:00 CDT
 
 ### 2026-08-14 Phase S complete; SIS ASOE selected; Route follow-ups ready
 
@@ -35,8 +35,8 @@ agent or developer:
   lineup table must be atomically reconstructed and validated with candidate,
   feature and artifact stores. The Phase S scientific result below is valid;
   every final cell passed the complete execution-provenance audit.
-- The frozen Route R2 midpoint-shrinkage screen is implemented and running;
-  no partial R2 metric has been read. Its only treatment transform is
+- The frozen Route R2 midpoint-shrinkage screen completed and fails clearly.
+  Its only treatment transform was
   the preregistered stable rank of `0.5 * control + 0.5 * Route`, populated
   with each player's exact sorted control values. The implementation reuses
   the fixed I1 population, common component worlds, pair book, bootstrap books
@@ -48,15 +48,22 @@ agent or developer:
   `2f3ce908-1a6d-4136-a943-6f338219fe99` succeeded from `a611de2` and
   published immutable digest
   `sha256:9f8f1ad528a9b84eb9559fb5c8ce95a8e6cbb665820785e9857e77b2c68d1868`.
-  The fully guarded launcher reverified every frozen prerequisite and started
-  execution `route-rank-dependence-r2-v1-gkbtw`; after a two-minute regional
-  capacity wait it reached `runningCount=1`. Monitor status only, then run
-  `scripts/cloud_finish_route_rank_dependence_r2.sh` after terminal success;
-  do not read partial metrics.
-- SIS pass-tail exact-80 has released 15 of 30 registered cells under its hard
-  ten-cell cap; the entire control half is now released and the newest cell is
-  control R4/2025 execution `replay-sisptc4-2025-d2vql`. Launcher session
-  `51675` is active. Continue
+  The fully guarded launcher reverified every frozen prerequisite and
+  execution `route-rank-dependence-r2-v1-gkbtw` succeeded. Complete report
+  hash is
+  `10d0c3ff103d6f6da2575873bbc0175b03d20738fb55008736e6848d8bfb9ede`.
+  R2 exactly preserves sorted marginals (`0.0` maximum delta) and player means
+  (`7.11e-15`), but all five dependence families worsen; their equal-weight
+  mean loss ratio is `2.073476`. Multiplicity/role-pair/primary-broad ratios
+  are `4.331711/2.096520/1.932749`, joint-q90 Brier is `1.001729`, and
+  variogram is `1.004671`. QB-WR/QB-TE hub error rises from `0.169897` to
+  `0.216526`, with material regressions for QB_TE, QB_RB, WR_WR and RB_RB.
+  Disposition is `route-rank-dependence-r2-fails`. Close midpoint Route-rank
+  shrinkage on this panel and do not launch an R2 exact-80 score experiment.
+- SIS pass-tail exact-80 has released 20 of 30 registered cells under its hard
+  ten-cell cap; the control half and treatment R0 are fully released, and the
+  newest cell is treatment R1/2024 execution
+  `replay-sisptt1-2024-2l7ht`. Launcher session `51675` is active. Continue
   polling it so the remaining cells are released as successful cells free
   capacity; do not read partial score outcomes.
 

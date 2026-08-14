@@ -15,3 +15,6 @@ control 4 2024 20260814-sis-pass-tail-control-r4-v1 replay-sisptc4-2024 replay-s
 control 4 2025 20260814-sis-pass-tail-control-r4-v1 replay-sisptc4-2025 replay-sisptc4-2025-d2vql
 treatment 0 2023 20260814-sis-pass-tail-treatment-r0-v1 replay-sisptt0-2023 replay-sisptt0-2023-9tjrs
 treatment 0 2024 20260814-sis-pass-tail-treatment-r0-v1 replay-sisptt0-2024 replay-sisptt0-2024-cddnq
+treatment 0 2025 20260814-sis-pass-tail-treatment-r0-v1 replay-sisptt0-2025 replay-sisptt0-2025-69ctc
+treatment 1 2023 20260814-sis-pass-tail-treatment-r1-v1 replay-sisptt1-2023 replay-sisptt1-2023-mpsxf
+treatment 1 2024 20260814-sis-pass-tail-treatment-r1-v1 replay-sisptt1-2024 replay-sisptt1-2024-2l7ht
