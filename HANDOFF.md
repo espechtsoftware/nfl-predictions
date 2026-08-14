@@ -32,9 +32,12 @@ agent or developer:
   coverage-snap-normalized efficiency is closed; `Att`-composition ASOE and
   player/defender-grain denominators are separate mechanisms. Phase S already
   selected the ASOE mechanism. The three Route results together close both
-  historical channels: marginal Route fields failed the served-tail gate, and
-  unshrunk plus midpoint-shrunk rank/copula treatments failed their dependence
-  gates. Route remains prospective-shadow-only for 2026.
+  registered current-stack historical insertion points: marginal Route fields
+  failed the served-tail gate, and unshrunk plus fixed midpoint-shrunk
+  rank/copula treatments failed their dependence gates. This closes the frozen
+  queue, not every conceivable Route interaction or transform; no further
+  historical Route score arm is licensed, while the 2026 prospective shadow
+  remains open.
 - The same verification identified that a live pass-tail ledger batch could
   exist only in the working tree. The launcher now checkpoints and pushes
   `executions.txt` immediately after every provenance-verified release and
