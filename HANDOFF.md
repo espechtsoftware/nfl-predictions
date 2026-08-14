@@ -55,9 +55,11 @@ agent or developer:
   of every registered higher threshold and cannot override the decision.
   Phase S is launching on selected control law `k` using the already validated
   `4d6f5cf` image digest recorded below. Its mandatory 32-GiB smoke execution
-  is `replay-sisasoe-phase-s-smoke-lwh7r`; launcher session must be allowed to
-  continue so it can release the 30 registered cells only after the smoke
-  succeeds.
+  `replay-sisasoe-phase-s-smoke-lwh7r` passed. All 30 registered cells are now
+  launched and recorded in
+  `reports/sis-asoe-phase-s-runs/20260813-sis-asoe-phase-s-v1/executions.txt`.
+  Poll terminal state only; after 30 clean successes run the Phase S finish,
+  poll/harvest its analyzer, and apply the frozen five-seed decision.
 
 ### 2026-08-13 SIS pass-tail caches validated; frozen score gate running
 
