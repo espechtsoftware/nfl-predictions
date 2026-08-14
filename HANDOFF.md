@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 04:59 CDT
+## Current state — 2026-08-14 05:09 CDT
 
 ### 2026-08-14 Phase S complete; SIS ASOE selected; Route follow-ups ready
 
@@ -46,9 +46,10 @@ agent or developer:
   52,307 identical unique target keys per arm, exact control reproduction at
   `0.0` maximum delta, the treatment adds exactly the four registered Route
   fields, treatment predictions change, and all source/context/output checks
-  pass. Score-free evaluator execution
-  `tabpfn-route-channel-final-served-i1-v1-c8hkl` is active. Separately,
-  Route component/rank execution `route-rank-dependence-i1-v1-j6xfl`
+  pass. Initial score-free evaluator execution
+  `tabpfn-route-channel-final-served-i1-v1-c8hkl` later required the OOM retry
+  described below. Separately, Route component/rank execution
+  `route-rank-dependence-i1-v1-j6xfl`
   completed all computation but failed while encoding its report because a
   NumPy boolean was not JSON serializable. No incomplete metrics were read.
   Report transport now normalizes NumPy scalars/arrays, a regression test
@@ -61,7 +62,19 @@ agent or developer:
   dedicated retry path verifies the original execution and exact error line,
   preserves every scientific setting, and records the new image/code and
   execution separately. It passed those provenance checks and launched retry
-  execution `route-rank-dependence-i1-v1-gwkxp`, which is active.
+  execution `route-rank-dependence-i1-v1-gwkxp`, which succeeded.
+- The complete I1-R report is mechanically valid but fails the frozen gate.
+  Four of five equal-weight families improve: role-pair MSE ratio `0.992884`,
+  broad-relationship MSE `0.994875`, joint-q90 Brier `0.999872`, and
+  variogram `0.999947`. QB-WR/QB-TE mean absolute log gap improves
+  `0.169897` to `0.160869`, with no material/double-score relationship
+  regression. Multiplicity MSE worsens to ratio `1.022204`, however, leaving
+  equal-family mean ratio `1.001957` above one. Sorted-marginal and mean
+  deltas are only float32-scale `3.8147e-6` but exceed the frozen `1e-10`
+  invariant. Disposition is `route-rank-dependence-i1-fails`; do not call it
+  a pass or directly promote it. Freeze one new fixed 50% rank-score
+  shrinkage screen, with exact control-marginal remapping and no tuned grid,
+  before executing it; I1-R score outcomes remain unseen.
 - The first SIS pass-tail exact-80 launcher invocation stopped before creating
   a run manifest or allocating compute because its prerequisite guard treated
   the frozen report's per-arm `maximum_mean_delta` object as a scalar. The
