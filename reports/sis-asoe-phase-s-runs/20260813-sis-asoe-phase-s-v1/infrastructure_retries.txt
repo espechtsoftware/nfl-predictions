@@ -2,3 +2,5 @@ control 0 2024 replay-sisasoec0-2024-29j85 replay-sisasoec0-2024-vntds applicati
 control 1 2024 replay-sisasoec1-2024-6hzj6 replay-sisasoec1-2024-kpj74 application_start_failure_zero_logs_rows_and_artifacts
 treatment 3 2023 replay-sisasoet3-2023-txnfv replay-sisasoet3-2023-fsnmw application_start_failure_zero_logs_rows_and_artifacts
 treatment 2 2023 replay-sisasoet2-2023-gd6zc replay-sisasoet2-2023-lf7l8 scipy_shared_library_truncated_before_import_zero_rows_and_artifacts
+control 0 2025 replay-sisasoec0-2025-wrkbs replay-sisasoec0-2025-v6jfr bq_storage_internal_500_before_replay_zero_rows_and_artifacts
+treatment 4 2023 replay-sisasoet4-2023-9rs5l replay-sisasoet4-2023-hqskx bq_storage_internal_500_before_replay_zero_rows_and_artifacts

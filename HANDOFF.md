@@ -71,6 +71,10 @@ agent or developer:
   replica exposed a truncated SciPy shared library (`file too short`), again
   with zero candidate rows, feature rows or artifacts. Its one byte-identical
   retry is `replay-sisasoet2-2023-lf7l8`; the ledger/provenance is updated.
+- Control R0 2025 and treatment R4 2023 later failed on transient BigQuery
+  Storage internal 500s before their first replay write, both with zero rows.
+  Their byte-identical retries are `replay-sisasoec0-2025-v6jfr` and
+  `replay-sisasoet4-2023-hqskx`; both are substituted in the ledger.
 
 ### 2026-08-13 SIS pass-tail caches validated; frozen score gate running
 
