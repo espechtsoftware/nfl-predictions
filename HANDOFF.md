@@ -42,8 +42,13 @@ agent or developer:
   exist only in the working tree. The launcher now checkpoints and pushes
   `executions.txt` immediately after every provenance-verified release and
   before allocating the next cell. The already-running launcher predates that
-  edit, so its observed batches are being checkpointed manually; 29 released
-  mappings are now preserved in the repository.
+  edit, so its observed batches were checkpointed manually; all 30 released
+  mappings are now preserved in the repository. Editing the source while the
+  old Bash process was still reading its final loop caused that controller to
+  exit with a mixed-source parse error immediately after it had appended and
+  provenance-verified cell 30. This did not alter or interrupt any Cloud Run
+  execution, and the current tracked launcher passes `bash -n`; do not restart
+  the immutable launcher.
 - The external Phase S infrastructure-failure review has been reconciled with
   the shipped recovery path. Its blocking ledger-substitution risk is closed:
   the finisher verifies the execution-owned job, full arm/replicate/season
@@ -80,14 +85,14 @@ agent or developer:
   `0.216526`, with material regressions for QB_TE, QB_RB, WR_WR and RB_RB.
   Disposition is `route-rank-dependence-r2-fails`. Close midpoint Route-rank
   shrinkage on this panel and do not launch an R2 exact-80 score experiment.
-- SIS pass-tail exact-80 has released 29 of 30 registered cells under its hard
-  ten-cell cap; the control half and treatment R0/R1/R2/R3 are fully released,
-  and the newest cell is treatment R4/2024 execution
-  `replay-sisptt4-2024-kqrhh`. The launcher has encountered no failure.
-  Launcher session `51675` is active.
-  Continue
-  polling it so the remaining cells are released as successful cells free
-  capacity; do not read partial score outcomes.
+- SIS pass-tail exact-80 has released all 30 registered cells under its hard
+  ten-cell cap; both arms and all R0--R4/2023--2025 cells are represented
+  exactly once. The final cell is treatment R4/2025 execution
+  `replay-sisptt4-2025-ph97f`. No execution failure was observed at release.
+  Continue status-only polling of the 30 recorded execution IDs and do not
+  read partial score outcomes. After every execution is terminal `True`, run
+  the guarded finisher with the frozen audit image/code, then poll and harvest
+  the one analyzer.
 
 - Branch is `main`; the cache freeze shipped in pushed commit `9052868`, the
   score-free evaluator shipped in `975a223`, and the rank/dependence screen
