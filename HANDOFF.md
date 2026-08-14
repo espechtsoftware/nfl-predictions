@@ -90,6 +90,12 @@ agent or developer:
   pushed commit `3557cf1` and is currently `WORKING`; the later review-dataset
   isolation/cleanup requirement means its eventual image is validation-only.
   A superseding exact-commit build is required after the cleanup-gate commit.
+- The isolated-dataset/cleanup implementation is pushed on `main` as
+  `a8ca7b5`. Superseding exact-code Cloud Build
+  `739bd75d-ea0d-419c-91ea-14131950234b` is `WORKING` with image tag
+  `forensic-a8ca7b5`; if successful, its immutable digest is the only current
+  analyzer image eligible for the freeze manifest. Later HANDOFF-only commits
+  do not change that analyzer-code identity.
 - Next concrete action: commit/push this outcome-free extension, run the full
   exact-commit Cloud Build, create/verify the isolated dataset, then create and
   commit the freeze inputs/manifest pinned to that digest and these four table
