@@ -20,7 +20,36 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 14:14 CDT
+## Current state — 2026-08-14 14:20 CDT
+
+### 2026-08-14 Full Access restored and TD exact-80 branch preregistered
+
+- Toggling the IDE's access selector back to Full Access restored the effective
+  unrestricted filesystem/network/no-approval profile. Direct checks now pass
+  for the active GCP account, Cloud Run execution descriptions and
+  `git ls-remote origin refs/heads/main`; no additional IDE setting or GCP
+  authentication is required.
+- `td-ledger-rank-coupling-v1-d9zdr` progressed from image import to a deployed
+  running execution at `2026-08-14T19:15:45Z`. Its logs show the registered
+  active-label cache, prop-market path and simulator books executing. It
+  remains nonterminal and is the only cloud mechanism allowed to occupy the
+  queue before the SIS RB run-tail jobs.
+- Before the score-free disposition was visible, the sole conditional lineup
+  branch was frozen in
+  `reports/2026-08-14-td-ledger-rank-coupling-exact80-addendum.md`. A valid
+  score-free pass licenses one paired exact-80 experiment across the five
+  already registered seed books. Both arms retain the finite-K incumbent,
+  active cache, served schedules, 12 role/40 boom generator, 194 coverage and
+  all 54 slates; the only treatment difference is the exact final-served
+  TD-ledger rank permutation. The aggregate decision is tail-first at
+  `240,230,220,210,200,194,187`, with whole-slate clustered uncertainty and no
+  composition with SIS or another dependence mechanism.
+- Next concrete action: continue polling and harvest
+  `td-ledger-rank-coupling-v1-d9zdr`. If it passes, implement and full-test the
+  off-by-default replay lever, pin an immutable image/code identity and run the
+  preregistered paired exact-80 comparison. If it fails or is invalid, expire
+  that branch and immediately build/launch the exact `23fdbba` SIS run-tail
+  cache pair.
 
 ### 2026-08-14 restart checkpoint: SIS RB run-tail path implementation complete locally
 
