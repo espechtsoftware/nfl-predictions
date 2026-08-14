@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 04:45 CDT
+## Current state — 2026-08-14 04:59 CDT
 
 ### 2026-08-14 Phase S complete; SIS ASOE selected; Route follow-ups ready
 
@@ -86,7 +86,17 @@ agent or developer:
   inputs, seed, Phase S state and finisher gate unchanged. Focused tests and
   shell/whitespace validation pass. Retry execution
   `tabpfn-route-channel-final-served-i1-v1-wppdl` passed the OOM provenance
-  check and is active at 32Gi.
+  check and ran at 32Gi.
+- The 32Gi Route score-free retry succeeded and the complete report is
+  mechanically valid, but marginal-only Route fields fail the frozen tail
+  gate. Equal-position q95/q99 mean pinball ratio is `1.009900` (worse), with
+  RB `1.007856`, WR `1.006717`, TE `1.015126`, and zero of three positions
+  improving. Means are preserved within `7.11e-15`. Marginal Route improves
+  central CRPS by `0.014800` and point MAE by `0.025027`, but q95 and q99
+  pinball worsen by `0.002748` and `0.002925`; the tail-first rule controls.
+  Disposition is `tabpfn-route-channel-final-served-fails`. Do not launch a
+  marginal-only exact-80 or the conditional M-by-ASOE factorial. The separate
+  component/rank Route screen remains live and is not affected by this result.
 - The current-stack I1 Route Share marginal-channel experiment is frozen in
   `reports/2026-08-14-route-channel-i1-protocol.md`, before Phase S is
   harvested and before either new cache exists. It compares accepted
