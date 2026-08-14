@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 04:29 CDT
+## Current state — 2026-08-14 04:35 CDT
 
 ### 2026-08-14 Phase S complete; SIS ASOE selected; Route follow-ups ready
 
@@ -53,8 +53,11 @@ agent or developer:
   NumPy boolean was not JSON serializable. No incomplete metrics were read.
   Report transport now normalizes NumPy scalars/arrays, a regression test
   exercises the actual failure class, and the complete local suite passes
-  with one existing skip. Build a new exact image and retry the unchanged
-  deterministic screen; record the retry execution separately.
+  with one existing skip. Exact-commit retry build
+  `3dfdf7e0-e115-4ab3-a5a1-e865b60781a8` is running from `c263939`. A
+  dedicated retry path verifies the original execution and exact error line,
+  preserves every scientific setting, and records the new image/code and
+  execution separately; launch it only after the build succeeds.
 - The first SIS pass-tail exact-80 launcher invocation stopped before creating
   a run manifest or allocating compute because its prerequisite guard treated
   the frozen report's per-arm `maximum_mean_delta` object as a scalar. The
@@ -77,7 +80,9 @@ agent or developer:
   path now verifies the entire original execution contract and changes only
   memory to 32Gi, records `retry_execution.txt`, and leaves the frozen image,
   inputs, seed, Phase S state and finisher gate unchanged. Focused tests and
-  shell/whitespace validation pass; run this retry after committing it.
+  shell/whitespace validation pass. Retry execution
+  `tabpfn-route-channel-final-served-i1-v1-wppdl` passed the OOM provenance
+  check and is active at 32Gi.
 - The current-stack I1 Route Share marginal-channel experiment is frozen in
   `reports/2026-08-14-route-channel-i1-protocol.md`, before Phase S is
   harvested and before either new cache exists. It compares accepted

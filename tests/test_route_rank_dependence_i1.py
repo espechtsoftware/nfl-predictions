@@ -130,6 +130,9 @@ def test_cloud_path_requires_phase_s_and_registered_loss_families():
     finish = (
         ROOT / "scripts/cloud_finish_route_rank_dependence_i1.sh"
     ).read_text()
+    retry = (
+        ROOT / "scripts/cloud_retry_route_rank_dependence_i1.sh"
+    ).read_text()
     protocol = (
         ROOT / "reports/2026-08-14-route-channel-i1-protocol.md"
     ).read_text()
@@ -137,4 +140,7 @@ def test_cloud_path_requires_phase_s_and_registered_loss_families():
     assert "TABPFN_ROUTE_PHASE_S_ARM" in launch
     assert "sorted_marginal_tolerance=1e-10" in launch
     assert "ROUTE_RANK_DEPENDENCE_I1_CHUNK=" in finish
+    assert "retry_execution.txt" in finish
+    assert "Object of type bool is not JSON serializable" in retry
+    assert "numpy-json-transport-only" in retry
     assert "five equally" in protocol

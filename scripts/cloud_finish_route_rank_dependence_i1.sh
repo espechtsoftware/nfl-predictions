@@ -7,7 +7,9 @@ REGION=us-central1
 RUN_ID=20260814-route-rank-dependence-i1-v1
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$ROOT/reports/route-rank-dependence-runs/$RUN_ID"
-EXEC=$(tr -d '[:space:]' < "$OUT/execution.txt")
+EXEC_FILE="$OUT/execution.txt"
+[ ! -s "$OUT/retry_execution.txt" ] || EXEC_FILE="$OUT/retry_execution.txt"
+EXEC=$(tr -d '[:space:]' < "$EXEC_FILE")
 [ -n "$EXEC" ] || { echo "ABORT: Route rank execution missing"; exit 2; }
 [ ! -e "$OUT/report.json" ] || {
   echo "ABORT: immutable Route rank report already exists"; exit 2; }
