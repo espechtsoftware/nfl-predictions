@@ -24,15 +24,15 @@ agent or developer:
 
 ### 2026-08-13 repository explainer promoted into the product UI
 
-- On branch `main` from parent `102a4e8`, the existing non-technical source
-  `docs/explainer/what-we-built.html` is now served at `/explainer` and linked
-  as **About** in the common product navigation. The UI wrapper reads the
-  repository HTML instead of duplicating its prose, so future explainer edits
-  remain a normal tracked-document-and-deploy change.
-- The production Dockerfile copies `docs/explainer/` into the app image. The
-  page adds a small product navigation bar while preserving the standalone
-  explainer styling and sharing artifact. `docs/explainer/README.md` documents
-  the update contract.
+- On branch `main` from parent `102a4e8`, the existing non-technical explainer
+  was moved to the single product-owned source
+  `src/nfl_dfs/app/static/explainer.html`, served at `/explainer`, and linked
+  as **About** in the common product navigation. At the operator's request,
+  the original `docs/explainer/` directory and its duplicate Markdown
+  companion were removed so only one evolving copy can become stale.
+- The app package already includes `static/*`, so the normal production image
+  carries the page without a separate Docker copy. The route adds a small
+  product navigation bar while preserving the standalone explainer styling.
 - Validation passes: the full `tests/test_app.py` plus the in-progress SIS
   pass-tail helper tests, Python compilation and whitespace checks. Exact next
   UI action is build the associated main commit and deploy its immutable image

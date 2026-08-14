@@ -37,10 +37,7 @@ from pathlib import Path as _Path
 app.mount("/static", StaticFiles(directory=_Path(__file__).parent / "static"),
           name="static")
 log = logging.getLogger(__name__)
-_EXPLAINER_PATH = (
-    _Path(__file__).resolve().parents[3]
-    / "docs" / "explainer" / "what-we-built.html"
-)
+_EXPLAINER_PATH = _Path(__file__).parent / "static" / "explainer.html"
 
 
 @lru_cache
