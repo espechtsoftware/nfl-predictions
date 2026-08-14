@@ -20,7 +20,58 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 11:48 CDT
+## Current state — 2026-08-14 12:13 CDT
+
+### 2026-08-14 final-forensic queryable corpus retention frozen outcome-free
+
+- On `main` from parent commit `830729c`, the operator's requirement to leave
+  the final forensic corpus and exact selections queryable for further review
+  is now part of the governing closure protocol and fail-closed manifest. No
+  new realized outcome query was run and no forensic destination table has
+  been created by this implementation work.
+- The manifest pins four fully qualified, write-once (`WRITE_EMPTY`) BigQuery
+  tables in `nfl-predictions-503414.nfl_predictions`: suffixes
+  `final_forensic_20260814_player_corpus`, `_candidate_corpus`,
+  `_actual_selections` and `_oracle_rosters`. Their exact field/type/mode
+  schemas are code-frozen. Every row includes the manifest hash, immutable
+  analyzer image, analyzer commit, evidence scope, season and week. The player
+  table retains the salary universe, authoritative actuals and served
+  distribution fields; the candidate table retains every roster and frozen
+  selection metric; the selection table retains the ordered exact-80 books;
+  and the oracle table retains independently audited H/P/C/S rosters and gaps.
+- Retention is exactly 90 days from materialization. The runner attaches and
+  verifies expiration metadata, records table ids/row counts/expiry timestamps
+  in the provenance output, supports only a verified same-manifest retry after
+  a completed partial multi-table write, and refuses an unrelated or
+  schema/row-count-drifted existing destination. Expiry may be extended before
+  it occurs; the protocol forbids shortening retention, replacing/truncating a
+  table or deleting it before its recorded expiry.
+- The forensic runner now emits the exact nine-output JSON contract in
+  addition to the queryable corpus: H/P/C/S, exact-80 and nested 20/40/80
+  portfolio distributions, available first-place context, the limited 2025
+  Week-5 payout-floor anchors, player capture/calibration, candidate rank/tag
+  diagnostics and the outcome-free ledger/readiness/charter/certificate
+  outputs. It labels places 2--5 and exact multi-season ROI unidentifiable
+  because complete standings/payout rows are absent rather than fabricating
+  them.
+- Focused manifest, H/P/C/S, corpus, output-builder and multi-seed validation
+  passes 24 tests; Python compilation and whitespace validation pass. The
+  exact-80 corpus test proves 80 ordered selections and four independently
+  legal H/P/C/S rows are preserved.
+- Validation-only Cloud Builds are terminal success:
+  `694ff04f-4148-4575-8dbf-b9346fe77270` produced digest
+  `sha256:3d2c1a56125550ccc4a19dc13f48599d711dff164c30c15526dbcd9c367c6832`
+  from the registry-only source, and
+  `ed546b09-fd02-485e-8308-00a7b8885ac9` produced digest
+  `sha256:347a922effeef5b5f26403dd2ca057c740e632664c76677a035f9ef5fb423e34`
+  from commit `830729c`. Neither digest contains this retained-corpus extension
+  and neither may be named in the final freeze manifest.
+- Next concrete action: commit/push this outcome-free extension, run the full
+  exact-commit Cloud Build, then create and commit the freeze inputs/manifest
+  pinned to that digest and these four table contracts. Only after that commit
+  may the first new outcome query or forensic table write occur. After the run,
+  record exact expirations here so an independent reviewer can request an
+  extension before the 90-day window closes.
 
 ### 2026-08-14 final-forensic freeze/analyzer primitives implemented outcome-free
 

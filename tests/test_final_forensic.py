@@ -10,6 +10,8 @@ from nfl_dfs.research.final_forensic import (
     PROTOCOL_ID,
     REQUIRED_MECHANISM_FAMILIES,
     REQUIRED_OUTPUTS,
+    WAREHOUSE_TABLE_SCHEMAS,
+    WAREHOUSE_TABLE_PREFIX,
     audit_roster,
     build_freeze_manifest,
     decompose_slate,
@@ -114,6 +116,7 @@ def _manifest(tmp_path):
         "analysis_image": "repo/image@sha256:" + "a" * 64,
         "analysis_code_sha": "c" * 40,
         "outcome_query_after_freeze_only": True,
+        "warehouse_retention": _warehouse_retention(),
         "production": {
             "policy_id": "policy",
             "fallback_policy_id": "fallback",
@@ -171,6 +174,22 @@ def _manifest(tmp_path):
     return manifest
 
 
+def _warehouse_retention():
+    return {
+        "retention_days": 90,
+        "write_disposition": "WRITE_EMPTY",
+        "extension_policy": "extend_only_before_expiry",
+        "tables": [
+            {
+                "id": table_id,
+                "table": WAREHOUSE_TABLE_PREFIX + table_id,
+                "schema": copy.deepcopy(schema),
+            }
+            for table_id, schema in WAREHOUSE_TABLE_SCHEMAS.items()
+        ],
+    }
+
+
 def test_freeze_manifest_is_complete_and_hash_verified(tmp_path):
     manifest = _manifest(tmp_path)
     result = validate_freeze_manifest(manifest, repo_root=tmp_path)
@@ -208,6 +227,13 @@ def test_freeze_manifest_rejects_open_status_and_file_drift(tmp_path):
     with pytest.raises(FreezeManifestError, match="inventoried size drift"):
         validate_freeze_manifest(manifest, repo_root=tmp_path)
 
+    manifest = _manifest(tmp_path)
+    (tmp_path / "reports" / "late-review.md").write_text(
+        "late\n", encoding="utf-8"
+    )
+    with pytest.raises(FreezeManifestError, match="inventory membership drift"):
+        validate_freeze_manifest(manifest, repo_root=tmp_path)
+
 
 def test_freeze_manifest_rejects_mutated_self_digest(tmp_path):
     manifest = _manifest(tmp_path)
@@ -215,6 +241,20 @@ def test_freeze_manifest_rejects_mutated_self_digest(tmp_path):
     bad["production"]["policy_id"] = "mutated"
     with pytest.raises(FreezeManifestError, match="manifest_sha256 differs"):
         validate_freeze_manifest(bad, repo_root=tmp_path)
+
+
+def test_freeze_manifest_rejects_short_or_mutated_warehouse_retention(tmp_path):
+    manifest = _manifest(tmp_path)
+    manifest["warehouse_retention"]["retention_days"] = 30
+    manifest["manifest_sha256"] = manifest_digest(manifest)
+    with pytest.raises(FreezeManifestError, match="retention_days"):
+        validate_freeze_manifest(manifest, repo_root=tmp_path)
+
+    manifest = _manifest(tmp_path)
+    manifest["warehouse_retention"]["tables"][0]["schema"][0]["mode"] = "NULLABLE"
+    manifest["manifest_sha256"] = manifest_digest(manifest)
+    with pytest.raises(FreezeManifestError, match="warehouse schema differs"):
+        validate_freeze_manifest(manifest, repo_root=tmp_path)
 
 
 def test_build_freeze_manifest_expands_reviewed_registry(tmp_path):
@@ -269,6 +309,7 @@ def test_build_freeze_manifest_expands_reviewed_registry(tmp_path):
         analysis_code_sha="c" * 40,
         production=production,
         panels=panels,
+        warehouse_retention=_warehouse_retention(),
         registry_path=registry,
     )
 

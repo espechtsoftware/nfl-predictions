@@ -328,9 +328,15 @@ def reconstruct_fixed_budget_book(
     )
     selected_rank = {row_index: rank for rank, row_index in enumerate(picked)}
     return pd.DataFrame({
+        "cand_ix": list(range(len(records))),
         "players": [record[2] for record in records],
         "actual_score": [record[3] for record in records],
         "source_seed": [record[0] for record in records],
+        "tag": [f"CBWU_R{record[0]}" for record in records],
+        "all_tags": [f"CBWU_R{record[0]}" for record in records],
+        "p_line": clears.mean(axis=1),
+        "sim_mean": matrix.mean(axis=1),
+        "sim_q99": np.quantile(matrix, 0.99, axis=1),
         "selected": [index in selected_rank for index in range(len(records))],
         "selected_rank": [
             selected_rank.get(index) for index in range(len(records))

@@ -405,3 +405,15 @@ new outcome.
    latency. Measure peak memory/runtime and set service timeout/CPU/concurrency
    from evidence before real entries; do not respond to latency by dropping a
    seed or world block.
+8. **Retain the analysis corpus for independent review.** The immutable
+   forensic run must write four dedicated, write-once BigQuery tables containing
+   the salary/player corpus, every reconstructed candidate, the exact submitted
+   selections and the H/P/C/S oracle rosters. The freeze manifest pins each
+   fully qualified table name, field/type/mode schema, write disposition and a
+   minimum 90-day retention period. Every row carries the manifest hash,
+   analysis image, analysis code SHA, evidence scope, season and week. The run
+   records the actual table expiration timestamps and row counts in the
+   provenance output and `HANDOFF.md`. Retention may be extended before expiry;
+   it may not be shortened and the tables may not be replaced, truncated or
+   deleted before their recorded expiry. Summary JSON is not a substitute for
+   this queryable corpus.

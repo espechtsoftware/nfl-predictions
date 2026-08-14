@@ -55,7 +55,10 @@ def main() -> None:
         if not inputs_path.is_absolute():
             inputs_path = root / inputs_path
         inputs = json.loads(inputs_path.read_text(encoding="utf-8"))
-        expected = {"analysis_image", "analysis_code_sha", "production", "panels"}
+        expected = {
+            "analysis_image", "analysis_code_sha", "production", "panels",
+            "warehouse_retention",
+        }
         if set(inputs) != expected:
             raise SystemExit(
                 "freeze inputs must contain exactly " + ", ".join(sorted(expected))
@@ -66,6 +69,7 @@ def main() -> None:
             analysis_code_sha=inputs["analysis_code_sha"],
             production=inputs["production"],
             panels=inputs["panels"],
+            warehouse_retention=inputs["warehouse_retention"],
             registry_path=args.registry,
         )
         output.parent.mkdir(parents=True, exist_ok=True)

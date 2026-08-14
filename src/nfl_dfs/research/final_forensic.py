@@ -50,6 +50,91 @@ REQUIRED_MECHANISM_FAMILIES = (
     "data_and_pit_integrity",
     "operations",
 )
+WAREHOUSE_TABLE_SCHEMAS = {
+    "player_corpus": [
+        {"name": "manifest_sha256", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "analysis_code_sha", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "analysis_image", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "scope", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "season", "type": "INTEGER", "mode": "REQUIRED"},
+        {"name": "week", "type": "INTEGER", "mode": "REQUIRED"},
+        {"name": "slate_run_id", "type": "STRING", "mode": "NULLABLE"},
+        {"name": "player_id", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "position", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "team", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "opponent", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "game_id", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "salary", "type": "INTEGER", "mode": "REQUIRED"},
+        {"name": "actual_score", "type": "FLOAT", "mode": "REQUIRED"},
+        {"name": "mean_projection", "type": "FLOAT", "mode": "NULLABLE"},
+        {"name": "proj_p10", "type": "FLOAT", "mode": "NULLABLE"},
+        {"name": "proj_p50", "type": "FLOAT", "mode": "NULLABLE"},
+        {"name": "proj_p90", "type": "FLOAT", "mode": "NULLABLE"},
+        {"name": "proj_std", "type": "FLOAT", "mode": "NULLABLE"},
+        {"name": "feature_missing", "type": "BOOLEAN", "mode": "REQUIRED"},
+    ],
+    "candidate_corpus": [
+        {"name": "manifest_sha256", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "analysis_code_sha", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "analysis_image", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "scope", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "season", "type": "INTEGER", "mode": "REQUIRED"},
+        {"name": "week", "type": "INTEGER", "mode": "REQUIRED"},
+        {"name": "panel_run_id", "type": "STRING", "mode": "NULLABLE"},
+        {"name": "source_seed", "type": "INTEGER", "mode": "NULLABLE"},
+        {"name": "candidate_index", "type": "INTEGER", "mode": "REQUIRED"},
+        {"name": "roster_ordered", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "roster_key", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "salary", "type": "INTEGER", "mode": "REQUIRED"},
+        {"name": "actual_score", "type": "FLOAT", "mode": "REQUIRED"},
+        {"name": "selected", "type": "BOOLEAN", "mode": "REQUIRED"},
+        {"name": "selected_rank", "type": "INTEGER", "mode": "NULLABLE"},
+        {"name": "p_line", "type": "FLOAT", "mode": "NULLABLE"},
+        {"name": "sim_mean", "type": "FLOAT", "mode": "NULLABLE"},
+        {"name": "sim_q99", "type": "FLOAT", "mode": "NULLABLE"},
+        {"name": "tag", "type": "STRING", "mode": "NULLABLE"},
+        {"name": "all_tags", "type": "STRING", "mode": "NULLABLE"},
+    ],
+    "actual_selections": [
+        {"name": "manifest_sha256", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "analysis_code_sha", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "analysis_image", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "scope", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "season", "type": "INTEGER", "mode": "REQUIRED"},
+        {"name": "week", "type": "INTEGER", "mode": "REQUIRED"},
+        {"name": "selected_rank", "type": "INTEGER", "mode": "REQUIRED"},
+        {"name": "candidate_index", "type": "INTEGER", "mode": "REQUIRED"},
+        {"name": "roster_ordered", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "roster_key", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "salary", "type": "INTEGER", "mode": "REQUIRED"},
+        {"name": "actual_score", "type": "FLOAT", "mode": "REQUIRED"},
+        {"name": "p_line", "type": "FLOAT", "mode": "NULLABLE"},
+        {"name": "sim_mean", "type": "FLOAT", "mode": "NULLABLE"},
+        {"name": "sim_q99", "type": "FLOAT", "mode": "NULLABLE"},
+        {"name": "tag", "type": "STRING", "mode": "NULLABLE"},
+        {"name": "all_tags", "type": "STRING", "mode": "NULLABLE"},
+    ],
+    "oracle_rosters": [
+        {"name": "manifest_sha256", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "analysis_code_sha", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "analysis_image", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "scope", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "season", "type": "INTEGER", "mode": "REQUIRED"},
+        {"name": "week", "type": "INTEGER", "mode": "REQUIRED"},
+        {"name": "layer", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "roster_key", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "salary", "type": "INTEGER", "mode": "REQUIRED"},
+        {"name": "actual_score", "type": "FLOAT", "mode": "REQUIRED"},
+        {"name": "solver_status", "type": "STRING", "mode": "NULLABLE"},
+        {"name": "legality_verified", "type": "BOOLEAN", "mode": "REQUIRED"},
+        {"name": "player_support_gap", "type": "FLOAT", "mode": "REQUIRED"},
+        {"name": "construction_gap", "type": "FLOAT", "mode": "REQUIRED"},
+        {"name": "selection_gap", "type": "FLOAT", "mode": "REQUIRED"},
+    ],
+}
+WAREHOUSE_TABLE_PREFIX = (
+    "nfl-predictions-503414.nfl_predictions.final_forensic_20260814_"
+)
 LEDGER_STATUSES = frozenset({
     "selected",
     "rejected",
@@ -78,7 +163,7 @@ REQUIRED_LEDGER_FIELDS = frozenset({
 OUTPUT_SCHEMAS = {
     "provenance_and_arm_ledger": [
         "manifest_sha256", "production", "panels", "arm_ledger",
-        "report_inventory", "artifact_inventory",
+        "report_inventory", "artifact_inventory", "warehouse_retention",
     ],
     "opportunity_decomposition": [
         "season", "week", "scope", "H", "P", "C", "S", "gaps",
@@ -204,6 +289,7 @@ def build_freeze_manifest(
     analysis_code_sha: str,
     production: Mapping[str, Any],
     panels: Sequence[Mapping[str, Any]],
+    warehouse_retention: Mapping[str, Any],
     registry_path: str | Path,
     output_root: str = (
         "reports/final-forensic-runs/"
@@ -236,6 +322,7 @@ def build_freeze_manifest(
         "outcome_query_after_freeze_only": True,
         "production": dict(production),
         "panels": [dict(panel) for panel in panels],
+        "warehouse_retention": dict(warehouse_retention),
         "artifacts": [{"path": artifact_path, "sha256": sha256_file(source)}],
         "report_inventory": report_inventory(root),
         "protocol_exclusions": [{
@@ -291,6 +378,30 @@ def validate_freeze_manifest(
         failures.append("analysis_code_sha is not a full lowercase git SHA")
     if manifest.get("outcome_query_after_freeze_only") is not True:
         failures.append("outcome-query firewall is not enabled")
+    warehouse = manifest.get("warehouse_retention", {})
+    if set(warehouse) != {
+        "retention_days", "write_disposition", "extension_policy", "tables",
+    }:
+        failures.append("warehouse retention contract has unknown/missing fields")
+    if warehouse.get("retention_days") != 90:
+        failures.append("warehouse retention_days must be exactly 90")
+    if warehouse.get("write_disposition") != "WRITE_EMPTY":
+        failures.append("warehouse write disposition must be WRITE_EMPTY")
+    if warehouse.get("extension_policy") != "extend_only_before_expiry":
+        failures.append("warehouse extension policy is not extend-only")
+    warehouse_tables = warehouse.get("tables", [])
+    table_by_id = {str(row.get("id", "")): row for row in warehouse_tables}
+    if len(warehouse_tables) != 4 or set(table_by_id) != set(WAREHOUSE_TABLE_SCHEMAS):
+        failures.append("warehouse table inventory is incomplete")
+    for table_id, schema in WAREHOUSE_TABLE_SCHEMAS.items():
+        row = table_by_id.get(table_id, {})
+        table_name = str(row.get("table", ""))
+        if set(row) != {"id", "table", "schema"}:
+            failures.append(f"warehouse table contract differs: {table_id}")
+        if table_name != WAREHOUSE_TABLE_PREFIX + table_id:
+            failures.append(f"warehouse table name is invalid: {table_id}")
+        if row.get("schema") != schema:
+            failures.append(f"warehouse schema differs: {table_id}")
     production = manifest.get("production", {})
     for key in (
         "policy_id", "fallback_policy_id", "service_revision",
@@ -390,6 +501,15 @@ def validate_freeze_manifest(
         failures.append("component, position and CBWU panel scopes are required")
 
     if verify_files:
+        current_inventory = report_inventory(root)
+        current_paths = {row["path"] for row in current_inventory}
+        frozen_paths = set(inventory_paths)
+        if current_paths != frozen_paths:
+            failures.append(
+                "report inventory membership drift: "
+                f"added={sorted(current_paths - frozen_paths)} "
+                f"removed={sorted(frozen_paths - current_paths)}"
+            )
         for row in inventory:
             path = root / str(row.get("path", ""))
             if not path.is_file():
@@ -704,6 +824,8 @@ __all__ = [
     "REQUIRED_MECHANISM_FAMILIES",
     "REQUIRED_OUTPUTS",
     "TAILS",
+    "WAREHOUSE_TABLE_SCHEMAS",
+    "WAREHOUSE_TABLE_PREFIX",
     "audit_roster",
     "build_freeze_manifest",
     "decompose_slate",

@@ -7,9 +7,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml README.md CLAUDE.md ./
-COPY reports/model-primer.md ./reports/model-primer.md
-COPY reports/g0-dependence-runs/20260812-g0-final-served-dependence-v2/report.json ./reports/g0-dependence-runs/20260812-g0-final-served-dependence-v2/report.json
-COPY reports/g1-topology-runs/20260812-g1-archetype-topology-v3/report.json ./reports/g1-topology-runs/20260812-g1-archetype-topology-v3/report.json
+# The final forensic image verifies the byte-level inventory of every tracked
+# report before any outcome query.  This remains a private Artifact Registry
+# image; the vendor-derived corpus is not published by the application.
+COPY reports ./reports
 COPY src ./src
 COPY sql ./sql
 COPY scripts/harvest_accept.py ./scripts/harvest_accept.py
@@ -41,6 +42,9 @@ COPY scripts/analyze_sis_asoe_phase_s.py ./scripts/analyze_sis_asoe_phase_s.py
 COPY scripts/analyze_multiseed_candidate_world.py ./scripts/analyze_multiseed_candidate_world.py
 COPY scripts/analyze_tabpfn_sis_pass_tail_exact80_v1.py ./scripts/analyze_tabpfn_sis_pass_tail_exact80_v1.py
 COPY scripts/analyze_selector_resampling.py ./scripts/analyze_selector_resampling.py
+COPY scripts/capture_final_forensic_prelock.py ./scripts/capture_final_forensic_prelock.py
+COPY scripts/prepare_final_forensic_freeze.py ./scripts/prepare_final_forensic_freeze.py
+COPY scripts/run_final_forensic_hpcs.py ./scripts/run_final_forensic_hpcs.py
 
 RUN pip install --no-cache-dir ".[gcp,app]"
 
