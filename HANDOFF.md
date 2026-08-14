@@ -20,7 +20,27 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 21:45 CDT
+## Current state — 2026-08-13 22:05 CDT
+
+### 2026-08-13 SIS pass-tail caches validated; frozen score gate running
+
+- Both write-once cache executions completed successfully: control
+  `tabpfn-sis-pass-tail-v1-control-8hkl2` and treatment
+  `tabpfn-sis-pass-tail-v1-treatment-z7hv4`.
+- `scripts/cloud_finish_tabpfn_sis_pass_tail.sh f2560d1` passed every frozen
+  mechanical check, including exact keys/row counts, control reproduction
+  (`maximum_abs_delta=0.0`), mean preservation, source/code identities,
+  feature contracts, context counts and support audits. The durable validation
+  artifact is
+  `reports/tabpfn-sis-pass-tail-runs/20260813-tabpfn-sis-pass-tail-v1/validation.json`.
+- The preregistered final-served calibration evaluation is now running as
+  Cloud Run execution `tabpfn-sis-pass-tail-final-served-v1-mn64m` on audit
+  digest
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:fdd00d6bf36778c38415068bda5809b8d3324a5ee77ecb5ba3feefafc73da339`.
+  Poll execution status only. When it completes, run
+  `scripts/cloud_finish_tabpfn_sis_pass_tail_final_served.sh`, interpret the
+  persisted result under the frozen equal-position q95/q99 gate, and record
+  the disposition without post-hoc changes.
 
 ### 2026-08-13 SIS pass-tail cache and score gate implemented prospectively
 
