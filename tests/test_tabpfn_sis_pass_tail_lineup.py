@@ -92,3 +92,4 @@ def test_exact80_retry_is_limited_to_verified_boolean_audit_failure():
     assert "feature_invariance_audit" in retry
     assert "retry_reason=pandas_nullable_boolean_subtraction" in retry
     assert "analyzer_retry_execution.txt" in harvest
+    assert "analyzer_retry_manifest.txt" in harvest
