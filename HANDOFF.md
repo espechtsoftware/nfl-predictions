@@ -20,7 +20,58 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 20:54 CDT
+## Current state — 2026-08-13 21:12 CDT
+
+### 2026-08-13 SIS paid-surface gaps reopened with bounded next tests
+
+- The outside coverage audit is tracked at
+  `reports/2026-08-13-sis-plan-coverage-gap-audit.md`; the repository
+  reconciliation is
+  `reports/2026-08-13-sis-plan-coverage-gap-reconciliation.md`. Its core
+  conclusion is accepted: SIS is not exhausted. Corrections: rushing
+  Boom/Bust was already audited; pass-rush pressure was screened but never in
+  a formal arm; player grain was planned/attempted and one valid smoke already
+  proved `Cov. Snaps`, but no filtered historical table was completed.
+- The missing original-priority team Receiving family now has a validated,
+  tracked 36-artifact/160-request plan at
+  `automation/sis/plans/team-receiving-v1.json`. It covers team Receiving
+  Totals/Value for 2019 and 2021--2025 in the three cap-safe windows. Do not
+  run until the operator supplies a fresh terminal SIS login and provider
+  budget is available. It is historical research, not a weekly plan.
+- An outcome-free strict-prior pass-tail prerequisite now passes: all three
+  source fields are non-null on 3,230 team-games; `10,018/11,435` active
+  QB/WR/TE rows (`87.61%`) are supported. Redundancy correlations are
+  Boom-vs-existing-EPA `+0.59938`, Bust-vs-existing-EPA `-0.56054`,
+  pressure-vs-existing-pressure `+0.41030`, and Boom-vs-Bust `-0.11521`.
+  No player outcome or lineup score was read. Reproducible result:
+  `reports/2026-08-13-sis-pass-tail-support-result.md`.
+- The resulting current-stack three-feature marginal cache comparison is
+  frozen before treatment output at
+  `reports/2026-08-13-sis-pass-tail-marginal-protocol.md`. It appends only
+  volume-weighted opponent pass-defense Boom/Bust and pass-rush pressure for
+  QB/WR/TE. Its primary score-free gate is equal-position q95/q99 normalized
+  pinball improvement in at least two of three positions, with no season veto;
+  all other tail/central metrics remain diagnostics. A pass licenses only one
+  Phase-S-law exact-80 test. Passing charting and player-grain receiver
+  allocation remain separate later hypotheses.
+- Validation passes: 48 focused SIS support/context/downloader tests, Python
+  compilation, plan expansion (`36` artifacts exactly) and whitespace checks.
+  Exact next SIS action is implement/generate the frozen control/treatment
+  caches without delaying Phase R/S, then run the score-free final-served gate.
+
+### 2026-08-13 strengthened Phase S/multi-seed image validated
+
+- Exact-commit Cloud Build `445a5071-62a3-4354-ab6a-e66004a099a7` passed the
+  full repository test suite from `4d6f5cf` and published immutable image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:757f0784937492c23917c245b082e052508fcac693840a1469e0020257fad6a4`.
+  This supersedes `e6ba5e2...` for Phase S because it contains the prospective
+  seed-noise, proper-score and fixed-budget factorial amendments. Use code
+  identity `4d6f5cf` when Phase S launches.
+- Phase R remains at 28 clean successes plus active identical R4/2024 and
+  R4/2025 infrastructure retries `replay-gtrk4-2024-rdpd4` and
+  `replay-gtrk4-2025-66fnq`. Continue status-only polling; after both cleanly
+  succeed, run the guarded Phase R finisher/harvester and launch Phase S on the
+  digest above.
 
 ### 2026-08-13 multi-seed implementation review incorporated prospectively
 

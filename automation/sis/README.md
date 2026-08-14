@@ -163,8 +163,23 @@ After tranche 1 completes and its private table is verified, the bounded
 second plan is `plans/team-context-tranche-2.json`: team Passing,
 Rushing and Run Defense Totals/Value for the same six replay seasons. These
 complete the most distinct QB/RB/offensive-line/opponent-front context before
-spending requests on team Receiving (substantially overlapping Passing),
-granular player/gap splits, or special teams. It declares 108 artifacts and a
-440-request ceiling; combined with tranche 1's observed 440 requests, it stays
-below the documented weekly allowance while retaining headroom for the
-earlier paid-surface audit calls.
+spending requests on granular player/gap splits or special teams. It declares
+108 artifacts and a 440-request ceiling; combined with tranche 1's observed
+440 requests, it stays below the documented weekly allowance while retaining
+headroom for the earlier paid-surface audit calls.
+
+The subsequent coverage-gap audit confirmed that team Receiving was named in
+the original priority-1 inventory but was never acquired. Its bounded research
+plan is `plans/team-receiving-v1.json`: Receiving Totals/Value over the same
+six seasons and three cap-safe week windows, 36 artifacts and a hard 160-call
+ceiling. Validate it without spending a request:
+
+```bash
+sis-download plan --file automation/sis/plans/team-receiving-v1.json
+```
+
+Do not run it in an old browser session or assume remaining provider budget.
+At the next acquisition window, first use
+`sis-download login --terminal-credentials --fresh`, verify login and provider
+budget, then run it into `sis/team-receiving-v1/`. This is historical research,
+not a weekly recurring plan, until a score-free feature gate passes.

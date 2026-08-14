@@ -250,6 +250,10 @@ def main(argv: list[str] | None = None) -> None:
         "sis-team-run-context-audit",
         help="Audit strictly-prior SIS rushing/run-defense context for active RBs",
     )
+    sub.add_parser(
+        "sis-pass-tail-support-audit",
+        help="Outcome-free support/redundancy audit for SIS pass-tail context",
+    )
 
     p = sub.add_parser(
         "import-fantasy-points-route-weekly",
@@ -857,6 +861,10 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import sis_team_run_context
 
         sis_team_run_context.run()
+    elif args.command == "sis-pass-tail-support-audit":
+        from .analysis import sis_pass_tail_context
+
+        sis_pass_tail_context.run()
     elif args.command == "import-fantasy-points-route-weekly":
         from .ingest import fantasy_points_route_weekly
 

@@ -65,6 +65,17 @@ cell passes, run the predeclared five-seed exact-80 Route-marginal x SIS-ASOE
 mining remains deferred to the final forensic freeze and must pass a design-
 matrix estimability audit. No active frozen arm or result gate is changed.
 
+SIS coverage addendum (2026-08-13): the paid SIS surface is not exhausted.
+`reports/2026-08-13-sis-plan-coverage-gap-reconciliation.md` narrows the new
+outside audit and adds four bounded steps after Phase S: a current-stack
+QB/WR/TE marginal screen for lagged opponent pass-defense Boom%/Bust% plus
+distinct pass-rush pressure; the missing 36-artifact team Receiving intake;
+one new player-grain alignment denominator/cost sample; and only then a small
+receiver split acquisition. The prior rushing Boom% audit, failed QB/RB arms,
+dormant `7/12` alignment sample and active ASOE result remain immutable. Team
+Receiving acquisition is prepared but requires a fresh SIS login and provider-
+budget window before it may run.
+
 ## Evidence that sets the priorities
 
 - The accepted true-80 book clears 200 on 18/107 slates, 210 on 11, and 220

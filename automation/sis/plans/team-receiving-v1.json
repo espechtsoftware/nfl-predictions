@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "max_exports": 36,
+  "max_api_requests": 160,
+  "description": "Missing priority-1 SIS team Receiving Totals/Value at game grain. Target-week joins may use only prior completed games.",
+  "exports": [
+    {
+      "entity": "teams",
+      "seasons": [2019, 2021, 2022, 2023, 2024, 2025],
+      "week_windows": [[1, 6], [7, 12], [13, 18]],
+      "split_by_game": true,
+      "reports": ["receiving-totals", "receiving-value"]
+    }
+  ]
+}
