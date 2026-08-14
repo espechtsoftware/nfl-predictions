@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 05:21 CDT
+## Current state — 2026-08-14 05:34 CDT
 
 ### 2026-08-14 Phase S complete; SIS ASOE selected; Route follow-ups ready
 
@@ -35,21 +35,26 @@ agent or developer:
   lineup table must be atomically reconstructed and validated with candidate,
   feature and artifact stores. The Phase S scientific result below is valid;
   every final cell passed the complete execution-provenance audit.
-- The frozen Route R2 midpoint-shrinkage screen is implemented but has not
-  been executed and no R2 metric exists yet. Its only treatment transform is
+- The frozen Route R2 midpoint-shrinkage screen is implemented and running;
+  no partial R2 metric has been read. Its only treatment transform is
   the preregistered stable rank of `0.5 * control + 0.5 * Route`, populated
   with each player's exact sorted control values. The implementation reuses
   the fixed I1 population, common component worlds, pair book, bootstrap books
   and five-family gate; its launcher pins every prerequisite hash, exact
   source checksum, finite K, selected ASOE beta and midpoint weight. The
   harvester fails closed on incomplete chunks, wrong disposition/weight, or a
-  marginal/mean delta above `1e-10`. Focused and complete offline tests pass.
-  Commit and push this implementation, build an immutable audit image from
-  that exact commit, then launch/monitor/harvest R2 without reading partial
-  metrics.
-- SIS pass-tail exact-80 has released 11 of 30 registered cells under its hard
-  ten-cell cap; the newest is control R3/2024 execution
-  `replay-sisptc3-2024-2tzbt`. Launcher session `51675` is active. Continue
+  marginal/mean delta above `1e-10`. Focused and all 1,215 complete offline
+  tests pass. Exact-commit Cloud Build
+  `2f3ce908-1a6d-4136-a943-6f338219fe99` succeeded from `a611de2` and
+  published immutable digest
+  `sha256:9f8f1ad528a9b84eb9559fb5c8ce95a8e6cbb665820785e9857e77b2c68d1868`.
+  The fully guarded launcher reverified every frozen prerequisite and started
+  execution `route-rank-dependence-r2-v1-gkbtw`. Monitor status only, then run
+  `scripts/cloud_finish_route_rank_dependence_r2.sh` after terminal success;
+  do not read partial metrics.
+- SIS pass-tail exact-80 has released 13 of 30 registered cells under its hard
+  ten-cell cap; the newest is control R4/2023 execution
+  `replay-sisptc4-2023-clb9m`. Launcher session `51675` is active. Continue
   polling it so the remaining cells are released as successful cells free
   capacity; do not read partial score outcomes.
 
