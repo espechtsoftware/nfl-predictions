@@ -20,7 +20,30 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 15:24 CDT
+## Current state — 2026-08-14 15:32 CDT
+
+### 2026-08-14 SIS run-tail validly fails; TD full build queued
+
+- SIS score-free execution
+  `tabpfn-sis-rb-runtail-final-served-v1-prrtg` completed cleanly and strict
+  report SHA-256 is
+  `bd21734e655e18e758ace4874d6c7eca2bda12fcd39fcab6d91025ff6dd29caa`.
+  Disposition is `tabpfn-sis-rb-runtail-final-served-fails`: treatment/control
+  q95 pinball was `1.003517`, q99 was `1.007866`, and their frozen equal-weight
+  ratio was `1.005691`, above the required `<1`. Mean preservation passed and
+  point MAE improved slightly, but the registered extreme-tail gate failed.
+  Full details are in `reports/2026-08-14-sis-run-tail-final-served-result.md`.
+- The conditional five-seed SIS exact-80 branch expires without launching any
+  lineup cells. Its exact-commit build
+  `0a149a8b-f1d8-4bec-b496-42fbb2f7b007` succeeded with immutable digest
+  `sha256:05708cdd31b3b75edb80b4733252bbca22935825ebc06366936590d12acb5a2f`,
+  retained as validation evidence only.
+- New TD competitive-WR implementation is pushed as full commit
+  `57c5a5ab60c6ddba7805d5b99ad80c325d3c36cc`. Its exact archived full-test
+  Cloud Build is `c0781ece-1086-4e9c-9ea9-a7a8b24a7e4e`, targeting
+  `nfl-dfs:td-comp-wr-57c5a5a`; it is queued. On success, resolve the immutable
+  digest and launch only the clean Stage R reference. Stage T remains
+  prohibited unless strict Stage R disposition passes.
 
 ### 2026-08-14 new TD shape-aware mechanism frozen pre-result
 
