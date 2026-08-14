@@ -20,7 +20,25 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 14:59 CDT
+## Current state — 2026-08-14 15:25 CDT
+
+### 2026-08-14 new TD shape-aware mechanism frozen pre-result
+
+- The closed global TD-ledger/rank treatment is not being rerun. A distinct
+  adaptive score-free mechanism is preregistered in
+  `reports/2026-08-14-td-competitive-wr-allocation-protocol.md`. It changes
+  only eligible WR world ranks using the unchanged control QB percentile plus
+  each WR's TD-ledger percentile centered against the same-team WR mean. This
+  is designed to raise QB-WR dependence while reducing same-team WR
+  co-booming; QB/RB/TE and all player marginals remain unchanged.
+- Stage R must first create a clean repaired-path control reference and
+  reproduce the current-control payload in immutable TD report SHA-256
+  `6342eab48c2a3b7f417f60d18a2c58111388b03a60a7917e4ad5fee3c833c0c1`
+  within `1e-12`. Only a passing clean reference licenses Stage T. Stage T's
+  algorithm, population, invariants and eleven score-free gates are frozen
+  before implementation or treatment output. Implement and test both stages
+  while polling the active SIS final-served execution and exact80 image build;
+  do not launch a TD treatment before Stage R passes.
 
 ### 2026-08-14 SIS conditional exact-80 harness implemented pre-result
 
