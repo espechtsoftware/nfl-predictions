@@ -20,7 +20,47 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 11:03 CDT
+## Current state — 2026-08-14 11:48 CDT
+
+### 2026-08-14 final-forensic freeze/analyzer primitives implemented outcome-free
+
+- The feedback in
+  `reports/2026-08-14-pass-tail-and-selector-resampling-feedback.md` is
+  reconciled without reopening either frozen decision. The pass-tail exact-80
+  report now carries non-nested breadth: the deciding >=220 delta is three
+  improving versus one worsening seed/slate over two distinct improving and
+  one distinct worsening calendar slates; across all thresholds it is 19
+  improving versus 15 worsening seed/slates, 14 distinct improving and 14
+  distinct worsening slates, and 23 distinct changed slates. The 2025 adverse
+  pattern is an explicit prospective checkpoint. The selector diagnostic gives
+  the disjoint-half 54.2778/80 overlap equal billing, but labels it correctly
+  as reproducibility rather than an economic entry-count recommendation.
+  Bootstrap-mean bagging is closed, and the finite-K pass-tail/K=1 production
+  transfer boundary remains binding.
+- The GCP historical scoring/analyzer queue is empty and a fresh status-only
+  check found no active Cloud Run job execution. Production remains the
+  already deployed K=1 CBWU v4 service below. This satisfies the no-active-
+  outcome-experiment prerequisite for freezing the final forensic analysis.
+- New outcome-free module `src/nfl_dfs/research/final_forensic.py` implements
+  deterministic report inventories and hashes, a self-digested fail-closed
+  freeze-manifest validator, independent roster legality/score reconstruction,
+  an exact PuLP full/support player oracle, and corrected H/P/C/S decomposition
+  with additive player-support/construction/selection gaps. It requires all
+  inventoried `*-protocol.md` and `*-result.md` files to be represented by a
+  terminal ledger row or a reasoned exclusion; it also pins the exact nine
+  closure outputs and all 12 mechanism-taxonomy families.
+- Eight focused offline tests pass. They prove an omitted high scorer appears
+  in H but not P, candidate score drift and RB-versus-DST illegality fail,
+  unaccounted protocols/results and open statuses fail, file drift fails, and
+  a mutated manifest self-digest fails. No real historical outcome has been
+  queried by this implementation or validation.
+- Next concrete action: finish the curated terminal arm registry and
+  outcome-free panel prelock hashes, commit the analyzer contract, run a full
+  immutable Cloud Build, then commit the freeze manifest pinned to that digest.
+  Only after that second commit may the first new outcome-facing H/P/C/S query
+  run. Keep the evidence scopes explicit: component evidence spans 107 slates,
+  position/Phase-S/CBWU evidence spans 54; there is no 107-slate CBWU book and
+  one must never be fabricated.
 
 ### 2026-08-14 licensed CBWU mechanism validated and deployed in K=1 production
 
