@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 03:59 CDT
+## Current state — 2026-08-14 04:11 CDT
 
 ### 2026-08-14 Phase S complete; SIS ASOE selected; Route follow-ups ready
 
@@ -42,9 +42,14 @@ agent or developer:
   treatment state is now the common inherited ASOE law for all preregistered
   Route and SIS pass-tail follow-ups; do not refit beta or change the branch.
 - Route marginal cache executions `tabpfn-route-i1-control-r4hvs` and
-  `tabpfn-route-i1-marginal-9l2vl`, plus Route component/rank execution
-  `route-rank-dependence-i1-v1-j6xfl`, launched successfully under the
-  selected Phase S treatment state. They were active at this milestone.
+  `tabpfn-route-i1-marginal-9l2vl` succeeded. Their frozen validator passes:
+  52,307 identical unique target keys per arm, exact control reproduction at
+  `0.0` maximum delta, the treatment adds exactly the four registered Route
+  fields, treatment predictions change, and all source/context/output checks
+  pass. Score-free evaluator execution
+  `tabpfn-route-channel-final-served-i1-v1-c8hkl` is active. Separately,
+  Route component/rank execution `route-rank-dependence-i1-v1-j6xfl` is
+  active under the same selected Phase S treatment state.
 - The first SIS pass-tail exact-80 launcher invocation stopped before creating
   a run manifest or allocating compute because its prerequisite guard treated
   the frozen report's per-arm `maximum_mean_delta` object as a scalar. The
@@ -52,7 +57,10 @@ agent or developer:
   validates both finite values against `1e-10`; the unchanged scientific
   panel and frozen generation image/code remain intact. Shell syntax, the
   actual frozen-report contract, focused tests and whitespace checks pass.
-  Commit/push this repair, then relaunch the same registered panel.
+  The repair shipped in pushed commit `1736d97`; the unchanged panel passed
+  all prerequisite/write-once checks and launched treatment smoke execution
+  `replay-sis-pass-tail-e80-smoke-ppsk6`. The smoke is active; on success the
+  launcher will release the 30 registered cells at a ten-cell cap.
 - The current-stack I1 Route Share marginal-channel experiment is frozen in
   `reports/2026-08-14-route-channel-i1-protocol.md`, before Phase S is
   harvested and before either new cache exists. It compares accepted
