@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 16:59 CDT
+## Current state — 2026-08-14 17:21 CDT
 
 ### 2026-08-14 low-max contest UI added; TD Stage T closes invalid
 
@@ -39,6 +39,17 @@ agent or developer:
   scoring promotion. The 80-lineup mode remains the default and priority.
 - Validation: all focused tests in `tests/test_production_policy.py` and
   `tests/test_app.py` pass; Python compilation and `git diff --check` pass.
+- Exact-commit release Cloud Build
+  `7cebca75-e5cd-426e-80e1-235836c4011f` passed the complete repository test
+  suite and published immutable image digest
+  `sha256:c46b5a3b7244b3c25a62cb6cf4735583f79bc4fed006d113280b7255e3a377df`.
+  Cloud Run revision `nfl-dfs-app-00071-njm` is Ready and serving 100% of
+  `nfl-dfs-app` traffic. The startup TCP probe succeeded on its first attempt,
+  Uvicorn reached application-startup complete, and no revision error was
+  logged. Content-level command-line smoke requests are blocked by the
+  service's expected IAP login because this workstation credential cannot mint
+  the audience-specific IAP token; the same source page/API contract passed
+  the clean full-suite build and focused TestClient checks.
 - TD Stage T execution `td-competitive-wr-allocation-v1-k46pl` completed at
   the infrastructure level and harvested successfully. Report SHA-256 is
   `e7c590c707fcdee1c93954fb540abf5d4a336baa290b84319cc2a236f7cc87a4`;
