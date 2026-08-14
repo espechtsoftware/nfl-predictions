@@ -9,6 +9,8 @@ OUT="$ROOT/reports/tabpfn-sis-pass-tail-runs/20260814-sis-pass-tail-exact80-v1"
 EXEC_FILE="$OUT/analyzer_execution.txt"
 MANIFEST="$OUT/manifest.txt"
 ANALYZER_MANIFEST="$OUT/analyzer_manifest.txt"
+[ ! -s "$OUT/analyzer_retry_execution.txt" ] || \
+  EXEC_FILE="$OUT/analyzer_retry_execution.txt"
 [ -s "$EXEC_FILE" ] && [ -s "$MANIFEST" ] && [ -s "$ANALYZER_MANIFEST" ] || {
   echo "ABORT: analyzer provenance is incomplete"; exit 2; }
 [ ! -e "$OUT/report.json" ] || { echo "ABORT: immutable report already exists"; exit 2; }

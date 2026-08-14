@@ -1,0 +1,7 @@
+execution=analyze-sis-pass-tail-exact80-v1-pvd6b
+terminal_state=False
+scientific_report_emitted=0
+failure_class=pandas_nullable_boolean_subtraction_in_mechanical_audit
+failure_location=tabpfn_sis_pass_tail_lineup_v1.feature_invariance_audit
+error=TypeError: numpy boolean subtract
+disposition=infrastructure_reporting_defect_retry_only

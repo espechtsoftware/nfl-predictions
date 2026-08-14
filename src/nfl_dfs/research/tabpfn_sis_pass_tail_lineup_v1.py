@@ -57,8 +57,18 @@ def _season_levers(rows: pd.DataFrame) -> dict[int, dict[str, str]]:
 
 def _equal_series(left: pd.Series, right: pd.Series, atol=1e-12) -> pd.Series:
     both_null = left.isna() & right.isna()
-    ln = pd.to_numeric(left, errors="coerce")
-    rn = pd.to_numeric(right, errors="coerce")
+    # BigQuery BOOL values arrive as pandas bool/BooleanArray. Numeric
+    # coercion accepts them, but NumPy deliberately rejects boolean
+    # subtraction. They are exact invariants and need no tolerance.
+    if pd.api.types.is_bool_dtype(left.dtype) or pd.api.types.is_bool_dtype(
+        right.dtype
+    ):
+        return both_null | (
+            left.notna() & right.notna()
+            & left.astype("boolean").eq(right.astype("boolean"))
+        )
+    ln = pd.to_numeric(left, errors="coerce").astype("Float64")
+    rn = pd.to_numeric(right, errors="coerce").astype("Float64")
     numeric = left.notna() & right.notna() & ln.notna() & rn.notna()
     return both_null | (numeric & (ln - rn).abs().le(atol)) | (
         (~numeric) & left.astype(str).eq(right.astype(str))

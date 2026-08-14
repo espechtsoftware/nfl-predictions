@@ -66,20 +66,31 @@ agent or developer:
   The guarded finisher independently verified the full arm/replicate/season,
   panel, image, code and terminal-status provenance for every cell, then
   launched exact-80 analyzer execution
-  `analyze-sis-pass-tail-exact80-v1-pvd6b` on the frozen audit digest. Poll
-  terminal status only and harvest it before launching another
-  outcome-bearing analyzer.
-- Exact-commit selector diagnostic Cloud Build
-  `65db620b-1c95-4864-b916-0c52d9b8e34a` is running from pushed commit
-  `2ff57b4`. It runs the complete suite before publishing tag
-  `nfl-dfs:selector-resampling-2ff57b4`; use its immutable digest only after
-  successful completion.
-- Current concrete GCP queue is: harvest the active pass-tail exact-80
-  analyzer; publish/run/harvest the score-free selector-resampling analyzer;
-  then run/harvest the frozen multi-seed candidate/world factorial. Apply any
-  licensed production decision only after those immutable reports, then
-  prepare the registered final forensic closure. No other replay-score panel
-  is currently licensed or queued.
+  `analyze-sis-pass-tail-exact80-v1-pvd6b` on the frozen audit digest. It
+  failed before emitting a scientific report in the mechanical feature audit:
+  BigQuery BOOL columns were numerically coerced and pandas/NumPy reject
+  boolean subtraction. The terminal error and non-result disposition are
+  tracked in `analyzer_failure.txt`; no outcome was harvested.
+- The mechanical comparer now handles bool/nullable-boolean columns as exact
+  values before tolerant numeric comparison, matching the already-hardened
+  Phase R/Phase S comparers. A regression test exercises unchanged, null and
+  changed nullable booleans. The dedicated retry launcher verifies the exact
+  original terminal failure and feature-audit frame, changes only the audit
+  code/image, preserves every panel/input/gate/resource argument, and records
+  separate retry provenance. Focused repair/selector validation passes 24
+  tests; Python/shell syntax and whitespace checks pass.
+- Exact-commit selector build
+  `65db620b-1c95-4864-b916-0c52d9b8e34a` from `2ff57b4` was cancelled after
+  the analyzer exposed this repair need; it did not publish an eligible
+  immutable image. Publish one superseding exact-commit full-test image that
+  contains both the BOOL repair and selector diagnostic, then run the guarded
+  pass-tail analyzer retry.
+- Current concrete GCP queue is: publish the repaired image and run/harvest the
+  pass-tail exact-80 analyzer retry; run/harvest the score-free
+  selector-resampling analyzer; then run/harvest the frozen multi-seed
+  candidate/world factorial. Apply any licensed production decision only
+  after those immutable reports, then prepare the registered final forensic
+  closure. No other replay-score panel is currently licensed or queued.
 
 ### 2026-08-14 Phase S complete; SIS ASOE selected; Route follow-ups ready
 

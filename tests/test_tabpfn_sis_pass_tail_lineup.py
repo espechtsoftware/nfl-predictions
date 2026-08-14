@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 
 from nfl_dfs.research import tabpfn_sis_pass_tail_lineup_v1 as lineup
@@ -32,7 +34,7 @@ def test_feature_audit_allows_only_registered_distribution_changes():
         "season": [2025], "week": [5], "id": ["p"], "name": ["Player"],
         "actual": [20.0], "panel_run_id": ["left"],
         "slate_run_id": ["l"], "generated_at": ["then"],
-        "config_hash": ["a"], "proj": [10.0],
+        "config_hash": ["a"], "proj": [10.0], "was_active": [True],
     }
     control = pd.DataFrame(common)
     treatment = control.copy()
@@ -49,6 +51,25 @@ def test_feature_audit_allows_only_registered_distribution_changes():
         control, treatment)["invariant_mismatch_rows"] == 1
 
 
+def test_feature_audit_handles_nullable_boolean_invariants_exactly():
+    common = {
+        "season": [2025, 2025], "week": [5, 5], "id": ["p", "q"],
+        "panel_run_id": ["left", "left"], "slate_run_id": ["l", "l"],
+        "generated_at": ["then", "then"], "config_hash": ["a", "a"],
+        "proj": [10.0, 11.0],
+    }
+    control = pd.DataFrame(common)
+    control["was_active"] = pd.Series([True, pd.NA], dtype="boolean")
+    treatment = control.copy()
+    treatment["panel_run_id"] = "right"
+    treatment["proj"] = [10.5, 11.5]
+    audit = lineup.feature_invariance_audit(control, treatment)
+    assert audit["invariant_mismatch_rows"] == 0
+    treatment.loc[0, "was_active"] = False
+    changed = lineup.feature_invariance_audit(control, treatment)
+    assert changed["invariant_mismatch_rows"] == 1
+
+
 def test_candidate_audit_detects_material_scoring_change_not_actual_change():
     control = pd.DataFrame({
         "season": [2025], "week": [5], "players": ["a,b"],
@@ -59,3 +80,15 @@ def test_candidate_audit_detects_material_scoring_change_not_actual_change():
     audit = lineup.candidate_audit(control, treatment)
     assert audit["common_actual_mismatch"] == 0
     assert audit["common_sim_mean_mismatch"] == 1
+
+
+def test_exact80_retry_is_limited_to_verified_boolean_audit_failure():
+    root = Path(__file__).resolve().parents[1]
+    retry = (root /
+             "scripts/cloud_retry_tabpfn_sis_pass_tail_exact80_v1.sh").read_text()
+    harvest = (root /
+               "scripts/cloud_harvest_tabpfn_sis_pass_tail_exact80_v1.sh").read_text()
+    assert "TypeError: numpy boolean subtract" in retry
+    assert "feature_invariance_audit" in retry
+    assert "retry_reason=pandas_nullable_boolean_subtraction" in retry
+    assert "analyzer_retry_execution.txt" in harvest
