@@ -51,11 +51,16 @@ agent or developer:
   predictions change, and active-RB support is 87.93%/88.02%/87.84% in
   2023/2024/2025.
 - Full-test exact-commit audit build
-  `b8a3e085-fbab-4ef4-80bd-e410eb354c3b` is still working. Poll it; after
-  success resolve its immutable digest and immediately launch
-  `scripts/cloud_tabpfn_sis_rb_runtail_final_served.sh` with full SHA
-  `23fdbba47590af3ba7594ae22bdbf2e764d86389`. The score-free final-served gate
-  is now licensed; no lineup outcome may be read unless it passes.
+  `b8a3e085-fbab-4ef4-80bd-e410eb354c3b` succeeded and published immutable
+  digest `sha256:727761aa7cc93a2f597fe116f0237fb62b1e52efb389b3366d095321bec93eb5`.
+  The licensed score-free final-served execution is now live as
+  `tabpfn-sis-rb-runtail-final-served-v1-prrtg`; its exact manifest and
+  execution identity are tracked under
+  `reports/tabpfn-sis-rb-runtail-runs/20260814-tabpfn-sis-rb-runtail-final-served-v1/`.
+  Poll and harvest it with
+  `scripts/cloud_finish_tabpfn_sis_rb_runtail_final_served.sh`. No lineup
+  outcome may be generated or read unless disposition is exactly
+  `tabpfn-sis-rb-runtail-final-served-passes` with every gate true.
 
 ### 2026-08-14 SIS RB run-tail cache pair launched
 
