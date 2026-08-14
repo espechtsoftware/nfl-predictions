@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 12:43 CDT
+## Current state — 2026-08-14 12:46 CDT
 
 ### 2026-08-14 final-forensic queryable corpus retention frozen outcome-free
 
@@ -121,8 +121,14 @@ agent or developer:
   `cda141a1-e20a-4a62-bafe-c900eeb3e6b7` remain validation-only even if they
   succeed. The eventual freeze image must be built from the commit containing
   this correction.
-- Next concrete action: commit/push this outcome-free extension, run the full
-  exact-commit Cloud Build, create/verify the isolated dataset, then create and
+- The artifact-pinning implementation is pushed as commit `4df618a`. Build
+  `739bd75d-ea0d-419c-91ea-14131950234b` is terminal `SUCCESS` with validation-
+  only digest
+  `sha256:70a0acb3640eb0e642b72939da1c482cc4d99b293f67ac798cb9a01885896df0`;
+  `cda141a1-e20a-4a62-bafe-c900eeb3e6b7` is still `WORKING`. The final eligible
+  exact-commit build is `036d54f4-467b-4b97-8e04-b380cb95bb2a`, currently
+  `QUEUED`, targeting tag `forensic-4df618a`.
+- Next concrete action: harvest that exact-commit Cloud Build, then create and
   commit the freeze inputs/manifest pinned to that digest and these four table
   contracts. Only after that commit may the first new outcome query or forensic
   table write occur. After the independent review, run/commit the deletion
