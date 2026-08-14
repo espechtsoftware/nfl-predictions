@@ -1,0 +1,12 @@
+run_id=20260813-multiseed-candidate-world-v1
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:757f0784937492c23917c245b082e052508fcac693840a1469e0020257fad6a4
+code_sha=4d6f5cf
+source_arm=treatment
+protocol_sha256=16d72151ac9ce0e6c520e3b269adbc27bb630744a574e10ce0eae7b1cc57675f
+phase_s_report_sha256=46f7cfbfedb4e1140f4bc1ca561215703fe416cb1d2a26856ed605ed470187aa
+arms=C0W0 C0WU CUW0 CUWU
+confirmation_arms=CBW0 CBWU
+proper_scores=q95 q99 weekly-selected-book-maximum
+entries=80
+worlds_per_seed=10000
+replicates=R0 R1 R2 R3 R4

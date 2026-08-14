@@ -121,7 +121,14 @@ agent or developer:
   S treatment R0 source, code/image/beta, 10,000 worlds, exact-80/194 selector,
   feedback/reconciliation/protocol hashes and write-once frequency artifact.
   It cannot read realized outcomes or change production. Poll and harvest it,
-  then launch the frozen multi-seed factorial.
+  and interpret it alongside the multi-seed factorial.
+- With pass-tail completely harvested, the one-active-outcome-experiment
+  firewall is clear. The frozen multi-seed candidate/world factorial launched
+  concurrently with the score-free diagnostic as execution
+  `analyze-multiseed-candidate-world-v1-blhp5`, using the Phase S-selected
+  treatment source. Its tracked manifest pins the source report/protocol,
+  immutable source image/code, all five R0--R4 books, exact-80 and all frozen
+  candidate/world cells. Poll and harvest only the terminal complete report.
 
 ### 2026-08-14 Phase S complete; SIS ASOE selected; Route follow-ups ready
 
