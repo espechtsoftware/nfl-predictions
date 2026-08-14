@@ -46,10 +46,13 @@ and should remain visible in prospective monitoring.
 
 ## Disposition
 
-Adopt `tabpfn_sis_pass_tail_treatment_v1` and its frozen schedules as the
-selected marginal state when the remaining artifact-only queue closes. Do not
-refit its features or schedules. The score-free selector-resampling diagnostic
-has no adoption authority; the separate frozen multi-seed candidate/world
-factorial may still alter candidate/world selection. Final production wiring
-must combine only mechanisms licensed by their existing protocols and record
-the exact resulting state before Week 1.
+Record `tabpfn_sis_pass_tail_treatment_v1` and its frozen schedules as the
+selected **finite-K historical research baseline**. Do not refit its features
+or schedules. This result licenses a later explicit live/UI integration
+decision under the addendum, but it does not license silently combining the
+cache/schedules with the distinct K=1 money-lineup policy; that transfer cell
+was not tested here. The score-free selector-resampling diagnostic has no
+adoption authority, and the separate frozen multi-seed candidate/world
+factorial may still alter the finite-K research selection law. Final production
+wiring must respect those transfer boundaries and record the exact resulting
+state before Week 1.

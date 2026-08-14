@@ -110,11 +110,13 @@ agent or developer:
   binding and does not require uniform season gains. Human-readable result is
   `reports/2026-08-14-sis-pass-tail-exact80-result.md`; complete report SHA-256
   is `6d92edb503747a729ad7cecfd95315b0eff1e04be72491bea296a33aeb8e3689`.
-- Selected pass-tail state is cache `tabpfn_sis_pass_tail_treatment_v1` with
-  the frozen treatment schedules recorded in `selected_pass_tail.txt`. Defer
-  final production wiring until the score-free selector diagnostic and frozen
-  multi-seed candidate/world factorial close, then combine only independently
-  licensed mechanisms and record the exact Week 1 state.
+- Selected finite-K pass-tail research state is cache
+  `tabpfn_sis_pass_tail_treatment_v1` with the frozen treatment schedules in
+  `selected_pass_tail.txt`. This licenses a later explicit live/UI integration
+  decision but not silently combining it with the distinct K=1 money-lineup
+  policy; that transfer cell was not tested. After the artifact queue closes,
+  preserve this boundary while recording the exact Week 1 production and
+  prospective-shadow states.
 - The frozen score-free selector-resampling diagnostic launched on validated
   digest `sha256:a39e28b1...1345` as execution
   `analyze-selector-resampling-v1-wdb6m`. Its manifest pins the 54-slate Phase
