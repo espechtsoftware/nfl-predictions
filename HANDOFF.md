@@ -20,7 +20,44 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 18:30 CDT
+## Current state — 2026-08-13 20:30 CDT
+
+### 2026-08-13 interaction-design review reconciled before Phase R/S outcomes
+
+- The amended outside review is tracked at
+  `reports/2026-08-13-experimental-design-arm-interactions.md`; its bounded
+  repository reconciliation is
+  `reports/2026-08-13-experimental-design-arm-interactions-reconciliation.md`.
+  The original claim that weak dependence makes marginal improvements unable
+  to propagate was correctly retracted: weak dependence reduces leverage but
+  does not make propagation impossible. The amended marginal-versus-rank
+  channel distinction is adopted.
+- Four safeguards are now explicit. The cited failures are not one homogeneous
+  marginal family; old Route component/union results cannot populate a new
+  current-stack channel cell; aggregate G0/G1 moments do not uniquely specify
+  an oracle copula; and the fourteen-panel retrospective can estimate only
+  full-rank, supported design contrasts. The oracle and panel meta-analysis
+  remain in the final forensic phase and cannot revive/adopt a historical arm.
+- Every future protocol must name its stage/channel, estimand, terminal
+  incumbent, downstream transfer boundary and interaction status, and report
+  channel-appropriate tail proper scores or dependence metrics. After Phase S,
+  run a current-stack score-free Route screen with common control, TabPFN-
+  marginal-only Route and component/rank-only Route cells. If the marginal
+  cell passes, run the predeclared five-seed exact-80 Route-marginal x SIS-ASOE
+  2x2 regardless of either standalone Phase S lineup disposition. This adds no
+  post-result choice and does not change the frozen Phase R or Phase S arms.
+- The existing multi-seed candidate/world factorial remains frozen for the
+  Phase S-selected upstream law. If the later interaction factorial selects a
+  different Route/ASOE cell, its downstream production conclusion must be
+  revalidated under that cell rather than assumed to transfer.
+- Latest score-blind Phase R status before this milestone: the first two clean
+  platform retries completed successfully, bringing the panel to 29 successful
+  jobs. The last retry, `replay-gtrk4-2023-pkbvk`, remains active/unknown with
+  one running task. No partial score or candidate result was queried. Exact
+  next action: continue status-only polling; after all 30 succeed, run
+  the frozen Phase R finisher/harvester, launch Phase S on immutable image
+  `sha256:e6ba5e2...` / code `1e0bf04`, and implement the Route channel screen
+  without altering either active protocol.
 
 ### 2026-08-13 ASOE passed; incumbent seed sensitivity measured
 

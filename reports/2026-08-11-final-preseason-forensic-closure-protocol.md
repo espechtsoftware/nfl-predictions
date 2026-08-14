@@ -228,6 +228,15 @@ Cross-panel shrinkage/meta-analysis may estimate how large an effect future
 gates should demand, but launched arms are a selected sample. Report that
 selection and never use the analysis to revive a rejected historical arm.
 
+Before any cross-panel main-effect or interaction model is fit, construct the
+complete panel-by-mechanism design matrix. Report its rank, aliased columns,
+cell support and every estimable contrast. A common-slate fixed effect removes
+slate level but does not manufacture a crossed factor cell that was never
+launched. Report interaction coefficients only for factor pairs with identified
+contrasts; otherwise record them as unidentifiable. Every panel row must also
+name its experimental stage/channel, exact incumbent context and downstream
+transfer boundary. These retrospective estimates remain charter inputs only.
+
 ## 9. Required outputs
 
 The immutable run produces machine-readable tables plus concise tracked

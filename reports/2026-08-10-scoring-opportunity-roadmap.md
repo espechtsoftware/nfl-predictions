@@ -51,6 +51,20 @@ joint-tail calibration, complete experiment/PIT reconciliation and a Week-1
 dress rehearsal. It is a prospective-charter and readiness gate only; it may
 not promote or retune a historical arm.
 
+Interaction-design addendum (2026-08-13): the amended outside review and
+repository reconciliation are in
+`reports/2026-08-13-experimental-design-arm-interactions.md` and
+`reports/2026-08-13-experimental-design-arm-interactions-reconciliation.md`.
+Every future protocol now names its marginal/dependence/generation/selection/
+objective stage, estimand, terminal context and transfer boundary. After the
+already-frozen corrected-allocation and SIS ASOE work, run a current-stack
+three-cell Route channel screen (`control`, TabPFN-marginal Route, and
+component/rank Route) with channel-specific score-free gates. If the marginal
+cell passes, run the predeclared five-seed exact-80 Route-marginal x SIS-ASOE
+2x2 even if either standalone lineup main effect lost. Cross-panel interaction
+mining remains deferred to the final forensic freeze and must pass a design-
+matrix estimability audit. No active frozen arm or result gate is changed.
+
 ## Evidence that sets the priorities
 
 - The accepted true-80 book clears 200 on 18/107 slates, 210 on 11, and 220
