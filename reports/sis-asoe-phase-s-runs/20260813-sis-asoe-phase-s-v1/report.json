@@ -1,0 +1,348 @@
+{
+    "failures": [],
+    "mechanical_passes": true,
+    "phase": "S",
+    "protocol": "2026-08-13-game-team-usage-repair-and-sis-asoe-exact80",
+    "result": {
+        "control_allocation": "k",
+        "decision": {
+            "aggregate_weekly_best_mean": {
+                "control": 173.82162962962963,
+                "treatment": 174.17348148148147
+            },
+            "control_retained_on_exact_tie": false,
+            "deciding_threshold": 210,
+            "selected_arm": "treatment",
+            "selected_tail_means": {
+                "control": {
+                    "187": 11.6,
+                    "194": 8.4,
+                    "200": 5.2,
+                    "210": 2.8,
+                    "220": 1.0,
+                    "230": 0.2,
+                    "240": 0.0
+                },
+                "treatment": {
+                    "187": 12.8,
+                    "194": 8.4,
+                    "200": 5.2,
+                    "210": 3.2,
+                    "220": 1.0,
+                    "230": 0.2,
+                    "240": 0.0
+                }
+            },
+            "selected_tail_sums": {
+                "control": {
+                    "187": 58,
+                    "194": 42,
+                    "200": 26,
+                    "210": 14,
+                    "220": 5,
+                    "230": 1,
+                    "240": 0
+                },
+                "treatment": {
+                    "187": 64,
+                    "194": 42,
+                    "200": 26,
+                    "210": 16,
+                    "220": 5,
+                    "230": 1,
+                    "240": 0
+                }
+            }
+        },
+        "metrics": {
+            "control-R0": {
+                "candidate_rows": 13706,
+                "oracle_tail": {
+                    "187": 18,
+                    "194": 13,
+                    "200": 9,
+                    "210": 4,
+                    "220": 1,
+                    "230": 0,
+                    "240": 0
+                },
+                "selected_mean": 174.92000000000004,
+                "selected_median": 172.4,
+                "selected_tail": {
+                    "187": 15,
+                    "194": 11,
+                    "200": 5,
+                    "210": 3,
+                    "220": 1,
+                    "230": 0,
+                    "240": 0
+                }
+            },
+            "control-R1": {
+                "candidate_rows": 13696,
+                "oracle_tail": {
+                    "187": 16,
+                    "194": 11,
+                    "200": 8,
+                    "210": 3,
+                    "220": 1,
+                    "230": 0,
+                    "240": 0
+                },
+                "selected_mean": 175.17185185185184,
+                "selected_median": 173.85,
+                "selected_tail": {
+                    "187": 12,
+                    "194": 9,
+                    "200": 6,
+                    "210": 3,
+                    "220": 1,
+                    "230": 0,
+                    "240": 0
+                }
+            },
+            "control-R2": {
+                "candidate_rows": 13690,
+                "oracle_tail": {
+                    "187": 14,
+                    "194": 9,
+                    "200": 8,
+                    "210": 4,
+                    "220": 2,
+                    "230": 1,
+                    "240": 0
+                },
+                "selected_mean": 175.4503703703704,
+                "selected_median": 172.26999999999998,
+                "selected_tail": {
+                    "187": 10,
+                    "194": 7,
+                    "200": 6,
+                    "210": 4,
+                    "220": 2,
+                    "230": 1,
+                    "240": 0
+                }
+            },
+            "control-R3": {
+                "candidate_rows": 13703,
+                "oracle_tail": {
+                    "187": 16,
+                    "194": 12,
+                    "200": 8,
+                    "210": 3,
+                    "220": 1,
+                    "230": 0,
+                    "240": 0
+                },
+                "selected_mean": 171.40111111111113,
+                "selected_median": 171.46,
+                "selected_tail": {
+                    "187": 10,
+                    "194": 7,
+                    "200": 3,
+                    "210": 2,
+                    "220": 0,
+                    "230": 0,
+                    "240": 0
+                }
+            },
+            "control-R4": {
+                "candidate_rows": 13698,
+                "oracle_tail": {
+                    "187": 14,
+                    "194": 10,
+                    "200": 9,
+                    "210": 3,
+                    "220": 1,
+                    "230": 0,
+                    "240": 0
+                },
+                "selected_mean": 172.16481481481483,
+                "selected_median": 172.76999999999998,
+                "selected_tail": {
+                    "187": 11,
+                    "194": 8,
+                    "200": 6,
+                    "210": 2,
+                    "220": 1,
+                    "230": 0,
+                    "240": 0
+                }
+            },
+            "treatment-R0": {
+                "candidate_rows": 13706,
+                "oracle_tail": {
+                    "187": 14,
+                    "194": 12,
+                    "200": 9,
+                    "210": 5,
+                    "220": 0,
+                    "230": 0,
+                    "240": 0
+                },
+                "selected_mean": 174.52259259259262,
+                "selected_median": 172.51000000000002,
+                "selected_tail": {
+                    "187": 12,
+                    "194": 10,
+                    "200": 6,
+                    "210": 3,
+                    "220": 0,
+                    "230": 0,
+                    "240": 0
+                }
+            },
+            "treatment-R1": {
+                "candidate_rows": 13696,
+                "oracle_tail": {
+                    "187": 17,
+                    "194": 12,
+                    "200": 7,
+                    "210": 4,
+                    "220": 1,
+                    "230": 0,
+                    "240": 0
+                },
+                "selected_mean": 174.11074074074074,
+                "selected_median": 173.3,
+                "selected_tail": {
+                    "187": 14,
+                    "194": 8,
+                    "200": 4,
+                    "210": 3,
+                    "220": 1,
+                    "230": 0,
+                    "240": 0
+                }
+            },
+            "treatment-R2": {
+                "candidate_rows": 13690,
+                "oracle_tail": {
+                    "187": 18,
+                    "194": 12,
+                    "200": 9,
+                    "210": 4,
+                    "220": 2,
+                    "230": 1,
+                    "240": 0
+                },
+                "selected_mean": 174.477037037037,
+                "selected_median": 171.29000000000002,
+                "selected_tail": {
+                    "187": 14,
+                    "194": 8,
+                    "200": 5,
+                    "210": 4,
+                    "220": 2,
+                    "230": 1,
+                    "240": 0
+                }
+            },
+            "treatment-R3": {
+                "candidate_rows": 13703,
+                "oracle_tail": {
+                    "187": 13,
+                    "194": 10,
+                    "200": 7,
+                    "210": 4,
+                    "220": 1,
+                    "230": 0,
+                    "240": 0
+                },
+                "selected_mean": 174.74259259259264,
+                "selected_median": 173.21000000000004,
+                "selected_tail": {
+                    "187": 10,
+                    "194": 8,
+                    "200": 6,
+                    "210": 4,
+                    "220": 1,
+                    "230": 0,
+                    "240": 0
+                }
+            },
+            "treatment-R4": {
+                "candidate_rows": 13698,
+                "oracle_tail": {
+                    "187": 17,
+                    "194": 10,
+                    "200": 8,
+                    "210": 4,
+                    "220": 1,
+                    "230": 0,
+                    "240": 0
+                },
+                "selected_mean": 173.01444444444445,
+                "selected_median": 172.91,
+                "selected_tail": {
+                    "187": 14,
+                    "194": 8,
+                    "200": 5,
+                    "210": 2,
+                    "220": 1,
+                    "230": 0,
+                    "240": 0
+                }
+            }
+        },
+        "paired_seed_diagnostics": [
+            {
+                "control_weeks_better": 16,
+                "mean_delta": -0.39740740740740543,
+                "mean_selected_overlap_of_80": 36.2962962962963,
+                "replicate": "R0",
+                "ties": 19,
+                "treatment_weeks_better": 19,
+                "weeks_abs_delta_at_least_10": 14
+            },
+            {
+                "control_weeks_better": 22,
+                "mean_delta": -1.0611111111111091,
+                "mean_selected_overlap_of_80": 36.18518518518518,
+                "replicate": "R1",
+                "ties": 16,
+                "treatment_weeks_better": 16,
+                "weeks_abs_delta_at_least_10": 16
+            },
+            {
+                "control_weeks_better": 20,
+                "mean_delta": -0.9733333333333344,
+                "mean_selected_overlap_of_80": 35.96296296296296,
+                "replicate": "R2",
+                "ties": 20,
+                "treatment_weeks_better": 14,
+                "weeks_abs_delta_at_least_10": 13
+            },
+            {
+                "control_weeks_better": 13,
+                "mean_delta": 3.3414814814814844,
+                "mean_selected_overlap_of_80": 36.092592592592595,
+                "replicate": "R3",
+                "ties": 18,
+                "treatment_weeks_better": 23,
+                "weeks_abs_delta_at_least_10": 20
+            },
+            {
+                "control_weeks_better": 16,
+                "mean_delta": 0.8496296296296322,
+                "mean_selected_overlap_of_80": 36.425925925925924,
+                "replicate": "R4",
+                "ties": 20,
+                "treatment_weeks_better": 18,
+                "weeks_abs_delta_at_least_10": 9
+            }
+        ],
+        "slate_clustered_bootstrap_diagnostic": {
+            "ci95": [
+                -1.2233851851851825,
+                1.9494481481481463
+            ],
+            "clusters": 54,
+            "mean_delta": 0.3518518518518536,
+            "resamples": 2000,
+            "seed": 8132026,
+            "seed_replicates_averaged_within_cluster": 5
+        }
+    }
+}

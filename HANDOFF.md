@@ -20,19 +20,27 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 02:37 CDT
+## Current state — 2026-08-14 03:54 CDT
 
-### 2026-08-14 Phase S at 21 successes; Route marginal channel frozen
+### 2026-08-14 Phase S complete; SIS ASOE selected; Route follow-ups ready
 
 - Branch is `main`; the cache freeze shipped in pushed commit `9052868`, the
   score-free evaluator shipped in `975a223`, and the rank/dependence screen
-  shipped in pushed commit `799a27e`. Phase S is at 21 clean successes and
-  nine active cells. All bounded infrastructure replacements
-  have now been released; controller session `98021` exited normally with
-  `PHASE_S_RETRY_QUEUE_EMPTY`. Status-only monitor session `72912` remains
-  live. The final verified release was control R3/2025 execution
-  `replay-sisasoec3-2025-7llb5`. Do not read scores until all 30 cells and the
-  frozen analyzer pass.
+  shipped in pushed commit `799a27e`. All 30 Phase S cells completed
+  successfully, and the guarded finisher verified every immutable image,
+  code SHA, arm, replicate, season, panel and execution before launching the
+  frozen analyzer. Analyzer execution
+  `analyze-sis-asoe-phase-s-v1-8lcpc` succeeded and the complete mechanically
+  passing report is tracked under
+  `reports/sis-asoe-phase-s-runs/20260813-sis-asoe-phase-s-v1/`.
+- The frozen tail-first decision selects SIS alignment-based target allocation
+  (`treatment`, beta `0.07771181538347656`) over finite-K control. Across the
+  five paired seed books, treatment raises selected >=210 seed-weeks from
+  14 to 16 and >=187 from 58 to 64; >=194/200/220/230/240 are tied at
+  42/26/5/1/0. Mean weekly best rises 173.822 to 174.173 (+0.352), although
+  the 54-slate clustered 95% interval is [-1.223, 1.949]. The selected
+  treatment state is now the common inherited ASOE law for all preregistered
+  Route and SIS pass-tail follow-ups; do not refit beta or change the branch.
 - The current-stack I1 Route Share marginal-channel experiment is frozen in
   `reports/2026-08-14-route-channel-i1-protocol.md`, before Phase S is
   harvested and before either new cache exists. It compares accepted
