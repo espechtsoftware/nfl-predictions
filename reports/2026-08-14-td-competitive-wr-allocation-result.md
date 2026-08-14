@@ -1,9 +1,13 @@
 # TD competitive-WR allocation terminal result
 
-**Recorded:** 2026-08-14 CDT  
-**Execution:** `td-competitive-wr-allocation-v1-k46pl`  
-**Immutable code:** `74df236087664208235a9cf5028abe4a86187e34`  
-**Immutable image:** `sha256:eb2902ab0d5ba07e4981875513f4c59ae5ea14055ea82160b0c9cb751b3c80c5`  
+**Recorded:** 2026-08-14 CDT
+
+**Execution:** `td-competitive-wr-allocation-v1-k46pl`
+
+**Immutable code:** `74df236087664208235a9cf5028abe4a86187e34`
+
+**Immutable image:** `sha256:eb2902ab0d5ba07e4981875513f4c59ae5ea14055ea82160b0c9cb751b3c80c5`
+
 **Report SHA-256:** `e7c590c707fcdee1c93954fb540abf5d4a336baa290b84319cc2a236f7cc87a4`
 
 ## Disposition
@@ -45,4 +49,3 @@ reproduction lessons should be carried into future mechanisms: snapshot
 control arrays before loading intervention books, and audit simulated means
 with the registered numerical tolerance rather than an accidental bitwise
 frame comparison when rank-only permutations can change summation order.
-
