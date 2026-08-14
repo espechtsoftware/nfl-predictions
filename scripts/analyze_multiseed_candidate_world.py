@@ -4,9 +4,11 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import json
 from pathlib import Path
 import sys
+import zlib
 
 import numpy as np
 
@@ -25,9 +27,27 @@ from nfl_dfs.research.portfolio_effective_rank import (  # noqa: E402
 
 
 OUTPUT_PREFIX = "MULTISEED_CANDIDATE_WORLD_JSON="
+OUTPUT_CHUNK_PREFIX = "MULTISEED_CANDIDATE_WORLD_CHUNK="
+OUTPUT_CHUNK_SIZE = 75_000
 SEASONS = (2023, 2024, 2025)
 BOOTSTRAP_SEED = 8_132_027
 BOOTSTRAP_RESAMPLES = 2_000
+
+
+def encoded_report_lines(report: dict) -> list[str]:
+    """Compress and frame the full report below Cloud Logging entry limits."""
+    raw = json.dumps(
+        report, separators=(",", ":"), sort_keys=True,
+    ).encode("utf-8")
+    encoded = base64.b64encode(zlib.compress(raw, level=9)).decode("ascii")
+    chunks = [
+        encoded[index:index + OUTPUT_CHUNK_SIZE]
+        for index in range(0, len(encoded), OUTPUT_CHUNK_SIZE)
+    ]
+    return [
+        f"{OUTPUT_CHUNK_PREFIX}{index}/{len(chunks)}:{chunk}"
+        for index, chunk in enumerate(chunks, 1)
+    ]
 
 
 def _panel(source_arm: str, replicate: int) -> str:
@@ -213,7 +233,8 @@ def main() -> int:
         summary["slate_clustered_bootstrap_diagnostic"] = _bootstrap(slates)
         summary["slates"] = slates
         report["result"] = summary
-    print(OUTPUT_PREFIX + json.dumps(report, separators=(",", ":"), sort_keys=True))
+    for line in encoded_report_lines(report):
+        print(line)
     return 0 if not failures else 2
 
 

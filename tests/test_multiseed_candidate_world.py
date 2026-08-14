@@ -1,3 +1,9 @@
+import base64
+import importlib.util
+import json
+from pathlib import Path
+import zlib
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -10,6 +16,16 @@ from nfl_dfs.research.multiseed_candidate_world import (
     summarize_standalone_seed_books,
     validate_and_cross_score_slate,
 )
+
+
+ROOT = Path(__file__).resolve().parents[1]
+SPEC = importlib.util.spec_from_file_location(
+    "analyze_multiseed_candidate_world",
+    ROOT / "scripts/analyze_multiseed_candidate_world.py",
+)
+assert SPEC and SPEC.loader
+analyzer = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(analyzer)
 
 
 ROSTERS = (
@@ -178,3 +194,39 @@ def test_standalone_seed_noise_floor_and_proper_scores():
         scores = seed["selected_weekly_best_pinball"]
         assert set(scores) == {"0.95", "0.99"}
         assert all(value >= 0 for value in scores.values())
+
+
+def test_large_multiseed_report_uses_complete_compressed_chunks(monkeypatch):
+    monkeypatch.setattr(analyzer, "OUTPUT_CHUNK_SIZE", 100)
+    report = {
+        "rows": [
+            {"index": index, "value": f"value-{index:06d}"}
+            for index in range(2_000)
+        ]
+    }
+    lines = analyzer.encoded_report_lines(report)
+    assert len(lines) > 1
+    chunks = {}
+    total = None
+    for line in lines:
+        header, chunk = line.removeprefix(
+            analyzer.OUTPUT_CHUNK_PREFIX
+        ).split(":", 1)
+        index, total = map(int, header.split("/", 1))
+        chunks[index] = chunk
+    encoded = "".join(chunks[index] for index in range(1, total + 1))
+    assert json.loads(zlib.decompress(base64.b64decode(encoded))) == report
+
+
+def test_transport_retry_is_limited_to_verified_truncation():
+    retry = (
+        ROOT / "scripts/cloud_retry_multiseed_candidate_world_transport.sh"
+    ).read_text()
+    harvest = (
+        ROOT / "scripts/cloud_harvest_multiseed_candidate_world.sh"
+    ).read_text()
+    assert "Unterminated string" in retry
+    assert "cloud_logging_single_entry_truncation" in retry
+    assert "analyzer_retry_execution.txt" in harvest
+    assert "analyzer_retry_manifest.txt" in harvest
+    assert "MULTISEED_CANDIDATE_WORLD_CHUNK=" in harvest

@@ -129,6 +129,21 @@ agent or developer:
   treatment source. Its tracked manifest pins the source report/protocol,
   immutable source image/code, all five R0--R4 books, exact-80 and all frozen
   candidate/world cells. Poll and harvest only the terminal complete report.
+- Multi-seed execution `...-blhp5` completed successfully in 5m44s, but the
+  first harvest found its legacy single JSON log entry truncated at the Cloud
+  Logging limit: 102,428 stored bytes ending inside a string, with
+  `Unterminated string` at column 102,369. No complete report/decision was
+  recovered. The original truncated log and partial JSON are preserved and
+  cannot be cited as a result.
+- Transport-only repair is frozen in
+  `reports/2026-08-14-multiseed-report-transport-repair.md`. It changes only
+  output framing to deterministic zlib/base64 numbered chunks under 75,000
+  characters. The guarded retry requires the original successful execution
+  and exact truncation signature, then preserves source arm/panels/code,
+  candidate/world cells, metrics, gate and resources. Focused multi-seed and
+  selector validation passes 12 tests; Python/shell syntax and whitespace
+  checks pass. Publish an exact-commit full-test image, retry the analyzer and
+  harvest only the complete reconstructed report.
 
 ### 2026-08-14 Phase S complete; SIS ASOE selected; Route follow-ups ready
 
