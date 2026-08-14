@@ -53,9 +53,14 @@ agent or developer:
   `9e215bf5-6d9f-4b8e-a72f-e919c2d13205` was submitted from a clean
   `git archive` of full commit
   `ce3469663c4b143527eed475ad8a099e229f99a7`, targeting
-  `nfl-dfs:td-comp-wr-e80-ce34696`. This is preparation only. Retain a digest
-  only after build success, and do not release an exact-80 cell unless both
-  frozen score-free stages strictly pass.
+  `nfl-dfs:td-comp-wr-e80-ce34696`. A pre-result provenance review then found
+  that the in-process treatment/hash license was not persisted into candidate
+  `lever_env`; that would make the later 30-cell audit weaker than the frozen
+  addendum. The build was cancelled before image publication and is
+  superseded. Candidate persistence now includes the competitive-WR flag,
+  explicit exact-80 license and all three score-free/protocol hashes; 36
+  focused persistence/TD tests pass. Commit and build this corrected source
+  only if Stage T passes; never use the superseded tag.
 - Stage R execution `td-competitive-wr-reference-v1-2trhj` completed cleanly.
   Strict report SHA-256 is
   `748822294c90f3178ca79989bac17f065662589230bf0fab24897d2c59898e2b`,

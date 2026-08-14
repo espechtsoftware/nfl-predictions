@@ -272,6 +272,11 @@ def test_provenance_fields_present(monkeypatch):
                            SIS_ASOE_TARGET_ALLOCATION="1",
                            SIS_ASOE_BETA="0.07771181538347656",
                            TD_LEDGER_RANK_COUPLING="1",
+                           TD_COMPETITIVE_WR_ALLOCATION="1",
+                           TD_COMP_WR_EXACT80_LICENSED="1",
+                           TD_COMP_WR_PROTOCOL_SHA256="a" * 64,
+                           TD_COMP_WR_REFERENCE_REPORT_SHA256="b" * 64,
+                           TD_COMP_WR_TREATMENT_REPORT_SHA256="c" * 64,
                            GAME_SIM_USAGE="dirichlet",
                            DIRICHLET_K="28.246898139750336",
                            TABPFN_MARGINAL_TABLE="tabpfn_active_label_treatment_v1",
@@ -291,6 +296,13 @@ def test_provenance_fields_present(monkeypatch):
     assert "SIS_ASOE_TARGET_ALLOCATION=1" in df.lever_env.iloc[0]
     assert "SIS_ASOE_BETA=0.07771181538347656" in df.lever_env.iloc[0]
     assert "TD_LEDGER_RANK_COUPLING=1" in df.lever_env.iloc[0]
+    assert "TD_COMPETITIVE_WR_ALLOCATION=1" in df.lever_env.iloc[0]
+    assert "TD_COMP_WR_EXACT80_LICENSED=1" in df.lever_env.iloc[0]
+    assert f"TD_COMP_WR_PROTOCOL_SHA256={'a' * 64}" in df.lever_env.iloc[0]
+    assert f"TD_COMP_WR_REFERENCE_REPORT_SHA256={'b' * 64}" \
+        in df.lever_env.iloc[0]
+    assert f"TD_COMP_WR_TREATMENT_REPORT_SHA256={'c' * 64}" \
+        in df.lever_env.iloc[0]
     assert "GAME_SIM_USAGE=dirichlet" in df.lever_env.iloc[0]
     assert "DIRICHLET_K=28.246898139750336" in df.lever_env.iloc[0]
     assert "TABPFN_MARGINAL_TABLE=tabpfn_active_label_treatment_v1" \

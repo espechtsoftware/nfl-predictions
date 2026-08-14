@@ -1618,6 +1618,11 @@ def tail_select_lineups(
                 "STACK_QB_MIN", "TABPFN_COMPONENTS", "TABPFN_MARGINALS",
                 "TABPFN_MARGINAL_TABLE",
                 "TABPFN_MEAN", "TD_LEDGER", "TD_LEDGER_RANK_COUPLING",
+                "TD_COMPETITIVE_WR_ALLOCATION",
+                "TD_COMP_WR_EXACT80_LICENSED",
+                "TD_COMP_WR_PROTOCOL_SHA256",
+                "TD_COMP_WR_REFERENCE_REPORT_SHA256",
+                "TD_COMP_WR_TREATMENT_REPORT_SHA256",
                 "TRAIN_MAX_WEEK",
                 "ROLE_BELIEF_FEATURES", "ROLE_BELIEF_SEED", "WR_BOOM",
             }
