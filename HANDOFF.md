@@ -20,9 +20,38 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 05:09 CDT
+## Current state — 2026-08-14 05:21 CDT
 
 ### 2026-08-14 Phase S complete; SIS ASOE selected; Route follow-ups ready
+
+- The external Phase S infrastructure-failure review has been reconciled with
+  the shipped recovery path. Its blocking ledger-substitution risk is closed:
+  the finisher verifies the execution-owned job, full arm/replicate/season
+  environment, seeds, panel, image, code, resources and terminal status before
+  analysis. Future panel launchers enforce a hard ten-cell in-flight cap and
+  own their ledgers; transient BigQuery 429/5xx reads retry from a fresh query;
+  replay workers run a deterministic NumPy/SciPy startup self-check. True
+  per-slate replay resumability remains deliberately open because the final
+  lineup table must be atomically reconstructed and validated with candidate,
+  feature and artifact stores. The Phase S scientific result below is valid;
+  every final cell passed the complete execution-provenance audit.
+- The frozen Route R2 midpoint-shrinkage screen is implemented but has not
+  been executed and no R2 metric exists yet. Its only treatment transform is
+  the preregistered stable rank of `0.5 * control + 0.5 * Route`, populated
+  with each player's exact sorted control values. The implementation reuses
+  the fixed I1 population, common component worlds, pair book, bootstrap books
+  and five-family gate; its launcher pins every prerequisite hash, exact
+  source checksum, finite K, selected ASOE beta and midpoint weight. The
+  harvester fails closed on incomplete chunks, wrong disposition/weight, or a
+  marginal/mean delta above `1e-10`. Focused and complete offline tests pass.
+  Commit and push this implementation, build an immutable audit image from
+  that exact commit, then launch/monitor/harvest R2 without reading partial
+  metrics.
+- SIS pass-tail exact-80 has released 11 of 30 registered cells under its hard
+  ten-cell cap; the newest is control R3/2024 execution
+  `replay-sisptc3-2024-2tzbt`. Launcher session `51675` is active. Continue
+  polling it so the remaining cells are released as successful cells free
+  capacity; do not read partial score outcomes.
 
 - Branch is `main`; the cache freeze shipped in pushed commit `9052868`, the
   score-free evaluator shipped in `975a223`, and the rank/dependence screen

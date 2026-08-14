@@ -366,6 +366,12 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--panel", required=True)
 
     p = sub.add_parser(
+        "route-rank-dependence-r2",
+        help="Gate fixed midpoint Route ranks on G0/G1 dependence",
+    )
+    p.add_argument("--panel", required=True)
+
+    p = sub.add_parser(
         "tabpfn-sis-rb-rdef-final-served",
         help="Gate frozen SIS RB run-defense caches on final-served tails",
     )
@@ -946,6 +952,10 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import route_rank_dependence_i1
 
         route_rank_dependence_i1.run(args.panel)
+    elif args.command == "route-rank-dependence-r2":
+        from .analysis import route_rank_dependence_r2
+
+        route_rank_dependence_r2.run(args.panel)
     elif args.command == "tabpfn-sis-rb-rdef-final-served":
         from .analysis import tabpfn_sis_rb_rdef_final_served
 
