@@ -407,6 +407,12 @@ def main(argv: list[str] | None = None) -> None:
     )
     p.add_argument("--panel", required=True)
 
+    p = sub.add_parser(
+        "td-ledger-rank-coupling",
+        help="Gate the terminal score-free TD-ledger rank-coupling repair",
+    )
+    p.add_argument("--panel", required=True)
+
     sub.add_parser(
         "usage-dirichlet-calibration-diagnostic",
         help="Fit and gate within-team target/carry concentration",
@@ -980,6 +986,10 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import td_ledger_final_served
 
         td_ledger_final_served.run(args.panel)
+    elif args.command == "td-ledger-rank-coupling":
+        from .analysis import td_ledger_rank_coupling
+
+        td_ledger_rank_coupling.run(args.panel)
     elif args.command == "usage-dirichlet-calibration-diagnostic":
         from .analysis import usage_dirichlet_calibration
 

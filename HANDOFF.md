@@ -20,7 +20,52 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 12:49 CDT
+## Current state — 2026-08-14 13:35 CDT
+
+### 2026-08-14 pre-forensic exhaustion review reopens two bounded gates
+
+- On `main` from parent `3ded0dc`, the amended
+  `reports/2026-08-14-pre-forensic-exhaustion-review.md` was checked against
+  the frozen TD-ledger, SIS RB, SIS pass-tail, G0 and G1 evidence. No new lineup
+  outcome was queried. The final forensic freeze is withheld and the empty
+  `nfl_forensic_review` dataset remains empty.
+- The review is correct that TD-ledger v1/v2 were invalidated mechanically,
+  not scientifically adjudicated. Both runs passed the substantive score-free
+  gates; v1 failed exact marginal identity and v2 changed the shared incumbent
+  numeric path enough to miss the frozen `1e-12` control-reproduction
+  tolerance. The predeclared terminal remedy is now frozen in
+  `reports/2026-08-14-td-ledger-rank-coupling-protocol.md` and implemented by
+  `nfl-dfs td-ledger-rank-coupling`: stable TD-ledger world ranks permute each
+  unchanged incumbent marginal, with bit-exact sorted marginals, repeated-rank
+  determinism, frozen G0/G1 control reproduction and the original seven
+  scientific gates. A valid pass licenses one separately frozen exact-80
+  comparison; failure or invalidity closes the mechanism with no fourth repair.
+- The amended SIS recommendation is accepted with an evidence qualifier in
+  `reports/2026-08-14-pre-forensic-exhaustion-reconciliation.md`. SIS tail data
+  are not generally untested: the pass-defense Boom%/Bust%/pressure arm passed
+  and improved the five-seed exact-80 high-score grid. The open candidate is
+  specifically opponent run-defense Boom%/Bust% for RBs. Because the earlier
+  RB Points-Saved protocol prohibited appending Boom/Bust after its result, any
+  new arm must first pass a formal outcome-blind support/redundancy audit and
+  must be frozen/labeled `adaptive_retrospective=true`; it queues behind the
+  ledger rather than being presented as fresh confirmatory evidence.
+- Odds API alternate team/game-total ladders and volume markets, SIS Receiving
+  and bounded player-grain acquisition remain open prospective work. Raw
+  ingestion and read-only outcome-blind screens may proceed, but no
+  `build-features` run may occur before the ledger is terminal and acquisition
+  must not compete for its Cloud Run capacity.
+- Shell syntax, Python compilation and 25 focused TD-ledger/final-forensic
+  tests pass. The terminal launch/harvest scripts require a full immutable code
+  SHA and image digest, pin every G0/G1/cache/schedule/protocol input, use 32 GiB
+  and 8 CPU, enforce write-once run artifacts and validate chunked transport.
+- Uncommitted final-forensic diagnostic/corpus improvements are locally tested
+  but do not license a freeze and must not be included in the TD-ledger image
+  identity accidentally. The last forensic Cloud Build
+  `036d54f4-467b-4b97-8e04-b380cb95bb2a` is validation-only even if successful.
+- Next concrete action: commit/push the bounded terminal ledger repair, publish
+  its exact full-test image, launch the single score-free Cloud Run execution,
+  poll and harvest it. In parallel, formalize the read-only SIS run-tail audit;
+  keep all feature rebuilds and forensic outcome queries blocked.
 
 ### 2026-08-14 final-forensic queryable corpus retention frozen outcome-free
 
