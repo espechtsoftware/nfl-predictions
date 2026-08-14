@@ -20,17 +20,18 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 01:50 CDT
+## Current state — 2026-08-14 02:05 CDT
 
 ### 2026-08-14 Phase S at 12 successes; Route marginal channel frozen
 
-- Branch is `main`, based on pushed commit `f83b7c2`; the Route-channel code
-  and this milestone travel together in the next pushed commit. Phase S is at
-  12 clean successes, ten active cells and eight queued infrastructure
+- Branch is `main`; the cache freeze shipped in pushed commit `9052868`, and
+  the score-free evaluator described below travels in the next pushed commit.
+  Phase S is at 16 clean successes, ten active cells and four queued
+  infrastructure
   replacements. The bounded controller session `98021` remains live at the
   hard ten-cell cap and the status-only monitor is session `72912`. Its latest
-  verified release was treatment R2/2025 execution
-  `replay-sisasoet2-2025-gm84c`. Do not read scores until all 30 cells and the
+  verified release was treatment R4/2025 execution
+  `replay-sisasoet4-2025-zcggs`. Do not read scores until all 30 cells and the
   frozen analyzer pass.
 - The current-stack I1 Route Share marginal-channel experiment is frozen in
   `reports/2026-08-14-route-channel-i1-protocol.md`, before Phase S is
@@ -55,6 +56,20 @@ agent or developer:
   q95/q99 pinball gate before any Route exact-80 score test. The rank-only `R`
   cell and conditional I2 Route-marginal x ASOE factorial remain separately
   registered follow-ups and may not inherit `M`'s result.
+- Exact-commit GPU Cloud Build
+  `3795bfac-5a1f-45c0-9ec4-3d01c8232dbd` succeeded and published the cache
+  image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/tabpfn-route-channel@sha256:86008932590aead9585119093e94668d35e84c8fc40e9df66d10b6e3553871a8`.
+  The build source was a clean `git archive` of `9052868`, not the live Phase
+  S ledger worktree.
+- The I1 score-free evaluator, CLI command, launcher and chunked harvester are
+  prepared. They require both the valid cache report and the complete Phase S
+  report, inherit its selected ASOE state identically for `C/M`, retain finite
+  `K=28.154043586960896`, fit each arm's position schedule strictly from prior
+  OOS folds, and report q90/q95/q99 pinball/reliability, Brier 20/25/30,
+  CRPS/MAE and paired whole-slate clustered intervals. Control Phase S fails
+  closed on stray ASOE settings; treatment requires the exact frozen beta.
+  Focused tests and the complete offline suite pass with one existing skip.
 
 ### 2026-08-14 Phase S at 11 successes; future replay startup hardened
 
