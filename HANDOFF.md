@@ -75,6 +75,15 @@ agent or developer:
   Storage internal 500s before their first replay write, both with zero rows.
   Their byte-identical retries are `replay-sisasoec0-2025-v6jfr` and
   `replay-sisasoet4-2023-hqskx`; both are substituted in the ledger.
+- Fourteen more of the original 30-cell burst then terminated after about 30
+  minutes with Cloud Run `Internal error running task`, exit code 0, zero
+  application logs, and zero candidate/feature rows. They are enumerated in
+  `pending_infrastructure_retries.txt`. Do not burst-launch all 14: six earlier
+  retries plus ten original cells currently occupy the active capacity. Poll
+  the 16 current cells and release queued byte-identical retries in small
+  batches only as active slots finish; move each launched row to
+  `infrastructure_retries.txt` and substitute its execution ID in the main
+  ledger. No scores may be read while this repair queue is active.
 
 ### 2026-08-13 SIS pass-tail caches validated; frozen score gate running
 
