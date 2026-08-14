@@ -22,6 +22,25 @@ agent or developer:
 
 ## Current state — 2026-08-14 14:59 CDT
 
+### 2026-08-14 SIS conditional exact-80 harness implemented pre-result
+
+- While score-free final-served execution
+  `tabpfn-sis-rb-runtail-final-served-v1-prrtg` remains nonterminal, the
+  already-frozen conditional five-seed exact-80 branch has been implemented
+  without inspecting its result. The harness dynamically binds each arm's
+  exact strict-prior served schedule from the immutable passing report, pins
+  both score-free report hashes, validates all 30 arm/seed/season execution
+  specs, enforces a ten-cell release cap, audits exact-80/artifact/player/
+  candidate propagation, and applies the registered tail order plus
+  whole-slate clustered bootstrap seed `8,142,028`. It explicitly prohibits
+  ASOE, pass-tail, route, G2/G3, TD and other composition.
+- Shell syntax, Python compilation, whitespace checks and 30 focused
+  run-tail/pass-tail exact-80 tests pass. These files remain conditional: no
+  lineup is launched unless final-served disposition and every q95/q99,
+  mechanical, PIT and mean gate pass. Build a full-test immutable image from
+  this pre-result commit while the score-free job runs so a pass can proceed
+  without a post-result implementation choice.
+
 ### 2026-08-14 TD closure strengthened; SIS RB run-tail caches validate
 
 - Independent review in
