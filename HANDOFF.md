@@ -20,7 +20,35 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 17:21 CDT
+## Current state — 2026-08-14 17:34 CDT
+
+### 2026-08-14 seed executions reverified; TE prerequisite closes queue
+
+- All 12 incumbent Monte Carlo seed-variance replay executions were directly
+  re-described in GCP and remain terminal `Completed=True`. The original
+  analyzer `analyze-incumbent-seed-variance-v1-kkg6q` remains the retained
+  mechanical failure; repaired frozen analyzer
+  `analyze-incumbent-seed-variance-v1-qh9l8` is terminal `Completed=True`.
+  The harvested report has `mechanical_passes=true`, no failures and
+  interpretation `materially-monte-carlo-sensitive`: selected >=194 spans
+  3--9 across R0--R4 and mean pairwise exact-80 roster overlap is only
+  12.21296. Do not rerun these expensive completed jobs.
+- The TE-only QB-hub follow-up named before the competitive-WR output was
+  audited against the already-harvested repaired-path Stage R reference; no
+  new simulator or lineup outcome was queried. Aggregate QB-TE is already
+  nearly calibrated (2.313707 simulated versus 2.370873 realized; absolute
+  log error 0.024408), its season directions are mixed, and TE-TE is
+  unsupported. The proposed composition also lacks a passing WR prerequisite.
+  A historical TE-only treatment would therefore be an outcome-informed
+  strength search rather than an independently justified arm. It is not
+  licensed; full audit is
+  `reports/2026-08-14-te-qb-hub-prerequisite-audit.md`.
+- The current-stack preregistered historical mechanism queue is now exhausted.
+  Next concrete action is to audit and finish the existing isolated final-
+  forensic implementation, freeze its exact evidence/image identity, execute
+  it once, and retain its queryable corpus for independent review. Do not
+  stage or overwrite the separate uncommitted forensic work until its diffs
+  and tests have been reconciled.
 
 ### 2026-08-14 low-max contest UI added; TD Stage T closes invalid
 
