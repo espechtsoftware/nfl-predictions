@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 18:48 CDT
+## Current state — 2026-08-14 18:56 CDT
 
 ### 2026-08-14 final-forensic audit expanded; decision-structure queue registered
 
@@ -100,10 +100,20 @@ agent or developer:
   four WRITE_EMPTY warehouse schemas. Outcome-free validation passes with
   manifest SHA-256
   `1b18161abb32ca4544d1184f7e3c9a4a5bea4577eb4e6a65ba58e62dcaf11c2f`.
-- Next concrete action: commit/push the freeze before any outcome query; upload
-  the manifest with create-only semantics; then execute the one-time isolated
-  Cloud Run forensic job. Retain all four corpus tables for independent review
-  and delete them before the first 2026 production build.
+- Freeze commit `45660e8` is pushed. The manifest was uploaded with
+  generation-match zero to
+  `gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/freeze_manifest.json`;
+  its uploaded bytes match the tracked file. One-shot Cloud Run job
+  `final-preseason-forensic-v1` is pinned to the analyzer digest with 8 CPU,
+  32 GiB, one task, zero retries and a 24-hour timeout. Its sole licensed
+  execution is `final-preseason-forensic-v1-n79f7`.
+- Next concrete action: poll execution `final-preseason-forensic-v1-n79f7` to
+  terminal state without launching a second execution. On success, download
+  and validate all nine create-only outputs plus the four WRITE_EMPTY corpus
+  tables, then write the result/closure report and retain the corpus for
+  independent review. On failure, inspect logs and classify whether an exact
+  same-input mechanical repair is permitted; never silently rerun or alter the
+  frozen estimand. Delete the corpus before the first 2026 production build.
 
 ### 2026-08-14 seed executions reverified; TE prerequisite closes queue
 
