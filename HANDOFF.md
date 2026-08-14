@@ -20,7 +20,28 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 14:41 CDT
+## Current state — 2026-08-14 14:46 CDT
+
+### 2026-08-14 SIS run-tail exact-80 branch preregistered while images build
+
+- In addition to GPU cache build `039902ab-0f13-4a66-b0d7-9a657444199a`,
+  full-test audit build `b8a3e085-fbab-4ef4-80bd-e410eb354c3b` was submitted
+  concurrently from the same clean `git archive` and full source SHA
+  `23fdbba47590af3ba7594ae22bdbf2e764d86389`. It targets
+  `nfl-dfs:sis-runtail-23fdbba` and may run the score-free final-served gate
+  only after the write-once caches validate.
+- Before either cache or a new score-free result existed, the sole conditional
+  lineup branch was frozen in
+  `reports/2026-08-14-sis-run-tail-exact80-addendum.md`. A valid final-served
+  pass licenses one paired five-seed exact-80 experiment; both arms retain the
+  finite-K incumbent and differ only by their registered cache and the exact
+  strict-prior served schedule serialized by that arm's passing score-free
+  report. The aggregate tail-first order is
+  `240,230,220,210,200,194,187`. No ASOE/pass-tail/TD/K1 composition or
+  post-result schedule/seed choice is allowed.
+- Next action remains polling both builds. Launch the control/treatment GPU
+  cache pair immediately after the GPU digest is available; separately retain
+  the successful full-test audit digest for the final-served gate.
 
 ### 2026-08-14 TD ledger terminally invalid; SIS run-tail build released
 
