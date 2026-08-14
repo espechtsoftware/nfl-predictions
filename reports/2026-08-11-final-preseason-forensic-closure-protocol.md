@@ -346,3 +346,62 @@ do not remove selector in-sample bias. In a future not-yet-frozen exact-80
 protocol, a stable valid EVT result that materially contradicts an empirical
 grid pass triggers mandatory disclosure and an explicit operator production
 decision, not an automatic veto or a new promotion path.
+
+## 12. Final-evidence amendments (2026-08-14, outcome-free)
+
+These requirements incorporate the terminal pass-tail, selector-resampling and
+multi-seed reports. They use only already-recorded results and do not query a
+new outcome.
+
+1. **Keep production evidence scopes exact.** The v4 live policy is
+   `classic-k1-role12-boom40-poscal-cbwu-v4`: K=1 marginals, role12 + boom40,
+   position calibration and the fixed-budget five-search/five-world `CBWU`
+   mechanism. Its component/position evidence spans the corrected 107-slate
+   panel, while the CBWU mechanism was decided on the separately frozen
+   54-slate 2023--2025 factorial. Do not manufacture a nonexistent 107-slate
+   historical v4 book or attribute the 54-slate CBWU scores to all 107 slates.
+   Report each estimand on its actual eligible slate set, then use the first
+   2026 pre-lock v4 artifacts for prospective verification.
+2. **Reconstruct CBWU mechanically before analyzing it.** Require all five
+   registered projection/role seed pairs, identical player universes, native
+   candidate-total reconstruction, first-source roster deduplication, the
+   score-blind fixed quota/fill allocation, exact R0 candidate budget, five
+   equal 10,000-world blocks, unchanged line-194 greedy selection and exactly
+   80 selected rosters. Reproduce the report hash
+   `a41d3427aa267ed9ab52753a898f14135caa9bd42c11c645d92eccffbb170239`.
+   Contrast `C0W0`, `C0WU`, `CUW0`, `CUWU`, `CBW0` and `CBWU` without treating
+   the larger `CU` pool as an unconfounded mechanism effect.
+3. **Separate algorithmic variability from entry value.** Give the five native
+   seed-book envelope and pairwise overlaps equal billing with across-slate
+   uncertainty. The selector diagnostic's disjoint-half overlap of 54.28/80 is
+   roster reproducibility, not “54 effective entries.” Economic marginal value
+   of entries 41--80 requires nested pre-lock 20/40/80 books plus identifiable
+   payouts/duplicates. Bootstrap-mean bagging is algebraically closed and must
+   not re-enter the opportunity register under another name.
+4. **Report breadth, not only nested threshold totals.** Every arm contrast and
+   opportunity-register row must include gross improving/worsening crossings,
+   net crossings, unique seed/slate events, distinct improved/worsened/changed
+   calendar slates and the actual slate identifiers at each threshold. Nested
+   deltas at 240/230/220/210/200/194/187 are not additive evidence. Influential
+   slate and leave-one-season-out diagnostics accompany, but cannot rewrite,
+   each frozen verdict.
+5. **Preserve the pass-tail transfer boundary.** The selected SIS pass-tail
+   cache/schedules belong to the finite-K research path and are not part of the
+   K=1 v4 money policy. Its deciding >=220 improvement spans only two calendar
+   slates, and 2025 is negative below 220. Carry those facts into the kill list
+   and into the preregistered 2026 finite-K shadow checks at Weeks 4, 8, 13 and
+   18; do not use the retrospective to silently add the cache to v4.
+6. **Audit the candidate/world interaction explicitly.** The complete design
+   matrix must distinguish candidate search seed, world seed, candidate budget,
+   marginal law, dependence law and selector. Report only estimable contrasts.
+   `CBWU` licenses new independent search/world evidence at fixed candidate
+   budget; it does not validate sample splitting, a new selector line, unequal
+   seed weighting, seed selection, or another candidate multiple.
+7. **Add production transport and latency to the operational audit.** Week-1
+   rehearsal must prove five complete native searches, one ownership-shadow
+   snapshot, no auxiliary native candidate persistence, one final 50,000-world
+   candidate artifact, source-seed provenance, exact policy headers and CSV,
+   fail-closed behavior for a missing block, and acceptable user-facing build
+   latency. Measure peak memory/runtime and set service timeout/CPU/concurrency
+   from evidence before real entries; do not respond to latency by dropping a
+   seed or world block.

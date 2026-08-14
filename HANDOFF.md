@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 10:39 CDT
+## Current state — 2026-08-14 11:03 CDT
 
-### 2026-08-14 licensed CBWU mechanism wired into K=1 production; cloud validation next
+### 2026-08-14 licensed CBWU mechanism validated and deployed in K=1 production
 
 - On `main` from parent commit `8ba41f7`, the frozen multi-seed production
   verdict is now implemented as policy
@@ -65,18 +65,32 @@ agent or developer:
   100% with no failures; the ordinary live-chain smoke also passes. A local
   attempt at the new exact true-80 smoke was manually stopped after six
   minutes while actively solving CBC jobs, in accordance with the repository
-  rule that sustained heavy validation runs in GCP; this is not a test
-  failure. Next exact action: commit and push this milestone, launch the full
-  `cloudbuild.yaml` suite on the exact commit (including the five-search
-  true-80 DK CSV test), record its durable build/digest, and only then deploy
-  or call the production integration validated.
+  rule that sustained heavy validation runs in GCP; this was not a test
+  failure.
 - Implementation commit `74c22b5` is pushed on `main`. Exact-commit Cloud
-  Build `78f7ea3a-5503-47e3-b6b9-57359695c4a3` is running with image tag
-  `nfl-dfs:cbwu-74c22b5`; it includes the complete suite and the real
-  five-search exact-80 DK CSV smoke. Poll this build to terminal state. On
-  success, record its test count and immutable digest before any deployment;
-  on failure, preserve the exact failing output and repair without weakening
-  the CBWU invariants.
+  Build `78f7ea3a-5503-47e3-b6b9-57359695c4a3` completed successfully,
+  including the real five-search exact-80 DK CSV smoke. The complete suite
+  passed `1,233` tests with `2` skipped and `5` warnings in `754.72s`. It
+  published immutable image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:869bda10ffbdfe9c76491f96f606aaa63083e43d3754226593b87a46a34bcd58`
+  (tag `nfl-dfs:cbwu-74c22b5`).
+- That immutable image is deployed to Cloud Run revision
+  `nfl-dfs-app-00070-29b`, which is Ready/Active/ContainerHealthy and serves
+  100% of service traffic. The deploy preserved IAP, all-ingress routing,
+  4 CPU, 4 GiB RAM, 1,800-second request timeout, concurrency 2, maximum scale
+  20 and startup CPU boost. Do not reduce the five searches or 50,000 final
+  selection worlds in response to latency; measure the first full Week-1
+  rehearsal and adjust service resources/concurrency from that evidence.
+- The final forensic closure protocol now carries the selector/pass-tail/
+  multi-seed feedback forward without changing a historical verdict. It makes
+  distinct improving/worsening/changed calendar slates mandatory, gives the
+  54.28/80 disjoint-half reproducibility diagnostic equal billing without
+  mislabeling it as 54 economic entries, preserves the finite-K pass-tail/K=1
+  transfer boundary, and adds an exact CBWU production transport/latency
+  audit. Next exact action: freeze the final evidence manifests before querying
+  any remaining forensic outcomes, then perform the Week-1 production dress
+  rehearsal with one ownership snapshot and a complete five-book/50,000-world
+  artifact.
 
 ### 2026-08-14 selector-resampling feedback reconciled; pass-tail analyzer live
 
