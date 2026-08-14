@@ -1,0 +1,11 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - --file
+      - scripts/tabpfn_route_channel/Dockerfile
+      - --tag
+      - ${_IMAGE}
+      - .
+images:
+  - ${_IMAGE}

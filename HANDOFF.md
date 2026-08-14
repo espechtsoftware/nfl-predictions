@@ -20,12 +20,46 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 01:15 CDT
+## Current state — 2026-08-14 01:50 CDT
+
+### 2026-08-14 Phase S at 12 successes; Route marginal channel frozen
+
+- Branch is `main`, based on pushed commit `f83b7c2`; the Route-channel code
+  and this milestone travel together in the next pushed commit. Phase S is at
+  12 clean successes, ten active cells and eight queued infrastructure
+  replacements. The bounded controller session `98021` remains live at the
+  hard ten-cell cap and the status-only monitor is session `72912`. Its latest
+  verified release was treatment R2/2025 execution
+  `replay-sisasoet2-2025-gm84c`. Do not read scores until all 30 cells and the
+  frozen analyzer pass.
+- The current-stack I1 Route Share marginal-channel experiment is frozen in
+  `reports/2026-08-14-route-channel-i1-protocol.md`, before Phase S is
+  harvested and before either new cache exists. It compares accepted
+  active-only TabPFN control `C` with marginal-only treatment `M`, adding
+  exactly `fp_route_share_last`, `fp_route_share_l4`,
+  `fp_route_share_jump`, and `fp_route_cross_season`. It does not reuse the
+  older Route component or candidate-union conclusions.
+- The source is pinned to 102,927 rows/checksum
+  `1904430067081090565`, the accepted v2 validation hash, baseline feature
+  hash and immutable TabPFN 2.2.1 GPU base image. New write-once cache
+  generation, launcher, finisher and validator require identical target keys,
+  active-only prior-season contexts, exact feature-contract difference,
+  non-identical treatment predictions and exact control reproduction of
+  `tabpfn_active_label_treatment_v2` within `1e-10`. The launcher cannot run
+  until Phase S has a complete mechanically valid decision.
+- Replay licenses only the two exact new cache names. Python and shell syntax,
+  shell lint where available, whitespace validation, focused tests and the
+  complete offline test suite pass (one existing skip). After this commit,
+  publish an immutable GPU image from the exact commit. Once Phase S is
+  harvested, generate/validate C/M and run the preregistered score-free
+  q95/q99 pinball gate before any Route exact-80 score test. The rank-only `R`
+  cell and conditional I2 Route-marginal x ASOE factorial remain separately
+  registered follow-ups and may not inherit `M`'s result.
 
 ### 2026-08-14 Phase S at 11 successes; future replay startup hardened
 
-- Branch is `main` at pushed commit `d2f95c7`; the ledger and infrastructure
-  hardening described here travel together in the next pushed commit. The
+- Branch was `main` at pushed commit `d2f95c7`; the ledger and infrastructure
+  hardening described here subsequently shipped in `f83b7c2`. The
   bounded Phase S recovery has reached 11 clean successes, ten active cells
   and nine queued failures. The latest controlled replacement is treatment
   R2/2024 execution `replay-sisasoet2-2024-p4zpk`. The releaser was stopped

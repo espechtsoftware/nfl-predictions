@@ -534,6 +534,8 @@ def _tabpfn_marginal_table(env: dict | None = None) -> str:
         "tabpfn_pfr_secondary_drop_rates_v1",
         "tabpfn_pfr_secondary_drop_top_cb_v1",
         "tabpfn_pfr_secondary_drop_all_v1",
+        "tabpfn_route_channel_control_v1",
+        "tabpfn_route_channel_marginal_v1",
     }
     if table not in licensed:
         raise ValueError(

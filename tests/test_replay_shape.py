@@ -71,6 +71,8 @@ def test_tabpfn_research_cache_table_is_exactly_licensed(monkeypatch):
         "tabpfn_sched_treatment_v1",
         "tabpfn_team_qb_control_v1",
         "tabpfn_team_qb_treatment_v1",
+        "tabpfn_route_channel_control_v1",
+        "tabpfn_route_channel_marginal_v1",
     ):
         assert replay._tabpfn_marginal_table(
             {"TABPFN_MARGINAL_TABLE": table}) == table
