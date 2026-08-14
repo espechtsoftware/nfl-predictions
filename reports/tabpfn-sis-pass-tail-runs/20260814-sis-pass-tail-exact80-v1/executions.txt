@@ -11,3 +11,7 @@ control 3 2023 20260814-sis-pass-tail-control-r3-v1 replay-sisptc3-2023 replay-s
 control 3 2024 20260814-sis-pass-tail-control-r3-v1 replay-sisptc3-2024 replay-sisptc3-2024-2tzbt
 control 3 2025 20260814-sis-pass-tail-control-r3-v1 replay-sisptc3-2025 replay-sisptc3-2025-pt6lb
 control 4 2023 20260814-sis-pass-tail-control-r4-v1 replay-sisptc4-2023 replay-sisptc4-2023-clb9m
+control 4 2024 20260814-sis-pass-tail-control-r4-v1 replay-sisptc4-2024 replay-sisptc4-2024-q5s8q
+control 4 2025 20260814-sis-pass-tail-control-r4-v1 replay-sisptc4-2025 replay-sisptc4-2025-d2vql
+treatment 0 2023 20260814-sis-pass-tail-treatment-r0-v1 replay-sisptt0-2023 replay-sisptt0-2023-9tjrs
+treatment 0 2024 20260814-sis-pass-tail-treatment-r0-v1 replay-sisptt0-2024 replay-sisptt0-2024-cddnq

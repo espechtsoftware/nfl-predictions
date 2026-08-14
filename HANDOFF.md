@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 05:34 CDT
+## Current state — 2026-08-14 05:39 CDT
 
 ### 2026-08-14 Phase S complete; SIS ASOE selected; Route follow-ups ready
 
@@ -49,12 +49,14 @@ agent or developer:
   published immutable digest
   `sha256:9f8f1ad528a9b84eb9559fb5c8ce95a8e6cbb665820785e9857e77b2c68d1868`.
   The fully guarded launcher reverified every frozen prerequisite and started
-  execution `route-rank-dependence-r2-v1-gkbtw`. Monitor status only, then run
+  execution `route-rank-dependence-r2-v1-gkbtw`; after a two-minute regional
+  capacity wait it reached `runningCount=1`. Monitor status only, then run
   `scripts/cloud_finish_route_rank_dependence_r2.sh` after terminal success;
   do not read partial metrics.
-- SIS pass-tail exact-80 has released 13 of 30 registered cells under its hard
-  ten-cell cap; the newest is control R4/2023 execution
-  `replay-sisptc4-2023-clb9m`. Launcher session `51675` is active. Continue
+- SIS pass-tail exact-80 has released 15 of 30 registered cells under its hard
+  ten-cell cap; the entire control half is now released and the newest cell is
+  control R4/2025 execution `replay-sisptc4-2025-d2vql`. Launcher session
+  `51675` is active. Continue
   polling it so the remaining cells are released as successful cells free
   capacity; do not read partial score outcomes.
 
