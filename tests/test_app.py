@@ -128,6 +128,34 @@ def test_tail_line_scales_with_field_size(client):
     assert r.json()["tail_line"] == 205.0
 
 
+def test_low_max_contest_policy_is_enforced_and_reported(client):
+    r = client.post("/lineups", json={
+        "season": 2025, "week": 3, "n_lineups": 1,
+        "contest_max_entries": 1, "lev_scale": 1.0, "sim": False,
+    })
+    assert r.status_code == 200, r.text
+    entry_policy = r.json()["policy"]["contest_entry_policy"]
+    assert entry_policy["profile"] == "single-entry-individual-tail"
+    assert entry_policy["effective_leverage_scale"] == 0.7
+    assert entry_policy["tail_line_changed"] is False
+
+    rejected = client.post("/lineups", json={
+        "season": 2025, "week": 3, "n_lineups": 2,
+        "contest_max_entries": 1, "sim": False,
+    })
+    assert rejected.status_code == 422
+
+
+def test_contest_entry_limit_detection_and_presets(client):
+    assert app_main._entry_limit_from_name("NFL $20 Single Entry") == 1
+    assert app_main._entry_limit_from_name("NFL 20-Max GPP") == 20
+    assert app_main._entry_limit_from_name("NFL 3 max") == 3
+    assert app_main._entry_limit_from_name("NFL Main Event") == 150
+    opts = client.get("/contests").json()
+    single = next(c for c in opts["presets"] if "single" in c["name"])
+    assert (single["entries"], single["entry_limit"]) == (1, 1)
+
+
 def test_lineup_builder_locks_and_csv_endpoint(client):
     frame = projections_frame()
     a_wr = int(frame[frame.position == "WR"].dk_player_id.iloc[-1])
@@ -624,6 +652,10 @@ def test_lineups_view_page(client):
     assert "/lineups/record" in r.text
     assert "CSV always downloads that exact preview" in r.text
     assert "setModeControls" in r.text
+    assert "Contest max / player" in r.text
+    assert "id='entrylimit'" in r.text
+    assert "contest_max_entries" in r.text
+    assert "compact-max tail coverage" in r.text
     # The post-build portfolio views are computed only from the generated
     # roster set and link back to the exact lineup cards.
     assert "Portfolio map" in r.text

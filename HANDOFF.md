@@ -20,7 +20,41 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 16:11 CDT
+## Current state — 2026-08-14 16:59 CDT
+
+### 2026-08-14 low-max contest UI added; TD Stage T closes invalid
+
+- The lineup-builder UI now has a user-editable `Contest max / player` control.
+  Live contest names best-effort detect `single-entry` and `N-max`, every
+  preset carries an explicit entry cap, and the UI caps the requested book at
+  the smaller of the contest limit and the adopted 80-entry maximum.
+- A central fail-closed contest-entry policy now selects four labeled profiles:
+  single-entry, 3-max, compact 4--20-max and the primary large-max/80-lineup
+  portfolio. All profiles retain the adopted fixed 194 tail line and select
+  the first N entries from the existing CBWU tail-coverage order. Scarcer
+  books cap the soft-field chalk-fade scale at 0.70, 0.80 or 0.90; large-max
+  stays at 1.0. API responses expose the effective profile and leverage.
+  These caps are explicitly labeled conservative operational rules pending a
+  separate low-max validation; they are not represented as a new historical
+  scoring promotion. The 80-lineup mode remains the default and priority.
+- Validation: all focused tests in `tests/test_production_policy.py` and
+  `tests/test_app.py` pass; Python compilation and `git diff --check` pass.
+- TD Stage T execution `td-competitive-wr-allocation-v1-k46pl` completed at
+  the infrastructure level and harvested successfully. Report SHA-256 is
+  `e7c590c707fcdee1c93954fb540abf5d4a336baa290b84319cc2a236f7cc87a4`;
+  strict disposition is
+  `td-competitive-wr-allocation-invalid-or-inconclusive` and exact-80 is not
+  licensed. Its newly generated control score hash did not reproduce Stage R,
+  and the TD source frame differed in `mean_projection`. Other mechanical
+  allocation invariants passed, but the disclosed score-free metrics also
+  moved adversely. Per the frozen protocol, invalid closes this centered-WR
+  mechanism as unadjudicated and prohibits a same-outcome post-result repair.
+  Full result is in
+  `reports/2026-08-14-td-competitive-wr-allocation-result.md`.
+- Next concrete action: commit/push this milestone, then continue the
+  pre-forensic mechanism queue without launching a competitive-WR exact-80
+  branch. Carry the control-snapshot and tolerance-audit lessons into the next
+  genuinely independent mechanism before its output is observed.
 
 ### 2026-08-14 TD competitive-WR repaired reference launched
 

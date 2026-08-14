@@ -1,4 +1,35 @@
-from nfl_dfs.inference.production_policy import ADOPTED_CLASSIC_POLICY
+import pytest
+
+from nfl_dfs.inference.production_policy import (
+    ADOPTED_CLASSIC_POLICY,
+    contest_entry_policy,
+)
+
+
+@pytest.mark.parametrize(
+    ("limit", "entries", "profile", "cap"),
+    [
+        (1, 1, "single-entry-individual-tail", 0.70),
+        (3, 3, "three-max-self-sufficient-tail", 0.80),
+        (20, 20, "compact-max-tail-coverage", 0.90),
+        (150, 80, "large-max-tail-coverage", 1.00),
+    ],
+)
+def test_contest_entry_policy_profiles(limit, entries, profile, cap):
+    result = contest_entry_policy(limit, entries, 1.25)
+    assert result["profile"] == profile
+    assert result["effective_leverage_scale"] == cap
+    assert result["selection"] == (
+        "first-N-adopted-CBWU-tail-coverage-order")
+    assert result["candidate_entry_basis"] == 80
+    assert result["tail_line_changed"] is False
+    assert "pending separate low-max validation" in result["evidence"]
+
+
+@pytest.mark.parametrize("limit,entries", [(1, 2), (20, 21), (150, 81)])
+def test_contest_entry_policy_rejects_book_beyond_limit(limit, entries):
+    with pytest.raises(ValueError, match="requested entries"):
+        contest_entry_policy(limit, entries, 1.0)
 
 
 def test_adopted_policy_is_the_promoted_true80_position_calibrated_book():

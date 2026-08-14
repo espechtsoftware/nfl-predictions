@@ -13,6 +13,69 @@ from dataclasses import dataclass
 from typing import Mapping
 
 
+def contest_entry_policy(
+    max_entries_per_user: int,
+    requested_entries: int,
+    requested_leverage_scale: float,
+) -> dict:
+    """Resolve the fail-closed portfolio profile for a contest entry cap.
+
+    The adopted selector remains unchanged: smaller books take the first N
+    entries from the same candidate/world evidence whose 1--150 entry curve
+    was measured.  Low-max contests also cap the soft-field chalk fade so each
+    scarce entry is less dependent on a fragile contrarian stand.
+    """
+    limit = int(max_entries_per_user)
+    entries = int(requested_entries)
+    if not 1 <= limit <= 150:
+        raise ValueError("contest max entries per user must be in 1..150")
+    if not 1 <= entries <= min(limit, 80):
+        raise ValueError(
+            f"requested entries must be in 1..{min(limit, 80)} for this "
+            "contest and the adopted 80-entry policy"
+        )
+    if limit == 1:
+        profile = "single-entry-individual-tail"
+        leverage_cap = 0.70
+        description = (
+            "one strongest individual tail lineup; moderated chalk fade"
+        )
+    elif limit <= 3:
+        profile = "three-max-self-sufficient-tail"
+        leverage_cap = 0.80
+        description = (
+            "small self-sufficient book with limited complementary coverage"
+        )
+    elif limit <= 20:
+        profile = "compact-max-tail-coverage"
+        leverage_cap = 0.90
+        description = (
+            "compact tail-coverage book; less diversification than the "
+            "80-entry portfolio"
+        )
+    else:
+        profile = "large-max-tail-coverage"
+        leverage_cap = 1.00
+        description = "adopted large-field tail-coverage portfolio"
+    effective_leverage = min(float(requested_leverage_scale), leverage_cap)
+    return {
+        "profile": profile,
+        "max_entries_per_user": limit,
+        "entries": entries,
+        "selection": "first-N-adopted-CBWU-tail-coverage-order",
+        "candidate_entry_basis": 80,
+        "requested_leverage_scale": float(requested_leverage_scale),
+        "leverage_scale_cap": leverage_cap,
+        "effective_leverage_scale": effective_leverage,
+        "description": description,
+        "tail_line_changed": False,
+        "evidence": (
+            "historical first-N entry curve; leverage cap is a conservative "
+            "contest-format rule pending separate low-max validation"
+        ),
+    }
+
+
 @dataclass(frozen=True)
 class ClassicProductionPolicy:
     policy_id: str = "classic-k1-role12-boom40-poscal-cbwu-v4"

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 from functools import lru_cache
 
 import pandas as pd
@@ -15,7 +16,7 @@ from fastapi import (Depends, FastAPI, File, HTTPException, Query, Response,
                      UploadFile)
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from ..optimizer.export import (
     entry_count,
@@ -27,7 +28,10 @@ from ..optimizer.export import (
 )
 from ..optimizer.lineup import StackRules, core_and_variations, optimize_many
 from ..optimizer.showdown import optimize_many_showdown
-from ..inference.production_policy import ADOPTED_CLASSIC_POLICY
+from ..inference.production_policy import (
+    ADOPTED_CLASSIC_POLICY,
+    contest_entry_policy,
+)
 from .store import BigQueryStore, ProjectionStore
 
 app = FastAPI(title="Fingerblasters' Brain", version="0.1.0")
@@ -55,6 +59,7 @@ class LineupRequest(BaseModel):
     draft_group_id: int | None = None  # classic slate; None = whole week pool
     n_lineups: int = Field(
         ADOPTED_CLASSIC_POLICY.default_entries, ge=1, le=150)
+    contest_max_entries: int = Field(150, ge=1, le=150)
     objective: str = Field("proj_points", pattern="^proj_(points|p50|p90)$")
     locks: list[int] = []
     bans: list[int] = []
@@ -84,6 +89,23 @@ class LineupRequest(BaseModel):
     # advanced tail_line request overrides it.
     field_size: int | None = Field(None, ge=100)
     tail_line: float | None = Field(None, ge=100, le=300)
+
+    @model_validator(mode="after")
+    def validate_contest_entry_limit(self):
+        # FillEntriesRequest deliberately leaves this unset until its DK CSV
+        # has been counted.  The copied build request is validated below.
+        if self.n_lineups is not None:
+            contest_entry_policy(
+                self.contest_max_entries, self.n_lineups, self.lev_scale,
+            )
+        return self
+
+    def entry_policy(self) -> dict:
+        if self.n_lineups is None:
+            raise ValueError("lineup count is unresolved")
+        return contest_entry_policy(
+            self.contest_max_entries, self.n_lineups, self.lev_scale,
+        )
 
     def line(self) -> float:
         if self.tail_line is not None:
@@ -595,7 +617,8 @@ async function loadContests(){
         o.value=c.field_size;
         o.dataset.cfg=JSON.stringify(c);
         o.textContent=`${c.name} · $${c.entry_fee} · `+
-          `${(+c.field_size).toLocaleString()} entries (line ${c.tail_line})`;
+          `${(+c.field_size).toLocaleString()} entries · `+
+          `${c.entry_limit||150}-max (line ${c.tail_line})`;
         grp.appendChild(o);}
       sel.appendChild(grp);};
     add(j.live,'Live DK contests'); add(j.presets,'Presets');
@@ -603,11 +626,9 @@ async function loadContests(){
       const o=sel.options[sel.selectedIndex]; if(!o)return;
       const c=JSON.parse(o.dataset.cfg||'{}');
       document.getElementById('fsize').value=c.field_size||sel.value;
+      document.getElementById('entrylimit').value=c.entry_limit||150;
       if(c.entries)document.getElementById('n').value=c.entries;
-      document.getElementById('lev').value=c.lev_scale??1;
-      document.getElementById('chint').textContent=
-        c.note?`auto: ${c.entries} entries, line ${c.tail_line}, `+
-        `fade x${c.lev_scale??1} — ${c.note}`:'';};
+      applyEntryPolicy(false,c.lev_scale??1,c.note||'');};
     if(sel.options.length)applyCfg();
     sel.onchange=applyCfg;
   }catch(e){}}
@@ -615,6 +636,24 @@ function slateSel(){
   const v=document.getElementById('slate').value;
   if(v.startsWith('sd:'))return{sd:true,gid:+v.slice(3)};
   return{sd:false,gid:v?+v:null};}
+function entryProfile(limit){
+  if(limit===1)return{name:'single-entry individual-tail',cap:.7};
+  if(limit<=3)return{name:'3-max self-sufficient tail',cap:.8};
+  if(limit<=20)return{name:'compact-max tail coverage',cap:.9};
+  return{name:'large-max tail coverage',cap:1};}
+function applyEntryPolicy(fillEntries=false,requestedLev=null,note=''){
+  const limitEl=document.getElementById('entrylimit'),
+        nEl=document.getElementById('n'),levEl=document.getElementById('lev');
+  let limit=Math.max(1,Math.min(150,+limitEl.value||150));
+  limitEl.value=limit;
+  const maxBook=Math.min(limit,80),p=entryProfile(limit);
+  nEl.min=1;nEl.max=maxBook;
+  if(fillEntries||+nEl.value>maxBook||+nEl.value<1)nEl.value=maxBook;
+  const asked=requestedLev==null?p.cap:+requestedLev;
+  levEl.value=Math.min(asked,p.cap);
+  document.getElementById('chint').textContent=
+    `auto: ${nEl.value} entries · ${limit}-max · ${p.name} · `+
+    `chalk-fade cap x${p.cap} · fixed 194 tail line`+(note?` — ${note}`:'');}
 function reqBody(){
   const sd=slateSel().sd;
   const base={season:+document.getElementById('season').value,
@@ -625,12 +664,13 @@ function reqBody(){
   if(sd)return base;
   return{...base,
     field_size:+document.getElementById('fsize').value||null,
+    contest_max_entries:+document.getElementById('entrylimit').value||150,
     lev_scale:+document.getElementById('lev').value||1,
     apply_notes:document.getElementById('usenotes').checked};}
 function buildKey(body){return JSON.stringify(body);}
 function setModeControls(){
   const sd=slateSel().sd;
-  for(const id of ['contestctl','fieldctl','notesctl']){
+  for(const id of ['contestctl','entrylimitctl','fieldctl','notesctl']){
     const e=document.getElementById(id); if(e)e.style.display=sd?'none':'';}
   const obj=document.getElementById('obj');
   if(!sd)obj.value='proj_points';
@@ -661,6 +701,7 @@ async function build(){
       ? j.lineups.length+' Captain Mode lineups · '+j.game.game+' ('+
         j.game.day+'). Captain scores 1.5x and costs 1.5x.'
       : j.lineups.length+' lineups · '+(j.policy?.policy_id||'policy unknown')+
+        ' · '+(j.policy?.contest_entry_policy?.profile||'entry profile unknown')+
         ' · model '+(j.policy?.model_version||'unreported')+
         '. Confidence = P(score >= '+
         (j.tail_line||194)+') per the sim — PORTFOLIO-level validated; '+
@@ -819,6 +860,8 @@ document.getElementById('boostin').addEventListener('keydown',
 document.getElementById('season').addEventListener('change',()=>{loadPrefs();noteConflicts();});
 document.getElementById('week').addEventListener('change',()=>{loadPrefs();noteConflicts();});
 document.getElementById('slate').addEventListener('change',setModeControls);
+document.getElementById('entrylimit').addEventListener('change',
+  ()=>applyEntryPolicy(true));
 (async()=>{
   await loadSlates();
   await Promise.all([loadClassicSlates(),loadShowdownSlates(),loadContests()]);
@@ -844,9 +887,12 @@ def lineups_page() -> str:
         f"</select></label>"
         f"<label id='contestctl'>Contest<select id='contest' style='width:16rem'></select>"
         f"</label>"
+        f"<label id='entrylimitctl' title='DraftKings maximum entries per player for this contest'>"
+        f"Contest max / player<input id='entrylimit' type='number' min='1' max='150' value='150'>"
+        f"</label>"
         f"<label id='fieldctl'>Field size<input id='fsize' type='number' value='20000'>"
         f"</label>"
-        f"<label>Entries<input id='n' type='number' value='"
+        f"<label>Entries<input id='n' type='number' min='1' max='80' value='"
         f"{ADOPTED_CLASSIC_POLICY.default_entries}'></label>"
         f"<input id='lev' type='hidden' value='1'>"
         f"<div id='chint' style='font-size:.8em;color:#888'></div>"
@@ -2093,38 +2139,66 @@ def tail_line_for_field(field_size: int) -> float:
 # primary contest this shop enters.
 CONTEST_PRESETS = [
     {"name": "$5 Qualifier (typical)", "entry_fee": 5.0,
-     "field_size": 20_000, "entries": 80, "lev_scale": 1.0,
+     "field_size": 20_000, "entries": 80, "entry_limit": 150,
+     "lev_scale": 1.0,
      "note": "adopted 80-entry coverage portfolio, full leverage"},
     {"name": "$3 Large GPP", "entry_fee": 3.0,
-     "field_size": 100_000, "entries": 80, "lev_scale": 1.0,
+     "field_size": 100_000, "entries": 80, "entry_limit": 150,
+     "lev_scale": 1.0,
      "note": "adopted 80-entry coverage portfolio, full leverage"},
     {"name": "Millionaire Maker", "entry_fee": 20.0,
-     "field_size": MILLY_FIELD, "entries": 4, "lev_scale": 1.0,
+     "field_size": MILLY_FIELD, "entries": 4, "entry_limit": 150,
+     "lev_scale": 1.0,
      "note": "4 lottery tickets at the 194+ line"},
     {"name": "Small qualifier / single-entry", "entry_fee": 5.0,
-     "field_size": 5_000, "entries": 3, "lev_scale": 0.7,
-     "note": "each lineup self-sufficient; moderated chalk fade"},
+     "field_size": 5_000, "entries": 1, "entry_limit": 1,
+     "lev_scale": 0.7,
+     "note": "one strongest individual-tail lineup; moderated chalk fade"},
     # High-stakes: sharp field — our chalk fade is soft-field-calibrated,
     # so halve it; 3-max entries must each stand alone (memory:
     # contest-mix-qualifiers, 2026-08-03).
     {"name": "$333 High-Stakes (3-max)", "entry_fee": 333.0,
-     "field_size": 3_000, "entries": 3, "lev_scale": 0.5,
+     "field_size": 3_000, "entries": 3, "entry_limit": 3,
+     "lev_scale": 0.5,
      "note": "sharp field: halved chalk fade, self-sufficient entries"},
 ]
 
 
-def _strategy_for(field_size: float, entry_fee: float) -> dict:
+def _entry_limit_from_name(name: str) -> int:
+    """Best-effort DK contest-name parser; the UI always allows correction."""
+    text = str(name or "").lower()
+    if "single entry" in text or "single-entry" in text:
+        return 1
+    match = re.search(r"\b(\d{1,3})\s*[- ]?max\b", text)
+    if match:
+        return max(1, min(int(match.group(1)), 150))
+    return 150
+
+
+def _strategy_for(
+    field_size: float,
+    entry_fee: float,
+    entry_limit: int = 150,
+) -> dict:
     """Auto-strategy for LIVE contests (no hand-tuned preset): sharp
     small/high-stakes fields get moderated leverage and few entries."""
     if entry_fee >= 100 or field_size <= 3_500:
-        return {"entries": 3, "lev_scale": 0.5,
-                "note": "sharp field: halved chalk fade, 3 entries"}
-    if field_size <= 10_000:
-        return {"entries": 3, "lev_scale": 0.7,
-                "note": "small field: moderated fade, few entries"}
-    return {"entries": ADOPTED_CLASSIC_POLICY.default_entries,
-            "lev_scale": 1.0,
-            "note": "large field: adopted 80-entry coverage portfolio"}
+        entries, lev_scale = 3, 0.5
+        note = "sharp field: halved chalk fade"
+    elif field_size <= 10_000:
+        entries, lev_scale = 3, 0.7
+        note = "small field: moderated chalk fade"
+    else:
+        entries, lev_scale = ADOPTED_CLASSIC_POLICY.default_entries, 1.0
+        note = "large field: adopted tail-coverage portfolio"
+    entries = min(entries, int(entry_limit), 80)
+    profile = contest_entry_policy(entry_limit, entries, lev_scale)
+    return {
+        "entries": entries,
+        "entry_limit": int(entry_limit),
+        "lev_scale": profile["effective_leverage_scale"],
+        "note": f"{profile['description']}; {note}",
+    }
 
 
 @app.get("/contests")
@@ -2150,8 +2224,12 @@ def contest_options() -> dict:
     except Exception as exc:  # table absent until the scaffold is enabled
         log.info("live contest list unavailable (%s); presets only", exc)
     for c in live:
-        c.update(_strategy_for(float(c["field_size"]),
-                               float(c.get("entry_fee") or 0)))
+        entry_limit = _entry_limit_from_name(str(c.get("name") or ""))
+        c.update(_strategy_for(
+            float(c["field_size"]),
+            float(c.get("entry_fee") or 0),
+            entry_limit,
+        ))
     for c in live + CONTEST_PRESETS:
         c["estimated_winning_line"] = tail_line_for_field(
             int(c["field_size"]))
@@ -2239,6 +2317,9 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
     df, dk_ids = _classic_projections(req, store)
     from .. import notes as _notes
 
+    entry_policy = req.entry_policy()
+    effective_lev_scale = entry_policy["effective_leverage_scale"]
+
     stack = StackRules(
         qb_stack_min=req.qb_stack_min,
         bring_back_min=req.bring_back_min,
@@ -2265,7 +2346,7 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
             lineups = build_sim_lineups(
                 req.season, req.week, n_entries=req.n_lineups,
                 stack=stack, tail_line=req.line(),
-                lev_scale=req.lev_scale,
+                lev_scale=effective_lev_scale,
                 locks=set(req.locks), bans=set(req.bans),
                 allowed_ids=allowed, theses=req.theses or None,
                 salary_overrides=salaries,
@@ -2282,7 +2363,7 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
                 lineups = build_sim_lineups(
                     req.season, req.week, n_entries=req.n_lineups,
                     stack=stack, tail_line=req.line(),
-                    lev_scale=req.lev_scale, locks=set(req.locks),
+                    lev_scale=effective_lev_scale, locks=set(req.locks),
                     bans=set(req.bans), allowed_ids=allowed,
                     theses=req.theses or None, salary_overrides=salaries,
                     apply_notes=req.apply_notes,
@@ -2327,7 +2408,9 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
         _annotate_leverage([r["lineup"] for r in ranked], slate=df)
         return [r["lineup"] for r in ranked], ranked
 
-    pool = _player_pool(df, req.objective, dk_ids, lev_scale=req.lev_scale)
+    pool = _player_pool(
+        df, req.objective, dk_ids, lev_scale=effective_lev_scale,
+    )
     if req.apply_notes:
         pool = _notes.apply_prefs(pool, req.season, req.week)
     lineups = optimize_many(
@@ -2434,6 +2517,7 @@ def _classic_policy_identity(req: LineupRequest, lineups: list) -> dict:
             "adopted": False,
             "model_version": None,
             "entries": len(lineups),
+            "contest_entry_policy": req.entry_policy(),
         }
     model_version = (getattr(lineups[0], "model_version", None)
                      if lineups else None)
@@ -2450,6 +2534,7 @@ def _classic_policy_identity(req: LineupRequest, lineups: list) -> dict:
             fallback or ADOPTED_CLASSIC_POLICY.policy_id),
         "fallback_used": bool(fallback),
         "adopted": True,
+        "contest_entry_policy": req.entry_policy(),
     }
 
 
