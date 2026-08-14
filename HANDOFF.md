@@ -53,9 +53,12 @@ agent or developer:
   pre-result image at Stage T. That build is superseded even if tests pass; do
   not launch it. The frozen code now emits a canonical Stage R score SHA and
   Stage T consumes a small hash-verified attestation carrying run ID, code SHA,
-  report SHA and score SHA. Commit this plumbing and submit a replacement exact
-  build, then launch only Stage R. Stage T remains prohibited unless strict
-  Stage R disposition passes.
+  report SHA and score SHA. The replacement is pushed as full commit
+  `74df236087664208235a9cf5028abe4a86187e34`; exact archived Cloud Build
+  `9d73eef0-4611-4851-bcc4-cc59c740103b` targets
+  `nfl-dfs:td-comp-wr-74df236` and is queued. Poll it, resolve only a successful
+  immutable digest, then launch only Stage R. Stage T remains prohibited unless
+  strict Stage R disposition passes.
 
 ### 2026-08-14 new TD shape-aware mechanism frozen pre-result
 
