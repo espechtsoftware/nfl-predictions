@@ -51,7 +51,9 @@ agent or developer:
   `nfl-dfs:td-comp-wr-57c5a5a`. Before any Stage R output, deployment review
   found that its future harvested reference report would not exist inside the
   pre-result image at Stage T. That build is superseded even if tests pass; do
-  not launch it. The frozen code now emits a canonical Stage R score SHA and
+  not launch it. It was cancelled at 44% to release capacity and is terminal
+  `CANCELLED`; no image was published. The frozen code now emits a canonical
+  Stage R score SHA and
   Stage T consumes a small hash-verified attestation carrying run ID, code SHA,
   report SHA and score SHA. The replacement is pushed as full commit
   `74df236087664208235a9cf5028abe4a86187e34`; exact archived Cloud Build
