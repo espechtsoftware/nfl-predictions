@@ -82,9 +82,11 @@ agent or developer:
 - Exact-commit selector build
   `65db620b-1c95-4864-b916-0c52d9b8e34a` from `2ff57b4` was cancelled after
   the analyzer exposed this repair need; it did not publish an eligible
-  immutable image. Publish one superseding exact-commit full-test image that
-  contains both the BOOL repair and selector diagnostic, then run the guarded
-  pass-tail analyzer retry.
+  immutable image. Superseding exact-commit full-test build
+  `feea8d38-ba32-43e3-8717-2b5511e4fdb8` is running from pushed commit
+  `2a336d3`; it contains both the BOOL repair and selector diagnostic. On
+  success resolve its immutable digest, then run the guarded pass-tail
+  analyzer retry.
 - Current concrete GCP queue is: publish the repaired image and run/harvest the
   pass-tail exact-80 analyzer retry; run/harvest the score-free
   selector-resampling analyzer; then run/harvest the frozen multi-seed
