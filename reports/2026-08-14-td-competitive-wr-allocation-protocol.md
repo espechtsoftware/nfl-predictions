@@ -7,6 +7,11 @@ not another retry of the closed global TD-ledger arm. It may use realized
 player outcomes only to grade the preregistered dependence scores; it may not
 generate, select, query or score a lineup.
 
+Amended before launch or treatment output after review in
+`2026-08-14-td-competitive-wr-allocation-protocol-review.md` to bind the clean
+reference identity, mandate an ungated multiplicity `>=4` diagnostic, and
+state the deliberate QB-TE scope boundary. None changes the treatment or gate.
+
 ## Motivation and mechanism boundary
 
 The repaired simulator has a shape error rather than a global dependence
@@ -16,6 +21,14 @@ ledger moved QB-WR in the desired direction but worsened every competing
 over-coupled cell. A new treatment must therefore be receiver-specific and
 competitive: strengthen the QB hub for WRs while discouraging simultaneous
 same-team WR extremes, without altering QB, RB or TE draws.
+
+QB-to-TE is deliberately out of scope. Most supported team groups have no
+same-position TE competition for this construction to exploit, and changing
+TE ranks would invalidate the mechanical negative control. The designated
+follow-up is a separately preregistered **TE-only QB-hub rank** evaluation on
+the Stage R repaired path. It must pass its own score-free gate before any
+composition with this WR mechanism can be considered; neither a WR pass nor
+the stale pre-repair G2 fit licenses it.
 
 The sole treatment is the deterministic centered allocation rank defined
 below. There is no strength parameter, grid, interpolation, partial blend,
@@ -47,11 +60,15 @@ That prior report's treatment and invalid disposition are not evidence for
 this arm. Its repaired current-control payload is used only as a frozen
 cross-check. A passing Stage R report becomes the sole clean comparator for
 Stage T. Failure is terminally invalid/inconclusive and prohibits Stage T.
+The Stage R report must carry its immutable run ID and full 40-character code
+SHA, and those values must match its launch manifest.
 
 ## Stage T: sole centered competitive allocation
 
 Stage T must pin the passing Stage R report and manifest hashes plus the same
-immutable cache, schedule, panel, usage, blend, world count and seed. It
+immutable cache, schedule, panel, usage, blend, world count and seed. Its
+launcher and runtime must assert that the report's Stage R run ID and full
+code SHA equal the values in the pinned Stage R manifest. It
 generates four aligned books: incumbent control and its independent repeat,
 and `TD_LEDGER=1` rank source and its independent repeat. The TD-ledger source
 uses `td_alloc_k=None`; no TD value is copied into output.
@@ -92,6 +109,15 @@ unchanged control q90. Recompute all nine G0 cells, every G1 relationship,
 aggregate joint-q90 Brier and p=0.5 variogram, supported G0/G1
 absolute-log-error sums, season disclosures, and the paired whole-slate
 bootstrap with 2,000 replicates and seed 1703.
+
+Multiplicity `>=4` is a mandatory ungated diagnostic. Report its realized
+event count, independence-expected event count, realized estimate, control and
+treatment simulated estimates, absolute log errors, and whether treatment
+moves toward or away from realized. It remains unsupported at the current
+seven realized events and therefore cannot determine pass/fail. Its movement
+must nevertheless be stated in the terminal disposition report because it is
+the largest current-path point error and is directly relevant to extreme
+lineup outcomes.
 
 Stage T is valid only if all of the following hold:
 
@@ -149,6 +175,11 @@ authorize a production change or composition with SIS, ASOE, pass-tail, G2/G3,
 K=1 or another dependence treatment. Historical scoring remains adaptive
 evidence and any eventual production use requires a labeled 2026 prospective
 shadow.
+
+The named TE-only QB-hub follow-up is independent future work. It is not
+licensed for lineup scoring by this result, and WR-plus-TE composition requires
+both mechanisms to pass separate score-free protocols followed by a separately
+frozen interaction test.
 
 A valid failure closes this centered competitive-allocation mechanism on the
 historical panel. An invalid result closes it as unadjudicated. Neither branch

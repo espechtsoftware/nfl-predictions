@@ -419,6 +419,18 @@ def main(argv: list[str] | None = None) -> None:
     )
     p.add_argument("--panel", required=True)
 
+    p = sub.add_parser(
+        "td-competitive-wr-reference",
+        help="Build the clean repaired-path reference for competitive WR TD ranks",
+    )
+    p.add_argument("--panel", required=True)
+
+    p = sub.add_parser(
+        "td-competitive-wr-allocation",
+        help="Gate the score-free centered competitive-WR TD allocation",
+    )
+    p.add_argument("--panel", required=True)
+
     sub.add_parser(
         "usage-dirichlet-calibration-diagnostic",
         help="Fit and gate within-team target/carry concentration",
@@ -1000,6 +1012,14 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import td_ledger_rank_coupling
 
         td_ledger_rank_coupling.run(args.panel)
+    elif args.command == "td-competitive-wr-reference":
+        from .analysis import td_competitive_wr_allocation
+
+        td_competitive_wr_allocation.run_reference(args.panel)
+    elif args.command == "td-competitive-wr-allocation":
+        from .analysis import td_competitive_wr_allocation
+
+        td_competitive_wr_allocation.run_treatment(args.panel)
     elif args.command == "usage-dirichlet-calibration-diagnostic":
         from .analysis import usage_dirichlet_calibration
 

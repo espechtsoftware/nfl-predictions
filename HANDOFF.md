@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 15:25 CDT
+## Current state — 2026-08-14 15:24 CDT
 
 ### 2026-08-14 new TD shape-aware mechanism frozen pre-result
 
@@ -39,6 +39,20 @@ agent or developer:
   before implementation or treatment output. Implement and test both stages
   while polling the active SIS final-served execution and exact80 image build;
   do not launch a TD treatment before Stage R passes.
+- Review
+  `reports/2026-08-14-td-competitive-wr-allocation-protocol-review.md` was
+  accepted before launch. The protocol and implementation now make unsupported
+  multiplicity ≥4 a mandatory ungated terminal diagnostic, bind Stage T to the
+  exact Stage R run ID and full code SHA carried by both report and manifest,
+  and declare QB-TE out of scope. A separate repaired-path TE-only QB-hub rank
+  test is the named future mechanism; it is not automatically licensed or
+  composable if the WR arm passes.
+- Both Stage R and Stage T commands, deterministic centered-rank mechanism,
+  frozen gate, strict harvesters and immutable GCP launchers are implemented.
+  Fifteen focused TD tests pass, along with Python compilation, shell syntax
+  and whitespace checks. Commit these files, run a full-test immutable image
+  build, then launch only Stage R. Stage T remains conditional on a strictly
+  harvested Stage R pass.
 
 ### 2026-08-14 SIS conditional exact-80 harness implemented pre-result
 
