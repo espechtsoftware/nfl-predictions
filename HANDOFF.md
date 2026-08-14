@@ -161,6 +161,13 @@ agent or developer:
   executions, including both platform retries, with no current failure. Once
   all 30 succeed, finish/harvest Phase R and invoke
   `scripts/cloud_sis_asoe_phase_s.sh` with that digest and code `1e0bf04`.
+- Phase R finite-K R4/2023 `replay-gtrk4-2023-5dkmt` became the third
+  original-batch Cloud Run platform failure with exactly the same internal
+  code-14/application-exit-0/no-log signature and zero rows/artifacts. Its one
+  identical retry is `replay-gtrk4-2023-pkbvk` and is recorded in both the
+  active manifest and infrastructure retry ledger. These are platform
+  provisioning failures, not failed model executions; do not treat them as
+  scientific results.
 
 ### 2026-08-13 SIS ASOE Stage A launched
 
