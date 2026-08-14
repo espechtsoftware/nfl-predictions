@@ -4,3 +4,4 @@ treatment 3 2023 replay-sisasoet3-2023-txnfv replay-sisasoet3-2023-fsnmw applica
 treatment 2 2023 replay-sisasoet2-2023-gd6zc replay-sisasoet2-2023-lf7l8 scipy_shared_library_truncated_before_import_zero_rows_and_artifacts
 control 0 2025 replay-sisasoec0-2025-wrkbs replay-sisasoec0-2025-v6jfr bq_storage_internal_500_before_replay_zero_rows_and_artifacts
 treatment 4 2023 replay-sisasoet4-2023-9rs5l replay-sisasoet4-2023-hqskx bq_storage_internal_500_before_replay_zero_rows_and_artifacts
+control 3 2024 replay-sisasoec3-2024-q6758 replay-sisasoec3-2024-hcrkg cloud_run_internal_error_exit_0_zero_logs_rows_staggered

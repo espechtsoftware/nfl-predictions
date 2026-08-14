@@ -8,7 +8,7 @@ control 2 2023 20260813-sis-asoe-control-r2-v1 replay-sisasoec2-2023 replay-sisa
 control 2 2024 20260813-sis-asoe-control-r2-v1 replay-sisasoec2-2024 replay-sisasoec2-2024-qkxzj
 control 2 2025 20260813-sis-asoe-control-r2-v1 replay-sisasoec2-2025 replay-sisasoec2-2025-45lfx
 control 3 2023 20260813-sis-asoe-control-r3-v1 replay-sisasoec3-2023 replay-sisasoec3-2023-zwnqp
-control 3 2024 20260813-sis-asoe-control-r3-v1 replay-sisasoec3-2024 replay-sisasoec3-2024-q6758
+control 3 2024 20260813-sis-asoe-control-r3-v1 replay-sisasoec3-2024 replay-sisasoec3-2024-hcrkg
 control 3 2025 20260813-sis-asoe-control-r3-v1 replay-sisasoec3-2025 replay-sisasoec3-2025-lgczd
 control 4 2023 20260813-sis-asoe-control-r4-v1 replay-sisasoec4-2023 replay-sisasoec4-2023-znh4b
 control 4 2024 20260813-sis-asoe-control-r4-v1 replay-sisasoec4-2024 replay-sisasoec4-2024-4xj5q

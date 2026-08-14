@@ -87,6 +87,9 @@ agent or developer:
 - Treatment R3 2023 replacement `replay-sisasoet3-2023-fsnmw` itself then hit
   the same 30-minute internal-error/exit-0 path with zero rows. It has been
   returned to the pending staggered queue rather than relaunched at capacity.
+- With current occupancy at 15, one queued replacement was released into the
+  open slot: control R3 2024 `replay-sisasoec3-2024-hcrkg`. The remaining queue
+  stays held until another slot actually frees.
 
 ### 2026-08-13 SIS pass-tail caches validated; frozen score gate running
 
