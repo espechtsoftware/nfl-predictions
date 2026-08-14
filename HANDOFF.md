@@ -47,10 +47,13 @@ agent or developer:
   The write-once executions are control
   `tabpfn-sis-pass-tail-v1-control-8hkl2` and treatment
   `tabpfn-sis-pass-tail-v1-treatment-z7hv4`. Exact-commit audit build
-  `4d4d00c4-24ce-432c-a177-1215bee9dee5` remains active. Poll cache status
-  only; when both succeed run `scripts/cloud_finish_tabpfn_sis_pass_tail.sh
-  f2560d1`, then launch the score-free final-served gate on the audit digest.
-  No treatment prediction or score had been read at launch.
+  `4d4d00c4-24ce-432c-a177-1215bee9dee5` passed the full suite and published
+  immutable digest
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:fdd00d6bf36778c38415068bda5809b8d3324a5ee77ecb5ba3feefafc73da339`.
+  Poll cache status only; when both succeed run
+  `scripts/cloud_finish_tabpfn_sis_pass_tail.sh f2560d1`, then launch the
+  score-free final-served gate on that audit digest. No treatment prediction
+  or score had been read at launch.
 
 ### 2026-08-13 repository explainer promoted into the product UI
 
