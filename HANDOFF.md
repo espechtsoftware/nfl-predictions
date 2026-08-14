@@ -184,6 +184,52 @@ agent or developer:
   `analyze-multiseed-candidate-world-v1-9zf9b` on the validated immutable
   digest above. Poll it to terminal and harvest only the complete chunked
   reconstruction; do not use the partial original log.
+- Transport-only execution `analyze-multiseed-candidate-world-v1-9zf9b`
+  completed successfully in 5m12.77s. The harvester reconstructed every
+  numbered chunk, passed the frozen mechanical gate and wrote the immutable
+  complete report. Report SHA-256 is
+  `a41d3427aa267ed9ab52753a898f14135caa9bd42c11c645d92eccffbb170239`;
+  raw chunk-log SHA-256 is
+  `cb4dc642baffa57d35b44e6113e9d6317a6c800b4f68f140b63974fc15693bd4`.
+- The four-cell research winner is `CUW0`. Its exact-80 counts at
+  240/230/220/210/200/194/187 are `0/1/1/6/8/11/21` versus C0W0
+  `0/0/0/3/6/10/12`; mean weekly maximum improves by `4.8363` with diagnostic
+  slate-clustered interval `[0.8972,8.8152]`. Because CU has about 579.80
+  candidates versus 253.81, this remains added-budget discovery evidence.
+- The clean world comparison selects C0WU over C0W0 first at 210 (`4-3`).
+  The prospectively frozen same-budget confirmation then selects `CBWU` as the
+  final production mechanism arm: counts are `0/1/3/6/7/8/17` versus C0WU
+  `0/0/0/4/6/9/11`, with the same mean candidate count 253.81 and exactly 80
+  final entries. Mean weekly maximum is `176.0630` versus `174.9041` (+1.1589).
+  Human result is
+  `reports/2026-08-14-multiseed-candidate-world-result.md`.
+- The production mechanism verdict licenses five score-blind candidate seeds
+  under the fixed total quota/fill law and five equal selection-world blocks,
+  failing closed if any block is absent. It does not license pass-tail's
+  finite-K cache/schedules. Wire it into the existing K=1 money policy without
+  changing marginals, direct-role/boom allocation, position scales or the
+  exact-80 export, then run outcome-blind unit/integration/Week-1 validation.
+- Feedback in
+  `reports/2026-08-14-pass-tail-and-selector-resampling-feedback.md` is
+  reconciled in the adjacent tracked report. A descriptive, non-binding
+  crossing retrofit shows the pass-tail 220 result is three improving and one
+  worsening seed/slate crossing on only two calendar slates (2023-W03 and
+  2024-W03). Across all thresholds, 19 unique seed/slates improve and 15
+  worsen, spanning 23 changed calendar slates. The frozen treatment decision
+  stands but is now labeled modest-breadth. Disjoint-half selector overlap
+  `54.28/80` receives equal forensic billing; it is not called an effective
+  entry count. The 2025 negative below-220 shape is predeclared for 2026
+  finite-K shadow checkpoints at Weeks 4/8/13/18.
+- The historical GCP scoring/analyzer queue is now empty. The next concrete
+  actions are production/UI reconciliation for the licensed CBWU mechanism,
+  exact outcome-blind deployment validation, then the mandatory frozen final
+  forensic closure. Do not query that forensic outcome set before its required
+  freeze commit.
+- The pass-tail analyzer now emits gross and distinct threshold-crossing
+  diagnostics for future exact-80 reports. Focused pass-tail/multi-seed tests
+  pass 20 tests, the complete local suite passes, and whitespace validation
+  passes. Commit and push the harvested reports, feedback reconciliation and
+  diagnostic together before beginning CBWU production wiring.
 
 ### 2026-08-14 Phase S complete; SIS ASOE selected; Route follow-ups ready
 

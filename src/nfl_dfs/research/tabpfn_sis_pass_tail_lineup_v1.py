@@ -253,10 +253,95 @@ def tail_first_decision(metrics: dict[str, dict]) -> dict:
     }
 
 
+def threshold_crossing_diagnostics(
+    weekly: dict[tuple[str, int], pd.Series],
+) -> dict:
+    """Report non-nested slate crossings behind nested tail-count deltas.
+
+    Aggregate tail grids count the same seed/slate observation at every lower
+    threshold it clears.  This diagnostic preserves that registered grid while
+    also exposing the exact seed/slate observations and distinct NFL slates
+    responsible for improvements and regressions at each threshold.
+    """
+    by_threshold = {}
+    improved_any: set[tuple[int, int, int]] = set()
+    worsened_any: set[tuple[int, int, int]] = set()
+    for threshold in TAILS:
+        improved: set[tuple[int, int, int]] = set()
+        worsened: set[tuple[int, int, int]] = set()
+        for replicate in SEEDS:
+            control = weekly[("control", replicate)]
+            treatment = weekly[("treatment", replicate)]
+            if not control.index.equals(treatment.index):
+                raise ValueError(
+                    f"R{replicate} control/treatment weekly indices differ")
+            for (season, week), control_score, treatment_score in zip(
+                control.index, control.to_numpy(dtype=float),
+                treatment.to_numpy(dtype=float), strict=True,
+            ):
+                key = (replicate, int(season), int(week))
+                if control_score < threshold <= treatment_score:
+                    improved.add(key)
+                elif treatment_score < threshold <= control_score:
+                    worsened.add(key)
+        improved_any.update(improved)
+        worsened_any.update(worsened)
+        improved_slates = sorted({(season, week)
+                                  for _, season, week in improved})
+        worsened_slates = sorted({(season, week)
+                                  for _, season, week in worsened})
+        by_threshold[str(threshold)] = {
+            "improved_seed_slates": len(improved),
+            "worsened_seed_slates": len(worsened),
+            "net_seed_slate_crossings": len(improved) - len(worsened),
+            "distinct_improved_slates": len(improved_slates),
+            "distinct_worsened_slates": len(worsened_slates),
+            "improved_slates": [
+                f"{season}-W{week:02d}" for season, week in improved_slates
+            ],
+            "worsened_slates": [
+                f"{season}-W{week:02d}" for season, week in worsened_slates
+            ],
+            "improved_seed_slate_ids": [
+                f"R{replicate}:{season}-W{week:02d}"
+                for replicate, season, week in sorted(improved)
+            ],
+            "worsened_seed_slate_ids": [
+                f"R{replicate}:{season}-W{week:02d}"
+                for replicate, season, week in sorted(worsened)
+            ],
+        }
+    improved_slates_any = sorted({(season, week)
+                                  for _, season, week in improved_any})
+    worsened_slates_any = sorted({(season, week)
+                                  for _, season, week in worsened_any})
+    changed_slates_any = sorted(
+        set(improved_slates_any) | set(worsened_slates_any))
+    return {
+        "by_threshold": by_threshold,
+        "union_across_thresholds": {
+            "improved_seed_slates": len(improved_any),
+            "worsened_seed_slates": len(worsened_any),
+            "distinct_improved_slates": len(improved_slates_any),
+            "distinct_worsened_slates": len(worsened_slates_any),
+            "distinct_changed_slates": len(changed_slates_any),
+            "improved_slates": [
+                f"{season}-W{week:02d}"
+                for season, week in improved_slates_any
+            ],
+            "worsened_slates": [
+                f"{season}-W{week:02d}"
+                for season, week in worsened_slates_any
+            ],
+            "changed_slates": [
+                f"{season}-W{week:02d}" for season, week in changed_slates_any
+            ],
+        },
+    }
 __all__ = [
     "CONTROL_SCHEDULES", "CONTROL_TABLE", "DISTRIBUTION_DERIVED_FEATURES",
     "FITTED_K", "FROZEN_BETA", "SEASONS", "SEEDS", "TAILS",
     "TREATMENT_SCHEDULES", "TREATMENT_TABLE", "arm_metrics",
     "candidate_audit", "feature_invariance_audit", "mechanism_failures",
-    "panel_id", "tail_first_decision",
+    "panel_id", "tail_first_decision", "threshold_crossing_diagnostics",
 ]

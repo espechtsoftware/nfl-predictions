@@ -29,6 +29,31 @@ def test_tail_first_uses_all_seed_counts_before_mean():
     assert decision["deciding_threshold"] == 230
 
 
+def test_threshold_crossings_separate_nested_counts_and_distinct_slates():
+    index = pd.MultiIndex.from_tuples(
+        [(2023, 1), (2023, 2)], names=["season", "week"])
+    weekly = {}
+    for replicate in lineup.SEEDS:
+        weekly[("control", replicate)] = pd.Series(
+            [219.0, 225.0], index=index)
+        weekly[("treatment", replicate)] = pd.Series(
+            [219.0, 225.0], index=index)
+    weekly[("treatment", 0)] = pd.Series([221.0, 205.0], index=index)
+
+    result = lineup.threshold_crossing_diagnostics(weekly)
+
+    at_220 = result["by_threshold"]["220"]
+    assert at_220["improved_seed_slates"] == 1
+    assert at_220["worsened_seed_slates"] == 1
+    assert at_220["net_seed_slate_crossings"] == 0
+    assert at_220["improved_slates"] == ["2023-W01"]
+    assert at_220["worsened_slates"] == ["2023-W02"]
+    at_210 = result["by_threshold"]["210"]
+    assert at_210["improved_seed_slates"] == 0
+    assert at_210["worsened_seed_slates"] == 1
+    assert result["union_across_thresholds"]["distinct_changed_slates"] == 2
+
+
 def test_feature_audit_allows_only_registered_distribution_changes():
     common = {
         "season": [2025], "week": [5], "id": ["p"], "name": ["Player"],

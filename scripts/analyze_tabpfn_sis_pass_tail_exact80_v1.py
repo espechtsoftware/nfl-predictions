@@ -137,6 +137,8 @@ def _score_report(frames: dict[tuple[str, int], object]) -> dict:
         "metrics": metrics,
         "paired_seed_diagnostics": paired,
         "weekly_deltas_at_least_10": large,
+        "threshold_crossing_diagnostics": (
+            experiment.threshold_crossing_diagnostics(weekly)),
         "by_season": by_season,
         "slate_clustered_bootstrap_diagnostic": {
             "clusters": int(len(cluster_delta)),

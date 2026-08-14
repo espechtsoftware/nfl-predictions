@@ -20,6 +20,13 @@ All three seasons are intermediate:
 | 2025 | 60.3221 | 53.2778 |
 | all | 61.6362 | 54.2778 |
 
+The disjoint-half value receives equal interpretive weight: the two halves are
+non-overlapping world evidence and agree on only `54.2778/80`, so about 26
+roster slots are reselected when the selector sees independent halves. This is
+a reproducibility measurement, not an “effective entry count”; all 80 entries
+remain distinct submitted portfolios and their marginal contest value requires
+the separate entry-count/ROI analysis.
+
 Across slates, an average `45.15` candidates are selected in at least 90% of
 bootstrap books, `29.80` in 50%--under-90%, and `90.57` at positive but below
 50% frequency. Reciprocal selection-half minus validation-half union coverage
@@ -37,7 +44,9 @@ sampling noise. Record intermediate selector measurement instability and the
 roughly 1.28-point coverage optimism in the final forensic opportunity
 register.
 
-The independently frozen multi-seed candidate/world factorial is the relevant
-production experiment because its world-union cells provide genuinely new
-world information. Interpret its complete result against this measured
-within-R0 instability; do not invent a post-hoc penalty or selector.
+The independently frozen multi-seed candidate/world factorial supplied the
+relevant new-world experiment and selected world union for production under
+its registered rule. Its fixed-candidate `C0W0`/`C0WU` overlap is `65.67/80`,
+which is less disruptive than the disjoint-half diagnostic and nevertheless
+changed the frozen tail-first verdict. Do not invent a post-hoc penalty,
+sample-splitting rule or selector.

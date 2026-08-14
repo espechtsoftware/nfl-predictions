@@ -31,6 +31,30 @@ slate-clustered 95% interval for that mean delta is `[-1.5092, 0.7001]`. Mean
 is diagnostic: the frozen operator-aligned rule compares the highest tail
 threshold first, so the two additional >=220 seed-weeks decide the result.
 
+## Non-nested crossing breadth
+
+The grid above is nested: one seed/slate can contribute at several lower
+thresholds. A post-decision descriptive retrofit therefore reports both gross
+crossings and distinct NFL slates; it does not change the frozen decision.
+
+| threshold | improving seed/slates | worsening seed/slates | net | distinct improving slates | distinct worsening slates |
+|---:|---:|---:|---:|---:|---:|
+| 240 | 0 | 0 | 0 | 0 | 0 |
+| 230 | 0 | 0 | 0 | 0 | 0 |
+| 220 | 3 | 1 | +2 | 2 | 1 |
+| 210 | 5 | 3 | +2 | 4 | 3 |
+| 200 | 7 | 4 | +3 | 6 | 3 |
+| 194 | 6 | 5 | +1 | 6 | 4 |
+| 187 | 10 | 10 | 0 | 8 | 10 |
+
+The deciding 220 gain is concentrated in two calendar slates. Treatment gains
+R0 and R1 on `2023-W03` and R2 on `2024-W03`, while it loses R4 on
+`2023-W03`. Across all thresholds, after counting a seed/slate only once,
+there are 19 improving and 15 worsening seed/slate observations. Those span
+14 distinct improving slates, 14 distinct worsening slates, and 23 distinct
+changed slates in total. This is a real but modest-breadth tail result, not
+eight independent gains implied by summing the nested deltas.
+
 ## Season diagnostics
 
 - 2023: treatment improves 220/210/200/194/187 by `+1/+2/+3/+2/+2` and mean
@@ -42,7 +66,12 @@ threshold first, so the two additional >=220 seed-weeks decide the result.
 
 These mixed season diagnostics do not override the previously amended
 aggregate tail-first objective. They do establish that the gain is not uniform
-and should remain visible in prospective monitoring.
+and should remain visible in prospective monitoring. The 2026 finite-K shadow
+will predeclare checkpoints after Weeks 4, 8, 13 and 18 and report the
+treatment-control 220/210/200/194 crossings, distinct slates and mean weekly
+maximum. In particular it will state whether 2025's negative below-220 pattern
+persists; intermediate checkpoints cannot promote the treatment into the K=1
+money policy.
 
 ## Disposition
 
@@ -52,7 +81,8 @@ or schedules. This result licenses a later explicit live/UI integration
 decision under the addendum, but it does not license silently combining the
 cache/schedules with the distinct K=1 money-lineup policy; that transfer cell
 was not tested here. The score-free selector-resampling diagnostic has no
-adoption authority, and the separate frozen multi-seed candidate/world
-factorial may still alter the finite-K research selection law. Final production
-wiring must respect those transfer boundaries and record the exact resulting
-state before Week 1.
+adoption authority. The separate multi-seed candidate/world factorial has now
+selected the `CBWU` generation/selection mechanism under its own protocol;
+that generic mechanism verdict does not transfer the pass-tail cache or
+schedules. Final production wiring must respect those boundaries and record
+the exact resulting state before Week 1.
