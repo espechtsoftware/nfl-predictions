@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 12:46 CDT
+## Current state — 2026-08-14 12:49 CDT
 
 ### 2026-08-14 final-forensic queryable corpus retention frozen outcome-free
 
@@ -56,6 +56,14 @@ agent or developer:
   if any table reappears. The receipt must be committed/pushed before production
   schedulers resume. Production configuration names only `nfl_raw`,
   `nfl_features` and `nfl_predictions`, never the isolated review dataset.
+- Season-start scheduler resumption now has a fail-closed executable gate,
+  `scripts/resume_2026_production_schedulers.py`. It first invokes the live
+  absence verifier, requires the byte-identical cleanup receipt to be present
+  in `HEAD`, fetches `origin/main` and proves `HEAD` is pushed, then describes
+  all 22 exact scheduler identities before it can mutate any scheduler. It is
+  a dry run unless the operator explicitly supplies `--resume`; the README no
+  longer presents the raw resume loop as an approved path. Three focused gate
+  tests pass, including receipt-byte drift and the exact scheduler inventory.
 - Dataset `nfl-predictions-503414:nfl_forensic_review` now exists in `US` with
   `defaultTableExpirationMs=7776000000` (90 days), labels
   `purpose=final_preseason_forensic` and `production_use=forbidden`, and an
