@@ -20,7 +20,28 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 14:46 CDT
+## Current state — 2026-08-14 14:49 CDT
+
+### 2026-08-14 SIS RB run-tail cache pair launched
+
+- Exact-commit GPU Cloud Build `039902ab-0f13-4a66-b0d7-9a657444199a`
+  succeeded and published immutable digest
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/tabpfn-sis-rb-runtail@sha256:848a9951f8eae2daa580e5ca43aa8f431aee2677402373c2018553d448d27593`.
+  Its source was a clean archive of full commit
+  `23fdbba47590af3ba7594ae22bdbf2e764d86389`.
+- The write-once GPU cache executions are now live: control
+  `tabpfn-sis-rb-runtail-v1-control-7p9f7` writes
+  `tabpfn_sis_rb_runtail_control_v1`; treatment
+  `tabpfn-sis-rb-runtail-v1-treatment-s6p4d` writes
+  `tabpfn_sis_rb_runtail_treatment_v1`. Durable identities and every frozen
+  input hash are in
+  `reports/tabpfn-sis-rb-runtail-runs/20260814-tabpfn-sis-rb-runtail-v1/`.
+- Full-test audit image build `b8a3e085-fbab-4ef4-80bd-e410eb354c3b`
+  remains working from the identical source commit. Poll the two cache
+  executions and this build. After both caches complete, run
+  `scripts/cloud_finish_tabpfn_sis_rb_runtail.sh` with the full SHA. Only if
+  validation passes may the successful audit digest launch the frozen
+  final-served q95/q99 gate.
 
 ### 2026-08-14 SIS run-tail exact-80 branch preregistered while images build
 
