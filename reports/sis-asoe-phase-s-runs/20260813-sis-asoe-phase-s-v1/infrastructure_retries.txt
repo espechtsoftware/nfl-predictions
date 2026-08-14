@@ -5,3 +5,9 @@ treatment 2 2023 replay-sisasoet2-2023-gd6zc replay-sisasoet2-2023-lf7l8 scipy_s
 control 0 2025 replay-sisasoec0-2025-wrkbs replay-sisasoec0-2025-v6jfr bq_storage_internal_500_before_replay_zero_rows_and_artifacts
 treatment 4 2023 replay-sisasoet4-2023-9rs5l replay-sisasoet4-2023-hqskx bq_storage_internal_500_before_replay_zero_rows_and_artifacts
 control 3 2024 replay-sisasoec3-2024-q6758 replay-sisasoec3-2024-hcrkg cloud_run_internal_error_exit_0_zero_logs_rows_staggered
+control 4 2023 replay-sisasoec4-2023-znh4b replay-sisasoec4-2023-b44rd cloud_run_internal_error_exit_0_zero_logs_rows_bounded_cap_10
+control 4 2024 replay-sisasoec4-2024-4xj5q replay-sisasoec4-2024-ls4jj cloud_run_internal_error_exit_0_zero_logs_rows_bounded_cap_10
+treatment 0 2023 replay-sisasoet0-2023-mj7mp replay-sisasoet0-2023-nhdl6 cloud_run_internal_error_exit_0_zero_logs_rows_bounded_cap_10
+treatment 0 2024 replay-sisasoet0-2024-m6twf replay-sisasoet0-2024-b7nl7 cloud_run_internal_error_exit_0_zero_logs_rows_bounded_cap_10
+treatment 0 2025 replay-sisasoet0-2025-2q4w5 replay-sisasoet0-2025-fhc7l cloud_run_internal_error_exit_0_zero_logs_rows_bounded_cap_10
+treatment 1 2023 replay-sisasoet1-2023-hm7sd replay-sisasoet1-2023-2xhqm cloud_run_internal_error_exit_0_zero_logs_rows_bounded_cap_10

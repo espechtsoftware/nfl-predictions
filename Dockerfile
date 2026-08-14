@@ -39,6 +39,7 @@ COPY scripts/analyze_incumbent_seed_variance.py ./scripts/analyze_incumbent_seed
 COPY scripts/analyze_game_team_usage_phase_r.py ./scripts/analyze_game_team_usage_phase_r.py
 COPY scripts/analyze_sis_asoe_phase_s.py ./scripts/analyze_sis_asoe_phase_s.py
 COPY scripts/analyze_multiseed_candidate_world.py ./scripts/analyze_multiseed_candidate_world.py
+COPY scripts/analyze_tabpfn_sis_pass_tail_exact80_v1.py ./scripts/analyze_tabpfn_sis_pass_tail_exact80_v1.py
 
 RUN pip install --no-cache-dir ".[gcp,app]"
 

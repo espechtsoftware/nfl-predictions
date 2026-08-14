@@ -77,3 +77,14 @@ and artifacts and is queued without a new launch.
 This response preserves Phase S's scientific validity while removing the two
 actionable operational hazards: resource over-release and trust in manual
 execution-to-cell substitution.
+
+After the bounded controller reduced the live count to ten, control R3/2025
+`replay-sisasoec3-2025-lgczd` terminated with the same Cloud Run internal
+error/exit-0 status, but unlike the earlier failures it had already persisted
+15 of 18 weeks. Before permitting a retry, recovery removed exactly the
+partial cell's 3,820 candidate rows, 8,312 feature rows and 15 candidate-world
+artifacts. The dedicated replay-lineups table had not yet been created. All
+three candidate stores were then verified empty, the cleanup was recorded in
+`partial_infrastructure_recoveries.txt`, and the cell was added to the bounded
+retry queue. No outcome was used in making that classification or recovery
+decision.

@@ -20,7 +20,51 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 00:08 CDT
+## Current state — 2026-08-14 00:54 CDT
+
+### 2026-08-14 Phase S bounded recovery advancing; pass-tail exact-80 frozen
+
+- Branch is `main`, based on pushed commit `b286de4`; the implementation and
+  handoff milestone described here travel together in the next pushed commit.
+  Phase S's scientific arms, seeds and decision law remain unchanged and no
+  incomplete-panel outcome has been used.
+- The bounded controller reduced the current ledger from 18 failed cells to
+  12: eight are clean successes and ten are active at the hard cap. It
+  byte-identically released replacements through treatment R1/2023, recording
+  each immutable execution in `executions.txt` and
+  `infrastructure_retries.txt`. The controller was stopped only long enough to
+  validate and commit this stable milestone; the status-only monitor remains
+  active and the exact next action is to restart the bounded releaser.
+- Control R3/2025 execution `replay-sisasoec3-2025-lgczd` exposed the recovery
+  case the zero-output path intentionally rejected: Cloud Run reported an
+  internal error/exit 0 after 15 weeks had persisted. Recovery removed exactly
+  that panel/season's 3,820 candidate rows, 8,312 feature rows and 15
+  candidate-world artifacts; its dedicated lineups table did not yet exist.
+  All three stores were verified empty before the cell was queued. The durable
+  classification is in `partial_infrastructure_recoveries.txt`. The cleanup
+  was required to prevent mixed-run duplicates and did not use the outcome in
+  deciding whether to retry.
+- The one exact-80 lineup experiment licensed by the passing SIS pass-tail
+  final-served gate is now fully frozen before Phase S is harvested. Its
+  addendum registers five paired seed books, all 54 slates, exact 80, 10,000
+  worlds, the high-tail-first order `240/230/220/210/200/194/187`, clustered
+  bootstrap diagnostics, exact per-arm walk-forward schedules, and the
+  conditional common Phase S branch. Generation is fixed to replay-capable
+  commit/image `f92ce05` / digest `018f0def...d358`; it cannot launch until
+  Phase S passes mechanically and selects control or treatment.
+- New launcher, execution-owned verifier, analyzer, finisher and chunked
+  harvester fail closed on the Phase S/cache/final-served hashes, all 30
+  execution specs, seeds, cache/schedule identity, finite K, conditional ASOE,
+  complete player-feature invariance outside exactly ten registered
+  distribution outputs, exact-80/artifact identity, common actuals and a
+  material path to candidate scoring. Cloud release is capped at ten and the
+  audit report uses compressed numbered chunks below Cloud Logging's limit.
+- Shell syntax, Python compilation, whitespace checks, 15 focused tests and
+  the complete 1,189-test collection pass (1,188 passed, 1 skipped). No
+  pass-tail lineup candidate or outcome exists yet. After Phase S reaches 30
+  verified successes, run its frozen analyzer/harvester first; only then run
+  `cloud_tabpfn_sis_pass_tail_exact80_v1.sh` with the frozen generation image
+  and code, monitor all 30 cells, and finish with a newly built audit image.
 
 ### 2026-08-14 Phase S infrastructure review reconciled and recovery hardened
 
