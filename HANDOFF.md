@@ -139,6 +139,21 @@ agent or developer:
   points to that retry and preserves the failed ID/reason in
   `infrastructure_retries.txt`. Poll the replacement with the other 29 jobs;
   do not relaunch the entire panel or query partial scores.
+- Phase R finite-K R3/2025 `replay-gtrk3-2025-kxw8x` then failed with the
+  identical platform signature (internal code 14, application exit 0, no
+  application logs) and likewise had zero candidate/feature/artifact output.
+  Its one identical retry is `replay-gtrk3-2025-kmz7l`, recorded in the same
+  tracked retry ledger and active execution manifest.
+- The artifact-only four-arm multi-seed analyzer, guarded launcher/harvester,
+  and Docker packaging are now implemented locally. It verifies every native
+  candidate from player draws, reproduces each native selected order,
+  cross-scores every union roster in every seed's worlds, and applies the
+  frozen exact-80 tail-first decision. Thirty-seven focused Phase S/artifact/
+  multi-seed tests pass. Commit/push and run one final full-test build; the
+  queued intermediate build `6296a6f2-af03-4434-a786-9df7c5cf860e` was
+  intentionally cancelled before consuming compute, and build
+  `e5588fea-857a-459a-a0a7-ed5920854212` succeeded but lacks the player-world
+  payload and multi-seed analyzer, so neither may launch Phase S.
 
 ### 2026-08-13 SIS ASOE Stage A launched
 
