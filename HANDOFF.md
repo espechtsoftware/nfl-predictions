@@ -67,6 +67,10 @@ agent or developer:
   `replay-sisasoec0-2024-vntds`, control R1 2024
   `replay-sisasoec1-2024-kpj74`, and treatment R3 2023
   `replay-sisasoet3-2023-fsnmw`. No outcome was read and no arm/config changed.
+- Treatment R2 2023 then failed before replay import because that container
+  replica exposed a truncated SciPy shared library (`file too short`), again
+  with zero candidate rows, feature rows or artifacts. Its one byte-identical
+  retry is `replay-sisasoet2-2023-lf7l8`; the ledger/provenance is updated.
 
 ### 2026-08-13 SIS pass-tail caches validated; frozen score gate running
 
