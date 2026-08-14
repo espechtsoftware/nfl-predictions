@@ -21,10 +21,9 @@ stack and different insertion points.
 `R` estimates whether Route improves current-stack joint rank/dependence. The
 two cells have different metrics and are not compared as one scalar effect.
 
-This first implementation freezes and prepares `C/M`. `R` must use the Phase
-S-selected common allocation law and the frozen G0/G1 dependence scorecard; it
-may be implemented after Phase S, but it may not substitute the old component
-arm or inherit the `M` result.
+The first implementation froze and prepared `C/M`. The following `R` gate was
+frozen while Phase S was incomplete and before either new Route cache existed.
+It may not substitute the old component arm or inherit the `M` result.
 
 The common terminal context is:
 
@@ -125,6 +124,44 @@ pass-tail score-free gate. Raw exceedance is diagnostic, not a discriminator.
 A pass licenses the preregistered I2 five-seed exact-80 Route-marginal × ASOE
 factorial. It does not itself adopt Route. A fail closes only the marginal
 insertion point on this terminal stack.
+
+## Frozen `R` rank/dependence gate
+
+`R` uses the accepted active-label v2 marginal cache in both cells and the
+accepted G0 walk-forward position schedule in both cells. The sole arm change
+is adding the four registered Route fields through `EXTRA_FEATURES` while
+training the component models. Finite K, the Phase S-selected ASOE state,
+market blend, simulator, seeds and all marginal/position shaping are common.
+
+After the market blend and common position schedule, every player's sorted
+10,000-value served marginal in `R` must reproduce `C` within `1e-10`. This is
+a mechanical gate: the arm is rank/dependence-only, not a second marginal
+experiment.
+
+Score both cells on the same 2023--2025 rows, q90 thresholds, realized flags,
+walk-forward G1 archetype labels and pair book. Report complete G0 cells and
+G1 broad relationships plus their clustered intervals. The five equally
+weighted registered loss families are:
+
+1. mean squared log simulated/realized gap over supported G0 multiplicity
+   cells;
+2. mean squared log gap over supported G0 teammate role-pair cells;
+3. mean squared log gap over supported G1 primary broad relationships;
+4. G1 overall joint-q90 Brier; and
+5. G1 overall variogram score with exponent 0.5.
+
+For every family, form `R / C`. `R` passes only if:
+
+1. the equal-family mean ratio is strictly below 1;
+2. at least three of five families improve;
+3. the mean absolute QB-WR/QB-TE G1 broad log gap does not increase;
+4. no supported primary G1 relationship's absolute log gap increases by more
+   than `log(1.15)`; and
+5. no primary relationship has both joint-q90 Brier and variogram worsen by
+   more than 10%.
+
+A pass licenses a separately frozen exact-80 Route-rank follow-up. It does not
+adopt the arm. Failure closes only the component/rank insertion point.
 
 ## Score and sequencing firewall
 

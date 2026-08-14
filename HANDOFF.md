@@ -20,18 +20,18 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 02:05 CDT
+## Current state — 2026-08-14 02:25 CDT
 
 ### 2026-08-14 Phase S at 12 successes; Route marginal channel frozen
 
-- Branch is `main`; the cache freeze shipped in pushed commit `9052868`, and
-  the score-free evaluator described below travels in the next pushed commit.
-  Phase S is at 16 clean successes, ten active cells and four queued
-  infrastructure
-  replacements. The bounded controller session `98021` remains live at the
-  hard ten-cell cap and the status-only monitor is session `72912`. Its latest
-  verified release was treatment R4/2025 execution
-  `replay-sisasoet4-2025-zcggs`. Do not read scores until all 30 cells and the
+- Branch is `main`; the cache freeze shipped in pushed commit `9052868`, the
+  score-free evaluator shipped in `975a223`, and the rank/dependence screen
+  described below travels in the next pushed commit. Phase S is at 20 clean
+  successes and ten active cells. All bounded infrastructure replacements
+  have now been released; controller session `98021` exited normally with
+  `PHASE_S_RETRY_QUEUE_EMPTY`. Status-only monitor session `72912` remains
+  live. The final verified release was control R3/2025 execution
+  `replay-sisasoec3-2025-7llb5`. Do not read scores until all 30 cells and the
   frozen analyzer pass.
 - The current-stack I1 Route Share marginal-channel experiment is frozen in
   `reports/2026-08-14-route-channel-i1-protocol.md`, before Phase S is
@@ -70,6 +70,28 @@ agent or developer:
   CRPS/MAE and paired whole-slate clustered intervals. Control Phase S fails
   closed on stray ASOE settings; treatment requires the exact frozen beta.
   Focused tests and the complete offline suite pass with one existing skip.
+- Exact-commit full-test/audit Cloud Build
+  `7d71804f-f195-4533-a289-178e4f5f5a4b` succeeded from `975a223` and
+  published
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:abecbf8bb13952c8e7714073446cd1e1d8ffa9a08c96ca83b0691d864b4db2d7`.
+- The separately registered I1 `R` component/rank screen is now frozen before
+  either Phase S or Route-marginal results are available. Its sole arm change
+  is the four Route fields in component training; both cells retain the
+  accepted active-label v2 marginal cache, selected G0 schedule, finite K,
+  selected Phase S ASOE state and every other final-served law. It fails
+  mechanically unless every sorted 10,000-value player marginal reproduces
+  within `1e-10`.
+- `R`'s five equal-weight loss families are G0 multiplicity squared log-gap,
+  G0 role-pair squared log-gap, G1 primary broad relationship squared log-gap,
+  overall joint-q90 Brier and overall p=0.5 variogram. The preregistered gate
+  requires an aggregate ratio below one, at least three improving families,
+  non-worsening QB-WR/QB-TE hub error, no primary relationship absolute-gap
+  increase above `log(1.15)`, and no relationship worsening both proper scores
+  by over 10%. Its launcher also rechecks the frozen training-table checksum
+  and cannot run without the complete Phase S decision. Focused tests, shell
+  validation, whitespace checks and the complete offline suite pass with one
+  existing skip. Commit/push this milestone, build a new exact audit image,
+  then continue status polling until Phase S is 30/30.
 
 ### 2026-08-14 Phase S at 11 successes; future replay startup hardened
 

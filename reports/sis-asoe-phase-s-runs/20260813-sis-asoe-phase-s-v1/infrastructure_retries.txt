@@ -19,3 +19,7 @@ treatment 3 2024 replay-sisasoet3-2024-pjr5n replay-sisasoet3-2024-xmxlt cloud_r
 treatment 3 2023 replay-sisasoet3-2023-fsnmw replay-sisasoet3-2023-rcw2x cloud_run_internal_error_exit_0_zero_logs_rows_on_first_retry_bounded_cap_10
 treatment 4 2024 replay-sisasoet4-2024-gmh6j replay-sisasoet4-2024-vz7bj cloud_run_internal_error_exit_0_zero_logs_rows_bounded_cap_10
 treatment 4 2025 replay-sisasoet4-2025-5h9jb replay-sisasoet4-2025-zcggs cloud_run_internal_error_exit_0_zero_logs_rows_bounded_cap_10
+treatment 2 2023 replay-sisasoet2-2023-lf7l8 replay-sisasoet2-2023-pz82z cloud_run_internal_error_exit_0_zero_logs_rows_on_first_retry_bounded_cap_10
+control 0 2025 replay-sisasoec0-2025-v6jfr replay-sisasoec0-2025-w99k8 cloud_run_internal_error_exit_0_zero_logs_rows_on_first_retry_bounded_cap_10
+treatment 4 2023 replay-sisasoet4-2023-hqskx replay-sisasoet4-2023-6nqc9 cloud_run_internal_error_exit_0_zero_logs_rows_on_first_retry_bounded_cap_10
+control 3 2025 replay-sisasoec3-2025-lgczd replay-sisasoec3-2025-7llb5 cloud_run_internal_error_exit_0_partial_15_weeks_cleaned_bounded_cap_10
