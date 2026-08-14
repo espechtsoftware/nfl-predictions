@@ -91,12 +91,30 @@ agent or developer:
   execution `analyze-sis-pass-tail-exact80-v1-6cchk` with every scientific
   input and resource unchanged. Poll and harvest that execution; retry
   provenance is tracked separately from the failed original.
-- Current concrete GCP queue is: harvest the active pass-tail exact-80
-  analyzer retry; run/harvest the score-free
-  selector-resampling analyzer; then run/harvest the frozen multi-seed
-  candidate/world factorial. Apply any licensed production decision only
+- Current concrete GCP queue is: run/harvest the score-free
+  selector-resampling analyzer, then run/harvest the frozen multi-seed
+  candidate/world factorial. Apply the licensed production decisions only
   after those immutable reports, then prepare the registered final forensic
   closure. No other replay-score panel is currently licensed or queued.
+- The repaired analyzer completed successfully in 2m54s and the immutable
+  mechanically valid result is now harvested. The tail-first decision selects
+  pass-tail `treatment` at the first differing threshold, 220. Across five
+  seed books, selected 240/230/220/210/200/194/187 counts move from
+  `0/1/3/11/20/37/60` to `0/1/5/13/23/38/60`. Mean weekly maximum moves
+  `173.8999` to `173.4789` (-0.4210; slate-clustered mean-delta 95% interval
+  `[-1.5092,0.7001]`). This is the operator-authorized trade: two more >=220,
+  two more >=210 and three more >=200 seed-weeks despite lower mean.
+- Season diagnostics are mixed: 2023 improves throughout the tail, 2024 adds
+  220/210/200/194 weeks while losing at 187/mean, and 2025 loses at
+  210/200/194 while gaining at 187. The amended aggregate tail-first rule is
+  binding and does not require uniform season gains. Human-readable result is
+  `reports/2026-08-14-sis-pass-tail-exact80-result.md`; complete report SHA-256
+  is `6d92edb503747a729ad7cecfd95315b0eff1e04be72491bea296a33aeb8e3689`.
+- Selected pass-tail state is cache `tabpfn_sis_pass_tail_treatment_v1` with
+  the frozen treatment schedules recorded in `selected_pass_tail.txt`. Defer
+  final production wiring until the score-free selector diagnostic and frozen
+  multi-seed candidate/world factorial close, then combine only independently
+  licensed mechanisms and record the exact Week 1 state.
 
 ### 2026-08-14 Phase S complete; SIS ASOE selected; Route follow-ups ready
 

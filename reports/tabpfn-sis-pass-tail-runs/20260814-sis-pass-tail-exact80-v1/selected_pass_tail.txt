@@ -1,0 +1,5 @@
+selected_arm=treatment
+selected_cache_table=tabpfn_sis_pass_tail_treatment_v1
+selected_schedules_json={"2023": "QB:0.975,RB:0.99,TE:0.975,WR:1.04", "2024": "QB:0.92,RB:0.97,TE:0.95,WR:1.055", "2025": "QB:0.92,RB:0.965,TE:0.945,WR:1.04"}
+deciding_threshold=220
+analyzer_execution=analyze-sis-pass-tail-exact80-v1-6cchk
