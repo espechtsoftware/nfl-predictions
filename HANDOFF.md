@@ -115,6 +115,13 @@ agent or developer:
   final production wiring until the score-free selector diagnostic and frozen
   multi-seed candidate/world factorial close, then combine only independently
   licensed mechanisms and record the exact Week 1 state.
+- The frozen score-free selector-resampling diagnostic launched on validated
+  digest `sha256:a39e28b1...1345` as execution
+  `analyze-selector-resampling-v1-wdb6m`. Its manifest pins the 54-slate Phase
+  S treatment R0 source, code/image/beta, 10,000 worlds, exact-80/194 selector,
+  feedback/reconciliation/protocol hashes and write-once frequency artifact.
+  It cannot read realized outcomes or change production. Poll and harvest it,
+  then launch the frozen multi-seed factorial.
 
 ### 2026-08-14 Phase S complete; SIS ASOE selected; Route follow-ups ready
 
