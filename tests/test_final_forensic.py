@@ -8,6 +8,7 @@ import pytest
 from nfl_dfs.research.final_forensic import (
     FreezeManifestError,
     PROTOCOL_ID,
+    REQUIRED_FORENSIC_ARTIFACT_PATHS,
     REQUIRED_MECHANISM_FAMILIES,
     REQUIRED_OUTPUTS,
     WAREHOUSE_TABLE_SCHEMAS,
@@ -17,6 +18,7 @@ from nfl_dfs.research.final_forensic import (
     decompose_slate,
     manifest_digest,
     report_inventory,
+    sha256_file,
     validate_freeze_manifest,
 )
 
@@ -110,6 +112,7 @@ def _manifest(tmp_path):
     reports.mkdir(exist_ok=True)
     (reports / "arm-protocol.md").write_text("protocol\n", encoding="utf-8")
     (reports / "arm-result.md").write_text("result\n", encoding="utf-8")
+    artifacts = _write_required_artifacts(tmp_path)
     inventory = report_inventory(tmp_path)
     manifest = {
         "protocol_id": PROTOCOL_ID,
@@ -139,7 +142,7 @@ def _manifest(tmp_path):
             }
             for name in ("component", "position", "cbwu")
         ],
-        "artifacts": [],
+        "artifacts": artifacts,
         "report_inventory": inventory,
         "protocol_exclusions": [],
         "result_exclusions": [],
@@ -172,6 +175,16 @@ def _manifest(tmp_path):
     }
     manifest["manifest_sha256"] = manifest_digest(manifest)
     return manifest
+
+
+def _write_required_artifacts(tmp_path):
+    artifacts = []
+    for relative in REQUIRED_FORENSIC_ARTIFACT_PATHS:
+        path = tmp_path / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(f"fixture for {relative}\n", encoding="utf-8")
+        artifacts.append({"path": relative, "sha256": sha256_file(path)})
+    return artifacts
 
 
 def _warehouse_retention():
@@ -246,6 +259,14 @@ def test_freeze_manifest_rejects_mutated_self_digest(tmp_path):
         validate_freeze_manifest(bad, repo_root=tmp_path)
 
 
+def test_freeze_manifest_rejects_unpinned_required_artifact(tmp_path):
+    manifest = _manifest(tmp_path)
+    manifest["artifacts"] = manifest["artifacts"][1:]
+    manifest["manifest_sha256"] = manifest_digest(manifest)
+    with pytest.raises(FreezeManifestError, match="not pinned"):
+        validate_freeze_manifest(manifest, repo_root=tmp_path)
+
+
 def test_freeze_manifest_rejects_short_or_mutated_warehouse_retention(tmp_path):
     manifest = _manifest(tmp_path)
     manifest["warehouse_retention"]["retention_days"] = 30
@@ -283,6 +304,7 @@ def test_build_freeze_manifest_expands_reviewed_registry(tmp_path):
         "]",
         encoding="utf-8",
     )
+    _write_required_artifacts(tmp_path)
     production = {
         "policy_id": "policy",
         "fallback_policy_id": "fallback",
@@ -319,3 +341,6 @@ def test_build_freeze_manifest_expands_reviewed_registry(tmp_path):
     assert manifest["arm_ledger"][0]["operator_override"] == "none"
     assert manifest["arm_ledger"][0]["execution_ids"] == []
     assert manifest["manifest_sha256"] == manifest_digest(manifest)
+    artifact_paths = {row["path"] for row in manifest["artifacts"]}
+    assert set(REQUIRED_FORENSIC_ARTIFACT_PATHS) <= artifact_paths
+    assert "reports/registry.json" in artifact_paths

@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 12:13 CDT
+## Current state — 2026-08-14 12:43 CDT
 
 ### 2026-08-14 final-forensic queryable corpus retention frozen outcome-free
 
@@ -84,8 +84,15 @@ agent or developer:
   census, the contest-choice evidence gap and the pre-Week-1 operations blocker
   fill the four previously empty taxonomy families without fabricating a new
   experiment or result.
+- The freeze now hash-pins every non-Markdown input/evidence artifact that the
+  analyzer consumes or cites: both contest-score CSVs plus the terminal G0,
+  G1, effective-rank, multi-seed candidate-world, selector-resampling and
+  pass-tail JSON reports. The validator rejects an omitted or duplicate
+  artifact path and the builder refuses a missing file. This closes a
+  provenance hole that otherwise could have allowed the retained corpus to be
+  regenerated against silently changed evidence.
 - Focused manifest, H/P/C/S, corpus, cleanup, output-builder and multi-seed
-  validation passes 26 tests; Python compilation and whitespace validation pass. The
+  validation passes 27 tests; Python compilation and whitespace validation pass. The
   exact-80 corpus test proves 80 ordered selections and four independently
   legal H/P/C/S rows are preserved.
 - Validation-only Cloud Builds are terminal success:
@@ -109,6 +116,11 @@ agent or developer:
 - The subsequent live STRING/list schema correction changes analyzer code and
   makes both in-flight builds validation-only. Commit it and launch one final
   superseding full build; do not freeze `a8ca7b5` or either in-flight digest.
+- The required-artifact pinning above is one final analyzer-code correction;
+  builds `739bd75d-ea0d-419c-91ea-14131950234b` and
+  `cda141a1-e20a-4a62-bafe-c900eeb3e6b7` remain validation-only even if they
+  succeed. The eventual freeze image must be built from the commit containing
+  this correction.
 - Next concrete action: commit/push this outcome-free extension, run the full
   exact-commit Cloud Build, create/verify the isolated dataset, then create and
   commit the freeze inputs/manifest pinned to that digest and these four table

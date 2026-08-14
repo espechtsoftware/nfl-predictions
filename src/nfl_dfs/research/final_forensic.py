@@ -50,6 +50,34 @@ REQUIRED_MECHANISM_FAMILIES = (
     "data_and_pit_integrity",
     "operations",
 )
+REQUIRED_FORENSIC_ARTIFACT_PATHS = (
+    "reports/milly-winners-2019-2023-2024.csv",
+    "reports/2025-milly-winners.csv",
+    (
+        "reports/g0-dependence-runs/"
+        "20260812-g0-final-served-dependence-v2/report.json"
+    ),
+    (
+        "reports/g1-topology-runs/"
+        "20260812-g1-archetype-topology-v3/report.json"
+    ),
+    (
+        "reports/portfolio-effective-rank-runs/"
+        "20260813-incumbent-effective-rank-v2/report.json"
+    ),
+    (
+        "reports/multiseed-candidate-world-runs/"
+        "20260813-multiseed-candidate-world-v1/report.json"
+    ),
+    (
+        "reports/selector-resampling-runs/"
+        "20260814-selector-resampling-v1/report.json"
+    ),
+    (
+        "reports/tabpfn-sis-pass-tail-runs/"
+        "20260814-sis-pass-tail-exact80-v1/report.json"
+    ),
+)
 WAREHOUSE_TABLE_SCHEMAS = {
     "player_corpus": [
         {"name": "manifest_sha256", "type": "STRING", "mode": "REQUIRED"},
@@ -316,6 +344,13 @@ def build_freeze_manifest(
         ledger.append(row)
 
     artifact_path = source.relative_to(root).as_posix()
+    artifact_paths = (artifact_path, *REQUIRED_FORENSIC_ARTIFACT_PATHS)
+    artifacts = []
+    for path in dict.fromkeys(artifact_paths):
+        artifact = root / path
+        if not artifact.is_file():
+            raise FreezeManifestError(f"missing required artifact: {path}")
+        artifacts.append({"path": path, "sha256": sha256_file(artifact)})
     manifest: dict[str, Any] = {
         "protocol_id": PROTOCOL_ID,
         "analysis_image": analysis_image,
@@ -324,7 +359,7 @@ def build_freeze_manifest(
         "production": dict(production),
         "panels": [dict(panel) for panel in panels],
         "warehouse_retention": dict(warehouse_retention),
-        "artifacts": [{"path": artifact_path, "sha256": sha256_file(source)}],
+        "artifacts": artifacts,
         "report_inventory": report_inventory(root),
         "protocol_exclusions": [{
             "path": "reports/2026-08-11-final-preseason-forensic-closure-protocol.md",
@@ -419,6 +454,19 @@ def validate_freeze_manifest(
     ):
         if not str(production.get(key, "")).strip():
             failures.append(f"production.{key} is missing")
+
+    artifacts = manifest.get("artifacts", [])
+    artifact_paths = [str(row.get("path", "")) for row in artifacts]
+    if len(artifact_paths) != len(set(artifact_paths)):
+        failures.append("artifact inventory repeats paths")
+    missing_artifacts = set(REQUIRED_FORENSIC_ARTIFACT_PATHS) - set(
+        artifact_paths
+    )
+    if missing_artifacts:
+        failures.append(
+            "required forensic artifacts are not pinned: "
+            f"{sorted(missing_artifacts)}"
+        )
 
     outputs = manifest.get("analysis_contract", [])
     output_ids = [str(item.get("id", "")) for item in outputs]
@@ -831,6 +879,7 @@ __all__ = [
     "FreezeManifestError",
     "LEDGER_STATUSES",
     "PROTOCOL_ID",
+    "REQUIRED_FORENSIC_ARTIFACT_PATHS",
     "REQUIRED_MECHANISM_FAMILIES",
     "REQUIRED_OUTPUTS",
     "TAILS",
