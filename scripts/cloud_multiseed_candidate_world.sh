@@ -38,7 +38,9 @@ printf '%s\n' \
   "source_arm=$SOURCE" \
   "protocol_sha256=$(sha256sum "$PROTOCOL" | awk '{print $1}')" \
   "phase_s_report_sha256=$(sha256sum "$REPORT" | awk '{print $1}')" \
-  'arms=C0W0 C0WU CUW0 CUWU' 'entries=80' 'worlds_per_seed=10000' \
+  'arms=C0W0 C0WU CUW0 CUWU' 'confirmation_arms=CBW0 CBWU' \
+  'proper_scores=q95 q99 weekly-selected-book-maximum' \
+  'entries=80' 'worlds_per_seed=10000' \
   'replicates=R0 R1 R2 R3 R4' > "$OUT/manifest.txt"
 
 JOB=analyze-multiseed-candidate-world-v1

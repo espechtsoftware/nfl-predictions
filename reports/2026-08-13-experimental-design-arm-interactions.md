@@ -317,6 +317,26 @@ it was never designed to produce.
 
 ## Amendment log
 
+**2026-08-13 (second amendment).** Review of this report identified a further
+error, accepted in full: the "eight marginal arms" list both miscounts (nine
+items are named) and **conflates channels — the exact error this report argues
+against.** Route Share components was primarily a rank/copula intervention
+after TabPFN remapping; fitted-K is a within-team allocation/dependence law;
+fast-role included a candidate-belief generation mechanism. Only the remaining
+feature/cache arms varied player marginals. **No pooled "eight-arm marginal
+failure" conclusion is valid.** The corrected diagnosis below — that most arms
+never improved the served upper tail — survives only for the arms that
+genuinely varied marginals, and may not be asserted over the whole list.
+
+Two consequences: the claim that "only the marginal-channel arm is new" in
+"A cheaper diagnostic" is **wrong** — the historical Route component result
+predates the repaired allocation and active-only cache lineage and cannot
+populate a current-stack copula cell, so **both** cells of that comparison must
+be run. And the tail table below mixes raw exceedance (a calibration statistic)
+with pinball losses (a proper score) as one evidence class; pinball should carry
+the argument. Full detail:
+`reports/2026-08-13-multiseed-factorial-implementation-review.md` §1.
+
 **2026-08-13.** Section "Interaction 1" retracted as originally written and
 replaced by "Retraction and corrected diagnosis." The claim that a weak copula
 makes marginal improvement impossible was wrong; the effect is on leverage, not

@@ -17,6 +17,7 @@ from nfl_dfs.bq import query_df  # noqa: E402
 from nfl_dfs.config import settings  # noqa: E402
 from nfl_dfs.research.multiseed_candidate_world import (  # noqa: E402
     ARMS, evaluate_factorial_slate, summarize_factorial,
+    summarize_standalone_seed_books,
 )
 from nfl_dfs.research.portfolio_effective_rank import (  # noqa: E402
     decode_score_artifact,
@@ -99,9 +100,25 @@ def _compact_slate(season: int, week: int, result: dict) -> dict:
         arms[arm]["selected_delta_c0w0"] = float(
             value["selected_best"] - incumbent
         )
+    standalone = {
+        seed: {
+            key: val for key, val in value.items()
+            if key != "selected_rosters"
+        }
+        for seed, value in result["standalone_seed_books"].items()
+    }
+    confirmation = {
+        arm: {
+            key: val for key, val in value.items()
+            if key != "selected_rosters"
+        }
+        for arm, value in result["fixed_budget_confirmation"].items()
+    }
     return {
         "season": season, "week": week,
         "novel_candidates_by_seed": result["novel_candidates_by_seed"],
+        "standalone_seed_books": standalone,
+        "fixed_budget_confirmation": confirmation,
         "arms": arms,
     }
 
@@ -175,6 +192,8 @@ def main() -> int:
     }
     if not failures:
         summary = summarize_factorial(full_results)
+        summary["standalone_seed_noise_floor"] = \
+            summarize_standalone_seed_books(full_results)
         summary["weekly_deltas_at_least_10"] = [
             {
                 "season": slate["season"], "week": slate["week"],

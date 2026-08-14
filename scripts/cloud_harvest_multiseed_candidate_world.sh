@@ -28,5 +28,10 @@ import sys
 r = json.load(open(sys.argv[1], encoding="utf-8"))
 if not r.get("mechanical_passes") or r.get("failures"):
     raise SystemExit("ABORT: multi-seed mechanical audit did not pass")
-print("MULTISEED_CANDIDATE_WORLD_HARVESTED", r["result"]["selected_arm"])
+result = r["result"]
+print(
+    "MULTISEED_CANDIDATE_WORLD_HARVESTED",
+    f"research={result['selected_arm']}",
+    f"production={result['final_production_arm']}",
+)
 PY

@@ -26,5 +26,5 @@ k 3 2023 20260813-game-team-k-r3-v1 replay-gtrk3-2023 replay-gtrk3-2023-6t2q9
 k 3 2024 20260813-game-team-k-r3-v1 replay-gtrk3-2024 replay-gtrk3-2024-qsbql
 k 3 2025 20260813-game-team-k-r3-v1 replay-gtrk3-2025 replay-gtrk3-2025-kmz7l
 k 4 2023 20260813-game-team-k-r4-v1 replay-gtrk4-2023 replay-gtrk4-2023-pkbvk
-k 4 2024 20260813-game-team-k-r4-v1 replay-gtrk4-2024 replay-gtrk4-2024-rp575
-k 4 2025 20260813-game-team-k-r4-v1 replay-gtrk4-2025 replay-gtrk4-2025-ftflh
+k 4 2024 20260813-game-team-k-r4-v1 replay-gtrk4-2024 replay-gtrk4-2024-rdpd4
+k 4 2025 20260813-game-team-k-r4-v1 replay-gtrk4-2025 replay-gtrk4-2025-66fnq

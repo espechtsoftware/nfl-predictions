@@ -5,6 +5,16 @@ were read. This is the follow-on promised in the separately frozen game-team
 usage/ASOE protocol. It is not part of either Phase R or Phase S and cannot
 change either decision.
 
+**Prospective amendment:** 2026-08-13, after implementation review but still
+before any Phase R/Phase S score was read and before this analyzer was
+launched. In addition to the four cells, report all five native seed books as
+a seed-noise envelope and q95/q99 pinball for each book's simulated weekly
+maximum. The larger `CU` candidate universe is explicitly an added-pool-budget
+discovery arm and cannot be adopted without the prospectively specified
+fixed-budget confirmation below. The clean world-policy comparison is
+`C0W0` versus `C0WU`. These additions do not change the four factorial cells,
+registered seeds, tail-first ordering, or selector.
+
 ## Question
 
 The incumbent seed audit found large search sensitivity and only 12.21/80
@@ -70,6 +80,24 @@ incumbent comparator. Cross-seed roster scoring always sums player draws in
 the destination world block; it never reuses a candidate's native totals as
 if different seeds shared worlds.
 
+### Fixed-candidate-budget confirmation
+
+Also construct one score-blind candidate set `CB` at exactly the R0 candidate
+count for that slate. After the same exact-roster deduplication, bucket each
+candidate by the first seed that supplied it. Allocate `floor(B/5)` candidates
+to every seed, where `B` is the R0 candidate count, and allocate the first
+`B mod 5` remainder slots to R0, R1, and so on. Within each seed take canonical
+native `cand_ix` order. If a source has fewer than its quota, fill the deficit
+one candidate at a time from the still-available R0--R4 buckets in that fixed
+order until the set has exactly `B` candidates. No realized or simulated score
+enters this allocation.
+
+Evaluate `CBW0` in R0 worlds and `CBWU` in concatenated R0--R4 worlds. These
+are a predeclared confirmatory sub-analysis, not extra factorial cells. They
+remove the best-of-a-larger-pool advantage while retaining multiple candidate
+searches. Run and report both regardless of which four-cell arm wins, but bind
+their production verdict only if a `CU` research arm wins.
+
 ## Frozen evaluation and decision
 
 For every arm report selected weekly-best and candidate-pool-oracle counts at
@@ -77,23 +105,53 @@ For every arm report selected weekly-best and candidate-pool-oracle counts at
 selected overlap versus `C0W0`, all weekly deltas of at least ten points,
 and per-season diagnostics. Also report candidate novelty by source seed and
 the score-free simulated world-coverage diagnostics for the selected books.
+For each arm, treat the maximum across its 80 selected lineups in each
+simulated world as the forecast distribution for that slate's selected-book
+maximum; report q95 and q99 pinball against the realized selected-book maximum.
+These proper scores are diagnostics and do not enter the tail-first decision.
+
+Also report the five native books `R0`--`R4`, each selected in its own 10,000
+worlds from its own candidates: the same seven-threshold grid, mean and median
+weekly best, q95/q99 pinball, the min--max threshold-count envelope, and mean
+pairwise selected-roster overlap across all ten seed pairs. This is the
+prospective seed-noise floor for interpreting this factorial and future arms.
+It cannot retroactively re-adjudicate a closed arm.
 
 Rank the four arms lexicographically by the summed selected weekly-best counts
 over all 54 slates at `240,230,220,210,200,194,187` in that exact order. If all
 seven counts tie, use higher mean across the 54 weekly maxima. Exact remaining
 ties use this fixed least-change order: `C0W0`, `C0WU`, `CUW0`, `CUWU`.
 
-The winning arm becomes the multi-seed research/production policy. There is
-no average-score or individual-season veto, matching the operator's stated
-tail-first utility. Per-season splits and a 2,000-resample slate-clustered
-bootstrap (seed `8,132,027`) are diagnostics only and cannot override the
-choice. No seed subset, weighting, selector threshold, candidate cap, or
-alternative tie break may be tried on these realized outcomes.
+The four-arm winner is the multi-seed research conclusion. The separate
+production-eligible comparison below controls whether world union can ship.
+There is no average-score or individual-season veto, matching the operator's
+stated tail-first utility. Per-season splits and a 2,000-resample slate-
+clustered bootstrap (seed `8,132,027`) are diagnostics only and cannot override
+either frozen ranking. No seed subset, weighting, selector threshold,
+candidate cap, or alternative tie break may be tried on these realized
+outcomes.
+
+For interpretation, report the candidate main effect at each world setting,
+the world main effect at each candidate setting, and the difference-in-
+differences interaction. The roughly five-times-larger `CU` pool confounds its
+main effect with added candidate budget. The interaction substantially cancels
+that shared pool-size advantage, so it remains the headline scientific
+contrast, but neither `CUW0` nor `CUWU` is immediately production-eligible.
+If the research winner is a `CU` arm, it activates the prospectively frozen
+fixed-candidate-budget confirmation and otherwise leaves candidate generation
+unchanged. That confirmation is already specified above to avoid a post-hoc
+construction choice. Independently, rank `C0W0` versus `C0WU` by the same
+frozen tail-first law; that winner determines the production world setting.
+At that setting, rank its `C0` book against the corresponding `CB` book by the
+same law, with the `C0` book first in the exact-tie order. The `CB` verdict is
+binding only when a `CU` arm won the research factorial.
 
 ## Production implication
 
-If an all-seed arm wins, live generation must complete all five registered
-seed searches before selection, fail closed if any search/world artifact is
-missing, deduplicate by exact roster, and still export exactly 80 entries. If
-`C0W0` wins, retain the single-seed policy. This experiment does not authorize
-using current-week results or any post-lock data in a live slate.
+If the clean comparison selects the `WU` setting, live selection must complete
+all five registered world simulations and fail closed if any world artifact is
+missing. If a `CU` research winner is followed by a winning `CB` confirmation,
+live candidate generation uses the same fixed total candidate count and the
+same five-seed quota/fill contract; otherwise it retains R0 candidates. Every
+case still exports exactly 80 entries. This experiment does not authorize using
+current-week results or any post-lock data in a live slate.

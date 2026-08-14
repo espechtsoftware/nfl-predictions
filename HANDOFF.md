@@ -20,7 +20,49 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 20:30 CDT
+## Current state — 2026-08-13 20:54 CDT
+
+### 2026-08-13 multi-seed implementation review incorporated prospectively
+
+- The outside review is tracked at
+  `reports/2026-08-13-multiseed-factorial-implementation-review.md`. Its four
+  corrections to the interaction-design report are accepted, and that source
+  now carries the correction in its own amendment log. No Phase R/Phase S
+  score or multi-seed outcome was read before making these changes.
+- The not-yet-launched multi-seed artifact analyzer now reports all five native
+  seed books, the seven-threshold min/max seed-noise envelope, all ten
+  pairwise selected-book overlaps, and q95/q99 pinball for the simulated
+  weekly selected-book maximum. It also reports candidate/world main effects
+  and the difference-in-differences interaction.
+- The four-cell `CU` candidate factor is explicitly added-pool-budget discovery
+  evidence. To eliminate a later post-hoc construction choice, the protocol
+  prospectively defines and the analyzer implements `CBW0`/`CBWU`: exactly the
+  R0 candidate count, near-equal deterministic R0--R4 source quotas, canonical
+  candidate order, and deterministic deficit filling. The clean `C0W0` versus
+  `C0WU` result chooses the world setting; if and only if a `CU` research arm
+  wins, the corresponding fixed-budget `CB` comparison may change production
+  candidate generation. All books still select exactly 80 final lineups.
+- Focused multi-seed/artifact/persistence validation passes (33 tests). Build a
+  superseding full-test immutable image from the committed milestone before
+  Phase S so the strengthened analyzer and its player-world contract share one
+  image. The prior `e6ba5e2...` image remains a valid simulation build but does
+  not contain this prospective analyzer amendment.
+- Full score-blind Phase R polling found that K-law R4/2024
+  `replay-gtrk4-2024-rp575` and R4/2025 `replay-gtrk4-2025-ftflh` ended with
+  Cloud Run internal platform errors after reported exit code 0. Exact
+  season-level completeness checks showed zero 2024/2025 candidate rows,
+  feature rows, or score-artifact rows; the panel's existing rows are only the
+  successful 2023 season. One byte-identical retry per failed execution is
+  running as `replay-gtrk4-2024-rdpd4` and
+  `replay-gtrk4-2025-66fnq`, both on the registered digest
+  `sha256:4c59f038...`. The active execution list and durable infrastructure
+  retry ledger are updated. Current Phase R status is 28 clean successes and
+  two active retries; no partial lineup score was queried.
+- Exact next action: commit/push this milestone, launch the superseding full
+  Cloud Build, continue status-only Phase R polling, run its guarded frozen
+  finisher/harvester at 30 clean successes, then launch Phase S with the new
+  digest/code identity and proceed to the strengthened artifact-only
+  multi-seed analysis after Phase S.
 
 ### 2026-08-13 interaction-design review reconciled before Phase R/S outcomes
 

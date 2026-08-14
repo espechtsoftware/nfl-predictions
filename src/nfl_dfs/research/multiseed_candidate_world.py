@@ -11,8 +11,11 @@ from ..optimizer.lineup import select_from_support
 
 
 ARMS = ("C0W0", "C0WU", "CUW0", "CUWU")
+CONFIRMATION_ARMS = ("CBW0", "CBWU")
 TAILS = (240, 230, 220, 210, 200, 194, 187)
 LEAST_CHANGE_ORDER = ARMS
+PRODUCTION_ELIGIBLE_ARMS = ("C0W0", "C0WU")
+PROPER_SCORE_QUANTILES = (0.95, 0.99)
 
 
 def canonical_roster(value: str) -> str:
@@ -20,6 +23,73 @@ def canonical_roster(value: str) -> str:
     if len(ids) != 9 or len(set(ids)) != 9:
         raise ValueError("candidate roster must contain nine unique player ids")
     return ",".join(sorted(ids))
+
+
+def _pinball(actual: np.ndarray, predicted: np.ndarray, level: float) -> float:
+    residual = actual - predicted
+    return float(np.mean(np.maximum(level * residual, (level - 1.0) * residual)))
+
+
+def _evaluate_book(
+    frame: pd.DataFrame,
+    matrix: np.ndarray,
+    picked: Sequence[int],
+    seeds: Sequence[int],
+) -> dict:
+    selected = frame.iloc[list(picked)]
+    selected_matrix = matrix[list(picked)]
+    simulated_weekly_best = selected_matrix.max(axis=0)
+    return {
+        "candidate_count": int(len(frame)),
+        "world_count": int(matrix.shape[1]),
+        "selected_rosters": selected.roster_key.tolist(),
+        "selected_best": float(selected.actual_score.max()),
+        "oracle_best": float(frame.actual_score.max()),
+        "selected_from_seed": {
+            f"R{seed}": int(selected.source_seed.eq(seed).sum())
+            for seed in seeds
+        },
+        "simulated_coverage": {
+            str(tail): float((selected_matrix >= tail).any(axis=0).mean())
+            for tail in TAILS
+        },
+        "simulated_weekly_best_quantile": {
+            str(level): float(np.quantile(simulated_weekly_best, level))
+            for level in PROPER_SCORE_QUANTILES
+        },
+    }
+
+
+def _fixed_budget_records(
+    union_records: Sequence[tuple[int, int, str, float]],
+    seeds: Sequence[int],
+    budget: int,
+) -> list[tuple[int, int, str, float]]:
+    """Take a score-blind near-equal source quota at the R0 pool budget."""
+    by_seed = {
+        seed: [record for record in union_records if record[0] == seed]
+        for seed in seeds
+    }
+    base_quota, remainder = divmod(budget, len(seeds))
+    chosen: list[tuple[int, int, str, float]] = []
+    used = {seed: 0 for seed in seeds}
+    for seed_index, seed in enumerate(seeds):
+        quota = base_quota + int(seed_index < remainder)
+        take = min(quota, len(by_seed[seed]))
+        chosen.extend(by_seed[seed][:take])
+        used[seed] = take
+    while len(chosen) < budget:
+        advanced = False
+        for seed in seeds:
+            if used[seed] < len(by_seed[seed]):
+                chosen.append(by_seed[seed][used[seed]])
+                used[seed] += 1
+                advanced = True
+                if len(chosen) == budget:
+                    break
+        if not advanced:
+            raise ValueError("union cannot fill the fixed candidate budget")
+    return chosen
 
 
 def validate_and_cross_score_slate(
@@ -139,12 +209,15 @@ def evaluate_factorial_slate(
             added += 1
         novelty[f"R{seed}"] = added
 
-    def build(candidate_union: bool, world_union: bool) -> tuple[pd.DataFrame, np.ndarray]:
-        records = (
-            union_records
-            if candidate_union
-            else [record for record in union_records if record[0] == base]
-        )
+    base_records = [record for record in union_records if record[0] == base]
+    fixed_budget_records = _fixed_budget_records(
+        union_records, seeds, len(base_records)
+    )
+
+    def build(
+        records: Sequence[tuple[int, int, str, float]],
+        world_union: bool,
+    ) -> tuple[pd.DataFrame, np.ndarray]:
         world_seeds = seeds if world_union else [base]
         blocks = []
         for world_seed in world_seeds:
@@ -160,35 +233,140 @@ def evaluate_factorial_slate(
         })
         return frame, matrix
 
-    output = {"novel_candidates_by_seed": novelty, "arms": {}}
+    output = {
+        "novel_candidates_by_seed": novelty,
+        "standalone_seed_books": {},
+        "arms": {},
+        "fixed_budget_confirmation": {},
+    }
+    for seed in seeds:
+        frame = canonical[seed].copy()
+        frame["source_seed"] = seed
+        matrix = cross[(seed, seed)]
+        picked = frame[
+            frame.selected.fillna(False).astype(bool)
+        ].sort_values("selected_rank", kind="stable").cand_ix.astype(int).tolist()
+        output["standalone_seed_books"][f"R{seed}"] = _evaluate_book(
+            frame, matrix, picked, seeds
+        )
     for arm in ARMS:
-        frame, matrix = build("CU" in arm, "WU" in arm)
+        records = union_records if "CU" in arm else base_records
+        frame, matrix = build(records, "WU" in arm)
         clears = matrix >= 194.0
         picked = select_from_support(
             clears, clears.mean(axis=1), matrix.mean(axis=1), entry_count
         )
-        selected = frame.iloc[picked]
-        selected_matrix = matrix[picked]
-        output["arms"][arm] = {
-            "candidate_count": int(len(frame)),
-            "world_count": int(matrix.shape[1]),
-            "selected_rosters": selected.roster_key.tolist(),
-            "selected_best": float(selected.actual_score.max()),
-            "oracle_best": float(frame.actual_score.max()),
-            "selected_from_seed": {
-                f"R{seed}": int(selected.source_seed.eq(seed).sum())
-                for seed in seeds
-            },
-            "simulated_coverage": {
-                str(tail): float((selected_matrix >= tail).any(axis=0).mean())
-                for tail in TAILS
-            },
-        }
+        output["arms"][arm] = _evaluate_book(
+            frame, matrix, picked, seeds
+        )
+    for arm in CONFIRMATION_ARMS:
+        frame, matrix = build(fixed_budget_records, "WU" in arm)
+        clears = matrix >= 194.0
+        picked = select_from_support(
+            clears, clears.mean(axis=1), matrix.mean(axis=1), entry_count
+        )
+        output["fixed_budget_confirmation"][arm] = _evaluate_book(
+            frame, matrix, picked, seeds
+        )
     incumbent = set(output["arms"]["C0W0"]["selected_rosters"])
     for arm in ARMS:
         rosters = set(output["arms"][arm]["selected_rosters"])
         output["arms"][arm]["selected_overlap_c0w0"] = len(rosters & incumbent)
+    for arm in CONFIRMATION_ARMS:
+        comparator = "C0WU" if "WU" in arm else "C0W0"
+        rosters = set(output["fixed_budget_confirmation"][arm]["selected_rosters"])
+        comparison_rosters = set(output["arms"][comparator]["selected_rosters"])
+        output["fixed_budget_confirmation"][arm][
+            f"selected_overlap_{comparator.lower()}"
+        ] = len(rosters & comparison_rosters)
     return output
+
+
+def _book_metrics(slates: Sequence[dict], key: str, book: str) -> dict:
+    best = np.asarray([slate[key][book]["selected_best"] for slate in slates])
+    oracle = np.asarray([slate[key][book]["oracle_best"] for slate in slates])
+    metrics = {
+        "selected_tail": {str(t): int((best >= t).sum()) for t in TAILS},
+        "oracle_tail": {str(t): int((oracle >= t).sum()) for t in TAILS},
+        "selected_mean": float(best.mean()),
+        "selected_median": float(np.median(best)),
+        "candidate_count_mean": float(np.mean([
+            slate[key][book]["candidate_count"] for slate in slates
+        ])),
+    }
+    metrics["selected_weekly_best_pinball"] = {
+        str(level): _pinball(
+            best,
+            np.asarray([
+                slate[key][book]["simulated_weekly_best_quantile"][str(level)]
+                for slate in slates
+            ]),
+            level,
+        )
+        for level in PROPER_SCORE_QUANTILES
+    }
+    return metrics
+
+
+def summarize_standalone_seed_books(slates: Sequence[dict]) -> dict:
+    if not slates:
+        raise ValueError("standalone result has no slates")
+    seeds = tuple(sorted(slates[0]["standalone_seed_books"]))
+    metrics = {
+        seed: _book_metrics(slates, "standalone_seed_books", seed)
+        for seed in seeds
+    }
+    pairwise_overlap = {}
+    overlap_values = []
+    for left_index, left in enumerate(seeds):
+        for right in seeds[left_index + 1:]:
+            values = [
+                len(
+                    set(slate["standalone_seed_books"][left]["selected_rosters"])
+                    & set(slate["standalone_seed_books"][right]["selected_rosters"])
+                )
+                for slate in slates
+            ]
+            pairwise_overlap[f"{left}_{right}"] = float(np.mean(values))
+            overlap_values.extend(values)
+    return {
+        "metrics": metrics,
+        "tail_count_envelope": {
+            str(tail): {
+                "min": int(min(
+                    metrics[seed]["selected_tail"][str(tail)]
+                    for seed in seeds
+                )),
+                "max": int(max(
+                    metrics[seed]["selected_tail"][str(tail)]
+                    for seed in seeds
+                )),
+                "range": int(
+                    max(metrics[seed]["selected_tail"][str(tail)] for seed in seeds)
+                    - min(metrics[seed]["selected_tail"][str(tail)] for seed in seeds)
+                ),
+            }
+            for tail in TAILS
+        },
+        "selected_mean_envelope": {
+            "min": float(min(metrics[seed]["selected_mean"] for seed in seeds)),
+            "max": float(max(metrics[seed]["selected_mean"] for seed in seeds)),
+            "range": float(
+                max(metrics[seed]["selected_mean"] for seed in seeds)
+                - min(metrics[seed]["selected_mean"] for seed in seeds)
+            ),
+        },
+        "selected_median_envelope": {
+            "min": float(min(metrics[seed]["selected_median"] for seed in seeds)),
+            "max": float(max(metrics[seed]["selected_median"] for seed in seeds)),
+            "range": float(
+                max(metrics[seed]["selected_median"] for seed in seeds)
+                - min(metrics[seed]["selected_median"] for seed in seeds)
+            ),
+        },
+        "pairwise_selected_overlap_mean": float(np.mean(overlap_values)),
+        "pairwise_selected_overlap_by_pair": pairwise_overlap,
+    }
 
 
 def summarize_factorial(slates: Sequence[dict]) -> dict:
@@ -196,28 +374,39 @@ def summarize_factorial(slates: Sequence[dict]) -> dict:
         raise ValueError("factorial result has no slates")
     metrics: dict[str, dict] = {}
     for arm in ARMS:
-        best = np.asarray([slate["arms"][arm]["selected_best"] for slate in slates])
-        oracle = np.asarray([slate["arms"][arm]["oracle_best"] for slate in slates])
-        metrics[arm] = {
-            "selected_tail": {str(t): int((best >= t).sum()) for t in TAILS},
-            "oracle_tail": {str(t): int((oracle >= t).sum()) for t in TAILS},
-            "selected_mean": float(best.mean()),
-            "selected_median": float(np.median(best)),
-            "candidate_count_mean": float(np.mean([
-                slate["arms"][arm]["candidate_count"] for slate in slates
-            ])),
-            "selected_overlap_c0w0_mean": float(np.mean([
+        metrics[arm] = _book_metrics(slates, "arms", arm)
+        metrics[arm]["selected_overlap_c0w0_mean"] = float(np.mean([
                 slate["arms"][arm]["selected_overlap_c0w0"] for slate in slates
-            ])),
-        }
-    order = sorted(
-        ARMS,
-        key=lambda arm: (
-            *[-metrics[arm]["selected_tail"][str(t)] for t in TAILS],
-            -metrics[arm]["selected_mean"],
-            LEAST_CHANGE_ORDER.index(arm),
-        ),
-    )
+        ]))
+
+    def rank(eligible: Sequence[str]) -> list[str]:
+        return sorted(
+            eligible,
+            key=lambda arm: (
+                *[-metrics[arm]["selected_tail"][str(t)] for t in TAILS],
+                -metrics[arm]["selected_mean"],
+                LEAST_CHANGE_ORDER.index(arm),
+            ),
+        )
+    order = rank(ARMS)
+    production_order = rank(PRODUCTION_ELIGIBLE_ARMS)
+    confirmation_metrics = {
+        arm: _book_metrics(slates, "fixed_budget_confirmation", arm)
+        for arm in CONFIRMATION_ARMS
+    }
+
+    def rank_with_metrics(
+        eligible: Sequence[str], values: Mapping[str, dict]
+    ) -> list[str]:
+        return sorted(
+            eligible,
+            key=lambda arm: (
+                *[-values[arm]["selected_tail"][str(t)] for t in TAILS],
+                -values[arm]["selected_mean"],
+                eligible.index(arm),
+            ),
+        )
+
     incumbent = np.asarray([
         slate["arms"]["C0W0"]["selected_best"] for slate in slates
     ])
@@ -227,15 +416,67 @@ def summarize_factorial(slates: Sequence[dict]) -> dict:
             delta = float(slate["arms"][arm]["selected_best"] - incumbent[index])
             if abs(delta) >= 10.0:
                 large_deltas.append({"slate_index": index, "arm": arm, "delta": delta})
+    contrasts = {}
+    for metric_name in ("selected_mean",):
+        values = {arm: metrics[arm][metric_name] for arm in ARMS}
+        contrasts[metric_name] = {
+            "candidate_main_at_w0": values["CUW0"] - values["C0W0"],
+            "candidate_main_at_wu": values["CUWU"] - values["C0WU"],
+            "world_main_at_c0": values["C0WU"] - values["C0W0"],
+            "world_main_at_cu": values["CUWU"] - values["CUW0"],
+            "interaction": (
+                values["CUWU"] - values["CUW0"]
+                - values["C0WU"] + values["C0W0"]
+            ),
+        }
+    contrasts["selected_tail"] = {}
+    for tail in TAILS:
+        values = {arm: metrics[arm]["selected_tail"][str(tail)] for arm in ARMS}
+        contrasts["selected_tail"][str(tail)] = {
+            "candidate_main_at_w0": values["CUW0"] - values["C0W0"],
+            "candidate_main_at_wu": values["CUWU"] - values["C0WU"],
+            "world_main_at_c0": values["C0WU"] - values["C0W0"],
+            "world_main_at_cu": values["CUWU"] - values["CUW0"],
+            "interaction": (
+                values["CUWU"] - values["CUW0"]
+                - values["C0WU"] + values["C0W0"]
+            ),
+        }
+    world_union = production_order[0] == "C0WU"
+    incumbent_production = production_order[0]
+    confirmation_arm = "CBWU" if world_union else "CBW0"
+    confirmation_order = rank_with_metrics(
+        (incumbent_production, confirmation_arm),
+        {**metrics, **confirmation_metrics},
+    )
+    candidate_union_required = order[0].startswith("CU")
+    final_production_arm = (
+        confirmation_order[0]
+        if candidate_union_required
+        else incumbent_production
+    )
     return {
         "metrics": metrics,
         "selected_arm": order[0],
         "ranked_arms": order,
+        "production_selected_arm": production_order[0],
+        "production_ranked_arms": production_order,
+        "candidate_union_confirmation_required": candidate_union_required,
+        "fixed_budget_confirmation": {
+            "metrics": confirmation_metrics,
+            "applicable_arm": confirmation_arm,
+            "ranked_against_incumbent": confirmation_order,
+            "passes_if_required": confirmation_order[0] == confirmation_arm,
+        },
+        "final_production_arm": final_production_arm,
+        "factorial_contrasts": contrasts,
         "weekly_deltas_at_least_10": large_deltas,
     }
 
 
 __all__ = [
-    "ARMS", "TAILS", "canonical_roster", "evaluate_factorial_slate",
-    "summarize_factorial", "validate_and_cross_score_slate",
+    "ARMS", "CONFIRMATION_ARMS", "TAILS", "canonical_roster",
+    "evaluate_factorial_slate",
+    "summarize_factorial", "summarize_standalone_seed_books",
+    "validate_and_cross_score_slate",
 ]

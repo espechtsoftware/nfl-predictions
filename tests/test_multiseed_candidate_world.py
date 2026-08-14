@@ -7,6 +7,7 @@ from nfl_dfs.research.multiseed_candidate_world import (
     ARMS,
     evaluate_factorial_slate,
     summarize_factorial,
+    summarize_standalone_seed_books,
     validate_and_cross_score_slate,
 )
 
@@ -85,9 +86,20 @@ def test_factorial_returns_exact_books_and_equal_weight_world_union():
     rows, artifacts = _fixture()
     result = evaluate_factorial_slate(rows, artifacts, entry_count=2)
     assert set(result["arms"]) == set(ARMS)
+    assert set(result["standalone_seed_books"]) == {"R0", "R1", "R2"}
+    assert set(result["fixed_budget_confirmation"]) == {"CBW0", "CBWU"}
+    assert all(
+        len(book["selected_rosters"]) == 2
+        for book in result["standalone_seed_books"].values()
+    )
     for arm, report in result["arms"].items():
         assert len(report["selected_rosters"]) == 2
         assert report["world_count"] == (600 if "WU" in arm else 200)
+        assert set(report["simulated_weekly_best_quantile"]) == {"0.95", "0.99"}
+    assert all(
+        book["candidate_count"] == result["arms"]["C0W0"]["candidate_count"]
+        for book in result["fixed_budget_confirmation"].values()
+    )
     assert result["arms"]["C0W0"]["candidate_count"] == 3
     assert result["arms"]["CUWU"]["candidate_count"] >= 3
 
@@ -116,14 +128,53 @@ def test_tail_first_summary_and_least_change_tie_break():
                 "oracle_best": 210.0,
                 "candidate_count": 3,
                 "selected_overlap_c0w0": 2,
+                "simulated_weekly_best_quantile": {
+                    "0.95": 205.0,
+                    "0.99": 215.0,
+                },
             }
             for arm in ARMS
-        }
+        },
+        "fixed_budget_confirmation": {
+            arm: {
+                "selected_best": 200.0,
+                "oracle_best": 210.0,
+                "candidate_count": 3,
+                "simulated_weekly_best_quantile": {
+                    "0.95": 205.0,
+                    "0.99": 215.0,
+                },
+            }
+            for arm in ("CBW0", "CBWU")
+        },
     }
     tied = summarize_factorial([slate])
     assert tied["selected_arm"] == "C0W0"
+    assert tied["production_selected_arm"] == "C0W0"
 
     slate["arms"]["CUWU"]["selected_best"] = 241.0
     won = summarize_factorial([slate])
     assert won["selected_arm"] == "CUWU"
     assert won["metrics"]["CUWU"]["selected_tail"]["240"] == 1
+    assert won["production_selected_arm"] == "C0W0"
+    assert won["candidate_union_confirmation_required"] is True
+    assert won["final_production_arm"] == "C0W0"
+
+    slate["fixed_budget_confirmation"]["CBW0"]["selected_best"] = 242.0
+    confirmed = summarize_factorial([slate])
+    assert confirmed["final_production_arm"] == "CBW0"
+
+
+def test_standalone_seed_noise_floor_and_proper_scores():
+    rows, artifacts = _fixture()
+    result = evaluate_factorial_slate(rows, artifacts, entry_count=2)
+    summary = summarize_standalone_seed_books([result])
+    assert set(summary["metrics"]) == {"R0", "R1", "R2"}
+    assert summary["pairwise_selected_overlap_mean"] >= 0
+    assert set(summary["tail_count_envelope"]) == {
+        "240", "230", "220", "210", "200", "194", "187",
+    }
+    for seed in summary["metrics"].values():
+        scores = seed["selected_weekly_best_pinball"]
+        assert set(scores) == {"0.95", "0.99"}
+        assert all(value >= 0 for value in scores.values())
