@@ -154,6 +154,13 @@ agent or developer:
   intentionally cancelled before consuming compute, and build
   `e5588fea-857a-459a-a0a7-ed5920854212` succeeded but lacks the player-world
   payload and multi-seed analyzer, so neither may launch Phase S.
+- Final full-test build `3cea9f4e-e8b0-4649-89a7-55a8777a49a4` succeeded from
+  code `1e0bf04` and produced the only Phase S-eligible immutable image:
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:e6ba5e2ea34ac1a2206ddc3d693fb13549dac53bea5da2d27ce13d153b0720f5`.
+  Latest score-blind Phase R poll has three clean successes and 27 active
+  executions, including both platform retries, with no current failure. Once
+  all 30 succeed, finish/harvest Phase R and invoke
+  `scripts/cloud_sis_asoe_phase_s.sh` with that digest and code `1e0bf04`.
 
 ### 2026-08-13 SIS ASOE Stage A launched
 
