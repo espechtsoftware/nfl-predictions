@@ -46,6 +46,12 @@ agent or developer:
   pass-tail exact-80 experiment is completely harvested, preserving the
   one-active-historical-score-experiment discipline, and before final forensic
   closure.
+- The durable reconciliation is
+  `reports/2026-08-14-mechanism-queue-verification-reconciliation.md`. It also
+  narrows the review's capacity argument: another replay panel would contend
+  with the pass-tail cells, but the later artifact-only analyzer is a single
+  8-vCPU/32-GiB job that fits nominal quota. It remains sequential because of
+  the outcome firewall, not because quota alone makes concurrency impossible.
 - The same verification identified that a live pass-tail ledger batch could
   exist only in the working tree. The launcher now checkpoints and pushes
   `executions.txt` immediately after every provenance-verified release and
