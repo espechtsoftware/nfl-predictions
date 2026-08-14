@@ -528,5 +528,184 @@
     "gate": "Cloud deployment, vendor launchers, backups and fallback are implemented; the final authenticated 2026 Week-1 slate-to-DraftKings exact-80 rehearsal is explicitly blocked until a real upcoming slate exists.",
     "production_relevance": "mandatory operator-owned blocker before first paid Week-1 entry",
     "transfer_boundary": "Close only after one outcome-unseen slate proves acquisition, feature build, five-search CBWU transport, UI/API identity, exact draftable IDs, CSV, alerts, backup and fallback."
+  },
+  {
+    "id": "sis-rb-run-tail-marginal",
+    "family": "player_marginals_and_calibration",
+    "stage": "adaptive cache and score-free final-served tail gate",
+    "status": "rejected",
+    "protocol_paths": ["reports/2026-08-14-sis-run-tail-marginal-protocol.md"],
+    "result_paths": [
+      "reports/2026-08-14-sis-run-tail-cache-result.md",
+      "reports/2026-08-14-sis-run-tail-final-served-result.md"
+    ],
+    "execution_ids": [
+      "tabpfn-sis-rb-runtail-v1-control-7p9f7",
+      "tabpfn-sis-rb-runtail-v1-treatment-s6p4d",
+      "tabpfn-sis-rb-runtail-final-served-v1-prrtg"
+    ],
+    "gate": "The non-redundant SIS run-defense Boom/Bust treatment passed cache integrity but worsened both registered q95/q99 tail proper scores; the SIS marginal-feature channel is closed on this historical panel.",
+    "operator_override": "none",
+    "cloud_cost_status": "Three immutable Cloud Run executions; exact durations and images are in the cited results.",
+    "production_relevance": "none; genuinely distinct future allocation/copula use remains prospective",
+    "transfer_boundary": "No lower-priority SIS field may be retried merely as another TabPFN marginal column, and the conditional exact-80 branch expired."
+  },
+  {
+    "id": "td-ledger-rank-coupling-repaired-path",
+    "family": "game_and_player_dependence",
+    "stage": "score-free repaired-path rank coupling",
+    "status": "invalid_unadjudicated",
+    "protocol_paths": ["reports/2026-08-14-td-ledger-rank-coupling-protocol.md"],
+    "result_paths": ["reports/2026-08-14-td-ledger-rank-coupling-result.md"],
+    "execution_ids": ["td-ledger-rank-coupling-v1-d9zdr"],
+    "gate": "The treatment preserved marginals, but the repaired current-path control could not reproduce stale pre-allocation-unit G0/G1 references; exact-80 was not licensed. Diagnostics additionally show a global positive coupling is wrong-signed for several current-path cells.",
+    "operator_override": "none",
+    "cloud_cost_status": "One immutable Cloud Run execution; 22m25.91s in the cited result.",
+    "production_relevance": "none; establishes the pre-repair/post-repair evidence boundary",
+    "transfer_boundary": "Do not present pre-repair G0/G1 deficits as current-path validation or use the invalid diagnostics as an adoption result."
+  },
+  {
+    "id": "td-competitive-wr-allocation",
+    "family": "game_and_player_dependence",
+    "stage": "repaired reference plus centered competitive-WR score-free gate",
+    "status": "invalid_unadjudicated",
+    "protocol_paths": ["reports/2026-08-14-td-competitive-wr-allocation-protocol.md"],
+    "result_paths": [
+      "reports/2026-08-14-td-competitive-wr-reference-result.md",
+      "reports/2026-08-14-td-competitive-wr-allocation-result.md"
+    ],
+    "execution_ids": [
+      "td-competitive-wr-reference-v1-2trhj",
+      "td-competitive-wr-allocation-v1-k46pl"
+    ],
+    "gate": "Stage R passed, but Stage T failed frozen reproduction invariants and is invalid. Every disclosed frozen direction was adverse: variogram and joint-q90 Brier worsened, all G0/G1 improvement gates were false, and the ungated multiplicity >=4 diagnostic moved away from realized dependence.",
+    "operator_override": "none",
+    "cloud_cost_status": "Two immutable Cloud Run executions; identities and hashes are in the cited results.",
+    "production_relevance": "none; future rank-permutation mechanisms inherit the order-invariant validation lesson",
+    "transfer_boundary": "Invalid means scientifically unadjudicated, but it must not be described as promising; no same-outcome repair, exact-80 run or composition is licensed."
+  },
+  {
+    "id": "te-qb-hub-prerequisite",
+    "family": "game_and_player_dependence",
+    "stage": "pre-run repaired-path prerequisite audit",
+    "status": "not_run_prerequisite_failed",
+    "protocol_paths": [],
+    "result_paths": [],
+    "supporting_paths": [
+      "reports/2026-08-14-te-qb-hub-prerequisite-audit.md",
+      "reports/2026-08-14-td-wr-and-te-closure-review.md"
+    ],
+    "execution_ids": [],
+    "gate": "No stable repaired-path QB-to-TE deficit, supported TE-to-TE competitive structure or passed WR prerequisite exists, so a TE-only historical rank treatment was not licensed.",
+    "operator_override": "none",
+    "cloud_cost_status": "No cloud run; outcome-free audit reused frozen repaired-path evidence.",
+    "production_relevance": "prospective 2026 shadow only if a new outcome-unseen deficiency appears",
+    "transfer_boundary": "Reopen only on prospective repaired-path evidence with adequate TE multiplicity and a separately frozen mechanism."
+  },
+  {
+    "id": "odds-api-market-distribution-expansion",
+    "family": "market_and_vendor_data",
+    "stage": "prospective raw acquisition",
+    "status": "prospective_only",
+    "protocol_paths": [],
+    "result_paths": [],
+    "supporting_paths": [
+      "reports/2026-08-14-pre-forensic-exhaustion-review.md",
+      "reports/2026-08-14-td-wr-and-te-closure-review.md"
+    ],
+    "execution_ids": [],
+    "gate": "Acquire alternate team/game total ladders and pass-attempt/completion/rush-attempt volume markets to expose pre-lock market-implied scoring distributions and opportunity denominators.",
+    "operator_override": "none",
+    "cloud_cost_status": "Not yet acquired; bounded by the existing Odds API subscription/credit plan.",
+    "production_relevance": "2026 prospective team-factor and marginal research input",
+    "transfer_boundary": "Raw acquisition may proceed, but no historical promotion or live use occurs without a separately frozen PIT-safe prospective protocol."
+  },
+  {
+    "id": "recourse-aware-late-swap",
+    "family": "decision_structure",
+    "stage": "forensic ceiling then prospective two-stage policy",
+    "status": "prospective_only",
+    "protocol_paths": [],
+    "result_paths": [],
+    "supporting_paths": [
+      "reports/2026-08-14-recourse-aware-portfolio-construction.md",
+      "reports/2026-08-14-queue-exhaustion-review-and-untested-insertion-points.md"
+    ],
+    "execution_ids": [],
+    "gate": "The final forensic run will compute a perfect-information late-swap ceiling on the incumbent exact-80 early cores; only material option value may prioritize a separately frozen 2026 two-stage policy.",
+    "operator_override": "none",
+    "cloud_cost_status": "The ceiling is included in the one-time forensic MILP job; no separate historical arm is queued.",
+    "production_relevance": "potential 2026 early/late recourse workflow",
+    "transfer_boundary": "The hindsight ceiling is not expected performance and cannot promote a policy; feasibility, operator latency and outcome-unseen prospective grading remain mandatory."
+  },
+  {
+    "id": "route-share-pool-admission",
+    "family": "candidate_generation",
+    "stage": "forensic targeting bound then prospective budget-neutral admission",
+    "status": "prospective_only",
+    "protocol_paths": [],
+    "result_paths": [],
+    "supporting_paths": [
+      "reports/2026-08-14-queue-exhaustion-review-and-untested-insertion-points.md"
+    ],
+    "execution_ids": [],
+    "gate": "The final forensic run will measure, at a pre-frozen 60% strictly-prior route-share floor and $3,500 salary cap, how many candidate-absent winning slots and how many total absent players the rule would admit.",
+    "operator_override": "none",
+    "cloud_cost_status": "The targeting/selectivity bound is included in the one-time forensic job; no historical lineup arm is queued.",
+    "production_relevance": "possible 2026 budget-neutral route admission shadow",
+    "transfer_boundary": "The outcome-viewed bound cannot promote a policy. Any live test must replace an equal frozen count of low-yield lev candidates and be frozen before 2026 outcomes."
+  },
+  {
+    "id": "per-contest-portfolio-slicing",
+    "family": "decision_structure",
+    "stage": "contest-entry-limit-specific prospective books",
+    "status": "prospective_only",
+    "protocol_paths": [],
+    "result_paths": [],
+    "supporting_paths": [
+      "reports/2026-08-10-scoring-strategy-recommendations.md",
+      "reports/2026-08-14-queue-exhaustion-review-and-untested-insertion-points.md"
+    ],
+    "execution_ids": [],
+    "gate": "The UI and production policy already enforce 1/3/20/large-max profiles, exact entry caps, first-N CBWU slicing and conservative leverage caps; a contest-specific target-line/extreme-book rule remains a separately frozen 2026 shadow.",
+    "operator_override": "none",
+    "cloud_cost_status": "Core entry-limit UI/policy is implemented and tested locally; prospective scoring uses the ordinary weekly build.",
+    "production_relevance": "direct low-max UI support, with contest-specific target-line shadow pending",
+    "transfer_boundary": "Do not replace the adopted fixed-194 selector from estimated field size alone. Freeze contest attributes and the slicing rule before outcomes, then grade by contest type."
+  },
+  {
+    "id": "cross-week-bankroll-and-style-allocation",
+    "family": "decision_structure",
+    "stage": "prospective season-level allocation",
+    "status": "prospective_only",
+    "protocol_paths": [],
+    "result_paths": [],
+    "supporting_paths": [
+      "reports/2026-08-14-queue-exhaustion-review-and-untested-insertion-points.md"
+    ],
+    "execution_ids": [],
+    "gate": "Use only pre-lock slate-quality regimes and a frozen season bankroll to compare fixed weekly volume with predeclared variable entry counts and deliberately decorrelated construction styles.",
+    "operator_override": "none",
+    "cloud_cost_status": "Not yet built; the forensic regime census supplies the outcome-viewed design input, while 2026 grading must be prospective.",
+    "production_relevance": "possible 2026 shadow allocation across weeks",
+    "transfer_boundary": "Historical regime outcomes may generate hypotheses but cannot tune the live allocation. Entry fees, bankroll limits and a maximum weekly loss must be fixed before Week 1."
+  },
+  {
+    "id": "latent-role-state-generator",
+    "family": "availability_and_role_change",
+    "stage": "prospective discrete role-state model",
+    "status": "prospective_only",
+    "protocol_paths": [],
+    "result_paths": [],
+    "supporting_paths": [
+      "reports/2026-08-14-recourse-aware-portfolio-construction.md",
+      "reports/2026-08-14-queue-exhaustion-review-and-untested-insertion-points.md"
+    ],
+    "execution_ids": [],
+    "gate": "Model discrete latent role occupancy and transitions before conditional points, distinct from tested features that condition on an already observed role.",
+    "operator_override": "none",
+    "cloud_cost_status": "Not built or estimated; prospective research only.",
+    "production_relevance": "possible 2026 candidate-universe expansion for cheap surprise scorers",
+    "transfer_boundary": "Requires an outcome-unseen state definition, PIT injury/in-game transition data and a frozen prospective falsifier; prior role-feature evidence cannot validate it."
   }
 ]

@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections import Counter
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
@@ -43,6 +44,7 @@ REQUIRED_MECHANISM_FAMILIES = (
     "game_and_player_dependence",
     "candidate_generation",
     "roster_construction",
+    "decision_structure",
     "portfolio_selection",
     "ownership_and_field_modeling",
     "contest_choice",
@@ -53,6 +55,7 @@ REQUIRED_MECHANISM_FAMILIES = (
 REQUIRED_FORENSIC_ARTIFACT_PATHS = (
     "reports/milly-winners-2019-2023-2024.csv",
     "reports/2025-milly-winners.csv",
+    "reports/2025-milly-rosters.csv",
     (
         "reports/g0-dependence-runs/"
         "20260812-g0-final-served-dependence-v2/report.json"
@@ -78,6 +81,44 @@ REQUIRED_FORENSIC_ARTIFACT_PATHS = (
         "20260814-sis-pass-tail-exact80-v1/report.json"
     ),
 )
+ANALYSIS_CHECKLIST = (
+    ("provenance_and_terminal_arm_ledger", "confirmatory", "compute"),
+    ("authoritative_score_salary_legality_parity", "confirmatory", "compute"),
+    ("hpcs_additive_opportunity_decomposition", "confirmatory", "compute"),
+    ("exact80_tail_grid_and_weekly_maxima", "confirmatory", "compute"),
+    ("nested_20_40_80_entry_curve", "confirmatory", "compute"),
+    ("contest_payout_roi_cash_drawdown", "confirmatory", "compute_or_unidentifiable"),
+    ("winner_places_2_through_5_comparison", "confirmatory", "compute_or_unidentifiable"),
+    ("salary_to_selected_player_capture_funnel", "confirmatory", "compute"),
+    ("served_marginal_calibration_and_rank", "confirmatory", "compute"),
+    ("candidate_signal_rank_and_probability_skill", "confirmatory", "compute"),
+    ("unselected_high_score_near_miss_frontier", "confirmatory", "compute"),
+    ("generator_tag_yield_and_overlap", "exploratory", "compute"),
+    ("route_share_pool_admission_bound", "exploratory", "compute"),
+    ("roster_construction_shape_inventory", "exploratory", "compute"),
+    ("salary_and_positional_spend", "exploratory", "compute"),
+    ("selected_exposure_vs_realized_value", "exploratory", "compute"),
+    ("historical_ownership_and_duplication_proxy", "exploratory", "compute_or_unidentifiable"),
+    ("joint_score_and_tail_dependence", "confirmatory", "reference_frozen"),
+    ("paired_nonstationary_evt_diagnostic", "exploratory", "compute"),
+    ("late_swap_recourse_ceiling", "exploratory", "compute"),
+    ("effective_rank_spectral_and_random_controls", "exploratory", "reference_frozen"),
+    ("slate_relative_rank_ap_and_ndcg", "exploratory", "compute"),
+    ("winner_inverse_belief_distance", "exploratory", "compute_or_unidentifiable"),
+    ("prelock_regime_splits", "exploratory", "compute"),
+    ("within_season_failure_autocorrelation", "exploratory", "compute"),
+    ("season_drift_and_leave_one_season_out", "exploratory", "compute"),
+    ("feature_missingness_error_census", "exploratory", "compute"),
+    ("source_pit_join_backup_readiness_census", "confirmatory", "compute"),
+    ("panel_factor_design_rank_and_estimability", "exploratory", "compute"),
+    ("arm_effect_breadth_uncertainty_and_kill_list", "exploratory", "compute"),
+    ("cloud_runtime_data_cost_census", "exploratory", "compute_or_unidentifiable"),
+    ("prospective_opportunity_register_and_charter", "exploratory", "compute"),
+    ("week1_end_to_end_dress_rehearsal", "confirmatory", "pending_external"),
+    ("adversarial_exhaustion_certificate", "confirmatory", "compute"),
+    ("independent_deterministic_reproduction", "confirmatory", "post_review_gate"),
+    ("forensic_corpus_cleanup_before_production", "confirmatory", "post_review_gate"),
+)
 WAREHOUSE_TABLE_SCHEMAS = {
     "player_corpus": [
         {"name": "manifest_sha256", "type": "STRING", "mode": "REQUIRED"},
@@ -88,10 +129,12 @@ WAREHOUSE_TABLE_SCHEMAS = {
         {"name": "week", "type": "INTEGER", "mode": "REQUIRED"},
         {"name": "slate_run_id", "type": "STRING", "mode": "NULLABLE"},
         {"name": "player_id", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "player_name", "type": "STRING", "mode": "REQUIRED"},
         {"name": "position", "type": "STRING", "mode": "REQUIRED"},
         {"name": "team", "type": "STRING", "mode": "REQUIRED"},
         {"name": "opponent", "type": "STRING", "mode": "REQUIRED"},
         {"name": "game_id", "type": "STRING", "mode": "REQUIRED"},
+        {"name": "kickoff_time", "type": "STRING", "mode": "REQUIRED"},
         {"name": "salary", "type": "INTEGER", "mode": "REQUIRED"},
         {"name": "actual_score", "type": "FLOAT", "mode": "REQUIRED"},
         {"name": "mean_projection", "type": "FLOAT", "mode": "NULLABLE"},
@@ -99,8 +142,22 @@ WAREHOUSE_TABLE_SCHEMAS = {
         {"name": "proj_p50", "type": "FLOAT", "mode": "NULLABLE"},
         {"name": "proj_p90", "type": "FLOAT", "mode": "NULLABLE"},
         {"name": "proj_std", "type": "FLOAT", "mode": "NULLABLE"},
+        {"name": "fp_route_source_season", "type": "INTEGER", "mode": "NULLABLE"},
+        {"name": "fp_route_source_week", "type": "INTEGER", "mode": "NULLABLE"},
+        {"name": "fp_route_prior_observations", "type": "INTEGER", "mode": "NULLABLE"},
+        {"name": "fp_route_share_last", "type": "FLOAT", "mode": "NULLABLE"},
+        {"name": "fp_route_share_l4", "type": "FLOAT", "mode": "NULLABLE"},
+        {"name": "fp_route_share_jump", "type": "FLOAT", "mode": "NULLABLE"},
+        {"name": "fp_route_cross_season", "type": "INTEGER", "mode": "NULLABLE"},
+        {"name": "estimated_ownership", "type": "FLOAT", "mode": "NULLABLE"},
+        {"name": "actual_ownership", "type": "FLOAT", "mode": "NULLABLE"},
+        {
+            "name": "actual_ownership_contests", "type": "INTEGER",
+            "mode": "NULLABLE",
+        },
         {"name": "feature_missing", "type": "STRING", "mode": "REQUIRED"},
         {"name": "feature_missing_any", "type": "BOOLEAN", "mode": "REQUIRED"},
+        {"name": "source_features_json", "type": "STRING", "mode": "REQUIRED"},
     ],
     "candidate_corpus": [
         {"name": "manifest_sha256", "type": "STRING", "mode": "REQUIRED"},
@@ -123,6 +180,7 @@ WAREHOUSE_TABLE_SCHEMAS = {
         {"name": "sim_q99", "type": "FLOAT", "mode": "NULLABLE"},
         {"name": "tag", "type": "STRING", "mode": "NULLABLE"},
         {"name": "all_tags", "type": "STRING", "mode": "NULLABLE"},
+        {"name": "source_candidate_json", "type": "STRING", "mode": "REQUIRED"},
     ],
     "actual_selections": [
         {"name": "manifest_sha256", "type": "STRING", "mode": "REQUIRED"},
@@ -142,6 +200,7 @@ WAREHOUSE_TABLE_SCHEMAS = {
         {"name": "sim_q99", "type": "FLOAT", "mode": "NULLABLE"},
         {"name": "tag", "type": "STRING", "mode": "NULLABLE"},
         {"name": "all_tags", "type": "STRING", "mode": "NULLABLE"},
+        {"name": "source_candidate_json", "type": "STRING", "mode": "REQUIRED"},
     ],
     "oracle_rosters": [
         {"name": "manifest_sha256", "type": "STRING", "mode": "REQUIRED"},
@@ -169,6 +228,7 @@ LEDGER_STATUSES = frozenset({
     "rejected",
     "neutral",
     "invalid_repaired",
+    "invalid_unadjudicated",
     "not_run_prerequisite_failed",
     "prospective_only",
     "duplicate_mechanism",
@@ -193,6 +253,7 @@ OUTPUT_SCHEMAS = {
     "provenance_and_arm_ledger": [
         "manifest_sha256", "production", "panels", "arm_ledger",
         "report_inventory", "artifact_inventory", "warehouse_retention",
+        "analysis_checklist",
     ],
     "opportunity_decomposition": [
         "season", "week", "scope", "H", "P", "C", "S", "gaps",
@@ -231,7 +292,7 @@ TAXONOMY_RULES = {
     family: {
         "disposition_rule": (
             "Every historical arm in this family must be selected, rejected, "
-            "neutral, repaired, prerequisite-closed, prospective-only, "
+            "neutral, repaired, invalid-unadjudicated, prerequisite-closed, prospective-only, "
             "duplicate, operationally complete, or deferred with a falsifier."
         ),
         "falsifier_rule": (
@@ -359,6 +420,14 @@ def build_freeze_manifest(
         "production": dict(production),
         "panels": [dict(panel) for panel in panels],
         "warehouse_retention": dict(warehouse_retention),
+        "analysis_checklist": [
+            {
+                "id": item_id,
+                "evidence_class": evidence_class,
+                "required_disposition": disposition,
+            }
+            for item_id, evidence_class, disposition in ANALYSIS_CHECKLIST
+        ],
         "artifacts": artifacts,
         "report_inventory": report_inventory(root),
         "protocol_exclusions": [{
@@ -454,6 +523,17 @@ def validate_freeze_manifest(
     ):
         if not str(production.get(key, "")).strip():
             failures.append(f"production.{key} is missing")
+
+    expected_checklist = [
+        {
+            "id": item_id,
+            "evidence_class": evidence_class,
+            "required_disposition": disposition,
+        }
+        for item_id, evidence_class, disposition in ANALYSIS_CHECKLIST
+    ]
+    if manifest.get("analysis_checklist") != expected_checklist:
+        failures.append("analysis checklist is incomplete, altered, or reordered")
 
     artifacts = manifest.get("artifacts", [])
     artifact_paths = [str(row.get("path", "")) for row in artifacts]
@@ -611,7 +691,14 @@ def _normalise_player_frame(players: pd.DataFrame) -> pd.DataFrame:
     frame["pos"] = frame.pos.astype(str).str.upper().replace({"DEF": "DST"})
     frame["team"] = frame.team.astype(str)
     frame["opp"] = frame.opp.astype(str)
-    frame["game_id"] = frame.game_id.astype(str)
+    # Historical feature snapshots use multiple identifiers for the same game
+    # (for example ``2019_01_BUF_NYJ`` for skill players and ``BUF@NYJ`` /
+    # ``NYJ@BUF`` for DST).  Game-count and minimum-two-game constraints must
+    # therefore use the matchup, not the source-specific display id.
+    frame["game_id"] = [
+        canonical_game_id(team, opponent)
+        for team, opponent in zip(frame.team, frame.opp, strict=True)
+    ]
     frame["salary"] = pd.to_numeric(frame.salary, errors="raise").astype(int)
     frame["actual"] = pd.to_numeric(frame.actual, errors="raise").astype(float)
     if frame.id.duplicated().any():
@@ -621,6 +708,14 @@ def _normalise_player_frame(players: pd.DataFrame) -> pd.DataFrame:
     if not np.isfinite(frame.actual).all() or not np.isfinite(frame.salary).all():
         raise ValueError("player frame contains non-finite score/salary")
     return frame.sort_values("id", kind="stable").reset_index(drop=True)
+
+
+def canonical_game_id(team: object, opponent: object) -> str:
+    """Return a direction-independent game key from the two team codes."""
+    sides = sorted((str(team), str(opponent)))
+    if not sides[0] or not sides[1] or sides[0] == sides[1]:
+        raise ValueError("cannot construct canonical game id")
+    return "|".join(sides)
 
 
 def audit_roster(
@@ -683,6 +778,8 @@ def _solve_oracle(
     players: pd.DataFrame,
     allowed_ids: set[str] | None = None,
     *,
+    locked_choices: Sequence[Sequence[str]] | None = None,
+    locked_flex_positions: Sequence[str | None] | None = None,
     min_salary: int = 49_000,
     salary_cap: int = 50_000,
 ) -> dict[str, Any]:
@@ -704,18 +801,78 @@ def _solve_oracle(
     problem += salary_expr <= salary_cap
     problem += salary_expr >= min_salary
     problem += pulp.lpSum(decision.values()) == 9
+    choice_variables: list[pulp.LpVariable] = []
+    normalized_choices: list[set[str]] = []
+    if locked_choices is not None:
+        normalized_choices = [set(map(str, choice)) for choice in locked_choices]
+        if not normalized_choices:
+            raise ValueError("recourse oracle has no first-stage choices")
+        choice_variables = [
+            pulp.LpVariable(f"choice_{index}", cat="Binary")
+            for index in range(len(normalized_choices))
+        ]
+        problem += pulp.lpSum(choice_variables) == 1
+        if locked_flex_positions is None:
+            locked_flex_positions = [None] * len(normalized_choices)
+        if len(locked_flex_positions) != len(normalized_choices):
+            raise ValueError("recourse FLEX locks do not align with choices")
+        locked_flex_positions = [
+            None if value is None else str(value).upper()
+            for value in locked_flex_positions
+        ]
+        if any(
+            value not in {None, "RB", "WR", "TE"}
+            for value in locked_flex_positions
+        ):
+            raise ValueError("recourse FLEX lock has an ineligible position")
+        position_by_id = frame.set_index("id").pos.to_dict()
+        if any(
+            flex_position is not None
+            and not any(
+                position_by_id.get(player) == flex_position for player in choice
+            )
+            for choice, flex_position in zip(
+                normalized_choices, locked_flex_positions, strict=True
+            )
+        ):
+            raise ValueError("recourse FLEX lock is absent from its early core")
+        early_union = set().union(*normalized_choices)
+        unknown_early = early_union - set(decision)
+        if unknown_early:
+            raise ValueError(f"recourse choice has unknown players: {sorted(unknown_early)}")
+        for player in sorted(early_union):
+            problem += decision[player] == pulp.lpSum(
+                choice_variables[index]
+                for index, choice in enumerate(normalized_choices)
+                if player in choice
+            )
 
     def count(position: str):
         return pulp.lpSum(decision[row.id] for row in rows if row.pos == position)
 
     problem += count("QB") == 1
     problem += count("DST") == 1
-    problem += count("RB") >= 2
-    problem += count("RB") <= 3
-    problem += count("WR") >= 3
-    problem += count("WR") <= 4
-    problem += count("TE") >= 1
-    problem += count("TE") <= 2
+    rb_flex_locked = pulp.lpSum(
+        choice_variables[index]
+        for index, value in enumerate(locked_flex_positions or [])
+        if value == "RB"
+    )
+    wr_flex_locked = pulp.lpSum(
+        choice_variables[index]
+        for index, value in enumerate(locked_flex_positions or [])
+        if value == "WR"
+    )
+    te_flex_locked = pulp.lpSum(
+        choice_variables[index]
+        for index, value in enumerate(locked_flex_positions or [])
+        if value == "TE"
+    )
+    problem += count("RB") >= 2 + rb_flex_locked
+    problem += count("RB") <= 3 - wr_flex_locked - te_flex_locked
+    problem += count("WR") >= 3 + wr_flex_locked
+    problem += count("WR") <= 4 - rb_flex_locked - te_flex_locked
+    problem += count("TE") >= 1 + te_flex_locked
+    problem += count("TE") <= 2 - rb_flex_locked - wr_flex_locked
     for team in sorted(frame.team.unique()):
         ids = [row.id for row in rows if row.team == team]
         problem += pulp.lpSum(decision[player] for player in ids) <= 8
@@ -749,7 +906,13 @@ def _solve_oracle(
     problem += score_expr >= optimum - 1e-7
     problem.sense = pulp.LpMinimize
     rank = {row.id: index + 1 for index, row in enumerate(rows)}
-    problem.setObjective(pulp.lpSum(decision[row.id] * rank[row.id] for row in rows))
+    tie_objective = pulp.lpSum(decision[row.id] * rank[row.id] for row in rows)
+    if choice_variables:
+        tie_objective = tie_objective * (len(choice_variables) + 1) + pulp.lpSum(
+            variable * (index + 1)
+            for index, variable in enumerate(choice_variables)
+        )
+    problem.setObjective(tie_objective)
     problem.solve(solver)
     if pulp.LpStatus[problem.status] != "Optimal":
         raise ValueError("oracle deterministic tie solve failed")
@@ -762,7 +925,214 @@ def _solve_oracle(
     ):
         raise ValueError("oracle failed independent legality/score reconstruction")
     audit["solver_status"] = "Optimal"
+    if choice_variables:
+        audit["source_choice_index"] = next(
+            index for index, variable in enumerate(choice_variables)
+            if variable.value() > 0.5
+        )
     return audit
+
+
+def recourse_ceiling_slate(
+    players: pd.DataFrame,
+    candidates: pd.DataFrame,
+    *,
+    expected_entries: int = 80,
+    compute_liveness: bool = False,
+) -> dict[str, Any]:
+    """Hindsight upper bound after locking each selected entry's early core.
+
+    This is deliberately not a playable policy: realized scores choose the
+    best legal late-game completion.  It sizes the option value available from
+    the incumbent first-stage book and may only generate prospective research.
+    """
+    frame = _normalise_player_frame(players)
+    if "kickoff_time" not in players:
+        raise ValueError("recourse ceiling requires kickoff_time")
+    kickoff = players[["id", "kickoff_time"]].copy()
+    kickoff["id"] = kickoff.id.astype(str)
+
+    def kickoff_minutes(value: object) -> int:
+        parts = str(value).split(":")
+        if len(parts) < 2:
+            raise ValueError(f"invalid kickoff time: {value}")
+        return int(parts[0]) * 60 + int(parts[1])
+
+    kickoff["minutes"] = kickoff.kickoff_time.map(kickoff_minutes)
+    if kickoff.id.duplicated().any():
+        raise ValueError("recourse kickoff rows repeat player ids")
+    minutes = kickoff.set_index("id").minutes.to_dict()
+    decision_stages = sorted(set(minutes.values()))
+    if len(decision_stages) < 2:
+        return {
+            "status": "not_identifiable_single_lock_stage",
+            "incumbent_selected_best": float(
+                pd.to_numeric(
+                    candidates[candidates.selected.fillna(False).astype(bool)].actual_score,
+                    errors="raise",
+                ).max()
+            ),
+            "decision_stages_minutes": decision_stages,
+            "interpretation": "No later-lock player exists on this slate.",
+        }
+    initial_lock = decision_stages[0]
+    late_ids = {
+        player for player, value in minutes.items() if value > initial_lock
+    }
+    selected = candidates[
+        candidates.selected.fillna(False).astype(bool)
+    ].sort_values("selected_rank", kind="stable")
+    if len(selected) != expected_entries:
+        raise ValueError(f"recourse ceiling requires exact-{expected_entries}")
+    rosters = [
+        tuple(item for item in str(value).split(",") if item)
+        for value in selected.players
+    ]
+    if any(len(roster) != 9 or len(set(roster)) != 9 for roster in rosters):
+        raise ValueError("recourse source roster is malformed")
+
+    positions = frame.set_index("id").pos.to_dict()
+
+    def flex_player(roster: Sequence[str]) -> str:
+        eligible = [player for player in roster if positions[player] in {"RB", "WR", "TE"}]
+        counts = Counter(positions[player] for player in eligible)
+        surplus = [
+            position for position, minimum in (("RB", 2), ("WR", 3), ("TE", 1))
+            if counts.get(position, 0) > minimum
+        ]
+        if len(surplus) != 1:
+            raise ValueError("recourse source roster has no unique FLEX position")
+        flex_candidates = [
+            player for player in roster if positions[player] == surplus[0]
+        ]
+        # Mirrors Lineup.slot_order when kickoff data are available: hard
+        # position slots take the earliest players and FLEX retains the latest.
+        return sorted(flex_candidates, key=lambda player: minutes[player])[-1]
+
+    flex_players = [flex_player(roster) for roster in rosters]
+    locked_choices = [
+        tuple(player for player in roster if player not in late_ids)
+        for roster in rosters
+    ]
+    locked_flex_positions = [
+        positions[player] if player in choice else None
+        for player, choice in zip(flex_players, locked_choices, strict=True)
+    ]
+    early_union = set().union(*(set(choice) for choice in locked_choices))
+    allowed = late_ids | early_union
+    bound = _solve_oracle(
+        frame,
+        allowed,
+        locked_choices=locked_choices,
+        locked_flex_positions=locked_flex_positions,
+        min_salary=0,
+        salary_cap=50_000,
+    )
+    source_index = int(bound.pop("source_choice_index"))
+    incumbent_best = float(pd.to_numeric(selected.actual_score, errors="raise").max())
+    if float(bound["actual_score"]) + 1e-6 < incumbent_best:
+        raise ValueError("recourse ceiling fell below its feasible incumbent book")
+    tail_grid = {
+        str(tail): {
+            "incumbent_reaches": incumbent_best >= tail,
+            "perfect_information_reaches": float(bound["actual_score"]) >= tail,
+            "newly_reached": incumbent_best < tail <= float(bound["actual_score"]),
+        }
+        for tail in TAILS
+    }
+    liveness: dict[str, Any]
+    if compute_liveness:
+        stage_rows = []
+        cache: dict[tuple[int, tuple[str, ...], str | None], float] = {}
+        for stage in decision_stages[1:]:
+            stage_late_ids = {
+                player for player, value in minutes.items() if value >= stage
+            }
+            per_entry_bounds = []
+            for roster_index, roster in enumerate(rosters):
+                core = tuple(sorted(
+                    player for player in roster if minutes[player] < stage
+                ))
+                source_flex = flex_players[roster_index]
+                flex_lock = positions[source_flex] if source_flex in core else None
+                key = (stage, core, flex_lock)
+                if key not in cache:
+                    stage_bound = _solve_oracle(
+                        frame,
+                        stage_late_ids | set(core),
+                        locked_choices=[core],
+                        locked_flex_positions=[flex_lock],
+                        min_salary=0,
+                        salary_cap=50_000,
+                    )
+                    cache[key] = float(stage_bound["actual_score"])
+                per_entry_bounds.append(cache[key])
+            stage_rows.append({
+                "decision_stage_minutes": stage,
+                "unique_locked_cores": len({
+                    tuple(sorted(
+                        player for player in roster if minutes[player] < stage
+                    ))
+                    for roster in rosters
+                }),
+                "unique_locked_core_flex_states": int(sum(
+                    key[0] == stage for key in cache
+                )),
+                "perfect_information_live_entries": {
+                    str(tail): int(sum(value >= tail for value in per_entry_bounds))
+                    for tail in TAILS
+                },
+                "maximum_reachable": float(max(per_entry_bounds)),
+                "median_reachable": float(np.median(per_entry_bounds)),
+            })
+        liveness = {
+            "status": "computed_for_incumbent_locked_cores",
+            "stages": stage_rows,
+            "warning": (
+                "Liveness uses realized future scores and therefore states only "
+                "whether an entry was capable under perfect hindsight, not what "
+                "could have been recognized at the decision time."
+            ),
+        }
+    else:
+        liveness = {
+            "status": "not_computed_nonproduction_scope",
+            "reason": "Detailed 80-core solves are reserved for the deployed CBWU scope.",
+        }
+    return {
+        "status": "computed_perfect_information_upper_bound",
+        "incumbent_selected_best": incumbent_best,
+        "perfect_information_recourse_ceiling": float(bound["actual_score"]),
+        "ceiling_gain": float(bound["actual_score"] - incumbent_best),
+        "source_selected_rank": int(selected.iloc[source_index].selected_rank),
+        "source_early_players": sorted(locked_choices[source_index]),
+        "late_player_count": len(late_ids),
+        "final_roster": bound,
+        "initial_lock_minutes": initial_lock,
+        "decision_stages_minutes": decision_stages,
+        "tail_grid": tail_grid,
+        "per_stage_liveness": liveness,
+        "salary_floor_after_lock": 0,
+        "realistic_recourse": {
+            "status": "unidentifiable_from_frozen_summary_corpus",
+            "reason": (
+                "The frozen panel retains player quantiles and full-lineup score "
+                "summaries, not joint late-player draws conditional on observed "
+                "early results. Constructing them after viewing outcomes would "
+                "invent a new model rather than measure a frozen policy."
+            ),
+            "required_prospective_input": (
+                "Retain pre-lock player/world draws with kickoff-stage identity, "
+                "then freeze a conditional late-swap objective before Week 1."
+            ),
+        },
+        "interpretation": (
+            "Perfect-information hindsight upper bound on incumbent early cores; "
+            "actual kickoff stages, the production latest-kickoff FLEX assignment, "
+            "and final salary/position legality are enforced. "
+            "It is not a backtested policy, adoption gate, or achievable expectation."
+        ),
+    }
 
 
 def decompose_slate(
@@ -879,6 +1249,7 @@ __all__ = [
     "FreezeManifestError",
     "LEDGER_STATUSES",
     "PROTOCOL_ID",
+    "ANALYSIS_CHECKLIST",
     "REQUIRED_FORENSIC_ARTIFACT_PATHS",
     "REQUIRED_MECHANISM_FAMILIES",
     "REQUIRED_OUTPUTS",
@@ -887,8 +1258,10 @@ __all__ = [
     "WAREHOUSE_TABLE_PREFIX",
     "audit_roster",
     "build_freeze_manifest",
+    "canonical_game_id",
     "decompose_slate",
     "manifest_digest",
+    "recourse_ceiling_slate",
     "report_inventory",
     "sha256_file",
     "validate_freeze_manifest",

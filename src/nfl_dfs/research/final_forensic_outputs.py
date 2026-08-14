@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 from collections import Counter
+import json
 from typing import Any, Mapping, Sequence
 
 import numpy as np
@@ -249,12 +250,48 @@ def _nullable_float(value: Any) -> float | None:
     return float(value)
 
 
+def _nullable_int(value: Any) -> int | None:
+    if value is None or bool(pd.isna(value)):
+        return None
+    return int(value)
+
+
 def _feature_missing(value: Any) -> tuple[str, bool]:
     raw = _nullable_string(value)
     if raw is None:
         return "[]", False
     normalized = raw.strip()
     return raw, normalized.lower() not in {"", "[]", "null", "none"}
+
+
+def _json_value(value: Any) -> Any:
+    if value is None:
+        return None
+    if isinstance(value, (np.integer, np.floating, np.bool_)):
+        return value.item()
+    if isinstance(value, pd.Timestamp):
+        return value.isoformat()
+    try:
+        if bool(pd.isna(value)):
+            return None
+    except (TypeError, ValueError):
+        pass
+    if isinstance(value, (str, int, float, bool, list, tuple, dict)):
+        return value
+    return str(value)
+
+
+def _source_json(row: Any, supplied_field: str) -> str:
+    supplied = getattr(row, supplied_field, None)
+    if supplied is not None and not bool(pd.isna(supplied)):
+        parsed = json.loads(str(supplied))
+        return json.dumps(parsed, sort_keys=True, separators=(",", ":"))
+    values = {
+        key: _json_value(value)
+        for key, value in row._asdict().items()
+        if key not in {"Index", supplied_field}
+    }
+    return json.dumps(values, sort_keys=True, separators=(",", ":"))
 
 
 def _ordered_warehouse_frame(table_id: str, rows: list[dict[str, Any]]) -> pd.DataFrame:
@@ -319,10 +356,12 @@ def warehouse_slate_frames(
             **provenance,
             "slate_run_id": _nullable_string(getattr(row, "slate_run_id", None)),
             "player_id": str(row.id),
+            "player_name": str(getattr(row, "name", row.id)),
             "position": str(row.pos),
             "team": str(row.team),
             "opponent": str(row.opp),
             "game_id": str(row.game_id),
+            "kickoff_time": str(row.kickoff_time),
             "salary": int(row.salary),
             "actual_score": float(row.actual),
             "mean_projection": _nullable_float(
@@ -332,8 +371,42 @@ def warehouse_slate_frames(
             "proj_p50": _nullable_float(getattr(row, "proj_p50", None)),
             "proj_p90": _nullable_float(getattr(row, "proj_p90", None)),
             "proj_std": _nullable_float(getattr(row, "proj_std", None)),
+            "fp_route_source_season": _nullable_int(
+                getattr(row, "fp_route_source_season", None)
+            ),
+            "fp_route_source_week": _nullable_int(
+                getattr(row, "fp_route_source_week", None)
+            ),
+            "fp_route_prior_observations": _nullable_int(
+                getattr(row, "fp_route_prior_observations", None)
+            ),
+            "fp_route_share_last": _nullable_float(
+                getattr(row, "fp_route_share_last", None)
+            ),
+            "fp_route_share_l4": _nullable_float(
+                getattr(row, "fp_route_share_l4", None)
+            ),
+            "fp_route_share_jump": _nullable_float(
+                getattr(row, "fp_route_share_jump", None)
+            ),
+            "fp_route_cross_season": _nullable_int(
+                getattr(row, "fp_route_cross_season", None)
+            ),
+            "estimated_ownership": _nullable_float(
+                getattr(row, "own_est", None)
+            ),
+            "actual_ownership": _nullable_float(
+                getattr(row, "actual_ownership", None)
+            ),
+            "actual_ownership_contests": (
+                int(row.actual_ownership_contests)
+                if hasattr(row, "actual_ownership_contests")
+                and not pd.isna(row.actual_ownership_contests)
+                else None
+            ),
             "feature_missing": missing_raw,
             "feature_missing_any": missing_any,
+            "source_features_json": _source_json(row, "source_features_json"),
         })
 
     candidate_rows = []
@@ -376,6 +449,9 @@ def warehouse_slate_frames(
             "sim_q99": _nullable_float(getattr(row, "sim_q99", None)),
             "tag": _nullable_string(getattr(row, "tag", None)),
             "all_tags": _nullable_string(getattr(row, "all_tags", None)),
+            "source_candidate_json": _source_json(
+                row, "source_candidate_json"
+            ),
         })
     candidate_frame = _ordered_warehouse_frame("candidate_corpus", candidate_rows)
     selected = candidate_frame[candidate_frame.selected].copy()
@@ -387,6 +463,7 @@ def warehouse_slate_frames(
         "season", "week", "selected_rank", "candidate_index", "roster_ordered",
         "roster_key", "salary", "actual_score", "p_line", "sim_mean", "sim_q99",
         "tag", "all_tags",
+        "source_candidate_json",
     ]].sort_values("selected_rank", kind="stable").to_dict("records")
 
     oracle_rows = []
@@ -434,6 +511,7 @@ def registry_outputs(manifest: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
         "report_inventory": manifest["report_inventory"],
         "artifact_inventory": manifest["artifacts"],
         "warehouse_retention": copy.deepcopy(manifest["warehouse_retention"]),
+        "analysis_checklist": manifest["analysis_checklist"],
     }
     meta = {
         "arms": [{

@@ -20,7 +20,77 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 17:34 CDT
+## Current state — 2026-08-14 18:08 CDT
+
+### 2026-08-14 final-forensic audit expanded; decision-structure queue registered
+
+- Branch is `main`; the last pushed parent is `cdfb0c0`. This milestone is the
+  outcome-free final-forensic implementation commit that follows that parent.
+  No new player, lineup, or contest outcome was queried while implementing or
+  validating it. All 12 incumbent seed executions remain terminal and a live
+  Cloud Run execution list returned no active jobs.
+- The two new reviews
+  `reports/2026-08-14-recourse-aware-portfolio-construction.md` and
+  `reports/2026-08-14-queue-exhaustion-review-and-untested-insertion-points.md`
+  were reconciled rather than deferred. The forensic taxonomy now includes a
+  thirteenth `decision_structure` family. Its prospective register explicitly
+  carries recourse-aware late swap, per-contest slicing and cross-week
+  bankroll/style allocation; a latent role-state generator and field/payout
+  work remain separately labeled. Historical score-arm exhaustion is
+  unchanged: these are forensic bounds or outcome-unseen 2026 mechanisms, not
+  retroactive arms.
+- The forensic job now computes a perfect-information late-swap ceiling from
+  each exact-80 incumbent book. It derives every decision stage from actual
+  schedule kickoff times, locks each early core, reconstructs the production
+  latest-kickoff FLEX assignment, enforces the salary cap and all final roster
+  constraints, reports the complete 240/230/220/210/200/194/187 grid and
+  distinct improved slates, and computes per-stage perfect-hindsight live-entry
+  counts on the deployed CBWU scope. The realistic conditional policy is
+  explicitly `unidentifiable_from_frozen_summary_corpus`: retained summaries
+  lack joint late-player draws conditional on observed early results, so no
+  post-outcome normal/independence proxy is fabricated.
+- A separate generation-layer forensic bound is frozen before outcomes at
+  WR/TE strictly-prior route share >=0.60 and salary <=$3,500. It will measure
+  how many candidate-absent winning slots the rule targets and how many total
+  absent players it would admit. It cannot promote a historical policy; a
+  future test must be budget-neutral by replacing an equal frozen count of
+  low-yield `lev` candidates. The arm ledger now has 56 terminal/prospective
+  records, all 13 taxonomy families, and zero unaccounted or overclaimed
+  protocol/result files.
+- The frozen feature snapshots retained route source season/week but omitted
+  the actual prior route values. The analyzer now reconstructs those values
+  from `nfl_raw.fantasy_points_route_share` using the production
+  `attach_strict_prior_route` implementation and fails if source identity
+  differs. Outcome-free parity checks covered component/position/CBWU scopes:
+  50,418/29,605/29,605 player rows and 28,993/23,178/23,178 supported prior-route
+  rows. The reconstructed source/value fields are preserved in the isolated
+  90-day BigQuery forensic corpus.
+- A critical forensic-only game-key defect was also repaired: historical skill
+  and DST rows used incompatible raw game-id formats, so all legality/regime
+  work now uses a direction-independent key derived from team/opponent. The
+  authoritative salary/actual query also supplies kickoff time and is
+  independently reconciled before analysis. All three new/changed SQL paths
+  passed BigQuery dry-run compilation without materializing results.
+- Other forensic hardening in this milestone includes the full raw candidate
+  and feature JSON corpus, actual ownership with ambiguity-safe name matching,
+  first-place winner benchmarking, candidate/AP/NDCG and calibration strata,
+  missingness/PIT census, fixed regime/EVT diagnostics, paired scope contrasts,
+  factor-design rank, explicit TD adverse-invalid and TE prerequisite closure,
+  and a 36-item compute-or-identify analysis checklist. Focused validation is
+  29 tests passed; Python compilation, JSON parsing, `git diff --check`, report
+  inventory closure and BigQuery SQL dry runs all pass.
+- The existing UI/production policy already implements 1/3/20/large-max entry
+  profiles, exact contest caps, first-N CBWU slicing and conservative leverage
+  caps. Contest-specific target-line/extreme slicing remains a 2026 shadow and
+  must not silently replace the adopted fixed-194 selector from estimated field
+  size alone.
+- Next concrete action: commit/push this milestone, run the complete suite in
+  Cloud Build from that exact commit, publish the immutable forensic analyzer
+  image, freeze its digest/code SHA/panel hashes/production identity in the
+  manifest, commit that freeze before any outcome query, and execute the
+  one-time isolated forensic job. Retain all four corpus tables for independent
+  review and delete them before the first 2026 production build as already
+  required.
 
 ### 2026-08-14 seed executions reverified; TE prerequisite closes queue
 

@@ -18,6 +18,7 @@ def _players():
         rows.append({
             "id": f"p{index}", "pos": position, "team": "A" if index < 7 else "B",
             "opp": "B" if index < 7 else "A", "game_id": "A@B",
+            "kickoff_time": "13:00",
             "salary": 5500, "actual": 10.0 + index,
             "mean_projection": 9.0 + index, "proj_p90": 15.0 + index,
         })
@@ -105,7 +106,10 @@ def test_warehouse_frames_retain_full_corpus_exact80_and_hpcs_rosters():
 
     assert len(frames["player_corpus"]) == 89
     assert not frames["player_corpus"].feature_missing_any.any()
+    assert frames["player_corpus"].player_name.iloc[0] == "p0"
+    assert frames["player_corpus"].source_features_json.str.startswith("{").all()
     assert len(frames["candidate_corpus"]) == 80
+    assert frames["candidate_corpus"].source_candidate_json.str.startswith("{").all()
     assert frames["actual_selections"].selected_rank.tolist() == list(range(80))
     assert frames["oracle_rosters"].layer.tolist() == ["H", "P", "C", "S"]
     assert frames["oracle_rosters"].legality_verified.all()

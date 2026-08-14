@@ -29,7 +29,9 @@ from capture_final_forensic_prelock import capture as capture_prelock  # noqa: E
 from nfl_dfs.research.final_forensic import (
     TAILS,
     WAREHOUSE_TABLE_SCHEMAS,
+    canonical_game_id,
     decompose_slate,
+    recourse_ceiling_slate,
     validate_freeze_manifest,
 )
 from nfl_dfs.research.final_forensic_outputs import (
@@ -39,10 +41,26 @@ from nfl_dfs.research.final_forensic_outputs import (
     registry_outputs,
     warehouse_slate_frames,
 )
+from nfl_dfs.research.final_forensic_diagnostics import (
+    aggregate_candidate_diagnostics,
+    candidate_slate_diagnostics,
+    feature_missingness_diagnostics,
+    paired_scope_diagnostics,
+    player_calibration_diagnostics,
+    regime_and_drift_diagnostics,
+    route_pool_admission_diagnostics,
+    winner_benchmark,
+)
+from nfl_dfs.research.real_winner_overlap import (
+    load_known_winner_rows,
+    match_known_winner_players,
+)
+from nfl_dfs.analysis.fantasy_points_route_share import attach_strict_prior_route
 from nfl_dfs.research.multiseed_candidate_world import (
     reconstruct_fixed_budget_book,
 )
 from nfl_dfs.research.portfolio_effective_rank import decode_score_artifact
+from nfl_dfs.names import match_map, norm_name, resolve
 
 
 PROJECT = "nfl-predictions-503414"
@@ -72,6 +90,36 @@ SCOPES = (
         "cbwu": True,
     },
 )
+REFERENCE_REPORTS = {
+    "g0_dependence": (
+        "reports/g0-dependence-runs/"
+        "20260812-g0-final-served-dependence-v2/report.json"
+    ),
+    "g1_topology": (
+        "reports/g1-topology-runs/"
+        "20260812-g1-archetype-topology-v3/report.json"
+    ),
+    "effective_rank": (
+        "reports/portfolio-effective-rank-runs/"
+        "20260813-incumbent-effective-rank-v2/report.json"
+    ),
+    "candidate_world_factorial": (
+        "reports/multiseed-candidate-world-runs/"
+        "20260813-multiseed-candidate-world-v1/report.json"
+    ),
+    "selector_resampling": (
+        "reports/selector-resampling-runs/"
+        "20260814-selector-resampling-v1/report.json"
+    ),
+    "incumbent_seed_variance": (
+        "reports/incumbent-seed-variance-runs/"
+        "20260813-incumbent-seed-variance-v1/report.json"
+    ),
+    "sis_pass_tail": (
+        "reports/tabpfn-sis-pass-tail-runs/"
+        "20260814-sis-pass-tail-exact80-v1/report.json"
+    ),
+}
 
 
 def _query_df(
@@ -116,11 +164,8 @@ def _load_candidates(
     return _query_df(
         client,
         f"""
-        SELECT panel_run_id, code_sha, season, week, cand_ix, players,
-               selected, selected_rank, salary, actual_score, labels_complete,
-               n_entries, n_sims, n_worlds, score_artifact_uri,
-               score_artifact_sha256, p_line, sim_mean, sim_q99, tag, all_tags
-        FROM `{PROJECT}.{DATASET}.{table}`
+        SELECT t.*, TO_JSON_STRING(t) AS source_candidate_json
+        FROM `{PROJECT}.{DATASET}.{table}` AS t
         WHERE panel_run_id IN UNNEST(@panel_ids)
           {research}
         ORDER BY panel_run_id, season, week, cand_ix
@@ -139,10 +184,8 @@ def _load_features(
     return _query_df(
         client,
         f"""
-        SELECT season, week, slate_run_id, id, pos, team, opp, game_id,
-               salary, actual, mean_projection, proj_p10, proj_p50, proj_p90,
-               proj_std, feature_missing
-        FROM `{PROJECT}.{DATASET}.slate_player_features`
+        SELECT t.*, TO_JSON_STRING(t) AS source_features_json
+        FROM `{PROJECT}.{DATASET}.slate_player_features` AS t
         WHERE panel_run_id=@panel_id
           {research}
         ORDER BY season, week, id
@@ -151,13 +194,181 @@ def _load_features(
     )
 
 
+def _load_actual_ownership(
+    client: bigquery.Client,
+    *,
+    seasons: list[int],
+) -> pd.DataFrame:
+    """Load equal-contest ownership summaries for outcome-only evaluation.
+
+    The source lacks contest field size, so repeated contests cannot be
+    field-size weighted. The output retains that limitation explicitly via the
+    contest count and never enters selection.
+    """
+    return _query_df(
+        client,
+        f"""
+        SELECT season, week, display_name,
+               AVG(pct_drafted) AS actual_ownership,
+               COUNT(DISTINCT contest_id) AS actual_ownership_contests
+        FROM `{PROJECT}.nfl_raw.contest_ownership`
+        WHERE season IN UNNEST(@seasons)
+        GROUP BY season, week, display_name
+        ORDER BY season, week, display_name
+        """,
+        params=[bigquery.ArrayQueryParameter("seasons", "INT64", seasons)],
+    )
+
+
+def _load_route_history(
+    client: bigquery.Client,
+    *,
+    seasons: list[int],
+) -> pd.DataFrame:
+    """Load the raw resolved route observations used by the strict-prior join."""
+    lower = min(seasons) - 1
+    upper = max(seasons)
+    return _query_df(
+        client,
+        f"""
+        SELECT season, week, gsis_id, route_share
+        FROM `{PROJECT}.nfl_raw.fantasy_points_route_share`
+        WHERE season BETWEEN @lower AND @upper
+          AND gsis_id IS NOT NULL
+        ORDER BY gsis_id, season, week
+        """,
+        params=[
+            bigquery.ScalarQueryParameter("lower", "INT64", lower),
+            bigquery.ScalarQueryParameter("upper", "INT64", upper),
+        ],
+    )
+
+
+def _attach_route_history(
+    features: pd.DataFrame,
+    route_history: pd.DataFrame,
+) -> pd.DataFrame:
+    """Reconstruct values omitted from the snapshot and verify source parity."""
+    keys = ["season", "week", "id"]
+    targets = features[keys].rename(columns={"id": "gsis_id"})
+    attached = attach_strict_prior_route(targets, route_history)
+    route_columns = [
+        "fp_route_source_season", "fp_route_source_week",
+        "fp_route_prior_observations", "fp_route_share_last",
+        "fp_route_share_l4", "fp_route_share_jump", "fp_route_cross_season",
+    ]
+    additions = attached[["season", "week", "gsis_id", *route_columns]].rename(
+        columns={"gsis_id": "id"}
+    )
+    frame = features.copy()
+    for source in ("fp_route_source_season", "fp_route_source_week"):
+        if source not in frame:
+            continue
+        comparison = frame[keys + [source]].merge(
+            additions[keys + [source]],
+            on=keys,
+            how="left",
+            validate="one_to_one",
+            suffixes=("_snapshot", "_reconstructed"),
+        )
+        snapshot = pd.to_numeric(comparison[f"{source}_snapshot"], errors="coerce")
+        reconstructed = pd.to_numeric(
+            comparison[f"{source}_reconstructed"], errors="coerce"
+        )
+        supported = snapshot.notna()
+        if (
+            reconstructed.loc[supported].isna().any()
+            or not snapshot.loc[supported].astype(int).eq(
+                reconstructed.loc[supported].astype(int)
+            ).all()
+        ):
+            raise RuntimeError(f"strict-prior route reconstruction differs: {source}")
+    frame = frame.drop(columns=[
+        column for column in route_columns if column in frame
+    ])
+    return frame.merge(additions, on=keys, how="left", validate="one_to_one")
+
+
+def _attach_actual_ownership(
+    features: pd.DataFrame,
+    ownership: pd.DataFrame,
+) -> tuple[pd.DataFrame, dict[str, Any]]:
+    """Attach name-matched realized ownership without guessing ambiguities."""
+    frame = features.copy()
+    frame["actual_ownership"] = np.nan
+    frame["actual_ownership_contests"] = pd.Series(pd.NA, index=frame.index)
+    matched = 0
+    eligible = 0
+    available_slates = 0
+    ambiguous_reference_rows = 0
+    total_skill_rows = int(
+        (~frame.pos.astype(str).str.upper().eq("DST")).sum()
+    )
+    for (season, week), group in frame.groupby(["season", "week"]):
+        external = ownership[
+            ownership.season.astype(int).eq(int(season))
+            & ownership.week.astype(int).eq(int(week))
+        ]
+        if external.empty:
+            continue
+        available_slates += 1
+        skill = group[~group.pos.astype(str).str.upper().eq("DST")]
+        eligible += len(skill)
+        name_ids: dict[str, set[str]] = {}
+        for row in skill[["id", "name"]].itertuples(index=False):
+            name_ids.setdefault(norm_name(str(row.name)), set()).add(str(row.id))
+        ambiguous_names = {
+            name for name, ids in name_ids.items() if len(ids) != 1
+        }
+        ambiguous_reference_rows += int(sum(
+            norm_name(str(row.name)) in ambiguous_names
+            for row in skill[["name"]].itertuples(index=False)
+        ))
+        lookup = match_map({
+            str(row.name): str(row.id)
+            for row in skill[["id", "name"]].itertuples(index=False)
+            if norm_name(str(row.name)) not in ambiguous_names
+        })
+        by_id: dict[str, list[tuple[float, int]]] = {}
+        for row in external.itertuples(index=False):
+            player_id = resolve(str(row.display_name), lookup)
+            if player_id is None:
+                continue
+            by_id.setdefault(str(player_id), []).append((
+                float(row.actual_ownership),
+                int(row.actual_ownership_contests),
+            ))
+        for player_id, values in by_id.items():
+            mask = group.id.astype(str).eq(player_id)
+            frame.loc[mask.index[mask], "actual_ownership"] = float(np.mean([
+                value[0] for value in values
+            ]))
+            frame.loc[mask.index[mask], "actual_ownership_contests"] = int(sum(
+                value[1] for value in values
+            ))
+            matched += int(mask.sum())
+    return frame, {
+        "total_skill_rows": total_skill_rows,
+        "available_slate_skill_rows": eligible,
+        "matched_player_rows": matched,
+        "available_slates": available_slates,
+        "ambiguous_reference_rows_excluded": ambiguous_reference_rows,
+        "match_rate_when_available": matched / eligible if eligible else None,
+        "overall_match_rate": (
+            matched / total_skill_rows if total_skill_rows else None
+        ),
+        "aggregation": "equal-contest mean; contest field size unavailable",
+        "selection_use": "forbidden_outcome_only",
+    }
+
+
 def _authoritative_universe(client: bigquery.Client, seasons: list[int]) -> pd.DataFrame:
     """Load exact main-slate salary membership and authoritative actuals."""
     return _query_df(
         client,
         f"""
         WITH games AS (
-          SELECT season, week,
+          SELECT season, week, gametime AS kickoff_time,
                  CASE home_team WHEN 'OAK' THEN 'LV' WHEN 'SD' THEN 'LAC'
                       WHEN 'STL' THEN 'LA' ELSE home_team END AS home_team,
                  CASE away_team WHEN 'OAK' THEN 'LV' WHEN 'SD' THEN 'LAC'
@@ -168,14 +379,14 @@ def _authoritative_universe(client: bigquery.Client, seasons: list[int]) -> pd.D
             AND SAFE.PARSE_TIME('%H:%M', gametime) >= TIME '13:00:00'
             AND SAFE.PARSE_TIME('%H:%M', gametime) < TIME '19:00:00'
         ), pairs AS (
-          SELECT season, week, home_team AS team, away_team AS opp,
+          SELECT season, week, kickoff_time, home_team AS team, away_team AS opp,
                  CONCAT(away_team, '@', home_team) AS game_id FROM games
           UNION ALL
-          SELECT season, week, away_team, home_team,
+          SELECT season, week, kickoff_time, away_team, home_team,
                  CONCAT(away_team, '@', home_team) FROM games
         ), skill AS (
           SELECT s.season, s.week, s.gsis_id AS id, UPPER(s.position) AS pos,
-                 s.team, p.opp, p.game_id, s.salary,
+                 s.team, p.opp, p.game_id, p.kickoff_time, s.salary,
                  a.dk_points AS authoritative_actual
           FROM `{PROJECT}.nfl_features.dk_salary_week` s
           JOIN pairs p USING (season, week, team)
@@ -185,7 +396,8 @@ def _authoritative_universe(client: bigquery.Client, seasons: list[int]) -> pd.D
             AND UPPER(s.position) IN ('QB','RB','WR','TE')
         ), dst AS (
           SELECT p.season, p.week, CONCAT('DST_', p.team) AS id, 'DST' AS pos,
-                 p.team, p.opp, p.game_id, CAST(NULL AS INT64) AS salary,
+                 p.team, p.opp, p.game_id, p.kickoff_time,
+                 CAST(NULL AS INT64) AS salary,
                  d.dst_dk_points AS authoritative_actual
           FROM pairs p
           JOIN `{PROJECT}.nfl_features.team_defense_week` d
@@ -233,10 +445,21 @@ def _verify_universe(features: pd.DataFrame, authoritative: pd.DataFrame) -> Non
         pd.to_numeric(skill.salary_auth, errors="raise").to_numpy(),
     ):
         raise RuntimeError("salary-listed skill salaries differ")
-    pairs = ("team", "opp", "game_id")
-    for field in pairs:
+    for field in ("team", "opp"):
         if not joined[field].astype(str).eq(joined[f"{field}_auth"].astype(str)).all():
             raise RuntimeError(f"authoritative universe {field} differs")
+    feature_games = [
+        canonical_game_id(team, opponent)
+        for team, opponent in zip(joined.team, joined.opp, strict=True)
+    ]
+    authoritative_games = [
+        canonical_game_id(team, opponent)
+        for team, opponent in zip(
+            joined.team_auth, joined.opp_auth, strict=True
+        )
+    ]
+    if feature_games != authoritative_games:
+        raise RuntimeError("authoritative universe canonical game differs")
 
 
 def _download_artifact(client: storage.Client, uri: str, digest: str) -> dict:
@@ -457,6 +680,11 @@ def _portfolio_summary(slates: list[dict[str, Any]]) -> dict[str, Any]:
     known = [
         row["known_first_place"] for row in slates if "known_first_place" in row
     ]
+    recourse_rows = [
+        row["recourse_ceiling"] for row in slates
+        if "ceiling_gain" in row["recourse_ceiling"]
+    ]
+    recourse_gains = [row["ceiling_gain"] for row in recourse_rows]
     return {
         "slates": len(slates),
         "prefix_best": {
@@ -484,6 +712,71 @@ def _portfolio_summary(slates: list[dict[str, Any]]) -> dict[str, Any]:
             "mean_gap": (
                 float(np.mean([row["selected_gap"] for row in known]))
                 if known else None
+            ),
+        },
+        "perfect_information_recourse_ceiling": {
+            "slates": int(sum(
+                row["recourse_ceiling"].get("status")
+                == "computed_perfect_information_upper_bound"
+                for row in slates
+            )),
+            "single_lock_slates": int(sum(
+                row["recourse_ceiling"].get("status")
+                == "not_identifiable_single_lock_stage"
+                for row in slates
+            )),
+            "mean_gain": (
+                float(np.mean(recourse_gains)) if recourse_gains else None
+            ),
+            "median_gain": (
+                float(np.median(recourse_gains)) if recourse_gains else None
+            ),
+            "maximum_gain": (
+                float(max(recourse_gains)) if recourse_gains else None
+            ),
+            "gain_ge_5_slates": int(sum(
+                row["recourse_ceiling"].get("ceiling_gain", -np.inf) >= 5
+                for row in slates
+            )),
+            "gain_ge_10_slates": int(sum(
+                row["recourse_ceiling"].get("ceiling_gain", -np.inf) >= 10
+                for row in slates
+            )),
+            "tail_counts": {
+                str(tail): int(sum(
+                    row["recourse_ceiling"].get(
+                        "perfect_information_recourse_ceiling", -np.inf
+                    ) >= tail for row in slates
+                ))
+                for tail in TAILS
+            },
+            "new_tail_slates": {
+                str(tail): int(sum(
+                    row["recourse_ceiling"].get("tail_grid", {}).get(
+                        str(tail), {}
+                    ).get("newly_reached", False)
+                    for row in slates
+                ))
+                for tail in TAILS
+            },
+            "distinct_improved_slates": int(sum(
+                row["recourse_ceiling"].get("ceiling_gain", 0.0) > 1e-6
+                for row in slates
+            )),
+            "realistic_recourse": {
+                "status": "unidentifiable_from_frozen_summary_corpus",
+                "reason": (
+                    "No joint late-player draws conditional on observed early "
+                    "results were retained. A prospective world-retention and "
+                    "policy freeze is required; no normal/independence proxy is "
+                    "fabricated after outcome access."
+                ),
+            },
+            "warning": (
+                "Realized late-player scores optimize the bound. It is an upper "
+                "bound on incumbent early cores, not policy performance. Actual "
+                "kickoff stages, the production latest-kickoff FLEX assignment, "
+                "and final salary/position legality are enforced."
             ),
         },
     }
@@ -541,6 +834,99 @@ def _capture_summary(slates: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def _reference_reports(repo_root: Path) -> dict[str, Any]:
+    return {
+        name: {
+            "path": path,
+            "payload": json.loads((repo_root / path).read_text(encoding="utf-8")),
+        }
+        for name, path in REFERENCE_REPORTS.items()
+    }
+
+
+def _factor_design_audit(reference_reports: dict[str, Any]) -> dict[str, Any]:
+    factorial = reference_reports["candidate_world_factorial"]["payload"]
+    cells = ("C0W0", "C0WU", "CUW0", "CUWU")
+    observed = set(factorial["result"]["metrics"])
+    matrix = np.asarray([
+        [1, 0, 0, 0],
+        [1, 0, 1, 0],
+        [1, 1, 0, 0],
+        [1, 1, 1, 1],
+    ], dtype=float)
+    if observed != set(cells):
+        raise RuntimeError("factorial reference lacks the frozen four cells")
+    return {
+        "candidate_world_2x2": {
+            "cells": list(cells),
+            "columns": ["intercept", "candidate_union", "world_union", "interaction"],
+            "rank": int(np.linalg.matrix_rank(matrix)),
+            "columns_count": int(matrix.shape[1]),
+            "aliased_columns": [],
+            "estimable_contrasts": [
+                "candidate_main_at_w0", "candidate_main_at_wu",
+                "world_main_at_c0", "world_main_at_cu", "interaction",
+            ],
+        },
+        "fixed_budget_world_contrast": {
+            "cells": ["CBW0", "CBWU"],
+            "rank": 2,
+            "columns_count": 2,
+            "estimable_contrasts": ["world_union_at_fixed_candidate_budget"],
+        },
+        "unidentifiable_in_this_design": [
+            "marginal_law main effect", "dependence_law main effect",
+            "selector main effect", "candidate_budget main effect",
+            "interactions involving those fixed or absent factors",
+        ],
+        "stage_boundary": (
+            "The four-cell factorial and fixed-budget confirmation are the 54-slate "
+            "Phase S estimands only; no common-slate effect is attributed to 107 slates."
+        ),
+    }
+
+
+def _analysis_completion(
+    manifest: dict[str, Any],
+) -> list[dict[str, Any]]:
+    dispositions = {
+        "contest_payout_roi_cash_drawdown": (
+            "partially_identifiable", "03 portfolio report: Week-5 payout floors only"
+        ),
+        "winner_places_2_through_5_comparison": (
+            "unidentifiable", "03 portfolio report: repository contains first place only"
+        ),
+        "joint_score_and_tail_dependence": (
+            "reference_frozen", "04 player/dependence report: pinned G0/G1"
+        ),
+        "effective_rank_spectral_and_random_controls": (
+            "reference_frozen", "05 construction report: pinned effective-rank artifact"
+        ),
+        "winner_inverse_belief_distance": (
+            "unidentifiable", "04 player report: names/feasibility fields insufficient"
+        ),
+        "cloud_runtime_data_cost_census": (
+            "partially_identifiable", "06 arm ledger cost-status fields"
+        ),
+        "week1_end_to_end_dress_rehearsal": (
+            "pending_external_slate", "07 readiness report"
+        ),
+        "independent_deterministic_reproduction": (
+            "post_review_gate", "must be run independently from immutable corpus"
+        ),
+        "forensic_corpus_cleanup_before_production": (
+            "post_review_gate", "manifest-bound cleanup after independent review"
+        ),
+    }
+    rows = []
+    for item in manifest["analysis_checklist"]:
+        status, evidence = dispositions.get(
+            item["id"], ("computed", "materialized in one of outputs 01-09")
+        )
+        rows.append({**item, "status": status, "evidence": evidence})
+    return rows
+
+
 def _destination(root: str, contract_path: str) -> str:
     name = Path(contract_path).name
     if root.startswith("gs://"):
@@ -569,10 +955,24 @@ def main() -> int:
     _prelock_equal(manifest["panels"], current_prelock)
 
     winner_scores = _known_winner_scores(repo_root)
+    winners = winner_benchmark(repo_root)
+    references = _reference_reports(repo_root)
+    forensic_seasons = sorted({
+        int(season)
+        for panel in manifest["panels"]
+        for season in panel["seasons"]
+    })
+    actual_ownership = _load_actual_ownership(
+        client, seasons=forensic_seasons
+    )
+    route_history = _load_route_history(
+        client, seasons=forensic_seasons
+    )
     output_scopes: list[dict[str, Any]] = []
     portfolio_scopes: list[dict[str, Any]] = []
     capture_scopes: list[dict[str, Any]] = []
     construction_scopes: list[dict[str, Any]] = []
+    scope_slate_rows: dict[str, list[dict[str, Any]]] = {}
     warehouse_parts: dict[str, list[pd.DataFrame]] = {
         table_id: [] for table_id in WAREHOUSE_TABLE_SCHEMAS
     }
@@ -590,11 +990,37 @@ def main() -> int:
             panel_id=scope["panel_ids"][0],
             research_only=scope["research_only"],
         )
+        features = _attach_route_history(features, route_history)
+        features, ownership_audit = _attach_actual_ownership(
+            features, actual_ownership
+        )
         seasons = sorted(features.season.astype(int).unique().tolist())
-        _verify_universe(features, _authoritative_universe(client, seasons))
+        authoritative = _authoritative_universe(client, seasons)
+        _verify_universe(features, authoritative)
+        kickoff = authoritative[[
+            "season", "week", "id", "kickoff_time"
+        ]].copy()
+        if kickoff.duplicated(["season", "week", "id"]).any():
+            raise RuntimeError("authoritative kickoff map contains duplicate keys")
+        features = features.merge(
+            kickoff,
+            on=["season", "week", "id"],
+            how="left",
+            validate="one_to_one",
+        )
+        if features.kickoff_time.isna().any():
+            raise RuntimeError("salary-listed player lacks a kickoff time")
+        # Preserve every raw source field in source_features_json, while all
+        # forensic game grouping and legality use one canonical matchup key.
+        features["game_id"] = [
+            canonical_game_id(team, opponent)
+            for team, opponent in zip(features.team, features.opp, strict=True)
+        ]
         slates: list[dict[str, Any]] = []
         portfolio_slates: list[dict[str, Any]] = []
         capture_slates: list[dict[str, Any]] = []
+        player_slates: list[pd.DataFrame] = []
+        candidate_diagnostic_slates: list[dict[str, Any]] = []
         forensic_candidate_frames: list[pd.DataFrame] = []
         for (season, week), player_group in features.groupby(["season", "week"]):
             season, week = int(season), int(week)
@@ -626,10 +1052,24 @@ def main() -> int:
                 known_winner_score=winner_scores.get((season, week)),
             )
             portfolio.update({"season": season, "week": week})
+            portfolio["recourse_ceiling"] = recourse_ceiling_slate(
+                player_frame,
+                candidate_group,
+                expected_entries=80,
+                compute_liveness=scope["id"] == "phase-s-cbwu-54",
+            )
             portfolio_slates.append(portfolio)
             capture = player_capture_slate(player_frame, candidate_group, result)
             capture.update({"season": season, "week": week})
             capture_slates.append(capture)
+            player_slates.append(player_frame)
+            candidate_diagnostic_slates.append({
+                "season": season,
+                "week": week,
+                "diagnostic": candidate_slate_diagnostics(
+                    player_frame, candidate_group
+                ),
+            })
             labeled_candidates = candidate_group.copy()
             labeled_candidates["season"] = season
             labeled_candidates["week"] = week
@@ -658,6 +1098,7 @@ def main() -> int:
             "summary": _aggregate(slates),
             "slates": slates,
         })
+        scope_slate_rows[scope["id"]] = slates
         portfolio_scopes.append({
             "id": scope["id"],
             "scope_boundary": expected["scope_boundary"],
@@ -670,12 +1111,25 @@ def main() -> int:
             "scope_boundary": expected["scope_boundary"],
             "summary": _capture_summary(capture_slates),
             "slates": capture_slates,
+            "served_calibration": player_calibration_diagnostics(features),
         })
         combined_candidates = pd.concat(forensic_candidate_frames, ignore_index=True)
+        winner_source = load_known_winner_rows(repo_root / "reports")
+        scope_keys = set(map(tuple, features[["season", "week"]].to_numpy()))
+        winner_source = winner_source[
+            winner_source[["season", "week"]].apply(tuple, axis=1).isin(scope_keys)
+        ]
+        winner_players = match_known_winner_players(winner_source, features)
         construction_scopes.append({
             "id": scope["id"],
             "scope_boundary": expected["scope_boundary"],
             "candidate_scorecard": candidate_scorecard(combined_candidates),
+            "candidate_diagnostics": aggregate_candidate_diagnostics(
+                candidate_diagnostic_slates
+            ),
+            "regime_and_drift": regime_and_drift_diagnostics(
+                slates, player_slates
+            ),
             "data_quality": {
                 "prelock_revalidated": True,
                 "authoritative_universe_reconciled": True,
@@ -685,8 +1139,14 @@ def main() -> int:
                     features.feature_missing.fillna("[]").astype(str)
                     .str.strip().str.lower().ne("[]").sum()
                 ),
+                "actual_ownership_join": ownership_audit,
+                "feature_missingness": feature_missingness_diagnostics(features),
             },
+            "route_pool_admission_bound": route_pool_admission_diagnostics(
+                features, combined_candidates, winner_players
+            ),
         })
+    paired_evt = paired_scope_diagnostics(scope_slate_rows)
     opportunity = {
         "protocol_id": manifest["protocol_id"],
         "manifest_sha256": validation["manifest_sha256"],
@@ -696,6 +1156,9 @@ def main() -> int:
         "scopes": output_scopes,
     }
     outputs = registry_outputs(manifest)
+    outputs["provenance_and_arm_ledger"]["analysis_checklist"] = (
+        _analysis_completion(manifest)
+    )
     outputs["opportunity_decomposition"] = opportunity
     outputs["portfolio_entry_count_and_money"] = {
         "scope": "evidence scope is explicit per panel",
@@ -710,32 +1173,41 @@ def main() -> int:
         "payout_scenarios": "Only the observed 2025 Week 5 min-cash floor is identified.",
         "duplication_scenarios": "Ownership product is a proxy, not a field-score bound.",
         "roi_bounds": "No defensible multi-season realized ROI bound.",
+        "winner_roster_benchmark": winners,
         "scopes": portfolio_scopes,
     }
     outputs["player_capture_calibration_and_dependence"] = {
         "position": "reported within each scope/slate",
         "tail_bucket": [20, 25, 30, 35],
         "support_capture": capture_scopes,
-        "calibration": "mean MAE/rank and p90 interval coverage in each slate record",
-        "dependence": {
-            "g0": (
-                "reports/g0-dependence-runs/"
-                "20260812-g0-final-served-dependence-v2/report.json"
+        "calibration": {
+            "scope_reports": {
+                row["id"]: row["served_calibration"] for row in capture_scopes
+            },
+            "method_warning": (
+                "CRPS and tail probabilities use the explicitly labelled normal "
+                "approximation from frozen mean/std because player draw arrays are "
+                "not retained in slate_player_features."
             ),
-            "g1": (
-                "reports/g1-topology-runs/"
-                "20260812-g1-archetype-topology-v3/report.json"
+        },
+        "dependence": {
+            "g0": references["g0_dependence"],
+            "g1": references["g1_topology"],
+            "repaired_allocation_unit_boundary": (
+                "The (game, team) allocation-unit repair moved QB-WR aggregate "
+                "dependence from the pre-repair 1.053 context to 2.418 and left "
+                "no stable repaired-path QB-TE deficit. Pre-repair G-series "
+                "targets must not be read as current-path deficiencies."
             ),
             "warning": "No retrospective dependence refit is licensed.",
         },
-        "known_winner_context": (
-            "First-place comparisons only where repository data exists; places "
-            "2-5 are not present."
-        ),
+        "known_winner_context": winners,
     }
     outputs["construction_selection_regime_and_data_quality"] = {
         "mechanism": "candidate rank skill, generator yield and H/P/C/S gaps",
-        "regime": "season/slate records remain disaggregated",
+        "regime": {
+            row["id"]: row["regime_and_drift"] for row in construction_scopes
+        },
         "construction_gap": "opportunity_decomposition.gaps.construction",
         "selection_gap": "opportunity_decomposition.gaps.selection",
         "distinct_improved_slates": {
@@ -751,8 +1223,39 @@ def main() -> int:
             "disjoint_half_overlap_of_80": 54.2778,
             "economic_entry_count_inference": "not licensed",
         },
+        "paired_evt": paired_evt,
+        "effective_rank_and_random_controls": references["effective_rank"],
+        "selector_resampling_reference": references["selector_resampling"],
+        "seed_variance_reference": references["incumbent_seed_variance"],
+        "factor_design_and_estimability": _factor_design_audit(references),
+        "source_pit_and_backup_readiness": {
+            "prelock_panel_revalidated": True,
+            "full_source_rows_retained_as_json": True,
+            "raw_game_id_normalized_from_team_opponent": True,
+            "paid_data_schedule": "README.md weekly operational schedule",
+            "backup_contract": "README.md backup/restore checklist",
+            "limitation": (
+                "Raw source timestamps and live inference joins retain the "
+                "dispositions in the pinned report inventory; this run does not "
+                "retroactively recreate unavailable vendor publication times."
+            ),
+        },
         "data_quality": construction_scopes,
     }
+    outputs["experiment_meta_analysis_and_kill_list"].update({
+        "factor_design_and_estimability": _factor_design_audit(references),
+        "candidate_world_factorial_reference": references["candidate_world_factorial"],
+        "sis_pass_tail_transfer_boundary": references["sis_pass_tail"],
+        "multiple_analysis_disclosure": (
+            "Launched arms are a selected sample. This retrospective cannot revive "
+            "a rejected arm or reinterpret an immutable gate."
+        ),
+        "td_wr_closure_precision": (
+            "Competitive-WR v4 is invalid/unadjudicated mechanically, but every "
+            "frozen disclosed gate moved adversely, including the ungated >=4 "
+            "multiplicity diagnostic. It must not be described as promising."
+        ),
+    })
     contract = {
         row["id"]: row["output_path"] for row in manifest["analysis_contract"]
     }

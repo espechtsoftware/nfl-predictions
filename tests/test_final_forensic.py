@@ -6,6 +6,7 @@ import pandas as pd
 import pytest
 
 from nfl_dfs.research.final_forensic import (
+    ANALYSIS_CHECKLIST,
     FreezeManifestError,
     PROTOCOL_ID,
     REQUIRED_FORENSIC_ARTIFACT_PATHS,
@@ -15,12 +16,39 @@ from nfl_dfs.research.final_forensic import (
     WAREHOUSE_TABLE_PREFIX,
     audit_roster,
     build_freeze_manifest,
+    canonical_game_id,
     decompose_slate,
     manifest_digest,
+    recourse_ceiling_slate,
     report_inventory,
     sha256_file,
     validate_freeze_manifest,
 )
+
+
+def test_canonical_game_id_ignores_source_direction_and_format():
+    assert canonical_game_id("BUF", "NYJ") == "BUF|NYJ"
+    assert canonical_game_id("NYJ", "BUF") == "BUF|NYJ"
+
+
+def test_roster_game_legality_uses_matchup_not_source_game_id():
+    positions = ["QB", "RB", "RB", "WR", "WR", "WR", "WR", "TE", "DST"]
+    salaries = [6500, 6500, 6000, 6000, 5500, 5000, 4500, 4500, 4500]
+    one_game = pd.DataFrame([
+        {
+            "id": f"p{index}", "pos": position,
+            "team": "A" if index != 2 else "B",
+            "opp": "B" if index != 2 else "A",
+            "game_id": f"source-{index}", "salary": salary, "actual": 10.0,
+        }
+        for index, (position, salary) in enumerate(zip(positions, salaries, strict=True))
+    ])
+    roster = one_game.id.tolist()
+    # Include a same-game salary-feasible roster whose raw source ids look
+    # different; canonical matching must still reject it as one game.
+    audit = audit_roster(one_game, roster)
+    assert not audit["valid"]
+    assert "fewer than two games" in audit["failures"]
 
 
 def _players() -> pd.DataFrame:
@@ -97,6 +125,46 @@ def test_hpcs_rejects_candidate_score_drift():
         decompose_slate(players, candidates, expected_entries=1, min_salary=0)
 
 
+def test_recourse_ceiling_locks_early_core_and_uses_only_late_replacements():
+    players = _players()
+    players["kickoff_time"] = players.team.map(
+        lambda team: "13:00" if team in {"A", "B"} else "16:25"
+    )
+    actuals = players.set_index("id").actual.to_dict()
+    source = [
+        "qb_c", "rb_a", "rb_b", "wr_a", "wr_b", "wr_c", "wr_d", "te_c",
+        "dst_c",
+    ]
+    roster, score = _candidate(source, actuals)
+    candidates = pd.DataFrame([{
+        "players": roster, "actual_score": score, "selected": True,
+        "selected_rank": 0,
+    }])
+
+    report = recourse_ceiling_slate(
+        players, candidates, expected_entries=1, compute_liveness=True
+    )
+
+    assert report["ceiling_gain"] > 0
+    assert report["status"] == "computed_perfect_information_upper_bound"
+    assert report["decision_stages_minutes"] == [780, 985]
+    assert report["realistic_recourse"]["status"] == (
+        "unidentifiable_from_frozen_summary_corpus"
+    )
+    assert report["per_stage_liveness"]["status"] == (
+        "computed_for_incumbent_locked_cores"
+    )
+    assert report["per_stage_liveness"]["stages"][0][
+        "perfect_information_live_entries"
+    ]["187"] in {0, 1}
+    assert set(report["source_early_players"]) == {
+        "rb_a", "rb_b", "wr_a", "wr_b"
+    }
+    assert set(report["source_early_players"]) <= set(
+        report["final_roster"]["players"]
+    )
+
+
 def test_independent_roster_audit_catches_rb_against_dst():
     ids = [
         "qb_a", "rb_b", "rb_c", "wr_a", "wr_b", "wr_c", "wr_d", "te_a",
@@ -120,6 +188,14 @@ def _manifest(tmp_path):
         "analysis_code_sha": "c" * 40,
         "outcome_query_after_freeze_only": True,
         "warehouse_retention": _warehouse_retention(),
+        "analysis_checklist": [
+            {
+                "id": item_id,
+                "evidence_class": evidence_class,
+                "required_disposition": disposition,
+            }
+            for item_id, evidence_class, disposition in ANALYSIS_CHECKLIST
+        ],
         "production": {
             "policy_id": "policy",
             "fallback_policy_id": "fallback",
@@ -210,8 +286,9 @@ def test_freeze_manifest_is_complete_and_hash_verified(tmp_path):
     manifest = _manifest(tmp_path)
     result = validate_freeze_manifest(manifest, repo_root=tmp_path)
     assert result["outputs"] == 9
-    assert result["mechanism_families"] == 12
+    assert result["mechanism_families"] == 13
     assert result["protocols"] == 1
+    assert len(manifest["analysis_checklist"]) == 36
 
 
 def test_freeze_manifest_rejects_unaccounted_protocol(tmp_path):
@@ -264,6 +341,14 @@ def test_freeze_manifest_rejects_unpinned_required_artifact(tmp_path):
     manifest["artifacts"] = manifest["artifacts"][1:]
     manifest["manifest_sha256"] = manifest_digest(manifest)
     with pytest.raises(FreezeManifestError, match="not pinned"):
+        validate_freeze_manifest(manifest, repo_root=tmp_path)
+
+
+def test_freeze_manifest_rejects_incomplete_analysis_checklist(tmp_path):
+    manifest = _manifest(tmp_path)
+    manifest["analysis_checklist"] = manifest["analysis_checklist"][:-1]
+    manifest["manifest_sha256"] = manifest_digest(manifest)
+    with pytest.raises(FreezeManifestError, match="analysis checklist"):
         validate_freeze_manifest(manifest, repo_root=tmp_path)
 
 
