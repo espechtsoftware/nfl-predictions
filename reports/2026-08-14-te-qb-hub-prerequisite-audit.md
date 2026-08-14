@@ -63,4 +63,3 @@ establishes a stable miss. With the already terminal SIS marginal,
 Route/dependence, pass-tail, selector, multi-seed, G-series and TD mechanisms,
 the preregistered historical mechanism queue is exhausted and the final
 forensic program may proceed.
-
