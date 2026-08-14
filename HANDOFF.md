@@ -120,8 +120,28 @@ agent or developer:
   `analyze-selector-resampling-v1-wdb6m`. Its manifest pins the 54-slate Phase
   S treatment R0 source, code/image/beta, 10,000 worlds, exact-80/194 selector,
   feedback/reconciliation/protocol hashes and write-once frequency artifact.
-  It cannot read realized outcomes or change production. Poll and harvest it,
-  and interpret it alongside the multi-seed factorial.
+  It cannot read realized outcomes or change production; interpret it
+  alongside the multi-seed factorial.
+- Selector-resampling execution `...-wdb6m` completed successfully in 15m01s
+  and the mechanically valid report/frequency artifact are harvested. Every
+  persisted full book reproduced exactly and no realized outcome was read.
+  Mean pairwise bootstrap exact-80 overlap is `61.6362`, disjoint-half overlap
+  is `54.2778`, and reciprocal train-minus-validation coverage optimism is
+  `0.01275`. All seasons fall in the frozen intermediate band; 2025 is least
+  stable at `60.3221` pairwise overlap.
+- Average candidate-frequency counts per slate are 45.15 selected in at least
+  90% of bootstrap books, 29.80 in 50%--under-90%, and 90.57 at positive but
+  under 50%. Mean prefix overlap at 1/5/10/20/40/60/80 is
+  `0.59/3.13/6.49/13.58/29.08/45.12/61.64`, confirming greater instability at
+  the top of the order. This has no production authority; enter it in the
+  forensic opportunity register and use the frozen multi-seed result as the
+  only current test of genuinely new selection worlds.
+- Human result is
+  `reports/2026-08-14-selector-resampling-score-free-result.md`. Tracked report
+  SHA-256 is
+  `8ad05426312cfa4fccf9ba6bc12ad47b0650dd6ce05c06b1bfbf86d1502e5d60`;
+  compressed frequency artifact hash is
+  `6774188eaa15d76807c78f63c49b574d908ec9a1cd3d0a21cca27d7036349cf2`.
 - With pass-tail completely harvested, the one-active-outcome-experiment
   firewall is clear. The frozen multi-seed candidate/world factorial launched
   concurrently with the score-free diagnostic as execution
