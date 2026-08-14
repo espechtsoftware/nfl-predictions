@@ -20,7 +20,49 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 13:22 CDT
+## Current state — 2026-08-14 14:12 CDT
+
+### 2026-08-14 restart checkpoint: SIS RB run-tail path implementation complete locally
+
+- The IDE/restarted agent process retained branch `main` at pushed commit
+  `51fb0f3`; Full Access restored GCP and Git network access without new
+  authentication. Terminal TD-ledger exact-code Cloud Build
+  `ac8758bc-712b-4cda-a9fc-fc6e1252bdc2` succeeded and produced immutable
+  digest
+  `sha256:b9c0480571b2941b6074d78cb577762d9c1658de2dbb70490169be7a8cb0ce88`.
+  The single frozen score-free rank-coupling execution is
+  `td-ledger-rank-coupling-v1-d9zdr`; it was launched from full code SHA
+  `934d2c3d0e55312502da83964a6f16e806b8d231` and was importing its image at
+  this checkpoint. Poll and harvest this execution before launching the queued
+  SIS arm.
+- The adaptive opponent run-defense Boom%/Bust% cache and score-free served-tail
+  path is now fully implemented but remains uncommitted at this checkpoint:
+  strict-prior four-game volume-weighted features, an exclusive GPU generator
+  branch, write-once control/treatment cache launch and validation, final-served
+  active-RB q95/q99 normalized-pinball evaluation, chunk/meta identity-checked
+  transport, CLI/replay research-table plumbing, and frozen Cloud Run launch and
+  harvest scripts. It keeps the protocol's finite Dirichlet
+  `K=28.154043586960896`, 10,000 worlds, 45/55 blend, earlier-fold-only scale
+  fitting, exact mean invariant, `adaptive_retrospective=true` label, and
+  terminal-ledger queue ordering.
+- Cache validation now binds report, BigQuery row, feature-contract and full
+  requested code identities; it also requires exact control reproduction.
+  Source construction fails closed on incomplete source-run/hash identities,
+  null/non-finite/negative attempt inputs, invalid rates, duplicate keys,
+  current/future weeks and row-changing joins. The final report transport pins
+  both compressed and uncompressed lengths/hashes and uses zero-based complete
+  chunk framing.
+- Shell syntax, Python compilation, whitespace validation and 28 focused SIS
+  run-tail/RB-defense/pass-tail tests pass. Five relevant replay tests also
+  pass. The unrelated role-belief model-training replay test exceeded a
+  45-second local timeout after starting; this is not a failing assertion and
+  the new run-tail allowlist is directly covered by the focused suite.
+- Uncommitted final-forensic diagnostic/corpus changes listed below remain
+  intentionally separate and must not be bundled with the SIS commit. Next
+  local action is to stage only the SIS run-tail files plus its bounded
+  generator/CLI/replay edits, review the staged diff, update this checkpoint
+  with the resulting full commit, commit and push. Then poll the TD build and
+  obey its terminal branch before building or launching the SIS GPU pair.
 
 ### 2026-08-14 pre-forensic exhaustion review reopens two bounded gates
 

@@ -378,6 +378,12 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--panel", required=True)
 
     p = sub.add_parser(
+        "tabpfn-sis-rb-runtail-final-served",
+        help="Gate the adaptive SIS RB run-tail caches on served tails",
+    )
+    p.add_argument("--panel", required=True)
+
+    p = sub.add_parser(
         "tabpfn-pfr-secondary-final-served",
         help="Gate frozen PFR secondary feature-drop caches on final-served tails",
     )
@@ -966,6 +972,10 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import tabpfn_sis_rb_rdef_final_served
 
         tabpfn_sis_rb_rdef_final_served.run(args.panel)
+    elif args.command == "tabpfn-sis-rb-runtail-final-served":
+        from .analysis import tabpfn_sis_rb_runtail_final_served
+
+        tabpfn_sis_rb_runtail_final_served.run(args.panel)
     elif args.command == "tabpfn-pfr-secondary-final-served":
         from .analysis import tabpfn_pfr_secondary_final_served
 

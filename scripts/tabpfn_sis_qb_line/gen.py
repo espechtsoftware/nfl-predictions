@@ -15,7 +15,28 @@ import torch
 from google.cloud import bigquery
 from tabpfn import TabPFNRegressor
 
-if os.environ.get("TABPFN_SIS_PASS_TAIL_ARM", "").strip():
+if os.environ.get("TABPFN_SIS_RB_RUNTAIL_ARM", "").strip():
+    from sis_rb_runtail import (
+        SIS_RB_RUNTAIL_FEATURES,
+        SIS_SOURCE_RUN,
+        SOURCE_HASH_COLUMNS,
+        active_rb_coverage as active_coverage,
+        attach_sis_rb_runtail as attach_features,
+        build_strict_prior_sis_rb_runtail as build_strict_prior,
+        feature_contract,
+    )
+    ARM_FEATURES = SIS_RB_RUNTAIL_FEATURES
+    EXPERIMENT = "sis-rb-runtail"
+    ARM_ENV = "TABPFN_SIS_RB_RUNTAIL_ARM"
+    OUTPUT_PREFIX = "TABPFN_SIS_RB_RUNTAIL_JSON="
+    COVERAGE_KEY = "active_rb_coverage"
+    SUPPORT_STEM = "sis_rb_runtail"
+    SIS_TABLE = "sis_team_run_context_game"
+    TABLES = {
+        "control": "tabpfn_sis_rb_runtail_control_v1",
+        "treatment": "tabpfn_sis_rb_runtail_treatment_v1",
+    }
+elif os.environ.get("TABPFN_SIS_PASS_TAIL_ARM", "").strip():
     from sis_pass_tail import (
         SIS_PASS_TAIL_FEATURES,
         SIS_SOURCE_RUN,
@@ -105,8 +126,8 @@ def _validate_environment() -> None:
         raise ValueError("CODE_SHA must be an immutable Git commit identity")
     other_arm_envs = [
         name for name in (
-            "TABPFN_SIS_PASS_TAIL_ARM", "TABPFN_SIS_RB_RDEF_ARM",
-            "TABPFN_SIS_QB_LINE_ARM",
+            "TABPFN_SIS_RB_RUNTAIL_ARM", "TABPFN_SIS_PASS_TAIL_ARM",
+            "TABPFN_SIS_RB_RDEF_ARM", "TABPFN_SIS_QB_LINE_ARM",
         )
         if name != ARM_ENV and os.environ.get(name, "").strip()
     ]
