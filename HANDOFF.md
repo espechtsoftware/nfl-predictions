@@ -20,7 +20,48 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-13 22:50 CDT
+## Current state — 2026-08-14 00:08 CDT
+
+### 2026-08-14 Phase S infrastructure review reconciled and recovery hardened
+
+- The operator-supplied review at
+  `reports/2026-08-13-phase-s-infrastructure-failure-review.md` has been read
+  in full and reconciled at
+  `reports/2026-08-14-phase-s-infrastructure-failure-reconciliation.md`. Its
+  core operational recommendation is accepted: a launch delay did not limit
+  concurrency. Thirty 8-CPU/32-GiB cells requested 240 vCPU/960 GiB against
+  the last recorded regional quota of 200 vCPU/400 GiB. The image is already
+  co-regional and about 330.5 MB, so quota/capacity pressure is demonstrated
+  while a single registry/BigQuery root cause is not.
+- `scripts/verify_sis_asoe_phase_s_execution.py` now verifies every execution's
+  own Cloud Run specification against its registered arm, seed replicate,
+  season, panel, job, image digest, code SHA, allocation law, ASOE flag,
+  resources and terminal status. The Phase S finisher requires all 30
+  execution-spec checks before analyzer launch. This is defense in depth: the
+  analyzer already queries immutable panels directly and checks their stored
+  seeds/levers/season completeness, so it does not relabel results merely from
+  ledger row order.
+- The Phase S launcher now enforces at most ten in-flight cells. New bounded
+  one-cell retry release and atomic ledger-update helpers recheck zero BigQuery
+  candidate/feature rows and zero GCS artifacts, validate the launched
+  execution spec, require 30 unique factorial cells/IDs and then substitute
+  exactly the matching ledger row. Twelve focused execution/analyzer/ledger
+  tests and the complete 1,181-test suite pass; shell syntax, Python
+  compilation and whitespace validation also pass.
+- The first bounded release check correctly stopped on a newly failed current
+  cell rather than launching anything: treatment R2/2023 replacement
+  `replay-sisasoet2-2023-lf7l8` terminated after about 30 minutes with Cloud
+  Run internal error/exit code 0, no application logs, zero candidate rows,
+  zero feature rows and zero candidate-world artifacts. It is now back in
+  `pending_infrastructure_retries.txt`. No outcome was read and the main
+  execution ledger was not changed.
+- Continue status-only polling. Do not release any queued retry until the
+  current nonterminal count is below ten; then run
+  `scripts/cloud_release_sis_asoe_phase_s_retry.sh`, which releases at most one
+  verified cell and owns its ledger substitution. Any new current failure
+  outside the pending queue makes the releaser stop for zero-output
+  classification. After 30 verified successes, run the hardened Phase S
+  finisher/analyzer and harvest the frozen decision.
 
 ### 2026-08-13 Phase R complete; finite K selected
 

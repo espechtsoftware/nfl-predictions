@@ -20,20 +20,16 @@ CONTROL=$(awk -F= '$1=="selected_control_arm" {print $2}' "$MANIFEST")
 case "$CONTROL" in mult|k) ;; *) echo "ABORT: invalid control arm"; exit 2;; esac
 
 while read -r arm rep season panel job execution; do
-  state=$(gcloud run jobs executions describe "$execution" \
-    --project "$PROJECT" --region "$REGION" \
-    --format='value(status.conditions[0].status)')
-  succeeded=$(gcloud run jobs executions describe "$execution" \
-    --project "$PROJECT" --region "$REGION" \
-    --format='value(status.succeededCount)')
-  failed=$(gcloud run jobs executions describe "$execution" \
-    --project "$PROJECT" --region "$REGION" \
-    --format='value(status.failedCount)')
-  failed=${failed:-0}
-  [ "$state" = True ] && [ "$succeeded" = 1 ] && [ "$failed" = 0 ] || {
-    echo "ABORT: $arm R$rep $season $execution is not clean ($state/$succeeded/$failed)"
-    exit 1
-  }
+  gcloud run jobs executions describe "$execution" \
+    --project "$PROJECT" --region "$REGION" --format=json \
+    | "$ROOT/.venv/bin/python" \
+      "$ROOT/scripts/verify_sis_asoe_phase_s_execution.py" \
+      --arm "$arm" --replicate "$rep" --season "$season" \
+      --panel "$panel" --job "$job" --execution "$execution" \
+      --image "$IMG" --code-sha "$CODE_SHA" --control-arm "$CONTROL" || {
+        echo "ABORT: $arm R$rep $season $execution provenance/status differs"
+        exit 1
+      }
 done < "$LIST"
 
 JOB=analyze-sis-asoe-phase-s-v1

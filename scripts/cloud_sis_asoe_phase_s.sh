@@ -14,6 +14,7 @@ MANIFEST_R="$PHASE_R/manifest.txt"
 PROTOCOL="$ROOT/reports/2026-08-13-game-team-usage-repair-and-sis-asoe-exact80-protocol.md"
 RUN_ID=20260813-sis-asoe-phase-s-v1
 OUT="$ROOT/reports/sis-asoe-phase-s-runs/$RUN_ID"
+MAX_IN_FLIGHT=${PHASE_S_MAX_IN_FLIGHT:-10}
 
 [ -s "$REPORT" ] && [ -s "$MANIFEST_R" ] || {
   echo "ABORT: successful harvested Phase R is required"; exit 2; }
@@ -32,6 +33,11 @@ PY
 case "$SELECTED" in mult|k) ;; *) echo "ABORT: invalid Phase R arm $SELECTED"; exit 2;; esac
 case "$IMG" in *@sha256:*) ;; *) echo "ABORT: immutable image missing"; exit 2;; esac
 [ -n "$CODE_SHA" ] || { echo "ABORT: embedded code SHA missing"; exit 2; }
+case "$MAX_IN_FLIGHT" in
+  ''|*[!0-9]*) echo "ABORT: PHASE_S_MAX_IN_FLIGHT must be an integer"; exit 2 ;;
+esac
+[ "$MAX_IN_FLIGHT" -ge 1 ] && [ "$MAX_IN_FLIGHT" -le 10 ] || {
+  echo "ABORT: Phase S in-flight cap must be between 1 and 10"; exit 2; }
 
 mkdir -p "$OUT"
 printf '%s\n' \
@@ -66,6 +72,36 @@ position_spec() {
     2025) printf '%s' 'QB:0.925,RB:0.96,TE:0.94,WR:1.04' ;;
     *) return 2 ;;
   esac
+}
+
+# A launch delay is not a concurrency limit: the original 30-second stagger
+# still requested all 30 8-CPU/32-GiB cells within fifteen minutes. Keep the
+# live set inside regional headroom and stop immediately if a cell fails while
+# the panel is still being released.
+ACTIVE_EXECUTIONS=()
+wait_for_capacity() {
+  local execution state
+  local still_active=()
+  while true; do
+    still_active=()
+    for execution in "${ACTIVE_EXECUTIONS[@]}"; do
+      state=$(gcloud run jobs executions describe "$execution" \
+        --project "$PROJECT" --region "$REGION" \
+        --format='value(status.conditions[0].status)')
+      case "$state" in
+        True) ;;
+        False)
+          echo "ABORT: $execution failed while releasing Phase S" >&2
+          exit 1
+          ;;
+        *) still_active+=("$execution") ;;
+      esac
+    done
+    ACTIVE_EXECUTIONS=("${still_active[@]}")
+    [ "${#ACTIVE_EXECUTIONS[@]}" -lt "$MAX_IN_FLIGHT" ] && return
+    echo "Phase S cap $MAX_IN_FLIGHT active; waiting for a slot"
+    sleep 60
+  done
 }
 
 common_env() {
@@ -117,6 +153,7 @@ for ARM in control treatment; do
     [ "${EXISTING:-0}" = 0 ] || {
       echo "ABORT: $PANEL already has $EXISTING rows"; exit 2; }
     for SEASON in 2023 2024 2025; do
+      wait_for_capacity
       FAMILY="sisasoe${ARM:0:1}${REP}"
       JOB="replay-${FAMILY}-${SEASON}"
       LINEUPS="$PROJECT.nfl_features.replay_lineups_${FAMILY}_${SEASON}"
@@ -143,6 +180,7 @@ for ARM in control treatment; do
         echo "ABORT: $EXEC runs $GOT, expected $IMG"; exit 1; }
       printf '%s %s %s %s %s %s\n' \
         "$ARM" "$REP" "$SEASON" "$PANEL" "$JOB" "$EXEC" | tee -a "$OUT/executions.txt"
+      ACTIVE_EXECUTIONS+=("$EXEC")
     done
   done
 done
