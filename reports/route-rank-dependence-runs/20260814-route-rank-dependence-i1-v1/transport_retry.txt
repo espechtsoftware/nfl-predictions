@@ -1,0 +1,6 @@
+reason=numpy-json-transport-only
+original_execution=route-rank-dependence-i1-v1-j6xfl
+original_image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:bd2e744c2f7da238ec8937b2ce38f7827d7d8f6081cd73405c53e985247805f2
+retry_image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:5928949f9503dcab7a33979a1fa1a3ee88f5f1ddd2fcc4ad2fa7c5ecd645f56f
+retry_code_sha=c263939
+retry_execution=route-rank-dependence-i1-v1-gwkxp

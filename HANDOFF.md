@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 04:35 CDT
+## Current state — 2026-08-14 04:45 CDT
 
 ### 2026-08-14 Phase S complete; SIS ASOE selected; Route follow-ups ready
 
@@ -54,10 +54,14 @@ agent or developer:
   Report transport now normalizes NumPy scalars/arrays, a regression test
   exercises the actual failure class, and the complete local suite passes
   with one existing skip. Exact-commit retry build
-  `3dfdf7e0-e115-4ab3-a5a1-e865b60781a8` is running from `c263939`. A
+  `3dfdf7e0-e115-4ab3-a5a1-e865b60781a8` succeeded from `c263939` and
+  published immutable digest
+  `sha256:5928949f9503dcab7a33979a1fa1a3ee88f5f1ddd2fcc4ad2fa7c5ecd645f56f`.
+  A
   dedicated retry path verifies the original execution and exact error line,
   preserves every scientific setting, and records the new image/code and
-  execution separately; launch it only after the build succeeds.
+  execution separately. It passed those provenance checks and launched retry
+  execution `route-rank-dependence-i1-v1-gwkxp`, which is active.
 - The first SIS pass-tail exact-80 launcher invocation stopped before creating
   a run manifest or allocating compute because its prerequisite guard treated
   the frozen report's per-arm `maximum_mean_delta` object as a scalar. The
