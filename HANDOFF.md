@@ -20,10 +20,27 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 06:54 CDT
+## Current state — 2026-08-14 07:01 CDT
 
 ### 2026-08-14 Phase S complete; SIS ASOE selected; Route follow-ups ready
 
+- Independent queue verification confirms that pass-tail is the only active
+  historical score experiment and that G3, Route marginal, Route I1/R2 rank
+  dependence and the registered SIS team-defense schema estimand all have
+  terminal frozen dispositions. Carry the SIS qualifier precisely: only Team
+  Pass Defense Totals at team/game grain as a source of
+  coverage-snap-normalized efficiency is closed; `Att`-composition ASOE and
+  player/defender-grain denominators are separate mechanisms. Phase S already
+  selected the ASOE mechanism. The three Route results together close both
+  historical channels: marginal Route fields failed the served-tail gate, and
+  unshrunk plus midpoint-shrunk rank/copula treatments failed their dependence
+  gates. Route remains prospective-shadow-only for 2026.
+- The same verification identified that a live pass-tail ledger batch could
+  exist only in the working tree. The launcher now checkpoints and pushes
+  `executions.txt` immediately after every provenance-verified release and
+  before allocating the next cell. The already-running launcher predates that
+  edit, so its observed batches are being checkpointed manually; 28 released
+  mappings are included in the next pushed checkpoint.
 - The external Phase S infrastructure-failure review has been reconciled with
   the shipped recovery path. Its blocking ledger-substitution risk is closed:
   the finisher verifies the execution-owned job, full arm/replicate/season
@@ -60,11 +77,11 @@ agent or developer:
   `0.216526`, with material regressions for QB_TE, QB_RB, WR_WR and RB_RB.
   Disposition is `route-rank-dependence-r2-fails`. Close midpoint Route-rank
   shrinkage on this panel and do not launch an R2 exact-80 score experiment.
-- SIS pass-tail exact-80 has released 25 of 30 registered cells under its hard
-  ten-cell cap; the control half and treatment R0/R1/R2 are fully released,
-  and the newest cell is treatment R3/2023 execution
-  `replay-sisptt3-2023-m8h72`. Ten earlier cells are clean successes and the
-  launcher has encountered no failure. Launcher session `51675` is active.
+- SIS pass-tail exact-80 has released 28 of 30 registered cells under its hard
+  ten-cell cap; the control half and treatment R0/R1/R2/R3 are fully released,
+  and the newest cell is treatment R4/2023 execution
+  `replay-sisptt4-2023-lsxbs`. The launcher has encountered no failure.
+  Launcher session `51675` is active.
   Continue
   polling it so the remaining cells are released as successful cells free
   capacity; do not read partial score outcomes.

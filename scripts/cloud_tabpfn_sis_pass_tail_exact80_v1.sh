@@ -186,6 +186,16 @@ while true; do
 done
 
 ACTIVE_EXECUTIONS=()
+checkpoint_execution_ledger() {
+  local count ledger_rel
+  ledger_rel=${OUT#"$ROOT"/}
+  count=$(wc -l < "$OUT/executions.txt" | tr -d '[:space:]')
+  git -C "$ROOT" add -- "$ledger_rel"
+  git -C "$ROOT" commit --only \
+    -m "Checkpoint pass-tail at $count released cells" -- \
+    "$ledger_rel"
+  git -C "$ROOT" push origin HEAD
+}
 wait_for_capacity() {
   local execution state
   local still_active=()
@@ -237,6 +247,7 @@ for ARM in control treatment; do
           --allow-nonterminal
       printf '%s %s %s %s %s %s\n' \
         "$ARM" "$REP" "$SEASON" "$PANEL" "$JOB" "$EXEC" | tee -a "$OUT/executions.txt"
+      checkpoint_execution_ledger
       ACTIVE_EXECUTIONS+=("$EXEC")
     done
   done
