@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 14:12 CDT
+## Current state — 2026-08-14 14:14 CDT
 
 ### 2026-08-14 restart checkpoint: SIS RB run-tail path implementation complete locally
 
@@ -36,7 +36,7 @@ agent or developer:
   this checkpoint. Poll and harvest this execution before launching the queued
   SIS arm.
 - The adaptive opponent run-defense Boom%/Bust% cache and score-free served-tail
-  path is now fully implemented but remains uncommitted at this checkpoint:
+  path is fully implemented and pushed on `main` as commit `23fdbba`:
   strict-prior four-game volume-weighted features, an exclusive GPU generator
   branch, write-once control/treatment cache launch and validation, final-served
   active-RB q95/q99 normalized-pinball evaluation, chunk/meta identity-checked
@@ -58,11 +58,10 @@ agent or developer:
   45-second local timeout after starting; this is not a failing assertion and
   the new run-tail allowlist is directly covered by the focused suite.
 - Uncommitted final-forensic diagnostic/corpus changes listed below remain
-  intentionally separate and must not be bundled with the SIS commit. Next
-  local action is to stage only the SIS run-tail files plus its bounded
-  generator/CLI/replay edits, review the staged diff, update this checkpoint
-  with the resulting full commit, commit and push. Then poll the TD build and
-  obey its terminal branch before building or launching the SIS GPU pair.
+  intentionally separate and were not bundled with the SIS commit. Next action
+  is to poll and harvest `td-ledger-rank-coupling-v1-d9zdr`; after its terminal
+  disposition, build the exact `23fdbba` SIS GPU image and launch/harvest the
+  cache pair and score-free final-served gate in frozen order.
 
 ### 2026-08-14 pre-forensic exhaustion review reopens two bounded gates
 
