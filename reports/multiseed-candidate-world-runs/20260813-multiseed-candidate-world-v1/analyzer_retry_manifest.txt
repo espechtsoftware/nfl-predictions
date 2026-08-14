@@ -1,0 +1,6 @@
+retry_image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:279b81a693a786fdbea2ba2fecf61075c056561f5933e5b9582551cbebb48bac
+retry_code_sha=24ced17
+prior_execution=analyze-multiseed-candidate-world-v1-blhp5
+retry_reason=cloud_logging_single_entry_truncation
+source_code_sha=4d6f5cf
+source_arm=treatment

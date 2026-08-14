@@ -178,6 +178,12 @@ agent or developer:
   directly from the preserved first log line; this changes no scientific
   input or computation. Validate and push this guard-only repair, then launch
   the exact transport retry on that already-validated digest.
+- Guard-only repair commit `4ba1d25` is pushed. The corrected guard verified
+  the original successful execution and registered truncation signature, then
+  launched transport-only execution
+  `analyze-multiseed-candidate-world-v1-9zf9b` on the validated immutable
+  digest above. Poll it to terminal and harvest only the complete chunked
+  reconstruction; do not use the partial original log.
 
 ### 2026-08-14 Phase S complete; SIS ASOE selected; Route follow-ups ready
 
