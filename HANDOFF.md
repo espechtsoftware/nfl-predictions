@@ -38,6 +38,14 @@ agent or developer:
   queue, not every conceivable Route interaction or transform; no further
   historical Route score arm is licensed, while the 2026 prospective shadow
   remains open.
+- One terminology correction to the verification: conditional I2 is the Route
+  marginal x ASOE factorial. Because the marginal `M` gate failed, I2 is
+  terminally not run under its frozen branch. The separate artifact-only
+  multi-seed candidate/world factorial is not I2; it remains frozen and
+  not-yet-launched for the Phase S-selected treatment law. Run it after the
+  pass-tail exact-80 experiment is completely harvested, preserving the
+  one-active-historical-score-experiment discipline, and before final forensic
+  closure.
 - The same verification identified that a live pass-tail ledger batch could
   exist only in the working tree. The launcher now checkpoints and pushes
   `executions.txt` immediately after every provenance-verified release and
