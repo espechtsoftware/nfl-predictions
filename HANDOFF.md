@@ -70,9 +70,22 @@ agent or developer:
   `148,025`, 54 slates, `869a648a...e7e`). The complete signed-summary inputs
   are tracked in the run directory; these are metadata/provenance queries, not
   a new outcome read.
-- Next concrete action: commit the completed registry, prelock hashes and
-  analyzer contract, then run an exact-commit full immutable Cloud Build and
-  commit the freeze manifest pinned to that digest. Only after that manifest
+- The post-freeze H/P/C/S runner is now implemented but has not been run. It
+  validates the committed manifest and runtime image/code identity, recomputes
+  every prelock hash before requesting outcomes, independently reconciles the
+  complete salary-listed Sunday-main skill/DST universe and authoritative
+  actuals, reconstructs CBWU from the five source books and hash-verified score
+  artifacts, then solves/reconstructs H/P/C/S. The new CBWU forensic transport
+  reproduces the registered fixed-budget CBWU selected order exactly in its
+  pure test; 20 focused final-forensic/multiseed tests pass.
+- Registry commit `08725b3` is pushed. Full Cloud Build
+  `694ff04f-4148-4575-8dbf-b9346fe77270` is active for that contract-only
+  commit. Because the H/P/C/S runner was implemented after its source upload,
+  any image it emits is validation evidence only and must not be pinned as the
+  final analyzer; the exact H/P/C/S commit requires a superseding full build.
+- Next concrete action: commit the H/P/C/S runner, harvest the validation-only
+  build, run the superseding exact-commit full build, and commit the freeze
+  manifest pinned to the superseding digest. Only after that manifest
   commit may the first new outcome-facing H/P/C/S query run. Keep the evidence
   scopes explicit: component evidence spans 107 slates, position/Phase-S/CBWU
   evidence spans 54; there is no 107-slate CBWU book and one must never be

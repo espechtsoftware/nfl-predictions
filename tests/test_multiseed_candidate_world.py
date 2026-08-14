@@ -12,6 +12,7 @@ from nfl_dfs.optimizer.lineup import select_from_support
 from nfl_dfs.research.multiseed_candidate_world import (
     ARMS,
     evaluate_factorial_slate,
+    reconstruct_fixed_budget_book,
     summarize_factorial,
     summarize_standalone_seed_books,
     validate_and_cross_score_slate,
@@ -118,6 +119,19 @@ def test_factorial_returns_exact_books_and_equal_weight_world_union():
     )
     assert result["arms"]["C0W0"]["candidate_count"] == 3
     assert result["arms"]["CUWU"]["candidate_count"] >= 3
+
+
+def test_fixed_budget_forensic_book_exactly_reconstructs_cbwu():
+    rows, artifacts = _fixture()
+    result = evaluate_factorial_slate(rows, artifacts, entry_count=2)
+    book = reconstruct_fixed_budget_book(rows, artifacts, entry_count=2)
+
+    selected = book[book.selected].sort_values("selected_rank").players.tolist()
+    assert selected == result["fixed_budget_confirmation"]["CBWU"][
+        "selected_rosters"
+    ]
+    assert len(book) == result["arms"]["C0W0"]["candidate_count"]
+    assert book.selected.sum() == 2
 
 
 def test_rejects_native_totals_that_do_not_reconstruct():

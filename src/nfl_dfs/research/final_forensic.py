@@ -201,6 +201,7 @@ def build_freeze_manifest(
     *,
     repo_root: str | Path,
     analysis_image: str,
+    analysis_code_sha: str,
     production: Mapping[str, Any],
     panels: Sequence[Mapping[str, Any]],
     registry_path: str | Path,
@@ -231,6 +232,7 @@ def build_freeze_manifest(
     manifest: dict[str, Any] = {
         "protocol_id": PROTOCOL_ID,
         "analysis_image": analysis_image,
+        "analysis_code_sha": analysis_code_sha,
         "outcome_query_after_freeze_only": True,
         "production": dict(production),
         "panels": [dict(panel) for panel in panels],
@@ -282,6 +284,11 @@ def validate_freeze_manifest(
     image = str(manifest.get("analysis_image", ""))
     if "@sha256:" not in image or len(image.rsplit("@sha256:", 1)[-1]) != 64:
         failures.append("analysis_image is not an immutable sha256 digest")
+    code_sha = str(manifest.get("analysis_code_sha", ""))
+    if len(code_sha) != 40 or any(
+        char not in "0123456789abcdef" for char in code_sha
+    ):
+        failures.append("analysis_code_sha is not a full lowercase git SHA")
     if manifest.get("outcome_query_after_freeze_only") is not True:
         failures.append("outcome-query firewall is not enabled")
     production = manifest.get("production", {})

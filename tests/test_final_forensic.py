@@ -112,6 +112,7 @@ def _manifest(tmp_path):
     manifest = {
         "protocol_id": PROTOCOL_ID,
         "analysis_image": "repo/image@sha256:" + "a" * 64,
+        "analysis_code_sha": "c" * 40,
         "outcome_query_after_freeze_only": True,
         "production": {
             "policy_id": "policy",
@@ -265,6 +266,7 @@ def test_build_freeze_manifest_expands_reviewed_registry(tmp_path):
     manifest = build_freeze_manifest(
         repo_root=tmp_path,
         analysis_image="repo/analyzer@sha256:" + "a" * 64,
+        analysis_code_sha="c" * 40,
         production=production,
         panels=panels,
         registry_path=registry,

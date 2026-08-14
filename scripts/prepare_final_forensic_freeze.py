@@ -55,7 +55,7 @@ def main() -> None:
         if not inputs_path.is_absolute():
             inputs_path = root / inputs_path
         inputs = json.loads(inputs_path.read_text(encoding="utf-8"))
-        expected = {"analysis_image", "production", "panels"}
+        expected = {"analysis_image", "analysis_code_sha", "production", "panels"}
         if set(inputs) != expected:
             raise SystemExit(
                 "freeze inputs must contain exactly " + ", ".join(sorted(expected))
@@ -63,6 +63,7 @@ def main() -> None:
         manifest = build_freeze_manifest(
             repo_root=root,
             analysis_image=inputs["analysis_image"],
+            analysis_code_sha=inputs["analysis_code_sha"],
             production=inputs["production"],
             panels=inputs["panels"],
             registry_path=args.registry,

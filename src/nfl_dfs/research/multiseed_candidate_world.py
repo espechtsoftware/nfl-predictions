@@ -282,6 +282,62 @@ def evaluate_factorial_slate(
     return output
 
 
+def reconstruct_fixed_budget_book(
+    seed_rows: Mapping[int, pd.DataFrame],
+    seed_artifacts: Mapping[int, Mapping[str, np.ndarray]],
+    *,
+    world_union: bool = True,
+    entry_count: int = 80,
+) -> pd.DataFrame:
+    """Return the frozen fixed-budget candidate pool and selected membership.
+
+    This is the forensic transport for the adopted CBWU mechanism.  It uses
+    the same first-supplying-seed deduplication, source quota/fill order and
+    cross-world selector as the registered factorial, while exposing the
+    complete fixed-budget candidate frame needed for H/P/C/S decomposition.
+    No realized score enters candidate allocation or selection.
+    """
+    canonical, cross = validate_and_cross_score_slate(
+        seed_rows, seed_artifacts, entry_count=entry_count
+    )
+    seeds = sorted(canonical)
+    base = seeds[0]
+    union_records: list[tuple[int, int, str, float]] = []
+    seen: set[str] = set()
+    for seed in seeds:
+        for row_index, row in enumerate(canonical[seed].itertuples()):
+            if row.roster_key in seen:
+                continue
+            seen.add(row.roster_key)
+            union_records.append(
+                (seed, row_index, row.roster_key, float(row.actual_score))
+            )
+    base_budget = sum(record[0] == base for record in union_records)
+    records = _fixed_budget_records(union_records, seeds, base_budget)
+    world_seeds = seeds if world_union else [base]
+    matrix = np.concatenate([
+        np.stack([
+            cross[(candidate_seed, world_seed)][row_index]
+            for candidate_seed, row_index, _, _ in records
+        ])
+        for world_seed in world_seeds
+    ], axis=1)
+    clears = matrix >= 194.0
+    picked = select_from_support(
+        clears, clears.mean(axis=1), matrix.mean(axis=1), entry_count
+    )
+    selected_rank = {row_index: rank for rank, row_index in enumerate(picked)}
+    return pd.DataFrame({
+        "players": [record[2] for record in records],
+        "actual_score": [record[3] for record in records],
+        "source_seed": [record[0] for record in records],
+        "selected": [index in selected_rank for index in range(len(records))],
+        "selected_rank": [
+            selected_rank.get(index) for index in range(len(records))
+        ],
+    })
+
+
 def _book_metrics(slates: Sequence[dict], key: str, book: str) -> dict:
     best = np.asarray([slate[key][book]["selected_best"] for slate in slates])
     oracle = np.asarray([slate[key][book]["oracle_best"] for slate in slates])
