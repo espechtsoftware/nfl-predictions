@@ -1,6 +1,7 @@
 import base64
 import importlib.util
 import json
+import math
 from pathlib import Path
 import zlib
 
@@ -126,3 +127,14 @@ def test_analyzer_chunk_transport_round_trips():
     assert json.loads(zlib.decompress(base64.b64decode(encoded))) == report
     assert all(len(chunk) <= analyzer.OUTPUT_CHUNK_SIZE
                for chunk in analyzer.encoded_report_chunks(report))
+
+
+def test_frozen_final_served_mean_delta_contract_is_per_arm():
+    path = (ROOT / "reports" / "tabpfn-sis-pass-tail-runs" /
+            "20260813-tabpfn-sis-pass-tail-final-served-v1" / "report.json")
+    report = json.loads(path.read_text(encoding="utf-8"))
+    mean_deltas = report["maximum_mean_delta"]
+    assert set(mean_deltas) == {"control", "treatment"}
+    assert all(math.isfinite(float(mean_deltas[arm]))
+               and abs(float(mean_deltas[arm])) <= 1e-10
+               for arm in ("control", "treatment"))

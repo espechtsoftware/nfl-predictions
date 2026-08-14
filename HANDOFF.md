@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 03:54 CDT
+## Current state — 2026-08-14 03:59 CDT
 
 ### 2026-08-14 Phase S complete; SIS ASOE selected; Route follow-ups ready
 
@@ -41,6 +41,18 @@ agent or developer:
   the 54-slate clustered 95% interval is [-1.223, 1.949]. The selected
   treatment state is now the common inherited ASOE law for all preregistered
   Route and SIS pass-tail follow-ups; do not refit beta or change the branch.
+- Route marginal cache executions `tabpfn-route-i1-control-r4hvs` and
+  `tabpfn-route-i1-marginal-9l2vl`, plus Route component/rank execution
+  `route-rank-dependence-i1-v1-j6xfl`, launched successfully under the
+  selected Phase S treatment state. They were active at this milestone.
+- The first SIS pass-tail exact-80 launcher invocation stopped before creating
+  a run manifest or allocating compute because its prerequisite guard treated
+  the frozen report's per-arm `maximum_mean_delta` object as a scalar. The
+  local orchestration guard now requires exactly control/treatment keys and
+  validates both finite values against `1e-10`; the unchanged scientific
+  panel and frozen generation image/code remain intact. Shell syntax, the
+  actual frozen-report contract, focused tests and whitespace checks pass.
+  Commit/push this repair, then relaunch the same registered panel.
 - The current-stack I1 Route Share marginal-channel experiment is frozen in
   `reports/2026-08-14-route-channel-i1-protocol.md`, before Phase S is
   harvested and before either new cache exists. It compares accepted

@@ -63,8 +63,11 @@ if f.get("cache_tables") != {
     raise SystemExit("ABORT: pass-tail cache identities differ")
 if f.get("common_usage_law", {}).get("k") != "28.154043586960896":
     raise SystemExit("ABORT: pass-tail calibration usage law differs")
-if not math.isfinite(float(f.get("maximum_mean_delta", float("nan")))) or \
-        abs(float(f["maximum_mean_delta"])) > 1e-10:
+mean_deltas = f.get("maximum_mean_delta")
+if not isinstance(mean_deltas, dict) or set(mean_deltas) != {"control", "treatment"} or \
+        any(not math.isfinite(float(mean_deltas[name])) or
+            abs(float(mean_deltas[name])) > 1e-10
+            for name in ("control", "treatment")):
     raise SystemExit("ABORT: pass-tail mean-preservation gate differs")
 expected = {
     "control": {
