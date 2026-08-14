@@ -60,6 +60,13 @@ agent or developer:
   `reports/sis-asoe-phase-s-runs/20260813-sis-asoe-phase-s-v1/executions.txt`.
   Poll terminal state only; after 30 clean successes run the Phase S finish,
   poll/harvest its analyzer, and apply the frozen five-seed decision.
+- Three initial Phase S executions failed before application startup with zero
+  application logs, candidate rows, feature rows and artifacts. Each received
+  one byte-identical retry, recorded in `infrastructure_retries.txt` and
+  substituted into the execution ledger: control R0 2024
+  `replay-sisasoec0-2024-vntds`, control R1 2024
+  `replay-sisasoec1-2024-kpj74`, and treatment R3 2023
+  `replay-sisasoet3-2023-fsnmw`. No outcome was read and no arm/config changed.
 
 ### 2026-08-13 SIS pass-tail caches validated; frozen score gate running
 
