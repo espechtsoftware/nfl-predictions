@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 18:56 CDT
+## Current state — 2026-08-14 19:13 CDT
 
 ### 2026-08-14 final-forensic audit expanded; decision-structure queue registered
 
@@ -107,13 +107,31 @@ agent or developer:
   `final-preseason-forensic-v1` is pinned to the analyzer digest with 8 CPU,
   32 GiB, one task, zero retries and a 24-hour timeout. Its sole licensed
   execution is `final-preseason-forensic-v1-n79f7`.
-- Next concrete action: poll execution `final-preseason-forensic-v1-n79f7` to
-  terminal state without launching a second execution. On success, download
-  and validate all nine create-only outputs plus the four WRITE_EMPTY corpus
-  tables, then write the result/closure report and retain the corpus for
-  independent review. On failure, inspect logs and classify whether an exact
-  same-input mechanical repair is permitted; never silently rerun or alter the
-  frozen estimand. Delete the corpus before the first 2026 production build.
+- Execution `final-preseason-forensic-v1-n79f7` is terminal failed and invalid
+  mechanical. It stopped at outcome-free prelock validation before any actual
+  score query, output object or warehouse table. The cause was not data drift:
+  the JavaScript used to assemble `freeze_inputs.json` rounded 18 signed
+  64-bit BigQuery fingerprints beyond JavaScript's safe-integer range. The
+  frozen manifest therefore contained rounded `row_xor`, `row_min` and
+  `row_max` values and the analyzer correctly failed closed.
+- Outcome-free Cloud Run diagnostic execution
+  `final-forensic-prelock-diagnostic-v1-64vp6` under the identical image and
+  service account reproduced all three original tracked hashes and counts.
+  Diagnostic comparison execution `final-forensic-prelock-compare-v1-9zn45`
+  exposed the rounded-versus-exact values directly. The tracked inputs have
+  now been repaired from the original `prelock_panels.json`, and both inputs
+  and rebuilt manifest compare exactly equal to that source. The repaired
+  manifest SHA-256 is
+  `470d336085c04ffcca5ae2e28d42deb3fb3f8037f195855845f49e7975a86776`;
+  file SHA-256 is
+  `966bec4d2f72a36d7fcd4d580263c06dfa44b955a4d8ea0d6c5315e26a632443`.
+- Next concrete action: commit/push the repaired pre-outcome manifest, upload
+  it under a new create-only GCS object while retaining the invalid original,
+  cloud-compare it to the exact panel fingerprints, then allow exactly one
+  repaired execution. Download and validate all nine create-only outputs plus
+  the four WRITE_EMPTY corpus tables, write the result/closure report and
+  retain the corpus for independent review. Delete it before the first 2026
+  production build.
 
 ### 2026-08-14 seed executions reverified; TE prerequisite closes queue
 
