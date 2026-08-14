@@ -143,7 +143,10 @@ agent or developer:
   candidate/world cells, metrics, gate and resources. Focused multi-seed and
   selector validation passes 12 tests; Python/shell syntax and whitespace
   checks pass. Publish an exact-commit full-test image, retry the analyzer and
-  harvest only the complete reconstructed report.
+  harvest only the complete reconstructed report. Exact-code build
+  `cc1ddc35-d1e2-4971-b110-fa1623091e87` is running from `24ced17` with tag
+  `nfl-dfs:multiseed-transport-24ced17`; use only its successful immutable
+  digest for the guarded retry.
 
 ### 2026-08-14 Phase S complete; SIS ASOE selected; Route follow-ups ready
 
