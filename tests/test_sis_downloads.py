@@ -343,6 +343,17 @@ def test_team_pass_defense_schema_slices_are_frozen_and_bounded():
     ) == 8
 
 
+def test_player_pass_defense_grain_scope_is_frozen_and_bounded():
+    assert sis.PLAYER_PASS_DEFENSE_GRAIN_FILTERS == {
+        "PassDefenseFilters.DefenderPos": ["12"],
+        "PassDefenseFilters.ReceiverPos": ["4"],
+        "PassDefenseFilters.TargetLinedUp": ["2"],
+        "PassDefenseFilters.MinTargets": ["0"],
+        "PassDefenseFilters.MinAttempts": ["0"],
+    }
+    assert sis.PLAYER_PASS_DEFENSE_GRAIN_API_REQUEST_CEILING == 3
+
+
 def test_asoe_acquisition_grid_is_frozen_and_subcap():
     assert sis.ASOE_SEASONS == (2022, 2023, 2024, 2025)
     assert sis.ASOE_WINDOWS == ((1, 6), (7, 12), (13, 17))
@@ -589,6 +600,65 @@ def test_team_pass_defense_schema_rejects_missing_teams_and_cap(tmp_path):
     assert not result["passes"]
     assert "union-team-count:31" in result["failures"]
     assert any(failure.endswith(":row-cap") for failure in result["failures"])
+
+
+def _player_defense_grain_fixture(tmp_path):
+    path = tmp_path / sis._player_pass_defense_grain_artifact()
+    path.write_text(
+        "Rank,Season,Week,Opp.,Games,Player,Cov. Snaps,Tgts,Catchable,Pass Def.\n"
+        "1,2025,1,BUF,1,Alpha Corner,30,4,2,1\n"
+        "2,2025,2,CAR,1,Alpha Corner,25,3,2,0\n",
+        encoding="utf-8",
+    )
+    spec = sis.ExportSpec(
+        entity="players", report="pass-defense-totals", season=2025,
+        start_week=1, end_week=18, split_by_game=True, team_id=1,
+    )
+    return {
+        "api_requests_used": 1,
+        "api_request_ceiling": 3,
+        "artifacts": [{
+            "artifact": path.name,
+            "sha256": sis._sha256(path),
+            "rows": 2,
+            "spec": asdict(spec),
+            "submitted_scope": dict(sis.PLAYER_PASS_DEFENSE_GRAIN_FILTERS),
+            "identities": [
+                {"season": 2025, "week": 1, "games": 1, "teamId": 1,
+                 "playerId": 101, "player": "Alpha Corner"},
+                {"season": 2025, "week": 2, "games": 1, "teamId": 1,
+                 "playerId": 101, "player": "Alpha Corner"},
+            ],
+        }],
+    }
+
+
+def test_player_pass_defense_grain_analysis_reads_only_schema_and_identity(tmp_path):
+    result = sis.analyze_player_pass_defense_grain_sample(
+        tmp_path, _player_defense_grain_fixture(tmp_path)
+    )
+    assert result["passes"]
+    assert result["disposition"] == (
+        "sis-player-pass-defense-grain-feasibility-passes"
+    )
+    assert result["distinct_player_ids"] == 1
+    assert result["weeks"] == [1, 2]
+    assert result["performance_values_read"] == []
+    assert result["fantasy_or_lineup_outcomes_read"] == []
+
+
+def test_player_pass_defense_grain_analysis_rejects_missing_denominator(tmp_path):
+    manifest = _player_defense_grain_fixture(tmp_path)
+    item = manifest["artifacts"][0]
+    path = tmp_path / item["artifact"]
+    path.write_text(
+        path.read_text(encoding="utf-8").replace("Cov. Snaps", "Coverage"),
+        encoding="utf-8",
+    )
+    item["sha256"] = sis._sha256(path)
+    result = sis.analyze_player_pass_defense_grain_sample(tmp_path, manifest)
+    assert not result["passes"]
+    assert "missing-coverage-snaps" in result["failures"]
 
 
 def test_identity_rows_retain_ids_and_scope_without_metrics():

@@ -162,6 +162,21 @@ for its concentration decision; raw rows and the durable request state remain
 under `sis/alignment-feasibility-v1/`. Its frozen protocol is
 `reports/2026-08-13-sis-alignment-feasibility-protocol.md`.
 
+The dormant alignment sample's immutable `7/12` counter must not be reset. A
+separate one-query player-grain denominator check is frozen as:
+
+```bash
+sis-download player-pass-defense-grain-sample
+```
+
+It uses 2025 Weeks 1--18, SIS team ID 1, CB versus Wide WR, Pass Defense
+Totals, Split by Game. Incidental refreshes are blocked and its own durable
+three-request ceiling permits at most two identical operational retries. The
+gate reads only request scope, schema, stable identities, game scope and row
+counts; it never reads performance values or fantasy/lineup outcomes. Run it
+only after `sis-download login --terminal-credentials --fresh`. Its protocol
+is `reports/2026-08-15-sis-player-pass-defense-grain-feasibility-protocol.md`.
+
 After tranche 1 completes and its private table is verified, the bounded
 second plan is `plans/team-context-tranche-2.json`: team Passing,
 Rushing and Run Defense Totals/Value for the same six replay seasons. These

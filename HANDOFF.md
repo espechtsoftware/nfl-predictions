@@ -20,9 +20,27 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 05:41 CDT
+## Current state — 2026-08-15 05:51 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
+
+- The highest-priority new SIS idea now has a frozen, outcome-blind first gate
+  in
+  `reports/2026-08-15-sis-player-pass-defense-grain-feasibility-protocol.md`.
+  Command `sis-download player-pass-defense-grain-sample` makes one normal-UI
+  Submit for 2025 Weeks 1--18, SIS team ID 1, CB versus Wide WR, player Pass
+  Defense Totals, Split by Game. Incidental refreshes are blocked; a durable
+  three-request ceiling allows at most two identical operational retries; the
+  create-only analyzer reads only request scope, headers, row/game scope and
+  stable player/week identities. It does not read performance values or any
+  fantasy/lineup outcome. A pass licenses only a separately frozen bounded
+  receiver-specific coupling acquisition/protocol and 2026 shadow. It is
+  separate from and does not reset the dormant alignment sample's `7/12`
+  state. Python compilation and 43 focused SIS downloader/import tests pass.
+  Do not execute while the operator is asleep; it requires the secure fresh
+  terminal login flow. Exact next acquisition action after the operator is
+  awake is `sis-download login --terminal-credentials --fresh`, then run the
+  sample once and harvest its create-only result.
 
 - External briefing feedback is reconciled in
   `reports/2026-08-15-external-reviewer-briefing-review-reconciliation.md`.

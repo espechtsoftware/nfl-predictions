@@ -77,6 +77,17 @@ ASOE_ALL_SCHEMES = ("0", "1", "2", "5", "3", "4", "6")
 ASOE_API_REQUEST_CEILING = 28
 PASS_TAIL_WEEKLY_VERSION = "prospective-sis-pass-tail-weekly-acquisition-v1"
 PASS_TAIL_WEEKLY_API_REQUEST_CEILING = 7
+PLAYER_PASS_DEFENSE_GRAIN_VERSION = (
+    "20260815-sis-player-pass-defense-grain-feasibility-v1"
+)
+PLAYER_PASS_DEFENSE_GRAIN_FILTERS = {
+    "PassDefenseFilters.DefenderPos": ["12"],
+    "PassDefenseFilters.ReceiverPos": ["4"],
+    "PassDefenseFilters.TargetLinedUp": ["2"],
+    "PassDefenseFilters.MinTargets": ["0"],
+    "PassDefenseFilters.MinAttempts": ["0"],
+}
+PLAYER_PASS_DEFENSE_GRAIN_API_REQUEST_CEILING = 3
 
 
 @dataclass(frozen=True)
@@ -1282,6 +1293,248 @@ def analyze_alignment_feasibility_sample(
     }
 
 
+def _player_pass_defense_grain_artifact() -> str:
+    return "2025-weeks01-18-ari-wide-wr-cb-pass-defense-totals.csv"
+
+
+def analyze_player_pass_defense_grain_sample(
+    output_dir: Path, manifest: dict[str, Any],
+) -> dict[str, Any]:
+    """Apply the frozen schema/identity-only player-grain feasibility gate."""
+    artifacts = manifest.get("artifacts", [])
+    if len(artifacts) != 1:
+        raise RuntimeError("SIS player-grain manifest must contain one artifact")
+    item = artifacts[0]
+    path = output_dir / item.get("artifact", "")
+    if not path.is_file() or _sha256(path) != item.get("sha256"):
+        raise RuntimeError("SIS player-grain artifact is missing or changed")
+    spec = ExportSpec(**item.get("spec", {}))
+    expected_spec = ExportSpec(
+        entity="players", report="pass-defense-totals", season=2025,
+        start_week=1, end_week=18, split_by_game=True, team_id=1,
+    )
+    if spec != expected_spec:
+        raise RuntimeError("SIS player-grain artifact scope differs")
+    if item.get("submitted_scope") is None:
+        raise RuntimeError("SIS player-grain submitted scope is missing")
+    differences = {
+        name: {"expected": values, "actual": item["submitted_scope"].get(name)}
+        for name, values in PLAYER_PASS_DEFENSE_GRAIN_FILTERS.items()
+        if item["submitted_scope"].get(name) != values
+    }
+    if differences:
+        raise RuntimeError(
+            "SIS player-grain filter scope differs: "
+            + json.dumps(differences, sort_keys=True)
+        )
+    rows = int(item.get("rows", -1))
+    if not 1 <= rows < 200:
+        raise RuntimeError("SIS player-grain row count is empty or capped")
+    _validate_csv_scope(path, expected_spec, rows)
+    header = _csv_header(path)
+    failures: list[str] = []
+    if "Player" not in header:
+        failures.append("missing-player")
+    if not ({"Cov. Snaps", "Coverage Snaps"} & set(header)):
+        failures.append("missing-coverage-snaps")
+    if not ({"Tgts", "Targets"} & set(header)):
+        failures.append("missing-targets")
+
+    with path.open(encoding="utf-8-sig", newline="") as handle:
+        csv_rows = list(csv.DictReader(handle))
+    identities = item.get("identities", [])
+    if len(identities) != rows:
+        failures.append("identity-row-count")
+    identity_keys: list[tuple[int, int]] = []
+    identity_name_weeks: set[tuple[str, int]] = set()
+    for identity in identities:
+        player_id = identity.get("playerId")
+        player = identity.get("player") or identity.get("name")
+        week = identity.get("week")
+        if player_id is None or not player or week is None:
+            failures.append("unstable-identity")
+            continue
+        identity_keys.append((int(player_id), int(week)))
+        identity_name_weeks.add((str(player), int(week)))
+    if len(identity_keys) != len(set(identity_keys)):
+        failures.append("duplicate-player-week-identity")
+    csv_name_weeks = {
+        (str(row.get("Player", "")), int(row.get("Week", -1)))
+        for row in csv_rows
+    }
+    if csv_name_weeks != identity_name_weeks:
+        failures.append("csv-api-player-week-mismatch")
+    used = int(manifest.get("api_requests_used", -1))
+    ceiling = int(manifest.get("api_request_ceiling", -1))
+    if ceiling != PLAYER_PASS_DEFENSE_GRAIN_API_REQUEST_CEILING:
+        failures.append("request-ceiling")
+    if not 1 <= used <= ceiling:
+        failures.append("request-count")
+    passes = not failures
+    return {
+        "schema_version": 1,
+        "protocol": PLAYER_PASS_DEFENSE_GRAIN_VERSION,
+        "disposition": (
+            "sis-player-pass-defense-grain-feasibility-passes"
+            if passes else "sis-player-pass-defense-grain-feasibility-fails"
+        ),
+        "passes": passes,
+        "failures": failures,
+        "rows": rows,
+        "distinct_player_ids": len({key[0] for key in identity_keys}),
+        "weeks": sorted({key[1] for key in identity_keys}),
+        "headers": header,
+        "api_requests_used": used,
+        "api_request_ceiling": ceiling,
+        "performance_values_read": [],
+        "fantasy_or_lineup_outcomes_read": [],
+    }
+
+
+def run_player_pass_defense_grain_sample(
+    profile_dir: Path,
+    timeout_seconds: float,
+    output_dir: Path,
+) -> dict[str, Any]:
+    """Acquire the frozen one-query player pass-defense grain sample."""
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError as exc:  # pragma: no cover
+        raise RuntimeError(
+            'install browser support with `pip install -e ".[browser]"`'
+        ) from exc
+    protocol = Path(
+        "reports/2026-08-15-sis-player-pass-defense-grain-feasibility-protocol.md"
+    )
+    if not protocol.is_file():
+        raise RuntimeError("frozen SIS player-grain protocol is missing")
+    storage_state = default_storage_state_path(profile_dir)
+    if not storage_state.is_file():
+        raise RuntimeError("SIS saved storage state is missing; run `sis-download login`")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    run_state = output_dir / ".player-pass-defense-grain.run-state.json"
+    manifest_path = output_dir / "player-pass-defense-grain.manifest.json"
+    result_path = output_dir / "player-pass-defense-grain.result.json"
+    artifact_path = output_dir / _player_pass_defense_grain_artifact()
+    if manifest_path.exists() or result_path.exists() or artifact_path.exists():
+        raise RuntimeError("refusing to overwrite SIS player-grain sample")
+    protocol_hash = _sha256(protocol)
+    used = 0
+    if run_state.exists():
+        state = json.loads(run_state.read_text(encoding="utf-8"))
+        if state.get("plan_sha256") != protocol_hash or int(
+            state.get("ceiling", -1)
+        ) != PLAYER_PASS_DEFENSE_GRAIN_API_REQUEST_CEILING:
+            raise RuntimeError("SIS player-grain request state identity differs")
+        used = int(state.get("used", -1))
+        if not 0 <= used <= PLAYER_PASS_DEFENSE_GRAIN_API_REQUEST_CEILING:
+            raise RuntimeError("SIS player-grain request count is invalid")
+    budget = APIRequestBudget(
+        ceiling=PLAYER_PASS_DEFENSE_GRAIN_API_REQUEST_CEILING,
+        used=used,
+        state_path=run_state,
+        plan_sha256=protocol_hash,
+    )
+    budget.persist()
+    submit_budget = SubmitOnlyAPIRequestBudget(budget)
+    timeout_ms = int(timeout_seconds * 1000)
+    spec = ExportSpec(
+        entity="players", report="pass-defense-totals", season=2025,
+        start_week=1, end_week=18, split_by_game=True, team_id=1,
+    )
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(headless=True)
+        context = browser.new_context(
+            storage_state=str(storage_state), accept_downloads=True,
+            viewport={"width": 1800, "height": 1200},
+        )
+        context.route("**/api/v1/nfl/**/query", submit_budget.route)
+        page = context.new_page()
+        page.set_default_timeout(timeout_ms)
+        try:
+            page.goto(NFL_LEADERS_URL, wait_until="domcontentloaded", timeout=timeout_ms)
+            _assert_authenticated(page, timeout_ms)
+            page.locator("#querybuilder").wait_for(state="attached")
+            _activate_report_view_without_refresh(page, spec.definition)
+            _set_select(page, "#TimeFilters_SeasonFrom", "2025")
+            _set_select(page, "#TimeFilters_SeasonTo", "2025")
+            _set_select(page, "#TimeFilters_StartWeek", "1")
+            _set_select(page, "#TimeFilters_EndWeek", "18")
+            _set_select(page, "#Teams", "1")
+            _set_checkbox(page, "#chkIncludePlayoffs", False)
+            _set_checkbox(page, "#chkByGame", True)
+            _set_checkbox_values(page, "PassDefenseFilters.DefenderPos", ["12"])
+            _set_checkbox_values(page, "PassDefenseFilters.ReceiverPos", ["4"])
+            _set_checkbox_values(page, "PassDefenseFilters.TargetLinedUp", ["2"])
+            _set_input_value(page, "PassDefenseFilters.MinTargets", "0")
+            _set_input_value(page, "PassDefenseFilters.MinAttempts", "0")
+            submit_budget.armed = True
+            try:
+                with page.expect_response(
+                    lambda response: _response_matches_filters(
+                        response, spec, PLAYER_PASS_DEFENSE_GRAIN_FILTERS
+                    ),
+                    timeout=timeout_ms,
+                ) as response_info:
+                    page.locator("#submit").click()
+            finally:
+                submit_budget.armed = False
+            response = response_info.value
+            _assert_submitted_scope(
+                response, spec, PLAYER_PASS_DEFENSE_GRAIN_FILTERS
+            )
+            expected_rows = _assert_api_scope(response, spec, row_cap=200)
+            if expected_rows == 0:
+                raise RuntimeError("SIS player-grain sample returned no rows")
+            _wait_for_table(
+                page, expected_rows, timeout_ms,
+                CSV_REQUIRED_COLUMNS["pass-defense-totals"],
+            )
+            button = page.locator("a.dt-button.buttons-csv:visible")
+            if button.count() != 1:
+                raise RuntimeError("SIS page has an ambiguous Download control")
+            partial = artifact_path.with_suffix(artifact_path.suffix + ".partial")
+            with page.expect_download(timeout=timeout_ms) as download_info:
+                button.click()
+            download_info.value.save_as(str(partial))
+            try:
+                _validate_csv_scope(partial, spec, expected_rows)
+            except Exception:
+                partial.unlink(missing_ok=True)
+                raise
+            partial.replace(artifact_path)
+            artifact = {
+                "artifact": artifact_path.name,
+                "sha256": _sha256(artifact_path),
+                "bytes": artifact_path.stat().st_size,
+                "rows": expected_rows,
+                "headers": _csv_header(artifact_path),
+                "spec": asdict(spec),
+                "submitted_scope": _request_scope(response.request),
+                "identities": _identity_rows(response),
+            }
+        finally:
+            context.close()
+            browser.close()
+    manifest = {
+        "schema_version": 1,
+        "protocol": PLAYER_PASS_DEFENSE_GRAIN_VERSION,
+        "protocol_sha256": protocol_hash,
+        "retrieved_at_utc": datetime.now(UTC).isoformat(),
+        "api_requests_used": budget.used,
+        "api_request_ceiling": budget.ceiling,
+        "artifacts": [artifact],
+    }
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    result = analyze_player_pass_defense_grain_sample(output_dir, manifest)
+    result_path.write_text(
+        json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    return result
+
+
 def _team_pass_defense_artifact(report: str, slice_name: str) -> str:
     if report not in TEAM_PASS_DEFENSE_PROFILE_REPORTS:
         raise ValueError(f"unsupported SIS defense-profile report {report!r}")
@@ -2467,6 +2720,15 @@ def _build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path("sis/team-pass-defense-schema-v1"),
     )
+    player_defense_grain = subparsers.add_parser(
+        "player-pass-defense-grain-sample",
+        help="run the frozen outcome-blind player pass-defense grain sample",
+    )
+    player_defense_grain.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("sis/player-pass-defense-grain-feasibility-v1"),
+    )
     asoe = subparsers.add_parser(
         "team-pass-defense-asoe",
         help="run the frozen historical team/game alignment-attempt acquisition",
@@ -2532,6 +2794,14 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
             print(
                 "SIS team pass-defense schema sample complete: "
+                + json.dumps(result, sort_keys=True)
+            )
+        elif args.command == "player-pass-defense-grain-sample":
+            result = run_player_pass_defense_grain_sample(
+                args.profile_dir, args.timeout, args.output_dir
+            )
+            print(
+                "SIS player pass-defense grain sample complete: "
                 + json.dumps(result, sort_keys=True)
             )
         elif args.command == "team-pass-defense-asoe":
