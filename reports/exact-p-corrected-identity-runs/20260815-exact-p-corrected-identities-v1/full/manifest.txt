@@ -1,0 +1,10 @@
+version=exact-p-corrected-identities-v1
+mode=full
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:6aacfda1f58f0db437bac44cd04ce4b04d404828e1047dea7bcc59ab96a580fb
+code_sha=a0cd25a19bba47fa9f7c69d7e98605d649d8c1d3
+output_uri=gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/post-forensic-addenda/20260815-exact-p-corrected-identities-v1/result.json
+repair_protocol_sha256=e1cb1cd1a131bd0884da499048b23de3295d2f42079a615f4d40b8af7b9b3bab
+manifest_sha256=51edbe124846dc936ade71c4e5a9a07e252bcf6c7d7872b979715ccd1f6bab02
+exact_stack_parent_generation=1786794534795445
+exact_stack_parent_sha256=1d9e6b1f8d4e6174ae4aa717acf62fe657f0f3fbfd9271289a36b4a58664e7f3
+scientific_result_licensed=false

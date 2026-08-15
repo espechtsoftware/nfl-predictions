@@ -730,9 +730,13 @@ agent or developer:
   The receipt proves exact-stack scores/tails were reproduced and all 162
   roster slots were independently legal while persisting no roster identity,
   outcome, candidate score or membership. It is explicitly not a scientific
-  result. The full 54-slate identity-only source stage is now licensed; launch
-  it from the same immutable digest and source commit, then strictly harvest
-  and hash/generation-pin it before building the source1 census image.
+  result. The licensed full 54-slate identity-only source is now Cloud Run
+  execution `exact-p-corrected-identities-v1-vvwzd`, launched from the same
+  immutable digest and exact source commit. Its create-only manifest and
+  execution receipt are tracked under
+  `reports/exact-p-corrected-identity-runs/20260815-exact-p-corrected-identities-v1/full/`.
+  Poll it to terminal success and strictly harvest/hash/generation-pin it
+  before building the source1 census image.
   The second requested narrow check is also implemented as the pure
   `validate_exact_p_census_plumbing` preflight. On exactly the 18 2023 slates
   it audits corrected-P legality, all five native books, family labels and
