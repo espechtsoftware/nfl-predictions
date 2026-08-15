@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+from pathlib import Path
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -477,6 +478,15 @@ def main(argv: list[str] | None = None) -> None:
         help="Run the frozen 2023-2025 SIS receiver-copula gate",
     )
     p.add_argument("--panel", required=True)
+
+    p = sub.add_parser(
+        "overtime-fantasy-odds",
+        help="Run the frozen post-2022 OT uplift and pregame-odds study",
+    )
+    p.add_argument(
+        "--output",
+        default="reports/2026-08-15-overtime-fantasy-and-vegas-result.json",
+    )
 
     sub.add_parser(
         "usage-dirichlet-calibration-diagnostic",
@@ -1106,6 +1116,10 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import sis_receiver_copula_heldout
 
         sis_receiver_copula_heldout.run(args.panel)
+    elif args.command == "overtime-fantasy-odds":
+        from .analysis import overtime_fantasy_odds
+
+        overtime_fantasy_odds.run(Path(args.output))
     elif args.command == "usage-dirichlet-calibration-diagnostic":
         from .analysis import usage_dirichlet_calibration
 

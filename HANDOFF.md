@@ -35,8 +35,16 @@ agent or developer:
   2022--2025 postseason results separate. A passing result can license only a
   separate mean- and marginal-preserving shared-duration simulation arm using
   pre-lock Odds API data; it cannot add points or alter production directly.
-  Exact next action is a small deterministic BQ/scorer runner and tests, then
-  one result execution under the frozen disposition.
+  The deterministic runner and CLI are now implemented locally. They fit the
+  frozen 2022--2024 M0/M1/M2 models, evaluate only 2025, perform the exact
+  10,000 week-bootstrap gate, score every 2025 regular-season OT game both
+  through regulation and full time with authoritative skill/DST parity,
+  report bonus/tail/possession deltas, keep postseason OT separate, reject
+  missing/duplicated sources and reproduce both prediction and uplift outputs
+  bit-exactly before licensing anything. Fifteen focused overtime and
+  reconciled-scorer tests pass; both changed modules compile, command help and
+  `git diff --check` pass. Commit/push the runner, then execute its sole
+  create-only JSON result under the frozen disposition.
 - The external post-forensic review has now been converted into a pre-value
   frozen SIS receiver-specific copula protocol at
   `reports/2026-08-15-sis-receiver-copula-protocol.md`. It confines SIS to a
@@ -207,9 +215,12 @@ agent or developer:
   diagnostics. A pass can license only the prospective 2026 Week-5+ shadow;
   exact-80 retrospective execution remains false. Sixty combined SIS tests,
   changed-module compilation, command help, both shell scripts and
-  `git diff --check` pass locally. Commit/push this stage, then exact-archive
-  build it; do not launch until acquisition/import, fresh reference and the
-  separately harvested calibration have all passed.
+  `git diff --check` pass locally. The stage is committed and pushed at exact
+  full SHA `f160fa85a8e611e5f99fa40c4de194b0c4348b80`; exact-archive Cloud
+  Build `35284000-7ff2-467c-8272-d3f43a1492dc` is queued in `us-central1`
+  under tag `receiver-copula-heldout-f160fa8`. Do not launch until that build,
+  acquisition/import, fresh reference and the separately harvested
+  calibration have all passed.
 - The review's remaining exact-P construction question is now frozen as
   `reports/2026-08-15-exact-p-generator-constraint-census-protocol.md`
   The pre-membership disposition thresholds are fixed in the protocol: 36/54
