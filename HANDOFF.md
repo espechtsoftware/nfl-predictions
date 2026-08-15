@@ -719,6 +719,13 @@ agent or developer:
   `a0cd25a19bba47fa9f7c69d7e98605d649d8c1d3`; use it only for the
   corrected-identity source preflight/full stages, not the later source1 census
   code committed after the build.
+  The mandated narrow source preflight is now exact Cloud Run execution
+  `exact-p-corrected-ids-preflight-xp5zq` from that digest/code. Its
+  create-only manifest and execution receipt are tracked under
+  `reports/exact-p-corrected-identity-runs/20260815-exact-p-corrected-identities-v1/preflight-2023/`.
+  Poll it to terminal success and run
+  `scripts/cloud_finish_exact_p_corrected_identity_source.sh preflight-2023`;
+  the full source remains locked until that strict receipt exists.
   The second requested narrow check is also implemented as the pure
   `validate_exact_p_census_plumbing` preflight. On exactly the 18 2023 slates
   it audits corrected-P legality, all five native books, family labels and
