@@ -20,9 +20,37 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 09:55 CDT
+## Current state — 2026-08-15 10:15 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
+
+- The frozen prospective latent-role mechanism now has its previously missing
+  real score-free scenario factory and separately named paired runner. The
+  implementation in this commit adds a moving strictly-before-W usage query,
+  create-only transition artifact, timestamp-qualified live injury context,
+  within-season previous-state derivation, state-conditioned calls to the
+  existing `tail_k1_role` K=1 registry, full promotion/sample draw hashes and
+  cap receipts, exact R0--R4 4+8 optimization ledgers, paired control/treatment
+  artifacts, exact 20/40/80 memberships and a create-only final manifest. A
+  candidate-identical treatment fails as inert. `nfl-dfs
+  shadow-latent-role-paired` is available for the eventual authenticated
+  smoke, but no job/scheduler/app/money hook invokes it. The production policy
+  remains `classic-k1-role12-boom40-poscal-cbwu-v4`.
+- Focused validation is 49 passing tests; all changed Python files compile and
+  `git diff --check` passes. The live transition SQL dry-runs against BigQuery
+  at 36,902,297 bytes. Registry `tail_k1_role/2026-W33` exists and declares all
+  six required role features with training through 2025. The live
+  `player_week_inference` and `injury_snapshots` sources currently have zero
+  2026 rows, so the protocol-required real Week-1 parity smoke is not yet
+  possible and was not replaced by a synthetic or outcome-viewed test. Full
+  implementation record:
+  `reports/2026-08-15-latent-role-live-factory-implementation.md`.
+- Exact next action: commit/push this milestone and run an exact clean-archive
+  Cloud Build. Do not deploy or schedule the new runner. Once a real 2026
+  Sunday-main DK salary spine and matching inference rows exist, run the
+  validated image manually and require complete five-seed source/budget/world,
+  non-inert treatment and create-only manifest parity before adding even a
+  paused Cloud Run job or scheduler.
 
 - External review in
   `reports/2026-08-15-post-forensic-changes-review.md` arrived before any

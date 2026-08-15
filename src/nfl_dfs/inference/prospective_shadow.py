@@ -55,6 +55,7 @@ def paired_shadow_receipt(
     n_entries: int = 80,
     tail_line: float = 194.0,
     control_selector_env: dict[str, str] | None = None,
+    shadow_version: str = PROSPECTIVE_PAIRED_SHADOW_VERSION,
 ) -> tuple[list[Lineup], dict]:
     """Validate one same-world pair and freeze exact 20/40/80 memberships."""
     _validate_candidate_batch(control)
@@ -109,7 +110,7 @@ def paired_shadow_receipt(
     control_candidates = {lineup.ids for lineup in control.candidates}
     treatment_candidates = {lineup.ids for lineup in treatment.candidates}
     return control_lineups, {
-        "shadow_version": PROSPECTIVE_PAIRED_SHADOW_VERSION,
+        "shadow_version": str(shadow_version),
         "tail_line": float(tail_line),
         "entries": int(n_entries),
         "candidate_budget": len(control.candidates),

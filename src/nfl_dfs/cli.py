@@ -96,6 +96,13 @@ def main(argv: list[str] | None = None) -> None:
         "shadow-sis-pass-tail-paired",
         help="Freeze the isolated prospective five-seed SIS pass-tail pair",
     )
+    sub.add_parser(
+        "shadow-latent-role-paired",
+        help=(
+            "Freeze the score-free five-seed latent-role control/treatment "
+            "pair (prospective 2026 only)"
+        ),
+    )
     p = sub.add_parser(
         "freeze-tail-portfolios",
         help="Freeze prospective K=1 selector and K=1/K=3 mixed books",
@@ -808,6 +815,10 @@ def main(argv: list[str] | None = None) -> None:
         from .inference import sis_pass_tail_portfolio
 
         sis_pass_tail_portfolio.run()
+    elif args.command == "shadow-latent-role-paired":
+        from .inference import prospective_latent_role
+
+        prospective_latent_role.run()
     elif args.command == "freeze-tail-portfolios":
         from .research import live_shadow_portfolios
 

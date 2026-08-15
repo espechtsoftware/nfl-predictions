@@ -6,6 +6,7 @@ import pandas as pd
 import pytest
 
 from nfl_dfs.research.latent_role_state import (
+    LIVE_TRANSITION_SOURCE_SQL,
     MODEL_FEATURES,
     STATES,
     TRANSITION_SOURCE_SQL,
@@ -144,6 +145,10 @@ def test_source_query_is_score_denying_and_expanding_audit_is_walk_forward():
         assert forbidden not in lower
     assert "t.season between 2018 and 2025" in lower
     assert "t.position in ('rb', 'wr', 'te')" in lower
+    live_lower = LIVE_TRANSITION_SOURCE_SQL.lower()
+    assert "t.season < @target_season" in live_lower
+    assert "t.week < @target_week" in live_lower
+    assert "between 2018 and 2025" not in live_lower
 
     frames = []
     for season in (2021, 2022, 2023):
@@ -233,6 +238,23 @@ def test_transition_artifact_is_byte_stable_and_portable_prediction_matches():
     with pytest.raises(LatentRoleStateError, match="outcome boundary"):
         decode_role_transition_artifact(
             unsafe, hashlib.sha256(unsafe).hexdigest(),
+        )
+
+    live_payload, live_receipt = encode_role_transition_artifact(
+        fitted,
+        rows,
+        code_sha=code_sha,
+        source_sql=LIVE_TRANSITION_SOURCE_SQL,
+    )
+    live_artifact = decode_role_transition_artifact(
+        live_payload, live_receipt["sha256"],
+    )
+    assert live_artifact["source_sql_sha256"] == hashlib.sha256(
+        LIVE_TRANSITION_SOURCE_SQL.encode()
+    ).hexdigest()
+    with pytest.raises(LatentRoleStateError, match="unregistered"):
+        encode_role_transition_artifact(
+            fitted, rows, code_sha=code_sha, source_sql="SELECT 1",
         )
 
 

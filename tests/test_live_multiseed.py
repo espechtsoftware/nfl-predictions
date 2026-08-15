@@ -358,6 +358,9 @@ def test_live_latent_cbwu_builds_five_treatment_books(monkeypatch):
     assert final.metadata["portfolio"] == "CBWU_LATENT_ROLE_SHADOW"
     assert final.metadata["production_enabled"] is False
     assert final.metadata["uses_realized_outcomes"] is False
+    assert set(final.metadata["latent_seed_receipts"]) == {
+        "R0", "R1", "R2", "R3", "R4",
+    }
     assert final.candidate_totals.shape[1] == 15
 
 

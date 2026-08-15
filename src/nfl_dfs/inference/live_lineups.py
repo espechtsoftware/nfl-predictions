@@ -564,6 +564,21 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                 if portfolio == "CBWU_LATENT_ROLE_SHADOW":
                     from ..backtest.engine import CandidateBatch
 
+                    latent_seed_receipts = {
+                        name: {
+                            "latent_optimization_receipt": tuple(
+                                books[name].metadata.get(
+                                    "latent_optimization_receipt", ()
+                                )
+                            ),
+                            "latent_scenario_receipt": dict(
+                                books[name].metadata.get(
+                                    "latent_scenario_receipt", {}
+                                )
+                            ),
+                        }
+                        for name in labels
+                    }
                     combined = CandidateBatch(
                         candidates=combined.candidates,
                         candidate_totals=combined.candidate_totals,
@@ -578,6 +593,7 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                             "prospective_shadow_id": runtime_env.get(
                                 "PROSPECTIVE_SHADOW_ID", ""),
                             "uses_realized_outcomes": False,
+                            "latent_seed_receipts": latent_seed_receipts,
                         },
                     )
             if _candidate_capture is not None:

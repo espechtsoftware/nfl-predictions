@@ -118,6 +118,21 @@ WHERE t.season BETWEEN 2018 AND 2025
 ORDER BY t.gsis_id, t.season, t.week
 """
 
+# The score-free calibration audit above is intentionally frozen to the
+# completed 2018--2025 corpus. Prospective operation needs the same source law
+# with a moving, strictly-prior target boundary so Week 2 and later can learn
+# from already-completed 2026 usage without ever selecting target-week usage.
+# Keep this as a separately named query: the immutable artifact records which
+# of the two source contracts produced it.
+LIVE_TRANSITION_SOURCE_SQL = TRANSITION_SOURCE_SQL.replace(
+    "WHERE t.season BETWEEN 2018 AND 2025\n"
+    "  AND t.position IN ('RB', 'WR', 'TE')",
+    "WHERE t.season >= 2018\n"
+    "  AND (t.season < @target_season\n"
+    "       OR (t.season = @target_season AND t.week < @target_week))\n"
+    "  AND t.position IN ('RB', 'WR', 'TE')",
+)
+
 
 class LatentRoleStateError(ValueError):
     """The frozen role-state data or model contract was violated."""
@@ -343,6 +358,56 @@ def load_transition_history() -> pd.DataFrame:
     return add_previous_state(rows)
 
 
+def load_live_transition_history(
+    target_season: int,
+    target_week: int,
+) -> pd.DataFrame:
+    """Load score-free training rows strictly before one live target.
+
+    This is separate from :func:`load_transition_history`, whose fixed
+    2018--2025 query is the audited calibration corpus. The live query can add
+    completed active-season rows, but its predicate makes the target week and
+    every future week unavailable by construction.
+    """
+    target_season, target_week = int(target_season), int(target_week)
+    if target_season != 2026 or not 1 <= target_week <= 18:
+        raise LatentRoleStateError(
+            "prospective latent-role v1 requires 2026 Week 1--18"
+        )
+    from ..bq import query_df
+    from ..config import settings
+
+    rows = query_df(
+        LIVE_TRANSITION_SOURCE_SQL.format(
+            raw=settings.raw, features=settings.features,
+        ),
+        params={
+            "target_season": target_season,
+            "target_week": target_week,
+        },
+    )
+    forbidden = FORBIDDEN_OUTCOME_COLUMNS & set(rows.columns)
+    if forbidden:
+        raise LatentRoleStateError(
+            f"live role source exposed outcomes {sorted(forbidden)}"
+        )
+    rows = rows.copy()
+    rows[TARGET] = classify_realized_states(rows)
+    rows = rows[rows[TARGET].notna()].copy()
+    if rows.empty:
+        raise LatentRoleStateError("live role source produced no labels")
+    numeric_season = pd.to_numeric(rows["season"], errors="raise")
+    numeric_week = pd.to_numeric(rows["week"], errors="raise")
+    future = numeric_season.gt(target_season) | (
+        numeric_season.eq(target_season) & numeric_week.ge(target_week)
+    )
+    if future.any():
+        raise LatentRoleStateError(
+            "live role source contains target/future usage rows"
+        )
+    return add_previous_state(rows)
+
+
 def empirical_transition_probabilities(
     training: pd.DataFrame,
     target: pd.DataFrame,
@@ -512,6 +577,7 @@ def _model_payload(
     rows: pd.DataFrame,
     *,
     code_sha: str,
+    source_sql: str = TRANSITION_SOURCE_SQL,
 ) -> dict:
     code_sha = str(code_sha).strip().lower()
     if not re.fullmatch(r"[0-9a-f]{40}", code_sha):
@@ -548,9 +614,7 @@ def _model_payload(
         "artifact_version": ARTIFACT_VERSION,
         "mechanism_version": VERSION,
         "code_sha": code_sha,
-        "source_sql_sha256": hashlib.sha256(
-            TRANSITION_SOURCE_SQL.encode()
-        ).hexdigest(),
+        "source_sql_sha256": hashlib.sha256(source_sql.encode()).hexdigest(),
         "training_frame_sha256": transition_frame_sha256(rows),
         "fit_boundary": {
             "first_season": int(first["_season"]),
@@ -585,9 +649,14 @@ def encode_role_transition_artifact(
     rows: pd.DataFrame,
     *,
     code_sha: str,
+    source_sql: str = TRANSITION_SOURCE_SQL,
 ) -> tuple[bytes, dict]:
     """Encode the fitted transition as deterministic portable JSON."""
-    artifact = _model_payload(fitted, rows, code_sha=code_sha)
+    if source_sql not in {TRANSITION_SOURCE_SQL, LIVE_TRANSITION_SOURCE_SQL}:
+        raise LatentRoleStateError("role artifact source query is unregistered")
+    artifact = _model_payload(
+        fitted, rows, code_sha=code_sha, source_sql=source_sql,
+    )
     payload = json.dumps(
         artifact, allow_nan=False, separators=(",", ":"), sort_keys=True,
     ).encode()
@@ -637,9 +706,11 @@ def decode_role_transition_artifact(
         r"[0-9a-f]{64}", str(artifact.get("training_frame_sha256", "")),
     ):
         raise LatentRoleStateError("role artifact training hash differs")
-    if artifact.get("source_sql_sha256") != hashlib.sha256(
-        TRANSITION_SOURCE_SQL.encode()
-    ).hexdigest():
+    allowed_source_hashes = {
+        hashlib.sha256(query.encode()).hexdigest()
+        for query in (TRANSITION_SOURCE_SQL, LIVE_TRANSITION_SOURCE_SQL)
+    }
+    if artifact.get("source_sql_sha256") not in allowed_source_hashes:
         raise LatentRoleStateError("role artifact source query differs")
     classes = artifact.get("classifier_classes", [])
     if set(classes) != set(STATES) or len(classes) != len(STATES):
@@ -1006,6 +1077,7 @@ def persist_role_transition_artifact(
     code_sha: str,
     bucket_name: str,
     object_name: str,
+    source_sql: str = TRANSITION_SOURCE_SQL,
     storage_client=None,
 ) -> dict:
     """Create one checksum-bound GCS artifact; never overwrite an identity."""
@@ -1014,7 +1086,7 @@ def persist_role_transition_artifact(
     if not bucket_name or not object_name or ".." in object_name.split("/"):
         raise LatentRoleStateError("role artifact bucket/object is invalid")
     payload, receipt = encode_role_transition_artifact(
-        fitted, rows, code_sha=code_sha,
+        fitted, rows, code_sha=code_sha, source_sql=source_sql,
     )
     if storage_client is None:
         from google.cloud import storage
