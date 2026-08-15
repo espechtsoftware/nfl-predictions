@@ -20,12 +20,13 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 03:19 CDT
+## Current state — 2026-08-15 03:38 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
-- Branch is `main`; current pushed implementation code is full SHA
-  `83949e1c10b23b9ccc197b89d29389d71e1e0ddc`. The recurring-vendor-intake
+- Branch is `main`; the latest implementation milestone is full SHA
+  `5cbeef8cbe93ea56a2302b97be197f75ebd92f63`. The projected-ownership
+  bootstrap is full SHA `83949e1c10b23b9ccc197b89d29389d71e1e0ddc`; the recurring-vendor-intake
   milestone is full SHA
   `72261a27f44bc8e9a876dfc5c394517fa2847f32`. No historical outcome/scoring
   arm is active or queued, and none of the new prospective pass-tail resources
@@ -398,7 +399,39 @@ agent or developer:
 - The expected local `.venv` remains intact after the workstation's Gemini CLI
   changes: it uses Python 3.14.4, `pip check` reports no broken requirements,
   and `import nfl_dfs` succeeds. No local environment repair is required.
-- Next concrete action: the first authenticated pass-tail acquisition smoke
+- A new PIT prerequisite audit found that all 6,068 completed-2025 nflverse
+  injury rows, including 2,783 report-status rows, have NULL
+  `date_modified`. The repaired common-lock transform therefore correctly
+  admits none of them; stamping that final file during 2026 would be leakage.
+  Commit `5cbeef8cbe93ea56a2302b97be197f75ebd92f63` adds an append-only active-
+  planning-season collector with UTC `pulled_at`, capture and row hashes; the
+  feature SQL and independent leakage reconstruction admit it only at
+  `pulled_at <=` the common Sunday-main lock and also reject any source time
+  later than its observation. Completed 2025 stays unavailable.
+- Empty production table
+  `nfl-predictions-503414.nfl_raw.injury_snapshots` was created from tracked
+  DDL with required collector/hash fields, daily partitioning and
+  season/week/player clustering. It intentionally has zero rows while
+  nflreadpy still reports 2025 and the planning clock is 2026. The table is
+  now an explicit daily-backup member and a 36-hour in-season alerting feed.
+  The deployment definition changes only `s-nflverse` from Tuesday-only to
+  daily 5:00am CT while it is seasonally active, so genuine pre-lock
+  observations will exist once 2026 data posts; the live scheduler has not
+  yet been updated.
+- Focused validation is green: 130 relevant tests passed with one skip and
+  one deprecation warning; module compilation and `git diff --check` pass.
+  BigQuery dry-ran the complete injury transform plus both independent injury
+  leakage queries against live schemas (about 5.5/5.3 MB scanned by the two
+  references). The tracked feature transform was not executed, so no model,
+  cache or historical feature table was mutated. Exact-commit full-suite
+  Cloud Build, deployment of the validated ingestion/feature/backup/status
+  image, and scheduler reconciliation remain pending.
+- Next concrete action: cloud-validate the injury snapshot milestone, then
+  deploy the validated image to the affected ingestion/feature/backup/status
+  jobs and reconcile `s-nflverse` while leaving it paused until the existing
+  forensic-cleanup resume gate. After that, continue the preregistered
+  outcome-free latent-role-state prerequisite/protocol. The first
+  authenticated pass-tail acquisition smoke
   cannot occur until complete 2026 Weeks 1--4 data exist; until then every
   downstream cache/shadow fails closed and all three schedulers stay paused.
   Continue the projected-ownership collector by authenticating its separate
