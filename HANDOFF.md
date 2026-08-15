@@ -76,6 +76,16 @@ agent or developer:
   resumable acquisition attempt. Resume from the durable 1/150 Submit ledger;
   do not repeat the first request or accept any response that fails the frozen
   full-scope assertion.
+  That next attempt consumed one additional Submit and again failed closed
+  before accepting an artifact: after the week selector changed, the SIS page
+  silently restored `PassDefenseFilters.MinTargets` from the frozen zero to
+  its UI default of one. The durable ledger is now 2/150 and there are still
+  no accepted CSVs or partial manifest. The scope-preserving repair reapplies
+  both frozen zero minima after the final season/week selection and immediately
+  before every Submit; it does not alter the request grid, source fields or
+  scientific protocol. All 38 downloader tests, Python compilation and
+  `git diff --check` pass locally. Build and require the exact repair revision
+  to pass before spending the third bounded request.
 - Independently of that still-running downloader build, the manifest-locked
   receiver-copula importer and PIT context builder are implemented locally.
   They reproduce the acquisition result, preserve defender/team IDs, parse

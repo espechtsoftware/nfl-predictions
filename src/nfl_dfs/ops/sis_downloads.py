@@ -1850,8 +1850,6 @@ def run_receiver_copula_acquisition(
             _set_checkbox(page, "#chkByGame", True)
             _set_checkbox_values(page, "PassDefenseFilters.DefenderPos", ["12"])
             _set_checkbox_values(page, "PassDefenseFilters.ReceiverPos", ["4"])
-            _set_input_value(page, "PassDefenseFilters.MinTargets", "0")
-            _set_input_value(page, "PassDefenseFilters.MinAttempts", "0")
             for season in RECEIVER_COPULA_SEASONS:
                 _set_select(page, "#TimeFilters_SeasonFrom", str(season))
                 _set_select(page, "#TimeFilters_SeasonTo", str(season))
@@ -1887,6 +1885,16 @@ def run_receiver_copula_acquisition(
                             entity="players", report="pass-defense-totals",
                             season=season, start_week=week, end_week=week,
                             split_by_game=True,
+                        )
+                        # The SIS page resets MinTargets to its UI default when
+                        # a time filter changes.  Reapply both frozen minima
+                        # after the final season/week selection and directly
+                        # before each Submit so the posted scope stays at zero.
+                        _set_input_value(
+                            page, "PassDefenseFilters.MinTargets", "0"
+                        )
+                        _set_input_value(
+                            page, "PassDefenseFilters.MinAttempts", "0"
                         )
                         submit_budget.armed = True
                         try:
