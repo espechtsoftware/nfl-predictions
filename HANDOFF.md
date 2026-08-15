@@ -111,6 +111,12 @@ agent or developer:
   outside-label identities, eight multi-lateral plays, twelve adjusted players
   and zero scoring-relevant missing times. This licenses one replacement
   scientific execution from the same exact code/image.
+  Replacement scientific execution `realistic-recourse-sizing-v1-vxdwf` is
+  now running in `us-central1` as one task with zero retries from that exact
+  code/image. `proposal-set.json` and `result.json` were independently absent
+  immediately before launch. Poll through terminal status; do not inspect or
+  act on partial scientific artifacts. A failure after the create-only
+  proposal-set appears is terminal under the registered protocol.
 
 - The full scorer validation is terminal-successful. Cloud Build
   `4c2fe3b0-6f36-4d39-baf8-4df829316e7f` ran from exact pushed SHA
