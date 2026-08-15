@@ -20,9 +20,26 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 10:52 CDT
+## Current state — 2026-08-15 11:01 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
+
+- The external post-forensic review has now been converted into a pre-value
+  frozen SIS receiver-specific copula protocol at
+  `reports/2026-08-15-sis-receiver-copula-protocol.md`. It confines SIS to a
+  dependence-only WR rank permutation, requires a newly checksummed
+  post-`26e73c5` G0/G1 control, uses two-sided absolute-log guards for QB-WR,
+  QB-TE, WR-WR, RB-RB and every supported aggregate/multiplicity cell, and can
+  license only a Week-5-or-later 2026 paired shadow. The bounded acquisition is
+  exactly 144 create-only SIS Player Pass Defense requests (2022--2025,
+  Weeks 1--18, Wide/Slot, CB versus WR, all teams) under a durable 150-request
+  ceiling. The user refreshed the SIS browser session immediately before this
+  freeze and headless verification passed. No new SIS performance value was
+  read before the protocol was fixed. The frozen protocol SHA-256 is
+  `045a5a8e90bdbc95b5fdfa4ff29574f71fe03fcc69701d3c39dfc159c1395274`.
+  Exact next action: implement and test
+  the resumable guarded acquisition against the frozen protocol, commit/push,
+  then use the still-fresh session to retrieve the create-only artifacts.
 
 - The frozen prospective latent-role mechanism now has its previously missing
   real score-free scenario factory and separately named paired runner. The
