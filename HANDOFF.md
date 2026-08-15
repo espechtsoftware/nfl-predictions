@@ -119,8 +119,12 @@ agent or developer:
   records URI, generation, SHA, source code SHA and source image for that
   comparator. That repair is pushed at full SHA
   `5789f6b5da7a301f56811c6f04a9c06c0fe357f3`; replacement exact-archive
-  Cloud Build `3c34f63d-cb53-44b6-a200-e989d846a567` is running under tag
-  `realistic-recourse-5789f6b`. After full-suite success, launch
+  Cloud Build `3c34f63d-cb53-44b6-a200-e989d846a567` completed successfully at
+  `2026-08-15T13:00:36.775965Z`: 1,448 tests passed, 2 skipped and 5 warnings
+  in 996.34 seconds. Tag `realistic-recourse-5789f6b` resolves to immutable
+  digest
+  `sha256:c7a9e9557eb3e62bbb01cebf2aae3550a58d5320d74f5d40e74097706af383a8`.
+  Launch
   `recourse-scorer-reconciliation-v2` from that immutable digest, require its
   create-only 54,419/54,419 result, and only then use the same digest for the
   recourse run.
