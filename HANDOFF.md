@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 13:14 CDT
+## Current state — 2026-08-15 13:27 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -145,8 +145,16 @@ agent or developer:
   split calibration/held-out code and the tolerance fix. The immutable image
   digest is
   `sha256:c5ae4029bb4ad05b0c5d5f3c0ea14001b3a5a0c69ef2b926f879e82e5869c479`.
-  The full-suite prerequisite is now satisfied; resume the guarded acquisition
-  from 2/150 without repeating either failed request.
+  The full-suite prerequisite passed and the guarded acquisition resumed from
+  2/150 without repeating either failed request. It completed all 144 frozen
+  source cells with 15,477 rows, 376 distinct defenders and all 32 teams, using
+  exactly 146/150 requests and leaving four unused. Every accepted artifact
+  passed the row/schema/scope/hash checks; the final disposition is
+  `sis-receiver-copula-acquisition-passes` with no failures. The create-only
+  manifest SHA-256 is
+  `c21a051cb4495f9ecf31946ef9e3ab2a07793463fdd6dbb15e796b60e8aea45b`
+  and result SHA-256 is
+  `6ed4f1ca210e7dc27eb0529d077aa9cdba8cf880e5a0eaf12d6753a47f9dba2c`.
 - Independently of that still-running downloader build, the manifest-locked
   receiver-copula importer and PIT context builder are implemented locally.
   They reproduce the acquisition result, preserve defender/team IDs, parse
@@ -157,9 +165,14 @@ agent or developer:
   defense-prior BigQuery writes, and has an `nfl-dfs
   import-sis-receiver-copula` command. Thirty-nine focused downloader/context
   tests pass, both changed modules compile, both CLI help paths work and the
-  diff is clean. This importer has not been run against vendor values and has
-  not written BigQuery; it requires its own exact-revision cloud validation
-  after the acquisition implementation build closes.
+  diff is clean. The completed source was reproduced once in check-only mode,
+  then written create-once to
+  `nfl_raw.sis_receiver_copula_player_game` (15,477 rows) and
+  `nfl_raw.sis_receiver_copula_defense_prior` (3,324 rows). An independent
+  post-write query confirmed exactly 144 source cells, one source run in each
+  table, zero unsupported prior rows and zero point-in-time violations
+  (`source_last` is always strictly before target season/week). Both table
+  identities and schemas were re-read after creation; no overwrite occurred.
 - The pure receiver-specific copula treatment is now implemented locally. It
   joins the strictly prior player Wide/Slot route profile to the opponent
   defense prior, requires exactly one QB plus at least two supported WRs and
@@ -179,9 +192,9 @@ agent or developer:
   warnings in 1,021.80 seconds. Tag `receiver-copula-treatment-0673d2d`
   resolves to immutable digest
   `sha256:686fda9673672d62bb8d8381ecdb5199a0942b44ff5690888285a368702e887f`.
-  The code-validation prerequisite is satisfied; the guarded acquisition and
-  manifest/schema validation must still close before any BigQuery write or
-  model gate.
+  The code-validation and guarded source/import prerequisites are satisfied.
+  Exact next action is the new repaired-path reference execution, followed by
+  the separate 2022 calibration and only then the 2023--2025 held-out gate.
 - The frozen 2022 calibration selector and 2023--2025 held-out decision gate
   are now implemented locally in `analysis/sis_receiver_copula.py`. The
   selector enforces the exact seven-strength grid and frozen lexicographic
