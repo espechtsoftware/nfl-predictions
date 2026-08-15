@@ -48,6 +48,14 @@ Config is env vars only, all read in `src/nfl_dfs/config.py`.
   weaken a check to make a build go green — first prove the build is
   actually point-in-time correct.
 - **Walk-forward validation only** (by season). Never random splits.
+- **Preflight support before freezing cell-dependent gates.** When a proposed
+  protocol requires minimum counts in calibration cells, run an outcome-blind
+  support census first and record the eligible row/event counts for every
+  required cell. This preflight may inspect only identity, eligibility and
+  support counts--never treatment effects, lift/error values, proper scores or
+  outcomes used by the gate. If required support is absent, redesign the
+  protocol before it is frozen rather than weakening an eligibility rule after
+  a treatment grid has been observed.
 - **Data deficiency log.** Every time we find a gap or quality problem in
   source data (missing seasons, schema drift, unmatchable rows, absent
   fields), add a row to the "Data deficiency log" table in README.md's

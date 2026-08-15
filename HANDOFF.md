@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 15:10 CDT
+## Current state — 2026-08-15 16:16 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -517,9 +517,20 @@ agent or developer:
   selected, and held-out evaluation is not licensed. Do not launch held-out,
   choose a visually favorable grid row, weaken the frozen gate, run exact-80,
   or change production. Interpretation is preserved in
-  `reports/2026-08-15-sis-receiver-copula-calibration-result.md`. The SIS
-  receiver-copula chain is closed; future use of this data must be a separately
-  specified mechanism or prospective 2026 shadow.
+  `reports/2026-08-15-sis-receiver-copula-calibration-result.md`. External
+  closure review correctly identified this as a third category: **untestable
+  under this calibration design**, not a tested-and-rejected treatment. The
+  complete non-decisional grid is now disclosed in that result. Strengths
+  0.75--1.00 move the qualitative full-panel shape in the desired direction:
+  QB-WR rises, WR-WR falls and all three multiplicity estimates fall, while
+  QB-TE is unchanged by construction. That is a prospective clue, not a
+  selected strength or merits result; 2022 support still cannot adjudicate it
+  and no held-out value was queried. The exact historical protocol remains
+  closed to scientific repair; future use requires a separately specified
+  mechanism or prospectively frozen 2026 shadow. `CLAUDE.md` now requires an
+  outcome-blind support census before freezing any future cell-dependent gate,
+  and explicitly forbids reading effect/error/proper-score values in that
+  preflight.
 - Before any usable SIS artifact or calibration score existed, the previously
   unstated 2022 calibration-book choice was frozen in
   `reports/2026-08-15-sis-receiver-copula-calibration-book-amendment.md`
@@ -657,8 +668,16 @@ agent or developer:
   A strict create-only finisher now verifies execution, code/image/protocol,
   repair4/prelock identities, exact 54-slate/68,493-row scope, score denial,
   loss-count partition, six-family book and no-production consequence before
-  retaining the report. Poll to terminal success and run that finisher; do not
-  read a log summary or launch CBWU-OI until this 32-GiB slot is released.
+  retaining the report. The execution started after its capacity wait but
+  failed at `2026-08-15T21:11:41.966856Z` before emitting any result: the
+  census rejected one repair4 layer-P roster for `qb-stack`. This is not a
+  scientific result. It proves the protocol/runner incorrectly treated the
+  repair4 layer-P table as the corrected QB+2/bring-back identities even
+  though the later exact-stack addendum kept its corrected P only in the
+  immutable create-once result. Preserve the failed receipt and absent target;
+  reconcile and freeze an identity-only corrected-P source repair before a
+  new execution. The 32-GiB slot is released, but do not bypass the source
+  defect or launch a census that reads the loose repair4 P as corrected P.
 
 - The frozen prospective latent-role mechanism now has its previously missing
   real score-free scenario factory and separately named paired runner. The
