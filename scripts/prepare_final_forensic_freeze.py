@@ -57,7 +57,7 @@ def main() -> None:
         inputs = json.loads(inputs_path.read_text(encoding="utf-8"))
         expected = {
             "analysis_image", "analysis_code_sha", "production", "panels",
-            "warehouse_retention",
+            "between_arm_variance", "warehouse_retention",
         }
         if set(inputs) != expected:
             raise SystemExit(
@@ -69,6 +69,7 @@ def main() -> None:
             analysis_code_sha=inputs["analysis_code_sha"],
             production=inputs["production"],
             panels=inputs["panels"],
+            between_arm_variance=inputs["between_arm_variance"],
             warehouse_retention=inputs["warehouse_retention"],
             registry_path=args.registry,
         )

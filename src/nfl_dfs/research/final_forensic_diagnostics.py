@@ -40,6 +40,38 @@ REGIME_BINS = {
     ),
     "week": ((1, 6, "weeks_1_6"), (7, 12, "weeks_7_12"), (13, 99, "weeks_13_plus")),
 }
+BETWEEN_ARM_NAMED_CONTRASTS = (
+    (
+        "livefaithful_b3_vs_b2",
+        "20260807-livefaithful-b2-91d596e",
+        "20260808-livefaithful-b3-ee6f433",
+    ),
+    (
+        "k1_vs_k3_original",
+        "20260808-e80-k3-c616390",
+        "20260808-e80-k1-c616390",
+    ),
+    (
+        "ce12_at_k1",
+        "20260808-e80-k1-c616390",
+        "20260809-e80-k1-ce12-c616390",
+    ),
+    (
+        "role12_union_lockfix",
+        "20260810-lockfix-e80-k1-8677d21",
+        "20260810-lockfix-e80-k1-role12union-8677d21",
+    ),
+    (
+        "k1_vs_k3_pitclean",
+        "20260811-pitclean-e80-k3-a12ab31",
+        "20260811-pitclean-e80-k1-a12ab31",
+    ),
+    (
+        "role12_union_pitclean",
+        "20260811-pitclean-e80-k1-a12ab31",
+        "20260811-pitclean-e80-k1-role12union-a12ab31",
+    ),
+)
 
 
 def _roster(value: object) -> tuple[str, ...]:
@@ -1001,6 +1033,179 @@ def paired_scope_diagnostics(
     }
 
 
+def between_arm_variance_diagnostic(
+    weekly: pd.DataFrame,
+    *,
+    panel_ids: Sequence[str],
+) -> dict[str, Any]:
+    """Estimate descriptive arm dispersion after removing common-slate effects.
+
+    The launched panels are a selected, heterogeneous population. This is a
+    fixed-effect dispersion census and a future reporting scale, not a causal
+    random-effects model and never a mechanism re-adjudication.
+    """
+    required = {"panel_run_id", "season", "week", "weekly_max", "entries"}
+    if not required <= set(weekly):
+        raise ValueError("between-arm weekly frame lacks required columns")
+    frame = weekly.copy()
+    frame["panel_run_id"] = frame.panel_run_id.astype(str)
+    frame["slate"] = [
+        f"{int(season)}-{int(week):02d}"
+        for season, week in zip(frame.season, frame.week, strict=True)
+    ]
+    arms = list(map(str, panel_ids))
+    if set(frame.panel_run_id) != set(arms):
+        raise ValueError("between-arm weekly frame differs from frozen arms")
+    if frame.duplicated(["panel_run_id", "slate"]).any():
+        raise ValueError("between-arm weekly frame repeats arm/slate rows")
+    slates = sorted(frame.slate.unique())
+    if len(frame) != len(arms) * len(slates) or any(
+        set(group.slate) != set(slates)
+        for _, group in frame.groupby("panel_run_id")
+    ):
+        raise ValueError("between-arm panel is not balanced on common slates")
+    frame["weekly_max"] = pd.to_numeric(frame.weekly_max, errors="raise")
+
+    def fit(values: np.ndarray, *, threshold: int | None = None) -> dict[str, Any]:
+        arm_index = {arm: index for index, arm in enumerate(arms)}
+        slate_index = {slate: index for index, slate in enumerate(slates)}
+        columns = 1 + (len(arms) - 1) + (len(slates) - 1)
+        design = np.zeros((len(frame), columns), dtype=float)
+        design[:, 0] = 1.0
+        for row_index, row in enumerate(frame.itertuples(index=False)):
+            arm_ix = arm_index[row.panel_run_id]
+            slate_ix = slate_index[row.slate]
+            if arm_ix:
+                design[row_index, arm_ix] = 1.0
+            if slate_ix:
+                design[row_index, len(arms) - 1 + slate_ix] = 1.0
+        coefficients, _, rank, _ = np.linalg.lstsq(design, values, rcond=None)
+        fitted = design @ coefficients
+        residual = values - fitted
+        arm_effects = np.zeros(len(arms), dtype=float)
+        arm_effects[1:] = coefficients[1:len(arms)]
+        arm_effects -= arm_effects.mean()
+        arm_variance = float(np.var(arm_effects, ddof=1))
+        residual_df = max(int(len(values) - rank), 1)
+        residual_variance = float(np.dot(residual, residual) / residual_df)
+        total = arm_variance + residual_variance
+        multiplier = 1.959963984540054 + 0.8416212335729143
+        mdd = float(
+            multiplier * np.sqrt(2.0 * residual_variance / len(slates))
+        )
+        pairwise = sorted(
+            abs(float(arm_effects[left] - arm_effects[right]))
+            for left in range(len(arms))
+            for right in range(left + 1, len(arms))
+        )
+        output = {
+            "rows": int(len(values)),
+            "design_rank": int(rank),
+            "design_columns": int(columns),
+            "arm_effects": {
+                arm: float(arm_effects[index]) for index, arm in enumerate(arms)
+            },
+            "arm_effect_variance": arm_variance,
+            "arm_effect_sd": float(np.sqrt(arm_variance)),
+            "residual_variance": residual_variance,
+            "residual_sd": float(np.sqrt(residual_variance)),
+            "arm_share_of_arm_plus_residual_variance": (
+                arm_variance / total if total > 0 else None
+            ),
+            "pairwise_absolute_effect_quantiles": {
+                str(quantile): float(np.quantile(pairwise, quantile))
+                for quantile in (0.25, 0.5, 0.75, 0.9, 0.95)
+            },
+            "minimum_detectable_pair_difference_alpha05_power80": mdd,
+        }
+        if threshold is not None:
+            output["units"] = "proportion_of_common_slates"
+            output["minimum_detectable_threshold_weeks"] = float(
+                mdd * len(slates)
+            )
+        else:
+            output["units"] = "weekly_max_points"
+        return output
+
+    models = {
+        "weekly_max": fit(frame.weekly_max.to_numpy(float)),
+        "ge200": fit(
+            frame.weekly_max.ge(200).to_numpy(float), threshold=200
+        ),
+        "ge210": fit(
+            frame.weekly_max.ge(210).to_numpy(float), threshold=210
+        ),
+    }
+
+    def percentile(value: float, effects: Mapping[str, float]) -> float:
+        population = [
+            abs(float(effects[left]) - float(effects[right]))
+            for index, left in enumerate(arms)
+            for right in arms[index + 1:]
+        ]
+        return float(np.mean(np.asarray(population) <= abs(value)))
+
+    named = []
+    indexed = frame.set_index(["panel_run_id", "slate"])
+    for contrast_id, control, treatment in BETWEEN_ARM_NAMED_CONTRASTS:
+        if control not in arms or treatment not in arms:
+            raise ValueError(f"named between-arm contrast is absent: {contrast_id}")
+        control_rows = indexed.loc[control].sort_index()
+        treatment_rows = indexed.loc[treatment].sort_index()
+        delta = treatment_rows.weekly_max.to_numpy(float) - \
+            control_rows.weekly_max.to_numpy(float)
+        mean_delta = float(delta.mean())
+        record = {
+            "id": contrast_id,
+            "control": control,
+            "treatment": treatment,
+            "weekly_max_mean_delta": mean_delta,
+            "weekly_max_absolute_pairwise_percentile": percentile(
+                mean_delta, models["weekly_max"]["arm_effects"]
+            ),
+            "ge200_week_delta": int(
+                treatment_rows.weekly_max.ge(200).sum()
+                - control_rows.weekly_max.ge(200).sum()
+            ),
+            "ge210_week_delta": int(
+                treatment_rows.weekly_max.ge(210).sum()
+                - control_rows.weekly_max.ge(210).sum()
+            ),
+        }
+        for threshold in (200, 210):
+            proportion_delta = record[f"ge{threshold}_week_delta"] / len(slates)
+            record[f"ge{threshold}_absolute_pairwise_percentile"] = percentile(
+                proportion_delta, models[f"ge{threshold}"]["arm_effects"]
+            )
+        named.append(record)
+    return {
+        "panels": arms,
+        "panel_count": len(arms),
+        "common_slates": [
+            {"season": int(value.split("-")[0]), "week": int(value.split("-")[1])}
+            for value in slates
+        ],
+        "common_slate_count": len(slates),
+        "entry_counts": {
+            arm: sorted(map(int, group.entries.unique()))
+            for arm, group in frame.groupby("panel_run_id")
+        },
+        "models": models,
+        "named_historical_panel_contrasts": named,
+        "selection_bias": (
+            "The fourteen arms are the mechanically complete 107-slate panels "
+            "chosen to be launched, not a random sample of mechanisms."
+        ),
+        "estimand_boundary": (
+            "Arm fixed-effect dispersion after common-slate removal; panels "
+            "differ in multiple levers and entry counts, so individual arm "
+            "effects are descriptive rather than causal."
+        ),
+        "use_restriction": (
+            "This output may not revive, re-adjudicate or relabel any rejected "
+            "arm. It sets a reporting scale for future outcome-unseen work."
+        ),
+    }
 def winner_benchmark(repo_root: str | Path) -> dict[str, Any]:
     """Benchmark identifiable winner salary/spend/ownership fields only."""
     root = Path(repo_root)
@@ -1064,6 +1269,7 @@ def winner_benchmark(repo_root: str | Path) -> dict[str, Any]:
 
 __all__ = [
     "aggregate_candidate_diagnostics",
+    "between_arm_variance_diagnostic",
     "candidate_slate_diagnostics",
     "evt_diagnostic",
     "feature_missingness_diagnostics",

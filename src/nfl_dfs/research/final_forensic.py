@@ -26,6 +26,22 @@ import pulp
 
 PROTOCOL_ID = "20260814-final-preseason-forensic-v1"
 TAILS = (240, 230, 220, 210, 200, 194, 187)
+BETWEEN_ARM_VARIANCE_PANEL_IDS = (
+    "20260807-livefaithful-b2-91d596e",
+    "20260807-trusted-b0-ef6d31c",
+    "20260808-deterministic-baseline-c616390",
+    "20260808-e80-k1-c616390",
+    "20260808-e80-k3-c616390",
+    "20260808-e80-msctl-d99b125",
+    "20260808-livefaithful-b3-ee6f433",
+    "20260809-e80-k1-ce12-c616390",
+    "20260810-lockfix-e80-k1-8677d21",
+    "20260810-lockfix-e80-k1-role12union-8677d21",
+    "20260810-lockfix-e80-k3-8677d21",
+    "20260811-pitclean-e80-k1-a12ab31",
+    "20260811-pitclean-e80-k1-role12union-a12ab31",
+    "20260811-pitclean-e80-k3-a12ab31",
+)
 REQUIRED_OUTPUTS = (
     "provenance_and_arm_ledger",
     "opportunity_decomposition",
@@ -111,6 +127,8 @@ ANALYSIS_CHECKLIST = (
     ("feature_missingness_error_census", "exploratory", "compute"),
     ("source_pit_join_backup_readiness_census", "confirmatory", "compute"),
     ("panel_factor_design_rank_and_estimability", "exploratory", "compute"),
+    ("between_arm_variance_common_slates", "exploratory", "compute"),
+    ("corpus_understanding_toolkit", "exploratory", "compute"),
     ("arm_effect_breadth_uncertainty_and_kill_list", "exploratory", "compute"),
     ("cloud_runtime_data_cost_census", "exploratory", "compute_or_unidentifiable"),
     ("prospective_opportunity_register_and_charter", "exploratory", "compute"),
@@ -379,6 +397,7 @@ def build_freeze_manifest(
     analysis_code_sha: str,
     production: Mapping[str, Any],
     panels: Sequence[Mapping[str, Any]],
+    between_arm_variance: Mapping[str, Any],
     warehouse_retention: Mapping[str, Any],
     registry_path: str | Path,
     output_root: str = (
@@ -419,6 +438,7 @@ def build_freeze_manifest(
         "outcome_query_after_freeze_only": True,
         "production": dict(production),
         "panels": [dict(panel) for panel in panels],
+        "between_arm_variance": dict(between_arm_variance),
         "warehouse_retention": dict(warehouse_retention),
         "analysis_checklist": [
             {
@@ -523,6 +543,54 @@ def validate_freeze_manifest(
     ):
         if not str(production.get(key, "")).strip():
             failures.append(f"production.{key} is missing")
+
+    between_arm = manifest.get("between_arm_variance", {})
+    expected_between_fields = {
+        "source_table", "panel_ids", "common_slates", "common_slate_sha256",
+        "expected_entries_by_panel", "expected_panel_count",
+        "expected_common_slate_count", "estimand", "selection_bias",
+        "use_restriction",
+    }
+    if set(between_arm) != expected_between_fields:
+        failures.append("between-arm variance contract has unknown/missing fields")
+    if between_arm.get("source_table") != (
+        "nfl-predictions-503414.nfl_predictions.replay_candidates"
+    ):
+        failures.append("between-arm variance source table differs")
+    if tuple(between_arm.get("panel_ids", [])) != BETWEEN_ARM_VARIANCE_PANEL_IDS:
+        failures.append("between-arm variance panel population differs")
+    if between_arm.get("expected_panel_count") != len(
+        BETWEEN_ARM_VARIANCE_PANEL_IDS
+    ):
+        failures.append("between-arm variance panel count differs")
+    common_slates = between_arm.get("common_slates", [])
+    if between_arm.get("expected_common_slate_count") != 107 or len(
+        common_slates
+    ) != 107:
+        failures.append("between-arm variance common-slate count differs")
+    if any(
+        not isinstance(row, str)
+        or len(row) != 7
+        or row[4] != "-"
+        or not row[:4].isdigit()
+        or not row[5:].isdigit()
+        for row in common_slates
+    ) or common_slates != sorted(set(common_slates)):
+        failures.append("between-arm common-slate identities are malformed")
+    canonical_slates = json.dumps(
+        common_slates, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
+    if hashlib.sha256(canonical_slates).hexdigest() != between_arm.get(
+        "common_slate_sha256"
+    ):
+        failures.append("between-arm common-slate hash differs")
+    entries = between_arm.get("expected_entries_by_panel", {})
+    if set(entries) != set(BETWEEN_ARM_VARIANCE_PANEL_IDS) or any(
+        value not in {40, 80} for value in entries.values()
+    ):
+        failures.append("between-arm entry-count contract differs")
+    if "may not" not in str(between_arm.get("use_restriction", "")).lower():
+        failures.append("between-arm use restriction is not explicit")
 
     expected_checklist = [
         {
@@ -1247,6 +1315,7 @@ def decompose_slate(
 
 __all__ = [
     "FreezeManifestError",
+    "BETWEEN_ARM_VARIANCE_PANEL_IDS",
     "LEDGER_STATUSES",
     "PROTOCOL_ID",
     "ANALYSIS_CHECKLIST",

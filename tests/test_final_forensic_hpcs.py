@@ -54,36 +54,65 @@ def _universe_frames():
     authoritative = pd.DataFrame([
         {
             "season": 2025, "week": 1, "id": "qb", "pos": "QB",
-            "team": "A", "opp": "B", "game_id": "B@A", "salary": 7000,
+            "name": "Quarter Back", "team": "A", "opp": "B",
+            "game_id": "B@A", "kickoff_time": "13:00", "salary": 7000,
             "authoritative_actual": 25.0,
         },
         {
             "season": 2025, "week": 1, "id": "DST_A", "pos": "DST",
-            "team": "A", "opp": "B", "game_id": "B@A", "salary": None,
+            "name": "A DST", "team": "A", "opp": "B",
+            "game_id": "B@A", "kickoff_time": "13:00", "salary": None,
             "authoritative_actual": 8.0,
         },
     ])
     return features, authoritative
 
 
-def test_authoritative_universe_requires_exact_membership_and_scores():
+def test_authoritative_universe_requires_feature_subset_and_exact_scores():
     features, authoritative = _universe_frames()
-    analyzer._verify_universe(features, authoritative)
+    reconciled, audit = analyzer._reconcile_universe(features, authoritative)
+    assert len(reconciled) == 2
+    assert audit["authoritative_only_rows"] == 0
 
-    with pytest.raises(RuntimeError, match="salary-listed universe differs"):
-        analyzer._verify_universe(features.iloc[:1], authoritative)
+    with pytest.raises(RuntimeError, match="absent from authoritative"):
+        analyzer._reconcile_universe(features, authoritative.iloc[:1])
 
     wrong = authoritative.copy()
     wrong.loc[wrong.id.eq("qb"), "authoritative_actual"] = 26.0
     with pytest.raises(RuntimeError, match="authoritative actuals"):
-        analyzer._verify_universe(features, wrong)
+        analyzer._reconcile_universe(features, wrong)
+
+
+def test_authoritative_only_skill_player_expands_hindsight_universe():
+    features, authoritative = _universe_frames()
+    authoritative = pd.concat([
+        authoritative,
+        pd.DataFrame([{
+            "season": 2025, "week": 1, "id": "wr_extra", "pos": "WR",
+            "name": "Extra Receiver", "team": "A", "opp": "B",
+            "game_id": "B@A", "kickoff_time": "13:00", "salary": 3000,
+            "authoritative_actual": 20.0,
+        }]),
+    ], ignore_index=True)
+
+    reconciled, audit = analyzer._reconcile_universe(features, authoritative)
+
+    extra = reconciled[reconciled.id.eq("wr_extra")].iloc[0]
+    assert len(reconciled) == 3
+    assert audit["authoritative_only_rows"] == 1
+    assert audit["authoritative_only_by_position"] == {"WR": 1}
+    assert extra.actual == 20.0
+    assert extra.feature_missing == '["missing_frozen_feature_row"]'
+    assert "authoritative_only_no_frozen_feature_row" in extra.source_features_json
 
 
 def test_authoritative_universe_accepts_different_source_game_ids():
     features, authoritative = _universe_frames()
     features["game_id"] = ["2025_01_A_B", "DST_SOURCE_A_B"]
     authoritative["game_id"] = ["A@B", "B@A"]
-    analyzer._verify_universe(features, authoritative)
+    reconciled, audit = analyzer._reconcile_universe(features, authoritative)
+    assert len(reconciled) == 2
+    assert audit["frozen_rows_verified_against_authoritative"] is True
 
 
 def test_actual_ownership_join_matches_names_without_using_dst():

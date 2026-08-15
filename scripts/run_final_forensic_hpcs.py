@@ -27,6 +27,7 @@ from google.cloud import bigquery, storage
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from capture_final_forensic_prelock import capture as capture_prelock  # noqa: E402
 from nfl_dfs.research.final_forensic import (
+    BETWEEN_ARM_VARIANCE_PANEL_IDS,
     TAILS,
     WAREHOUSE_TABLE_SCHEMAS,
     canonical_game_id,
@@ -43,6 +44,7 @@ from nfl_dfs.research.final_forensic_outputs import (
 )
 from nfl_dfs.research.final_forensic_diagnostics import (
     aggregate_candidate_diagnostics,
+    between_arm_variance_diagnostic,
     candidate_slate_diagnostics,
     feature_missingness_diagnostics,
     paired_scope_diagnostics,
@@ -50,6 +52,9 @@ from nfl_dfs.research.final_forensic_diagnostics import (
     regime_and_drift_diagnostics,
     route_pool_admission_diagnostics,
     winner_benchmark,
+)
+from nfl_dfs.research.final_forensic_corpus import (  # noqa: E402
+    corpus_understanding_diagnostics,
 )
 from nfl_dfs.research.real_winner_overlap import (
     load_known_winner_rows,
@@ -149,6 +154,89 @@ def _prelock_equal(expected: list[dict[str, Any]], actual: list[dict[str, Any]])
         for field in fields:
             if expected_row[field] != actual_by_id[panel_id][field]:
                 raise RuntimeError(f"prelock drift: {panel_id}.{field}")
+
+
+def _validate_between_arm_prelock(
+    client: bigquery.Client,
+    contract: dict[str, Any],
+) -> None:
+    """Revalidate the frozen 14-panel population without reading outcomes."""
+    rows = _query_df(
+        client,
+        f"""
+        SELECT panel_run_id, season, week,
+               COUNT(*) AS candidate_rows,
+               COUNTIF(selected) AS entries,
+               LOGICAL_AND(labels_complete) AS labels_complete,
+               LOGICAL_AND(research_eligible) AS research_eligible
+        FROM `{PROJECT}.{DATASET}.replay_candidates`
+        WHERE panel_run_id IN UNNEST(@panel_ids)
+        GROUP BY panel_run_id, season, week
+        ORDER BY panel_run_id, season, week
+        """,
+        params=[bigquery.ArrayQueryParameter(
+            "panel_ids", "STRING", list(BETWEEN_ARM_VARIANCE_PANEL_IDS)
+        )],
+    )
+    expected_panels = set(map(str, contract["panel_ids"]))
+    actual_panels = set(rows.panel_run_id.astype(str))
+    if expected_panels != actual_panels:
+        raise RuntimeError("between-arm prelock panel population drifted")
+    expected_slates = {
+        (int(row[:4]), int(row[5:])) for row in contract["common_slates"]
+    }
+    if len(rows) != len(expected_panels) * len(expected_slates):
+        raise RuntimeError("between-arm prelock panel is not balanced")
+    if not rows.labels_complete.fillna(False).astype(bool).all():
+        raise RuntimeError("between-arm prelock labels are incomplete")
+    if not rows.research_eligible.fillna(False).astype(bool).all():
+        raise RuntimeError("between-arm prelock contains non-research rows")
+    for panel_id, group in rows.groupby("panel_run_id"):
+        actual_slates = set(map(tuple, group[["season", "week"]].astype(int).to_numpy()))
+        if actual_slates != expected_slates:
+            raise RuntimeError(f"between-arm common slates drifted: {panel_id}")
+        expected_entries = int(contract["expected_entries_by_panel"][str(panel_id)])
+        if not pd.to_numeric(group.entries, errors="raise").eq(expected_entries).all():
+            raise RuntimeError(f"between-arm entry count drifted: {panel_id}")
+
+
+def _load_between_arm_corpus(
+    client: bigquery.Client,
+    contract: dict[str, Any],
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Load the registered outcome-viewed candidate corpus after prelock parity."""
+    candidates = _query_df(
+        client,
+        f"""
+        SELECT panel_run_id, season, week, cand_ix, players, selected,
+               selected_rank, salary, tag, all_tags, p_line, sim_mean, sim_sd,
+               sim_q50, sim_q90, sim_q99, sim_rank_p_line, actual_score
+        FROM `{PROJECT}.{DATASET}.replay_candidates`
+        WHERE panel_run_id IN UNNEST(@panel_ids)
+          AND labels_complete AND research_eligible
+        ORDER BY panel_run_id, season, week, cand_ix
+        """,
+        params=[bigquery.ArrayQueryParameter(
+            "panel_ids", "STRING", list(BETWEEN_ARM_VARIANCE_PANEL_IDS)
+        )],
+    )
+    if set(candidates.panel_run_id.astype(str)) != set(contract["panel_ids"]):
+        raise RuntimeError("between-arm outcome corpus panel population drifted")
+    selected = candidates[candidates.selected.fillna(False).astype(bool)]
+    weekly = selected.groupby(
+        ["panel_run_id", "season", "week"], sort=True
+    ).agg(
+        weekly_max=("actual_score", "max"),
+        entries=("cand_ix", "size"),
+    ).reset_index()
+    expected_rows = len(contract["panel_ids"]) * len(contract["common_slates"])
+    if len(weekly) != expected_rows:
+        raise RuntimeError("between-arm outcome corpus is not balanced")
+    for panel_id, group in weekly.groupby("panel_run_id"):
+        expected_entries = int(contract["expected_entries_by_panel"][str(panel_id)])
+        if not group.entries.astype(int).eq(expected_entries).all():
+            raise RuntimeError(f"between-arm outcome entry count drifted: {panel_id}")
+    return candidates, weekly
 
 
 def _load_candidates(
@@ -386,6 +474,7 @@ def _authoritative_universe(client: bigquery.Client, seasons: list[int]) -> pd.D
                  CONCAT(away_team, '@', home_team) FROM games
         ), skill AS (
           SELECT s.season, s.week, s.gsis_id AS id, UPPER(s.position) AS pos,
+                 COALESCE(s.display_name, s.gsis_id) AS name,
                  s.team, p.opp, p.game_id, p.kickoff_time, s.salary,
                  a.dk_points AS authoritative_actual
           FROM `{PROJECT}.nfl_features.dk_salary_week` s
@@ -396,6 +485,7 @@ def _authoritative_universe(client: bigquery.Client, seasons: list[int]) -> pd.D
             AND UPPER(s.position) IN ('QB','RB','WR','TE')
         ), dst AS (
           SELECT p.season, p.week, CONCAT('DST_', p.team) AS id, 'DST' AS pos,
+                 CONCAT(p.team, ' DST') AS name,
                  p.team, p.opp, p.game_id, p.kickoff_time,
                  CAST(NULL AS INT64) AS salary,
                  d.dst_dk_points AS authoritative_actual
@@ -411,7 +501,21 @@ def _authoritative_universe(client: bigquery.Client, seasons: list[int]) -> pd.D
     )
 
 
-def _verify_universe(features: pd.DataFrame, authoritative: pd.DataFrame) -> None:
+def _reconcile_universe(
+    features: pd.DataFrame,
+    authoritative: pd.DataFrame,
+) -> tuple[pd.DataFrame, dict[str, Any]]:
+    """Reconcile the frozen served subset to the full hindsight universe.
+
+    ``slate_player_features`` is the exact served/model-supported subset, not
+    the complete salary/actual source.  H in the frozen decomposition is the
+    full salary-source universe on those same slates, while calibration and
+    the served stage must retain NULLs for players absent from the snapshot.
+    Every frozen feature row must therefore have an exact authoritative match;
+    authoritative-only skill rows are appended with an explicit missing-row
+    marker.  DST salary is carried by the frozen feature snapshot because the
+    upstream skill salary table has no DST records.
+    """
     key = ["season", "week", "id"]
     if features.duplicated(key).any() or authoritative.duplicated(key).any():
         raise RuntimeError("universe contains duplicate season/week/player keys")
@@ -421,15 +525,13 @@ def _verify_universe(features: pd.DataFrame, authoritative: pd.DataFrame) -> Non
             set(feat[["season", "week"]].apply(tuple, axis=1))
         )
     ].copy()
-    if set(map(tuple, feat[key].to_numpy())) != set(map(tuple, auth[key].to_numpy())):
-        missing = set(map(tuple, auth[key].to_numpy())) - set(
-            map(tuple, feat[key].to_numpy())
-        )
-        extra = set(map(tuple, feat[key].to_numpy())) - set(
-            map(tuple, auth[key].to_numpy())
-        )
+    feature_keys = set(map(tuple, feat[key].to_numpy()))
+    authoritative_keys = set(map(tuple, auth[key].to_numpy()))
+    extra = feature_keys - authoritative_keys
+    if extra:
         raise RuntimeError(
-            f"salary-listed universe differs: missing={len(missing)} extra={len(extra)}"
+            "frozen feature universe contains rows absent from authoritative "
+            f"salary/actual sources: extra={len(extra)}"
         )
     joined = feat.merge(auth, on=key, validate="one_to_one", suffixes=("", "_auth"))
     if not np.allclose(
@@ -460,6 +562,51 @@ def _verify_universe(features: pd.DataFrame, authoritative: pd.DataFrame) -> Non
     ]
     if feature_games != authoritative_games:
         raise RuntimeError("authoritative universe canonical game differs")
+
+    missing_keys = authoritative_keys - feature_keys
+    missing = auth[
+        auth[key].apply(tuple, axis=1).isin(missing_keys)
+    ].copy()
+    if missing.pos.astype(str).str.upper().eq("DST").any():
+        raise RuntimeError("authoritative-only DST lacks a frozen salary source")
+    if pd.to_numeric(missing.salary, errors="coerce").isna().any():
+        raise RuntimeError("authoritative-only skill player lacks salary")
+    missing = missing.rename(columns={"authoritative_actual": "actual"})
+    missing["feature_missing"] = '["missing_frozen_feature_row"]'
+    missing["source_features_json"] = [
+        json.dumps({
+            "season": int(row.season),
+            "week": int(row.week),
+            "id": str(row.id),
+            "name": str(row.name),
+            "pos": str(row.pos),
+            "team": str(row.team),
+            "opp": str(row.opp),
+            "game_id": str(row.game_id),
+            "kickoff_time": str(row.kickoff_time),
+            "salary": int(row.salary),
+            "universe_source": "authoritative_only_no_frozen_feature_row",
+        }, sort_keys=True, separators=(",", ":"))
+        for row in missing.itertuples(index=False)
+    ]
+
+    kickoff = auth[key + ["kickoff_time"]]
+    frozen = feat.merge(kickoff, on=key, how="left", validate="one_to_one")
+    full = pd.concat([frozen, missing], ignore_index=True, sort=False)
+    if full.duplicated(key).any() or len(full) != len(auth):
+        raise RuntimeError("reconciled full universe has incomplete/duplicate keys")
+    full = full.sort_values(key, kind="stable").reset_index(drop=True)
+    return full, {
+        "frozen_feature_rows": int(len(feat)),
+        "authoritative_rows": int(len(auth)),
+        "authoritative_only_rows": int(len(missing)),
+        "authoritative_only_by_position": {
+            str(position): int(count)
+            for position, count in missing.pos.astype(str).value_counts().items()
+        },
+        "frozen_rows_verified_against_authoritative": True,
+        "authoritative_only_selection_use": "hindsight_universe_only",
+    }
 
 
 def _download_artifact(client: storage.Client, uri: str, digest: str) -> dict:
@@ -953,6 +1100,7 @@ def main() -> int:
     client = bigquery.Client(project=PROJECT, location="US")
     current_prelock = capture_prelock(client)
     _prelock_equal(manifest["panels"], current_prelock)
+    _validate_between_arm_prelock(client, manifest["between_arm_variance"])
 
     winner_scores = _known_winner_scores(repo_root)
     winners = winner_benchmark(repo_root)
@@ -976,6 +1124,7 @@ def main() -> int:
     warehouse_parts: dict[str, list[pd.DataFrame]] = {
         table_id: [] for table_id in WAREHOUSE_TABLE_SCHEMAS
     }
+    corpus_player_features: pd.DataFrame | None = None
     for scope in SCOPES:
         candidates = _load_candidates(
             client,
@@ -990,23 +1139,14 @@ def main() -> int:
             panel_id=scope["panel_ids"][0],
             research_only=scope["research_only"],
         )
+        seasons = sorted(features.season.astype(int).unique().tolist())
+        authoritative = _authoritative_universe(client, seasons)
+        features, universe_audit = _reconcile_universe(
+            features, authoritative
+        )
         features = _attach_route_history(features, route_history)
         features, ownership_audit = _attach_actual_ownership(
             features, actual_ownership
-        )
-        seasons = sorted(features.season.astype(int).unique().tolist())
-        authoritative = _authoritative_universe(client, seasons)
-        _verify_universe(features, authoritative)
-        kickoff = authoritative[[
-            "season", "week", "id", "kickoff_time"
-        ]].copy()
-        if kickoff.duplicated(["season", "week", "id"]).any():
-            raise RuntimeError("authoritative kickoff map contains duplicate keys")
-        features = features.merge(
-            kickoff,
-            on=["season", "week", "id"],
-            how="left",
-            validate="one_to_one",
         )
         if features.kickoff_time.isna().any():
             raise RuntimeError("salary-listed player lacks a kickoff time")
@@ -1016,6 +1156,8 @@ def main() -> int:
             canonical_game_id(team, opponent)
             for team, opponent in zip(features.team, features.opp, strict=True)
         ]
+        if scope["id"] == "component-107":
+            corpus_player_features = features.copy()
         slates: list[dict[str, Any]] = []
         portfolio_slates: list[dict[str, Any]] = []
         capture_slates: list[dict[str, Any]] = []
@@ -1133,6 +1275,7 @@ def main() -> int:
             "data_quality": {
                 "prelock_revalidated": True,
                 "authoritative_universe_reconciled": True,
+                "universe_reconciliation": universe_audit,
                 "candidate_rows": len(combined_candidates),
                 "player_rows": len(features),
                 "feature_missing_rows": int(
@@ -1146,6 +1289,18 @@ def main() -> int:
                 features, combined_candidates, winner_players
             ),
         })
+    if corpus_player_features is None:
+        raise RuntimeError("component player corpus was not retained")
+    between_candidates, between_weekly = _load_between_arm_corpus(
+        client, manifest["between_arm_variance"]
+    )
+    between_arm = between_arm_variance_diagnostic(
+        between_weekly,
+        panel_ids=manifest["between_arm_variance"]["panel_ids"],
+    )
+    corpus_understanding = corpus_understanding_diagnostics(
+        between_candidates, corpus_player_features
+    )
     paired_evt = paired_scope_diagnostics(scope_slate_rows)
     opportunity = {
         "protocol_id": manifest["protocol_id"],
@@ -1224,6 +1379,8 @@ def main() -> int:
             "economic_entry_count_inference": "not licensed",
         },
         "paired_evt": paired_evt,
+        "between_arm_variance": between_arm,
+        "corpus_understanding_toolkit": corpus_understanding,
         "effective_rank_and_random_controls": references["effective_rank"],
         "selector_resampling_reference": references["selector_resampling"],
         "seed_variance_reference": references["incumbent_seed_variance"],

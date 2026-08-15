@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import copy
+import hashlib
+import json
 
 import pandas as pd
 import pytest
 
 from nfl_dfs.research.final_forensic import (
     ANALYSIS_CHECKLIST,
+    BETWEEN_ARM_VARIANCE_PANEL_IDS,
     FreezeManifestError,
     PROTOCOL_ID,
     REQUIRED_FORENSIC_ARTIFACT_PATHS,
@@ -24,6 +27,33 @@ from nfl_dfs.research.final_forensic import (
     sha256_file,
     validate_freeze_manifest,
 )
+
+
+def _between_arm_contract():
+    slates = [f"2019-{week:02d}" for week in range(1, 18)] + [
+        f"{season}-{week:02d}"
+        for season in (2021, 2022, 2023, 2024, 2025)
+        for week in range(1, 19)
+    ]
+    encoded = json.dumps(
+        slates, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
+    return {
+        "source_table": (
+            "nfl-predictions-503414.nfl_predictions.replay_candidates"
+        ),
+        "panel_ids": list(BETWEEN_ARM_VARIANCE_PANEL_IDS),
+        "common_slates": slates,
+        "common_slate_sha256": hashlib.sha256(encoded).hexdigest(),
+        "expected_entries_by_panel": {
+            panel: 80 for panel in BETWEEN_ARM_VARIANCE_PANEL_IDS
+        },
+        "expected_panel_count": 14,
+        "expected_common_slate_count": 107,
+        "estimand": "selected-arm fixed-effect dispersion after slate removal",
+        "selection_bias": "launched panels are a selected sample",
+        "use_restriction": "may not revive or re-adjudicate rejected arms",
+    }
 
 
 def test_canonical_game_id_ignores_source_direction_and_format():
@@ -187,6 +217,7 @@ def _manifest(tmp_path):
         "analysis_image": "repo/image@sha256:" + "a" * 64,
         "analysis_code_sha": "c" * 40,
         "outcome_query_after_freeze_only": True,
+        "between_arm_variance": _between_arm_contract(),
         "warehouse_retention": _warehouse_retention(),
         "analysis_checklist": [
             {
@@ -288,7 +319,7 @@ def test_freeze_manifest_is_complete_and_hash_verified(tmp_path):
     assert result["outputs"] == 9
     assert result["mechanism_families"] == 13
     assert result["protocols"] == 1
-    assert len(manifest["analysis_checklist"]) == 36
+    assert len(manifest["analysis_checklist"]) == 38
 
 
 def test_freeze_manifest_rejects_unaccounted_protocol(tmp_path):
@@ -419,6 +450,7 @@ def test_build_freeze_manifest_expands_reviewed_registry(tmp_path):
         analysis_code_sha="c" * 40,
         production=production,
         panels=panels,
+        between_arm_variance=_between_arm_contract(),
         warehouse_retention=_warehouse_retention(),
         registry_path=registry,
     )

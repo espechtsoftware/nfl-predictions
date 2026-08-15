@@ -4,6 +4,7 @@ import pandas as pd
 
 from nfl_dfs.research.final_forensic_diagnostics import (
     aggregate_candidate_diagnostics,
+    between_arm_variance_diagnostic,
     candidate_slate_diagnostics,
     evt_diagnostic,
     feature_missingness_diagnostics,
@@ -163,6 +164,41 @@ def test_regime_and_evt_diagnostics_use_fixed_cuts():
     })
     assert paired["paired_predeclared_comparisons"][0]["mean_delta"] == 1.0
     assert paired["paired_predeclared_comparisons"][1]["mean_delta"] == 2.0
+
+
+def test_between_arm_variance_removes_common_slate_effects():
+    panels = [
+        "20260807-livefaithful-b2-91d596e",
+        "20260807-trusted-b0-ef6d31c",
+        "20260808-deterministic-baseline-c616390",
+        "20260808-e80-k1-c616390",
+        "20260808-e80-k3-c616390",
+        "20260808-e80-msctl-d99b125",
+        "20260808-livefaithful-b3-ee6f433",
+        "20260809-e80-k1-ce12-c616390",
+        "20260810-lockfix-e80-k1-8677d21",
+        "20260810-lockfix-e80-k1-role12union-8677d21",
+        "20260810-lockfix-e80-k3-8677d21",
+        "20260811-pitclean-e80-k1-a12ab31",
+        "20260811-pitclean-e80-k1-role12union-a12ab31",
+        "20260811-pitclean-e80-k3-a12ab31",
+    ]
+    weekly = pd.DataFrame([
+        {
+            "panel_run_id": panel,
+            "season": 2025,
+            "week": week,
+            "weekly_max": 180.0 + week + panel_index,
+            "entries": 80,
+        }
+        for panel_index, panel in enumerate(panels)
+        for week in range(1, 9)
+    ])
+    report = between_arm_variance_diagnostic(weekly, panel_ids=panels)
+    assert report["panel_count"] == 14
+    assert report["common_slate_count"] == 8
+    assert report["models"]["weekly_max"]["arm_effect_sd"] > 0
+    assert len(report["named_historical_panel_contrasts"]) == 6
 
 
 def test_winner_benchmark_reports_only_identifiable_fields(tmp_path):

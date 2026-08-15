@@ -507,6 +507,7 @@ def registry_outputs(manifest: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
         "manifest_sha256": manifest["manifest_sha256"],
         "production": manifest["production"],
         "panels": manifest["panels"],
+        "between_arm_variance_contract": manifest["between_arm_variance"],
         "arm_ledger": ledger,
         "report_inventory": manifest["report_inventory"],
         "artifact_inventory": manifest["artifacts"],
@@ -581,6 +582,15 @@ def registry_outputs(manifest: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
             "trigger": row["transfer_boundary"],
             "decision_law": "freeze before outcome; use the cited prospective contract",
             "transfer_boundary": row["transfer_boundary"],
+            "size_estimate": None,
+            "size_estimate_status": (
+                "unidentifiable_from_historical_hindsight_bound"
+                if row["id"] == "recourse-aware-late-swap"
+                else "not_estimated_by_outcome_free_registry"
+            ),
+            "hindsight_bound_register_use": (
+                "forbidden" if row["id"] == "recourse-aware-late-swap" else "not_applicable"
+            ),
         } for row in prospective_rows]
     }
     exhaustion_rows = []

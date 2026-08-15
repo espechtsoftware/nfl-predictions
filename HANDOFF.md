@@ -20,7 +20,65 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 19:21 CDT
+## Current state — 2026-08-14 20:34 CDT
+
+### 2026-08-14 forensic runtime repaired; variance and corpus-understanding addenda implemented
+
+- Branch is `main` at pushed commit `ea56b9c` before this in-progress
+  milestone. Cloud Run execution `final-preseason-forensic-v1-tn6j2` is
+  terminal failed (`Completed=False`, exit 1 at 2026-08-14T23:50:17Z). It
+  passed the exact prelock comparison and then failed closed in
+  `_verify_universe`: the frozen `slate_player_features` panel is a served,
+  model-supported subset, while the authoritative salary/actual sources
+  contain 685 additional skill-player rows (QB 65, RB 150, TE 159, WR 311).
+  The job produced no output objects and no tables in
+  `nfl_forensic_review`; the create-only destination remains empty.
+- The repair preserves the already-frozen estimand instead of narrowing it.
+  Every frozen feature row must still match authoritative score, salary,
+  team/opponent and canonical game exactly. Authoritative-only salary-listed
+  skill rows are appended to the hindsight H/P universe with an explicit
+  `missing_frozen_feature_row` marker and NULL served features; no such row can
+  masquerade as served support. A separate audit confirmed all 48,697
+  main-slate skill salary rows across the six seasons have a GSIS id and a
+  matching actual row, so the full salary-list source is not being truncated
+  by the actual join. This is a mechanical corpus repair, not a scoring arm.
+- The review in
+  `reports/2026-08-14-forensic-implementation-review-and-between-arm-variance.md`
+  is implemented as a frozen 14-panel, 107-common-slate census. The exact panel
+  list, common slate identities/hash and per-panel 40/80 entry counts are now
+  in `freeze_inputs.json`; a new outcome-free precheck revalidates them before
+  any score read. The outcome phase fits weekly-max, >=200 and >=210 arm/slate
+  fixed-effect descriptions, reports arm/residual variance, MDD and six named
+  historical contrasts, with an explicit prohibition on reopening or
+  re-adjudicating rejected arms. The opportunity register also refuses to use
+  the perfect-hindsight recourse ceiling as its `size_estimate`.
+- The complementary
+  `reports/2026-08-14-corpus-understanding-toolkit.md` is now part of the same
+  descriptive forensic output. It runs: beam-search subgroup discovery over
+  unselected misses; a deliberately shallow LightGBM classifier with native
+  TreeSHAP main effects, held-out-slate metrics, permutation interactions and
+  confident errors; all/high-score co-selection graphs and bridge-player
+  summaries; a deterministic sparse player-incidence/structure SVD map with
+  local tail concentration; and single-break changepoint scans. UMAP and the
+  external SHAP package are not installed, so the reproducible SVD and native
+  TreeSHAP/permutation equivalents are disclosed rather than adding a fragile
+  dependency. Every output is outcome-viewed, hypothesis-generating only and
+  mechanically barred from historical adoption, promotion or retuning.
+- The in-progress freeze contract now carries 38 checklist items, the exact
+  between-arm population, 230 inventoried reports and the existing nine-output
+  contract. Outcome-free manifest construction validates locally. Focused
+  validation passes 32 tests; Python compilation, JSON validation and
+  `git diff --check` pass. No new successful forensic outcome run has been
+  launched, and the recent Cloud Run execution list contains no live forensic
+  execution.
+- Next concrete action: commit/push this mechanical repair and descriptive
+  addendum, run the complete test suite in an exact-commit Cloud Build, update
+  the inputs to its immutable image/SHA, rebuild and commit a new create-only
+  repaired manifest, verify the full prelock contract in Cloud Run, and only
+  then launch one new repaired outcome execution to a new output prefix. After
+  success, validate all nine outputs/four WRITE_EMPTY tables, write the closure
+  report, and retain the isolated corpus until independent review; delete it
+  before the first 2026 production build.
 
 ### 2026-08-14 final-forensic audit expanded; decision-structure queue registered
 
