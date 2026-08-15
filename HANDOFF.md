@@ -412,10 +412,16 @@ agent or developer:
   both earlier reports; after exact-image validation, run only create-only ID
   `20260815-sis-receiver-copula-v1-repair2-canonical`, then harvest before
   deciding whether 2022 calibration is unlocked.
-  Exact-archive build `76502ed2-d176-4dff-9fa4-24d38523e05d` is queued from
-  canonical-order commit `c3968a4` under tag `sis-order-bundle-c3968a4`.
-  Do not launch repair2 from the earlier bundle; require this build to pass and
-  resolve its immutable digest first.
+  Exact-archive build `76502ed2-d176-4dff-9fa4-24d38523e05d` passed from
+  canonical-order commit `c3968a4` at `2026-08-15T20:03:05.302642Z`: 1,508
+  tests passed, 2 skipped and 5 warnings in 1,018.58 seconds. Immutable digest
+  is `sha256:7c520b2742472d8f15b8f100db63f45657d143ee756468a83e478acfe32cad61`.
+  The sole canonical repair2 is now Cloud Run execution
+  `sis-receiver-copula-reference-repair2-canonical-bv7zt`, with tracked
+  manifest/execution receipt under run ID
+  `20260815-sis-receiver-copula-v1-repair2-canonical`. Poll to terminal success
+  and run `scripts/cloud_finish_sis_receiver_copula_reference.sh` with that run
+  ID; calibration remains locked until the cross-report harvest passes.
 - Before any usable SIS artifact or calibration score existed, the previously
   unstated 2022 calibration-book choice was frozen in
   `reports/2026-08-15-sis-receiver-copula-calibration-book-amendment.md`
