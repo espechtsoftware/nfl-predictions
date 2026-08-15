@@ -91,6 +91,13 @@ agent or developer:
   an exact replacement image with the full suite, run the fresh create-only
   same-image scorer audit, and only if it passes launch one replacement
   zero-retry scientific execution.
+  The repair is committed/pushed at exact analysis SHA
+  `b5ef048655bf124337239fdcd11397881e494f0d`; 63 focused tests pass, the
+  changed Python files compile and the diff is clean. Exact-archive Cloud
+  Build `63847619-ec7f-497b-ae71-451bfa81a34c` is running in `us-central1`
+  under tag `realistic-recourse-b5ef048`. Poll it through terminal status; on
+  success record the full suite and immutable digest, then use only that exact
+  code/image for the replacement scorer receipt and scientific execution.
 
 - The full scorer validation is terminal-successful. Cloud Build
   `4c2fe3b0-6f36-4d39-baf8-4df829316e7f` ran from exact pushed SHA
