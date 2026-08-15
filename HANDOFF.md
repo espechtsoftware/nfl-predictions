@@ -131,6 +131,21 @@ agent or developer:
   Exact next action after the current queued builds is an exact-archive full
   validation of this revision, followed by the create-only reference Cloud Run
   execution from its immutable digest.
+- Before any usable SIS artifact or calibration score existed, the previously
+  unstated 2022 calibration-book choice was frozen in
+  `reports/2026-08-15-sis-receiver-copula-calibration-book-amendment.md`
+  (SHA-256
+  `c1ef7c19529139c9ef4e03aa4b97f0c6b1a853e18e824e704394bbd016d0594b`).
+  Calibration now uses only the immutable 2022 historical splice, PIT cache
+  `tabpfn_projections_pit_v2`, its accepted multinomial usage law, no
+  unavailable served-position adjustment, 45/55 blend, 10,000 worlds and seed
+  0, with exact snapshot parity before filtering to Weeks 5--18. It may not
+  query 2019/2021 or held-out outcomes. The registered error sum is the six
+  explicitly named G0/G1 QB-WR, WR-WR and multiplicity cells. Calibration and
+  held-out evaluation must be separate Cloud Run executions, with the complete
+  seven-cell calibration artifact harvested and hash-pinned before held-out
+  deployment. This clarifies an implementation branch without changing the
+  parent acquisition hash or any treatment/gate/consequence.
 - The review's remaining exact-P construction question is now frozen as
   `reports/2026-08-15-exact-p-generator-constraint-census-protocol.md`
   The pre-membership disposition thresholds are fixed in the protocol: 36/54
