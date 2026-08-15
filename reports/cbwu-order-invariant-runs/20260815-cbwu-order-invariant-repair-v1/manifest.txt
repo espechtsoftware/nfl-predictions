@@ -1,0 +1,14 @@
+version=cbwu-order-invariant-repair-scorefree-v1
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:82d829fc22ffcb96c2663d81f5f5ad3ee259aa3ca6b6c7b2bca2221bbf959b2d
+code_sha=ff41b3b1067ea4c68f8d023392c6d2bb53ab7cf2
+output_uri=gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/post-forensic-addenda/20260815-cbwu-order-invariant-repair-v1/result.json
+repair_protocol_sha256=0e341130ffbdf66f7ae7ef4b3917e4da4d116df7dbcc54c631d3151c26cbec48
+source_panels=20260813-sis-asoe-treatment-r0-v1,20260813-sis-asoe-treatment-r1-v1,20260813-sis-asoe-treatment-r2-v1,20260813-sis-asoe-treatment-r3-v1,20260813-sis-asoe-treatment-r4-v1
+forensic_manifest_sha256=51edbe124846dc936ade71c4e5a9a07e252bcf6c7d7872b979715ccd1f6bab02
+uses_realized_outcomes=false
+slates=54
+seed_slate_artifacts=270
+cyclic_comparisons=216
+candidate_budget=canonical-r0
+tail_line=194
+selected_entries=80

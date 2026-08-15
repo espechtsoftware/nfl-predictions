@@ -678,6 +678,17 @@ agent or developer:
   reconcile and freeze an identity-only corrected-P source repair before a
   new execution. The 32-GiB slot is released, but do not bypass the source
   defect or launch a census that reads the loose repair4 P as corrected P.
+  While that source repair is reconciled, the now-free slot was used for the
+  independent, already-frozen CBWU order-invariant repair. Its exact
+  create-only execution is `cbwu-order-invariant-repair-v1-xdxsd`, launched
+  from code `ff41b3b1067ea4c68f8d023392c6d2bb53ab7cf2` and validated image
+  `sha256:82d829fc22ffcb96c2663d81f5f5ad3ee259aa3ca6b6c7b2bca2221bbf959b2d`.
+  Manifest and execution receipt are tracked under
+  `reports/cbwu-order-invariant-runs/20260815-cbwu-order-invariant-repair-v1/`.
+  Poll it to terminal state; on success run
+  `scripts/cloud_finish_cbwu_order_invariant_repair.sh` and retain only the
+  checksum-verified create-once result. No historical outcome is available to
+  this run and no result can directly change production.
 
 - The frozen prospective latent-role mechanism now has its previously missing
   real score-free scenario factory and separately named paired runner. The
