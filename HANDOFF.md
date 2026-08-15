@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 10:31 CDT
+## Current state — 2026-08-15 10:33 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -62,8 +62,12 @@ agent or developer:
   per paired run, reuses it without changing any draw transform, validates the
   cache season, and preserves the existing empirical fallback. Sixty
   focused replay-shape/factory tests pass, module compilation and whitespace
-  checks pass. This repair is not part of `ca96905` or its in-flight build;
-  exact next action after committing it is a superseding exact-archive build.
+  checks pass. The repair is committed and pushed at exact full SHA
+  `3e25edc0a3f47cfc20806f13e69b7301f759e5c2`. Its superseding exact-archive
+  Cloud Build `d7c038fd-48c2-4502-82dd-ae6a276e620e` is submitted in
+  `us-central1` under tag `latent-role-cache-3e25edc`; it may overlap the
+  older `ca96905` validation safely. Exact next action: poll both to terminal,
+  record both results, and use only the newer digest for a future live smoke.
 
 - External review in
   `reports/2026-08-15-post-forensic-changes-review.md` arrived before any
