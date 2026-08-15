@@ -24,8 +24,8 @@ agent or developer:
 
 ### Final preseason forensic run succeeded; historical queue closed and prospective construction program frozen
 
-- Branch is `main` at pushed commit `4c19605b27d04ff67a0b88ab9f56ffe5e122eec5`
-  before the retained-world milestone described below.
+- Branch is `main`; the retained-world milestone is pushed at full SHA
+  `b947446f59bd0b54c03a1c3b91ee5567042a3773`.
   The
   byte-identical/configuration-only retry
   `final-preseason-forensic-v1-gqssz` completed successfully at
@@ -171,8 +171,8 @@ agent or developer:
   1,362 tests with 2 skipped and 5 warnings in 736.74 seconds. Immutable image
   is
   `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:009444646d5d2ec95664d80c13945cbda65bf42a8e5421fcb26fbc134aa4bbbe`.
-- The outcome-free retained-world/UI milestone is locally complete but not yet
-  committed or cloud-validated. The outer archetype build can now capture both
+- The outcome-free retained-world/UI milestone is pushed and exact-commit
+  Cloud Build validation is running. The outer archetype build can now capture both
   CBWU control and treatment batches from the same five native seed books,
   preventing a later data/world rebuild from contaminating the paired
   comparison. New `prospective-recourse-worlds-v1` transport encodes only DK
@@ -199,13 +199,20 @@ agent or developer:
   locally. `bash -n deploy/deploy_jobs.sh`, module compilation and
   `git diff --check` also pass. Repository rules reserve the full suite for
   the next exact-commit Cloud Build.
+- Exact-commit Cloud Build `07fa2945-ad02-47f0-8175-f1da5a30972b` was
+  submitted at `2026-08-15T05:32:18.696796338Z` from a clean `git archive` of
+  `b947446f59bd0b54c03a1c3b91ee5567042a3773`. It is queued/running and will
+  publish tag `prospective-recourse-b947446` only after the complete pytest
+  suite succeeds. Do not cite the tag or deploy the new job until this build
+  is terminal success and its immutable digest is harvested.
 - The local repository `.venv` remains healthy despite the user's concern
   about accidentally deleting a Python environment while installing Gemini
   CLI: `.venv/bin/python` is Python 3.14.4, project/pandas/BigQuery imports
   succeed and `python -m pip check` reports no broken requirements.
-- Next concrete action: commit/push this retained-world/paired-runner/UI
-  milestone and launch a new exact-commit full-suite Cloud Build. After the
-  validated digest exists, deploy only the new paired shadow job/schedulers in
+- Next concrete action: poll exact-commit Cloud Build
+  `07fa2945-ad02-47f0-8175-f1da5a30972b` to terminal and record its complete
+  test count and image digest. After the validated digest exists, deploy only
+  the new paired shadow job/schedulers in
   a paused state and verify their configuration without running a scoring job.
   Then run an authenticated test-artifact UI-to-CSV rehearsal. The first score-free
   live shadow smoke waits only for complete 2026 pre-lock slate inputs and must
