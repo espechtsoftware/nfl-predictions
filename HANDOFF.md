@@ -65,8 +65,11 @@ agent or developer:
   response by the exact player-query endpoint and then immediately applies the
   unchanged fail-closed full scope assertion, so a serialized form difference
   is reported rather than timing out or being accepted. Fifty focused tests
-  pass and the module compiles; validate the exact repair revision in Cloud
-  Build before spending the next bounded retry.
+  pass and the module compiles. The repair is committed/pushed at exact SHA
+  `484cf878fc217b66fff44cc44dbac7561b08b373`; exact-archive Cloud Build
+  `495de61f-c5b6-403a-af5e-bca0175b85bd` is queued in `us-central1` under tag
+  `receiver-copula-response-484cf87`. Require that build to pass before
+  spending the next bounded retry.
 - Independently of that still-running downloader build, the manifest-locked
   receiver-copula importer and PIT context builder are implemented locally.
   They reproduce the acquisition result, preserve defender/team IDs, parse
