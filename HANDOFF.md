@@ -20,13 +20,15 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 10:15 CDT
+## Current state — 2026-08-15 10:19 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
 - The frozen prospective latent-role mechanism now has its previously missing
   real score-free scenario factory and separately named paired runner. The
-  implementation in this commit adds a moving strictly-before-W usage query,
+  implementation is committed and pushed on `main` at exact full SHA
+  `ca96905e6f34ff1a4cc5a8e0961a66b252c87ae8`. It adds a moving
+  strictly-before-W usage query,
   create-only transition artifact, timestamp-qualified live injury context,
   within-season previous-state derivation, state-conditioned calls to the
   existing `tail_k1_role` K=1 registry, full promotion/sample draw hashes and
@@ -45,8 +47,11 @@ agent or developer:
   possible and was not replaced by a synthetic or outcome-viewed test. Full
   implementation record:
   `reports/2026-08-15-latent-role-live-factory-implementation.md`.
-- Exact next action: commit/push this milestone and run an exact clean-archive
-  Cloud Build. Do not deploy or schedule the new runner. Once a real 2026
+- Its exact clean-archive Cloud Build
+  `c3542ad3-b5b0-4116-9c59-1bde3abfe1f5` is running in `us-central1` with
+  image tag `latent-role-factory-ca96905`. Exact next action: poll it to a
+  terminal state and record its full-suite result and immutable image digest.
+  Do not deploy or schedule the new runner. Once a real 2026
   Sunday-main DK salary spine and matching inference rows exist, run the
   validated image manually and require complete five-seed source/budget/world,
   non-inert treatment and create-only manifest parity before adding even a
