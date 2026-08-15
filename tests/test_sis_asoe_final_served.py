@@ -102,3 +102,37 @@ def test_fallback_rows_can_remain_bit_exact_without_arithmetic_round_trip():
         + treatment_receiving[changed]
     )
     np.testing.assert_array_equal(composed[~changed], control[~changed])
+
+
+def test_live_multiplier_explicitly_admits_2026(monkeypatch):
+    rows = pd.DataFrame({
+        "season": [2026, 2026], "week": [5, 5],
+        "game_id": ["g", "g"], "team": ["A", "A"],
+        "opponent": ["B", "B"], "gsis_id": ["p1", "p2"],
+    })
+    comps = pd.DataFrame({"targets": [8.0, 2.0]})
+    player = pd.DataFrame({
+        "season": [2026, 2026], "target_week": [5, 5],
+        "team": ["A", "A"], "gsis_id": ["p1", "p2"],
+        "alignment_supported": [True, True],
+        "player_wide_share": [0.9, 0.1],
+    })
+    offense = pd.DataFrame({
+        "season": [2026], "target_week": [5], "team": ["A"],
+        "offense_alignment_supported": [True],
+        "offense_wide_share": [0.5],
+    })
+    defense = pd.DataFrame({
+        "season": [2026], "target_week": [5], "defense": ["B"],
+        "asoe_supported": [True], "defense_asoe": [0.2],
+    })
+    monkeypatch.setattr(
+        final, "load_live_sources",
+        lambda season, week: (
+            player, offense, defense, {"season": season, "target_week": week},
+        ),
+    )
+    multipliers, audit = final.live_target_allocation_multipliers(rows, comps)
+    assert multipliers[0] > 1
+    assert multipliers[1] < 1
+    assert audit["prospective"] is True

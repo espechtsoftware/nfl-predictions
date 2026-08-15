@@ -166,11 +166,44 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
         # projections (run_projections) bake these in; only this live
         # recompute honors the toggle fully.
         comps = manual_notes.apply_notes(comps, skill, season, week)
-    sim = simulate.simulate(comps, n_sims=n_sims, seed=seed, keep_draws=True,
-                            game_ids=skill.get("game_id"),
-                            team_ids=skill.get("team"),
-                            game_totals=skill.get("game_total"),
-                            env=runtime_env)
+    from ..research import sis_asoe_final_served as asoe_module
+
+    asoe_enabled = asoe_module.treatment_enabled(runtime_env)
+    sim = simulate.simulate(
+        comps,
+        n_sims=n_sims,
+        seed=seed,
+        keep_draws=True,
+        game_ids=skill.get("game_id"),
+        team_ids=skill.get("team"),
+        game_totals=skill.get("game_total"),
+        keep_target_receiving=asoe_enabled,
+        env=runtime_env,
+    )
+    if asoe_enabled:
+        multipliers, asoe_audit = asoe_module.live_target_allocation_multipliers(
+            skill, comps
+        )
+        treatment_sim = simulate.simulate(
+            comps,
+            n_sims=n_sims,
+            seed=seed,
+            game_ids=skill.get("game_id"),
+            team_ids=skill.get("team"),
+            game_totals=skill.get("game_total"),
+            target_allocation_multipliers=multipliers,
+            keep_target_receiving=True,
+            env=runtime_env,
+        )
+        changed_rows = ~np.isclose(multipliers, 1.0, rtol=0, atol=1e-15)
+        asoe_raw = sim.draws.copy()
+        asoe_raw[changed_rows] = (
+            sim.draws[changed_rows]
+            - sim.target_receiving_draws[changed_rows]
+            + treatment_sim.target_receiving_draws[changed_rows]
+        )
+        sim.draws = asoe_module.rank_transport(sim.draws, asoe_raw)
+        log.info("live SIS ASOE target allocation audit=%s", asoe_audit)
     # keys enable per-player marginal levers (TABPFN_MARGINALS) live —
     # without them the lever silently fell through to empirical
     # marginals, a replay/live parity gap (2026-08-04 audit).

@@ -40,6 +40,9 @@ SCHEDULERS = (
     "s-shadow-k1-route-roleunion-late",
     "s-shadow-archetype-paired-early",
     "s-shadow-archetype-paired-late",
+    "s-tabpfn-sis-pass-tail-control",
+    "s-tabpfn-sis-pass-tail-treatment",
+    "s-shadow-sis-pass-tail-paired",
     "s-freeze-tail-early",
     "s-freeze-tail-late",
 )

@@ -92,6 +92,10 @@ def main(argv: list[str] | None = None) -> None:
             "and recourse artifacts"
         ),
     )
+    sub.add_parser(
+        "shadow-sis-pass-tail-paired",
+        help="Freeze the isolated prospective five-seed SIS pass-tail pair",
+    )
     p = sub.add_parser(
         "freeze-tail-portfolios",
         help="Freeze prospective K=1 selector and K=1/K=3 mixed books",
@@ -789,6 +793,10 @@ def main(argv: list[str] | None = None) -> None:
         from .inference import prospective_shadow
 
         prospective_shadow.run_paired_prospective_shadow()
+    elif args.command == "shadow-sis-pass-tail-paired":
+        from .inference import sis_pass_tail_portfolio
+
+        sis_pass_tail_portfolio.run()
     elif args.command == "freeze-tail-portfolios":
         from .research import live_shadow_portfolios
 

@@ -77,6 +77,7 @@ def build_target_allocation_multipliers(
     defense_asoe: pd.DataFrame,
     *,
     beta: float = FROZEN_BETA,
+    target_seasons: tuple[int, ...] = TARGET_SEASONS,
 ) -> tuple[np.ndarray, dict]:
     """Return q/p by repaired game-team target unit plus a score-free audit."""
     required = {"season", "week", "team", "opponent", "game_id", "gsis_id"}
@@ -119,7 +120,7 @@ def build_target_allocation_multipliers(
             continue
         first = rows.iloc[int(indices[0])]
         season, week = int(first.season), int(first.week)
-        if season not in TARGET_SEASONS or week not in TARGET_WEEKS:
+        if season not in target_seasons or week not in TARGET_WEEKS:
             continue
         teams = set(rows.iloc[indices].team.astype(str))
         opponents = set(rows.iloc[indices].opponent.dropna().astype(str))
@@ -272,10 +273,135 @@ def frozen_target_allocation_multipliers(
     )
 
 
+@functools.lru_cache(maxsize=18)
+def load_live_sources(
+    season: int, target_week: int,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, dict]:
+    """Load a strictly-prior, provenance-bearing live ASOE target window."""
+    from ..bq import query_df
+    from ..config import settings
+
+    season, target_week = int(season), int(target_week)
+    if season != 2026 or target_week not in TARGET_WEEKS:
+        raise ValueError("prospective ASOE v1 is frozen to 2026 Weeks 5-18")
+    params = {"season": season, "week": target_week}
+    player = query_df(f"""
+        SELECT * FROM `{settings.raw}.fantasy_points_alignment_player_l4`
+        WHERE season=@season AND target_week=@week
+        """, params=params)
+    offense = query_df(f"""
+        SELECT * FROM `{settings.raw}.fantasy_points_alignment_team_l4`
+        WHERE season=@season AND target_week=@week
+        """, params=params)
+    attempts = query_df(f"""
+        SELECT * FROM `{settings.raw}.sis_alignment_attempt_game`
+        WHERE season=@season AND week BETWEEN @week - 4 AND @week - 1
+        """, params=params)
+    if player.empty or offense.empty or attempts.empty:
+        raise ValueError("live ASOE source window is incomplete")
+    for name, frame in (("player", player), ("offense", offense),
+                        ("SIS", attempts)):
+        if "source_run_id" not in frame or frame.source_run_id.isna().any():
+            raise ValueError(f"live ASOE {name} source identity is incomplete")
+        if frame.source_run_id.astype(str).str.strip().eq("").any():
+            raise ValueError(f"live ASOE {name} source identity is blank")
+    if not (
+        player.target_week.eq(target_week).all()
+        and player.source_week_start.eq(target_week - 4).all()
+        and player.source_week_end.eq(target_week - 1).all()
+        and player.source_week_end.lt(player.target_week).all()
+    ):
+        raise ValueError("live ASOE player window violates point-in-time scope")
+    if not (
+        offense.target_week.eq(target_week).all()
+        and offense.source_week_start.eq(target_week - 4).all()
+        and offense.source_week_end.eq(target_week - 1).all()
+        and offense.source_week_end.lt(offense.target_week).all()
+    ):
+        raise ValueError("live ASOE offense window violates point-in-time scope")
+    if not attempts.week.between(target_week - 4, target_week - 1).all():
+        raise ValueError("live ASOE SIS window violates point-in-time scope")
+    if set(attempts.alignment.astype(str)) != {"wide", "slot"}:
+        raise ValueError("live ASOE SIS source lacks exact wide/slot coverage")
+
+    schedule = query_df(f"""
+        SELECT CAST(season AS INT64) season, CAST(week AS INT64) week,
+               CASE home_team WHEN 'OAK' THEN 'LV' WHEN 'SD' THEN 'LAC'
+                    WHEN 'STL' THEN 'LA' ELSE home_team END team,
+               CASE away_team WHEN 'OAK' THEN 'LV' WHEN 'SD' THEN 'LAC'
+                    WHEN 'STL' THEN 'LA' ELSE away_team END opponent
+        FROM `{settings.raw}.schedules`
+        WHERE season=@season AND game_type='REG'
+          AND week BETWEEN @week - 4 AND @week - 1
+        UNION ALL
+        SELECT CAST(season AS INT64), CAST(week AS INT64),
+               CASE away_team WHEN 'OAK' THEN 'LV' WHEN 'SD' THEN 'LAC'
+                    WHEN 'STL' THEN 'LA' ELSE away_team END,
+               CASE home_team WHEN 'OAK' THEN 'LV' WHEN 'SD' THEN 'LAC'
+                    WHEN 'STL' THEN 'LA' ELSE home_team END
+        FROM `{settings.raw}.schedules`
+        WHERE season=@season AND game_type='REG'
+          AND week BETWEEN @week - 4 AND @week - 1
+        """, params=params)
+    defense, defense_audit = sis_asoe.build_defense_asoe(
+        attempts, offense, schedule
+    )
+    defense = defense[
+        defense.season.eq(season) & defense.target_week.eq(target_week)
+    ].copy()
+    if defense.empty:
+        raise ValueError("live ASOE defense build has no target-week rows")
+    audit = {
+        "season": season,
+        "target_week": target_week,
+        "player_rows": int(len(player)),
+        "offense_rows": int(len(offense)),
+        "sis_rows": int(len(attempts)),
+        "defense_rows": int(len(defense)),
+        "player_source_runs": sorted(
+            player.source_run_id.astype(str).unique().tolist()
+        ),
+        "offense_source_runs": sorted(
+            offense.source_run_id.astype(str).unique().tolist()
+        ),
+        "sis_source_runs": sorted(
+            attempts.source_run_id.astype(str).unique().tolist()
+        ),
+        "source_week_end": target_week - 1,
+        "strictly_prior": True,
+        "defense_build": defense_audit,
+    }
+    return player, offense, defense, audit
+
+
+def live_target_allocation_multipliers(
+    rows: pd.DataFrame, comps: pd.DataFrame,
+) -> tuple[np.ndarray, dict]:
+    """Apply the frozen ASOE law to one live 2026 target week."""
+    keys = rows[["season", "week"]].drop_duplicates()
+    if len(keys) != 1:
+        raise ValueError("live ASOE rows must contain one season/week")
+    season, week = (int(value) for value in keys.iloc[0])
+    player, offense, defense, source_audit = load_live_sources(season, week)
+    multipliers, allocation_audit = build_target_allocation_multipliers(
+        rows, comps, player, offense, defense, beta=FROZEN_BETA,
+        target_seasons=(2026,),
+    )
+    if not allocation_audit["changed_units"]:
+        raise ValueError("live ASOE treatment is inert on the target slate")
+    return multipliers, {
+        **allocation_audit,
+        "source": source_audit,
+        "prospective": True,
+    }
+
+
 __all__ = [
     "FROZEN_BETA",
     "build_target_allocation_multipliers",
     "frozen_target_allocation_multipliers",
+    "live_target_allocation_multipliers",
+    "load_live_sources",
     "rank_transport",
     "treatment_enabled",
 ]

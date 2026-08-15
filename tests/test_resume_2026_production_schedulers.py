@@ -53,9 +53,12 @@ def test_receipt_byte_drift_fails_before_fetch(tmp_path, monkeypatch):
 
 
 def test_scheduler_inventory_is_exact_and_unique():
-    assert len(resume.SCHEDULERS) == 24
-    assert len(set(resume.SCHEDULERS)) == 24
+    assert len(resume.SCHEDULERS) == 27
+    assert len(set(resume.SCHEDULERS)) == 27
     assert "s-features" in resume.SCHEDULERS
     assert "s-project-su" in resume.SCHEDULERS
     assert "s-shadow-archetype-paired-early" in resume.SCHEDULERS
     assert "s-shadow-archetype-paired-late" in resume.SCHEDULERS
+    assert "s-tabpfn-sis-pass-tail-control" in resume.SCHEDULERS
+    assert "s-tabpfn-sis-pass-tail-treatment" in resume.SCHEDULERS
+    assert "s-shadow-sis-pass-tail-paired" in resume.SCHEDULERS

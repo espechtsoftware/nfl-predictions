@@ -85,6 +85,9 @@ job shadow-k3        shadow-k3       8Gi 4 "MODEL_ENSEMBLE=3|MODEL_REGISTRY_VARI
 # worlds. It is deliberately separate from every money-lineup route and gets
 # two hours because it builds all five native CBWU books before persisting.
 job shadow-archetype-paired shadow-archetype-paired 16Gi 4 "CODE_SHA=${CODE_SHA}" "" 7200
+# Independent finite-usage SIS pass-tail evidence. The job is a ten-book
+# five-seed pair and deliberately never changes the K=1/CBWU money path.
+job shadow-sis-pass-tail-paired shadow-sis-pass-tail-paired 16Gi 4 "CODE_SHA=${CODE_SHA}" "" 14400
 # Cheap post-processing only: read the four complete pre-lock pools, freeze
 # control/top-p/no-floor/mixed memberships, and never regenerate candidates.
 job freeze-tail-early "freeze-tail-portfolios,--slot,early" 1Gi 1
@@ -126,6 +129,8 @@ sched s-shadow-k3-late  shadow-k3   "20 11 * * 7"
 # build and create-only manifest can finish before the next decision boundary.
 sched s-shadow-archetype-paired-early shadow-archetype-paired "15 9 * * 7"
 sched s-shadow-archetype-paired-late  shadow-archetype-paired "30 10 * * 7"
+# Start early enough for the ten isolated books to finish before main lock.
+sched s-shadow-sis-pass-tail-paired shadow-sis-pass-tail-paired "0 6 * * 7"
 # Both source jobs start together. These delayed jobs fail closed unless the
 # corresponding complete K=1 and K=3 hour-slot panels are present.
 sched s-freeze-tail-early freeze-tail-early "5 11 * * 7"

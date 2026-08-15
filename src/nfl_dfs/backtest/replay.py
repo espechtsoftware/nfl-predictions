@@ -532,6 +532,8 @@ def _tabpfn_marginal_table(env: dict | None = None) -> str:
         "tabpfn_sis_rb_runtail_treatment_v1",
         "tabpfn_sis_pass_tail_control_v1",
         "tabpfn_sis_pass_tail_treatment_v1",
+        "tabpfn_sis_pass_tail_live_control_v1",
+        "tabpfn_sis_pass_tail_live_treatment_v1",
         "tabpfn_pfr_secondary_control_v1",
         "tabpfn_pfr_secondary_drop_rates_v1",
         "tabpfn_pfr_secondary_drop_top_cb_v1",
