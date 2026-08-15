@@ -97,8 +97,13 @@ agent or developer:
   audit before authoritative as-of labels, artifact reconstruction or any
   proposal calculation. The audit-order repair is pushed at full SHA
   `9225fa2c81e62b69f9c3a7f795925f9cd9949d8d`; replacement exact-archive
-  Cloud Build `e84ad737-4ca8-49bd-962c-c9c14ac47361` is running under tag
-  `realistic-recourse-9225fa2`. After full-suite success, launch
+  Cloud Build `e84ad737-4ca8-49bd-962c-c9c14ac47361`, submitted under tag
+  `realistic-recourse-9225fa2`, was canceled during final provenance review:
+  exact candidate/selected parity was recorded as a boolean but the complete
+  reconstructed candidate identity set was not checksumed in the proposal
+  receipt. The receipt now pins both the sorted candidate identities and
+  exact selected order by SHA-256. Submit a replacement exact build. After
+  full-suite success, launch
   `recourse-scorer-reconciliation-v2` from that immutable digest, require its
   create-only 54,419/54,419 result, and only then use the same digest for the
   recourse run.

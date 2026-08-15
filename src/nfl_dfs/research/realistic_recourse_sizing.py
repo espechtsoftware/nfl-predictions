@@ -292,9 +292,13 @@ def validate_forensic_parity(
         raise ValueError("candidate parity does not contain exact-80 selections")
     if rec_sel.roster_key.tolist() != ref_sel.roster_key.tolist():
         raise ValueError("reconstructed selected order differs from forensic corpus")
+    candidate_identities = sorted(rec.roster_key.astype(str).tolist())
+    selected_order = rec_sel.roster_key.astype(str).tolist()
     return {
         "candidate_count": int(len(rec)),
         "selected_count": ENTRY_COUNT,
+        "candidate_identity_sha256": canonical_json_sha256(candidate_identities),
+        "selected_order_sha256": canonical_json_sha256(selected_order),
         "candidate_identity_parity": True,
         "selected_order_parity": True,
     }

@@ -8,6 +8,7 @@ from nfl_dfs.research.realistic_recourse_sizing import (
     derive_game_statuses,
     freeze_proposals,
     roster_swap_distance,
+    validate_forensic_parity,
 )
 
 
@@ -122,3 +123,21 @@ def test_freeze_proposals_requires_54_and_rejects_outcomes():
 
 def test_swap_distance_counts_player_replacements():
     assert roster_swap_distance(range(9), [0, 1, 2, 3, 4, 5, 6, 20, 21]) == 2
+
+
+def test_forensic_parity_receipt_hashes_candidate_and_selected_identities():
+    rosters = [",".join(f"p{index}-{slot}" for slot in range(9)) for index in range(80)]
+    reconstructed = pd.DataFrame({
+        "players": rosters,
+        "selected": [True] * 80,
+        "selected_rank": list(range(80)),
+    })
+    forensic = pd.DataFrame({
+        "roster_key": [",".join(sorted(value.split(","))) for value in rosters],
+        "selected": [True] * 80,
+        "selected_rank": list(range(80)),
+    })
+    receipt = validate_forensic_parity(reconstructed, forensic)
+    assert len(receipt["candidate_identity_sha256"]) == 64
+    assert len(receipt["selected_order_sha256"]) == 64
+    assert receipt["candidate_identity_parity"] is True
