@@ -115,14 +115,14 @@ def _verify_prelock(client: bigquery.Client) -> dict:
     if actual != expected:
         raise RuntimeError("generator census native prelock rows drifted")
     completeness = _query(client, f"""
-        SELECT COUNT(*) AS rows,
+        SELECT COUNT(*) AS row_count,
                LOGICAL_AND(labels_complete) AS labels_complete
         FROM `{PROJECT}.{PREDICTIONS_DATASET}.replay_candidates_staging`
         WHERE panel_run_id IN UNNEST(@panel_ids)
     """, params=[bigquery.ArrayQueryParameter(
         "panel_ids", "STRING", list(SEED_ORDER),
     )]).iloc[0]
-    if int(completeness.rows) != int(expected["row_count"]) or not bool(
+    if int(completeness.row_count) != int(expected["row_count"]) or not bool(
         completeness.labels_complete
     ):
         raise RuntimeError("generator census native label completeness differs")

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -129,3 +130,12 @@ def test_census_rejects_any_candidate_outcome_column():
         census.analyze_exact_p_generator_census(
             players, native, retained, exact_p,
         )
+
+
+def test_cloud_runner_does_not_use_reserved_rows_alias():
+    source = Path("scripts/run_exact_p_generator_constraint_census.py").read_text(
+        encoding="utf-8",
+    )
+
+    assert "COUNT(*) AS rows" not in source
+    assert "COUNT(*) AS row_count" in source
