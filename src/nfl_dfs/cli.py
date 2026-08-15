@@ -490,6 +490,13 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--write", action="store_true")
 
     p = sub.add_parser(
+        "import-sis-receiver-copula",
+        help="Audit/import frozen SIS CB-vs-WR alignment history",
+    )
+    p.add_argument("--input-dir", required=True)
+    p.add_argument("--write", action="store_true")
+
+    p = sub.add_parser(
         "import-fantasy-points-advanced",
         help="Audit/import hash-locked Fantasy Points Advanced player data",
     )
@@ -1089,6 +1096,10 @@ def main(argv: list[str] | None = None) -> None:
         from .ingest import sis_asoe
 
         sis_asoe.run(args.input_dir, write=args.write)
+    elif args.command == "import-sis-receiver-copula":
+        from .ingest import sis_receiver_copula
+
+        sis_receiver_copula.run(args.input_dir, write=args.write)
     elif args.command == "import-fantasy-points-advanced":
         from .ingest import fantasy_points_advanced
 

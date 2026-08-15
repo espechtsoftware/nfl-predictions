@@ -53,6 +53,19 @@ agent or developer:
   `a6000129-5ccb-4002-9b2d-a79f18197d8f` is running in `us-central1` with tag
   `receiver-copula-acq-33898d3`; it must pass the full suite before the
   resumable acquisition can start from the freshly verified saved session.
+- Independently of that still-running downloader build, the manifest-locked
+  receiver-copula importer and PIT context builder are implemented locally.
+  They reproduce the acquisition result, preserve defender/team IDs, parse
+  the five frozen numeric fields, canonicalize teams, and construct Wide/Slot
+  opponent vulnerability from the last eight games strictly before W with a
+  four-game minimum and empirical denominator shrinkage. The builder crosses
+  season boundaries but never includes W, exposes create-once player-game and
+  defense-prior BigQuery writes, and has an `nfl-dfs
+  import-sis-receiver-copula` command. Thirty-nine focused downloader/context
+  tests pass, both changed modules compile, both CLI help paths work and the
+  diff is clean. This importer has not been run against vendor values and has
+  not written BigQuery; it requires its own exact-revision cloud validation
+  after the acquisition implementation build closes.
 
 - The frozen prospective latent-role mechanism now has its previously missing
   real score-free scenario factory and separately named paired runner. The
