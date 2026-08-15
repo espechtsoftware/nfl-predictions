@@ -117,8 +117,10 @@ agent or developer:
   provenance review: the corrected exact-stack comparator SHA was verified
   but its URI/generation were not retained in the result. The final result now
   records URI, generation, SHA, source code SHA and source image for that
-  comparator. Submit a replacement exact build. After full-suite success,
-  launch
+  comparator. That repair is pushed at full SHA
+  `5789f6b5da7a301f56811c6f04a9c06c0fe357f3`; replacement exact-archive
+  Cloud Build `3c34f63d-cb53-44b6-a200-e989d846a567` is running under tag
+  `realistic-recourse-5789f6b`. After full-suite success, launch
   `recourse-scorer-reconciliation-v2` from that immutable digest, require its
   create-only 54,419/54,419 result, and only then use the same digest for the
   recourse run.
