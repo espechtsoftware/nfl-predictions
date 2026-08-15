@@ -90,12 +90,17 @@ agent or developer:
   `FULL_PRELOCK_EQUAL_PASS` after validating the manifest, all three primary
   panel fingerprints, and the complete 14-panel/common-slate contract. This
   execution selected no outcome column.
-- No repair2 outcome execution has been launched yet. Next concrete action:
-  update the one-shot forensic job to the repair2 manifest, exact image/SHA and
-  a new create-only `outputs-repair2` prefix; execute once with zero retries.
-  After success, validate all nine outputs/four WRITE_EMPTY tables, write the
-  closure report, and retain the isolated corpus until independent review;
-  delete it before the first 2026 production build.
+- Repair2 outcome execution `final-preseason-forensic-v1-6qzts` is now the sole
+  live forensic run. The job is pinned to the repair2 manifest, immutable
+  `sha256:cb72a87b...` image, code SHA `d633c07`, 8 CPU, 32 GiB, one task,
+  zero retries and a 24-hour timeout. Its output root is the new create-only
+  `gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/outputs-repair2`;
+  that prefix and all four warehouse tables were absent immediately before
+  launch. Next concrete action: poll `final-preseason-forensic-v1-6qzts` to
+  terminal without launching another outcome run. After success, validate all
+  nine outputs/four WRITE_EMPTY tables, write the closure report, and retain
+  the isolated corpus until independent review; delete it before the first
+  2026 production build.
 
 ### 2026-08-14 final-forensic audit expanded; decision-structure queue registered
 
