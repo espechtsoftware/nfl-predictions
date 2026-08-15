@@ -20,9 +20,27 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 06:15 CDT
+## Current state — 2026-08-15 06:34 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
+
+- Realistic recourse now has a point-in-time scoring prerequisite in
+  `src/nfl_dfs/research/recourse_scoring.py`, documented in
+  `reports/2026-08-15-realistic-recourse-scoring-reconciliation.md`.
+  `points_information_as_of` gives unstarted games zero, scores in-progress
+  games only through a timezone-aware decision instant, and uses authoritative
+  full-game labels only for an explicit as-of-final game set. Ten targeted
+  tests pass. A read-only 2023--2025 audit covered 141,125 PBP rows and 54,419
+  authoritative player-weeks with zero scoring-relevant missing timestamps:
+  raw structured PBP is exact for 54,407/54,419 player-weeks (99.978%), with
+  only 12 rare multi-lateral residuals and maximum absolute error 1.7. Raw DST
+  PBP matches 1,619/1,632 authoritative team-weeks; all 13 differences are
+  2025 rows where the production table uses an exact historical DK feed
+  override. Completed games therefore fail closed to authoritative labels.
+  Do not run the historical recourse estimate yet: first freeze its one
+  decision instant/final-game set, audit whether any residual lateral event is
+  in-progress and candidate-relevant at that instant, and wait for the
+  exact-stack correction result.
 
 - Exact-stack execution `post-forensic-stack-addendum-v1-q6v7m` reached
   terminal failure at `2026-08-15T10:59:04.405697Z`, with one failed task,
