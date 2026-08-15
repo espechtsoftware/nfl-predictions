@@ -750,6 +750,14 @@ agent or developer:
   `exact-p-source1-3ee4231`. Require the complete suite and image construction
   to pass and resolve the immutable digest; only then launch the 2023 plumbing
   preflight before the full 54-slate census.
+  The source1 census build completed successfully at
+  `2026-08-15T22:24:03.426921Z`: 1,524 tests passed, 2 skipped and 5 warnings
+  in 1,036.47 seconds. Its immutable digest is
+  `sha256:b0ba7c4479883a31b89bb69720e9494cf5c18e1086c78f3d0fbd0895c9347027`.
+  This image is bound to exact code
+  `3ee4231b72c4b9ad6920972c9560885470a01bfd`; use it first for only the
+  required 2023 plumbing preflight. A successful strict preflight harvest is
+  still required before the full 54-slate source1 census may launch.
   The second requested narrow check is also implemented as the pure
   `validate_exact_p_census_plumbing` preflight. On exactly the 18 2023 slates
   it audits corrected-P legality, all five native books, family labels and
