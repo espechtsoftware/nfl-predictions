@@ -96,6 +96,10 @@ def test_combined_seed_worlds_aligns_player_order_and_records_assumption():
         artifacts[seed] = {"player_ids": ids, "player_draws": draws}
         receipts[seed] = {
             "uri": f"gs://bucket/r{seed}.npz", "sha256": str(seed) * 64,
+            "generation": str(seed + 1),
+            "updated": "2026-08-15T00:00:00Z",
+            "size": 123,
+            "panel_run_id": f"panel-r{seed}",
         }
     artifact, receipt = combine_seed_player_worlds(
         artifacts, receipts,
@@ -105,6 +109,8 @@ def test_combined_seed_worlds_aligns_player_order_and_records_assumption():
     assert artifact["player_draws"].shape == (2, 50_000)
     assert receipt["historical_counterfactual_availability"] is True
     assert len(receipt["combined_sha256"]) == 64
+    assert receipt["sources"][0]["generation"] == "1"
+    assert receipt["sources"][0]["panel_run_id"] == "panel-r0"
 
 
 def test_freeze_proposals_requires_54_and_rejects_outcomes():

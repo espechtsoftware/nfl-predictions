@@ -539,7 +539,7 @@ def run(output_uri: str, proposal_uri: str) -> dict:
                 columns=["score_artifact_uri", "score_artifact_sha256"],
             )
             artifacts[seed] = artifact
-            source_receipts[seed] = receipt
+            source_receipts[seed] = {**receipt, "panel_run_id": panel_id}
         book = reconstruct_outcome_blind_cbwu(seed_frames, artifacts)
         forensic = forensic_candidates[
             forensic_candidates.season.astype(int).eq(season)

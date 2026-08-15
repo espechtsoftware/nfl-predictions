@@ -104,8 +104,13 @@ agent or developer:
   receipt. The receipt now pins both the sorted candidate identities and
   exact selected order by SHA-256. That repair is pushed at full SHA
   `d8fc3582a7d3e8a572f9c12bfa3eb1bd39963d37`; replacement exact-archive
-  Cloud Build `c3fe855a-1ce0-430b-9ab4-9aa3cc66e60c` is running under tag
-  `realistic-recourse-d8fc358`. After full-suite success, launch
+  Cloud Build `c3fe855a-1ce0-430b-9ab4-9aa3cc66e60c`, submitted under tag
+  `realistic-recourse-d8fc358`, was canceled during receipt review: although
+  the runner loaded physical GCS generation/update metadata, the combined
+  world receipt retained only URI/SHA. The receipt now preserves source panel
+  ID, generation, update time and size for every R0--R4 artifact in addition
+  to URI/SHA and the explicitly separate counterfactual-availability time.
+  Submit a replacement exact build. After full-suite success, launch
   `recourse-scorer-reconciliation-v2` from that immutable digest, require its
   create-only 54,419/54,419 result, and only then use the same digest for the
   recourse run.

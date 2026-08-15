@@ -210,9 +210,26 @@ def combine_seed_player_worlds(
         receipt = source_receipts[seed]
         digest = str(receipt.get("sha256", ""))
         uri = str(receipt.get("uri", ""))
-        if len(digest) != 64 or not uri.startswith("gs://"):
+        generation = str(receipt.get("generation", ""))
+        updated = str(receipt.get("updated", ""))
+        panel_run_id = str(receipt.get("panel_run_id", ""))
+        if (
+            len(digest) != 64
+            or not uri.startswith("gs://")
+            or not generation.isdigit()
+            or not updated
+            or not panel_run_id
+        ):
             raise ValueError(f"R{seed} source artifact receipt is invalid")
-        sources.append({"seed": seed, "uri": uri, "sha256": digest})
+        sources.append({
+            "seed": seed,
+            "panel_run_id": panel_run_id,
+            "uri": uri,
+            "sha256": digest,
+            "generation": generation,
+            "updated": updated,
+            "size": int(receipt.get("size", 0)),
+        })
         hasher.update(seed.to_bytes(1, "big"))
         hasher.update(digest.encode("ascii"))
         hasher.update(aligned.tobytes(order="C"))
