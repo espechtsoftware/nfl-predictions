@@ -678,6 +678,15 @@ agent or developer:
   reconcile and freeze an identity-only corrected-P source repair before a
   new execution. The 32-GiB slot is released, but do not bypass the source
   defect or launch a census that reads the loose repair4 P as corrected P.
+  The sole source correction is now frozen before implementation or any new
+  oracle solve in
+  `reports/2026-08-15-exact-p-corrected-identity-source-repair.md`. It requires
+  a separate create-only identity materializer to reproduce all 54 corrected
+  P scores/tails and legality against exact-stack result generation
+  `1786794534795445` / SHA-256 `1d9e6b1f...`, while persisting only canonical
+  roster IDs. The census may be repaired and relaunched only after that
+  identity-only artifact is strictly harvested and hash-pinned; all native
+  candidate outcome fields remain forbidden.
   While that source repair is reconciled, the now-free slot was used for the
   independent, already-frozen CBWU order-invariant repair. Its exact
   create-only execution is `cbwu-order-invariant-repair-v1-xdxsd`, launched
