@@ -61,11 +61,13 @@ agent or developer:
   zero-retry realistic-recourse execution from the same digest.
   The repair/amendment is committed and pushed at full SHA
   `73374a2501bdf5093f7b6acbc93cb482cd45b6ef`. Exact-archive replacement
-  Cloud Build `7109e30d-c14f-478e-97a5-ed8c1f1b18e4` is running in
-  `us-central1` under tag `realistic-recourse-73374a2`. Poll it through
-  terminal status; on success record the full-suite result and immutable
-  digest, then use that exact code/image for both scorer reconciliation and
-  the scientific run.
+  Cloud Build `7109e30d-c14f-478e-97a5-ed8c1f1b18e4` completed successfully
+  at `2026-08-15T13:46:14.035873Z`: 1,450 tests passed, 2 skipped and 5
+  warnings in 1,003.58 seconds. Tag `realistic-recourse-73374a2` resolves to
+  immutable digest
+  `sha256:0c214ba62db484f518e292eeab4b50944b2afc1d3379db77febb92531fb4b886`.
+  Use this exact code/image for both scorer reconciliation and the scientific
+  run; no later HEAD-only handoff commit may replace the analysis code SHA.
 
 - The full scorer validation is terminal-successful. Cloud Build
   `4c2fe3b0-6f36-4d39-baf8-4df829316e7f` ran from exact pushed SHA
