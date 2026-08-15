@@ -647,6 +647,18 @@ agent or developer:
   then harvest only its create-once output. Its only licensed output is
   `gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/post-forensic-addenda/20260815-exact-p-generator-constraint-census-v1/result.json`.
   No local or alternative membership run is licensed.
+  The SIS chain is now closed, so the unchanged census has been relaunched as
+  execution `exact-p-generator-constraint-census-v1-kwqdb` from validated
+  digest
+  `sha256:82d829fc22ffcb96c2663d81f5f5ad3ee259aa3ca6b6c7b2bca2221bbf959b2d`
+  and exact code `ff41b3b1067ea4c68f8d023392c6d2bb53ab7cf2`. Its manifest and
+  execution receipt are tracked under
+  `reports/exact-p-generator-census-runs/20260815-exact-p-generator-constraint-census-v1/`.
+  A strict create-only finisher now verifies execution, code/image/protocol,
+  repair4/prelock identities, exact 54-slate/68,493-row scope, score denial,
+  loss-count partition, six-family book and no-production consequence before
+  retaining the report. Poll to terminal success and run that finisher; do not
+  read a log summary or launch CBWU-OI until this 32-GiB slot is released.
 
 - The frozen prospective latent-role mechanism now has its previously missing
   real score-free scenario factory and separately named paired runner. The

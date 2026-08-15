@@ -139,3 +139,15 @@ def test_cloud_runner_does_not_use_reserved_rows_alias():
 
     assert "COUNT(*) AS rows" not in source
     assert "COUNT(*) AS row_count" in source
+
+
+def test_exact_p_census_finisher_is_strict_and_create_only():
+    source = Path(
+        "scripts/cloud_finish_exact_p_generator_constraint_census.sh"
+    ).read_text(encoding="utf-8")
+
+    assert "[ ! -e \"$OUT/report.json\" ]" in source
+    assert "uses_candidate_or_lineup_scores" in source
+    assert "production_change_licensed" in source
+    assert "sum(int(value) for value in loss.values()) != 54" in source
+    assert "exact_p_in_retained_cbwu" in source
