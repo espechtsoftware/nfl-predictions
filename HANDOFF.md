@@ -141,11 +141,14 @@ agent or developer:
   package floor is NumPy 1.26; the same 17 tests pass. The current repair is
   pushed at exact commit `8888875`. Superseded build
   `1f921d00-35af-45d3-a8f6-ab9af91d9b3e` was canceled before tests completed;
-  replacement exact-archive Cloud Build
-  `aff1ff84-ed9d-43a1-9f57-661ca7535c96` is queued for tag
-  `cbwu-oi-8888875`. Require the full suite and immutable digest before running
-  the create-only CBWU-OI audit, and do not let it displace the active SIS
-  reference. ATLAS and exact-N must not inherit order-sensitive CBWU inputs.
+  its replacement `aff1ff84-ed9d-43a1-9f57-661ca7535c96` was then canceled
+  before completion after the SIS calibration exposed a code-path repair that
+  also requires exact validation. Combined build
+  `0dc0a42a-af6b-4da9-80fd-aef25d2a1def` from exact descendant `7b0a2b3`
+  validates both and will resolve tag `sis-geometry-cbwu-7b0a2b3`. Require the
+  full suite and immutable digest before either retry, and do not let CBWU-OI
+  displace the SIS chain. ATLAS and exact-N must not inherit order-sensitive
+  CBWU inputs.
 - The review's live-inactive concern was a real money-path correctness defect:
   sim mode rebuilt nonzero draws without the stored-projection cascade/zero
   path, and salary-list `allowed_ids` did not imply active status. The live
@@ -482,8 +485,14 @@ agent or developer:
   accept a create-only stage directory so the failed receipt remains intact;
   held-out can explicitly bind the repaired calibration stage. Twenty-six
   focused SIS tests, compilation, three shell syntax checks and whitespace
-  validation pass. Commit/push, require an exact full-suite image, then retry
-  only as stage `calibration-geometry1`; held-out remains locked.
+  validation pass. The repair is pushed at exact commit `7b0a2b3`. The
+  CBWU-only validation build `aff1ff84-ed9d-43a1-9f57-661ca7535c96` was
+  canceled before completion so one replacement can validate both mechanisms.
+  Combined exact-archive Cloud Build
+  `0dc0a42a-af6b-4da9-80fd-aef25d2a1def` is queued for tag
+  `sis-geometry-cbwu-7b0a2b3`. Require it to pass and resolve its immutable
+  digest, then retry only as stage `calibration-geometry1`; held-out remains
+  locked.
 - Before any usable SIS artifact or calibration score existed, the previously
   unstated 2022 calibration-book choice was frozen in
   `reports/2026-08-15-sis-receiver-copula-calibration-book-amendment.md`
