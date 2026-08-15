@@ -9,9 +9,11 @@ looks bad.
 
 from __future__ import annotations
 
+import hashlib
 import logging
 import os
-from collections.abc import Callable
+import re
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field as dc_field
 
 import numpy as np
@@ -41,6 +43,9 @@ DEFAULT_N_BOOM = GEN_TOTAL_BUDGET                  # 40
 # Replacement slots used by the archived CE paired-panel protocol. Both
 # arms protect this many: 12 CE in treatment, 12 boom in control.
 REPLACEMENT_SLOTS = 12
+LATENT_ROLE_FAMILY = "latent_role_states"
+_LATENT_STATE_ORDER = ("inactive", "dormant", "rotation", "secondary", "primary")
+_SHA256_PATTERN = re.compile(r"[0-9a-f]{64}")
 
 
 @dataclass(frozen=True)
@@ -396,6 +401,184 @@ def _role_belief_scenarios(
     return scenarios
 
 
+def _validated_latent_role_scenarios(
+    scenarios: Sequence[tuple[str, np.ndarray]] | None,
+    *,
+    n_players: int,
+    n_slots: int,
+) -> list[tuple[str, np.ndarray]]:
+    """Validate the frozen four-promotion/eight-sampled scenario contract."""
+    if n_slots != 12:
+        raise ValueError("latent role-state candidate dose must be exactly 12")
+    if scenarios is None:
+        raise RuntimeError("latent role-state scenarios are unavailable")
+    normalized: list[tuple[str, np.ndarray]] = []
+    names: list[str] = []
+    for raw_name, raw_vector in scenarios:
+        name = str(raw_name)
+        vector = np.asarray(raw_vector, dtype=float)
+        if vector.shape != (n_players,) or not np.isfinite(vector).all():
+            raise ValueError(
+                f"latent role-state scenario {name!r} is misaligned/nonfinite"
+            )
+        if name in names:
+            raise ValueError("latent role-state scenario names repeat")
+        names.append(name)
+        normalized.append((name, vector.copy()))
+
+    promotions = normalized[:4]
+    if len(promotions) != 4:
+        raise ValueError("latent role-state scenarios have fewer than 4 promotions")
+    for sequence, (name, _) in enumerate(promotions, start=1):
+        parts = name.split(":")
+        if (
+            len(parts) != 5
+            or parts[0] != "latent_promotion"
+            or parts[1] != str(sequence)
+            or not parts[2]
+            or ">" not in parts[3]
+            or _SHA256_PATTERN.fullmatch(parts[4]) is None
+        ):
+            raise ValueError("latent role-state promotion order differs")
+        source_state, promoted_state = parts[3].split(">", maxsplit=1)
+        if (
+            source_state not in _LATENT_STATE_ORDER
+            or promoted_state not in _LATENT_STATE_ORDER
+            or _LATENT_STATE_ORDER.index(promoted_state)
+            <= _LATENT_STATE_ORDER.index(source_state)
+        ):
+            raise ValueError("latent role-state promotion identity is malformed")
+
+    sampled = normalized[4:]
+    attempts = []
+    for name, _ in sampled:
+        parts = name.split(":")
+        if (
+            len(parts) != 5
+            or parts[0] != "latent_sampled"
+            or parts[2] != "draw"
+            or _SHA256_PATTERN.fullmatch(parts[4]) is None
+        ):
+            raise ValueError("latent role-state sampled identity is malformed")
+        try:
+            attempt = int(parts[1])
+            draw_index = int(parts[3])
+        except ValueError as exc:
+            raise ValueError(
+                "latent role-state sampled identity is malformed"
+            ) from exc
+        if not 1 <= attempt <= 50 or draw_index < 0:
+            raise ValueError("latent role-state attempt/draw index is invalid")
+        attempts.append(attempt)
+    if attempts != sorted(set(attempts)):
+        raise ValueError("latent role-state attempts are not strictly ordered")
+    if len(sampled) < 8:
+        raise ValueError("latent role-state scenarios have fewer than 8 samples")
+    return normalized
+
+
+def _latent_role_candidates(
+    pool: list[dict],
+    scenarios: Sequence[tuple[str, np.ndarray]],
+    *,
+    stack: StackRules | None,
+    locks: set,
+    env: dict,
+    existing: set[frozenset],
+    optimization_receipt: list[dict],
+) -> list[tuple[Lineup, str]]:
+    """Optimize the frozen four means and first eight novel sampled worlds."""
+    if optimization_receipt:
+        raise ValueError("latent role optimization receipt must start empty")
+    produced: list[tuple[Lineup, str]] = []
+    seen = set(existing)
+
+    def _record(
+        scenario: str,
+        kind: str,
+        disposition: str,
+        lineup: Lineup | None = None,
+        error: Exception | None = None,
+    ) -> None:
+        roster_sha256 = None
+        if lineup is not None:
+            payload = "\n".join(sorted(str(pid) for pid in lineup.ids))
+            roster_sha256 = hashlib.sha256(payload.encode("utf-8")).hexdigest()
+        optimization_receipt.append({
+            "scenario": scenario,
+            "kind": kind,
+            "disposition": disposition,
+            "roster_sha256": roster_sha256,
+            "error_type": type(error).__name__ if error is not None else None,
+        })
+
+    for sname, vector in scenarios[:4]:
+        spool = [
+            {**player, "proj_epi": float(vector[index])}
+            for index, player in enumerate(pool)
+        ]
+        try:
+            lineup = optimize(
+                spool, stack=stack, objective_col="proj_epi",
+                locks=set(locks), env=env,
+            )
+        except Exception as exc:
+            _record(sname, "promotion", "optimization_error", error=exc)
+            raise RuntimeError(
+                f"latent role promotion {sname} optimization failed"
+            ) from exc
+        if lineup is None:
+            _record(sname, "promotion", "infeasible")
+            raise RuntimeError(
+                f"latent role promotion {sname} is not a novel optimum"
+            )
+        if lineup.ids in seen:
+            _record(sname, "promotion", "duplicate", lineup=lineup)
+            raise RuntimeError(
+                f"latent role promotion {sname} is not a novel optimum"
+            )
+        _record(sname, "promotion", "accepted", lineup=lineup)
+        seen.add(lineup.ids)
+        produced.append((lineup, sname))
+
+    sampled_added = 0
+    for sname, vector in scenarios[4:]:
+        if sampled_added >= 8:
+            break
+        spool = [
+            {**player, "proj_epi": float(vector[index])}
+            for index, player in enumerate(pool)
+        ]
+        try:
+            lineup = optimize(
+                spool, stack=stack, objective_col="proj_epi",
+                locks=set(locks), env=env,
+            )
+        except Exception as exc:
+            _record(sname, "sampled", "optimization_error", error=exc)
+            log.warning(
+                "latent sampled scenario %s optimization failed: %s",
+                sname, exc,
+            )
+            continue
+        if lineup is None:
+            _record(sname, "sampled", "infeasible")
+            continue
+        if lineup.ids in seen:
+            _record(sname, "sampled", "duplicate", lineup=lineup)
+            continue
+        _record(sname, "sampled", "accepted", lineup=lineup)
+        seen.add(lineup.ids)
+        produced.append((lineup, sname))
+        sampled_added += 1
+    if len(produced) != 12 or sampled_added != 8:
+        raise RuntimeError(
+            "latent role-state generator did not produce exact "
+            f"4+8 novel candidates (promotion=4 sampled={sampled_added})"
+        )
+    return produced
+
+
 @dataclass
 class WeekResult:
     season: int
@@ -748,6 +931,10 @@ def tail_select_lineups(
     candidate_run_type: str | None = None,
     belief_slate: pd.DataFrame | None = None,
     belief_draws: np.ndarray | None = None,
+    explicit_epistemic_scenarios: (
+        Sequence[tuple[str, np.ndarray]] | None
+    ) = None,
+    latent_optimization_receipt: list[dict] | None = None,
     policy_env: dict | None = None,
     candidate_capture: Callable[[CandidateBatch], None] | None = None,
     candidate_transform: (
@@ -799,6 +986,9 @@ def tail_select_lineups(
     seen = {lu.ids for lu in cands}
     epi_family = runtime_env.get("EPISTEMIC_FAMILY", "standard")
     if n_epi and epi_family == "role_draws":
+        if (explicit_epistemic_scenarios is not None
+                or latent_optimization_receipt is not None):
+            raise ValueError("role_draws cannot receive latent scenarios/receipt")
         if belief_slate is None or belief_draws is None:
             raise RuntimeError(
                 "role_draws treatment requires alternate belief slate/draws")
@@ -806,11 +996,29 @@ def tail_select_lineups(
             raise ValueError("baseline and role-belief slate ids are misaligned")
         epi_scenarios = _role_belief_scenarios(
             belief_slate, belief_draws, n_epi)
+    elif n_epi and epi_family == LATENT_ROLE_FAMILY:
+        if belief_slate is not None or belief_draws is not None:
+            raise ValueError(
+                "latent role-state scenarios cannot receive a belief slate"
+            )
+        if latent_optimization_receipt is None:
+            raise ValueError("latent role-state optimization receipt is required")
+        epi_scenarios = _validated_latent_role_scenarios(
+            explicit_epistemic_scenarios,
+            n_players=len(pool),
+            n_slots=n_epi,
+        )
     elif n_epi and epi_family in ("", "standard"):
+        if (explicit_epistemic_scenarios is not None
+                or latent_optimization_receipt is not None):
+            raise ValueError("standard EPI cannot receive latent scenarios/receipt")
         epi_scenarios = _epistemic_scenarios(pool, objective_col)
     elif n_epi:
         raise ValueError(f"unknown EPISTEMIC_FAMILY={epi_family!r}")
     else:
+        if (explicit_epistemic_scenarios is not None
+                or latent_optimization_receipt is not None):
+            raise ValueError("latent scenarios/receipt require a nonzero dose")
         epi_scenarios = []
     if n_epi and not epi_scenarios:
         # A replacement arm must not silently remove incumbent generation
@@ -1021,7 +1229,24 @@ def tail_select_lineups(
     # high-disagreement-game alternatives. No independent player p99 boost
     # is used. Missing inputs are replaced by incumbent boom slots.
     epi_added = 0
-    if n_epi and epi_scenarios:
+    if n_epi and epi_scenarios and epi_family == LATENT_ROLE_FAMILY:
+        latent_candidates = _latent_role_candidates(
+            pool,
+            epi_scenarios,
+            stack=stack,
+            locks=set(locks),
+            env=runtime_env,
+            existing=seen,
+            optimization_receipt=latent_optimization_receipt,
+        )
+        for lu, sname in latent_candidates:
+            lu.tag = "epi"
+            _note(lu.ids, "epi")
+            _note(lu.ids, f"epi:{sname}")
+            seen.add(lu.ids)
+            cands.append(lu)
+            epi_added += 1
+    elif n_epi and epi_scenarios:
         banned_epi: list[frozenset] = []
         max_attempts = max(n_epi * 3, len(epi_scenarios))
         for attempt in range(max_attempts):
@@ -1051,7 +1276,7 @@ def tail_select_lineups(
             # Preserve the candidate-generation budget when scenario solves
             # fail or duplicate incumbent candidates.
             missing = n_epi - epi_added
-            if epi_family == "role_draws":
+            if epi_family in {"role_draws", LATENT_ROLE_FAMILY}:
                 raise RuntimeError(
                     f"role-belief generator produced {epi_added}/{n_epi} "
                     "unique replacement candidates")
@@ -1407,6 +1632,9 @@ def tail_select_lineups(
             "tail_line": float(tail_line),
             "n_entries": int(n_entries),
             "candidate_generation_entries": generation_entries,
+            "latent_optimization_receipt": tuple(
+                latent_optimization_receipt or ()
+            ),
         },
     )
     effective_batch_metadata = native_batch.metadata

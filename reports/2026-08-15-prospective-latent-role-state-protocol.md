@@ -151,6 +151,37 @@ in ascending `gsis_id` order. The 50-attempt ceiling applies to the sampled
 branch after the four deterministic promotions; every cap rejection,
 optimization and optimized-roster duplicate consumes one attempt.
 
+Each cap-valid deterministic promotion is run through the exact
+`tail_k1_role` conditional registry and optimized once on that conditional
+slate's `proj_tourney` mean, reproducing the incumbent role generator's four
+mean-family slots. Each cap-valid sampled state world is run through the same
+registry and the same 10,000-draw native CBWU block; its candidate objective is
+the conditional draw with the highest total skill-player points, with a lower
+draw index breaking an exact tie. This reproduces the incumbent role
+generator's eight boom-family slots while changing only the hypothesized Week
+W roles. The existing market vector, blend weight, ownership fade inputs,
+served position calibration and all simulation settings remain unchanged.
+
+A deterministic promotion whose single optimum duplicates any already-built
+native candidate or another promotion invalidates the treatment; it is not
+silently replaced. A sampled optimum that duplicates the native pool, a
+promotion or an earlier sampled optimum consumes its numbered attempt and the
+sampler advances. Optimization errors follow the same rule. Exactly eight
+novel sampled optima must exist by attempt 50. Alternate-state point draws are
+candidate-only; every candidate remains cross-scored and selected on the
+unchanged incumbent K=1 CBWU draw matrix. The receipt records every state-
+world identity, cap disposition, conditional draw hash/index, optimization
+disposition and roster hash.
+
+Machine scenario identities are part of the receipt contract. Promotions use
+`latent_promotion:{sequence}:{gsis_id}:{modal}>{promoted}:{world_sha256}`;
+sampled cap-valid worlds use
+`latent_sampled:{attempt}:draw:{draw_index}:{world_sha256}`. Hashes are lower-
+case 64-character SHA-256 hex strings. Promotion sequences are exactly 1--4;
+sampled attempt numbers are strictly increasing but may skip cap-rejected
+attempts. These identities and the optimization receipt are required inputs to
+the lineup engine, including for an invalid treatment book.
+
 Everything downstream remains frozen:
 
 - 12 treatment role candidates plus the same 40 boom candidates;
