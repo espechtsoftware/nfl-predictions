@@ -210,12 +210,19 @@ agent or developer:
   newly documented 24. Both failures are test-contract maintenance defects,
   not runtime or mechanism failures. They are repaired locally; the failed
   build remains durable evidence and must not be cited as validation.
+- The two contract repairs are pushed at full SHA
+  `d270e34e25d425dfb2b7771b8b20f42434c19bc7`. Replacement exact-commit
+  Cloud Build `ace2feb8-f082-4e75-981d-e9daa7a9551d` was submitted at
+  `2026-08-15T05:49:13Z` from a clean archive of that SHA and is queued/running.
+  It will publish tag `prospective-recourse-d270e34` only after the full suite
+  succeeds.
 - The local repository `.venv` remains healthy despite the user's concern
   about accidentally deleting a Python environment while installing Gemini
   CLI: `.venv/bin/python` is Python 3.14.4, project/pandas/BigQuery imports
   succeed and `python -m pip check` reports no broken requirements.
-- Next concrete action: validate the two exact repaired contract tests, then
-  commit/push and launch a new exact-commit full-suite Cloud Build. After the
+- Next concrete action: poll replacement exact-commit Cloud Build
+  `ace2feb8-f082-4e75-981d-e9daa7a9551d` to terminal and harvest its test
+  count and immutable image digest. After the
   validated digest exists, deploy only
   the new paired shadow job/schedulers in
   a paused state and verify their configuration without running a scoring job.
