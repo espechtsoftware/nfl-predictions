@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 02:40 CDT
+## Current state — 2026-08-15 02:53 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -361,18 +361,30 @@ agent or developer:
   table, so all four live pass-tail source tables are included without a
   separate allow-list. Eighty-one relevant local tests passed; module
   compilation and `git diff --check` pass. Exact clean-archive Cloud Build
-  `29793182-ec5c-4fe7-a4de-0f8f992c6f36` is validating full SHA
-  `72261a27f44bc8e9a876dfc5c394517fa2847f32` and remains `WORKING`; harvest its
-  terminal result before citing the intake milestone as full-suite validated.
-- Next concrete action: poll and harvest Cloud Build
-  `29793182-ec5c-4fe7-a4de-0f8f992c6f36`, then record its terminal count and
-  immutable image digest. The first authenticated acquisition smoke cannot
-  occur until complete 2026 Weeks 1--4 data exist; until then every downstream
-  cache/shadow fails closed and all three schedulers stay paused. Separately,
-  install the Cloud Run proxy package with operator sudo when available and run
-  the outcome-free recourse rehearsal through authenticated IAP. Preserve the
-  Week 1 readiness and forensic cleanup gates, do not launch another historical
-  score arm, and do not delete the repair4 warehouse before independent review.
+  `29793182-ec5c-4fe7-a4de-0f8f992c6f36` validated full SHA
+  `72261a27f44bc8e9a876dfc5c394517fa2847f32` successfully at
+  `2026-08-15T07:53:18.796163Z`: 1,393 tests passed, 2 were skipped and 5
+  warnings were emitted in 757.77 seconds. Published tag
+  `weekly-pass-tail-72261a2` resolves to immutable digest
+  `sha256:2c2f1009df880fc78ac9e211e6a63859f1c2a250674487b7e386fec3515809f4`.
+- A read-only projected-ownership preflight confirmed that the saved Data Suite
+  session remains healthy, but the separate
+  `www.fantasypoints.com/nfl/projections/dfs/ownership` surface currently
+  presents its own ordinary account sign-in dialog in that browser profile.
+  The login form is mapped without entering or logging credentials. Do not
+  claim the ownership collector or entitlement is validated until the operator
+  authenticates that normal surface and the real 2026 table/export DOM can be
+  frozen; the Data Suite cookie alone is not sufficient.
+- Next concrete action: the first authenticated pass-tail acquisition smoke
+  cannot occur until complete 2026 Weeks 1--4 data exist; until then every
+  downstream cache/shadow fails closed and all three schedulers stay paused.
+  Continue the projected-ownership collector by authenticating its separate
+  normal website session, then freeze the real row/export contract before the
+  first 2026 snapshot. Separately, install the Cloud Run proxy package with
+  operator sudo when available and run the outcome-free recourse rehearsal
+  through authenticated IAP. Preserve the Week 1 readiness and forensic
+  cleanup gates, do not launch another historical score arm, and do not delete
+  the repair4 warehouse before independent review.
 
 ## Prior state — 2026-08-14 22:18 CDT
 
