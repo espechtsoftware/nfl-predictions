@@ -1,0 +1,17 @@
+version=cbwu-oi-construction-diagnostic-v1
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:710490b4bde4b0933d1d35d49a6ed30e322ad9760b0dfe82533127c8d3acf693
+code_sha=486643cd6b453dbed6bae79ba350e6a72c62cacd
+output_uri=gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/post-forensic-addenda/20260815-cbwu-oi-construction-diagnostic-v1/result.json
+protocol_sha256=3b458263b165b380e6adf1efdf6ed08fb423c91d6988b5741aa32b11beafe1ec
+cbwu_oi_scorefree_report_sha256=556adeca6e0bf2855ad82296b1e708041a20446dc27e2c988c1d11e8c5bd4d33
+identity_generation=1786831245271593
+identity_sha256=ff456093841266cba1b0293dd56b0e2d5089588a61518568706900617eff6ad1
+source_panels=20260813-sis-asoe-treatment-r0-v1,20260813-sis-asoe-treatment-r1-v1,20260813-sis-asoe-treatment-r2-v1,20260813-sis-asoe-treatment-r3-v1,20260813-sis-asoe-treatment-r4-v1
+forensic_manifest_sha256=51edbe124846dc936ade71c4e5a9a07e252bcf6c7d7872b979715ccd1f6bab02
+uses_realized_candidate_scores=true
+scores_cbwu_oi_selected_80=false
+historical_arm_licensed=false
+production_change_licensed=false
+slates=54
+seed_slate_artifacts=270
+candidate_budget=canonical-r0-fixed-and-equal

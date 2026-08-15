@@ -941,6 +941,18 @@ agent or developer:
   `486643cd6b453dbed6bae79ba350e6a72c62cacd`; do not use it for the later ATLAS
   SQL repair. With the failed ATLAS attempt terminal, this image may now use
   the released 32-GiB slot for the frozen construction diagnostic.
+  The construction diagnostic is now exact Cloud Run execution
+  `cbwu-oi-construction-diagnostic-v1-4rr8d`. Its create-only manifest and
+  execution receipt are tracked under
+  `reports/cbwu-oi-construction-runs/20260815-cbwu-oi-construction-diagnostic-v1/`.
+  Poll this exact execution and use only its strict finisher after terminal
+  success. This is an outcome-viewed C-layer diagnostic, not a historical arm;
+  it remains prohibited from scoring the OI selected 80 or changing production.
+  In parallel, exact clean-archive Cloud Build
+  `c1cadcc6-25d7-4b0a-a15d-99f9a7cff740` is validating the ATLAS SQL repair
+  from full commit `81b5c6e97c519babb8d7bb711c915ca70a2a51ba` under tag
+  `atlas-repair1-81b5c6e`. Require the full suite and immutable digest before
+  retrying ATLAS; do not reuse its failed image.
   A follow-on review incorrectly treated CBWU-OI as an in-place production
   change. It is an inactive research function with no production call site;
   requiring identity to canonical CBWU would also contradict its frozen strict
