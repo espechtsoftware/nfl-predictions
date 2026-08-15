@@ -89,8 +89,14 @@ agent or developer:
   54,419 exact) before the scientific run. The checksum-bound repair and
   create-only reconciliation runner are pushed at full SHA
   `3fac247828110ed9dac9e93f6507d6da10c1fa45`. Exact-archive Cloud Build
-  `a64ecb4c-32a6-4a0c-94c2-f5d8231d1ca1` is running under tag
-  `realistic-recourse-3fac247`. After full-suite success, launch
+  `a64ecb4c-32a6-4a0c-94c2-f5d8231d1ca1`, submitted under tag
+  `realistic-recourse-3fac247`, was canceled during final code review: the
+  audit was outcome-blind and before persistence, but still followed in-memory
+  proposal calculation. The runner now derives the exact retained candidate
+  union from the no-outcome forensic identities and completes the lateral
+  audit before authoritative as-of labels, artifact reconstruction or any
+  proposal calculation. Submit a replacement exact build. After full-suite
+  success, launch
   `recourse-scorer-reconciliation-v2` from that immutable digest, require its
   create-only 54,419/54,419 result, and only then use the same digest for the
   recourse run.

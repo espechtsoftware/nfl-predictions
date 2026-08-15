@@ -502,11 +502,22 @@ def run(output_uri: str, proposal_uri: str) -> dict:
             final_keys.append({
                 "season": season, "week": week, "game_id": reverse_pair[game_id],
             })
+    audit_universes = {}
+    for season, week in slates:
+        roster_values = forensic_candidates[
+            forensic_candidates.season.astype(int).eq(season)
+            & forensic_candidates.week.astype(int).eq(week)
+        ].roster_key.astype(str)
+        audit_universes[(season, week)] = set().union(*(
+            set(canonical_roster(value)) for value in roster_values
+        ))
+    lateral_audit = _audit_lateral_residuals(
+        pbp, status_by_slate, audit_universes, decision_by_slate,
+    )
     asof_skill = _json_key_query(bq, keys=final_keys, kind="skill")
     asof_dst = _json_key_query(bq, keys=final_keys, kind="dst")
 
     proposals: list[dict] = []
-    universes: dict[tuple[int, int], set[str]] = {}
     for slate_index, (season, week) in enumerate(slates, start=1):
         seed_frames: dict[int, pd.DataFrame] = {}
         artifacts: dict[int, dict] = {}
@@ -541,9 +552,6 @@ def run(output_uri: str, proposal_uri: str) -> dict:
             counterfactual_generated_at=initial_lock,
         )
         universe = set(map(str, combined["player_ids"]))
-        universes[(season, week)] = set().union(*(
-            set(canonical_roster(value)) for value in book.players.astype(str)
-        ))
         slate_players = players[
             players.season.astype(int).eq(season)
             & players.week.astype(int).eq(week)
@@ -613,9 +621,6 @@ def run(output_uri: str, proposal_uri: str) -> dict:
         ))
         print(f"RECOURSE_PROPOSAL {slate_index}/54 {season}w{week}", flush=True)
 
-    lateral_audit = _audit_lateral_residuals(
-        pbp, status_by_slate, universes, decision_by_slate,
-    )
     frozen = freeze_proposals(proposals)
     frozen.update({
         "manifest_sha256": MANIFEST_SHA256,
