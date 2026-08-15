@@ -47,6 +47,7 @@ COPY scripts/prepare_final_forensic_freeze.py ./scripts/prepare_final_forensic_f
 COPY scripts/run_final_forensic_hpcs.py ./scripts/run_final_forensic_hpcs.py
 COPY scripts/run_post_forensic_construction_addendum.py ./scripts/run_post_forensic_construction_addendum.py
 COPY scripts/run_exact_p_generator_constraint_census.py ./scripts/run_exact_p_generator_constraint_census.py
+COPY scripts/run_exact_p_corrected_identity_source.py ./scripts/run_exact_p_corrected_identity_source.py
 COPY scripts/run_atlas_world_ranking.py ./scripts/run_atlas_world_ranking.py
 COPY scripts/run_cbwu_seed_order_audit.py ./scripts/run_cbwu_seed_order_audit.py
 COPY scripts/run_realistic_recourse_sizing.py ./scripts/run_realistic_recourse_sizing.py

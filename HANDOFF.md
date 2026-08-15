@@ -695,6 +695,16 @@ agent or developer:
   receipt-only smoke, and the repaired census must later pass a separate
   2023-only plumbing smoke that suppresses every membership/distance/loss-stage
   value before the full 54-slate census can run.
+  The corrected-identity materializer and its two-stage create-only launcher/
+  strict finisher are now implemented locally. The source stage binds the
+  repair4 manifest and immutable exact-stack generation/SHA, queries candidate
+  rosters without score/selection/rank/ownership/tag fields, deterministically
+  re-solves QB+2/bring-back P, verifies scores/tails and independent legality,
+  and persists no realized values. The 2023 preflight additionally strips all
+  roster identities from its receipt; only the later full stage may persist
+  the 54 canonical identities. Ten focused exact-P/source/construction tests,
+  Python compilation and both shell syntax checks pass. Build an exact image,
+  run/strictly harvest `preflight-2023`, and only then run the full source.
   While that source repair is reconciled, the now-free slot was used for the
   independent, already-frozen CBWU order-invariant repair. Its exact
   create-only execution is `cbwu-order-invariant-repair-v1-xdxsd`, launched

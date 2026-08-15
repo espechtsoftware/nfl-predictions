@@ -1,6 +1,6 @@
 # Reconciliation: closure corrections, CBWU slot and exact-P
 
-Date: 2026-08-15 16:31 CDT  
+Date: 2026-08-15 16:24 CDT
 Reviewed file: `reports/2026-08-16-closure-corrections-and-cbwu-slot-review.md`
 
 ## Accepted
@@ -52,4 +52,3 @@ require downstream revalidation against that explicitly changed baseline.
 Execution `cbwu-order-invariant-repair-v1-xdxsd` had already started before the
 review arrived. No result was read while making this reconciliation, and no
 gate, treatment or consequence was changed.
-
