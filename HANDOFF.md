@@ -948,6 +948,21 @@ agent or developer:
   Poll this exact execution and use only its strict finisher after terminal
   success. This is an outcome-viewed C-layer diagnostic, not a historical arm;
   it remains prohibited from scoring the OI selected 80 or changing production.
+  The construction execution completed successfully at
+  `2026-08-15T23:16:14.915669Z` in 25m01.45s. The strict finisher retained the
+  immutable report at SHA-256
+  `adfa9c0a5d23f5ce1ea4f70d7443affbcb84ee7cae72ac6c176e065abf23dfd6`.
+  At the exact same 241--265 candidate budget, mean C improves
+  `181.07 -> 186.73` (+5.66); 194/200/210 C tails improve
+  `11/8/6 -> 18/14/10`, while 220/230/240 remain `3/1/0`. Paired C improves
+  on 25 slates, ties on 25 and declines on four. Mean minimum swaps to exact P
+  improves `5.17 -> 4.87`; player-pair reach rises
+  `3,056.35 -> 4,307.80` and stack-core reach `118.78 -> 181.09`. The effect is
+  positive in mean C in every season (+5.93/+1.97/+9.07 for 2023/2024/2025).
+  This is a substantial fixed-budget construction success and prioritizes the
+  prospective CBWU-OI shadow plus ATLAS. It still does not score the OI
+  selected 80, license a historical arm or change production. Concise result:
+  `reports/2026-08-15-cbwu-oi-construction-diagnostic-result.md`.
   In parallel, exact clean-archive Cloud Build
   `c1cadcc6-25d7-4b0a-a15d-99f9a7cff740` is validating the ATLAS SQL repair
   from full commit `81b5c6e97c519babb8d7bb711c915ca70a2a51ba` under tag
