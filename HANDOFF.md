@@ -115,8 +115,11 @@ agent or developer:
   implement after the guarded acquisition closes.
 - The review's remaining exact-P construction question is now frozen as
   `reports/2026-08-15-exact-p-generator-constraint-census-protocol.md`
-  (SHA-256
-  `6399bc42c892a3be79f7c77447750cdf09f5996a74c12a823547f58dfcbcf298`).
+  The pre-membership disposition thresholds are fixed in the protocol: 36/54
+  for native-search dominance, 6/54 for material CBWU admission loss, and a
+  10%-budget plus 36/54 threshold for family structural exclusion. Its current
+  SHA-256 is
+  `bca1db394240359edd80db4767cafbe8d39d1a6769ba6a60e2b35ded18c0056e`.
   The census reuses the immutable corrected P identities but forbids candidate
   scores/yield. It distinguishes failure inside complete native generator
   books from exclusion by the fixed-budget five-seed CBWU quota/fill law,

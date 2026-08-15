@@ -82,6 +82,21 @@ Aggregate all counts across 54 slates and also disclose each season and slate.
 No threshold, tail-count, mean realized score, ROI or candidate performance
 metric belongs in this result.
 
+Before reading membership values, freeze these disposition thresholds:
+
+- `native-generation-search-dominant` when exact P is absent from the complete
+  native five-seed union on at least 36 of 54 slates;
+- `fixed-budget-admission-material` when exact P occurs in the native union but
+  is removed by CBWU admission on at least 6 slates and the dominant threshold
+  above is not met;
+- `specific-family-structural-exclusion-material` only when one base family
+  consumes at least 10% of the mean native candidate count and is statically
+  incapable of producing exact P on at least 36 slates, with neither earlier
+  disposition applicable; and
+- `mixed` for every other valid pattern.
+
+These thresholds classify mechanism prevalence, not value or adoption.
+
 ## Interpretation and next decision
 
 The result may name only one of these descriptive diagnoses:
