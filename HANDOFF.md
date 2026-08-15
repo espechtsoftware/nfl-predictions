@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 05:08 CDT
+## Current state — 2026-08-15 05:13 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -118,6 +118,13 @@ agent or developer:
   `e5d8789...` archive with tag `post-forensic-stack-e5d8789`. Exact next
   action: poll the build, harvest its immutable digest and then run the
   correction once on Cloud Run.
+- A read-only 2025 Week 1 repair4 smoke passed on the real tables: exact loose-P
+  reproduction, exact-80 candidate/selection reconstruction, exact-stack H/P,
+  no-floor, recourse and P-distance computations all completed. On that one
+  diagnostic slate only, corrected H-P/P-C/C-S were 0.0/49.0/6.6, the floor
+  added 0.1 points but no threshold, and corrected hindsight recourse gained
+  36.5 points. These are schema/mechanical smoke values, not the 54-slate
+  result and must not be interpreted or promoted.
 - Latent-role retained-world build
   `240516d1-14ae-4ecf-9fa4-556472a5a492` reached terminal `SUCCESS` at
   `2026-08-15T10:02:09.107112Z`: 1,416 tests passed, 2 were skipped and 5
