@@ -17,6 +17,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from collections.abc import Iterable
+import hashlib
 
 import numpy as np
 import pandas as pd
@@ -47,6 +48,53 @@ DST_COMPONENTS = (
     "return_tds",
     "defensive_conversions",
 )
+
+# nflverse exposes only one lateral-player identity and one aggregate lateral
+# yard value on these eight multi-lateral plays.  The timestamped descriptions
+# themselves enumerate every intermediate player and yard allocation.  These
+# checksum-bound deltas are the deterministic difference between the structured
+# fields and that description; they are not inferred from a fantasy outcome.
+# The table closes the 12 known full-game reconciliation residuals and, most
+# importantly for recourse, makes the two pre-3:55 plays identifiable.
+MULTI_LATERAL_ADJUSTMENTS = {
+    ("2023_09_TB_HOU", 4520): {
+        "description_sha256": "c1c95aa2edc75631096849944e7f0632592f6542578ba6fed35618bea79e98ce",
+        "rec_yards": {"00-0036985": -3.0},
+    },
+    ("2023_16_BUF_LAC", 4111): {
+        "description_sha256": "e1992c85a9bcebcb32d53acb43f4c84bb6de523e4f2d3472181bcf403553cb53",
+        "rec_yards": {"00-0033699": -2.0},
+    },
+    ("2024_03_SF_LA", 4434): {
+        "description_sha256": "b7dc3c57193ee6669cb7fae9ce86ef70e25817289499869a81407bad32473442",
+        "rec_yards": {
+            "00-0033576": 17.0,
+            "00-0036261": 5.0,
+            "00-0037525": 1.0,
+            "00-0039351": -3.0,
+        },
+    },
+    ("2024_04_JAX_HOU", 4287): {
+        "description_sha256": "4eb3e84f12ab009d0f9d79350ded09f874a6a64935c88271ef76da017a337d06",
+        "rec_yards": {"00-0036196": -7.0},
+    },
+    ("2024_05_DAL_PIT", 4583): {
+        "description_sha256": "727ceed8a5da555243a966439dcb5b0f713e2db950b6036650adfb79a8c29187",
+        "rec_yards": {"00-0039896": -2.0},
+    },
+    ("2024_09_LAC_CLE", 2105): {
+        "description_sha256": "32b16b45033f7a2d18ad31241c4d7748203bf13cd41eee0fe634ec34d8d64a65",
+        "rec_yards": {"00-0036988": 9.0, "00-0039915": -6.0},
+    },
+    ("2025_15_CLE_CHI", 1934): {
+        "description_sha256": "57b3253942bb810394d4b434252225b80188e0583185f6623b2f80bc9b94a329",
+        "rec_yards": {"00-0034827": 4.0},
+    },
+    ("2025_18_IND_HOU", 4468): {
+        "description_sha256": "5f459bfeda3feab7cdcc97b19510d6aef5b297da5db8e35631908eb1c769a16e",
+        "rec_yards": {"00-0036252": -9.0},
+    },
+}
 
 
 def _aware(value, label: str) -> pd.Timestamp:
@@ -162,6 +210,8 @@ def score_skill_players(
     touchback_fumbles = 0
     multi_fumble_plays = 0
     non_boxscore_fumbles = 0
+    multi_lateral_plays = 0
+    multi_lateral_player_adjustments = 0
     for _, row in frame.iterrows():
         passer = _player_id(row, "passer_player_id")
         receiver = _player_id(row, "receiver_player_id")
@@ -185,6 +235,26 @@ def score_skill_players(
             "rec_yards",
             _number(row, "lateral_receiving_yards"),
         )
+        play_id = pd.to_numeric(
+            pd.Series([row.get("play_id")]), errors="coerce",
+        ).iloc[0]
+        adjustment = None
+        if not pd.isna(play_id):
+            adjustment = MULTI_LATERAL_ADJUSTMENTS.get(
+                (str(row.game_id), int(play_id)),
+            )
+        if adjustment is not None:
+            description = str(row.get("desc", ""))
+            digest = hashlib.sha256(description.encode("utf-8")).hexdigest()
+            if digest != adjustment["description_sha256"]:
+                raise ValueError(
+                    f"multi-lateral description checksum differs: {row.game_id} "
+                    f"play {int(play_id)}"
+                )
+            multi_lateral_plays += 1
+            for player_id, yards in adjustment["rec_yards"].items():
+                add(str(player_id), "rec_yards", float(yards))
+                multi_lateral_player_adjustments += 1
         if _number(row, "complete_pass"):
             add(receiver, "receptions", 1.0)
         if _number(row, "pass_touchdown"):
@@ -283,6 +353,11 @@ def score_skill_players(
         "touchback_fumbles": int(touchback_fumbles),
         "multi_lost_fumble_plays": int(multi_fumble_plays),
         "non_boxscore_fumbles": int(non_boxscore_fumbles),
+        "multi_lateral_plays_adjusted": int(multi_lateral_plays),
+        "multi_lateral_players_adjusted": int(
+            multi_lateral_player_adjustments
+        ),
+        "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
         "scorer": "pit-dk-skill-v1",
     }
 
@@ -612,6 +687,7 @@ def points_information_as_of(
 __all__ = [
     "DST_COMPONENTS",
     "PLAYER_COMPONENTS",
+    "MULTI_LATERAL_ADJUSTMENTS",
     "score_skill_players",
     "score_team_defenses",
     "points_information_as_of",

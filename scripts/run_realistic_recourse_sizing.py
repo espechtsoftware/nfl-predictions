@@ -19,7 +19,10 @@ from google.cloud import bigquery, storage
 from nfl_dfs.inference.recourse_worlds import derive_remaining_worlds
 from nfl_dfs.optimizer.late_swap import propose_recourse_rosters
 from nfl_dfs.research.portfolio_effective_rank import decode_score_artifact
-from nfl_dfs.research.recourse_scoring import points_information_as_of
+from nfl_dfs.research.recourse_scoring import (
+    MULTI_LATERAL_ADJUSTMENTS,
+    points_information_as_of,
+)
 from nfl_dfs.research.realistic_recourse_sizing import (
     ENTRY_COUNT,
     PROTOCOL_ID,
@@ -52,6 +55,11 @@ EXACT_STACK_URI = (
 )
 EXPECTED_EXACT_STACK_SHA256 = (
     "1d9e6b1f8d4e6174ae4aa717acf62fe657f0f3fbfd9271289a36b4a58664e7f3"
+)
+SCORER_AUDIT_URI = (
+    "gs://nfl-predictions-503414-raw/research/final-forensic-runs/"
+    "20260814-final-preseason-forensic-v1/post-forensic-addenda/"
+    "20260815-realistic-recourse-sizing-v1/scorer-reconciliation.json"
 )
 LATERAL_RESIDUALS = (
     (2024, 3, "00-0033576"), (2024, 9, "00-0036988"),
@@ -236,10 +244,6 @@ def _audit_lateral_residuals(
     universes: dict[tuple[int, int], set[str]],
     decision_by_slate: dict[tuple[int, int], pd.Timestamp],
 ) -> list[dict]:
-    player_columns = [
-        "passer_player_id", "receiver_player_id", "rusher_player_id",
-        "lateral_receiver_player_id", "lateral_rusher_player_id", "td_player_id",
-    ]
     audits = []
     for season, week, player_id in LATERAL_RESIDUALS:
         key = (season, week)
@@ -250,22 +254,31 @@ def _audit_lateral_residuals(
                 "candidate_relevant": False, "disposition": "outside_world_universe",
             })
             continue
-        slate = pbp[
+        registered = [
+            (game_id, play_id, adjustment)
+            for (game_id, play_id), adjustment in MULTI_LATERAL_ADJUSTMENTS.items()
+            if player_id in adjustment["rec_yards"]
+        ]
+        if len(registered) != 1:
+            raise RuntimeError(
+                f"lateral residual lacks one registered description adjustment: "
+                f"{key} {player_id}"
+            )
+        game_id, play_id, adjustment = registered[0]
+        matches = pbp[
             pbp.season.astype(int).eq(season) & pbp.week.astype(int).eq(week)
+            & pbp.game_id.astype(str).eq(game_id)
+            & pd.to_numeric(pbp.play_id, errors="coerce").eq(play_id)
         ].copy()
-        identity = pd.Series(False, index=slate.index)
-        for column in player_columns:
-            if column in slate:
-                identity |= slate[column].astype(str).eq(player_id)
-        lateral = pd.Series(False, index=slate.index)
-        for column in ("lateral_receiving_yards", "lateral_rushing_yards"):
-            if column in slate:
-                lateral |= pd.to_numeric(slate[column], errors="coerce").fillna(0).ne(0)
-        matches = slate.loc[identity & lateral].copy()
-        if matches.empty:
+        if len(matches) != 1:
             raise RuntimeError(
                 f"candidate-relevant lateral residual is not identifiable: {key} {player_id}"
             )
+        description = str(matches.iloc[0]["desc"])
+        if hashlib.sha256(description.encode("utf-8")).hexdigest() != str(
+            adjustment["description_sha256"]
+        ):
+            raise RuntimeError("candidate-relevant lateral description checksum differs")
         matches["event_time"] = pd.to_datetime(
             matches.time_of_day, format="mixed", errors="coerce", utc=True,
         )
@@ -273,21 +286,25 @@ def _audit_lateral_residuals(
             raise RuntimeError("candidate-relevant lateral residual lacks event time")
         statuses = status_by_slate[key].set_index("game_id").game_status.to_dict()
         before = matches.event_time.le(decision_by_slate[key].tz_convert("UTC"))
-        unsafe = [
-            str(row.game_id) for row in matches.loc[before].itertuples(index=False)
-            if statuses.get(str(row.game_id)) == "in_progress"
-        ]
-        if unsafe:
-            raise RuntimeError(
-                f"non-identifiable lateral residual enters in-progress state: {key} "
-                f"{player_id} games={sorted(set(unsafe))}"
-            )
+        game_status = statuses.get(game_id)
+        if game_status is None:
+            raise RuntimeError("lateral residual game is outside the target slate")
+        enters_partial_score = bool(before.iloc[0] and game_status == "in_progress")
         audits.append({
             "season": season, "week": week, "player_id": player_id,
             "candidate_relevant": True,
             "matching_lateral_rows": int(len(matches)),
             "rows_before_decision": int(before.sum()),
-            "disposition": "safe_final_or_post_decision",
+            "game_id": game_id,
+            "play_id": play_id,
+            "game_status": game_status,
+            "rec_yards_adjustment": float(adjustment["rec_yards"][player_id]),
+            "enters_partial_score": enters_partial_score,
+            "description_sha256": str(adjustment["description_sha256"]),
+            "disposition": (
+                "checksum_bound_description_reconciliation"
+                if enters_partial_score else "safe_final_or_post_decision"
+            ),
         })
     return audits
 
@@ -366,6 +383,26 @@ def run(output_uri: str, proposal_uri: str) -> dict:
         raise RuntimeError("full CODE_SHA and immutable ANALYSIS_IMAGE are required")
     bq = bigquery.Client(project=PROJECT)
     gcs = storage.Client(project=PROJECT)
+    scorer_audit_raw, scorer_audit_blob = _download_bytes(gcs, SCORER_AUDIT_URI)
+    scorer_audit = json.loads(scorer_audit_raw)
+    if (
+        scorer_audit.get("analysis_code_sha") != code_sha
+        or scorer_audit.get("analysis_image") != image
+        or scorer_audit.get("authoritative_player_weeks") != 54_419
+        or scorer_audit.get("exact_player_weeks") != 54_419
+        or scorer_audit.get("differences") != 0
+        or scorer_audit.get("multi_lateral_plays_adjusted") != 8
+        or scorer_audit.get("multi_lateral_players_adjusted") != 12
+        or scorer_audit.get("scoring_relevant_missing_time") != 0
+    ):
+        raise RuntimeError("same-image PIT scorer reconciliation receipt differs")
+    scorer_audit_receipt = {
+        "uri": SCORER_AUDIT_URI,
+        "generation": str(scorer_audit_blob.generation),
+        "sha256": hashlib.sha256(scorer_audit_raw).hexdigest(),
+        "exact_player_weeks": 54_419,
+        "same_code_and_image": True,
+    }
     for table_name in (PLAYER_TABLE, CANDIDATE_TABLE):
         table = bq.get_table(f"{PROJECT}.{FORENSIC_DATASET}.{table_name}")
         if (table.labels or {}).get("manifest") != MANIFEST_SHA256[:32]:
@@ -504,7 +541,9 @@ def run(output_uri: str, proposal_uri: str) -> dict:
             counterfactual_generated_at=initial_lock,
         )
         universe = set(map(str, combined["player_ids"]))
-        universes[(season, week)] = universe
+        universes[(season, week)] = set().union(*(
+            set(canonical_roster(value)) for value in book.players.astype(str)
+        ))
         slate_players = players[
             players.season.astype(int).eq(season)
             & players.week.astype(int).eq(week)
@@ -708,6 +747,7 @@ def run(output_uri: str, proposal_uri: str) -> dict:
         "slates": len(records),
         "expected_entries": ENTRY_COUNT,
         "proposal_ledger": proposal_receipt,
+        "scorer_reconciliation": scorer_audit_receipt,
         "proposal_set_sha256": frozen["proposal_set_sha256"],
         "proposal_frozen_before_outcome_query": True,
         "outcome_phase_opened_after_proposal_generation": proposal_receipt["generation"],

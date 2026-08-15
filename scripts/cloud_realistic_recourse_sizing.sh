@@ -11,6 +11,7 @@ SERVICE_ACCOUNT=817589974517-compute@developer.gserviceaccount.com
 ROOT=gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/post-forensic-addenda/20260815-realistic-recourse-sizing-v1
 OUTPUT_URI=$ROOT/result.json
 PROPOSAL_URI=$ROOT/proposal-set.json
+SCORER_AUDIT_URI=$ROOT/scorer-reconciliation.json
 
 IMAGE=${1:-}
 CODE_SHA=${2:-}
@@ -28,6 +29,11 @@ for target in "$OUTPUT_URI" "$PROPOSAL_URI"; do
     exit 3
   fi
 done
+if ! gcloud storage objects describe "$SCORER_AUDIT_URI" \
+    --project "$PROJECT" >/dev/null 2>&1; then
+  echo "ERROR: same-image scorer reconciliation is absent: $SCORER_AUDIT_URI" >&2
+  exit 4
+fi
 
 gcloud run jobs deploy "$JOB" \
   --project "$PROJECT" \

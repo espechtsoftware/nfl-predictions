@@ -47,6 +47,7 @@ COPY scripts/prepare_final_forensic_freeze.py ./scripts/prepare_final_forensic_f
 COPY scripts/run_final_forensic_hpcs.py ./scripts/run_final_forensic_hpcs.py
 COPY scripts/run_post_forensic_construction_addendum.py ./scripts/run_post_forensic_construction_addendum.py
 COPY scripts/run_realistic_recourse_sizing.py ./scripts/run_realistic_recourse_sizing.py
+COPY scripts/audit_recourse_scoring_reconciliation.py ./scripts/audit_recourse_scoring_reconciliation.py
 COPY scripts/cleanup_final_forensic_warehouse.py ./scripts/cleanup_final_forensic_warehouse.py
 
 RUN pip install --no-cache-dir ".[gcp,app]"

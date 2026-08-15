@@ -76,6 +76,22 @@ agent or developer:
   immutable digest, verify both registered GCS objects are absent, and launch
   the runner exactly once.
 
+- The mandatory lateral audit found that the original non-identifiable abort
+  would trigger: 2024 Week 9 LAC-CLE play 2105 and 2025 Week 15 CLE-CHI play
+  1934 are before 3:55 in still-in-progress games, and three affected players
+  occur in retained candidates. The timestamped descriptions themselves list
+  the omitted intermediate players and yards. Before any proposal/outcome run,
+  the protocol therefore received a narrow data-identifiability amendment:
+  `MULTI_LATERAL_ADJUSTMENTS` pins all eight affected plays/twelve player
+  deltas by game, play and description SHA-256, applies them only when the
+  timestamp is observable, and aborts on any drift or new unresolved residual.
+  The scientific recourse policy is unchanged. The runner audit now uses the
+  actual retained candidate identity union rather than the broader score-world
+  universe. Validate that this closes all 12 full-game residuals (54,419 of
+  54,419 exact) before submitting another exact runner build; canceled build
+  `9c986e57-19e5-4819-9676-bf749b0807cd` predates this prerequisite and must
+  not be used.
+
 - The production-exact forensic correction completed successfully as
   execution `post-forensic-stack-addendum-v1-smrps` at
   `2026-08-15T11:48:58.072232Z` (one succeeded task, zero retries, 7m21.07s).

@@ -81,6 +81,50 @@ def test_skill_scorer_stops_at_as_of_and_handles_lateral_and_two_point():
     assert receipt["excluded_after_as_of"] == 1
 
 
+def test_skill_scorer_reconciles_checksum_bound_multi_lateral_description():
+    description = (
+        "(:02) (Shotgun) 10-J.Herbert pass short left to 1-Q.Johnston to CLE "
+        "33 for 26 yards. Lateral to 5-J.Palmer to CLE 24 for 9 yards. "
+        "Lateral to 15-L.McConkey to CLE 30 for -6 yards. Lateral to "
+        "27-J.Dobbins to CLE 20 for 10 yards (23-M.Emerson)."
+    )
+    pbp = pd.DataFrame([_row(
+        2105,
+        "2024-11-03T19:28:29.350Z",
+        game_id="2024_09_LAC_CLE",
+        season=2024,
+        week=9,
+        desc=description,
+        receiver_player_id="00-0038544",
+        lateral_receiver_player_id="00-0036158",
+        receiving_yards=26,
+        lateral_receiving_yards=10,
+        complete_pass=1,
+    )])
+    scored, receipt = score_skill_players(
+        pbp, as_of="2024-11-03T19:30:00Z",
+    )
+    by_id = scored.set_index("player_id")
+    assert by_id.loc["00-0036988", "rec_yards"] == 9
+    assert by_id.loc["00-0039915", "rec_yards"] == -6
+    assert by_id.loc["00-0036158", "rec_yards"] == 10
+    assert receipt["multi_lateral_plays_adjusted"] == 1
+    assert receipt["multi_lateral_players_adjusted"] == 2
+
+
+def test_skill_scorer_aborts_if_registered_multi_lateral_description_drifts():
+    pbp = pd.DataFrame([_row(
+        2105,
+        "2024-11-03T19:28:29.350Z",
+        game_id="2024_09_LAC_CLE",
+        season=2024,
+        week=9,
+        desc="changed description",
+    )])
+    with pytest.raises(ValueError, match="description checksum differs"):
+        score_skill_players(pbp)
+
+
 def test_skill_scorer_attributes_lost_fumbles_and_special_team_td():
     pbp = pd.DataFrame([
         _row(

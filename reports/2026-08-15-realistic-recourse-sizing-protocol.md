@@ -88,6 +88,35 @@ in-progress game and its player appears in the retained candidate universe,
 the run aborts as non-identifiable. Completed games are safe because they use
 authoritative labels; post-decision plays are excluded.
 
+### Pre-execution data-identifiability amendment (2026-08-15 07:26 CDT)
+
+The required residual audit was performed before any recourse proposal or
+outcome query. It found two timestamped multi-lateral plays before 3:55 PM in
+games that remain in progress under the frozen status law: 2024 Week 9
+LAC-CLE play 2105 and 2025 Week 15 CLE-CHI play 1934. Three affected player
+identities appear in retained candidates. A blind abort is unnecessary because
+the contemporaneous PBP descriptions explicitly enumerate the omitted
+intermediate players and their yard allocations even though the structured
+lateral fields do not.
+
+Accordingly, the abort clause is narrowed before execution: a known residual
+is identifiable only when its exact game/play identity, event time,
+description SHA-256 and player yard delta match the frozen eight-play/twelve-
+player reconciliation table in `recourse_scoring.MULTI_LATERAL_ADJUSTMENTS`.
+The scorer applies those description-derived yards only when that timestamped
+play is itself at or before the decision. Any checksum drift, missing row,
+additional candidate-relevant unresolved residual, or untimed scoring event
+still aborts the run. The complete table is used rather than special-casing
+only the three recourse-relevant identities. Its full-game output must exactly
+reproduce all 54,419 authoritative 2023--2025 player-week labels before the
+historical run is launched.
+
+This amendment repairs source-field identifiability; it does not change the
+decision instant, candidate set, worlds, tail objective, policy, entries or
+evaluation rule. It was frozen after inspecting timestamp/schema mechanics and
+the previously documented scorer residuals, but before seeing any realistic-
+recourse proposal or realized score.
+
 The historical artifacts were computed later from strictly point-in-time
 pre-lock inputs. The runner must not falsify their object creation time. It
 records both the real artifact generation identity and the counterfactual
