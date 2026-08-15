@@ -101,6 +101,12 @@ agent or developer:
   `sha256:20163fdc7374e5e8c93955a6237503d2fdaf2a894ac8da32b1db39fd265e55c7`.
   Use only that exact code/image for the replacement scorer receipt and
   scientific execution; later HANDOFF-only commits are not analysis code.
+  Replacement same-image scorer execution
+  `recourse-scorer-reconciliation-v2-pqsph` is running in `us-central1` from
+  that digest and analysis SHA. Its fresh create-only target, proposal-set and
+  result objects were all verified absent immediately before launch. Poll it
+  through terminal status and require the registered exact census before the
+  replacement scientific execution is licensed.
 
 - The full scorer validation is terminal-successful. Cloud Build
   `4c2fe3b0-6f36-4d39-baf8-4df829316e7f` ran from exact pushed SHA
