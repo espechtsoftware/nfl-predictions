@@ -20,9 +20,39 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 18:37 CDT
+## Current state — 2026-08-15 18:48 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
+
+- The supplied post-CBWU-OI suggestions are reconciled at
+  `reports/2026-08-16-post-cbwu-oi-suggestions-reconciliation.md`, SHA-256
+  `b655202666718cd0fc2b6122801822c7f74d03a87fe15724d7c53728c3066d47`.
+  Accept a shared source-resolution preflight for future immutable-artifact
+  protocols, but do not mutate the frozen/running ATLAS execution. Pair the
+  fixed-budget OI C gain with same-source, same-world canonical/OI stability
+  in one result table; the older R0 `54.28/80` overlap is context, not the
+  comparator. Stability is reproducibility risk, not a quantitative C-to-S
+  conversion model, and no post-result "material" threshold may be invented.
+  The pre-result interpretation amendment is
+  `reports/2026-08-15-cbwu-oi-selector-stability-interpretation-amendment.md`,
+  SHA-256
+  `7388a53aa25737e8820eec1614988c7a310b451f0d0e7734e37ea1f9147f68c1`;
+  it changes none of the original protocol's mechanics or hash. Do not assign
+  expected dollars from a public payout curve alone: score needs a field rank
+  mapping, and ROI also needs duplication/tie splits. Continue the existing
+  2026 full-standings/payout/entry-history capture plan. The active ATLAS
+  stage is score-free and cannot be retrofitted with a realized-score target
+  band; freeze the documented 194--210 shoulder prior only before a later
+  outcome-facing ATLAS MVP while retaining the complete tail grid and law.
+  A reviewer-ready explanation of the diagnosis, current proxy, exact MILP
+  comparison, six-condition falsifier, firewall, cloud identities and next
+  MVP is tracked at
+  `reports/2026-08-15-atlas-approach-and-status-brief.md`, SHA-256
+  `8cfc3584beaa3ed42f4603cf7cd90016345a0881cbfa24c6b4e82d3a3976ad79`.
+  At 18:48 CDT the
+  repaired ATLAS execution `atlas-world-ranking-scorefree-v1-l59bt` still had
+  one running task and no terminal result; full selector-stability build
+  `1a1abee7-b4ab-4867-a8ce-042caaed70df` was still `WORKING`.
 
 - The supplied exact-P census and CBWU-OI construction-result reviews are
   reconciled in
