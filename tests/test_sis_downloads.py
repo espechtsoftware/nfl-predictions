@@ -354,6 +354,23 @@ def test_player_pass_defense_grain_scope_is_frozen_and_bounded():
     assert sis.PLAYER_PASS_DEFENSE_GRAIN_API_REQUEST_CEILING == 3
 
 
+def test_receiver_copula_grid_and_protocol_are_frozen():
+    assert sis.RECEIVER_COPULA_VERSION == "20260815-sis-receiver-copula-v1"
+    assert sis.RECEIVER_COPULA_SEASONS == (2022, 2023, 2024, 2025)
+    assert sis.RECEIVER_COPULA_WEEKS == tuple(range(1, 19))
+    assert sis.RECEIVER_COPULA_ALIGNMENTS == (
+        ("wide", ("2",)), ("slot", ("3",)),
+    )
+    assert sis.RECEIVER_COPULA_REQUIRED_ARTIFACTS == 144
+    assert sis.RECEIVER_COPULA_API_REQUEST_CEILING == 150
+    assert sis._sha256(
+        sis.Path("reports/2026-08-15-sis-receiver-copula-protocol.md")
+    ) == sis.RECEIVER_COPULA_PROTOCOL_SHA256
+    assert sis._receiver_copula_artifact(2024, 7, "slot") == (
+        "2024-week07-slot-wr-cb-pass-defense-totals.csv"
+    )
+
+
 def test_asoe_acquisition_grid_is_frozen_and_subcap():
     assert sis.ASOE_SEASONS == (2022, 2023, 2024, 2025)
     assert sis.ASOE_WINDOWS == ((1, 6), (7, 12), (13, 17))
@@ -659,6 +676,93 @@ def test_player_pass_defense_grain_analysis_rejects_missing_denominator(tmp_path
     result = sis.analyze_player_pass_defense_grain_sample(tmp_path, manifest)
     assert not result["passes"]
     assert "missing-coverage-snaps" in result["failures"]
+
+
+def _receiver_copula_fixture(tmp_path):
+    artifacts = []
+    ordinal = 0
+    for season in sis.RECEIVER_COPULA_SEASONS:
+        for alignment, values in sis.RECEIVER_COPULA_ALIGNMENTS:
+            for week in sis.RECEIVER_COPULA_WEEKS:
+                team_id = ordinal % 32 + 1
+                player_id = 10_000 + ordinal
+                player = f"Corner {ordinal}"
+                team = f"Team {team_id}"
+                path = tmp_path / sis._receiver_copula_artifact(
+                    season, week, alignment
+                )
+                path.write_text(
+                    "Rank,Season,Player,Team,Week,Opp.,Pos.,Games,"
+                    "Cov. Snaps,Tgts,Catchable,Comp,Yds,TDs,Pass Def.\n"
+                    f"1,{season},{player},{team},{week},Opponent,CB,1,"
+                    "30,4,3,2,25,1,1\n",
+                    encoding="utf-8",
+                )
+                filters = {
+                    **sis.RECEIVER_COPULA_FILTERS,
+                    "PassDefenseFilters.TargetLinedUp": list(values),
+                }
+                spec = sis.ExportSpec(
+                    entity="players", report="pass-defense-totals",
+                    season=season, start_week=week, end_week=week,
+                    split_by_game=True,
+                )
+                artifacts.append({
+                    "season": season, "week": week,
+                    "alignment": alignment, "artifact": path.name,
+                    "sha256": sis._sha256(path), "rows": 1,
+                    "headers": [
+                        "Rank", "Season", "Player", "Team", "Week",
+                        "Opp.", "Pos.", "Games", "Cov. Snaps", "Tgts",
+                        "Catchable", "Comp", "Yds", "TDs", "Pass Def.",
+                    ],
+                    "spec": asdict(spec),
+                    "submitted_scope": filters,
+                    "identities": [{
+                        "season": season, "week": week, "games": 1,
+                        "teamId": team_id, "team": team,
+                        "playerId": player_id, "player": player,
+                    }],
+                })
+                ordinal += 1
+    return {
+        "schema_version": 1,
+        "protocol": sis.RECEIVER_COPULA_VERSION,
+        "protocol_sha256": sis.RECEIVER_COPULA_PROTOCOL_SHA256,
+        "api_requests_used": sis.RECEIVER_COPULA_REQUIRED_ARTIFACTS,
+        "api_request_ceiling": sis.RECEIVER_COPULA_API_REQUEST_CEILING,
+        "artifacts": artifacts,
+    }
+
+
+def test_receiver_copula_analyzer_validates_values_only_after_freeze(tmp_path):
+    result = sis.analyze_receiver_copula_acquisition(
+        tmp_path, _receiver_copula_fixture(tmp_path)
+    )
+    assert result["passes"]
+    assert result["disposition"] == "sis-receiver-copula-acquisition-passes"
+    assert result["artifact_count"] == 144
+    assert result["union_team_count"] == 32
+    assert result["numeric_totals"]["TDs"] == 144
+    assert result["fantasy_lineup_or_contest_outcomes_read"] == []
+
+
+def test_receiver_copula_analyzer_rejects_scope_and_numeric_drift(tmp_path):
+    manifest = _receiver_copula_fixture(tmp_path)
+    item = manifest["artifacts"][0]
+    item["submitted_scope"]["PassDefenseFilters.TargetLinedUp"] = ["3"]
+    path = tmp_path / item["artifact"]
+    path.write_text(
+        path.read_text(encoding="utf-8").replace(",30,4,3,2,25,1,1", ",bad,4,3,2,25,1,1"),
+        encoding="utf-8",
+    )
+    item["sha256"] = sis._sha256(path)
+    result = sis.analyze_receiver_copula_acquisition(tmp_path, manifest)
+    assert not result["passes"]
+    assert any(failure.endswith("scope:PassDefenseFilters.TargetLinedUp")
+               for failure in result["failures"])
+    assert any(failure.endswith("invalid:Cov. Snaps")
+               for failure in result["failures"])
 
 
 def test_identity_rows_retain_ids_and_scope_without_metrics():

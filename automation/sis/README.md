@@ -177,6 +177,25 @@ counts; it never reads performance values or fantasy/lineup outcomes. Run it
 only after `sis-download login --terminal-credentials --fresh`. Its protocol
 is `reports/2026-08-15-sis-player-pass-defense-grain-feasibility-protocol.md`.
 
+That schema gate passed and licenses one bounded receiver-copula history. Run
+the create-only, resumable acquisition only from a freshly verified session:
+
+```bash
+sis-download receiver-copula-history
+```
+
+It retrieves exactly 144 Player Pass Defense Totals slices: 2022--2025,
+Weeks 1--18 individually, Wide then Slot, CB versus WR, all teams and Split by
+Game. A permanent 150-Submit ceiling allows at most six identical operational
+retries. Raw rows and partial/final manifests remain gitignored under
+`sis/receiver-copula-v1/`. The protocol hash, row cap, submitted filters,
+schema, stable player/team identities and numeric source columns are checked
+before the data can enter the separately score-free dependence treatment.
+This is a one-time historical acquisition, not part of the weekly production
+schedule unless the later dependence gate licenses a 2026 paired shadow. Its
+frozen contract is
+`reports/2026-08-15-sis-receiver-copula-protocol.md`.
+
 After tranche 1 completes and its private table is verified, the bounded
 second plan is `plans/team-context-tranche-2.json`: team Passing,
 Rushing and Run Defense Totals/Value for the same six replay seasons. These

@@ -13,6 +13,7 @@ import csv
 import getpass
 import hashlib
 import json
+import math
 import os
 import re
 import sys
@@ -88,6 +89,26 @@ PLAYER_PASS_DEFENSE_GRAIN_FILTERS = {
     "PassDefenseFilters.MinAttempts": ["0"],
 }
 PLAYER_PASS_DEFENSE_GRAIN_API_REQUEST_CEILING = 3
+RECEIVER_COPULA_VERSION = "20260815-sis-receiver-copula-v1"
+RECEIVER_COPULA_PROTOCOL_SHA256 = (
+    "045a5a8e90bdbc95b5fdfa4ff29574f71fe03fcc69701d3c39dfc159c1395274"
+)
+RECEIVER_COPULA_SEASONS = (2022, 2023, 2024, 2025)
+RECEIVER_COPULA_WEEKS = tuple(range(1, 19))
+RECEIVER_COPULA_ALIGNMENTS = (("wide", ("2",)), ("slot", ("3",)))
+RECEIVER_COPULA_FILTERS = {
+    "GameFilters.Team": ["-1"],
+    "PassDefenseFilters.DefenderPos": ["12"],
+    "PassDefenseFilters.ReceiverPos": ["4"],
+    "PassDefenseFilters.MinTargets": ["0"],
+    "PassDefenseFilters.MinAttempts": ["0"],
+}
+RECEIVER_COPULA_REQUIRED_ARTIFACTS = (
+    len(RECEIVER_COPULA_SEASONS)
+    * len(RECEIVER_COPULA_WEEKS)
+    * len(RECEIVER_COPULA_ALIGNMENTS)
+)
+RECEIVER_COPULA_API_REQUEST_CEILING = 150
 
 
 @dataclass(frozen=True)
@@ -1535,6 +1556,419 @@ def run_player_pass_defense_grain_sample(
     return result
 
 
+def _receiver_copula_artifact(season: int, week: int, alignment: str) -> str:
+    if season not in RECEIVER_COPULA_SEASONS:
+        raise ValueError(f"unsupported receiver-copula season {season}")
+    if week not in RECEIVER_COPULA_WEEKS:
+        raise ValueError(f"unsupported receiver-copula week {week}")
+    if alignment not in dict(RECEIVER_COPULA_ALIGNMENTS):
+        raise ValueError(f"unsupported receiver-copula alignment {alignment!r}")
+    return (
+        f"{season}-week{week:02d}-{alignment}"
+        "-wr-cb-pass-defense-totals.csv"
+    )
+
+
+def _receiver_copula_number(
+    value: object, *, nonnegative: bool = True,
+) -> float:
+    raw = str(value).replace(",", "").strip()
+    if not raw:
+        raise ValueError("blank numeric value")
+    parsed = float(raw)
+    if not math.isfinite(parsed) or (nonnegative and parsed < 0):
+        qualifier = "nonnegative " if nonnegative else ""
+        raise ValueError(f"invalid {qualifier}value {value!r}")
+    return parsed
+
+
+def analyze_receiver_copula_acquisition(
+    output_dir: Path, manifest: dict[str, Any],
+) -> dict[str, Any]:
+    """Validate the frozen 144-artifact receiver-copula source grid."""
+    if manifest.get("protocol") != RECEIVER_COPULA_VERSION:
+        raise RuntimeError("SIS receiver-copula manifest protocol differs")
+    if manifest.get("protocol_sha256") != RECEIVER_COPULA_PROTOCOL_SHA256:
+        raise RuntimeError("SIS receiver-copula protocol hash differs")
+    artifacts = manifest.get("artifacts", [])
+    expected = {
+        (season, week, alignment)
+        for season in RECEIVER_COPULA_SEASONS
+        for alignment, _values in RECEIVER_COPULA_ALIGNMENTS
+        for week in RECEIVER_COPULA_WEEKS
+    }
+    observed = {
+        (
+            int(item.get("season", -1)), int(item.get("week", -1)),
+            str(item.get("alignment")),
+        )
+        for item in artifacts
+    }
+    if len(artifacts) != RECEIVER_COPULA_REQUIRED_ARTIFACTS or observed != expected:
+        raise RuntimeError(
+            "SIS receiver-copula manifest is not the frozen 144-artifact grid"
+        )
+
+    required_headers = {
+        "Season", "Player", "Team", "Week", "Games", "Cov. Snaps",
+        "Tgts", "Comp", "Yds", "TDs",
+    }
+    failures: list[str] = []
+    all_teams: set[int] = set()
+    all_players: set[int] = set()
+    total_rows = 0
+    numeric_totals = {
+        "Cov. Snaps": 0.0, "Tgts": 0.0, "Comp": 0.0,
+        "Yds": 0.0, "TDs": 0.0,
+    }
+    for item in artifacts:
+        season = int(item["season"])
+        week = int(item["week"])
+        alignment = str(item["alignment"])
+        label = f"{season}:W{week:02d}:{alignment}"
+        path = output_dir / str(item.get("artifact", ""))
+        if not path.is_file() or _sha256(path) != item.get("sha256"):
+            raise RuntimeError(f"SIS receiver-copula artifact changed: {label}")
+        expected_name = _receiver_copula_artifact(season, week, alignment)
+        if path.name != expected_name:
+            failures.append(f"{label}:artifact-name")
+        rows = int(item.get("rows", -1))
+        total_rows += rows
+        if not 1 <= rows < 200:
+            failures.append(f"{label}:row-cap-or-empty")
+        headers = set(item.get("headers", []))
+        if not required_headers <= headers:
+            failures.append(f"{label}:schema")
+        expected_scope = {
+            **RECEIVER_COPULA_FILTERS,
+            "PassDefenseFilters.TargetLinedUp": list(
+                dict(RECEIVER_COPULA_ALIGNMENTS)[alignment]
+            ),
+        }
+        submitted = item.get("submitted_scope", {})
+        for name, values in expected_scope.items():
+            if submitted.get(name) != values:
+                failures.append(f"{label}:scope:{name}")
+
+        spec = ExportSpec(**item.get("spec", {}))
+        expected_spec = ExportSpec(
+            entity="players", report="pass-defense-totals",
+            season=season, start_week=week, end_week=week,
+            split_by_game=True,
+        )
+        if spec != expected_spec:
+            failures.append(f"{label}:spec")
+        _validate_csv_scope(path, expected_spec, rows)
+        identities = item.get("identities", [])
+        if len(identities) != rows:
+            failures.append(f"{label}:identity-row-count")
+        identity_keys: set[tuple[int, int]] = set()
+        identity_names: set[tuple[str, str]] = set()
+        for identity in identities:
+            required = {
+                "season", "week", "games", "teamId", "team",
+                "playerId", "player",
+            }
+            if missing := required - set(identity):
+                failures.append(f"{label}:identity-missing:{','.join(sorted(missing))}")
+                continue
+            player_id = int(identity["playerId"])
+            team_id = int(identity["teamId"])
+            key = (player_id, team_id)
+            if key in identity_keys:
+                failures.append(f"{label}:duplicate-player-team")
+            identity_keys.add(key)
+            identity_names.add((str(identity["player"]), str(identity["team"])))
+            all_players.add(player_id)
+            all_teams.add(team_id)
+            if (
+                int(identity["season"]) != season
+                or int(identity["week"]) != week
+                or int(identity["games"]) != 1
+            ):
+                failures.append(f"{label}:identity-scope")
+
+        with path.open(encoding="utf-8-sig", newline="") as handle:
+            csv_rows = list(csv.DictReader(handle))
+        if len(csv_rows) != rows:
+            failures.append(f"{label}:csv-row-count")
+        csv_names = {
+            (str(row.get("Player", "")), str(row.get("Team", "")))
+            for row in csv_rows
+        }
+        if csv_names != identity_names:
+            failures.append(f"{label}:csv-api-identity")
+        for row in csv_rows:
+            for column in numeric_totals:
+                try:
+                    numeric_totals[column] += _receiver_copula_number(
+                        row.get(column, ""), nonnegative=column != "Yds"
+                    )
+                except ValueError:
+                    failures.append(f"{label}:invalid:{column}")
+
+    if len(all_teams) != 32:
+        failures.append(f"union-team-count:{len(all_teams)}")
+    used = int(manifest.get("api_requests_used", -1))
+    ceiling = int(manifest.get("api_request_ceiling", -1))
+    if (
+        ceiling != RECEIVER_COPULA_API_REQUEST_CEILING
+        or not RECEIVER_COPULA_REQUIRED_ARTIFACTS <= used <= ceiling
+    ):
+        failures.append(f"request-budget:{used}/{ceiling}")
+    passes = not failures
+    return {
+        "schema_version": 1,
+        "protocol": RECEIVER_COPULA_VERSION,
+        "protocol_sha256": RECEIVER_COPULA_PROTOCOL_SHA256,
+        "disposition": (
+            "sis-receiver-copula-acquisition-passes"
+            if passes else "sis-receiver-copula-acquisition-fails"
+        ),
+        "passes": passes,
+        "failures": failures,
+        "artifact_count": len(artifacts),
+        "rows": total_rows,
+        "distinct_player_ids": len(all_players),
+        "union_team_count": len(all_teams),
+        "numeric_totals": numeric_totals,
+        "api_requests_used": used,
+        "api_request_ceiling": ceiling,
+        "performance_columns_read_after_freeze": [
+            "Cov. Snaps", "Tgts", "Comp", "Yds", "TDs",
+        ],
+        "fantasy_lineup_or_contest_outcomes_read": [],
+    }
+
+
+def run_receiver_copula_acquisition(
+    profile_dir: Path,
+    timeout_seconds: float,
+    output_dir: Path,
+) -> dict[str, Any]:
+    """Acquire the frozen player/game receiver-copula history."""
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError as exc:  # pragma: no cover
+        raise RuntimeError(
+            'install browser support with `pip install -e "[browser]"`'
+        ) from exc
+    protocol = Path("reports/2026-08-15-sis-receiver-copula-protocol.md")
+    if not protocol.is_file() or _sha256(protocol) != RECEIVER_COPULA_PROTOCOL_SHA256:
+        raise RuntimeError("frozen SIS receiver-copula protocol is missing or changed")
+    storage_state = default_storage_state_path(profile_dir)
+    if not storage_state.is_file():
+        raise RuntimeError("SIS saved storage state is missing; run `sis-download login`")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    run_state = output_dir / ".receiver-copula.run-state.json"
+    partial_manifest_path = output_dir / ".receiver-copula.partial-manifest.json"
+    manifest_path = output_dir / "receiver-copula.manifest.json"
+    result_path = output_dir / "receiver-copula.result.json"
+    if manifest_path.exists() or result_path.exists():
+        raise RuntimeError("refusing to overwrite SIS receiver-copula result")
+
+    used = 0
+    if run_state.exists():
+        state = json.loads(run_state.read_text(encoding="utf-8"))
+        if (
+            state.get("plan_sha256") != RECEIVER_COPULA_PROTOCOL_SHA256
+            or int(state.get("ceiling", -1))
+            != RECEIVER_COPULA_API_REQUEST_CEILING
+        ):
+            raise RuntimeError("SIS receiver-copula request-state identity differs")
+        used = int(state.get("used", -1))
+        if not 0 <= used <= RECEIVER_COPULA_API_REQUEST_CEILING:
+            raise RuntimeError("SIS receiver-copula request count is invalid")
+    budget = APIRequestBudget(
+        ceiling=RECEIVER_COPULA_API_REQUEST_CEILING,
+        used=used,
+        state_path=run_state,
+        plan_sha256=RECEIVER_COPULA_PROTOCOL_SHA256,
+    )
+    budget.persist()
+    submit_budget = SubmitOnlyAPIRequestBudget(budget)
+    timeout_ms = int(timeout_seconds * 1000)
+    artifacts: list[dict[str, Any]] = []
+    if partial_manifest_path.exists():
+        partial = json.loads(partial_manifest_path.read_text(encoding="utf-8"))
+        if (
+            partial.get("protocol") != RECEIVER_COPULA_VERSION
+            or partial.get("protocol_sha256") != RECEIVER_COPULA_PROTOCOL_SHA256
+        ):
+            raise RuntimeError("SIS receiver-copula partial-manifest identity differs")
+        artifacts = partial.get("artifacts", [])
+        keys = [
+            (item.get("season"), item.get("week"), item.get("alignment"))
+            for item in artifacts
+        ]
+        if len(keys) != len(set(keys)):
+            raise RuntimeError("SIS receiver-copula partial manifest has duplicates")
+        for item in artifacts:
+            path = output_dir / str(item.get("artifact", ""))
+            if not path.is_file() or _sha256(path) != item.get("sha256"):
+                raise RuntimeError(
+                    "SIS receiver-copula partial artifact is missing or changed"
+                )
+    complete = {
+        (int(item["season"]), int(item["week"]), str(item["alignment"]))
+        for item in artifacts
+    }
+
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(headless=True)
+        context = browser.new_context(
+            storage_state=str(storage_state), accept_downloads=True,
+            viewport={"width": 1800, "height": 1200},
+        )
+        context.route("**/api/v1/nfl/**/query", submit_budget.route)
+        page = context.new_page()
+        page.set_default_timeout(timeout_ms)
+        try:
+            page.goto(
+                NFL_LEADERS_URL,
+                wait_until="domcontentloaded", timeout=timeout_ms,
+            )
+            _assert_authenticated(page, timeout_ms)
+            page.locator("#querybuilder").wait_for(state="attached")
+            _activate_report_view_without_refresh(
+                page, REPORTS["pass-defense-totals"]
+            )
+            _set_select(page, "#Teams", "-1")
+            _set_checkbox(page, "#chkIncludePlayoffs", False)
+            _set_checkbox(page, "#chkByGame", True)
+            _set_checkbox_values(page, "PassDefenseFilters.DefenderPos", ["12"])
+            _set_checkbox_values(page, "PassDefenseFilters.ReceiverPos", ["4"])
+            _set_input_value(page, "PassDefenseFilters.MinTargets", "0")
+            _set_input_value(page, "PassDefenseFilters.MinAttempts", "0")
+            for season in RECEIVER_COPULA_SEASONS:
+                _set_select(page, "#TimeFilters_SeasonFrom", str(season))
+                _set_select(page, "#TimeFilters_SeasonTo", str(season))
+                for alignment, alignment_values in RECEIVER_COPULA_ALIGNMENTS:
+                    _set_checkbox_values(
+                        page, "PassDefenseFilters.TargetLinedUp", alignment_values
+                    )
+                    for week in RECEIVER_COPULA_WEEKS:
+                        key = (season, week, alignment)
+                        if key in complete:
+                            print(
+                                "SIS receiver-copula verified existing: "
+                                f"{season}/W{week:02d}/{alignment}",
+                                flush=True,
+                            )
+                            continue
+                        _set_select(page, "#TimeFilters_StartWeek", str(week))
+                        _set_select(page, "#TimeFilters_EndWeek", str(week))
+                        destination = output_dir / _receiver_copula_artifact(
+                            season, week, alignment
+                        )
+                        if destination.exists():
+                            raise RuntimeError(
+                                f"unmanifested SIS receiver-copula artifact: {destination}"
+                            )
+                        filters = {
+                            **RECEIVER_COPULA_FILTERS,
+                            "PassDefenseFilters.TargetLinedUp": list(
+                                alignment_values
+                            ),
+                        }
+                        spec = ExportSpec(
+                            entity="players", report="pass-defense-totals",
+                            season=season, start_week=week, end_week=week,
+                            split_by_game=True,
+                        )
+                        submit_budget.armed = True
+                        try:
+                            with page.expect_response(
+                                lambda response, current=spec, scope=filters: (
+                                    _response_matches_filters(
+                                        response, current, scope
+                                    )
+                                ),
+                                timeout=timeout_ms,
+                            ) as response_info:
+                                page.locator("#submit").click()
+                        finally:
+                            submit_budget.armed = False
+                        response = response_info.value
+                        _assert_submitted_scope(response, spec, filters)
+                        expected_rows = _assert_api_scope(
+                            response, spec, row_cap=200
+                        )
+                        if expected_rows == 0:
+                            raise RuntimeError(
+                                "SIS receiver-copula slice is empty: "
+                                f"{season}/W{week:02d}/{alignment}"
+                            )
+                        _wait_for_table(
+                            page, expected_rows, timeout_ms,
+                            CSV_REQUIRED_COLUMNS["pass-defense-totals"],
+                        )
+                        button = page.locator("a.dt-button.buttons-csv:visible")
+                        if button.count() != 1:
+                            raise RuntimeError(
+                                "SIS page has an ambiguous Download control"
+                            )
+                        temporary = destination.with_suffix(
+                            destination.suffix + ".partial"
+                        )
+                        with page.expect_download(timeout=timeout_ms) as download_info:
+                            button.click()
+                        download_info.value.save_as(str(temporary))
+                        try:
+                            _validate_csv_scope(temporary, spec, expected_rows)
+                        except Exception:
+                            temporary.unlink(missing_ok=True)
+                            raise
+                        temporary.replace(destination)
+                        artifacts.append({
+                            "season": season,
+                            "week": week,
+                            "alignment": alignment,
+                            "artifact": destination.name,
+                            "sha256": _sha256(destination),
+                            "bytes": destination.stat().st_size,
+                            "rows": expected_rows,
+                            "headers": _csv_header(destination),
+                            "spec": asdict(spec),
+                            "submitted_scope": _request_scope(response.request),
+                            "identities": _identity_rows(response),
+                        })
+                        complete.add(key)
+                        _write_json_atomic(partial_manifest_path, {
+                            "schema_version": 1,
+                            "protocol": RECEIVER_COPULA_VERSION,
+                            "protocol_sha256": RECEIVER_COPULA_PROTOCOL_SHA256,
+                            "api_requests_used": budget.used,
+                            "api_request_ceiling": budget.ceiling,
+                            "artifacts": artifacts,
+                        })
+                        print(
+                            "SIS receiver-copula acquired: "
+                            f"{season}/W{week:02d}/{alignment} "
+                            f"({expected_rows} rows; {budget.used}/"
+                            f"{RECEIVER_COPULA_API_REQUEST_CEILING} requests)",
+                            flush=True,
+                        )
+        finally:
+            context.close()
+            browser.close()
+
+    manifest = {
+        "schema_version": 1,
+        "protocol": RECEIVER_COPULA_VERSION,
+        "protocol_sha256": RECEIVER_COPULA_PROTOCOL_SHA256,
+        "retrieved_at_utc": datetime.now(UTC).isoformat(),
+        "api_requests_used": budget.used,
+        "api_request_ceiling": budget.ceiling,
+        "artifacts": artifacts,
+    }
+    _write_json_atomic(manifest_path, manifest)
+    result = analyze_receiver_copula_acquisition(output_dir, manifest)
+    _write_json_atomic(result_path, result)
+    partial_manifest_path.unlink(missing_ok=True)
+    return result
+
+
 def _team_pass_defense_artifact(report: str, slice_name: str) -> str:
     if report not in TEAM_PASS_DEFENSE_PROFILE_REPORTS:
         raise ValueError(f"unsupported SIS defense-profile report {report!r}")
@@ -2729,6 +3163,15 @@ def _build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path("sis/player-pass-defense-grain-feasibility-v1"),
     )
+    receiver_copula = subparsers.add_parser(
+        "receiver-copula-history",
+        help="run the frozen 2022-2025 receiver-specific copula acquisition",
+    )
+    receiver_copula.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("sis/receiver-copula-v1"),
+    )
     asoe = subparsers.add_parser(
         "team-pass-defense-asoe",
         help="run the frozen historical team/game alignment-attempt acquisition",
@@ -2802,6 +3245,14 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
             print(
                 "SIS player pass-defense grain sample complete: "
+                + json.dumps(result, sort_keys=True)
+            )
+        elif args.command == "receiver-copula-history":
+            result = run_receiver_copula_acquisition(
+                args.profile_dir, args.timeout, args.output_dir
+            )
+            print(
+                "SIS receiver-copula acquisition complete: "
                 + json.dumps(result, sort_keys=True)
             )
         elif args.command == "team-pass-defense-asoe":

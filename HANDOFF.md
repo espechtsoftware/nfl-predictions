@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 11:01 CDT
+## Current state — 2026-08-15 11:07 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -40,6 +40,17 @@ agent or developer:
   Exact next action: implement and test
   the resumable guarded acquisition against the frozen protocol, commit/push,
   then use the still-fresh session to retrieve the create-only artifacts.
+- The guarded receiver-copula acquisition is now implemented locally as
+  `sis-download receiver-copula-history`. It enforces the immutable protocol
+  SHA, exact 144-cell season/alignment/week grid, all-team/CB-versus-WR scope,
+  1--199 row rule, stable player/team identity, required numeric schema,
+  create-only hash-verified resume manifest and durable 150-Submit ledger.
+  Forty-six focused SIS acquisition/import tests pass, both changed Python
+  files compile, the CLI help path is valid and `git diff --check` passes.
+  No live SIS request from the new grid has run yet. Exact next action: commit
+  and push this implementation, validate the exact revision with the full
+  Cloud Build suite, and only after success start the resumable acquisition
+  from the freshly verified saved session.
 
 - The frozen prospective latent-role mechanism now has its previously missing
   real score-free scenario factory and separately named paired runner. The
