@@ -15,15 +15,19 @@ import io
 import re
 from collections.abc import Mapping, Sequence
 
+import numpy as np
 import pandas as pd
 
 from .export import _entries_layout, _is_locked
 
 
 RECOURSE_STATE_VERSION = "prospective-recourse-state-v1"
+RECOURSE_POLICY_VERSION = "prospective-recourse-policy-v1"
 ALIVE_REACH_PROBABILITY = 0.05
 MARGINAL_REACH_PROBABILITY = 0.005
 SKILL_POSITIONS = {"RB", "WR", "TE"}
+RECOURSE_TAIL_GRID = (240.0, 230.0, 220.0, 210.0, 200.0, 194.0, 187.0)
+MAX_RECOURSE_ALTERNATIVES = 24
 
 
 class DecisionStage(str, Enum):
@@ -159,6 +163,293 @@ def classify_entry_reach(
         else:
             result[key] = "effectively_dead"
     return result
+
+
+def _recourse_catalog(player_catalog: pd.DataFrame) -> pd.DataFrame:
+    required = {"dk_id", "pos", "salary", "kickoff"}
+    missing = required - set(player_catalog.columns)
+    if missing:
+        raise ValueError(
+            "recourse player catalog missing " + ", ".join(sorted(missing))
+        )
+    catalog = player_catalog.copy()
+    catalog["dk_id"] = catalog.dk_id.astype(str)
+    if catalog.dk_id.eq("").any() or catalog.dk_id.duplicated().any():
+        raise ValueError("recourse catalog dk_id must be nonempty and unique")
+    catalog["pos"] = catalog.pos.astype(str).str.upper()
+    catalog["salary"] = pd.to_numeric(catalog.salary, errors="coerce")
+    catalog["_kickoff"] = pd.to_datetime(
+        catalog.kickoff, errors="coerce", utc=True
+    )
+    if catalog.salary.isna().any() or catalog._kickoff.isna().any():
+        raise ValueError("recourse catalog salary/kickoff is incomplete")
+    return catalog.set_index("dk_id", drop=False)
+
+
+def _normalize_classic_roster(
+    roster: Sequence[str | int], catalog: pd.DataFrame, label: str,
+) -> tuple[str, ...]:
+    ids = tuple(str(value) for value in roster)
+    if len(ids) != 9 or len(set(ids)) != 9:
+        raise ValueError(f"{label} must contain nine unique players")
+    unknown = set(ids) - set(catalog.index)
+    if unknown:
+        raise ValueError(f"{label} contains unknown players: {sorted(unknown)}")
+    rows = catalog.loc[list(ids)]
+    counts = rows.pos.value_counts().to_dict()
+    legal = (
+        counts.get("QB", 0) == 1
+        and counts.get("DST", 0) == 1
+        and counts.get("RB", 0) >= 2
+        and counts.get("WR", 0) >= 3
+        and counts.get("TE", 0) >= 1
+        and sum(counts.get(pos, 0) for pos in SKILL_POSITIONS) == 7
+    )
+    if not legal:
+        raise ValueError(f"{label} is not a legal classic position roster")
+    salary = float(rows.salary.sum())
+    if not 0 < salary <= 50_000:
+        raise ValueError(f"{label} has illegal salary {salary:g}")
+    return tuple(sorted(ids))
+
+
+def _simulated_book_objective(book_max: np.ndarray) -> tuple:
+    return (
+        *(int(np.count_nonzero(book_max >= line))
+          for line in RECOURSE_TAIL_GRID),
+        float(np.quantile(book_max, 0.99)),
+        float(np.mean(book_max)),
+    )
+
+
+def propose_recourse_rosters(
+    entry_rosters: Mapping[str, Sequence[str | int]],
+    candidate_rosters: Sequence[Sequence[str | int]],
+    player_catalog: pd.DataFrame,
+    remaining_world_scores: pd.DataFrame,
+    points_information: pd.DataFrame,
+    *,
+    as_of,
+    worlds_generated_at,
+    score_kind: str = "remaining_after_as_of",
+) -> dict:
+    """Propose PIT-safe roster identities under the frozen recourse policy.
+
+    ``remaining_world_scores`` must contain simulated *additional* fantasy
+    points after ``as_of``. ``points_information`` supplies observed
+    points-to-date, with columns ``dk_id``, ``points_to_date`` and
+    ``available_at``. The function returns roster identities only; the
+    DKEntries filler and :func:`validate_swap_upload` remain mandatory before
+    an upload can be exposed.
+    """
+    if score_kind != "remaining_after_as_of":
+        raise ValueError(
+            "recourse v1 requires remaining_after_as_of simulated scores"
+        )
+    current = _aware_timestamp(as_of, "recourse policy as-of")
+    generated = _aware_timestamp(
+        worlds_generated_at, "recourse worlds generated-at"
+    )
+    if generated.tz_convert("UTC") > current.tz_convert("UTC"):
+        raise ValueError("recourse worlds were generated after the decision")
+    if not entry_rosters:
+        raise ValueError("recourse policy requires at least one entry")
+
+    catalog = _recourse_catalog(player_catalog)
+    originals: dict[str, tuple[str, ...]] = {}
+    for raw_entry_id, roster in entry_rosters.items():
+        entry_id = str(raw_entry_id)
+        if not entry_id or entry_id in originals:
+            raise ValueError("recourse entries require unique nonempty ids")
+        originals[entry_id] = _normalize_classic_roster(
+            roster, catalog, f"entry {entry_id}"
+        )
+    if len(set(originals.values())) != len(originals):
+        raise ValueError("recourse original book contains duplicate lineups")
+
+    candidates: dict[tuple[str, ...], tuple[str, ...]] = {}
+    for index, roster in enumerate(candidate_rosters):
+        normalized = _normalize_classic_roster(
+            roster, catalog, f"candidate {index}"
+        )
+        candidates.setdefault(normalized, normalized)
+    if not candidates:
+        raise ValueError("recourse policy requires candidate rosters")
+
+    worlds = remaining_world_scores.copy()
+    worlds.columns = [str(column) for column in worlds.columns]
+    if worlds.empty or worlds.shape[1] == 0:
+        raise ValueError("recourse remaining-world matrix is empty")
+    if len(set(worlds.columns)) != len(worlds.columns):
+        raise ValueError("recourse remaining-world columns repeat player ids")
+    required_ids = set().union(*originals.values(), *candidates.values())
+    missing_worlds = required_ids - set(worlds.columns)
+    if missing_worlds:
+        raise ValueError(
+            "recourse remaining worlds omit players: "
+            + ", ".join(sorted(missing_worlds))
+        )
+    worlds = worlds.loc[:, sorted(required_ids)].apply(
+        pd.to_numeric, errors="coerce"
+    )
+    world_values = worlds.to_numpy(dtype=float)
+    if not np.isfinite(world_values).all():
+        raise ValueError("recourse remaining worlds contain nonfinite scores")
+
+    info_required = {"dk_id", "points_to_date", "available_at"}
+    missing_info = info_required - set(points_information.columns)
+    if missing_info:
+        raise ValueError(
+            "recourse points information missing "
+            + ", ".join(sorted(missing_info))
+        )
+    forbidden_info = {
+        "actual_score", "final_score", "actual_ownership", "contest_rank",
+        "payout", "roi",
+    } & set(points_information.columns)
+    if forbidden_info:
+        raise ValueError(
+            "recourse points information contains forbidden outcome columns: "
+            + ", ".join(sorted(forbidden_info))
+        )
+    information_receipt = validate_information_as_of(
+        points_information, current
+    )
+    info = points_information.copy()
+    info["dk_id"] = info.dk_id.astype(str)
+    if info.dk_id.eq("").any() or info.dk_id.duplicated().any():
+        raise ValueError("recourse points information repeats a player")
+    unknown_info = set(info.dk_id) - set(catalog.index)
+    if unknown_info:
+        raise ValueError(
+            "recourse points information has unknown players: "
+            + ", ".join(sorted(unknown_info))
+        )
+    info["points_to_date"] = pd.to_numeric(
+        info.points_to_date, errors="coerce"
+    )
+    if not np.isfinite(info.points_to_date.to_numpy(dtype=float)).all():
+        raise ValueError("recourse points-to-date contains nonfinite scores")
+    kickoff_locked = catalog._kickoff.le(current.tz_convert("UTC"))
+    unlocked_info = info.dk_id.map(~kickoff_locked).fillna(False)
+    if info.loc[unlocked_info & info.points_to_date.ne(0)].shape[0]:
+        raise ValueError("recourse points exist for a player before kickoff")
+    observed = info.set_index("dk_id").points_to_date.to_dict()
+
+    column_index = {player_id: i for i, player_id in enumerate(worlds.columns)}
+    score_cache: dict[tuple[str, ...], np.ndarray] = {}
+
+    def roster_scores(roster: tuple[str, ...]) -> np.ndarray:
+        if roster not in score_cache:
+            indexes = [column_index[player_id] for player_id in roster]
+            points = sum(float(observed.get(player_id, 0.0)) for player_id in roster)
+            score_cache[roster] = world_values[:, indexes].sum(axis=1) + points
+        return score_cache[roster]
+
+    original_scores = {key: roster_scores(value) for key, value in originals.items()}
+    reach = {
+        entry_id: float(np.mean(scores >= 194.0))
+        for entry_id, scores in original_scores.items()
+    }
+    reach_labels = classify_entry_reach(reach)
+    entry_order = sorted(originals, key=lambda key: (reach[key], key))
+    assignments = dict(originals)
+    current_scores = dict(original_scores)
+    changes: list[dict] = []
+    alternatives_considered: dict[str, int] = {}
+
+    def individual_order(roster: tuple[str, ...]) -> tuple:
+        scores = roster_scores(roster)
+        return (
+            *(-int(np.count_nonzero(scores >= line))
+              for line in RECOURSE_TAIL_GRID),
+            -float(np.quantile(scores, 0.99)),
+            -float(np.mean(scores)),
+            roster,
+        )
+
+    for entry_id in entry_order:
+        original = assignments[entry_id]
+        locked = {
+            player_id for player_id in original
+            if bool(kickoff_locked.loc[player_id])
+        }
+        occupied = set(assignments.values()) - {original}
+        compatible = [
+            roster for roster in candidates
+            if roster not in occupied and locked <= set(roster)
+        ]
+        compatible = sorted(compatible, key=individual_order)[
+            :MAX_RECOURSE_ALTERNATIVES
+        ]
+        alternatives_considered[entry_id] = len(compatible)
+        others = [
+            scores for other_id, scores in current_scores.items()
+            if other_id != entry_id
+        ]
+        base_other = (
+            np.maximum.reduce(others)
+            if others
+            else np.full(len(worlds), -np.inf, dtype=float)
+        )
+        baseline_max = np.maximum(base_other, current_scores[entry_id])
+        baseline_objective = _simulated_book_objective(baseline_max)
+        choices: list[tuple[tuple, int, tuple[str, ...], np.ndarray]] = []
+        for roster in compatible:
+            scores = roster_scores(roster)
+            objective = _simulated_book_objective(np.maximum(base_other, scores))
+            overlap = len(set(original) & set(roster))
+            choices.append((objective, overlap, roster, scores))
+        if not choices:
+            continue
+        # Objective first, then minimum churn, then ascending canonical roster.
+        choices.sort(key=lambda row: row[2])
+        choices.sort(key=lambda row: row[1], reverse=True)
+        choices.sort(key=lambda row: row[0], reverse=True)
+        objective, overlap, replacement, replacement_scores = choices[0]
+        if objective <= baseline_objective or replacement == original:
+            continue
+        assignments[entry_id] = replacement
+        current_scores[entry_id] = replacement_scores
+        changes.append({
+            "entry_id": entry_id,
+            "reach_class": reach_labels[entry_id],
+            "players_out": sorted(set(original) - set(replacement)),
+            "players_in": sorted(set(replacement) - set(original)),
+            "overlap": overlap,
+            "before_objective": list(baseline_objective),
+            "after_objective": list(objective),
+        })
+
+    final_matrix = np.vstack([current_scores[key] for key in sorted(current_scores)])
+    final_objective = _simulated_book_objective(final_matrix.max(axis=0))
+    initial_matrix = np.vstack([original_scores[key] for key in sorted(original_scores)])
+    initial_objective = _simulated_book_objective(initial_matrix.max(axis=0))
+    return {
+        "policy_version": RECOURSE_POLICY_VERSION,
+        "state_version": RECOURSE_STATE_VERSION,
+        "as_of": current.isoformat(),
+        "worlds_generated_at": generated.isoformat(),
+        "score_kind": score_kind,
+        "tail_grid": list(RECOURSE_TAIL_GRID),
+        "worlds": int(len(worlds)),
+        "entries": len(originals),
+        "unique_candidates": len(candidates),
+        "max_alternatives_per_entry": MAX_RECOURSE_ALTERNATIVES,
+        "entry_order": entry_order,
+        "reach_probabilities": reach,
+        "reach_classes": reach_labels,
+        "alternatives_considered": alternatives_considered,
+        "initial_book_objective": list(initial_objective),
+        "final_book_objective": list(final_objective),
+        "assignments": {key: list(value) for key, value in assignments.items()},
+        "changes": changes,
+        "changed_entries": len(changes),
+        "information_receipt": information_receipt,
+        "uses_points_to_date": True,
+        "uses_post_decision_outcomes": False,
+        "requires_upload_validation": True,
+    }
 
 
 _CELL_SUFFIX = re.compile(r"\(([^()]*)\)\s*$")
@@ -346,11 +637,15 @@ def validate_swap_upload(
 __all__ = [
     "ALIVE_REACH_PROBABILITY",
     "DecisionStage",
+    "MAX_RECOURSE_ALTERNATIVES",
     "MARGINAL_REACH_PROBABILITY",
+    "RECOURSE_POLICY_VERSION",
     "RECOURSE_STATE_VERSION",
+    "RECOURSE_TAIL_GRID",
     "StageBoundaries",
     "build_recourse_state",
     "classify_entry_reach",
+    "propose_recourse_rosters",
     "validate_information_as_of",
     "validate_swap_upload",
 ]

@@ -190,7 +190,41 @@ kickoff rather than trusting only the DK marker; rejects information whose
 `available_at` exceeds the decision time; and validates original versus filled
 DKEntries files for immutable entry metadata, locked cells, player identity,
 positions, salary cap, row count and exact duplicates. Its receipt contains no
-realized outcome. It does not yet choose swaps or expose an upload in the UI.
+realized outcome. The separate prospective
+`POST /lineups/entries/validated.csv` route now applies that validation to an
+already-filled, single-contest classic file using an explicit DK draft group
+and server-controlled decision time. It leaves the established production
+exporter unchanged and exposes a no-outcome validation receipt in response
+headers.
+
+Before implementation or any 2026 result, the first conditional assignment
+law is frozen as `prospective-recourse-policy-v1`:
+
+- its simulated score input is explicitly **remaining score after the current
+  decision time**, generated no later than that time; observed points-to-date
+  are separately timestamped and added to those residual worlds;
+- every original and alternative roster must be a legal unique classic roster,
+  and every alternative for an entry must retain all players whose kickoff is
+  no later than the decision time;
+- for tractable fixed compute, each entry considers at most 24 compatible
+  alternatives, pre-ranked without outcomes by individual simulated crossings
+  at `240/230/220/210/200/194/187`, then q99, then mean and canonical roster
+  identity;
+- entries are visited from the lowest simulated 194-point reach probability to
+  the highest (entry id breaks ties). At each visit, the policy compares the
+  current roster with those frozen alternatives against the other current
+  entries and accepts only a strict lexicographic improvement in the simulated
+  book maximum at `240/230/220/210/200/194/187`, then its q99 and mean;
+- an alternative already present in the current book is ineligible, so the
+  proposal cannot create exact duplicate lineups. Every entry has its original
+  roster as the fail-safe fallback; no simulated improvement means no swap;
+- 194-point reach probability still determines the frozen alive/marginal/dead
+  labels. Those labels are reported, not used as a post-hoc threshold change.
+
+This treatment can propose roster identities only. It is not uploadable until
+the DKEntries filler and validator both pass, and it cannot use a final score,
+actual ownership, contest rank, payout, or any information timestamped after
+the decision.
 
 ### Measurement and adoption
 
@@ -231,7 +265,8 @@ benchmark.
 3. Wire the tested late-swap state/CSV validator into a fail-closed preview and
    upload route; the existing churn-minimizing filler remains only a candidate
    proposal until the new validator passes.
-4. Implement the conditional-world recourse policy that proposes the swaps.
+4. Implement the frozen `prospective-recourse-policy-v1` conditional-world
+   assignment law that proposes the swaps.
 5. Run the authenticated UI-to-CSV dress rehearsal.
 6. Keep both paths in shadow mode while the incumbent generates the money book.
 

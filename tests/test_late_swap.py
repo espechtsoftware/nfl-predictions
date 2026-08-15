@@ -5,9 +5,11 @@ import pytest
 
 from nfl_dfs.optimizer.late_swap import (
     DecisionStage,
+    RECOURSE_POLICY_VERSION,
     StageBoundaries,
     build_recourse_state,
     classify_entry_reach,
+    propose_recourse_rosters,
     validate_information_as_of,
     validate_swap_upload,
 )
@@ -119,6 +121,116 @@ def test_frozen_reach_probability_bands():
     }
     with pytest.raises(ValueError, match=r"\[0, 1\]"):
         classify_entry_reach({"bad": 1.1})
+
+
+def _recourse_fixture(qb_kickoff="2026-09-13T17:00:00Z"):
+    players = []
+    for pos, count in (("QB", 3), ("RB", 5), ("WR", 7), ("TE", 3), ("DST", 3)):
+        for number in range(1, count + 1):
+            players.append({
+                "dk_id": f"{pos}{number}",
+                "pos": pos,
+                "salary": 5_000,
+                "kickoff": qb_kickoff if pos == "QB" else "2026-09-13T17:00:00Z",
+            })
+    catalog = pd.DataFrame(players)
+    entries = {
+        "E1": ["QB1", "RB1", "RB2", "WR1", "WR2", "WR3", "TE1", "WR4", "DST1"],
+        "E2": ["QB2", "RB3", "RB4", "WR5", "WR6", "WR7", "TE2", "RB5", "DST2"],
+    }
+    boom = ["QB3", "RB1", "RB3", "WR1", "WR5", "WR6", "TE3", "WR2", "DST3"]
+    candidates = [*entries.values(), boom]
+    worlds = pd.DataFrame(
+        1.0,
+        index=range(100),
+        columns=catalog.dk_id.astype(str),
+    )
+    worlds["QB3"] = 250.0
+    information = pd.DataFrame(
+        columns=["dk_id", "points_to_date", "available_at"]
+    )
+    return catalog, entries, candidates, worlds, information, boom
+
+
+def test_recourse_policy_improves_tail_book_without_outcomes():
+    catalog, entries, candidates, worlds, information, boom = _recourse_fixture()
+    result = propose_recourse_rosters(
+        entries,
+        candidates,
+        catalog,
+        worlds,
+        information,
+        as_of="2026-09-13T16:00:00Z",
+        worlds_generated_at="2026-09-13T15:59:00Z",
+    )
+    assert result["policy_version"] == RECOURSE_POLICY_VERSION
+    assert result["changed_entries"] == 1
+    assert sorted(boom) in [sorted(roster) for roster in result["assignments"].values()]
+    assert result["final_book_objective"] > result["initial_book_objective"]
+    assert result["uses_points_to_date"] is True
+    assert result["uses_post_decision_outcomes"] is False
+    assert result["requires_upload_validation"] is True
+
+
+def test_recourse_policy_keeps_kickoff_locked_players():
+    catalog, entries, candidates, worlds, information, _ = _recourse_fixture(
+        qb_kickoff="2026-09-13T15:00:00Z"
+    )
+    result = propose_recourse_rosters(
+        entries,
+        candidates,
+        catalog,
+        worlds,
+        information,
+        as_of="2026-09-13T16:00:00Z",
+        worlds_generated_at="2026-09-13T15:59:00Z",
+    )
+    assert result["changed_entries"] == 0
+    assert result["assignments"] == {
+        entry: sorted(roster) for entry, roster in entries.items()
+    }
+
+
+def test_recourse_policy_rejects_future_or_prekick_information():
+    catalog, entries, candidates, worlds, information, _ = _recourse_fixture()
+    with pytest.raises(ValueError, match="generated after"):
+        propose_recourse_rosters(
+            entries,
+            candidates,
+            catalog,
+            worlds,
+            information,
+            as_of="2026-09-13T16:00:00Z",
+            worlds_generated_at="2026-09-13T16:01:00Z",
+        )
+
+    information = pd.DataFrame([{
+        "dk_id": "QB3",
+        "points_to_date": 10.0,
+        "available_at": "2026-09-13T15:59:00Z",
+    }])
+    with pytest.raises(ValueError, match="before kickoff"):
+        propose_recourse_rosters(
+            entries,
+            candidates,
+            catalog,
+            worlds,
+            information,
+            as_of="2026-09-13T16:00:00Z",
+            worlds_generated_at="2026-09-13T15:59:00Z",
+        )
+
+    information["final_score"] = 10.0
+    with pytest.raises(ValueError, match="forbidden outcome columns"):
+        propose_recourse_rosters(
+            entries,
+            candidates,
+            catalog,
+            worlds,
+            information,
+            as_of="2026-09-13T16:00:00Z",
+            worlds_generated_at="2026-09-13T15:59:00Z",
+        )
 
 
 def test_swap_upload_validator_accepts_legal_unlocked_change():

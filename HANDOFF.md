@@ -20,12 +20,12 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 23:51 CDT
+## Current state — 2026-08-14 23:59 CDT
 
 ### Final preseason forensic run succeeded; historical queue closed and prospective construction program frozen
 
-- Branch is `main` at pushed commit `92df4499dc54ef041e8e36e844c14765acddee77`
-  before the in-progress validated-route milestone. The
+- Branch is `main` at pushed commit `2b7a7bd5e2a77d5991f7dff9709fbf7965e0bea1`
+  before the in-progress conditional-recourse milestone. The
   byte-identical/configuration-only retry
   `final-preseason-forensic-v1-gqssz` completed successfully at
   `2026-08-15T04:05:51.446124Z`, with one succeeded task, zero failed tasks and
@@ -144,17 +144,33 @@ agent or developer:
   emits policy plus validation-version/as-of/entry/change/lock/no-outcome
   headers. It fails closed when no draft group is supplied, the slate salary
   snapshot is incomplete, or any validator invariant fails. Eleven focused
-  route-and-validator tests pass; the route changes are not yet committed or
-  cloud-validated.
+  route-and-validator tests passed and the isolated route milestone is pushed
+  at the commit above; it is not yet part of a completed full-suite cloud
+  build.
+- Before any 2026 result, the first proposing law is now frozen in the charter
+  as `prospective-recourse-policy-v1` and implemented as the pure
+  `propose_recourse_rosters` function. Its only score inputs are timestamped
+  points-to-date plus simulated **remaining-after-decision** worlds generated
+  no later than the server decision. It rejects post-decision timestamps,
+  pre-kickoff nonzero points, outcome columns, malformed/duplicate/over-cap
+  rosters and missing simulated players. For each entry it preserves every
+  kickoff-locked player, pre-ranks at most 24 compatible alternatives on the
+  frozen individual tail ladder, visits entries from lowest 194 reach to
+  highest, and accepts only a strict book-level lexicographic improvement at
+  240/230/220/210/200/194/187, then q99 and mean. It cannot create duplicate
+  lineups and returns identities/receipt only; DK filling and the validator
+  remain mandatory. Fifteen focused route/recourse/export/optimizer tests pass.
+  These policy changes are not yet committed or cloud-validated.
 - The local repository `.venv` remains healthy despite the user's concern
   about accidentally deleting a Python environment while installing Gemini
   CLI: `.venv/bin/python` is Python 3.14.4, project/pandas/BigQuery imports
   succeed and `python -m pip check` reports no broken requirements.
 - Next concrete action: poll exact-commit Cloud Build
   `436fa27e-be96-41c6-bb62-c2e1808e1e4f` to terminal and record its full-suite
-  counts plus immutable image digest; commit/push the separate validated
-  upload route and launch its own exact-commit full-suite build; then develop
-  the conditional-world policy that proposes swaps. The first score-free
+  counts plus immutable image digest; commit/push the conditional policy and
+  launch one exact-commit full-suite build covering the validator, validated
+  route and proposer; then add the score-free retained-world adapter and UI
+  preview needed for an authenticated rehearsal. The first score-free
   live shadow smoke waits only for complete 2026 pre-lock slate inputs and must
   validate its receipt before any outcome join. In parallel, preserve the Week
   1 readiness and forensic cleanup gates. Do not launch another historical
