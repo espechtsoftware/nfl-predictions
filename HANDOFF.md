@@ -114,9 +114,20 @@ agent or developer:
   SHA-256 `122303a1fc14ae76c9379010eb632b8c4ae837408d4726fe47611ec88be20ce7`
   and file SHA-256
   `bdd4afa398ae8739319553725b8f6b4ef052e478d505746bed22d751732f051d`.
-- Next concrete action: commit/push and upload the repair3 manifest create-only,
-  run the exact-image full prelock validator, and only after it passes launch
-  one zero-retry outcome execution to `outputs-repair3`.
+- Repair3 manifest was uploaded create-only as
+  `gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/freeze_manifest-repair3.json`,
+  generation `1786756734986304`; downloaded bytes reproduce file hash
+  `bdd4afa3...`. Exact-image/service-account prelock execution
+  `final-forensic-prelock-compare-v1-rrszx` completed successfully and logged
+  `FULL_PRELOCK_EQUAL_PASS` for both the three primary scopes and 14-panel
+  variance/corpus population without selecting outcomes.
+- Repair3 outcome execution `final-preseason-forensic-v1-ffcc8` is now the sole
+  live forensic run. It is pinned to repair3, code `bc3a1c0`, immutable image
+  `sha256:718b1a7d...`, 8 CPU/32 GiB, one task, zero retries and 24-hour timeout.
+  The create-only `outputs-repair3` prefix and all four warehouse tables were
+  absent immediately before launch. Next concrete action: poll this execution
+  to terminal without launching another; if successful, validate every output
+  and table before interpreting results.
 
 ### 2026-08-14 final-forensic audit expanded; decision-structure queue registered
 
