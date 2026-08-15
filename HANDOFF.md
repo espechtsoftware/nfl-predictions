@@ -788,6 +788,10 @@ agent or developer:
   outcome-free construction success, not scoring evidence; production remains
   `classic-k1-role12-boom40-poscal-cbwu-v4`. It licenses only a separately
   identified pre-lock 2026 shadow and order-invariant ATLAS/exact-N inputs.
+  The repair is materially different from canonical CBWU (mean shared
+  identities `33.19/80`, mean Jaccard `0.2706`) but improves selected-world
+  coverage on every one of 54 slates; any future production promotion therefore
+  requires downstream revalidation against the changed baseline.
   The concise result is in
   `reports/2026-08-15-cbwu-order-invariant-repair-result.md`.
   A follow-on review incorrectly treated CBWU-OI as an in-place production

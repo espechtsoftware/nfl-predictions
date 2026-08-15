@@ -25,6 +25,16 @@ registered season blocks improve (`0.049854` to `0.050470`). Mean pair and
 triple coverage ratios are `1.0728472` and `1.0787564`, respectively, both
 above their frozen 90% floors.
 
+The treatment is materially different from canonical CBWU, as intended: the
+two exact-80 books share a mean `33.19` lineups per slate (mean identity
+Jaccard `0.2706`, range `0.0063`--`0.4815`). World coverage improves on every
+one of the 54 slates, with no ties or declines. Pair coverage is lower on 41
+slates and triple coverage is lower on 21, but their worst treatment/control
+ratios remain `0.9120` and `0.9641`, respectively, so every slate clears the
+registered 90% protection. This is why treatment-to-incumbent byte identity
+would be the wrong gate, while downstream revalidation would be mandatory for
+any later production promotion.
+
 No realized outcome, ownership, rank or payout field was available to the
 run. The result therefore demonstrates an outcome-free construction repair;
 it is not historical-scoring evidence.
@@ -42,4 +52,3 @@ remains `classic-k1-role12-boom40-poscal-cbwu-v4`. The pass licenses only:
 Any production proposal would need downstream validation against the changed
 construction baseline; it cannot inherit canonical-CBWU forensic conclusions
 as if the two books were identical.
-
