@@ -50,9 +50,14 @@ agent or developer:
   No live SIS request from the new grid has run yet. The implementation is
   committed and pushed at exact full SHA
   `33898d3e1821a982c70c869d3eb2f87e2961ea7f`. Exact-archive Cloud Build
-  `a6000129-5ccb-4002-9b2d-a79f18197d8f` is running in `us-central1` with tag
-  `receiver-copula-acq-33898d3`; it must pass the full suite before the
-  resumable acquisition can start from the freshly verified saved session.
+  `a6000129-5ccb-4002-9b2d-a79f18197d8f` completed successfully at
+  `2026-08-15T16:24:31.451599Z`: 1,459 tests passed, 2 skipped and 5 warnings
+  in 731.40 seconds. Tag `receiver-copula-acq-33898d3` resolves to immutable
+  digest
+  `sha256:dead4f5c777a4ba05a7ec9c9b801c5f547f218c28a8e8b5ef172e3c315ce8efb`.
+  The full-suite prerequisite is satisfied; exact next action is the resumable
+  `sis-download receiver-copula-history` acquisition from the freshly verified
+  saved session, followed by manifest/hash/schema verification before import.
 - Independently of that still-running downloader build, the manifest-locked
   receiver-copula importer and PIT context builder are implemented locally.
   They reproduce the acquisition result, preserve defender/team IDs, parse
