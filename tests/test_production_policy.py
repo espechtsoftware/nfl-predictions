@@ -62,11 +62,17 @@ def test_policy_overwrites_research_levers_without_mutating_base():
         "MIN_LINEUP_SALARY": "0",
         "N_GUMBEL": "20",
         "GEN_POOL_CAP": "99",
+        "N_ROUTE_TAIL": "12",
+        "MIN_LOWOWN": "2",
+        "SIS_ASOE_TARGET_ALLOCATION": "1",
     }
     env = ADOPTED_CLASSIC_POLICY.engine_environment(dirty)
     assert env["TABPFN_MARGINAL_TABLE"] == ""
     assert dirty["MODEL_ENSEMBLE"] == "3"
     assert env["GCP_PROJECT"] == "keep-me"
+    assert "N_ROUTE_TAIL" not in env
+    assert "MIN_LOWOWN" not in env
+    assert "SIS_ASOE_TARGET_ALLOCATION" not in env
     assert env["MODEL_ENSEMBLE"] == "1"
     assert (env["N_CE"], env["N_EPISTEMIC"], env["N_BOOM"]) == (
         "0", "12", "40")

@@ -60,6 +60,18 @@ hash as headers. Dirichlet will not be silently enabled. A separately frozen
 dependence remeasurement under this exact production receipt is required
 before any sparse pass-event ledger is considered.
 
+The receipt audit exposed a second isolation defect before any strategy result:
+`engine_environment(os.environ)` previously copied every ambient variable and
+then overwrote only the known production keys. An unlisted research lever could
+therefore survive into a money build even though it was absent from the policy
+definition. The policy now starts from a narrow allowlist containing only
+non-roster provenance and candidate-artifact plumbing, then constructs every
+model, simulation, candidate and selector setting explicitly. The optimizer's
+`MIN_LOWOWN` constraint also reads the passed policy mapping rather than global
+`os.environ`. A regression test sets hostile ambient research variables and
+proves that neither the receipt nor the optimizer observes them. This is a
+correctness repair; it does not alter the adopted strategy values.
+
 ## Frozen execution order
 
 Only one historical-outcome-reading experiment may be active. Score-free work

@@ -233,9 +233,7 @@ def optimize(
     # — real Milly winners carry ~2 sub-5%-owned players (Addendum 38,
     # stable 2019-2024). Requires callers to stamp a boolean `low_own`
     # on pool dicts (replay build_slates does); silently inert otherwise.
-    import os as _os2
-
-    min_lowown = int(_os2.environ.get("MIN_LOWOWN", "0"))
+    min_lowown = int(_env.get("MIN_LOWOWN", "0"))
     if min_lowown:
         lows = [p["id"] for p in players if p.get("low_own")]
         if lows:

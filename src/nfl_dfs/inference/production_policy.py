@@ -15,6 +15,19 @@ import json
 from typing import Mapping
 
 
+POLICY_ENV_PASSTHROUGH = frozenset({
+    # Non-roster provenance and candidate-artifact plumbing only. Research
+    # levers never survive from process-level os.environ into a money build.
+    "GCP_PROJECT",
+    "CAND_LOG_TABLE",
+    "CAND_ARTIFACT_BUCKET",
+    "CAND_ARTIFACT_PLAYER_WORLDS",
+    "PANEL_RUN_ID",
+    "CODE_SHA",
+    "SEEDS",
+})
+
+
 def contest_entry_policy(
     max_entries_per_user: int,
     requested_entries: int,
@@ -129,7 +142,12 @@ class ClassicProductionPolicy:
         returned mapping is passed as data; it never mutates ``os.environ``
         and is therefore safe under concurrent FastAPI requests.
         """
-        env = dict(base or {})
+        source = base or {}
+        env = {
+            key: str(source[key])
+            for key in POLICY_ENV_PASSTHROUGH
+            if key in source
+        }
         env.update({
             # Model, simulator and marginal shape.
             "MODEL_REGISTRY_VARIANT": self.model_variant,

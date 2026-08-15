@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 14:10 CDT
+## Current state — 2026-08-15 14:25 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -90,6 +90,16 @@ agent or developer:
   headers. Eleven focused policy/app tests pass. Do not enable Dirichlet.
   Remeasure dependence under the exact money receipt before any sparse pass-
   event ledger is designed.
+  Receipt hardening then found and repaired a separate environment-isolation
+  defect: `engine_environment(os.environ)` had retained arbitrary ambient
+  variables before overwriting the named production values, so an unlisted
+  research lever could survive into a money build. Production now passes
+  through only non-roster provenance/candidate-artifact keys and constructs
+  all model, simulation, generator and selector values explicitly. The
+  optimizer's `MIN_LOWOWN` constraint now reads the passed policy environment
+  instead of process-global `os.environ`. Twenty-one focused policy, route,
+  optimizer-isolation and CBWU tests pass, changed modules compile and the
+  diff is clean. This is a correctness repair, not a strategy change.
 
 - The user raised a new overtime-duration mechanism before any project OT
   frequency, fantasy uplift or odds-prediction result was queried. The complete
