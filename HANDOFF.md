@@ -711,6 +711,14 @@ agent or developer:
   under tag `exact-p-identities-a0cd25a`. Require the complete suite and image
   build to pass, resolve the tag to an immutable digest, and use that exact
   digest/code first for `preflight-2023`; do not launch the full source first.
+  The second requested narrow check is also implemented as the pure
+  `validate_exact_p_census_plumbing` preflight. On exactly the 18 2023 slates
+  it audits corrected-P legality, all five native books, family labels and
+  exact retained-CBWU reconstruction while returning no membership, distance,
+  candidate-yield, loss-stage or disposition values. The focused source/census
+  suite remains ten passing tests. Wire this preflight to the repaired cloud
+  runner only after the full identity artifact supplies its immutable
+  generation/SHA; do not rebuild or launch the full census ahead of that bind.
   While that source repair is reconciled, the now-free slot was used for the
   independent, already-frozen CBWU order-invariant repair. Its exact
   create-only execution is `cbwu-order-invariant-repair-v1-xdxsd`, launched

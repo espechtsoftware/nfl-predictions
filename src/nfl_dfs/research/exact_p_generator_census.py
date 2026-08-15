@@ -175,6 +175,142 @@ def reconstruct_cbwu(
     return chosen
 
 
+def validate_exact_p_census_plumbing(
+    players: pd.DataFrame,
+    native_candidates: pd.DataFrame,
+    retained_candidates: pd.DataFrame,
+    exact_p_rosters: pd.DataFrame,
+    *,
+    expected_slates: int,
+) -> dict[str, Any]:
+    """Validate census inputs without computing or disclosing P membership."""
+    for frame, label in (
+        (players, "players"),
+        (native_candidates, "native candidates"),
+        (retained_candidates, "retained candidates"),
+        (exact_p_rosters, "exact P"),
+    ):
+        _reject_outcomes(frame, label)
+    key = {"season", "week"}
+    _require(
+        players,
+        key | {"id", "pos", "team", "opp", "game_id", "salary"},
+        "players",
+    )
+    _require(
+        native_candidates,
+        key | {"panel_run_id", "cand_ix", "players", "tag", "all_tags"},
+        "native candidates",
+    )
+    _require(
+        retained_candidates,
+        key | {"candidate_index", "players", "tag"},
+        "retained candidates",
+    )
+    _require(exact_p_rosters, key | {"players"}, "exact P")
+    slate_keys = {
+        tuple(map(int, row))
+        for row in exact_p_rosters[["season", "week"]].to_numpy()
+    }
+    if (
+        len(exact_p_rosters) != len(slate_keys)
+        or len(slate_keys) != int(expected_slates)
+    ):
+        raise ValueError("generator census preflight exact-P population differs")
+    for frame, label in (
+        (players, "players"),
+        (native_candidates, "native candidates"),
+        (retained_candidates, "retained candidates"),
+    ):
+        observed = {
+            tuple(map(int, row))
+            for row in frame[["season", "week"]].drop_duplicates().to_numpy()
+        }
+        if observed != slate_keys:
+            raise ValueError(f"generator census preflight {label} population differs")
+    if set(native_candidates.panel_run_id.astype(str)) != set(SEED_ORDER):
+        raise ValueError("generator census preflight native seed set differs")
+
+    for season, week in sorted(slate_keys):
+        pframe = players[
+            players.season.eq(season) & players.week.eq(week)
+        ].copy()
+        pframe["id"] = pframe.id.astype(str)
+        pframe["pos"] = pframe.pos.astype(str).str.upper().replace({"DEF": "DST"})
+        pframe["team"] = pframe.team.astype(str)
+        pframe["opp"] = pframe.opp.astype(str)
+        pframe["salary"] = pd.to_numeric(
+            pframe.salary, errors="raise",
+        ).astype(int)
+        exact_p = canonical_roster(exact_p_rosters.loc[
+            exact_p_rosters.season.eq(season)
+            & exact_p_rosters.week.eq(week), "players"
+        ].iloc[0])
+        audit = _audit_exact_p(pframe, exact_p)
+        if not audit["passes"]:
+            raise ValueError(
+                f"generator census preflight exact P is illegal: "
+                f"{audit['failures']}"
+            )
+
+        seed_books: dict[str, list[tuple[str, tuple[str, ...]]]] = {}
+        for seed in SEED_ORDER:
+            group = native_candidates[
+                native_candidates.season.eq(season)
+                & native_candidates.week.eq(week)
+                & native_candidates.panel_run_id.astype(str).eq(seed)
+            ].sort_values("cand_ix", kind="stable")
+            if group.empty or group.cand_ix.duplicated().any():
+                raise ValueError(
+                    "generator census preflight native book is empty or duplicated"
+                )
+            book: list[tuple[str, tuple[str, ...]]] = []
+            for row in group.itertuples(index=False):
+                roster = canonical_roster(row.players)
+                families = _base_tags(row.all_tags, row.tag)
+                primary = str(row.tag).split(":", 1)[0]
+                if primary not in BASE_FAMILIES:
+                    raise ValueError(
+                        "generator census preflight primary family differs"
+                    )
+                book.append((",".join(roster), families))
+            if len({roster for roster, _tags in book}) != len(book):
+                raise ValueError("generator census preflight native book repeats")
+            seed_books[seed] = book
+
+        reconstructed = reconstruct_cbwu(seed_books)
+        retained = retained_candidates[
+            retained_candidates.season.eq(season)
+            & retained_candidates.week.eq(week)
+        ].sort_values("candidate_index", kind="stable")
+        retained_keys = [
+            ",".join(canonical_roster(value)) for value in retained.players
+        ]
+        if retained_keys != [roster for _seed, roster in reconstructed]:
+            raise ValueError("generator census preflight retained CBWU differs")
+        if retained.tag.astype(str).tolist() != [
+            f"CBWU_R{SEED_ORDER.index(seed)}" for seed, _roster in reconstructed
+        ]:
+            raise ValueError("generator census preflight seed attribution differs")
+
+    return {
+        "version": "exact-p-generator-census-plumbing-v1",
+        "slates": int(expected_slates),
+        "preflight_season": 2023,
+        "exact_p_source_resolved": True,
+        "all_exact_p_rosters_legal": True,
+        "native_books_validated": True,
+        "family_labels_validated": True,
+        "retained_cbwu_reproduced": True,
+        "outcome_columns_denied": True,
+        "membership_or_distance_values_persisted": False,
+        "candidate_yield_persisted": False,
+        "loss_stage_or_disposition_persisted": False,
+        "scientific_result_licensed": False,
+        "production_change_licensed": False,
+    }
+
+
 def _family_diagnostic(
     family_rosters: list[tuple[str, ...]],
     exact_p: tuple[str, ...],
@@ -463,4 +599,5 @@ def analyze_exact_p_generator_census(
 __all__ = [
     "BASE_FAMILIES", "PROTOCOL_ID", "SCOPE", "SEED_ORDER",
     "analyze_exact_p_generator_census", "canonical_roster", "reconstruct_cbwu",
+    "validate_exact_p_census_plumbing",
 ]

@@ -122,6 +122,29 @@ def test_census_identifies_native_generation_search_without_scores():
     assert result["records"][0]["p_player_representation"]["combination_absent"]
 
 
+def test_census_preflight_proves_plumbing_without_membership_disclosure():
+    players, native, retained, exact_p = _fixture()
+    mask = players.season.eq(2023)
+    result = census.validate_exact_p_census_plumbing(
+        players[mask].copy(),
+        native[native.season.eq(2023)].copy(),
+        retained[retained.season.eq(2023)].copy(),
+        exact_p[exact_p.season.eq(2023)].copy(),
+        expected_slates=18,
+    )
+
+    assert result["slates"] == 18
+    assert result["exact_p_source_resolved"]
+    assert result["retained_cbwu_reproduced"]
+    assert result["membership_or_distance_values_persisted"] is False
+    assert result["candidate_yield_persisted"] is False
+    assert result["loss_stage_or_disposition_persisted"] is False
+    assert result["scientific_result_licensed"] is False
+    encoded = json.dumps(result)
+    assert "exact_p_in_native_union" not in encoded
+    assert "loss_stage_counts" not in encoded
+
+
 def test_census_rejects_any_candidate_outcome_column():
     players, native, retained, exact_p = _fixture()
     native["actual_score"] = 0.0
