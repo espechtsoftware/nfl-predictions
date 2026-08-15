@@ -704,6 +704,8 @@ async function build(){
         j.game.day+'). Captain scores 1.5x and costs 1.5x.'
       : j.lineups.length+' lineups · '+(j.policy?.policy_id||'policy unknown')+
         ' · '+(j.policy?.contest_entry_policy?.profile||'entry profile unknown')+
+        ' · '+(j.policy?.simulation_law?.usage_allocation||
+               'simulation law unreported')+' usage'+
         ' · model '+(j.policy?.model_version||'unreported')+
         '. Confidence = P(score >= '+
         (j.tail_line||194)+') per the sim — PORTFOLIO-level validated; '+
@@ -2608,10 +2610,16 @@ def _classic_policy_identity(req: LineupRequest, lineups: list) -> dict:
 
 def _classic_policy_headers(req: LineupRequest, lineups: list) -> dict[str, str]:
     identity = _classic_policy_identity(req, lineups)
+    simulation_law = identity.get("simulation_law", {})
+    environment_receipt = identity.get("engine_environment_receipt", {})
     return {
         "X-Lineup-Policy": str(
             identity.get("effective_policy_id") or identity["policy_id"]),
         "X-Model-Version": str(identity.get("model_version") or "n/a"),
+        "X-Simulation-Usage": str(
+            simulation_law.get("usage_allocation") or "n/a"),
+        "X-Policy-Environment-SHA256": str(
+            environment_receipt.get("sha256") or "n/a"),
     }
 
 

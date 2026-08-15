@@ -53,10 +53,12 @@ experiment. It is not part of
 
 The production public identity now emits an explicit simulation-law receipt:
 possession game mode, team factors enabled, production-multinomial usage,
-blank `GAME_SIM_USAGE`, no Dirichlet K, and TD ledger disabled. Dirichlet will
-not be silently enabled. A separately frozen dependence remeasurement under
-this exact production receipt is required before any sparse pass-event ledger
-is considered.
+blank `GAME_SIM_USAGE`, no Dirichlet K, and TD ledger disabled. It also emits
+the complete sorted canonical engine environment and its SHA-256; the UI
+renders the usage law and both CSV routes return the usage law and environment
+hash as headers. Dirichlet will not be silently enabled. A separately frozen
+dependence remeasurement under this exact production receipt is required
+before any sparse pass-event ledger is considered.
 
 ## Frozen execution order
 

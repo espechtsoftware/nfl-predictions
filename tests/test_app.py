@@ -1124,10 +1124,19 @@ def test_all_three_classic_routes_expose_same_policy(client, monkeypatch):
         "world_blocks": 5, "worlds_per_block": 10000,
         "selection_worlds": 50000, "fail_closed": True,
     }
+    assert preview.json()["policy"]["simulation_law"][
+        "usage_allocation"] == "production-multinomial"
+    environment_sha = preview.json()["policy"][
+        "engine_environment_receipt"]["sha256"]
+    assert len(environment_sha) == 64
     for response in (generic, entries):
         assert response.status_code == 200
         assert response.headers["x-lineup-policy"] == policy_id
         assert response.headers["x-model-version"].endswith("2026-W36")
+        assert response.headers["x-simulation-usage"] == \
+            "production-multinomial"
+        assert response.headers["x-policy-environment-sha256"] == \
+            environment_sha
 
 
 def test_record_preview_lineups_records_exact_client_roster(client, monkeypatch):

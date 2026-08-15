@@ -10,6 +10,8 @@ consume explicitly.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from hashlib import sha256
+import json
 from typing import Mapping
 
 
@@ -292,6 +294,10 @@ class ClassicProductionPolicy:
         """Stable JSON/header-friendly identity for a generated book."""
         effective_entries = self.default_entries if entries is None else entries
         effective_line = self.tail_line if tail_line is None else tail_line
+        engine_env = dict(sorted(self.engine_environment().items()))
+        engine_env_sha256 = sha256(json.dumps(
+            engine_env, sort_keys=True, separators=(",", ":"),
+        ).encode()).hexdigest()
         return {
             "policy_id": self.policy_id,
             "source_panel": self.source_panel,
@@ -335,6 +341,10 @@ class ClassicProductionPolicy:
                 "game_sim_usage_env": "",
                 "dirichlet_k": None,
                 "td_ledger": False,
+            },
+            "engine_environment_receipt": {
+                "sha256": engine_env_sha256,
+                "values": engine_env,
             },
         }
 

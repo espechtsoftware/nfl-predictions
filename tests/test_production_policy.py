@@ -1,4 +1,6 @@
 import pytest
+import hashlib
+import json
 
 from nfl_dfs.inference.production_policy import (
     ADOPTED_CLASSIC_POLICY,
@@ -132,3 +134,10 @@ def test_public_identity_exposes_fixed_budget_five_by_five_contract():
         "dirichlet_k": None,
         "td_ledger": False,
     }
+    receipt = identity["engine_environment_receipt"]
+    assert receipt["values"] == ADOPTED_CLASSIC_POLICY.engine_environment()
+    assert receipt["values"]["GAME_SIM_USAGE"] == ""
+    assert receipt["values"].get("DIRICHLET_K") is None
+    assert receipt["sha256"] == hashlib.sha256(json.dumps(
+        receipt["values"], sort_keys=True, separators=(",", ":"),
+    ).encode()).hexdigest()

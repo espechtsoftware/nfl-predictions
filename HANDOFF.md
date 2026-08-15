@@ -76,9 +76,12 @@ agent or developer:
   money policy explicitly uses production-multinomial opportunity allocation
   (`GAME_SIM_USAGE=""`, no Dirichlet K); fitted K=28.154043586960896 is a
   separate historical research/reference law. `public_identity()` now emits
-  the effective possession/team-factor/usage/TD-ledger law. Do not enable
-  Dirichlet. Remeasure dependence under the exact money receipt before any
-  sparse pass-event ledger is designed.
+  the effective possession/team-factor/usage/TD-ledger law plus the complete
+  sorted canonical engine environment and its SHA-256. The UI renders the
+  receipt's usage law, and both CSV routes expose usage and environment hash
+  headers. Eleven focused policy/app tests pass. Do not enable Dirichlet.
+  Remeasure dependence under the exact money receipt before any sparse pass-
+  event ledger is designed.
 
 - The user raised a new overtime-duration mechanism before any project OT
   frequency, fantasy uplift or odds-prediction result was queried. The complete
