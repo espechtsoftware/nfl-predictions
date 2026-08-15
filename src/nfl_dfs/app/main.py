@@ -9,6 +9,7 @@ from __future__ import annotations
 import logging
 import os
 import re
+from datetime import datetime, timezone
 from functools import lru_cache
 
 import pandas as pd
@@ -2930,6 +2931,9 @@ class FillEntriesRequest(LineupRequest):
     # one download, one fill per contest with that contest's preset;
     # untouched rows pass through for the next pass). None = all rows.
     contest_id: str | None = None
+    # The prospective validated late-swap route rejects duplicate rosters by
+    # default.  This escape hatch is explicit and is echoed in its receipt.
+    allow_duplicate_lineups: bool = False
 
 
 class ShowdownFillEntriesRequest(ShowdownLineupRequest):
@@ -2964,6 +2968,36 @@ def _entries_response(entries_csv: str, lineups: list,
     )
 
 
+def _late_swap_now() -> datetime:
+    """Server-controlled decision time; clients cannot backdate validation."""
+    return datetime.now(timezone.utc)
+
+
+def _late_swap_catalog(
+    store: ProjectionStore, draft_group_id: int
+) -> pd.DataFrame:
+    """Create the validator's slate-local catalog from the DK salary pull."""
+    salaries = store.classic_salaries(draft_group_id)
+    if salaries.empty:
+        raise HTTPException(
+            404, f"No classic slate {draft_group_id}; "
+                 "see GET /classic/slates for what's upcoming")
+    required = {
+        "dk_draftable_id", "display_name", "position", "salary", "game_start",
+    }
+    missing = required - set(salaries.columns)
+    if missing:
+        raise HTTPException(
+            422, "Slate salary snapshot cannot validate late swap; missing "
+                 + ", ".join(sorted(missing)))
+    return salaries.rename(columns={
+        "dk_draftable_id": "dk_id",
+        "display_name": "name",
+        "position": "pos",
+        "game_start": "kickoff",
+    })[["dk_id", "name", "pos", "salary", "kickoff"]].copy()
+
+
 @app.post("/lineups/entries.csv")
 def fill_classic_entries(
     req: FillEntriesRequest, store: ProjectionStore = Depends(get_store)
@@ -2973,6 +3007,59 @@ def fill_classic_entries(
     return _entries_response(
         req.entries_csv, lineups, contest_id=req.contest_id,
         policy_headers=_classic_policy_headers(build_req, lineups))
+
+
+@app.post("/lineups/entries/validated.csv")
+def fill_validated_late_swap_entries(
+    req: FillEntriesRequest, store: ProjectionStore = Depends(get_store)
+) -> Response:
+    """Build and fail-closed validate a prospective classic late-swap file.
+
+    This is deliberately separate from the established entries route until
+    the prospective recourse policy is evaluated.  It requires a slate-local
+    DK salary snapshot and an already-filled DKEntries file, uses the server's
+    current time to enforce kickoff locks, and emits an auditable receipt in
+    response headers.  It does not use realized player outcomes.
+    """
+    if req.draft_group_id is None:
+        raise HTTPException(
+            422, "Validated late swap requires draft_group_id")
+    if req.contest_id is not None:
+        raise HTTPException(
+            422, "Validated late swap currently requires a single-contest "
+                 "DKEntries file (omit contest_id)")
+    build_req = req.model_copy(update={
+        "n_lineups": _entries_n(req.entries_csv),
+    })
+    lineups = _build_classic(build_req, store)[0]
+    try:
+        filled = fill_entries_csv(req.entries_csv, lineups)
+        from ..optimizer.late_swap import validate_swap_upload
+
+        receipt = validate_swap_upload(
+            req.entries_csv,
+            filled,
+            _late_swap_catalog(store, req.draft_group_id),
+            as_of=_late_swap_now(),
+            allow_duplicate_lineups=req.allow_duplicate_lineups,
+        )
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    return Response(
+        content=filled,
+        media_type="text/csv",
+        headers={
+            "Content-Disposition": "attachment; filename=DKEntries.csv",
+            **_classic_policy_headers(build_req, lineups),
+            "X-Late-Swap-Validated": "true",
+            "X-Late-Swap-State-Version": str(receipt["state_version"]),
+            "X-Late-Swap-As-Of": str(receipt["as_of"]),
+            "X-Late-Swap-Entries": str(receipt["entries"]),
+            "X-Late-Swap-Changed-Slots": str(receipt["changed_slots"]),
+            "X-Late-Swap-Locked-Slots": str(receipt["locked_slots"]),
+            "X-Late-Swap-Uses-Outcomes": "false",
+        },
+    )
 
 
 @app.post("/lineups/entries/diff")

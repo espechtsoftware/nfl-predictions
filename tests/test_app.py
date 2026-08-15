@@ -611,6 +611,55 @@ def test_fill_classic_entries_endpoint(draftable_client):
     assert lines[1].split(",")[4:13] != lines[2].split(",")[4:13]
 
 
+def test_validated_late_swap_entries_are_slate_and_time_bound(
+    classic_client, monkeypatch,
+):
+    one_entry = CLASSIC_ENTRIES.splitlines()[0] + "\n" + \
+        CLASSIC_ENTRIES.splitlines()[1] + "\n"
+    request = {
+        "season": 2025,
+        "week": 3,
+        "draft_group_id": 8200,
+        "entries_csv": one_entry,
+        "sim": False,
+    }
+    entered = classic_client.post("/lineups/entries.csv", json=request)
+    assert entered.status_code == 200, entered.text
+
+    # Server time—not a client parameter—defines which players are locked.
+    monkeypatch.setattr(
+        app_main,
+        "_late_swap_now",
+        lambda: pd.Timestamp("2025-09-21T16:00:00Z"),
+    )
+    request["entries_csv"] = entered.text
+    validated = classic_client.post(
+        "/lineups/entries/validated.csv", json=request,
+    )
+    assert validated.status_code == 200, validated.text
+    assert validated.headers["x-late-swap-validated"] == "true"
+    assert validated.headers["x-late-swap-state-version"] == (
+        "prospective-recourse-state-v1"
+    )
+    assert validated.headers["x-late-swap-entries"] == "1"
+    assert validated.headers["x-late-swap-uses-outcomes"] == "false"
+    assert validated.text.startswith("Entry ID,Contest Name,Contest ID")
+
+
+def test_validated_late_swap_requires_explicit_slate(draftable_client):
+    response = draftable_client.post(
+        "/lineups/entries/validated.csv",
+        json={
+            "season": 2025,
+            "week": 3,
+            "entries_csv": CLASSIC_ENTRIES,
+            "sim": False,
+        },
+    )
+    assert response.status_code == 422
+    assert "requires draft_group_id" in response.json()["detail"]
+
+
 def test_fill_showdown_entries_endpoint(showdown_client):
     entries = (
         "Entry ID,Contest Name,Contest ID,Entry Fee,"

@@ -20,12 +20,13 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 23:41 CDT
+## Current state — 2026-08-14 23:51 CDT
 
 ### Final preseason forensic run succeeded; historical queue closed and prospective construction program frozen
 
-- Branch is `main` at pushed commit `1fe0c3f` before this in-progress shadow
-  integration milestone. The byte-identical/configuration-only retry
+- Branch is `main` at pushed commit `92df4499dc54ef041e8e36e844c14765acddee77`
+  before the in-progress validated-route milestone. The
+  byte-identical/configuration-only retry
   `final-preseason-forensic-v1-gqssz` completed successfully at
   `2026-08-15T04:05:51.446124Z`, with one succeeded task, zero failed tasks and
   runtime 47m1.64s. It used exact analysis code
@@ -135,16 +136,24 @@ agent or developer:
   files and fails closed on changed Entry/Contest metadata, kickoff or
   DK-marker locks, unresolved/repeated players, position violations, salary
   above $50,000 and exact duplicate lineups. It produces a no-outcome receipt
-  but does not yet choose a swap or expose an upload route. All 42 focused
-  late-swap/export/optimizer tests pass.
+  and still does not choose a swap. A separate prospective endpoint,
+  `POST /lineups/entries/validated.csv`, now builds and validates an
+  already-filled, single-contest classic DKEntries file against an explicit
+  draft group. It uses server-controlled UTC time (the client cannot backdate
+  the lock state), leaves the established production exporter unchanged, and
+  emits policy plus validation-version/as-of/entry/change/lock/no-outcome
+  headers. It fails closed when no draft group is supplied, the slate salary
+  snapshot is incomplete, or any validator invariant fails. Eleven focused
+  route-and-validator tests pass; the route changes are not yet committed or
+  cloud-validated.
 - The local repository `.venv` remains healthy despite the user's concern
   about accidentally deleting a Python environment while installing Gemini
   CLI: `.venv/bin/python` is Python 3.14.4, project/pandas/BigQuery imports
   succeed and `python -m pip check` reports no broken requirements.
 - Next concrete action: poll exact-commit Cloud Build
   `436fa27e-be96-41c6-bb62-c2e1808e1e4f` to terminal and record its full-suite
-  counts plus immutable image digest; then wire the new late-swap safety layer
-  into fail-closed preview/upload routes before developing
+  counts plus immutable image digest; commit/push the separate validated
+  upload route and launch its own exact-commit full-suite build; then develop
   the conditional-world policy that proposes swaps. The first score-free
   live shadow smoke waits only for complete 2026 pre-lock slate inputs and must
   validate its receipt before any outcome join. In parallel, preserve the Week
