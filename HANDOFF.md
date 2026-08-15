@@ -125,6 +125,12 @@ agent or developer:
   added 0.1 points but no threshold, and corrected hindsight recourse gained
   36.5 points. These are schema/mechanical smoke values, not the 54-slate
   result and must not be interpreted or promoted.
+- `scripts/cloud_post_forensic_construction_addendum.sh` is the reproducible
+  launcher. It requires an immutable image digest and full code SHA, refuses
+  to run if the frozen output object already exists, and deploys one
+  no-retry/one-task 8-CPU/32-GiB Cloud Run execution with a four-hour timeout.
+  Shell parsing and whitespace checks pass; do not invoke it until build
+  `3b875c6f...` succeeds and its digest is harvested.
 - Latent-role retained-world build
   `240516d1-14ae-4ecf-9fa4-556472a5a492` reached terminal `SUCCESS` at
   `2026-08-15T10:02:09.107112Z`: 1,416 tests passed, 2 were skipped and 5
