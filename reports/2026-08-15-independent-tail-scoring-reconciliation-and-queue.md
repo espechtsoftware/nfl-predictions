@@ -89,9 +89,12 @@ contest rank, payout or post-lock ownership is permitted.
   falsification stage.
 - For both sets, solve the exact legal MILP and compare attainable optimum,
   top-player/stack-core duplication, and cross-seed rank stability.
-- The premise survives only if attainable ranking improves legal optimum
-  without collapsing structural diversity. This stage cannot promote or
-  reject a money lineup using historical outcomes.
+- The premise survives only if the mean exact legal optimum improves in at
+  least three of five seeds and in aggregate, aggregate q25 does not decline,
+  and treatment mean unique-roster, QB-stack-core and dominant-game counts are
+  each at least 80% of control. These are frozen score-free falsifiers, not an
+  adoption gate. This stage cannot promote or reject a money lineup using
+  historical outcomes.
 
 The ATLAS MVP is one fixed treatment:
 

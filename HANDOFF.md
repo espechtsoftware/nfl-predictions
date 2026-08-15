@@ -46,9 +46,16 @@ agent or developer:
   whole-slate-total rank, exact-MILP-solves only their bounded union under the
   real production constraints, verifies every exact score is below the
   bound, and reports exact-optimum and structural diversity without accepting
-  realized outcomes. Four focused tests and module compilation pass. Wire it
-  next to a create-only score-free runner over the immutable R0--R4 player-
-  world artifacts; do not read candidate actual scores.
+  realized outcomes. The create-only R0--R4 runner and Cloud Run launcher are
+  also implemented. Their SQL selects only artifact identities and pre-lock
+  player metadata, explicitly forbids actual/rank/ownership/payout columns,
+  requires the frozen forensic manifest, exact five panels and 270 seed-slate
+  artifacts on 54 slates, then applies the frozen five-seed mean/q25/80%-
+  diversity falsifier. A live metadata-only query confirms the expected
+  270/54/5 scope and the create-only GCS target is absent. Seven focused tests,
+  Python compilation, shell syntax and `git diff --check` pass. Build an exact
+  immutable image, but run this score-free 32-GiB job only after the SIS chain
+  and exact-P census release the single large Cloud Run slot.
 - The review's live-inactive concern was a real money-path correctness defect:
   sim mode rebuilt nonzero draws without the stored-projection cascade/zero
   path, and salary-list `allowed_ids` did not imply active status. The live
@@ -295,6 +302,16 @@ agent or developer:
   is `20260815-sis-receiver-copula-v1-repair1`; it may run only from an
   immutable exact-repair image after full validation and must reproduce every
   original fingerprint outside the corrected population invariant.
+  Exact-archive Cloud Build `ad061aa7-9a78-4057-8742-e70c1ad45718` passed at
+  `2026-08-15T19:10:41.910306Z` from exact repair SHA
+  `b00e9ba219edf807846d84f137ed4ae4adc15b75`: 1,490 tests passed, 2 skipped
+  and 5 warnings in 771.65 seconds. Immutable digest is
+  `sha256:f22ad0e16c4ac95fcf5604a92e1e249437c8f1195693604d2a2b7d3c1a246ca5`.
+  The sole frozen retry is now Cloud Run execution
+  `sis-receiver-copula-reference-repair1-dtt5v`, launched under run ID
+  `20260815-sis-receiver-copula-v1-repair1` from that digest and code SHA.
+  Its manifest/execution receipt are tracked under the new run directory.
+  Poll to completion and strictly harvest; calibration remains unlicensed.
 - Before any usable SIS artifact or calibration score existed, the previously
   unstated 2022 calibration-book choice was frozen in
   `reports/2026-08-15-sis-receiver-copula-calibration-book-amendment.md`

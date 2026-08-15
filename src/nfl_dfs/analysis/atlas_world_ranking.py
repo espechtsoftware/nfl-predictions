@@ -224,8 +224,88 @@ def complete_world_ranking_diagnostic(
     return report
 
 
+def aggregate_scorefree_gate(rows: Sequence[Mapping]) -> dict:
+    """Apply the frozen five-seed ATLAS world-ranking falsifier."""
+    if not rows:
+        raise ValueError("ATLAS aggregate requires diagnostic rows")
+    frame = []
+    for row in rows:
+        if row.get("uses_realized_outcomes") is not False:
+            raise ValueError("ATLAS aggregate received an outcome-facing row")
+        try:
+            seed = int(row["seed"])
+            control = row["incumbent_exact"]
+            treatment = row["attainable_exact"]
+            frame.append({
+                "seed": seed,
+                "mean_delta": float(treatment["mean_exact_legal_optimum"])
+                - float(control["mean_exact_legal_optimum"]),
+                "q25_delta": float(treatment["q25_exact_legal_optimum"])
+                - float(control["q25_exact_legal_optimum"]),
+                "roster_ratio": float(treatment["unique_exact_rosters"])
+                / max(1.0, float(control["unique_exact_rosters"])),
+                "core_ratio": float(treatment["unique_qb_stack_cores"])
+                / max(1.0, float(control["unique_qb_stack_cores"])),
+                "game_ratio": float(treatment["unique_dominant_games"])
+                / max(1.0, float(control["unique_dominant_games"])),
+            })
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError("ATLAS diagnostic row is incomplete") from exc
+    seeds = sorted({row["seed"] for row in frame})
+    if seeds != [0, 1, 2, 3, 4]:
+        raise ValueError("ATLAS aggregate requires exact seeds R0--R4")
+    per_seed_mean_delta = {
+        str(seed): float(np.mean([
+            row["mean_delta"] for row in frame if row["seed"] == seed
+        ]))
+        for seed in seeds
+    }
+    conditions = {
+        "aggregate_mean_improves": float(np.mean([
+            row["mean_delta"] for row in frame
+        ])) > 0.0,
+        "at_least_three_seed_means_improve": sum(
+            value > 0.0 for value in per_seed_mean_delta.values()
+        ) >= 3,
+        "aggregate_q25_nonworse": float(np.mean([
+            row["q25_delta"] for row in frame
+        ])) >= 0.0,
+        "roster_diversity_at_least_80pct": float(np.mean([
+            row["roster_ratio"] for row in frame
+        ])) >= 0.80,
+        "stack_core_diversity_at_least_80pct": float(np.mean([
+            row["core_ratio"] for row in frame
+        ])) >= 0.80,
+        "dominant_game_diversity_at_least_80pct": float(np.mean([
+            row["game_ratio"] for row in frame
+        ])) >= 0.80,
+    }
+    return {
+        "version": "atlas-world-ranking-scorefree-gate-v1",
+        "uses_realized_outcomes": False,
+        "rows": len(frame),
+        "slates": len({
+            (int(row["season"]), int(row["week"])) for row in rows
+        }),
+        "per_seed_mean_delta": per_seed_mean_delta,
+        "aggregate_mean_delta": float(np.mean([
+            row["mean_delta"] for row in frame
+        ])),
+        "aggregate_q25_delta": float(np.mean([
+            row["q25_delta"] for row in frame
+        ])),
+        "mean_diversity_ratios": {
+            name: float(np.mean([row[name] for row in frame]))
+            for name in ("roster_ratio", "core_ratio", "game_ratio")
+        },
+        "conditions": conditions,
+        "passes_scorefree_falsifier": bool(all(conditions.values())),
+    }
+
+
 __all__ = [
     "CLASSIC_SKILL_PATTERNS",
+    "aggregate_scorefree_gate",
     "compare_world_rankings",
     "complete_world_ranking_diagnostic",
     "rank_worlds",

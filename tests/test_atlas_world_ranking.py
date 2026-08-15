@@ -100,3 +100,32 @@ def test_complete_diagnostic_exactly_solves_only_ranking_union(monkeypatch):
         report["incumbent_exact"]["mean_exact_legal_optimum"]
     )
     assert report["uses_realized_outcomes"] is False
+
+
+def test_frozen_scorefree_gate_requires_five_stable_seeds():
+    rows = []
+    for seed in range(5):
+        rows.append({
+            "seed": seed, "season": 2025, "week": 1,
+            "uses_realized_outcomes": False,
+            "incumbent_exact": {
+                "mean_exact_legal_optimum": 200.0,
+                "q25_exact_legal_optimum": 190.0,
+                "unique_exact_rosters": 20,
+                "unique_qb_stack_cores": 10,
+                "unique_dominant_games": 8,
+            },
+            "attainable_exact": {
+                "mean_exact_legal_optimum": 201.0,
+                "q25_exact_legal_optimum": 190.5,
+                "unique_exact_rosters": 18,
+                "unique_qb_stack_cores": 9,
+                "unique_dominant_games": 7,
+            },
+        })
+    result = atlas.aggregate_scorefree_gate(rows)
+    assert result["passes_scorefree_falsifier"]
+    assert result["rows"] == 5
+    rows[0]["uses_realized_outcomes"] = True
+    with pytest.raises(ValueError, match="outcome-facing"):
+        atlas.aggregate_scorefree_gate(rows)
