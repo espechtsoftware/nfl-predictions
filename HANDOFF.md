@@ -826,6 +826,19 @@ agent or developer:
   Neither primitive has a cloud runner or result yet. Wire the create-only tie
   census against fixed canonical CBWU artifacts and the separate live/replay
   deployment gate; ATLAS still precedes exact-N in execution order.
+  The correction document
+  `reports/2026-08-16-cbwu-oi-correction-and-construction-reframe.md` agrees
+  with this causal correction and identifies the useful next question:
+  whether fixed-budget CBWU-OI admission closes any exact-P-to-C construction
+  gap. That outcome-viewed descriptive diagnostic is frozen before querying
+  in `reports/2026-08-15-cbwu-oi-construction-diagnostic-protocol.md`. It binds
+  the 270 artifacts, repair4 manifest, corrected-P generation/SHA and CBWU-OI
+  report SHA; requires canonical retained-pool parity, all-rotation OI
+  candidate/totals identity and equal candidate budgets; compares candidate C,
+  P distance/representation and structure; and explicitly forbids scoring the
+  OI selected 80 or issuing an adoption verdict. Implement it as a separate
+  create-only forensic runner after the currently building exact-P census
+  image is safely launched.
   A follow-on review incorrectly treated CBWU-OI as an in-place production
   change. It is an inactive research function with no production call site;
   requiring identity to canonical CBWU would also contradict its frozen strict
