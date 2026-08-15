@@ -213,20 +213,25 @@ agent or developer:
 - The two contract repairs are pushed at full SHA
   `d270e34e25d425dfb2b7771b8b20f42434c19bc7`. Replacement exact-commit
   Cloud Build `ace2feb8-f082-4e75-981d-e9daa7a9551d` was submitted at
-  `2026-08-15T05:49:13Z` from a clean archive of that SHA and is queued/running.
-  It will publish tag `prospective-recourse-d270e34` only after the full suite
-  succeeds.
+  `2026-08-15T05:49:13Z` from a clean archive of that SHA. It completed
+  successfully at `2026-08-15T06:05:29.737583Z`: 1,374 tests passed, 2 were
+  skipped and 5 warnings were emitted in 751.38 seconds. Published image tag
+  `prospective-recourse-d270e34` resolves to immutable digest
+  `sha256:e9c0007a9c1adb272f5ffbb81b68410f7691c802ca09e69e7c96dd73e18a9e5a`.
+- New Cloud Run job `shadow-archetype-paired` is deployed ready on that exact
+  digest with command `nfl-dfs shadow-archetype-paired`, full code SHA
+  `d270e34e25d425dfb2b7771b8b20f42434c19bc7`, 4 CPU, 16 GiB, 7,200-second
+  timeout and one retry. It has execution count zero; no live/scoring run was
+  launched. Schedulers `s-shadow-archetype-paired-early` (`15 9 * * 7`) and
+  `s-shadow-archetype-paired-late` (`30 10 * * 7`) both target that job in
+  `America/Chicago` and were verified `PAUSED`. The forensic cleanup/resume
+  gate now owns their activation with the other 22 seasonal schedulers.
 - The local repository `.venv` remains healthy despite the user's concern
   about accidentally deleting a Python environment while installing Gemini
   CLI: `.venv/bin/python` is Python 3.14.4, project/pandas/BigQuery imports
   succeed and `python -m pip check` reports no broken requirements.
-- Next concrete action: poll replacement exact-commit Cloud Build
-  `ace2feb8-f082-4e75-981d-e9daa7a9551d` to terminal and harvest its test
-  count and immutable image digest. After the
-  validated digest exists, deploy only
-  the new paired shadow job/schedulers in
-  a paused state and verify their configuration without running a scoring job.
-  Then run an authenticated test-artifact UI-to-CSV rehearsal. The first score-free
+- Next concrete action: run an authenticated test-artifact UI-to-CSV rehearsal
+  without using or exposing an uploadable money file. The first score-free
   live shadow smoke waits only for complete 2026 pre-lock slate inputs and must
   validate its receipt before any outcome join. In parallel, preserve the Week
   1 readiness and forensic cleanup gates. Do not launch another historical
