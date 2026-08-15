@@ -23,6 +23,9 @@ from nfl_dfs.inference.prospective_shadow import paired_shadow_receipt
 from nfl_dfs.optimizer.lineup import Lineup
 
 
+ROOT = Path(__file__).resolve().parents[1]
+
+
 def _fixture():
     specs = []
     for pos, count in (("QB", 3), ("RB", 5), ("WR", 7), ("TE", 3), ("DST", 3)):
@@ -324,11 +327,10 @@ def test_paired_shadow_runner_rejects_missing_code_sha(monkeypatch):
 
 
 def test_prospective_shadow_cli_and_deployment_are_registered():
-    root = Path(prospective_shadow.__file__).resolve().parents[3]
-    cli = (root / "src/nfl_dfs/cli.py").read_text(encoding="utf-8")
-    deploy = (root / "deploy/deploy_jobs.sh").read_text(encoding="utf-8")
+    cli = (ROOT / "src/nfl_dfs/cli.py").read_text(encoding="utf-8")
+    deploy = (ROOT / "deploy/deploy_jobs.sh").read_text(encoding="utf-8")
     resume = (
-        root / "scripts/resume_2026_production_schedulers.py"
+        ROOT / "scripts/resume_2026_production_schedulers.py"
     ).read_text(encoding="utf-8")
     assert "shadow-archetype-paired" in cli
     assert "job shadow-archetype-paired" in deploy

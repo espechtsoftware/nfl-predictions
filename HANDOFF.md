@@ -203,15 +203,20 @@ agent or developer:
   submitted at `2026-08-15T05:32:18.696796338Z` from a clean `git archive` of
   `b947446f59bd0b54c03a1c3b91ee5567042a3773`. It is queued/running and will
   publish tag `prospective-recourse-b947446` only after the complete pytest
-  suite succeeds. Do not cite the tag or deploy the new job until this build
-  is terminal success and its immutable digest is harvested.
+  suite succeeds. It is now terminal failed and published no image: 1,372
+  tests passed, 2 skipped and 2 contract tests failed. One test derived the
+  repository root from the installed package path instead of `tests/`; the
+  other still asserted the old exact scheduler inventory of 22 instead of the
+  newly documented 24. Both failures are test-contract maintenance defects,
+  not runtime or mechanism failures. They are repaired locally; the failed
+  build remains durable evidence and must not be cited as validation.
 - The local repository `.venv` remains healthy despite the user's concern
   about accidentally deleting a Python environment while installing Gemini
   CLI: `.venv/bin/python` is Python 3.14.4, project/pandas/BigQuery imports
   succeed and `python -m pip check` reports no broken requirements.
-- Next concrete action: poll exact-commit Cloud Build
-  `07fa2945-ad02-47f0-8175-f1da5a30972b` to terminal and record its complete
-  test count and image digest. After the validated digest exists, deploy only
+- Next concrete action: validate the two exact repaired contract tests, then
+  commit/push and launch a new exact-commit full-suite Cloud Build. After the
+  validated digest exists, deploy only
   the new paired shadow job/schedulers in
   a paused state and verify their configuration without running a scoring job.
   Then run an authenticated test-artifact UI-to-CSV rehearsal. The first score-free
