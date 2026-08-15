@@ -81,6 +81,21 @@ def test_roster_game_legality_uses_matchup_not_source_game_id():
     assert "fewer than two games" in audit["failures"]
 
 
+def test_roster_audit_enforces_the_production_qb2_bringback_contract():
+    players = _players()
+    loose = [
+        "qb_a", "rb_c", "rb_d", "wr_a", "wr_c", "wr_d", "wr_e",
+        "te_c", "dst_a",
+    ]
+    legacy = audit_roster(players, loose, min_salary=0)
+    exact = audit_roster(
+        players, loose, min_salary=0, qb_stack_min=2, bring_back_min=1,
+    )
+    assert legacy["valid"]
+    assert not exact["valid"]
+    assert any("same-team WR/TE" in failure for failure in exact["failures"])
+
+
 def _players() -> pd.DataFrame:
     rows = [
         ("qb_a", "QB", "A", "B", "A@B", 7000, 30),
@@ -137,6 +152,8 @@ def test_hpcs_decomposition_reconstructs_and_orders_layers():
     assert result["C"]["actual_score"] == high_score
     assert result["S"]["actual_score"] == low_score
     assert result["gaps"]["selection"] == high_score - low_score
+    assert result["construction_policy"]["qb_stack_min"] == 2
+    assert result["construction_policy"]["bring_back_min"] == 1
     assert "wr_e" in result["H"]["players"]
     assert "wr_e" not in result["P"]["players"]
 

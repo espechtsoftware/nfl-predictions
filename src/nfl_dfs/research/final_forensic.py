@@ -805,8 +805,12 @@ def audit_roster(
     *,
     min_salary: int = 49_000,
     salary_cap: int = 50_000,
+    qb_stack_min: int = 1,
+    bring_back_min: int = 0,
 ) -> dict[str, Any]:
     """Independently reconstruct one roster's score and frozen legality."""
+    if int(qb_stack_min) < 0 or int(bring_back_min) < 0:
+        raise ValueError("roster stack requirements must be nonnegative")
     frame = _normalise_player_frame(players).set_index("id", drop=False)
     ids = tuple(map(str, roster_ids))
     failures: list[str] = []
@@ -837,8 +841,24 @@ def audit_roster(
     qbs = chosen[chosen.pos.eq("QB")]
     if len(qbs) == 1:
         team = str(qbs.iloc[0].team)
-        if not ((chosen.team.eq(team)) & chosen.pos.isin(("WR", "TE"))).any():
-            failures.append("QB lacks a same-team WR/TE")
+        opponent = str(qbs.iloc[0].opp)
+        same_team_catchers = int(
+            ((chosen.team.eq(team)) & chosen.pos.isin(("WR", "TE"))).sum()
+        )
+        if same_team_catchers < int(qb_stack_min):
+            failures.append(
+                f"QB has {same_team_catchers} same-team WR/TE; "
+                f"requires {int(qb_stack_min)}"
+            )
+        bring_backs = int(
+            ((chosen.team.eq(opponent))
+             & chosen.pos.isin(("RB", "WR", "TE"))).sum()
+        )
+        if bring_backs < int(bring_back_min):
+            failures.append(
+                f"QB has {bring_backs} opponent bring-backs; "
+                f"requires {int(bring_back_min)}"
+            )
     if (chosen[chosen.pos.eq("RB")].team.value_counts() > 1).any():
         failures.append("two RBs from one team")
     dsts = chosen[chosen.pos.eq("DST")]
@@ -863,6 +883,8 @@ def _solve_oracle(
     locked_flex_positions: Sequence[str | None] | None = None,
     min_salary: int = 49_000,
     salary_cap: int = 50_000,
+    qb_stack_min: int = 1,
+    bring_back_min: int = 0,
 ) -> dict[str, Any]:
     """Solve the exact frozen legal-lineup oracle with deterministic ties."""
     frame = _normalise_player_frame(players)
@@ -870,6 +892,8 @@ def _solve_oracle(
         frame = frame[frame.id.isin(set(map(str, allowed_ids)))].copy()
     if frame.empty:
         raise ValueError("oracle player support is empty")
+    if int(qb_stack_min) < 0 or int(bring_back_min) < 0:
+        raise ValueError("oracle stack requirements must be nonnegative")
     rows = list(frame.itertuples(index=False))
     problem = pulp.LpProblem("forensic_oracle", pulp.LpMaximize)
     decision = {
@@ -971,7 +995,16 @@ def _solve_oracle(
             row.id for row in rows
             if row.team == qb.team and row.pos in ("WR", "TE")
         ]
-        problem += pulp.lpSum(decision[player] for player in catchers) >= decision[qb.id]
+        problem += pulp.lpSum(decision[player] for player in catchers) >= (
+            int(qb_stack_min) * decision[qb.id]
+        )
+        opponent_skill = [
+            row.id for row in rows
+            if row.team == qb.opp and row.pos in ("RB", "WR", "TE")
+        ]
+        problem += pulp.lpSum(
+            decision[player] for player in opponent_skill
+        ) >= int(bring_back_min) * decision[qb.id]
     for dst in (row for row in rows if row.pos == "DST"):
         for rb in (
             row for row in rows if row.pos == "RB" and row.team == dst.opp
@@ -999,7 +1032,8 @@ def _solve_oracle(
         raise ValueError("oracle deterministic tie solve failed")
     chosen = sorted(row.id for row in rows if decision[row.id].value() > 0.5)
     audit = audit_roster(
-        frame, chosen, min_salary=min_salary, salary_cap=salary_cap
+        frame, chosen, min_salary=min_salary, salary_cap=salary_cap,
+        qb_stack_min=qb_stack_min, bring_back_min=bring_back_min,
     )
     if not audit["valid"] or not np.isclose(
         audit["actual_score"], optimum, rtol=0.0, atol=1e-6
@@ -1224,6 +1258,8 @@ def decompose_slate(
     expected_entries: int = 80,
     min_salary: int = 49_000,
     salary_cap: int = 50_000,
+    qb_stack_min: int = 2,
+    bring_back_min: int = 1,
 ) -> dict[str, Any]:
     """Compute the corrected H/P/C/S decomposition for one frozen slate."""
     frame = _normalise_player_frame(players)
@@ -1236,7 +1272,8 @@ def decompose_slate(
     for row in pool.itertuples(index=False):
         ids = tuple(item for item in str(row.players).split(",") if item)
         audit = audit_roster(
-            frame, ids, min_salary=min_salary, salary_cap=salary_cap
+            frame, ids, min_salary=min_salary, salary_cap=salary_cap,
+            qb_stack_min=qb_stack_min, bring_back_min=bring_back_min,
         )
         if not audit["valid"]:
             raise ValueError(f"illegal candidate roster: {audit['failures']}")
@@ -1273,13 +1310,16 @@ def decompose_slate(
     support_counts = Counter(player for ids in roster_ids for player in ids)
     support = set(support_counts)
     no_floor_oracle = _solve_oracle(
-        frame, min_salary=0, salary_cap=salary_cap
+        frame, min_salary=0, salary_cap=salary_cap,
+        qb_stack_min=qb_stack_min, bring_back_min=bring_back_min,
     )
     full_oracle = _solve_oracle(
-        frame, min_salary=min_salary, salary_cap=salary_cap
+        frame, min_salary=min_salary, salary_cap=salary_cap,
+        qb_stack_min=qb_stack_min, bring_back_min=bring_back_min,
     )
     support_oracle = _solve_oracle(
-        frame, support, min_salary=min_salary, salary_cap=salary_cap
+        frame, support, min_salary=min_salary, salary_cap=salary_cap,
+        qb_stack_min=qb_stack_min, bring_back_min=bring_back_min,
     )
     candidate_row = pool.sort_values(
         ["actual_score", "roster_key"], ascending=[False, True], kind="stable"
@@ -1316,6 +1356,15 @@ def decompose_slate(
             "player_support": h_score - p_score,
             "construction": p_score - c_score,
             "selection": c_score - s_score,
+        },
+        "construction_policy": {
+            "qb_stack_min": int(qb_stack_min),
+            "bring_back_min": int(bring_back_min),
+            "forbid_two_rb_same_team": True,
+            "forbid_rb_vs_dst": True,
+            "minimum_games": 2,
+            "minimum_salary": int(min_salary),
+            "maximum_salary": int(salary_cap),
         },
         "salary_floor_policy": {
             "draftkings_minimum_salary": 0,
