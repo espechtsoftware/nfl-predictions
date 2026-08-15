@@ -45,6 +45,7 @@ COPY scripts/analyze_selector_resampling.py ./scripts/analyze_selector_resamplin
 COPY scripts/capture_final_forensic_prelock.py ./scripts/capture_final_forensic_prelock.py
 COPY scripts/prepare_final_forensic_freeze.py ./scripts/prepare_final_forensic_freeze.py
 COPY scripts/run_final_forensic_hpcs.py ./scripts/run_final_forensic_hpcs.py
+COPY scripts/run_post_forensic_construction_addendum.py ./scripts/run_post_forensic_construction_addendum.py
 COPY scripts/cleanup_final_forensic_warehouse.py ./scripts/cleanup_final_forensic_warehouse.py
 
 RUN pip install --no-cache-dir ".[gcp,app]"
