@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 10:33 CDT
+## Current state — 2026-08-15 10:35 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -48,9 +48,13 @@ agent or developer:
   implementation record:
   `reports/2026-08-15-latent-role-live-factory-implementation.md`.
 - Its exact clean-archive Cloud Build
-  `c3542ad3-b5b0-4116-9c59-1bde3abfe1f5` is running in `us-central1` with
-  image tag `latent-role-factory-ca96905`. Exact next action: poll it to a
-  terminal state and record its full-suite result and immutable image digest.
+  `c3542ad3-b5b0-4116-9c59-1bde3abfe1f5` completed successfully in
+  `us-central1` at `2026-08-15T15:34:48.632802Z`: 1,455 tests passed, 2 were
+  skipped and 5 existing warnings were emitted in 766.70 seconds. Tag
+  `latent-role-factory-ca96905` resolves to immutable digest
+  `sha256:a55782f5cc5a14da8ee1c7af7c978e5e2e566aba7a70bd3597162a679684151b`.
+  This validates the implementation before the run-cache repair; use the
+  superseding cache-aware build for the eventual smoke.
   Do not deploy or schedule the new runner. Once a real 2026
   Sunday-main DK salary spine and matching inference rows exist, run the
   validated image manually and require complete five-seed source/budget/world,
