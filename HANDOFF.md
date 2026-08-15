@@ -55,9 +55,23 @@ agent or developer:
   The implementation is committed and pushed on `main` at full SHA
   `93e512b2a39b0eb55698fbc8e89f82268d8fa1a0`. Exact-archive Cloud Build
   `8e586bdf-b02a-4fd8-99e2-e9ea5d0384f4` is running under image tag
-  `realistic-recourse-93e512b`. Poll it to terminal; on success record the
-  complete test count and immutable digest, verify both registered GCS objects
-  are absent, then launch the runner exactly once.
+  `realistic-recourse-93e512b` was canceled before completion after a
+  read-only real-data status preflight caught an operational SQL issue: PBP
+  column `desc` is a BigQuery reserved word and needed explicit quoting. No
+  proposal/outcome object was created and no scientific result was read. The
+  operational-only repair quotes and aliases that source column; submit a new
+  exact-commit validation build. The same preflight found nflverse
+  administrative rows (including END GAME markers) without wall-clock time;
+  they are explicitly excluded rather than treated as terminal because the
+  frozen law requires a timestamped terminal row. The receipt counts them,
+  while the separate reconciled scorer continues to abort any untimed
+  scoring-relevant row. This is conservative: an unproven completion remains
+  in-progress. The 54-slate read-only preflight now passes: it maps 597 games
+  and classifies 202 not started, 395 in progress and zero independently
+  timestamp-proven final at 3:55 PM; 3,033 untimed administrative rows are
+  explicitly excluded. On success record the complete test
+  count and immutable digest, verify both registered GCS objects are absent,
+  and launch the runner exactly once.
 
 - The production-exact forensic correction completed successfully as
   execution `post-forensic-stack-addendum-v1-smrps` at

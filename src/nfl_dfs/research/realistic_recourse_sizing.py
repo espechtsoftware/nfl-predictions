@@ -126,8 +126,7 @@ def derive_game_statuses(
         events.time_of_day, format="mixed", errors="coerce", utc=True,
     )
     target = events.game_id.isin(games.game_id)
-    if events.loc[target, "_event_time"].isna().any():
-        raise ValueError("target-game PBP contains an unknown event timestamp")
+    untimed = events.loc[target & events._event_time.isna()].copy()
     unknown = set(events.loc[target, "game_id"]) - set(games.game_id)
     if unknown:
         raise ValueError("recourse PBP contains an unmapped target game")
@@ -169,6 +168,13 @@ def derive_game_statuses(
             for status in ("not_started", "in_progress", "final")
         },
         "status_source": "kickoff_plus_latest_visible_timestamped_pbp",
+        "untimed_rows_excluded": int(len(untimed)),
+        "untimed_terminal_text_rows_excluded": int(
+            untimed["desc"].astype("string").str.lower().str.contains(
+                r"end(?: of)? game", regex=True, na=False,
+            ).sum()
+        ),
+        "untimed_rows_never_used_as_terminal": True,
         "uses_schedule_final_score": False,
     }
 

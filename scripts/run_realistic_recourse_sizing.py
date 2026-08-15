@@ -412,7 +412,7 @@ def run(output_uri: str, proposal_uri: str) -> dict:
     schedules = _prepare_schedule(raw_schedule, forensic_pairs)
     pbp_columns = """
       game_id, season, week, play_id, time_of_day, qtr, game_seconds_remaining,
-      desc, home_team, away_team, total_home_score, total_away_score,
+      `desc`, home_team, away_team, total_home_score, total_away_score,
       passing_yards, pass_touchdown, interception, rushing_yards, rush_touchdown,
       complete_pass, receiving_yards, lateral_receiving_yards,
       lateral_rushing_yards, fumble_lost, two_point_attempt,
@@ -430,7 +430,7 @@ def run(output_uri: str, proposal_uri: str) -> dict:
     pbp = _query(bq, f"""
       SELECT {pbp_columns}
       FROM `{PROJECT}.nfl_raw.pbp`
-      WHERE season IN (2023, 2024, 2025) AND game_type='REG'
+      WHERE season IN (2023, 2024, 2025)
       ORDER BY season, week, game_id, play_id
     """)
     target_game_ids = set(schedules.game_id.astype(str))

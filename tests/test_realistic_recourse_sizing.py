@@ -59,6 +59,31 @@ def test_overtime_zero_is_terminal():
     assert statuses.iloc[0].game_status == "final"
 
 
+def test_untimed_end_game_is_excluded_not_treated_as_terminal():
+    schedules = pd.DataFrame([
+        {"game_id": "tie", "kickoff_utc": "2024-09-08T17:00:00Z"},
+    ])
+    pbp = pd.DataFrame([
+        {
+            "game_id": "tie", "time_of_day": "2024-09-08T19:51:00Z",
+            "play_id": 1, "qtr": 4, "game_seconds_remaining": 0,
+            "total_home_score": 20, "total_away_score": 20, "desc": "end quarter",
+        },
+        {
+            "game_id": "tie", "time_of_day": None,
+            "play_id": 2, "qtr": 5, "game_seconds_remaining": 0,
+            "total_home_score": 20, "total_away_score": 20, "desc": "END GAME",
+        },
+    ])
+    statuses, receipt = derive_game_statuses(
+        schedules, pbp, as_of="2024-09-08T15:55:00-04:00",
+    )
+    assert statuses.iloc[0].game_status == "in_progress"
+    assert receipt["untimed_rows_excluded"] == 1
+    assert receipt["untimed_terminal_text_rows_excluded"] == 1
+    assert receipt["untimed_rows_never_used_as_terminal"] is True
+
+
 def test_combined_seed_worlds_aligns_player_order_and_records_assumption():
     artifacts = {}
     receipts = {}
