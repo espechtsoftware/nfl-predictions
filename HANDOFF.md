@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 01:43 CDT
+## Current state — 2026-08-15 02:10 CDT
 
 ### Final preseason forensic run succeeded; historical queue closed and prospective construction program frozen
 
@@ -263,13 +263,66 @@ agent or developer:
   about accidentally deleting a Python environment while installing Gemini
   CLI: `.venv/bin/python` is Python 3.14.4, project/pandas/BigQuery imports
   succeed and `python -m pip check` reports no broken requirements.
+- The 12 registered incumbent seed-variance executions and repaired analyzer
+  were re-described by their exact durable Cloud Run execution names; all 13
+  remain terminal successful. The harvested mechanical audit remains clean.
+  The incumbent is materially Monte-Carlo sensitive: across R0--R4, selected
+  >=194 spans 3--9, >=210 spans 0--2, mean per-slate best has a 22.31-point
+  range and pairwise exact-80 overlap averages only 12.21/80. Do not rerun
+  these expensive jobs; use paired/multiseed evidence and interpret effects
+  inside that measured noise envelope.
+- The separately licensed finite-usage SIS pass-tail arm is now operationally
+  specified before any 2026 outcome in
+  `reports/2026-08-15-prospective-sis-pass-tail-finite-k-protocol.md` and
+  implemented on `main` at full SHA
+  `15de40206963b5db9e6a4acff0f865833678d44d`. It carries forward the already
+  selected target-2025 control/treatment schedules, exact three SIS fields,
+  `DIRICHLET_K=28.154043586960896`, ASOE beta
+  `0.07771181538347656`, five registered seed pairs, 10,000 worlds and exact
+  80 books. It explicitly forbids CBWU/archetype/route/no-floor composition
+  and never changes the K=1 CBWU money path.
+- New live feature plumbing constructs a target-week spine and aggregates only
+  same-season SIS games with source week `< W`; target/future rows are excluded
+  even on a later rerun, at least two games are required, and QB/WR/TE receive
+  only opponent-team boom, bust and pressure context. Two isolated GPU writers
+  append a previously absent week to
+  `tabpfn_sis_pass_tail_live_control_v1` and
+  `tabpfn_sis_pass_tail_live_treatment_v1` with code, feature-contract and
+  source checksums. Historical write-once and canonical TabPFN tables are not
+  mutated.
+- `nfl-dfs shadow-sis-pass-tail-paired` validates exact cache/source identity,
+  builds all five control/treatment seed pairs, synchronously persists each
+  candidate/world artifact, freezes exact-80 DK memberships and writes one
+  create-only hash-addressed complete-grid manifest. Live simulation now
+  supports the previously replay-only ASOE rank transport through strictly
+  prior target-week Fantasy Points/SIS windows. It fails closed if sources are
+  missing, late, unsupported or the treatment is inert. Weeks 1--4 are an
+  explicit successful no-run; the frozen arm starts no earlier than Week 5.
+- Deployment definitions add two Thursday 9:15/9:20am CT GPU cache schedulers
+  and one Sunday 6:00am CT ten-book shadow scheduler to the forensic
+  cleanup/resume gate. They are definitions only and have not been deployed.
+  The weekly-data schedule now states the remaining operational dependency:
+  before Week 5, convert the historical-only Fantasy Points alignment and SIS
+  team pass-defense/pass-rush plus Wide/Slot acquisitions into bounded
+  provenance-bearing W-4..W-1 recurring imports. Until then the jobs fail
+  closed; there is no historical/cross-season fallback.
+- Forty focused prospective/cache/ASOE/resume/world tests pass locally;
+  compilation, `bash -n` and `git diff --check` pass. Exact-commit Cloud Build
+  `c236134b-b724-4dfb-b05e-d42ec2f9fc4b` was submitted from the clean pushed
+  SHA above at `2026-08-15T07:10Z`; it is queued/running and will publish tag
+  `sis-pass-tail-15de402` only after the complete suite succeeds. No cache,
+  lineup or scoring execution has been launched.
 - Next concrete action: install the proxy package with operator sudo when
-  available and run the authenticated
-  test-artifact rehearsal without exposing an uploadable money file. The first score-free
-  live shadow smoke waits only for complete 2026 pre-lock slate inputs and must
-  validate its receipt before any outcome join. In parallel, preserve the Week
-  1 readiness and forensic cleanup gates. Do not launch another historical
-  score arm and do not delete the repair4 warehouse before independent review.
+  available and run the authenticated test-artifact rehearsal without exposing
+  an uploadable money file. Poll and harvest Cloud Build
+  `c236134b-b724-4dfb-b05e-d42ec2f9fc4b`; deploy only its immutable app image
+  after a complete-suite pass, then build/deploy the isolated GPU image while
+  keeping all three new schedulers paused. Next implement the bounded recurring
+  W-4..W-1 source imports before Week 5. The first score-free live shadows wait
+  for complete 2026 pre-lock slate inputs and must validate receipts before any
+  outcome join. Preserve the Week 1 readiness and forensic cleanup gates. Do
+  not launch another historical score arm and do not delete the repair4
+  warehouse before independent review.
 
 ## Prior state — 2026-08-14 22:18 CDT
 
