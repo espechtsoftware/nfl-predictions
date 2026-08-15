@@ -67,6 +67,16 @@ agent or developer:
   bounded 40--80 exact-world union on every diagnostic, the complete frozen
   six-condition gate and the explicit no-promotion consequence. Eight focused
   ATLAS tests and both shell syntax checks pass.
+  With the exact-P census terminal and its large slot released, the frozen
+  ATLAS diagnostic is now exact Cloud Run execution
+  `atlas-world-ranking-scorefree-v1-8p92l`. It uses previously full-suite-
+  validated ATLAS code `a14f8ade15fb3232189dbb40b027d013ff5a64f1` and
+  immutable digest
+  `sha256:f2e97d1ef2a6c6b88588741850e0886a63d3df6e5d1d5901e187deef16ebc7f5`.
+  Its create-only manifest and execution receipt are tracked under
+  `reports/atlas-world-ranking-runs/20260815-atlas-world-ranking-scorefree-v1/`.
+  Poll this exact score-free execution and use only the strict ATLAS finisher
+  after terminal success; do not launch a competing 32-GiB job while it runs.
   The companion pure CBWU seed-order audit is implemented in
   `inference/multiseed_portfolio.py`. It holds the canonical R0 realized
   candidate budget fixed across all five cyclic first-source/quota orders,
