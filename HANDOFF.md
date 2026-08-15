@@ -20,13 +20,13 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 02:53 CDT
+## Current state — 2026-08-15 03:02 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
-- Branch is `main`; current pushed code is full SHA
-  `e2dcb232844e80efb5c2d2bc02c3c67e0a7f5737`. The immediately preceding
-  recurring-vendor-intake milestone is full SHA
+- Branch is `main`; current pushed implementation code is full SHA
+  `83949e1c10b23b9ccc197b89d29389d71e1e0ddc`. The recurring-vendor-intake
+  milestone is full SHA
   `72261a27f44bc8e9a876dfc5c394517fa2847f32`. No historical outcome/scoring
   arm is active or queued, and none of the new prospective pass-tail resources
   has been executed.
@@ -273,6 +273,13 @@ agent or developer:
 - The 12 registered incumbent seed-variance executions and repaired analyzer
   were re-described by their exact durable Cloud Run execution names; all 13
   remain terminal successful. The harvested mechanical audit remains clean.
+  Retained report
+  `reports/incumbent-seed-variance-runs/20260813-incumbent-seed-variance-v1/report.json`
+  has SHA-256
+  `f93bc17d0dfd6ab63c8b85dde7da524be9b2a9a363c2dd8b423484fc5c4169c5`,
+  `mechanical_passes=true` and an empty failure list. The successful analyzer
+  is `analyze-incumbent-seed-variance-v1-qh9l8`; do not substitute the retained
+  original mechanically failed analyzer `...-kkg6q`.
   The incumbent is materially Monte-Carlo sensitive: across R0--R4, selected
   >=194 spans 3--9, >=210 spans 0--2, mean per-slate best has a 22.31-point
   range and pairwise exact-80 overlap averages only 12.21/80. Do not rerun
@@ -367,20 +374,32 @@ agent or developer:
   warnings were emitted in 757.77 seconds. Published tag
   `weekly-pass-tail-72261a2` resolves to immutable digest
   `sha256:2c2f1009df880fc78ac9e211e6a63859f1c2a250674487b7e386fec3515809f4`.
-- A read-only projected-ownership preflight confirmed that the saved Data Suite
-  session remains healthy, but the separate
-  `www.fantasypoints.com/nfl/projections/dfs/ownership` surface currently
-  presents its own ordinary account sign-in dialog in that browser profile.
-  The login form is mapped without entering or logging credentials. Do not
-  claim the ownership collector or entitlement is validated until the operator
-  authenticates that normal surface and the real 2026 table/export DOM can be
+- The separate projected-ownership authentication bootstrap is implemented at
+  full SHA `83949e1c10b23b9ccc197b89d29389d71e1e0ddc` as CLI
+  `fantasy-points-ownership`. `login --terminal-credentials` uses only the
+  ordinary `www.fantasypoints.com` account dialog and never logs/persists the
+  supplied password; `verify-login` requires the exact 2026 NFL ownership
+  heading, no visible sign-in action **and** a positive first-party
+  `/api/proxy` session UID signal while never retaining the UID itself.
+  `inspect` emits only relevant controls, column headers and table/grid counts;
+  it intentionally captures no player rows. The existing Data Suite session
+  is healthy, but the normal ownership surface is currently signed out, and
+  the live verifier fails closed with exit 2 as designed. Thirty-seven focused
+  ownership/download/weekly-workflow tests, module compilation and
+  `git diff --check` pass locally. Exact clean-archive Cloud Build
+  `8b2b5af3-b734-46bb-b891-be1a0459c0eb` is validating that code SHA and will
+  publish tag `fp-ownership-auth-83949e1` only after the complete suite passes.
+  Do not claim row collection or entitlement is validated until the operator
+  authenticates this normal surface and the real 2026 table/export DOM is
   frozen; the Data Suite cookie alone is not sufficient.
 - Next concrete action: the first authenticated pass-tail acquisition smoke
   cannot occur until complete 2026 Weeks 1--4 data exist; until then every
   downstream cache/shadow fails closed and all three schedulers stay paused.
-  Continue the projected-ownership collector by authenticating its separate
-  normal website session, then freeze the real row/export contract before the
-  first 2026 snapshot. Separately, install the Cloud Run proxy package with
+  Poll/harvest Cloud Build `8b2b5af3-b734-46bb-b891-be1a0459c0eb`. Continue
+  the projected-ownership collector by authenticating its separate normal
+  website session, then run `fantasy-points-ownership inspect` and freeze the
+  real row/export contract before the first 2026 snapshot. Separately, install
+  the Cloud Run proxy package with
   operator sudo when available and run the outcome-free recourse rehearsal
   through authenticated IAP. Preserve the Week 1 readiness and forensic
   cleanup gates, do not launch another historical score arm, and do not delete
