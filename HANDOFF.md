@@ -953,6 +953,14 @@ agent or developer:
   from full commit `81b5c6e97c519babb8d7bb711c915ca70a2a51ba` under tag
   `atlas-repair1-81b5c6e`. Require the full suite and immutable digest before
   retrying ATLAS; do not reuse its failed image.
+  The ATLAS repair build completed successfully at
+  `2026-08-15T23:07:58.422786Z`: 1,531 tests passed, 2 skipped and 5 warnings
+  in 771.89 seconds. Its immutable digest is
+  `sha256:ac5d31bba3fa300301bf5a08d694f384f1cc16c2f232109f61f200b0c7768549`.
+  This validates exact repair code
+  `81b5c6e97c519babb8d7bb711c915ca70a2a51ba`. The retry is ready, but must
+  wait until exact construction execution
+  `cbwu-oi-construction-diagnostic-v1-4rr8d` releases the single 32-GiB slot.
   A follow-on review incorrectly treated CBWU-OI as an in-place production
   change. It is an inactive research function with no production call site;
   requiring identity to canonical CBWU would also contradict its frozen strict
