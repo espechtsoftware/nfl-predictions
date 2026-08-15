@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 16:16 CDT
+## Current state — 2026-08-15 16:56 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -751,10 +751,21 @@ agent or developer:
   `sha256:82d829fc22ffcb96c2663d81f5f5ad3ee259aa3ca6b6c7b2bca2221bbf959b2d`.
   Manifest and execution receipt are tracked under
   `reports/cbwu-order-invariant-runs/20260815-cbwu-order-invariant-repair-v1/`.
-  Poll it to terminal state; on success run
-  `scripts/cloud_finish_cbwu_order_invariant_repair.sh` and retain only the
-  checksum-verified create-once result. No historical outcome is available to
-  this run and no result can directly change production.
+  It completed successfully at `2026-08-15T21:53:13.414997Z` in 35m38s, and
+  `scripts/cloud_finish_cbwu_order_invariant_repair.sh` strictly harvested the
+  create-once report at SHA-256
+  `556adeca6e0bf2855ad82296b1e708041a20446dc27e2c988c1d11e8c5bd4d33`.
+  Machine disposition is `cbwu-oi-scorefree-gate-passes`: all 54 slates and
+  216 noncanonical rotations have exact treatment candidate/selected
+  identities, every book has exactly 80 entries, mean selected-world coverage
+  improves by `0.0501862963`, every one of the five registered blocks improves
+  (`0.049854`--`0.050470`), and pair/triple coverage ratios are
+  `1.0728472`/`1.0787564`. No historical outcome was available. This is an
+  outcome-free construction success, not scoring evidence; production remains
+  `classic-k1-role12-boom40-poscal-cbwu-v4`. It licenses only a separately
+  identified pre-lock 2026 shadow and order-invariant ATLAS/exact-N inputs.
+  The concise result is in
+  `reports/2026-08-15-cbwu-order-invariant-repair-result.md`.
   A follow-on review incorrectly treated CBWU-OI as an in-place production
   change. It is an inactive research function with no production call site;
   requiring identity to canonical CBWU would also contradict its frozen strict
