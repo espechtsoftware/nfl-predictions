@@ -719,6 +719,16 @@ agent or developer:
   suite remains ten passing tests. Wire this preflight to the repaired cloud
   runner only after the full identity artifact supplies its immutable
   generation/SHA; do not rebuild or launch the full census ahead of that bind.
+  The repaired source1 census runner, staged launcher and strict finisher are
+  now wired locally as well. They load the hash/generation-pinned identity-only
+  object instead of repair4 layer P. The launcher refuses both stages until the
+  strict full identity harvest exists; full census additionally requires the
+  exact same source receipt to have passed the 2023 plumbing preflight. The
+  preflight output cannot contain records, disposition, membership, distances,
+  yield or loss stages. Twelve combined source/census/construction tests,
+  compilation, three shell syntax checks and whitespace validation pass. Keep
+  this code unbuilt until the full identity artifact provides the exact receipt
+  that its eventual immutable census image must bind.
   While that source repair is reconciled, the now-free slot was used for the
   independent, already-frozen CBWU order-invariant repair. Its exact
   create-only execution is `cbwu-order-invariant-repair-v1-xdxsd`, launched

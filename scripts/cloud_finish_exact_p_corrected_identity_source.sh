@@ -68,4 +68,6 @@ PY
 mv "$TMP" "$OUT/report.json"
 trap - EXIT
 sha256sum "$OUT/report.json" > "$OUT/report.sha256"
+gcloud storage objects describe "$OUTPUT_URI" --project "$PROJECT" \
+  --format='value(generation)' > "$OUT/generation.txt"
 echo "EXACT_P_CORRECTED_IDENTITIES_HARVESTED $EXEC"

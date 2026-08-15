@@ -162,6 +162,10 @@ def test_cloud_runner_does_not_use_reserved_rows_alias():
 
     assert "COUNT(*) AS rows" not in source
     assert "COUNT(*) AS row_count" in source
+    assert "_load_corrected_identities" in source
+    assert "oracle_rosters_repair4`\n        WHERE" not in source
+    assert "--identity-generation" in source
+    assert "validate_exact_p_census_plumbing" in source
 
 
 def test_exact_p_census_finisher_is_strict_and_create_only():
@@ -174,3 +178,22 @@ def test_exact_p_census_finisher_is_strict_and_create_only():
     assert "production_change_licensed" in source
     assert "sum(int(value) for value in loss.values()) != 54" in source
     assert "exact_p_in_retained_cbwu" in source
+
+
+def test_corrected_source_census_launcher_requires_narrow_preflight():
+    launch = Path(
+        "scripts/cloud_exact_p_generator_census_source1.sh"
+    ).read_text(encoding="utf-8")
+    finish = Path(
+        "scripts/cloud_finish_exact_p_generator_census_source1.sh"
+    ).read_text(encoding="utf-8")
+    identity_finish = Path(
+        "scripts/cloud_finish_exact_p_corrected_identity_source.sh"
+    ).read_text(encoding="utf-8")
+
+    assert "strict exact-P census plumbing preflight is absent" in launch
+    assert "strict full corrected-identity harvest is absent" in launch
+    assert "identity_generation" in launch
+    assert "membership_or_distance_values_persisted" in finish
+    assert '"disposition" in r' in finish
+    assert "generation.txt" in identity_finish
