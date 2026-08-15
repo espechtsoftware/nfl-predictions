@@ -758,6 +758,13 @@ agent or developer:
   `3ee4231b72c4b9ad6920972c9560885470a01bfd`; use it first for only the
   required 2023 plumbing preflight. A successful strict preflight harvest is
   still required before the full 54-slate source1 census may launch.
+  The required 2023-only plumbing stage is now exact Cloud Run execution
+  `exact-p-generator-census-preflight-5h68r`. Its create-only manifest and
+  execution receipt are tracked under
+  `reports/exact-p-generator-census-runs/20260815-exact-p-generator-constraint-census-v1-source1/preflight-2023/`.
+  Poll that exact execution and run the strict source1 finisher only after it
+  is terminal; do not launch the full census unless the harvested receipt
+  proves the frozen 18-slate, score-free, result-suppressing preflight contract.
   The second requested narrow check is also implemented as the pure
   `validate_exact_p_census_plumbing` preflight. On exactly the 18 2023 slates
   it audits corrected-P legality, all five native books, family labels and
