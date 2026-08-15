@@ -12,7 +12,7 @@ OUTPUT_URI=gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$ROOT/reports/cbwu-order-invariant-runs/$RUN_ID"
 PROTOCOL="$ROOT/reports/2026-08-15-cbwu-seed-order-result-and-repair-protocol.md"
-PROTOCOL_SHA=5265d305fd77971287f75f69c6becf4e866d8d51767e22eda3e78420f7c8157b
+PROTOCOL_SHA=0e341130ffbdf66f7ae7ef4b3917e4da4d116df7dbcc54c631d3151c26cbec48
 
 IMAGE=${1:-}
 CODE_SHA=${2:-}

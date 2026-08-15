@@ -39,7 +39,7 @@ CBWU_OI_PROTOCOL = (
     "reports/2026-08-15-cbwu-seed-order-result-and-repair-protocol.md"
 )
 CBWU_OI_PROTOCOL_SHA256 = (
-    "5265d305fd77971287f75f69c6becf4e866d8d51767e22eda3e78420f7c8157b"
+    "0e341130ffbdf66f7ae7ef4b3917e4da4d116df7dbcc54c631d3151c26cbec48"
 )
 SOURCE_PANEL_IDS = tuple(
     f"20260813-sis-asoe-treatment-r{seed}-v1" for seed in range(5)
