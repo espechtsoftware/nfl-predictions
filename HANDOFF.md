@@ -136,10 +136,12 @@ agent or developer:
   and freezes aggregate 194 coverage, five-block support, pair/triple
   retention, identity and exact-count conditions. Seventeen focused mechanism
   and execution tests pass; Python compilation, both shell syntax checks,
-  protocol hash and whitespace validation pass. Next: commit/push, exact-image
-  build, then run the create-only CBWU-OI audit when the SIS job releases
-  sufficient compute. ATLAS and exact-N must not inherit order-sensitive CBWU
-  inputs.
+  protocol hash and whitespace validation pass. The repair is pushed at exact
+  commit `0cc24eb`; exact-archive Cloud Build
+  `1f921d00-35af-45d3-a8f6-ab9af91d9b3e` is queued for tag
+  `cbwu-oi-0cc24eb`. Require the full suite and immutable digest before running
+  the create-only CBWU-OI audit, and do not let it displace the active SIS
+  reference. ATLAS and exact-N must not inherit order-sensitive CBWU inputs.
 - The review's live-inactive concern was a real money-path correctness defect:
   sim mode rebuilt nonzero draws without the stored-projection cascade/zero
   path, and salary-list `allowed_ids` did not imply active status. The live
