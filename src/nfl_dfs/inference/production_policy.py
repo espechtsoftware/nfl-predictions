@@ -328,6 +328,14 @@ class ClassicProductionPolicy:
                     * self.multiseed_worlds_per_block),
                 "fail_closed": True,
             },
+            "simulation_law": {
+                "game_mode": "possession",
+                "team_factors": True,
+                "usage_allocation": "production-multinomial",
+                "game_sim_usage_env": "",
+                "dirichlet_k": None,
+                "td_ledger": False,
+            },
         }
 
 

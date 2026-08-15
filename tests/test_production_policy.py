@@ -124,3 +124,11 @@ def test_public_identity_exposes_fixed_budget_five_by_five_contract():
         "fail_closed": True,
     }
     assert identity["entries"] == 40
+    assert identity["simulation_law"] == {
+        "game_mode": "possession",
+        "team_factors": True,
+        "usage_allocation": "production-multinomial",
+        "game_sim_usage_env": "",
+        "dirichlet_k": None,
+        "td_ledger": False,
+    }

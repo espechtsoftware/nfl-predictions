@@ -33,6 +33,7 @@ def live_slate(panel):
     rows["opponent"] = [f"T{i ^ 1}" for i in team_ix]
     rows["game_id"] = [f"g{i // 2}" for i in team_ix]
     rows["game_total"] = 45.0
+    rows["status"] = None
     return rows
 
 
@@ -89,6 +90,20 @@ def test_live_build_chain_offline(monkeypatch, panel, live_slate):
     slate, _ = live_lineups.build_slate_with_draws(
         season, 3, n_sims=20, seed=7, salary_overrides={100: 4321})
     assert int(slate.loc[slate.id == 100, "salary"].iloc[0]) == 4321
+
+    # The stored projection path retains known inactive rows at zero, but the
+    # live simulator must exclude them before component sampling.  A selected
+    # DK slate still lists O/IR players, so allowed_ids cannot be the gate.
+    out_index = live_slate.index[live_slate.position.eq("WR")][0]
+    out_id = int(live_slate.loc[out_index, "dk_player_id"])
+    live_slate.loc[out_index, "status"] = "O"
+    active_skill = len(live_slate) - 1
+    inactive_slate, inactive_draws = live_lineups.build_slate_with_draws(
+        season, 3, n_sims=20, seed=7,
+        allowed_ids=set(live_slate.dk_player_id.astype(int)) | {out_id},
+    )
+    assert out_id not in set(inactive_slate.id)
+    assert inactive_draws.shape == (active_skill, 20)
 
 
 def test_adopted_policy_builds_true80_dk_csv(monkeypatch, panel, live_slate):

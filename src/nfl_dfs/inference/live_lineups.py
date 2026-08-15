@@ -42,6 +42,42 @@ class LatentRoleUnavailable(RuntimeError):
     """The prospective latent-role shadow could not build its frozen book."""
 
 
+def _apply_live_inactive_policy(
+    skill: pd.DataFrame, season: int,
+) -> tuple[pd.DataFrame, tuple[str, ...]]:
+    """Redistribute known-vacated usage, then remove inactive slate rows.
+
+    Stored projection snapshots retain O/IR rows at zero for auditing.  A
+    live simulation book has a different contract: those rows must not enter
+    the component sampler or any legal-lineup pool.  Status exclusion is
+    therefore driven directly by the current DK/injury columns and remains
+    effective even if the historical cascade inputs are unavailable.
+    """
+    from . import cascade_adjust
+    from .run_projections import _cascade_adjuster
+
+    out_ids = tuple(cascade_adjust.find_out_players(skill))
+    if not out_ids:
+        return skill, out_ids
+
+    adjusted = skill
+    adjust = _cascade_adjuster(int(season))
+    if adjust is not None:
+        adjusted, adjusted_ids = adjust(skill)
+        if set(adjusted_ids) != set(out_ids):
+            raise RuntimeError(
+                "live inactive cascade disagrees with current slate status"
+            )
+    active = adjusted[~adjusted.gsis_id.isin(out_ids)].reset_index(drop=True)
+    if active.empty:
+        raise RuntimeError("live inactive policy removed every skill player")
+    log.info(
+        "live inactive policy excluded %d player(s) before simulation: %s",
+        len(out_ids), ", ".join(out_ids),
+    )
+    return active, out_ids
+
+
 def _log_ownership_shadow(
     frame: pd.DataFrame,
     own: np.ndarray,
@@ -158,6 +194,7 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     skill = feats[feats.dk_position.isin(["QB", "RB", "WR", "TE"])] \
         .reset_index(drop=True)
     skill = coldstart.fill_cold_start_features(skill)
+    skill, _ = _apply_live_inactive_policy(skill, season)
     if route_source_policy:
         from .route_share_shadow import apply_live_route_policy
 

@@ -24,6 +24,42 @@ agent or developer:
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
+- The independent construction review in
+  `reports/2026-08-15-independent-tail-scoring-review.md` is reconciled into
+  the executable queue at
+  `reports/2026-08-15-independent-tail-scoring-reconciliation-and-queue.md`.
+  Its central construction diagnosis is accepted: ATLAS is the highest-
+  priority new mechanism, starting with a score-free total-slate-versus-
+  attainable-world rank diagnostic and then one fixed 8-cluster by 5-near-
+  optimum, pair-coverage MVP at the same 40-boom candidate allocation. Exact
+  N, CBWU seed-order, constraint-lattice, stack-core/shell, option-valued
+  recourse and sparse-ledger work are explicitly separated so results cannot
+  be combined post hoc. A literal rerun of the current greedy selector at
+  smaller N is prefix-identical; the useful small-book test must be a newly
+  frozen cardinality-aware treatment against that control. No strategy change
+  is historically licensed; 2026 books must be frozen before kickoff.
+- The review's live-inactive concern was a real money-path correctness defect:
+  sim mode rebuilt nonzero draws without the stored-projection cascade/zero
+  path, and salary-list `allowed_ids` did not imply active status. The live
+  builder now detects current O/OUT/IR rows, applies the existing vacated-usage
+  cascade when its history is available, and excludes every known inactive
+  before component prediction/simulation even when cascade history is
+  unavailable. It fails on status/cascade disagreement. An end-to-end fixture
+  keeps an O player in the allowed salary IDs and requires that the player be
+  absent from the simulator.
+  Twenty-seven focused live/policy/cascade/multiseed tests pass, both changed
+  modules compile and `git diff --check` passes. The pre-existing full adopted
+  true-80 live smoke is intentionally left to Cloud Build because it is a
+  sustained optimization test; no local heavy validation is licensed.
+- The review's production-law contradiction is also confirmed as a narrative
+  and receipt defect, not authorization to change simulation. The adopted
+  money policy explicitly uses production-multinomial opportunity allocation
+  (`GAME_SIM_USAGE=""`, no Dirichlet K); fitted K=28.154043586960896 is a
+  separate historical research/reference law. `public_identity()` now emits
+  the effective possession/team-factor/usage/TD-ledger law. Do not enable
+  Dirichlet. Remeasure dependence under the exact money receipt before any
+  sparse pass-event ledger is designed.
+
 - The user raised a new overtime-duration mechanism before any project OT
   frequency, fantasy uplift or odds-prediction result was queried. The complete
   pre-result design is frozen in
