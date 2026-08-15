@@ -24,6 +24,19 @@ agent or developer:
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
+- The user raised a new overtime-duration mechanism before any project OT
+  frequency, fantasy uplift or odds-prediction result was queried. The complete
+  pre-result design is frozen in
+  `reports/2026-08-15-overtime-fantasy-and-vegas-protocol.md` at SHA-256
+  `70ec0c1af2b0d6d3fc985261b5e74dcb8a2b4f20262fce716e8eaebf1f29f757`.
+  It excludes every pre-2022 season, uses 2022--2024 regular games only to fit
+  the probability of reaching a regulation tie, holds out 2025 regular games,
+  estimates fantasy uplift only from 2025 current-rule overtime PBP, and keeps
+  2022--2025 postseason results separate. A passing result can license only a
+  separate mean- and marginal-preserving shared-duration simulation arm using
+  pre-lock Odds API data; it cannot add points or alter production directly.
+  Exact next action is a small deterministic BQ/scorer runner and tests, then
+  one result execution under the frozen disposition.
 - The external post-forensic review has now been converted into a pre-value
   frozen SIS receiver-specific copula protocol at
   `reports/2026-08-15-sis-receiver-copula-protocol.md`. It confines SIS to a
@@ -84,8 +97,11 @@ agent or developer:
   both frozen zero minima after the final season/week selection and immediately
   before every Submit; it does not alter the request grid, source fields or
   scientific protocol. All 38 downloader tests, Python compilation and
-  `git diff --check` pass locally. Build and require the exact repair revision
-  to pass before spending the third bounded request.
+  `git diff --check` pass locally. The repair is committed and pushed at exact
+  full SHA `f40a406e7fff24e3aa96844a07c9f039c8a30145`; exact-archive Cloud Build
+  `2994c984-eeaa-4c20-b667-a75b53cda17f` is queued in `us-central1` under tag
+  `receiver-copula-minima-f40a406`. Require it to pass before spending the
+  third bounded request.
 - Independently of that still-running downloader build, the manifest-locked
   receiver-copula importer and PIT context builder are implemented locally.
   They reproduce the acquisition result, preserve defender/team IDs, parse
