@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 00:18 CDT
+## Current state — 2026-08-15 01:17 CDT
 
 ### Final preseason forensic run succeeded; historical queue closed and prospective construction program frozen
 
@@ -226,12 +226,33 @@ agent or developer:
   `s-shadow-archetype-paired-late` (`30 10 * * 7`) both target that job in
   `America/Chicago` and were verified `PAUSED`. The forensic cleanup/resume
   gate now owns their activation with the other 22 seasonal schedulers.
+- The IAP-protected app was updated to the same validated digest as revision
+  `nfl-dfs-app-recourse`; it became healthy at `2026-08-15T06:09:28.492983Z`
+  and now receives 100% of traffic. An authenticated command-line response
+  smoke is still pending: this workstation lacks the packaged Cloud Run proxy,
+  user ADC cannot mint an arbitrary-audience IAP token, and the active user is
+  intentionally not granted service-account impersonation. System install
+  `sudo apt-get install -y google-cloud-cli-cloud-run-proxy` requires the
+  operator's interactive sudo password. Browser IAP access and revision
+  health are unaffected.
+- A follow-on no-file rehearsal layer is implemented in the current milestone
+  but not yet cloud-validated/deployed. `fill_entry_assignments_csv` binds each
+  proposed roster to its exact Entry ID instead of applying ordinary
+  cross-entry churn assignment; it preserves marker/kickoff locks, fills hard
+  slots before FLEX, and immediately runs the strict upload validator. New
+  `POST /lineups/entries/recourse/rehearsal` executes the full proposal/fill/
+  validation path but returns only receipts, byte counts and source/generated
+  SHA-256 values. It never returns CSV bytes and keeps
+  `upload_licensed=false`. Twenty-six focused world/late-swap/recourse/policy/
+  view tests pass; module compilation and `git diff --check` also pass.
 - The local repository `.venv` remains healthy despite the user's concern
   about accidentally deleting a Python environment while installing Gemini
   CLI: `.venv/bin/python` is Python 3.14.4, project/pandas/BigQuery imports
   succeed and `python -m pip check` reports no broken requirements.
-- Next concrete action: run an authenticated test-artifact UI-to-CSV rehearsal
-  without using or exposing an uploadable money file. The first score-free
+- Next concrete action: commit/push and exact-commit cloud-validate the
+  no-file rehearsal layer, then update the app revision. Install the proxy
+  package with operator sudo when available and run the authenticated
+  test-artifact rehearsal without exposing an uploadable money file. The first score-free
   live shadow smoke waits only for complete 2026 pre-lock slate inputs and must
   validate its receipt before any outcome join. In parallel, preserve the Week
   1 readiness and forensic cleanup gates. Do not launch another historical

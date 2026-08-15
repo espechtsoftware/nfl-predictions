@@ -10,6 +10,7 @@ from nfl_dfs.optimizer.late_swap import (
     build_recourse_state,
     classify_entry_reach,
     entry_rosters_from_csv,
+    fill_entry_assignments_csv,
     propose_recourse_rosters,
     validate_information_as_of,
     validate_swap_upload,
@@ -132,6 +133,34 @@ def test_frozen_reach_probability_bands():
 def test_filled_entries_resolve_to_roster_ids():
     rosters = entry_rosters_from_csv(_csv(), _catalog())
     assert rosters == {"e1": ["1", "3", "4", "6", "7", "8", "10", "5", "11"]}
+
+
+def test_exact_recourse_assignment_fills_and_validates_without_reassignment():
+    assigned = {
+        "e1": ["1", "3", "4", "6", "7", "9", "10", "5", "11"],
+    }
+    filled, receipt = fill_entry_assignments_csv(
+        _csv(),
+        assigned,
+        _catalog(),
+        as_of="2026-09-13T14:00:00-05:00",
+    )
+    assert "QB A (LOCKED)" in filled
+    assert "RB A (LOCKED)" in filled
+    assert "WR D (9)" in filled
+    assert receipt["valid"] is True
+    assert receipt["entries"] == 1
+    assert receipt["changed_slots"] == 1
+    assert receipt["locked_slots"] == 2
+
+    assigned["e1"] = ["2", "3", "4", "6", "7", "9", "10", "5", "11"]
+    with pytest.raises(ValueError, match="changes locked player"):
+        fill_entry_assignments_csv(
+            _csv(),
+            assigned,
+            _catalog(),
+            as_of="2026-09-13T14:00:00-05:00",
+        )
 
 
 def _recourse_fixture(qb_kickoff="2026-09-13T17:00:00Z"):

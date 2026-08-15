@@ -555,6 +555,113 @@ def entry_rosters_from_csv(
     return rosters
 
 
+def fill_entry_assignments_csv(
+    entries_csv: str,
+    assignments: Mapping[str, Sequence[str | int]],
+    player_catalog: pd.DataFrame,
+    *,
+    as_of,
+) -> tuple[str, dict]:
+    """Fill exact entry-id assignments, then run the strict upload validator.
+
+    Unlike the ordinary lineup exporter, this function never reassigns one
+    proposed roster to another entry to minimize churn. The recourse policy's
+    entry-specific locks and objective therefore remain bound to the exact DK
+    Entry ID for which they were evaluated.
+    """
+    current = _aware_timestamp(as_of, "recourse assignment as-of")
+    rows = list(csv.reader(io.StringIO(entries_csv)))
+    header_index, first_slot, slots = _entries_layout(rows)
+    if slots != ["QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST"]:
+        raise ValueError("recourse assignments do not use classic DK slots")
+    entry_rows: dict[str, list[str]] = {}
+    for row in rows[header_index + 1:]:
+        if not row or not row[0].strip():
+            continue
+        entry_id = row[0].strip()
+        if entry_id in entry_rows:
+            raise ValueError(f"DKEntries repeats entry id {entry_id}")
+        if len(row) < first_slot + len(slots):
+            row.extend([""] * (first_slot + len(slots) - len(row)))
+        entry_rows[entry_id] = row
+    normalized_assignments = {
+        str(entry_id): [str(player_id) for player_id in roster]
+        for entry_id, roster in assignments.items()
+    }
+    if set(normalized_assignments) != set(entry_rows):
+        raise ValueError("recourse assignments differ from DK entry ids")
+
+    catalog = _recourse_catalog(player_catalog)
+    by_id, by_name = _catalog_lookups(player_catalog)
+    current_utc = current.tz_convert("UTC")
+    for entry_id, row in entry_rows.items():
+        assigned = _normalize_classic_roster(
+            normalized_assignments[entry_id],
+            catalog,
+            f"recourse assignment {entry_id}",
+        )
+        remaining = {player_id: by_id[player_id] for player_id in assigned}
+        before_cells = row[first_slot:first_slot + len(slots)]
+        before_players = [
+            _resolve_cell(cell, by_id, by_name) for cell in before_cells
+        ]
+        locked_indexes = []
+        for index, (cell, player) in enumerate(
+            zip(before_cells, before_players, strict=True)
+        ):
+            locked = _is_locked(cell) or player["_kickoff"] <= current_utc
+            if not locked:
+                continue
+            player_id = str(player["dk_id"])
+            if player_id not in remaining:
+                raise ValueError(
+                    f"recourse assignment changes locked player in {entry_id}"
+                )
+            locked_indexes.append(index)
+            remaining.pop(player_id)
+
+        open_indexes = [
+            index for index in range(len(slots)) if index not in locked_indexes
+        ]
+        # Hard position slots first, FLEX last. Within a slot, retain the
+        # current player when possible, then use stable DK-id order.
+        for index in sorted(
+            open_indexes,
+            key=lambda value: slots[value].upper() in {"FLEX", "UTIL"},
+        ):
+            slot = slots[index]
+            before_id = str(before_players[index]["dk_id"])
+            eligible = [
+                player for player in remaining.values()
+                if _position_fits(player["pos"], slot)
+            ]
+            if not eligible:
+                raise ValueError(
+                    f"recourse assignment cannot fill {slot} in {entry_id}"
+                )
+            player = next(
+                (candidate for candidate in eligible
+                 if str(candidate["dk_id"]) == before_id),
+                min(eligible, key=lambda candidate: str(candidate["dk_id"])),
+            )
+            player_id = str(player["dk_id"])
+            row[first_slot + index] = f"{player['name']} ({player_id})"
+            remaining.pop(player_id)
+        if remaining:
+            raise ValueError(f"recourse assignment left players in {entry_id}")
+
+    buffer = io.StringIO()
+    csv.writer(buffer).writerows(rows)
+    filled_csv = buffer.getvalue()
+    receipt = validate_swap_upload(
+        entries_csv,
+        filled_csv,
+        player_catalog,
+        as_of=current,
+    )
+    return filled_csv, receipt
+
+
 def _position_fits(position: str, slot: str) -> bool:
     position = str(position).upper()
     slot = str(slot).upper()
@@ -678,6 +785,7 @@ __all__ = [
     "build_recourse_state",
     "classify_entry_reach",
     "entry_rosters_from_csv",
+    "fill_entry_assignments_csv",
     "propose_recourse_rosters",
     "validate_information_as_of",
     "validate_swap_upload",

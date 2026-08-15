@@ -708,6 +708,7 @@ def test_prospective_recourse_preview_is_checksum_and_slate_bound(
             "as_of": pd.Timestamp(as_of).isoformat(),
             "changed_entries": 0,
             "changes": [],
+            "assignments": entries,
         }
 
     monkeypatch.setattr(
@@ -731,6 +732,25 @@ def test_prospective_recourse_preview_is_checksum_and_slate_bound(
     assert body["next_upload_deadline"] == "2025-09-21T17:00:00+00:00"
     assert set(captured["entries"]) == {"4111111"}
     assert captured["status"].empty
+
+    rehearsal = classic_client.post(
+        "/lineups/entries/recourse/rehearsal",
+        json={
+            "entries_csv": entered.text,
+            "draft_group_id": 8200,
+            "artifact_uri": uri,
+            "artifact_sha256": "a" * 64,
+            "status_information": [],
+        },
+    )
+    assert rehearsal.status_code == 200, rehearsal.text
+    rehearsal_body = rehearsal.json()
+    assert rehearsal_body["validation_receipt"]["valid"] is True
+    assert rehearsal_body["generated_csv_returned"] is False
+    assert rehearsal_body["source_csv_bytes"] == len(entered.text.encode("utf-8"))
+    assert rehearsal_body["generated_csv_bytes"] > 0
+    assert len(rehearsal_body["generated_csv_sha256"]) == 64
+    assert "generated_csv" not in rehearsal_body
 
     rejected = classic_client.post(
         "/lineups/entries/recourse/preview",
@@ -803,6 +823,8 @@ def test_lineups_view_page(client):
     assert "Prospective late-swap preview" in r.text
     assert "Current filled DKEntries.csv" in r.text
     assert "/lineups/entries/recourse/preview" in r.text
+    assert "/lineups/entries/recourse/rehearsal" in r.text
+    assert "Rehearse fill + validation" in r.text
     assert "upload remains blocked" in r.text
 
 
