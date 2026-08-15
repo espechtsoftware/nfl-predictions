@@ -59,6 +59,13 @@ agent or developer:
   `us-central1`, require the full suite to pass, run the create-only same-image
   scorer reconciliation, and only after that succeeds launch the one-task,
   zero-retry realistic-recourse execution from the same digest.
+  The repair/amendment is committed and pushed at full SHA
+  `73374a2501bdf5093f7b6acbc93cb482cd45b6ef`. Exact-archive replacement
+  Cloud Build `7109e30d-c14f-478e-97a5-ed8c1f1b18e4` is running in
+  `us-central1` under tag `realistic-recourse-73374a2`. Poll it through
+  terminal status; on success record the full-suite result and immutable
+  digest, then use that exact code/image for both scorer reconciliation and
+  the scientific run.
 
 - The full scorer validation is terminal-successful. Cloud Build
   `4c2fe3b0-6f36-4d39-baf8-4df829316e7f` ran from exact pushed SHA
