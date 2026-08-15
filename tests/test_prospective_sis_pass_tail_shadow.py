@@ -176,5 +176,6 @@ def test_live_gpu_writer_and_deployment_are_isolated_and_append_only():
     assert "tabpfn_projections" not in generator
     assert "TABPFN_UPCOMING=auto" in deploy
     assert "--gpu 1" in deploy
+    assert 'scheduler jobs pause "$scheduler"' in deploy
     assert "live_shadow.py" in dockerfile
     assert "shadow-sis-pass-tail-paired" in jobs

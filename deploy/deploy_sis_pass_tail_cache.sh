@@ -36,6 +36,9 @@ deploy_arm() {
     --http-method POST --oauth-service-account-email "$SA" 2>/dev/null || \
   gcloud scheduler jobs update http "$scheduler" --location "$REGION" \
     --schedule "${minute} 9 * * 4" --time-zone America/Chicago
+  # These resources are installed during the preseason but may not run until
+  # the manifest-bound forensic cleanup/resume gate explicitly admits them.
+  gcloud scheduler jobs pause "$scheduler" --location "$REGION" --quiet
 }
 
 deploy_arm control
@@ -43,4 +46,3 @@ deploy_arm treatment
 
 echo "Deployed prospective SIS pass-tail cache pair at ${IMAGE}."
 echo "Keep both schedulers paused until the forensic cleanup/resume gate."
-

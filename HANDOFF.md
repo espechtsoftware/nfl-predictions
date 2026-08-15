@@ -300,7 +300,9 @@ agent or developer:
   explicit successful no-run; the frozen arm starts no earlier than Week 5.
 - Deployment definitions add two Thursday 9:15/9:20am CT GPU cache schedulers
   and one Sunday 6:00am CT ten-book shadow scheduler to the forensic
-  cleanup/resume gate. They are definitions only and have not been deployed.
+  cleanup/resume gate. The dedicated GPU deploy script pauses both cache
+  schedulers immediately after create/update. They are definitions only and
+  have not been deployed.
   The weekly-data schedule now states the remaining operational dependency:
   before Week 5, convert the historical-only Fantasy Points alignment and SIS
   team pass-defense/pass-rush plus Wide/Slot acquisitions into bounded
