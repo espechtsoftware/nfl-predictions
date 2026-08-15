@@ -78,6 +78,11 @@ agent or developer:
   and the diff is clean. Calibration selection, fresh repaired-path reference
   execution and the held-out gate remain to implement after source acquisition
   closes cleanly.
+  The importer/context/treatment code is committed and pushed at exact full
+  SHA `0673d2d5eaf175aa080cefe115467019f7c48c2a`. Exact-archive Cloud Build
+  `02d6aaa7-5b71-4441-8c8c-0e7432c229ec` is running in `us-central1` with tag
+  `receiver-copula-treatment-0673d2d`; it is independent of the earlier exact
+  downloader build and must pass before any BigQuery write or model gate.
 
 - The frozen prospective latent-role mechanism now has its previously missing
   real score-free scenario factory and separately named paired runner. The
