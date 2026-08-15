@@ -262,6 +262,33 @@ def test_fresh_reference_rejects_repeat_drift_and_wrong_terminal():
     assert not result["terminal_contract_exact"]
 
 
+def test_fresh_reference_rejects_noncanonical_player_order():
+    frame, draws, terminal = _reference_fixture()
+    frame = frame.iloc[[2, 0, 1]].reset_index(drop=True)
+    draws = draws[[2, 0, 1]]
+    result = copula.reference_invariants(
+        frame, draws, terminal,
+        frame.copy(), draws.copy(), copy.deepcopy(terminal),
+        expected_terminal_rows=3, expected_slates=3, expected_worlds=4,
+    )
+    assert not result["passes"]
+    assert not result["canonical_player_order"]
+
+
+def test_control_scorebook_comparison_allows_only_tiny_float_noise():
+    left = {"cell": [{"supported": True, "value": 0.2}], "rows": 10}
+    right = {"cell": [{"supported": True, "value": 0.2 + 5e-16}], "rows": 10}
+    result = copula.compare_control_scorebooks(left, right)
+    assert result["passes"]
+    assert result["float_differences"] == 1
+    assert result["maximum_absolute_difference"] < 1e-12
+
+    right["rows"] = 11
+    result = copula.compare_control_scorebooks(left, right)
+    assert not result["passes"]
+    assert result["failures"] == ["score/rows:value"]
+
+
 def test_reference_terminal_and_scoring_populations_have_distinct_grains():
     """The full draw book is larger than the relationship-scoring subset."""
     assert copula.REFERENCE_TERMINAL_ROWS == 15_396

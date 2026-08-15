@@ -13,11 +13,13 @@ JOB=${4:-sis-receiver-copula-reference-v1}
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$ROOT/reports/sis-receiver-copula-runs/$RUN_ID/reference"
 PROTOCOL="$ROOT/reports/2026-08-15-sis-receiver-copula-protocol.md"
+ORDER_REPAIR="$ROOT/reports/2026-08-15-sis-reference-cross-run-order-repair.md"
 G1="$ROOT/reports/g1-topology-runs/20260812-g1-archetype-topology-v3"
 ACTIVE="$ROOT/reports/tabpfn-active-label-runs/20260812-active-label-exact80-v2-pit-clean/selected_active_label.txt"
 USAGE="$ROOT/reports/usage-dirichlet-calibration-runs/20260812-usage-exact80-v2-pit-clean/selected_usage.txt"
 REPAIR_SHA=26e73c5
 EXPECTED_PROTOCOL_SHA=045a5a8e90bdbc95b5fdfa4ff29574f71fe03fcc69701d3c39dfc159c1395274
+EXPECTED_ORDER_REPAIR_SHA=e502b611887d78968970968bdd2cc44a752f80519d9e583a90dfb1dbb501a325
 
 case "$IMAGE" in *@sha256:*) ;; *) echo "ABORT: immutable SIS reference image required"; exit 2;; esac
 [[ "$CODE_SHA" =~ ^[0-9a-f]{40}$ ]] || {
@@ -26,11 +28,13 @@ git -C "$ROOT" cat-file -e "$CODE_SHA^{commit}" 2>/dev/null || {
   echo "ABORT: SIS reference code commit is unavailable"; exit 2; }
 git -C "$ROOT" merge-base --is-ancestor "$REPAIR_SHA" "$CODE_SHA" || {
   echo "ABORT: SIS reference code is not descended from $REPAIR_SHA"; exit 2; }
-for path in "$PROTOCOL" "$G1/report.json" "$G1/manifest.txt" "$ACTIVE" "$USAGE"; do
+for path in "$PROTOCOL" "$ORDER_REPAIR" "$G1/report.json" "$G1/manifest.txt" "$ACTIVE" "$USAGE"; do
   [ -s "$path" ] || { echo "ABORT: SIS reference prerequisite missing: $path"; exit 2; }
 done
 [ "$(sha256sum "$PROTOCOL" | awk '{print $1}')" = "$EXPECTED_PROTOCOL_SHA" ] || {
   echo "ABORT: frozen SIS receiver-copula protocol hash differs"; exit 2; }
+[ "$(sha256sum "$ORDER_REPAIR" | awk '{print $1}')" = "$EXPECTED_ORDER_REPAIR_SHA" ] || {
+  echo "ABORT: frozen SIS reference order-repair hash differs"; exit 2; }
 [ ! -e "$OUT" ] || { echo "ABORT: immutable SIS reference exists: $OUT"; exit 2; }
 
 declare -A resolved
@@ -88,6 +92,7 @@ printf '%s\n' \
   "evaluation_panel=${resolved[evaluation]}" \
   "cache_table=${resolved[cache]}" "dirichlet_k=${resolved[k]}" \
   "protocol_sha256=$(sha256sum "$PROTOCOL" | awk '{print $1}')" \
+  "order_repair_sha256=$(sha256sum "$ORDER_REPAIR" | awk '{print $1}')" \
   "g1_report_sha256=$(sha256sum "$G1/report.json" | awk '{print $1}')" \
   "g1_manifest_sha256=$(sha256sum "$G1/manifest.txt" | awk '{print $1}')" \
   "active_label_selection_sha256=$(sha256sum "$ACTIVE" | awk '{print $1}')" \

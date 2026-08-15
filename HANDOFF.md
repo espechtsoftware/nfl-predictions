@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 14:31 CDT
+## Current state — 2026-08-15 14:41 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -74,6 +74,16 @@ agent or developer:
   noncanonical cyclic comparisons; any sensitivity requires an order-proof or
   order-invariant repair, never selection of the historically favorable
   order. The 16-GiB Cloud Run launcher is ready after exact-image validation.
+  Exact-archive build `50841c31-a340-42b3-a7b1-96170f0b4396` passed from
+  inactive/ATLAS commit `b4bdc4d` at `2026-08-15T19:31:58.505525Z` and
+  produced digest
+  `sha256:b135e28781296c098bc19edde354a84c38783d36563fc5036f189c21fa76cffe`.
+  Two superseded queued builds (`6da291e3-8fa3-4afd-86ed-ad99da975341` and
+  `1b2983d1-7d4f-498e-9fc3-a6382a09f370`) were canceled to avoid validating
+  ATLAS before its catalog-superset repair or the policy receipt before its
+  environment-isolation repair. Consolidated exact-archive build
+  `5563cbd5-725a-4133-bfab-1b462ee5596b` is queued from commit `a14f8ad` and
+  will validate/package ATLAS, CBWU and the complete production-policy fixes.
 - The review's live-inactive concern was a real money-path correctness defect:
   sim mode rebuilt nonzero draws without the stored-projection cascade/zero
   path, and salary-list `allowed_ids` did not imply active status. The live
@@ -344,7 +354,31 @@ agent or developer:
   `sis-receiver-copula-reference-repair1-dtt5v`, launched under run ID
   `20260815-sis-receiver-copula-v1-repair1` from that digest and code SHA.
   Its manifest/execution receipt are tracked under the new run directory.
-  Poll to completion and strictly harvest; calibration remains unlicensed.
+  It completed successfully at `2026-08-15T19:31:13.149831Z` and was strictly
+  harvested. The within-execution report says pass, with exact repeated
+  15,396-row frame, 15,396x10,000 draws, 7,848-row/54-slate score population,
+  report SHA-256
+  `a74c423e882ed1008f33fff5440201ac01d2afbe771fbd223574b0cde8cd1055`.
+  A required independent cross-run comparison then found that its frame,
+  draw and score byte hashes differ from the preserved original, so repair1
+  remains terminally invalid under the frozen repair despite its internal
+  pass. Calibration is still unlicensed.
+  Root cause is now proven in the inherited G1 terminal loader: its accepted
+  panel query had no total order, and `_align_arm` used the undefined BigQuery
+  result order for both frame and draw rows. Within-job query caching masked
+  the defect. The two control scorebooks have exact structure and nonfloat
+  values; all 159 differences are floating reduction noise with maximum
+  `6.106226635438361e-16`. The sole canonical repair is frozen in
+  `reports/2026-08-15-sis-reference-cross-run-order-repair.md` at SHA-256
+  `e502b611887d78968970968bdd2cc44a752f80519d9e583a90dfb1dbb501a325`.
+  Terminal rows and their draws are now jointly sorted by
+  `(season, week, gsis_id, position)`, duplicate/misaligned inputs fail, the
+  reference explicitly gates canonical order, and the harvester requires a
+  complete structural plus absolute-`1e-12` comparison to repair1. Twenty-one
+  focused G1/SIS tests, compilation, shell syntax and the diff pass. Preserve
+  both earlier reports; after exact-image validation, run only create-only ID
+  `20260815-sis-receiver-copula-v1-repair2-canonical`, then harvest before
+  deciding whether 2022 calibration is unlocked.
 - Before any usable SIS artifact or calibration score existed, the previously
   unstated 2022 calibration-book choice was frozen in
   `reports/2026-08-15-sis-receiver-copula-calibration-book-amendment.md`

@@ -8,6 +8,9 @@ REGION=us-central1
 RUN_ID=${1:-20260815-sis-receiver-copula-v1}
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$ROOT/reports/sis-receiver-copula-runs/$RUN_ID/reference"
+ORDER_REPAIR="$ROOT/reports/2026-08-15-sis-reference-cross-run-order-repair.md"
+PRIOR_REPORT="$ROOT/reports/sis-receiver-copula-runs/20260815-sis-receiver-copula-v1-repair1/reference/report.json"
+EXPECTED_ORDER_REPAIR_SHA=e502b611887d78968970968bdd2cc44a752f80519d9e583a90dfb1dbb501a325
 MANIFEST="$OUT/manifest.txt"
 EXEC=$(cat "$OUT/execution.txt")
 [ -n "$EXEC" ] || { echo "ABORT: SIS reference execution missing"; exit 2; }
@@ -21,13 +24,16 @@ STATE=$(gcloud run jobs executions describe "$EXEC" --project "$PROJECT" \
 FILTER="resource.type=\"cloud_run_job\" AND labels.\"run.googleapis.com/execution_name\"=\"$EXEC\" AND textPayload:\"SIS_RECEIVER_COPULA_REFERENCE_\""
 gcloud logging read "$FILTER" --project "$PROJECT" --limit 300 --order asc \
   --format='value(textPayload)' > "$OUT/raw_log.txt"
-"$ROOT/.venv/bin/python" - "$OUT/raw_log.txt" "$MANIFEST" "$OUT/report.json" <<'PY'
+"$ROOT/.venv/bin/python" - "$OUT/raw_log.txt" "$MANIFEST" "$OUT/report.json" \
+  "$ORDER_REPAIR" "$PRIOR_REPORT" "$EXPECTED_ORDER_REPAIR_SHA" <<'PY'
 import base64
 import gzip
 import hashlib
 import json
 import re
 import sys
+
+from nfl_dfs.analysis.sis_receiver_copula import compare_control_scorebooks
 
 lines = list(open(sys.argv[1], encoding="utf-8"))
 meta_prefix = "SIS_RECEIVER_COPULA_REFERENCE_META="
@@ -101,6 +107,27 @@ for key in ("frame_sha256", "repeat_frame_sha256", "draws_sha256",
 if invariants.get("frame_sha256") != invariants.get("repeat_frame_sha256") or \
         invariants.get("draws_sha256") != invariants.get("repeat_draws_sha256"):
     raise SystemExit("ABORT: SIS reference repeat fingerprints differ")
+if manifest.get("run_id") == \
+        "20260815-sis-receiver-copula-v1-repair2-canonical":
+    repair_content = open(sys.argv[4], "rb").read()
+    if hashlib.sha256(repair_content).hexdigest() != sys.argv[6] or \
+            manifest.get("order_repair_sha256") != sys.argv[6]:
+        raise SystemExit("ABORT: SIS canonical order-repair identity differs")
+    if invariants.get("canonical_player_order") is not True:
+        raise SystemExit("ABORT: SIS canonical reference order differs")
+    prior_content = open(sys.argv[5], "rb").read()
+    prior = json.loads(prior_content)
+    comparison = compare_control_scorebooks(
+        prior.get("score"), report.get("score"), absolute_tolerance=1e-12,
+    )
+    if not comparison.get("passes"):
+        raise SystemExit("ABORT: SIS canonical scorebook differs from repair1")
+    report["cross_run_order_repair"] = {
+        **comparison,
+        "prior_run_id": "20260815-sis-receiver-copula-v1-repair1",
+        "prior_report_sha256": hashlib.sha256(prior_content).hexdigest(),
+        "order_repair_sha256": sys.argv[6],
+    }
 with open(sys.argv[3], "w", encoding="utf-8") as handle:
     json.dump(report, handle, indent=2, sort_keys=True)
     handle.write("\n")

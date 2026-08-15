@@ -75,6 +75,63 @@ def _frame_sha256(frame: pd.DataFrame) -> str:
     return sha256(content).hexdigest()
 
 
+def compare_control_scorebooks(
+    left: Any,
+    right: Any,
+    *,
+    absolute_tolerance: float = 1e-12,
+) -> dict[str, Any]:
+    """Compare two JSON scorebooks exactly except for bounded float noise."""
+    if not np.isfinite(absolute_tolerance) or absolute_tolerance < 0:
+        raise ValueError("scorebook comparison tolerance is invalid")
+    structural_failures: list[str] = []
+    float_differences = 0
+    max_absolute_difference = 0.0
+
+    def compare(a: Any, b: Any, path: str) -> None:
+        nonlocal float_differences, max_absolute_difference
+        if type(a) is not type(b):
+            structural_failures.append(f"{path}:type")
+            return
+        if isinstance(a, dict):
+            if set(a) != set(b):
+                structural_failures.append(f"{path}:keys")
+                return
+            for key in sorted(a):
+                compare(a[key], b[key], f"{path}/{key}")
+            return
+        if isinstance(a, list):
+            if len(a) != len(b):
+                structural_failures.append(f"{path}:length")
+                return
+            for index, (a_value, b_value) in enumerate(zip(a, b, strict=True)):
+                compare(a_value, b_value, f"{path}/{index}")
+            return
+        if isinstance(a, float):
+            if not np.isfinite([a, b]).all():
+                structural_failures.append(f"{path}:nonfinite")
+                return
+            difference = abs(a - b)
+            if difference:
+                float_differences += 1
+                max_absolute_difference = max(max_absolute_difference, difference)
+            if difference > absolute_tolerance:
+                structural_failures.append(f"{path}:float")
+            return
+        if a != b:
+            structural_failures.append(f"{path}:value")
+
+    compare(left, right, "score")
+    return {
+        "absolute_tolerance": float(absolute_tolerance),
+        "structurally_identical": not structural_failures,
+        "float_differences": int(float_differences),
+        "maximum_absolute_difference": float(max_absolute_difference),
+        "failures": structural_failures,
+        "passes": not structural_failures,
+    }
+
+
 def _emit_reference(report: dict[str, Any]) -> None:
     from . import g1_archetype_topology as g1
 
@@ -152,6 +209,15 @@ def reference_invariants(
         and terminal.get("schedule") == REFERENCE_POSITION_SCHEDULE
         and np.isfinite(float(terminal.get("maximum_mean_delta", np.nan)))
     )
+    canonical_keys = ["season", "week", "gsis_id", "position"]
+    canonical_player_order = bool(
+        not missing_columns
+        and frame[canonical_keys].reset_index(drop=True).equals(
+            frame[canonical_keys].sort_values(
+                canonical_keys, kind="stable"
+            ).reset_index(drop=True)
+        )
+    )
     checks = {
         "required_frame_columns_present": not missing_columns and not repeat_missing,
         "frame_bit_exact_on_repeat": exact_frame,
@@ -163,6 +229,7 @@ def reference_invariants(
         "draws_bit_exact_on_repeat": draws_bit_exact,
         "terminal_identity_exact_on_repeat": terminal_exact,
         "terminal_contract_exact": terminal_contract,
+        "canonical_player_order": canonical_player_order,
     }
     return {
         **checks,
@@ -565,6 +632,7 @@ __all__ = [
     "CALIBRATION_G0_CELLS", "CALIBRATION_G1_CELLS", "FLOAT_TOLERANCE",
     "MULTIPLICITY_CELLS", "REQUIRED_G0_CELLS",
     "REQUIRED_RELATIONSHIPS", "STRENGTH_GRID", "gate_decision",
-    "calibration_grid_row", "multiplicity_diagnostic", "reference_invariants",
-    "run_reference", "select_calibration_grid",
+    "calibration_grid_row", "compare_control_scorebooks",
+    "multiplicity_diagnostic", "reference_invariants", "run_reference",
+    "select_calibration_grid",
 ]

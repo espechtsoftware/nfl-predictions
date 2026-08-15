@@ -641,6 +641,28 @@ def _decode_json_env(name: str) -> dict:
         raise ValueError(f"G1 environment {name} is invalid") from exc
 
 
+def _canonicalize_terminal_rows(
+    frame: pd.DataFrame,
+    draws: np.ndarray,
+) -> tuple[pd.DataFrame, np.ndarray]:
+    """Give terminal player rows and their worlds a cross-query total order."""
+    keys = ["season", "week", "gsis_id", "position"]
+    missing = sorted(set(keys) - set(frame.columns))
+    values = np.asarray(draws)
+    if missing or values.ndim != 2 or values.shape[0] != len(frame):
+        raise ValueError(
+            "G1 terminal rows cannot be canonically aligned "
+            f"(missing={missing})"
+        )
+    ordered = frame.reset_index(drop=True).copy()
+    ordered["_terminal_row_index"] = np.arange(len(ordered), dtype=int)
+    ordered = ordered.sort_values(keys, kind="stable")
+    if ordered.duplicated(keys).any():
+        raise ValueError("G1 terminal player keys repeat")
+    row_indices = ordered.pop("_terminal_row_index").to_numpy(int)
+    return ordered.reset_index(drop=True), values[row_indices]
+
+
 def _load_terminal_book(
     panel_id: str,
     *,
@@ -753,6 +775,7 @@ def _load_terminal_book(
                     os.environ[key] = value
     frame = pd.concat(frames, ignore_index=True)
     draws = np.concatenate(draw_parts, axis=0)
+    frame, draws = _canonicalize_terminal_rows(frame, draws)
     return frame, draws, {
         "schedule": schedule,
         "usage_law": usage,
