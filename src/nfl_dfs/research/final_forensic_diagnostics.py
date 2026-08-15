@@ -408,6 +408,8 @@ def route_pool_admission_diagnostics(
     winners = winner_players.copy()
     winners["id"] = winners.id.astype(str)
     winner_columns = ["season", "week", "id"]
+    if "pos" in winners:
+        winners = winners.rename(columns={"pos": "winner_resolved_pos"})
     winners = winners.merge(
         frame[
             winner_columns + [
@@ -419,6 +421,10 @@ def route_pool_admission_diagnostics(
         how="left",
         validate="one_to_one",
     )
+    if "winner_resolved_pos" in winners and not winners[
+        "winner_resolved_pos"
+    ].astype(str).str.upper().eq(winners.pos.astype(str).str.upper()).all():
+        raise ValueError("winner route-admission position differs from feature row")
     if winners.candidate_supported.isna().any():
         raise ValueError("winner route-admission audit lacks a player feature row")
     omitted = winners[~winners.candidate_supported.astype(bool)].copy()

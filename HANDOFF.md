@@ -91,16 +91,23 @@ agent or developer:
   panel fingerprints, and the complete 14-panel/common-slate contract. This
   execution selected no outcome column.
 - Repair2 outcome execution `final-preseason-forensic-v1-6qzts` is now the sole
-  live forensic run. The job is pinned to the repair2 manifest, immutable
+  repair2 forensic run. The job was pinned to the repair2 manifest, immutable
   `sha256:cb72a87b...` image, code SHA `d633c07`, 8 CPU, 32 GiB, one task,
-  zero retries and a 24-hour timeout. Its output root is the new create-only
+  zero retries and a 24-hour timeout. Its output root was the new create-only
   `gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/outputs-repair2`;
   that prefix and all four warehouse tables were absent immediately before
-  launch. Next concrete action: poll `final-preseason-forensic-v1-6qzts` to
-  terminal without launching another outcome run. After success, validate all
-  nine outputs/four WRITE_EMPTY tables, write the closure report, and retain
-  the isolated corpus until independent review; delete it before the first
-  2026 production build.
+  launch.
+- Execution `final-preseason-forensic-v1-6qzts` is terminal failed mechanical
+  at 2026-08-15T00:54:01Z. It reached the route-admission reporting step, where
+  `match_known_winner_players` already supplied `pos` and the diagnostic merged
+  a second `pos`, yielding `pos_x/pos_y` and then raising `KeyError: ['pos']`.
+  No score summary was emitted or inspected; `outputs-repair2` has no objects
+  and all four warehouse tables remain absent. The repair renames the resolved
+  winner position, verifies it exactly against the feature position, and then
+  retains the canonical feature `pos`. Next concrete action: run the focused
+  regression plus complete exact-commit build, freeze/upload/validate a new
+  repair3 image and manifest, and only then launch one zero-retry outcome run
+  to a new output prefix.
 
 ### 2026-08-14 final-forensic audit expanded; decision-structure queue registered
 

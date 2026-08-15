@@ -127,8 +127,8 @@ def test_route_pool_admission_bound_uses_frozen_prior_rule():
         "players": ",".join(f"p{i}" for i in range(9)),
     }])
     winners = pd.DataFrame([
-        {"season": 2025, "week": 1, "id": "p9"},
-        {"season": 2025, "week": 1, "id": "p10"},
+        {"season": 2025, "week": 1, "id": "p9", "pos": "WR"},
+        {"season": 2025, "week": 1, "id": "p10", "pos": "RB"},
     ])
 
     report = route_pool_admission_diagnostics(players, candidates, winners)
