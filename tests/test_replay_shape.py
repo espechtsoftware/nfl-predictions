@@ -29,6 +29,34 @@ def test_tabpfn_marginals_maps_and_preserves_ranks(monkeypatch):
     assert (out >= 0).all()
 
 
+def test_tabpfn_marginals_reuses_explicit_run_cache(monkeypatch):
+    import numpy as np
+    import pandas as pd
+    import pytest
+
+    from nfl_dfs.backtest import replay
+    import nfl_dfs.bq as bqmod
+
+    monkeypatch.setattr(
+        bqmod, "query_df",
+        lambda *_args, **_kwargs: pytest.fail("cache reuse queried BigQuery"),
+    )
+    draws = np.arange(100, dtype=float).reshape(1, -1)
+    keys = pd.DataFrame({
+        "season": [2026], "week": [1], "gsis_id": ["A"],
+    })
+    cache = pd.DataFrame([{
+        "season": 2026, "week": 1, "gsis_id": "A",
+        "q01": 0.5, "q05": 2.0, "q10": 4.0, "q50": 11.0,
+        "q90": 24.0, "q95": 29.0, "q99": 38.0,
+    }])
+    out = replay._tabpfn_marginals(draws, keys, cache_rows=cache)
+    assert out.shape == draws.shape
+    with pytest.raises(ValueError, match="cache season differs"):
+        replay._tabpfn_marginals(
+            draws, keys, cache_rows=cache.assign(season=2025))
+
+
 def test_tabpfn_research_cache_table_is_exactly_licensed(monkeypatch):
     import numpy as np
     import pandas as pd

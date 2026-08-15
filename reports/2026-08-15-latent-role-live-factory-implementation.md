@@ -65,3 +65,14 @@ must prove exact salary/player/world alignment, five complete scenario and
 optimization ledgers, a non-inert candidate treatment, exact 80 entries in
 both arms, and create-only artifact/manifest persistence. Only that passing
 receipt can license a Cloud Run job definition or paused scheduler.
+
+## Operational hardening after implementation review
+
+A post-commit review found that every conditional role world would otherwise
+reload the same season-wide TabPFN marginal cache. With five seed books and up
+to 54 conditional worlds per book, that could issue hundreds of redundant
+BigQuery reads without changing a single draw. The repaired path loads the
+licensed season cache once per paired run, passes an in-memory copy through
+every conditional shaping call, and validates its season identity. An empty or
+unavailable cache still takes the existing empirical-marginal fallback. The
+scientific scenario, seed, marginal-shaping and selection rules are unchanged.

@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 10:19 CDT
+## Current state — 2026-08-15 10:31 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -56,6 +56,14 @@ agent or developer:
   validated image manually and require complete five-seed source/budget/world,
   non-inert treatment and create-only manifest parity before adding even a
   paused Cloud Run job or scheduler.
+- A post-commit operational review found that the conditional factory would
+  reload the identical season-wide TabPFN marginal cache for every role world
+  (as many as 270 reads across five seeds). The follow-up repair loads it once
+  per paired run, reuses it without changing any draw transform, validates the
+  cache season, and preserves the existing empirical fallback. Sixty
+  focused replay-shape/factory tests pass, module compilation and whitespace
+  checks pass. This repair is not part of `ca96905` or its in-flight build;
+  exact next action after committing it is a superseding exact-archive build.
 
 - External review in
   `reports/2026-08-15-post-forensic-changes-review.md` arrived before any

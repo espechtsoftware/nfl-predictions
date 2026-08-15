@@ -314,6 +314,7 @@ class LiveLatentRoleScenarioFactory:
         injury: pd.DataFrame,
         conditional_model,
         conditional_model_version: str,
+        tabpfn_marginal_rows: pd.DataFrame | None = None,
         expected_n_sims: int = EXPECTED_WORLDS,
     ):
         self.season = int(season)
@@ -327,6 +328,10 @@ class LiveLatentRoleScenarioFactory:
         self.injury = injury.copy(deep=True)
         self.conditional_model = conditional_model
         self.conditional_model_version = str(conditional_model_version)
+        self.tabpfn_marginal_rows = (
+            None if tabpfn_marginal_rows is None
+            else tabpfn_marginal_rows.copy(deep=True)
+        )
         self.expected_n_sims = int(expected_n_sims)
         self.receipts: list[dict] = []
 
@@ -399,6 +404,7 @@ class LiveLatentRoleScenarioFactory:
             role_seed,
             keys=keys,
             env=policy_env,
+            tabpfn_cache_rows=self.tabpfn_marginal_rows,
         )
         model_mean = draws.mean(axis=1, dtype=np.float64)
         market = slate_skill.set_index(
@@ -589,6 +595,10 @@ class LiveLatentRoleScenarioFactory:
             "worlds": n_sims,
             "conditional_model_variant": variant,
             "conditional_model_version": self.conditional_model_version,
+            "tabpfn_marginal_cache_rows": (
+                None if self.tabpfn_marginal_rows is None
+                else int(len(self.tabpfn_marginal_rows))
+            ),
             "transition_artifact": self.artifact_receipt,
             "transition_input_sha256": _frame_sha256(
                 live_rows, transition_columns, sort_by=["gsis_id"],
@@ -629,6 +639,7 @@ def create_live_latent_role_scenario_factory(
         object_name=object_name,
         storage_client=storage_client,
     )
+    from ..backtest.replay import load_tabpfn_marginal_cache
     from ..models import coldstart
     from ..models.train_job import load_latest_component_models
     from .route_share_shadow import validate_component_feature_contract
@@ -639,6 +650,9 @@ def create_live_latent_role_scenario_factory(
     )
     injury = load_live_injury_context(season, week, as_of=stamp)
     model, version = load_latest_component_models(EXPECTED_MODEL_VARIANT)
+    marginal_rows = load_tabpfn_marginal_cache(
+        int(season), {"TABPFN_MARGINAL_TABLE": ""},
+    )
     from ..models.train_job import registered_ensemble_size
 
     if registered_ensemble_size(model) != 1:
@@ -662,6 +676,7 @@ def create_live_latent_role_scenario_factory(
         injury=injury,
         conditional_model=model,
         conditional_model_version=version,
+        tabpfn_marginal_rows=marginal_rows,
     )
 
 

@@ -325,7 +325,8 @@ def role_belief_projections(
 def apply_draw_shape(draws: np.ndarray, positions: pd.Series,
                      seed: int | None,
                      keys: pd.DataFrame | None = None,
-                     env: dict | None = None) -> np.ndarray:
+                     env: dict | None = None,
+                     tabpfn_cache_rows: pd.DataFrame | None = None) -> np.ndarray:
     """ADOPTED DEFAULTS (Addendum 40, combo "EW" — 24/107 tails vs 16
     same-build control, largest gain in program history): fitted draw
     widening + empirically-shaped marginals, composed, mean-preserving.
@@ -361,7 +362,8 @@ def apply_draw_shape(draws: np.ndarray, positions: pd.Series,
     # to empirical marginals below. "0"/"" disables.
     if (source.get("TABPFN_MARGINALS", "1") not in ("0", "")
             and keys is not None):
-        shaped = _tabpfn_marginals(out, keys, env=source)
+        shaped = _tabpfn_marginals(
+            out, keys, env=source, cache_rows=tabpfn_cache_rows)
     if shaped is not None:
         out = shaped
     elif source.get("EMP_MARGINALS", "1") not in ("0", ""):
@@ -548,10 +550,36 @@ def _tabpfn_marginal_table(env: dict | None = None) -> str:
     return table
 
 
+def load_tabpfn_marginal_cache(
+    season: int,
+    env: dict | None = None,
+) -> pd.DataFrame:
+    """Load one season's licensed TabPFN rows for run-scoped reuse.
+
+    Callers that evaluate many alternative worlds for the same live slate can
+    retain this frame in memory and pass it to ``apply_draw_shape``.  This
+    changes no draw or fallback rule; it only prevents repeated identical
+    BigQuery reads within one process.
+    """
+    from ..bq import query_df
+    from ..config import settings
+
+    table = _tabpfn_marginal_table(env)
+    try:
+        return query_df(
+            f"SELECT * FROM `{settings.features}.{table}` "
+            f"WHERE season = {int(season)} ORDER BY week, gsis_id")
+    except Exception:
+        log.exception("TabPFN marginal cache unavailable for season %s; "
+                      "falling back to empirical marginals", season)
+        return pd.DataFrame()
+
+
 def _tabpfn_marginals(
     draws: np.ndarray,
     keys: pd.DataFrame,
     env: dict | None = None,
+    cache_rows: pd.DataFrame | None = None,
 ) -> np.ndarray:
     """TABPFN_MARGINALS=1 (A/B, off by default; Addenda 43/46): reshape
     each player's marginal onto the TabPFN-v2 walk-forward quantiles
@@ -562,26 +590,25 @@ def _tabpfn_marginals(
     TabPFN arrives calibrated where our quantiles under-cover (three
     independent confirmations). Rows without a cached prediction keep
     their original draws. Tails extrapolate linearly beyond q01/q99."""
-    from ..bq import query_df
-    from ..config import settings
-
     season = int(keys.season.iloc[0])
     table = _tabpfn_marginal_table(env)
-    try:
-        q = query_df(
-            f"SELECT * FROM `{settings.features}.{table}` "
-            f"WHERE season = {season}")
-    except Exception:
-        # Local tests, a newly-created project, or a transient warehouse
-        # failure must take the documented empirical fallback rather than
-        # aborting the entire projection/simulation path.
-        log.exception("TabPFN marginal cache unavailable for season %s; "
-                      "falling back to empirical marginals", season)
-        return None
+    q = (
+        load_tabpfn_marginal_cache(season, env)
+        if cache_rows is None else cache_rows.copy(deep=True)
+    )
     if q.empty:
         log.warning("TABPFN_MARGINALS on but no cached rows for season %s "
                     "— falling back to empirical marginals", season)
         return None
+    required_cache = {"season", "week", "gsis_id"}
+    if missing_cache := required_cache - set(q.columns):
+        raise ValueError(
+            "TabPFN marginal cache rows miss "
+            + ", ".join(sorted(missing_cache)))
+    cache_seasons = set(pd.to_numeric(q.season, errors="raise").astype(int))
+    if cache_seasons != {season}:
+        raise ValueError(
+            f"TabPFN marginal cache season differs: {sorted(cache_seasons)}")
     qcols = sorted(c for c in q.columns if c.startswith("q") and c[1:].isdigit())
     levels = np.array([int(c[1:]) / 100 for c in qcols])
     q = q.set_index(["week", "gsis_id"])
