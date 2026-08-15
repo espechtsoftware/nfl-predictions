@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 01:17 CDT
+## Current state — 2026-08-15 01:43 CDT
 
 ### Final preseason forensic run succeeded; historical queue closed and prospective construction program frozen
 
@@ -250,16 +250,21 @@ agent or developer:
   `d68d24b1d8a5a8b3d317abb08fb9c1d8cda6631b`. Exact-commit Cloud Build
   `28de0410-947b-4e2f-bf2c-49c71d6bdf3f` was submitted at
   `2026-08-15T06:18:49.599631138Z` from a clean `git archive` of that SHA and
-  is queued/running. It will publish tag `recourse-rehearsal-d68d24b` only
-  after the complete suite succeeds; it is not yet validation evidence.
+  completed successfully at `2026-08-15T06:40:01.003994Z`. The complete suite
+  passed 1,375 tests with 2 skipped and 5 warnings in 1,019.84 seconds. Tag
+  `recourse-rehearsal-d68d24b` resolves to immutable digest
+  `sha256:c71a4563bc40af92962a379635bcd34b762a3bca5c14ae1e4ed5ed7799413985`.
+  IAP-protected revision `nfl-dfs-app-recourse-rehearsal` became healthy at
+  `2026-08-15T06:41:36.711223Z` and receives 100% of traffic on that exact
+  digest. An anonymous `/lineups` request returns the Google IAP authentication
+  redirect, confirming IAP remains in front; an authenticated route-level
+  rehearsal still awaits an operator browser session or the proxy package.
 - The local repository `.venv` remains healthy despite the user's concern
   about accidentally deleting a Python environment while installing Gemini
   CLI: `.venv/bin/python` is Python 3.14.4, project/pandas/BigQuery imports
   succeed and `python -m pip check` reports no broken requirements.
-- Next concrete action: poll exact build
-  `28de0410-947b-4e2f-bf2c-49c71d6bdf3f` to a terminal result and, only if it
-  succeeds, update the app revision to its immutable image. Install the proxy
-  package with operator sudo when available and run the authenticated
+- Next concrete action: install the proxy package with operator sudo when
+  available and run the authenticated
   test-artifact rehearsal without exposing an uploadable money file. The first score-free
   live shadow smoke waits only for complete 2026 pre-lock slate inputs and must
   validate its receipt before any outcome join. In parallel, preserve the Week
