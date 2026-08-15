@@ -246,12 +246,19 @@ agent or developer:
   SHA-256 values. It never returns CSV bytes and keeps
   `upload_licensed=false`. Twenty-six focused world/late-swap/recourse/policy/
   view tests pass; module compilation and `git diff --check` also pass.
+  The implementation and its handoff record are pushed through full SHA
+  `d68d24b1d8a5a8b3d317abb08fb9c1d8cda6631b`. Exact-commit Cloud Build
+  `28de0410-947b-4e2f-bf2c-49c71d6bdf3f` was submitted at
+  `2026-08-15T06:18:49.599631138Z` from a clean `git archive` of that SHA and
+  is queued/running. It will publish tag `recourse-rehearsal-d68d24b` only
+  after the complete suite succeeds; it is not yet validation evidence.
 - The local repository `.venv` remains healthy despite the user's concern
   about accidentally deleting a Python environment while installing Gemini
   CLI: `.venv/bin/python` is Python 3.14.4, project/pandas/BigQuery imports
   succeed and `python -m pip check` reports no broken requirements.
-- Next concrete action: commit/push and exact-commit cloud-validate the
-  no-file rehearsal layer, then update the app revision. Install the proxy
+- Next concrete action: poll exact build
+  `28de0410-947b-4e2f-bf2c-49c71d6bdf3f` to a terminal result and, only if it
+  succeeds, update the app revision to its immutable image. Install the proxy
   package with operator sudo when available and run the authenticated
   test-artifact rehearsal without exposing an uploadable money file. The first score-free
   live shadow smoke waits only for complete 2026 pre-lock slate inputs and must
