@@ -1,9 +1,10 @@
 # Fantasy Points projected-ownership protocol
 
-Status: prospective 2026 acquisition and field-model input; collector and
-scoring branch still to be implemented. This protocol is frozen before the
-2026 NFL ownership page becomes available and before any 2026 contest result
-is known.
+Status: prospective 2026 acquisition and field-model input. A separate
+normal-site authentication bootstrap and non-sensitive DOM inventory are
+implemented; row/export collection and the scoring branch remain unlicensed
+until the authenticated 2026 grid is visible and mechanically frozen. This
+protocol is frozen before any 2026 contest result is known.
 
 ## Decision
 
@@ -102,11 +103,13 @@ or if Fantasy Points access is unavailable.
 ## Implementation queue
 
 1. Extend the authenticated Playwright project with a dedicated ownership-page
-   collector and fail-closed context/row validation.
+   collector and fail-closed context/row validation. Authentication/bootstrap
+   commands are `fantasy-points-ownership login`, `verify-login`, and
+   `inspect`; `inspect` intentionally captures no player rows. Complete the
+   collector only after that inventory sees the real licensed grid.
 2. Add append-only BigQuery import, identity audit, raw archive and tests.
 3. Add the source to the in-app weekly guide and status/freshness checks.
 4. Persist all ownership vectors and their capture IDs with frozen books.
 5. Implement the field-simulation and payout-aware comparison without
    reviving the rejected ownership-fade scoring arm.
 6. Validate the full path on the first real 2026 slate before DraftKings lock.
-

@@ -32,6 +32,26 @@ form, is never logged or written to disk, and is discarded immediately after
 submission. The resulting authenticated browser profile is still stored
 locally so later downloads do not need the password.
 
+### Projected-ownership website session
+
+Fantasy Points serves projected ownership from `www.fantasypoints.com`, not
+the Data Suite host. The current sites require a separate ordinary web session
+in the same persistent profile. Before the 2026 ownership collector can be
+frozen, authenticate that surface with:
+
+```bash
+fantasy-points-ownership login --terminal-credentials
+fantasy-points-ownership verify-login
+fantasy-points-ownership inspect
+```
+
+`inspect` emits only relevant control labels, column headers and visible grid
+counts. It does not capture player rows. That deliberate stop prevents the
+project from guessing an offseason/signed-out DOM or claiming a collector is
+ready before the real licensed DraftKings Classic Sunday Main table is
+visible. Once authenticated data is posted, freeze and test the normal UI
+context/apply/export contract before enabling any snapshot intake.
+
 ## Historical window-semantics check
 
 First validate the tracked plan and current vendor report catalog:
