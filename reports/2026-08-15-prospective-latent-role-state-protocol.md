@@ -81,7 +81,8 @@ state. Its fixed inputs are:
 - `games_played_prior`;
 - own pre-lock injury designation and practice level;
 - pre-lock team vacated target and carry share; and
-- missingness indicators for the three availability fields.
+- missingness indicators for injury status, practice level, vacated target
+  share and vacated carry share.
 
 The fit uses regular seasons 2018--2025, with every target row reconstructed
 from exact historical usage while every predictor is limited to information
