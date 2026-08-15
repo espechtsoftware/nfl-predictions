@@ -48,3 +48,14 @@ def test_diagnostic_rejects_bad_world_blocks_and_incumbent_order():
         exact_n.select_cardinality_tail_book(totals[:, :-1], 1)
     with pytest.raises(ValueError, match="lacks 80 unique"):
         exact_n.exact_n_scorefree_diagnostic(totals, [0] * 80, 1)
+
+
+def test_book_metrics_supports_separate_production_context():
+    totals = _totals()
+    metrics = exact_n.book_scorefree_metrics(totals, [0, 1, 2])
+
+    assert metrics["entries"] == 3
+    assert metrics["selected"] == [0, 1, 2]
+    assert set(metrics["tail"]) == {"194", "200", "210", "230"}
+    with pytest.raises(ValueError, match="selected book is invalid"):
+        exact_n.book_scorefree_metrics(totals, [0, 0])

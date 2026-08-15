@@ -91,13 +91,25 @@ def select_cardinality_tail_book(
     return selected
 
 
-def _book_metrics(
+def book_scorefree_metrics(
     totals: np.ndarray,
     selected: Sequence[int],
     *,
-    block_worlds: int,
+    world_blocks: int = 5,
 ) -> dict[str, Any]:
+    """Report the registered score-free metrics for one ordered book."""
+    totals, block_worlds = _validate_totals(
+        totals, world_blocks=world_blocks,
+    )
     indices = np.asarray(selected, dtype=int)
+    if (
+        indices.ndim != 1
+        or not len(indices)
+        or len(set(indices.tolist())) != len(indices)
+        or int(indices.min()) < 0
+        or int(indices.max()) >= len(totals)
+    ):
+        raise ValueError("exact-N selected book is invalid")
     chosen = totals[indices]
     metrics = {}
     for line in REPORT_LINES:
@@ -144,11 +156,11 @@ def exact_n_scorefree_diagnostic(
         totals, n_entries, world_blocks=world_blocks,
     )
     control = incumbent[:n_entries]
-    control_metrics = _book_metrics(
-        totals, control, block_worlds=block_worlds,
+    control_metrics = book_scorefree_metrics(
+        totals, control, world_blocks=world_blocks,
     )
-    treatment_metrics = _book_metrics(
-        totals, treatment, block_worlds=block_worlds,
+    treatment_metrics = book_scorefree_metrics(
+        totals, treatment, world_blocks=world_blocks,
     )
     target = str(int(ENTRY_TARGET_LINES[n_entries]))
     target_control = control_metrics["tail"][target]
@@ -192,6 +204,6 @@ def exact_n_scorefree_diagnostic(
 
 
 __all__ = [
-    "ENTRY_TARGET_LINES", "REPORT_LINES", "exact_n_scorefree_diagnostic",
-    "select_cardinality_tail_book",
+    "ENTRY_TARGET_LINES", "REPORT_LINES", "book_scorefree_metrics",
+    "exact_n_scorefree_diagnostic", "select_cardinality_tail_book",
 ]

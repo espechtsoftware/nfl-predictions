@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 16:56 CDT
+## Current state — 2026-08-15 17:16 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -814,6 +814,18 @@ agent or developer:
   promoted, P/C/S and P-distance/census evidence must be rerun. Full
   reconciliation and the two licensed score-free diagnostics are in
   `reports/2026-08-16-cbwu-book-instability-and-tie-break-opportunity-reconciliation.md`.
+  The fixed-candidate diagnostic now has a production-isolated pure primitive,
+  `stable_identity_tail_selection`. It preserves integer marginal-world and
+  p-line counts plus the production mean-total criterion, then uses canonical
+  roster identity only for an exact full numeric tie. Its trace distinguishes
+  marginal ties, marginal+p-line ties and true full numeric ties and is
+  invariant to candidate-row permutation. The exact-N metric helper is also
+  public so its later order-invariant attribution and canonical-production
+  context can be reported without mixing candidate matrices. Seven focused
+  selector-tie/exact-N tests, compilation and whitespace validation pass.
+  Neither primitive has a cloud runner or result yet. Wire the create-only tie
+  census against fixed canonical CBWU artifacts and the separate live/replay
+  deployment gate; ATLAS still precedes exact-N in execution order.
   A follow-on review incorrectly treated CBWU-OI as an in-place production
   change. It is an inactive research function with no production call site;
   requiring identity to canonical CBWU would also contradict its frozen strict
