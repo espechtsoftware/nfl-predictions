@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 11:47 CDT
+## Current state — 2026-08-15 12:00 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -116,8 +116,21 @@ agent or developer:
   only the prospective 2026 shadow and explicitly cannot license a
   retrospective exact-80 run. Forty-nine combined downloader, importer,
   treatment and gate tests pass locally and `git diff --check` is clean. The
-  fresh reference runner and split calibration/held-out execution remain to
-  implement after the guarded acquisition closes.
+  split calibration/held-out execution remains to implement after the guarded
+  acquisition closes.
+- The required fresh repaired-path SIS reference is now implemented at exact
+  full SHA `d8e6ff1ae15c2c6a2d21f92f9c402b59df9a6a49`. It refuses code not descended
+  from `26e73c5`, pins the frozen protocol hash and immutable image, verifies
+  the historical splice plus selected evaluation-panel identities, rebuilds
+  the complete terminal book twice, requires exact frame/draw/terminal/score
+  repetition and the fixed cache/K/schedule/blend/world/seed contract, and
+  emits a newly checksummed G0/G1 scorebook without reading any prior numeric
+  reference. Its report explicitly cannot license a retrospective exact-80
+  run. Fifty-two combined SIS tests pass locally; the command help, changed
+  Python compilation, both launcher scripts and `git diff --check` pass.
+  Exact next action after the current queued builds is an exact-archive full
+  validation of this revision, followed by the create-only reference Cloud Run
+  execution from its immutable digest.
 - The review's remaining exact-P construction question is now frozen as
   `reports/2026-08-15-exact-p-generator-constraint-census-protocol.md`
   The pre-membership disposition thresholds are fixed in the protocol: 36/54
