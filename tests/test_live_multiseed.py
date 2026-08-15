@@ -129,11 +129,17 @@ def test_live_cbwu_runs_all_registered_pairs_and_combines_before_selection(
         else policy.archetype_shadow_environment()
     )
     env["MULTISEED_WORLDS_PER_BLOCK"] = "3"
+    outer_capture = []
+    control_capture = []
     result = live_lineups.build_sim_lineups(
         2026, 1, n_entries=1, stack=None, tail_line=194,
         n_sims=3, apply_notes=False, model_variant=policy.model_variant,
         belief_model_variant=policy.role_model_variant,
         expected_model_k=policy.model_ensemble, policy_env=env,
+        _candidate_capture=outer_capture.append,
+        _control_candidate_capture=(
+            control_capture.append if portfolio == "shadow" else None
+        ),
     )
     assert len(result) == 1
     expected_calls = []
@@ -146,6 +152,15 @@ def test_live_cbwu_runs_all_registered_pairs_and_combines_before_selection(
     assert slate_calls == expected_calls
     assert len(final_batches) == 1
     final = final_batches[0]
+    assert outer_capture == [final]
+    if portfolio == "shadow":
+        assert len(control_capture) == 1
+        assert control_capture[0].metadata["portfolio"] == "CBWU"
+        assert np.array_equal(
+            control_capture[0].row_draws, final.row_draws
+        )
+    else:
+        assert control_capture == []
     assert final.metadata["portfolio"] == expected_portfolio
     assert final.metadata["worlds_per_block"] == [3] * 5
     assert final.candidate_totals.shape[1] == 15
@@ -162,6 +177,16 @@ def test_live_cbwu_rejects_more_than_licensed_80_entries():
         live_lineups.build_sim_lineups(
             2026, 1, n_entries=81, stack=None, tail_line=194,
             apply_notes=False, policy_env=env)
+
+
+def test_live_control_rejects_paired_control_capture():
+    env = ADOPTED_CLASSIC_POLICY.engine_environment()
+    with pytest.raises(ValueError, match="requires CBWU_ARCHETYPE_SHADOW"):
+        live_lineups.build_sim_lineups(
+            2026, 1, n_entries=1, stack=None, tail_line=194,
+            apply_notes=False, policy_env=env,
+            _control_candidate_capture=lambda batch: None,
+        )
 
 
 def test_live_archetype_shadow_rejects_version_or_tail_drift():

@@ -84,9 +84,22 @@ def validate_information_as_of(
     if "available_at" not in information.columns:
         raise ValueError("late-swap information lacks available_at")
     current = _aware_timestamp(as_of, "information as-of")
-    available = pd.to_datetime(information.available_at, errors="coerce", utc=True)
-    if available.isna().any():
-        raise ValueError("late-swap information contains invalid available_at")
+    normalized = []
+    for value in information.available_at.tolist():
+        try:
+            normalized.append(
+                _aware_timestamp(value, "information available_at")
+                .tz_convert("UTC")
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                "late-swap information contains invalid or timezone-naive "
+                "available_at"
+            ) from exc
+    available = pd.Series(
+        pd.to_datetime(normalized, utc=True), index=information.index,
+        dtype="datetime64[ns, UTC]",
+    )
     current_utc = current.tz_convert("UTC")
     future = available.gt(current_utc)
     if future.any():
@@ -523,6 +536,25 @@ def _resolve_cell(cell: str, by_id: dict, by_name: dict) -> dict:
     raise ValueError(f"DKEntries player cell is unresolved: {cell!r}")
 
 
+def entry_rosters_from_csv(
+    entries_csv: str, player_catalog: pd.DataFrame,
+) -> dict[str, list[str]]:
+    """Resolve an already-filled classic DKEntries file to DK roster ids."""
+    slots, entries = _entry_rows(entries_csv)
+    if slots != ["QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST"]:
+        raise ValueError("recourse entries do not use classic DK slots")
+    by_id, by_name = _catalog_lookups(player_catalog)
+    rosters = {}
+    for entry_id, row in entries.items():
+        cells = row[4:4 + len(slots)]
+        players = [_resolve_cell(cell, by_id, by_name) for cell in cells]
+        ids = [str(player["dk_id"]) for player in players]
+        if len(set(ids)) != 9:
+            raise ValueError(f"recourse entry {entry_id} repeats a player")
+        rosters[entry_id] = ids
+    return rosters
+
+
 def _position_fits(position: str, slot: str) -> bool:
     position = str(position).upper()
     slot = str(slot).upper()
@@ -645,6 +677,7 @@ __all__ = [
     "StageBoundaries",
     "build_recourse_state",
     "classify_entry_reach",
+    "entry_rosters_from_csv",
     "propose_recourse_rosters",
     "validate_information_as_of",
     "validate_swap_upload",

@@ -660,6 +660,92 @@ def test_validated_late_swap_requires_explicit_slate(draftable_client):
     assert "requires draft_group_id" in response.json()["detail"]
 
 
+def test_prospective_recourse_preview_is_checksum_and_slate_bound(
+    classic_client, monkeypatch,
+):
+    from nfl_dfs.config import settings
+    from nfl_dfs.inference import recourse_worlds
+
+    one_entry = CLASSIC_ENTRIES.splitlines()[0] + "\n" + \
+        CLASSIC_ENTRIES.splitlines()[1] + "\n"
+    entered = classic_client.post("/lineups/entries.csv", json={
+        "season": 2025,
+        "week": 3,
+        "draft_group_id": 8200,
+        "entries_csv": one_entry,
+        "sim": False,
+    })
+    assert entered.status_code == 200
+    monkeypatch.setattr(
+        app_main,
+        "_late_swap_now",
+        lambda: pd.Timestamp("2025-09-21T16:00:00Z"),
+    )
+    artifact = {
+        "metadata": {"context": {
+            "draft_group_id": 8200,
+            "arm": "control",
+        }},
+    }
+    monkeypatch.setattr(
+        recourse_worlds,
+        "load_recourse_world_artifact",
+        lambda uri, digest: artifact,
+    )
+
+    captured = {}
+
+    def propose(loaded, entries, catalog, status, *, as_of):
+        captured.update(
+            artifact=loaded,
+            entries=entries,
+            catalog=catalog,
+            status=status,
+            as_of=as_of,
+        )
+        return {
+            "policy_version": "prospective-recourse-policy-v1",
+            "as_of": pd.Timestamp(as_of).isoformat(),
+            "changed_entries": 0,
+            "changes": [],
+        }
+
+    monkeypatch.setattr(
+        recourse_worlds, "propose_recourse_from_artifact", propose
+    )
+    uri = f"gs://{settings.gcs_bucket}/recourse_worlds/2025/w3/book.npz"
+    response = classic_client.post(
+        "/lineups/entries/recourse/preview",
+        json={
+            "entries_csv": entered.text,
+            "draft_group_id": 8200,
+            "artifact_uri": uri,
+            "artifact_sha256": "a" * 64,
+            "status_information": [],
+        },
+    )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["upload_licensed"] is False
+    assert body["artifact_arm"] == "control"
+    assert body["next_upload_deadline"] == "2025-09-21T17:00:00+00:00"
+    assert set(captured["entries"]) == {"4111111"}
+    assert captured["status"].empty
+
+    rejected = classic_client.post(
+        "/lineups/entries/recourse/preview",
+        json={
+            "entries_csv": entered.text,
+            "draft_group_id": 8200,
+            "artifact_uri": "gs://another-bucket/recourse_worlds/book.npz",
+            "artifact_sha256": "a" * 64,
+            "status_information": [],
+        },
+    )
+    assert rejected.status_code == 422
+    assert "must be under" in rejected.json()["detail"]
+
+
 def test_fill_showdown_entries_endpoint(showdown_client):
     entries = (
         "Entry ID,Contest Name,Contest ID,Entry Fee,"
@@ -714,6 +800,10 @@ def test_lineups_view_page(client):
     assert "sharedPlayers" in r.text
     assert "dataset.lineupIndex" in r.text
     assert "do not use future results" in r.text
+    assert "Prospective late-swap preview" in r.text
+    assert "Current filled DKEntries.csv" in r.text
+    assert "/lineups/entries/recourse/preview" in r.text
+    assert "upload remains blocked" in r.text
 
 
 def test_showdown_any_game_selectable(showdown_client):

@@ -85,6 +85,13 @@ def main(argv: list[str] | None = None) -> None:
         "shadow-k3",
         help="Freeze the canonical K=3 Sunday-main reference portfolio",
     )
+    sub.add_parser(
+        "shadow-archetype-paired",
+        help=(
+            "Freeze same-world incumbent/archetype candidates, memberships, "
+            "and recourse artifacts"
+        ),
+    )
     p = sub.add_parser(
         "freeze-tail-portfolios",
         help="Freeze prospective K=1 selector and K=1/K=3 mixed books",
@@ -778,6 +785,10 @@ def main(argv: list[str] | None = None) -> None:
         from .inference import tail_shadow
 
         tail_shadow.run(expected_variant=tail_shadow.K3_VARIANT)
+    elif args.command == "shadow-archetype-paired":
+        from .inference import prospective_shadow
+
+        prospective_shadow.run_paired_prospective_shadow()
     elif args.command == "freeze-tail-portfolios":
         from .research import live_shadow_portfolios
 

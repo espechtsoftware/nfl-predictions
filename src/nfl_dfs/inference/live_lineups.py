@@ -364,6 +364,7 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                       route_source_policy: bool = False,
                       distribution_artifact_spec=None,
                       _candidate_capture=None,
+                      _control_candidate_capture=None,
                       _candidate_transform=None,
                       _multiseed_inner: bool = False,
                       _log_ownership_shadow: bool = True) -> list:
@@ -382,11 +383,18 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
     if portfolio and portfolio not in multiseed_portfolios:
         raise ValueError(f"unknown MULTISEED_PORTFOLIO={portfolio!r}")
     if portfolio in multiseed_portfolios and not _multiseed_inner:
-        if _candidate_capture is not None or _candidate_transform is not None:
-            raise ValueError("outer CBWU build cannot accept candidate hooks")
+        if _candidate_transform is not None:
+            raise ValueError("outer CBWU build cannot accept a candidate transform")
         if distribution_artifact_spec is not None:
             raise ValueError(
                 "CBWU live build cannot capture a single-seed distribution artifact")
+        if (
+            _control_candidate_capture is not None
+            and portfolio != "CBWU_ARCHETYPE_SHADOW"
+        ):
+            raise ValueError(
+                "paired control capture requires CBWU_ARCHETYPE_SHADOW"
+            )
         from .archetype_candidate_allocator import ALLOCATION_VERSION
         from .multiseed_portfolio import (
             combine_archetype_shadow_books,
@@ -461,6 +469,7 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                 belief_forbidden_features=belief_forbidden_features,
                 route_source_policy=route_source_policy,
                 _candidate_capture=(holder.append if transform is None else None),
+                _control_candidate_capture=None,
                 _candidate_transform=transform,
                 _multiseed_inner=True,
                 _log_ownership_shadow=(persist and _log_ownership_shadow),
@@ -480,15 +489,25 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
         def _combine(r0_batch):
             books = {"R0": r0_batch, **captured}
             if portfolio == "CBWU_ARCHETYPE_SHADOW":
-                return combine_archetype_shadow_books(
+                if _control_candidate_capture is not None:
+                    _control_candidate_capture(combine_cbwu_books(
+                        books,
+                        labels,
+                        expected_worlds_per_book=worlds_per_block,
+                    ))
+                combined = combine_archetype_shadow_books(
                     books,
                     labels,
                     tail_line=archetype_tail_line,
                     expected_worlds_per_book=worlds_per_block,
                 )
-            return combine_cbwu_books(
-                books, labels,
-                expected_worlds_per_book=worlds_per_block)
+            else:
+                combined = combine_cbwu_books(
+                    books, labels,
+                    expected_worlds_per_book=worlds_per_block)
+            if _candidate_capture is not None:
+                _candidate_capture(combined)
+            return combined
 
         label, projection_seed, role_seed = parsed[0]
         return _run_seed(

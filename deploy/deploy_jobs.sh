@@ -23,8 +23,9 @@ SA="$(gcloud projects describe "$PROJECT" --format='value(projectNumber)')-compu
 
 build() { gcloud builds submit --tag "$IMAGE" .; }
 
-job() {  # name, cli-args, memory, cpu, extra-env (|), secrets (comma-separated)
+job() {  # name, cli-args, memory, cpu, extra-env (|), secrets, timeout
   local name=$1 args=$2 mem=${3:-2Gi} cpu=${4:-1} extra=${5:-} secrets=${6:-}
+  local timeout=${7:-3600}
   local secret_args=()
   if [[ -n "$secrets" ]]; then
     secret_args=(--set-secrets "$secrets")
@@ -33,7 +34,7 @@ job() {  # name, cli-args, memory, cpu, extra-env (|), secrets (comma-separated)
     --command nfl-dfs --args "$args" \
     --set-env-vars "^|^GCP_PROJECT=${PROJECT}${extra:+|$extra}" \
     "${secret_args[@]}" \
-    --memory "$mem" --cpu "$cpu" --max-retries 1 --task-timeout 3600
+    --memory "$mem" --cpu "$cpu" --max-retries 1 --task-timeout "$timeout"
 }
 
 sched() {  # scheduler-name, job-name, cron
@@ -80,6 +81,10 @@ job shadow-k1-nofloor shadow-k1-nofloor 8Gi 4 "MODEL_ENSEMBLE=1|MODEL_REGISTRY_V
 job shadow-k1-roleunion shadow-k1-roleunion 8Gi 4 "MODEL_ENSEMBLE=1|MODEL_REGISTRY_VARIANT=tail_k1|GAME_SIM_MODE=possession|GEN_TOTAL_BUDGET=52|N_CE=12|CE_SEED=1701|N_EPISTEMIC=12|EPISTEMIC_FAMILY=role_draws|ROLE_BELIEF_FEATURES=target_share_last,carry_share_last,snap_share_last,target_share_jump,carry_share_jump,snap_share_jump|ROLE_BELIEF_SEED=7331|N_GUMBEL=0|N_BOOM=28|REPLACEMENT_SLOTS=12|MIN_LINEUP_SALARY=49000|BLEND_MODEL_WEIGHT=0.45|LIVE_SIMS=30000|CAND_ARTIFACT_BUCKET=${PROJECT}-raw|CODE_SHA=${CODE_SHA}"
 job shadow-k1-route-roleunion shadow-k1-route-roleunion 8Gi 4 "MODEL_ENSEMBLE=1|MODEL_REGISTRY_VARIANT=tail_k1_route|GAME_SIM_MODE=possession|GEN_TOTAL_BUDGET=52|N_CE=12|CE_SEED=1701|N_EPISTEMIC=12|EPISTEMIC_FAMILY=role_draws|ROLE_BELIEF_FEATURES=target_share_last,carry_share_last,snap_share_last,target_share_jump,carry_share_jump,snap_share_jump|ROLE_BELIEF_SEED=7331|N_GUMBEL=0|N_BOOM=28|REPLACEMENT_SLOTS=12|MIN_LINEUP_SALARY=49000|BLEND_MODEL_WEIGHT=0.45|LIVE_SIMS=30000|CAND_ARTIFACT_BUCKET=${PROJECT}-raw|CODE_SHA=${CODE_SHA}"
 job shadow-k3        shadow-k3       8Gi 4 "MODEL_ENSEMBLE=3|MODEL_REGISTRY_VARIANT=canonical|GAME_SIM_MODE=possession|N_CE=0|N_EPISTEMIC=0|N_GUMBEL=0|N_BOOM=40|MIN_LINEUP_SALARY=49000|BLEND_MODEL_WEIGHT=0.45|LIVE_SIMS=30000|CAND_ARTIFACT_BUCKET=${PROJECT}-raw|CODE_SHA=${CODE_SHA}"
+# Same-snapshot/same-world paired Program A shadow plus immutable recourse
+# worlds. It is deliberately separate from every money-lineup route and gets
+# two hours because it builds all five native CBWU books before persisting.
+job shadow-archetype-paired shadow-archetype-paired 16Gi 4 "CODE_SHA=${CODE_SHA}" "" 7200
 # Cheap post-processing only: read the four complete pre-lock pools, freeze
 # control/top-p/no-floor/mixed memberships, and never regenerate candidates.
 job freeze-tail-early "freeze-tail-portfolios,--slot,early" 1Gi 1
@@ -117,6 +122,10 @@ sched s-shadow-k1-route-roleunion-early shadow-k1-route-roleunion "20 10 * * 7"
 sched s-shadow-k1-route-roleunion-late  shadow-k1-route-roleunion "10 11 * * 7"
 sched s-shadow-k3-early shadow-k3   "30 10 * * 7"
 sched s-shadow-k3-late  shadow-k3   "20 11 * * 7"
+# Paired snapshots begin earlier than the one-seed shadows so their five-book
+# build and create-only manifest can finish before the next decision boundary.
+sched s-shadow-archetype-paired-early shadow-archetype-paired "15 9 * * 7"
+sched s-shadow-archetype-paired-late  shadow-archetype-paired "30 10 * * 7"
 # Both source jobs start together. These delayed jobs fail closed unless the
 # corresponding complete K=1 and K=3 hour-slot panels are present.
 sched s-freeze-tail-early freeze-tail-early "5 11 * * 7"

@@ -38,6 +38,8 @@ SCHEDULERS = (
     "s-shadow-k1-roleunion-late",
     "s-shadow-k1-route-roleunion-early",
     "s-shadow-k1-route-roleunion-late",
+    "s-shadow-archetype-paired-early",
+    "s-shadow-archetype-paired-late",
     "s-freeze-tail-early",
     "s-freeze-tail-late",
 )

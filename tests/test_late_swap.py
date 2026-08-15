@@ -9,6 +9,7 @@ from nfl_dfs.optimizer.late_swap import (
     StageBoundaries,
     build_recourse_state,
     classify_entry_reach,
+    entry_rosters_from_csv,
     propose_recourse_rosters,
     validate_information_as_of,
     validate_swap_upload,
@@ -107,6 +108,11 @@ def test_information_gate_rejects_rows_not_yet_available():
     )
     assert receipt["rows"] == 1
     assert receipt["future_rows"] == 0
+    with pytest.raises(ValueError, match="timezone-naive"):
+        validate_information_as_of(
+            pd.DataFrame({"available_at": ["2026-09-13 13:30:00"]}),
+            "2026-09-13T14:00:00-05:00",
+        )
 
 
 def test_frozen_reach_probability_bands():
@@ -121,6 +127,11 @@ def test_frozen_reach_probability_bands():
     }
     with pytest.raises(ValueError, match=r"\[0, 1\]"):
         classify_entry_reach({"bad": 1.1})
+
+
+def test_filled_entries_resolve_to_roster_ids():
+    rosters = entry_rosters_from_csv(_csv(), _catalog())
+    assert rosters == {"e1": ["1", "3", "4", "6", "7", "8", "10", "5", "11"]}
 
 
 def _recourse_fixture(qb_kickoff="2026-09-13T17:00:00Z"):

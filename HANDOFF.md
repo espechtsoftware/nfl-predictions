@@ -20,11 +20,12 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 00:04 CDT
+## Current state — 2026-08-15 00:18 CDT
 
 ### Final preseason forensic run succeeded; historical queue closed and prospective construction program frozen
 
-- Branch is `main` at pushed commit `2ae0b5b465240c8dfc96149f72b351f8d62a7ab7`.
+- Branch is `main` at pushed commit `4c19605b27d04ff67a0b88ab9f56ffe5e122eec5`
+  before the retained-world milestone described below.
   The
   byte-identical/configuration-only retry
   `final-preseason-forensic-v1-gqssz` completed successfully at
@@ -166,17 +167,47 @@ agent or developer:
   The policy is included in the current pushed commit. Exact-commit Cloud
   Build `8cc83b68-ef31-4f5d-b657-809f84d17d07` was submitted from a clean
   `git archive` of full SHA `2ae0b5b465240c8dfc96149f72b351f8d62a7ab7`.
-  It started in `us-central1` at `2026-08-15T05:02:33.467504910Z` and, on
-  success, will publish
-  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:prospective-recourse-2ae0b5b`.
+  It completed successfully at `2026-08-15T05:17:39.817175Z` after passing
+  1,362 tests with 2 skipped and 5 warnings in 736.74 seconds. Immutable image
+  is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:009444646d5d2ec95664d80c13945cbda65bf42a8e5421fcb26fbc134aa4bbbe`.
+- The outcome-free retained-world/UI milestone is locally complete but not yet
+  committed or cloud-validated. The outer archetype build can now capture both
+  CBWU control and treatment batches from the same five native seed books,
+  preventing a later data/world rebuild from contaminating the paired
+  comparison. New `prospective-recourse-worlds-v1` transport encodes only DK
+  ids, candidate rosters, player simulated worlds, timestamp and outcome-free
+  metadata; it rejects outcome fields, verifies SHA-256 and supports create-only
+  GCS persistence. At decision time it leaves not-started worlds unchanged,
+  fixes final players at timestamped points, and applies the frozen
+  `max(initial draw, points-to-date)` rule to in-progress players while failing
+  closed on stale/future/naive/missing state. A shadow-only UI/API preview now
+  accepts an already-filled DKEntries file plus a checksum-pinned artifact,
+  shows entries needing action, game-state counts and the next upload deadline,
+  but explicitly cannot emit an upload and clearly identifies whether the
+  artifact is the control or treatment arm.
+- First-class runner `nfl-dfs shadow-archetype-paired` now requires a valid
+  7--40 character hexadecimal `CODE_SHA`, executes the control and treatment
+  from one snapshot, freezes exact 20/40/80 memberships, persists both world
+  artifacts create-only, and persists a create-only manifest whose exact JSON
+  bytes are SHA-256 identified in the returned receipt. Deployment definitions
+  give the five-book job 16 GiB, four CPUs and a two-hour timeout. The weekly
+  schedule and fail-closed season-start resume list now include paused early/
+  final Sunday runs at 9:15am and 10:30am CT. These new Cloud Run/Scheduler
+  resources are definitions only and have not yet been deployed.
+- Twenty-five focused world/recourse/paired-capture/route/view tests pass
+  locally. `bash -n deploy/deploy_jobs.sh`, module compilation and
+  `git diff --check` also pass. Repository rules reserve the full suite for
+  the next exact-commit Cloud Build.
 - The local repository `.venv` remains healthy despite the user's concern
   about accidentally deleting a Python environment while installing Gemini
   CLI: `.venv/bin/python` is Python 3.14.4, project/pandas/BigQuery imports
   succeed and `python -m pip check` reports no broken requirements.
-- Next concrete action: poll exact-current build
-  `8cc83b68-ef31-4f5d-b657-809f84d17d07` to terminal and record its suite
-  count/digest; then add the score-free retained-world adapter and UI
-  preview needed for an authenticated rehearsal. The first score-free
+- Next concrete action: commit/push this retained-world/paired-runner/UI
+  milestone and launch a new exact-commit full-suite Cloud Build. After the
+  validated digest exists, deploy only the new paired shadow job/schedulers in
+  a paused state and verify their configuration without running a scoring job.
+  Then run an authenticated test-artifact UI-to-CSV rehearsal. The first score-free
   live shadow smoke waits only for complete 2026 pre-lock slate inputs and must
   validate its receipt before any outcome join. In parallel, preserve the Week
   1 readiness and forensic cleanup gates. Do not launch another historical

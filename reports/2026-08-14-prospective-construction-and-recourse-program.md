@@ -226,6 +226,41 @@ the DKEntries filler and validator both pass, and it cannot use a final score,
 actual ownership, contest rank, payout, or any information timestamped after
 the decision.
 
+The retained simulation transport is frozen as
+`prospective-recourse-worlds-v1`. The outer archetype build may expose both
+the incumbent CBWU control batch and archetype treatment batch from the exact
+same five native seed books; it may not rebuild the control later from a new
+data snapshot. Each batch is encoded as a checksum-bound create-only artifact
+containing only DK player ids, candidate roster ids, player-by-world simulated
+scores, generation time and outcome-free batch metadata. Outcome-named
+metadata fields are rejected.
+
+The paired runner is exposed as `nfl-dfs shadow-archetype-paired`. It requires
+a valid code SHA, captures control and treatment during one outer build,
+persists both artifacts with create-only generation preconditions, and writes
+a create-only manifest whose exact JSON bytes are SHA-256 identified in the
+returned receipt. The seasonal deployment runs it at 9:15am and 10:30am CT on
+Sunday; both schedulers remain paused with the other NFL-only jobs until the
+forensic cleanup/resume gate passes.
+
+At a recourse decision, the adapter applies this fixed transformation to the
+initial player worlds:
+
+- a not-started player retains the initial full-game simulated distribution
+  and must have zero observed points;
+- a final player is fixed at timestamped points-to-date with zero remaining
+  score;
+- an in-progress player's total becomes
+  `max(initial full-game draw, points-to-date)`, represented to the proposer as
+  `points-to-date + max(draw - points-to-date, 0)`.
+
+The in-progress rule is a deliberately simple prospective floor, not a claim
+that fantasy scores cannot decline. It retains the initial joint-world rank
+information while ensuring a simulated total cannot contradict points already
+observed. Any future, timezone-naive, unknown, missing-locked, stale-status or
+pre-kickoff nonzero observation fails closed. A later residual model would be
+a separately versioned mechanism; it cannot silently replace this rule.
+
 ### Measurement and adoption
 
 Measure initial-book and final-book tail counts, the number and type of swaps,
@@ -267,8 +302,10 @@ benchmark.
    proposal until the new validator passes.
 4. Implement the frozen `prospective-recourse-policy-v1` conditional-world
    assignment law that proposes the swaps.
-5. Run the authenticated UI-to-CSV dress rehearsal.
-6. Keep both paths in shadow mode while the incumbent generates the money book.
+5. Persist the paired `prospective-recourse-worlds-v1` artifacts and expose a
+   fail-closed UI preview of the proposed entry changes.
+6. Run the authenticated UI-to-CSV dress rehearsal.
+7. Keep both paths in shadow mode while the incumbent generates the money book.
 
 This queue replaces retrospective arm mining. It does not replace the existing
 Week 1 operational checklist, forensic warehouse cleanup gate, or weekly paid-

@@ -815,6 +815,34 @@ document.getElementById('csv').onclick=async()=>{
       ((await r.json()).detail||r.status);
   }
 };
+document.getElementById('recgo').onclick=async()=>{
+  const out=document.getElementById('recout'),file=document.getElementById('recentry').files[0],
+        uri=document.getElementById('recuri').value.trim(),
+        sha=document.getElementById('recsha').value.trim(),slate=slateSel();
+  if(slate.sd||!slate.gid){out.textContent='Choose an explicit Classic slate.';return;}
+  if(!file||!uri||!sha){out.textContent='Choose DKEntries.csv and provide the pinned artifact URI/checksum.';return;}
+  let status=[];
+  try{status=JSON.parse(document.getElementById('recstatus').value||'[]');}
+  catch(e){out.textContent='Game status must be a JSON array.';return;}
+  out.textContent='Checking timestamped game state and simulated remaining worlds...';
+  const r=await fetch('/lineups/entries/recourse/preview',{method:'POST',
+    headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      entries_csv:await file.text(),draft_group_id:slate.gid,
+      artifact_uri:uri,artifact_sha256:sha,status_information:status})});
+  const j=await r.json();
+  if(!r.ok){out.textContent='Recourse blocked: '+(j.detail||r.status);return;}
+  const counts=j.world_adapter_receipt?.status_counts||{},changes=j.changes||[];
+  out.innerHTML=`<b>Shadow preview only — upload remains blocked.</b> `+
+    `Artifact arm ${esc(j.artifact_arm)}. `+
+    `${j.changed_entries} of ${j.entries} entries proposed to change. `+
+    `As of ${esc(j.as_of)}; next upload deadline ${esc(j.next_upload_deadline||'none')}. `+
+    `Game states: ${counts.final||0} final, ${counts.in_progress||0} in progress, `+
+    `${counts.not_started||0} not started.`+
+    (changes.length?`<ol>${changes.map(c=>`<li>Entry ${esc(c.entry_id)}: `+
+      `out ${esc(c.players_out.join(', ')||'none')}; `+
+      `in ${esc(c.players_in.join(', ')||'none')} (${esc(c.reach_class)})</li>`
+      ).join('')}</ol>`:'');
+};
 async function loadPrefs(){
   const se=+document.getElementById('season').value,
         wk=+document.getElementById('week').value;
@@ -937,6 +965,21 @@ def lineups_page() -> str:
         + f"<div><button id='cmpgo' style='padding:.4rem 1rem'>Compare"
         f"</button><div id='cmpout' style='font-size:.85rem;max-width:22rem'>"
         f"</div></div></div></details>"
+        f"<details id='recourse-panel' style='margin:.4rem 0'><summary "
+        f"style='cursor:pointer;font-size:.9rem'>Prospective late-swap "
+        f"preview (shadow only)</summary><div style='display:grid;gap:.4rem;"
+        f"max-width:52rem;margin:.5rem 0'>"
+        f"<label>Current filled DKEntries.csv<input id='recentry' type='file' "
+        f"accept='.csv,text/csv'></label>"
+        f"<label>Retained-world artifact URI<input id='recuri' "
+        f"placeholder='gs://.../recourse_worlds/...npz'></label>"
+        f"<label>Artifact SHA-256<input id='recsha' maxlength='64'></label>"
+        f"<label>Timestamped game status JSON<textarea id='recstatus' rows='4' "
+        f"placeholder='[&#123;&quot;dk_id&quot;:&quot;...&quot;,&quot;points_to_date&quot;:12.5,"
+        f"&quot;game_status&quot;:&quot;final&quot;,&quot;available_at&quot;:&quot;...Z&quot;&#125;]'"
+        f"></textarea></label><button id='recgo' type='button'>Preview proposed "
+        f"changes</button><div id='recout' style='font-size:.85rem'>No preview "
+        f"run. This cannot produce an upload file.</div></div></details>"
         f"<div id='status'>Pick season/week/slate and Build (the Sunday "
         f"main slate preselects itself when DK lists one; single games under "
         f"Showdown build Captain Mode entries). Classic tournament defaults "
@@ -2936,6 +2979,14 @@ class FillEntriesRequest(LineupRequest):
     allow_duplicate_lineups: bool = False
 
 
+class RecoursePreviewRequest(BaseModel):
+    entries_csv: str
+    draft_group_id: int
+    artifact_uri: str
+    artifact_sha256: str = Field(pattern="^[0-9a-f]{64}$")
+    status_information: list[dict] = Field(default_factory=list)
+
+
 class ShowdownFillEntriesRequest(ShowdownLineupRequest):
     entries_csv: str
     n_lineups: int | None = None  # ignored — one lineup per entry row
@@ -3060,6 +3111,72 @@ def fill_validated_late_swap_entries(
             "X-Late-Swap-Uses-Outcomes": "false",
         },
     )
+
+
+@app.post("/lineups/entries/recourse/preview")
+def preview_prospective_recourse(
+    req: RecoursePreviewRequest, store: ProjectionStore = Depends(get_store)
+) -> dict:
+    """Preview the frozen recourse proposal; never emit an upload file.
+
+    Only checksum-pinned artifacts under this project's dedicated GCS prefix
+    are accepted. The proposal remains non-money shadow output until a later
+    DK fill also passes the validated export gate.
+    """
+    from ..config import settings
+    from ..inference.recourse_worlds import (
+        load_recourse_world_artifact,
+        propose_recourse_from_artifact,
+    )
+    from ..optimizer.late_swap import entry_rosters_from_csv
+
+    prefix = f"gs://{settings.gcs_bucket}/recourse_worlds/"
+    if not req.artifact_uri.startswith(prefix):
+        raise HTTPException(
+            422, f"Recourse artifact must be under {prefix}")
+    try:
+        artifact = load_recourse_world_artifact(
+            req.artifact_uri, req.artifact_sha256
+        )
+        context = artifact["metadata"].get("context") or {}
+        if int(context.get("draft_group_id", -1)) != req.draft_group_id:
+            raise ValueError("recourse artifact draft group differs")
+        artifact_arm = str(context.get("arm", ""))
+        if artifact_arm not in {"control", "treatment"}:
+            raise ValueError("recourse artifact arm is not control/treatment")
+        catalog = _late_swap_catalog(store, req.draft_group_id)
+        entries = entry_rosters_from_csv(req.entries_csv, catalog)
+        status = pd.DataFrame(req.status_information)
+        if status.empty:
+            status = pd.DataFrame(columns=(
+                "dk_id", "points_to_date", "game_status", "available_at",
+            ))
+        result = propose_recourse_from_artifact(
+            artifact,
+            entries,
+            catalog,
+            status,
+            as_of=_late_swap_now(),
+        )
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    kickoff = pd.to_datetime(catalog.kickoff, errors="coerce", utc=True)
+    as_of = pd.Timestamp(result["as_of"]).tz_convert("UTC")
+    future = kickoff[kickoff.gt(as_of)]
+    return {
+        **result,
+        "artifact_uri": req.artifact_uri,
+        "artifact_arm": artifact_arm,
+        "draft_group_id": req.draft_group_id,
+        "next_upload_deadline": (
+            None if future.empty else future.min().isoformat()
+        ),
+        "upload_licensed": False,
+        "upload_blocker": (
+            "Prospective preview only; fill and validate the proposed book "
+            "before any DK upload."
+        ),
+    }
 
 
 @app.post("/lineups/entries/diff")
