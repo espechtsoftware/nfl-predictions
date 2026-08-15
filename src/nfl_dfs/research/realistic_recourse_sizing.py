@@ -321,10 +321,25 @@ def validate_forensic_parity(
     }
 
 
-def canonical_json_sha256(value: object) -> str:
-    payload = json.dumps(
-        value, sort_keys=True, separators=(",", ":"), allow_nan=False,
+def _canonical_json_bytes(value: object) -> bytes:
+    def numpy_scalar(item: object) -> object:
+        if isinstance(item, np.generic):
+            return item.item()
+        raise TypeError(
+            f"Object of type {item.__class__.__name__} is not JSON serializable"
+        )
+
+    return json.dumps(
+        value,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+        default=numpy_scalar,
     ).encode("utf-8")
+
+
+def canonical_json_sha256(value: object) -> str:
+    payload = _canonical_json_bytes(value)
     return hashlib.sha256(payload).hexdigest()
 
 
@@ -340,7 +355,10 @@ def freeze_proposals(proposals: Sequence[Mapping[str, object]]) -> dict:
     if len(set(keys)) != len(keys):
         raise ValueError("realistic recourse proposal set repeats a slate")
     forbidden = FORBIDDEN_PROPOSAL_COLUMNS
-    encoded = json.dumps(ordered, sort_keys=True, separators=(",", ":"))
+    encoded = _canonical_json_bytes(ordered).decode("utf-8")
+    # Freeze only standard JSON primitives so the later create-only upload
+    # cannot fail after all 54 pre-outcome proposals have been constructed.
+    ordered = json.loads(encoded)
     if any(f'"{column}"' in encoded for column in forbidden):
         raise ValueError("proposal set contains a forbidden outcome field")
     return {

@@ -191,6 +191,29 @@ the immutable first-failed layer at 210. This amendment expands diagnostics
 and repairs comparator identity; it does not change the population, worlds,
 decision time, primary recourse assignments or adoption status.
 
+### Pre-freeze serialization recovery (2026-08-15 09:04 CDT)
+
+Execution `realistic-recourse-sizing-v1-p2n4c` failed while hashing the first
+pre-outcome proposal because the BigQuery grouping identity supplied NumPy
+`int64` season/week scalars to Python's strict JSON encoder. The failure was
+before `freeze_proposals`, before either create-only upload and before the
+outcome query. The proposal-set and result objects were independently
+verified absent after terminal failure. No proposal assignment, comparator
+assignment or realized result was exposed.
+
+The licensed operational correction converts NumPy scalar values to their
+identical standard JSON scalar values during canonical encoding and
+normalizes the frozen ledger to standard JSON primitives. It changes no
+population, data, candidates, worlds, policy, comparator, objective, decision
+time, checksum ordering or outcome boundary. A regression test must prove
+that integer, float and Boolean NumPy scalars produce a strict serializable
+ledger. The replacement exact image must pass the full suite, then publish a
+fresh create-only same-image scorer reconciliation at
+`scorer-reconciliation-serialization-repair.json` before one replacement
+zero-retry scientific execution is allowed. The original audit remains an
+immutable record of the superseded image and is not accepted by the repaired
+runner.
+
 ## Registered outputs
 
 The create-only result is:

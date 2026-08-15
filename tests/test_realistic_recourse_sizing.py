@@ -1,3 +1,5 @@
+import json
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -125,6 +127,29 @@ def test_freeze_proposals_requires_54_and_rejects_outcomes():
     contaminated[0]["actual_score"] = 1
     with pytest.raises(ValueError, match="forbidden outcome"):
         freeze_proposals(contaminated)
+
+
+def test_freeze_proposals_normalizes_numpy_scalars_before_upload():
+    proposals = [
+        {
+            "season": np.int64(2023 + index // 18),
+            "week": np.int64(index % 18 + 1),
+            "receipt": {
+                "rows": np.int64(index),
+                "score": np.float64(index / 10),
+                "valid": np.bool_(True),
+            },
+        }
+        for index in range(54)
+    ]
+    frozen = freeze_proposals(proposals)
+    first = frozen["proposals"][0]
+    assert type(first["season"]) is int
+    assert type(first["receipt"]["rows"]) is int
+    assert type(first["receipt"]["score"]) is float
+    assert type(first["receipt"]["valid"]) is bool
+    assert len(frozen["proposal_set_sha256"]) == 64
+    json.dumps(frozen, allow_nan=False)
 
 
 def test_swap_distance_counts_player_replacements():

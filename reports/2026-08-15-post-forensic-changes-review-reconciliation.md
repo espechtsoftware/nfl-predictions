@@ -85,3 +85,17 @@ and prospective/shadow-only.
 None. The adopted exact-80 baseline and all production construction rules are
 unchanged. These changes improve the interpretation and validity of the next
 descriptive/prospective evidence.
+
+## Execution follow-through
+
+The replacement image passed the full suite and its same-image scorer audit
+reconciled all 75,712 player weeks with zero differences. The first scientific
+execution then failed before proposal freeze because NumPy `int64` slate keys
+were not accepted by the strict JSON encoder. The actual proposal-set and
+result objects remained absent, so no proposal or outcome was exposed.
+
+The logged recovery converts only NumPy scalar representations to identical
+standard JSON primitives and adds a regression test that the complete frozen
+ledger is strictly serializable. It does not change either policy class or any
+scientific input. A new exact image and fresh same-image scorer receipt are
+required before the single replacement execution.

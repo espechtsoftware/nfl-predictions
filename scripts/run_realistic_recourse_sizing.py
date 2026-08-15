@@ -63,7 +63,8 @@ EXPECTED_EXACT_STACK_SHA256 = (
 SCORER_AUDIT_URI = (
     "gs://nfl-predictions-503414-raw/research/final-forensic-runs/"
     "20260814-final-preseason-forensic-v1/post-forensic-addenda/"
-    "20260815-realistic-recourse-sizing-v1/scorer-reconciliation.json"
+    "20260815-realistic-recourse-sizing-v1/"
+    "scorer-reconciliation-serialization-repair.json"
 )
 LATERAL_RESIDUALS = (
     (2024, 3, "00-0033576"), (2024, 9, "00-0036988"),

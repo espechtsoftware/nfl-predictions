@@ -78,13 +78,19 @@ agent or developer:
   identities across 141,125 PBP rows; it found the expected eight
   multi-lateral plays, twelve adjusted players and zero scoring-relevant
   missing times. This licenses the same-image scientific run.
-  Scientific execution `realistic-recourse-sizing-v1-p2n4c` is now running
-  in `us-central1` as the single registered zero-retry task from analysis SHA
-  `73374a2501bdf5093f7b6acbc93cb482cd45b6ef` and the same immutable digest.
-  Poll it through terminal status. Do not inspect or act on partial scientific
-  artifacts; a proposal ledger may appear before the terminal result by
-  design, and any failure after that create-only freeze is terminal under the
-  registered protocol.
+  Scientific execution `realistic-recourse-sizing-v1-p2n4c` failed terminally
+  at `2026-08-15T13:59:13.386348Z` before proposal freeze: the first slate's
+  NumPy `int64` season/week identity was not serializable by the canonical JSON
+  hasher. Both the actual `proposal-set.json` and `result.json` objects were
+  independently verified absent after failure, so this exposed no proposal or
+  outcome and licenses an operational-only recovery. The repair canonicalizes
+  NumPy scalars to identical standard JSON primitives, adds a regression test,
+  and moves the required replacement same-image scorer receipt to
+  `scorer-reconciliation-serialization-repair.json`; no scientific input,
+  assignment or rule changes. Exact next action: validate, commit/push, build
+  an exact replacement image with the full suite, run the fresh create-only
+  same-image scorer audit, and only if it passes launch one replacement
+  zero-retry scientific execution.
 
 - The full scorer validation is terminal-successful. Cloud Build
   `4c2fe3b0-6f36-4d39-baf8-4df829316e7f` ran from exact pushed SHA
