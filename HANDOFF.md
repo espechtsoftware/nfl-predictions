@@ -146,6 +146,22 @@ agent or developer:
   seven-cell calibration artifact harvested and hash-pinned before held-out
   deployment. This clarifies an implementation branch without changing the
   parent acquisition hash or any treatment/gate/consequence.
+- The separate 2022-only calibration runner and strict harvester are now
+  implemented at exact full SHA
+  `0db5e8e3003d5ccf9443a49b0fb92b3bc2f75ee8`. The loader queries only 2022
+  accepted outcomes, proves historical snapshot/cache/blend/usage parity,
+  filters Weeks 5--18, hash-receipts the two strictly-prior context sources,
+  evaluates every frozen strength with exact-marginal and unchanged-row
+  invariants, and emits all seven complete G0/G1 scorebooks before selecting.
+  The proper-score tiebreak uses the explicitly frozen repaired G2 primary
+  weights. A duplicate-null identity defect found before source use was also
+  repaired: unresolved Fantasy Points WR rows remain in the team route-mass
+  denominator, but only resolved non-null IDs participate in uniqueness and
+  treatment. The split harvester permits held-out deployment only after a
+  complete checksum-verified calibration report; it cannot license exact-80.
+  Fifty-eight combined SIS tests, changed-module compilation, CLI help, shell
+  syntax and `git diff --check` pass locally. Do not launch it until guarded
+  acquisition validates and both create-once source tables are imported.
 - The review's remaining exact-P construction question is now frozen as
   `reports/2026-08-15-exact-p-generator-constraint-census-protocol.md`
   The pre-membership disposition thresholds are fixed in the protocol: 36/54
