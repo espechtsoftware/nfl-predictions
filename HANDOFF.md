@@ -102,11 +102,15 @@ agent or developer:
   Use only that exact code/image for the replacement scorer receipt and
   scientific execution; later HANDOFF-only commits are not analysis code.
   Replacement same-image scorer execution
-  `recourse-scorer-reconciliation-v2-pqsph` is running in `us-central1` from
-  that digest and analysis SHA. Its fresh create-only target, proposal-set and
-  result objects were all verified absent immediately before launch. Poll it
-  through terminal status and require the registered exact census before the
-  replacement scientific execution is licensed.
+  `recourse-scorer-reconciliation-v2-pqsph` completed successfully at
+  `2026-08-15T14:34:53.503323Z` from that digest and analysis SHA. Fresh
+  create-only generation `1786804489195743`, SHA256
+  `89528a620e203b2e8660c9e1d8b844dfef55fec17d04d639e5ec9fb156399ca4`,
+  reconciles all 75,712 player weeks (54,419 stat-bearing plus 21,293
+  salary-zero) across 141,125 PBP rows with zero differences, zero nonzero
+  outside-label identities, eight multi-lateral plays, twelve adjusted players
+  and zero scoring-relevant missing times. This licenses one replacement
+  scientific execution from the same exact code/image.
 
 - The full scorer validation is terminal-successful. Cloud Build
   `4c2fe3b0-6f36-4d39-baf8-4df829316e7f` ran from exact pushed SHA
