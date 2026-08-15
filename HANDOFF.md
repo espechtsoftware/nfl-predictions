@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 05:13 CDT
+## Current state — 2026-08-15 05:24 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -137,12 +137,16 @@ agent or developer:
   warnings were emitted in 750.21 seconds. Tag `latent-role-worlds-fec0994`
   resolves to immutable digest
   `sha256:56434140bc27ff7383f757e780c1edb91a5050dced6e36683403441a0979ec7d`.
-  Exact candidate bridge build `79a265ec-2958-42ac-af3b-bea7a9e70228`, live
-  five-seed plumbing build `afb97a4b-5e92-4a38-aa2d-a43dedbedc33`, and
-  corrective addendum build `3b875c6f-53c3-44ce-817b-8b3dca5b67f1` remain
-  queued/running. Superseded addendum builds `4c27a7da...` and `8b9e33ce...`
-  were canceled before starting. Continue polling and record terminal
-  evidence before use.
+  Exact candidate bridge build `79a265ec-2958-42ac-af3b-bea7a9e70228`
+  reached terminal `SUCCESS` at `2026-08-15T10:23:01.386230Z`: 1,419 tests
+  passed, 2 were skipped and 5 warnings were emitted in 1,000.07 seconds. Tag
+  `latent-role-candidates-de9a980` resolves to immutable digest
+  `sha256:864ac2b3f2c346e8624432a01f50c4c0d35c7223d4fc5e94c4a4393f85d691de`.
+  Live five-seed plumbing build `afb97a4b-5e92-4a38-aa2d-a43dedbedc33`
+  started at `2026-08-15T10:23:51.887764960Z`; corrective addendum build
+  `3b875c6f-53c3-44ce-817b-8b3dca5b67f1` remains queued. Superseded addendum
+  builds `4c27a7da...` and `8b9e33ce...` were canceled before starting.
+  Continue polling and record terminal evidence before use.
 - Removing only the salary floor creates zero new tail-threshold slates from
   187 through 240, so no-floor is rejected. The frozen route admission bound
   admits 565 absent players while recovering only 2/17 omitted winner slots,
@@ -624,11 +628,15 @@ agent or developer:
   `latent-role-worlds-fec0994` resolves to immutable digest
   `sha256:56434140bc27ff7383f757e780c1edb91a5050dced6e36683403441a0979ec7d`.
 - Exact clean-archive candidate-bridge build
-  `79a265ec-2958-42ac-af3b-bea7a9e70228` is queued in `us-central1` from
-  archive `de9a980...` with tag `latent-role-candidates-de9a980`.
+  `79a265ec-2958-42ac-af3b-bea7a9e70228` reached terminal `SUCCESS` at
+  `2026-08-15T10:23:01.386230Z` from archive `de9a980...`: 1,419 tests passed,
+  2 were skipped and 5 warnings were emitted in 1,000.07 seconds. Tag
+  `latent-role-candidates-de9a980` resolves to immutable digest
+  `sha256:864ac2b3f2c346e8624432a01f50c4c0d35c7223d4fc5e94c4a4393f85d691de`.
 - Exact clean-archive five-seed plumbing build
-  `afb97a4b-5e92-4a38-aa2d-a43dedbedc33` is queued from archive
-  `adadd76...` with tag `latent-role-live-adadd76`.
+  `afb97a4b-5e92-4a38-aa2d-a43dedbedc33` started at
+  `2026-08-15T10:23:51.887764960Z` from archive `adadd76...` with tag
+  `latent-role-live-adadd76` and remains `WORKING`.
 - Next concrete action: compute and publish the exact-stack repair4
   construction addendum, including P-oracle swap distance, structure/support
   and loosened-versus-production constraint attribution. In parallel harvest
