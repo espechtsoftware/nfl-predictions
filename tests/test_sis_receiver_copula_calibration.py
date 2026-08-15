@@ -84,9 +84,12 @@ def test_calibration_score_uses_complete_pair_scorebook(monkeypatch):
 
     result = calibration.score_calibration(frame, draws)
 
-    assert result["primary"]["joint_q90_brier"] == 0.02
-    assert result["primary"]["variogram_p0_5"] == 1.5
-    assert result["primary"]["g0_absolute_log_error_sum"] == 0.3
-    assert result["primary"]["g1_relationship_errors"]["QB_WR"][
-        "absolute_log_error"
-    ] == 0.2
+    assert np.isclose(result["primary"]["joint_q90_brier"], 0.02)
+    assert np.isclose(result["primary"]["variogram_p0_5"], 1.5)
+    assert np.isclose(result["primary"]["g0_absolute_log_error_sum"], 0.3)
+    assert np.isclose(
+        result["primary"]["g1_relationship_errors"]["QB_WR"][
+            "absolute_log_error"
+        ],
+        0.2,
+    )

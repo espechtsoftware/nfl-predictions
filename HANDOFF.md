@@ -273,8 +273,15 @@ agent or developer:
   compilation, `git diff --check`, and a live BigQuery dry run of the repaired
   parameterized query pass. Rebuild this exact repair, then rerun the same sole
   census with a new operational execution identity. Exact-archive repair build
-  `a5bf322d-1ec1-4e7f-9a75-9c7f441b7a02` is queued in `us-central1` under tag
-  `exact-p-census-42568fb`. Its only licensed output is
+  `a5bf322d-1ec1-4e7f-9a75-9c7f441b7a02` failed before image construction at
+  `2026-08-15T17:38:29.228137Z`: 1,483 tests passed and one unrelated new SIS
+  calibration unit test compared the weighted floating result
+  `0.019999999999999997` to literal `0.02` with exact equality. The exact-P
+  code did not fail and no image/result was produced. That assertion now uses
+  the project's normal numeric tolerance for all four synthetic score values;
+  the combined SIS calibration and exact-P focused suite passes locally.
+  Commit/build this test-only validation repair, then rerun the unchanged sole
+  census from the superseding passing image. Its only licensed output is
   `gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/post-forensic-addenda/20260815-exact-p-generator-constraint-census-v1/result.json`.
   No local or alternative membership run is licensed.
 
