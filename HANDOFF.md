@@ -803,6 +803,17 @@ agent or developer:
   reports the canonical-production prefix only as non-gating composite
   context. This isolates selector attribution from construction. ATLAS remains
   ahead of exact-N in launch order.
+  A later review correctly requested a cross-environment byte-reproduction
+  gate and highlighted coverage-neutral secondary objectives, but incorrectly
+  described the `33.19/80` change as floating-point-only. CBWU-OI changes the
+  fixed-budget candidate admission itself: complete-union cross-scoring plus
+  194 admission replaces canonical first-source quota/fill. It is therefore
+  not comparable to the fixed-candidate `54.28/80` disjoint-half result and
+  does not prove 47 numerical-tie selections. The exact-P census remains safe
+  and canonical because no production promotion occurred. If CBWU-OI is ever
+  promoted, P/C/S and P-distance/census evidence must be rerun. Full
+  reconciliation and the two licensed score-free diagnostics are in
+  `reports/2026-08-16-cbwu-book-instability-and-tie-break-opportunity-reconciliation.md`.
   A follow-on review incorrectly treated CBWU-OI as an in-place production
   change. It is an inactive research function with no production call site;
   requiring identity to canonical CBWU would also contradict its frozen strict
