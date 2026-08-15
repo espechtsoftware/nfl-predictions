@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 06:38 CDT
+## Current state — 2026-08-15 06:42 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -58,9 +58,16 @@ agent or developer:
   unchanged. Exact-commit replacement build
   `5c3b9d72-fd8e-4306-bd17-01a6f4a3c911` was submitted from pushed `main`
   SHA `bb7453e7213627ad446fec20ed92c6550ec0e071` under tag
-  `post-forensic-stack-bb7453e`; it is running. Poll it, harvest its immutable
-  digest, verify the runner exists, then relaunch the same create-only output
-  once with zero retries.
+  `post-forensic-stack-bb7453e`. It completed successfully at
+  `2026-08-15T11:40:18.504994Z`: 1,428 tests passed, 2 skipped and 5 warnings
+  in 1,126.62 seconds. Immutable image digest is
+  `sha256:64083d989d70e341409a211416d894245d675249395de891321e11696005dc0a`.
+  Packaging-fixed replacement execution
+  `post-forensic-stack-addendum-v1-smrps` was then launched from that digest
+  with the same frozen protocol/output URI, one task, zero retries, 8 CPU,
+  32 GiB and four-hour timeout. Poll execution status only until terminal; do
+  not read partial output. On success, verify the result identities and
+  invariants and publish the addendum without overwriting the original.
 
 - Corrected exact-stack forensic-addendum Cloud Build
   `3b875c6f-53c3-44ce-817b-8b3dca5b67f1` completed successfully at
