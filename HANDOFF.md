@@ -124,8 +124,9 @@ agent or developer:
   in 996.34 seconds. Tag `realistic-recourse-5789f6b` resolves to immutable
   digest
   `sha256:c7a9e9557eb3e62bbb01cebf2aae3550a58d5320d74f5d40e74097706af383a8`.
-  Launch
-  `recourse-scorer-reconciliation-v2` from that immutable digest, require its
+  Same-image scorer audit execution `recourse-scorer-reconciliation-v2-qvlt5`
+  is now running with one task, zero retries, 8 CPU, 32 GiB and one-hour
+  timeout. Poll it to terminal without reading partial output. Require its
   create-only 54,419/54,419 result, and only then use the same digest for the
   recourse run.
 
