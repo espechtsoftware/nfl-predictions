@@ -781,6 +781,22 @@ agent or developer:
   Poll this exact execution and use only the strict source1 finisher after
   terminal success. Do not launch ATLAS or the outcome-viewed CBWU-OI
   construction diagnostic while this 32-GiB census owns the research slot.
+  The full census completed successfully at `2026-08-15T22:42:19.056503Z` in
+  11m27.62s. The strict finisher retained the immutable report at SHA-256
+  `579be07b8ebdf223446430d5dfe626362ecf27e5e7f12f24c20bc07f4c8826ec`.
+  Its frozen disposition is `native-generation-search-dominant`: corrected P
+  is absent from the complete five-seed native union on all 54 slates, with
+  zero fixed-budget-admission losses and zero invalid retained cases. All nine
+  P players are nevertheless represented somewhere in every native union;
+  the nearest native roster is a mean 4.76/median 5 swaps away (distribution
+  1:1, 3:2, 4:14, 5:28, 6:9). This isolates combination assembly/search rather
+  than player eligibility or canonical CBWU admission. No single family meets
+  the frozen structural-materiality rule. The concise result is in
+  `reports/2026-08-15-exact-p-generator-census-result.md`. No score was read
+  and no production change is licensed. The released 32-GiB slot may now
+  advance ATLAS; CBWU-OI's separate C diagnostic remains useful because it can
+  improve the best retained native candidate even though its complete union
+  cannot literally contain exact P.
   The second requested narrow check is also implemented as the pure
   `validate_exact_p_census_plumbing` preflight. On exactly the 18 2023 slates
   it audits corrected-P legality, all five native books, family labels and
