@@ -20,7 +20,104 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 22:18 CDT
+## Current state — 2026-08-14 23:22 CDT
+
+### Final preseason forensic run succeeded; historical queue closed and prospective construction program frozen
+
+- Branch is `main` at pushed commit `7b3b547` before this in-progress
+  documentation milestone. The byte-identical/configuration-only retry
+  `final-preseason-forensic-v1-gqssz` completed successfully at
+  `2026-08-15T04:05:51.446124Z`, with one succeeded task, zero failed tasks and
+  runtime 47m1.64s. It used exact analysis code
+  `1e4f7f4c81a07100b522975a8d2f352a911c3d5b`, immutable image
+  `sha256:313e762be343dada9ee9f386818af176cdb1e4ff09b84912e4a683841cf9aa4d`,
+  repair4 manifest internal SHA-256
+  `51edbe124846dc936ade71c4e5a9a07e252bcf6c7d7872b979715ccd1f6bab02`,
+  8 CPU/32 GiB, one task, zero retries and the frozen 24-hour timeout. No
+  duplicate outcome execution was launched and the most recent Cloud Run
+  execution list contains no nonterminal scoring/forensic work.
+- All nine contracted JSON objects exist under the create-only
+  `gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/outputs-repair4`
+  prefix, total approximately 35.37 MiB. Every object parses. Output 02 carries
+  all 215 required slate-scope rows (107 component, 54 position, 54 CBWU) and
+  all H/P/C/S, gap, threshold and first-failed-layer fields; outputs 06–09 have
+  all 56 arm rows, 5 Week 1 checks, 13 opportunity items and 13 certified
+  exhaustion families respectively.
+- The four repair4 BigQuery tables exist with exact manifest schemas, shared
+  labels/descriptions and expiry `2026-11-13T04:05:17.429Z`: player corpus
+  111,191 rows, candidate corpus 54,430, actual selections 17,200 and oracle
+  rosters 1,075. Retain them for the user's independent review. They remain
+  production-inaccessible and **must not be deleted yet**, but must be removed
+  and verified absent before the first 2026 production build through the
+  existing cleanup/resume gate.
+- The final result is documented in
+  `reports/2026-08-14-final-preseason-forensic-result.md`. Current exact-80
+  production remains `classic-k1-role12-boom40-poscal-cbwu-v4`. On its 54
+  comparable 2023–2025 slates, mean weekly maximum is 176.063 and tail counts
+  at 187/194/200/210/220/230/240 are `17/8/7/6/3/1/0`. Versus the pre-CBWU
+  component baseline it gains 3.395 mean points and changes the same tail grid
+  by `+3/-1/+2/+5/+2/+1/0`; the loss of one 194 crossing is the cost of a much
+  stronger 210+ tail and is consistent with the user's stated objective.
+- The decisive diagnostic is candidate construction. For current CBWU, the
+  mean H-P player-support gap is 3.583, P-C construction gap 78.994 and C-S
+  selection gap 5.007. At >=210, construction is the first failed layer on
+  44/54 slates, player support on 3, selection on 0 and no layer on 7. The H/P/C/S
+  >=210 counts are 53/50/6/6. Selector tuning is therefore deprioritized; new
+  work must change the generated candidate compositions or the decision shape.
+- Removing only the salary floor creates zero new tail-threshold slates from
+  187 through 240, so no-floor is rejected. The frozen route admission bound
+  admits 565 absent players while recovering only 2/17 omitted winner slots,
+  so it is too indiscriminate for direct adoption. The finite-K SIS pass-tail
+  result remains selected research evidence but its cache/schedules do not
+  transfer into the K=1 money policy; it remains a separately labeled 2026
+  shadow.
+- The perfect-hindsight recourse ceiling improves 53/54 slates by mean 42.62
+  points and creates 30 new >=210 and 18 new >=230 slates. This is not expected
+  policy performance because it uses realized late outcomes. It does license
+  prospective work on an outcome-unseen recourse policy and an authenticated
+  operational rehearsal.
+- The 14-panel variance census finds arm identity explains only 4.71% of
+  arm-plus-residual weekly-max variance, 2.34% of >=200 variance and 2.14% of
+  >=210 variance. The 56-arm ledger and 13-family certificate close the
+  registered historical arm search; repeatedly mining the same outcomes for
+  smaller differences is not licensed.
+- Outcome-viewed corpus diagnostics are hypothesis-generating only. A weak
+  shallow holdout model achieved ROC AUC 0.6255/AP 0.00614; structural block-3,
+  high-q99/high-`p_line` subgroups showed roughly 2x historical lift; high-score
+  candidates had 7.81x local embedding enrichment and stronger co-selection
+  graph modularity. None can alter historical adoption. They motivate the
+  budget-neutral prospective structural-archetype generator defined in
+  `reports/2026-08-14-prospective-construction-and-recourse-program.md`.
+- The prospective charter keeps the K=1 CBWU exact-80 money baseline, forbids
+  any 2019–2025 outcome from fitting or promoting new mechanisms, and queues:
+  archetype allocation integration; native-summary/seed identity freeze;
+  candidate metadata/receipts; a PIT-staged late-swap state model and
+  DraftKings CSV validator; authenticated UI-to-CSV rehearsal; then
+  outcome-unseen shadow evaluation. The exact candidate and compute budgets,
+  worlds and selector must remain equal between control and treatment.
+- `src/nfl_dfs/inference/archetype_candidate_allocator.py` now implements the
+  first outcome-blind allocation law without wiring it into production. It
+  rejects post-lock outcome columns, computes stable slate-relative q99 and
+  `p_line` terciles, assigns the frozen 30/25/25/20 structural strata, rotates
+  through equal largest-remainder five-seed quotas, fills infeasible strata in
+  a deterministic order, and exposes any source-quota relaxation in a receipt.
+  Nine focused tests plus the relevant production-policy/CBWU tests pass
+  (24 total). Heavy full-suite validation remains for the eventual cloud build;
+  repository rules prohibit a heavy local full-suite run on this crash-prone
+  workstation.
+- The local repository `.venv` remains healthy despite the user's concern
+  about accidentally deleting a Python environment while installing Gemini
+  CLI: `.venv/bin/python` is Python 3.14.4, project/pandas/BigQuery imports
+  succeed and `python -m pip check` reports no broken requirements.
+- Next concrete action: integrate the allocator into a separately labeled CBWU
+  shadow, freeze its native-total q99/`p_line` calculation and exact five-seed
+  identities, then pass score-free control reproduction and candidate/compute
+  budget parity. After that, implement the late-swap state model and operational
+  CSV validator. In parallel, preserve the Week 1 readiness and forensic
+  cleanup gates. Do not launch another historical score arm and do not delete
+  the repair4 warehouse before independent review.
+
+## Prior state — 2026-08-14 22:18 CDT
 
 ### 2026-08-14 forensic runtime repaired; variance and corpus-understanding addenda implemented
 
