@@ -1,0 +1,4327 @@
+{
+  "disposition": "non-predictive-or-inconclusive",
+  "expected_points_addition_licensed": false,
+  "invariants": {
+    "current_rule_uplift_seasons": [
+      2025
+    ],
+    "passes": true,
+    "pre_2022_seasons_used": [],
+    "prediction_bit_exact_on_repeat": true,
+    "predictor_heldout_seasons": [
+      2025
+    ],
+    "predictor_training_seasons": [
+      2022,
+      2023,
+      2024
+    ],
+    "protocol_sha256": "70ec0c1af2b0d6d3fc985261b5e74dcb8a2b4f20262fce716e8eaebf1f29f757",
+    "schedule_rows": 1139,
+    "schedule_sha256": "3896a8d3af535c9997f879882fb1ebffae8dac7168f71bb2b0e2a66857239dbb",
+    "uplift_bit_exact_on_repeat": true
+  },
+  "predictability": {
+    "disposition": "non-predictive-or-inconclusive",
+    "excluded_missing_market": [],
+    "heldout": {
+      "games": 272,
+      "overtime_games": 14,
+      "overtime_rate": 0.051470588235294115,
+      "season": 2025
+    },
+    "m2_risk_quartiles": [
+      {
+        "games": 68,
+        "mean_probability": 0.05312873290767282,
+        "observed_rate": 0.058823529411764705,
+        "overtime_games": 4,
+        "quartile": 1
+      },
+      {
+        "games": 68,
+        "mean_probability": 0.05965863489208547,
+        "observed_rate": 0.04411764705882353,
+        "overtime_games": 3,
+        "quartile": 2
+      },
+      {
+        "games": 68,
+        "mean_probability": 0.06396767412973003,
+        "observed_rate": 0.04411764705882353,
+        "overtime_games": 3,
+        "quartile": 3
+      },
+      {
+        "games": 68,
+        "lift_vs_heldout_rate": 1.1428571428571428,
+        "mean_probability": 0.07272355882035278,
+        "observed_rate": 0.058823529411764705,
+        "overtime_games": 4,
+        "quartile": 4
+      }
+    ],
+    "models": {
+      "m0": {
+        "fit": {
+          "laplace_base_rate": 0.06119951040391677
+        },
+        "metrics": {
+          "average_precision": 0.051470588235294115,
+          "brier": 0.048916018708570035,
+          "log_loss": 0.2036908712249068,
+          "roc_auc": 0.5
+        }
+      },
+      "m1": {
+        "fit": {
+          "coefficients": [
+            [
+              0.06447077177962186
+            ]
+          ],
+          "features": [
+            "abs_spread"
+          ],
+          "intercept": [
+            -2.750278197404336
+          ],
+          "iterations": [
+            6
+          ],
+          "scaling": {
+            "mean": [
+              4.961963190184049
+            ],
+            "std": [
+              3.2863019025896048
+            ]
+          }
+        },
+        "metrics": {
+          "average_precision": 0.05190158168272577,
+          "brier": 0.048990610444073046,
+          "log_loss": 0.2043179126712397,
+          "roc_auc": 0.4328626799557032
+        }
+      },
+      "m2": {
+        "fit": {
+          "coefficients": [
+            [
+              0.0626078313943946,
+              0.12132064030529431
+            ]
+          ],
+          "features": [
+            "abs_spread",
+            "total_line"
+          ],
+          "intercept": [
+            -2.756580843868585
+          ],
+          "iterations": [
+            6
+          ],
+          "scaling": {
+            "mean": [
+              4.961963190184049,
+              43.79938650306748
+            ],
+            "std": [
+              3.2863019025896048,
+              4.242416502788324
+            ]
+          }
+        },
+        "metrics": {
+          "average_precision": 0.12317875934372777,
+          "brier": 0.048939176192769364,
+          "log_loss": 0.20377566544671272,
+          "roc_auc": 0.5074750830564784
+        }
+      }
+    },
+    "paired_week_bootstrap": {
+      "m2_minus_m0_brier": {
+        "mean": 2.4234345781412823e-05,
+        "p05": -0.000441398765042119,
+        "p95": 0.00040694944784779946
+      },
+      "m2_minus_m0_log_loss": {
+        "mean": 9.288549484124945e-05,
+        "p05": -0.003612620613266341,
+        "p95": 0.0032446701781092256
+      },
+      "replicates": 10000,
+      "seed": 20260815,
+      "unit": "week"
+    },
+    "passes_frozen_predictability_gate": false,
+    "train": {
+      "games": 815,
+      "overtime_games": 49,
+      "seasons": [
+        2022,
+        2023,
+        2024
+      ]
+    }
+  },
+  "production_change_licensed": false,
+  "prospective_duration_shadow_licensed": false,
+  "protocol_sha256": "70ec0c1af2b0d6d3fc985261b5e74dcb8a2b4f20262fce716e8eaebf1f29f757",
+  "uplift": {
+    "current_rule_2025_regular": {
+      "aggregate": {
+        "games": 14,
+        "maximum_player_delta": 14.700000000000003,
+        "mean_dst_delta": -0.2857142857142857,
+        "mean_skill_delta": 23.77285714285714,
+        "mean_top_one_skill_delta": 4.982857142857144,
+        "mean_top_three_skill_delta": 10.121428571428572,
+        "median_skill_delta": 20.27000000000001,
+        "sunday_main_window_games": 6,
+        "total_bonus_crossings": {
+          "passing_300": 4,
+          "receiving_100": 0,
+          "rushing_100": 3
+        },
+        "total_skill_delta": 332.82
+      },
+      "fixed_selected_lineup_book": {
+        "available": false,
+        "reason": "not joined in this mechanism pass"
+      },
+      "games": [
+        {
+          "bonus_crossings": {
+            "passing_300": 0,
+            "receiving_100": 0,
+            "rushing_100": 0
+          },
+          "dst_delta": 4.0,
+          "dst_full": 2.0,
+          "dst_regulation": -2.0,
+          "game_id": "2025_02_NYG_DAL",
+          "maximum_player_delta": 4.600000000000005,
+          "ot_elapsed_seconds": 600.0,
+          "ot_offensive_plays": 18,
+          "ot_possessions": 6,
+          "ot_possessions_by_team": {
+            "DAL": 4,
+            "NYG": 2
+          },
+          "ot_rows": 29,
+          "players_gaining_at_least_10": 0,
+          "players_gaining_at_least_3": 4,
+          "players_gaining_at_least_6": 0,
+          "position_skill_delta": {
+            "QB": 3.1199999999999974,
+            "RB": 5.200000000000005,
+            "TE": 0.0,
+            "WR": 11.100000000000005
+          },
+          "receipts": {
+            "full_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 221,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 221
+            },
+            "full_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 221,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 0,
+              "players_scored": 18,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 221,
+              "touchback_fumbles": 0
+            },
+            "regulation_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 192,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 192
+            },
+            "regulation_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 192,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 0,
+              "players_scored": 18,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 192,
+              "touchback_fumbles": 0
+            }
+          },
+          "season": 2025,
+          "skill_delta": 19.42000000000001,
+          "skill_full": 284.44,
+          "skill_parity_max_abs_delta": 0.0,
+          "skill_regulation": 265.02,
+          "sunday_main_window": true,
+          "top_one_skill_delta": 4.100000000000001,
+          "top_three_skill_delta": 3.780000000000001,
+          "week": 2
+        },
+        {
+          "bonus_crossings": {
+            "passing_300": 1,
+            "receiving_100": 0,
+            "rushing_100": 0
+          },
+          "dst_delta": 1.0,
+          "dst_full": 0.0,
+          "dst_regulation": -1.0,
+          "game_id": "2025_04_GB_DAL",
+          "maximum_player_delta": 5.5199999999999925,
+          "ot_elapsed_seconds": 600.0,
+          "ot_offensive_plays": 21,
+          "ot_possessions": 3,
+          "ot_possessions_by_team": {
+            "DAL": 2,
+            "GB": 1
+          },
+          "ot_rows": 30,
+          "players_gaining_at_least_10": 0,
+          "players_gaining_at_least_3": 6,
+          "players_gaining_at_least_6": 0,
+          "position_skill_delta": {
+            "QB": 6.919999999999995,
+            "RB": 5.100000000000001,
+            "TE": 1.2999999999999998,
+            "WR": 17.6
+          },
+          "receipts": {
+            "full_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 211,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 211
+            },
+            "full_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 211,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 0,
+              "players_scored": 21,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 211,
+              "touchback_fumbles": 0
+            },
+            "regulation_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 181,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 181
+            },
+            "regulation_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 181,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 0,
+              "players_scored": 20,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 181,
+              "touchback_fumbles": 0
+            }
+          },
+          "season": 2025,
+          "skill_delta": 30.92,
+          "skill_full": 273.94,
+          "skill_parity_max_abs_delta": 0.0,
+          "skill_regulation": 243.01999999999998,
+          "sunday_main_window": false,
+          "top_one_skill_delta": 4.599999999999998,
+          "top_three_skill_delta": 9.679999999999993,
+          "week": 4
+        },
+        {
+          "bonus_crossings": {
+            "passing_300": 1,
+            "receiving_100": 0,
+            "rushing_100": 0
+          },
+          "dst_delta": 1.0,
+          "dst_full": 8.0,
+          "dst_regulation": 7.0,
+          "game_id": "2025_05_SF_LA",
+          "maximum_player_delta": 4.84,
+          "ot_elapsed_seconds": 384.0,
+          "ot_offensive_plays": 13,
+          "ot_possessions": 3,
+          "ot_possessions_by_team": {
+            "LA": 2,
+            "SF": 1
+          },
+          "ot_rows": 19,
+          "players_gaining_at_least_10": 0,
+          "players_gaining_at_least_3": 4,
+          "players_gaining_at_least_6": 0,
+          "position_skill_delta": {
+            "QB": 7.080000000000002,
+            "RB": 9.3,
+            "TE": 3.200000000000001,
+            "WR": 6.6999999999999975
+          },
+          "receipts": {
+            "full_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 205,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 205
+            },
+            "full_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 205,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 0,
+              "players_scored": 19,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 205,
+              "touchback_fumbles": 0
+            },
+            "regulation_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 186,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 186
+            },
+            "regulation_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 186,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 0,
+              "players_scored": 19,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 186,
+              "touchback_fumbles": 0
+            }
+          },
+          "season": 2025,
+          "skill_delta": 26.28,
+          "skill_full": 237.54000000000002,
+          "skill_parity_max_abs_delta": 0.0,
+          "skill_regulation": 211.26000000000002,
+          "sunday_main_window": false,
+          "top_one_skill_delta": 2.900000000000002,
+          "top_three_skill_delta": 5.840000000000003,
+          "week": 5
+        },
+        {
+          "bonus_crossings": {
+            "passing_300": 0,
+            "receiving_100": 0,
+            "rushing_100": 0
+          },
+          "dst_delta": -1.0,
+          "dst_full": 5.0,
+          "dst_regulation": 6.0,
+          "game_id": "2025_09_JAX_LV",
+          "maximum_player_delta": 10.699999999999996,
+          "ot_elapsed_seconds": 584.0,
+          "ot_offensive_plays": 19,
+          "ot_possessions": 3,
+          "ot_possessions_by_team": {
+            "JAX": 1,
+            "LV": 2
+          },
+          "ot_rows": 27,
+          "players_gaining_at_least_10": 1,
+          "players_gaining_at_least_3": 4,
+          "players_gaining_at_least_6": 2,
+          "position_skill_delta": {
+            "QB": 12.58,
+            "RB": 2.8999999999999986,
+            "TE": 10.699999999999996,
+            "WR": 5.500000000000002
+          },
+          "receipts": {
+            "full_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 189,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 189
+            },
+            "full_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 189,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 0,
+              "players_scored": 17,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 189,
+              "touchback_fumbles": 0
+            },
+            "regulation_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 162,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 162
+            },
+            "regulation_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 162,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 0,
+              "players_scored": 17,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 162,
+              "touchback_fumbles": 0
+            }
+          },
+          "season": 2025,
+          "skill_delta": 31.68,
+          "skill_full": 202.35999999999999,
+          "skill_parity_max_abs_delta": 0.0,
+          "skill_regulation": 170.67999999999998,
+          "sunday_main_window": true,
+          "top_one_skill_delta": 10.699999999999996,
+          "top_three_skill_delta": 18.86,
+          "week": 9
+        },
+        {
+          "bonus_crossings": {
+            "passing_300": 0,
+            "receiving_100": 0,
+            "rushing_100": 0
+          },
+          "dst_delta": 0.0,
+          "dst_full": 15.0,
+          "dst_regulation": 15.0,
+          "game_id": "2025_10_ATL_IND",
+          "maximum_player_delta": 9.400000000000006,
+          "ot_elapsed_seconds": 389.0,
+          "ot_offensive_plays": 12,
+          "ot_possessions": 3,
+          "ot_possessions_by_team": {
+            "ATL": 1,
+            "IND": 2
+          },
+          "ot_rows": 16,
+          "players_gaining_at_least_10": 0,
+          "players_gaining_at_least_3": 2,
+          "players_gaining_at_least_6": 1,
+          "position_skill_delta": {
+            "QB": 0.9200000000000017,
+            "RB": 9.300000000000006,
+            "TE": 3.299999999999997,
+            "WR": 0.0
+          },
+          "receipts": {
+            "full_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 180,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 180
+            },
+            "full_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 180,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 0,
+              "players_scored": 16,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 180,
+              "touchback_fumbles": 0
+            },
+            "regulation_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 164,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 164
+            },
+            "regulation_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 164,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 0,
+              "players_scored": 16,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 164,
+              "touchback_fumbles": 0
+            }
+          },
+          "season": 2025,
+          "skill_delta": 13.520000000000005,
+          "skill_full": 194.78000000000003,
+          "skill_parity_max_abs_delta": 0.0,
+          "skill_regulation": 181.26,
+          "sunday_main_window": false,
+          "top_one_skill_delta": 9.400000000000006,
+          "top_three_skill_delta": 9.400000000000006,
+          "week": 10
+        },
+        {
+          "bonus_crossings": {
+            "passing_300": 0,
+            "receiving_100": 0,
+            "rushing_100": 0
+          },
+          "dst_delta": -1.0,
+          "dst_full": 6.0,
+          "dst_regulation": 7.0,
+          "game_id": "2025_11_CAR_ATL",
+          "maximum_player_delta": 6.4,
+          "ot_elapsed_seconds": 290.0,
+          "ot_offensive_plays": 8,
+          "ot_possessions": 3,
+          "ot_possessions_by_team": {
+            "ATL": 2,
+            "CAR": 1
+          },
+          "ot_rows": 13,
+          "players_gaining_at_least_10": 0,
+          "players_gaining_at_least_3": 1,
+          "players_gaining_at_least_6": 1,
+          "position_skill_delta": {
+            "QB": 2.1600000000000037,
+            "RB": 0.9999999999999982,
+            "TE": 6.4,
+            "WR": 0.0
+          },
+          "receipts": {
+            "full_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 193,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 193
+            },
+            "full_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 193,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 1,
+              "players_scored": 19,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 193,
+              "touchback_fumbles": 0
+            },
+            "regulation_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 180,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 180
+            },
+            "regulation_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 180,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 1,
+              "players_scored": 18,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 180,
+              "touchback_fumbles": 0
+            }
+          },
+          "season": 2025,
+          "skill_delta": 9.560000000000002,
+          "skill_full": 227.13999999999996,
+          "skill_parity_max_abs_delta": 0.0,
+          "skill_regulation": 217.57999999999998,
+          "sunday_main_window": true,
+          "top_one_skill_delta": 0.0,
+          "top_three_skill_delta": 2.559999999999988,
+          "week": 11
+        },
+        {
+          "bonus_crossings": {
+            "passing_300": 0,
+            "receiving_100": 0,
+            "rushing_100": 1
+          },
+          "dst_delta": -1.0,
+          "dst_full": 13.0,
+          "dst_regulation": 14.0,
+          "game_id": "2025_11_WAS_MIA",
+          "maximum_player_delta": 5.199999999999999,
+          "ot_elapsed_seconds": 147.0,
+          "ot_offensive_plays": 4,
+          "ot_possessions": 3,
+          "ot_possessions_by_team": {
+            "MIA": 2,
+            "WAS": 1
+          },
+          "ot_rows": 8,
+          "players_gaining_at_least_10": 0,
+          "players_gaining_at_least_3": 1,
+          "players_gaining_at_least_6": 0,
+          "position_skill_delta": {
+            "QB": -1.0,
+            "RB": 5.199999999999999,
+            "TE": 0.0,
+            "WR": 0.0
+          },
+          "receipts": {
+            "full_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 165,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 165
+            },
+            "full_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 165,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 1,
+              "players_scored": 18,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 165,
+              "touchback_fumbles": 0
+            },
+            "regulation_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 157,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 157
+            },
+            "regulation_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 157,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 1,
+              "players_scored": 18,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 157,
+              "touchback_fumbles": 0
+            }
+          },
+          "season": 2025,
+          "skill_delta": 4.199999999999999,
+          "skill_full": 139.86,
+          "skill_parity_max_abs_delta": 0.0,
+          "skill_regulation": 135.66,
+          "sunday_main_window": false,
+          "top_one_skill_delta": 3.8000000000000007,
+          "top_three_skill_delta": 4.200000000000003,
+          "week": 11
+        },
+        {
+          "bonus_crossings": {
+            "passing_300": 0,
+            "receiving_100": 0,
+            "rushing_100": 1
+          },
+          "dst_delta": -1.0,
+          "dst_full": 9.0,
+          "dst_regulation": 10.0,
+          "game_id": "2025_12_IND_KC",
+          "maximum_player_delta": 5.599999999999998,
+          "ot_elapsed_seconds": 483.0,
+          "ot_offensive_plays": 14,
+          "ot_possessions": 3,
+          "ot_possessions_by_team": {
+            "IND": 1,
+            "KC": 2
+          },
+          "ot_rows": 20,
+          "players_gaining_at_least_10": 0,
+          "players_gaining_at_least_3": 3,
+          "players_gaining_at_least_6": 0,
+          "position_skill_delta": {
+            "QB": 2.2399999999999984,
+            "RB": 6.199999999999998,
+            "TE": 1.4000000000000004,
+            "WR": 7.200000000000001
+          },
+          "receipts": {
+            "full_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 199,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 199
+            },
+            "full_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 199,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 0,
+              "players_scored": 19,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 199,
+              "touchback_fumbles": 0
+            },
+            "regulation_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 179,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 179
+            },
+            "regulation_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 179,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 0,
+              "players_scored": 19,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 179,
+              "touchback_fumbles": 0
+            }
+          },
+          "season": 2025,
+          "skill_delta": 17.04,
+          "skill_full": 181.82,
+          "skill_parity_max_abs_delta": 0.0,
+          "skill_regulation": 164.78,
+          "sunday_main_window": true,
+          "top_one_skill_delta": 3.1000000000000014,
+          "top_three_skill_delta": 10.780000000000001,
+          "week": 12
+        },
+        {
+          "bonus_crossings": {
+            "passing_300": 1,
+            "receiving_100": 0,
+            "rushing_100": 0
+          },
+          "dst_delta": 1.0,
+          "dst_full": 24.0,
+          "dst_regulation": 23.0,
+          "game_id": "2025_12_JAX_ARI",
+          "maximum_player_delta": 4.66,
+          "ot_elapsed_seconds": 359.0,
+          "ot_offensive_plays": 12,
+          "ot_possessions": 3,
+          "ot_possessions_by_team": {
+            "ARI": 2,
+            "JAX": 1
+          },
+          "ot_rows": 17,
+          "players_gaining_at_least_10": 0,
+          "players_gaining_at_least_3": 3,
+          "players_gaining_at_least_6": 0,
+          "position_skill_delta": {
+            "QB": 5.66,
+            "RB": 2.5000000000000018,
+            "TE": 3.799999999999997,
+            "WR": 4.699999999999999
+          },
+          "receipts": {
+            "full_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 191,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 191
+            },
+            "full_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 191,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 0,
+              "players_scored": 17,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 191,
+              "touchback_fumbles": 0
+            },
+            "regulation_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 174,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 174
+            },
+            "regulation_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 174,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 0,
+              "players_scored": 17,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 174,
+              "touchback_fumbles": 0
+            }
+          },
+          "season": 2025,
+          "skill_delta": 16.659999999999997,
+          "skill_full": 198.83999999999997,
+          "skill_parity_max_abs_delta": 0.0,
+          "skill_regulation": 182.17999999999998,
+          "sunday_main_window": true,
+          "top_one_skill_delta": 0.0,
+          "top_three_skill_delta": 2.680000000000007,
+          "week": 12
+        },
+        {
+          "bonus_crossings": {
+            "passing_300": 0,
+            "receiving_100": 0,
+            "rushing_100": 0
+          },
+          "dst_delta": 0.0,
+          "dst_full": 7.0,
+          "dst_regulation": 7.0,
+          "game_id": "2025_12_NYG_DET",
+          "maximum_player_delta": 12.900000000000006,
+          "ot_elapsed_seconds": 341.0,
+          "ot_offensive_plays": 13,
+          "ot_possessions": 3,
+          "ot_possessions_by_team": {
+            "DET": 2,
+            "NYG": 1
+          },
+          "ot_rows": 18,
+          "players_gaining_at_least_10": 1,
+          "players_gaining_at_least_3": 1,
+          "players_gaining_at_least_6": 1,
+          "position_skill_delta": {
+            "QB": 2.020000000000003,
+            "RB": 15.400000000000006,
+            "TE": 2.3999999999999986,
+            "WR": 1.3000000000000043
+          },
+          "receipts": {
+            "full_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 199,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 199
+            },
+            "full_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 199,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 0,
+              "players_scored": 14,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 199,
+              "touchback_fumbles": 0
+            },
+            "regulation_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 181,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 181
+            },
+            "regulation_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 181,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 0,
+              "players_scored": 14,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 181,
+              "touchback_fumbles": 0
+            }
+          },
+          "season": 2025,
+          "skill_delta": 21.12000000000001,
+          "skill_full": 249.82,
+          "skill_parity_max_abs_delta": 0.0,
+          "skill_regulation": 228.7,
+          "sunday_main_window": true,
+          "top_one_skill_delta": 12.900000000000006,
+          "top_three_skill_delta": 15.620000000000005,
+          "week": 12
+        },
+        {
+          "bonus_crossings": {
+            "passing_300": 1,
+            "receiving_100": 0,
+            "rushing_100": 0
+          },
+          "dst_delta": -2.0,
+          "dst_full": 7.0,
+          "dst_regulation": 9.0,
+          "game_id": "2025_13_DEN_WAS",
+          "maximum_player_delta": 10.3,
+          "ot_elapsed_seconds": 433.0,
+          "ot_offensive_plays": 17,
+          "ot_possessions": 3,
+          "ot_possessions_by_team": {
+            "DEN": 1,
+            "WAS": 2
+          },
+          "ot_rows": 26,
+          "players_gaining_at_least_10": 1,
+          "players_gaining_at_least_3": 6,
+          "players_gaining_at_least_6": 3,
+          "position_skill_delta": {
+            "QB": 12.679999999999998,
+            "RB": 9.200000000000001,
+            "TE": 7.3,
+            "WR": 16.7
+          },
+          "receipts": {
+            "full_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 209,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 209
+            },
+            "full_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 209,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 0,
+              "players_scored": 21,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 209,
+              "touchback_fumbles": 0
+            },
+            "regulation_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 183,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 183
+            },
+            "regulation_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 183,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 0,
+              "players_scored": 21,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 183,
+              "touchback_fumbles": 0
+            }
+          },
+          "season": 2025,
+          "skill_delta": 45.879999999999995,
+          "skill_full": 218.09999999999997,
+          "skill_parity_max_abs_delta": 0.0,
+          "skill_regulation": 172.21999999999997,
+          "sunday_main_window": false,
+          "top_one_skill_delta": 0.6599999999999966,
+          "top_three_skill_delta": 13.840000000000003,
+          "week": 13
+        },
+        {
+          "bonus_crossings": {
+            "passing_300": 0,
+            "receiving_100": 0,
+            "rushing_100": 0
+          },
+          "dst_delta": 1.0,
+          "dst_full": 25.0,
+          "dst_regulation": 24.0,
+          "game_id": "2025_14_PHI_LAC",
+          "maximum_player_delta": 5.5,
+          "ot_elapsed_seconds": 451.0,
+          "ot_offensive_plays": 14,
+          "ot_possessions": 3,
+          "ot_possessions_by_team": {
+            "LAC": 2,
+            "PHI": 1
+          },
+          "ot_rows": 21,
+          "players_gaining_at_least_10": 0,
+          "players_gaining_at_least_3": 2,
+          "players_gaining_at_least_6": 0,
+          "position_skill_delta": {
+            "QB": 2.459999999999999,
+            "RB": 2.400000000000004,
+            "TE": 6.6,
+            "WR": 3.8000000000000003
+          },
+          "receipts": {
+            "full_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 196,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 196
+            },
+            "full_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 196,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 1,
+              "players_scored": 18,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 196,
+              "touchback_fumbles": 0
+            },
+            "regulation_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 175,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 175
+            },
+            "regulation_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 175,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 1,
+              "players_scored": 17,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 175,
+              "touchback_fumbles": 0
+            }
+          },
+          "season": 2025,
+          "skill_delta": 15.260000000000003,
+          "skill_full": 132.36,
+          "skill_parity_max_abs_delta": 0.0,
+          "skill_regulation": 117.10000000000001,
+          "sunday_main_window": false,
+          "top_one_skill_delta": 0.40000000000000213,
+          "top_three_skill_delta": 3.3800000000000026,
+          "week": 14
+        },
+        {
+          "bonus_crossings": {
+            "passing_300": 0,
+            "receiving_100": 0,
+            "rushing_100": 0
+          },
+          "dst_delta": 0.0,
+          "dst_full": 5.0,
+          "dst_regulation": 5.0,
+          "game_id": "2025_16_GB_CHI",
+          "maximum_player_delta": 11.600000000000001,
+          "ot_elapsed_seconds": 310.0,
+          "ot_offensive_plays": 10,
+          "ot_possessions": 3,
+          "ot_possessions_by_team": {
+            "CHI": 2,
+            "GB": 1
+          },
+          "ot_rows": 13,
+          "players_gaining_at_least_10": 1,
+          "players_gaining_at_least_3": 3,
+          "players_gaining_at_least_6": 1,
+          "position_skill_delta": {
+            "QB": 7.32,
+            "RB": 2.1000000000000014,
+            "TE": 0.0,
+            "WR": 17.6
+          },
+          "receipts": {
+            "full_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 174,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 174
+            },
+            "full_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 174,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 0,
+              "players_scored": 20,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 174,
+              "touchback_fumbles": 0
+            },
+            "regulation_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 161,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 161
+            },
+            "regulation_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 161,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 0,
+              "players_scored": 20,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 161,
+              "touchback_fumbles": 0
+            }
+          },
+          "season": 2025,
+          "skill_delta": 27.020000000000003,
+          "skill_full": 161.92000000000002,
+          "skill_parity_max_abs_delta": 0.0,
+          "skill_regulation": 134.9,
+          "sunday_main_window": false,
+          "top_one_skill_delta": 2.5000000000000036,
+          "top_three_skill_delta": 15.980000000000004,
+          "week": 16
+        },
+        {
+          "bonus_crossings": {
+            "passing_300": 0,
+            "receiving_100": 0,
+            "rushing_100": 1
+          },
+          "dst_delta": -6.0,
+          "dst_full": 8.0,
+          "dst_regulation": 14.0,
+          "game_id": "2025_16_LA_SEA",
+          "maximum_player_delta": 14.700000000000003,
+          "ot_elapsed_seconds": 407.0,
+          "ot_offensive_plays": 18,
+          "ot_possessions": 3,
+          "ot_possessions_by_team": {
+            "LA": 1,
+            "SEA": 2
+          },
+          "ot_rows": 27,
+          "players_gaining_at_least_10": 2,
+          "players_gaining_at_least_3": 6,
+          "players_gaining_at_least_6": 4,
+          "position_skill_delta": {
+            "QB": 14.760000000000002,
+            "RB": 8.100000000000001,
+            "TE": 3.5,
+            "WR": 27.900000000000006
+          },
+          "receipts": {
+            "full_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 215,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 215
+            },
+            "full_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 215,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 0,
+              "players_scored": 18,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 215,
+              "touchback_fumbles": 0
+            },
+            "regulation_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 188,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 188
+            },
+            "regulation_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 188,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 0,
+              "players_scored": 17,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 188,
+              "touchback_fumbles": 0
+            }
+          },
+          "season": 2025,
+          "skill_delta": 54.260000000000005,
+          "skill_full": 272.28000000000003,
+          "skill_parity_max_abs_delta": 0.0,
+          "skill_regulation": 218.02,
+          "sunday_main_window": false,
+          "top_one_skill_delta": 14.700000000000003,
+          "top_three_skill_delta": 25.10000000000001,
+          "week": 16
+        }
+      ],
+      "players": [
+        {
+          "delta": -0.3200000000000003,
+          "full": 34.3,
+          "game_id": "2025_02_NYG_DAL",
+          "player_id": "00-0029263",
+          "position": "QB",
+          "regulation": 34.62
+        },
+        {
+          "delta": 3.4399999999999977,
+          "full": 26.139999999999997,
+          "game_id": "2025_02_NYG_DAL",
+          "player_id": "00-0033077",
+          "position": "QB",
+          "regulation": 22.7
+        },
+        {
+          "delta": 0.0,
+          "full": 9.9,
+          "game_id": "2025_02_NYG_DAL",
+          "player_id": "00-0035243",
+          "position": "RB",
+          "regulation": 9.9
+        },
+        {
+          "delta": 0.5999999999999999,
+          "full": 0.9999999999999999,
+          "game_id": "2025_02_NYG_DAL",
+          "player_id": "00-0035250",
+          "position": "RB",
+          "regulation": 0.4
+        },
+        {
+          "delta": 0.0,
+          "full": 8.100000000000001,
+          "game_id": "2025_02_NYG_DAL",
+          "player_id": "00-0035535",
+          "position": "WR",
+          "regulation": 8.100000000000001
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_02_NYG_DAL",
+          "player_id": "00-0035645",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 1.8000000000000043,
+          "full": 23.200000000000003,
+          "game_id": "2025_02_NYG_DAL",
+          "player_id": "00-0036358",
+          "position": "WR",
+          "regulation": 21.4
+        },
+        {
+          "delta": 4.600000000000005,
+          "full": 25.000000000000004,
+          "game_id": "2025_02_NYG_DAL",
+          "player_id": "00-0036997",
+          "position": "RB",
+          "regulation": 20.4
+        },
+        {
+          "delta": 3.6999999999999993,
+          "full": 17.8,
+          "game_id": "2025_02_NYG_DAL",
+          "player_id": "00-0037247",
+          "position": "WR",
+          "regulation": 14.100000000000001
+        },
+        {
+          "delta": 1.5,
+          "full": 3.6,
+          "game_id": "2025_02_NYG_DAL",
+          "player_id": "00-0037666",
+          "position": "WR",
+          "regulation": 2.1
+        },
+        {
+          "delta": 0.0,
+          "full": 15.3,
+          "game_id": "2025_02_NYG_DAL",
+          "player_id": "00-0037801",
+          "position": "WR",
+          "regulation": 15.3
+        },
+        {
+          "delta": 0.0,
+          "full": 16.8,
+          "game_id": "2025_02_NYG_DAL",
+          "player_id": "00-0038041",
+          "position": "TE",
+          "regulation": 16.8
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_02_NYG_DAL",
+          "player_id": "00-0038115",
+          "position": "TE",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 31.200000000000003,
+          "game_id": "2025_02_NYG_DAL",
+          "player_id": "00-0038117",
+          "position": "WR",
+          "regulation": 31.200000000000003
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_02_NYG_DAL",
+          "player_id": "00-0038547",
+          "position": "TE",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_02_NYG_DAL",
+          "player_id": "00-0038738",
+          "position": "RB",
+          "regulation": 0.0
+        },
+        {
+          "delta": 4.100000000000001,
+          "full": 40.7,
+          "game_id": "2025_02_NYG_DAL",
+          "player_id": "00-0039337",
+          "position": "WR",
+          "regulation": 36.6
+        },
+        {
+          "delta": 0.0,
+          "full": 9.1,
+          "game_id": "2025_02_NYG_DAL",
+          "player_id": "00-0039384",
+          "position": "RB",
+          "regulation": 9.1
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_02_NYG_DAL",
+          "player_id": "00-0039410",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 1.3,
+          "game_id": "2025_02_NYG_DAL",
+          "player_id": "00-0039530",
+          "position": "TE",
+          "regulation": 1.3
+        },
+        {
+          "delta": 0.0,
+          "full": 7.4,
+          "game_id": "2025_02_NYG_DAL",
+          "player_id": "00-0039847",
+          "position": "TE",
+          "regulation": 7.4
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_02_NYG_DAL",
+          "player_id": "00-0040432",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": -0.30000000000000004,
+          "game_id": "2025_02_NYG_DAL",
+          "player_id": "00-0040691",
+          "position": "QB",
+          "regulation": -0.30000000000000004
+        },
+        {
+          "delta": 0.0,
+          "full": 13.9,
+          "game_id": "2025_02_NYG_DAL",
+          "player_id": "00-0040715",
+          "position": "RB",
+          "regulation": 13.9
+        },
+        {
+          "delta": 5.5199999999999925,
+          "full": 33.959999999999994,
+          "game_id": "2025_04_GB_DAL",
+          "player_id": "00-0033077",
+          "position": "QB",
+          "regulation": 28.44
+        },
+        {
+          "delta": 0.0,
+          "full": 4.5,
+          "game_id": "2025_04_GB_DAL",
+          "player_id": "00-0035243",
+          "position": "RB",
+          "regulation": 4.5
+        },
+        {
+          "delta": 0.0,
+          "full": 31.700000000000003,
+          "game_id": "2025_04_GB_DAL",
+          "player_id": "00-0035700",
+          "position": "RB",
+          "regulation": 31.700000000000003
+        },
+        {
+          "delta": 1.4000000000000021,
+          "full": 30.28,
+          "game_id": "2025_04_GB_DAL",
+          "player_id": "00-0036264",
+          "position": "QB",
+          "regulation": 28.88
+        },
+        {
+          "delta": 1.3000000000000007,
+          "full": 19.0,
+          "game_id": "2025_04_GB_DAL",
+          "player_id": "00-0036997",
+          "position": "RB",
+          "regulation": 17.7
+        },
+        {
+          "delta": 4.599999999999998,
+          "full": 36.4,
+          "game_id": "2025_04_GB_DAL",
+          "player_id": "00-0037247",
+          "position": "WR",
+          "regulation": 31.8
+        },
+        {
+          "delta": 4.400000000000001,
+          "full": 10.100000000000001,
+          "game_id": "2025_04_GB_DAL",
+          "player_id": "00-0037666",
+          "position": "WR",
+          "regulation": 5.7
+        },
+        {
+          "delta": 0.0,
+          "full": 6.4,
+          "game_id": "2025_04_GB_DAL",
+          "player_id": "00-0037801",
+          "position": "WR",
+          "regulation": 6.4
+        },
+        {
+          "delta": 1.6000000000000014,
+          "full": 29.8,
+          "game_id": "2025_04_GB_DAL",
+          "player_id": "00-0037816",
+          "position": "WR",
+          "regulation": 28.2
+        },
+        {
+          "delta": 0.0,
+          "full": 17.0,
+          "game_id": "2025_04_GB_DAL",
+          "player_id": "00-0038041",
+          "position": "TE",
+          "regulation": 17.0
+        },
+        {
+          "delta": 3.9000000000000004,
+          "full": 3.9000000000000004,
+          "game_id": "2025_04_GB_DAL",
+          "player_id": "00-0038393",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 1.9,
+          "game_id": "2025_04_GB_DAL",
+          "player_id": "00-0038465",
+          "position": "WR",
+          "regulation": 1.9
+        },
+        {
+          "delta": 1.2999999999999998,
+          "full": 2.8,
+          "game_id": "2025_04_GB_DAL",
+          "player_id": "00-0038547",
+          "position": "TE",
+          "regulation": 1.5
+        },
+        {
+          "delta": 0.0,
+          "full": 1.1,
+          "game_id": "2025_04_GB_DAL",
+          "player_id": "00-0038685",
+          "position": "RB",
+          "regulation": 1.1
+        },
+        {
+          "delta": 0.0,
+          "full": 0.6000000000000001,
+          "game_id": "2025_04_GB_DAL",
+          "player_id": "00-0038738",
+          "position": "RB",
+          "regulation": 0.6000000000000001
+        },
+        {
+          "delta": 3.8000000000000007,
+          "full": 11.100000000000001,
+          "game_id": "2025_04_GB_DAL",
+          "player_id": "00-0038797",
+          "position": "RB",
+          "regulation": 7.300000000000001
+        },
+        {
+          "delta": 0.0,
+          "full": 10.600000000000001,
+          "game_id": "2025_04_GB_DAL",
+          "player_id": "00-0038996",
+          "position": "TE",
+          "regulation": 10.600000000000001
+        },
+        {
+          "delta": 0.0,
+          "full": 1.6,
+          "game_id": "2025_04_GB_DAL",
+          "player_id": "00-0039144",
+          "position": "TE",
+          "regulation": 1.6
+        },
+        {
+          "delta": 0.0,
+          "full": 4.6000000000000005,
+          "game_id": "2025_04_GB_DAL",
+          "player_id": "00-0039410",
+          "position": "WR",
+          "regulation": 4.6000000000000005
+        },
+        {
+          "delta": 0.0,
+          "full": 5.300000000000001,
+          "game_id": "2025_04_GB_DAL",
+          "player_id": "00-0040009",
+          "position": "WR",
+          "regulation": 5.300000000000001
+        },
+        {
+          "delta": 3.1000000000000014,
+          "full": 11.3,
+          "game_id": "2025_04_GB_DAL",
+          "player_id": "00-0040667",
+          "position": "WR",
+          "regulation": 8.2
+        },
+        {
+          "delta": 2.240000000000002,
+          "full": 29.560000000000002,
+          "game_id": "2025_05_SF_LA",
+          "player_id": "00-0026498",
+          "position": "QB",
+          "regulation": 27.32
+        },
+        {
+          "delta": 2.2,
+          "full": 5.0,
+          "game_id": "2025_05_SF_LA",
+          "player_id": "00-0029892",
+          "position": "RB",
+          "regulation": 2.8
+        },
+        {
+          "delta": 0.0,
+          "full": 13.8,
+          "game_id": "2025_05_SF_LA",
+          "player_id": "00-0031381",
+          "position": "WR",
+          "regulation": 13.8
+        },
+        {
+          "delta": 0.0,
+          "full": 6.9,
+          "game_id": "2025_05_SF_LA",
+          "player_id": "00-0032775",
+          "position": "WR",
+          "regulation": 6.9
+        },
+        {
+          "delta": 4.199999999999999,
+          "full": 27.9,
+          "game_id": "2025_05_SF_LA",
+          "player_id": "00-0033280",
+          "position": "RB",
+          "regulation": 23.7
+        },
+        {
+          "delta": 0.0,
+          "full": 27.200000000000003,
+          "game_id": "2025_05_SF_LA",
+          "player_id": "00-0033307",
+          "position": "WR",
+          "regulation": 27.200000000000003
+        },
+        {
+          "delta": 0.0,
+          "full": 1.9,
+          "game_id": "2025_05_SF_LA",
+          "player_id": "00-0034272",
+          "position": "WR",
+          "regulation": 1.9
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_05_SF_LA",
+          "player_id": "00-0034867",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_05_SF_LA",
+          "player_id": "00-0036244",
+          "position": "TE",
+          "regulation": 0.0
+        },
+        {
+          "delta": 4.799999999999999,
+          "full": 9.2,
+          "game_id": "2025_05_SF_LA",
+          "player_id": "00-0036849",
+          "position": "WR",
+          "regulation": 4.4
+        },
+        {
+          "delta": 0.0,
+          "full": 1.8,
+          "game_id": "2025_05_SF_LA",
+          "player_id": "00-0036887",
+          "position": "TE",
+          "regulation": 1.8
+        },
+        {
+          "delta": 4.84,
+          "full": 25.18,
+          "game_id": "2025_05_SF_LA",
+          "player_id": "00-0036972",
+          "position": "QB",
+          "regulation": 20.34
+        },
+        {
+          "delta": 3.200000000000001,
+          "full": 17.1,
+          "game_id": "2025_05_SF_LA",
+          "player_id": "00-0037112",
+          "position": "TE",
+          "regulation": 13.9
+        },
+        {
+          "delta": 0.0,
+          "full": 1.2000000000000002,
+          "game_id": "2025_05_SF_LA",
+          "player_id": "00-0037746",
+          "position": "RB",
+          "regulation": 1.2000000000000002
+        },
+        {
+          "delta": 2.900000000000002,
+          "full": 32.1,
+          "game_id": "2025_05_SF_LA",
+          "player_id": "00-0037840",
+          "position": "RB",
+          "regulation": 29.2
+        },
+        {
+          "delta": 0.0,
+          "full": 0.1,
+          "game_id": "2025_05_SF_LA",
+          "player_id": "00-0038090",
+          "position": "WR",
+          "regulation": 0.1
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_05_SF_LA",
+          "player_id": "00-0038359",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_05_SF_LA",
+          "player_id": "00-0038643",
+          "position": "TE",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 4.4,
+          "game_id": "2025_05_SF_LA",
+          "player_id": "00-0039074",
+          "position": "TE",
+          "regulation": 4.4
+        },
+        {
+          "delta": 1.8999999999999986,
+          "full": 24.5,
+          "game_id": "2025_05_SF_LA",
+          "player_id": "00-0039075",
+          "position": "WR",
+          "regulation": 22.6
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_05_SF_LA",
+          "player_id": "00-0039363",
+          "position": "RB",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 1.3,
+          "game_id": "2025_05_SF_LA",
+          "player_id": "00-0039738",
+          "position": "RB",
+          "regulation": 1.3
+        },
+        {
+          "delta": 0.0,
+          "full": 5.300000000000001,
+          "game_id": "2025_05_SF_LA",
+          "player_id": "00-0039751",
+          "position": "WR",
+          "regulation": 5.300000000000001
+        },
+        {
+          "delta": 0.0,
+          "full": 3.1,
+          "game_id": "2025_05_SF_LA",
+          "player_id": "00-0040737",
+          "position": "TE",
+          "regulation": 3.1
+        },
+        {
+          "delta": 5.959999999999997,
+          "full": 27.259999999999998,
+          "game_id": "2025_09_JAX_LV",
+          "player_id": "00-0030565",
+          "position": "QB",
+          "regulation": 21.3
+        },
+        {
+          "delta": 0.0,
+          "full": 2.4000000000000004,
+          "game_id": "2025_09_JAX_LV",
+          "player_id": "00-0031687",
+          "position": "RB",
+          "regulation": 2.4000000000000004
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_09_JAX_LV",
+          "player_id": "00-0032211",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_09_JAX_LV",
+          "player_id": "00-0033246",
+          "position": "TE",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 1.9,
+          "game_id": "2025_09_JAX_LV",
+          "player_id": "00-0034365",
+          "position": "TE",
+          "regulation": 1.9
+        },
+        {
+          "delta": 0.0,
+          "full": 6.300000000000001,
+          "game_id": "2025_09_JAX_LV",
+          "player_id": "00-0034960",
+          "position": "WR",
+          "regulation": 6.300000000000001
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_09_JAX_LV",
+          "player_id": "00-0035602",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 2.5,
+          "game_id": "2025_09_JAX_LV",
+          "player_id": "00-0036497",
+          "position": "WR",
+          "regulation": 2.5
+        },
+        {
+          "delta": 0.0,
+          "full": 5.9,
+          "game_id": "2025_09_JAX_LV",
+          "player_id": "00-0036626",
+          "position": "WR",
+          "regulation": 5.9
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_09_JAX_LV",
+          "player_id": "00-0036841",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 6.620000000000003,
+          "full": 22.200000000000003,
+          "game_id": "2025_09_JAX_LV",
+          "player_id": "00-0036971",
+          "position": "QB",
+          "regulation": 15.58
+        },
+        {
+          "delta": 1.4000000000000004,
+          "full": 16.5,
+          "game_id": "2025_09_JAX_LV",
+          "player_id": "00-0036973",
+          "position": "RB",
+          "regulation": 15.1
+        },
+        {
+          "delta": 0.0,
+          "full": 1.6,
+          "game_id": "2025_09_JAX_LV",
+          "player_id": "00-0037004",
+          "position": "TE",
+          "regulation": 1.6
+        },
+        {
+          "delta": 3.2000000000000006,
+          "full": 6.800000000000001,
+          "game_id": "2025_09_JAX_LV",
+          "player_id": "00-0038563",
+          "position": "WR",
+          "regulation": 3.6
+        },
+        {
+          "delta": 2.3000000000000007,
+          "full": 17.0,
+          "game_id": "2025_09_JAX_LV",
+          "player_id": "00-0038606",
+          "position": "WR",
+          "regulation": 14.7
+        },
+        {
+          "delta": 0.0,
+          "full": 5.6,
+          "game_id": "2025_09_JAX_LV",
+          "player_id": "00-0039066",
+          "position": "TE",
+          "regulation": 5.6
+        },
+        {
+          "delta": 10.699999999999996,
+          "full": 46.3,
+          "game_id": "2025_09_JAX_LV",
+          "player_id": "00-0039338",
+          "position": "TE",
+          "regulation": 35.6
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_09_JAX_LV",
+          "player_id": "00-0039407",
+          "position": "RB",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 8.5,
+          "game_id": "2025_09_JAX_LV",
+          "player_id": "00-0039893",
+          "position": "WR",
+          "regulation": 8.5
+        },
+        {
+          "delta": -0.10000000000000142,
+          "full": 19.9,
+          "game_id": "2025_09_JAX_LV",
+          "player_id": "00-0040122",
+          "position": "RB",
+          "regulation": 20.0
+        },
+        {
+          "delta": 0.0,
+          "full": 2.1,
+          "game_id": "2025_09_JAX_LV",
+          "player_id": "00-0040238",
+          "position": "RB",
+          "regulation": 2.1
+        },
+        {
+          "delta": 1.5999999999999996,
+          "full": 9.6,
+          "game_id": "2025_09_JAX_LV",
+          "player_id": "00-0040719",
+          "position": "RB",
+          "regulation": 8.0
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_09_JAX_LV",
+          "player_id": "00-0040729",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 1.8,
+          "game_id": "2025_10_ATL_IND",
+          "player_id": "00-0032104",
+          "position": "RB",
+          "regulation": 1.8
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_10_ATL_IND",
+          "player_id": "00-0032951",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_10_ATL_IND",
+          "player_id": "00-0033217",
+          "position": "TE",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_10_ATL_IND",
+          "player_id": "00-0033572",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_10_ATL_IND",
+          "player_id": "00-0034854",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 2.2,
+          "game_id": "2025_10_ATL_IND",
+          "player_id": "00-0035021",
+          "position": "WR",
+          "regulation": 2.2
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_10_ATL_IND",
+          "player_id": "00-0035359",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.9200000000000017,
+          "full": 17.5,
+          "game_id": "2025_10_ATL_IND",
+          "player_id": "00-0035710",
+          "position": "QB",
+          "regulation": 16.58
+        },
+        {
+          "delta": 9.400000000000006,
+          "full": 52.60000000000001,
+          "game_id": "2025_10_ATL_IND",
+          "player_id": "00-0036223",
+          "position": "RB",
+          "regulation": 43.2
+        },
+        {
+          "delta": 0.0,
+          "full": 3.9000000000000004,
+          "game_id": "2025_10_ATL_IND",
+          "player_id": "00-0036252",
+          "position": "WR",
+          "regulation": 3.9000000000000004
+        },
+        {
+          "delta": 0.0,
+          "full": 2.7,
+          "game_id": "2025_10_ATL_IND",
+          "player_id": "00-0036309",
+          "position": "WR",
+          "regulation": 2.7
+        },
+        {
+          "delta": 0.0,
+          "full": 2.4000000000000004,
+          "game_id": "2025_10_ATL_IND",
+          "player_id": "00-0036429",
+          "position": "TE",
+          "regulation": 2.4000000000000004
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_10_ATL_IND",
+          "player_id": "00-0036825",
+          "position": "TE",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 5.800000000000001,
+          "game_id": "2025_10_ATL_IND",
+          "player_id": "00-0036970",
+          "position": "TE",
+          "regulation": 5.800000000000001
+        },
+        {
+          "delta": 0.0,
+          "full": 0.4,
+          "game_id": "2025_10_ATL_IND",
+          "player_id": "00-0037120",
+          "position": "RB",
+          "regulation": 0.4
+        },
+        {
+          "delta": 0.0,
+          "full": 27.4,
+          "game_id": "2025_10_ATL_IND",
+          "player_id": "00-0037238",
+          "position": "WR",
+          "regulation": 27.4
+        },
+        {
+          "delta": -0.1999999999999993,
+          "full": 17.7,
+          "game_id": "2025_10_ATL_IND",
+          "player_id": "00-0037263",
+          "position": "RB",
+          "regulation": 17.9
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_10_ATL_IND",
+          "player_id": "00-0037292",
+          "position": "TE",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 18.4,
+          "game_id": "2025_10_ATL_IND",
+          "player_id": "00-0037664",
+          "position": "WR",
+          "regulation": 18.4
+        },
+        {
+          "delta": 0.09999999999999964,
+          "full": 10.8,
+          "game_id": "2025_10_ATL_IND",
+          "player_id": "00-0038542",
+          "position": "RB",
+          "regulation": 10.700000000000001
+        },
+        {
+          "delta": 0.0,
+          "full": 1.3,
+          "game_id": "2025_10_ATL_IND",
+          "player_id": "00-0038997",
+          "position": "WR",
+          "regulation": 1.3
+        },
+        {
+          "delta": 0.0,
+          "full": 11.98,
+          "game_id": "2025_10_ATL_IND",
+          "player_id": "00-0039917",
+          "position": "QB",
+          "regulation": 11.98
+        },
+        {
+          "delta": 3.299999999999997,
+          "full": 17.9,
+          "game_id": "2025_10_ATL_IND",
+          "player_id": "00-0040128",
+          "position": "TE",
+          "regulation": 14.600000000000001
+        },
+        {
+          "delta": 0.0,
+          "full": 2.12,
+          "game_id": "2025_11_CAR_ATL",
+          "player_id": "00-0029604",
+          "position": "QB",
+          "regulation": 2.12
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_11_CAR_ATL",
+          "player_id": "00-0033572",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_11_CAR_ATL",
+          "player_id": "00-0034854",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 2.1,
+          "game_id": "2025_11_CAR_ATL",
+          "player_id": "00-0035359",
+          "position": "WR",
+          "regulation": 2.1
+        },
+        {
+          "delta": 0.5999999999999996,
+          "full": 15.0,
+          "game_id": "2025_11_CAR_ATL",
+          "player_id": "00-0036139",
+          "position": "RB",
+          "regulation": 14.4
+        },
+        {
+          "delta": 0.0,
+          "full": 6.4,
+          "game_id": "2025_11_CAR_ATL",
+          "player_id": "00-0036309",
+          "position": "WR",
+          "regulation": 6.4
+        },
+        {
+          "delta": 0.0,
+          "full": 3.8000000000000003,
+          "game_id": "2025_11_CAR_ATL",
+          "player_id": "00-0036555",
+          "position": "RB",
+          "regulation": 3.8000000000000003
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_11_CAR_ATL",
+          "player_id": "00-0036825",
+          "position": "TE",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 3.4000000000000004,
+          "game_id": "2025_11_CAR_ATL",
+          "player_id": "00-0036970",
+          "position": "TE",
+          "regulation": 3.4000000000000004
+        },
+        {
+          "delta": 6.4,
+          "full": 6.4,
+          "game_id": "2025_11_CAR_ATL",
+          "player_id": "00-0037005",
+          "position": "TE",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 21.9,
+          "game_id": "2025_11_CAR_ATL",
+          "player_id": "00-0037238",
+          "position": "WR",
+          "regulation": 21.9
+        },
+        {
+          "delta": 0.0,
+          "full": 9.6,
+          "game_id": "2025_11_CAR_ATL",
+          "player_id": "00-0037263",
+          "position": "RB",
+          "regulation": 9.6
+        },
+        {
+          "delta": 0.3999999999999986,
+          "full": 33.3,
+          "game_id": "2025_11_CAR_ATL",
+          "player_id": "00-0038542",
+          "position": "RB",
+          "regulation": 32.9
+        },
+        {
+          "delta": 0.0,
+          "full": 3.7,
+          "game_id": "2025_11_CAR_ATL",
+          "player_id": "00-0038840",
+          "position": "WR",
+          "regulation": 3.7
+        },
+        {
+          "delta": 2.1600000000000037,
+          "full": 34.82,
+          "game_id": "2025_11_CAR_ATL",
+          "player_id": "00-0039150",
+          "position": "QB",
+          "regulation": 32.66
+        },
+        {
+          "delta": 0.0,
+          "full": 18.3,
+          "game_id": "2025_11_CAR_ATL",
+          "player_id": "00-0039342",
+          "position": "WR",
+          "regulation": 18.3
+        },
+        {
+          "delta": 0.0,
+          "full": 6.2,
+          "game_id": "2025_11_CAR_ATL",
+          "player_id": "00-0039356",
+          "position": "TE",
+          "regulation": 6.2
+        },
+        {
+          "delta": 0.0,
+          "full": 11.2,
+          "game_id": "2025_11_CAR_ATL",
+          "player_id": "00-0039491",
+          "position": "WR",
+          "regulation": 11.2
+        },
+        {
+          "delta": 0.0,
+          "full": 7.9,
+          "game_id": "2025_11_CAR_ATL",
+          "player_id": "00-0039917",
+          "position": "QB",
+          "regulation": 7.9
+        },
+        {
+          "delta": 0.0,
+          "full": 36.0,
+          "game_id": "2025_11_CAR_ATL",
+          "player_id": "00-0040124",
+          "position": "WR",
+          "regulation": 36.0
+        },
+        {
+          "delta": 0.0,
+          "full": 4.800000000000001,
+          "game_id": "2025_11_CAR_ATL",
+          "player_id": "00-0040187",
+          "position": "TE",
+          "regulation": 4.800000000000001
+        },
+        {
+          "delta": 0.0,
+          "full": 0.2,
+          "game_id": "2025_11_CAR_ATL",
+          "player_id": "00-0040644",
+          "position": "RB",
+          "regulation": 0.2
+        },
+        {
+          "delta": 0.0,
+          "full": 8.2,
+          "game_id": "2025_11_WAS_MIA",
+          "player_id": "00-0030061",
+          "position": "TE",
+          "regulation": 8.2
+        },
+        {
+          "delta": -1.0,
+          "full": 16.42,
+          "game_id": "2025_11_WAS_MIA",
+          "player_id": "00-0032268",
+          "position": "QB",
+          "regulation": 17.42
+        },
+        {
+          "delta": 0.0,
+          "full": 4.800000000000001,
+          "game_id": "2025_11_WAS_MIA",
+          "player_id": "00-0032398",
+          "position": "WR",
+          "regulation": 4.800000000000001
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_11_WAS_MIA",
+          "player_id": "00-0032688",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 4.9,
+          "game_id": "2025_11_WAS_MIA",
+          "player_id": "00-0033955",
+          "position": "RB",
+          "regulation": 4.9
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_11_WAS_MIA",
+          "player_id": "00-0034681",
+          "position": "RB",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 20.7,
+          "game_id": "2025_11_WAS_MIA",
+          "player_id": "00-0035719",
+          "position": "WR",
+          "regulation": 20.7
+        },
+        {
+          "delta": 0.0,
+          "full": 6.84,
+          "game_id": "2025_11_WAS_MIA",
+          "player_id": "00-0036212",
+          "position": "QB",
+          "regulation": 6.84
+        },
+        {
+          "delta": 0.0,
+          "full": 8.2,
+          "game_id": "2025_11_WAS_MIA",
+          "player_id": "00-0036613",
+          "position": "WR",
+          "regulation": 8.2
+        },
+        {
+          "delta": 0.0,
+          "full": 3.8,
+          "game_id": "2025_11_WAS_MIA",
+          "player_id": "00-0037252",
+          "position": "TE",
+          "regulation": 3.8
+        },
+        {
+          "delta": 0.0,
+          "full": 9.5,
+          "game_id": "2025_11_WAS_MIA",
+          "player_id": "00-0038611",
+          "position": "RB",
+          "regulation": 9.5
+        },
+        {
+          "delta": 0.0,
+          "full": 2.4000000000000004,
+          "game_id": "2025_11_WAS_MIA",
+          "player_id": "00-0038720",
+          "position": "TE",
+          "regulation": 2.4000000000000004
+        },
+        {
+          "delta": 5.199999999999999,
+          "full": 24.5,
+          "game_id": "2025_11_WAS_MIA",
+          "player_id": "00-0039040",
+          "position": "RB",
+          "regulation": 19.3
+        },
+        {
+          "delta": 0.0,
+          "full": 1.4,
+          "game_id": "2025_11_WAS_MIA",
+          "player_id": "00-0039686",
+          "position": "TE",
+          "regulation": 1.4
+        },
+        {
+          "delta": 0.0,
+          "full": 0.4,
+          "game_id": "2025_11_WAS_MIA",
+          "player_id": "00-0039874",
+          "position": "RB",
+          "regulation": 0.4
+        },
+        {
+          "delta": 0.0,
+          "full": 7.2,
+          "game_id": "2025_11_WAS_MIA",
+          "player_id": "00-0039880",
+          "position": "WR",
+          "regulation": 7.2
+        },
+        {
+          "delta": 0.0,
+          "full": 2.3,
+          "game_id": "2025_11_WAS_MIA",
+          "player_id": "00-0040164",
+          "position": "WR",
+          "regulation": 2.3
+        },
+        {
+          "delta": 0.0,
+          "full": 10.5,
+          "game_id": "2025_11_WAS_MIA",
+          "player_id": "00-0040198",
+          "position": "RB",
+          "regulation": 10.5
+        },
+        {
+          "delta": 0.0,
+          "full": 4.300000000000001,
+          "game_id": "2025_11_WAS_MIA",
+          "player_id": "00-0040242",
+          "position": "RB",
+          "regulation": 4.300000000000001
+        },
+        {
+          "delta": 0.0,
+          "full": 3.5,
+          "game_id": "2025_11_WAS_MIA",
+          "player_id": "00-0040317",
+          "position": "WR",
+          "regulation": 3.5
+        },
+        {
+          "delta": 0.0,
+          "full": 8.399999999999999,
+          "game_id": "2025_12_IND_KC",
+          "player_id": "00-0030506",
+          "position": "TE",
+          "regulation": 8.399999999999999
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_12_IND_KC",
+          "player_id": "00-0032104",
+          "position": "RB",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_12_IND_KC",
+          "player_id": "00-0032951",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 1.9,
+          "game_id": "2025_12_IND_KC",
+          "player_id": "00-0033217",
+          "position": "TE",
+          "regulation": 1.9
+        },
+        {
+          "delta": 0.0,
+          "full": 1.8,
+          "game_id": "2025_12_IND_KC",
+          "player_id": "00-0033857",
+          "position": "WR",
+          "regulation": 1.8
+        },
+        {
+          "delta": 2.0799999999999983,
+          "full": 21.08,
+          "game_id": "2025_12_IND_KC",
+          "player_id": "00-0033873",
+          "position": "QB",
+          "regulation": 19.0
+        },
+        {
+          "delta": 5.599999999999998,
+          "full": 24.0,
+          "game_id": "2025_12_IND_KC",
+          "player_id": "00-0033923",
+          "position": "RB",
+          "regulation": 18.400000000000002
+        },
+        {
+          "delta": 0.0,
+          "full": 5.800000000000001,
+          "game_id": "2025_12_IND_KC",
+          "player_id": "00-0035021",
+          "position": "WR",
+          "regulation": 5.800000000000001
+        },
+        {
+          "delta": 0.0,
+          "full": 2.0,
+          "game_id": "2025_12_IND_KC",
+          "player_id": "00-0035662",
+          "position": "WR",
+          "regulation": 2.0
+        },
+        {
+          "delta": 0.16000000000000014,
+          "full": 16.84,
+          "game_id": "2025_12_IND_KC",
+          "player_id": "00-0035710",
+          "position": "QB",
+          "regulation": 16.68
+        },
+        {
+          "delta": 0.3000000000000007,
+          "full": 8.600000000000001,
+          "game_id": "2025_12_IND_KC",
+          "player_id": "00-0036223",
+          "position": "RB",
+          "regulation": 8.3
+        },
+        {
+          "delta": 0.0,
+          "full": 13.7,
+          "game_id": "2025_12_IND_KC",
+          "player_id": "00-0036252",
+          "position": "WR",
+          "regulation": 13.7
+        },
+        {
+          "delta": 0.2999999999999998,
+          "full": 3.6999999999999997,
+          "game_id": "2025_12_IND_KC",
+          "player_id": "00-0036360",
+          "position": "RB",
+          "regulation": 3.4
+        },
+        {
+          "delta": 0.0,
+          "full": 5.5,
+          "game_id": "2025_12_IND_KC",
+          "player_id": "00-0036637",
+          "position": "TE",
+          "regulation": 5.5
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_12_IND_KC",
+          "player_id": "00-0037120",
+          "position": "RB",
+          "regulation": 0.0
+        },
+        {
+          "delta": 1.4000000000000004,
+          "full": 8.8,
+          "game_id": "2025_12_IND_KC",
+          "player_id": "00-0037292",
+          "position": "TE",
+          "regulation": 7.4
+        },
+        {
+          "delta": 0.0,
+          "full": 3.6,
+          "game_id": "2025_12_IND_KC",
+          "player_id": "00-0037664",
+          "position": "WR",
+          "regulation": 3.6
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_12_IND_KC",
+          "player_id": "00-0038104",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_12_IND_KC",
+          "player_id": "00-0038519",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 3.0,
+          "game_id": "2025_12_IND_KC",
+          "player_id": "00-0038997",
+          "position": "WR",
+          "regulation": 3.0
+        },
+        {
+          "delta": 3.1000000000000014,
+          "full": 27.1,
+          "game_id": "2025_12_IND_KC",
+          "player_id": "00-0039067",
+          "position": "WR",
+          "regulation": 24.0
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_12_IND_KC",
+          "player_id": "00-0039816",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 4.1,
+          "full": 9.9,
+          "game_id": "2025_12_IND_KC",
+          "player_id": "00-0039894",
+          "position": "WR",
+          "regulation": 5.800000000000001
+        },
+        {
+          "delta": 0.0,
+          "full": 6.6,
+          "game_id": "2025_12_IND_KC",
+          "player_id": "00-0040078",
+          "position": "RB",
+          "regulation": 6.6
+        },
+        {
+          "delta": 0.0,
+          "full": 9.5,
+          "game_id": "2025_12_IND_KC",
+          "player_id": "00-0040128",
+          "position": "TE",
+          "regulation": 9.5
+        },
+        {
+          "delta": 4.66,
+          "full": 21.68,
+          "game_id": "2025_12_JAX_ARI",
+          "player_id": "00-0033119",
+          "position": "QB",
+          "regulation": 17.02
+        },
+        {
+          "delta": 0.0,
+          "full": 2.2,
+          "game_id": "2025_12_JAX_ARI",
+          "player_id": "00-0033246",
+          "position": "TE",
+          "regulation": 2.2
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_12_JAX_ARI",
+          "player_id": "00-0033375",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_12_JAX_ARI",
+          "player_id": "00-0033439",
+          "position": "TE",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 15.0,
+          "game_id": "2025_12_JAX_ARI",
+          "player_id": "00-0034960",
+          "position": "WR",
+          "regulation": 15.0
+        },
+        {
+          "delta": 1.1999999999999993,
+          "full": 16.8,
+          "game_id": "2025_12_JAX_ARI",
+          "player_id": "00-0035500",
+          "position": "WR",
+          "regulation": 15.600000000000001
+        },
+        {
+          "delta": 0.0,
+          "full": 1.6,
+          "game_id": "2025_12_JAX_ARI",
+          "player_id": "00-0036332",
+          "position": "TE",
+          "regulation": 1.6
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_12_JAX_ARI",
+          "player_id": "00-0036590",
+          "position": "TE",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_12_JAX_ARI",
+          "player_id": "00-0036841",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 8.8,
+          "game_id": "2025_12_JAX_ARI",
+          "player_id": "00-0036924",
+          "position": "RB",
+          "regulation": 8.8
+        },
+        {
+          "delta": 1.0,
+          "full": 21.14,
+          "game_id": "2025_12_JAX_ARI",
+          "player_id": "00-0036971",
+          "position": "QB",
+          "regulation": 20.14
+        },
+        {
+          "delta": 0.6000000000000014,
+          "full": 20.6,
+          "game_id": "2025_12_JAX_ARI",
+          "player_id": "00-0036973",
+          "position": "RB",
+          "regulation": 20.0
+        },
+        {
+          "delta": 1.9000000000000004,
+          "full": 13.2,
+          "game_id": "2025_12_JAX_ARI",
+          "player_id": "00-0037157",
+          "position": "RB",
+          "regulation": 11.299999999999999
+        },
+        {
+          "delta": 3.799999999999997,
+          "full": 16.9,
+          "game_id": "2025_12_JAX_ARI",
+          "player_id": "00-0037744",
+          "position": "TE",
+          "regulation": 13.100000000000001
+        },
+        {
+          "delta": 0.0,
+          "full": 24.8,
+          "game_id": "2025_12_JAX_ARI",
+          "player_id": "00-0038559",
+          "position": "WR",
+          "regulation": 24.8
+        },
+        {
+          "delta": 3.5,
+          "full": 18.1,
+          "game_id": "2025_12_JAX_ARI",
+          "player_id": "00-0038606",
+          "position": "WR",
+          "regulation": 14.600000000000001
+        },
+        {
+          "delta": 0.0,
+          "full": 14.3,
+          "game_id": "2025_12_JAX_ARI",
+          "player_id": "00-0038935",
+          "position": "TE",
+          "regulation": 14.3
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_12_JAX_ARI",
+          "player_id": "00-0039041",
+          "position": "TE",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 1.9,
+          "game_id": "2025_12_JAX_ARI",
+          "player_id": "00-0039521",
+          "position": "WR",
+          "regulation": 1.9
+        },
+        {
+          "delta": 0.0,
+          "full": -0.08,
+          "game_id": "2025_12_JAX_ARI",
+          "player_id": "00-0039577",
+          "position": "QB",
+          "regulation": -0.08
+        },
+        {
+          "delta": 0.0,
+          "full": 0.2,
+          "game_id": "2025_12_JAX_ARI",
+          "player_id": "00-0040238",
+          "position": "RB",
+          "regulation": 0.2
+        },
+        {
+          "delta": 0.0,
+          "full": 1.7000000000000002,
+          "game_id": "2025_12_JAX_ARI",
+          "player_id": "00-0040719",
+          "position": "RB",
+          "regulation": 1.7000000000000002
+        },
+        {
+          "delta": 2.020000000000003,
+          "full": 36.24,
+          "game_id": "2025_12_NYG_DET",
+          "player_id": "00-0031503",
+          "position": "QB",
+          "regulation": 34.22
+        },
+        {
+          "delta": 0.0,
+          "full": 5.7,
+          "game_id": "2025_12_NYG_DET",
+          "player_id": "00-0032464",
+          "position": "WR",
+          "regulation": 5.7
+        },
+        {
+          "delta": 0.0,
+          "full": 18.16,
+          "game_id": "2025_12_NYG_DET",
+          "player_id": "00-0033106",
+          "position": "QB",
+          "regulation": 18.16
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_12_NYG_DET",
+          "player_id": "00-0034073",
+          "position": "TE",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.7000000000000002,
+          "full": 4.7,
+          "game_id": "2025_12_NYG_DET",
+          "player_id": "00-0035250",
+          "position": "RB",
+          "regulation": 4.0
+        },
+        {
+          "delta": 0.0,
+          "full": 3.3000000000000003,
+          "game_id": "2025_12_NYG_DET",
+          "player_id": "00-0035535",
+          "position": "WR",
+          "regulation": 3.3000000000000003
+        },
+        {
+          "delta": 0.0,
+          "full": 5.32,
+          "game_id": "2025_12_NYG_DET",
+          "player_id": "00-0035645",
+          "position": "WR",
+          "regulation": 5.32
+        },
+        {
+          "delta": 0.0,
+          "full": 6.7,
+          "game_id": "2025_12_NYG_DET",
+          "player_id": "00-0035685",
+          "position": "RB",
+          "regulation": 6.7
+        },
+        {
+          "delta": 0.0,
+          "full": 12.2,
+          "game_id": "2025_12_NYG_DET",
+          "player_id": "00-0036165",
+          "position": "WR",
+          "regulation": 12.2
+        },
+        {
+          "delta": 0.0,
+          "full": 5.9,
+          "game_id": "2025_12_NYG_DET",
+          "player_id": "00-0036754",
+          "position": "TE",
+          "regulation": 5.9
+        },
+        {
+          "delta": 0.0,
+          "full": 32.9,
+          "game_id": "2025_12_NYG_DET",
+          "player_id": "00-0036963",
+          "position": "WR",
+          "regulation": 32.9
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_12_NYG_DET",
+          "player_id": "00-0037240",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_12_NYG_DET",
+          "player_id": "00-0038115",
+          "position": "TE",
+          "regulation": 0.0
+        },
+        {
+          "delta": 1.3000000000000043,
+          "full": 33.6,
+          "game_id": "2025_12_NYG_DET",
+          "player_id": "00-0038117",
+          "position": "WR",
+          "regulation": 32.3
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_12_NYG_DET",
+          "player_id": "00-0038396",
+          "position": "RB",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_12_NYG_DET",
+          "player_id": "00-0038896",
+          "position": "RB",
+          "regulation": 0.0
+        },
+        {
+          "delta": 12.900000000000006,
+          "full": 58.400000000000006,
+          "game_id": "2025_12_NYG_DET",
+          "player_id": "00-0039139",
+          "position": "RB",
+          "regulation": 45.5
+        },
+        {
+          "delta": 1.8000000000000007,
+          "full": 16.0,
+          "game_id": "2025_12_NYG_DET",
+          "player_id": "00-0039384",
+          "position": "RB",
+          "regulation": 14.2
+        },
+        {
+          "delta": 2.3999999999999986,
+          "full": 10.7,
+          "game_id": "2025_12_NYG_DET",
+          "player_id": "00-0039847",
+          "position": "TE",
+          "regulation": 8.3
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_12_NYG_DET",
+          "player_id": "00-0040669",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 23.6,
+          "game_id": "2025_13_DEN_WAS",
+          "player_id": "00-0030061",
+          "position": "TE",
+          "regulation": 23.6
+        },
+        {
+          "delta": 6.839999999999996,
+          "full": 24.259999999999998,
+          "game_id": "2025_13_DEN_WAS",
+          "player_id": "00-0032268",
+          "position": "QB",
+          "regulation": 17.42
+        },
+        {
+          "delta": 5.1,
+          "full": 13.9,
+          "game_id": "2025_13_DEN_WAS",
+          "player_id": "00-0033881",
+          "position": "TE",
+          "regulation": 8.8
+        },
+        {
+          "delta": 0.5999999999999996,
+          "full": 5.0,
+          "game_id": "2025_13_DEN_WAS",
+          "player_id": "00-0033955",
+          "position": "RB",
+          "regulation": 4.4
+        },
+        {
+          "delta": 1.5999999999999979,
+          "full": 17.2,
+          "game_id": "2025_13_DEN_WAS",
+          "player_id": "00-0034348",
+          "position": "WR",
+          "regulation": 15.600000000000001
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_13_DEN_WAS",
+          "player_id": "00-0035406",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 10.3,
+          "full": 22.6,
+          "game_id": "2025_13_DEN_WAS",
+          "player_id": "00-0035659",
+          "position": "WR",
+          "regulation": 12.3
+        },
+        {
+          "delta": 4.800000000000001,
+          "full": 11.100000000000001,
+          "game_id": "2025_13_DEN_WAS",
+          "player_id": "00-0035719",
+          "position": "WR",
+          "regulation": 6.300000000000001
+        },
+        {
+          "delta": 2.2,
+          "full": 7.7,
+          "game_id": "2025_13_DEN_WAS",
+          "player_id": "00-0036422",
+          "position": "TE",
+          "regulation": 5.5
+        },
+        {
+          "delta": 0.0,
+          "full": 2.9,
+          "game_id": "2025_13_DEN_WAS",
+          "player_id": "00-0036628",
+          "position": "TE",
+          "regulation": 2.9
+        },
+        {
+          "delta": 0.0,
+          "full": 2.4000000000000004,
+          "game_id": "2025_13_DEN_WAS",
+          "player_id": "00-0036727",
+          "position": "RB",
+          "regulation": 2.4000000000000004
+        },
+        {
+          "delta": 0.0,
+          "full": 4.8,
+          "game_id": "2025_13_DEN_WAS",
+          "player_id": "00-0037085",
+          "position": "RB",
+          "regulation": 4.8
+        },
+        {
+          "delta": 0.0,
+          "full": 7.5,
+          "game_id": "2025_13_DEN_WAS",
+          "player_id": "00-0037742",
+          "position": "WR",
+          "regulation": 7.5
+        },
+        {
+          "delta": -0.09999999999999787,
+          "full": 10.100000000000001,
+          "game_id": "2025_13_DEN_WAS",
+          "player_id": "00-0038611",
+          "position": "RB",
+          "regulation": 10.2
+        },
+        {
+          "delta": 0.0,
+          "full": 4.0,
+          "game_id": "2025_13_DEN_WAS",
+          "player_id": "00-0038794",
+          "position": "RB",
+          "regulation": 4.0
+        },
+        {
+          "delta": 0.0,
+          "full": 3.7,
+          "game_id": "2025_13_DEN_WAS",
+          "player_id": "00-0038976",
+          "position": "WR",
+          "regulation": 3.7
+        },
+        {
+          "delta": 0.0,
+          "full": 2.4000000000000004,
+          "game_id": "2025_13_DEN_WAS",
+          "player_id": "00-0039686",
+          "position": "TE",
+          "regulation": 2.4000000000000004
+        },
+        {
+          "delta": 5.840000000000002,
+          "full": 20.44,
+          "game_id": "2025_13_DEN_WAS",
+          "player_id": "00-0039732",
+          "position": "QB",
+          "regulation": 14.6
+        },
+        {
+          "delta": 0.0,
+          "full": 4.1,
+          "game_id": "2025_13_DEN_WAS",
+          "player_id": "00-0039868",
+          "position": "WR",
+          "regulation": 4.1
+        },
+        {
+          "delta": 0.0,
+          "full": 7.2,
+          "game_id": "2025_13_DEN_WAS",
+          "player_id": "00-0040134",
+          "position": "WR",
+          "regulation": 7.2
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_13_DEN_WAS",
+          "player_id": "00-0040164",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 2.0,
+          "game_id": "2025_13_DEN_WAS",
+          "player_id": "00-0040242",
+          "position": "RB",
+          "regulation": 2.0
+        },
+        {
+          "delta": 8.7,
+          "full": 21.2,
+          "game_id": "2025_13_DEN_WAS",
+          "player_id": "00-0040730",
+          "position": "RB",
+          "regulation": 12.5
+        },
+        {
+          "delta": 0.0,
+          "full": 5.2,
+          "game_id": "2025_14_PHI_LAC",
+          "player_id": "00-0030279",
+          "position": "WR",
+          "regulation": 5.2
+        },
+        {
+          "delta": 1.1,
+          "full": 1.1,
+          "game_id": "2025_14_PHI_LAC",
+          "player_id": "00-0034159",
+          "position": "TE",
+          "regulation": 0.0
+        },
+        {
+          "delta": 5.5,
+          "full": 15.8,
+          "game_id": "2025_14_PHI_LAC",
+          "player_id": "00-0034351",
+          "position": "TE",
+          "regulation": 10.3
+        },
+        {
+          "delta": 0.40000000000000213,
+          "full": 21.200000000000003,
+          "game_id": "2025_14_PHI_LAC",
+          "player_id": "00-0034844",
+          "position": "RB",
+          "regulation": 20.8
+        },
+        {
+          "delta": 0.0,
+          "full": 19.0,
+          "game_id": "2025_14_PHI_LAC",
+          "player_id": "00-0035676",
+          "position": "WR",
+          "regulation": 19.0
+        },
+        {
+          "delta": 1.3399999999999999,
+          "full": 14.16,
+          "game_id": "2025_14_PHI_LAC",
+          "player_id": "00-0036355",
+          "position": "QB",
+          "regulation": 12.82
+        },
+        {
+          "delta": 1.1199999999999992,
+          "full": 6.3999999999999995,
+          "game_id": "2025_14_PHI_LAC",
+          "player_id": "00-0036389",
+          "position": "QB",
+          "regulation": 5.28
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_14_PHI_LAC",
+          "player_id": "00-0036876",
+          "position": "TE",
+          "regulation": 0.0
+        },
+        {
+          "delta": 3.8000000000000003,
+          "full": 7.7,
+          "game_id": "2025_14_PHI_LAC",
+          "player_id": "00-0036912",
+          "position": "WR",
+          "regulation": 3.9
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_14_PHI_LAC",
+          "player_id": "00-0037132",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_14_PHI_LAC",
+          "player_id": "00-0037617",
+          "position": "RB",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 1.3,
+          "game_id": "2025_14_PHI_LAC",
+          "player_id": "00-0037741",
+          "position": "WR",
+          "regulation": 1.3
+        },
+        {
+          "delta": 0.0,
+          "full": 2.8,
+          "game_id": "2025_14_PHI_LAC",
+          "player_id": "00-0038544",
+          "position": "WR",
+          "regulation": 2.8
+        },
+        {
+          "delta": 0.0,
+          "full": 0.4,
+          "game_id": "2025_14_PHI_LAC",
+          "player_id": "00-0038555",
+          "position": "RB",
+          "regulation": 0.4
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_14_PHI_LAC",
+          "player_id": "00-0038564",
+          "position": "TE",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_14_PHI_LAC",
+          "player_id": "00-0038573",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_14_PHI_LAC",
+          "player_id": "00-0038614",
+          "position": "RB",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 11.4,
+          "game_id": "2025_14_PHI_LAC",
+          "player_id": "00-0039391",
+          "position": "RB",
+          "regulation": 11.4
+        },
+        {
+          "delta": 0.0,
+          "full": 1.3,
+          "game_id": "2025_14_PHI_LAC",
+          "player_id": "00-0039746",
+          "position": "RB",
+          "regulation": 1.3
+        },
+        {
+          "delta": 0.0,
+          "full": 2.2,
+          "game_id": "2025_14_PHI_LAC",
+          "player_id": "00-0039915",
+          "position": "WR",
+          "regulation": 2.2
+        },
+        {
+          "delta": 0.0,
+          "full": 2.9000000000000004,
+          "game_id": "2025_14_PHI_LAC",
+          "player_id": "00-0040024",
+          "position": "WR",
+          "regulation": 2.9000000000000004
+        },
+        {
+          "delta": 0.0,
+          "full": 1.7000000000000002,
+          "game_id": "2025_14_PHI_LAC",
+          "player_id": "00-0040189",
+          "position": "TE",
+          "regulation": 1.7000000000000002
+        },
+        {
+          "delta": 2.0000000000000018,
+          "full": 14.700000000000001,
+          "game_id": "2025_14_PHI_LAC",
+          "player_id": "00-0040666",
+          "position": "RB",
+          "regulation": 12.7
+        },
+        {
+          "delta": 0.0,
+          "full": 3.1,
+          "game_id": "2025_14_PHI_LAC",
+          "player_id": "00-0040727",
+          "position": "WR",
+          "regulation": 3.1
+        },
+        {
+          "delta": 11.600000000000001,
+          "full": 21.900000000000002,
+          "game_id": "2025_16_GB_CHI",
+          "player_id": "00-0034827",
+          "position": "WR",
+          "regulation": 10.3
+        },
+        {
+          "delta": 0.0,
+          "full": 5.300000000000001,
+          "game_id": "2025_16_GB_CHI",
+          "player_id": "00-0035208",
+          "position": "WR",
+          "regulation": 5.300000000000001
+        },
+        {
+          "delta": 0.0,
+          "full": 5.8,
+          "game_id": "2025_16_GB_CHI",
+          "player_id": "00-0035700",
+          "position": "RB",
+          "regulation": 5.8
+        },
+        {
+          "delta": 0.0,
+          "full": 3.7800000000000002,
+          "game_id": "2025_16_GB_CHI",
+          "player_id": "00-0036264",
+          "position": "QB",
+          "regulation": 3.7800000000000002
+        },
+        {
+          "delta": 0.6999999999999993,
+          "full": 9.0,
+          "game_id": "2025_16_GB_CHI",
+          "player_id": "00-0036275",
+          "position": "RB",
+          "regulation": 8.3
+        },
+        {
+          "delta": 0.0,
+          "full": 3.4000000000000004,
+          "game_id": "2025_16_GB_CHI",
+          "player_id": "00-0036290",
+          "position": "TE",
+          "regulation": 3.4000000000000004
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_16_GB_CHI",
+          "player_id": "00-0036331",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_16_GB_CHI",
+          "player_id": "00-0037306",
+          "position": "TE",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 19.4,
+          "game_id": "2025_16_GB_CHI",
+          "player_id": "00-0037816",
+          "position": "WR",
+          "regulation": 19.4
+        },
+        {
+          "delta": 0.0,
+          "full": 3.7,
+          "game_id": "2025_16_GB_CHI",
+          "player_id": "00-0038124",
+          "position": "WR",
+          "regulation": 3.7
+        },
+        {
+          "delta": 1.4800000000000004,
+          "full": 13.24,
+          "game_id": "2025_16_GB_CHI",
+          "player_id": "00-0038128",
+          "position": "QB",
+          "regulation": 11.76
+        },
+        {
+          "delta": 1.6,
+          "full": 3.2,
+          "game_id": "2025_16_GB_CHI",
+          "player_id": "00-0038393",
+          "position": "WR",
+          "regulation": 1.6
+        },
+        {
+          "delta": 0.0,
+          "full": 0.4,
+          "game_id": "2025_16_GB_CHI",
+          "player_id": "00-0038685",
+          "position": "RB",
+          "regulation": 0.4
+        },
+        {
+          "delta": 0.3000000000000007,
+          "full": 8.200000000000001,
+          "game_id": "2025_16_GB_CHI",
+          "player_id": "00-0038797",
+          "position": "RB",
+          "regulation": 7.9
+        },
+        {
+          "delta": 0.0,
+          "full": 6.800000000000001,
+          "game_id": "2025_16_GB_CHI",
+          "player_id": "00-0039144",
+          "position": "TE",
+          "regulation": 6.800000000000001
+        },
+        {
+          "delta": 4.1,
+          "full": 7.1,
+          "game_id": "2025_16_GB_CHI",
+          "player_id": "00-0039146",
+          "position": "WR",
+          "regulation": 3.0
+        },
+        {
+          "delta": 5.84,
+          "full": 21.0,
+          "game_id": "2025_16_GB_CHI",
+          "player_id": "00-0039918",
+          "position": "QB",
+          "regulation": 15.16
+        },
+        {
+          "delta": 0.29999999999999993,
+          "full": 0.9,
+          "game_id": "2025_16_GB_CHI",
+          "player_id": "00-0040009",
+          "position": "WR",
+          "regulation": 0.6000000000000001
+        },
+        {
+          "delta": 0.0,
+          "full": 6.0,
+          "game_id": "2025_16_GB_CHI",
+          "player_id": "00-0040126",
+          "position": "TE",
+          "regulation": 6.0
+        },
+        {
+          "delta": 1.1000000000000014,
+          "full": 12.3,
+          "game_id": "2025_16_GB_CHI",
+          "player_id": "00-0040236",
+          "position": "RB",
+          "regulation": 11.2
+        },
+        {
+          "delta": 0.0,
+          "full": 10.1,
+          "game_id": "2025_16_GB_CHI",
+          "player_id": "00-0040277",
+          "position": "WR",
+          "regulation": 10.1
+        },
+        {
+          "delta": 0.0,
+          "full": 0.4,
+          "game_id": "2025_16_GB_CHI",
+          "player_id": "00-0040667",
+          "position": "WR",
+          "regulation": 0.4
+        },
+        {
+          "delta": 6.800000000000001,
+          "full": 33.88,
+          "game_id": "2025_16_LA_SEA",
+          "player_id": "00-0026498",
+          "position": "QB",
+          "regulation": 27.080000000000002
+        },
+        {
+          "delta": 2.0,
+          "full": 2.0,
+          "game_id": "2025_16_LA_SEA",
+          "player_id": "00-0033576",
+          "position": "TE",
+          "regulation": 0.0
+        },
+        {
+          "delta": 3.1000000000000005,
+          "full": 7.9,
+          "game_id": "2025_16_LA_SEA",
+          "player_id": "00-0033908",
+          "position": "WR",
+          "regulation": 4.8
+        },
+        {
+          "delta": 7.960000000000001,
+          "full": 21.5,
+          "game_id": "2025_16_LA_SEA",
+          "player_id": "00-0034869",
+          "position": "QB",
+          "regulation": 13.54
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_16_LA_SEA",
+          "player_id": "00-0035891",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 4.1,
+          "game_id": "2025_16_LA_SEA",
+          "player_id": "00-0036244",
+          "position": "TE",
+          "regulation": 4.1
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_16_LA_SEA",
+          "player_id": "00-0037093",
+          "position": "WR",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.0,
+          "full": 9.1,
+          "game_id": "2025_16_LA_SEA",
+          "player_id": "00-0037545",
+          "position": "WR",
+          "regulation": 9.1
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_16_LA_SEA",
+          "player_id": "00-0037557",
+          "position": "RB",
+          "regulation": 0.0
+        },
+        {
+          "delta": 0.09999999999999964,
+          "full": 11.5,
+          "game_id": "2025_16_LA_SEA",
+          "player_id": "00-0037840",
+          "position": "RB",
+          "regulation": 11.4
+        },
+        {
+          "delta": 3.6000000000000014,
+          "full": 28.4,
+          "game_id": "2025_16_LA_SEA",
+          "player_id": "00-0038134",
+          "position": "RB",
+          "regulation": 24.799999999999997
+        },
+        {
+          "delta": 0.0,
+          "full": 7.7,
+          "game_id": "2025_16_LA_SEA",
+          "player_id": "00-0038359",
+          "position": "WR",
+          "regulation": 7.7
+        },
+        {
+          "delta": 0.0,
+          "full": 0.0,
+          "game_id": "2025_16_LA_SEA",
+          "player_id": "00-0038488",
+          "position": "RB",
+          "regulation": 0.0
+        },
+        {
+          "delta": 10.100000000000001,
+          "full": 23.6,
+          "game_id": "2025_16_LA_SEA",
+          "player_id": "00-0038543",
+          "position": "WR",
+          "regulation": 13.5
+        },
+        {
+          "delta": 0.0,
+          "full": 5.4,
+          "game_id": "2025_16_LA_SEA",
+          "player_id": "00-0039074",
+          "position": "TE",
+          "regulation": 5.4
+        },
+        {
+          "delta": 14.700000000000003,
+          "full": 49.5,
+          "game_id": "2025_16_LA_SEA",
+          "player_id": "00-0039075",
+          "position": "WR",
+          "regulation": 34.8
+        },
+        {
+          "delta": 1.6999999999999993,
+          "full": 17.4,
+          "game_id": "2025_16_LA_SEA",
+          "player_id": "00-0039165",
+          "position": "RB",
+          "regulation": 15.7
+        },
+        {
+          "delta": 2.700000000000001,
+          "full": 13.100000000000001,
+          "game_id": "2025_16_LA_SEA",
+          "player_id": "00-0039738",
+          "position": "RB",
+          "regulation": 10.4
+        },
+        {
+          "delta": 0.0,
+          "full": 2.9000000000000004,
+          "game_id": "2025_16_LA_SEA",
+          "player_id": "00-0039751",
+          "position": "WR",
+          "regulation": 2.9000000000000004
+        },
+        {
+          "delta": 1.5,
+          "full": 15.0,
+          "game_id": "2025_16_LA_SEA",
+          "player_id": "00-0039793",
+          "position": "TE",
+          "regulation": 13.5
+        },
+        {
+          "delta": 0.0,
+          "full": 7.0,
+          "game_id": "2025_16_LA_SEA",
+          "player_id": "00-0040590",
+          "position": "WR",
+          "regulation": 7.0
+        },
+        {
+          "delta": 0.0,
+          "full": 12.3,
+          "game_id": "2025_16_LA_SEA",
+          "player_id": "00-0040737",
+          "position": "TE",
+          "regulation": 12.3
+        }
+      ]
+    },
+    "observational_2025_regular": {
+      "excluded_missing_market": [],
+      "games": 272,
+      "metrics": {
+        "players_ge_20": {
+          "adjusted_overtime_coefficient": 1.5419130647722665,
+          "non_overtime_mean": 2.065891472868217,
+          "overtime_mean": 3.7142857142857144,
+          "raw_difference": 1.6483942414174972
+        },
+        "players_ge_25": {
+          "adjusted_overtime_coefficient": 1.0445261018764593,
+          "non_overtime_mean": 1.0271317829457365,
+          "overtime_mean": 2.142857142857143,
+          "raw_difference": 1.1157253599114063
+        },
+        "players_ge_30": {
+          "adjusted_overtime_coefficient": 0.8793455865549656,
+          "non_overtime_mean": 0.44573643410852715,
+          "overtime_mean": 1.3571428571428572,
+          "raw_difference": 0.9114064230343301
+        },
+        "skill_total": {
+          "adjusted_overtime_coefficient": 40.448304575414014,
+          "non_overtime_mean": 168.74162790697673,
+          "overtime_mean": 212.5142857142857,
+          "raw_difference": 43.772657807308974
+        },
+        "top_one": {
+          "adjusted_overtime_coefficient": 7.524255918241146,
+          "non_overtime_mean": 27.576666666666668,
+          "overtime_mean": 35.41142857142857,
+          "raw_difference": 7.834761904761905
+        },
+        "top_three": {
+          "adjusted_overtime_coefficient": 18.73600648625897,
+          "non_overtime_mean": 67.74240310077519,
+          "overtime_mean": 87.59285714285714,
+          "raw_difference": 19.85045404208195
+        }
+      }
+    },
+    "postseason_2022_2025_separate_unreconciled": {
+      "cannot_license_regular_season": true,
+      "games": [
+        {
+          "authoritative_parity_available": false,
+          "bonus_crossings": {
+            "passing_300": 1,
+            "receiving_100": 0,
+            "rushing_100": 0
+          },
+          "dst_delta": -2.0,
+          "dst_full": 14.0,
+          "dst_regulation": 16.0,
+          "game_id": "2023_22_SF_KC",
+          "maximum_player_delta": 11.380000000000003,
+          "ot_elapsed_seconds": 897.0,
+          "ot_offensive_plays": 25,
+          "ot_possessions": 3,
+          "ot_possessions_by_team": {
+            "KC": 2,
+            "SF": 1
+          },
+          "ot_rows": 34,
+          "players_gaining_at_least_10": 1,
+          "players_gaining_at_least_3": 5,
+          "players_gaining_at_least_6": 3,
+          "position_skill_delta": {},
+          "receipts": {
+            "full_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 207,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 207
+            },
+            "full_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 207,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 1,
+              "players_scored": 19,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 207,
+              "touchback_fumbles": 0
+            },
+            "regulation_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 173,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 173
+            },
+            "regulation_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 173,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 1,
+              "players_scored": 19,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 173,
+              "touchback_fumbles": 0
+            }
+          },
+          "season": 2023,
+          "skill_delta": 43.78000000000001,
+          "skill_full": 207.26,
+          "skill_parity_max_abs_delta": null,
+          "skill_regulation": 163.48,
+          "top_one_skill_delta": 8.120000000000001,
+          "top_three_skill_delta": 18.580000000000005,
+          "week": 22
+        },
+        {
+          "authoritative_parity_available": false,
+          "bonus_crossings": {
+            "passing_300": 0,
+            "receiving_100": 0,
+            "rushing_100": 0
+          },
+          "dst_delta": 2.0,
+          "dst_full": 13.0,
+          "dst_regulation": 11.0,
+          "game_id": "2025_20_BUF_DEN",
+          "maximum_player_delta": 3.400000000000002,
+          "ot_elapsed_seconds": 616.0,
+          "ot_offensive_plays": 17,
+          "ot_possessions": 4,
+          "ot_possessions_by_team": {
+            "BUF": 1,
+            "DEN": 3
+          },
+          "ot_rows": 28,
+          "players_gaining_at_least_10": 0,
+          "players_gaining_at_least_3": 1,
+          "players_gaining_at_least_6": 0,
+          "position_skill_delta": {},
+          "receipts": {
+            "full_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 203,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 203
+            },
+            "full_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 203,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 0,
+              "players_scored": 21,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 203,
+              "touchback_fumbles": 0
+            },
+            "regulation_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 175,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 175
+            },
+            "regulation_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 175,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 0,
+              "players_scored": 21,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 175,
+              "touchback_fumbles": 0
+            }
+          },
+          "season": 2025,
+          "skill_delta": 14.460000000000013,
+          "skill_full": 211.98,
+          "skill_parity_max_abs_delta": null,
+          "skill_regulation": 197.51999999999995,
+          "top_one_skill_delta": 0.2800000000000047,
+          "top_three_skill_delta": 3.460000000000008,
+          "week": 20
+        },
+        {
+          "authoritative_parity_available": false,
+          "bonus_crossings": {
+            "passing_300": 0,
+            "receiving_100": 0,
+            "rushing_100": 0
+          },
+          "dst_delta": 2.0,
+          "dst_full": 12.0,
+          "dst_regulation": 10.0,
+          "game_id": "2025_20_LA_CHI",
+          "maximum_player_delta": 3.6999999999999993,
+          "ot_elapsed_seconds": 701.0,
+          "ot_offensive_plays": 22,
+          "ot_possessions": 4,
+          "ot_possessions_by_team": {
+            "CHI": 2,
+            "LA": 2
+          },
+          "ot_rows": 28,
+          "players_gaining_at_least_10": 0,
+          "players_gaining_at_least_3": 2,
+          "players_gaining_at_least_6": 0,
+          "position_skill_delta": {},
+          "receipts": {
+            "full_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 201,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 201
+            },
+            "full_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 201,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 0,
+              "players_scored": 20,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 201,
+              "touchback_fumbles": 0
+            },
+            "regulation_dst": {
+              "as_of": null,
+              "defenses_scored": 2,
+              "excluded_after_as_of": 0,
+              "games_scored": 1,
+              "games_started": 1,
+              "included_rows": 173,
+              "scorer": "pit-dk-dst-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 173
+            },
+            "regulation_skill": {
+              "as_of": null,
+              "excluded_after_as_of": 0,
+              "included_rows": 173,
+              "multi_lateral_players_adjusted": 0,
+              "multi_lateral_plays_adjusted": 0,
+              "multi_lateral_rule": "checksum_bound_timestamped_pbp_description",
+              "multi_lost_fumble_plays": 0,
+              "non_boxscore_fumbles": 0,
+              "players_scored": 20,
+              "scorer": "pit-dk-skill-v1",
+              "scoring_relevant_missing_time": 0,
+              "source_rows": 173,
+              "touchback_fumbles": 0
+            }
+          },
+          "season": 2025,
+          "skill_delta": 18.700000000000003,
+          "skill_full": 171.2,
+          "skill_parity_max_abs_delta": null,
+          "skill_regulation": 152.5,
+          "top_one_skill_delta": 0.9000000000000021,
+          "top_three_skill_delta": 3.780000000000001,
+          "week": 20
+        }
+      ]
+    },
+    "sources": {
+      "dst_sha256": "edaceb8eaf80be1073d5e9fecc4470ac0cb2e4509a25358c39421992705f4d15",
+      "pbp_rows": 3358,
+      "pbp_sha256": "d56233da3457e86ebc6102cea733c83aa9e2243ad163164c6ea86a1c04ec7594",
+      "regular_dst_rows": 544,
+      "regular_skill_rows": 6106,
+      "skill_sha256": "6648ae5eb4530d5f3de1d192449d20a41188ac17514dca285c43f2cca6c2d09d"
+    }
+  },
+  "version": "20260815-overtime-fantasy-and-vegas-v1"
+}

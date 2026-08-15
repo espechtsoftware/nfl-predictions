@@ -43,8 +43,20 @@ agent or developer:
   missing/duplicated sources and reproduce both prediction and uplift outputs
   bit-exactly before licensing anything. Fifteen focused overtime and
   reconciled-scorer tests pass; both changed modules compile, command help and
-  `git diff --check` pass. Commit/push the runner, then execute its sole
-  create-only JSON result under the frozen disposition.
+  `git diff --check` pass. The runner is committed/pushed at exact SHA
+  `68cf12d44902bb285deab7eed3e7a96e8dc67a04`. Its sole create-only result
+  completed with all source/scorer/repeat invariants passing. Machine JSON SHA
+  is `ec47e81c98146d6a2ba523f75d3e5b65e73a75c6b2f5ec7523514ce76f0cfcee`;
+  interpretation is in
+  `reports/2026-08-15-overtime-fantasy-and-vegas-result.md`. Across 14 current-
+  rule 2025 regular-season OT games, overtime directly added 23.77 skill DK
+  points/game, 10.12 to the top-three sum, and seven yardage-bonus crossings.
+  However the frozen 2022--2024 spread+total model was effectively random on
+  2025 (ROC-AUC 0.507) and slightly worse than the base rate on Brier/log loss;
+  the duration shadow is not licensed and production is unchanged. At the
+  first live 2026 market window, make one bounded availability probe for a
+  regulation `h2h_3_way` Draw or explicit OT market before deciding whether a
+  direct market-priced prospective collector is feasible.
 - The external post-forensic review has now been converted into a pre-value
   frozen SIS receiver-specific copula protocol at
   `reports/2026-08-15-sis-receiver-copula-protocol.md`. It confines SIS to a
