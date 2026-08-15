@@ -149,10 +149,12 @@ agent or developer:
   64-bit to 8-bit without changing any selection; all 17 focused tests remain
   exact. Replacement combined build
   `81e7a5e8-d381-4bc5-a61d-3702509228eb` from exact descendant `ff41b3b`
-  validates both and will resolve tag `sis-geometry-cbwu-ff41b3b`. Require the
-  full suite and immutable digest before either retry, and do not let CBWU-OI
-  displace the SIS chain. ATLAS and exact-N must not inherit order-sensitive
-  CBWU inputs.
+  passed at `2026-08-15T20:54:29.183999Z`: 1,517 tests passed, 2 skipped and
+  5 warnings in 1,043.42 seconds. Tag `sis-geometry-cbwu-ff41b3b` resolves to
+  immutable digest
+  `sha256:82d829fc22ffcb96c2663d81f5f5ad3ee259aa3ca6b6c7b2bca2221bbf959b2d`.
+  That image validates both mechanisms. Do not let CBWU-OI displace the SIS
+  chain. ATLAS and exact-N must not inherit order-sensitive CBWU inputs.
 - The review's live-inactive concern was a real money-path correctness defect:
   sim mode rebuilt nonzero draws without the stored-projection cascade/zero
   path, and salary-list `allowed_ids` did not imply active status. The live
@@ -494,9 +496,14 @@ agent or developer:
   canceled before completion so one replacement can validate both mechanisms.
   Combined exact-archive Cloud Build
   `81e7a5e8-d381-4bc5-a61d-3702509228eb` is queued from exact descendant
-  `ff41b3b` for tag `sis-geometry-cbwu-ff41b3b`. Require it to pass and resolve its immutable
-  digest, then retry only as stage `calibration-geometry1`; held-out remains
-  locked.
+  `ff41b3b` for tag `sis-geometry-cbwu-ff41b3b`; it passed with the 1,517-test
+  result and immutable digest recorded above. The sole repaired calibration
+  retry is now execution `sis-receiver-copula-calibration-geometry1-fwvrp`,
+  with create-only stage directory `calibration-geometry1`, exact full code SHA
+  `ff41b3b1067ea4c68f8d023392c6d2bb53ab7cf2`, and that image digest. Poll it to
+  terminal success, then run the calibration finisher with run ID
+  `20260815-sis-receiver-copula-v1-repair2-canonical` and stage
+  `calibration-geometry1`. Held-out remains locked.
 - Before any usable SIS artifact or calibration score existed, the previously
   unstated 2022 calibration-book choice was frozen in
   `reports/2026-08-15-sis-receiver-copula-calibration-book-amendment.md`

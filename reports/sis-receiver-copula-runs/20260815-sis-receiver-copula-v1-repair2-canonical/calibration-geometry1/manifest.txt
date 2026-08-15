@@ -1,0 +1,17 @@
+run_id=20260815-sis-receiver-copula-v1-repair2-canonical
+stage=calibration
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:82d829fc22ffcb96c2663d81f5f5ad3ee259aa3ca6b6c7b2bca2221bbf959b2d
+code_sha=ff41b3b1067ea4c68f8d023392c6d2bb53ab7cf2
+stage_dir=calibration-geometry1
+panel=20260811-pitclean-e80-k1-role12union-a12ab31
+parent_protocol_sha256=045a5a8e90bdbc95b5fdfa4ff29574f71fe03fcc69701d3c39dfc159c1395274
+calibration_amendment_sha256=cb28791b593023ab6abc80becf94c901b80c095a268f154c77af15214dc6b500
+calibration_season=2022
+target_weeks=5 6 7 8 9 10 11 12 13 14 15 16 17 18
+cache_table=tabpfn_projections_pit_v2
+usage_law=production-multinomial
+served_position_adjustment=none
+model_market_blend=0.45/0.55
+n_sims=10000
+seed=0
+heldout_outcomes_queried=false
