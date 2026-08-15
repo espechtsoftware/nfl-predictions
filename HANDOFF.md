@@ -20,9 +20,38 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 07:04 CDT
+## Current state — 2026-08-15 07:25 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
+
+- The full scorer validation is terminal-successful. Cloud Build
+  `4c2fe3b0-6f36-4d39-baf8-4df829316e7f` ran from exact pushed SHA
+  `afd260d52072c196fc1b88b4f497d603505e98c2` and completed at
+  `2026-08-15T12:01:07.690030Z`: 1,438 tests passed, 2 skipped and 5 warnings
+  in 1,004.98 seconds. Its immutable image digest is
+  `sha256:046431c51258a0d0d50fc5eead8e98ba203519d27f0086b897e4ef711e34999b`.
+  This closes the scorer implementation prerequisite; it is not itself a
+  scoring result.
+
+- The frozen historical realistic-recourse sizing runner is now implemented
+  in `src/nfl_dfs/research/realistic_recourse_sizing.py` and
+  `scripts/run_realistic_recourse_sizing.py`, with its one-task/zero-retry
+  launcher in `scripts/cloud_realistic_recourse_sizing.sh` and explicit
+  Docker packaging. It derives the fixed 3:55 PM Eastern game statuses from
+  visible timestamped PBP, reconstructs exact CBWU outcome-blind from the five
+  immutable player-world artifacts, validates repair4 candidate and selected
+  parity, queries authoritative labels only for games already final at the
+  decision, runs unchanged `prospective-recourse-policy-v1`, audits all 12
+  known lateral residual identities, and uploads a create-only 54-slate
+  proposal ledger before it issues the separate candidate-outcome query. It
+  records the real source object generation identities while labeling the
+  retained-world availability as a historical counterfactual, never as the
+  physical object creation time. Thirty-seven focused status, scoring,
+  remaining-world and late-swap tests pass; both Python files compile and the
+  diff is whitespace-clean. Exact next actions: commit/push this runner, build
+  its exact SHA in Cloud Build, require the full suite to pass and harvest the
+  immutable image digest, then launch the single registered create-only run.
+  Do not run from the prior scorer image because it predates this runner.
 
 - The production-exact forensic correction completed successfully as
   execution `post-forensic-stack-addendum-v1-smrps` at
@@ -54,15 +83,9 @@ agent or developer:
   PBP matches 1,619/1,632 authoritative team-weeks; all 13 differences are
   2025 rows where the production table uses an exact historical DK feed
   override. Completed games therefore fail closed to authoritative labels.
-  Do not run the historical recourse estimate yet: first freeze its one
-  decision instant/final-game set, audit whether any residual lateral event is
-  in-progress and candidate-relevant at that instant, and wait for the
-  exact-stack correction result.
-  Exact-commit full-suite Cloud Build
-  `4c2fe3b0-6f36-4d39-baf8-4df829316e7f` was submitted from pushed `main`
-  SHA `afd260d52072c196fc1b88b4f497d603505e98c2` under image tag
-  `recourse-scoring-afd260d`; it is queued. Poll it to terminal and record the
-  test counts and immutable digest before using that image.
+  The scorer prerequisite is now terminal-successful as recorded above. The
+  historical estimate remains pending only its exact-runner image validation
+  and single create-only execution.
 
 - With the exact-stack correction terminal, the one historical realistic-
   recourse sizing analysis is frozen before implementation/output in
