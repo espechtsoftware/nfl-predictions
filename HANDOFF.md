@@ -47,10 +47,12 @@ agent or developer:
   create-only hash-verified resume manifest and durable 150-Submit ledger.
   Forty-six focused SIS acquisition/import tests pass, both changed Python
   files compile, the CLI help path is valid and `git diff --check` passes.
-  No live SIS request from the new grid has run yet. Exact next action: commit
-  and push this implementation, validate the exact revision with the full
-  Cloud Build suite, and only after success start the resumable acquisition
-  from the freshly verified saved session.
+  No live SIS request from the new grid has run yet. The implementation is
+  committed and pushed at exact full SHA
+  `33898d3e1821a982c70c869d3eb2f87e2961ea7f`. Exact-archive Cloud Build
+  `a6000129-5ccb-4002-9b2d-a79f18197d8f` is running in `us-central1` with tag
+  `receiver-copula-acq-33898d3`; it must pass the full suite before the
+  resumable acquisition can start from the freshly verified saved session.
 
 - The frozen prospective latent-role mechanism now has its previously missing
   real score-free scenario factory and separately named paired runner. The
