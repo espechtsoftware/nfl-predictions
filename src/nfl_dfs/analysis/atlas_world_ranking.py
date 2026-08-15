@@ -1,0 +1,234 @@
+"""Score-free world-ranking primitives for the ATLAS construction audit.
+
+The incumbent boom generator ranks a simulated world by the sum of every
+player's points.  ATLAS first asks whether a roster-sized upper bound is a
+better way to find worlds that can support an exceptional legal lineup.  This
+module deliberately knows nothing about realized outcomes, contest ranks, or
+payouts.
+"""
+
+from __future__ import annotations
+
+from typing import Mapping, Sequence
+
+import numpy as np
+
+from ..optimizer.lineup import Lineup, StackRules, optimize
+
+
+# Exact DK Classic skill-count shapes once QB=1, DST=1 and FLEX is assigned.
+CLASSIC_SKILL_PATTERNS = ((2, 4, 1), (2, 3, 2), (3, 3, 1))
+
+
+def _top_k_sum(draws: np.ndarray, rows: np.ndarray, k: int) -> np.ndarray:
+    if len(rows) < k:
+        raise ValueError(f"ATLAS roster bound requires at least {k} rows")
+    values = draws[rows]
+    split = values.shape[0] - k
+    return np.partition(values, split, axis=0)[split:].sum(axis=0)
+
+
+def roster_slot_upper_bound(
+    row_draws: np.ndarray,
+    positions: Sequence[str],
+) -> np.ndarray:
+    """Return a cheap roster-sized upper bound for every simulated world.
+
+    It enforces the exact QB/DST and RB/WR/TE slot counts, but relaxes salary,
+    team, game, stack and anti-correlation constraints.  Consequently it is
+    an upper bound on the exact legal optimum, not a substitute for the MILP.
+    Its only purpose is to choose a small world set for exact score-free
+    solves.  The final ATLAS diagnostic must compare exact legal optima for
+    both selected world sets.
+    """
+    draws = np.asarray(row_draws, dtype=np.float64)
+    pos = np.asarray([str(value).upper() for value in positions], dtype=object)
+    if draws.ndim != 2 or draws.shape[0] != len(pos) or draws.shape[1] == 0:
+        raise ValueError("ATLAS player draws and positions are misaligned")
+    if not np.isfinite(draws).all():
+        raise ValueError("ATLAS player draws must be finite")
+
+    rows = {name: np.flatnonzero(pos == name) for name in (
+        "QB", "RB", "WR", "TE", "DST"
+    )}
+    fixed = _top_k_sum(draws, rows["QB"], 1) + _top_k_sum(
+        draws, rows["DST"], 1
+    )
+    skill_bounds = []
+    for n_rb, n_wr, n_te in CLASSIC_SKILL_PATTERNS:
+        skill_bounds.append(
+            _top_k_sum(draws, rows["RB"], n_rb)
+            + _top_k_sum(draws, rows["WR"], n_wr)
+            + _top_k_sum(draws, rows["TE"], n_te)
+        )
+    return fixed + np.maximum.reduce(skill_bounds)
+
+
+def rank_worlds(values: np.ndarray, n_worlds: int) -> np.ndarray:
+    """Deterministically rank descending values, breaking ties by world ID."""
+    scores = np.asarray(values, dtype=np.float64)
+    if scores.ndim != 1 or not np.isfinite(scores).all():
+        raise ValueError("ATLAS world-ranking values must be one finite vector")
+    n = int(n_worlds)
+    if not 1 <= n <= len(scores):
+        raise ValueError("ATLAS requested world count is outside the draw book")
+    world_id = np.arange(len(scores), dtype=np.int64)
+    return np.lexsort((world_id, -scores))[:n]
+
+
+def compare_world_rankings(
+    row_draws: np.ndarray,
+    positions: Sequence[str],
+    n_worlds: int = 40,
+) -> dict:
+    """Build the outcome-free incumbent and attainable-proxy world sets."""
+    draws = np.asarray(row_draws, dtype=np.float64)
+    incumbent_value = draws.sum(axis=0)
+    attainable_value = roster_slot_upper_bound(draws, positions)
+    incumbent = rank_worlds(incumbent_value, n_worlds)
+    attainable = rank_worlds(attainable_value, n_worlds)
+    shared = np.intersect1d(incumbent, attainable, assume_unique=True)
+    return {
+        "version": "atlas-world-ranking-scorefree-v1",
+        "uses_realized_outcomes": False,
+        "proxy": "classic-roster-slot-upper-bound",
+        "relaxed_constraints": [
+            "salary", "team", "minimum-games", "stack", "rb-anticorrelation",
+        ],
+        "worlds": int(draws.shape[1]),
+        "selected_worlds": int(n_worlds),
+        "incumbent_world_ids": incumbent.tolist(),
+        "attainable_world_ids": attainable.tolist(),
+        "shared_worlds": int(len(shared)),
+        "jaccard": float(
+            len(shared) / len(np.union1d(incumbent, attainable))
+        ),
+    }
+
+
+def _lineup_structure(lineup: Lineup) -> dict:
+    players = list(lineup.players)
+    quarterbacks = [
+        player for player in players
+        if str(player.get("pos", "")).upper() == "QB"
+    ]
+    if len(quarterbacks) != 1:
+        raise ValueError("ATLAS exact world lineup lacks one quarterback")
+    qb = quarterbacks[0]
+    qb_team = str(qb.get("team", ""))
+    qb_opp = str(qb.get("opp", ""))
+    catchers = sorted(str(player["id"]) for player in players if (
+        str(player.get("team", "")) == qb_team
+        and str(player.get("pos", "")).upper() in {"WR", "TE"}
+    ))
+    bring_backs = sorted(str(player["id"]) for player in players if (
+        str(player.get("team", "")) == qb_opp
+        and str(player.get("pos", "")).upper() in {"RB", "WR", "TE"}
+    ))
+    game_counts: dict[str, int] = {}
+    for player in players:
+        game = str(player.get("game_id", ""))
+        if game:
+            game_counts[game] = game_counts.get(game, 0) + 1
+    dominant_game = min(
+        game_counts,
+        key=lambda game: (-game_counts[game], game),
+    ) if game_counts else ""
+    return {
+        "roster": sorted(str(player["id"]) for player in players),
+        "qb_stack_core": [str(qb["id"]), *catchers, *bring_backs],
+        "dominant_game": dominant_game,
+    }
+
+
+def solve_exact_worlds(
+    player_rows: Sequence[Mapping],
+    row_draws: np.ndarray,
+    world_ids: Sequence[int],
+    *,
+    stack: StackRules,
+    env: Mapping[str, str],
+) -> dict[int, dict]:
+    """Solve exact legal lineups for a bounded score-free world set."""
+    players = [dict(player) for player in player_rows]
+    draws = np.asarray(row_draws, dtype=np.float64)
+    if draws.ndim != 2 or draws.shape[0] != len(players):
+        raise ValueError("ATLAS exact-solve player worlds are misaligned")
+    if not np.isfinite(draws).all():
+        raise ValueError("ATLAS exact-solve worlds must be finite")
+    result: dict[int, dict] = {}
+    for raw_world in world_ids:
+        world = int(raw_world)
+        if not 0 <= world < draws.shape[1] or world in result:
+            raise ValueError("ATLAS exact-solve world IDs are invalid")
+        world_players = [
+            {**player, "atlas_world_score": float(draws[index, world])}
+            for index, player in enumerate(players)
+        ]
+        lineup = optimize(
+            world_players,
+            stack=stack,
+            objective_col="atlas_world_score",
+            env=env,
+        )
+        if lineup is None:
+            raise RuntimeError(f"ATLAS world {world} has no legal lineup")
+        score = float(sum(
+            player["atlas_world_score"] for player in lineup.players
+        ))
+        result[world] = {"score": score, **_lineup_structure(lineup)}
+    return result
+
+
+def complete_world_ranking_diagnostic(
+    player_rows: Sequence[Mapping],
+    row_draws: np.ndarray,
+    *,
+    stack: StackRules,
+    env: Mapping[str, str],
+    n_worlds: int = 40,
+) -> dict:
+    """Compare exact legal quality after both score-free ranking rules."""
+    positions = [str(player.get("pos", "")) for player in player_rows]
+    report = compare_world_rankings(row_draws, positions, n_worlds=n_worlds)
+    incumbent = report["incumbent_world_ids"]
+    attainable = report["attainable_world_ids"]
+    union = sorted(set(incumbent) | set(attainable))
+    exact = solve_exact_worlds(
+        player_rows, row_draws, union, stack=stack, env=env
+    )
+    bound = roster_slot_upper_bound(row_draws, positions)
+    if any(exact[world]["score"] > bound[world] + 1e-7 for world in union):
+        raise AssertionError("ATLAS exact legal score exceeds its upper bound")
+
+    def summarize(worlds: Sequence[int]) -> dict:
+        scores = np.asarray([exact[world]["score"] for world in worlds])
+        rosters = {tuple(exact[world]["roster"]) for world in worlds}
+        cores = {tuple(exact[world]["qb_stack_core"]) for world in worlds}
+        games = {exact[world]["dominant_game"] for world in worlds}
+        return {
+            "mean_exact_legal_optimum": float(scores.mean()),
+            "median_exact_legal_optimum": float(np.median(scores)),
+            "q25_exact_legal_optimum": float(np.quantile(scores, 0.25)),
+            "unique_exact_rosters": len(rosters),
+            "unique_qb_stack_cores": len(cores),
+            "unique_dominant_games": len(games - {""}),
+        }
+
+    report["incumbent_exact"] = summarize(incumbent)
+    report["attainable_exact"] = summarize(attainable)
+    report["exact_union_worlds"] = len(union)
+    report["exact_world_results"] = {
+        str(world): exact[world] for world in union
+    }
+    return report
+
+
+__all__ = [
+    "CLASSIC_SKILL_PATTERNS",
+    "compare_world_rankings",
+    "complete_world_ranking_diagnostic",
+    "rank_worlds",
+    "roster_slot_upper_bound",
+    "solve_exact_worlds",
+]

@@ -38,6 +38,17 @@ agent or developer:
   smaller N is prefix-identical; the useful small-book test must be a newly
   frozen cardinality-aware treatment against that control. No strategy change
   is historically licensed; 2026 books must be frozen before kickoff.
+  The first ATLAS score-free primitive is implemented in
+  `analysis/atlas_world_ranking.py`. It computes a vectorized Classic roster-
+  slot upper bound for every world (exact QB/DST and the three legal
+  RB/WR/TE count shapes, with salary/team/stack constraints explicitly
+  relaxed), deterministically contrasts its top worlds with the incumbent
+  whole-slate-total rank, exact-MILP-solves only their bounded union under the
+  real production constraints, verifies every exact score is below the
+  bound, and reports exact-optimum and structural diversity without accepting
+  realized outcomes. Four focused tests and module compilation pass. Wire it
+  next to a create-only score-free runner over the immutable R0--R4 player-
+  world artifacts; do not read candidate actual scores.
 - The review's live-inactive concern was a real money-path correctness defect:
   sim mode rebuilt nonzero draws without the stored-projection cascade/zero
   path, and salary-list `allowed_ids` did not imply active status. The live
