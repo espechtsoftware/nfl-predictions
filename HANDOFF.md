@@ -20,12 +20,13 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 03:38 CDT
+## Current state — 2026-08-15 04:02 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
 - Branch is `main`; the latest implementation milestone is full SHA
-  `5cbeef8cbe93ea56a2302b97be197f75ebd92f63`. The projected-ownership
+  `86788eafd2302d61e5e40c82989f09976d74f936`. The PIT injury implementation
+  is full SHA `5cbeef8cbe93ea56a2302b97be197f75ebd92f63`; the projected-ownership
   bootstrap is full SHA `83949e1c10b23b9ccc197b89d29389d71e1e0ddc`; the recurring-vendor-intake
   milestone is full SHA
   `72261a27f44bc8e9a876dfc5c394517fa2847f32`. No historical outcome/scoring
@@ -426,11 +427,53 @@ agent or developer:
   cache or historical feature table was mutated. Exact-commit full-suite
   Cloud Build, deployment of the validated ingestion/feature/backup/status
   image, and scheduler reconciliation remain pending.
-- Next concrete action: cloud-validate the injury snapshot milestone, then
-  deploy the validated image to the affected ingestion/feature/backup/status
-  jobs and reconcile `s-nflverse` while leaving it paused until the existing
-  forensic-cleanup resume gate. After that, continue the preregistered
-  outcome-free latent-role-state prerequisite/protocol. The first
+- That pending injury validation/deployment is now complete. Exact-clean-
+  archive Cloud Build `c01ed4d9-2099-4c7b-a96c-0ab4fe49a6ff` validated pushed
+  handoff commit `b1c28f2` successfully at
+  `2026-08-15T08:56:03.447924Z`: the complete suite passed 1,402 tests with 2
+  skipped and 5 warnings in 730.49 seconds. Tag `injury-pit-b1c28f2` resolves
+  to immutable digest
+  `sha256:1b02b4ccfe16ce21b32929aa53fe0f638d8b65abb9dc71f23c21e77b4625fc80`.
+  Jobs `ingest-nflverse`, `build-features`, `backup-tables` and
+  `check-freshness` are pinned to that exact digest. IAP app revision
+  `nfl-dfs-app-injury-pit` is ready on the same digest and receives 100% of
+  traffic.
+- Scheduler `s-nflverse` is reconciled to daily 5:00am CT and was reverified
+  `PAUSED`; it remains owned by the existing forensic-cleanup season-resume
+  gate. Backup execution `backup-tables-x7p2j` completed successfully on the
+  validated image and created zero-row snapshot
+  `nfl_backups.injury_snapshots_20260815` with the dataset's 30-day expiry.
+  The source and backup are correctly empty because no 2026 injury row exists;
+  no historical row was restamped and no feature/model cache was rebuilt.
+- The distinct prospective latent-role mechanism is frozen before 2026
+  outcomes in
+  `reports/2026-08-15-prospective-latent-role-state-protocol.md` (protocol
+  milestone `f40ed06`). It replaces only the incumbent 12 direct-role
+  candidates in a future paired shadow, keeps the same 40 boom candidates,
+  five CBWU seed books/worlds and exact 80 entries, and cannot bundle
+  archetype/SIS/route/ownership/recourse. No historical lineup-score test is
+  licensed.
+- First-stage transition implementation
+  `86788eafd2302d61e5e40c82989f09976d74f936` defines the exact five state
+  boundaries, strict previous-state ordering, outcome-column denial,
+  deterministic multinomial fit, canonical probabilities, empirical baseline
+  and expanding-season role-only audit. Seven focused tests, module
+  compilation and `git diff --check` pass; the 36.90-MB source query dry-runs
+  against live schemas.
+- The score-free audit selected 62,155 RB/WR/TE usage-state labels from
+  2018--2025 and no fantasy/lineup/payout field. On expanding 2023/2024/2025,
+  the model beat the empirical `position x previous_state` baseline on both
+  log loss (`0.6933<0.8271`, `0.6736<0.8103`, `0.7418<0.8043`) and multiclass
+  Brier (`0.3597<0.4137`, `0.3502<0.4052`, `0.3805<0.4045`). Weighted values
+  are 0.70275 vs 0.81390 and 0.36342 vs 0.40781. This passes only the
+  transition prerequisite; it does not promote a lineup. Durable result is
+  `reports/2026-08-15-latent-role-state-score-free-audit.md`. Full-suite cloud
+  validation of this newer transition code is pending.
+- Next concrete action: cloud-validate the exact latent-transition commit and
+  then implement checksum-bound artifact persistence plus conditional state
+  frames/team share-cap rejection. Do not integrate its 12-candidate paired
+  shadow until those score-free layers and a live-slate budget/world parity
+  smoke pass. The first
   authenticated pass-tail acquisition smoke
   cannot occur until complete 2026 Weeks 1--4 data exist; until then every
   downstream cache/shadow fails closed and all three schedulers stay paused.
