@@ -20,12 +20,12 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 04:40 CDT
+## Current state — 2026-08-15 04:45 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
 - Branch is `main`; the latest implementation milestone is full SHA
-  `de9a980b5f73fedfbd247a1bc1756ab2b9ce74ca`. The PIT injury implementation
+  `adadd765243e6d0c3b79c316ca947eaad9f93688`. The PIT injury implementation
   is full SHA `5cbeef8cbe93ea56a2302b97be197f75ebd92f63`; the projected-ownership
   bootstrap is full SHA `83949e1c10b23b9ccc197b89d29389d71e1e0ddc`; the recurring-vendor-intake
   milestone is full SHA
@@ -510,6 +510,21 @@ agent or developer:
   `git diff --check` pass locally. The bridge still has no scenario factory,
   live runner, deployment or historical score license; clean-archive cloud
   validation is pending.
+- Five-seed live plumbing milestone
+  `adadd765243e6d0c3b79c316ca947eaad9f93688` adds the separately named,
+  production-disabled `CBWU_LATENT_ROLE_SHADOW` path. The adopted money
+  environment remains byte-for-byte unchanged. Each registered R0--R4 seed
+  invokes a caller-supplied score-free conditional-scenario factory only after
+  final player filtering/order, passes both world and optimization receipts
+  into the existing tail engine, captures a native candidate book, and uses
+  the unchanged CBWU fixed-budget union/cross-score/selection transport.
+  Missing factories, one-seed outer inputs, non-score-free receipts, family
+  drift and malformed bundles fail closed. The policy keeps 12 replacement
+  candidates, the same 40 boom candidates, 10,000 worlds per seed and exact
+  80 selection; it has no automatic scheduler or production hook. Thirty-six
+  focused live/policy/candidate/review tests pass, including exact engine 4+8
+  capture and five-seed assembly. The real conditional scenario factory and
+  authenticated live-slate parity smoke remain pending.
 - Exact clean-archive artifact build
   `cc03f3c5-5881-4d1f-82d6-e14b6bf14845` is `WORKING` in `us-central1` for
   `90ff049...` and tag `latent-role-artifact-90ff049`; it started at
