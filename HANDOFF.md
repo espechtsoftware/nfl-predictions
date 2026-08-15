@@ -42,9 +42,17 @@ agent or developer:
   reproduces both full 50,000-world exact-80 books, and applies identical
   block-stratified disjoint halves plus 32 fixed 10,000-world bootstrap
   measurements. It reads no realized outcomes and cannot tune or promote a
-  selector. Implement it after strict ATLAS harvest; its descriptive shoulder
-  hypothesis does not relax the standing
-  `240/230/220/210/200/194/187` decision law.
+  selector. The paired pure analyzer, immutable-source runner, create-only
+  launcher, strict finisher and Docker packaging are now implemented. They use
+  the same fixed resample indices for both pools, store identity-keyed
+  frequencies in a separate compressed create-only artifact, and require the
+  passed OI report's ordered full-book identities to reproduce. Twenty-one
+  focused CBWU/selector tests pass; both Python files compile, both shell
+  scripts parse, the CLI help path works and the diff is whitespace-clean.
+  Commit/push, run one complete Cloud Build and resolve its immutable image,
+  but do not launch the 32-GiB diagnostic until strict ATLAS harvest releases
+  the research slot. Its descriptive shoulder hypothesis does not relax the
+  standing `240/230/220/210/200/194/187` decision law.
 
 - The independent construction review in
   `reports/2026-08-15-independent-tail-scoring-review.md` is reconciled into
