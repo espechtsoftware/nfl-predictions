@@ -388,8 +388,12 @@ def run(output_uri: str, proposal_uri: str) -> dict:
     if (
         scorer_audit.get("analysis_code_sha") != code_sha
         or scorer_audit.get("analysis_image") != image
-        or scorer_audit.get("authoritative_player_weeks") != 54_419
-        or scorer_audit.get("exact_player_weeks") != 54_419
+        or scorer_audit.get("authoritative_player_weeks") != 75_712
+        or scorer_audit.get("exact_player_weeks") != 75_712
+        or scorer_audit.get("authoritative_stat_player_weeks") != 54_419
+        or scorer_audit.get("exact_stat_player_weeks") != 54_419
+        or scorer_audit.get("authoritative_salary_zero_player_weeks") != 21_293
+        or scorer_audit.get("exact_salary_zero_player_weeks") != 21_293
         or scorer_audit.get("differences") != 0
         or scorer_audit.get("multi_lateral_plays_adjusted") != 8
         or scorer_audit.get("multi_lateral_players_adjusted") != 12
@@ -400,7 +404,9 @@ def run(output_uri: str, proposal_uri: str) -> dict:
         "uri": SCORER_AUDIT_URI,
         "generation": str(scorer_audit_blob.generation),
         "sha256": hashlib.sha256(scorer_audit_raw).hexdigest(),
-        "exact_player_weeks": 54_419,
+        "exact_player_weeks": 75_712,
+        "exact_stat_player_weeks": 54_419,
+        "exact_salary_zero_player_weeks": 21_293,
         "same_code_and_image": True,
     }
     for table_name in (PLAYER_TABLE, CANDIDATE_TABLE):

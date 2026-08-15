@@ -125,10 +125,16 @@ agent or developer:
   digest
   `sha256:c7a9e9557eb3e62bbb01cebf2aae3550a58d5320d74f5d40e74097706af383a8`.
   Same-image scorer audit execution `recourse-scorer-reconciliation-v2-qvlt5`
-  is now running with one task, zero retries, 8 CPU, 32 GiB and one-hour
-  timeout. Poll it to terminal without reading partial output. Require its
-  create-only 54,419/54,419 result, and only then use the same digest for the
-  recourse run.
+  failed terminally at `2026-08-15T13:05:26.872169Z` with one failed task,
+  zero retries and no output object. It failed before comparison on a census-
+  only assertion: 54,419 is the count of `has_stat_line=TRUE` rows, while the
+  authoritative table also intentionally contains 21,293 salary-zero rows
+  (75,712 unique player-weeks total). The corrected, stronger contract
+  requires 75,712/75,712 overall, 54,419/54,419 stat-line and
+  21,293/21,293 salary-zero exactness. This is an operational/data-correctness
+  repair; the recourse protocol and proposal code are unchanged. Build the
+  corrected exact commit, rerun the create-only audit as a separately logged
+  execution, and only then use that same digest for the recourse run.
 
 - The production-exact forensic correction completed successfully as
   execution `post-forensic-stack-addendum-v1-smrps` at

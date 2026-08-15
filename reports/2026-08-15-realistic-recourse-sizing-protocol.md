@@ -108,7 +108,8 @@ play is itself at or before the decision. Any checksum drift, missing row,
 additional candidate-relevant unresolved residual, or untimed scoring event
 still aborts the run. The complete table is used rather than special-casing
 only the three recourse-relevant identities. Its full-game output must exactly
-reproduce all 54,419 authoritative 2023--2025 player-week labels before the
+reproduce all 54,419 authoritative 2023--2025 stat-line player-week labels,
+plus all 21,293 intentionally materialized salary-zero labels, before the
 historical run is launched.
 
 This amendment repairs source-field identifiability; it does not change the

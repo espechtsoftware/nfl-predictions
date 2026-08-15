@@ -18,7 +18,11 @@ from nfl_dfs.research.recourse_scoring import score_skill_players
 
 
 PROJECT = "nfl-predictions-503414"
-EXPECTED_PLAYER_WEEKS = 54_419
+EXPECTED_STAT_PLAYER_WEEKS = 54_419
+EXPECTED_SALARY_ZERO_PLAYER_WEEKS = 21_293
+EXPECTED_PLAYER_WEEKS = (
+    EXPECTED_STAT_PLAYER_WEEKS + EXPECTED_SALARY_ZERO_PLAYER_WEEKS
+)
 
 
 def _query(client: bigquery.Client, sql: str) -> pd.DataFrame:
@@ -71,14 +75,21 @@ def run(output_uri: str) -> dict:
       ORDER BY p.season, p.week, p.game_id, p.play_id
     """)
     labels = _query(client, f"""
-      SELECT season, week, gsis_id AS player_id, dk_points
+      SELECT season, week, gsis_id AS player_id, dk_points, has_stat_line
       FROM `{PROJECT}.nfl_features.player_week_actuals`
       WHERE season IN (2023, 2024, 2025)
       ORDER BY season, week, player_id
     """)
-    if len(labels) != EXPECTED_PLAYER_WEEKS or labels.duplicated(
+    if (
+        len(labels) != EXPECTED_PLAYER_WEEKS
+        or int(labels.has_stat_line.fillna(False).astype(bool).sum())
+        != EXPECTED_STAT_PLAYER_WEEKS
+        or int((~labels.has_stat_line.fillna(False).astype(bool)).sum())
+        != EXPECTED_SALARY_ZERO_PLAYER_WEEKS
+        or labels.duplicated(
         ["season", "week", "player_id"]
-    ).any():
+        ).any()
+    ):
         raise RuntimeError("authoritative reconciliation population differs")
     computed: dict[tuple[int, int, str], float] = {}
     receipts = []
@@ -121,6 +132,12 @@ def run(output_uri: str) -> dict:
         "pbp_rows": int(len(pbp)),
         "authoritative_player_weeks": int(len(labels)),
         "exact_player_weeks": int(len(labels)),
+        "authoritative_stat_player_weeks": EXPECTED_STAT_PLAYER_WEEKS,
+        "exact_stat_player_weeks": EXPECTED_STAT_PLAYER_WEEKS,
+        "authoritative_salary_zero_player_weeks": (
+            EXPECTED_SALARY_ZERO_PLAYER_WEEKS
+        ),
+        "exact_salary_zero_player_weeks": EXPECTED_SALARY_ZERO_PLAYER_WEEKS,
         "differences": 0,
         "nonzero_computed_identities_outside_labels": 0,
         "multi_lateral_plays_adjusted": int(sum(
@@ -157,6 +174,10 @@ def run(output_uri: str) -> dict:
         "sha256": hashlib.sha256(payload).hexdigest(),
         "pbp_rows": result["pbp_rows"],
         "exact_player_weeks": result["exact_player_weeks"],
+        "exact_stat_player_weeks": result["exact_stat_player_weeks"],
+        "exact_salary_zero_player_weeks": (
+            result["exact_salary_zero_player_weeks"]
+        ),
         "multi_lateral_players_adjusted": 12,
     }
     print("RECOURSE_SCORER_RECONCILIATION " + json.dumps(summary, sort_keys=True))
