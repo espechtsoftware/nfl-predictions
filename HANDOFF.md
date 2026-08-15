@@ -71,10 +71,8 @@ agent or developer:
   timestamp-proven final at 3:55 PM; 3,033 untimed administrative rows are
   explicitly excluded. The repair is pushed at full SHA
   `eec6b863c025dd9398cdc54f80d4830dbaf3b763`; replacement exact-archive
-  Cloud Build `9c986e57-19e5-4819-9676-bf749b0807cd` is running under tag
-  `realistic-recourse-eec6b86`. On success record the complete test count and
-  immutable digest, verify both registered GCS objects are absent, and launch
-  the runner exactly once.
+  Cloud Build `9c986e57-19e5-4819-9676-bf749b0807cd` was canceled after the
+  lateral audit below exposed the remaining prerequisite. It must not be used.
 
 - The mandatory lateral audit found that the original non-identifiable abort
   would trigger: 2024 Week 9 LAC-CLE play 2105 and 2025 Week 15 CLE-CHI play
@@ -88,9 +86,14 @@ agent or developer:
   The scientific recourse policy is unchanged. The runner audit now uses the
   actual retained candidate identity union rather than the broader score-world
   universe. Validate that this closes all 12 full-game residuals (54,419 of
-  54,419 exact) before submitting another exact runner build; canceled build
-  `9c986e57-19e5-4819-9676-bf749b0807cd` predates this prerequisite and must
-  not be used.
+  54,419 exact) before the scientific run. The checksum-bound repair and
+  create-only reconciliation runner are pushed at full SHA
+  `3fac247828110ed9dac9e93f6507d6da10c1fa45`. Exact-archive Cloud Build
+  `a64ecb4c-32a6-4a0c-94c2-f5d8231d1ca1` is running under tag
+  `realistic-recourse-3fac247`. After full-suite success, launch
+  `recourse-scorer-reconciliation-v2` from that immutable digest, require its
+  create-only 54,419/54,419 result, and only then use the same digest for the
+  recourse run.
 
 - The production-exact forensic correction completed successfully as
   execution `post-forensic-stack-addendum-v1-smrps` at
