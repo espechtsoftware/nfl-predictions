@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 13:33 CDT
+## Current state — 2026-08-15 14:10 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -224,8 +224,23 @@ agent or developer:
   `sha256:c5ae4029bb4ad05b0c5d5f3c0ea14001b3a5a0c69ef2b926f879e82e5869c479`
   at about `2026-08-15T18:29:05Z`. Its manifest and execution receipt are under
   `reports/sis-receiver-copula-runs/20260815-sis-receiver-copula-v1/reference`.
-  Poll to terminal state and run the strict reference harvester; do not launch
-  calibration until it emits a passing checksummed reference report.
+  The execution completed successfully at `2026-08-15T18:46:35Z` and the
+  strict harvester reproduced one checksum-valid report (report SHA-256
+  `1cc1e38b4eea85ec583e7249975fafe605afee2323e55a924d4f26d7d3d0fb83`,
+  manifest SHA-256
+  `ffb3277e103381ddf5f06332d68fcac9cf5b2e2a2eb5aa35f310c55d568035db`).
+  Its terminal disposition is invalid/inconclusive and it does not license
+  calibration. The only failing invariant is a mechanically conflated
+  population count: the reproducible terminal frame/draw book contains
+  15,396 rows by 10,000 worlds, while the post-filter G0/G1 score population
+  correctly contains 7,848 rows on 54 slates. The code incorrectly applied
+  the scoring-row constant to both grains. Frame, draws, terminal metadata and
+  scorebook were all bit-exact on repeat; player keys, game metadata,
+  terminal law and scoring population all passed. Preserve this invalid result
+  create-once. Repair the two-grain invariant with explicit constants and a
+  regression test, validate an exact descendant image, then run one separately
+  identified create-only reference retry. Do not launch calibration until the
+  retry emits a passing checksummed reference report.
 - Before any usable SIS artifact or calibration score existed, the previously
   unstated 2022 calibration-book choice was frozen in
   `reports/2026-08-15-sis-receiver-copula-calibration-book-amendment.md`
