@@ -110,7 +110,10 @@ agent or developer:
   world receipt retained only URI/SHA. The receipt now preserves source panel
   ID, generation, update time and size for every R0--R4 artifact in addition
   to URI/SHA and the explicitly separate counterfactual-availability time.
-  Submit a replacement exact build. After full-suite success, launch
+  That repair is pushed at full SHA
+  `8a7770de6e7db67f351b68039c10304395859325`; replacement exact-archive
+  Cloud Build `f58b8df5-0381-477d-9a24-3330200dd83f` is running under tag
+  `realistic-recourse-8a7770d`. After full-suite success, launch
   `recourse-scorer-reconciliation-v2` from that immutable digest, require its
   create-only 54,419/54,419 result, and only then use the same digest for the
   recourse run.
