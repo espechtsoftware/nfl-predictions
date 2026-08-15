@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 14:25 CDT
+## Current state — 2026-08-15 14:31 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -52,8 +52,13 @@ agent or developer:
   requires the frozen forensic manifest, exact five panels and 270 seed-slate
   artifacts on 54 slates, then applies the frozen five-seed mean/q25/80%-
   diversity falsifier. A live metadata-only query confirms the expected
-  270/54/5 scope and the create-only GCS target is absent. Seven focused tests,
-  Python compilation, shell syntax and `git diff --check` pass. Build an exact
+  270/54/5 scope and the create-only GCS target is absent. A sampled live
+  artifact/catalog check found five legitimate authoritative-only catalog
+  players outside the simulation artifact. The runner now requires every
+  artifact player to resolve uniquely but ignores catalog-only rows; it no
+  longer incorrectly demands equal universes. Twenty combined ATLAS/CBWU
+  execution and mechanism tests, Python compilation, shell syntax and
+  `git diff --check` pass. Build an exact
   immutable image, but run this score-free 32-GiB job only after the SIS chain
   and exact-P census release the single large Cloud Run slot.
   The companion pure CBWU seed-order audit is implemented in
@@ -61,9 +66,14 @@ agent or developer:
   candidate budget fixed across all five cyclic first-source/quota orders,
   rebuilds and cross-scores each union, runs the unchanged score-free selector,
   and reports candidate/selected identity Jaccard, pair/triple coverage,
-  source counts and simulated world coverage. Nine multiseed tests pass. Wire
-  this next to a create-only source-artifact runner; no historical order may
-  be chosen on realized yield.
+  source counts and simulated world coverage. Its create-only runner is now
+  implemented and packaged. It reconstructs all five books on exactly 54
+  slates from immutable player worlds, and its SQL forbids actual score/rank/
+  ownership, selected membership and payout fields. The frozen disposition
+  requires exact candidate and selected identity invariance across all 216
+  noncanonical cyclic comparisons; any sensitivity requires an order-proof or
+  order-invariant repair, never selection of the historically favorable
+  order. The 16-GiB Cloud Run launcher is ready after exact-image validation.
 - The review's live-inactive concern was a real money-path correctness defect:
   sim mode rebuilt nonzero draws without the stored-projection cascade/zero
   path, and salary-list `allowed_ids` did not imply active status. The live

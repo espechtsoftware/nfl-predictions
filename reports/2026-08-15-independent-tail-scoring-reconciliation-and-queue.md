@@ -167,8 +167,13 @@ The pure audit is now implemented. It fixes the candidate budget to canonical
 R0 even when a different seed is first, rebuilds and cross-scores every cyclic
 order, applies the unchanged selector, and reports candidate/selected identity
 Jaccard, pair/triple coverage, source counts and simulated world coverage. It
-accepts no realized-score input. A create-only immutable-artifact runner is
-still required before the audit has a result.
+accepts no realized-score input. Its create-only runner is also implemented
+against the frozen R0--R4 artifacts and pre-lock player catalog. The SQL
+explicitly excludes actual score/rank/ownership, selected membership and
+payout data. Across exactly 54 slates it will label the mechanism invariant
+only if all 216 noncanonical cyclic comparisons retain both candidate and
+selected identities exactly; otherwise the result requires an order-proof or
+order-invariant repair and cannot choose a historically favorable order.
 
 ## Accepted later mechanisms
 

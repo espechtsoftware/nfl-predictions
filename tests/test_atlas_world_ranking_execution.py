@@ -1,6 +1,10 @@
 import importlib.util
 from pathlib import Path
 
+import numpy as np
+import pandas as pd
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -37,3 +41,28 @@ def test_atlas_cloud_contract_is_create_only_and_packaged():
     assert "--memory 32Gi" in launch
     assert "--max-retries 0" in launch
     assert "COPY scripts/run_atlas_world_ranking.py" in docker
+
+
+def test_atlas_player_catalog_may_include_authoritative_only_rows():
+    runner = _runner()
+    catalog = pd.DataFrame([
+        {
+            "player_id": "p1", "player_name": "One", "position": "QB",
+            "team": "A", "opponent": "B", "game_id": "A@B",
+            "salary": 6000, "mean_projection": 20.0,
+        },
+        {
+            "player_id": "p2", "player_name": "Two", "position": "WR",
+            "team": "A", "opponent": "B", "game_id": "A@B",
+            "salary": 5000, "mean_projection": 15.0,
+        },
+        {
+            "player_id": "catalog-only", "player_name": "Extra",
+            "position": "WR", "team": "C", "opponent": "D",
+            "game_id": "C@D", "salary": 3000, "mean_projection": 0.0,
+        },
+    ])
+    rows = runner._player_rows(catalog, np.asarray(["p2", "p1"]))
+    assert [row["id"] for row in rows] == ["p2", "p1"]
+    with pytest.raises(RuntimeError, match="missing from the player catalog"):
+        runner._player_rows(catalog, np.asarray(["p1", "missing"]))

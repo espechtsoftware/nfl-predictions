@@ -128,8 +128,13 @@ def _player_rows(frame: pd.DataFrame, player_ids: np.ndarray) -> list[dict]:
         raise RuntimeError("ATLAS player catalog contains duplicate IDs")
     catalog = frame.set_index(frame.player_id.astype(str), drop=False)
     ids = [str(value) for value in player_ids]
-    if len(set(ids)) != len(ids) or set(ids) != set(catalog.index):
-        raise RuntimeError("ATLAS artifact and player-catalog universes differ")
+    if len(set(ids)) != len(ids):
+        raise RuntimeError("ATLAS artifact contains duplicate player IDs")
+    missing = set(ids) - set(catalog.index)
+    if missing:
+        raise RuntimeError(
+            "ATLAS artifact players are missing from the player catalog"
+        )
     rows = []
     for player_id in ids:
         source = catalog.loc[player_id]
