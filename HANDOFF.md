@@ -235,8 +235,9 @@ agent or developer:
   `sudo apt-get install -y google-cloud-cli-cloud-run-proxy` requires the
   operator's interactive sudo password. Browser IAP access and revision
   health are unaffected.
-- A follow-on no-file rehearsal layer is implemented in the current milestone
-  but not yet cloud-validated/deployed. `fill_entry_assignments_csv` binds each
+- A follow-on no-file rehearsal layer is implemented at full SHA
+  `8f7683d65e1441ddbaec83799fbb9fb6854b53f7` but not yet cloud-validated/
+  deployed. `fill_entry_assignments_csv` binds each
   proposed roster to its exact Entry ID instead of applying ordinary
   cross-entry churn assignment; it preserves marker/kickoff locks, fills hard
   slots before FLEX, and immediately runs the strict upload validator. New
