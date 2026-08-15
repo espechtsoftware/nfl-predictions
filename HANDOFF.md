@@ -794,6 +794,15 @@ agent or developer:
   requires downstream revalidation against the changed baseline.
   The concise result is in
   `reports/2026-08-15-cbwu-order-invariant-repair-result.md`.
+  The passed repair resolves the previously ambiguous exact-N source before
+  implementation. Frozen amendment
+  `reports/2026-08-15-exact-n-order-invariant-source-amendment.md` (SHA-256
+  `934af9c612fe5399bbe2c6aa0061d258c2fd4691785ac678cb8f5d6d633203ce`)
+  keeps every exact-N selector/gate value unchanged, gates it against the
+  CBWU-OI prefix on the identical order-invariant candidate universe, and
+  reports the canonical-production prefix only as non-gating composite
+  context. This isolates selector attribution from construction. ATLAS remains
+  ahead of exact-N in launch order.
   A follow-on review incorrectly treated CBWU-OI as an in-place production
   change. It is an inactive research function with no production call site;
   requiring identity to canonical CBWU would also contradict its frozen strict

@@ -167,6 +167,15 @@ aggregate and at least three blocks while retaining at least 90% of incumbent
 threshold sweep; passage can license only a pre-lock 2026 shadow. A separate
 create-only immutable-artifact runner is still required.
 
+Because the CBWU audit later proved canonical admission order-sensitive, the
+source attribution is now fixed by the outcome-free amendment at SHA-256
+`934af9c612fe5399bbe2c6aa0061d258c2fd4691785ac678cb8f5d6d633203ce`.
+The unchanged exact-N treatment is gated against the prefix of the exact same
+passed CBWU-OI pool; its contrast with the current canonical production prefix
+is reported separately as a non-gating composite context. This prevents the
+selector effect from being conflated with the construction repair. ATLAS
+remains first in execution order.
+
 ## CBWU seed-order audit
 
 Rotate R0--R4 through all five cyclic orders while holding every book and
