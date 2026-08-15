@@ -205,7 +205,9 @@ agent or developer:
   `42568fb4ca761703a6c240722731bfac0850016e`. Four focused tests, Python
   compilation, `git diff --check`, and a live BigQuery dry run of the repaired
   parameterized query pass. Rebuild this exact repair, then rerun the same sole
-  census with a new operational execution identity. Its only licensed output is
+  census with a new operational execution identity. Exact-archive repair build
+  `a5bf322d-1ec1-4e7f-9a75-9c7f441b7a02` is queued in `us-central1` under tag
+  `exact-p-census-42568fb`. Its only licensed output is
   `gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/post-forensic-addenda/20260815-exact-p-generator-constraint-census-v1/result.json`.
   No local or alternative membership run is licensed.
 
