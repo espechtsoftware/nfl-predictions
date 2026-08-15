@@ -106,6 +106,37 @@ def test_live_build_chain_offline(monkeypatch, panel, live_slate):
     assert inactive_draws.shape == (active_skill, 20)
 
 
+def test_live_inactive_policy_redistributes_once_then_excludes(monkeypatch):
+    from nfl_dfs.inference import live_lineups, run_projections
+
+    skill = pd.DataFrame({
+        "gsis_id": ["out-player", "active-player"],
+        "display_name": ["Out", "Active"],
+        "dk_position": ["WR", "WR"],
+        "team": ["A", "A"],
+        "status": ["O", None],
+        "target_share_l4": [0.30, 0.20],
+    })
+    calls = []
+
+    def fake_adjust(frame):
+        calls.append(tuple(frame.gsis_id))
+        adjusted = frame.copy()
+        adjusted.loc[adjusted.gsis_id.eq("active-player"),
+                     "target_share_l4"] += 0.10
+        return adjusted, ["out-player"]
+
+    monkeypatch.setattr(
+        run_projections, "_cascade_adjuster", lambda season: fake_adjust
+    )
+    active, out_ids = live_lineups._apply_live_inactive_policy(skill, 2026)
+
+    assert calls == [("out-player", "active-player")]
+    assert out_ids == ("out-player",)
+    assert active.gsis_id.tolist() == ["active-player"]
+    assert active.target_share_l4.tolist() == pytest.approx([0.30])
+
+
 def test_adopted_policy_builds_true80_dk_csv(monkeypatch, panel, live_slate):
     """Pre-season gate: exact adopted policy through the real live builder
     and generic DK export, with only external registry/BQ inputs mocked."""

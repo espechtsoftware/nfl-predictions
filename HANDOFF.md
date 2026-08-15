@@ -65,7 +65,9 @@ agent or developer:
   unavailable. It fails on status/cascade disagreement. An end-to-end fixture
   keeps an O player in the allowed salary IDs and requires that the player be
   absent from the simulator.
-  Twenty-seven focused live/policy/cascade/multiseed tests pass, both changed
+  Twenty-eight focused live/policy/cascade/multiseed tests pass, including a
+  direct assertion that redistribution executes exactly once before removal;
+  both changed
   modules compile and `git diff --check` passes. The pre-existing full adopted
   true-80 live smoke is intentionally left to Cloud Build because it is a
   sustained optimization test; no local heavy validation is licensed.
