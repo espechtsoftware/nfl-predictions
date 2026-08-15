@@ -24,6 +24,24 @@ agent or developer:
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
+- External briefing feedback is reconciled in
+  `reports/2026-08-15-external-reviewer-briefing-review-reconciliation.md`.
+  Apply its factual fixes before sharing the briefing: the exact-stack H/P,
+  no-floor and recourse quantities remain provisional; SIS pass-tail is
+  selected rather than rejected; naive chalk fade is live; selection uses five
+  10,000-world blocks; and the live/prospective queue is larger than the draft
+  states. The feedback itself omitted the separately selected SIS ASOE
+  conditional-allocation result (+2 >=210 seed-weeks, +6 >=187 and +0.352
+  mean), incorrectly said one SIS table is in feature SQL (actual 0/3), and
+  assumed personnel/formation plus player route-by-coverage fields already
+  existed. They require new acquisition. Highest-priority retained new idea is
+  a receiver-specific QB coupling using a bounded, fail-closed SIS player-
+  route/alignment/coverage sample and a score-free G0/G1 gate, followed only by
+  a 2026 paired shadow. Personnel-conditioned K is second because adjacent G3
+  failed; vendor-informed archetypes are a separately named v2 after the
+  corrected construction characterization. Do not retroactively rescue closed
+  arms by making 2022--2025 primary after outcomes are known.
+
 - Prospective latent-role live-plumbing Cloud Build
   `afb97a4b-5e92-4a38-aa2d-a43dedbedc33` completed successfully at
   `2026-08-15T10:39:31.964404Z`: 1,423 tests passed, 2 skipped and 5 warnings
