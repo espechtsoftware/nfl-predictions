@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 04:45 CDT
+## Current state — 2026-08-15 04:46 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -535,6 +535,9 @@ agent or developer:
 - Exact clean-archive candidate-bridge build
   `79a265ec-2958-42ac-af3b-bea7a9e70228` is queued in `us-central1` from
   archive `de9a980...` with tag `latent-role-candidates-de9a980`.
+- Exact clean-archive five-seed plumbing build
+  `afb97a4b-5e92-4a38-aa2d-a43dedbedc33` is queued from archive
+  `adadd76...` with tag `latent-role-live-adadd76`.
 - Next concrete action: harvest terminal results for builds `cc03f3c5...` and
   `240516d1...`, then clean-archive cloud-validate `de9a980...`. Only after all
   three layers pass, implement the outcome-denying conditional scenario
