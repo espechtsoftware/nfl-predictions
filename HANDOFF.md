@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 12:58 CDT
+## Current state — 2026-08-15 13:14 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -137,12 +137,16 @@ agent or developer:
   `2994c984-eeaa-4c20-b667-a75b53cda17f` was canceled while still queued at
   `2026-08-15T17:55:07Z`; its source predates the already-demonstrated
   tolerance-only test fix and would have failed before image construction.
-  Replacement bundle build `8683affe-cf24-440d-b772-c49b778e821e` is queued
-  in `us-central1` from exact descendant SHA
+  Replacement bundle build `8683affe-cf24-440d-b772-c49b778e821e` passed in
+  `us-central1` at `2026-08-15T18:13:29.543603Z` from exact descendant SHA
   `05a255166d3466c280cef376b21226646b36e6b3` under tag
-  `receiver-copula-bundle-05a2551`. It contains the unchanged minima repair
-  plus the split calibration/held-out code and the tolerance fix. Require this
-  bundle to pass before spending the third bounded request.
+  `receiver-copula-bundle-05a2551`: 1,489 tests passed, 2 skipped and 5
+  warnings in 799.63 seconds. It contains the unchanged minima repair plus the
+  split calibration/held-out code and the tolerance fix. The immutable image
+  digest is
+  `sha256:c5ae4029bb4ad05b0c5d5f3c0ea14001b3a5a0c69ef2b926f879e82e5869c479`.
+  The full-suite prerequisite is now satisfied; resume the guarded acquisition
+  from 2/150 without repeating either failed request.
 - Independently of that still-running downloader build, the manifest-locked
   receiver-copula importer and PIT context builder are implemented locally.
   They reproduce the acquisition result, preserve defender/team IDs, parse
