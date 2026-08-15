@@ -203,7 +203,126 @@ def exact_n_scorefree_diagnostic(
     }
 
 
+def summarize_exact_n_panel(
+    rows: Sequence[dict[str, Any]],
+    *,
+    expected_slates: int = 54,
+) -> dict[str, Any]:
+    """Apply the frozen panel-level gate to exact-N slate diagnostics."""
+    if len(rows) != expected_slates or expected_slates <= 0:
+        raise ValueError("exact-N panel has the wrong slate count")
+    keys = {(int(row["season"]), int(row["week"])) for row in rows}
+    if len(keys) != expected_slates:
+        raise ValueError("exact-N panel has repeated slate keys")
+    if any(
+        row.get("uses_realized_outcomes") is not False
+        or row.get("n80_parity") is not True
+        for row in rows
+    ):
+        raise ValueError("exact-N panel failed its outcome/parity contract")
+
+    summaries: dict[str, Any] = {}
+    licensed = []
+    for n_entries, target_line in ENTRY_TARGET_LINES.items():
+        name = str(n_entries)
+        diagnostics = [row["books"][name] for row in rows]
+        if any(
+            int(row.get("n_entries", -1)) != n_entries
+            or float(row.get("primary_target", -1.0)) != target_line
+            for row in diagnostics
+        ):
+            raise ValueError("exact-N panel diagnostic identity differs")
+        target = str(int(target_line))
+        control_primary = np.asarray([
+            row["control"]["tail"][target]["aggregate_coverage"]
+            for row in diagnostics
+        ], dtype=float)
+        treatment_primary = np.asarray([
+            row["treatment"]["tail"][target]["aggregate_coverage"]
+            for row in diagnostics
+        ], dtype=float)
+        block_delta = np.asarray([
+            np.asarray(
+                row["treatment"]["tail"][target]["per_block_coverage"],
+                dtype=float,
+            ) - np.asarray(
+                row["control"]["tail"][target]["per_block_coverage"],
+                dtype=float,
+            )
+            for row in diagnostics
+        ])
+        control_194 = np.asarray([
+            row["control"]["tail"]["194"]["aggregate_coverage"]
+            for row in diagnostics
+        ], dtype=float)
+        treatment_194 = np.asarray([
+            row["treatment"]["tail"]["194"]["aggregate_coverage"]
+            for row in diagnostics
+        ], dtype=float)
+        if (
+            block_delta.shape != (expected_slates, 5)
+            or not all(np.isfinite(values).all() for values in (
+                control_primary, treatment_primary, block_delta,
+                control_194, treatment_194,
+            ))
+        ):
+            raise ValueError("exact-N panel metrics are invalid")
+        exact_legal = all(
+            row.get("conditions", {}).get("exact_n_unique") is True
+            and row.get("treatment_legal") is True
+            for row in diagnostics
+        )
+        mean_block_delta = block_delta.mean(axis=0)
+        conditions = {
+            "exact_n_unique_and_legal": exact_legal,
+            "primary_aggregate_improves": float(
+                treatment_primary.mean() - control_primary.mean()
+            ) > 0.0,
+            "primary_improves_at_least_three_blocks": int(np.sum(
+                mean_block_delta > 0.0
+            )) >= 3,
+            "p194_retains_at_least_90pct": float(treatment_194.mean()) >= (
+                0.90 * float(control_194.mean())
+            ),
+            "n80_parity_all_slates": True,
+        }
+        passed = bool(all(conditions.values()))
+        if passed:
+            licensed.append(n_entries)
+        summaries[name] = {
+            "entries": n_entries,
+            "primary_target": target_line,
+            "mean_control_primary_coverage": float(control_primary.mean()),
+            "mean_treatment_primary_coverage": float(
+                treatment_primary.mean()
+            ),
+            "mean_primary_coverage_delta": float(
+                treatment_primary.mean() - control_primary.mean()
+            ),
+            "mean_primary_coverage_delta_by_block": (
+                mean_block_delta.tolist()
+            ),
+            "mean_control_p194_coverage": float(control_194.mean()),
+            "mean_treatment_p194_coverage": float(treatment_194.mean()),
+            "conditions": conditions,
+            "passes_scorefree_falsifier": passed,
+        }
+    return {
+        "version": "exact-n-scorefree-panel-v1",
+        "uses_realized_outcomes": False,
+        "slates": expected_slates,
+        "cardinalities": summaries,
+        "licensed_shadow_cardinalities": licensed,
+        "any_cardinality_passes": bool(licensed),
+        "consequence": (
+            "score-free pre-lock shadow license by cardinality only; cannot "
+            "promote or score a historical money lineup"
+        ),
+    }
+
+
 __all__ = [
     "ENTRY_TARGET_LINES", "REPORT_LINES", "book_scorefree_metrics",
     "exact_n_scorefree_diagnostic", "select_cardinality_tail_book",
+    "summarize_exact_n_panel",
 ]

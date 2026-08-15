@@ -20,9 +20,37 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 18:48 CDT
+## Current state — 2026-08-15 18:57 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
+
+- Exact clean-archive selector-stability Cloud Build
+  `1a1abee7-b4ab-4867-a8ce-042caaed70df` completed successfully at
+  `2026-08-15T23:52:30.422951Z`: 1,536 tests passed, 2 skipped and 5 warnings
+  in 767.63 seconds. Tag `cbwu-oi-stability-d606d1b` resolves to immutable
+  digest
+  `sha256:25e2bded0aebff43aa0205832417d069d48a2dad73ebb9c2341566953a59cb75`.
+  The repaired ATLAS execution `atlas-world-ranking-scorefree-v1-l59bt`
+  remains the sole active 32-GiB research job. Strictly harvest it before
+  launching selector stability from exact validated implementation commit
+  `d606d1bb7248142cf27c51725b6bda89e97a7f21` and this digest.
+- The already-frozen exact-N small-contest protocol now has a complete
+  outcome-free runner, create-only launcher and strict finisher. It
+  reconstructs the passed CBWU-OI candidate pool under all rotations,
+  reproduces both source exact-80 books, evaluates fixed N=`1/3/20/40`
+  treatments against the same-pool prefix, reports the separately labeled
+  non-gating production-context contrast, independently checks every selected
+  lineup against the exact production legality/stack law, and applies the
+  frozen gate across all 54 slates and five blocks. The launcher mechanically
+  requires the strict ATLAS report before launch. A new shared
+  `source_preflight.py` verifies full code/image identity, local protocol/
+  report hashes, one valid URI/digest per panel-slate cell and the complete
+  panel-by-slate grid before artifact downloads; exact-N is its first
+  consumer. Seventeen focused exact-N/preflight/selector tests pass, both new
+  shell scripts parse, all Python files compile, CLI help works and the diff
+  is whitespace-clean. Commit/push this implementation, submit one exact
+  clean-archive full build, but retain execution order: ATLAS harvest, paired
+  OI selector stability, then exact-N unless a documented dependency changes.
 
 - The supplied post-CBWU-OI suggestions are reconciled at
   `reports/2026-08-16-post-cbwu-oi-suggestions-reconciliation.md`, SHA-256
