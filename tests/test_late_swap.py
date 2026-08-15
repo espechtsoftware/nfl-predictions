@@ -5,12 +5,14 @@ import pytest
 
 from nfl_dfs.optimizer.late_swap import (
     DecisionStage,
+    NAIVE_REOPTIMIZATION_VERSION,
     RECOURSE_POLICY_VERSION,
     StageBoundaries,
     build_recourse_state,
     classify_entry_reach,
     entry_rosters_from_csv,
     fill_entry_assignments_csv,
+    propose_naive_reoptimization_rosters,
     propose_recourse_rosters,
     validate_information_as_of,
     validate_swap_upload,
@@ -229,6 +231,52 @@ def test_recourse_policy_keeps_kickoff_locked_players():
     assert result["assignments"] == {
         entry: sorted(roster) for entry, roster in entries.items()
     }
+
+
+def test_naive_reoptimization_uses_mean_without_liveness_or_book_tail_selection():
+    catalog, entries, candidates, worlds, information, boom = _recourse_fixture()
+    result = propose_naive_reoptimization_rosters(
+        entries,
+        candidates,
+        catalog,
+        worlds,
+        information,
+        as_of="2026-09-13T16:00:00Z",
+        worlds_generated_at="2026-09-13T15:59:00Z",
+    )
+    assert result["comparator_version"] == NAIVE_REOPTIMIZATION_VERSION
+    assert result["selection_objective"] == "individual_conditional_projected_mean"
+    assert result["changed_entries"] == 1
+    assert sorted(boom) in [sorted(roster) for roster in result["assignments"].values()]
+    assert result["uses_reach_classes"] is False
+    assert result["uses_book_tail_selection"] is False
+    assert result["uses_post_decision_outcomes"] is False
+
+
+def test_naive_reoptimization_keeps_locked_players_and_rejects_future_worlds():
+    catalog, entries, candidates, worlds, information, _ = _recourse_fixture(
+        qb_kickoff="2026-09-13T15:00:00Z"
+    )
+    result = propose_naive_reoptimization_rosters(
+        entries,
+        candidates,
+        catalog,
+        worlds,
+        information,
+        as_of="2026-09-13T16:00:00Z",
+        worlds_generated_at="2026-09-13T15:59:00Z",
+    )
+    assert result["changed_entries"] == 0
+    with pytest.raises(ValueError, match="generated after"):
+        propose_naive_reoptimization_rosters(
+            entries,
+            candidates,
+            catalog,
+            worlds,
+            information,
+            as_of="2026-09-13T16:00:00Z",
+            worlds_generated_at="2026-09-13T16:01:00Z",
+        )
 
 
 def test_recourse_policy_rejects_future_or_prekick_information():

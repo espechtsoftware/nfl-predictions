@@ -23,6 +23,7 @@ from .export import _entries_layout, _is_locked
 
 RECOURSE_STATE_VERSION = "prospective-recourse-state-v1"
 RECOURSE_POLICY_VERSION = "prospective-recourse-policy-v1"
+NAIVE_REOPTIMIZATION_VERSION = "naive-mean-reoptimization-v1"
 ALIVE_REACH_PROBABILITY = 0.05
 MARGINAL_REACH_PROBABILITY = 0.005
 SKILL_POSITIONS = {"RB", "WR", "TE"}
@@ -465,6 +466,206 @@ def propose_recourse_rosters(
     }
 
 
+def propose_naive_reoptimization_rosters(
+    entry_rosters: Mapping[str, Sequence[str | int]],
+    candidate_rosters: Sequence[Sequence[str | int]],
+    player_catalog: pd.DataFrame,
+    remaining_world_scores: pd.DataFrame,
+    points_information: pd.DataFrame,
+    *,
+    as_of,
+    worlds_generated_at,
+    score_kind: str = "remaining_after_as_of",
+) -> dict:
+    """Greedily re-optimise each entry on conditional projected mean.
+
+    This comparator intentionally omits the recourse policy's reach classes,
+    tail ladder and book-level objective. It represents the ordinary
+    "re-run projected points under the current locks" baseline: visit entries
+    in canonical id order, retain every kickoff-locked player, choose the
+    highest conditional-mean roster still available, break ties by minimum
+    churn and canonical roster identity, and prohibit duplicate lineups.
+
+    Validation is deliberately repeated rather than delegated through
+    :func:`propose_recourse_rosters`, so the comparator cannot inherit a
+    liveness or book-tail decision from the treatment it is meant to measure.
+    """
+    if score_kind != "remaining_after_as_of":
+        raise ValueError(
+            "naive re-optimization requires remaining_after_as_of scores"
+        )
+    current = _aware_timestamp(as_of, "naive re-optimization as-of")
+    generated = _aware_timestamp(
+        worlds_generated_at, "naive re-optimization worlds generated-at"
+    )
+    if generated.tz_convert("UTC") > current.tz_convert("UTC"):
+        raise ValueError("naive re-optimization worlds were generated after the decision")
+    if not entry_rosters:
+        raise ValueError("naive re-optimization requires at least one entry")
+
+    catalog = _recourse_catalog(player_catalog)
+    originals: dict[str, tuple[str, ...]] = {}
+    for raw_entry_id, roster in entry_rosters.items():
+        entry_id = str(raw_entry_id)
+        if not entry_id or entry_id in originals:
+            raise ValueError("naive re-optimization requires unique nonempty entry ids")
+        originals[entry_id] = _normalize_classic_roster(
+            roster, catalog, f"naive entry {entry_id}"
+        )
+    if len(set(originals.values())) != len(originals):
+        raise ValueError("naive original book contains duplicate lineups")
+
+    candidates: dict[tuple[str, ...], tuple[str, ...]] = {}
+    for index, roster in enumerate(candidate_rosters):
+        normalized = _normalize_classic_roster(
+            roster, catalog, f"naive candidate {index}"
+        )
+        candidates.setdefault(normalized, normalized)
+    if not candidates:
+        raise ValueError("naive re-optimization requires candidate rosters")
+
+    worlds = remaining_world_scores.copy()
+    worlds.columns = [str(column) for column in worlds.columns]
+    if worlds.empty or worlds.shape[1] == 0:
+        raise ValueError("naive remaining-world matrix is empty")
+    if len(set(worlds.columns)) != len(worlds.columns):
+        raise ValueError("naive remaining worlds repeat player ids")
+    required_ids = set().union(*originals.values(), *candidates.values())
+    missing_worlds = required_ids - set(worlds.columns)
+    if missing_worlds:
+        raise ValueError(
+            "naive remaining worlds omit players: "
+            + ", ".join(sorted(missing_worlds))
+        )
+    worlds = worlds.loc[:, sorted(required_ids)].apply(pd.to_numeric, errors="coerce")
+    world_values = worlds.to_numpy(dtype=float)
+    if not np.isfinite(world_values).all():
+        raise ValueError("naive remaining worlds contain nonfinite scores")
+
+    info_required = {"dk_id", "points_to_date", "available_at"}
+    missing_info = info_required - set(points_information.columns)
+    if missing_info:
+        raise ValueError(
+            "naive points information missing " + ", ".join(sorted(missing_info))
+        )
+    forbidden_info = {
+        "actual_score", "final_score", "actual_ownership", "contest_rank",
+        "payout", "roi",
+    } & set(points_information.columns)
+    if forbidden_info:
+        raise ValueError(
+            "naive points information contains forbidden outcome columns: "
+            + ", ".join(sorted(forbidden_info))
+        )
+    information_receipt = validate_information_as_of(points_information, current)
+    info = points_information.copy()
+    info["dk_id"] = info.dk_id.astype(str)
+    if info.dk_id.eq("").any() or info.dk_id.duplicated().any():
+        raise ValueError("naive points information repeats a player")
+    unknown_info = set(info.dk_id) - set(catalog.index)
+    if unknown_info:
+        raise ValueError(
+            "naive points information has unknown players: "
+            + ", ".join(sorted(unknown_info))
+        )
+    info["points_to_date"] = pd.to_numeric(info.points_to_date, errors="coerce")
+    if not np.isfinite(info.points_to_date.to_numpy(dtype=float)).all():
+        raise ValueError("naive points-to-date contains nonfinite scores")
+    kickoff_locked = catalog._kickoff.le(current.tz_convert("UTC"))
+    unlocked_info = info.dk_id.map(~kickoff_locked).fillna(False)
+    if info.loc[unlocked_info & info.points_to_date.ne(0)].shape[0]:
+        raise ValueError("naive points exist for a player before kickoff")
+    observed = info.set_index("dk_id").points_to_date.to_dict()
+
+    column_index = {player_id: i for i, player_id in enumerate(worlds.columns)}
+    score_cache: dict[tuple[str, ...], np.ndarray] = {}
+    player_means = worlds.mean(axis=0).to_dict()
+
+    def roster_mean(roster: tuple[str, ...]) -> float:
+        return float(sum(
+            float(player_means[player_id]) + float(observed.get(player_id, 0.0))
+            for player_id in roster
+        ))
+
+    def roster_scores(roster: tuple[str, ...]) -> np.ndarray:
+        if roster not in score_cache:
+            indexes = [column_index[player_id] for player_id in roster]
+            points = sum(float(observed.get(player_id, 0.0)) for player_id in roster)
+            score_cache[roster] = world_values[:, indexes].sum(axis=1) + points
+        return score_cache[roster]
+
+    assignments = dict(originals)
+    original_scores = {key: roster_scores(value) for key, value in originals.items()}
+    changes: list[dict] = []
+    alternatives_considered: dict[str, int] = {}
+    for entry_id in sorted(assignments):
+        original = assignments[entry_id]
+        locked = {
+            player_id for player_id in original
+            if bool(kickoff_locked.loc[player_id])
+        }
+        occupied = set(assignments.values()) - {original}
+        compatible = [
+            roster for roster in candidates
+            if roster not in occupied and locked <= set(roster)
+        ]
+        alternatives_considered[entry_id] = len(compatible)
+        if not compatible:
+            continue
+        choices = []
+        for roster in compatible:
+            mean = roster_mean(roster)
+            overlap = len(set(original) & set(roster))
+            choices.append((-mean, -overlap, roster))
+        _, _, replacement = min(choices)
+        before_mean = roster_mean(original)
+        after_mean = roster_mean(replacement)
+        if replacement == original:
+            continue
+        if after_mean + 1e-12 < before_mean:
+            raise RuntimeError("naive re-optimization declined projected mean")
+        assignments[entry_id] = replacement
+        changes.append({
+            "entry_id": entry_id,
+            "players_out": sorted(set(original) - set(replacement)),
+            "players_in": sorted(set(replacement) - set(original)),
+            "overlap": len(set(original) & set(replacement)),
+            "before_projected_mean": before_mean,
+            "after_projected_mean": after_mean,
+        })
+
+    initial_matrix = np.vstack([original_scores[key] for key in sorted(original_scores)])
+    final_scores = {key: roster_scores(value) for key, value in assignments.items()}
+    final_matrix = np.vstack([final_scores[key] for key in sorted(final_scores)])
+    return {
+        "comparator_version": NAIVE_REOPTIMIZATION_VERSION,
+        "as_of": current.isoformat(),
+        "worlds_generated_at": generated.isoformat(),
+        "score_kind": score_kind,
+        "selection_objective": "individual_conditional_projected_mean",
+        "entry_order": sorted(assignments),
+        "worlds": int(len(worlds)),
+        "entries": len(originals),
+        "unique_candidates": len(candidates),
+        "alternatives_considered": alternatives_considered,
+        "initial_book_objective": list(
+            _simulated_book_objective(initial_matrix.max(axis=0))
+        ),
+        "final_book_objective": list(
+            _simulated_book_objective(final_matrix.max(axis=0))
+        ),
+        "assignments": {key: list(value) for key, value in assignments.items()},
+        "changes": changes,
+        "changed_entries": len(changes),
+        "information_receipt": information_receipt,
+        "uses_reach_classes": False,
+        "uses_book_tail_selection": False,
+        "uses_points_to_date": True,
+        "uses_post_decision_outcomes": False,
+        "requires_upload_validation": True,
+    }
+
+
 _CELL_SUFFIX = re.compile(r"\(([^()]*)\)\s*$")
 
 
@@ -778,6 +979,7 @@ __all__ = [
     "DecisionStage",
     "MAX_RECOURSE_ALTERNATIVES",
     "MARGINAL_REACH_PROBABILITY",
+    "NAIVE_REOPTIMIZATION_VERSION",
     "RECOURSE_POLICY_VERSION",
     "RECOURSE_STATE_VERSION",
     "RECOURSE_TAIL_GRID",
@@ -786,6 +988,7 @@ __all__ = [
     "classify_entry_reach",
     "entry_rosters_from_csv",
     "fill_entry_assignments_csv",
+    "propose_naive_reoptimization_rosters",
     "propose_recourse_rosters",
     "validate_information_as_of",
     "validate_swap_upload",

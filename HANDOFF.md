@@ -20,9 +20,45 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 07:25 CDT
+## Current state — 2026-08-15 08:28 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
+
+- External review in
+  `reports/2026-08-15-post-forensic-changes-review.md` arrived before any
+  realistic-recourse scorer/proposal/result object existed. Its five useful
+  suggestions are reconciled in
+  `reports/2026-08-15-post-forensic-changes-review-reconciliation.md`. The
+  frozen recourse protocol received a logged pre-outcome diagnostic amendment:
+  keep `prospective-recourse-policy-v1` unchanged, freeze a separate
+  `naive-mean-reoptimization-v1` comparator under identical locks/candidates,
+  retain all exact-80 PIT 194-reach probabilities/classes, and report exact-P
+  residual players split by locked/unlocked timing and immutable first-failed
+  layer at 210. The comparator greedily maximizes individual conditional
+  projected mean in canonical entry order and deliberately uses no liveness or
+  book-tail selection. Both assignment books are create-only frozen before
+  any outcome query. Focused late-swap/recourse/scorer/forensic validation is
+  62 passing tests; both changed Python files compile and the diff is clean.
+
+- That review exposed a separate fail-late bug before execution: the runner
+  tried to recover corrected exact P as the best generated candidate, even
+  though P is an oracle over generated player support and normally lies
+  outside the candidate pool. The repaired outcome phase now reconstructs P
+  from authoritative player outcomes only after the proposal ledger exists,
+  using the frozen $49,000 floor, $50,000 cap, QB+2 and one-bring-back rules,
+  and requires its score to match the immutable exact-stack result to 1e-6.
+  A read-only 2023 Week 1 diagnostic reproduced exact P at 251.54 from 216
+  supported players. No proposal input or primary policy changed.
+
+- Corrected-census build `ae570dab-6069-42b8-940b-8a64690c24a5` was canceled
+  at `2026-08-15T13:13:20.361262Z` before completion because the review-driven
+  comparator/diagnostic amendment and exact-P identity repair require a new
+  exact image. The scorer reconciliation, proposal-set and result GCS objects
+  were all independently verified absent after cancellation. Exact next
+  action: commit/push these pre-outcome changes, build the exact SHA in
+  `us-central1`, require the full suite to pass, run the create-only same-image
+  scorer reconciliation, and only after that succeeds launch the one-task,
+  zero-retry realistic-recourse execution from the same digest.
 
 - The full scorer validation is terminal-successful. Cloud Build
   `4c2fe3b0-6f36-4d39-baf8-4df829316e7f` ran from exact pushed SHA
@@ -136,9 +172,10 @@ agent or developer:
   corrected exact commit, rerun the create-only audit as a separately logged
   execution, and only then use that same digest for the recourse run.
   The census repair is pushed at full SHA
-  `65ea74f3977ba76752660bd7a020d250c5fd7179`; exact-archive Cloud Build
-  `ae570dab-6069-42b8-940b-8a64690c24a5` is running under tag
-  `realistic-recourse-65ea74f`.
+  `65ea74f3977ba76752660bd7a020d250c5fd7179`. Its exact-archive Cloud Build
+  `ae570dab-6069-42b8-940b-8a64690c24a5` was subsequently canceled for the
+  separately documented pre-outcome review amendment and exact-P repair; it
+  must not be used.
 
 - The production-exact forensic correction completed successfully as
   execution `post-forensic-stack-addendum-v1-smrps` at

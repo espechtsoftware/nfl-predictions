@@ -17,7 +17,11 @@ import pandas as pd
 from google.cloud import bigquery, storage
 
 from nfl_dfs.inference.recourse_worlds import derive_remaining_worlds
-from nfl_dfs.optimizer.late_swap import propose_recourse_rosters
+from nfl_dfs.optimizer.late_swap import (
+    propose_naive_reoptimization_rosters,
+    propose_recourse_rosters,
+)
+from nfl_dfs.research.final_forensic import _solve_oracle
 from nfl_dfs.research.portfolio_effective_rank import decode_score_artifact
 from nfl_dfs.research.recourse_scoring import (
     MULTI_LATERAL_ADJUSTMENTS,
@@ -314,6 +318,7 @@ def _proposal_record(
     week: int,
     book: pd.DataFrame,
     policy: dict,
+    naive: dict,
     *,
     decision: pd.Timestamp,
     parity: dict,
@@ -332,6 +337,33 @@ def _proposal_record(
     }
     kickoff = pd.to_datetime(catalog.kickoff, utc=True)
     locked = int(kickoff.le(decision.tz_convert("UTC")).sum())
+    class_counts = pd.Series(policy["reach_classes"], dtype="string").value_counts()
+    reach_values = [float(value) for value in policy["reach_probabilities"].values()]
+    liveness_profile = {
+        "threshold": 194.0,
+        "alive_entries": int(class_counts.get("alive", 0)),
+        "marginal_entries": int(class_counts.get("marginal", 0)),
+        "effectively_dead_entries": int(class_counts.get("effectively_dead", 0)),
+        "decisive_entries": int(
+            class_counts.get("alive", 0) + class_counts.get("effectively_dead", 0)
+        ),
+        "reach_probability": _numeric_summary(reach_values),
+        "reach_probabilities": {
+            str(key): float(value)
+            for key, value in sorted(policy["reach_probabilities"].items())
+        },
+        "reach_classes": {
+            str(key): str(value)
+            for key, value in sorted(policy["reach_classes"].items())
+        },
+    }
+    if sum(
+        liveness_profile[key]
+        for key in ("alive_entries", "marginal_entries", "effectively_dead_entries")
+    ) != ENTRY_COUNT:
+        raise RuntimeError("recourse liveness classes do not cover exact-80 entries")
+    if set(naive["assignments"]) != set(policy["assignments"]):
+        raise RuntimeError("naive comparator entry identities differ from recourse policy")
     record = {
         "season": season,
         "week": week,
@@ -357,6 +389,22 @@ def _proposal_record(
         "game_status_receipt": status_receipt,
         "points_receipt": points_receipt,
         "world_adapter_receipt": world_receipt,
+        "liveness_profile": liveness_profile,
+        "naive_reoptimization": {
+            "comparator_version": naive["comparator_version"],
+            "selection_objective": naive["selection_objective"],
+            "assignments": naive["assignments"],
+            "changed_entries": int(naive["changed_entries"]),
+            "changes": naive["changes"],
+            "alternatives_considered": int(sum(
+                naive["alternatives_considered"].values()
+            )),
+            "initial_book_objective": naive["initial_book_objective"],
+            "final_book_objective": naive["final_book_objective"],
+            "uses_reach_classes": False,
+            "uses_book_tail_selection": False,
+            "uses_post_decision_outcomes": False,
+        },
         "uses_post_decision_outcomes": False,
     }
     if not record["simulated_non_decline"]:
@@ -371,6 +419,49 @@ def _numeric_summary(values: list[float]) -> dict:
         "median": float(median(values)),
         "minimum": float(min(values)),
         "maximum": float(max(values)),
+    }
+
+
+def _p_residual_by_lock(
+    roster: tuple[str, ...],
+    p_roster: tuple[str, ...],
+    kickoff_by_player: dict[str, pd.Timestamp],
+    decision: pd.Timestamp,
+) -> dict:
+    missing = sorted(set(p_roster) - set(roster))
+    unknown = set(missing) - set(kickoff_by_player)
+    if unknown:
+        raise RuntimeError(
+            "exact-P residual lacks kickoff identity: " + ", ".join(sorted(unknown))
+        )
+    current = decision.tz_convert("UTC")
+    locked = [player for player in missing if kickoff_by_player[player] <= current]
+    unlocked = [player for player in missing if kickoff_by_player[player] > current]
+    if len(locked) + len(unlocked) != roster_swap_distance(roster, p_roster):
+        raise RuntimeError("exact-P residual lock partition differs from swap distance")
+    return {
+        "total_missing_p_players": len(missing),
+        "locked_missing_p_players": len(locked),
+        "unlocked_missing_p_players": len(unlocked),
+        "locked_missing_p_player_ids": locked,
+        "unlocked_missing_p_player_ids": unlocked,
+        "warning": (
+            "Unlocked is a necessary timing condition only; salary, position, "
+            "stack and retained-candidate constraints may still prevent the swap."
+        ),
+    }
+
+
+def _finite_correlation(left: list[float], right: list[float]) -> dict:
+    frame = pd.DataFrame({"left": left, "right": right}).replace(
+        [np.inf, -np.inf], np.nan,
+    ).dropna()
+    if len(frame) < 3 or frame.left.nunique() < 2 or frame.right.nunique() < 2:
+        return {"n": int(len(frame)), "pearson": None, "spearman": None}
+    return {
+        "n": int(len(frame)),
+        "pearson": float(frame.left.corr(frame.right, method="pearson")),
+        "spearman": float(frame.left.corr(frame.right, method="spearman")),
     }
 
 
@@ -615,8 +706,17 @@ def run(output_uri: str, proposal_uri: str) -> dict:
             as_of=decision_by_slate[(season, week)],
             worlds_generated_at=combined["generated_at"],
         )
+        naive = propose_naive_reoptimization_rosters(
+            entry_rosters,
+            candidates,
+            catalog,
+            remaining,
+            points,
+            as_of=decision_by_slate[(season, week)],
+            worlds_generated_at=combined["generated_at"],
+        )
         proposals.append(_proposal_record(
-            season, week, book, policy,
+            season, week, book, policy, naive,
             decision=decision_by_slate[(season, week)],
             parity=parity,
             source_receipt=combined_receipt,
@@ -646,6 +746,13 @@ def run(output_uri: str, proposal_uri: str) -> dict:
       FROM `{PROJECT}.{FORENSIC_DATASET}.{CANDIDATE_TABLE}`
       WHERE scope=@scope
       ORDER BY season, week, candidate_index
+    """, [bigquery.ScalarQueryParameter("scope", "STRING", SCOPE)])
+    outcome_players = _query(bq, f"""
+      SELECT season, week, player_id AS id, position AS pos, team,
+             opponent AS opp, game_id, salary, actual_score AS actual
+      FROM `{PROJECT}.{FORENSIC_DATASET}.{PLAYER_TABLE}`
+      WHERE scope=@scope
+      ORDER BY season, week, player_id
     """, [bigquery.ScalarQueryParameter("scope", "STRING", SCOPE)])
     exact_raw, exact_blob = _download_bytes(gcs, EXACT_STACK_URI)
     if hashlib.sha256(exact_raw).hexdigest() != EXPECTED_EXACT_STACK_SHA256:
@@ -680,7 +787,14 @@ def run(output_uri: str, proposal_uri: str) -> dict:
         ))
         initial_items = sorted(proposal["initial_assignments"].items())
         final_items = sorted(proposal["assignments"].items())
-        if [key for key, _ in initial_items] != [key for key, _ in final_items]:
+        naive_items = sorted(
+            proposal["naive_reoptimization"]["assignments"].items()
+        )
+        entry_ids = [key for key, _ in initial_items]
+        if (
+            entry_ids != [key for key, _ in final_items]
+            or entry_ids != [key for key, _ in naive_items]
+        ):
             raise RuntimeError("proposal entry identities drifted in outcome phase")
         def lookup(roster: list[str]) -> float:
             key = ",".join(canonical_roster(roster))
@@ -689,18 +803,49 @@ def run(output_uri: str, proposal_uri: str) -> dict:
             return actual[key]
         initial_scores = {key: lookup(roster) for key, roster in initial_items}
         final_scores = {key: lookup(roster) for key, roster in final_items}
+        naive_scores = {key: lookup(roster) for key, roster in naive_items}
         initial_best_entry = max(initial_scores, key=lambda key: (initial_scores[key], key))
         final_best_entry = max(final_scores, key=lambda key: (final_scores[key], key))
+        naive_best_entry = max(naive_scores, key=lambda key: (naive_scores[key], key))
         initial_best = initial_scores[initial_best_entry]
         final_best = final_scores[final_best_entry]
+        naive_best = naive_scores[naive_best_entry]
         correction = exact_by_slate[(season, week)]
-        p_row = min(
-            slate.itertuples(index=False),
-            key=lambda row: (-float(row.actual_score), str(row.roster_key)),
+        support = set().union(*(
+            set(canonical_roster(value)) for value in slate.roster_key.astype(str)
+        ))
+        pframe = outcome_players[
+            outcome_players.season.astype(int).eq(season)
+            & outcome_players.week.astype(int).eq(week)
+        ].copy()
+        pframe["id"] = pframe.id.astype(str)
+        pframe["pos"] = pframe.pos.astype(str).str.upper().replace({"DEF": "DST"})
+        pframe["team"] = pframe.team.astype(str)
+        pframe["opp"] = pframe.opp.astype(str)
+        pframe["salary"] = pd.to_numeric(
+            pframe.salary, errors="raise",
+        ).astype(int)
+        pframe["actual"] = pd.to_numeric(
+            pframe.actual, errors="raise",
+        ).astype(float)
+        p_solution = _solve_oracle(
+            pframe,
+            support,
+            min_salary=49_000,
+            salary_cap=50_000,
+            qb_stack_min=2,
+            bring_back_min=1,
         )
-        if not np.isclose(float(p_row.actual_score), float(correction["exact_p"])):
+        if not np.isclose(
+            float(p_solution["actual_score"]),
+            float(correction["exact_p"]),
+            rtol=0.0,
+            atol=1e-6,
+        ):
             raise RuntimeError("corrected exact-P score differs from outcome corpus")
-        p_roster = canonical_roster(p_row.roster_key)
+        p_roster = canonical_roster(p_solution["players"])
+        if not set(p_roster) <= support:
+            raise RuntimeError("reconstructed exact-P roster escapes candidate support")
         hindsight_source = canonical_roster(
             correction["corrected_recourse"]["source_roster"]
         )
@@ -716,8 +861,34 @@ def run(output_uri: str, proposal_uri: str) -> dict:
         source_entry = source_entries[0]
         realistic_from_source = canonical_roster(proposal["assignments"][source_entry])
         final_rosters = [canonical_roster(roster) for _, roster in final_items]
+        slate_players = players[
+            players.season.astype(int).eq(season)
+            & players.week.astype(int).eq(week)
+        ]
+        slate_schedule = schedules[
+            schedules.season.astype(int).eq(season)
+            & schedules.week.astype(int).eq(week)
+        ]
+        p_catalog = _catalog_for_slate(slate_players, slate_schedule, support)
+        kickoff_by_player = {
+            str(row.dk_id): pd.Timestamp(row.kickoff)
+            for row in p_catalog.itertuples(index=False)
+        }
+        hindsight_p_residual = _p_residual_by_lock(
+            hindsight_final,
+            p_roster,
+            kickoff_by_player,
+            decision_by_slate[(season, week)],
+        )
+        realistic_p_residual = _p_residual_by_lock(
+            canonical_roster(proposal["assignments"][final_best_entry]),
+            p_roster,
+            kickoff_by_player,
+            decision_by_slate[(season, week)],
+        )
         changed = proposal["changes"]
         delta = float(final_best - initial_best)
+        naive_delta = float(naive_best - initial_best)
         pi_gain = float(correction["corrected_recourse"]["ceiling_gain"])
         records.append({
             "season": season,
@@ -726,8 +897,12 @@ def run(output_uri: str, proposal_uri: str) -> dict:
             "initial_weekly_max": float(initial_best),
             "final_weekly_max": float(final_best),
             "realized_delta": delta,
+            "naive_weekly_max": float(naive_best),
+            "naive_realized_delta": naive_delta,
+            "smart_minus_naive_weekly_max": float(final_best - naive_best),
             "initial_best_entry": initial_best_entry,
             "final_best_entry": final_best_entry,
+            "naive_best_entry": naive_best_entry,
             "changed_entries": int(proposal["changed_entries"]),
             "player_replacements": int(sum(len(row["players_out"]) for row in changed)),
             "locked_player_replacements": 0,
@@ -736,7 +911,10 @@ def run(output_uri: str, proposal_uri: str) -> dict:
                 correction["corrected_recourse"]["perfect_information_ceiling"]
             ),
             "recovery_fraction": None if pi_gain == 0 else delta / pi_gain,
-            "exact_p_score": float(p_row.actual_score),
+            "exact_p_score": float(p_solution["actual_score"]),
+            "exact_p_roster": list(p_roster),
+            "exact_p_roster_sha256": canonical_json_sha256(list(p_roster)),
+            "exact_p_reconstructed_after_proposal_freeze": True,
             "final_best_distance_to_exact_p": roster_swap_distance(
                 proposal["assignments"][final_best_entry], p_roster,
             ),
@@ -749,12 +927,27 @@ def run(output_uri: str, proposal_uri: str) -> dict:
             "realistic_source_entry_distance_to_hindsight_source": (
                 roster_swap_distance(realistic_from_source, hindsight_source)
             ),
+            "hindsight_final_p_residual_by_lock": hindsight_p_residual,
+            "realistic_final_best_p_residual_by_lock": realistic_p_residual,
+            "first_failed_layer_at_210": str(
+                correction["thresholds"]["210"]["first_failed_layer"]
+            ),
+            "liveness_profile": proposal["liveness_profile"],
         })
 
     initial_values = [row["initial_weekly_max"] for row in records]
     final_values = [row["final_weekly_max"] for row in records]
+    naive_values = [row["naive_weekly_max"] for row in records]
     deltas = [row["realized_delta"] for row in records]
+    naive_deltas = [row["naive_realized_delta"] for row in records]
+    smart_minus_naive = [row["smart_minus_naive_weekly_max"] for row in records]
     pi_gains = [row["perfect_information_ceiling_gain"] for row in records]
+    hindsight_values = [row["perfect_information_ceiling_score"] for row in records]
+    liveness_fields = (
+        "alive_entries", "marginal_entries", "effectively_dead_entries",
+        "decisive_entries",
+    )
+    first_failed_layers = sorted({row["first_failed_layer_at_210"] for row in records})
     result = {
         "protocol_id": PROTOCOL_ID,
         "scope": SCOPE,
@@ -778,6 +971,31 @@ def run(output_uri: str, proposal_uri: str) -> dict:
             "tied_slates": int(sum(abs(value) <= 1e-8 for value in deltas)),
             "worsened_slates": int(sum(value < -1e-8 for value in deltas)),
         },
+        "three_way_recourse_comparison": {
+            "perfect_information_hindsight": _numeric_summary(hindsight_values),
+            "realistic_tail_policy": _numeric_summary(final_values),
+            "naive_mean_reoptimization": _numeric_summary(naive_values),
+            "naive_gain_over_initial": _numeric_summary(naive_deltas),
+            "realistic_minus_naive": _numeric_summary(smart_minus_naive),
+            "realistic_beats_naive_slates": int(sum(
+                value > 1e-8 for value in smart_minus_naive
+            )),
+            "realistic_ties_naive_slates": int(sum(
+                abs(value) <= 1e-8 for value in smart_minus_naive
+            )),
+            "realistic_loses_to_naive_slates": int(sum(
+                value < -1e-8 for value in smart_minus_naive
+            )),
+            "naive_comparator_definition": (
+                "Canonical-entry-order greedy re-optimization on conditional "
+                "projected mean under identical locks and retained candidates; "
+                "no reach classes or book-tail selection."
+            ),
+            "warning": (
+                "The naive comparator represents a common optimizer behavior, "
+                "not measured field ownership or opponent late-swap behavior."
+            ),
+        },
         "tail_counts": {
             "initial": {
                 str(int(tail)): int(sum(value >= tail for value in initial_values))
@@ -785,6 +1003,14 @@ def run(output_uri: str, proposal_uri: str) -> dict:
             },
             "final": {
                 str(int(tail)): int(sum(value >= tail for value in final_values))
+                for tail in TAILS
+            },
+            "naive": {
+                str(int(tail)): int(sum(value >= tail for value in naive_values))
+                for tail in TAILS
+            },
+            "perfect_information_hindsight": {
+                str(int(tail)): int(sum(value >= tail for value in hindsight_values))
                 for tail in TAILS
             },
         },
@@ -800,6 +1026,13 @@ def run(output_uri: str, proposal_uri: str) -> dict:
                 "delta_mean": float(np.mean([
                     row["realized_delta"] for row in records if row["season"] == season
                 ])),
+                "naive_mean": float(np.mean([
+                    row["naive_weekly_max"] for row in records if row["season"] == season
+                ])),
+                "realistic_minus_naive_mean": float(np.mean([
+                    row["smart_minus_naive_weekly_max"]
+                    for row in records if row["season"] == season
+                ])),
             }
             for season in sorted({row["season"] for row in records})
         },
@@ -812,6 +1045,15 @@ def run(output_uri: str, proposal_uri: str) -> dict:
             "entries_changed": int(sum(row["changed_entries"] for row in records)),
             "player_replacements": int(sum(row["player_replacements"] for row in records)),
             "locked_player_replacements": 0,
+            "naive_entries_changed": int(sum(
+                proposal["naive_reoptimization"]["changed_entries"]
+                for proposal in proposals
+            )),
+            "naive_player_replacements": int(sum(
+                len(change["players_out"])
+                for proposal in proposals
+                for change in proposal["naive_reoptimization"]["changes"]
+            )),
         },
         "distance_diagnostics": {
             field: _numeric_summary([float(row[field]) for row in records])
@@ -821,6 +1063,91 @@ def run(output_uri: str, proposal_uri: str) -> dict:
                 "realistic_source_entry_distance_to_hindsight_final",
                 "realistic_source_entry_distance_to_hindsight_source",
             )
+        },
+        "p_residual_timing_diagnostics": {
+            "hindsight_final": {
+                field: _numeric_summary([
+                    float(row["hindsight_final_p_residual_by_lock"][field])
+                    for row in records
+                ])
+                for field in (
+                    "total_missing_p_players", "locked_missing_p_players",
+                    "unlocked_missing_p_players",
+                )
+            },
+            "realistic_final_best": {
+                field: _numeric_summary([
+                    float(row["realistic_final_best_p_residual_by_lock"][field])
+                    for row in records
+                ])
+                for field in (
+                    "total_missing_p_players", "locked_missing_p_players",
+                    "unlocked_missing_p_players",
+                )
+            },
+            "by_first_failed_layer_at_210": {
+                layer: {
+                    "slates": int(sum(
+                        row["first_failed_layer_at_210"] == layer for row in records
+                    )),
+                    "hindsight_locked_missing_p_mean": float(np.mean([
+                        row["hindsight_final_p_residual_by_lock"][
+                            "locked_missing_p_players"
+                        ]
+                        for row in records
+                        if row["first_failed_layer_at_210"] == layer
+                    ])),
+                    "hindsight_unlocked_missing_p_mean": float(np.mean([
+                        row["hindsight_final_p_residual_by_lock"][
+                            "unlocked_missing_p_players"
+                        ]
+                        for row in records
+                        if row["first_failed_layer_at_210"] == layer
+                    ])),
+                }
+                for layer in first_failed_layers
+            },
+            "warning": (
+                "Unlocked residual players satisfy timing only; this does not "
+                "assert feasibility under salary, position, stack or candidate rules."
+            ),
+        },
+        "liveness_diagnostics": {
+            "per_slate_count_summary": {
+                field: _numeric_summary([
+                    float(row["liveness_profile"][field]) for row in records
+                ])
+                for field in liveness_fields
+            },
+            "association_with_realistic_gain": {
+                field: _finite_correlation(
+                    [float(row["liveness_profile"][field]) for row in records],
+                    deltas,
+                )
+                for field in liveness_fields
+            },
+            "association_with_realistic_minus_naive": {
+                field: _finite_correlation(
+                    [float(row["liveness_profile"][field]) for row in records],
+                    smart_minus_naive,
+                )
+                for field in liveness_fields
+            },
+            "by_first_failed_layer_at_210": {
+                layer: {
+                    field: float(np.mean([
+                        row["liveness_profile"][field]
+                        for row in records
+                        if row["first_failed_layer_at_210"] == layer
+                    ]))
+                    for field in liveness_fields
+                }
+                for layer in first_failed_layers
+            },
+            "warning": (
+                "These are PIT simulated 194-point reach classes, not realized "
+                "contest ranks and not proof that the current liveness profile is optimal."
+            ),
         },
         "records": records,
         "use_restriction": (
@@ -838,6 +1165,7 @@ def run(output_uri: str, proposal_uri: str) -> dict:
         "output": result_receipt,
         "proposal_ledger": proposal_receipt,
         "realized_weekly_max": result["realized_weekly_max"],
+        "three_way_recourse_comparison": result["three_way_recourse_comparison"],
         "tail_counts": result["tail_counts"],
         "perfect_information_recovery": result["perfect_information_recovery"],
     }

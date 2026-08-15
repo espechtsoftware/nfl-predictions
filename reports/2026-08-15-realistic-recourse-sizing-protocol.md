@@ -143,6 +143,54 @@ No actual score, actual ownership, contest rank, payout, future game status or
 post-decision event may enter proposal generation. Proposals and their
 checksum are frozen for all 54 slates before final outcomes are joined.
 
+### Pre-execution policy-class and overlap amendment (2026-08-15 08:21 CDT)
+
+At amendment time the scorer reconciliation, proposal ledger and result
+objects were independently verified absent. No realistic-recourse proposal or
+realized result existed. External review requested three diagnostic cuts that
+are decision-relevant but do not change `prospective-recourse-policy-v1`:
+
+1. compare it with ordinary projected-points re-optimization;
+2. retain the incumbent book's full point-in-time liveness profile; and
+3. split residual distance from corrected exact P into already locked versus
+   still-unlocked players.
+
+The proposal ledger therefore freezes a second comparator alongside the
+unchanged treatment. `naive-mean-reoptimization-v1` visits entry IDs in
+canonical order, retains every kickoff-locked player, considers every
+compatible retained candidate not already assigned elsewhere, and selects the
+highest conditional projected mean. Ties minimize player churn and then use
+canonical roster identity. It never uses reach classes, a tail ladder or a
+book-level objective. Both treatment and comparator prohibit duplicate
+lineups and use the same candidates, remaining worlds, observed points and
+decision instant. Their complete assignments are frozen in the same
+create-only ledger before the outcome query.
+
+For each slate, the ledger also retains every entry's simulated probability
+of reaching 194, its already frozen alive/marginal/effectively-dead class and
+the class counts. The outcome report may describe associations between those
+pre-outcome quantities and realized treatment gain or treatment-minus-naive
+gain. These are descriptive associations, not a fitted first-stage policy.
+
+The implementation review also found that the prior runner incorrectly tried
+to recover exact P as the best generated candidate. That contradicts the
+construction diagnosis: exact P is an oracle over generated player support,
+not generally a generated roster. After and only after the proposal ledger is
+created, the repaired runner reconstructs exact P from the authoritative
+player corpus under the frozen $49,000 floor, $50,000 cap, QB+2 and one
+bring-back rules. Its score must match the immutable exact-stack addendum to
+1e-6. The result then partitions P players missing from the corrected
+hindsight and realistic final rosters by kickoff lock at 3:55 PM. An unlocked
+residual is only a necessary timing condition; salary, position, stack and
+retained-candidate constraints can still make it unreachable.
+
+The report must present the corrected perfect-information hindsight ceiling,
+the realistic tail-aware policy and the naive projected-mean comparator on the
+same weekly-max and tail grid. It must also split liveness and P-distance by
+the immutable first-failed layer at 210. This amendment expands diagnostics
+and repairs comparator identity; it does not change the population, worlds,
+decision time, primary recourse assignments or adoption status.
+
 ## Registered outputs
 
 The create-only result is:
@@ -157,13 +205,19 @@ It must report:
 - simulated objective before/after with a mandatory non-decline invariant;
 - realized initial/final weekly maxima and tail counts at
   240/230/220/210/200/194/187;
+- naive projected-mean re-optimization assignments, weekly maxima and tail
+  counts, plus realistic-minus-naive policy-class differences;
 - improved/tied/worsened slates, mean/median/max realized delta and season
   diagnostics;
 - swap counts and locked/unlocked players changed;
 - realized recovery versus the corrected perfect-information ceiling; and
 - player-swap distance from corrected exact P, the corrected hindsight source
   and corrected hindsight final roster, so construction and recourse are not
-  double counted.
+  double counted;
+- exact-P residual players split by locked/unlocked timing and immutable
+  first-failed layer at 210; and
+- full pre-outcome 194 liveness class counts and their descriptive association
+  with realized treatment and treatment-minus-naive gains.
 
 The run uses one task, zero retries, a full Git SHA and immutable image digest.
 It reads no partial output; any failure is terminal unless a separately logged
