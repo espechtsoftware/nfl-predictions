@@ -87,5 +87,9 @@ def test_exact_stack_addendum_reproduces_old_p_and_restricts_use():
     assert result["slates"] == 1
     assert result["swap_distance"]["minimum_player_swaps_to_exact_p"]["mean"] == 0
     assert result["records"][0]["exact_p"] == score
+    assert result["corrected_salary_floor_policy"][
+        "newly_reached_threshold_slates"
+    ]["240"] == 0
+    assert "exact_h_no_salary_floor" in result["tail_counts"]
     assert result["uses_realized_outcomes"] is True
     assert "not a historical arm" in result["use_restriction"]

@@ -238,6 +238,9 @@ def analyze_exact_stack_construction(
             "season": int(season),
             "week": int(week),
             "published_loose_p": float(loose["actual_score"]),
+            "exact_h_no_salary_floor": float(
+                exact["H_no_salary_floor"]["actual_score"]
+            ),
             "exact_h": float(exact["H"]["actual_score"]),
             "exact_p": float(exact["P"]["actual_score"]),
             "c": float(exact["C"]["actual_score"]),
@@ -263,11 +266,17 @@ def analyze_exact_stack_construction(
                 value < 5 for value in appearances
             )),
             "shape_contrast": shape_contrast,
+            "salary_floor_realized_score_cost": float(
+                exact["salary_floor_policy"]["realized_score_cost"]
+            ),
+            "salary_floor_newly_reached_thresholds": list(
+                exact["salary_floor_policy"]["newly_reached_thresholds"]
+            ),
             "thresholds": exact["thresholds"],
         }
         records.append(record)
 
-    layers = ("exact_h", "exact_p", "c", "s")
+    layers = ("exact_h_no_salary_floor", "exact_h", "exact_p", "c", "s")
     tail_counts = {
         layer: {
             str(tail): int(sum(record[layer] >= tail for record in records))
@@ -357,6 +366,23 @@ def analyze_exact_stack_construction(
             "player_support": _summary(record["gaps"]["player_support"] for record in records),
             "construction": _summary(record["gaps"]["construction"] for record in records),
             "selection": _summary(record["gaps"]["selection"] for record in records),
+        },
+        "corrected_salary_floor_policy": {
+            "realized_score_cost": _summary(
+                record["salary_floor_realized_score_cost"]
+                for record in records
+            ),
+            "positive_cost_slates": int(sum(
+                record["salary_floor_realized_score_cost"] > 1e-6
+                for record in records
+            )),
+            "newly_reached_threshold_slates": {
+                str(tail): int(sum(
+                    tail in record["salary_floor_newly_reached_thresholds"]
+                    for record in records
+                ))
+                for tail in TAILS
+            },
         },
         "tail_counts": tail_counts,
         "published_loose_p_tail_counts": published_p_tail,
