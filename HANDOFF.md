@@ -765,6 +765,15 @@ agent or developer:
   Poll that exact execution and run the strict source1 finisher only after it
   is terminal; do not launch the full census unless the harvested receipt
   proves the frozen 18-slate, score-free, result-suppressing preflight contract.
+  That preflight completed successfully at `2026-08-15T22:29:45.374242Z` in
+  3m05.95s. The strict finisher retained the create-once receipt at SHA-256
+  `091158d52151450825733003c849dc328a6454ef39f23426544821639524fa6a`.
+  It proves all 18 corrected-P rosters legal, all native books/family labels
+  valid, exact retained CBWU reconstruction, and denial of outcome columns;
+  membership/distance, candidate yield, loss stage, disposition and every
+  scientific/production result remain suppressed. This licenses the full
+  54-slate source1 census from the same immutable digest/code and exact
+  corrected-identity generation/SHA.
   The second requested narrow check is also implemented as the pure
   `validate_exact_p_census_plumbing` preflight. On exactly the 18 2023 slates
   it audits corrected-P legality, all five native books, family labels and
