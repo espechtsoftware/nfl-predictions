@@ -793,7 +793,10 @@ def _cbwu_slate(
 
 
 def _aggregate(scope_rows: list[dict[str, Any]]) -> dict[str, Any]:
-    layer_names = ("H", "P", "C", "S")
+    layer_names = ("H_no_salary_floor", "H", "P", "C", "S")
+    floor_costs = [
+        row["salary_floor_policy"]["realized_score_cost"] for row in scope_rows
+    ]
     return {
         "slates": len(scope_rows),
         "tail_counts": {
@@ -810,6 +813,47 @@ def _aggregate(scope_rows: list[dict[str, Any]]) -> dict[str, Any]:
                 "maximum": float(max(row["gaps"][gap] for row in scope_rows)),
             }
             for gap in ("player_support", "construction", "selection")
+        },
+        "salary_floor_policy": {
+            "mean_realized_score_cost": float(np.mean(floor_costs)),
+            "median_realized_score_cost": float(np.median(floor_costs)),
+            "maximum_realized_score_cost": float(max(floor_costs)),
+            "positive_cost_slates": int(sum(cost > 1e-6 for cost in floor_costs)),
+            "newly_reached_threshold_slates": {
+                str(tail): int(sum(
+                    tail in row["salary_floor_policy"]["newly_reached_thresholds"]
+                    for row in scope_rows
+                ))
+                for tail in TAILS
+            },
+            "use_restriction": (
+                "Outcome-viewed perfect-hindsight bound; any no-floor production "
+                "change requires a new prospective outcome-unseen arm."
+            ),
+        },
+        "candidate_support_frequency": {
+            "mean_supported_players": float(np.mean([
+                row["candidate_support_frequency"]["supported_player_count"]
+                for row in scope_rows
+            ])),
+            "mean_players_appearing_fewer_than_five": float(np.mean([
+                row["candidate_support_frequency"][
+                    "players_appearing_fewer_than_five_candidates"
+                ]
+                for row in scope_rows
+            ])),
+            "mean_fraction_supported_players_appearing_fewer_than_five": float(
+                np.mean([
+                    row["candidate_support_frequency"][
+                        "fraction_supported_players_appearing_fewer_than_five"
+                    ]
+                    for row in scope_rows
+                ])
+            ),
+            "interpretation": (
+                "P is a union-support bound, not proof that every supported "
+                "player had material generator propensity."
+            ),
         },
         "first_failed_layer_counts": {
             str(tail): {
@@ -979,15 +1023,17 @@ def _payout_floor_anchors(slates: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def _capture_summary(slates: list[dict[str, Any]]) -> dict[str, Any]:
+    funnel_fields = (
+        "salary_listed", "served_distribution", "candidate_support",
+        "selected_exposure", "oracle_H_no_salary_floor", "oracle_H",
+        "oracle_P", "oracle_C", "oracle_S",
+    )
     return {
         "slates": len(slates),
         "threshold_funnel": {
             str(tail): {
                 field: sum(row["threshold_funnel"][str(tail)][field] for row in slates)
-                for field in (
-                    "salary_listed", "served_distribution", "candidate_support",
-                    "selected_exposure", "oracle_H", "oracle_P", "oracle_C", "oracle_S",
-                )
+                for field in funnel_fields
             }
             for tail in (20, 25, 30, 35)
         },

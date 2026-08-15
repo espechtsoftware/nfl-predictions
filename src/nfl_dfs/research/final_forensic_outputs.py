@@ -128,9 +128,13 @@ def player_capture_slate(
         if "mean_projection" in frame
         else pd.Series(True, index=frame.index)
     )
+    layer_names = (
+        ("H_no_salary_floor", "H", "P", "C", "S")
+        if "H_no_salary_floor" in hpcs else ("H", "P", "C", "S")
+    )
     layers = {
         layer: set(map(str, hpcs[layer]["players"]))
-        for layer in ("H", "P", "C", "S")
+        for layer in layer_names
     }
     thresholds: dict[str, Any] = {}
     records: list[dict[str, Any]] = []
@@ -467,9 +471,17 @@ def warehouse_slate_frames(
     ]].sort_values("selected_rank", kind="stable").to_dict("records")
 
     oracle_rows = []
-    for layer in ("H", "P", "C", "S"):
+    oracle_layers = (
+        ("H_no_salary_floor", "H", "P", "C", "S")
+        if "H_no_salary_floor" in hpcs else ("H", "P", "C", "S")
+    )
+    for layer in oracle_layers:
         player_ids = tuple(map(str, hpcs[layer]["players"]))
-        audit = audit_roster(player_frame, player_ids)
+        audit = audit_roster(
+            player_frame,
+            player_ids,
+            min_salary=0 if layer == "H_no_salary_floor" else 49_000,
+        )
         if not audit["valid"] or not np.isclose(
             audit["actual_score"], float(hpcs[layer]["actual_score"]),
             rtol=0.0, atol=1e-6,

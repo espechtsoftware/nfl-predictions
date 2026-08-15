@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 21:12 CDT
+## Current state — 2026-08-14 21:23 CDT
 
 ### 2026-08-14 forensic runtime repaired; variance and corpus-understanding addenda implemented
 
@@ -143,6 +143,27 @@ agent or developer:
   overwriting, or relabelling the invalid partial evidence. Next concrete
   action: commit/build the serialization-only repair, freeze repair4 with new
   destinations, pass exact-image prelock, then run once to terminal.
+- Before repair4 was frozen or exposed to any result, the user supplied
+  `reports/2026-08-14-forensic-code-correctness-review.md`. Its two valid
+  additive findings are registered in the outcome-free analyzer: a second
+  full-universe solve sets only the salary floor to zero while holding every
+  other construction constraint fixed, and candidate-support frequency now
+  distinguishes union support from meaningful generator propensity. The
+  existing floor-constrained H/P/C/S estimand remains unchanged. JSON output
+  reports the per-slate and aggregate realized floor-policy bound, newly
+  reached thresholds, support-frequency bands and fewer-than-five-candidate
+  counts; the no-floor oracle roster is also retained as
+  `H_no_salary_floor` in the new repair4 warehouse. It is explicitly not an
+  unrestricted DK oracle or a prospectively validated no-floor arm.
+- The analysis checklist is now 40 items. All 36 focused
+  `test_final_forensic*.py` tests pass locally. Exact-commit Cloud Build
+  `f67f0673-ab3d-4fe3-866e-217af1f6090e`, which contained only the earlier
+  serialization fix, was cancelled as obsolete before image publication.
+  Repair4 has reserved new `*_repair4` warehouse table names and must use a
+  new `outputs-repair4` prefix; the invalid repair3 evidence remains untouched.
+  Next concrete action: commit/push the two registered diagnostic additions,
+  build that exact commit, pin its digest/code plus fresh destinations in
+  repair4, pass prelock, and execute once to terminal.
 
 ### 2026-08-14 final-forensic audit expanded; decision-structure queue registered
 

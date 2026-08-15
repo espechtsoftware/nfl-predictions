@@ -141,6 +141,41 @@ def test_hpcs_decomposition_reconstructs_and_orders_layers():
     assert "wr_e" not in result["P"]["players"]
 
 
+def test_hpcs_reports_salary_floor_cost_and_thin_candidate_support():
+    players = pd.concat([
+        _players(),
+        pd.DataFrame([{
+            "id": "wr_f", "pos": "WR", "team": "E", "opp": "F",
+            "game_id": "E@F", "salary": 3000, "actual": 80.0,
+        }]),
+    ], ignore_index=True)
+    actuals = players.set_index("id").actual.to_dict()
+    floor_legal = [
+        "qb_a", "rb_c", "rb_d", "wr_a", "wr_b", "wr_c", "wr_d", "te_a",
+        "dst_a",
+    ]
+    roster, score = _candidate(floor_legal, actuals)
+    candidates = pd.DataFrame([{
+        "players": roster,
+        "actual_score": score,
+        "selected": True,
+        "selected_rank": 0,
+    }])
+
+    result = decompose_slate(players, candidates, expected_entries=1)
+
+    assert result["H_no_salary_floor"]["actual_score"] > result["H"]["actual_score"]
+    assert "wr_f" in result["H_no_salary_floor"]["players"]
+    assert "wr_f" not in result["H"]["players"]
+    assert result["salary_floor_policy"]["realized_score_cost"] > 0
+    support = result["candidate_support_frequency"]
+    assert support["players_appearing_once"] == 9
+    assert support["players_appearing_fewer_than_five_candidates"] == 9
+    assert support["appearance_bands"] == {
+        "1": 9, "2_to_4": 0, "5_to_9": 0, "10_plus": 0,
+    }
+
+
 def test_hpcs_rejects_candidate_score_drift():
     players = _players()
     ids = [
@@ -319,7 +354,7 @@ def test_freeze_manifest_is_complete_and_hash_verified(tmp_path):
     assert result["outputs"] == 9
     assert result["mechanism_families"] == 13
     assert result["protocols"] == 1
-    assert len(manifest["analysis_checklist"]) == 38
+    assert len(manifest["analysis_checklist"]) == 40
 
 
 def test_freeze_manifest_rejects_unaccounted_protocol(tmp_path):

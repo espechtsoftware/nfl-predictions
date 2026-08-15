@@ -101,6 +101,8 @@ ANALYSIS_CHECKLIST = (
     ("provenance_and_terminal_arm_ledger", "confirmatory", "compute"),
     ("authoritative_score_salary_legality_parity", "confirmatory", "compute"),
     ("hpcs_additive_opportunity_decomposition", "confirmatory", "compute"),
+    ("salary_floor_policy_cost_bound", "exploratory", "compute"),
+    ("candidate_support_frequency", "exploratory", "compute"),
     ("exact80_tail_grid_and_weekly_maxima", "confirmatory", "compute"),
     ("nested_20_40_80_entry_curve", "confirmatory", "compute"),
     ("contest_payout_roi_cash_drawdown", "confirmatory", "compute_or_unidentifiable"),
@@ -1257,7 +1259,11 @@ def decompose_slate(
     if len(selected_keys) != expected_entries or len(set(selected_keys)) != expected_entries:
         raise ValueError(f"selected book is not exact-{expected_entries}")
 
-    support = set().union(*(set(ids) for ids in roster_ids)) if roster_ids else set()
+    support_counts = Counter(player for ids in roster_ids for player in ids)
+    support = set(support_counts)
+    no_floor_oracle = _solve_oracle(
+        frame, min_salary=0, salary_cap=salary_cap
+    )
     full_oracle = _solve_oracle(
         frame, min_salary=min_salary, salary_cap=salary_cap
     )
@@ -1270,13 +1276,21 @@ def decompose_slate(
     selected_row = selected.sort_values(
         ["actual_score", "roster_key"], ascending=[False, True], kind="stable"
     ).iloc[0]
+    no_floor_score = float(no_floor_oracle["actual_score"])
     h_score = float(full_oracle["actual_score"])
     p_score = float(support_oracle["actual_score"])
     c_score = float(candidate_row.actual_score)
     s_score = float(selected_row.actual_score)
-    if not (h_score + 1e-6 >= p_score >= c_score - 1e-6 >= s_score - 1e-6):
+    if not (
+        no_floor_score + 1e-6 >= h_score >= p_score - 1e-6
+        >= c_score - 1e-6 >= s_score - 1e-6
+    ):
         raise ValueError("H/P/C/S ordering invariant failed")
+    thin_support = sorted(
+        (player, count) for player, count in support_counts.items() if count < 5
+    )
     return {
+        "H_no_salary_floor": no_floor_oracle,
         "H": full_oracle,
         "P": support_oracle,
         "C": {
@@ -1292,8 +1306,68 @@ def decompose_slate(
             "construction": p_score - c_score,
             "selection": c_score - s_score,
         },
+        "salary_floor_policy": {
+            "draftkings_minimum_salary": 0,
+            "production_policy_minimum_salary": int(min_salary),
+            "no_floor_score": no_floor_score,
+            "floor_constrained_score": h_score,
+            "realized_score_cost": no_floor_score - h_score,
+            "floor_changed_oracle": bool(no_floor_oracle["players"] != full_oracle["players"]),
+            "newly_reached_thresholds": [
+                tail for tail in TAILS if no_floor_score >= tail > h_score
+            ],
+            "other_construction_constraints_held_fixed": [
+                "maximum_eight_players_per_team",
+                "minimum_two_games",
+                "quarterback_with_same_team_wr_or_te",
+                "maximum_one_running_back_per_team",
+                "no_running_back_against_selected_dst",
+            ],
+            "interpretation": (
+                "Perfect-hindsight upper bound on the realized cost of the "
+                "production salary floor with every other frozen construction "
+                "constraint held fixed; it is not a prospective no-floor arm or "
+                "an unrestricted DraftKings-legal oracle."
+            ),
+        },
+        "candidate_support_frequency": {
+            "definition": (
+                "A player is in P support after appearing in at least one unique "
+                "candidate; appearance count measures how thin that support is."
+            ),
+            "supported_player_count": len(support),
+            "players_appearing_once": int(sum(
+                count == 1 for count in support_counts.values()
+            )),
+            "players_appearing_fewer_than_five_candidates": len(thin_support),
+            "fraction_supported_players_appearing_fewer_than_five": (
+                len(thin_support) / len(support) if support else None
+            ),
+            "appearance_bands": {
+                "1": int(sum(count == 1 for count in support_counts.values())),
+                "2_to_4": int(sum(2 <= count <= 4 for count in support_counts.values())),
+                "5_to_9": int(sum(5 <= count <= 9 for count in support_counts.values())),
+                "10_plus": int(sum(count >= 10 for count in support_counts.values())),
+            },
+            "minimum_appearances": min(support_counts.values()) if support_counts else 0,
+            "median_appearances": (
+                float(np.median(list(support_counts.values())))
+                if support_counts else None
+            ),
+            "maximum_appearances": max(support_counts.values()) if support_counts else 0,
+            "thin_support_examples": [
+                {"player_id": player, "candidate_appearances": int(count)}
+                for player, count in thin_support[:25]
+            ],
+            "interpretation": (
+                "H→P means absent from every candidate. A P-supported player "
+                "may still have negligible generator propensity; do not read one "
+                "appearance as a fair construction opportunity."
+            ),
+        },
         "thresholds": {
             str(tail): {
+                "H_no_salary_floor": no_floor_score >= tail,
                 "H": h_score >= tail,
                 "P": p_score >= tail,
                 "C": c_score >= tail,

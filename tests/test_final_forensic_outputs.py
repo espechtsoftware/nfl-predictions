@@ -43,7 +43,10 @@ def _hpcs():
     ids = [f"p{i}" for i in range(9)]
     return {
         layer: {"players": ids, "actual_score": score}
-        for layer, score in (("H", 220), ("P", 210), ("C", 205), ("S", 205))
+        for layer, score in (
+            ("H_no_salary_floor", 225), ("H", 220), ("P", 210),
+            ("C", 205), ("S", 205),
+        )
     } | {"gaps": {"player_support": 10, "construction": 5, "selection": 0}}
 
 
@@ -89,7 +92,7 @@ def test_warehouse_frames_retain_full_corpus_exact80_and_hpcs_rosters():
             "actual_score": score,
             **({"solver_status": "Optimal"} if layer in {"H", "P"} else {}),
         }
-        for layer in ("H", "P", "C", "S")
+        for layer in ("H_no_salary_floor", "H", "P", "C", "S")
     } | {"gaps": {"player_support": 0.0, "construction": 0.0, "selection": 0.0}}
 
     frames = warehouse_slate_frames(
@@ -111,5 +114,7 @@ def test_warehouse_frames_retain_full_corpus_exact80_and_hpcs_rosters():
     assert len(frames["candidate_corpus"]) == 80
     assert frames["candidate_corpus"].source_candidate_json.str.startswith("{").all()
     assert frames["actual_selections"].selected_rank.tolist() == list(range(80))
-    assert frames["oracle_rosters"].layer.tolist() == ["H", "P", "C", "S"]
+    assert frames["oracle_rosters"].layer.tolist() == [
+        "H_no_salary_floor", "H", "P", "C", "S",
+    ]
     assert frames["oracle_rosters"].legality_verified.all()
