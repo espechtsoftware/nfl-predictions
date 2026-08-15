@@ -154,6 +154,19 @@ Entries 81--150 remain conditional on the user actually entering such a
 contest. They are a marginal-coverage extension conditioned on the first 80,
 not a simple larger prefix.
 
+The first exact-N treatment is now frozen separately in
+`reports/2026-08-15-exact-n-scorefree-protocol.md` (SHA-256
+`4918cdf96675a2b7608c5688e80fb826b61c443e9beb6bbb210f34a5b6319c11`)
+and implemented as a pure
+selector. It uses robust 230 worlds for N=1/3, 210 for N=20 and 200 for N=40;
+each greedy step prioritizes minimum then total marginal coverage across the
+five fixed seed blocks, followed by robust individual 210/194 support and
+mean. The score-free admission rule requires a strict primary-target gain in
+aggregate and at least three blocks while retaining at least 90% of incumbent
+194 coverage. N=80 is parity-only. This is one predeclared treatment, not a
+threshold sweep; passage can license only a pre-lock 2026 shadow. A separate
+create-only immutable-artifact runner is still required.
+
 ## CBWU seed-order audit
 
 Rotate R0--R4 through all five cyclic orders while holding every book and

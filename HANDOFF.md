@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 14:51 CDT
+## Current state — 2026-08-15 15:01 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -85,6 +85,18 @@ agent or developer:
   source identities, 270 artifact receipts, 54 slates, five rotations per
   slate, fixed candidate budget, 216 comparisons, outcome-free disclosure and
   the non-retrospective consequence before retaining the report and SHA-256.
+  The exact-N correction is frozen separately in
+  `reports/2026-08-15-exact-n-scorefree-protocol.md` at SHA-256
+  `4918cdf96675a2b7608c5688e80fb826b61c443e9beb6bbb210f34a5b6319c11`,
+  and its pure selector is
+  implemented in `analysis/exact_n_portfolio.py`. It uses one fixed mapping:
+  robust 230 coverage for N=1/3, 210 for N=20 and 200 for N=40, prioritizing
+  minimum then total marginal worlds across R0--R4 and retaining a 90% p194
+  floor versus the incumbent prefix. N=80 is parity-only. It accepts no
+  outcome input, always returns exact N and has three focused tests plus
+  compilation/diff validation. Wire it to a separate create-only immutable-
+  artifact runner after the CBWU order result; do not combine its admission
+  with ATLAS or choose a different target line from historical outcomes.
   Exact-archive build `50841c31-a340-42b3-a7b1-96170f0b4396` passed from
   inactive/ATLAS commit `b4bdc4d` at `2026-08-15T19:31:58.505525Z` and
   produced digest
