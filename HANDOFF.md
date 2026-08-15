@@ -531,6 +531,9 @@ agent or developer:
   outcome-blind support census before freezing any future cell-dependent gate,
   and explicitly forbids reading effect/error/proper-score values in that
   preflight.
+  The disposition line itself now states the stronger distinction requested by
+  the follow-on review: procedurally closed, favorable non-decisional direction,
+  and not shown adverse.
 - Before any usable SIS artifact or calibration score existed, the previously
   unstated 2022 calibration-book choice was frozen in
   `reports/2026-08-15-sis-receiver-copula-calibration-book-amendment.md`
@@ -687,6 +690,11 @@ agent or developer:
   roster IDs. The census may be repaired and relaunched only after that
   identity-only artifact is strictly harvested and hash-pinned; all native
   candidate outcome fields remain forbidden.
+  Before implementation, the follow-on review's derisking suggestion was
+  adopted: the exact same source materializer must first pass a 2023-only
+  receipt-only smoke, and the repaired census must later pass a separate
+  2023-only plumbing smoke that suppresses every membership/distance/loss-stage
+  value before the full 54-slate census can run.
   While that source repair is reconciled, the now-free slot was used for the
   independent, already-frozen CBWU order-invariant repair. Its exact
   create-only execution is `cbwu-order-invariant-repair-v1-xdxsd`, launched
@@ -698,6 +706,13 @@ agent or developer:
   `scripts/cloud_finish_cbwu_order_invariant_repair.sh` and retain only the
   checksum-verified create-once result. No historical outcome is available to
   this run and no result can directly change production.
+  A follow-on review incorrectly treated CBWU-OI as an in-place production
+  change. It is an inactive research function with no production call site;
+  requiring identity to canonical CBWU would also contradict its frozen strict
+  coverage-improvement gate. The pre-run protocol already requires the correct
+  proof--byte-identical treatment books across every input rotation--and a pass
+  licenses only a separately identified 2026 shadow. The reconciliation is in
+  `reports/2026-08-16-closure-corrections-and-cbwu-slot-review-reconciliation.md`.
 
 - The frozen prospective latent-role mechanism now has its previously missing
   real score-free scenario factory and separately named paired runner. The

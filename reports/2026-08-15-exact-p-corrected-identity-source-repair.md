@@ -26,7 +26,8 @@ membership.
 
 ## Sole repair
 
-Create one identity-only corrected-P artifact before rerunning the census:
+Use one unchanged materializer to create a narrow source preflight and then one
+identity-only corrected-P artifact before rerunning the census:
 
 1. Bind the same repair4 manifest
    `51edbe124846dc936ade71c4e5a9a07e252bcf6c7d7872b979715ccd1f6bab02`,
@@ -49,7 +50,19 @@ Create one identity-only corrected-P artifact before rerunning the census:
    selection membership or payouts. Record explicitly that the identities are
    outcome-derived even though the persisted artifact is identity-only.
 
-The create-only target is:
+Before the full artifact, run the exact same materializer on only 2023 and
+write a create-only plumbing receipt to:
+
+`gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/post-forensic-addenda/20260815-exact-p-corrected-identities-v1/preflight-2023.json`
+
+The preflight must reproduce all 18 2023 corrected scores and the 2023 portion
+of the immutable tail book, validate all 18 legal identities, and persist no
+score, tail value or roster identity--only source/code/image hashes, slate and
+slot counts, boolean reproduction/legality receipts and
+`scientific_result_licensed=false`. It cannot be used to inspect generator
+membership or classify a loss stage. A failure stops the full source run.
+
+After a passing strict preflight harvest, the full create-only target is:
 
 `gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/post-forensic-addenda/20260815-exact-p-corrected-identities-v1/result.json`
 
@@ -61,9 +74,18 @@ production.
 
 ## Census retry
 
-Only after the identity artifact is strictly harvested and hash-pinned may the
-parent census runner be repaired to read that identity-only object instead of
-repair4 layer P. The repaired runner must:
+Only after the full identity artifact is strictly harvested and hash-pinned may
+the parent census runner be repaired to read that identity-only object instead
+of repair4 layer P. Before its full 54-slate execution, run one narrow 2023
+plumbing-only census preflight from the exact same image/code. It must verify
+the 18 corrected identities, player-universe resolution, five native seed
+books, family labels, retained-CBWU reconstruction and outcome-column denial,
+but it must suppress and persist no P membership, family distance, loss-stage
+count, candidate-yield or disposition value. Its create-only receipt must say
+`scientific_result_licensed=false`. Only a passing strict preflight licenses
+the unchanged full census target.
+
+The repaired full runner must:
 
 - verify the artifact URI, generation, SHA-256, source manifest, exact-stack
   parent generation/SHA, 54 unique slate keys and 486 unique roster slots;

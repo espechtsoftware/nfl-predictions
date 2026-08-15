@@ -8,6 +8,11 @@ Calibration stage: `calibration-geometry1`
 
 ## Disposition
 
+**Procedurally closed: untestable under this calibration design. The mechanism
+was not shown to be adverse; its disclosed non-decisional direction was
+favorable and is preserved only as motivation for a separately designed
+prospective protocol.**
+
 The repaired execution `sis-receiver-copula-calibration-geometry1-fwvrp`
 completed successfully in 8m13s and its strict checksum harvest passed. The
 terminal scientific disposition is
