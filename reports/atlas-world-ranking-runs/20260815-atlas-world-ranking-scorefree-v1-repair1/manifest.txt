@@ -1,0 +1,10 @@
+version=atlas-world-ranking-scorefree-v1
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ac5d31bba3fa300301bf5a08d694f384f1cc16c2f232109f61f200b0c7768549
+code_sha=81b5c6e97c519babb8d7bb711c915ca70a2a51ba
+output_uri=gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/post-forensic-addenda/20260815-atlas-world-ranking-scorefree-v1/result.json
+source_panels=20260813-sis-asoe-treatment-r0-v1,20260813-sis-asoe-treatment-r1-v1,20260813-sis-asoe-treatment-r2-v1,20260813-sis-asoe-treatment-r3-v1,20260813-sis-asoe-treatment-r4-v1
+forensic_manifest_sha256=51edbe124846dc936ade71c4e5a9a07e252bcf6c7d7872b979715ccd1f6bab02
+uses_realized_outcomes=false
+slates=54
+seed_slate_artifacts=270
+worlds_per_ranking=40

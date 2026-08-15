@@ -976,6 +976,14 @@ agent or developer:
   `81b5c6e97c519babb8d7bb711c915ca70a2a51ba`. The retry is ready, but must
   wait until exact construction execution
   `cbwu-oi-construction-diagnostic-v1-4rr8d` releases the single 32-GiB slot.
+  That slot is now released and the separately receipted ATLAS repair is exact
+  Cloud Run execution `atlas-world-ranking-scorefree-v1-l59bt`, using the
+  validated repair digest/code above. Its create-only manifest and execution
+  receipt are tracked under
+  `reports/atlas-world-ranking-runs/20260815-atlas-world-ranking-scorefree-v1-repair1/`.
+  Poll this exact execution and use only the strict ATLAS finisher after
+  terminal success; the original `...-8p92l` failure remains superseded only
+  operationally and must never be mistaken for a scientific result.
   A follow-on review incorrectly treated CBWU-OI as an in-place production
   change. It is an inactive research function with no production call site;
   requiring identity to canonical CBWU would also contradict its frozen strict
