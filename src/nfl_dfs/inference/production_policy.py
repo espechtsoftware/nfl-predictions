@@ -114,6 +114,7 @@ class ClassicProductionPolicy:
     prospective_archetype_allocation_version: str = (
         "prospective-archetype-allocation-v1"
     )
+    prospective_latent_role_version: str = "prospective-latent-role-state-v1"
 
     def engine_environment(
         self, base: Mapping[str, str] | None = None,
@@ -259,6 +260,28 @@ class ClassicProductionPolicy:
             ),
             "ARCHETYPE_TAIL_LINE": str(self.tail_line),
             "PROSPECTIVE_SHADOW_ID": "2026-archetype-cbwu-v1",
+        })
+        return env
+
+    def latent_role_shadow_environment(
+        self, base: Mapping[str, str] | None = None,
+    ) -> dict[str, str]:
+        """Outcome-unseen latent-role candidate replacement shadow.
+
+        This retains the complete adopted five-seed, 40-boom and exact-80
+        policy while replacing only its 12 direct-role candidate slots. It is
+        never returned by ``engine_environment`` and cannot affect money
+        lineups without a separate post-2026 prospective promotion.
+        """
+        env = self.engine_environment(base)
+        env.update({
+            "EPISTEMIC_FAMILY": "latent_role_states",
+            "ROLE_BELIEF_FEATURES": "",
+            "MULTISEED_PORTFOLIO": "CBWU_LATENT_ROLE_SHADOW",
+            "PROSPECTIVE_LATENT_ROLE_VERSION": (
+                self.prospective_latent_role_version
+            ),
+            "PROSPECTIVE_SHADOW_ID": "2026-latent-role-cbwu-v1",
         })
         return env
 

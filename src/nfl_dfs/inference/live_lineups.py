@@ -38,6 +38,10 @@ class RoleBeliefUnavailable(RuntimeError):
     """The promoted role-union path could not reproduce its alternate model."""
 
 
+class LatentRoleUnavailable(RuntimeError):
+    """The prospective latent-role shadow could not build its frozen book."""
+
+
 def _log_ownership_shadow(
     frame: pd.DataFrame,
     own: np.ndarray,
@@ -399,6 +403,9 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                       _candidate_capture=None,
                       _control_candidate_capture=None,
                       _candidate_transform=None,
+                      _explicit_epistemic_scenarios=None,
+                      _latent_scenario_receipt=None,
+                      _latent_scenario_factory=None,
                       _multiseed_inner: bool = False,
                       _log_ownership_shadow: bool = True) -> list:
     """Full validated pipeline on the live slate -> selected entries in
@@ -412,7 +419,9 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
 
     runtime_env = policy_env or {}
     portfolio = runtime_env.get("MULTISEED_PORTFOLIO", "").upper()
-    multiseed_portfolios = {"CBWU", "CBWU_ARCHETYPE_SHADOW"}
+    multiseed_portfolios = {
+        "CBWU", "CBWU_ARCHETYPE_SHADOW", "CBWU_LATENT_ROLE_SHADOW",
+    }
     if portfolio and portfolio not in multiseed_portfolios:
         raise ValueError(f"unknown MULTISEED_PORTFOLIO={portfolio!r}")
     if portfolio in multiseed_portfolios and not _multiseed_inner:
@@ -421,6 +430,16 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
         if distribution_artifact_spec is not None:
             raise ValueError(
                 "CBWU live build cannot capture a single-seed distribution artifact")
+        if (_explicit_epistemic_scenarios is not None
+                or _latent_scenario_receipt is not None):
+            raise ValueError(
+                "outer CBWU build cannot receive one seed's latent scenarios")
+        if portfolio == "CBWU_LATENT_ROLE_SHADOW":
+            if _latent_scenario_factory is None:
+                raise ValueError("latent-role CBWU requires a scenario factory")
+        elif _latent_scenario_factory is not None:
+            raise ValueError(
+                "latent-role scenario factory requires its named shadow")
         if (
             _control_candidate_capture is not None
             and portfolio != "CBWU_ARCHETYPE_SHADOW"
@@ -481,6 +500,7 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
             seed_env = dict(runtime_env)
             seed_env["REPLAY_PROJECTION_SEED"] = str(projection_seed)
             seed_env["ROLE_BELIEF_SEED"] = str(role_seed)
+            seed_env["MULTISEED_SOURCE_LABEL"] = label
             holder = []
             result = build_sim_lineups(
                 season, week, n_entries=n_entries, stack=stack,
@@ -504,6 +524,9 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                 _candidate_capture=(holder.append if transform is None else None),
                 _control_candidate_capture=None,
                 _candidate_transform=transform,
+                _explicit_epistemic_scenarios=None,
+                _latent_scenario_receipt=None,
+                _latent_scenario_factory=_latent_scenario_factory,
                 _multiseed_inner=True,
                 _log_ownership_shadow=(persist and _log_ownership_shadow),
             )
@@ -538,6 +561,25 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                 combined = combine_cbwu_books(
                     books, labels,
                     expected_worlds_per_book=worlds_per_block)
+                if portfolio == "CBWU_LATENT_ROLE_SHADOW":
+                    from ..backtest.engine import CandidateBatch
+
+                    combined = CandidateBatch(
+                        candidates=combined.candidates,
+                        candidate_totals=combined.candidate_totals,
+                        player_ids=combined.player_ids,
+                        player_rows=combined.player_rows,
+                        row_draws=combined.row_draws,
+                        all_tags=combined.all_tags,
+                        metadata={
+                            **combined.metadata,
+                            "portfolio": "CBWU_LATENT_ROLE_SHADOW",
+                            "production_enabled": False,
+                            "prospective_shadow_id": runtime_env.get(
+                                "PROSPECTIVE_SHADOW_ID", ""),
+                            "uses_realized_outcomes": False,
+                        },
+                    )
             if _candidate_capture is not None:
                 _candidate_capture(combined)
             return combined
@@ -561,6 +603,33 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
         int(runtime_env.get("N_EPISTEMIC", "0") or 0) > 0
         and runtime_env.get("EPISTEMIC_FAMILY") == "role_draws"
     )
+    wants_latent_role = (
+        int(runtime_env.get("N_EPISTEMIC", "0") or 0) > 0
+        and runtime_env.get("EPISTEMIC_FAMILY") == "latent_role_states"
+    )
+    if wants_latent_role:
+        if not belief_model_variant:
+            raise LatentRoleUnavailable(
+                "latent-role policy requires the tail_k1_role registry variant")
+        if (
+            _latent_scenario_factory is None
+            and _explicit_epistemic_scenarios is None
+        ):
+            raise LatentRoleUnavailable(
+                "latent-role policy requires conditional scenarios")
+        if (
+            _latent_scenario_factory is not None
+            and _explicit_epistemic_scenarios is not None
+        ):
+            raise ValueError(
+                "latent-role scenarios must come from one source")
+    elif (
+        _latent_scenario_factory is not None
+        or _explicit_epistemic_scenarios is not None
+        or _latent_scenario_receipt is not None
+    ):
+        raise ValueError(
+            "latent-role scenario inputs require the named latent family")
     belief_slate = None
     belief_draws = None
     role_model_version = None
@@ -639,6 +708,42 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
         missing = set(locks) - set(slate.id)
         if missing:
             raise ValueError(f"locked players not in slate: {sorted(missing)}")
+    latent_scenarios = _explicit_epistemic_scenarios
+    latent_scenario_receipt = _latent_scenario_receipt
+    if wants_latent_role and _latent_scenario_factory is not None:
+        try:
+            built = _latent_scenario_factory(
+                season=int(season),
+                week=int(week),
+                source_label=str(runtime_env.get(
+                    "MULTISEED_SOURCE_LABEL", "single")),
+                projection_seed=int(seed),
+                role_seed=int(runtime_env.get("ROLE_BELIEF_SEED", seed)),
+                n_sims=int(draws.shape[1]),
+                slate=slate.copy(deep=True),
+                conditional_model_variant=str(belief_model_variant),
+                policy_env=dict(runtime_env),
+            )
+        except Exception as exc:
+            raise LatentRoleUnavailable(
+                "latent-role scenario factory failed: "
+                f"{type(exc).__name__}: {str(exc)[:180]}"
+            ) from exc
+        if (
+            not isinstance(built, tuple)
+            or len(built) != 2
+            or not isinstance(built[1], dict)
+        ):
+            raise LatentRoleUnavailable(
+                "latent-role scenario factory returned a malformed bundle")
+        latent_scenarios, latent_scenario_receipt = built
+    if wants_latent_role:
+        if not isinstance(latent_scenario_receipt, dict):
+            raise LatentRoleUnavailable(
+                "latent-role scenario receipt is unavailable")
+        if latent_scenario_receipt.get("uses_realized_outcomes") is not False:
+            raise LatentRoleUnavailable(
+                "latent-role scenario receipt is not score-free")
     if distribution_artifact_spec is not None:
         if belief_slate is None or belief_draws is None:
             raise RuntimeError(
@@ -669,6 +774,7 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
     if cand_log_table is None:
         cand_log_table = f"{_settings.predictions}.live_candidates"
     try:
+        latent_optimization_receipt = [] if wants_latent_role else None
         lineups = tail_select_lineups(
             slate, pool, draws, tail_line=tail_line, n_entries=n_entries,
             stack=stack, objective_col="proj_tourney",
@@ -682,13 +788,21 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
             panel_run_id=panel_run_id, candidate_run_type=candidate_run_type,
             policy_env=policy_env, belief_slate=belief_slate,
             belief_draws=belief_draws,
+            explicit_epistemic_scenarios=latent_scenarios,
+            latent_optimization_receipt=latent_optimization_receipt,
+            latent_scenario_receipt=latent_scenario_receipt,
             candidate_capture=_candidate_capture,
             candidate_transform=_candidate_transform)
     except RuntimeError as exc:
         if wants_role and "role-belief generator produced" in str(exc):
             raise RoleBeliefUnavailable(str(exc)) from exc
+        if wants_latent_role and "latent role" in str(exc).lower():
+            raise LatentRoleUnavailable(str(exc)) from exc
         raise
     for lineup in lineups:
         lineup.model_version = model_version
-        lineup.role_model_version = role_model_version
+        lineup.role_model_version = (
+            latent_scenario_receipt.get("conditional_model_version")
+            if wants_latent_role else role_model_version
+        )
     return lineups

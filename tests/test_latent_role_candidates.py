@@ -1,6 +1,7 @@
 import hashlib
 
 import numpy as np
+import pandas as pd
 import pytest
 
 from nfl_dfs.backtest import engine
@@ -139,3 +140,71 @@ def test_latent_promotion_duplicate_invalidates_and_records(monkeypatch):
     assert receipt[0]["kind"] == "promotion"
     assert receipt[0]["disposition"] == "duplicate"
     assert len(receipt[0]["roster_sha256"]) == 64
+
+
+def test_tail_engine_routes_exact_latent_dose_into_captured_book(monkeypatch):
+    players = _players()
+    for index, player in enumerate(players):
+        player["actual"] = 10.0
+        player["draw_idx"] = index
+        player["season"] = 2026
+        player["week"] = 1
+    slate = pd.DataFrame(players)
+    draws = np.stack([
+        np.full(20, index + 1.0, dtype=float)
+        for index in range(len(players))
+    ])
+    existing = Lineup(players=players[21:30], tag="lev")
+    monkeypatch.setattr(engine, "optimize_many", lambda *args, **kwargs: [existing])
+
+    def fake_optimize(pool, **kwargs):
+        marker = int(pool[0]["proj_epi"])
+        return Lineup(players=players[marker - 1:marker + 8])
+
+    monkeypatch.setattr(engine, "optimize", fake_optimize)
+    scenarios = [*(_promotion(i, float(i)) for i in range(1, 5))]
+    scenarios.extend(_sample(i, float(i + 4)) for i in range(1, 9))
+    optimization_receipt: list[dict] = []
+    captured = []
+    env = {
+        "GEN_TOTAL_BUDGET": "12",
+        "N_EPISTEMIC": "12",
+        "N_BOOM": "0",
+        "EPISTEMIC_FAMILY": engine.LATENT_ROLE_FAMILY,
+        "N_QB_VARIANTS": "0",
+        "N_GAMESTACK": "0",
+        "N_DARKGAME": "0",
+        "MIN_LINEUP_SALARY": "0",
+    }
+    selected = engine.tail_select_lineups(
+        slate,
+        players,
+        draws,
+        tail_line=194.0,
+        n_entries=2,
+        stack=None,
+        objective_col="proj",
+        policy_env=env,
+        explicit_epistemic_scenarios=scenarios,
+        latent_optimization_receipt=optimization_receipt,
+        latent_scenario_receipt={
+            "uses_realized_outcomes": False,
+            "artifact_sha256": _sha("artifact"),
+        },
+        candidate_capture=captured.append,
+    )
+    assert len(selected) == 2
+    assert len(captured) == 1
+    batch = captured[0]
+    assert len(batch.candidates) == 13
+    assert sum(lineup.tag == "epi" for lineup in batch.candidates) == 12
+    assert len(optimization_receipt) == 12
+    assert all(
+        row["disposition"] == "accepted" for row in optimization_receipt
+    )
+    assert batch.metadata["latent_optimization_receipt"] == tuple(
+        optimization_receipt
+    )
+    assert batch.metadata["latent_scenario_receipt"][
+        "uses_realized_outcomes"
+    ] is False

@@ -98,6 +98,17 @@ def test_policy_overwrites_research_levers_without_mutating_base():
     assert shadow["MULTISEED_SEED_PAIRS"] == env["MULTISEED_SEED_PAIRS"]
     assert shadow["N_EPISTEMIC"] == env["N_EPISTEMIC"]
 
+    latent = ADOPTED_CLASSIC_POLICY.latent_role_shadow_environment(dirty)
+    assert latent["MULTISEED_PORTFOLIO"] == "CBWU_LATENT_ROLE_SHADOW"
+    assert latent["EPISTEMIC_FAMILY"] == "latent_role_states"
+    assert latent["ROLE_BELIEF_FEATURES"] == ""
+    assert latent["PROSPECTIVE_LATENT_ROLE_VERSION"] == (
+        "prospective-latent-role-state-v1"
+    )
+    assert latent["PROSPECTIVE_SHADOW_ID"] == "2026-latent-role-cbwu-v1"
+    assert latent["MULTISEED_SEED_PAIRS"] == env["MULTISEED_SEED_PAIRS"]
+    assert (latent["N_EPISTEMIC"], latent["N_BOOM"]) == ("12", "40")
+
 
 def test_public_identity_exposes_fixed_budget_five_by_five_contract():
     identity = ADOPTED_CLASSIC_POLICY.public_identity(entries=40)

@@ -935,6 +935,7 @@ def tail_select_lineups(
         Sequence[tuple[str, np.ndarray]] | None
     ) = None,
     latent_optimization_receipt: list[dict] | None = None,
+    latent_scenario_receipt: dict | None = None,
     policy_env: dict | None = None,
     candidate_capture: Callable[[CandidateBatch], None] | None = None,
     candidate_transform: (
@@ -987,7 +988,8 @@ def tail_select_lineups(
     epi_family = runtime_env.get("EPISTEMIC_FAMILY", "standard")
     if n_epi and epi_family == "role_draws":
         if (explicit_epistemic_scenarios is not None
-                or latent_optimization_receipt is not None):
+                or latent_optimization_receipt is not None
+                or latent_scenario_receipt is not None):
             raise ValueError("role_draws cannot receive latent scenarios/receipt")
         if belief_slate is None or belief_draws is None:
             raise RuntimeError(
@@ -1003,6 +1005,10 @@ def tail_select_lineups(
             )
         if latent_optimization_receipt is None:
             raise ValueError("latent role-state optimization receipt is required")
+        if not isinstance(latent_scenario_receipt, dict):
+            raise ValueError("latent role-state scenario receipt is required")
+        if latent_scenario_receipt.get("uses_realized_outcomes") is not False:
+            raise ValueError("latent role-state scenario receipt is not score-free")
         epi_scenarios = _validated_latent_role_scenarios(
             explicit_epistemic_scenarios,
             n_players=len(pool),
@@ -1010,14 +1016,16 @@ def tail_select_lineups(
         )
     elif n_epi and epi_family in ("", "standard"):
         if (explicit_epistemic_scenarios is not None
-                or latent_optimization_receipt is not None):
+                or latent_optimization_receipt is not None
+                or latent_scenario_receipt is not None):
             raise ValueError("standard EPI cannot receive latent scenarios/receipt")
         epi_scenarios = _epistemic_scenarios(pool, objective_col)
     elif n_epi:
         raise ValueError(f"unknown EPISTEMIC_FAMILY={epi_family!r}")
     else:
         if (explicit_epistemic_scenarios is not None
-                or latent_optimization_receipt is not None):
+                or latent_optimization_receipt is not None
+                or latent_scenario_receipt is not None):
             raise ValueError("latent scenarios/receipt require a nonzero dose")
         epi_scenarios = []
     if n_epi and not epi_scenarios:
@@ -1635,6 +1643,7 @@ def tail_select_lineups(
             "latent_optimization_receipt": tuple(
                 latent_optimization_receipt or ()
             ),
+            "latent_scenario_receipt": dict(latent_scenario_receipt or {}),
         },
     )
     effective_batch_metadata = native_batch.metadata
