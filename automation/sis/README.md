@@ -125,13 +125,16 @@ CFB go/no-go review.
 The Wednesday 10:00am CT command `nfl-weekly-data run --week W` forces a fresh
 SIS logout/login, then verifies the replacement session alongside Fantasy
 Points before unattended data work starts.
-It intentionally submits **zero SIS queries** unless `--sis-plan` names a
-tracked, evidence-approved recurring plan. The present team-context and
-alignment files are historical research plans, not weekly production plans.
-When a recurring SIS mechanism passes its gate, check in its bounded plan and
-add that exact path to the command documented here and in the UI Weekly guide.
-This preserves the one-login-then-leave workflow without silently spending SIS
-requests on rejected features.
+It submits zero SIS queries in target Weeks 1--4. Beginning in target Week 5,
+the evidence-approved prospective pass-tail shadow automatically submits the
+five exact split-by-game views frozen in
+`reports/2026-08-15-prospective-sis-pass-tail-finite-k-protocol.md`: all-view
+Pass Defense Totals/Value and Pass Rush Totals, plus Wide/Slot Pass Defense
+Totals. Week 5 bootstraps source Weeks 1--4 and later weeks retrieve W-1 only.
+The durable ceiling is seven Submit requests, raw bytes are archived by hash,
+and imports fail on scope/provenance conflicts. Other `--sis-plan` inputs
+remain opt-in and must be separately evidence-approved; the historical
+team-context/alignment tranches are never valid weekly plans.
 
 The next bounded nonweekly feasibility screen is frozen separately:
 

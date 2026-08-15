@@ -75,6 +75,8 @@ ASOE_ALIGNMENTS = (("wide", ("2",)), ("slot", ("3",)))
 # frozen set; request-scope checks deliberately compare the actual form order.
 ASOE_ALL_SCHEMES = ("0", "1", "2", "5", "3", "4", "6")
 ASOE_API_REQUEST_CEILING = 28
+PASS_TAIL_WEEKLY_VERSION = "prospective-sis-pass-tail-weekly-acquisition-v1"
+PASS_TAIL_WEEKLY_API_REQUEST_CEILING = 7
 
 
 @dataclass(frozen=True)
@@ -1644,6 +1646,348 @@ def run_team_pass_defense_asoe_acquisition(
     return result
 
 
+def _pass_tail_weekly_artifact(
+    target_week: int, start_week: int, end_week: int,
+    report: str, slice_name: str,
+) -> str:
+    if not 5 <= int(target_week) <= 18:
+        raise ValueError("SIS pass-tail target week must be within 5..18")
+    allowed = {
+        ("pass-defense-totals", "all"),
+        ("pass-defense-value", "all"),
+        ("pass-rush-totals", "all"),
+        ("pass-defense-totals", "wide"),
+        ("pass-defense-totals", "slot"),
+    }
+    if (report, slice_name) not in allowed:
+        raise ValueError("unsupported SIS pass-tail weekly view")
+    return (
+        f"2026-target-week-{int(target_week):02d}"
+        f"__source-weeks-{int(start_week):02d}-{int(end_week):02d}"
+        f"__{report}__{slice_name}.csv"
+    )
+
+
+def _analyze_pass_tail_weekly_manifest(
+    output_dir: Path, manifest: dict[str, Any],
+) -> dict[str, Any]:
+    target_week = int(manifest.get("target_week", -1))
+    source_start = int(manifest.get("source_week_start", -1))
+    source_end = int(manifest.get("source_week_end", -1))
+    expected_start = 1 if target_week == 5 else target_week - 1
+    if not 5 <= target_week <= 18 or (source_start, source_end) != (
+        expected_start, target_week - 1,
+    ):
+        raise RuntimeError("SIS pass-tail weekly source window differs")
+    expected = {
+        ("pass-defense-totals", "all"),
+        ("pass-defense-value", "all"),
+        ("pass-rush-totals", "all"),
+        ("pass-defense-totals", "wide"),
+        ("pass-defense-totals", "slot"),
+    }
+    artifacts = manifest.get("artifacts", [])
+    observed = {
+        (str(item.get("report")), str(item.get("slice")))
+        for item in artifacts
+    }
+    if len(artifacts) != len(expected) or observed != expected:
+        raise RuntimeError("SIS pass-tail weekly manifest is not five views")
+    failures: list[str] = []
+    for item in artifacts:
+        report, slice_name = str(item["report"]), str(item["slice"])
+        path = output_dir / str(item["artifact"])
+        if not path.is_file() or _sha256(path) != item.get("sha256"):
+            raise RuntimeError("SIS pass-tail weekly artifact is missing or changed")
+        spec = ExportSpec(**item["spec"])
+        if (
+            spec.entity != "teams" or spec.season != 2026
+            or spec.start_week != source_start or spec.end_week != source_end
+            or not spec.split_by_game or spec.report != report
+        ):
+            failures.append(f"{report}:{slice_name}:spec")
+        rows = int(item.get("rows", -1))
+        if not 0 < rows < 200:
+            failures.append(f"{report}:{slice_name}:rows:{rows}")
+        if len(item.get("identities", [])) != rows:
+            failures.append(f"{report}:{slice_name}:identity-row-count")
+        if slice_name in {"wide", "slot"}:
+            wanted = list(dict(ASOE_ALIGNMENTS)[slice_name])
+            submitted = item.get("submitted_scope", {})
+            if submitted.get("PassDefenseFilters.TargetLinedUp") != wanted:
+                failures.append(f"{report}:{slice_name}:alignment")
+            if submitted.get("PassDefenseFilters.Schemes") != list(
+                ASOE_ALL_SCHEMES
+            ):
+                failures.append(f"{report}:{slice_name}:schemes")
+        _validate_csv_scope(path, spec, rows)
+    used = int(manifest.get("api_requests_used", -1))
+    ceiling = int(manifest.get("api_request_ceiling", -1))
+    if ceiling != PASS_TAIL_WEEKLY_API_REQUEST_CEILING or not 5 <= used <= ceiling:
+        failures.append(f"request-budget:{used}/{ceiling}")
+    return {
+        "schema_version": 1,
+        "version": PASS_TAIL_WEEKLY_VERSION,
+        "passes": not failures,
+        "disposition": (
+            "sis-pass-tail-weekly-acquisition-passes"
+            if not failures else "sis-pass-tail-weekly-acquisition-fails"
+        ),
+        "failures": failures,
+        "target_week": target_week,
+        "source_week_start": source_start,
+        "source_week_end": source_end,
+        "artifacts": len(artifacts),
+        "api_requests_used": used,
+        "api_request_ceiling": ceiling,
+    }
+
+
+def run_pass_tail_weekly_acquisition(
+    profile_dir: Path,
+    timeout_seconds: float,
+    output_dir: Path,
+    *,
+    target_week: int,
+) -> dict[str, Any]:
+    """Acquire the five frozen SIS views for one 2026 target week."""
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError as exc:  # pragma: no cover
+        raise RuntimeError(
+            'install browser support with `pip install -e "[browser]"`'
+        ) from exc
+    target_week = int(target_week)
+    if not 5 <= target_week <= 18:
+        raise ValueError("SIS pass-tail target week must be within 5..18")
+    source_start = 1 if target_week == 5 else target_week - 1
+    source_end = target_week - 1
+    protocol = Path(
+        "reports/2026-08-15-prospective-sis-pass-tail-finite-k-protocol.md"
+    )
+    if not protocol.is_file():
+        raise RuntimeError("frozen SIS pass-tail protocol is missing")
+    storage_state = default_storage_state_path(profile_dir)
+    if not storage_state.is_file():
+        raise RuntimeError("SIS saved storage state is missing; run `sis-download login`")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    run_state = output_dir / ".pass-tail-weekly.run-state.json"
+    partial_manifest_path = output_dir / ".pass-tail-weekly.partial-manifest.json"
+    manifest_path = output_dir / "pass-tail-weekly.manifest.json"
+    result_path = output_dir / "pass-tail-weekly.result.json"
+    if manifest_path.exists() or result_path.exists():
+        raise RuntimeError("refusing to overwrite SIS pass-tail weekly result")
+    identity = hashlib.sha256(
+        (
+            _sha256(protocol) + f"|{PASS_TAIL_WEEKLY_VERSION}|2026|"
+            f"{target_week}|{source_start}|{source_end}"
+        ).encode()
+    ).hexdigest()
+    used = 0
+    if run_state.exists():
+        state = json.loads(run_state.read_text(encoding="utf-8"))
+        if (
+            state.get("plan_sha256") != identity
+            or int(state.get("ceiling", -1))
+            != PASS_TAIL_WEEKLY_API_REQUEST_CEILING
+        ):
+            raise RuntimeError("SIS pass-tail weekly request-state identity differs")
+        used = int(state.get("used", -1))
+        if not 0 <= used <= PASS_TAIL_WEEKLY_API_REQUEST_CEILING:
+            raise RuntimeError("SIS pass-tail weekly request count is invalid")
+    budget = APIRequestBudget(
+        ceiling=PASS_TAIL_WEEKLY_API_REQUEST_CEILING,
+        used=used,
+        state_path=run_state,
+        plan_sha256=identity,
+    )
+    budget.persist()
+    submit_budget = SubmitOnlyAPIRequestBudget(budget)
+    artifacts: list[dict[str, Any]] = []
+    if partial_manifest_path.exists():
+        partial = json.loads(partial_manifest_path.read_text(encoding="utf-8"))
+        if partial.get("acquisition_identity") != identity:
+            raise RuntimeError("SIS pass-tail partial-manifest identity differs")
+        artifacts = list(partial.get("artifacts", []))
+        keys = [(item.get("report"), item.get("slice")) for item in artifacts]
+        if len(keys) != len(set(keys)):
+            raise RuntimeError("SIS pass-tail partial manifest has duplicate views")
+        for item in artifacts:
+            path = output_dir / str(item["artifact"])
+            if not path.is_file() or _sha256(path) != item.get("sha256"):
+                raise RuntimeError("SIS pass-tail partial artifact changed")
+
+    views = (
+        ("pass-defense-totals", "all", None),
+        ("pass-defense-value", "all", None),
+        ("pass-rush-totals", "all", None),
+        ("pass-defense-totals", "wide", dict(ASOE_ALIGNMENTS)["wide"]),
+        ("pass-defense-totals", "slot", dict(ASOE_ALIGNMENTS)["slot"]),
+    )
+    timeout_ms = int(timeout_seconds * 1000)
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(headless=True)
+        context = browser.new_context(
+            storage_state=str(storage_state), accept_downloads=True,
+            viewport={"width": 1800, "height": 1200},
+        )
+        context.route("**/api/v1/nfl/**/query", submit_budget.route)
+        page = context.new_page()
+        page.set_default_timeout(timeout_ms)
+        try:
+            page.goto(
+                f"{BASE_URL}/NFL/Leaders/Teams",
+                wait_until="domcontentloaded", timeout=timeout_ms,
+            )
+            _assert_authenticated(page, timeout_ms)
+            page.locator("#querybuilder").wait_for(state="attached")
+            for report, slice_name, alignment_values in views:
+                prior = next((
+                    item for item in artifacts
+                    if item.get("report") == report
+                    and item.get("slice") == slice_name
+                ), None)
+                if prior is not None:
+                    print(
+                        f"SIS pass-tail verified existing: {report}/{slice_name}",
+                        flush=True,
+                    )
+                    continue
+                spec = ExportSpec(
+                    entity="teams", report=report, season=2026,
+                    start_week=source_start, end_week=source_end,
+                    split_by_game=True,
+                )
+                definition = spec.definition
+                _activate_report_view_without_refresh(page, definition)
+                _set_select(page, "#TimeFilters_SeasonFrom", "2026")
+                _set_select(page, "#TimeFilters_SeasonTo", "2026")
+                _set_select(page, "#TimeFilters_StartWeek", str(source_start))
+                _set_select(page, "#TimeFilters_EndWeek", str(source_end))
+                _set_select(page, "#Teams", "-1")
+                _set_checkbox(page, "#chkIncludePlayoffs", False)
+                _set_checkbox(page, "#chkByGame", True)
+                filters: dict[str, list[str]] = {}
+                if alignment_values is not None:
+                    _set_checkbox_values(
+                        page, "PassDefenseFilters.TargetLinedUp",
+                        alignment_values,
+                    )
+                    _set_checkbox_values(
+                        page, "PassDefenseFilters.Schemes", ASOE_ALL_SCHEMES,
+                    )
+                    _set_checkbox_values(
+                        page, "PassDefenseFilters.ReceiverPos", ["4"],
+                    )
+                    _set_input_value(page, "PassDefenseFilters.MinTargets", "0")
+                    _set_input_value(page, "PassDefenseFilters.MinAttempts", "1")
+                    filters = {
+                        "PassDefenseFilters.TargetLinedUp": list(alignment_values),
+                        "PassDefenseFilters.Schemes": list(ASOE_ALL_SCHEMES),
+                        "PassDefenseFilters.ReceiverPos": ["4"],
+                        "PassDefenseFilters.MinTargets": ["0"],
+                        "PassDefenseFilters.MinAttempts": ["1"],
+                    }
+                submit_budget.armed = True
+                try:
+                    with page.expect_response(
+                        lambda response, current=spec, wanted=filters: (
+                            _response_matches_filters(response, current, wanted)
+                            if wanted else _response_matches_spec(response, current)
+                        ),
+                        timeout=timeout_ms,
+                    ) as response_info:
+                        page.locator("#submit").click()
+                finally:
+                    submit_budget.armed = False
+                response = response_info.value
+                if filters:
+                    _assert_submitted_scope(response, spec, filters)
+                expected_rows = _assert_api_scope(response, spec, row_cap=200)
+                if expected_rows == 0:
+                    raise RuntimeError(
+                        f"SIS pass-tail view is empty: {report}/{slice_name}")
+                _wait_for_table(
+                    page, expected_rows, timeout_ms,
+                    CSV_REQUIRED_COLUMNS[report],
+                )
+                destination = output_dir / _pass_tail_weekly_artifact(
+                    target_week, source_start, source_end, report, slice_name)
+                if destination.exists():
+                    raise RuntimeError(
+                        f"unmanifested SIS pass-tail artifact: {destination}")
+                temporary = destination.with_suffix(destination.suffix + ".partial")
+                button = page.locator("a.dt-button.buttons-csv:visible")
+                if button.count() != 1:
+                    raise RuntimeError("SIS page has an ambiguous Download control")
+                with page.expect_download(timeout=timeout_ms) as download_info:
+                    button.click()
+                download_info.value.save_as(str(temporary))
+                try:
+                    _validate_csv_scope(temporary, spec, expected_rows)
+                except Exception:
+                    temporary.unlink(missing_ok=True)
+                    raise
+                temporary.replace(destination)
+                item = {
+                    "report": report,
+                    "slice": slice_name,
+                    "artifact": destination.name,
+                    "sha256": _sha256(destination),
+                    "bytes": destination.stat().st_size,
+                    "rows": expected_rows,
+                    "headers": _csv_header(destination),
+                    "spec": asdict(spec),
+                    "filters": filters,
+                    "submitted_scope": _request_scope(response.request),
+                    "identities": _identity_rows(response),
+                }
+                _write_json_atomic(
+                    destination.with_suffix(".manifest.json"), item)
+                artifacts.append(item)
+                _write_json_atomic(partial_manifest_path, {
+                    "schema_version": 1,
+                    "version": PASS_TAIL_WEEKLY_VERSION,
+                    "acquisition_identity": identity,
+                    "target_week": target_week,
+                    "source_week_start": source_start,
+                    "source_week_end": source_end,
+                    "api_requests_used": budget.used,
+                    "api_request_ceiling": budget.ceiling,
+                    "artifacts": artifacts,
+                })
+                print(
+                    f"SIS pass-tail acquired: {report}/{slice_name} "
+                    f"({expected_rows} rows; {budget.used}/"
+                    f"{budget.ceiling} requests)",
+                    flush=True,
+                )
+        finally:
+            context.close()
+            browser.close()
+    manifest = {
+        "schema_version": 1,
+        "version": PASS_TAIL_WEEKLY_VERSION,
+        "acquisition_identity": identity,
+        "protocol_sha256": _sha256(protocol),
+        "retrieved_at_utc": datetime.now(UTC).isoformat(),
+        "season": 2026,
+        "target_week": target_week,
+        "source_week_start": source_start,
+        "source_week_end": source_end,
+        "api_requests_used": budget.used,
+        "api_request_ceiling": budget.ceiling,
+        "artifacts": artifacts,
+    }
+    _write_json_atomic(manifest_path, manifest)
+    result = _analyze_pass_tail_weekly_manifest(output_dir, manifest)
+    if not result["passes"]:
+        raise RuntimeError(f"SIS pass-tail acquisition failed: {result['failures']}")
+    _write_json_atomic(result_path, result)
+    partial_manifest_path.unlink(missing_ok=True)
+    return result
+
+
 def analyze_team_pass_defense_schema_sample(
     output_dir: Path, manifest: dict[str, Any],
 ) -> dict[str, Any]:
@@ -2132,6 +2476,14 @@ def _build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path("sis/team-pass-defense-asoe-v1"),
     )
+    pass_tail = subparsers.add_parser(
+        "pass-tail-weekly",
+        help="run the frozen 2026 pass-tail target-week acquisition",
+    )
+    pass_tail.add_argument("--target-week", type=int, required=True)
+    pass_tail.add_argument(
+        "--output-dir", type=Path, default=Path("sis/pass-tail-weekly")
+    )
     return parser
 
 
@@ -2188,6 +2540,17 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
             print(
                 "SIS ASOE acquisition complete: "
+                + json.dumps(result, sort_keys=True)
+            )
+        elif args.command == "pass-tail-weekly":
+            result = run_pass_tail_weekly_acquisition(
+                args.profile_dir,
+                args.timeout,
+                args.output_dir,
+                target_week=args.target_week,
+            )
+            print(
+                "SIS pass-tail weekly acquisition complete: "
                 + json.dumps(result, sort_keys=True)
             )
         else:

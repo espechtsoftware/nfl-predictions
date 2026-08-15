@@ -290,7 +290,9 @@ def load_live_sources(
         WHERE season=@season AND target_week=@week
         """, params=params)
     offense = query_df(f"""
-        SELECT * FROM `{settings.raw}.fantasy_points_alignment_team_l4`
+        SELECT *, target_week - 4 AS source_week_start,
+               target_week - 1 AS source_week_end
+        FROM `{settings.raw}.fantasy_points_alignment_team_l4`
         WHERE season=@season AND target_week=@week
         """, params=params)
     attempts = query_df(f"""

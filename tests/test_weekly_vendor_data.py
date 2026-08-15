@@ -93,7 +93,7 @@ def test_run_week_preflights_sessions_then_runs_all_selected_steps(
 
     assert events == [
         "verify-fp", "verify-sis", "ingest-odds", "ingest-props",
-        "route-download", "matchups", "sis-plan", "route-import-True",
+        "route-download", "route-import-True", "matchups", "sis-plan",
     ]
     manifest = json.loads(manifest_path.read_text())
     assert manifest["status"] == "complete"
@@ -126,11 +126,82 @@ def test_run_week_forces_fresh_sis_login(monkeypatch, tmp_path):
         fp_output_root=tmp_path / "fp-output",
         sis_output_root=tmp_path / "sis-output",
         capture_matchups=False,
+        capture_sis_pass_tail=False,
         ingest_odds=False,
         login_if_needed=True,
         now=datetime(2026, 9, 2, 14, tzinfo=UTC),
     )
     assert events == [("login-sis", True, True), "verify-sis"]
+
+
+def test_week_five_adds_frozen_alignment_download_and_import(
+    monkeypatch, tmp_path
+):
+    events = []
+    route_run = tmp_path / "route-run"
+    alignment_run = tmp_path / "alignment-run"
+    route_run.mkdir()
+    alignment_run.mkdir()
+    (route_run / "manifest.json").write_text("{}")
+    (alignment_run / "manifest.json").write_text("{}")
+
+    monkeypatch.setattr(weekly.fp, "load_plan", lambda *_: ({}, [object()]))
+    monkeypatch.setattr(weekly.fp, "select_target_week", lambda specs, _: specs)
+    monkeypatch.setattr(weekly.fp, "verify_login", lambda *_: None)
+    monkeypatch.setattr(weekly.sis, "verify_login", lambda *_: None)
+    monkeypatch.setattr(
+        weekly.fp,
+        "run_downloads",
+        lambda plan, *_args, **_kwargs: (
+            events.append(plan.name)
+            or (
+                alignment_run / "manifest.json"
+                if "alignment" in plan.name
+                else route_run / "manifest.json"
+            )
+        ),
+    )
+    monkeypatch.setattr(
+        weekly.fantasy_points_route_weekly, "run",
+        lambda *_args, **_kwargs: events.append("route-import") or {},
+    )
+    monkeypatch.setattr(
+        weekly.fantasy_points_alignment_weekly, "run",
+        lambda *_args, **kwargs: events.append(
+            f"alignment-import-{kwargs['write']}"
+        ) or {},
+    )
+    monkeypatch.setattr(
+        weekly.sis, "run_pass_tail_weekly_acquisition",
+        lambda *_args, **_kwargs: events.append("sis-pass-tail-download") or {},
+    )
+    monkeypatch.setattr(
+        weekly.sis_pass_tail_weekly, "run",
+        lambda *_args, **_kwargs: events.append("sis-pass-tail-import") or {},
+    )
+
+    weekly.run_week(
+        week=5,
+        fp_profile_dir=tmp_path / "fp-profile",
+        sis_profile_dir=tmp_path / "sis-profile",
+        timeout_seconds=10,
+        output_root=tmp_path / "runs",
+        fp_output_root=tmp_path / "fp-output",
+        sis_output_root=tmp_path / "sis-output",
+        capture_matchups=False,
+        ingest_odds=False,
+        login_if_needed=False,
+        write_alignment=False,
+        now=datetime(2026, 9, 30, 14, tzinfo=UTC),
+    )
+    assert events == [
+        "2026-route-share-weekly-v1.json",
+        "route-import",
+        "2026-alignment-last-four-weekly-v1.json",
+        "alignment-import-False",
+        "sis-pass-tail-download",
+        "sis-pass-tail-import",
+    ]
 
 
 def test_run_week_verifies_sis_but_does_not_query_without_approved_plan(

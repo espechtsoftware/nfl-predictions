@@ -17,7 +17,11 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Callable, Sequence
 
-from ..ingest import fantasy_points_route_weekly
+from ..ingest import (
+    fantasy_points_alignment_weekly,
+    fantasy_points_route_weekly,
+    sis_pass_tail_weekly,
+)
 from . import fantasy_points_downloads as fp
 from . import fantasy_points_matchups as fp_matchups
 from . import sis_downloads as sis
@@ -32,6 +36,13 @@ DEFAULT_FP_PLAN = (
     / "fantasy_points"
     / "plans"
     / "2026-route-share-weekly-v1.json"
+)
+DEFAULT_FP_ALIGNMENT_PLAN = (
+    PROJECT_ROOT
+    / "automation"
+    / "fantasy_points"
+    / "plans"
+    / "2026-alignment-last-four-weekly-v1.json"
 )
 
 
@@ -102,12 +113,15 @@ def run_week(
     fp_output_root: Path,
     sis_output_root: Path,
     fp_plan: Path = DEFAULT_FP_PLAN,
+    fp_alignment_plan: Path = DEFAULT_FP_ALIGNMENT_PLAN,
     sis_plan: Path | None = None,
     project: str = DEFAULT_PROJECT,
     region: str = DEFAULT_REGION,
     headed: bool = False,
     write_route: bool = True,
+    write_alignment: bool = True,
     capture_matchups: bool = True,
+    capture_sis_pass_tail: bool = True,
     ingest_odds: bool = True,
     ingest_props: bool = False,
     login_if_needed: bool = True,
@@ -119,6 +133,9 @@ def run_week(
     if week >= 2:
         _, fp_specs = fp.load_plan(fp_plan)
         fp.select_target_week(fp_specs, week)
+    if week >= 5:
+        _, alignment_specs = fp.load_plan(fp_alignment_plan)
+        fp.select_target_week(alignment_specs, week)
     if sis_plan is not None:
         sis.load_plan(sis_plan)
         sis.plan_request_ceiling(sis_plan)
@@ -136,9 +153,14 @@ def run_week(
         "region": region,
         "configuration": {
             "fantasy_points_plan": str(fp_plan) if week >= 2 else None,
+            "fantasy_points_alignment_plan": (
+                str(fp_alignment_plan) if week >= 5 else None
+            ),
             "sis_plan": str(sis_plan) if sis_plan is not None else None,
             "write_route": bool(write_route),
+            "write_alignment": bool(write_alignment),
             "capture_matchups": bool(capture_matchups),
+            "capture_sis_pass_tail": bool(capture_sis_pass_tail),
             "ingest_odds": bool(ingest_odds),
             "ingest_props": bool(ingest_props),
         },
@@ -223,7 +245,6 @@ def run_week(
             lambda: _run_cloud_job("ingest-props", project=project, region=region),
         )
 
-    fp_manifest: Path | None = None
     if week >= 2:
         fp_manifest = step(
             "fantasy-points-route-download",
@@ -234,6 +255,14 @@ def run_week(
                 headless=not headed,
                 timeout_seconds=timeout_seconds,
                 target_week=week,
+            ),
+        )
+        step(
+            "fantasy-points-route-import",
+            lambda: fantasy_points_route_weekly.run(
+                fp_manifest.parent,
+                target_week=week,
+                write=write_route,
             ),
         )
     if capture_matchups:
@@ -249,6 +278,26 @@ def run_week(
                 archive=True,
             ),
         )
+    if week >= 5:
+        fp_alignment_manifest = step(
+            "fantasy-points-alignment-download",
+            lambda: fp.run_downloads(
+                fp_alignment_plan,
+                fp_output_root,
+                fp_profile_dir,
+                headless=not headed,
+                timeout_seconds=timeout_seconds,
+                target_week=week,
+            ),
+        )
+        step(
+            "fantasy-points-alignment-import",
+            lambda: fantasy_points_alignment_weekly.run(
+                fp_alignment_manifest.parent,
+                target_week=week,
+                write=write_alignment,
+            ),
+        )
     if sis_plan is not None:
         step(
             "sis-approved-plan",
@@ -259,13 +308,23 @@ def run_week(
                 sis_plan,
             ),
         )
-    if fp_manifest is not None:
+    if week >= 5 and capture_sis_pass_tail:
+        sis_pass_tail_dir = sis_output_root / run_id / "pass-tail"
         step(
-            "fantasy-points-route-import",
-            lambda: fantasy_points_route_weekly.run(
-                fp_manifest.parent,
+            "sis-pass-tail-download",
+            lambda: sis.run_pass_tail_weekly_acquisition(
+                sis_profile_dir,
+                timeout_seconds,
+                sis_pass_tail_dir,
                 target_week=week,
-                write=write_route,
+            ),
+        )
+        step(
+            "sis-pass-tail-import",
+            lambda: sis_pass_tail_weekly.run(
+                sis_pass_tail_dir,
+                target_week=week,
+                write=True,
             ),
         )
 
@@ -290,6 +349,9 @@ def _parser() -> argparse.ArgumentParser:
     run = subparsers.add_parser("run", help="run the target-week acquisition workflow")
     run.add_argument("--week", type=int, required=True)
     run.add_argument("--fp-plan", type=Path, default=DEFAULT_FP_PLAN)
+    run.add_argument(
+        "--fp-alignment-plan", type=Path, default=DEFAULT_FP_ALIGNMENT_PLAN
+    )
     run.add_argument("--sis-plan", type=Path)
     run.add_argument("--project", default=DEFAULT_PROJECT)
     run.add_argument("--region", default=DEFAULT_REGION)
@@ -307,9 +369,15 @@ def _parser() -> argparse.ArgumentParser:
         action="store_true",
         help="validate Route Share without archiving/appending the guarded import",
     )
+    run.add_argument(
+        "--audit-only-alignment",
+        action="store_true",
+        help="validate alignment without archiving/appending the guarded import",
+    )
     run.add_argument("--include-props", action="store_true")
     run.add_argument("--skip-odds", action="store_true")
     run.add_argument("--skip-matchups", action="store_true")
+    run.add_argument("--skip-sis-pass-tail", action="store_true")
     run.add_argument("--no-login-if-needed", action="store_true")
     return parser
 
@@ -342,12 +410,15 @@ def main(argv: Sequence[str] | None = None) -> int:
         fp_output_root=args.fp_output_root,
         sis_output_root=args.sis_output_root,
         fp_plan=args.fp_plan,
+        fp_alignment_plan=args.fp_alignment_plan,
         sis_plan=args.sis_plan,
         project=args.project,
         region=args.region,
         headed=args.headed,
         write_route=not args.audit_only_route,
+        write_alignment=not args.audit_only_alignment,
         capture_matchups=not args.skip_matchups,
+        capture_sis_pass_tail=not args.skip_sis_pass_tail,
         ingest_odds=not args.skip_odds,
         ingest_props=args.include_props,
         login_if_needed=not args.no_login_if_needed,

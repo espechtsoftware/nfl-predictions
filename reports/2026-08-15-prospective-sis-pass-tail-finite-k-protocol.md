@@ -73,6 +73,39 @@ history, scoring shadows begin only when all common inputs pass their frozen
 minimum-support checks; an ineligible week is an explicit no-run, never a
 fallback to a different mechanism. No cross-season fallback is allowed.
 
+## Frozen recurring acquisition
+
+The operator-started Wednesday workflow is the only licensed acquisition
+path. For target Week 5 it retrieves source Weeks 1--4; for target Weeks
+6--18 it retrieves only the newly completed source Week W-1. Each run uses
+one freshly renewed SIS session and exactly five normal-UI, split-by-game
+Submits:
+
+1. team Pass Defense Totals, all alignments;
+2. team Pass Defense Value, all alignments;
+3. team Pass Rush Totals, all alignments;
+4. team Pass Defense Totals with target lined up Wide; and
+5. team Pass Defense Totals with target lined up Slot.
+
+The first three populate only the fields required by the pass-tail context;
+the two alignment slices populate only `Att` for ASOE. Every returned API row
+must identify season, source week, team, opponent, stable SIS team id and
+single-game grain, and every downloaded CSV must independently reproduce the
+scope and registered view. Exactly 200 rows is treated as truncation. The
+durable ceiling is seven Submit requests per target-week run: five planned
+requests plus two identical operational retries, never a license for another
+slice or report.
+
+Accepted raw bytes are archived under content-addressed GCS paths and rows are
+appended to `nfl_raw.sis_team_context_game` and
+`nfl_raw.sis_alignment_attempt_game` with nonblank run ids and hashes. The
+Week-5 backfill may add Weeks 1--4; later runs may add only W-1. Existing
+logical rows must be byte/provenance-identical or the import fails. The
+separate Fantasy Points alignment export is one grouped-header Player report
+for exact Weeks W-4--W-1 and appends target-week rows to the existing player
+and team alignment tables. No acquisition success relaxes the downstream
+support, cache, or complete-grid gates.
+
 ## Paired book and grading law
 
 For each eligible pre-lock snapshot, build control then treatment for each
@@ -89,4 +122,3 @@ overlap, source coverage, and operational failures. Intermediate checkpoints
 cannot promote the treatment. Any adoption/composition decision requires the
 full preregistered 2026 evidence or a separately frozen rule written before
 the relevant outcomes.
-

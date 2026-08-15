@@ -227,25 +227,34 @@ nfl-weekly-data run --week W
 
 It verifies the saved Fantasy Points session and deliberately forces a fresh
 SIS logout/login before starting the long work. It then continues on its own.
-The run triggers the deployed `ingest-odds` Cloud
-Run job (whose API key stays in Secret Manager), downloads and writes the
-strict-prior Route Share import, and captures/archives the three Fantasy
-Points matchup reports. It records a durable local manifest below ignored
-`weekly-data-runs/`. From Week 2, if Fantasy Points has not posted Week W-1 by 10:00am,
-retry Wednesday evening; it must finish before `s-features-route` begins
-Thursday at 6:30am CT.
+The run triggers the deployed `ingest-odds` Cloud Run job (whose API key stays
+in Secret Manager), downloads and writes the strict-prior Route Share import,
+and captures/archives the three Fantasy Points matchup reports. Beginning in
+target Week 5 it also runs the frozen grouped-header
+`2026-alignment-last-four-weekly-v1` export for exact Weeks W-4--W-1, plus the
+five registered SIS pass-tail views. Week 5 retrieves SIS source Weeks 1--4;
+Weeks 6--18 retrieve only the newly completed W-1. Both importers archive raw
+bytes by SHA-256 and append only novel rows to the existing licensed tables;
+any target/future week, schema drift or provenance conflict aborts. It records
+a durable local manifest below ignored `weekly-data-runs/`. If completed data
+has not posted by 10:00am, retry Wednesday evening; Route Share must finish
+before `s-features-route` Thursday at 6:30am and Week-5+ pass-tail inputs must
+finish before the isolated caches at 9:15/9:20am CT.
 
 This on-demand Odds API snapshot supplements rather than replaces the normal
 game-odds schedule (9:00am and 3:00pm CT Wednesday-Sunday). Player props keep
 their Thursday 11:00am CT cloud schedule; use `--include-props` only for an
 intentional extra snapshot because each provider request consumes quota.
 
-SIS is deliberately session-checked but does not spend paid queries in the
-default command: no SIS family has yet passed into a recurring production or
-prospective plan. Once a recurring plan is evidence-approved and checked in,
-add `--sis-plan automation/sis/plans/<approved-plan>.json`; the same command
-will then execute it after both logins. Never point this weekly command at a
-closed historical research tranche.
+Before Week 5 SIS is deliberately session-checked without a query. From Week
+5 the default command spends exactly the five normal-UI Submit requests
+licensed by the prospective pass-tail protocol, under a durable seven-request
+ceiling that reserves two identical operational retries. `--sis-plan` is
+still available only for a different evidence-approved declarative plan; it
+does not replace or broaden the pass-tail acquisition. Never point the weekly
+command at a closed historical research tranche. Emergency audit switches
+`--audit-only-alignment` and `--skip-sis-pass-tail` are fail-closed diagnostic
+controls, not permission to run the downstream caches with missing inputs.
 
 ## Prospective matchup snapshots
 
