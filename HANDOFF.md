@@ -69,9 +69,12 @@ agent or developer:
   in-progress. The 54-slate read-only preflight now passes: it maps 597 games
   and classifies 202 not started, 395 in progress and zero independently
   timestamp-proven final at 3:55 PM; 3,033 untimed administrative rows are
-  explicitly excluded. On success record the complete test
-  count and immutable digest, verify both registered GCS objects are absent,
-  and launch the runner exactly once.
+  explicitly excluded. The repair is pushed at full SHA
+  `eec6b863c025dd9398cdc54f80d4830dbaf3b763`; replacement exact-archive
+  Cloud Build `9c986e57-19e5-4819-9676-bf749b0807cd` is running under tag
+  `realistic-recourse-eec6b86`. On success record the complete test count and
+  immutable digest, verify both registered GCS objects are absent, and launch
+  the runner exactly once.
 
 - The production-exact forensic correction completed successfully as
   execution `post-forensic-stack-addendum-v1-smrps` at
