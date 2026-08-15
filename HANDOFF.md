@@ -743,9 +743,13 @@ agent or developer:
   report SHA-256 is
   `ff456093841266cba1b0293dd56b0e2d5089588a61518568706900617eff6ad1`.
   This is still a source receipt, not a scientific result. These exact pins
-  now license a full-suite image build containing the source1 census code;
-  after that build passes, launch only the 2023 plumbing preflight before the
-  full 54-slate census.
+  licensed source1 census Cloud Build
+  `e938683f-7079-43e6-a1df-dd110c2a5cc6`, submitted in `us-central1` from the
+  committed tree at exact full SHA
+  `3ee4231b72c4b9ad6920972c9560885470a01bfd` under image tag
+  `exact-p-source1-3ee4231`. Require the complete suite and image construction
+  to pass and resolve the immutable digest; only then launch the 2023 plumbing
+  preflight before the full 54-slate census.
   The second requested narrow check is also implemented as the pure
   `validate_exact_p_census_plumbing` preflight. On exactly the 18 2023 slates
   it audits corrected-P legality, all five native books, family labels and
