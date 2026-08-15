@@ -723,9 +723,16 @@ agent or developer:
   `exact-p-corrected-ids-preflight-xp5zq` from that digest/code. Its
   create-only manifest and execution receipt are tracked under
   `reports/exact-p-corrected-identity-runs/20260815-exact-p-corrected-identities-v1/preflight-2023/`.
-  Poll it to terminal success and run
-  `scripts/cloud_finish_exact_p_corrected_identity_source.sh preflight-2023`;
-  the full source remains locked until that strict receipt exists.
+  It completed successfully at `2026-08-15T21:56:17.717797Z` in 2m48s.
+  `scripts/cloud_finish_exact_p_corrected_identity_source.sh preflight-2023`
+  strictly harvested an 18-slate receipt at SHA-256
+  `43f7f97e2f04531809ab17001114a3287004533bad31c537d0c031065cb81991`.
+  The receipt proves exact-stack scores/tails were reproduced and all 162
+  roster slots were independently legal while persisting no roster identity,
+  outcome, candidate score or membership. It is explicitly not a scientific
+  result. The full 54-slate identity-only source stage is now licensed; launch
+  it from the same immutable digest and source commit, then strictly harvest
+  and hash/generation-pin it before building the source1 census image.
   The second requested narrow check is also implemented as the pure
   `validate_exact_p_census_plumbing` preflight. On exactly the 18 2023 slates
   it audits corrected-P legality, all five native books, family labels and
