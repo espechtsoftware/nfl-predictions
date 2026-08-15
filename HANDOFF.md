@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 22:16 CDT
+## Current state — 2026-08-14 22:18 CDT
 
 ### 2026-08-14 forensic runtime repaired; variance and corpus-understanding addenda implemented
 
@@ -208,6 +208,16 @@ agent or developer:
   timeout. Next concrete action: poll it to terminal without launching another;
   if successful, validate all nine JSON outputs and all four tables before
   interpreting any result.
+- Execution `final-preseason-forensic-v1-lnwsc` failed before argparse and
+  before any outcome query because the gcloud alternate argument delimiter
+  `@` collided with the image's `@sha256:` separator. Exit 2 reported the
+  digest fragment as an unrecognized argument. The output prefix and all four
+  repair4 tables remained absent. The job definition was corrected using `|`
+  as the delimiter, and the fully rendered command was inspected: it contains
+  the exact manifest, complete image digest, full code SHA and repair4 output
+  root as separate arguments. Byte-identical/configuration-only retry
+  `final-preseason-forensic-v1-gqssz` is now the sole live run. Next concrete
+  action: poll it to terminal without launching another.
 
 ### 2026-08-14 final-forensic audit expanded; decision-structure queue registered
 
