@@ -280,8 +280,15 @@ agent or developer:
   code did not fail and no image/result was produced. That assertion now uses
   the project's normal numeric tolerance for all four synthetic score values;
   the combined SIS calibration and exact-P focused suite passes locally.
-  Commit/build this test-only validation repair, then rerun the unchanged sole
-  census from the superseding passing image. Its only licensed output is
+  The test-only repair is committed/pushed at exact full SHA
+  `05a255166d3466c280cef376b21226646b36e6b3`. Exact-archive build
+  `16037cd8-cafd-491b-a722-1677c1998d58` was submitted, then intentionally
+  canceled while still queued at `2026-08-15T17:44:25.194912219Z`: the project
+  has one active Cloud Build slot and the newer job would otherwise have run
+  ahead of the dependency-critical SIS downloader repair while its vendor
+  session ages. No test or image step started. Resubmit the unchanged exact
+  archive after the SIS minima build/acquisition has the slot, then rerun the
+  unchanged sole census from the superseding passing image. Its only licensed output is
   `gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/post-forensic-addenda/20260815-exact-p-generator-constraint-census-v1/result.json`.
   No local or alternative membership run is licensed.
 
