@@ -41,6 +41,12 @@ def test_atlas_cloud_contract_is_create_only_and_packaged():
     assert "--memory 32Gi" in launch
     assert "--max-retries 0" in launch
     assert "COPY scripts/run_atlas_world_ranking.py" in docker
+    assert "manifest.txt" in launch
+    assert "execution.txt" in launch
+    finish = (ROOT / "scripts/cloud_finish_atlas_world_ranking.sh").read_text()
+    assert "len(report.get(\"source_artifacts\", [])) != 270" in finish
+    assert "gate.get(\"rows\") != 270" in finish
+    assert "uses_realized_outcomes" in finish
 
 
 def test_atlas_player_catalog_may_include_authoritative_only_rows():

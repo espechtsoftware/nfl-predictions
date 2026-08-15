@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 14:47 CDT
+## Current state — 2026-08-15 14:51 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -61,6 +61,12 @@ agent or developer:
   `git diff --check` pass. Build an exact
   immutable image, but run this score-free 32-GiB job only after the SIS chain
   and exact-P census release the single large Cloud Run slot.
+  ATLAS now also has a tracked launch manifest/execution receipt and strict
+  finisher. It will retain a result only after verifying exact source/code/
+  image identities, 270 artifact receipts and diagnostics, 54 slates, the
+  bounded 40--80 exact-world union on every diagnostic, the complete frozen
+  six-condition gate and the explicit no-promotion consequence. Eight focused
+  ATLAS tests and both shell syntax checks pass.
   The companion pure CBWU seed-order audit is implemented in
   `inference/multiseed_portfolio.py`. It holds the canonical R0 realized
   candidate budget fixed across all five cyclic first-source/quota orders,
