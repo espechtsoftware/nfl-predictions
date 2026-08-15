@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 03:02 CDT
+## Current state — 2026-08-15 03:19 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -387,19 +387,24 @@ agent or developer:
   the live verifier fails closed with exit 2 as designed. Thirty-seven focused
   ownership/download/weekly-workflow tests, module compilation and
   `git diff --check` pass locally. Exact clean-archive Cloud Build
-  `8b2b5af3-b734-46bb-b891-be1a0459c0eb` is validating that code SHA and will
-  publish tag `fp-ownership-auth-83949e1` only after the complete suite passes.
+  `8b2b5af3-b734-46bb-b891-be1a0459c0eb` completed successfully at
+  `2026-08-15T08:18:04.923959Z`: 1,398 tests passed, 2 were skipped and 5
+  warnings were emitted in 732.28 seconds. Published tag
+  `fp-ownership-auth-83949e1` resolves to immutable digest
+  `sha256:b46bb67c6a7d313132bfba92a59d470359b9fc7640a6278872c94b9f42682472`.
   Do not claim row collection or entitlement is validated until the operator
   authenticates this normal surface and the real 2026 table/export DOM is
   frozen; the Data Suite cookie alone is not sufficient.
+- The expected local `.venv` remains intact after the workstation's Gemini CLI
+  changes: it uses Python 3.14.4, `pip check` reports no broken requirements,
+  and `import nfl_dfs` succeeds. No local environment repair is required.
 - Next concrete action: the first authenticated pass-tail acquisition smoke
   cannot occur until complete 2026 Weeks 1--4 data exist; until then every
   downstream cache/shadow fails closed and all three schedulers stay paused.
-  Poll/harvest Cloud Build `8b2b5af3-b734-46bb-b891-be1a0459c0eb`. Continue
-  the projected-ownership collector by authenticating its separate normal
-  website session, then run `fantasy-points-ownership inspect` and freeze the
-  real row/export contract before the first 2026 snapshot. Separately, install
-  the Cloud Run proxy package with
+  Continue the projected-ownership collector by authenticating its separate
+  normal website session, then run `fantasy-points-ownership inspect` and
+  freeze the real row/export contract before the first 2026 snapshot.
+  Separately, install the Cloud Run proxy package with
   operator sudo when available and run the outcome-free recourse rehearsal
   through authenticated IAP. Preserve the Week 1 readiness and forensic
   cleanup gates, do not launch another historical score arm, and do not delete
