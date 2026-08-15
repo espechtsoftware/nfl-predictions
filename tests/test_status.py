@@ -153,6 +153,17 @@ def test_route_share_status_is_visible_but_shadow_does_not_page():
     assert "source Week W-1" in feed.note
 
 
+def test_injury_snapshot_status_pages_on_missed_daily_capture():
+    feed = next(
+        item for item in status.FEEDS if item.key == "injury_snapshots"
+    )
+    assert feed.table == "injury_snapshots"
+    assert feed.season == "nfl"
+    assert feed.alert
+    assert feed.max_age_h == 36
+    assert "collector time" in feed.note
+
+
 def test_nav_html_requires_ephemeral_gpp_standings_capture():
     assert "full contest standings CSV" in app_main._NAV_HTML
     assert "ownership for exact placement and ROI analysis" in app_main._NAV_HTML

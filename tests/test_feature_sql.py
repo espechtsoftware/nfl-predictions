@@ -247,9 +247,14 @@ def test_injury_rows_are_latest_revision_available_at_slate_lock():
     ).read_text()
     assert "slate_locks AS" in injury
     assert "i.date_modified <= l.slate_lock_at" in injury
-    assert "PARTITION BY i.gsis_id" in injury
-    assert "ORDER BY i.date_modified DESC" in injury
+    assert "`${raw}.injury_snapshots`" in injury
+    assert "i.pulled_at <= l.slate_lock_at" in injury
+    assert "i.date_modified <= i.pulled_at" in injury
+    assert "PARTITION BY gsis_id, season, week" in injury
+    assert "ORDER BY injury_information_at DESC" in injury
     assert "injury_source_modified_at" in injury
+    assert "injury_snapshot_pulled_at" in injury
+    assert "injury_source_kind" in injury
 
 
 @pytest.mark.parametrize("path", FEATURE_SQL, ids=lambda p: p.name)

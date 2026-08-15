@@ -10,6 +10,7 @@ def test_irreplaceable_tables_covered():
     # The tables a >7-day-late discovery could not rebuild from source.
     for must in ("contest_ownership", "manual_notes", "player_watch_notes",
                  "entered_lineups", "dk_salaries_historical",
+                 "injury_snapshots",
                  "fantasy_points_route_share",
                  "fantasy_points_advanced_prior",
                  "fantasy_points_receiver_coverage_l4",

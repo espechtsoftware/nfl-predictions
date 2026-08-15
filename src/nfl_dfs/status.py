@@ -42,19 +42,22 @@ class Feed:
     note: str = ""
 
 
-# Thresholds follow the LIVE scheduler cadences (verified 2026-07-31), not
-# README §11's aspirational ones: s-nflverse/s-features/s-train/s-project-tu
-# all run weekly on Tuesdays, so their bar is 8 days (one missed Tuesday ->
-# stale). s-odds runs 9:00/15:00 CT Wed-Sun (worst gap ~66h -> 78h bar).
+# Thresholds follow the LIVE scheduler cadences, not merely README §11's
+# targets. nflverse is daily in-season so collector-time injury observations
+# have a 36-hour bar; feature/training/projection chains remain weekly, hence
+# their 8-day bars. s-odds runs 9:00/15:00 CT Wed-Sun (worst gap ~66h -> 78h).
 #
-# The Tuesday chain feeds are 'nfl'-seasonal, not 'always': their schedulers
-# are PAUSED in the off-season (2026-07-31 — re-ingesting a finished season
-# weekly is pure waste). Resume before week 1 (see the week-1 checklist);
+# The NFL chain feeds are 'nfl'-seasonal, not 'always': their schedulers are
+# PAUSED in the off-season (2026-07-31 — re-ingesting a finished season is
+# pure waste). Resume before week 1 (see the week-1 checklist);
 # if forgotten, these feeds go active Sep 1 and check-freshness emails.
 FEEDS: tuple[Feed, ...] = (
     Feed("pbp", "Play-by-play (nflverse)", "raw", "pbp", 8 * 24, "nfl"),
     Feed("weekly_stats", "Weekly stats (nflverse)", "raw", "weekly_stats",
          8 * 24, "nfl"),
+    Feed("injury_snapshots", "Pre-lock injury snapshots", "raw",
+         "injury_snapshots", 36, "nfl",
+         note="append-only collector time; final source rows are not backdated"),
     Feed("schedules", "Schedules + closing lines", "raw", "schedules",
          8 * 24, "nfl"),
     Feed("dk_salaries", "DK slates/salaries", "raw", "dk_salaries", 36, "nfl"),

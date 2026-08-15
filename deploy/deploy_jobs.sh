@@ -100,7 +100,10 @@ job check-freshness  check-freshness 1Gi 1
 # runbook: s-nflverse/s-features/s-train*/s-project-*/s-shadow-* and
 # s-freeze-tail-* are PAUSED in the
 # off-season and resumed ~Aug 24) --------------------------------------------
-sched s-nflverse    ingest-nflverse "0 5 * * 2"
+# nflverse's final injury files may omit source modification timestamps. A
+# daily in-season pull gives the append-only injury collector actual pre-lock
+# observation times; the scheduler remains paused in the off-season.
+sched s-nflverse    ingest-nflverse "0 5 * * *"
 sched s-features    build-features  "30 6 * * 2"
 sched s-train       train-weekly    "30 7 * * 2"
 sched s-train-k1    train-weekly-k1 "30 8 * * 2"

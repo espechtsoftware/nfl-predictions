@@ -35,6 +35,10 @@ TABLES: list[tuple[str, str]] = [
     ("raw", "dk_salaries_historical"),
     ("raw", "showdown_salaries_historical"),
     ("raw", "dk_contest_fills"),  # dk_contest_fills_nfl is a VIEW — skip
+    # Collector time is the only PIT provenance when nflverse omits the
+    # upstream injury modification time; these observations are not
+    # reconstructible from the final season file.
+    ("raw", "injury_snapshots"),
     ("raw", "fantasy_points_route_share"),
     ("raw", "fantasy_points_advanced_prior"),
     ("raw", "fantasy_points_receiver_coverage_l4"),

@@ -725,12 +725,15 @@ INJURY_FEATURES = [
     "practice_level", "practice_participation_trend", "games_missed_l4",
 ]
 INJURY_EXACT_FIELDS = [
-    "injury_status", "injury_source_modified_at", "slate_lock_at",
+    "injury_status", "injury_source_modified_at",
+    "injury_snapshot_pulled_at", "injury_information_at",
+    "injury_source_kind", "slate_lock_at",
 ]
 INJURY_BUILT_SQL = """
 SELECT gsis_id, season, week, injury_status, practice_level,
        practice_participation_trend, games_missed_l4,
-       injury_source_modified_at, slate_lock_at
+       injury_source_modified_at, injury_snapshot_pulled_at,
+       injury_information_at, injury_source_kind, slate_lock_at
 FROM `{features}.player_week_injury`
 WHERE MOD(FARM_FINGERPRINT(gsis_id), 20) = 0
 """
@@ -747,7 +750,7 @@ WITH slate_locks AS (
     AND SAFE.PARSE_TIME('%H:%M', gametime) >= TIME '13:00:00'
     AND SAFE.PARSE_TIME('%H:%M', gametime) < TIME '19:00:00'
   GROUP BY season, week
-), injury AS (
+), source_modified AS (
   SELECT i.gsis_id, CAST(i.season AS INT64) AS season,
          CAST(i.week AS INT64) AS week, i.report_status AS injury_status,
          CASE i.practice_status
@@ -755,15 +758,47 @@ WITH slate_locks AS (
            WHEN 'Limited Participation in Practice' THEN 1.0
            WHEN 'Full Participation in Practice' THEN 2.0
          END AS practice_level,
-         i.date_modified AS injury_source_modified_at, l.slate_lock_at
+         i.date_modified AS injury_source_modified_at,
+         CAST(NULL AS TIMESTAMP) AS injury_snapshot_pulled_at,
+         i.date_modified AS injury_information_at,
+         'source_modified' AS injury_source_kind,
+         i.team, i.practice_status, l.slate_lock_at
   FROM `{raw}.injuries` i
   JOIN slate_locks l
     ON l.season = CAST(i.season AS INT64)
    AND l.week = CAST(i.week AS INT64)
   WHERE i.gsis_id IS NOT NULL AND i.date_modified <= l.slate_lock_at
+), collector_snapshot AS (
+  SELECT i.gsis_id, CAST(i.season AS INT64) AS season,
+         CAST(i.week AS INT64) AS week, i.report_status AS injury_status,
+         CASE i.practice_status
+           WHEN 'Did Not Participate In Practice' THEN 0.0
+           WHEN 'Limited Participation in Practice' THEN 1.0
+           WHEN 'Full Participation in Practice' THEN 2.0
+         END AS practice_level,
+         i.date_modified AS injury_source_modified_at,
+         i.pulled_at AS injury_snapshot_pulled_at,
+         i.pulled_at AS injury_information_at,
+         'collector_snapshot' AS injury_source_kind,
+         i.team, i.practice_status, l.slate_lock_at
+  FROM `{raw}.injury_snapshots` i
+  JOIN slate_locks l
+    ON l.season = CAST(i.season AS INT64)
+   AND l.week = CAST(i.week AS INT64)
+  WHERE i.gsis_id IS NOT NULL
+    AND i.pulled_at <= l.slate_lock_at
+    AND (i.date_modified IS NULL OR i.date_modified <= i.pulled_at)
+), candidates AS (
+  SELECT * FROM source_modified
+  UNION ALL
+  SELECT * FROM collector_snapshot
+), injury AS (
+  SELECT * FROM candidates
   QUALIFY ROW_NUMBER() OVER (
-    PARTITION BY i.gsis_id, CAST(i.season AS INT64), CAST(i.week AS INT64)
-    ORDER BY i.date_modified DESC, i.team DESC, i.practice_status DESC
+    PARTITION BY gsis_id, season, week
+    ORDER BY injury_information_at DESC,
+             IF(injury_source_kind = 'collector_snapshot', 0, 1),
+             team DESC, practice_status DESC
   ) = 1
 ), missed AS (
   SELECT i.gsis_id, i.season, i.week,
@@ -779,7 +814,8 @@ SELECT i.gsis_id, i.season, i.week, i.injury_status, i.practice_level,
          PARTITION BY i.gsis_id, i.season ORDER BY i.week
        ) AS practice_participation_trend,
        COALESCE(m.games_missed_l4, 0) AS games_missed_l4,
-       i.injury_source_modified_at, i.slate_lock_at
+       i.injury_source_modified_at, i.injury_snapshot_pulled_at,
+       i.injury_information_at, i.injury_source_kind, i.slate_lock_at
 FROM injury i LEFT JOIN missed m USING (gsis_id, season, week)
 WHERE MOD(FARM_FINGERPRINT(i.gsis_id), 20) = 0
 """
@@ -800,15 +836,27 @@ WITH panel_weeks AS (
     AND SAFE.PARSE_TIME('%H:%M', gametime) >= TIME '13:00:00'
     AND SAFE.PARSE_TIME('%H:%M', gametime) < TIME '19:00:00'
   GROUP BY season, week
-), eligible AS (
-  SELECT l.season, l.week, COUNT(*) AS eligible_source_rows
+), eligible_rows AS (
+  SELECT l.season, l.week, i.gsis_id
   FROM slate_locks l
   JOIN `{raw}.injuries` i
     ON CAST(i.season AS INT64) = l.season
    AND CAST(i.week AS INT64) = l.week
    AND i.gsis_id IS NOT NULL
    AND i.date_modified <= l.slate_lock_at
-  GROUP BY l.season, l.week
+  UNION ALL
+  SELECT l.season, l.week, i.gsis_id
+  FROM slate_locks l
+  JOIN `{raw}.injury_snapshots` i
+    ON CAST(i.season AS INT64) = l.season
+   AND CAST(i.week AS INT64) = l.week
+   AND i.gsis_id IS NOT NULL
+   AND i.pulled_at <= l.slate_lock_at
+   AND (i.date_modified IS NULL OR i.date_modified <= i.pulled_at)
+), eligible AS (
+  SELECT season, week, COUNT(*) AS eligible_source_rows
+  FROM eligible_rows
+  GROUP BY season, week
 ), built AS (
   SELECT season, week, COUNT(*) AS built_rows
   FROM `{features}.player_week_injury`

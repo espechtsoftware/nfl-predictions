@@ -1,6 +1,7 @@
--- Injury designation and practice-participation trend, point-in-time: the
--- report for week W is published before W's games, so same-week rows are
--- legitimately knowable. Games missed uses strictly-prior weeks.
+-- Injury designation and practice-participation trend, point-in-time. A
+-- same-week row is knowable only when either its source modification time or
+-- our append-only collector observation time is at/before the common slate
+-- lock. Games missed uses strictly-prior weeks.
 CREATE OR REPLACE TABLE `${features}.player_week_injury` AS
 WITH slate_locks AS (
   -- Historical training and replay use the common Sunday-main lock, not a
@@ -17,7 +18,7 @@ WITH slate_locks AS (
     AND SAFE.PARSE_TIME('%H:%M', gametime) >= TIME '13:00:00'
     AND SAFE.PARSE_TIME('%H:%M', gametime) < TIME '19:00:00'
   GROUP BY season, week
-), inj AS (
+), source_modified AS (
   SELECT
     i.gsis_id,
     -- nflverse ships these as FLOAT in the injuries dataset (null-driven
@@ -34,15 +35,58 @@ WITH slate_locks AS (
        END
     ]) v WHERE v IS NOT NULL) AS practice_level,
     i.date_modified AS injury_source_modified_at,
+    CAST(NULL AS TIMESTAMP) AS injury_snapshot_pulled_at,
+    i.date_modified AS injury_information_at,
+    'source_modified' AS injury_source_kind,
+    i.team,
+    i.practice_status,
     l.slate_lock_at
   FROM `${raw}.injuries` i
   JOIN slate_locks l
     ON l.season = CAST(i.season AS INT64)
    AND l.week = CAST(i.week AS INT64)
   WHERE i.gsis_id IS NOT NULL AND i.date_modified <= l.slate_lock_at
+), collector_snapshot AS (
+  SELECT
+    i.gsis_id,
+    CAST(i.season AS INT64) AS season,
+    CAST(i.week AS INT64) AS week,
+    i.report_status AS injury_status,
+    (SELECT AVG(v) FROM UNNEST([
+       CASE i.practice_status
+         WHEN 'Did Not Participate In Practice' THEN 0.0
+         WHEN 'Limited Participation in Practice' THEN 1.0
+         WHEN 'Full Participation in Practice' THEN 2.0
+       END
+    ]) v WHERE v IS NOT NULL) AS practice_level,
+    i.date_modified AS injury_source_modified_at,
+    i.pulled_at AS injury_snapshot_pulled_at,
+    i.pulled_at AS injury_information_at,
+    'collector_snapshot' AS injury_source_kind,
+    i.team,
+    i.practice_status,
+    l.slate_lock_at
+  FROM `${raw}.injury_snapshots` i
+  JOIN slate_locks l
+    ON l.season = CAST(i.season AS INT64)
+   AND l.week = CAST(i.week AS INT64)
+  WHERE i.gsis_id IS NOT NULL
+    AND i.pulled_at <= l.slate_lock_at
+    -- A malformed source timestamp later than the observation itself cannot
+    -- be smuggled in through an otherwise-valid collector timestamp.
+    AND (i.date_modified IS NULL OR i.date_modified <= i.pulled_at)
+), candidates AS (
+  SELECT * FROM source_modified
+  UNION ALL
+  SELECT * FROM collector_snapshot
+), inj AS (
+  SELECT *
+  FROM candidates
   QUALIFY ROW_NUMBER() OVER (
-    PARTITION BY i.gsis_id, CAST(i.season AS INT64), CAST(i.week AS INT64)
-    ORDER BY i.date_modified DESC, i.team DESC, i.practice_status DESC
+    PARTITION BY gsis_id, season, week
+    ORDER BY injury_information_at DESC,
+             IF(injury_source_kind = 'collector_snapshot', 0, 1),
+             team DESC, practice_status DESC
   ) = 1
 ),
 missed AS (
@@ -65,6 +109,9 @@ SELECT
   ) AS practice_participation_trend,
   COALESCE(m.games_missed_l4, 0) AS games_missed_l4,
   i.injury_source_modified_at,
+  i.injury_snapshot_pulled_at,
+  i.injury_information_at,
+  i.injury_source_kind,
   i.slate_lock_at
 FROM inj i
 LEFT JOIN missed m USING (gsis_id, season, week);

@@ -240,8 +240,11 @@ def test_usage_reference_covers_active_and_fast_role_fields():
 
 def test_injury_and_vacancy_references_enforce_prelock_sources():
     assert "i.date_modified <= l.slate_lock_at" in INJURY_EXPECTED_SQL
+    assert "FROM `{raw}.injury_snapshots`" in INJURY_EXPECTED_SQL
+    assert "i.pulled_at <= l.slate_lock_at" in INJURY_EXPECTED_SQL
+    assert "i.date_modified <= i.pulled_at" in INJURY_EXPECTED_SQL
     assert "ROW_NUMBER() OVER" in INJURY_EXPECTED_SQL
-    assert "ORDER BY i.date_modified DESC" in INJURY_EXPECTED_SQL
+    assert "ORDER BY injury_information_at DESC" in INJURY_EXPECTED_SQL
     assert "prior.week BETWEEN i.week - 4 AND i.week - 1" in \
         INJURY_EXPECTED_SQL
     assert "u.week <= o.week" in VACATED_EXPECTED_SQL
@@ -249,6 +252,10 @@ def test_injury_and_vacancy_references_enforce_prelock_sources():
     assert "FROM `{features}.player_week_training`" in \
         INJURY_LOCK_COVERAGE_SQL
     assert "i.date_modified <= l.slate_lock_at" in \
+        INJURY_LOCK_COVERAGE_SQL
+    assert "JOIN `{raw}.injury_snapshots`" in \
+        INJURY_LOCK_COVERAGE_SQL
+    assert "i.pulled_at <= l.slate_lock_at" in \
         INJURY_LOCK_COVERAGE_SQL
 
 
