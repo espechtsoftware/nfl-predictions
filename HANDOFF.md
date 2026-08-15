@@ -888,7 +888,7 @@ agent or developer:
   Exact clean-archive Cloud Build
   `ebfeb78d-ff52-4bba-99c0-2fe860bd3068` is now validating this diagnostic in
   `us-central1` from full commit
-  `486643c3a61d1956675cd7d3d2356b52978ad9aa` under tag
+  `486643cd6b453dbed6bae79ba350e6a72c62cacd` under tag
   `cbwu-oi-construction-486643c`. Require the complete suite and immutable
   digest before launch; the build may run beside the exact-P census, but the
   construction Cloud Run job must wait for the 32-GiB slot.
