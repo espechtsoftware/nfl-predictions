@@ -104,10 +104,19 @@ agent or developer:
   No score summary was emitted or inspected; `outputs-repair2` has no objects
   and all four warehouse tables remain absent. The repair renames the resolved
   winner position, verifies it exactly against the feature position, and then
-  retains the canonical feature `pos`. Next concrete action: run the focused
-  regression plus complete exact-commit build, freeze/upload/validate a new
-  repair3 image and manifest, and only then launch one zero-retry outcome run
-  to a new output prefix.
+  retains the canonical feature `pos`. Focused forensic tests pass.
+- Exact-commit Cloud Build `06d2a532-d865-42d0-83cd-990f3d17a456`
+  succeeded from pushed SHA `bc3a1c060d23433df2ccd0126aeab54c269e3ecf`.
+  The complete suite passed 1,332 tests with 2 skipped and 5 warnings in
+  976.12 seconds. Immutable image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:718b1a7d6d8011ff7b7677e916e4992166f6484418151b28633e45b7353db2a9`.
+  The locally validated `freeze_manifest_repair3.json` has internal manifest
+  SHA-256 `122303a1fc14ae76c9379010eb632b8c4ae837408d4726fe47611ec88be20ce7`
+  and file SHA-256
+  `bdd4afa398ae8739319553725b8f6b4ef052e478d505746bed22d751732f051d`.
+- Next concrete action: commit/push and upload the repair3 manifest create-only,
+  run the exact-image full prelock validator, and only after it passes launch
+  one zero-retry outcome execution to `outputs-repair3`.
 
 ### 2026-08-14 final-forensic audit expanded; decision-structure queue registered
 

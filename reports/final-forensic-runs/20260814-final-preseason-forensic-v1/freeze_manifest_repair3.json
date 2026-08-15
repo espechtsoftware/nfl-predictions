@@ -1,0 +1,3592 @@
+{
+  "analysis_checklist": [
+    {
+      "evidence_class": "confirmatory",
+      "id": "provenance_and_terminal_arm_ledger",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "confirmatory",
+      "id": "authoritative_score_salary_legality_parity",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "confirmatory",
+      "id": "hpcs_additive_opportunity_decomposition",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "confirmatory",
+      "id": "exact80_tail_grid_and_weekly_maxima",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "confirmatory",
+      "id": "nested_20_40_80_entry_curve",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "confirmatory",
+      "id": "contest_payout_roi_cash_drawdown",
+      "required_disposition": "compute_or_unidentifiable"
+    },
+    {
+      "evidence_class": "confirmatory",
+      "id": "winner_places_2_through_5_comparison",
+      "required_disposition": "compute_or_unidentifiable"
+    },
+    {
+      "evidence_class": "confirmatory",
+      "id": "salary_to_selected_player_capture_funnel",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "confirmatory",
+      "id": "served_marginal_calibration_and_rank",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "confirmatory",
+      "id": "candidate_signal_rank_and_probability_skill",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "confirmatory",
+      "id": "unselected_high_score_near_miss_frontier",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "exploratory",
+      "id": "generator_tag_yield_and_overlap",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "exploratory",
+      "id": "route_share_pool_admission_bound",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "exploratory",
+      "id": "roster_construction_shape_inventory",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "exploratory",
+      "id": "salary_and_positional_spend",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "exploratory",
+      "id": "selected_exposure_vs_realized_value",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "exploratory",
+      "id": "historical_ownership_and_duplication_proxy",
+      "required_disposition": "compute_or_unidentifiable"
+    },
+    {
+      "evidence_class": "confirmatory",
+      "id": "joint_score_and_tail_dependence",
+      "required_disposition": "reference_frozen"
+    },
+    {
+      "evidence_class": "exploratory",
+      "id": "paired_nonstationary_evt_diagnostic",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "exploratory",
+      "id": "late_swap_recourse_ceiling",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "exploratory",
+      "id": "effective_rank_spectral_and_random_controls",
+      "required_disposition": "reference_frozen"
+    },
+    {
+      "evidence_class": "exploratory",
+      "id": "slate_relative_rank_ap_and_ndcg",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "exploratory",
+      "id": "winner_inverse_belief_distance",
+      "required_disposition": "compute_or_unidentifiable"
+    },
+    {
+      "evidence_class": "exploratory",
+      "id": "prelock_regime_splits",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "exploratory",
+      "id": "within_season_failure_autocorrelation",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "exploratory",
+      "id": "season_drift_and_leave_one_season_out",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "exploratory",
+      "id": "feature_missingness_error_census",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "confirmatory",
+      "id": "source_pit_join_backup_readiness_census",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "exploratory",
+      "id": "panel_factor_design_rank_and_estimability",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "exploratory",
+      "id": "between_arm_variance_common_slates",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "exploratory",
+      "id": "corpus_understanding_toolkit",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "exploratory",
+      "id": "arm_effect_breadth_uncertainty_and_kill_list",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "exploratory",
+      "id": "cloud_runtime_data_cost_census",
+      "required_disposition": "compute_or_unidentifiable"
+    },
+    {
+      "evidence_class": "exploratory",
+      "id": "prospective_opportunity_register_and_charter",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "confirmatory",
+      "id": "week1_end_to_end_dress_rehearsal",
+      "required_disposition": "pending_external"
+    },
+    {
+      "evidence_class": "confirmatory",
+      "id": "adversarial_exhaustion_certificate",
+      "required_disposition": "compute"
+    },
+    {
+      "evidence_class": "confirmatory",
+      "id": "independent_deterministic_reproduction",
+      "required_disposition": "post_review_gate"
+    },
+    {
+      "evidence_class": "confirmatory",
+      "id": "forensic_corpus_cleanup_before_production",
+      "required_disposition": "post_review_gate"
+    }
+  ],
+  "analysis_code_sha": "bc3a1c060d23433df2ccd0126aeab54c269e3ecf",
+  "analysis_contract": [
+    {
+      "id": "provenance_and_arm_ledger",
+      "output_path": "reports/final-forensic-runs/20260814-final-preseason-forensic-v1/01-provenance_and_arm_ledger.json",
+      "schema": [
+        "manifest_sha256",
+        "production",
+        "panels",
+        "arm_ledger",
+        "report_inventory",
+        "artifact_inventory",
+        "warehouse_retention",
+        "analysis_checklist"
+      ]
+    },
+    {
+      "id": "opportunity_decomposition",
+      "output_path": "reports/final-forensic-runs/20260814-final-preseason-forensic-v1/02-opportunity_decomposition.json",
+      "schema": [
+        "season",
+        "week",
+        "scope",
+        "H",
+        "P",
+        "C",
+        "S",
+        "gaps",
+        "thresholds",
+        "first_failed_layer"
+      ]
+    },
+    {
+      "id": "portfolio_entry_count_and_money",
+      "output_path": "reports/final-forensic-runs/20260814-final-preseason-forensic-v1/03-portfolio_entry_count_and_money.json",
+      "schema": [
+        "scope",
+        "entry_count",
+        "portfolio_prefix",
+        "contest_assumptions",
+        "payout_scenarios",
+        "duplication_scenarios",
+        "roi_bounds"
+      ]
+    },
+    {
+      "id": "player_capture_calibration_and_dependence",
+      "output_path": "reports/final-forensic-runs/20260814-final-preseason-forensic-v1/04-player_capture_calibration_and_dependence.json",
+      "schema": [
+        "position",
+        "tail_bucket",
+        "support_capture",
+        "calibration",
+        "dependence",
+        "known_winner_context"
+      ]
+    },
+    {
+      "id": "construction_selection_regime_and_data_quality",
+      "output_path": "reports/final-forensic-runs/20260814-final-preseason-forensic-v1/05-construction_selection_regime_and_data_quality.json",
+      "schema": [
+        "mechanism",
+        "regime",
+        "construction_gap",
+        "selection_gap",
+        "distinct_improved_slates",
+        "distinct_worsened_slates",
+        "data_quality"
+      ]
+    },
+    {
+      "id": "experiment_meta_analysis_and_kill_list",
+      "output_path": "reports/final-forensic-runs/20260814-final-preseason-forensic-v1/06-experiment_meta_analysis_and_kill_list.json",
+      "schema": [
+        "arm_id",
+        "family",
+        "status",
+        "effect",
+        "breadth",
+        "uncertainty",
+        "cost",
+        "kill_reason",
+        "falsifier"
+      ]
+    },
+    {
+      "id": "week1_operational_readiness",
+      "output_path": "reports/final-forensic-runs/20260814-final-preseason-forensic-v1/07-week1_operational_readiness.json",
+      "schema": [
+        "check",
+        "status",
+        "evidence",
+        "owner_action",
+        "deadline"
+      ]
+    },
+    {
+      "id": "prospective_charter_and_opportunity_register",
+      "output_path": "reports/final-forensic-runs/20260814-final-preseason-forensic-v1/08-prospective_charter_and_opportunity_register.json",
+      "schema": [
+        "item",
+        "priority",
+        "predeclared_question",
+        "trigger",
+        "decision_law",
+        "transfer_boundary"
+      ]
+    },
+    {
+      "id": "exhaustion_certificate",
+      "output_path": "reports/final-forensic-runs/20260814-final-preseason-forensic-v1/09-exhaustion_certificate.json",
+      "schema": [
+        "taxonomy_family",
+        "terminal_arms",
+        "open_historical_arms",
+        "prospective_items",
+        "falsifier",
+        "certified"
+      ]
+    }
+  ],
+  "analysis_image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:718b1a7d6d8011ff7b7677e916e4992166f6484418151b28633e45b7353db2a9",
+  "arm_ledger": [
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "market_and_vendor_data",
+      "gate": "The frozen Defense PROE player-tail gate failed; no lineup arm was licensed.",
+      "id": "fp-defense-proe",
+      "operator_override": "none",
+      "production_relevance": "none",
+      "protocol_paths": [
+        "reports/2026-08-11-fantasy-points-defense-proe-protocol.md"
+      ],
+      "result_paths": [],
+      "stage": "score-free feature gate",
+      "status": "rejected",
+      "transfer_boundary": "Does not close future strictly prior defensive data at a different grain."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "ownership_and_field_modeling",
+      "gate": "Historical source/blend evidence is unavailable; prospective calibration is mandatory before use.",
+      "id": "fp-projected-ownership",
+      "operator_override": "none",
+      "production_relevance": "2026 shadow and contest-field calibration only",
+      "protocol_paths": [
+        "reports/2026-08-11-fantasy-points-projected-ownership-protocol.md"
+      ],
+      "result_paths": [],
+      "stage": "prospective acquisition",
+      "status": "prospective_only",
+      "transfer_boundary": "Cannot revive the rejected historical ownership-fade scoring arm."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "player_marginals_and_calibration",
+      "gate": "The historical Route component/final-served mechanisms failed their frozen gates.",
+      "id": "fp-route-historical",
+      "operator_override": "none",
+      "production_relevance": "none; retain only the 2026 prospective shadow",
+      "protocol_paths": [
+        "reports/2026-08-11-fantasy-points-route-component-protocol.md"
+      ],
+      "result_paths": [
+        "reports/2026-08-11-route-share-final-served-result.md"
+      ],
+      "stage": "component and final-served gates",
+      "status": "rejected",
+      "transfer_boundary": "Current-stack marginal and rank channels are separately closed below."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "player_marginals_and_calibration",
+      "gate": "CRPS, residual MAE and the equal-fold q95/q99 pinball gate all failed.",
+      "id": "fp-advanced-receiving",
+      "operator_override": "none",
+      "production_relevance": "none",
+      "protocol_paths": [],
+      "result_paths": [
+        "reports/2026-08-11-advanced-receiving-diagnostic-result.md"
+      ],
+      "stage": "same-season score-free diagnostic",
+      "status": "rejected",
+      "transfer_boundary": "No alternate field subset, window or threshold retry on these outcomes."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "player_marginals_and_calibration",
+      "gate": "Coverage was below 50% in every fold and QB tail Brier/MAE worsened.",
+      "id": "fp-advanced-passing-l4",
+      "operator_override": "none",
+      "production_relevance": "none",
+      "protocol_paths": [
+        "reports/2026-08-11-fantasy-points-same-season-advanced-passing-protocol.md"
+      ],
+      "result_paths": [],
+      "stage": "same-season score-free diagnostic",
+      "status": "rejected",
+      "transfer_boundary": "No feature-subset or support/window/model retry on the observed panel."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "market_and_vendor_data",
+      "gate": "The frozen same-season coverage treatment failed its registered player-tail gate.",
+      "id": "fp-same-season-coverage",
+      "operator_override": "none",
+      "production_relevance": "none",
+      "protocol_paths": [
+        "reports/2026-08-11-fantasy-points-same-season-coverage-protocol.md"
+      ],
+      "result_paths": [],
+      "stage": "same-season coverage fit",
+      "status": "rejected",
+      "transfer_boundary": "Vendor prospective matchup tools remain a distinct 2026 estimand."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "player_marginals_and_calibration",
+      "gate": "The frozen route-shape player-tail gate failed.",
+      "id": "fp-same-season-route-shape",
+      "operator_override": "none",
+      "production_relevance": "none",
+      "protocol_paths": [
+        "reports/2026-08-11-fantasy-points-same-season-route-shape-protocol.md"
+      ],
+      "result_paths": [],
+      "stage": "same-season route-shape diagnostic",
+      "status": "rejected",
+      "transfer_boundary": "No historical subset/transform retry; future unseen data can falsify closure."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "player_marginals_and_calibration",
+      "gate": "q99 exceedance was above nominal with a wholly adverse clustered interval, confirming the defect.",
+      "id": "served-tail-calibration-defect",
+      "operator_override": "none",
+      "production_relevance": "licensed the frozen walk-forward position recalibration",
+      "protocol_paths": [
+        "reports/2026-08-11-served-tail-calibration-protocol.md"
+      ],
+      "result_paths": [],
+      "stage": "calibration diagnosis",
+      "status": "selected",
+      "transfer_boundary": "The diagnosis did not select a correction family by itself."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "game_and_player_dependence",
+      "gate": "The fitted finite concentration improved untouched target/carry NLL and licensed one exact-80 test.",
+      "id": "usage-dirichlet-likelihood",
+      "operator_override": "none",
+      "production_relevance": "scientific allocation evidence only",
+      "protocol_paths": [],
+      "result_paths": [
+        "reports/2026-08-11-data-fitted-dirichlet-result.md"
+      ],
+      "stage": "allocation likelihood",
+      "status": "selected",
+      "transfer_boundary": "Likelihood improvement alone did not authorize production."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "game_and_player_dependence",
+      "gate": "The fitted-K exact-80 treatment lost at the first differing high-tail threshold.",
+      "id": "usage-dirichlet-exact80",
+      "operator_override": "none",
+      "production_relevance": "not adopted by this original experiment",
+      "protocol_paths": [],
+      "result_paths": [
+        "reports/2026-08-11-data-fitted-dirichlet-exact80-result.md"
+      ],
+      "stage": "exact-80 portfolio",
+      "status": "rejected",
+      "transfer_boundary": "Later PIT-clean usage revalidation is a separate accepted comparison."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "data_and_pit_integrity",
+      "gate": "The active-only cache passed its mechanical gates; score authority was deferred.",
+      "id": "tabpfn-active-label-cache",
+      "operator_override": "none",
+      "production_relevance": "accepted cache lineage after PIT-clean revalidation",
+      "protocol_paths": [
+        "reports/2026-08-11-tabpfn-active-label-protocol.md"
+      ],
+      "result_paths": [
+        "reports/2026-08-11-tabpfn-active-label-cache-result.md"
+      ],
+      "stage": "cache construction",
+      "status": "operational_complete",
+      "transfer_boundary": "A valid cache is not an outcome decision."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "data_and_pit_integrity",
+      "gate": "The original result was superseded after PIT defects; only the repaired v2 evidence is authoritative.",
+      "id": "tabpfn-active-label-original-final-served",
+      "operator_override": "none",
+      "production_relevance": "none",
+      "protocol_paths": [],
+      "result_paths": [
+        "reports/2026-08-11-tabpfn-active-label-final-served-result.md"
+      ],
+      "stage": "superseded final-served comparison",
+      "status": "invalid_repaired",
+      "transfer_boundary": "Do not cite the superseded score as independent support."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "player_marginals_and_calibration",
+      "gate": "The repaired active-only treatment passed the frozen score-free gate.",
+      "id": "tabpfn-active-label-repaired-final-served",
+      "operator_override": "none",
+      "production_relevance": "licensed the repaired exact-80 comparison",
+      "protocol_paths": [],
+      "result_paths": [
+        "reports/2026-08-12-pit-clean-active-label-final-served-result.md"
+      ],
+      "stage": "PIT-clean final-served gate",
+      "status": "selected",
+      "transfer_boundary": "This score-free pass did not itself authorize production."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "player_marginals_and_calibration",
+      "gate": "Active-only labels won at the first differing tail threshold on the repaired 107-slate comparison.",
+      "id": "tabpfn-active-label-exact80",
+      "operator_override": "none",
+      "production_relevance": "accepted active-label lineage",
+      "protocol_paths": [
+        "reports/2026-08-11-tabpfn-active-label-exact80-protocol.md"
+      ],
+      "result_paths": [
+        "reports/2026-08-12-pit-clean-active-label-exact80-result.md"
+      ],
+      "stage": "PIT-clean exact-80 portfolio",
+      "status": "selected",
+      "transfer_boundary": "Requires the repaired cache/panel identities and cannot inherit superseded evidence."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "market_and_vendor_data",
+      "gate": "The SCHED feature sync did not produce a dependable tail improvement.",
+      "id": "tabpfn-schedule-sync",
+      "operator_override": "none",
+      "production_relevance": "none",
+      "protocol_paths": [
+        "reports/2026-08-11-tabpfn-schedule-feature-sync-protocol.md"
+      ],
+      "result_paths": [
+        "reports/2026-08-12-pit-clean-tabpfn-sched-final-served-result.md"
+      ],
+      "stage": "final-served gate",
+      "status": "rejected",
+      "transfer_boundary": "Any new schedule feature question needs a new prospective protocol."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "player_marginals_and_calibration",
+      "gate": "The amended team-passing bundle failed its frozen score-free decision.",
+      "id": "tabpfn-team-qb-quality",
+      "operator_override": "none",
+      "production_relevance": "none",
+      "protocol_paths": [
+        "reports/2026-08-11-tabpfn-team-qb-quality-protocol.md"
+      ],
+      "result_paths": [
+        "reports/2026-08-12-pit-clean-tabpfn-team-qb-final-served-result.md"
+      ],
+      "stage": "final-served gate",
+      "status": "rejected",
+      "transfer_boundary": "No primary-passer variant is licensed from the observed result."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "game_and_player_dependence",
+      "gate": "The repaired active-label comparison retained fitted finite K under its frozen rule.",
+      "id": "active-label-usage-revalidation",
+      "operator_override": "none",
+      "production_relevance": "finite-K research baseline",
+      "protocol_paths": [
+        "reports/2026-08-12-active-label-usage-revalidation-protocol.md"
+      ],
+      "result_paths": [
+        "reports/2026-08-12-active-label-usage-revalidation-result.md"
+      ],
+      "stage": "PIT-clean exact-80 usage comparison",
+      "status": "selected",
+      "transfer_boundary": "K=1 production is a separately selected operator-aligned policy."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "game_and_player_dependence",
+      "gate": "The diagnostic established the dependence premise/topology without licensing a lineup change.",
+      "id": "g0-final-served-dependence",
+      "operator_override": "none",
+      "production_relevance": "diagnostic baseline",
+      "protocol_paths": [
+        "reports/2026-08-12-g0-final-served-dependence-protocol.md"
+      ],
+      "result_paths": [
+        "reports/2026-08-12-g0-final-served-dependence-result.md"
+      ],
+      "stage": "score-free dependence census",
+      "status": "neutral",
+      "transfer_boundary": "Descriptive dependence error is not an adoption rule."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "game_and_player_dependence",
+      "gate": "The topology diagnostic identified stable/missed relationships but selected no mechanism.",
+      "id": "g1-archetype-topology",
+      "operator_override": "none",
+      "production_relevance": "diagnostic baseline",
+      "protocol_paths": [
+        "reports/2026-08-12-g1-walk-forward-archetype-topology-protocol.md"
+      ],
+      "result_paths": [
+        "reports/2026-08-12-g1-walk-forward-archetype-topology-result.md"
+      ],
+      "stage": "walk-forward topology census",
+      "status": "neutral",
+      "transfer_boundary": "Only a separately frozen proper-score gate may license a mechanism."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "game_and_player_dependence",
+      "gate": "The QB-rooted factor failed the mandatory QB-WR guard.",
+      "id": "g2-qb-gumbel-factor",
+      "operator_override": "none",
+      "production_relevance": "none",
+      "protocol_paths": [
+        "reports/2026-08-12-g2-qb-gumbel-factor-protocol.md"
+      ],
+      "result_paths": [
+        "reports/2026-08-13-g2-qb-gumbel-factor-result.md"
+      ],
+      "stage": "score-free dependence gate",
+      "status": "rejected",
+      "transfer_boundary": "No lineup score arm or parameter retry was licensed."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "market_and_vendor_data",
+      "gate": "The historical same-season QB shell-fit proxy failed its registered gate.",
+      "id": "fp-qb-shell-fit",
+      "operator_override": "none",
+      "production_relevance": "none; retain prospective vendor matchup test",
+      "protocol_paths": [
+        "reports/2026-08-13-fantasy-points-qb-shell-fit-protocol.md"
+      ],
+      "result_paths": [
+        "reports/2026-08-13-fantasy-points-qb-shell-fit-result.md"
+      ],
+      "stage": "score-free QB shell proxy",
+      "status": "rejected",
+      "transfer_boundary": "The vendor's live matchup output is a distinct prospective construct."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "game_and_player_dependence",
+      "gate": "The registered Stage A participation-conditioned allocation gate failed.",
+      "id": "g3-participation-allocation",
+      "operator_override": "none",
+      "production_relevance": "none",
+      "protocol_paths": [
+        "reports/2026-08-13-g3-participation-conditioned-allocation-protocol.md"
+      ],
+      "result_paths": [],
+      "stage": "score-free conditional allocation",
+      "status": "rejected",
+      "transfer_boundary": "No exact-80 arm or post-hoc shrinkage around an unselected K was licensed."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "data_and_pit_integrity",
+      "gate": "The repaired game/team usage grain and five-seed law passed mechanical parity and underpins Phase S.",
+      "id": "game-team-usage-repair",
+      "operator_override": "none",
+      "production_relevance": "accepted Phase S evidence basis",
+      "protocol_paths": [
+        "reports/2026-08-13-game-team-usage-repair-and-sis-asoe-exact80-protocol.md"
+      ],
+      "result_paths": [],
+      "stage": "Phase R/S repair and exact-80 contract",
+      "status": "selected",
+      "transfer_boundary": "The 54-slate Phase S scope cannot be described as a 107-slate CBWU book."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "portfolio_selection",
+      "gate": "The diagnostic quantified a broad seed-noise envelope and licensed the separately frozen factorial.",
+      "id": "incumbent-seed-variance",
+      "operator_override": "none",
+      "production_relevance": "uncertainty context",
+      "protocol_paths": [
+        "reports/2026-08-13-incumbent-seed-variance-protocol.md",
+        "reports/2026-08-13-monte-carlo-review-and-seed-variance-protocol.md"
+      ],
+      "result_paths": [
+        "reports/2026-08-13-incumbent-seed-variance-result.md"
+      ],
+      "stage": "multi-seed diagnostic",
+      "status": "neutral",
+      "transfer_boundary": "Seed variability is not itself a mechanism or selector adoption."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "candidate_generation",
+      "gate": "The fixed-budget CBWU cell won the registered tail-first comparison.",
+      "id": "multiseed-candidate-world-factorial",
+      "operator_override": "none",
+      "production_relevance": "deployed K=1 CBWU v4 mechanism",
+      "protocol_paths": [
+        "reports/2026-08-13-multiseed-candidate-world-factorial-protocol.md"
+      ],
+      "result_paths": [
+        "reports/2026-08-14-multiseed-candidate-world-result.md"
+      ],
+      "stage": "five-seed exact-80 factorial",
+      "status": "selected",
+      "transfer_boundary": "Does not transfer the finite-K pass-tail cache/schedules into K=1."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "player_marginals_and_calibration",
+      "gate": "Dropping the four PFR secondary-quality features failed the score-free gate.",
+      "id": "pfr-secondary-drop",
+      "operator_override": "none",
+      "production_relevance": "features retained without a causal claim",
+      "protocol_paths": [
+        "reports/2026-08-13-pfr-secondary-drop-features-protocol.md"
+      ],
+      "result_paths": [
+        "reports/2026-08-13-pfr-secondary-drop-features-result.md"
+      ],
+      "stage": "score-free feature ablation",
+      "status": "rejected",
+      "transfer_boundary": "Shell deployment and named defender assignments remain different constructs."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "entry_count_and_bankroll",
+      "gate": "The diagnostic measures redundancy and prefixes but cannot infer payout-optimal entry count.",
+      "id": "portfolio-effective-rank",
+      "operator_override": "none",
+      "production_relevance": "final entry-count/ROI analysis input",
+      "protocol_paths": [
+        "reports/2026-08-13-portfolio-effective-rank-protocol.md"
+      ],
+      "result_paths": [
+        "reports/2026-08-13-portfolio-effective-rank-v2-result.md"
+      ],
+      "stage": "portfolio redundancy diagnostic",
+      "status": "neutral",
+      "transfer_boundary": "Requires field size, payout and duplication assumptions for an economic decision."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "market_and_vendor_data",
+      "gate": "The sample did not justify high-cost historical acquisition at the observed grain.",
+      "id": "sis-alignment-feasibility",
+      "operator_override": "none",
+      "production_relevance": "dormant opportunity",
+      "protocol_paths": [
+        "reports/2026-08-13-sis-alignment-feasibility-protocol.md"
+      ],
+      "result_paths": [],
+      "stage": "schema/sample feasibility",
+      "status": "deferred_with_falsifier",
+      "transfer_boundary": "Reopen only if player-alignment rows meet the predeclared coverage and bucket-share trigger."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "market_and_vendor_data",
+      "gate": "The frozen ASOE slices were acquired, normalized, hashed and made available point in time.",
+      "id": "sis-asoe-acquisition",
+      "operator_override": "none",
+      "production_relevance": "source for the accepted Phase S mechanism",
+      "protocol_paths": [
+        "reports/2026-08-13-sis-asoe-acquisition-protocol.md"
+      ],
+      "result_paths": [],
+      "stage": "licensed acquisition and warehouse",
+      "status": "operational_complete",
+      "transfer_boundary": "Acquisition completeness is not scientific selection."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "game_and_player_dependence",
+      "gate": "The fixed beta improved untouched allocation NLL with a wholly favorable clustered interval.",
+      "id": "sis-asoe-stage-a",
+      "operator_override": "none",
+      "production_relevance": "selected Phase S ASOE allocation",
+      "protocol_paths": [
+        "reports/2026-08-13-sis-asoe-allocation-stage-a-protocol.md"
+      ],
+      "result_paths": [
+        "reports/2026-08-13-sis-asoe-allocation-stage-a-result.md"
+      ],
+      "stage": "conditional allocation likelihood",
+      "status": "selected",
+      "transfer_boundary": "Score-free Stage A licensed only the separately frozen downstream comparison."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "player_marginals_and_calibration",
+      "gate": "The three-feature opponent pass-tail marginal arm passed every frozen score-free gate.",
+      "id": "sis-pass-tail-marginal",
+      "operator_override": "none",
+      "production_relevance": "licensed finite-K exact-80 test",
+      "protocol_paths": [
+        "reports/2026-08-13-sis-pass-tail-marginal-protocol.md"
+      ],
+      "result_paths": [
+        "reports/2026-08-13-sis-pass-tail-support-result.md",
+        "reports/2026-08-13-sis-pass-tail-final-served-result.md"
+      ],
+      "stage": "support and final-served gate",
+      "status": "selected",
+      "transfer_boundary": "No direct K=1 production transfer."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "player_marginals_and_calibration",
+      "gate": "Treatment won the registered finite-K tail-first rule at 220; breadth is modest and 2025 is adverse below 220.",
+      "id": "sis-pass-tail-exact80",
+      "operator_override": "none",
+      "production_relevance": "finite-K research baseline and 2026 shadow",
+      "protocol_paths": [],
+      "result_paths": [
+        "reports/2026-08-14-sis-pass-tail-exact80-result.md"
+      ],
+      "stage": "five-seed exact-80 portfolio",
+      "status": "selected",
+      "transfer_boundary": "The cache/schedules remain untested with the K=1 money policy."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "player_marginals_and_calibration",
+      "gate": "The QB offensive-line context treatment failed its registered tail gate.",
+      "id": "sis-qb-line-context",
+      "operator_override": "none",
+      "production_relevance": "none",
+      "protocol_paths": [
+        "reports/2026-08-13-sis-qb-line-context-protocol.md"
+      ],
+      "result_paths": [
+        "reports/2026-08-13-sis-qb-line-final-served-result.md"
+      ],
+      "stage": "score-free final-served gate",
+      "status": "rejected",
+      "transfer_boundary": "No exact-80 follow-on or feature subset was licensed."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "player_marginals_and_calibration",
+      "gate": "The RB opponent run-defense treatment failed the prerequisite score-free gate.",
+      "id": "sis-rb-run-defense",
+      "operator_override": "none",
+      "production_relevance": "none",
+      "protocol_paths": [
+        "reports/2026-08-13-sis-rb-run-defense-protocol.md"
+      ],
+      "result_paths": [
+        "reports/2026-08-13-sis-rb-run-defense-final-served-result.md"
+      ],
+      "stage": "score-free final-served gate",
+      "status": "rejected",
+      "transfer_boundary": "The conditional exact-80 arm was not licensed."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "player_marginals_and_calibration",
+      "gate": "Not run because the frozen final-served prerequisite failed.",
+      "id": "sis-rb-run-defense-exact80",
+      "operator_override": "none",
+      "production_relevance": "none",
+      "protocol_paths": [
+        "reports/2026-08-13-sis-rb-run-defense-exact80-protocol.md"
+      ],
+      "result_paths": [],
+      "stage": "conditional exact-80 portfolio",
+      "status": "not_run_prerequisite_failed",
+      "transfer_boundary": "Cannot be launched retrospectively on the failed prerequisite."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "market_and_vendor_data",
+      "gate": "The team/game export lacks coverage snaps/targets for coverage-normalized efficiency.",
+      "id": "sis-team-pass-defense-schema",
+      "operator_override": "none",
+      "production_relevance": "none for this estimand",
+      "protocol_paths": [
+        "reports/2026-08-13-sis-team-pass-defense-schema-protocol.md"
+      ],
+      "result_paths": [
+        "reports/2026-08-13-sis-team-pass-defense-schema-result.md"
+      ],
+      "stage": "schema grain gate",
+      "status": "rejected",
+      "transfer_boundary": "Closes only team/game coverage-normalized efficiency; ASOE and player/defender grain remain distinct."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "game_and_player_dependence",
+      "gate": "The frozen invalid-or-inconclusive branch licensed no adoption or score follow-on.",
+      "id": "td-ledger-dependence",
+      "operator_override": "none",
+      "production_relevance": "none",
+      "protocol_paths": [
+        "reports/2026-08-13-td-ledger-final-served-protocol.md"
+      ],
+      "result_paths": [
+        "reports/2026-08-13-td-ledger-final-served-result.md"
+      ],
+      "stage": "score-free dependence gate",
+      "status": "rejected",
+      "transfer_boundary": "Directional diagnostics cannot be promoted post hoc."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "game_and_player_dependence",
+      "gate": "The marginal channel failed and unshrunk rank/dependence was a frozen near-miss that failed.",
+      "id": "route-channel-i1",
+      "operator_override": "none",
+      "production_relevance": "none; prospective 2026 shadow remains",
+      "protocol_paths": [
+        "reports/2026-08-14-route-channel-i1-protocol.md"
+      ],
+      "result_paths": [],
+      "stage": "current-stack marginal and rank gates",
+      "status": "rejected",
+      "transfer_boundary": "No I2 marginal-by-ASOE factorial because the marginal prerequisite failed."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "game_and_player_dependence",
+      "gate": "R2 preserved marginals but materially worsened the registered dependence scorecard.",
+      "id": "route-rank-r2-midpoint",
+      "operator_override": "none",
+      "production_relevance": "none",
+      "protocol_paths": [
+        "reports/2026-08-14-route-rank-r2-shrinkage-protocol.md"
+      ],
+      "result_paths": [],
+      "stage": "fixed midpoint rank shrinkage",
+      "status": "rejected",
+      "transfer_boundary": "No alternate shrinkage weight or historical Route rank retry."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "portfolio_selection",
+      "gate": "The diagnostic measured 54.2778/80 disjoint-half overlap but licensed no selector change.",
+      "id": "selector-resampling",
+      "operator_override": "none",
+      "production_relevance": "uncertainty and entry-count context",
+      "protocol_paths": [
+        "reports/2026-08-14-selector-resampling-score-free-protocol.md"
+      ],
+      "result_paths": [
+        "reports/2026-08-14-selector-resampling-score-free-result.md"
+      ],
+      "stage": "score-free reproducibility diagnostic",
+      "status": "neutral",
+      "transfer_boundary": "Bagging, sample splitting and an economic 54-entry interpretation are not licensed."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "portfolio_selection",
+      "gate": "The corrected-history extreme selector lost under the preregistered tail-first rule.",
+      "id": "corrected-extreme-selector",
+      "operator_override": "none",
+      "production_relevance": "none",
+      "protocol_paths": [],
+      "result_paths": [
+        "reports/2026-08-13-corrected-extreme-selector-result.md"
+      ],
+      "stage": "tail-first selector test",
+      "status": "rejected",
+      "transfer_boundary": "No selector parameter mining on the observed outcomes."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "portfolio_selection",
+      "gate": "The current-stack replication rejected the extreme selector and retained line 194.",
+      "id": "current-stack-extreme-selector",
+      "operator_override": "none",
+      "production_relevance": "none",
+      "protocol_paths": [],
+      "result_paths": [
+        "reports/2026-08-13-current-stack-extreme-selector-result.md"
+      ],
+      "stage": "current-stack selector replication",
+      "status": "rejected",
+      "transfer_boundary": "No post-result threshold or hybrid retry."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "availability_and_role_change",
+      "gate": "The exact-80 role12 union improved the operator's weekly-maximum tail objective and was adopted under an explicit objective override while its original season-stability verdict remained failed.",
+      "id": "role12-availability-union",
+      "operator_override": "Tail-first weekly-maximum utility superseded the older season-stability adoption gate without rewriting that gate result.",
+      "production_relevance": "direct-role12 remains in deployed K=1 CBWU v4",
+      "protocol_paths": [],
+      "result_paths": [],
+      "stage": "role-change candidate union and production transport",
+      "status": "selected",
+      "supporting_paths": [
+        "reports/2026-08-10-scoring-opportunity-roadmap.md",
+        "reports/2026-08-10-tail-first-adoption-review.md"
+      ],
+      "transfer_boundary": "Does not license a new role dose, feature set, seed, vacancy rule or retrospective role-change subset."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "roster_construction",
+      "gate": "The construction census records the terminal no-floor, stack/bring-back, salary-shape, punt and qualifier findings and retains the deployed salary/legality/stack constraints; H/P/C/S will quantify remaining support-versus-construction loss without retroactive tuning.",
+      "id": "historical-roster-construction-census",
+      "operator_override": "none",
+      "production_relevance": "current legal roster constraints and H/P/C/S construction-gap audit",
+      "protocol_paths": [],
+      "result_paths": [],
+      "stage": "terminal construction-mechanism census",
+      "status": "operational_complete",
+      "supporting_paths": [
+        "reports/2026-08-08-80-entry-tail-audit.md",
+        "reports/2026-08-10-scoring-opportunity-roadmap.md",
+        "reports/2026-08-10-corrected-floor-union-experiment.md",
+        "reports/2026-07-25-system-study.md"
+      ],
+      "transfer_boundary": "A genuinely new legal generator remains prospective; no observed-week construction parameter sweep is licensed."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "contest_choice",
+      "gate": "Historical contest choice cannot be optimized from first-place-only files; complete field standings, payouts, fees, duplication and operator entry history are required.",
+      "id": "contest-choice-evidence-gap",
+      "operator_override": "none",
+      "production_relevance": "2026 standings/payout acquisition and contest-choice shadow",
+      "protocol_paths": [],
+      "result_paths": [],
+      "stage": "contest and standings identifiability audit",
+      "status": "prospective_only",
+      "supporting_paths": [
+        "reports/2026-08-10-contest-placement-roi-audit.md"
+      ],
+      "transfer_boundary": "Freeze contest attributes and an allocation rule before outcomes; do not infer contest choice or ROI from score thresholds alone."
+    },
+    {
+      "cloud_cost_status": "recorded in cited evidence or not separately metered",
+      "execution_ids": [],
+      "family": "operations",
+      "gate": "Cloud deployment, vendor launchers, backups and fallback are implemented; the final authenticated 2026 Week-1 slate-to-DraftKings exact-80 rehearsal is explicitly blocked until a real upcoming slate exists.",
+      "id": "week1-operational-dress-rehearsal",
+      "operator_override": "none",
+      "production_relevance": "mandatory operator-owned blocker before first paid Week-1 entry",
+      "protocol_paths": [],
+      "result_paths": [],
+      "stage": "end-to-end production readiness",
+      "status": "deferred_with_falsifier",
+      "supporting_paths": [
+        "README.md",
+        "reports/2026-08-11-final-preseason-forensic-closure-protocol.md"
+      ],
+      "transfer_boundary": "Close only after one outcome-unseen slate proves acquisition, feature build, five-search CBWU transport, UI/API identity, exact draftable IDs, CSV, alerts, backup and fallback."
+    },
+    {
+      "cloud_cost_status": "Three immutable Cloud Run executions; exact durations and images are in the cited results.",
+      "execution_ids": [
+        "tabpfn-sis-rb-runtail-v1-control-7p9f7",
+        "tabpfn-sis-rb-runtail-v1-treatment-s6p4d",
+        "tabpfn-sis-rb-runtail-final-served-v1-prrtg"
+      ],
+      "family": "player_marginals_and_calibration",
+      "gate": "The non-redundant SIS run-defense Boom/Bust treatment passed cache integrity but worsened both registered q95/q99 tail proper scores; the SIS marginal-feature channel is closed on this historical panel.",
+      "id": "sis-rb-run-tail-marginal",
+      "operator_override": "none",
+      "production_relevance": "none; genuinely distinct future allocation/copula use remains prospective",
+      "protocol_paths": [
+        "reports/2026-08-14-sis-run-tail-marginal-protocol.md"
+      ],
+      "result_paths": [
+        "reports/2026-08-14-sis-run-tail-cache-result.md",
+        "reports/2026-08-14-sis-run-tail-final-served-result.md"
+      ],
+      "stage": "adaptive cache and score-free final-served tail gate",
+      "status": "rejected",
+      "transfer_boundary": "No lower-priority SIS field may be retried merely as another TabPFN marginal column, and the conditional exact-80 branch expired."
+    },
+    {
+      "cloud_cost_status": "One immutable Cloud Run execution; 22m25.91s in the cited result.",
+      "execution_ids": [
+        "td-ledger-rank-coupling-v1-d9zdr"
+      ],
+      "family": "game_and_player_dependence",
+      "gate": "The treatment preserved marginals, but the repaired current-path control could not reproduce stale pre-allocation-unit G0/G1 references; exact-80 was not licensed. Diagnostics additionally show a global positive coupling is wrong-signed for several current-path cells.",
+      "id": "td-ledger-rank-coupling-repaired-path",
+      "operator_override": "none",
+      "production_relevance": "none; establishes the pre-repair/post-repair evidence boundary",
+      "protocol_paths": [
+        "reports/2026-08-14-td-ledger-rank-coupling-protocol.md"
+      ],
+      "result_paths": [
+        "reports/2026-08-14-td-ledger-rank-coupling-result.md"
+      ],
+      "stage": "score-free repaired-path rank coupling",
+      "status": "invalid_unadjudicated",
+      "transfer_boundary": "Do not present pre-repair G0/G1 deficits as current-path validation or use the invalid diagnostics as an adoption result."
+    },
+    {
+      "cloud_cost_status": "Two immutable Cloud Run executions; identities and hashes are in the cited results.",
+      "execution_ids": [
+        "td-competitive-wr-reference-v1-2trhj",
+        "td-competitive-wr-allocation-v1-k46pl"
+      ],
+      "family": "game_and_player_dependence",
+      "gate": "Stage R passed, but Stage T failed frozen reproduction invariants and is invalid. Every disclosed frozen direction was adverse: variogram and joint-q90 Brier worsened, all G0/G1 improvement gates were false, and the ungated multiplicity >=4 diagnostic moved away from realized dependence.",
+      "id": "td-competitive-wr-allocation",
+      "operator_override": "none",
+      "production_relevance": "none; future rank-permutation mechanisms inherit the order-invariant validation lesson",
+      "protocol_paths": [
+        "reports/2026-08-14-td-competitive-wr-allocation-protocol.md"
+      ],
+      "result_paths": [
+        "reports/2026-08-14-td-competitive-wr-reference-result.md",
+        "reports/2026-08-14-td-competitive-wr-allocation-result.md"
+      ],
+      "stage": "repaired reference plus centered competitive-WR score-free gate",
+      "status": "invalid_unadjudicated",
+      "transfer_boundary": "Invalid means scientifically unadjudicated, but it must not be described as promising; no same-outcome repair, exact-80 run or composition is licensed."
+    },
+    {
+      "cloud_cost_status": "No cloud run; outcome-free audit reused frozen repaired-path evidence.",
+      "execution_ids": [],
+      "family": "game_and_player_dependence",
+      "gate": "No stable repaired-path QB-to-TE deficit, supported TE-to-TE competitive structure or passed WR prerequisite exists, so a TE-only historical rank treatment was not licensed.",
+      "id": "te-qb-hub-prerequisite",
+      "operator_override": "none",
+      "production_relevance": "prospective 2026 shadow only if a new outcome-unseen deficiency appears",
+      "protocol_paths": [],
+      "result_paths": [],
+      "stage": "pre-run repaired-path prerequisite audit",
+      "status": "not_run_prerequisite_failed",
+      "supporting_paths": [
+        "reports/2026-08-14-te-qb-hub-prerequisite-audit.md",
+        "reports/2026-08-14-td-wr-and-te-closure-review.md"
+      ],
+      "transfer_boundary": "Reopen only on prospective repaired-path evidence with adequate TE multiplicity and a separately frozen mechanism."
+    },
+    {
+      "cloud_cost_status": "Not yet acquired; bounded by the existing Odds API subscription/credit plan.",
+      "execution_ids": [],
+      "family": "market_and_vendor_data",
+      "gate": "Acquire alternate team/game total ladders and pass-attempt/completion/rush-attempt volume markets to expose pre-lock market-implied scoring distributions and opportunity denominators.",
+      "id": "odds-api-market-distribution-expansion",
+      "operator_override": "none",
+      "production_relevance": "2026 prospective team-factor and marginal research input",
+      "protocol_paths": [],
+      "result_paths": [],
+      "stage": "prospective raw acquisition",
+      "status": "prospective_only",
+      "supporting_paths": [
+        "reports/2026-08-14-pre-forensic-exhaustion-review.md",
+        "reports/2026-08-14-td-wr-and-te-closure-review.md"
+      ],
+      "transfer_boundary": "Raw acquisition may proceed, but no historical promotion or live use occurs without a separately frozen PIT-safe prospective protocol."
+    },
+    {
+      "cloud_cost_status": "The ceiling is included in the one-time forensic MILP job; no separate historical arm is queued.",
+      "execution_ids": [],
+      "family": "decision_structure",
+      "gate": "The final forensic run will compute a perfect-information late-swap ceiling on the incumbent exact-80 early cores; only material option value may prioritize a separately frozen 2026 two-stage policy.",
+      "id": "recourse-aware-late-swap",
+      "operator_override": "none",
+      "production_relevance": "potential 2026 early/late recourse workflow",
+      "protocol_paths": [],
+      "result_paths": [],
+      "stage": "forensic ceiling then prospective two-stage policy",
+      "status": "prospective_only",
+      "supporting_paths": [
+        "reports/2026-08-14-recourse-aware-portfolio-construction.md",
+        "reports/2026-08-14-queue-exhaustion-review-and-untested-insertion-points.md"
+      ],
+      "transfer_boundary": "The hindsight ceiling is not expected performance and cannot promote a policy; feasibility, operator latency and outcome-unseen prospective grading remain mandatory."
+    },
+    {
+      "cloud_cost_status": "The targeting/selectivity bound is included in the one-time forensic job; no historical lineup arm is queued.",
+      "execution_ids": [],
+      "family": "candidate_generation",
+      "gate": "The final forensic run will measure, at a pre-frozen 60% strictly-prior route-share floor and $3,500 salary cap, how many candidate-absent winning slots and how many total absent players the rule would admit.",
+      "id": "route-share-pool-admission",
+      "operator_override": "none",
+      "production_relevance": "possible 2026 budget-neutral route admission shadow",
+      "protocol_paths": [],
+      "result_paths": [],
+      "stage": "forensic targeting bound then prospective budget-neutral admission",
+      "status": "prospective_only",
+      "supporting_paths": [
+        "reports/2026-08-14-queue-exhaustion-review-and-untested-insertion-points.md"
+      ],
+      "transfer_boundary": "The outcome-viewed bound cannot promote a policy. Any live test must replace an equal frozen count of low-yield lev candidates and be frozen before 2026 outcomes."
+    },
+    {
+      "cloud_cost_status": "Core entry-limit UI/policy is implemented and tested locally; prospective scoring uses the ordinary weekly build.",
+      "execution_ids": [],
+      "family": "decision_structure",
+      "gate": "The UI and production policy already enforce 1/3/20/large-max profiles, exact entry caps, first-N CBWU slicing and conservative leverage caps; a contest-specific target-line/extreme-book rule remains a separately frozen 2026 shadow.",
+      "id": "per-contest-portfolio-slicing",
+      "operator_override": "none",
+      "production_relevance": "direct low-max UI support, with contest-specific target-line shadow pending",
+      "protocol_paths": [],
+      "result_paths": [],
+      "stage": "contest-entry-limit-specific prospective books",
+      "status": "prospective_only",
+      "supporting_paths": [
+        "reports/2026-08-10-scoring-strategy-recommendations.md",
+        "reports/2026-08-14-queue-exhaustion-review-and-untested-insertion-points.md"
+      ],
+      "transfer_boundary": "Do not replace the adopted fixed-194 selector from estimated field size alone. Freeze contest attributes and the slicing rule before outcomes, then grade by contest type."
+    },
+    {
+      "cloud_cost_status": "Not yet built; the forensic regime census supplies the outcome-viewed design input, while 2026 grading must be prospective.",
+      "execution_ids": [],
+      "family": "decision_structure",
+      "gate": "Use only pre-lock slate-quality regimes and a frozen season bankroll to compare fixed weekly volume with predeclared variable entry counts and deliberately decorrelated construction styles.",
+      "id": "cross-week-bankroll-and-style-allocation",
+      "operator_override": "none",
+      "production_relevance": "possible 2026 shadow allocation across weeks",
+      "protocol_paths": [],
+      "result_paths": [],
+      "stage": "prospective season-level allocation",
+      "status": "prospective_only",
+      "supporting_paths": [
+        "reports/2026-08-14-queue-exhaustion-review-and-untested-insertion-points.md"
+      ],
+      "transfer_boundary": "Historical regime outcomes may generate hypotheses but cannot tune the live allocation. Entry fees, bankroll limits and a maximum weekly loss must be fixed before Week 1."
+    },
+    {
+      "cloud_cost_status": "Not built or estimated; prospective research only.",
+      "execution_ids": [],
+      "family": "availability_and_role_change",
+      "gate": "Model discrete latent role occupancy and transitions before conditional points, distinct from tested features that condition on an already observed role.",
+      "id": "latent-role-state-generator",
+      "operator_override": "none",
+      "production_relevance": "possible 2026 candidate-universe expansion for cheap surprise scorers",
+      "protocol_paths": [],
+      "result_paths": [],
+      "stage": "prospective discrete role-state model",
+      "status": "prospective_only",
+      "supporting_paths": [
+        "reports/2026-08-14-recourse-aware-portfolio-construction.md",
+        "reports/2026-08-14-queue-exhaustion-review-and-untested-insertion-points.md"
+      ],
+      "transfer_boundary": "Requires an outcome-unseen state definition, PIT injury/in-game transition data and a frozen prospective falsifier; prior role-feature evidence cannot validate it."
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "reports/final-forensic-runs/20260814-final-preseason-forensic-v1/arm_registry.json",
+      "sha256": "f116d672696c3f43958b0e66a5c182ef3dd2ad09dd8dd3b02619d00edfbf2f85"
+    },
+    {
+      "path": "reports/milly-winners-2019-2023-2024.csv",
+      "sha256": "86359e22fdfbe87e9d1f899dd864038979881db5abbafbf26b40b1ff31985885"
+    },
+    {
+      "path": "reports/2025-milly-winners.csv",
+      "sha256": "adeef608421736c13c2ff6b18c84e8df41c8880f1b6576e34d35d85f7e38fbc9"
+    },
+    {
+      "path": "reports/2025-milly-rosters.csv",
+      "sha256": "685db4eb916fb32f64af3138b1893a1b14dfeacd0e55d7ea8b968a2aaa103e3d"
+    },
+    {
+      "path": "reports/g0-dependence-runs/20260812-g0-final-served-dependence-v2/report.json",
+      "sha256": "8b4ff4b6fa94d8de1c69621c6aee303c5881114ab5196d095981f247cd24866b"
+    },
+    {
+      "path": "reports/g1-topology-runs/20260812-g1-archetype-topology-v3/report.json",
+      "sha256": "b9f54c550fe41ae3909fa4a6e16024335543987759c8146314cf4595fedcf993"
+    },
+    {
+      "path": "reports/portfolio-effective-rank-runs/20260813-incumbent-effective-rank-v2/report.json",
+      "sha256": "c0d0174a0e78d064e3d027d7d1b3ff498b9b6324ba65da27fccd2543439ea15e"
+    },
+    {
+      "path": "reports/multiseed-candidate-world-runs/20260813-multiseed-candidate-world-v1/report.json",
+      "sha256": "a41d3427aa267ed9ab52753a898f14135caa9bd42c11c645d92eccffbb170239"
+    },
+    {
+      "path": "reports/selector-resampling-runs/20260814-selector-resampling-v1/report.json",
+      "sha256": "8ad05426312cfa4fccf9ba6bc12ad47b0650dd6ce05c06b1bfbf86d1502e5d60"
+    },
+    {
+      "path": "reports/tabpfn-sis-pass-tail-runs/20260814-sis-pass-tail-exact80-v1/report.json",
+      "sha256": "6d92edb503747a729ad7cecfd95315b0eff1e04be72491bea296a33aeb8e3689"
+    }
+  ],
+  "between_arm_variance": {
+    "common_slate_sha256": "3ae7bd35401d5131ee2e305ee93764fa31bbc4c9c8f80ccab4916cb07d64fa80",
+    "common_slates": [
+      "2019-01",
+      "2019-02",
+      "2019-03",
+      "2019-04",
+      "2019-05",
+      "2019-06",
+      "2019-07",
+      "2019-08",
+      "2019-09",
+      "2019-10",
+      "2019-11",
+      "2019-12",
+      "2019-13",
+      "2019-14",
+      "2019-15",
+      "2019-16",
+      "2019-17",
+      "2021-01",
+      "2021-02",
+      "2021-03",
+      "2021-04",
+      "2021-05",
+      "2021-06",
+      "2021-07",
+      "2021-08",
+      "2021-09",
+      "2021-10",
+      "2021-11",
+      "2021-12",
+      "2021-13",
+      "2021-14",
+      "2021-15",
+      "2021-16",
+      "2021-17",
+      "2021-18",
+      "2022-01",
+      "2022-02",
+      "2022-03",
+      "2022-04",
+      "2022-05",
+      "2022-06",
+      "2022-07",
+      "2022-08",
+      "2022-09",
+      "2022-10",
+      "2022-11",
+      "2022-12",
+      "2022-13",
+      "2022-14",
+      "2022-15",
+      "2022-16",
+      "2022-17",
+      "2022-18",
+      "2023-01",
+      "2023-02",
+      "2023-03",
+      "2023-04",
+      "2023-05",
+      "2023-06",
+      "2023-07",
+      "2023-08",
+      "2023-09",
+      "2023-10",
+      "2023-11",
+      "2023-12",
+      "2023-13",
+      "2023-14",
+      "2023-15",
+      "2023-16",
+      "2023-17",
+      "2023-18",
+      "2024-01",
+      "2024-02",
+      "2024-03",
+      "2024-04",
+      "2024-05",
+      "2024-06",
+      "2024-07",
+      "2024-08",
+      "2024-09",
+      "2024-10",
+      "2024-11",
+      "2024-12",
+      "2024-13",
+      "2024-14",
+      "2024-15",
+      "2024-16",
+      "2024-17",
+      "2024-18",
+      "2025-01",
+      "2025-02",
+      "2025-03",
+      "2025-04",
+      "2025-05",
+      "2025-06",
+      "2025-07",
+      "2025-08",
+      "2025-09",
+      "2025-10",
+      "2025-11",
+      "2025-12",
+      "2025-13",
+      "2025-14",
+      "2025-15",
+      "2025-16",
+      "2025-17",
+      "2025-18"
+    ],
+    "estimand": "selected weekly-max arm fixed-effect dispersion after common-slate removal",
+    "expected_common_slate_count": 107,
+    "expected_entries_by_panel": {
+      "20260807-livefaithful-b2-91d596e": 40,
+      "20260807-trusted-b0-ef6d31c": 40,
+      "20260808-deterministic-baseline-c616390": 40,
+      "20260808-e80-k1-c616390": 80,
+      "20260808-e80-k3-c616390": 80,
+      "20260808-e80-msctl-d99b125": 80,
+      "20260808-livefaithful-b3-ee6f433": 40,
+      "20260809-e80-k1-ce12-c616390": 80,
+      "20260810-lockfix-e80-k1-8677d21": 80,
+      "20260810-lockfix-e80-k1-role12union-8677d21": 80,
+      "20260810-lockfix-e80-k3-8677d21": 80,
+      "20260811-pitclean-e80-k1-a12ab31": 80,
+      "20260811-pitclean-e80-k1-role12union-a12ab31": 80,
+      "20260811-pitclean-e80-k3-a12ab31": 80
+    },
+    "expected_panel_count": 14,
+    "panel_ids": [
+      "20260807-livefaithful-b2-91d596e",
+      "20260807-trusted-b0-ef6d31c",
+      "20260808-deterministic-baseline-c616390",
+      "20260808-e80-k1-c616390",
+      "20260808-e80-k3-c616390",
+      "20260808-e80-msctl-d99b125",
+      "20260808-livefaithful-b3-ee6f433",
+      "20260809-e80-k1-ce12-c616390",
+      "20260810-lockfix-e80-k1-8677d21",
+      "20260810-lockfix-e80-k1-role12union-8677d21",
+      "20260810-lockfix-e80-k3-8677d21",
+      "20260811-pitclean-e80-k1-a12ab31",
+      "20260811-pitclean-e80-k1-role12union-a12ab31",
+      "20260811-pitclean-e80-k3-a12ab31"
+    ],
+    "selection_bias": "the fourteen mechanically complete launched panels are a selected, heterogeneous sample",
+    "source_table": "nfl-predictions-503414.nfl_predictions.replay_candidates",
+    "use_restriction": "may not revive, re-adjudicate, relabel, promote, or retune any historical arm; descriptive context and future reporting scale only"
+  },
+  "manifest_sha256": "122303a1fc14ae76c9379010eb632b8c4ae837408d4726fe47611ec88be20ce7",
+  "mechanism_taxonomy": [
+    {
+      "disposition_rule": "Every historical arm in this family must be selected, rejected, neutral, repaired, invalid-unadjudicated, prerequisite-closed, prospective-only, duplicate, operationally complete, or deferred with a falsifier.",
+      "falsifier_rule": "Reopen only with outcome-unseen prospective evidence, a genuinely new data grain/mechanism, or a documented integrity defect that invalidates the cited evidence.",
+      "id": "player_marginals_and_calibration"
+    },
+    {
+      "disposition_rule": "Every historical arm in this family must be selected, rejected, neutral, repaired, invalid-unadjudicated, prerequisite-closed, prospective-only, duplicate, operationally complete, or deferred with a falsifier.",
+      "falsifier_rule": "Reopen only with outcome-unseen prospective evidence, a genuinely new data grain/mechanism, or a documented integrity defect that invalidates the cited evidence.",
+      "id": "availability_and_role_change"
+    },
+    {
+      "disposition_rule": "Every historical arm in this family must be selected, rejected, neutral, repaired, invalid-unadjudicated, prerequisite-closed, prospective-only, duplicate, operationally complete, or deferred with a falsifier.",
+      "falsifier_rule": "Reopen only with outcome-unseen prospective evidence, a genuinely new data grain/mechanism, or a documented integrity defect that invalidates the cited evidence.",
+      "id": "market_and_vendor_data"
+    },
+    {
+      "disposition_rule": "Every historical arm in this family must be selected, rejected, neutral, repaired, invalid-unadjudicated, prerequisite-closed, prospective-only, duplicate, operationally complete, or deferred with a falsifier.",
+      "falsifier_rule": "Reopen only with outcome-unseen prospective evidence, a genuinely new data grain/mechanism, or a documented integrity defect that invalidates the cited evidence.",
+      "id": "game_and_player_dependence"
+    },
+    {
+      "disposition_rule": "Every historical arm in this family must be selected, rejected, neutral, repaired, invalid-unadjudicated, prerequisite-closed, prospective-only, duplicate, operationally complete, or deferred with a falsifier.",
+      "falsifier_rule": "Reopen only with outcome-unseen prospective evidence, a genuinely new data grain/mechanism, or a documented integrity defect that invalidates the cited evidence.",
+      "id": "candidate_generation"
+    },
+    {
+      "disposition_rule": "Every historical arm in this family must be selected, rejected, neutral, repaired, invalid-unadjudicated, prerequisite-closed, prospective-only, duplicate, operationally complete, or deferred with a falsifier.",
+      "falsifier_rule": "Reopen only with outcome-unseen prospective evidence, a genuinely new data grain/mechanism, or a documented integrity defect that invalidates the cited evidence.",
+      "id": "roster_construction"
+    },
+    {
+      "disposition_rule": "Every historical arm in this family must be selected, rejected, neutral, repaired, invalid-unadjudicated, prerequisite-closed, prospective-only, duplicate, operationally complete, or deferred with a falsifier.",
+      "falsifier_rule": "Reopen only with outcome-unseen prospective evidence, a genuinely new data grain/mechanism, or a documented integrity defect that invalidates the cited evidence.",
+      "id": "decision_structure"
+    },
+    {
+      "disposition_rule": "Every historical arm in this family must be selected, rejected, neutral, repaired, invalid-unadjudicated, prerequisite-closed, prospective-only, duplicate, operationally complete, or deferred with a falsifier.",
+      "falsifier_rule": "Reopen only with outcome-unseen prospective evidence, a genuinely new data grain/mechanism, or a documented integrity defect that invalidates the cited evidence.",
+      "id": "portfolio_selection"
+    },
+    {
+      "disposition_rule": "Every historical arm in this family must be selected, rejected, neutral, repaired, invalid-unadjudicated, prerequisite-closed, prospective-only, duplicate, operationally complete, or deferred with a falsifier.",
+      "falsifier_rule": "Reopen only with outcome-unseen prospective evidence, a genuinely new data grain/mechanism, or a documented integrity defect that invalidates the cited evidence.",
+      "id": "ownership_and_field_modeling"
+    },
+    {
+      "disposition_rule": "Every historical arm in this family must be selected, rejected, neutral, repaired, invalid-unadjudicated, prerequisite-closed, prospective-only, duplicate, operationally complete, or deferred with a falsifier.",
+      "falsifier_rule": "Reopen only with outcome-unseen prospective evidence, a genuinely new data grain/mechanism, or a documented integrity defect that invalidates the cited evidence.",
+      "id": "contest_choice"
+    },
+    {
+      "disposition_rule": "Every historical arm in this family must be selected, rejected, neutral, repaired, invalid-unadjudicated, prerequisite-closed, prospective-only, duplicate, operationally complete, or deferred with a falsifier.",
+      "falsifier_rule": "Reopen only with outcome-unseen prospective evidence, a genuinely new data grain/mechanism, or a documented integrity defect that invalidates the cited evidence.",
+      "id": "entry_count_and_bankroll"
+    },
+    {
+      "disposition_rule": "Every historical arm in this family must be selected, rejected, neutral, repaired, invalid-unadjudicated, prerequisite-closed, prospective-only, duplicate, operationally complete, or deferred with a falsifier.",
+      "falsifier_rule": "Reopen only with outcome-unseen prospective evidence, a genuinely new data grain/mechanism, or a documented integrity defect that invalidates the cited evidence.",
+      "id": "data_and_pit_integrity"
+    },
+    {
+      "disposition_rule": "Every historical arm in this family must be selected, rejected, neutral, repaired, invalid-unadjudicated, prerequisite-closed, prospective-only, duplicate, operationally complete, or deferred with a falsifier.",
+      "falsifier_rule": "Reopen only with outcome-unseen prospective evidence, a genuinely new data grain/mechanism, or a documented integrity defect that invalidates the cited evidence.",
+      "id": "operations"
+    }
+  ],
+  "outcome_query_after_freeze_only": true,
+  "panels": [
+    {
+      "estimand": "107-slate component/candidate/selector evidence",
+      "expected_player_rows": 50418,
+      "expected_rows": 27051,
+      "expected_slates": 107,
+      "id": "component-107",
+      "outcome_columns_excluded": [
+        "replay_candidates.actual_score",
+        "replay_candidates.actual_rank",
+        "slate_player_features.actual"
+      ],
+      "panel_ids": [
+        "20260811-pitclean-e80-k1-role12union-a12ab31"
+      ],
+      "prelock_candidate_summary": {
+        "row_count": 27051,
+        "row_max": 9222852004600352591,
+        "row_min": -9222917006920499732,
+        "row_sum": "1037021044469016917342",
+        "row_xor": -2045065899662479546,
+        "seasons": [
+          2019,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "slate_count": 107
+      },
+      "prelock_feature_summary": {
+        "row_count": 50418,
+        "row_max": 9223209806275316068,
+        "row_min": -9222660106227041116,
+        "row_sum": "-2051534357438685893573",
+        "row_xor": -2109972890134630121,
+        "seasons": [
+          2019,
+          2021,
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "slate_count": 107
+      },
+      "prelock_row_hash": "ab3720efba6427210d0ae2d306abfba56a0315aa43fab2345c1e78d3f5363e2c",
+      "scope_boundary": "2019 and 2021-2025 component policy; not position/ASOE/CBWU v4",
+      "seasons": [
+        2019,
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "table": "nfl-predictions-503414.nfl_predictions.replay_candidates + nfl-predictions-503414.nfl_predictions.slate_player_features"
+    },
+    {
+      "estimand": "54-slate position-calibrated finite-K evidence",
+      "expected_player_rows": 29605,
+      "expected_rows": 13673,
+      "expected_slates": 54,
+      "id": "position-54",
+      "outcome_columns_excluded": [
+        "replay_candidates.actual_score",
+        "replay_candidates.actual_rank",
+        "slate_player_features.actual"
+      ],
+      "panel_ids": [
+        "20260812-pitclean-e80-selected-position-scales-v2"
+      ],
+      "prelock_candidate_summary": {
+        "row_count": 13673,
+        "row_max": 9222750864269868508,
+        "row_min": -9223350239856662316,
+        "row_sum": "-532976740523322362558",
+        "row_xor": -9130643030763897038,
+        "seasons": [
+          2023,
+          2024,
+          2025
+        ],
+        "slate_count": 54
+      },
+      "prelock_feature_summary": {
+        "row_count": 29605,
+        "row_max": 9222477390844264221,
+        "row_min": -9221807178924198973,
+        "row_sum": "-858255317604653737169",
+        "row_xor": 2364741270666298115,
+        "seasons": [
+          2023,
+          2024,
+          2025
+        ],
+        "slate_count": 54
+      },
+      "prelock_row_hash": "8cb6f8f5b0b861cbe3f5b99d778373a6bc76d254d583957e0607f0e0d1e8342b",
+      "scope_boundary": "2023-2025 only; not a 107-slate CBWU v4 book",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "table": "nfl-predictions-503414.nfl_predictions.replay_candidates + nfl-predictions-503414.nfl_predictions.slate_player_features"
+    },
+    {
+      "estimand": "54-slate five-search/five-world CBWU reconstruction evidence",
+      "expected_player_rows": 148025,
+      "expected_rows": 68493,
+      "expected_slates": 54,
+      "id": "phase-s-cbwu-54",
+      "outcome_columns_excluded": [
+        "replay_candidates.actual_score",
+        "replay_candidates.actual_rank",
+        "slate_player_features.actual"
+      ],
+      "panel_ids": [
+        "20260813-sis-asoe-treatment-r0-v1",
+        "20260813-sis-asoe-treatment-r1-v1",
+        "20260813-sis-asoe-treatment-r2-v1",
+        "20260813-sis-asoe-treatment-r3-v1",
+        "20260813-sis-asoe-treatment-r4-v1"
+      ],
+      "prelock_candidate_summary": {
+        "row_count": 68493,
+        "row_max": 9223349435193716713,
+        "row_min": -9222899301205157495,
+        "row_sum": "-1488571854430793341898",
+        "row_xor": 1771716831806207312,
+        "seasons": [
+          2023,
+          2024,
+          2025
+        ],
+        "slate_count": 54
+      },
+      "prelock_feature_summary": {
+        "row_count": 148025,
+        "row_max": 9223370687994905685,
+        "row_min": -9223353789631752540,
+        "row_sum": "-825081132763371553218",
+        "row_xor": -2432710597272234162,
+        "seasons": [
+          2023,
+          2024,
+          2025
+        ],
+        "slate_count": 54
+      },
+      "prelock_row_hash": "869a648ade3919b8942d8489795b208484c448ca73873cfcacede84effb13e7e",
+      "scope_boundary": "2023-2025 Phase S treatment R0-R4 plus frozen fixed-budget CBWU analyzer; no persisted standalone CBWU panel and no 107-slate claim",
+      "seasons": [
+        2023,
+        2024,
+        2025
+      ],
+      "table": "nfl-predictions-503414.nfl_predictions.replay_candidates_staging + nfl-predictions-503414.nfl_predictions.slate_player_features"
+    }
+  ],
+  "production": {
+    "cbwu_panel": "20260813-multiseed-candidate-world-v1",
+    "component_panel": "20260811-pitclean-e80-k1-role12union-a12ab31",
+    "fallback_policy_id": "classic-k1-ce12-boom28-v1",
+    "policy_id": "classic-k1-role12-boom40-poscal-cbwu-v4",
+    "position_panel": "20260812-pitclean-e80-selected-position-scales-v2",
+    "service_image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:c46b5a3b7244b3c25a62cb6cf4735583f79bc4fed006d113280b7255e3a377df",
+    "service_revision": "nfl-dfs-app-00071-njm"
+  },
+  "protocol_exclusions": [
+    {
+      "path": "reports/2026-08-11-final-preseason-forensic-closure-protocol.md",
+      "reason": "This is the governing closure protocol being frozen, not a prior experimental arm."
+    }
+  ],
+  "protocol_id": "20260814-final-preseason-forensic-v1",
+  "report_inventory": [
+    {
+      "bytes": 215551,
+      "kind": "supporting",
+      "path": "reports/2026-07-25-system-study.md",
+      "sha256": "d45cdebcc6efd263acaf7908770116fdc94b8e40812bca0f232ad1ff17530d5a"
+    },
+    {
+      "bytes": 55456,
+      "kind": "audit",
+      "path": "reports/2026-08-08-80-entry-tail-audit.md",
+      "sha256": "b12eb8305610bdbcf789278401e4684bae1de80f116b19dbe62ec23b6588de54"
+    },
+    {
+      "bytes": 18618,
+      "kind": "supporting",
+      "path": "reports/2026-08-09-data-acquisition-priorities.md",
+      "sha256": "d489ef50419a48e661101e2fb956634710a712da4a94dc238c58aa71c186c42a"
+    },
+    {
+      "bytes": 6998,
+      "kind": "supporting",
+      "path": "reports/2026-08-09-k1-ce-true80-experiment.md",
+      "sha256": "3c09d010da93f3d7c7eadfb9bf1ca332f03549bc91daed90bd8e163851396e65"
+    },
+    {
+      "bytes": 8000,
+      "kind": "supporting",
+      "path": "reports/2026-08-09-k1-model-only-true80-experiment.md",
+      "sha256": "4869a3286abec8c045caac80087f88862543b659a5e1465c5589db1b01351964"
+    },
+    {
+      "bytes": 8353,
+      "kind": "supporting",
+      "path": "reports/2026-08-09-k1-no-floor-true80-experiment.md",
+      "sha256": "c53f8c85e0501f49117503f8e7d54b32e8a60f62c47ee19251b5591c4c23daca"
+    },
+    {
+      "bytes": 10120,
+      "kind": "supporting",
+      "path": "reports/2026-08-09-milly-ownership-alternative.md",
+      "sha256": "129986da8ea3088b45c0446a58688c36108dc7bf1e8f59846535a4d36a88f616"
+    },
+    {
+      "bytes": 4953,
+      "kind": "audit",
+      "path": "reports/2026-08-10-contest-placement-roi-audit.md",
+      "sha256": "e76afc0ee07b72bb856582e6f8c037589b542e472e2012f5b9baec75cb7dfd1a"
+    },
+    {
+      "bytes": 2896,
+      "kind": "supporting",
+      "path": "reports/2026-08-10-corrected-extreme-selector-confirmation.md",
+      "sha256": "25939b6111c68410064d4ecd1297e1d491b0620253f67b1b8ad68295e970f8a5"
+    },
+    {
+      "bytes": 10333,
+      "kind": "supporting",
+      "path": "reports/2026-08-10-corrected-floor-union-experiment.md",
+      "sha256": "cdc604a72e651f4c95f1aa63daa544956f37b4c7faef987748505451cca02092"
+    },
+    {
+      "bytes": 5170,
+      "kind": "supporting",
+      "path": "reports/2026-08-10-corrected-k1-direct-role-union.md",
+      "sha256": "28b5ce5ecb8269aea8e8f7952d96bfe8c6142ebe7aad3a2e85c8bdcdc8f26a78"
+    },
+    {
+      "bytes": 10380,
+      "kind": "supporting",
+      "path": "reports/2026-08-10-fantasy-points-coverage-fit-experiment.md",
+      "sha256": "249677e7495b0082fea13d8f579b97bf7d5d7c9beb4393fc43d39f8b557f713d"
+    },
+    {
+      "bytes": 6042,
+      "kind": "supporting",
+      "path": "reports/2026-08-10-fantasy-points-coverage-tail-union.md",
+      "sha256": "32dd6bbaf6d8f0cd1e78f46870c56e04b25c22ddcd4d45c8eae80d4cc97a90a4"
+    },
+    {
+      "bytes": 30334,
+      "kind": "supporting",
+      "path": "reports/2026-08-10-fantasy-points-data-intake.md",
+      "sha256": "ccea283915ba9a8da595e050843d9c0aa64bba2e7865d7871eeb378b55484a02"
+    },
+    {
+      "bytes": 7583,
+      "kind": "supporting",
+      "path": "reports/2026-08-10-fantasy-points-prior-season-advanced-tail.md",
+      "sha256": "064e60a23d784c50fe46cf0e2f324b1f87575586ba312cef115351c34d911191"
+    },
+    {
+      "bytes": 8491,
+      "kind": "supporting",
+      "path": "reports/2026-08-10-fantasy-points-route-share-experiment.md",
+      "sha256": "cc289f1329cef859a5f0e52b643b72b88a231b5e32aa5b0cdeb7bb0507a27dab"
+    },
+    {
+      "bytes": 6289,
+      "kind": "supporting",
+      "path": "reports/2026-08-10-fantasy-points-route-tail-union.md",
+      "sha256": "45bce22e8debb77ec79de8bace18f14543b863ade26c99f2ed6fb17999f863c0"
+    },
+    {
+      "bytes": 4639,
+      "kind": "supporting",
+      "path": "reports/2026-08-10-k1-ce-reranker-confirmation.md",
+      "sha256": "aaf9f4ac43cb27ad77b03c07872b285fd879914b3572996dc375713be410b5ca"
+    },
+    {
+      "bytes": 8892,
+      "kind": "supporting",
+      "path": "reports/2026-08-10-k1-ce-role-belief-experiment.md",
+      "sha256": "28f07837d17f27e9182a7cb88ffd2ed1f2776d1b9e03010aeb2139a56ed95309"
+    },
+    {
+      "bytes": 8419,
+      "kind": "supporting",
+      "path": "reports/2026-08-10-market-tail-disagreement-experiment.md",
+      "sha256": "db6bd62303879bb66d0160d13ee01652a87439d2bb0aa5b8d8ee3e932ed924a2"
+    },
+    {
+      "bytes": 7513,
+      "kind": "supporting",
+      "path": "reports/2026-08-10-ngs-receiver-tail-experiment.md",
+      "sha256": "2983afb89c0abb91494358be343f3c6e1915456f67da86202e04d1a63a9564e2"
+    },
+    {
+      "bytes": 5925,
+      "kind": "supporting",
+      "path": "reports/2026-08-10-pass-participation-proxy.md",
+      "sha256": "b25280706ca9e39243fab21de5046836f4bc84417015cb72beedb8bb16234be9"
+    },
+    {
+      "bytes": 8470,
+      "kind": "supporting",
+      "path": "reports/2026-08-10-prop-common-lock-correction.md",
+      "sha256": "6c7e9a6dcc0fdc6a783e4821e5e5dd1f7c68bbcdb9fef431b6a35507e6ce92ba"
+    },
+    {
+      "bytes": 3547,
+      "kind": "supporting",
+      "path": "reports/2026-08-10-prospective-extreme-selector.md",
+      "sha256": "30f2f2cfdc08683a60f86f390832c9a227390444c4df91dfc6c66a2ba9f01c7d"
+    },
+    {
+      "bytes": 23033,
+      "kind": "plan",
+      "path": "reports/2026-08-10-scoring-opportunity-roadmap.md",
+      "sha256": "ef02c6e2d2ac58a478faf764ff5e9ee8eae23e684ebef193b3b23351dc588308"
+    },
+    {
+      "bytes": 29573,
+      "kind": "supporting",
+      "path": "reports/2026-08-10-scoring-strategy-recommendations.md",
+      "sha256": "7128544f26cab46531b34190fe42798221a381f9dba059348a2eb610dc27b03f"
+    },
+    {
+      "bytes": 8050,
+      "kind": "reconciliation",
+      "path": "reports/2026-08-10-strategy-review-reconciliation.md",
+      "sha256": "5e510bd4318bc17fc145631bbe6652c9054e6079e991aa3ea88348147fd97c12"
+    },
+    {
+      "bytes": 5301,
+      "kind": "review",
+      "path": "reports/2026-08-10-tail-first-adoption-review.md",
+      "sha256": "25e1d4ab6baf532f1304b7cc01b0c6b33988cfc2c84d6c45a28fda4b7f58390c"
+    },
+    {
+      "bytes": 2252,
+      "kind": "result",
+      "path": "reports/2026-08-11-advanced-receiving-diagnostic-result.md",
+      "sha256": "afc39e72aff579719bf52fa8f6460dfc32f2d7904f197bdb6d4dc1f13d234b8f"
+    },
+    {
+      "bytes": 4611,
+      "kind": "supporting",
+      "path": "reports/2026-08-11-advanced-receiving-same-season-diagnostic.md",
+      "sha256": "634d74b855f4660f7ae8b1f2dda9a5e6348b34a05a98aeb12ff9f7c4985797cf"
+    },
+    {
+      "bytes": 3538,
+      "kind": "audit",
+      "path": "reports/2026-08-11-advanced-receiving-support-audit.md",
+      "sha256": "aa72b8620c1c31b5bb3c791efba15a277d61bd972cc4e534819970b6199011e8"
+    },
+    {
+      "bytes": 4402,
+      "kind": "supporting",
+      "path": "reports/2026-08-11-advanced-receiving-support-window-collection.md",
+      "sha256": "49792fc43e9d996f1e52dc062f5eaaa2acad1664117a559da462e8ad334559bc"
+    },
+    {
+      "bytes": 3093,
+      "kind": "result",
+      "path": "reports/2026-08-11-data-fitted-dirichlet-exact80-result.md",
+      "sha256": "7b54d7d15b01c930389af3ab0580f69e7b8b6796c9ff3561caa4e30a66fc1b64"
+    },
+    {
+      "bytes": 7196,
+      "kind": "supporting",
+      "path": "reports/2026-08-11-data-fitted-dirichlet-exact80.md",
+      "sha256": "67eb09eb37b15b64cbfd38250b8d4e32a43c89e9e7cc5c0c3b24f45584777f6a"
+    },
+    {
+      "bytes": 2426,
+      "kind": "result",
+      "path": "reports/2026-08-11-data-fitted-dirichlet-result.md",
+      "sha256": "ab3e297586f28349d3a13728071bc6879cf7371f7b13c516b4e80038ed05cb01"
+    },
+    {
+      "bytes": 6244,
+      "kind": "supporting",
+      "path": "reports/2026-08-11-data-fitted-dirichlet-usage.md",
+      "sha256": "e32e862b0de2fdc6378a044dff35b0daf1f3d26f1a1d161f9e3cc117491dc7db"
+    },
+    {
+      "bytes": 27132,
+      "kind": "audit",
+      "path": "reports/2026-08-11-deep-analysis-calibration-and-data-audit.md",
+      "sha256": "eed4a101779b818305a80ccb89a872dc7a27078689a103dc329cb0167cc23fc5"
+    },
+    {
+      "bytes": 5109,
+      "kind": "reconciliation",
+      "path": "reports/2026-08-11-deep-calibration-audit-reconciliation.md",
+      "sha256": "8b6268ac1eb69117ab0a10760f7444c42373172b9205c06a0271e5449744ae35"
+    },
+    {
+      "bytes": 14936,
+      "kind": "plan",
+      "path": "reports/2026-08-11-end-of-program-forensic-analysis-plan.md",
+      "sha256": "e037d2fe3243ddc7a527bf4c05a4c1c85ddf0b275e8030224e249184bcd01293"
+    },
+    {
+      "bytes": 33795,
+      "kind": "supporting",
+      "path": "reports/2026-08-11-fantasy-points-data-utilization.md",
+      "sha256": "8a5adad81b9bb387d0b07fe4d5d25b7df818313d634134645c6ad16a7cd6fec2"
+    },
+    {
+      "bytes": 5976,
+      "kind": "protocol",
+      "path": "reports/2026-08-11-fantasy-points-defense-proe-protocol.md",
+      "sha256": "cd08d621033b36759b9d9e14f97778b08ea967264d9a8c7302d42b1292d23b1b"
+    },
+    {
+      "bytes": 9384,
+      "kind": "audit",
+      "path": "reports/2026-08-11-fantasy-points-filter-surface-audit.md",
+      "sha256": "a8e2f8ff2d077589de394402b6694f30bf4d7601772cd595b12c4cb7847d53d7"
+    },
+    {
+      "bytes": 3066,
+      "kind": "supporting",
+      "path": "reports/2026-08-11-fantasy-points-live-matchup-capture-contract.md",
+      "sha256": "cddcde9d1d384e2d940b01ac23dda8ee52664d24fd2e5182b1a27121e8581b33"
+    },
+    {
+      "bytes": 5473,
+      "kind": "protocol",
+      "path": "reports/2026-08-11-fantasy-points-projected-ownership-protocol.md",
+      "sha256": "9b1c981f0aee92948ef7de0e8b9ef0df4dbb4f0a856b67a946220163039d4185"
+    },
+    {
+      "bytes": 8390,
+      "kind": "audit",
+      "path": "reports/2026-08-11-fantasy-points-redundancy-audit.md",
+      "sha256": "7fdae932e693d7beba709612080727d13fd1e86a936353284492b290736a2655"
+    },
+    {
+      "bytes": 8266,
+      "kind": "protocol",
+      "path": "reports/2026-08-11-fantasy-points-route-component-protocol.md",
+      "sha256": "4926b3c1717bda3734d8cdff686526c9beb78a62c2ba7f3ec8aa4db9f5b5b574"
+    },
+    {
+      "bytes": 6802,
+      "kind": "protocol",
+      "path": "reports/2026-08-11-fantasy-points-same-season-advanced-passing-protocol.md",
+      "sha256": "d1547e979febd3eb75eff48a4291f5da50d9e065a20c97480072f971e147da4d"
+    },
+    {
+      "bytes": 9547,
+      "kind": "protocol",
+      "path": "reports/2026-08-11-fantasy-points-same-season-coverage-protocol.md",
+      "sha256": "895429b86a33801b6c9bdc9a6c70d0e5fd289404433c017bc657f8b7e4eab65f"
+    },
+    {
+      "bytes": 6721,
+      "kind": "protocol",
+      "path": "reports/2026-08-11-fantasy-points-same-season-route-shape-protocol.md",
+      "sha256": "2dadcd5c3550491c4c55d8c4c864472dc01edd6335f3f28ddfb94ee46a099a2a"
+    },
+    {
+      "bytes": 10711,
+      "kind": "reconciliation",
+      "path": "reports/2026-08-11-fantasy-points-utilization-reconciliation.md",
+      "sha256": "93b95a10f4edfb06a61f23cce7879583be2835d10322d51fb8b8ad03e96e0444"
+    },
+    {
+      "bytes": 3128,
+      "kind": "supporting",
+      "path": "reports/2026-08-11-fantasy-points-weekly-reports-summary.md",
+      "sha256": "055251bc543dd428a9b8323e8b348961e3c4f17722705d81f9b7335caa398c41"
+    },
+    {
+      "bytes": 9591,
+      "kind": "supporting",
+      "path": "reports/2026-08-11-feature-plumbing-defects-and-correlation-gaps.md",
+      "sha256": "93cc006c01021345b044b840fe6ca991288e34fc4cbbf9f7179d1599660e5316"
+    },
+    {
+      "bytes": 24729,
+      "kind": "protocol",
+      "path": "reports/2026-08-11-final-preseason-forensic-closure-protocol.md",
+      "sha256": "f1984c2d55467801e54bac2cf5e730389f20cb88e5689138182425fe8f8f8d89"
+    },
+    {
+      "bytes": 12824,
+      "kind": "supporting",
+      "path": "reports/2026-08-11-graph-clustering-and-technology-options.md",
+      "sha256": "185557cbb0b8a8929dfb82906de4f563b978ca11e44a9fa6c1d7c394fef220b5"
+    },
+    {
+      "bytes": 11583,
+      "kind": "plan",
+      "path": "reports/2026-08-11-graph-dependence-research-queue.md",
+      "sha256": "89f6ac15043c52b3e860de8d04957f599e7dccf4d18ac81c9d350cfa656b875a"
+    },
+    {
+      "bytes": 8687,
+      "kind": "review",
+      "path": "reports/2026-08-11-graph-queue-review-notes.md",
+      "sha256": "f39895f60be41ad0805ed64f0d75bf00e568d46295fcd5b8670c79e1469b357b"
+    },
+    {
+      "bytes": 3798,
+      "kind": "supporting",
+      "path": "reports/2026-08-11-pit-clean-tier1-revalidation.md",
+      "sha256": "52a1014f8dc5be8ba96ef01cf715af19988be3b78973b664c033dfb001bb92e1"
+    },
+    {
+      "bytes": 11026,
+      "kind": "audit",
+      "path": "reports/2026-08-11-pit-join-and-accuracy-code-audit.md",
+      "sha256": "44bde6e21af0c89418505a989c0f95190c3b022bb67e747f9b13b5c2c33e5711"
+    },
+    {
+      "bytes": 9005,
+      "kind": "reconciliation",
+      "path": "reports/2026-08-11-pit-join-audit-reconciliation.md",
+      "sha256": "920c8606abeffebde8eef0bfd1556d871fc4f911dae4e02409afa2190a904fe4"
+    },
+    {
+      "bytes": 2708,
+      "kind": "reconciliation",
+      "path": "reports/2026-08-11-pit-rebuild-reconciliation-addendum.md",
+      "sha256": "1f6300a5dfd907dfe13b4d43553c4053888e98391211b2939bc2693437c437ea"
+    },
+    {
+      "bytes": 5817,
+      "kind": "supporting",
+      "path": "reports/2026-08-11-pit-repair-revalidation-scope.md",
+      "sha256": "e870974285aaa94ecc247d86438330a08e7b0fe135ac4257fc3459e967116599"
+    },
+    {
+      "bytes": 3592,
+      "kind": "supporting",
+      "path": "reports/2026-08-11-pit-repair-warehouse-manifest.md",
+      "sha256": "2bae799d0437faae538b0864a10d35d2c1286a1f8ad0de9fe6eb89285f672157"
+    },
+    {
+      "bytes": 15487,
+      "kind": "review",
+      "path": "reports/2026-08-11-post-window-program-review.md",
+      "sha256": "d1c3e7aab484d4b6445ae8e16b2dc72f6f192ec6fb33783888a0de573741b41c"
+    },
+    {
+      "bytes": 6174,
+      "kind": "reconciliation",
+      "path": "reports/2026-08-11-post-window-review-reconciliation.md",
+      "sha256": "2344bc7d1e2151d1321a87ffefb8bbb8af89de77005b189860fff29c98be89e0"
+    },
+    {
+      "bytes": 22941,
+      "kind": "supporting",
+      "path": "reports/2026-08-11-recommendation-scoreboard-and-pivot.md",
+      "sha256": "b38d402578f888db5145e1c1eb0f23867750847b6ad317d5ec796844bbd8bf0f"
+    },
+    {
+      "bytes": 3401,
+      "kind": "reconciliation",
+      "path": "reports/2026-08-11-recommendation-scoreboard-pivot-reconciliation.md",
+      "sha256": "09ef76bc072409dea9c313e01cd703bdf7975b46017844ede78ef35f403b972b"
+    },
+    {
+      "bytes": 3952,
+      "kind": "supporting",
+      "path": "reports/2026-08-11-route-share-2026-operating-contract.md",
+      "sha256": "23540919a7c4fcc31d9f824f34675352c89222a9d61ffa5b2b614ca004ebc547"
+    },
+    {
+      "bytes": 6340,
+      "kind": "supporting",
+      "path": "reports/2026-08-11-route-share-2026-shadow-gate.md",
+      "sha256": "12dcde90af8c023da65816178c1bb9c3e02437d2553e12d9afb7e17a036d2e18"
+    },
+    {
+      "bytes": 6330,
+      "kind": "supporting",
+      "path": "reports/2026-08-11-route-share-final-served-recalibration.md",
+      "sha256": "ddab1b6a692a0f6e25a48d88cc4e14a69d60104aee6b45b3361fdfbead3dc531"
+    },
+    {
+      "bytes": 3304,
+      "kind": "result",
+      "path": "reports/2026-08-11-route-share-final-served-result.md",
+      "sha256": "1033cba54c2c40361a270b8f6c18cc2f5ec450a31c6126629e9f37eda736940e"
+    },
+    {
+      "bytes": 8612,
+      "kind": "supporting",
+      "path": "reports/2026-08-11-served-position-calibration-lineup.md",
+      "sha256": "4ccc35be377b216637ee4376e2dcf56d80a17736ac793ad34cf5cceb5e4a4ff5"
+    },
+    {
+      "bytes": 7208,
+      "kind": "supporting",
+      "path": "reports/2026-08-11-served-position-calibration-refit.md",
+      "sha256": "7ef4c3f6b68ec051202be06de07141068b7e54e43942e266cd7a2ccd505f8098"
+    },
+    {
+      "bytes": 5978,
+      "kind": "protocol",
+      "path": "reports/2026-08-11-served-tail-calibration-protocol.md",
+      "sha256": "69e14c336657477c31633290a8e5a162e14e01e9bce4dae2b2318c3a7e503c0f"
+    },
+    {
+      "bytes": 14550,
+      "kind": "supporting",
+      "path": "reports/2026-08-11-served-tail-recalibration-experiment.md",
+      "sha256": "8badf1eea02adbdb4ac2ba32565c85ca4ad8523d2ea2af37a0103773541b0cb8"
+    },
+    {
+      "bytes": 1997,
+      "kind": "result",
+      "path": "reports/2026-08-11-tabpfn-active-label-cache-result.md",
+      "sha256": "7ea63a2ae9f4cd75da489ddb2d1f6adaf1eff6b42df664d087601a3f6a6f31d8"
+    },
+    {
+      "bytes": 7457,
+      "kind": "protocol",
+      "path": "reports/2026-08-11-tabpfn-active-label-exact80-protocol.md",
+      "sha256": "55197d3408f586536b798fb3249ac1618fdd2e60e5c5a4c650baa6460e3fbf80"
+    },
+    {
+      "bytes": 4487,
+      "kind": "result",
+      "path": "reports/2026-08-11-tabpfn-active-label-final-served-result.md",
+      "sha256": "8a0bbe13e67c17d4f270176debc524c3c03df23c45bfa8d5e9eabcb07090776e"
+    },
+    {
+      "bytes": 2841,
+      "kind": "supporting",
+      "path": "reports/2026-08-11-tabpfn-active-label-pit-clean-cache-addendum.md",
+      "sha256": "7e97d517a6890cd9748cfbdbb42e6629bc21b942945d4bf392b0341cbe8714c0"
+    },
+    {
+      "bytes": 6155,
+      "kind": "protocol",
+      "path": "reports/2026-08-11-tabpfn-active-label-protocol.md",
+      "sha256": "0fe5e73a1c08ac6bb50a1413ba7175172d441e36c215d7544877cbcabf8b193f"
+    },
+    {
+      "bytes": 3218,
+      "kind": "supporting",
+      "path": "reports/2026-08-11-tabpfn-canonical-pit-clean-cache.md",
+      "sha256": "c6b1bc55f0ee70fa661f26555df0f6b23fad4c3bbc24b6f566d04bae321ee0ed"
+    },
+    {
+      "bytes": 4810,
+      "kind": "protocol",
+      "path": "reports/2026-08-11-tabpfn-schedule-feature-sync-protocol.md",
+      "sha256": "b6bde04dddcdd61cda931bb2f92463a24121ffa2ee6a0a3cd6a0e2a750a3c3d7"
+    },
+    {
+      "bytes": 2471,
+      "kind": "audit",
+      "path": "reports/2026-08-11-tabpfn-stage-calibration-audit.md",
+      "sha256": "dd3111df1489aa08398fc03579c0942498842d92bb73282799e76d3aecfb8e02"
+    },
+    {
+      "bytes": 5613,
+      "kind": "protocol",
+      "path": "reports/2026-08-11-tabpfn-team-qb-quality-protocol.md",
+      "sha256": "a76787c517701f288cdfb03a603f0a8e6fc4f3a2e0dc0c9f08c843edd3623f9a"
+    },
+    {
+      "bytes": 3402,
+      "kind": "supporting",
+      "path": "reports/2026-08-12-active-label-comparator-invariant-repair.md",
+      "sha256": "a70e12ed2c07e52489a3a19769c46f3a81204aab01cfdd55b142e01df12d4ead"
+    },
+    {
+      "bytes": 7428,
+      "kind": "protocol",
+      "path": "reports/2026-08-12-active-label-usage-revalidation-protocol.md",
+      "sha256": "f8e53d640b4cb6dbacfe6a828d413be47ad61a705d85f2185c94228be201e5fc"
+    },
+    {
+      "bytes": 3597,
+      "kind": "result",
+      "path": "reports/2026-08-12-active-label-usage-revalidation-result.md",
+      "sha256": "9f7744706c0c6ea78d631b9a9353bf43370aec46e9a2a4e71c8aea4364d0cc7d"
+    },
+    {
+      "bytes": 9234,
+      "kind": "reconciliation",
+      "path": "reports/2026-08-12-alternative-analytical-frames-reconciliation.md",
+      "sha256": "34c06bdf458d61185f78a69871d27041e47beacaf2db055bb50b68264ea8df1b"
+    },
+    {
+      "bytes": 11044,
+      "kind": "supporting",
+      "path": "reports/2026-08-12-alternative-analytical-frames.md",
+      "sha256": "981f86b28768ee68f2c0c940ea151b6592d2cb456c15f271f954480746412d0f"
+    },
+    {
+      "bytes": 3524,
+      "kind": "reconciliation",
+      "path": "reports/2026-08-12-effective-rank-implementation-review-reconciliation.md",
+      "sha256": "fcb366b3a97a04593fdfdcfa5f8507e2130f0413fd13269d8b58e61e8f8b5583"
+    },
+    {
+      "bytes": 8004,
+      "kind": "review",
+      "path": "reports/2026-08-12-effective-rank-implementation-review.md",
+      "sha256": "60b2f3f8b91cae1feff0205d5c262ffeab2da7c26eea2e9531517b8ee3a10939"
+    },
+    {
+      "bytes": 6215,
+      "kind": "protocol",
+      "path": "reports/2026-08-12-g0-final-served-dependence-protocol.md",
+      "sha256": "3a7d9d2b61a4234e4d5bcecc1cab609a9ddbe8caca5dd451f7f75968f17e29e1"
+    },
+    {
+      "bytes": 2416,
+      "kind": "result",
+      "path": "reports/2026-08-12-g0-final-served-dependence-result.md",
+      "sha256": "e6e8b4b392357ba16feba3a4613fee4d97734922f0022a381c511fde23ec11ca"
+    },
+    {
+      "bytes": 9720,
+      "kind": "protocol",
+      "path": "reports/2026-08-12-g1-walk-forward-archetype-topology-protocol.md",
+      "sha256": "7b5cefd3dcb5a3ddbe8eb1804b6fbc1b3f6d69a6f5b0f4cb0e379726aa519843"
+    },
+    {
+      "bytes": 3781,
+      "kind": "result",
+      "path": "reports/2026-08-12-g1-walk-forward-archetype-topology-result.md",
+      "sha256": "060198b96f207c9f15480ce3635e4f6105a3a7033a6dacf3875c7a2d86f0b2c3"
+    },
+    {
+      "bytes": 10244,
+      "kind": "protocol",
+      "path": "reports/2026-08-12-g2-qb-gumbel-factor-protocol.md",
+      "sha256": "dec11cd9cf8ea2ba824018a0ef2eb3a694102006cb4edcf27e0233fde025feac"
+    },
+    {
+      "bytes": 7197,
+      "kind": "reconciliation",
+      "path": "reports/2026-08-12-marginal-arm-pattern-adoption-risk-reconciliation.md",
+      "sha256": "43967dabde8121d8e1756a77cfbba08b3cf589154b5f5776e941816e2193ef62"
+    },
+    {
+      "bytes": 8615,
+      "kind": "review",
+      "path": "reports/2026-08-12-marginal-arm-pattern-and-adoption-risk-review.md",
+      "sha256": "90ff06b9a389ac793615137ebb01f3cbab3ca0057f38e480acca4a3dbbed4df5"
+    },
+    {
+      "bytes": 1943,
+      "kind": "result",
+      "path": "reports/2026-08-12-pit-clean-active-label-exact80-result.md",
+      "sha256": "8fdc031f37385913808d8c74e748f3c019b6afdd8cdc9f84730fc80a9f81cf53"
+    },
+    {
+      "bytes": 2939,
+      "kind": "supporting",
+      "path": "reports/2026-08-12-pit-clean-active-label-exact80.md",
+      "sha256": "b4beb2074293bc450b3465b00deb29624d54871621da5c34d32a43b238f37f43"
+    },
+    {
+      "bytes": 1963,
+      "kind": "result",
+      "path": "reports/2026-08-12-pit-clean-active-label-final-served-result.md",
+      "sha256": "731dd9ede86c1bec820f623b8e7ecd8db84a3e249f42c6ee0e559b4efce679b1"
+    },
+    {
+      "bytes": 2450,
+      "kind": "supporting",
+      "path": "reports/2026-08-12-pit-clean-served-position-calibration.md",
+      "sha256": "bdaa7fc7c1133891aa8ea33176f1f04a3c4e43bb597303fa67fd6ade771233a7"
+    },
+    {
+      "bytes": 2843,
+      "kind": "supporting",
+      "path": "reports/2026-08-12-pit-clean-tabpfn-sched-exact80.md",
+      "sha256": "45c3bcdf9985dede2e2b643ad688d334b3de02e9a3164ce143c5cf46b09435e2"
+    },
+    {
+      "bytes": 2407,
+      "kind": "result",
+      "path": "reports/2026-08-12-pit-clean-tabpfn-sched-final-served-result.md",
+      "sha256": "2ff2dc750229500bfda8f64d0f221fec250e4655369a1a5807d050da37f3dee1"
+    },
+    {
+      "bytes": 2666,
+      "kind": "supporting",
+      "path": "reports/2026-08-12-pit-clean-tabpfn-team-qb-exact80.md",
+      "sha256": "da209ff1de7694ae31b03f2a460feaa2e441e421e6b59b95fcb70b792edcf5b7"
+    },
+    {
+      "bytes": 1578,
+      "kind": "result",
+      "path": "reports/2026-08-12-pit-clean-tabpfn-team-qb-final-served-result.md",
+      "sha256": "a24b6f0ec3559674726158b1e4f242a25d6982d29ba59a593874725a04ba018b"
+    },
+    {
+      "bytes": 2894,
+      "kind": "supporting",
+      "path": "reports/2026-08-12-pit-clean-usage-exact80.md",
+      "sha256": "eb51ef41ceae76e19f554dfdb53759d0c09b2fde437259b597cc0e6b01060e48"
+    },
+    {
+      "bytes": 9381,
+      "kind": "review",
+      "path": "reports/2026-08-12-pit-repair-and-team-qb-feature-review.md",
+      "sha256": "0b9b3d0b9d3273b49a127664e3ebdc5dcf27035ff6dca6f1fa0ceca4f9ee221e"
+    },
+    {
+      "bytes": 4614,
+      "kind": "reconciliation",
+      "path": "reports/2026-08-12-pit-repair-team-qb-review-reconciliation.md",
+      "sha256": "968906192915647b2eefb2a4e628719e5f14ca0b1c31432bb1b0d4083f21baea"
+    },
+    {
+      "bytes": 1788,
+      "kind": "result",
+      "path": "reports/2026-08-13-corrected-extreme-selector-result.md",
+      "sha256": "7ab05c110e75821db33f999378308fa07ad1305e7dc80fb60268ef84baa9daef"
+    },
+    {
+      "bytes": 4205,
+      "kind": "supporting",
+      "path": "reports/2026-08-13-coverage-grain-bind-and-kill-list.md",
+      "sha256": "ce93a54a5de1bc0c41af222ad5a2fcf8b1c09eaed838ebe502f97202bb62656f"
+    },
+    {
+      "bytes": 1916,
+      "kind": "supporting",
+      "path": "reports/2026-08-13-current-stack-extreme-selector-replication.md",
+      "sha256": "c841ac0fa5df4a4b84bafd83b1bd454bf89cd88b47149f9912a39c87057fc6a0"
+    },
+    {
+      "bytes": 1818,
+      "kind": "result",
+      "path": "reports/2026-08-13-current-stack-extreme-selector-result.md",
+      "sha256": "001da68c0bec081826f035c94f4fc1061f14de042acb27205e1f5b3bdc442c37"
+    },
+    {
+      "bytes": 10352,
+      "kind": "reconciliation",
+      "path": "reports/2026-08-13-experimental-design-arm-interactions-reconciliation.md",
+      "sha256": "82eb5c123503a347fb1c99163c676ce941aa4de3f2a605e469ce111fd3b3db77"
+    },
+    {
+      "bytes": 17417,
+      "kind": "supporting",
+      "path": "reports/2026-08-13-experimental-design-arm-interactions.md",
+      "sha256": "789f1c5658bef75e6012365d17013429cb0f332438aee2b8e1ee9db5ecbfaae4"
+    },
+    {
+      "bytes": 5704,
+      "kind": "protocol",
+      "path": "reports/2026-08-13-fantasy-points-qb-shell-fit-protocol.md",
+      "sha256": "0ed7e8868e568019bee880dff1dd37af8c82dcbc58900356af7c9762a64b6848"
+    },
+    {
+      "bytes": 3025,
+      "kind": "result",
+      "path": "reports/2026-08-13-fantasy-points-qb-shell-fit-result.md",
+      "sha256": "1aa8c95f5e1ad63ead96b3daa12128b533898c6875749ea362703026f45e5790"
+    },
+    {
+      "bytes": 1259,
+      "kind": "supporting",
+      "path": "reports/2026-08-13-fp-qb-shell-download-context-repair.md",
+      "sha256": "a46a78ff91f9b972ed3fe5a612500e029052656c2bcb0d52829476d2d500a19c"
+    },
+    {
+      "bytes": 7961,
+      "kind": "supporting",
+      "path": "reports/2026-08-13-g2-failure-analysis-and-next-mechanism.md",
+      "sha256": "55d47476ecd5f9b5a04da5bd8f61b5c21fef6f3026486c369524c5517934c507"
+    },
+    {
+      "bytes": 6314,
+      "kind": "reconciliation",
+      "path": "reports/2026-08-13-g2-failure-analysis-reconciliation.md",
+      "sha256": "e3c79b6267b43ac17b1a5411cbef7ccd253eebc9604abf27db0ea70180c69219"
+    },
+    {
+      "bytes": 4247,
+      "kind": "result",
+      "path": "reports/2026-08-13-g2-qb-gumbel-factor-result.md",
+      "sha256": "3e20b9713beb1d5951d17501c39a6bbd99e552a365a22acd9e0e098ecee2f4d3"
+    },
+    {
+      "bytes": 5034,
+      "kind": "protocol",
+      "path": "reports/2026-08-13-g3-participation-conditioned-allocation-protocol.md",
+      "sha256": "8ff54b98479df4d06ffd676b4ff1a45d339c8b32a23bbbd1b485b1027925c7ca"
+    },
+    {
+      "bytes": 8324,
+      "kind": "protocol",
+      "path": "reports/2026-08-13-game-team-usage-repair-and-sis-asoe-exact80-protocol.md",
+      "sha256": "4da94817dda7be25e89869af71f2228d4cec6b2df4d823f22206ce738819a521"
+    },
+    {
+      "bytes": 1983,
+      "kind": "supporting",
+      "path": "reports/2026-08-13-incumbent-numeric-path-restoration.md",
+      "sha256": "140d89e3312a40fef2e697d3e3f0ddb919994fc106e1441662b7f108c576fb2c"
+    },
+    {
+      "bytes": 6041,
+      "kind": "protocol",
+      "path": "reports/2026-08-13-incumbent-seed-variance-protocol.md",
+      "sha256": "7dd1d161606f2d9e95659d7880c36886fa55fcca3255aeaa4b78e9dadef17100"
+    },
+    {
+      "bytes": 1489,
+      "kind": "result",
+      "path": "reports/2026-08-13-incumbent-seed-variance-result.md",
+      "sha256": "c6cd62c59dc694373ed0dc15a46f2ebbecf47ba6bad053650dcc4f0df3cb66b2"
+    },
+    {
+      "bytes": 4112,
+      "kind": "audit",
+      "path": "reports/2026-08-13-incumbent-tail-mask-support-audit.md",
+      "sha256": "dfdcaf3f3082b4e4f9604a2f0a8f99216cf5948aa2fa21752435711a07b86675"
+    },
+    {
+      "bytes": 5948,
+      "kind": "reconciliation",
+      "path": "reports/2026-08-13-market-implied-dependence-reconciliation.md",
+      "sha256": "a6119d84cf601ba7a9eb5ffddfd383de1d807530b2a06fac97618b300003e67f"
+    },
+    {
+      "bytes": 9493,
+      "kind": "protocol",
+      "path": "reports/2026-08-13-monte-carlo-review-and-seed-variance-protocol.md",
+      "sha256": "913ad5df1d712c63125266569f2ca5eea6578b8cc6f0a1ccce42f2e881dd65ce"
+    },
+    {
+      "bytes": 5021,
+      "kind": "reconciliation",
+      "path": "reports/2026-08-13-monte-carlo-review-reconciliation.md",
+      "sha256": "8cec1f71a82d19fcae98313933d0f24aa18e42edc9068311a0b61187743b4b8b"
+    },
+    {
+      "bytes": 8645,
+      "kind": "protocol",
+      "path": "reports/2026-08-13-multiseed-candidate-world-factorial-protocol.md",
+      "sha256": "16d72151ac9ce0e6c520e3b269adbc27bb630744a574e10ce0eae7b1cc57675f"
+    },
+    {
+      "bytes": 8353,
+      "kind": "review",
+      "path": "reports/2026-08-13-multiseed-factorial-implementation-review.md",
+      "sha256": "2f0cb27f7bf17f413a90e337967268926934a681a793b28bf2712dd99e8a2f44"
+    },
+    {
+      "bytes": 8817,
+      "kind": "supporting",
+      "path": "reports/2026-08-13-oddsmaking-techniques-and-market-implied-dependence.md",
+      "sha256": "06d28fbe74b97765276c1a2d793ee5fe5b9bd2c050c8b7c66b830382a1af4f3c"
+    },
+    {
+      "bytes": 888,
+      "kind": "supporting",
+      "path": "reports/2026-08-13-pfr-secondary-control-parity-addendum.md",
+      "sha256": "2748cae4bdb215b89cc95f0c99291e70ef0cefc4192ac7979ee570af9e2c1793"
+    },
+    {
+      "bytes": 1651,
+      "kind": "supporting",
+      "path": "reports/2026-08-13-pfr-secondary-control-parity-repair.md",
+      "sha256": "27a07da64a5a638fa0dd4b3215da9955f701ba0796df76db5846171a748518ca"
+    },
+    {
+      "bytes": 5256,
+      "kind": "protocol",
+      "path": "reports/2026-08-13-pfr-secondary-drop-features-protocol.md",
+      "sha256": "f32fbe9ab759ff45463256064b6c462977e06fb8072c6f047db19ec82ee24436"
+    },
+    {
+      "bytes": 1778,
+      "kind": "result",
+      "path": "reports/2026-08-13-pfr-secondary-drop-features-result.md",
+      "sha256": "ea8a1d54cf6cb286b3c8d92db63ebe6659f20e6c3fa5730174332a9eb342e651"
+    },
+    {
+      "bytes": 1535,
+      "kind": "supporting",
+      "path": "reports/2026-08-13-pfr-secondary-report-transport-repair.md",
+      "sha256": "9275073b33cbedaaf02cb1ba4223bb4a6fec7eed67b4024a4e88c0f2ca970894"
+    },
+    {
+      "bytes": 7182,
+      "kind": "review",
+      "path": "reports/2026-08-13-phase-s-infrastructure-failure-review.md",
+      "sha256": "f11d8d74269515a0979e45ebdebe13621081ce8f5ff8a6e3b4ad1c20db967c83"
+    },
+    {
+      "bytes": 2715,
+      "kind": "protocol",
+      "path": "reports/2026-08-13-portfolio-effective-rank-protocol.md",
+      "sha256": "1052450f1ad17f58ef805fe42e6d2c23cbef42da441afd44319198b28d86d0ba"
+    },
+    {
+      "bytes": 4254,
+      "kind": "result",
+      "path": "reports/2026-08-13-portfolio-effective-rank-v2-result.md",
+      "sha256": "44b6cc78351cd44c8ebce5670ae29c77bb7cd0e2cad3f674c0e32e2d88934ed9"
+    },
+    {
+      "bytes": 1872,
+      "kind": "supporting",
+      "path": "reports/2026-08-13-portfolio-effective-rank-v2-scope-repair.md",
+      "sha256": "d6c36e1850b843afe8a5b0f5bcc2cb4b03c44771201815148282e4f249b154f0"
+    },
+    {
+      "bytes": 3764,
+      "kind": "protocol",
+      "path": "reports/2026-08-13-sis-alignment-feasibility-protocol.md",
+      "sha256": "7abdfaa422c6b554e2bd5d642dafd32e2db6bb09d2bd86e274c303ce076acc26"
+    },
+    {
+      "bytes": 1285,
+      "kind": "supporting",
+      "path": "reports/2026-08-13-sis-alignment-sample-scope-repair.md",
+      "sha256": "bf17018e9b06c393a8389b387c6a8af3c35d71169171c688b2be4c611149c4d0"
+    },
+    {
+      "bytes": 4665,
+      "kind": "protocol",
+      "path": "reports/2026-08-13-sis-asoe-acquisition-protocol.md",
+      "sha256": "ae73d25803c7cd971db68089c2e1fac25e5d8060868bf10df98cba389f736c7e"
+    },
+    {
+      "bytes": 5745,
+      "kind": "protocol",
+      "path": "reports/2026-08-13-sis-asoe-allocation-stage-a-protocol.md",
+      "sha256": "170621ed95eb5fb7f251037ac4f86b63946f4d10a4692d06db6ac4714dafcd7b"
+    },
+    {
+      "bytes": 2236,
+      "kind": "result",
+      "path": "reports/2026-08-13-sis-asoe-allocation-stage-a-result.md",
+      "sha256": "b48364b4457d66d96ef6dd151e9bd5b7e1e164e4fafdb756c9b760259f16cacb"
+    },
+    {
+      "bytes": 7568,
+      "kind": "supporting",
+      "path": "reports/2026-08-13-sis-datahub-trial-checklist.md",
+      "sha256": "11da765aa03059e99f544aa9f46262f6ca13d055b426edd1b500875a1e0187d2"
+    },
+    {
+      "bytes": 3846,
+      "kind": "audit",
+      "path": "reports/2026-08-13-sis-first-export-audit.md",
+      "sha256": "3822800623d6f1ea96ee350a53902dd1ecba6994d0ca2fb276b603827ee392d2"
+    },
+    {
+      "bytes": 9095,
+      "kind": "audit",
+      "path": "reports/2026-08-13-sis-nfl-subscription-inventory.md",
+      "sha256": "b9ca0c1a773bd5b0187c6fad09398d0a42ac0bfbb53e455aa97537d56c2e1e52"
+    },
+    {
+      "bytes": 2187,
+      "kind": "result",
+      "path": "reports/2026-08-13-sis-pass-tail-final-served-result.md",
+      "sha256": "f229a1c2e8d7ce692d01c9af21eece3729e821b92a508920f458ac6bb11f2a2f"
+    },
+    {
+      "bytes": 4328,
+      "kind": "protocol",
+      "path": "reports/2026-08-13-sis-pass-tail-marginal-protocol.md",
+      "sha256": "cc8e7e18615cdf8af5a564f8e6c725d9187d88fa5ff1f96be14e6f0128ed827b"
+    },
+    {
+      "bytes": 1602,
+      "kind": "result",
+      "path": "reports/2026-08-13-sis-pass-tail-support-result.md",
+      "sha256": "edc2197e288e10f29f3bbc94a389cc1541281d5754587c67ee50c83ff36bf2c9"
+    },
+    {
+      "bytes": 8423,
+      "kind": "plan",
+      "path": "reports/2026-08-13-sis-plan-coverage-gap-audit.md",
+      "sha256": "87650859333047a0154f9320132f241d61520ab0f77bbee5872236d493a8db83"
+    },
+    {
+      "bytes": 7627,
+      "kind": "reconciliation",
+      "path": "reports/2026-08-13-sis-plan-coverage-gap-reconciliation.md",
+      "sha256": "edaae722176d0707d2bcab26526a1410738a4a2534a3033e1e366ddd4cb793a6"
+    },
+    {
+      "bytes": 6672,
+      "kind": "protocol",
+      "path": "reports/2026-08-13-sis-qb-line-context-protocol.md",
+      "sha256": "042bd4762919597ed6073c31970d461fbb60e27b9d55ad5ae258449dc02cb207"
+    },
+    {
+      "bytes": 2343,
+      "kind": "result",
+      "path": "reports/2026-08-13-sis-qb-line-final-served-result.md",
+      "sha256": "f8a7056e4957612b008d0f34e79f70a1c3bb46619703666c87d0692c876fb317"
+    },
+    {
+      "bytes": 4666,
+      "kind": "reconciliation",
+      "path": "reports/2026-08-13-sis-rb-qb-failures-alignment-reconciliation.md",
+      "sha256": "7dbe6725f33605dcf3b9220a136e747ae0cafd2020aac678a1dc1e5c76ff25fc"
+    },
+    {
+      "bytes": 8723,
+      "kind": "supporting",
+      "path": "reports/2026-08-13-sis-rb-qb-failures-and-alignment-feasibility.md",
+      "sha256": "c3fd6dc6cffac71d1aead4ec553dfc9467cbf4ac186f554c9cbc9044a4f6f3c2"
+    },
+    {
+      "bytes": 2604,
+      "kind": "protocol",
+      "path": "reports/2026-08-13-sis-rb-run-defense-exact80-protocol.md",
+      "sha256": "8285cce4299673cc33baaa87c8078822fe7738d5c5ee44cfbaa107dd062b1cc1"
+    },
+    {
+      "bytes": 2132,
+      "kind": "result",
+      "path": "reports/2026-08-13-sis-rb-run-defense-final-served-result.md",
+      "sha256": "b27e8c9dc97b19c8f719eb045fa3b6c8ef7a2b79a7a29d6e4d250c7552cbe203"
+    },
+    {
+      "bytes": 4869,
+      "kind": "protocol",
+      "path": "reports/2026-08-13-sis-rb-run-defense-protocol.md",
+      "sha256": "06d67fa3ef259da77a368f26a2dc3f4b51a06ff53a2c4eebfecbc0dbb6fc8b50"
+    },
+    {
+      "bytes": 2522,
+      "kind": "reconciliation",
+      "path": "reports/2026-08-13-sis-schema-gate-scope-challenge-reconciliation.md",
+      "sha256": "b90dcc5c45880169b9e90764b6ad2ad07955b9944b77e05dfa237753d8366a1a"
+    },
+    {
+      "bytes": 7565,
+      "kind": "supporting",
+      "path": "reports/2026-08-13-sis-schema-gate-scope-challenge.md",
+      "sha256": "97ada46f09532c8adceff4999544999ec21ce5943974567b85b80817fa51f4a9"
+    },
+    {
+      "bytes": 4845,
+      "kind": "audit",
+      "path": "reports/2026-08-13-sis-team-context-feature-audit.md",
+      "sha256": "846c4342981c76330d820b752e888b700e83265096e0c53de75aa69dcbc260af"
+    },
+    {
+      "bytes": 2438,
+      "kind": "supporting",
+      "path": "reports/2026-08-13-sis-team-context-intake.md",
+      "sha256": "5a4b4240b25f8bce0ad38e60d0b000baed81bf1af3a5143a88dc13932b1a5302"
+    },
+    {
+      "bytes": 4740,
+      "kind": "protocol",
+      "path": "reports/2026-08-13-sis-team-pass-defense-schema-protocol.md",
+      "sha256": "1e2bf8d00bdd51e34b075d81650c64474472b4a3305b505ab4d104b166acb0b7"
+    },
+    {
+      "bytes": 2225,
+      "kind": "result",
+      "path": "reports/2026-08-13-sis-team-pass-defense-schema-result.md",
+      "sha256": "dec01da920a0ec885cd9494e60be11a479f17db9923c21a1811116edba05fde6"
+    },
+    {
+      "bytes": 4287,
+      "kind": "audit",
+      "path": "reports/2026-08-13-sis-team-run-context-feature-audit.md",
+      "sha256": "85805f53bf95b7d4a22329b96676a60d3a245ca7d01a9f52077eb00da634066e"
+    },
+    {
+      "bytes": 2996,
+      "kind": "supporting",
+      "path": "reports/2026-08-13-sis-tranche-2-subtype-defect.md",
+      "sha256": "b75b5afe4d89498da9abd1a75e764771e28e1c0e0b165af79daa776740575228"
+    },
+    {
+      "bytes": 9321,
+      "kind": "review",
+      "path": "reports/2026-08-13-sis-usage-review-and-priorities.md",
+      "sha256": "7cc4f59a64ceb9947297fbd3390e2609b9d5aa8ff8fab3e637d0397e79f1b3ce"
+    },
+    {
+      "bytes": 4528,
+      "kind": "reconciliation",
+      "path": "reports/2026-08-13-sis-usage-review-reconciliation.md",
+      "sha256": "15da9d2ce3e9d9fe5535ec062ae738ca518ab27746a168dc5db53cc5010c6b06"
+    },
+    {
+      "bytes": 6869,
+      "kind": "reconciliation",
+      "path": "reports/2026-08-13-sis-warehouse-and-join-audit-reconciliation.md",
+      "sha256": "cf5f448413f64bd27982dfa5e643a1a817f33e2fbbf94299d16afaa48dd843b1"
+    },
+    {
+      "bytes": 7926,
+      "kind": "audit",
+      "path": "reports/2026-08-13-sis-warehouse-and-join-audit.md",
+      "sha256": "7a42fe583534e957693f37176fc3bfe92bc5d08faeee2f431bdf16fa78533897"
+    },
+    {
+      "bytes": 5088,
+      "kind": "protocol",
+      "path": "reports/2026-08-13-td-ledger-final-served-protocol.md",
+      "sha256": "3a848d9b3d3961a1b6da39719a0984557d32acd9e1e66f82e94b6ca09b66e6b9"
+    },
+    {
+      "bytes": 6115,
+      "kind": "result",
+      "path": "reports/2026-08-13-td-ledger-final-served-result.md",
+      "sha256": "9d91440e29fc7ad8d28fb263710a649ac020492b0100ba7efbcd251f670a905d"
+    },
+    {
+      "bytes": 11552,
+      "kind": "audit",
+      "path": "reports/2026-08-13-weekly-coverage-data-source-audit.md",
+      "sha256": "bd77dda618f5432ceef9bd86679d7bc494dd8e5a8e6cadc93f8c6cb754b49f8e"
+    },
+    {
+      "bytes": 2513,
+      "kind": "reconciliation",
+      "path": "reports/2026-08-13-wr-defense-coverage-inventory-reconciliation.md",
+      "sha256": "84701b492ed27a51fe4fe7642d6eebadf5c017d69c320d91a608f39ff03169f5"
+    },
+    {
+      "bytes": 7645,
+      "kind": "audit",
+      "path": "reports/2026-08-13-wr-defense-coverage-test-inventory.md",
+      "sha256": "685b0763fa9b9caf714d51c8ad79402f2dee8b93cfc31d924e8522c3650d36a7"
+    },
+    {
+      "bytes": 8688,
+      "kind": "supporting",
+      "path": "reports/2026-08-14-corpus-understanding-toolkit.md",
+      "sha256": "bd2c61ab68187ec1f953a978912dd74cc43bd739fc54822a3d2a05845d6bf957"
+    },
+    {
+      "bytes": 6525,
+      "kind": "review",
+      "path": "reports/2026-08-14-forensic-implementation-review-and-between-arm-variance.md",
+      "sha256": "7bc2950fba1a9aa0b901e7966eca17bebf4ce2bb7d03ad8a809143c9831470b4"
+    },
+    {
+      "bytes": 3514,
+      "kind": "reconciliation",
+      "path": "reports/2026-08-14-mechanism-queue-verification-reconciliation.md",
+      "sha256": "5f89eb8c7adf17eb7965687ce5e18e1e9514b2bf0da3095e05a5e0ac2bbe5ce9"
+    },
+    {
+      "bytes": 6380,
+      "kind": "plan",
+      "path": "reports/2026-08-14-mechanism-queue-verification.md",
+      "sha256": "ddabc14ddd52dd471e9c083e525bbbee730450e24e104ee8d2accfcde5fffd3b"
+    },
+    {
+      "bytes": 3010,
+      "kind": "result",
+      "path": "reports/2026-08-14-multiseed-candidate-world-result.md",
+      "sha256": "b23b7d85df8941aa6ca83fcc997f36618e67c31e4911db13327be7177588dc50"
+    },
+    {
+      "bytes": 1396,
+      "kind": "supporting",
+      "path": "reports/2026-08-14-multiseed-report-transport-repair.md",
+      "sha256": "6dd14ba8212a53698f1745a95d68716001900761621e1fdeb279d4e0bb82819a"
+    },
+    {
+      "bytes": 8256,
+      "kind": "review",
+      "path": "reports/2026-08-14-pass-tail-and-selector-resampling-feedback.md",
+      "sha256": "2547e4c2a6bfc49ab700623bb31f3ef86c01dbe452c8acde6260364c7688a9e3"
+    },
+    {
+      "bytes": 2179,
+      "kind": "reconciliation",
+      "path": "reports/2026-08-14-pass-tail-selector-feedback-reconciliation.md",
+      "sha256": "a8683741a62e94beba974e325c2eb4a158e24f4a3d3bb3454ca1342275ff0f71"
+    },
+    {
+      "bytes": 6618,
+      "kind": "reconciliation",
+      "path": "reports/2026-08-14-phase-s-infrastructure-failure-reconciliation.md",
+      "sha256": "7cadb9938330f292a744918c19c3bb90b56784d080aa7af139a6435dc6da3375"
+    },
+    {
+      "bytes": 3454,
+      "kind": "reconciliation",
+      "path": "reports/2026-08-14-pre-forensic-exhaustion-reconciliation.md",
+      "sha256": "fcfe75c3868973b9bb7d7aff6a436135bd2724729727bf96e8aa51a7e21d5f8d"
+    },
+    {
+      "bytes": 14241,
+      "kind": "review",
+      "path": "reports/2026-08-14-pre-forensic-exhaustion-review.md",
+      "sha256": "a135ebb53129e682eba5728e7abd4c98e57fd7f95df59cc2c5cf3e182551d307"
+    },
+    {
+      "bytes": 15340,
+      "kind": "review",
+      "path": "reports/2026-08-14-queue-exhaustion-review-and-untested-insertion-points.md",
+      "sha256": "5e4907a0f176f7301f18471faba486462053c88ba25b81594a559c9d34409546"
+    },
+    {
+      "bytes": 9639,
+      "kind": "supporting",
+      "path": "reports/2026-08-14-recourse-aware-portfolio-construction.md",
+      "sha256": "fc2a2c1073cc1a12dc648bee1a36403e817d832317a08e6a19c33bea69d01a90"
+    },
+    {
+      "bytes": 7643,
+      "kind": "protocol",
+      "path": "reports/2026-08-14-route-channel-i1-protocol.md",
+      "sha256": "7d835ba440e9c8e5ed0214e5baae0cf59c592db7b27f1684863506f6aa2b817c"
+    },
+    {
+      "bytes": 4514,
+      "kind": "protocol",
+      "path": "reports/2026-08-14-route-rank-r2-shrinkage-protocol.md",
+      "sha256": "9a4ee61a188c2c822bb24d5dd951901baff30a1175f4fc3c4cb60117ec94e230"
+    },
+    {
+      "bytes": 4217,
+      "kind": "protocol",
+      "path": "reports/2026-08-14-selector-resampling-score-free-protocol.md",
+      "sha256": "3a39305e3cc8791d3a0eb52d9440d89d1f8586309e9726fd63cd5fab70e5d3b6"
+    },
+    {
+      "bytes": 2463,
+      "kind": "result",
+      "path": "reports/2026-08-14-selector-resampling-score-free-result.md",
+      "sha256": "54e0fe74ff89d344ae29e1f795de8f72b79f7f37f917e36a181c02ac73fcab08"
+    },
+    {
+      "bytes": 3015,
+      "kind": "reconciliation",
+      "path": "reports/2026-08-14-selector-stability-resampling-reconciliation.md",
+      "sha256": "491923260a4acd7093d6a9cd9d47576e0c23b69b7122fe2bf2b96a4dd5a0b110"
+    },
+    {
+      "bytes": 8055,
+      "kind": "supporting",
+      "path": "reports/2026-08-14-selector-stability-under-world-resampling.md",
+      "sha256": "f7d16170f38f39a0c81e60402792543ea62fe4fc9a9bcc40dc884e8c113e6090"
+    },
+    {
+      "bytes": 3894,
+      "kind": "supporting",
+      "path": "reports/2026-08-14-sis-pass-tail-exact80-addendum.md",
+      "sha256": "f949b468d7862c583956374565f4b5b0ea70bcecf45994b3ecb4349470f456c7"
+    },
+    {
+      "bytes": 4200,
+      "kind": "result",
+      "path": "reports/2026-08-14-sis-pass-tail-exact80-result.md",
+      "sha256": "7b49647fd1d445819c1df07b8921ec9bb5d311c40a9f9182383ee2317e69291d"
+    },
+    {
+      "bytes": 1698,
+      "kind": "result",
+      "path": "reports/2026-08-14-sis-run-tail-cache-result.md",
+      "sha256": "6e35d87f5caf3dfa88071834a089c1bc38af5fd04cc65079ef39bc4d01b011f4"
+    },
+    {
+      "bytes": 4581,
+      "kind": "supporting",
+      "path": "reports/2026-08-14-sis-run-tail-exact80-addendum.md",
+      "sha256": "4d3aee611a6e3a427b43290b7c5d983e4ed90ae910e54db6c93124047a22c04c"
+    },
+    {
+      "bytes": 2967,
+      "kind": "result",
+      "path": "reports/2026-08-14-sis-run-tail-final-served-result.md",
+      "sha256": "e99a5e14995b774aee25f731aa356634e507cabb9568f9837eeb26eff04a9fa8"
+    },
+    {
+      "bytes": 5049,
+      "kind": "protocol",
+      "path": "reports/2026-08-14-sis-run-tail-marginal-protocol.md",
+      "sha256": "f78a32516dbae04567c2379afb7da0d5b2d1f652494a967ec55649056c0f5e72"
+    },
+    {
+      "bytes": 3258,
+      "kind": "audit",
+      "path": "reports/2026-08-14-sis-run-tail-prerequisite-audit.md",
+      "sha256": "96670748bb7b8aa1a59245ca246c0e44eba7797fb21ac30144568010f1c3e520"
+    },
+    {
+      "bytes": 5039,
+      "kind": "review",
+      "path": "reports/2026-08-14-sis-run-tail-result-review.md",
+      "sha256": "1a8208638be5b94893c6a72aeb4e01392ce93f1435cbecbcfd0773b2c7240f9c"
+    },
+    {
+      "bytes": 6603,
+      "kind": "review",
+      "path": "reports/2026-08-14-td-competitive-wr-allocation-protocol-review.md",
+      "sha256": "d4f5b375c4523f5f4848a2df36ddab5cb0bd09054f83a5e0187d3db7a5182d02"
+    },
+    {
+      "bytes": 10319,
+      "kind": "protocol",
+      "path": "reports/2026-08-14-td-competitive-wr-allocation-protocol.md",
+      "sha256": "79adeda5af4cb6f0f13e8a2d36d6c05c68f43224dddd78c26a076ac45f284bb4"
+    },
+    {
+      "bytes": 2504,
+      "kind": "result",
+      "path": "reports/2026-08-14-td-competitive-wr-allocation-result.md",
+      "sha256": "63cded7661bbf01c6ec56f41de347e897a54b0a537b5fe5dca2d3778b02b4ba7"
+    },
+    {
+      "bytes": 6443,
+      "kind": "supporting",
+      "path": "reports/2026-08-14-td-competitive-wr-exact80-addendum.md",
+      "sha256": "9debe1fbf6c4a578f6591a8ae3467885d5cc1f4d4c42ad7f791abf2305855495"
+    },
+    {
+      "bytes": 1361,
+      "kind": "result",
+      "path": "reports/2026-08-14-td-competitive-wr-reference-result.md",
+      "sha256": "64be81551b3e15708fc02e8e6b61d522a8275e3686f1843741af87bc392a1de2"
+    },
+    {
+      "bytes": 6332,
+      "kind": "supporting",
+      "path": "reports/2026-08-14-td-ledger-closure-agreement-and-scorecard-invalidation.md",
+      "sha256": "76f592bbd3910cade862041f7b7d673b9fd0c993eae50fb4cb660957e8c59e3d"
+    },
+    {
+      "bytes": 4996,
+      "kind": "reconciliation",
+      "path": "reports/2026-08-14-td-ledger-closure-reconciliation.md",
+      "sha256": "1cbf1c01120a603f9717f0c0d7792ff97539ffd09eef3d7edb1eeeb0d261f77c"
+    },
+    {
+      "bytes": 6898,
+      "kind": "supporting",
+      "path": "reports/2026-08-14-td-ledger-rank-coupling-exact80-addendum.md",
+      "sha256": "f5e928814c537dfb8cba7c6b59fe4436e06ffba94c97a3de5d34d7c443e4daea"
+    },
+    {
+      "bytes": 5577,
+      "kind": "protocol",
+      "path": "reports/2026-08-14-td-ledger-rank-coupling-protocol.md",
+      "sha256": "c12115fe2d6ba6d17db3f56583688473461a5b4ef13b06d721f1f866ab46c894"
+    },
+    {
+      "bytes": 4391,
+      "kind": "result",
+      "path": "reports/2026-08-14-td-ledger-rank-coupling-result.md",
+      "sha256": "8bca8fbf2cab6ee048ae5c41d6113afc2bae4edcdca82dc65fb64c53de329202"
+    },
+    {
+      "bytes": 5974,
+      "kind": "review",
+      "path": "reports/2026-08-14-td-wr-and-te-closure-review.md",
+      "sha256": "834cc5b64394a9dd209e6a881eddb655afd806074372743236e24f66f081e2a1"
+    },
+    {
+      "bytes": 3230,
+      "kind": "audit",
+      "path": "reports/2026-08-14-te-qb-hub-prerequisite-audit.md",
+      "sha256": "108f48bc157c8dfca95504786c78b5d5255ba67e98d0c132326dc6d2aff2c471"
+    },
+    {
+      "bytes": 45762,
+      "kind": "plan",
+      "path": "reports/emerging-technologies-plan.md",
+      "sha256": "cdf9bc6b8e71e9257ac6410700c2516bfa823721276b75712cc7f9c912b8b75d"
+    },
+    {
+      "bytes": 920716,
+      "kind": "review",
+      "path": "reports/external-review-code.md",
+      "sha256": "cb4a0b22326ea4c1a6942d5aaf49795ff432b97dc48e2a8abbd16635d5dbcb6a"
+    },
+    {
+      "bytes": 6506,
+      "kind": "supporting",
+      "path": "reports/greenfield-redesign.md",
+      "sha256": "1d2ac4c3eb07a22d8f295552d92b65d0773be35cd346b309e5007fcd41d61267"
+    },
+    {
+      "bytes": 25998,
+      "kind": "supporting",
+      "path": "reports/model-primer.md",
+      "sha256": "e3c3a1d716b99dfaa9768743e8fbfd43b7821c2e151c95bc5266bd54d665d78f"
+    },
+    {
+      "bytes": 11185,
+      "kind": "supporting",
+      "path": "reports/possession-simulator-design.md",
+      "sha256": "28e4a0959b116528c4d587865908703e7d6b72a539de07fc4e9b959548d034c3"
+    },
+    {
+      "bytes": 10890,
+      "kind": "plan",
+      "path": "reports/post-correction-revalidation-plan.md",
+      "sha256": "63b780ca1583f9ca1f155e81ce4bc2cd4c8130a9329ed7f29e8c1cb712a74dde"
+    },
+    {
+      "bytes": 21407,
+      "kind": "review",
+      "path": "reports/post-review6-plan.md",
+      "sha256": "3870efee96d19bca84de6a4ac9308e96395e5a747e2c63856b8b6be0ec2d8321"
+    },
+    {
+      "bytes": 25451,
+      "kind": "review",
+      "path": "reports/post-review6-scoring-improvement-plan.md",
+      "sha256": "7d51790f49d434a4f2884e359294f88639a88ffef8eb8c3d4e63d961f46177cc"
+    },
+    {
+      "bytes": 12841,
+      "kind": "review",
+      "path": "reports/review5-sol-package.md",
+      "sha256": "6d38789276512d162fde5019041884fc4f6d5747643c92e9c81185294feab2f6"
+    },
+    {
+      "bytes": 10044,
+      "kind": "review",
+      "path": "reports/review6-optimization-package.md",
+      "sha256": "46f8d895f13cd3b5750d1446b64073c6c7d024894b88128a4b3d4dd6e3715567"
+    },
+    {
+      "bytes": 10661,
+      "kind": "supporting",
+      "path": "reports/september-research-designs.md",
+      "sha256": "5e140a8fa2450b59f698fcf11f6bfda192395c0a5dad46988b0080a3455ee000"
+    },
+    {
+      "bytes": 5408,
+      "kind": "supporting",
+      "path": "reports/six-season-harvest-summary.md",
+      "sha256": "8877981dd0f4ec181bf074a399eb1becf7aa9fef822497268ee24e0ff4c4e1ba"
+    },
+    {
+      "bytes": 59064,
+      "kind": "review",
+      "path": "reports/variance-review-package.md",
+      "sha256": "01937c2487792af9d476596f999eb83da072b52ea823e3b5b3eacbf447788fdb"
+    }
+  ],
+  "result_exclusions": [],
+  "warehouse_retention": {
+    "cleanup_deadline": "before_first_2026_production_build",
+    "cleanup_policy": "delete_after_review_before_week1",
+    "extension_policy": "extend_only_until_cleanup_deadline",
+    "isolation_dataset": "nfl-predictions-503414.nfl_forensic_review",
+    "retention_days": 90,
+    "tables": [
+      {
+        "id": "actual_selections",
+        "schema": [
+          {
+            "mode": "REQUIRED",
+            "name": "manifest_sha256",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "analysis_code_sha",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "analysis_image",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "scope",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "season",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "week",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "selected_rank",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "candidate_index",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "roster_ordered",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "roster_key",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "salary",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "actual_score",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "p_line",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "sim_mean",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "sim_q99",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "tag",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "all_tags",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "source_candidate_json",
+            "type": "STRING"
+          }
+        ],
+        "table": "nfl-predictions-503414.nfl_forensic_review.final_forensic_20260814_actual_selections"
+      },
+      {
+        "id": "candidate_corpus",
+        "schema": [
+          {
+            "mode": "REQUIRED",
+            "name": "manifest_sha256",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "analysis_code_sha",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "analysis_image",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "scope",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "season",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "week",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "panel_run_id",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "source_seed",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "candidate_index",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "roster_ordered",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "roster_key",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "salary",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "actual_score",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "selected",
+            "type": "BOOLEAN"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "selected_rank",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "p_line",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "sim_mean",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "sim_q99",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "tag",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "all_tags",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "source_candidate_json",
+            "type": "STRING"
+          }
+        ],
+        "table": "nfl-predictions-503414.nfl_forensic_review.final_forensic_20260814_candidate_corpus"
+      },
+      {
+        "id": "oracle_rosters",
+        "schema": [
+          {
+            "mode": "REQUIRED",
+            "name": "manifest_sha256",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "analysis_code_sha",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "analysis_image",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "scope",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "season",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "week",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "layer",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "roster_key",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "salary",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "actual_score",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "solver_status",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "legality_verified",
+            "type": "BOOLEAN"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "player_support_gap",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "construction_gap",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "selection_gap",
+            "type": "FLOAT"
+          }
+        ],
+        "table": "nfl-predictions-503414.nfl_forensic_review.final_forensic_20260814_oracle_rosters"
+      },
+      {
+        "id": "player_corpus",
+        "schema": [
+          {
+            "mode": "REQUIRED",
+            "name": "manifest_sha256",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "analysis_code_sha",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "analysis_image",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "scope",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "season",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "week",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "slate_run_id",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "player_id",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "player_name",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "position",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "team",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "opponent",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "game_id",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "kickoff_time",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "salary",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "actual_score",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "mean_projection",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "proj_p10",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "proj_p50",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "proj_p90",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "proj_std",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "fp_route_source_season",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "fp_route_source_week",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "fp_route_prior_observations",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "fp_route_share_last",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "fp_route_share_l4",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "fp_route_share_jump",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "fp_route_cross_season",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "estimated_ownership",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "actual_ownership",
+            "type": "FLOAT"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "actual_ownership_contests",
+            "type": "INTEGER"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "feature_missing",
+            "type": "STRING"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "feature_missing_any",
+            "type": "BOOLEAN"
+          },
+          {
+            "mode": "REQUIRED",
+            "name": "source_features_json",
+            "type": "STRING"
+          }
+        ],
+        "table": "nfl-predictions-503414.nfl_forensic_review.final_forensic_20260814_player_corpus"
+      }
+    ],
+    "write_disposition": "WRITE_EMPTY"
+  }
+}
