@@ -92,10 +92,15 @@ def _select_tail_entries_bitpacked(
     selected: list[int] = []
     covered = np.zeros(packed.shape[1], dtype=np.uint8)
     remaining = set(range(len(totals)))
+    # NumPy 1.26 is the package floor; ``np.bitwise_count`` is newer. A fixed
+    # byte lookup preserves the same compact operation there.
+    byte_popcount = np.unpackbits(
+        np.arange(256, dtype=np.uint8)[:, None], axis=1
+    ).sum(axis=1)
     while len(selected) < limit and remaining:
-        gains = np.bitwise_count(np.bitwise_and(packed, np.bitwise_not(covered))).sum(
-            axis=1
-        )
+        gains = byte_popcount[
+            np.bitwise_and(packed, np.bitwise_not(covered))
+        ].sum(axis=1)
         best = max(
             remaining,
             key=lambda index: (
