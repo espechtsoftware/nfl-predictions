@@ -12,13 +12,14 @@ from __future__ import annotations
 from collections import Counter
 from collections.abc import Mapping, Sequence
 from hashlib import sha256
+from itertools import combinations
 import json
 
 import numpy as np
 import pandas as pd
 
 from ..backtest.engine import CandidateBatch
-from ..optimizer.lineup import Lineup
+from ..optimizer.lineup import Lineup, select_tail_entries
 from .archetype_candidate_allocator import allocate_archetype_budget
 
 
@@ -74,6 +75,7 @@ def combine_cbwu_books(
     *,
     expected_worlds_per_book: int | None = None,
     tolerance: float = 1e-4,
+    fixed_candidate_budget: int | None = None,
 ) -> CandidateBatch:
     """Build the frozen fixed-budget candidate + world union.
 
@@ -101,7 +103,10 @@ def combine_cbwu_books(
         if set(batch.player_ids) != base_universe:
             raise ValueError("CBWU player-id universes differ across seeds")
 
-    budget = len(base.candidates)
+    budget = (
+        len(base.candidates)
+        if fixed_candidate_budget is None else int(fixed_candidate_budget)
+    )
     if budget <= 0:
         raise ValueError("CBWU base candidate budget is empty")
 
@@ -202,6 +207,87 @@ def combine_cbwu_books(
             ],
         },
     )
+
+
+def audit_cbwu_seed_orders(
+    books: Mapping[str, CandidateBatch],
+    seed_order: Sequence[str],
+    *,
+    n_entries: int,
+    tail_line: float,
+    expected_worlds_per_book: int | None = None,
+) -> dict:
+    """Rotate first-source/quota order without consulting realized scores."""
+    canonical = tuple(seed_order)
+    if len(canonical) != 5 or len(set(canonical)) != 5:
+        raise ValueError("CBWU order audit requires five registered seeds")
+    budget = len(books[canonical[0]].candidates)
+    rotations = tuple(
+        canonical[offset:] + canonical[:offset] for offset in range(5)
+    )
+    rows = []
+    canonical_candidates: set[frozenset] | None = None
+    canonical_selected: set[frozenset] | None = None
+
+    def tuple_count(lineups: Sequence[Lineup], size: int) -> int:
+        found = set()
+        for lineup in lineups:
+            ids = sorted(str(player_id) for player_id in lineup.ids)
+            found.update(combinations(ids, size))
+        return len(found)
+
+    for rotation in rotations:
+        combined = combine_cbwu_books(
+            books,
+            rotation,
+            expected_worlds_per_book=expected_worlds_per_book,
+            fixed_candidate_budget=budget,
+        )
+        picked = select_tail_entries(
+            combined.candidate_totals,
+            n_entries,
+            tail_line,
+            env={"SELECT_LSE": "0"},
+        )
+        candidate_set = {lineup.ids for lineup in combined.candidates}
+        selected_lineups = [combined.candidates[index] for index in picked]
+        selected_set = {lineup.ids for lineup in selected_lineups}
+        if canonical_candidates is None:
+            canonical_candidates = candidate_set
+            canonical_selected = selected_set
+        assert canonical_candidates is not None
+        assert canonical_selected is not None
+        candidate_shared = len(candidate_set & canonical_candidates)
+        selected_shared = len(selected_set & canonical_selected)
+        rows.append({
+            "seed_order": list(rotation),
+            "candidate_budget": len(combined.candidates),
+            "candidate_source_counts": combined.metadata[
+                "candidate_source_counts"
+            ],
+            "candidate_identity_jaccard_vs_canonical": float(
+                candidate_shared / len(candidate_set | canonical_candidates)
+            ),
+            "selected_identity_jaccard_vs_canonical": float(
+                selected_shared / len(selected_set | canonical_selected)
+            ),
+            "candidate_pair_coverage": tuple_count(combined.candidates, 2),
+            "candidate_triple_coverage": tuple_count(combined.candidates, 3),
+            "selected_pair_coverage": tuple_count(selected_lineups, 2),
+            "selected_triple_coverage": tuple_count(selected_lineups, 3),
+            "selected_world_coverage": float(np.mean(
+                np.any(combined.candidate_totals[picked] >= tail_line, axis=0)
+            )),
+        })
+    return {
+        "version": "cbwu-seed-order-scorefree-v1",
+        "uses_realized_outcomes": False,
+        "canonical_seed_order": list(canonical),
+        "fixed_candidate_budget": budget,
+        "n_entries": int(n_entries),
+        "tail_line": float(tail_line),
+        "rotations": rows,
+    }
 
 
 def _candidate_key(lineup: Lineup) -> str:
@@ -397,4 +483,8 @@ def combine_archetype_shadow_books(
     )
 
 
-__all__ = ["combine_archetype_shadow_books", "combine_cbwu_books"]
+__all__ = [
+    "audit_cbwu_seed_orders",
+    "combine_archetype_shadow_books",
+    "combine_cbwu_books",
+]

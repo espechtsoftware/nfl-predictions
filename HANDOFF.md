@@ -56,6 +56,14 @@ agent or developer:
   Python compilation, shell syntax and `git diff --check` pass. Build an exact
   immutable image, but run this score-free 32-GiB job only after the SIS chain
   and exact-P census release the single large Cloud Run slot.
+  The companion pure CBWU seed-order audit is implemented in
+  `inference/multiseed_portfolio.py`. It holds the canonical R0 realized
+  candidate budget fixed across all five cyclic first-source/quota orders,
+  rebuilds and cross-scores each union, runs the unchanged score-free selector,
+  and reports candidate/selected identity Jaccard, pair/triple coverage,
+  source counts and simulated world coverage. Nine multiseed tests pass. Wire
+  this next to a create-only source-artifact runner; no historical order may
+  be chosen on realized yield.
 - The review's live-inactive concern was a real money-path correctness defect:
   sim mode rebuilt nonzero draws without the stored-projection cascade/zero
   path, and salary-list `allowed_ids` did not imply active status. The live
@@ -67,8 +75,8 @@ agent or developer:
   absent from the simulator.
   Twenty-eight focused live/policy/cascade/multiseed tests pass, including a
   direct assertion that redistribution executes exactly once before removal;
-  both changed
-  modules compile and `git diff --check` passes. The pre-existing full adopted
+  both changed modules compile and `git diff --check` passes. The pre-existing
+  full adopted
   true-80 live smoke is intentionally left to Cloud Build because it is a
   sustained optimization test; no local heavy validation is licensed.
 - The review's production-law contradiction is also confirmed as a narrative

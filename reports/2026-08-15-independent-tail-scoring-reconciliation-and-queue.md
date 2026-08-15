@@ -151,6 +151,13 @@ This is score-free. Any order sensitivity requires a canonical order-proof or
 an order-invariant allocation repair before ATLAS inherits CBWU inputs; it
 does not license choosing the historically most favorable order.
 
+The pure audit is now implemented. It fixes the candidate budget to canonical
+R0 even when a different seed is first, rebuilds and cross-scores every cyclic
+order, applies the unchanged selector, and reports candidate/selected identity
+Jaccard, pair/triple coverage, source counts and simulated world coverage. It
+accepts no realized-score input. A create-only immutable-artifact runner is
+still required before the audit has a result.
+
 ## Accepted later mechanisms
 
 - An eight-entry constraint-lattice exception sleeve is worth a separate

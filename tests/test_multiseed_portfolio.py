@@ -3,6 +3,7 @@ import pytest
 
 from nfl_dfs.backtest.engine import CandidateBatch
 from nfl_dfs.inference.multiseed_portfolio import (
+    audit_cbwu_seed_orders,
     combine_archetype_shadow_books,
     combine_cbwu_books,
 )
@@ -143,6 +144,26 @@ def test_cbwu_fails_closed_when_native_totals_do_not_reconstruct():
     )
     with pytest.raises(ValueError, match="do not reconstruct"):
         combine_cbwu_books(books, SEEDS, expected_worlds_per_book=20)
+
+
+def test_cbwu_seed_order_audit_is_score_free_and_budget_fixed():
+    books = _books(counts=(10, 9, 8, 10, 9))
+    report = audit_cbwu_seed_orders(
+        books,
+        SEEDS,
+        n_entries=8,
+        tail_line=194.0,
+        expected_worlds_per_book=20,
+    )
+    assert report["uses_realized_outcomes"] is False
+    assert report["canonical_seed_order"] == list(SEEDS)
+    assert len(report["rotations"]) == 5
+    assert {row["candidate_budget"] for row in report["rotations"]} == {10}
+    canonical = report["rotations"][0]
+    assert canonical["candidate_identity_jaccard_vs_canonical"] == 1.0
+    assert canonical["selected_identity_jaccard_vs_canonical"] == 1.0
+    assert all(row["candidate_pair_coverage"] > 0 for row in report["rotations"])
+    assert all(row["selected_world_coverage"] >= 0 for row in report["rotations"])
 
 
 def _stack_player(player_id):
