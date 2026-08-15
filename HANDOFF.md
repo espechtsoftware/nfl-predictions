@@ -706,7 +706,7 @@ agent or developer:
   Python compilation and both shell syntax checks pass. Build an exact image,
   run/strictly harvest `preflight-2023`, and only then run the full source.
   Implementation is committed/pushed at exact full SHA
-  `a0cd25a92f302d13d8ab786f3e18c8bd0ee753c8`. Exact-archive Cloud Build
+  `a0cd25a19bba47fa9f7c69d7e98605d649d8c1d3`. Exact-archive Cloud Build
   `a45001b7-13f8-4c0f-9e71-387858f48da2` was submitted in `us-central1`
   under tag `exact-p-identities-a0cd25a`. Require the complete suite and image
   build to pass, resolve the tag to an immutable digest, and use that exact
