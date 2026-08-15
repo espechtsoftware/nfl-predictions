@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 13:30 CDT
+## Current state — 2026-08-15 13:32 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -339,9 +339,13 @@ agent or developer:
   canceled while still queued at `2026-08-15T17:44:25.194912219Z`: the project
   has one active Cloud Build slot and the newer job would otherwise have run
   ahead of the dependency-critical SIS downloader repair while its vendor
-  session ages. No test or image step started. Resubmit the unchanged exact
-  archive after the SIS minima build/acquisition has the slot, then rerun the
-  unchanged sole census from the superseding passing image. Its only licensed output is
+  session ages. No test or image step started. The superseding exact archive
+  passed as bundle build `8683affe-cf24-440d-b772-c49b778e821e` from the same
+  full `05a2551` source. The unchanged sole census is now Cloud Run execution
+  `exact-p-generator-constraint-census-v1-9c7xj`, launched from immutable
+  digest
+  `sha256:c5ae4029bb4ad05b0c5d5f3c0ea14001b3a5a0c69ef2b926f879e82e5869c479`.
+  Poll it and harvest only its create-once output. Its only licensed output is
   `gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/post-forensic-addenda/20260815-exact-p-generator-constraint-census-v1/result.json`.
   No local or alternative membership run is licensed.
 
