@@ -1,0 +1,12 @@
+version=exact-p-generator-census-source1-v1
+mode=full
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:b0ba7c4479883a31b89bb69720e9494cf5c18e1086c78f3d0fbd0895c9347027
+code_sha=3ee4231b72c4b9ad6920972c9560885470a01bfd
+output_uri=gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/post-forensic-addenda/20260815-exact-p-generator-constraint-census-v1/result.json
+identity_uri=gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/post-forensic-addenda/20260815-exact-p-corrected-identities-v1/result.json
+identity_generation=1786831245271593
+identity_sha256=ff456093841266cba1b0293dd56b0e2d5089588a61518568706900617eff6ad1
+protocol_sha256=bca1db394240359edd80db4767cafbe8d39d1a6769ba6a60e2b35ded18c0056e
+repair_protocol_sha256=e1cb1cd1a131bd0884da499048b23de3295d2f42079a615f4d40b8af7b9b3bab
+manifest_sha256=51edbe124846dc936ade71c4e5a9a07e252bcf6c7d7872b979715ccd1f6bab02
+uses_candidate_or_lineup_scores=false

@@ -774,6 +774,13 @@ agent or developer:
   scientific/production result remain suppressed. This licenses the full
   54-slate source1 census from the same immutable digest/code and exact
   corrected-identity generation/SHA.
+  The full census is now exact Cloud Run execution
+  `exact-p-generator-constraint-census-v1-pgtfb`. Its create-only manifest and
+  execution receipt are tracked under
+  `reports/exact-p-generator-census-runs/20260815-exact-p-generator-constraint-census-v1-source1/full-source1/`.
+  Poll this exact execution and use only the strict source1 finisher after
+  terminal success. Do not launch ATLAS or the outcome-viewed CBWU-OI
+  construction diagnostic while this 32-GiB census owns the research slot.
   The second requested narrow check is also implemented as the pure
   `validate_exact_p_census_plumbing` preflight. On exactly the 18 2023 slates
   it audits corrected-P legality, all five native books, family labels and
