@@ -67,9 +67,15 @@ agent or developer:
   is reported rather than timing out or being accepted. Fifty focused tests
   pass and the module compiles. The repair is committed/pushed at exact SHA
   `484cf878fc217b66fff44cc44dbac7561b08b373`; exact-archive Cloud Build
-  `495de61f-c5b6-403a-af5e-bca0175b85bd` is queued in `us-central1` under tag
-  `receiver-copula-response-484cf87`. Require that build to pass before
-  spending the next bounded retry.
+  `495de61f-c5b6-403a-af5e-bca0175b85bd` completed successfully at
+  `2026-08-15T17:18:52.650862Z`: 1,472 tests passed, 2 skipped and 5 warnings
+  in 734.31 seconds. Tag `receiver-copula-response-484cf87` resolves to
+  immutable digest
+  `sha256:5f871a13820a3ee6adca2400839c29bf45218c3052016f77579906b4e4582728`.
+  The repaired response matcher is therefore licensed for the next bounded,
+  resumable acquisition attempt. Resume from the durable 1/150 Submit ledger;
+  do not repeat the first request or accept any response that fails the frozen
+  full-scope assertion.
 - Independently of that still-running downloader build, the manifest-locked
   receiver-copula importer and PIT context builder are implemented locally.
   They reproduce the acquisition result, preserve defender/team IDs, parse
