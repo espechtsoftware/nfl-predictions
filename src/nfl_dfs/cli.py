@@ -460,6 +460,12 @@ def main(argv: list[str] | None = None) -> None:
     )
     p.add_argument("--panel", required=True)
 
+    p = sub.add_parser(
+        "sis-receiver-copula-reference",
+        help="Build the fresh repaired-path SIS receiver-copula reference",
+    )
+    p.add_argument("--panel", required=True)
+
     sub.add_parser(
         "usage-dirichlet-calibration-diagnostic",
         help="Fit and gate within-team target/carry concentration",
@@ -1076,6 +1082,10 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import td_competitive_wr_allocation
 
         td_competitive_wr_allocation.run_treatment(args.panel)
+    elif args.command == "sis-receiver-copula-reference":
+        from .analysis import sis_receiver_copula
+
+        sis_receiver_copula.run_reference(args.panel)
     elif args.command == "usage-dirichlet-calibration-diagnostic":
         from .analysis import usage_dirichlet_calibration
 

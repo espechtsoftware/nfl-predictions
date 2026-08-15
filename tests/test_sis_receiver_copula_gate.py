@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import copy
 
+import numpy as np
+import pandas as pd
 import pytest
 
 from nfl_dfs.analysis import sis_receiver_copula as copula
@@ -168,3 +170,66 @@ def test_gate_rejects_inert_calibration_choice_or_treatment():
 
     assert zero["disposition"] == "sis-receiver-copula-gate-fails"
     assert inert["disposition"] == "sis-receiver-copula-gate-fails"
+
+
+def _reference_fixture() -> tuple[pd.DataFrame, np.ndarray, dict]:
+    frame = pd.DataFrame({
+        "season": [2023, 2024, 2025],
+        "week": [1, 1, 1],
+        "gsis_id": ["p1", "p2", "p3"],
+        "position": ["QB", "WR", "RB"],
+        "team": ["A", "B", "C"],
+        "opp": ["D", "E", "F"],
+        "game_id": ["g1", "g2", "g3"],
+        "actual": [20.0, 12.0, 8.0],
+        "mean_projection": [19.0, 11.0, 9.0],
+    })
+    draws = np.arange(12, dtype=np.float64).reshape(3, 4)
+    terminal = {
+        "cache_table": copula.REFERENCE_CACHE_TABLE,
+        "cache_rows": 52_307,
+        "usage_law": {
+            "mode": "data-fitted-dirichlet",
+            "game_sim_usage": "dirichlet",
+            "k": copula.REFERENCE_DIRICHLET_K,
+        },
+        "schedule": copy.deepcopy(copula.REFERENCE_POSITION_SCHEDULE),
+        "maximum_mean_delta": 0.0,
+        "parity": [],
+    }
+    return frame, draws, terminal
+
+
+def test_fresh_reference_requires_exact_repeat_and_terminal_contract():
+    frame, draws, terminal = _reference_fixture()
+
+    result = copula.reference_invariants(
+        frame, draws, terminal,
+        frame.copy(), draws.copy(), copy.deepcopy(terminal),
+        expected_rows=3, expected_slates=3, expected_worlds=4,
+    )
+
+    assert result["passes"]
+    assert result["frame_sha256"] == result["repeat_frame_sha256"]
+    assert result["draws_sha256"] == result["repeat_draws_sha256"]
+
+
+def test_fresh_reference_rejects_repeat_drift_and_wrong_terminal():
+    frame, draws, terminal = _reference_fixture()
+    repeat_frame = frame.copy()
+    repeat_frame.loc[0, "mean_projection"] += 0.01
+    repeat_draws = draws.copy()
+    repeat_draws[0, 0] += 1.0
+    repeat_terminal = copy.deepcopy(terminal)
+    repeat_terminal["cache_table"] = "wrong"
+
+    result = copula.reference_invariants(
+        frame, draws, repeat_terminal,
+        repeat_frame, repeat_draws, repeat_terminal,
+        expected_rows=3, expected_slates=3, expected_worlds=4,
+    )
+
+    assert not result["passes"]
+    assert not result["frame_bit_exact_on_repeat"]
+    assert not result["draws_bit_exact_on_repeat"]
+    assert not result["terminal_contract_exact"]
