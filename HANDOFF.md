@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 06:57 CDT
+## Current state — 2026-08-15 07:04 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -63,6 +63,18 @@ agent or developer:
   SHA `afd260d52072c196fc1b88b4f497d603505e98c2` under image tag
   `recourse-scoring-afd260d`; it is queued. Poll it to terminal and record the
   test counts and immutable digest before using that image.
+
+- With the exact-stack correction terminal, the one historical realistic-
+  recourse sizing analysis is frozen before implementation/output in
+  `reports/2026-08-15-realistic-recourse-sizing-protocol.md`. It uses all 54
+  retained CBWU slates, exactly 3:55 PM America/New_York on game day (at least
+  ten minutes before every retained late kickoff), a PBP-only terminal-game
+  status law, the reconciled PIT scorer, all five checksum-bound 10,000-world
+  blocks, unchanged `prospective-recourse-policy-v1`, the fixed CBWU candidate
+  set and exact-80 book. All 54 proposals must be frozen before final outcome
+  evaluation. Next: implement the fail-closed reconstruction/runner, audit the
+  12 known lateral residuals against this instant, validate in cloud, then run
+  the single create-only result with zero retries.
 
 - Exact-stack execution `post-forensic-stack-addendum-v1-q6v7m` reached
   terminal failure at `2026-08-15T10:59:04.405697Z`, with one failed task,
