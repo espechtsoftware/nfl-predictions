@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 04:21 CDT
+## Current state — 2026-08-15 04:31 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -481,8 +481,12 @@ agent or developer:
   inactive and rejects joint team target/carry totals above exactly 1.15.
   Twelve focused tests, module compilation and `git diff --check` pass. The
   prior exact clean-archive transition build
-  `2295364c-6365-4e18-a621-76abc5330242` is still `WORKING` in regional Cloud
-  Build `us-central1`; it validates `46f7597`, not this newer artifact commit.
+  `2295364c-6365-4e18-a621-76abc5330242` reached terminal `SUCCESS` at
+  `2026-08-15T09:24:18.656379Z` in regional Cloud Build `us-central1`: 1,409
+  tests passed, 2 were skipped and 5 warnings were emitted in 1,001.93
+  seconds. It validates `46f7597`, not this newer artifact commit. Tag
+  `latent-role-46f7597` resolves to immutable digest
+  `sha256:47a8d423dc73a3e6232ac07368a5bf57eaa083d0322f7a0130a94154edaac495`.
 - The pure joint-state-world layer is pushed at full SHA
   `fec0994bef7fb158ef59caa5d7182f0e61150a72`. It freezes natural-log entropy,
   exact modal/promotion tie breaks, ascending-player sampling order, four
@@ -492,9 +496,9 @@ agent or developer:
   focused tests, module compilation and `git diff --check` pass. No optimizer,
   lineup score, candidate generation or money path is wired to it.
 - Exact clean-archive artifact build
-  `cc03f3c5-5881-4d1f-82d6-e14b6bf14845` is queued in `us-central1` for
-  `90ff049...` and tag `latent-role-artifact-90ff049`; it will start after the
-  transition-only build releases the regional worker.
+  `cc03f3c5-5881-4d1f-82d6-e14b6bf14845` is `WORKING` in `us-central1` for
+  `90ff049...` and tag `latent-role-artifact-90ff049`; it started at
+  `2026-08-15T09:25:09.948416204Z`.
 - Exact clean-archive state-world build
   `240516d1-14ae-4ecf-9fa4-556472a5a492` is queued behind it for
   `fec0994...` and tag `latent-role-worlds-fec0994`.
