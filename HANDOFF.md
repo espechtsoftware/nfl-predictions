@@ -379,6 +379,10 @@ agent or developer:
   both earlier reports; after exact-image validation, run only create-only ID
   `20260815-sis-receiver-copula-v1-repair2-canonical`, then harvest before
   deciding whether 2022 calibration is unlocked.
+  Exact-archive build `76502ed2-d176-4dff-9fa4-24d38523e05d` is queued from
+  canonical-order commit `c3968a4` under tag `sis-order-bundle-c3968a4`.
+  Do not launch repair2 from the earlier bundle; require this build to pass and
+  resolve its immutable digest first.
 - Before any usable SIS artifact or calibration score existed, the previously
   unstated 2022 calibration-book choice was frozen in
   `reports/2026-08-15-sis-receiver-copula-calibration-book-amendment.md`
