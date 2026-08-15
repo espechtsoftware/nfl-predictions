@@ -32,9 +32,12 @@ agent or developer:
   scientific output was written or read and the one licensed analysis has not
   occurred. Commit `093baf60e729639dc84732908315d42faaf41d0d` adds only that
   runner to `Dockerfile`; the scientific protocol and analysis code are
-  unchanged. Build a new exact-commit image with the full suite, harvest its
-  immutable digest, verify the runner exists, then relaunch the same
-  create-only output once with zero retries.
+  unchanged. Exact-commit replacement build
+  `5c3b9d72-fd8e-4306-bd17-01a6f4a3c911` was submitted from pushed `main`
+  SHA `bb7453e7213627ad446fec20ed92c6550ec0e071` under tag
+  `post-forensic-stack-bb7453e`; it is queued. Poll it, harvest its immutable
+  digest, verify the runner exists, then relaunch the same create-only output
+  once with zero retries.
 
 - Corrected exact-stack forensic-addendum Cloud Build
   `3b875c6f-53c3-44ce-817b-8b3dca5b67f1` completed successfully at
@@ -50,10 +53,12 @@ agent or developer:
   result addendum without overwriting the original forensic report.
 
 - Exact current-commit SIS player-grain validation build
-  `183f5802-a058-4217-8b8f-aa2fcd1b26b7` is queued behind the correction build
-  under tag `sis-player-grain-ed73eb1`. Poll it and record its full-suite result
-  and immutable digest. This build validates tooling only and does not issue a
-  vendor query.
+  `183f5802-a058-4217-8b8f-aa2fcd1b26b7` completed successfully at
+  `2026-08-15T11:16:42.614456Z`: 1,428 tests passed, 2 skipped and 5 warnings
+  in 1,007.18 seconds. Tag `sis-player-grain-ed73eb1` resolves to immutable
+  digest
+  `sha256:ebc145731076de6a3d4cbc16e0b7d4a083c59afd43b1e8efab607cc0185a38d4`.
+  This validates the tooling only and did not issue a vendor query.
 
 - The highest-priority new SIS idea now has a frozen, outcome-blind first gate
   in
