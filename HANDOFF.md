@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 06:34 CDT
+## Current state — 2026-08-15 06:38 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -41,6 +41,11 @@ agent or developer:
   decision instant/final-game set, audit whether any residual lateral event is
   in-progress and candidate-relevant at that instant, and wait for the
   exact-stack correction result.
+  Exact-commit full-suite Cloud Build
+  `4c2fe3b0-6f36-4d39-baf8-4df829316e7f` was submitted from pushed `main`
+  SHA `afd260d52072c196fc1b88b4f497d603505e98c2` under image tag
+  `recourse-scoring-afd260d`; it is queued. Poll it to terminal and record the
+  test counts and immutable digest before using that image.
 
 - Exact-stack execution `post-forensic-stack-addendum-v1-q6v7m` reached
   terminal failure at `2026-08-15T10:59:04.405697Z`, with one failed task,
@@ -53,7 +58,7 @@ agent or developer:
   unchanged. Exact-commit replacement build
   `5c3b9d72-fd8e-4306-bd17-01a6f4a3c911` was submitted from pushed `main`
   SHA `bb7453e7213627ad446fec20ed92c6550ec0e071` under tag
-  `post-forensic-stack-bb7453e`; it is queued. Poll it, harvest its immutable
+  `post-forensic-stack-bb7453e`; it is running. Poll it, harvest its immutable
   digest, verify the runner exists, then relaunch the same create-only output
   once with zero retries.
 
