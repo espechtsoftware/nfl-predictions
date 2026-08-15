@@ -52,6 +52,12 @@ agent or developer:
   its exact SHA in Cloud Build, require the full suite to pass and harvest the
   immutable image digest, then launch the single registered create-only run.
   Do not run from the prior scorer image because it predates this runner.
+  The implementation is committed and pushed on `main` at full SHA
+  `93e512b2a39b0eb55698fbc8e89f82268d8fa1a0`. Exact-archive Cloud Build
+  `8e586bdf-b02a-4fd8-99e2-e9ea5d0384f4` is running under image tag
+  `realistic-recourse-93e512b`. Poll it to terminal; on success record the
+  complete test count and immutable digest, verify both registered GCS objects
+  are absent, then launch the runner exactly once.
 
 - The production-exact forensic correction completed successfully as
   execution `post-forensic-stack-addendum-v1-smrps` at
