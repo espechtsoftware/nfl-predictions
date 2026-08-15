@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 04:59 CDT
+## Current state — 2026-08-15 05:01 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -101,8 +101,12 @@ agent or developer:
   create-only GCS object under the original run's `post-forensic-addenda`
   prefix, and execution requires a full Git SHA plus immutable image digest.
   Twenty-eight focused forensic/addendum tests pass, as do compilation and
-  whitespace checks. Exact next action: commit/push this milestone, validate
-  the exact commit in Cloud Build, then run the correction once on Cloud Run.
+  whitespace checks. The milestone is pushed on `main` at full SHA
+  `cba25a9a25a354e441e1988cd77805ec7ae7d12a`. Exact-commit Cloud Build
+  `4c27a7da-1c3f-4242-b375-74743229712c` was submitted from a clean archive at
+  05:00 CDT and will publish tag `post-forensic-stack-cba25a9` only after the
+  complete suite succeeds. Exact next action: poll the build, harvest its
+  immutable digest and then run the correction once on Cloud Run.
 - Latent-role Cloud Build polling at 04:59 CDT shows retained-world build
   `240516d1-14ae-4ecf-9fa4-556472a5a492` still `WORKING`; exact candidate
   bridge build `79a265ec-2958-42ac-af3b-bea7a9e70228` and live five-seed
