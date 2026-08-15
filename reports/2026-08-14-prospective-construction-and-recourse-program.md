@@ -159,7 +159,10 @@ treatment algorithm.
   budget, and legal constraints must be fixed between control and treatment.
 - The policy must specify how entries are classified as alive, marginal, or
   effectively dead using simulated conditional reach probability rather than a
-  realized final-score target.
+  realized final-score target. Version `prospective-recourse-state-v1` freezes
+  `alive` at conditional reach probability >=5%, `marginal` at >=0.5% and
+  `effectively_dead` below 0.5%; changing these bands is a new prospective
+  policy version.
 - Swaps must be generated early enough for human review and DraftKings upload.
   A failure to produce and validate the file by the operational deadline is a
   treatment failure, not missing data.
@@ -179,6 +182,15 @@ Before use with money, run an authenticated end-to-end rehearsal that:
 The UI must show the current stage, entries needing action, validation errors,
 and the remaining upload deadline. If any fail-closed check is red, the system
 keeps the existing lineups.
+
+The first outcome-free implementation is
+`src/nfl_dfs/optimizer/late_swap.py`. It defines timezone-aware initial,
+late-afternoon and optional Sunday-night stages; derives player locks from
+kickoff rather than trusting only the DK marker; rejects information whose
+`available_at` exceeds the decision time; and validates original versus filled
+DKEntries files for immutable entry metadata, locked cells, player identity,
+positions, salary cap, row count and exact duplicates. Its receipt contains no
+realized outcome. It does not yet choose swaps or expose an upload in the UI.
 
 ### Measurement and adoption
 
@@ -216,9 +228,12 @@ benchmark.
 2. Run a score-free live shadow smoke when the first complete 2026 slate inputs
    are available; verify exact control candidate/world budgets and warehouse
    receipt fields before joining an outcome.
-3. Implement the late-swap state model and DraftKings CSV legality validator.
-4. Run the authenticated UI-to-CSV dress rehearsal.
-5. Keep both paths in shadow mode while the incumbent generates the money book.
+3. Wire the tested late-swap state/CSV validator into a fail-closed preview and
+   upload route; the existing churn-minimizing filler remains only a candidate
+   proposal until the new validator passes.
+4. Implement the conditional-world recourse policy that proposes the swaps.
+5. Run the authenticated UI-to-CSV dress rehearsal.
+6. Keep both paths in shadow mode while the incumbent generates the money book.
 
 This queue replaces retrospective arm mining. It does not replace the existing
 Week 1 operational checklist, forensic warehouse cleanup gate, or weekly paid-

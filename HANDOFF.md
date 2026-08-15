@@ -125,14 +125,27 @@ agent or developer:
   clean `git archive` of that commit. It is executing the complete suite before
   it may publish
   `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:prospective-archetype-c847e29`.
+- While that build runs, the first recourse-safety layer was implemented in
+  `src/nfl_dfs/optimizer/late_swap.py`. Version
+  `prospective-recourse-state-v1` defines timezone-aware
+  initial/late-afternoon/optional-Sunday-night stages, derives locks from actual
+  kickoff timestamps, rejects any input with `available_at` after the decision,
+  and freezes alive/marginal/effectively-dead conditional reach bands at
+  5%/0.5%. Its DraftKings validator compares original and proposed DKEntries
+  files and fails closed on changed Entry/Contest metadata, kickoff or
+  DK-marker locks, unresolved/repeated players, position violations, salary
+  above $50,000 and exact duplicate lineups. It produces a no-outcome receipt
+  but does not yet choose a swap or expose an upload route. All 42 focused
+  late-swap/export/optimizer tests pass.
 - The local repository `.venv` remains healthy despite the user's concern
   about accidentally deleting a Python environment while installing Gemini
   CLI: `.venv/bin/python` is Python 3.14.4, project/pandas/BigQuery imports
   succeed and `python -m pip check` reports no broken requirements.
 - Next concrete action: poll exact-commit Cloud Build
   `436fa27e-be96-41c6-bb62-c2e1808e1e4f` to terminal and record its full-suite
-  counts plus immutable image digest, then build
-  the late-swap state model and operational CSV validator. The first score-free
+  counts plus immutable image digest; then wire the new late-swap safety layer
+  into fail-closed preview/upload routes before developing
+  the conditional-world policy that proposes swaps. The first score-free
   live shadow smoke waits only for complete 2026 pre-lock slate inputs and must
   validate its receipt before any outcome join. In parallel, preserve the Week
   1 readiness and forensic cleanup gates. Do not launch another historical
