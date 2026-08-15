@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 22:10 CDT
+## Current state — 2026-08-14 22:16 CDT
 
 ### 2026-08-14 forensic runtime repaired; variance and corpus-understanding addenda implemented
 
@@ -193,6 +193,21 @@ agent or developer:
   Local construction and verify-only validation pass. Next concrete action:
   commit/push the repair4 freeze, upload it create-only, run exact-image
   prelock parity, verify fresh output/table absence, and launch once.
+- Repair4 manifest was uploaded create-only as
+  `gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/freeze_manifest-repair4.json`,
+  generation `1786763484267832`; downloaded bytes reproduce file hash
+  `565cdcf...`. Exact-image/service-account prelock execution
+  `final-forensic-prelock-compare-v1-m6rnb` succeeded and logged
+  `FULL_PRELOCK_EQUAL_PASS` for the primary scopes and full 14-panel/common-
+  slate corpus without selecting an outcome column.
+- Immediately before outcome launch, `outputs-repair4` and all four
+  `*_repair4` warehouse tables were absent. Repair4 outcome execution
+  `final-preseason-forensic-v1-lnwsc` is now the sole live forensic run,
+  pinned to manifest repair4, code `1e4f7f4`, immutable image
+  `sha256:313e762b...`, 8 CPU/32 GiB, one task, zero retries and a 24-hour
+  timeout. Next concrete action: poll it to terminal without launching another;
+  if successful, validate all nine JSON outputs and all four tables before
+  interpreting any result.
 
 ### 2026-08-14 final-forensic audit expanded; decision-structure queue registered
 
