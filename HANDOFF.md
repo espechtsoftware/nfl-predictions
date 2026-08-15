@@ -111,12 +111,22 @@ agent or developer:
   outside-label identities, eight multi-lateral plays, twelve adjusted players
   and zero scoring-relevant missing times. This licenses one replacement
   scientific execution from the same exact code/image.
-  Replacement scientific execution `realistic-recourse-sizing-v1-vxdwf` is
-  now running in `us-central1` as one task with zero retries from that exact
-  code/image. `proposal-set.json` and `result.json` were independently absent
-  immediately before launch. Poll through terminal status; do not inspect or
-  act on partial scientific artifacts. A failure after the create-only
-  proposal-set appears is terminal under the registered protocol.
+  Replacement scientific execution `realistic-recourse-sizing-v1-vxdwf`
+  completed successfully at `2026-08-15T14:47:53.663312Z` as one task with
+  zero retries. Proposal generation `1786805243398712`, object SHA256
+  `a700c5cc671e447ffe4daeeb29528e0a1b1b97eedca58a812269cd1f4315d63b`,
+  was frozen before the outcome query; all 54 proposal hashes and logical set
+  SHA `5d2a40266154ef0dabd2fa3595a841a300368df8502072ec8f46931e20e0f477`
+  independently verify. Result generation `1786805268693190`, SHA256
+  `847c6822a61e972dfa0395009312bd4ca36fd8c6efca60663d4907941b3e6b77`,
+  is terminal valid. The tail-aware policy is rejected: mean weekly max
+  `175.325` versus initial `176.063`, tail counts fall from
+  `17/8/7/6/3/1/0` to `17/8/6/5/2/1/0`, and it improves/ties/worsens
+  `4/48/2`. Naive conditional-mean reoptimization is diagnostic-positive:
+  mean `177.212`, tails `18/9/7/6/3/1/0`, and `7/47/0`, but it creates no
+  new `>=200` week or higher maximum and remains prospective-shadow-only.
+  Baseline production is unchanged. Full result and next actions:
+  `reports/2026-08-15-realistic-recourse-sizing-result.md`.
 
 - The full scorer validation is terminal-successful. Cloud Build
   `4c2fe3b0-6f36-4d39-baf8-4df829316e7f` ran from exact pushed SHA
