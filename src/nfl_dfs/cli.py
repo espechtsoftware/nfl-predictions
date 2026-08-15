@@ -472,6 +472,12 @@ def main(argv: list[str] | None = None) -> None:
     )
     p.add_argument("--panel", required=True)
 
+    p = sub.add_parser(
+        "sis-receiver-copula-heldout",
+        help="Run the frozen 2023-2025 SIS receiver-copula gate",
+    )
+    p.add_argument("--panel", required=True)
+
     sub.add_parser(
         "usage-dirichlet-calibration-diagnostic",
         help="Fit and gate within-team target/carry concentration",
@@ -1096,6 +1102,10 @@ def main(argv: list[str] | None = None) -> None:
         from .analysis import sis_receiver_copula_calibration
 
         sis_receiver_copula_calibration.run(args.panel)
+    elif args.command == "sis-receiver-copula-heldout":
+        from .analysis import sis_receiver_copula_heldout
+
+        sis_receiver_copula_heldout.run(args.panel)
     elif args.command == "usage-dirichlet-calibration-diagnostic":
         from .analysis import usage_dirichlet_calibration
 

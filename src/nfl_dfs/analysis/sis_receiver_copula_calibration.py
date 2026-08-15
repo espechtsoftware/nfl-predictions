@@ -148,20 +148,24 @@ def load_calibration_book(panel_id: str) -> tuple[pd.DataFrame, np.ndarray, dict
     }
 
 
-def load_context() -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Any]]:
+def load_context(
+    seasons: tuple[int, ...] = (CALIBRATION_SEASON,),
+) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Any]]:
     """Load only frozen context columns and assert point-in-time identities."""
     from ..bq import query_df
     from ..config import settings
 
+    if not seasons or not set(seasons).issubset({2022, 2023, 2024, 2025}):
+        raise ValueError("receiver-copula context seasons differ")
     profiles = query_df(f"""
         SELECT season, target_week, source_week_start, source_week_end,
                team, gsis_id, position, overall_routes, wide_slot_routes,
                player_wide_share, alignment_supported, source_run_id,
                source_sha256
         FROM `{settings.raw}.fantasy_points_alignment_player_l4`
-        WHERE season = @season AND target_week IN UNNEST(@weeks)
+        WHERE season IN UNNEST(@seasons) AND target_week IN UNNEST(@weeks)
         ORDER BY season, target_week, team, gsis_id
-        """, params={"season": CALIBRATION_SEASON, "weeks": list(TARGET_WEEKS)})
+        """, params={"seasons": list(seasons), "weeks": list(TARGET_WEEKS)})
     defense = query_df(f"""
         SELECT season, target_week, defense, offense, alignment,
                vulnerability, context_supported, prior_games,
@@ -169,9 +173,9 @@ def load_context() -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Any]]:
                source_last_season, source_last_week, source_run_id,
                source_sha256
         FROM `{settings.raw}.sis_receiver_copula_defense_prior`
-        WHERE season = @season AND target_week IN UNNEST(@weeks)
+        WHERE season IN UNNEST(@seasons) AND target_week IN UNNEST(@weeks)
         ORDER BY season, target_week, defense, alignment
-        """, params={"season": CALIBRATION_SEASON, "weeks": list(TARGET_WEEKS)})
+        """, params={"seasons": list(seasons), "weeks": list(TARGET_WEEKS)})
     if profiles.empty or defense.empty:
         raise ValueError("receiver-copula calibration context is empty")
     if set(profiles.source_run_id.astype(str)) != {FP_SOURCE_RUN} or \
@@ -202,6 +206,7 @@ def load_context() -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Any]]:
     return profiles, defense, {
         "player_rows": int(len(profiles)),
         "defense_rows": int(len(defense)),
+        "seasons": list(seasons),
         "player_source_run": FP_SOURCE_RUN,
         "defense_source_run": SIS_SOURCE_RUN,
         "player_context_sha256": _frame_sha256(profiles, profile_columns),

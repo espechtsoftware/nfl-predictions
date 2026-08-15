@@ -198,6 +198,18 @@ agent or developer:
   `us-central1` from that full source SHA under tag
   `receiver-copula-split-0db5e8e`. Require it to pass before either the fresh
   reference or split calibration Cloud Run job is deployed.
+- The separate 2023--2025 held-out runner and strict launcher/harvester are now
+  implemented locally. They require hash-pinned passing fresh-reference and
+  2022-calibration attestations, reproduce the repaired control hashes before
+  treatment, apply the one selected strength twice, enforce exact marginals,
+  unchanged unsupported rows, WR-only/Week-5--18 scope, mean tolerance and PIT
+  source checks, and emit overall, per-season and paired whole-slate bootstrap
+  diagnostics. A pass can license only the prospective 2026 Week-5+ shadow;
+  exact-80 retrospective execution remains false. Sixty combined SIS tests,
+  changed-module compilation, command help, both shell scripts and
+  `git diff --check` pass locally. Commit/push this stage, then exact-archive
+  build it; do not launch until acquisition/import, fresh reference and the
+  separately harvested calibration have all passed.
 - The review's remaining exact-P construction question is now frozen as
   `reports/2026-08-15-exact-p-generator-constraint-census-protocol.md`
   The pre-membership disposition thresholds are fixed in the protocol: 36/54
