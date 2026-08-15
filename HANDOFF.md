@@ -68,6 +68,12 @@ agent or developer:
   `sha256:0c214ba62db484f518e292eeab4b50944b2afc1d3379db77febb92531fb4b886`.
   Use this exact code/image for both scorer reconciliation and the scientific
   run; no later HEAD-only handoff commit may replace the analysis code SHA.
+  Full-census same-image scorer reconciliation execution
+  `recourse-scorer-reconciliation-v2-d6cdm` is now running in `us-central1`
+  from that immutable digest and exact analysis SHA. Poll it through terminal
+  status; require the full 75,712/54,419/21,293 census counts, zero
+  differences, eight multi-lateral plays, twelve adjusted players and zero
+  scoring-relevant missing times before the scientific run is licensed.
 
 - The full scorer validation is terminal-successful. Cloud Build
   `4c2fe3b0-6f36-4d39-baf8-4df829316e7f` ran from exact pushed SHA
