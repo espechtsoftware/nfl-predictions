@@ -1,5 +1,15 @@
 # Final preseason forensic result
 
+> **Corrective addendum (2026-08-15):** The H/P and perfect-information
+> recourse solvers described below used QB+1/no bring-back rather than the
+> production QB+2/one-bring-back contract. The production candidates,
+> selected lineups, baseline and all adoption decisions were unaffected.
+> Corrected diagnostic quantities and interpretation are in
+> `reports/2026-08-15-post-forensic-exact-stack-addendum-result.md`; its exact
+> H-P/P-C/C-S means are 4.057/68.914/5.007 and its corrected hindsight
+> recourse mean gain is 37.807. Treat the superseded H/P and recourse numbers
+> retained in this original report as historical provenance only.
+
 Date: 2026-08-14 CDT. This report closes the frozen historical arm program and
 defines what its result does, and does not, license. The full machine-readable
 evidence remains in the create-only GCS output prefix and the isolated BigQuery

@@ -20,9 +20,26 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 06:49 CDT
+## Current state — 2026-08-15 06:57 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
+
+- The production-exact forensic correction completed successfully as
+  execution `post-forensic-stack-addendum-v1-smrps` at
+  `2026-08-15T11:48:58.072232Z` (one succeeded task, zero retries, 7m21.07s).
+  Create-only GCS generation `1786794534795445` has SHA-256
+  `1d9e6b1f8d4e6174ae4aa717acf62fe657f0f3fbfd9271289a36b4a58664e7f3`.
+  Exact-stack H-P/P-C/C-S means are 4.057/68.914/5.007; at >=210 the first
+  failed layer is construction/player support/selection/none on 44/1/0/9
+  slates. Candidate composition therefore remains decisive. Exact P differs
+  from its closest generated roster by mean 5.17 player swaps. The corrected
+  hindsight recourse ceiling is +37.807 mean and creates 24 new >=210 and 12
+  new >=230 slates; it remains non-executable. Exact no-floor creates one new
+  >=230 oracle slate but no other crossing; the independently tested actual
+  no-floor arm remains rejected and production keeps $49k. Full result:
+  `reports/2026-08-15-post-forensic-exact-stack-addendum-result.md`. The
+  original forensic report now points to this correction without overwriting
+  its provenance. Production policy and selected baseline are unchanged.
 
 - Realistic recourse now has a point-in-time scoring prerequisite in
   `src/nfl_dfs/research/recourse_scoring.py`, documented in
