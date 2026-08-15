@@ -139,6 +139,18 @@ sampled rosters produces no treatment book. Players listed `Out` are fixed to
 `inactive`. No state may be sampled for a player outside the exact incumbent
 DK player pool.
 
+The exact deterministic mechanics are frozen as follows. Modal-state ties use
+the lower state in the registered ordering. Entropy is natural-log Shannon
+entropy; equal entropies break by ascending `gsis_id`. A promotion is eligible
+only when the player is not `Out`, has a state above the modal state with
+positive probability, and the resulting one-player promotion passes the same
+1.15 team caps. Ties for the most likely state above the mode use the lower
+eligible state. Scan that order until four cap-valid promotions exist or fail
+the treatment. Joint sampling uses NumPy's default generator at seed `6419`
+in ascending `gsis_id` order. The 50-attempt ceiling applies to the sampled
+branch after the four deterministic promotions; every cap rejection,
+optimization and optimized-roster duplicate consumes one attempt.
+
 Everything downstream remains frozen:
 
 - 12 treatment role candidates plus the same 40 boom candidates;

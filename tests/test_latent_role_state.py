@@ -12,6 +12,8 @@ from nfl_dfs.research.latent_role_state import (
     LatentRoleStateError,
     add_previous_state,
     apply_sampled_role_states,
+    apply_role_state_world,
+    build_joint_role_state_worlds,
     classify_realized_states,
     compute_role_state_emissions,
     decode_role_transition_artifact,
@@ -360,3 +362,85 @@ def test_conditional_role_frame_rejects_team_share_cap_breach():
     )
     assert totals["A"]["target_share"] == pytest.approx(0.9)
     assert totals["A"]["carry_share"] == pytest.approx(0.9)
+
+
+def test_joint_role_worlds_are_order_stable_seeded_and_fix_out_players():
+    training = _keyed_transition_rows()
+    payload, receipt = encode_role_transition_artifact(
+        fit_role_transition(training), training, code_sha="e" * 40,
+    )
+    artifact = decode_role_transition_artifact(payload, receipt["sha256"])
+    live = training.drop(columns=[
+        "realized_state", "target_share", "carry_share", "snap_share",
+    ]).iloc[:10].copy()
+    live["team"] = ["A"] * 5 + ["B"] * 5
+    live["injury_status"] = "Questionable"
+    out_index = live.index[-1]
+    live.loc[out_index, "injury_status"] = "Out"
+    probabilities = pd.DataFrame(
+        np.tile([0.04, 0.05, 0.41, 0.10, 0.40], (len(live), 1)),
+        columns=STATES,
+        index=live.index,
+    )
+
+    promotions, attempts = build_joint_role_state_worlds(
+        artifact, live, probabilities,
+    )
+    assert len(promotions) == 4
+    assert len(attempts) == 50
+    assert [world.promoted_player_id for world in promotions] == sorted(
+        live.gsis_id.astype(str)
+    )[:4]
+    assert all(world.modal_state == "rotation" for world in promotions)
+    assert all(world.promoted_state == "primary" for world in promotions)
+    assert [world.sequence for world in attempts] == list(range(1, 51))
+    assert any(not world.cap_accepted for world in attempts)
+    out_id = str(live.loc[out_index, "gsis_id"])
+    assert all(dict(world.states)[out_id] == "inactive" for world in attempts)
+
+    shuffled = live.sample(frac=1, random_state=101)
+    second_promotions, second_attempts = build_joint_role_state_worlds(
+        artifact, shuffled, probabilities.loc[shuffled.index],
+    )
+    assert promotions == second_promotions
+    assert attempts == second_attempts
+
+    conditional = apply_role_state_world(artifact, live, promotions[0])
+    promoted_index = live.index[
+        live.gsis_id.astype(str).eq(promotions[0].promoted_player_id)
+    ][0]
+    assert conditional.loc[promoted_index, "sampled_role_state"] == "primary"
+    assert conditional.loc[out_index, "sampled_role_state"] == "inactive"
+    rejected = next(world for world in attempts if not world.cap_accepted)
+    with pytest.raises(LatentRoleStateError, match="cap-rejected"):
+        apply_role_state_world(artifact, live, rejected)
+
+
+def test_joint_role_worlds_fail_closed_on_probability_or_promotion_contract():
+    training = _keyed_transition_rows()
+    payload, receipt = encode_role_transition_artifact(
+        fit_role_transition(training), training, code_sha="f" * 40,
+    )
+    artifact = decode_role_transition_artifact(payload, receipt["sha256"])
+    live = training.drop(columns=[
+        "realized_state", "target_share", "carry_share", "snap_share",
+    ]).iloc[:5].copy()
+    live["team"] = ["A", "A", "B", "B", "C"]
+    live["injury_status"] = "Questionable"
+    probabilities = pd.DataFrame(
+        np.tile([0.05, 0.10, 0.45, 0.20, 0.20], (len(live), 1)),
+        columns=STATES,
+        index=live.index,
+    )
+    with pytest.raises(LatentRoleStateError, match="not canonical"):
+        build_joint_role_state_worlds(
+            artifact, live, probabilities[list(reversed(STATES))],
+        )
+    with pytest.raises(LatentRoleStateError, match="fewer than four"):
+        build_joint_role_state_worlds(
+            artifact, live, pd.DataFrame(
+                np.tile([0.0, 0.0, 0.0, 0.0, 1.0], (len(live), 1)),
+                columns=STATES,
+                index=live.index,
+            ),
+        )

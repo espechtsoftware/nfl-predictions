@@ -29,6 +29,8 @@ POSITIONS = ("RB", "WR", "TE")
 STATES = ("inactive", "dormant", "rotation", "secondary", "primary")
 SHARE_FIELDS = ("target_share", "carry_share", "snap_share")
 TEAM_SHARE_CAP = 1.15
+PROMOTION_COUNT = 4
+MAX_JOINT_STATE_ATTEMPTS = 50
 
 NUMERIC_FEATURES = (
     "target_share_last", "target_share_l4",
@@ -119,6 +121,21 @@ ORDER BY t.gsis_id, t.season, t.week
 
 class LatentRoleStateError(ValueError):
     """The frozen role-state data or model contract was violated."""
+
+
+@dataclass(frozen=True)
+class JointRoleStateWorld:
+    """One deterministic, identity-keyed prospective role-state world."""
+
+    kind: str
+    sequence: int
+    states: tuple[tuple[str, str], ...]
+    cap_accepted: bool
+    rejection_reason: str | None = None
+    promoted_player_id: str | None = None
+    modal_state: str | None = None
+    promoted_state: str | None = None
+    entropy: float | None = None
 
 
 def _number(frame: pd.DataFrame, name: str) -> pd.Series:
@@ -748,7 +765,7 @@ def apply_sampled_role_states(
         )
     out_mask = rows["injury_status"].astype("string").str.strip().str.upper().eq(
         "OUT"
-    )
+    ).fillna(False)
     if (out_mask & states.ne("inactive")).any():
         raise LatentRoleStateError("players listed Out must be fixed to inactive")
 
@@ -764,6 +781,181 @@ def apply_sampled_role_states(
     out["sampled_role_state"] = states
     validate_team_role_share_caps(out)
     return out
+
+
+def _validate_role_probabilities(
+    rows: pd.DataFrame,
+    probabilities: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    required = {"gsis_id", "position", "team", "injury_status"}
+    if missing := required - set(rows.columns):
+        raise LatentRoleStateError(
+            f"joint role-state frame missing columns {sorted(missing)}"
+        )
+    if rows.empty or rows["gsis_id"].isna().any():
+        raise LatentRoleStateError("joint role-state frame has missing players")
+    if rows["gsis_id"].astype(str).duplicated().any():
+        raise LatentRoleStateError("joint role-state frame repeats players")
+    if not probabilities.index.equals(rows.index):
+        raise LatentRoleStateError(
+            "joint role probabilities are not exactly player-aligned"
+        )
+    if list(probabilities.columns) != list(STATES):
+        raise LatentRoleStateError("joint role probabilities are not canonical")
+    values = probabilities.to_numpy(dtype=float)
+    if (
+        not np.isfinite(values).all()
+        or np.any(values < 0.0)
+        or not np.allclose(values.sum(axis=1), 1.0, atol=1e-9)
+    ):
+        raise LatentRoleStateError("joint role probabilities are invalid")
+    ordered = rows.assign(_player_id=rows["gsis_id"].astype(str)).sort_values(
+        "_player_id", kind="mergesort",
+    )
+    return ordered, probabilities.loc[ordered.index]
+
+
+def role_state_world_series(
+    world: JointRoleStateWorld,
+    rows: pd.DataFrame,
+) -> pd.Series:
+    """Reconstruct a world's sampled states in the caller's player order."""
+    if not world.cap_accepted:
+        raise LatentRoleStateError("cannot apply a cap-rejected role-state world")
+    if "gsis_id" not in rows:
+        raise LatentRoleStateError("role-state world frame has no player identity")
+    identities = rows["gsis_id"].astype("string")
+    if identities.isna().any() or identities.duplicated().any():
+        raise LatentRoleStateError("role-state world player identity is invalid")
+    if len(world.states) != len(rows):
+        raise LatentRoleStateError("role-state world player count differs")
+    world_ids = [str(player_id) for player_id, _ in world.states]
+    world_states = [str(state) for _, state in world.states]
+    if len(set(world_ids)) != len(world_ids) or not set(world_states).issubset(
+        STATES
+    ):
+        raise LatentRoleStateError("role-state world mapping is invalid")
+    mapping = dict(world.states)
+    if set(mapping) != set(identities.astype(str)):
+        raise LatentRoleStateError("role-state world player set differs")
+    return identities.astype(str).map(mapping).astype("string").rename(
+        "sampled_role_state"
+    )
+
+
+def apply_role_state_world(
+    artifact: dict,
+    rows: pd.DataFrame,
+    world: JointRoleStateWorld,
+) -> pd.DataFrame:
+    """Apply a verified identity-keyed state world to a conditional frame."""
+    return apply_sampled_role_states(
+        artifact, rows, role_state_world_series(world, rows),
+    )
+
+
+def build_joint_role_state_worlds(
+    artifact: dict,
+    rows: pd.DataFrame,
+    probabilities: pd.DataFrame,
+) -> tuple[tuple[JointRoleStateWorld, ...], tuple[JointRoleStateWorld, ...]]:
+    """Build four cap-valid promotions and the frozen 50 seeded attempts.
+
+    The caller optimizes sampled attempts in order and stops after eight
+    distinct rosters. Every rejected, optimized or duplicate sampled attempt
+    consumes one of the returned 50 identities.
+    """
+    ordered, ordered_probabilities = _validate_role_probabilities(
+        rows, probabilities,
+    )
+    identities = ordered["_player_id"].astype(str).tolist()
+    values = ordered_probabilities.to_numpy(dtype=float)
+    modal_index = np.argmax(values, axis=1)
+    out_mask = ordered["injury_status"].astype("string").str.strip().str.upper().eq(
+        "OUT"
+    ).fillna(False).to_numpy(dtype=bool)
+    modal_index[out_mask] = STATES.index("inactive")
+    modal_states = pd.Series(
+        [STATES[index] for index in modal_index], index=ordered.index,
+        dtype="string",
+    )
+
+    entropy_values = -np.sum(
+        np.where(values > 0.0, values * np.log(np.clip(values, 1e-300, 1.0)), 0.0),
+        axis=1,
+    )
+    eligible = []
+    for row_number, player_id in enumerate(identities):
+        current = int(modal_index[row_number])
+        if out_mask[row_number] or current >= len(STATES) - 1:
+            continue
+        higher = values[row_number, current + 1:]
+        if higher.size == 0 or float(higher.max()) <= 0.0:
+            continue
+        promoted = current + 1 + int(np.argmax(higher))
+        eligible.append((
+            -float(entropy_values[row_number]), player_id, row_number, promoted,
+        ))
+    eligible.sort()
+
+    promotions: list[JointRoleStateWorld] = []
+    for negative_entropy, player_id, row_number, promoted in eligible:
+        states = modal_states.copy()
+        states.iloc[row_number] = STATES[promoted]
+        world = JointRoleStateWorld(
+            kind="promotion",
+            sequence=len(promotions) + 1,
+            states=tuple(zip(identities, states.astype(str), strict=True)),
+            cap_accepted=True,
+            promoted_player_id=player_id,
+            modal_state=STATES[int(modal_index[row_number])],
+            promoted_state=STATES[promoted],
+            entropy=-negative_entropy,
+        )
+        try:
+            apply_role_state_world(artifact, rows, world)
+        except LatentRoleStateError as exc:
+            if "team-share cap" in str(exc):
+                continue
+            raise
+        promotions.append(world)
+        if len(promotions) == PROMOTION_COUNT:
+            break
+    if len(promotions) != PROMOTION_COUNT:
+        raise LatentRoleStateError(
+            "fewer than four cap-valid deterministic role promotions"
+        )
+
+    rng = np.random.default_rng(SEED)
+    attempts: list[JointRoleStateWorld] = []
+    for sequence in range(1, MAX_JOINT_STATE_ATTEMPTS + 1):
+        sampled = []
+        for row_number in range(len(ordered)):
+            if out_mask[row_number]:
+                sampled.append("inactive")
+            else:
+                sampled.append(str(rng.choice(STATES, p=values[row_number])))
+        state_pairs = tuple(zip(identities, sampled, strict=True))
+        candidate = JointRoleStateWorld(
+            kind="sampled",
+            sequence=sequence,
+            states=state_pairs,
+            cap_accepted=True,
+        )
+        try:
+            apply_role_state_world(artifact, rows, candidate)
+        except LatentRoleStateError as exc:
+            if "team-share cap" not in str(exc):
+                raise
+            candidate = JointRoleStateWorld(
+                kind="sampled",
+                sequence=sequence,
+                states=state_pairs,
+                cap_accepted=False,
+                rejection_reason=str(exc),
+            )
+        attempts.append(candidate)
+    return tuple(promotions), tuple(attempts)
 
 
 def predict_role_transition_artifact(
