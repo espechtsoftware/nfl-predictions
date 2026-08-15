@@ -58,6 +58,15 @@ agent or developer:
   The full-suite prerequisite is satisfied; exact next action is the resumable
   `sis-download receiver-copula-history` acquisition from the freshly verified
   saved session, followed by manifest/hash/schema verification before import.
+  The first live attempt consumed exactly one metered Submit and then stopped
+  before accepting any artifact: SIS did not satisfy the overly specific
+  response predicate within 120 seconds. The durable state is 1/150, with no
+  partial manifest or CSV. The operational repair matches the sole armed
+  response by the exact player-query endpoint and then immediately applies the
+  unchanged fail-closed full scope assertion, so a serialized form difference
+  is reported rather than timing out or being accepted. Fifty focused tests
+  pass and the module compiles; validate the exact repair revision in Cloud
+  Build before spending the next bounded retry.
 - Independently of that still-running downloader build, the manifest-locked
   receiver-copula importer and PIT context builder are implemented locally.
   They reproduce the acquisition result, preserve defender/team IDs, parse

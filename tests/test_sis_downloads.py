@@ -130,6 +130,19 @@ def test_response_scope_rejects_wrong_report_subtype():
     assert not sis._response_matches_spec(wrong, spec)
 
 
+def test_query_endpoint_match_precedes_exact_scope_assertion():
+    spec = sis.ExportSpec(
+        entity="players", report="pass-defense-totals", season=2022,
+        start_week=1, end_week=1,
+    )
+    response = _Response("GameFilters.Team=", [])
+    assert sis._response_is_query(response, spec)
+    with pytest.raises(RuntimeError, match="submitted scope differs"):
+        sis._assert_submitted_scope(response, spec, {
+            "GameFilters.Team": ["-1"],
+        })
+
+
 def test_submitted_scope_assertion_reports_exact_filter_difference():
     spec = sis.ExportSpec(
         entity="teams", report="pass-defense-totals", season=2022,

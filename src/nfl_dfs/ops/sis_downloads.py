@@ -712,6 +712,18 @@ def _response_matches_spec(response: Any, spec: ExportSpec) -> bool:
     return True
 
 
+def _response_is_query(response: Any, spec: ExportSpec) -> bool:
+    """Match the one armed submit response before fail-closed scope checks.
+
+    Callers using ``SubmitOnlyAPIRequestBudget`` have already blocked every
+    incidental query while setting controls. Matching the armed response by
+    endpoint avoids waiting for the full timeout when SIS serializes a form
+    control differently; ``_assert_submitted_scope`` then reports that exact
+    drift instead of silently accepting it.
+    """
+    return f"/api/v1/nfl/{spec.entity}/query" in response.url
+
+
 def _response_matches_filters(
     response: Any, spec: ExportSpec, filters: dict[str, list[str]],
 ) -> bool:
@@ -1879,10 +1891,8 @@ def run_receiver_copula_acquisition(
                         submit_budget.armed = True
                         try:
                             with page.expect_response(
-                                lambda response, current=spec, scope=filters: (
-                                    _response_matches_filters(
-                                        response, current, scope
-                                    )
+                                lambda response, current=spec: (
+                                    _response_is_query(response, current)
                                 ),
                                 timeout=timeout_ms,
                             ) as response_info:
