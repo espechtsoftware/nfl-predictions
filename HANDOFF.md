@@ -195,12 +195,19 @@ agent or developer:
   warnings in 776.87 seconds. Tag `exact-p-census-f58adbb` resolves to
   immutable digest
   `sha256:a3e4ebce504cc62b9a776cd62b6fabe437d30d1c8e0407cc5c2a48a7f1526aa1`.
-  The sole create-only census is running as Cloud Run execution
-  `exact-p-generator-constraint-census-v1-87vh2`, deployed with 8 CPU, 32 GiB,
-  one task, zero retries and a two-hour timeout. Its only licensed output is
+  The first create-only census execution
+  `exact-p-generator-constraint-census-v1-87vh2` failed before any result was
+  written because BigQuery rejected reserved alias `rows` in the prelock
+  label-completeness query. It had not reached a membership result and the
+  create-only GCS target remains absent, so there is no scientific disposition.
+  The scope-preserving repair renames only that count alias to `row_count`; it
+  is committed at exact full SHA
+  `42568fb4ca761703a6c240722731bfac0850016e`. Four focused tests, Python
+  compilation, `git diff --check`, and a live BigQuery dry run of the repaired
+  parameterized query pass. Rebuild this exact repair, then rerun the same sole
+  census with a new operational execution identity. Its only licensed output is
   `gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/post-forensic-addenda/20260815-exact-p-generator-constraint-census-v1/result.json`.
-  Poll and validate that execution; no local or alternative membership run is
-  licensed.
+  No local or alternative membership run is licensed.
 
 - The frozen prospective latent-role mechanism now has its previously missing
   real score-free scenario factory and separately named paired runner. The
