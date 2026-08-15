@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 21:47 CDT
+## Current state — 2026-08-14 22:10 CDT
 
 ### 2026-08-14 forensic runtime repaired; variance and corpus-understanding addenda implemented
 
@@ -178,6 +178,21 @@ agent or developer:
   This is destination validation only. Next concrete action: commit/build this
   final mechanical guard extension, update repair4 to that exact code/image,
   generate and commit its manifest, pass prelock, then launch the outcome run.
+- Final exact-commit Cloud Build `a2abecb1-ce26-44f4-af8a-3e4e66005e9a`
+  succeeded from pushed SHA `1e4f7f4c81a07100b522975a8d2f352a911c3d5b`.
+  The complete suite passed 1,335 tests with 2 skipped and 5 warnings in
+  1,020.33 seconds. Immutable repair4 image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:313e762be343dada9ee9f386818af176cdb1e4ff09b84912e4a683841cf9aa4d`.
+- `freeze_manifest_repair4.json` pins that exact code/image, the four shared
+  `_repair4` destinations, 56 ledger entries, 231 reports, 39 protocols, the
+  40-item checklist and the existing exact panel/common-slate population.
+  Internal manifest SHA-256 is
+  `51edbe124846dc936ade71c4e5a9a07e252bcf6c7d7872b979715ccd1f6bab02`;
+  file SHA-256 is
+  `565cdcfaffad6e131449c991dda64dc171cad2d23ec0b3dc55ae0a53c9ef94e3`.
+  Local construction and verify-only validation pass. Next concrete action:
+  commit/push the repair4 freeze, upload it create-only, run exact-image
+  prelock parity, verify fresh output/table absence, and launch once.
 
 ### 2026-08-14 final-forensic audit expanded; decision-structure queue registered
 

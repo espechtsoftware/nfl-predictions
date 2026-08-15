@@ -1,6 +1,6 @@
 {
-  "analysis_image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:718b1a7d6d8011ff7b7677e916e4992166f6484418151b28633e45b7353db2a9",
-  "analysis_code_sha": "bc3a1c060d23433df2ccd0126aeab54c269e3ecf",
+  "analysis_image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:313e762be343dada9ee9f386818af176cdb1e4ff09b84912e4a683841cf9aa4d",
+  "analysis_code_sha": "1e4f7f4c81a07100b522975a8d2f352a911c3d5b",
   "production": {
     "policy_id": "classic-k1-role12-boom40-poscal-cbwu-v4",
     "fallback_policy_id": "classic-k1-ce12-boom28-v1",
@@ -221,7 +221,7 @@
     "tables": [
       {
         "id": "actual_selections",
-        "table": "nfl-predictions-503414.nfl_forensic_review.final_forensic_20260814_actual_selections",
+        "table": "nfl-predictions-503414.nfl_forensic_review.final_forensic_20260814_actual_selections_repair4",
         "schema": [
           {
             "mode": "REQUIRED",
@@ -317,7 +317,7 @@
       },
       {
         "id": "candidate_corpus",
-        "table": "nfl-predictions-503414.nfl_forensic_review.final_forensic_20260814_candidate_corpus",
+        "table": "nfl-predictions-503414.nfl_forensic_review.final_forensic_20260814_candidate_corpus_repair4",
         "schema": [
           {
             "mode": "REQUIRED",
@@ -428,7 +428,7 @@
       },
       {
         "id": "oracle_rosters",
-        "table": "nfl-predictions-503414.nfl_forensic_review.final_forensic_20260814_oracle_rosters",
+        "table": "nfl-predictions-503414.nfl_forensic_review.final_forensic_20260814_oracle_rosters_repair4",
         "schema": [
           {
             "mode": "REQUIRED",
@@ -509,7 +509,7 @@
       },
       {
         "id": "player_corpus",
-        "table": "nfl-predictions-503414.nfl_forensic_review.final_forensic_20260814_player_corpus",
+        "table": "nfl-predictions-503414.nfl_forensic_review.final_forensic_20260814_player_corpus_repair4",
         "schema": [
           {
             "mode": "REQUIRED",
