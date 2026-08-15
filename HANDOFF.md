@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 11:07 CDT
+## Current state — 2026-08-15 11:23 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -83,6 +83,19 @@ agent or developer:
   `02d6aaa7-5b71-4441-8c8c-0e7432c229ec` is running in `us-central1` with tag
   `receiver-copula-treatment-0673d2d`; it is independent of the earlier exact
   downloader build and must pass before any BigQuery write or model gate.
+- The frozen 2022 calibration selector and 2023--2025 held-out decision gate
+  are now implemented locally in `analysis/sis_receiver_copula.py`. The
+  selector enforces the exact seven-strength grid and frozen lexicographic
+  order. The held-out gate requires an active treatment, both proper-score
+  improvements, strict G0/G1 QB-WR improvement, two-sided no-regression for
+  every supported G0/G1 cell, exact QB-TE/RB-RB negative controls, strict
+  aggregate error-sum improvement, and mandatory multiplicity >=2/>=3/>=4
+  reporting; unsupported >=4 remains reported but ungated. A pass can license
+  only the prospective 2026 shadow and explicitly cannot license a
+  retrospective exact-80 run. Forty-nine combined downloader, importer,
+  treatment and gate tests pass locally and `git diff --check` is clean. The
+  fresh reference runner and split calibration/held-out execution remain to
+  implement after the guarded acquisition closes.
 
 - The frozen prospective latent-role mechanism now has its previously missing
   real score-free scenario factory and separately named paired runner. The
