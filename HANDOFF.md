@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 13:27 CDT
+## Current state — 2026-08-15 13:30 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -193,7 +193,7 @@ agent or developer:
   resolves to immutable digest
   `sha256:686fda9673672d62bb8d8381ecdb5199a0942b44ff5690888285a368702e887f`.
   The code-validation and guarded source/import prerequisites are satisfied.
-  Exact next action is the new repaired-path reference execution, followed by
+  The new repaired-path reference is now running; after it is harvested, run
   the separate 2022 calibration and only then the 2023--2025 held-out gate.
 - The frozen 2022 calibration selector and 2023--2025 held-out decision gate
   are now implemented locally in `analysis/sis_receiver_copula.py`. The
@@ -217,10 +217,15 @@ agent or developer:
   emits a newly checksummed G0/G1 scorebook without reading any prior numeric
   reference. Its report explicitly cannot license a retrospective exact-80
   run. Fifty-two combined SIS tests pass locally; the command help, changed
-  Python compilation, both launcher scripts and `git diff --check` pass.
-  Exact next action after the current queued builds is an exact-archive full
-  validation of this revision, followed by the create-only reference Cloud Run
-  execution from its immutable digest.
+  Python compilation, both launcher scripts and `git diff --check` pass. Bundle
+  build `8683affe-cf24-440d-b772-c49b778e821e` validated this unchanged runner
+  from exact descendant `05a2551`. The create-only reference is now execution
+  `sis-receiver-copula-reference-v1-xj64s`, launched from immutable digest
+  `sha256:c5ae4029bb4ad05b0c5d5f3c0ea14001b3a5a0c69ef2b926f879e82e5869c479`
+  at about `2026-08-15T18:29:05Z`. Its manifest and execution receipt are under
+  `reports/sis-receiver-copula-runs/20260815-sis-receiver-copula-v1/reference`.
+  Poll to terminal state and run the strict reference harvester; do not launch
+  calibration until it emits a passing checksummed reference report.
 - Before any usable SIS artifact or calibration score existed, the previously
   unstated 2022 calibration-book choice was frozen in
   `reports/2026-08-15-sis-receiver-copula-calibration-book-amendment.md`
