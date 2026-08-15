@@ -209,6 +209,13 @@ def test_hpcs_rejects_candidate_score_drift():
 
 def test_recourse_ceiling_locks_early_core_and_uses_only_late_replacements():
     players = _players()
+    players = pd.concat([
+        players,
+        pd.DataFrame([{
+            "id": "wr_f", "pos": "WR", "team": "C", "opp": "D",
+            "game_id": "C@D", "salary": 5000, "actual": 60.0,
+        }]),
+    ], ignore_index=True)
     players["kickoff_time"] = players.team.map(
         lambda team: "13:00" if team in {"A", "B"} else "16:25"
     )
@@ -226,6 +233,10 @@ def test_recourse_ceiling_locks_early_core_and_uses_only_late_replacements():
     report = recourse_ceiling_slate(
         players, candidates, expected_entries=1, compute_liveness=True
     )
+    assert report["construction_policy"] == {
+        "qb_stack_min": 2,
+        "bring_back_min": 1,
+    }
 
     assert report["ceiling_gain"] > 0
     assert report["status"] == "computed_perfect_information_upper_bound"

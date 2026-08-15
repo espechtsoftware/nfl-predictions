@@ -21,6 +21,7 @@ from .final_forensic import (
     audit_roster,
     canonical_game_id,
     decompose_slate,
+    recourse_ceiling_slate,
 )
 
 
@@ -234,6 +235,40 @@ def analyze_exact_stack_construction(
                 ),
             }
         appearances = [int(support_counts[player]) for player in exact_p_ids]
+        recourse = recourse_ceiling_slate(
+            pframe,
+            cframe,
+            expected_entries=expected_entries,
+            compute_liveness=False,
+            qb_stack_min=QB_STACK_MIN,
+            bring_back_min=BRING_BACK_MIN,
+        )
+        if recourse["status"] != "computed_perfect_information_upper_bound":
+            raise ValueError("corrected recourse ceiling is not identifiable")
+        selected = cframe[
+            cframe.selected.fillna(False).astype(bool)
+        ].copy()
+        selected["_roster"] = selected.players.map(_roster)
+        selected["_key"] = selected._roster.map(lambda ids: ",".join(sorted(ids)))
+        srow = selected.sort_values(
+            ["actual_score", "_key"],
+            ascending=[False, True],
+            kind="stable",
+        ).iloc[0]
+        source_rank = int(recourse["source_selected_rank"])
+        source_row = selected[
+            pd.to_numeric(selected.selected_rank, errors="raise").astype(int).eq(
+                source_rank
+            )
+        ]
+        if len(source_row) != 1:
+            raise ValueError("corrected recourse source rank does not resolve")
+        source_ids = tuple(source_row.iloc[0]._roster)
+        final_ids = tuple(map(str, recourse["final_roster"]["players"]))
+
+        def distance(left: Sequence[str], right: Sequence[str]) -> int:
+            return int(9 - len(set(left) & set(right)))
+
         record = {
             "season": int(season),
             "week": int(week),
@@ -265,6 +300,27 @@ def analyze_exact_stack_construction(
             "p_players_appearing_fewer_than_five": int(sum(
                 value < 5 for value in appearances
             )),
+            "corrected_recourse": {
+                "incumbent_selected_best": float(
+                    recourse["incumbent_selected_best"]
+                ),
+                "perfect_information_ceiling": float(
+                    recourse["perfect_information_recourse_ceiling"]
+                ),
+                "ceiling_gain": float(recourse["ceiling_gain"]),
+                "source_selected_rank": source_rank,
+                "source_roster": sorted(source_ids),
+                "final_roster": sorted(final_ids),
+                "p_distance_from_selected_best": distance(
+                    exact_p_ids, tuple(srow._roster)
+                ),
+                "p_distance_from_recourse_source": distance(
+                    exact_p_ids, source_ids
+                ),
+                "p_distance_from_recourse_final": distance(
+                    exact_p_ids, final_ids
+                ),
+            },
             "shape_contrast": shape_contrast,
             "salary_floor_realized_score_cost": float(
                 exact["salary_floor_policy"]["realized_score_cost"]
@@ -332,6 +388,66 @@ def analyze_exact_stack_construction(
             ),
         }
         for field in shape_fields
+    }
+    recourse_rows = [record["corrected_recourse"] for record in records]
+    recourse_summary = {
+        "incumbent_selected_best": _summary(
+            row["incumbent_selected_best"] for row in recourse_rows
+        ),
+        "perfect_information_ceiling": _summary(
+            row["perfect_information_ceiling"] for row in recourse_rows
+        ),
+        "ceiling_gain": _summary(row["ceiling_gain"] for row in recourse_rows),
+        "improved_slates": int(sum(row["ceiling_gain"] > 1e-6 for row in recourse_rows)),
+        "tail_counts": {
+            "incumbent": {
+                str(tail): int(sum(
+                    row["incumbent_selected_best"] >= tail
+                    for row in recourse_rows
+                ))
+                for tail in TAILS
+            },
+            "perfect_information": {
+                str(tail): int(sum(
+                    row["perfect_information_ceiling"] >= tail
+                    for row in recourse_rows
+                ))
+                for tail in TAILS
+            },
+            "newly_reached": {
+                str(tail): int(sum(
+                    row["incumbent_selected_best"] < tail
+                    <= row["perfect_information_ceiling"]
+                    for row in recourse_rows
+                ))
+                for tail in TAILS
+            },
+        },
+        "p_distance": {
+            "selected_best": _summary(
+                row["p_distance_from_selected_best"] for row in recourse_rows
+            ),
+            "recourse_source": _summary(
+                row["p_distance_from_recourse_source"] for row in recourse_rows
+            ),
+            "recourse_final": _summary(
+                row["p_distance_from_recourse_final"] for row in recourse_rows
+            ),
+            "final_closer_than_source_slates": int(sum(
+                row["p_distance_from_recourse_final"]
+                < row["p_distance_from_recourse_source"]
+                for row in recourse_rows
+            )),
+            "final_closer_than_selected_best_slates": int(sum(
+                row["p_distance_from_recourse_final"]
+                < row["p_distance_from_selected_best"]
+                for row in recourse_rows
+            )),
+        },
+        "warning": (
+            "This still uses realized late outcomes and is a descriptive upper "
+            "bound, not an executable policy estimate."
+        ),
     }
     return {
         "protocol_id": PROTOCOL_ID,
@@ -416,6 +532,7 @@ def analyze_exact_stack_construction(
             )),
         },
         "structural_contrast": shape_summary,
+        "corrected_perfect_information_recourse": recourse_summary,
         "records": records,
     }
 

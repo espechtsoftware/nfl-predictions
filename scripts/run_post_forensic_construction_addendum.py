@@ -60,7 +60,8 @@ def run(output_uri: str) -> dict:
     _verify_tables(client)
     players = _query(client, f"""
         SELECT season, week, player_id AS id, position AS pos, team,
-               opponent AS opp, game_id, salary, actual_score AS actual,
+               opponent AS opp, game_id, kickoff_time, salary,
+               actual_score AS actual,
                actual_ownership
         FROM `{PROJECT}.{DATASET}.{TABLE_PREFIX}player_corpus_repair4`
         WHERE scope = '{SCOPE}'
@@ -114,6 +115,9 @@ def run(output_uri: str) -> dict:
         "corrected_gap_points": result["corrected_gap_points"],
         "tail_counts": result["tail_counts"],
         "swap_distance": result["swap_distance"],
+        "corrected_perfect_information_recourse": (
+            result["corrected_perfect_information_recourse"]
+        ),
     }
     print("POST_FORENSIC_CONSTRUCTION_ADDENDUM " + json.dumps(
         summary, sort_keys=True, separators=(",", ":")

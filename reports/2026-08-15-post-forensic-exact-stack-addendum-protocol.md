@@ -57,6 +57,12 @@ For each of the same 54 CBWU slates:
    distance, P-player candidate appearance counts, salary and position spend,
    games spanned, largest team block, QB stack size, bring-backs, and aggregate
    ownership where complete.
+6. Recompute the published perfect-information late-swap ceiling with the same
+   QB+2/bring-back construction contract. Report its corrected gain and tail
+   counts, plus P-oracle player-swap distance from the selected weekly-best,
+   the source entry chosen by the ceiling, and the final hindsight roster.
+   This sizes overlap between the two opportunities without treating the
+   hindsight roster as executable.
 
 ## Interpretation restrictions
 
@@ -65,6 +71,8 @@ For each of the same 54 CBWU slates:
 - The selected-lineup baseline remains unchanged.
 - The original 78.994-point construction-gap and 44/54 first-failed-at-210
   claims remain provisional until this addendum completes.
+- The original +42.62-point perfect-information recourse ceiling is likewise
+  provisional because its final-roster solve inherited QB+1/no-bring-back.
 - Any mechanism suggested by the corrected result must be frozen and evaluated
   prospectively without 2019–2025 outcomes.
 - Pool admission and salary-floor conclusions may be restated only after
@@ -81,4 +89,3 @@ this addendum:
    each decision time and simulated remaining worlds;
 3. construction-versus-recourse overlap measurement, only after both sides are
    defined under the same production legality contract.
-

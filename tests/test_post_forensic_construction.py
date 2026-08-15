@@ -34,6 +34,9 @@ def _players() -> pd.DataFrame:
     frame["season"] = 2025
     frame["week"] = 1
     frame["actual_ownership"] = 10.0
+    frame["kickoff_time"] = frame.team.map(
+        lambda team: "13:00" if team in {"A", "B"} else "16:25"
+    )
     return frame
 
 
@@ -91,5 +94,8 @@ def test_exact_stack_addendum_reproduces_old_p_and_restricts_use():
         "newly_reached_threshold_slates"
     ]["240"] == 0
     assert "exact_h_no_salary_floor" in result["tail_counts"]
+    recourse = result["corrected_perfect_information_recourse"]
+    assert recourse["improved_slates"] in {0, 1}
+    assert recourse["p_distance"]["recourse_final"]["n"] == 1
     assert result["uses_realized_outcomes"] is True
     assert "not a historical arm" in result["use_restriction"]

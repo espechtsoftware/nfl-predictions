@@ -1054,6 +1054,8 @@ def recourse_ceiling_slate(
     *,
     expected_entries: int = 80,
     compute_liveness: bool = False,
+    qb_stack_min: int = 2,
+    bring_back_min: int = 1,
 ) -> dict[str, Any]:
     """Hindsight upper bound after locking each selected entry's early core.
 
@@ -1142,6 +1144,8 @@ def recourse_ceiling_slate(
         locked_flex_positions=locked_flex_positions,
         min_salary=0,
         salary_cap=50_000,
+        qb_stack_min=qb_stack_min,
+        bring_back_min=bring_back_min,
     )
     source_index = int(bound.pop("source_choice_index"))
     incumbent_best = float(pd.to_numeric(selected.actual_score, errors="raise").max())
@@ -1179,6 +1183,8 @@ def recourse_ceiling_slate(
                         locked_flex_positions=[flex_lock],
                         min_salary=0,
                         salary_cap=50_000,
+                        qb_stack_min=qb_stack_min,
+                        bring_back_min=bring_back_min,
                     )
                     cache[key] = float(stage_bound["actual_score"])
                 per_entry_bounds.append(cache[key])
@@ -1228,6 +1234,10 @@ def recourse_ceiling_slate(
         "tail_grid": tail_grid,
         "per_stage_liveness": liveness,
         "salary_floor_after_lock": 0,
+        "construction_policy": {
+            "qb_stack_min": int(qb_stack_min),
+            "bring_back_min": int(bring_back_min),
+        },
         "realistic_recourse": {
             "status": "unidentifiable_from_frozen_summary_corpus",
             "reason": (
