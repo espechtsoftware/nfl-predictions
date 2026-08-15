@@ -20,9 +20,21 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 05:57 CDT
+## Current state — 2026-08-15 06:15 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
+
+- Exact-stack execution `post-forensic-stack-addendum-v1-q6v7m` reached
+  terminal failure at `2026-08-15T10:59:04.405697Z`, with one failed task,
+  zero succeeded tasks and exit code 2. Terminal logs show a packaging-only
+  failure before any analysis: `/app/scripts/run_post_forensic_construction_addendum.py`
+  was absent from the image. The frozen output object remains absent, so no
+  scientific output was written or read and the one licensed analysis has not
+  occurred. Commit `093baf60e729639dc84732908315d42faaf41d0d` adds only that
+  runner to `Dockerfile`; the scientific protocol and analysis code are
+  unchanged. Build a new exact-commit image with the full suite, harvest its
+  immutable digest, verify the runner exists, then relaunch the same
+  create-only output once with zero retries.
 
 - Corrected exact-stack forensic-addendum Cloud Build
   `3b875c6f-53c3-44ce-817b-8b3dca5b67f1` completed successfully at
