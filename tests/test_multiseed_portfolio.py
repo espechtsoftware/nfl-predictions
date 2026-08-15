@@ -3,11 +3,13 @@ import pytest
 
 from nfl_dfs.backtest.engine import CandidateBatch
 from nfl_dfs.inference.multiseed_portfolio import (
+    _select_tail_entries_bitpacked,
     audit_cbwu_seed_orders,
     combine_archetype_shadow_books,
     combine_cbwu_books,
+    combine_cbwu_order_invariant_books,
 )
-from nfl_dfs.optimizer.lineup import Lineup, select_from_support
+from nfl_dfs.optimizer.lineup import Lineup, select_from_support, select_tail_entries
 
 
 SEEDS = ("R0", "R1", "R2", "R3", "R4")
@@ -164,6 +166,76 @@ def test_cbwu_seed_order_audit_is_score_free_and_budget_fixed():
     assert canonical["selected_identity_jaccard_vs_canonical"] == 1.0
     assert all(row["candidate_pair_coverage"] > 0 for row in report["rotations"])
     assert all(row["selected_world_coverage"] >= 0 for row in report["rotations"])
+
+
+def test_cbwu_oi_is_exact_budget_score_free_and_order_invariant():
+    books = _books(counts=(10, 9, 8, 10, 9))
+    first = combine_cbwu_order_invariant_books(
+        books, SEEDS, expected_worlds_per_book=20
+    )
+    rotated = combine_cbwu_order_invariant_books(
+        dict(reversed(list(books.items()))),
+        SEEDS[2:] + SEEDS[:2],
+        expected_worlds_per_book=20,
+    )
+    assert first.metadata["portfolio"] == "CBWU_OI_V1"
+    assert first.metadata["production_enabled"] is False
+    assert first.metadata["uses_realized_outcomes"] is False
+    assert len(first.candidates) == len(books["R0"].candidates)
+    assert [lineup.ids for lineup in first.candidates] == [
+        lineup.ids for lineup in rotated.candidates
+    ]
+    assert np.array_equal(first.candidate_totals, rotated.candidate_totals)
+    assert np.array_equal(first.row_draws, rotated.row_draws)
+    assert all(
+        "candidate_admission:cbwu-oi-v1" in tags
+        for tags in first.all_tags.values()
+    )
+
+
+def test_cbwu_oi_bitpacked_selector_exactly_matches_incumbent_law():
+    rng = np.random.default_rng(810_215)
+    totals = rng.normal(190.0, 22.0, size=(137, 1003)).astype(np.float32)
+    # Force both coverage saturation and exact tie cells.
+    totals[3] = totals[2]
+    totals[5:8] = 120.0
+    for count in (1, 3, 20, 80, 137):
+        assert _select_tail_entries_bitpacked(totals, count, 194.0) == (
+            select_tail_entries(
+                totals, count, 194.0, env={"SELECT_LSE": "0"}
+            )
+        )
+
+
+def test_cbwu_oi_fails_closed_without_r0_or_complete_union():
+    books = _books(counts=(10, 1, 1, 1, 1))
+    with pytest.raises(ValueError, match="exact registered seeds"):
+        combine_cbwu_order_invariant_books(
+            {name: book for name, book in books.items() if name != "R4"}
+            | {"R5": books["R4"]},
+            ("R0", "R1", "R2", "R3", "R5"),
+            expected_worlds_per_book=20,
+        )
+
+    identical = {name: books["R0"] for name in SEEDS}
+    # The repeated book has enough union rows for this fixture, so reducing R0
+    # below the unique-union size proves the fixed-budget guard separately.
+    source = books["R0"]
+    too_large = CandidateBatch(
+        candidates=source.candidates + source.candidates,
+        candidate_totals=np.concatenate(
+            [source.candidate_totals, source.candidate_totals], axis=0
+        ),
+        player_ids=source.player_ids,
+        player_rows=source.player_rows,
+        row_draws=source.row_draws,
+        all_tags=source.all_tags,
+    )
+    identical["R0"] = too_large
+    with pytest.raises(ValueError, match="duplicate rosters"):
+        combine_cbwu_order_invariant_books(
+            identical, SEEDS, expected_worlds_per_book=20
+        )
 
 
 def _stack_player(player_id):

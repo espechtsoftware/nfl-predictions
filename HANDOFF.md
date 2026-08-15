@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 15:06 CDT
+## Current state — 2026-08-15 15:10 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -110,13 +110,36 @@ agent or developer:
   in 998.09 seconds. It packages ATLAS, CBWU and the complete production-policy
   fixes at immutable digest
   `sha256:f2e97d1ef2a6c6b88588741850e0886a63d3df6e5d1d5901e187deef16ebc7f5`.
-  The outcome-free 16-GiB CBWU audit is now Cloud Run execution
-  `cbwu-seed-order-scorefree-v1-jfvw6` from that exact image/code. Its tracked
-  manifest and execution receipt are under
-  `reports/cbwu-seed-order-runs/20260815-cbwu-seed-order-scorefree-v1/`.
-  Poll to terminal success, then run
-  `scripts/cloud_finish_cbwu_seed_order_audit.sh`; do not interpret logs or
-  choose an order before the strict create-only report harvest.
+  The outcome-free 16-GiB CBWU execution
+  `cbwu-seed-order-scorefree-v1-jfvw6` completed successfully in 11m14s and
+  its strict create-only harvest passed. Machine-report SHA-256 is
+  `746f745a0f92e2123eb6cb555d4a381b1bc44c7561249e5ea29db458a155c7f6`.
+  The result is materially order-sensitive: all 216 noncanonical comparisons
+  changed candidate and selected identities; candidate Jaccard mean/minimum
+  are `0.5069092682`/`0.2636815920`, selected Jaccard mean/minimum are
+  `0.3672573525`/`0.0884353741`, and selected simulated-world coverage deltas
+  span `-0.06422` to `+0.04312`. The terminal disposition is
+  `cbwu-order-sensitive-requires-repair`; no favorable rotation may be chosen.
+  The result and sole first repair are frozen in
+  `reports/2026-08-15-cbwu-seed-order-result-and-repair-protocol.md`.
+  CBWU-OI-v1 forms the canonical complete distinct roster union, cross-scores
+  it on all five blocks, and uses the unchanged score-free 194 selector to
+  admit exactly the fixed R0 candidate budget before the unchanged exact-80
+  selector. It must be identity-invariant across all rotations and pass the
+  frozen coverage/diversity gate. The pure repair, combined order/repair
+  artifact runner, create-only launcher and strict finisher are now
+  implemented without a production call site. Complete-union admission uses
+  a bit-packed implementation proven exactly identical to the incumbent
+  binary-coverage selector, avoiding an otherwise prohibitive full-world
+  greedy scan. The runner reloads the same outcome-denied 270 artifacts,
+  evaluates canonical control plus all five treatment rotations on 54 slates,
+  and freezes aggregate 194 coverage, five-block support, pair/triple
+  retention, identity and exact-count conditions. Seventeen focused mechanism
+  and execution tests pass; Python compilation, both shell syntax checks,
+  protocol hash and whitespace validation pass. Next: commit/push, exact-image
+  build, then run the create-only CBWU-OI audit when the SIS job releases
+  sufficient compute. ATLAS and exact-N must not inherit order-sensitive CBWU
+  inputs.
 - The review's live-inactive concern was a real money-path correctness defect:
   sim mode rebuilt nonzero draws without the stored-projection cascade/zero
   path, and salary-list `allowed_ids` did not imply active status. The live

@@ -188,6 +188,17 @@ only if all 216 noncanonical cyclic comparisons retain both candidate and
 selected identities exactly; otherwise the result requires an order-proof or
 order-invariant repair and cannot choose a historically favorable order.
 
+The strict harvest is complete. Every one of the 216 comparisons changed both
+candidate and selected identities; selected Jaccard averaged `0.3672573525`
+and fell as low as `0.0884353741`. The terminal disposition is
+`cbwu-order-sensitive-requires-repair`. The result and the sole frozen
+complete-union repair are recorded in
+`reports/2026-08-15-cbwu-seed-order-result-and-repair-protocol.md`. CBWU-OI-v1
+cross-scores the canonical distinct union, applies the existing score-free
+194 selector to the fixed R0 candidate budget, and must be identity-invariant
+under all rotations before it can supply ATLAS or exact-N. Production remains
+on the explicitly registered R0--R4 order while this treatment is tested.
+
 ## Accepted later mechanisms
 
 - An eight-entry constraint-lattice exception sleeve is worth a separate

@@ -69,6 +69,53 @@ def _validate_native_book(
             raise ValueError(f"{name} native candidate totals do not reconstruct")
 
 
+def _select_tail_entries_bitpacked(
+    candidate_totals: np.ndarray,
+    n_entries: int,
+    tail_line: float,
+) -> list[int]:
+    """Exact binary-coverage selector with a compact score-free work matrix.
+
+    This reproduces ``select_tail_entries(..., SELECT_LSE=0)`` but avoids
+    rescanning one Boolean value per world for every remaining candidate at
+    every greedy step. It is used only by the potentially much larger
+    complete-union repair.
+    """
+    totals = np.asarray(candidate_totals)
+    if totals.ndim != 2 or totals.shape[1] == 0 or not np.isfinite(totals).all():
+        raise ValueError("CBWU-OI candidate totals must be one finite matrix")
+    clears = totals >= float(tail_line)
+    packed = np.packbits(clears, axis=1, bitorder="little")
+    p_line = clears.mean(axis=1)
+    mean_total = totals.mean(axis=1, dtype=np.float64)
+    limit = min(int(n_entries), len(totals))
+    selected: list[int] = []
+    covered = np.zeros(packed.shape[1], dtype=np.uint8)
+    remaining = set(range(len(totals)))
+    while len(selected) < limit and remaining:
+        gains = np.bitwise_count(np.bitwise_and(packed, np.bitwise_not(covered))).sum(
+            axis=1
+        )
+        best = max(
+            remaining,
+            key=lambda index: (
+                int(gains[index]), p_line[index], mean_total[index]
+            ),
+        )
+        if not gains[best]:
+            break
+        selected.append(best)
+        covered |= packed[best]
+        remaining.discard(best)
+    fill = sorted(
+        remaining,
+        key=lambda index: (p_line[index], mean_total[index]),
+        reverse=True,
+    )
+    selected += fill[:limit - len(selected)]
+    return selected
+
+
 def combine_cbwu_books(
     books: Mapping[str, CandidateBatch],
     seed_order: Sequence[str],
@@ -204,6 +251,142 @@ def combine_cbwu_books(
             "world_blocks": len(order),
             "worlds_per_block": [
                 int(books[name].row_draws.shape[1]) for name in order
+            ],
+        },
+    )
+
+
+def combine_cbwu_order_invariant_books(
+    books: Mapping[str, CandidateBatch],
+    seed_order: Sequence[str],
+    *,
+    tail_line: float = 194.0,
+    expected_worlds_per_book: int | None = None,
+    tolerance: float = 1e-4,
+) -> CandidateBatch:
+    """Build the frozen CBWU-OI-v1 complete-union candidate book.
+
+    ``seed_order`` is validated but deliberately cannot affect candidate
+    identity, world-block order, attribution, or ranking.  Every distinct
+    native roster is cross-scored on the canonical R0--R4 world blocks, then
+    the unchanged tail selector admits exactly the registered R0 candidate
+    budget.  This is an outcome-free research repair and is not called by the
+    production policy.
+    """
+    if not np.isfinite(tail_line):
+        raise ValueError("CBWU-OI tail line must be finite")
+    supplied_order = tuple(seed_order)
+    canonical_order = tuple(sorted(books))
+    if len(supplied_order) != 5 or len(set(supplied_order)) != 5:
+        raise ValueError("CBWU-OI requires five distinct registered seeds")
+    if set(supplied_order) != set(books) or canonical_order != (
+        "R0", "R1", "R2", "R3", "R4"
+    ):
+        raise ValueError("CBWU-OI requires exact registered seeds R0--R4")
+
+    base = books["R0"]
+    base_universe = set(base.player_ids)
+    for name in canonical_order:
+        batch = books[name]
+        _validate_native_book(
+            name,
+            batch,
+            expected_worlds=expected_worlds_per_book,
+            tolerance=tolerance,
+        )
+        if set(batch.player_ids) != base_universe:
+            raise ValueError("CBWU-OI player-id universes differ across seeds")
+    budget = len(base.candidates)
+    if budget <= 0:
+        raise ValueError("CBWU-OI R0 candidate budget is empty")
+
+    # Candidate identity and metadata are aggregated symmetrically.  No
+    # first-supplier identity survives this boundary.
+    union: dict[tuple[str, ...], dict[str, object]] = {}
+    for name in canonical_order:
+        batch = books[name]
+        for lineup in batch.candidates:
+            roster = tuple(sorted(str(player_id) for player_id in _canonical_roster(
+                lineup
+            )))
+            tags = batch.all_tags.get(lineup.ids, (lineup.tag or "lev",))
+            row = union.setdefault(roster, {"tags": set(), "seeds": set()})
+            row["tags"].update(str(tag) for tag in tags)
+            row["seeds"].add(name)
+    roster_keys = sorted(union)
+    if len(roster_keys) < budget:
+        raise ValueError("CBWU-OI complete union cannot fill the R0 budget")
+
+    base_by_id = {
+        str(player_id): player
+        for player_id, player in zip(base.player_ids, base.player_rows, strict=True)
+    }
+    try:
+        union_lineups = [
+            Lineup([base_by_id[player_id] for player_id in roster], tag="lev")
+            for roster in roster_keys
+        ]
+    except KeyError as exc:
+        raise ValueError("CBWU-OI roster is outside the player universe") from exc
+
+    roster_rows = np.asarray([
+        [base.player_ids.index(player_id) for player_id in lineup.ids]
+        for lineup in union_lineups
+    ], dtype=np.int64)
+    row_blocks: list[np.ndarray] = []
+    total_blocks: list[np.ndarray] = []
+    for name in canonical_order:
+        world = books[name]
+        world_index = {
+            str(player_id): index for index, player_id in enumerate(world.player_ids)
+        }
+        rows_in_base_order = [
+            world_index[str(player_id)] for player_id in base.player_ids
+        ]
+        aligned = np.asarray(world.row_draws[rows_in_base_order], dtype=np.float32)
+        row_blocks.append(aligned)
+        total_blocks.append(aligned[roster_rows].sum(axis=1).astype(np.float32))
+    union_totals = np.concatenate(total_blocks, axis=1)
+    combined_rows = np.concatenate(row_blocks, axis=1)
+    admitted = _select_tail_entries_bitpacked(union_totals, budget, tail_line)
+    if len(admitted) != budget or len(set(admitted)) != budget:
+        raise ValueError("CBWU-OI selector did not return the exact R0 budget")
+
+    candidates = tuple(union_lineups[index] for index in admitted)
+    candidate_totals = union_totals[admitted]
+    all_tags: dict[frozenset, tuple[str, ...]] = {}
+    appearance_counts: dict[str, int] = {}
+    for lineup, union_index in zip(candidates, admitted, strict=True):
+        roster = roster_keys[union_index]
+        tags = union[roster]["tags"]
+        seeds = union[roster]["seeds"]
+        combined_tags = tuple(sorted({
+            *(str(tag) for tag in tags),
+            *(f"candidate_seed:{seed}" for seed in seeds),
+            "candidate_admission:cbwu-oi-v1",
+        }))
+        all_tags[lineup.ids] = combined_tags
+        appearance_counts[_candidate_key(lineup)] = len(seeds)
+
+    return CandidateBatch(
+        candidates=candidates,
+        candidate_totals=candidate_totals,
+        player_ids=base.player_ids,
+        player_rows=base.player_rows,
+        row_draws=combined_rows,
+        all_tags=all_tags,
+        metadata={
+            "portfolio": "CBWU_OI_V1",
+            "production_enabled": False,
+            "uses_realized_outcomes": False,
+            "tail_line": float(tail_line),
+            "candidate_budget": budget,
+            "complete_union_candidates": len(union_lineups),
+            "canonical_seed_order": list(canonical_order),
+            "native_appearance_counts": appearance_counts,
+            "world_blocks": len(canonical_order),
+            "worlds_per_block": [
+                int(books[name].row_draws.shape[1]) for name in canonical_order
             ],
         },
     )

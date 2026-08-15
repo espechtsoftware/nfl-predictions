@@ -5,8 +5,10 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+from itertools import combinations
 import json
 import os
+from pathlib import Path
 import re
 from typing import Any
 
@@ -15,8 +17,12 @@ import pandas as pd
 from google.cloud import bigquery, storage
 
 from nfl_dfs.backtest.engine import CandidateBatch
-from nfl_dfs.inference.multiseed_portfolio import audit_cbwu_seed_orders
-from nfl_dfs.optimizer.lineup import Lineup
+from nfl_dfs.inference.multiseed_portfolio import (
+    audit_cbwu_seed_orders,
+    combine_cbwu_books,
+    combine_cbwu_order_invariant_books,
+)
+from nfl_dfs.optimizer.lineup import Lineup, select_tail_entries
 from nfl_dfs.research.portfolio_effective_rank import decode_score_artifact
 
 
@@ -28,6 +34,12 @@ PLAYER_TABLE = (
 )
 FORENSIC_MANIFEST_SHA256 = (
     "51edbe124846dc936ade71c4e5a9a07e252bcf6c7d7872b979715ccd1f6bab02"
+)
+CBWU_OI_PROTOCOL = (
+    "reports/2026-08-15-cbwu-seed-order-result-and-repair-protocol.md"
+)
+CBWU_OI_PROTOCOL_SHA256 = (
+    "5265d305fd77971287f75f69c6becf4e866d8d51767e22eda3e78420f7c8157b"
 )
 SOURCE_PANEL_IDS = tuple(
     f"20260813-sis-asoe-treatment-r{seed}-v1" for seed in range(5)
@@ -61,6 +73,14 @@ def validate_scorefree_queries() -> None:
             "CBWU score-free query contains forbidden fields: "
             + ", ".join(present)
         )
+
+
+def validate_repair_protocol() -> None:
+    path = Path(CBWU_OI_PROTOCOL)
+    if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != (
+        CBWU_OI_PROTOCOL_SHA256
+    ):
+        raise RuntimeError("CBWU-OI frozen protocol identity differs")
 
 
 def _parse_gcs(uri: str) -> tuple[str, str]:
@@ -248,8 +268,189 @@ def _aggregate_audits(audits: list[dict]) -> dict[str, Any]:
     }
 
 
-def run(output_uri: str) -> dict[str, Any]:
+def _tuple_count(lineups: list[Lineup], size: int) -> int:
+    found = set()
+    for lineup in lineups:
+        found.update(combinations(sorted(str(value) for value in lineup.ids), size))
+    return len(found)
+
+
+def _selected_metrics(batch: CandidateBatch, picked: list[int]) -> dict[str, Any]:
+    if len(picked) != 80 or len(set(picked)) != 80:
+        raise ValueError("CBWU-OI requires exactly 80 selected candidates")
+    totals = np.asarray(batch.candidate_totals)
+    clears = totals[picked] >= 194.0
+    if clears.shape[1] % 5:
+        raise ValueError("CBWU-OI world blocks are misaligned")
+    block_worlds = clears.shape[1] // 5
+    selected = [batch.candidates[index] for index in picked]
+    return {
+        "identities": [
+            sorted(str(value) for value in lineup.ids) for lineup in selected
+        ],
+        "world_coverage": float(np.mean(np.any(clears, axis=0))),
+        "world_coverage_by_block": [
+            float(np.mean(np.any(
+                clears[:, index * block_worlds:(index + 1) * block_worlds],
+                axis=0,
+            )))
+            for index in range(5)
+        ],
+        "pair_coverage": _tuple_count(selected, 2),
+        "triple_coverage": _tuple_count(selected, 3),
+    }
+
+
+def _repair_slate(books: dict[str, CandidateBatch]) -> dict[str, Any]:
+    order = tuple(f"R{index}" for index in range(5))
+    control = combine_cbwu_books(
+        books, order, expected_worlds_per_book=10_000
+    )
+    control_picked = select_tail_entries(
+        control.candidate_totals, 80, 194.0, env={"SELECT_LSE": "0"}
+    )
+    control_metrics = _selected_metrics(control, control_picked)
+
+    rotations = tuple(order[offset:] + order[:offset] for offset in range(5))
+    rows = []
+    canonical_candidates = None
+    canonical_selected = None
+    canonical_metrics = None
+    for rotation in rotations:
+        treatment = combine_cbwu_order_invariant_books(
+            books,
+            rotation,
+            tail_line=194.0,
+            expected_worlds_per_book=10_000,
+        )
+        picked = select_tail_entries(
+            treatment.candidate_totals, 80, 194.0, env={"SELECT_LSE": "0"}
+        )
+        metrics = _selected_metrics(treatment, picked)
+        candidates = [
+            sorted(str(value) for value in lineup.ids)
+            for lineup in treatment.candidates
+        ]
+        if canonical_candidates is None:
+            canonical_candidates = candidates
+            canonical_selected = metrics["identities"]
+            canonical_metrics = metrics
+        rows.append({
+            "seed_order": list(rotation),
+            "candidate_budget": len(treatment.candidates),
+            "complete_union_candidates": treatment.metadata[
+                "complete_union_candidates"
+            ],
+            "candidate_identities_exact_vs_canonical": (
+                candidates == canonical_candidates
+            ),
+            "selected_identities_exact_vs_canonical": (
+                metrics["identities"] == canonical_selected
+            ),
+            "selected_metrics": metrics,
+        })
+    assert canonical_metrics is not None
+    candidate_budget = len(control.candidates)
+    invariant = bool(all(
+        row["candidate_identities_exact_vs_canonical"]
+        and row["selected_identities_exact_vs_canonical"]
+        and row["candidate_budget"] == candidate_budget
+        for row in rows
+    ))
+    return {
+        "version": "cbwu-order-invariant-repair-scorefree-v1",
+        "uses_realized_outcomes": False,
+        "candidate_budget": candidate_budget,
+        "control": control_metrics,
+        "treatment": canonical_metrics,
+        "world_coverage_delta": (
+            canonical_metrics["world_coverage"]
+            - control_metrics["world_coverage"]
+        ),
+        "world_coverage_delta_by_block": [
+            treatment - control_value
+            for treatment, control_value in zip(
+                canonical_metrics["world_coverage_by_block"],
+                control_metrics["world_coverage_by_block"],
+                strict=True,
+            )
+        ],
+        "pair_coverage_ratio": (
+            canonical_metrics["pair_coverage"]
+            / max(1, control_metrics["pair_coverage"])
+        ),
+        "triple_coverage_ratio": (
+            canonical_metrics["triple_coverage"]
+            / max(1, control_metrics["triple_coverage"])
+        ),
+        "rotations": rows,
+        "order_invariant": invariant,
+    }
+
+
+def _aggregate_repairs(rows: list[dict]) -> dict[str, Any]:
+    if len(rows) != 54:
+        raise ValueError("CBWU-OI aggregate requires exactly 54 slates")
+    if any(row.get("uses_realized_outcomes") is not False for row in rows):
+        raise ValueError("CBWU-OI aggregate received outcome-facing rows")
+    block_delta = np.asarray([
+        row["world_coverage_delta_by_block"] for row in rows
+    ], dtype=float)
+    conditions = {
+        "all_rotations_identity_exact": all(
+            row["order_invariant"] for row in rows
+        ),
+        "aggregate_world_coverage_improves": float(np.mean([
+            row["world_coverage_delta"] for row in rows
+        ])) > 0.0,
+        "at_least_three_blocks_improve": int(np.sum(
+            block_delta.mean(axis=0) > 0.0
+        )) >= 3,
+        "pair_coverage_at_least_90pct": float(np.mean([
+            row["pair_coverage_ratio"] for row in rows
+        ])) >= 0.90,
+        "triple_coverage_at_least_90pct": float(np.mean([
+            row["triple_coverage_ratio"] for row in rows
+        ])) >= 0.90,
+        "exact_candidate_and_entry_counts": all(
+            row["candidate_budget"] > 80
+            and len(row["treatment"]["identities"]) == 80
+            and all(
+                rotation["candidate_budget"] == row["candidate_budget"]
+                for rotation in row["rotations"]
+            )
+            for row in rows
+        ),
+    }
+    passes = bool(all(conditions.values()))
+    return {
+        "slates": 54,
+        "cyclic_comparisons": 216,
+        "mean_world_coverage_delta": float(np.mean([
+            row["world_coverage_delta"] for row in rows
+        ])),
+        "mean_world_coverage_delta_by_block": block_delta.mean(axis=0).tolist(),
+        "mean_pair_coverage_ratio": float(np.mean([
+            row["pair_coverage_ratio"] for row in rows
+        ])),
+        "mean_triple_coverage_ratio": float(np.mean([
+            row["triple_coverage_ratio"] for row in rows
+        ])),
+        "conditions": conditions,
+        "passes_scorefree_gate": passes,
+        "disposition": (
+            "cbwu-oi-scorefree-gate-passes"
+            if passes else "cbwu-oi-scorefree-gate-fails"
+        ),
+    }
+
+
+def run(output_uri: str, mode: str = "order-audit") -> dict[str, Any]:
     validate_scorefree_queries()
+    if mode not in {"order-audit", "order-invariant-repair"}:
+        raise ValueError("CBWU score-free mode differs")
+    if mode == "order-invariant-repair":
+        validate_repair_protocol()
     code_sha = os.environ.get("CODE_SHA", "").strip()
     image = os.environ.get("ANALYSIS_IMAGE", "").strip()
     if not re.fullmatch(r"[0-9a-f]{40}", code_sha) or not re.fullmatch(
@@ -310,24 +511,39 @@ def run(output_uri: str) -> dict[str, Any]:
                 "candidate_rows": len(group),
                 **receipt,
             })
-        audit = audit_cbwu_seed_orders(
-            books,
-            tuple(books),
-            n_entries=80,
-            tail_line=194.0,
-            expected_worlds_per_book=10_000,
-        )
+        if mode == "order-audit":
+            audit = audit_cbwu_seed_orders(
+                books,
+                tuple(books),
+                n_entries=80,
+                tail_line=194.0,
+                expected_worlds_per_book=10_000,
+            )
+        else:
+            audit = _repair_slate(books)
         audits.append({"season": season, "week": week, **audit})
 
-    aggregate = _aggregate_audits(audits)
+    aggregate = (
+        _aggregate_audits(audits)
+        if mode == "order-audit" else _aggregate_repairs(audits)
+    )
+    version = (
+        "cbwu-seed-order-scorefree-v1"
+        if mode == "order-audit"
+        else "cbwu-order-invariant-repair-scorefree-v1"
+    )
     report = {
-        "version": "cbwu-seed-order-scorefree-v1",
+        "version": version,
         "uses_realized_outcomes": False,
         "code_sha": code_sha,
         "image": image,
         "source_table": SOURCE_TABLE,
         "player_table": PLAYER_TABLE,
         "forensic_manifest_sha256": FORENSIC_MANIFEST_SHA256,
+        "repair_protocol_sha256": (
+            CBWU_OI_PROTOCOL_SHA256
+            if mode == "order-invariant-repair" else None
+        ),
         "source_panels": list(SOURCE_PANEL_IDS),
         "source_artifacts": receipts,
         "aggregate": aggregate,
@@ -336,6 +552,9 @@ def run(output_uri: str) -> dict[str, Any]:
             "score-free order audit only; a sensitive result requires an "
             "order-proof or order-invariant repair and cannot select the "
             "historically best order"
+            if mode == "order-audit"
+            else "score-free repair gate only; a pass licenses a separately "
+            "identified pre-lock 2026 shadow and cannot change production"
         ),
     }
     payload = (json.dumps(
@@ -348,8 +567,13 @@ def run(output_uri: str) -> dict[str, Any]:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output-uri", required=True)
+    parser.add_argument(
+        "--mode",
+        choices=("order-audit", "order-invariant-repair"),
+        default="order-audit",
+    )
     args = parser.parse_args()
-    result = run(args.output_uri)
+    result = run(args.output_uri, mode=args.mode)
     print(json.dumps({
         "version": result["version"],
         "aggregate": result["aggregate"],

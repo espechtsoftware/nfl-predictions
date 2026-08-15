@@ -81,3 +81,51 @@ def test_cbwu_cloud_contract_is_create_only_and_packaged():
     assert "len(report.get(\"source_artifacts\", [])) != 270" in finish
     assert "aggregate.get(\"cyclic_comparisons\") != 216" in finish
     assert "uses_realized_outcomes" in finish
+
+
+def _repair_row(delta=0.01, pair=1.0, triple=1.0, invariant=True):
+    identities = [[str(index)] * 9 for index in range(80)]
+    return {
+        "uses_realized_outcomes": False,
+        "order_invariant": invariant,
+        "candidate_budget": 250,
+        "world_coverage_delta": delta,
+        "world_coverage_delta_by_block": [delta] * 5,
+        "pair_coverage_ratio": pair,
+        "triple_coverage_ratio": triple,
+        "treatment": {"identities": identities},
+        "rotations": [{"candidate_budget": 250}] * 5,
+    }
+
+
+def test_cbwu_oi_aggregate_applies_frozen_scorefree_gate():
+    runner = _runner()
+    passing = [
+        {"season": 2025, "week": week, **_repair_row()}
+        for week in range(1, 55)
+    ]
+    result = runner._aggregate_repairs(passing)
+    assert result["passes_scorefree_gate"] is True
+    assert result["disposition"] == "cbwu-oi-scorefree-gate-passes"
+
+    passing[0] = {
+        "season": 2025,
+        "week": 1,
+        **_repair_row(invariant=False),
+    }
+    result = runner._aggregate_repairs(passing)
+    assert result["passes_scorefree_gate"] is False
+    assert result["disposition"] == "cbwu-oi-scorefree-gate-fails"
+
+
+def test_cbwu_oi_cloud_contract_is_frozen_and_create_only():
+    launch = (ROOT / "scripts/cloud_cbwu_order_invariant_repair.sh").read_text()
+    finish = (
+        ROOT / "scripts/cloud_finish_cbwu_order_invariant_repair.sh"
+    ).read_text()
+    assert "--mode,order-invariant-repair" in launch
+    assert "gcloud storage objects describe" in launch
+    assert "--max-retries 0" in launch
+    assert "repair_protocol_sha256" in launch
+    assert "all_rotations_identity_exact" in finish
+    assert "cannot change production" in finish
