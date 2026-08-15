@@ -113,6 +113,18 @@ agent or developer:
   treatment and gate tests pass locally and `git diff --check` is clean. The
   fresh reference runner and split calibration/held-out execution remain to
   implement after the guarded acquisition closes.
+- The review's remaining exact-P construction question is now frozen as
+  `reports/2026-08-15-exact-p-generator-constraint-census-protocol.md`
+  (SHA-256
+  `6399bc42c892a3be79f7c77447750cdf09f5996a74c12a823547f58dfcbcf298`).
+  The census reuses the immutable corrected P identities but forbids candidate
+  scores/yield. It distinguishes failure inside complete native generator
+  books from exclusion by the fixed-budget five-seed CBWU quota/fill law,
+  reports score-free distance/coverage by the six registered base families,
+  and checks only static family eligibility. Any later reallocation must target
+  structural coverage at a constant realized candidate budget; historical
+  tag yield and exact-P amounts cannot set its weights. Exact next action is
+  implement/validate this descriptive census independently of the SIS path.
 
 - The frozen prospective latent-role mechanism now has its previously missing
   real score-free scenario factory and separately named paired runner. The
