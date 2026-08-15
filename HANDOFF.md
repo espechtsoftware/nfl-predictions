@@ -735,8 +735,17 @@ agent or developer:
   immutable digest and exact source commit. Its create-only manifest and
   execution receipt are tracked under
   `reports/exact-p-corrected-identity-runs/20260815-exact-p-corrected-identities-v1/full/`.
-  Poll it to terminal success and strictly harvest/hash/generation-pin it
-  before building the source1 census image.
+  It completed successfully at `2026-08-15T22:00:50.661931Z` in 2m37s. The
+  strict finisher retained all 54 identity-only records / 486 roster slots,
+  independently verified legality and exact-stack score/tail reproduction,
+  and confirmed that no outcome value, candidate score or membership was
+  persisted. The immutable object generation is `1786831245271593` and the
+  report SHA-256 is
+  `ff456093841266cba1b0293dd56b0e2d5089588a61518568706900617eff6ad1`.
+  This is still a source receipt, not a scientific result. These exact pins
+  now license a full-suite image build containing the source1 census code;
+  after that build passes, launch only the 2023 plumbing preflight before the
+  full 54-slate census.
   The second requested narrow check is also implemented as the pure
   `validate_exact_p_census_plumbing` preflight. On exactly the 18 2023 slates
   it audits corrected-P legality, all five native books, family labels and
