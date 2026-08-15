@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 12:08 CDT
+## Current state — 2026-08-15 12:51 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -57,6 +57,21 @@ agent or developer:
   first live 2026 market window, make one bounded availability probe for a
   regulation `h2h_3_way` Draw or explicit OT market before deciding whether a
   direct market-priced prospective collector is feasible.
+- The subsequently supplied
+  `reports/2026-08-15-overtime-prediction-assessment.md` was reconciled in
+  `reports/2026-08-15-overtime-prediction-assessment-review.md`. Its pooled
+  2015--2025 spread table is not admissible for the rule-regime-specific test.
+  The same bands restricted to the frozen data were unstable: in 2022--2024
+  the 0--2.5/3--5.5/6--9.5/10+ OT rates were 4.878%/6.607%/6.122%/6.173%,
+  while 2025 rates were 8.571%/3.030%/5.797%/2.941%. In particular, the pooled
+  claim that 10+ spreads are a reliable negative signal did not reproduce in
+  training, and its 2025 value was only one event in 34 games. The frozen
+  held-out result therefore remains authoritative. The review accepts OT as a
+  material shared duration mechanism and preserves the one bounded direct
+  market availability probe, but rejects a post-hoc spread/total arm and a
+  supposedly free winning-line feature. A winning-line or duration test would
+  require a direct pre-lock OT/Draw price or a separately frozen prospective
+  probability source.
 - The external post-forensic review has now been converted into a pre-value
   frozen SIS receiver-specific copula protocol at
   `reports/2026-08-15-sis-receiver-copula-protocol.md`. It confines SIS to a
