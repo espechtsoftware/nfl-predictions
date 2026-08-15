@@ -78,3 +78,19 @@ def test_zero_strength_is_inert():
     )
     assert np.array_equal(treatment, control)
     assert audit["changed_rows"] == 0
+
+
+def test_unresolved_profiles_count_against_route_mass_without_ambiguous_key():
+    frame, profiles, defense = _fixture()
+    unresolved = pd.DataFrame([
+        (2025, 5, "A", None, "WR", 120.0, 120.0, 0.5, False),
+        (2025, 5, "A", None, "WR", 120.0, 120.0, 0.5, False),
+    ], columns=profiles.columns)
+    profiles = pd.concat([profiles, unresolved], ignore_index=True)
+
+    _scores, eligible, audit = build_receiver_context(
+        frame, profiles, defense,
+    )
+
+    assert not eligible.any()
+    assert audit["support_failures"] == {"route-mass": 1}

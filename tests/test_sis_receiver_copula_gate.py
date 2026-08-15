@@ -109,6 +109,33 @@ def test_calibration_selection_rejects_changed_grid():
         copula.select_calibration_grid([])
 
 
+def test_calibration_row_uses_six_frozen_two_sided_errors():
+    score = _score()
+
+    row = copula.calibration_grid_row(score, 0.75)
+
+    expected = sum(abs(score["g0"]["cells"][name][
+        "log_simulated_to_realized"
+    ]) for name in copula.CALIBRATION_G0_CELLS)
+    expected += sum(abs(score["broad_relationships"][name][
+        "log_simulated_to_realized"
+    ]) for name in copula.CALIBRATION_G1_CELLS)
+    assert row["required_support"]
+    assert row["registered_absolute_log_error_sum"] == pytest.approx(expected)
+
+
+def test_calibration_row_is_ineligible_when_registered_cell_is_unsupported():
+    score = _score()
+    score["g0"]["cells"]["multiplicity_ge3"] = _cell(
+        0.0, supported=False,
+    )
+
+    row = copula.calibration_grid_row(score, 0.5)
+
+    assert not row["required_support"]
+    assert row["support_failure"] == "registered calibration cells unsupported"
+
+
 def test_gate_passes_complete_two_sided_improvement_only_for_shadow():
     control = _score()
 

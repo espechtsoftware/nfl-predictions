@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 12:00 CDT
+## Current state — 2026-08-15 12:08 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -135,7 +135,7 @@ agent or developer:
   unstated 2022 calibration-book choice was frozen in
   `reports/2026-08-15-sis-receiver-copula-calibration-book-amendment.md`
   (SHA-256
-  `c1ef7c19529139c9ef4e03aa4b97f0c6b1a853e18e824e704394bbd016d0594b`).
+  `cb28791b593023ab6abc80becf94c901b80c095a268f154c77af15214dc6b500`).
   Calibration now uses only the immutable 2022 historical splice, PIT cache
   `tabpfn_projections_pit_v2`, its accepted multinomial usage law, no
   unavailable served-position adjustment, 45/55 blend, 10,000 worlds and seed
@@ -170,9 +170,17 @@ agent or developer:
   combined SIS/census focused tests pass, both new Python files compile and
   `git diff --check` passes. The implementation is committed/pushed at exact
   SHA `f58adbb7ed1a81997bbc23812f092ce3dcd183b9`; exact-archive Cloud Build
-  `cc94e694-6e35-4128-af51-5c67fe3db68c` is queued in `us-central1` under tag
-  `exact-p-census-f58adbb`. Require it to pass, then run one create-only cloud
-  census; no local or pre-validation outcome/member run is licensed.
+  `cc94e694-6e35-4128-af51-5c67fe3db68c` passed at
+  `2026-08-15T17:02:59.396249Z` with 1,475 tests passed, 2 skipped and 5
+  warnings in 776.87 seconds. Tag `exact-p-census-f58adbb` resolves to
+  immutable digest
+  `sha256:a3e4ebce504cc62b9a776cd62b6fabe437d30d1c8e0407cc5c2a48a7f1526aa1`.
+  The sole create-only census is running as Cloud Run execution
+  `exact-p-generator-constraint-census-v1-87vh2`, deployed with 8 CPU, 32 GiB,
+  one task, zero retries and a two-hour timeout. Its only licensed output is
+  `gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/post-forensic-addenda/20260815-exact-p-generator-constraint-census-v1/result.json`.
+  Poll and validate that execution; no local or alternative membership run is
+  licensed.
 
 - The frozen prospective latent-role mechanism now has its previously missing
   real score-free scenario factory and separately named paired runner. The

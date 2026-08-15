@@ -49,8 +49,11 @@ absolute-log-error sum is the unweighted sum of these six two-sided errors:
 6. G0 `multiplicity_ge3`.
 
 All six cells must be supported for a grid cell to be eligible. Aggregate
-joint-q90 Brier and p=0.5 variogram use the parent protocol's complete
-registered G1 relationship scorebook, not only the two receiver relationships.
+joint-q90 Brier and p=0.5 variogram use the same fixed relationship weights as
+the repaired held-out scorebook: `QB_WR=3`, `QB_TE=2`, `QB_RB=1`, `WR_WR=2`,
+`RB_RB=1`, `TE_TE=1`, `QB_OPP_QB=1`, `QB_OPP_WR=1`, `QB_OPP_TE=1`, and
+`WR_OPP_WR=1`. Thus the proper-score tiebreak uses the complete registered
+primary G1 relationship scorebook, not only the two receiver relationships.
 
 ## Split execution boundary
 

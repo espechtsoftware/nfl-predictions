@@ -54,7 +54,10 @@ def build_receiver_context(
         raise ValueError("receiver-copula frame must have a canonical row index")
     if frame.duplicated(["season", "week", "gsis_id"]).any():
         raise ValueError("receiver-copula frame repeats player weeks")
-    if player_profiles.duplicated(["season", "target_week", "gsis_id"]).any():
+    resolved_profiles = player_profiles[player_profiles.gsis_id.notna()]
+    if resolved_profiles.duplicated(
+        ["season", "target_week", "gsis_id"]
+    ).any():
         raise ValueError("receiver-copula player profiles repeat player weeks")
     if defense_prior.duplicated(
         ["season", "target_week", "defense", "alignment"]

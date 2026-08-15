@@ -20,6 +20,10 @@ REQUIRED_G0_CELLS = ("qb_wr", "qb_te", "wr_wr", "rb_rb")
 MULTIPLICITY_CELLS = (
     "multiplicity_ge2", "multiplicity_ge3", "multiplicity_ge4",
 )
+CALIBRATION_G1_CELLS = ("QB_WR", "WR_WR")
+CALIBRATION_G0_CELLS = (
+    "qb_wr", "wr_wr", "multiplicity_ge2", "multiplicity_ge3",
+)
 REFERENCE_META_PREFIX = "SIS_RECEIVER_COPULA_REFERENCE_META="
 REFERENCE_CHUNK_PREFIX = "SIS_RECEIVER_COPULA_REFERENCE_CHUNK="
 REFERENCE_VERSION = "sis-receiver-copula-reference-v1"
@@ -275,6 +279,67 @@ def select_calibration_grid(grid: list[dict[str, Any]]) -> dict[str, Any]:
     return min(tied, key=lambda row: float(row["strength"]))
 
 
+def calibration_grid_row(score: dict[str, Any], strength: float) -> dict[str, Any]:
+    """Reduce one complete 2022 scorebook to the frozen selector fields."""
+    try:
+        g0_errors = _g0_errors(score)
+        g1_errors = _g1_errors(score)
+        required_support = bool(
+            set(CALIBRATION_G0_CELLS).issubset(g0_errors)
+            and set(CALIBRATION_G1_CELLS).issubset(g1_errors)
+        )
+        if not required_support:
+            return {
+                "strength": float(strength),
+                "required_support": False,
+                "support_failure": "registered calibration cells unsupported",
+                "registered_absolute_log_error_sum": None,
+                "joint_q90_brier": None,
+                "variogram_p0_5": None,
+                "registered_absolute_log_errors": {
+                    "g0": {
+                        name: g0_errors.get(name)
+                        for name in CALIBRATION_G0_CELLS
+                    },
+                    "g1": {
+                        name: g1_errors.get(name)
+                        for name in CALIBRATION_G1_CELLS
+                    },
+                },
+            }
+        primary = score["primary"]
+        brier = float(primary["joint_q90_brier"])
+        variogram = float(primary["variogram_p0_5"])
+        registered = float(sum(
+            g0_errors[name] for name in CALIBRATION_G0_CELLS
+        ) + sum(
+            g1_errors[name] for name in CALIBRATION_G1_CELLS
+        ))
+        if not np.isfinite([strength, registered, brier, variogram]).all():
+            raise ValueError("receiver-copula calibration score is nonfinite")
+    except (KeyError, TypeError, ValueError) as exc:
+        return {
+            "strength": float(strength),
+            "required_support": False,
+            "support_failure": str(exc),
+            "registered_absolute_log_error_sum": None,
+            "joint_q90_brier": None,
+            "variogram_p0_5": None,
+        }
+    return {
+        "strength": float(strength),
+        "required_support": required_support,
+        "support_failure": None,
+        "registered_absolute_log_error_sum": registered,
+        "joint_q90_brier": brier,
+        "variogram_p0_5": variogram,
+        "registered_absolute_log_errors": {
+            "g0": {name: g0_errors.get(name) for name in CALIBRATION_G0_CELLS},
+            "g1": {name: g1_errors.get(name) for name in CALIBRATION_G1_CELLS},
+        },
+    }
+
+
 def _absolute_log_error(row: dict) -> float:
     if not row.get("supported"):
         raise ValueError("receiver-copula required score cell is unsupported")
@@ -496,8 +561,9 @@ def gate_decision(
 
 
 __all__ = [
-    "FLOAT_TOLERANCE", "MULTIPLICITY_CELLS", "REQUIRED_G0_CELLS",
+    "CALIBRATION_G0_CELLS", "CALIBRATION_G1_CELLS", "FLOAT_TOLERANCE",
+    "MULTIPLICITY_CELLS", "REQUIRED_G0_CELLS",
     "REQUIRED_RELATIONSHIPS", "STRENGTH_GRID", "gate_decision",
-    "multiplicity_diagnostic", "reference_invariants", "run_reference",
-    "select_calibration_grid",
+    "calibration_grid_row", "multiplicity_diagnostic", "reference_invariants",
+    "run_reference", "select_calibration_grid",
 ]
