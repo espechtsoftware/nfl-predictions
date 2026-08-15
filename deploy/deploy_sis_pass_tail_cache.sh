@@ -16,13 +16,20 @@ esac
 gcloud builds submit --project "$PROJECT" \
   --config scripts/tabpfn_sis_pass_tail_live/cloudbuild.yaml \
   --substitutions "_IMAGE=${IMAGE}" .
+DIGEST="$(gcloud artifacts docker images describe "$IMAGE" \
+  --project "$PROJECT" --format='value(image_summary.digest)')"
+case "$DIGEST" in
+  sha256:[0-9a-f][0-9a-f]*) ;;
+  *) echo "ABORT: built cache image has no immutable digest"; exit 2 ;;
+esac
+IMMUTABLE_IMAGE="${IMAGE}@${DIGEST}"
 
 deploy_arm() {
   local arm=$1
   local job="tabpfn-sis-pass-tail-live-${arm}"
   local table="tabpfn_sis_pass_tail_live_${arm}_v1"
   gcloud run jobs deploy "$job" --project "$PROJECT" --region "$REGION" \
-    --image "$IMAGE" \
+    --image "$IMMUTABLE_IMAGE" \
     --set-env-vars "GCP_PROJECT=${PROJECT},TABPFN_SIS_PASS_TAIL_LIVE_ARM=${arm},TABPFN_OUTPUT_TABLE=${table},TABPFN_UPCOMING=auto,CODE_SHA=${CODE_SHA}" \
     --memory 16Gi --cpu 4 --gpu 1 --gpu-type nvidia-l4 \
     --no-gpu-zonal-redundancy --max-retries 0 --task-timeout 3600 \
@@ -44,5 +51,5 @@ deploy_arm() {
 deploy_arm control
 deploy_arm treatment
 
-echo "Deployed prospective SIS pass-tail cache pair at ${IMAGE}."
+echo "Deployed prospective SIS pass-tail cache pair at ${IMMUTABLE_IMAGE}."
 echo "Keep both schedulers paused until the forensic cleanup/resume gate."
