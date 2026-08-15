@@ -20,12 +20,12 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 23:59 CDT
+## Current state — 2026-08-15 00:02 CDT
 
 ### Final preseason forensic run succeeded; historical queue closed and prospective construction program frozen
 
-- Branch is `main` at pushed commit `2b7a7bd5e2a77d5991f7dff9709fbf7965e0bea1`
-  before the in-progress conditional-recourse milestone. The
+- Branch is `main` at pushed commit `2ae0b5b465240c8dfc96149f72b351f8d62a7ab7`.
+  The
   byte-identical/configuration-only retry
   `final-preseason-forensic-v1-gqssz` completed successfully at
   `2026-08-15T04:05:51.446124Z`, with one succeeded task, zero failed tasks and
@@ -126,6 +126,9 @@ agent or developer:
   clean `git archive` of that commit. It is executing the complete suite before
   it may publish
   `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:prospective-archetype-c847e29`.
+  Its complete test step passed 1,350 tests with 2 skipped and 5 warnings in
+  1,010.84 seconds. The image push is in progress, so the build is not yet
+  terminal and its immutable digest must still be recorded.
 - While that build runs, the first recourse-safety layer was implemented in
   `src/nfl_dfs/optimizer/late_swap.py`. Version
   `prospective-recourse-state-v1` defines timezone-aware
@@ -160,16 +163,21 @@ agent or developer:
   240/230/220/210/200/194/187, then q99 and mean. It cannot create duplicate
   lineups and returns identities/receipt only; DK filling and the validator
   remain mandatory. Fifteen focused route/recourse/export/optimizer tests pass.
-  These policy changes are not yet committed or cloud-validated.
+  The policy is included in the current pushed commit. Exact-commit Cloud
+  Build `8cc83b68-ef31-4f5d-b657-809f84d17d07` was submitted from a clean
+  `git archive` of full SHA `2ae0b5b465240c8dfc96149f72b351f8d62a7ab7`.
+  It is queued in `us-central1` behind the allocator image push and, on
+  success, will publish
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:prospective-recourse-2ae0b5b`.
 - The local repository `.venv` remains healthy despite the user's concern
   about accidentally deleting a Python environment while installing Gemini
   CLI: `.venv/bin/python` is Python 3.14.4, project/pandas/BigQuery imports
   succeed and `python -m pip check` reports no broken requirements.
 - Next concrete action: poll exact-commit Cloud Build
   `436fa27e-be96-41c6-bb62-c2e1808e1e4f` to terminal and record its full-suite
-  counts plus immutable image digest; commit/push the conditional policy and
-  launch one exact-commit full-suite build covering the validator, validated
-  route and proposer; then add the score-free retained-world adapter and UI
+  terminal and record its immutable image digest; poll exact-current build
+  `8cc83b68-ef31-4f5d-b657-809f84d17d07` to terminal and record its suite
+  count/digest; then add the score-free retained-world adapter and UI
   preview needed for an authenticated rehearsal. The first score-free
   live shadow smoke waits only for complete 2026 pre-lock slate inputs and must
   validate its receipt before any outcome join. In parallel, preserve the Week
