@@ -64,21 +64,33 @@ agent or developer:
   TreeSHAP/permutation equivalents are disclosed rather than adding a fragile
   dependency. Every output is outcome-viewed, hypothesis-generating only and
   mechanically barred from historical adoption, promotion or retuning.
-- The in-progress freeze contract now carries 38 checklist items, the exact
+- The repaired freeze contract now carries 38 checklist items, the exact
   between-arm population, 230 inventoried reports and the existing nine-output
-  contract. Outcome-free manifest construction validates locally. Focused
-  validation passes 32 tests; Python compilation, JSON validation and
-  `git diff --check` pass. No new successful forensic outcome run has been
-  launched, and the recent Cloud Run execution list contains no live forensic
-  execution.
-- Next concrete action: commit/push this mechanical repair and descriptive
-  addendum, run the complete test suite in an exact-commit Cloud Build, update
-  the inputs to its immutable image/SHA, rebuild and commit a new create-only
-  repaired manifest, verify the full prelock contract in Cloud Run, and only
-  then launch one new repaired outcome execution to a new output prefix. After
-  success, validate all nine outputs/four WRITE_EMPTY tables, write the closure
-  report, and retain the isolated corpus until independent review; delete it
-  before the first 2026 production build.
+  contract. Exact-commit Cloud Build
+  `eb341883-7789-4adc-a806-d4af3b32f7ef` succeeded from pushed code SHA
+  `d633c070233b500063116d7552b373ae74fc19c1`; the complete suite passed 1,332
+  tests with 2 skipped and 5 warnings in 735.53 seconds. Immutable analyzer
+  image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:cb72a87b5dfeed16cb0e00edf0ac8df906a00a0030f173fc64cc994eb6a49e1d`.
+  Outcome-free roster/feature parity also found 21,888 distinct rostered
+  season/week/player keys across the 14 panels and zero absent from the
+  component lookup.
+- `freeze_manifest_repair2.json` pins that exact code/image, 56 ledger entries,
+  230 reports, 39 protocols, the 38-item checklist and the exact 14x107
+  population. Internal manifest SHA-256 is
+  `0fa735ad8a296cae19d9ab8440a86628ab7dede12c4293ef7591fb44f610515c`;
+  file SHA-256 is
+  `4938c4ba964ef57c2faa10f4137bfa28ff66bb41cbf7e00e0ca2f19a8e64ba87`.
+  Local outcome-free manifest construction and verify-only validation pass.
+  No new successful forensic outcome run has been launched, and the recent
+  Cloud Run execution list contains no live forensic execution.
+- Next concrete action: commit/push the repair2 manifest/build receipt, upload
+  it create-only, verify the complete component plus between-arm prelock
+  contract in the exact image/service account, and only then launch one new
+  repaired outcome execution to a new output prefix. After success, validate
+  all nine outputs/four WRITE_EMPTY tables, write the closure report, and
+  retain the isolated corpus until independent review; delete it before the
+  first 2026 production build.
 
 ### 2026-08-14 final-forensic audit expanded; decision-structure queue registered
 

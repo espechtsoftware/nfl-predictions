@@ -1,6 +1,6 @@
 {
-  "analysis_image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:1d4241a5bcb6e4f540595cf48d77b8e32344ef96d359e88022a291350bd9b50e",
-  "analysis_code_sha": "0a50bfbef72210ed7a6bad7fb193671bc66db414",
+  "analysis_image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:cb72a87b5dfeed16cb0e00edf0ac8df906a00a0030f173fc64cc994eb6a49e1d",
+  "analysis_code_sha": "d633c070233b500063116d7552b373ae74fc19c1",
   "production": {
     "policy_id": "classic-k1-role12-boom40-poscal-cbwu-v4",
     "fallback_policy_id": "classic-k1-ce12-boom28-v1",
@@ -172,6 +172,48 @@
       "table": "nfl-predictions-503414.nfl_predictions.replay_candidates_staging + nfl-predictions-503414.nfl_predictions.slate_player_features"
     }
   ],
+  "between_arm_variance": {
+    "source_table": "nfl-predictions-503414.nfl_predictions.replay_candidates",
+    "panel_ids": [
+      "20260807-livefaithful-b2-91d596e",
+      "20260807-trusted-b0-ef6d31c",
+      "20260808-deterministic-baseline-c616390",
+      "20260808-e80-k1-c616390",
+      "20260808-e80-k3-c616390",
+      "20260808-e80-msctl-d99b125",
+      "20260808-livefaithful-b3-ee6f433",
+      "20260809-e80-k1-ce12-c616390",
+      "20260810-lockfix-e80-k1-8677d21",
+      "20260810-lockfix-e80-k1-role12union-8677d21",
+      "20260810-lockfix-e80-k3-8677d21",
+      "20260811-pitclean-e80-k1-a12ab31",
+      "20260811-pitclean-e80-k1-role12union-a12ab31",
+      "20260811-pitclean-e80-k3-a12ab31"
+    ],
+    "common_slates": ["2019-01","2019-02","2019-03","2019-04","2019-05","2019-06","2019-07","2019-08","2019-09","2019-10","2019-11","2019-12","2019-13","2019-14","2019-15","2019-16","2019-17","2021-01","2021-02","2021-03","2021-04","2021-05","2021-06","2021-07","2021-08","2021-09","2021-10","2021-11","2021-12","2021-13","2021-14","2021-15","2021-16","2021-17","2021-18","2022-01","2022-02","2022-03","2022-04","2022-05","2022-06","2022-07","2022-08","2022-09","2022-10","2022-11","2022-12","2022-13","2022-14","2022-15","2022-16","2022-17","2022-18","2023-01","2023-02","2023-03","2023-04","2023-05","2023-06","2023-07","2023-08","2023-09","2023-10","2023-11","2023-12","2023-13","2023-14","2023-15","2023-16","2023-17","2023-18","2024-01","2024-02","2024-03","2024-04","2024-05","2024-06","2024-07","2024-08","2024-09","2024-10","2024-11","2024-12","2024-13","2024-14","2024-15","2024-16","2024-17","2024-18","2025-01","2025-02","2025-03","2025-04","2025-05","2025-06","2025-07","2025-08","2025-09","2025-10","2025-11","2025-12","2025-13","2025-14","2025-15","2025-16","2025-17","2025-18"],
+    "common_slate_sha256": "3ae7bd35401d5131ee2e305ee93764fa31bbc4c9c8f80ccab4916cb07d64fa80",
+    "expected_entries_by_panel": {
+      "20260807-livefaithful-b2-91d596e": 40,
+      "20260807-trusted-b0-ef6d31c": 40,
+      "20260808-deterministic-baseline-c616390": 40,
+      "20260808-e80-k1-c616390": 80,
+      "20260808-e80-k3-c616390": 80,
+      "20260808-e80-msctl-d99b125": 80,
+      "20260808-livefaithful-b3-ee6f433": 40,
+      "20260809-e80-k1-ce12-c616390": 80,
+      "20260810-lockfix-e80-k1-8677d21": 80,
+      "20260810-lockfix-e80-k1-role12union-8677d21": 80,
+      "20260810-lockfix-e80-k3-8677d21": 80,
+      "20260811-pitclean-e80-k1-a12ab31": 80,
+      "20260811-pitclean-e80-k1-role12union-a12ab31": 80,
+      "20260811-pitclean-e80-k3-a12ab31": 80
+    },
+    "expected_panel_count": 14,
+    "expected_common_slate_count": 107,
+    "estimand": "selected weekly-max arm fixed-effect dispersion after common-slate removal",
+    "selection_bias": "the fourteen mechanically complete launched panels are a selected, heterogeneous sample",
+    "use_restriction": "may not revive, re-adjudicate, relabel, promote, or retune any historical arm; descriptive context and future reporting scale only"
+  },
   "warehouse_retention": {
     "retention_days": 90,
     "write_disposition": "WRITE_EMPTY",

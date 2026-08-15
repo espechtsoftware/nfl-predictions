@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 import pandas as pd
 
 from nfl_dfs.research.final_forensic_corpus import (
@@ -68,3 +70,4 @@ def test_corpus_understanding_runs_all_five_descriptive_views():
     assert report["lineup_space_embedding"]["sample_rows"] == 300
     assert report["lineup_space_embedding"]["points"]
     assert "selection_regret" in report["changepoints"]["metrics"]
+    json.dumps(report, allow_nan=False)
