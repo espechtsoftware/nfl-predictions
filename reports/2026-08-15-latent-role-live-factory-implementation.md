@@ -55,11 +55,17 @@ production hook invokes this runner.
   authenticated live-slate parity smoke cannot run yet and was not faked with
   historical outcomes or a synthetic salary spine.
 
-## Remaining gate
+## Validation image and remaining gate
 
-Run an exact clean-archive Cloud Build for the implementation SHA. After
-DraftKings posts a real 2026 Sunday-main slate and the normal ingestion/feature
-chain creates the corresponding inference rows, run the CLI command
+The run-cache repair is committed at exact SHA
+`3e25edc0a3f47cfc20806f13e69b7301f759e5c2`. Exact-archive Cloud Build
+`d7c038fd-48c2-4502-82dd-ae6a276e620e` passed 1,456 tests with 2 skipped and 5
+existing warnings, then published image digest
+`sha256:3f6283520ed489265b58649b42bd327aaf0ed1076e133ffaa5c10cc20d0193ef`.
+
+After DraftKings posts a real 2026 Sunday-main slate and the normal
+ingestion/feature chain creates the corresponding inference and TabPFN rows,
+run the CLI command
 `nfl-dfs shadow-latent-role-paired` manually from the validated image. The smoke
 must prove exact salary/player/world alignment, five complete scenario and
 optimization ledgers, a non-inert candidate treatment, exact 80 entries in

@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 10:35 CDT
+## Current state — 2026-08-15 10:52 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -68,10 +68,14 @@ agent or developer:
   focused replay-shape/factory tests pass, module compilation and whitespace
   checks pass. The repair is committed and pushed at exact full SHA
   `3e25edc0a3f47cfc20806f13e69b7301f759e5c2`. Its superseding exact-archive
-  Cloud Build `d7c038fd-48c2-4502-82dd-ae6a276e620e` is submitted in
-  `us-central1` under tag `latent-role-cache-3e25edc`; it may overlap the
-  older `ca96905` validation safely. Exact next action: poll both to terminal,
-  record both results, and use only the newer digest for a future live smoke.
+  Cloud Build `d7c038fd-48c2-4502-82dd-ae6a276e620e` completed successfully
+  at `2026-08-15T15:51:42.265150Z`: 1,456 tests passed, 2 were skipped and 5
+  existing warnings were emitted in 775.53 seconds. Tag
+  `latent-role-cache-3e25edc` resolves to immutable digest
+  `sha256:3f6283520ed489265b58649b42bd327aaf0ed1076e133ffaa5c10cc20d0193ef`.
+  Use only this newer digest for the future live smoke. The remaining gate is
+  real 2026 salary/inference/TabPFN data; the current TabPFN projection cache
+  has zero 2026 rows and no synthetic substitute is licensed.
 
 - External review in
   `reports/2026-08-15-post-forensic-changes-review.md` arrived before any
