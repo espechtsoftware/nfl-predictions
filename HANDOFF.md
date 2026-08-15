@@ -711,6 +711,14 @@ agent or developer:
   under tag `exact-p-identities-a0cd25a`. Require the complete suite and image
   build to pass, resolve the tag to an immutable digest, and use that exact
   digest/code first for `preflight-2023`; do not launch the full source first.
+  That build completed successfully at `2026-08-15T21:50:58.944226Z`: 1,522
+  tests passed, 2 skipped and 5 warnings in 1,035.61 seconds. The immutable
+  image digest is
+  `sha256:6aacfda1f58f0db437bac44cd04ce4b04d404828e1047dea7bcc59ab96a580fb`.
+  This image validates exact source commit
+  `a0cd25a19bba47fa9f7c69d7e98605d649d8c1d3`; use it only for the
+  corrected-identity source preflight/full stages, not the later source1 census
+  code committed after the build.
   The second requested narrow check is also implemented as the pure
   `validate_exact_p_census_plumbing` preflight. On exactly the 18 2023 slates
   it audits corrected-P legality, all five native books, family labels and
