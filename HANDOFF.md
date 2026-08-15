@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 17:16 CDT
+## Current state — 2026-08-15 17:50 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -77,6 +77,21 @@ agent or developer:
   `reports/atlas-world-ranking-runs/20260815-atlas-world-ranking-scorefree-v1/`.
   Poll this exact score-free execution and use only the strict ATLAS finisher
   after terminal success; do not launch a competing 32-GiB job while it runs.
+  That first execution failed operationally at
+  `2026-08-15T22:47:38.767368Z`, before loading a source receipt or running a
+  diagnostic. BigQuery rejected an unqualified aggregate alias in the
+  `HAVING` clause as an aggregation-of-an-aggregation. No GCS output exists
+  and no outcome field was queried; this is not a scientific ATLAS result.
+  The failed manifest/execution ledger remains immutable in its original run
+  directory. The source-only repair qualifies the two artifact fields in both
+  `ANY_VALUE` and `COUNT(DISTINCT ...)`, changes no population/field/filter/
+  diagnostic/gate, and moves the retry receipts to a separate `repair1`
+  directory. Eight focused tests, compilation, shell syntax and whitespace
+  validation pass; a live outcome-free query now returns exactly 270 rows,
+  54 slates, 5 panels and 68,493 source candidate rows. The frozen repair note
+  is `reports/2026-08-15-atlas-source-query-repair.md`. Commit/push this repair,
+  validate an exact immutable image, and only then launch the separately
+  receipted retry.
   The companion pure CBWU seed-order audit is implemented in
   `inference/multiseed_portfolio.py`. It holds the canonical R0 realized
   candidate budget fixed across all five cyclic first-source/quota orders,
@@ -918,6 +933,14 @@ agent or developer:
   `cbwu-oi-construction-486643c`. Require the complete suite and immutable
   digest before launch; the build may run beside the exact-P census, but the
   construction Cloud Run job must wait for the 32-GiB slot.
+  That build completed successfully at `2026-08-15T22:49:48.002648Z`:
+  1,531 tests passed, 2 skipped and 5 warnings in 826.71 seconds. Its immutable
+  digest is
+  `sha256:710490b4bde4b0933d1d35d49a6ed30e322ad9760b0dfe82533127c8d3acf693`.
+  It validates the CBWU-OI construction diagnostic exactly at code
+  `486643cd6b453dbed6bae79ba350e6a72c62cacd`; do not use it for the later ATLAS
+  SQL repair. With the failed ATLAS attempt terminal, this image may now use
+  the released 32-GiB slot for the frozen construction diagnostic.
   A follow-on review incorrectly treated CBWU-OI as an in-place production
   change. It is an inactive research function with no production call site;
   requiring identity to canonical CBWU would also contradict its frozen strict

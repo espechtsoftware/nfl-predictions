@@ -9,7 +9,7 @@ JOB=atlas-world-ranking-scorefree-v1
 SERVICE_ACCOUNT=817589974517-compute@developer.gserviceaccount.com
 OUTPUT_URI=gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/post-forensic-addenda/20260815-atlas-world-ranking-scorefree-v1/result.json
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-OUT="$ROOT/reports/atlas-world-ranking-runs/20260815-atlas-world-ranking-scorefree-v1"
+OUT="$ROOT/reports/atlas-world-ranking-runs/20260815-atlas-world-ranking-scorefree-v1-repair1"
 
 IMAGE=${1:-}
 CODE_SHA=${2:-}

@@ -4,7 +4,7 @@ set -euo pipefail
 PROJECT=nfl-predictions-503414
 REGION=us-central1
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-OUT="$ROOT/reports/atlas-world-ranking-runs/20260815-atlas-world-ranking-scorefree-v1"
+OUT="$ROOT/reports/atlas-world-ranking-runs/20260815-atlas-world-ranking-scorefree-v1-repair1"
 MANIFEST="$OUT/manifest.txt"
 EXECUTION="$OUT/execution.txt"
 

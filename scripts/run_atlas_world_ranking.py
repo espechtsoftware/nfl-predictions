@@ -36,15 +36,15 @@ SOURCE_PANEL_IDS = tuple(
 )
 SOURCE_SQL = f"""
 SELECT panel_run_id, season, week,
-       ANY_VALUE(score_artifact_uri) AS score_artifact_uri,
-       ANY_VALUE(score_artifact_sha256) AS score_artifact_sha256,
+       ANY_VALUE(source.score_artifact_uri) AS score_artifact_uri,
+       ANY_VALUE(source.score_artifact_sha256) AS score_artifact_sha256,
        COUNT(*) AS candidate_rows
-FROM `{SOURCE_TABLE}`
+FROM `{SOURCE_TABLE}` AS source
 WHERE panel_run_id IN UNNEST(@panel_ids)
   AND labels_complete
 GROUP BY panel_run_id, season, week
-HAVING COUNT(DISTINCT score_artifact_uri) = 1
-   AND COUNT(DISTINCT score_artifact_sha256) = 1
+HAVING COUNT(DISTINCT source.score_artifact_uri) = 1
+   AND COUNT(DISTINCT source.score_artifact_sha256) = 1
 ORDER BY panel_run_id, season, week
 """
 PLAYER_SQL = f"""
