@@ -137,11 +137,25 @@ agent or developer:
   result remains selected research evidence but its cache/schedules do not
   transfer into the K=1 money policy; it remains a separately labeled 2026
   shadow.
-- The perfect-hindsight recourse ceiling improves 53/54 slates by mean 42.62
-  points and creates 30 new >=210 and 18 new >=230 slates. This is not expected
-  policy performance because it uses realized late outcomes. It does license
+- The **published, now-provisional** perfect-hindsight recourse ceiling
+  improves 53/54 slates by mean 42.62 points and creates 30 new >=210 and 18
+  new >=230 slates. It inherited the loose stack contract and must be replaced
+  by the exact-stack addendum. Even after correction it is not expected policy
+  performance because it uses realized late outcomes; it licenses only
   prospective work on an outcome-unseen recourse policy and an authenticated
   operational rehearsal.
+- `reports/2026-08-15-post-forensic-suggestions-review.md` records the formal
+  disposition of the post-forensic suggestions. P characterization,
+  construction/recourse overlap and a separately named constant-realized-
+  candidate-budget generator reallocation shadow are accepted. Broad pool-
+  admission and salary-floor closure wait for corrected exact-stack numbers.
+  Read-only inventory confirms that each of the five selected Phase S
+  treatment panels retains 54 distinct player-world artifacts, with zero
+  missing URIs/digests and common code identity `4d6f5cf`; the prior factorial
+  mechanically verified their checksums and player-world reconstruction. A
+  single frozen realistic-recourse sizing analysis is therefore technically
+  possible, but it must remain descriptive, use the already frozen PIT-safe
+  policy, and cannot promote on 2019--2025 outcomes.
 - The 14-panel variance census finds arm identity explains only 4.71% of
   arm-plus-residual weekly-max variance, 2.34% of >=200 variance and 2.14% of
   >=210 variance. The 56-arm ledger and 13-family certificate close the
