@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 04:20 CDT
+## Current state — 2026-08-15 04:21 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -495,6 +495,9 @@ agent or developer:
   `cc03f3c5-5881-4d1f-82d6-e14b6bf14845` is queued in `us-central1` for
   `90ff049...` and tag `latent-role-artifact-90ff049`; it will start after the
   transition-only build releases the regional worker.
+- Exact clean-archive state-world build
+  `240516d1-14ae-4ecf-9fa4-556472a5a492` is queued behind it for
+  `fec0994...` and tag `latent-role-worlds-fec0994`.
 - Next concrete action: harvest terminal results for builds `2295364c...` and
   `cc03f3c5...`, then cloud-validate `fec0994...` before any paired-shadow
   integration. Do not integrate
