@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 23:22 CDT
+## Current state — 2026-08-14 23:41 CDT
 
 ### Final preseason forensic run succeeded; historical queue closed and prospective construction program frozen
 
@@ -119,12 +119,19 @@ agent or developer:
   integration/persistence/policy tests pass. Heavy complete-suite validation
   remains for Cloud Build; repository rules prohibit it locally on this
   crash-prone workstation.
+- The integration is pushed on `main` at full SHA
+  `c847e29674d659dc0ab2db977e3a3d3e76628232`. Exact-commit Cloud Build
+  `436fa27e-be96-41c6-bb62-c2e1808e1e4f` is running in `us-central1` from a
+  clean `git archive` of that commit. It is executing the complete suite before
+  it may publish
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:prospective-archetype-c847e29`.
 - The local repository `.venv` remains healthy despite the user's concern
   about accidentally deleting a Python environment while installing Gemini
   CLI: `.venv/bin/python` is Python 3.14.4, project/pandas/BigQuery imports
   succeed and `python -m pip check` reports no broken requirements.
-- Next concrete action: commit/push the integrated shadow, run exact-commit
-  Cloud Build for the complete suite and immutable image receipt, then build
+- Next concrete action: poll exact-commit Cloud Build
+  `436fa27e-be96-41c6-bb62-c2e1808e1e4f` to terminal and record its full-suite
+  counts plus immutable image digest, then build
   the late-swap state model and operational CSV validator. The first score-free
   live shadow smoke waits only for complete 2026 pre-lock slate inputs and must
   validate its receipt before any outcome join. In parallel, preserve the Week
