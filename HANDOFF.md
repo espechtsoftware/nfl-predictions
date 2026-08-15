@@ -20,9 +20,28 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 05:51 CDT
+## Current state — 2026-08-15 05:57 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
+
+- Corrected exact-stack forensic-addendum Cloud Build
+  `3b875c6f-53c3-44ce-817b-8b3dca5b67f1` completed successfully at
+  `2026-08-15T10:55:46.964451Z`: 1,425 tests passed, 2 skipped and 5 warnings
+  in 750.89 seconds. Immutable image digest is
+  `sha256:fb822c84feb02a835d74c1aefdb71878ef7a3f40ae8c5a0dec07d53204b0b8f6`
+  for exact analysis code
+  `e5d8789577a1510d8f43d10308afcdebef227e13`. The one licensed create-only
+  execution is `post-forensic-stack-addendum-v1-q6v7m`, deployed with 8 CPU,
+  32 GiB, one task, zero retries and a four-hour timeout. Poll status only and
+  do not read partial scientific output; after terminal success, download the
+  single frozen result, verify its identities/invariants and publish the
+  result addendum without overwriting the original forensic report.
+
+- Exact current-commit SIS player-grain validation build
+  `183f5802-a058-4217-8b8f-aa2fcd1b26b7` is queued behind the correction build
+  under tag `sis-player-grain-ed73eb1`. Poll it and record its full-suite result
+  and immutable digest. This build validates tooling only and does not issue a
+  vendor query.
 
 - The highest-priority new SIS idea now has a frozen, outcome-blind first gate
   in
