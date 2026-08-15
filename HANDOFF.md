@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 11:23 CDT
+## Current state — 2026-08-15 11:47 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -97,9 +97,14 @@ agent or developer:
   closes cleanly.
   The importer/context/treatment code is committed and pushed at exact full
   SHA `0673d2d5eaf175aa080cefe115467019f7c48c2a`. Exact-archive Cloud Build
-  `02d6aaa7-5b71-4441-8c8c-0e7432c229ec` is running in `us-central1` with tag
-  `receiver-copula-treatment-0673d2d`; it is independent of the earlier exact
-  downloader build and must pass before any BigQuery write or model gate.
+  `02d6aaa7-5b71-4441-8c8c-0e7432c229ec` passed at
+  `2026-08-15T16:45:53.439181Z` with 1,464 tests passed, 2 skipped and 5
+  warnings in 1,021.80 seconds. Tag `receiver-copula-treatment-0673d2d`
+  resolves to immutable digest
+  `sha256:686fda9673672d62bb8d8381ecdb5199a0942b44ff5690888285a368702e887f`.
+  The code-validation prerequisite is satisfied; the guarded acquisition and
+  manifest/schema validation must still close before any BigQuery write or
+  model gate.
 - The frozen 2022 calibration selector and 2023--2025 held-out decision gate
   are now implemented locally in `analysis/sis_receiver_copula.py`. The
   selector enforces the exact seven-strength grid and frozen lexicographic
