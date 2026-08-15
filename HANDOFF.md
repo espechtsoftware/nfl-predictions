@@ -20,9 +20,31 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 17:50 CDT
+## Current state — 2026-08-15 18:31 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
+
+- The supplied exact-P census and CBWU-OI construction-result reviews are
+  reconciled in
+  `reports/2026-08-16-exact-p-census-review-reconciliation.md` and
+  `reports/2026-08-16-cbwu-oi-construction-result-review-reconciliation.md`.
+  Exact-P absence proves a current-generator combination-assembly failure, but
+  does not make admission generally dead: the completed fixed-budget CBWU-OI
+  diagnostic directly improved C. The earlier real-winner exposure null is not
+  a valid null for the separate 4.76-swap exact-P value, and no "undirected"
+  conclusion is recorded from that comparison. The proposed same-law capacity
+  test is retained only as a later nested `1x/2x/5x/10x` descriptive curve,
+  behind ATLAS and OI selector stability. The new paired score-free stability
+  protocol is frozen at
+  `reports/2026-08-15-cbwu-oi-selector-stability-protocol.md`, SHA-256
+  `81c8d0ff7750c7781e9c9181699b3bdf397d6161c8bf6e7a91025d233236cb01`.
+  It reconstructs canonical and OI pools from the same 270 immutable artifacts,
+  reproduces both full 50,000-world exact-80 books, and applies identical
+  block-stratified disjoint halves plus 32 fixed 10,000-world bootstrap
+  measurements. It reads no realized outcomes and cannot tune or promote a
+  selector. Implement it after strict ATLAS harvest; its descriptive shoulder
+  hypothesis does not relax the standing
+  `240/230/220/210/200/194/187` decision law.
 
 - The independent construction review in
   `reports/2026-08-15-independent-tail-scoring-review.md` is reconciled into
