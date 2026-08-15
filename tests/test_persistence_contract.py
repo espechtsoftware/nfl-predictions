@@ -283,9 +283,16 @@ def test_provenance_fields_present(monkeypatch):
                            SERVED_TAIL_SCALE="1.025",
                            SERVED_POSITION_SCALES="QB:0.97,RB:1.005,TE:0.94,WR:1.07",
                            ENSEMBLE_WORLD_MODE="member_sample",
-                           ENSEMBLE_WORLD_SEED="8161")
-    for col in ("code_sha", "code_dirty", "config_hash", "lever_env",
-                "seeds", "score_artifact_uri", "score_artifact_sha256"):
+                           ENSEMBLE_WORLD_SEED="8161",
+                           ARCHETYPE_ALLOCATION_VERSION=(
+                               "prospective-archetype-allocation-v1"),
+                           ARCHETYPE_TAIL_LINE="194.0",
+                           PROSPECTIVE_SHADOW_ID="2026-archetype-cbwu-v1")
+    for col in (
+        "code_sha", "code_dirty", "config_hash", "lever_env", "seeds",
+        "candidate_batch_metadata", "score_artifact_uri",
+        "score_artifact_sha256",
+    ):
         assert col in df.columns, f"missing provenance column {col}"
     # lever_env must record the env that was actually set
     assert "MIN_LINEUP_SALARY=0" in df.lever_env.iloc[0]
@@ -311,6 +318,14 @@ def test_provenance_fields_present(monkeypatch):
     assert "SERVED_POSITION_SCALES=QB:0.97,RB:1.005,TE:0.94,WR:1.07" \
         in df.lever_env.iloc[0]
     assert "ENSEMBLE_WORLD_MODE=member_sample" in df.lever_env.iloc[0]
+    assert "ARCHETYPE_ALLOCATION_VERSION=prospective-archetype-allocation-v1" \
+        in df.lever_env.iloc[0]
+    assert "ARCHETYPE_TAIL_LINE=194.0" in df.lever_env.iloc[0]
+    assert "PROSPECTIVE_SHADOW_ID=2026-archetype-cbwu-v1" \
+        in df.lever_env.iloc[0]
+    batch_metadata = json.loads(df.candidate_batch_metadata.iloc[0])
+    assert batch_metadata["tail_line"] == 95.0
+    assert batch_metadata["n_entries"] == 8
     assert "ROLE_BELIEF_SEED=7331" in df.seeds.iloc[0]
     assert "REPLAY_PROJECTION_SEED=1137260708" in df.seeds.iloc[0]
     assert "MODEL_ENSEMBLE_SIZE=3" in df.seeds.iloc[0]

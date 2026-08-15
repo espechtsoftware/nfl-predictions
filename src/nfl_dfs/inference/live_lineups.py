@@ -378,15 +378,20 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
 
     runtime_env = policy_env or {}
     portfolio = runtime_env.get("MULTISEED_PORTFOLIO", "").upper()
-    if portfolio and portfolio != "CBWU":
+    multiseed_portfolios = {"CBWU", "CBWU_ARCHETYPE_SHADOW"}
+    if portfolio and portfolio not in multiseed_portfolios:
         raise ValueError(f"unknown MULTISEED_PORTFOLIO={portfolio!r}")
-    if portfolio == "CBWU" and not _multiseed_inner:
+    if portfolio in multiseed_portfolios and not _multiseed_inner:
         if _candidate_capture is not None or _candidate_transform is not None:
             raise ValueError("outer CBWU build cannot accept candidate hooks")
         if distribution_artifact_spec is not None:
             raise ValueError(
                 "CBWU live build cannot capture a single-seed distribution artifact")
-        from .multiseed_portfolio import combine_cbwu_books
+        from .archetype_candidate_allocator import ALLOCATION_VERSION
+        from .multiseed_portfolio import (
+            combine_archetype_shadow_books,
+            combine_cbwu_books,
+        )
 
         raw_pairs = runtime_env.get("MULTISEED_SEED_PAIRS", "")
         parsed: list[tuple[str, int, int]] = []
@@ -415,6 +420,16 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
         if n_sims is not None and int(n_sims) != worlds_per_block:
             raise ValueError(
                 "CBWU n_sims must match MULTISEED_WORLDS_PER_BLOCK")
+        if portfolio == "CBWU_ARCHETYPE_SHADOW":
+            if runtime_env.get("ARCHETYPE_ALLOCATION_VERSION") != \
+                    ALLOCATION_VERSION:
+                raise ValueError("archetype allocation version differs")
+            try:
+                archetype_tail_line = float(runtime_env["ARCHETYPE_TAIL_LINE"])
+            except (KeyError, TypeError, ValueError) as exc:
+                raise ValueError("archetype tail line contract is missing") from exc
+            if abs(float(tail_line) - archetype_tail_line) > 1e-12:
+                raise ValueError("archetype shadow tail line differs")
 
         captured = {}
 
@@ -464,6 +479,13 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
 
         def _combine(r0_batch):
             books = {"R0": r0_batch, **captured}
+            if portfolio == "CBWU_ARCHETYPE_SHADOW":
+                return combine_archetype_shadow_books(
+                    books,
+                    labels,
+                    tail_line=archetype_tail_line,
+                    expected_worlds_per_book=worlds_per_block,
+                )
             return combine_cbwu_books(
                 books, labels,
                 expected_worlds_per_book=worlds_per_block)

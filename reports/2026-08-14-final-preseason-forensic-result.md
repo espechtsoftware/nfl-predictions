@@ -254,10 +254,10 @@ measured honestly.
 Priority now becomes:
 
 1. Keep the current K=1 CBWU exact-80 policy as the money baseline.
-2. Integrate the now-tested, budget-neutral structural-archetype allocator into
-   a separately labeled 2026 outcome-unseen CBWU shadow. Keep the selector,
-   entry count, simulation inputs, source-seed quotas, and candidate budget
-   fixed.
+2. Operate the integrated, budget-neutral structural-archetype allocator only
+   through its separately labeled 2026 outcome-unseen CBWU shadow. Keep the
+   selector, entry count, simulation inputs, source-seed quotas, and candidate
+   budget fixed.
 3. Build a realistic recourse-aware late-swap shadow and an operator-safe
    rehearsal. Do not use the hindsight ceiling as an expected effect.
 4. Run the already-defined finite-K SIS pass-tail shadow separately; do not

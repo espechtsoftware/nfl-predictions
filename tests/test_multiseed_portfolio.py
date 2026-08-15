@@ -2,7 +2,10 @@ import numpy as np
 import pytest
 
 from nfl_dfs.backtest.engine import CandidateBatch
-from nfl_dfs.inference.multiseed_portfolio import combine_cbwu_books
+from nfl_dfs.inference.multiseed_portfolio import (
+    combine_archetype_shadow_books,
+    combine_cbwu_books,
+)
 from nfl_dfs.optimizer.lineup import Lineup, select_from_support
 
 
@@ -34,7 +37,10 @@ def _books(*, worlds=20, counts=(10, 10, 10, 10, 10)):
         # overlap, later ones provide enough novelty to exercise quota/fill.
         for candidate_index in range(count):
             start = (candidate_index + 2 * seed_index) % len(player_ids)
-            ids = [player_ids[(start + offset) % len(player_ids)] for offset in range(9)]
+            ids = [
+                player_ids[(start + offset) % len(player_ids)]
+                for offset in range(9)
+            ]
             candidates.append(Lineup([player_rows[player_id] for player_id in ids],
                                      tag="lev"))
         # Remove accidental exact-roster duplicates within a native book.
@@ -137,3 +143,128 @@ def test_cbwu_fails_closed_when_native_totals_do_not_reconstruct():
     )
     with pytest.raises(ValueError, match="do not reconstruct"):
         combine_cbwu_books(books, SEEDS, expected_worlds_per_book=20)
+
+
+def _stack_player(player_id):
+    if player_id == 0:
+        pos, team, opp = "QB", "T0", "O0"
+    elif player_id == 1:
+        pos, team, opp = "WR", "T0", "O0"
+    elif player_id == 2:
+        pos, team, opp = "TE", "T0", "O0"
+    elif player_id == 3:
+        pos, team, opp = "WR", "O0", "T0"
+    else:
+        pos, team, opp = "RB", f"T{player_id}", f"O{player_id}"
+    return {
+        "id": player_id,
+        "name": str(player_id),
+        "pos": pos,
+        "team": team,
+        "opp": opp,
+        "game_id": "G0" if player_id <= 3 else f"G{player_id}",
+        "salary": 5_000,
+        "proj": 20.0,
+    }
+
+
+def _stack_books(*, worlds=40, candidates_per_book=15):
+    player_ids = tuple(range(40))
+    player_rows = tuple(_stack_player(player_id) for player_id in player_ids)
+    books = {}
+    for seed_index, name in enumerate(SEEDS):
+        rng = np.random.default_rng(1900 + seed_index)
+        draws = rng.normal(
+            20 + seed_index / 10, 5, size=(len(player_ids), worlds)
+        ).astype(np.float32)
+        candidates = []
+        for candidate_index in range(candidates_per_book):
+            start = (candidate_index + 3 * seed_index) % 36
+            ids = [0, 1, 2, 3] + [4 + (start + offset) % 36 for offset in range(5)]
+            candidates.append(Lineup(
+                [player_rows[player_id] for player_id in ids], tag="lev"
+            ))
+        id_to_row = {player_id: index for index, player_id in enumerate(player_ids)}
+        totals = np.stack([
+            draws[[id_to_row[player_id] for player_id in lineup.ids]].sum(axis=0)
+            for lineup in candidates
+        ]).astype(np.float32)
+        books[name] = CandidateBatch(
+            candidates=tuple(candidates),
+            candidate_totals=totals,
+            player_ids=player_ids,
+            player_rows=player_rows,
+            row_draws=draws,
+            all_tags={lineup.ids: ("lev",) for lineup in candidates},
+        )
+    return books
+
+
+def test_archetype_shadow_is_exact_budget_balanced_and_not_production():
+    shadow = combine_archetype_shadow_books(
+        _stack_books(), SEEDS, expected_worlds_per_book=40
+    )
+    assert len(shadow.candidates) == 15
+    assert shadow.candidate_totals.shape == (15, 200)
+    assert shadow.row_draws.shape == (40, 200)
+    assert shadow.metadata["portfolio"] == "CBWU_ARCHETYPE_SHADOW"
+    assert shadow.metadata["production_enabled"] is False
+    assert shadow.metadata["candidate_source_counts"] == {
+        "R0": 3,
+        "R1": 3,
+        "R2": 3,
+        "R3": 3,
+        "R4": 3,
+    }
+    receipt = shadow.metadata["allocation_receipt"]
+    assert receipt["candidate_budget"] == 15
+    assert receipt["uses_realized_outcomes"] is False
+    assert receipt["source_quota_relaxed"] is False
+    assert all(
+        any(tag.startswith("candidate_archetype:") for tag in tags)
+        for tags in shadow.all_tags.values()
+    )
+
+
+def test_archetype_shadow_is_deterministic_and_leaves_cbwu_unchanged():
+    books = _stack_books()
+    control_before = combine_cbwu_books(
+        books, SEEDS, expected_worlds_per_book=40
+    )
+    first = combine_archetype_shadow_books(
+        books, SEEDS, expected_worlds_per_book=40
+    )
+    second = combine_archetype_shadow_books(
+        dict(reversed(list(books.items()))),
+        SEEDS,
+        expected_worlds_per_book=40,
+    )
+    control_after = combine_cbwu_books(
+        books, SEEDS, expected_worlds_per_book=40
+    )
+    assert [lineup.ids for lineup in first.candidates] == [
+        lineup.ids for lineup in second.candidates
+    ]
+    assert np.array_equal(first.candidate_totals, second.candidate_totals)
+    assert [lineup.ids for lineup in control_before.candidates] == [
+        lineup.ids for lineup in control_after.candidates
+    ]
+    assert np.array_equal(
+        control_before.candidate_totals, control_after.candidate_totals
+    )
+    assert len(
+        {lineup.ids for lineup in first.candidates}
+        & {lineup.ids for lineup in control_before.candidates}
+    ) < len(first.candidates)
+
+
+def test_archetype_shadow_fails_closed_on_invalid_structure_or_tail_line():
+    books = _books()
+    with pytest.raises(ValueError, match="one quarterback"):
+        combine_archetype_shadow_books(
+            books, SEEDS, expected_worlds_per_book=20
+        )
+    with pytest.raises(ValueError, match="finite"):
+        combine_archetype_shadow_books(
+            _stack_books(), SEEDS, tail_line=np.nan, expected_worlds_per_book=40
+        )

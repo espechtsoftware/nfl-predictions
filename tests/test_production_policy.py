@@ -88,6 +88,16 @@ def test_policy_overwrites_research_levers_without_mutating_base():
     assert fallback["SERVED_POSITION_SCALES"] == ""
     assert fallback["MULTISEED_PORTFOLIO"] == ""
 
+    shadow = ADOPTED_CLASSIC_POLICY.archetype_shadow_environment(dirty)
+    assert shadow["MULTISEED_PORTFOLIO"] == "CBWU_ARCHETYPE_SHADOW"
+    assert shadow["ARCHETYPE_ALLOCATION_VERSION"] == (
+        "prospective-archetype-allocation-v1"
+    )
+    assert shadow["ARCHETYPE_TAIL_LINE"] == "194.0"
+    assert shadow["PROSPECTIVE_SHADOW_ID"] == "2026-archetype-cbwu-v1"
+    assert shadow["MULTISEED_SEED_PAIRS"] == env["MULTISEED_SEED_PAIRS"]
+    assert shadow["N_EPISTEMIC"] == env["N_EPISTEMIC"]
+
 
 def test_public_identity_exposes_fixed_budget_five_by_five_contract():
     identity = ADOPTED_CLASSIC_POLICY.public_identity(entries=40)

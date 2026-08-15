@@ -111,6 +111,9 @@ class ClassicProductionPolicy:
     )
     multiseed_worlds_per_block: int = 10_000
     multiseed_candidate_entry_basis: int = 80
+    prospective_archetype_allocation_version: str = (
+        "prospective-archetype-allocation-v1"
+    )
 
     def engine_environment(
         self, base: Mapping[str, str] | None = None,
@@ -236,6 +239,26 @@ class ClassicProductionPolicy:
             "MULTISEED_SEED_PAIRS": "",
             "MULTISEED_WORLDS_PER_BLOCK": "",
             "MULTISEED_CANDIDATE_ENTRY_BASIS": "",
+        })
+        return env
+
+    def archetype_shadow_environment(
+        self, base: Mapping[str, str] | None = None,
+    ) -> dict[str, str]:
+        """Outcome-unseen fixed-budget archetype shadow configuration.
+
+        This derives from the complete adopted money environment and changes
+        only the CBWU trimming law.  Production never calls this method
+        implicitly; a separately labeled shadow job must opt in.
+        """
+        env = self.engine_environment(base)
+        env.update({
+            "MULTISEED_PORTFOLIO": "CBWU_ARCHETYPE_SHADOW",
+            "ARCHETYPE_ALLOCATION_VERSION": (
+                self.prospective_archetype_allocation_version
+            ),
+            "ARCHETYPE_TAIL_LINE": str(self.tail_line),
+            "PROSPECTIVE_SHADOW_ID": "2026-archetype-cbwu-v1",
         })
         return env
 

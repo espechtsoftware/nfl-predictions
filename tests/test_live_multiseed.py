@@ -64,8 +64,12 @@ def test_role_belief_uses_registered_independent_seed(monkeypatch):
     assert calls == [(17, True), (991, False)]
 
 
+@pytest.mark.parametrize(
+    ("portfolio", "expected_portfolio"),
+    [("control", "CBWU"), ("shadow", "CBWU_ARCHETYPE_SHADOW")],
+)
 def test_live_cbwu_runs_all_registered_pairs_and_combines_before_selection(
-    monkeypatch,
+    monkeypatch, portfolio, expected_portfolio,
 ):
     slate_calls = []
     final_batches = []
@@ -87,7 +91,10 @@ def test_live_cbwu_runs_all_registered_pairs_and_combines_before_selection(
         rotation = seed % 5
         rosters = []
         for offset in (0, 1):
-            ids = [int((rotation + offset + i) % len(pool)) for i in range(9)]
+            ids = [0] + [
+                int(1 + (rotation + offset + i) % (len(pool) - 1))
+                for i in range(8)
+            ]
             rosters.append(Lineup([pool[player_id] for player_id in ids], tag="lev"))
         row_draws = np.asarray(draws, dtype=np.float32)
         totals = np.stack([
@@ -116,7 +123,11 @@ def test_live_cbwu_runs_all_registered_pairs_and_combines_before_selection(
     monkeypatch.setattr(
         "nfl_dfs.backtest.engine.tail_select_lineups", fake_tail)
     policy = ADOPTED_CLASSIC_POLICY
-    env = policy.engine_environment()
+    env = (
+        policy.engine_environment()
+        if portfolio == "control"
+        else policy.archetype_shadow_environment()
+    )
     env["MULTISEED_WORLDS_PER_BLOCK"] = "3"
     result = live_lineups.build_sim_lineups(
         2026, 1, n_entries=1, stack=None, tail_line=194,
@@ -135,9 +146,14 @@ def test_live_cbwu_runs_all_registered_pairs_and_combines_before_selection(
     assert slate_calls == expected_calls
     assert len(final_batches) == 1
     final = final_batches[0]
-    assert final.metadata["portfolio"] == "CBWU"
+    assert final.metadata["portfolio"] == expected_portfolio
     assert final.metadata["worlds_per_block"] == [3] * 5
     assert final.candidate_totals.shape[1] == 15
+    if portfolio == "shadow":
+        assert final.metadata["production_enabled"] is False
+        assert final.metadata["allocation_receipt"][
+            "uses_realized_outcomes"
+        ] is False
 
 
 def test_live_cbwu_rejects_more_than_licensed_80_entries():
@@ -146,3 +162,19 @@ def test_live_cbwu_rejects_more_than_licensed_80_entries():
         live_lineups.build_sim_lineups(
             2026, 1, n_entries=81, stack=None, tail_line=194,
             apply_notes=False, policy_env=env)
+
+
+def test_live_archetype_shadow_rejects_version_or_tail_drift():
+    env = ADOPTED_CLASSIC_POLICY.archetype_shadow_environment()
+    env["ARCHETYPE_ALLOCATION_VERSION"] = "wrong"
+    with pytest.raises(ValueError, match="version differs"):
+        live_lineups.build_sim_lineups(
+            2026, 1, n_entries=1, stack=None, tail_line=194,
+            apply_notes=False, policy_env=env,
+        )
+    env = ADOPTED_CLASSIC_POLICY.archetype_shadow_environment()
+    with pytest.raises(ValueError, match="tail line differs"):
+        live_lineups.build_sim_lineups(
+            2026, 1, n_entries=1, stack=None, tail_line=200,
+            apply_notes=False, policy_env=env,
+        )

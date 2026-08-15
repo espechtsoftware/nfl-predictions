@@ -24,8 +24,8 @@ agent or developer:
 
 ### Final preseason forensic run succeeded; historical queue closed and prospective construction program frozen
 
-- Branch is `main` at pushed commit `7b3b547` before this in-progress
-  documentation milestone. The byte-identical/configuration-only retry
+- Branch is `main` at pushed commit `1fe0c3f` before this in-progress shadow
+  integration milestone. The byte-identical/configuration-only retry
   `final-preseason-forensic-v1-gqssz` completed successfully at
   `2026-08-15T04:05:51.446124Z`, with one succeeded task, zero failed tasks and
   runtime 47m1.64s. It used exact analysis code
@@ -95,27 +95,41 @@ agent or developer:
   DraftKings CSV validator; authenticated UI-to-CSV rehearsal; then
   outcome-unseen shadow evaluation. The exact candidate and compute budgets,
   worlds and selector must remain equal between control and treatment.
-- `src/nfl_dfs/inference/archetype_candidate_allocator.py` now implements the
-  first outcome-blind allocation law without wiring it into production. It
+- `src/nfl_dfs/inference/archetype_candidate_allocator.py` initially
+  implemented the first outcome-blind allocation law without wiring it into
+  production. It
   rejects post-lock outcome columns, computes stable slate-relative q99 and
   `p_line` terciles, assigns the frozen 30/25/25/20 structural strata, rotates
   through equal largest-remainder five-seed quotas, fills infeasible strata in
   a deterministic order, and exposes any source-quota relaxation in a receipt.
-  Nine focused tests plus the relevant production-policy/CBWU tests pass
-  (24 total). Heavy full-suite validation remains for the eventual cloud build;
-  repository rules prohibit a heavy local full-suite run on this crash-prone
-  workstation.
+  Nine focused tests plus the relevant production-policy/CBWU tests passed at
+  that milestone.
+- The allocator is now integrated as the explicit
+  `CBWU_ARCHETYPE_SHADOW` candidate transform. It consumes the same five native
+  books and keeps the incumbent candidate/world budgets and unchanged final
+  selector; it uses only source-native simulated q99/`p_line` and lineup
+  structure. `ClassicProductionPolicy.engine_environment()` remains exactly
+  `CBWU`; only the explicit `archetype_shadow_environment()` enables the
+  treatment and pins allocation version, 194 line and shadow identity. The
+  live path fails closed on version, tail-line, R0–R4 order, 80-entry basis or
+  world-block drift. Candidate persistence now records the full batch receipt
+  and all three shadow levers. Synthetic parity tests show 15 control and 15
+  treatment candidates, identical 3/seed allocation and 200 selection worlds,
+  while producing a non-inert two-roster membership change. Fifty-two focused
+  integration/persistence/policy tests pass. Heavy complete-suite validation
+  remains for Cloud Build; repository rules prohibit it locally on this
+  crash-prone workstation.
 - The local repository `.venv` remains healthy despite the user's concern
   about accidentally deleting a Python environment while installing Gemini
   CLI: `.venv/bin/python` is Python 3.14.4, project/pandas/BigQuery imports
   succeed and `python -m pip check` reports no broken requirements.
-- Next concrete action: integrate the allocator into a separately labeled CBWU
-  shadow, freeze its native-total q99/`p_line` calculation and exact five-seed
-  identities, then pass score-free control reproduction and candidate/compute
-  budget parity. After that, implement the late-swap state model and operational
-  CSV validator. In parallel, preserve the Week 1 readiness and forensic
-  cleanup gates. Do not launch another historical score arm and do not delete
-  the repair4 warehouse before independent review.
+- Next concrete action: commit/push the integrated shadow, run exact-commit
+  Cloud Build for the complete suite and immutable image receipt, then build
+  the late-swap state model and operational CSV validator. The first score-free
+  live shadow smoke waits only for complete 2026 pre-lock slate inputs and must
+  validate its receipt before any outcome join. In parallel, preserve the Week
+  1 readiness and forensic cleanup gates. Do not launch another historical
+  score arm and do not delete the repair4 warehouse before independent review.
 
 ## Prior state — 2026-08-14 22:18 CDT
 

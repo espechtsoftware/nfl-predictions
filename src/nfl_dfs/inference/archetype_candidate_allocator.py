@@ -211,11 +211,9 @@ def allocate_archetype_budget(
     if not sources or len(set(sources)) != len(sources):
         raise ValueError("source order must contain distinct source ids")
     unknown = set(out.source_seed) - set(sources)
-    missing = set(sources) - set(out.source_seed)
-    if unknown or missing:
+    if unknown:
         raise ValueError(
-            f"source population differs (missing={sorted(missing)}, "
-            f"unknown={sorted(unknown)})"
+            f"source population contains unknown sources {sorted(unknown)}"
         )
 
     archetype_targets = _largest_remainder_counts(

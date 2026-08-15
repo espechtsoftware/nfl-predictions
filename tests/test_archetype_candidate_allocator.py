@@ -114,3 +114,15 @@ def test_allocator_fails_closed_on_duplicate_or_insufficient_union():
         allocate_archetype_budget(
             frame, 11, ("R0", "R1", "R2", "R3", "R4")
         )
+
+
+def test_allocator_allows_zero_novel_source_but_discloses_relaxation():
+    frame = _frame(rows_per_source=5)
+    frame = frame[~frame.source_seed.eq("R4")].copy()
+    chosen, receipt = allocate_archetype_budget(
+        frame, 15, ("R0", "R1", "R2", "R3", "R4")
+    )
+    assert len(chosen) == 15
+    assert receipt["source_available"]["R4"] == 0
+    assert receipt["source_selected"]["R4"] == 0
+    assert receipt["source_quota_relaxed"] is True

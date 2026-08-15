@@ -76,11 +76,18 @@ preserving source quota. Source quota relaxes only when a source lacks enough
 unique candidates, and that exception must be explicit in the receipt.
 
 The outcome-blind classifier and allocator live in
-`src/nfl_dfs/inference/archetype_candidate_allocator.py`. Before the first 2026
-result is joined, the remaining integration contract must freeze the canonical
-roster key, the exact native-total q99/`p_line` calculation, and the five
-production seed identities. Program A remains a non-money shadow until that
-integration is committed and its score-free parity checks pass.
+`src/nfl_dfs/inference/archetype_candidate_allocator.py`. The separately
+labeled integration lives in `inference/multiseed_portfolio.py` and is reached
+only when `MULTISEED_PORTFOLIO=CBWU_ARCHETYPE_SHADOW`. It freezes the canonical
+roster key as the SHA-256 of sorted roster ids, native-source q99 as NumPy's
+0.99 quantile, and `p_line` as the native-world fraction at or above 194. The
+live entry point requires the exact allocation version and tail line, plus the
+same registered R0–R4 seed-pair contract, 80-entry candidate basis, five equal
+world blocks, and final selector as the money control. The production policy
+continues to emit `MULTISEED_PORTFOLIO=CBWU`; only the explicit
+`archetype_shadow_environment()` opts in. Candidate persistence records the
+full batch/allocation receipt and shadow levers. Program A remains a non-money
+shadow.
 
 ### Measurements
 
@@ -205,15 +212,13 @@ benchmark.
 
 ## Immediate implementation queue
 
-1. Integrate the tested outcome-free archetype classifier and fixed-budget
-   allocator into a separately labeled CBWU shadow without changing production.
-2. Freeze the native-total summary calculation and exact five-seed identities,
-   then pass score-free control reproduction and budget-parity checks.
-3. Extend retained candidate metadata and BigQuery receipts for archetype
-   occupancy and generation attempt counts.
-4. Implement the late-swap state model and DraftKings CSV legality validator.
-5. Run the authenticated UI-to-CSV dress rehearsal.
-6. Keep both paths in shadow mode while the incumbent generates the money book.
+1. Cloud-validate the integrated shadow and retain the immutable image receipt.
+2. Run a score-free live shadow smoke when the first complete 2026 slate inputs
+   are available; verify exact control candidate/world budgets and warehouse
+   receipt fields before joining an outcome.
+3. Implement the late-swap state model and DraftKings CSV legality validator.
+4. Run the authenticated UI-to-CSV dress rehearsal.
+5. Keep both paths in shadow mode while the incumbent generates the money book.
 
 This queue replaces retrospective arm mining. It does not replace the existing
 Week 1 operational checklist, forensic warehouse cleanup gate, or weekly paid-

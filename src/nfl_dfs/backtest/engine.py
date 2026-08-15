@@ -1409,6 +1409,7 @@ def tail_select_lineups(
             "candidate_generation_entries": generation_entries,
         },
     )
+    effective_batch_metadata = native_batch.metadata
     _validate_candidate_batch(native_batch)
     if candidate_capture is not None:
         candidate_capture(native_batch)
@@ -1425,6 +1426,7 @@ def tail_select_lineups(
         all_tags = {
             key: list(value) for key, value in transformed.all_tags.items()
         }
+        effective_batch_metadata = transformed.metadata
         log.info(
             "candidate transform: %d candidates, %d worlds, metadata=%s",
             len(cands), cand_totals.shape[1], transformed.metadata)
@@ -1597,6 +1599,8 @@ def tail_select_lineups(
                 "MIN_LINEUP_SALARY", "MODEL_ENSEMBLE",
                 "MULTISEED_CANDIDATE_ENTRY_BASIS", "MULTISEED_PORTFOLIO",
                 "MULTISEED_SEED_PAIRS", "MULTISEED_WORLDS_PER_BLOCK",
+                "ARCHETYPE_ALLOCATION_VERSION", "ARCHETYPE_TAIL_LINE",
+                "PROSPECTIVE_SHADOW_ID",
                 "MODEL_ENSEMBLE_MIX", "MODEL_REGISTRY_VARIANT",
                 "N_BOOM", "N_CE", "N_DARKGAME",
                 "N_EPISTEMIC", "N_GAMESTACK", "N_GUMBEL", "N_LOWSAL",
@@ -1664,6 +1668,11 @@ def tail_select_lineups(
                     "code_sha": _sha, "code_dirty": _dirty,
                     "config_hash": _cfg, "lever_env": _levers,
                     "seeds": _seeds,
+                    "candidate_batch_metadata": json.dumps(
+                        effective_batch_metadata,
+                        separators=(",", ":"),
+                        sort_keys=True,
+                    ),
                     "labels_complete": labels_complete,
                     # Staging rows are NEVER research-eligible: only
                     # a passing promotion (scripts/harvest_accept.py)
