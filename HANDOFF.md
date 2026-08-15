@@ -20,12 +20,12 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 04:46 CDT
+## Current state — 2026-08-15 04:53 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
 - Branch is `main`; the latest implementation milestone is full SHA
-  `adadd765243e6d0c3b79c316ca947eaad9f93688`. The PIT injury implementation
+  `b3815d6dc79ad2ca9647621d913c10162ee24beb`. The PIT injury implementation
   is full SHA `5cbeef8cbe93ea56a2302b97be197f75ebd92f63`; the projected-ownership
   bootstrap is full SHA `83949e1c10b23b9ccc197b89d29389d71e1e0ddc`; the recurring-vendor-intake
   milestone is full SHA
@@ -75,6 +75,21 @@ agent or developer:
   44/54 slates, player support on 3, selection on 0 and no layer on 7. The H/P/C/S
   >=210 counts are 53/50/6/6. Selector tuning is therefore deprioritized; new
   work must change the generated candidate compositions or the decision shape.
+- Post-forensic review found a material scope defect in that H/P attribution:
+  the frozen oracle required only QB+1 and no bring-back, while every
+  production candidate was generated under QB+2 plus one opponent bring-back.
+  A read-only audit of the retained repair4 warehouse shows 49/54 published
+  CBWU P rosters violate QB+2, 36/54 violate the bring-back and 51/54 violate
+  at least one production stack rule. The published 78.994-point P-C gap and
+  associated threshold/first-failed-layer counts are therefore provisional;
+  they are not an exact production-constraint construction gap. This changes
+  no candidate, selected lineup, S score, tail baseline or money policy; it
+  invalidates only the loosened hindsight attribution. Fix
+  `b3815d6dc79ad2ca9647621d913c10162ee24beb` parameterizes independent roster
+  and oracle stack checks and makes `decompose_slate` use QB+2/bring-back-1.
+  Fifty focused forensic/output/diagnostic plus latent/live tests pass. Run a
+  separately labeled repair4 addendum; do not overwrite the frozen original
+  report or treat the correction as a new historical arm.
 - Removing only the salary floor creates zero new tail-threshold slates from
   187 through 240, so no-floor is rejected. The frozen route admission bound
   admits 565 absent players while recovering only 2/17 omitted winner slots,
@@ -526,23 +541,28 @@ agent or developer:
   capture and five-seed assembly. The real conditional scenario factory and
   authenticated live-slate parity smoke remain pending.
 - Exact clean-archive artifact build
-  `cc03f3c5-5881-4d1f-82d6-e14b6bf14845` is `WORKING` in `us-central1` for
-  `90ff049...` and tag `latent-role-artifact-90ff049`; it started at
-  `2026-08-15T09:25:09.948416204Z`.
+  `cc03f3c5-5881-4d1f-82d6-e14b6bf14845` reached terminal `SUCCESS` at
+  `2026-08-15T09:45:38.322584Z` for `90ff049...`: 1,414 tests passed, 2 were
+  skipped and 5 warnings were emitted in 1,019.87 seconds. Tag
+  `latent-role-artifact-90ff049` resolves to immutable digest
+  `sha256:eb225a7490ae6047646d3e8bd41509e762e818229688664086fc5dbd96b93619`.
 - Exact clean-archive state-world build
-  `240516d1-14ae-4ecf-9fa4-556472a5a492` is queued behind it for
-  `fec0994...` and tag `latent-role-worlds-fec0994`.
+  `240516d1-14ae-4ecf-9fa4-556472a5a492` is `WORKING` for `fec0994...` and
+  tag `latent-role-worlds-fec0994`; it started at
+  `2026-08-15T09:46:28.483137723Z`.
 - Exact clean-archive candidate-bridge build
   `79a265ec-2958-42ac-af3b-bea7a9e70228` is queued in `us-central1` from
   archive `de9a980...` with tag `latent-role-candidates-de9a980`.
 - Exact clean-archive five-seed plumbing build
   `afb97a4b-5e92-4a38-aa2d-a43dedbedc33` is queued from archive
   `adadd76...` with tag `latent-role-live-adadd76`.
-- Next concrete action: harvest terminal results for builds `cc03f3c5...` and
-  `240516d1...`, then clean-archive cloud-validate `de9a980...`. Only after all
-  three layers pass, implement the outcome-denying conditional scenario
-  factory and separately named paired shadow runner, then require a live-slate
-  budget/world parity smoke before any schedule or deployment. The first
+- Next concrete action: compute and publish the exact-stack repair4
+  construction addendum, including P-oracle swap distance, structure/support
+  and loosened-versus-production constraint attribution. In parallel harvest
+  terminal results for `240516d1...`, `79a265ec...` and `afb97a4b...`. Then
+  implement the outcome-denying conditional scenario factory and separately
+  named paired shadow runner, requiring a live-slate budget/world parity smoke
+  before any schedule or deployment. The first
   authenticated pass-tail acquisition smoke
   cannot occur until complete 2026 Weeks 1--4 data exist; until then every
   downstream cache/shadow fails closed and all three schedulers stay paused.
