@@ -197,7 +197,18 @@ complete-union repair are recorded in
 cross-scores the canonical distinct union, applies the existing score-free
 194 selector to the fixed R0 candidate budget, and must be identity-invariant
 under all rotations before it can supply ATLAS or exact-N. Production remains
-on the explicitly registered R0--R4 order while this treatment is tested.
+on the explicitly registered R0--R4 order.
+
+That repair has now passed its score-free gate. All 54 exact-80 treatment
+books are identical under all five input rotations, selected-world coverage
+improves on all 54 slates and by `0.0501862963` on average, and aggregate
+pair/triple coverage ratios are `1.0728472`/`1.0787564` while every slate
+retains at least 90% of control. The machine report SHA-256 is
+`556adeca6e0bf2855ad82296b1e708041a20446dc27e2c988c1d11e8c5bd4d33`.
+The treatment materially differs from canonical CBWU, so this pass licenses
+only an order-invariant input for ATLAS/exact-N and a separately identified
+2026 shadow. It does not change production or inherit retrospective scoring
+evidence.
 
 ## Accepted later mechanisms
 
