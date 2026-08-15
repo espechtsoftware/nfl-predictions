@@ -82,15 +82,20 @@ agent or developer:
   file SHA-256 is
   `4938c4ba964ef57c2faa10f4137bfa28ff66bb41cbf7e00e0ca2f19a8e64ba87`.
   Local outcome-free manifest construction and verify-only validation pass.
-  No new successful forensic outcome run has been launched, and the recent
-  Cloud Run execution list contains no live forensic execution.
-- Next concrete action: commit/push the repair2 manifest/build receipt, upload
-  it create-only, verify the complete component plus between-arm prelock
-  contract in the exact image/service account, and only then launch one new
-  repaired outcome execution to a new output prefix. After success, validate
-  all nine outputs/four WRITE_EMPTY tables, write the closure report, and
-  retain the isolated corpus until independent review; delete it before the
-  first 2026 production build.
+  It was uploaded create-only as
+  `gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/freeze_manifest-repair2.json`;
+  generation is `1786754193428141` and downloaded bytes reproduce file hash
+  `4938c4ba...`. Exact-image/service-account Cloud Run execution
+  `final-forensic-prelock-compare-v1-c6rv4` completed successfully and logged
+  `FULL_PRELOCK_EQUAL_PASS` after validating the manifest, all three primary
+  panel fingerprints, and the complete 14-panel/common-slate contract. This
+  execution selected no outcome column.
+- No repair2 outcome execution has been launched yet. Next concrete action:
+  update the one-shot forensic job to the repair2 manifest, exact image/SHA and
+  a new create-only `outputs-repair2` prefix; execute once with zero retries.
+  After success, validate all nine outputs/four WRITE_EMPTY tables, write the
+  closure report, and retain the isolated corpus until independent review;
+  delete it before the first 2026 production build.
 
 ### 2026-08-14 final-forensic audit expanded; decision-structure queue registered
 
