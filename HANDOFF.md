@@ -135,9 +135,11 @@ agent or developer:
   ownership/payout column, and reports native membership, family distance,
   P-player coverage, static eligibility and structure only. Fifty-three
   combined SIS/census focused tests pass, both new Python files compile and
-  `git diff --check` passes. Exact next action is commit/push, exact-archive
-  Cloud Build validation, then one create-only cloud census; no local or
-  pre-validation outcome/member run is licensed.
+  `git diff --check` passes. The implementation is committed/pushed at exact
+  SHA `f58adbb7ed1a81997bbc23812f092ce3dcd183b9`; exact-archive Cloud Build
+  `cc94e694-6e35-4128-af51-5c67fe3db68c` is queued in `us-central1` under tag
+  `exact-p-census-f58adbb`. Require it to pass, then run one create-only cloud
+  census; no local or pre-validation outcome/member run is licensed.
 
 - The frozen prospective latent-role mechanism now has its previously missing
   real score-free scenario factory and separately named paired runner. The
