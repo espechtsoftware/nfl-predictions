@@ -75,3 +75,9 @@ def test_cbwu_cloud_contract_is_create_only_and_packaged():
     assert runner.FORENSIC_MANIFEST_SHA256 == (
         "51edbe124846dc936ade71c4e5a9a07e252bcf6c7d7872b979715ccd1f6bab02"
     )
+    assert "manifest.txt" in launch
+    assert "execution.txt" in launch
+    finish = (ROOT / "scripts/cloud_finish_cbwu_seed_order_audit.sh").read_text()
+    assert "len(report.get(\"source_artifacts\", [])) != 270" in finish
+    assert "aggregate.get(\"cyclic_comparisons\") != 216" in finish
+    assert "uses_realized_outcomes" in finish

@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 14:41 CDT
+## Current state — 2026-08-15 14:47 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -74,6 +74,11 @@ agent or developer:
   noncanonical cyclic comparisons; any sensitivity requires an order-proof or
   order-invariant repair, never selection of the historically favorable
   order. The 16-GiB Cloud Run launcher is ready after exact-image validation.
+  The launcher now persists a tracked manifest and execution ID; its strict
+  finisher downloads the create-only result and verifies exact code/image/
+  source identities, 270 artifact receipts, 54 slates, five rotations per
+  slate, fixed candidate budget, 216 comparisons, outcome-free disclosure and
+  the non-retrospective consequence before retaining the report and SHA-256.
   Exact-archive build `50841c31-a340-42b3-a7b1-96170f0b4396` passed from
   inactive/ATLAS commit `b4bdc4d` at `2026-08-15T19:31:58.505525Z` and
   produced digest
