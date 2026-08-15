@@ -143,9 +143,13 @@ agent or developer:
   `1f921d00-35af-45d3-a8f6-ab9af91d9b3e` was canceled before tests completed;
   its replacement `aff1ff84-ed9d-43a1-9f57-661ca7535c96` was then canceled
   before completion after the SIS calibration exposed a code-path repair that
-  also requires exact validation. Combined build
-  `0dc0a42a-af6b-4da9-80fd-aef25d2a1def` from exact descendant `7b0a2b3`
-  validates both and will resolve tag `sis-geometry-cbwu-7b0a2b3`. Require the
+  also requires exact validation. The first combined build
+  `0dc0a42a-af6b-4da9-80fd-aef25d2a1def` was canceled during setup after a
+  byte-width performance audit reduced the NumPy-1.26 popcount lookup from
+  64-bit to 8-bit without changing any selection; all 17 focused tests remain
+  exact. Replacement combined build
+  `81e7a5e8-d381-4bc5-a61d-3702509228eb` from exact descendant `ff41b3b`
+  validates both and will resolve tag `sis-geometry-cbwu-ff41b3b`. Require the
   full suite and immutable digest before either retry, and do not let CBWU-OI
   displace the SIS chain. ATLAS and exact-N must not inherit order-sensitive
   CBWU inputs.
@@ -489,8 +493,8 @@ agent or developer:
   CBWU-only validation build `aff1ff84-ed9d-43a1-9f57-661ca7535c96` was
   canceled before completion so one replacement can validate both mechanisms.
   Combined exact-archive Cloud Build
-  `0dc0a42a-af6b-4da9-80fd-aef25d2a1def` is queued for tag
-  `sis-geometry-cbwu-7b0a2b3`. Require it to pass and resolve its immutable
+  `81e7a5e8-d381-4bc5-a61d-3702509228eb` is queued from exact descendant
+  `ff41b3b` for tag `sis-geometry-cbwu-ff41b3b`. Require it to pass and resolve its immutable
   digest, then retry only as stage `calibration-geometry1`; held-out remains
   locked.
 - Before any usable SIS artifact or calibration score existed, the previously
