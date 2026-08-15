@@ -6,8 +6,11 @@ set -euo pipefail
 PROJECT=nfl-predictions-503414
 REGION=us-central1
 RUN_ID=${1:-20260815-sis-receiver-copula-v1}
+STAGE_DIR=${2:-calibration}
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-OUT="$ROOT/reports/sis-receiver-copula-runs/$RUN_ID/calibration"
+[[ "$STAGE_DIR" =~ ^calibration[-a-z0-9]*$ ]] || {
+  echo "ABORT: SIS calibration stage directory is invalid"; exit 2; }
+OUT="$ROOT/reports/sis-receiver-copula-runs/$RUN_ID/$STAGE_DIR"
 MANIFEST="$OUT/manifest.txt"
 EXEC=$(cat "$OUT/execution.txt")
 [ -n "$EXEC" ] || { echo "ABORT: SIS calibration execution missing"; exit 2; }

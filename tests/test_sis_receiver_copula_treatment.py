@@ -94,3 +94,32 @@ def test_unresolved_profiles_count_against_route_mass_without_ambiguous_key():
 
     assert not eligible.any()
     assert audit["support_failures"] == {"route-mass": 1}
+
+
+def test_subfloor_backup_qb_does_not_change_eligible_group_geometry():
+    frame, profiles, defense = _fixture()
+    backup = pd.DataFrame([{
+        "season": 2025,
+        "week": 5,
+        "game_id": "G",
+        "team": "A",
+        "opp": "B",
+        "gsis_id": "qb_backup",
+        "position": "QB",
+        "mean_projection": 3.99,
+    }])
+    frame = pd.concat([frame, backup], ignore_index=True)
+    scores, eligible, context = build_receiver_context(frame, profiles, defense)
+    assert context["eligible_groups"] == 1
+    assert eligible.tolist() == [False, True, True, False, False, False]
+
+    rng = np.random.default_rng(260_815)
+    control = rng.normal(size=(len(frame), 200))
+    treatment, audit = apply_receiver_copula(
+        control, frame, scores, eligible, strength=1.0
+    )
+    assert audit["eligible_groups"] == 1
+    assert audit["changed_rows"] == 2
+    assert np.array_equal(treatment[~eligible], control[~eligible])
+    for left, right in zip(control, treatment, strict=True):
+        assert np.array_equal(np.sort(left), np.sort(right))

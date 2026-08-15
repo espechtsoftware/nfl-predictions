@@ -205,7 +205,12 @@ def apply_receiver_copula(
     for _key, group in frame.groupby(
         ["season", "week", "game_id", "team"], sort=True, dropna=False,
     ):
-        qbs = group.index[group.position.eq("QB")].to_numpy(int)
+        # Eligibility was constructed on the supported frame. Reuse its exact
+        # QB predicate so a sub-floor backup cannot change group geometry
+        # between context construction and treatment application.
+        qbs = group.index[
+            group.position.eq("QB") & group.mean_projection.ge(4.0)
+        ].to_numpy(int)
         wr_rows = group.index[mask[group.index]].to_numpy(int)
         if len(wr_rows) == 0:
             continue

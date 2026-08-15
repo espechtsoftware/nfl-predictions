@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Launch the frozen 2022-only SIS receiver-copula calibration.
-# Usage: cloud_sis_receiver_copula_calibration.sh <image@sha256:...> <full-code-sha> [run-id] [job]
+# Usage: cloud_sis_receiver_copula_calibration.sh <image@sha256:...> <full-code-sha> [run-id] [job] [stage-dir]
 
 IMAGE=${1:-}
 CODE_SHA=${2:-}
@@ -10,8 +10,11 @@ PROJECT=nfl-predictions-503414
 REGION=us-central1
 RUN_ID=${3:-20260815-sis-receiver-copula-v1}
 JOB=${4:-sis-receiver-copula-calibration-v1}
+STAGE_DIR=${5:-calibration}
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-OUT="$ROOT/reports/sis-receiver-copula-runs/$RUN_ID/calibration"
+[[ "$STAGE_DIR" =~ ^calibration[-a-z0-9]*$ ]] || {
+  echo "ABORT: SIS calibration stage directory is invalid"; exit 2; }
+OUT="$ROOT/reports/sis-receiver-copula-runs/$RUN_ID/$STAGE_DIR"
 PANEL=20260811-pitclean-e80-k1-role12union-a12ab31
 PARENT="$ROOT/reports/2026-08-15-sis-receiver-copula-protocol.md"
 AMENDMENT="$ROOT/reports/2026-08-15-sis-receiver-copula-calibration-book-amendment.md"
@@ -34,6 +37,7 @@ git -C "$ROOT" merge-base --is-ancestor 26e73c5 "$CODE_SHA" || {
 mkdir -p "$OUT"
 printf '%s\n' \
   "run_id=$RUN_ID" "stage=calibration" "image=$IMAGE" "code_sha=$CODE_SHA" \
+  "stage_dir=$STAGE_DIR" \
   "panel=$PANEL" "parent_protocol_sha256=$PARENT_SHA" \
   "calibration_amendment_sha256=$AMENDMENT_SHA" \
   'calibration_season=2022' 'target_weeks=5 6 7 8 9 10 11 12 13 14 15 16 17 18' \

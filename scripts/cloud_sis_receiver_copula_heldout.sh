@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Launch held-out SIS receiver-copula evaluation after both prerequisite harvests.
-# Usage: cloud_sis_receiver_copula_heldout.sh <image@sha256:...> <full-code-sha> [run-id] [job]
+# Usage: cloud_sis_receiver_copula_heldout.sh <image@sha256:...> <full-code-sha> [run-id] [job] [calibration-stage]
 
 IMAGE=${1:-}
 CODE_SHA=${2:-}
@@ -10,10 +10,13 @@ PROJECT=nfl-predictions-503414
 REGION=us-central1
 RUN_ID=${3:-20260815-sis-receiver-copula-v1}
 JOB=${4:-sis-receiver-copula-heldout-v1}
+CALIBRATION_STAGE=${5:-calibration}
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT="$ROOT/reports/sis-receiver-copula-runs/$RUN_ID/heldout"
 REFERENCE="$ROOT/reports/sis-receiver-copula-runs/$RUN_ID/reference"
-CALIBRATION="$ROOT/reports/sis-receiver-copula-runs/$RUN_ID/calibration"
+[[ "$CALIBRATION_STAGE" =~ ^calibration[-a-z0-9]*$ ]] || {
+  echo "ABORT: SIS held-out calibration stage is invalid"; exit 2; }
+CALIBRATION="$ROOT/reports/sis-receiver-copula-runs/$RUN_ID/$CALIBRATION_STAGE"
 HISTORICAL=20260811-pitclean-e80-k1-role12union-a12ab31
 EVALUATION=20260812-pitclean-e80-selected-tabpfn-active-v2
 
@@ -103,6 +106,7 @@ mkdir -p "$OUT"
 printf '%s\n' \
   "run_id=$RUN_ID" "stage=heldout" "image=$IMAGE" "code_sha=$CODE_SHA" \
   "historical_panel=$HISTORICAL" "evaluation_panel=$EVALUATION" \
+  "calibration_stage=$CALIBRATION_STAGE" \
   "reference_attestation_sha256=${resolved[reference_sha]}" \
   "calibration_attestation_sha256=${resolved[calibration_sha]}" \
   'evaluation_seasons=2023 2024 2025' 'cache_table=tabpfn_active_label_treatment_v2' \

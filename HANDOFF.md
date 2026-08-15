@@ -467,6 +467,23 @@ agent or developer:
   `scripts/cloud_finish_sis_receiver_copula_calibration.sh` with run ID
   `20260815-sis-receiver-copula-v1-repair2-canonical`; held-out remains locked
   until that complete grid is strictly harvested and hash-pinned.
+  That first calibration execution failed before emitting any grid cell,
+  selected strength, score or report. The sole error was
+  `receiver-copula eligible group geometry changed`. Root cause is a mechanical
+  predicate mismatch: context construction counted QBs only on the frozen
+  supported frame (`mean_projection >= 4.0`), while treatment application
+  counted every QB, so a sub-floor backup invalidated an already-eligible
+  group. The failure and sole repair are frozen in
+  `reports/2026-08-15-sis-calibration-eligible-geometry-repair.md`. Treatment
+  application now uses the exact context QB predicate; multiple supported QBs
+  still fail closed, and no treatment/calibration setting changes. A
+  regression with a 3.99-point backup proves context/application agreement,
+  unchanged ineligible rows and exact marginals. The calibration scripts now
+  accept a create-only stage directory so the failed receipt remains intact;
+  held-out can explicitly bind the repaired calibration stage. Twenty-six
+  focused SIS tests, compilation, three shell syntax checks and whitespace
+  validation pass. Commit/push, require an exact full-suite image, then retry
+  only as stage `calibration-geometry1`; held-out remains locked.
 - Before any usable SIS artifact or calibration score existed, the previously
   unstated 2022 calibration-book choice was frozen in
   `reports/2026-08-15-sis-receiver-copula-calibration-book-amendment.md`
