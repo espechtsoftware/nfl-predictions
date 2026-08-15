@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 12:51 CDT
+## Current state — 2026-08-15 12:58 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -133,10 +133,16 @@ agent or developer:
   before every Submit; it does not alter the request grid, source fields or
   scientific protocol. All 38 downloader tests, Python compilation and
   `git diff --check` pass locally. The repair is committed and pushed at exact
-  full SHA `f40a406e7fff24e3aa96844a07c9f039c8a30145`; exact-archive Cloud Build
-  `2994c984-eeaa-4c20-b667-a75b53cda17f` is queued in `us-central1` under tag
-  `receiver-copula-minima-f40a406`. Require it to pass before spending the
-  third bounded request.
+  full SHA `f40a406e7fff24e3aa96844a07c9f039c8a30145`. Exact-archive Cloud Build
+  `2994c984-eeaa-4c20-b667-a75b53cda17f` was canceled while still queued at
+  `2026-08-15T17:55:07Z`; its source predates the already-demonstrated
+  tolerance-only test fix and would have failed before image construction.
+  Replacement bundle build `8683affe-cf24-440d-b772-c49b778e821e` is queued
+  in `us-central1` from exact descendant SHA
+  `05a255166d3466c280cef376b21226646b36e6b3` under tag
+  `receiver-copula-bundle-05a2551`. It contains the unchanged minima repair
+  plus the split calibration/held-out code and the tolerance fix. Require this
+  bundle to pass before spending the third bounded request.
 - Independently of that still-running downloader build, the manifest-locked
   receiver-copula importer and PIT context builder are implemented locally.
   They reproduce the acquisition result, preserve defender/team IDs, parse
@@ -229,10 +235,15 @@ agent or developer:
   Fifty-eight combined SIS tests, changed-module compilation, CLI help, shell
   syntax and `git diff --check` pass locally. Do not launch it until guarded
   acquisition validates and both create-once source tables are imported.
-  Exact-archive Cloud Build `f045ca7d-13fb-4b19-a732-a8e4b04cb476` is queued in
-  `us-central1` from that full source SHA under tag
-  `receiver-copula-split-0db5e8e`. Require it to pass before either the fresh
-  reference or split calibration Cloud Run job is deployed.
+  Exact-archive Cloud Build `f045ca7d-13fb-4b19-a732-a8e4b04cb476` began in
+  `us-central1`, then was intentionally canceled at
+  `2026-08-15T17:55:07Z` before completing its first step because that exact
+  source has the same known floating-representation assertion that failed the
+  held-out build. Replacement bundle build
+  `8683affe-cf24-440d-b772-c49b778e821e` from exact descendant `05a2551`
+  validates the unchanged split code with the test-only tolerance fix. Require
+  it to pass before either the fresh reference or split calibration Cloud Run
+  job is deployed.
 - The separate 2023--2025 held-out runner and strict launcher/harvester are now
   implemented locally. They require hash-pinned passing fresh-reference and
   2022-calibration attestations, reproduce the repaired control hashes before
@@ -244,9 +255,14 @@ agent or developer:
   changed-module compilation, command help, both shell scripts and
   `git diff --check` pass locally. The stage is committed and pushed at exact
   full SHA `f160fa85a8e611e5f99fa40c4de194b0c4348b80`; exact-archive Cloud
-  Build `35284000-7ff2-467c-8272-d3f43a1492dc` is queued in `us-central1`
-  under tag `receiver-copula-heldout-f160fa8`. Do not launch until that build,
-  acquisition/import, fresh reference and the separately harvested
+  Build `35284000-7ff2-467c-8272-d3f43a1492dc` failed before image construction
+  at `2026-08-15T17:53:25Z`: 1,485 tests passed, 2 skipped and 5 warnings, and
+  the sole failure was the already-diagnosed exact comparison of weighted
+  `0.019999999999999997` to literal `0.02` in the new calibration unit test.
+  No held-out implementation test failed. Replacement exact-descendant bundle
+  build `8683affe-cf24-440d-b772-c49b778e821e` includes the pushed
+  `np.isclose` test repair at `05a2551`. Do not launch heldout execution until
+  that build, acquisition/import, fresh reference and the separately harvested
   calibration have all passed.
 - The review's remaining exact-P construction question is now frozen as
   `reports/2026-08-15-exact-p-generator-constraint-census-protocol.md`
