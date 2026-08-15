@@ -504,6 +504,22 @@ agent or developer:
   terminal success, then run the calibration finisher with run ID
   `20260815-sis-receiver-copula-v1-repair2-canonical` and stage
   `calibration-geometry1`. Held-out remains locked.
+  The repaired execution completed successfully in 8m13s and its strict
+  checksum harvest passed. Machine report SHA-256 is
+  `c552694c4bbd5ac361d57ec6bf616b65f156b4068fedb874571e6a6b3abe6110`;
+  manifest SHA-256 is
+  `fbb4b81b05401e2df6c3a5433fbd43ed66cdfad607d198700563a4ef1dc9583f`.
+  Scientific disposition is terminally
+  `sis-receiver-copula-calibration-invalid-or-inconclusive`: all seven cells
+  pass finite/exact-marginal/ineligible-row/mean invariants, but the 2022
+  Weeks 5--18 book supports neither registered G0 multiplicity >=2 nor >=3
+  cell. Every cell therefore has `required_support=false`, no strength is
+  selected, and held-out evaluation is not licensed. Do not launch held-out,
+  choose a visually favorable grid row, weaken the frozen gate, run exact-80,
+  or change production. Interpretation is preserved in
+  `reports/2026-08-15-sis-receiver-copula-calibration-result.md`. The SIS
+  receiver-copula chain is closed; future use of this data must be a separately
+  specified mechanism or prospective 2026 shadow.
 - Before any usable SIS artifact or calibration score existed, the previously
   unstated 2022 calibration-book choice was frozen in
   `reports/2026-08-15-sis-receiver-copula-calibration-book-amendment.md`
