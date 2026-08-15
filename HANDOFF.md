@@ -162,6 +162,10 @@ agent or developer:
   Fifty-eight combined SIS tests, changed-module compilation, CLI help, shell
   syntax and `git diff --check` pass locally. Do not launch it until guarded
   acquisition validates and both create-once source tables are imported.
+  Exact-archive Cloud Build `f045ca7d-13fb-4b19-a732-a8e4b04cb476` is queued in
+  `us-central1` from that full source SHA under tag
+  `receiver-copula-split-0db5e8e`. Require it to pass before either the fresh
+  reference or split calibration Cloud Run job is deployed.
 - The review's remaining exact-P construction question is now frozen as
   `reports/2026-08-15-exact-p-generator-constraint-census-protocol.md`
   The pre-membership disposition thresholds are fixed in the protocol: 36/54
