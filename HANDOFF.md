@@ -20,12 +20,12 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 04:14 CDT
+## Current state — 2026-08-15 04:20 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
 - Branch is `main`; the latest implementation milestone is full SHA
-  `90ff049158cb80d70b3e070d47adadeaeb7ad395`. The PIT injury implementation
+  `fec0994bef7fb158ef59caa5d7182f0e61150a72`. The PIT injury implementation
   is full SHA `5cbeef8cbe93ea56a2302b97be197f75ebd92f63`; the projected-ownership
   bootstrap is full SHA `83949e1c10b23b9ccc197b89d29389d71e1e0ddc`; the recurring-vendor-intake
   milestone is full SHA
@@ -483,9 +483,21 @@ agent or developer:
   prior exact clean-archive transition build
   `2295364c-6365-4e18-a621-76abc5330242` is still `WORKING` in regional Cloud
   Build `us-central1`; it validates `46f7597`, not this newer artifact commit.
-- Next concrete action: harvest terminal results for build `2295364c...`, then
-  submit and harvest an exact clean-archive Cloud Build of `90ff049...` before
-  implementing the deterministic joint-state-world sampler. Do not integrate
+- The pure joint-state-world layer is pushed at full SHA
+  `fec0994bef7fb158ef59caa5d7182f0e61150a72`. It freezes natural-log entropy,
+  exact modal/promotion tie breaks, ascending-player sampling order, four
+  cap-valid deterministic promotions, NumPy seed 6419, 50 identity-keyed
+  sampled attempts and explicit cap-rejection receipts. `Out` players remain
+  inactive in every world; ordering is invariant to input row order. Fourteen
+  focused tests, module compilation and `git diff --check` pass. No optimizer,
+  lineup score, candidate generation or money path is wired to it.
+- Exact clean-archive artifact build
+  `cc03f3c5-5881-4d1f-82d6-e14b6bf14845` is queued in `us-central1` for
+  `90ff049...` and tag `latent-role-artifact-90ff049`; it will start after the
+  transition-only build releases the regional worker.
+- Next concrete action: harvest terminal results for builds `2295364c...` and
+  `cc03f3c5...`, then cloud-validate `fec0994...` before any paired-shadow
+  integration. Do not integrate
   its 12-candidate paired
   shadow until those score-free layers and a live-slate budget/world parity
   smoke pass. The first
