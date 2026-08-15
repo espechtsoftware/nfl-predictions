@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 04:53 CDT
+## Current state — 2026-08-15 04:59 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -90,6 +90,25 @@ agent or developer:
   Fifty focused forensic/output/diagnostic plus latent/live tests pass. Run a
   separately labeled repair4 addendum; do not overwrite the frozen original
   report or treat the correction as a new historical arm.
+- The corrective addendum is now frozen in
+  `reports/2026-08-15-post-forensic-exact-stack-addendum-protocol.md` and
+  implemented in `src/nfl_dfs/research/post_forensic_construction.py` plus
+  `scripts/run_post_forensic_construction_addendum.py`. It first reproduces the
+  published loose P, then recomputes exact QB+2/bring-back-1 H/P, four stack
+  constraint cells, tail/first-failed counts, minimum swaps to P, P-player
+  representation and structural contrasts. It is explicitly outcome-viewed,
+  descriptive and unable to promote a historical arm. Its output is a frozen
+  create-only GCS object under the original run's `post-forensic-addenda`
+  prefix, and execution requires a full Git SHA plus immutable image digest.
+  Twenty-eight focused forensic/addendum tests pass, as do compilation and
+  whitespace checks. Exact next action: commit/push this milestone, validate
+  the exact commit in Cloud Build, then run the correction once on Cloud Run.
+- Latent-role Cloud Build polling at 04:59 CDT shows retained-world build
+  `240516d1-14ae-4ecf-9fa4-556472a5a492` still `WORKING`; exact candidate
+  bridge build `79a265ec-2958-42ac-af3b-bea7a9e70228` and live five-seed
+  plumbing build `afb97a4b-5e92-4a38-aa2d-a43dedbedc33` remain `QUEUED`.
+  Continue polling and record terminal test counts, image digests and any
+  failures before using those milestones.
 - Removing only the salary floor creates zero new tail-threshold slates from
   187 through 240, so no-floor is rejected. The frozen route admission bound
   admits 565 absent players while recovering only 2/17 omitted winner slots,
