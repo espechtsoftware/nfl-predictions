@@ -448,9 +448,25 @@ agent or developer:
   The sole canonical repair2 is now Cloud Run execution
   `sis-receiver-copula-reference-repair2-canonical-bv7zt`, with tracked
   manifest/execution receipt under run ID
-  `20260815-sis-receiver-copula-v1-repair2-canonical`. Poll to terminal success
-  and run `scripts/cloud_finish_sis_receiver_copula_reference.sh` with that run
-  ID; calibration remains locked until the cross-report harvest passes.
+  `20260815-sis-receiver-copula-v1-repair2-canonical`.
+  The execution completed successfully in 16m30s and the strict harvest now
+  passes. Reference report SHA-256 is
+  `f1bc9d8762ddf0d0d6f6a32c7dc950b95a7ff8e376f46175b9f62524c836cf44`;
+  manifest SHA-256 is
+  `7a271a9c26361f40b0c8e9b7283577376b2519c4c6951258256667865e528c4f`;
+  score SHA-256 is
+  `11a60720ec66d25cb0789a77932722bc8f0633945cc39c78ef1e03d28bee0c30`.
+  Canonical player order and every internal repeat invariant pass. The strict
+  repair1 comparison is structurally identical, with 159 floating differences
+  no larger than `6.106226635438361e-16`, inside the frozen `1e-12` tolerance;
+  there are no comparison failures. Disposition is
+  `sis-receiver-copula-reference-passes` and held-out treatment is licensed
+  only after calibration. The separately frozen 2022 calibration is now
+  execution `sis-receiver-copula-calibration-repair2-canonical-5jv5v` under
+  the same run ID and exact digest/code. Poll it to terminal success, then run
+  `scripts/cloud_finish_sis_receiver_copula_calibration.sh` with run ID
+  `20260815-sis-receiver-copula-v1-repair2-canonical`; held-out remains locked
+  until that complete grid is strictly harvested and hash-pinned.
 - Before any usable SIS artifact or calibration score existed, the previously
   unstated 2022 calibration-book choice was frozen in
   `reports/2026-08-15-sis-receiver-copula-calibration-book-amendment.md`
