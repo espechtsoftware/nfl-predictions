@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 20:34 CDT
+## Current state — 2026-08-14 21:12 CDT
 
 ### 2026-08-14 forensic runtime repaired; variance and corpus-understanding addenda implemented
 
@@ -121,13 +121,28 @@ agent or developer:
   `final-forensic-prelock-compare-v1-rrszx` completed successfully and logged
   `FULL_PRELOCK_EQUAL_PASS` for both the three primary scopes and 14-panel
   variance/corpus population without selecting outcomes.
-- Repair3 outcome execution `final-preseason-forensic-v1-ffcc8` is now the sole
-  live forensic run. It is pinned to repair3, code `bc3a1c0`, immutable image
+- Repair3 outcome execution `final-preseason-forensic-v1-ffcc8` was the sole
+  repair3 forensic run. It was pinned to repair3, code `bc3a1c0`, immutable image
   `sha256:718b1a7d...`, 8 CPU/32 GiB, one task, zero retries and 24-hour timeout.
   The create-only `outputs-repair3` prefix and all four warehouse tables were
-  absent immediately before launch. Next concrete action: poll this execution
-  to terminal without launching another; if successful, validate every output
-  and table before interpreting results.
+  absent immediately before launch.
+- Execution `final-preseason-forensic-v1-ffcc8` is terminal failed mechanical
+  at 2026-08-15T02:09:51Z after completing computation. The standard JSON
+  encoder rejected a NumPy boolean while writing output 05. The job wrote all
+  four write-once warehouse tables and eight of the nine JSON reports; output
+  05 is absent, so the execution and its partial artifacts are invalid and no
+  score/toolkit content was inspected. The retained repair3 table row counts
+  are player corpus 111,191, candidate corpus 54,430, actual selections 17,200
+  and oracle rosters 860; their common expiry is the repair3 90-day retention
+  timestamp and their manifest label is `122303a1...`.
+- The narrow repair supplies a strict JSON default that converts only NumPy
+  scalars via `.item()` and continues to reject arbitrary objects. It changes
+  no corpus, score, model, oracle, selector or diagnostic. Focused forensic
+  tests pass 9/9. Because repair3 populated its write-once tables, repair4 must
+  use a new output prefix and new table names rather than deleting,
+  overwriting, or relabelling the invalid partial evidence. Next concrete
+  action: commit/build the serialization-only repair, freeze repair4 with new
+  destinations, pass exact-image prelock, then run once to terminal.
 
 ### 2026-08-14 final-forensic audit expanded; decision-structure queue registered
 

@@ -629,10 +629,27 @@ def _read_json_path(client: storage.Client, value: str) -> dict[str, Any]:
     return json.loads(raw.decode("utf-8"))
 
 
+def _json_default(value: object) -> object:
+    """Convert NumPy scalars without silently accepting arbitrary objects."""
+    if isinstance(value, np.generic):
+        return value.item()
+    raise TypeError(
+        f"Object of type {value.__class__.__name__} is not JSON serializable"
+    )
+
+
 def _write_json_path(
     client: storage.Client, value: str, payload: dict[str, Any]
 ) -> None:
-    raw = (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    raw = (
+        json.dumps(
+            payload,
+            indent=2,
+            sort_keys=True,
+            default=_json_default,
+        )
+        + "\n"
+    ).encode("utf-8")
     if not value.startswith("gs://"):
         output = Path(value)
         output.parent.mkdir(parents=True, exist_ok=True)

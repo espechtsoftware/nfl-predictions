@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -15,6 +17,27 @@ SPEC = importlib.util.spec_from_file_location(
 assert SPEC and SPEC.loader
 analyzer = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(analyzer)
+
+
+def test_json_writer_converts_numpy_scalars_and_remains_strict(tmp_path):
+    output = tmp_path / "forensic.json"
+    analyzer._write_json_path(
+        None,
+        str(output),
+        {
+            "bool": np.bool_(True),
+            "float": np.float64(1.25),
+            "integer": np.int64(7),
+        },
+    )
+    assert json.loads(output.read_text(encoding="utf-8")) == {
+        "bool": True,
+        "float": 1.25,
+        "integer": 7,
+    }
+
+    with pytest.raises(TypeError, match="not JSON serializable"):
+        analyzer._write_json_path(None, str(output), {"bad": object()})
 
 
 def _prelock():
