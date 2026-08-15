@@ -31,7 +31,8 @@ REFERENCE_HISTORICAL_PANEL = "20260811-pitclean-e80-k1-role12union-a12ab31"
 REFERENCE_EVALUATION_PANEL = "20260812-pitclean-e80-selected-tabpfn-active-v2"
 REFERENCE_CACHE_TABLE = "tabpfn_active_label_treatment_v2"
 REFERENCE_DIRICHLET_K = "28.154043586960896"
-REFERENCE_ROWS = 7_848
+REFERENCE_TERMINAL_ROWS = 15_396
+REFERENCE_SCORE_ROWS = 7_848
 REFERENCE_SLATES = 54
 REFERENCE_WORLDS = 10_000
 REFERENCE_POSITION_SCHEDULE = {
@@ -94,7 +95,7 @@ def reference_invariants(
     repeat_draws: np.ndarray,
     repeat_terminal: dict[str, Any],
     *,
-    expected_rows: int = REFERENCE_ROWS,
+    expected_terminal_rows: int = REFERENCE_TERMINAL_ROWS,
     expected_slates: int = REFERENCE_SLATES,
     expected_worlds: int = REFERENCE_WORLDS,
 ) -> dict[str, Any]:
@@ -127,9 +128,9 @@ def reference_invariants(
     draw_shape = tuple(np.asarray(draws).shape)
     repeat_draw_shape = tuple(np.asarray(repeat_draws).shape)
     complete_population = bool(
-        len(frame) == expected_rows
+        len(frame) == expected_terminal_rows
         and slate_count == expected_slates
-        and draw_shape == (expected_rows, expected_worlds)
+        and draw_shape == (expected_terminal_rows, expected_worlds)
         and repeat_draw_shape == draw_shape
         and set(frame["season"].astype(int)) == {2023, 2024, 2025}
     ) if not missing_columns else False
@@ -213,7 +214,7 @@ def run_reference(panel_id: str) -> dict[str, Any]:
     repeat_score_sha = _canonical_sha256(repeat_score)
     invariants["score_bit_exact_on_repeat"] = score_sha == repeat_score_sha
     invariants["score_population_exact"] = bool(
-        score.get("population", {}).get("rows") == REFERENCE_ROWS
+        score.get("population", {}).get("rows") == REFERENCE_SCORE_ROWS
         and score.get("population", {}).get("slates") == REFERENCE_SLATES
     )
     invariants["passes"] = bool(

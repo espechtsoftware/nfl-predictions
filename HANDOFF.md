@@ -241,6 +241,13 @@ agent or developer:
   regression test, validate an exact descendant image, then run one separately
   identified create-only reference retry. Do not launch calibration until the
   retry emits a passing checksummed reference report.
+  The exact two-grain repair and retry rules are frozen in
+  `reports/2026-08-15-sis-reference-population-grain-repair.md`. The code now
+  uses explicit 15,396-row terminal and 7,848-row scoring constants, with a
+  regression test proving the grains remain distinct. The sole retry identity
+  is `20260815-sis-receiver-copula-v1-repair1`; it may run only from an
+  immutable exact-repair image after full validation and must reproduce every
+  original fingerprint outside the corrected population invariant.
 - Before any usable SIS artifact or calibration score existed, the previously
   unstated 2022 calibration-book choice was frozen in
   `reports/2026-08-15-sis-receiver-copula-calibration-book-amendment.md`

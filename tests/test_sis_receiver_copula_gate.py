@@ -233,7 +233,7 @@ def test_fresh_reference_requires_exact_repeat_and_terminal_contract():
     result = copula.reference_invariants(
         frame, draws, terminal,
         frame.copy(), draws.copy(), copy.deepcopy(terminal),
-        expected_rows=3, expected_slates=3, expected_worlds=4,
+        expected_terminal_rows=3, expected_slates=3, expected_worlds=4,
     )
 
     assert result["passes"]
@@ -253,10 +253,17 @@ def test_fresh_reference_rejects_repeat_drift_and_wrong_terminal():
     result = copula.reference_invariants(
         frame, draws, repeat_terminal,
         repeat_frame, repeat_draws, repeat_terminal,
-        expected_rows=3, expected_slates=3, expected_worlds=4,
+        expected_terminal_rows=3, expected_slates=3, expected_worlds=4,
     )
 
     assert not result["passes"]
     assert not result["frame_bit_exact_on_repeat"]
     assert not result["draws_bit_exact_on_repeat"]
     assert not result["terminal_contract_exact"]
+
+
+def test_reference_terminal_and_scoring_populations_have_distinct_grains():
+    """The full draw book is larger than the relationship-scoring subset."""
+    assert copula.REFERENCE_TERMINAL_ROWS == 15_396
+    assert copula.REFERENCE_SCORE_ROWS == 7_848
+    assert copula.REFERENCE_TERMINAL_ROWS > copula.REFERENCE_SCORE_ROWS
