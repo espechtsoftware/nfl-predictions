@@ -1,0 +1,10 @@
+version=cbwu-seed-order-scorefree-v1
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:f2e97d1ef2a6c6b88588741850e0886a63d3df6e5d1d5901e187deef16ebc7f5
+code_sha=a14f8ad45d505254592a3832b0c56a6b80626626
+output_uri=gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/post-forensic-addenda/20260815-cbwu-seed-order-scorefree-v1/result.json
+source_panels=20260813-sis-asoe-treatment-r0-v1,20260813-sis-asoe-treatment-r1-v1,20260813-sis-asoe-treatment-r2-v1,20260813-sis-asoe-treatment-r3-v1,20260813-sis-asoe-treatment-r4-v1
+forensic_manifest_sha256=51edbe124846dc936ade71c4e5a9a07e252bcf6c7d7872b979715ccd1f6bab02
+uses_realized_outcomes=false
+slates=54
+seed_slate_artifacts=270
+cyclic_comparisons=216

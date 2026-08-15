@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 15:01 CDT
+## Current state — 2026-08-15 15:06 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -105,8 +105,18 @@ agent or developer:
   `1b2983d1-7d4f-498e-9fc3-a6382a09f370`) were canceled to avoid validating
   ATLAS before its catalog-superset repair or the policy receipt before its
   environment-isolation repair. Consolidated exact-archive build
-  `5563cbd5-725a-4133-bfab-1b462ee5596b` is queued from commit `a14f8ad` and
-  will validate/package ATLAS, CBWU and the complete production-policy fixes.
+  `5563cbd5-725a-4133-bfab-1b462ee5596b` passed from commit `a14f8ad` at
+  `2026-08-15T19:54:09.141479Z`: 1,504 tests passed, 2 skipped and 5 warnings
+  in 998.09 seconds. It packages ATLAS, CBWU and the complete production-policy
+  fixes at immutable digest
+  `sha256:f2e97d1ef2a6c6b88588741850e0886a63d3df6e5d1d5901e187deef16ebc7f5`.
+  The outcome-free 16-GiB CBWU audit is now Cloud Run execution
+  `cbwu-seed-order-scorefree-v1-jfvw6` from that exact image/code. Its tracked
+  manifest and execution receipt are under
+  `reports/cbwu-seed-order-runs/20260815-cbwu-seed-order-scorefree-v1/`.
+  Poll to terminal success, then run
+  `scripts/cloud_finish_cbwu_seed_order_audit.sh`; do not interpret logs or
+  choose an order before the strict create-only report harvest.
 - The review's live-inactive concern was a real money-path correctness defect:
   sim mode rebuilt nonzero draws without the stored-projection cascade/zero
   path, and salary-list `allowed_ids` did not imply active status. The live
