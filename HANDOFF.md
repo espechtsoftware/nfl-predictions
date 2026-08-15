@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 18:31 CDT
+## Current state — 2026-08-15 18:37 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -53,6 +53,13 @@ agent or developer:
   but do not launch the 32-GiB diagnostic until strict ATLAS harvest releases
   the research slot. Its descriptive shoulder hypothesis does not relax the
   standing `240/230/220/210/200/194/187` decision law.
+  Exact clean-archive Cloud Build
+  `1a1abee7-b4ab-4867-a8ce-042caaed70df` is queued in `us-central1` from
+  full implementation commit `d606d1bb7248142cf27c51725b6bda89e97a7f21`
+  under tag `cbwu-oi-stability-d606d1b`. Require the complete test suite and
+  immutable digest before launch. The repaired ATLAS execution
+  `atlas-world-ranking-scorefree-v1-l59bt` remains running; poll and strictly
+  harvest it first.
 
 - The independent construction review in
   `reports/2026-08-15-independent-tail-scoring-review.md` is reconciled into
