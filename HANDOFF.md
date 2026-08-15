@@ -102,8 +102,10 @@ agent or developer:
   exact candidate/selected parity was recorded as a boolean but the complete
   reconstructed candidate identity set was not checksumed in the proposal
   receipt. The receipt now pins both the sorted candidate identities and
-  exact selected order by SHA-256. Submit a replacement exact build. After
-  full-suite success, launch
+  exact selected order by SHA-256. That repair is pushed at full SHA
+  `d8fc3582a7d3e8a572f9c12bfa3eb1bd39963d37`; replacement exact-archive
+  Cloud Build `c3fe855a-1ce0-430b-9ab4-9aa3cc66e60c` is running under tag
+  `realistic-recourse-d8fc358`. After full-suite success, launch
   `recourse-scorer-reconciliation-v2` from that immutable digest, require its
   create-only 54,419/54,419 result, and only then use the same digest for the
   recourse run.
