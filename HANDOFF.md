@@ -20,9 +20,16 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 02:10 CDT
+## Current state — 2026-08-15 02:40 CDT
 
-### Final preseason forensic run succeeded; historical queue closed and prospective construction program frozen
+### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
+
+- Branch is `main`; current pushed code is full SHA
+  `e2dcb232844e80efb5c2d2bc02c3c67e0a7f5737`. The immediately preceding
+  recurring-vendor-intake milestone is full SHA
+  `72261a27f44bc8e9a876dfc5c394517fa2847f32`. No historical outcome/scoring
+  arm is active or queued, and none of the new prospective pass-tail resources
+  has been executed.
 
 - Branch is `main`; the retained-world milestone is pushed at full SHA
   `b947446f59bd0b54c03a1c3b91ee5567042a3773`.
@@ -298,33 +305,74 @@ agent or developer:
   prior target-week Fantasy Points/SIS windows. It fails closed if sources are
   missing, late, unsupported or the treatment is inert. Weeks 1--4 are an
   explicit successful no-run; the frozen arm starts no earlier than Week 5.
-- Deployment definitions add two Thursday 9:15/9:20am CT GPU cache schedulers
-  and one Sunday 6:00am CT ten-book shadow scheduler to the forensic
-  cleanup/resume gate. The dedicated GPU deploy script pauses both cache
-  schedulers immediately after create/update. They are definitions only and
-  have not been deployed.
-  The weekly-data schedule now states the remaining operational dependency:
-  before Week 5, convert the historical-only Fantasy Points alignment and SIS
-  team pass-defense/pass-rush plus Wide/Slot acquisitions into bounded
-  provenance-bearing W-4..W-1 recurring imports. Until then the jobs fail
-  closed; there is no historical/cross-season fallback.
-- Forty focused prospective/cache/ASOE/resume/world tests pass locally;
-  compilation, `bash -n` and `git diff --check` pass. Exact-commit Cloud Build
-  `c236134b-b724-4dfb-b05e-d42ec2f9fc4b` was submitted from the clean pushed
-  SHA above at `2026-08-15T07:10Z`; it is queued/running and will publish tag
-  `sis-pass-tail-15de402` only after the complete suite succeeds. No cache,
-  lineup or scoring execution has been launched.
-- Next concrete action: install the proxy package with operator sudo when
-  available and run the authenticated test-artifact rehearsal without exposing
-  an uploadable money file. Poll and harvest Cloud Build
-  `c236134b-b724-4dfb-b05e-d42ec2f9fc4b`; deploy only its immutable app image
-  after a complete-suite pass, then build/deploy the isolated GPU image while
-  keeping all three new schedulers paused. Next implement the bounded recurring
-  W-4..W-1 source imports before Week 5. The first score-free live shadows wait
-  for complete 2026 pre-lock slate inputs and must validate receipts before any
-  outcome join. Preserve the Week 1 readiness and forensic cleanup gates. Do
-  not launch another historical score arm and do not delete the repair4
-  warehouse before independent review.
+- Exact-mechanism Cloud Build
+  `c236134b-b724-4dfb-b05e-d42ec2f9fc4b` succeeded at
+  `2026-08-15T07:26:46.294666Z` from exact code SHA
+  `15de40206963b5db9e6a4acff0f865833678d44d`: the complete suite passed 1,385
+  tests with 2 skipped and 5 warnings in 741.20 seconds. Published tag
+  `sis-pass-tail-15de402` resolves to immutable digest
+  `sha256:9cec80d9fc603b75456663049757e027e76d8ceb7c1d95c18bf22ab96cd21411`.
+  Cloud Run job `shadow-sis-pass-tail-paired` is deployed on that exact digest
+  with command `nfl-dfs shadow-sis-pass-tail-paired`, full mechanism code SHA,
+  4 CPU, 16 GiB, 14,400-second timeout and one retry. Scheduler
+  `s-shadow-sis-pass-tail-paired` is Sunday 6:00am CT and verified `PAUSED`.
+- Isolated GPU Cloud Build `a4f0b6b3-00e7-4af0-81f9-b854b2ffca1a`
+  succeeded and published
+  `tabpfn-sis-pass-tail-live:15de40206963b5db9e6a4acff0f865833678d44d`
+  at immutable digest
+  `sha256:4e809f0cbb23aef27e9219cd5bfaa832fd1b75ff0750000b7fa3ca495bb4e719`.
+  Jobs `tabpfn-sis-pass-tail-live-control` and
+  `tabpfn-sis-pass-tail-live-treatment` are each pinned to that digest with 4
+  CPU, 16 GiB, one NVIDIA L4, 3,600-second timeout and zero retries. Their
+  outputs are `tabpfn_sis_pass_tail_live_control_v1` and
+  `tabpfn_sis_pass_tail_live_treatment_v1`. Schedulers
+  `s-tabpfn-sis-pass-tail-control` (Thursday 9:15am CT) and
+  `s-tabpfn-sis-pass-tail-treatment` (Thursday 9:20am CT) are both verified
+  `PAUSED`. All three prospective jobs have empty execution histories.
+- The cache deploy helper now resolves the newly built Artifact Registry
+  digest and deploys `IMAGE@sha256` rather than retaining a mutable tag; a
+  source contract test freezes that requirement. Shell syntax, the nine
+  focused prospective-shadow tests and `git diff --check` pass. This repair is
+  pushed at the current full SHA above.
+- The bounded recurring Week-5+ acquisition/import dependency is implemented
+  at full SHA `72261a27f44bc8e9a876dfc5c394517fa2847f32`. Fantasy Points plan
+  `2026-alignment-last-four-weekly-v1` has frozen SHA-256
+  `48e771c98f89916ae3b865e2ad8f357bf69af84eb5ed5c4148a002954390692b`
+  and captures the exact W-4..W-1 grouped Player receiving-separation-by-
+  alignment window. Its importer enforces manifest/hash/schema/PIT identity,
+  resolves rosters, builds player/team profiles, archives hash-addressed source
+  files and append-only-conflict checks the existing Fantasy Points raw tables.
+  The live ASOE loader now derives source-week bounds from target week because
+  the physical team table never carried the two historical summary columns.
+- SIS acquisition identity `prospective-sis-pass-tail-weekly-acquisition-v1`
+  uses exactly five ordinary submitted UI views: pass-defense totals/all,
+  pass-defense value/all, pass-rush totals/all, pass-defense totals/Wide and
+  pass-defense totals/Slot. Week 5 captures Weeks 1--4 and Weeks 6--18 capture
+  only W-1; the durable ceiling is seven attempts (five planned plus two
+  identical operational retries). `sis-download pass-tail-weekly` and its
+  importer reproduce the frozen identity, use only Wide/Slot `Att` for ASOE,
+  hash-address archives and append-only conflict checks for
+  `sis_team_context_game` and `sis_alignment_attempt_game`. There is no
+  cross-season or stale fallback.
+- The weekly operator workflow runs Route data first, so optional shadow-vendor
+  failure cannot prevent the money-path intake, then matchup capture, Week-5+
+  alignment capture/import and exact SIS pass-tail capture/import. Existing
+  backup discovery already includes every `fantasy_points_*` and `sis_*` raw
+  table, so all four live pass-tail source tables are included without a
+  separate allow-list. Eighty-one relevant local tests passed; module
+  compilation and `git diff --check` pass. Exact clean-archive Cloud Build
+  `29793182-ec5c-4fe7-a4de-0f8f992c6f36` is validating full SHA
+  `72261a27f44bc8e9a876dfc5c394517fa2847f32` and remains `WORKING`; harvest its
+  terminal result before citing the intake milestone as full-suite validated.
+- Next concrete action: poll and harvest Cloud Build
+  `29793182-ec5c-4fe7-a4de-0f8f992c6f36`, then record its terminal count and
+  immutable image digest. The first authenticated acquisition smoke cannot
+  occur until complete 2026 Weeks 1--4 data exist; until then every downstream
+  cache/shadow fails closed and all three schedulers stay paused. Separately,
+  install the Cloud Run proxy package with operator sudo when available and run
+  the outcome-free recourse rehearsal through authenticated IAP. Preserve the
+  Week 1 readiness and forensic cleanup gates, do not launch another historical
+  score arm, and do not delete the repair4 warehouse before independent review.
 
 ## Prior state — 2026-08-14 22:18 CDT
 
