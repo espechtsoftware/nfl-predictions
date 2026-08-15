@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 06:42 CDT
+## Current state — 2026-08-15 06:49 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -89,6 +89,22 @@ agent or developer:
   digest
   `sha256:ebc145731076de6a3d4cbc16e0b7d4a083c59afd43b1e8efab607cc0185a38d4`.
   This validates the tooling only and did not issue a vendor query.
+
+- The frozen SIS player pass-defense grain acquisition/schema gate completed
+  after a fresh terminal login and passed on its first visible Submit, using
+  1/3 allowed requests. It returned 56 player-game rows across 17 played 2025
+  weeks and 8 stable player IDs, remained below the 200-row cap, exposed both
+  `Cov. Snaps` and `Tgts`, matched API/CSV row counts and identities, and read
+  no performance, fantasy, lineup or contest outcome. The licensed CSV
+  SHA-256 is
+  `d407ddea442f2766c4a8ad794f5e7ea600d1f09dd2f9d0e2abda2e08dc955388`;
+  machine result SHA-256 is
+  `74dfd08e48ff05d1b14829d120db19d08d83a65ed21a76ff6b527364e6431f65`.
+  Result and interpretation are in
+  `reports/2026-08-15-sis-player-pass-defense-grain-feasibility-result.md`.
+  This licenses only a separately frozen bounded acquisition plus score-free
+  G0/G1 dependence gate, followed by a 2026 paired shadow if that gate passes;
+  it is not evidence of a historical scoring gain.
 
 - The highest-priority new SIS idea now has a frozen, outcome-blind first gate
   in
