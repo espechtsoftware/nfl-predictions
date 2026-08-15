@@ -641,10 +641,17 @@ def run(output_uri: str, proposal_uri: str) -> dict:
       WHERE scope=@scope
       ORDER BY season, week, candidate_index
     """, [bigquery.ScalarQueryParameter("scope", "STRING", SCOPE)])
-    exact_raw, _ = _download_bytes(gcs, EXACT_STACK_URI)
+    exact_raw, exact_blob = _download_bytes(gcs, EXACT_STACK_URI)
     if hashlib.sha256(exact_raw).hexdigest() != EXPECTED_EXACT_STACK_SHA256:
         raise RuntimeError("corrected exact-stack result checksum differs")
     exact = json.loads(exact_raw)
+    exact_stack_receipt = {
+        "uri": EXACT_STACK_URI,
+        "generation": str(exact_blob.generation),
+        "sha256": EXPECTED_EXACT_STACK_SHA256,
+        "analysis_code_sha": str(exact.get("analysis_code_sha")),
+        "analysis_image": str(exact.get("analysis_image")),
+    }
     exact_by_slate = {
         (int(row["season"]), int(row["week"])): row for row in exact["records"]
     }
@@ -753,6 +760,7 @@ def run(output_uri: str, proposal_uri: str) -> dict:
         "expected_entries": ENTRY_COUNT,
         "proposal_ledger": proposal_receipt,
         "scorer_reconciliation": scorer_audit_receipt,
+        "corrected_exact_stack_source": exact_stack_receipt,
         "proposal_set_sha256": frozen["proposal_set_sha256"],
         "proposal_frozen_before_outcome_query": True,
         "outcome_phase_opened_after_proposal_generation": proposal_receipt["generation"],
