@@ -9,6 +9,9 @@ later, separately validated stage.
 
 from __future__ import annotations
 
+import hashlib
+import json
+import re
 from dataclasses import dataclass
 
 import numpy as np
@@ -20,9 +23,12 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 VERSION = "prospective-latent-role-state-v1"
+ARTIFACT_VERSION = "prospective-latent-role-transition-artifact-v1"
 SEED = 6419
 POSITIONS = ("RB", "WR", "TE")
 STATES = ("inactive", "dormant", "rotation", "secondary", "primary")
+SHARE_FIELDS = ("target_share", "carry_share", "snap_share")
+TEAM_SHARE_CAP = 1.15
 
 NUMERIC_FEATURES = (
     "target_share_last", "target_share_l4",
@@ -375,6 +381,461 @@ def expanding_role_audit(
             "baseline_multiclass_brier": baseline_score["multiclass_brier"],
         })
     return pd.DataFrame(records)
+
+
+def transition_frame_sha256(rows: pd.DataFrame) -> str:
+    """Hash exact score-free training identities, features, labels and shares."""
+    identity = ("gsis_id", "season", "week")
+    artifact_inputs = (*identity, *SHARE_FIELDS)
+    if missing := set(artifact_inputs) - set(rows.columns):
+        raise LatentRoleStateError(
+            f"role transition artifact input missing columns {sorted(missing)}"
+        )
+    prepared = prepare_transition_frame(rows)
+    frame = pd.concat([
+        rows.loc[prepared.index, list(artifact_inputs)].copy(), prepared,
+    ], axis=1)
+    if frame.duplicated(list(identity)).any():
+        raise LatentRoleStateError("role transition artifact identities repeat")
+    frame = frame.sort_values(list(identity), kind="mergesort")
+    payload = frame.to_csv(
+        index=False, na_rep="<NULL>", float_format="%.17g", lineterminator="\n",
+    ).encode()
+    return hashlib.sha256(payload).hexdigest()
+
+
+def compute_role_state_emissions(rows: pd.DataFrame) -> dict:
+    """Compute frozen training-only share medians for every position/state."""
+    forbidden = sorted(FORBIDDEN_OUTCOME_COLUMNS & set(rows.columns))
+    if forbidden:
+        raise LatentRoleStateError(
+            f"role emission input contains forbidden outcomes {forbidden}"
+        )
+    required = {"position", TARGET, *SHARE_FIELDS}
+    if missing := required - set(rows.columns):
+        raise LatentRoleStateError(
+            f"role emission input missing columns {sorted(missing)}"
+        )
+    prepared = prepare_transition_frame(rows)
+    source = rows.loc[prepared.index, list(SHARE_FIELDS)].apply(
+        pd.to_numeric, errors="coerce",
+    )
+    positions = prepared["position"].astype(str)
+    states = prepared[TARGET].astype(str)
+    emissions: dict[str, dict[str, dict[str, float]]] = {}
+    for position in POSITIONS:
+        emissions[position] = {}
+        for state in STATES:
+            if state == "inactive":
+                values = {field: 0.0 for field in SHARE_FIELDS}
+            else:
+                mask = positions.eq(position) & states.eq(state)
+                values = {}
+                for field in SHARE_FIELDS:
+                    observed = source.loc[mask, field]
+                    observed = observed[np.isfinite(observed)]
+                    if observed.empty:
+                        raise LatentRoleStateError(
+                            "role emission has no finite "
+                            f"{position}/{state}/{field} observations"
+                        )
+                    value = float(observed.median())
+                    if not 0.0 <= value <= TEAM_SHARE_CAP:
+                        raise LatentRoleStateError(
+                            "role emission share is outside bounds for "
+                            f"{position}/{state}/{field}: {value}"
+                        )
+                    values[field] = value
+            emissions[position][state] = values
+    return emissions
+
+
+def _validate_state_emissions(value) -> dict:
+    if not isinstance(value, dict) or set(value) != set(POSITIONS):
+        raise LatentRoleStateError("role artifact emission positions differ")
+    normalized: dict[str, dict[str, dict[str, float]]] = {}
+    for position in POSITIONS:
+        by_state = value[position]
+        if not isinstance(by_state, dict) or set(by_state) != set(STATES):
+            raise LatentRoleStateError(
+                f"role artifact emission states differ for {position}"
+            )
+        normalized[position] = {}
+        for state in STATES:
+            shares = by_state[state]
+            if not isinstance(shares, dict) or set(shares) != set(SHARE_FIELDS):
+                raise LatentRoleStateError(
+                    "role artifact emission share fields differ for "
+                    f"{position}/{state}"
+                )
+            normalized[position][state] = {}
+            for field in SHARE_FIELDS:
+                try:
+                    number = float(shares[field])
+                except (TypeError, ValueError) as exc:
+                    raise LatentRoleStateError(
+                        "role artifact emission is nonnumeric for "
+                        f"{position}/{state}/{field}"
+                    ) from exc
+                if not np.isfinite(number) or not 0.0 <= number <= TEAM_SHARE_CAP:
+                    raise LatentRoleStateError(
+                        "role artifact emission is outside bounds for "
+                        f"{position}/{state}/{field}"
+                    )
+                if state == "inactive" and number != 0.0:
+                    raise LatentRoleStateError(
+                        f"inactive role artifact emission is nonzero for {position}"
+                    )
+                normalized[position][state][field] = number
+    return normalized
+
+
+def _model_payload(
+    fitted: FittedRoleTransition,
+    rows: pd.DataFrame,
+    *,
+    code_sha: str,
+) -> dict:
+    code_sha = str(code_sha).strip().lower()
+    if not re.fullmatch(r"[0-9a-f]{40}", code_sha):
+        raise LatentRoleStateError("role artifact requires a full git code SHA")
+    required_keys = {"season", "week"}
+    if missing := required_keys - set(rows.columns):
+        raise LatentRoleStateError(
+            f"role artifact fit boundary missing {sorted(missing)}"
+        )
+    prepared = prepare_transition_frame(rows)
+    keyed = rows.loc[prepared.index]
+    order = keyed.assign(
+        _season=pd.to_numeric(keyed["season"], errors="raise"),
+        _week=pd.to_numeric(keyed["week"], errors="raise"),
+    ).sort_values(["_season", "_week"], kind="mergesort")
+    first = order.iloc[0]
+    last = order.iloc[-1]
+
+    transform = fitted.pipeline.named_steps["transform"]
+    numeric = transform.named_transformers_["numeric"]
+    categorical = transform.named_transformers_["categorical"]
+    num_imputer = numeric.named_steps["impute"]
+    scaler = numeric.named_steps["scale"]
+    cat_imputer = categorical.named_steps["impute"]
+    onehot = categorical.named_steps["onehot"]
+    model = fitted.pipeline.named_steps["model"]
+    if len(num_imputer.statistics_) != len(NUMERIC_FEATURES):
+        raise LatentRoleStateError("numeric role artifact feature count differs")
+    if len(onehot.categories_) != len(CATEGORICAL_FEATURES):
+        raise LatentRoleStateError(
+            "categorical role artifact feature count differs"
+        )
+    return {
+        "artifact_version": ARTIFACT_VERSION,
+        "mechanism_version": VERSION,
+        "code_sha": code_sha,
+        "source_sql_sha256": hashlib.sha256(
+            TRANSITION_SOURCE_SQL.encode()
+        ).hexdigest(),
+        "training_frame_sha256": transition_frame_sha256(rows),
+        "fit_boundary": {
+            "first_season": int(first["_season"]),
+            "first_week": int(first["_week"]),
+            "last_season": int(last["_season"]),
+            "last_week": int(last["_week"]),
+            "rows": int(fitted.n_rows),
+        },
+        "states": list(STATES),
+        "numeric_features": list(NUMERIC_FEATURES),
+        "categorical_features": list(CATEGORICAL_FEATURES),
+        "numeric_imputer": [float(value) for value in num_imputer.statistics_],
+        "numeric_mean": [float(value) for value in scaler.mean_],
+        "numeric_scale": [float(value) for value in scaler.scale_],
+        "categorical_imputer": [str(value) for value in cat_imputer.statistics_],
+        "categorical_levels": [
+            [str(value) for value in values] for values in onehot.categories_
+        ],
+        "classifier_classes": [str(value) for value in model.classes_],
+        "classifier_coef": np.asarray(model.coef_, dtype=float).tolist(),
+        "classifier_intercept": np.asarray(
+            model.intercept_, dtype=float,
+        ).tolist(),
+        "classifier_iterations": np.asarray(model.n_iter_, dtype=int).tolist(),
+        "state_emissions": compute_role_state_emissions(rows),
+        "uses_fantasy_or_lineup_outcomes": False,
+    }
+
+
+def encode_role_transition_artifact(
+    fitted: FittedRoleTransition,
+    rows: pd.DataFrame,
+    *,
+    code_sha: str,
+) -> tuple[bytes, dict]:
+    """Encode the fitted transition as deterministic portable JSON."""
+    artifact = _model_payload(fitted, rows, code_sha=code_sha)
+    payload = json.dumps(
+        artifact, allow_nan=False, separators=(",", ":"), sort_keys=True,
+    ).encode()
+    digest = hashlib.sha256(payload).hexdigest()
+    return payload, {
+        "artifact_version": ARTIFACT_VERSION,
+        "sha256": digest,
+        "code_sha": artifact["code_sha"],
+        "training_frame_sha256": artifact["training_frame_sha256"],
+        "fit_boundary": artifact["fit_boundary"],
+        "uses_fantasy_or_lineup_outcomes": False,
+    }
+
+
+def decode_role_transition_artifact(
+    payload: bytes,
+    expected_sha256: str,
+) -> dict:
+    """Verify checksum and the exact portable role-transition contract."""
+    digest = hashlib.sha256(payload).hexdigest()
+    if digest != str(expected_sha256):
+        raise LatentRoleStateError(
+            f"role artifact sha256 differs: {digest} != {expected_sha256}"
+        )
+    try:
+        artifact = json.loads(payload)
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise LatentRoleStateError("role artifact JSON is invalid") from exc
+    if artifact.get("artifact_version") != ARTIFACT_VERSION:
+        raise LatentRoleStateError("role artifact version differs")
+    if artifact.get("mechanism_version") != VERSION:
+        raise LatentRoleStateError("role mechanism version differs")
+    if artifact.get("states") != list(STATES):
+        raise LatentRoleStateError("role artifact states differ")
+    if artifact.get("numeric_features") != list(NUMERIC_FEATURES):
+        raise LatentRoleStateError("role artifact numeric features differ")
+    if artifact.get("categorical_features") != list(CATEGORICAL_FEATURES):
+        raise LatentRoleStateError("role artifact categorical features differ")
+    if artifact.get("uses_fantasy_or_lineup_outcomes") is not False:
+        raise LatentRoleStateError("role artifact outcome boundary differs")
+    artifact["state_emissions"] = _validate_state_emissions(
+        artifact.get("state_emissions")
+    )
+    if not re.fullmatch(r"[0-9a-f]{40}", str(artifact.get("code_sha", ""))):
+        raise LatentRoleStateError("role artifact code SHA differs")
+    if not re.fullmatch(
+        r"[0-9a-f]{64}", str(artifact.get("training_frame_sha256", "")),
+    ):
+        raise LatentRoleStateError("role artifact training hash differs")
+    if artifact.get("source_sql_sha256") != hashlib.sha256(
+        TRANSITION_SOURCE_SQL.encode()
+    ).hexdigest():
+        raise LatentRoleStateError("role artifact source query differs")
+    classes = artifact.get("classifier_classes", [])
+    if set(classes) != set(STATES) or len(classes) != len(STATES):
+        raise LatentRoleStateError("role artifact classifier classes differ")
+    n_numeric = len(NUMERIC_FEATURES)
+    levels = artifact.get("categorical_levels", [])
+    if (not isinstance(levels, list)
+            or len(levels) != len(CATEGORICAL_FEATURES)
+            or any(not isinstance(values, list) for values in levels)):
+        raise LatentRoleStateError("role artifact categorical levels differ")
+    n_encoded = n_numeric + sum(len(values) for values in levels)
+    coef = np.asarray(artifact.get("classifier_coef"), dtype=float)
+    intercept = np.asarray(artifact.get("classifier_intercept"), dtype=float)
+    for key in ("numeric_imputer", "numeric_mean", "numeric_scale"):
+        values = np.asarray(artifact.get(key), dtype=float)
+        if values.shape != (n_numeric,) or not np.isfinite(values).all():
+            raise LatentRoleStateError(f"role artifact {key} is invalid")
+    if np.any(np.asarray(artifact["numeric_scale"], dtype=float) <= 0):
+        raise LatentRoleStateError("role artifact numeric scale is invalid")
+    if len(artifact.get("categorical_imputer", [])) != len(
+        CATEGORICAL_FEATURES
+    ):
+        raise LatentRoleStateError("role artifact categorical imputer differs")
+    boundary = artifact.get("fit_boundary", {})
+    if not isinstance(boundary, dict) or int(boundary.get("rows", 0)) < 1:
+        raise LatentRoleStateError("role artifact fit boundary is invalid")
+    if coef.shape != (len(STATES), n_encoded) or intercept.shape != (
+        len(STATES),
+    ):
+        raise LatentRoleStateError("role artifact classifier shape differs")
+    if not np.isfinite(coef).all() or not np.isfinite(intercept).all():
+        raise LatentRoleStateError("role artifact classifier is nonfinite")
+    artifact["sha256"] = digest
+    return artifact
+
+
+def validate_team_role_share_caps(
+    rows: pd.DataFrame,
+    *,
+    cap: float = TEAM_SHARE_CAP,
+) -> dict[str, dict[str, float]]:
+    """Reject a joint role state whose emitted team shares exceed the cap."""
+    if float(cap) != TEAM_SHARE_CAP:
+        raise LatentRoleStateError(
+            f"role team-share cap differs: {cap} != {TEAM_SHARE_CAP}"
+        )
+    required = {"team", "target_share_last", "carry_share_last"}
+    if missing := required - set(rows.columns):
+        raise LatentRoleStateError(
+            f"role team-cap frame missing columns {sorted(missing)}"
+        )
+    if rows.empty or rows["team"].isna().any():
+        raise LatentRoleStateError("role team-cap frame has missing teams")
+    shares = rows[["target_share_last", "carry_share_last"]].apply(
+        pd.to_numeric, errors="coerce",
+    )
+    if not np.isfinite(shares.to_numpy(dtype=float)).all():
+        raise LatentRoleStateError("role team-cap frame has nonfinite shares")
+    grouped = pd.concat([rows[["team"]], shares], axis=1).groupby(
+        "team", sort=True, dropna=False,
+    )[["target_share_last", "carry_share_last"]].sum()
+    violations = grouped.gt(TEAM_SHARE_CAP + 1e-12)
+    if violations.any(axis=None):
+        details = []
+        for team, item in grouped.loc[violations.any(axis=1)].iterrows():
+            for field in ("target_share_last", "carry_share_last"):
+                if item[field] > TEAM_SHARE_CAP + 1e-12:
+                    details.append(f"{team}/{field}={item[field]:.6f}")
+        raise LatentRoleStateError(
+            "sampled role state exceeds frozen team-share cap: "
+            + ", ".join(details)
+        )
+    return {
+        str(team): {
+            "target_share": float(item["target_share_last"]),
+            "carry_share": float(item["carry_share_last"]),
+        }
+        for team, item in grouped.iterrows()
+    }
+
+
+def apply_sampled_role_states(
+    artifact: dict,
+    rows: pd.DataFrame,
+    sampled_states: pd.Series,
+) -> pd.DataFrame:
+    """Return a pure conditional frame with only six role fields replaced."""
+    forbidden = sorted(FORBIDDEN_OUTCOME_COLUMNS & set(rows.columns))
+    if forbidden:
+        raise LatentRoleStateError(
+            f"conditional role frame contains forbidden outcomes {forbidden}"
+        )
+    required = {
+        "position", "team", "injury_status",
+        "target_share_last", "target_share_l4", "target_share_jump",
+        "carry_share_last", "carry_share_l4", "carry_share_jump",
+        "snap_share_last", "snap_share_l4", "snap_share_jump",
+    }
+    if missing := required - set(rows.columns):
+        raise LatentRoleStateError(
+            f"conditional role frame missing columns {sorted(missing)}"
+        )
+    if artifact.get("artifact_version") != ARTIFACT_VERSION:
+        raise LatentRoleStateError("unverified conditional role artifact")
+    emissions = _validate_state_emissions(artifact.get("state_emissions"))
+    if not isinstance(sampled_states, pd.Series) or not sampled_states.index.equals(
+        rows.index
+    ):
+        raise LatentRoleStateError(
+            "sampled role states must be a Series exactly aligned to players"
+        )
+    states = sampled_states.astype("string")
+    invalid_states = sorted(set(states.dropna()) - set(STATES))
+    if invalid_states or states.isna().any():
+        raise LatentRoleStateError(
+            f"sampled role states are invalid {invalid_states}"
+        )
+    positions = rows["position"].astype("string").str.upper()
+    invalid_positions = sorted(set(positions.dropna()) - set(POSITIONS))
+    if invalid_positions or positions.isna().any():
+        raise LatentRoleStateError(
+            f"sampled role positions are invalid {invalid_positions}"
+        )
+    out_mask = rows["injury_status"].astype("string").str.strip().str.upper().eq(
+        "OUT"
+    )
+    if (out_mask & states.ne("inactive")).any():
+        raise LatentRoleStateError("players listed Out must be fixed to inactive")
+
+    out = rows.copy(deep=True)
+    for field in SHARE_FIELDS:
+        emitted = pd.Series([
+            emissions[str(position)][str(state)][field]
+            for position, state in zip(positions, states, strict=True)
+        ], index=out.index, dtype=float)
+        out[f"{field}_last"] = emitted
+        prior = pd.to_numeric(out[f"{field}_l4"], errors="coerce")
+        out[f"{field}_jump"] = emitted - prior
+    out["sampled_role_state"] = states
+    validate_team_role_share_caps(out)
+    return out
+
+
+def predict_role_transition_artifact(
+    artifact: dict,
+    rows: pd.DataFrame,
+) -> pd.DataFrame:
+    """Predict with the portable artifact and return canonical state order."""
+    # Re-encode/decode is unnecessary here; callers load through the decoder.
+    if artifact.get("artifact_version") != ARTIFACT_VERSION:
+        raise LatentRoleStateError("unverified role artifact version")
+    prepared = prepare_transition_frame(rows, require_target=False)
+    numeric = prepared[list(NUMERIC_FEATURES)].apply(
+        pd.to_numeric, errors="coerce",
+    ).to_numpy(dtype=float)
+    imputer = np.asarray(artifact["numeric_imputer"], dtype=float)
+    mean = np.asarray(artifact["numeric_mean"], dtype=float)
+    scale = np.asarray(artifact["numeric_scale"], dtype=float)
+    missing = ~np.isfinite(numeric)
+    numeric[missing] = np.broadcast_to(imputer, numeric.shape)[missing]
+    numeric = (numeric - mean) / scale
+
+    encoded = [numeric]
+    for index, feature in enumerate(CATEGORICAL_FEATURES):
+        fill = str(artifact["categorical_imputer"][index])
+        values = prepared[feature].fillna(fill).astype(str).to_numpy()
+        levels = [str(value) for value in artifact["categorical_levels"][index]]
+        encoded.append(np.column_stack([values == level for level in levels]))
+    design = np.column_stack(encoded).astype(float)
+    coef = np.asarray(artifact["classifier_coef"], dtype=float)
+    intercept = np.asarray(artifact["classifier_intercept"], dtype=float)
+    logits = design @ coef.T + intercept
+    logits -= logits.max(axis=1, keepdims=True)
+    probability = np.exp(logits)
+    probability /= probability.sum(axis=1, keepdims=True)
+    by_class = {
+        state: probability[:, index]
+        for index, state in enumerate(artifact["classifier_classes"])
+    }
+    return pd.DataFrame(
+        {state: by_class[state] for state in STATES}, index=prepared.index,
+    )
+
+
+def persist_role_transition_artifact(
+    fitted: FittedRoleTransition,
+    rows: pd.DataFrame,
+    *,
+    code_sha: str,
+    bucket_name: str,
+    object_name: str,
+    storage_client=None,
+) -> dict:
+    """Create one checksum-bound GCS artifact; never overwrite an identity."""
+    bucket_name = str(bucket_name).strip()
+    object_name = str(object_name).strip().lstrip("/")
+    if not bucket_name or not object_name or ".." in object_name.split("/"):
+        raise LatentRoleStateError("role artifact bucket/object is invalid")
+    payload, receipt = encode_role_transition_artifact(
+        fitted, rows, code_sha=code_sha,
+    )
+    if storage_client is None:
+        from google.cloud import storage
+
+        storage_client = storage.Client()
+    storage_client.bucket(bucket_name).blob(object_name).upload_from_string(
+        payload, content_type="application/json", if_generation_match=0,
+    )
+    return {
+        **receipt,
+        "uri": f"gs://{bucket_name}/{object_name}",
+        "create_only": True,
+    }
 
 
 def multiclass_scores(

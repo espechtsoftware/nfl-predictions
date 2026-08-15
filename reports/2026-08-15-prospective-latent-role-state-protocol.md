@@ -108,8 +108,10 @@ byte-identical.
 
 For each position/state, compute the training-only median target, carry and
 snap shares using the same expanding fit boundary. A sampled target-week state
-replaces the six direct-role fields with the state median and the implied
-state-versus-prior jump. It does not alter salary, matchup, market mean,
+replaces `target/carry/snap_share_last` with the state median and each jump
+with `state_median - the corresponding strictly-prior share_l4`. Those are the
+six direct-role fields; the l4 inputs themselves remain unchanged. It does not
+alter salary, matchup, market mean,
 ownership, injury status, player pool, calibration scale or any unrelated
 feature.
 

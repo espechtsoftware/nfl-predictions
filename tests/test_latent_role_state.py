@@ -1,3 +1,6 @@
+import hashlib
+import json
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -8,12 +11,20 @@ from nfl_dfs.research.latent_role_state import (
     TRANSITION_SOURCE_SQL,
     LatentRoleStateError,
     add_previous_state,
+    apply_sampled_role_states,
     classify_realized_states,
+    compute_role_state_emissions,
+    decode_role_transition_artifact,
+    encode_role_transition_artifact,
     empirical_transition_probabilities,
     expanding_role_audit,
     fit_role_transition,
     multiclass_scores,
+    persist_role_transition_artifact,
+    predict_role_transition_artifact,
     prepare_transition_frame,
+    transition_frame_sha256,
+    validate_team_role_share_caps,
 )
 
 
@@ -161,3 +172,191 @@ def test_role_calibration_metrics_use_only_state_labels():
 
     with pytest.raises(LatentRoleStateError, match="canonical"):
         multiclass_scores(truth, probabilities[list(reversed(STATES))])
+
+
+def _keyed_transition_rows() -> pd.DataFrame:
+    rows = _transition_rows().copy()
+    rows["gsis_id"] = [f"player-{index:03d}" for index in range(len(rows))]
+    rows["season"] = 2025
+    rows["week"] = (np.arange(len(rows)) % 18) + 1
+    shares = {
+        "inactive": (np.nan, np.nan, np.nan),
+        "dormant": (0.06, 0.05, 0.20),
+        "rotation": (0.12, 0.12, 0.50),
+        "secondary": (0.20, 0.20, 0.70),
+        "primary": (0.30, 0.30, 0.85),
+    }
+    rows[["target_share", "carry_share", "snap_share"]] = [
+        shares[state] for state in rows["realized_state"]
+    ]
+    return rows
+
+
+def test_transition_artifact_is_byte_stable_and_portable_prediction_matches():
+    rows = _keyed_transition_rows()
+    fitted = fit_role_transition(rows)
+    code_sha = "a" * 40
+    first, receipt = encode_role_transition_artifact(
+        fitted, rows, code_sha=code_sha,
+    )
+    second, second_receipt = encode_role_transition_artifact(
+        fitted, rows.sample(frac=1, random_state=99), code_sha=code_sha,
+    )
+    assert first == second
+    assert receipt == second_receipt
+    assert transition_frame_sha256(rows) == transition_frame_sha256(
+        rows.sample(frac=1, random_state=11)
+    )
+
+    artifact = decode_role_transition_artifact(first, receipt["sha256"])
+    assert artifact["state_emissions"]["RB"]["inactive"] == {
+        "carry_share": 0.0, "snap_share": 0.0, "target_share": 0.0,
+    }
+    assert artifact["state_emissions"]["WR"]["primary"] == {
+        "carry_share": 0.3, "snap_share": 0.85, "target_share": 0.3,
+    }
+    live = rows.drop(columns="realized_state").iloc[:12]
+    expected = fitted.predict_proba(live)
+    portable = predict_role_transition_artifact(artifact, live)
+    assert np.allclose(portable, expected, atol=1e-12)
+    assert not receipt["uses_fantasy_or_lineup_outcomes"]
+
+    with pytest.raises(LatentRoleStateError, match="sha256 differs"):
+        decode_role_transition_artifact(first + b" ", receipt["sha256"])
+    changed = json.loads(first)
+    changed["uses_fantasy_or_lineup_outcomes"] = True
+    unsafe = json.dumps(
+        changed, allow_nan=False, separators=(",", ":"), sort_keys=True,
+    ).encode()
+    with pytest.raises(LatentRoleStateError, match="outcome boundary"):
+        decode_role_transition_artifact(
+            unsafe, hashlib.sha256(unsafe).hexdigest(),
+        )
+
+
+class _FakeBlob:
+    def __init__(self):
+        self.calls = []
+
+    def upload_from_string(self, payload, **kwargs):
+        self.calls.append((payload, kwargs))
+
+
+class _FakeBucket:
+    def __init__(self):
+        self.blobs = {}
+
+    def blob(self, name):
+        return self.blobs.setdefault(name, _FakeBlob())
+
+
+class _FakeStorage:
+    def __init__(self):
+        self.buckets = {}
+
+    def bucket(self, name):
+        return self.buckets.setdefault(name, _FakeBucket())
+
+
+def test_transition_artifact_persistence_is_create_only():
+    rows = _keyed_transition_rows()
+    storage = _FakeStorage()
+    receipt = persist_role_transition_artifact(
+        fit_role_transition(rows), rows, code_sha="b" * 40,
+        bucket_name="evidence-bucket", object_name="role/v1/model.json",
+        storage_client=storage,
+    )
+    call = storage.buckets["evidence-bucket"].blobs[
+        "role/v1/model.json"
+    ].calls
+    assert len(call) == 1
+    payload, kwargs = call[0]
+    assert kwargs == {
+        "content_type": "application/json", "if_generation_match": 0,
+    }
+    assert hashlib.sha256(payload).hexdigest() == receipt["sha256"]
+    assert receipt["uri"] == "gs://evidence-bucket/role/v1/model.json"
+    assert receipt["create_only"]
+
+
+def test_role_emissions_require_every_active_position_state_cell():
+    rows = _keyed_transition_rows()
+    emissions = compute_role_state_emissions(rows)
+    assert list(emissions) == ["RB", "WR", "TE"]
+    assert emissions["TE"]["inactive"] == {
+        "target_share": 0.0, "carry_share": 0.0, "snap_share": 0.0,
+    }
+    assert emissions["TE"]["secondary"]["target_share"] == 0.20
+
+    missing = rows[
+        ~(
+            rows.position.eq("TE")
+            & rows.realized_state.eq("secondary")
+        )
+    ]
+    with pytest.raises(LatentRoleStateError, match="TE/secondary"):
+        compute_role_state_emissions(missing)
+
+
+def test_conditional_role_frame_replaces_only_registered_role_fields():
+    training = _keyed_transition_rows()
+    fitted = fit_role_transition(training)
+    payload, receipt = encode_role_transition_artifact(
+        fitted, training, code_sha="c" * 40,
+    )
+    artifact = decode_role_transition_artifact(payload, receipt["sha256"])
+    live = training.drop(columns=[
+        "realized_state", "target_share", "carry_share", "snap_share",
+    ]).iloc[:3].copy()
+    live.index = pd.Index([10, 20, 30])
+    live["team"] = ["A", "A", "B"]
+    live["injury_status"] = ["Questionable", "Out", None]
+    live["unrelated_market_mean"] = [12.0, 13.0, 14.0]
+    states = pd.Series(["primary", "inactive", "rotation"], index=live.index)
+
+    conditional = apply_sampled_role_states(artifact, live, states)
+    for field in ("target_share", "carry_share", "snap_share"):
+        expected = [
+            artifact["state_emissions"][position][state][field]
+            for position, state in zip(live.position, states, strict=True)
+        ]
+        assert conditional[f"{field}_last"].tolist() == expected
+        assert np.allclose(
+            conditional[f"{field}_jump"],
+            np.asarray(expected) - live[f"{field}_l4"],
+        )
+        assert conditional[f"{field}_l4"].equals(live[f"{field}_l4"])
+    assert conditional.sampled_role_state.tolist() == states.tolist()
+    assert conditional.unrelated_market_mean.equals(live.unrelated_market_mean)
+    assert conditional.injury_status.equals(live.injury_status)
+
+    bad_out = states.copy()
+    bad_out.loc[20] = "rotation"
+    with pytest.raises(LatentRoleStateError, match="listed Out"):
+        apply_sampled_role_states(artifact, live, bad_out)
+    with pytest.raises(LatentRoleStateError, match="exactly aligned"):
+        apply_sampled_role_states(artifact, live, states.reset_index(drop=True))
+
+
+def test_conditional_role_frame_rejects_team_share_cap_breach():
+    training = _keyed_transition_rows()
+    payload, receipt = encode_role_transition_artifact(
+        fit_role_transition(training), training, code_sha="d" * 40,
+    )
+    artifact = decode_role_transition_artifact(payload, receipt["sha256"])
+    live = training.drop(columns=[
+        "realized_state", "target_share", "carry_share", "snap_share",
+    ]).iloc[:4].copy()
+    live["position"] = ["RB", "WR", "TE", "WR"]
+    live["team"] = "A"
+    live["injury_status"] = "Questionable"
+    states = pd.Series("primary", index=live.index)
+    with pytest.raises(LatentRoleStateError, match="team-share cap"):
+        apply_sampled_role_states(artifact, live, states)
+
+    allowed = live.iloc[:3].copy()
+    totals = validate_team_role_share_caps(
+        apply_sampled_role_states(artifact, allowed, states.loc[allowed.index])
+    )
+    assert totals["A"]["target_share"] == pytest.approx(0.9)
+    assert totals["A"]["carry_share"] == pytest.approx(0.9)
