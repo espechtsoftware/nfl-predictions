@@ -20,12 +20,12 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 04:31 CDT
+## Current state — 2026-08-15 04:38 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
 - Branch is `main`; the latest implementation milestone is full SHA
-  `fec0994bef7fb158ef59caa5d7182f0e61150a72`. The PIT injury implementation
+  `de9a980b5f73fedfbd247a1bc1756ab2b9ce74ca`. The PIT injury implementation
   is full SHA `5cbeef8cbe93ea56a2302b97be197f75ebd92f63`; the projected-ownership
   bootstrap is full SHA `83949e1c10b23b9ccc197b89d29389d71e1e0ddc`; the recurring-vendor-intake
   milestone is full SHA
@@ -493,8 +493,23 @@ agent or developer:
   cap-valid deterministic promotions, NumPy seed 6419, 50 identity-keyed
   sampled attempts and explicit cap-rejection receipts. `Out` players remain
   inactive in every world; ordering is invariant to input row order. Fourteen
-  focused tests, module compilation and `git diff --check` pass. No optimizer,
-  lineup score, candidate generation or money path is wired to it.
+  focused tests, module compilation and `git diff --check` pass.
+- Candidate-only bridge milestone
+  `de9a980b5f73fedfbd247a1bc1756ab2b9ce74ca` wires a separately named
+  `latent_role_states` family into the existing tail engine without changing
+  the default or money path. It requires the exact frozen 12-slot dose, four
+  ordered promotion identities, strictly increasing sampled attempt IDs and a
+  caller-owned optimization receipt. Promotions optimize exactly once and
+  invalidate on failure/infeasibility/native-or-treatment duplication;
+  sampled errors, infeasibility and duplicates consume attempts until the
+  first eight novel rosters. Every disposition includes a deterministic
+  roster SHA-256 when applicable. Candidate tags retain the full scenario
+  identity, all candidates remain cross-scored on the incumbent draw matrix,
+  and receipt rows enter captured batch metadata. Thirty focused
+  candidate/state/review-lever tests, module compilation and
+  `git diff --check` pass locally. The bridge still has no scenario factory,
+  live runner, deployment or historical score license; clean-archive cloud
+  validation is pending.
 - Exact clean-archive artifact build
   `cc03f3c5-5881-4d1f-82d6-e14b6bf14845` is `WORKING` in `us-central1` for
   `90ff049...` and tag `latent-role-artifact-90ff049`; it started at
@@ -502,12 +517,11 @@ agent or developer:
 - Exact clean-archive state-world build
   `240516d1-14ae-4ecf-9fa4-556472a5a492` is queued behind it for
   `fec0994...` and tag `latent-role-worlds-fec0994`.
-- Next concrete action: harvest terminal results for builds `2295364c...` and
-  `cc03f3c5...`, then cloud-validate `fec0994...` before any paired-shadow
-  integration. Do not integrate
-  its 12-candidate paired
-  shadow until those score-free layers and a live-slate budget/world parity
-  smoke pass. The first
+- Next concrete action: harvest terminal results for builds `cc03f3c5...` and
+  `240516d1...`, then clean-archive cloud-validate `de9a980...`. Only after all
+  three layers pass, implement the outcome-denying conditional scenario
+  factory and separately named paired shadow runner, then require a live-slate
+  budget/world parity smoke before any schedule or deployment. The first
   authenticated pass-tail acquisition smoke
   cannot occur until complete 2026 Weeks 1--4 data exist; until then every
   downstream cache/shadow fails closed and all three schedulers stay paused.
