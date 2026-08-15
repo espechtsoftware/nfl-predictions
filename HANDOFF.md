@@ -20,12 +20,12 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 04:02 CDT
+## Current state — 2026-08-15 04:14 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
 - Branch is `main`; the latest implementation milestone is full SHA
-  `86788eafd2302d61e5e40c82989f09976d74f936`. The PIT injury implementation
+  `90ff049158cb80d70b3e070d47adadeaeb7ad395`. The PIT injury implementation
   is full SHA `5cbeef8cbe93ea56a2302b97be197f75ebd92f63`; the projected-ownership
   bootstrap is full SHA `83949e1c10b23b9ccc197b89d29389d71e1e0ddc`; the recurring-vendor-intake
   milestone is full SHA
@@ -469,9 +469,24 @@ agent or developer:
   transition prerequisite; it does not promote a lineup. Durable result is
   `reports/2026-08-15-latent-role-state-score-free-audit.md`. Full-suite cloud
   validation of this newer transition code is pending.
-- Next concrete action: cloud-validate the exact latent-transition commit and
-  then implement checksum-bound artifact persistence plus conditional state
-  frames/team share-cap rejection. Do not integrate its 12-candidate paired
+- Checksum-bound artifact and conditional-frame milestone
+  `90ff049158cb80d70b3e070d47adadeaeb7ad395` is pushed. It stores the exact
+  source/training/code hashes, fit boundary, preprocessing and multinomial
+  parameters plus training-only position/state target, carry and snap medians
+  in deterministic portable JSON. Create-only GCS persistence is enforced.
+  The portable predictor matches the fitted sklearn probabilities exactly on
+  the live 62,155-row score-free history (`max_abs_delta=0`; artifact 6,401
+  bytes). The pure conditional transform changes only the three `_last` and
+  three registered jump fields, preserves each `_l4`, fixes `Out` players to
+  inactive and rejects joint team target/carry totals above exactly 1.15.
+  Twelve focused tests, module compilation and `git diff --check` pass. The
+  prior exact clean-archive transition build
+  `2295364c-6365-4e18-a621-76abc5330242` is still `WORKING` in regional Cloud
+  Build `us-central1`; it validates `46f7597`, not this newer artifact commit.
+- Next concrete action: harvest terminal results for build `2295364c...`, then
+  submit and harvest an exact clean-archive Cloud Build of `90ff049...` before
+  implementing the deterministic joint-state-world sampler. Do not integrate
+  its 12-candidate paired
   shadow until those score-free layers and a live-slate budget/world parity
   smoke pass. The first
   authenticated pass-tail acquisition smoke
