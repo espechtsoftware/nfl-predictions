@@ -96,7 +96,7 @@ def _select_tail_entries_bitpacked(
     # byte lookup preserves the same compact operation there.
     byte_popcount = np.unpackbits(
         np.arange(256, dtype=np.uint8)[:, None], axis=1
-    ).sum(axis=1)
+    ).sum(axis=1, dtype=np.uint8)
     while len(selected) < limit and remaining:
         gains = byte_popcount[
             np.bitwise_and(packed, np.bitwise_not(covered))
