@@ -66,6 +66,18 @@ agent or developer:
   diff is clean. This importer has not been run against vendor values and has
   not written BigQuery; it requires its own exact-revision cloud validation
   after the acquisition implementation build closes.
+- The pure receiver-specific copula treatment is now implemented locally. It
+  joins the strictly prior player Wide/Slot route profile to the opponent
+  defense prior, requires exactly one QB plus at least two supported WRs and
+  50% route-mass coverage, computes the frozen route-mass times alignment-
+  vulnerability score, and applies only
+  `u_wr + lambda*z_receiver*(q_qb-0.5)`. Stable rank permutation preserves
+  every exact marginal; non-WRs and unsupported rows remain bit-identical,
+  zero strength is inert and repeat output is deterministic. Forty-two
+  focused acquisition/context/treatment tests pass, changed modules compile
+  and the diff is clean. Calibration selection, fresh repaired-path reference
+  execution and the held-out gate remain to implement after source acquisition
+  closes cleanly.
 
 - The frozen prospective latent-role mechanism now has its previously missing
   real score-free scenario factory and separately named paired runner. The
