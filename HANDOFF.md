@@ -854,6 +854,21 @@ agent or developer:
   OI selected 80 or issuing an adoption verdict. Implement it as a separate
   create-only forensic runner after the currently building exact-P census
   image is safely launched.
+  That construction diagnostic is now implemented locally. The runner first
+  proves the exact 5x54 source panel, canonical retained identity/tag parity,
+  equal frozen-R0 budgets, all-rotation OI candidate/total identity, legal
+  canonical/OI/P rosters, and both pools' P distances and structural reach;
+  only after every mechanical diagnostic is complete does it query player
+  realized scores for pool-C maxima. It cannot score the OI selected 80 and
+  emits no adoption verdict. A create-only 8-vCPU/32-GiB Cloud Run launcher
+  and strict finisher bind protocol SHA-256
+  `3b458263b165b380e6adf1efdf6ed08fb423c91d6988b5741aa32b11beafe1ec`,
+  all 270 artifacts, the CBWU-OI report and corrected-P generation/SHA; the
+  finisher also requires reproduction of canonical corrected C tails before
+  retaining any report. Eighteen focused CBWU/exact-P/tie-census tests,
+  compilation, both shell syntax checks and whitespace validation pass. Do
+  not launch it from an unvalidated image or while the higher-priority exact-P
+  source1 census owns the single 32-GiB research slot.
   A follow-on review incorrectly treated CBWU-OI as an in-place production
   change. It is an inactive research function with no production call site;
   requiring identity to canonical CBWU would also contradict its frozen strict

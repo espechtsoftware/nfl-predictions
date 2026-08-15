@@ -50,6 +50,7 @@ COPY scripts/run_exact_p_generator_constraint_census.py ./scripts/run_exact_p_ge
 COPY scripts/run_exact_p_corrected_identity_source.py ./scripts/run_exact_p_corrected_identity_source.py
 COPY scripts/run_atlas_world_ranking.py ./scripts/run_atlas_world_ranking.py
 COPY scripts/run_cbwu_seed_order_audit.py ./scripts/run_cbwu_seed_order_audit.py
+COPY scripts/run_cbwu_oi_construction_diagnostic.py ./scripts/run_cbwu_oi_construction_diagnostic.py
 COPY scripts/run_realistic_recourse_sizing.py ./scripts/run_realistic_recourse_sizing.py
 COPY scripts/audit_recourse_scoring_reconciliation.py ./scripts/audit_recourse_scoring_reconciliation.py
 COPY scripts/cleanup_final_forensic_warehouse.py ./scripts/cleanup_final_forensic_warehouse.py
