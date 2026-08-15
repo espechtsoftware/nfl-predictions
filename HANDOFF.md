@@ -169,6 +169,10 @@ agent or developer:
   single frozen realistic-recourse sizing analysis is therefore technically
   possible, but it must remain descriptive, use the already frozen PIT-safe
   policy, and cannot promote on 2019--2025 outcomes.
+  A separate read-only audit found zero missing `time_of_day` values among
+  36,737/36,355/35,857 scoring-relevant regular-season PBP rows in
+  2023/2024/2025. Decision-time points-to-date are therefore reconstructible,
+  subject to a full-game DraftKings-score reconciliation gate including DST.
 - The 14-panel variance census finds arm identity explains only 4.71% of
   arm-plus-residual weekly-max variance, 2.34% of >=200 variance and 2.14% of
   >=210 variance. The 56-arm ledger and 13-family certificate close the

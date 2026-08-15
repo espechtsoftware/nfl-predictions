@@ -57,6 +57,15 @@ both numbers with distinct labels: corrected perfect-information upper bound
 and historical executable-policy estimate. It should not silently replace one
 with the other.
 
+A second read-only audit confirms the retained nflverse PBP has a nonempty
+`time_of_day` for every scoring-relevant regular-season play in 2023--2025:
+36,737/36,355/35,857 rows by season, with zero missing wall-clock values under
+the registered passing, rushing, touchdown, turnover, sack, field-goal,
+extra-point, two-point and safety flags. This makes a true decision-time
+points-to-date reconstruction feasible. The partial scorer must first
+reconcile to the authoritative full-game DraftKings labels, including DST
+points allowed, before the realistic-recourse run is licensed.
+
 ### 3. Construction/recourse overlap — accepted in two stages
 
 The exact-stack addendum now compares corrected P distance from:
@@ -124,4 +133,3 @@ This affects no selected lineup or production decision.
    corrected P characterization identifies the missing region.
 5. Continue the already queued outcome-unseen latent-role and archetype shadow
    plumbing and preserve the K=1 CBWU exact-80 money baseline.
-
