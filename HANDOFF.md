@@ -69,11 +69,15 @@ agent or developer:
   Use this exact code/image for both scorer reconciliation and the scientific
   run; no later HEAD-only handoff commit may replace the analysis code SHA.
   Full-census same-image scorer reconciliation execution
-  `recourse-scorer-reconciliation-v2-d6cdm` is now running in `us-central1`
-  from that immutable digest and exact analysis SHA. Poll it through terminal
-  status; require the full 75,712/54,419/21,293 census counts, zero
-  differences, eight multi-lateral plays, twelve adjusted players and zero
-  scoring-relevant missing times before the scientific run is licensed.
+  `recourse-scorer-reconciliation-v2-d6cdm` completed successfully at
+  `2026-08-15T13:54:32.722545Z` from that immutable digest and exact analysis
+  SHA. Its create-only GCS object has generation `1786802068035076` and SHA256
+  `a4cd4bbeeeb2aacf53653710fb7df0f5318271fc738c56e075c8ccdf8e434151`.
+  The audit reconciled all 75,712 player weeks (54,419 stat-bearing plus
+  21,293 salary-zero) with zero differences and zero nonzero outside-label
+  identities across 141,125 PBP rows; it found the expected eight
+  multi-lateral plays, twelve adjusted players and zero scoring-relevant
+  missing times. This licenses the same-image scientific run.
 
 - The full scorer validation is terminal-successful. Cloud Build
   `4c2fe3b0-6f36-4d39-baf8-4df829316e7f` ran from exact pushed SHA
