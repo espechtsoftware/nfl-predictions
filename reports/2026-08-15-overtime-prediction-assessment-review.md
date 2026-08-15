@@ -13,8 +13,10 @@ Authoritative project result:
 The assessment is directionally right that overtime is a shared game-level
 event and that ordinary spread is, at best, a weak predictor. Its principal
 empirical table cannot be used for this project, however, because it pools
-2015--2021 with the 2022 and 2025 overtime rule regimes. The user explicitly
-excluded seasons before 2022 before the frozen project test was run.
+2015--2021 into the user-defined 2022/2025 rule-regime scope. The 2022 rule
+change applied to the postseason, while the 2025 change extended guaranteed
+possessions to regular-season overtime; the user explicitly excluded every
+season before 2022 before the frozen project test was run.
 
 The completed project result remains authoritative:
 
@@ -118,4 +120,3 @@ the signal.
   winning-line/duration tests before observing 2026 outcomes.
 - If it does not exist, close overtime as a measured but presently
   unpredictable tail mechanism.
-
