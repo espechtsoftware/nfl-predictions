@@ -135,6 +135,10 @@ agent or developer:
   repair; the recourse protocol and proposal code are unchanged. Build the
   corrected exact commit, rerun the create-only audit as a separately logged
   execution, and only then use that same digest for the recourse run.
+  The census repair is pushed at full SHA
+  `65ea74f3977ba76752660bd7a020d250c5fd7179`; exact-archive Cloud Build
+  `ae570dab-6069-42b8-940b-8a64690c24a5` is running under tag
+  `realistic-recourse-65ea74f`.
 
 - The production-exact forensic correction completed successfully as
   execution `post-forensic-stack-addendum-v1-smrps` at
