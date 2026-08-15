@@ -128,6 +128,16 @@ agent or developer:
   structural coverage at a constant realized candidate budget; historical
   tag yield and exact-P amounts cannot set its weights. Exact next action is
   implement/validate this descriptive census independently of the SIS path.
+  The score-free implementation, exact source/prelock verification runner,
+  create-only GCS launcher and Docker packaging are now complete locally. It
+  reproduces the deterministic CBWU first-seed dedupe/quota/fill law, aborts if
+  retained identities or seed attribution differ, rejects any outcome/rank/
+  ownership/payout column, and reports native membership, family distance,
+  P-player coverage, static eligibility and structure only. Fifty-three
+  combined SIS/census focused tests pass, both new Python files compile and
+  `git diff --check` passes. Exact next action is commit/push, exact-archive
+  Cloud Build validation, then one create-only cloud census; no local or
+  pre-validation outcome/member run is licensed.
 
 - The frozen prospective latent-role mechanism now has its previously missing
   real score-free scenario factory and separately named paired runner. The

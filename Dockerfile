@@ -46,6 +46,7 @@ COPY scripts/capture_final_forensic_prelock.py ./scripts/capture_final_forensic_
 COPY scripts/prepare_final_forensic_freeze.py ./scripts/prepare_final_forensic_freeze.py
 COPY scripts/run_final_forensic_hpcs.py ./scripts/run_final_forensic_hpcs.py
 COPY scripts/run_post_forensic_construction_addendum.py ./scripts/run_post_forensic_construction_addendum.py
+COPY scripts/run_exact_p_generator_constraint_census.py ./scripts/run_exact_p_generator_constraint_census.py
 COPY scripts/run_realistic_recourse_sizing.py ./scripts/run_realistic_recourse_sizing.py
 COPY scripts/audit_recourse_scoring_reconciliation.py ./scripts/audit_recourse_scoring_reconciliation.py
 COPY scripts/cleanup_final_forensic_warehouse.py ./scripts/cleanup_final_forensic_warehouse.py
