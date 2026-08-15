@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 05:04 CDT
+## Current state — 2026-08-15 05:05 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -102,10 +102,14 @@ agent or developer:
   prefix, and execution requires a full Git SHA plus immutable image digest.
   Twenty-eight focused forensic/addendum tests pass, as do compilation and
   whitespace checks. The milestone is pushed on `main` at full SHA
-  `cba25a9a25a354e441e1988cd77805ec7ae7d12a`. Exact-commit Cloud Build
-  `4c27a7da-1c3f-4242-b375-74743229712c` was submitted from a clean archive at
-  05:00 CDT and will publish tag `post-forensic-stack-cba25a9` only after the
-  complete suite succeeds. Exact next action: poll the build, harvest its
+  `cba25a9a25a354e441e1988cd77805ec7ae7d12a`. Follow-up full SHA
+  `76195173713dce4fbeb661cde1ebafc642c6ec17` adds the exact-stack no-floor
+  recheck so the salary-floor conclusion is not inherited from the loose
+  oracle. Superseded queued build `4c27a7da-1c3f-4242-b375-74743229712c` was
+  canceled before any step started and published no image. Replacement
+  exact-commit build `8b9e33ce-f899-404c-88ed-ebe01a24787a` was submitted
+  from a clean `7619517...` archive with tag
+  `post-forensic-stack-7619517`. Exact next action: poll the build, harvest its
   immutable digest and then run the correction once on Cloud Run.
 - Latent-role retained-world build
   `240516d1-14ae-4ecf-9fa4-556472a5a492` reached terminal `SUCCESS` at
@@ -115,8 +119,9 @@ agent or developer:
   `sha256:56434140bc27ff7383f757e780c1edb91a5050dced6e36683403441a0979ec7d`.
   Exact candidate bridge build `79a265ec-2958-42ac-af3b-bea7a9e70228`, live
   five-seed plumbing build `afb97a4b-5e92-4a38-aa2d-a43dedbedc33`, and
-  corrective addendum build `4c27a7da-1c3f-4242-b375-74743229712c` remain
-  queued. Continue polling and record terminal evidence before use.
+  corrective addendum build `8b9e33ce-f899-404c-88ed-ebe01a24787a` remain
+  queued/running. The superseded addendum build `4c27a7da...` was canceled
+  before starting. Continue polling and record terminal evidence before use.
 - Removing only the salary floor creates zero new tail-threshold slates from
   187 through 240, so no-floor is rejected. The frozen route admission bound
   admits 565 absent players while recovering only 2/17 omitted winner slots,
