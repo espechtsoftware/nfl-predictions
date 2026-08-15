@@ -17,6 +17,7 @@ import hashlib
 import json
 from collections import Counter
 from pathlib import Path
+import re
 from typing import Any, Iterable, Mapping, Sequence
 
 import numpy as np
@@ -529,15 +530,25 @@ def validate_freeze_manifest(
     table_by_id = {str(row.get("id", "")): row for row in warehouse_tables}
     if len(warehouse_tables) != 4 or set(table_by_id) != set(WAREHOUSE_TABLE_SCHEMAS):
         failures.append("warehouse table inventory is incomplete")
+    warehouse_suffixes: set[str] = set()
     for table_id, schema in WAREHOUSE_TABLE_SCHEMAS.items():
         row = table_by_id.get(table_id, {})
         table_name = str(row.get("table", ""))
         if set(row) != {"id", "table", "schema"}:
             failures.append(f"warehouse table contract differs: {table_id}")
-        if table_name != WAREHOUSE_TABLE_PREFIX + table_id:
+        base_table_name = WAREHOUSE_TABLE_PREFIX + table_id
+        suffix = (
+            table_name.removeprefix(base_table_name)
+            if table_name.startswith(base_table_name) else "<invalid>"
+        )
+        if suffix != "" and re.fullmatch(r"_repair[2-9][0-9]*", suffix) is None:
             failures.append(f"warehouse table name is invalid: {table_id}")
+        else:
+            warehouse_suffixes.add(suffix)
         if row.get("schema") != schema:
             failures.append(f"warehouse schema differs: {table_id}")
+    if len(warehouse_suffixes) > 1:
+        failures.append("warehouse repair suffix differs across tables")
     production = manifest.get("production", {})
     for key in (
         "policy_id", "fallback_policy_id", "service_revision",

@@ -357,6 +357,19 @@ def test_freeze_manifest_is_complete_and_hash_verified(tmp_path):
     assert len(manifest["analysis_checklist"]) == 40
 
 
+def test_freeze_manifest_accepts_one_consistent_repair_table_suffix(tmp_path):
+    manifest = _manifest(tmp_path)
+    for row in manifest["warehouse_retention"]["tables"]:
+        row["table"] += "_repair4"
+    manifest["manifest_sha256"] = manifest_digest(manifest)
+    validate_freeze_manifest(manifest, repo_root=tmp_path)
+
+    manifest["warehouse_retention"]["tables"][0]["table"] += "_wrong"
+    manifest["manifest_sha256"] = manifest_digest(manifest)
+    with pytest.raises(FreezeManifestError, match="warehouse table name is invalid"):
+        validate_freeze_manifest(manifest, repo_root=tmp_path)
+
+
 def test_freeze_manifest_rejects_unaccounted_protocol(tmp_path):
     manifest = _manifest(tmp_path)
     manifest["arm_ledger"][0]["protocol_paths"] = []

@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-14 21:23 CDT
+## Current state — 2026-08-14 21:47 CDT
 
 ### 2026-08-14 forensic runtime repaired; variance and corpus-understanding addenda implemented
 
@@ -164,6 +164,20 @@ agent or developer:
   Next concrete action: commit/push the two registered diagnostic additions,
   build that exact commit, pin its digest/code plus fresh destinations in
   repair4, pass prelock, and execute once to terminal.
+- Exact-commit Cloud Build `3223a501-d7f8-4e97-bcdc-55ac809e41de`
+  succeeded from pushed SHA `906ceb907aa40b9143f4f5bafc93a274c5a38926`;
+  the complete suite passed 1,334 tests with 2 skipped and 5 warnings in
+  993.70 seconds. It produced immutable image
+  `sha256:6d0b3aa476208a28aee5178092b7abd2c291c7138e90119e3abc7ea544c1861b`.
+  Outcome-free repair4 manifest construction then correctly failed because
+  the original validator allowed only the unsuffixed write-once table names,
+  which repair3 now occupies. No outcome execution was launched.
+- The validator now accepts either the canonical table quartet or one shared,
+  tightly matched `_repairN` suffix across all four tables; arbitrary or mixed
+  names still fail closed. All 37 focused final-forensic tests pass locally.
+  This is destination validation only. Next concrete action: commit/build this
+  final mechanical guard extension, update repair4 to that exact code/image,
+  generate and commit its manifest, pass prelock, then launch the outcome run.
 
 ### 2026-08-14 final-forensic audit expanded; decision-structure queue registered
 
