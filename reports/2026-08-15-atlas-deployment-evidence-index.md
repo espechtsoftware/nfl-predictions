@@ -341,6 +341,14 @@ repair1 output prefixes are confirmed absent before repair build. No partial
 season result may receive an effect interpretation; run only the strict
 three-season finisher after all repair1 executions are terminal.
 
+The clean packaging-repair build
+`6da47f86-ada5-4ddb-9708-cda2f8c7b85d` succeeded from exact source commit
+`44236483bb5bbf874da3f281a66af9e77dc3c9c9`: 1,592 passed, 2 skipped and
+5 warnings in 750.18 seconds. Its required real-container runner smoke also
+passed. Tag `atlas-mvp-repair1-4423648` resolves to immutable digest
+`us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:15916bf8d4ced52cc94f502a2a2979b9e386420aec943208ba0b933d51727771`.
+Only this digest and code SHA are licensed for the create-only repair1 launch.
+
 ## Evidence firewall for reviewers
 
 - Score-free results establish simulated-law premises, not realized DFS

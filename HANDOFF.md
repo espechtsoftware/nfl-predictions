@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 03:02 CDT
+## Current state — 2026-08-16 03:35 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -243,6 +243,18 @@ agent or developer:
   validation, Python compile, shell syntax and diff checks pass. Commit/push
   this repair, rerun the complete clean-archive build, require its real image
   smoke, then relaunch all three seasons under repair1 identities.
+  Packaging-repair commit
+  `44236483bb5bbf874da3f281a66af9e77dc3c9c9` is pushed. Clean-archive Cloud
+  Build `6da47f86-ada5-4ddb-9708-cda2f8c7b85d` passed the complete suite from
+  that exact commit: 1,592 passed, 2 skipped and 5 warnings in 750.18 seconds;
+  its required real-container runner smoke passed. Tag
+  `atlas-mvp-repair1-4423648` resolves to immutable digest
+  `sha256:15916bf8d4ced52cc94f502a2a2979b9e386420aec943208ba0b933d51727771`.
+  Next concrete action: commit/push this build receipt, launch the three
+  create-only repair1 season executions from only that digest with
+  `CODE_SHA=44236483bb5bbf874da3f281a66af9e77dc3c9c9`, poll all three without
+  interpreting partial seasons, and invoke only the strict three-season
+  finisher after every execution is terminal.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
