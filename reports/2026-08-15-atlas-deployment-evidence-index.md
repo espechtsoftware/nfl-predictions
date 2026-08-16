@@ -348,6 +348,17 @@ The clean packaging-repair build
 passed. Tag `atlas-mvp-repair1-4423648` resolves to immutable digest
 `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:15916bf8d4ced52cc94f502a2a2979b9e386420aec943208ba0b933d51727771`.
 Only this digest and code SHA are licensed for the create-only repair1 launch.
+The repair1 launch created three concurrent immutable executions from that
+exact digest and code SHA:
+
+- 2023: `atlas-matched-diversity-2023-v1-repair1-hwj79`
+- 2024: `atlas-matched-diversity-2024-v1-repair1-ghvxk`
+- 2025: `atlas-matched-diversity-2025-v1-repair1-qmnmq`
+
+Their create-only manifest and execution receipt are under
+`reports/atlas-matched-diversity-runs/20260816-atlas-matched-diversity-mvp-v1-repair1/`.
+Do not interpret a partial season; only the strict three-season finisher may
+assign the effect disposition after all three executions are terminal.
 
 ## Evidence firewall for reviewers
 

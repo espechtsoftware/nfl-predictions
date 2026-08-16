@@ -255,6 +255,18 @@ agent or developer:
   `CODE_SHA=44236483bb5bbf874da3f281a66af9e77dc3c9c9`, poll all three without
   interpreting partial seasons, and invoke only the strict three-season
   finisher after every execution is terminal.
+  That launch is now active as concurrent executions
+  `atlas-matched-diversity-2023-v1-repair1-hwj79`,
+  `atlas-matched-diversity-2024-v1-repair1-ghvxk` and
+  `atlas-matched-diversity-2025-v1-repair1-qmnmq`. Their create-only manifest
+  and execution receipt are under
+  `reports/atlas-matched-diversity-runs/20260816-atlas-matched-diversity-mvp-v1-repair1/`
+  with manifest/execution SHA-256 values
+  `89c117c7db18abc5267ec17a5ad417eb28b4516c48f48979bec7bdea76b0ef01`
+  and `a7c8619b031c55ec47e764bbd8553b48cf232981183b1a6a73bd5eb919bdb8b3`.
+  Next concrete action: poll these exact three executions as a set; do not
+  inspect or interpret partial season effects; after all three reach terminal
+  success invoke only `scripts/cloud_finish_atlas_matched_diversity_mvp.sh`.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
