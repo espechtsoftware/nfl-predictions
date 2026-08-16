@@ -1,0 +1,144 @@
+{
+  "apiVersion": "run.googleapis.com/v1",
+  "kind": "Execution",
+  "metadata": {
+    "annotations": {
+      "run.googleapis.com/client-name": "gcloud",
+      "run.googleapis.com/client-version": "579.0.0",
+      "run.googleapis.com/creator": "espechtsoftware@gmail.com",
+      "run.googleapis.com/execution-environment": "gen2",
+      "run.googleapis.com/lastModifier": "espechtsoftware@gmail.com",
+      "run.googleapis.com/operation-id": "6247d9d4-a758-46fd-9d89-f7d9b59725ef"
+    },
+    "creationTimestamp": "2026-08-16T02:54:09.874407Z",
+    "generation": 1,
+    "labels": {
+      "client.knative.dev/nonce": "cov_ruv_piy",
+      "cloud.googleapis.com/location": "us-central1",
+      "run.googleapis.com/job": "atlas-current-money-transfer-v1",
+      "run.googleapis.com/jobGeneration": "1",
+      "run.googleapis.com/jobResourceVersion": "1786848847576785",
+      "run.googleapis.com/jobUid": "b2eea757-fd0b-4886-91df-5c931951890c"
+    },
+    "name": "atlas-current-money-transfer-v1-52smn",
+    "namespace": "817589974517",
+    "ownerReferences": [
+      {
+        "apiVersion": "serving.knative.dev/v1",
+        "blockOwnerDeletion": true,
+        "controller": true,
+        "kind": "Job",
+        "name": "atlas-current-money-transfer-v1",
+        "uid": "b2eea757-fd0b-4886-91df-5c931951890c"
+      }
+    ],
+    "resourceVersion": "AAZZI2hAM/E",
+    "selfLink": "/apis/run.googleapis.com/v1/namespaces/817589974517/executions/atlas-current-money-transfer-v1-52smn",
+    "uid": "eb4c3453-c793-4ff7-a0e3-00691207afae"
+  },
+  "spec": {
+    "parallelism": 1,
+    "taskCount": 1,
+    "template": {
+      "spec": {
+        "containers": [
+          {
+            "args": [
+              "scripts/run_atlas_money_transfer.py",
+              "--output-uri",
+              "gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/post-forensic-addenda/20260815-atlas-current-money-transfer-v1/result.json"
+            ],
+            "command": [
+              "python"
+            ],
+            "env": [
+              {
+                "name": "CODE_SHA",
+                "value": "d1b67b15b85cf09305c27bdaeca0ae93353e0208"
+              },
+              {
+                "name": "ANALYSIS_IMAGE",
+                "value": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:b4f39a23a7a6b028bb174c34d5c54d1cf636e5711f87aa156dadf274c0797083"
+              },
+              {
+                "name": "PROTOCOL_SHA256",
+                "value": "c6cb9605678bdfb68f54cbc9fd7adcea754500afb838d2a17a9c0861e4527423"
+              },
+              {
+                "name": "LAW_SEPARATION_AMENDMENT_SHA256",
+                "value": "59326d6c8db4209a4eac44bbc80935adb8d93fb71a0b92a5d5325a30562fae54"
+              },
+              {
+                "name": "ARTIFACT_NATIVE_REPAIR_SHA256",
+                "value": "d51a32aeeb8d7f4546169709c4b0a5b8e6d8ef5aebf8b8a8adbd227f54d60812"
+              },
+              {
+                "name": "ACQUISITION_MANIFEST_SHA256",
+                "value": "54153d16c8f46416a88781cc17738c7b1d36bc476cf6a70f361c3ec15e28f0f1"
+              },
+              {
+                "name": "SOURCE_GRID_SHA256",
+                "value": "9a18458c63f0155b72f3847c705fbd0bdde9b64c923a5b63cc4a1f42bfe3445b"
+              },
+              {
+                "name": "ACQUISITION_COMPLETE_SHA256",
+                "value": "a29f773f35d4121db785fc5be2e1a18895f897bf91c248dd24c1566ace5c34cb"
+              },
+              {
+                "name": "EXECUTION_RECEIPTS_SHA256",
+                "value": "ee73688bfe5662c94b6886ea5f90b3cfc87a5b7a038ada5511f48a260ea01377"
+              },
+              {
+                "name": "ENVIRONMENT_RECEIPTS_SHA256",
+                "value": "eb88e6f35226034907869397c6efc9f25e09cb3173a3e40bbcfc952f87d74348"
+              }
+            ],
+            "image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:b4f39a23a7a6b028bb174c34d5c54d1cf636e5711f87aa156dadf274c0797083",
+            "resources": {
+              "limits": {
+                "cpu": "8",
+                "memory": "32Gi"
+              }
+            }
+          }
+        ],
+        "maxRetries": 0,
+        "serviceAccountName": "817589974517-compute@developer.gserviceaccount.com",
+        "timeoutSeconds": "21600"
+      }
+    }
+  },
+  "status": {
+    "completionTime": "2026-08-16T05:34:22.055068Z",
+    "conditions": [
+      {
+        "lastTransitionTime": "2026-08-16T05:34:22.055068Z",
+        "message": "Execution completed successfully in 2h39m38.48s.",
+        "status": "True",
+        "type": "Completed"
+      },
+      {
+        "lastTransitionTime": "2026-08-16T02:54:36.441945Z",
+        "message": "Provisioned imported containers.",
+        "status": "True",
+        "type": "ResourcesAvailable"
+      },
+      {
+        "lastTransitionTime": "2026-08-16T02:56:05.791482Z",
+        "message": "Started deployed execution in 1m29.34s.",
+        "status": "True",
+        "type": "Started"
+      },
+      {
+        "lastTransitionTime": "2026-08-16T02:54:36.344497Z",
+        "message": "Imported container image in 26.47s.",
+        "status": "True",
+        "type": "ContainerReady"
+      }
+    ],
+    "logUri": "https://console.cloud.google.com/logs/viewer?project=nfl-predictions-503414&advancedFilter=resource.type%3D%22cloud_run_job%22%0Aresource.labels.job_name%3D%22atlas-current-money-transfer-v1%22%0Aresource.labels.location%3D%22us-central1%22%0Alabels.%22run.googleapis.com/execution_name%22%3D%22atlas-current-money-transfer-v1-52smn%22",
+    "observedGeneration": 1,
+    "startTime": "2026-08-16T02:54:43.572395Z",
+    "succeededCount": 1
+  }
+}

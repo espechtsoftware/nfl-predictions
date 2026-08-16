@@ -20,11 +20,11 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 22:03 CDT
+## Current state — 2026-08-16 00:46 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
-- Branch is `main`; this milestone starts from pushed commit `36b370e`.
+- Branch is `main`; this milestone starts from pushed commit `55b7b78`.
   ATLAS execution `atlas-world-ranking-scorefree-v1-l59bt` completed cleanly at
   `2026-08-16T00:33:46.605244Z` and passed the strengthened strict harvester.
   The frozen finite-K + SIS-ASOE Phase S result passes all six conditions:
@@ -43,12 +43,44 @@ agent or developer:
   transfer; do not adopt ATLAS from this result.
 - A reviewer-facing evidence map for this entire deployment set is tracked at
   `reports/2026-08-15-atlas-deployment-evidence-index.md`. It preserves the
-  Phase S, law-separation, selector-stability, exact-N, acquisition and pending
+  Phase S, law-separation, selector-stability, exact-N, acquisition and final
   production-transfer findings; links frozen protocols, raw reports,
-  execution receipts and hashes; and lists the exact transfer fields that must
-  be added after strict harvest. Update it before closing this deployment set
-  so a second reviewer can inspect both positive and adverse evidence without
+  execution receipts and hashes; and records both positive and adverse
+  diagnostics so a second reviewer can reproduce the conclusions without
   relying on chat history.
+- Production-law ATLAS transfer execution
+  `atlas-current-money-transfer-v1-52smn` completed successfully at
+  `2026-08-16T05:34:22.055068Z` in `2h39m38.48s` and passed the strict
+  harvester. All six mechanical conditions pass before effect evaluation.
+  Under the adopted possession/team-factor, production-multinomial money law,
+  mean exact attainable legal quality improves `271.5607 -> 282.4947`
+  (`+10.9340`) and mean within-cell q25 improves `263.2382 -> 275.8198`
+  (`+12.5817`). All five block means improve (`+10.5046` to `+11.2357`), all
+  three seasons improve (`+8.8549`, `+9.7622`, `+14.1848`), and both mean and
+  q25 improve in every one of the 270 block/slate cells. The frozen Part-A
+  transfer and the three original diagnostic diversity conditions all pass.
+  This is outcome-free current-law premise evidence, not a historical score,
+  payout or ROI gain; it licenses only the already-declared fixed-budget
+  matched-diversity ATLAS MVP as a separately labeled 2026 pre-lock shadow.
+  It does not change production or the UI. Proxy diagnostics show mean
+  proxy/exact rank correlation `0.6064`, mean upper-bound slack `27.0615`,
+  exact-quality comparisons `7,978/28/2,794` wins/ties/losses and mean
+  top-8/20/40 overlap `0.3519/1.4333/3.8370`. Exact-roster and stack-core
+  reach remain essentially unchanged (`0.9999/0.9997` ratios), but dominant-
+  game and player-pair reach decline to `0.9080/0.9520`; this is the specific
+  rationale for matched-diversity Part B, not permission to retune v1.
+  Human interpretation is
+  `reports/2026-08-16-atlas-current-money-transfer-result.md`; immutable raw
+  report and execution receipt are under
+  `reports/atlas-money-transfer-runs/20260815-atlas-current-money-transfer-v1/`
+  with SHA-256
+  `8e568f8e5e343319ab4e4f48421b41f3266e56ecb592abce77f3ed6d246cd446`
+  and
+  `58bb72908777247ba413fcd7b5d4e134d67490d4e86a27477f2073b623f6823c`.
+  Next concrete action: freeze the exact P0/P1/P2 matched-budget,
+  matched-diversity MVP protocol from the already-declared ATLAS Part-B/C
+  contract, implement it without reading realized outcomes, validate an
+  immutable cloud image, and run P2 versus P1 as the causal comparison.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five

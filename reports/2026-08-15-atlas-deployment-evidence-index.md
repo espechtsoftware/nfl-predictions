@@ -5,9 +5,10 @@ deployment sequence. This file records positive findings, adverse findings,
 evidence boundaries and immutable source locations so a second reviewer can
 reproduce the conclusions without relying on a chat summary.
 
-**Status:** open while production-law transfer execution
-`atlas-current-money-transfer-v1-52smn` runs. Update this index with its strict
-harvest and disposition before closing the deployment set.
+**Status:** production-law transfer strictly harvested. The frozen premise
+sequence is complete and licenses the fixed-budget matched-diversity ATLAS MVP
+only as a 2026 pre-lock shadow; no production or historical promotion is
+licensed.
 
 ## Findings at a glance
 
@@ -28,10 +29,13 @@ harvest and disposition before closing the deployment set.
    executions succeeded and all 270 artifact cells are bound. One cell uses
    the preregistered GCS recovery path after an ancillary BigQuery 429; its
    world artifact and successful execution passed every integrity check.
-5. **The decisive production-law ATLAS transfer is pending.** It is the common-
-   law comparison that determines whether the Phase S attainable-quality
-   premise transfers to the current-money simulation law. No partial result
-   will be interpreted.
+5. **The decisive production-law ATLAS transfer passes strongly.** Under the
+   current-money law, mean exact attainable quality improves `+10.9340` and
+   mean q25 improves `+12.5817`; mean and q25 improve in all 270 seed/slate
+   cells. Pair and dominant-game reach decline to mean ratios `0.9520` and
+   `0.9080`, while exact-roster and stack-core reach remain approximately
+   unchanged. This licenses the already-frozen matched-diversity MVP shadow,
+   not production adoption or a realized-score claim.
 
 ## A. ATLAS Phase S score-free attainable-world test
 
@@ -171,7 +175,7 @@ generation, size, digest, array-shape, finite-value and player/candidate
 identity validation. The repair does not excuse a failed execution or a
 missing/malformed object.
 
-## F. Current-money production-law transfer (pending)
+## F. Current-money production-law transfer
 
 - Run directory:
   `reports/atlas-money-transfer-runs/20260815-atlas-current-money-transfer-v1/`
@@ -182,19 +186,54 @@ missing/malformed object.
   `d1b67b15b85cf09305c27bdaeca0ae93353e0208`
 - Full validation build: `5106f00d-f58b-41f7-bbe0-e00be6497e08`
 - Full suite: 1,580 passed, 2 skipped, 5 warnings in 749.02 seconds
-- State: running; no partial output interpreted
+- Terminal state: successful in `2h39m38.48s` at
+  `2026-08-16T05:34:22.055068Z`
+- Human result:
+  `reports/2026-08-16-atlas-current-money-transfer-result.md`
+- Raw report:
+  `reports/atlas-money-transfer-runs/20260815-atlas-current-money-transfer-v1/report.json`
+- Execution receipt:
+  `reports/atlas-money-transfer-runs/20260815-atlas-current-money-transfer-v1/execution.json`
+- Raw report / execution SHA-256:
+  `8e568f8e5e343319ab4e4f48421b41f3266e56ecb592abce77f3ed6d246cd446` /
+  `58bb72908777247ba413fcd7b5d4e134d67490d4e86a27477f2073b623f6823c`
 
-When terminal, add here:
+### Mechanical and effect disposition
 
-1. execution terminal state/runtime and strict execution receipt hash;
-2. raw report path/hash and a human result report;
-3. all three Part-A quality conditions separately;
-4. law-dependent quality distributions and per-seed deltas;
-5. mechanical validity separately from effect disposition;
-6. bound slack, proxy/exact rank correlations, exact win/tie/loss counts,
-   top-8/20/40 overlap and cutoff-tie diagnostics;
-7. non-gating unique-roster, player-pair, QB-stack-core and game reach; and
-8. exact consequence: close, continue to MVP, or prospective-only follow-up.
+All six frozen mechanical conditions pass, including the complete immutable
+270-cell source binding, exact target-law receipt, deterministic two-pass
+solve, point-in-time player catalog and outcome firewall. Only then was the
+effect evaluated. All three frozen Part-A conditions pass:
+
+| Condition | Result |
+|---|---:|
+| Aggregate mean exact legal optimum improves | `271.5607 -> 282.4947` (`+10.9340`) |
+| At least 3/5 block means improve | `5/5` |
+| Aggregate q25 exact legal optimum is non-worse | `263.2382 -> 275.8198` (`+12.5817`) |
+
+Per-seed mean deltas are `+11.0028`, `+11.0679`, `+10.8588`, `+10.5046`
+and `+11.2357`; corresponding q25 deltas are `+12.8534`, `+12.6678`,
+`+12.6925`, `+12.1003` and `+12.5942`. Mean/q25 improve in every one of
+270 block/slate cells. Season mean deltas are `+8.8549` (2023), `+9.7622`
+(2024) and `+14.1848` (2025).
+
+### Proxy and structural diagnostics
+
+- Mean proxy-minus-exact slack: `27.0615` DK points.
+- Mean proxy/exact union rank correlation: `0.6064`.
+- Paired exact quality: `7,978` wins / `28` ties / `2,794` losses.
+- Mean top-8/20/40 world overlap: `0.3519` / `1.4333` / `3.8370`.
+- Mean cutoff ties: `1.0` in each arm.
+- Mean exact-roster / stack-core / dominant-game reach ratios:
+  `0.9999` / `0.9997` / `0.9080`.
+- Mean player-pair reach: `1186.1741 -> 1129.1852`, ratio `0.9520`; the
+  ratio's q10 is `0.8948` and minimum `0.7952`.
+
+The low identity overlap confirms that ATLAS selects a materially different
+world set. Pair/game concentration is the principal adjustment clue and is
+why the next licensed mechanism is the already-frozen matched-diversity MVP.
+This transfer reads no realized outcomes and licenses no production change,
+historical arm or scoring/ROI claim.
 
 ## Evidence firewall for reviewers
 
