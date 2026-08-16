@@ -100,6 +100,14 @@ def test_queries_are_explicitly_score_free():
     assert not [token for token in FORBIDDEN_QUERY_TOKENS if token in query]
 
 
+def test_atlas_mvp_runner_is_packaged_and_container_smoked():
+    dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
+    cloudbuild = (ROOT / "cloudbuild.yaml").read_text(encoding="utf-8")
+    runner = "scripts/run_atlas_matched_diversity_mvp.py"
+    assert f"COPY {runner} ./scripts/run_atlas_matched_diversity_mvp.py" in dockerfile
+    assert f"python {runner} --help" in cloudbuild
+
+
 def test_three_season_aggregate_applies_frozen_gate(tmp_path):
     paths = []
     for season in (2025, 2023, 2024):

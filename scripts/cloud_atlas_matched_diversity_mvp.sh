@@ -7,13 +7,15 @@ PROJECT=nfl-predictions-503414
 REGION=us-central1
 SERVICE_ACCOUNT=817589974517-compute@developer.gserviceaccount.com
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-RUN_ID=20260816-atlas-matched-diversity-mvp-v1
+RUN_ID=20260816-atlas-matched-diversity-mvp-v1-repair1
 OUT="$ROOT/reports/atlas-matched-diversity-runs/$RUN_ID"
 PREFIX=gs://nfl-predictions-503414-raw/research/atlas-matched-diversity-runs/$RUN_ID
 PROTOCOL="$ROOT/reports/2026-08-16-atlas-matched-diversity-mvp-protocol.md"
 PROTOCOL_SHA=badc0d64be69694caadd8fb2fe16a293c0cfbfe1f7813b4e80dc45e10b727abf
 PAIR_REACH_AMENDMENT="$ROOT/reports/2026-08-16-atlas-mvp-pair-reach-amendment.md"
 PAIR_REACH_AMENDMENT_SHA=2e3734c595159d64748ab2eeec2de61194b665d43ef6854140e5378bac464a33
+PACKAGING_REPAIR="$ROOT/reports/2026-08-16-atlas-mvp-image-packaging-repair.md"
+PACKAGING_REPAIR_SHA=e4293fae2dcd88b7a50179f0b4a688a23a8b1961bd7da8e437544e15a64e0e62
 REPAIR="$ROOT/reports/atlas-mvp-source-repair-runs/20260816-atlas-mvp-source-repair-r3-2025-v1"
 REPAIR_VALIDATION_SHA=4938df8c8f7f84dea40baf2f76cd84f78cdc9e1a097c271b419e3dc8c6b5cd37
 REPAIR_EXECUTION_SHA=f2bb244daf1b2d9515bee59799095fcbdd44414acb16b06e65e8298bd87c62b7
@@ -29,6 +31,8 @@ CODE_SHA=${2:-}
   echo "ERROR: ATLAS MVP protocol differs" >&2; exit 2; }
 [ "$(sha256sum "$PAIR_REACH_AMENDMENT" | awk '{print $1}')" = "$PAIR_REACH_AMENDMENT_SHA" ] || {
   echo "ERROR: ATLAS MVP pair-reach amendment differs" >&2; exit 2; }
+[ "$(sha256sum "$PACKAGING_REPAIR" | awk '{print $1}')" = "$PACKAGING_REPAIR_SHA" ] || {
+  echo "ERROR: ATLAS MVP packaging repair differs" >&2; exit 2; }
 [ -s "$REPAIR/completion.txt" ] && [ -s "$REPAIR/validation.json" ] && \
     [ -s "$REPAIR/execution.json" ] || {
   echo "ERROR: strict ATLAS MVP source repair is incomplete" >&2; exit 2; }
@@ -53,6 +57,7 @@ printf '%s\n' \
   "run_id=$RUN_ID" "image=$IMAGE" "code_sha=$CODE_SHA" \
   "output_prefix=$PREFIX" "protocol_sha256=$PROTOCOL_SHA" \
   "pair_reach_amendment_sha256=$PAIR_REACH_AMENDMENT_SHA" \
+  "packaging_repair_sha256=$PACKAGING_REPAIR_SHA" \
   "repair_validation_sha256=$REPAIR_VALIDATION_SHA" \
   "repair_execution_sha256=$REPAIR_EXECUTION_SHA" \
   "repair_completion_sha256=$REPAIR_COMPLETION_SHA" \
@@ -64,7 +69,7 @@ printf '%s\n' \
 : > "$OUT/executions.txt"
 
 for SEASON in 2023 2024 2025; do
-  JOB="atlas-matched-diversity-${SEASON}-v1"
+  JOB="atlas-matched-diversity-${SEASON}-v1-repair1"
   URI="$PREFIX/season-${SEASON}.json"
   gcloud run jobs deploy "$JOB" --project "$PROJECT" --region "$REGION" \
     --image "$IMAGE" --command python \

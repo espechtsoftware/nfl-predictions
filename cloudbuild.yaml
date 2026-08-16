@@ -15,6 +15,14 @@ steps:
   - name: gcr.io/cloud-builders/docker
     id: build-image
     args: [build, -t, '${_IMAGE}', .]
+  - name: gcr.io/cloud-builders/docker
+    id: smoke-atlas-mvp-runner
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        docker run --rm '${_IMAGE}' \
+          python scripts/run_atlas_matched_diversity_mvp.py --help >/dev/null
 images:
   - '${_IMAGE}'
 substitutions:

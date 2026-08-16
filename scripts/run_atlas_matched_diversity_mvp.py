@@ -58,6 +58,12 @@ PAIR_REACH_AMENDMENT = Path(
 PAIR_REACH_AMENDMENT_SHA256 = (
     "2e3734c595159d64748ab2eeec2de61194b665d43ef6854140e5378bac464a33"
 )
+PACKAGING_REPAIR = Path(
+    "reports/2026-08-16-atlas-mvp-image-packaging-repair.md"
+)
+PACKAGING_REPAIR_SHA256 = (
+    "e4293fae2dcd88b7a50179f0b4a688a23a8b1961bd7da8e437544e15a64e0e62"
+)
 TRANSFER_REPORT = Path(
     "reports/atlas-money-transfer-runs/"
     "20260815-atlas-current-money-transfer-v1/report.json"
@@ -89,7 +95,7 @@ REPAIR_COMPLETION_SHA256 = (
 )
 OUTPUT_PREFIX = (
     "gs://nfl-predictions-503414-raw/research/atlas-matched-diversity-runs/"
-    "20260816-atlas-matched-diversity-mvp-v1"
+    "20260816-atlas-matched-diversity-mvp-v1-repair1"
 )
 SOURCE_SQL = f"""
 SELECT panel_run_id, season, week, cand_ix, tag, all_tags, players,
@@ -125,6 +131,7 @@ def validate_local_sources() -> dict:
     expected = {
         str(PROTOCOL): PROTOCOL_SHA256,
         str(PAIR_REACH_AMENDMENT): PAIR_REACH_AMENDMENT_SHA256,
+        str(PACKAGING_REPAIR): PACKAGING_REPAIR_SHA256,
         str(TRANSFER_REPORT): TRANSFER_REPORT_SHA256,
         str(CBWU_REPORT): CBWU_REPORT_SHA256,
         str(REPAIR_VALIDATION): REPAIR_VALIDATION_SHA256,

@@ -317,8 +317,9 @@ source commit `6be659bbd4dd6436fd89291af230cadb06dc1546`: 1,591 passed,
 2 skipped and 5 warnings in 1,130.52 seconds. Its immutable image is
 `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:00ce36b7debd344a7fd264df6d00b9a37184abcc9e24285a658968289b38f251`.
 
-The frozen three-season MVP is now running from that digest and exact code
-SHA `6be659bbd4dd6436fd89291af230cadb06dc1546`:
+The first three-season MVP launch from that digest was mechanically invalid
+before runner import because the Dockerfile's explicit script allowlist omitted
+the MVP runner:
 
 - 2023: `atlas-matched-diversity-2023-v1-zsfl4`
 - 2024: `atlas-matched-diversity-2024-v1-gd46z`
@@ -326,8 +327,19 @@ SHA `6be659bbd4dd6436fd89291af230cadb06dc1546`:
 
 The create-only launch manifest and execution identities are under
 `reports/atlas-matched-diversity-runs/20260816-atlas-matched-diversity-mvp-v1/`.
-No partial season result may receive an effect interpretation; run only the
-strict three-season finisher after all executions are terminal.
+All three failed with exit code 2 and identical missing-file messages; no
+source query, construction, season object or aggregate report occurred. They
+carry no effect disposition.
+
+The pre-effect repair is frozen at
+`reports/2026-08-16-atlas-mvp-image-packaging-repair.md`, SHA-256
+`e4293fae2dcd88b7a50179f0b4a688a23a8b1961bd7da8e437544e15a64e0e62`.
+It permits only adding the runner to the image, a real container `--help`
+smoke, its focused test and new create-only `v1-repair1` identities. All
+protocol/source/construction/gate rules remain unchanged. Both original and
+repair1 output prefixes are confirmed absent before repair build. No partial
+season result may receive an effect interpretation; run only the strict
+three-season finisher after all repair1 executions are terminal.
 
 ## Evidence firewall for reviewers
 

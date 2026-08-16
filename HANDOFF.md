@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 02:55 CDT
+## Current state — 2026-08-16 03:02 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -228,6 +228,21 @@ agent or developer:
   `reports/atlas-matched-diversity-runs/20260816-atlas-matched-diversity-mvp-v1/`.
   Poll all three without interpreting partial season output; once all are
   terminal, invoke only `scripts/cloud_finish_atlas_matched_diversity_mvp.sh`.
+  All three instead failed mechanically at container startup with exit code 2:
+  the Dockerfile's explicit script allowlist omitted
+  `/app/scripts/run_atlas_matched_diversity_mvp.py`. They never imported the
+  runner, queried a source, constructed a lineup or created a season/aggregate
+  object, so they carry no effect disposition. The original executions and
+  launch receipts remain preserved. Pre-effect packaging repair
+  `reports/2026-08-16-atlas-mvp-image-packaging-repair.md`, SHA-256
+  `e4293fae2dcd88b7a50179f0b4a688a23a8b1961bd7da8e437544e15a64e0e62`,
+  permits only adding the runner COPY, a post-build container `--help` smoke,
+  a focused packaging test, repair-document binding and new create-only
+  `v1-repair1` job/output identities. No scientific rule changes. All eight
+  original/repair1 output objects are absent; 63 focused tests, source-hash
+  validation, Python compile, shell syntax and diff checks pass. Commit/push
+  this repair, rerun the complete clean-archive build, require its real image
+  smoke, then relaunch all three seasons under repair1 identities.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five

@@ -4,7 +4,7 @@ set -euo pipefail
 PROJECT=nfl-predictions-503414
 REGION=us-central1
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-RUN_ID=20260816-atlas-matched-diversity-mvp-v1
+RUN_ID=20260816-atlas-matched-diversity-mvp-v1-repair1
 OUT="$ROOT/reports/atlas-matched-diversity-runs/$RUN_ID"
 MANIFEST="$OUT/manifest.txt"
 EXECUTIONS="$OUT/executions.txt"
@@ -55,7 +55,7 @@ r=json.load(open(sys.argv[1],encoding="utf-8")); m=dict(line.rstrip("\n").split(
 if r.get("version")!="atlas-matched-diversity-mvp-v1" or r.get("uses_realized_outcomes") is not False or r.get("season")!=season or r.get("code_sha")!=m["code_sha"] or r.get("analysis_image")!=m["image"] or len(r.get("slates",[]))!=18:
  raise SystemExit("ABORT: ATLAS MVP season report identity differs")
 hashes=r.get("source_hashes",{})
-expected={"2026-08-16-atlas-matched-diversity-mvp-protocol.md":m["protocol_sha256"],"2026-08-16-atlas-mvp-pair-reach-amendment.md":m["pair_reach_amendment_sha256"],"validation.json":m["repair_validation_sha256"],"execution.json":m["repair_execution_sha256"],"completion.txt":m["repair_completion_sha256"]}
+expected={"2026-08-16-atlas-matched-diversity-mvp-protocol.md":m["protocol_sha256"],"2026-08-16-atlas-mvp-pair-reach-amendment.md":m["pair_reach_amendment_sha256"],"2026-08-16-atlas-mvp-image-packaging-repair.md":m["packaging_repair_sha256"],"validation.json":m["repair_validation_sha256"],"execution.json":m["repair_execution_sha256"],"completion.txt":m["repair_completion_sha256"]}
 for name,value in expected.items():
  if [digest for path,digest in hashes.items() if path.endswith("/"+name) or path=="reports/"+name] != [value]:
   raise SystemExit("ABORT: ATLAS MVP frozen-source binding differs")
