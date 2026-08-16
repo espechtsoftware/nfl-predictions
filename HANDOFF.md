@@ -711,6 +711,22 @@ agent or developer:
   score-free shard receipts. Twenty focused ATLAS/CBC/repair tests, both shell
   syntax checks, Python compilation and diff checks pass. Commit and push this
   protocol and implementation before invoking the smoke-gated launcher.
+  Repair4 launch is now complete. The query-free real-container smoke
+  `atlas-md-prefix-r4-smoke-h59tz` succeeded with the exact frozen-runner hash,
+  old repair2 prefix and new repair4 prefix marker before any grid execution
+  was created. All 54 season/week cells for 2023--2025 Weeks 1--18 then
+  received distinct `-r4` execution identities at 4 CPU/16 GiB, zero retries
+  and 12-hour timeout. The immutable manifest and execution-ledger SHA-256
+  values are
+  `083a5e158053cd03f509bfebe518516af695773c029a78a8e80aa6aa336e5df6`
+  and `0ca2e0635a8cb572912aeb19156a388c9a87ba8bc0f340998a6b39eb2b28c3fd`;
+  the smoke execution/log receipts are under
+  `reports/atlas-matched-diversity-runs/20260816-atlas-matched-diversity-mvp-v1-repair4/`.
+  This remains score-free and licenses no ATLAS effect or production change.
+  Next concrete action: poll these exact 54 identities only for terminal
+  status; once every cell is terminal, invoke the strict repair4 finisher.
+  Do not inspect partial shard content or run the historical scorer before a
+  complete valid strict harvest.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five

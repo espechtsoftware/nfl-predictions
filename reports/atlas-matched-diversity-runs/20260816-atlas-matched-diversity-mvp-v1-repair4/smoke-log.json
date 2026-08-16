@@ -1,0 +1,46 @@
+[
+  {
+    "insertId": "6a82051c000374ce4845dcf8",
+    "labels": {
+      "instanceId": "00a41e8c1d5202d688abf92b09d56af3459ed077441dd30462f07b01a5a6afc81d5fe55fb5b6e80f86e0eb420cc3e226bb1dd651ca65631ac2b2357dbff35c51d8596fce0bdc74a4a89f43f6d135392d837926741da8f9f399fd5c",
+      "run.googleapis.com/execution_name": "atlas-md-prefix-r4-smoke-h59tz",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2026-08-16T18:44:44.233976185Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-prefix-r4-smoke",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "textPayload": "ATLAS_REPAIR4_PREFIX_PATCH_VERIFIED 0548e26e26d7e81b20c6837adcc8925bc2317f9b7c8586fba084787581cac740 gs://nfl-predictions-503414-raw/research/atlas-matched-diversity-runs/20260816-atlas-matched-diversity-mvp-v1-repair2 gs://nfl-predictions-503414-raw/research/atlas-matched-diversity-runs/20260816-atlas-matched-diversity-mvp-v1-repair4",
+    "timestamp": "2026-08-16T18:44:44.226510Z"
+  },
+  {
+    "insertId": "6a82051c0006424c75018969",
+    "labels": {
+      "container_name": "worker",
+      "instanceId": "00a41e8c1d5202d688abf92b09d56af3459ed077441dd30462f07b01a5a6afc81d5fe55fb5b6e80f86e0eb420cc3e226bb1dd651ca65631ac2b2357dbff35c51d8596fce0bdc74a4a89f43f6d135392d837926741da8f9f399fd5c",
+      "run.googleapis.com/execution_name": "atlas-md-prefix-r4-smoke-h59tz",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-16T18:44:44.416721839Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-prefix-r4-smoke",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "INFO",
+    "textPayload": "Container called exit(0).",
+    "timestamp": "2026-08-16T18:44:44.410144Z"
+  }
+]
