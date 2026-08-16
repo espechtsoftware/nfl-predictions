@@ -962,6 +962,18 @@ agent or developer:
   a labeled 2026 pre-lock shadow. Implementation may proceed outcome-free, but
   its Cloud execution queues behind the active ATLAS binary/repair5/historical
   branch and may not compete for the 32-GiB research slot.
+  Outcome-free implementation has begun without launching that diagnostic.
+  `StackRules` now has opt-in maximum stack/bring-back bounds plus explicit
+  require-RB-versus-DST and require-same-team-two-RB constraints; all defaults
+  preserve the production formulation. Pure constraint-lattice primitives
+  define and classify the five atomic cells, enforce exact `2/2/2/1/1` quotas,
+  rank candidates on four training blocks, perform the frozen p230-first
+  exact-80 swap law, evaluate one untouched held-out block and aggregate the
+  five-fold gate. Forty-five focused constraint/optimizer/policy-isolation
+  tests pass, as do Python compilation and whitespace checks. No runner,
+  launcher or Cloud execution exists yet; next implement the four-block OI
+  control reconstruction and deterministic cell-candidate generator, then
+  validate them synthetically before adding any cloud path.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).

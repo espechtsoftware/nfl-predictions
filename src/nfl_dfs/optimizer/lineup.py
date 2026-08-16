@@ -47,6 +47,13 @@ class StackRules:
     bring_back_min: int = 0      # players required from the QB's opponent
     forbid_rb_vs_dst: bool = True
     forbid_two_rb_same_team: bool = True
+    # Research-only exact/exception bounds.  ``None`` and ``False`` preserve
+    # the production formulation byte-for-byte; the constraint-lattice shadow
+    # opts in explicitly and never changes the money policy's StackRules.
+    qb_stack_max: int | None = None
+    bring_back_max: int | None = None
+    require_rb_vs_dst: bool = False
+    require_two_rb_same_team: bool = False
 
 
 @dataclass
@@ -341,6 +348,25 @@ def optimize(
 
 
 def _apply_stack_rules(prob, x, players, teams, stack: StackRules) -> None:
+    for label, value in (
+        ("qb_stack_min", stack.qb_stack_min),
+        ("bring_back_min", stack.bring_back_min),
+    ):
+        if int(value) != value or value < 0:
+            raise ValueError(f"{label} must be one nonnegative integer")
+    for label, value, minimum in (
+        ("qb_stack_max", stack.qb_stack_max, stack.qb_stack_min),
+        ("bring_back_max", stack.bring_back_max, stack.bring_back_min),
+    ):
+        if value is not None and (
+            int(value) != value or value < minimum
+        ):
+            raise ValueError(f"{label} must be an integer at least its minimum")
+    if stack.forbid_rb_vs_dst and stack.require_rb_vs_dst:
+        raise ValueError("RB-versus-DST cannot be both forbidden and required")
+    if stack.forbid_two_rb_same_team and stack.require_two_rb_same_team:
+        raise ValueError("same-team RBs cannot be both forbidden and required")
+
     catchers_by_team: dict[str, list] = {}
     qbs_by_team: dict[str, list] = {}
     for p in players:
@@ -357,14 +383,26 @@ def _apply_stack_rules(prob, x, players, teams, stack: StackRules) -> None:
         # If QB from team T is rostered, require >= k WR/TE from team T
         catchers = catchers_by_team.get(team, [])
         prob += pulp.lpSum(x[i] for i in catchers) >= stack.qb_stack_min * qb_sum
+        if stack.qb_stack_max is not None:
+            prob += pulp.lpSum(x[i] for i in catchers) <= (
+                stack.qb_stack_max * qb_sum
+                + len(catchers) * (1 - qb_sum)
+            )
         # Bring-back: >= k skill players from the QB's opponent
-        if stack.bring_back_min:
+        if stack.bring_back_min or stack.bring_back_max is not None:
             opps = {p["opp"] for p in players if p["pos"] == "QB" and p["team"] == team}
             opp_skill = [
                 p["id"] for p in players
                 if p["team"] in opps and p["pos"] in ("RB", "WR", "TE")
             ]
-            prob += pulp.lpSum(x[i] for i in opp_skill) >= stack.bring_back_min * qb_sum
+            prob += pulp.lpSum(x[i] for i in opp_skill) >= (
+                stack.bring_back_min * qb_sum
+            )
+            if stack.bring_back_max is not None:
+                prob += pulp.lpSum(x[i] for i in opp_skill) <= (
+                    stack.bring_back_max * qb_sum
+                    + len(opp_skill) * (1 - qb_sum)
+                )
 
     if stack.forbid_rb_vs_dst:
         dsts = [p for p in players if p["pos"] == "DST"]
@@ -376,6 +414,17 @@ def _apply_stack_rules(prob, x, players, teams, stack: StackRules) -> None:
             for rb_id in opposing_rbs:
                 prob += x[rb_id] + x[dst["id"]] <= 1
 
+    if stack.require_rb_vs_dst:
+        dsts = [p for p in players if p["pos"] == "DST"]
+        for dst in dsts:
+            opposing_rbs = [
+                p["id"] for p in players
+                if p["pos"] == "RB" and p["team"] == dst["opp"]
+            ]
+            prob += pulp.lpSum(x[rb_id] for rb_id in opposing_rbs) >= x[
+                dst["id"]
+            ]
+
     if stack.forbid_two_rb_same_team:
         rbs_by_team: dict[str, list] = {}
         for p in players:
@@ -384,6 +433,22 @@ def _apply_stack_rules(prob, x, players, teams, stack: StackRules) -> None:
         for ids in rbs_by_team.values():
             if len(ids) > 1:
                 prob += pulp.lpSum(x[i] for i in ids) <= 1
+
+    if stack.require_two_rb_same_team:
+        rbs_by_team: dict[str, list] = {}
+        for p in players:
+            if p["pos"] == "RB":
+                rbs_by_team.setdefault(p["team"], []).append(p["id"])
+        witnesses = []
+        for index, (team, ids) in enumerate(sorted(rbs_by_team.items())):
+            if len(ids) < 2:
+                continue
+            witness = pulp.LpVariable(
+                f"required_same_team_rb_{index}_{team}", cat="Binary"
+            )
+            witnesses.append(witness)
+            prob += pulp.lpSum(x[i] for i in ids) >= 2 * witness
+        prob += pulp.lpSum(witnesses) >= 1
 
 
 def optimize_many(
