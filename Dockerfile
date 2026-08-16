@@ -53,6 +53,8 @@ COPY scripts/run_atlas_money_transfer.py ./scripts/run_atlas_money_transfer.py
 COPY scripts/run_atlas_matched_diversity_mvp.py ./scripts/run_atlas_matched_diversity_mvp.py
 COPY scripts/render_atlas_matched_diversity_repair4_command.py ./scripts/render_atlas_matched_diversity_repair4_command.py
 COPY scripts/run_atlas_historical_score_diagnostic.py ./scripts/run_atlas_historical_score_diagnostic.py
+COPY scripts/run_constraint_lattice_scorefree.py ./scripts/run_constraint_lattice_scorefree.py
+COPY scripts/aggregate_constraint_lattice_scorefree.py ./scripts/aggregate_constraint_lattice_scorefree.py
 COPY scripts/run_cbwu_seed_order_audit.py ./scripts/run_cbwu_seed_order_audit.py
 COPY scripts/run_cbwu_oi_construction_diagnostic.py ./scripts/run_cbwu_oi_construction_diagnostic.py
 COPY scripts/run_cbwu_oi_selector_stability.py ./scripts/run_cbwu_oi_selector_stability.py

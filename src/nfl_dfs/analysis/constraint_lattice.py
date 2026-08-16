@@ -8,9 +8,10 @@ realized-score, ownership, contest-rank or payout input.
 from __future__ import annotations
 
 from collections import Counter
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from itertools import combinations
+from time import perf_counter
 
 import numpy as np
 
@@ -19,8 +20,7 @@ from ..inference.multiseed_portfolio import (
     _select_tail_entries_bitpacked,
     _validate_native_book,
 )
-from ..optimizer.lineup import select_tail_entries
-from ..optimizer.lineup import Lineup, StackRules
+from ..optimizer.lineup import Lineup, StackRules, select_tail_entries
 from .atlas_world_ranking import (
     rank_worlds,
     roster_slot_upper_bound,
@@ -94,18 +94,29 @@ def build_training_control(
         )
         if {str(value) for value in batch.player_ids} != base_universe:
             raise ValueError("constraint-lattice player universes differ")
-        if any(not is_strict_lineup(lineup) for lineup in batch.candidates):
+        if any(
+            not validate_common_legality(lineup) or not is_strict_lineup(lineup)
+            for lineup in batch.candidates
+        ):
             raise ValueError("constraint-lattice native source is not strict")
     budget = len(base.candidates)
     if budget < 80:
         raise ValueError("constraint-lattice R0 candidate budget is below 80")
     training = tuple(name for name in REGISTERED_BLOCKS if name != heldout)
 
-    union = sorted({
-        _roster_key(lineup)
-        for name in training
-        for lineup in books[name].candidates
-    })
+    union_meta: dict[tuple[str, ...], dict[str, set[str]]] = {}
+    for name in training:
+        batch = books[name]
+        for lineup in batch.candidates:
+            roster = _roster_key(lineup)
+            row = union_meta.setdefault(
+                roster, {"sources": set(), "tags": set()},
+            )
+            row["sources"].add(name)
+            row["tags"].update(str(value) for value in batch.all_tags.get(
+                lineup.ids, (lineup.tag or "lev",)
+            ))
+    union = sorted(union_meta)
     if len(union) < budget:
         raise ValueError("constraint-lattice training union cannot fill budget")
     base_by_id = {
@@ -138,6 +149,14 @@ def build_training_control(
     if len(admitted) != budget or len(set(admitted)) != budget:
         raise ValueError("constraint-lattice OI admission did not fill budget")
     candidates = [union_lineups[index] for index in admitted]
+    candidate_source_aggregation = [
+        {
+            "roster": list(union[index]),
+            "sources": sorted(union_meta[union[index]]["sources"]),
+            "tags": sorted(union_meta[union[index]]["tags"]),
+        }
+        for index in admitted
+    ]
     candidate_totals_by_block = {
         name: union_totals_by_block[name][admitted] for name in training
     }
@@ -169,6 +188,7 @@ def build_training_control(
         "training_blocks": list(training),
         "candidate_budget": budget,
         "training_union_candidates": len(union_lineups),
+        "candidate_source_aggregation": candidate_source_aggregation,
         "candidate_lineups": candidates,
         "candidate_totals_by_block": candidate_totals_by_block,
         "control_lineups": control_lineups,
@@ -210,6 +230,7 @@ def generate_exception_candidates(
     for cell in CELL_ORDER:
         stack = stack_rules_for_cell(cell)
         for block in blocks:
+            started = perf_counter()
             draws = normalized[block]
             bound = roster_slot_upper_bound(draws, positions)
             worlds = rank_worlds(bound, len(bound))
@@ -238,7 +259,8 @@ def generate_exception_candidates(
                     [player_by_id[player_id] for player_id in roster],
                     tag=f"constraint_lattice:{cell}",
                 )
-                if exception_cell(lineup) != cell:
+                if not validate_common_legality(lineup) or \
+                        exception_cell(lineup) != cell:
                     raise AssertionError(
                         "constraint-lattice exact solve entered another cell"
                     )
@@ -266,6 +288,7 @@ def generate_exception_candidates(
                 "attempted_worlds": attempts,
                 "duplicate_world_solutions": duplicates,
                 "structurally_infeasible": infeasible,
+                "elapsed_seconds": float(perf_counter() - started),
                 "retained": retained,
             })
     return candidates, receipts
@@ -276,6 +299,38 @@ def _roster_key(lineup: Lineup) -> tuple[str, ...]:
     if len(key) != 9:
         raise ValueError("constraint-lattice roster must contain nine players")
     return key
+
+
+def validate_common_legality(lineup: Lineup) -> bool:
+    """Validate the frozen non-strategic DraftKings Classic constraints."""
+    players = list(lineup.players)
+    if len(players) != 9 or len(lineup.ids) != 9:
+        return False
+    positions = Counter(str(row.get("pos", "")).upper() for row in players)
+    if positions["QB"] != 1 or positions["DST"] != 1 or \
+            positions["RB"] not in {2, 3} or positions["WR"] not in {3, 4} or \
+            positions["TE"] not in {1, 2}:
+        return False
+    if sum(positions.values()) != 9 or any(
+        position not in {"QB", "RB", "WR", "TE", "DST"}
+        for position in positions
+    ):
+        return False
+    try:
+        salary = sum(int(row["salary"]) for row in players)
+    except (KeyError, TypeError, ValueError):
+        return False
+    if salary < 49_000 or salary > 50_000:
+        return False
+    teams = Counter(str(row.get("team", "")) for row in players)
+    games = {
+        str(row.get("game_id", "")) for row in players if row.get("game_id")
+    }
+    return bool(
+        "" not in teams
+        and max(teams.values(), default=0) <= 8
+        and len(games) >= 2
+    )
 
 
 def _normalize_blocks(
@@ -732,7 +787,10 @@ def evaluate_heldout_fold(
     if any(cell is None for cell in cells):
         raise ValueError("constraint-lattice treatment adds a non-atomic roster")
     counts = validate_exception_book(treatment_new, cells)
-    if any(not is_strict_lineup(row) for row in control):
+    if any(
+        not validate_common_legality(row) or not is_strict_lineup(row)
+        for row in control
+    ) or any(not validate_common_legality(row) for row in treatment):
         raise ValueError("constraint-lattice held-out control is not strict")
 
     maxima = {
@@ -922,12 +980,15 @@ def run_scorefree_slate(
     season: int,
     week: int,
     expected_worlds_per_block: int = 10_000,
+    progress_callback: Callable[[str], None] | None = None,
 ) -> dict[str, object]:
     """Run all five outcome-free train-four/test-one folds for one slate."""
     if int(season) not in {2023, 2024, 2025} or int(week) not in range(1, 19):
         raise ValueError("constraint-lattice slate identity is outside scope")
     folds = []
+    slate_started = perf_counter()
     for heldout in REGISTERED_BLOCKS:
+        fold_started = perf_counter()
         control = build_training_control(
             books,
             heldout,
@@ -970,6 +1031,9 @@ def run_scorefree_slate(
             "training_union_candidates": int(
                 control["training_union_candidates"]
             ),
+            "candidate_source_aggregation": control[
+                "candidate_source_aggregation"
+            ],
             "raw_exception_candidates": len(raw_candidates),
             "retained_exception_candidates": len(retained),
             "control_candidate_rosters": [
@@ -993,12 +1057,16 @@ def run_scorefree_slate(
                     "treatment_coverage_world_counts"
                 ],
             },
+            "elapsed_seconds": float(perf_counter() - fold_started),
         })
+        if progress_callback is not None:
+            progress_callback(heldout)
     return {
         "version": VERSION,
         "uses_realized_outcomes": False,
         "season": int(season),
         "week": int(week),
+        "elapsed_seconds": float(perf_counter() - slate_started),
         "folds": folds,
     }
 
@@ -1036,5 +1104,6 @@ __all__ = [
     "rank_exception_candidates",
     "run_scorefree_slate",
     "stack_rules_for_cell",
+    "validate_common_legality",
     "validate_exception_book",
 ]

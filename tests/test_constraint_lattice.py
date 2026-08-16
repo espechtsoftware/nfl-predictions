@@ -18,6 +18,7 @@ from nfl_dfs.analysis.constraint_lattice import (
     rank_exception_candidates,
     run_scorefree_slate,
     stack_rules_for_cell,
+    validate_common_legality,
     validate_exception_book,
 )
 from nfl_dfs.backtest.engine import CandidateBatch
@@ -67,6 +68,14 @@ def test_new_stack_bounds_default_to_inactive():
     assert rules.require_rb_vs_dst is False
     assert rules.require_two_rb_same_team is False
     assert optimize(_pool(), stack=rules) is not None
+
+
+def test_common_legality_covers_salary_shape_and_games():
+    lineup = optimize(_pool(), stack=StackRules(qb_stack_min=2, bring_back_min=1))
+    assert lineup is not None and validate_common_legality(lineup)
+    too_cheap = replace(lineup, players=[dict(row) for row in lineup.players])
+    too_cheap.players[0]["salary"] = 1_000
+    assert not validate_common_legality(too_cheap)
 
 
 def test_stack_rule_conflicts_fail_closed():
@@ -198,6 +207,9 @@ def test_four_block_control_excludes_heldout_and_reproduces_exact80():
     assert control["training_blocks"] == ["R0", "R1", "R3", "R4"]
     assert control["candidate_budget"] == 80
     assert control["training_union_candidates"] == 80
+    assert len(control["candidate_source_aggregation"]) == 80
+    assert all(row["sources"] == ["R0", "R1", "R3", "R4"]
+               for row in control["candidate_source_aggregation"])
     assert len(control["control_lineups"]) == 80
     assert set(control["control_totals_by_block"]) == {
         "R0", "R1", "R3", "R4",
@@ -230,6 +242,7 @@ def test_exception_generation_is_atomic_unique_and_score_free():
     } for row in candidates)
     assert all(row["cell"] in CELL_ORDER for row in receipts)
     assert all(row["source_block"] != "R4" for row in receipts)
+    assert all(row["elapsed_seconds"] >= 0 for row in receipts)
 
 
 def test_sleeve_admits_only_multiblock_p230_improvement():
@@ -312,8 +325,10 @@ def test_complete_slate_orchestration_preserves_zero_admission_null(monkeypatch)
         "generate_exception_candidates",
         lambda **kwargs: ([], []),
     )
+    completed = []
     result = run_scorefree_slate(
         _books(), season=2023, week=1, expected_worlds_per_block=3,
+        progress_callback=completed.append,
     )
     assert result["uses_realized_outcomes"] is False
     assert len(result["folds"]) == 5
@@ -322,6 +337,8 @@ def test_complete_slate_orchestration_preserves_zero_admission_null(monkeypatch)
     }
     assert all(row["new_exception_entries"] == 0 for row in result["folds"])
     assert all(row["shared_rosters"] == 80 for row in result["folds"])
+    assert completed == ["R0", "R1", "R2", "R3", "R4"]
+    assert result["elapsed_seconds"] >= 0
     gate = aggregate_heldout_gate(result["folds"])
     assert gate["slates"] == 1
     assert gate["passes_scorefree_gate"] is False

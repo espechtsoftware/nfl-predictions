@@ -993,6 +993,36 @@ agent or developer:
   strict assembler/finisher and cloud packaging, still queued behind the live
   ATLAS binary/repair5/historical branch. This implementation milestone is
   pushed on `main` at commit `713e28d`.
+  A final pre-cloud protocol audit found that the original freeze named its
+  input semantically but did not bind the exact panel IDs or execution
+  transport. Prospective amendment
+  `reports/2026-08-16-constraint-lattice-source-and-execution-amendment.md`,
+  SHA-256
+  `35ea1f0dba3be5311631d51057c7667cb624bcdc19be75e2b202c57e297e8321`,
+  now binds the exact passed CBWU-OI R0--R4 panels
+  `20260813-sis-asoe-treatment-r0-v1` through `-r4-v1`, the repaired forensic
+  player catalog/manifest, passed CBWU-OI report, create-only run prefix and a
+  54-slate/270-fold transport at 4 CPU/16 GiB, zero retries and 12-hour
+  timeout. No scientific rule changed. The analysis now validates full common
+  DK legality, symmetrically receipts every admitted control candidate's
+  source blocks/tags, and records generation/fold/slate runtime. Immutable
+  score-free shard runner, aggregate validator, queue-gated launcher and
+  strict finisher are implemented at
+  `scripts/run_constraint_lattice_scorefree.py`,
+  `scripts/aggregate_constraint_lattice_scorefree.py`,
+  `scripts/cloud_constraint_lattice_scorefree.sh` and
+  `scripts/cloud_finish_constraint_lattice_scorefree.sh`; both runner tools
+  are packaged and real-container-smoked by `cloudbuild.yaml`. The launcher
+  fails closed until the current ATLAS branch is strictly closed by either
+  valid repair5 plus its frozen historical v3 score report, or a terminal
+  preflight/repair5 failure followed by valid continuous-parity closure. The
+  finisher rejects retries/replacements and independently checks all execution,
+  source-object, exact-80, five-fold and gate mechanics before one aggregate
+  disclosure. Fifty-three focused constraint/optimizer/transport tests,
+  Python compilation, both shell syntax checks and whitespace checks pass.
+  No image/build/job exists yet; next commit/push this implementation, then
+  submit its clean full-test image while continuing terminal-only ATLAS
+  polling. Do not invoke its launcher before the queue release exists.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).
