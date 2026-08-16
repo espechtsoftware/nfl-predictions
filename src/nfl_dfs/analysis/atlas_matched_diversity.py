@@ -433,12 +433,18 @@ def enumerate_matched_diversity_lineups(
             prior_count = state["accepted_by_world"][world]
             if prior_count == 0:
                 roster = tuple(sorted(str(value) for value in exact["roster"]))
+                identity_tolerance = float(exact.get("identity_tolerance", 0.0))
                 if len(roster) != 9 or frozenset(roster) in banned:
                     proposals.append({
                         "pass": pass_index, "target_cluster": target_cluster,
                         "source_cluster": cluster_index, "world": world,
                         "stage": "exact_optimum", "accepted": False,
                         "reason": "exact_duplicate",
+                        "optimum": optimum, "score": None,
+                        "score_floor": optimum - identity_tolerance,
+                        "absolute_regret": None, "percentage_regret": None,
+                        "interaction_optimum": None,
+                        "stable_identity_objective": exact.get("identity_rank_sum"),
                     })
                     state["world_index"] += 1
                     continue
@@ -446,16 +452,26 @@ def enumerate_matched_diversity_lineups(
                 world_score = float(sum(
                     aligned_draws[order.index(value), world] for value in roster
                 ))
+                canonical_score = float(exact.get(
+                    "canonical_roster_score", world_score,
+                ))
+                if abs(world_score - canonical_score) > 1e-7 or \
+                        world_score < optimum - identity_tolerance - 1e-8:
+                    raise AssertionError(
+                        "ATLAS MVP exact-world identity score differs"
+                    )
                 interaction_value = _interaction_value(set(roster), {
                     key: value for key, value in weights.items() if key not in covered
                 })
                 receipt = {
                     "stage": "exact_optimum", "optimum": optimum,
-                    "score": world_score, "score_floor": optimum,
+                    "score": world_score,
+                    "score_floor": optimum - identity_tolerance,
                     "absolute_regret": optimum - world_score,
                     "percentage_regret": (optimum - world_score) / optimum,
                     "interaction_optimum": interaction_value,
                     "stable_identity_objective": sum(identity_rank[v] for v in roster),
+                    "identity_tolerance": identity_tolerance,
                 }
             else:
                 score_column = "atlas_world_score"
@@ -487,6 +503,11 @@ def enumerate_matched_diversity_lineups(
                         "source_cluster": cluster_index, "world": world,
                         "stage": "interaction", "accepted": False,
                         "reason": "world_exhausted",
+                        "optimum": optimum, "score": None,
+                        "score_floor": floor,
+                        "absolute_regret": None, "percentage_regret": None,
+                        "interaction_optimum": None,
+                        "stable_identity_objective": None,
                     })
                     state["world_index"] += 1
                     continue
@@ -527,6 +548,8 @@ def enumerate_matched_diversity_lineups(
             newly_covered = [
                 key for key in weights if key not in covered and set(key) <= set(roster_set)
             ]
+            newly_covered_pairs = [key for key in newly_covered if len(key) == 2]
+            newly_covered_triples = [key for key in newly_covered if len(key) == 3]
             covered.update(newly_covered)
             proposals.append({
                 "pass": pass_index, "target_cluster": target_cluster,
@@ -534,6 +557,14 @@ def enumerate_matched_diversity_lineups(
                 "accepted": True, "roster": list(sorted(roster_set)),
                 "newly_covered_interactions": len(newly_covered),
                 "newly_covered_weight": float(sum(weights[key] for key in newly_covered)),
+                "newly_covered_pairs": len(newly_covered_pairs),
+                "newly_covered_pair_weight": float(sum(
+                    weights[key] for key in newly_covered_pairs
+                )),
+                "newly_covered_triples": len(newly_covered_triples),
+                "newly_covered_triple_weight": float(sum(
+                    weights[key] for key in newly_covered_triples
+                )),
                 **receipt,
             })
             return lineup
@@ -732,8 +763,24 @@ def summarize_candidate_and_exact80(
     exact80_structure = _book_structure(selected)
     candidate_structure["score_effective_rank"] = _score_effective_rank(totals)
     exact80_structure["score_effective_rank"] = _score_effective_rank(totals[picked])
+    metadata = dict(batch.metadata or {})
+    complete_union = metadata.get("complete_union_candidates")
+    novelty = metadata.get("novel_candidates_by_seed")
+    if complete_union is not None:
+        discovered = int(complete_union)
+    elif isinstance(novelty, Mapping):
+        discovered = int(sum(int(value) for value in novelty.values()))
+    else:
+        discovered = len(batch.candidates)
+    if discovered < len(batch.candidates):
+        raise ValueError("ATLAS MVP discovered candidate count is too small")
     return {
         "candidate_budget": len(batch.candidates),
+        "candidate_counts": {
+            "discovered_unique": discovered,
+            "admitted": len(batch.candidates),
+            "selected": len(picked),
+        },
         "worlds": int(totals.shape[1]),
         "candidate_pool_tail": tail_metrics(totals),
         "exact80_tail": tail_metrics(totals[picked]),

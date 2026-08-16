@@ -296,6 +296,14 @@ legal candidate rosters and 40 exact-boom tags. Until that execution is a
 terminal success and the finisher passes, the MVP source remains incomplete
 and no effect conclusion may be drawn.
 
+Pre-launch protocol-to-code audit additionally verifies that every accepted
+proposal reports separate newly covered pair and stack-core counts/weights,
+every failed proposal retains the optimum/floor/regret/tie-break receipt
+schema, exact-world identities reconstruct their canonical optimum within the
+frozen identity tolerance, and every P0/P1/P2 summary reports distinct
+discovered, admitted and selected candidate counts. These are receipt and
+mechanical-proof repairs only; they change no construction law or gate.
+
 ## Evidence firewall for reviewers
 
 - Score-free results establish simulated-law premises, not realized DFS

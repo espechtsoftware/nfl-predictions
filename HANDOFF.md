@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 01:32 CDT
+## Current state — 2026-08-16 01:42 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -183,6 +183,16 @@ agent or developer:
   strict source-repair finisher, freeze its three output hashes into the MVP
   runner/launcher, commit/push, build a clean immutable image, then launch the
   2023/2024/2025 score-free MVP jobs.
+  A subsequent protocol-to-code audit found and repaired two reporting-only
+  gaps before launch: P0/P1/P2 now explicitly retain discovered/admitted/
+  selected candidate counts, and every solve attempt carries the frozen
+  optimum/floor/regret/tie-break schema. Accepted proposals separately report
+  newly covered pair and stack-core counts/weights, and first exact identities
+  are checked against the canonical exact-world score within its frozen
+  identity tolerance. The construction, pricing, count, selector and effect
+  laws are unchanged. The same 61 focused tests, Python compilation and diff
+  checks pass. The replay remains nonterminal `Unknown/running`; no partial
+  output was inspected.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
