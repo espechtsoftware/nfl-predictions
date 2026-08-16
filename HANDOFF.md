@@ -948,6 +948,7 @@ agent or developer:
   ATLAS effect or realized outcome at
   `reports/2026-08-16-constraint-lattice-scorefree-protocol.md`, SHA-256
   `f8591d24dd56749e5b56235f9636687fd41bd1a78991fdb60cfbb092ee65bf62`.
+  This freeze is pushed on `main` at commit `650a163`.
   It evaluates an at-most-eight-entry strategic-constraint exception sleeve
   through five leave-one-seed-block-out exact-80 comparisons. The five atomic
   cells are QB+1/bring-back, QB+2/no-bring-back, QB+1/no-bring-back,
