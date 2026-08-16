@@ -659,6 +659,21 @@ agent or developer:
   Next concrete action: poll the independent 16-GiB preflight to terminal and
   run only its strict finisher while freezing the complete 54-cell resource-
   only repair3; launch the grid only if the preflight validates R0 completion.
+  The independent 16-GiB preflight then completed successfully at
+  `2026-08-16T18:19:07.149622Z` after 2h13m37.08s and was strictly harvested.
+  Its disposition/status are `r0-complete`, child return code is zero, there
+  is no terminating signal or observed OOM-kill delta, and true cgroup peak is
+  3,524,108,288 bytes (20.51% of 16 GiB). Strict summary and completion
+  SHA-256 values are
+  `54e659421cd4ebe59f0d0219e1dd9a9db6774e6161c681f24f39b667e964228f`
+  and `07157e8e1589eaeb903ae5d7d124b677904061c11cdcc8567fab6649a1d317a9`.
+  Result interpretation is recorded at
+  `reports/2026-08-16-atlas-cbc-16g-preflight-result.md`. This licenses the
+  complete resource-only repair3 grid but no ATLAS effect, historical score,
+  or production change. The guarded launcher began creating the 54 new `-r3`
+  executions immediately after strict completion. Let it finish the exact
+  launch ledger, then poll only terminal status and invoke the strict repair3
+  finisher after the complete grid is terminal.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five

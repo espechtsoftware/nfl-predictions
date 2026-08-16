@@ -1,0 +1,7 @@
+validated_at=2026-08-16T18:19:15Z
+cell=2024-15
+cpu=4
+memory=16Gi
+uses_realized_outcomes=false
+persists_lineups=false
+production_change_licensed=false
