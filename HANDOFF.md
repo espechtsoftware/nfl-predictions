@@ -403,6 +403,16 @@ agent or developer:
   complete suite and both container smokes, then resolve and use only its
   immutable digest. At submission it was queued while all 54 shard tasks were
   running cleanly with no seed/slate marker or ERROR log.
+  That build completed `SUCCESS` at `2026-08-16T13:14:21.084625Z`: 1,603
+  tests passed, 2 skipped and 5 warnings in 1,147.20 seconds; both real-
+  container scorer/MVP smokes passed. Its eligible immutable scorer image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ee6af8f4d4af224df47e20bd6e70b6c3a0551979b2d3a8074c3ce1131c9f0a4c`.
+  Launch it only with
+  `CODE_SHA=4cd8803c2022d86ea669ed13399554eabe93673c` after strict repair2
+  harvest. A subsequent receipt-completeness test is pushed at `b4b1639` and
+  changes no runtime source in the validated image. At build completion, all
+  54 shard tasks remained running with zero failures and seven non-metric seed
+  completion markers. Continue polling; do not open partial shard effects.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five

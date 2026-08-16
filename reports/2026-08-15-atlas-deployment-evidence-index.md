@@ -443,6 +443,12 @@ The repair is pushed at exact source commit
 `eee87dbf-3f8d-4d74-83c9-dcc28c855685` is the sole superseding scorer build.
 It must pass the complete suite and both container smokes before its immutable
 digest is eligible.
+It completed successfully at `2026-08-16T13:14:21.084625Z`: 1,603 tests
+passed, 2 skipped and 5 warnings in 1,147.20 seconds; both real-container
+smokes passed. The eligible immutable scorer image is
+`us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ee6af8f4d4af224df47e20bd6e70b6c3a0551979b2d3a8074c3ce1131c9f0a4c`,
+used only with exact scorer code SHA
+`4cd8803c2022d86ea669ed13399554eabe93673c` after strict repair2 harvest.
 
 ## Evidence firewall for reviewers
 
