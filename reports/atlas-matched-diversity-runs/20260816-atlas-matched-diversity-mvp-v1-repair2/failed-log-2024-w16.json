@@ -1,0 +1,206 @@
+[
+  {
+    "errorGroups": [
+      {
+        "id": "CLDnkquihYzbIA"
+      }
+    ],
+    "insertId": "6a81bdd0000826afadce7f42",
+    "labels": {
+      "instanceId": "001548f72923981bc6f833018b440e836373382940235c78c5d433b3720663eaad06a3d1dd06f83f9513d245e6a8582d64e2444c9d7d17babce7d2218ea684d47dd18627a3115b5d7def1cd4a6416319d7a9610eaede7e920950",
+      "run.googleapis.com/execution_name": "atlas-md-s2024-w16-r2-dkvln",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T13:40:32.556368112Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2024-w16-r2",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 406, in run_slate_shard\n    row = _run_slate(season, week, books, artifact_receipts)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 243, in _run_slate\n    additions, enumeration = enumerate_matched_diversity_lineups(\n                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/nfl_dfs/analysis/atlas_matched_diversity.py\", line 579, in enumerate_matched_diversity_lineups\n    accepted = attempt(source, target, pass_index)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/nfl_dfs/analysis/atlas_matched_diversity.py\", line 493, in attempt\n    stage_two = optimize(\n                ^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/nfl_dfs/optimizer/lineup.py\", line 328, in optimize\n    prob.solve(pulp.PULP_CBC_CMD(msg=0))\n  File \"/usr/local/lib/python3.11/site-packages/pulp/pulp.py\", line 2407, in solve\n    status = solver.actualSolve(self, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/pulp/apis/coin_api.py\", line 406, in actualSolve\n    return super().actualSolve(lp, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/pulp/apis/coin_api.py\", line 153, in actualSolve\n    return self.solve_CBC(lp, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/pulp/apis/coin_api.py\", line 234, in solve_CBC\n    raise PulpSolverError(\npulp.apis.core.PulpSolverError: Pulp: Error while trying to execute, use msg=True for more details/usr/local/lib/python3.11/site-packages/pulp/apis/../solverdir/cbc/linux/i64/cbc",
+    "timestamp": "2026-08-16T13:40:32.534191Z"
+  },
+  {
+    "insertId": "6a81bdd0000d08bb48c1c61c",
+    "labels": {
+      "container_name": "worker",
+      "instanceId": "001548f72923981bc6f833018b440e836373382940235c78c5d433b3720663eaad06a3d1dd06f83f9513d245e6a8582d64e2444c9d7d17babce7d2218ea684d47dd18627a3115b5d7def1cd4a6416319d7a9610eaede7e920950",
+      "run.googleapis.com/execution_name": "atlas-md-s2024-w16-r2-dkvln",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-08-16T13:40:32.859700275Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2024-w16-r2",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "WARNING",
+    "textPayload": "Container called exit(1).",
+    "timestamp": "2026-08-16T13:40:32.854140Z"
+  },
+  {
+    "insertId": "uk0u6qe11vwq",
+    "labels": {
+      "run.googleapis.com/execution_name": "atlas-md-s2024-w16-r2-dkvln"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/cloudaudit.googleapis.com%2Fsystem_event",
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "methodName": "/Jobs.RunJob",
+      "resourceName": "namespaces/nfl-predictions-503414/executions/atlas-md-s2024-w16-r2-dkvln",
+      "response": {
+        "@type": "type.googleapis.com/google.cloud.run.v1.Execution",
+        "apiVersion": "run.googleapis.com/v1",
+        "kind": "Execution",
+        "metadata": {
+          "annotations": {
+            "run.googleapis.com/client-name": "gcloud",
+            "run.googleapis.com/client-version": "579.0.0",
+            "run.googleapis.com/creator": "espechtsoftware@gmail.com",
+            "run.googleapis.com/execution-environment": "gen2",
+            "run.googleapis.com/lastModifier": "espechtsoftware@gmail.com",
+            "run.googleapis.com/operation-id": "beee8fc1-d2c7-493d-aa06-e2f1c32fe681"
+          },
+          "creationTimestamp": "2026-08-16T12:38:21.230758Z",
+          "generation": 1,
+          "labels": {
+            "client.knative.dev/nonce": "nuq_vif_biy",
+            "cloud.googleapis.com/location": "us-central1",
+            "run.googleapis.com/job": "atlas-md-s2024-w16-r2",
+            "run.googleapis.com/jobGeneration": "1",
+            "run.googleapis.com/jobResourceVersion": "1786883898848743",
+            "run.googleapis.com/jobUid": "b917ca87-1044-4c6b-9559-555e3fa82df5"
+          },
+          "name": "atlas-md-s2024-w16-r2-dkvln",
+          "namespace": "817589974517",
+          "ownerReferences": [
+            {
+              "apiVersion": "serving.knative.dev/v1",
+              "blockOwnerDeletion": true,
+              "controller": true,
+              "kind": "Job",
+              "name": "atlas-md-s2024-w16-r2",
+              "uid": "b917ca87-1044-4c6b-9559-555e3fa82df5"
+            }
+          ],
+          "resourceVersion": "AAZZKjM+g4U",
+          "selfLink": "/apis/run.googleapis.com/v1/namespaces/817589974517/executions/atlas-md-s2024-w16-r2-dkvln",
+          "uid": "b18262d4-95f8-4310-a434-d432e298b50b"
+        },
+        "spec": {
+          "parallelism": 1,
+          "taskCount": 1,
+          "template": {
+            "spec": {
+              "containers": [
+                {
+                  "args": [
+                    "scripts/run_atlas_matched_diversity_mvp.py",
+                    "--season",
+                    "2024",
+                    "--week",
+                    "16",
+                    "--output-uri",
+                    "gs://nfl-predictions-503414-raw/research/atlas-matched-diversity-runs/20260816-atlas-matched-diversity-mvp-v1-repair2/slate-2024-16.json"
+                  ],
+                  "command": [
+                    "python"
+                  ],
+                  "env": [
+                    {
+                      "name": "CODE_SHA",
+                      "value": "60f296fdad769b30c0bb7334118698f156e462b9"
+                    },
+                    {
+                      "name": "ANALYSIS_IMAGE",
+                      "value": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ce03feb739e51aabedd7cea79f46e13a06a097a7f85e9a5817f38184b67f4fcb"
+                    }
+                  ],
+                  "image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ce03feb739e51aabedd7cea79f46e13a06a097a7f85e9a5817f38184b67f4fcb",
+                  "resources": {
+                    "limits": {
+                      "cpu": "1",
+                      "memory": "4Gi"
+                    }
+                  }
+                }
+              ],
+              "maxRetries": 0,
+              "serviceAccountName": "817589974517-compute@developer.gserviceaccount.com",
+              "timeoutSeconds": "43200"
+            }
+          }
+        },
+        "status": {
+          "completionTime": "2026-08-16T13:40:36.499026Z",
+          "conditions": [
+            {
+              "lastTransitionTime": "2026-08-16T13:40:36.499026Z",
+              "message": "Task atlas-md-s2024-w16-r2-dkvln-task0 failed with exit code: 1 and message: The container exited with an error.",
+              "reason": "NonZeroExitCode",
+              "status": "False",
+              "type": "Completed"
+            },
+            {
+              "lastTransitionTime": "2026-08-16T12:38:22.214480Z",
+              "message": "Provisioned imported containers.",
+              "status": "True",
+              "type": "ResourcesAvailable"
+            },
+            {
+              "lastTransitionTime": "2026-08-16T12:40:28.217489Z",
+              "message": "Started deployed execution in 2m6s.",
+              "status": "True",
+              "type": "Started"
+            },
+            {
+              "lastTransitionTime": "2026-08-16T12:38:22.105110Z",
+              "message": "Imported container image.",
+              "status": "True",
+              "type": "ContainerReady"
+            },
+            {
+              "lastTransitionTime": "2026-08-16T13:40:43.497349Z",
+              "message": "System will retry after 00:00 from lastTransitionTime for attempt 0.",
+              "reason": "ImmediateRetry",
+              "severity": "Info",
+              "status": "True",
+              "type": "Retry"
+            }
+          ],
+          "failedCount": 1,
+          "logUri": "https://console.cloud.google.com/logs/viewer?project=nfl-predictions-503414&advancedFilter=resource.type%3D%22cloud_run_job%22%0Aresource.labels.job_name%3D%22atlas-md-s2024-w16-r2%22%0Aresource.labels.location%3D%22us-central1%22%0Alabels.%22run.googleapis.com/execution_name%22%3D%22atlas-md-s2024-w16-r2-dkvln%22",
+          "observedGeneration": 1,
+          "startTime": "2026-08-16T12:38:33.897547Z"
+        }
+      },
+      "serviceName": "run.googleapis.com",
+      "status": {
+        "code": 10,
+        "message": "Execution atlas-md-s2024-w16-r2-dkvln has failed to complete, 0/1 tasks were a success."
+      }
+    },
+    "receiveTimestamp": "2026-08-16T13:40:44.058624502Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2024-w16-r2",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "timestamp": "2026-08-16T13:40:43.518306Z"
+  }
+]

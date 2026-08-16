@@ -478,6 +478,15 @@ tag `atlas-historical-score-retry-0fdecdd`. It is eligible only after the full
 suite and both real-container smokes pass and the tag is resolved to an
 immutable digest.
 
+Repair2 was subsequently invalidated before any slate completion by two more
+packaged-CBC subprocess failures. The other 52 effective executions were
+cancelled and no repair2 effect was opened. The complete mechanical record and
+licensed diagnostic boundary are in
+`reports/2026-08-16-atlas-repair2-cbc-invalidation.md`. The scorer build did
+pass 1,605 tests plus both smokes and resolved to
+`sha256:ea3584db4a1d721f2dcfb62ae5cfddf164d9982f9e03397643f0f63021aaa11d`,
+but it remains bound to the invalid repair2 receipt and cannot score repair3.
+
 ## Evidence firewall for reviewers
 
 - Score-free results establish simulated-law premises, not realized DFS

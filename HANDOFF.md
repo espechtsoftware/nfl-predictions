@@ -456,6 +456,30 @@ agent or developer:
   `2026-08-16T13:29:52.697548716Z`. Require the complete test suite, both real-
   container smokes and an immutable digest before use. Continue polling the
   exact effective 54-row shard ledger while the build runs.
+  Repair2 then became terminally invalid before any slate completion or object.
+  Effective executions `atlas-md-s2024-w15-r2-vnl5z` and
+  `atlas-md-s2024-w16-r2-dkvln` failed within two seconds of each other at
+  approximately 13:40:37Z with the same packaged-CBC `PulpSolverError`, zero
+  seed markers and absent targets. At discovery the grid had 26 non-metric seed
+  markers and no slate result. The remaining 52 effective tasks were cancelled
+  for compute safety; the terminal census is 52 `Cancelled` plus two
+  `NonZeroExitCode`. No repair2 effect or score was opened. Invalidation and
+  failure evidence is documented at
+  `reports/2026-08-16-atlas-repair2-cbc-invalidation.md`; the terminal snapshot
+  SHA-256 is
+  `bb44ceec5e30a99cee2d7469f0c6a8db6af12d7e370c1353c7acba2734a1c7b6`.
+  Cloud Monitoring rules out a simple OOM: Week 15/16 p99 memory peaked near
+  0.660/0.740 of 4 GiB while each used one full CPU, and Week 7 was near 0.240.
+  Next run the frozen score-free native-CBC diagnostic on Weeks 15/16, discard
+  its lineup payload, then freeze a complete new 54-cell repair3; do not reuse
+  any repair2 object.
+  The replacement-bound scorer build nevertheless completed successfully at
+  `2026-08-16T13:46:55.024569Z`: 1,605 tests passed, 2 skipped and 5 warnings,
+  both real-container smokes passed, and tag
+  `atlas-historical-score-retry-0fdecdd` resolved to digest
+  `sha256:ea3584db4a1d721f2dcfb62ae5cfddf164d9982f9e03397643f0f63021aaa11d`.
+  It is valid for the now-invalid repair2 receipt only and must not score a
+  future repair3 grid.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
