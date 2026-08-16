@@ -640,6 +640,22 @@ agent or developer:
   This licenses only the resource envelope, not an ATLAS effect, score result
   or production change. The independent 16-GiB Week 15 preflight remains the
   go/no-go check before launching all 54 new repair3 identities.
+  Resource-only repair3 is now prospectively frozen at
+  `reports/2026-08-16-atlas-mvp-resource-only-repair3.md`, SHA-256
+  `95c33b8aa64aeb8e0a7740471f85b5006d3a8e34ff250375f97994ad05d33b3d`.
+  It uses the exact old repair2 image/code and binary interaction formulation,
+  changes only the inseparable Cloud Run envelope to 4 CPUs/16 GiB, retains
+  zero retries and a 12-hour timeout, and requires all 54 new `-r3` job,
+  execution and object identities. Launcher
+  `scripts/cloud_atlas_matched_diversity_repair3.sh` fails closed unless the
+  strictly harvested preflight is `r0-complete` with child return 0, no signal
+  and zero OOM delta, then binds its manifest/execution/summary/completion
+  hashes. Finisher `scripts/cloud_finish_atlas_matched_diversity_repair3.sh`
+  requires all 54 exact executions successful at 4 CPUs/16 GiB, validates the
+  score-free shard population, and applies the unchanged original gate. The
+  later continuous-integrality optimization is explicitly excluded. Thirteen
+  focused ATLAS/preflight/resource tests plus shell syntax and diff checks
+  pass. The grid has not launched while the preflight is nonterminal.
   Next concrete action: poll the independent 16-GiB preflight to terminal and
   run only its strict finisher while freezing the complete 54-cell resource-
   only repair3; launch the grid only if the preflight validates R0 completion.

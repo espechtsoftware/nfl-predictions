@@ -157,6 +157,33 @@ def test_sharded_launcher_uses_frozen_single_thread_resources():
     assert 'wc -l < "$EXECUTIONS")" = 54' in finisher
 
 
+def test_repair3_is_resource_only_and_preflight_gated():
+    import hashlib
+
+    protocol = ROOT / "reports/2026-08-16-atlas-mvp-resource-only-repair3.md"
+    expected = "95c33b8aa64aeb8e0a7740471f85b5006d3a8e34ff250375f97994ad05d33b3d"
+    assert hashlib.sha256(protocol.read_bytes()).hexdigest() == expected
+    launcher = (
+        ROOT / "scripts/cloud_atlas_matched_diversity_repair3.sh"
+    ).read_text(encoding="utf-8")
+    finisher = (
+        ROOT / "scripts/cloud_finish_atlas_matched_diversity_repair3.sh"
+    ).read_text(encoding="utf-8")
+    assert f"REPAIR3_SHA={expected}" in launcher
+    assert "sha256:ce03feb739e51aabedd7cea79f46e13a06a097a7f85e9a5817f38184b67f4fcb" in launcher
+    assert "CODE_SHA=60f296fdad769b30c0bb7334118698f156e462b9" in launcher
+    assert '--cpu 4 --memory 16Gi' in launcher
+    assert '--max-retries 0 --task-timeout 12h' in launcher
+    assert 'interaction_auxiliaries=binary' in launcher
+    assert '"disposition":"r0-complete"' in launcher
+    assert '"status":"r0-complete"' in launcher
+    assert '"returncode":0' in launcher
+    assert '"oom_kill_delta_total":0' in launcher
+    assert 'wc -l < "$EXECUTIONS")" = 54' in finisher
+    assert '{"cpu":"4","memory":"16Gi"}' in finisher
+    assert 't.get("maxRetries")!=0' in finisher
+
+
 def test_single_shard_retry_is_exact_and_one_cell_only():
     import hashlib
 
