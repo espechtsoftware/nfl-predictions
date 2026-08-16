@@ -1025,12 +1025,27 @@ agent or developer:
   polling. Do not invoke its launcher before the queue release exists.
   The complete executable implementation is pushed on `main` at commit
   `a66c3e5` (implementation commit `0da5ce2` plus executable-mode repair).
-  Clean-archive validation build
-  `e51a6605-c8bc-4560-9fd5-db3a9faf508a` is running from exact handoff commit
-  `632a1bc` under create-only tag `constraint-lattice-632a1bc`. It must pass
-  the full suite, image build and both real-container constraint runner smokes
-  before its digest can be used. Even after success, the diagnostic launcher
-  remains queue-gated behind strict ATLAS branch closure.
+  The first clean-archive validation build
+  `e51a6605-c8bc-4560-9fd5-db3a9faf508a`, submitted from commit `632a1bc`
+  under tag `constraint-lattice-632a1bc`, was intentionally cancelled before
+  test completion or image publication. Its launcher required current `HEAD`
+  to equal the built source commit, so the later handoff-only commit that
+  recorded the build made that otherwise-valid source binding impossible.
+  The build is terminal `CANCELLED` and is not validation evidence. The
+  transport check now requires that the source commit exist and byte-compares
+  every image-relevant protocol, source, runner and build file against that
+  commit, while independently rejecting uncommitted tracked edits to critical
+  code. This permits later handoff-only commits without permitting source
+  drift. Fifty-three focused constraint/optimizer/transport tests, Python
+  compilation, both shell syntax checks and whitespace checks pass after this
+  repair. Commit/push the repair and submit one superseding clean-archive full
+  build from that exact commit; record only its new ID/tag/digest as usable
+  validation. Even after a successful build, the diagnostic launcher remains
+  queue-gated behind strict ATLAS branch closure.
+  At `2026-08-16T21:20Z`, 32-GiB preflight execution
+  `atlas-cbc-32g-full-2023-w8-v1-lbzjd` remains nonterminal with one running
+  task. The terminal-only strict-harvest and conditional repair5/parity
+  watchers remain active; no partial shard or effect was inspected.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).

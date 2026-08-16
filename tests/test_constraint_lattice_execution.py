@@ -186,6 +186,7 @@ def test_cloud_transport_is_exact_sharded_and_queue_gated():
     assert '--cpu 4 --memory 16Gi' in launcher
     assert '--max-retries 0 --task-timeout 12h' in launcher
     assert 'wc -l < "$EXECUTIONS")" = 54' in launcher
+    assert 'git -C "$ROOT" show "$CODE_SHA:$RELATIVE"' in launcher
     assert "constraint-lattice queue awaits ATLAS preflight" in launcher
     assert "repair5-valid-historical-closed" in launcher
     assert "repair5-failed-parity-closed" in launcher

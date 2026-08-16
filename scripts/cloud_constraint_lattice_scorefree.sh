@@ -32,9 +32,31 @@ BUILD_ID=${3:-}
   echo "ERROR: full constraint-lattice source commit is required" >&2; exit 2; }
 [[ "$BUILD_ID" =~ ^[0-9a-f-]{36}$ ]] || {
   echo "ERROR: successful constraint-lattice Cloud Build ID is required" >&2; exit 2; }
-[ "$(git -C "$ROOT" rev-parse HEAD)" = "$CODE_SHA" ] && \
-  git -C "$ROOT" diff --quiet -- . ':(exclude)reports/constraint-lattice-runs' || {
-  echo "ERROR: constraint-lattice launch requires exact clean tracked commit" >&2; exit 2; }
+git -C "$ROOT" cat-file -e "$CODE_SHA^{commit}" || {
+  echo "ERROR: constraint-lattice source commit is unavailable" >&2; exit 2; }
+for RELATIVE in \
+  Dockerfile cloudbuild.yaml \
+  reports/2026-08-16-constraint-lattice-scorefree-protocol.md \
+  reports/2026-08-16-constraint-lattice-source-and-execution-amendment.md \
+  reports/cbwu-order-invariant-runs/20260815-cbwu-order-invariant-repair-v1/report.json \
+  scripts/run_constraint_lattice_scorefree.py \
+  scripts/aggregate_constraint_lattice_scorefree.py \
+  src/nfl_dfs/analysis/constraint_lattice.py \
+  src/nfl_dfs/analysis/atlas_world_ranking.py \
+  src/nfl_dfs/inference/multiseed_portfolio.py \
+  src/nfl_dfs/optimizer/lineup.py; do
+  CURRENT=$(sha256sum "$ROOT/$RELATIVE" | awk '{print $1}')
+  BUILT=$(git -C "$ROOT" show "$CODE_SHA:$RELATIVE" | sha256sum | awk '{print $1}')
+  [ "$CURRENT" = "$BUILT" ] || {
+    echo "ERROR: constraint-lattice built source differs: $RELATIVE" >&2; exit 2; }
+done
+git -C "$ROOT" diff --quiet -- \
+  Dockerfile cloudbuild.yaml src/nfl_dfs/analysis/constraint_lattice.py \
+  src/nfl_dfs/analysis/atlas_world_ranking.py \
+  src/nfl_dfs/inference/multiseed_portfolio.py src/nfl_dfs/optimizer/lineup.py \
+  scripts/run_constraint_lattice_scorefree.py \
+  scripts/aggregate_constraint_lattice_scorefree.py || {
+  echo "ERROR: constraint-lattice built sources have tracked edits" >&2; exit 2; }
 for SPEC in "$PROTOCOL:$PROTOCOL_SHA" "$AMENDMENT:$AMENDMENT_SHA" "$CBWU:$CBWU_SHA"; do
   FILE=${SPEC%:*}; DIGEST=${SPEC##*:}
   [ -s "$FILE" ] && [ "$(sha256sum "$FILE" | awk '{print $1}')" = "$DIGEST" ] || {
