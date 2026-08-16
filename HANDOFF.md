@@ -152,7 +152,7 @@ agent or developer:
   analyzer redownloads and SHA-verifies all 270 objects and independently
   verifies complete execution-environment receipts. A failed execution,
   missing/duplicate object or malformed payload still invalidates the run.
-  This changes no world, seed, method or effect threshold. Twenty-nine focused
+  This changes no world, seed, method or effect threshold. Thirty focused
   acquisition/preflight tests pass; new/changed Python compiles, all three
   shell contracts parse and `git diff --check` passes.
 

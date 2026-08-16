@@ -1,4 +1,6 @@
 import json
+import importlib.util
+from datetime import datetime, timezone
 from io import BytesIO
 from pathlib import Path
 
@@ -18,6 +20,13 @@ from nfl_dfs.research.atlas_money_source_grid import (
 CODE_SHA = "a" * 40
 PROJECT = "nfl-predictions-503414"
 ROOT = Path(__file__).resolve().parents[1]
+HARVEST_SPEC = importlib.util.spec_from_file_location(
+    "harvest_atlas_money_source_grid",
+    ROOT / "scripts" / "harvest_atlas_money_source_grid.py",
+)
+assert HARVEST_SPEC and HARVEST_SPEC.loader
+harvest = importlib.util.module_from_spec(HARVEST_SPEC)
+HARVEST_SPEC.loader.exec_module(harvest)
 
 
 def test_canonical_receipt_is_the_public_production_multinomial_law():
@@ -152,6 +161,126 @@ def test_environment_receipt_is_recomputed_not_trusted():
     receipt["sha256"] = "0" * 64
     with pytest.raises(ValueError, match="hash differs"):
         validate_environment_receipt(receipt)
+
+
+def test_hybrid_grid_recovers_only_missing_candidate_metadata(
+    monkeypatch, tmp_path,
+):
+    run_dir = tmp_path / "run"
+    (run_dir / "environment-receipts").mkdir(parents=True)
+    (run_dir / "execution-metadata").mkdir()
+    ledger = []
+    executions = {}
+    for block in range(5):
+        for season in (2023, 2024, 2025):
+            panel = transfer.panel_id(block)
+            execution = f"exec-r{block}-{season}"
+            ledger.append(f"{block} {season} {panel} job {execution}")
+            env = transfer.acquisition_environment(
+                block=block, season=season, code_sha=CODE_SHA,
+                project=PROJECT,
+            )
+            (run_dir / "environment-receipts" /
+             f"r{block}-{season}.json").write_text(
+                json.dumps(transfer.environment_receipt(env)),
+                encoding="utf-8",
+            )
+            (run_dir / "execution-metadata" / f"{execution}.json").write_text(
+                json.dumps({"status": {
+                    "conditions": [{"type": "Completed", "status": "True"}],
+                    "succeededCount": 1,
+                    "failedCount": 0,
+                    "startTime": "2026-08-16T01:00:00Z",
+                    "completionTime": "2026-08-16T02:00:00Z",
+                }}),
+                encoding="utf-8",
+            )
+            executions[(panel, season)] = (execution, env)
+    (run_dir / "executions.txt").write_text(
+        "\n".join(ledger) + "\n", encoding="utf-8",
+    )
+
+    buffer = BytesIO()
+    np.savez_compressed(
+        buffer,
+        cand_ix=np.arange(2, dtype=np.int32),
+        totals=np.ones((2, 10_000), dtype=np.float32),
+        tail_line=np.asarray(194.0, dtype=np.float32),
+        player_ids=np.asarray(["p1", "p2"]),
+        player_draws=np.ones((2, 10_000), dtype=np.float32),
+    )
+    payload = buffer.getvalue()
+    digest = __import__("hashlib").sha256(payload).hexdigest()
+
+    class Blob:
+        def __init__(self, name):
+            self.name = name
+            self.generation = 1
+            self.time_created = datetime(
+                2026, 8, 16, 1, 30, tzinfo=timezone.utc,
+            )
+            self.size = len(payload)
+
+        def download_as_bytes(self):
+            return payload
+
+    blobs = []
+    rows = []
+    missing = (transfer.panel_id(3), 2025, 1)
+    for block in range(5):
+        panel = transfer.panel_id(block)
+        for season in (2023, 2024, 2025):
+            env = executions[(panel, season)][1]
+            lever_env = transfer.source_environment_lever_text(env, block)
+            for week in range(1, 19):
+                name = (
+                    f"cand_scores/{panel}/{season}_w{week}_"
+                    f"{block}{season}{week:02x}.npz"
+                )
+                blobs.append(Blob(name))
+                if (panel, season, week) != missing:
+                    rows.append({
+                        "panel_run_id": panel,
+                        "season": season,
+                        "week": week,
+                        "score_artifact_uri": f"gs://{PROJECT}-raw/{name}",
+                        "score_artifact_sha256": digest,
+                        "code_sha": CODE_SHA,
+                        "lever_env": lever_env,
+                        "source_rows": 2,
+                        "uri_count": 1,
+                        "sha_count": 1,
+                        "code_count": 1,
+                        "lever_count": 1,
+                    })
+
+    class Client:
+        def __init__(self, project):
+            assert project == PROJECT
+
+        def bucket(self, name):
+            assert name == f"{PROJECT}-raw"
+            return object()
+
+        def list_blobs(self, name, prefix):
+            assert name == f"{PROJECT}-raw"
+            return [blob for blob in blobs if blob.name.startswith(prefix)]
+
+    monkeypatch.setattr(harvest.storage, "Client", Client)
+    grid, counts = harvest.build_grid(
+        project=PROJECT,
+        bucket_name=f"{PROJECT}-raw",
+        run_dir=run_dir,
+        bq_rows=rows,
+        code_sha=CODE_SHA,
+    )
+    assert len(grid) == 270
+    assert counts == {"candidate_table": 269, "gcs_artifact_recovery": 1}
+    recovered = [row for row in grid if row["source_binding"].startswith("gcs")]
+    assert len(recovered) == 1
+    assert (recovered[0]["panel_run_id"], recovered[0]["season"],
+            recovered[0]["week"]) == missing
+    assert recovered[0]["players_if_recovered"] == 2
 
 
 @pytest.mark.parametrize("block", (-1, 5))
