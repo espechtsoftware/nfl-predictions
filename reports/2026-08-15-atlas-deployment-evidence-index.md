@@ -387,6 +387,10 @@ SHA-256
 `6e3997e4e81ffe20063fdf76aff7c3655cdd1424aea350a5e29a681a1cd1832e`.
 It freezes the correct row count and `1e-9` absolute/zero-relative tolerance;
 it changes no identity, score, threshold, gate or consequence.
+The final scorer reports all three ATLAS conversion stages separately: all 200
+generated lineups, the generated identities admitted to P2, and those retained
+by exact-80, including the maximum realized score at every stage. This is a
+frozen descriptive receipt and cannot alter the signal rule.
 
 ## Evidence firewall for reviewers
 

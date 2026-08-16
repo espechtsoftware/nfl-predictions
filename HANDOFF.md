@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 06:24 CDT
+## Current state — 2026-08-16 06:28 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -308,6 +308,16 @@ agent or developer:
   run only the strict upstream finisher. In parallel, build one clean immutable
   scorer image from the handoff commit containing this milestone so the
   outcome-facing job can launch immediately after the strict upstream harvest.
+  A final pre-image protocol audit then found one reporting-only omission:
+  the scorer counted all 200 generated ATLAS candidates per slate but reported
+  a maximum only for the subset admitted into P2. It now reports the generated,
+  admitted-candidate and exact-80 maxima/counts separately, plus the generated
+  weekly-max series and mean. Focused tests pass and the correction is pushed
+  at `ad62d09ef71c94b9260aa1dd9ccd98ad9153268e`. Cloud Build
+  `603db3d6-4f62-412b-9c97-bf86ece0b8e6`, submitted from the prior handoff
+  commit, was cancelled immediately after this omission was found and must not
+  be used even if a late image artifact appears. Submit the superseding clean-
+  archive build only from the new handoff commit containing `ad62d09`.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
