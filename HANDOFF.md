@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 21:23 CDT
+## Current state — 2026-08-15 21:12 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -91,9 +91,14 @@ agent or developer:
   `d6d4055633b2f3202615cf637776b7724d3c2b1945789d9861d41902603896fe`,
   `e8aaae2b9fd08ac7ab9cacfa6ffba8090c58a50fdd64845ce3cc830e91ef5673`
   and `73b6a4086b157a82877321c8e093a6a683584386989975b316212ca075d01047`.
-  Launch the preregistered exact-N diagnostic next from the same hardened
-  image and exact image code. Production-law acquisition continues
-  independently.
+  Preregistered exact-N execution `exact-n-scorefree-v1-jv7r4` was then
+  launched at 21:12 CDT from the same immutable digest and exact image code.
+  Its create-only manifest and durable execution ID are under
+  `reports/exact-n-scorefree-runs/20260815-exact-n-scorefree-v1/`; it tests
+  frozen N=`1/3/20/40` treatments across the 54 slates and 50,000 worlds
+  without realized outcomes. Poll it and invoke only
+  `scripts/cloud_finish_exact_n_scorefree.sh` after terminal success.
+  Production-law acquisition continues independently.
 
 - The required outcome-free production-law ATLAS transfer is frozen before
   the Phase S result at
