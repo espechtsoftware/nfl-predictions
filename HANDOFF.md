@@ -608,9 +608,24 @@ agent or developer:
   and `00a50351f571a606e8efb47ae8eea0134c911998e64fe85e9836cf0677dd5ae3`.
   It was nonterminal at the first post-launch status-only poll. Invoke only its
   strict finisher after terminality; do not inspect its artifact early.
-  Next concrete action: poll both immutable diagnostic sets to terminal and
-  run only their strict finishers before freezing the complete 54-cell
-  repair3.
+  The native-log diagnostic pair is now terminal and strictly harvested.
+  Week 15 `atlas-cbc-diag-2024-w15-v1-qdssb` completed R0 successfully after
+  144 solver calls; Week 16 `atlas-cbc-diag-2024-w16-v1-89fq4` reproduced a
+  CBC failure after 127 calls. The Week 16 MPS is 3,059,531 bytes and CBC read
+  its 9,277-row/3,401-column/45,448-element model with zero errors before
+  entering branch-and-bound. Its exactly 4,096-byte native log ends mid-line
+  during a feasibility-pump pass, with no parser error, numerical warning,
+  normal termination or solution record. Result report
+  `reports/2026-08-16-atlas-cbc-native-diagnostic-result.md` conservatively
+  records `native-evidence-inconclusive-abrupt-child-termination`: the mixed
+  pair does not meet either positive frozen branch, but rules against an
+  inevitable malformed Week 15 model and is compatible with load-sensitive
+  resource pressure. The cgroup diagnostic remains authoritative. Strict
+  native completion receipt SHA-256 is
+  `37fe3a1666d9804ecced01c75998d720dbf20dede288bf13287769fc3c79fd4c`.
+  Next concrete action: poll instrumented Week 15 and the independent 16-GiB
+  preflight to terminal, run only their strict finishers, and then freeze the
+  complete 54-cell repair3 from the combined resource evidence.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five

@@ -1,0 +1,5 @@
+validated_at=2026-08-16T16:09:17Z
+cells=2024-15,2024-16
+uses_realized_outcomes=false
+persists_lineups=false
+production_change_licensed=false

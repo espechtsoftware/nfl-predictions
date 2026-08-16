@@ -1,0 +1,126 @@
+{
+  "apiVersion": "run.googleapis.com/v1",
+  "kind": "Execution",
+  "metadata": {
+    "annotations": {
+      "run.googleapis.com/client-name": "gcloud",
+      "run.googleapis.com/client-version": "579.0.0",
+      "run.googleapis.com/creator": "espechtsoftware@gmail.com",
+      "run.googleapis.com/execution-environment": "gen2",
+      "run.googleapis.com/lastModifier": "espechtsoftware@gmail.com",
+      "run.googleapis.com/operation-id": "32290acb-9f0a-41d4-bb71-3707d70571a8"
+    },
+    "creationTimestamp": "2026-08-16T13:57:27.553442Z",
+    "generation": 1,
+    "labels": {
+      "client.knative.dev/nonce": "for_zeh_pej",
+      "cloud.googleapis.com/location": "us-central1",
+      "run.googleapis.com/job": "atlas-cbc-diag-2024-w16-v1",
+      "run.googleapis.com/jobGeneration": "1",
+      "run.googleapis.com/jobResourceVersion": "1786888645090266",
+      "run.googleapis.com/jobUid": "a5658b7b-8aed-42f1-bfd4-ec6f2cb7944c"
+    },
+    "name": "atlas-cbc-diag-2024-w16-v1-89fq4",
+    "namespace": "817589974517",
+    "ownerReferences": [
+      {
+        "apiVersion": "serving.knative.dev/v1",
+        "blockOwnerDeletion": true,
+        "controller": true,
+        "kind": "Job",
+        "name": "atlas-cbc-diag-2024-w16-v1",
+        "uid": "a5658b7b-8aed-42f1-bfd4-ec6f2cb7944c"
+      }
+    ],
+    "resourceVersion": "AAZZK0gKhEg",
+    "selfLink": "/apis/run.googleapis.com/v1/namespaces/817589974517/executions/atlas-cbc-diag-2024-w16-v1-89fq4",
+    "uid": "20023e47-99f3-4739-adca-2400436d5e6d"
+  },
+  "spec": {
+    "parallelism": 1,
+    "taskCount": 1,
+    "template": {
+      "spec": {
+        "containers": [
+          {
+            "args": [
+              "-c",
+              "exec(__import__('base64').b64decode('IyEvdXNyL2Jpbi9lbnYgcHl0aG9uMwoiIiJDYXB0dXJlIG5hdGl2ZSBDQkMgZmFpbHVyZSBldmlkZW5jZSB3aXRob3V0IHBlcnNpc3RpbmcgYW4gQVRMQVMgcmVzdWx0LiIiIgoKZnJvbSBfX2Z1dHVyZV9fIGltcG9ydCBhbm5vdGF0aW9ucwoKaW1wb3J0IGFyZ3BhcnNlCmZyb20gaGFzaGxpYiBpbXBvcnQgc2hhMjU2CmltcG9ydCBqc29uCmltcG9ydCBvcwpmcm9tIHBhdGhsaWIgaW1wb3J0IFBhdGgKaW1wb3J0IHJlCmltcG9ydCBzeXMKCmZyb20gZ29vZ2xlLmNsb3VkIGltcG9ydCBiaWdxdWVyeSwgc3RvcmFnZQppbXBvcnQgcHVscAoKClBST0pFQ1QgPSAibmZsLXByZWRpY3Rpb25zLTUwMzQxNCIKSU1BR0UgPSAoCiAgICAidXMtY2VudHJhbDEtZG9ja2VyLnBrZy5kZXYvbmZsLXByZWRpY3Rpb25zLTUwMzQxNC9uZmwtZGZzL25mbC1kZnNAIgogICAgInNoYTI1NjpjZTAzZmViNzM5ZTUxYWFiZWRkN2NlYTc5ZjQ2ZTEzYTA2YTA5N2E3Zjg1ZTlhNTgxN2YzODE4NGI2N2Y0ZmNiIgopCkNPREVfU0hBID0gIjYwZjI5NmZkYWQ3NjliMzBjMGJiNzMzNDExODY5OGYxNTZlNDYyYjkiClBST1RPQ09MX0lEID0gIjIwMjYwODE2LWF0bGFzLWNiYy1uYXRpdmUtZGlhZ25vc3RpYy12MSIKUFJFRklYID0gKAogICAgImdzOi8vbmZsLXByZWRpY3Rpb25zLTUwMzQxNC1yYXcvcmVzZWFyY2gvIgogICAgImF0bGFzLWNiYy1uYXRpdmUtZGlhZ25vc3RpYy1ydW5zLyIgKyBQUk9UT0NPTF9JRAopCkFMTE9XRURfQ0VMTFMgPSB7KDIwMjQsIDE1KSwgKDIwMjQsIDE2KX0KTEFTVF9MT0cgPSBQYXRoKCIvdG1wL2F0bGFzLWNiYy1sYXN0LmxvZyIpCk1QU19QQVRIID0gUGF0aC5jd2QoKSAvICJkZnMtcHVscC5tcHMiCl9CQVNFX0NCQyA9IHB1bHAuUFVMUF9DQkNfQ01ECl9TT0xWRV9DT1VOVCA9IDAKX0FSVElGQUNUX1BSRUZJWCA9ICIiCgoKZGVmIF9ieXRlc19yZWNlaXB0KGNsaWVudDogc3RvcmFnZS5DbGllbnQsIHVyaTogc3RyLCByYXc6IGJ5dGVzKSAtPiBkaWN0OgogICAgbWF0Y2ggPSByZS5mdWxsbWF0Y2gociJnczovLyhbXi9dKykvKC4rKSIsIHVyaSkKICAgIGlmIG5vdCBtYXRjaDoKICAgICAgICByYWlzZSBSdW50aW1lRXJyb3IoIkFUTEFTIENCQyBkaWFnbm9zdGljIFVSSSBkaWZmZXJzIikKICAgIGJsb2IgPSBjbGllbnQuYnVja2V0KG1hdGNoLmdyb3VwKDEpKS5ibG9iKG1hdGNoLmdyb3VwKDIpKQogICAgYmxvYi51cGxvYWRfZnJvbV9zdHJpbmcocmF3LCBpZl9nZW5lcmF0aW9uX21hdGNoPTApCiAgICBibG9iLnJlbG9hZCgpCiAgICByZXR1cm4gewogICAgICAgICJ1cmkiOiB1cmksCiAgICAgICAgImdlbmVyYXRpb24iOiBzdHIoYmxvYi5nZW5lcmF0aW9uKSwKICAgICAgICAic2l6ZSI6IGxlbihyYXcpLAogICAgICAgICJzaGEyNTYiOiBzaGEyNTYocmF3KS5oZXhkaWdlc3QoKSwKICAgIH0KCgpkZWYgX2pzb25fcmVjZWlwdChjbGllbnQ6IHN0b3JhZ2UuQ2xpZW50LCBuYW1lOiBzdHIsIHBheWxvYWQ6IGRpY3QpIC0+IGRpY3Q6CiAgICByYXcgPSAoanNvbi5kdW1wcyhwYXlsb2FkLCBzb3J0X2tleXM9VHJ1ZSwgc2VwYXJhdG9ycz0oIiwiLCAiOiIpKSArICJcbiIpLmVuY29kZSgpCiAgICByZXR1cm4gX2J5dGVzX3JlY2VpcHQoY2xpZW50LCBmIntfQVJUSUZBQ1RfUFJFRklYfS97bmFtZX0iLCByYXcpCgoKZGVmIF9pZGVudGl0eShzdGF0dXM6IHN0cikgLT4gZGljdDoKICAgIHJldHVybiB7CiAgICAgICAgInZlcnNpb24iOiAiYXRsYXMtY2JjLW5hdGl2ZS1kaWFnbm9zdGljLXYxIiwKICAgICAgICAidXNlc19yZWFsaXplZF9vdXRjb21lcyI6IEZhbHNlLAogICAgICAgICJwZXJzaXN0c19saW5ldXBzIjogRmFsc2UsCiAgICAgICAgInN0YXR1cyI6IHN0YXR1cywKICAgICAgICAicHJvdG9jb2xfaWQiOiBQUk9UT0NPTF9JRCwKICAgICAgICAicHJvdG9jb2xfc2hhMjU2Ijogb3MuZW52aXJvblsiQVRMQVNfQ0JDX0RJQUdOT1NUSUNfUFJPVE9DT0xfU0hBMjU2Il0sCiAgICAgICAgImRpYWdub3N0aWNfc291cmNlX3NoYTI1NiI6IG9zLmVudmlyb25bCiAgICAgICAgICAgICJBVExBU19DQkNfRElBR05PU1RJQ19TT1VSQ0VfU0hBMjU2IgogICAgICAgIF0sCiAgICAgICAgInJlcGFpcjJfY29kZV9zaGEiOiBDT0RFX1NIQSwKICAgICAgICAicmVwYWlyMl9pbWFnZSI6IElNQUdFLAogICAgICAgICJleGVjdXRpb24iOiBvcy5lbnZpcm9uLmdldCgiQ0xPVURfUlVOX0VYRUNVVElPTiIsICIiKSwKICAgICAgICAidGFza19pbmRleCI6IG9zLmVudmlyb24uZ2V0KCJDTE9VRF9SVU5fVEFTS19JTkRFWCIsICIiKSwKICAgICAgICAic29sdmVfY291bnQiOiBfU09MVkVfQ09VTlQsCiAgICB9CgoKZGVmIF9wZXJzaXN0X2NiY19mYWlsdXJlKGV4YzogQmFzZUV4Y2VwdGlvbikgLT4gTm9uZToKICAgIGNsaWVudCA9IHN0b3JhZ2UuQ2xpZW50KHByb2plY3Q9UFJPSkVDVCkKICAgIGFydGlmYWN0cyA9IHt9CiAgICBmb3IgbmFtZSwgcGF0aCBpbiAoKCJjYmMubG9nIiwgTEFTVF9MT0cpLCAoInByb2JsZW0ubXBzIiwgTVBTX1BBVEgpKToKICAgICAgICByYXcgPSBwYXRoLnJlYWRfYnl0ZXMoKSBpZiBwYXRoLmlzX2ZpbGUoKSBlbHNlIGIiIgogICAgICAgIGFydGlmYWN0c1tuYW1lXSA9IF9ieXRlc19yZWNlaXB0KAogICAgICAgICAgICBjbGllbnQsIGYie19BUlRJRkFDVF9QUkVGSVh9L3tuYW1lfSIsIHJhdywKICAgICAgICApCiAgICBwYXlsb2FkID0gewogICAgICAgICoqX2lkZW50aXR5KCJjYmMtZmFpbHVyZSIpLAogICAgICAgICJleGNlcHRpb25fdHlwZSI6IHR5cGUoZXhjKS5fX25hbWVfXywKICAgICAgICAiZXhjZXB0aW9uX21lc3NhZ2UiOiBzdHIoZXhjKSwKICAgICAgICAiYXJ0aWZhY3RzIjogYXJ0aWZhY3RzLAogICAgfQogICAgcmVjZWlwdCA9IF9qc29uX3JlY2VpcHQoY2xpZW50LCAiZmFpbHVyZS5qc29uIiwgcGF5bG9hZCkKICAgIHByaW50KCJBVExBU19DQkNfRElBR05PU1RJQ19GQUlMVVJFICIgKyBqc29uLmR1bXBzKHJlY2VpcHQsIHNvcnRfa2V5cz1UcnVlKSkKCgpjbGFzcyBEaWFnbm9zdGljQ0JDKF9CQVNFX0NCQyk6CiAgICAiIiJVbmNoYW5nZWQgcGFja2FnZWQgQ0JDIHNvbHZlIHdpdGggcmV0YWluZWQgTVBTIGFuZCByZWRpcmVjdGVkIG91dHB1dC4iIiIKCiAgICBkZWYgX19pbml0X18oc2VsZiwgKmFyZ3MsICoqa3dhcmdzKToKICAgICAgICBrd2FyZ3NbIm1zZyJdID0gRmFsc2UKICAgICAgICBrd2FyZ3NbImtlZXBGaWxlcyJdID0gVHJ1ZQogICAgICAgIGt3YXJnc1sibG9nUGF0aCJdID0gc3RyKExBU1RfTE9HKQogICAgICAgIHN1cGVyKCkuX19pbml0X18oKmFyZ3MsICoqa3dhcmdzKQoKICAgIGRlZiBhY3R1YWxTb2x2ZShzZWxmLCBscCwgKiprd2FyZ3MpOiAgIyBub3FhOiBOODAyIC0gUHVMUCBBUEkgbmFtZQogICAgICAgIGdsb2JhbCBfU09MVkVfQ09VTlQKICAgICAgICBfU09MVkVfQ09VTlQgKz0gMQogICAgICAgIHRyeToKICAgICAgICAgICAgcmV0dXJuIHN1cGVyKCkuYWN0dWFsU29sdmUobHAsICoqa3dhcmdzKQogICAgICAgIGV4Y2VwdCBCYXNlRXhjZXB0aW9uIGFzIGV4YzoKICAgICAgICAgICAgX3BlcnNpc3RfY2JjX2ZhaWx1cmUoZXhjKQogICAgICAgICAgICByYWlzZQoKCmRlZiBfbG9hZF9ib29rcyhydW5uZXIsIHNlYXNvbjogaW50LCB3ZWVrOiBpbnQpOgogICAgYnEgPSBiaWdxdWVyeS5DbGllbnQocHJvamVjdD1QUk9KRUNUKQogICAgZ2NzID0gc3RvcmFnZS5DbGllbnQocHJvamVjdD1QUk9KRUNUKQogICAgc291cmNlcyA9IHJ1bm5lci5fcXVlcnkoYnEsIHJ1bm5lci5TT1VSQ0VfU1FMLCBydW5uZXIuX3NvdXJjZV9wYXJhbXMoKSkKICAgIHBsYXllcnMgPSBydW5uZXIuX3F1ZXJ5KGJxLCBydW5uZXIuUExBWUVSX1NRTCwgcnVubmVyLl9wbGF5ZXJfcGFyYW1zKHNlYXNvbikpCiAgICBzb3VyY2VzID0gc291cmNlc1sKICAgICAgICBzb3VyY2VzLnNlYXNvbi5hc3R5cGUoaW50KS5lcShzZWFzb24pCiAgICAgICAgJiBzb3VyY2VzLndlZWsuYXN0eXBlKGludCkuZXEod2VlaykKICAgIF0uY29weSgpCiAgICBjYXRhbG9nID0gcGxheWVyc1twbGF5ZXJzLndlZWsuYXN0eXBlKGludCkuZXEod2VlayldLmNvcHkoKQogICAgaWYgc291cmNlcy5lbXB0eSBvciBjYXRhbG9nLmVtcHR5OgogICAgICAgIHJhaXNlIFJ1bnRpbWVFcnJvcigiQVRMQVMgQ0JDIGRpYWdub3N0aWMgc291cmNlL2NhdGFsb2cgaXMgZW1wdHkiKQogICAgYm9va3MgPSB7fQogICAgZm9yIHNlZWQsIGV4cGVjdGVkX3BhbmVsIGluIHppcCgKICAgICAgICBydW5uZXIuUkVHSVNURVJFRF9TRUVEUywgcnVubmVyLlNPVVJDRV9QQU5FTFMsIHN0cmljdD1UcnVlLAogICAgKToKICAgICAgICBncm91cCA9IHNvdXJjZXNbCiAgICAgICAgICAgIHNvdXJjZXMucGFuZWxfcnVuX2lkLmFzdHlwZShzdHIpLm1hcChydW5uZXIuX2Nhbm9uaWNhbF9wYW5lbCkuZXEoCiAgICAgICAgICAgICAgICBleHBlY3RlZF9wYW5lbAogICAgICAgICAgICApCiAgICAgICAgXS5jb3B5KCkKICAgICAgICB1cmlzID0gZ3JvdXAuc2NvcmVfYXJ0aWZhY3RfdXJpLmFzdHlwZShzdHIpLnVuaXF1ZSgpCiAgICAgICAgZGlnZXN0cyA9IGdyb3VwLnNjb3JlX2FydGlmYWN0X3NoYTI1Ni5hc3R5cGUoc3RyKS51bmlxdWUoKQogICAgICAgIGlmIGdyb3VwLmVtcHR5IG9yIGxlbih1cmlzKSAhPSAxIG9yIGxlbihkaWdlc3RzKSAhPSAxOgogICAgICAgICAgICByYWlzZSBSdW50aW1lRXJyb3IoIkFUTEFTIENCQyBkaWFnbm9zdGljIG5hdGl2ZSBzb3VyY2UgZGlmZmVycyIpCiAgICAgICAgYXJ0aWZhY3QsIF8gPSBydW5uZXIuX2Rvd25sb2FkX2FydGlmYWN0KGdjcywgdXJpc1swXSwgZGlnZXN0c1swXSkKICAgICAgICBib29rc1tzZWVkXSA9IHJ1bm5lci5fY2FuZGlkYXRlX2JhdGNoKGdyb3VwLCBhcnRpZmFjdCwgY2F0YWxvZykKICAgIHJldHVybiBib29rcwoKCmRlZiBydW4oc2Vhc29uOiBpbnQsIHdlZWs6IGludCwgYXJ0aWZhY3RfcHJlZml4OiBzdHIpIC0+IE5vbmU6CiAgICBnbG9iYWwgX0FSVElGQUNUX1BSRUZJWAogICAgaWYgKHNlYXNvbiwgd2Vlaykgbm90IGluIEFMTE9XRURfQ0VMTFMgb3IgYXJ0aWZhY3RfcHJlZml4ICE9ICgKICAgICAgICBmIntQUkVGSVh9L3NlYXNvbi17c2Vhc29ufS13ZWVrLXt3ZWVrfSIKICAgICk6CiAgICAgICAgcmFpc2UgUnVudGltZUVycm9yKCJBVExBUyBDQkMgZGlhZ25vc3RpYyBjZWxsL3ByZWZpeCBkaWZmZXJzIikKICAgIGlmIG9zLmVudmlyb24uZ2V0KCJDT0RFX1NIQSIpICE9IENPREVfU0hBIG9yIFwKICAgICAgICAgICAgb3MuZW52aXJvbi5nZXQoIkFOQUxZU0lTX0lNQUdFIikgIT0gSU1BR0U6CiAgICAgICAgcmFpc2UgUnVudGltZUVycm9yKCJBVExBUyBDQkMgZGlhZ25vc3RpYyByZXBhaXIyIGlkZW50aXR5IGRpZmZlcnMiKQogICAgZm9yIGtleSBpbiAoCiAgICAgICAgIkFUTEFTX0NCQ19ESUFHTk9TVElDX1BST1RPQ09MX1NIQTI1NiIsCiAgICAgICAgIkFUTEFTX0NCQ19ESUFHTk9TVElDX1NPVVJDRV9TSEEyNTYiLAogICAgKToKICAgICAgICBpZiBub3QgcmUuZnVsbG1hdGNoKHIiWzAtOWEtZl17NjR9Iiwgb3MuZW52aXJvbi5nZXQoa2V5LCAiIikpOgogICAgICAgICAgICByYWlzZSBSdW50aW1lRXJyb3IoIkFUTEFTIENCQyBkaWFnbm9zdGljIGhhc2ggaWRlbnRpdHkgaXMgcmVxdWlyZWQiKQogICAgX0FSVElGQUNUX1BSRUZJWCA9IGFydGlmYWN0X3ByZWZpeAoKICAgIHNjcmlwdHMgPSBzdHIoUGF0aC5jd2QoKSAvICJzY3JpcHRzIikKICAgIGlmIHNjcmlwdHMgbm90IGluIHN5cy5wYXRoOgogICAgICAgIHN5cy5wYXRoLmluc2VydCgwLCBzY3JpcHRzKQogICAgaW1wb3J0IHJ1bl9hdGxhc19tYXRjaGVkX2RpdmVyc2l0eV9tdnAgYXMgcnVubmVyCgogICAgcnVubmVyLnZhbGlkYXRlX2xvY2FsX3NvdXJjZXMoKQogICAgcHVscC5QVUxQX0NCQ19DTUQgPSBEaWFnbm9zdGljQ0JDCiAgICBib29rcyA9IF9sb2FkX2Jvb2tzKHJ1bm5lciwgc2Vhc29uLCB3ZWVrKQogICAgcHJpY2luZyA9IHJ1bm5lci5wcmljZV9uYXRpdmVfaW50ZXJhY3Rpb25zKGJvb2tzKQogICAgbm9uYm9vbSA9IFsKICAgICAgICBsaW5ldXAKICAgICAgICBmb3Igc2VlZCBpbiBydW5uZXIuUkVHSVNURVJFRF9TRUVEUwogICAgICAgIGZvciBsaW5ldXAgaW4gYm9va3Nbc2VlZF0uY2FuZGlkYXRlcwogICAgICAgIGlmIHN0cihsaW5ldXAudGFnKSAhPSAiYm9vbSIKICAgIF0KICAgIHNlZWQgPSBydW5uZXIuUkVHSVNURVJFRF9TRUVEU1swXQogICAgbmF0aXZlID0gYm9va3Nbc2VlZF0KICAgIHBvc2l0aW9ucyA9IFtzdHIocm93LmdldCgicG9zIiwgIiIpKSBmb3Igcm93IGluIG5hdGl2ZS5wbGF5ZXJfcm93c10KICAgIGJvdW5kID0gcnVubmVyLnJvc3Rlcl9zbG90X3VwcGVyX2JvdW5kKG5hdGl2ZS5yb3dfZHJhd3MsIHBvc2l0aW9ucykKICAgIHdvcmxkX29yZGVyID0gcnVubmVyLnJhbmtfd29ybGRzKGJvdW5kLCA0MCkKICAgIHN0YWNrID0gcnVubmVyLlN0YWNrUnVsZXMocWJfc3RhY2tfbWluPTIsIGJyaW5nX2JhY2tfbWluPTEpCiAgICBlbnYgPSB7Ik1JTl9MSU5FVVBfU0FMQVJZIjogIjQ5MDAwIn0KICAgIGV4YWN0ID0gcnVubmVyLnNvbHZlX2V4YWN0X3dvcmxkcygKICAgICAgICBuYXRpdmUucGxheWVyX3Jvd3MsIG5hdGl2ZS5yb3dfZHJhd3MsIHdvcmxkX29yZGVyLAogICAgICAgIHN0YWNrPXN0YWNrLCBlbnY9ZW52LAogICAgKQogICAgY2x1c3RlcnMgPSBydW5uZXIuYnVpbGRfc3RydWN0dXJhbF9jbHVzdGVycyh3b3JsZF9vcmRlciwgZXhhY3QpCiAgICBydW5uZXIuZW51bWVyYXRlX21hdGNoZWRfZGl2ZXJzaXR5X2xpbmV1cHMoCiAgICAgICAgcGxheWVyX3Jvd3M9bmF0aXZlLnBsYXllcl9yb3dzLAogICAgICAgIHJvd19kcmF3cz1uYXRpdmUucm93X2RyYXdzLAogICAgICAgIGNsdXN0ZXJzPWNsdXN0ZXJzLAogICAgICAgIGV4YWN0X3dvcmxkcz1leGFjdCwKICAgICAgICBpbnRlcmFjdGlvbl93ZWlnaHRzPXByaWNpbmdbIndlaWdodHNfYnlfc291cmNlIl1bc2VlZF0sCiAgICAgICAgbm9uYm9vbV9saW5ldXBzPW5vbmJvb20sCiAgICAgICAgcHJpb3JfYXRsYXNfcm9zdGVycz1zZXQoKSwKICAgICAgICBzdGFjaz1zdGFjaywKICAgICAgICBlbnY9ZW52LAogICAgKQogICAgY2xpZW50ID0gc3RvcmFnZS5DbGllbnQocHJvamVjdD1QUk9KRUNUKQogICAgcmVjZWlwdCA9IF9qc29uX3JlY2VpcHQoY2xpZW50LCAic3VjY2Vzcy5qc29uIiwgX2lkZW50aXR5KCJyMC1jb21wbGV0ZSIpKQogICAgcHJpbnQoIkFUTEFTX0NCQ19ESUFHTk9TVElDX1NVQ0NFU1MgIiArIGpzb24uZHVtcHMocmVjZWlwdCwgc29ydF9rZXlzPVRydWUpKQoKCmRlZiBtYWluKCkgLT4gTm9uZToKICAgIHBhcnNlciA9IGFyZ3BhcnNlLkFyZ3VtZW50UGFyc2VyKCkKICAgIHBhcnNlci5hZGRfYXJndW1lbnQoIi0tc2Vhc29uIiwgcmVxdWlyZWQ9VHJ1ZSwgdHlwZT1pbnQpCiAgICBwYXJzZXIuYWRkX2FyZ3VtZW50KCItLXdlZWsiLCByZXF1aXJlZD1UcnVlLCB0eXBlPWludCkKICAgIHBhcnNlci5hZGRfYXJndW1lbnQoIi0tYXJ0aWZhY3QtcHJlZml4IiwgcmVxdWlyZWQ9VHJ1ZSkKICAgIGFyZ3MgPSBwYXJzZXIucGFyc2VfYXJncygpCiAgICBydW4oYXJncy5zZWFzb24sIGFyZ3Mud2VlaywgYXJncy5hcnRpZmFjdF9wcmVmaXgpCgoKaWYgX19uYW1lX18gPT0gIl9fbWFpbl9fIjoKICAgIG1haW4oKQo='))",
+              "--season",
+              "2024",
+              "--week",
+              "16",
+              "--artifact-prefix",
+              "gs://nfl-predictions-503414-raw/research/atlas-cbc-native-diagnostic-runs/20260816-atlas-cbc-native-diagnostic-v1/season-2024-week-16"
+            ],
+            "command": [
+              "python"
+            ],
+            "env": [
+              {
+                "name": "CODE_SHA",
+                "value": "60f296fdad769b30c0bb7334118698f156e462b9"
+              },
+              {
+                "name": "ANALYSIS_IMAGE",
+                "value": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ce03feb739e51aabedd7cea79f46e13a06a097a7f85e9a5817f38184b67f4fcb"
+              },
+              {
+                "name": "ATLAS_CBC_DIAGNOSTIC_PROTOCOL_SHA256",
+                "value": "ebf7d65b683eca56e889c6a8f4b39c578590f2d7e1ddebc9679605c9131c66d7"
+              },
+              {
+                "name": "ATLAS_CBC_DIAGNOSTIC_SOURCE_SHA256",
+                "value": "c91e153d92e920c378255b5c9a2e3fa16f002a57f1cb43cc0cd17cc030028931"
+              }
+            ],
+            "image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ce03feb739e51aabedd7cea79f46e13a06a097a7f85e9a5817f38184b67f4fcb",
+            "resources": {
+              "limits": {
+                "cpu": "1",
+                "memory": "4Gi"
+              }
+            }
+          }
+        ],
+        "maxRetries": 0,
+        "serviceAccountName": "817589974517-compute@developer.gserviceaccount.com",
+        "timeoutSeconds": "43200"
+      }
+    }
+  },
+  "status": {
+    "completionTime": "2026-08-16T14:58:05.280827Z",
+    "conditions": [
+      {
+        "lastTransitionTime": "2026-08-16T14:58:05.280827Z",
+        "message": "Task atlas-cbc-diag-2024-w16-v1-89fq4-task0 failed with exit code: 1 and message: The container exited with an error.",
+        "reason": "NonZeroExitCode",
+        "status": "False",
+        "type": "Completed"
+      },
+      {
+        "lastTransitionTime": "2026-08-16T13:57:28.566582Z",
+        "message": "Provisioned imported containers.",
+        "status": "True",
+        "type": "ResourcesAvailable"
+      },
+      {
+        "lastTransitionTime": "2026-08-16T13:59:51.743729Z",
+        "message": "Started deployed execution in 2m23.17s.",
+        "status": "True",
+        "type": "Started"
+      },
+      {
+        "lastTransitionTime": "2026-08-16T13:57:28.485443Z",
+        "message": "Imported container image.",
+        "status": "True",
+        "type": "ContainerReady"
+      }
+    ],
+    "failedCount": 1,
+    "logUri": "https://console.cloud.google.com/logs/viewer?project=nfl-predictions-503414&advancedFilter=resource.type%3D%22cloud_run_job%22%0Aresource.labels.job_name%3D%22atlas-cbc-diag-2024-w16-v1%22%0Aresource.labels.location%3D%22us-central1%22%0Alabels.%22run.googleapis.com/execution_name%22%3D%22atlas-cbc-diag-2024-w16-v1-89fq4%22",
+    "observedGeneration": 1,
+    "startTime": "2026-08-16T13:57:37.925459Z"
+  }
+}
