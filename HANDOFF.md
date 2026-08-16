@@ -880,9 +880,20 @@ agent or developer:
   optimizer/parity/repair5 tests, Python compilation and diff checks pass.
   The single repaired full build is now durable Cloud Build
   `9e8347a9-7fe1-460f-a0d6-9ba379616b52`, submitted from the exact `0679731`
-  Git archive under create-only tag `atlas-continuous-0679731-r1`. Poll it to
-  terminal and record its immutable digest only if the complete suite, image
-  build and both container smokes succeed; do not launch the parity cell yet.
+  Git archive under create-only tag `atlas-continuous-0679731-r1`. It completed
+  successfully: 1,626 tests passed, 2 skipped and 5 warnings in 1,023.50
+  seconds; the image build and both runner/optimizer container smokes passed.
+  The immutable image digest is
+  `sha256:437641a46e1c952ec2f1628428904c89fb4f8eef3d2a2c42a52262c45817231f`.
+  Its durable build receipt is under
+  `reports/atlas-interaction-parity-runs/20260816-atlas-interaction-parity-v1/`;
+  its SHA-256 is
+  `a3c7032e25bc6bcdcddcd8096d5b08436aa36bf52002298a369d025ba6b78ccf`, and
+  the full GCP build-metadata SHA-256 is
+  `aaba789f21bf7b1aef6dc3253c924c58f0deefa09bb0d2f8c35dc22623b70f29`.
+  This only validates the conditional score-free parity fallback; do not
+  launch its diagnostic while the binary 32-GiB preflight or licensed repair5
+  has priority.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).
