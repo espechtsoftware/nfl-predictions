@@ -1,7 +1,7 @@
 # ATLAS repair2 CBC invalidation
 
-Date: 2026-08-16  
-Run: `20260816-atlas-matched-diversity-mvp-v1-repair2`  
+Date: 2026-08-16
+Run: `20260816-atlas-matched-diversity-mvp-v1-repair2`
 Disposition: terminally invalid; no score-free effect and no historical score
 is licensed from this execution grid.
 

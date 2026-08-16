@@ -486,6 +486,14 @@ licensed diagnostic boundary are in
 pass 1,605 tests plus both smokes and resolved to
 `sha256:ea3584db4a1d721f2dcfb62ae5cfddf164d9982f9e03397643f0f63021aaa11d`,
 but it remains bound to the invalid repair2 receipt and cannot score repair3.
+The native-CBC observability protocol/source SHA-256 values are
+`ebf7d65b683eca56e889c6a8f4b39c578590f2d7e1ddebc9679605c9131c66d7`
+and
+`c91e153d92e920c378255b5c9a2e3fa16f002a57f1cb43cc0cd17cc030028931`.
+They permit only identical R0-prefix diagnostics for the two failed cells,
+with all lineups discarded and only native CBC/MPS mechanical evidence
+persisted. Repair3 remains unfrozen until both diagnostic receipts are strictly
+harvested.
 
 ## Evidence firewall for reviewers
 

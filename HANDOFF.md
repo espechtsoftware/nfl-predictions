@@ -480,6 +480,22 @@ agent or developer:
   `sha256:ea3584db4a1d721f2dcfb62ae5cfddf164d9982f9e03397643f0f63021aaa11d`.
   It is valid for the now-invalid repair2 receipt only and must not score a
   future repair3 grid.
+  The score-free native-CBC diagnostic is now frozen and implemented at
+  `reports/2026-08-16-atlas-cbc-native-diagnostic-protocol.md` and
+  `scripts/run_atlas_cbc_failure_diagnostic.py`, SHA-256 values
+  `ebf7d65b683eca56e889c6a8f4b39c578590f2d7e1ddebc9679605c9131c66d7`
+  and
+  `c91e153d92e920c378255b5c9a2e3fa16f002a57f1cb43cc0cd17cc030028931`.
+  It executes only the identical failed R0 prefix for 2024 Weeks 15/16 in the
+  unchanged repair2 image, changes only packaged-CBC log/MPS retention,
+  discards returned lineups and cannot address a normal ATLAS output URI.
+  Launcher and strict finisher are
+  `scripts/cloud_atlas_cbc_failure_diagnostic.sh` and
+  `scripts/cloud_finish_atlas_cbc_failure_diagnostic.sh`. Ten focused tests,
+  Python compilation, both shell syntax checks and diff checks pass. Commit
+  and push these sources before launch; then run the two diagnostics, wait for
+  both terminal states and invoke only the strict finisher before choosing
+  repair3.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
