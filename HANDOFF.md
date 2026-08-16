@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 03:35 CDT
+## Current state — 2026-08-16 05:55 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -267,6 +267,21 @@ agent or developer:
   Next concrete action: poll these exact three executions as a set; do not
   inspect or interpret partial season effects; after all three reach terminal
   success invoke only `scripts/cloud_finish_atlas_matched_diversity_mvp.sh`.
+  At 05:55 CDT all three remained on one healthy running task with zero
+  retries or failures; no season object or partial metric was opened.
+  While they remained nonterminal, a separate downstream historical scoring
+  protocol was frozen before any upstream output was visible at
+  `reports/2026-08-16-atlas-historical-score-diagnostic-protocol.md`, SHA-256
+  `4b618b5f8b8b8ed61dc5518e5b8b1cb8d5941e92f088ddb0a53af05d37f4239e`.
+  It will run after mechanically valid completion regardless of whether the
+  score-free gate passes, reconstruct equal-budget P1/P2 without another
+  ATLAS solve, and score actual candidate and exact-80 weekly maxima on all
+  54 registered 2023--2025 slates. The frozen historical signal requires +2
+  selected >=200 slates, non-worse selected >=210 and non-worse candidate-
+  pool >=200. This can strengthen or weaken the prospective shadow case but
+  cannot promote production because the mechanism postdates viewed historical
+  outcomes. Implement its pure scorer/runner now without reading upstream
+  objects, while continuing terminal polling.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five

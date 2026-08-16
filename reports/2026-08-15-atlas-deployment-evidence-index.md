@@ -360,6 +360,18 @@ Their create-only manifest and execution receipt are under
 Do not interpret a partial season; only the strict three-season finisher may
 assign the effect disposition after all three executions are terminal.
 
+Before any repair1 execution reached terminal state or any season output was
+opened, the separate downstream realized-score diagnostic was frozen at
+`reports/2026-08-16-atlas-historical-score-diagnostic-protocol.md`, SHA-256
+`4b618b5f8b8b8ed61dc5518e5b8b1cb8d5941e92f088ddb0a53af05d37f4239e`.
+It will always run after mechanically valid upstream completion, regardless
+of the score-free gate, and reconstruct P1/P2 at equal candidate budget before
+scoring actual 2023--2025 candidate and exact-80 weekly maxima. Its primary
+tail-first signal requires +2 selected 200-point slates, non-worse selected
+210 and non-worse candidate-pool 200. Because the mechanism was developed
+after prior outcomes were available, this is diagnostic evidence only; only
+pre-lock 2026 books can promote the strategy.
+
 ## Evidence firewall for reviewers
 
 - Score-free results establish simulated-law premises, not realized DFS
