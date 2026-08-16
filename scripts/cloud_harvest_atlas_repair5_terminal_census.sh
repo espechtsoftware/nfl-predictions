@@ -8,20 +8,32 @@ RUN_ID=20260816-atlas-matched-diversity-mvp-v1-repair5
 OUT="$ROOT/reports/atlas-matched-diversity-runs/$RUN_ID"
 MANIFEST="$OUT/manifest.txt"
 EXECUTIONS="$OUT/executions.txt"
+RETRIES="$OUT/retry-executions.txt"
+ACCEPTED="$OUT/accepted-executions.txt"
+RESOLUTION="$OUT/attempt-resolution.json"
+CLASSIFICATION="$OUT/primary-attempt-classification.json"
 PREFIX=gs://nfl-predictions-503414-raw/research/atlas-matched-diversity-runs/$RUN_ID
 PROTOCOL="$ROOT/reports/2026-08-16-atlas-repair5-terminal-census-protocol.md"
+ATTEMPT_AMENDMENT="$ROOT/reports/2026-08-16-atlas-repair5-terminal-census-attempt-amendment.md"
+RETRY_AMENDMENT="$ROOT/reports/2026-08-16-atlas-repair5-bounded-platform-retry-amendment.md"
 REPAIR5_PROTOCOL="$ROOT/reports/2026-08-16-atlas-mvp-resource-only-repair5.md"
 LAUNCHER="$ROOT/scripts/cloud_atlas_matched_diversity_repair5.sh"
+ATTEMPT_RESOLVER="$ROOT/scripts/cloud_prepare_atlas_matched_diversity_repair5_attempts.sh"
 FINISHER="$ROOT/scripts/cloud_finish_atlas_matched_diversity_repair5.sh"
 RENDERER="$ROOT/scripts/render_atlas_matched_diversity_repair4_command.py"
 PROTOCOL_SHA=94a792d80c4a908aed56034add9635478c738a29522554670c09360458561d0f
+ATTEMPT_AMENDMENT_SHA=82e850d0c2c2ad525559c378e0116bc270b2d4e8428eb341506481f350a9e99b
+RETRY_AMENDMENT_SHA=d464660b72e669d261d7f6d4800b3e59d55726b56e7003c5e3e806f38fa987a0
 REPAIR5_PROTOCOL_SHA=5acc93c2b3a59931aa17dbc67d98fca81d3a6ac047011cfe1a9a81aa1ee8550e
 LAUNCHER_SHA=9ea70f34e2591672e4b84621c116db8e4b465177bbda689d9d555c3d18d85b42
-FINISHER_SHA=39fe8218edbfabe8a0e021407f8cca5da0fa9113c93e858556761164ca434933
+ATTEMPT_RESOLVER_SHA=c11171b607d2ab381d013adfe655567f126305e5ac65e07c8dd53df61ac9743f
+FINISHER_SHA=c21419ca9bb65e0e39a9e9fe0efb3909ab6d437bc42e5d29db5f97a5edce9c89
 
 for SPEC in "$PROTOCOL:$PROTOCOL_SHA" \
+  "$ATTEMPT_AMENDMENT:$ATTEMPT_AMENDMENT_SHA" \
+  "$RETRY_AMENDMENT:$RETRY_AMENDMENT_SHA" \
   "$REPAIR5_PROTOCOL:$REPAIR5_PROTOCOL_SHA" "$LAUNCHER:$LAUNCHER_SHA" \
-  "$FINISHER:$FINISHER_SHA"; do
+  "$ATTEMPT_RESOLVER:$ATTEMPT_RESOLVER_SHA" "$FINISHER:$FINISHER_SHA"; do
   FILE=${SPEC%:*}
   DIGEST=${SPEC##*:}
   [ -s "$FILE" ] && [ "$(sha256sum "$FILE" | awk '{print $1}')" = "$DIGEST" ] || {
@@ -29,7 +41,8 @@ for SPEC in "$PROTOCOL:$PROTOCOL_SHA" \
     exit 2
   }
 done
-[ -s "$MANIFEST" ] && [ -s "$EXECUTIONS" ] || {
+[ -s "$MANIFEST" ] && [ -s "$EXECUTIONS" ] && [ -e "$RETRIES" ] && \
+  [ -s "$RESOLUTION" ] && [ -s "$CLASSIFICATION" ] || {
   echo "ABORT: ATLAS repair5 census launch receipt is incomplete" >&2
   exit 2
 }
@@ -58,6 +71,22 @@ else
   done < "$EXECUTIONS"
 fi
 
+RETRY_PENDING="$OUT/terminal-census-retry-execution-metadata.pending"
+if [ -d "$RETRY_PENDING" ]; then
+  [ "$(find "$RETRY_PENDING" -maxdepth 1 -name 'season-*-week-*.json' | wc -l)" = \
+    "$(wc -l < "$RETRIES")" ] || {
+    echo "ABORT: ATLAS repair5 pending retry census metadata is incomplete" >&2
+    exit 2
+  }
+else
+  mkdir "$RETRY_PENDING"
+  while read -r SEASON WEEK JOB PRIMARY_EXEC RETRY_EXEC URI; do
+    gcloud run jobs executions describe "$RETRY_EXEC" --project "$PROJECT" \
+      --region "$REGION" --format=json \
+      > "$RETRY_PENDING/season-${SEASON}-week-${WEEK}.json"
+  done < "$RETRIES"
+fi
+
 OBJECTS_PENDING="$OUT/terminal-census-object-inventory.pending.txt"
 if [ ! -e "$OBJECTS_PENDING" ]; then
   gcloud storage ls "$PREFIX/**" --recursive --project "$PROJECT" \
@@ -67,18 +96,24 @@ fi
 GRID_COMMAND=$("$ROOT/.venv/bin/python" "$RENDERER" \
   --replacement-prefix "$PREFIX")
 "$ROOT/.venv/bin/python" - "$MANIFEST" "$EXECUTIONS" "$PENDING" \
+  "$RETRIES" "$RETRY_PENDING" "$ACCEPTED" "$RESOLUTION" "$CLASSIFICATION" \
   "$OBJECTS_PENDING" "$OUT/terminal-census.pending.json" \
-  "$GRID_COMMAND" "$PROTOCOL_SHA" "$LAUNCHER_SHA" "$FINISHER_SHA" <<'PY'
+  "$GRID_COMMAND" "$PROTOCOL_SHA" "$ATTEMPT_AMENDMENT_SHA" \
+  "$RETRY_AMENDMENT_SHA" "$LAUNCHER_SHA" "$ATTEMPT_RESOLVER_SHA" \
+  "$FINISHER_SHA" <<'PY'
 from collections import Counter
 from hashlib import sha256
 import json
 from pathlib import Path
 import sys
 
-manifest_path, ledger_path, metadata_dir, inventory_path, output_path = map(
-    Path, sys.argv[1:6]
+manifest_path, ledger_path, metadata_dir, retry_path, retry_metadata_dir, \
+    accepted_path, resolution_path, classification_path, inventory_path, \
+    output_path = map(
+    Path, sys.argv[1:11]
 )
-grid_command, protocol_sha, launcher_sha, finisher_sha = sys.argv[6:]
+grid_command, protocol_sha, attempt_amendment_sha, retry_amendment_sha, \
+    launcher_sha, attempt_resolver_sha, finisher_sha = sys.argv[11:]
 manifest = dict(
     line.rstrip("\n").split("=", 1)
     for line in manifest_path.read_text(encoding="utf-8").splitlines()
@@ -109,6 +144,9 @@ if manifest.get("grid_command_sha256") != sha256(grid_command.encode()).hexdiges
     raise SystemExit("ABORT: ATLAS repair5 census command hash differs")
 
 rows = [line.split() for line in ledger_path.read_text(encoding="utf-8").splitlines()]
+retry_rows = [line.split() for line in retry_path.read_text(encoding="utf-8").splitlines()]
+resolution = json.loads(resolution_path.read_text(encoding="utf-8"))
+classification = json.loads(classification_path.read_text(encoding="utf-8"))
 expected_cells = {
     (str(season), str(week))
     for season in (2023, 2024, 2025) for week in range(1, 19)
@@ -116,6 +154,28 @@ expected_cells = {
 if len(rows) != 54 or {(row[0], row[1]) for row in rows} != expected_cells or \
         len({row[3] for row in rows}) != 54 or any(len(row) != 5 for row in rows):
     raise SystemExit("ABORT: ATLAS repair5 terminal census grid differs")
+if any(len(row) != 6 for row in retry_rows) or \
+        len({(row[0], row[1]) for row in retry_rows}) != len(retry_rows) or \
+        len({row[4] for row in retry_rows}) != len(retry_rows):
+    raise SystemExit("ABORT: ATLAS repair5 terminal retry grid differs")
+if resolution.get("version") != "atlas-repair5-attempt-resolution-v1" or \
+        resolution.get("uses_realized_outcomes") is not False or \
+        resolution.get("effect_fields_inspected") is not False or \
+        resolution.get("task_max_retries") != 0 or \
+        resolution.get("max_replacement_executions_per_cell") != 1:
+    raise SystemExit("ABORT: ATLAS repair5 census attempt resolution differs")
+if classification.get("version") != \
+        "atlas-repair5-primary-attempt-classification-v1" or \
+        classification.get("uses_realized_outcomes") is not False or \
+        classification.get("effect_fields_inspected") is not False:
+    raise SystemExit("ABORT: ATLAS repair5 census classification differs")
+if resolution.get("classification_sha256") != \
+        sha256(classification_path.read_bytes()).hexdigest() or \
+        resolution.get("primary_execution_ledger_sha256") != \
+        sha256(ledger_path.read_bytes()).hexdigest() or \
+        resolution.get("retry_execution_ledger_sha256") != \
+        sha256(retry_path.read_bytes()).hexdigest():
+    raise SystemExit("ABORT: ATLAS repair5 census attempt hashes differ")
 
 terminal = []
 status_counts = Counter()
@@ -198,6 +258,94 @@ for season_text, week_text, job, execution, uri in rows:
 
 if status_counts["False"] < 1:
     raise SystemExit("ABORT: ATLAS repair5 failure census has no failed cell")
+primary_by_cell = {(row[0], row[1]): row for row in rows}
+retry_terminal = []
+retry_status_counts = Counter()
+retry_reason_counts = Counter()
+for season_text, week_text, job, primary_execution, retry_execution, uri in retry_rows:
+    season, week = int(season_text), int(week_text)
+    primary = primary_by_cell.get((season_text, week_text))
+    if primary is None or primary[:4] != [season_text, week_text, job, primary_execution] \
+            or primary[4] != uri or not retry_execution.startswith(job + "-") \
+            or retry_execution == primary_execution:
+        raise SystemExit("ABORT: ATLAS repair5 census retry binding differs")
+    value = json.loads(
+        (retry_metadata_dir / f"season-{season}-week-{week}.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    if value.get("metadata", {}).get("name") != retry_execution:
+        raise SystemExit("ABORT: ATLAS repair5 census retry identity differs")
+    status = value.get("status", {})
+    completed = [
+        row for row in status.get("conditions", []) if row.get("type") == "Completed"
+    ]
+    if len(completed) != 1 or completed[0].get("status") not in {"True", "False"} \
+            or not status.get("completionTime"):
+        raise SystemExit("ABORT: ATLAS repair5 census includes nonterminal retry")
+    final_status = completed[0]["status"]
+    if final_status == "True":
+        if int(status.get("succeededCount") or 0) != 1 or \
+                int(status.get("failedCount") or 0) != 0:
+            raise SystemExit("ABORT: ATLAS repair5 census retry success differs")
+    elif int(status.get("succeededCount") or 0) != 0 or \
+            int(status.get("failedCount") or 0) != 1 or \
+            int(status.get("cancelledCount") or 0) != 0:
+        raise SystemExit("ABORT: ATLAS repair5 census retry failure differs")
+    spec = value.get("spec", {})
+    task = spec.get("template", {}).get("spec", {})
+    containers = task.get("containers", [])
+    if spec.get("parallelism") != 1 or spec.get("taskCount") != 1 or \
+            len(containers) != 1:
+        raise SystemExit("ABORT: ATLAS repair5 census retry task shape differs")
+    container = containers[0]
+    expected_args = [
+        "-c", grid_command, "--season", str(season), "--week", str(week),
+        "--output-uri", uri,
+    ]
+    env = {
+        row.get("name"): str(row.get("value", ""))
+        for row in container.get("env", [])
+    }
+    if container.get("image") != manifest["image"] or \
+            container.get("command") != ["python"] or \
+            container.get("args") != expected_args or \
+            env != {"CODE_SHA": manifest["code_sha"],
+                    "ANALYSIS_IMAGE": manifest["image"]} or \
+            container.get("resources", {}).get("limits") != \
+            {"cpu": "8", "memory": "32Gi"} or task.get("maxRetries") != 0 or \
+            str(task.get("timeoutSeconds")) != "43200" or \
+            task.get("serviceAccountName") != \
+            "817589974517-compute@developer.gserviceaccount.com":
+        raise SystemExit("ABORT: ATLAS repair5 census retry contract differs")
+    reason = str(completed[0].get("reason", ""))
+    message = str(completed[0].get("message", ""))
+    retry_status_counts[final_status] += 1
+    if final_status == "False":
+        retry_reason_counts[reason or "unspecified"] += 1
+    retry_terminal.append({
+        "season": season, "week": week, "job": job,
+        "primary_execution": primary_execution, "retry_execution": retry_execution,
+        "status": final_status, "reason": reason, "message": message,
+        "completion_time": status["completionTime"],
+    })
+
+disposition = resolution.get("disposition")
+if disposition == "terminal-invalid-primary":
+    if classification.get("ineligible_failures", 0) < 1 or retry_rows or \
+            resolution.get("accepted_executions") != 0:
+        raise SystemExit("ABORT: ATLAS repair5 ineligible-primary release differs")
+elif disposition == "accepted-population-with-platform-replacements":
+    if classification.get("ineligible_failures") != 0 or \
+            classification.get("eligible_replacements") != len(retry_rows) or \
+            resolution.get("retry_executions") != len(retry_rows) or \
+            resolution.get("accepted_executions") != 54 or \
+            retry_status_counts["False"] < 1 or not accepted_path.is_file() or \
+            resolution.get("accepted_execution_ledger_sha256") != \
+            sha256(accepted_path.read_bytes()).hexdigest():
+        raise SystemExit("ABORT: ATLAS repair5 failed-replacement release differs")
+else:
+    raise SystemExit("ABORT: ATLAS repair5 census release disposition differs")
 inventory = [
     line.strip() for line in inventory_path.read_text(encoding="utf-8").splitlines()
     if line.strip()
@@ -208,7 +356,10 @@ if any(uri not in allowed for uri in inventory) or len(inventory) != len(set(inv
 payload = {
     "version": "atlas-matched-diversity-repair5-terminal-census-v1",
     "protocol_sha256": protocol_sha,
+    "attempt_amendment_sha256": attempt_amendment_sha,
+    "bounded_retry_amendment_sha256": retry_amendment_sha,
     "repair5_launcher_sha256": launcher_sha,
+    "attempt_resolver_sha256": attempt_resolver_sha,
     "repair5_finisher_sha256": finisher_sha,
     "run_id": manifest["run_id"],
     "uses_realized_outcomes": False,
@@ -216,16 +367,24 @@ payload = {
     "scientific_result_valid": False,
     "manifest_sha256": sha256(manifest_path.read_bytes()).hexdigest(),
     "execution_ledger_sha256": sha256(ledger_path.read_bytes()).hexdigest(),
+    "retry_execution_ledger_sha256": sha256(retry_path.read_bytes()).hexdigest(),
+    "attempt_resolution_sha256": sha256(resolution_path.read_bytes()).hexdigest(),
+    "attempt_classification_sha256": sha256(classification_path.read_bytes()).hexdigest(),
     "executions": 54,
+    "retry_executions": len(retry_rows),
     "terminal_succeeded": status_counts["True"],
     "terminal_failed": status_counts["False"],
     "failure_reasons": dict(sorted(reason_counts.items())),
+    "retry_terminal_succeeded": retry_status_counts["True"],
+    "retry_terminal_failed": retry_status_counts["False"],
+    "retry_failure_reasons": dict(sorted(retry_reason_counts.items())),
     "output_objects_present": len(inventory),
     "output_object_inventory_sha256": sha256(inventory_path.read_bytes()).hexdigest(),
     "effect_fields_inspected": False,
     "historical_scoring_licensed": False,
     "continuous_parity_capacity_released": True,
     "terminal": terminal,
+    "retry_terminal": retry_terminal,
 }
 output_path.write_text(
     json.dumps(payload, sort_keys=True, separators=(",", ":")) + "\n",
@@ -234,15 +393,24 @@ output_path.write_text(
 PY
 
 mv "$PENDING" "$OUT/terminal-census-execution-metadata"
+mv "$RETRY_PENDING" "$OUT/terminal-census-retry-execution-metadata"
 mv "$OBJECTS_PENDING" "$OUT/terminal-census-object-inventory.txt"
 mv "$OUT/terminal-census.pending.json" "$OUT/terminal-census.json"
 sha256sum "$OUT"/terminal-census-execution-metadata/*.json | sort \
   > "$OUT/terminal-census-execution-metadata.sha256"
+if find "$OUT/terminal-census-retry-execution-metadata" -maxdepth 1 \
+    -name '*.json' | grep -q .; then
+  sha256sum "$OUT"/terminal-census-retry-execution-metadata/*.json | sort \
+    > "$OUT/terminal-census-retry-execution-metadata.sha256"
+else
+  : > "$OUT/terminal-census-retry-execution-metadata.sha256"
+fi
 sha256sum "$OUT/terminal-census-object-inventory.txt" \
   > "$OUT/terminal-census-object-inventory.sha256"
 sha256sum "$OUT/terminal-census.json" > "$OUT/terminal-census.sha256"
 printf '%s\n' "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-  'executions=54' 'all_terminal=true' 'scientific_result_valid=false' \
+  'primary_executions=54' "retry_executions=$(wc -l < "$RETRIES")" \
+  'all_declared_attempts_terminal=true' 'scientific_result_valid=false' \
   'effect_fields_inspected=false' 'uses_realized_outcomes=false' \
   'historical_scoring_licensed=false' \
   'continuous_parity_capacity_released=true' \

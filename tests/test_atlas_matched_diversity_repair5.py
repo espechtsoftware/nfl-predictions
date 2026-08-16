@@ -74,13 +74,68 @@ def test_repair5_finisher_requires_complete_mechanical_population() -> None:
         ROOT / "scripts/cloud_finish_atlas_matched_diversity_repair5.sh"
     ).read_text(encoding="utf-8")
 
-    assert '[ "$(wc -l < "$EXECUTIONS")" = 54 ]' in source
+    assert '[ "$(wc -l < "$PRIMARY_EXECUTIONS")" = 54 ]' in source
+    assert '[ "$(wc -l < "$ACCEPTED_EXECUTIONS")" = 54 ]' in source
+    assert 'done < "$ACCEPTED_EXECUTIONS"' in source
+    assert '"retry_executions=$RETRY_COUNT"' in source
+    assert "max_replacement_executions_per_cell=1" in source
     assert "execution is not terminal successful" in source
     assert 'row.get("mechanical_valid") is not True' in source
     assert 'row.get("global_atlas_additions")!=200' in source
     assert 'set(row.get("native_boom_counts",{}).values())!={40}' in source
     assert '"slates":54' in source
     assert "aggregate contains outcomes" in source
+
+
+def test_repair5_platform_retry_is_narrow_and_attempt_receipted() -> None:
+    protocol = (
+        ROOT / "reports/2026-08-16-atlas-repair5-bounded-platform-retry-amendment.md"
+    )
+    resolver = (
+        ROOT / "scripts/cloud_prepare_atlas_matched_diversity_repair5_attempts.sh"
+    )
+    finisher = ROOT / "scripts/cloud_finish_atlas_matched_diversity_repair5.sh"
+    assert sha256(protocol.read_bytes()).hexdigest() == (
+        "d464660b72e669d261d7f6d4800b3e59d55726b56e7003c5e3e806f38fa987a0"
+    )
+    assert sha256(resolver.read_bytes()).hexdigest() == (
+        "c11171b607d2ab381d013adfe655567f126305e5ac65e07c8dd53df61ac9743f"
+    )
+    assert sha256(finisher.read_bytes()).hexdigest() == (
+        "c21419ca9bb65e0e39a9e9fe0efb3909ab6d437bc42e5d29db5f97a5edce9c89"
+    )
+
+    source = resolver.read_text(encoding="utf-8")
+    assert "internal error running task" in source.lower()
+    for disallowed in (
+        "configured memory limit",
+        "timeout",
+        "signal",
+        "sigkill",
+        "solver",
+        "cbc",
+        "nonzero exit",
+    ):
+        assert disallowed in source
+    assert 'gcloud storage ls "$URI"' in source
+    assert 'gcloud run jobs execute "$JOB"' in source
+    assert "gcloud run jobs deploy" not in source
+    assert "gcloud storage cp" not in source
+    assert "accepted-executions.txt" in source
+    assert "max_replacement_executions_per_cell" in source
+    assert '"effect_fields_inspected": False' in source
+
+
+def test_repair5_historical_attempt_binding_is_frozen_before_results() -> None:
+    amendment = (
+        ROOT / "reports/2026-08-16-atlas-historical-score-attempt-binding-amendment.md"
+    ).read_text(encoding="utf-8")
+    assert "before repair5 launch" in amendment
+    assert "before any repair5 score-free or" in amendment
+    assert "accepted-executions.txt" in amendment
+    assert "attempt-resolution.json" in amendment
+    assert "primary-execution-metadata.sha256" in amendment
+    assert "whether its score-free" in amendment
 
 
 def test_repair5_failure_census_is_frozen_and_score_free() -> None:
@@ -99,3 +154,27 @@ def test_repair5_failure_census_is_frozen_and_score_free() -> None:
     assert '"effect_fields_inspected": False' in source
     assert '"historical_scoring_licensed": False' in source
     assert '"continuous_parity_capacity_released": True' in source
+    assert "attempt-resolution.json" in source
+    assert "retry-executions.txt" in source
+    assert "terminal-census-retry-execution-metadata" in source
+    assert "accepted-population-with-platform-replacements" in source
+    assert "census includes nonterminal retry" in source
+
+
+def test_repair4_narrative_empty_inventory_hash_matches_machine_ledger() -> None:
+    run = (
+        ROOT / "reports/atlas-matched-diversity-runs/"
+        "20260816-atlas-matched-diversity-mvp-v1-repair4"
+    )
+    inventory = run / "terminal-census-object-inventory.txt"
+    ledger = (run / "terminal-census-object-inventory.sha256").read_text(
+        encoding="utf-8",
+    ).split()[0]
+    actual = sha256(inventory.read_bytes()).hexdigest()
+    narrative = (
+        ROOT / "reports/2026-08-16-atlas-repair4-terminal-census-result.md"
+    ).read_text(encoding="utf-8")
+
+    assert len(ledger) == 64
+    assert actual == ledger
+    assert f"`{actual}`" in narrative

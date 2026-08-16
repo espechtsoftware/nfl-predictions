@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 09:31 CDT
+## Current state — 2026-08-16 17:48 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -1085,6 +1085,44 @@ agent or developer:
   `atlas-cbc-32g-full-2023-w8-v1-lbzjd` remains nonterminal with one running
   task. The terminal-only strict-harvest and conditional repair5/parity
   watchers remain active; no partial shard or effect was inspected.
+  The later operator-supplied repair-cycle/constraint-lattice review is
+  reconciled before either repair5 launch or any lattice execution at
+  `reports/2026-08-16-repair-cycle-and-constraint-lattice-review-reconciliation.md`.
+  This milestone begins from pushed `main` commit
+  `648d7df6961a7e0659a33a3e95ec3c3b564ba771`. Its bounded repair5 execution
+  repair keeps Cloud Run task `maxRetries=0` and permits at most one separately
+  receipted replacement only for the literal `Internal error running task`
+  platform condition when the exact output URI is absent; memory, timeout,
+  signal, solver, nonzero-exit, cancellation and ambiguous failures remain
+  terminal. If any ineligible primary failure exists, no futile replacements
+  launch. The resolver retains primary/retry/accepted ledgers, all primary
+  metadata, the URI-only inventory and a machine classification; the strict
+  finisher and terminal census validate those attempt receipts. Historical v3
+  is separately rebound to the accepted ledger without changing any scoring
+  or tail gate. Focused repair5/historical/parity tests pass (25 tests), all
+  three touched shell scripts pass `bash -n`, and every embedded Python block
+  compiles. The repair4 narrative's malformed empty-inventory hash is corrected
+  and regression-bound to the machine ledger.
+  Old watcher PID `976632`, whose zero-replacement branch would have censused
+  any primary failure immediately, was stopped. Replacement watcher PID
+  `1040229` waits for the preflight, launches repair5 only on the original
+  strict success license, resolves primary attempts, polls any accepted
+  replacements, and then chooses the strict finisher or amended terminal
+  census/parity path. The independent direct-preflight failure watcher PID
+  `973181` remains valid. At `2026-08-16T22:44Z` the preflight execution still
+  reported `Completed=Unknown`, one running task; only prior outcome-free R0/R1
+  completion markers have been observed and no shard/effect was opened.
+  The same review correctly found that the constraint lattice lacks the
+  standing control-only support census. Its p230 gate must not be treated as
+  complete and no lattice execution may launch until all 270 control
+  slate/fold p194/p210/p230 book-maximum counts and five 54-slate aggregates
+  are durably censused and a support-only branch is frozen. The review's
+  single-cell power interpretation is corrected: each final block aggregates
+  540,000 held-out worlds and the global gate 2.7 million, but concentration
+  still matters. After support closure, use 2023 Week 1—the frozen ledger's
+  largest five-artifact byte footprint at 163,064,634 bytes—as a full five-fold
+  resource preflight before the 54-cell grid. Sampled Cloud Monitoring memory
+  is useful non-gating context only, not an exact process/cgroup peak.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).

@@ -37,7 +37,7 @@ preflight. No repair4 output may be reused by repair5.
 - Exact 54-record execution-metadata ledger SHA-256:
   `50dd20196d817f290751c031b0745980186a07098b861943e5510e9d4313b65f`.
 - Empty object-inventory file SHA-256:
-  `e3b0c44298fc1c149afbf4befc8996fb92427ae41e4649b934ca495991b7852b855`.
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
 - Object-inventory hash-ledger SHA-256:
   `f9e112c28081e20b6b8e529e442a50d68e94fc58ce5efec3774595bef4c1d955`.
 

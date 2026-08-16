@@ -7,21 +7,39 @@ ROOT=$(cd "$(dirname "$0")/.." && pwd)
 RUN_ID=20260816-atlas-matched-diversity-mvp-v1-repair5
 OUT="$ROOT/reports/atlas-matched-diversity-runs/$RUN_ID"
 MANIFEST="$OUT/manifest.txt"
-EXECUTIONS="$OUT/executions.txt"
+PRIMARY_EXECUTIONS="$OUT/executions.txt"
+RETRY_EXECUTIONS="$OUT/retry-executions.txt"
+ACCEPTED_EXECUTIONS="$OUT/accepted-executions.txt"
+ATTEMPT_RESOLUTION="$OUT/attempt-resolution.json"
+ATTEMPT_CLASSIFICATION="$OUT/primary-attempt-classification.json"
+AMENDMENT="$ROOT/reports/2026-08-16-atlas-repair5-bounded-platform-retry-amendment.md"
+AMENDMENT_SHA=d464660b72e669d261d7f6d4800b3e59d55726b56e7003c5e3e806f38fa987a0
+ATTEMPT_RESOLVER="$ROOT/scripts/cloud_prepare_atlas_matched_diversity_repair5_attempts.sh"
+ATTEMPT_RESOLVER_SHA=c11171b607d2ab381d013adfe655567f126305e5ac65e07c8dd53df61ac9743f
 RENDERER="$ROOT/scripts/render_atlas_matched_diversity_repair4_command.py"
 PREFLIGHT="$ROOT/reports/atlas-cbc-32g-full-cell-preflight-runs/20260816-atlas-cbc-32g-full-cell-preflight-v1"
 R4="$ROOT/reports/atlas-matched-diversity-runs/20260816-atlas-matched-diversity-mvp-v1-repair4"
 
-[ -s "$MANIFEST" ] && [ -s "$EXECUTIONS" ] && \
+[ -s "$AMENDMENT" ] && \
+  [ "$(sha256sum "$AMENDMENT" | awk '{print $1}')" = "$AMENDMENT_SHA" ] && \
+  [ -s "$ATTEMPT_RESOLVER" ] && \
+  [ "$(sha256sum "$ATTEMPT_RESOLVER" | awk '{print $1}')" = "$ATTEMPT_RESOLVER_SHA" ] && \
+  [ -s "$MANIFEST" ] && [ -s "$PRIMARY_EXECUTIONS" ] && \
+  [ -e "$RETRY_EXECUTIONS" ] && [ -s "$ACCEPTED_EXECUTIONS" ] && \
+  [ -s "$ATTEMPT_RESOLUTION" ] && [ -s "$ATTEMPT_CLASSIFICATION" ] && \
+  [ -s "$OUT/primary-execution-metadata.sha256" ] && \
   [ -s "$OUT/smoke-execution.json" ] && [ -s "$OUT/smoke-log.json" ] && \
   [ -s "$PREFLIGHT/completion.txt" ] && \
   [ -s "$PREFLIGHT/execution-metadata.json" ] && \
   [ -s "$PREFLIGHT/shard.json" ] && \
   [ -s "$R4/terminal-census.json" ] && \
   [ -s "$R4/terminal-census-completion.txt" ] || {
-  echo "ABORT: ATLAS repair5 launch/dependency receipt is incomplete" >&2; exit 2; }
-[ "$(wc -l < "$EXECUTIONS")" = 54 ] || {
-  echo "ABORT: ATLAS repair5 execution grid is not 54" >&2; exit 2; }
+  echo "ABORT: ATLAS repair5 launch/attempt receipt is incomplete" >&2; exit 2; }
+[ "$(wc -l < "$PRIMARY_EXECUTIONS")" = 54 ] && \
+  [ "$(wc -l < "$ACCEPTED_EXECUTIONS")" = 54 ] || {
+  echo "ABORT: ATLAS repair5 primary/accepted grid is not 54" >&2; exit 2; }
+sha256sum -c "$OUT/primary-execution-metadata.sha256" >/dev/null || {
+  echo "ABORT: ATLAS repair5 primary metadata differs" >&2; exit 2; }
 [ ! -e "$OUT/report.json" ] && [ ! -e "$OUT/execution-metadata" ] && \
   [ ! -e "$OUT/shards" ] || {
   echo "ABORT: immutable ATLAS repair5 harvest already exists" >&2; exit 3; }
@@ -32,17 +50,23 @@ VERIFY_COMMAND=$("$ROOT/.venv/bin/python" "$RENDERER" \
 GRID_COMMAND=$("$ROOT/.venv/bin/python" "$RENDERER" \
   --replacement-prefix "$PREFIX")
 
-"$ROOT/.venv/bin/python" - "$MANIFEST" "$EXECUTIONS" \
+"$ROOT/.venv/bin/python" - "$MANIFEST" "$PRIMARY_EXECUTIONS" \
+  "$RETRY_EXECUTIONS" "$ACCEPTED_EXECUTIONS" "$ATTEMPT_RESOLUTION" \
+  "$ATTEMPT_CLASSIFICATION" "$AMENDMENT" "$ATTEMPT_RESOLVER" \
   "$OUT/smoke-execution.json" "$OUT/smoke-log.json" \
   "$VERIFY_COMMAND" "$GRID_COMMAND" "$PREFLIGHT" "$R4" <<'PY'
 from hashlib import sha256
 import json, pathlib, sys
 
 manifest=dict(line.rstrip("\n").split("=",1) for line in open(sys.argv[1],encoding="utf-8") if "=" in line)
-rows=[line.split() for line in open(sys.argv[2],encoding="utf-8") if line.strip()]
-smoke=json.load(open(sys.argv[3],encoding="utf-8")); logs=json.load(open(sys.argv[4],encoding="utf-8"))
-verify_command,grid_command=sys.argv[5:7]
-preflight=pathlib.Path(sys.argv[7]); r4=pathlib.Path(sys.argv[8])
+primary=[line.split() for line in open(sys.argv[2],encoding="utf-8") if line.strip()]
+retries=[line.split() for line in open(sys.argv[3],encoding="utf-8") if line.strip()]
+rows=[line.split() for line in open(sys.argv[4],encoding="utf-8") if line.strip()]
+resolution=json.load(open(sys.argv[5],encoding="utf-8")); classification=json.load(open(sys.argv[6],encoding="utf-8"))
+amendment=pathlib.Path(sys.argv[7]); resolver=pathlib.Path(sys.argv[8])
+smoke=json.load(open(sys.argv[9],encoding="utf-8")); logs=json.load(open(sys.argv[10],encoding="utf-8"))
+verify_command,grid_command=sys.argv[11:13]
+preflight=pathlib.Path(sys.argv[13]); r4=pathlib.Path(sys.argv[14])
 expected_fixed={
  "run_id":"20260816-atlas-matched-diversity-mvp-v1-repair5",
  "image":"us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ce03feb739e51aabedd7cea79f46e13a06a097a7f85e9a5817f38184b67f4fcb",
@@ -94,12 +118,36 @@ for key,path in dynamic.items():
   raise SystemExit(f"ABORT: ATLAS repair5 preflight binding differs: {key}")
 if sha256((r4/"terminal-census.json").read_bytes()).hexdigest()!=manifest["repair4_terminal_census_sha256"] or sha256((r4/"terminal-census-completion.txt").read_bytes()).hexdigest()!=manifest["repair4_terminal_completion_sha256"]:
  raise SystemExit("ABORT: ATLAS repair5 repair4 census binding differs")
+if sha256(amendment.read_bytes()).hexdigest()!="d464660b72e669d261d7f6d4800b3e59d55726b56e7003c5e3e806f38fa987a0" or sha256(resolver.read_bytes()).hexdigest()!="c11171b607d2ab381d013adfe655567f126305e5ac65e07c8dd53df61ac9743f":
+ raise SystemExit("ABORT: ATLAS repair5 attempt source differs")
 for key,command in (("verify_command_sha256",verify_command),("grid_command_sha256",grid_command)):
  if manifest.get(key)!=sha256(command.encode()).hexdigest():
   raise SystemExit(f"ABORT: ATLAS repair5 rendered command differs: {key}")
 expected_cells={(str(s),str(w)) for s in (2023,2024,2025) for w in range(1,19)}
-if len(rows)!=54 or {(r[0],r[1]) for r in rows}!=expected_cells or any(len(r)!=5 for r in rows):
- raise SystemExit("ABORT: ATLAS repair5 cell ledger differs")
+if len(primary)!=54 or {(r[0],r[1]) for r in primary}!=expected_cells or any(len(r)!=5 for r in primary) or len({r[3] for r in primary})!=54:
+ raise SystemExit("ABORT: ATLAS repair5 primary ledger differs")
+if len(rows)!=54 or {(r[0],r[1]) for r in rows}!=expected_cells or any(len(r)!=5 for r in rows) or len({r[3] for r in rows})!=54:
+ raise SystemExit("ABORT: ATLAS repair5 accepted ledger differs")
+if any(len(r)!=6 for r in retries) or len({(r[0],r[1]) for r in retries})!=len(retries) or len({r[4] for r in retries})!=len(retries):
+ raise SystemExit("ABORT: ATLAS repair5 retry ledger differs")
+primary_by_cell={(r[0],r[1]):r for r in primary}; retry_by_cell={(r[0],r[1]):r for r in retries}
+for cell,row in primary_by_cell.items():
+ accepted=[r for r in rows if (r[0],r[1])==cell]
+ if len(accepted)!=1:
+  raise SystemExit("ABORT: ATLAS repair5 accepted cell differs")
+ retry=retry_by_cell.get(cell)
+ expected_execution=row[3] if retry is None else retry[4]
+ if retry is not None and (retry[:4]!=row[:4] or retry[5]!=row[4]):
+  raise SystemExit("ABORT: ATLAS repair5 retry-primary binding differs")
+ if accepted[0][:3]!=row[:3] or accepted[0][3]!=expected_execution or accepted[0][4]!=row[4]:
+  raise SystemExit("ABORT: ATLAS repair5 accepted attempt differs")
+if resolution.get("version")!="atlas-repair5-attempt-resolution-v1" or resolution.get("disposition") not in {"accepted-primary-population","accepted-population-with-platform-replacements"} or resolution.get("uses_realized_outcomes") is not False or resolution.get("effect_fields_inspected") is not False or resolution.get("task_max_retries")!=0 or resolution.get("max_replacement_executions_per_cell")!=1 or resolution.get("primary_executions")!=54 or resolution.get("retry_executions")!=len(retries) or resolution.get("accepted_executions")!=54:
+ raise SystemExit("ABORT: ATLAS repair5 attempt resolution differs")
+if classification.get("version")!="atlas-repair5-primary-attempt-classification-v1" or classification.get("uses_realized_outcomes") is not False or classification.get("effect_fields_inspected") is not False or classification.get("ineligible_failures")!=0 or classification.get("eligible_replacements")!=len(retries):
+ raise SystemExit("ABORT: ATLAS repair5 primary classification differs")
+for key,path in (("primary_execution_ledger_sha256",sys.argv[2]),("retry_execution_ledger_sha256",sys.argv[3]),("accepted_execution_ledger_sha256",sys.argv[4]),("classification_sha256",sys.argv[6])):
+ if resolution.get(key)!=sha256(pathlib.Path(path).read_bytes()).hexdigest():
+  raise SystemExit(f"ABORT: ATLAS repair5 attempt hash differs: {key}")
 for season,week,job,execution,uri in rows:
  if job!=f"atlas-md-s{season}-w{week}-r5" or not execution.startswith(job+"-") or uri!=f"{manifest['output_prefix']}/slate-{season}-{week}.json":
   raise SystemExit("ABORT: ATLAS repair5 execution identity differs")
@@ -156,7 +204,7 @@ for source_name,value in expected.items():
  if [digest for path,digest in hashes.items() if path.endswith("/"+source_name) or path=="reports/"+source_name] != [value]:
   raise SystemExit("ABORT: ATLAS repair5 frozen-source binding differs")
 PY
-done < "$EXECUTIONS"
+done < "$ACCEPTED_EXECUTIONS"
 
 mv "$OUT/execution-metadata.pending" "$OUT/execution-metadata"
 mv "$OUT/shards.pending" "$OUT/shards"
@@ -184,9 +232,17 @@ sha256sum "$OUT"/season-*.json > "$OUT/season-reports.sha256"
 sha256sum "$OUT/report.json" > "$OUT/report.sha256"
 sha256sum "$OUT"/execution-metadata/*.json | sort > "$OUT/execution-metadata.sha256"
 sha256sum "$OUT"/shards/*.json | sort > "$OUT/shards.sha256"
+sha256sum "$OUT/executions.txt" "$OUT/retry-executions.txt" \
+  "$OUT/accepted-executions.txt" "$OUT/attempt-resolution.json" \
+  "$OUT/primary-attempt-classification.json" \
+  "$OUT/primary-execution-metadata.sha256" \
+  > "$OUT/attempt-artifacts.sha256"
+RETRY_COUNT=$(wc -l < "$RETRY_EXECUTIONS")
 printf '%s\n' "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-  'executions=54' 'seasons=2023,2024,2025' 'slates=54' \
-  'cpu=8' 'memory=32Gi' 'max_retries=0' \
+  'primary_executions=54' "retry_executions=$RETRY_COUNT" \
+  'accepted_executions=54' 'seasons=2023,2024,2025' 'slates=54' \
+  'cpu=8' 'memory=32Gi' 'task_max_retries=0' \
+  'max_replacement_executions_per_cell=1' \
   'repair_treatment=resource-envelope-only' \
   'interaction_auxiliaries=binary' 'uses_realized_outcomes=false' \
   'production_change_licensed=false' > "$OUT/completion.txt"
