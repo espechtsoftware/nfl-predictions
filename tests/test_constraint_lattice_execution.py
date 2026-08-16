@@ -195,10 +195,20 @@ def test_cloud_transport_is_exact_sharded_and_queue_gated():
     assert "constraint-lattice queue awaits ATLAS preflight" in launcher
     assert "repair5-valid-historical-closed" in launcher
     assert "repair5-failed-parity-closed" in launcher
+    assert "constraint-lattice awaits strict control support census" in launcher
+    assert "p230-supported-original-gate-complete" in launcher
+    assert "support_completion_sha256=" in launcher
+    assert "support_report_sha256=" in launcher
+    assert "constraint-lattice awaits strict full-cell resource preflight" in launcher
+    assert "resource_completion_sha256=" in launcher
+    assert "resource_execution_metadata_sha256=" in launcher
+    assert "resource_object_metadata_sha256=" in launcher
     assert 'gcloud run jobs executions list --job "$JOB"' in finisher
     assert 'task.get("maxRetries")!=0' in finisher
     assert '"heldout_folds":270' in finisher
     assert 'CONSTRAINT_LATTICE_STRICT_AGGREGATE_VALIDATED' in finisher
+    assert "constraint-lattice support binding differs" in finisher
+    assert "constraint-lattice resource binding differs" in finisher
 
 
 def test_complete_population_aggregates_once_and_fails_valid_null(tmp_path):

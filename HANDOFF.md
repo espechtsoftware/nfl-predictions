@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 17:48 CDT
+## Current state — 2026-08-16 18:09 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -1105,13 +1105,16 @@ agent or developer:
   compiles. The repair4 narrative's malformed empty-inventory hash is corrected
   and regression-bound to the machine ledger.
   Old watcher PID `976632`, whose zero-replacement branch would have censused
-  any primary failure immediately, was stopped. Replacement watcher PID
-  `1040229` waits for the preflight, launches repair5 only on the original
-  strict success license, resolves primary attempts, polls any accepted
-  replacements, and then chooses the strict finisher or amended terminal
-  census/parity path. The independent direct-preflight failure watcher PID
-  `973181` remains valid. At `2026-08-16T22:44Z` the preflight execution still
-  reported `Completed=Unknown`, one running task; only prior outcome-free R0/R1
+  any primary failure immediately, was stopped. Its replacement PID `1040229`
+  did not survive shell detachment. The same sequence is now durable in
+  tracked `scripts/watch_atlas_repair5_queue.sh` and is running in the active
+  managed terminal session `40372`: it waits for the preflight, launches
+  repair5 only on the original strict success license, resolves primary
+  attempts, polls any accepted replacements, and then chooses the strict
+  finisher or amended terminal census/parity path. The independent
+  direct-preflight failure watcher PID `973181` remains valid. At
+  `2026-08-16T22:44Z` the preflight execution still reported
+  `Completed=Unknown`, one running task; only prior outcome-free R0/R1
   completion markers have been observed and no shard/effect was opened.
   The same review correctly found that the constraint lattice lacks the
   standing control-only support census. Its p230 gate must not be treated as
@@ -1124,6 +1127,28 @@ agent or developer:
   largest five-artifact byte footprint at 163,064,634 bytes—as a full five-fold
   resource preflight before the 54-cell grid. Sampled Cloud Monitoring memory
   is useful non-gating context only, not an exact process/cgroup peak.
+  The support and resource remedies are now implemented locally from pushed
+  repair5 milestone `5db15f7` and await the exact-commit build. The frozen
+  outcome-blind support protocol requires every R0--R4 block to contain at
+  least 540 control events and 41/54 positive slates at an anchor, tries only
+  the predeclared 230/220/210 order, and either licenses the original p230
+  gate, requires a newly frozen p220/p210 re-anchor, or closes for insufficient
+  support. Its runner reconstructs only the immutable control and emits
+  p194/p210/p220/p230 counts for the exact 270 slate/fold cells; its strict
+  aggregator rejects incomplete or source-mismatched grids and has no access
+  to treatment, exceptions, effects or actual outcomes. The scientific
+  lattice launcher and finisher now require and bind the support completion.
+  A separate full-five-fold 2023 Week 1 resource protocol, runner, launcher
+  and strict metadata-only finisher use 4 CPU/16 GiB and never download or
+  inspect the generated effect object. The scientific launcher and finisher
+  also require its exact successful receipt. The common runner now accepts
+  explicit run identity/output-prefix arguments while preserving its default
+  scientific behavior. Docker/Cloud Build coverage and focused tests were
+  extended for both gates. No support, resource or treatment Cloud execution
+  has launched, and no score/effect has been observed. Before either 54-cell
+  support or treatment population launches, its own bounded zero-object,
+  literal-platform-error attempt binding must be frozen; repair5's amendment
+  does not implicitly authorize retries for another experiment.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).

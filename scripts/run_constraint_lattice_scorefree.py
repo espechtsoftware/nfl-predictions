@@ -129,21 +129,14 @@ def _player_params(season: int, week: int):
     ]
 
 
-def run(season: int, week: int, output_uri: str) -> dict:
-    expected_uri = f"{OUTPUT_PREFIX}/slate-{season}-{week}.json"
-    if season not in {2023, 2024, 2025} or week not in range(1, 19) or \
-            output_uri != expected_uri:
-        raise RuntimeError("constraint-lattice shard identity differs")
-    source_hashes = validate_local_sources()
-    code_sha = os.environ.get("CODE_SHA", "").strip()
-    image = os.environ.get("ANALYSIS_IMAGE", "").strip()
-    if not re.fullmatch(r"[0-9a-f]{40}", code_sha) or not re.fullmatch(
-        r".+@sha256:[0-9a-f]{64}", image,
-    ):
-        raise RuntimeError("constraint-lattice code/image identity is required")
-
-    bq = bigquery.Client(project=PROJECT)
-    gcs = storage.Client(project=PROJECT)
+def load_slate_sources(
+    bq: bigquery.Client,
+    gcs: storage.Client,
+    *,
+    season: int,
+    week: int,
+) -> tuple[dict[str, object], list[dict[str, object]]]:
+    """Load and receipt the exact five native books for one frozen slate."""
     sources = _query(bq, SOURCE_SQL, _query_params(season, week))
     catalog = _query(bq, PLAYER_SQL, _player_params(season, week))
     if sources.empty or catalog.empty or \
@@ -171,6 +164,34 @@ def run(season: int, week: int, output_uri: str) -> dict:
             "candidate_rows": len(group),
             **receipt,
         })
+    return books, artifact_receipts
+
+
+def run(
+    season: int,
+    week: int,
+    output_uri: str,
+    *,
+    run_id: str = RUN_ID,
+    output_prefix: str = OUTPUT_PREFIX,
+) -> dict:
+    expected_uri = f"{output_prefix}/slate-{season}-{week}.json"
+    if season not in {2023, 2024, 2025} or week not in range(1, 19) or \
+            output_uri != expected_uri:
+        raise RuntimeError("constraint-lattice shard identity differs")
+    source_hashes = validate_local_sources()
+    code_sha = os.environ.get("CODE_SHA", "").strip()
+    image = os.environ.get("ANALYSIS_IMAGE", "").strip()
+    if not re.fullmatch(r"[0-9a-f]{40}", code_sha) or not re.fullmatch(
+        r".+@sha256:[0-9a-f]{64}", image,
+    ):
+        raise RuntimeError("constraint-lattice code/image identity is required")
+
+    bq = bigquery.Client(project=PROJECT)
+    gcs = storage.Client(project=PROJECT)
+    books, artifact_receipts = load_slate_sources(
+        bq, gcs, season=season, week=week,
+    )
 
     result = run_scorefree_slate(
         books,
@@ -187,7 +208,7 @@ def run(season: int, week: int, output_uri: str) -> dict:
     )
     payload = {
         "version": "constraint-lattice-scorefree-shard-v1",
-        "run_id": RUN_ID,
+        "run_id": run_id,
         "uses_realized_outcomes": False,
         "production_change_licensed": False,
         "historical_scoring_licensed": False,

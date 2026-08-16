@@ -11,9 +11,15 @@ MANIFEST="$OUT/manifest.txt"
 EXECUTIONS="$OUT/executions.txt"
 RUNNER="$ROOT/scripts/run_constraint_lattice_scorefree.py"
 AGGREGATOR="$ROOT/scripts/aggregate_constraint_lattice_scorefree.py"
+SUPPORT="$ROOT/reports/constraint-lattice-support-runs/20260816-constraint-lattice-control-support-census-v1"
+RESOURCE="$ROOT/reports/constraint-lattice-resource-preflight-runs/20260816-constraint-lattice-resource-preflight-v1"
 
 [ -s "$MANIFEST" ] && [ -s "$EXECUTIONS" ] && \
-  [ -s "$OUT/build-metadata.json" ] && [ -s "$OUT/queue-release.json" ] || {
+  [ -s "$OUT/build-metadata.json" ] && [ -s "$OUT/queue-release.json" ] && \
+  [ -s "$SUPPORT/completion.txt" ] && [ -s "$SUPPORT/report.json" ] && \
+  [ -s "$RESOURCE/completion.txt" ] && \
+  [ -s "$RESOURCE/execution-metadata.json" ] && \
+  [ -s "$RESOURCE/object-metadata.json" ] || {
   echo "ABORT: constraint-lattice launch receipt is incomplete" >&2; exit 2; }
 [ "$(wc -l < "$EXECUTIONS")" = 54 ] || {
   echo "ABORT: constraint-lattice execution grid is not 54" >&2; exit 2; }
@@ -22,12 +28,12 @@ AGGREGATOR="$ROOT/scripts/aggregate_constraint_lattice_scorefree.py"
   echo "ABORT: immutable constraint-lattice harvest already exists" >&2; exit 3; }
 
 "$ROOT/.venv/bin/python" - "$MANIFEST" "$EXECUTIONS" "$OUT/build-metadata.json" \
-  "$RUNNER" "$AGGREGATOR" "$OUT/queue-release.json" <<'PY'
+  "$RUNNER" "$AGGREGATOR" "$OUT/queue-release.json" "$SUPPORT" "$RESOURCE" <<'PY'
 from hashlib import sha256
 import json, pathlib, re, sys
 m=dict(line.rstrip("\n").split("=",1) for line in open(sys.argv[1],encoding="utf-8") if "=" in line)
 rows=[line.split() for line in open(sys.argv[2],encoding="utf-8") if line.strip()]
-b=json.load(open(sys.argv[3],encoding="utf-8")); runner=pathlib.Path(sys.argv[4]); aggregator=pathlib.Path(sys.argv[5]); release_path=pathlib.Path(sys.argv[6]); release=json.loads(release_path.read_text())
+b=json.load(open(sys.argv[3],encoding="utf-8")); runner=pathlib.Path(sys.argv[4]); aggregator=pathlib.Path(sys.argv[5]); release_path=pathlib.Path(sys.argv[6]); release=json.loads(release_path.read_text()); support=pathlib.Path(sys.argv[7]); resource=pathlib.Path(sys.argv[8])
 fixed={
  "run_id":"20260816-constraint-lattice-scorefree-v1",
  "output_prefix":"gs://nfl-predictions-503414-raw/research/constraint-lattice-runs/20260816-constraint-lattice-scorefree-v1",
@@ -40,6 +46,8 @@ fixed={
  "cpu":"4", "memory":"16Gi", "timeout_seconds":"43200", "max_retries":"0",
  "uses_realized_outcomes":"false", "production_change_licensed":"false",
  "historical_scoring_licensed":"false",
+ "support_disposition":"p230-supported-original-gate-complete",
+ "resource_disposition":"full-cell-complete-at-16g",
 }
 for key,value in fixed.items():
  if m.get(key)!=value: raise SystemExit(f"ABORT: constraint-lattice manifest differs: {key}")
@@ -56,6 +64,17 @@ for raw_path,digest in release.get("bindings",{}).items():
  path=pathlib.Path(raw_path)
  if not path.is_file() or sha256(path.read_bytes()).hexdigest()!=digest:
   raise SystemExit("ABORT: constraint-lattice queue binding differs")
+if m.get("support_completion_sha256")!=sha256((support/"completion.txt").read_bytes()).hexdigest() or m.get("support_report_sha256")!=sha256((support/"report.json").read_bytes()).hexdigest():
+ raise SystemExit("ABORT: constraint-lattice support binding differs")
+support_report=json.loads((support/"report.json").read_text())
+if support_report.get("selected_anchor")!=230 or support_report.get("disposition")!="p230-supported-original-gate-complete" or support_report.get("treatment_constructed") is not False:
+ raise SystemExit("ABORT: constraint-lattice p230 support differs")
+for key,name in (("resource_completion_sha256","completion.txt"),("resource_execution_metadata_sha256","execution-metadata.json"),("resource_object_metadata_sha256","object-metadata.json")):
+ if m.get(key)!=sha256((resource/name).read_bytes()).hexdigest():
+  raise SystemExit(f"ABORT: constraint-lattice resource binding differs: {key}")
+resource_completion=dict(line.split("=",1) for line in (resource/"completion.txt").read_text().splitlines() if "=" in line)
+if resource_completion.get("status")!="True" or resource_completion.get("disposition")!="full-cell-complete-at-16g" or resource_completion.get("object_content_inspected")!="false" or resource_completion.get("effect_fields_inspected")!="false":
+ raise SystemExit("ABORT: constraint-lattice resource preflight differs")
 expected={(str(s),str(w)) for s in (2023,2024,2025) for w in range(1,19)}
 if len(rows)!=54 or any(len(row)!=5 for row in rows) or {(row[0],row[1]) for row in rows}!=expected:
  raise SystemExit("ABORT: constraint-lattice execution ledger differs")

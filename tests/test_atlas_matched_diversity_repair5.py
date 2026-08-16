@@ -138,6 +138,20 @@ def test_repair5_historical_attempt_binding_is_frozen_before_results() -> None:
     assert "whether its score-free" in amendment
 
 
+def test_repair5_queue_watcher_resolves_attempts_before_finishing_or_census() -> None:
+    source = (ROOT / "scripts/watch_atlas_repair5_queue.sh").read_text(
+        encoding="utf-8"
+    )
+    resolver = "cloud_prepare_atlas_matched_diversity_repair5_attempts.sh"
+    finisher = "cloud_finish_atlas_matched_diversity_repair5.sh"
+    census = "cloud_harvest_atlas_repair5_terminal_census.sh"
+    assert source.index(resolver) < source.index(finisher)
+    assert source.index(resolver) < source.index(census)
+    assert "accepted-executions.txt" in source
+    assert 'attempt_rc" -ne 10' in source
+    assert "ATLAS_REPAIR5_ACCEPTED_STATUS" in source
+
+
 def test_repair5_failure_census_is_frozen_and_score_free() -> None:
     protocol = ROOT / "reports/2026-08-16-atlas-repair5-terminal-census-protocol.md"
     census = ROOT / "scripts/cloud_harvest_atlas_repair5_terminal_census.sh"

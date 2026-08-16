@@ -29,6 +29,12 @@ steps:
           python scripts/run_constraint_lattice_scorefree.py --help >/dev/null
         docker run --rm '${_IMAGE}' \
           python scripts/aggregate_constraint_lattice_scorefree.py --help >/dev/null
+        docker run --rm '${_IMAGE}' \
+          python scripts/run_constraint_lattice_support_census.py --help >/dev/null
+        docker run --rm '${_IMAGE}' \
+          python scripts/aggregate_constraint_lattice_support_census.py --help >/dev/null
+        docker run --rm '${_IMAGE}' \
+          python scripts/run_constraint_lattice_resource_preflight.py --help >/dev/null
 images:
   - '${_IMAGE}'
 substitutions:

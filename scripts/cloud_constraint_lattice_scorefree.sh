@@ -22,6 +22,8 @@ PREFLIGHT="$ROOT/reports/atlas-cbc-32g-full-cell-preflight-runs/20260816-atlas-c
 REPAIR5="$ROOT/reports/atlas-matched-diversity-runs/20260816-atlas-matched-diversity-mvp-v1-repair5"
 PARITY="$ROOT/reports/atlas-interaction-parity-runs/20260816-atlas-interaction-parity-v1"
 HISTORICAL="$ROOT/reports/atlas-historical-score-runs/20260816-atlas-historical-score-diagnostic-v3"
+SUPPORT="$ROOT/reports/constraint-lattice-support-runs/20260816-constraint-lattice-control-support-census-v1"
+RESOURCE="$ROOT/reports/constraint-lattice-resource-preflight-runs/20260816-constraint-lattice-resource-preflight-v1"
 IMAGE=${1:-}
 CODE_SHA=${2:-}
 BUILD_ID=${3:-}
@@ -64,6 +66,26 @@ for SPEC in "$PROTOCOL:$PROTOCOL_SHA" "$AMENDMENT:$AMENDMENT_SHA" "$CBWU:$CBWU_S
 done
 [ -s "$RUNNER" ] && [ -s "$AGGREGATOR" ] || {
   echo "ERROR: constraint-lattice implementation is missing" >&2; exit 2; }
+[ -s "$SUPPORT/completion.txt" ] && [ -s "$SUPPORT/report.json" ] || {
+  echo "ERROR: constraint-lattice awaits strict control support census" >&2; exit 2; }
+"$ROOT/.venv/bin/python" - "$SUPPORT/completion.txt" "$SUPPORT/report.json" <<'PY'
+import json, sys
+c=dict(line.split("=",1) for line in open(sys.argv[1],encoding="utf-8") if "=" in line)
+r=json.load(open(sys.argv[2],encoding="utf-8"))
+if c.get("disposition")!="p230-supported-original-gate-complete" or c.get("selected_anchor")!="230":
+ raise SystemExit("ERROR: original constraint-lattice p230 gate is not supported")
+if r.get("version")!="constraint-lattice-control-support-report-v1" or r.get("uses_realized_outcomes") is not False or r.get("effect_fields_inspected") is not False or r.get("treatment_constructed") is not False or r.get("selected_anchor")!=230 or r.get("disposition")!="p230-supported-original-gate-complete" or r.get("mechanical",{}).get("heldout_folds")!=270:
+ raise SystemExit("ERROR: constraint-lattice support census identity differs")
+PY
+[ -s "$RESOURCE/completion.txt" ] && [ -s "$RESOURCE/execution-metadata.json" ] && \
+  [ -s "$RESOURCE/object-metadata.json" ] || {
+  echo "ERROR: constraint-lattice awaits strict full-cell resource preflight" >&2; exit 2; }
+"$ROOT/.venv/bin/python" - "$RESOURCE/completion.txt" <<'PY'
+import sys
+c=dict(line.split("=",1) for line in open(sys.argv[1],encoding="utf-8") if "=" in line)
+if c.get("status")!="True" or c.get("disposition")!="full-cell-complete-at-16g" or c.get("cell")!="2023-1" or c.get("cpu")!="4" or c.get("memory")!="16Gi" or c.get("object_content_inspected")!="false" or c.get("effect_fields_inspected")!="false":
+ raise SystemExit("ERROR: constraint-lattice resource preflight does not license grid")
+PY
 [ ! -e "$OUT" ] || {
   echo "ERROR: immutable constraint-lattice local run exists" >&2; exit 3; }
 if gcloud storage ls "$PREFIX/**" --project "$PROJECT" >/dev/null 2>&1; then
@@ -145,6 +167,13 @@ printf '%s\n' \
   "cloudbuild_sha256=$(sha256sum "$ROOT/cloudbuild.yaml" | awk '{print $1}')" \
   "build_metadata_sha256=$(sha256sum "$OUT/build-metadata.json" | awk '{print $1}')" \
   "queue_release_sha256=$(sha256sum "$OUT/queue-release.json" | awk '{print $1}')" \
+  "support_completion_sha256=$(sha256sum "$SUPPORT/completion.txt" | awk '{print $1}')" \
+  "support_report_sha256=$(sha256sum "$SUPPORT/report.json" | awk '{print $1}')" \
+  'support_disposition=p230-supported-original-gate-complete' \
+  "resource_completion_sha256=$(sha256sum "$RESOURCE/completion.txt" | awk '{print $1}')" \
+  "resource_execution_metadata_sha256=$(sha256sum "$RESOURCE/execution-metadata.json" | awk '{print $1}')" \
+  "resource_object_metadata_sha256=$(sha256sum "$RESOURCE/object-metadata.json" | awk '{print $1}')" \
+  'resource_disposition=full-cell-complete-at-16g' \
   "queue_release_branch=$("$ROOT/.venv/bin/python" -c 'import json,sys; print(json.load(open(sys.argv[1]))["branch"])' "$OUT/queue-release.json")" \
   'source_panels=20260813-sis-asoe-treatment-r0-v1,20260813-sis-asoe-treatment-r1-v1,20260813-sis-asoe-treatment-r2-v1,20260813-sis-asoe-treatment-r3-v1,20260813-sis-asoe-treatment-r4-v1' \
   'forensic_manifest_sha256=51edbe124846dc936ade71c4e5a9a07e252bcf6c7d7872b979715ccd1f6bab02' \
