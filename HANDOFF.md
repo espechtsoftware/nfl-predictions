@@ -790,7 +790,7 @@ agent or developer:
   it if the exact 32-GiB preflight fails.
   Because repair4 can no longer satisfy its all-success finisher, use
   `scripts/cloud_harvest_atlas_repair4_terminal_census.sh` (SHA-256
-  `6a3cf87d585dfd937f7c7509e95d249c3f0e88aaa3661b487cd5f8eafc39ff23`)
+  `831ad5ea7837f5365d63e615296c46b1cdd5b030c1b5fe84a6eca94446d293cd`)
   after all 54 identities are terminal. It validates every execution's exact
   command/image/environment/resource identity, records success/failure reasons
   and a URI-only object inventory, and explicitly does not open effect fields.
@@ -804,6 +804,20 @@ agent or developer:
   cancellation metadata, distinguish it from the natural failure, and do not
   open their shards. The census harvester accepts only exact terminal success,
   one-task natural failure, or explicit cancellation states.
+  Repair4 is now terminal and strictly closed by that metadata-only census:
+  zero successes, 54 failures, zero output objects and no effect fields opened.
+  The failures comprise 47 explicit cancellations, the natural 2023 Week 8
+  configured-memory-limit failure and six Cloud Run internal-task errors.
+  Result interpretation is
+  `reports/2026-08-16-atlas-repair4-terminal-census-result.md`, SHA-256
+  `c1191e059745d18705ab575d0e483a021e8d6a009780ce928b8c1a52bd2bb43c`.
+  Terminal census, completion and exact execution-metadata-ledger SHA-256
+  values are
+  `fae0f421a7b79225436c6361a89baaa83699245d6cafca191aa7b00804d8d4b0`,
+  `31735ea72b5ed789974d4fff80826318222a6410fb0e1dc494081235e0dd6291`
+  and `50dd20196d817f290751c031b0745980186a07098b861943e5510e9d4313b65f`.
+  Repair4 cannot feed historical scoring. The exact 32-GiB preflight began
+  running once its capacity was released; poll/harvest it next.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five

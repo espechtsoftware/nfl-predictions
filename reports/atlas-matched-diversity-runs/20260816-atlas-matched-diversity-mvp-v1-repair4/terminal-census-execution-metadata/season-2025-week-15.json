@@ -1,0 +1,119 @@
+{
+  "apiVersion": "run.googleapis.com/v1",
+  "kind": "Execution",
+  "metadata": {
+    "annotations": {
+      "run.googleapis.com/client-name": "gcloud",
+      "run.googleapis.com/client-version": "579.0.0",
+      "run.googleapis.com/creator": "espechtsoftware@gmail.com",
+      "run.googleapis.com/execution-environment": "gen2",
+      "run.googleapis.com/lastModifier": "espechtsoftware@gmail.com",
+      "run.googleapis.com/operation-id": "f87f9617-d95d-4fe4-a879-aea3ddc35364"
+    },
+    "creationTimestamp": "2026-08-16T18:48:41.198494Z",
+    "generation": 2,
+    "labels": {
+      "client.knative.dev/nonce": "keb_rad_hup",
+      "cloud.googleapis.com/location": "us-central1",
+      "run.googleapis.com/cancelTime": "2026-08-16T19:17:13.602743Z",
+      "run.googleapis.com/job": "atlas-md-s2025-w15-r4",
+      "run.googleapis.com/jobGeneration": "1",
+      "run.googleapis.com/jobResourceVersion": "1786906118916962",
+      "run.googleapis.com/jobUid": "22942ced-d056-456c-97dc-35bb6e0f0c7d"
+    },
+    "name": "atlas-md-s2025-w15-r4-4cw5v",
+    "namespace": "817589974517",
+    "ownerReferences": [
+      {
+        "apiVersion": "serving.knative.dev/v1",
+        "blockOwnerDeletion": true,
+        "controller": true,
+        "kind": "Job",
+        "name": "atlas-md-s2025-w15-r4",
+        "uid": "22942ced-d056-456c-97dc-35bb6e0f0c7d"
+      }
+    ],
+    "resourceVersion": "AAZZLuee/go",
+    "selfLink": "/apis/run.googleapis.com/v1/namespaces/817589974517/executions/atlas-md-s2025-w15-r4-4cw5v",
+    "uid": "03a6658b-59dc-4ae6-9b9f-dee1fc4a56d5"
+  },
+  "spec": {
+    "parallelism": 1,
+    "taskCount": 1,
+    "template": {
+      "spec": {
+        "containers": [
+          {
+            "args": [
+              "-c",
+              "exec(__import__('base64').b64decode('ZnJvbSBoYXNobGliIGltcG9ydCBzaGEyNTYKZnJvbSBwYXRobGliIGltcG9ydCBQYXRoCmltcG9ydCBzeXMKcGF0aD1QYXRoKCcvYXBwL3NjcmlwdHMvcnVuX2F0bGFzX21hdGNoZWRfZGl2ZXJzaXR5X212cC5weScpCnJhdz1wYXRoLnJlYWRfYnl0ZXMoKQpleHBlY3RlZF9zaGE9JzA1NDhlMjZlMjZkN2U4MWIyMGM2ODM3YWRjYzg5MjViYzIzMTdmOWI3Yzg1ODZmYmEwODQ3ODc1ODFjYWM3NDAnCmlmIHNoYTI1NihyYXcpLmhleGRpZ2VzdCgpIT1leHBlY3RlZF9zaGE6CiByYWlzZSBSdW50aW1lRXJyb3IoJ0FUTEFTIHJlcGFpcjQgcGlubmVkIHJ1bm5lciBzb3VyY2UgZGlmZmVycycpCnN5cy5wYXRoLmluc2VydCgwLHN0cihwYXRoLnBhcmVudCkpCm5zPXsnX19uYW1lX18nOidhdGxhc19tYXRjaGVkX2RpdmVyc2l0eV9yZXBhaXI0X2Jhc2UnLCdfX2ZpbGVfXyc6c3RyKHBhdGgpfQpleGVjKGNvbXBpbGUocmF3LHN0cihwYXRoKSwnZXhlYycpLG5zKQpvcmlnaW5hbF9wcmVmaXg9J2dzOi8vbmZsLXByZWRpY3Rpb25zLTUwMzQxNC1yYXcvcmVzZWFyY2gvYXRsYXMtbWF0Y2hlZC1kaXZlcnNpdHktcnVucy8yMDI2MDgxNi1hdGxhcy1tYXRjaGVkLWRpdmVyc2l0eS1tdnAtdjEtcmVwYWlyMicKaWYgbnMuZ2V0KCdTSEFSREVEX09VVFBVVF9QUkVGSVgnKSE9b3JpZ2luYWxfcHJlZml4OgogcmFpc2UgUnVudGltZUVycm9yKCdBVExBUyByZXBhaXI0IG9yaWdpbmFsIG91dHB1dCBwcmVmaXggZGlmZmVycycpCnJlcGxhY2VtZW50X3ByZWZpeD0nZ3M6Ly9uZmwtcHJlZGljdGlvbnMtNTAzNDE0LXJhdy9yZXNlYXJjaC9hdGxhcy1tYXRjaGVkLWRpdmVyc2l0eS1ydW5zLzIwMjYwODE2LWF0bGFzLW1hdGNoZWQtZGl2ZXJzaXR5LW12cC12MS1yZXBhaXI0Jwpuc1snU0hBUkRFRF9PVVRQVVRfUFJFRklYJ109cmVwbGFjZW1lbnRfcHJlZml4CmlmIG5zLmdldCgnU0hBUkRFRF9PVVRQVVRfUFJFRklYJykhPXJlcGxhY2VtZW50X3ByZWZpeDoKIHJhaXNlIFJ1bnRpbWVFcnJvcignQVRMQVMgcmVwYWlyNCByZXBsYWNlbWVudCBvdXRwdXQgcHJlZml4IGRpZmZlcnMnKQpuc1snbWFpbiddKCkK'))",
+              "--season",
+              "2025",
+              "--week",
+              "15",
+              "--output-uri",
+              "gs://nfl-predictions-503414-raw/research/atlas-matched-diversity-runs/20260816-atlas-matched-diversity-mvp-v1-repair4/slate-2025-15.json"
+            ],
+            "command": [
+              "python"
+            ],
+            "env": [
+              {
+                "name": "CODE_SHA",
+                "value": "60f296fdad769b30c0bb7334118698f156e462b9"
+              },
+              {
+                "name": "ANALYSIS_IMAGE",
+                "value": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ce03feb739e51aabedd7cea79f46e13a06a097a7f85e9a5817f38184b67f4fcb"
+              }
+            ],
+            "image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ce03feb739e51aabedd7cea79f46e13a06a097a7f85e9a5817f38184b67f4fcb",
+            "resources": {
+              "limits": {
+                "cpu": "4",
+                "memory": "16Gi"
+              }
+            }
+          }
+        ],
+        "maxRetries": 0,
+        "serviceAccountName": "817589974517-compute@developer.gserviceaccount.com",
+        "timeoutSeconds": "43200"
+      }
+    }
+  },
+  "status": {
+    "cancelledCount": 1,
+    "completionTime": "2026-08-16T19:17:28.757618Z",
+    "conditions": [
+      {
+        "lastTransitionTime": "2026-08-16T19:17:28.757618Z",
+        "message": "Cancelled by user.",
+        "reason": "Cancelled",
+        "status": "False",
+        "type": "Completed"
+      },
+      {
+        "lastTransitionTime": "2026-08-16T18:48:41.981482Z",
+        "message": "Provisioned imported containers.",
+        "status": "True",
+        "type": "ResourcesAvailable"
+      },
+      {
+        "lastTransitionTime": "2026-08-16T19:17:29.537885Z",
+        "message": "Started deployed execution in 28m47.55s.",
+        "status": "True",
+        "type": "Started"
+      },
+      {
+        "lastTransitionTime": "2026-08-16T18:48:41.876378Z",
+        "message": "Imported container image.",
+        "status": "True",
+        "type": "ContainerReady"
+      }
+    ],
+    "logUri": "https://console.cloud.google.com/logs/viewer?project=nfl-predictions-503414&advancedFilter=resource.type%3D%22cloud_run_job%22%0Aresource.labels.job_name%3D%22atlas-md-s2025-w15-r4%22%0Aresource.labels.location%3D%22us-central1%22%0Alabels.%22run.googleapis.com/execution_name%22%3D%22atlas-md-s2025-w15-r4-4cw5v%22",
+    "observedGeneration": 2,
+    "startTime": "2026-08-16T18:48:48.132302Z"
+  }
+}

@@ -1,0 +1,8 @@
+validated_at=2026-08-16T19:20:46Z
+executions=54
+all_terminal=true
+scientific_result_valid=false
+effect_fields_inspected=false
+uses_realized_outcomes=false
+historical_scoring_licensed=false
+production_change_licensed=false

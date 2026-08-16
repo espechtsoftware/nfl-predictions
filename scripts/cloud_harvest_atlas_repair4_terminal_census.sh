@@ -24,16 +24,25 @@ RENDERER="$ROOT/scripts/render_atlas_matched_diversity_repair4_command.py"
   echo "ABORT: immutable ATLAS repair4 terminal census exists" >&2; exit 3; }
 
 PENDING="$OUT/terminal-census-execution-metadata.pending"
-mkdir "$PENDING"
-while read -r SEASON WEEK JOB EXEC URI; do
-  gcloud run jobs executions describe "$EXEC" --project "$PROJECT" \
-    --region "$REGION" --format=json \
-    > "$PENDING/season-${SEASON}-week-${WEEK}.json"
-done < "$EXECUTIONS"
+if [ -d "$PENDING" ]; then
+  [ "$(find "$PENDING" -maxdepth 1 -name 'season-*-week-*.json' | wc -l)" = 54 ] || {
+    echo "ABORT: ATLAS repair4 pending census metadata is incomplete" >&2
+    exit 2
+  }
+else
+  mkdir "$PENDING"
+  while read -r SEASON WEEK JOB EXEC URI; do
+    gcloud run jobs executions describe "$EXEC" --project "$PROJECT" \
+      --region "$REGION" --format=json \
+      > "$PENDING/season-${SEASON}-week-${WEEK}.json"
+  done < "$EXECUTIONS"
+fi
 
 OBJECTS_PENDING="$OUT/terminal-census-object-inventory.pending.txt"
-gcloud storage ls "$PREFIX/**" --recursive --project "$PROJECT" \
-  > "$OBJECTS_PENDING" 2>/dev/null || true
+if [ ! -e "$OBJECTS_PENDING" ]; then
+  gcloud storage ls "$PREFIX/**" --recursive --project "$PROJECT" \
+    > "$OBJECTS_PENDING" 2>/dev/null || true
+fi
 
 GRID_COMMAND=$("$ROOT/.venv/bin/python" "$RENDERER" \
   --replacement-prefix "$PREFIX")
@@ -87,11 +96,15 @@ for season_text, week_text, job, execution, uri in rows:
     else:
         failed_count = int(status.get("failedCount") or 0)
         succeeded_count = int(status.get("succeededCount") or 0)
+        cancelled_count = int(status.get("cancelledCount") or 0)
         reason_text = str(completed[0].get("reason", ""))
         message_text = str(completed[0].get("message", ""))
-        cancelled = "cancel" in f"{reason_text} {message_text}".lower()
+        cancelled = cancelled_count == 1 or \
+            "cancel" in f"{reason_text} {message_text}".lower()
         if succeeded_count != 0 or not (
-            failed_count == 1 or (failed_count == 0 and cancelled)
+            (failed_count == 1 and cancelled_count == 0)
+            or (failed_count == 0 and cancelled_count == 1 and cancelled)
+            or (failed_count == 0 and cancelled_count == 0 and cancelled)
         ):
             raise SystemExit("ABORT: ATLAS repair4 census failure count differs")
     spec = value.get("spec", {})
@@ -128,15 +141,29 @@ for season_text, week_text, job, execution, uri in rows:
     message = str(completed[0].get("message", ""))
     status_counts[final_status] += 1
     if final_status == "False":
-        reason_counts[reason or "unspecified"] += 1
+        cancelled_count = int(status.get("cancelledCount") or 0)
+        if cancelled_count == 1 or "cancel" in f"{reason} {message}".lower():
+            reason_key = "Cancelled"
+        elif "configured memory limit was reached" in message:
+            reason_key = "ConfiguredMemoryLimit"
+        elif "Internal error running task" in message:
+            reason_key = "InternalError"
+        else:
+            reason_key = reason or "unspecified"
+        reason_counts[reason_key] += 1
     terminal.append({
         "season": season, "week": week, "job": job, "execution": execution,
         "status": final_status, "reason": reason, "message": message,
+        "cancelled_count": int(status.get("cancelledCount") or 0),
         "completion_time": status["completionTime"],
     })
 
 if status_counts["False"] < 1:
     raise SystemExit("ABORT: ATLAS repair4 failure census has no failed cell")
+week8 = [row for row in terminal if row["season"] == 2023 and row["week"] == 8]
+if len(week8) != 1 or week8[0]["status"] != "False" or \
+        "configured memory limit was reached" not in week8[0]["message"]:
+    raise SystemExit("ABORT: ATLAS repair4 natural memory failure differs")
 inventory = [
     line.strip() for line in inventory_path.read_text(encoding="utf-8").splitlines()
     if line.strip()
