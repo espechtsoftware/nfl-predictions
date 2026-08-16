@@ -84,9 +84,16 @@ for season_text, week_text, job, execution, uri in rows:
         if int(status.get("succeededCount") or 0) != 1 or \
                 int(status.get("failedCount") or 0) != 0:
             raise SystemExit("ABORT: ATLAS repair4 census success count differs")
-    elif int(status.get("failedCount") or 0) != 1 or \
-            int(status.get("succeededCount") or 0) != 0:
-        raise SystemExit("ABORT: ATLAS repair4 census failure count differs")
+    else:
+        failed_count = int(status.get("failedCount") or 0)
+        succeeded_count = int(status.get("succeededCount") or 0)
+        reason_text = str(completed[0].get("reason", ""))
+        message_text = str(completed[0].get("message", ""))
+        cancelled = "cancel" in f"{reason_text} {message_text}".lower()
+        if succeeded_count != 0 or not (
+            failed_count == 1 or (failed_count == 0 and cancelled)
+        ):
+            raise SystemExit("ABORT: ATLAS repair4 census failure count differs")
     spec = value.get("spec", {})
     task = spec.get("template", {}).get("spec", {})
     containers = task.get("containers", [])

@@ -790,11 +790,20 @@ agent or developer:
   it if the exact 32-GiB preflight fails.
   Because repair4 can no longer satisfy its all-success finisher, use
   `scripts/cloud_harvest_atlas_repair4_terminal_census.sh` (SHA-256
-  `428fffb9b5a4c6e8b0533c665169f9f318b8fb57004a989d70ce322df69e9bea`)
+  `6a3cf87d585dfd937f7c7509e95d249c3f0e88aaa3661b487cd5f8eafc39ff23`)
   after all 54 identities are terminal. It validates every execution's exact
   command/image/environment/resource identity, records success/failure reasons
   and a URI-only object inventory, and explicitly does not open effect fields.
   Do not invoke the normal strict-success finisher on this invalid grid.
+  Cost-control cancellation is frozen at
+  `reports/2026-08-16-atlas-repair4-cost-control-cancellation.md`, SHA-256
+  `8f2b7770a8c54f6a1faa781d8398f8102ac20d930892768de69a9b705578b528`.
+  Because the natural Week 8 memory failure makes all-success permanently
+  impossible, cancel only the other exact nonterminal repair4 identities to
+  release capacity for the queued 32-GiB preflight. Preserve their terminal
+  cancellation metadata, distinguish it from the natural failure, and do not
+  open their shards. The census harvester accepts only exact terminal success,
+  one-task natural failure, or explicit cancellation states.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
