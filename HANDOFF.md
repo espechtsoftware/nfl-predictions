@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 01:42 CDT
+## Current state — 2026-08-16 01:48 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -190,7 +190,10 @@ agent or developer:
   newly covered pair and stack-core counts/weights, and first exact identities
   are checked against the canonical exact-world score within its frozen
   identity tolerance. The construction, pricing, count, selector and effect
-  laws are unchanged. The same 61 focused tests, Python compilation and diff
+  laws are unchanged. A direct synthetic 8x5 test now runs the enumeration
+  twice, reproduces all 40 lineup identities/receipts exactly, and forces an
+  exact-duplicate/cyclic-refill path while checking count parity plus separate
+  pair/core accounting. All 62 focused tests, Python compilation and diff
   checks pass. The replay remains nonterminal `Unknown/running`; no partial
   output was inspected.
 - The supplied ATLAS law-separation review is reconciled at

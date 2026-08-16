@@ -303,6 +303,9 @@ schema, exact-world identities reconstruct their canonical optimum within the
 frozen identity tolerance, and every P0/P1/P2 summary reports distinct
 discovered, admitted and selected candidate counts. These are receipt and
 mechanical-proof repairs only; they change no construction law or gate.
+A direct synthetic full 8x5 test runs the enumeration twice, reproduces all 40
+lineup identities and receipts exactly, and forces an exact-duplicate/cyclic-
+refill path while preserving count parity and separate pair/core accounting.
 
 ## Evidence firewall for reviewers
 

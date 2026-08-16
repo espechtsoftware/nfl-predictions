@@ -4,10 +4,11 @@ from nfl_dfs.analysis.atlas_matched_diversity import (
     REGISTERED_SEEDS,
     aggregate_mvp_gate,
     build_structural_clusters,
+    enumerate_matched_diversity_lineups,
     price_native_interactions,
 )
 from nfl_dfs.backtest.engine import CandidateBatch
-from nfl_dfs.optimizer.lineup import Lineup
+from nfl_dfs.optimizer.lineup import Lineup, StackRules, optimize_many
 
 
 def _cluster_exact_worlds():
@@ -156,3 +157,90 @@ def test_aggregate_gate_applies_all_frozen_conditions():
     assert failed_reach["conditions"][
         "candidate_pair_reach_retains_100pct"
     ] is False
+
+
+def _enumeration_pool():
+    players = []
+    for team_index in range(6):
+        team = f"T{team_index}"
+        opponent = f"T{team_index + 1 if team_index % 2 == 0 else team_index - 1}"
+        game = f"G{team_index // 2}"
+        for position, count in (("QB", 1), ("RB", 3), ("WR", 4),
+                                ("TE", 2), ("DST", 1)):
+            for index in range(count):
+                player_id = f"{team}-{position}-{index}"
+                players.append({
+                    "id": player_id, "name": player_id, "pos": position,
+                    "team": team, "opp": opponent, "game_id": game,
+                    "salary": 5_500, "proj": 20.0,
+                })
+    return players
+
+
+def test_full_8x5_enumeration_is_deterministic_and_receipt_complete():
+    players = _enumeration_pool()
+    stack = StackRules(qb_stack_min=2, bring_back_min=1)
+    exact_lineups = optimize_many(
+        players, n_lineups=8, max_overlap=8, stack=stack,
+        punt_max_salary=None, punt_min=0, env={"MIN_LINEUP_SALARY": "49000"},
+    )
+    assert len(exact_lineups) == 8
+    draws = np.full((len(players), 8), 20.0, dtype=np.float32)
+    exact = {
+        world: {
+            "score": 180.0, "canonical_roster_score": 180.0,
+            "identity_tolerance": 1e-6,
+            "identity_rank_sum": sum(
+                sorted(str(row["id"]) for row in players).index(str(player_id)) + 1
+                for player_id in lineup.ids
+            ),
+            "roster": sorted(str(value) for value in lineup.ids),
+        }
+        for world, lineup in enumerate(exact_lineups)
+    }
+    clusters = {"clusters": [[world] for world in range(8)]}
+    first_roster = frozenset(str(value) for value in exact_lineups[0].ids)
+    first_ids = sorted(first_roster)
+    weights = {
+        tuple(first_ids[:2]): 0.8,
+        tuple(first_ids[:3]): 0.2,
+    }
+
+    def run_once():
+        return enumerate_matched_diversity_lineups(
+            player_rows=players, row_draws=draws,
+            clusters=clusters, exact_worlds=exact,
+            interaction_weights=weights, nonboom_lineups=[],
+            prior_atlas_rosters={first_roster}, stack=stack,
+            env={"MIN_LINEUP_SALARY": "49000"},
+        )
+
+    left_additions, left = run_once()
+    right_additions, right = run_once()
+    assert [sorted(lineup.ids) for lineup in left_additions] == [
+        sorted(lineup.ids) for lineup in right_additions
+    ]
+    assert left == right
+    assert len(left_additions) == 40
+    assert len({lineup.ids for lineup in left_additions}) == 40
+    assert any(
+        not row["accepted"] and row["reason"] == "exact_duplicate"
+        for row in left["proposals"]
+    )
+    required = {
+        "optimum", "score", "score_floor", "absolute_regret",
+        "percentage_regret", "interaction_optimum",
+        "stable_identity_objective",
+    }
+    for row in left["proposals"]:
+        assert required <= set(row)
+        if row["accepted"]:
+            assert {
+                "newly_covered_pairs", "newly_covered_pair_weight",
+                "newly_covered_triples", "newly_covered_triple_weight",
+            } <= set(row)
+            assert abs(
+                row["newly_covered_weight"]
+                - row["newly_covered_pair_weight"]
+                - row["newly_covered_triple_weight"]
+            ) < 1e-12
