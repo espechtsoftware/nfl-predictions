@@ -601,6 +601,13 @@ agent or developer:
   `scripts/cloud_atlas_cbc_16g_preflight.sh`, and
   `scripts/cloud_finish_atlas_cbc_16g_preflight.sh`; six focused wrapper/
   diagnostic tests plus shell syntax, Python compilation and diff checks pass.
+  That preflight is now launched as durable execution
+  `atlas-cbc-16g-preflight-2024-w15-v1-ckjlj`; its manifest and execution
+  ledger SHA-256 values are
+  `059cf942a06de76815151e34db1ba363535c17c2069e1ce7bd19486804a8334f`
+  and `00a50351f571a606e8efb47ae8eea0134c911998e64fe85e9836cf0677dd5ae3`.
+  It was nonterminal at the first post-launch status-only poll. Invoke only its
+  strict finisher after terminality; do not inspect its artifact early.
   Next concrete action: poll both immutable diagnostic sets to terminal and
   run only their strict finishers before freezing the complete 54-cell
   repair3.
