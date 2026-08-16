@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 07:11 CDT
+## Current state — 2026-08-16 09:27 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -517,6 +517,45 @@ agent or developer:
   continuous exact-roster parity test brings the focused optimizer/ATLAS/
   diagnostic total to 40 passing tests. Do not call it repair3 or deploy it until the two
   original-binary diagnostic receipts are terminal and strictly harvested.
+  External review correctly identified that the repair2 record had interpreted
+  one-minute Cloud Monitoring memory samples too strongly. The invalidation
+  report now says OOM is unproven but the leading hypothesis: repair2 was the
+  first interaction-heavy ATLAS grid at 4 GiB rather than the 16--32 GiB used
+  by completed ATLAS jobs, sampled p99 can miss CBC allocation spikes, and an
+  OOM-killed child can leave Python alive. The already-launched Weeks 15/16
+  native-log diagnostic remains immutable and nonterminal.
+  A separate prospective resource diagnostic is frozen before either original
+  diagnostic became terminal at
+  `reports/2026-08-16-atlas-cbc-resource-diagnostic-protocol.md`, SHA-256
+  `dce59cb5fa4f42fae5ee916905688773edef710018cf1741bc7c6b016d53c8ae`.
+  It runs the unchanged old-binary R0 calculation at 1 CPU/4 GiB on 2024 Weeks
+  7, 15 and 16, adds only a wrapper around PuLP's CBC child to record its exact
+  return code/signal and pre/post cgroup-v2 `memory.events`, `memory.peak`,
+  `memory.current` and `memory.max`, and persists no lineups or scores. Its
+  source SHA-256 is
+  `ad0c9307b28aab0a18d511fe680f92d59075211fad2e5abfc1eddcafa0509abc`;
+  launcher and strict finisher are
+  `scripts/cloud_atlas_cbc_resource_diagnostic.sh` and
+  `scripts/cloud_finish_atlas_cbc_resource_diagnostic.sh`. The frozen rule
+  treats any `oom_kill` increment as definitive, SIGKILL without an increment
+  as inconclusive, and even isolated success as memory pressure when true peak
+  reaches 80% of the cgroup cap. Week 7 is included rather than scoped away.
+  The review also found a real asymmetry in the unused historical score rule.
+  Prospective amendment
+  `reports/2026-08-16-atlas-historical-high-tail-guard-amendment.md`, SHA-256
+  `b98227830aed550a3f024b85695a3c0bbf7195834320370c41cf3c3e5ca5693d`,
+  retains the +2 selected-200 anchor, selected-210/candidate-200 guards and
+  single-event label but now also requires selected net crossings at
+  220/230/240 each to be nonnegative. It explicitly discloses that the 200
+  anchor was informed by prior CBWU-OI results on the same panel. The scorer,
+  launcher and strict finisher bind this amendment, and a regression test
+  proves that +2 at 200 plus a lost 230 week cannot pass. Nineteen focused
+  diagnostic/historical tests, Python compilation, four shell syntax checks
+  and diff checks pass. These scorer changes make every earlier scorer image
+  mechanically superseded; repair3 will require a newly bound image anyway.
+  Next concrete action: commit/push this milestone, launch the three exact
+  resource diagnostic cells, poll both immutable diagnostic sets to terminal,
+  and run only their strict finishers before freezing the 54-cell repair3.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five

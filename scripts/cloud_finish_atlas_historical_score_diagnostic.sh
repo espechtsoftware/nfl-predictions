@@ -49,7 +49,7 @@ PYTHONPATH="$ROOT/src" "$ROOT/.venv/bin/python" - "$REPORT_TMP" "$MANIFEST" <<'P
 import json, sys
 from nfl_dfs.analysis.atlas_historical_score import aggregate_diagnostic
 r=json.load(open(sys.argv[1],encoding="utf-8")); m=dict(line.rstrip("\n").split("=",1) for line in open(sys.argv[2],encoding="utf-8") if "=" in line)
-if r.get("version")!="atlas-historical-score-diagnostic-v1" or r.get("uses_realized_outcomes") is not True or r.get("production_change_licensed") is not False or r.get("scorer_code_sha")!=m["code_sha"] or r.get("scorer_image")!=m["image"] or r.get("protocol_sha256")!=m["protocol_sha256"] or r.get("source_parity_amendment_sha256")!=m["source_parity_amendment_sha256"] or r.get("sharded_upstream_amendment_sha256")!=m["sharded_upstream_amendment_sha256"] or r.get("cbc_retry_protocol_sha256")!=m["cbc_retry_protocol_sha256"]:
+if r.get("version")!="atlas-historical-score-diagnostic-v1" or r.get("uses_realized_outcomes") is not True or r.get("production_change_licensed") is not False or r.get("scorer_code_sha")!=m["code_sha"] or r.get("scorer_image")!=m["image"] or r.get("protocol_sha256")!=m["protocol_sha256"] or r.get("source_parity_amendment_sha256")!=m["source_parity_amendment_sha256"] or r.get("sharded_upstream_amendment_sha256")!=m["sharded_upstream_amendment_sha256"] or r.get("cbc_retry_protocol_sha256")!=m["cbc_retry_protocol_sha256"] or r.get("high_tail_guard_amendment_sha256")!=m["high_tail_guard_amendment_sha256"]:
  raise SystemExit("ABORT: ATLAS historical report identity/license differs")
 if r.get("population")!={"seasons":[2023,2024,2025],"slates":54} or len(r.get("rows",[]))!=54:
  raise SystemExit("ABORT: ATLAS historical population differs")
@@ -67,7 +67,7 @@ for key,value in expected.items():
  if r.get(key)!=value:
   raise SystemExit(f"ABORT: ATLAS historical aggregate differs at {key}")
 gate=r.get("gate",{})
-if set(gate)!={"selected_200_net","selected_210_net","candidate_200_net","historical_tail_signal_positive","disposition"}:
+if set(gate)!={"selected_200_net","selected_210_net","selected_220_net","selected_230_net","selected_240_net","candidate_200_net","historical_tail_signal_positive","disposition"}:
  raise SystemExit("ABORT: ATLAS historical gate receipt differs")
 print("ATLAS_HISTORICAL_REPORT_VALIDATED",gate["disposition"])
 PY

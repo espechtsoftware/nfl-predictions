@@ -20,6 +20,7 @@ if SCRIPTS not in sys.path:
 
 from run_atlas_historical_score_diagnostic import (  # noqa: E402
     CBC_RETRY_PROTOCOL_SHA256,
+    HIGH_TAIL_GUARD_AMENDMENT_SHA256,
     PLAYER_SQL,
     SOURCE_SQL,
     UPSTREAM_CODE_SHA,
@@ -94,10 +95,37 @@ def test_aggregate_applies_frozen_two_slate_signal_rule():
     assert result["gate"] == {
         "selected_200_net": 2,
         "selected_210_net": 0,
+        "selected_220_net": 0,
+        "selected_230_net": 0,
+        "selected_240_net": 0,
         "candidate_200_net": 2,
         "historical_tail_signal_positive": True,
         "disposition": "historical-tail-signal-positive",
     }
+
+
+def test_aggregate_rejects_positive_200_signal_that_loses_a_230_week():
+    rows = []
+    for season in (2023, 2024, 2025):
+        for week in range(1, 19):
+            treatment = (
+                215.0 if season == 2023 and week in (1, 2, 4) else 180.0
+            )
+            rows.append(_slate(season, week, treatment))
+    lost = next(row for row in rows if row["slate"] == "2023-03")
+    for scope in ("C", "S"):
+        lost["books"]["P1"][scope]["maximum"] = 230.0
+        for line in THRESHOLDS:
+            lost["books"]["P1"][scope]["thresholds"][f"{line:g}"] = (
+                230.0 >= line
+            )
+        lost["paired_delta"][scope] = -50.0
+    result = aggregate_diagnostic(rows)
+    assert result["gate"]["selected_200_net"] == 2
+    assert result["gate"]["selected_210_net"] == 2
+    assert result["gate"]["selected_230_net"] == -1
+    assert result["gate"]["historical_tail_signal_positive"] is False
+    assert result["gate"]["disposition"] == "historical-tail-signal-not-positive"
     assert result["production_change_licensed"] is False
     assert set(result["by_season"]) == {"2023", "2024", "2025"}
     assert set(result["books"]["P2"]["C"]["threshold_counts"]) == {
@@ -253,3 +281,6 @@ def test_historical_cloud_contract_requires_repair2_strict_harvest():
     assert "sharded_upstream_amendment_sha256" in launcher
     assert '= 54 ]' in launcher
     assert "expected_executions" in finisher
+    assert "high_tail_guard_amendment_sha256" in launcher
+    assert "high_tail_guard_amendment_sha256" in finisher
+    assert len(HIGH_TAIL_GUARD_AMENDMENT_SHA256) == 64

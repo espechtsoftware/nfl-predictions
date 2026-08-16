@@ -353,8 +353,18 @@ def aggregate_diagnostic(rows: Sequence[dict]) -> dict[str, Any]:
 
     s200 = crossings["S"]["200"]["net"]
     s210 = crossings["S"]["210"]["net"]
+    s220 = crossings["S"]["220"]["net"]
+    s230 = crossings["S"]["230"]["net"]
+    s240 = crossings["S"]["240"]["net"]
     c200 = crossings["C"]["200"]["net"]
-    positive = s200 >= 2 and s210 >= 0 and c200 >= 0
+    positive = (
+        s200 >= 2
+        and s210 >= 0
+        and s220 >= 0
+        and s230 >= 0
+        and s240 >= 0
+        and c200 >= 0
+    )
     extreme_labels = []
     for scope in ("C", "S"):
         for line in THRESHOLDS:
@@ -401,6 +411,9 @@ def aggregate_diagnostic(rows: Sequence[dict]) -> dict[str, Any]:
         "gate": {
             "selected_200_net": s200,
             "selected_210_net": s210,
+            "selected_220_net": s220,
+            "selected_230_net": s230,
+            "selected_240_net": s240,
             "candidate_200_net": c200,
             "historical_tail_signal_positive": positive,
             "disposition": (

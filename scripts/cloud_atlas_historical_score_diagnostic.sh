@@ -21,6 +21,8 @@ SHARDED_AMENDMENT="$ROOT/reports/2026-08-16-atlas-historical-score-sharded-upstr
 SHARDED_AMENDMENT_SHA=ce32274be00678cdef24b3d174578a2e2ce212164166da2a712a9df1562fcd5d
 CBC_RETRY_PROTOCOL="$ROOT/reports/2026-08-16-atlas-mvp-cbc-single-shard-retry.md"
 CBC_RETRY_PROTOCOL_SHA=bc55775c5a98a7027a0c117cf5371a67cc886c6da34dcdb7b1031bd6a471c455
+HIGH_TAIL_GUARD_AMENDMENT="$ROOT/reports/2026-08-16-atlas-historical-high-tail-guard-amendment.md"
+HIGH_TAIL_GUARD_AMENDMENT_SHA=b98227830aed550a3f024b85695a3c0bbf7195834320370c41cf3c3e5ca5693d
 UPSTREAM_CODE_SHA=60f296fdad769b30c0bb7334118698f156e462b9
 UPSTREAM_IMAGE=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ce03feb739e51aabedd7cea79f46e13a06a097a7f85e9a5817f38184b67f4fcb
 UPSTREAM_MANIFEST_SHA=080c85700219ac246b093f2556c474f4bd79257809cf0e006766a1ed48e95d24
@@ -44,6 +46,8 @@ CODE_SHA=${2:-}
   echo "ERROR: ATLAS historical sharded-upstream amendment differs" >&2; exit 2; }
 [ "$(sha256sum "$CBC_RETRY_PROTOCOL" | awk '{print $1}')" = "$CBC_RETRY_PROTOCOL_SHA" ] || {
   echo "ERROR: ATLAS historical CBC retry protocol differs" >&2; exit 2; }
+[ "$(sha256sum "$HIGH_TAIL_GUARD_AMENDMENT" | awk '{print $1}')" = "$HIGH_TAIL_GUARD_AMENDMENT_SHA" ] || {
+  echo "ERROR: ATLAS historical high-tail guard amendment differs" >&2; exit 2; }
 [ "$(sha256sum "$UPSTREAM/manifest.txt" | awk '{print $1}')" = "$UPSTREAM_MANIFEST_SHA" ] || {
   echo "ERROR: strict upstream ATLAS launch manifest differs" >&2; exit 2; }
 [ "$(sha256sum "$UPSTREAM/executions.txt" | awk '{print $1}')" = "$UPSTREAM_ORIGINAL_EXECUTION_LEDGER_SHA" ] && \
@@ -168,6 +172,7 @@ printf '%s\n' \
   "source_parity_amendment_sha256=$PARITY_AMENDMENT_SHA" \
   "sharded_upstream_amendment_sha256=$SHARDED_AMENDMENT_SHA" \
   "cbc_retry_protocol_sha256=$CBC_RETRY_PROTOCOL_SHA" \
+  "high_tail_guard_amendment_sha256=$HIGH_TAIL_GUARD_AMENDMENT_SHA" \
   "upstream_run_id=$UPSTREAM_ID" "upstream_code_sha=$UPSTREAM_CODE_SHA" \
   "upstream_image=$UPSTREAM_IMAGE" \
   "upstream_manifest_sha256=$UPSTREAM_MANIFEST_SHA" \

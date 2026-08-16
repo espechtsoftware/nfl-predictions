@@ -153,6 +153,12 @@ CBC_RETRY_PROTOCOL = Path(
 CBC_RETRY_PROTOCOL_SHA256 = (
     "bc55775c5a98a7027a0c117cf5371a67cc886c6da34dcdb7b1031bd6a471c455"
 )
+HIGH_TAIL_GUARD_AMENDMENT = Path(
+    "reports/2026-08-16-atlas-historical-high-tail-guard-amendment.md"
+)
+HIGH_TAIL_GUARD_AMENDMENT_SHA256 = (
+    "b98227830aed550a3f024b85695a3c0bbf7195834320370c41cf3c3e5ca5693d"
+)
 OUTPUT_PREFIX = (
     "gs://nfl-predictions-503414-raw/research/atlas-historical-score-runs/"
     "20260816-atlas-historical-score-diagnostic-v1"
@@ -520,6 +526,10 @@ def run(upstream_receipt_uri: str, output_uri: str) -> dict:
     if not CBC_RETRY_PROTOCOL.is_file() or \
             _file_sha(CBC_RETRY_PROTOCOL) != CBC_RETRY_PROTOCOL_SHA256:
         raise RuntimeError("ATLAS historical CBC retry protocol differs")
+    if not HIGH_TAIL_GUARD_AMENDMENT.is_file() or \
+            _file_sha(HIGH_TAIL_GUARD_AMENDMENT) != \
+            HIGH_TAIL_GUARD_AMENDMENT_SHA256:
+        raise RuntimeError("ATLAS historical high-tail guard amendment differs")
     code_sha = os.environ.get("CODE_SHA", "").strip()
     image = os.environ.get("ANALYSIS_IMAGE", "").strip()
     if not re.fullmatch(r"[0-9a-f]{40}", code_sha) or not re.fullmatch(
@@ -593,6 +603,9 @@ def run(upstream_receipt_uri: str, output_uri: str) -> dict:
             SHARDED_UPSTREAM_AMENDMENT_SHA256
         ),
         "cbc_retry_protocol_sha256": CBC_RETRY_PROTOCOL_SHA256,
+        "high_tail_guard_amendment_sha256": (
+            HIGH_TAIL_GUARD_AMENDMENT_SHA256
+        ),
         "upstream": {
             "code_sha": UPSTREAM_CODE_SHA,
             "image": UPSTREAM_IMAGE,

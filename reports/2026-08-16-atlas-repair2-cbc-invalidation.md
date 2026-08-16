@@ -44,26 +44,29 @@ their log hashes are
 and
 `dfc00db5e177a545a0ebeee4c3851370134f5144a1d698da48f4ed9b96177f72`.
 
-Cloud Monitoring does not support an OOM explanation. One-minute p99 memory
-utilization for the failed Week 15 and Week 16 jobs peaked at approximately
-0.660 and 0.740 of the 4 GiB allocation; their CPU utilization reached one
-full core. The original Week 7 failure was near 0.240 memory utilization. The
-Python container itself remained alive long enough to raise and log the child
-CBC process's nonzero return. PuLP suppressed the native CBC stream because
-the frozen optimizer used `msg=0`, so the exact child-process cause is not yet
-observable.
+Cloud Monitoring is inconclusive about OOM. One-minute p99 memory utilization
+for the failed Week 15 and Week 16 jobs peaked at approximately 0.660 and 0.740
+of the 4 GiB allocation; their CPU utilization reached one full core. The
+original Week 7 failure was near 0.240 memory utilization. Those sampled
+percentiles can miss a sub-minute branch-and-bound allocation spike, and a
+cgroup OOM killer can terminate the larger CBC child while leaving the Python
+parent alive to report its nonzero exit. Repair2 was also the first
+interaction-heavy ATLAS grid reduced from the 16--32 GiB used by completed
+ATLAS jobs to 4 GiB. Memory pressure is therefore the leading unproven
+hypothesis, not a ruled-out explanation. PuLP suppressed the native CBC stream
+and did not expose the child return code, cgroup OOM counter or true high-water
+mark, so the exact child-process cause is not observable from this run.
 
 ## Licensed next action
 
-Before another effect-bearing grid, run a score-free diagnostic on the known
-Week 15 and Week 16 cells using the identical image, source, objective,
-constraints and single-threaded solver. Change only solver observability:
-retain the last MPS file and redirect CBC's native stream to a diagnostic log.
-Discard the returned slate payload and prohibit all normal ATLAS output URIs.
-The diagnostic may report only execution identity, solve count, terminal state,
-artifact hashes/sizes and native solver text. It may not report or persist
-lineups, candidate summaries, selector output, gate metrics or realized
-outcomes.
+Before another effect-bearing grid, complete the already-launched score-free
+native-log diagnostic on Weeks 15 and 16, then the separately frozen resource
+diagnostic on Weeks 7, 15 and 16. The latter retains the same 4 GiB repair2
+calculation while recording the CBC child return code/signal,
+`memory.events`, `memory.peak` and `memory.max` around every child. Both discard
+the returned slate payload, prohibit normal ATLAS output URIs and report only
+mechanical, outcome-free evidence. The resource protocol is
+`reports/2026-08-16-atlas-cbc-resource-diagnostic-protocol.md`.
 
 Choose and freeze repair3 only after that evidence is terminal. Any repair3
 must use new jobs/output identities and rerun the complete 54-slate grid; no
