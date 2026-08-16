@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 18:29 CDT
+## Current state — 2026-08-16 18:47 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -1193,6 +1193,17 @@ agent or developer:
   preflight only if p230 receives the original support disposition. It stops
   before scientific treatment; a p220/p210 support result also stops for a new
   prospective gate amendment.
+  Resource harvesting is additionally fail-closed and terminal-complete at
+  pushed commit `6452d18813994d575718767ed57593ddd5951e95`. The finisher now
+  durably receipts strict success, configured-memory/SIGKILL failure, literal
+  zero-object platform error or other terminal failure while preserving the
+  object-content/effect-blind boundary. An absent object is accepted only from
+  an exact 404; query/auth ambiguity aborts. Failed executions that wrote an
+  object are rejected. The successful branch still requires all five fold
+  markers, the protocol marker and positive object metadata. Thirteen focused
+  lattice support/execution tests pass, the finisher passes `bash -n`, and
+  `git diff --check` passes. This local harvester change is not container code
+  and does not invalidate the already-running exact-image build.
   At `2026-08-16T23:30Z`, ATLAS preflight
   `atlas-cbc-32g-full-2023-w8-v1-lbzjd` remains `Completed=Unknown` with one
   running task. The tracked managed watcher session `40372` remains silent and
