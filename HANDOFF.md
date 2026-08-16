@@ -818,6 +818,23 @@ agent or developer:
   and `50dd20196d817f290751c031b0745980186a07098b861943e5510e9d4313b65f`.
   Repair4 cannot feed historical scoring. The exact 32-GiB preflight began
   running once its capacity was released; poll/harvest it next.
+  The supplied CBC/historical-score review is reconciled at
+  `reports/2026-08-16-atlas-cbc-and-historical-score-review-reconciliation.md`,
+  SHA-256
+  `2df6a89c10f2a0d08d7c4cebc920edf2315421cbfbdde67ffe091f47f37b74df`.
+  Its resource critique was correct and has been fully incorporated: the
+  cgroup/native diagnostic captured exact CBC return/signal and true peak for
+  Weeks 7/15/16; Weeks 7/16 were `-9`/`SIGKILL`, all three peaks exceeded the
+  prospectively frozen 80% pressure boundary, and a later unchanged full cell
+  failed with Cloud Run's explicit 16-GiB memory-limit reason. Because Cloud
+  Run exposed cgroup-v1 `failcnt` rather than a v2 `oom_kill` counter, the
+  early diagnostic is described precisely as SIGKILL/resource pressure, not
+  definitive cgroup-OOM proof. The historical asymmetry is also resolved by
+  the controlling prospective high-tail amendment: positive requires +2 at
+  selected 200, nondecline at selected 210/220/230/240 and nondecline at
+  candidate 200. Binary interactions remain unchanged in the live 32-GiB
+  preflight and conditional repair5 so the resource treatment stays isolated;
+  the parity-proved continuous formulation remains a separate fallback.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
