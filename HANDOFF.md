@@ -1040,11 +1040,18 @@ agent or developer:
   compilation, both shell syntax checks and whitespace checks pass after this
   repair. The repair is pushed on `main` at exact source commit `a2a0526`.
   Superseding clean-archive Cloud Build
-  `af47dbc4-f725-426d-992c-3e8cadcb6423` is running from that commit under
-  create-only tag `constraint-lattice-a2a0526`; only this build may become
-  usable validation after the full suite, image build and both real-container
-  smokes pass. Even after a successful build, the diagnostic launcher remains
-  queue-gated behind strict ATLAS branch closure.
+  `af47dbc4-f725-426d-992c-3e8cadcb6423` completed successfully from that
+  exact commit under create-only tag `constraint-lattice-a2a0526`: 1,653 tests
+  passed, 2 skipped and 5 warnings in 1,045.31 seconds; the image build and all
+  four real-container runner/aggregator smokes passed. The resulting immutable
+  digest is
+  `sha256:899c512f68315beba263114f4af26c25830bc2f7e9c66713dc3d1570221eac6a`.
+  A direct launcher check from later handoff-only `HEAD` verified exact byte
+  parity with source commit `a2a0526a49d69807142bd03d02f4751c01becdcc`
+  and stopped at the intended ATLAS queue gate without creating a local run
+  directory. This image/build/source triple is valid for the future frozen
+  diagnostic, but its launcher remains queue-gated behind strict ATLAS branch
+  closure.
   At `2026-08-16T21:20Z`, 32-GiB preflight execution
   `atlas-cbc-32g-full-2023-w8-v1-lbzjd` remains nonterminal with one running
   task. The terminal-only strict-harvest and conditional repair5/parity
