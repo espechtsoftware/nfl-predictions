@@ -586,6 +586,21 @@ agent or developer:
   Instrumented Week 15 and native-log Week 15 remained running at the next
   status-only poll. The Week 16 resource receipt/log/MPS also remains unopened
   until the three-cell resource set is terminal.
+  A separate prospective 4-CPU/16-GiB resource-envelope preflight was frozen
+  while both Week 15 controls were still nonterminal and before any sealed
+  diagnostic artifact was opened. Protocol
+  `reports/2026-08-16-atlas-cbc-16g-preflight-protocol.md` has SHA-256
+  `4c09ba4065e5ac32af3873f149ca42c0dd922cadc21524fd277f404d7fdc45a7`.
+  It runs only the exact old-binary 2024 Week 15 R0 prefix, injecting the
+  byte-identical cgroup diagnostic source under a new protocol/prefix/cell
+  identity and changing only the Cloud Run resource envelope to 4 CPUs and
+  16 GiB. It persists no lineups or scores and cannot by itself prove OOM or
+  license production; a strict terminal finisher validates the injected
+  command, cgroup receipt and firewall. The renderer, launcher and finisher
+  are `scripts/render_atlas_cbc_16g_preflight_command.py`,
+  `scripts/cloud_atlas_cbc_16g_preflight.sh`, and
+  `scripts/cloud_finish_atlas_cbc_16g_preflight.sh`; six focused wrapper/
+  diagnostic tests plus shell syntax, Python compilation and diff checks pass.
   Next concrete action: poll both immutable diagnostic sets to terminal and
   run only their strict finishers before freezing the complete 54-cell
   repair3.
