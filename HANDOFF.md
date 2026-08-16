@@ -20,11 +20,11 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 21:54 CDT
+## Current state — 2026-08-15 21:59 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
-- Branch is `main`; this milestone starts from pushed commit `ed0313d`.
+- Branch is `main`; this milestone starts from pushed commit `216d294`.
   ATLAS execution `atlas-world-ranking-scorefree-v1-l59bt` completed cleanly at
   `2026-08-16T00:33:46.605244Z` and passed the strengthened strict harvester.
   The frozen finite-K + SIS-ASOE Phase S result passes all six conditions:
@@ -41,6 +41,14 @@ agent or developer:
   The interpretation is
   `reports/2026-08-15-atlas-scorefree-result.md`. Proceed to exact current-money
   transfer; do not adopt ATLAS from this result.
+- A reviewer-facing evidence map for this entire deployment set is tracked at
+  `reports/2026-08-15-atlas-deployment-evidence-index.md`. It preserves the
+  Phase S, law-separation, selector-stability, exact-N, acquisition and pending
+  production-transfer findings; links frozen protocols, raw reports,
+  execution receipts and hashes; and lists the exact transfer fields that must
+  be added after strict harvest. Update it before closing this deployment set
+  so a second reviewer can inspect both positive and adverse evidence without
+  relying on chat history.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
