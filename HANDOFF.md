@@ -580,6 +580,12 @@ agent or developer:
   poll. No Week 7 diagnostic receipt, log, or problem artifact has been
   opened: the frozen three-cell resource firewall still requires all three
   executions terminal before invoking its strict finisher.
+  At `2026-08-16T15:29:41.224595Z`, cgroup-instrumented Week 16
+  `atlas-cbc-resource-diag-2024-w16-v1-5jq79` became terminal
+  `Completed=False`, reason `NonZeroExitCode`, with `failedCount=1`.
+  Instrumented Week 15 and native-log Week 15 remained running at the next
+  status-only poll. The Week 16 resource receipt/log/MPS also remains unopened
+  until the three-cell resource set is terminal.
   Next concrete action: poll both immutable diagnostic sets to terminal and
   run only their strict finishers before freezing the complete 54-cell
   repair3.
