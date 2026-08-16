@@ -53,6 +53,9 @@ if r.get("version")!="atlas-historical-score-diagnostic-v1" or r.get("uses_reali
  raise SystemExit("ABORT: ATLAS historical report identity/license differs")
 if r.get("population")!={"seasons":[2023,2024,2025],"slates":54} or len(r.get("rows",[]))!=54:
  raise SystemExit("ABORT: ATLAS historical population differs")
+u=r.get("upstream",{}); receipt=u.get("receipt_object",{})
+if receipt.get("uri")!=m["output_prefix"]+"/upstream-receipt.json" or receipt.get("sha256")!=m["upstream_receipt_sha256"] or not str(receipt.get("generation","")).isdigit() or u.get("code_sha")!=m["upstream_code_sha"] or u.get("image")!=m["upstream_image"] or set(u.get("executions",{}))!={"2023","2024","2025"}:
+ raise SystemExit("ABORT: ATLAS historical upstream receipt binding differs")
 p=r.get("native_actual_score_parity",{})
 if p.get("registered_candidate_rows")!=68199 or p.get("compared_rows")!=68199 or p.get("slots_per_roster")!=9 or p.get("malformed_rosters")!=0 or p.get("missing_player_outcomes")!=0 or float(p.get("maximum_absolute_error",1))>1e-9 or float(p.get("absolute_tolerance",-1))!=1e-9 or float(p.get("relative_tolerance",-1))!=0.0 or p.get("source_storage_type")!="FLOAT":
  raise SystemExit("ABORT: ATLAS historical actual-score parity differs")
