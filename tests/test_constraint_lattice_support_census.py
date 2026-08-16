@@ -189,7 +189,7 @@ def test_complete_distributed_p230_support_keeps_original_gate(tmp_path: Path) -
     assert result["treatment_constructed"] is False
     distribution = result["counts_by_block"]["R0"]["230"]
     assert distribution["positive_slates"] == 54
-    assert distribution["effective_slates"] == 54.0
+    assert math.isclose(distribution["effective_slates"], 54.0)
     assert distribution["top_5_event_share"] == 50 / 540
     assert len(distribution["slate_counts"]) == 54
     correlation = result["fold_correlation_by_threshold"]["230"]
