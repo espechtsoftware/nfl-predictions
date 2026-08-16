@@ -169,6 +169,11 @@ def test_resource_preflight_is_exact_full_cell_and_effect_blind() -> None:
     assert "run_constraint_lattice_resource_preflight.py" in launcher
     assert "gcloud storage cp" not in finisher
     assert "CONSTRAINT_LATTICE_FOLD_COMPLETE 2023 1" in finisher
+    assert "CONSTRAINT_LATTICE_RESOURCE_TERMINAL_VALIDATED" in finisher
+    assert "full-cell-memory-fails-at-16g" in finisher
+    assert "full-cell-platform-error-inconclusive" in finisher
+    assert "failed lattice-resource execution wrote an object" in finisher
+    assert "not found: 404" in finisher
     assert "object_content_inspected=false" in finisher
     assert "effect_fields_inspected=false" in finisher
 

@@ -20,7 +20,8 @@ SUPPORT="$ROOT/reports/constraint-lattice-support-runs/20260816-constraint-latti
 [ "$(sha256sum "$PROTOCOL" | awk '{print $1}')" = "$PROTOCOL_SHA" ] || {
   echo "ABORT: lattice-resource protocol differs" >&2; exit 2; }
 [ ! -e "$OUT/completion.txt" ] && [ ! -e "$OUT/execution-metadata.json" ] && \
-  [ ! -e "$OUT/object-metadata.json" ] && [ ! -e "$OUT/logs.json" ] || {
+  [ ! -e "$OUT/object-metadata.json" ] && \
+  [ ! -e "$OUT/object-query-error.txt" ] && [ ! -e "$OUT/logs.json" ] || {
   echo "ABORT: immutable lattice-resource harvest exists" >&2; exit 3; }
 
 read -r JOB EXEC URI < "$EXECUTION"
@@ -34,17 +35,27 @@ gcloud logging read \
   "resource.type=\"cloud_run_job\" AND labels.\"run.googleapis.com/execution_name\"=\"$EXEC\"" \
   --project "$PROJECT" --limit=300 --order=asc --format=json \
   > "$OUT/logs.pending.json"
-gcloud storage objects describe "$URI" --project "$PROJECT" --format=json \
-  > "$OUT/object-metadata.pending.json"
+OBJECT_PRESENT=true
+if ! gcloud storage objects describe "$URI" --project "$PROJECT" --format=json \
+  > "$OUT/object-metadata.pending.json" \
+  2> "$OUT/object-query-error.pending.txt"; then
+  rg -q 'not found: 404' "$OUT/object-query-error.pending.txt" || {
+    echo "ABORT: lattice-resource object query did not establish absence" >&2
+    exit 2
+  }
+  OBJECT_PRESENT=false
+  printf '{}\n' > "$OUT/object-metadata.pending.json"
+fi
 
 "$ROOT/.venv/bin/python" - "$MANIFEST" "$EXECUTION" \
   "$OUT/execution-metadata.pending.json" "$OUT/logs.pending.json" \
-  "$OUT/object-metadata.pending.json" "$RUNNER" "$SUPPORT" <<'PY'
+  "$OUT/object-metadata.pending.json" "$RUNNER" "$SUPPORT" \
+  "$OBJECT_PRESENT" "$OUT/completion.pending.txt" <<'PY'
 from hashlib import sha256
 import json, pathlib, re, sys
 m=dict(line.rstrip("\n").split("=",1) for line in open(sys.argv[1],encoding="utf-8") if "=" in line)
 job,execution,uri=open(sys.argv[2],encoding="utf-8").read().split()
-x=json.load(open(sys.argv[3],encoding="utf-8")); logs=json.load(open(sys.argv[4],encoding="utf-8")); obj=json.load(open(sys.argv[5],encoding="utf-8")); runner=pathlib.Path(sys.argv[6]); support=pathlib.Path(sys.argv[7])
+x=json.load(open(sys.argv[3],encoding="utf-8")); logs=json.load(open(sys.argv[4],encoding="utf-8")); obj=json.load(open(sys.argv[5],encoding="utf-8")); runner=pathlib.Path(sys.argv[6]); support=pathlib.Path(sys.argv[7]); object_present=sys.argv[8]=="true"; completion=pathlib.Path(sys.argv[9])
 fixed={
  "run_id":"20260816-constraint-lattice-resource-preflight-v1",
  "output_prefix":"gs://nfl-predictions-503414-raw/research/constraint-lattice-resource-preflight-runs/20260816-constraint-lattice-resource-preflight-v1",
@@ -64,8 +75,8 @@ if m.get("support_completion_sha256")!=sha256((support/"completion.txt").read_by
 if job!="constraint-lattice-resource-2023-w1-v1" or not execution.startswith(job+"-") or uri!=m["output_uri"] or x.get("metadata",{}).get("name")!=execution:
  raise SystemExit("ABORT: lattice-resource execution identity differs")
 s=x.get("status",{}); done=[row for row in s.get("conditions",[]) if row.get("type")=="Completed"]
-if len(done)!=1 or done[0].get("status")!="True" or int(s.get("succeededCount") or 0)!=1 or int(s.get("failedCount") or 0)!=0 or not s.get("completionTime"):
- raise SystemExit("ABORT: lattice-resource execution is not terminal successful")
+if len(done)!=1 or done[0].get("status") not in {"True","False"} or not s.get("completionTime"):
+ raise SystemExit("ABORT: lattice-resource execution is not terminal")
 spec=x.get("spec",{}); task=spec.get("template",{}).get("spec",{}); containers=task.get("containers",[])
 if spec.get("parallelism")!=1 or spec.get("taskCount")!=1 or len(containers)!=1:
  raise SystemExit("ABORT: lattice-resource task shape differs")
@@ -80,26 +91,65 @@ markers=[]
 for block in ("R0","R1","R2","R3","R4"):
  expected_marker=f"CONSTRAINT_LATTICE_FOLD_COMPLETE 2023 1 {block}"
  matches=[message for message in messages if expected_marker in message]
- if len(matches)!=1: raise SystemExit("ABORT: lattice-resource fold markers differ")
- markers.append(block)
+ if len(matches)==1: markers.append(block)
+ elif len(matches)>1: raise SystemExit("ABORT: lattice-resource fold markers are duplicated")
 protocol_marker=f"CONSTRAINT_LATTICE_RESOURCE_PROTOCOL_SHA256 {m['protocol_sha256']}"
-if sum(protocol_marker in message for message in messages)!=1:
- raise SystemExit("ABORT: lattice-resource protocol marker differs")
-if not str(obj.get("generation","")).isdigit() or int(obj.get("size",0))<=0:
- raise SystemExit("ABORT: lattice-resource object metadata differs")
-print("CONSTRAINT_LATTICE_RESOURCE_MECHANICS_VALIDATED",execution)
+protocol_marker_count=sum(protocol_marker in message for message in messages)
+terminal_status=done[0]["status"]
+if terminal_status=="True":
+ if int(s.get("succeededCount") or 0)!=1 or int(s.get("failedCount") or 0)!=0:
+  raise SystemExit("ABORT: lattice-resource success counts differ")
+ if markers!=["R0","R1","R2","R3","R4"] or protocol_marker_count!=1:
+  raise SystemExit("ABORT: lattice-resource success markers differ")
+ if not object_present or not str(obj.get("generation","")).isdigit() or int(obj.get("size",0))<=0:
+  raise SystemExit("ABORT: lattice-resource success object metadata differs")
+ disposition="full-cell-complete-at-16g"
+else:
+ if int(s.get("succeededCount") or 0)!=0 or int(s.get("failedCount") or 0)!=1:
+  raise SystemExit("ABORT: lattice-resource failure counts differ")
+ if object_present:
+  raise SystemExit("ABORT: failed lattice-resource execution wrote an object")
+ def strings(value):
+  if isinstance(value,dict):
+   for item in value.values(): yield from strings(item)
+  elif isinstance(value,list):
+   for item in value: yield from strings(item)
+  elif isinstance(value,(str,int,float)): yield str(value)
+ evidence="\n".join([*strings(logs),*strings(done[0])]).lower()
+ memory_tokens=("memory limit","out of memory","oomkilled","sigkill","signal 9","returncode=-9","return code -9")
+ if any(token in evidence for token in memory_tokens):
+  disposition="full-cell-memory-fails-at-16g"
+ elif "internal error running task" in evidence and "cancel" not in evidence:
+  disposition="full-cell-platform-error-inconclusive"
+ else:
+  disposition="full-cell-fails-at-16g"
+completion.write_text("\n".join((
+ "validated_at=__VALIDATED_AT__",
+ f"status={terminal_status}",
+ f"disposition={disposition}",
+ "cell=2023-1",
+ f"fold_markers={len(markers)}",
+ f"object_present={str(object_present).lower()}",
+ "object_content_inspected=false",
+ "cpu=4",
+ "memory=16Gi",
+ "task_max_retries=0",
+ "uses_realized_outcomes=false",
+ "effect_fields_inspected=false",
+ "production_change_licensed=false",
+))+"\n",encoding="utf-8")
+print("CONSTRAINT_LATTICE_RESOURCE_TERMINAL_VALIDATED",execution,disposition)
 PY
 
 mv "$OUT/execution-metadata.pending.json" "$OUT/execution-metadata.json"
 mv "$OUT/logs.pending.json" "$OUT/logs.json"
 mv "$OUT/object-metadata.pending.json" "$OUT/object-metadata.json"
+mv "$OUT/object-query-error.pending.txt" "$OUT/object-query-error.txt"
+sed -i "s/__VALIDATED_AT__/$(date -u +%Y-%m-%dT%H:%M:%SZ)/" \
+  "$OUT/completion.pending.txt"
+mv "$OUT/completion.pending.txt" "$OUT/completion.txt"
 sha256sum "$OUT/execution-metadata.json" "$OUT/logs.json" \
-  "$OUT/object-metadata.json" > "$OUT/evidence.sha256"
-printf '%s\n' "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-  'status=True' 'disposition=full-cell-complete-at-16g' 'cell=2023-1' \
-  'fold_markers=5' 'object_present=true' 'object_content_inspected=false' \
-  'cpu=4' 'memory=16Gi' 'task_max_retries=0' \
-  'uses_realized_outcomes=false' 'effect_fields_inspected=false' \
-  'production_change_licensed=false' > "$OUT/completion.txt"
+  "$OUT/object-metadata.json" "$OUT/object-query-error.txt" \
+  > "$OUT/evidence.sha256"
 sha256sum "$OUT/completion.txt" > "$OUT/completion.sha256"
 echo "CONSTRAINT_LATTICE_RESOURCE_PREFLIGHT_HARVESTED $EXEC"
