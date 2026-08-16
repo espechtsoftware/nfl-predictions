@@ -1,0 +1,6 @@
+validated_at=2026-08-16T07:26:00Z
+execution=replay-atlas-mvp-repair-r3-2025-xcps7
+panel=20260816-atlas-mvp-repair-r3-2025-v1
+repaired_artifact_uri=gs://nfl-predictions-503414-raw/cand_scores/20260816-atlas-mvp-repair-r3-2025-v1/2025_w1_1b661a12cf24.npz
+uses_realized_outcomes=false
+disposition=valid-mvp-source

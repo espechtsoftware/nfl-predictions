@@ -5,10 +5,10 @@ deployment sequence. This file records positive findings, adverse findings,
 evidence boundaries and immutable source locations so a second reviewer can
 reproduce the conclusions without relying on a chat summary.
 
-**Status:** production-law transfer strictly harvested. The fixed-budget
-matched-diversity ATLAS MVP is frozen and its one create-only source-identity
-repair is running; no MVP effect result exists yet. No production or
-historical promotion is licensed.
+**Status:** production-law transfer and the one create-only MVP source repair
+are strictly harvested. The fixed-budget matched-diversity ATLAS MVP is frozen
+and ready for immutable-image validation; no MVP effect result exists yet. No
+production or historical promotion is licensed.
 
 ## Findings at a glance
 
@@ -269,11 +269,15 @@ historical arm or scoring/ROI claim.
   `reports/2026-08-16-atlas-mvp-source-repair-protocol.md`
 - Repair protocol SHA-256:
   `a18c0f59cfccfccd073bdf5d9d24a0a8ad8015320421d40eb0fccc6a1a18d461`
-- Active repair execution: `replay-atlas-mvp-repair-r3-2025-xcps7`
+- Successful repair execution: `replay-atlas-mvp-repair-r3-2025-xcps7`
 - Repair launch receipts:
   `reports/atlas-mvp-source-repair-runs/20260816-atlas-mvp-source-repair-r3-2025-v1/`
 - Repair environment-receipt SHA-256:
   `80820ed9a8fc6fa8e2264fe1c34ced1e3ce31ed477722841a1e7222cf446cf90`
+- Strict validation / execution / completion SHA-256:
+  `4938df8c8f7f84dea40baf2f76cd84f78cdc9e1a097c271b419e3dc8c6b5cd37` /
+  `f2bb244daf1b2d9515bee59799095fcbdd44414acb16b06e65e8298bd87c62b7` /
+  `7bbff5dd3721ba436f79cb984091e7aa5815642629ab2c5615a6f2d9aacaa592`
 
 The adjustment does not retune the promising world-ranking result. It holds
 the native 40-candidate boom budget fixed and replaces those rows with eight
@@ -289,12 +293,12 @@ pair-reach floor was frozen before MVP launch or effect availability and is
 separate from conditional pair weight. It reads no realized outcomes.
 
 The repair exists only because the valid original Week 1 NPZ intentionally
-does not carry roster/tag identities. Its rerun changes only the create-only
-panel and diagnostic lineup-table destinations. The strict finisher will
-require exact equality of all player/candidate world arrays, 248 reconstructed
-legal candidate rosters and 40 exact-boom tags. Until that execution is a
-terminal success and the finisher passes, the MVP source remains incomplete
-and no effect conclusion may be drawn.
+does not carry roster/tag identities. Its rerun changed only the create-only
+panel and diagnostic lineup-table destinations. The strict finisher passed:
+all 18 cells exist; player IDs, all 10,000 player draws, candidate indices and
+candidate totals exactly equal the original object; all 248 unique candidates
+are legal and reconstruct with maximum absolute error zero; and exactly 40
+carry the `boom` tag. This is a mechanical source result, not an MVP effect.
 
 Pre-launch protocol-to-code audit additionally verifies that every accepted
 proposal reports separate newly covered pair and stack-core counts/weights,

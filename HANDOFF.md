@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 01:48 CDT
+## Current state — 2026-08-16 02:28 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -196,6 +196,20 @@ agent or developer:
   pair/core accounting. All 62 focused tests, Python compilation and diff
   checks pass. The replay remains nonterminal `Unknown/running`; no partial
   output was inspected.
+  The replay subsequently completed successfully and only the frozen strict
+  finisher was run. Execution `replay-atlas-mvp-repair-r3-2025-xcps7` passed
+  terminal image/environment/resource/account validation, all 18 source cells,
+  exact equality of player IDs, 10,000 player draws, candidate indices and
+  candidate totals against the original Week 1 object, 248 unique legal
+  reconstructed rosters, exactly 40 boom tags and zero maximum reconstruction
+  error. Strict validation/execution/completion SHA-256 values are
+  `4938df8c8f7f84dea40baf2f76cd84f78cdc9e1a097c271b419e3dc8c6b5cd37`,
+  `f2bb244daf1b2d9515bee59799095fcbdd44414acb16b06e65e8298bd87c62b7`
+  and `7bbff5dd3721ba436f79cb984091e7aa5815642629ab2c5615a6f2d9aacaa592`.
+  The MVP runner and launcher now bind those exact hashes. Next rerun the 62
+  focused tests/compile/shell checks, commit and push the complete repair
+  harvest plus bindings, build a clean immutable image from that commit, and
+  launch the three season MVP jobs.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five

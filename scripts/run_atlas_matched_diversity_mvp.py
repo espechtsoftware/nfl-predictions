@@ -76,11 +76,17 @@ REPAIR_VALIDATION = Path(
     "reports/atlas-mvp-source-repair-runs/"
     "20260816-atlas-mvp-source-repair-r3-2025-v1/validation.json"
 )
-REPAIR_VALIDATION_SHA256 = "TO_BE_FROZEN_AFTER_STRICT_REPAIR_HARVEST"
+REPAIR_VALIDATION_SHA256 = (
+    "4938df8c8f7f84dea40baf2f76cd84f78cdc9e1a097c271b419e3dc8c6b5cd37"
+)
 REPAIR_EXECUTION = REPAIR_VALIDATION.with_name("execution.json")
-REPAIR_EXECUTION_SHA256 = "TO_BE_FROZEN_AFTER_STRICT_REPAIR_HARVEST"
+REPAIR_EXECUTION_SHA256 = (
+    "f2bb244daf1b2d9515bee59799095fcbdd44414acb16b06e65e8298bd87c62b7"
+)
 REPAIR_COMPLETION = REPAIR_VALIDATION.with_name("completion.txt")
-REPAIR_COMPLETION_SHA256 = "TO_BE_FROZEN_AFTER_STRICT_REPAIR_HARVEST"
+REPAIR_COMPLETION_SHA256 = (
+    "7bbff5dd3721ba436f79cb984091e7aa5815642629ab2c5615a6f2d9aacaa592"
+)
 OUTPUT_PREFIX = (
     "gs://nfl-predictions-503414-raw/research/atlas-matched-diversity-runs/"
     "20260816-atlas-matched-diversity-mvp-v1"
