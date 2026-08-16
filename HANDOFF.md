@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 19:52 CDT
+## Current state — 2026-08-15 20:05 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -66,10 +66,15 @@ agent or developer:
   true. Full details are in
   `reports/2026-08-15-scorefree-source-population-repair.md`. Forty-eight
   focused tests pass, Python compilation, four shell syntax checks and
-  `git diff --check` pass. Commit/push this milestone, run one full
-  clean-archive Cloud Build, then launch selector stability from only the new
-  validated digest. Exact-N follows selector stability. Production-law ATLAS
-  acquisition may begin after compute/quota is checked.
+  `git diff --check` pass. Full clean-archive Cloud Build
+  `50967058-6920-41f2-8289-6c47bd7def37` succeeded from exact commit
+  `545ddae1b8e1256fde8e345683e0004aa5463b5e`: 1,577 tests passed, 2 skipped
+  and 5 warnings in 755.10 seconds. Tag `scorefree-contract-545ddae`
+  resolves to immutable digest
+  `sha256:ad4604d86f1b1f7938136650f3d3940c9f1d6edd6a3427d618e6f943822602c8`.
+  Launch selector stability from only this new validated digest. Exact-N
+  follows selector stability. Production-law ATLAS acquisition may begin
+  after compute/quota is checked.
 
 - The required outcome-free production-law ATLAS transfer is frozen before
   the Phase S result at
