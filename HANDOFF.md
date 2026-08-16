@@ -1069,10 +1069,18 @@ agent or developer:
   inputs, cells, quotas, ranker, admission law and gate are unchanged. Digest
   `sha256:899c512f...eac6a` remains evidence for the prior implementation but
   is superseded for execution. The strict-harvest conformance repair is pushed
-  at exact source commit `cfa9887`. Superseding clean-archive Cloud Build
-  `085ef00a-bd31-4876-8814-fff5b31df27c` is running under create-only tag
-  `constraint-lattice-cfa9887`; require its full suite, image build and all
-  real-container smokes before recording a new executable digest.
+  at exact source commit `cfa9887c97ddf9c04377ca6fea224bb66b879349`.
+  Superseding clean-archive Cloud Build
+  `085ef00a-bd31-4876-8814-fff5b31df27c` completed successfully under
+  create-only tag `constraint-lattice-cfa9887`: 1,654 tests passed, 2 skipped
+  and 5 warnings in 823.31 seconds; the image build and all four real-container
+  runner/aggregator smokes passed. The sole executable constraint-lattice
+  digest is now
+  `sha256:90fd83003d43618fee04f876ea621135ab5f72de9a86885df3fcf907bf653ce3`.
+  A direct post-handoff launcher check matched every built source byte to
+  `cfa9887c97ddf9c04377ca6fea224bb66b879349`, stopped at the intended ATLAS
+  queue gate and created no run directory. The diagnostic is fully prepared
+  but remains dormant until strict ATLAS branch closure.
   At `2026-08-16T21:20Z`, 32-GiB preflight execution
   `atlas-cbc-32g-full-2023-w8-v1-lbzjd` remains nonterminal with one running
   task. The terminal-only strict-harvest and conditional repair5/parity
