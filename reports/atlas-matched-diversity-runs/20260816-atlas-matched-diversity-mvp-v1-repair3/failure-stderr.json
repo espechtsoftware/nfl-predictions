@@ -1,0 +1,1460 @@
+[
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a81ffe20000df0348d4fb57",
+    "labels": {
+      "instanceId": "001548f729a04258843d8b6682857f5aa1df58e3fc505ba00db3f170c9660e9fcf617089c6fefaa462c2add18ca6d8da58cff0080d77cd2f840144d12c649fba3e17b01c21c608cf6ec842fbc4956ace65ec43e970bc3c90610a74",
+      "run.googleapis.com/execution_name": "atlas-md-s2023-w8-r3-95lks",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:22:26.063705936Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2023-w8-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:22:26.057091Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a81ffe20000e30e246caed9",
+    "labels": {
+      "instanceId": "00a41e8c1dc98345a49ef5c4bab3f1979ba07197f200b25fca8076be63370ace0cd2b54510eb6c743b4a25bf3623e8b516035c461d3bbd3972d1dc4fa2e84a8c598e5719c661338ce84a8761c9729064de5436e7c68ea2cab99e73",
+      "run.googleapis.com/execution_name": "atlas-md-s2023-w3-r3-wdlsc",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:22:26.065061610Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2023-w3-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:22:26.058126Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a81ffe20000e460e21a94b5",
+    "labels": {
+      "instanceId": "001548f729e59dcd56fc415d69261de69127da484cf2334564895345bbe9e60cac8ebfb06e60b7cde5a68465d990598c4751f7fb9c0c535b6aa6948f1c5eb002e2fa28d87cf79986b31e2bd46656298135cd057727da692f76e358",
+      "run.googleapis.com/execution_name": "atlas-md-s2023-w6-r3-nhvgd",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:22:26.067142303Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2023-w6-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:22:26.058464Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a81ffe20000e4f05d65461a",
+    "labels": {
+      "instanceId": "001548f7297bd5cde99800e8cc9e981b4c59dad5543586495c5df912a54604ef1bf305a956650b01b52c10251b63d182c21854e26edf1e23057b0d5dd1b1bd08c384961ea158c93dbc61eebb00d83e9aebe53984b63cf4c04670e9",
+      "run.googleapis.com/execution_name": "atlas-md-s2023-w1-r3-v6g42",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:22:26.063136156Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2023-w1-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:22:26.058608Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a81ffe20000e90aef0baf6f",
+    "labels": {
+      "instanceId": "00a41e8c1d6faac46da4af563bb4167829373c8c40e60246c18b24cb3cb7282bfd877ed7e3362c1f72f00694722cfae9e0ad5144e09c5104549391f64ca3d21e2daf2e4d6645b29e10acf12151c8c5a8588ab0907f2a815af0e0c6",
+      "run.googleapis.com/execution_name": "atlas-md-s2023-w5-r3-5w6p6",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:22:26.064924248Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2023-w5-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:22:26.059658Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a81ffe20000ebf9869f841d",
+    "labels": {
+      "instanceId": "00a41e8c1d363db2a825c15c25427de8b9e65885af9b835b6b27d70c06f0bd318c5af374ec10bc707a0d149db3db4d05a9be27b38ae269f8d709cc41515f331ef6c0683aac8de59e8e5af6fc84b29426abc88e6c622f5d326100e9",
+      "run.googleapis.com/execution_name": "atlas-md-s2023-w2-r3-2xqwl",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:22:26.068103208Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2023-w2-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:22:26.060409Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a81ffe20000f15dd020d071",
+    "labels": {
+      "instanceId": "00a41e8c1d4b7852c1738ec79221bb3443d78f6332e07ac8eb130fbe86c66bc9fd8da4b802c9e8d200cf267d6e9227ff34a36f86ad3cc7176c7546e1046a285385ce7a258f8c21a4719e30dccda693319135218a93bf9b55dc60d3",
+      "run.googleapis.com/execution_name": "atlas-md-s2023-w9-r3-4jvgf",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:22:26.069908438Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2023-w9-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:22:26.061789Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a81ffe2000355e68bd01f2a",
+    "labels": {
+      "instanceId": "001548f729168dc183592bc9ee11cbe0516c1dec9e809ae2ae375859dcaabc80a92da97ae1b18dfa1c056982153b0373d2c8c9d58f4a76e1e39de5fa7f0215e5cc8bfede34afcfa468ef8be51c5e90032d1bed6b9eba65986a3e",
+      "run.googleapis.com/execution_name": "atlas-md-s2023-w4-r3-l69jq",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:22:26.224789444Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2023-w4-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:22:26.218598Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a81ffe3000c108920da1b25",
+    "labels": {
+      "instanceId": "00a41e8c1d6342408b5c5e40cec79d588d55f24fa4fcb25d6625e32c80ca3a6fe565601bfdb0495577da6a4f195b5e6c6698e43c7bacc71c04ca96d4a209270d3693deeb9361bef0a8f6e0774ef7c0b839cf23541c8483d5947f45",
+      "run.googleapis.com/execution_name": "atlas-md-s2023-w7-r3-btp9z",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:22:27.798315959Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2023-w7-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:22:27.790665Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a82005500076852e199fcec",
+    "labels": {
+      "instanceId": "00a41e8c1d95c6eb5d99cb5a8fcd45c7e8416544a7606a578d51aa06fd9527398db60d237a36d0de489218fe86198933f9803c20ff5247247069111e23e450a21f536955842e77a2829eb8bcfad3e35f4e2d59f379a491b3740b73",
+      "run.googleapis.com/execution_name": "atlas-md-s2024-w1-r3-4p286",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:24:21.489827428Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2024-w1-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:24:21.485458Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a820055000ceeafb8a775b1",
+    "labels": {
+      "instanceId": "00a41e8c1d01adf2f822cea93014e0805db54ce7f570fcc967c325c6341fe3e5630a170009ab14079734946309c0c4aec0f1ef300c68f7781947ad9985295eafc7105843d1171dedca968278c2caaa229cf7f6e563c7262ea45d1d",
+      "run.googleapis.com/execution_name": "atlas-md-s2024-w7-r3-jv6gs",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:24:21.859779951Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2024-w7-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:24:21.847535Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a820055000df65285a45c84",
+    "labels": {
+      "instanceId": "00a41e8c1da59e14a521468f06eae56425d5204c8fd61d73d815f296c4e23f24c4570321d299d5016b9620272a22ead9d867556fbdb48fdf2186ebfa7149ae2ef277cbd1d4f725237c4d954b402f043bac3f285bdba20f9f9fb90e",
+      "run.googleapis.com/execution_name": "atlas-md-s2024-w4-r3-vpphz",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:24:21.924970738Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2024-w4-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:24:21.915026Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a820055000e0e4682f539f6",
+    "labels": {
+      "instanceId": "00a41e8c1d78c852df4c076f962ff04c410cad0bde4c46a370ba1599cff28bdf9325c048fb685644b46ca5292368b60009c87f34735d83ccb461ed8c40796105991a12eee16ad3d20dbcb1b75919a9d7e5614c0e87ca16f4a7c2861ea8bd06c6",
+      "run.googleapis.com/execution_name": "atlas-md-s2024-w11-r3-hh4xk",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:24:21.924783971Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2024-w11-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:24:21.921158Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a820056000224c10c750ac6",
+    "labels": {
+      "instanceId": "00a41e8c1d79d0d5f4604f8d79792bf18deda47a5814c3fbb9597a529e12fe4930613c408de4761f08afde614aa74ae9ef810f8d8827bec20816fffdb4dd0398ebc55b186ee8a45b888e0717c3401b695ef3eb2d6818c78ded109c",
+      "run.googleapis.com/execution_name": "atlas-md-s2024-w13-r3-qzknr",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:24:22.147222597Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2024-w13-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:24:22.140481Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a820056000239a290077437",
+    "labels": {
+      "instanceId": "00a41e8c1d239ead52fb5512299fc58ccd5081ad4cc1bf895af4f3fb3b178bd97cc29e209b246d8bb7542b3b025d56c314e57dfb0baca329e98524b2dc75f61e1430431224646ee7a3246f2dde73e91a5e6ec1e35b545e9e100dcc",
+      "run.googleapis.com/execution_name": "atlas-md-s2023-w13-r3-h6p6w",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:24:22.152283008Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2023-w13-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:24:22.145826Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a82005600039fe341b8a75e",
+    "labels": {
+      "instanceId": "00a41e8c1dbaa35d39235fa4f7ceff185a062da4f69ebf078b6149ceeac986de1eafc436fc187ec9ff12a2df08949de1c271c824ad90ff0c6c8bcf2c3ba846c34088e4698d1dd20a4388a8bf99edb3e70f0cadf122bfc72b430c50",
+      "run.googleapis.com/execution_name": "atlas-md-s2023-w18-r3-s8774",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:24:22.242880158Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2023-w18-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:24:22.237539Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a820056000575118f55536d",
+    "labels": {
+      "instanceId": "00a41e8c1dc646e7d2da0ec62a077ef82127e587ff18795ff2f8fe1d5dee9f17fed4e6ed359c89a06d47384d9aeb50f0f114d861adb135bcd5f6ec0115410f1fc0f253cd6d70c33f34262a9d31f4d47bf539dc47b7ff324d2b83a5",
+      "run.googleapis.com/execution_name": "atlas-md-s2024-w8-r3-qp97f",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:24:22.364849593Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2024-w8-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:24:22.357649Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a8200560007f42815ed9bd2",
+    "labels": {
+      "instanceId": "001548f7292b4e213abd720c4a98ac9292149b4395174133515d9cc87bdddf1a842fcdc58a2701b94a0c44e5f79df65be06e8cabf1298e7ea195fc50f8b7d5ddb697674f2c2b9d1537d79e0ea4af8fefe9f29ee3311f5f85d7dfe5",
+      "run.googleapis.com/execution_name": "atlas-md-s2024-w2-r3-gvhh8",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:24:22.526022601Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2024-w2-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:24:22.521256Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a8200560008223aa5f5879e",
+    "labels": {
+      "instanceId": "001548f72917fdf901855c9eed43942de5b248150bf8faa4dc880825339d36c0ea8413a43b599a5afd2b8fc081ce752ea6ef1aae2eb118f72d8a5ff22a1de5845a94a8135b54cba5698a74f635edf7b34a77d132d6c210f02360",
+      "run.googleapis.com/execution_name": "atlas-md-s2023-w17-r3-cbbbg",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:24:22.538190535Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2023-w17-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:24:22.533050Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a82005600082bd16b648976",
+    "labels": {
+      "instanceId": "001548f729dd330e6c6ee6da883e9c965230af42f1e215638152d876f3fda6c4051a48cfd87b94f4c4a50f5c1a1b18b01f45747299c33051151e08666744e463c3024d3bf4b5b356a7493ff3b0b2699e74db192c44fc5e15af8e5b",
+      "run.googleapis.com/execution_name": "atlas-md-s2024-w14-r3-mprsx",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:24:22.543273232Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2024-w14-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:24:22.535505Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a820056000856c206f3c1c5",
+    "labels": {
+      "instanceId": "00a41e8c1d3d6e261403333f9e2bd17d1e7e7650955f802bc27de7b86c726813e8e9d77cabbccd324a2ff3bbb868090cece32b6d0fade00d4586aaaf36addfd6a6a5cd438af308cb3e5b5882427b7a32639725afbba014ee6c573f",
+      "run.googleapis.com/execution_name": "atlas-md-s2024-w3-r3-f9v25",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:24:22.550338773Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2024-w3-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:24:22.546498Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a820056000ead4bf75e33cb",
+    "labels": {
+      "instanceId": "001548f729674d4b0933f648198ffc6d8efaebe70756f4f9092140056dc28d5311c6354703b6485240064c48941257d1acd26c39df48bc98c52ac7ab0feeddb9b7fabb6b207b3ac6c8cc127547d14ae3a6234adf96fd72e0a06e61e18634b6a8",
+      "run.googleapis.com/execution_name": "atlas-md-s2023-w16-r3-jflx9",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:24:22.967999353Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2023-w16-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:24:22.961867Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a8200570001b141fe4cb1b5",
+    "labels": {
+      "instanceId": "00a41e8c1d49699625a2e8325012c7e229572388471c4a535dad309c379665ab339c55b93e2aeab3caf0fd6b070a1f0e080ec9144bce53ee2e3ac0ba18657dd6589afd2ce40de2475a7aea3fb701149cc222b8ce00e8d7018fbf34",
+      "run.googleapis.com/execution_name": "atlas-md-s2024-w5-r3-nbqhw",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:24:23.120611765Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2024-w5-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:24:23.110913Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a8200570001b1964991d213",
+    "labels": {
+      "instanceId": "00a41e8c1d5dbfa764466f13e8181ac62faac8091e8615d0588ddb9dd8e85a2700705c75a703de749a94e3337579df49458cde01e6d9dbc135d181d3db9aa9ec2d56e5ee6efe6bf3643c8d6ca2a69bd583a02c60d8a541c957655f",
+      "run.googleapis.com/execution_name": "atlas-md-s2023-w14-r3-rhhpl",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:24:23.118022218Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2023-w14-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:24:23.110998Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a820057000b5594f69f555a",
+    "labels": {
+      "instanceId": "00a41e8c1d1bec8514cc1e86841732ca4cfcc2e973e654a16211baef625a5d4759741d2a29651c8c46d78032af6e09ee6a6a7c595f6e6da63384bf39c0b335ec2b86ffac8a0eb7b77986a0735bc387cd628b946f826aa9423a057d",
+      "run.googleapis.com/execution_name": "atlas-md-s2024-w6-r3-ktw9p",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:24:23.750338813Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2024-w6-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:24:23.742804Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a820058000021e3679985bc",
+    "labels": {
+      "instanceId": "001548f7294fdaf3ae883ba7d623c39e8e45b56eb0c4022454bb138d0b461e0dfdbfbb3d9efe754cb765442b6456c2d2de3ecaf428415ce5bad95bdfbdfcd5a59f3861c0530850b2b83a0d4ebef59d9b59f64467d738a8000216",
+      "run.googleapis.com/execution_name": "atlas-md-s2023-w11-r3-drbf6",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:24:24.016220390Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2023-w11-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:24:24.008675Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a820058000029642c2011e4",
+    "labels": {
+      "instanceId": "001548f729914d3acfe488a817b46f9bb2baaffc552e6d0eb7807b4a3f8e81c8fd4122a6fb6c62774c70f36e4dea82fdd6decdc99d90a9bd70377bba930fa8aa4fc6f148cf571fe48710d7c219e0345bf3d22067a77f79d77fb3bc",
+      "run.googleapis.com/execution_name": "atlas-md-s2024-w10-r3-8grmq",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:24:24.020420984Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2024-w10-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:24:24.010596Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a820058000029edbf5f43f7",
+    "labels": {
+      "instanceId": "00a41e8c1d71d4e4c5ca297b7349bb60097692a71f8fc5e056b0b00f48b2b69e55a09055c32237bd4cb8a7b3856901abc86a874b9eac3711f7682d93d923edab0394ed2badf828e1f96a392a6891aa5664cf08e1cf7a2cd20a64",
+      "run.googleapis.com/execution_name": "atlas-md-s2023-w10-r3-qrcg9",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:24:24.022556162Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2023-w10-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:24:24.010733Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a82005800003d1cb60bab5f",
+    "labels": {
+      "instanceId": "00a41e8c1dfcd67eb0260b21f01fb5d3d9bc8e044cfa63e19cdb61fb58fc575a5b12f4ed4fb19c3779ec7d18841730604f07d2955dc4679c17d70c066adff963532a6a92d3bb8fcd5040e11e37f43205cfee41ac05dd01aafd9c98",
+      "run.googleapis.com/execution_name": "atlas-md-s2023-w12-r3-cw58t",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:24:24.038389146Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2023-w12-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:24:24.015644Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a82005800028a8addb58c5b",
+    "labels": {
+      "instanceId": "00a41e8c1de73968447226a8d03df06a92999a77e55342ccdf2aa6dc70f0835df607c8160f34334b3e21e668ebe46aadf8c9df56918ac90243702a93519977048e8eda514c44d946904a2b0a639cdd10e33535a383938ebd8bf10d",
+      "run.googleapis.com/execution_name": "atlas-md-s2023-w15-r3-jh459",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:24:24.170604191Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2023-w15-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:24:24.166538Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a8200580003c82d52e5be66",
+    "labels": {
+      "instanceId": "00a41e8c1d19804d1d428d276e881079e106008a161d4ee7f339b3750d84527f72f486333a30d94d1fb7b65a262da4ed6d097a6d557405cfbb5b5123c018452de4fcebc22cf16f9f80da236a29e0781b9c86d0fb11a6b996616c63",
+      "run.googleapis.com/execution_name": "atlas-md-s2024-w9-r3-vgf4f",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:24:24.253713251Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2024-w9-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:24:24.247853Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a820058000b3791db2bf4fe",
+    "labels": {
+      "instanceId": "00a41e8c1daf89a0c5b32ba261f318833195823b1c0369bed3697e611cd4ba45823285bf37e66eb674f95d5e03a8e2def33c2fbb5f3a1b5689e8e71aba9b36ead3229f75f82d5a04d919f7c13935e1bbc08947beadaa51ef0189b276",
+      "run.googleapis.com/execution_name": "atlas-md-s2024-w12-r3-2jxht",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:24:24.740570359Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2024-w12-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:24:24.735121Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a8200bd0003a08311a542ba",
+    "labels": {
+      "instanceId": "001548f729aea318ce6cc57ec79625cba948d61545a7399ed670f1ddd0d6c71a3184abbd31d7c7be122af2e79ac1e60c8d06cdfab0480dd69043f9bbcd790f2b3191c9f36c6ea893937445712ad257a6d3da0d0ee8779196be2744fcfe219c32",
+      "run.googleapis.com/execution_name": "atlas-md-s2025-w13-r3-rsvtx",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:26:05.244680322Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2025-w13-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:26:05.237699Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a8200bd00059256019952ce",
+    "labels": {
+      "instanceId": "00a41e8c1dafc34d7699c3cffd4f0ae4a14094de21e43ac1392195002a89c8632678c00ac4cc07cecc3696a8012209721b891af2b2cf93305cde10c628bdf3950931c75f87c960acf328ac937b84e4aed0478a52e59118c0fb7301",
+      "run.googleapis.com/execution_name": "atlas-md-s2024-w17-r3-dgp6n",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:26:05.370359881Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2024-w17-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:26:05.365142Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a8200bd0006590661fe8d1e",
+    "labels": {
+      "instanceId": "00a41e8c1d67af78121b268e8b5fbc35a550b57ef6d851e3168d4b624f6b0c9ea5606da21649da709114fdc82b3b1569661dd641a4808e0d9b4929bd26172f20d6bc38cc6f63464c7bcbe337cb30d3341ce43c3455beaa8ee98745",
+      "run.googleapis.com/execution_name": "atlas-md-s2025-w9-r3-nhhkb",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:26:05.422220793Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2025-w9-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:26:05.416006Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a8200bd000772a00bef12f4",
+    "labels": {
+      "instanceId": "00a41e8c1d2ceee54965254c3072054269aa8bcd1ee163285c653f0bf105bdc57946c4bfc7a1f96895e672c956301854f2a2d5350a8e2a4bb436f29ec8c0d08caf8a80110dcb818a883d41ec320c5754a5a26e5e7c74beca4a91bf",
+      "run.googleapis.com/execution_name": "atlas-md-s2025-w4-r3-qcphx",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:26:05.496168428Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2025-w4-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:26:05.488096Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a8200bd0007b5cc717d74cc",
+    "labels": {
+      "instanceId": "001548f729d2c495c68fe7d8e06b647b7a0db7f2d280212d9eee65daa69e5f1e94361651bfb3d114f93ed6eb3b242aeef2c9e2dd5c4b195fed9836e713957d37648152f85d014fabb4818592c0864b7c2d7cf41144aedb58e3c817",
+      "run.googleapis.com/execution_name": "atlas-md-s2024-w15-r3-5vnf7",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:26:05.512266064Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2024-w15-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:26:05.505292Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a8200bd000933f150291ee7",
+    "labels": {
+      "instanceId": "00a41e8c1d46801eb22b79c742f5933539c351f51003ad7b3d084f91eea4ab646135642fd01b5b241b9a9652516219936c5226e5955e900c42cb7a0d101e7343c5690963eeca7e5f6cb78ec2bfbceca038f615770be4696c45404c",
+      "run.googleapis.com/execution_name": "atlas-md-s2025-w17-r3-t28jp",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:26:05.612204720Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2025-w17-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:26:05.603121Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a8200bd00093caede3ef937",
+    "labels": {
+      "instanceId": "00a41e8c1db9fab79331bfe21db356f6d83eeb292a4a5f9d1c94f919b75f8fa04ac9bd3213e1a698d60b54b6b862a04d88f799e9149f953692fc559d2bfd07442f7220ddf787534792bff2c4814467edf680e434658e7265438035",
+      "run.googleapis.com/execution_name": "atlas-md-s2025-w10-r3-dn7zg",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:26:05.614892809Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2025-w10-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:26:05.605358Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a8200bd0009436b00704970",
+    "labels": {
+      "instanceId": "00a41e8c1d811e18eeb0a592fbb9a40e0c75da1eac67cea712197d53c8c0f4b86c62dbde00cbc416a632d1a1b9f54b87dee5d331e14c3491dcc742d9b3f9ef71821540baa58c7514c49ae6affc34a909eba68d674276c8f9fd10f8",
+      "run.googleapis.com/execution_name": "atlas-md-s2025-w16-r3-v4g8v",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:26:05.611938381Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2025-w16-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:26:05.607083Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a8200bd0009993ba06ff762",
+    "labels": {
+      "instanceId": "00a41e8c1d9066d952af9f36dcf049251ed752108b413b627fc69f3f3b7fa7177bfdcbe5b06814dbc4c220b47c496f8cc0b28ac481c88e1b0a25ab1b80e9554bf8b773ebe3214a807b4136872db13dbf85cd20a72b6b040a9dcfd5",
+      "run.googleapis.com/execution_name": "atlas-md-s2025-w15-r3-wpr8c",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:26:05.634980886Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2025-w15-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:26:05.629051Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a8200bd0009d305638635c4",
+    "labels": {
+      "instanceId": "00a41e8c1d4db0ece546dc1a554e75a122d61b586973da8e32a712b23378600ba7278ac2f34f2b462ba9a034e8462dba2ebda5c94baaac66f34a0439511e99d8fdf91176be46cdd5cbb5f83e1f99c834a650fcbc5c9bf9e1e4608dd8148a60b5",
+      "run.googleapis.com/execution_name": "atlas-md-s2025-w8-r3-fljc5",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:26:05.648716137Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2025-w8-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:26:05.643845Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a8200bd000a025bfb601b6c",
+    "labels": {
+      "instanceId": "00a41e8c1d6b24328e6d5d0b145e344c424814c9a7cdbfbd4bf78d4f9e4a45895cf0d90601cf660de6d145f5ee01079d8563bc399b92186853569ebf70e0f1728bc6773aea5b1fd19c42be7cfaa821f721dc764758838560969647",
+      "run.googleapis.com/execution_name": "atlas-md-s2025-w11-r3-zwc54",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:26:05.666430941Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2025-w11-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:26:05.655963Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a8200bd000d1a486d344cb0",
+    "labels": {
+      "instanceId": "00a41e8c1d3c75a9efaff670d9434b3be936ade62a144c40756a04b507563bbc0a33515561bca44f97b94e90d138d3b5a1d994f078eaf7743e3f0a9e418e7fc6970d4358682abb4a7715b8c55022211518e6397af551e05d3616297b4f4c51b2",
+      "run.googleapis.com/execution_name": "atlas-md-s2025-w3-r3-nfptc",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:26:05.865118938Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2025-w3-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:26:05.858696Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a8200bd000d5b8356f172ec",
+    "labels": {
+      "instanceId": "00a41e8c1d4d451bdd2cadd50b9e8963335bdd515d30bacca26bd84ff3b7bccc323700ce6a0b477d70fd571bab52bbf7109d5475eadf4c895789cec8908eeadb533823312212070b66cf5cd61312f62e7495b12a00ce336fdb1a",
+      "run.googleapis.com/execution_name": "atlas-md-s2025-w14-r3-c6xhd",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:26:05.881642861Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2025-w14-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:26:05.875395Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a8200be000330c72dae9dc2",
+    "labels": {
+      "instanceId": "00a41e8c1dc5d226487bc83688e20fc60596df4b5130822e246dfb203a6bac0e5198da793dd79d2ec257533785720c5651b2fc9862cd12be4dbd8a7389002ed81e74087c6320b0deef6f519609ec1400a682703b0f232092d88b38",
+      "run.googleapis.com/execution_name": "atlas-md-s2025-w18-r3-lhwjj",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:26:06.217401020Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2025-w18-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:26:06.209095Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a8200be0004bb948e0968f7",
+    "labels": {
+      "instanceId": "00a41e8c1dba0432a0854b007a422487df3d73d37de307603ccc7339646da99989d9f500a86369b0ec0824473b8add39c128805aae3ae5ba25fff2c0bd80726b6eb67b40909c6e031f42738614d8fd6fff3cea035dd3285797917b",
+      "run.googleapis.com/execution_name": "atlas-md-s2025-w5-r3-kqrm5",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:26:06.319782552Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2025-w5-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:26:06.310164Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a8200be0005ed4ec0e4a0d3",
+    "labels": {
+      "instanceId": "00a41e8c1d666069b5f0748ddc467790eea3c0693fcc7b2b124c1544db023b1bf07298740d253b50375be94216bed394460eb0c3db6974125e4294253b2d5c7c1888a663ddd183868e4a91fafa0b6a8e5f90323beaaaab5f335f3b",
+      "run.googleapis.com/execution_name": "atlas-md-s2024-w18-r3-njvt2",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:26:06.394252915Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2024-w18-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:26:06.388430Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a8200be000b48cb63aeceb1",
+    "labels": {
+      "instanceId": "00a41e8c1d42a5ccd62c64f0d1b64a8150e6d93bebc14b6784fb2fd5704e7a0368f5b9ad37833a66e0f2f5d49ddaba90cc827aa7ee58d73aa74c44ca9bcc5d83790eefd794bc41ca7bc85b5c30d41db3d326e1378b16c6aca5e7",
+      "run.googleapis.com/execution_name": "atlas-md-s2025-w2-r3-9qt4w",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:26:06.745667946Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2025-w2-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:26:06.739531Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a8200bf0007bc92e2111e3b",
+    "labels": {
+      "instanceId": "00a41e8c1d2d93e84a06da22f694f90a35761a5cf46f305b9abeaf4b83ce862218bddb74cfc6aba6eb5a4e2843bd97f1622c55ac9b7fc65d605ca2d5965eae2633293358b6e4e7c1f2c1911413b9d1fa947e696f1e5e6d0d17ed",
+      "run.googleapis.com/execution_name": "atlas-md-s2025-w1-r3-6dzss",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:26:07.513952086Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2025-w1-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:26:07.507026Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a8200bf0008611c87372ecf",
+    "labels": {
+      "instanceId": "00a41e8c1d6197d26ecb3e49d72c34ad3f71f533c484bf2ef3aaac362bdb2ef16985e444d6f15aa58214cd7efe0adf46e516eb2ab2d9f4d4ad4fe8bb445b35b5b071568212e858f674426e26a990ffae52fe7ca76811fd108131c2",
+      "run.googleapis.com/execution_name": "atlas-md-s2024-w16-r3-2jg5z",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:26:07.554556969Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2024-w16-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:26:07.549148Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a8200bf00088c60f364312f",
+    "labels": {
+      "instanceId": "00a41e8c1df53468566ead9c38cdb71cf51839bc75b39b43b16858aa1caa9baea17f6ec83192098fadb753e372ba01c16d4a6256b30f7bdf9cddafee3ddbb481b4023704a3f0f017b6a6b4c5f2907acf1a5090ab807ed7a381acc5",
+      "run.googleapis.com/execution_name": "atlas-md-s2025-w12-r3-w7kqq",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:26:07.565421497Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2025-w12-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:26:07.560224Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a8200bf000c8e7b7831bb08",
+    "labels": {
+      "instanceId": "00a41e8c1d9f29b97446ac67908482ac2814fd2ff4030e8e6a34c97995e9c161c93117c49562b7763a991e1cf8e71ecbf9c0ae3b836cba14970974b24441bdbd4dab138ff71dfd2b4c1765c969c5f40c169bd5eda23912b5e3ca",
+      "run.googleapis.com/execution_name": "atlas-md-s2025-w7-r3-qbfc9",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:26:07.828045651Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2025-w7-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:26:07.822907Z"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CL7dg6y9prXvkwE"
+      }
+    ],
+    "insertId": "6a8200bf000e179965a5fa71",
+    "labels": {
+      "instanceId": "00a41e8c1df1148977432438fbbd83fee674c43c208ebc292c2f6b86fe26aa964348d92dd2f8554fcb187f30b6a9a60edf2c9481aa7f4415e7310c9dcb25948a6f73f7b4adc9179a84660515a2fe816b09489306e71aede1c90f29",
+      "run.googleapis.com/execution_name": "atlas-md-s2025-w6-r3-q4p2t",
+      "run.googleapis.com/task_attempt": "0",
+      "run.googleapis.com/task_index": "0"
+    },
+    "logName": "projects/nfl-predictions-503414/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-08-16T18:26:07.929278783Z",
+    "resource": {
+      "labels": {
+        "job_name": "atlas-md-s2025-w6-r3",
+        "location": "us-central1",
+        "project_id": "nfl-predictions-503414"
+      },
+      "type": "cloud_run_job"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 436, in <module>\n    main()\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 432, in main\n    run_slate_shard(args.season, args.week, args.output_uri)\n  File \"/app/scripts/run_atlas_matched_diversity_mvp.py\", line 370, in run_slate_shard\n    raise RuntimeError(\"ATLAS MVP shard season/week/output identity differs\")\nRuntimeError: ATLAS MVP shard season/week/output identity differs",
+    "timestamp": "2026-08-16T18:26:07.923545Z"
+  }
+]

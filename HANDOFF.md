@@ -674,6 +674,25 @@ agent or developer:
   executions immediately after strict completion. Let it finish the exact
   launch ledger, then poll only terminal status and invoke the strict repair3
   finisher after the complete grid is terminal.
+  Repair3 launched all 54 new executions, but all 54 failed mechanically
+  before querying data or invoking CBC. The pinned repair2 runner hard-codes
+  `SHARDED_OUTPUT_PREFIX` to repair2 and rejected every new repair3 URI with
+  `RuntimeError: ATLAS MVP shard season/week/output identity differs`. The
+  complete stderr census proves the same exception in all 54 cells; the
+  repair3 GCS prefix contains zero objects. Therefore no scientific
+  calculation, candidate effect or historical score exists, and the 16-GiB
+  preflight remains valid. The repair3 manifest/execution-ledger hashes are
+  `08a6ad9e4f8581c101965e1928a3d69aee96fd244d265e80b6eaa4cc00c93b84`
+  and `4bc8f940253b98e3a6f03f28b127b16cf3677ab8254b775f9fca6c1253b36467`;
+  strict failure summary/completion hashes are
+  `4da1f34de96f8ae9224d8c330abeae9ec3ade562c512e58f8e9ad60e6e8d4558`
+  and `8dc630d58fae604b466792563402daff5a0801305eafde2c5e742c2d4686b149`.
+  Full interpretation is at
+  `reports/2026-08-16-atlas-repair3-prefix-invalidation.md`. The next action
+  is a new repair4 with a real-container-gated, hash-bound runtime override of
+  only the allowed output prefix, preserving the pinned old image/code,
+  binary interaction formulation and 4-CPU/16-GiB envelope. Use entirely new
+  `-r4` execution/object identities; do not retry or reuse repair3.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five

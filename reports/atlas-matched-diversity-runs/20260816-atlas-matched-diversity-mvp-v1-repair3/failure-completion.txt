@@ -1,0 +1,9 @@
+validated_at=2026-08-16T18:33:39Z
+executions=54
+terminal_failed=54
+terminal_succeeded=0
+output_objects=0
+failure_stage=pre-query-output-identity-check
+scientific_calculation_started=false
+uses_realized_outcomes=false
+production_change_licensed=false

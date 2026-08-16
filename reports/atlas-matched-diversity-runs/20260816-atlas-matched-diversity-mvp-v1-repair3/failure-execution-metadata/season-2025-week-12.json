@@ -1,0 +1,117 @@
+{
+  "apiVersion": "run.googleapis.com/v1",
+  "kind": "Execution",
+  "metadata": {
+    "annotations": {
+      "run.googleapis.com/client-name": "gcloud",
+      "run.googleapis.com/client-version": "579.0.0",
+      "run.googleapis.com/creator": "espechtsoftware@gmail.com",
+      "run.googleapis.com/execution-environment": "gen2",
+      "run.googleapis.com/lastModifier": "espechtsoftware@gmail.com",
+      "run.googleapis.com/operation-id": "a9e06df6-13eb-43b7-81fa-2b78874ccac1"
+    },
+    "creationTimestamp": "2026-08-16T18:24:21.245603Z",
+    "generation": 1,
+    "labels": {
+      "client.knative.dev/nonce": "buv_xux_jek",
+      "cloud.googleapis.com/location": "us-central1",
+      "run.googleapis.com/job": "atlas-md-s2025-w12-r3",
+      "run.googleapis.com/jobGeneration": "1",
+      "run.googleapis.com/jobResourceVersion": "1786904658949155",
+      "run.googleapis.com/jobUid": "b627f4c7-2008-409a-903a-97e43a9c1597"
+    },
+    "name": "atlas-md-s2025-w12-r3-w7kqq",
+    "namespace": "817589974517",
+    "ownerReferences": [
+      {
+        "apiVersion": "serving.knative.dev/v1",
+        "blockOwnerDeletion": true,
+        "controller": true,
+        "kind": "Job",
+        "name": "atlas-md-s2025-w12-r3",
+        "uid": "b627f4c7-2008-409a-903a-97e43a9c1597"
+      }
+    ],
+    "resourceVersion": "AAZZLjBQx8c",
+    "selfLink": "/apis/run.googleapis.com/v1/namespaces/817589974517/executions/atlas-md-s2025-w12-r3-w7kqq",
+    "uid": "f272ed31-98e1-4266-8d8f-2e41aa58ba97"
+  },
+  "spec": {
+    "parallelism": 1,
+    "taskCount": 1,
+    "template": {
+      "spec": {
+        "containers": [
+          {
+            "args": [
+              "scripts/run_atlas_matched_diversity_mvp.py",
+              "--season",
+              "2025",
+              "--week",
+              "12",
+              "--output-uri",
+              "gs://nfl-predictions-503414-raw/research/atlas-matched-diversity-runs/20260816-atlas-matched-diversity-mvp-v1-repair3/slate-2025-12.json"
+            ],
+            "command": [
+              "python"
+            ],
+            "env": [
+              {
+                "name": "CODE_SHA",
+                "value": "60f296fdad769b30c0bb7334118698f156e462b9"
+              },
+              {
+                "name": "ANALYSIS_IMAGE",
+                "value": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ce03feb739e51aabedd7cea79f46e13a06a097a7f85e9a5817f38184b67f4fcb"
+              }
+            ],
+            "image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ce03feb739e51aabedd7cea79f46e13a06a097a7f85e9a5817f38184b67f4fcb",
+            "resources": {
+              "limits": {
+                "cpu": "4",
+                "memory": "16Gi"
+              }
+            }
+          }
+        ],
+        "maxRetries": 0,
+        "serviceAccountName": "817589974517-compute@developer.gserviceaccount.com",
+        "timeoutSeconds": "43200"
+      }
+    }
+  },
+  "status": {
+    "completionTime": "2026-08-16T18:26:13.509600Z",
+    "conditions": [
+      {
+        "lastTransitionTime": "2026-08-16T18:26:13.509600Z",
+        "message": "Task atlas-md-s2025-w12-r3-w7kqq-task0 failed with exit code: 1 and message: The container exited with an error.",
+        "reason": "NonZeroExitCode",
+        "status": "False",
+        "type": "Completed"
+      },
+      {
+        "lastTransitionTime": "2026-08-16T18:24:22.034329Z",
+        "message": "Provisioned imported containers.",
+        "status": "True",
+        "type": "ResourcesAvailable"
+      },
+      {
+        "lastTransitionTime": "2026-08-16T18:26:00.556254Z",
+        "message": "Started deployed execution in 1m38.52s.",
+        "status": "True",
+        "type": "Started"
+      },
+      {
+        "lastTransitionTime": "2026-08-16T18:24:21.956364Z",
+        "message": "Imported container image.",
+        "status": "True",
+        "type": "ContainerReady"
+      }
+    ],
+    "failedCount": 1,
+    "logUri": "https://console.cloud.google.com/logs/viewer?project=nfl-predictions-503414&advancedFilter=resource.type%3D%22cloud_run_job%22%0Aresource.labels.job_name%3D%22atlas-md-s2025-w12-r3%22%0Aresource.labels.location%3D%22us-central1%22%0Alabels.%22run.googleapis.com/execution_name%22%3D%22atlas-md-s2025-w12-r3-w7kqq%22",
+    "observedGeneration": 1,
+    "startTime": "2026-08-16T18:24:30.150729Z"
+  }
+}
