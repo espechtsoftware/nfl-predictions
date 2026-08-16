@@ -1038,9 +1038,12 @@ agent or developer:
   code. This permits later handoff-only commits without permitting source
   drift. Fifty-three focused constraint/optimizer/transport tests, Python
   compilation, both shell syntax checks and whitespace checks pass after this
-  repair. Commit/push the repair and submit one superseding clean-archive full
-  build from that exact commit; record only its new ID/tag/digest as usable
-  validation. Even after a successful build, the diagnostic launcher remains
+  repair. The repair is pushed on `main` at exact source commit `a2a0526`.
+  Superseding clean-archive Cloud Build
+  `af47dbc4-f725-426d-992c-3e8cadcb6423` is running from that commit under
+  create-only tag `constraint-lattice-a2a0526`; only this build may become
+  usable validation after the full suite, image build and both real-container
+  smokes pass. Even after a successful build, the diagnostic launcher remains
   queue-gated behind strict ATLAS branch closure.
   At `2026-08-16T21:20Z`, 32-GiB preflight execution
   `atlas-cbc-32g-full-2023-w8-v1-lbzjd` remains nonterminal with one running
