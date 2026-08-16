@@ -410,6 +410,22 @@ It shards only the identical `_run_slate` calculation across 54 new one-CPU
 tasks and permits aggregation only after every task passes strict execution
 and source validation.
 
+Sharding implementation commit
+`60f296fdad769b30c0bb7334118698f156e462b9` passed clean-archive Cloud Build
+`1928a054-0f32-4efb-a21a-8b0efde4bf20`: 1,601 tests passed, 2 skipped, and
+both real-container runner smokes passed. The immutable repair2 image is
+`us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ce03feb739e51aabedd7cea79f46e13a06a097a7f85e9a5817f38184b67f4fcb`.
+All 54 season/week executions are recorded at
+`reports/atlas-matched-diversity-runs/20260816-atlas-matched-diversity-mvp-v1-repair2/executions.txt`,
+SHA-256
+`6794f8e608497613aec2f06f2bd13e57cf08b945d7ac20e2d4d00eb1ee3d5ea5`;
+the launch manifest SHA-256 is
+`080c85700219ac246b093f2556c474f4bd79257809cf0e006766a1ed48e95d24`.
+They were all nonterminal at the first post-launch poll. Strict aggregation is
+forbidden until every shard reaches terminal success. The shard outputs remain
+score-free; the separately frozen and validated historical scorer runs only
+after this strict harvest and will then report actual 2023--2025 weekly scores.
+
 ## Evidence firewall for reviewers
 
 - Score-free results establish simulated-law premises, not realized DFS

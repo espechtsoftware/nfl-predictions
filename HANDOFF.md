@@ -352,6 +352,29 @@ agent or developer:
   repair, run a new clean-archive full build, launch all 54 repair2 shards, and
   monitor seed markers. The already validated historical scorer image remains
   ready but must stay idle until the strict repair2 harvest succeeds.
+  Sharding implementation commit
+  `60f296fdad769b30c0bb7334118698f156e462b9` is pushed on `main`.
+  Clean-archive Cloud Build `1928a054-0f32-4efb-a21a-8b0efde4bf20`
+  succeeded from that exact source with 1,601 tests passed, 2 skipped and 5
+  warnings; both real-container runner smokes passed. The immutable repair2
+  image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ce03feb739e51aabedd7cea79f46e13a06a097a7f85e9a5817f38184b67f4fcb`.
+  All 54 create-only season/week shards are now launched from only that digest
+  under run `20260816-atlas-matched-diversity-mvp-v1-repair2`; their complete
+  durable execution ledger is
+  `reports/atlas-matched-diversity-runs/20260816-atlas-matched-diversity-mvp-v1-repair2/executions.txt`
+  (54 rows, SHA-256
+  `6794f8e608497613aec2f06f2bd13e57cf08b945d7ac20e2d4d00eb1ee3d5ea5`),
+  and its manifest SHA-256 is
+  `080c85700219ac246b093f2556c474f4bd79257809cf0e006766a1ed48e95d24`.
+  The first post-launch poll found all 54 nonterminal (`Completed=Unknown`),
+  with 44 running and 10 queued/not yet assigned. Continue polling only
+  terminal state and the score-free seed/slate progress markers. After all 54
+  terminal successes, invoke only the strict repair2 finisher/aggregator; then
+  launch the already validated historical scoring diagnostic regardless of
+  the score-free gate result. The shard stage itself produces no historical
+  scores; the downstream diagnostic produces the frozen 2023--2025 candidate
+  and exact-80 weekly score comparisons.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
