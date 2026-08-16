@@ -778,6 +778,13 @@ agent or developer:
   using terminal metadata only. Strictly harvest the 32-GiB preflight at
   terminal; let repair4 reach a complete failure census without opening any
   shard/effect output.
+  Because repair4 can no longer satisfy its all-success finisher, use
+  `scripts/cloud_harvest_atlas_repair4_terminal_census.sh` (SHA-256
+  `428fffb9b5a4c6e8b0533c665169f9f318b8fb57004a989d70ce322df69e9bea`)
+  after all 54 identities are terminal. It validates every execution's exact
+  command/image/environment/resource identity, records success/failure reasons
+  and a URI-only object inventory, and explicitly does not open effect fields.
+  Do not invoke the normal strict-success finisher on this invalid grid.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
