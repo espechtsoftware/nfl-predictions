@@ -18,6 +18,7 @@ from ..optimizer.lineup import Lineup, StackRules, optimize
 
 # Exact DK Classic skill-count shapes once QB=1, DST=1 and FLEX is assigned.
 CLASSIC_SKILL_PATTERNS = ((2, 4, 1), (2, 3, 2), (3, 3, 1))
+EXACT_IDENTITY_TOLERANCE = 1e-6
 
 
 def _top_k_sum(draws: np.ndarray, rows: np.ndarray, k: int) -> np.ndarray:
@@ -150,12 +151,21 @@ def solve_exact_worlds(
     env: Mapping[str, str],
 ) -> dict[int, dict]:
     """Solve exact legal lineups for a bounded score-free world set."""
-    players = [dict(player) for player in player_rows]
+    original_players = [dict(player) for player in player_rows]
     draws = np.asarray(row_draws, dtype=np.float64)
-    if draws.ndim != 2 or draws.shape[0] != len(players):
+    if draws.ndim != 2 or draws.shape[0] != len(original_players):
         raise ValueError("ATLAS exact-solve player worlds are misaligned")
     if not np.isfinite(draws).all():
         raise ValueError("ATLAS exact-solve worlds must be finite")
+    order = sorted(
+        range(len(original_players)),
+        key=lambda index: str(original_players[index]["id"]),
+    )
+    players = [original_players[index] for index in order]
+    draws = draws[np.asarray(order, dtype=int)]
+    identity_rank = {
+        player["id"]: rank for rank, player in enumerate(players, start=1)
+    }
     result: dict[int, dict] = {}
     for raw_world in world_ids:
         world = int(raw_world)
@@ -165,18 +175,47 @@ def solve_exact_worlds(
             {**player, "atlas_world_score": float(draws[index, world])}
             for index, player in enumerate(players)
         ]
-        lineup = optimize(
+        primary = optimize(
             world_players,
             stack=stack,
             objective_col="atlas_world_score",
             env=env,
         )
-        if lineup is None:
+        if primary is None:
             raise RuntimeError(f"ATLAS world {world} has no legal lineup")
-        score = float(sum(
+        optimum = float(sum(
+            player["atlas_world_score"] for player in primary.players
+        ))
+        tied_players = [{
+            **player,
+            "atlas_identity_score": -float(identity_rank[player["id"]]),
+        } for player in world_players]
+        lineup = optimize(
+            tied_players,
+            stack=stack,
+            objective_col="atlas_identity_score",
+            objective_floor_col="atlas_world_score",
+            objective_floor=optimum - EXACT_IDENTITY_TOLERANCE,
+            env=env,
+        )
+        if lineup is None:
+            raise RuntimeError(
+                f"ATLAS world {world} identity tiebreak is infeasible"
+            )
+        roster_score = float(sum(
             player["atlas_world_score"] for player in lineup.players
         ))
-        result[world] = {"score": score, **_lineup_structure(lineup)}
+        if roster_score < optimum - EXACT_IDENTITY_TOLERANCE - 1e-8:
+            raise AssertionError("ATLAS identity tiebreak violates score floor")
+        result[world] = {
+            "score": optimum,
+            "canonical_roster_score": roster_score,
+            "identity_rank_sum": int(sum(
+                identity_rank[player["id"]] for player in lineup.players
+            )),
+            "identity_tolerance": EXACT_IDENTITY_TOLERANCE,
+            **_lineup_structure(lineup),
+        }
     return result
 
 
@@ -221,7 +260,91 @@ def complete_world_ranking_diagnostic(
     report["exact_world_results"] = {
         str(world): exact[world] for world in union
     }
+    incumbent_value = np.asarray(row_draws, dtype=np.float64).sum(axis=0)
+    attainable_value = roster_slot_upper_bound(row_draws, positions)
+    incumbent_order = rank_worlds(incumbent_value, len(incumbent_value))
+    attainable_order = rank_worlds(attainable_value, len(attainable_value))
+    union_exact = np.asarray([exact[world]["score"] for world in union])
+    union_bound = attainable_value[np.asarray(union, dtype=int)]
+    union_proxy_rank = np.empty(len(union), dtype=float)
+    union_exact_rank = np.empty(len(union), dtype=float)
+    union_proxy_rank[np.lexsort((np.asarray(union), -union_bound))] = np.arange(
+        len(union), dtype=float
+    )
+    union_exact_rank[np.lexsort((np.asarray(union), -union_exact))] = np.arange(
+        len(union), dtype=float
+    )
+    correlation = (
+        float(np.corrcoef(union_proxy_rank, union_exact_rank)[0, 1])
+        if len(union) > 1 else 1.0
+    )
+    paired_delta = np.asarray([
+        exact[treatment]["score"] - exact[control]["score"]
+        for control, treatment in zip(incumbent, attainable)
+    ])
+    overlap = {}
+    for top in (8, 20, 40):
+        use = min(top, n_worlds)
+        overlap[str(top)] = int(len(set(
+            incumbent_order[:use].tolist()
+        ) & set(attainable_order[:use].tolist())))
+    incumbent_cutoff = incumbent_value[incumbent_order[n_worlds - 1]]
+    attainable_cutoff = attainable_value[attainable_order[n_worlds - 1]]
+    slack = union_bound - union_exact
+    report["proxy_diagnostics"] = {
+        "proxy_minus_exact_slack": {
+            "mean": float(slack.mean()),
+            "median": float(np.median(slack)),
+            "q90": float(np.quantile(slack, 0.90)),
+            "max": float(slack.max()),
+        },
+        "proxy_exact_rank_correlation_union": correlation,
+        "paired_exact_quality": {
+            "wins": int(np.count_nonzero(paired_delta > 1e-9)),
+            "ties": int(np.count_nonzero(np.abs(paired_delta) <= 1e-9)),
+            "losses": int(np.count_nonzero(paired_delta < -1e-9)),
+        },
+        "top_world_overlap": overlap,
+        "cutoff_ties": {
+            "incumbent": int(np.count_nonzero(
+                incumbent_value == incumbent_cutoff
+            )),
+            "attainable": int(np.count_nonzero(
+                attainable_value == attainable_cutoff
+            )),
+        },
+    }
     return report
+
+
+def aggregate_transfer_gate(rows: Sequence[Mapping]) -> dict:
+    """Apply the frozen production-law Part-A transfer disposition."""
+    original = aggregate_scorefree_gate(rows)
+    conditions = original["conditions"]
+    quality_names = (
+        "aggregate_mean_improves",
+        "at_least_three_seed_means_improve",
+        "aggregate_q25_nonworse",
+    )
+    diversity_names = (
+        "roster_diversity_at_least_80pct",
+        "stack_core_diversity_at_least_80pct",
+        "dominant_game_diversity_at_least_80pct",
+    )
+    return {
+        **original,
+        "version": "atlas-current-money-transfer-gate-v1",
+        "quality_conditions": {
+            name: bool(conditions[name]) for name in quality_names
+        },
+        "raw_diversity_diagnostics": {
+            name: bool(conditions[name]) for name in diversity_names
+        },
+        "passes_part_a_transfer": bool(all(
+            conditions[name] for name in quality_names
+        )),
+        "passes_original_all_six": bool(all(conditions.values())),
+    }
 
 
 def aggregate_scorefree_gate(rows: Sequence[Mapping]) -> dict:
@@ -314,7 +437,9 @@ def aggregate_scorefree_gate(rows: Sequence[Mapping]) -> dict:
 
 __all__ = [
     "CLASSIC_SKILL_PATTERNS",
+    "EXACT_IDENTITY_TOLERANCE",
     "aggregate_scorefree_gate",
+    "aggregate_transfer_gate",
     "compare_world_rankings",
     "complete_world_ranking_diagnostic",
     "rank_worlds",

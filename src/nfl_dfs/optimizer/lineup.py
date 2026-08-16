@@ -119,6 +119,8 @@ def optimize(
     max_salary: int | None = None,
     max_per_game: int | None = None,
     env: Mapping[str, str] | None = None,
+    objective_floor_col: str | None = None,
+    objective_floor: float | None = None,
 ) -> Lineup | None:
     """Solve one lineup. Returns None if infeasible.
     game_lock=(game_id, n) forces >= n players from that game — the
@@ -129,6 +131,17 @@ def optimize(
     by_id = {p["id"]: p for p in players}
 
     prob += pulp.lpSum(x[p["id"]] * float(p[objective_col]) for p in players)
+    if (objective_floor_col is None) != (objective_floor is None):
+        raise ValueError(
+            "objective floor column and value must be provided together"
+        )
+    if objective_floor_col is not None:
+        floor = float(objective_floor)
+        if not np.isfinite(floor):
+            raise ValueError("objective floor must be finite")
+        prob += pulp.lpSum(
+            x[p["id"]] * float(p[objective_floor_col]) for p in players
+        ) >= floor
     prob += pulp.lpSum(x[p["id"]] * p["salary"] for p in players) <= budget
     # Milly winners spend the cap (2025 median $0 left; 2023-24 90% within
     # $300). Replay-validated 2026-07-26 (run I): mean best-of-40 180.1 ->

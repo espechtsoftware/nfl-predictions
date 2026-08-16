@@ -73,9 +73,10 @@ def test_complete_diagnostic_exactly_solves_only_ranking_union(monkeypatch):
 
     def fake_optimize(world_players, **kwargs):
         calls.append(kwargs["objective_col"])
+        score_col = kwargs.get("objective_floor_col") or kwargs["objective_col"]
         chosen = sorted(
             world_players,
-            key=lambda player: player["atlas_world_score"],
+            key=lambda player: player[score_col],
             reverse=True,
         )[:9]
         # Preserve exactly one QB for the structure receipt.
@@ -95,11 +96,53 @@ def test_complete_diagnostic_exactly_solves_only_ranking_union(monkeypatch):
     )
 
     assert report["exact_union_worlds"] == 2
-    assert calls == ["atlas_world_score", "atlas_world_score"]
+    assert calls == [
+        "atlas_world_score", "atlas_identity_score",
+        "atlas_world_score", "atlas_identity_score",
+    ]
     assert report["attainable_exact"]["mean_exact_legal_optimum"] > (
         report["incumbent_exact"]["mean_exact_legal_optimum"]
     )
     assert report["uses_realized_outcomes"] is False
+    assert set(report["proxy_diagnostics"]["top_world_overlap"]) == {
+        "8", "20", "40",
+    }
+
+
+def test_exact_world_identity_is_invariant_to_player_row_order():
+    positions = _positions()
+    players = []
+    for index, pos in enumerate(positions):
+        team = "A" if index % 2 == 0 else "B"
+        players.append({
+            "id": f"p{index:02d}",
+            "pos": pos,
+            "team": team,
+            "opp": "B" if team == "A" else "A",
+            "game_id": "A@B",
+            "salary": 5_550,
+            "proj": 10.0,
+        })
+    draws = np.full((len(players), 1), 10.0)
+    stack = StackRules(
+        qb_stack_min=0,
+        bring_back_min=0,
+        forbid_rb_vs_dst=False,
+        forbid_two_rb_same_team=False,
+    )
+    env = {"MIN_LINEUP_SALARY": "49000"}
+    first = atlas.solve_exact_worlds(
+        players, draws, [0], stack=stack, env=env,
+    )[0]
+    second = atlas.solve_exact_worlds(
+        list(reversed(players)), draws[::-1], [0], stack=stack, env=env,
+    )[0]
+    assert first["roster"] == second["roster"]
+    assert first["identity_rank_sum"] == second["identity_rank_sum"]
+    assert first["score"] == second["score"] == 90.0
+    assert first["canonical_roster_score"] >= (
+        first["score"] - atlas.EXACT_IDENTITY_TOLERANCE
+    )
 
 
 def test_frozen_scorefree_gate_requires_five_stable_seeds():
@@ -194,3 +237,15 @@ def test_gate_rejects_nonfinite_aggregate_metric():
     rows[0]["attainable_exact"]["mean_exact_legal_optimum"] = float("nan")
     with pytest.raises(ValueError, match="must be finite"):
         atlas.aggregate_scorefree_gate(rows)
+
+
+def test_transfer_gate_separates_quality_from_raw_diversity():
+    rows = _gate_rows()
+    for row in rows:
+        row["attainable_exact"]["unique_exact_rosters"] = 15
+    result = atlas.aggregate_transfer_gate(rows)
+    assert result["passes_part_a_transfer"] is True
+    assert result["passes_original_all_six"] is False
+    assert result["raw_diversity_diagnostics"][
+        "roster_diversity_at_least_80pct"
+    ] is False

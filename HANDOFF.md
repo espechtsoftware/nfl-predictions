@@ -20,14 +20,14 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 19:11 CDT
+## Current state — 2026-08-15 19:17 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
 - The required outcome-free production-law ATLAS transfer is frozen before
   the Phase S result at
   `reports/2026-08-15-atlas-current-money-transfer-protocol.md`, SHA-256
-  `e575243db55f88ae3295d12c034c7921787b0a1de8d3ca5bef8c332395103eea`.
+  `c6cb9605678bdfb68f54cbc9fd7adcea754500afb838d2a17a9c0861e4527423`.
   A read-only warehouse/object audit found complete five-block
   `20260813-game-team-mult-r0-v1` through `r4-v1` production-multinomial
   panels, but their verified NPZ payloads contain only candidate `totals` and
@@ -41,9 +41,14 @@ agent or developer:
   `atlas_money_transfer.py`, `atlas_money_world_env.py` and
   `cloud_atlas_money_worlds.sh`. The launcher requires the strict Phase S
   ATLAS report, an immutable image/full code SHA, unchanged protocol/policy
-  hashes and empty destination panels; it has not launched. All 35 focused
-  ATLAS/transfer tests pass, both Python files compile, shell syntax and diff
-  validation pass. A separate strict acquisition finisher and transfer
+  hashes and empty destination panels; it has not launched. Future exact
+  solves now use two passes: retain the primary optimum within `1e-6`, then
+  minimize stable player-identity rank after sorting input rows. Transfer
+  output also separates Part-A quality from raw-diversity diagnostics and
+  reports bound slack, proxy/exact rank correlation, paired exact-quality
+  wins/ties/losses, top-8/20/40 overlap and cutoff ties. All 63 focused
+  ATLAS/transfer/optimizer tests pass, Python files compile, shell syntax and
+  diff validation pass. A separate strict acquisition finisher and transfer
   analyzer remain to implement before launch.
 
 - The supplied ATLAS approach/code review is reconciled at

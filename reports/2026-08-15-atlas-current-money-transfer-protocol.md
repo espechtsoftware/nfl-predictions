@@ -86,8 +86,12 @@ For each of the 270 block/slate cells, apply the unchanged ATLAS v1 logic:
 - compare exact legal optimum and structural diagnostics.
 
 Ties at the world cutoff must be resolved by stable original world index in
-both arms. Exact MILP identity ties must use a shared lexicographic second
-pass; repeated-run and player-row-permutation checks must reproduce identities.
+both arms. Exact MILP identity ties use a shared second pass: retain the
+primary optimum within `1e-6` DK points, then minimize the sum of stable
+player-identity ranks. Player rows are sorted by string identity before both
+passes. Repeated-run and player-row-permutation checks must reproduce
+identities; any residual second-pass tie that violates that check fails the
+cell.
 
 ## Transfer disposition
 
