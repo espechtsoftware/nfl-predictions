@@ -7,12 +7,51 @@ ROOT=$(cd "$(dirname "$0")/.." && pwd)
 RUN_ID=20260816-atlas-matched-diversity-mvp-v1-repair2
 OUT="$ROOT/reports/atlas-matched-diversity-runs/$RUN_ID"
 MANIFEST="$OUT/manifest.txt"
-EXECUTIONS="$OUT/executions.txt"
+ORIGINAL_EXECUTIONS="$OUT/executions.txt"
+EXECUTIONS="$OUT/effective-executions.txt"
+RETRY_PROTOCOL="$ROOT/reports/2026-08-16-atlas-mvp-cbc-single-shard-retry.md"
+RETRY_PROTOCOL_SHA=bc55775c5a98a7027a0c117cf5371a67cc886c6da34dcdb7b1031bd6a471c455
+ORIGINAL_EXECUTIONS_SHA=6794f8e608497613aec2f06f2bd13e57cf08b945d7ac20e2d4d00eb1ee3d5ea5
+EFFECTIVE_EXECUTIONS_SHA=cb7d54fa9dd3dd9a61a19006477ae6cc974ca0597966eb88385723905031bbfd
+FAILED_EXECUTION_SHA=28b6f509d22d1b217ccf995f80e337d14f370f97b67ee7e319886a1b7e29191f
+FAILED_LOG_SHA=fe9c3d0a542c5e651b3c522b9154213d8cea47d5ac0b48650e0c5cd765e26249
+REPLACEMENT_RECEIPT_SHA=f71831c7f81850493a7b418427cb5dcfac5e06c3871ba2f270222d65a6eb575d
 
-[ -s "$MANIFEST" ] && [ -s "$EXECUTIONS" ] || {
+[ -s "$MANIFEST" ] && [ -s "$ORIGINAL_EXECUTIONS" ] && \
+  [ -s "$EXECUTIONS" ] && [ -s "$OUT/failed-execution.json" ] && \
+  [ -s "$OUT/failed-log.json" ] && \
+  [ -s "$OUT/replacement-execution.txt" ] || {
   echo "ABORT: ATLAS MVP shard launch receipt is incomplete" >&2; exit 2; }
+[ "$(sha256sum "$RETRY_PROTOCOL" | awk '{print $1}')" = "$RETRY_PROTOCOL_SHA" ] && \
+  [ "$(sha256sum "$ORIGINAL_EXECUTIONS" | awk '{print $1}')" = "$ORIGINAL_EXECUTIONS_SHA" ] && \
+  [ "$(sha256sum "$EXECUTIONS" | awk '{print $1}')" = "$EFFECTIVE_EXECUTIONS_SHA" ] && \
+  [ "$(sha256sum "$OUT/failed-execution.json" | awk '{print $1}')" = "$FAILED_EXECUTION_SHA" ] && \
+  [ "$(sha256sum "$OUT/failed-log.json" | awk '{print $1}')" = "$FAILED_LOG_SHA" ] && \
+  [ "$(sha256sum "$OUT/replacement-execution.txt" | awk '{print $1}')" = "$REPLACEMENT_RECEIPT_SHA" ] || {
+  echo "ABORT: ATLAS MVP CBC retry receipt differs" >&2; exit 2; }
 [ "$(wc -l < "$EXECUTIONS")" = 54 ] || {
   echo "ABORT: ATLAS MVP shard execution grid is not 54" >&2; exit 2; }
+"$ROOT/.venv/bin/python" - "$ORIGINAL_EXECUTIONS" "$EXECUTIONS" \
+  "$OUT/failed-execution.json" "$OUT/failed-log.json" \
+  "$OUT/replacement-execution.txt" <<'PY'
+import json, sys
+original=[line.split() for line in open(sys.argv[1],encoding="utf-8") if line.strip()]
+effective=[line.split() for line in open(sys.argv[2],encoding="utf-8") if line.strip()]
+failed=json.load(open(sys.argv[3],encoding="utf-8")); logs=json.load(open(sys.argv[4],encoding="utf-8"))
+replacement=open(sys.argv[5],encoding="utf-8").read().split()
+diffs=[(a,b) for a,b in zip(original,effective,strict=True) if a!=b]
+if len(original)!=54 or len(effective)!=54 or len(diffs)!=1:
+ raise SystemExit("ABORT: ATLAS effective execution ledger differs")
+a,b=diffs[0]
+if a[:3]+a[4:]!=b[:3]+b[4:] or a[:2]!=["2024","7"] or a[3]!="atlas-md-s2024-w7-r2-r9gnq" or b[3]!="atlas-md-s2024-w7-r2-6l2q2" or replacement!=b:
+ raise SystemExit("ABORT: ATLAS replacement cell differs")
+s=failed.get("status",{}); done=[r for r in s.get("conditions",[]) if r.get("type")=="Completed"]
+if failed.get("metadata",{}).get("name")!=a[3] or len(done)!=1 or done[0].get("status")!="False" or done[0].get("reason")!="NonZeroExitCode" or int(s.get("failedCount") or 0)!=1:
+ raise SystemExit("ABORT: ATLAS original failure differs")
+raw=json.dumps(logs,sort_keys=True)
+if "PulpSolverError" not in raw or "ATLAS_MVP_SEED_COMPLETE" in raw or "ATLAS_MVP_SLATE_COMPLETE" in raw:
+ raise SystemExit("ABORT: ATLAS original failure log differs")
+PY
 [ ! -e "$OUT/report.json" ] && [ ! -e "$OUT/execution-metadata" ] && \
     [ ! -e "$OUT/shards" ] || {
   echo "ABORT: immutable ATLAS MVP shard harvest already exists" >&2; exit 3; }
@@ -95,6 +134,8 @@ sha256sum "$OUT"/execution-metadata/*.json | sort > "$OUT/execution-metadata.sha
 sha256sum "$OUT"/shards/*.json | sort > "$OUT/shards.sha256"
 printf '%s\n' "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
   'executions=54' 'seasons=2023,2024,2025' 'slates=54' \
+  'single_shard_replacement=2024-7' \
+  'replacement_execution=atlas-md-s2024-w7-r2-6l2q2' \
   'uses_realized_outcomes=false' > "$OUT/completion.txt"
 sha256sum "$OUT/completion.txt" > "$OUT/completion.sha256"
 echo "ATLAS_MATCHED_DIVERSITY_SHARDS_HARVESTED $RUN_ID"

@@ -431,6 +431,24 @@ agent or developer:
   syntax and diff checks pass. Commit/push the repair before invoking it, then
   bind the original failure plus replacement/effective-ledger hashes in the
   strict shard finisher and downstream scorer while the replacement runs.
+  The sole permitted replacement launched successfully as execution
+  `atlas-md-s2024-w7-r2-6l2q2`. Original failed execution/log SHA-256 values
+  are `28b6f509d22d1b217ccf995f80e337d14f370f97b67ee7e319886a1b7e29191f`
+  and `fe9c3d0a542c5e651b3c522b9154213d8cea47d5ac0b48650e0c5cd765e26249`;
+  replacement receipt and effective-ledger SHA-256 values are
+  `f71831c7f81850493a7b418427cb5dcfac5e06c3871ba2f270222d65a6eb575d`
+  and `cb7d54fa9dd3dd9a61a19006477ae6cc974ca0597966eb88385723905031bbfd`.
+  The original ledger remains unchanged. The strict shard finisher now
+  independently checks the exact one-cell ledger diff plus the original
+  failure/log, and the historical launcher/runner/finisher bind all original,
+  replacement and effective receipts. Sixteen focused tests, Python compile,
+  four shell syntax checks and diff checks pass. Because the validated scorer
+  image predates the generated replacement identity, its scoring logic remains
+  valid but its upstream binding is now mechanically superseded. Commit/push
+  these receipts and binding changes and run one final clean-archive scorer
+  build while the replacement/original shards continue. At the latest poll the
+  effective 54-cell grid had 54 running tasks, zero effective failures and 19
+  non-metric seed markers; no slate result was opened.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five

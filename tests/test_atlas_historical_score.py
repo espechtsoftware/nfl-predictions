@@ -19,6 +19,7 @@ if SCRIPTS not in sys.path:
     sys.path.insert(0, SCRIPTS)
 
 from run_atlas_historical_score_diagnostic import (  # noqa: E402
+    CBC_RETRY_PROTOCOL_SHA256,
     PLAYER_SQL,
     SOURCE_SQL,
     UPSTREAM_CODE_SHA,
@@ -26,8 +27,12 @@ from run_atlas_historical_score_diagnostic import (  # noqa: E402
     UPSTREAM_EXECUTIONS,
     UPSTREAM_IMAGE,
     UPSTREAM_EXECUTION_LEDGER_SHA256,
+    UPSTREAM_FAILED_EXECUTION_SHA256,
+    UPSTREAM_FAILED_LOG_SHA256,
     UPSTREAM_MANIFEST_SHA256,
+    UPSTREAM_ORIGINAL_EXECUTION_LEDGER_SHA256,
     UPSTREAM_PREFIX,
+    UPSTREAM_REPLACEMENT_RECEIPT_SHA256,
     _validate_execution,
     _validate_upstream_receipt,
 )
@@ -187,6 +192,7 @@ def test_upstream_execution_grid_is_exactly_54_unique_shards():
     }
     assert set(UPSTREAM_EXECUTIONS) == expected
     assert len(set(UPSTREAM_EXECUTIONS.values())) == 54
+    assert UPSTREAM_EXECUTIONS[(2024, 7)] == "atlas-md-s2024-w7-r2-6l2q2"
     assert UPSTREAM_EXECUTION_NAMES == {
         f"{season}-{week}": name
         for (season, week), name in UPSTREAM_EXECUTIONS.items()
@@ -199,12 +205,24 @@ def test_upstream_receipt_requires_complete_sharded_execution_grid():
         "sha256": "a" * 64, "bytes": 1,
     }
     receipt = {
-        "version": "atlas-historical-upstream-receipt-v2",
+        "version": "atlas-historical-upstream-receipt-v3",
         "uses_realized_outcomes": False,
         "upstream_code_sha": UPSTREAM_CODE_SHA,
         "upstream_image": UPSTREAM_IMAGE,
         "upstream_manifest_sha256": UPSTREAM_MANIFEST_SHA256,
+        "upstream_original_execution_ledger_sha256": (
+            UPSTREAM_ORIGINAL_EXECUTION_LEDGER_SHA256
+        ),
         "upstream_execution_ledger_sha256": UPSTREAM_EXECUTION_LEDGER_SHA256,
+        "cbc_retry_protocol_sha256": CBC_RETRY_PROTOCOL_SHA256,
+        "failed_execution_sha256": UPSTREAM_FAILED_EXECUTION_SHA256,
+        "failed_log_sha256": UPSTREAM_FAILED_LOG_SHA256,
+        "replacement_receipt_sha256": UPSTREAM_REPLACEMENT_RECEIPT_SHA256,
+        "single_shard_replacement": {
+            "season": 2024, "week": 7,
+            "original_execution": "atlas-md-s2024-w7-r2-r9gnq",
+            "replacement_execution": "atlas-md-s2024-w7-r2-6l2q2",
+        },
         "executions": {
             f"{season}-{week}": _upstream_execution(season, week)
             for season, week in UPSTREAM_EXECUTIONS

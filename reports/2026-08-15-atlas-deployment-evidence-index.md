@@ -460,6 +460,16 @@ replacement at
 It permits exactly one unchanged execution, preserves the original failure,
 and requires an effective 54-row ledger differing only in that one execution
 name. It changes no science or resource and cannot survive a second failure.
+The sole replacement is `atlas-md-s2024-w7-r2-6l2q2`. Original failure/log,
+replacement receipt and effective-ledger SHA-256 values are respectively
+`28b6f509d22d1b217ccf995f80e337d14f370f97b67ee7e319886a1b7e29191f`,
+`fe9c3d0a542c5e651b3c522b9154213d8cea47d5ac0b48650e0c5cd765e26249`,
+`f71831c7f81850493a7b418427cb5dcfac5e06c3871ba2f270222d65a6eb575d`
+and `cb7d54fa9dd3dd9a61a19006477ae6cc974ca0597966eb88385723905031bbfd`.
+The strict shard finisher and historical scorer bind all four receipts and the
+unchanged original ledger. A final scorer image containing the replacement
+binding is required; the prior scorer digest is mechanically superseded for
+this effective grid even though its score law is unchanged.
 
 ## Evidence firewall for reviewers
 

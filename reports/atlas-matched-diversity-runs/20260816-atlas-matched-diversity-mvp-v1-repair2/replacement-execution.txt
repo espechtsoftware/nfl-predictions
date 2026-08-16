@@ -1,0 +1,1 @@
+2024 7 atlas-md-s2024-w7-r2 atlas-md-s2024-w7-r2-6l2q2 gs://nfl-predictions-503414-raw/research/atlas-matched-diversity-runs/20260816-atlas-matched-diversity-mvp-v1-repair2/slate-2024-7.json

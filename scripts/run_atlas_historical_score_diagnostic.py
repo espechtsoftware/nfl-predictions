@@ -80,7 +80,7 @@ UPSTREAM_EXECUTIONS = {
     (2024, 4): "atlas-md-s2024-w4-r2-h9sk8",
     (2024, 5): "atlas-md-s2024-w5-r2-rhr47",
     (2024, 6): "atlas-md-s2024-w6-r2-894kh",
-    (2024, 7): "atlas-md-s2024-w7-r2-r9gnq",
+    (2024, 7): "atlas-md-s2024-w7-r2-6l2q2",
     (2024, 8): "atlas-md-s2024-w8-r2-95xms",
     (2024, 9): "atlas-md-s2024-w9-r2-4bhsm",
     (2024, 10): "atlas-md-s2024-w10-r2-mmm8b",
@@ -118,8 +118,20 @@ UPSTREAM_EXECUTION_NAMES = {
 UPSTREAM_MANIFEST_SHA256 = (
     "080c85700219ac246b093f2556c474f4bd79257809cf0e006766a1ed48e95d24"
 )
-UPSTREAM_EXECUTION_LEDGER_SHA256 = (
+UPSTREAM_ORIGINAL_EXECUTION_LEDGER_SHA256 = (
     "6794f8e608497613aec2f06f2bd13e57cf08b945d7ac20e2d4d00eb1ee3d5ea5"
+)
+UPSTREAM_EXECUTION_LEDGER_SHA256 = (
+    "cb7d54fa9dd3dd9a61a19006477ae6cc974ca0597966eb88385723905031bbfd"
+)
+UPSTREAM_FAILED_EXECUTION_SHA256 = (
+    "28b6f509d22d1b217ccf995f80e337d14f370f97b67ee7e319886a1b7e29191f"
+)
+UPSTREAM_FAILED_LOG_SHA256 = (
+    "fe9c3d0a542c5e651b3c522b9154213d8cea47d5ac0b48650e0c5cd765e26249"
+)
+UPSTREAM_REPLACEMENT_RECEIPT_SHA256 = (
+    "f71831c7f81850493a7b418427cb5dcfac5e06c3871ba2f270222d65a6eb575d"
 )
 PROTOCOL = Path("reports/2026-08-16-atlas-historical-score-diagnostic-protocol.md")
 PROTOCOL_SHA256 = "4b618b5f8b8b8ed61dc5518e5b8b1cb8d5941e92f088ddb0a53af05d37f4239e"
@@ -134,6 +146,12 @@ SHARDED_UPSTREAM_AMENDMENT = Path(
 )
 SHARDED_UPSTREAM_AMENDMENT_SHA256 = (
     "ce32274be00678cdef24b3d174578a2e2ce212164166da2a712a9df1562fcd5d"
+)
+CBC_RETRY_PROTOCOL = Path(
+    "reports/2026-08-16-atlas-mvp-cbc-single-shard-retry.md"
+)
+CBC_RETRY_PROTOCOL_SHA256 = (
+    "bc55775c5a98a7027a0c117cf5371a67cc886c6da34dcdb7b1031bd6a471c455"
 )
 OUTPUT_PREFIX = (
     "gs://nfl-predictions-503414-raw/research/atlas-historical-score-runs/"
@@ -235,15 +253,31 @@ def _validate_execution(value: dict, season: int, week: int) -> None:
 
 
 def _validate_upstream_receipt(receipt: dict) -> dict[str, dict]:
-    if receipt.get("version") != "atlas-historical-upstream-receipt-v2" or \
+    if receipt.get("version") != "atlas-historical-upstream-receipt-v3" or \
             receipt.get("uses_realized_outcomes") is not False or \
             receipt.get("upstream_code_sha") != UPSTREAM_CODE_SHA or \
             receipt.get("upstream_image") != UPSTREAM_IMAGE or \
             receipt.get("upstream_manifest_sha256") != \
             UPSTREAM_MANIFEST_SHA256 or \
+            receipt.get("upstream_original_execution_ledger_sha256") != \
+            UPSTREAM_ORIGINAL_EXECUTION_LEDGER_SHA256 or \
             receipt.get("upstream_execution_ledger_sha256") != \
-            UPSTREAM_EXECUTION_LEDGER_SHA256:
+            UPSTREAM_EXECUTION_LEDGER_SHA256 or \
+            receipt.get("cbc_retry_protocol_sha256") != \
+            CBC_RETRY_PROTOCOL_SHA256 or \
+            receipt.get("failed_execution_sha256") != \
+            UPSTREAM_FAILED_EXECUTION_SHA256 or \
+            receipt.get("failed_log_sha256") != UPSTREAM_FAILED_LOG_SHA256 or \
+            receipt.get("replacement_receipt_sha256") != \
+            UPSTREAM_REPLACEMENT_RECEIPT_SHA256:
         raise RuntimeError("ATLAS historical upstream receipt identity differs")
+    replacement = receipt.get("single_shard_replacement", {})
+    if replacement != {
+        "season": 2024, "week": 7,
+        "original_execution": "atlas-md-s2024-w7-r2-r9gnq",
+        "replacement_execution": "atlas-md-s2024-w7-r2-6l2q2",
+    }:
+        raise RuntimeError("ATLAS historical upstream replacement differs")
     executions = receipt.get("executions", {})
     if set(executions) != set(UPSTREAM_EXECUTION_NAMES):
         raise RuntimeError("ATLAS historical upstream receipt shard grid differs")
@@ -483,6 +517,9 @@ def run(upstream_receipt_uri: str, output_uri: str) -> dict:
             _file_sha(SHARDED_UPSTREAM_AMENDMENT) != \
             SHARDED_UPSTREAM_AMENDMENT_SHA256:
         raise RuntimeError("ATLAS historical sharded-upstream amendment differs")
+    if not CBC_RETRY_PROTOCOL.is_file() or \
+            _file_sha(CBC_RETRY_PROTOCOL) != CBC_RETRY_PROTOCOL_SHA256:
+        raise RuntimeError("ATLAS historical CBC retry protocol differs")
     code_sha = os.environ.get("CODE_SHA", "").strip()
     image = os.environ.get("ANALYSIS_IMAGE", "").strip()
     if not re.fullmatch(r"[0-9a-f]{40}", code_sha) or not re.fullmatch(
@@ -555,6 +592,7 @@ def run(upstream_receipt_uri: str, output_uri: str) -> dict:
         "sharded_upstream_amendment_sha256": (
             SHARDED_UPSTREAM_AMENDMENT_SHA256
         ),
+        "cbc_retry_protocol_sha256": CBC_RETRY_PROTOCOL_SHA256,
         "upstream": {
             "code_sha": UPSTREAM_CODE_SHA,
             "image": UPSTREAM_IMAGE,
