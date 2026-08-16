@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 06:28 CDT
+## Current state — 2026-08-16 06:30 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -318,6 +318,15 @@ agent or developer:
   commit, was cancelled immediately after this omission was found and must not
   be used even if a late image artifact appears. Submit the superseding clean-
   archive build only from the new handoff commit containing `ad62d09`.
+  Superseding clean-archive build
+  `6bcb414b-8d6a-45af-89a2-9d2694bfdc0a` is now queued from exact scorer
+  source commit `78b1449c566fe7666eb6174fab97f743df0b2fba`; require the complete
+  suite and both real-container runner smokes before using its digest. A final
+  local-only strict-harvester repair binds the exact upstream-receipt URI,
+  generation and SHA plus upstream code/image/execution season grid; it is
+  pushed at `e7304a98a840c6d164d3be0238ebb3569d1830d2` and does not alter the
+  container scorer. At 06:30 CDT all three upstream MVP executions still had
+  one running task and no terminal failure; no partial effect output was read.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
