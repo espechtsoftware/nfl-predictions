@@ -468,11 +468,13 @@ agent or developer:
   `reports/2026-08-16-atlas-repair2-cbc-invalidation.md`; the terminal snapshot
   SHA-256 is
   `bb44ceec5e30a99cee2d7469f0c6a8db6af12d7e370c1353c7acba2734a1c7b6`.
-  Cloud Monitoring rules out a simple OOM: Week 15/16 p99 memory peaked near
-  0.660/0.740 of 4 GiB while each used one full CPU, and Week 7 was near 0.240.
-  Next run the frozen score-free native-CBC diagnostic on Weeks 15/16, discard
-  its lineup payload, then freeze a complete new 54-cell repair3; do not reuse
-  any repair2 object.
+  The initial interpretation said sampled Cloud Monitoring values argued
+  against OOM: Week 15/16 p99 memory peaked near 0.660/0.740 of 4 GiB while
+  each used one full CPU, and Week 7 was near 0.240. That interpretation is
+  explicitly superseded below: one-minute samples cannot rule out a child-only
+  cgroup OOM kill, and memory pressure is now the leading unproven hypothesis.
+  Run the frozen score-free diagnostics, discard their lineup payloads, then
+  freeze a complete new 54-cell repair3; do not reuse any repair2 object.
   The replacement-bound scorer build nevertheless completed successfully at
   `2026-08-16T13:46:55.024569Z`: 1,605 tests passed, 2 skipped and 5 warnings,
   both real-container smokes passed, and tag
