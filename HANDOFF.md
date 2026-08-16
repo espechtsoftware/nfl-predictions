@@ -1089,7 +1089,8 @@ agent or developer:
   reconciled before either repair5 launch or any lattice execution at
   `reports/2026-08-16-repair-cycle-and-constraint-lattice-review-reconciliation.md`.
   This milestone begins from pushed `main` commit
-  `648d7df6961a7e0659a33a3e95ec3c3b564ba771`. Its bounded repair5 execution
+  `648d7df6961a7e0659a33a3e95ec3c3b564ba771` and its implementation is pushed
+  at `a6a6461226d7c3e2c9e9060bb87e7771c80ab9ac`. Its bounded repair5 execution
   repair keeps Cloud Run task `maxRetries=0` and permits at most one separately
   receipted replacement only for the literal `Internal error running task`
   platform condition when the exact output URI is absent; memory, timeout,
