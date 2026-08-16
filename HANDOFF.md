@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 00:46 CDT
+## Current state — 2026-08-16 00:59 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -110,6 +110,27 @@ agent or developer:
   exactly and recover 248 legal roster/tag rows including 40 boom, or the MVP
   is mechanically invalid. Implement and validate this source repair before
   the MVP analyzer; query no outcome fields.
+- The R3/2025 Week 1 repair is now independently frozen before launch at
+  `reports/2026-08-16-atlas-mvp-source-repair-protocol.md`, SHA-256
+  `a18c0f59cfccfccd073bdf5d9d24a0a8ad8015320421d40eb0fccc6a1a18d461`.
+  The pure contract verifies original execution receipt SHA
+  `60173988c785b88253052e40d73cfe396f9947c44f84f4bfe279be781db07ca9`,
+  full environment SHA
+  `f0807cc2045d59b89fd7cd856e8633b88c105250fdfc09ffe91efbfe13ca6f03`,
+  exact image/code/seeds/command/resources/account and permits only the
+  create-only `PANEL_RUN_ID` and `REPLAY_LINEUPS_TABLE` destinations to
+  differ. Launcher and strict finisher are
+  `scripts/cloud_atlas_mvp_source_repair.sh` and
+  `scripts/cloud_finish_atlas_mvp_source_repair.sh`. The finisher requires
+  all 18 cells, then exact equality of all five Week 1 NPZ arrays, 248 unique
+  legal roster identities, 40 exact-boom tags and per-roster player-world
+  reconstruction within `1e-4`; its BigQuery queries name no outcome field.
+  The validator also passed end-to-end against intact R3/2025 Week 2: 261
+  unique legal rosters, 40 boom candidates, exact arrays and zero
+  reconstruction error. Thirty focused repair/transfer tests, Python compile,
+  shell syntax and diff checks pass. Next concrete action: commit/push this
+  frozen repair machinery, launch it from the exact old image, poll to a clean
+  terminal result and run only the strict finisher before building the MVP.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
