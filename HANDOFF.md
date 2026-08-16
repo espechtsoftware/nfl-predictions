@@ -1025,6 +1025,12 @@ agent or developer:
   polling. Do not invoke its launcher before the queue release exists.
   The complete executable implementation is pushed on `main` at commit
   `a66c3e5` (implementation commit `0da5ce2` plus executable-mode repair).
+  Clean-archive validation build
+  `e51a6605-c8bc-4560-9fd5-db3a9faf508a` is running from exact handoff commit
+  `632a1bc` under create-only tag `constraint-lattice-632a1bc`. It must pass
+  the full suite, image build and both real-container constraint runner smokes
+  before its digest can be used. Even after success, the diagnostic launcher
+  remains queue-gated behind strict ATLAS branch closure.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).
