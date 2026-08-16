@@ -943,6 +943,24 @@ agent or developer:
   continuous cells are explicitly forbidden from that upstream. Twenty-one
   focused parity/repair5/historical tests pass. Do not implement dynamic v3
   hashes or launch the scorer until a complete repair5 strict harvest exists.
+  While that score-free preflight remains nonterminal, the next independent
+  construction mechanism has been prospectively frozen without reading an
+  ATLAS effect or realized outcome at
+  `reports/2026-08-16-constraint-lattice-scorefree-protocol.md`, SHA-256
+  `f8591d24dd56749e5b56235f9636687fd41bd1a78991fdb60cfbb092ee65bf62`.
+  It evaluates an at-most-eight-entry strategic-constraint exception sleeve
+  through five leave-one-seed-block-out exact-80 comparisons. The five atomic
+  cells are QB+1/bring-back, QB+2/no-bring-back, QB+1/no-bring-back,
+  RB-versus-DST and same-team two-RB; every exception retains all other DK,
+  status, salary and incumbent strategic constraints. Four training blocks
+  generate and admit candidates under fixed `2/2/2/1/1` quotas and a strict
+  p230-first no-decline swap margin; only the excluded fifth block scores the
+  fold. A pass requires aggregate held-out p230 improvement, improvement in at
+  least three of five folds, no aggregate p210 decline, at least 95% p194
+  retention and at least 90% pair/core reach in every fold. It can license only
+  a labeled 2026 pre-lock shadow. Implementation may proceed outcome-free, but
+  its Cloud execution queues behind the active ATLAS binary/repair5/historical
+  branch and may not compete for the 32-GiB research slot.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).
