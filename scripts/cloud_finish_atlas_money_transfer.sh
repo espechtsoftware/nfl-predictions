@@ -60,12 +60,16 @@ expected_env = {
     "PROTOCOL_SHA256": manifest.get("protocol_sha256"),
     "LAW_SEPARATION_AMENDMENT_SHA256": manifest.get(
         "law_separation_amendment_sha256"),
+    "ARTIFACT_NATIVE_REPAIR_SHA256": manifest.get(
+        "artifact_native_repair_sha256"),
     "ACQUISITION_MANIFEST_SHA256": manifest.get(
         "acquisition_manifest_sha256"),
     "SOURCE_GRID_SHA256": manifest.get("source_grid_sha256"),
     "ACQUISITION_COMPLETE_SHA256": manifest.get(
         "acquisition_complete_sha256"),
     "EXECUTION_RECEIPTS_SHA256": manifest.get("execution_receipts_sha256"),
+    "ENVIRONMENT_RECEIPTS_SHA256": manifest.get(
+        "environment_receipts_sha256"),
 }
 actual_env = {row.get("name"): str(row.get("value", ""))
               for row in container.get("env", [])}
@@ -99,7 +103,9 @@ if report.get("version") != "atlas-current-money-transfer-v1" or \
         report.get("image") != manifest.get("image") or \
         report.get("protocol_sha256") != manifest.get("protocol_sha256") or \
         report.get("law_separation_amendment_sha256") != \
-        manifest.get("law_separation_amendment_sha256"):
+        manifest.get("law_separation_amendment_sha256") or \
+        report.get("artifact_native_repair_sha256") != \
+        manifest.get("artifact_native_repair_sha256"):
     raise SystemExit("ABORT: transfer report identity differs")
 if report.get("uses_realized_outcomes") is not False or \
         report.get("candidate_or_lineup_scores_read") is not False or \
@@ -120,13 +126,21 @@ expected_local = {
     "protocol": manifest.get("protocol_sha256"),
     "law_separation_amendment": manifest.get(
         "law_separation_amendment_sha256"),
+    "artifact_native_repair": manifest.get(
+        "artifact_native_repair_sha256"),
     "acquisition_manifest": manifest.get("acquisition_manifest_sha256"),
     "source_grid": manifest.get("source_grid_sha256"),
     "acquisition_complete": manifest.get("acquisition_complete_sha256"),
     "execution_receipts": manifest.get("execution_receipts_sha256"),
+    "environment_receipts": manifest.get("environment_receipts_sha256"),
 }
 if local != expected_local:
     raise SystemExit("ABORT: transfer source receipts differ")
+bindings = report.get("source_binding_counts", {})
+if set(bindings) - {"candidate_table", "gcs_artifact_recovery"} or \
+        sum(int(value) for value in bindings.values()) != 270 or \
+        int(bindings.get("candidate_table", 0)) <= 0:
+    raise SystemExit("ABORT: transfer source-binding receipt differs")
 law = report.get("law_separation", {})
 reference = law.get("reference_measurement_law", {})
 target = law.get("target_measurement_law", {})

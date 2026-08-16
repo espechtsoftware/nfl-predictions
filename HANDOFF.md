@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 20:11 CDT
+## Current state — 2026-08-15 20:32 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -137,6 +137,24 @@ agent or developer:
   launched ahead of the registered queue. Build a new exact clean-archive
   image after the acquisition receipts exist so the analyzer image contains
   those immutable local sources.
+  While all executions were nonterminal, R3/2025 Week 1 uploaded its required
+  GCS player-world object and then logged BigQuery `429` failures for the
+  ancillary candidate/feature appends; the daemon-thread defect allowed the
+  replay to continue. No other execution had an ERROR log by 20:32 CDT and
+  71/270 objects were present. Before opening any acquired world payload or
+  effect, the source-only repair was frozen at
+  `reports/2026-08-15-atlas-money-artifact-native-repair.md`, SHA-256
+  `d51a32aeeb8d7f4546169709c4b0a5b8e6d8ef5aebf8b8a8adbd227f54d60812`.
+  The strict finisher now requires the complete GCS object grid, binds each
+  object generation/time to its verified panel/season execution, uses unique
+  candidate-table receipts where present and downloads/hashes/shape-checks
+  only genuinely missing metadata cells. Every binding is disclosed; the
+  analyzer redownloads and SHA-verifies all 270 objects and independently
+  verifies complete execution-environment receipts. A failed execution,
+  missing/duplicate object or malformed payload still invalidates the run.
+  This changes no world, seed, method or effect threshold. Twenty-nine focused
+  acquisition/preflight tests pass; new/changed Python compiles, all three
+  shell contracts parse and `git diff --check` passes.
 
 - The supplied ATLAS approach/code review is reconciled at
   `reports/2026-08-15-atlas-approach-and-code-review-reconciliation.md`,

@@ -8,6 +8,8 @@ RUN_ID=20260815-atlas-current-money-worlds-v1
 OUT="$ROOT/reports/atlas-money-world-runs/$RUN_ID"
 MANIFEST="$OUT/manifest.txt"
 LIST="$OUT/executions.txt"
+REPAIR="$ROOT/reports/2026-08-15-atlas-money-artifact-native-repair.md"
+REPAIR_SHA=d51a32aeeb8d7f4546169709c4b0a5b8e6d8ef5aebf8b8a8adbd227f54d60812
 
 [ -s "$MANIFEST" ] && [ -s "$LIST" ] || {
   echo "ABORT: ATLAS money-world manifest/executions are incomplete" >&2
@@ -17,12 +19,20 @@ LIST="$OUT/executions.txt"
   echo "ABORT: ATLAS money-world acquisition needs 15 executions" >&2
   exit 2
 }
+[ "$(sha256sum "$REPAIR" | awk '{print $1}')" = "$REPAIR_SHA" ] || {
+  echo "ABORT: ATLAS money-world artifact-native repair differs" >&2
+  exit 2
+}
 [ ! -e "$OUT/acquisition-complete.txt" ] || {
   echo "ABORT: immutable ATLAS money-world acquisition is already finished" >&2
   exit 3
 }
 [ ! -e "$OUT/source-grid.json" ] || {
   echo "ABORT: immutable ATLAS money-world source grid already exists" >&2
+  exit 3
+}
+[ ! -e "$OUT/candidate-grid.json" ] || {
+  echo "ABORT: immutable ATLAS candidate metadata grid already exists" >&2
   exit 3
 }
 
@@ -95,10 +105,17 @@ sha256sum "$OUT"/execution-metadata/*.json | sort \
   > "$OUT/execution-metadata.sha256"
 sha256sum "$OUT/execution-metadata.sha256" \
   > "$OUT/execution-metadata.sha256.sha256"
+sha256sum "$OUT"/environment-receipts/*.json | sort \
+  > "$OUT/environment-receipts.sha256"
+sha256sum "$OUT/environment-receipts.sha256" \
+  > "$OUT/environment-receipts.sha256.sha256"
 
 SOURCE_TMP="$OUT/source-grid.pending.json"
 [ ! -e "$SOURCE_TMP" ] || {
   echo "ABORT: stale ATLAS money-world source-grid pending file" >&2; exit 2; }
+CANDIDATE_TMP="$OUT/candidate-grid.pending.json"
+[ ! -e "$CANDIDATE_TMP" ] || {
+  echo "ABORT: stale ATLAS candidate-grid pending file" >&2; exit 2; }
 bq query --project_id="$PROJECT" --use_legacy_sql=false --format=json \
   --max_rows=300 '
 SELECT panel_run_id, season, week,
@@ -119,7 +136,12 @@ WHERE panel_run_id IN (
   "20260815-atlas-money-worlds-r3-v1",
   "20260815-atlas-money-worlds-r4-v1")
 GROUP BY panel_run_id, season, week
-ORDER BY panel_run_id, season, week' > "$SOURCE_TMP"
+ORDER BY panel_run_id, season, week' > "$CANDIDATE_TMP"
+
+"$ROOT/.venv/bin/python" "$ROOT/scripts/harvest_atlas_money_source_grid.py" \
+  --project "$PROJECT" --bucket "${PROJECT}-raw" --run-dir "$OUT" \
+  --bq-grid "$CANDIDATE_TMP" --code-sha "$CODE_SHA" \
+  --output "$SOURCE_TMP"
 
 "$ROOT/.venv/bin/python" - "$SOURCE_TMP" "$CODE_SHA" <<'PY'
 import json
@@ -141,10 +163,6 @@ for row in rows:
         raise SystemExit("ABORT: acquisition source key differs/repeats")
     keys.add(key)
     slates_by_panel[panel].add((season, week))
-    if any(int(row.get(name) or 0) != 1 for name in (
-        "uri_count", "sha_count", "code_count", "lever_count",
-    )):
-        raise SystemExit("ABORT: acquisition source identity is ambiguous")
     if str(row.get("code_sha")) != code_sha:
         raise SystemExit("ABORT: acquisition source code SHA differs")
     uri = str(row.get("score_artifact_uri", ""))
@@ -153,6 +171,14 @@ for row in rows:
         raise SystemExit("ABORT: acquisition artifact identity is invalid")
     if int(row.get("source_rows") or 0) <= 0:
         raise SystemExit("ABORT: acquisition source has no candidates")
+    if row.get("source_binding") not in {
+        "candidate_table", "gcs_artifact_recovery",
+    } or not row.get("execution") or \
+            not re.fullmatch(r"[0-9a-f]{64}", str(
+                row.get("environment_sha256", ""),
+            )) or int(row.get("object_size") or 0) <= 0 or \
+            not str(row.get("object_generation", "")):
+        raise SystemExit("ABORT: acquisition source binding is invalid")
 reference = slates_by_panel[panels[0]]
 if len(reference) != 54 or any(
     slates_by_panel[panel] != reference for panel in panels[1:]
@@ -163,11 +189,24 @@ if {season for season, _ in reference} != {2023, 2024, 2025}:
 print("ATLAS_MONEY_WORLD_SOURCE_GRID_VALIDATED", len(rows))
 PY
 
+mv "$CANDIDATE_TMP" "$OUT/candidate-grid.json"
+sha256sum "$OUT/candidate-grid.json" > "$OUT/candidate-grid.sha256"
 mv "$SOURCE_TMP" "$OUT/source-grid.json"
 sha256sum "$OUT/source-grid.json" > "$OUT/source-grid.sha256"
+SOURCE_COUNTS=$("$ROOT/.venv/bin/python" - "$OUT/source-grid.json" <<'PY'
+import collections
+import json
+import sys
+rows = json.load(open(sys.argv[1], encoding="utf-8"))
+counts = collections.Counter(row["source_binding"] for row in rows)
+print(",".join(f"{key}:{counts[key]}" for key in sorted(counts)))
+PY
+)
 printf '%s\n' \
   "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
   'executions=15' 'source_cells=270' 'slates_per_panel=54' \
+  "source_bindings=$SOURCE_COUNTS" \
+  "artifact_native_repair_sha256=$REPAIR_SHA" \
   > "$OUT/acquisition-complete.txt"
 sha256sum "$OUT/acquisition-complete.txt" \
   > "$OUT/acquisition-complete.sha256"

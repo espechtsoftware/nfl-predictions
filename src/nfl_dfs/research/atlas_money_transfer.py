@@ -156,13 +156,12 @@ def parse_logged_lever_environment(text: str) -> dict[str, str]:
     return result
 
 
-def validate_logged_source_environment(text: str, block: int) -> dict[str, str]:
-    """Verify score-facing source levers against the frozen money contract."""
+def expected_logged_source_environment(block: int) -> dict[str, str]:
+    """Return the required score-facing lever subset for one source block."""
     block = int(block)
     panel_id(block)
     projection_seed, role_seed = SEED_PAIRS[block]
-    values = parse_logged_lever_environment(text)
-    expected = {
+    return {
         "CAND_ARTIFACT_PLAYER_WORLDS": "1",
         "EPISTEMIC_FAMILY": "role_draws",
         "GAME_SIM_MODE": "possession",
@@ -184,6 +183,24 @@ def validate_logged_source_environment(text: str, block: int) -> dict[str, str]:
         "TABPFN_MARGINAL_TABLE": "",
         "TD_LEDGER": "",
     }
+
+
+def source_environment_lever_text(
+    environment: Mapping[str, str], block: int,
+) -> str:
+    """Create a labeled lever receipt from a verified execution environment."""
+    expected = expected_logged_source_environment(block)
+    values = {str(key): str(value) for key, value in environment.items()}
+    if any(values.get(key) != value for key, value in expected.items()):
+        raise ValueError("ATLAS execution source environment differs")
+    return ",".join(f"{key}={expected[key]}" for key in sorted(expected))
+
+
+def validate_logged_source_environment(text: str, block: int) -> dict[str, str]:
+    """Verify score-facing source levers against the frozen money contract."""
+    block = int(block)
+    values = parse_logged_lever_environment(text)
+    expected = expected_logged_source_environment(block)
     differences = {
         key: (values.get(key), value)
         for key, value in expected.items()

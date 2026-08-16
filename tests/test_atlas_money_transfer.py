@@ -1,10 +1,18 @@
 import json
+from io import BytesIO
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 from nfl_dfs.inference.production_policy import ADOPTED_CLASSIC_POLICY
 from nfl_dfs.research import atlas_money_transfer as transfer
+from nfl_dfs.research.atlas_money_source_grid import (
+    parse_artifact_name,
+    validate_environment_receipt,
+    validate_object_interval,
+    validate_player_world_payload,
+)
 
 
 CODE_SHA = "a" * 40
@@ -92,6 +100,58 @@ def test_logged_lever_parser_preserves_comma_values_and_validates_source():
         transfer.validate_logged_source_environment(
             text + ",DIRICHLET_K=28.154043586960896", 3,
         )
+    generated = transfer.source_environment_lever_text(env, 3)
+    assert transfer.validate_logged_source_environment(generated, 3) == (
+        transfer.expected_logged_source_environment(3)
+    )
+
+
+def test_artifact_native_source_receipt_validates_name_interval_and_payload():
+    parsed = parse_artifact_name(
+        "cand_scores/20260815-atlas-money-worlds-r2-v1/"
+        "2024_w17_deadbeef.npz"
+    )
+    assert parsed == {
+        "panel_run_id": "20260815-atlas-money-worlds-r2-v1",
+        "season": 2024,
+        "week": 17,
+        "slate_run_id": "deadbeef",
+    }
+    validate_object_interval(
+        created="2026-08-16T01:01:00Z",
+        execution_start="2026-08-16T01:00:00Z",
+        execution_complete="2026-08-16T01:02:00Z",
+    )
+    with pytest.raises(ValueError, match="outside"):
+        validate_object_interval(
+            created="2026-08-16T01:03:00Z",
+            execution_start="2026-08-16T01:00:00Z",
+            execution_complete="2026-08-16T01:02:00Z",
+        )
+    buffer = BytesIO()
+    np.savez_compressed(
+        buffer,
+        cand_ix=np.arange(2, dtype=np.int32),
+        totals=np.ones((2, 10_000), dtype=np.float32),
+        tail_line=np.asarray(194.0, dtype=np.float32),
+        player_ids=np.asarray(["p1", "p2"]),
+        player_draws=np.ones((2, 10_000), dtype=np.float32),
+    )
+    summary = validate_player_world_payload(buffer.getvalue())
+    assert summary["source_rows"] == 2
+    assert summary["players"] == 2
+    assert summary["worlds"] == 10_000
+
+
+def test_environment_receipt_is_recomputed_not_trusted():
+    env = transfer.acquisition_environment(
+        block=0, season=2023, code_sha=CODE_SHA, project=PROJECT,
+    )
+    receipt = transfer.environment_receipt(env)
+    assert validate_environment_receipt(receipt) == env
+    receipt["sha256"] = "0" * 64
+    with pytest.raises(ValueError, match="hash differs"):
+        validate_environment_receipt(receipt)
 
 
 @pytest.mark.parametrize("block", (-1, 5))
@@ -118,12 +178,21 @@ def test_cloud_launcher_is_create_only_scorefree_and_policy_bound():
 
 def test_acquisition_finisher_binds_execution_and_complete_source_grid():
     text = (ROOT / "scripts/cloud_finish_atlas_money_worlds.sh").read_text()
+    harvester = (
+        ROOT / "scripts/harvest_atlas_money_source_grid.py"
+    ).read_text()
     assert 'row.get("type") == "Completed"' in text
     assert 'actual_env != receipt.get("values")' in text
     assert 'container.get("image") != image' in text
     assert '"cpu": "4", "memory": "16Gi"' in text
     assert 'len(rows) != 270' in text
     assert 'len(reference) != 54' in text
+    assert "harvest_atlas_money_source_grid.py" in text
+    assert "artifact_native_repair_sha256" in text
+    assert "gcs_artifact_recovery" in text
+    assert "blob.download_as_bytes()" in harvester
+    assert "validate_object_interval" in harvester
+    assert "set(objects) != expected" in harvester
     assert "labels_complete" not in text
     assert "actual_score" not in text
     assert "selected" not in text
@@ -140,6 +209,9 @@ def test_transfer_runner_is_packaged_and_scorefree_source_bound():
     assert "candidate_or_lineup_scores_read" in runner
     assert "production_change_licensed" in runner
     assert "LAW_SEPARATION_AMENDMENT_SHA256" in runner
+    assert "ARTIFACT_NATIVE_REPAIR_SHA256" in runner
+    assert "source_binding_counts" in runner
+    assert "ENVIRONMENT_RECEIPTS_SHA256" in runner
     assert "_combination_reach_summary" in runner
     assert '"transfer_disposition"' in runner
     assert '"effect_may_be_law_dependent": True' in runner
@@ -157,6 +229,8 @@ def test_transfer_cloud_contract_is_create_only_and_strictly_harvested():
     assert "--max-retries 0" in launch
     assert "ACQUISITION_MANIFEST_SHA256" in launch
     assert "LAW_SEPARATION_AMENDMENT_SHA256" in launch
+    assert "ARTIFACT_NATIVE_REPAIR_SHA256" in launch
+    assert "ENVIRONMENT_RECEIPTS_SHA256" in launch
     assert 'row.get("type") == "Completed"' in finish
     assert 'container.get("image") != manifest.get("image")' in finish
     assert 'preflight.get("artifact_count") != 270' in finish

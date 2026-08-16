@@ -22,9 +22,14 @@ from nfl_dfs.research.atlas_money_transfer import (
     PROTOCOL_PATH,
     RUN_ID,
     VERSION as SOURCE_VERSION,
+    acquisition_environment,
     canonical_policy_receipt,
     panel_id,
+    source_environment_lever_text,
     validate_logged_source_environment,
+)
+from nfl_dfs.research.atlas_money_source_grid import (
+    validate_environment_receipt,
 )
 from nfl_dfs.research.source_preflight import (
     resolve_panel_artifacts,
@@ -53,12 +58,19 @@ LAW_SEPARATION_AMENDMENT = Path(
 LAW_SEPARATION_AMENDMENT_SHA256 = (
     "59326d6c8db4209a4eac44bbc80935adb8d93fb71a0b92a5d5325a30562fae54"
 )
+ARTIFACT_NATIVE_REPAIR = Path(
+    "reports/2026-08-15-atlas-money-artifact-native-repair.md"
+)
+ARTIFACT_NATIVE_REPAIR_SHA256 = (
+    "d51a32aeeb8d7f4546169709c4b0a5b8e6d8ef5aebf8b8a8adbd227f54d60812"
+)
 SOURCE_PANEL_IDS = tuple(panel_id(block) for block in range(5))
 ACQUISITION_DIR = Path("reports/atlas-money-world-runs") / RUN_ID
 ACQUISITION_MANIFEST = ACQUISITION_DIR / "manifest.txt"
 SOURCE_GRID = ACQUISITION_DIR / "source-grid.json"
 ACQUISITION_COMPLETE = ACQUISITION_DIR / "acquisition-complete.txt"
 EXECUTION_RECEIPTS = ACQUISITION_DIR / "execution-metadata.sha256"
+ENVIRONMENT_RECEIPTS = ACQUISITION_DIR / "environment-receipts.sha256"
 OUTPUT_URI = (
     "gs://nfl-predictions-503414-raw/research/final-forensic-runs/"
     "20260814-final-preseason-forensic-v1/post-forensic-addenda/"
@@ -179,12 +191,22 @@ def run(output_uri: str) -> dict[str, Any]:
         "execution_receipts": os.environ.get(
             "EXECUTION_RECEIPTS_SHA256", "",
         ).strip(),
+        "environment_receipts": os.environ.get(
+            "ENVIRONMENT_RECEIPTS_SHA256", "",
+        ).strip(),
+        "artifact_native_repair": os.environ.get(
+            "ARTIFACT_NATIVE_REPAIR_SHA256", "",
+        ).strip(),
     }
     local_receipts = verify_local_sha256({
         "protocol": (PROTOCOL_PATH, expected_hashes["protocol"]),
         "law_separation_amendment": (
             LAW_SEPARATION_AMENDMENT,
             expected_hashes["law_separation_amendment"],
+        ),
+        "artifact_native_repair": (
+            ARTIFACT_NATIVE_REPAIR,
+            expected_hashes["artifact_native_repair"],
         ),
         "acquisition_manifest": (
             ACQUISITION_MANIFEST, expected_hashes["acquisition_manifest"],
@@ -196,6 +218,9 @@ def run(output_uri: str) -> dict[str, Any]:
         "execution_receipts": (
             EXECUTION_RECEIPTS, expected_hashes["execution_receipts"],
         ),
+        "environment_receipts": (
+            ENVIRONMENT_RECEIPTS, expected_hashes["environment_receipts"],
+        ),
     })
     if local_receipts["protocol"] != PROTOCOL_SHA256:
         raise RuntimeError("ATLAS money transfer protocol differs")
@@ -203,6 +228,10 @@ def run(output_uri: str) -> dict[str, Any]:
         LAW_SEPARATION_AMENDMENT_SHA256
     ):
         raise RuntimeError("ATLAS money transfer law amendment differs")
+    if local_receipts["artifact_native_repair"] != (
+        ARTIFACT_NATIVE_REPAIR_SHA256
+    ):
+        raise RuntimeError("ATLAS money transfer artifact repair differs")
     source_manifest = _manifest(ACQUISITION_MANIFEST)
     policy = canonical_policy_receipt()
     if (
@@ -221,12 +250,38 @@ def run(output_uri: str) -> dict[str, Any]:
         raise RuntimeError("ATLAS money transfer source manifest differs")
 
     source_rows = json.loads(SOURCE_GRID.read_text(encoding="utf-8"))
+    source_binding_counts: dict[str, int] = {}
     for row in source_rows:
         panel = str(row.get("panel_run_id"))
         if panel not in SOURCE_PANEL_IDS:
             raise RuntimeError("ATLAS money transfer source panel differs")
         block = SOURCE_PANEL_IDS.index(panel)
-        validate_logged_source_environment(str(row.get("lever_env", "")), block)
+        season = int(row.get("season"))
+        binding = str(row.get("source_binding", ""))
+        if binding not in {"candidate_table", "gcs_artifact_recovery"}:
+            raise RuntimeError("ATLAS money transfer source binding differs")
+        source_binding_counts[binding] = source_binding_counts.get(binding, 0) + 1
+        receipt_path = (
+            ACQUISITION_DIR / "environment-receipts" /
+            f"r{block}-{season}.json"
+        )
+        receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+        environment = validate_environment_receipt(receipt)
+        if str(receipt.get("sha256")) != str(
+            row.get("environment_sha256", ""),
+        ) or environment != acquisition_environment(
+            block=block,
+            season=season,
+            code_sha=source_manifest["code_sha"],
+            project=PROJECT,
+        ):
+            raise RuntimeError("ATLAS money transfer environment differs")
+        lever_env = str(row.get("lever_env", ""))
+        validate_logged_source_environment(lever_env, block)
+        if binding == "gcs_artifact_recovery" and lever_env != (
+            source_environment_lever_text(environment, block)
+        ):
+            raise RuntimeError("ATLAS recovered lever receipt differs")
         if str(row.get("code_sha")) != source_manifest["code_sha"]:
             raise RuntimeError("ATLAS money transfer source code differs")
     preflight = resolve_panel_artifacts(
@@ -318,6 +373,7 @@ def run(output_uri: str) -> dict[str, Any]:
         "law_separation_amendment_sha256": (
             LAW_SEPARATION_AMENDMENT_SHA256
         ),
+        "artifact_native_repair_sha256": ARTIFACT_NATIVE_REPAIR_SHA256,
         "local_source_receipts": local_receipts,
         "source_manifest": source_manifest,
         "source_policy_receipt": policy,
@@ -327,6 +383,7 @@ def run(output_uri: str) -> dict[str, Any]:
             for key in ("panel_ids", "slates", "slate_count", "artifact_count")
         },
         "source_artifacts": artifact_receipts,
+        "source_binding_counts": source_binding_counts,
         "forensic_manifest_sha256": FORENSIC_MANIFEST_SHA256,
         "production_constraints": {
             "salary_floor": 49_000,
