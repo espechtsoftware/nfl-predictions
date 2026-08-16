@@ -573,6 +573,13 @@ agent or developer:
   native-log Week 15 and all three cgroup diagnostics remained running. No
   Week 16 artifact or log has been opened; the frozen pairwise firewall still
   requires Week 15 terminality before invoking the strict native finisher.
+  At `2026-08-16T15:13:00.830819Z`, cgroup-instrumented Week 7
+  `atlas-cbc-resource-diag-2024-w7-v1-k2jl7` also became terminal
+  `Completed=False`, reason `NonZeroExitCode`, with `failedCount=1`; resource
+  Weeks 15/16 and native-log Week 15 remained running at the next status-only
+  poll. No Week 7 diagnostic receipt, log, or problem artifact has been
+  opened: the frozen three-cell resource firewall still requires all three
+  executions terminal before invoking its strict finisher.
   Next concrete action: poll both immutable diagnostic sets to terminal and
   run only their strict finishers before freezing the complete 54-cell
   repair3.
