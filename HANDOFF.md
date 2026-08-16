@@ -778,6 +778,16 @@ agent or developer:
   using terminal metadata only. Strictly harvest the 32-GiB preflight at
   terminal; let repair4 reach a complete failure census without opening any
   shard/effect output.
+  Conditional resource-only repair5 is prospectively frozen at
+  `reports/2026-08-16-atlas-mvp-resource-only-repair5.md`, SHA-256
+  `5acc93c2b3a59931aa17dbc67d98fca81d3a6ac047011cfe1a9a81aa1ee8550e`.
+  It may launch only after strict 32-GiB full-cell success and a complete
+  repair4 terminal census. It reruns all 54 cells under new identities and
+  changes only the inseparable envelope from 4 CPU/16 GiB to 8 CPU/32 GiB;
+  pinned image/code, binary interactions, inputs, mechanism, zero retries,
+  timeout and gate remain fixed. This freeze is independent of how many more
+  repair4 cells fail and of every score-free effect. Do not implement/launch
+  it if the exact 32-GiB preflight fails.
   Because repair4 can no longer satisfy its all-success finisher, use
   `scripts/cloud_harvest_atlas_repair4_terminal_census.sh` (SHA-256
   `428fffb9b5a4c6e8b0533c665169f9f318b8fb57004a989d70ce322df69e9bea`)
