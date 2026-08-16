@@ -110,6 +110,26 @@ def test_interaction_auxiliaries_are_exact_continuous(monkeypatch):
     }
 
 
+def test_interaction_continuous_and_binary_formulations_select_same_roster(
+        monkeypatch):
+    pool = make_pool()
+    pair = tuple(p["id"] for p in pool if p["pos"] == "WR")[:2]
+    continuous = optimize(pool, interaction_objective={pair: 1.0})
+    assert continuous is not None
+
+    original = pulp.LpVariable
+
+    def force_old_binary(name, *args, **kwargs):
+        if str(name).startswith("interaction_"):
+            kwargs["cat"] = pulp.LpBinary
+        return original(name, *args, **kwargs)
+
+    monkeypatch.setattr(pulp, "LpVariable", force_old_binary)
+    binary = optimize(pool, interaction_objective={pair: 1.0})
+    assert binary is not None
+    assert continuous.ids == binary.ids
+
+
 def test_interaction_contract_rejects_malformed_tuple():
     pool = make_pool()
     with pytest.raises(ValueError, match="2-3 pool players"):

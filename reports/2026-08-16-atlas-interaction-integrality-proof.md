@@ -37,9 +37,11 @@ preserving the frozen construction law exactly. The default non-interaction
 optimizer path is untouched.
 
 The change is implemented in `src/nfl_dfs/optimizer/lineup.py`. A focused test
-inspects the constructed model and confirms the continuous category/bounds;
-the existing stage-two and stage-three tests continue to require the priced
-pair. The focused optimizer, ATLAS and CBC-diagnostic suites pass 39 tests.
+inspects the constructed model and confirms the continuous category/bounds; a
+second test solves the same interaction objective under the old forced-binary
+and new continuous formulations and requires the same roster. The existing
+stage-two and stage-three tests continue to require the priced pair. The
+focused optimizer, ATLAS and CBC-diagnostic suites pass 40 tests.
 
 ## Boundary
 

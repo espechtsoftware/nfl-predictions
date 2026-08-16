@@ -512,8 +512,10 @@ agent or developer:
   product constraints, so declaring it continuous on `[0,1]` removes redundant
   branch-and-bound integers without changing any feasible integer roster or
   objective. The default non-interaction path is untouched. The implementation
-  and direct model-category test are local only; 39 focused optimizer/ATLAS/
-  diagnostic tests pass. Do not call it repair3 or deploy it until the two
+  and direct model-category test are pushed at
+  `bba24a7d79eb9459472a9cce0f8ed4f1ae8b3a3f`; an additional old-binary versus
+  continuous exact-roster parity test brings the focused optimizer/ATLAS/
+  diagnostic total to 40 passing tests. Do not call it repair3 or deploy it until the two
   original-binary diagnostic receipts are terminal and strictly harvested.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
