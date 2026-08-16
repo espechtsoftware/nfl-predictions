@@ -206,6 +206,8 @@ agent or developer:
   `4938df8c8f7f84dea40baf2f76cd84f78cdc9e1a097c271b419e3dc8c6b5cd37`,
   `f2bb244daf1b2d9515bee59799095fcbdd44414acb16b06e65e8298bd87c62b7`
   and `7bbff5dd3721ba436f79cb984091e7aa5815642629ab2c5615a6f2d9aacaa592`.
+  The complete strict harvest and its frozen MVP source bindings are pushed on
+  `main` at commit `0282c0a`.
   The MVP runner and launcher now bind those exact hashes. Next rerun the 62
   focused tests/compile/shell checks, commit and push the complete repair
   harvest plus bindings, build a clean immutable image from that commit, and
