@@ -69,6 +69,42 @@ def test_interaction_variable_mode_forces_only_interaction_auxiliaries() -> None
     assert observed["effective_categories"] == {"Continuous"}
 
 
+def test_interaction_parity_launcher_is_strictly_gated_and_score_free() -> None:
+    launcher = (
+        ROOT / "scripts/cloud_atlas_interaction_parity_diagnostic.sh"
+    ).read_text(encoding="utf-8")
+    assert "PREFLIGHT_STATUS" in launcher
+    assert '[ "$PREFLIGHT_STATUS" = False ]' in launcher
+    assert "repair5 retains queue priority" in launcher
+    assert "ATLAS_INTERACTION_PARITY_SMOKE_OK" in launcher
+    assert "atlas-continuous-0679731-r1" not in launcher
+    assert (
+        "sha256:437641a46e1c952ec2f1628428904c89fb4f8eef3d2a2c42a52262c45817231f"
+        in launcher
+    )
+    assert "--cpu 8 --memory 32Gi" in launcher
+    assert "--max-retries 0 --task-timeout 12h" in launcher
+    assert "uses_realized_outcomes=false" in launcher
+    assert "persists_lineups=false" in launcher
+
+
+def test_interaction_parity_finisher_enforces_exact_gate_and_firewall() -> None:
+    finisher = (
+        ROOT / "scripts/cloud_finish_atlas_interaction_parity_diagnostic.sh"
+    ).read_text(encoding="utf-8")
+    assert 'container.get("command")!="python"' not in finisher
+    assert 'container.get("command")!=["python"]' in finisher
+    assert 'r.get("binary_candidate_count")!=40' in finisher
+    assert 'r.get("continuous_candidate_count")!=40' in finisher
+    assert "ordered_roster_parity" in finisher
+    assert "proposal_path_parity" in finisher
+    assert "interaction_category_instrumentation_valid" in finisher
+    assert "real-slate-parity-passes" in finisher
+    assert "real-slate-parity-fails" in finisher
+    assert '"roster_ids","player_ids"' in finisher
+    assert "production_change_licensed=false" in finisher
+
+
 def test_proposal_signature_is_canonical_and_excludes_numeric_receipts() -> None:
     row = {
         "pass": 1,

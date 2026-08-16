@@ -894,6 +894,23 @@ agent or developer:
   This only validates the conditional score-free parity fallback; do not
   launch its diagnostic while the binary 32-GiB preflight or licensed repair5
   has priority.
+  The corresponding fail-closed parity launcher and strict finisher are now
+  implemented at `scripts/cloud_atlas_interaction_parity_diagnostic.sh` and
+  `scripts/cloud_finish_atlas_interaction_parity_diagnostic.sh`, SHA-256
+  `7381531e0c11d6846cd3e8b18e7574bbfb9bed353d0e9766f4bfba9d17f4ecd9`
+  and
+  `f62663fdee4fda4606f025fde7fb5030d726ce1322bd544112de022fe4ab075c`.
+  The launcher can proceed only from a strictly harvested failed binary
+  32-GiB preflight; a nonterminal or successful preflight fails closed because
+  binary repair5 retains priority. It verifies the immutable image, injected
+  diagnostic source, installed runner and optimizer in a query-free real-
+  container smoke before creating the single 2024 Week 15/R0 job at 8 CPU/32
+  GiB. The finisher binds the exact command/environment/resources and admits
+  only exact 40-versus-40 ordered-roster and proposal-path parity with valid
+  category instrumentation; its receipt field allowlist forbids lineup/player
+  identities and outcome data. Twenty focused parity/repair5/historical tests,
+  Python compilation, both shell syntax checks and diff checks pass. Do not
+  invoke this fallback unless the live binary preflight strictly fails.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).
