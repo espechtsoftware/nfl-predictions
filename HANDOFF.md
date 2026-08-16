@@ -567,9 +567,15 @@ agent or developer:
   `1a241d536934b070a451604e10375c12291778fcdd8ff0fdb164c4ebbfbdace8`
   and
   `a25936ed0a1c8c3ce2120b06ca37c963c3dba7670e13f964782415788ea1e604`.
-  All three were nonterminal at the first post-launch poll. Next concrete
-  action: poll both immutable diagnostic sets to terminal and run only their
-  strict finishers before freezing the complete 54-cell repair3.
+  All three were nonterminal at the first post-launch poll. At
+  `2026-08-16T14:58:35Z`, native-log Week 16
+  `atlas-cbc-diag-2024-w16-v1-89fq4` became terminal `Completed=False` while
+  native-log Week 15 and all three cgroup diagnostics remained running. No
+  Week 16 artifact or log has been opened; the frozen pairwise firewall still
+  requires Week 15 terminality before invoking the strict native finisher.
+  Next concrete action: poll both immutable diagnostic sets to terminal and
+  run only their strict finishers before freezing the complete 54-cell
+  repair3.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
