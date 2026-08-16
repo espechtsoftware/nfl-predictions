@@ -1,0 +1,8 @@
+run_id=20260816-atlas-cbc-resource-diagnostic-v1
+protocol_sha256=dce59cb5fa4f42fae5ee916905688773edef710018cf1741bc7c6b016d53c8ae
+diagnostic_source_sha256=ad0c9307b28aab0a18d511fe680f92d59075211fad2e5abfc1eddcafa0509abc
+repair2_code_sha=60f296fdad769b30c0bb7334118698f156e462b9
+repair2_image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ce03feb739e51aabedd7cea79f46e13a06a097a7f85e9a5817f38184b67f4fcb
+cells=2024-7,2024-15,2024-16
+uses_realized_outcomes=false
+persists_lineups=false

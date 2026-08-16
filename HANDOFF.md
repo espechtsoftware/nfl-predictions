@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 09:27 CDT
+## Current state — 2026-08-16 09:31 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -553,9 +553,19 @@ agent or developer:
   diagnostic/historical tests, Python compilation, four shell syntax checks
   and diff checks pass. These scorer changes make every earlier scorer image
   mechanically superseded; repair3 will require a newly bound image anyway.
-  Next concrete action: commit/push this milestone, launch the three exact
-  resource diagnostic cells, poll both immutable diagnostic sets to terminal,
-  and run only their strict finishers before freezing the 54-cell repair3.
+  The correction is committed and pushed on `main` at `fdb6c93` with script
+  mode metadata at `1bd3b59`. The three exact resource diagnostic executions
+  are now launched: Week 7
+  `atlas-cbc-resource-diag-2024-w7-v1-k2jl7`, Week 15
+  `atlas-cbc-resource-diag-2024-w15-v1-dz8bq`, and Week 16
+  `atlas-cbc-resource-diag-2024-w16-v1-5jq79`. Their manifest and execution-
+  ledger SHA-256 values are
+  `1a241d536934b070a451604e10375c12291778fcdd8ff0fdb164c4ebbfbdace8`
+  and
+  `a25936ed0a1c8c3ce2120b06ca37c963c3dba7670e13f964782415788ea1e604`.
+  All three were nonterminal at the first post-launch poll. Next concrete
+  action: poll both immutable diagnostic sets to terminal and run only their
+  strict finishers before freezing the complete 54-cell repair3.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
