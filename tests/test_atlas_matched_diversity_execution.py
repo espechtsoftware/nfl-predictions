@@ -157,6 +157,24 @@ def test_sharded_launcher_uses_frozen_single_thread_resources():
     assert 'wc -l < "$EXECUTIONS")" = 54' in finisher
 
 
+def test_single_shard_retry_is_exact_and_one_cell_only():
+    import hashlib
+
+    protocol = ROOT / "reports/2026-08-16-atlas-mvp-cbc-single-shard-retry.md"
+    expected = "bc55775c5a98a7027a0c117cf5371a67cc886c6da34dcdb7b1031bd6a471c455"
+    assert hashlib.sha256(protocol.read_bytes()).hexdigest() == expected
+    retry = (
+        ROOT / "scripts/cloud_retry_atlas_matched_diversity_shard.sh"
+    ).read_text(encoding="utf-8")
+    assert f"PROTOCOL_SHA={expected}" in retry
+    assert "SEASON=2024" in retry and "WEEK=7" in retry
+    assert "ORIGINAL_EXEC=atlas-md-s2024-w7-r2-r9gnq" in retry
+    assert 'gcloud run jobs execute "$JOB"' in retry
+    assert "gcloud run jobs deploy" not in retry
+    assert "PulpSolverError" in retry
+    assert 'len(left)!=54 or len(right)!=54' in retry
+
+
 def test_three_season_aggregate_applies_frozen_gate(tmp_path):
     paths = []
     for season in (2025, 2023, 2024):

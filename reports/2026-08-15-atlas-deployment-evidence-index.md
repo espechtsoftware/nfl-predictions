@@ -450,6 +450,17 @@ smokes passed. The eligible immutable scorer image is
 used only with exact scorer code SHA
 `4cd8803c2022d86ea669ed13399554eabe93673c` after strict repair2 harvest.
 
+Repair2 cell `(2024,7)` execution `atlas-md-s2024-w7-r2-r9gnq` failed
+mechanically with exit code 1 and a `PulpSolverError` while invoking CBC. It
+emitted no progress marker, its target object is absent and no partial effect
+was opened. The one-time exact same-job retry contract was frozen before
+replacement at
+`reports/2026-08-16-atlas-mvp-cbc-single-shard-retry.md`, SHA-256
+`bc55775c5a98a7027a0c117cf5371a67cc886c6da34dcdb7b1031bd6a471c455`.
+It permits exactly one unchanged execution, preserves the original failure,
+and requires an effective 54-row ledger differing only in that one execution
+name. It changes no science or resource and cannot survive a second failure.
+
 ## Evidence firewall for reviewers
 
 - Score-free results establish simulated-law premises, not realized DFS

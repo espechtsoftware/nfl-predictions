@@ -413,6 +413,24 @@ agent or developer:
   changes no runtime source in the validated image. At build completion, all
   54 shard tasks remained running with zero failures and seven non-metric seed
   completion markers. Continue polling; do not open partial shard effects.
+  Repair2 execution `atlas-md-s2024-w7-r2-r9gnq` then failed mechanically at
+  `2026-08-16T13:15:08.176883Z` with one task/exit code 1. Its traceback ends
+  in `pulp.apis.core.PulpSolverError` while launching packaged CBC; it emitted
+  zero seed/slate markers and its create-only `slate-2024-7.json` target is
+  absent. No shard effect or candidate output was opened. The other 53 tasks
+  remain running. Before any replacement launch, one-time transport repair
+  `reports/2026-08-16-atlas-mvp-cbc-single-shard-retry.md` was frozen at
+  SHA-256
+  `bc55775c5a98a7027a0c117cf5371a67cc886c6da34dcdb7b1031bd6a471c455`.
+  It permits exactly one new execution of the unchanged existing Week 7 job:
+  same image/code/command/URI/resources/timeout/zero configured retries and no
+  solver/scientific change. The launcher preserves the failed metadata/log,
+  refuses a present object, launches once and creates a 54-row effective
+  ledger differing only at the execution name for `(2024,7)`. A second failure
+  invalidates this repair. Sixteen focused sharding/scorer tests, retry shell
+  syntax and diff checks pass. Commit/push the repair before invoking it, then
+  bind the original failure plus replacement/effective-ledger hashes in the
+  strict shard finisher and downstream scorer while the replacement runs.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
