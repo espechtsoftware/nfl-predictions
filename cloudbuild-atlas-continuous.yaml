@@ -1,0 +1,33 @@
+# Validation-only image build for the frozen ATLAS continuous-interaction
+# parity fallback. The source context is supplied from exact commit 0679731.
+steps:
+  - name: python:3.11-slim
+    id: full-test-suite
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        apt-get update
+        apt-get install -y --no-install-recommends libgomp1
+        pip install --no-cache-dir '.[gcp,app,dev]'
+        PYTHONPATH=. pytest
+  - name: gcr.io/cloud-builders/docker
+    id: build-image
+    args: [build, -t, '${_IMAGE}', .]
+  - name: gcr.io/cloud-builders/docker
+    id: smoke-atlas-mvp-runner
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        docker run --rm '${_IMAGE}' \
+          python scripts/run_atlas_matched_diversity_mvp.py --help >/dev/null
+        docker run --rm '${_IMAGE}' \
+          python scripts/run_atlas_historical_score_diagnostic.py --help >/dev/null
+images:
+  - '${_IMAGE}'
+substitutions:
+  _IMAGE: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:atlas-continuous
+timeout: 3600s
+options:
+  machineType: E2_HIGHCPU_8

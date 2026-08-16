@@ -852,6 +852,34 @@ agent or developer:
   complete score-free aggregate. Eighteen focused repair4/repair5/historical
   tests pass; both shell scripts pass syntax and diff checks. Do not invoke
   the repair5 launcher until the live preflight's strict completion exists.
+  A conditional continuous-interaction fallback is now frozen before the
+  binary 32-GiB preflight result at
+  `reports/2026-08-16-atlas-continuous-interaction-parity-protocol.md`,
+  SHA-256
+  `0d925bc4c5fd03ca01b53ec2e2d0bdf10e48ca66f959a723aedf28ad636678a1`.
+  It uses only 2024 Week 15/R0, where the old binary formulation previously
+  completed, and compares complete 40-lineup old-binary versus proved-
+  continuous enumeration under common worlds/clusters/weights. The hard gate
+  requires ordered roster and canonical proposal-path parity plus direct
+  category instrumentation; it persists hashes/counts only and no roster or
+  outcome. Diagnostic source
+  `scripts/run_atlas_interaction_parity_diagnostic.py` has SHA-256
+  `f8b5b54ce3aab95be36d32bdb3825f2c0b34ed9552c7ebaf0085f0e5f0fb1d2d`.
+  It must not compete with the live preflight; binary repair5 retains priority
+  on success, while a failed binary preflight makes this parity cell next.
+  Candidate validation build `85aace06-7f36-4307-acfa-194c4648ef6d`
+  failed mechanically during collection because bare pytest could not import
+  the repository-level `scripts` namespace; no test body or image build ran.
+  The one allowed build-path repair is frozen at
+  `reports/2026-08-16-atlas-continuous-build-path-repair.md`, SHA-256
+  `2a3a02f00e2a78b862647aa30da251fab27366181522b5849859b6f770acf5dc`,
+  using the exact same `0679731` Git archive and dedicated configuration
+  `cloudbuild-atlas-continuous.yaml`, SHA-256
+  `950db566469aa645efda634370e1f6fe7554db6317537e3a820e9161bec8f93e`,
+  whose sole relevant repair is `PYTHONPATH=. pytest`. Thirty-nine focused
+  optimizer/parity/repair5 tests, Python compilation and diff checks pass.
+  Commit/push this freeze, submit the single repaired full build and record its
+  immutable digest if successful; do not launch the parity cell yet.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
