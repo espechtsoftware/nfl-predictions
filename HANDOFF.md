@@ -1181,6 +1181,18 @@ agent or developer:
   `bash -n`, and `git diff --check` passes. This follow-up is pushed on `main`
   at exact commit `7a628050caf299868ead47cf1f73e0bcc2dbd597` and must receive a
   superseding exact-archive build before launch.
+  The handoff-only correction commits after that code are pushed through
+  `f1e344bd1395d64ea5b530c2fb22c87bd402c902`. Superseding exact-archive
+  Cloud Build `df158df9-ef83-4555-b5ea-0e254a7ea0bd` is running under
+  create-only tag `constraint-support-f1e344b`. Tracked
+  `scripts/watch_constraint_lattice_support_queue.sh` is running in managed
+  terminal session `6539`: after that build succeeds and the independent ATLAS
+  queue strictly closes, it launches the support real-path canary, releases
+  the other 53 only on canary success, resolves the frozen attempt law,
+  strictly harvests the census, and launches/finishes the 2023 Week 1 resource
+  preflight only if p230 receives the original support disposition. It stops
+  before scientific treatment; a p220/p210 support result also stops for a new
+  prospective gate amendment.
   At `2026-08-16T23:30Z`, ATLAS preflight
   `atlas-cbc-32g-full-2023-w8-v1-lbzjd` remains `Completed=Unknown` with one
   running task. The tracked managed watcher session `40372` remains silent and
