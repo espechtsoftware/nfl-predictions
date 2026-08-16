@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 20:05 CDT
+## Current state — 2026-08-15 20:07 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -75,6 +75,14 @@ agent or developer:
   Launch selector stability from only this new validated digest. Exact-N
   follows selector stability. Production-law ATLAS acquisition may begin
   after compute/quota is checked.
+  Selector-stability execution `cbwu-oi-selector-stability-v1-sfdvb` was
+  created at `2026-08-16T01:05:32.964464Z` from that digest and exact code
+  `545ddae1b8e1256fde8e345683e0004aa5463b5e`; its immutable launch manifest
+  and execution ID are tracked under
+  `reports/cbwu-oi-selector-stability-runs/20260815-cbwu-oi-selector-stability-v1/`.
+  At handoff it was importing the image with `Completed=Unknown`; poll it and
+  invoke only `scripts/cloud_finish_cbwu_oi_selector_stability.sh` after
+  terminal success.
 
 - The required outcome-free production-law ATLAS transfer is frozen before
   the Phase S result at
