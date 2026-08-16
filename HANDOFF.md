@@ -20,11 +20,11 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 21:12 CDT
+## Current state — 2026-08-15 21:34 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
-- Branch is `main`; this milestone starts from pushed commit `6bccc20553116d36ae2ef01645b256be5f2e4992`.
+- Branch is `main`; this milestone starts from pushed commit `20cbb214628891f89a10d5a81687ab42ca1c7502`.
   ATLAS execution `atlas-world-ranking-scorefree-v1-l59bt` completed cleanly at
   `2026-08-16T00:33:46.605244Z` and passed the strengthened strict harvester.
   The frozen finite-K + SIS-ASOE Phase S result passes all six conditions:
@@ -132,9 +132,24 @@ agent or developer:
   `replay-atlasmoney-r3-2023-8lcgl`, `replay-atlasmoney-r3-2024-4r8q8`,
   `replay-atlasmoney-r3-2025-htrch`, `replay-atlasmoney-r4-2023-7lk4s`,
   `replay-atlasmoney-r4-2024-b6msp` and
-  `replay-atlasmoney-r4-2025-9x24z`. All 15 were `Completed=Unknown` after
-  launch. Poll them and use only `scripts/cloud_finish_atlas_money_worlds.sh`
-  after all are terminal successes. Future exact solves now use two passes:
+  `replay-atlasmoney-r4-2025-9x24z`. All 15 completed successfully, the full
+  270/270 GCS artifact grid was present, and the strict finisher validated the
+  execution image/command/environment/resource/account receipts at
+  `2026-08-16T02:34:39Z`. The final grid contains 269 unique candidate-table
+  bindings and one preregistered `gcs_artifact_recovery` binding for the
+  R3/2025 Week 1 ancillary BigQuery 429; its execution was terminal successful
+  and its immutable GCS object passed the execution-window, digest, shape,
+  finite-value and identity checks. Acquisition-complete, source-grid,
+  candidate-grid, execution-metadata-list and environment-receipt-list
+  SHA-256 values are respectively
+  `a29f773f35d4121db785fc5be2e1a18895f897bf91c248dd24c1566ace5c34cb`,
+  `9a18458c63f0155b72f3847c705fbd0bdde9b64c923a5b63cc4a1f42bfe3445b`,
+  `b18216ca8900b54381c3f5ed5031442143f2d5e1ee38c6ae193e2f5dfbc6bac0`,
+  `ee73688bfe5662c94b6886ea5f90b3cfc87a5b7a038ada5511f48a260ea01377`
+  and `eb88e6f35226034907869397c6efc9f25e09cb3173a3e40bbcfc952f87d74348`.
+  Commit/push these receipts, then build a new clean-archive full-validated
+  image so the transfer analyzer contains the immutable harvested sources.
+  Future exact solves now use two passes:
   retain the primary optimum within `1e-6`, then
   minimize stable player-identity rank after sorting input rows. Transfer
   output also separates Part-A quality from raw-diversity diagnostics and

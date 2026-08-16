@@ -1,0 +1,379 @@
+{
+  "apiVersion": "run.googleapis.com/v1",
+  "kind": "Execution",
+  "metadata": {
+    "annotations": {
+      "run.googleapis.com/client-name": "gcloud",
+      "run.googleapis.com/client-version": "579.0.0",
+      "run.googleapis.com/creator": "espechtsoftware@gmail.com",
+      "run.googleapis.com/execution-environment": "gen2",
+      "run.googleapis.com/lastModifier": "espechtsoftware@gmail.com",
+      "run.googleapis.com/operation-id": "530940d4-f5ac-4ca2-b0f3-f4bf8bd06446"
+    },
+    "creationTimestamp": "2026-08-16T01:08:22.800527Z",
+    "generation": 1,
+    "labels": {
+      "client.knative.dev/nonce": "ley_taz_fab",
+      "cloud.googleapis.com/location": "us-central1",
+      "run.googleapis.com/job": "replay-atlasmoney-r4-2025",
+      "run.googleapis.com/jobGeneration": "1",
+      "run.googleapis.com/jobResourceVersion": "1786842500301777",
+      "run.googleapis.com/jobUid": "bb9bbbb1-1c9b-4c5b-a55c-0531474b7f79"
+    },
+    "name": "replay-atlasmoney-r4-2025-9x24z",
+    "namespace": "817589974517",
+    "ownerReferences": [
+      {
+        "apiVersion": "serving.knative.dev/v1",
+        "blockOwnerDeletion": true,
+        "controller": true,
+        "kind": "Job",
+        "name": "replay-atlasmoney-r4-2025",
+        "uid": "bb9bbbb1-1c9b-4c5b-a55c-0531474b7f79"
+      }
+    ],
+    "resourceVersion": "AAZZIN3GNrI",
+    "selfLink": "/apis/run.googleapis.com/v1/namespaces/817589974517/executions/replay-atlasmoney-r4-2025-9x24z",
+    "uid": "86b91d55-6066-4f29-ad17-9f2498ea5bd8"
+  },
+  "spec": {
+    "parallelism": 1,
+    "taskCount": 1,
+    "template": {
+      "spec": {
+        "containers": [
+          {
+            "args": [
+              "replay",
+              "--season",
+              "2025",
+              "--contest",
+              "gpp",
+              "--entries",
+              "80"
+            ],
+            "command": [
+              "nfl-dfs"
+            ],
+            "env": [
+              {
+                "name": "BLEND_MODEL_WEIGHT",
+                "value": "0.45"
+              },
+              {
+                "name": "CAND_ARTIFACT_BUCKET",
+                "value": "nfl-predictions-503414-raw"
+              },
+              {
+                "name": "CAND_ARTIFACT_PLAYER_WORLDS",
+                "value": "1"
+              },
+              {
+                "name": "CAND_FEATURE_TABLE",
+                "value": "nfl-predictions-503414.nfl_predictions.slate_player_features"
+              },
+              {
+                "name": "CAND_LOG_TABLE",
+                "value": "nfl-predictions-503414.nfl_predictions.replay_candidates_staging"
+              },
+              {
+                "name": "CAND_MULT",
+                "value": "2"
+              },
+              {
+                "name": "CE_GAMES",
+                "value": "4"
+              },
+              {
+                "name": "CE_SEED",
+                "value": "1701"
+              },
+              {
+                "name": "CODE_SHA",
+                "value": "545ddae1b8e1256fde8e345683e0004aa5463b5e"
+              },
+              {
+                "name": "DST_CORR_DRAWS"
+              },
+              {
+                "name": "EMP_MARGINALS",
+                "value": "1"
+              },
+              {
+                "name": "EMP_POS"
+              },
+              {
+                "name": "EPISTEMIC_FAMILY",
+                "value": "role_draws"
+              },
+              {
+                "name": "GAME_SIM_MODE",
+                "value": "possession"
+              },
+              {
+                "name": "GAME_SIM_PACE"
+              },
+              {
+                "name": "GAME_SIM_TEAM_FACTORS",
+                "value": "1"
+              },
+              {
+                "name": "GAME_SIM_USAGE"
+              },
+              {
+                "name": "GCP_PROJECT",
+                "value": "nfl-predictions-503414"
+              },
+              {
+                "name": "GEN_POOL_CAP",
+                "value": "0"
+              },
+              {
+                "name": "GEN_POOL_CAP_MAP"
+              },
+              {
+                "name": "GEN_TOTAL_BUDGET",
+                "value": "52"
+              },
+              {
+                "name": "HYPER_BOOM",
+                "value": "0"
+              },
+              {
+                "name": "LIVE_SIMS",
+                "value": "30000"
+              },
+              {
+                "name": "M4_QBLOCK",
+                "value": "0"
+              },
+              {
+                "name": "MAX_PER_GAME",
+                "value": "0"
+              },
+              {
+                "name": "MAX_QBS",
+                "value": "0"
+              },
+              {
+                "name": "MIN_LINEUP_SALARY",
+                "value": "49000"
+              },
+              {
+                "name": "MODEL_ENSEMBLE",
+                "value": "1"
+              },
+              {
+                "name": "MODEL_REGISTRY_VARIANT",
+                "value": "tail_k1"
+              },
+              {
+                "name": "MULTISEED_CANDIDATE_ENTRY_BASIS"
+              },
+              {
+                "name": "MULTISEED_PORTFOLIO"
+              },
+              {
+                "name": "MULTISEED_SEED_PAIRS"
+              },
+              {
+                "name": "MULTISEED_WORLDS_PER_BLOCK"
+              },
+              {
+                "name": "N_BOOM",
+                "value": "40"
+              },
+              {
+                "name": "N_CE",
+                "value": "0"
+              },
+              {
+                "name": "N_DARKGAME",
+                "value": "10"
+              },
+              {
+                "name": "N_EPISTEMIC",
+                "value": "12"
+              },
+              {
+                "name": "N_GAMESTACK",
+                "value": "4"
+              },
+              {
+                "name": "N_GUMBEL",
+                "value": "0"
+              },
+              {
+                "name": "N_LOWSAL",
+                "value": "0"
+              },
+              {
+                "name": "N_MIDQB",
+                "value": "0"
+              },
+              {
+                "name": "N_NOSTACK",
+                "value": "0"
+              },
+              {
+                "name": "N_QB_VARIANTS",
+                "value": "4"
+              },
+              {
+                "name": "OWN_BARBELL"
+              },
+              {
+                "name": "OWN_MODEL"
+              },
+              {
+                "name": "PANEL_RUN_ID",
+                "value": "20260815-atlas-money-worlds-r4-v1"
+              },
+              {
+                "name": "PEAK_SLICE",
+                "value": "0"
+              },
+              {
+                "name": "PUNT_BOOM",
+                "value": "0"
+              },
+              {
+                "name": "PUNT_BOOM_WR"
+              },
+              {
+                "name": "PUNT_MAX",
+                "value": "4000"
+              },
+              {
+                "name": "PUNT_MIN",
+                "value": "0"
+              },
+              {
+                "name": "PUNT_STRICT"
+              },
+              {
+                "name": "Q99_WILD",
+                "value": "0"
+              },
+              {
+                "name": "QD_CELLS",
+                "value": "0"
+              },
+              {
+                "name": "REPLACEMENT_SLOTS",
+                "value": "12"
+              },
+              {
+                "name": "REPLAY_LINEUPS_TABLE",
+                "value": "nfl-predictions-503414.nfl_features.replay_lineups_atlasmoney_r4_2025"
+              },
+              {
+                "name": "REPLAY_PROJECTION_SEED",
+                "value": "1643280042"
+              },
+              {
+                "name": "ROLE_BELIEF_FEATURES",
+                "value": "target_share_last,carry_share_last,snap_share_last,target_share_jump,carry_share_jump,snap_share_jump"
+              },
+              {
+                "name": "ROLE_BELIEF_SEED",
+                "value": "3977633467"
+              },
+              {
+                "name": "ROOKIE_WIDEN"
+              },
+              {
+                "name": "SEEDS",
+                "value": "REPLAY_PROJECTION_SEED=1643280042;ROLE_BELIEF_SEED=3977633467"
+              },
+              {
+                "name": "SELECT_LSE",
+                "value": "0"
+              },
+              {
+                "name": "SELECT_OBJ"
+              },
+              {
+                "name": "SERVED_POSITION_SCALES",
+                "value": "QB:0.970,RB:1.005,TE:0.940,WR:1.070"
+              },
+              {
+                "name": "SERVED_TAIL_SCALE",
+                "value": "1"
+              },
+              {
+                "name": "SHAPE_MIX",
+                "value": "1"
+              },
+              {
+                "name": "SIM_WIDEN_DRAWS",
+                "value": "fitted"
+              },
+              {
+                "name": "TABPFN_MARGINALS",
+                "value": "1"
+              },
+              {
+                "name": "TABPFN_MARGINAL_TABLE"
+              },
+              {
+                "name": "TD_LEDGER"
+              },
+              {
+                "name": "VALUE2_MIN",
+                "value": "0"
+              },
+              {
+                "name": "WR_BOOM",
+                "value": "0"
+              }
+            ],
+            "image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ad4604d86f1b1f7938136650f3d3940c9f1d6edd6a3427d618e6f943822602c8",
+            "resources": {
+              "limits": {
+                "cpu": "4",
+                "memory": "16Gi"
+              }
+            }
+          }
+        ],
+        "maxRetries": 0,
+        "serviceAccountName": "817589974517-compute@developer.gserviceaccount.com",
+        "timeoutSeconds": "14400"
+      }
+    }
+  },
+  "status": {
+    "completionTime": "2026-08-16T02:32:31.389596Z",
+    "conditions": [
+      {
+        "lastTransitionTime": "2026-08-16T02:32:31.389596Z",
+        "message": "Execution completed successfully in 1h24m3.85s.",
+        "status": "True",
+        "type": "Completed"
+      },
+      {
+        "lastTransitionTime": "2026-08-16T01:08:23.810676Z",
+        "message": "Provisioned imported containers.",
+        "status": "True",
+        "type": "ResourcesAvailable"
+      },
+      {
+        "lastTransitionTime": "2026-08-16T01:10:19.798121Z",
+        "message": "Started deployed execution in 1m55.98s.",
+        "status": "True",
+        "type": "Started"
+      },
+      {
+        "lastTransitionTime": "2026-08-16T01:08:23.694762Z",
+        "message": "Imported container image.",
+        "status": "True",
+        "type": "ContainerReady"
+      }
+    ],
+    "logUri": "https://console.cloud.google.com/logs/viewer?project=nfl-predictions-503414&advancedFilter=resource.type%3D%22cloud_run_job%22%0Aresource.labels.job_name%3D%22replay-atlasmoney-r4-2025%22%0Aresource.labels.location%3D%22us-central1%22%0Alabels.%22run.googleapis.com/execution_name%22%3D%22replay-atlasmoney-r4-2025-9x24z%22",
+    "observedGeneration": 1,
+    "startTime": "2026-08-16T01:08:27.537103Z",
+    "succeededCount": 1
+  }
+}

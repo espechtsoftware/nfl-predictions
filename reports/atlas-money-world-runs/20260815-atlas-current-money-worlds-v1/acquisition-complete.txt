@@ -1,0 +1,6 @@
+validated_at=2026-08-16T02:34:39Z
+executions=15
+source_cells=270
+slates_per_panel=54
+source_bindings=candidate_table:269,gcs_artifact_recovery:1
+artifact_native_repair_sha256=d51a32aeeb8d7f4546169709c4b0a5b8e6d8ef5aebf8b8a8adbd227f54d60812
