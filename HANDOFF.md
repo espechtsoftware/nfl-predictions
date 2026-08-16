@@ -835,6 +835,23 @@ agent or developer:
   candidate 200. Binary interactions remain unchanged in the live 32-GiB
   preflight and conditional repair5 so the resource treatment stays isolated;
   the parity-proved continuous formulation remains a separate fallback.
+  The conditional repair5 launcher and strict finisher are now implemented at
+  `scripts/cloud_atlas_matched_diversity_repair5.sh` and
+  `scripts/cloud_finish_atlas_matched_diversity_repair5.sh`, SHA-256 values
+  `9ea70f34e2591672e4b84621c116db8e4b465177bbda689d9d555c3d18d85b42`
+  and
+  `39fe8218edbfabe8a0e021407f8cca5da0fa9113c93e858556761164ca434933`.
+  The launcher fails closed unless the exact preflight is strictly harvested
+  successful and its complete mechanical shard is valid, plus the exact
+  repair4 terminal census contains the frozen memory failure. It binds all
+  original mechanism/source receipts and every preflight/census artifact,
+  runs the unchanged real-container prefix smoke, then creates exactly 54 new
+  `-r5` identities at 8 CPU/32 GiB with binary interactions, zero retries and
+  a 12-hour timeout. The finisher requires every exact execution successful,
+  all 54 create-only shards mechanically valid, unchanged source hashes and a
+  complete score-free aggregate. Eighteen focused repair4/repair5/historical
+  tests pass; both shell scripts pass syntax and diff checks. Do not invoke
+  the repair5 launcher until the live preflight's strict completion exists.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
