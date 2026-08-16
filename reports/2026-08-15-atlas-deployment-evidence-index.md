@@ -471,6 +471,13 @@ unchanged original ledger. A final scorer image containing the replacement
 binding is required; the prior scorer digest is mechanically superseded for
 this effective grid even though its score law is unchanged.
 
+The replacement-bound code and receipts are pushed at exact commit
+`0fdecdd3cd740bc1b376ee23dbb62e2ef9222cca`. Clean-archive Cloud Build
+`a63f2371-0d64-4ac5-bb20-c5ad721ed862` was submitted from that commit under
+tag `atlas-historical-score-retry-0fdecdd`. It is eligible only after the full
+suite and both real-container smokes pass and the tag is resolved to an
+immutable digest.
+
 ## Evidence firewall for reviewers
 
 - Score-free results establish simulated-law premises, not realized DFS

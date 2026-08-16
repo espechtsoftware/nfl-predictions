@@ -449,6 +449,13 @@ agent or developer:
   build while the replacement/original shards continue. At the latest poll the
   effective 54-cell grid had 54 running tasks, zero effective failures and 19
   non-metric seed markers; no slate result was opened.
+  The complete replacement receipt/binding milestone is pushed on `main` at
+  `0fdecdd3cd740bc1b376ee23dbb62e2ef9222cca`. Final clean-archive scorer
+  build `a63f2371-0d64-4ac5-bb20-c5ad721ed862` was submitted from that exact
+  commit under tag `atlas-historical-score-retry-0fdecdd`; it was queued at
+  `2026-08-16T13:29:52.697548716Z`. Require the complete test suite, both real-
+  container smokes and an immutable digest before use. Continue polling the
+  exact effective 54-row shard ledger while the build runs.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
