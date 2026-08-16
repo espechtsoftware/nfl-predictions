@@ -1,9 +1,9 @@
 # ATLAS historical diagnostic repair4-upstream amendment
 
 Date frozen: 2026-08-16, after the repair4 execution ledger was complete but
-before any repair4 shard or aggregate result was opened.  
+before any repair4 shard or aggregate result was opened.
 Applies to: `20260816-atlas-historical-score-diagnostic-v1` and its source-
-parity, sharded-upstream and high-tail-guard amendments.  
+parity, sharded-upstream and high-tail-guard amendments.
 Disposition class: mechanical upstream rebinding only; no scoring or production
 consequence.
 

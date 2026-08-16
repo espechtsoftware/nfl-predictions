@@ -731,7 +731,7 @@ agent or developer:
   exact repair4 identities in
   `reports/2026-08-16-atlas-historical-score-repair4-upstream-amendment.md`,
   SHA-256
-  `33180a1395785b1d93cb7b0e19a61b16ccc3b7081d86f27d0ab74a3afc747c62`.
+  `32bb95916d53b0a95472adad6d0aebcb6f7fd1631b07b3c29b1cf31950dffd17`.
   It was frozen before any shard or aggregate result was opened, requires the
   exact 54-cell ledger with no replacement/retry path, and requires the future
   scorer receipt to bind every strict-harvest hash and object generation. The
