@@ -14,6 +14,7 @@ PROTOCOL="$ROOT/reports/2026-08-15-cbwu-oi-selector-stability-protocol.md"
 PROTOCOL_SHA=81c8d0ff7750c7781e9c9181699b3bdf397d6161c8bf6e7a91025d233236cb01
 CBWU_REPORT="$ROOT/reports/cbwu-order-invariant-runs/20260815-cbwu-order-invariant-repair-v1/report.json"
 CBWU_SHA=556adeca6e0bf2855ad82296b1e708041a20446dc27e2c988c1d11e8c5bd4d33
+ATLAS_DIR="$ROOT/reports/atlas-world-ranking-runs/20260815-atlas-world-ranking-scorefree-v1-repair1"
 OUTPUT_URI=gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/post-forensic-addenda/20260815-cbwu-oi-selector-stability-v1/result.json
 FREQUENCY_URI=gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/post-forensic-addenda/20260815-cbwu-oi-selector-stability-v1/candidate-frequencies.json.gz
 
@@ -27,6 +28,12 @@ CODE_SHA=${2:-}
   echo "ERROR: selector-stability protocol differs" >&2; exit 2; }
 [ "$(sha256sum "$CBWU_REPORT" | awk '{print $1}')" = "$CBWU_SHA" ] || {
   echo "ERROR: selector-stability source report differs" >&2; exit 2; }
+[ -s "$ATLAS_DIR/report.json" ] && [ -s "$ATLAS_DIR/report.sha256" ] || {
+  echo "ERROR: strict ATLAS harvest must precede selector stability" >&2
+  exit 3
+}
+(cd "$ATLAS_DIR" && sha256sum -c report.sha256 >/dev/null) || {
+  echo "ERROR: harvested ATLAS report hash differs" >&2; exit 3; }
 for uri in "$OUTPUT_URI" "$FREQUENCY_URI"; do
   if gcloud storage objects describe "$uri" \
       --project "$PROJECT" >/dev/null 2>&1; then
@@ -37,11 +44,13 @@ done
 [ ! -e "$OUT" ] || {
   echo "ERROR: selector-stability run directory exists: $OUT" >&2; exit 3; }
 mkdir -p "$OUT"
+ATLAS_SHA=$(awk '{print $1}' "$ATLAS_DIR/report.sha256")
 printf '%s\n' \
   'version=cbwu-oi-selector-stability-v1' \
   "image=$IMAGE" "code_sha=$CODE_SHA" "output_uri=$OUTPUT_URI" \
   "frequency_uri=$FREQUENCY_URI" "protocol_sha256=$PROTOCOL_SHA" \
   "cbwu_oi_scorefree_report_sha256=$CBWU_SHA" \
+  "atlas_prerequisite_report_sha256=$ATLAS_SHA" \
   'source_panels=20260813-sis-asoe-treatment-r0-v1,20260813-sis-asoe-treatment-r1-v1,20260813-sis-asoe-treatment-r2-v1,20260813-sis-asoe-treatment-r3-v1,20260813-sis-asoe-treatment-r4-v1' \
   'forensic_manifest_sha256=51edbe124846dc936ade71c4e5a9a07e252bcf6c7d7872b979715ccd1f6bab02' \
   'uses_realized_outcomes=false' 'candidate_or_lineup_scores_read=false' \

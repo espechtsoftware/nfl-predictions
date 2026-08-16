@@ -47,6 +47,12 @@ VERSION = "atlas-current-money-transfer-v1"
 PROTOCOL_SHA256 = (
     "c6cb9605678bdfb68f54cbc9fd7adcea754500afb838d2a17a9c0861e4527423"
 )
+LAW_SEPARATION_AMENDMENT = Path(
+    "reports/2026-08-16-atlas-transfer-law-separation-amendment.md"
+)
+LAW_SEPARATION_AMENDMENT_SHA256 = (
+    "59326d6c8db4209a4eac44bbc80935adb8d93fb71a0b92a5d5325a30562fae54"
+)
 SOURCE_PANEL_IDS = tuple(panel_id(block) for block in range(5))
 ACQUISITION_DIR = Path("reports/atlas-money-world-runs") / RUN_ID
 ACQUISITION_MANIFEST = ACQUISITION_DIR / "manifest.txt"
@@ -121,6 +127,36 @@ def _proxy_summary(rows: list[dict]) -> dict[str, Any]:
     }
 
 
+def _combination_reach_summary(rows: list[dict]) -> dict[str, Any]:
+    """Keep pair/core reach prominent without changing the Part-A gate."""
+    result: dict[str, Any] = {}
+    for metric in ("unique_player_pairs", "unique_qb_stack_cores"):
+        incumbent = np.asarray([
+            row["incumbent_exact"][metric] for row in rows
+        ], dtype=float)
+        attainable = np.asarray([
+            row["attainable_exact"][metric] for row in rows
+        ], dtype=float)
+        ratios = attainable / np.maximum(incumbent, 1.0)
+
+        def distribution(values: np.ndarray) -> dict[str, float]:
+            return {
+                "mean": float(values.mean()),
+                "q10": float(np.quantile(values, 0.10)),
+                "median": float(np.median(values)),
+                "minimum": float(values.min()),
+                "maximum": float(values.max()),
+            }
+
+        result[metric] = {
+            "incumbent": distribution(incumbent),
+            "attainable": distribution(attainable),
+            "attainable_to_incumbent_ratio": distribution(ratios),
+            "gating": False,
+        }
+    return result
+
+
 def run(output_uri: str) -> dict[str, Any]:
     if output_uri != OUTPUT_URI:
         raise RuntimeError("ATLAS money transfer output identity differs")
@@ -130,6 +166,9 @@ def run(output_uri: str) -> dict[str, Any]:
     validate_execution_identity(code_sha, image)
     expected_hashes = {
         "protocol": os.environ.get("PROTOCOL_SHA256", "").strip(),
+        "law_separation_amendment": os.environ.get(
+            "LAW_SEPARATION_AMENDMENT_SHA256", "",
+        ).strip(),
         "acquisition_manifest": os.environ.get(
             "ACQUISITION_MANIFEST_SHA256", "",
         ).strip(),
@@ -143,6 +182,10 @@ def run(output_uri: str) -> dict[str, Any]:
     }
     local_receipts = verify_local_sha256({
         "protocol": (PROTOCOL_PATH, expected_hashes["protocol"]),
+        "law_separation_amendment": (
+            LAW_SEPARATION_AMENDMENT,
+            expected_hashes["law_separation_amendment"],
+        ),
         "acquisition_manifest": (
             ACQUISITION_MANIFEST, expected_hashes["acquisition_manifest"],
         ),
@@ -156,6 +199,10 @@ def run(output_uri: str) -> dict[str, Any]:
     })
     if local_receipts["protocol"] != PROTOCOL_SHA256:
         raise RuntimeError("ATLAS money transfer protocol differs")
+    if local_receipts["law_separation_amendment"] != (
+        LAW_SEPARATION_AMENDMENT_SHA256
+    ):
+        raise RuntimeError("ATLAS money transfer law amendment differs")
     source_manifest = _manifest(ACQUISITION_MANIFEST)
     policy = canonical_policy_receipt()
     if (
@@ -252,6 +299,14 @@ def run(output_uri: str) -> dict[str, Any]:
         })
 
     gate = aggregate_transfer_gate(diagnostics)
+    mechanical_conditions = {
+        "acquisition_executions_and_grid_valid": True,
+        "exact_target_law_receipt_valid": True,
+        "immutable_sources_and_player_worlds_valid": True,
+        "point_in_time_player_catalog_complete": True,
+        "deterministic_rank_and_exact_solve_valid": True,
+        "outcome_firewall_valid": True,
+    }
     report = {
         "version": VERSION,
         "source_version": SOURCE_VERSION,
@@ -260,6 +315,9 @@ def run(output_uri: str) -> dict[str, Any]:
         "code_sha": code_sha,
         "image": image,
         "protocol_sha256": PROTOCOL_SHA256,
+        "law_separation_amendment_sha256": (
+            LAW_SEPARATION_AMENDMENT_SHA256
+        ),
         "local_source_receipts": local_receipts,
         "source_manifest": source_manifest,
         "source_policy_receipt": policy,
@@ -280,6 +338,27 @@ def run(output_uri: str) -> dict[str, Any]:
         },
         "gate": gate,
         "proxy_summary": _proxy_summary(diagnostics),
+        "combination_reach": _combination_reach_summary(diagnostics),
+        "law_separation": {
+            "reference_measurement_law": {
+                "usage_allocation": "finite-dirichlet",
+                "dirichlet_k": 28.154043586960896,
+                "sis_asoe_rank_transport": True,
+            },
+            "target_measurement_law": policy["simulation_law"],
+            "effect_may_be_law_dependent": True,
+        },
+        "transfer_disposition": {
+            "mechanical": {
+                "passes": bool(all(mechanical_conditions.values())),
+                "conditions": mechanical_conditions,
+            },
+            "effect": {
+                "evaluated": True,
+                "passes": bool(gate["passes_part_a_transfer"]),
+                "conditions": gate["quality_conditions"],
+            },
+        },
         "diagnostics": diagnostics,
         "historical_arm_licensed": False,
         "production_change_licensed": False,

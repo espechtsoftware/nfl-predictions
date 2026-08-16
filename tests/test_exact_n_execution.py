@@ -61,6 +61,8 @@ def test_exact_n_execution_is_outcome_free_create_only_and_ordered():
 
     finisher = (ROOT / "scripts/cloud_finish_exact_n_scorefree.sh").read_text()
     assert "source_preflight" in finisher
+    assert "execution.json" in finisher
+    assert 'row.get("type") == "Completed"' in finisher
     assert "licensed_shadow_cardinalities" in finisher
     assert "n80_parity" in finisher
 

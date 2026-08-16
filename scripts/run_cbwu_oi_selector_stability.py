@@ -9,7 +9,6 @@ import hashlib
 import json
 import os
 from pathlib import Path
-import re
 from typing import Any
 
 import numpy as np
@@ -28,6 +27,11 @@ from nfl_dfs.research.cbwu_oi_selector_stability import (
     WORLDS_PER_BLOCK,
     analyze_paired_selector_stability,
     summarize_paired_selector_stability,
+)
+from nfl_dfs.research.source_preflight import (
+    resolve_panel_artifacts,
+    validate_execution_identity,
+    verify_local_sha256,
 )
 
 from run_cbwu_seed_order_audit import (
@@ -69,10 +73,6 @@ FREQUENCY_URI = (
     "20260814-final-preseason-forensic-v1/post-forensic-addenda/"
     "20260815-cbwu-oi-selector-stability-v1/candidate-frequencies.json.gz"
 )
-
-
-def _sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def _lineup_identities(batch) -> list[list[str]]:
@@ -122,14 +122,11 @@ def run(output_uri: str, frequency_uri: str) -> dict[str, Any]:
         raise RuntimeError("selector-stability output identity differs")
     code_sha = os.environ.get("CODE_SHA", "").strip()
     image = os.environ.get("ANALYSIS_IMAGE", "").strip()
-    if re.fullmatch(r"[0-9a-f]{40}", code_sha) is None or re.fullmatch(
-        r".+@sha256:[0-9a-f]{64}", image,
-    ) is None:
-        raise RuntimeError("selector-stability exact code/image is required")
-    if _sha256(PROTOCOL_PATH) != PROTOCOL_SHA256 or (
-        _sha256(CBWU_REPORT_PATH) != CBWU_REPORT_SHA256
-    ):
-        raise RuntimeError("selector-stability frozen source differs")
+    validate_execution_identity(code_sha, image)
+    local_receipts = verify_local_sha256({
+        "protocol": (PROTOCOL_PATH, PROTOCOL_SHA256),
+        "cbwu_oi_report": (CBWU_REPORT_PATH, CBWU_REPORT_SHA256),
+    })
     validate_scorefree_queries()
 
     source_report = json.loads(CBWU_REPORT_PATH.read_text(encoding="utf-8"))
@@ -154,18 +151,20 @@ def run(output_uri: str, frequency_uri: str) -> dict[str, Any]:
         "panel_ids", "STRING", list(SOURCE_PANEL_IDS),
     )])
     players = _query(bq, PLAYER_SQL)
-    if set(sources.panel_run_id.astype(str)) != set(SOURCE_PANEL_IDS):
-        raise RuntimeError("selector-stability source panels differ")
+    preflight = resolve_panel_artifacts(
+        sources.to_dict("records"), panel_ids=SOURCE_PANEL_IDS,
+        expected_slates=54,
+    )
     if set(players.manifest_sha256.astype(str)) != {FORENSIC_MANIFEST_SHA256}:
         raise RuntimeError("selector-stability forensic manifest differs")
-    source_keys = sources[["panel_run_id", "season", "week"]].drop_duplicates()
-    if len(source_keys) != 270:
-        raise RuntimeError("selector-stability source artifact count differs")
-    slates = sorted({
-        (int(row.season), int(row.week)) for row in source_keys.itertuples()
-    })
-    if len(slates) != 54 or set(slates) != set(expected_by_slate):
+    slates = [tuple(int(value) for value in key)
+              for key in preflight["slates"]]
+    if set(slates) != set(expected_by_slate):
         raise RuntimeError("selector-stability slate population differs")
+    source_map = {
+        (str(row["panel_run_id"]), int(row["season"]), int(row["week"])): row
+        for row in preflight["artifacts"]
+    }
 
     records = []
     artifact_receipts = []
@@ -181,18 +180,17 @@ def run(output_uri: str, frequency_uri: str) -> dict[str, Any]:
                 & sources.season.astype(int).eq(season)
                 & sources.week.astype(int).eq(week)
             ].copy()
-            uris = group.score_artifact_uri.astype(str).unique()
-            digests = group.score_artifact_sha256.astype(str).unique()
-            if group.empty or len(uris) != 1 or len(digests) != 1:
-                raise RuntimeError("selector-stability artifact identity differs")
-            artifact, receipt = _download_artifact(gcs, uris[0], digests[0])
+            source = source_map[(panel_id, season, week)]
+            artifact, receipt = _download_artifact(
+                gcs, str(source["uri"]), str(source["sha256"]),
+            )
             books[f"R{seed}"] = _candidate_batch(group, artifact, catalog)
             artifact_receipts.append({
                 "seed": seed,
                 "panel_run_id": panel_id,
                 "season": season,
                 "week": week,
-                "candidate_rows": len(group),
+                "candidate_rows": int(source["source_rows"]),
                 **receipt,
             })
 
@@ -262,8 +260,13 @@ def run(output_uri: str, frequency_uri: str) -> dict[str, Any]:
         "image": image,
         "protocol_sha256": PROTOCOL_SHA256,
         "cbwu_oi_scorefree_report_sha256": CBWU_REPORT_SHA256,
+        "local_source_receipts": local_receipts,
         "forensic_manifest_sha256": FORENSIC_MANIFEST_SHA256,
         "source_panels": list(SOURCE_PANEL_IDS),
+        "source_preflight": {
+            key: preflight[key]
+            for key in ("panel_ids", "slates", "slate_count", "artifact_count")
+        },
         "source_artifacts": artifact_receipts,
         "uses_realized_outcomes": False,
         "candidate_or_lineup_scores_read": False,

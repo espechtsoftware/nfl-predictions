@@ -49,7 +49,6 @@ SELECT panel_run_id, season, week, cand_ix, tag, all_tags, players,
        score_artifact_uri, score_artifact_sha256
 FROM `{SOURCE_TABLE}`
 WHERE panel_run_id IN UNNEST(@panel_ids)
-  AND labels_complete
 ORDER BY panel_run_id, season, week, cand_ix
 """
 PLAYER_SQL = f"""
@@ -61,7 +60,7 @@ ORDER BY season, week, player_id
 """
 FORBIDDEN_QUERY_TOKENS = (
     "actual_score", "actual_rank", "actual_ownership", "selected_rank",
-    "selected", "payout", "contest_rank",
+    "selected", "payout", "contest_rank", "labels_complete",
 )
 
 

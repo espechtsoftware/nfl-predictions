@@ -103,6 +103,8 @@ def test_complete_diagnostic_exactly_solves_only_ranking_union(monkeypatch):
     assert report["attainable_exact"]["mean_exact_legal_optimum"] > (
         report["incumbent_exact"]["mean_exact_legal_optimum"]
     )
+    assert report["incumbent_exact"]["unique_player_pairs"] > 0
+    assert report["attainable_exact"]["unique_player_pairs"] > 0
     assert report["uses_realized_outcomes"] is False
     assert set(report["proxy_diagnostics"]["top_world_overlap"]) == {
         "8", "20", "40",

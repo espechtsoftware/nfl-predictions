@@ -129,6 +129,21 @@ def test_protocol_and_runner_are_outcome_free():
     assert "actual_score" not in query
     assert "actual_ownership" not in query
     assert "if_generation_match=0" in runner
+    assert "resolve_panel_artifacts" in runner
+    assert '"source_preflight"' in runner
+    seed_runner = (root / "scripts/run_cbwu_seed_order_audit.py").read_text()
+    source_query = seed_runner.split("SOURCE_SQL =", 1)[1].split(
+        'PLAYER_SQL =', 1,
+    )[0]
+    assert "labels_complete" not in source_query
+    assert '"labels_complete"' in seed_runner
     launcher = (root / "scripts/cloud_cbwu_oi_selector_stability.sh").read_text()
+    assert "strict ATLAS harvest must precede selector stability" in launcher
     assert "bootstrap_resamples=32" in launcher
     assert "uses_realized_outcomes=false" in launcher
+    finisher = (
+        root / "scripts/cloud_finish_cbwu_oi_selector_stability.sh"
+    ).read_text()
+    assert "execution.json" in finisher
+    assert 'row.get("type") == "Completed"' in finisher
+    assert "source_preflight" in finisher

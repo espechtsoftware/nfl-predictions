@@ -9,6 +9,7 @@ payouts.
 
 from __future__ import annotations
 
+from itertools import combinations
 from typing import Mapping, Sequence
 
 import numpy as np
@@ -245,11 +246,17 @@ def complete_world_ranking_diagnostic(
         rosters = {tuple(exact[world]["roster"]) for world in worlds}
         cores = {tuple(exact[world]["qb_stack_core"]) for world in worlds}
         games = {exact[world]["dominant_game"] for world in worlds}
+        pairs = {
+            pair
+            for roster in rosters
+            for pair in combinations(roster, 2)
+        }
         return {
             "mean_exact_legal_optimum": float(scores.mean()),
             "median_exact_legal_optimum": float(np.median(scores)),
             "q25_exact_legal_optimum": float(np.quantile(scores, 0.25)),
             "unique_exact_rosters": len(rosters),
+            "unique_player_pairs": len(pairs),
             "unique_qb_stack_cores": len(cores),
             "unique_dominant_games": len(games - {""}),
         }

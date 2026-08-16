@@ -139,6 +139,10 @@ def test_transfer_runner_is_packaged_and_scorefree_source_bound():
     assert '"labels_complete"' in runner
     assert "candidate_or_lineup_scores_read" in runner
     assert "production_change_licensed" in runner
+    assert "LAW_SEPARATION_AMENDMENT_SHA256" in runner
+    assert "_combination_reach_summary" in runner
+    assert '"transfer_disposition"' in runner
+    assert '"effect_may_be_law_dependent": True' in runner
     assert "COPY scripts/run_atlas_money_transfer.py" in docker
 
 
@@ -152,9 +156,12 @@ def test_transfer_cloud_contract_is_create_only_and_strictly_harvested():
     assert "--memory 32Gi" in launch
     assert "--max-retries 0" in launch
     assert "ACQUISITION_MANIFEST_SHA256" in launch
+    assert "LAW_SEPARATION_AMENDMENT_SHA256" in launch
     assert 'row.get("type") == "Completed"' in finish
     assert 'container.get("image") != manifest.get("image")' in finish
     assert 'preflight.get("artifact_count") != 270' in finish
     assert 'gate.get("passes_part_a_transfer")' in finish
     assert 'sum(paired.values()) != 10800' in finish
+    assert "transfer mechanical/effect disposition differs" in finish
+    assert "transfer combination-reach output differs" in finish
     assert "production_change_licensed" in finish

@@ -23,11 +23,13 @@ aims to:
 3. enumerate several near-optimal, interaction-diverse lineups from each
    chosen world rather than taking one optimizer vertex.
 
-Only the first premise is running now as a score-free diagnostic. It does not
+The first premise has now passed its frozen score-free diagnostic. It did not
 read actual fantasy scores, choose a historical winner, score an exact-80
-book, or change production. If that premise survives its frozen falsifier, the
-next step is the fixed 8-cluster by 5-lineup ATLAS MVP and then a pre-lock 2026
-shadow.
+book, or change production. Because the source worlds used the finite-K plus
+SIS-ASOE Phase S law, the next required step is the already-frozen outcome-free
+transfer under the current production-multinomial money law. A transfer pass
+would license the fixed 8-cluster by 5-lineup ATLAS MVP and a pre-lock 2026
+shadow; it still would not directly license production adoption.
 
 ## Why the project prioritized it
 
@@ -176,7 +178,7 @@ improvement in candidate C concentrated around 194--210, with no assumed 220+
 gain; the complete 240/230/220/210/200/194/187 grid and standing tail-first
 law remain unchanged.
 
-## Current implementation and cloud status
+## Score-free result and current implementation status
 
 - Core diagnostic: `src/nfl_dfs/analysis/atlas_world_ranking.py`
 - Immutable runner: `scripts/run_atlas_world_ranking.py`
@@ -196,20 +198,34 @@ source-receipt query. It loaded no source artifact, ran no diagnostic, wrote
 no output, and queried no outcome. The only repair was to qualify the source
 fields; population, metrics and gate were unchanged.
 
-The repaired execution is:
+The repaired execution was:
 
 `atlas-world-ranking-scorefree-v1-l59bt`
 
-It started at `2026-08-15T23:18:39Z` in `us-central1` with 8 vCPU, 32 GiB RAM,
-one task, no retries, and a six-hour timeout. At the preparation time above it
-was still running normally with one active task. No ATLAS scientific result
-exists yet, and ATLAS has produced no scoring or production improvement yet.
-Only a terminal successful execution will be harvested and interpreted.
+It started at `2026-08-15T23:18:39Z` and completed successfully at
+`2026-08-16T00:33:46Z` in `us-central1` with 8 vCPU, 32 GiB RAM, one task, no
+retries, and a six-hour timeout. The strict harvester independently validated
+its execution identity, image, code, source grid and report.
 
-## Planned next steps if the premise survives
+The official all-six falsifier passed. Mean exact legal optimum improved
+`269.8262 -> 282.7017` (`+12.8754`); mean q25 improved
+`261.2042 -> 276.0826` (`+14.8784`); and all five seed means improved by
+`+12.6841` to `+13.1262`. Unique-roster, QB-stack-core and dominant-game
+ratios were `1.0000`, `1.0044` and `0.9464`, all above the frozen `0.80`
+floor. Thus Part-A quality, raw structure and the official combined result all
+pass under finite-K + SIS-ASOE Phase S.
 
-1. Strictly harvest and independently verify the score-free report.
-2. Implement the fixed 8-by-5 near-optimal pair-coverage MVP; do not sweep
+This is strong evidence for the ranking premise under that research law, but
+it is not a scoring or production improvement. The current-money transfer is
+still required. Complete interpretation and immutable receipts are in
+`reports/2026-08-15-atlas-scorefree-result.md`.
+
+## Planned next steps
+
+1. Acquire five independent production-multinomial player-world blocks and
+   run the preregistered current-money transfer without changing parameters.
+2. If Part-A quality transfers, implement the fixed 8-by-5 near-optimal
+   pair-coverage MVP; do not sweep
    clustering counts, tolerance, weights, or quotas against outcomes.
 3. Validate exact candidate-count parity, legal rosters, uniqueness, pair/
    triple and stack-core coverage, effective rank, overlap, and held-out

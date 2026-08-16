@@ -58,6 +58,8 @@ expected_env = {
     "CODE_SHA": manifest.get("code_sha"),
     "ANALYSIS_IMAGE": manifest.get("image"),
     "PROTOCOL_SHA256": manifest.get("protocol_sha256"),
+    "LAW_SEPARATION_AMENDMENT_SHA256": manifest.get(
+        "law_separation_amendment_sha256"),
     "ACQUISITION_MANIFEST_SHA256": manifest.get(
         "acquisition_manifest_sha256"),
     "SOURCE_GRID_SHA256": manifest.get("source_grid_sha256"),
@@ -95,7 +97,9 @@ manifest = dict(
 if report.get("version") != "atlas-current-money-transfer-v1" or \
         report.get("code_sha") != manifest.get("code_sha") or \
         report.get("image") != manifest.get("image") or \
-        report.get("protocol_sha256") != manifest.get("protocol_sha256"):
+        report.get("protocol_sha256") != manifest.get("protocol_sha256") or \
+        report.get("law_separation_amendment_sha256") != \
+        manifest.get("law_separation_amendment_sha256"):
     raise SystemExit("ABORT: transfer report identity differs")
 if report.get("uses_realized_outcomes") is not False or \
         report.get("candidate_or_lineup_scores_read") is not False or \
@@ -114,6 +118,8 @@ if report.get("source_panels") != expected_panels or \
 local = report.get("local_source_receipts", {})
 expected_local = {
     "protocol": manifest.get("protocol_sha256"),
+    "law_separation_amendment": manifest.get(
+        "law_separation_amendment_sha256"),
     "acquisition_manifest": manifest.get("acquisition_manifest_sha256"),
     "source_grid": manifest.get("source_grid_sha256"),
     "acquisition_complete": manifest.get("acquisition_complete_sha256"),
@@ -121,6 +127,20 @@ expected_local = {
 }
 if local != expected_local:
     raise SystemExit("ABORT: transfer source receipts differ")
+law = report.get("law_separation", {})
+reference = law.get("reference_measurement_law", {})
+target = law.get("target_measurement_law", {})
+if reference != {
+    "usage_allocation": "finite-dirichlet",
+    "dirichlet_k": 28.154043586960896,
+    "sis_asoe_rank_transport": True,
+} or target != {
+    "game_mode": "possession", "team_factors": True,
+    "usage_allocation": "production-multinomial",
+    "game_sim_usage_env": "", "dirichlet_k": None,
+    "td_ledger": False,
+} or law.get("effect_may_be_law_dependent") is not True:
+    raise SystemExit("ABORT: transfer measurement-law receipt differs")
 gate = report.get("gate", {})
 conditions = gate.get("conditions", {})
 quality = gate.get("quality_conditions", {})
@@ -141,6 +161,16 @@ if gate.get("version") != "atlas-current-money-transfer-gate-v1" or \
         gate.get("passes_part_a_transfer") is not all(quality.values()) or \
         gate.get("passes_original_all_six") is not all(conditions.values()):
     raise SystemExit("ABORT: transfer gate contract differs")
+disposition = report.get("transfer_disposition", {})
+mechanical = disposition.get("mechanical", {})
+effect = disposition.get("effect", {})
+if mechanical.get("passes") is not True or \
+        len(mechanical.get("conditions", {})) != 6 or \
+        not all(mechanical["conditions"].values()) or \
+        effect.get("evaluated") is not True or \
+        effect.get("passes") is not gate.get("passes_part_a_transfer") or \
+        effect.get("conditions") != quality:
+    raise SystemExit("ABORT: transfer mechanical/effect disposition differs")
 summary = report.get("proxy_summary", {})
 numeric = [
     gate.get("aggregate_mean_delta"), gate.get("aggregate_q25_delta"),
@@ -152,6 +182,21 @@ numeric.extend(gate.get("per_seed_mean_delta", {}).values())
 numeric.extend(gate.get("mean_diversity_ratios", {}).values())
 numeric.extend(summary.get("mean_top_world_overlap", {}).values())
 numeric.extend(summary.get("mean_cutoff_ties", {}).values())
+reach = report.get("combination_reach", {})
+if set(reach) != {"unique_player_pairs", "unique_qb_stack_cores"}:
+    raise SystemExit("ABORT: transfer combination-reach output differs")
+for metric in reach.values():
+    if metric.get("gating") is not False or set(metric) != {
+        "incumbent", "attainable", "attainable_to_incumbent_ratio", "gating",
+    }:
+        raise SystemExit("ABORT: transfer combination-reach contract differs")
+    for distribution in (
+        metric["incumbent"], metric["attainable"],
+        metric["attainable_to_incumbent_ratio"],
+    ):
+        if set(distribution) != {"mean", "q10", "median", "minimum", "maximum"}:
+            raise SystemExit("ABORT: transfer reach distribution differs")
+        numeric.extend(distribution.values())
 if len(gate.get("per_seed_mean_delta", {})) != 5 or \
         not all(math.isfinite(float(value)) for value in numeric):
     raise SystemExit("ABORT: transfer metrics are invalid")

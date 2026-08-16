@@ -20,9 +20,56 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 19:31 CDT
+## Current state — 2026-08-15 19:52 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
+
+- Branch is `main`; this milestone starts from pushed commit `029cf0525d90a2319376482fb2bda3fde2e39232`.
+  ATLAS execution `atlas-world-ranking-scorefree-v1-l59bt` completed cleanly at
+  `2026-08-16T00:33:46.605244Z` and passed the strengthened strict harvester.
+  The frozen finite-K + SIS-ASOE Phase S result passes all six conditions:
+  mean exact legal optimum `269.8262 -> 282.7017` (`+12.8754`), mean q25
+  `261.2042 -> 276.0826` (`+14.8784`), all five seed means improve
+  (`+12.6841` to `+13.1262`), and roster/core/game diversity ratios are
+  `1.0000/1.0044/0.9464`. This is a strong law-specific Part-A premise pass,
+  not a historical score or production gain. Immutable evidence is under
+  `reports/atlas-world-ranking-runs/20260815-atlas-world-ranking-scorefree-v1-repair1/`;
+  report SHA is
+  `014fbddb3b846ec84bea5fe05cafc5da66b9cd82ac44d80ee77c44f9f0a29119`
+  and execution SHA is
+  `76f7082c6dc848cd1ff846026deb49300e68cf497c8e300f8017e4638f8fc49c`.
+  The interpretation is
+  `reports/2026-08-15-atlas-scorefree-result.md`. Proceed to exact current-money
+  transfer; do not adopt ATLAS from this result.
+- The supplied ATLAS law-separation review is reconciled at
+  `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
+  CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
+  Phase S artifacts, but their C and attainable-world endpoints remain
+  non-comparable. The future common production-law causal contrast is P2
+  versus P1. A simulation-law ledger and pre-transfer reporting-only amendment
+  now require separately labeled mechanical/effect dispositions, state the
+  law-dependence prior, and keep player-pair/QB-stack-core reach prominent but
+  non-gating. The original Part-A thresholds do not change. Phase S post-result
+  pair reach is `1203.25 -> 1172.11` (ratio `0.9742`) while core reach is
+  `38.83 -> 38.97` (ratio `1.0044`). The money transfer analyzer and strict
+  harvester now bind the amendment and report the same distributions.
+- A read-only score-free population audit found the shared selector/exact-N
+  query's `labels_complete` predicate was unnecessary outcome-derived
+  metadata. All 68,493 rows across the five panels are complete and every one
+  of 270 panel/slate cells has exact total/complete parity, so removing the
+  predicate changes no source row or artifact. It is now a forbidden query
+  token. Selector stability uses the shared five-by-54 artifact preflight; its
+  strict finisher binds execution metadata and independently validates the
+  compressed frequency artifact. Exact-N now also retains and binds execution
+  metadata. The old validated selector/exact-N digests contain the predicate
+  and are superseded for launch only; their historical validation remains
+  true. Full details are in
+  `reports/2026-08-15-scorefree-source-population-repair.md`. Forty-eight
+  focused tests pass, Python compilation, four shell syntax checks and
+  `git diff --check` pass. Commit/push this milestone, run one full
+  clean-archive Cloud Build, then launch selector stability from only the new
+  validated digest. Exact-N follows selector stability. Production-law ATLAS
+  acquisition may begin after compute/quota is checked.
 
 - The required outcome-free production-law ATLAS transfer is frozen before
   the Phase S result at

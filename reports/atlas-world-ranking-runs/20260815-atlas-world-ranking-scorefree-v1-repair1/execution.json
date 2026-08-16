@@ -1,0 +1,112 @@
+{
+  "apiVersion": "run.googleapis.com/v1",
+  "kind": "Execution",
+  "metadata": {
+    "annotations": {
+      "run.googleapis.com/client-name": "gcloud",
+      "run.googleapis.com/client-version": "579.0.0",
+      "run.googleapis.com/creator": "espechtsoftware@gmail.com",
+      "run.googleapis.com/execution-environment": "gen2",
+      "run.googleapis.com/lastModifier": "espechtsoftware@gmail.com",
+      "run.googleapis.com/operation-id": "ffd6d011-ad8d-43c3-9e02-e14fadcd6d95"
+    },
+    "creationTimestamp": "2026-08-15T23:18:06.285539Z",
+    "generation": 1,
+    "labels": {
+      "client.knative.dev/nonce": "rox_tih_mar",
+      "cloud.googleapis.com/location": "us-central1",
+      "run.googleapis.com/job": "atlas-world-ranking-scorefree-v1",
+      "run.googleapis.com/jobGeneration": "2",
+      "run.googleapis.com/jobResourceVersion": "1786835883956700",
+      "run.googleapis.com/jobUid": "05199c90-4dde-44b2-8cf2-434ddade5450"
+    },
+    "name": "atlas-world-ranking-scorefree-v1-l59bt",
+    "namespace": "817589974517",
+    "ownerReferences": [
+      {
+        "apiVersion": "serving.knative.dev/v1",
+        "blockOwnerDeletion": true,
+        "controller": true,
+        "kind": "Job",
+        "name": "atlas-world-ranking-scorefree-v1",
+        "uid": "05199c90-4dde-44b2-8cf2-434ddade5450"
+      }
+    ],
+    "resourceVersion": "AAZZHzTyB5U",
+    "selfLink": "/apis/run.googleapis.com/v1/namespaces/817589974517/executions/atlas-world-ranking-scorefree-v1-l59bt",
+    "uid": "5e07faa0-a0d0-42c8-a3d0-a8482540fcdd"
+  },
+  "spec": {
+    "parallelism": 1,
+    "taskCount": 1,
+    "template": {
+      "spec": {
+        "containers": [
+          {
+            "args": [
+              "scripts/run_atlas_world_ranking.py",
+              "--output-uri",
+              "gs://nfl-predictions-503414-raw/research/final-forensic-runs/20260814-final-preseason-forensic-v1/post-forensic-addenda/20260815-atlas-world-ranking-scorefree-v1/result.json"
+            ],
+            "command": [
+              "python"
+            ],
+            "env": [
+              {
+                "name": "CODE_SHA",
+                "value": "81b5c6e97c519babb8d7bb711c915ca70a2a51ba"
+              },
+              {
+                "name": "ANALYSIS_IMAGE",
+                "value": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ac5d31bba3fa300301bf5a08d694f384f1cc16c2f232109f61f200b0c7768549"
+              }
+            ],
+            "image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ac5d31bba3fa300301bf5a08d694f384f1cc16c2f232109f61f200b0c7768549",
+            "resources": {
+              "limits": {
+                "cpu": "8",
+                "memory": "32Gi"
+              }
+            }
+          }
+        ],
+        "maxRetries": 0,
+        "serviceAccountName": "817589974517-compute@developer.gserviceaccount.com",
+        "timeoutSeconds": "21600"
+      }
+    }
+  },
+  "status": {
+    "completionTime": "2026-08-16T00:33:46.605244Z",
+    "conditions": [
+      {
+        "lastTransitionTime": "2026-08-16T00:33:46.605244Z",
+        "message": "Execution completed successfully in 1h15m7.14s.",
+        "status": "True",
+        "type": "Completed"
+      },
+      {
+        "lastTransitionTime": "2026-08-15T23:18:31.195212Z",
+        "message": "Provisioned imported containers.",
+        "status": "True",
+        "type": "ResourcesAvailable"
+      },
+      {
+        "lastTransitionTime": "2026-08-15T23:19:36.443474Z",
+        "message": "Started deployed execution in 1m5.24s.",
+        "status": "True",
+        "type": "Started"
+      },
+      {
+        "lastTransitionTime": "2026-08-15T23:18:31.097993Z",
+        "message": "Imported container image in 24.81s.",
+        "status": "True",
+        "type": "ContainerReady"
+      }
+    ],
+    "logUri": "https://console.cloud.google.com/logs/viewer?project=nfl-predictions-503414&advancedFilter=resource.type%3D%22cloud_run_job%22%0Aresource.labels.job_name%3D%22atlas-world-ranking-scorefree-v1%22%0Aresource.labels.location%3D%22us-central1%22%0Alabels.%22run.googleapis.com/execution_name%22%3D%22atlas-world-ranking-scorefree-v1-l59bt%22",
+    "observedGeneration": 1,
+    "startTime": "2026-08-15T23:18:39.455508Z",
+    "succeededCount": 1
+  }
+}
