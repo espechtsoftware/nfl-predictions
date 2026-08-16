@@ -1,4 +1,5 @@
 import math
+from hashlib import sha256
 from pathlib import Path
 import sys
 
@@ -283,3 +284,23 @@ def test_historical_cloud_contract_requires_repair4_strict_harvest():
     assert len(HIGH_TAIL_GUARD_AMENDMENT_SHA256) == 64
     assert "repair4_upstream_amendment_sha256" in launcher
     assert "repair4_upstream_amendment_sha256" in finisher
+
+
+def test_repair5_historical_rebind_is_frozen_before_upstream_result():
+    amendment = (
+        ROOT
+        / "reports/2026-08-16-atlas-historical-score-repair5-upstream-amendment.md"
+    )
+    assert amendment.is_file()
+    assert sha256(amendment.read_bytes()).hexdigest() == (
+        "f5b43fd7a6c76c2296727152d55a9d87fb75809ac09367f31d3fc573879b0f11"
+    )
+    text = amendment.read_text(encoding="utf-8")
+    assert "before repair5 was licensed or launched" in text
+    assert "20260816-atlas-matched-diversity-mvp-v1-repair5" in text
+    assert "20260816-atlas-historical-score-diagnostic-v3" in text
+    assert "8 CPU, 32 GiB, zero retries" in text
+    assert "whether the score-free gate passes or fails" in text
+    assert "210, 220, 230 or 240" in text
+    assert "continuous-interaction fallback" in text
+    assert "is excluded from this upstream" in text

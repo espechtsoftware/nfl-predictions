@@ -911,6 +911,23 @@ agent or developer:
   identities and outcome data. Twenty focused parity/repair5/historical tests,
   Python compilation, both shell syntax checks and diff checks pass. Do not
   invoke this fallback unless the live binary preflight strictly fails.
+  Before repair5 was licensed/launched or any repair5 effect existed, its
+  downstream historical handoff was separately frozen at
+  `reports/2026-08-16-atlas-historical-score-repair5-upstream-amendment.md`,
+  SHA-256
+  `f5b43fd7a6c76c2296727152d55a9d87fb75809ac09367f31d3fc573879b0f11`.
+  It is inert unless repair5 has a complete valid 54-cell strict harvest, then
+  requires new create-only historical identity
+  `20260816-atlas-historical-score-diagnostic-v3` and byte-for-byte bindings
+  to its exact future ledger, 54 shard generations/hashes, 54 execution
+  records, season reports, aggregate, protocol, launcher and finisher. A valid
+  repair5 grid releases historical scoring regardless of whether its score-
+  free gate passes, preventing effect-selected disclosure. The score law stays
+  fixed at +2 selected weeks at 200, nondecline at selected 210/220/230/240,
+  candidate nondecline at 200 and complete mechanical validity. Repair4 and
+  continuous cells are explicitly forbidden from that upstream. Twenty-one
+  focused parity/repair5/historical tests pass. Do not implement dynamic v3
+  hashes or launch the scorer until a complete repair5 strict harvest exists.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).
