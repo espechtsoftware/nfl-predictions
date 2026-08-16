@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 18:47 CDT
+## Current state — 2026-08-16 18:58 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -1183,16 +1183,18 @@ agent or developer:
   superseding exact-archive build before launch.
   The handoff-only correction commits after that code are pushed through
   `f1e344bd1395d64ea5b530c2fb22c87bd402c902`. Superseding exact-archive
-  Cloud Build `df158df9-ef83-4555-b5ea-0e254a7ea0bd` is running under
-  create-only tag `constraint-support-f1e344b`. Tracked
-  `scripts/watch_constraint_lattice_support_queue.sh` is running in managed
-  terminal session `6539`: after that build succeeds and the independent ATLAS
-  queue strictly closes, it launches the support real-path canary, releases
-  the other 53 only on canary success, resolves the frozen attempt law,
-  strictly harvests the census, and launches/finishes the 2023 Week 1 resource
-  preflight only if p230 receives the original support disposition. It stops
-  before scientific treatment; a p220/p210 support result also stops for a new
-  prospective gate amendment.
+  Cloud Build `df158df9-ef83-4555-b5ea-0e254a7ea0bd` under create-only tag
+  `constraint-support-f1e344b` failed in the full-test step before building or
+  publishing an image. The complete suite had 1,665 passes, 2 skips and one
+  failure: NumPy 2.4.6 returned the mathematically equivalent floating result
+  `54.00000000000004` for effective slates while the synthetic regression
+  asserted literal `54.0`. No scientific code, threshold or report value was
+  wrong. The assertion now uses `math.isclose`; the exact failed test plus the
+  five new stack-core/shell tests pass locally. Managed support watcher session
+  `6539` exited safely with code 2 on the build failure and launched no canary,
+  support or treatment execution. Submit a superseding clean-archive build
+  from the new exact source commit and restart the watcher with that immutable
+  build/image identity; do not use failed build `df158...` as evidence.
   Resource harvesting is additionally fail-closed and terminal-complete at
   pushed commit `6452d18813994d575718767ed57593ddd5951e95`. The finisher now
   durably receipts strict success, configured-memory/SIGKILL failure, literal
@@ -1204,10 +1206,32 @@ agent or developer:
   lattice support/execution tests pass, the finisher passes `bash -n`, and
   `git diff --check` passes. This local harvester change is not container code
   and does not invalidate the already-running exact-image build.
-  At `2026-08-16T23:30Z`, ATLAS preflight
+  At `2026-08-16T23:58Z`, ATLAS preflight
   `atlas-cbc-32g-full-2023-w8-v1-lbzjd` remains `Completed=Unknown` with one
   running task. The tracked managed watcher session `40372` remains silent and
   waiting; no preflight shard/effect has been opened.
+  Independently, the repeated-solve ATLAS resource failures have activated the
+  already-queued stack-core x shell fallback. Before implementation or any
+  treatment existed, protocol
+  `reports/2026-08-16-stack-core-shell-scorefree-protocol.md` was frozen at
+  SHA-256
+  `edd13697fd3d7fc787d159c74d6e8280bf1b51517dcdbacc8337011a01cd5d46`.
+  It uses the immutable production-multinomial R0--R4 money-world artifacts,
+  train-four/test-one folds and its own treatment-free support census. The
+  pure implementation builds an exact 32-core/128-shell library, crosses only
+  incumbent-strict components, keeps a fixed 256 candidate beam, selects
+  exactly 40 interaction-expanding proposals, and makes those proposals
+  compete with control for the same final candidate budget before the
+  unchanged exact-80 selector. It records both candidate and selected held-out
+  threshold grids, structure/effective rank, complete identities,
+  contribution vectors and leave-one-slate-out stability. The support anchor
+  is prospectively limited to the first adequately supported 230/220/210
+  value; the mechanism cannot be combined with ATLAS or the constraint sleeve.
+  Five synthetic construction/gate tests pass along with the corrected lattice
+  test, Python compilation and diff checks. This milestone is pushed in code
+  commit `8ca753840ef5dcd04a3fba658a9c35fd371050a1`; it still needs an immutable
+  source runner, control-only support runner/aggregator, launcher and strict
+  finisher before any Cloud execution.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).
