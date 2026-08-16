@@ -438,6 +438,11 @@ launch manifest/ledger, strict shard manifests and the three assembled season
 objects plus aggregate. No score, roster, selector, threshold, gate or
 consequence changes. A new immutable scorer image is required from the repair
 commit before the outcome-facing diagnostic launches.
+The repair is pushed at exact source commit
+`4cd8803c2022d86ea669ed13399554eabe93673c`; clean-archive Cloud Build
+`eee87dbf-3f8d-4d74-83c9-dcc28c855685` is the sole superseding scorer build.
+It must pass the complete suite and both container smokes before its immutable
+digest is eligible.
 
 ## Evidence firewall for reviewers
 

@@ -396,6 +396,13 @@ agent or developer:
   repair2 run. At the audit poll all 54 shard executions had acquired one
   running task, no ERROR logs existed and no seed/slate completion marker had
   yet appeared. Continue polling while the superseding scorer image builds.
+  The repair is committed and pushed on `main` at exact source
+  `4cd8803c2022d86ea669ed13399554eabe93673c`. Superseding clean-archive
+  Cloud Build `eee87dbf-3f8d-4d74-83c9-dcc28c855685` was submitted from that
+  exact commit under tag `atlas-historical-score-repair2-4cd8803`; require the
+  complete suite and both container smokes, then resolve and use only its
+  immutable digest. At submission it was queued while all 54 shard tasks were
+  running cleanly with no seed/slate marker or ERROR log.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
