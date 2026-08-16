@@ -494,6 +494,11 @@ They permit only identical R0-prefix diagnostics for the two failed cells,
 with all lineups discarded and only native CBC/MPS mechanical evidence
 persisted. Repair3 remains unfrozen until both diagnostic receipts are strictly
 harvested.
+The exact diagnostics are running as
+`atlas-cbc-diag-2024-w15-v1-qdssb` and
+`atlas-cbc-diag-2024-w16-v1-89fq4`; their manifest and execution-ledger hashes
+are `d04a31dec0a9ee4ac4889def0bc2d618024e274550907935a9eac42bd4a2301f`
+and `2421e6ae9c8849ab044959576f750954066c201e694e908dc0d27fbc0ba68924`.
 
 ## Evidence firewall for reviewers
 

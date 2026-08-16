@@ -1,0 +1,2 @@
+2024 15 atlas-cbc-diag-2024-w15-v1 atlas-cbc-diag-2024-w15-v1-qdssb gs://nfl-predictions-503414-raw/research/atlas-cbc-native-diagnostic-runs/20260816-atlas-cbc-native-diagnostic-v1/season-2024-week-15
+2024 16 atlas-cbc-diag-2024-w16-v1 atlas-cbc-diag-2024-w16-v1-89fq4 gs://nfl-predictions-503414-raw/research/atlas-cbc-native-diagnostic-runs/20260816-atlas-cbc-native-diagnostic-v1/season-2024-week-16

@@ -496,6 +496,15 @@ agent or developer:
   and push these sources before launch; then run the two diagnostics, wait for
   both terminal states and invoke only the strict finisher before choosing
   repair3.
+  That diagnostic milestone is pushed at
+  `38702fd17e8efe947404cca19f2092c293609f92`. The two durable executions are
+  `atlas-cbc-diag-2024-w15-v1-qdssb` and
+  `atlas-cbc-diag-2024-w16-v1-89fq4`; manifest/execution-ledger SHA-256 values
+  are `d04a31dec0a9ee4ac4889def0bc2d618024e274550907935a9eac42bd4a2301f`
+  and `2421e6ae9c8849ab044959576f750954066c201e694e908dc0d27fbc0ba68924`.
+  Both are provisioned and nonterminal. Poll the exact pair without inspecting
+  partial artifacts; after both are terminal invoke only the strict diagnostic
+  finisher.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
