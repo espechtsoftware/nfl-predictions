@@ -20,11 +20,11 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 21:34 CDT
+## Current state — 2026-08-15 21:36 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
-- Branch is `main`; this milestone starts from pushed commit `20cbb214628891f89a10d5a81687ab42ca1c7502`.
+- Branch is `main`; this milestone starts from pushed commit `d1b67b1`.
   ATLAS execution `atlas-world-ranking-scorefree-v1-l59bt` completed cleanly at
   `2026-08-16T00:33:46.605244Z` and passed the strengthened strict harvester.
   The frozen finite-K + SIS-ASOE Phase S result passes all six conditions:
@@ -147,8 +147,13 @@ agent or developer:
   `b18216ca8900b54381c3f5ed5031442143f2d5e1ee38c6ae193e2f5dfbc6bac0`,
   `ee73688bfe5662c94b6886ea5f90b3cfc87a5b7a038ada5511f48a260ea01377`
   and `eb88e6f35226034907869397c6efc9f25e09cb3173a3e40bbcfc952f87d74348`.
-  Commit/push these receipts, then build a new clean-archive full-validated
-  image so the transfer analyzer contains the immutable harvested sources.
+  The receipts are committed and pushed in `d1b67b1`. Exact clean-archive
+  full-test Cloud Build `5106f00d-f58b-41f7-bbe0-e00be6497e08` is running
+  from that exact commit and targets tag `atlas-money-transfer-d1b67b1` so
+  the transfer analyzer image contains the immutable harvested sources. Poll
+  it to terminal success, record the full test result and immutable digest,
+  then launch the frozen transfer analyzer from only that digest and exact
+  code SHA.
   Future exact solves now use two passes:
   retain the primary optimum within `1e-6`, then
   minimize stable player-identity rank after sorting input rows. Transfer
