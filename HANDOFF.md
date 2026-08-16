@@ -52,12 +52,15 @@ agent or developer:
   `Completed=Unknown`, `runningCount=1` and no result. Continue polling and
   invoke only `scripts/cloud_finish_atlas_world_ranking.sh` after terminal
   success.
-- Exact clean-archive Cloud Build
-  `8c4ffe7f-1144-4da7-861b-eddfbbf5ffae` is `WORKING` from exact implementation
-  commit `9c09b8c889ddd6e53ea8df1eaf26905b8e7be440` under tag
-  `exact-n-9c09b8c`. Require a successful complete test suite and resolve its
-  immutable digest, but keep launch order ATLAS harvest, paired OI selector
-  stability, then exact-N.
+- Direct clean-archive Docker build
+  `8c4ffe7f-1144-4da7-861b-eddfbbf5ffae` succeeded from exact-N implementation
+  commit `9c09b8c889ddd6e53ea8df1eaf26905b8e7be440`, but it did not execute the
+  repository's full-test Cloud Build configuration and must not be cited as
+  validation. Superseding full clean-archive build
+  `eb7791ad-f3c6-4745-8333-e1c55e127637` is `WORKING` from that exact commit
+  under tag `exact-n-validated-9c09b8c`; require the complete test suite and
+  resolve its immutable digest. Keep launch order ATLAS harvest, paired OI
+  selector stability, then exact-N.
 
 - Exact clean-archive selector-stability Cloud Build
   `1a1abee7-b4ab-4867-a8ce-042caaed70df` completed successfully at
