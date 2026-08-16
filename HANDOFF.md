@@ -1179,7 +1179,7 @@ agent or developer:
   decision. Fifty-five focused ATLAS/lattice tests pass, the affected Python
   modules compile, all six attempt/canary/launch/finish shell scripts pass
   `bash -n`, and `git diff --check` passes. This follow-up is pushed on `main`
-  at exact commit `7a62805abcc5828d275b47904fe03a29a361aa14` and must receive a
+  at exact commit `7a628050caf299868ead47cf1f73e0bcc2dbd597` and must receive a
   superseding exact-archive build before launch.
   At `2026-08-16T23:30Z`, ATLAS preflight
   `atlas-cbc-32g-full-2023-w8-v1-lbzjd` remains `Completed=Unknown` with one
