@@ -20,11 +20,11 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 21:53 CDT
+## Current state — 2026-08-15 21:54 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
-- Branch is `main`; this milestone starts from pushed commit `28a4adc`.
+- Branch is `main`; this milestone starts from pushed commit `ed0313d`.
   ATLAS execution `atlas-world-ranking-scorefree-v1-l59bt` completed cleanly at
   `2026-08-16T00:33:46.605244Z` and passed the strengthened strict harvester.
   The frozen finite-K + SIS-ASOE Phase S result passes all six conditions:
@@ -159,8 +159,13 @@ agent or developer:
   and 5 warnings in 749.02 seconds. Tag `atlas-money-transfer-d1b67b1`
   resolves to immutable digest
   `sha256:b4f39a23a7a6b028bb174c34d5c54d1cf636e5711f87aa156dadf274c0797083`.
-  Launch the frozen transfer analyzer only from that digest and exact image
-  code SHA.
+  Frozen transfer execution `atlas-current-money-transfer-v1-52smn` was
+  launched at 21:54 CDT from that digest and exact image code SHA. Its
+  create-only manifest and execution ID are tracked under
+  `reports/atlas-money-transfer-runs/20260815-atlas-current-money-transfer-v1/`.
+  Poll it to terminal success and invoke only
+  `scripts/cloud_finish_atlas_money_transfer.sh`; do not read or interpret a
+  partial output.
   Future exact solves now use two passes:
   retain the primary optimum within `1e-6`, then
   minimize stable player-identity rank after sorting input rows. Transfer
