@@ -1178,8 +1178,9 @@ agent or developer:
   frozen >=540-event and >=41/54-positive-slate law remains the only support
   decision. Fifty-five focused ATLAS/lattice tests pass, the affected Python
   modules compile, all six attempt/canary/launch/finish shell scripts pass
-  `bash -n`, and `git diff --check` passes. This follow-up is still local at
-  this line and must be committed, pushed and rebuilt before launch.
+  `bash -n`, and `git diff --check` passes. This follow-up is pushed on `main`
+  at exact commit `7a62805abcc5828d275b47904fe03a29a361aa14` and must receive a
+  superseding exact-archive build before launch.
   At `2026-08-16T23:30Z`, ATLAS preflight
   `atlas-cbc-32g-full-2023-w8-v1-lbzjd` remains `Completed=Unknown` with one
   running task. The tracked managed watcher session `40372` remains silent and
