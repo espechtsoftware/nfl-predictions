@@ -1,0 +1,1 @@
+2023 8 atlas-cbc-32g-full-2023-w8-v1 atlas-cbc-32g-full-2023-w8-v1-lbzjd gs://nfl-predictions-503414-raw/research/atlas-cbc-32g-full-cell-preflight-runs/20260816-atlas-cbc-32g-full-cell-preflight-v1/slate-2023-8.json

@@ -767,6 +767,17 @@ agent or developer:
   finisher are `scripts/cloud_atlas_cbc_32g_full_cell_preflight.sh` and
   `scripts/cloud_finish_atlas_cbc_32g_full_cell_preflight.sh`. Commit/push them,
   then launch the preflight while repair4 continues to terminal census.
+  The preflight is now exact Cloud Run execution
+  `atlas-cbc-32g-full-2023-w8-v1-lbzjd`. Its manifest, execution-ledger,
+  repair4-failure-metadata and launch-ledger SHA-256 values are
+  `ad79e5cd11cf848b14255ee914c277b7ce2a56e0a59540ba0b7ea42a967869e0`,
+  `a90e78b1ea1e4b261b370317eedd086a2324cc538fdbec069404c0c9a543f209`,
+  `b86e36a68600b5ced0dae7cc2c70141686fb96375c04c81d768c3a03a11fd3af`
+  and `72b26bcb75566329ba127b08d5564c07da08a87df81bfa242875ac921ed21148`.
+  Next concrete action: poll this exact execution and the 54 repair4 identities
+  using terminal metadata only. Strictly harvest the 32-GiB preflight at
+  terminal; let repair4 reach a complete failure census without opening any
+  shard/effect output.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
