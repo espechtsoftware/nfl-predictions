@@ -15,7 +15,7 @@ from typing import Mapping, Sequence
 import numpy as np
 
 from ..backtest.engine import CandidateBatch
-from ..optimizer.lineup import Lineup, StackRules, optimize
+from ..optimizer.lineup import Lineup, StackRules, optimize, select_tail_entries
 
 
 VERSION = "atlas-matched-diversity-mvp-v1"
@@ -27,6 +27,7 @@ LINEUPS_PER_CLUSTER = 5
 N_ATLAS_LINEUPS = N_CLUSTERS * LINEUPS_PER_CLUSTER
 NEAR_OPTIMAL_FRACTION = 0.98
 INTERACTION_TOLERANCE = 1e-9
+TAIL_GRID = (187.0, 194.0, 200.0, 210.0, 220.0, 230.0, 240.0)
 
 Interaction = tuple[str, ...]
 Roster = tuple[str, ...]
@@ -64,6 +65,47 @@ def _structure(lineup: Lineup) -> dict:
         "qb_stack_core": [str(qb["id"]), *catchers, *bring_backs],
         "dominant_game": dominant_game,
     }
+
+
+def _validate_legal_lineup(lineup: Lineup) -> None:
+    players = list(lineup.players)
+    positions = Counter(str(row.get("pos", "")).upper() for row in players)
+    legal_shape = (
+        len(players) == 9 and len(lineup.ids) == 9
+        and positions["QB"] == 1 and positions["DST"] == 1
+        and 2 <= positions["RB"] <= 3
+        and 3 <= positions["WR"] <= 4
+        and 1 <= positions["TE"] <= 2
+    )
+    salary = sum(int(round(float(row.get("salary", 0)))) for row in players)
+    games = {str(row.get("game_id")) for row in players if row.get("game_id")}
+    teams = Counter(str(row.get("team", "")) for row in players)
+    if not legal_shape or not 49_000 <= salary <= 50_000 or len(games) < 2 or \
+            max(teams.values(), default=0) > 8:
+        raise ValueError("ATLAS MVP native lineup is not DK Classic legal")
+    qb = next(row for row in players if str(row.get("pos", "")).upper() == "QB")
+    catchers = sum(
+        str(row.get("team", "")) == str(qb.get("team", ""))
+        and str(row.get("pos", "")).upper() in {"WR", "TE"}
+        for row in players
+    )
+    bring_backs = sum(
+        str(row.get("team", "")) == str(qb.get("opp", ""))
+        and str(row.get("pos", "")).upper() in {"RB", "WR", "TE"}
+        for row in players
+    )
+    rb_teams = [
+        str(row.get("team", "")) for row in players
+        if str(row.get("pos", "")).upper() == "RB"
+    ]
+    dst = next(
+        row for row in players if str(row.get("pos", "")).upper() == "DST"
+    )
+    if catchers < 2 or bring_backs < 1 or len(rb_teams) != len(set(rb_teams)) or \
+            any(str(row.get("pos", "")).upper() == "RB" and
+                str(row.get("team", "")) == str(dst.get("opp", ""))
+                for row in players):
+        raise ValueError("ATLAS MVP native lineup stack constraints differ")
 
 
 def build_structural_clusters(
@@ -211,9 +253,29 @@ def price_native_interactions(
         if {str(value) for value in batch.player_ids} != base_ids or \
                 len(batch.candidates) != np.asarray(batch.candidate_totals).shape[0]:
             raise ValueError("ATLAS MVP native book is misaligned")
+        metadata = {
+            str(player_id): (
+                str(row.get("pos", "")).upper(), str(row.get("team", "")),
+                str(row.get("opp", "")), str(row.get("game_id", "")),
+                int(round(float(row.get("salary", 0)))),
+            )
+            for player_id, row in zip(
+                batch.player_ids, batch.player_rows, strict=True,
+            )
+        }
+        expected_metadata = {
+            player_id: (
+                str(row.get("pos", "")).upper(), str(row.get("team", "")),
+                str(row.get("opp", "")), str(row.get("game_id", "")),
+                int(round(float(row.get("salary", 0)))),
+            ) for player_id, row in player_by_id.items()
+        }
+        if metadata != expected_metadata:
+            raise ValueError("ATLAS MVP native player metadata differs")
         for lineup in batch.candidates:
             if str(lineup.tag) not in REGISTERED_TAGS:
                 raise ValueError("ATLAS MVP native tag is not registered")
+            _validate_legal_lineup(lineup)
             roster = _roster(lineup)
             roster_seeds.setdefault(roster, set()).add(seed)
             interactions = roster_interactions.setdefault(
@@ -269,19 +331,23 @@ def price_native_interactions(
             middle = float((values[1] + values[2]) / 2.0)
             robust[key] = middle
             raw[key] = middle * min(2.0, sqrt(5.0 / appearances[key]))
-        pair_total = sum(raw[key] for key in eligible_pairs if raw[key] > 0.0)
-        triple_total = sum(raw[key] for key in eligible_triples if raw[key] > 0.0)
+        pair_total = sum(
+            raw[key] for key in sorted(eligible_pairs) if raw[key] > 0.0
+        )
+        triple_total = sum(
+            raw[key] for key in sorted(eligible_triples) if raw[key] > 0.0
+        )
         if pair_total <= 0.0:
             raise ValueError("ATLAS MVP positive pair support is empty")
         pair_mass = 1.0 if triple_total <= 0.0 else 0.80
         weights = {
             key: pair_mass * raw[key] / pair_total
-            for key in eligible_pairs if raw[key] > 0.0
+            for key in sorted(eligible_pairs) if raw[key] > 0.0
         }
         if triple_total > 0.0:
             weights.update({
                 key: 0.20 * raw[key] / triple_total
-                for key in eligible_triples if raw[key] > 0.0
+                for key in sorted(eligible_triples) if raw[key] > 0.0
             })
         priced[source] = weights
         receipts[source] = {
@@ -342,10 +408,10 @@ def enumerate_matched_diversity_lineups(
     banned: set[frozenset] = {
         frozenset(roster) for roster in native_nonboom
     } | {frozenset(str(value) for value in roster) for roster in prior_atlas_rosters}
-    weights = {
-        tuple(sorted(str(value) for value in key)): float(value)
+    weights = dict(sorted((
+        (tuple(sorted(str(value) for value in key)), float(value))
         for key, value in interaction_weights.items() if float(value) > 0.0
-    }
+    )))
     covered = {
         key for key in weights if any(set(key) <= set(roster) for roster in native_nonboom)
     }
@@ -403,7 +469,11 @@ def enumerate_matched_diversity_lineups(
                     key: value for key, value in weights.items() if key not in covered
                 }
                 floor = NEAR_OPTIMAL_FRACTION * optimum
-                banned_lineups = list(banned)
+                banned_lineups = [
+                    frozenset(roster) for roster in sorted(
+                        (tuple(sorted(value)) for value in banned),
+                    )
+                ]
                 stage_two = optimize(
                     world_players, stack=stack,
                     objective_col=score_column,
@@ -509,6 +579,10 @@ def replace_native_boom_book(
     nonboom = [lineup for lineup in native.candidates if str(lineup.tag) != "boom"]
     if len(boom) != N_ATLAS_LINEUPS or len(additions) != N_ATLAS_LINEUPS:
         raise ValueError("ATLAS MVP replacement requires exact 40-for-40")
+    for lineup in additions:
+        if str(lineup.tag) != "atlas":
+            raise ValueError("ATLAS MVP addition tag differs")
+        _validate_legal_lineup(lineup)
     candidates = [*nonboom, *additions]
     rosters = [_roster(lineup) for lineup in candidates]
     if len(rosters) != len(set(rosters)) or len(candidates) != len(native.candidates):
@@ -538,3 +612,294 @@ def replace_native_boom_book(
             "uses_realized_outcomes": False,
         },
     )
+
+
+def _book_structure(lineups: Sequence[Lineup]) -> dict:
+    if not lineups:
+        raise ValueError("ATLAS MVP cannot summarize an empty book")
+    rosters = [_roster(lineup) for lineup in lineups]
+    if len(rosters) != len(set(rosters)):
+        raise ValueError("ATLAS MVP summary book repeats rosters")
+    player_counts = Counter(value for roster in rosters for value in roster)
+    total_slots = float(sum(player_counts.values()))
+    proportions = np.asarray(
+        [value / total_slots for value in player_counts.values()], dtype=float,
+    )
+    pairs = set().union(*(set(combinations(roster, 2)) for roster in rosters))
+    cores: set[Interaction] = set()
+    game_signatures = set()
+    overlaps = []
+    for index, lineup in enumerate(lineups):
+        player_by_id = {str(row["id"]): row for row in lineup.players}
+        cores.update(_lineup_interactions(rosters[index], player_by_id)[1])
+        counts = Counter(
+            str(row.get("game_id")) for row in lineup.players if row.get("game_id")
+        )
+        maximum = max(counts.values(), default=0)
+        game_signatures.add(tuple(sorted(
+            game for game, count in counts.items() if count == maximum
+        )))
+        left = set(rosters[index])
+        overlaps.extend(
+            len(left & set(rosters[other]))
+            for other in range(index + 1, len(rosters))
+        )
+    entropy = float(-np.sum(proportions * np.log(proportions)))
+    top_players = sorted(
+        player_counts,
+        key=lambda value: (-player_counts[value], value),
+    )[:20]
+    return {
+        "lineups": len(lineups),
+        "unique_players": len(player_counts),
+        "unique_pairs": len(pairs),
+        "unique_stack_cores": len(cores),
+        "unique_maximum_game_signatures": len(game_signatures),
+        "maximum_game_signatures": [list(value) for value in sorted(game_signatures)],
+        "player_entropy_effective_count": float(np.exp(entropy)),
+        "player_simpson_effective_count": float(1.0 / np.sum(proportions ** 2)),
+        "mean_pairwise_roster_overlap": float(np.mean(overlaps)) if overlaps else 0.0,
+        "top_20_players": top_players,
+        "player_frequencies": dict(sorted(player_counts.items())),
+    }
+
+
+def _score_effective_rank(matrix: np.ndarray) -> dict:
+    values = np.asarray(matrix, dtype=np.float64)
+    if values.ndim != 2 or values.shape[0] < 2 or values.shape[1] < 2:
+        raise ValueError("ATLAS MVP effective-rank matrix is invalid")
+    covariance = np.cov(values, rowvar=True, ddof=1)
+
+    def spectrum(source: np.ndarray) -> dict:
+        eigenvalues = np.maximum(np.linalg.eigvalsh(source), 0.0)
+        total = float(eigenvalues.sum())
+        if total <= 0.0:
+            raise ValueError("ATLAS MVP effective-rank spectrum is degenerate")
+        shares = eigenvalues / total
+        positive = shares[shares > 0.0]
+        return {
+            "participation_ratio": float(1.0 / np.square(shares).sum()),
+            "entropy_effective_rank": float(np.exp(
+                -np.sum(positive * np.log(positive))
+            )),
+            "top_five_variance_share": float(np.sort(shares)[-5:].sum()),
+        }
+
+    variances = np.diag(covariance)
+    if np.any(variances <= 0.0):
+        raise ValueError("ATLAS MVP correlation rank has zero variance")
+    scale = np.sqrt(variances)
+    correlation = covariance / np.outer(scale, scale)
+    np.fill_diagonal(correlation, 1.0)
+    return {
+        "covariance": spectrum(covariance),
+        "correlation": spectrum(correlation),
+    }
+
+
+def summarize_candidate_and_exact80(
+    batch: CandidateBatch, *, lines: Sequence[float] = TAIL_GRID,
+    n_entries: int = 80,
+) -> dict:
+    """Summarize score-free pool and unchanged exact-80 support."""
+    totals = np.asarray(batch.candidate_totals, dtype=np.float32)
+    if totals.ndim != 2 or totals.shape[0] != len(batch.candidates) or \
+            totals.shape[1] == 0 or not np.isfinite(totals).all():
+        raise ValueError("ATLAS MVP summary candidate worlds are invalid")
+    if totals.shape[1] % len(REGISTERED_SEEDS):
+        raise ValueError("ATLAS MVP summary world blocks differ")
+    picked = select_tail_entries(
+        totals, n_entries, TAIL_LINE, env={"SELECT_LSE": "0"},
+    )
+    if len(picked) != n_entries or len(set(picked)) != n_entries:
+        raise ValueError("ATLAS MVP exact-80 selector did not return 80")
+    block_worlds = totals.shape[1] // len(REGISTERED_SEEDS)
+
+    def tail_metrics(use: np.ndarray) -> dict:
+        aggregate = {}
+        by_block = {seed: {} for seed in REGISTERED_SEEDS}
+        for raw_line in lines:
+            line = float(raw_line)
+            key = f"{line:g}"
+            aggregate[key] = float(np.mean(np.any(use >= line, axis=0)))
+            for block_index, seed in enumerate(REGISTERED_SEEDS):
+                block = use[:, block_index * block_worlds:(block_index + 1) * block_worlds]
+                by_block[seed][key] = float(np.mean(np.any(block >= line, axis=0)))
+        return {"aggregate": aggregate, "by_block": by_block}
+
+    selected = [batch.candidates[index] for index in picked]
+    candidate_structure = _book_structure(batch.candidates)
+    exact80_structure = _book_structure(selected)
+    candidate_structure["score_effective_rank"] = _score_effective_rank(totals)
+    exact80_structure["score_effective_rank"] = _score_effective_rank(totals[picked])
+    return {
+        "candidate_budget": len(batch.candidates),
+        "worlds": int(totals.shape[1]),
+        "candidate_pool_tail": tail_metrics(totals),
+        "exact80_tail": tail_metrics(totals[picked]),
+        "candidate_structure": candidate_structure,
+        "exact80_structure": exact80_structure,
+        "exact80_indices": picked,
+        "exact80_identities": [list(_roster(lineup)) for lineup in selected],
+    }
+
+
+def conditional_interaction_coverage(
+    lineups: Sequence[Lineup], pricing: Mapping, source_seed: str,
+) -> dict:
+    """Measure fixed pair/core weight beyond the complete non-boom union."""
+    weights = pricing["weights_by_source"][source_seed]
+    baseline = pricing["nonboom_covered"]
+    represented: set[Interaction] = set()
+    for lineup in lineups:
+        roster = _roster(lineup)
+        player_by_id = {str(row["id"]): row for row in lineup.players}
+        pairs, triples = _lineup_interactions(roster, player_by_id)
+        represented.update(pairs)
+        represented.update(triples)
+    eligible = {
+        key: value for key, value in weights.items() if key not in baseline
+    }
+    pair_total = float(sum(value for key, value in eligible.items() if len(key) == 2))
+    triple_total = float(sum(value for key, value in eligible.items() if len(key) == 3))
+    return {
+        "source_seed": source_seed,
+        "pricing_excluded_block": source_seed,
+        "pair_weight_total": pair_total,
+        "pair_weight_covered": float(sum(
+            value for key, value in eligible.items()
+            if len(key) == 2 and key in represented
+        )),
+        "triple_weight_total": triple_total,
+        "triple_weight_covered": float(sum(
+            value for key, value in eligible.items()
+            if len(key) == 3 and key in represented
+        )),
+        "conditional_pairs_represented": sum(
+            len(key) == 2 and key in represented for key in eligible
+        ),
+        "conditional_triples_represented": sum(
+            len(key) == 3 and key in represented for key in eligible
+        ),
+    }
+
+
+def aggregate_mvp_gate(rows: Sequence[Mapping]) -> dict:
+    """Apply the preregistered score-free P2-versus-P1 disposition."""
+    if len(rows) != 54:
+        raise ValueError("ATLAS MVP aggregate requires 54 slates")
+    expected_slates = {
+        (season, week) for season in (2023, 2024, 2025) for week in range(1, 19)
+    }
+    keys = {(int(row["season"]), int(row["week"])) for row in rows}
+    if keys != expected_slates or any(
+        row.get("uses_realized_outcomes") is not False or
+        row.get("mechanical_valid") is not True for row in rows
+    ):
+        raise ValueError("ATLAS MVP slate population/mechanics differ")
+
+    def mean_tail(book: str, tier: str, line: str, block: str | None = None):
+        values = []
+        for row in rows:
+            tail = row[book][tier]
+            values.append(float(
+                tail["aggregate"][line] if block is None
+                else tail["by_block"][block][line]
+            ))
+        return float(np.mean(values))
+
+    def interaction(book: str, field: str):
+        return float(np.mean([
+            source[field]
+            for row in rows for source in row["interaction_coverage"][book]
+        ]))
+
+    p1_pair = interaction("P1", "pair_weight_covered")
+    p2_pair = interaction("P2", "pair_weight_covered")
+    p1_triple = interaction("P1", "triple_weight_covered")
+    p2_triple = interaction("P2", "triple_weight_covered")
+    p1_pair_reach = float(np.mean([
+        float(row["P1"]["candidate_structure"]["unique_pairs"])
+        for row in rows
+    ]))
+    p2_pair_reach = float(np.mean([
+        float(row["P2"]["candidate_structure"]["unique_pairs"])
+        for row in rows
+    ]))
+    p1_pool_210 = mean_tail("P1", "candidate_pool_tail", "210")
+    p2_pool_210 = mean_tail("P2", "candidate_pool_tail", "210")
+    block_210 = {
+        seed: {
+            "P1": mean_tail("P1", "candidate_pool_tail", "210", seed),
+            "P2": mean_tail("P2", "candidate_pool_tail", "210", seed),
+        }
+        for seed in REGISTERED_SEEDS
+    }
+    p1_pool_230 = mean_tail("P1", "candidate_pool_tail", "230")
+    p2_pool_230 = mean_tail("P2", "candidate_pool_tail", "230")
+    exact = {
+        line: {
+            "P1": mean_tail("P1", "exact80_tail", line),
+            "P2": mean_tail("P2", "exact80_tail", line),
+        } for line in ("194", "210", "230")
+    }
+
+    def preservation(treatment: float, control: float) -> float:
+        if control == 0.0:
+            return 1.0 if treatment >= 0.0 else float("-inf")
+        return treatment / control
+
+    triple_validly_empty = all(
+        float(source["triple_weight_total"]) == 0.0
+        for row in rows for source in row["interaction_coverage"]["P1"]
+    )
+    conditions = {
+        "conditional_pair_weight_strictly_higher": p2_pair > p1_pair,
+        "candidate_pair_reach_retains_100pct": p2_pair_reach >= p1_pair_reach,
+        "conditional_stack_core_retains_90pct": (
+            triple_validly_empty or preservation(p2_triple, p1_triple) >= 0.90
+        ),
+        "candidate_pool_p210_strictly_higher_aggregate": p2_pool_210 > p1_pool_210,
+        "candidate_pool_p210_higher_at_least_three_blocks": sum(
+            values["P2"] > values["P1"] for values in block_210.values()
+        ) >= 3,
+        "candidate_pool_p230_retains_95pct": preservation(
+            p2_pool_230, p1_pool_230,
+        ) >= 0.95,
+        "exact80_p194_retains_90pct": preservation(
+            exact["194"]["P2"], exact["194"]["P1"],
+        ) >= 0.90,
+        "exact80_p230_retains_90pct": preservation(
+            exact["230"]["P2"], exact["230"]["P1"],
+        ) >= 0.90,
+    }
+    return {
+        "version": VERSION,
+        "uses_realized_outcomes": False,
+        "mechanical_valid": True,
+        "slates": len(rows),
+        "conditional_interactions": {
+            "P1_pair_weight_covered": p1_pair,
+            "P2_pair_weight_covered": p2_pair,
+            "P1_triple_weight_covered": p1_triple,
+            "P2_triple_weight_covered": p2_triple,
+            "triple_class_validly_empty": triple_validly_empty,
+        },
+        "candidate_pair_reach": {
+            "P1_mean_unique_pairs": p1_pair_reach,
+            "P2_mean_unique_pairs": p2_pair_reach,
+            "P2_over_P1": preservation(p2_pair_reach, p1_pair_reach),
+        },
+        "candidate_pool": {
+            "p210": {"P1": p1_pool_210, "P2": p2_pool_210},
+            "p210_by_pricing_excluded_block": block_210,
+            "p230": {"P1": p1_pool_230, "P2": p2_pool_230},
+        },
+        "exact80": exact,
+        "conditions": conditions,
+        "passes_scorefree_gate": all(conditions.values()),
+        "disposition": (
+            "licensed-2026-prelock-shadow"
+            if all(conditions.values()) else "mvp-v1-closed"
+        ),
+    }

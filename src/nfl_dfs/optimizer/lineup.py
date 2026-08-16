@@ -164,10 +164,10 @@ def optimize(
         )
 
     def interaction_expression(weights: Mapping[tuple[object, ...], float]):
-        normalized = {
-            tuple(sorted(tuple(key), key=str)): float(value)
+        normalized = dict(sorted((
+            (tuple(sorted(tuple(key), key=str)), float(value))
             for key, value in weights.items()
-        }
+        ), key=lambda row: tuple(str(value) for value in row[0])))
         return pulp.lpSum(y[key] * weight for key, weight in normalized.items())
 
     if interaction_objective is None:

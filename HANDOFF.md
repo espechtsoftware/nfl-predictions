@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 01:08 CDT
+## Current state — 2026-08-16 01:32 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -155,9 +155,31 @@ agent or developer:
   unique additions in 41 proposals with one disclosed cluster refill and no
   floor/count failure. Sixty-one focused ATLAS/repair/optimizer/CBWU tests,
   Python compile and diff checks pass. The repair execution remains running
-  cleanly; no partial candidate/output result has been inspected. Next build
-  the three-season score-free runner/aggregator and immutable image while the
-  repair continues.
+  cleanly; no partial candidate/output result has been inspected. The complete
+  three-season score-free runner, aggregator, three-job launcher and strict
+  finisher are now implemented locally. They report the complete 187--240
+  candidate/exact-80 tail grid, conditional tuple coverage, player/pair/core/
+  game structure, effective rank, overlap, per-season and pricing-excluded-
+  block distributions, and bind every repair/protocol receipt. The supplied
+  evidence-index review is reconciled at
+  `reports/2026-08-16-atlas-evidence-index-review-reconciliation.md`.
+  Before any MVP effect existed or was launched, amendment
+  `reports/2026-08-16-atlas-mvp-pair-reach-amendment.md` (SHA-256
+  `2e3734c595159d64748ab2eeec2de61194b665d43ef6854140e5378bac464a33`)
+  added one prospective gate: mean distinct candidate-pair reach P2 must be
+  at least P1. This is separate from the original strict conditional-pair-
+  weight gain and responds to ATLAS's adverse 0.9520 transfer ratio. The
+  authoritative simulation-law ledger now supersedes unqualified 54.28/80
+  citations: that R0-only result used 5,000 worlds per half; the current
+  five-block 25,000-world canonical half overlap is 65.6852/80, while the
+  paired CBWU-OI delta remains -4.8148. The evidence index now labels every
+  result endpoint and explicitly scopes exact-N to single/low-entry books with
+  a non-positive N=80 prior. Sixty-one focused tests, Python compilation, two
+  shell syntax checks and frozen-amendment hash verification pass. Next poll
+  `replay-atlas-mvp-repair-r3-2025-xcps7`; on terminal success run only the
+  strict source-repair finisher, freeze its three output hashes into the MVP
+  runner/launcher, commit/push, build a clean immutable image, then launch the
+  2023/2024/2025 score-free MVP jobs.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five

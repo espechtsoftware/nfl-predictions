@@ -2,6 +2,7 @@ import numpy as np
 
 from nfl_dfs.analysis.atlas_matched_diversity import (
     REGISTERED_SEEDS,
+    aggregate_mvp_gate,
     build_structural_clusters,
     price_native_interactions,
 )
@@ -46,8 +47,9 @@ def _players():
     ]
     return [{
         "id": player_id, "name": player_id, "pos": pos, "team": team,
-        "opp": "B" if team == "A" else "A", "game_id": "g1",
-        "salary": 5_000, "proj": 10.0,
+        "opp": ("Z" if pos == "DST" else "B" if team == "A" else "A"),
+        "game_id": "g1" if team in {"A", "B"} else "g2",
+        "salary": 5_500, "proj": 10.0,
     } for player_id, pos, team in specs]
 
 
@@ -95,3 +97,62 @@ def test_interaction_pricing_is_leave_one_seed_out_and_permutation_stable():
         assert left["receipts"][seed]["pricing_excluded_block"] == seed
         assert left["receipts"][seed]["positive_pairs"] > 0
         assert left["receipts"][seed]["positive_triples"] > 0
+
+
+def _gate_rows(p2_pool_210=0.30, p2_unique_pairs=110):
+    rows = []
+    for season in (2023, 2024, 2025):
+        for week in range(1, 19):
+            def book(p194, p210, p230):
+                aggregate = {"194": p194, "210": p210, "230": p230}
+                by_block = {
+                    seed: dict(aggregate) for seed in REGISTERED_SEEDS
+                }
+                return {
+                    "candidate_pool_tail": {
+                        "aggregate": dict(aggregate), "by_block": by_block,
+                    },
+                    "exact80_tail": {
+                        "aggregate": dict(aggregate), "by_block": by_block,
+                    },
+                    "candidate_structure": {"unique_pairs": 100},
+                }
+            interactions = {
+                "P1": [{
+                    "pair_weight_covered": 0.20,
+                    "triple_weight_covered": 0.10,
+                    "triple_weight_total": 0.20,
+                } for _ in REGISTERED_SEEDS],
+                "P2": [{
+                    "pair_weight_covered": 0.25,
+                    "triple_weight_covered": 0.095,
+                    "triple_weight_total": 0.20,
+                } for _ in REGISTERED_SEEDS],
+            }
+            rows.append({
+                "season": season, "week": week,
+                "uses_realized_outcomes": False, "mechanical_valid": True,
+                "P1": book(0.50, 0.25, 0.10),
+                "P2": book(0.48, p2_pool_210, 0.096),
+                "interaction_coverage": interactions,
+            })
+            rows[-1]["P2"]["candidate_structure"]["unique_pairs"] = (
+                p2_unique_pairs
+            )
+    return rows
+
+
+def test_aggregate_gate_applies_all_frozen_conditions():
+    passed = aggregate_mvp_gate(_gate_rows())
+    assert passed["passes_scorefree_gate"] is True
+    assert passed["disposition"] == "licensed-2026-prelock-shadow"
+    failed = aggregate_mvp_gate(_gate_rows(p2_pool_210=0.24))
+    assert failed["passes_scorefree_gate"] is False
+    assert failed["conditions"][
+        "candidate_pool_p210_strictly_higher_aggregate"
+    ] is False
+    failed_reach = aggregate_mvp_gate(_gate_rows(p2_unique_pairs=99))
+    assert failed_reach["passes_scorefree_gate"] is False
+    assert failed_reach["conditions"][
+        "candidate_pair_reach_retains_100pct"
+    ] is False

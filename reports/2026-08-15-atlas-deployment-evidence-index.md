@@ -5,12 +5,23 @@ deployment sequence. This file records positive findings, adverse findings,
 evidence boundaries and immutable source locations so a second reviewer can
 reproduce the conclusions without relying on a chat summary.
 
-**Status:** production-law transfer strictly harvested. The frozen premise
-sequence is complete and licenses the fixed-budget matched-diversity ATLAS MVP
-only as a 2026 pre-lock shadow; no production or historical promotion is
-licensed.
+**Status:** production-law transfer strictly harvested. The fixed-budget
+matched-diversity ATLAS MVP is frozen and its one create-only source-identity
+repair is running; no MVP effect result exists yet. No production or
+historical promotion is licensed.
 
 ## Findings at a glance
+
+| Evidence | Endpoint | Headline result | Licensed consequence |
+|---|---|---:|---|
+| Phase S ATLAS | Score-free exact attainable-world quality | mean `+12.8754`, q25 `+14.8784` | law-specific premise only |
+| CBWU-OI | Realized candidate oracle `C` at fixed budget | `+5.66` mean C | construction evidence; no production adoption |
+| Exact-N | Score-free selected-book simulated coverage at cardinality N | N=3 `+7.23%` at 230; N=40 `-0.05%` at 200 | low-N pre-lock shadows only |
+| Current-money ATLAS | Score-free exact attainable-world quality | mean `+10.9340`, q25 `+12.5817` | licensed matched-diversity MVP test only |
+
+The ATLAS attainable-world deltas are not candidate `C`, selected `S`,
+realized-score or payout measurements and must not be numerically ranked
+against the CBWU-OI C delta.
 
 1. **ATLAS Phase S is strongly positive under its source simulation law.**
    Exact attainable legal world quality improves by `+12.8754` mean and
@@ -24,7 +35,10 @@ licensed.
 3. **Cardinality-aware exact-N ranking is positive for small books.** N=`1`,
    `3` and `20` pass the frozen outcome-free falsifier; N=`40` fails. The N=3
    relative 230-point simulated-coverage gain is `+7.23%`. These are 2026
-   pre-lock shadow licenses only.
+   pre-lock shadow licenses only. The preregistered prior for the production
+   N=80 book is non-positive because the effect decays after N=3 and is already
+   negative at N=40; exact-N is a single-entry/low-max-entry mechanism, not an
+   80-entry production mechanism.
 4. **Production-law world acquisition is mechanically complete.** All 15
    executions succeeded and all 270 artifact cells are bound. One cell uses
    the preregistered GCS recovery path after an ancillary BigQuery 429; its
@@ -148,6 +162,12 @@ N=40 is negative in each season. Mean treatment/control identity overlaps are
 changes membership rather than merely reordering the existing prefix. The
 complete season/slate distributions remain in the raw result JSON.
 
+The honest production-scale prior is negative: treatment/control identities
+already overlap `32.46/40` at N=40 and its frozen primary effect is below zero.
+No N=80 transfer is claimed or currently licensed. The surviving use case is
+the UI's single-entry and low-max-entry modes, evaluated prospectively at their
+actual contest cardinalities.
+
 ## E. Production-law world acquisition
 
 - Frozen transfer protocol:
@@ -234,6 +254,47 @@ world set. Pair/game concentration is the principal adjustment clue and is
 why the next licensed mechanism is the already-frozen matched-diversity MVP.
 This transfer reads no realized outcomes and licenses no production change,
 historical arm or scoring/ROI claim.
+
+## G. Matched-diversity adjustment and source repair
+
+- Frozen MVP protocol:
+  `reports/2026-08-16-atlas-matched-diversity-mvp-protocol.md`
+- Protocol SHA-256:
+  `badc0d64be69694caadd8fb2fe16a293c0cfbfe1f7813b4e80dc45e10b727abf`
+- Pre-result pair-reach amendment:
+  `reports/2026-08-16-atlas-mvp-pair-reach-amendment.md`
+- Amendment SHA-256:
+  `2e3734c595159d64748ab2eeec2de61194b665d43ef6854140e5378bac464a33`
+- Frozen R3/2025 Week 1 repair protocol:
+  `reports/2026-08-16-atlas-mvp-source-repair-protocol.md`
+- Repair protocol SHA-256:
+  `a18c0f59cfccfccd073bdf5d9d24a0a8ad8015320421d40eb0fccc6a1a18d461`
+- Active repair execution: `replay-atlas-mvp-repair-r3-2025-xcps7`
+- Repair launch receipts:
+  `reports/atlas-mvp-source-repair-runs/20260816-atlas-mvp-source-repair-r3-2025-v1/`
+- Repair environment-receipt SHA-256:
+  `80820ed9a8fc6fa8e2264fe1c34ced1e3ce31ed477722841a1e7222cf446cf90`
+
+The adjustment does not retune the promising world-ranking result. It holds
+the native 40-candidate boom budget fixed and replaces those rows with eight
+structural world clusters times five exact/98%-near-optimal legal lineups.
+Within that score floor it favors previously uncovered player pairs and
+QB+two-catcher cores, priced by robust 194 support in the other four seed
+blocks. P2 ATLAS+CBWU-OI versus P1 incumbent+CBWU-OI is the causal contrast;
+P0 canonical CBWU is context only. The frozen gate requires a strict pair-
+weight gain, aggregate candidate pair reach no lower than P1, 90% core
+retention, candidate-pool p210 gain in aggregate and at least three blocks,
+95% candidate p230 retention, and 90% exact-80 p194/p230 retention. The
+pair-reach floor was frozen before MVP launch or effect availability and is
+separate from conditional pair weight. It reads no realized outcomes.
+
+The repair exists only because the valid original Week 1 NPZ intentionally
+does not carry roster/tag identities. Its rerun changes only the create-only
+panel and diagnostic lineup-table destinations. The strict finisher will
+require exact equality of all player/candidate world arrays, 248 reconstructed
+legal candidate rosters and 40 exact-boom tags. Until that execution is a
+terminal success and the finisher passes, the MVP source remains incomplete
+and no effect conclusion may be drawn.
 
 ## Evidence firewall for reviewers
 

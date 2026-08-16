@@ -373,8 +373,12 @@ new outcome.
    the larger `CU` pool as an unconfounded mechanism effect.
 3. **Separate algorithmic variability from entry value.** Give the five native
    seed-book envelope and pairwise overlaps equal billing with across-slate
-   uncertainty. The selector diagnostic's disjoint-half overlap of 54.28/80 is
-   roster reproducibility, not “54 effective entries.” Economic marginal value
+   uncertainty. Historical note: the selector diagnostic's R0-only,
+   5,000-world-per-half overlap of 54.28/80 is superseded for standing use by
+   the width-qualified ledger in
+   `reports/2026-08-16-simulation-law-ledger.md`; no overlap is interpretable
+   without its design and sample width. Either measure is roster
+   reproducibility, not “effective entries.” Economic marginal value
    of entries 41--80 requires nested pre-lock 20/40/80 books plus identifiable
    payouts/duplicates. Bootstrap-mean bagging is algebraically closed and must
    not re-enter the opportunity register under another name.

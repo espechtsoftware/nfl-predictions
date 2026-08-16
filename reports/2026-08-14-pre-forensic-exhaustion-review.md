@@ -24,7 +24,7 @@ existing test rather than a new idea.
 | area | evidence |
 |---|---|
 | **Fantasy Points** | Route share tested in **both** channels — marginal (`tabpfn-route-channel-final-served-fails`) and rank (`route-rank-dependence-i1-fails`, then `route-rank-dependence-r2-fails`, the last actively harmful at a 2.07 loss ratio). Advanced prior failed. Coverage families closed under the grain bind. Same-season `Week(s)` window reconstruction was collected and its Advanced Receiving arm failed. Weekly Target/Snap/PROE correctly closed as redundant. |
-| **Selector** | Closed five-plus ways; selected equals pool oracle at 220/230/240; resampling diagnostic run (54.28/80 disjoint-half overlap, 1.28pp coverage optimism); bagging refuted algebraically. |
+| **Selector** | Closed five-plus ways; selected equals pool oracle at 220/230/240; resampling diagnostic run (historical R0-only 54.28/80 disjoint-half overlap; superseded for standing use by the width-qualified `reports/2026-08-16-simulation-law-ledger.md`, plus 1.28pp coverage optimism); bagging refuted algebraically. |
 | **Marginal feature channel** | Nine-plus arms across four families. |
 | **Shared-factor copula** | G2 closed it for WR mathematically — one factor cannot give QB↗WR with WR⊥WR. |
 
