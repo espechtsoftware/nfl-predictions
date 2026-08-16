@@ -1023,6 +1023,8 @@ agent or developer:
   No image/build/job exists yet; next commit/push this implementation, then
   submit its clean full-test image while continuing terminal-only ATLAS
   polling. Do not invoke its launcher before the queue release exists.
+  The complete executable implementation is pushed on `main` at commit
+  `a66c3e5` (implementation commit `0da5ce2` plus executable-mode repair).
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).
