@@ -693,6 +693,24 @@ agent or developer:
   only the allowed output prefix, preserving the pinned old image/code,
   binary interaction formulation and 4-CPU/16-GiB envelope. Use entirely new
   `-r4` execution/object identities; do not retry or reuse repair3.
+  Repair4 is now prospectively frozen and implemented at
+  `reports/2026-08-16-atlas-mvp-output-prefix-repair4.md`, SHA-256
+  `5e84a6b93522fd959e798e90da307687179327b23c474fbda6b5303d0483063a`.
+  Renderer `scripts/render_atlas_matched_diversity_repair4_command.py`,
+  SHA-256
+  `69d0ed1187bf59176a857e0bc822f65bd9aea2ffd211ffc247312796bfaeb671`,
+  loads the exact runner from the pinned old image, requires runner SHA-256
+  `0548e26e26d7e81b20c6837adcc8925bc2317f9b7c8586fba084787581cac740`,
+  proves its original repair2 prefix, and changes only the
+  in-memory allowed prefix to repair4 before calling unchanged `main()`.
+  Launcher `scripts/cloud_atlas_matched_diversity_repair4.sh` first runs a
+  real-container, query-free verification of that exact patch and validates
+  its terminal metadata/marker before it may create any of the 54 `-r4`
+  cells. Finisher `scripts/cloud_finish_atlas_matched_diversity_repair4.sh`
+  binds the rendered command itself plus all execution/resource/source and
+  score-free shard receipts. Twenty focused ATLAS/CBC/repair tests, both shell
+  syntax checks, Python compilation and diff checks pass. Commit and push this
+  protocol and implementation before invoking the smoke-gated launcher.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
