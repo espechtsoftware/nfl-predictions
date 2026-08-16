@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 02:28 CDT
+## Current state — 2026-08-16 02:53 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -212,6 +212,14 @@ agent or developer:
   focused tests/compile/shell checks, commit and push the complete repair
   harvest plus bindings, build a clean immutable image from that commit, and
   launch the three season MVP jobs.
+  Clean-archive Cloud Build `a7ff5515-7ff8-454a-adbd-4514528e40d7` then
+  succeeded from exact source commit
+  `6be659bbd4dd6436fd89291af230cadb06dc1546`: 1,591 tests passed, 2 skipped
+  and 5 warnings in 1,130.52 seconds. Tag `atlas-mvp-6be659b` resolves to
+  immutable digest
+  `sha256:00ce36b7debd344a7fd264df6d00b9a37184abcc9e24285a658968289b38f251`.
+  Launch all three frozen MVP season jobs using only that digest and
+  `CODE_SHA=6be659bbd4dd6436fd89291af230cadb06dc1546`.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five

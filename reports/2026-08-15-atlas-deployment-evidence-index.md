@@ -311,6 +311,12 @@ A direct synthetic full 8x5 test runs the enumeration twice, reproduces all 40
 lineup identities and receipts exactly, and forces an exact-duplicate/cyclic-
 refill path while preserving count parity and separate pair/core accounting.
 
+The clean-archive MVP validation build
+`a7ff5515-7ff8-454a-adbd-4514528e40d7` passed the complete suite from exact
+source commit `6be659bbd4dd6436fd89291af230cadb06dc1546`: 1,591 passed,
+2 skipped and 5 warnings in 1,130.52 seconds. Its immutable image is
+`us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:00ce36b7debd344a7fd264df6d00b9a37184abcc9e24285a658968289b38f251`.
+
 ## Evidence firewall for reviewers
 
 - Score-free results establish simulated-law premises, not realized DFS
