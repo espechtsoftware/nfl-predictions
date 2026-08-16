@@ -20,9 +20,31 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 19:04 CDT
+## Current state — 2026-08-15 19:11 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
+
+- The required outcome-free production-law ATLAS transfer is frozen before
+  the Phase S result at
+  `reports/2026-08-15-atlas-current-money-transfer-protocol.md`, SHA-256
+  `e575243db55f88ae3295d12c034c7921787b0a1de8d3ca5bef8c332395103eea`.
+  A read-only warehouse/object audit found complete five-block
+  `20260813-game-team-mult-r0-v1` through `r4-v1` production-multinomial
+  panels, but their verified NPZ payloads contain only candidate `totals` and
+  lack `player_ids`/`player_draws`; they cannot answer ATLAS world ranking.
+  New source acquisition therefore derives the complete environment from
+  `ClassicProductionPolicy.engine_environment()` receipt
+  `b0aef9d0bec9d3fa1fdefeed237991c6e6089a967473973c0fd909a2daf563bb`,
+  blanks only the production five-block wrapper, applies the registered R0--R4
+  seed pairs independently and persists player worlds. The pure contract,
+  stable environment/receipt CLI and create-only 15-execution launcher are in
+  `atlas_money_transfer.py`, `atlas_money_world_env.py` and
+  `cloud_atlas_money_worlds.sh`. The launcher requires the strict Phase S
+  ATLAS report, an immutable image/full code SHA, unchanged protocol/policy
+  hashes and empty destination panels; it has not launched. All 35 focused
+  ATLAS/transfer tests pass, both Python files compile, shell syntax and diff
+  validation pass. A separate strict acquisition finisher and transfer
+  analyzer remain to implement before launch.
 
 - The supplied ATLAS approach/code review is reconciled at
   `reports/2026-08-15-atlas-approach-and-code-review-reconciliation.md`,
