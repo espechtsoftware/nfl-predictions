@@ -144,6 +144,7 @@ def compare_slate(
     atlas_set = set(atlas)
     atlas_candidates = [row for row in p2c if row in atlas_set]
     atlas_selected = [row for row in p2s if row in atlas_set]
+    atlas_generated_scores = score_rosters(atlas, actual_by_id)
     atlas_scores = score_rosters(atlas_candidates, actual_by_id)
     atlas_selected_scores = score_rosters(atlas_selected, actual_by_id)
     candidate_crossings: dict[str, Any] = {}
@@ -187,6 +188,7 @@ def compare_slate(
         },
         "atlas": {
             "generated": len(atlas),
+            "generated_maximum": float(max(atlas_generated_scores)),
             "in_P2_candidates": len(atlas_candidates),
             "in_P2_exact80": len(atlas_selected),
             "candidate_to_selection_conversion": len(atlas_selected),
@@ -198,6 +200,10 @@ def compare_slate(
             ),
             "candidate_threshold_counts": {
                 f"{line:g}": sum(value >= line for value in atlas_scores)
+                for line in THRESHOLDS
+            },
+            "generated_threshold_counts": {
+                f"{line:g}": sum(value >= line for value in atlas_generated_scores)
                 for line in THRESHOLDS
             },
             "selected_threshold_counts": {
@@ -379,6 +385,12 @@ def aggregate_diagnostic(rows: Sequence[dict]) -> dict[str, Any]:
         },
         "atlas_conversion": {
             "generated": sum(row["atlas"]["generated"] for row in rows),
+            "generated_weekly_maximum": {
+                row["slate"]: row["atlas"]["generated_maximum"] for row in rows
+            },
+            "mean_generated_weekly_maximum": float(mean(
+                row["atlas"]["generated_maximum"] for row in rows
+            )),
             "in_P2_candidates": sum(row["atlas"]["in_P2_candidates"] for row in rows),
             "in_P2_exact80": sum(row["atlas"]["in_P2_exact80"] for row in rows),
             "candidate_to_selection_conversion": sum(

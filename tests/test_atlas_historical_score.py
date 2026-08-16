@@ -63,6 +63,7 @@ def test_compare_slate_scores_equal_budget_and_atlas_conversion():
     assert row["books"]["P2"]["C"]["thresholds"]["200"] is True
     assert row["atlas"]["in_P2_candidates"] == 1
     assert row["atlas"]["in_P2_exact80"] == 1
+    assert math.isclose(row["atlas"]["generated_maximum"], 207.0)
     assert row["candidate_treatment_only_crossings"]["200"] == {
         "treatment_only": True,
         "treatment_winner_is_atlas": True,
