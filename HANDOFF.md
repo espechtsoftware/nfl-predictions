@@ -727,6 +727,19 @@ agent or developer:
   status; once every cell is terminal, invoke the strict repair4 finisher.
   Do not inspect partial shard content or run the historical scorer before a
   complete valid strict harvest.
+  The downstream realized-score handoff is now prospectively rebound to these
+  exact repair4 identities in
+  `reports/2026-08-16-atlas-historical-score-repair4-upstream-amendment.md`,
+  SHA-256
+  `33180a1395785b1d93cb7b0e19a61b16ccc3b7081d86f27d0ab74a3afc747c62`.
+  It was frozen before any shard or aggregate result was opened, requires the
+  exact 54-cell ledger with no replacement/retry path, and requires the future
+  scorer receipt to bind every strict-harvest hash and object generation. The
+  scorer must run after any mechanically valid score-free disposition and
+  retains the +2-at-200 rule plus nondecline at 210/220/230/240 and candidate
+  200. Repair2 failure/replacement fields are explicitly forbidden from the
+  repair4 receipt. Implement the new scorer binding only after strict harvest;
+  do not inspect the repair4 effect while doing so.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
