@@ -878,8 +878,11 @@ agent or developer:
   `950db566469aa645efda634370e1f6fe7554db6317537e3a820e9161bec8f93e`,
   whose sole relevant repair is `PYTHONPATH=. pytest`. Thirty-nine focused
   optimizer/parity/repair5 tests, Python compilation and diff checks pass.
-  Commit/push this freeze, submit the single repaired full build and record its
-  immutable digest if successful; do not launch the parity cell yet.
+  The single repaired full build is now durable Cloud Build
+  `9e8347a9-7fe1-460f-a0d6-9ba379616b52`, submitted from the exact `0679731`
+  Git archive under create-only tag `atlas-continuous-0679731-r1`. Poll it to
+  terminal and record its immutable digest only if the complete suite, image
+  build and both container smokes succeed; do not launch the parity cell yet.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
