@@ -975,6 +975,23 @@ agent or developer:
   control reconstruction and deterministic cell-candidate generator, then
   validate them synthetically before adding any cloud path.
   These primitives are pushed on `main` at commit `7c74f2a`.
+  The next outcome-free implementation layer is now complete locally. It
+  reconstructs each fold's fixed-budget CBWU-OI control from only the four
+  training blocks, excludes the held-out block from candidate admission and
+  selection, deterministically searches the registered attainable worlds for
+  up to two unique exact lineups per atomic constraint cell/source block,
+  cross-scores every exception on the four training blocks, applies the
+  frozen quota and p230-first swap law, and evaluates the resulting exact-80
+  treatment only on the untouched fifth block. Complete-slate orchestration
+  runs all five exclusions and returns identity/mechanical receipts without
+  realized outcomes. The aggregate gate now validates a complete five-block
+  population across any number of registered slates and aggregates block
+  evidence over the full panel rather than assuming one slate. Forty-eight
+  focused constraint/optimizer/policy-isolation tests pass, as do Python
+  compilation and whitespace checks. No Cloud runner, image or execution has
+  been created; the next implementation step is the immutable sharded runner,
+  strict assembler/finisher and cloud packaging, still queued behind the live
+  ATLAS binary/repair5/historical branch.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).

@@ -3,19 +3,24 @@ from dataclasses import replace
 import numpy as np
 import pytest
 
+import nfl_dfs.analysis.constraint_lattice as constraint_lattice
 from nfl_dfs.analysis.constraint_lattice import (
     CELL_ORDER,
     CELL_QUOTAS,
     ExceptionCandidate,
     aggregate_heldout_gate,
+    build_training_control,
     construct_exception_sleeve,
     evaluate_heldout_fold,
     exception_cell,
+    generate_exception_candidates,
     protocol_receipt,
     rank_exception_candidates,
+    run_scorefree_slate,
     stack_rules_for_cell,
     validate_exception_book,
 )
+from nfl_dfs.backtest.engine import CandidateBatch
 from nfl_dfs.optimizer.lineup import Lineup, StackRules, optimize, optimize_many
 
 
@@ -134,6 +139,39 @@ def _candidate(cell: str, banned=()):
     return lineup
 
 
+def _books(worlds=3):
+    players = _pool()
+    lineups = optimize_many(
+        players,
+        n_lineups=80,
+        max_overlap=8,
+        stack=StackRules(qb_stack_min=2, bring_back_min=1),
+    )
+    player_ids = tuple(row["id"] for row in players)
+    row_index = {value: index for index, value in enumerate(player_ids)}
+    books = {}
+    for seed in range(5):
+        rng = np.random.default_rng(100 + seed)
+        draws = rng.normal(
+            np.asarray([row["proj"] for row in players])[:, None],
+            5.0,
+            size=(len(players), worlds),
+        ).astype(np.float32)
+        totals = np.asarray([
+            draws[[row_index[value] for value in lineup.ids]].sum(axis=0)
+            for lineup in lineups
+        ], dtype=np.float32)
+        books[f"R{seed}"] = CandidateBatch(
+            candidates=tuple(lineups),
+            candidate_totals=totals,
+            player_ids=player_ids,
+            player_rows=tuple(players),
+            row_draws=draws,
+            all_tags={lineup.ids: ("lev",) for lineup in lineups},
+        )
+    return books
+
+
 def test_candidate_ranking_uses_fixed_cell_quota_and_tail_order():
     first = _candidate("two_rb_same_team")
     second = _candidate("two_rb_same_team", [first.ids])
@@ -150,6 +188,48 @@ def test_candidate_ranking_uses_fixed_cell_quota_and_tail_order():
     assert receipts[0]["probabilities"]["p230"] == {
         block: 0.1 for block in blocks
     }
+
+
+def test_four_block_control_excludes_heldout_and_reproduces_exact80():
+    control = build_training_control(
+        _books(), "R2", expected_worlds_per_block=3,
+    )
+    assert control["heldout_block"] == "R2"
+    assert control["training_blocks"] == ["R0", "R1", "R3", "R4"]
+    assert control["candidate_budget"] == 80
+    assert control["training_union_candidates"] == 80
+    assert len(control["control_lineups"]) == 80
+    assert set(control["control_totals_by_block"]) == {
+        "R0", "R1", "R3", "R4",
+    }
+    assert control["heldout_row_draws"].shape[1] == 3
+
+
+def test_exception_generation_is_atomic_unique_and_score_free():
+    control = build_training_control(
+        _books(), "R4", expected_worlds_per_block=3,
+    )
+    forbidden = {
+        tuple(sorted(str(value) for value in lineup.ids))
+        for lineup in control["candidate_lineups"]
+    }
+    candidates, receipts = generate_exception_candidates(
+        player_rows=control["player_rows"],
+        row_draws_by_block=control["row_draws_by_block"],
+        training_blocks=control["training_blocks"],
+        forbidden_rosters=forbidden,
+    )
+    assert len(receipts) == 20
+    assert len(candidates) <= 40
+    assert len({tuple(sorted(row.lineup.ids)) for row in candidates}) == len(
+        candidates
+    )
+    assert all(exception_cell(row.lineup) == row.cell for row in candidates)
+    assert all(set(row.totals_by_block) == {
+        "R0", "R1", "R2", "R3",
+    } for row in candidates)
+    assert all(row["cell"] in CELL_ORDER for row in receipts)
+    assert all(row["source_block"] != "R4" for row in receipts)
 
 
 def test_sleeve_admits_only_multiblock_p230_improvement():
@@ -224,3 +304,24 @@ def test_heldout_fold_and_aggregate_gate_are_p230_first():
     failed = aggregate_heldout_gate(folds)
     assert failed["heldout_blocks_improving_p230"] == 2
     assert failed["passes_scorefree_gate"] is False
+
+
+def test_complete_slate_orchestration_preserves_zero_admission_null(monkeypatch):
+    monkeypatch.setattr(
+        constraint_lattice,
+        "generate_exception_candidates",
+        lambda **kwargs: ([], []),
+    )
+    result = run_scorefree_slate(
+        _books(), season=2023, week=1, expected_worlds_per_block=3,
+    )
+    assert result["uses_realized_outcomes"] is False
+    assert len(result["folds"]) == 5
+    assert {row["heldout_block"] for row in result["folds"]} == {
+        "R0", "R1", "R2", "R3", "R4",
+    }
+    assert all(row["new_exception_entries"] == 0 for row in result["folds"])
+    assert all(row["shared_rosters"] == 80 for row in result["folds"])
+    gate = aggregate_heldout_gate(result["folds"])
+    assert gate["slates"] == 1
+    assert gate["passes_scorefree_gate"] is False

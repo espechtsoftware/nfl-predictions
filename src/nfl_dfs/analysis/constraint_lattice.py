@@ -14,7 +14,18 @@ from itertools import combinations
 
 import numpy as np
 
+from ..backtest.engine import CandidateBatch
+from ..inference.multiseed_portfolio import (
+    _select_tail_entries_bitpacked,
+    _validate_native_book,
+)
+from ..optimizer.lineup import select_tail_entries
 from ..optimizer.lineup import Lineup, StackRules
+from .atlas_world_ranking import (
+    rank_worlds,
+    roster_slot_upper_bound,
+    solve_exact_worlds,
+)
 
 
 VERSION = "constraint-lattice-scorefree-v1"
@@ -34,6 +45,7 @@ CELL_QUOTAS = {
 }
 TRAINING_THRESHOLDS = (230.0, 210.0, 194.0)
 REPORT_THRESHOLDS = (187.0, 194.0, 200.0, 210.0, 220.0, 230.0, 240.0)
+REGISTERED_BLOCKS = ("R0", "R1", "R2", "R3", "R4")
 
 
 @dataclass
@@ -41,6 +53,222 @@ class ExceptionCandidate:
     lineup: Lineup
     cell: str
     totals_by_block: Mapping[str, np.ndarray]
+
+
+def _roster_rows(
+    lineups: Sequence[Lineup], player_ids: Sequence[object],
+) -> np.ndarray:
+    index = {str(value): row for row, value in enumerate(player_ids)}
+    if len(index) != len(player_ids):
+        raise ValueError("constraint-lattice player IDs repeat")
+    try:
+        return np.asarray([
+            [index[str(value)] for value in sorted(lineup.ids, key=str)]
+            for lineup in lineups
+        ], dtype=np.int64)
+    except KeyError as exc:
+        raise ValueError("constraint-lattice roster is outside player universe") \
+            from exc
+
+
+def build_training_control(
+    books: Mapping[str, CandidateBatch],
+    heldout_block: str,
+    *,
+    expected_worlds_per_block: int = 10_000,
+    tail_line: float = 194.0,
+) -> dict[str, object]:
+    """Build one four-block CBWU-OI candidate pool and strict exact-80 book."""
+    heldout = str(heldout_block)
+    if tuple(sorted(books)) != REGISTERED_BLOCKS or heldout not in REGISTERED_BLOCKS:
+        raise ValueError("constraint-lattice control requires exact R0--R4")
+    base = books["R0"]
+    base_universe = {str(value) for value in base.player_ids}
+    for name in REGISTERED_BLOCKS:
+        batch = books[name]
+        _validate_native_book(
+            name,
+            batch,
+            expected_worlds=expected_worlds_per_block,
+            tolerance=1e-4,
+        )
+        if {str(value) for value in batch.player_ids} != base_universe:
+            raise ValueError("constraint-lattice player universes differ")
+        if any(not is_strict_lineup(lineup) for lineup in batch.candidates):
+            raise ValueError("constraint-lattice native source is not strict")
+    budget = len(base.candidates)
+    if budget < 80:
+        raise ValueError("constraint-lattice R0 candidate budget is below 80")
+    training = tuple(name for name in REGISTERED_BLOCKS if name != heldout)
+
+    union = sorted({
+        _roster_key(lineup)
+        for name in training
+        for lineup in books[name].candidates
+    })
+    if len(union) < budget:
+        raise ValueError("constraint-lattice training union cannot fill budget")
+    base_by_id = {
+        str(player_id): row
+        for player_id, row in zip(
+            base.player_ids, base.player_rows, strict=True,
+        )
+    }
+    union_lineups = [
+        Lineup([base_by_id[player_id] for player_id in roster], tag="lev")
+        for roster in union
+    ]
+    rows = _roster_rows(union_lineups, base.player_ids)
+    row_draws_by_block = {}
+    union_totals_by_block = {}
+    for name in training:
+        batch = books[name]
+        block_index = {
+            str(value): index for index, value in enumerate(batch.player_ids)
+        }
+        aligned = np.asarray(batch.row_draws[[
+            block_index[str(value)] for value in base.player_ids
+        ]], dtype=np.float32)
+        row_draws_by_block[name] = aligned
+        union_totals_by_block[name] = aligned[rows].sum(axis=1).astype(np.float32)
+    union_totals = np.concatenate([
+        union_totals_by_block[name] for name in training
+    ], axis=1)
+    admitted = _select_tail_entries_bitpacked(union_totals, budget, tail_line)
+    if len(admitted) != budget or len(set(admitted)) != budget:
+        raise ValueError("constraint-lattice OI admission did not fill budget")
+    candidates = [union_lineups[index] for index in admitted]
+    candidate_totals_by_block = {
+        name: union_totals_by_block[name][admitted] for name in training
+    }
+    selected = select_tail_entries(
+        np.concatenate([
+            candidate_totals_by_block[name] for name in training
+        ], axis=1),
+        80,
+        tail_line,
+        env={"SELECT_LSE": "0"},
+    )
+    if len(selected) != 80 or len(set(selected)) != 80:
+        raise ValueError("constraint-lattice control selector is not exact 80")
+    control_lineups = [candidates[index] for index in selected]
+    control_totals_by_block = {
+        name: candidate_totals_by_block[name][selected] for name in training
+    }
+    heldout_batch = books[heldout]
+    heldout_index = {
+        str(value): index for index, value in enumerate(heldout_batch.player_ids)
+    }
+    heldout_draws = np.asarray(heldout_batch.row_draws[[
+        heldout_index[str(value)] for value in base.player_ids
+    ]], dtype=np.float32)
+    return {
+        "version": VERSION,
+        "uses_realized_outcomes": False,
+        "heldout_block": heldout,
+        "training_blocks": list(training),
+        "candidate_budget": budget,
+        "training_union_candidates": len(union_lineups),
+        "candidate_lineups": candidates,
+        "candidate_totals_by_block": candidate_totals_by_block,
+        "control_lineups": control_lineups,
+        "control_totals_by_block": control_totals_by_block,
+        "player_ids": tuple(base.player_ids),
+        "player_rows": tuple(base.player_rows),
+        "row_draws_by_block": row_draws_by_block,
+        "heldout_row_draws": heldout_draws,
+    }
+
+
+def generate_exception_candidates(
+    *,
+    player_rows: Sequence[Mapping],
+    row_draws_by_block: Mapping[str, np.ndarray],
+    training_blocks: Sequence[str],
+    forbidden_rosters: set[tuple[str, ...]],
+) -> tuple[list[ExceptionCandidate], list[dict[str, object]]]:
+    """Generate the first two unique attainable-world exceptions per cell/block."""
+    blocks = tuple(str(value) for value in training_blocks)
+    if len(blocks) != 4 or not set(blocks) < set(REGISTERED_BLOCKS):
+        raise ValueError("constraint-lattice generation requires four R blocks")
+    originals = [dict(row) for row in player_rows]
+    player_by_id = {str(row["id"]): row for row in originals}
+    if len(player_by_id) != len(originals):
+        raise ValueError("constraint-lattice generation player IDs repeat")
+    normalized = _normalize_blocks(row_draws_by_block, blocks)
+    if any(values.ndim != 2 or values.shape[0] != len(originals)
+           for values in normalized.values()):
+        raise ValueError("constraint-lattice generation worlds differ")
+    positions = [str(row.get("pos", "")) for row in originals]
+    forbidden = {
+        tuple(sorted(str(value) for value in roster))
+        for roster in forbidden_rosters
+    }
+    candidates = []
+    receipts = []
+    env = {"MIN_LINEUP_SALARY": "49000"}
+    for cell in CELL_ORDER:
+        stack = stack_rules_for_cell(cell)
+        for block in blocks:
+            draws = normalized[block]
+            bound = roster_slot_upper_bound(draws, positions)
+            worlds = rank_worlds(bound, len(bound))
+            retained = []
+            attempts = 0
+            duplicates = 0
+            infeasible = False
+            for world in worlds:
+                attempts += 1
+                try:
+                    solved = solve_exact_worlds(
+                        originals,
+                        draws,
+                        [int(world)],
+                        stack=stack,
+                        env=env,
+                    )[int(world)]
+                except RuntimeError:
+                    infeasible = True
+                    break
+                roster = tuple(sorted(str(value) for value in solved["roster"]))
+                if roster in forbidden:
+                    duplicates += 1
+                    continue
+                lineup = Lineup(
+                    [player_by_id[player_id] for player_id in roster],
+                    tag=f"constraint_lattice:{cell}",
+                )
+                if exception_cell(lineup) != cell:
+                    raise AssertionError(
+                        "constraint-lattice exact solve entered another cell"
+                    )
+                totals = {}
+                roster_rows = _roster_rows([lineup], [
+                    row["id"] for row in originals
+                ])[0]
+                for score_block in blocks:
+                    totals[score_block] = normalized[score_block][
+                        roster_rows
+                    ].sum(axis=0).astype(np.float32)
+                candidates.append(ExceptionCandidate(lineup, cell, totals))
+                retained.append({
+                    "world": int(world),
+                    "roster": list(roster),
+                    "bound": float(bound[int(world)]),
+                    "exact_score": float(solved["score"]),
+                })
+                forbidden.add(roster)
+                if len(retained) == 2:
+                    break
+            receipts.append({
+                "cell": cell,
+                "source_block": block,
+                "attempted_worlds": attempts,
+                "duplicate_world_solutions": duplicates,
+                "structurally_infeasible": infeasible,
+                "retained": retained,
+            })
+    return candidates, receipts
 
 
 def _roster_key(lineup: Lineup) -> tuple[str, ...]:
@@ -480,6 +708,8 @@ def evaluate_heldout_fold(
     treatment_lineups: Sequence[Lineup],
     control_totals: np.ndarray,
     treatment_totals: np.ndarray,
+    season: int | None = None,
+    week: int | None = None,
 ) -> dict[str, object]:
     """Measure two frozen exact-80 books on one untouched simulation block."""
     control = list(control_lineups)
@@ -534,7 +764,7 @@ def evaluate_heldout_fold(
         for index, first in enumerate(treatment_rosters)
         for second in treatment_rosters[index + 1:]
     )
-    return {
+    result = {
         "version": VERSION,
         "uses_realized_outcomes": False,
         "heldout_block": str(heldout_block),
@@ -553,15 +783,45 @@ def evaluate_heldout_fold(
             "treatment": treatment_structure,
         },
     }
+    if (season is None) != (week is None):
+        raise ValueError("constraint-lattice fold season/week must be paired")
+    if season is not None:
+        if int(season) not in {2023, 2024, 2025} or int(week) not in range(1, 19):
+            raise ValueError("constraint-lattice fold season/week is outside scope")
+        result["season"] = int(season)
+        result["week"] = int(week)
+    return result
 
 
 def aggregate_heldout_gate(folds: Sequence[Mapping]) -> dict[str, object]:
     """Apply the frozen five-fold p230-first score-free gate."""
     rows = list(folds)
-    if len(rows) != 5 or {str(row.get("heldout_block")) for row in rows} != {
-        "R0", "R1", "R2", "R3", "R4",
-    } or any(row.get("mechanical_valid") is not True for row in rows):
+    if not rows or len(rows) % 5 or any(
+        row.get("mechanical_valid") is not True for row in rows
+    ):
         raise ValueError("constraint-lattice held-out fold grid differs")
+    block_counts = Counter(str(row.get("heldout_block")) for row in rows)
+    slates = len(rows) // 5
+    if block_counts != Counter({block: slates for block in REGISTERED_BLOCKS}):
+        raise ValueError("constraint-lattice held-out block population differs")
+    scoped = [(row.get("season"), row.get("week")) for row in rows]
+    if any(season is not None or week is not None for season, week in scoped):
+        if any(season is None or week is None for season, week in scoped):
+            raise ValueError("constraint-lattice fold slate identity is partial")
+        keys = Counter(
+            (int(row["season"]), int(row["week"]), str(row["heldout_block"]))
+            for row in rows
+        )
+        slate_keys = {
+            (int(row["season"]), int(row["week"])) for row in rows
+        }
+        if len(slate_keys) != slates or any(value != 1 for value in keys.values()) or \
+                any(
+                    {block for season, week, block in keys if (season, week) == slate}
+                    != set(REGISTERED_BLOCKS)
+                    for slate in slate_keys
+                ):
+            raise ValueError("constraint-lattice fold slate grid differs")
     for row in rows:
         if row.get("version") != VERSION or \
                 row.get("uses_realized_outcomes") is not False:
@@ -578,14 +838,18 @@ def aggregate_heldout_gate(folds: Sequence[Mapping]) -> dict[str, object]:
         for book in ("control", "treatment")
     }
     fold_deltas = {
-        str(row["heldout_block"]): {
+        block: {
             f"{threshold:g}": int(
-                row["threshold_counts"]["treatment"][f"{threshold:g}"]
-                - row["threshold_counts"]["control"][f"{threshold:g}"]
+                sum(
+                    candidate["threshold_counts"]["treatment"][f"{threshold:g}"]
+                    - candidate["threshold_counts"]["control"][f"{threshold:g}"]
+                    for candidate in rows
+                    if str(candidate["heldout_block"]) == block
+                )
             )
             for threshold in REPORT_THRESHOLDS
         }
-        for row in rows
+        for block in REGISTERED_BLOCKS
     }
     selected_230_net = (
         aggregate_counts["treatment"]["230"]
@@ -603,16 +867,20 @@ def aggregate_heldout_gate(folds: Sequence[Mapping]) -> dict[str, object]:
     improves_230 = sum(
         values["230"] > 0 for values in fold_deltas.values()
     )
-    structure_retention = {}
+    structure_retention = []
     for row in rows:
-        block = str(row["heldout_block"])
-        structure_retention[block] = {}
+        metrics = {
+            "heldout_block": str(row["heldout_block"]),
+            "season": row.get("season"),
+            "week": row.get("week"),
+        }
         for metric in ("unique_player_pairs", "unique_qb_stack_cores"):
             control_value = int(row["structure"]["control"][metric])
             treatment_value = int(row["structure"]["treatment"][metric])
-            structure_retention[block][metric] = (
+            metrics[metric] = (
                 float(treatment_value / control_value) if control_value else 1.0
             )
+        structure_retention.append(metrics)
     conditions = {
         "aggregate_p230_improves": selected_230_net > 0,
         "at_least_three_heldout_blocks_improve_p230": improves_230 >= 3,
@@ -620,15 +888,17 @@ def aggregate_heldout_gate(folds: Sequence[Mapping]) -> dict[str, object]:
         "aggregate_p194_retains_95pct": retention_194 >= 0.95,
         "every_fold_pair_and_core_retain_90pct": all(
             value >= 0.90
-            for metrics in structure_retention.values()
-            for value in metrics.values()
+            for metrics in structure_retention
+            for key, value in metrics.items()
+            if key in {"unique_player_pairs", "unique_qb_stack_cores"}
         ),
     }
     passes = all(conditions.values())
     return {
         "version": VERSION,
         "uses_realized_outcomes": False,
-        "folds": 5,
+        "folds": len(rows),
+        "slates": slates,
         "aggregate_threshold_counts": aggregate_counts,
         "fold_threshold_deltas": fold_deltas,
         "selected_230_net_worlds": selected_230_net,
@@ -643,6 +913,93 @@ def aggregate_heldout_gate(folds: Sequence[Mapping]) -> dict[str, object]:
             if passes else "constraint-lattice-scorefree-fails"
         ),
         "production_change_licensed": False,
+    }
+
+
+def run_scorefree_slate(
+    books: Mapping[str, CandidateBatch],
+    *,
+    season: int,
+    week: int,
+    expected_worlds_per_block: int = 10_000,
+) -> dict[str, object]:
+    """Run all five outcome-free train-four/test-one folds for one slate."""
+    if int(season) not in {2023, 2024, 2025} or int(week) not in range(1, 19):
+        raise ValueError("constraint-lattice slate identity is outside scope")
+    folds = []
+    for heldout in REGISTERED_BLOCKS:
+        control = build_training_control(
+            books,
+            heldout,
+            expected_worlds_per_block=expected_worlds_per_block,
+        )
+        candidate_lineups = control["candidate_lineups"]
+        forbidden = {_roster_key(lineup) for lineup in candidate_lineups}
+        raw_candidates, generation = generate_exception_candidates(
+            player_rows=control["player_rows"],
+            row_draws_by_block=control["row_draws_by_block"],
+            training_blocks=control["training_blocks"],
+            forbidden_rosters=forbidden,
+        )
+        retained, ranking = rank_exception_candidates(
+            raw_candidates, control["training_blocks"],
+        )
+        sleeve = construct_exception_sleeve(
+            control["control_lineups"],
+            control["control_totals_by_block"],
+            retained,
+            control["training_blocks"],
+        )
+        player_ids = control["player_ids"]
+        heldout_draws = np.asarray(control["heldout_row_draws"], dtype=np.float32)
+        control_rows = _roster_rows(control["control_lineups"], player_ids)
+        treatment_rows = _roster_rows(sleeve["lineups"], player_ids)
+        heldout_result = evaluate_heldout_fold(
+            heldout_block=heldout,
+            control_lineups=control["control_lineups"],
+            treatment_lineups=sleeve["lineups"],
+            control_totals=heldout_draws[control_rows].sum(axis=1),
+            treatment_totals=heldout_draws[treatment_rows].sum(axis=1),
+            season=int(season),
+            week=int(week),
+        )
+        folds.append({
+            **heldout_result,
+            "training_blocks": list(control["training_blocks"]),
+            "candidate_budget": int(control["candidate_budget"]),
+            "training_union_candidates": int(
+                control["training_union_candidates"]
+            ),
+            "raw_exception_candidates": len(raw_candidates),
+            "retained_exception_candidates": len(retained),
+            "control_candidate_rosters": [
+                list(_roster_key(lineup)) for lineup in candidate_lineups
+            ],
+            "control_rosters": [
+                list(_roster_key(lineup)) for lineup in control["control_lineups"]
+            ],
+            "treatment_rosters": [
+                list(_roster_key(lineup)) for lineup in sleeve["lineups"]
+            ],
+            "generation": generation,
+            "candidate_ranking": ranking,
+            "admission": {
+                "admitted": sleeve["admitted"],
+                "rejected": sleeve["rejected"],
+                "control_coverage_world_counts": sleeve[
+                    "control_coverage_world_counts"
+                ],
+                "treatment_coverage_world_counts": sleeve[
+                    "treatment_coverage_world_counts"
+                ],
+            },
+        })
+    return {
+        "version": VERSION,
+        "uses_realized_outcomes": False,
+        "season": int(season),
+        "week": int(week),
+        "folds": folds,
     }
 
 
@@ -664,16 +1021,20 @@ __all__ = [
     "CELL_QUOTAS",
     "ExceptionCandidate",
     "REPORT_THRESHOLDS",
+    "REGISTERED_BLOCKS",
     "TRAINING_THRESHOLDS",
     "VERSION",
     "aggregate_heldout_gate",
+    "build_training_control",
     "construct_exception_sleeve",
     "evaluate_heldout_fold",
     "exception_cell",
+    "generate_exception_candidates",
     "is_strict_lineup",
     "lineup_constraint_profile",
     "protocol_receipt",
     "rank_exception_candidates",
+    "run_scorefree_slate",
     "stack_rules_for_cell",
     "validate_exception_book",
 ]
