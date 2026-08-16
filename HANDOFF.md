@@ -81,6 +81,35 @@ agent or developer:
   matched-diversity MVP protocol from the already-declared ATLAS Part-B/C
   contract, implement it without reading realized outcomes, validate an
   immutable cloud image, and run P2 versus P1 as the causal comparison.
+- That next score-free cell is now frozen at
+  `reports/2026-08-16-atlas-matched-diversity-mvp-protocol.md`, SHA-256
+  `badc0d64be69694caadd8fb2fe16a293c0cfbfe1f7813b4e80dc45e10b727abf`.
+  It fixes P0 canonical CBWU, P1 incumbent+CBWU-OI and P2 ATLAS+CBWU-OI;
+  P2 versus P1 is causal. Per native seed, P2 replaces exactly 40 boom
+  candidates with eight deterministic structural world clusters times five
+  unique lineups. Top-40 ATLAS exact worlds anchor clusters by distinct
+  dominant game, then QB-stack core/identity fallback. Subsequent solutions
+  retain 98% of the world's optimum, maximize uncovered conditional tuple
+  weight, and use stable identity as a third solve stage. Tuple pricing is
+  leave-one-seed-out: middle-two trimmed 194 support across the other four
+  blocks, capped native-seed novelty `min(2,sqrt(5/a))`, and class-normalized
+  `80%` pair / `20%` QB+two-catcher stack-core mass. Complete non-boom tuple
+  coverage is removed before pricing. P2 must reproduce exactly 40 additions
+  per seed and 200 globally per slate before the identical OI admission and
+  exact-80 selector; no 98% or count relaxation is allowed. The frozen
+  score-free gate requires stronger conditional pair coverage, >=90% core
+  preservation, candidate-pool p210 gain in aggregate and >=3/5 pricing-
+  excluded blocks, >=95% candidate-pool p230 retention, and >=90% exact-80
+  p194/p230 retention. A pass licenses only a 2026 pre-lock shadow.
+  Source preflight confirms all 269 BigQuery-bound money cells contain exactly
+  40 boom candidates; every complete five-panel slate has 200 distinct boom
+  additions and none overlaps the non-boom union. The R3/2025 Week 1 GCS-
+  recovered transfer cell lacks roster/tag arrays by design, so the protocol
+  freezes one exact-image, exact-seed, create-only deterministic replay repair.
+  It must reproduce original player IDs/draws, candidate indices/totals
+  exactly and recover 248 legal roster/tag rows including 40 boom, or the MVP
+  is mechanically invalid. Implement and validate this source repair before
+  the MVP analyzer; query no outcome fields.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
