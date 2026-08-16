@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 01:00 CDT
+## Current state — 2026-08-16 01:08 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -143,6 +143,21 @@ agent or developer:
   `scripts/cloud_finish_atlas_mvp_source_repair.sh`; do not inspect partial
   candidates or infer a result before the strict harvest completes. Local
   work may implement the score-free MVP primitives while it runs.
+  That implementation is now materially underway: optional pair/triple
+  binary objectives and floors were added to the shared legal optimizer with
+  default-path behavior unchanged. New score-free primitives deterministically
+  build eight structural clusters, price all eligible native player pairs and
+  QB+two-catcher cores with the registered leave-one-seed-out middle-two law,
+  remove complete non-boom coverage, enumerate exact/98%-near-optimal lineups
+  in five round-robin passes with stable identity tie-breaking and cyclic
+  refill, and replace native boom rows exactly 40-for-40. Player/candidate row
+  permutation tests pass. A full synthetic legal-slate exercise produced 40
+  unique additions in 41 proposals with one disclosed cluster refill and no
+  floor/count failure. Sixty-one focused ATLAS/repair/optimizer/CBWU tests,
+  Python compile and diff checks pass. The repair execution remains running
+  cleanly; no partial candidate/output result has been inspected. Next build
+  the three-season score-free runner/aggregator and immutable image while the
+  repair continues.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five

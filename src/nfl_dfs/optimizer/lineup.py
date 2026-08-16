@@ -121,6 +121,9 @@ def optimize(
     env: Mapping[str, str] | None = None,
     objective_floor_col: str | None = None,
     objective_floor: float | None = None,
+    interaction_objective: Mapping[tuple[object, ...], float] | None = None,
+    interaction_floor_weights: Mapping[tuple[object, ...], float] | None = None,
+    interaction_floor: float | None = None,
 ) -> Lineup | None:
     """Solve one lineup. Returns None if infeasible.
     game_lock=(game_id, n) forces >= n players from that game — the
@@ -130,7 +133,49 @@ def optimize(
     x = {p["id"]: pulp.LpVariable(f"x_{p['id']}", cat="Binary") for p in players}
     by_id = {p["id"]: p for p in players}
 
-    prob += pulp.lpSum(x[p["id"]] * float(p[objective_col]) for p in players)
+    interaction_maps = [
+        mapping for mapping in (
+            interaction_objective, interaction_floor_weights,
+        ) if mapping is not None
+    ]
+    canonical_interactions: dict[tuple[object, ...], float] = {}
+    for mapping in interaction_maps:
+        for raw_tuple, raw_weight in mapping.items():
+            key = tuple(sorted(tuple(raw_tuple), key=str))
+            weight = float(raw_weight)
+            if len(key) not in {2, 3} or len(set(key)) != len(key) or \
+                    any(player_id not in x for player_id in key):
+                raise ValueError("interaction tuple must contain 2-3 pool players")
+            if not np.isfinite(weight) or weight < 0.0:
+                raise ValueError("interaction weights must be finite/nonnegative")
+            if key in canonical_interactions and \
+                    canonical_interactions[key] != weight:
+                raise ValueError("interaction tuple has conflicting weights")
+            canonical_interactions[key] = weight
+    y: dict[tuple[object, ...], pulp.LpVariable] = {}
+    for index, key in enumerate(sorted(canonical_interactions, key=lambda t: tuple(
+            str(value) for value in t))):
+        variable = pulp.LpVariable(f"interaction_{index}", cat="Binary")
+        y[key] = variable
+        for player_id in key:
+            prob += variable <= x[player_id]
+        prob += variable >= pulp.lpSum(x[player_id] for player_id in key) - (
+            len(key) - 1
+        )
+
+    def interaction_expression(weights: Mapping[tuple[object, ...], float]):
+        normalized = {
+            tuple(sorted(tuple(key), key=str)): float(value)
+            for key, value in weights.items()
+        }
+        return pulp.lpSum(y[key] * weight for key, weight in normalized.items())
+
+    if interaction_objective is None:
+        prob += pulp.lpSum(
+            x[p["id"]] * float(p[objective_col]) for p in players
+        )
+    else:
+        prob += interaction_expression(interaction_objective)
     if (objective_floor_col is None) != (objective_floor is None):
         raise ValueError(
             "objective floor column and value must be provided together"
@@ -142,6 +187,15 @@ def optimize(
         prob += pulp.lpSum(
             x[p["id"]] * float(p[objective_floor_col]) for p in players
         ) >= floor
+    if (interaction_floor_weights is None) != (interaction_floor is None):
+        raise ValueError(
+            "interaction floor weights and value must be provided together"
+        )
+    if interaction_floor_weights is not None:
+        floor = float(interaction_floor)
+        if not np.isfinite(floor):
+            raise ValueError("interaction floor must be finite")
+        prob += interaction_expression(interaction_floor_weights) >= floor
     prob += pulp.lpSum(x[p["id"]] * p["salary"] for p in players) <= budget
     # Milly winners spend the cap (2025 median $0 left; 2023-24 90% within
     # $300). Replay-validated 2026-07-26 (run I): mean best-of-40 180.1 ->

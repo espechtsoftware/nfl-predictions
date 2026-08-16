@@ -60,6 +60,39 @@ def test_locks_and_bans():
     assert best_qb["id"] not in ids
 
 
+def test_interaction_objective_and_floor():
+    pool = make_pool()
+    pair = tuple(p["id"] for p in sorted(
+        (p for p in pool if p["pos"] == "WR"),
+        key=lambda p: p["proj"],
+    )[:2])
+    stage_two = optimize(
+        pool, interaction_objective={pair: 1.0},
+    )
+    assert stage_two is not None
+    assert set(pair) <= stage_two.ids
+    # A different player objective cannot shed the interaction once its
+    # optimum is retained by the frozen third-stage floor.
+    for rank, player in enumerate(sorted(pool, key=lambda p: str(p["id"]))):
+        player["stable_identity"] = -float(rank + 1)
+    stage_three = optimize(
+        pool, objective_col="stable_identity",
+        interaction_floor_weights={pair: 1.0}, interaction_floor=1.0 - 1e-9,
+    )
+    assert stage_three is not None
+    assert set(pair) <= stage_three.ids
+
+
+def test_interaction_contract_rejects_malformed_tuple():
+    pool = make_pool()
+    with pytest.raises(ValueError, match="2-3 pool players"):
+        optimize(pool, interaction_objective={(pool[0]["id"],): 1.0})
+    with pytest.raises(ValueError, match="finite/nonnegative"):
+        optimize(pool, interaction_objective={
+            (pool[0]["id"], pool[1]["id"]): -1.0,
+        })
+
+
 def test_qb_stack_and_bring_back():
     pool = make_pool()
     lu = optimize(pool, stack=StackRules(qb_stack_min=2, bring_back_min=1))
