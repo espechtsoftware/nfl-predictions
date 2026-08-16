@@ -505,6 +505,16 @@ agent or developer:
   Both are provisioned and nonterminal. Poll the exact pair without inspecting
   partial artifacts; after both are terminal invoke only the strict diagnostic
   finisher.
+  While those immutable original-formulation diagnostics run, an independent
+  exact formulation proof is documented at
+  `reports/2026-08-16-atlas-interaction-integrality-proof.md`. Every priced
+  pair/triple auxiliary is forced to 0/1 by the binary roster variables and
+  product constraints, so declaring it continuous on `[0,1]` removes redundant
+  branch-and-bound integers without changing any feasible integer roster or
+  objective. The default non-interaction path is untouched. The implementation
+  and direct model-category test are local only; 39 focused optimizer/ATLAS/
+  diagnostic tests pass. Do not call it repair3 or deploy it until the two
+  original-binary diagnostic receipts are terminal and strictly harvested.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five

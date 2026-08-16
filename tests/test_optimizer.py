@@ -1,4 +1,5 @@
 import numpy as np
+import pulp
 import pytest
 
 from nfl_dfs.optimizer.export import exposure_summary, to_dk_csv
@@ -81,6 +82,32 @@ def test_interaction_objective_and_floor():
     )
     assert stage_three is not None
     assert set(pair) <= stage_three.ids
+
+
+def test_interaction_auxiliaries_are_exact_continuous(monkeypatch):
+    pool = make_pool()
+    pair = tuple(p["id"] for p in pool if p["pos"] == "WR")[:2]
+    original = pulp.LpProblem.solve
+    observed = {}
+
+    def capture(problem, solver=None, **kwargs):
+        variables = [
+            variable for variable in problem.variables()
+            if variable.name.startswith("interaction_")
+        ]
+        observed["categories"] = {variable.cat for variable in variables}
+        observed["bounds"] = {
+            (variable.lowBound, variable.upBound) for variable in variables
+        }
+        return original(problem, solver=solver, **kwargs)
+
+    monkeypatch.setattr(pulp.LpProblem, "solve", capture)
+    lineup = optimize(pool, interaction_objective={pair: 1.0})
+    assert lineup is not None and set(pair) <= lineup.ids
+    assert observed == {
+        "categories": {pulp.LpContinuous},
+        "bounds": {(0.0, 1.0)},
+    }
 
 
 def test_interaction_contract_rejects_malformed_tuple():

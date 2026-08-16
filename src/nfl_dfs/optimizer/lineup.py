@@ -155,7 +155,15 @@ def optimize(
     y: dict[tuple[object, ...], pulp.LpVariable] = {}
     for index, key in enumerate(sorted(canonical_interactions, key=lambda t: tuple(
             str(value) for value in t))):
-        variable = pulp.LpVariable(f"interaction_{index}", cat="Binary")
+        # This product variable is exactly integral whenever the roster x
+        # variables are binary: all members selected forces y=1; any missing
+        # member forces y=0. Keeping y continuous therefore preserves the
+        # feasible set/objective exactly while avoiding thousands of redundant
+        # branch-and-bound integers in interaction-heavy research solves.
+        variable = pulp.LpVariable(
+            f"interaction_{index}", lowBound=0.0, upBound=1.0,
+            cat="Continuous",
+        )
         y[key] = variable
         for player_id in key:
             prob += variable <= x[player_id]

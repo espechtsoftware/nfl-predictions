@@ -499,6 +499,10 @@ The exact diagnostics are running as
 `atlas-cbc-diag-2024-w16-v1-89fq4`; their manifest and execution-ledger hashes
 are `d04a31dec0a9ee4ac4889def0bc2d618024e274550907935a9eac42bd4a2301f`
 and `2421e6ae9c8849ab044959576f750954066c201e694e908dc0d27fbc0ba68924`.
+An independent exact integrality proof and default-off implementation candidate
+are recorded at `reports/2026-08-16-atlas-interaction-integrality-proof.md`.
+It cannot affect the running immutable diagnostics and is not yet a repair3
+license.
 
 ## Evidence firewall for reviewers
 
