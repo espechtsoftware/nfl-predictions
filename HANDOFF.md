@@ -1068,8 +1068,11 @@ agent or developer:
   shell syntax checks and whitespace checks pass. The scientific protocol,
   inputs, cells, quotas, ranker, admission law and gate are unchanged. Digest
   `sha256:899c512f...eac6a` remains evidence for the prior implementation but
-  is superseded for execution; commit/push this strict-harvest conformance
-  repair and build one new exact-source image before the queue can release.
+  is superseded for execution. The strict-harvest conformance repair is pushed
+  at exact source commit `cfa9887`. Superseding clean-archive Cloud Build
+  `085ef00a-bd31-4876-8814-fff5b31df27c` is running under create-only tag
+  `constraint-lattice-cfa9887`; require its full suite, image build and all
+  real-container smokes before recording a new executable digest.
   At `2026-08-16T21:20Z`, 32-GiB preflight execution
   `atlas-cbc-32g-full-2023-w8-v1-lbzjd` remains nonterminal with one running
   task. The terminal-only strict-harvest and conditional repair5/parity
