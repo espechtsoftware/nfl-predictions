@@ -549,9 +549,11 @@ agent or developer:
   220/230/240 each to be nonnegative. It explicitly discloses that the 200
   anchor was informed by prior CBWU-OI results on the same panel. The scorer,
   launcher and strict finisher bind this amendment, and a regression test
-  proves that +2 at 200 plus a lost 230 week cannot pass. Nineteen focused
-  diagnostic/historical tests, Python compilation, four shell syntax checks
-  and diff checks pass. These scorer changes make every earlier scorer image
+  proves that +2 at 200 plus a lost 230 week cannot pass. Twenty focused
+  diagnostic/historical tests pass, including a real packaged-CBC process
+  smoke that preserves the exact optimum while capturing a zero child return
+  and cgroup snapshots; Python compilation, four shell syntax checks and diff
+  checks also pass. These scorer changes make every earlier scorer image
   mechanically superseded; repair3 will require a newly bound image anyway.
   The correction is committed and pushed on `main` at `fdb6c93` with script
   mode metadata at `1bd3b59`. The three exact resource diagnostic executions

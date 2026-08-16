@@ -1,6 +1,8 @@
 import importlib.util
 from pathlib import Path
 
+import pulp
+
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "scripts/run_atlas_cbc_resource_diagnostic.py"
@@ -54,6 +56,28 @@ def test_tracked_process_records_returncode_signal_and_oom_delta(monkeypatch):
     assert summary["oom_kill_delta_total"] == 1
     assert summary["maximum_memory_peak_bytes"] == 950
     assert summary["maximum_memory_peak_ratio"] == 0.95
+
+
+def test_diagnostic_wrapper_preserves_a_real_cbc_optimum(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(MODULE, "_CHILD_PROCESS_COUNT", 0)
+    monkeypatch.setattr(MODULE, "_FIRST_CGROUP_BEFORE", None)
+    monkeypatch.setattr(MODULE, "_LAST_CHILD", None)
+    monkeypatch.setattr(MODULE, "_OOM_KILL_DELTA_TOTAL", 0)
+    monkeypatch.setattr(MODULE, "_MAX_PEAK_BYTES", None)
+    monkeypatch.setattr(MODULE, "_MAX_PEAK_RATIO", None)
+    x = pulp.LpVariable("x", lowBound=0, upBound=1, cat="Binary")
+    problem = pulp.LpProblem("resource_smoke", pulp.LpMaximize)
+    problem += x
+    problem += x <= 1
+    status = problem.solve(MODULE.DiagnosticCBC(msg=False))
+    summary = MODULE._resource_summary()
+    assert pulp.LpStatus[status] == "Optimal"
+    assert x.value() == 1.0
+    assert summary["child_process_count"] == 1
+    assert summary["last_child"]["returncode"] == 0
+    assert summary["last_child"]["terminating_signal"] is None
+    assert summary["last_child"]["cgroup_before"]["version"] in (1, 2)
 
 
 def test_launcher_and_finisher_bind_exact_resource_diagnostic():
