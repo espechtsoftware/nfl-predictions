@@ -317,6 +317,18 @@ source commit `6be659bbd4dd6436fd89291af230cadb06dc1546`: 1,591 passed,
 2 skipped and 5 warnings in 1,130.52 seconds. Its immutable image is
 `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:00ce36b7debd344a7fd264df6d00b9a37184abcc9e24285a658968289b38f251`.
 
+The frozen three-season MVP is now running from that digest and exact code
+SHA `6be659bbd4dd6436fd89291af230cadb06dc1546`:
+
+- 2023: `atlas-matched-diversity-2023-v1-zsfl4`
+- 2024: `atlas-matched-diversity-2024-v1-gd46z`
+- 2025: `atlas-matched-diversity-2025-v1-8bt6t`
+
+The create-only launch manifest and execution identities are under
+`reports/atlas-matched-diversity-runs/20260816-atlas-matched-diversity-mvp-v1/`.
+No partial season result may receive an effect interpretation; run only the
+strict three-season finisher after all executions are terminal.
+
 ## Evidence firewall for reviewers
 
 - Score-free results establish simulated-law premises, not realized DFS

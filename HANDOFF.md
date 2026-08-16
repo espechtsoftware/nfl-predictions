@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 02:53 CDT
+## Current state — 2026-08-16 02:55 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -220,6 +220,14 @@ agent or developer:
   `sha256:00ce36b7debd344a7fd264df6d00b9a37184abcc9e24285a658968289b38f251`.
   Launch all three frozen MVP season jobs using only that digest and
   `CODE_SHA=6be659bbd4dd6436fd89291af230cadb06dc1546`.
+  They are now running concurrently as executions
+  `atlas-matched-diversity-2023-v1-zsfl4`,
+  `atlas-matched-diversity-2024-v1-gd46z` and
+  `atlas-matched-diversity-2025-v1-8bt6t`. The create-only launch manifest and
+  execution list are under
+  `reports/atlas-matched-diversity-runs/20260816-atlas-matched-diversity-mvp-v1/`.
+  Poll all three without interpreting partial season output; once all are
+  terminal, invoke only `scripts/cloud_finish_atlas_matched_diversity_mvp.sh`.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five

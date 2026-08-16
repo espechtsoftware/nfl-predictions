@@ -1,0 +1,3 @@
+2023 atlas-matched-diversity-2023-v1 atlas-matched-diversity-2023-v1-zsfl4 gs://nfl-predictions-503414-raw/research/atlas-matched-diversity-runs/20260816-atlas-matched-diversity-mvp-v1/season-2023.json
+2024 atlas-matched-diversity-2024-v1 atlas-matched-diversity-2024-v1-gd46z gs://nfl-predictions-503414-raw/research/atlas-matched-diversity-runs/20260816-atlas-matched-diversity-mvp-v1/season-2024.json
+2025 atlas-matched-diversity-2025-v1 atlas-matched-diversity-2025-v1-8bt6t gs://nfl-predictions-503414-raw/research/atlas-matched-diversity-runs/20260816-atlas-matched-diversity-mvp-v1/season-2025.json
