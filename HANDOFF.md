@@ -94,10 +94,14 @@ agent or developer:
   commit `9c09b8c889ddd6e53ea8df1eaf26905b8e7be440`, but it did not execute the
   repository's full-test Cloud Build configuration and must not be cited as
   validation. Superseding full clean-archive build
-  `eb7791ad-f3c6-4745-8333-e1c55e127637` is `WORKING` from that exact commit
-  under tag `exact-n-validated-9c09b8c`; require the complete test suite and
-  resolve its immutable digest. Keep launch order ATLAS harvest, paired OI
-  selector stability, then exact-N.
+  `eb7791ad-f3c6-4745-8333-e1c55e127637` succeeded from that exact commit:
+  1,544 tests passed, 2 skipped and 5 warnings in 1,040.55 seconds. Tag
+  `exact-n-validated-9c09b8c` resolves to immutable digest
+  `sha256:7185894cc4f09afb8626b0d8d027fe80fcfb1926392e64710c86cc15c73460ae`.
+  This is the validated exact-N/acquisition replay image. Keep launch order
+  ATLAS harvest, paired OI selector stability, then exact-N; the production-
+  law acquisition may use this digest after the strict ATLAS dependency and
+  available compute are confirmed.
 
 - Exact clean-archive selector-stability Cloud Build
   `1a1abee7-b4ab-4867-a8ce-042caaed70df` completed successfully at
