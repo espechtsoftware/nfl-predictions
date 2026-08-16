@@ -31,6 +31,25 @@ All four cardinalities passed exact-N, uniqueness, production legality and the
 exact N=80 parity control. The only failures were N=40's two primary-target
 improvement conditions.
 
+## Descriptive season robustness
+
+These season splits were not additional gates and do not alter the frozen
+disposition. They show whether the aggregate signal is concentrated in one
+season. `+ / = / -` counts slates with positive, tied or negative primary-
+target coverage deltas.
+
+| N | 2023 mean delta (+/=/-) | 2024 mean delta (+/=/-) | 2025 mean delta (+/=/-) | Mean control/treatment identity overlap |
+|---:|---:|---:|---:|---:|
+| 1 | +0.0000356 (9/7/2) | +0.0000078 (6/10/2) | +0.0000111 (6/8/4) | 0.44 / 1 |
+| 3 | +0.0001033 (11/2/5) | +0.0000578 (13/1/4) | +0.0000978 (13/2/3) | 1.37 / 3 |
+| 20 | +0.0004589 (16/0/2) | +0.0005256 (15/0/3) | +0.0006211 (14/1/3) | 14.26 / 20 |
+| 40 | -0.0000200 (9/0/9) | -0.0001189 (7/0/11) | -0.0000500 (8/0/10) | 32.46 / 40 |
+
+N=3 and N=20 have positive mean deltas in every season. N=40 has negative
+mean deltas in every season. The modest identity overlaps confirm that the
+cardinality-aware treatment is changing book membership rather than merely
+reordering the incumbent prefix.
+
 ## Interpretation
 
 - The result supports the user's premise that low-entry contests need a

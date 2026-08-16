@@ -20,11 +20,11 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 21:59 CDT
+## Current state — 2026-08-15 22:03 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
-- Branch is `main`; this milestone starts from pushed commit `216d294`.
+- Branch is `main`; this milestone starts from pushed commit `36b370e`.
   ATLAS execution `atlas-world-ranking-scorefree-v1-l59bt` completed cleanly at
   `2026-08-16T00:33:46.605244Z` and passed the strengthened strict harvester.
   The frozen finite-K + SIS-ASOE Phase S result passes all six conditions:
@@ -112,6 +112,10 @@ agent or developer:
   SHA-256 values are
   `2af0549c1880529d1c9380f28b8e9565c5ed3833db23f1b2bc128ddccea8b287`
   and `d501daa6cda79049a81319337a3029e0c53bab528f49a8e518d057e4079d8609`.
+  Descriptive season splits are directionally consistent: N=3 and N=20 have
+  positive mean primary-tail deltas in each of 2023--2025, while N=40 is
+  negative in every season; complete per-slate evidence remains in the raw
+  report.
 
 - The required outcome-free production-law ATLAS transfer is frozen before
   the Phase S result at

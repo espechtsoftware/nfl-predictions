@@ -137,6 +137,13 @@ Key measurements:
 | 20 | 210 | +1.62% | 96.80% | 5/5 | pre-lock shadow |
 | 40 | 200 | -0.05% | 98.60% | 1/5 | failed/closed |
 
+Descriptive, non-gating season checks reinforce the direction: N=3 and N=20
+have positive mean primary-tail deltas in each of 2023, 2024 and 2025, while
+N=40 is negative in each season. Mean treatment/control identity overlaps are
+`0.44/1`, `1.37/3`, `14.26/20` and `32.46/40`, confirming that the mechanism
+changes membership rather than merely reordering the existing prefix. The
+complete season/slate distributions remain in the raw result JSON.
+
 ## E. Production-law world acquisition
 
 - Frozen transfer protocol:
