@@ -375,6 +375,27 @@ agent or developer:
   the score-free gate result. The shard stage itself produces no historical
   scores; the downstream diagnostic produces the frozen 2023--2025 candidate
   and exact-80 weekly score comparisons.
+  A pre-result scorer handoff audit then found that the validated historical
+  scorer image still bound the cancelled repair1 three-season executions.
+  Its scoring law is valid, but that image/launcher cannot consume the 54
+  repair2 execution receipt and therefore must not be launched. Before any
+  shard completed, any shard object was opened or any effect was observed,
+  transport-only amendment
+  `reports/2026-08-16-atlas-historical-score-sharded-upstream-amendment.md`
+  was frozen with SHA-256
+  `ce32274be00678cdef24b3d174578a2e2ce212164166da2a712a9df1562fcd5d`.
+  The scorer now binds repair2 code/image/prefix, the exact hashed 54-row
+  execution ledger, all 54 terminal execution metadata objects, strict shard
+  hash manifests, and the assembled season/aggregate generations and hashes.
+  It changes no P1/P2 reconstruction, roster, score, selector, threshold,
+  gate or consequence. The launcher/runner/finisher and focused tests are
+  repaired; 14 focused historical/sharding tests, Python compilation, both
+  shell syntax checks and diff checks pass. Build a new clean immutable scorer
+  image from the repair commit; the earlier historical scorer digest remains
+  scientifically valid for repair1 but is mechanically superseded for this
+  repair2 run. At the audit poll all 54 shard executions had acquired one
+  running task, no ERROR logs existed and no seed/slate completion marker had
+  yet appeared. Continue polling while the superseding scorer image builds.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five

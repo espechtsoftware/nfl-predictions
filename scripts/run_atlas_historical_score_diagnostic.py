@@ -46,20 +46,81 @@ SOURCE_PANELS = tuple(
     f"20260815-atlas-money-worlds-r{seed}-v1" for seed in range(5)
 )
 REPAIR_PANEL = "20260816-atlas-mvp-repair-r3-2025-v1"
-UPSTREAM_CODE_SHA = "44236483bb5bbf874da3f281a66af9e77dc3c9c9"
+UPSTREAM_CODE_SHA = "60f296fdad769b30c0bb7334118698f156e462b9"
 UPSTREAM_IMAGE = (
     "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@"
-    "sha256:15916bf8d4ced52cc94f502a2a2979b9e386420aec943208ba0b933d51727771"
+    "sha256:ce03feb739e51aabedd7cea79f46e13a06a097a7f85e9a5817f38184b67f4fcb"
 )
 UPSTREAM_PREFIX = (
     "gs://nfl-predictions-503414-raw/research/atlas-matched-diversity-runs/"
-    "20260816-atlas-matched-diversity-mvp-v1-repair1"
+    "20260816-atlas-matched-diversity-mvp-v1-repair2"
 )
 UPSTREAM_EXECUTIONS = {
-    2023: "atlas-matched-diversity-2023-v1-repair1-hwj79",
-    2024: "atlas-matched-diversity-2024-v1-repair1-ghvxk",
-    2025: "atlas-matched-diversity-2025-v1-repair1-qmnmq",
+    (2023, 1): "atlas-md-s2023-w1-r2-qbg8l",
+    (2023, 2): "atlas-md-s2023-w2-r2-6ln9w",
+    (2023, 3): "atlas-md-s2023-w3-r2-hl7bd",
+    (2023, 4): "atlas-md-s2023-w4-r2-cjkvb",
+    (2023, 5): "atlas-md-s2023-w5-r2-mm28w",
+    (2023, 6): "atlas-md-s2023-w6-r2-v9v29",
+    (2023, 7): "atlas-md-s2023-w7-r2-rqn5v",
+    (2023, 8): "atlas-md-s2023-w8-r2-frfrj",
+    (2023, 9): "atlas-md-s2023-w9-r2-xjzwp",
+    (2023, 10): "atlas-md-s2023-w10-r2-znldw",
+    (2023, 11): "atlas-md-s2023-w11-r2-j85q4",
+    (2023, 12): "atlas-md-s2023-w12-r2-6ccn5",
+    (2023, 13): "atlas-md-s2023-w13-r2-h7vj4",
+    (2023, 14): "atlas-md-s2023-w14-r2-sdb64",
+    (2023, 15): "atlas-md-s2023-w15-r2-r99hj",
+    (2023, 16): "atlas-md-s2023-w16-r2-hkjq8",
+    (2023, 17): "atlas-md-s2023-w17-r2-54gmc",
+    (2023, 18): "atlas-md-s2023-w18-r2-wh9mh",
+    (2024, 1): "atlas-md-s2024-w1-r2-5c5q2",
+    (2024, 2): "atlas-md-s2024-w2-r2-vb57k",
+    (2024, 3): "atlas-md-s2024-w3-r2-fps5s",
+    (2024, 4): "atlas-md-s2024-w4-r2-h9sk8",
+    (2024, 5): "atlas-md-s2024-w5-r2-rhr47",
+    (2024, 6): "atlas-md-s2024-w6-r2-894kh",
+    (2024, 7): "atlas-md-s2024-w7-r2-r9gnq",
+    (2024, 8): "atlas-md-s2024-w8-r2-95xms",
+    (2024, 9): "atlas-md-s2024-w9-r2-4bhsm",
+    (2024, 10): "atlas-md-s2024-w10-r2-mmm8b",
+    (2024, 11): "atlas-md-s2024-w11-r2-spbx7",
+    (2024, 12): "atlas-md-s2024-w12-r2-xrvvh",
+    (2024, 13): "atlas-md-s2024-w13-r2-cgkpf",
+    (2024, 14): "atlas-md-s2024-w14-r2-fhkg7",
+    (2024, 15): "atlas-md-s2024-w15-r2-vnl5z",
+    (2024, 16): "atlas-md-s2024-w16-r2-dkvln",
+    (2024, 17): "atlas-md-s2024-w17-r2-xf28g",
+    (2024, 18): "atlas-md-s2024-w18-r2-8hcqk",
+    (2025, 1): "atlas-md-s2025-w1-r2-b2pzf",
+    (2025, 2): "atlas-md-s2025-w2-r2-r6d6m",
+    (2025, 3): "atlas-md-s2025-w3-r2-86vd9",
+    (2025, 4): "atlas-md-s2025-w4-r2-6hc4z",
+    (2025, 5): "atlas-md-s2025-w5-r2-gj6gl",
+    (2025, 6): "atlas-md-s2025-w6-r2-kqwmh",
+    (2025, 7): "atlas-md-s2025-w7-r2-9cdqw",
+    (2025, 8): "atlas-md-s2025-w8-r2-q22h4",
+    (2025, 9): "atlas-md-s2025-w9-r2-p8mwk",
+    (2025, 10): "atlas-md-s2025-w10-r2-sjn86",
+    (2025, 11): "atlas-md-s2025-w11-r2-svsxz",
+    (2025, 12): "atlas-md-s2025-w12-r2-vcwts",
+    (2025, 13): "atlas-md-s2025-w13-r2-htj5v",
+    (2025, 14): "atlas-md-s2025-w14-r2-w4g6d",
+    (2025, 15): "atlas-md-s2025-w15-r2-hmkjh",
+    (2025, 16): "atlas-md-s2025-w16-r2-t4csj",
+    (2025, 17): "atlas-md-s2025-w17-r2-tvkvd",
+    (2025, 18): "atlas-md-s2025-w18-r2-7jpss",
 }
+UPSTREAM_EXECUTION_NAMES = {
+    f"{season}-{week}": name
+    for (season, week), name in UPSTREAM_EXECUTIONS.items()
+}
+UPSTREAM_MANIFEST_SHA256 = (
+    "080c85700219ac246b093f2556c474f4bd79257809cf0e006766a1ed48e95d24"
+)
+UPSTREAM_EXECUTION_LEDGER_SHA256 = (
+    "6794f8e608497613aec2f06f2bd13e57cf08b945d7ac20e2d4d00eb1ee3d5ea5"
+)
 PROTOCOL = Path("reports/2026-08-16-atlas-historical-score-diagnostic-protocol.md")
 PROTOCOL_SHA256 = "4b618b5f8b8b8ed61dc5518e5b8b1cb8d5941e92f088ddb0a53af05d37f4239e"
 PARITY_AMENDMENT = Path(
@@ -67,6 +128,12 @@ PARITY_AMENDMENT = Path(
 )
 PARITY_AMENDMENT_SHA256 = (
     "6e3997e4e81ffe20063fdf76aff7c3655cdd1424aea350a5e29a681a1cd1832e"
+)
+SHARDED_UPSTREAM_AMENDMENT = Path(
+    "reports/2026-08-16-atlas-historical-score-sharded-upstream-amendment.md"
+)
+SHARDED_UPSTREAM_AMENDMENT_SHA256 = (
+    "ce32274be00678cdef24b3d174578a2e2ce212164166da2a712a9df1562fcd5d"
 )
 OUTPUT_PREFIX = (
     "gs://nfl-predictions-503414-raw/research/atlas-historical-score-runs/"
@@ -127,8 +194,8 @@ def _download_json(
     }
 
 
-def _validate_execution(value: dict, season: int) -> None:
-    name = UPSTREAM_EXECUTIONS[season]
+def _validate_execution(value: dict, season: int, week: int) -> None:
+    name = UPSTREAM_EXECUTIONS[(season, week)]
     if value.get("metadata", {}).get("name") != name:
         raise RuntimeError("ATLAS historical upstream execution name differs")
     status = value.get("status", {})
@@ -146,12 +213,13 @@ def _validate_execution(value: dict, season: int) -> None:
             len(containers) != 1:
         raise RuntimeError("ATLAS historical upstream task shape differs")
     container = containers[0]
-    expected_uri = f"{UPSTREAM_PREFIX}/season-{season}.json"
+    expected_uri = f"{UPSTREAM_PREFIX}/slate-{season}-{week}.json"
     if container.get("image") != UPSTREAM_IMAGE or \
             container.get("command") != ["python"] or \
             container.get("args") != [
                 "scripts/run_atlas_matched_diversity_mvp.py", "--season",
-                str(season), "--output-uri", expected_uri,
+                str(season), "--week", str(week),
+                "--output-uri", expected_uri,
             ]:
         raise RuntimeError("ATLAS historical upstream command/image differs")
     env = {row.get("name"): str(row.get("value", ""))
@@ -159,24 +227,28 @@ def _validate_execution(value: dict, season: int) -> None:
     if env != {"CODE_SHA": UPSTREAM_CODE_SHA, "ANALYSIS_IMAGE": UPSTREAM_IMAGE}:
         raise RuntimeError("ATLAS historical upstream environment differs")
     if container.get("resources", {}).get("limits") != {
-        "cpu": "8", "memory": "32Gi",
+        "cpu": "1", "memory": "4Gi",
     } or template.get("maxRetries") != 0 or \
-            str(template.get("timeoutSeconds")) != "28800" or \
+            str(template.get("timeoutSeconds")) != "43200" or \
             template.get("serviceAccountName") != SERVICE_ACCOUNT:
         raise RuntimeError("ATLAS historical upstream resources differ")
 
 
 def _validate_upstream_receipt(receipt: dict) -> dict[str, dict]:
-    if receipt.get("version") != "atlas-historical-upstream-receipt-v1" or \
+    if receipt.get("version") != "atlas-historical-upstream-receipt-v2" or \
             receipt.get("uses_realized_outcomes") is not False or \
             receipt.get("upstream_code_sha") != UPSTREAM_CODE_SHA or \
-            receipt.get("upstream_image") != UPSTREAM_IMAGE:
+            receipt.get("upstream_image") != UPSTREAM_IMAGE or \
+            receipt.get("upstream_manifest_sha256") != \
+            UPSTREAM_MANIFEST_SHA256 or \
+            receipt.get("upstream_execution_ledger_sha256") != \
+            UPSTREAM_EXECUTION_LEDGER_SHA256:
         raise RuntimeError("ATLAS historical upstream receipt identity differs")
     executions = receipt.get("executions", {})
-    if set(executions) != {"2023", "2024", "2025"}:
-        raise RuntimeError("ATLAS historical upstream receipt season grid differs")
-    for season in (2023, 2024, 2025):
-        _validate_execution(executions[str(season)], season)
+    if set(executions) != set(UPSTREAM_EXECUTION_NAMES):
+        raise RuntimeError("ATLAS historical upstream receipt shard grid differs")
+    for season, week in UPSTREAM_EXECUTIONS:
+        _validate_execution(executions[f"{season}-{week}"], season, week)
     objects = receipt.get("objects", {})
     expected = {"report", "season-2023", "season-2024", "season-2025"}
     if set(objects) != expected:
@@ -407,6 +479,10 @@ def run(upstream_receipt_uri: str, output_uri: str) -> dict:
     if not PARITY_AMENDMENT.is_file() or \
             _file_sha(PARITY_AMENDMENT) != PARITY_AMENDMENT_SHA256:
         raise RuntimeError("ATLAS historical source-parity amendment differs")
+    if not SHARDED_UPSTREAM_AMENDMENT.is_file() or \
+            _file_sha(SHARDED_UPSTREAM_AMENDMENT) != \
+            SHARDED_UPSTREAM_AMENDMENT_SHA256:
+        raise RuntimeError("ATLAS historical sharded-upstream amendment differs")
     code_sha = os.environ.get("CODE_SHA", "").strip()
     image = os.environ.get("ANALYSIS_IMAGE", "").strip()
     if not re.fullmatch(r"[0-9a-f]{40}", code_sha) or not re.fullmatch(
@@ -476,12 +552,15 @@ def run(upstream_receipt_uri: str, output_uri: str) -> dict:
         "scorer_image": image,
         "protocol_sha256": PROTOCOL_SHA256,
         "source_parity_amendment_sha256": PARITY_AMENDMENT_SHA256,
+        "sharded_upstream_amendment_sha256": (
+            SHARDED_UPSTREAM_AMENDMENT_SHA256
+        ),
         "upstream": {
             "code_sha": UPSTREAM_CODE_SHA,
             "image": UPSTREAM_IMAGE,
             "receipt_object": receipt_object,
             "objects": downloaded_receipts,
-            "executions": UPSTREAM_EXECUTIONS,
+            "executions": UPSTREAM_EXECUTION_NAMES,
             "scorefree_gate_passed": aggregate.get("gate", {}).get(
                 "passes_scorefree_gate"
             ),

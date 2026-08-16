@@ -426,6 +426,19 @@ forbidden until every shard reaches terminal success. The shard outputs remain
 score-free; the separately frozen and validated historical scorer runs only
 after this strict harvest and will then report actual 2023--2025 weekly scores.
 
+A pre-result handoff audit found that the first validated scorer image was
+still mechanically pinned to the cancelled repair1 three-season receipt. It
+must not be used for repair2. The scoring law is unchanged; the transport-only
+repair is frozen at
+`reports/2026-08-16-atlas-historical-score-sharded-upstream-amendment.md`,
+SHA-256
+`ce32274be00678cdef24b3d174578a2e2ce212164166da2a712a9df1562fcd5d`.
+It requires the scorer to bind all 54 exact repair2 executions, the hashed
+launch manifest/ledger, strict shard manifests and the three assembled season
+objects plus aggregate. No score, roster, selector, threshold, gate or
+consequence changes. A new immutable scorer image is required from the repair
+commit before the outcome-facing diagnostic launches.
+
 ## Evidence firewall for reviewers
 
 - Score-free results establish simulated-law premises, not realized DFS
