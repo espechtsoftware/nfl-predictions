@@ -623,9 +623,26 @@ agent or developer:
   resource pressure. The cgroup diagnostic remains authoritative. Strict
   native completion receipt SHA-256 is
   `37fe3a1666d9804ecced01c75998d720dbf20dede288bf13287769fc3c79fd4c`.
-  Next concrete action: poll instrumented Week 15 and the independent 16-GiB
-  preflight to terminal, run only their strict finishers, and then freeze the
-  complete 54-cell repair3 from the combined resource evidence.
+  The three-cell cgroup diagnostic is also terminal and strictly harvested.
+  Week 15 completed R0, while Weeks 7 and 16 failed with exact child return
+  code `-9` / `SIGKILL`. Their true cgroup peaks were respectively 82.11%,
+  84.24% and 84.38% of 4 GiB. Cloud Run exposed the cgroup-v1 compatibility
+  path with `failcnt`, not an `oom_kill` counter, so the mechanical disposition
+  is correctly `sigkill-without-cgroup-oom-confirmation` rather than proven
+  OOM. Nevertheless, the successful Week 15 cell exceeds the prospectively
+  frozen 80% pressure boundary, and both failed cells peak higher; resource
+  pressure is therefore supported and the frozen 4-CPU/16-GiB repair branch
+  is licensed. Result report is
+  `reports/2026-08-16-atlas-cbc-resource-diagnostic-result.md`; summary and
+  completion SHA-256 values are
+  `c467332d78b09589680e9354ef9454d6c3f14a0193d4db15b559dde55af1472a`
+  and `2412fa80e01e98633ded7224f544f2b5f19ff47c04971d8fc6e99d0413777ff1`.
+  This licenses only the resource envelope, not an ATLAS effect, score result
+  or production change. The independent 16-GiB Week 15 preflight remains the
+  go/no-go check before launching all 54 new repair3 identities.
+  Next concrete action: poll the independent 16-GiB preflight to terminal and
+  run only its strict finisher while freezing the complete 54-cell resource-
+  only repair3; launch the grid only if the preflight validates R0 completion.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five

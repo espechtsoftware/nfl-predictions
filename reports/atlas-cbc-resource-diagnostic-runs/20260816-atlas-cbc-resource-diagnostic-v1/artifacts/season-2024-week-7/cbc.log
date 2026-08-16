@@ -1,0 +1,58 @@
+Welcome to the CBC MILP Solver 
+Version: 2.10.3 
+Build Date: Dec 15 2019 
+
+command line - /usr/local/lib/python3.11/site-packages/pulp/apis/../solverdir/cbc/linux/i64/cbc dfs-pulp.mps -max -timeMode elapsed -solve -printingOptions all -solution dfs-pulp.sol (default strategy 1)
+At line 2 NAME          MODEL
+At line 3 ROWS
+At line 9823 COLUMNS
+At line 64326 RHS
+At line 74145 BOUNDS
+At line 77651 ENDATA
+Problem MODEL has 9818 rows, 3505 columns and 47007 elements
+Coin0008I MODEL read with 0 errors
+Option for timeMode changed from cpu to elapsed
+Continuous objective value is -1419.83 - 0.44 seconds
+Cgl0003I 0 fixed, 0 tightened bounds, 1333 strengthened rows, 0 substitutions
+Cgl0003I 0 fixed, 0 tightened bounds, 694 strengthened rows, 0 substitutions
+Cgl0003I 0 fixed, 0 tightened bounds, 358 strengthened rows, 0 substitutions
+Cgl0003I 0 fixed, 0 tightened bounds, 175 strengthened rows, 0 substitutions
+Cgl0003I 0 fixed, 0 tightened bounds, 50 strengthened rows, 0 substitutions
+Cgl0003I 0 fixed, 0 tightened bounds, 17 strengthened rows, 0 substitutions
+Cgl0003I 0 fixed, 0 tightened bounds, 4 strengthened rows, 0 substitutions
+Cgl0003I 0 fixed, 0 tightened bounds, 4 strengthened rows, 0 substitutions
+Cgl0004I processed model has 9498 rows, 3504 columns (3504 integer (3504 of which binary)) and 47641 elements
+Cutoff increment increased from 1e-05 to 0.9999
+Cbc0038I Initial state - 89 integers unsatisfied sum - 2.00937
+Cbc0038I Pass   1: (6.80 seconds) suminf.    0.43350 (141) obj. 1439.02 iterations 4211
+Cbc0038I Pass   2: (6.89 seconds) suminf.    7.05617 (29) obj. 1774.76 iterations 645
+Cbc0038I Pass   3: (6.97 seconds) suminf.    4.01051 (89) obj. 1861.82 iterations 439
+Cbc0038I Pass   4: (7.01 seconds) suminf.    3.32829 (101) obj. 2127.39 iterations 95
+Cbc0038I Pass   5: (7.29 seconds) suminf.    3.42240 (20) obj. 2029.07 iterations 2086
+Cbc0038I Pass   6: (7.32 seconds) suminf.    2.41388 (10) obj. 2010.1 iterations 211
+Cbc0038I Pass   7: (7.34 seconds) suminf.    2.41388 (10) obj. 2010.1 iterations 10
+Cbc0038I Pass   8: (7.35 seconds) suminf.    1.84645 (11) obj. 2142.92 iterations 20
+Cbc0038I Pass   9: (7.36 seconds) suminf.    1.84645 (11) obj. 2142.92 iterations 0
+Cbc0038I Pass  10: (7.46 seconds) suminf.    4.06190 (125) obj. 2049.87 iterations 546
+Cbc0038I Pass  11: (7.51 seconds) suminf.    2.72202 (10) obj. 2052.49 iterations 371
+Cbc0038I Pass  12: (7.58 seconds) suminf.    3.73348 (124) obj. 2026.81 iterations 467
+Cbc0038I Pass  13: (7.67 seconds) suminf.    2.58612 (101) obj. 1990.12 iterations 258
+Cbc0038I Pass  14: (7.71 seconds) suminf.    5.58439 (21) obj. 1910.47 iterations 437
+Cbc0038I Pass  15: (7.79 seconds) suminf.    2.68614 (131) obj. 2006.4 iterations 382
+Cbc0038I Pass  16: (7.85 seconds) suminf.    2.53337 (130) obj. 1996.52 iterations 212
+Cbc0038I Pass  17: (7.89 seconds) suminf.    2.51112 (132) obj. 1998.44 iterations 90
+Cbc0038I Pass  18: (7.95 seconds) suminf.    6.25905 (20) obj. 2026 iterations 385
+Cbc0038I Pass  19: (8.05 seconds) suminf.    1.90880 (11) obj. 2127.29 iterations 653
+Cbc0038I Pass  20: (8.06 seconds) suminf.    1.84645 (11) obj. 2142.92 iterations 19
+Cbc0038I Pass  21: (8.08 seconds) suminf.    1.84645 (11) obj. 2142.92 iterations 3
+Cbc0038I Pass  22: (8.12 seconds) suminf.    2.55952 (17) obj. 2138.72 iterations 399
+Cbc0038I Pass  23: (8.16 seconds) suminf.    1.84645 (11) obj. 2142.92 iterations 329
+Cbc0038I Pass  24: (8.27 seconds) suminf.    4.05125 (17) obj. 2051.55 iterations 689
+Cbc0038I Pass  25: (8.31 seconds) suminf.    2.72202 (10) obj. 2052.49 iterations 366
+Cbc0038I Pass  26: (8.38 seconds) suminf.    3.73348 (124) obj. 2026.81 iterations 457
+Cbc0038I Pass  27: (8.48 seconds) suminf.    2.58612 (101) obj. 1990.12 iterations 280
+Cbc0038I Pass  28: (8.52 seconds) suminf.    4.89614 (31) obj. 1912.83 iterations 401
+Cbc0038I Pass  29: (8.61 seconds) suminf.    2.51112 (132) obj. 1998.44 iterations 443
+Cbc0038I Pass  30: (8.70 seconds) suminf.    7.31243 (49) obj. 2099.7 iterations 381
+Cbc0038I No solution found this major pass
+Cbc0038I Before mini branch and bound, 32
