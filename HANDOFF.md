@@ -883,6 +883,11 @@ agent or developer:
   Git archive under create-only tag `atlas-continuous-0679731-r1`. Poll it to
   terminal and record its immutable digest only if the complete suite, image
   build and both container smokes succeed; do not launch the parity cell yet.
+  The same namespace defect would have broken every future generic build, so
+  tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
+  `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).
+  This infrastructure correction does not affect the already-submitted parity
+  build, which uses its separately frozen exact-archive configuration.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
