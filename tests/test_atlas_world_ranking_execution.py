@@ -50,9 +50,14 @@ def test_atlas_cloud_contract_is_create_only_and_packaged():
     assert "COPY scripts/run_atlas_world_ranking.py" in docker
     assert "manifest.txt" in launch
     assert "execution.txt" in launch
-    assert "len(report.get(\"source_artifacts\", [])) != 270" in finish
+    assert "len(sources) != 270" in finish
     assert "gate.get(\"rows\") != 270" in finish
     assert "uses_realized_outcomes" in finish
+    assert 'row.get("type") == "Completed"' in finish
+    assert 'status.get("succeededCount") or 0' in finish
+    assert 'container.get("image") != manifest.get("image")' in finish
+    assert 'source_keys != diagnostic_keys' in finish
+    assert 'ATLAS aggregate metrics are invalid' in finish
 
 
 def test_atlas_player_catalog_may_include_authoritative_only_rows():

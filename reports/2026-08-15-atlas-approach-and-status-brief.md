@@ -90,6 +90,11 @@ The point is new search geometry, not more candidates or looser rules.
 The current diagnostic is a deliberately cheaper falsification of Part A.
 For each of five simulation panels (R0--R4) on each of 54 slates, it reads the
 immutable 10,000-world player-draw artifact: 270 seed/slate artifacts total.
+These are specifically the selected Phase S treatment panels: finite
+Dirichlet `K=28.154043586960896` plus SIS-ASOE target-allocation rank
+transport. They are not the current money-policy simulation law, which uses
+production multinomial allocation (`GAME_SIM_USAGE=""`, no Dirichlet K) and
+does not enable the Phase S ASOE research branch.
 
 For every world it computes two rankings:
 
@@ -148,10 +153,12 @@ identities, stack cores, and dominant games. The proxy is mechanically checked
 so no exact legal optimum may exceed its bound.
 
 This gate is a premise falsifier, not an adoption gate. Passing would justify
-building the already-specified ATLAS MVP. It would not prove that ATLAS raises
-realized C or S, and it cannot promote a money lineup. Failing would reject
-this cheap ranking primitive as currently specified; it would not prove that
-all diverse near-optimal construction is useless.
+engineering the already-specified ATLAS MVP under the Phase S law, subject to
+an outcome-free transfer confirmation under exact current-money worlds. It
+would not prove that ATLAS raises realized C or S, and it cannot promote a
+money lineup. Failing would reject this cheap ranking primitive under the
+Phase S law as currently specified; it would not prove that the production-
+multinomial version or all diverse near-optimal construction is useless.
 
 ## Outcome and leakage firewall
 

@@ -129,3 +129,68 @@ def test_frozen_scorefree_gate_requires_five_stable_seeds():
     rows[0]["uses_realized_outcomes"] = True
     with pytest.raises(ValueError, match="outcome-facing"):
         atlas.aggregate_scorefree_gate(rows)
+
+
+def _gate_rows():
+    return [{
+        "seed": seed, "season": 2025, "week": 1,
+        "uses_realized_outcomes": False,
+        "incumbent_exact": {
+            "mean_exact_legal_optimum": 200.0,
+            "q25_exact_legal_optimum": 190.0,
+            "unique_exact_rosters": 20,
+            "unique_qb_stack_cores": 10,
+            "unique_dominant_games": 8,
+        },
+        "attainable_exact": {
+            "mean_exact_legal_optimum": 201.0,
+            "q25_exact_legal_optimum": 190.5,
+            "unique_exact_rosters": 18,
+            "unique_qb_stack_cores": 9,
+            "unique_dominant_games": 7,
+        },
+    } for seed in range(5)]
+
+
+@pytest.mark.parametrize("condition", [
+    "aggregate_mean_improves",
+    "at_least_three_seed_means_improve",
+    "aggregate_q25_nonworse",
+    "roster_diversity_at_least_80pct",
+    "stack_core_diversity_at_least_80pct",
+    "dominant_game_diversity_at_least_80pct",
+])
+def test_each_frozen_gate_condition_can_fail(condition):
+    rows = _gate_rows()
+    if condition == "aggregate_mean_improves":
+        for index, row in enumerate(rows):
+            row["attainable_exact"]["mean_exact_legal_optimum"] = (
+                201.0 if index < 3 else 198.0
+            )
+    elif condition == "at_least_three_seed_means_improve":
+        for index, row in enumerate(rows):
+            row["attainable_exact"]["mean_exact_legal_optimum"] = (
+                203.0 if index < 2 else 200.0
+            )
+    elif condition == "aggregate_q25_nonworse":
+        for row in rows:
+            row["attainable_exact"]["q25_exact_legal_optimum"] = 189.5
+    elif condition == "roster_diversity_at_least_80pct":
+        for row in rows:
+            row["attainable_exact"]["unique_exact_rosters"] = 15
+    elif condition == "stack_core_diversity_at_least_80pct":
+        for row in rows:
+            row["attainable_exact"]["unique_qb_stack_cores"] = 7
+    else:
+        for row in rows:
+            row["attainable_exact"]["unique_dominant_games"] = 6
+    result = atlas.aggregate_scorefree_gate(rows)
+    assert result["conditions"][condition] is False
+    assert not result["passes_scorefree_falsifier"]
+
+
+def test_gate_rejects_nonfinite_aggregate_metric():
+    rows = _gate_rows()
+    rows[0]["attainable_exact"]["mean_exact_legal_optimum"] = float("nan")
+    with pytest.raises(ValueError, match="must be finite"):
+        atlas.aggregate_scorefree_gate(rows)

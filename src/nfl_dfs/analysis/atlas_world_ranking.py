@@ -254,6 +254,15 @@ def aggregate_scorefree_gate(rows: Sequence[Mapping]) -> dict:
     seeds = sorted({row["seed"] for row in frame})
     if seeds != [0, 1, 2, 3, 4]:
         raise ValueError("ATLAS aggregate requires exact seeds R0--R4")
+    numeric = np.asarray([
+        [
+            row["mean_delta"], row["q25_delta"], row["roster_ratio"],
+            row["core_ratio"], row["game_ratio"],
+        ]
+        for row in frame
+    ], dtype=float)
+    if not np.isfinite(numeric).all():
+        raise ValueError("ATLAS aggregate metrics must be finite")
     per_seed_mean_delta = {
         str(seed): float(np.mean([
             row["mean_delta"] for row in frame if row["seed"] == seed

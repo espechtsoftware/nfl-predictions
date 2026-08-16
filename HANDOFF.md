@@ -20,9 +20,44 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 18:57 CDT
+## Current state — 2026-08-15 19:04 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
+
+- The supplied ATLAS approach/code review is reconciled at
+  `reports/2026-08-15-atlas-approach-and-code-review-reconciliation.md`,
+  SHA-256
+  `81595342715db45b5eae4c986a727743981ffdb2e1377ce04f04183a45926049`.
+  Its core source-law objection is confirmed: the running cell uses the five
+  finite-K plus SIS-ASOE Phase S panels, not the current production-
+  multinomial money law. Preserve its frozen all-six disposition as a valid
+  law-specific result, separately disclose its three Part-A quality and
+  three raw-diversity conditions, and do not infer production transfer from
+  either a pass or fail. After strict harvest, run one exact outcome-free
+  current-money-law transfer cell with unchanged parameters. Any later MVP
+  must compare ATLAS+CBWU-OI against incumbent+CBWU-OI, match realized unique
+  post-dedup additions rather than solve attempts, measure novelty
+  conditional on the complete non-boom pool, and use deterministic multi-pass
+  tie handling. The strengthened ATLAS finisher now independently binds the
+  Cloud Run execution image/command/environment/resources/account to its
+  manifest, persists a hashed execution receipt, requires exact 270-key and
+  54-slate-per-seed coverage, verifies the proxy/constraint contract and
+  rejects nonfinite aggregates. All 27 focused ATLAS/exact-N/source-preflight
+  tests pass; Python/shell/diff checks pass. This does not mutate the running
+  science.
+- The reviewer-ready ATLAS brief now explicitly identifies that source-law
+  boundary; its superseding SHA-256 is
+  `7cd3b6e7dccaa1932c26ec149574bd03c4a8c786b5a8b718b3e9bd66996d71f2`.
+  At 19:03 CDT `atlas-world-ranking-scorefree-v1-l59bt` remained active with
+  `Completed=Unknown`, `runningCount=1` and no result. Continue polling and
+  invoke only `scripts/cloud_finish_atlas_world_ranking.sh` after terminal
+  success.
+- Exact clean-archive Cloud Build
+  `8c4ffe7f-1144-4da7-861b-eddfbbf5ffae` is `WORKING` from exact implementation
+  commit `9c09b8c889ddd6e53ea8df1eaf26905b8e7be440` under tag
+  `exact-n-9c09b8c`. Require a successful complete test suite and resolve its
+  immutable digest, but keep launch order ATLAS harvest, paired OI selector
+  stability, then exact-N.
 
 - Exact clean-archive selector-stability Cloud Build
   `1a1abee7-b4ab-4867-a8ce-042caaed70df` completed successfully at
@@ -75,8 +110,8 @@ agent or developer:
   A reviewer-ready explanation of the diagnosis, current proxy, exact MILP
   comparison, six-condition falsifier, firewall, cloud identities and next
   MVP is tracked at
-  `reports/2026-08-15-atlas-approach-and-status-brief.md`, SHA-256
-  `8cfc3584beaa3ed42f4603cf7cd90016345a0881cbfa24c6b4e82d3a3976ad79`.
+  `reports/2026-08-15-atlas-approach-and-status-brief.md`, superseded SHA-256
+  `7cd3b6e7dccaa1932c26ec149574bd03c4a8c786b5a8b718b3e9bd66996d71f2`.
   At 18:48 CDT the
   repaired ATLAS execution `atlas-world-ranking-scorefree-v1-l59bt` still had
   one running task and no terminal result; full selector-stability build
