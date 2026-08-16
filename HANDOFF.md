@@ -974,6 +974,7 @@ agent or developer:
   launcher or Cloud execution exists yet; next implement the four-block OI
   control reconstruction and deterministic cell-candidate generator, then
   validate them synthetically before adding any cloud path.
+  These primitives are pushed on `main` at commit `7c74f2a`.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).
