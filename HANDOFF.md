@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 19:17 CDT
+## Current state — 2026-08-15 19:31 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -48,8 +48,18 @@ agent or developer:
   reports bound slack, proxy/exact rank correlation, paired exact-quality
   wins/ties/losses, top-8/20/40 overlap and cutoff ties. All 63 focused
   ATLAS/transfer/optimizer tests pass, Python files compile, shell syntax and
-  diff validation pass. A separate strict acquisition finisher and transfer
-  analyzer remain to implement before launch.
+  diff validation pass. The acquisition finisher now binds all 15 terminal
+  execution metadata/env/resource receipts and a complete 270-cell BQ source
+  grid without consulting `labels_complete` or outcome columns. The packaged
+  transfer analyzer verifies those local hashes, every logged scientific
+  lever and object digest, exact player-world shapes, the pre-lock player
+  corpus and the three-condition Part-A disposition; its create-only launcher
+  and strict execution/report finisher are complete. Seventy focused
+  ATLAS/transfer/optimizer/preflight tests pass; all new Python files compile,
+  CLIs load, four shell scripts parse and the diff is clean. Nothing has
+  launched ahead of the registered queue. Build a new exact clean-archive
+  image after the acquisition receipts exist so the analyzer image contains
+  those immutable local sources.
 
 - The supplied ATLAS approach/code review is reconciled at
   `reports/2026-08-15-atlas-approach-and-code-review-reconciliation.md`,

@@ -136,3 +136,66 @@ def gcloud_environment(env: Mapping[str, str], delimiter: str = "|") -> str:
            or "\r" in value for key, value in values.items()):
         raise ValueError("ATLAS environment cannot be serialized safely")
     return delimiter.join(f"{key}={value}" for key, value in values.items())
+
+
+def parse_logged_lever_environment(text: str) -> dict[str, str]:
+    """Parse the candidate logger's comma-delimited scientific receipt.
+
+    Some values themselves contain commas, so separators are recognized only
+    when followed by another uppercase environment key.
+    """
+    raw = str(text)
+    parts = re.split(r",(?=[A-Z][A-Z0-9_]*=)", raw) if raw else []
+    result: dict[str, str] = {}
+    for part in parts:
+        key, marker, value = part.partition("=")
+        if not marker or not re.fullmatch(r"[A-Z][A-Z0-9_]*", key) or \
+                key in result:
+            raise ValueError("ATLAS logged lever environment is malformed")
+        result[key] = value
+    return result
+
+
+def validate_logged_source_environment(text: str, block: int) -> dict[str, str]:
+    """Verify score-facing source levers against the frozen money contract."""
+    block = int(block)
+    panel_id(block)
+    projection_seed, role_seed = SEED_PAIRS[block]
+    values = parse_logged_lever_environment(text)
+    expected = {
+        "CAND_ARTIFACT_PLAYER_WORLDS": "1",
+        "EPISTEMIC_FAMILY": "role_draws",
+        "GAME_SIM_MODE": "possession",
+        "GAME_SIM_TEAM_FACTORS": "1",
+        "GAME_SIM_USAGE": "",
+        "MODEL_ENSEMBLE": "1",
+        "MODEL_REGISTRY_VARIANT": "tail_k1",
+        "MULTISEED_CANDIDATE_ENTRY_BASIS": "",
+        "MULTISEED_PORTFOLIO": "",
+        "MULTISEED_SEED_PAIRS": "",
+        "MULTISEED_WORLDS_PER_BLOCK": "",
+        "REPLAY_PROJECTION_SEED": str(projection_seed),
+        "ROLE_BELIEF_SEED": str(role_seed),
+        "SERVED_POSITION_SCALES": (
+            "QB:0.970,RB:1.005,TE:0.940,WR:1.070"
+        ),
+        "SIM_WIDEN_DRAWS": "fitted",
+        "TABPFN_MARGINALS": "1",
+        "TABPFN_MARGINAL_TABLE": "",
+        "TD_LEDGER": "",
+    }
+    differences = {
+        key: (values.get(key), value)
+        for key, value in expected.items()
+        if values.get(key) != value
+    }
+    forbidden = {
+        key: value for key, value in values.items()
+        if key in {
+            "DIRICHLET_K", "SIS_ASOE_BETA",
+            "SIS_ASOE_TARGET_ALLOCATION",
+        } and str(value).strip()
+    }
+    if differences or forbidden:
+        raise ValueError("ATLAS logged source environment differs")
+    return values

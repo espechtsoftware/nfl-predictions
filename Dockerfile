@@ -49,6 +49,7 @@ COPY scripts/run_post_forensic_construction_addendum.py ./scripts/run_post_foren
 COPY scripts/run_exact_p_generator_constraint_census.py ./scripts/run_exact_p_generator_constraint_census.py
 COPY scripts/run_exact_p_corrected_identity_source.py ./scripts/run_exact_p_corrected_identity_source.py
 COPY scripts/run_atlas_world_ranking.py ./scripts/run_atlas_world_ranking.py
+COPY scripts/run_atlas_money_transfer.py ./scripts/run_atlas_money_transfer.py
 COPY scripts/run_cbwu_seed_order_audit.py ./scripts/run_cbwu_seed_order_audit.py
 COPY scripts/run_cbwu_oi_construction_diagnostic.py ./scripts/run_cbwu_oi_construction_diagnostic.py
 COPY scripts/run_cbwu_oi_selector_stability.py ./scripts/run_cbwu_oi_selector_stability.py

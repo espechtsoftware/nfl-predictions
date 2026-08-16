@@ -67,6 +67,33 @@ def test_environment_receipt_and_gcloud_serialization_are_stable():
         transfer.gcloud_environment({"BAD": "a|b"})
 
 
+def test_logged_lever_parser_preserves_comma_values_and_validates_source():
+    env = transfer.acquisition_environment(
+        block=3, season=2025, code_sha=CODE_SHA, project=PROJECT,
+    )
+    logged_keys = {
+        "CAND_ARTIFACT_PLAYER_WORLDS", "EPISTEMIC_FAMILY",
+        "GAME_SIM_MODE", "GAME_SIM_TEAM_FACTORS", "GAME_SIM_USAGE",
+        "MODEL_ENSEMBLE", "MODEL_REGISTRY_VARIANT",
+        "MULTISEED_CANDIDATE_ENTRY_BASIS", "MULTISEED_PORTFOLIO",
+        "MULTISEED_SEED_PAIRS", "MULTISEED_WORLDS_PER_BLOCK",
+        "REPLAY_PROJECTION_SEED", "ROLE_BELIEF_FEATURES",
+        "ROLE_BELIEF_SEED", "SERVED_POSITION_SCALES",
+        "SIM_WIDEN_DRAWS", "TABPFN_MARGINALS",
+        "TABPFN_MARGINAL_TABLE", "TD_LEDGER",
+    }
+    text = ",".join(
+        f"{key}={env[key]}" for key in sorted(logged_keys)
+    )
+    parsed = transfer.validate_logged_source_environment(text, 3)
+    assert parsed["ROLE_BELIEF_FEATURES"] == env["ROLE_BELIEF_FEATURES"]
+    assert parsed["SERVED_POSITION_SCALES"] == env["SERVED_POSITION_SCALES"]
+    with pytest.raises(ValueError, match="differs"):
+        transfer.validate_logged_source_environment(
+            text + ",DIRICHLET_K=28.154043586960896", 3,
+        )
+
+
 @pytest.mark.parametrize("block", (-1, 5))
 def test_invalid_block_is_rejected(block):
     with pytest.raises(ValueError, match="block"):
@@ -87,3 +114,47 @@ def test_cloud_launcher_is_create_only_scorefree_and_policy_bound():
     assert "--max-retries 0" in text
     assert "--task-timeout 4h" in text
     assert "COUNT(*) AS n" in text
+
+
+def test_acquisition_finisher_binds_execution_and_complete_source_grid():
+    text = (ROOT / "scripts/cloud_finish_atlas_money_worlds.sh").read_text()
+    assert 'row.get("type") == "Completed"' in text
+    assert 'actual_env != receipt.get("values")' in text
+    assert 'container.get("image") != image' in text
+    assert '"cpu": "4", "memory": "16Gi"' in text
+    assert 'len(rows) != 270' in text
+    assert 'len(reference) != 54' in text
+    assert "labels_complete" not in text
+    assert "actual_score" not in text
+    assert "selected" not in text
+
+
+def test_transfer_runner_is_packaged_and_scorefree_source_bound():
+    runner = (ROOT / "scripts/run_atlas_money_transfer.py").read_text()
+    docker = (ROOT / "Dockerfile").read_text()
+    assert "aggregate_transfer_gate" in runner
+    assert "validate_logged_source_environment" in runner
+    assert "resolve_panel_artifacts" in runner
+    assert "FORBIDDEN_SOURCE_TOKENS" in runner
+    assert '"labels_complete"' in runner
+    assert "candidate_or_lineup_scores_read" in runner
+    assert "production_change_licensed" in runner
+    assert "COPY scripts/run_atlas_money_transfer.py" in docker
+
+
+def test_transfer_cloud_contract_is_create_only_and_strictly_harvested():
+    launch = (ROOT / "scripts/cloud_atlas_money_transfer.sh").read_text()
+    finish = (
+        ROOT / "scripts/cloud_finish_atlas_money_transfer.sh"
+    ).read_text()
+    assert "strict ATLAS money-world acquisition is incomplete" in launch
+    assert "gcloud storage objects describe" in launch
+    assert "--memory 32Gi" in launch
+    assert "--max-retries 0" in launch
+    assert "ACQUISITION_MANIFEST_SHA256" in launch
+    assert 'row.get("type") == "Completed"' in finish
+    assert 'container.get("image") != manifest.get("image")' in finish
+    assert 'preflight.get("artifact_count") != 270' in finish
+    assert 'gate.get("passes_part_a_transfer")' in finish
+    assert 'sum(paired.values()) != 10800' in finish
+    assert "production_change_licensed" in finish
