@@ -81,3 +81,21 @@ def test_repair5_finisher_requires_complete_mechanical_population() -> None:
     assert 'set(row.get("native_boom_counts",{}).values())!={40}' in source
     assert '"slates":54' in source
     assert "aggregate contains outcomes" in source
+
+
+def test_repair5_failure_census_is_frozen_and_score_free() -> None:
+    protocol = ROOT / "reports/2026-08-16-atlas-repair5-terminal-census-protocol.md"
+    census = ROOT / "scripts/cloud_harvest_atlas_repair5_terminal_census.sh"
+    assert sha256(protocol.read_bytes()).hexdigest() == (
+        "94a792d80c4a908aed56034add9635478c738a29522554670c09360458561d0f"
+    )
+    source = census.read_text(encoding="utf-8")
+    assert "20260816-atlas-matched-diversity-mvp-v1-repair5" in source
+    assert 'status_counts["False"] < 1' in source
+    assert '"cpu": "8", "memory": "32Gi"' in source
+    assert 'task.get("maxRetries") != 0' in source
+    assert "gcloud storage ls" in source
+    assert "gcloud storage cp" not in source
+    assert '"effect_fields_inspected": False' in source
+    assert '"historical_scoring_licensed": False' in source
+    assert '"continuous_parity_capacity_released": True' in source

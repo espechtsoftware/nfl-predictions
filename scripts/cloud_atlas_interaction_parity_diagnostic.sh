@@ -12,6 +12,8 @@ PROTOCOL="$ROOT/reports/2026-08-16-atlas-continuous-interaction-parity-protocol.
 PROTOCOL_SHA=0d925bc4c5fd03ca01b53ec2e2d0bdf10e48ca66f959a723aedf28ad636678a1
 BUILD_REPAIR="$ROOT/reports/2026-08-16-atlas-continuous-build-path-repair.md"
 BUILD_REPAIR_SHA=2a3a02f00e2a78b862647aa30da251fab27366181522b5849859b6f770acf5dc
+QUEUE_REPAIR="$ROOT/reports/2026-08-16-atlas-continuous-queue-release-repair.md"
+QUEUE_REPAIR_SHA=c49809b833e5aeec8a386670fb1edf89b6c21ba0312da3fb1775fba77adcc0d5
 BUILD_RECEIPT="$OUT/build-receipt.txt"
 BUILD_RECEIPT_SHA=a3c7032e25bc6bcdcddcd8096d5b08436aa36bf52002298a369d025ba6b78ccf
 SOURCE="$ROOT/scripts/run_atlas_interaction_parity_diagnostic.py"
@@ -24,8 +26,10 @@ IMAGE=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:4
 CODE_SHA=06797314a0ed423b9f5783fc926b269c1fb24371
 BUILD_ID=9e8347a9-7fe1-460f-a0d6-9ba379616b52
 PREFLIGHT="$ROOT/reports/atlas-cbc-32g-full-cell-preflight-runs/20260816-atlas-cbc-32g-full-cell-preflight-v1"
+REPAIR5="$ROOT/reports/atlas-matched-diversity-runs/20260816-atlas-matched-diversity-mvp-v1-repair5"
 
 for SPEC in "$PROTOCOL:$PROTOCOL_SHA" "$BUILD_REPAIR:$BUILD_REPAIR_SHA" \
+  "$QUEUE_REPAIR:$QUEUE_REPAIR_SHA" \
   "$BUILD_RECEIPT:$BUILD_RECEIPT_SHA" "$SOURCE:$SOURCE_SHA" \
   "$RUNNER:$RUNNER_SHA" "$OPTIMIZER:$OPTIMIZER_SHA"; do
   FILE=${SPEC%:*}
@@ -36,8 +40,8 @@ for SPEC in "$PROTOCOL:$PROTOCOL_SHA" "$BUILD_REPAIR:$BUILD_REPAIR_SHA" \
   }
 done
 
-# This launcher is the frozen fallback for a failed binary 32-GiB preflight.
-# A successful or nonterminal binary preflight keeps repair5 ahead in the queue.
+# The binary preflight and repair5 retain priority. Parity is released only by
+# direct preflight failure or a complete metadata-only repair5 failure census.
 for FILE in completion.txt completion.sha256 execution-metadata.json \
   execution-metadata.sha256; do
   [ -s "$PREFLIGHT/$FILE" ] || {
@@ -51,10 +55,45 @@ done
   sha256sum -c execution-metadata.sha256 >/dev/null
 )
 PREFLIGHT_STATUS=$(awk -F= '$1=="status" {print $2}' "$PREFLIGHT/completion.txt")
-[ "$PREFLIGHT_STATUS" = False ] || {
-  echo "ERROR: binary preflight did not fail; repair5 retains queue priority" >&2
+REPAIR5_CENSUS_SHA=none
+REPAIR5_CENSUS_COMPLETION_SHA=none
+if [ "$PREFLIGHT_STATUS" = False ]; then
+  QUEUE_TRIGGER=binary-32g-preflight-failed
+elif [ "$PREFLIGHT_STATUS" = True ]; then
+  if [ -s "$REPAIR5/completion.txt" ]; then
+    echo "ERROR: successful repair5 retains historical-score priority" >&2
+    exit 2
+  fi
+  for FILE in terminal-census.json terminal-census.sha256 \
+    terminal-census-completion.txt terminal-census-completion.sha256; do
+    [ -s "$REPAIR5/$FILE" ] || {
+      echo "ERROR: ATLAS interaction parity awaits repair5 terminal release: $FILE" >&2
+      exit 2
+    }
+  done
+  (
+    cd "$REPAIR5"
+    sha256sum -c terminal-census.sha256 >/dev/null
+    sha256sum -c terminal-census-completion.sha256 >/dev/null
+  )
+  "$ROOT/.venv/bin/python" - "$REPAIR5/terminal-census.json" \
+    "$REPAIR5/terminal-census-completion.txt" <<'PY'
+import json,sys
+census=json.load(open(sys.argv[1],encoding="utf-8"))
+completion=dict(line.rstrip("\n").split("=",1) for line in open(sys.argv[2],encoding="utf-8") if "=" in line)
+if census.get("version")!="atlas-matched-diversity-repair5-terminal-census-v1" or census.get("executions")!=54 or census.get("terminal_failed",0)<1 or census.get("scientific_result_valid") is not False or census.get("effect_fields_inspected") is not False or census.get("historical_scoring_licensed") is not False or census.get("continuous_parity_capacity_released") is not True:
+ raise SystemExit("ERROR: ATLAS repair5 terminal census does not release parity")
+expected={"all_terminal":"true","scientific_result_valid":"false","effect_fields_inspected":"false","historical_scoring_licensed":"false","continuous_parity_capacity_released":"true"}
+if any(completion.get(key)!=value for key,value in expected.items()):
+ raise SystemExit("ERROR: ATLAS repair5 census completion differs")
+PY
+  QUEUE_TRIGGER=repair5-terminal-failure-census
+  REPAIR5_CENSUS_SHA=$(sha256sum "$REPAIR5/terminal-census.json" | awk '{print $1}')
+  REPAIR5_CENSUS_COMPLETION_SHA=$(sha256sum "$REPAIR5/terminal-census-completion.txt" | awk '{print $1}')
+else
+  echo "ERROR: ATLAS interaction parity preflight status differs" >&2
   exit 2
-}
+fi
 
 [ ! -e "$OUT/manifest.txt" ] && [ ! -e "$OUT/execution.txt" ] && \
   [ ! -e "$OUT/completion.txt" ] || {
@@ -83,14 +122,17 @@ PY
 printf '%s\n' \
   "run_id=$RUN_ID" "protocol_sha256=$PROTOCOL_SHA" \
   "build_repair_sha256=$BUILD_REPAIR_SHA" \
+  "queue_release_repair_sha256=$QUEUE_REPAIR_SHA" \
   "build_receipt_sha256=$BUILD_RECEIPT_SHA" "build_id=$BUILD_ID" \
   "diagnostic_source_sha256=$SOURCE_SHA" "runner_sha256=$RUNNER_SHA" \
   "optimizer_sha256=$OPTIMIZER_SHA" "code_sha=$CODE_SHA" \
   "image=$IMAGE" "output_prefix=$PREFIX" \
   "preflight_completion_sha256=$(sha256sum "$PREFLIGHT/completion.txt" | awk '{print $1}')" \
   "preflight_execution_metadata_sha256=$(sha256sum "$PREFLIGHT/execution-metadata.json" | awk '{print $1}')" \
+  "repair5_terminal_census_sha256=$REPAIR5_CENSUS_SHA" \
+  "repair5_terminal_census_completion_sha256=$REPAIR5_CENSUS_COMPLETION_SHA" \
   "command_sha256=$(printf '%s' "$PY_COMMAND" | sha256sum | awk '{print $1}')" \
-  'queue_trigger=binary-32g-preflight-failed' 'cell=2024-15-R0' \
+  "queue_trigger=$QUEUE_TRIGGER" 'cell=2024-15-R0' \
   'cpu=8' 'memory=32Gi' 'max_retries=0' 'timeout_seconds=43200' \
   'uses_realized_outcomes=false' 'persists_lineups=false' \
   'production_change_licensed=false' > "$OUT/manifest.txt"

@@ -74,8 +74,12 @@ def test_interaction_parity_launcher_is_strictly_gated_and_score_free() -> None:
         ROOT / "scripts/cloud_atlas_interaction_parity_diagnostic.sh"
     ).read_text(encoding="utf-8")
     assert "PREFLIGHT_STATUS" in launcher
-    assert '[ "$PREFLIGHT_STATUS" = False ]' in launcher
-    assert "repair5 retains queue priority" in launcher
+    assert 'if [ "$PREFLIGHT_STATUS" = False ]' in launcher
+    assert 'elif [ "$PREFLIGHT_STATUS" = True ]' in launcher
+    assert "repair5-terminal-failure-census" in launcher
+    assert "successful repair5 retains historical-score priority" in launcher
+    assert "continuous_parity_capacity_released" in launcher
+    assert "2026-08-16-atlas-continuous-queue-release-repair.md" in launcher
     assert "ATLAS_INTERACTION_PARITY_SMOKE_OK" in launcher
     assert "atlas-continuous-0679731-r1" not in launcher
     assert (
@@ -99,6 +103,10 @@ def test_interaction_parity_finisher_enforces_exact_gate_and_firewall() -> None:
     assert "ordered_roster_parity" in finisher
     assert "proposal_path_parity" in finisher
     assert "interaction_category_instrumentation_valid" in finisher
+    assert "binary-32g-preflight-failed" in finisher
+    assert "repair5-terminal-failure-census" in finisher
+    assert "repair5_terminal_census_sha256" in finisher
+    assert "continuous_parity_capacity_released" in finisher
     assert "real-slate-parity-passes" in finisher
     assert "real-slate-parity-fails" in finisher
     assert '"roster_ids","player_ids"' in finisher

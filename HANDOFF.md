@@ -897,20 +897,35 @@ agent or developer:
   The corresponding fail-closed parity launcher and strict finisher are now
   implemented at `scripts/cloud_atlas_interaction_parity_diagnostic.sh` and
   `scripts/cloud_finish_atlas_interaction_parity_diagnostic.sh`, SHA-256
-  `7381531e0c11d6846cd3e8b18e7574bbfb9bed353d0e9766f4bfba9d17f4ecd9`
+  `183e29ea4387fcb3a60ea9277a01f1fa514522df50b06dc64b22cf2a3e6c246c`
   and
-  `f62663fdee4fda4606f025fde7fb5030d726ce1322bd544112de022fe4ab075c`.
-  The launcher can proceed only from a strictly harvested failed binary
-  32-GiB preflight; a nonterminal or successful preflight fails closed because
-  binary repair5 retains priority. It verifies the immutable image, injected
+  `0b350fe6874c8ada762a7a9175edf9099fe3f8aa732ea2462b08de81b00987b1`.
+  The first implementation's direct-failure-only queue guard was narrower than
+  the already-frozen protocol. Its prospective implementation repair is
+  `reports/2026-08-16-atlas-continuous-queue-release-repair.md`, SHA-256
+  `c49809b833e5aeec8a386670fb1edf89b6c21ba0312da3fb1775fba77adcc0d5`.
+  The corrected launcher proceeds only from either a strictly harvested failed
+  binary 32-GiB preflight or, after preflight success, a complete metadata-only
+  54-cell repair5 failure census. A successful repair5 retains historical-
+  score priority. It verifies the immutable image, injected
   diagnostic source, installed runner and optimizer in a query-free real-
   container smoke before creating the single 2024 Week 15/R0 job at 8 CPU/32
   GiB. The finisher binds the exact command/environment/resources and admits
   only exact 40-versus-40 ordered-roster and proposal-path parity with valid
   category instrumentation; its receipt field allowlist forbids lineup/player
-  identities and outcome data. Twenty focused parity/repair5/historical tests,
-  Python compilation, both shell syntax checks and diff checks pass. Do not
-  invoke this fallback unless the live binary preflight strictly fails.
+  identities and outcome data.
+  The repair5 failure census was independently frozen before repair5 launch at
+  `reports/2026-08-16-atlas-repair5-terminal-census-protocol.md`, SHA-256
+  `94a792d80c4a908aed56034add9635478c738a29522554670c09360458561d0f`.
+  Harvester `scripts/cloud_harvest_atlas_repair5_terminal_census.sh`, SHA-256
+  `b6b3a2508bbccd8b4790aa37b51a7d9149f042dd16a6fe5796b14c9e1a2720ae`,
+  validates all 54 exact terminal execution identities and resource contracts,
+  records a URI-only object inventory and explicitly opens no shard/effect.
+  It requires at least one natural failure, cannot accept cancellation, makes
+  repair5 scientifically invalid and releases only the separate continuous-
+  parity capacity branch. Twenty-two focused parity/repair5/historical tests,
+  Python compilation, all three shell syntax checks and diff checks pass. Do not
+  invoke this fallback without one of its two exact queue triggers.
   Before repair5 was licensed/launched or any repair5 effect existed, its
   downstream historical handoff was separately frozen at
   `reports/2026-08-16-atlas-historical-score-repair5-upstream-amendment.md`,
