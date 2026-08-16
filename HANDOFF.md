@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 20:07 CDT
+## Current state — 2026-08-15 20:11 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -101,8 +101,25 @@ agent or developer:
   `atlas_money_transfer.py`, `atlas_money_world_env.py` and
   `cloud_atlas_money_worlds.sh`. The launcher requires the strict Phase S
   ATLAS report, an immutable image/full code SHA, unchanged protocol/policy
-  hashes and empty destination panels; it has not launched. Future exact
-  solves now use two passes: retain the primary optimum within `1e-6`, then
+  hashes and empty destination panels. It launched all 15 block/season cells
+  from immutable image digest
+  `sha256:ad4604d86f1b1f7938136650f3d3940c9f1d6edd6a3427d618e6f943822602c8`
+  and exact image code `545ddae1b8e1256fde8e345683e0004aa5463b5e` at
+  20:07--20:10 CDT. The complete durable execution ledger and 15 policy-
+  environment receipts are tracked under
+  `reports/atlas-money-world-runs/20260815-atlas-current-money-worlds-v1/`;
+  execution IDs are `replay-atlasmoney-r0-2023-9hd8r`,
+  `replay-atlasmoney-r0-2024-tjqkz`, `replay-atlasmoney-r0-2025-qznfn`,
+  `replay-atlasmoney-r1-2023-9lqpq`, `replay-atlasmoney-r1-2024-hnkk6`,
+  `replay-atlasmoney-r1-2025-5hr4x`, `replay-atlasmoney-r2-2023-d7trb`,
+  `replay-atlasmoney-r2-2024-skrtd`, `replay-atlasmoney-r2-2025-zchhl`,
+  `replay-atlasmoney-r3-2023-8lcgl`, `replay-atlasmoney-r3-2024-4r8q8`,
+  `replay-atlasmoney-r3-2025-htrch`, `replay-atlasmoney-r4-2023-7lk4s`,
+  `replay-atlasmoney-r4-2024-b6msp` and
+  `replay-atlasmoney-r4-2025-9x24z`. All 15 were `Completed=Unknown` after
+  launch. Poll them and use only `scripts/cloud_finish_atlas_money_worlds.sh`
+  after all are terminal successes. Future exact solves now use two passes:
+  retain the primary optimum within `1e-6`, then
   minimize stable player-identity rank after sorting input rows. Transfer
   output also separates Part-A quality from raw-diversity diagnostics and
   reports bound slack, proxy/exact rank correlation, paired exact-quality
