@@ -392,6 +392,12 @@ generated lineups, the generated identities admitted to P2, and those retained
 by exact-80, including the maximum realized score at every stage. This is a
 frozen descriptive receipt and cannot alter the signal rule.
 
+Clean-archive scorer build `6bcb414b-8d6a-45af-89a2-9d2694bfdc0a`
+passed 1,599 tests, 2 skipped and both real-container runner smokes from exact
+source commit `78b1449c566fe7666eb6174fab97f743df0b2fba`. Its immutable scorer
+image is
+`us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:0ee6812b926a9bdb7ca61537ecf6d58f2e2233a3baac134a58d87400d90b74db`.
+
 ## Evidence firewall for reviewers
 
 - Score-free results establish simulated-law premises, not realized DFS
