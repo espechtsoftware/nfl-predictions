@@ -25,6 +25,9 @@ agent or developer:
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
 - Branch is `main`; this milestone starts from pushed commit `55b7b78`.
+  The ATLAS evidence-review reconciliation, complete fail-closed MVP runner,
+  prospective pair-reach amendment and executable gate are pushed at commit
+  `8933038`.
   ATLAS execution `atlas-world-ranking-scorefree-v1-l59bt` completed cleanly at
   `2026-08-16T00:33:46.605244Z` and passed the strengthened strict harvester.
   The frozen finite-K + SIS-ASOE Phase S result passes all six conditions:
