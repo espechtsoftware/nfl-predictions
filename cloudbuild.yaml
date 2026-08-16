@@ -23,6 +23,8 @@ steps:
       - |
         docker run --rm '${_IMAGE}' \
           python scripts/run_atlas_matched_diversity_mvp.py --help >/dev/null
+        docker run --rm '${_IMAGE}' \
+          python scripts/run_atlas_historical_score_diagnostic.py --help >/dev/null
 images:
   - '${_IMAGE}'
 substitutions:

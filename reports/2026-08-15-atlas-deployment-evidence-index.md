@@ -372,6 +372,22 @@ tail-first signal requires +2 selected 200-point slates, non-worse selected
 after prior outcomes were available, this is diagnostic evidence only; only
 pre-lock 2026 books can promote the strategy.
 
+The executable scorer was completed without opening a partial upstream
+output. It reconstructs both books from all 270 immutable native artifacts,
+requires byte-identical ordered exact-80 identities, and reports candidate and
+selected realized maxima plus every frozen crossing, influence, leave-one-out,
+identity and ATLAS-conversion diagnostic. A live mechanical preflight found
+that the protocol's written 72,520-row source count was wrong: both the exact
+artifact-receipt census and repaired BigQuery source query contain 68,199
+candidate rows. All 68,199 have nine unique players, zero missing outcomes and
+reproduce the stored FLOAT score with maximum absolute difference
+`5.684341886080802e-14`. The prospective source-only amendment is
+`reports/2026-08-16-atlas-historical-score-source-parity-amendment.md`,
+SHA-256
+`6e3997e4e81ffe20063fdf76aff7c3655cdd1424aea350a5e29a681a1cd1832e`.
+It freezes the correct row count and `1e-9` absolute/zero-relative tolerance;
+it changes no identity, score, threshold, gate or consequence.
+
 ## Evidence firewall for reviewers
 
 - Score-free results establish simulated-law premises, not realized DFS

@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 05:55 CDT
+## Current state — 2026-08-16 06:24 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -267,7 +267,7 @@ agent or developer:
   Next concrete action: poll these exact three executions as a set; do not
   inspect or interpret partial season effects; after all three reach terminal
   success invoke only `scripts/cloud_finish_atlas_matched_diversity_mvp.sh`.
-  At 05:55 CDT all three remained on one healthy running task with zero
+  At 06:24 CDT all three remained on one healthy running task with zero
   retries or failures; no season object or partial metric was opened.
   While they remained nonterminal, a separate downstream historical scoring
   protocol was frozen before any upstream output was visible at
@@ -280,8 +280,32 @@ agent or developer:
   selected >=200 slates, non-worse selected >=210 and non-worse candidate-
   pool >=200. This can strengthen or weaken the prospective shadow case but
   cannot promote production because the mechanism postdates viewed historical
-  outcomes. Implement its pure scorer/runner now without reading upstream
-  objects, while continuing terminal polling.
+  outcomes. Its pure scoring/aggregation module, immutable runner, cloud
+  launcher, strict finisher, packaging smoke and seven focused tests are now
+  implemented locally. The runner reconstructs both CBWU-OI books from the
+  exact 270 native artifacts, reads only the 200 accepted ATLAS rosters per
+  slate from the immutable upstream receipts, reproduces the ordered exact-80
+  identities, scores candidate and selected maxima, and reports the complete
+  frozen threshold/crossing/influence/leave-one-out/identity/conversion grid.
+  A live source preflight found the protocol's stated 72,520 candidate count
+  was a mechanical census error: the exact 270 transfer artifact receipts and
+  the exact repaired BigQuery query both contain 68,199 rows. Their nine-player
+  outcome sums reproduce `actual_score` for every row with zero missing IDs
+  and maximum absolute FLOAT error `5.684341886080802e-14`. This was corrected
+  before any upstream output was opened through prospective source-parity
+  amendment
+  `reports/2026-08-16-atlas-historical-score-source-parity-amendment.md`,
+  SHA-256
+  `6e3997e4e81ffe20063fdf76aff7c3655cdd1424aea350a5e29a681a1cd1832e`;
+  it fixes the row count at 68,199 and absolute tolerance at `1e-9`, changing
+  no roster, score, threshold or disposition rule. The complete local suite
+  passes with 1,599 tests, 2 skipped and 93 warnings in 728.26 seconds;
+  Python compilation, two shell syntax checks, live source parity and diff
+  checks also pass. Next concrete action remains polling the three exact upstream
+  executions; after all terminal successes, run only the strict upstream
+  finisher. Meanwhile commit/push this scorer milestone and build one clean
+  immutable scorer image so the outcome-facing job can launch immediately
+  after the strict upstream harvest.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
