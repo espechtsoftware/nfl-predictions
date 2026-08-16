@@ -20,11 +20,11 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 21:36 CDT
+## Current state — 2026-08-15 21:50 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
-- Branch is `main`; this milestone starts from pushed commit `d1b67b1`.
+- Branch is `main`; this milestone starts from pushed commit `10028445132390d644a77292addf61d4fc79d471`.
   ATLAS execution `atlas-world-ranking-scorefree-v1-l59bt` completed cleanly at
   `2026-08-16T00:33:46.605244Z` and passed the strengthened strict harvester.
   The frozen finite-K + SIS-ASOE Phase S result passes all six conditions:
@@ -91,14 +91,19 @@ agent or developer:
   `d6d4055633b2f3202615cf637776b7724d3c2b1945789d9861d41902603896fe`,
   `e8aaae2b9fd08ac7ab9cacfa6ffba8090c58a50fdd64845ce3cc830e91ef5673`
   and `73b6a4086b157a82877321c8e093a6a683584386989975b316212ca075d01047`.
-  Preregistered exact-N execution `exact-n-scorefree-v1-jv7r4` was then
-  launched at 21:12 CDT from the same immutable digest and exact image code.
-  Its create-only manifest and durable execution ID are under
-  `reports/exact-n-scorefree-runs/20260815-exact-n-scorefree-v1/`; it tests
-  frozen N=`1/3/20/40` treatments across the 54 slates and 50,000 worlds
-  without realized outcomes. Poll it and invoke only
-  `scripts/cloud_finish_exact_n_scorefree.sh` after terminal success.
-  Production-law acquisition continues independently.
+  Preregistered exact-N execution `exact-n-scorefree-v1-jv7r4` completed
+  successfully at `2026-08-16T02:47:59.871558Z` in `35m42.33s` and passed the
+  strict finisher. Frozen N=`1/3/20` treatments pass all score-free conditions
+  and are licensed only as separately labeled 2026 pre-lock shadows; N=`40`
+  fails because aggregate 200 coverage declined and only one of five blocks
+  improved. Relative primary-target changes are `+3.53%` at N=1/230,
+  `+7.23%` at N=3/230, `+1.62%` at N=20/210 and `-0.05%` at N=40/200.
+  The result cannot score historical lineups, change the 80-entry production
+  book or automatically enable a UI default. Interpretation is at
+  `reports/2026-08-15-exact-n-scorefree-result.md`; report and execution
+  SHA-256 values are
+  `2af0549c1880529d1c9380f28b8e9565c5ed3833db23f1b2bc128ddccea8b287`
+  and `d501daa6cda79049a81319337a3029e0c53bab528f49a8e518d057e4079d8609`.
 
 - The required outcome-free production-law ATLAS transfer is frozen before
   the Phase S result at
