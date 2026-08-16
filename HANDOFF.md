@@ -20,11 +20,11 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-15 20:32 CDT
+## Current state — 2026-08-15 21:23 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
-- Branch is `main`; this milestone starts from pushed commit `029cf0525d90a2319376482fb2bda3fde2e39232`.
+- Branch is `main`; this milestone starts from pushed commit `6bccc20553116d36ae2ef01645b256be5f2e4992`.
   ATLAS execution `atlas-world-ranking-scorefree-v1-l59bt` completed cleanly at
   `2026-08-16T00:33:46.605244Z` and passed the strengthened strict harvester.
   The frozen finite-K + SIS-ASOE Phase S result passes all six conditions:
@@ -75,14 +75,25 @@ agent or developer:
   Launch selector stability from only this new validated digest. Exact-N
   follows selector stability. Production-law ATLAS acquisition may begin
   after compute/quota is checked.
-  Selector-stability execution `cbwu-oi-selector-stability-v1-sfdvb` was
-  created at `2026-08-16T01:05:32.964464Z` from that digest and exact code
-  `545ddae1b8e1256fde8e345683e0004aa5463b5e`; its immutable launch manifest
-  and execution ID are tracked under
-  `reports/cbwu-oi-selector-stability-runs/20260815-cbwu-oi-selector-stability-v1/`.
-  At handoff it was importing the image with `Completed=Unknown`; poll it and
-  invoke only `scripts/cloud_finish_cbwu_oi_selector_stability.sh` after
-  terminal success.
+  Selector-stability execution `cbwu-oi-selector-stability-v1-sfdvb`
+  completed successfully at `2026-08-16T02:07:48.620740Z` and was strictly
+  harvested. Both full-world exact-80 books reproduced on all 54 slates and
+  paired resamples were identical across pools. CBWU-OI had higher score-free
+  194-world full-book coverage on all 54 slates (mean absolute delta
+  `+0.05019`), but lower finite-world membership reproducibility: mean
+  bootstrap pairwise overlap `54.5787/80` versus canonical `61.1252/80`
+  (`-6.5466`), and disjoint-half overlap `60.8704/80` versus `65.6852/80`
+  (`-4.8148`). This is a descriptive operational-risk result only; it cannot
+  tune the selector, reject/promote CBWU-OI or change production. The result
+  interpretation is
+  `reports/2026-08-15-cbwu-oi-selector-stability-result.md`; immutable report,
+  execution and compressed-frequency SHA-256 values are respectively
+  `d6d4055633b2f3202615cf637776b7724d3c2b1945789d9861d41902603896fe`,
+  `e8aaae2b9fd08ac7ab9cacfa6ffba8090c58a50fdd64845ce3cc830e91ef5673`
+  and `73b6a4086b157a82877321c8e093a6a683584386989975b316212ca075d01047`.
+  Launch the preregistered exact-N diagnostic next from the same hardened
+  image and exact image code. Production-law acquisition continues
+  independently.
 
 - The required outcome-free production-law ATLAS transfer is frozen before
   the Phase S result at
