@@ -389,7 +389,7 @@ agent or developer:
   hash manifests, and the assembled season/aggregate generations and hashes.
   It changes no P1/P2 reconstruction, roster, score, selector, threshold,
   gate or consequence. The launcher/runner/finisher and focused tests are
-  repaired; 14 focused historical/sharding tests, Python compilation, both
+  repaired; 15 focused historical/sharding tests, Python compilation, both
   shell syntax checks and diff checks pass. Build a new clean immutable scorer
   image from the repair commit; the earlier historical scorer digest remains
   scientifically valid for repair1 but is mechanically superseded for this

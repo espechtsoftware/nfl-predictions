@@ -25,8 +25,11 @@ from run_atlas_historical_score_diagnostic import (  # noqa: E402
     UPSTREAM_EXECUTION_NAMES,
     UPSTREAM_EXECUTIONS,
     UPSTREAM_IMAGE,
+    UPSTREAM_EXECUTION_LEDGER_SHA256,
+    UPSTREAM_MANIFEST_SHA256,
     UPSTREAM_PREFIX,
     _validate_execution,
+    _validate_upstream_receipt,
 )
 
 
@@ -132,10 +135,8 @@ def test_historical_runner_is_packaged_and_container_smoked():
     assert f"python {runner} --help" in cloudbuild
 
 
-def test_upstream_execution_binding_accepts_only_frozen_shape():
-    season = 2023
-    week = 1
-    value = {
+def _upstream_execution(season: int, week: int):
+    return {
         "metadata": {"name": UPSTREAM_EXECUTIONS[(season, week)]},
         "status": {
             "conditions": [{"type": "Completed", "status": "True"}],
@@ -166,6 +167,12 @@ def test_upstream_execution_binding_accepts_only_frozen_shape():
             }},
         },
     }
+
+
+def test_upstream_execution_binding_accepts_only_frozen_shape():
+    season = 2023
+    week = 1
+    value = _upstream_execution(season, week)
     _validate_execution(value, season, week)
     value["spec"]["template"]["spec"]["maxRetries"] = 1
     with pytest.raises(RuntimeError, match="resources"):
@@ -184,6 +191,35 @@ def test_upstream_execution_grid_is_exactly_54_unique_shards():
         f"{season}-{week}": name
         for (season, week), name in UPSTREAM_EXECUTIONS.items()
     }
+
+
+def test_upstream_receipt_requires_complete_sharded_execution_grid():
+    object_receipt = {
+        "uri": "gs://bucket/object.json", "generation": "1",
+        "sha256": "a" * 64, "bytes": 1,
+    }
+    receipt = {
+        "version": "atlas-historical-upstream-receipt-v2",
+        "uses_realized_outcomes": False,
+        "upstream_code_sha": UPSTREAM_CODE_SHA,
+        "upstream_image": UPSTREAM_IMAGE,
+        "upstream_manifest_sha256": UPSTREAM_MANIFEST_SHA256,
+        "upstream_execution_ledger_sha256": UPSTREAM_EXECUTION_LEDGER_SHA256,
+        "executions": {
+            f"{season}-{week}": _upstream_execution(season, week)
+            for season, week in UPSTREAM_EXECUTIONS
+        },
+        "objects": {
+            "report": object_receipt,
+            "season-2023": object_receipt,
+            "season-2024": object_receipt,
+            "season-2025": object_receipt,
+        },
+    }
+    assert set(_validate_upstream_receipt(receipt)) == set(receipt["objects"])
+    receipt["executions"].pop("2025-18")
+    with pytest.raises(RuntimeError, match="shard grid"):
+        _validate_upstream_receipt(receipt)
 
 
 def test_historical_cloud_contract_requires_repair2_strict_harvest():
