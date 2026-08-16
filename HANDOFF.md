@@ -301,11 +301,13 @@ agent or developer:
   no roster, score, threshold or disposition rule. The complete local suite
   passes with 1,599 tests, 2 skipped and 93 warnings in 728.26 seconds;
   Python compilation, two shell syntax checks, live source parity and diff
-  checks also pass. Next concrete action remains polling the three exact upstream
-  executions; after all terminal successes, run only the strict upstream
-  finisher. Meanwhile commit/push this scorer milestone and build one clean
-  immutable scorer image so the outcome-facing job can launch immediately
-  after the strict upstream harvest.
+  checks also pass. The complete scorer/amendment milestone is committed and
+  pushed on `main` at
+  `0575dcd71732fcc8480bf4bef020419172ced9a6`. Next concrete action remains
+  polling the three exact upstream executions; after all terminal successes,
+  run only the strict upstream finisher. In parallel, build one clean immutable
+  scorer image from the handoff commit containing this milestone so the
+  outcome-facing job can launch immediately after the strict upstream harvest.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
