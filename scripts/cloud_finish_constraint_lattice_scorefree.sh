@@ -8,13 +8,23 @@ ROOT=$(cd "$(dirname "$0")/.." && pwd)
 RUN_ID=20260816-constraint-lattice-scorefree-v1
 OUT="$ROOT/reports/constraint-lattice-runs/$RUN_ID"
 MANIFEST="$OUT/manifest.txt"
-EXECUTIONS="$OUT/executions.txt"
+PRIMARY="$OUT/executions.txt"
+RETRIES="$OUT/retry-executions.txt"
+EXECUTIONS="$OUT/accepted-executions.txt"
 RUNNER="$ROOT/scripts/run_constraint_lattice_scorefree.py"
 AGGREGATOR="$ROOT/scripts/aggregate_constraint_lattice_scorefree.py"
+ATTEMPT_VALIDATOR="$ROOT/scripts/validate_constraint_lattice_attempts.py"
+CANARY_VALIDATOR="$ROOT/scripts/cloud_wait_constraint_lattice_canary.sh"
 SUPPORT="$ROOT/reports/constraint-lattice-support-runs/20260816-constraint-lattice-control-support-census-v1"
 RESOURCE="$ROOT/reports/constraint-lattice-resource-preflight-runs/20260816-constraint-lattice-resource-preflight-v1"
 
 [ -s "$MANIFEST" ] && [ -s "$EXECUTIONS" ] && \
+  [ -s "$PRIMARY" ] && [ -e "$RETRIES" ] && \
+  [ -s "$OUT/attempt-resolution.json" ] && \
+  [ -s "$OUT/canary-completion.txt" ] && \
+  [ -s "$OUT/canary-execution-metadata.json" ] && \
+  [ -s "$OUT/canary-object-metadata.json" ] && \
+  [ -s "$OUT/grid-release.txt" ] && \
   [ -s "$OUT/build-metadata.json" ] && [ -s "$OUT/queue-release.json" ] && \
   [ -s "$SUPPORT/completion.txt" ] && [ -s "$SUPPORT/report.json" ] && \
   [ -s "$RESOURCE/completion.txt" ] && \
@@ -26,6 +36,27 @@ RESOURCE="$ROOT/reports/constraint-lattice-resource-preflight-runs/20260816-cons
 [ ! -e "$OUT/report.json" ] && [ ! -e "$OUT/execution-metadata" ] && \
   [ ! -e "$OUT/shards" ] && [ ! -e "$OUT/object-metadata" ] || {
   echo "ABORT: immutable constraint-lattice harvest already exists" >&2; exit 3; }
+
+PYTHONPATH="$ROOT/scripts" "$ROOT/.venv/bin/python" "$ATTEMPT_VALIDATOR" \
+  scorefree --output-dir "$OUT" --manifest "$MANIFEST"
+"$ROOT/.venv/bin/python" - "$MANIFEST" "$OUT/canary-completion.txt" \
+  "$OUT/canary-execution-metadata.json" "$OUT/canary-object-metadata.json" \
+  "$OUT/grid-release.txt" "$CANARY_VALIDATOR" <<'PY'
+from hashlib import sha256
+import pathlib, sys
+m=dict(line.split("=",1) for line in open(sys.argv[1],encoding="utf-8") if "=" in line)
+c=dict(line.split("=",1) for line in open(sys.argv[2],encoding="utf-8") if "=" in line)
+execution=pathlib.Path(sys.argv[3]); obj=pathlib.Path(sys.argv[4]); release=pathlib.Path(sys.argv[5]); validator=pathlib.Path(sys.argv[6])
+r=dict(line.split("=",1) for line in release.read_text().splitlines() if "=" in line)
+if m.get("canary_amendment_sha256")!="2599f722b6ba7703ff78fec31cb3c0b78d0c771178e8ea40fb4fb6563d44aa00" or m.get("canary_validator_sha256")!=sha256(validator.read_bytes()).hexdigest():
+ raise SystemExit("ABORT: constraint-lattice canary source binding differs")
+if c.get("status")!="True" or c.get("disposition")!="real-path-canary-passes" or c.get("mode")!="scorefree" or c.get("cell")!="2023-1" or c.get("remaining_cells_released")!="false" or c.get("object_content_inspected")!="false" or c.get("effect_fields_inspected")!="false":
+ raise SystemExit("ABORT: constraint-lattice canary disposition differs")
+if c.get("execution_metadata_sha256")!=sha256(execution.read_bytes()).hexdigest() or c.get("object_metadata_sha256")!=sha256(obj.read_bytes()).hexdigest():
+ raise SystemExit("ABORT: constraint-lattice canary metadata binding differs")
+if r.get("primary_executions")!="54" or r.get("released_after_canary")!="53" or r.get("canary_completion_sha256")!=sha256(pathlib.Path(sys.argv[2]).read_bytes()).hexdigest() or r.get("object_content_inspected")!="false" or r.get("effect_fields_inspected")!="false":
+ raise SystemExit("ABORT: constraint-lattice grid release differs")
+PY
 
 "$ROOT/.venv/bin/python" - "$MANIFEST" "$EXECUTIONS" "$OUT/build-metadata.json" \
   "$RUNNER" "$AGGREGATOR" "$OUT/queue-release.json" "$SUPPORT" "$RESOURCE" <<'PY'
@@ -39,6 +70,7 @@ fixed={
  "output_prefix":"gs://nfl-predictions-503414-raw/research/constraint-lattice-runs/20260816-constraint-lattice-scorefree-v1",
  "protocol_sha256":"f8591d24dd56749e5b56235f9636687fd41bd1a78991fdb60cfbb092ee65bf62",
  "source_amendment_sha256":"35ea1f0dba3be5311631d51057c7667cb624bcdc19be75e2b202c57e297e8321",
+ "attempt_amendment_sha256":"f846d4540d27c1480037b440aabf94c91a1a5121e6d9968ad5ef39f679ce63aa",
  "cbwu_report_sha256":"556adeca6e0bf2855ad82296b1e708041a20446dc27e2c988c1d11e8c5bd4d33",
  "source_panels":"20260813-sis-asoe-treatment-r0-v1,20260813-sis-asoe-treatment-r1-v1,20260813-sis-asoe-treatment-r2-v1,20260813-sis-asoe-treatment-r3-v1,20260813-sis-asoe-treatment-r4-v1",
  "forensic_manifest_sha256":"51edbe124846dc936ade71c4e5a9a07e252bcf6c7d7872b979715ccd1f6bab02",
@@ -87,9 +119,13 @@ mkdir -p "$OUT/execution-metadata.pending" "$OUT/object-metadata.pending" \
   "$OUT/shards.pending"
 while read -r SEASON WEEK JOB EXEC URI; do
   LISTED=$(gcloud run jobs executions list --job "$JOB" --project "$PROJECT" \
-    --region "$REGION" --format='value(metadata.name)')
-  [ "$LISTED" = "$EXEC" ] || {
-    echo "ABORT: constraint-lattice job has replacement/extra execution: $JOB" >&2; exit 2; }
+    --region "$REGION" --format='value(metadata.name)' | sort)
+  EXPECTED=$({
+    awk -v job="$JOB" '$3==job {print $4}' "$PRIMARY"
+    awk -v job="$JOB" '$3==job {print $5}' "$RETRIES"
+  } | sort)
+  [ "$LISTED" = "$EXPECTED" ] || {
+    echo "ABORT: constraint-lattice job attempt population differs: $JOB" >&2; exit 2; }
   META="$OUT/execution-metadata.pending/${EXEC}.json"
   gcloud run jobs executions describe "$EXEC" --project "$PROJECT" \
     --region "$REGION" --format=json > "$META"
@@ -165,8 +201,16 @@ sha256sum "$OUT"/object-metadata/*.json | sort > "$OUT/object-metadata.sha256"
 sha256sum "$OUT"/shards/*.json | sort > "$OUT/shards.sha256"
 DISPOSITION=$("$ROOT/.venv/bin/python" -c 'import json,sys; print(json.load(open(sys.argv[1]))["gate"]["disposition"])' "$OUT/report.json")
 PASS=$("$ROOT/.venv/bin/python" -c 'import json,sys; print(str(json.load(open(sys.argv[1]))["gate"]["passes_scorefree_gate"]).lower())' "$OUT/report.json")
+ATTEMPT_DISPOSITION=$("$ROOT/.venv/bin/python" -c 'import json,sys; print(json.load(open(sys.argv[1]))["disposition"])' "$OUT/attempt-resolution.json")
 printf '%s\n' "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
   'executions=54' 'slates=54' 'folds=270' 'source_artifacts=270' \
+  "attempt_disposition=$ATTEMPT_DISPOSITION" \
+  "primary_executions_sha256=$(sha256sum "$PRIMARY" | awk '{print $1}')" \
+  "retry_executions_sha256=$(sha256sum "$RETRIES" | awk '{print $1}')" \
+  "accepted_executions_sha256=$(sha256sum "$EXECUTIONS" | awk '{print $1}')" \
+  "attempt_resolution_sha256=$(sha256sum "$OUT/attempt-resolution.json" | awk '{print $1}')" \
+  "canary_completion_sha256=$(sha256sum "$OUT/canary-completion.txt" | awk '{print $1}')" \
+  "grid_release_sha256=$(sha256sum "$OUT/grid-release.txt" | awk '{print $1}')" \
   'uses_realized_outcomes=false' 'production_change_licensed=false' \
   'historical_scoring_licensed=false' "passes_scorefree_gate=$PASS" \
   "disposition=$DISPOSITION" > "$OUT/completion.txt"

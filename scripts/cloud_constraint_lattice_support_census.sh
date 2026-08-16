@@ -16,6 +16,12 @@ LATTICE_PROTOCOL="$ROOT/reports/2026-08-16-constraint-lattice-scorefree-protocol
 LATTICE_PROTOCOL_SHA=f8591d24dd56749e5b56235f9636687fd41bd1a78991fdb60cfbb092ee65bf62
 SOURCE_AMENDMENT="$ROOT/reports/2026-08-16-constraint-lattice-source-and-execution-amendment.md"
 SOURCE_AMENDMENT_SHA=35ea1f0dba3be5311631d51057c7667cb624bcdc19be75e2b202c57e297e8321
+ATTEMPT_AMENDMENT="$ROOT/reports/2026-08-16-constraint-lattice-bounded-platform-retry-amendment.md"
+ATTEMPT_AMENDMENT_SHA=f846d4540d27c1480037b440aabf94c91a1a5121e6d9968ad5ef39f679ce63aa
+CANARY_AMENDMENT="$ROOT/reports/2026-08-16-constraint-lattice-real-path-canary-amendment.md"
+CANARY_AMENDMENT_SHA=2599f722b6ba7703ff78fec31cb3c0b78d0c771178e8ea40fb4fb6563d44aa00
+DISTRIBUTION_AMENDMENT="$ROOT/reports/2026-08-16-constraint-lattice-support-distribution-amendment.md"
+DISTRIBUTION_AMENDMENT_SHA=9bdfd3b24aa42616425138e1fed437fecbeae1d9b9c02606bbe9cde8202bb6e8
 CBWU="$ROOT/reports/cbwu-order-invariant-runs/20260815-cbwu-order-invariant-repair-v1/report.json"
 CBWU_SHA=556adeca6e0bf2855ad82296b1e708041a20446dc27e2c988c1d11e8c5bd4d33
 RUNNER="$ROOT/scripts/run_constraint_lattice_support_census.py"
@@ -41,11 +47,17 @@ for RELATIVE in \
   reports/2026-08-16-constraint-lattice-scorefree-protocol.md \
   reports/2026-08-16-constraint-lattice-source-and-execution-amendment.md \
   reports/2026-08-16-constraint-lattice-control-support-census-protocol.md \
+  reports/2026-08-16-constraint-lattice-bounded-platform-retry-amendment.md \
+  reports/2026-08-16-constraint-lattice-real-path-canary-amendment.md \
+  reports/2026-08-16-constraint-lattice-support-distribution-amendment.md \
   reports/cbwu-order-invariant-runs/20260815-cbwu-order-invariant-repair-v1/report.json \
   scripts/run_constraint_lattice_scorefree.py \
   scripts/aggregate_constraint_lattice_scorefree.py \
   scripts/run_constraint_lattice_support_census.py \
   scripts/aggregate_constraint_lattice_support_census.py \
+  scripts/cloud_prepare_constraint_lattice_attempts.sh \
+  scripts/validate_constraint_lattice_attempts.py \
+  scripts/cloud_wait_constraint_lattice_canary.sh \
   src/nfl_dfs/analysis/constraint_lattice.py \
   src/nfl_dfs/analysis/atlas_world_ranking.py \
   src/nfl_dfs/inference/multiseed_portfolio.py \
@@ -64,11 +76,17 @@ git -C "$ROOT" diff --quiet -- \
   scripts/run_constraint_lattice_scorefree.py \
   scripts/aggregate_constraint_lattice_scorefree.py \
   scripts/run_constraint_lattice_support_census.py \
-  scripts/aggregate_constraint_lattice_support_census.py || {
+  scripts/aggregate_constraint_lattice_support_census.py \
+  scripts/cloud_prepare_constraint_lattice_attempts.sh \
+  scripts/validate_constraint_lattice_attempts.py \
+  scripts/cloud_wait_constraint_lattice_canary.sh || {
   echo "ERROR: lattice-support built sources have tracked edits" >&2; exit 2; }
 for SPEC in "$PROTOCOL:$PROTOCOL_SHA" \
   "$LATTICE_PROTOCOL:$LATTICE_PROTOCOL_SHA" \
-  "$SOURCE_AMENDMENT:$SOURCE_AMENDMENT_SHA" "$CBWU:$CBWU_SHA"; do
+  "$SOURCE_AMENDMENT:$SOURCE_AMENDMENT_SHA" \
+  "$ATTEMPT_AMENDMENT:$ATTEMPT_AMENDMENT_SHA" \
+  "$CANARY_AMENDMENT:$CANARY_AMENDMENT_SHA" \
+  "$DISTRIBUTION_AMENDMENT:$DISTRIBUTION_AMENDMENT_SHA" "$CBWU:$CBWU_SHA"; do
   FILE=${SPEC%:*}; DIGEST=${SPEC##*:}
   [ -s "$FILE" ] && [ "$(sha256sum "$FILE" | awk '{print $1}')" = "$DIGEST" ] || {
     echo "ERROR: frozen lattice-support dependency differs: $FILE" >&2; exit 2; }
@@ -145,6 +163,12 @@ printf '%s\n' \
   "output_prefix=$PREFIX" "protocol_sha256=$PROTOCOL_SHA" \
   "lattice_protocol_sha256=$LATTICE_PROTOCOL_SHA" \
   "source_amendment_sha256=$SOURCE_AMENDMENT_SHA" \
+  "attempt_amendment_sha256=$ATTEMPT_AMENDMENT_SHA" \
+  "attempt_resolver_sha256=$(sha256sum "$ROOT/scripts/cloud_prepare_constraint_lattice_attempts.sh" | awk '{print $1}')" \
+  "attempt_validator_sha256=$(sha256sum "$ROOT/scripts/validate_constraint_lattice_attempts.py" | awk '{print $1}')" \
+  "canary_amendment_sha256=$CANARY_AMENDMENT_SHA" \
+  "canary_validator_sha256=$(sha256sum "$ROOT/scripts/cloud_wait_constraint_lattice_canary.sh" | awk '{print $1}')" \
+  "distribution_amendment_sha256=$DISTRIBUTION_AMENDMENT_SHA" \
   "cbwu_report_sha256=$CBWU_SHA" \
   "runner_sha256=$(sha256sum "$RUNNER" | awk '{print $1}')" \
   "aggregator_sha256=$(sha256sum "$AGGREGATOR" | awk '{print $1}')" \
@@ -162,8 +186,28 @@ printf '%s\n' \
   'historical_scoring_licensed=false' > "$MANIFEST"
 : > "$EXECUTIONS"
 
+SEASON=2023
+WEEK=1
+JOB="constraint-support-s${SEASON}-w${WEEK}-v1"
+URI="$PREFIX/slate-${SEASON}-${WEEK}.json"
+gcloud run jobs deploy "$JOB" --project "$PROJECT" --region "$REGION" \
+  --image "$IMAGE" --tasks 1 --parallelism 1 --cpu 4 --memory 16Gi \
+  --max-retries 0 --task-timeout 2h --service-account "$SERVICE_ACCOUNT" \
+  --set-env-vars "CODE_SHA=$CODE_SHA,ANALYSIS_IMAGE=$IMAGE" \
+  --command python \
+  --args "scripts/run_constraint_lattice_support_census.py,--season,$SEASON,--week,$WEEK,--output-uri,$URI" \
+  --quiet >/dev/null
+EXEC=$(gcloud run jobs execute "$JOB" --project "$PROJECT" --region "$REGION" \
+  --async --format='value(metadata.name)')
+[[ "$EXEC" == "$JOB-"* ]] || {
+  echo "ERROR: lattice-support canary execution identity missing" >&2; exit 2; }
+printf '%s %s %s %s %s\n' "$SEASON" "$WEEK" "$JOB" "$EXEC" "$URI" \
+  >> "$EXECUTIONS"
+"$ROOT/scripts/cloud_wait_constraint_lattice_canary.sh" support
+
 for SEASON in 2023 2024 2025; do
   for WEEK in $(seq 1 18); do
+    [ "$SEASON" = 2023 ] && [ "$WEEK" = 1 ] && continue
     JOB="constraint-support-s${SEASON}-w${WEEK}-v1"
     URI="$PREFIX/slate-${SEASON}-${WEEK}.json"
     gcloud run jobs deploy "$JOB" --project "$PROJECT" --region "$REGION" \
@@ -183,6 +227,12 @@ for SEASON in 2023 2024 2025; do
 done
 [ "$(wc -l < "$EXECUTIONS")" = 54 ] || {
   echo "ERROR: lattice-support launch grid is not 54" >&2; exit 2; }
+printf '%s\n' \
+  "released_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+  'primary_executions=54' 'released_after_canary=53' \
+  "canary_completion_sha256=$(sha256sum "$OUT/canary-completion.txt" | awk '{print $1}')" \
+  'object_content_inspected=false' 'effect_fields_inspected=false' \
+  > "$OUT/grid-release.txt"
 sha256sum "$MANIFEST" > "$OUT/manifest.sha256"
 sha256sum "$EXECUTIONS" > "$OUT/executions.sha256"
 echo "CONSTRAINT_LATTICE_SUPPORT_LAUNCHED $RUN_ID"

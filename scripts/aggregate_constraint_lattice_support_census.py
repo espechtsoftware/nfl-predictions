@@ -7,6 +7,7 @@ import argparse
 from collections.abc import Mapping, Sequence
 from hashlib import sha256
 import json
+import math
 from pathlib import Path
 
 from aggregate_constraint_lattice_scorefree import load_expected_artifact_ledger
@@ -16,6 +17,8 @@ from run_constraint_lattice_scorefree import (
     SOURCE_PANELS,
 )
 from run_constraint_lattice_support_census import (
+    DISTRIBUTION_AMENDMENT,
+    DISTRIBUTION_AMENDMENT_SHA256,
     PROTOCOL,
     PROTOCOL_SHA256,
     RUN_ID,
@@ -35,6 +38,57 @@ FORBIDDEN_KEYS = {
     "candidate_ranking", "admission", "treatment_entries",
     "treatment_rosters", "threshold_deltas",
 }
+
+
+def _support_distribution(values: Sequence[int]) -> dict[str, object]:
+    if len(values) != 54 or any(value < 0 for value in values):
+        raise ValueError("constraint-lattice support distribution differs")
+    total = int(sum(values))
+    ordered = sorted((int(value) for value in values), reverse=True)
+    positive = sorted((value for value in ordered if value > 0))
+    shares = [value / total for value in values] if total else []
+    hhi = float(sum(value * value for value in shares)) if shares else None
+    median_positive = None
+    if positive:
+        middle = len(positive) // 2
+        median_positive = (
+            float(positive[middle])
+            if len(positive) % 2
+            else float(positive[middle - 1] + positive[middle]) / 2.0
+        )
+    return {
+        "events": total,
+        "worlds": 540_000,
+        "positive_slates": len(positive),
+        "slates": 54,
+        "top_1_event_share": float(sum(ordered[:1]) / total) if total else None,
+        "top_3_event_share": float(sum(ordered[:3]) / total) if total else None,
+        "top_5_event_share": float(sum(ordered[:5]) / total) if total else None,
+        "top_10_event_share": float(sum(ordered[:10]) / total) if total else None,
+        "herfindahl": hhi,
+        "effective_slates": float(1.0 / hhi) if hhi else None,
+        "median_positive_events": median_positive,
+        "max_slate_events": max(ordered) if ordered else 0,
+    }
+
+
+def _pearson(left: Sequence[int], right: Sequence[int]) -> float | None:
+    if len(left) != 54 or len(right) != 54:
+        raise ValueError("constraint-lattice support correlation vector differs")
+    left_mean = sum(left) / len(left)
+    right_mean = sum(right) / len(right)
+    left_delta = [value - left_mean for value in left]
+    right_delta = [value - right_mean for value in right]
+    denominator = math.sqrt(
+        sum(value * value for value in left_delta)
+        * sum(value * value for value in right_delta)
+    )
+    if denominator == 0:
+        return None
+    return float(
+        sum(a * b for a, b in zip(left_delta, right_delta, strict=True))
+        / denominator
+    )
 
 
 def _assert_no_forbidden(value, path: str = "root") -> None:
@@ -175,11 +229,42 @@ def aggregate(shard_paths: Sequence[Path]) -> dict[str, object]:
         for threshold in map(int, SUPPORT_THRESHOLDS):
             values = counts[block][str(threshold)]
             by_block[block][str(threshold)] = {
-                "events": int(sum(values)),
-                "worlds": 540_000,
-                "positive_slates": int(sum(value > 0 for value in values)),
-                "slates": 54,
+                **_support_distribution(values),
+                "slate_counts": [
+                    {"season": season, "week": week, "events": int(value)}
+                    for (season, week), value in zip(
+                        expected_grid, values, strict=True,
+                    )
+                ],
             }
+    fold_correlation = {}
+    for threshold in map(int, SUPPORT_THRESHOLDS):
+        pairs = []
+        finite = []
+        for left_index, left in enumerate(REGISTERED_BLOCKS):
+            for right in REGISTERED_BLOCKS[left_index + 1:]:
+                value = _pearson(
+                    counts[left][str(threshold)], counts[right][str(threshold)],
+                )
+                pairs.append({"left": left, "right": right, "pearson": value})
+                if value is not None:
+                    finite.append(value)
+        fold_correlation[str(threshold)] = {
+            "pairs": pairs,
+            "finite_pairs": len(finite),
+            "mean_correlation": (
+                float(sum(finite) / len(finite)) if finite else None
+            ),
+            "mean_absolute_correlation": (
+                float(sum(abs(value) for value in finite) / len(finite))
+                if finite else None
+            ),
+            "max_absolute_correlation": (
+                float(max(abs(value) for value in finite)) if finite else None
+            ),
+            "diagnostic_only": True,
+            "folds_are_independent": False,
+        }
     global_counts = {
         str(threshold): {
             "events": int(sum(
@@ -225,6 +310,8 @@ def aggregate(shard_paths: Sequence[Path]) -> dict[str, object]:
         "historical_scoring_licensed": False,
         "protocol_sha256": PROTOCOL_SHA256,
         "protocol_path": str(PROTOCOL),
+        "distribution_amendment_sha256": DISTRIBUTION_AMENDMENT_SHA256,
+        "distribution_amendment_path": str(DISTRIBUTION_AMENDMENT),
         **common,
         "mechanical": {
             "seasons": [2023, 2024, 2025],
@@ -240,6 +327,7 @@ def aggregate(shard_paths: Sequence[Path]) -> dict[str, object]:
             "anchor_order": list(ANCHOR_ORDER),
         },
         "counts_by_block": by_block,
+        "fold_correlation_by_threshold": fold_correlation,
         "global_counts": global_counts,
         "adequate_by_threshold": adequate,
         "selected_anchor": selected_anchor,

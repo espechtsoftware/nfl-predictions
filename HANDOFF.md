@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 18:09 CDT
+## Current state — 2026-08-16 18:29 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -1127,8 +1127,9 @@ agent or developer:
   largest five-artifact byte footprint at 163,064,634 bytes—as a full five-fold
   resource preflight before the 54-cell grid. Sampled Cloud Monitoring memory
   is useful non-gating context only, not an exact process/cgroup peak.
-  The support and resource remedies are now implemented locally from pushed
-  repair5 milestone `5db15f7` and await the exact-commit build. The frozen
+  The support and resource remedies were implemented from pushed repair5
+  milestone `5db15f7` and are pushed on `main` at exact commit
+  `ca8be4c0767a6c2c3bbf3272a5c8924eef41c6a5`. The frozen
   outcome-blind support protocol requires every R0--R4 block to contain at
   least 540 control events and 41/54 positive slates at an anchor, tries only
   the predeclared 230/220/210 order, and either licenses the original p230
@@ -1145,10 +1146,44 @@ agent or developer:
   explicit run identity/output-prefix arguments while preserving its default
   scientific behavior. Docker/Cloud Build coverage and focused tests were
   extended for both gates. No support, resource or treatment Cloud execution
-  has launched, and no score/effect has been observed. Before either 54-cell
-  support or treatment population launches, its own bounded zero-object,
-  literal-platform-error attempt binding must be frozen; repair5's amendment
-  does not implicitly authorize retries for another experiment.
+  has launched, and no score/effect has been observed. Exact-archive Cloud
+  Build `54b37236-7c24-4e5d-a358-c34e84b7e6b7` is validating commit
+  `ca8be4c` under create-only tag `constraint-support-ca8be4c`; it completed
+  successfully with 1,665 tests passed, 2 skipped and 5 warnings in 807.21
+  seconds, all image smokes passed, and produced immutable digest
+  `sha256:5f248d8a7eabc411e5da7b8a68c64a8592818f4235273d7bfa2615ff3eccf75d`.
+  It is valid validation evidence for that milestone but will be superseded
+  for launch by the follow-up
+  attempt/canary/distribution commit below.
+  The operator-supplied retry-narrowing/support response confirms the literal
+  platform-only retry rule and corrects its own earlier fold-magnitude claim.
+  Its two remaining recommendations are accepted prospectively. A common
+  bounded-attempt amendment/resolver/validator now covers both future 54-cell
+  lattice populations while retaining task `maxRetries=0`: only terminal
+  literal `Internal error running task`, zero-object primaries may receive one
+  separately receipted unchanged execution; any memory, timeout, signal,
+  solver, nonzero, cancellation, ambiguous or object-bearing failure voids the
+  population without replacement. The finisher consumes a derived exact
+  54-row accepted ledger and requires each job's Cloud execution set to equal
+  its receipted primary/retry set.
+  A separately frozen real-path canary now makes the actual 2023 Week 1 job,
+  prefix and output the first primary cell in each population. The remaining
+  53 may launch only after terminal success, exact execution-spec parity and
+  positive object metadata are verified without downloading the object. Any
+  canary failure stops the version and is not retry-eligible. The support
+  report is also extended, before counts exist, with complete 54-slate vectors,
+  top-1/3/5/10 event shares, Herfindahl/effective-slate concentration,
+  positive-slate median/max and all ten pairwise block correlations at
+  p194/p210/p220/p230. Correlations are explicitly diagnostic; the already
+  frozen >=540-event and >=41/54-positive-slate law remains the only support
+  decision. Fifty-five focused ATLAS/lattice tests pass, the affected Python
+  modules compile, all six attempt/canary/launch/finish shell scripts pass
+  `bash -n`, and `git diff --check` passes. This follow-up is still local at
+  this line and must be committed, pushed and rebuilt before launch.
+  At `2026-08-16T23:30Z`, ATLAS preflight
+  `atlas-cbc-32g-full-2023-w8-v1-lbzjd` remains `Completed=Unknown` with one
+  running task. The tracked managed watcher session `40372` remains silent and
+  waiting; no preflight shard/effect has been opened.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).

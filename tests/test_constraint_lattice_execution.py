@@ -209,6 +209,44 @@ def test_cloud_transport_is_exact_sharded_and_queue_gated():
     assert 'CONSTRAINT_LATTICE_STRICT_AGGREGATE_VALIDATED' in finisher
     assert "constraint-lattice support binding differs" in finisher
     assert "constraint-lattice resource binding differs" in finisher
+    assert "cloud_prepare_constraint_lattice_attempts.sh" in launcher
+    assert "cloud_wait_constraint_lattice_canary.sh" in launcher
+    assert launcher.index(
+        '"$ROOT/scripts/cloud_wait_constraint_lattice_canary.sh" scorefree'
+    ) < launcher.index("for SEASON in 2023 2024 2025")
+    assert "accepted-executions.txt" in finisher
+    assert "constraint-lattice job attempt population differs" in finisher
+
+
+def test_lattice_retry_and_canary_amendments_are_frozen_before_launch() -> None:
+    retry = ROOT / (
+        "reports/2026-08-16-constraint-lattice-bounded-platform-retry-amendment.md"
+    )
+    canary = ROOT / (
+        "reports/2026-08-16-constraint-lattice-real-path-canary-amendment.md"
+    )
+    assert hashlib.sha256(retry.read_bytes()).hexdigest() == (
+        "f846d4540d27c1480037b440aabf94c91a1a5121e6d9968ad5ef39f679ce63aa"
+    )
+    assert hashlib.sha256(canary.read_bytes()).hexdigest() == (
+        "2599f722b6ba7703ff78fec31cb3c0b78d0c771178e8ea40fb4fb6563d44aa00"
+    )
+    resolver = (
+        ROOT / "scripts/cloud_prepare_constraint_lattice_attempts.sh"
+    ).read_text(encoding="utf-8")
+    assert "internal error running task" in resolver
+    for forbidden in (
+        "configured memory limit", "timeout", "signal", "sigkill",
+        "solver", "cbc", "nonzero exit",
+    ):
+        assert forbidden in resolver
+    assert 'task.get("maxRetries") != 0' in resolver
+    assert "max_replacement_executions_per_cell" in resolver
+    canary_source = (
+        ROOT / "scripts/cloud_wait_constraint_lattice_canary.sh"
+    ).read_text(encoding="utf-8")
+    assert "gcloud storage cp" not in canary_source
+    assert "object_content_inspected=false" in canary_source
 
 
 def test_complete_population_aggregates_once_and_fails_valid_null(tmp_path):

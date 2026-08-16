@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import math
 from pathlib import Path
 import sys
 
@@ -27,6 +28,8 @@ from run_constraint_lattice_scorefree import (  # noqa: E402
     SOURCE_PANELS,
 )
 from run_constraint_lattice_support_census import (  # noqa: E402
+    DISTRIBUTION_AMENDMENT,
+    DISTRIBUTION_AMENDMENT_SHA256,
     PROTOCOL,
     PROTOCOL_SHA256,
     RUN_ID,
@@ -104,6 +107,11 @@ def test_support_protocol_and_thresholds_are_frozen() -> None:
     assert SUPPORT_THRESHOLDS == (194.0, 210.0, 220.0, 230.0)
     assert AGGREGATE_MINIMUM == 540
     assert POSITIVE_SLATE_MINIMUM == 41
+    assert hashlib.sha256(DISTRIBUTION_AMENDMENT.read_bytes()).hexdigest() == \
+        DISTRIBUTION_AMENDMENT_SHA256
+    assert DISTRIBUTION_AMENDMENT_SHA256 == (
+        "9bdfd3b24aa42616425138e1fed437fecbeae1d9b9c02606bbe9cde8202bb6e8"
+    )
 
 
 def test_support_cloud_transport_is_strict_and_atlas_queue_gated() -> None:
@@ -132,6 +140,13 @@ def test_support_cloud_transport_is_strict_and_atlas_queue_gated() -> None:
     assert 'task.get("maxRetries")!=0' in finisher
     assert '"treatment_constructed") is not False' in finisher
     assert "CONSTRAINT_LATTICE_SUPPORT_STRICTLY_VALIDATED" in finisher
+    assert "cloud_prepare_constraint_lattice_attempts.sh" in launcher
+    assert "cloud_wait_constraint_lattice_canary.sh" in launcher
+    assert launcher.index(
+        '"$ROOT/scripts/cloud_wait_constraint_lattice_canary.sh" support'
+    ) < launcher.index("for SEASON in 2023 2024 2025")
+    assert "accepted-executions.txt" in finisher
+    assert "lattice-support job attempt population differs" in finisher
 
 
 def test_resource_preflight_is_exact_full_cell_and_effect_blind() -> None:
@@ -167,6 +182,16 @@ def test_complete_distributed_p230_support_keeps_original_gate(tmp_path: Path) -
     assert result["selected_anchor"] == 230
     assert result["disposition"] == "p230-supported-original-gate-complete"
     assert result["treatment_constructed"] is False
+    distribution = result["counts_by_block"]["R0"]["230"]
+    assert distribution["positive_slates"] == 54
+    assert distribution["effective_slates"] == 54.0
+    assert distribution["top_5_event_share"] == 50 / 540
+    assert len(distribution["slate_counts"]) == 54
+    correlation = result["fold_correlation_by_threshold"]["230"]
+    assert len(correlation["pairs"]) == 10
+    assert correlation["finite_pairs"] == 0
+    assert correlation["diagnostic_only"] is True
+    assert correlation["folds_are_independent"] is False
 
 
 def test_sparse_p230_uses_predeclared_p220_branch(tmp_path: Path) -> None:
@@ -198,6 +223,10 @@ def test_concentrated_events_fail_positive_slate_support(tmp_path: Path) -> None
     }
     assert result["selected_anchor"] is None
     assert result["disposition"] == "terminal-insufficient-support"
+    distribution = result["counts_by_block"]["R0"]["230"]
+    assert distribution["positive_slates"] == 5
+    assert distribution["top_5_event_share"] == 1.0
+    assert math.isclose(distribution["effective_slates"], 5.0)
 
 
 def test_support_aggregate_rejects_treatment_or_incomplete_population(

@@ -38,6 +38,12 @@ PROTOCOL = Path(
 PROTOCOL_SHA256 = (
     "11e97d5e94a11808b4838396c6fe59ff327a65a9ae260223138657db8d2a1a17"
 )
+DISTRIBUTION_AMENDMENT = Path(
+    "reports/2026-08-16-constraint-lattice-support-distribution-amendment.md"
+)
+DISTRIBUTION_AMENDMENT_SHA256 = (
+    "9bdfd3b24aa42616425138e1fed437fecbeae1d9b9c02606bbe9cde8202bb6e8"
+)
 SUPPORT_THRESHOLDS = (194.0, 210.0, 220.0, 230.0)
 
 
@@ -49,7 +55,14 @@ def validate_support_sources() -> dict[str, str]:
     source_hashes = validate_local_sources()
     if not PROTOCOL.is_file() or _file_sha(PROTOCOL) != PROTOCOL_SHA256:
         raise RuntimeError("constraint-lattice support protocol differs")
-    return {**source_hashes, str(PROTOCOL): PROTOCOL_SHA256}
+    if not DISTRIBUTION_AMENDMENT.is_file() or \
+            _file_sha(DISTRIBUTION_AMENDMENT) != DISTRIBUTION_AMENDMENT_SHA256:
+        raise RuntimeError("constraint-lattice support distribution amendment differs")
+    return {
+        **source_hashes,
+        str(PROTOCOL): PROTOCOL_SHA256,
+        str(DISTRIBUTION_AMENDMENT): DISTRIBUTION_AMENDMENT_SHA256,
+    }
 
 
 def _heldout_control_counts(control: dict[str, object]) -> dict[str, object]:
