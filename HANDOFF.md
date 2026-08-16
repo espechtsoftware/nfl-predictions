@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 06:51 CDT
+## Current state — 2026-08-16 07:11 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -330,8 +330,28 @@ agent or developer:
   local-only strict-harvester repair binds the exact upstream-receipt URI,
   generation and SHA plus upstream code/image/execution season grid; it is
   pushed at `e7304a98a840c6d164d3be0238ebb3569d1830d2` and does not alter the
-  container scorer. At 06:30 CDT all three upstream MVP executions still had
-  one running task and no terminal failure; no partial effect output was read.
+  container scorer. A progress-only audit at approximately 3h44m found that
+  none of the three upstream MVP executions had emitted even its first
+  `ATLAS_MVP_SLATE_COMPLETE` marker. The interaction MILPs run in single-
+  threaded CBC, so eight allocated CPUs could not make an eight-hour task
+  complete 18 serial slates. To stop wasting compute, all three were cancelled
+  as mechanical non-results at 12:04:03/23/49 UTC. Their terminal reason is
+  `Cancelled`; all three season objects and the aggregate object remain absent,
+  and no partial effect metric was opened. A compute-only repair is frozen at
+  `reports/2026-08-16-atlas-mvp-slate-sharding-repair.md`, SHA-256
+  `a2139969e3bede2b304c0a8469bed7c7839b8ecb98da05221a005ddb2c9cbf68`.
+  It changes only transport: the exact existing `_run_slate` calculation runs
+  as 54 independent season/week tasks under new repair2 identities, each with
+  one CPU, 4 GiB memory, zero retries and a 12-hour timeout. Only after all 54
+  terminal successes may the strict finisher read their score-free objects,
+  validate every execution/source receipt, reconstruct exact 18-week season
+  reports and invoke the unchanged aggregate/gate. New seed/slate markers carry
+  no metric and permit progress monitoring. Runner, pure sharded assembler,
+  54-job launcher and strict finisher are implemented locally; 16 focused tests,
+  Python compilation, shell syntax and diff checks pass. Next commit/push this
+  repair, run a new clean-archive full build, launch all 54 repair2 shards, and
+  monitor seed markers. The already validated historical scorer image remains
+  ready but must stay idle until the strict repair2 harvest succeeds.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five

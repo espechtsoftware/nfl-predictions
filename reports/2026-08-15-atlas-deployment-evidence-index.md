@@ -398,6 +398,18 @@ source commit `78b1449c566fe7666eb6174fab97f743df0b2fba`. Its immutable scorer
 image is
 `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:0ee6812b926a9bdb7ca61537ecf6d58f2e2233a3baac134a58d87400d90b74db`.
 
+The three repair1 season executions were later cancelled as mechanical
+non-results after roughly 3h44m with zero completed-slate markers. CBC is
+single-threaded and none could complete the first of 18 serial slates within a
+pace compatible with its eight-hour timeout. All repair1 season/aggregate
+objects remain absent and no effect metric was opened. The source- and
+mechanism-preserving compute repair is frozen at
+`reports/2026-08-16-atlas-mvp-slate-sharding-repair.md`, SHA-256
+`a2139969e3bede2b304c0a8469bed7c7839b8ecb98da05221a005ddb2c9cbf68`.
+It shards only the identical `_run_slate` calculation across 54 new one-CPU
+tasks and permits aggregation only after every task passes strict execution
+and source validation.
+
 ## Evidence firewall for reviewers
 
 - Score-free results establish simulated-law premises, not realized DFS

@@ -9,10 +9,13 @@ if SCRIPTS not in sys.path:
     sys.path.insert(0, SCRIPTS)
 
 from aggregate_atlas_matched_diversity_mvp import aggregate  # noqa: E402
+from aggregate_atlas_matched_diversity_shards import assemble  # noqa: E402
 from run_atlas_matched_diversity_mvp import (  # noqa: E402
     FORBIDDEN_QUERY_TOKENS,
     PLAYER_SQL,
     SOURCE_SQL,
+    SHARDING_REPAIR,
+    SHARDING_REPAIR_SHA256,
 )
 
 
@@ -106,6 +109,52 @@ def test_atlas_mvp_runner_is_packaged_and_container_smoked():
     runner = "scripts/run_atlas_matched_diversity_mvp.py"
     assert f"COPY {runner} ./scripts/run_atlas_matched_diversity_mvp.py" in dockerfile
     assert f"python {runner} --help" in cloudbuild
+
+
+def test_sharding_repair_hash_and_exact_54_assembly(tmp_path):
+    import hashlib
+
+    assert hashlib.sha256(SHARDING_REPAIR.read_bytes()).hexdigest() == (
+        SHARDING_REPAIR_SHA256
+    )
+    paths = []
+    for season in (2023, 2024, 2025):
+        source = _season_report(season)
+        for week, row in enumerate(source["slates"], start=1):
+            payload = {
+                **{key: source[key] for key in (
+                    "version", "uses_realized_outcomes", "season", "code_sha",
+                    "analysis_image", "source_hashes",
+                )},
+                "shard_week": week,
+                "slates": [row],
+            }
+            path = tmp_path / f"slate-{season}-{week}.json"
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            paths.append(path)
+    assembled = assemble(list(reversed(paths)))
+    assert [row["season"] for row in assembled] == [2023, 2024, 2025]
+    assert all(len(row["slates"]) == 18 for row in assembled)
+    season_paths = []
+    for report in assembled:
+        path = tmp_path / f"season-{report['season']}.json"
+        path.write_text(json.dumps(report), encoding="utf-8")
+        season_paths.append(path)
+    assert aggregate(season_paths)["mechanical"]["slates"] == 54
+
+
+def test_sharded_launcher_uses_frozen_single_thread_resources():
+    launcher = (ROOT / "scripts/cloud_atlas_matched_diversity_shards.sh").read_text(
+        encoding="utf-8"
+    )
+    finisher = (
+        ROOT / "scripts/cloud_finish_atlas_matched_diversity_shards.sh"
+    ).read_text(encoding="utf-8")
+    assert '--cpu 1 --memory 4Gi' in launcher
+    assert '--max-retries 0 --task-timeout 12h' in launcher
+    assert '--week,"$WEEK",--output-uri,"$URI"' in launcher
+    assert '"timeoutSeconds"))!="43200"' in finisher
+    assert 'wc -l < "$EXECUTIONS")" = 54' in finisher
 
 
 def test_three_season_aggregate_applies_frozen_gate(tmp_path):

@@ -64,6 +64,12 @@ PACKAGING_REPAIR = Path(
 PACKAGING_REPAIR_SHA256 = (
     "e4293fae2dcd88b7a50179f0b4a688a23a8b1961bd7da8e437544e15a64e0e62"
 )
+SHARDING_REPAIR = Path(
+    "reports/2026-08-16-atlas-mvp-slate-sharding-repair.md"
+)
+SHARDING_REPAIR_SHA256 = (
+    "a2139969e3bede2b304c0a8469bed7c7839b8ecb98da05221a005ddb2c9cbf68"
+)
 TRANSFER_REPORT = Path(
     "reports/atlas-money-transfer-runs/"
     "20260815-atlas-current-money-transfer-v1/report.json"
@@ -96,6 +102,10 @@ REPAIR_COMPLETION_SHA256 = (
 OUTPUT_PREFIX = (
     "gs://nfl-predictions-503414-raw/research/atlas-matched-diversity-runs/"
     "20260816-atlas-matched-diversity-mvp-v1-repair1"
+)
+SHARDED_OUTPUT_PREFIX = (
+    "gs://nfl-predictions-503414-raw/research/atlas-matched-diversity-runs/"
+    "20260816-atlas-matched-diversity-mvp-v1-repair2"
 )
 SOURCE_SQL = f"""
 SELECT panel_run_id, season, week, cand_ix, tag, all_tags, players,
@@ -132,6 +142,7 @@ def validate_local_sources() -> dict:
         str(PROTOCOL): PROTOCOL_SHA256,
         str(PAIR_REACH_AMENDMENT): PAIR_REACH_AMENDMENT_SHA256,
         str(PACKAGING_REPAIR): PACKAGING_REPAIR_SHA256,
+        str(SHARDING_REPAIR): SHARDING_REPAIR_SHA256,
         str(TRANSFER_REPORT): TRANSFER_REPORT_SHA256,
         str(CBWU_REPORT): CBWU_REPORT_SHA256,
         str(REPAIR_VALIDATION): REPAIR_VALIDATION_SHA256,
@@ -247,6 +258,7 @@ def _run_slate(season: int, week: int, books, artifact_receipts) -> dict:
             "exact_top40": {str(world): exact[world] for world in world_order},
             "enumeration": enumeration,
         }
+        print("ATLAS_MVP_SEED_COMPLETE", season, week, seed, flush=True)
     if len(global_atlas) != 200:
         raise RuntimeError("ATLAS MVP global addition count differs")
 
@@ -351,12 +363,73 @@ def run(season: int, output_uri: str) -> dict:
     return {**payload, "output": upload}
 
 
+def run_slate_shard(season: int, week: int, output_uri: str) -> dict:
+    """Run the identical frozen MVP for one compute-repair slate shard."""
+    if season not in {2023, 2024, 2025} or week not in range(1, 19) or \
+            output_uri != f"{SHARDED_OUTPUT_PREFIX}/slate-{season}-{week}.json":
+        raise RuntimeError("ATLAS MVP shard season/week/output identity differs")
+    source_hashes = validate_local_sources()
+    code_sha = os.environ.get("CODE_SHA", "").strip()
+    image = os.environ.get("ANALYSIS_IMAGE", "").strip()
+    if not re.fullmatch(r"[0-9a-f]{40}", code_sha) or not re.fullmatch(
+        r".+@sha256:[0-9a-f]{64}", image,
+    ):
+        raise RuntimeError("ATLAS MVP shard code/image identity is required")
+    bq = bigquery.Client(project=PROJECT)
+    gcs = storage.Client(project=PROJECT)
+    sources = _query(bq, SOURCE_SQL, _source_params())
+    players = _query(bq, PLAYER_SQL, _player_params(season))
+    sources = sources[
+        sources.season.astype(int).eq(season)
+        & sources.week.astype(int).eq(week)
+    ].copy()
+    catalog = players[players.week.astype(int).eq(week)].copy()
+    if sources.empty or catalog.empty:
+        raise RuntimeError("ATLAS MVP shard source/catalog is empty")
+    books = {}
+    artifact_receipts = []
+    for seed, expected_panel in zip(REGISTERED_SEEDS, SOURCE_PANELS, strict=True):
+        group = sources[
+            sources.panel_run_id.astype(str).map(_canonical_panel).eq(expected_panel)
+        ].copy()
+        uris = group.score_artifact_uri.astype(str).unique()
+        digests = group.score_artifact_sha256.astype(str).unique()
+        if group.empty or len(uris) != 1 or len(digests) != 1:
+            raise RuntimeError("ATLAS MVP shard native source identity differs")
+        artifact, receipt = _download_artifact(gcs, uris[0], digests[0])
+        books[seed] = _candidate_batch(group, artifact, catalog)
+        artifact_receipts.append({
+            "seed": seed, "source_panel": str(group.panel_run_id.iloc[0]),
+            "canonical_panel": expected_panel, "candidate_rows": len(group),
+            **receipt,
+        })
+    row = _run_slate(season, week, books, artifact_receipts)
+    payload = {
+        "version": "atlas-matched-diversity-mvp-v1",
+        "uses_realized_outcomes": False,
+        "season": season,
+        "shard_week": week,
+        "code_sha": code_sha,
+        "analysis_image": image,
+        "source_hashes": source_hashes,
+        "slates": [row],
+    }
+    raw = (json.dumps(payload, sort_keys=True, separators=(",", ":")) + "\n").encode()
+    upload = _upload_create_only(gcs, output_uri, raw)
+    print("ATLAS_MVP_SHARD_RESULT " + json.dumps(upload, sort_keys=True))
+    return {**payload, "output": upload}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--season", type=int, required=True)
+    parser.add_argument("--week", type=int)
     parser.add_argument("--output-uri", required=True)
     args = parser.parse_args()
-    run(args.season, args.output_uri)
+    if args.week is None:
+        run(args.season, args.output_uri)
+    else:
+        run_slate_shard(args.season, args.week, args.output_uri)
 
 
 if __name__ == "__main__":
