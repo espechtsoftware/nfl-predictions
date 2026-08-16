@@ -5,7 +5,9 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter
+from hashlib import sha256
 import json
+import math
 from pathlib import Path
 from statistics import mean
 from typing import Mapping, Sequence
@@ -23,6 +25,30 @@ from nfl_dfs.analysis.constraint_lattice import (
 SHARD_VERSION = "constraint-lattice-scorefree-shard-v1"
 REPORT_VERSION = "constraint-lattice-scorefree-report-v1"
 RUN_ID = "20260816-constraint-lattice-scorefree-v1"
+ROOT = Path(__file__).resolve().parents[1]
+CBWU_REPORT = (
+    ROOT / "reports/cbwu-order-invariant-runs/"
+    "20260815-cbwu-order-invariant-repair-v1/report.json"
+)
+CBWU_REPORT_SHA256 = (
+    "556adeca6e0bf2855ad82296b1e708041a20446dc27e2c988c1d11e8c5bd4d33"
+)
+SOURCE_PANELS = tuple(
+    f"20260813-sis-asoe-treatment-r{seed}-v1" for seed in range(5)
+)
+BLOCK_TO_PANEL = dict(zip(REGISTERED_BLOCKS, SOURCE_PANELS, strict=True))
+FORENSIC_MANIFEST_SHA256 = (
+    "51edbe124846dc936ade71c4e5a9a07e252bcf6c7d7872b979715ccd1f6bab02"
+)
+EXPECTED_SOURCE_HASHES = {
+    "reports/2026-08-16-constraint-lattice-scorefree-protocol.md":
+        "f8591d24dd56749e5b56235f9636687fd41bd1a78991fdb60cfbb092ee65bf62",
+    "reports/2026-08-16-constraint-lattice-source-and-execution-amendment.md":
+        "35ea1f0dba3be5311631d51057c7667cb624bcdc19be75e2b202c57e297e8321",
+    "reports/cbwu-order-invariant-runs/"
+    "20260815-cbwu-order-invariant-repair-v1/report.json":
+        CBWU_REPORT_SHA256,
+}
 FORBIDDEN_KEYS = {
     "actual_score", "actual_rank", "actual_ownership", "selected_rank",
     "payout", "contest_rank", "labels_complete",
@@ -50,6 +76,46 @@ def _roster_grid(value, *, rows: int) -> bool:
     )
 
 
+def load_expected_artifact_ledger() -> dict[tuple[int, int, str], dict]:
+    """Load the exact 270-artifact ledger frozen by the passed CBWU-OI report."""
+    raw = CBWU_REPORT.read_bytes()
+    if sha256(raw).hexdigest() != CBWU_REPORT_SHA256:
+        raise ValueError("constraint-lattice CBWU source report hash differs")
+    report = json.loads(raw)
+    if report.get("version") != "cbwu-order-invariant-repair-scorefree-v1" or \
+            report.get("uses_realized_outcomes") is not False or \
+            tuple(report.get("source_panels", ())) != SOURCE_PANELS or \
+            report.get("forensic_manifest_sha256") != FORENSIC_MANIFEST_SHA256 or \
+            report.get("aggregate", {}).get("passes_scorefree_gate") is not True or \
+            report.get("aggregate", {}).get("slates") != 54:
+        raise ValueError("constraint-lattice CBWU source report identity differs")
+    artifacts = report.get("source_artifacts")
+    if not isinstance(artifacts, list) or len(artifacts) != 270:
+        raise ValueError("constraint-lattice CBWU source ledger is incomplete")
+    panel_to_block = {panel: block for block, panel in BLOCK_TO_PANEL.items()}
+    ledger = {}
+    for row in artifacts:
+        panel = str(row.get("panel_run_id", ""))
+        if panel not in panel_to_block:
+            raise ValueError("constraint-lattice CBWU source panel differs")
+        block = panel_to_block[panel]
+        if row.get("seed") != REGISTERED_BLOCKS.index(block):
+            raise ValueError("constraint-lattice CBWU source seed differs")
+        key = (int(row["season"]), int(row["week"]), block)
+        if key in ledger:
+            raise ValueError("constraint-lattice CBWU source ledger repeats")
+        ledger[key] = row
+    expected = {
+        (season, week, block)
+        for season in (2023, 2024, 2025)
+        for week in range(1, 19)
+        for block in REGISTERED_BLOCKS
+    }
+    if set(ledger) != expected:
+        raise ValueError("constraint-lattice CBWU source grid differs")
+    return ledger
+
+
 def _validate_fold(row: Mapping, season: int, week: int, block: str) -> None:
     if row.get("version") != VERSION or \
             row.get("uses_realized_outcomes") is not False or \
@@ -59,8 +125,10 @@ def _validate_fold(row: Mapping, season: int, week: int, block: str) -> None:
             row.get("control_entries") != 80 or \
             row.get("treatment_entries") != 80:
         raise ValueError("constraint-lattice fold identity/mechanics differ")
-    if not _roster_grid(row.get("control_rosters"), rows=80) or \
-            not _roster_grid(row.get("treatment_rosters"), rows=80):
+    control_rosters = row.get("control_rosters")
+    treatment_rosters = row.get("treatment_rosters")
+    if not _roster_grid(control_rosters, rows=80) or \
+            not _roster_grid(treatment_rosters, rows=80):
         raise ValueError("constraint-lattice exact-80 roster grid differs")
     candidate_budget = row.get("candidate_budget")
     if not isinstance(candidate_budget, int) or candidate_budget < 80 or \
@@ -72,14 +140,18 @@ def _validate_fold(row: Mapping, season: int, week: int, block: str) -> None:
     expected_training = [value for value in REGISTERED_BLOCKS if value != block]
     if training != expected_training:
         raise ValueError("constraint-lattice training-block identity differs")
+    candidate_rosters = row.get("control_candidate_rosters")
     source_rows = row.get("candidate_source_aggregation")
     if not isinstance(source_rows, list) or len(source_rows) != candidate_budget:
         raise ValueError("constraint-lattice source aggregation differs")
-    for source in source_rows:
+    for source, roster in zip(source_rows, candidate_rosters, strict=True):
         if sorted(source) != ["roster", "sources", "tags"] or \
-                len(source["roster"]) != 9 or not source["sources"] or \
+                source["roster"] != roster or not source["sources"] or \
+                source["sources"] != sorted(set(source["sources"])) or \
                 not set(source["sources"]) <= set(training) or \
-                not isinstance(source["tags"], list):
+                not isinstance(source["tags"], list) or \
+                not all(isinstance(tag, str) for tag in source["tags"]) or \
+                source["tags"] != sorted(set(source["tags"])):
             raise ValueError("constraint-lattice source receipt is malformed")
     generation = row.get("generation")
     if not isinstance(generation, list) or len(generation) != 20 or {
@@ -90,16 +162,50 @@ def _validate_fold(row: Mapping, season: int, week: int, block: str) -> None:
         retained = item.get("retained")
         if not isinstance(retained, list) or len(retained) > 2 or \
                 not isinstance(item.get("attempted_worlds"), int) or \
-                item["attempted_worlds"] < len(retained) or \
+                not len(retained) <= item["attempted_worlds"] <= 10_000 or \
+                not isinstance(item.get("duplicate_world_solutions"), int) or \
+                not 0 <= item["duplicate_world_solutions"] <= item["attempted_worlds"] or \
+                not isinstance(item.get("structurally_infeasible"), bool) or \
                 not isinstance(item.get("elapsed_seconds"), (int, float)) or \
+                not math.isfinite(float(item["elapsed_seconds"])) or \
                 item["elapsed_seconds"] < 0:
             raise ValueError("constraint-lattice generation receipt differs")
-    if row.get("raw_exception_candidates", 41) > 40 or \
-            row.get("retained_exception_candidates", 9) > 8 or \
-            row.get("new_exception_entries", 9) > 8 or \
+        for retained_row in retained:
+            if sorted(retained_row) != ["bound", "exact_score", "roster", "world"] or \
+                    not isinstance(retained_row["world"], int) or \
+                    not 0 <= retained_row["world"] < 10_000 or \
+                    not isinstance(retained_row["roster"], list) or \
+                    len(retained_row["roster"]) != 9 or \
+                    len(set(map(str, retained_row["roster"]))) != 9 or \
+                    not math.isfinite(float(retained_row["bound"])) or \
+                    not math.isfinite(float(retained_row["exact_score"])):
+                raise ValueError("constraint-lattice retained solve differs")
+    raw_count = row.get("raw_exception_candidates")
+    retained_count = row.get("retained_exception_candidates")
+    new_count = row.get("new_exception_entries")
+    if not isinstance(raw_count, int) or raw_count != sum(
+            len(item["retained"]) for item in generation
+    ) or raw_count > 40 or not isinstance(retained_count, int) or \
+            not 0 <= retained_count <= 8 or not isinstance(new_count, int) or \
+            not 0 <= new_count <= 8 or \
             not isinstance(row.get("elapsed_seconds"), (int, float)) or \
+            not math.isfinite(float(row["elapsed_seconds"])) or \
             row["elapsed_seconds"] < 0:
         raise ValueError("constraint-lattice exception/runtime mechanics differ")
+    ranking = row.get("candidate_ranking")
+    admission = row.get("admission")
+    if not isinstance(ranking, list) or len(ranking) != retained_count or \
+            not isinstance(admission, Mapping) or \
+            len(admission.get("admitted", ())) + len(admission.get("rejected", ())) \
+            != retained_count or len(admission.get("admitted", ())) != new_count:
+        raise ValueError("constraint-lattice ranking/admission mechanics differ")
+    control_keys = {tuple(map(str, roster)) for roster in control_rosters}
+    treatment_keys = {tuple(map(str, roster)) for roster in treatment_rosters}
+    shared = len(control_keys & treatment_keys)
+    if row.get("shared_rosters") != shared or new_count != 80 - shared or \
+            set(row.get("exception_counts", {})) != set(CELL_ORDER) or \
+            sum(int(value) for value in row["exception_counts"].values()) != new_count:
+        raise ValueError("constraint-lattice treatment identity mechanics differ")
 
 
 def aggregate(shard_paths: Sequence[Path]) -> dict:
@@ -117,6 +223,7 @@ def aggregate(shard_paths: Sequence[Path]) -> dict:
     ]
     if [(row.get("season"), row.get("week")) for row in shards] != expected_grid:
         raise ValueError("constraint-lattice shard season/week grid differs")
+    expected_artifacts = load_expected_artifact_ledger()
     first = shards[0]
     common = {
         key: first.get(key) for key in (
@@ -124,7 +231,11 @@ def aggregate(shard_paths: Sequence[Path]) -> dict:
             "source_panels", "forensic_manifest_sha256", "protocol_receipt",
         )
     }
-    if common["run_id"] != RUN_ID or common["protocol_receipt"] != protocol_receipt():
+    if common["run_id"] != RUN_ID or \
+            common["protocol_receipt"] != protocol_receipt() or \
+            common["source_hashes"] != EXPECTED_SOURCE_HASHES or \
+            tuple(common["source_panels"] or ()) != SOURCE_PANELS or \
+            common["forensic_manifest_sha256"] != FORENSIC_MANIFEST_SHA256:
         raise ValueError("constraint-lattice aggregate identity differs")
 
     all_folds = []
@@ -161,12 +272,20 @@ def aggregate(shard_paths: Sequence[Path]) -> dict:
         if not isinstance(receipts, list) or len(receipts) != 5 or \
                 [row.get("block") for row in receipts] != list(REGISTERED_BLOCKS):
             raise ValueError("constraint-lattice artifact receipt grid differs")
-        for receipt in receipts:
-            if receipt.get("source_panel") not in common["source_panels"] or \
-                    not receipt.get("uri", "").startswith("gs://") or \
-                    len(str(receipt.get("sha256", ""))) != 64 or \
-                    not str(receipt.get("generation", "")).isdigit() or \
-                    receipt.get("candidate_rows", 0) < 80:
+        for block, receipt in zip(REGISTERED_BLOCKS, receipts, strict=True):
+            expected = expected_artifacts[(season, week, block)]
+            exact = {
+                "source_panel": expected["panel_run_id"],
+                "candidate_rows": int(expected["candidate_rows"]),
+                "uri": expected["uri"],
+                "sha256": expected["sha256"],
+                "generation": str(expected["generation"]),
+                "updated": expected["updated"],
+                "bytes": int(expected["bytes"]),
+            }
+            if receipt.get("block") != block or any(
+                    receipt.get(key) != value for key, value in exact.items()
+            ):
                 raise ValueError("constraint-lattice artifact receipt differs")
         artifact_receipts.extend(receipts)
         slate_times.append(float(slate["elapsed_seconds"]))

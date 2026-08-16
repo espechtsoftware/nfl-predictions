@@ -1052,6 +1052,24 @@ agent or developer:
   directory. This image/build/source triple is valid for the future frozen
   diagnostic, but its launcher remains queue-gated behind strict ATLAS branch
   closure.
+  A subsequent outcome-free protocol-to-finisher audit found that the
+  aggregator validated 270 well-formed unique artifact receipts but did not
+  independently compare each receipt to the exact frozen CBWU-OI source
+  ledger or enforce the R-block-to-panel mapping. Before any constraint-
+  lattice execution existed, the aggregator was hardened to hash and open the
+  frozen passed CBWU-OI report, require its exact 270-cell grid and compare
+  each season/week/block receipt on panel, seed, URI, generation, SHA-256,
+  byte count and candidate count. It now also binds the exact three source
+  hashes and forensic manifest, pairs every source-aggregation row with its
+  candidate identity, validates solve-attempt receipts and recomputes exact-80
+  control/treatment overlap, new-entry and exception-count relationships.
+  Tampered source-panel and roster/source receipts are rejected. Fifty-four
+  focused constraint/optimizer/transport tests, Python compilation, both
+  shell syntax checks and whitespace checks pass. The scientific protocol,
+  inputs, cells, quotas, ranker, admission law and gate are unchanged. Digest
+  `sha256:899c512f...eac6a` remains evidence for the prior implementation but
+  is superseded for execution; commit/push this strict-harvest conformance
+  repair and build one new exact-source image before the queue can release.
   At `2026-08-16T21:20Z`, 32-GiB preflight execution
   `atlas-cbc-32g-full-2023-w8-v1-lbzjd` remains nonterminal with one running
   task. The terminal-only strict-harvest and conditional repair5/parity

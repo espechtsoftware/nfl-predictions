@@ -10,7 +10,11 @@ SCRIPTS = str(ROOT / "scripts")
 if SCRIPTS not in sys.path:
     sys.path.insert(0, SCRIPTS)
 
-from aggregate_constraint_lattice_scorefree import aggregate  # noqa: E402
+from aggregate_constraint_lattice_scorefree import (  # noqa: E402
+    EXPECTED_SOURCE_HASHES,
+    aggregate,
+    load_expected_artifact_ledger,
+)
 from run_constraint_lattice_scorefree import (  # noqa: E402
     FORBIDDEN_QUERY_TOKENS,
     FORENSIC_MANIFEST_SHA256,
@@ -102,6 +106,7 @@ def _fold(season, week, block):
 
 
 def _shard(season, week):
+    ledger = load_expected_artifact_ledger()
     return {
         "version": "constraint-lattice-scorefree-shard-v1",
         "run_id": "20260816-constraint-lattice-scorefree-v1",
@@ -112,24 +117,24 @@ def _shard(season, week):
         "week": week,
         "code_sha": "a" * 40,
         "analysis_image": "example/image@sha256:" + "b" * 64,
-        "source_hashes": {"protocol": "c" * 64},
+        "source_hashes": EXPECTED_SOURCE_HASHES,
         "source_panels": list(SOURCE_PANELS),
         "forensic_manifest_sha256": FORENSIC_MANIFEST_SHA256,
         "protocol_receipt": protocol_receipt(),
         "artifact_receipts": [
             {
                 "block": block,
-                "source_panel": panel,
-                "candidate_rows": 80,
-                "uri": f"gs://bucket/{season}-{week}-{block}.npz",
-                "sha256": "d" * 64,
-                "generation": str(season * 100_000 + week * 10 + index),
-                "updated": "2026-08-16T00:00:00+00:00",
-                "bytes": 100,
+                "source_panel": ledger[(season, week, block)]["panel_run_id"],
+                "candidate_rows": int(
+                    ledger[(season, week, block)]["candidate_rows"]
+                ),
+                "uri": ledger[(season, week, block)]["uri"],
+                "sha256": ledger[(season, week, block)]["sha256"],
+                "generation": str(ledger[(season, week, block)]["generation"]),
+                "updated": ledger[(season, week, block)]["updated"],
+                "bytes": int(ledger[(season, week, block)]["bytes"]),
             }
-            for index, (block, panel) in enumerate(
-                zip(REGISTERED_BLOCKS, SOURCE_PANELS, strict=True)
-            )
+            for block in REGISTERED_BLOCKS
         ],
         "slate": {
             "version": VERSION,
@@ -231,3 +236,28 @@ def test_aggregate_rejects_outcome_field_and_incomplete_grid(tmp_path):
         assert "54 unique shards" in str(exc)
     else:
         raise AssertionError("constraint-lattice incomplete grid was accepted")
+
+
+def test_aggregate_rejects_source_ledger_and_fold_receipt_tampering(tmp_path):
+    paths = _write_population(tmp_path)
+    bad = json.loads(paths[0].read_text(encoding="utf-8"))
+    bad["artifact_receipts"][0]["source_panel"] = SOURCE_PANELS[1]
+    paths[0].write_text(json.dumps(bad), encoding="utf-8")
+    try:
+        aggregate(paths)
+    except ValueError as exc:
+        assert "artifact receipt differs" in str(exc)
+    else:
+        raise AssertionError("constraint-lattice source-panel swap was accepted")
+
+    bad = _shard(2023, 1)
+    bad["slate"]["folds"][0]["candidate_source_aggregation"][0][
+        "roster"
+    ] = _rosters("tampered", 1)[0]
+    paths[0].write_text(json.dumps(bad), encoding="utf-8")
+    try:
+        aggregate(paths)
+    except ValueError as exc:
+        assert "source receipt is malformed" in str(exc)
+    else:
+        raise AssertionError("constraint-lattice roster/source mismatch was accepted")
