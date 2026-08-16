@@ -51,6 +51,7 @@ COPY scripts/run_exact_p_corrected_identity_source.py ./scripts/run_exact_p_corr
 COPY scripts/run_atlas_world_ranking.py ./scripts/run_atlas_world_ranking.py
 COPY scripts/run_atlas_money_transfer.py ./scripts/run_atlas_money_transfer.py
 COPY scripts/run_atlas_matched_diversity_mvp.py ./scripts/run_atlas_matched_diversity_mvp.py
+COPY scripts/render_atlas_matched_diversity_repair4_command.py ./scripts/render_atlas_matched_diversity_repair4_command.py
 COPY scripts/run_atlas_historical_score_diagnostic.py ./scripts/run_atlas_historical_score_diagnostic.py
 COPY scripts/run_cbwu_seed_order_audit.py ./scripts/run_cbwu_seed_order_audit.py
 COPY scripts/run_cbwu_oi_construction_diagnostic.py ./scripts/run_cbwu_oi_construction_diagnostic.py

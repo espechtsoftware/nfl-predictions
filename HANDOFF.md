@@ -740,6 +740,33 @@ agent or developer:
   200. Repair2 failure/replacement fields are explicitly forbidden from the
   repair4 receipt. Implement the new scorer binding only after strict harvest;
   do not inspect the repair4 effect while doing so.
+  Repair4 cell 2023 Week 8 execution
+  `atlas-md-s2023-w8-r4-6rn7r` became terminal failed at
+  `2026-08-16T18:54:54.346499Z`; its Cloud Run terminal condition explicitly
+  says `The configured memory limit was reached` and its exact metadata proves
+  the frozen 4-CPU/16-GiB/zero-retry repair4 shape. The other 53 cells remain
+  under terminal-status-only monitoring. This invalidates repair4 as a
+  complete upstream regardless of its eventual score-free effect; do not run
+  or build the repair4-bound historical scorer. A fail-closed scorer v2 binding
+  to the exact repair4 ledger has nevertheless been prepared prospectively so
+  the old repair2 replacement path cannot run accidentally; 14 focused tests,
+  Python compilation and shell syntax pass, but the code is held behind the
+  now-unsatisfied strict-harvest gate and will need a new upstream amendment if
+  a later complete grid succeeds.
+  The exact-full-cell 32-GiB preflight is frozen before opening any repair4
+  shard/effect at
+  `reports/2026-08-16-atlas-cbc-32g-full-cell-preflight-protocol.md`, SHA-256
+  `b848dcc4ce0cdc6c3cac07f5ffb2ad6cbaa233a2457dc0286034ff3d50840788`.
+  It reruns only the failed 2023 Week 8 full five-seed cell with the same pinned
+  image/code, binary interactions, input law, zero retries and 12-hour timeout;
+  the inseparable resource envelope is 8 CPU/32 GiB and the output prefix is
+  dedicated/create-only. Its decision reads only terminal identity and shard
+  mechanics, never ATLAS effect fields. Success licenses freezing a complete
+  new resource-only repair5 grid; failure returns to the already-proved
+  continuous-interaction or a separately frozen solver repair. Launcher and
+  finisher are `scripts/cloud_atlas_cbc_32g_full_cell_preflight.sh` and
+  `scripts/cloud_finish_atlas_cbc_32g_full_cell_preflight.sh`. Commit/push them,
+  then launch the preflight while repair4 continues to terminal census.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five

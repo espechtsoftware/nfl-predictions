@@ -4,7 +4,7 @@ set -euo pipefail
 PROJECT=nfl-predictions-503414
 REGION=us-central1
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-RUN_ID=20260816-atlas-historical-score-diagnostic-v1
+RUN_ID=20260816-atlas-historical-score-diagnostic-v2
 OUT="$ROOT/reports/atlas-historical-score-runs/$RUN_ID"
 MANIFEST="$OUT/manifest.txt"
 EXECUTION="$OUT/execution.txt"
@@ -45,17 +45,17 @@ sha256sum "$OUT/execution.json" > "$OUT/execution.sha256"
 
 REPORT_TMP="$OUT/report.pending.json"
 gcloud storage cp "$URI" "$REPORT_TMP" --project "$PROJECT" >/dev/null
-PYTHONPATH="$ROOT/src" "$ROOT/.venv/bin/python" - "$REPORT_TMP" "$MANIFEST" <<'PY'
+PYTHONPATH="$ROOT/src" "$ROOT/.venv/bin/python" - "$REPORT_TMP" "$MANIFEST" "$OUT/upstream-receipt.json" <<'PY'
 import json, sys
 from nfl_dfs.analysis.atlas_historical_score import aggregate_diagnostic
-r=json.load(open(sys.argv[1],encoding="utf-8")); m=dict(line.rstrip("\n").split("=",1) for line in open(sys.argv[2],encoding="utf-8") if "=" in line)
-if r.get("version")!="atlas-historical-score-diagnostic-v1" or r.get("uses_realized_outcomes") is not True or r.get("production_change_licensed") is not False or r.get("scorer_code_sha")!=m["code_sha"] or r.get("scorer_image")!=m["image"] or r.get("protocol_sha256")!=m["protocol_sha256"] or r.get("source_parity_amendment_sha256")!=m["source_parity_amendment_sha256"] or r.get("sharded_upstream_amendment_sha256")!=m["sharded_upstream_amendment_sha256"] or r.get("cbc_retry_protocol_sha256")!=m["cbc_retry_protocol_sha256"] or r.get("high_tail_guard_amendment_sha256")!=m["high_tail_guard_amendment_sha256"]:
+r=json.load(open(sys.argv[1],encoding="utf-8")); m=dict(line.rstrip("\n").split("=",1) for line in open(sys.argv[2],encoding="utf-8") if "=" in line); upstream_receipt=json.load(open(sys.argv[3],encoding="utf-8"))
+if r.get("version")!="atlas-historical-score-diagnostic-v1" or r.get("uses_realized_outcomes") is not True or r.get("production_change_licensed") is not False or r.get("scorer_code_sha")!=m["code_sha"] or r.get("scorer_image")!=m["image"] or r.get("protocol_sha256")!=m["protocol_sha256"] or r.get("source_parity_amendment_sha256")!=m["source_parity_amendment_sha256"] or r.get("sharded_upstream_amendment_sha256")!=m["sharded_upstream_amendment_sha256"] or r.get("repair4_upstream_amendment_sha256")!=m["repair4_upstream_amendment_sha256"] or r.get("high_tail_guard_amendment_sha256")!=m["high_tail_guard_amendment_sha256"]:
  raise SystemExit("ABORT: ATLAS historical report identity/license differs")
 if r.get("population")!={"seasons":[2023,2024,2025],"slates":54} or len(r.get("rows",[]))!=54:
  raise SystemExit("ABORT: ATLAS historical population differs")
 u=r.get("upstream",{}); receipt=u.get("receipt_object",{})
 expected_executions={f"{season}-{week}" for season in (2023,2024,2025) for week in range(1,19)}
-if receipt.get("uri")!=m["output_prefix"]+"/upstream-receipt.json" or receipt.get("sha256")!=m["upstream_receipt_sha256"] or not str(receipt.get("generation","")).isdigit() or u.get("code_sha")!=m["upstream_code_sha"] or u.get("image")!=m["upstream_image"] or set(u.get("executions",{}))!=expected_executions:
+if receipt.get("uri")!=m["output_prefix"]+"/upstream-receipt.json" or receipt.get("sha256")!=m["upstream_receipt_sha256"] or not str(receipt.get("generation","")).isdigit() or u.get("code_sha")!=m["upstream_code_sha"] or u.get("image")!=m["upstream_image"] or set(u.get("executions",{}))!=expected_executions or upstream_receipt.get("version")!="atlas-historical-upstream-receipt-v4" or u.get("strict_harvest")!=upstream_receipt.get("strict_harvest"):
  raise SystemExit("ABORT: ATLAS historical upstream receipt binding differs")
 p=r.get("native_actual_score_parity",{})
 if p.get("registered_candidate_rows")!=68199 or p.get("compared_rows")!=68199 or p.get("slots_per_roster")!=9 or p.get("malformed_rosters")!=0 or p.get("missing_player_outcomes")!=0 or float(p.get("maximum_absolute_error",1))>1e-9 or float(p.get("absolute_tolerance",-1))!=1e-9 or float(p.get("relative_tolerance",-1))!=0.0 or p.get("source_storage_type")!="FLOAT":

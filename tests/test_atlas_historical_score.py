@@ -19,21 +19,18 @@ if SCRIPTS not in sys.path:
     sys.path.insert(0, SCRIPTS)
 
 from run_atlas_historical_score_diagnostic import (  # noqa: E402
-    CBC_RETRY_PROTOCOL_SHA256,
     HIGH_TAIL_GUARD_AMENDMENT_SHA256,
     PLAYER_SQL,
+    REPAIR4_UPSTREAM_AMENDMENT_SHA256,
     SOURCE_SQL,
     UPSTREAM_CODE_SHA,
     UPSTREAM_EXECUTION_NAMES,
     UPSTREAM_EXECUTIONS,
+    UPSTREAM_GRID_COMMAND,
     UPSTREAM_IMAGE,
-    UPSTREAM_EXECUTION_LEDGER_SHA256,
-    UPSTREAM_FAILED_EXECUTION_SHA256,
-    UPSTREAM_FAILED_LOG_SHA256,
+    UPSTREAM_LEDGER_SHA256,
     UPSTREAM_MANIFEST_SHA256,
-    UPSTREAM_ORIGINAL_EXECUTION_LEDGER_SHA256,
     UPSTREAM_PREFIX,
-    UPSTREAM_REPLACEMENT_RECEIPT_SHA256,
     _validate_execution,
     _validate_upstream_receipt,
 )
@@ -162,9 +159,11 @@ def test_historical_runner_queries_only_required_realized_score_fields():
 
 def test_historical_runner_is_packaged_and_container_smoked():
     runner = "scripts/run_atlas_historical_score_diagnostic.py"
+    renderer = "scripts/render_atlas_matched_diversity_repair4_command.py"
     dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
     cloudbuild = (ROOT / "cloudbuild.yaml").read_text(encoding="utf-8")
     assert f"COPY {runner} ./{runner}" in dockerfile
+    assert f"COPY {renderer} ./{renderer}" in dockerfile
     assert f"python {runner} --help" in cloudbuild
 
 
@@ -182,8 +181,8 @@ def _upstream_execution(season: int, week: int):
                 "containers": [{
                     "image": UPSTREAM_IMAGE, "command": ["python"],
                     "args": [
-                        "scripts/run_atlas_matched_diversity_mvp.py",
-                        "--season", str(season), "--week", str(week),
+                        "-c", UPSTREAM_GRID_COMMAND, "--season", str(season),
+                        "--week", str(week),
                         "--output-uri",
                         f"{UPSTREAM_PREFIX}/slate-{season}-{week}.json",
                     ],
@@ -191,7 +190,7 @@ def _upstream_execution(season: int, week: int):
                         {"name": "CODE_SHA", "value": UPSTREAM_CODE_SHA},
                         {"name": "ANALYSIS_IMAGE", "value": UPSTREAM_IMAGE},
                     ],
-                    "resources": {"limits": {"cpu": "1", "memory": "4Gi"}},
+                    "resources": {"limits": {"cpu": "4", "memory": "16Gi"}},
                 }],
                 "maxRetries": 0, "timeoutSeconds": "43200",
                 "serviceAccountName": (
@@ -220,7 +219,7 @@ def test_upstream_execution_grid_is_exactly_54_unique_shards():
     }
     assert set(UPSTREAM_EXECUTIONS) == expected
     assert len(set(UPSTREAM_EXECUTIONS.values())) == 54
-    assert UPSTREAM_EXECUTIONS[(2024, 7)] == "atlas-md-s2024-w7-r2-6l2q2"
+    assert UPSTREAM_EXECUTIONS[(2024, 7)] == "atlas-md-s2024-w7-r4-89wpt"
     assert UPSTREAM_EXECUTION_NAMES == {
         f"{season}-{week}": name
         for (season, week), name in UPSTREAM_EXECUTIONS.items()
@@ -233,23 +232,21 @@ def test_upstream_receipt_requires_complete_sharded_execution_grid():
         "sha256": "a" * 64, "bytes": 1,
     }
     receipt = {
-        "version": "atlas-historical-upstream-receipt-v3",
+        "version": "atlas-historical-upstream-receipt-v4",
         "uses_realized_outcomes": False,
         "upstream_code_sha": UPSTREAM_CODE_SHA,
         "upstream_image": UPSTREAM_IMAGE,
         "upstream_manifest_sha256": UPSTREAM_MANIFEST_SHA256,
-        "upstream_original_execution_ledger_sha256": (
-            UPSTREAM_ORIGINAL_EXECUTION_LEDGER_SHA256
+        "upstream_execution_ledger_sha256": UPSTREAM_LEDGER_SHA256,
+        "repair4_upstream_amendment_sha256": (
+            REPAIR4_UPSTREAM_AMENDMENT_SHA256
         ),
-        "upstream_execution_ledger_sha256": UPSTREAM_EXECUTION_LEDGER_SHA256,
-        "cbc_retry_protocol_sha256": CBC_RETRY_PROTOCOL_SHA256,
-        "failed_execution_sha256": UPSTREAM_FAILED_EXECUTION_SHA256,
-        "failed_log_sha256": UPSTREAM_FAILED_LOG_SHA256,
-        "replacement_receipt_sha256": UPSTREAM_REPLACEMENT_RECEIPT_SHA256,
-        "single_shard_replacement": {
-            "season": 2024, "week": 7,
-            "original_execution": "atlas-md-s2024-w7-r2-r9gnq",
-            "replacement_execution": "atlas-md-s2024-w7-r2-6l2q2",
+        "strict_harvest": {
+            "completion_sha256": "b" * 64,
+            "report_sha256": "a" * 64,
+            "season_reports_sha256": "c" * 64,
+            "shards_sha256": "d" * 64,
+            "execution_metadata_sha256": "e" * 64,
         },
         "executions": {
             f"{season}-{week}": _upstream_execution(season, week)
@@ -268,15 +265,15 @@ def test_upstream_receipt_requires_complete_sharded_execution_grid():
         _validate_upstream_receipt(receipt)
 
 
-def test_historical_cloud_contract_requires_repair2_strict_harvest():
+def test_historical_cloud_contract_requires_repair4_strict_harvest():
     launcher = (
         ROOT / "scripts/cloud_atlas_historical_score_diagnostic.sh"
     ).read_text(encoding="utf-8")
     finisher = (
         ROOT / "scripts/cloud_finish_atlas_historical_score_diagnostic.sh"
     ).read_text(encoding="utf-8")
-    assert "20260816-atlas-matched-diversity-mvp-v1-repair2" in launcher
-    assert "20260816-atlas-matched-diversity-mvp-v1-repair1" not in launcher
+    assert "20260816-atlas-matched-diversity-mvp-v1-repair4" in launcher
+    assert "20260816-atlas-matched-diversity-mvp-v1-repair2" not in launcher
     assert "UPSTREAM_EXECUTION_LEDGER_SHA" in launcher
     assert "sharded_upstream_amendment_sha256" in launcher
     assert '= 54 ]' in launcher
@@ -284,3 +281,5 @@ def test_historical_cloud_contract_requires_repair2_strict_harvest():
     assert "high_tail_guard_amendment_sha256" in launcher
     assert "high_tail_guard_amendment_sha256" in finisher
     assert len(HIGH_TAIL_GUARD_AMENDMENT_SHA256) == 64
+    assert "repair4_upstream_amendment_sha256" in launcher
+    assert "repair4_upstream_amendment_sha256" in finisher

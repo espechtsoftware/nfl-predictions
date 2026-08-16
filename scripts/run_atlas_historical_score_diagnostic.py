@@ -35,6 +35,7 @@ from run_cbwu_seed_order_audit import (
     _query,
     _upload_create_only,
 )
+from render_atlas_matched_diversity_repair4_command import render as render_repair4
 
 
 PROJECT = "nfl-predictions-503414"
@@ -53,86 +54,54 @@ UPSTREAM_IMAGE = (
 )
 UPSTREAM_PREFIX = (
     "gs://nfl-predictions-503414-raw/research/atlas-matched-diversity-runs/"
-    "20260816-atlas-matched-diversity-mvp-v1-repair2"
+    "20260816-atlas-matched-diversity-mvp-v1-repair4"
 )
-UPSTREAM_EXECUTIONS = {
-    (2023, 1): "atlas-md-s2023-w1-r2-qbg8l",
-    (2023, 2): "atlas-md-s2023-w2-r2-6ln9w",
-    (2023, 3): "atlas-md-s2023-w3-r2-hl7bd",
-    (2023, 4): "atlas-md-s2023-w4-r2-cjkvb",
-    (2023, 5): "atlas-md-s2023-w5-r2-mm28w",
-    (2023, 6): "atlas-md-s2023-w6-r2-v9v29",
-    (2023, 7): "atlas-md-s2023-w7-r2-rqn5v",
-    (2023, 8): "atlas-md-s2023-w8-r2-frfrj",
-    (2023, 9): "atlas-md-s2023-w9-r2-xjzwp",
-    (2023, 10): "atlas-md-s2023-w10-r2-znldw",
-    (2023, 11): "atlas-md-s2023-w11-r2-j85q4",
-    (2023, 12): "atlas-md-s2023-w12-r2-6ccn5",
-    (2023, 13): "atlas-md-s2023-w13-r2-h7vj4",
-    (2023, 14): "atlas-md-s2023-w14-r2-sdb64",
-    (2023, 15): "atlas-md-s2023-w15-r2-r99hj",
-    (2023, 16): "atlas-md-s2023-w16-r2-hkjq8",
-    (2023, 17): "atlas-md-s2023-w17-r2-54gmc",
-    (2023, 18): "atlas-md-s2023-w18-r2-wh9mh",
-    (2024, 1): "atlas-md-s2024-w1-r2-5c5q2",
-    (2024, 2): "atlas-md-s2024-w2-r2-vb57k",
-    (2024, 3): "atlas-md-s2024-w3-r2-fps5s",
-    (2024, 4): "atlas-md-s2024-w4-r2-h9sk8",
-    (2024, 5): "atlas-md-s2024-w5-r2-rhr47",
-    (2024, 6): "atlas-md-s2024-w6-r2-894kh",
-    (2024, 7): "atlas-md-s2024-w7-r2-6l2q2",
-    (2024, 8): "atlas-md-s2024-w8-r2-95xms",
-    (2024, 9): "atlas-md-s2024-w9-r2-4bhsm",
-    (2024, 10): "atlas-md-s2024-w10-r2-mmm8b",
-    (2024, 11): "atlas-md-s2024-w11-r2-spbx7",
-    (2024, 12): "atlas-md-s2024-w12-r2-xrvvh",
-    (2024, 13): "atlas-md-s2024-w13-r2-cgkpf",
-    (2024, 14): "atlas-md-s2024-w14-r2-fhkg7",
-    (2024, 15): "atlas-md-s2024-w15-r2-vnl5z",
-    (2024, 16): "atlas-md-s2024-w16-r2-dkvln",
-    (2024, 17): "atlas-md-s2024-w17-r2-xf28g",
-    (2024, 18): "atlas-md-s2024-w18-r2-8hcqk",
-    (2025, 1): "atlas-md-s2025-w1-r2-b2pzf",
-    (2025, 2): "atlas-md-s2025-w2-r2-r6d6m",
-    (2025, 3): "atlas-md-s2025-w3-r2-86vd9",
-    (2025, 4): "atlas-md-s2025-w4-r2-6hc4z",
-    (2025, 5): "atlas-md-s2025-w5-r2-gj6gl",
-    (2025, 6): "atlas-md-s2025-w6-r2-kqwmh",
-    (2025, 7): "atlas-md-s2025-w7-r2-9cdqw",
-    (2025, 8): "atlas-md-s2025-w8-r2-q22h4",
-    (2025, 9): "atlas-md-s2025-w9-r2-p8mwk",
-    (2025, 10): "atlas-md-s2025-w10-r2-sjn86",
-    (2025, 11): "atlas-md-s2025-w11-r2-svsxz",
-    (2025, 12): "atlas-md-s2025-w12-r2-vcwts",
-    (2025, 13): "atlas-md-s2025-w13-r2-htj5v",
-    (2025, 14): "atlas-md-s2025-w14-r2-w4g6d",
-    (2025, 15): "atlas-md-s2025-w15-r2-hmkjh",
-    (2025, 16): "atlas-md-s2025-w16-r2-t4csj",
-    (2025, 17): "atlas-md-s2025-w17-r2-tvkvd",
-    (2025, 18): "atlas-md-s2025-w18-r2-7jpss",
-}
+UPSTREAM_LEDGER = Path(
+    "reports/atlas-matched-diversity-runs/"
+    "20260816-atlas-matched-diversity-mvp-v1-repair4/executions.txt"
+)
+UPSTREAM_LEDGER_SHA256 = (
+    "0ca2e0635a8cb572912aeb19156a388c9a87ba8bc0f340998a6b39eb2b28c3fd"
+)
+
+
+def _load_upstream_executions() -> dict[tuple[int, int], str]:
+    if not UPSTREAM_LEDGER.is_file() or sha256(
+        UPSTREAM_LEDGER.read_bytes()
+    ).hexdigest() != UPSTREAM_LEDGER_SHA256:
+        raise RuntimeError("ATLAS historical repair4 execution ledger differs")
+    result: dict[tuple[int, int], str] = {}
+    for raw in UPSTREAM_LEDGER.read_text(encoding="utf-8").splitlines():
+        fields = raw.split()
+        if len(fields) != 5:
+            raise RuntimeError("ATLAS historical repair4 ledger row differs")
+        season_text, week_text, job, execution, uri = fields
+        season, week = int(season_text), int(week_text)
+        expected_job = f"atlas-md-s{season}-w{week}-r4"
+        expected_uri = f"{UPSTREAM_PREFIX}/slate-{season}-{week}.json"
+        if job != expected_job or not execution.startswith(expected_job + "-") or \
+                uri != expected_uri or (season, week) in result:
+            raise RuntimeError("ATLAS historical repair4 ledger identity differs")
+        result[(season, week)] = execution
+    expected = {
+        (season, week)
+        for season in (2023, 2024, 2025)
+        for week in range(1, 19)
+    }
+    if set(result) != expected or len(set(result.values())) != 54:
+        raise RuntimeError("ATLAS historical repair4 ledger grid differs")
+    return result
+
+
+UPSTREAM_EXECUTIONS = _load_upstream_executions()
 UPSTREAM_EXECUTION_NAMES = {
     f"{season}-{week}": name
     for (season, week), name in UPSTREAM_EXECUTIONS.items()
 }
 UPSTREAM_MANIFEST_SHA256 = (
-    "080c85700219ac246b093f2556c474f4bd79257809cf0e006766a1ed48e95d24"
+    "083a5e158053cd03f509bfebe518516af695773c029a78a8e80aa6aa336e5df6"
 )
-UPSTREAM_ORIGINAL_EXECUTION_LEDGER_SHA256 = (
-    "6794f8e608497613aec2f06f2bd13e57cf08b945d7ac20e2d4d00eb1ee3d5ea5"
-)
-UPSTREAM_EXECUTION_LEDGER_SHA256 = (
-    "cb7d54fa9dd3dd9a61a19006477ae6cc974ca0597966eb88385723905031bbfd"
-)
-UPSTREAM_FAILED_EXECUTION_SHA256 = (
-    "28b6f509d22d1b217ccf995f80e337d14f370f97b67ee7e319886a1b7e29191f"
-)
-UPSTREAM_FAILED_LOG_SHA256 = (
-    "fe9c3d0a542c5e651b3c522b9154213d8cea47d5ac0b48650e0c5cd765e26249"
-)
-UPSTREAM_REPLACEMENT_RECEIPT_SHA256 = (
-    "f71831c7f81850493a7b418427cb5dcfac5e06c3871ba2f270222d65a6eb575d"
-)
+UPSTREAM_GRID_COMMAND = render_repair4(UPSTREAM_PREFIX)
 PROTOCOL = Path("reports/2026-08-16-atlas-historical-score-diagnostic-protocol.md")
 PROTOCOL_SHA256 = "4b618b5f8b8b8ed61dc5518e5b8b1cb8d5941e92f088ddb0a53af05d37f4239e"
 PARITY_AMENDMENT = Path(
@@ -147,11 +116,11 @@ SHARDED_UPSTREAM_AMENDMENT = Path(
 SHARDED_UPSTREAM_AMENDMENT_SHA256 = (
     "ce32274be00678cdef24b3d174578a2e2ce212164166da2a712a9df1562fcd5d"
 )
-CBC_RETRY_PROTOCOL = Path(
-    "reports/2026-08-16-atlas-mvp-cbc-single-shard-retry.md"
+REPAIR4_UPSTREAM_AMENDMENT = Path(
+    "reports/2026-08-16-atlas-historical-score-repair4-upstream-amendment.md"
 )
-CBC_RETRY_PROTOCOL_SHA256 = (
-    "bc55775c5a98a7027a0c117cf5371a67cc886c6da34dcdb7b1031bd6a471c455"
+REPAIR4_UPSTREAM_AMENDMENT_SHA256 = (
+    "32bb95916d53b0a95472adad6d0aebcb6f7fd1631b07b3c29b1cf31950dffd17"
 )
 HIGH_TAIL_GUARD_AMENDMENT = Path(
     "reports/2026-08-16-atlas-historical-high-tail-guard-amendment.md"
@@ -161,7 +130,7 @@ HIGH_TAIL_GUARD_AMENDMENT_SHA256 = (
 )
 OUTPUT_PREFIX = (
     "gs://nfl-predictions-503414-raw/research/atlas-historical-score-runs/"
-    "20260816-atlas-historical-score-diagnostic-v1"
+    "20260816-atlas-historical-score-diagnostic-v2"
 )
 UPSTREAM_RECEIPT_URI = f"{OUTPUT_PREFIX}/upstream-receipt.json"
 OUTPUT_URI = f"{OUTPUT_PREFIX}/report.json"
@@ -241,8 +210,8 @@ def _validate_execution(value: dict, season: int, week: int) -> None:
     if container.get("image") != UPSTREAM_IMAGE or \
             container.get("command") != ["python"] or \
             container.get("args") != [
-                "scripts/run_atlas_matched_diversity_mvp.py", "--season",
-                str(season), "--week", str(week),
+                "-c", UPSTREAM_GRID_COMMAND, "--season", str(season),
+                "--week", str(week),
                 "--output-uri", expected_uri,
             ]:
         raise RuntimeError("ATLAS historical upstream command/image differs")
@@ -251,7 +220,7 @@ def _validate_execution(value: dict, season: int, week: int) -> None:
     if env != {"CODE_SHA": UPSTREAM_CODE_SHA, "ANALYSIS_IMAGE": UPSTREAM_IMAGE}:
         raise RuntimeError("ATLAS historical upstream environment differs")
     if container.get("resources", {}).get("limits") != {
-        "cpu": "1", "memory": "4Gi",
+        "cpu": "4", "memory": "16Gi",
     } or template.get("maxRetries") != 0 or \
             str(template.get("timeoutSeconds")) != "43200" or \
             template.get("serviceAccountName") != SERVICE_ACCOUNT:
@@ -259,31 +228,35 @@ def _validate_execution(value: dict, season: int, week: int) -> None:
 
 
 def _validate_upstream_receipt(receipt: dict) -> dict[str, dict]:
-    if receipt.get("version") != "atlas-historical-upstream-receipt-v3" or \
+    if receipt.get("version") != "atlas-historical-upstream-receipt-v4" or \
             receipt.get("uses_realized_outcomes") is not False or \
             receipt.get("upstream_code_sha") != UPSTREAM_CODE_SHA or \
             receipt.get("upstream_image") != UPSTREAM_IMAGE or \
             receipt.get("upstream_manifest_sha256") != \
             UPSTREAM_MANIFEST_SHA256 or \
-            receipt.get("upstream_original_execution_ledger_sha256") != \
-            UPSTREAM_ORIGINAL_EXECUTION_LEDGER_SHA256 or \
             receipt.get("upstream_execution_ledger_sha256") != \
-            UPSTREAM_EXECUTION_LEDGER_SHA256 or \
-            receipt.get("cbc_retry_protocol_sha256") != \
-            CBC_RETRY_PROTOCOL_SHA256 or \
-            receipt.get("failed_execution_sha256") != \
-            UPSTREAM_FAILED_EXECUTION_SHA256 or \
-            receipt.get("failed_log_sha256") != UPSTREAM_FAILED_LOG_SHA256 or \
-            receipt.get("replacement_receipt_sha256") != \
-            UPSTREAM_REPLACEMENT_RECEIPT_SHA256:
+            UPSTREAM_LEDGER_SHA256 or \
+            receipt.get("repair4_upstream_amendment_sha256") != \
+            REPAIR4_UPSTREAM_AMENDMENT_SHA256:
         raise RuntimeError("ATLAS historical upstream receipt identity differs")
-    replacement = receipt.get("single_shard_replacement", {})
-    if replacement != {
-        "season": 2024, "week": 7,
-        "original_execution": "atlas-md-s2024-w7-r2-r9gnq",
-        "replacement_execution": "atlas-md-s2024-w7-r2-6l2q2",
-    }:
-        raise RuntimeError("ATLAS historical upstream replacement differs")
+    forbidden = {
+        "upstream_original_execution_ledger_sha256",
+        "cbc_retry_protocol_sha256", "failed_execution_sha256",
+        "failed_log_sha256", "replacement_receipt_sha256",
+        "single_shard_replacement",
+    }
+    if forbidden.intersection(receipt):
+        raise RuntimeError("ATLAS historical repair4 receipt carries repair2 fields")
+    strict_harvest = receipt.get("strict_harvest", {})
+    expected_harvest = {
+        "completion_sha256", "report_sha256", "season_reports_sha256",
+        "shards_sha256", "execution_metadata_sha256",
+    }
+    if set(strict_harvest) != expected_harvest or any(
+        not re.fullmatch(r"[0-9a-f]{64}", str(value))
+        for value in strict_harvest.values()
+    ):
+        raise RuntimeError("ATLAS historical repair4 strict harvest differs")
     executions = receipt.get("executions", {})
     if set(executions) != set(UPSTREAM_EXECUTION_NAMES):
         raise RuntimeError("ATLAS historical upstream receipt shard grid differs")
@@ -298,6 +271,8 @@ def _validate_upstream_receipt(receipt: dict) -> dict[str, dict]:
                 not str(value.get("generation", "")).isdigit() or \
                 int(value.get("bytes") or 0) <= 0:
             raise RuntimeError(f"ATLAS historical upstream {key} receipt differs")
+    if strict_harvest["report_sha256"] != objects["report"]["sha256"]:
+        raise RuntimeError("ATLAS historical repair4 aggregate hash differs")
     return objects
 
 
@@ -523,9 +498,10 @@ def run(upstream_receipt_uri: str, output_uri: str) -> dict:
             _file_sha(SHARDED_UPSTREAM_AMENDMENT) != \
             SHARDED_UPSTREAM_AMENDMENT_SHA256:
         raise RuntimeError("ATLAS historical sharded-upstream amendment differs")
-    if not CBC_RETRY_PROTOCOL.is_file() or \
-            _file_sha(CBC_RETRY_PROTOCOL) != CBC_RETRY_PROTOCOL_SHA256:
-        raise RuntimeError("ATLAS historical CBC retry protocol differs")
+    if not REPAIR4_UPSTREAM_AMENDMENT.is_file() or \
+            _file_sha(REPAIR4_UPSTREAM_AMENDMENT) != \
+            REPAIR4_UPSTREAM_AMENDMENT_SHA256:
+        raise RuntimeError("ATLAS historical repair4-upstream amendment differs")
     if not HIGH_TAIL_GUARD_AMENDMENT.is_file() or \
             _file_sha(HIGH_TAIL_GUARD_AMENDMENT) != \
             HIGH_TAIL_GUARD_AMENDMENT_SHA256:
@@ -602,7 +578,9 @@ def run(upstream_receipt_uri: str, output_uri: str) -> dict:
         "sharded_upstream_amendment_sha256": (
             SHARDED_UPSTREAM_AMENDMENT_SHA256
         ),
-        "cbc_retry_protocol_sha256": CBC_RETRY_PROTOCOL_SHA256,
+        "repair4_upstream_amendment_sha256": (
+            REPAIR4_UPSTREAM_AMENDMENT_SHA256
+        ),
         "high_tail_guard_amendment_sha256": (
             HIGH_TAIL_GUARD_AMENDMENT_SHA256
         ),
@@ -612,6 +590,7 @@ def run(upstream_receipt_uri: str, output_uri: str) -> dict:
             "receipt_object": receipt_object,
             "objects": downloaded_receipts,
             "executions": UPSTREAM_EXECUTION_NAMES,
+            "strict_harvest": receipt["strict_harvest"],
             "scorefree_gate_passed": aggregate.get("gate", {}).get(
                 "passes_scorefree_gate"
             ),
