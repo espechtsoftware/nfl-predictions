@@ -1,0 +1,9 @@
+run_id=20260816-atlas-mvp-source-repair-r3-2025-v1
+panel=20260816-atlas-mvp-repair-r3-2025-v1
+job=replay-atlas-mvp-repair-r3-2025
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ad4604d86f1b1f7938136650f3d3940c9f1d6edd6a3427d618e6f943822602c8
+protocol_sha256=a18c0f59cfccfccd073bdf5d9d24a0a8ad8015320421d40eb0fccc6a1a18d461
+source_execution_sha256=60173988c785b88253052e40d73cfe396f9947c44f84f4bfe279be781db07ca9
+source_execution=replay-atlasmoney-r3-2025-htrch
+uses_realized_outcomes=false
+permitted_environment_changes=PANEL_RUN_ID,REPLAY_LINEUPS_TABLE

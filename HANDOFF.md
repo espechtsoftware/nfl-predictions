@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 00:59 CDT
+## Current state — 2026-08-16 01:00 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -131,6 +131,18 @@ agent or developer:
   shell syntax and diff checks pass. Next concrete action: commit/push this
   frozen repair machinery, launch it from the exact old image, poll to a clean
   terminal result and run only the strict finisher before building the MVP.
+  That exact repair is now running as durable Cloud Run execution
+  `replay-atlas-mvp-repair-r3-2025-xcps7`, launched at
+  `2026-08-16T06:00:20Z` from the original immutable image. Its create-only
+  manifest, execution identity and full repaired-environment receipt are
+  tracked under
+  `reports/atlas-mvp-source-repair-runs/20260816-atlas-mvp-source-repair-r3-2025-v1/`;
+  the environment receipt SHA-256 is
+  `80820ed9a8fc6fa8e2264fe1c34ced1e3ce31ed477722841a1e7222cf446cf90`.
+  Poll this execution to terminal success and invoke only
+  `scripts/cloud_finish_atlas_mvp_source_repair.sh`; do not inspect partial
+  candidates or infer a result before the strict harvest completes. Local
+  work may implement the score-free MVP primitives while it runs.
 - The supplied ATLAS law-separation review is reconciled at
   `reports/2026-08-16-atlas-law-separation-review-reconciliation.md`. Its
   CBWU-OI/ATLAS cross-law premise is corrected: both used the identical five
