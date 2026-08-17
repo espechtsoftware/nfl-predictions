@@ -53,6 +53,11 @@ agent or developer:
   complete legality, exact nested supersets, six-family and multi-family
   saturation, player/pair/stack-core reach, identity-only exact-P distance,
   structural summaries, season/scale summaries and distance/yield rankings.
+  A live identity-only BigQuery preflight of the immutable R0--R4 source
+  confirms exactly 270 book/slate cells and 68,493 rows, 241--265 candidates
+  per cell, zero duplicate-roster cells, zero noncontiguous-index cells and
+  zero missing tag rows. Each of `lev,boom,epi,qbvar,game,dark` appears in all
+  270 cells, and the analyzer now requires all six families in every book.
   It rejects candidate support/projection/selection fields as well as every
   outcome/ownership/rank/payout field and emits only the non-adoptive
   `complete-descriptive-capacity-curve` disposition. Five new synthetic tests

@@ -35,28 +35,30 @@ def _fixture() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         for player_id, position, team, opponent, salary in base_players
     ]
     for index in range(50):
-        player_rows.append({
-            "season": 2023,
-            "week": 1,
-            "id": f"flex-{index}",
-            "pos": "WR",
-            "team": f"X{index}",
-            "opp": f"Y{index}",
-            "game_id": "unused",
-            "salary": 4800,
-        })
+        for family_index, _family in enumerate(capacity.BASE_FAMILIES):
+            player_rows.append({
+                "season": 2023,
+                "week": 1,
+                "id": f"flex-{index}-{family_index}",
+                "pos": "WR",
+                "team": f"X{index}-{family_index}",
+                "opp": f"Y{index}-{family_index}",
+                "game_id": "unused",
+                "salary": 4800,
+            })
     fixed = ["q", "rb1", "rb2", "wr1", "wr2", "wr3", "te", "dst"]
     candidate_rows = []
     for index, replicate in enumerate(capacity.BOOK_ORDER):
-        unique_family = capacity.BASE_FAMILIES[index % len(capacity.BASE_FAMILIES)]
-        for cand_ix, (flex, tag, tags) in enumerate((
-            (
-                "flex-shared",
-                "lev",
-                ["lev", "boom"] if index == 0 else ["lev"],
-            ),
-            (f"flex-{index}", unique_family, [unique_family]),
-        )):
+        entries = [(
+            "flex-shared",
+            "lev",
+            ["lev", "boom"] if index == 0 else ["lev"],
+        )]
+        entries.extend(
+            (f"flex-{index}-{family_index}", family, [family])
+            for family_index, family in enumerate(capacity.BASE_FAMILIES)
+        )
+        for cand_ix, (flex, tag, tags) in enumerate(entries):
             candidate_rows.append({
                 "season": 2023,
                 "week": 1,
@@ -69,7 +71,7 @@ def _fixture() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     exact_p = pd.DataFrame([{
         "season": 2023,
         "week": 1,
-        "players": ",".join(sorted([*fixed, "flex-49"])),
+        "players": ",".join(sorted([*fixed, "flex-49-5"])),
     }])
     return pd.DataFrame(player_rows), pd.DataFrame(candidate_rows), exact_p
 
@@ -125,13 +127,13 @@ def test_capacity_curve_is_nested_complete_and_identity_only():
     assert result["disposition"] == "complete-descriptive-capacity-curve"
     cells = {row["scale"]: row for row in result["cells"]}
     assert [cells[scale]["raw_candidates"] for scale in ("1x", "2x", "5x", "10x")] == [
-        10, 20, 50, 100,
+        35, 70, 175, 350,
     ]
     assert [cells[scale]["distinct_rosters"] for scale in ("1x", "2x", "5x", "10x")] == [
-        6, 11, 26, 51,
+        31, 61, 151, 301,
     ]
     assert [cells[scale]["new_distinct_rosters"] for scale in ("1x", "2x", "5x", "10x")] == [
-        6, 5, 15, 25,
+        31, 30, 90, 150,
     ]
     assert cells["1x"]["marginal_yield_slope"] is None
     assert cells["2x"]["marginal_yield_slope"] == pytest.approx(-0.2)

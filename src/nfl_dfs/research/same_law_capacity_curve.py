@@ -203,6 +203,7 @@ def _slate_records(
         if indices != list(range(len(indices))):
             raise ValueError(f"capacity candidate indices differ for {replicate}")
         seen: set[tuple[str, ...]] = set()
+        seen_families: set[str] = set()
         for row in group.itertuples(index=False):
             roster = canonical_roster(row.players)
             if roster in seen:
@@ -213,13 +214,19 @@ def _slate_records(
                 raise ValueError(
                     f"capacity candidate is illegal: {replicate} {audit['failures']}"
                 )
+            families = _base_tags(row.all_tags, row.tag)
+            seen_families.update(families)
             records.append({
                 "replicate": replicate,
                 "book_index": book_index,
                 "cand_ix": int(row.cand_ix),
                 "roster": roster,
-                "families": _base_tags(row.all_tags, row.tag),
+                "families": families,
             })
+        if seen_families != set(BASE_FAMILIES):
+            raise ValueError(
+                f"capacity book {replicate} does not contain all six families"
+            )
     return records
 
 
