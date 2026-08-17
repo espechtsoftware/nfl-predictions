@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 08:45 CDT
+## Current state — 2026-08-17 08:47 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -295,13 +295,17 @@ agent or developer:
   helpers plus the launcher/watcher to the built commit, validate the complete
   manifest/hash/lease in the strict finisher (including the exact active lease
   generation and bytes), and exit cleanly if repair5 closes invalid. The same 34
-  focused tests, Python compilation, shell syntax and diff checks pass. A new
-  clean-archive full-test build is required from the forthcoming hardening
-  commit; no scoring watcher may use build `580d5516-...`.
-  Next: commit/push this implementation, run its full-test immutable Cloud
-  Build in parallel with the score-blind grid, then start the v3 queue watcher
-  with that digest/build so strict repair5 completion automatically seals and
-  scores all 54 slates under the shared outcome lease.
+  focused tests, Python compilation, shell syntax and diff checks pass. This
+  hardening is pushed on `main` at exact commit
+  `1187e38ea6cc9d7a4eb23d8a73dc1182349c618c`. Replacement clean-archive
+  full-test Cloud Build `c49a7bfc-b8b6-44b2-98d9-cf91653fb751` was submitted
+  from that exact commit with tag `atlas-historical-v3-1187e38`; its result
+  and immutable digest are not yet known. No scoring watcher may use the
+  cancelled build `580d5516-...`.
+  Next: poll the replacement build and score-blind grid; after build success,
+  start the v3 queue watcher with that digest/build so strict repair5
+  completion automatically seals and scores all 54 slates under the shared
+  outcome lease.
 
 - The already accepted outcome-free impact/equivalence governance
   recommendation is now implemented. Protocol
