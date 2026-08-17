@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 15:08 CDT
+## Current state — 2026-08-17 15:10 CDT
 
 ### Extreme-tail prerequisites implemented and prospectively frozen while ATLAS continues
 
@@ -88,6 +88,8 @@ agent or developer:
   contract comment and focused parity/reciprocal tests. The verification
   report is `reports/2026-08-17-dst-d0-scoring-law-verification.md`, SHA-256
   `e0bb023c47a87e4159128259b370187e45501b91a73506eb70f0308b69dca4f9`.
+  The implementation and evidence are committed and pushed on `main` at exact
+  commit `799ab2f634f9277c4ea6e97cddab6da707102e49`.
   The focused DST/feature/recourse/overtime suite passes with one existing
   skip, compilation and `git diff --check` pass. This verifies the current
   law only; it does not prove historical rule parity, populate an event
