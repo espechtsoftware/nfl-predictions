@@ -147,6 +147,79 @@ def test_exact_world_identity_is_invariant_to_player_row_order():
     )
 
 
+def test_identity_tiebreak_uses_frozen_smallest_feasible_tolerance(monkeypatch):
+    positions = _positions()
+    players = []
+    for index, pos in enumerate(positions):
+        team = "A" if index % 2 == 0 else "B"
+        players.append({
+            "id": f"p{index:02d}", "pos": pos, "team": team,
+            "opp": "B" if team == "A" else "A", "game_id": "A@B",
+            "salary": 5_550, "proj": 10.0,
+        })
+    chosen = [players[index] for index in (0, 2, 3, 5, 6, 7, 8, 9, 11)]
+    floors = []
+
+    def fake_optimize(world_players, **kwargs):
+        if kwargs["objective_col"] == "atlas_world_score":
+            return Lineup([
+                next(row for row in world_players if row["id"] == player["id"])
+                for player in chosen
+            ])
+        floors.append(kwargs["objective_floor"])
+        if len(floors) < 3:
+            return None
+        return Lineup([
+            next(row for row in world_players if row["id"] == player["id"])
+            for player in chosen
+        ])
+
+    monkeypatch.setattr(atlas, "optimize", fake_optimize)
+    result = atlas.solve_exact_worlds(
+        players, np.full((len(players), 1), 10.0), [0],
+        stack=StackRules(qb_stack_min=0, bring_back_min=0),
+        env={"MIN_LINEUP_SALARY": "49000"},
+    )[0]
+
+    assert atlas.EXACT_IDENTITY_TOLERANCES == (1e-6, 1e-5, 1e-4)
+    assert floors == pytest.approx([90.0 - value for value in (
+        1e-6, 1e-5, 1e-4,
+    )])
+    assert result["identity_tolerance"] == 1e-4
+    assert result["canonical_roster_score"] == result["score"] == 90.0
+
+
+def test_identity_tiebreak_stops_after_original_tolerance(monkeypatch):
+    positions = _positions()
+    players = []
+    for index, pos in enumerate(positions):
+        team = "A" if index % 2 == 0 else "B"
+        players.append({
+            "id": f"p{index:02d}", "pos": pos, "team": team,
+            "opp": "B" if team == "A" else "A", "game_id": "A@B",
+            "salary": 5_550, "proj": 10.0,
+        })
+    chosen_ids = {f"p{index:02d}" for index in (0, 2, 3, 5, 6, 7, 8, 9, 11)}
+    calls = []
+
+    def fake_optimize(world_players, **kwargs):
+        calls.append((kwargs["objective_col"], kwargs.get("objective_floor")))
+        return Lineup([row for row in world_players if row["id"] in chosen_ids])
+
+    monkeypatch.setattr(atlas, "optimize", fake_optimize)
+    result = atlas.solve_exact_worlds(
+        players, np.full((len(players), 1), 10.0), [0],
+        stack=StackRules(qb_stack_min=0, bring_back_min=0),
+        env={"MIN_LINEUP_SALARY": "49000"},
+    )[0]
+
+    assert calls == [
+        ("atlas_world_score", None),
+        ("atlas_identity_score", pytest.approx(90.0 - 1e-6)),
+    ]
+    assert result["identity_tolerance"] == 1e-6
+
+
 def test_frozen_scorefree_gate_requires_five_stable_seeds():
     rows = []
     for seed in range(5):

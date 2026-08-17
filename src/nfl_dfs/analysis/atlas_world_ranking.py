@@ -20,6 +20,7 @@ from ..optimizer.lineup import Lineup, StackRules, optimize
 # Exact DK Classic skill-count shapes once QB=1, DST=1 and FLEX is assigned.
 CLASSIC_SKILL_PATTERNS = ((2, 4, 1), (2, 3, 2), (3, 3, 1))
 EXACT_IDENTITY_TOLERANCE = 1e-6
+EXACT_IDENTITY_TOLERANCES = (1e-6, 1e-5, 1e-4)
 
 
 def _top_k_sum(draws: np.ndarray, rows: np.ndarray, k: int) -> np.ndarray:
@@ -191,22 +192,30 @@ def solve_exact_worlds(
             **player,
             "atlas_identity_score": -float(identity_rank[player["id"]]),
         } for player in world_players]
-        lineup = optimize(
-            tied_players,
-            stack=stack,
-            objective_col="atlas_identity_score",
-            objective_floor_col="atlas_world_score",
-            objective_floor=optimum - EXACT_IDENTITY_TOLERANCE,
-            env=env,
-        )
+        lineup = None
+        identity_tolerance = None
+        for tolerance in EXACT_IDENTITY_TOLERANCES:
+            lineup = optimize(
+                tied_players,
+                stack=stack,
+                objective_col="atlas_identity_score",
+                objective_floor_col="atlas_world_score",
+                objective_floor=optimum - tolerance,
+                env=env,
+            )
+            if lineup is not None:
+                identity_tolerance = tolerance
+                break
         if lineup is None:
             raise RuntimeError(
                 f"ATLAS world {world} identity tiebreak is infeasible"
             )
+        if identity_tolerance is None:  # pragma: no cover - loop invariant
+            raise AssertionError("ATLAS identity tolerance was not recorded")
         roster_score = float(sum(
             player["atlas_world_score"] for player in lineup.players
         ))
-        if roster_score < optimum - EXACT_IDENTITY_TOLERANCE - 1e-8:
+        if roster_score < optimum - identity_tolerance - 1e-8:
             raise AssertionError("ATLAS identity tiebreak violates score floor")
         result[world] = {
             "score": optimum,
@@ -214,7 +223,7 @@ def solve_exact_worlds(
             "identity_rank_sum": int(sum(
                 identity_rank[player["id"]] for player in lineup.players
             )),
-            "identity_tolerance": EXACT_IDENTITY_TOLERANCE,
+            "identity_tolerance": identity_tolerance,
             **_lineup_structure(lineup),
         }
     return result
@@ -445,6 +454,7 @@ def aggregate_scorefree_gate(rows: Sequence[Mapping]) -> dict:
 __all__ = [
     "CLASSIC_SKILL_PATTERNS",
     "EXACT_IDENTITY_TOLERANCE",
+    "EXACT_IDENTITY_TOLERANCES",
     "aggregate_scorefree_gate",
     "aggregate_transfer_gate",
     "compare_world_rankings",

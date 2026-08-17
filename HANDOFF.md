@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 09:17 CDT
+## Current state — 2026-08-17 09:24 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -323,6 +323,29 @@ agent or developer:
   score-free identity-tiebreak diagnosis/repair that can reuse mechanically
   equivalent repair5 successes under a new run identity, then score only a
   separately valid complete population.
+
+  That prospective extension is now frozen and implemented without launching
+  repair6 or reading a repair5 shard. Protocol
+  `reports/2026-08-17-atlas-repair6-identity-tiebreak-extension-protocol.md`
+  has SHA-256
+  `b4a98543b1dcd776d50ae00e380fbc695346debb0de6452131fdfd0ba7c2820a`.
+  It fixes the numerical law at the ordered absolute tolerance ladder
+  `(1e-6, 1e-5, 1e-4)`: retain repair5's exact solve first and try the next
+  tolerance only after infeasibility, accepting the first feasible identity
+  solve. Repair5 successes are eligible for reuse only under a new complete
+  hybrid population, after the complete terminal census, exact failure-class
+  filtering, a real 2023 Week 7 defect canary, and a separate 2023 Week 1
+  byte-equivalence canary. Any other failure class closes repair6.
+  `src/nfl_dfs/analysis/atlas_world_ranking.py` implements only that
+  short-circuit extension and records the tolerance used in the existing
+  field. `scripts/validate_atlas_repair6_code_diff.py` pins the exact repair5
+  source SHA, repair6 source SHA and canonical diff SHA
+  `3c4124b2a3fc6a86d00a278324533ddedf07cdbdd3227bfdacd8aae72838dda9`;
+  it validates with no candidate/lineup score or outcome read. Thirty-two
+  focused world-ranking/matched-diversity/repair6 tests pass, both Python
+  sources compile and `git diff --check` passes. Next: commit/push this
+  freeze, then implement the terminal classifier, dual-canary launcher and
+  strict 54-cell hybrid receipt while repair5 finishes.
 
 - The already accepted outcome-free impact/equivalence governance
   recommendation is now implemented. Protocol
