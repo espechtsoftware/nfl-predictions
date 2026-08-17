@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 08:47 CDT
+## Current state — 2026-08-17 09:17 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -298,14 +298,31 @@ agent or developer:
   focused tests, Python compilation, shell syntax and diff checks pass. This
   hardening is pushed on `main` at exact commit
   `1187e38ea6cc9d7a4eb23d8a73dc1182349c618c`. Replacement clean-archive
-  full-test Cloud Build `c49a7bfc-b8b6-44b2-98d9-cf91653fb751` was submitted
-  from that exact commit with tag `atlas-historical-v3-1187e38`; its result
-  and immutable digest are not yet known. No scoring watcher may use the
-  cancelled build `580d5516-...`.
-  Next: poll the replacement build and score-blind grid; after build success,
-  start the v3 queue watcher with that digest/build so strict repair5
-  completion automatically seals and scores all 54 slates under the shared
-  outcome lease.
+  full-test Cloud Build `c49a7bfc-b8b6-44b2-98d9-cf91653fb751` completed
+  `SUCCESS`: `full-test-suite`, `build-image` and
+  `smoke-atlas-mvp-runner` all passed. Tag
+  `atlas-historical-v3-1187e38` resolves to immutable digest
+  `sha256:2d0f44d39bbe7af2da94404fcecab6d55d11cbb73c27731aab9af8bcdc6c58a7`.
+  Durable v3 watcher session `69368` started at `2026-08-17T14:14:35Z` and
+  waits without acquiring the outcome lease until strict repair5 success.
+  No scoring watcher may use the cancelled build `580d5516-...`.
+
+  Repair5 subsequently exposed a genuine non-platform model failure before
+  any shard body/effect or realized score was opened. Execution
+  `atlas-md-s2023-w7-r5-44ccq` completed failed at
+  `2026-08-17T14:03:49Z`, after R0, with zero destination object and exact
+  traceback `RuntimeError: ATLAS world 2605 identity tiebreak is infeasible`.
+  Its Cloud Run reason is `NonZeroExitCode`, exit code 1, one failed task;
+  2023 Week 1 remains the only other terminal cell and is successful. The
+  frozen bounded-attempt rule makes solver/tiebreak failure ineligible for a
+  repair5 platform replacement, so repair5 cannot license historical v3
+  scoring. At `2026-08-17T14:10:08Z`, the other 52 primaries remained
+  nonterminal. Leave them to the frozen terminal census; do not open any
+  successful partial shard. The v3 watcher will exit score-free when that
+  census closes the branch. Next: freeze and implement a prospective
+  score-free identity-tiebreak diagnosis/repair that can reuse mechanically
+  equivalent repair5 successes under a new run identity, then score only a
+  separately valid complete population.
 
 - The already accepted outcome-free impact/equivalence governance
   recommendation is now implemented. Protocol
