@@ -122,6 +122,8 @@ agent or developer:
   validator is exact commit `125df04da97de094fc3c8963853ee5a870ade491`.
   The strict generation-completion boundary is committed on `main` at
   `ce530917359faff1955ba671b82424976ca4851e`.
+  The immutable source-binding boundary is committed on `main` at
+  `2cfeda517d64cacf8117891261dc77bfbf4c272c`.
   No generation launcher,
   cloud attempt resolver, strict cloud harvester/frame loader, immutable
   analysis runner, build or
