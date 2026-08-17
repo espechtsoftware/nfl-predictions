@@ -7,9 +7,9 @@ set -uo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 PROJECT=nfl-predictions-503414
 REGION=us-central1
-CODE_SHA=f1e344bd1395d64ea5b530c2fb22c87bd402c902
-BUILD_ID=df158df9-ef83-4555-b5ea-0e254a7ea0bd
-TAG=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:constraint-support-f1e344b
+CODE_SHA=e6916decd1e455ab7c0be852f640ec4d63ddae6b
+BUILD_ID=edc9f90d-b118-4b50-8d7d-dda42196cec1
+TAG=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:constraint-support-e6916de
 SUPPORT="$ROOT/reports/constraint-lattice-support-runs/20260816-constraint-lattice-control-support-census-v1"
 RESOURCE="$ROOT/reports/constraint-lattice-resource-preflight-runs/20260816-constraint-lattice-resource-preflight-v1"
 
