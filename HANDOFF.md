@@ -107,6 +107,8 @@ agent or developer:
   never deletes. The implementation report is
   `reports/2026-08-17-shared-heavy-experiment-lease-prerequisite.md`, SHA-256
   `1a82a100840fe321bd995af458064a14f65f357f7936201fc5e8bd0420f6c00b`.
+  The standalone prerequisite and evidence are committed and pushed on `main`
+  at exact commit `4286002f91a3444b297834fc7dbd3dc57fb7ee02`.
   Thirty offline fake-GCS tests and compilation pass. It is not yet packaged
   or wired into a launcher/finisher and licenses no launch: all potentially
   concurrent watchers must first participate or be durably terminal/disabled,
