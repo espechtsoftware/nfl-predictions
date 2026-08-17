@@ -1317,6 +1317,23 @@ agent or developer:
   `stack-shell-support-dbba33b`; managed watcher session `90839` is active.
   On build success it must remain at the strict ATLAS closure gate before any
   support canary or population launch.
+  While that support-only image validates, the later treatment runner and
+  aggregator have been implemented without constructing a treatment or
+  reading any support result. Every treatment shard must download the one
+  fixed create-only support report, match its caller-supplied SHA-256, require
+  a positive predeclared 230/220/210 disposition, and bind its object
+  generation/size before loading the same immutable production-money sources.
+  The aggregate rejects any incomplete 54-slate/270-fold grid and strictly
+  validates exact candidate budgets, exact-80 books, 32/128 component
+  libraries and caps, 256/40 beam/proposal counts, proposal-to-admitted-roster
+  identity, the minimum pair expansion implied by all 40 selections, complete
+  held-out threshold/structure/effective-rank receipts and all source
+  artifacts before applying the frozen score-free gate. It cannot read
+  realized fantasy scores and still licenses no production change. Three new
+  execution-contract tests pass and both new modules compile. Do not build or
+  launch this treatment until the independent support census passes and its
+  exact report/completion hashes can be frozen into a separate treatment
+  execution protocol.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).
