@@ -20,7 +20,72 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 14:24 CDT
+## Current state — 2026-08-17 15:02 CDT
+
+### Extreme-tail prerequisites implemented and prospectively frozen while ATLAS continues
+
+- The descriptive DraftKings-only ceiling is now implemented additively in
+  `src/nfl_dfs/research/final_forensic.py`. `H_DK_legal` enforces only the
+  nine-slot Classic shape, $50,000 cap, maximum eight players per team and
+  minimum two games. `H_strategy` is an exact alias of legacy `H`.
+  `strategy_gaps` separately attributes
+  `H_DK_legal -> H_no_salary_floor` to non-salary strategy constraints,
+  `H_no_salary_floor -> H_strategy` to the salary floor, and their combined
+  difference; the legacy H/P/C/S objects, three legacy gaps and original
+  first-failure labels are unchanged. Output, warehouse and corrected
+  construction-addendum consumers accept the additive layers. The exact
+  implementation report is
+  `reports/2026-08-17-dk-legal-forensic-layer-implementation.md`, SHA-256
+  `0508d2a3c738a017eca33f498697792b4803f894e0d5d40bae7ed6228cd5f35b`.
+  Fifty-six focused tests, Python compilation and the complete
+  `PYTHONPATH=. .venv/bin/pytest -q` suite pass. No historical DK-legal
+  population has been scored and this diagnostic cannot relax production
+  strategy by itself.
+
+- Residual-world portfolio generation is frozen prospectively in
+  `reports/2026-08-17-residual-world-portfolio-column-generation-prospective-protocol.md`,
+  SHA-256
+  `db02c7bb7994ea887ad32a935f3188bc78384c3c4b97a3dc712f3ffd2a8fc02a`.
+  It binds the exact production-multinomial current-money sources and repair,
+  uses independent two-fold construction/evaluation blocks, the strict
+  `240 -> 230 -> 220 -> 210 -> 200 -> 194 -> 187` lexicographic utility,
+  tight exact legal-world bounds and indicators, and a final exact
+  `max(0, lineup_score-current_book_max)` tier so it cannot revert to
+  standalone lineup score. It freezes `K_max=8` with stop-at-first-null,
+  matched candidate budget and exact 80, deterministic pruning/dedup/ties,
+  cross-scoring on untouched ordinary worlds, selector-stability floors and
+  source/mechanical/tail gates. A clean shoulder-only gain is null; a pass
+  needs an aggregate 210+ gain across at least two blocks and two slates, but
+  deliberately does not restore the retired no-more-than-one-negative rule.
+  No column or treatment output exists.
+
+- The score-free DST/rare-event feasibility audit is
+  `reports/2026-08-17-dst-shadow-and-rare-event-feasibility-audit.md`, SHA-256
+  `8e198c747500cc89464a0f1418ffb6ece555a01ce530d1b5183003e149ff59e7`.
+  Existing PBP supports a discrete DST source frame, but a research event
+  ledger, strictly prior component features and scorer/rule reconciliation
+  are prerequisites before a DST lineup arm. The current possession/player
+  simulator has no sufficient snapshot/restore state, per-world RNG stream,
+  likelihood ledger or batch-independent finalizer; same-law rare-event
+  weighting is therefore not currently valid and cannot enter the cloud
+  queue until its R0-R3 prerequisites pass. Three focused DST scoring tests
+  pass. No historical population, lineup outcome or ATLAS body was opened.
+
+- A durable global heavy-experiment lease and the pure residual-pricing core
+  are now being implemented locally from these frozen contracts. DST D0 is
+  separately reconciling the current official scoring rule before code
+  changes. These readiness tasks launch no cloud experiment. The active ATLAS
+  watcher remains the sole heavy chain: its complete terminal-only sweep at
+  `2026-08-17T19:59:17Z` reported 15 of 54 repair5 primaries nonterminal, 38
+  terminal successes and the one known zero-object 2023 Week 7 identity-tie
+  failure. Repair6, historical v4, parity and then constraint-lattice support
+  remain serialized; no partial scientific output has been inspected.
+
+- Exact next actions: commit/push this additive forensic layer and the two
+  prospective audits; continue terminal-only ATLAS polling; validate and
+  commit the heavy lease, residual core and DST D0 work separately; when the
+  ATLAS chain closes, strictly harvest its licensed terminal result before
+  releasing the constraint-lattice support/resource preflight.
 
 ### Extreme-tail review accepted selectively; downstream heavy queue serialized
 

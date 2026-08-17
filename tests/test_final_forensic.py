@@ -25,6 +25,7 @@ from nfl_dfs.research.final_forensic import (
     recourse_ceiling_slate,
     report_inventory,
     sha256_file,
+    solve_draftkings_legal_oracle,
     validate_freeze_manifest,
 )
 
@@ -191,6 +192,126 @@ def test_hpcs_reports_salary_floor_cost_and_thin_candidate_support():
     assert support["appearance_bands"] == {
         "1": 9, "2_to_4": 0, "5_to_9": 0, "10_plus": 0,
     }
+
+
+def test_dk_legal_layer_separates_strategy_without_changing_hpcs():
+    players = pd.concat([
+        _players(),
+        pd.DataFrame([{
+            "id": "rb_a2", "pos": "RB", "team": "A", "opp": "B",
+            "game_id": "A@B", "salary": 5000, "actual": 43.0,
+        }]),
+    ], ignore_index=True)
+    actuals = players.set_index("id").actual.to_dict()
+    strategy_legal = [
+        "qb_a", "rb_c", "rb_d", "wr_a", "wr_b", "wr_c", "wr_d",
+        "te_a", "dst_a",
+    ]
+    roster, score = _candidate(strategy_legal, actuals)
+    candidates = pd.DataFrame([{
+        "players": roster,
+        "actual_score": score,
+        "selected": True,
+        "selected_rank": 0,
+    }])
+
+    result = decompose_slate(
+        players, candidates, expected_entries=1, min_salary=0,
+    )
+
+    # The legacy/public layers retain their exact values and H gains only an
+    # explicit semantic alias.
+    assert result["H_strategy"] == result["H"]
+    assert result["H"]["actual_score"] == 235.0
+    assert result["P"]["actual_score"] == 188.0
+    assert result["C"]["actual_score"] == score
+    assert result["S"]["actual_score"] == score
+    assert result["gaps"]["player_support"] == 47.0
+    assert result["gaps"]["construction"] == 0.0
+    assert result["gaps"]["selection"] == 0.0
+    assert set(result["gaps"]) == {
+        "player_support", "construction", "selection",
+    }
+
+    dk_oracle = solve_draftkings_legal_oracle(players)
+    assert result["H_DK_legal"] == dk_oracle
+    assert dk_oracle["actual_score"] == 240.0
+    assert {"rb_a", "rb_a2"} <= set(dk_oracle["players"])
+    assert result["strategy_gaps"] == {
+        "non_salary_strategy_constraints": 5.0,
+        "salary_floor": 0.0,
+        "combined_strategy_constraints": 5.0,
+    }
+    assert result["strategy_gaps"][
+        "non_salary_strategy_constraints"
+    ] + result["strategy_gaps"]["salary_floor"] == result[
+        "strategy_gaps"
+    ]["combined_strategy_constraints"]
+    assert result["thresholds"]["240"]["first_failed_layer"] == "none"
+    assert result["thresholds"]["240"]["first_failed_layer_extended"] == (
+        "non_salary_strategy_constraints"
+    )
+    assert result["strategy_constraint_policy"]["use_restriction"].startswith(
+        "Outcome-viewed hindsight"
+    )
+
+    strategy_audit = audit_roster(
+        players,
+        dk_oracle["players"],
+        min_salary=0,
+        qb_stack_min=2,
+        bring_back_min=1,
+    )
+    assert not strategy_audit["valid"]
+    assert "two RBs from one team" in strategy_audit["failures"]
+
+
+def test_dk_legal_oracle_removes_every_strategy_rule_but_keeps_salary_cap():
+    rows = [
+        ("qb", "QB", "A", "B", 5000),
+        ("rb1", "RB", "A", "B", 4000),
+        ("rb2", "RB", "A", "B", 4000),
+        ("wr1", "WR", "C", "D", 4000),
+        ("wr2", "WR", "D", "C", 4000),
+        ("wr3", "WR", "E", "F", 4000),
+        ("wr4", "WR", "F", "E", 4000),
+        ("te", "TE", "C", "D", 4000),
+        ("dst", "DST", "B", "A", 3000),
+    ]
+    players = pd.DataFrame([
+        {
+            "id": player,
+            "pos": position,
+            "team": team,
+            "opp": opponent,
+            "game_id": f"{team}@{opponent}",
+            "salary": salary,
+            "actual": 10.0,
+        }
+        for player, position, team, opponent, salary in rows
+    ])
+
+    oracle = solve_draftkings_legal_oracle(players)
+
+    assert oracle["valid"]
+    assert oracle["salary"] == 36_000
+    strategy_audit = audit_roster(
+        players,
+        oracle["players"],
+        min_salary=0,
+        qb_stack_min=2,
+        bring_back_min=1,
+    )
+    assert not strategy_audit["valid"]
+    assert any("same-team WR/TE" in item for item in strategy_audit["failures"])
+    assert any("opponent bring-backs" in item for item in strategy_audit["failures"])
+    assert "two RBs from one team" in strategy_audit["failures"]
+    assert "RB faces selected DST" in strategy_audit["failures"]
+
+    over_cap = players.copy()
+    over_cap.loc[over_cap.id.eq("qb"), "salary"] = 20_000
+    with pytest.raises(ValueError, match="oracle is Infeasible"):
+        solve_draftkings_legal_oracle(over_cap)
 
 
 def test_hpcs_rejects_candidate_score_drift():

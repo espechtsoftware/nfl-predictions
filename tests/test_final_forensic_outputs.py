@@ -60,6 +60,20 @@ def test_portfolio_and_capture_outputs_preserve_exact80_semantics():
     assert capture["threshold_funnel"]["20"]["salary_listed"] == 79
     assert capture["calibration"]["WR"]["rows"] > 0
 
+    additive = _hpcs() | {
+        "H_DK_legal": {"players": [f"p{i}" for i in range(9)], "actual_score": 230},
+        "H_strategy": {"players": [f"p{i}" for i in range(9)], "actual_score": 220},
+    }
+    additive_capture = player_capture_slate(
+        _players(), _candidates(), additive,
+    )
+    funnel = additive_capture["threshold_funnel"]["20"]
+    assert "oracle_H_DK_legal" in funnel
+    assert "oracle_H_strategy" in funnel
+    # Legacy fields remain present for existing consumers.
+    assert "oracle_H" in funnel
+    assert "oracle_P" in funnel
+
 
 def test_candidate_scorecard_reports_rank_skill_and_tag_yield():
     report = candidate_scorecard(_candidates())
@@ -90,10 +104,34 @@ def test_warehouse_frames_retain_full_corpus_exact80_and_hpcs_rosters():
         layer: {
             "players": chosen,
             "actual_score": score,
-            **({"solver_status": "Optimal"} if layer in {"H", "P"} else {}),
+            **({"solver_status": "Optimal"} if layer in {
+                "H_DK_legal", "H_strategy", "H", "P",
+            } else {}),
         }
-        for layer in ("H_no_salary_floor", "H", "P", "C", "S")
-    } | {"gaps": {"player_support": 0.0, "construction": 0.0, "selection": 0.0}}
+        for layer in (
+            "H_DK_legal", "H_no_salary_floor", "H_strategy",
+            "H", "P", "C", "S",
+        )
+    } | {
+        "gaps": {
+            "player_support": 0.0,
+            "construction": 0.0,
+            "selection": 0.0,
+        },
+        "strategy_gaps": {
+            "non_salary_strategy_constraints": 0.0,
+            "salary_floor": 0.0,
+            "combined_strategy_constraints": 0.0,
+        },
+        "construction_policy": {
+            "qb_stack_min": 2,
+            "bring_back_min": 1,
+            "forbid_two_rb_same_team": True,
+            "forbid_rb_vs_dst": True,
+            "minimum_salary": 49_000,
+            "maximum_salary": 50_000,
+        },
+    }
 
     frames = warehouse_slate_frames(
         players,
@@ -115,6 +153,6 @@ def test_warehouse_frames_retain_full_corpus_exact80_and_hpcs_rosters():
     assert frames["candidate_corpus"].source_candidate_json.str.startswith("{").all()
     assert frames["actual_selections"].selected_rank.tolist() == list(range(80))
     assert frames["oracle_rosters"].layer.tolist() == [
-        "H_no_salary_floor", "H", "P", "C", "S",
+        "H_DK_legal", "H_no_salary_floor", "H_strategy", "H", "P", "C", "S",
     ]
     assert frames["oracle_rosters"].legality_verified.all()

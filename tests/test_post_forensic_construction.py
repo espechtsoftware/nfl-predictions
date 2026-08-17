@@ -93,7 +93,27 @@ def test_exact_stack_addendum_reproduces_old_p_and_restricts_use():
     assert result["corrected_salary_floor_policy"][
         "newly_reached_threshold_slates"
     ]["240"] == 0
+    dk_layer = result["dk_legal_strategy_decomposition"]
+    assert dk_layer["core_layer_order"] == [
+        "H_DK_legal", "H_strategy", "P", "C", "S",
+    ]
+    assert dk_layer["strategy_attribution_order"] == [
+        "H_DK_legal", "H_no_salary_floor", "H_strategy",
+    ]
+    assert dk_layer["legacy_alias"] == {"H": "H_strategy"}
+    assert dk_layer["realized_score_cost"]["n"] == 1
+    assert dk_layer["use_restriction"].startswith(
+        "Outcome-viewed hindsight description only"
+    )
+    assert result["records"][0]["exact_h_strategy"] == result[
+        "records"
+    ][0]["exact_h"]
+    assert result["records"][0]["exact_h_dk_legal"] >= result[
+        "records"
+    ][0]["exact_h_strategy"]
     assert "exact_h_no_salary_floor" in result["tail_counts"]
+    assert "exact_h_dk_legal" in result["tail_counts"]
+    assert "exact_h_strategy" in result["tail_counts"]
     recourse = result["corrected_perfect_information_recourse"]
     assert recourse["improved_slates"] in {0, 1}
     assert recourse["p_distance"]["recourse_final"]["n"] == 1

@@ -40,6 +40,65 @@ def test_json_writer_converts_numpy_scalars_and_remains_strict(tmp_path):
         analyzer._write_json_path(None, str(output), {"bad": object()})
 
 
+def test_aggregate_keeps_legacy_gaps_and_adds_separate_strategy_gaps():
+    layers = {
+        layer: {"actual_score": score}
+        for layer, score in (
+            ("H_DK_legal", 240.0),
+            ("H_no_salary_floor", 238.0),
+            ("H_strategy", 235.0),
+            ("H", 235.0),
+            ("P", 220.0),
+            ("C", 210.0),
+            ("S", 200.0),
+        )
+    }
+    thresholds = {
+        str(tail): {
+            "first_failed_layer": "none",
+            "first_failed_layer_extended": "none",
+        }
+        for tail in analyzer.TAILS
+    }
+    row = layers | {
+        "gaps": {
+            "player_support": 15.0,
+            "construction": 10.0,
+            "selection": 10.0,
+        },
+        "strategy_gaps": {
+            "non_salary_strategy_constraints": 2.0,
+            "salary_floor": 3.0,
+            "combined_strategy_constraints": 5.0,
+        },
+        "salary_floor_policy": {
+            "realized_score_cost": 3.0,
+            "newly_reached_thresholds": [],
+        },
+        "candidate_support_frequency": {
+            "supported_player_count": 20,
+            "players_appearing_fewer_than_five_candidates": 4,
+            "fraction_supported_players_appearing_fewer_than_five": 0.2,
+        },
+        "thresholds": thresholds,
+    }
+
+    summary = analyzer._aggregate([row])
+
+    assert set(summary["gap_points"]) == {
+        "player_support", "construction", "selection",
+    }
+    assert summary["strategy_gap_points"][
+        "non_salary_strategy_constraints"
+    ]["mean"] == 2.0
+    assert summary["strategy_gap_points"]["salary_floor"]["mean"] == 3.0
+    assert summary["strategy_gap_points"][
+        "combined_strategy_constraints"
+    ]["mean"] == 5.0
+    assert summary["tail_counts"]["H"]["240"] == 0
+    assert summary["tail_counts"]["H_DK_legal"]["240"] == 1
+
+
 def _prelock():
     return [{
         "id": "scope",

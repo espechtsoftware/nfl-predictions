@@ -273,6 +273,10 @@ def analyze_exact_stack_construction(
             "season": int(season),
             "week": int(week),
             "published_loose_p": float(loose["actual_score"]),
+            "exact_h_dk_legal": float(
+                exact["H_DK_legal"]["actual_score"]
+            ),
+            "exact_h_strategy": float(exact["H_strategy"]["actual_score"]),
             "exact_h_no_salary_floor": float(
                 exact["H_no_salary_floor"]["actual_score"]
             ),
@@ -281,6 +285,25 @@ def analyze_exact_stack_construction(
             "c": float(exact["C"]["actual_score"]),
             "s": float(exact["S"]["actual_score"]),
             "gaps": dict(exact["gaps"]),
+            "dk_legal_strategy": {
+                "dk_legal_roster": list(exact["H_DK_legal"]["players"]),
+                "strategy_roster": list(exact["H_strategy"]["players"]),
+                "roster_changed": bool(
+                    exact["H_DK_legal"]["players"]
+                    != exact["H_strategy"]["players"]
+                ),
+                "realized_score_cost": float(
+                    exact["strategy_gaps"]["combined_strategy_constraints"]
+                ),
+                "non_salary_strategy_constraints_cost": float(
+                    exact["strategy_gaps"][
+                        "non_salary_strategy_constraints"
+                    ]
+                ),
+                "salary_floor_cost": float(
+                    exact["strategy_gaps"]["salary_floor"]
+                ),
+            },
             "published_p_violates_qb2": any(
                 "same-team WR/TE" in failure for failure in old_p_audit["failures"]
             ),
@@ -332,7 +355,10 @@ def analyze_exact_stack_construction(
         }
         records.append(record)
 
-    layers = ("exact_h_no_salary_floor", "exact_h", "exact_p", "c", "s")
+    layers = (
+        "exact_h_dk_legal", "exact_h_no_salary_floor",
+        "exact_h_strategy", "exact_h", "exact_p", "c", "s",
+    )
     tail_counts = {
         layer: {
             str(tail): int(sum(record[layer] >= tail for record in records))
@@ -347,6 +373,13 @@ def analyze_exact_stack_construction(
     first_failed = {
         str(tail): dict(Counter(
             record["thresholds"][str(tail)]["first_failed_layer"]
+            for record in records
+        ))
+        for tail in TAILS
+    }
+    first_failed_extended = {
+        str(tail): dict(Counter(
+            record["thresholds"][str(tail)]["first_failed_layer_extended"]
             for record in records
         ))
         for tail in TAILS
@@ -483,6 +516,52 @@ def analyze_exact_stack_construction(
             "construction": _summary(record["gaps"]["construction"] for record in records),
             "selection": _summary(record["gaps"]["selection"] for record in records),
         },
+        "dk_legal_strategy_decomposition": {
+            "core_layer_order": [
+                "H_DK_legal", "H_strategy", "P", "C", "S",
+            ],
+            "strategy_attribution_order": [
+                "H_DK_legal", "H_no_salary_floor", "H_strategy",
+            ],
+            "legacy_alias": {"H": "H_strategy"},
+            "realized_score_cost": _summary(
+                record["dk_legal_strategy"]["realized_score_cost"]
+                for record in records
+            ),
+            "non_salary_strategy_constraints_cost": _summary(
+                record["dk_legal_strategy"][
+                    "non_salary_strategy_constraints_cost"
+                ]
+                for record in records
+            ),
+            "salary_floor_cost": _summary(
+                record["dk_legal_strategy"]["salary_floor_cost"]
+                for record in records
+            ),
+            "changed_roster_slates": int(sum(
+                record["dk_legal_strategy"]["roster_changed"]
+                for record in records
+            )),
+            "tail_counts": {
+                "H_DK_legal": tail_counts["exact_h_dk_legal"],
+                "H_strategy": tail_counts["exact_h_strategy"],
+            },
+            "first_failed_layer_counts": first_failed_extended,
+            "draftkings_legality": {
+                "minimum_salary": 0,
+                "maximum_salary": 50_000,
+                "maximum_players_per_team": 8,
+                "minimum_games": 2,
+                "qb_stack_min": 0,
+                "bring_back_min": 0,
+                "forbid_two_rb_same_team": False,
+                "forbid_rb_vs_dst": False,
+            },
+            "use_restriction": (
+                "Outcome-viewed hindsight description only. The gap cannot "
+                "promote a strategy relaxation or alter H/P/C/S verdicts."
+            ),
+        },
         "corrected_salary_floor_policy": {
             "realized_score_cost": _summary(
                 record["salary_floor_realized_score_cost"]
@@ -503,6 +582,7 @@ def analyze_exact_stack_construction(
         "tail_counts": tail_counts,
         "published_loose_p_tail_counts": published_p_tail,
         "corrected_first_failed_layer_counts": first_failed,
+        "extended_first_failed_layer_counts": first_failed_extended,
         "constraint_attribution": {
             "score_summaries": constraint_scores,
             "tail_counts": constraint_tail_counts,

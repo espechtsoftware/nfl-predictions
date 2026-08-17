@@ -25,6 +25,25 @@ def _roster(value: str) -> tuple[str, ...]:
     return ids
 
 
+def _oracle_layers(hpcs: Mapping[str, Any]) -> tuple[str, ...]:
+    """Return additive oracle layers without changing legacy layer order."""
+    if "H_DK_legal" not in hpcs and "H_strategy" not in hpcs:
+        return (
+            ("H_no_salary_floor", "H", "P", "C", "S")
+            if "H_no_salary_floor" in hpcs else ("H", "P", "C", "S")
+        )
+    ordered = (
+        "H_DK_legal",
+        "H_no_salary_floor",
+        "H_strategy",
+        "H",
+        "P",
+        "C",
+        "S",
+    )
+    return tuple(layer for layer in ordered if layer in hpcs)
+
+
 def portfolio_slate(
     players: pd.DataFrame,
     candidates: pd.DataFrame,
@@ -128,10 +147,7 @@ def player_capture_slate(
         if "mean_projection" in frame
         else pd.Series(True, index=frame.index)
     )
-    layer_names = (
-        ("H_no_salary_floor", "H", "P", "C", "S")
-        if "H_no_salary_floor" in hpcs else ("H", "P", "C", "S")
-    )
+    layer_names = _oracle_layers(hpcs)
     layers = {
         layer: set(map(str, hpcs[layer]["players"]))
         for layer in layer_names
@@ -471,16 +487,39 @@ def warehouse_slate_frames(
     ]].sort_values("selected_rank", kind="stable").to_dict("records")
 
     oracle_rows = []
-    oracle_layers = (
-        ("H_no_salary_floor", "H", "P", "C", "S")
-        if "H_no_salary_floor" in hpcs else ("H", "P", "C", "S")
-    )
+    oracle_layers = _oracle_layers(hpcs)
+    construction_policy = hpcs.get("construction_policy", {})
     for layer in oracle_layers:
         player_ids = tuple(map(str, hpcs[layer]["players"]))
+        if layer == "H_DK_legal":
+            audit_kwargs = {
+                "min_salary": 0,
+                "salary_cap": int(construction_policy.get("maximum_salary", 50_000)),
+                "qb_stack_min": 0,
+                "bring_back_min": 0,
+                "forbid_two_rb_same_team": False,
+                "forbid_rb_vs_dst": False,
+            }
+        else:
+            audit_kwargs = {
+                "min_salary": (
+                    0 if layer == "H_no_salary_floor"
+                    else int(construction_policy.get("minimum_salary", 49_000))
+                ),
+                "salary_cap": int(construction_policy.get("maximum_salary", 50_000)),
+                "qb_stack_min": int(construction_policy.get("qb_stack_min", 1)),
+                "bring_back_min": int(construction_policy.get("bring_back_min", 0)),
+                "forbid_two_rb_same_team": bool(
+                    construction_policy.get("forbid_two_rb_same_team", True)
+                ),
+                "forbid_rb_vs_dst": bool(
+                    construction_policy.get("forbid_rb_vs_dst", True)
+                ),
+            }
         audit = audit_roster(
             player_frame,
             player_ids,
-            min_salary=0 if layer == "H_no_salary_floor" else 49_000,
+            **audit_kwargs,
         )
         if not audit["valid"] or not np.isclose(
             audit["actual_score"], float(hpcs[layer]["actual_score"]),

@@ -793,11 +793,18 @@ def _cbwu_slate(
 
 
 def _aggregate(scope_rows: list[dict[str, Any]]) -> dict[str, Any]:
-    layer_names = ("H_no_salary_floor", "H", "P", "C", "S")
+    layer_names = (
+        (
+            "H_DK_legal", "H_no_salary_floor", "H_strategy",
+            "H", "P", "C", "S",
+        )
+        if "H_DK_legal" in scope_rows[0]
+        else ("H_no_salary_floor", "H", "P", "C", "S")
+    )
     floor_costs = [
         row["salary_floor_policy"]["realized_score_cost"] for row in scope_rows
     ]
-    return {
+    report = {
         "slates": len(scope_rows),
         "tail_counts": {
             layer: {
@@ -866,6 +873,33 @@ def _aggregate(scope_rows: list[dict[str, Any]]) -> dict[str, Any]:
             for tail in TAILS
         },
     }
+    if "strategy_gaps" in scope_rows[0]:
+        report["strategy_gap_points"] = {
+            gap: {
+                "mean": float(np.mean([
+                    row["strategy_gaps"][gap] for row in scope_rows
+                ])),
+                "median": float(np.median([
+                    row["strategy_gaps"][gap] for row in scope_rows
+                ])),
+                "maximum": float(max(
+                    row["strategy_gaps"][gap] for row in scope_rows
+                )),
+            }
+            for gap in (
+                "non_salary_strategy_constraints",
+                "salary_floor",
+                "combined_strategy_constraints",
+            )
+        }
+        report["extended_first_failed_layer_counts"] = {
+            str(tail): dict(Counter(
+                row["thresholds"][str(tail)]["first_failed_layer_extended"]
+                for row in scope_rows
+            ))
+            for tail in TAILS
+        }
+    return report
 
 
 def _known_winner_scores(repo_root: Path) -> dict[tuple[int, int], float]:
@@ -1023,10 +1057,15 @@ def _payout_floor_anchors(slates: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def _capture_summary(slates: list[dict[str, Any]]) -> dict[str, Any]:
-    funnel_fields = (
+    possible_funnel_fields = (
         "salary_listed", "served_distribution", "candidate_support",
-        "selected_exposure", "oracle_H_no_salary_floor", "oracle_H",
+        "selected_exposure", "oracle_H_DK_legal",
+        "oracle_H_no_salary_floor", "oracle_H_strategy", "oracle_H",
         "oracle_P", "oracle_C", "oracle_S",
+    )
+    available = slates[0]["threshold_funnel"]["20"]
+    funnel_fields = tuple(
+        field for field in possible_funnel_fields if field in available
     )
     return {
         "slates": len(slates),

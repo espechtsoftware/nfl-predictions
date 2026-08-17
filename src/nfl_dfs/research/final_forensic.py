@@ -807,8 +807,17 @@ def audit_roster(
     salary_cap: int = 50_000,
     qb_stack_min: int = 1,
     bring_back_min: int = 0,
+    forbid_two_rb_same_team: bool = True,
+    forbid_rb_vs_dst: bool = True,
 ) -> dict[str, Any]:
-    """Independently reconstruct one roster's score and frozen legality."""
+    """Independently reconstruct one roster's score and requested legality.
+
+    The defaults reproduce the historical forensic construction contract.
+    Callers measuring DraftKings-only legality must also disable the two
+    strategy prohibitions and set both stack minima and ``min_salary`` to
+    zero.  :func:`solve_draftkings_legal_oracle` is the named, less
+    error-prone entry point for that descriptive ceiling.
+    """
     if int(qb_stack_min) < 0 or int(bring_back_min) < 0:
         raise ValueError("roster stack requirements must be nonnegative")
     frame = _normalise_player_frame(players).set_index("id", drop=False)
@@ -859,10 +868,12 @@ def audit_roster(
                 f"QB has {bring_backs} opponent bring-backs; "
                 f"requires {int(bring_back_min)}"
             )
-    if (chosen[chosen.pos.eq("RB")].team.value_counts() > 1).any():
+    if forbid_two_rb_same_team and (
+        chosen[chosen.pos.eq("RB")].team.value_counts() > 1
+    ).any():
         failures.append("two RBs from one team")
     dsts = chosen[chosen.pos.eq("DST")]
-    if len(dsts) == 1:
+    if forbid_rb_vs_dst and len(dsts) == 1:
         dst_opp = str(dsts.iloc[0].opp)
         if ((chosen.pos.eq("RB")) & chosen.team.eq(dst_opp)).any():
             failures.append("RB faces selected DST")
@@ -885,8 +896,16 @@ def _solve_oracle(
     salary_cap: int = 50_000,
     qb_stack_min: int = 1,
     bring_back_min: int = 0,
+    forbid_two_rb_same_team: bool = True,
+    forbid_rb_vs_dst: bool = True,
 ) -> dict[str, Any]:
-    """Solve the exact frozen legal-lineup oracle with deterministic ties."""
+    """Solve an exact realized-score oracle with deterministic ties.
+
+    Defaults preserve the original forensic strategy constraints.  This
+    private primitive is parameterized only so the additive DK-legal
+    descriptive layer can remove strategy rules without maintaining a second
+    optimizer implementation.
+    """
     frame = _normalise_player_frame(players)
     if allowed_ids is not None:
         frame = frame[frame.id.isin(set(map(str, allowed_ids)))].copy()
@@ -982,7 +1001,7 @@ def _solve_oracle(
         ids = [row.id for row in rows if row.team == team]
         problem += pulp.lpSum(decision[player] for player in ids) <= 8
         rbs = [row.id for row in rows if row.team == team and row.pos == "RB"]
-        if len(rbs) > 1:
+        if forbid_two_rb_same_team and len(rbs) > 1:
             problem += pulp.lpSum(decision[player] for player in rbs) <= 1
     games = sorted(frame.game_id.unique())
     if len(games) >= 2:
@@ -1005,11 +1024,12 @@ def _solve_oracle(
         problem += pulp.lpSum(
             decision[player] for player in opponent_skill
         ) >= int(bring_back_min) * decision[qb.id]
-    for dst in (row for row in rows if row.pos == "DST"):
-        for rb in (
-            row for row in rows if row.pos == "RB" and row.team == dst.opp
-        ):
-            problem += decision[dst.id] + decision[rb.id] <= 1
+    if forbid_rb_vs_dst:
+        for dst in (row for row in rows if row.pos == "DST"):
+            for rb in (
+                row for row in rows if row.pos == "RB" and row.team == dst.opp
+            ):
+                problem += decision[dst.id] + decision[rb.id] <= 1
 
     solver = pulp.PULP_CBC_CMD(msg=0)
     problem.solve(solver)
@@ -1034,6 +1054,8 @@ def _solve_oracle(
     audit = audit_roster(
         frame, chosen, min_salary=min_salary, salary_cap=salary_cap,
         qb_stack_min=qb_stack_min, bring_back_min=bring_back_min,
+        forbid_two_rb_same_team=forbid_two_rb_same_team,
+        forbid_rb_vs_dst=forbid_rb_vs_dst,
     )
     if not audit["valid"] or not np.isclose(
         audit["actual_score"], optimum, rtol=0.0, atol=1e-6
@@ -1046,6 +1068,33 @@ def _solve_oracle(
             if variable.value() > 0.5
         )
     return audit
+
+
+def solve_draftkings_legal_oracle(
+    players: pd.DataFrame,
+    allowed_ids: set[str] | None = None,
+    *,
+    salary_cap: int = 50_000,
+) -> dict[str, Any]:
+    """Return the realized-score ceiling under DraftKings Classic rules only.
+
+    This is a hindsight diagnostic, never a playable policy or an adoption
+    result.  It enforces the nine-slot Classic roster shape, the salary cap,
+    at most eight players from one team, and at least two games.  It does not
+    impose a minimum salary, a QB stack/bring-back, a same-team-RB ban, or an
+    RB-versus-DST ban; those are construction strategy rather than contest
+    legality.
+    """
+    return _solve_oracle(
+        players,
+        allowed_ids,
+        min_salary=0,
+        salary_cap=salary_cap,
+        qb_stack_min=0,
+        bring_back_min=0,
+        forbid_two_rb_same_team=False,
+        forbid_rb_vs_dst=False,
+    )
 
 
 def recourse_ceiling_slate(
@@ -1271,7 +1320,14 @@ def decompose_slate(
     qb_stack_min: int = 2,
     bring_back_min: int = 1,
 ) -> dict[str, Any]:
-    """Compute the corrected H/P/C/S decomposition for one frozen slate."""
+    """Compute the corrected, additive DK-legal/H/P/C/S decomposition.
+
+    ``H`` remains the exact historical strategy-constrained layer.  The new
+    ``H_DK_legal`` layer is a strictly descriptive upper bound, while
+    ``H_strategy`` is an explicit alias of ``H``.  Existing H/P/C/S scores,
+    gaps, threshold failure labels, and candidate/selection behavior are
+    intentionally unchanged.
+    """
     frame = _normalise_player_frame(players)
     required = {"players", "actual_score"}
     if not required <= set(candidates):
@@ -1319,6 +1375,10 @@ def decompose_slate(
 
     support_counts = Counter(player for ids in roster_ids for player in ids)
     support = set(support_counts)
+    dk_legal_oracle = solve_draftkings_legal_oracle(
+        frame,
+        salary_cap=salary_cap,
+    )
     no_floor_oracle = _solve_oracle(
         frame, min_salary=0, salary_cap=salary_cap,
         qb_stack_min=qb_stack_min, bring_back_min=bring_back_min,
@@ -1337,20 +1397,29 @@ def decompose_slate(
     selected_row = selected.sort_values(
         ["actual_score", "roster_key"], ascending=[False, True], kind="stable"
     ).iloc[0]
+    dk_legal_score = float(dk_legal_oracle["actual_score"])
     no_floor_score = float(no_floor_oracle["actual_score"])
     h_score = float(full_oracle["actual_score"])
     p_score = float(support_oracle["actual_score"])
     c_score = float(candidate_row.actual_score)
     s_score = float(selected_row.actual_score)
     if not (
-        no_floor_score + 1e-6 >= h_score >= p_score - 1e-6
+        dk_legal_score + 1e-6 >= no_floor_score
+        and no_floor_score + 1e-6 >= h_score >= p_score - 1e-6
         >= c_score - 1e-6 >= s_score - 1e-6
     ):
-        raise ValueError("H/P/C/S ordering invariant failed")
+        raise ValueError("H_DK_legal/H/P/C/S ordering invariant failed")
     thin_support = sorted(
         (player, count) for player, count in support_counts.items() if count < 5
     )
     return {
+        "H_DK_legal": dk_legal_oracle,
+        # Preserve H as the legacy/public key while naming its semantics
+        # explicitly for all new descriptive consumers.
+        "H_strategy": {
+            **full_oracle,
+            "players": list(full_oracle["players"]),
+        },
         "H_no_salary_floor": no_floor_oracle,
         "H": full_oracle,
         "P": support_oracle,
@@ -1367,6 +1436,29 @@ def decompose_slate(
             "construction": p_score - c_score,
             "selection": c_score - s_score,
         },
+        "strategy_gaps": {
+            "non_salary_strategy_constraints": (
+                dk_legal_score - no_floor_score
+            ),
+            "salary_floor": no_floor_score - h_score,
+            "combined_strategy_constraints": dk_legal_score - h_score,
+        },
+        "draftkings_legality_policy": {
+            "roster_size": 9,
+            "quarterbacks": 1,
+            "running_backs": "2_to_3",
+            "wide_receivers": "3_to_4",
+            "tight_ends": "1_to_2",
+            "defenses": 1,
+            "minimum_salary": 0,
+            "maximum_salary": int(salary_cap),
+            "maximum_players_per_team": 8,
+            "minimum_games": 2,
+            "qb_stack_min": 0,
+            "bring_back_min": 0,
+            "forbid_two_rb_same_team": False,
+            "forbid_rb_vs_dst": False,
+        },
         "construction_policy": {
             "qb_stack_min": int(qb_stack_min),
             "bring_back_min": int(bring_back_min),
@@ -1375,6 +1467,40 @@ def decompose_slate(
             "minimum_games": 2,
             "minimum_salary": int(min_salary),
             "maximum_salary": int(salary_cap),
+        },
+        "strategy_constraint_policy": {
+            "legacy_layer_alias": "H",
+            "explicit_layer": "H_strategy",
+            "draftkings_only_layer": "H_DK_legal",
+            "strategy_without_salary_floor_layer": "H_no_salary_floor",
+            "combined_strategy_constraints_score_cost": (
+                dk_legal_score - h_score
+            ),
+            "non_salary_strategy_constraints_score_cost": (
+                dk_legal_score - no_floor_score
+            ),
+            "salary_floor_cost_with_other_strategy_held": (
+                no_floor_score - h_score
+            ),
+            "oracle_changed": bool(
+                dk_legal_oracle["players"] != full_oracle["players"]
+            ),
+            "newly_reached_thresholds": [
+                tail for tail in TAILS if dk_legal_score >= tail > h_score
+            ],
+            "newly_reached_by_non_salary_strategy_constraints": [
+                tail
+                for tail in TAILS
+                if dk_legal_score >= tail > no_floor_score
+            ],
+            "newly_reached_by_salary_floor": [
+                tail for tail in TAILS if no_floor_score >= tail > h_score
+            ],
+            "use_restriction": (
+                "Outcome-viewed hindsight decomposition only. It describes "
+                "score excluded by the combined production strategy contract "
+                "and cannot promote a relaxed lineup policy."
+            ),
         },
         "salary_floor_policy": {
             "draftkings_minimum_salary": 0,
@@ -1437,6 +1563,8 @@ def decompose_slate(
         },
         "thresholds": {
             str(tail): {
+                "H_DK_legal": dk_legal_score >= tail,
+                "H_strategy": h_score >= tail,
                 "H_no_salary_floor": no_floor_score >= tail,
                 "H": h_score >= tail,
                 "P": p_score >= tail,
@@ -1446,6 +1574,16 @@ def decompose_slate(
                     "player_support" if h_score >= tail > p_score
                     else "construction" if p_score >= tail > c_score
                     else "selection" if c_score >= tail > s_score
+                    else "none"
+                ),
+                "first_failed_layer_extended": (
+                    "draftkings_legal_ceiling" if dk_legal_score < tail
+                    else "non_salary_strategy_constraints"
+                    if no_floor_score < tail
+                    else "salary_floor" if h_score < tail
+                    else "player_support" if p_score < tail
+                    else "construction" if c_score < tail
+                    else "selection" if s_score < tail
                     else "none"
                 ),
             }
@@ -1477,5 +1615,6 @@ __all__ = [
     "recourse_ceiling_slate",
     "report_inventory",
     "sha256_file",
+    "solve_draftkings_legal_oracle",
     "validate_freeze_manifest",
 ]
