@@ -11,6 +11,7 @@ from .same_law_capacity_curve import BOOK_ORDER, validate_seed_ledger
 
 PROJECT = "nfl-predictions-503414"
 REGION = "us-central1"
+SERVICE_ACCOUNT = "817589974517-compute@developer.gserviceaccount.com"
 SOURCE_CODE_SHA = "4d6f5cf"
 SOURCE_IMAGE = (
     "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@"
@@ -221,6 +222,7 @@ __all__ = [
     "POSITION_SCALES",
     "PROJECT",
     "REGION",
+    "SERVICE_ACCOUNT",
     "SEASONS",
     "SOURCE_CODE_SHA",
     "SOURCE_IMAGE",

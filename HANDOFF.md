@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 04:26 CDT
+## Current state — 2026-08-17 05:31 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -71,8 +71,21 @@ agent or developer:
   outcome/ownership/rank/payout field and emits only the non-adoptive
   `complete-descriptive-capacity-curve` disposition. Seven new synthetic tests
   plus all seven existing exact-P census tests pass; all three capacity Python
-  sources compile and `git diff --check` passes. No source loader, immutable runner,
-  build or cloud execution exists yet. The protocol/seed freeze is pushed at
+  sources compile and `git diff --check` passes. The first transport
+  foundation is now implemented without launching the diagnostic.
+  `scripts/validate_same_law_capacity_execution.py` validates one R5--R49
+  generation execution against the exact frozen image, old code, seeds,
+  environment, command, service account, 8-CPU/32-GiB resources, four-hour
+  timeout, zero task retries and terminal status.
+  `scripts/validate_same_law_capacity_canary.py` validates the actual R5/2023
+  final-path canary plus positive all-18-week candidate, feature, lineup and
+  GCS artifact metadata; it records object generation, size, MD5/CRC32C and
+  explicitly opens no candidate identity, candidate score or outcome.
+  Thirteen focused capacity tests pass, all touched Python files compile and
+  `git diff --check` passes. No generation launcher, attempt resolver, strict
+  135-execution harvester, source loader, immutable analysis runner, build or
+  cloud execution exists yet; this remains lower priority and may not launch
+  ahead of the active mechanism chains. The protocol/seed freeze is pushed at
   commit `402662e`; the superseding exact pure-analyzer/source-preflight
   milestone is pushed on `main` at
   `655bd4a3964dd69affbb5be1826070aa417b62d9`.
@@ -88,10 +101,12 @@ agent or developer:
   unchanged external replacement for a literal zero-object Cloud Run platform
   error; memory, timeout, solver, signal, ambiguous and object-bearing failures
   remain scientific terminal data. No protocol or code change was warranted
-  by this reread. At `2026-08-17 02:33 CDT`, canary execution
+  by this reread. At `2026-08-17 05:30 CDT`, canary execution
   `atlas-md-s2023-w1-r5-45nvf` remains healthy/nonterminal with one running
-  task, `Completed=Unknown` and zero ERROR log rows; `grid-release.txt` remains
-  absent. No partial shard, seed or effect was opened. All nine durable
+  task, `Completed=Unknown` and zero ERROR log rows. Outcome-free progress
+  markers show R0--R3 complete; R4 is the fifth and final active seed.
+  `grid-release.txt` remains absent. No partial shard or effect was opened.
+  All ten durable
   ATLAS/lattice/stack/coherent/dependence watcher PIDs remain alive. The exact
   twelve incumbent seed-variance replay executions were also re-described in
   Cloud Run and all remain terminal successful; repaired analyzer
