@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 08:35 CDT
+## Current state — 2026-08-17 08:38 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -284,6 +284,10 @@ agent or developer:
   53 post-canary primary executions nonterminal; no partial output was opened.
   The exact implementation milestone is pushed on `main` at commit
   `0d61d97934c1113891d6f98c4fce86b82e06635a`.
+  Clean-archive full-test Cloud Build
+  `580d5516-a6df-4522-b4f1-0ad2a7f2afce` is now running from exact source
+  commit `fbc748a7dc90c4627a21ab86f3b4d6dc141ba6e8`, with image tag
+  `atlas-historical-v3-fbc748a`. Its result/digest is not yet known.
   Next: commit/push this implementation, run its full-test immutable Cloud
   Build in parallel with the score-blind grid, then start the v3 queue watcher
   with that digest/build so strict repair5 completion automatically seals and
