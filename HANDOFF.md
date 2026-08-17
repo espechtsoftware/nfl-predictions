@@ -20,9 +20,46 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 02:07 CDT
+## Current state — 2026-08-17 02:20 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
+
+- A direct reread of the operator-supplied
+  `reports/2026-08-16-retry-narrowing-and-lattice-support-response.md`
+  confirms that its two open requests were already implemented prospectively.
+  ATLAS repair5 uses its actual 2023 Week 1 final job/URI as a real-path
+  canary before the other 53 cells can exist, and the constraint-lattice
+  control census retains complete per-slate p194/p210/p220/p230 support,
+  top-1/3/5/10 concentration, Herfindahl/effective-slate counts and all ten
+  pairwise block correlations. Its retry rule remains limited to one
+  unchanged external replacement for a literal zero-object Cloud Run platform
+  error; memory, timeout, solver, signal, ambiguous and object-bearing failures
+  remain scientific terminal data. No protocol or code change was warranted
+  by this reread. At `2026-08-17 02:20 CDT`, canary execution
+  `atlas-md-s2023-w1-r5-45nvf` remains healthy/nonterminal with one running
+  task and `Completed=Unknown`; `grid-release.txt` remains absent. No partial
+  shard, seed or effect was opened. All nine durable ATLAS/lattice/stack/
+  coherent/dependence watcher PIDs remain alive.
+
+- The already accepted outcome-free impact/equivalence governance
+  recommendation is now implemented. Protocol
+  `reports/2026-08-17-impact-equivalence-certificate-protocol.md` has SHA-256
+  `8175c20840af4351e91806bf33eab58fd3a141e8cea54b34ce6f7796bb67b15c`.
+  `src/nfl_dfs/research/impact_equivalence.py` validates exact mechanism,
+  stage, terminal/population/control/treatment/gate identities and canonical
+  immutable receipts across seven registered impact channels. Transfer is
+  allowed only when every required channel is byte-equivalent under identical
+  semantic identities; any relevant difference yields
+  `revalidation-required`. Optional-channel differences are disclosed with a
+  conservative downstream impact closure but cannot substitute for the exact
+  required-channel proof. `scripts/certify_impact_equivalence.py` rejects
+  duplicate JSON keys and writes certificates create-only. Sixteen focused
+  tests pass, both sources and the test compile, and `git diff --check` passes.
+  This is governance-only: it reads no outcome, score, rank, ownership, payout
+  or effect, issues no scientific verdict and licenses no production/UI
+  change. Next: commit/push the protocol, implementation, tests and this
+  handoff; then continue status-only ATLAS polling and leave every gated
+  outcome mechanism serialized behind its frozen prerequisites.
 
 - An outcome-free live preflight caught and corrected the production-law
   dependence source-population defect before any source lock or outcome query
