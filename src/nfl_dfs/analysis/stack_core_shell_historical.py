@@ -267,6 +267,62 @@ def aggregate_historical(rows: Sequence[Mapping]) -> dict[str, Any]:
     for values in crossings.values():
         for value in values.values():
             value["net"] = len(value["treatment_only"]) - len(value["control_only"])
+    paired_weeks = {
+        layer: [{
+            "slate": row["slate"],
+            "control_maximum": float(row["books"][layer]["control"]["maximum"]),
+            "treatment_maximum": float(
+                row["books"][layer]["treatment"]["maximum"]
+            ),
+            "delta": float(row["paired_delta"][layer]),
+            "classification": (
+                "gained" if row["paired_delta"][layer] > 0 else
+                "lost" if row["paired_delta"][layer] < 0 else "tied"
+            ),
+            "control_winning_rosters": row["books"][layer]["control"][
+                "winning_rosters"
+            ],
+            "treatment_winning_rosters": row["books"][layer]["treatment"][
+                "winning_rosters"
+            ],
+        } for row in ordered]
+        for layer in ("candidate", "selected")
+    }
+    threshold_transitions = {
+        layer: {
+            f"{line:g}": {
+                classification: [{
+                    "slate": row["slate"],
+                    "control_maximum": float(
+                        row["books"][layer]["control"]["maximum"]
+                    ),
+                    "treatment_maximum": float(
+                        row["books"][layer]["treatment"]["maximum"]
+                    ),
+                    "control_winning_rosters": row["books"][layer]["control"][
+                        "winning_rosters"
+                    ],
+                    "treatment_winning_rosters": row["books"][layer]["treatment"][
+                        "winning_rosters"
+                    ],
+                } for row in ordered if (
+                    (
+                        row["books"][layer]["control"]["maximum"] < line
+                        and row["books"][layer]["treatment"]["maximum"] >= line
+                    ) if classification == "gained" else (
+                        row["books"][layer]["control"]["maximum"] >= line
+                        and row["books"][layer]["treatment"]["maximum"] < line
+                    ) if classification == "lost" else (
+                        bool(row["books"][layer]["control"]["maximum"] >= line)
+                        == bool(row["books"][layer]["treatment"]["maximum"] >= line)
+                    )
+                )]
+                for classification in ("gained", "lost", "tied")
+            }
+            for line in THRESHOLDS
+        }
+        for layer in ("candidate", "selected")
+    }
     by_season = {
         str(season): {
             "books": {
@@ -313,10 +369,12 @@ def aggregate_historical(rows: Sequence[Mapping]) -> dict[str, Any]:
                 "median": float(median(
                     row["paired_delta"][layer] for row in ordered
                 )),
+                "weeks": paired_weeks[layer],
             }
             for layer in ("candidate", "selected")
         },
         "distinct_crossings": crossings,
+        "threshold_transitions": threshold_transitions,
         "by_season": by_season,
         "identity_overlap": {
             layer: {

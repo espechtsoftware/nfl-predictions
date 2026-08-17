@@ -92,4 +92,14 @@ def test_aggregate_applies_frozen_tail_first_conditions() -> None:
     }
     assert result["identity_overlap"]["selected"]["treatment_only"] == 54
     assert len(result["leave_one_slate_out"]) == 54
+    assert len(result["paired"]["selected"]["weeks"]) == 54
+    assert all(
+        row["classification"] == "gained"
+        for row in result["paired"]["selected"]["weeks"]
+    )
+    transitions = result["threshold_transitions"]["selected"]["200"]
+    assert len(transitions["gained"]) == 54
+    assert transitions["lost"] == []
+    assert transitions["tied"] == []
+    assert transitions["gained"][0]["treatment_winning_rosters"]
     assert result["production_change_licensed"] is False
