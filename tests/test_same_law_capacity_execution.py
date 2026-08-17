@@ -13,6 +13,7 @@ from nfl_dfs.research.same_law_capacity_attempts import (
     OutputInventory,
     classify_primary_attempt,
 )
+from nfl_dfs.research.same_law_capacity_receipts import validate_attempt_ledgers
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -262,3 +263,83 @@ def test_capacity_generation_manifest_binds_complete_canary_first_schedule():
     assert manifest["uses_realized_outcomes"] is False
     assert manifest["production_change_licensed"] is False
     json.dumps(manifest, allow_nan=False, sort_keys=True)
+
+
+def _attempt_ledgers():
+    manifest = manifest_renderer.render_manifest()
+    primary = []
+    accepted = []
+    for cell in manifest["schedule"]:
+        execution = f"{cell['job']}-primary"
+        row = {
+            "replicate": cell["replicate"],
+            "season": cell["season"],
+            "job": cell["job"],
+            "execution": execution,
+        }
+        primary.append(row)
+        accepted.append(dict(row))
+    return manifest, primary, [], accepted
+
+
+def test_capacity_receipts_accept_exact_primary_population():
+    manifest, primary, retries, accepted = _attempt_ledgers()
+
+    result = validate_attempt_ledgers(manifest, primary, retries, accepted)
+
+    assert result["primary_executions"] == 135
+    assert result["accepted_executions"] == 135
+    assert result["retry_executions"] == 0
+    assert result["canary_accepted_as_primary"] is True
+    assert result["disposition"] == "valid-complete-attempt-ledgers"
+
+
+def test_capacity_receipts_bind_one_noncanary_platform_replacement():
+    manifest, primary, retries, accepted = _attempt_ledgers()
+    target = 1
+    source = primary[target]
+    retry_execution = f"{source['job']}-replacement"
+    retries.append({
+        "replicate": source["replicate"],
+        "season": source["season"],
+        "job": source["job"],
+        "primary_execution": source["execution"],
+        "retry_execution": retry_execution,
+        "eligibility": "eligible-platform-replacement",
+    })
+    accepted[target]["execution"] = retry_execution
+
+    result = validate_attempt_ledgers(manifest, primary, retries, accepted)
+
+    assert result["retry_executions"] == 1
+    assert result["canary_accepted_as_primary"] is True
+
+
+def test_capacity_receipts_reject_retrying_canary_or_unreceipted_acceptance():
+    manifest, primary, retries, accepted = _attempt_ledgers()
+    canary_primary = primary[0]
+    canary_retry = f"{canary_primary['job']}-replacement"
+    retries.append({
+        "replicate": "R5",
+        "season": 2023,
+        "job": canary_primary["job"],
+        "primary_execution": canary_primary["execution"],
+        "retry_execution": canary_retry,
+        "eligibility": "eligible-platform-replacement",
+    })
+    accepted[0]["execution"] = canary_retry
+    try:
+        validate_attempt_ledgers(manifest, primary, retries, accepted)
+    except ValueError as exc:
+        assert "canary is not retry eligible" in str(exc)
+    else:
+        raise AssertionError("capacity canary replacement was accepted")
+
+    manifest, primary, retries, accepted = _attempt_ledgers()
+    accepted[-1]["execution"] = f"{accepted[-1]['job']}-unknown"
+    try:
+        validate_attempt_ledgers(manifest, primary, retries, accepted)
+    except ValueError as exc:
+        assert "accepted binding differs" in str(exc)
+    else:
+        raise AssertionError("unreceipted capacity execution was accepted")

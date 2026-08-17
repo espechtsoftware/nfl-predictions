@@ -93,7 +93,12 @@ agent or developer:
   the frozen protocol and seed-ledger hashes, exact first R5/2023 canary,
   old image/code and all per-cell environments/destinations, zero task retries,
   one-replacement ceiling, ten-active-execution cap and non-consequence flags.
-  Seventeen focused capacity tests pass, all touched Python files compile and
+  `src/nfl_dfs/research/same_law_capacity_receipts.py` now validates the
+  complete future primary/retry/accepted population: exactly 135 scheduled
+  primary and accepted cells, unique job-owned execution identities, no
+  canary retry, at most one explicitly eligible platform replacement per
+  other cell and no unreceipted accepted execution. Twenty focused capacity
+  tests pass, all touched Python files compile and
   `git diff --check` passes. The attempt-classifier milestone is exact commit
   `0daf32a848cf6f1eefd6664e8d44d4abcd9fb29b`; the manifest-renderer milestone
   is exact commit `cbe5ed2cab51c5096ef7388e7684153deaf43923`. No generation launcher,
