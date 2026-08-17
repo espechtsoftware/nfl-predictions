@@ -134,6 +134,16 @@ agent or developer:
   build ID and digest; prove them durable before retiring the original
   repair5 watcher.
 
+  Both replacements are now durable. Repair6 watcher session `15054` reports
+  `ATLAS_REPAIR6_WAITING_FOR_REPAIR5 running=45` at
+  `2026-08-17T16:20:33Z`; historical-v4 watcher session `26544` reports
+  `ATLAS_HISTORICAL_V4_WAITING_FOR_REPAIR6_HYBRID`. The superseded repair5
+  local watcher session `67004` was then stopped with Ctrl-C only; no Cloud
+  Run execution, job or object was cancelled or changed. Historical-v3
+  session `69368` remains a score-free waiter and will exit when the repair5
+  terminal-invalid census appears. Next: poll sessions `15054` and `26544`;
+  inspect no shard body until the frozen terminal classifiers/finishers do so.
+
 - The lower-priority same-law capacity question retained by the corrected
   exact-P census review is now prospectively frozen without launching compute
   or reading any new candidate identity, candidate score or outcome. Protocol
