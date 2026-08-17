@@ -1330,7 +1330,9 @@ agent or developer:
   held-out threshold/structure/effective-rank receipts and all source
   artifacts before applying the frozen score-free gate. It cannot read
   realized fantasy scores and still licenses no production change. Three new
-  execution-contract tests pass and both new modules compile. Do not build or
+  execution-contract tests pass and both new modules compile. This treatment-
+  runner milestone is pushed at commit
+  `fe0cc00822536236b98a2d98878d338550ac23e5`. Do not build or
   launch this treatment until the independent support census passes and its
   exact report/completion hashes can be frozen into a separate treatment
   execution protocol.
