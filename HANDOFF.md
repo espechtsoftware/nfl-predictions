@@ -126,9 +126,13 @@ agent or developer:
   from an actual clean archive and reproduces every frozen hash. Exact-source
   replacement build `804be60e-7177-4428-aca3-84ab998189e7`, targeting
   `nfl-dfs/nfl-dfs:atlas-repair6-8f0e3c7`, was submitted at
-  `2026-08-17T15:48Z`. Next: require full-suite, image-build and smoke success,
-  resolve the digest, then start both replacement watchers before retiring
-  the original repair5 watcher.
+  `2026-08-17T15:48Z` and is terminal `SUCCESS`: all 1,814 tests passed with
+  two skips, and both image-build and smoke steps passed. Its eligible
+  immutable image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:833c364183804dba61a699e12c0cad904e94485a4e9c8de2db7f53bfb4383a96`.
+  Next: start both replacement watchers with exact code commit `8f0e3c7...`,
+  build ID and digest; prove them durable before retiring the original
+  repair5 watcher.
 
 - The lower-priority same-law capacity question retained by the corrected
   exact-P census review is now prospectively frozen without launching compute
