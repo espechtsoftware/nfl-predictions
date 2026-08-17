@@ -68,7 +68,6 @@ def test_sample_field_valid_lineups():
     assert len(fld) > 250
     salaries = slate.salary.to_numpy()
     positions = slate.pos.to_numpy()
-    under_cap = 0
     for lu in fld:
         assert len(lu) == 9
         assert len(set(lu)) == 9
@@ -76,9 +75,16 @@ def test_sample_field_valid_lineups():
         assert pos_counts.get("QB", 0) == 1
         assert pos_counts.get("DST", 0) == 1
         assert 2 <= pos_counts.get("RB", 0) <= 3
-        if salaries[lu].sum() <= 50_000:
-            under_cap += 1
-    assert under_cap / len(fld) > 0.8  # loose cap enforcement by design
+        assert salaries[lu].sum() <= field.SALARY_CAP
+
+
+def test_sample_field_drops_every_infeasible_random_attempt():
+    slate = make_slate()
+    slate["salary"] = 10_000
+
+    sampled = field.sample_field(slate, n_lineups=25, seed=7)
+
+    assert sampled == []
 
 
 def test_leakage_guard_rejects_answer_key():

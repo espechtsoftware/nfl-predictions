@@ -13,6 +13,7 @@ import pandas as pd
 
 ROSTER = (("QB", 1), ("RB", 2), ("WR", 3), ("TE", 1), ("FLEX", 1), ("DST", 1))
 SALARY_CAP = 50_000
+MAX_RANDOM_ATTEMPTS = 32
 
 
 def naive_ownership(players: pd.DataFrame) -> np.ndarray:
@@ -83,9 +84,10 @@ def sample_field(
     sharp_fraction: float = 0.0,
 ) -> list[np.ndarray]:
     """Generate opposing lineups by ownership-weighted sampling per slot.
-    Salary is enforced loosely (retry a few times, keep the best attempt) —
-    the field is approximated, not optimized; most real entrants aren't
-    optimal either. `sharp_fraction` of the field is instead built by
+    Salary legality is enforced on every retained lineup; infeasible samples
+    are retried a few times and then omitted. The field is approximated, not
+    optimized; most real entrants aren't optimal either. `sharp_fraction` of
+    the field is instead built by
     `sharp_field` (optimizer entrants), which is what keeps GPP payout
     tails honest. Returns arrays of positional indices into `players`."""
     rng = np.random.default_rng(seed)
@@ -107,8 +109,8 @@ def sample_field(
 
     field: list[np.ndarray] = []
     for _ in range(n_lineups):
-        best: np.ndarray | None = None
-        for _attempt in range(6):
+        accepted: np.ndarray | None = None
+        for _attempt in range(MAX_RANDOM_ATTEMPTS):
             picks: list[int] = []
             ok = True
             for pos, n in ROSTER:
@@ -130,12 +132,10 @@ def sample_field(
                 continue
             arr = np.array(picks)
             if salaries[arr].sum() <= SALARY_CAP:
-                best = arr
+                accepted = arr
                 break
-            if best is None:
-                best = arr
-        if best is not None:
-            field.append(best)
+        if accepted is not None:
+            field.append(accepted)
     return sharp + field
 
 

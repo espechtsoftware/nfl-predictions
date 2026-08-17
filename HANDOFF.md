@@ -20,7 +20,59 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 12:00 CDT
+## Current state — 2026-08-17 14:24 CDT
+
+### Extreme-tail review accepted selectively; downstream heavy queue serialized
+
+- The operator-supplied
+  `reports/2026-08-17-extreme-tail-system-review-and-recommendations.md`
+  was reviewed at exact SHA-256
+  `c2eedcae7c9f7dce15dd3ca4051d964a48284cb87647e254eea52e07f5175017`
+  while ATLAS repair5 remained nonterminal and before an ATLAS historical
+  score, residual-world column, event-based DST world or DK-legal forensic
+  result existed. The tracked reconciliation is
+  `reports/2026-08-17-extreme-tail-review-reconciliation-and-queue-amendment.md`.
+  It accepts portfolio-aware residual-world column generation as the next
+  highest-priority new construction family, a separate discrete event-based
+  DST shadow law, the descriptive
+  `H_DK_legal -> H_strategy -> P -> C -> S` forensic layer, complete
+  threshold/changed-slate/selector-stability reporting and a narrow field
+  correctness repair. Weighted rare-event sampling is conditional on first
+  proving a restartable/conditionable possession-simulator state with valid
+  original-law weights; robust multi-law optimization remains later. Fixed
+  194 stays a comparable benchmark, not the entire extreme-tail objective.
+
+- The review exposed an operational queue defect: the dormant
+  constraint-lattice, stack-core/shell, coherent-state and recourse watchers
+  shared an ATLAS release gate but no common heavy-job lease. All four future
+  run directories were confirmed absent. Exact local process groups
+  `1126257`, `1131440`, `1139776`, `1247398`, `1266256`, `1266351` and
+  `1307354` were stopped with `SIGTERM`; no Cloud Build, Cloud Run job,
+  execution or GCS object was cancelled or changed. The constraint-lattice
+  support watcher remains active as the sole first post-ATLAS score-free
+  launcher. Coherent-state and recourse are paused but retained for sequential
+  resumption; stack-core/shell is parked behind the new residual-world and DST
+  mechanisms. The production-law dependence watcher remains dormant behind
+  coherent prerequisites and the historical-outcome lease.
+
+- `src/nfl_dfs/backtest/field.py` no longer keeps the first random lineup as
+  an over-cap fallback. It retains only salary-legal samples, tries at most 32
+  times per requested random entrant and drops an infeasible entrant. The
+  inaccurate loose-cap/best-attempt docstring was corrected and a regression
+  proves an impossible all-$10,000 slate returns no illegal lineup. All 12
+  `tests/test_backtest.py` tests pass and `git diff --check` is clean. This is
+  a field-simulator correctness fix only; the existing field law remains
+  unsuitable for money-policy or ROI decisions.
+
+- The active immutable ATLAS watcher is unaffected. Its latest complete
+  status sweep at `2026-08-17T19:23:20Z` reported 20 of 54 repair5 primaries
+  nonterminal, 33 terminal successes and the one known zero-object 2023 Week
+  7 identity-tiebreak failure. Repair6, historical v4 and parity remain
+  serialized exactly as previously recorded. No shard body, treatment effect
+  or partial score was opened. Exact next actions: continue terminal-only
+  ATLAS polling; commit/push this reconciliation and field fix; then add the
+  descriptive DK-legal forensic oracle and freeze the residual-world pilot
+  before constructing any treatment column.
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
