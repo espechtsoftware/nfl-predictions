@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+import math
 
 from nfl_dfs.analysis.stack_core_shell_historical import (
     ROW_VERSION,
@@ -55,8 +56,12 @@ def test_scores_only_an_outcome_free_locked_exact80_book() -> None:
     lock, actual = _lock()
     row = compare_locked_slate(lock, actual)
     assert row["version"] == ROW_VERSION
-    assert row["books"]["selected"]["control"]["maximum"] == 190.0
-    assert row["books"]["selected"]["treatment"]["maximum"] == 205.0
+    assert math.isclose(
+        row["books"]["selected"]["control"]["maximum"], 190.0,
+    )
+    assert math.isclose(
+        row["books"]["selected"]["treatment"]["maximum"], 205.0,
+    )
     assert row["proposal_conversion"]["generated"] == 40
     assert row["proposal_conversion"]["admitted"] == 1
     assert row["proposal_conversion"]["selected"] == 1
