@@ -24,6 +24,10 @@ agent or developer:
 
 ### Extreme-tail review accepted selectively; downstream heavy queue serialized
 
+- The reconciliation, queue serialization record and field-legality repair are
+  committed and pushed on `main` at exact code commit
+  `d3591467e4e90a2d52971058dc91f3252dbe9dbb`.
+
 - The operator-supplied
   `reports/2026-08-17-extreme-tail-system-review-and-recommendations.md`
   was reviewed at exact SHA-256
