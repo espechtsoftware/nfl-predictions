@@ -24,6 +24,10 @@ agent or developer:
 
 ### Extreme-tail prerequisites implemented and prospectively frozen while ATLAS continues
 
+- The additive forensic implementation and the residual/DST prerequisite
+  protocols below are committed and pushed on `main` at exact commit
+  `e9a1c2ce7cc18831f77c36814c8dd5330d33b035`.
+
 - The descriptive DraftKings-only ceiling is now implemented additively in
   `src/nfl_dfs/research/final_forensic.py`. `H_DK_legal` enforces only the
   nine-slot Classic shape, $50,000 cap, maximum eight players per team and
