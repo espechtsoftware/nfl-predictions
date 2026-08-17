@@ -56,6 +56,11 @@ def _download_support(
         220: "p220-supported-stack-core-shell-treatment-licensed",
         210: "p210-supported-stack-core-shell-treatment-licensed",
     }
+    adequate = report.get("adequate_by_threshold", {})
+    first_adequate = next(
+        (value for value in (230, 220, 210) if adequate.get(str(value)) is True),
+        None,
+    )
     if report.get("version") != "stack-core-shell-control-support-report-v1" or \
             report.get("run_id") != SUPPORT_RUN_ID or \
             report.get("uses_realized_outcomes") is not False or \
@@ -64,13 +69,22 @@ def _download_support(
             report.get("production_change_licensed") is not False or \
             report.get("historical_scoring_licensed") is not False or \
             report.get("protocol_sha256") != PROTOCOL_SHA256 or \
+            report.get("source_hashes") != validate_local_sources() or \
+            report.get("source_panels") != list(SOURCE_PANELS) or \
             report.get("mechanical") != {
                 "seasons": [2023, 2024, 2025], "slates": 54,
                 "heldout_folds": 270, "worlds_per_fold": 10_000,
                 "source_artifacts": 270, "all_valid": True,
-            } or anchor not in expected_disposition or \
+            } or report.get("support_law") != {
+                "layers_required": ["candidate", "selected"],
+                "aggregate_events_minimum_per_block": 540,
+                "positive_slates_minimum_per_block": 41,
+                "anchor_order": [230, 220, 210],
+            } or set(adequate) != {"230", "220", "210"} or any(
+                not isinstance(value, bool) for value in adequate.values()
+            ) or anchor not in expected_disposition or anchor != first_adequate or \
             report.get("disposition") != expected_disposition[anchor] or \
-            report.get("adequate_by_threshold", {}).get(str(anchor)) is not True:
+            adequate.get(str(anchor)) is not True:
         raise RuntimeError("stack-core/shell support disposition differs")
     return report, {
         "uri": uri,

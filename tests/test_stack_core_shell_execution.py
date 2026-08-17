@@ -20,7 +20,11 @@ from run_stack_core_shell_scorefree import (  # noqa: E402
     SUPPORT_URI,
     _download_support,
 )
-from stack_core_shell_sources import PROTOCOL_SHA256  # noqa: E402
+from stack_core_shell_sources import (  # noqa: E402
+    PROTOCOL_SHA256,
+    SOURCE_PANELS,
+    validate_local_sources,
+)
 
 
 class _Blob:
@@ -63,10 +67,18 @@ def _support_report() -> dict:
         "production_change_licensed": False,
         "historical_scoring_licensed": False,
         "protocol_sha256": PROTOCOL_SHA256,
+        "source_hashes": validate_local_sources(),
+        "source_panels": list(SOURCE_PANELS),
         "mechanical": {
             "seasons": [2023, 2024, 2025], "slates": 54,
             "heldout_folds": 270, "worlds_per_fold": 10_000,
             "source_artifacts": 270, "all_valid": True,
+        },
+        "support_law": {
+            "layers_required": ["candidate", "selected"],
+            "aggregate_events_minimum_per_block": 540,
+            "positive_slates_minimum_per_block": 41,
+            "anchor_order": [230, 220, 210],
         },
         "selected_anchor": 230,
         "adequate_by_threshold": {"230": True, "220": True, "210": True},
@@ -92,6 +104,20 @@ def test_support_download_requires_complete_positive_receipt() -> None:
         assert "support disposition differs" in str(exc)
     else:
         raise AssertionError("treatment-bearing support report was accepted")
+
+
+def test_support_download_requires_first_adequate_anchor() -> None:
+    report = _support_report()
+    report["selected_anchor"] = 220
+    report["disposition"] = \
+        "p220-supported-stack-core-shell-treatment-licensed"
+    raw = (json.dumps(report, sort_keys=True) + "\n").encode()
+    try:
+        _download_support(_Client(raw), SUPPORT_URI, sha256(raw).hexdigest())
+    except RuntimeError as exc:
+        assert "support disposition differs" in str(exc)
+    else:
+        raise AssertionError("non-first support anchor was accepted")
 
 
 def _roster(prefix: str) -> list[str]:

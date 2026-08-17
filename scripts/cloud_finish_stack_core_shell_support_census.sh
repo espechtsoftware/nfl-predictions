@@ -330,7 +330,10 @@ expected = {
 }
 if set(adequate) != {"230", "220", "210"} or \
         any(not isinstance(value, bool) for value in adequate.values()) or \
-        anchor not in expected or r.get("disposition") != expected[anchor]:
+        anchor not in expected or \
+        anchor != next((value for value in (230, 220, 210)
+                       if adequate[str(value)]), None) or \
+        r.get("disposition") != expected[anchor]:
     raise SystemExit("ABORT: stack-core/shell support disposition differs")
 print("STACK_CORE_SHELL_SUPPORT_STRICTLY_VALIDATED", r["disposition"])
 PY

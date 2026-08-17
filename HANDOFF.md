@@ -1361,6 +1361,15 @@ agent or developer:
   `stack-core/shell support awaits ATLAS preflight` gate at
   `2026-08-17T00:53:47Z`; it created no run directory or Cloud execution and
   will retry that same gate every five minutes.
+  A second pre-launch validation pass closed the remaining support-to-treatment
+  handoff ambiguity. The support finisher and future treatment loader now both
+  require the selected 230/220/210 anchor to be the first adequate anchor in
+  the frozen order, not merely an individually adequate value with a matching
+  label. The treatment loader also independently verifies the exact two-layer
+  support law, local source hashes and five source panels before constructing
+  anything. Twenty focused stack tests pass; Python/shell compilation and
+  `git diff --check` pass. This does not alter the already-built support image,
+  support census, treatment construction or scientific gate.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).
