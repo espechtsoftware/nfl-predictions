@@ -1252,7 +1252,9 @@ agent or developer:
   correlations separately for both layers. The first 230/220/210 anchor must
   meet >=540 events and >=41/54 positive slates in every block in both layers;
   otherwise treatment remains closed. Nine focused construction/support tests
-  pass, all four Python files compile and `git diff --check` passes. Docker,
+  pass, all four Python files compile and `git diff --check` passes. This
+  support-census milestone is pushed on `main` at commit
+  `517fc99fda4e68e301a0ee248a7a8ee1b8838c70`. Docker,
   Cloud Build, launch/canary/attempt and strict-harvest plumbing remain open;
   do not launch this support census from the current constraint image.
   The same namespace defect would have broken every future generic build, so
