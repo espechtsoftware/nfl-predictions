@@ -161,6 +161,15 @@ agent or developer:
   durable watcher only after the new image/build passes, leaving all cloud
   executions untouched.
 
+  The repair is pushed at exact commit
+  `2a685633159a31939f93f64479e79a14a6b32d21`. Its exact clean archive passes
+  the frozen repair5/repair6 code-diff proof. Full-suite replacement build
+  `ad5211b0-7ef1-4efe-a757-1d744972d659`, targeting
+  `nfl-dfs/nfl-dfs:atlas-repair6-2a68563`, was submitted at
+  `2026-08-17T16:31Z`. It is build/queue transport only and may replace live
+  watcher session `15054` only after every build step succeeds and a new
+  digest-bound watcher reports a normal repair5 wait.
+
 - The lower-priority same-law capacity question retained by the corrected
   exact-P census review is now prospectively frozen without launching compute
   or reading any new candidate identity, candidate score or outcome. Protocol
