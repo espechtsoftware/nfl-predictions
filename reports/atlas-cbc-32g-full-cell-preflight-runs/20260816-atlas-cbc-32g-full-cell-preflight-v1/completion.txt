@@ -1,0 +1,9 @@
+validated_at=2026-08-17T04:16:13Z
+status=True
+disposition=full-cell-r0-complete-at-32g
+cell=2023-8
+cpu=8
+memory=32Gi
+max_retries=0
+uses_realized_outcomes=false
+production_change_licensed=false

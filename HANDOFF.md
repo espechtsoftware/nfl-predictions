@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 21:34 CDT
+## Current state — 2026-08-16 23:20 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -1217,6 +1217,29 @@ agent or developer:
   status-only polling; on terminal state allow the existing preflight watcher
   to run only the strict finisher, then let session `82229` launch only the
   real 2023 Week 1 repair5 canary before any 53-cell release.
+  The exact 32-GiB preflight subsequently completed successfully at
+  `2026-08-17T04:16:13Z`. Strict harvest disposition is
+  `full-cell-r0-complete-at-32g`: execution
+  `atlas-cbc-32g-full-2023-w8-v1-lbzjd` completed the full 2023 Week 8
+  five-seed cell at 8 CPU/32 GiB, zero retries and the frozen 12-hour timeout.
+  Completion, exact execution-metadata and mechanical-shard SHA-256 values are
+  `bd874fe6876900e7ddb550fa711c9cb3fe0533930baa2c7a3349cc01f00e5396`,
+  `14438e52713f3930300f4dc4ea39df60b29349e117a0503105e1fb1da872e7c4`
+  and `be21d0144541e9330c76329ef6abc4b1d3c54cc764e730dd8a729cc3392e5d02`.
+  This licenses only repair5 execution, not an ATLAS effect or production
+  change. The repair5 renderer smoke
+  `atlas-md-prefix-r5-smoke-ntcds` then completed successfully and its three
+  receipt hashes are in the create-only repair5 run directory. The launcher
+  created only the frozen real-path canary job first: exact execution
+  `atlas-md-s2023-w1-r5-45nvf`, output
+  `gs://nfl-predictions-503414-raw/research/atlas-matched-diversity-runs/20260816-atlas-matched-diversity-mvp-v1-repair5/slate-2023-1.json`,
+  pinned image digest `sha256:ce03feb739e51aabedd7cea79f46e13a06a097a7f85e9a5817f38184b67f4fcb`,
+  8 CPU/32 GiB, zero retries and 12-hour timeout. It was waiting to start at
+  `2026-08-17T04:19:40Z`; no shard/effect has been opened and the other 53
+  cells remain unreleased. Next action: poll only this exact canary to terminal;
+  let the frozen canary validator inspect terminal spec/status and positive
+  object metadata without downloading it. Only a passing canary may create
+  `grid-release.txt` and release the remaining 53 primaries.
   The handoff-only correction commits after that code are pushed through
   `f1e344bd1395d64ea5b530c2fb22c87bd402c902`. Superseding exact-archive
   Cloud Build `df158df9-ef83-4555-b5ea-0e254a7ea0bd` under create-only tag
