@@ -17,6 +17,10 @@ PROTOCOL="$ROOT/reports/2026-08-16-atlas-repair5-terminal-census-protocol.md"
 ATTEMPT_AMENDMENT="$ROOT/reports/2026-08-16-atlas-repair5-terminal-census-attempt-amendment.md"
 RETRY_AMENDMENT="$ROOT/reports/2026-08-16-atlas-repair5-bounded-platform-retry-amendment.md"
 REPAIR5_PROTOCOL="$ROOT/reports/2026-08-16-atlas-mvp-resource-only-repair5.md"
+CANARY_AMENDMENT="$ROOT/reports/2026-08-16-atlas-repair5-real-path-canary-amendment.md"
+CANARY_VALIDATOR="$ROOT/scripts/cloud_wait_atlas_repair5_canary.sh"
+CANARY="$OUT/canary-completion.txt"
+GRID_RELEASE="$OUT/grid-release.txt"
 LAUNCHER="$ROOT/scripts/cloud_atlas_matched_diversity_repair5.sh"
 ATTEMPT_RESOLVER="$ROOT/scripts/cloud_prepare_atlas_matched_diversity_repair5_attempts.sh"
 FINISHER="$ROOT/scripts/cloud_finish_atlas_matched_diversity_repair5.sh"
@@ -25,14 +29,18 @@ PROTOCOL_SHA=94a792d80c4a908aed56034add9635478c738a29522554670c09360458561d0f
 ATTEMPT_AMENDMENT_SHA=82e850d0c2c2ad525559c378e0116bc270b2d4e8428eb341506481f350a9e99b
 RETRY_AMENDMENT_SHA=d464660b72e669d261d7f6d4800b3e59d55726b56e7003c5e3e806f38fa987a0
 REPAIR5_PROTOCOL_SHA=5acc93c2b3a59931aa17dbc67d98fca81d3a6ac047011cfe1a9a81aa1ee8550e
-LAUNCHER_SHA=9ea70f34e2591672e4b84621c116db8e4b465177bbda689d9d555c3d18d85b42
-ATTEMPT_RESOLVER_SHA=c11171b607d2ab381d013adfe655567f126305e5ac65e07c8dd53df61ac9743f
-FINISHER_SHA=c21419ca9bb65e0e39a9e9fe0efb3909ab6d437bc42e5d29db5f97a5edce9c89
+CANARY_AMENDMENT_SHA=b2d0e32dabeb87bb1a67bee58c01f00c4c0d97e3fac9d1f7181bfcee50abc242
+CANARY_VALIDATOR_SHA=e1c82612f231976563f0df12ffbe9f5e2db1aebfae636f61b723ad8699ae1411
+LAUNCHER_SHA=3c8092c2bc3e40840a16867621f2f3ffe231f571d3f621818feab61dbefbe330
+ATTEMPT_RESOLVER_SHA=705b65e5164b775361a2efe1440059f76978c3701c192179a40d85f4b0c27093
+FINISHER_SHA=fe7a069e42bfece580ff4f312bc2990bd31339932713d834c2c123bbc431cdd9
 
 for SPEC in "$PROTOCOL:$PROTOCOL_SHA" \
   "$ATTEMPT_AMENDMENT:$ATTEMPT_AMENDMENT_SHA" \
   "$RETRY_AMENDMENT:$RETRY_AMENDMENT_SHA" \
-  "$REPAIR5_PROTOCOL:$REPAIR5_PROTOCOL_SHA" "$LAUNCHER:$LAUNCHER_SHA" \
+  "$REPAIR5_PROTOCOL:$REPAIR5_PROTOCOL_SHA" \
+  "$CANARY_AMENDMENT:$CANARY_AMENDMENT_SHA" \
+  "$CANARY_VALIDATOR:$CANARY_VALIDATOR_SHA" "$LAUNCHER:$LAUNCHER_SHA" \
   "$ATTEMPT_RESOLVER:$ATTEMPT_RESOLVER_SHA" "$FINISHER:$FINISHER_SHA"; do
   FILE=${SPEC%:*}
   DIGEST=${SPEC##*:}
@@ -42,6 +50,7 @@ for SPEC in "$PROTOCOL:$PROTOCOL_SHA" \
   }
 done
 [ -s "$MANIFEST" ] && [ -s "$EXECUTIONS" ] && [ -e "$RETRIES" ] && \
+  [ -s "$CANARY" ] && [ -s "$GRID_RELEASE" ] && \
   [ -s "$RESOLUTION" ] && [ -s "$CLASSIFICATION" ] || {
   echo "ABORT: ATLAS repair5 census launch receipt is incomplete" >&2
   exit 2
@@ -100,7 +109,8 @@ GRID_COMMAND=$("$ROOT/.venv/bin/python" "$RENDERER" \
   "$OBJECTS_PENDING" "$OUT/terminal-census.pending.json" \
   "$GRID_COMMAND" "$PROTOCOL_SHA" "$ATTEMPT_AMENDMENT_SHA" \
   "$RETRY_AMENDMENT_SHA" "$LAUNCHER_SHA" "$ATTEMPT_RESOLVER_SHA" \
-  "$FINISHER_SHA" <<'PY'
+  "$FINISHER_SHA" "$CANARY" "$GRID_RELEASE" "$CANARY_AMENDMENT_SHA" \
+  "$CANARY_VALIDATOR_SHA" <<'PY'
 from collections import Counter
 from hashlib import sha256
 import json
@@ -113,7 +123,9 @@ manifest_path, ledger_path, metadata_dir, retry_path, retry_metadata_dir, \
     Path, sys.argv[1:11]
 )
 grid_command, protocol_sha, attempt_amendment_sha, retry_amendment_sha, \
-    launcher_sha, attempt_resolver_sha, finisher_sha = sys.argv[11:]
+    launcher_sha, attempt_resolver_sha, finisher_sha = sys.argv[11:18]
+canary_path, grid_release_path = map(Path, sys.argv[18:20])
+canary_amendment_sha, canary_validator_sha = sys.argv[20:22]
 manifest = dict(
     line.rstrip("\n").split("=", 1)
     for line in manifest_path.read_text(encoding="utf-8").splitlines()
@@ -133,6 +145,8 @@ fixed = {
     "resource_repair5_protocol_sha256": (
         "5acc93c2b3a59931aa17dbc67d98fca81d3a6ac047011cfe1a9a81aa1ee8550e"
     ),
+    "canary_amendment_sha256": canary_amendment_sha,
+    "canary_validator_sha256": canary_validator_sha,
     "cpu": "8", "memory": "32Gi", "max_retries": "0",
     "timeout_seconds": "43200", "interaction_auxiliaries": "binary",
     "uses_realized_outcomes": "false",
@@ -142,6 +156,25 @@ if any(manifest.get(key) != value for key, value in fixed.items()):
     raise SystemExit("ABORT: ATLAS repair5 census manifest differs")
 if manifest.get("grid_command_sha256") != sha256(grid_command.encode()).hexdigest():
     raise SystemExit("ABORT: ATLAS repair5 census command hash differs")
+canary = dict(
+    line.split("=", 1)
+    for line in canary_path.read_text(encoding="utf-8").splitlines()
+    if "=" in line
+)
+grid_release = dict(
+    line.split("=", 1)
+    for line in grid_release_path.read_text(encoding="utf-8").splitlines()
+    if "=" in line
+)
+canary_sha = sha256(canary_path.read_bytes()).hexdigest()
+grid_release_sha = sha256(grid_release_path.read_bytes()).hexdigest()
+if canary.get("status") != "True" or \
+        canary.get("disposition") != "real-path-canary-passes" or \
+        canary.get("cell") != "2023-1" or \
+        grid_release.get("primary_executions") != "54" or \
+        grid_release.get("released_after_canary") != "53" or \
+        grid_release.get("canary_completion_sha256") != canary_sha:
+    raise SystemExit("ABORT: ATLAS repair5 census canary/grid release differs")
 
 rows = [line.split() for line in ledger_path.read_text(encoding="utf-8").splitlines()]
 retry_rows = [line.split() for line in retry_path.read_text(encoding="utf-8").splitlines()]
@@ -174,7 +207,11 @@ if resolution.get("classification_sha256") != \
         resolution.get("primary_execution_ledger_sha256") != \
         sha256(ledger_path.read_bytes()).hexdigest() or \
         resolution.get("retry_execution_ledger_sha256") != \
-        sha256(retry_path.read_bytes()).hexdigest():
+        sha256(retry_path.read_bytes()).hexdigest() or \
+        resolution.get("canary_completion_sha256") != canary_sha or \
+        resolution.get("grid_release_sha256") != grid_release_sha or \
+        classification.get("canary_completion_sha256") != canary_sha or \
+        classification.get("grid_release_sha256") != grid_release_sha:
     raise SystemExit("ABORT: ATLAS repair5 census attempt hashes differ")
 
 terminal = []

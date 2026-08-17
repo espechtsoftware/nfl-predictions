@@ -43,6 +43,13 @@ def test_repair5_launcher_requires_strict_preflight_and_census() -> None:
     assert source.index("ATLAS repair5 smoke marker differs") < source.index(
         "for SEASON in 2023 2024 2025"
     )
+    assert source.index('SEASON=2023\nWEEK=1') < source.index(
+        "for SEASON in 2023 2024 2025"
+    )
+    assert source.index('bash "$CANARY_VALIDATOR"') < source.index(
+        "for SEASON in 2023 2024 2025"
+    )
+    assert 'released_after_canary=53' in source
 
 
 def test_repair5_cloud_contract_is_new_binary_resource_only_grid() -> None:
@@ -99,10 +106,10 @@ def test_repair5_platform_retry_is_narrow_and_attempt_receipted() -> None:
         "d464660b72e669d261d7f6d4800b3e59d55726b56e7003c5e3e806f38fa987a0"
     )
     assert sha256(resolver.read_bytes()).hexdigest() == (
-        "c11171b607d2ab381d013adfe655567f126305e5ac65e07c8dd53df61ac9743f"
+        "705b65e5164b775361a2efe1440059f76978c3701c192179a40d85f4b0c27093"
     )
     assert sha256(finisher.read_bytes()).hexdigest() == (
-        "c21419ca9bb65e0e39a9e9fe0efb3909ab6d437bc42e5d29db5f97a5edce9c89"
+        "fe7a069e42bfece580ff4f312bc2990bd31339932713d834c2c123bbc431cdd9"
     )
 
     source = resolver.read_text(encoding="utf-8")
@@ -124,6 +131,49 @@ def test_repair5_platform_retry_is_narrow_and_attempt_receipted() -> None:
     assert "accepted-executions.txt" in source
     assert "max_replacement_executions_per_cell" in source
     assert '"effect_fields_inspected": False' in source
+
+
+def test_repair5_real_path_canary_is_frozen_and_bound() -> None:
+    amendment = (
+        ROOT / "reports/2026-08-16-atlas-repair5-real-path-canary-amendment.md"
+    )
+    validator = ROOT / "scripts/cloud_wait_atlas_repair5_canary.sh"
+    launcher = ROOT / "scripts/cloud_atlas_matched_diversity_repair5.sh"
+    resolver = ROOT / "scripts/cloud_prepare_atlas_matched_diversity_repair5_attempts.sh"
+    finisher = ROOT / "scripts/cloud_finish_atlas_matched_diversity_repair5.sh"
+    assert sha256(amendment.read_bytes()).hexdigest() == (
+        "b2d0e32dabeb87bb1a67bee58c01f00c4c0d97e3fac9d1f7181bfcee50abc242"
+    )
+    assert sha256(validator.read_bytes()).hexdigest() == (
+        "e1c82612f231976563f0df12ffbe9f5e2db1aebfae636f61b723ad8699ae1411"
+    )
+    for path in (launcher, resolver, finisher):
+        source = path.read_text(encoding="utf-8")
+        assert "canary-completion.txt" in source
+        assert "grid-release.txt" in source
+        assert "released_after_canary" in source
+    source = validator.read_text(encoding="utf-8")
+    assert "ATLAS repair5 canary must precede the other 53 cells" in source
+    assert 'gcloud storage objects describe "$URI"' in source
+    assert "gcloud storage cp" not in source
+    assert '"cpu": "8", "memory": "32Gi"' in source
+    assert 'task.get("maxRetries") != 0' in source
+    assert "ATLAS_REPAIR5_REAL_PATH_CANARY_FAILED" in source
+
+
+def test_repair5_historical_canary_binding_is_frozen_before_results() -> None:
+    amendment = (
+        ROOT
+        / "reports/2026-08-16-atlas-historical-score-repair5-canary-binding-amendment.md"
+    )
+    assert sha256(amendment.read_bytes()).hexdigest() == (
+        "c893d958b300484e0468d84763267ee89211178127bf84fc664a9bbc8170ee1e"
+    )
+    text = amendment.read_text(encoding="utf-8")
+    assert "before repair5 launch" in text
+    assert "canary-completion.txt" in text
+    assert "grid-release.txt" in text
+    assert "accepted-executions.txt" in text
 
 
 def test_repair5_historical_attempt_binding_is_frozen_before_results() -> None:

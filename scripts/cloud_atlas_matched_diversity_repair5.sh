@@ -28,6 +28,10 @@ PREFIX4="$ROOT/reports/2026-08-16-atlas-mvp-output-prefix-repair4.md"
 PREFIX4_SHA=5e84a6b93522fd959e798e90da307687179327b23c474fbda6b5303d0483063a
 PROTOCOL="$ROOT/reports/2026-08-16-atlas-mvp-resource-only-repair5.md"
 PROTOCOL_SHA=5acc93c2b3a59931aa17dbc67d98fca81d3a6ac047011cfe1a9a81aa1ee8550e
+CANARY_AMENDMENT="$ROOT/reports/2026-08-16-atlas-repair5-real-path-canary-amendment.md"
+CANARY_AMENDMENT_SHA=b2d0e32dabeb87bb1a67bee58c01f00c4c0d97e3fac9d1f7181bfcee50abc242
+CANARY_VALIDATOR="$ROOT/scripts/cloud_wait_atlas_repair5_canary.sh"
+CANARY_VALIDATOR_SHA=e1c82612f231976563f0df12ffbe9f5e2db1aebfae636f61b723ad8699ae1411
 REPAIR3_RUN="$ROOT/reports/atlas-matched-diversity-runs/20260816-atlas-matched-diversity-mvp-v1-repair3"
 REPAIR3_SUMMARY_SHA=4da1f34de96f8ae9224d8c330abeae9ec3ade562c512e58f8e9ad60e6e8d4558
 REPAIR3_COMPLETION_SHA=8dc630d58fae604b466792563402daff5a0801305eafde2c5e742c2d4686b149
@@ -60,7 +64,10 @@ for SPEC in \
   "$MVP_PROTOCOL:$MVP_PROTOCOL_SHA" "$PAIR_REACH:$PAIR_REACH_SHA" \
   "$PACKAGING:$PACKAGING_SHA" "$SHARDING:$SHARDING_SHA" \
   "$RESOURCE3:$RESOURCE3_SHA" "$PREFIX4:$PREFIX4_SHA" \
-  "$PROTOCOL:$PROTOCOL_SHA" "$CANCEL:$CANCEL_SHA" \
+  "$PROTOCOL:$PROTOCOL_SHA" \
+  "$CANARY_AMENDMENT:$CANARY_AMENDMENT_SHA" \
+  "$CANARY_VALIDATOR:$CANARY_VALIDATOR_SHA" \
+  "$CANCEL:$CANCEL_SHA" \
   "$REPAIR3_RUN/failure-summary.json:$REPAIR3_SUMMARY_SHA" \
   "$REPAIR3_RUN/failure-completion.txt:$REPAIR3_COMPLETION_SHA" \
   "$REPAIR/validation.json:$REPAIR_VALIDATION_SHA" \
@@ -134,6 +141,8 @@ printf '%s\n' \
   "resource_repair3_protocol_sha256=$RESOURCE3_SHA" \
   "output_prefix_repair4_protocol_sha256=$PREFIX4_SHA" \
   "resource_repair5_protocol_sha256=$PROTOCOL_SHA" \
+  "canary_amendment_sha256=$CANARY_AMENDMENT_SHA" \
+  "canary_validator_sha256=$CANARY_VALIDATOR_SHA" \
   "repair3_failure_summary_sha256=$REPAIR3_SUMMARY_SHA" \
   "repair3_failure_completion_sha256=$REPAIR3_COMPLETION_SHA" \
   "repair_validation_sha256=$REPAIR_VALIDATION_SHA" \
@@ -202,8 +211,27 @@ sha256sum "$OUT/smoke-execution.txt" "$OUT/smoke-execution.json" \
   "$OUT/smoke-log.json" > "$OUT/smoke.sha256"
 
 : > "$OUT/executions.txt"
+SEASON=2023
+WEEK=1
+JOB="atlas-md-s${SEASON}-w${WEEK}-r5"
+URI="$PREFIX/slate-${SEASON}-${WEEK}.json"
+gcloud run jobs deploy "$JOB" --project "$PROJECT" --region "$REGION" \
+  --image "$IMAGE" --command python \
+  --args=-c,"$GRID_COMMAND",--season,"$SEASON",--week,"$WEEK",--output-uri,"$URI" \
+  --set-env-vars CODE_SHA="$CODE_SHA",ANALYSIS_IMAGE="$IMAGE" \
+  --service-account "$SERVICE_ACCOUNT" --cpu 8 --memory 32Gi \
+  --tasks 1 --parallelism 1 --max-retries 0 --task-timeout 12h --quiet
+EXEC=$(gcloud run jobs execute "$JOB" --project "$PROJECT" \
+  --region "$REGION" --async --format='value(metadata.name)')
+[ -n "$EXEC" ] || {
+  echo "ERROR: ATLAS repair5 canary execution identity missing" >&2; exit 2; }
+printf '%s %s %s %s %s\n' "$SEASON" "$WEEK" "$JOB" "$EXEC" "$URI" \
+  | tee -a "$OUT/executions.txt"
+bash "$CANARY_VALIDATOR"
+
 for SEASON in 2023 2024 2025; do
   for WEEK in $(seq 1 18); do
+    [ "$SEASON" = 2023 ] && [ "$WEEK" = 1 ] && continue
     JOB="atlas-md-s${SEASON}-w${WEEK}-r5"
     URI="$PREFIX/slate-${SEASON}-${WEEK}.json"
     gcloud run jobs deploy "$JOB" --project "$PROJECT" --region "$REGION" \
@@ -220,5 +248,13 @@ for SEASON in 2023 2024 2025; do
       | tee -a "$OUT/executions.txt"
   done
 done
+[ "$(wc -l < "$OUT/executions.txt")" = 54 ] || {
+  echo "ERROR: ATLAS repair5 primary grid is not 54" >&2; exit 2; }
+printf '%s\n' \
+  "released_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+  'primary_executions=54' 'released_after_canary=53' \
+  "canary_completion_sha256=$(sha256sum "$OUT/canary-completion.txt" | awk '{print $1}')" \
+  'object_content_inspected=false' 'effect_fields_inspected=false' \
+  > "$OUT/grid-release.txt"
 sha256sum "$OUT/manifest.txt" "$OUT/executions.txt" > "$OUT/launch.sha256"
 echo "ATLAS_MATCHED_DIVERSITY_REPAIR5_LAUNCHED $RUN_ID"

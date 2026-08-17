@@ -11,17 +11,28 @@ PRIMARY="$OUT/executions.txt"
 PREFIX=gs://nfl-predictions-503414-raw/research/atlas-matched-diversity-runs/$RUN_ID
 AMENDMENT="$ROOT/reports/2026-08-16-atlas-repair5-bounded-platform-retry-amendment.md"
 AMENDMENT_SHA=d464660b72e669d261d7f6d4800b3e59d55726b56e7003c5e3e806f38fa987a0
+CANARY_AMENDMENT="$ROOT/reports/2026-08-16-atlas-repair5-real-path-canary-amendment.md"
+CANARY_AMENDMENT_SHA=b2d0e32dabeb87bb1a67bee58c01f00c4c0d97e3fac9d1f7181bfcee50abc242
+CANARY_VALIDATOR="$ROOT/scripts/cloud_wait_atlas_repair5_canary.sh"
+CANARY_VALIDATOR_SHA=e1c82612f231976563f0df12ffbe9f5e2db1aebfae636f61b723ad8699ae1411
+CANARY="$OUT/canary-completion.txt"
+GRID_RELEASE="$OUT/grid-release.txt"
 LAUNCHER="$ROOT/scripts/cloud_atlas_matched_diversity_repair5.sh"
-LAUNCHER_SHA=9ea70f34e2591672e4b84621c116db8e4b465177bbda689d9d555c3d18d85b42
+LAUNCHER_SHA=3c8092c2bc3e40840a16867621f2f3ffe231f571d3f621818feab61dbefbe330
 RENDERER="$ROOT/scripts/render_atlas_matched_diversity_repair4_command.py"
 
-for SPEC in "$AMENDMENT:$AMENDMENT_SHA" "$LAUNCHER:$LAUNCHER_SHA"; do
+for SPEC in "$AMENDMENT:$AMENDMENT_SHA" \
+  "$CANARY_AMENDMENT:$CANARY_AMENDMENT_SHA" \
+  "$CANARY_VALIDATOR:$CANARY_VALIDATOR_SHA" \
+  "$LAUNCHER:$LAUNCHER_SHA"; do
   FILE=${SPEC%:*}
   DIGEST=${SPEC##*:}
   [ -s "$FILE" ] && [ "$(sha256sum "$FILE" | awk '{print $1}')" = "$DIGEST" ] || {
     echo "ABORT: ATLAS repair5 attempt dependency differs: $FILE" >&2; exit 2; }
 done
-[ -s "$MANIFEST" ] && [ -s "$PRIMARY" ] || {
+[ -s "$MANIFEST" ] && [ -s "$PRIMARY" ] && [ -s "$CANARY" ] && \
+  [ -s "$OUT/canary-execution-metadata.json" ] && \
+  [ -s "$OUT/canary-object-metadata.json" ] && [ -s "$GRID_RELEASE" ] || {
   echo "ABORT: ATLAS repair5 primary launch receipt is incomplete" >&2; exit 2; }
 [ "$(wc -l < "$PRIMARY")" = 54 ] || {
   echo "ABORT: ATLAS repair5 primary grid is not 54" >&2; exit 2; }
@@ -50,7 +61,8 @@ if [ ! -s "$OUT/primary-attempt-classification.json" ]; then
   "$ROOT/.venv/bin/python" - "$MANIFEST" "$PRIMARY" \
     "$TMP/primary-execution-metadata" "$TMP/primary-object-inventory.txt" \
     "$TMP/primary-attempt-classification.json" "$TMP/retry-cells.txt" \
-    "$GRID_COMMAND" "$AMENDMENT_SHA" <<'PY'
+    "$GRID_COMMAND" "$AMENDMENT_SHA" "$CANARY" "$GRID_RELEASE" \
+    "$CANARY_AMENDMENT_SHA" "$CANARY_VALIDATOR_SHA" <<'PY'
 from hashlib import sha256
 import json
 from pathlib import Path
@@ -59,7 +71,9 @@ import sys
 manifest_path, ledger_path, metadata_dir, inventory_path, output_path, retry_path = map(
     Path, sys.argv[1:7]
 )
-grid_command, amendment_sha = sys.argv[7:]
+grid_command, amendment_sha = sys.argv[7:9]
+canary_path, grid_release_path = map(Path, sys.argv[9:11])
+canary_amendment_sha, canary_validator_sha = sys.argv[11:13]
 manifest = dict(
     line.split("=", 1) for line in manifest_path.read_text(encoding="utf-8").splitlines()
     if "=" in line
@@ -78,11 +92,33 @@ fixed = {
     "cpu": "8", "memory": "32Gi", "timeout_seconds": "43200",
     "max_retries": "0", "interaction_auxiliaries": "binary",
     "uses_realized_outcomes": "false", "production_change_licensed": "false",
+    "canary_amendment_sha256": canary_amendment_sha,
+    "canary_validator_sha256": canary_validator_sha,
 }
 if any(manifest.get(key) != value for key, value in fixed.items()):
     raise SystemExit("ABORT: ATLAS repair5 attempt manifest differs")
 if manifest.get("grid_command_sha256") != sha256(grid_command.encode()).hexdigest():
     raise SystemExit("ABORT: ATLAS repair5 attempt command differs")
+canary = dict(
+    line.split("=", 1)
+    for line in canary_path.read_text(encoding="utf-8").splitlines()
+    if "=" in line
+)
+grid_release = dict(
+    line.split("=", 1)
+    for line in grid_release_path.read_text(encoding="utf-8").splitlines()
+    if "=" in line
+)
+if canary.get("status") != "True" or \
+        canary.get("disposition") != "real-path-canary-passes" or \
+        canary.get("cell") != "2023-1" or \
+        canary.get("remaining_cells_released") != "false" or \
+        canary.get("object_content_inspected") != "false" or \
+        grid_release.get("primary_executions") != "54" or \
+        grid_release.get("released_after_canary") != "53" or \
+        grid_release.get("canary_completion_sha256") != \
+        sha256(canary_path.read_bytes()).hexdigest():
+    raise SystemExit("ABORT: ATLAS repair5 canary/grid release differs")
 
 rows = [line.split() for line in ledger_path.read_text(encoding="utf-8").splitlines()]
 expected = {(str(s), str(w)) for s in (2023, 2024, 2025) for w in range(1, 19)}
@@ -197,6 +233,8 @@ payload = {
     "disposition": disposition,
     "primary_execution_ledger_sha256": sha256(ledger_path.read_bytes()).hexdigest(),
     "primary_object_inventory_sha256": sha256(inventory_path.read_bytes()).hexdigest(),
+    "canary_completion_sha256": sha256(canary_path.read_bytes()).hexdigest(),
+    "grid_release_sha256": sha256(grid_release_path.read_bytes()).hexdigest(),
     "cells": cells,
 }
 output_path.write_text(json.dumps(payload, sort_keys=True, separators=(",", ":")) + "\n")
@@ -248,6 +286,8 @@ payload = {
     "classification_sha256": sha256(source.read_bytes()).hexdigest(),
     "primary_execution_ledger_sha256": sha256(primary.read_bytes()).hexdigest(),
     "retry_execution_ledger_sha256": sha256(retries.read_bytes()).hexdigest(),
+    "canary_completion_sha256": classification["canary_completion_sha256"],
+    "grid_release_sha256": classification["grid_release_sha256"],
 }
 target.write_text(json.dumps(payload, sort_keys=True, separators=(",", ":")) + "\n")
 PY
@@ -337,6 +377,8 @@ payload = {
     "primary_execution_ledger_sha256": sha256(primary_path.read_bytes()).hexdigest(),
     "retry_execution_ledger_sha256": sha256(retry_path.read_bytes()).hexdigest(),
     "accepted_execution_ledger_sha256": sha256(accepted_path.read_bytes()).hexdigest(),
+    "canary_completion_sha256": classification["canary_completion_sha256"],
+    "grid_release_sha256": classification["grid_release_sha256"],
 }
 target.write_text(json.dumps(payload, sort_keys=True, separators=(",", ":")) + "\n")
 PY

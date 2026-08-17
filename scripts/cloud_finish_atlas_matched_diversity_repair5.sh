@@ -14,19 +14,32 @@ ATTEMPT_RESOLUTION="$OUT/attempt-resolution.json"
 ATTEMPT_CLASSIFICATION="$OUT/primary-attempt-classification.json"
 AMENDMENT="$ROOT/reports/2026-08-16-atlas-repair5-bounded-platform-retry-amendment.md"
 AMENDMENT_SHA=d464660b72e669d261d7f6d4800b3e59d55726b56e7003c5e3e806f38fa987a0
+CANARY_AMENDMENT="$ROOT/reports/2026-08-16-atlas-repair5-real-path-canary-amendment.md"
+CANARY_AMENDMENT_SHA=b2d0e32dabeb87bb1a67bee58c01f00c4c0d97e3fac9d1f7181bfcee50abc242
+CANARY_VALIDATOR="$ROOT/scripts/cloud_wait_atlas_repair5_canary.sh"
+CANARY_VALIDATOR_SHA=e1c82612f231976563f0df12ffbe9f5e2db1aebfae636f61b723ad8699ae1411
+CANARY="$OUT/canary-completion.txt"
+GRID_RELEASE="$OUT/grid-release.txt"
 ATTEMPT_RESOLVER="$ROOT/scripts/cloud_prepare_atlas_matched_diversity_repair5_attempts.sh"
-ATTEMPT_RESOLVER_SHA=c11171b607d2ab381d013adfe655567f126305e5ac65e07c8dd53df61ac9743f
+ATTEMPT_RESOLVER_SHA=705b65e5164b775361a2efe1440059f76978c3701c192179a40d85f4b0c27093
 RENDERER="$ROOT/scripts/render_atlas_matched_diversity_repair4_command.py"
 PREFLIGHT="$ROOT/reports/atlas-cbc-32g-full-cell-preflight-runs/20260816-atlas-cbc-32g-full-cell-preflight-v1"
 R4="$ROOT/reports/atlas-matched-diversity-runs/20260816-atlas-matched-diversity-mvp-v1-repair4"
 
 [ -s "$AMENDMENT" ] && \
   [ "$(sha256sum "$AMENDMENT" | awk '{print $1}')" = "$AMENDMENT_SHA" ] && \
+  [ -s "$CANARY_AMENDMENT" ] && \
+  [ "$(sha256sum "$CANARY_AMENDMENT" | awk '{print $1}')" = "$CANARY_AMENDMENT_SHA" ] && \
+  [ -s "$CANARY_VALIDATOR" ] && \
+  [ "$(sha256sum "$CANARY_VALIDATOR" | awk '{print $1}')" = "$CANARY_VALIDATOR_SHA" ] && \
   [ -s "$ATTEMPT_RESOLVER" ] && \
   [ "$(sha256sum "$ATTEMPT_RESOLVER" | awk '{print $1}')" = "$ATTEMPT_RESOLVER_SHA" ] && \
   [ -s "$MANIFEST" ] && [ -s "$PRIMARY_EXECUTIONS" ] && \
   [ -e "$RETRY_EXECUTIONS" ] && [ -s "$ACCEPTED_EXECUTIONS" ] && \
   [ -s "$ATTEMPT_RESOLUTION" ] && [ -s "$ATTEMPT_CLASSIFICATION" ] && \
+  [ -s "$CANARY" ] && [ -s "$OUT/canary-execution-metadata.json" ] && \
+  [ -s "$OUT/canary-object-metadata.json" ] && \
+  [ -s "$OUT/canary.sha256" ] && [ -s "$GRID_RELEASE" ] && \
   [ -s "$OUT/primary-execution-metadata.sha256" ] && \
   [ -s "$OUT/smoke-execution.json" ] && [ -s "$OUT/smoke-log.json" ] && \
   [ -s "$PREFLIGHT/completion.txt" ] && \
@@ -54,7 +67,8 @@ GRID_COMMAND=$("$ROOT/.venv/bin/python" "$RENDERER" \
   "$RETRY_EXECUTIONS" "$ACCEPTED_EXECUTIONS" "$ATTEMPT_RESOLUTION" \
   "$ATTEMPT_CLASSIFICATION" "$AMENDMENT" "$ATTEMPT_RESOLVER" \
   "$OUT/smoke-execution.json" "$OUT/smoke-log.json" \
-  "$VERIFY_COMMAND" "$GRID_COMMAND" "$PREFLIGHT" "$R4" <<'PY'
+  "$VERIFY_COMMAND" "$GRID_COMMAND" "$PREFLIGHT" "$R4" \
+  "$CANARY_AMENDMENT" "$CANARY_VALIDATOR" "$CANARY" "$GRID_RELEASE" <<'PY'
 from hashlib import sha256
 import json, pathlib, sys
 
@@ -67,6 +81,8 @@ amendment=pathlib.Path(sys.argv[7]); resolver=pathlib.Path(sys.argv[8])
 smoke=json.load(open(sys.argv[9],encoding="utf-8")); logs=json.load(open(sys.argv[10],encoding="utf-8"))
 verify_command,grid_command=sys.argv[11:13]
 preflight=pathlib.Path(sys.argv[13]); r4=pathlib.Path(sys.argv[14])
+canary_amendment=pathlib.Path(sys.argv[15]); canary_validator=pathlib.Path(sys.argv[16])
+canary_path=pathlib.Path(sys.argv[17]); grid_release_path=pathlib.Path(sys.argv[18])
 expected_fixed={
  "run_id":"20260816-atlas-matched-diversity-mvp-v1-repair5",
  "image":"us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ce03feb739e51aabedd7cea79f46e13a06a097a7f85e9a5817f38184b67f4fcb",
@@ -79,6 +95,8 @@ expected_fixed={
  "resource_repair3_protocol_sha256":"95c33b8aa64aeb8e0a7740471f85b5006d3a8e34ff250375f97994ad05d33b3d",
  "output_prefix_repair4_protocol_sha256":"5e84a6b93522fd959e798e90da307687179327b23c474fbda6b5303d0483063a",
  "resource_repair5_protocol_sha256":"5acc93c2b3a59931aa17dbc67d98fca81d3a6ac047011cfe1a9a81aa1ee8550e",
+ "canary_amendment_sha256":"b2d0e32dabeb87bb1a67bee58c01f00c4c0d97e3fac9d1f7181bfcee50abc242",
+ "canary_validator_sha256":"e1c82612f231976563f0df12ffbe9f5e2db1aebfae636f61b723ad8699ae1411",
  "cost_control_cancellation_sha256":"8f2b7770a8c54f6a1faa781d8398f8102ac20d930892768de69a9b705578b528",
  "repair4_manifest_sha256":"083a5e158053cd03f509bfebe518516af695773c029a78a8e80aa6aa336e5df6",
  "repair4_execution_ledger_sha256":"0ca2e0635a8cb572912aeb19156a388c9a87ba8bc0f340998a6b39eb2b28c3fd",
@@ -118,8 +136,13 @@ for key,path in dynamic.items():
   raise SystemExit(f"ABORT: ATLAS repair5 preflight binding differs: {key}")
 if sha256((r4/"terminal-census.json").read_bytes()).hexdigest()!=manifest["repair4_terminal_census_sha256"] or sha256((r4/"terminal-census-completion.txt").read_bytes()).hexdigest()!=manifest["repair4_terminal_completion_sha256"]:
  raise SystemExit("ABORT: ATLAS repair5 repair4 census binding differs")
-if sha256(amendment.read_bytes()).hexdigest()!="d464660b72e669d261d7f6d4800b3e59d55726b56e7003c5e3e806f38fa987a0" or sha256(resolver.read_bytes()).hexdigest()!="c11171b607d2ab381d013adfe655567f126305e5ac65e07c8dd53df61ac9743f":
+if sha256(amendment.read_bytes()).hexdigest()!="d464660b72e669d261d7f6d4800b3e59d55726b56e7003c5e3e806f38fa987a0" or sha256(resolver.read_bytes()).hexdigest()!="705b65e5164b775361a2efe1440059f76978c3701c192179a40d85f4b0c27093" or sha256(canary_amendment.read_bytes()).hexdigest()!=manifest["canary_amendment_sha256"] or sha256(canary_validator.read_bytes()).hexdigest()!=manifest["canary_validator_sha256"]:
  raise SystemExit("ABORT: ATLAS repair5 attempt source differs")
+canary=dict(line.rstrip("\n").split("=",1) for line in canary_path.read_text(encoding="utf-8").splitlines() if "=" in line)
+grid_release=dict(line.rstrip("\n").split("=",1) for line in grid_release_path.read_text(encoding="utf-8").splitlines() if "=" in line)
+canary_sha=sha256(canary_path.read_bytes()).hexdigest(); grid_release_sha=sha256(grid_release_path.read_bytes()).hexdigest()
+if canary.get("status")!="True" or canary.get("disposition")!="real-path-canary-passes" or canary.get("cell")!="2023-1" or canary.get("remaining_cells_released")!="false" or canary.get("object_content_inspected")!="false" or grid_release.get("primary_executions")!="54" or grid_release.get("released_after_canary")!="53" or grid_release.get("canary_completion_sha256")!=canary_sha:
+ raise SystemExit("ABORT: ATLAS repair5 canary/grid release differs")
 for key,command in (("verify_command_sha256",verify_command),("grid_command_sha256",grid_command)):
  if manifest.get(key)!=sha256(command.encode()).hexdigest():
   raise SystemExit(f"ABORT: ATLAS repair5 rendered command differs: {key}")
@@ -143,7 +166,7 @@ for cell,row in primary_by_cell.items():
   raise SystemExit("ABORT: ATLAS repair5 accepted attempt differs")
 if resolution.get("version")!="atlas-repair5-attempt-resolution-v1" or resolution.get("disposition") not in {"accepted-primary-population","accepted-population-with-platform-replacements"} or resolution.get("uses_realized_outcomes") is not False or resolution.get("effect_fields_inspected") is not False or resolution.get("task_max_retries")!=0 or resolution.get("max_replacement_executions_per_cell")!=1 or resolution.get("primary_executions")!=54 or resolution.get("retry_executions")!=len(retries) or resolution.get("accepted_executions")!=54:
  raise SystemExit("ABORT: ATLAS repair5 attempt resolution differs")
-if classification.get("version")!="atlas-repair5-primary-attempt-classification-v1" or classification.get("uses_realized_outcomes") is not False or classification.get("effect_fields_inspected") is not False or classification.get("ineligible_failures")!=0 or classification.get("eligible_replacements")!=len(retries):
+if classification.get("version")!="atlas-repair5-primary-attempt-classification-v1" or classification.get("uses_realized_outcomes") is not False or classification.get("effect_fields_inspected") is not False or classification.get("ineligible_failures")!=0 or classification.get("eligible_replacements")!=len(retries) or classification.get("canary_completion_sha256")!=canary_sha or classification.get("grid_release_sha256")!=grid_release_sha or resolution.get("canary_completion_sha256")!=canary_sha or resolution.get("grid_release_sha256")!=grid_release_sha:
  raise SystemExit("ABORT: ATLAS repair5 primary classification differs")
 for key,path in (("primary_execution_ledger_sha256",sys.argv[2]),("retry_execution_ledger_sha256",sys.argv[3]),("accepted_execution_ledger_sha256",sys.argv[4]),("classification_sha256",sys.argv[6])):
  if resolution.get(key)!=sha256(pathlib.Path(path).read_bytes()).hexdigest():
@@ -235,7 +258,9 @@ sha256sum "$OUT"/shards/*.json | sort > "$OUT/shards.sha256"
 sha256sum "$OUT/executions.txt" "$OUT/retry-executions.txt" \
   "$OUT/accepted-executions.txt" "$OUT/attempt-resolution.json" \
   "$OUT/primary-attempt-classification.json" \
-  "$OUT/primary-execution-metadata.sha256" \
+  "$OUT/primary-execution-metadata.sha256" "$OUT/canary-completion.txt" \
+  "$OUT/canary-execution-metadata.json" \
+  "$OUT/canary-object-metadata.json" "$OUT/grid-release.txt" \
   > "$OUT/attempt-artifacts.sha256"
 RETRY_COUNT=$(wc -l < "$RETRY_EXECUTIONS")
 printf '%s\n' "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
@@ -243,6 +268,7 @@ printf '%s\n' "validated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
   'accepted_executions=54' 'seasons=2023,2024,2025' 'slates=54' \
   'cpu=8' 'memory=32Gi' 'task_max_retries=0' \
   'max_replacement_executions_per_cell=1' \
+  'real_path_canary=passed' 'released_after_canary=53' \
   'repair_treatment=resource-envelope-only' \
   'interaction_auxiliaries=binary' 'uses_realized_outcomes=false' \
   'production_change_licensed=false' > "$OUT/completion.txt"
