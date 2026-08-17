@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 08:11 CDT
+## Current state — 2026-08-17 08:35 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -254,6 +254,38 @@ agent or developer:
   at exact commit `01f73f103dbb2791657c43867b72dfc639a05624`.
   Next: status-only polling; do not manually harvest, score or launch another
   heavy mechanism while repair5 remains active.
+
+  The repair5-bound historical-score v3 transport is now implemented locally
+  and frozen before any repair5 shard body, score-free effect or historical
+  score was opened. Execution protocol
+  `reports/2026-08-17-atlas-historical-score-v3-execution-protocol.md` has
+  SHA-256
+  `2a4b0ed6c6a2c4b15c052968248aefd0d8a1ff519c5ec2bce5c72bfb50020e7b`.
+  `src/nfl_dfs/research/atlas_historical_v3_sources.py` validates every
+  frozen amendment/source hash, the exact primary/retry/accepted ledgers,
+  all primary and accepted execution contracts, canary repair receipts,
+  every strict SHA-256 ledger, exact object generations/hashes and the full
+  per-job execution population so an extra or unreceipted attempt fails
+  closed. `scripts/prepare_atlas_historical_v3_source_receipt.py` seals that
+  evidence without parsing an ATLAS effect. The v3 runner downloads the exact
+  sealed receipt generation, reconstructs the unchanged P1/P2 books, requires
+  native actual-score parity and exact upstream 80-entry identities, and
+  emits the already-frozen 54-slate tail diagnostic.
+  `scripts/finish_atlas_historical_score_diagnostic_v3.py` independently
+  validates the 8-CPU/32-GiB/zero-retry execution, exact-80 rows, 270 source
+  artifacts and recomputed aggregate/gate. The launcher and watcher require a
+  successful immutable full-test build and serialize the outcome query under
+  `historical_outcome_lease.py`; the lease is acquired only after all source
+  and build preflight checks and immediately before execution. Docker/Cloud
+  Build package and smoke the new runner. Both all-primary and bounded
+  platform-replacement receipt paths are covered. Thirty-four focused tests
+  pass along with Python compilation, shell syntax and `git diff --check`.
+  At `2026-08-17T13:34:16Z`, the existing repair5 watcher still reports all
+  53 post-canary primary executions nonterminal; no partial output was opened.
+  Next: commit/push this implementation, run its full-test immutable Cloud
+  Build in parallel with the score-blind grid, then start the v3 queue watcher
+  with that digest/build so strict repair5 completion automatically seals and
+  scores all 54 slates under the shared outcome lease.
 
 - The already accepted outcome-free impact/equivalence governance
   recommendation is now implemented. Protocol
