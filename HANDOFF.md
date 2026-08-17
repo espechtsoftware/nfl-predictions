@@ -131,6 +131,8 @@ agent or developer:
   `ce530917359faff1955ba671b82424976ca4851e`.
   The immutable source-binding boundary is committed on `main` at
   `2cfeda517d64cacf8117891261dc77bfbf4c272c`.
+  The strict identity-only capacity-frame boundary is committed on `main` at
+  `63cc1e2ce789c7749f01985b33fb17d9ddc93beb`.
   No generation launcher,
   cloud attempt resolver, strict cloud harvester, immutable
   analysis runner, build or
