@@ -1203,7 +1203,7 @@ agent or developer:
   `PYTHONPATH=.`, all six affected shell scripts pass `bash -n`, every embedded
   Python block compiles and `git diff --check` passes. The exact code milestone
   is pushed-ready on `main` at commit
-  `c0319be02d5a0279cd63b9ea61df454a1f91eb3f`; the repair5 watcher was stopped
+  `c0319be6f9f06c049953b4facfa3601c726fb5a8`; the repair5 watcher was stopped
   before editing so it could not race the change and must be restarted only
   after this handoff is pushed. At `2026-08-17T02:25:46Z`, preflight execution
   `atlas-cbc-32g-full-2023-w8-v1-lbzjd` remained healthy/nonterminal after R3;
