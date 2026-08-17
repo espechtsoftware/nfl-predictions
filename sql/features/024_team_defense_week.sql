@@ -14,6 +14,12 @@
 -- scorer exactly reproduced all 17 known 2025 Milly-winning DST scores; the
 -- former approximation omitted safeties, blocks, special-teams recoveries,
 -- and some return TDs.
+--
+-- Scoring-law contract: draftkings-nfl-classic-dst-2026-08-17-v1.
+-- Current official DK NFL Classic rules contain no yards-allowed fantasy
+-- component. A defensive 2-point/extra-point return earns +2 for the returning
+-- DST and also remains in the opposing DST's points-allowed total; only points
+-- surrendered while that team's offense is on the field are excluded below.
 
 CREATE OR REPLACE TABLE `${features}.team_defense_week` AS
 WITH schedules_normalized AS (

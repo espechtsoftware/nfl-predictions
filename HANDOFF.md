@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 15:02 CDT
+## Current state — 2026-08-17 15:08 CDT
 
 ### Extreme-tail prerequisites implemented and prospectively frozen while ATLAS continues
 
@@ -75,19 +75,37 @@ agent or developer:
   queue until its R0-R3 prerequisites pass. Three focused DST scoring tests
   pass. No historical population, lineup outcome or ATLAS body was opened.
 
+- DraftKings DST Phase D0 now has a dated, fail-closed canonical scoring
+  contract in `src/nfl_dfs/models/dst_scoring.py`, contract ID
+  `draftkings-nfl-classic-dst-2026-08-17-v1`. The official live DraftKings NFL
+  Classic rules API confirms sacks `+1`, interceptions/fumble recoveries/
+  safeties/blocked kicks/defensive conversion returns `+2`, defensive or
+  special-teams touchdowns `+6`, the existing points-allowed tiers, and no
+  yards-allowed component. It also explicitly counts opponent two-point and
+  extra-point returns in points allowed, so the current reciprocal `+2 PA`
+  treatment is retained. The research recourse scorer now consumes that
+  contract and emits its law ID; the warehouse SQL is pinned by a matching
+  contract comment and focused parity/reciprocal tests. The verification
+  report is `reports/2026-08-17-dst-d0-scoring-law-verification.md`, SHA-256
+  `e0bb023c47a87e4159128259b370187e45501b91a73506eb70f0308b69dca4f9`.
+  The focused DST/feature/recourse/overtime suite passes with one existing
+  skip, compilation and `git diff --check` pass. This verifies the current
+  law only; it does not prove historical rule parity, populate an event
+  ledger, or license a DST outcome arm.
+
 - A durable global heavy-experiment lease and the pure residual-pricing core
-  are now being implemented locally from these frozen contracts. DST D0 is
-  separately reconciling the current official scoring rule before code
-  changes. These readiness tasks launch no cloud experiment. The active ATLAS
-  watcher remains the sole heavy chain: its complete terminal-only sweep at
-  `2026-08-17T19:59:17Z` reported 15 of 54 repair5 primaries nonterminal, 38
+  are being implemented locally from the frozen contracts. These readiness
+  tasks launch no cloud experiment. The active ATLAS watcher remains the sole
+  heavy chain: its complete terminal-only sweep at
+  `2026-08-17T20:05:15Z` reported 13 of 54 repair5 primaries nonterminal, 40
   terminal successes and the one known zero-object 2023 Week 7 identity-tie
   failure. Repair6, historical v4, parity and then constraint-lattice support
   remain serialized; no partial scientific output has been inspected.
 
-- Exact next actions: commit/push this additive forensic layer and the two
-  prospective audits; continue terminal-only ATLAS polling; validate and
-  commit the heavy lease, residual core and DST D0 work separately; when the
+- Exact next actions: commit/push the DST D0 contract separately; continue
+  terminal-only ATLAS polling; validate and commit the heavy lease and pure
+  residual core separately; implement the D0 historical event-vector
+  extraction/output-schema prerequisite without scoring outcomes; when the
   ATLAS chain closes, strictly harvest its licensed terminal result before
   releasing the constraint-lattice support/resource preflight.
 

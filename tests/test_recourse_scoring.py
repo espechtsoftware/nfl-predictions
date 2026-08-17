@@ -1,6 +1,7 @@
 import pandas as pd
 import pytest
 
+from nfl_dfs.models.dst_scoring import DST_SCORING_LAW_ID
 from nfl_dfs.research.recourse_scoring import (
     points_information_as_of,
     score_skill_players,
@@ -313,6 +314,29 @@ def test_dst_scorer_mirrors_event_and_points_allowed_rules():
     assert by_team.loc["A", "points_allowed"] == 1
     assert by_team.loc["A", "dk_points"] == 7
     assert receipt["defenses_scored"] == 2
+    assert receipt["scoring_law_id"] == DST_SCORING_LAW_ID
+
+
+def test_dst_scorer_charges_conversion_return_to_reciprocal_points_allowed():
+    pbp = pd.DataFrame([_row(
+        1,
+        "2025-09-07T17:10:00Z",
+        defensive_two_point_conv=1,
+        total_home_score=2,
+        total_away_score=0,
+        play_type="extra_point",
+    )])
+    scored, _ = score_team_defenses(pbp)
+    by_team = scored.set_index("team")
+
+    # B returned A's conversion: B receives +2 plus the shutout tier.
+    assert by_team.loc["B", "defensive_conversions"] == 1
+    assert by_team.loc["B", "points_allowed"] == 0
+    assert by_team.loc["B", "dk_points"] == 12
+    # Those two return points were surrendered while A's special teams was on
+    # the field, so current DK rules include them in A DST's PA tier.
+    assert by_team.loc["A", "points_allowed"] == 2
+    assert by_team.loc["A", "dk_points"] == 7
 
 
 def test_scorer_rejects_naive_or_missing_scoring_timestamps():

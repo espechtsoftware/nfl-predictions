@@ -22,6 +22,11 @@ import hashlib
 import numpy as np
 import pandas as pd
 
+from ..models.dst_scoring import (
+    DST_COMPONENTS,
+    DST_SCORING_LAW_ID,
+    score_dst_components,
+)
 from ..models.scoring import StatLine, dk_points
 
 
@@ -39,16 +44,6 @@ PLAYER_COMPONENTS = (
     "two_point_conversions",
     "return_tds",
 )
-DST_COMPONENTS = (
-    "sacks",
-    "interceptions",
-    "fumble_recoveries",
-    "safeties",
-    "blocked_kicks",
-    "return_tds",
-    "defensive_conversions",
-)
-
 # nflverse exposes only one lateral-player identity and one aggregate lateral
 # yard value on these eight multi-lateral plays.  The timestamped descriptions
 # themselves enumerate every intermediate player and yard allocation.  These
@@ -362,22 +357,6 @@ def score_skill_players(
     }
 
 
-def _points_allowed_tier(points_allowed: float) -> float:
-    if points_allowed <= 0:
-        return 10.0
-    if points_allowed <= 6:
-        return 7.0
-    if points_allowed <= 13:
-        return 4.0
-    if points_allowed <= 20:
-        return 1.0
-    if points_allowed <= 27:
-        return 0.0
-    if points_allowed <= 34:
-        return -1.0
-    return -4.0
-
-
 def _game_teams(frame: pd.DataFrame) -> dict[str, tuple[str, str]]:
     required = {"home_team", "away_team"}
     missing = required - set(frame.columns)
@@ -504,15 +483,9 @@ def score_team_defenses(
         for team, opponent_score in ((home, away_score), (away, home_score)):
             components = events[(game_id, team)]
             pa = max(0.0, opponent_score - not_allowed[(game_id, team)])
-            points = (
-                components["sacks"]
-                + 2.0 * components["interceptions"]
-                + 2.0 * components["fumble_recoveries"]
-                + 2.0 * components["safeties"]
-                + 2.0 * components["blocked_kicks"]
-                + 6.0 * components["return_tds"]
-                + 2.0 * components["defensive_conversions"]
-                + _points_allowed_tier(pa)
+            points = score_dst_components(
+                components,
+                points_allowed=pa,
             )
             rows.append({
                 "season": season,
@@ -536,6 +509,7 @@ def score_team_defenses(
         "games_scored": int(result.game_id.nunique()) if not result.empty else 0,
         "defenses_scored": int(len(result)),
         "scorer": "pit-dk-dst-v1",
+        "scoring_law_id": DST_SCORING_LAW_ID,
     }
 
 
