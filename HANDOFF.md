@@ -87,7 +87,7 @@ agent or developer:
   cloud execution exists yet; this remains lower priority and may not launch
   ahead of the active mechanism chains. The transport-validator milestone is
   pushed on `main` at exact commit
-  `4d4feb94aa6e9d9123d79258257a91066223ad42`. The protocol/seed freeze is pushed at
+  `4d4feb9cedd7acb3b746ae70bd2f2985178e4cd3`. The protocol/seed freeze is pushed at
   commit `402662e`; the superseding exact pure-analyzer/source-preflight
   milestone is pushed on `main` at
   `655bd4a3964dd69affbb5be1826070aa417b62d9`.
