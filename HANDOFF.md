@@ -1240,6 +1240,21 @@ agent or developer:
   commit `8ca753840ef5dcd04a3fba658a9c35fd371050a1`; it still needs an immutable
   source runner, control-only support runner/aggregator, launcher and strict
   finisher before any Cloud execution.
+  The immutable production-multinomial source loader and separate treatment-
+  free support runner/aggregator are now implemented locally. They bind the
+  exact protocol, current-money transfer, accepted CBWU-OI report and repaired
+  R3/2025 Week 1 acquisition receipts; query only pre-lock candidate/player
+  fields; and reconstruct the same five native R0--R4 books. Each support
+  shard reports both candidate-pool and exact-80 control book-maximum counts
+  at p194/p210/p220/p230 without importing or constructing the treatment. The
+  strict aggregate requires the complete 54-slate/270-fold/artifact grid,
+  complete slate contribution vectors, breadth/concentration and all ten fold
+  correlations separately for both layers. The first 230/220/210 anchor must
+  meet >=540 events and >=41/54 positive slates in every block in both layers;
+  otherwise treatment remains closed. Nine focused construction/support tests
+  pass, all four Python files compile and `git diff --check` passes. Docker,
+  Cloud Build, launch/canary/attempt and strict-harvest plumbing remain open;
+  do not launch this support census from the current constraint image.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).
