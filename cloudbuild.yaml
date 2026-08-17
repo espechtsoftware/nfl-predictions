@@ -9,7 +9,7 @@ steps:
       - -ceu
       - |
         apt-get update
-        apt-get install -y --no-install-recommends libgomp1
+        apt-get install -y --no-install-recommends git libgomp1
         pip install --no-cache-dir '.[gcp,app,dev]'
         PYTHONPATH=. pytest
   - name: gcr.io/cloud-builders/docker

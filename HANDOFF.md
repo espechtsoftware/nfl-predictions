@@ -89,6 +89,18 @@ agent or developer:
   watchers, and only then stop the superseded repair5 watcher without touching
   any Cloud Run execution.
 
+  The complete transport is pushed on `main` at exact commit
+  `87a31654f3928be5dd641fcf164f1170b25fb833`. Its first clean-archive build,
+  `fe5c7f55-1877-4801-8fd2-c03d27872a31`, is terminal `FAILURE` and must
+  never be used: the Python 3.11 slim full-test step lacked the `git`
+  executable required by the exact repair5/repair6 source-diff verifier.
+  Pytest otherwise reached 1,813 passes, two skips and one failure; image and
+  smoke steps never ran, so no artifact from this attempt is eligible. The
+  build config now prospectively installs `git` alongside `libgomp1` in only
+  the validation step. This changes no runtime image or scientific code.
+  Next: commit/push this build-environment correction and submit a new clean
+  archive; retain the original watcher until all new build steps pass.
+
 - The lower-priority same-law capacity question retained by the corrected
   exact-P census review is now prospectively frozen without launching compute
   or reading any new candidate identity, candidate score or outcome. Protocol
