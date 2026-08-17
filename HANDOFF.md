@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 05:43 CDT
+## Current state — 2026-08-17 05:54 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -106,7 +106,15 @@ agent or developer:
   families, nine unique players and legal rosters. It rejects score/outcome/
   rank/payout/capacity-statistic fields and can emit only
   `valid-complete-generation-population`; therefore no descriptive curve can
-  run over a partial or mechanically invalid generation. Twenty-two focused capacity
+  run over a partial or mechanically invalid generation.
+  `src/nfl_dfs/research/same_law_capacity_sources.py` now binds that complete
+  generation to the immutable 1x pre-lock identity (`68,493` rows, 54 slates,
+  exact fingerprint summary and row hash), the exact protocol/seed-ledger
+  hashes and the generation-pinned corrected exact-P identity object. It
+  recomputes the corrected object's canonical SHA-256, validates all 54 legal
+  nine-player identity records, confirms no outcome/candidate score was
+  persisted or inspected and emits only `valid-immutable-capacity-sources`.
+  Twenty-four focused capacity
   tests pass, all touched Python files compile and
   `git diff --check` passes. The attempt-classifier milestone is exact commit
   `0daf32a848cf6f1eefd6664e8d44d4abcd9fb29b`; the manifest-renderer milestone
@@ -115,7 +123,7 @@ agent or developer:
   The strict generation-completion boundary is committed on `main` at
   `ce530917359faff1955ba671b82424976ca4851e`.
   No generation launcher,
-  cloud attempt resolver, strict cloud harvester/source loader, immutable
+  cloud attempt resolver, strict cloud harvester/frame loader, immutable
   analysis runner, build or
   cloud execution exists yet; this remains lower priority and may not launch
   ahead of the active mechanism chains. The transport-validator milestone is
@@ -136,7 +144,7 @@ agent or developer:
   unchanged external replacement for a literal zero-object Cloud Run platform
   error; memory, timeout, solver, signal, ambiguous and object-bearing failures
   remain scientific terminal data. No protocol or code change was warranted
-  by this reread. At `2026-08-17 05:43 CDT`, canary execution
+  by this reread. At `2026-08-17 05:54 CDT`, canary execution
   `atlas-md-s2023-w1-r5-45nvf` remains healthy/nonterminal with one running
   task, `Completed=Unknown` and zero ERROR log rows. Outcome-free progress
   markers show R0--R3 complete; R4 is the fifth and final active seed.

@@ -7,6 +7,7 @@ from pathlib import Path
 import sys
 
 import pandas as pd
+import pytest
 
 from nfl_dfs.research.same_law_capacity_generation import generation_schedule
 from nfl_dfs.research.same_law_capacity_attempts import (
@@ -17,6 +18,14 @@ from nfl_dfs.research.same_law_capacity_receipts import validate_attempt_ledgers
 from nfl_dfs.research.same_law_capacity_completion import (
     EXPECTED_FAMILIES,
     validate_generation_completion,
+)
+from nfl_dfs.research.same_law_capacity_sources import (
+    EXACT_P_GENERATION,
+    EXACT_P_SHA256,
+    EXACT_P_URI,
+    EXPECTED_PRELOCK_SUMMARY,
+    PRELOCK_ROW_HASH,
+    validate_capacity_source_binding,
 )
 
 
@@ -436,3 +445,74 @@ def test_capacity_completion_rejects_missing_family_or_forbidden_score():
         assert "forbidden field" in str(exc)
     else:
         raise AssertionError("score-bearing capacity completion was accepted")
+
+
+def _capacity_sources():
+    manifest, completion = _generation_completion()
+    frozen = {
+        "id": "phase-s-cbwu-54",
+        "expected_rows": 68493,
+        "expected_slates": 54,
+        "panel_ids": [
+            f"20260813-sis-asoe-treatment-r{index}-v1" for index in range(5)
+        ],
+        "seasons": [2023, 2024, 2025],
+        "prelock_row_hash": PRELOCK_ROW_HASH,
+        "prelock_candidate_summary": dict(EXPECTED_PRELOCK_SUMMARY),
+        "outcome_columns_excluded": [
+            "replay_candidates.actual_score",
+            "replay_candidates.actual_rank",
+            "slate_player_features.actual",
+        ],
+    }
+    source = json.loads((
+        ROOT / "reports/exact-p-corrected-identity-runs/"
+        "20260815-exact-p-corrected-identities-v1/full/report.json"
+    ).read_text(encoding="utf-8"))
+    exact_p = {
+        "uri": EXACT_P_URI,
+        "generation": EXACT_P_GENERATION,
+        "sha256": EXACT_P_SHA256,
+        "object": source,
+    }
+    return manifest, completion, frozen, exact_p
+
+
+def test_capacity_source_binding_requires_complete_immutable_sources():
+    manifest, completion, frozen, exact_p = _capacity_sources()
+
+    result = validate_capacity_source_binding(
+        manifest,
+        completion,
+        frozen,
+        EXPECTED_PRELOCK_SUMMARY,
+        exact_p,
+    )
+
+    assert result["disposition"] == "valid-immutable-capacity-sources"
+    assert result["prelock_candidate_rows"] == 68493
+    assert result["new_book_slate_cells"] == 2430
+    assert result["exact_p_slates"] == 54
+    assert result["uses_realized_outcome_values"] is False
+    assert result["capacity_statistics_computed"] is False
+
+
+def test_capacity_source_binding_rejects_prelock_or_exact_p_drift():
+    manifest, completion, frozen, exact_p = _capacity_sources()
+    observed = dict(EXPECTED_PRELOCK_SUMMARY)
+    observed["row_count"] -= 1
+    with pytest.raises(ValueError, match="prelock identity differs"):
+        validate_capacity_source_binding(
+            manifest, completion, frozen, observed, exact_p,
+        )
+
+    manifest, completion, frozen, exact_p = _capacity_sources()
+    exact_p["object"]["records"][0]["players"] = ["duplicate"] * 9
+    with pytest.raises(ValueError, match="source bytes differ"):
+        validate_capacity_source_binding(
+            manifest,
+            completion,
+            frozen,
+            EXPECTED_PRELOCK_SUMMARY,
+            exact_p,
+        )
