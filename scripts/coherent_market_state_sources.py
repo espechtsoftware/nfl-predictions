@@ -34,6 +34,12 @@ SUPPORT = Path(
 SUPPORT_SHA256 = (
     "677171a16e339083b2eb1272926e9024ecab63b531ecc861d5237f94e61c0e63"
 )
+EXECUTION_PROTOCOL = Path(
+    "reports/2026-08-17-coherent-market-state-execution-protocol.md"
+)
+EXECUTION_PROTOCOL_SHA256 = (
+    "0dd8175e88c9e01c29971663e0455f83b3d693c97b34f8bf8de2b2d054fafcbd"
+)
 TRANSFER_REPORT = Path(
     "reports/atlas-money-transfer-runs/"
     "20260815-atlas-current-money-transfer-v1/report.json"
@@ -98,6 +104,7 @@ def validate_local_sources() -> dict[str, str]:
     expected = {
         str(PROTOCOL): PROTOCOL_SHA256,
         str(SUPPORT): SUPPORT_SHA256,
+        str(EXECUTION_PROTOCOL): EXECUTION_PROTOCOL_SHA256,
         str(TRANSFER_REPORT): TRANSFER_REPORT_SHA256,
         str(CBWU_REPORT): CBWU_REPORT_SHA256,
         str(REPAIR_VALIDATION): REPAIR_VALIDATION_SHA256,

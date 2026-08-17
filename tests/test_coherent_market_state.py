@@ -12,6 +12,8 @@ if SCRIPTS not in sys.path:
 
 from coherent_market_state_sources import (  # noqa: E402
     FORBIDDEN_QUERY_TOKENS,
+    EXECUTION_PROTOCOL,
+    EXECUTION_PROTOCOL_SHA256,
     PLAYER_SQL,
     PROTOCOL,
     PROTOCOL_SHA256,
@@ -235,6 +237,7 @@ def test_protocol_and_source_queries_are_hash_bound_and_outcome_free() -> None:
     hashes = validate_local_sources()
     assert hashes[str(PROTOCOL)] == PROTOCOL_SHA256
     assert hashes[str(SUPPORT)] == SUPPORT_SHA256
+    assert hashes[str(EXECUTION_PROTOCOL)] == EXECUTION_PROTOCOL_SHA256
     combined = f"{SOURCE_SQL}\n{PLAYER_SQL}".lower()
     assert not [token for token in FORBIDDEN_QUERY_TOKENS if token in combined]
 

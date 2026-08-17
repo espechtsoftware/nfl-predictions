@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 00:01 CDT
+## Current state — 2026-08-17 00:03 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -1283,6 +1283,18 @@ agent or developer:
   treatment effect or realized score exists. Next freeze its cloud execution
   transport before launch, then commit/push and validate through a clean
   archive build; execution remains queued behind strict ATLAS closure.
+  Its cloud boundary is now prospectively frozen at
+  `reports/2026-08-17-coherent-market-state-execution-protocol.md`, SHA-256
+  `0dd8175e88c9e01c29971663e0455f83b3d693c97b34f8bf8de2b2d054fafcbd`,
+  and is included in the source/aggregate hash bindings. It fixes 54 independent
+  4-CPU/16-GiB/four-hour tasks with Cloud task retries zero, an actual 2023
+  Week 1 final-path metadata-only canary before releasing 53, and at most one
+  unchanged external replacement solely for a literal zero-object platform
+  error. Every substantive or ambiguous failure is terminal. Strict ATLAS
+  closure remains its queue gate. No Cloud build or job has been submitted;
+  implement new mechanism-specific launcher/attempt/finisher scripts rather
+  than changing any attempt script whose hash is already bound by active
+  lattice/stack watchers.
   The handoff-only correction commits after that code are pushed through
   `f1e344bd1395d64ea5b530c2fb22c87bd402c902`. Superseding exact-archive
   Cloud Build `df158df9-ef83-4555-b5ea-0e254a7ea0bd` under create-only tag
