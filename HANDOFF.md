@@ -98,10 +98,10 @@ agent or developer:
   swap tests pass, both new sources compile and `git diff --check` passes. No
   result, runner, Cloud job, object or historical outcome exists. The exact
   protocol/pure-implementation milestone is commit
-  `75e6bf6d3b47b06693adf1312c29ba09e9b0368b`. Next: push it with this handoff,
-  then build the immutable source loader/shard runner/strict aggregator and
-  queue its score-free execution behind ATLAS without using the historical-
-  outcome lease.
+  `75e6bf6d3b47b06693adf1312c29ba09e9b0368b` and is pushed on `main` with
+  this handoff. Next: build the immutable source loader/shard runner/strict
+  aggregator and queue its score-free execution behind ATLAS without using
+  the historical-outcome lease.
 
 - An outcome-free live preflight caught and corrected the production-law
   dependence source-population defect before any source lock or outcome query
