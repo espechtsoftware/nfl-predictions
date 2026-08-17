@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 20:31 CDT
+## Current state — 2026-08-16 20:39 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -1478,6 +1478,29 @@ agent or developer:
   `stack-shell-support-672ba0f`; managed watcher session `51192` is bound to
   its exact build/code/tag identities. On success it retains the same strict
   ATLAS queue, real canary and bounded-attempt sequence.
+  The treatment queue is now executable through launch as well. A dedicated
+  attempt manager reuses the proven support-grid classifier but requires the
+  treatment-specific exact command/support arguments, 4-hour timeout and true
+  treatment-construction receipts; its independent validator binds all 54
+  primary cells, any literal platform replacements and the accepted ledger.
+  Seven focused support/treatment attempt and canary tests pass; this milestone
+  is pushed at `e2a69034e349c87b3d5dbe44fd8a0741eb41a2ad`. The create-only
+  launcher strictly validates the positive support report, completion, upload
+  object and accepted execution ledger before deploying the real canary, then
+  releases 53 only on its success. A separate treatment Docker/Cloud Build
+  path runs the full suite and smoke-checks the source loader, score-free
+  runner/aggregator, production-lock runner/aggregator and historical scorer
+  without constructing a treatment or querying a result. Thirty-one focused
+  stack tests plus shell/Python compilation and diff checks pass; this launch
+  milestone is pushed at exact commit
+  `d07f2a7a924dce6f6d97cc619d102d448e9e1eed`. Its inspected exact archive
+  SHA-256 is
+  `591c687468941e7717fdfc77628f54efce83ca31b6570904eeba723b20deb486`.
+  Regional validation build `34f7ab2f-6cd0-4e35-926f-bc2761fa2d8f` is queued
+  under create-only tag `stack-shell-treatment-d07f2a7`; status watcher session
+  `71849` is active. This build may validate in parallel, but support remains a
+  hard runtime gate and no treatment job/object exists. The strict treatment
+  finisher and managed treatment-to-lock watcher remain open.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).
