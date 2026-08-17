@@ -33,6 +33,7 @@ from run_recourse_aware_initial_scorefree import (  # noqa: E402
     SOURCE_PANELS,
     validate_local_sources,
 )
+from validate_recourse_aware_initial_canary import validate as validate_canary  # noqa: E402
 from nfl_dfs.analysis.constraint_lattice import REGISTERED_BLOCKS  # noqa: E402
 from nfl_dfs.analysis.recourse_aware_initial import (  # noqa: E402
     TAILS,
@@ -169,6 +170,118 @@ def test_execution_sources_are_frozen_outcome_free_and_packaged() -> None:
     ):
         assert f"COPY scripts/{name} ./scripts/{name}" in docker
         assert f"python scripts/{name} --help" in cloudbuild
+
+
+def _canary_metadata(execution: str) -> dict:
+    image = "example/image@sha256:" + "b" * 64
+    uri = (
+        "gs://nfl-predictions-503414-raw/research/"
+        f"recourse-aware-initial-book-runs/{RUN_ID}/slate-2023-1.json"
+    )
+    return {
+        "metadata": {"name": execution},
+        "spec": {
+            "parallelism": 1,
+            "taskCount": 1,
+            "template": {"spec": {
+                "containers": [{
+                    "image": image,
+                    "command": ["python"],
+                    "args": [
+                        "scripts/run_recourse_aware_initial_scorefree.py",
+                        "--season", "2023", "--week", "1",
+                        "--output-uri", uri,
+                    ],
+                    "env": [
+                        {"name": "CODE_SHA", "value": "a" * 40},
+                        {"name": "ANALYSIS_IMAGE", "value": image},
+                    ],
+                    "resources": {"limits": {"cpu": "4", "memory": "16Gi"}},
+                }],
+                "maxRetries": 0,
+                "timeoutSeconds": "14400",
+                "serviceAccountName": (
+                    "817589974517-compute@developer.gserviceaccount.com"
+                ),
+            }},
+        },
+        "status": {
+            "conditions": [{"type": "Completed", "status": "True"}],
+            "succeededCount": 1,
+            "failedCount": 0,
+            "retriedCount": 0,
+            "completionTime": "2026-08-17T12:00:00Z",
+        },
+    }
+
+
+def test_actual_final_path_canary_validates_without_aggregate_disclosure(
+    tmp_path: Path,
+) -> None:
+    execution = "recourse-initial-s2023-w1-v1-example"
+    uri = (
+        "gs://nfl-predictions-503414-raw/research/"
+        f"recourse-aware-initial-book-runs/{RUN_ID}/slate-2023-1.json"
+    )
+    manifest = tmp_path / "manifest.txt"
+    manifest.write_text("\n".join((
+        f"run_id={RUN_ID}",
+        f"output_prefix={uri.rsplit('/', 1)[0]}",
+        f"science_protocol_sha256={SCIENCE_PROTOCOL_SHA256}",
+        f"execution_protocol_sha256={EXECUTION_PROTOCOL_SHA256}",
+        "cbwu_report_sha256=556adeca6e0bf2855ad82296b1e708041a20446dc27e2c988c1d11e8c5bd4d33",
+        f"forensic_manifest_sha256={FORENSIC_MANIFEST_SHA256}",
+        "cpu=4", "memory=16Gi", "timeout_seconds=14400", "max_retries=0",
+        "uses_realized_outcomes=false", "production_change_licensed=false",
+        "historical_scoring_licensed=false", "code_sha=" + "a" * 40,
+        "image=example/image@sha256:" + "b" * 64,
+    )) + "\n", encoding="utf-8")
+    ledger = tmp_path / "executions.txt"
+    ledger.write_text(
+        f"2023 1 recourse-initial-s2023-w1-v1 {execution} {uri}\n",
+        encoding="utf-8",
+    )
+    execution_path = tmp_path / "execution.json"
+    execution_path.write_text(
+        json.dumps(_canary_metadata(execution)), encoding="utf-8",
+    )
+    shard_path = tmp_path / "shard.json"
+    shard_path.write_text(json.dumps(_shard(2023, 1)), encoding="utf-8")
+    object_path = tmp_path / "object.json"
+    object_path.write_text(json.dumps({
+        "generation": "123", "size": shard_path.stat().st_size,
+    }), encoding="utf-8")
+    result = validate_canary(
+        manifest, ledger, execution_path, object_path, shard_path,
+    )
+    assert result["disposition"] == "actual-final-path-canary-passes"
+    assert result["remaining_cells_released"] is False
+    assert result["outcome_fields_inspected"] is False
+    assert result["effect_fields_inspected"] is False
+
+
+def test_cloud_transport_is_exact_canary_gated_and_zero_retry() -> None:
+    launcher = (
+        ROOT / "scripts/cloud_recourse_aware_initial_scorefree.sh"
+    ).read_text(encoding="utf-8")
+    waiter = (
+        ROOT / "scripts/cloud_wait_recourse_aware_initial_canary.sh"
+    ).read_text(encoding="utf-8")
+    finisher = (
+        ROOT / "scripts/cloud_finish_recourse_aware_initial_scorefree.sh"
+    ).read_text(encoding="utf-8")
+    assert launcher.index("\ndeploy_and_run 2023 1\n") < launcher.index(
+        '\n"$CANARY_WAITER"\n'
+    ) < launcher.index("\nfor SEASON in 2023 2024 2025")
+    assert '--cpu 4 --memory 16Gi' in launcher
+    assert '--max-retries 0 --task-timeout 4h' in launcher
+    assert '"$(wc -l < "$EXECUTIONS")" = 54' in launcher
+    assert "queue awaits ATLAS historical closure" in launcher
+    assert "remaining_cells_released" in waiter
+    assert 'gcloud storage cp "$URI"' in waiter
+    assert 'retriedCount' in finisher
+    assert 'RECOURSE_INITIAL_STRICT_AGGREGATE_VALIDATED' in finisher
+    assert 'leave_one_slate_out_influence' in finisher
 
 
 def test_complete_population_strictly_aggregates(tmp_path: Path) -> None:
