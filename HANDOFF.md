@@ -221,10 +221,11 @@ agent or developer:
   (SHA-256
   `f986238a0919879944d4bddbb76855676fd5b96b5e20064f9797476cc20e5477`).
   Fifteen focused original/repair tests pass, both shell sources pass
-  `bash -n` and `git diff --check` passes. The exact next action is to commit
-  and push this frozen continuation, run the resume script in a durable
-  managed terminal, verify a 54-row primary ledger and `grid-release.txt`,
-  then monitor/strictly harvest all repair5 cells before opening any shard or
+  `bash -n` and `git diff --check` passes. The exact repair freeze is pushed
+  on `main` at commit `0c1c495ace8ea1a6ce3155c92d8f0f1f51cb926c`.
+  The exact next action is to run the resume script in a durable managed
+  terminal, verify a 54-row primary ledger and `grid-release.txt`, then
+  monitor/strictly harvest all repair5 cells before opening any shard or
   score-free effect.
 
 - The already accepted outcome-free impact/equivalence governance
