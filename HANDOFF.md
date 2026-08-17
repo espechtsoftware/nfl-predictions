@@ -28,7 +28,7 @@ agent or developer:
   exact-P census review is now prospectively frozen without launching compute
   or reading any new candidate identity, candidate score or outcome. Protocol
   `reports/2026-08-17-same-law-capacity-curve-protocol.md` has SHA-256
-  `328bed9c9d88d0eebdf36fed9b270c9838c4c62375e312ecc805564ca413e1f6`.
+  `fbde9ba133ff09bcf7c019bf2232be407e6599397258742392b5501e82047128`.
   It requires genuine independent Phase S treatment books and the complete
   nested `1x/2x/5x/10x` curve: existing R0--R4, then R0--R9, R0--R24 and
   R0--R49. The 1x population must reproduce the current native pre-lock
@@ -47,7 +47,18 @@ agent or developer:
   behind all already-active higher-priority mechanism chains and may not
   compete for the heavy-compute slot. Seed-ledger validation, both file hashes
   and `git diff --check` pass. No runner, build, job, output prefix or capacity
-  statistic exists.
+  statistic exists. Pure identity-only analysis is now implemented in
+  `src/nfl_dfs/research/same_law_capacity_curve.py`. It validates the exact
+  seed derivation, all 50 books on every slate, contiguous native identities,
+  complete legality, exact nested supersets, six-family and multi-family
+  saturation, player/pair/stack-core reach, identity-only exact-P distance,
+  structural summaries, season/scale summaries and distance/yield rankings.
+  It rejects candidate support/projection/selection fields as well as every
+  outcome/ownership/rank/payout field and emits only the non-adoptive
+  `complete-descriptive-capacity-curve` disposition. Five new synthetic tests
+  plus all seven existing exact-P census tests pass; both new Python sources
+  compile and `git diff --check` passes. No source loader, immutable runner,
+  build or cloud execution exists yet.
 
 - A direct reread of the operator-supplied
   `reports/2026-08-16-retry-narrowing-and-lattice-support-response.md`

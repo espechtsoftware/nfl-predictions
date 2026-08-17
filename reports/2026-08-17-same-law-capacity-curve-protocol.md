@@ -142,7 +142,9 @@ For every slate and each of 1x, 2x, 5x and 10x, report:
    cell and distinct yield per newly added book;
 2. for each of the six base families, raw membership, distinct roster
    identities, newly distinct identities, marginal yield per new book and the
-   slope from the preceding cell; multi-family candidates count in every
+   slope from the preceding cell. Marginal yield is newly distinct identities
+   divided by newly added books; slope is that value minus the preceding
+   nested step's marginal yield (null for 1x). Multi-family candidates count in every
    applicable family and are also disclosed separately;
 3. distinct player, unordered player-pair and QB-stack-core reach, plus the
    new reach at each scale. A stack core is the canonical QB ID together with
