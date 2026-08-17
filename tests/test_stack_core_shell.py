@@ -1,6 +1,16 @@
 from __future__ import annotations
 
+from pathlib import Path
+import sys
+
 import numpy as np
+
+ROOT = Path(__file__).resolve().parents[1]
+SCRIPTS = str(ROOT / "scripts")
+if SCRIPTS not in sys.path:
+    sys.path.insert(0, SCRIPTS)
+
+from aggregate_stack_core_shell_production_locks import validate_lock  # noqa: E402
 
 from nfl_dfs.analysis.stack_core_shell import (
     BEAM_LIMIT,
@@ -161,6 +171,12 @@ def test_production_form_uses_all_five_blocks_and_exact_80() -> None:
     assert len(result["treatment"]["candidate_lineups"]) == SHELL_LIMIT
     assert len(result["treatment"]["selected_lineups"]) == 80
     receipt = production_form_receipt(result, season=2023, week=1)
+    receipt["proposal_components"] = [{
+        "roster": sorted(str(player) for player in proposal.lineup.ids),
+        "core": list(proposal.core),
+        "shell": list(proposal.shell),
+        "rank": list(proposal.rank),
+    } for proposal in result["proposal_receipt"]["proposals"]]
     assert receipt["version"] == "stack-core-shell-production-form-lock-v1"
     assert receipt["uses_realized_outcomes"] is False
     assert receipt["actual_scores_queried"] is False
@@ -172,6 +188,15 @@ def test_production_form_uses_all_five_blocks_and_exact_80() -> None:
     assert receipt["beam_candidates"] == BEAM_LIMIT
     assert receipt["proposal_candidates"] == PROPOSAL_LIMIT
     assert len(receipt["proposal_rosters"]) == PROPOSAL_LIMIT
+    receipt["worlds_per_block"] = 10_000
+    validate_lock(receipt, 2023, 1)
+    receipt["proposal_counts"]["covered_core_shell_pairs"] = 58
+    try:
+        validate_lock(receipt, 2023, 1)
+    except ValueError as exc:
+        assert "proposal counts differ" in str(exc)
+    else:
+        raise AssertionError("under-covered production-form lock was accepted")
 
 
 def _fold(season: int, week: int, block: str, *, treatment_gain: int = 1) -> dict:

@@ -406,7 +406,7 @@ def aggregate(shard_paths: Sequence[Path]) -> dict[str, object]:
         "treatment_constructed": True,
         "effect_fields_inspected": True,
         "production_change_licensed": False,
-        "historical_scoring_licensed": False,
+        "historical_scoring_licensed": bool(gate["passes_scorefree_gate"]),
         "protocol_path": str(PROTOCOL),
         **common,
         "mechanical": {
