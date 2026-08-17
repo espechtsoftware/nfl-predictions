@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 01:40 CDT
+## Current state — 2026-08-17 02:07 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -47,13 +47,22 @@ agent or developer:
   candidate score, lineup score, rank, ownership or treatment effect was read.
   The exact amended source is pushed on `main` at
   `307850800dd458962fb98883831b4281522f10c2`. Superseding clean-archive Cloud
-  Build `2ddd0cb2-0c84-4d92-b329-6d1c10bd89fe` is queued under create-only tag
-  `production-law-dependence-3078508`; its immutable source object is
+  Build `2ddd0cb2-0c84-4d92-b329-6d1c10bd89fe` completed successfully at
+  `2026-08-17T06:58:57.907849Z`; the full repository suite, image build and all
+  real-container smokes passed. Its immutable image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:50fcef767d263a19d12d8f04a29ee7883cf5587a19df968e5a157d7299ba1d14`.
+  The immutable source object is
   `gs://nfl-predictions-503414_cloudbuild/source/1786948746.24705-8d58c8f561bc4b0d9021f1cc23cc953c.tgz`
-  generation `1786948770639774`. Durable watcher PID `1273069` (managed
-  session `59095`) will require the full suite and all real-container smokes,
-  launch/harvest the outcome-free source lock, then wait behind coherent
-  historical closure and the shared outcome lease before any outcome query.
+  generation `1786948770639774`. Outcome-free source-lock execution
+  `production-law-dep-source-lock-v1-2vkjv` completed successfully at
+  `2026-08-17T07:02:41.689811Z` and passed the strict harvester. The lock has
+  GCS generation `1786950155692968`, SHA-256
+  `7ede34b6d13dacb6645836a85ff35dc82f757331423e49f84537d710c500346c`
+  and disposition `valid-production-law-source-lock`; durable evidence is in
+  `reports/production-law-dependence-runs/20260817-production-law-dependence-source-lock-v1/`.
+  Durable watcher PID `1273069` (managed session `59095`) now waits behind
+  coherent historical closure, then must acquire the shared outcome lease
+  before any outcome query. The lease object remains absent.
 
 - Exact production-law dependence remeasurement is now prospectively frozen
   and implemented on `main` at
