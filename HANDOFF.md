@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 19:00 CDT
+## Current state — 2026-08-16 20:10 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -1399,6 +1399,26 @@ agent or developer:
   to be implemented; neither can launch before the upstream score-free license.
   The pure scoring milestone is pushed on `main` at exact commit
   `318433a7496bf4001776006f93f9d70e8215228a`.
+  Because that legitimate production-form extension changed a source file
+  bound by the earlier support image, the old `dbba33b` image and watcher were
+  retired before launch; no support run directory, job or object was created.
+  A superseding fail-fast exact archive was generated from pushed commit
+  `f07ba61a7e53e95c79cc1fcf4a7c848445d0359b`, inspected for all defining
+  support/scoring sources, and has SHA-256
+  `ca11ade91817310f3b1a3798ecc465cfde5682d74c1ad9f8ed6e1a6117045d4e`.
+  Regional Cloud Build `b5ee13ba-350c-46dd-b54b-e00aa39b7bbd` is validating
+  it under create-only tag `stack-shell-support-f07ba61`; at
+  `2026-08-17T01:10Z` it is `WORKING`. The first replacement watcher attempt
+  correctly launched nothing but exposed that its `gcloud builds describe`
+  calls omitted `--region=us-central1`, causing a false not-found result.
+  Every local stack-support build lookup now binds the region; shell syntax
+  and diff checks pass and the transport-only repair is pushed at commit
+  `1e261f07d45ec64819aaf51a1fdf8578c24c1e5c`. Replacement managed watcher
+  session `19956` is attached to the exact build/code/tag identities and is
+  polling the build. On build success it must still wait for strict ATLAS
+  closure, then run only the frozen real 2023 Week 1 canary before releasing
+  the remaining 53 cells. Do not edit any source in the launcher's exact-file
+  list or substitute the older image while this watcher is active.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).
