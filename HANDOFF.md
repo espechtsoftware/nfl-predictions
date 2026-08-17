@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 06:16 CDT
+## Current state — 2026-08-17 06:25 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -169,6 +169,20 @@ agent or developer:
   `f93bc17d0dfd6ab63c8b85dde7da524be9b2a9a363c2dd8b423484fc5c4169c5`
   with `mechanical_passes=true` and zero failures. Do not rerun them: their
   result is already harvested and remains materially Monte Carlo sensitive.
+
+- ATLAS repair5 grid throughput is currently constrained by the regional
+  Cloud Run allocation quotas, not by the 1,000-execution count limit. At
+  `2026-08-17T11:25Z`, `us-central1` grants 200,000 milli-vCPU (200 vCPU)
+  and 429,496,729,600 bytes (400 GiB); the latter permits only twelve
+  32-GiB ATLAS cells concurrently. Two eligible temporary quota preferences
+  were submitted without changing the frozen job resources or workload:
+  `atlas-temp-cpu-us-central1` requests 500,000 milli-vCPU, trace
+  `ca6db77b-e3a8-4d96-b16b-6b5d950a5b68`, and
+  `atlas-temp-memory-us-central1` requests 1,932,735,283,200 bytes
+  (1,800 GiB), trace `52a70335-cec1-44eb-82de-e99305404938`. Both remain
+  `reconciling=true` at their old granted values. Approval would let the
+  fixed 53-cell post-canary grid run substantially more concurrently; it
+  neither increases the number of cells nor changes any scientific law.
 
 - The already accepted outcome-free impact/equivalence governance
   recommendation is now implemented. Protocol
