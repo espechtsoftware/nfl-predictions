@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 20:39 CDT
+## Current state — 2026-08-16 20:43 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -1501,6 +1501,23 @@ agent or developer:
   `71849` is active. This build may validate in parallel, but support remains a
   hard runtime gate and no treatment job/object exists. The strict treatment
   finisher and managed treatment-to-lock watcher remain open.
+  Those two transport gaps are now closed. The strict Python finisher verifies
+  the launch/source/support bindings, complete accepted attempt set, exact
+  execution contract and every positive object generation/size before
+  downloading a shard; only then does it invoke the frozen aggregate, derive
+  the gate, and create the report/completion objects. The completion exposes
+  `historical_scoring_licensed=true` only on the positive frozen disposition
+  and binds the exact accepted ledger required by the downstream lock runner.
+  A focused finisher source/support-binding test passes along with compilation
+  and diff checks; this is pushed at
+  `6427fe2bb5daf3ca747ed9cd6e5496d788fb83ab`. The managed watcher now carries
+  treatment build -> positive support -> actual canary -> 54 primaries ->
+  bounded attempt resolution -> strict harvest without user input. It is
+  pushed at `66df0310c0f7a01eb548dbfe04c522d461a468ff` and active as
+  managed session `57790`, bound to treatment build `34f7ab2f...`, source
+  `d07f2a7...` and tag `stack-shell-treatment-d07f2a7`. The build is queued
+  behind the support validation; even after it passes, the watcher cannot
+  launch treatment until the independent support completion is positive.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).
