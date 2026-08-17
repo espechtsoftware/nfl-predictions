@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 20:53 CDT
+## Current state — 2026-08-16 21:10 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -1579,9 +1579,13 @@ agent or developer:
   `bash -n`, and diff checks pass. Managed historical watcher session `46996`
   is waiting for lock completion. No historical scorer job, report or outcome
   query exists.
-  At `2026-08-16T20:51:38 CDT`, exact ATLAS preflight execution
+  At `2026-08-16T21:10 CDT`, exact ATLAS preflight execution
   `atlas-cbc-32g-full-2023-w8-v1-lbzjd` remains `Completed=Unknown` with one
-  running task. Managed preflight watcher `40372`, stack-support watcher
+  running task. Operational logs only--no shard or effect--show exact seed
+  completion markers R0 at `20:43:04Z`, R1 at `22:24:11Z`, R2 at
+  `00:15:24Z` and R3 at `01:49:42Z`; R4 remains. Treatment build
+  `34f7ab2f-6cd0-4e35-926f-bc2761fa2d8f` remains `WORKING`. Managed preflight
+  watcher `40372`, stack-support watcher
   `51192`, constraint-lattice watcher `31402` and stack-treatment watcher
   `57790` remain active. No partial ATLAS shard/effect, lattice effect,
   support shard or treatment shard has been inspected. Next concrete action:
