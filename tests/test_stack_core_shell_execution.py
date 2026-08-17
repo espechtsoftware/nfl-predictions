@@ -109,28 +109,49 @@ def _rank() -> dict:
 
 def _fold() -> dict:
     control = [_roster(f"control-{index}") for index in range(80)]
-    treatment = [*control[:79], _roster("proposal-0")]
     cores = [{
-        "players": [f"core-{index}-{slot}" for slot in range(4)],
+        "players": list(control[index][:4]),
         "rank": [1.0] * 7,
-        "parent": _roster(f"parent-core-{index}"),
-        "qb": f"qb-{index // 4}",
+        "parent": list(control[index]),
+        "qb": control[index][0],
         "game": f"game-{index // 8}",
     } for index in range(32)]
     shells = [{
-        "players": [f"shell-{index}-{slot}" for slot in range(5)],
+        "players": list(
+            control[index // 2][:5]
+            if index % 2 == 0 else control[index // 2][4:]
+        ),
         "rank": [1.0] * 7,
-        "parent": _roster(f"parent-shell-{index}"),
+        "parent": list(control[index // 2]),
     } for index in range(128)]
     proposals = []
+    used_rosters = set()
+    used_pairs = set()
+    control_rosters = {tuple(row) for row in control}
     for index in range(40):
-        roster = _roster(f"proposal-{index}")
+        core = cores[index % len(cores)]["players"]
+        shell = next(
+            row["players"] for row in shells
+            if not set(core) & set(row["players"])
+            and tuple(sorted([*core, *row["players"]])) not in used_rosters
+            and tuple(sorted([*core, *row["players"]])) not in control_rosters
+            and ({
+                tuple(sorted((left, right)))
+                for left in core for right in row["players"]
+            } - used_pairs or index == 0)
+        )
+        roster = sorted([*core, *shell])
+        used_rosters.add(tuple(roster))
+        used_pairs.update(
+            tuple(sorted((left, right))) for left in core for right in shell
+        )
         proposals.append({
             "roster": roster,
-            "core": roster[:4],
-            "shell": roster[4:],
+            "core": core,
+            "shell": shell,
             "rank": [1.0] * 7,
         })
+    treatment = [*control[:79], proposals[0]["roster"]]
     counts = {
         str(int(line)): 100 for line in REPORT_THRESHOLDS
     }
@@ -160,7 +181,7 @@ def _fold() -> dict:
             "existing_control_crosses": 10,
             "duplicate_crosses": 20,
             "unique_recombinants": 256,
-            "covered_core_shell_pairs": 59,
+            "covered_core_shell_pairs": len(used_pairs),
         },
         "threshold_counts": {
             layer: {book: dict(counts) for book in ("control", "treatment")}
@@ -187,7 +208,9 @@ def _fold() -> dict:
             "discovered_shells": 128,
             "retained_cores": 32,
             "retained_shells": 128,
-            "core_qb_counts": {f"qb-{index}": 4 for index in range(8)},
+            "core_qb_counts": {
+                control[index][0]: 1 for index in range(32)
+            },
             "core_game_counts": {f"game-{index}": 8 for index in range(4)},
             "cores": cores,
             "shells": shells,
@@ -221,3 +244,36 @@ def test_strict_fold_validator_rejects_unbound_admitted_roster() -> None:
         assert "admitted proposal binding differs" in str(exc)
     else:
         raise AssertionError("unbound treatment roster was accepted")
+
+
+def test_strict_fold_validator_binds_library_counts_and_components() -> None:
+    row = _fold()
+    qb_counts = row["component_library"]["core_qb_counts"]
+    value = qb_counts.pop(next(iter(qb_counts)))
+    qb_counts["fictional-qb"] = value
+    try:
+        _validate_fold(row, season=2023, week=1, block="R0")
+    except ValueError as exc:
+        assert "component identity repeats" in str(exc)
+    else:
+        raise AssertionError("unbound core QB counts were accepted")
+
+    row = _fold()
+    row["proposals"][0]["core"] = sorted(["not", "a", "retained", "core"])
+    try:
+        _validate_fold(row, season=2023, week=1, block="R0")
+    except ValueError as exc:
+        assert "proposal receipt differs" in str(exc)
+    else:
+        raise AssertionError("unbound proposal component was accepted")
+
+
+def test_strict_fold_validator_binds_reported_pair_coverage() -> None:
+    row = _fold()
+    row["proposal_counts"]["covered_core_shell_pairs"] += 1
+    try:
+        _validate_fold(row, season=2023, week=1, block="R0")
+    except ValueError as exc:
+        assert "proposal counts differ" in str(exc)
+    else:
+        raise AssertionError("incorrect proposal pair coverage was accepted")

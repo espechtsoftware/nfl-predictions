@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 from collections.abc import Mapping, Sequence
 import json
 import math
@@ -63,7 +64,8 @@ def _validate_rosters(rows, expected: int, name: str) -> None:
     normalized = []
     for roster in rows:
         if not isinstance(roster, list) or len(roster) != 9 or \
-                len({str(value) for value in roster}) != 9:
+                len({str(value) for value in roster}) != 9 or \
+                roster != sorted(str(value) for value in roster):
             raise ValueError(f"stack-core/shell {name} roster differs")
         normalized.append(tuple(str(value) for value in roster))
     if len(set(normalized)) != expected:
@@ -163,41 +165,78 @@ def _validate_fold(
             max(library["core_qb_counts"].values()) > 4 or \
             max(library["core_game_counts"].values()) > 8:
         raise ValueError("stack-core/shell component library differs")
+    retained_core_ids = set()
+    retained_shell_ids = set()
+    observed_qb_counts: Counter[str] = Counter()
+    observed_game_counts: Counter[str] = Counter()
     for component in library["cores"]:
         if set(component) != {"players", "rank", "parent", "qb", "game"} or \
-                len(component["players"]) != 4 or len(set(component["players"])) != 4 or \
-                len(component["parent"]) != 9 or len(set(component["parent"])) != 9 or \
+                len(component["players"]) != 4 or \
+                component["players"] != sorted(component["players"]) or \
+                len(set(component["players"])) != 4 or \
+                len(component["parent"]) != 9 or \
+                component["parent"] != sorted(component["parent"]) or \
+                len(set(component["parent"])) != 9 or \
+                not set(component["players"]) <= set(component["parent"]) or \
+                tuple(component["parent"]) not in candidate_control or \
                 len(component["rank"]) != 7 or not component["qb"] or not component["game"] or \
+                component["qb"] not in component["players"] or \
                 any(not math.isfinite(float(value)) for value in component["rank"]):
             raise ValueError("stack-core/shell core receipt differs")
+        retained_core_ids.add(tuple(component["players"]))
+        observed_qb_counts[str(component["qb"])] += 1
+        observed_game_counts[str(component["game"])] += 1
     for component in library["shells"]:
         if set(component) != {"players", "rank", "parent"} or \
-                len(component["players"]) != 5 or len(set(component["players"])) != 5 or \
-                len(component["parent"]) != 9 or len(set(component["parent"])) != 9 or \
+                len(component["players"]) != 5 or \
+                component["players"] != sorted(component["players"]) or \
+                len(set(component["players"])) != 5 or \
+                len(component["parent"]) != 9 or \
+                component["parent"] != sorted(component["parent"]) or \
+                len(set(component["parent"])) != 9 or \
+                not set(component["players"]) <= set(component["parent"]) or \
+                tuple(component["parent"]) not in candidate_control or \
                 len(component["rank"]) != 7 or any(
                     not math.isfinite(float(value)) for value in component["rank"]
                 ):
             raise ValueError("stack-core/shell shell receipt differs")
-    if len({tuple(value["players"]) for value in library["cores"]}) != CORE_LIMIT or \
-            len({tuple(value["players"]) for value in library["shells"]}) != SHELL_LIMIT:
+        retained_shell_ids.add(tuple(component["players"]))
+    if len(retained_core_ids) != CORE_LIMIT or \
+            len(retained_shell_ids) != SHELL_LIMIT or \
+            dict(sorted(observed_qb_counts.items())) != library["core_qb_counts"] or \
+            dict(sorted(observed_game_counts.items())) != library["core_game_counts"]:
         raise ValueError("stack-core/shell component identity repeats")
     if row.get("beam_candidates") != BEAM_LIMIT or \
             row.get("proposal_candidates") != PROPOSAL_LIMIT or \
             len(row.get("proposals", [])) != PROPOSAL_LIMIT:
         raise ValueError("stack-core/shell proposal book differs")
     proposals = row["proposals"]
+    covered_pairs = set()
+    proposal_contract_differs = False
+    for index, value in enumerate(proposals):
+        core = tuple(value.get("core", ()))
+        shell = tuple(value.get("shell", ()))
+        new_pairs = {
+            tuple(sorted((str(left), str(right))))
+            for left in core for right in shell
+        } - covered_pairs
+        if index > 0 and not new_pairs:
+            proposal_contract_differs = True
+        covered_pairs.update(new_pairs)
     if len({tuple(value.get("roster", ())) for value in proposals}) != PROPOSAL_LIMIT or any(
         set(value) != {"roster", "core", "shell", "rank"}
         or len(value["roster"]) != 9 or value["roster"] != sorted(value["roster"])
-        or len(value["core"]) != 4
-        or len(value["shell"]) != 5
+        or len(value["core"]) != 4 or value["core"] != sorted(value["core"])
+        or len(value["shell"]) != 5 or value["shell"] != sorted(value["shell"])
+        or tuple(value["core"]) not in retained_core_ids
+        or tuple(value["shell"]) not in retained_shell_ids
         or set(value["core"]) & set(value["shell"])
         or set(value["roster"]) != set(value["core"]) | set(value["shell"])
         or tuple(value["roster"]) in candidate_control
         or len(value["rank"]) != 7
         or any(not math.isfinite(float(number)) for number in value["rank"])
         for value in proposals
-    ):
+    ) or proposal_contract_differs:
         raise ValueError("stack-core/shell proposal receipt differs")
     proposal_rosters = {tuple(value["roster"]) for value in proposals}
     if not candidate_treatment - candidate_control <= proposal_rosters:
@@ -210,8 +249,8 @@ def _validate_fold(
             proposal_counts["unique_recombinants"] < BEAM_LIMIT or \
             proposal_counts["legal_crosses"] < \
             proposal_counts["unique_recombinants"] or \
-            proposal_counts["covered_core_shell_pairs"] < \
-            (20 + PROPOSAL_LIMIT - 1):
+            proposal_counts["covered_core_shell_pairs"] != len(covered_pairs) or \
+            len(covered_pairs) < (20 + PROPOSAL_LIMIT - 1):
         raise ValueError("stack-core/shell proposal counts differ")
 
     thresholds = row.get("threshold_counts")

@@ -226,7 +226,7 @@ EXEC=$(gcloud run jobs execute "$JOB" --project "$PROJECT" --region "$REGION" \
   echo "ERROR: stack-core/shell canary execution identity missing" >&2; exit 2; }
 printf '%s %s %s %s %s\n' "$SEASON" "$WEEK" "$JOB" "$EXEC" "$URI" \
   >> "$EXECUTIONS"
-"$CANARY"
+bash "$CANARY"
 
 for SEASON in 2023 2024 2025; do
   for WEEK in $(seq 1 18); do

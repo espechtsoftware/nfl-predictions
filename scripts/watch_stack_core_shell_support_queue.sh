@@ -41,7 +41,7 @@ DIGEST=$(gcloud builds describe "$BUILD_ID" --project "$PROJECT" \
 IMAGE="${TAG%:*}@${DIGEST}"
 
 while [ ! -e "$OUT" ]; do
-  "$ROOT/scripts/cloud_stack_core_shell_support_census.sh" \
+  bash "$ROOT/scripts/cloud_stack_core_shell_support_census.sh" \
     "$IMAGE" "$CODE_SHA" "$BUILD_ID"
   RC=$?
   if [ "$RC" -eq 0 ]; then
@@ -81,4 +81,4 @@ case "$DISPOSITION" in
     ;;
 esac
 
-"$ROOT/scripts/cloud_finish_stack_core_shell_support_census.sh"
+bash "$ROOT/scripts/cloud_finish_stack_core_shell_support_census.sh"

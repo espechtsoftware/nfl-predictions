@@ -152,7 +152,7 @@ def test_support_launcher_uses_real_path_canary_and_atlas_queue() -> None:
     assert "stack-shell-support-s2023-w1-v1" in canary
     assert '--cpu 4 --memory 16Gi' in launcher
     assert '--max-retries 0 --task-timeout 2h' in launcher
-    assert launcher.index('"$CANARY"') < launcher.index(
+    assert launcher.index('bash "$CANARY"') < launcher.index(
         "for SEASON in 2023 2024 2025"
     )
     assert 'gcloud run jobs executions list --job "$JOB"' in canary
@@ -184,6 +184,10 @@ def test_support_launcher_uses_real_path_canary_and_atlas_queue() -> None:
     ):
         assert f"id: {step}" in cloudbuild
     assert 'IMAGE="${TAG%:*}@${DIGEST}"' in watcher
+    assert 'bash "$ROOT/scripts/cloud_stack_core_shell_support_census.sh"' \
+        in watcher
+    assert 'bash "$ROOT/scripts/cloud_finish_stack_core_shell_support_census.sh"' \
+        in watcher
     assert "manage_stack_core_shell_support_attempts.py" in watcher
     assert "cloud_finish_stack_core_shell_support_census.sh" in watcher
     assert "accepted-population-with-platform-replacements" in watcher

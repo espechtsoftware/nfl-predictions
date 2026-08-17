@@ -1313,10 +1313,20 @@ agent or developer:
   nonempty and inspected for all four defining support files; its archive SHA
   is `b7d034083c06ec816c722aac93a1901401078e34b4775a2dd3a18d0c582b42c2`.
   Authoritative isolated Cloud Build
-  `484fbc6b-5017-4687-9686-1766cd7a9be3` is queued under create-only tag
-  `stack-shell-support-dbba33b`; managed watcher session `90839` is active.
-  On build success it must remain at the strict ATLAS closure gate before any
-  support canary or population launch.
+  `484fbc6b-5017-4687-9686-1766cd7a9be3` completed successfully under
+  create-only tag `stack-shell-support-dbba33b`: 1,680 tests passed, 2 skipped
+  and 5 warnings in 909.96 seconds, all three real-container smokes passed,
+  and the sole immutable digest is
+  `sha256:d9270bcc6d781defbd716e94e295c579d20e59862584f1a7fc0e31a14f1f9543`.
+  Managed watcher session `90839` then exposed a local transport-only defect:
+  the new shell launchers are tracked mode 0644 and direct execution returned
+  code 126. No support run directory, Cloud Run job, canary or object was
+  created. The watcher, launcher-to-canary and watcher-to-finisher edges now
+  invoke those immutable shell sources explicitly through `bash`; the source
+  bytes bound inside the successful support image remain unchanged. Restart
+  the watcher with this same build/digest and exact image source `dbba33b...`;
+  it must remain at the strict ATLAS closure gate before any support canary or
+  population launch.
   While that support-only image validates, the later treatment runner and
   aggregator have been implemented without constructing a treatment or
   reading any support result. Every treatment shard must download the one
@@ -1336,6 +1346,15 @@ agent or developer:
   launch this treatment until the independent support census passes and its
   exact report/completion hashes can be frozen into a separate treatment
   execution protocol.
+  Before that future treatment launch, its strict aggregate validator was
+  strengthened without changing treatment construction or any gate. It now
+  independently requires sorted roster/component identities, proves every
+  retained core/shell is a subset of an actual control parent, recomputes the
+  exact QB/game cap counts from the 32 retained cores, binds every proposal to
+  one of the retained 32/128 components, and recomputes both sequential pair
+  expansion and the exact reported cross-pair total. Nineteen focused stack
+  construction/support/attempt/execution tests pass; Python compilation, all
+  four shell syntax checks and `git diff --check` pass.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).
