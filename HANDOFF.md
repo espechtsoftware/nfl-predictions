@@ -113,6 +113,9 @@ agent or developer:
   The implementation report is
   `reports/2026-08-17-dst-d0-event-frame-implementation.md`, SHA-256
   `d77f29cfc6433ccd363d9284a49e2b1754c66594f9f4a0e758a303587bab4d6a`.
+  The implementation, tests, report and associated handoff are committed and
+  pushed on `main` at exact commit
+  `cd6bf19ce8b459b6050b84aee1968c26f3000460`.
   The focused event/scoring/feature/recourse/research suite passes with one
   existing skip; compile and diff checks pass. Both the prospective table SQL
   and the existing `DST_TAIL_SQL` consumer composed against that schema pass
