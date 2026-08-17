@@ -123,6 +123,9 @@ def test_support_cloud_transport_is_strict_and_atlas_queue_gated() -> None:
     ).read_text(encoding="utf-8")
     docker = (ROOT / "Dockerfile").read_text(encoding="utf-8")
     cloudbuild = (ROOT / "cloudbuild.yaml").read_text(encoding="utf-8")
+    watcher = (
+        ROOT / "scripts/watch_constraint_lattice_support_queue.sh"
+    ).read_text(encoding="utf-8")
     for name in (
         "run_constraint_lattice_support_census.py",
         "aggregate_constraint_lattice_support_census.py",
@@ -147,6 +150,8 @@ def test_support_cloud_transport_is_strict_and_atlas_queue_gated() -> None:
     ) < launcher.index("for SEASON in 2023 2024 2025")
     assert "accepted-executions.txt" in finisher
     assert "lattice-support job attempt population differs" in finisher
+    assert 'IMAGE="${TAG%:*}@${DIGEST}"' in watcher
+    assert 'IMAGE="${TAG%@*}@${DIGEST}"' not in watcher
 
 
 def test_resource_preflight_is_exact_full_cell_and_effect_blind() -> None:

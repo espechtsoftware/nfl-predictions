@@ -1203,6 +1203,18 @@ agent or developer:
   terminal session `96823`. It will fail closed on any build failure and
   otherwise retain the same ATLAS-closure, canary, 54-primary, bounded-attempt,
   support-harvest and conditional resource-preflight sequence.
+  That build completed successfully: 1,671 tests passed, 2 skipped and 5
+  warnings in 798.37 seconds; the image build and real-container smoke passed.
+  Its sole immutable digest is
+  `sha256:51782451d1850ba213cb1fb374f25fe5f53d1d518bcae6a521811719ef8a8179`.
+  The watcher then failed closed before the queue gate because `${TAG%@*}` did
+  not remove a colon-delimited tag and produced a tagged-plus-digest reference
+  rejected by the launcher's stricter canonical-digest regex. No Cloud Run job
+  or run directory was created. The transport-only repair uses `${TAG%:*}`;
+  its focused regression, shell syntax and diff checks pass. Restart the
+  watcher from this repaired source with the same successful build receipt and
+  canonical untagged digest; no build rerun is needed because the watcher is
+  local orchestration and the image/source commit remains exact `e6916de`.
   Resource harvesting is additionally fail-closed and terminal-complete at
   pushed commit `6452d18813994d575718767ed57593ddd5951e95`. The finisher now
   durably receipts strict success, configured-memory/SIGKILL failure, literal

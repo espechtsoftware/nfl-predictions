@@ -33,7 +33,7 @@ done
 DIGEST=$(gcloud builds describe "$BUILD_ID" --project "$PROJECT" \
   --format='value(results.images[0].digest)') || exit $?
 [[ "$DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]] || exit 2
-IMAGE="${TAG%@*}@${DIGEST}"
+IMAGE="${TAG%:*}@${DIGEST}"
 
 while [ ! -e "$SUPPORT" ]; do
   "$ROOT/scripts/cloud_constraint_lattice_support_census.sh" \
