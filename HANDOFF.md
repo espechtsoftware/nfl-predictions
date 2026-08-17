@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 00:42 CDT
+## Current state — 2026-08-17 00:44 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -1336,11 +1336,17 @@ agent or developer:
   above. The uploaded build archive was independently diffed against the
   actual commit and every available tracked file matched; only `.gitignore`,
   excluded by the upload ignore rules, was absent. No coherent-state run
-  directory, Cloud Run job or object was created. Restart the unchanged
-  watcher with the actual full SHA and the successful build/digest; it must
-  then remain at the strict ATLAS queue boundary. It cannot create the
-  coherent-state canary or any treatment object until an accepted ATLAS
-  closure receipt exists.
+  directory, Cloud Run job or object was created. Because the main checkout's
+  `Dockerfile` and `cloudbuild.yaml` were legitimately extended by the later
+  historical scorer, the byte-identical transport watcher now runs from
+  detached worktree `/tmp/nfl-coherent-cde9c60` at the exact validated commit;
+  only its live ATLAS closure directories and coherent output directory are
+  symlinked to this main checkout. Managed terminal session `7999`, PID
+  `1247398`, reached the intended `coherent-state queue awaits
+  repair5-failure parity closure` boundary at `2026-08-17T05:42:49Z`. The
+  superseded wrong-SHA watcher PID `1234226` was stopped. The active watcher
+  cannot create the coherent-state canary or any treatment object until an
+  accepted ATLAS closure receipt exists.
   Before that score-free build or any treatment result completed, the required
   realized-score interpretation was separately frozen at
   `reports/2026-08-17-coherent-market-state-historical-score-protocol.md`,
