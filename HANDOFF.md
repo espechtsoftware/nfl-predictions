@@ -110,6 +110,20 @@ agent or developer:
   replacement build step passes and the immutable-digest repair6 and
   historical-v4 watchers are durable.
 
+  Replacement build `8ad75af4-7d92-40d6-8b0b-a1b5070cffb0` is also
+  terminal `FAILURE` and ineligible: 1,813 tests passed, two skipped and only
+  the repair6 exact-diff proof failed. `git` was installed, but the clean
+  `git archive` correctly has no `.git` object database, so `git show` could
+  not retrieve the pinned repair5 source commit. The proof now falls back
+  only when history is unavailable by exactly reversing the frozen repair6
+  extension, after which the unchanged pinned repair5-source,
+  repair6-source and canonical-diff hashes must all match. A dedicated
+  no-history test plus the repair6/historical-v4 focused set pass (14 tests),
+  as do Python compilation and `git diff --check`. This is proof transport
+  only; the repair6 optimizer law, tolerances, protocol and all scientific
+  hashes are unchanged. Next: push the correction, validate it from a clean
+  archive, and submit a new exact-commit build.
+
 - The lower-priority same-law capacity question retained by the corrected
   exact-P census review is now prospectively frozen without launching compute
   or reading any new candidate identity, candidate score or outcome. Protocol

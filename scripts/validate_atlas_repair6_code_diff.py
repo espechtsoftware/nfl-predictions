@@ -37,11 +37,78 @@ def _digest(raw: bytes) -> str:
     return sha256(raw).hexdigest()
 
 
-def _repair5_source() -> bytes:
-    return subprocess.run(
-        ["git", "-C", str(ROOT), "show", f"{REPAIR5_CODE_SHA}:{RELATIVE}"],
-        check=True, capture_output=True,
-    ).stdout
+def _repair5_source(after: bytes) -> bytes:
+    try:
+        return subprocess.run(
+            ["git", "-C", str(ROOT), "show", f"{REPAIR5_CODE_SHA}:{RELATIVE}"],
+            check=True, capture_output=True,
+        ).stdout
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        # Cloud Build validates a clean ``git archive`` with no repository
+        # history. Reconstruct the exact repair5 source by reversing only the
+        # frozen repair6 extension, then let the pinned before/after/diff
+        # hashes below prove that the reconstruction is byte-exact.
+        source = after.decode("utf-8")
+        replacements = (
+            (
+                "EXACT_IDENTITY_TOLERANCE = 1e-6\n"
+                "EXACT_IDENTITY_TOLERANCES = (1e-6, 1e-5, 1e-4)\n",
+                "EXACT_IDENTITY_TOLERANCE = 1e-6\n",
+            ),
+            (
+                "        lineup = None\n"
+                "        identity_tolerance = None\n"
+                "        for tolerance in EXACT_IDENTITY_TOLERANCES:\n"
+                "            lineup = optimize(\n"
+                "                tied_players,\n"
+                "                stack=stack,\n"
+                "                objective_col=\"atlas_identity_score\",\n"
+                "                objective_floor_col=\"atlas_world_score\",\n"
+                "                objective_floor=optimum - tolerance,\n"
+                "                env=env,\n"
+                "            )\n"
+                "            if lineup is not None:\n"
+                "                identity_tolerance = tolerance\n"
+                "                break\n"
+                "        if lineup is None:\n"
+                "            raise RuntimeError(\n"
+                "                f\"ATLAS world {world} identity tiebreak is infeasible\"\n"
+                "            )\n"
+                "        if identity_tolerance is None:  # pragma: no cover - loop invariant\n"
+                "            raise AssertionError(\"ATLAS identity tolerance was not recorded\")\n",
+                "        lineup = optimize(\n"
+                "            tied_players,\n"
+                "            stack=stack,\n"
+                "            objective_col=\"atlas_identity_score\",\n"
+                "            objective_floor_col=\"atlas_world_score\",\n"
+                "            objective_floor=optimum - EXACT_IDENTITY_TOLERANCE,\n"
+                "            env=env,\n"
+                "        )\n"
+                "        if lineup is None:\n"
+                "            raise RuntimeError(\n"
+                "                f\"ATLAS world {world} identity tiebreak is infeasible\"\n"
+                "            )\n",
+            ),
+            (
+                "        if roster_score < optimum - identity_tolerance - 1e-8:\n",
+                "        if roster_score < optimum - EXACT_IDENTITY_TOLERANCE - 1e-8:\n",
+            ),
+            (
+                '            "identity_tolerance": identity_tolerance,\n',
+                '            "identity_tolerance": EXACT_IDENTITY_TOLERANCE,\n',
+            ),
+            (
+                '    "EXACT_IDENTITY_TOLERANCES",\n',
+                "",
+            ),
+        )
+        for current, repair5 in replacements:
+            if source.count(current) != 1:
+                raise RuntimeError(
+                    "ATLAS repair6 clean-archive reconstruction differs"
+                )
+            source = source.replace(current, repair5)
+        return source.encode("utf-8")
 
 
 def _canonical_diff(before: bytes, after: bytes) -> bytes:
@@ -54,8 +121,8 @@ def _canonical_diff(before: bytes, after: bytes) -> bytes:
 
 
 def validate() -> dict[str, Any]:
-    before = _repair5_source()
     after = (ROOT / RELATIVE).read_bytes()
+    before = _repair5_source(after)
     protocol = (ROOT / PROTOCOL).read_bytes()
     diff = _canonical_diff(before, after)
     observed = {
