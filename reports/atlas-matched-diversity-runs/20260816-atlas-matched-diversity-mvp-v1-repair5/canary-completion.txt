@@ -1,0 +1,11 @@
+validated_at=2026-08-17T12:54:02.189885Z
+status=True
+disposition=real-path-canary-passes
+execution=atlas-md-s2023-w1-r5-45nvf
+cell=2023-1
+remaining_cells_released=false
+object_content_inspected=false
+effect_fields_inspected=false
+uses_realized_outcomes=false
+execution_metadata_sha256=93a48115a6b5fa720e4c9abb3a46d6835177ac6f8631efb7112f5633fa09d781
+object_metadata_sha256=bd8f849e980601cf5aef2aa6bd329caf56306099a43b2ae5f1bae74613dbfd80

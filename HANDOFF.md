@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 08:03 CDT
+## Current state — 2026-08-17 08:11 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -227,6 +227,31 @@ agent or developer:
   terminal, verify a 54-row primary ledger and `grid-release.txt`, then
   monitor/strictly harvest all repair5 cells before opening any shard or
   score-free effect.
+
+  That continuation has now executed successfully. At
+  `2026-08-17T13:03:53Z`, the unchanged original validator passed execution
+  `atlas-md-s2023-w1-r5-45nvf` under the exact-argv wrapper and wrote the
+  valid score-blind canary receipt; `canary_rerun=false`. The remaining 53
+  frozen cells were then deployed and submitted, and `grid-release.txt` was
+  sealed at `2026-08-17T13:08:38Z`. The tracked primary ledger now contains
+  all 54 unique cells and executions, from the retained canary through final
+  execution `atlas-md-s2025-w18-r5-2n8gb`; ledger SHA-256 is
+  `1d9493c5608fc00abba7adb3436117c29f07c8167025dbb1ba1de97b45c12b50`.
+  Canary-completion SHA-256 is
+  `454e3648f3a9cfeafafad1f5183cbae73908de4831313055ad150689fa7ee28e`
+  and grid-release SHA-256 is
+  `436bd49f413b9e84282c9765344b0cb23ca264c8eb172940cd5f63b6639c0f13`.
+  The failed validator metadata and receipt are preserved under
+  `canary-validator-attempt0/`; receipt SHA-256 is
+  `0a07b0cf77c2f67f61090c8be100885b4cf690340759b9068ddf8121b341066e`.
+  Immediately after release, the mechanical population was one terminal
+  successful canary and 53 nonterminal executions, with no missing execution
+  metadata and exactly one cloud object. No shard body or effect was opened.
+  Durable strict watcher PID `1440734` (managed terminal session `67004`) is
+  active and reported `running=53` at `2026-08-17T13:10:32Z`. It will resolve
+  the bounded-attempt ledger and strictly harvest only after the population
+  is terminal. Next: status-only polling; do not manually harvest, score or
+  launch another heavy mechanism while repair5 remains active.
 
 - The already accepted outcome-free impact/equivalence governance
   recommendation is now implemented. Protocol
