@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 02:20 CDT
+## Current state — 2026-08-17 02:33 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -35,11 +35,18 @@ agent or developer:
   unchanged external replacement for a literal zero-object Cloud Run platform
   error; memory, timeout, solver, signal, ambiguous and object-bearing failures
   remain scientific terminal data. No protocol or code change was warranted
-  by this reread. At `2026-08-17 02:20 CDT`, canary execution
+  by this reread. At `2026-08-17 02:33 CDT`, canary execution
   `atlas-md-s2023-w1-r5-45nvf` remains healthy/nonterminal with one running
-  task and `Completed=Unknown`; `grid-release.txt` remains absent. No partial
-  shard, seed or effect was opened. All nine durable ATLAS/lattice/stack/
-  coherent/dependence watcher PIDs remain alive.
+  task, `Completed=Unknown` and zero ERROR log rows; `grid-release.txt` remains
+  absent. No partial shard, seed or effect was opened. All nine durable
+  ATLAS/lattice/stack/coherent/dependence watcher PIDs remain alive. The exact
+  twelve incumbent seed-variance replay executions were also re-described in
+  Cloud Run and all remain terminal successful; repaired analyzer
+  `analyze-incumbent-seed-variance-v1-qh9l8` remains successful and the
+  retained report still hashes to
+  `f93bc17d0dfd6ab63c8b85dde7da524be9b2a9a363c2dd8b423484fc5c4169c5`
+  with `mechanical_passes=true` and zero failures. Do not rerun them: their
+  result is already harvested and remains materially Monte Carlo sensitive.
 
 - The already accepted outcome-free impact/equivalence governance
   recommendation is now implemented. Protocol
@@ -61,6 +68,39 @@ agent or developer:
   `4bbb4f5f01c4bef7667eff9894a8146cd703f055` and is pushed on `main` with
   this handoff. Next: continue status-only ATLAS polling and leave every gated
   outcome mechanism serialized behind its frozen prerequisites.
+
+- The distinct recourse-aware **initial-construction** insertion point is now
+  frozen before implementation output at
+  `reports/2026-08-17-recourse-aware-initial-book-scorefree-protocol.md`,
+  SHA-256
+  `0085b5f77b4e859982fc4f664161cdafe2bb6ec07ea0351fb618ddf58319c077`.
+  This does not retry the failed historical tail-aware late-swap policy: that
+  test started from the ordinary initial book, whereas this treatment selects
+  the initial exact-80 book for the legal late-game alternatives it preserves.
+  The bounded v1 precursor uses the same train-four/test-one CBWU-OI candidate
+  pool, R0 budget, player worlds and exact 3:55 PM Eastern decision. Exact
+  reachability preserves kickoff-locked players in their DraftKings slots,
+  rejects insertion of any already-started player, solves open-slot/FLEX
+  eligibility, retains at most the already-frozen 24 alternatives and always
+  keeps the initial roster as fail-safe. The treatment greedily maximizes the
+  reachable-union 240/230/220/210/200/194/187 ladder before breadth and
+  initial-book tail tiebreaks. Its six-condition held-out gate requires a
+  strict aggregate/three-block p230 recourse-ceiling gain, no registered high-
+  tail declines, >=95% initial p194 retention, non-worse alternative breadth
+  and non-worse locked-slot signature diversity. A pass can license only one
+  separately frozen historical PIT-policy diagnostic and a 2026 shadow; a
+  failure closes only this admitted-candidate-union selector, not future new
+  early-core/late-completion generation.
+  `src/nfl_dfs/analysis/recourse_aware_initial.py` implements exact slot
+  reachability, deterministic 24-alternative ranking, exact-80 option-value
+  selection, held-out book metrics, one-fold evaluation and strict 270-fold
+  aggregation without accepting outcomes. Thirty-six focused recourse/late-
+  swap tests pass, both new sources compile and `git diff --check` passes. No
+  result, runner, Cloud job, object or historical outcome exists. Next:
+  commit/push this prospective protocol and pure implementation, then build
+  the immutable source loader/shard runner/strict aggregator and queue its
+  score-free execution behind ATLAS without using the historical-outcome
+  lease.
 
 - An outcome-free live preflight caught and corrected the production-law
   dependence source-population defect before any source lock or outcome query
