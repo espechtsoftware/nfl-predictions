@@ -12,6 +12,8 @@ HISTORICAL="$ROOT/reports/atlas-historical-score-runs/20260817-atlas-historical-
 PARITY="$ROOT/reports/atlas-interaction-parity-runs/20260816-atlas-interaction-parity-v1"
 AMENDMENT="$ROOT/reports/2026-08-17-atlas-repair6-queue-order-amendment.md"
 AMENDMENT_SHA=73f6a049789a2a695653d8085fd8d21587cb2a1b9bd97207ab4a65f90918910c
+WAIT_REPAIR="$ROOT/reports/2026-08-17-atlas-repair6-accepted-retry-wait-repair.md"
+WAIT_REPAIR_SHA=3f4c420e64ffbebc29de247a3a2cdc43f9cf8af15b3d7b965b8dabb52a9d44b7
 IMAGE=${1:-}
 CODE_SHA=${2:-}
 BUILD_ID=${3:-}
@@ -24,10 +26,13 @@ BUILD_ID=${3:-}
   echo "ERROR: exact ATLAS repair6 build ID is required" >&2; exit 2; }
 [ "$(sha256sum "$AMENDMENT" | awk '{print $1}')" = "$AMENDMENT_SHA" ] || {
   echo "ERROR: ATLAS repair6 queue amendment differs" >&2; exit 2; }
+[ "$(sha256sum "$WAIT_REPAIR" | awk '{print $1}')" = "$WAIT_REPAIR_SHA" ] || {
+  echo "ERROR: ATLAS repair6 accepted-retry wait repair differs" >&2; exit 2; }
 git -C "$ROOT" cat-file -e "$CODE_SHA^{commit}" || exit $?
 for RELATIVE in \
   reports/2026-08-17-atlas-repair6-identity-tiebreak-extension-protocol.md \
   reports/2026-08-17-atlas-repair6-queue-order-amendment.md \
+  reports/2026-08-17-atlas-repair6-accepted-retry-wait-repair.md \
   scripts/prepare_atlas_repair6_classification.py \
   scripts/cloud_atlas_repair6_dual_canary.sh \
   scripts/finish_atlas_repair6_dual_canary.py \
@@ -63,6 +68,23 @@ if [ ! -s "$REPAIR5/attempt-resolution.json" ]; then
   if [ "$attempt_rc" -ne 0 ] && [ "$attempt_rc" -ne 10 ]; then
     exit "$attempt_rc"
   fi
+fi
+if [ -s "$REPAIR5/accepted-executions.txt" ]; then
+  while true; do
+    unknown=0; succeeded=0; failed=0
+    while read -r _season _week _job execution _uri; do
+      state=$(execution_status "$execution") || exit $?
+      case "$state" in
+        Unknown) unknown=$((unknown + 1)) ;;
+        True) succeeded=$((succeeded + 1)) ;;
+        *) failed=$((failed + 1)) ;;
+      esac
+    done < "$REPAIR5/accepted-executions.txt"
+    printf '%s ATLAS_REPAIR6_WAITING_FOR_REPAIR5_ACCEPTED running=%s succeeded=%s failed=%s\n' \
+      "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$unknown" "$succeeded" "$failed"
+    [ "$unknown" -eq 0 ] && break
+    sleep 300
+  done
 fi
 if [ ! -s "$REPAIR5/terminal-census-completion.txt" ]; then
   "$ROOT/scripts/cloud_harvest_atlas_repair5_terminal_census.sh" || exit $?

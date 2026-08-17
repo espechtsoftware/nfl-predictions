@@ -182,3 +182,17 @@ def test_repair6_transport_is_packaged_and_protocol_bound():
     assert "atlas-md-s2023-w1-r6-proof" in launcher
     assert "repair6-dual-canary-passes" in grid
     assert "valid-complete-repair6-hybrid-population" in finisher
+
+
+def test_repair6_watcher_waits_for_resolved_accepted_attempts_before_census():
+    watcher = (ROOT / "scripts/watch_atlas_repair6_queue.sh").read_text()
+
+    accepted_wait = watcher.index(
+        "ATLAS_REPAIR6_WAITING_FOR_REPAIR5_ACCEPTED"
+    )
+    terminal_census = watcher.index(
+        "cloud_harvest_atlas_repair5_terminal_census.sh"
+    )
+
+    assert '"$REPAIR5/accepted-executions.txt"' in watcher
+    assert accepted_wait < terminal_census

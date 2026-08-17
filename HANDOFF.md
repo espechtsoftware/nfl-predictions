@@ -144,6 +144,23 @@ agent or developer:
   terminal-invalid census appears. Next: poll sessions `15054` and `26544`;
   inspect no shard body until the frozen terminal classifiers/finishers do so.
 
+  A prospective watcher-only omission was found while 44 primaries remained
+  nonterminal: after the repair5 attempt resolver, the replacement watcher did
+  not wait for a possible frozen, eligible platform-replacement execution
+  before invoking terminal census. The live population's already-known
+  ineligible tiebreak failure means repair5 is expected to close without such
+  a retry, so current scientific disposition is unaffected, but recovery must
+  cover every allowed attempt-law branch. The exact score-blind repair is
+  documented at
+  `reports/2026-08-17-atlas-repair6-accepted-retry-wait-repair.md`, SHA-256
+  `3f4c420e64ffbebc29de247a3a2cdc43f9cf8af15b3d7b965b8dabb52a9d44b7`.
+  The watcher now polls every resolved accepted execution to terminal before
+  census, without opening objects or changing retry/disposition law. Fifteen
+  focused repair6/historical-v4 tests, shell syntax and diff checks pass.
+  Next: commit/push and clean-build this recovery-safe watcher; switch the
+  durable watcher only after the new image/build passes, leaving all cloud
+  executions untouched.
+
 - The lower-priority same-law capacity question retained by the corrected
   exact-P census review is now prospectively frozen without launching compute
   or reading any new candidate identity, candidate score or outcome. Protocol
