@@ -1558,6 +1558,27 @@ agent or developer:
   `96586` is active at the score-free completion gate. No production-lock job
   or object exists and none can run before a positive complete score-free
   treatment harvest.
+  The final one-job score-facing boundary was then frozen while all upstream
+  gates were still unresolved at
+  `reports/2026-08-16-stack-core-shell-historical-score-execution-protocol.md`,
+  SHA-256
+  `ad3fe7e1045b61d4f64e21fee72c9f5d829fb7b2b4fb3854586e11641b458597`,
+  pushed at `a642cd89d6e45fb5610b822dd546f45b5559a3f5`. It fixes the same immutable
+  validated image, one 4-CPU/16-GiB task, two-hour timeout, task retries zero,
+  the exact create-only report URI and one replacement only for a literal
+  zero-object platform error. There is no separate canary because this task is
+  the entire score-facing population. The complete launcher, narrow one-cell
+  attempt resolver, strict finisher and managed watcher are pushed at
+  `3cf06bc45bdd21c13363232bd2e6c3f129600306`. They require the complete
+  positive 54-lock report/completion/accepted-ledger chain before launch,
+  inspect only status/object metadata until terminal acceptance, then
+  independently reproduce every frozen report layer, require exact 68,199-row
+  native-score parity within `1e-9`, and publish a completion that retains
+  `production_change_licensed=false`. Fourteen focused historical/lock/
+  transport tests pass; all Python modules compile, four shell paths pass
+  `bash -n`, and diff checks pass. Managed historical watcher session `46996`
+  is waiting for lock completion. No historical scorer job, report or outcome
+  query exists.
   At `2026-08-16T20:51:38 CDT`, exact ATLAS preflight execution
   `atlas-cbc-32g-full-2023-w8-v1-lbzjd` remains `Completed=Unknown` with one
   running task. Managed preflight watcher `40372`, stack-support watcher
