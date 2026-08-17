@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 23:20 CDT
+## Current state — 2026-08-16 23:48 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -1240,6 +1240,31 @@ agent or developer:
   let the frozen canary validator inspect terminal spec/status and positive
   object metadata without downloading it. Only a passing canary may create
   `grid-release.txt` and release the remaining 53 primaries.
+  At `2026-08-16T23:48 CDT` that exact canary remains healthy with one running
+  task, zero error log entries and no completed-seed marker yet. Its container
+  started at `2026-08-17T04:21:36Z`; this is consistent with the roughly
+  nine-hour full-cell preflight and is not presently a stall. No shard or
+  treatment effect was opened, and the remaining 53 cells are still
+  unreleased.
+- While the canary computes, the next genuinely independent construction
+  family from the forensic queue has been frozen without reading an outcome or
+  treatment effect. The outcome-blind support census is
+  `reports/2026-08-16-coherent-market-state-support-census.md`, SHA-256
+  `677171a16e339083b2eb1272926e9024ecab63b531ecc861d5237f94e61c0e63`.
+  Exact BigQuery jobs prove 8,577/8,577 candidate-universe player keys join
+  uniquely, all 54 slates have at least four teams with one covered QB and two
+  covered WR/TEs, and all native/repaired source cells contain exactly 160
+  leverage candidates. The frozen score-free protocol is
+  `reports/2026-08-16-coherent-market-state-scorefree-protocol.md`, SHA-256
+  `ddf40d804614aa3011604cda49c1c599309418fd7d0298a56529e87de4ef1208`.
+  It fixes top-three team disagreement ranking, model/market whole-team
+  shifts, two novel QB-locked candidates per team/state, a 12-for-12
+  training-tail candidate replacement, unchanged incumbent scoring and
+  exact-80 selection, five train-four/test-one folds, and a tail-first held-out
+  gate. This is explicitly distinct from the closed player-level market-tail
+  feature gate and can license only a 2026 pre-lock shadow. Next implement its
+  outcome-free source loader, generator and fold evaluator with no source or
+  gate change; do not launch it into the active 32-GiB ATLAS slot.
   The handoff-only correction commits after that code are pushed through
   `f1e344bd1395d64ea5b530c2fb22c87bd402c902`. Superseding exact-archive
   Cloud Build `df158df9-ef83-4555-b5ea-0e254a7ea0bd` under create-only tag
