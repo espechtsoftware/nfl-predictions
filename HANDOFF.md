@@ -87,8 +87,13 @@ agent or developer:
   feature and lineup rows plus exactly 18 artifacts; only a literal
   zero-output `Internal error running task` on a non-canary primary is
   replacement-eligible. Canary, memory, timeout, signal, solver, cancellation,
-  ambiguous, partial-output and task-retried failures are terminal. Sixteen
-  focused capacity tests pass, all touched Python files compile and
+  ambiguous, partial-output and task-retried failures are terminal.
+  `scripts/render_same_law_capacity_generation_manifest.py` additionally
+  renders the complete create-only 135-cell schedule before launch, binding
+  the frozen protocol and seed-ledger hashes, exact first R5/2023 canary,
+  old image/code and all per-cell environments/destinations, zero task retries,
+  one-replacement ceiling, ten-active-execution cap and non-consequence flags.
+  Seventeen focused capacity tests pass, all touched Python files compile and
   `git diff --check` passes. The attempt-classifier milestone is exact commit
   `0daf32a848cf6f1eefd6664e8d44d4abcd9fb29b`. No generation launcher,
   attempt resolver, strict

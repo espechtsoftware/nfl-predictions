@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 import importlib.util
+import json
 from pathlib import Path
 import sys
 
@@ -30,6 +31,13 @@ CANARY_SPEC = importlib.util.spec_from_file_location(
 assert CANARY_SPEC and CANARY_SPEC.loader
 canary = importlib.util.module_from_spec(CANARY_SPEC)
 CANARY_SPEC.loader.exec_module(canary)
+MANIFEST_SPEC = importlib.util.spec_from_file_location(
+    "render_same_law_capacity_generation_manifest",
+    ROOT / "scripts/render_same_law_capacity_generation_manifest.py",
+)
+assert MANIFEST_SPEC and MANIFEST_SPEC.loader
+manifest_renderer = importlib.util.module_from_spec(MANIFEST_SPEC)
+MANIFEST_SPEC.loader.exec_module(manifest_renderer)
 
 
 def _cell():
@@ -237,3 +245,20 @@ def test_capacity_attempt_rejects_substantive_ambiguous_or_partial_failures():
         is_canary=False,
     )
     assert partial_result["eligibility"] == "terminal-invalid-primary"
+
+
+def test_capacity_generation_manifest_binds_complete_canary_first_schedule():
+    manifest = manifest_renderer.render_manifest()
+
+    assert manifest["run_id"] == "20260817-same-law-capacity-curve-v1"
+    assert manifest["primary_executions"] == 135
+    assert len(manifest["schedule"]) == 135
+    assert manifest["canary"] == manifest["schedule"][0]
+    assert manifest["canary"]["replicate"] == "R5"
+    assert manifest["canary"]["season"] == 2023
+    assert manifest["remaining_cells_released_before_canary"] == 0
+    assert manifest["max_active_executions"] == 10
+    assert manifest["max_task_retries"] == 0
+    assert manifest["uses_realized_outcomes"] is False
+    assert manifest["production_change_licensed"] is False
+    json.dumps(manifest, allow_nan=False, sort_keys=True)
