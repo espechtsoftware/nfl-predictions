@@ -20,9 +20,34 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 02:56 CDT
+## Current state — 2026-08-17 04:26 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
+
+- The lower-priority same-law capacity question retained by the corrected
+  exact-P census review is now prospectively frozen without launching compute
+  or reading any new candidate identity, candidate score or outcome. Protocol
+  `reports/2026-08-17-same-law-capacity-curve-protocol.md` has SHA-256
+  `328bed9c9d88d0eebdf36fed9b270c9838c4c62375e312ecc805564ca413e1f6`.
+  It requires genuine independent Phase S treatment books and the complete
+  nested `1x/2x/5x/10x` curve: existing R0--R4, then R0--R9, R0--R24 and
+  R0--R49. The 1x population must reproduce the current native pre-lock
+  identities byte-for-byte; the other cells use the exact old Phase S
+  image/code, simulation, ASOE, finite-K, six-family and legality laws with
+  only the two seeds and create-only destinations changed. Seed ledger
+  `reports/2026-08-17-same-law-capacity-curve-seeds.csv` has SHA-256
+  `5838185cb2851a38c139d37959ea655a68dcd1aef534d804285f398586eae6fb`,
+  exactly R0--R49 and 100 unique unsigned 32-bit values; R5--R49 reproduce the
+  frozen domain-separated SHA-256 derivation exactly. The mandatory report
+  measures actual distinct yield, family saturation, player/pair/stack-core
+  reach and identity-only exact-P distance at all four scales. It has no
+  favorable-scale selector, pass/adoption gate or production consequence and
+  forbids outcome/score/ownership/rank/payout fields. Any future execution is
+  a 135-book-season, canary-first, bounded-attempt descriptive job queued
+  behind all already-active higher-priority mechanism chains and may not
+  compete for the heavy-compute slot. Seed-ledger validation, both file hashes
+  and `git diff --check` pass. No runner, build, job, output prefix or capacity
+  statistic exists.
 
 - A direct reread of the operator-supplied
   `reports/2026-08-16-retry-narrowing-and-lattice-support-response.md`
