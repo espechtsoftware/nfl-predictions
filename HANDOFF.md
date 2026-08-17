@@ -89,7 +89,9 @@ agent or developer:
   replacement-eligible. Canary, memory, timeout, signal, solver, cancellation,
   ambiguous, partial-output and task-retried failures are terminal. Sixteen
   focused capacity tests pass, all touched Python files compile and
-  `git diff --check` passes. No generation launcher, attempt resolver, strict
+  `git diff --check` passes. The attempt-classifier milestone is exact commit
+  `0daf32a848cf6f1eefd6664e8d44d4abcd9fb29b`. No generation launcher,
+  attempt resolver, strict
   135-execution harvester, source loader, immutable analysis runner, build or
   cloud execution exists yet; this remains lower priority and may not launch
   ahead of the active mechanism chains. The transport-validator milestone is
