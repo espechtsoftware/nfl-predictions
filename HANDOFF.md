@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 06:25 CDT
+## Current state — 2026-08-17 06:45 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -179,9 +179,10 @@ agent or developer:
   `atlas-temp-cpu-us-central1` requests 500,000 milli-vCPU, trace
   `ca6db77b-e3a8-4d96-b16b-6b5d950a5b68`, and
   `atlas-temp-memory-us-central1` requests 1,932,735,283,200 bytes
-  (1,800 GiB), trace `52a70335-cec1-44eb-82de-e99305404938`. Both remain
-  `reconciling=true` at their old granted values. Approval would let the
-  fixed 53-cell post-canary grid run substantially more concurrently; it
+  (1,800 GiB), trace `52a70335-cec1-44eb-82de-e99305404938`. Both were
+  approved by `2026-08-17T11:45Z`: effective grants now equal the requested
+  500 vCPU and 1,800 GiB. This is enough for the fixed 53-cell post-canary
+  grid's 424 vCPU/1,696 GiB envelope to run in one concurrent wave. It
   neither increases the number of cells nor changes any scientific law.
 
 - The already accepted outcome-free impact/equivalence governance
