@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 01:37 CDT
+## Current state — 2026-08-17 01:40 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -45,6 +45,15 @@ agent or developer:
   explicit repair-substitution receipt. Twelve focused tests, Python
   compilation, four shell syntax checks and diff checks pass. No outcome,
   candidate score, lineup score, rank, ownership or treatment effect was read.
+  The exact amended source is pushed on `main` at
+  `307850800dd458962fb98883831b4281522f10c2`. Superseding clean-archive Cloud
+  Build `2ddd0cb2-0c84-4d92-b329-6d1c10bd89fe` is queued under create-only tag
+  `production-law-dependence-3078508`; its immutable source object is
+  `gs://nfl-predictions-503414_cloudbuild/source/1786948746.24705-8d58c8f561bc4b0d9021f1cc23cc953c.tgz`
+  generation `1786948770639774`. Durable watcher PID `1273069` (managed
+  session `59095`) will require the full suite and all real-container smokes,
+  launch/harvest the outcome-free source lock, then wait behind coherent
+  historical closure and the shared outcome lease before any outcome query.
 
 - Exact production-law dependence remeasurement is now prospectively frozen
   and implemented on `main` at
