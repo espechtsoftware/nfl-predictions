@@ -156,7 +156,8 @@ PY
 mkdir -p "$OUT"
 mv "$QUEUE_RELEASE" "$OUT/queue-release.json"
 trap - EXIT
-gcloud builds describe "$BUILD_ID" --project "$PROJECT" --format=json \
+gcloud builds describe "$BUILD_ID" --project "$PROJECT" --region "$REGION" \
+  --format=json \
   > "$OUT/build-metadata.json"
 "$ROOT/.venv/bin/python" - "$OUT/build-metadata.json" "$IMAGE" "$CODE_SHA" <<'PY'
 import json

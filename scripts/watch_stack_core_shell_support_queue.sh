@@ -25,6 +25,7 @@ execution_status() {
 
 while true; do
   BUILD_STATUS=$(gcloud builds describe "$BUILD_ID" --project "$PROJECT" \
+    --region "$REGION" \
     --format='value(status)') || exit $?
   printf '%s STACK_CORE_SHELL_BUILD_STATUS status=%s\n' \
     "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$BUILD_STATUS"
@@ -36,6 +37,7 @@ while true; do
 done
 
 DIGEST=$(gcloud builds describe "$BUILD_ID" --project "$PROJECT" \
+  --region "$REGION" \
   --format='value(results.images[0].digest)') || exit $?
 [[ "$DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]] || exit 2
 IMAGE="${TAG%:*}@${DIGEST}"
