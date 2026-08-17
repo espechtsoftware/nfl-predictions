@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 21:10 CDT
+## Current state — 2026-08-16 21:13 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -1584,8 +1584,14 @@ agent or developer:
   running task. Operational logs only--no shard or effect--show exact seed
   completion markers R0 at `20:43:04Z`, R1 at `22:24:11Z`, R2 at
   `00:15:24Z` and R3 at `01:49:42Z`; R4 remains. Treatment build
-  `34f7ab2f-6cd0-4e35-926f-bc2761fa2d8f` remains `WORKING`. Managed preflight
-  watcher `40372`, stack-support watcher
+  `34f7ab2f-6cd0-4e35-926f-bc2761fa2d8f` completed successfully at
+  `2026-08-17T02:12:06Z`: 1,697 tests passed, 2 skipped and 5 warnings in
+  1,120.41 seconds; all seven source/score-free/lock/historical container
+  smokes passed. Tag `stack-shell-treatment-d07f2a7` resolves to immutable
+  digest
+  `sha256:588497aab27a310818f60ea0aca9e7c2ba7beed4d55c2ffaae3f6416424d9cd6`.
+  Watcher `57790` is now at the positive-support gate and has launched no
+  treatment job or object. Managed preflight watcher `40372`, stack-support watcher
   `51192`, constraint-lattice watcher `31402` and stack-treatment watcher
   `57790` remain active. No partial ATLAS shard/effect, lattice effect,
   support shard or treatment shard has been inspected. Next concrete action:
