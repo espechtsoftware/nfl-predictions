@@ -39,6 +39,8 @@ steps:
           python scripts/run_coherent_market_state_scorefree.py --help >/dev/null
         docker run --rm '${_IMAGE}' \
           python scripts/aggregate_coherent_market_state_scorefree.py --help >/dev/null
+        docker run --rm '${_IMAGE}' \
+          python scripts/run_coherent_market_state_historical_score.py --help >/dev/null
 images:
   - '${_IMAGE}'
 substitutions:

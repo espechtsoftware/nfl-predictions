@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 00:19 CDT
+## Current state — 2026-08-17 00:31 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -1331,6 +1331,35 @@ agent or developer:
   successful full suite/image/smoke build, then repeatedly enforce the strict
   ATLAS queue boundary. It cannot create the coherent-state canary or any
   treatment object until an accepted ATLAS closure receipt exists.
+  Before that score-free build or any treatment result completed, the required
+  realized-score interpretation was separately frozen at
+  `reports/2026-08-17-coherent-market-state-historical-score-protocol.md`,
+  SHA-256
+  `80d85a6af930ee7640ce0e2733a5aee4293cdf3c6102f7659b2d991671464274`.
+  It resolves the otherwise undefined five-fold historical book by selecting
+  only the prospectively canonical `heldout_block=R0` exact-80 control and
+  treatment books on each of the 54 slates; it expressly prohibits taking the
+  best/union of five folds or constructing a post-result consensus. The fixed
+  signal remains the already-declared selected p200 gain of at least two weeks,
+  no selected decline at p210/p220/p230/p240, and no candidate p200 decline.
+  A scorer must run after every mechanically valid full score-free harvest
+  regardless of its pass/fail result, and even a historical positive can
+  support only a prospective 2026 shadow.
+  The historical pure scorer, immutable upstream-receipt validator, launcher,
+  finisher and durable watcher are implemented. The upstream receipt embeds
+  and revalidates the exact accepted 54-execution spec/status population plus
+  every shard/report URI, generation, byte count and SHA-256. The scoring job
+  independently reproduces the strict 54-shard score-free aggregate before it
+  may query outcomes, validates all 68,199 native registered candidate scores
+  from nine-player outcomes to absolute tolerance `1e-9`, then scores only the
+  frozen R0 candidate/exact-80 books. Cloud resources are one 4-CPU/16-GiB,
+  two-hour, zero-retry task; output is create-only and cannot license
+  production. Forty-one focused coherent/historical/lattice/stack/ATLAS tests
+  pass, all three new shell sources pass `bash -n`, both historical Python
+  sources compile, the runner help path passes and `git diff --check` passes.
+  No outcome query, historical build, image, job or object has occurred. Next:
+  commit/push this exact prospective scorer, submit its own clean-archive
+  build, and start its watcher behind the complete coherent score-free harvest.
   The reviewer response
   `reports/2026-08-16-retry-narrowing-and-lattice-support-response.md` was also
   reconciled. Its retry narrowing agrees with the implementation. Its two

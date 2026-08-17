@@ -61,6 +61,7 @@ COPY scripts/run_constraint_lattice_resource_preflight.py ./scripts/run_constrai
 COPY scripts/coherent_market_state_sources.py ./scripts/coherent_market_state_sources.py
 COPY scripts/run_coherent_market_state_scorefree.py ./scripts/run_coherent_market_state_scorefree.py
 COPY scripts/aggregate_coherent_market_state_scorefree.py ./scripts/aggregate_coherent_market_state_scorefree.py
+COPY scripts/run_coherent_market_state_historical_score.py ./scripts/run_coherent_market_state_historical_score.py
 COPY scripts/run_cbwu_seed_order_audit.py ./scripts/run_cbwu_seed_order_audit.py
 COPY scripts/run_cbwu_oi_construction_diagnostic.py ./scripts/run_cbwu_oi_construction_diagnostic.py
 COPY scripts/run_cbwu_oi_selector_stability.py ./scripts/run_cbwu_oi_selector_stability.py
