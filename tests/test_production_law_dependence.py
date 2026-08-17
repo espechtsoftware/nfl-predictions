@@ -109,6 +109,12 @@ def test_production_law_source_lock_and_outcome_firewall_are_explicit():
     ).read_text(encoding="utf-8")
     docker = (ROOT / "Dockerfile").read_text(encoding="utf-8")
     cloudbuild = (ROOT / "cloudbuild.yaml").read_text(encoding="utf-8")
+    coherent_serialized = (
+        ROOT / "scripts/watch_coherent_market_state_historical_serialized.sh"
+    ).read_text(encoding="utf-8")
+    stack_serialized = (
+        ROOT / "scripts/watch_stack_core_shell_historical_serialized.sh"
+    ).read_text(encoding="utf-8")
     protocol = (
         ROOT / "reports/2026-08-17-production-law-dependence-remeasurement-protocol.md"
     ).read_text(encoding="utf-8")
@@ -124,6 +130,10 @@ def test_production_law_source_lock_and_outcome_firewall_are_explicit():
     assert "run_production_law_dependence_remeasurement.py" in docker
     assert "run_production_law_dependence_source_lock.py --help" in cloudbuild
     assert "run_production_law_dependence_remeasurement.py --help" in cloudbuild
+    assert "historical_outcome_lease.py\" acquire" in coherent_serialized
+    assert "historical_outcome_lease.py\" release" in coherent_serialized
+    assert "historical_outcome_lease.py\" acquire" in stack_serialized
+    assert "historical_outcome_lease.py\" release" in stack_serialized
     assert "at least three of R0--R4" in protocol
 
 

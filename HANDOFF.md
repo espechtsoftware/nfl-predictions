@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 01:22 CDT
+## Current state — 2026-08-17 01:28 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -51,6 +51,27 @@ agent or developer:
   submit the clean-archive full Cloud Build from exact commit `bb3f2d0`, bind
   its immutable digest, launch/harvest only the outcome-free source lock, then
   leave the remeasurement watcher queued behind coherent historical closure.
+- That exact clean-archive build is active as Cloud Build
+  `a2b3fee2-d348-4bd9-8e9f-e6ef3c59fd8a`, source object
+  `gs://nfl-predictions-503414_cloudbuild/source/1786947748.348209-d2b2e9c74fdc4cf28993199c497a4be1.tgz`
+  generation `1786947772433561`, under create-only tag
+  `production-law-dependence-bb3f2d0`. It was `WORKING` at 01:27 CDT; no image
+  digest or job exists yet. Durable source-lock/outcome watcher PID `1266438`
+  waits for the full suite and real-container smokes before it can launch the
+  outcome-free lock.
+- The one-active-historical-outcome firewall had an operational race: the
+  independently frozen coherent and stack-core/shell historical watchers could
+  both become ready without a shared lease. Neither output directory nor any
+  corresponding outcome execution existed. The two waiting local processes
+  were cleanly stopped and replaced by serialization wrappers that wait for
+  their original score-free/production-lock prerequisite, compete for the same
+  create-only GCS historical-outcome lease, run the unchanged frozen watcher,
+  and release the lease only after strict terminal completion. Wrapper PIDs are
+  `1266256` (coherent) and `1266351` (stack-core/shell). The production-law
+  watcher uses the same lease and now waits/retries rather than exiting when
+  another valid scorer owns it. Six focused serialization/mechanism tests,
+  Python compilation and shell syntax pass. This is transport/governance only;
+  no scientific protocol, input, metric or gate changed.
 - At `2026-08-17 01:19 CDT`, ATLAS repair5 real-path canary execution
   `atlas-md-s2023-w1-r5-45nvf` remains healthy/nonterminal with one running
   task and `Completed=Unknown`. `grid-release.txt` remains absent, so the

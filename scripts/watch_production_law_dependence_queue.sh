@@ -46,11 +46,17 @@ while [ ! -s "$COHERENT/completion.txt" ]; do
   sleep 300
 done
 mkdir -p "$OUT"
-PYTHONPATH="$ROOT/src:$ROOT/scripts" "$ROOT/.venv/bin/python" \
-  "$ROOT/scripts/historical_outcome_lease.py" acquire \
-  --run-id 20260817-production-law-dependence-remeasurement-v1 \
-  --job "$JOB" --code-sha "$CODE_SHA" --image "$IMAGE" \
-  --receipt "$OUT/lease-receipt.json" || exit $?
+while true; do
+  PYTHONPATH="$ROOT/src:$ROOT/scripts" "$ROOT/.venv/bin/python" \
+    "$ROOT/scripts/historical_outcome_lease.py" acquire \
+    --run-id 20260817-production-law-dependence-remeasurement-v1 \
+    --job "$JOB" --code-sha "$CODE_SHA" --image "$IMAGE" \
+    --receipt "$OUT/lease-receipt.json" && break
+  [ ! -e "$OUT/lease-receipt.json" ] || exit 2
+  printf '%s PRODUCTION_LAW_DEPENDENCE_WAITS_FOR_OUTCOME_LEASE\n' \
+    "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  sleep 300
+done
 LEASE_SHA=$(sha256sum "$OUT/lease-receipt.json" | awk '{print $1}')
 bash "$ROOT/scripts/cloud_production_law_dependence_remeasurement.sh" \
   "$IMAGE" "$CODE_SHA" "$BUILD_ID" "$LEASE_SHA" || exit $?
