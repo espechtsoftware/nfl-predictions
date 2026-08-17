@@ -193,8 +193,16 @@ agent or developer:
   frozen code-diff proof and both watcher syntax checks. Replacement full-test
   build `6b1331f1-8a1a-4c1e-8703-4ccb0c0e751b`, targeting
   `nfl-dfs/nfl-dfs:atlas-repair6-0617674`, was submitted at
-  `2026-08-17T16:37Z`. Existing sessions `15054` and `26544` remain the active
-  watchers until this build and its immutable-digest replacements pass.
+  `2026-08-17T16:37Z` and is terminal `SUCCESS`: all full-suite tests,
+  image-build and smoke steps passed. Its eligible immutable image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:86b852e838f1ac685f40d8f0aed136337cdc5e230f38335076e45aaf24727487`.
+  Closure-safe repair6 watcher session `11630` reports a normal
+  `ATLAS_REPAIR6_WAITING_FOR_REPAIR5 running=39` at
+  `2026-08-17T17:00:04Z`; historical-v4 watcher session `49434` reports its
+  normal hybrid wait. Only after both replacements were durable, superseded
+  local sessions `15054` and `26544` were stopped with Ctrl-C. No Cloud Run
+  job, execution or object was changed. Next: poll sessions `11630` and
+  `49434` through repair5 census, repair6 canaries/hybrid and historical v4.
 
 - The lower-priority same-law capacity question retained by the corrected
   exact-P census review is now prospectively frozen without launching compute
