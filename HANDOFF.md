@@ -75,7 +75,7 @@ agent or developer:
   build or cloud execution exists yet. The protocol/seed freeze is pushed at
   commit `402662e`; the superseding exact pure-analyzer/source-preflight
   milestone is pushed on `main` at
-  `33a66124306684fb5ffe52bbb11d7afc9d07a73c`.
+  `655bd4a3964dd69affbb5be1826070aa417b62d9`.
 
 - A direct reread of the operator-supplied
   `reports/2026-08-16-retry-narrowing-and-lattice-support-response.md`
