@@ -98,8 +98,17 @@ agent or developer:
   smoke steps never ran, so no artifact from this attempt is eligible. The
   build config now prospectively installs `git` alongside `libgomp1` in only
   the validation step. This changes no runtime image or scientific code.
-  Next: commit/push this build-environment correction and submit a new clean
-  archive; retain the original watcher until all new build steps pass.
+  The correction is pushed at
+  `eaf1ebccef4bae13baa135b7a2a78f3f2b1c6bf9`. Clean-archive build
+  `0b178dd0-7450-4857-a6b8-654dcf0fca7c` was cancelled before producing a
+  usable image after its `_IMAGE` substitution was found to target the wrong
+  Artifact Registry repository; it is ineligible and affected no experiment.
+  Replacement clean-archive build
+  `8ad75af4-7d92-40d6-8b0b-a1b5070cffb0` uses the required
+  `nfl-dfs/nfl-dfs:atlas-repair6-eaf1ebc` tag and was queued at
+  `2026-08-17T15:21:36Z`. Retain the original repair5 watcher until every
+  replacement build step passes and the immutable-digest repair6 and
+  historical-v4 watchers are durable.
 
 - The lower-priority same-law capacity question retained by the corrected
   exact-P census review is now prospectively frozen without launching compute
