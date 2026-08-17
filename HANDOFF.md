@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 18:58 CDT
+## Current state — 2026-08-16 19:00 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -1195,6 +1195,14 @@ agent or developer:
   support or treatment execution. Submit a superseding clean-archive build
   from the new exact source commit and restart the watcher with that immutable
   build/image identity; do not use failed build `df158...` as evidence.
+  That superseding clean-archive build is now
+  `edc9f90d-b118-4b50-8d7d-dda42196cec1`, submitted from exact commit
+  `e6916decd1e455ab7c0be852f640ec4d63ddae6b` under create-only tag
+  `constraint-support-e6916de`. The tracked watcher was rebound and pushed at
+  `b2d5cba48141ba4ea0024c384b4f7a4a1500658c`; it is running in managed
+  terminal session `96823`. It will fail closed on any build failure and
+  otherwise retain the same ATLAS-closure, canary, 54-primary, bounded-attempt,
+  support-harvest and conditional resource-preflight sequence.
   Resource harvesting is additionally fail-closed and terminal-complete at
   pushed commit `6452d18813994d575718767ed57593ddd5951e95`. The finisher now
   durably receipts strict success, configured-memory/SIGKILL failure, literal
