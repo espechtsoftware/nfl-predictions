@@ -1215,6 +1215,11 @@ agent or developer:
   watcher from this repaired source with the same successful build receipt and
   canonical untagged digest; no build rerun is needed because the watcher is
   local orchestration and the image/source commit remains exact `e6916de`.
+  The repair is pushed at commit
+  `45ce37eac18418bb8dff4345b7bf19b088d2d1eb`; replacement managed watcher
+  session `31402` consumed the successful build/digest and reached the intended
+  `lattice support awaits ATLAS preflight` queue stop at `2026-08-17T00:18:47Z`.
+  It is active and will retry the same gate every five minutes.
   Resource harvesting is additionally fail-closed and terminal-complete at
   pushed commit `6452d18813994d575718767ed57593ddd5951e95`. The finisher now
   durably receipts strict success, configured-memory/SIGKILL failure, literal
