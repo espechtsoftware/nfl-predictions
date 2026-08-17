@@ -1440,6 +1440,27 @@ agent or developer:
   closure. At `2026-08-17T01:23Z`, the superseding support build remains
   `WORKING`, ATLAS preflight remains one running task, and no stack support,
   treatment, lock or historical-score object exists.
+  Historical reporting was then completed prospectively at pushed commit
+  `8251d4455861f86df372e9d9eb75aefed61eb29c`: the immutable result now lists
+  every candidate/selected weekly win, tie and loss with both exact winning
+  roster identities, plus gained/lost/tied threshold transitions at every
+  registered line. Twelve focused construction/lock/scoring tests pass.
+  The score-free treatment execution path itself is now separately frozen,
+  still before any support or treatment effect, at
+  `reports/2026-08-16-stack-core-shell-treatment-execution-protocol.md`,
+  SHA-256
+  `e786783334d994caf4378beffaef6a048e6ba9fb13541382b7e491bf412dc78d`.
+  It fixes the positive support-object gate, exact image/grid, 4 CPU/16 GiB,
+  four-hour task timeout, real 2023 Week 1 canary, and the same one-attempt
+  literal zero-object platform-error replacement law. The pure canary
+  validator and shell poller bind the actual runner arguments, support hash,
+  environment, resources, service account, terminal state and positive object
+  metadata without downloading the shard or inspecting effects. Six focused
+  canary/lock/scoring tests plus Python/shell compilation and diff checks pass;
+  this milestone is pushed at commit
+  `e6f993f71eaa4212a000a2b15b656f42cb12f7a7`. Attempt management, the
+  53-cell launcher and strict treatment finisher remain to implement before a
+  score-free treatment grid can run.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).
