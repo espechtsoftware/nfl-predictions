@@ -100,7 +100,7 @@ agent or developer:
   this handoff.
 
   Its immutable score-free execution core is now implemented at commit
-  `2190406593828918d5180bc027ec0c10a2ff1695`. Execution protocol
+  `21904062a27eb87276cc95dc34a804e26c4821ba`. Execution protocol
   `reports/2026-08-17-recourse-aware-initial-book-execution-protocol.md` has
   SHA-256
   `3991fdbf36c2018b2ec11625a6be62990c100fdf1f47bde3985c2327e3248c9b`.
