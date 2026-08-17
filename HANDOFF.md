@@ -1397,6 +1397,8 @@ agent or developer:
   tests pass; both modules compile and `git diff --check` passes. The immutable
   lock runner/strict grid finisher and downstream outcome query/launcher remain
   to be implemented; neither can launch before the upstream score-free license.
+  The pure scoring milestone is pushed on `main` at exact commit
+  `318433a7496bf4001776006f93f9d70e8215228a`.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).
