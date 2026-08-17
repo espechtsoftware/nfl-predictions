@@ -1303,8 +1303,20 @@ agent or developer:
   resolution -> strict harvest without user intervention. Fourteen focused
   construction/support/attempt tests pass; all Python and embedded shell
   Python compile, four shell scripts pass `bash -n`, and `git diff --check`
-  passes. Commit/push this exact milestone, submit its isolated clean-archive
-  build, and start that watcher; it must remain behind ATLAS closure.
+  passes. This exact cloud-plumbing milestone is pushed at commit
+  `dbba33b6415eade369d6fb868a679f393d57b6cb`.
+  An initial build ID `7f87b6d9-877c-4c39-a677-910136144062` was immediately
+  canceled before validation completed because a mistyped expanded commit SHA
+  made `git archive` fail while a non-fail-fast shell continued with a stale
+  temporary path. It is invalid evidence and must never be used. A new
+  fail-fast archive was generated from exact full commit `dbba33b...`, checked
+  nonempty and inspected for all four defining support files; its archive SHA
+  is `b7d034083c06ec816c722aac93a1901401078e34b4775a2dd3a18d0c582b42c2`.
+  Authoritative isolated Cloud Build
+  `484fbc6b-5017-4687-9686-1766cd7a9be3` is queued under create-only tag
+  `stack-shell-support-dbba33b`; managed watcher session `90839` is active.
+  On build success it must remain at the strict ATLAS closure gate before any
+  support canary or population launch.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).
