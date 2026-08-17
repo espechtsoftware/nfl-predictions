@@ -20,9 +20,43 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 00:57 CDT
+## Current state — 2026-08-17 01:22 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
+
+- Exact production-law dependence remeasurement is now prospectively frozen
+  and implemented on `main` at
+  `bb3f2d0dfe86d74b65b20cfdd37d6b05fb0d6615`. Protocol
+  `reports/2026-08-17-production-law-dependence-remeasurement-protocol.md`
+  has SHA-256
+  `0ab5850416d856537b47bedaf23b3fdce827dcf2f99e35f589520a123b63919f`.
+  This closes the policy-identity gap left by old G0: it uses the exact five
+  R0--R4 production-multinomial player-world blocks, not the selected fitted-
+  Dirichlet research law. A create-only, outcome-free source lock first binds
+  the complete 270-artifact URI/generation/SHA grid, the exact production
+  receipt and canonical R0 pre-lock player catalog. Only after that object and
+  the already-frozen coherent market-state historical scorer strictly
+  complete may one zero-retry 8-CPU/32-GiB job query player outcomes. The
+  frozen ledger-prototype premise requires aggregate and >=3/5 block
+  directional material misses for both under-coupled QB->WR and over-coupled
+  multiplicity >=3. Multiplicity >=4 is mandatory diagnostic only and cannot
+  substitute because its prior support was inadequate. A pass licenses only
+  a separately frozen sparse-ledger prototype; no result can change
+  production, the UI or exact-80 selection. A durable create-only historical-
+  outcome lease is implemented so this outcome job cannot overlap another
+  participating scorer. Twelve focused G0/new-mechanism tests pass; Python
+  compilation, five shell syntax checks, diff checks and an offline validation
+  of all 270 authoritative transfer receipts pass. No new outcome was queried,
+  no job or GCS output was created, and the lease object is absent. Next:
+  submit the clean-archive full Cloud Build from exact commit `bb3f2d0`, bind
+  its immutable digest, launch/harvest only the outcome-free source lock, then
+  leave the remeasurement watcher queued behind coherent historical closure.
+- At `2026-08-17 01:19 CDT`, ATLAS repair5 real-path canary execution
+  `atlas-md-s2023-w1-r5-45nvf` remains healthy/nonterminal with one running
+  task and `Completed=Unknown`. `grid-release.txt` remains absent, so the
+  remaining 53 cells are still correctly unreleased. Durable ATLAS,
+  constraint-lattice, stack-core/shell and coherent market-state watchers are
+  all alive. No partial canary shard, seed or effect field was opened.
 
 - Branch is `main`; this milestone starts from pushed commit `55b7b78`.
   The ATLAS evidence-review reconciliation, complete fail-closed MVP runner,
