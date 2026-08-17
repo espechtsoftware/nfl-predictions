@@ -25,6 +25,7 @@ import pandas as pd
 from ..models.dst_scoring import (
     DST_COMPONENTS,
     DST_SCORING_LAW_ID,
+    is_offensive_play_type,
     score_dst_components,
 )
 from ..models.scoring import StatLine, dk_points
@@ -460,10 +461,10 @@ def score_team_defenses(
             if (
                 _number(row, "return_touchdown")
                 and td_team == defteam
-                and play_type in {"pass", "run"}
+                and is_offensive_play_type(play_type)
             ):
                 not_allowed[(game_id, posteam)] += 6.0
-            if _number(row, "safety"):
+            if _number(row, "safety") and is_offensive_play_type(play_type):
                 not_allowed[(game_id, posteam)] += 2.0
 
         home_score = _number(row, "total_home_score")
@@ -482,7 +483,13 @@ def score_team_defenses(
         season, week = season_week[game_id]
         for team, opponent_score in ((home, away_score), (away, home_score)):
             components = events[(game_id, team)]
-            pa = max(0.0, opponent_score - not_allowed[(game_id, team)])
+            pa = opponent_score - not_allowed[(game_id, team)]
+            if pa < 0:
+                raise ValueError(
+                    "DST points-allowed accounting is negative; "
+                    f"game_id={game_id}, team={team}, score={opponent_score}, "
+                    f"excluded={not_allowed[(game_id, team)]}"
+                )
             points = score_dst_components(
                 components,
                 points_allowed=pa,

@@ -339,6 +339,57 @@ def test_dst_scorer_charges_conversion_return_to_reciprocal_points_allowed():
     assert by_team.loc["A", "dk_points"] == 7
 
 
+@pytest.mark.parametrize("play_type", ["pass", "run", "qb_kneel", "qb_spike"])
+def test_dst_scorer_excludes_safety_only_on_offensive_play(play_type):
+    pbp = pd.DataFrame([_row(
+        1,
+        "2025-09-07T17:10:00Z",
+        safety=1,
+        total_home_score=2,
+        total_away_score=0,
+        play_type=play_type,
+    )])
+    scored, _ = score_team_defenses(pbp)
+    by_team = scored.set_index("team")
+    # B earns the safety and shutout. A's offense surrendered the scoreboard
+    # points, so A's reciprocal DST remains in the zero-PA tier.
+    assert by_team.loc["B", "safeties"] == 1
+    assert by_team.loc["B", "points_allowed"] == 0
+    assert by_team.loc["B", "dk_points"] == 12
+    assert by_team.loc["A", "points_allowed"] == 0
+    assert by_team.loc["A", "dk_points"] == 10
+
+
+def test_dst_scorer_charges_punt_safety_to_reciprocal_points_allowed():
+    pbp = pd.DataFrame([_row(
+        1,
+        "2025-09-07T17:10:00Z",
+        safety=1,
+        total_home_score=2,
+        total_away_score=0,
+        play_type="punt",
+    )])
+    scored, _ = score_team_defenses(pbp)
+    by_team = scored.set_index("team")
+    assert by_team.loc["B", "safeties"] == 1
+    assert by_team.loc["B", "dk_points"] == 12
+    assert by_team.loc["A", "points_allowed"] == 2
+    assert by_team.loc["A", "dk_points"] == 7
+
+
+def test_dst_scorer_rejects_negative_points_allowed_accounting():
+    pbp = pd.DataFrame([_row(
+        1,
+        "2025-09-07T17:10:00Z",
+        safety=1,
+        total_home_score=0,
+        total_away_score=0,
+        play_type="pass",
+    )])
+    with pytest.raises(ValueError, match="points-allowed accounting is negative"):
+        score_team_defenses(pbp)
+
+
 def test_scorer_rejects_naive_or_missing_scoring_timestamps():
     pbp = pd.DataFrame([
         _row(1, None, passing_yards=10, passer_player_id="qb"),

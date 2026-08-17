@@ -14,6 +14,14 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import dataclass
 import math
+from typing import Final
+
+
+# nflfastR's ordinary offensive-play categories. Points scored by the
+# opposing defense on these plays are excluded from the subject DST's points
+# allowed; scores on punt/kick/field-goal plays are not. Warehouse SQL pins the
+# same literal tuple with focused parity tests because it cannot import Python.
+OFFENSIVE_PLAY_TYPES: Final = ("pass", "run", "qb_kneel", "qb_spike")
 
 
 @dataclass(frozen=True)
@@ -197,6 +205,11 @@ def points_allowed_points(points_allowed: float) -> float:
     raise AssertionError("DST scoring law has no terminal points-allowed tier")
 
 
+def is_offensive_play_type(play_type: object) -> bool:
+    """Return whether an nflfastR play has the offense on the field."""
+    return str(play_type).strip().lower() in OFFENSIVE_PLAY_TYPES
+
+
 def score_dst_components(
     components: Mapping[str, float],
     *,
@@ -236,7 +249,9 @@ __all__ = [
     "DstScoringLaw",
     "EventRule",
     "OfficialRuleSource",
+    "OFFENSIVE_PLAY_TYPES",
     "PointsAllowedTier",
     "points_allowed_points",
+    "is_offensive_play_type",
     "score_dst_components",
 ]

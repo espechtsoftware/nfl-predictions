@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 15:25 CDT
+## Current state — 2026-08-17 15:56 CDT
 
 ### Extreme-tail prerequisites implemented and prospectively frozen while ATLAS continues
 
@@ -95,6 +95,33 @@ agent or developer:
   law only; it does not prove historical rule parity, populate an event
   ledger, or license a DST outcome arm.
 
+- The next score-free D0 prerequisite—the canonical completed team-game event
+  frame—is implemented but deliberately not materialized while ATLAS owns the
+  historical/heavy chain. `sql/features/024_team_defense_week.sql` preserves
+  the exact legacy leading schema through `dst_points_l16` and adds only
+  prefixed event-form columns: complete scored components including defensive
+  conversions, defensive return/safety subcounts, reciprocal unclipped PA
+  accounting, canonical/reconstructed scores, raw/matched/rejected exact-label
+  source counts and statuses, a dated frame/law identity, canonical JSON event
+  payload and reproducible SHA-256, and strictly-prior exact L4/L16 component
+  windows. `src/nfl_dfs/research/dst_event_frame.py` fails closed on key/game,
+  event/scorer, reciprocal PA, payload/hash, source conflict/unmatched/partial
+  rejection, exact-label mismatch, coverage-contract or PIT-window defects.
+  The shared nflfastR offense-field predicate is exactly pass/run/qb_kneel/
+  qb_spike in the canonical scoring module, SQL and recourse scorer; punt
+  safeties remain reciprocal PA, and negative PA no longer clips silently.
+  The implementation report is
+  `reports/2026-08-17-dst-d0-event-frame-implementation.md`, SHA-256
+  `d77f29cfc6433ccd363d9284a49e2b1754c66594f9f4a0e758a303587bab4d6a`.
+  The focused event/scoring/feature/recourse/research suite passes with one
+  existing skip; compile and diff checks pass. Both the prospective table SQL
+  and the existing `DST_TAIL_SQL` consumer composed against that schema pass
+  BigQuery dry run (`66,630,074` table-query bytes). Three independent blocker
+  passes closed hash/version, lossy authoritative reduction, impossible PA,
+  consumer alias, SQL/recourse safety and mixed-rejection defects. No table,
+  historical census, lineup result, production policy or ATLAS artifact was
+  created/opened.
+
 - The standalone shared heavy-experiment lease prerequisite is implemented in
   `scripts/heavy_experiment_lease.py`. It atomically acquires the single
   create-only GCS object
@@ -118,16 +145,16 @@ agent or developer:
 - The pure residual-pricing core remains in a final exact-solver audit. These
   readiness tasks launch no cloud experiment. The active ATLAS watcher remains
   the sole heavy chain: its complete terminal-only sweep at
-  `2026-08-17T20:23:15Z` reported 10 of 54 repair5 primaries nonterminal, 43
+  `2026-08-17T20:53:05Z` reported 9 of 54 repair5 primaries nonterminal, 44
   terminal successes and the one known zero-object 2023 Week 7 identity-tie
   failure. Repair6, historical v4, parity and then constraint-lattice support
   remain serialized; no partial scientific output has been inspected.
 
-- Exact next actions: commit/push the shared lease prerequisite; continue
+- Exact next actions: commit/push this D0 event-frame prerequisite; continue
   terminal-only ATLAS polling; resolve and commit the pure residual core only
-  after its widened numerical audit passes; finish/commit the D0 historical
-  event-vector extraction/output-schema prerequisite without populating it;
-  when the
+  after it uses the shared production constraint builder and its widened
+  numerical/log/integration audits pass; do not populate the D0 warehouse
+  frame until the historical/heavy chain is free; when the
   ATLAS chain closes, strictly harvest its licensed terminal result before
   releasing the constraint-lattice support/resource preflight.
 

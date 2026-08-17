@@ -126,9 +126,10 @@ def test_dst_actuals_credit_event_team_and_exclude_offense_points():
     assert "defensive_td_points" in dst
     assert "safety_points" in dst
     assert "historical_exact_raw" in dst
-    assert "g.team = h.team" in dst
-    assert "g.opponent = h.opponent" in dst
-    assert "COALESCE(h.exact_dk_points, n.dst_dk_points)" in dst
+    assert "h.team = g.team" in dst
+    assert "h.opponent = g.opponent" in dst
+    assert "h.sole_authoritative_dst_dk_points" in dst
+    assert "n.reconstructed_dst_dk_points" in dst
     assert "schedules_normalized AS" in dst
     assert dst.count("FROM schedules_normalized s") == 2
     assert "FROM schedules_normalized" in dst

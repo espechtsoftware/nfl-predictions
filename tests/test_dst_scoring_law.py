@@ -6,6 +6,8 @@ from nfl_dfs.models.dst_scoring import (
     DST_COMPONENTS,
     DST_SCORING_LAW,
     DST_SCORING_LAW_ID,
+    OFFENSIVE_PLAY_TYPES,
+    is_offensive_play_type,
     points_allowed_points,
     score_dst_components,
 )
@@ -102,6 +104,10 @@ def test_warehouse_sql_is_pinned_to_the_same_scoring_contract():
     ):
         assert fragment in sql
     assert "yards_allowed" not in sql.lower()
+    assert OFFENSIVE_PLAY_TYPES == ("pass", "run", "qb_kneel", "qb_spike")
+    assert all(is_offensive_play_type(value) for value in OFFENSIVE_PLAY_TYPES)
+    assert not is_offensive_play_type("punt")
+    assert "play_type IN ('pass', 'run', 'qb_kneel', 'qb_spike')" in sql
 
     not_allowed_cte = sql.split(
         "offense_points_not_allowed_raw AS (", 1,
