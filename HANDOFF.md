@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 21:26 CDT
+## Current state — 2026-08-16 21:34 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -1208,6 +1208,15 @@ agent or developer:
   after this handoff is pushed. At `2026-08-17T02:25:46Z`, preflight execution
   `atlas-cbc-32g-full-2023-w8-v1-lbzjd` remained healthy/nonterminal after R3;
   no partial shard/effect was opened.
+  The corrected autonomous repair5 watcher was restarted after both commits
+  were pushed and is active in managed terminal session `82229` (OS process
+  `1154635`). It is waiting only for the strict preflight completion receipt;
+  no repair5 run directory, job or object exists. At
+  `2026-08-17T02:34:38Z` the preflight remained `Completed=Unknown` with one
+  running task, no error log and R4 still in progress. Next action: continue
+  status-only polling; on terminal state allow the existing preflight watcher
+  to run only the strict finisher, then let session `82229` launch only the
+  real 2023 Week 1 repair5 canary before any 53-cell release.
   The handoff-only correction commits after that code are pushed through
   `f1e344bd1395d64ea5b530c2fb22c87bd402c902`. Superseding exact-archive
   Cloud Build `df158df9-ef83-4555-b5ea-0e254a7ea0bd` under create-only tag
