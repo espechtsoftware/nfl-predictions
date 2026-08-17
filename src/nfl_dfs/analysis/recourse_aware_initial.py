@@ -96,6 +96,31 @@ def locked_slot_signature(
     )
 
 
+def _reachable_from_signature(
+    signature: Sequence[tuple[int, str]],
+    final_by_id: Mapping[str, Mapping[str, Any]],
+    kickoffs: Mapping[str, pd.Timestamp],
+    current: pd.Timestamp,
+) -> bool:
+    locked_ids = {player_id for _, player_id in signature}
+    if not locked_ids <= set(final_by_id):
+        return False
+    locked_slots = {value for value, _ in signature}
+    open_slots = [
+        slot for index, slot in enumerate(SLOTS) if index not in locked_slots
+    ]
+    open_players = [
+        player for player_id, player in final_by_id.items()
+        if player_id not in locked_ids
+    ]
+    if any(
+        player_id not in kickoffs or kickoffs[player_id] <= current
+        for player_id in final_by_id if player_id not in locked_ids
+    ):
+        return False
+    return _open_slot_matching(open_players, open_slots)
+
+
 def _open_slot_matching(
     players: Sequence[Mapping[str, Any]],
     slots: Sequence[str],
@@ -138,24 +163,16 @@ def is_late_swap_reachable(
     final_by_id = {str(player["id"]): player for player in final.players}
     if len(final_by_id) != 9:
         raise ValueError("recourse-aware final roster is not nine unique IDs")
-    locked_ids = {player_id for _, player_id in signature}
-    if not locked_ids <= set(final_by_id):
-        return False
-    open_slots = [
-        slot for index, slot in enumerate(SLOTS)
-        if index not in {value for value, _ in signature}
-    ]
-    open_players = [
-        player for player_id, player in final_by_id.items()
-        if player_id not in locked_ids
-    ]
-    for player in open_players:
-        player_id = str(player["id"])
-        if player_id not in kickoff_by_id or _aware_utc(
+    needed = set(final_by_id) | {str(player["id"]) for player in initial.players}
+    if not needed <= set(kickoff_by_id):
+        raise ValueError("recourse-aware initial kickoff identity is absent")
+    kickoffs = {
+        player_id: _aware_utc(
             kickoff_by_id[player_id], f"kickoff for {player_id}",
-        ) <= current:
-            return False
-    return _open_slot_matching(open_players, open_slots)
+        )
+        for player_id in needed
+    }
+    return _reachable_from_signature(signature, final_by_id, kickoffs, current)
 
 
 def build_alternative_sets(
@@ -178,16 +195,35 @@ def build_alternative_sets(
     rosters = tuple(_roster(lineup) for lineup in candidates)
     if len(set(rosters)) != len(rosters):
         raise ValueError("recourse-aware candidate roster repeats")
+    player_universe = set().union(*(set(value) for value in rosters))
+    if not player_universe <= set(kickoff_by_id):
+        raise ValueError("recourse-aware initial kickoff identity is absent")
+    current = _aware_utc(decision, "recourse-aware decision")
+    kickoffs = {
+        player_id: _aware_utc(
+            kickoff_by_id[player_id], f"kickoff for {player_id}",
+        )
+        for player_id in player_universe
+    }
+    signatures = tuple(
+        locked_slot_signature(lineup, kickoffs, current) for lineup in candidates
+    )
+    final_profiles = tuple(
+        {str(player["id"]): player for player in lineup.players}
+        for lineup in candidates
+    )
     counts = np.stack([
         np.count_nonzero(totals >= threshold, axis=1) for threshold in TAILS
     ], axis=1)
     q99 = np.quantile(totals, 0.99, axis=1)
     means = totals.mean(axis=1, dtype=np.float64)
     output = []
-    for initial_index, initial in enumerate(candidates):
+    for initial_index, _initial in enumerate(candidates):
         reachable = [
-            index for index, final in enumerate(candidates)
-            if is_late_swap_reachable(initial, final, kickoff_by_id, decision)
+            index for index, final in enumerate(final_profiles)
+            if _reachable_from_signature(
+                signatures[initial_index], final, kickoffs, current,
+            )
         ]
         if initial_index not in reachable:
             raise ValueError("recourse-aware fail-safe alternative is absent")
@@ -341,6 +377,19 @@ def scorefree_book_metrics(
         tuple((int(slot), str(player)) for slot, player in locked_signatures[index])
         for index in chosen
     }
+    signature_counts: dict[tuple[tuple[int, str], ...], int] = {}
+    slot_counts = {str(index): 0 for index in range(len(SLOTS))}
+    player_counts: dict[str, int] = {}
+    locked_count_distribution = {str(index): 0 for index in range(10)}
+    for index in chosen:
+        signature = tuple(
+            (int(slot), str(player)) for slot, player in locked_signatures[index]
+        )
+        signature_counts[signature] = signature_counts.get(signature, 0) + 1
+        locked_count_distribution[str(len(signature))] += 1
+        for slot, player_id in signature:
+            slot_counts[str(slot)] += 1
+            player_counts[player_id] = player_counts.get(player_id, 0) + 1
     return {
         "version": VERSION,
         "uses_realized_outcomes": False,
@@ -356,6 +405,19 @@ def scorefree_book_metrics(
             "maximum": max(option_counts),
         },
         "distinct_locked_slot_signatures": len(signatures),
+        "locked_slot_count_distribution": locked_count_distribution,
+        "locked_slot_index_distribution": slot_counts,
+        "locked_player_frequency": [
+            {"player_id": player_id, "entries": entries}
+            for player_id, entries in sorted(player_counts.items())
+        ],
+        "locked_signature_frequency": [
+            {
+                "signature": [list(value) for value in signature],
+                "entries": entries,
+            }
+            for signature, entries in sorted(signature_counts.items())
+        ],
     }
 
 
@@ -472,7 +534,138 @@ def _summarize_fold_group(rows: Sequence[Mapping[str, object]]) -> dict[str, obj
             int(row["selected_identity_overlap"]) for row in rows
         )),
     }
+    for metric in (
+        "locked_slot_count_distribution", "locked_slot_index_distribution",
+    ):
+        result[metric] = {
+            arm: {
+                key: int(sum(int(row[arm][metric][key]) for row in rows))
+                for key in sorted(rows[0][arm][metric], key=int)
+            }
+            for arm in ("control", "treatment")
+        }
     return result
+
+
+def _effective_rank_from_books(
+    books: Sequence[Sequence[Sequence[str]]],
+) -> float:
+    identities = sorted({
+        tuple(sorted(str(value) for value in roster))
+        for book in books for roster in book
+    })
+    index = {roster: column for column, roster in enumerate(identities)}
+    matrix = np.zeros((len(books), len(identities)), dtype=np.float64)
+    for row, book in enumerate(books):
+        for roster in book:
+            matrix[row, index[tuple(sorted(str(value) for value in roster))]] = 1.0
+    eigenvalues = np.linalg.eigvalsh(matrix @ matrix.T)
+    eigenvalues = eigenvalues[eigenvalues > 1e-12]
+    if not len(eigenvalues):
+        return 0.0
+    probabilities = eigenvalues / eigenvalues.sum()
+    return float(np.exp(-np.sum(probabilities * np.log(probabilities))))
+
+
+def _selection_effective_rank(
+    rows: Sequence[Mapping[str, object]],
+) -> dict[str, object]:
+    by_slate = []
+    for season in (2023, 2024, 2025):
+        for week in range(1, 19):
+            slate = sorted(
+                [row for row in rows if int(row["season"]) == season
+                 and int(row["week"]) == week],
+                key=lambda row: str(row["heldout_block"]),
+            )
+            if len(slate) != 5:
+                raise ValueError("recourse-aware effective-rank slate differs")
+            by_slate.append({
+                "season": season,
+                "week": week,
+                **{
+                    arm: _effective_rank_from_books([
+                        row[f"{arm}_selected_rosters"] for row in slate
+                    ])
+                    for arm in ("control", "treatment")
+                },
+            })
+    return {
+        "definition": (
+            "exp_entropy_of_nonzero_eigenvalues_of_five_fold_"
+            "book_incidence_gram_matrix"
+        ),
+        "by_slate": by_slate,
+        "summary": {
+            arm: {
+                "mean": float(np.mean([row[arm] for row in by_slate])),
+                "minimum": float(min(row[arm] for row in by_slate)),
+                "maximum": float(max(row[arm] for row in by_slate)),
+            }
+            for arm in ("control", "treatment")
+        },
+    }
+
+
+def _gate_from_rows(rows: Sequence[Mapping[str, object]]) -> dict[str, object]:
+    aggregate = _summarize_fold_group(rows)
+    by_block = {
+        f"R{block}": _summarize_fold_group([
+            row for row in rows if row["heldout_block"] == f"R{block}"
+        ])
+        for block in range(5)
+    }
+
+    def events(summary, family: str, arm: str, threshold: int) -> int:
+        return int(summary[family][arm][str(threshold)])
+
+    reachable_p230_gain = events(
+        aggregate, "reachable_union_coverage", "treatment", 230,
+    ) - events(aggregate, "reachable_union_coverage", "control", 230)
+    improving_p230_blocks = sum(
+        events(value, "reachable_union_coverage", "treatment", 230) >
+        events(value, "reachable_union_coverage", "control", 230)
+        for value in by_block.values()
+    )
+    initial_high_nondecline = all(
+        events(aggregate, "initial_coverage", "treatment", threshold) >=
+        events(aggregate, "initial_coverage", "control", threshold)
+        for threshold in (240, 230, 220)
+    )
+    control_p194 = events(aggregate, "initial_coverage", "control", 194)
+    treatment_p194 = events(aggregate, "initial_coverage", "treatment", 194)
+    p194_ratio = float(treatment_p194 / control_p194) if control_p194 else 1.0
+    conditions = {
+        "reachable_p230_strict_and_three_blocks": (
+            reachable_p230_gain > 0 and improving_p230_blocks >= 3
+        ),
+        "reachable_p240_p220_p210_nondecline": all(
+            events(aggregate, "reachable_union_coverage", "treatment", threshold) >=
+            events(aggregate, "reachable_union_coverage", "control", threshold)
+            for threshold in (240, 220, 210)
+        ),
+        "initial_p240_p230_p220_nondecline": initial_high_nondecline,
+        "initial_p194_retention_at_least_95pct": p194_ratio >= 0.95,
+        "mean_reachable_alternatives_nondecline": bool(
+            aggregate["reachable_alternatives"]["treatment"]["mean"] >=
+            aggregate["reachable_alternatives"]["control"]["mean"]
+        ),
+        "locked_slot_signature_nondecline": bool(
+            aggregate["distinct_locked_slot_signatures"]["treatment"]["total"] >=
+            aggregate["distinct_locked_slot_signatures"]["control"]["total"]
+        ),
+    }
+    return {
+        "summary": aggregate,
+        "by_block": by_block,
+        "conditions": conditions,
+        "diagnostics": {
+            "reachable_p230_event_gain": reachable_p230_gain,
+            "improving_p230_blocks": improving_p230_blocks,
+            "initial_p194_retention_ratio": p194_ratio,
+        },
+        "passed": all(conditions.values()),
+    }
 
 
 def aggregate_scorefree_folds(
@@ -519,13 +712,9 @@ def aggregate_scorefree_folds(
                                 float(rate), events / 10_000, rtol=0.0, atol=1e-12,
                             ):
                         raise ValueError("recourse-aware aggregate tail value differs")
-    aggregate = _summarize_fold_group(rows)
-    by_block = {
-        f"R{block}": _summarize_fold_group([
-            row for row in rows if row["heldout_block"] == f"R{block}"
-        ])
-        for block in range(5)
-    }
+    gate = _gate_from_rows(rows)
+    aggregate = gate["summary"]
+    by_block = gate["by_block"]
     by_season = {
         str(season): _summarize_fold_group([
             row for row in rows if int(row["season"]) == season
@@ -533,52 +722,29 @@ def aggregate_scorefree_folds(
         for season in (2023, 2024, 2025)
     }
 
-    def events(summary, family: str, arm: str, threshold: int) -> int:
-        return int(summary[family][arm][str(threshold)])
-
-    reachable_p230_gain = events(
-        aggregate, "reachable_union_coverage", "treatment", 230,
-    ) - events(aggregate, "reachable_union_coverage", "control", 230)
-    improving_p230_blocks = sum(
-        events(value, "reachable_union_coverage", "treatment", 230) >
-        events(value, "reachable_union_coverage", "control", 230)
-        for value in by_block.values()
-    )
-    reachable_nondecline = all(
-        events(aggregate, "reachable_union_coverage", "treatment", threshold) >=
-        events(aggregate, "reachable_union_coverage", "control", threshold)
-        for threshold in (240, 220, 210)
-    )
-    initial_high_nondecline = all(
-        events(aggregate, "initial_coverage", "treatment", threshold) >=
-        events(aggregate, "initial_coverage", "control", threshold)
-        for threshold in (240, 230, 220)
-    )
-    control_p194 = events(aggregate, "initial_coverage", "control", 194)
-    treatment_p194 = events(aggregate, "initial_coverage", "treatment", 194)
-    p194_ratio = (
-        float(treatment_p194 / control_p194)
-        if control_p194 else 1.0
-    )
-    breadth_nondecline = (
-        aggregate["reachable_alternatives"]["treatment"]["mean"] >=
-        aggregate["reachable_alternatives"]["control"]["mean"]
-    )
-    signature_nondecline = (
-        aggregate["distinct_locked_slot_signatures"]["treatment"]["total"] >=
-        aggregate["distinct_locked_slot_signatures"]["control"]["total"]
-    )
-    conditions = {
-        "reachable_p230_strict_and_three_blocks": (
-            reachable_p230_gain > 0 and improving_p230_blocks >= 3
-        ),
-        "reachable_p240_p220_p210_nondecline": reachable_nondecline,
-        "initial_p240_p230_p220_nondecline": initial_high_nondecline,
-        "initial_p194_retention_at_least_95pct": p194_ratio >= 0.95,
-        "mean_reachable_alternatives_nondecline": bool(breadth_nondecline),
-        "locked_slot_signature_nondecline": bool(signature_nondecline),
-    }
-    passed = all(conditions.values())
+    conditions = gate["conditions"]
+    passed = gate["passed"]
+    leave_one_slate_out = []
+    for season in (2023, 2024, 2025):
+        for week in range(1, 19):
+            subset = [
+                row for row in rows
+                if not (int(row["season"]) == season and int(row["week"]) == week)
+            ]
+            sensitivity = _gate_from_rows(subset)
+            leave_one_slate_out.append({
+                "omitted_season": season,
+                "omitted_week": week,
+                "reachable_p230_event_gain": sensitivity["diagnostics"][
+                    "reachable_p230_event_gain"
+                ],
+                "conditions": sensitivity["conditions"],
+                "passed": sensitivity["passed"],
+                "condition_flips_vs_full": sorted(
+                    key for key, value in conditions.items()
+                    if sensitivity["conditions"][key] != value
+                ),
+            })
     return {
         "version": "recourse-aware-initial-book-scorefree-report-v1",
         "mechanism_version": VERSION,
@@ -595,11 +761,9 @@ def aggregate_scorefree_folds(
         "aggregate": aggregate,
         "by_block": by_block,
         "by_season": by_season,
-        "gate_diagnostics": {
-            "reachable_p230_event_gain": reachable_p230_gain,
-            "improving_p230_blocks": improving_p230_blocks,
-            "initial_p194_retention_ratio": p194_ratio,
-        },
+        "selection_effective_rank": _selection_effective_rank(rows),
+        "leave_one_slate_out_influence": leave_one_slate_out,
+        "gate_diagnostics": gate["diagnostics"],
         "conditions": conditions,
         "passed": passed,
         "disposition": (

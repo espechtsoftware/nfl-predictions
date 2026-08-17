@@ -159,6 +159,11 @@ def test_scorefree_metrics_separate_initial_and_reachable_union() -> None:
     assert metrics["reachable_union_coverage"]["240"]["events"] == 1
     assert metrics["reachable_alternatives"] == 3
     assert metrics["distinct_locked_slot_signatures"] == 1
+    assert metrics["locked_slot_count_distribution"]["1"] == 2
+    assert metrics["locked_slot_index_distribution"]["0"] == 2
+    assert metrics["locked_player_frequency"] == [
+        {"player_id": "q1", "entries": 2},
+    ]
 
 
 def _coverage(events: dict[int, int]) -> dict[str, dict[str, float | int]]:
@@ -178,6 +183,16 @@ def _aggregate_fold(season: int, week: int, block: int) -> dict:
     treatment_initial[194] = 95
     treatment_reachable = dict(control_events)
     treatment_reachable[230] = 11
+    locked_counts = {str(index): 80 if index == 3 else 0 for index in range(10)}
+    slot_counts = {str(index): 80 if index < 3 else 0 for index in range(9)}
+    control_rosters = [
+        [f"{season}-{week}-control-{entry}-{slot}" for slot in range(9)]
+        for entry in range(80)
+    ]
+    treatment_rosters = [
+        [f"{season}-{week}-treatment-{block}-{entry}-{slot}" for slot in range(9)]
+        for entry in range(80)
+    ]
     return {
         "version": VERSION,
         "uses_realized_outcomes": False,
@@ -187,6 +202,8 @@ def _aggregate_fold(season: int, week: int, block: int) -> dict:
         "candidate_budget": 100,
         "alternative_cap": 24,
         "selected_identity_overlap": 70,
+        "control_selected_rosters": control_rosters,
+        "treatment_selected_rosters": treatment_rosters,
         "control": {
             "uses_realized_outcomes": False,
             "entries": 80,
@@ -195,6 +212,8 @@ def _aggregate_fold(season: int, week: int, block: int) -> dict:
             "reachable_union_coverage": _coverage(control_events),
             "reachable_alternatives": 90,
             "distinct_locked_slot_signatures": 50,
+            "locked_slot_count_distribution": locked_counts,
+            "locked_slot_index_distribution": slot_counts,
         },
         "treatment": {
             "uses_realized_outcomes": False,
@@ -204,6 +223,8 @@ def _aggregate_fold(season: int, week: int, block: int) -> dict:
             "reachable_union_coverage": _coverage(treatment_reachable),
             "reachable_alternatives": 91,
             "distinct_locked_slot_signatures": 50,
+            "locked_slot_count_distribution": locked_counts,
+            "locked_slot_index_distribution": slot_counts,
         },
     }
 
@@ -228,6 +249,12 @@ def test_frozen_aggregate_gate_passes_only_complete_positive_population() -> Non
     assert result["gate_diagnostics"]["reachable_p230_event_gain"] == 270
     assert result["gate_diagnostics"]["improving_p230_blocks"] == 5
     assert result["gate_diagnostics"]["initial_p194_retention_ratio"] == 0.95
+    assert len(result["leave_one_slate_out_influence"]) == 54
+    assert len(result["selection_effective_rank"]["by_slate"]) == 54
+    assert result["selection_effective_rank"]["summary"]["control"]["mean"] == \
+        pytest.approx(1.0)
+    assert result["selection_effective_rank"]["summary"]["treatment"]["mean"] == \
+        pytest.approx(5.0)
     assert all(result["conditions"].values())
     assert result["passed"] is True
     assert result["historical_policy_diagnostic_licensed"] is True

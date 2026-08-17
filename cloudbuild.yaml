@@ -36,6 +36,10 @@ steps:
         docker run --rm '${_IMAGE}' \
           python scripts/run_constraint_lattice_resource_preflight.py --help >/dev/null
         docker run --rm '${_IMAGE}' \
+          python scripts/run_recourse_aware_initial_scorefree.py --help >/dev/null
+        docker run --rm '${_IMAGE}' \
+          python scripts/aggregate_recourse_aware_initial_scorefree.py --help >/dev/null
+        docker run --rm '${_IMAGE}' \
           python scripts/run_coherent_market_state_scorefree.py --help >/dev/null
         docker run --rm '${_IMAGE}' \
           python scripts/aggregate_coherent_market_state_scorefree.py --help >/dev/null
