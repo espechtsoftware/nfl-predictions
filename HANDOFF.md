@@ -1369,7 +1369,9 @@ agent or developer:
   support law, local source hashes and five source panels before constructing
   anything. Twenty focused stack tests pass; Python/shell compilation and
   `git diff --check` pass. This does not alter the already-built support image,
-  support census, treatment construction or scientific gate.
+  support census, treatment construction or scientific gate. The hardening is
+  pushed on `main` at exact commit
+  `a8279a8067ba79fd63383db0231ecd7e6e5514b1`.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).
