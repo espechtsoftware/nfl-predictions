@@ -294,6 +294,11 @@ def validate_receipt(receipt: Mapping[str, Any], grid_command: str) -> dict[str,
                 {(int(row[0]), int(row[1])) for row in rows} != set(EXPECTED_CELLS) or \
                 len({row[3] for row in rows}) != 54:
             raise RuntimeError("ATLAS historical v3 embedded ledger differs")
+        for season, week, job, execution, uri in rows:
+            expected_job = f"atlas-md-s{season}-w{week}-r5"
+            if job != expected_job or not execution.startswith(expected_job + "-") or \
+                    uri != f"{UPSTREAM_PREFIX}/slate-{season}-{week}.json":
+                raise RuntimeError("ATLAS historical v3 embedded identity differs")
     primary_by_cell = {(row[0], row[1]): row for row in primary_rows}
     accepted_by_cell = {(row[0], row[1]): row for row in accepted_rows}
     retry_by_cell: dict[tuple[str, str], list[str]] = {}
@@ -388,15 +393,31 @@ def validate_receipt(receipt: Mapping[str, Any], grid_command: str) -> dict[str,
                 "accepted-primary-population", "accepted-population-with-platform-replacements",
             } or resolution.get("uses_realized_outcomes") is not False or \
             resolution.get("effect_fields_inspected") is not False or \
+            resolution.get("task_max_retries") != 0 or \
+            resolution.get("max_replacement_executions_per_cell") != 1 or \
+            resolution.get("primary_executions") != 54 or \
             resolution.get("accepted_executions") != 54 or \
             resolution.get("retry_executions") != len(retry_rows) or \
             classification.get("version") != \
             "atlas-repair5-primary-attempt-classification-v1" or \
             classification.get("uses_realized_outcomes") is not False or \
             classification.get("effect_fields_inspected") is not False or \
+            classification.get("task_max_retries") != 0 or \
+            classification.get("max_replacement_executions_per_cell") != 1 or \
+            classification.get("primary_executions") != 54 or \
             classification.get("ineligible_failures") != 0 or \
             classification.get("eligible_replacements") != len(retry_rows):
         raise RuntimeError("ATLAS historical v3 attempt receipt differs")
+    expected_resolution = (
+        "accepted-primary-population" if not retry_rows
+        else "accepted-population-with-platform-replacements"
+    )
+    expected_classification = (
+        "all-primary-success" if not retry_rows else "replacement-required"
+    )
+    if resolution.get("disposition") != expected_resolution or \
+            classification.get("disposition") != expected_classification:
+        raise RuntimeError("ATLAS historical v3 attempt disposition differs")
     if resolution.get("classification_sha256") != \
             strict["primary_attempt_classification_sha256"] or \
             resolution.get("primary_execution_ledger_sha256") != \

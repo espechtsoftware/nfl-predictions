@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 08:38 CDT
+## Current state — 2026-08-17 08:45 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -285,9 +285,19 @@ agent or developer:
   The exact implementation milestone is pushed on `main` at commit
   `0d61d97934c1113891d6f98c4fce86b82e06635a`.
   Clean-archive full-test Cloud Build
-  `580d5516-a6df-4522-b4f1-0ad2a7f2afce` is now running from exact source
-  commit `fbc748a7dc90c4627a21ab86f3b4d6dc141ba6e8`, with image tag
-  `atlas-historical-v3-fbc748a`. Its result/digest is not yet known.
+  `580d5516-a6df-4522-b4f1-0ad2a7f2afce`, from exact source commit
+  `fbc748a7dc90c4627a21ab86f3b4d6dc141ba6e8`, was prospectively superseded
+  and cancelled while its test step was still running; never use its tag or
+  any eventual artifact. Before any historical execution or score, the local
+  source lock was further hardened to require exact retry/classification
+  dispositions and embedded job/URI identities, recover an interrupted
+  create-only receipt seal only when bytes match, bind all local runtime
+  helpers plus the launcher/watcher to the built commit, validate the complete
+  manifest/hash/lease in the strict finisher (including the exact active lease
+  generation and bytes), and exit cleanly if repair5 closes invalid. The same 34
+  focused tests, Python compilation, shell syntax and diff checks pass. A new
+  clean-archive full-test build is required from the forthcoming hardening
+  commit; no scoring watcher may use build `580d5516-...`.
   Next: commit/push this implementation, run its full-test immutable Cloud
   Build in parallel with the score-blind grid, then start the v3 queue watcher
   with that digest/build so strict repair5 completion automatically seals and

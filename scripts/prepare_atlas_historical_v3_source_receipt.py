@@ -9,6 +9,7 @@ from pathlib import Path
 import subprocess
 from typing import Any
 
+from google.api_core.exceptions import PreconditionFailed
 from google.cloud import storage
 
 from nfl_dfs.research.atlas_historical_v3_sources import (
@@ -19,6 +20,8 @@ from nfl_dfs.research.atlas_historical_v3_sources import (
     UPSTREAM_RUN_ID,
     build_receipt,
     canonical_json,
+    loads_json,
+    validate_receipt,
 )
 from render_atlas_matched_diversity_repair4_command import render
 from run_cbwu_seed_order_audit import _parse_gcs, _upload_create_only
@@ -60,13 +63,74 @@ def _job_execution_names(job: str) -> list[str]:
     return names
 
 
+def _upload_or_recover(
+    client: storage.Client, raw: bytes,
+) -> dict[str, str | int | bool]:
+    try:
+        return _upload_create_only(client, RECEIPT_URI, raw)
+    except PreconditionFailed:
+        bucket, name = _parse_gcs(RECEIPT_URI)
+        blob = client.bucket(bucket).blob(name)
+        existing = blob.download_as_bytes()
+        blob.reload()
+        if existing != raw or blob.generation is None:
+            raise RuntimeError("ATLAS historical v3 cloud receipt differs")
+        return {
+            "uri": RECEIPT_URI, "generation": str(blob.generation),
+            "sha256": sha256(raw).hexdigest(), "bytes": len(raw),
+            "create_only": True,
+        }
+
+
+def _seal_local_upload(
+    client: storage.Client, receipt_path: Path, raw: bytes,
+) -> dict[str, Any]:
+    digest = sha256(raw).hexdigest()
+    digest_path = OUT / "upstream-receipt.sha256"
+    expected_digest_line = f"{digest}  {receipt_path}\n"
+    if digest_path.exists():
+        if digest_path.read_text(encoding="utf-8") != expected_digest_line:
+            raise RuntimeError("ATLAS historical v3 local receipt hash differs")
+    else:
+        digest_path.write_text(expected_digest_line, encoding="utf-8")
+    uploaded = _upload_or_recover(client, raw)
+    object_raw = canonical_json(uploaded)
+    object_path = OUT / "upstream-receipt-object.json"
+    if object_path.exists():
+        if object_path.read_bytes() != object_raw:
+            raise RuntimeError("ATLAS historical v3 local object receipt differs")
+    else:
+        with object_path.open("xb") as handle:
+            handle.write(object_raw)
+    object_digest_path = OUT / "upstream-receipt-object.sha256"
+    object_digest_line = f"{sha256(object_raw).hexdigest()}  {object_path}\n"
+    if object_digest_path.exists():
+        if object_digest_path.read_text(encoding="utf-8") != object_digest_line:
+            raise RuntimeError("ATLAS historical v3 object-receipt hash differs")
+    else:
+        object_digest_path.write_text(object_digest_line, encoding="utf-8")
+    return uploaded
+
+
 def prepare() -> dict[str, Any]:
     upstream = ROOT / "reports/atlas-matched-diversity-runs" / UPSTREAM_RUN_ID
     if not (upstream / "completion.txt").is_file():
         raise RuntimeError("ATLAS historical v3 awaits strict repair5 completion")
-    if OUT.exists():
-        raise RuntimeError("ATLAS historical v3 immutable local source receipt exists")
     client = storage.Client(project=PROJECT)
+    if OUT.exists():
+        receipt_path = OUT / "upstream-receipt.json"
+        if not receipt_path.is_file() or (OUT / "manifest.txt").exists():
+            raise RuntimeError("ATLAS historical v3 immutable local run exists")
+        raw = receipt_path.read_bytes()
+        receipt = loads_json(raw.decode("utf-8"))
+        if not isinstance(receipt, dict):
+            raise RuntimeError("ATLAS historical v3 recovery receipt differs")
+        validate_receipt(receipt, render(UPSTREAM_PREFIX))
+        uploaded = _seal_local_upload(client, receipt_path, raw)
+        print("ATLAS_HISTORICAL_V3_SOURCE_RECOVERED " + json.dumps(
+            uploaded, sort_keys=True,
+        ))
+        return uploaded
     metadata: dict[str, dict[str, Any]] = {}
     names = ["report.json", *(f"season-{season}.json" for season in (2023, 2024, 2025))]
     names.extend(f"slate-{season}-{week}.json" for season, week in EXPECTED_CELLS)
@@ -89,17 +153,7 @@ def prepare() -> dict[str, Any]:
     receipt_path = OUT / "upstream-receipt.json"
     with receipt_path.open("xb") as handle:
         handle.write(raw)
-    digest = sha256(raw).hexdigest()
-    (OUT / "upstream-receipt.sha256").write_text(
-        f"{digest}  {receipt_path}\n", encoding="utf-8",
-    )
-    uploaded = _upload_create_only(client, RECEIPT_URI, raw)
-    object_raw = canonical_json(uploaded)
-    (OUT / "upstream-receipt-object.json").write_bytes(object_raw)
-    (OUT / "upstream-receipt-object.sha256").write_text(
-        f"{sha256(object_raw).hexdigest()}  {OUT / 'upstream-receipt-object.json'}\n",
-        encoding="utf-8",
-    )
+    uploaded = _seal_local_upload(client, receipt_path, raw)
     print("ATLAS_HISTORICAL_V3_SOURCE_SEALED " + json.dumps(
         uploaded, sort_keys=True,
     ))

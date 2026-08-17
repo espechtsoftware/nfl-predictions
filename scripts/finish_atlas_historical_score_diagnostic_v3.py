@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from hashlib import sha256
 import json
-import os
 from pathlib import Path
 import re
 import subprocess
@@ -24,9 +23,11 @@ from nfl_dfs.research.atlas_historical_v3_sources import (
     canonical_json,
     file_sha,
     load_json,
+    loads_json,
     parse_kv,
     validate_receipt,
 )
+from historical_outcome_lease import LEASE_URI
 from render_atlas_matched_diversity_repair4_command import render
 from run_atlas_historical_score_diagnostic_v3 import _object_receipt
 from run_cbwu_seed_order_audit import _parse_gcs
@@ -38,7 +39,7 @@ SERVICE_ACCOUNT = "817589974517-compute@developer.gserviceaccount.com"
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "reports/atlas-historical-score-runs" / HISTORICAL_RUN_ID
 OUTPUT_URI = f"{HISTORICAL_PREFIX}/report.json"
-JOB = "atlas-historical-score-v3"
+PROTOCOL_SHA256 = "2a4b0ed6c6a2c4b15c052968248aefd0d8a1ff519c5ec2bce5c72bfb50020e7b"
 
 
 def _execution(name: str) -> dict[str, Any]:
@@ -195,14 +196,16 @@ def _validate_report(
     return str(gate["disposition"])
 
 
-def _write_completion(disposition: str, report_sha: str = "") -> None:
+def _write_completion(
+    disposition: str, report_sha: str = "", *, slates: int = 54,
+) -> None:
     path = OUT / "completion.txt"
     if path.exists():
         raise RuntimeError("ATLAS historical v3 immutable completion exists")
     lines = [
         f"run_id={HISTORICAL_RUN_ID}", f"disposition={disposition}",
         "uses_realized_outcomes=true", "production_change_licensed=false",
-        "seasons=2023,2024,2025", "slates=54",
+        "seasons=2023,2024,2025", f"slates={slates}",
     ]
     if report_sha:
         lines.append(f"report_sha256={report_sha}")
@@ -217,7 +220,8 @@ def finish() -> str:
     execution_path = OUT / "execution.txt"
     source_path = OUT / "upstream-receipt.json"
     object_path = OUT / "upstream-receipt-object.json"
-    for path in (manifest_path, execution_path, source_path, object_path):
+    lease_path = OUT / "historical-outcome-lease.json"
+    for path in (manifest_path, execution_path, source_path, object_path, lease_path):
         if not path.is_file():
             raise RuntimeError(f"ATLAS historical v3 launch receipt is missing: {path}")
     if any((OUT / name).exists() for name in (
@@ -225,6 +229,45 @@ def finish() -> str:
     )):
         raise RuntimeError("ATLAS historical v3 immutable harvest exists")
     manifest = parse_kv(manifest_path)
+    expected_manifest_keys = {
+        "run_id", "job", "execution", "image", "code_sha", "build_id",
+        "output_prefix", "output_uri", "protocol_sha256",
+        "upstream_receipt_uri", "upstream_receipt_generation",
+        "upstream_receipt_sha256", "source_module_sha256", "runner_sha256",
+        "finisher_sha256", "tasks", "parallelism", "cpu", "memory",
+        "timeout_seconds", "max_retries", "uses_realized_outcomes",
+        "production_change_licensed",
+    }
+    fixed_manifest = {
+        "run_id": HISTORICAL_RUN_ID,
+        "job": "atlas-historical-score-v3",
+        "output_prefix": HISTORICAL_PREFIX,
+        "output_uri": OUTPUT_URI,
+        "protocol_sha256": PROTOCOL_SHA256,
+        "tasks": "1", "parallelism": "1", "cpu": "8", "memory": "32Gi",
+        "timeout_seconds": "28800", "max_retries": "0",
+        "uses_realized_outcomes": "true",
+        "production_change_licensed": "false",
+    }
+    source_paths = {
+        "source_module_sha256": ROOT / "src/nfl_dfs/research/atlas_historical_v3_sources.py",
+        "runner_sha256": ROOT / "scripts/run_atlas_historical_score_diagnostic_v3.py",
+        "finisher_sha256": ROOT / "scripts/finish_atlas_historical_score_diagnostic_v3.py",
+    }
+    if set(manifest) != expected_manifest_keys or any(
+        manifest.get(key) != value for key, value in fixed_manifest.items()
+    ) or not re.fullmatch(r"[0-9a-f]{40}", manifest.get("code_sha", "")) or \
+            not re.fullmatch(r".+@sha256:[0-9a-f]{64}", manifest.get("image", "")) or \
+            not re.fullmatch(r"[0-9a-f-]{36}", manifest.get("build_id", "")) or \
+            any(manifest.get(key) != file_sha(path) for key, path in source_paths.items()) or \
+            file_sha(ROOT / "reports/2026-08-17-atlas-historical-score-v3-execution-protocol.md") != \
+            PROTOCOL_SHA256:
+        raise RuntimeError("ATLAS historical v3 manifest differs")
+    execution_fields = execution_path.read_text(encoding="utf-8").split()
+    if execution_fields != [
+        manifest["job"], manifest["execution"], manifest["output_uri"],
+    ]:
+        raise RuntimeError("ATLAS historical v3 execution ledger differs")
     receipt = load_json(source_path)
     receipt_object = load_json(object_path)
     if not isinstance(receipt, dict) or not isinstance(receipt_object, dict):
@@ -235,6 +278,47 @@ def finish() -> str:
             receipt_object.get("generation") != manifest.get("upstream_receipt_generation") or \
             receipt_object.get("sha256") != manifest.get("upstream_receipt_sha256"):
         raise RuntimeError("ATLAS historical v3 source object receipt differs")
+    expected_hash_receipts = {
+        OUT / "manifest.sha256": f"{file_sha(manifest_path)}  {manifest_path}\n",
+        OUT / "execution.txt.sha256": (
+            f"{file_sha(execution_path)}  {execution_path}\n"
+        ),
+        OUT / "upstream-receipt.sha256": f"{file_sha(source_path)}  {source_path}\n",
+        OUT / "upstream-receipt-object.sha256": (
+            f"{file_sha(object_path)}  {object_path}\n"
+        ),
+    }
+    if any(not path.is_file() or path.read_text(encoding="utf-8") != expected
+           for path, expected in expected_hash_receipts.items()):
+        raise RuntimeError("ATLAS historical v3 source hash receipt differs")
+    lease = load_json(lease_path)
+    if not isinstance(lease, dict) or set(lease) != {"lease", "object"} or \
+            not isinstance(lease.get("lease"), dict) or \
+            not isinstance(lease.get("object"), dict):
+        raise RuntimeError("ATLAS historical v3 outcome lease differs")
+    lease_value = lease["lease"]
+    lease_object = lease["object"]
+    expected_lease_keys = {
+        "version", "run_id", "job", "code_sha", "image", "acquired_at",
+    }
+    expected_lease_object_keys = {
+        "uri", "generation", "sha256", "bytes", "create_only",
+    }
+    if set(lease_value) != expected_lease_keys or \
+            set(lease_object) != expected_lease_object_keys or lease_value != {
+        "version": "historical-outcome-active-v1",
+        "run_id": HISTORICAL_RUN_ID,
+        "job": manifest["job"], "code_sha": manifest["code_sha"],
+        "image": manifest["image"],
+        "acquired_at": lease_value.get("acquired_at"),
+    } or not isinstance(lease_value.get("acquired_at"), str) or \
+            not lease_value["acquired_at"].endswith("+00:00") or \
+            lease_object.get("uri") != LEASE_URI or \
+            not str(lease_object.get("generation", "")).isdigit() or \
+            lease_object.get("sha256") != sha256(canonical_json(lease_value)).hexdigest() or \
+            lease_object.get("bytes") != len(canonical_json(lease_value)) or \
+            lease_object.get("create_only") is not True:
+        raise RuntimeError("ATLAS historical v3 outcome lease differs")
     execution = _execution(manifest["execution"])
     state = _validate_execution(execution, manifest)
     execution_raw = canonical_json(execution)
@@ -244,15 +328,21 @@ def finish() -> str:
         encoding="utf-8",
     )
     if state != "True":
-        _write_completion("terminal-invalid-execution")
+        _write_completion("terminal-invalid-execution", slates=0)
         return "terminal-invalid-execution"
 
     client = storage.Client(project=PROJECT)
+    lease_bucket, lease_name = _parse_gcs(LEASE_URI)
+    lease_blob = client.bucket(lease_bucket).blob(
+        lease_name, generation=int(lease_object["generation"]),
+    )
+    if lease_blob.download_as_bytes() != canonical_json(lease_value):
+        raise RuntimeError("ATLAS historical v3 active outcome lease differs")
     bucket, name = _parse_gcs(OUTPUT_URI)
     blob = client.bucket(bucket).blob(name)
     raw = blob.download_as_bytes()
     object_receipt = _object_receipt(blob, OUTPUT_URI, raw)
-    report = json.loads(raw)
+    report = loads_json(raw.decode("utf-8"))
     if not isinstance(report, dict):
         raise RuntimeError("ATLAS historical v3 report payload differs")
     disposition = _validate_report(report, manifest, receipt)

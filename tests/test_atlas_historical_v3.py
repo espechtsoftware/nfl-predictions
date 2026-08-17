@@ -148,7 +148,9 @@ def _receipt(*, replacement=False):
             else "accepted-population-with-platform-replacements"
         ),
         "uses_realized_outcomes": False, "effect_fields_inspected": False,
-        "accepted_executions": 54, "retry_executions": len(retries),
+        "task_max_retries": 0, "max_replacement_executions_per_cell": 1,
+        "primary_executions": 54, "accepted_executions": 54,
+        "retry_executions": len(retries),
         "classification_sha256": strict["primary_attempt_classification_sha256"],
         "primary_execution_ledger_sha256": PRIMARY_LEDGER_SHA256,
         "retry_execution_ledger_sha256": strict["retry_execution_ledger_sha256"],
@@ -158,7 +160,12 @@ def _receipt(*, replacement=False):
     }
     classification = {
         "version": "atlas-repair5-primary-attempt-classification-v1",
+        "disposition": (
+            "all-primary-success" if not retries else "replacement-required"
+        ),
         "uses_realized_outcomes": False, "effect_fields_inspected": False,
+        "task_max_retries": 0, "max_replacement_executions_per_cell": 1,
+        "primary_executions": 54,
         "ineligible_failures": 0, "eligible_replacements": len(retries),
         "primary_execution_ledger_sha256": PRIMARY_LEDGER_SHA256,
         "primary_object_inventory_sha256": strict["primary_object_inventory_sha256"],
@@ -265,3 +272,10 @@ def test_v3_runner_is_packaged_smoked_and_lease_controlled():
     assert "historical_outcome_lease.py\" acquire" in launcher
     assert "historical_outcome_lease.py\" release" in watcher
     assert "aggregate_diagnostic(rows)" in finisher
+    assert "active outcome lease differs" in finisher
+    for relative in (
+        "scripts/cloud_atlas_historical_score_diagnostic_v3.sh",
+        "scripts/watch_atlas_historical_v3_queue.sh",
+        "scripts/historical_outcome_lease.py",
+    ):
+        assert relative in launcher

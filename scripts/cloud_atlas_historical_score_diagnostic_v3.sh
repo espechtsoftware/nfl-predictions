@@ -55,6 +55,10 @@ for RELATIVE in Dockerfile cloudbuild.yaml \
   scripts/run_atlas_historical_score_diagnostic.py \
   scripts/run_atlas_historical_score_diagnostic_v3.py \
   scripts/finish_atlas_historical_score_diagnostic_v3.py \
+  scripts/cloud_atlas_historical_score_diagnostic_v3.sh \
+  scripts/watch_atlas_historical_v3_queue.sh \
+  scripts/historical_outcome_lease.py \
+  scripts/run_cbwu_seed_order_audit.py \
   scripts/render_atlas_matched_diversity_repair4_command.py; do
   CURRENT=$(sha256sum "$ROOT/$RELATIVE" | awk '{print $1}')
   BUILT=$(git -C "$ROOT" show "$CODE_SHA:$RELATIVE" | sha256sum | awk '{print $1}')

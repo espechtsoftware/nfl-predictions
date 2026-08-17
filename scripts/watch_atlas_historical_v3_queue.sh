@@ -13,6 +13,10 @@ CODE_SHA=${2:-}
 BUILD_ID=${3:-}
 
 while [ ! -s "$UPSTREAM/completion.txt" ]; do
+  if [ -s "$UPSTREAM/terminal-census-completion.txt" ]; then
+    echo "ATLAS_HISTORICAL_V3_NOT_LICENSED_REPAIR5_TERMINALLY_INVALID"
+    exit 0
+  fi
   printf '%s ATLAS_HISTORICAL_V3_WAITING_FOR_REPAIR5\n' \
     "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   sleep 300
