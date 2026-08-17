@@ -11,10 +11,13 @@ from nfl_dfs.analysis.stack_core_shell import (
     admit_and_select_treatment,
     aggregate_gate,
     build_component_library,
+    build_production_form,
     construct_recombinant_proposals,
     enumerate_core_shells,
+    production_form_receipt,
 )
 from nfl_dfs.optimizer.lineup import Lineup
+from nfl_dfs.backtest.engine import CandidateBatch
 
 
 def _player(
@@ -121,6 +124,54 @@ def test_recombination_builds_fixed_beam_and_budget_neutral_admission() -> None:
     assert treatment["candidate_budget"] == len(lineups)
     assert len(treatment["candidate_lineups"]) == len(lineups)
     assert len(treatment["selected_lineups"]) == 80
+
+
+def test_production_form_uses_all_five_blocks_and_exact_80() -> None:
+    lineups, _blocks, _totals, players = _library_fixture()
+    player_ids = tuple(row["id"] for row in players)
+    base_draws = np.asarray([
+        np.linspace(18.0 + index / 10000, 32.0 + index / 10000, 10)
+        for index in range(len(players))
+    ], dtype=np.float32)
+    roster_rows = np.asarray([
+        [player_ids.index(str(value)) for value in lineup.ids]
+        for lineup in lineups
+    ], dtype=np.int64)
+    books = {}
+    for index, block in enumerate(("R0", "R1", "R2", "R3", "R4")):
+        draws = base_draws + index
+        books[block] = CandidateBatch(
+            candidates=tuple(lineups),
+            candidate_totals=draws[roster_rows].sum(axis=1),
+            player_ids=player_ids,
+            player_rows=tuple(players),
+            row_draws=draws,
+            all_tags={lineup.ids: ("lev",) for lineup in lineups},
+            metadata={"block": block},
+        )
+    result = build_production_form(books, expected_worlds_per_block=10)
+    assert result["blocks"] == ["R0", "R1", "R2", "R3", "R4"]
+    assert result["worlds_per_block"] == 10
+    assert result["candidate_budget"] == SHELL_LIMIT
+    assert len(result["control_selected_lineups"]) == 80
+    assert len(result["component_library"]["cores"]) == CORE_LIMIT
+    assert len(result["component_library"]["shells"]) == SHELL_LIMIT
+    assert len(result["proposal_receipt"]["beam"]) == BEAM_LIMIT
+    assert len(result["proposal_receipt"]["proposals"]) == PROPOSAL_LIMIT
+    assert len(result["treatment"]["candidate_lineups"]) == SHELL_LIMIT
+    assert len(result["treatment"]["selected_lineups"]) == 80
+    receipt = production_form_receipt(result, season=2023, week=1)
+    assert receipt["version"] == "stack-core-shell-production-form-lock-v1"
+    assert receipt["uses_realized_outcomes"] is False
+    assert receipt["actual_scores_queried"] is False
+    assert receipt["candidate_budget"] == SHELL_LIMIT
+    assert len(receipt["candidate_rosters"]["control"]) == SHELL_LIMIT
+    assert len(receipt["candidate_rosters"]["treatment"]) == SHELL_LIMIT
+    assert len(receipt["selected_rosters"]["control"]) == 80
+    assert len(receipt["selected_rosters"]["treatment"]) == 80
+    assert receipt["beam_candidates"] == BEAM_LIMIT
+    assert receipt["proposal_candidates"] == PROPOSAL_LIMIT
+    assert len(receipt["proposal_rosters"]) == PROPOSAL_LIMIT
 
 
 def _fold(season: int, week: int, block: str, *, treatment_gain: int = 1) -> dict:

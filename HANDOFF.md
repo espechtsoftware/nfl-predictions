@@ -1383,7 +1383,20 @@ agent or developer:
   selected-200/non-worse-selected-210/non-worse-candidate-200 tail-first
   signal. It can prioritize a 2026 shadow but cannot promote production because
   the mechanism postdates viewed outcomes. No scorer implementation or Cloud
-  execution exists yet; implement it outcome-free while the upstream gates run.
+  execution existed at the freeze. The pure implementation is now complete:
+  `build_production_form` reconstructs the all-five-block CBWU-OI control,
+  uses the same five-block 32/128/256/40 construction and fixed candidate
+  budget, and locks exact candidate/exact-80 identities plus simulated support,
+  structure, rank and proposal receipts without accepting an actual score.
+  The separate pure historical module accepts only that outcome-free lock,
+  scores control/treatment candidate and selected books, records generated /
+  admitted / selected proposal conversion at every threshold, paired weekly
+  maxima, full crossings, season splits, overlap and leave-one-slate-out gate
+  stability, and applies exactly the frozen three-condition tail-first signal.
+  Twenty-three focused stack construction/support/attempt/execution/historical
+  tests pass; both modules compile and `git diff --check` passes. The immutable
+  lock runner/strict grid finisher and downstream outcome query/launcher remain
+  to be implemented; neither can launch before the upstream score-free license.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).

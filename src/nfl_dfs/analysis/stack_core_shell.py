@@ -16,7 +16,10 @@ from time import perf_counter
 import numpy as np
 
 from ..backtest.engine import CandidateBatch
-from ..inference.multiseed_portfolio import _select_tail_entries_bitpacked
+from ..inference.multiseed_portfolio import (
+    _select_tail_entries_bitpacked,
+    combine_cbwu_order_invariant_books,
+)
 from ..optimizer.lineup import Lineup, select_tail_entries
 from .atlas_matched_diversity import _score_effective_rank
 from .constraint_lattice import (
@@ -70,11 +73,14 @@ def _roster(lineup: Lineup) -> Roster:
 
 def _normalized_vectors(
     totals_by_block: Mapping[str, np.ndarray], blocks: Sequence[str],
+    *, expected_blocks: int = 4,
 ) -> dict[str, np.ndarray]:
     names = tuple(str(value) for value in blocks)
-    if len(names) != 4 or len(set(names)) != 4 or \
+    if len(names) != expected_blocks or len(set(names)) != expected_blocks or \
             set(totals_by_block) != set(names):
-        raise ValueError("stack-core/shell requires four training blocks")
+        raise ValueError(
+            f"stack-core/shell requires {expected_blocks} training blocks"
+        )
     normalized = {}
     widths = set()
     for name in names:
@@ -90,10 +96,13 @@ def _normalized_vectors(
 
 def _tail_rank(
     totals_by_block: Mapping[str, np.ndarray], blocks: Sequence[str],
+    *, expected_blocks: int = 4,
 ) -> tuple[float, ...]:
     """Return the frozen worst-block/aggregate tail ordering."""
     names = tuple(str(value) for value in blocks)
-    values = _normalized_vectors(totals_by_block, names)
+    values = _normalized_vectors(
+        totals_by_block, names, expected_blocks=expected_blocks,
+    )
     rank: list[float] = []
     for line in TRAINING_LINES:
         counts = [float(np.count_nonzero(values[name] >= line)) for name in names]
@@ -162,6 +171,8 @@ def build_component_library(
     control_lineups: Sequence[Lineup],
     control_totals_by_block: Mapping[str, np.ndarray],
     blocks: Sequence[str],
+    *,
+    expected_blocks: int = 4,
 ) -> dict[str, object]:
     """Build the exact 32-core and 128-shell library from control."""
     lineups = list(control_lineups)
@@ -182,7 +193,7 @@ def build_component_library(
     for index, lineup in enumerate(lineups):
         parent = _roster(lineup)
         totals = {name: matrices[name][index] for name in names}
-        rank = _tail_rank(totals, names)
+        rank = _tail_rank(totals, names, expected_blocks=expected_blocks)
         for row in enumerate_core_shells(lineup):
             decompositions += 1
             core = tuple(row["core"])
@@ -253,6 +264,7 @@ def construct_recombinant_proposals(
     blocks: Sequence[str],
     control_lineups: Sequence[Lineup],
     library: Mapping[str, object],
+    expected_blocks: int = 4,
 ) -> dict[str, object]:
     """Cross components, retain the 256 beam, then choose exactly 40."""
     names = tuple(str(value) for value in blocks)
@@ -309,7 +321,9 @@ def construct_recombinant_proposals(
                 core=core.players,
                 shell=shell.players,
                 totals_by_block=totals,
-                rank=_tail_rank(totals, names),
+                rank=_tail_rank(
+                    totals, names, expected_blocks=expected_blocks,
+                ),
             )
             current = by_roster.get(roster)
             if current is None:
@@ -438,6 +452,238 @@ def admit_and_select_treatment(
         },
         "admitted_proposal_rosters": admitted_proposals,
         "admitted_proposals": len(admitted_proposals),
+    }
+
+
+def build_production_form(
+    books: Mapping[str, CandidateBatch],
+    *,
+    expected_worlds_per_block: int = 10_000,
+) -> dict[str, object]:
+    """Build one all-five-block control/treatment pair before actual scoring."""
+    names = tuple(REGISTERED_BLOCKS)
+    if tuple(sorted(books)) != names:
+        raise ValueError("stack-core/shell production form requires exact R0--R4")
+    control = combine_cbwu_order_invariant_books(
+        books,
+        names,
+        tail_line=194.0,
+        expected_worlds_per_book=expected_worlds_per_block,
+    )
+    budget = len(control.candidates)
+    expected_width = len(names) * expected_worlds_per_block
+    candidate_totals = np.asarray(control.candidate_totals, dtype=np.float32)
+    row_draws = np.asarray(control.row_draws, dtype=np.float32)
+    if budget < 80 or candidate_totals.shape != (budget, expected_width) or \
+            row_draws.ndim != 2 or row_draws.shape != (
+                len(control.player_ids), expected_width,
+            ) or not np.isfinite(candidate_totals).all() or \
+            not np.isfinite(row_draws).all() or any(
+                not validate_common_legality(lineup) or not is_strict_lineup(lineup)
+                for lineup in control.candidates
+            ):
+        raise ValueError("stack-core/shell production control differs")
+    if len({str(value) for value in control.player_ids}) != len(control.player_ids):
+        raise ValueError("stack-core/shell production player IDs repeat")
+
+    candidate_totals_by_block = {
+        name: candidate_totals[
+            :, index * expected_worlds_per_block:(index + 1) *
+            expected_worlds_per_block
+        ]
+        for index, name in enumerate(names)
+    }
+    row_draws_by_block = {
+        name: row_draws[
+            :, index * expected_worlds_per_block:(index + 1) *
+            expected_worlds_per_block
+        ]
+        for index, name in enumerate(names)
+    }
+    control_selected_indices = select_tail_entries(
+        candidate_totals,
+        80,
+        194.0,
+        env={"SELECT_LSE": "0"},
+    )
+    if len(control_selected_indices) != 80 or \
+            len(set(control_selected_indices)) != 80:
+        raise ValueError("stack-core/shell production control is not exact 80")
+    library = build_component_library(
+        control.candidates,
+        candidate_totals_by_block,
+        names,
+        expected_blocks=5,
+    )
+    proposals = construct_recombinant_proposals(
+        player_rows=control.player_rows,
+        player_ids=control.player_ids,
+        row_draws_by_block=row_draws_by_block,
+        blocks=names,
+        control_lineups=control.candidates,
+        library=library,
+        expected_blocks=5,
+    )
+    treatment = admit_and_select_treatment(
+        control_lineups=control.candidates,
+        control_totals_by_block=candidate_totals_by_block,
+        proposals=proposals["proposals"],
+        blocks=names,
+    )
+    return {
+        "version": VERSION,
+        "uses_realized_outcomes": False,
+        "blocks": list(names),
+        "worlds_per_block": expected_worlds_per_block,
+        "candidate_budget": budget,
+        "control_book": control,
+        "control_selected_indices": control_selected_indices,
+        "control_selected_lineups": [
+            control.candidates[index] for index in control_selected_indices
+        ],
+        "component_library": library,
+        "proposal_receipt": proposals,
+        "treatment": treatment,
+    }
+
+
+def production_form_receipt(
+    result: Mapping[str, object], *, season: int, week: int,
+) -> dict[str, object]:
+    """Serialize the outcome-free all-five-block roster lock."""
+    if result.get("version") != VERSION or \
+            result.get("uses_realized_outcomes") is not False or \
+            result.get("blocks") != list(REGISTERED_BLOCKS) or \
+            not isinstance(result.get("worlds_per_block"), int) or \
+            int(result["worlds_per_block"]) <= 0:
+        raise ValueError("stack-core/shell production result differs")
+    control = result.get("control_book")
+    library = result.get("component_library")
+    proposals = result.get("proposal_receipt")
+    treatment = result.get("treatment")
+    selected_control = list(result.get("control_selected_lineups", []))
+    if not isinstance(control, CandidateBatch) or not isinstance(library, Mapping) or \
+            not isinstance(proposals, Mapping) or not isinstance(treatment, Mapping):
+        raise ValueError("stack-core/shell production objects differ")
+    selected_treatment = list(treatment["selected_lineups"])
+    candidate_treatment = list(treatment["candidate_lineups"])
+    candidate_control = list(control.candidates)
+    selected_indices = list(result.get("control_selected_indices", []))
+    if len(selected_indices) != 80 or len(selected_control) != 80 or \
+            len(selected_treatment) != 80 or \
+            len(candidate_control) != len(candidate_treatment):
+        raise ValueError("stack-core/shell production books differ")
+
+    control_candidate_totals = np.asarray(
+        control.candidate_totals, dtype=np.float32,
+    )
+    treatment_candidate_totals = np.concatenate([
+        np.asarray(treatment["candidate_totals_by_block"][name], dtype=np.float32)
+        for name in REGISTERED_BLOCKS
+    ], axis=1)
+    treatment_selected_totals = np.concatenate([
+        np.asarray(treatment["selected_totals_by_block"][name], dtype=np.float32)
+        for name in REGISTERED_BLOCKS
+    ], axis=1)
+    matrices = {
+        "candidate": {
+            "control": control_candidate_totals,
+            "treatment": treatment_candidate_totals,
+        },
+        "selected": {
+            "control": control_candidate_totals[selected_indices],
+            "treatment": treatment_selected_totals,
+        },
+    }
+    books = {
+        "candidate": {
+            "control": candidate_control,
+            "treatment": candidate_treatment,
+        },
+        "selected": {
+            "control": selected_control,
+            "treatment": selected_treatment,
+        },
+    }
+    library_receipt = {
+        "source_lineups": int(library["source_lineups"]),
+        "decompositions": int(library["decompositions"]),
+        "discovered_cores": int(library["discovered_cores"]),
+        "discovered_shells": int(library["discovered_shells"]),
+        "retained_cores": len(library["cores"]),
+        "retained_shells": len(library["shells"]),
+        "core_qb_counts": dict(library["core_qb_counts"]),
+        "core_game_counts": dict(library["core_game_counts"]),
+        "cores": [{
+            "players": list(component.players),
+            "rank": list(component.rank),
+            "parent": list(component.parent),
+            "qb": component.qb,
+            "game": component.game,
+        } for component in library["cores"]],
+        "shells": [{
+            "players": list(component.players),
+            "rank": list(component.rank),
+            "parent": list(component.parent),
+        } for component in library["shells"]],
+    }
+    return {
+        "version": "stack-core-shell-production-form-lock-v1",
+        "uses_realized_outcomes": False,
+        "actual_scores_queried": False,
+        "mechanical_valid": True,
+        "season": int(season),
+        "week": int(week),
+        "blocks": list(REGISTERED_BLOCKS),
+        "worlds_per_block": int(result["worlds_per_block"]),
+        "candidate_budget": len(candidate_control),
+        "selected_entries": 80,
+        "candidate_rosters": {
+            book: [list(_roster(lineup)) for lineup in lineups]
+            for book, lineups in books["candidate"].items()
+        },
+        "selected_rosters": {
+            book: [list(_roster(lineup)) for lineup in lineups]
+            for book, lineups in books["selected"].items()
+        },
+        "simulated_threshold_counts": {
+            layer: {
+                book: _tail_counts(matrix)
+                for book, matrix in values.items()
+            }
+            for layer, values in matrices.items()
+        },
+        "structure": {
+            layer: {
+                book: _structure_reach(lineups)
+                for book, lineups in values.items()
+            }
+            for layer, values in books.items()
+        },
+        "score_effective_rank": {
+            layer: {
+                book: _score_effective_rank(matrix)
+                for book, matrix in values.items()
+            }
+            for layer, values in matrices.items()
+        },
+        "component_library": library_receipt,
+        "proposal_counts": {
+            key: int(proposals[key]) for key in (
+                "legal_crosses", "existing_control_crosses",
+                "duplicate_crosses", "unique_recombinants",
+                "covered_core_shell_pairs",
+            )
+        },
+        "beam_candidates": len(proposals["beam"]),
+        "proposal_candidates": len(proposals["proposals"]),
+        "proposal_rosters": [
+            list(_roster(value.lineup)) for value in proposals["proposals"]
+        ],
+        "admitted_proposal_rosters": [
+            list(value) for value in treatment["admitted_proposal_rosters"]
+        ],
+        "admitted_proposals": int(treatment["admitted_proposals"]),
     }
 
 
