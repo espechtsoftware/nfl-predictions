@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 23:48 CDT
+## Current state — 2026-08-17 00:01 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -1265,6 +1265,24 @@ agent or developer:
   feature gate and can license only a 2026 pre-lock shadow. Next implement its
   outcome-free source loader, generator and fold evaluator with no source or
   gate change; do not launch it into the active 32-GiB ATLAS slot.
+  That outcome-free implementation is now complete locally. New module
+  `src/nfl_dfs/analysis/coherent_market_state.py` ranks the frozen top three
+  team disagreements, constructs exactly six model/six market candidates with
+  strict QB locks and incumbent money constraints, removes the 12 lowest
+  training-tail admitted candidates, reruns the unchanged exact-80 selector,
+  and evaluates only on the excluded incumbent world block. It reports both
+  candidate/selected threshold grids, state/team conversion, structure,
+  effective rank, season/block splits and leave-one-slate-out influence.
+  `scripts/coherent_market_state_sources.py` binds all protocol/support/
+  transfer/CBWU/repair hashes and enriches only the exact candidate-world
+  player rows with the three pre-lock disagreement fields. The immutable shard
+  runner and strict 54-shard aggregator are implemented and included in the
+  Docker/Cloud Build smokes. Thirty-two focused coherent-state/constraint/
+  stack/ATLAS tests pass, both real runner help paths pass, all four new Python
+  sources compile and `git diff --check` passes. No image, job, object,
+  treatment effect or realized score exists. Next freeze its cloud execution
+  transport before launch, then commit/push and validate through a clean
+  archive build; execution remains queued behind strict ATLAS closure.
   The handoff-only correction commits after that code are pushed through
   `f1e344bd1395d64ea5b530c2fb22c87bd402c902`. Superseding exact-archive
   Cloud Build `df158df9-ef83-4555-b5ea-0e254a7ea0bd` under create-only tag
