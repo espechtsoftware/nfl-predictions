@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 00:34 CDT
+## Current state — 2026-08-17 00:42 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -1320,17 +1320,27 @@ agent or developer:
   `coherent-market-state-{commit[:7]}`, start its durable watcher, and leave it
   queued behind ATLAS.
   The exact transport milestone is pushed on `main` at
-  `cde9c607353c066f0cbc7d358d126bf010b2259b`. Clean tracked-archive Cloud
+  `cde9c600d4d33e4d9bceae442af09b137fb4588a`. Clean tracked-archive Cloud
   Build `74f048df-1b8a-4b96-962b-f642deacb606` was submitted at
   `2026-08-17T05:18:09Z` with canonical create-only tag
   `coherent-market-state-cde9c60`; its uploaded source object is
   `gs://nfl-predictions-503414_cloudbuild/source/1786943865.730961-c66ffcb2d8d04ed284153e1bb7de2156.tgz`
-  generation `1786943889545769`. It is queued and no image exists yet.
-  Durable watcher process `1234226` (managed terminal session `18561`) is
-  polling that exact build. It will resolve the immutable digest only after a
-  successful full suite/image/smoke build, then repeatedly enforce the strict
-  ATLAS queue boundary. It cannot create the coherent-state canary or any
-  treatment object until an accepted ATLAS closure receipt exists.
+  generation `1786943889545769`. It completed successfully at
+  `2026-08-17T05:37:35Z`: 1,717 tests passed, 2 skipped and 5 warnings in
+  931.49 seconds; all nine required real-container source/runner smokes passed.
+  The sole immutable image digest is
+  `sha256:984cbdf77b43e87259c1d0e03978af034fb49f8dcb71e5a498bc520970dc7f4f`.
+  The first watcher invocation failed closed before the queue boundary because
+  it had been given the incorrect manually expanded full SHA
+  `cde9c607353c066f0cbc7d358d126bf010b2259b` rather than the actual Git object
+  above. The uploaded build archive was independently diffed against the
+  actual commit and every available tracked file matched; only `.gitignore`,
+  excluded by the upload ignore rules, was absent. No coherent-state run
+  directory, Cloud Run job or object was created. Restart the unchanged
+  watcher with the actual full SHA and the successful build/digest; it must
+  then remain at the strict ATLAS queue boundary. It cannot create the
+  coherent-state canary or any treatment object until an accepted ATLAS
+  closure receipt exists.
   Before that score-free build or any treatment result completed, the required
   realized-score interpretation was separately frozen at
   `reports/2026-08-17-coherent-market-state-historical-score-protocol.md`,
