@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 02:33 CDT
+## Current state — 2026-08-17 02:44 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -94,14 +94,45 @@ agent or developer:
   `src/nfl_dfs/analysis/recourse_aware_initial.py` implements exact slot
   reachability, deterministic 24-alternative ranking, exact-80 option-value
   selection, held-out book metrics, one-fold evaluation and strict 270-fold
-  aggregation without accepting outcomes. Thirty-six focused recourse/late-
-  swap tests pass, both new sources compile and `git diff --check` passes. No
-  result, runner, Cloud job, object or historical outcome exists. The exact
-  protocol/pure-implementation milestone is commit
+  aggregation without accepting outcomes. The exact protocol/pure-
+  implementation milestone is commit
   `75e6bf6d3b47b06693adf1312c29ba09e9b0368b` and is pushed on `main` with
-  this handoff. Next: build the immutable source loader/shard runner/strict
-  aggregator and queue its score-free execution behind ATLAS without using
-  the historical-outcome lease.
+  this handoff.
+
+  Its immutable score-free execution core is now implemented at commit
+  `2190406593828918d5180bc027ec0c10a2ff1695`. Execution protocol
+  `reports/2026-08-17-recourse-aware-initial-book-execution-protocol.md` has
+  SHA-256
+  `3991fdbf36c2018b2ec11625a6be62990c100fdf1f47bde3985c2327e3248c9b`.
+  It freezes 54 one-slate/five-fold shards, 4 CPU/16 GiB/4-hour/zero-retry
+  resources, one actual final-path 2023 Week 1 canary before the other 53,
+  one unchanged replacement only for a literal pre-container zero-object
+  platform failure, and strict all-54 harvest. The runner binds the exact
+  R0--R4 CBWU-OI artifact ledger plus the forensic kickoff catalog, derives
+  the registered 3:55 PM Eastern decision from the single local slate date,
+  validates both early and late games, evaluates folds sequentially and
+  uploads only a complete create-only shard. The strict aggregator validates
+  all 270 source receipts, exact-80 rosters, tail ladders, alternative breadth,
+  locked-slot/player/signature distributions and immutable identities before
+  applying the frozen gate. It now also emits the previously promised
+  five-fold book-incidence effective rank and all 54 leave-one-slate-out gate
+  sensitivities. The quadratic reachability pass was optimized without
+  changing its exact-slot rules by caching kickoff timestamps, locked slot
+  signatures and final player profiles. The forensic schema confirms
+  `kickoff_time` is a required STRING. Thirty-nine focused tests pass, all
+  new Python sources compile and `git diff --check` passes. No result, Cloud
+  job, image, object, historical outcome or treatment effect exists. Next:
+  implement and validate the canary/release/strict-finisher transport, then
+  leave this mechanism queued behind strict ATLAS repair5 closure.
+
+  At `2026-08-17 02:44 CDT`, ATLAS canary execution
+  `atlas-md-s2023-w1-r5-45nvf` remains nonterminal with one live task,
+  `Completed=Unknown`, no succeeded/failed count and zero ERROR log rows.
+  Its informational Cloud Run `Retry` condition says only that the control
+  plane will poll the still-running operation again after 30 minutes; it is
+  not a task retry. `grid-release.txt` remains absent and all nine durable
+  queue watchers remain alive. No partial object or scientific field was
+  opened.
 
 - An outcome-free live preflight caught and corrected the production-law
   dependence source-population defect before any source lock or outcome query
