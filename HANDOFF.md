@@ -58,11 +58,20 @@ agent or developer:
   per cell, zero duplicate-roster cells, zero noncontiguous-index cells and
   zero missing tag rows. Each of `lev,boom,epi,qbvar,game,dark` appears in all
   270 cells, and the analyzer now requires all six families in every book.
-  It rejects candidate support/projection/selection fields as well as every
+  `src/nfl_dfs/research/same_law_capacity_generation.py` now renders and
+  validates the exact canary-first 135 book-season schedule. It pins the old
+  Phase S image/code, all 26 environment values, season scales, command,
+  resources and unique panel/job/lineup destinations; only the frozen seed
+  pair and create-only destinations vary. Its R0/2023 common-law rendering was
+  compared directly with immutable successful execution
+  `replay-sisasoet0-2023-nhdl6`: all 26 environment values, image, command,
+  arguments, 8-CPU/32-GiB resources, zero retries and 14,400-second timeout
+  match exactly. It rejects candidate support/projection/selection fields as
+  well as every
   outcome/ownership/rank/payout field and emits only the non-adoptive
-  `complete-descriptive-capacity-curve` disposition. Five new synthetic tests
-  plus all seven existing exact-P census tests pass; both new Python sources
-  compile and `git diff --check` passes. No source loader, immutable runner,
+  `complete-descriptive-capacity-curve` disposition. Seven new synthetic tests
+  plus all seven existing exact-P census tests pass; all three capacity Python
+  sources compile and `git diff --check` passes. No source loader, immutable runner,
   build or cloud execution exists yet. The protocol/seed freeze is pushed at
   commit `402662e`; the superseding exact pure-analyzer/source-preflight
   milestone is pushed on `main` at

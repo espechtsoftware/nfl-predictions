@@ -7,6 +7,7 @@ import pandas as pd
 import pytest
 
 from nfl_dfs.research import same_law_capacity_curve as capacity
+from nfl_dfs.research import same_law_capacity_generation as generation
 
 
 def _fixture() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -106,6 +107,53 @@ def test_seed_ledger_rejects_post_freeze_change():
 
     with pytest.raises(ValueError, match="seed identity differs"):
         capacity.validate_seed_ledger(frame)
+
+
+def test_generation_schedule_is_exact_phase_s_law_and_canary_first():
+    ledger = pd.read_csv(
+        Path("reports/2026-08-17-same-law-capacity-curve-seeds.csv")
+    )
+
+    schedule = generation.generation_schedule(ledger)
+
+    assert len(schedule) == 135
+    assert (schedule[0].replicate, schedule[0].season) == ("R5", 2023)
+    assert (schedule[-1].replicate, schedule[-1].season) == ("R49", 2025)
+    assert len({cell.panel_run_id for cell in schedule}) == 45
+    assert len({cell.job for cell in schedule}) == 135
+    assert len({cell.lineups_table for cell in schedule}) == 135
+    first = schedule[0]
+    env = dict(first.environment)
+    assert first.image == generation.SOURCE_IMAGE
+    assert first.code_sha == "4d6f5cf"
+    assert first.command == ("nfl-dfs",)
+    assert first.args == (
+        "replay", "--season", "2023", "--contest", "gpp", "--entries", "80",
+    )
+    assert env["PANEL_RUN_ID"] == "20260817-same-law-capacity-r05-v1"
+    assert env["REPLAY_PROJECTION_SEED"] == "1008341939"
+    assert env["ROLE_BELIEF_SEED"] == "3065488546"
+    assert env["SIS_ASOE_TARGET_ALLOCATION"] == "1"
+    assert env["GAME_SIM_USAGE"] == "dirichlet"
+    assert env["DIRICHLET_K"] == "28.154043586960896"
+    assert env["N_EPISTEMIC"] == "12"
+    assert env["N_BOOM"] == "40"
+    assert (first.cpu, first.memory, first.max_retries, first.timeout_seconds) == (
+        8, "32Gi", 0, 14_400,
+    )
+
+
+def test_generation_schedule_rejects_any_contract_change():
+    ledger = pd.read_csv(
+        Path("reports/2026-08-17-same-law-capacity-curve-seeds.csv")
+    )
+    schedule = generation.generation_schedule(ledger)
+    changed = generation.GenerationCell(
+        **{**schedule[0].__dict__, "timeout_seconds": 14_401}
+    )
+
+    with pytest.raises(ValueError, match="cell contract differs"):
+        generation.validate_generation_schedule([changed, *schedule[1:]])
 
 
 def test_capacity_curve_is_nested_complete_and_identity_only():
