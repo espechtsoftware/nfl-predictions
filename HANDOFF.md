@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 20:43 CDT
+## Current state — 2026-08-16 20:53 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -1518,6 +1518,47 @@ agent or developer:
   `d07f2a7...` and tag `stack-shell-treatment-d07f2a7`. The build is queued
   behind the support validation; even after it passes, the watcher cannot
   launch treatment until the independent support completion is positive.
+  The superseding support build subsequently completed successfully at
+  `2026-08-17T01:50:16Z`: build
+  `580b2cd3-434d-452d-b1e8-a546527f8274` passed 1,695 tests, 2 skipped and
+  5 warnings in 978.93 seconds, all three source/runner/aggregator container
+  smokes passed, and tag `stack-shell-support-672ba0f` resolves to immutable
+  digest
+  `sha256:e44fbe7885922b4235361c09382819e743dfc4a7d30cd1f02583f0556154fa10`.
+  Watcher `51192` immediately reached the intended strict ATLAS-closure gate
+  and created no support run directory, canary, job or object. The freed Cloud
+  Build slot started treatment build
+  `34f7ab2f-6cd0-4e35-926f-bc2761fa2d8f` at
+  `2026-08-17T01:51:17Z`; watcher `57790` remains bound to its exact source,
+  tag and later positive-support gate.
+  The downstream production-lock execution boundary is now frozen and
+  implemented without reading a treatment result or any actual score. Protocol
+  `reports/2026-08-16-stack-core-shell-lock-execution-protocol.md`, SHA-256
+  `71063a42c21a1f6bff4d881af6e60bb10b1860d87d72c62332beb2ec83b27e7f`,
+  fixes 4 CPU/16 GiB, two-hour tasks, zero task retries, one real 2023 Week 1
+  launch-path canary before releasing 53 cells, and at most one replacement
+  only for a literal zero-object platform error. Canary code is pushed at
+  `704d468d64bef7fac6fb463193ab91ae4bd7bf0c`; the bounded attempt manager and
+  isolation tests are pushed at
+  `6f436de505a1ef7def54e305b4040da1a00fa481`. It revalidates the positive
+  score-free report/completion hashes, explicitly forbids actual-score access,
+  and restores the reused ledger engine's module state after every call.
+  Nine focused lock/score-free canary/attempt/production-lock tests pass,
+  Python compilation and diff checks pass. No production-lock job or object
+  exists; launcher/strict finisher/watcher transport remains to implement and
+  cannot run before a positive complete score-free treatment harvest.
+  At `2026-08-16T20:51:38 CDT`, exact ATLAS preflight execution
+  `atlas-cbc-32g-full-2023-w8-v1-lbzjd` remains `Completed=Unknown` with one
+  running task. Managed preflight watcher `40372`, stack-support watcher
+  `51192`, constraint-lattice watcher `31402` and stack-treatment watcher
+  `57790` remain active. No partial ATLAS shard/effect, lattice effect,
+  support shard or treatment shard has been inspected. Next concrete action:
+  continue polling those exact identities; strictly harvest the ATLAS
+  preflight at terminal, then permit only its frozen conditional branch.
+  Support may proceed only after strict ATLAS closure; treatment only after a
+  positive support completion; production locks only after a positive
+  treatment completion; historical scores only after all 54 locks are
+  mechanically frozen.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).
