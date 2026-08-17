@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# The frozen repair5 canary validator accidentally enclosed an awk program
+# containing escaped double quotes in single quotes.  Correct only that exact
+# argv value; every other invocation is delegated byte-for-byte to system awk.
+if [ "$#" -ge 2 ] && [ "$1" = "-F=" ] && \
+    [ "$2" = '$1==\"output_prefix\" {print $2}' ]; then
+  shift 2
+  exec /usr/bin/awk -F= '$1=="output_prefix" {print $2}' "$@"
+fi
+
+exec /usr/bin/awk "$@"

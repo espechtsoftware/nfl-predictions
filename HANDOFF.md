@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 06:45 CDT
+## Current state — 2026-08-17 08:03 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -184,6 +184,48 @@ agent or developer:
   500 vCPU and 1,800 GiB. This is enough for the fixed 53-cell post-canary
   grid's 424 vCPU/1,696 GiB envelope to run in one concurrent wave. It
   neither increases the number of cells nor changes any scientific law.
+
+- The actual ATLAS repair5 real-path canary has now completed successfully;
+  do not rerun it. Execution `atlas-md-s2023-w1-r5-45nvf` completed at
+  `2026-08-17T12:54:10Z` with one succeeded task, zero failed tasks and
+  terminal `Completed=True`. All five R0--R4 books completed, with R4 ending
+  at `2026-08-17T12:53:49Z`. The frozen create-only 2023 Week 1 object was
+  written at `2026-08-17T12:53:55Z`, generation `1786971235274440`, size
+  `292741` bytes. Neither its body nor any candidate identity, score-free
+  treatment effect or realized score was opened. The original launcher then
+  stopped before releasing the other 53 cells because the local validator's
+  single-quoted awk program retained literal escaped double quotes. The cloud
+  execution and artifact did not fail; only manifest parsing failed. The
+  failed invocation left the two collected metadata files but no canary
+  completion, hash or grid-release receipt. Original validator SHA-256
+  `e1c82612f231976563f0df12ffbe9f5e2db1aebfae636f61b723ad8699ae1411`
+  remains byte-for-byte unchanged and all original downstream hashes remain
+  valid.
+
+  A prospective, score-blind mechanical continuation is frozen in
+  `reports/2026-08-17-atlas-repair5-canary-validator-quoting-repair.md`
+  (SHA-256
+  `3929c805db67b0d9d66500f6b4d14c6ea4011d8c3723dd2b86535ea9a4e69d94`).
+  `scripts/atlas_repair5_validator_bin/awk` (SHA-256
+  `42e0c74654f5e7ecb70e164aa1b28bc188f6279bde1273aa45093c51e5871b7a`)
+  corrects only that exact malformed argv value and delegates every other
+  invocation unchanged to `/usr/bin/awk`.
+  `scripts/resume_atlas_repair5_after_canary_validator_quoting.sh` (SHA-256
+  `a2a00c559d74a38610736ccb93f695568993da6f65bc7ce7d82b2ecca527bb48`)
+  preserves the first validator metadata under a separate attempt receipt,
+  runs the unchanged validator under the wrapper, and releases/resumes the
+  exact remaining 53-cell grid only after a valid canary receipt. It preserves
+  all original image, code, seeds, commands, resources, destinations and
+  zero-retry laws. The later historical-score v3 source lock must also bind
+  `reports/2026-08-17-atlas-historical-score-canary-validator-repair-binding-amendment.md`
+  (SHA-256
+  `f986238a0919879944d4bddbb76855676fd5b96b5e20064f9797476cc20e5477`).
+  Fifteen focused original/repair tests pass, both shell sources pass
+  `bash -n` and `git diff --check` passes. The exact next action is to commit
+  and push this frozen continuation, run the resume script in a durable
+  managed terminal, verify a 54-row primary ledger and `grid-release.txt`,
+  then monitor/strictly harvest all repair5 cells before opening any shard or
+  score-free effect.
 
 - The already accepted outcome-free impact/equivalence governance
   recommendation is now implemented. Protocol
