@@ -14,6 +14,10 @@ from nfl_dfs.research.same_law_capacity_attempts import (
     classify_primary_attempt,
 )
 from nfl_dfs.research.same_law_capacity_receipts import validate_attempt_ledgers
+from nfl_dfs.research.same_law_capacity_completion import (
+    EXPECTED_FAMILIES,
+    validate_generation_completion,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -343,3 +347,92 @@ def test_capacity_receipts_reject_retrying_canary_or_unreceipted_acceptance():
         assert "accepted binding differs" in str(exc)
     else:
         raise AssertionError("unreceipted capacity execution was accepted")
+
+
+def _generation_completion():
+    manifest, primary, retries, accepted = _attempt_ledgers()
+    artifacts = []
+    mechanics = []
+    for cell in manifest["schedule"]:
+        for week in range(1, 19):
+            key = (
+                int(cell["replicate"][1:]), int(cell["season"]), int(week),
+            )
+            candidate_rows = 240 + (sum(key) % 20)
+            artifacts.append({
+                "replicate": cell["replicate"],
+                "season": cell["season"],
+                "week": week,
+                "panel_run_id": cell["panel_run_id"],
+                "uri": (
+                    "gs://nfl-predictions-503414-raw/cand_scores/"
+                    f"{cell['panel_run_id']}/{cell['season']}_w{week}_"
+                    f"{sum(key):012x}.npz"
+                ),
+                "generation": str(10_000 + sum(key)),
+                "bytes": 1_000_000 + sum(key),
+                "sha256": f"{sum(key):064x}",
+            })
+            mechanics.append({
+                "replicate": cell["replicate"],
+                "season": cell["season"],
+                "week": week,
+                "panel_run_id": cell["panel_run_id"],
+                "candidate_rows": candidate_rows,
+                "minimum_cand_ix": 0,
+                "maximum_cand_ix": candidate_rows - 1,
+                "distinct_cand_ix": candidate_rows,
+                "families_present": list(EXPECTED_FAMILIES),
+                "all_rosters_nine_unique": True,
+                "all_rosters_legal": True,
+            })
+    receipt = {
+        "version": "same-law-capacity-generation-completion-v1",
+        "run_id": "20260817-same-law-capacity-curve-v1",
+        "disposition": "valid-complete-generation-population",
+        "new_books": 45,
+        "book_season_cells": 135,
+        "book_slate_cells": 2430,
+        "uses_realized_outcomes": False,
+        "candidate_scores_inspected": False,
+        "capacity_statistics_computed": False,
+        "production_change_licensed": False,
+        "primary_executions": primary,
+        "retry_executions": retries,
+        "accepted_executions": accepted,
+        "artifact_receipts": artifacts,
+        "candidate_mechanics": mechanics,
+    }
+    return manifest, receipt
+
+
+def test_capacity_completion_requires_complete_mechanical_population():
+    manifest, receipt = _generation_completion()
+
+    result = validate_generation_completion(manifest, receipt)
+
+    assert result["book_slate_cells"] == 2430
+    assert result["candidate_rows"] > 0
+    assert result["uses_realized_outcomes"] is False
+    assert result["capacity_statistics_computed"] is False
+    assert result["disposition"] == "valid-complete-generation-population"
+
+
+def test_capacity_completion_rejects_missing_family_or_forbidden_score():
+    manifest, receipt = _generation_completion()
+    receipt["candidate_mechanics"][0]["families_present"] = ["lev"]
+    try:
+        validate_generation_completion(manifest, receipt)
+    except ValueError as exc:
+        assert "candidate mechanics differ" in str(exc)
+    else:
+        raise AssertionError("incomplete capacity family population was accepted")
+
+    manifest, receipt = _generation_completion()
+    receipt["candidate_mechanics"][0]["score"] = 1.0
+    try:
+        validate_generation_completion(manifest, receipt)
+    except ValueError as exc:
+        assert "forbidden field" in str(exc)
+    else:
+        raise AssertionError("score-bearing capacity completion was accepted")

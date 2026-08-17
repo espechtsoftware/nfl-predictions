@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 05:31 CDT
+## Current state — 2026-08-17 05:43 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -97,15 +97,24 @@ agent or developer:
   complete future primary/retry/accepted population: exactly 135 scheduled
   primary and accepted cells, unique job-owned execution identities, no
   canary retry, at most one explicitly eligible platform replacement per
-  other cell and no unreceipted accepted execution. Twenty focused capacity
+  other cell and no unreceipted accepted execution.
+  `src/nfl_dfs/research/same_law_capacity_completion.py` now adds the strict,
+  outcome-free completion boundary for that future population. It requires
+  all 2,430 R5--R49 book/slate artifact receipts, exact create-only URI,
+  generation, byte-count and SHA-256 metadata, and all 2,430 candidate-
+  mechanics receipts with positive contiguous native identities, all six
+  families, nine unique players and legal rosters. It rejects score/outcome/
+  rank/payout/capacity-statistic fields and can emit only
+  `valid-complete-generation-population`; therefore no descriptive curve can
+  run over a partial or mechanically invalid generation. Twenty-two focused capacity
   tests pass, all touched Python files compile and
   `git diff --check` passes. The attempt-classifier milestone is exact commit
   `0daf32a848cf6f1eefd6664e8d44d4abcd9fb29b`; the manifest-renderer milestone
   is exact commit `cbe5ed2cab51c5096ef7388e7684153deaf43923`, and the strict ledger
   validator is exact commit `125df04da97de094fc3c8963853ee5a870ade491`.
   No generation launcher,
-  attempt resolver, strict
-  135-execution harvester, source loader, immutable analysis runner, build or
+  cloud attempt resolver, strict cloud harvester/source loader, immutable
+  analysis runner, build or
   cloud execution exists yet; this remains lower priority and may not launch
   ahead of the active mechanism chains. The transport-validator milestone is
   pushed on `main` at exact commit
@@ -125,7 +134,7 @@ agent or developer:
   unchanged external replacement for a literal zero-object Cloud Run platform
   error; memory, timeout, solver, signal, ambiguous and object-bearing failures
   remain scientific terminal data. No protocol or code change was warranted
-  by this reread. At `2026-08-17 05:30 CDT`, canary execution
+  by this reread. At `2026-08-17 05:43 CDT`, canary execution
   `atlas-md-s2023-w1-r5-45nvf` remains healthy/nonterminal with one running
   task, `Completed=Unknown` and zero ERROR log rows. Outcome-free progress
   markers show R0--R3 complete; R4 is the fifth and final active seed.
