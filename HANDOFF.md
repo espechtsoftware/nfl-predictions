@@ -1254,9 +1254,19 @@ agent or developer:
   otherwise treatment remains closed. Nine focused construction/support tests
   pass, all four Python files compile and `git diff --check` passes. This
   support-census milestone is pushed on `main` at commit
-  `517fc99fda4e68e301a0ee248a7a8ee1b8838c70`. Docker,
-  Cloud Build, launch/canary/attempt and strict-harvest plumbing remain open;
-  do not launch this support census from the current constraint image.
+  `517fc99fda4e68e301a0ee248a7a8ee1b8838c70`. Before any support execution,
+  the separate execution protocol was frozen at
+  `reports/2026-08-16-stack-core-shell-support-execution-protocol.md`, SHA-256
+  `d2e902611e070ef67c191dffd35d86fd0c81365126eb86dcae7b9640aede1cc3`.
+  It queues behind strict ATLAS closure, fixes 4 CPU/16 GiB/two hours and task
+  retries zero, requires the actual 2023 Week 1 cell to pass a metadata-only
+  real-path canary before releasing 53, and prospectively narrows any later
+  external replacement to one literal zero-object platform-error attempt.
+  Its queue-gated launcher and fail-closed canary validator are implemented;
+  five focused support tests, Python compilation, both shell syntax checks and
+  `git diff --check` pass. Docker/Cloud Build, bounded-attempt resolver and
+  strict-harvest plumbing remain open; do not launch this support census from
+  the current constraint image.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).

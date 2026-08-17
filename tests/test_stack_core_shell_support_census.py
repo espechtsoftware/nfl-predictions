@@ -26,6 +26,8 @@ from run_stack_core_shell_support_census import (  # noqa: E402
 )
 from stack_core_shell_sources import (  # noqa: E402
     FORBIDDEN_QUERY_TOKENS,
+    EXECUTION_PROTOCOL,
+    EXECUTION_PROTOCOL_SHA256,
     PLAYER_SQL,
     PROTOCOL,
     PROTOCOL_SHA256,
@@ -111,7 +113,11 @@ def _write_population(tmp_path: Path, *, events: int = 10) -> list[Path]:
 
 def test_stack_core_shell_sources_are_frozen_and_outcome_free() -> None:
     assert hashlib.sha256(PROTOCOL.read_bytes()).hexdigest() == PROTOCOL_SHA256
+    assert hashlib.sha256(EXECUTION_PROTOCOL.read_bytes()).hexdigest() == \
+        EXECUTION_PROTOCOL_SHA256
     assert validate_local_sources()[str(PROTOCOL)] == PROTOCOL_SHA256
+    assert validate_local_sources()[str(EXECUTION_PROTOCOL)] == \
+        EXECUTION_PROTOCOL_SHA256
     combined = f"{SOURCE_SQL}\n{PLAYER_SQL}".lower()
     assert not [token for token in FORBIDDEN_QUERY_TOKENS if token in combined]
     assert SOURCE_PANELS == tuple(
@@ -120,6 +126,28 @@ def test_stack_core_shell_sources_are_frozen_and_outcome_free() -> None:
     assert SUPPORT_THRESHOLDS == (194.0, 210.0, 220.0, 230.0)
     assert AGGREGATE_MINIMUM == 540
     assert POSITIVE_SLATE_MINIMUM == 41
+
+
+def test_support_launcher_uses_real_path_canary_and_atlas_queue() -> None:
+    launcher = (
+        ROOT / "scripts/cloud_stack_core_shell_support_census.sh"
+    ).read_text(encoding="utf-8")
+    canary = (
+        ROOT / "scripts/cloud_wait_stack_core_shell_support_canary.sh"
+    ).read_text(encoding="utf-8")
+    assert "stack-core/shell support awaits ATLAS preflight" in launcher
+    assert "repair5-valid-historical-closed" in launcher
+    assert "repair5-failed-parity-closed" in launcher
+    assert "stack-shell-support-s2023-w1-v1" in canary
+    assert '--cpu 4 --memory 16Gi' in launcher
+    assert '--max-retries 0 --task-timeout 2h' in launcher
+    assert launcher.index('"$CANARY"') < launcher.index(
+        "for SEASON in 2023 2024 2025"
+    )
+    assert 'gcloud run jobs executions list --job "$JOB"' in canary
+    assert '"remaining_cells_released=false"' in canary
+    assert '"treatment_constructed=false"' in canary
+    assert "gcloud storage cp" not in canary
 
 
 def test_distributed_support_licenses_p230_treatment(tmp_path: Path) -> None:

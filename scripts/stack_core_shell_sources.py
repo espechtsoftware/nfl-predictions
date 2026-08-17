@@ -28,6 +28,12 @@ PROTOCOL = Path("reports/2026-08-16-stack-core-shell-scorefree-protocol.md")
 PROTOCOL_SHA256 = (
     "edd13697fd3d7fc787d159c74d6e8280bf1b51517dcdbacc8337011a01cd5d46"
 )
+EXECUTION_PROTOCOL = Path(
+    "reports/2026-08-16-stack-core-shell-support-execution-protocol.md"
+)
+EXECUTION_PROTOCOL_SHA256 = (
+    "d2e902611e070ef67c191dffd35d86fd0c81365126eb86dcae7b9640aede1cc3"
+)
 TRANSFER_REPORT = Path(
     "reports/atlas-money-transfer-runs/"
     "20260815-atlas-current-money-transfer-v1/report.json"
@@ -90,6 +96,7 @@ def validate_local_sources() -> dict[str, str]:
     """Bind the frozen protocol and every immutable acquisition receipt."""
     expected = {
         str(PROTOCOL): PROTOCOL_SHA256,
+        str(EXECUTION_PROTOCOL): EXECUTION_PROTOCOL_SHA256,
         str(TRANSFER_REPORT): TRANSFER_REPORT_SHA256,
         str(CBWU_REPORT): CBWU_REPORT_SHA256,
         str(REPAIR_VALIDATION): REPAIR_VALIDATION_SHA256,
