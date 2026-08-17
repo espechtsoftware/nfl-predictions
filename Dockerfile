@@ -54,6 +54,7 @@ COPY scripts/run_atlas_matched_diversity_mvp.py ./scripts/run_atlas_matched_dive
 COPY scripts/render_atlas_matched_diversity_repair4_command.py ./scripts/render_atlas_matched_diversity_repair4_command.py
 COPY scripts/run_atlas_historical_score_diagnostic.py ./scripts/run_atlas_historical_score_diagnostic.py
 COPY scripts/run_atlas_historical_score_diagnostic_v3.py ./scripts/run_atlas_historical_score_diagnostic_v3.py
+COPY scripts/run_atlas_historical_score_diagnostic_v4.py ./scripts/run_atlas_historical_score_diagnostic_v4.py
 COPY scripts/run_constraint_lattice_scorefree.py ./scripts/run_constraint_lattice_scorefree.py
 COPY scripts/aggregate_constraint_lattice_scorefree.py ./scripts/aggregate_constraint_lattice_scorefree.py
 COPY scripts/run_constraint_lattice_support_census.py ./scripts/run_constraint_lattice_support_census.py

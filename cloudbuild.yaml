@@ -28,6 +28,8 @@ steps:
         docker run --rm '${_IMAGE}' \
           python scripts/run_atlas_historical_score_diagnostic_v3.py --help >/dev/null
         docker run --rm '${_IMAGE}' \
+          python scripts/run_atlas_historical_score_diagnostic_v4.py --help >/dev/null
+        docker run --rm '${_IMAGE}' \
           python scripts/run_constraint_lattice_scorefree.py --help >/dev/null
         docker run --rm '${_IMAGE}' \
           python scripts/aggregate_constraint_lattice_scorefree.py --help >/dev/null

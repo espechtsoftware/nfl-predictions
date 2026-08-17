@@ -20,9 +20,74 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 09:24 CDT
+## Current state — 2026-08-17 09:50 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
+
+- ATLAS repair6 now has a complete prospective score-free transport and a
+  separately frozen historical-score path. This work is on `main`, based on
+  exact pushed commit `a5f2681e94e4e586205bcd5d8cf1ec448a400003`; no
+  repair6 build, job, object, result or historical outcome has been created.
+  `src/nfl_dfs/research/atlas_repair6.py` plus
+  `scripts/prepare_atlas_repair6_classification.py` require the complete
+  repair5 terminal census, exact zero-object `NonZeroExitCode` failure and a
+  single final `ATLAS world <n> identity tiebreak is infeasible` traceback.
+  Any memory, timeout, signal, CBC, platform or other failure closes repair6.
+  The classification seals all failure logs and eligible cells without
+  opening a shard/effect/score.
+
+  `scripts/cloud_atlas_repair6_dual_canary.sh` runs exactly the 2023 Week 7
+  defect cell plus a dedicated 2023 Week 1 proof object under the fully tested
+  immutable repair6 image. Its strict finisher requires both executions to
+  succeed, exact one-object prefixes, and complete Week 1 bytes/SHA-256 to be
+  identical to immutable repair5 generation `1786971235274440`; it parses no
+  object JSON. `scripts/cloud_atlas_repair6_grid.sh` then releases every and
+  only other classified cell, retaining the Week 7 canary as the accepted
+  repair6 result. `src/nfl_dfs/research/atlas_repair6_hybrid.py` and
+  `scripts/finish_atlas_repair6_hybrid_population.py` require exactly one
+  successful accepted object/execution for all 54 cells, reuse repair5 for
+  every success, use repair6 only for classified failures, census every r5/r6
+  job and both GCS prefixes, bind exact generation/size/SHA-256, and emit only
+  `valid-complete-repair6-hybrid-population`. Bodies are hashed but not parsed.
+
+  Queue-order amendment
+  `reports/2026-08-17-atlas-repair6-queue-order-amendment.md` has SHA-256
+  `73f6a049789a2a695653d8085fd8d21587cb2a1b9bd97207ab4a65f90918910c`.
+  It moves the already queued one-slate continuous-parity job behind repair6
+  and its historical score so the parity diagnostic cannot occupy the single
+  heavy slot first; it cancels/reruns nothing and changes no scientific law.
+  `scripts/watch_atlas_repair6_queue.sh` implements that order and
+  `scripts/watch_atlas_historical_v4_queue.sh` serializes the outcome lease,
+  strict harvest and eventual parity release.
+
+  Historical v4 protocol
+  `reports/2026-08-17-atlas-historical-score-v4-hybrid-protocol.md` has
+  SHA-256
+  `a5834281678c5126cd95cdf241c1706af08d7f6329ea40e39c4fb078becd2bf8`.
+  The source preparer uploads the exact hybrid receipt create-only. The v4
+  runner downloads all 54 declared shard generations/hashes, validates the
+  source-specific repair5/repair6 code and mechanics, reconstructs unchanged
+  P1/P2 candidate and exact-80 books, requires exact identity parity and the
+  existing 68,199-row actual-score parity, and applies unchanged
+  `aggregate_diagnostic` tail counts. The strict finisher independently
+  recomputes all aggregates and validates 54 exact-80 rows plus 270 artifact
+  receipts. Docker/Cloud Build package and smoke the v4 runner. This cannot
+  change production by itself.
+
+  Forty-eight focused repair6/world-ranking/historical v1/v3/v4 tests pass;
+  all new Python sources compile, all five new shell paths pass `bash -n`, and
+  `git diff --check` passes. At `2026-08-17T14:45:47Z`, the unchanged repair5
+  watcher reported 51 primaries still nonterminal (the prior canary and known
+  Week 7 failure plus one additional terminal cell); no new terminal cell was
+  classified and no partial body/effect was opened. Historical-v3 watcher
+  session `69368` still waits and will close score-free when repair5's frozen
+  census is terminal-invalid. Original repair5 watcher session `67004` is
+  still active and must be replaced only after the exact repair6 commit has a
+  successful clean Cloud Build; otherwise it would launch parity first.
+  Exact next action: commit/push this transport, run the clean full-test build,
+  record its immutable digest/build ID, start repair6 plus historical-v4
+  watchers, and only then stop the superseded repair5 watcher without touching
+  any Cloud Run execution.
 
 - The lower-priority same-law capacity question retained by the corrected
   exact-P census review is now prospectively frozen without launching compute
