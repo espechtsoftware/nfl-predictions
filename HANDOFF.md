@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 02:44 CDT
+## Current state — 2026-08-17 02:55 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -121,9 +121,31 @@ agent or developer:
   signatures and final player profiles. The forensic schema confirms
   `kickoff_time` is a required STRING. Thirty-nine focused tests pass, all
   new Python sources compile and `git diff --check` passes. No result, Cloud
-  job, image, object, historical outcome or treatment effect exists. Next:
-  implement and validate the canary/release/strict-finisher transport, then
-  leave this mechanism queued behind strict ATLAS repair5 closure.
+  job, image, object, historical outcome or treatment effect exists.
+
+  Canary-gated Cloud transport is implemented at commit
+  `ad8c7f8f2cc8adeb14037ce0574a4e4b08612128`. The launcher accepts only a
+  clean archived commit and a successful immutable Cloud Build, reproduces
+  the same strict ATLAS queue branches already used by downstream mechanisms,
+  deploys only 2023 Week 1, and cannot release the remaining 53 until the
+  actual final-path job is terminal successful. The canary validator verifies
+  duplicate-free JSON, the exact execution/resource/environment contract,
+  create-only object metadata, five R0--R4 folds, exact-80 schema, the five
+  expected panel receipts, source hashes and absence of outcome/aggregate
+  disclosure fields without reporting any tail/effect value. The finisher
+  admits exactly one zero-retry execution per cell, validates all 54 execution
+  and object identities, compares the retained canary bytes, strictly
+  aggregates, uploads the report create-only and writes a terminal completion
+  receipt. The durable watcher builds the exact committed archive only after
+  strict ATLAS closure, then monitors and harvests the full family. It does
+  not automatically exercise the protocol's optional literal-platform-error
+  replacement; any primary failure therefore remains conservatively terminal.
+  Forty-one focused tests pass; three shell launch/harvest scripts plus the
+  watcher pass `bash -n`; all Python sources compile and `git diff --check`
+  passes. The transport has not been started because ATLAS is still live and
+  the execution protocol forbids compute overlap. Next: push this milestone,
+  continue metadata-only ATLAS polling, and start the committed build watcher
+  only after confirming the captured commit contains this handoff.
 
   At `2026-08-17 02:44 CDT`, ATLAS canary execution
   `atlas-md-s2023-w1-r5-45nvf` remains nonterminal with one live task,
