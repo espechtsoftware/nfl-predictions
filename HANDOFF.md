@@ -88,12 +88,13 @@ agent or developer:
   participating scorer. Twelve focused G0/new-mechanism tests pass; Python
   compilation, five shell syntax checks, diff checks and an offline validation
   of all 270 authoritative transfer receipts pass. No new outcome was queried,
-  no job or GCS output was created, and the lease object is absent. The source-
-  population amendment above supersedes only the population construction; the
-  nine cells, gates, consequences and outcome firewall are unchanged. Next:
-  commit and submit the superseding clean-archive full Cloud Build, bind its
-  immutable digest, launch/harvest only the outcome-free source lock, then
-  leave the remeasurement watcher queued behind coherent historical closure.
+  no historical-outcome job was created, and the lease object is absent. The
+  source-population amendment above supersedes only the population
+  construction; the nine cells, gates, consequences and outcome firewall are
+  unchanged. The superseding build and outcome-free source lock are now
+  strictly complete as recorded above. Next: leave the remeasurement watcher
+  queued behind coherent historical closure and the shared lease; evaluate
+  only its one frozen report after terminal strict harvest.
 - The earlier clean-archive build
   `a2b3fee2-d348-4bd9-8e9f-e6ef3c59fd8a`, source object
   `gs://nfl-predictions-503414_cloudbuild/source/1786947748.348209-d2b2e9c74fdc4cf28993199c497a4be1.tgz`
