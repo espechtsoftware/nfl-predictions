@@ -1544,9 +1544,20 @@ agent or developer:
   score-free report/completion hashes, explicitly forbids actual-score access,
   and restores the reused ledger engine's module state after every call.
   Nine focused lock/score-free canary/attempt/production-lock tests pass,
-  Python compilation and diff checks pass. No production-lock job or object
-  exists; launcher/strict finisher/watcher transport remains to implement and
-  cannot run before a positive complete score-free treatment harvest.
+  Python compilation and diff checks pass. The remaining launcher, strict
+  finisher and managed watcher transport is now complete and pushed at
+  `bb5f60cf5d292a5a17baae68d60f0a6d64676d3b`. It independently validates the
+  positive score-free report/completion/upload/accepted-ledger chain and the
+  exact successful treatment build/image, releases 53 cells only after the
+  real-path canary, strictly validates every accepted Cloud execution and
+  object generation before downloading any shard, aggregates the 54 outcome-
+  free roster locks, and publishes the report/completion that alone can
+  release the historical scorer. Eleven focused lock/attempt/canary/finisher/
+  historical tests pass; both Python modules compile, all three lock shell
+  paths pass `bash -n`, and diff checks pass. Managed lock watcher session
+  `96586` is active at the score-free completion gate. No production-lock job
+  or object exists and none can run before a positive complete score-free
+  treatment harvest.
   At `2026-08-16T20:51:38 CDT`, exact ATLAS preflight execution
   `atlas-cbc-32g-full-2023-w8-v1-lbzjd` remains `Completed=Unknown` with one
   running task. Managed preflight watcher `40372`, stack-support watcher
