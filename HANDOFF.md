@@ -112,6 +112,8 @@ agent or developer:
   `0daf32a848cf6f1eefd6664e8d44d4abcd9fb29b`; the manifest-renderer milestone
   is exact commit `cbe5ed2cab51c5096ef7388e7684153deaf43923`, and the strict ledger
   validator is exact commit `125df04da97de094fc3c8963853ee5a870ade491`.
+  The strict generation-completion boundary is committed on `main` at
+  `ce530917359faff1955ba671b82424976ca4851e`.
   No generation launcher,
   cloud attempt resolver, strict cloud harvester/source loader, immutable
   analysis runner, build or
