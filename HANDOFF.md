@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 20:23 CDT
+## Current state — 2026-08-16 20:31 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -1461,6 +1461,23 @@ agent or developer:
   `e6f993f71eaa4212a000a2b15b656f42cb12f7a7`. Attempt management, the
   53-cell launcher and strict treatment finisher remain to implement before a
   score-free treatment grid can run.
+  Support build `b5ee13ba-350c-46dd-b54b-e00aa39b7bbd` then failed in its
+  full-test step before building or publishing an image: 1,688 tests passed,
+  2 skipped and one synthetic assertion failed because Cloud Python summed
+  nine `205/9` values as `204.99999999999997` rather than literal `205.0`.
+  This is a test portability defect, not a mechanism/result change. The two
+  exact synthetic maxima assertions now use `math.isclose`; the focused test
+  passes and the correction is pushed at commit
+  `672ba0f8d60baff12ac5397ee01edc0f0c61d347`. The failed build and exited
+  watcher launched no canary, support job or object and are invalid validation
+  evidence. A new fail-fast archive from that exact commit was checked for all
+  defining support files and has SHA-256
+  `312035fecd6829cbe1091bef2eb8e172d32d7cb7164681f40e89f3aabe7a9682`.
+  Superseding regional Cloud Build
+  `580b2cd3-434d-452d-b1e8-a546527f8274` is queued under create-only tag
+  `stack-shell-support-672ba0f`; managed watcher session `51192` is bound to
+  its exact build/code/tag identities. On success it retains the same strict
+  ATLAS queue, real canary and bounded-attempt sequence.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).
