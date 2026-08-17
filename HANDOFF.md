@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 20:10 CDT
+## Current state — 2026-08-16 20:23 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -1419,6 +1419,27 @@ agent or developer:
   closure, then run only the frozen real 2023 Week 1 canary before releasing
   the remaining 53 cells. Do not edit any source in the launcher's exact-file
   list or substitute the older image while this watcher is active.
+  The previously open exact-80 historical boundary is now implemented and
+  pushed at commit `e9266b1e739bebda0e2c6813303d46bed40ca7f8`, without
+  querying an outcome or constructing a treatment. One runner creates an
+  all-five-block production-form lock for each slate only after downloading
+  and validating the positive score-free report, strict completion and
+  accepted-execution-ledger hash. A strict 54-lock aggregator independently
+  validates the exact candidate/exact-80 books, 32 cores, 128 shells, 256
+  beam, 40 sequential pair-expanding proposals, admission identity, structure,
+  effective-rank and all 270 source-artifact receipts before licensing the
+  actual-score stage. The separate actual scorer accepts only that complete
+  outcome-free lock report, then verifies all 68,199 native candidate totals
+  against the player-level actual catalog at absolute tolerance `1e-9` before
+  applying the frozen tail-first report/gate. The score-free aggregate now
+  marks historical scoring licensed exactly when its frozen gate passes;
+  production authorization remains false. Twenty-seven focused stack
+  construction/support/attempt/execution/lock/scoring tests pass, all new
+  modules compile and `git diff --check` passes. The grid launchers and strict
+  Cloud finishers remain open and cannot launch before support plus score-free
+  closure. At `2026-08-17T01:23Z`, the superseding support build remains
+  `WORKING`, ATLAS preflight remains one running task, and no stack support,
+  treatment, lock or historical-score object exists.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).
