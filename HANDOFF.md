@@ -1372,6 +1372,18 @@ agent or developer:
   support census, treatment construction or scientific gate. The hardening is
   pushed on `main` at exact commit
   `a8279a8067ba79fd63383db0231ecd7e6e5514b1`.
+  Before any support or treatment result existed, the conditional downstream
+  exact-80 scoring path was also frozen at
+  `reports/2026-08-16-stack-core-shell-historical-score-protocol.md`, SHA-256
+  `f562ce6e9a7e0458a1fd3382692f6761f1d9de56edb06ab4350403584cd702fc`.
+  It runs only after a mechanically complete score-free shadow license,
+  converts the five folds into one all-five-block production-form book per
+  slate under the unchanged 32/128/256/40 and fixed-budget p194 laws, locks all
+  roster identities before querying actuals, and applies the standing +2
+  selected-200/non-worse-selected-210/non-worse-candidate-200 tail-first
+  signal. It can prioritize a 2026 shadow but cannot promote production because
+  the mechanism postdates viewed outcomes. No scorer implementation or Cloud
+  execution exists yet; implement it outcome-free while the upstream gates run.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).
