@@ -101,7 +101,9 @@ agent or developer:
   tests pass, all touched Python files compile and
   `git diff --check` passes. The attempt-classifier milestone is exact commit
   `0daf32a848cf6f1eefd6664e8d44d4abcd9fb29b`; the manifest-renderer milestone
-  is exact commit `cbe5ed2cab51c5096ef7388e7684153deaf43923`. No generation launcher,
+  is exact commit `cbe5ed2cab51c5096ef7388e7684153deaf43923`, and the strict ledger
+  validator is exact commit `125df04da97de094fc3c8963853ee5a870ade491`.
+  No generation launcher,
   attempt resolver, strict
   135-execution harvester, source loader, immutable analysis runner, build or
   cloud execution exists yet; this remains lower priority and may not launch
