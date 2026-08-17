@@ -250,8 +250,10 @@ agent or developer:
   Durable strict watcher PID `1440734` (managed terminal session `67004`) is
   active and reported `running=53` at `2026-08-17T13:10:32Z`. It will resolve
   the bounded-attempt ledger and strictly harvest only after the population
-  is terminal. Next: status-only polling; do not manually harvest, score or
-  launch another heavy mechanism while repair5 remains active.
+  is terminal. The complete launch and repair evidence is pushed on `main`
+  at exact commit `01f73f103dbb2791657c43867b72dfc639a05624`.
+  Next: status-only polling; do not manually harvest, score or launch another
+  heavy mechanism while repair5 remains active.
 
 - The already accepted outcome-free impact/equivalence governance
   recommendation is now implemented. Protocol
