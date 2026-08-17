@@ -1264,9 +1264,10 @@ agent or developer:
   external replacement to one literal zero-object platform-error attempt.
   Its queue-gated launcher and fail-closed canary validator are implemented;
   five focused support tests, Python compilation, both shell syntax checks and
-  `git diff --check` pass. Docker/Cloud Build, bounded-attempt resolver and
-  strict-harvest plumbing remain open; do not launch this support census from
-  the current constraint image.
+  `git diff --check` pass. This execution-path milestone is pushed on `main`
+  at commit `40c26a7c8cba2e7eda108bd7c25e8b208bd3cac3`. Docker/Cloud Build,
+  bounded-attempt resolver and strict-harvest plumbing remain open; do not
+  launch this support census from the current constraint image.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).
