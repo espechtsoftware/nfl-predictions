@@ -121,8 +121,14 @@ agent or developer:
   no-history test plus the repair6/historical-v4 focused set pass (14 tests),
   as do Python compilation and `git diff --check`. This is proof transport
   only; the repair6 optimizer law, tolerances, protocol and all scientific
-  hashes are unchanged. Next: push the correction, validate it from a clean
-  archive, and submit a new exact-commit build.
+  hashes are unchanged. The correction is pushed at
+  `8f0e3c70fb965b9350fa9dc050f81f8dc38493ca`; its validator passes directly
+  from an actual clean archive and reproduces every frozen hash. Exact-source
+  replacement build `804be60e-7177-4428-aca3-84ab998189e7`, targeting
+  `nfl-dfs/nfl-dfs:atlas-repair6-8f0e3c7`, was submitted at
+  `2026-08-17T15:48Z`. Next: require full-suite, image-build and smoke success,
+  resolve the digest, then start both replacement watchers before retiring
+  the original repair5 watcher.
 
 - The lower-priority same-law capacity question retained by the corrected
   exact-P census review is now prospectively frozen without launching compute
