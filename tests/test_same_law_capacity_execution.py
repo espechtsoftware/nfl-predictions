@@ -8,6 +8,10 @@ import sys
 import pandas as pd
 
 from nfl_dfs.research.same_law_capacity_generation import generation_schedule
+from nfl_dfs.research.same_law_capacity_attempts import (
+    OutputInventory,
+    classify_primary_attempt,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -164,3 +168,72 @@ def test_capacity_canary_artifacts_are_metadata_only_complete_grid():
 
     assert [row["week"] for row in result] == list(range(1, 19))
     assert all("players" not in row and "score" not in row for row in result)
+
+
+def _terminal_attempt(status: str, message: str = ""):
+    result = {
+        "status": {
+            "conditions": [{
+                "type": "Completed", "status": status, "message": message,
+            }],
+            "completionTime": "2026-08-17T00:00:00Z",
+        },
+    }
+    if status == "True":
+        result["status"]["succeededCount"] = 1
+    else:
+        result["status"]["failedCount"] = 1
+    return result
+
+
+def test_capacity_attempt_accepts_only_complete_success_population():
+    complete = OutputInventory(4500, 1800, 12960, 18)
+    incomplete = OutputInventory(4500, 1800, 12960, 17)
+
+    accepted = classify_primary_attempt(
+        _terminal_attempt("True"), complete, is_canary=False,
+    )
+    rejected = classify_primary_attempt(
+        _terminal_attempt("True"), incomplete, is_canary=False,
+    )
+
+    assert accepted["eligibility"] == "primary-success"
+    assert rejected["eligibility"] == "terminal-invalid-success-contract"
+    assert not accepted["replacement_licensed"]
+
+
+def test_capacity_attempt_retries_only_literal_zero_output_platform_error():
+    empty = OutputInventory(0, 0, 0, 0)
+    execution = _terminal_attempt("False", "Internal error running task")
+
+    eligible = classify_primary_attempt(execution, empty, is_canary=False)
+    canary = classify_primary_attempt(execution, empty, is_canary=True)
+
+    assert eligible["eligibility"] == "eligible-platform-replacement"
+    assert eligible["replacement_licensed"]
+    assert canary["eligibility"] == "terminal-invalid-primary"
+    assert not canary["replacement_licensed"]
+
+
+def test_capacity_attempt_rejects_substantive_ambiguous_or_partial_failures():
+    empty = OutputInventory(0, 0, 0, 0)
+    partial = OutputInventory(1, 0, 0, 0)
+    messages = (
+        "Internal error running task after timeout",
+        "The container exceeded the configured memory limit",
+        "solver failed",
+        "something went wrong",
+    )
+
+    for message in messages:
+        result = classify_primary_attempt(
+            _terminal_attempt("False", message), empty, is_canary=False,
+        )
+        assert result["eligibility"] == "terminal-invalid-primary"
+        assert not result["replacement_licensed"]
+    partial_result = classify_primary_attempt(
+        _terminal_attempt("False", "Internal error running task"),
+        partial,
+        is_canary=False,
+    )
+    assert partial_result["eligibility"] == "terminal-invalid-primary"

@@ -81,7 +81,14 @@ agent or developer:
   final-path canary plus positive all-18-week candidate, feature, lineup and
   GCS artifact metadata; it records object generation, size, MD5/CRC32C and
   explicitly opens no candidate identity, candidate score or outcome.
-  Thirteen focused capacity tests pass, all touched Python files compile and
+  `src/nfl_dfs/research/same_law_capacity_attempts.py` now implements the
+  frozen primary-attempt classification independently of cloud mutation: a
+  season is accepted only with clean terminal success and positive candidate,
+  feature and lineup rows plus exactly 18 artifacts; only a literal
+  zero-output `Internal error running task` on a non-canary primary is
+  replacement-eligible. Canary, memory, timeout, signal, solver, cancellation,
+  ambiguous, partial-output and task-retried failures are terminal. Sixteen
+  focused capacity tests pass, all touched Python files compile and
   `git diff --check` passes. No generation launcher, attempt resolver, strict
   135-execution harvester, source loader, immutable analysis runner, build or
   cloud execution exists yet; this remains lower priority and may not launch
