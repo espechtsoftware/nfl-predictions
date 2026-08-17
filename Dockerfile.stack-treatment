@@ -1,0 +1,29 @@
+FROM us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:51782451d1850ba213cb1fb374f25fe5f53d1d518bcae6a521811719ef8a8179
+
+WORKDIR /app
+
+# Install the exact treatment/lock/scoring source over a pinned, fully
+# validated dependency image. Building and --help smokes construct no arm and
+# query no support result or realized outcome.
+COPY pyproject.toml README.md CLAUDE.md ./
+COPY src ./src
+COPY reports/2026-08-16-stack-core-shell-scorefree-protocol.md ./reports/2026-08-16-stack-core-shell-scorefree-protocol.md
+COPY reports/2026-08-16-stack-core-shell-support-execution-protocol.md ./reports/2026-08-16-stack-core-shell-support-execution-protocol.md
+COPY reports/2026-08-16-stack-core-shell-treatment-execution-protocol.md ./reports/2026-08-16-stack-core-shell-treatment-execution-protocol.md
+COPY reports/2026-08-16-stack-core-shell-historical-score-protocol.md ./reports/2026-08-16-stack-core-shell-historical-score-protocol.md
+COPY reports/atlas-money-transfer-runs/20260815-atlas-current-money-transfer-v1/report.json ./reports/atlas-money-transfer-runs/20260815-atlas-current-money-transfer-v1/report.json
+COPY reports/cbwu-order-invariant-runs/20260815-cbwu-order-invariant-repair-v1/report.json ./reports/cbwu-order-invariant-runs/20260815-cbwu-order-invariant-repair-v1/report.json
+COPY reports/atlas-mvp-source-repair-runs/20260816-atlas-mvp-source-repair-r3-2025-v1/validation.json ./reports/atlas-mvp-source-repair-runs/20260816-atlas-mvp-source-repair-r3-2025-v1/validation.json
+COPY reports/atlas-mvp-source-repair-runs/20260816-atlas-mvp-source-repair-r3-2025-v1/execution.json ./reports/atlas-mvp-source-repair-runs/20260816-atlas-mvp-source-repair-r3-2025-v1/execution.json
+COPY reports/atlas-mvp-source-repair-runs/20260816-atlas-mvp-source-repair-r3-2025-v1/completion.txt ./reports/atlas-mvp-source-repair-runs/20260816-atlas-mvp-source-repair-r3-2025-v1/completion.txt
+COPY scripts/run_cbwu_seed_order_audit.py ./scripts/run_cbwu_seed_order_audit.py
+COPY scripts/stack_core_shell_sources.py ./scripts/stack_core_shell_sources.py
+COPY scripts/run_stack_core_shell_support_census.py ./scripts/run_stack_core_shell_support_census.py
+COPY scripts/aggregate_stack_core_shell_support_census.py ./scripts/aggregate_stack_core_shell_support_census.py
+COPY scripts/run_stack_core_shell_scorefree.py ./scripts/run_stack_core_shell_scorefree.py
+COPY scripts/aggregate_stack_core_shell_scorefree.py ./scripts/aggregate_stack_core_shell_scorefree.py
+COPY scripts/run_stack_core_shell_production_lock.py ./scripts/run_stack_core_shell_production_lock.py
+COPY scripts/aggregate_stack_core_shell_production_locks.py ./scripts/aggregate_stack_core_shell_production_locks.py
+COPY scripts/run_stack_core_shell_historical_score.py ./scripts/run_stack_core_shell_historical_score.py
+
+RUN pip install --no-cache-dir ".[gcp,app]"
