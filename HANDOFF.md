@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 02:55 CDT
+## Current state — 2026-08-17 02:56 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -143,9 +143,13 @@ agent or developer:
   Forty-one focused tests pass; three shell launch/harvest scripts plus the
   watcher pass `bash -n`; all Python sources compile and `git diff --check`
   passes. The transport has not been started because ATLAS is still live and
-  the execution protocol forbids compute overlap. Next: push this milestone,
-  continue metadata-only ATLAS polling, and start the committed build watcher
-  only after confirming the captured commit contains this handoff.
+  the execution protocol forbids compute overlap. This milestone is pushed
+  through `ff83ca353ebca1df69990dc2301c437f9b276951`. Durable local watcher PID
+  `1307354` (managed terminal session `15211`) is running from that exact
+  commit. It currently reports `awaiting_strict_atlas_closure`; it has not
+  submitted a build, created a local run directory, deployed a job or created
+  a GCS prefix. When the strict queue branch closes, it will build the clean
+  archived commit and carry the canary/grid/harvest autonomously.
 
   At `2026-08-17 02:44 CDT`, ATLAS canary execution
   `atlas-md-s2023-w1-r5-45nvf` remains nonterminal with one live task,
