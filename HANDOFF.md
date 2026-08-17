@@ -188,6 +188,14 @@ agent or developer:
   Next: commit/push both closure paths, submit one replacement clean build,
   then replace both watcher sessions only after success.
 
+  The complete closure repair is pushed at exact commit
+  `061767492628fccf0c9058fa8e1d41acb5fd55dc`; its clean archive passes the
+  frozen code-diff proof and both watcher syntax checks. Replacement full-test
+  build `6b1331f1-8a1a-4c1e-8703-4ccb0c0e751b`, targeting
+  `nfl-dfs/nfl-dfs:atlas-repair6-0617674`, was submitted at
+  `2026-08-17T16:37Z`. Existing sessions `15054` and `26544` remain the active
+  watchers until this build and its immutable-digest replacements pass.
+
 - The lower-priority same-law capacity question retained by the corrected
   exact-P census review is now prospectively frozen without launching compute
   or reading any new candidate identity, candidate score or outcome. Protocol
