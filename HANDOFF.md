@@ -58,7 +58,9 @@ agent or developer:
   `complete-descriptive-capacity-curve` disposition. Five new synthetic tests
   plus all seven existing exact-P census tests pass; both new Python sources
   compile and `git diff --check` passes. No source loader, immutable runner,
-  build or cloud execution exists yet.
+  build or cloud execution exists yet. The protocol/seed freeze is pushed at
+  commit `402662e`; the exact pure-analyzer milestone is pushed on `main` at
+  `17263671c5f516234867fe8fef50c3a9510052d6`.
 
 - A direct reread of the operator-supplied
   `reports/2026-08-16-retry-narrowing-and-lattice-support-response.md`
