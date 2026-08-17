@@ -12,6 +12,8 @@ OUT="$ROOT/reports/production-law-dependence-runs/$RUN_ID"
 PREFIX=gs://nfl-predictions-503414-raw/research/production-law-dependence-runs/$RUN_ID
 PROTOCOL="$ROOT/reports/2026-08-17-production-law-dependence-remeasurement-protocol.md"
 PROTOCOL_SHA=0ab5850416d856537b47bedaf23b3fdce827dcf2f99e35f589520a123b63919f
+AMENDMENT="$ROOT/reports/2026-08-17-production-law-dependence-source-population-amendment.md"
+AMENDMENT_SHA=16123cf7d96fb84a278fb29a86c99c1df56c8811a84ef69aa899a12305b25a3e
 RUNNER="$ROOT/scripts/run_production_law_dependence_source_lock.py"
 FINISHER="$ROOT/scripts/cloud_finish_production_law_dependence_source_lock.sh"
 IMAGE=${1:-}
@@ -28,6 +30,7 @@ git -C "$ROOT" cat-file -e "$CODE_SHA^{commit}" || exit 2
 for RELATIVE in \
   Dockerfile cloudbuild.yaml \
   reports/2026-08-17-production-law-dependence-remeasurement-protocol.md \
+  reports/2026-08-17-production-law-dependence-source-population-amendment.md \
   src/nfl_dfs/analysis/production_law_dependence.py \
   src/nfl_dfs/analysis/final_served_dependence.py \
   scripts/run_production_law_dependence_source_lock.py \
@@ -42,6 +45,7 @@ for RELATIVE in \
   }
 done
 [ "$(sha256sum "$PROTOCOL" | awk '{print $1}')" = "$PROTOCOL_SHA" ] || exit 2
+[ "$(sha256sum "$AMENDMENT" | awk '{print $1}')" = "$AMENDMENT_SHA" ] || exit 2
 
 [ ! -e "$OUT" ] || {
   echo "ERROR: immutable production-law dependence source-lock run exists" >&2; exit 3; }
@@ -72,11 +76,13 @@ printf '%s\n' \
   "run_id=$RUN_ID" "image=$IMAGE" "code_sha=$CODE_SHA" \
   "build_id=$BUILD_ID" "output_prefix=$PREFIX" \
   "protocol_sha256=$PROTOCOL_SHA" \
+  "source_population_amendment_sha256=$AMENDMENT_SHA" \
   "runner_sha256=$(sha256sum "$RUNNER" | awk '{print $1}')" \
   "finisher_sha256=$(sha256sum "$FINISHER" | awk '{print $1}')" \
   'uses_realized_outcomes=false' 'actual_outcomes_queried=false' \
   'candidate_or_lineup_scores_read=false' 'production_change_licensed=false' \
-  'artifacts=270' 'slates=54' 'cpu=2' 'memory=4Gi' \
+  'artifacts=270' 'candidate_rows=68199' 'candidate_union_rows=10729' \
+  'eligible_rows=9469' 'slates=54' 'cpu=2' 'memory=4Gi' \
   'timeout_seconds=3600' 'max_retries=0' > "$OUT/manifest.txt"
 
 JOB=production-law-dep-source-lock-v1

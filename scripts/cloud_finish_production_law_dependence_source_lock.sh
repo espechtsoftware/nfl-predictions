@@ -41,7 +41,8 @@ fixed = {
     "uses_realized_outcomes": "false", "actual_outcomes_queried": "false",
     "candidate_or_lineup_scores_read": "false",
     "production_change_licensed": "false", "artifacts": "270",
-    "slates": "54", "cpu": "2", "memory": "4Gi",
+    "candidate_rows": "68199", "candidate_union_rows": "10729",
+    "eligible_rows": "9469", "slates": "54", "cpu": "2", "memory": "4Gi",
     "timeout_seconds": "3600", "max_retries": "0",
 }
 if any(m.get(k) != v for k, v in fixed.items()) or \
@@ -80,6 +81,12 @@ artifacts, catalog = _validate_source_lock(
 )
 if len(artifacts) != 270 or len(catalog) != lock["catalog_rows"]:
     raise SystemExit("ABORT: production-law dependence source-lock population differs")
+if lock.get("source_population_amendment_sha256") != \
+        m.get("source_population_amendment_sha256") or \
+        lock.get("candidate_rows") != 68199 or \
+        lock.get("candidate_union_rows") != 10729 or \
+        lock.get("catalog_rows") != 10729 or lock.get("eligible_rows") != 9469:
+    raise SystemExit("ABORT: production-law dependence source population differs")
 print("PRODUCTION_LAW_DEPENDENCE_SOURCE_LOCK_VALIDATED", len(catalog), lock["eligible_rows"])
 PY
 

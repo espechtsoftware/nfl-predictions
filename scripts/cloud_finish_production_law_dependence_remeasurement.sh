@@ -35,7 +35,9 @@ fixed={
  "run_id":"20260817-production-law-dependence-remeasurement-v1",
  "uses_realized_outcomes":"true","candidate_or_lineup_scores_read":"false",
  "production_change_licensed":"false","blocks":"5","worlds_per_block":"10000",
- "aggregate_worlds":"50000","slates":"54","cpu":"8","memory":"32Gi",
+ "aggregate_worlds":"50000","candidate_rows":"68199",
+ "candidate_union_rows":"10729","eligible_rows":"9469",
+ "slates":"54","cpu":"8","memory":"32Gi",
  "timeout_seconds":"14400","max_retries":"0",
 }
 if any(m.get(k)!=v for k,v in fixed.items()) or \
@@ -67,6 +69,7 @@ if job!="production-law-dependence-v1" or c.get("image")!=m["image"] or \
 raw=report_path.read_bytes(); o=json.loads(object_path.read_text()); r=json.loads(raw)
 if int(o.get("size",-1))!=len(raw) or r.get("run_id")!=m["run_id"] or \
  r.get("protocol_sha256")!=m["protocol_sha256"] or r.get("code_sha")!=m["code_sha"] or \
+ r.get("source_population_amendment_sha256")!=m["source_population_amendment_sha256"] or \
  r.get("analysis_image")!=m["image"] or r.get("uses_realized_outcomes") is not True or \
  r.get("candidate_or_lineup_scores_read") is not False or \
  r.get("production_change_licensed") is not False or \

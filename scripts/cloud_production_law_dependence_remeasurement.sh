@@ -16,6 +16,8 @@ LOCK_PREFIX=gs://nfl-predictions-503414-raw/research/production-law-dependence-r
 COHERENT="$ROOT/reports/coherent-market-state-historical-score-runs/20260817-coherent-market-state-historical-score-v1"
 PROTOCOL="$ROOT/reports/2026-08-17-production-law-dependence-remeasurement-protocol.md"
 PROTOCOL_SHA=0ab5850416d856537b47bedaf23b3fdce827dcf2f99e35f589520a123b63919f
+AMENDMENT="$ROOT/reports/2026-08-17-production-law-dependence-source-population-amendment.md"
+AMENDMENT_SHA=16123cf7d96fb84a278fb29a86c99c1df56c8811a84ef69aa899a12305b25a3e
 RUNNER="$ROOT/scripts/run_production_law_dependence_remeasurement.py"
 FINISHER="$ROOT/scripts/cloud_finish_production_law_dependence_remeasurement.sh"
 LEASE_TOOL="$ROOT/scripts/historical_outcome_lease.py"
@@ -35,6 +37,7 @@ git -C "$ROOT" cat-file -e "$CODE_SHA^{commit}" || exit 2
 for RELATIVE in \
   Dockerfile cloudbuild.yaml \
   reports/2026-08-17-production-law-dependence-remeasurement-protocol.md \
+  reports/2026-08-17-production-law-dependence-source-population-amendment.md \
   src/nfl_dfs/analysis/production_law_dependence.py \
   src/nfl_dfs/analysis/final_served_dependence.py \
   scripts/run_production_law_dependence_source_lock.py \
@@ -48,6 +51,7 @@ for RELATIVE in \
     echo "ERROR: production-law dependence built source differs: $RELATIVE" >&2; exit 2; }
 done
 [ "$(sha256sum "$PROTOCOL" | awk '{print $1}')" = "$PROTOCOL_SHA" ] || exit 2
+[ "$(sha256sum "$AMENDMENT" | awk '{print $1}')" = "$AMENDMENT_SHA" ] || exit 2
 for NAME in source-lock.json object-metadata.json completion.txt; do
   [ -s "$LOCK/$NAME" ] || {
     echo "ERROR: production-law dependence source lock lacks $NAME" >&2; exit 2; }
@@ -102,6 +106,7 @@ printf '%s\n' \
   "run_id=$RUN_ID" "image=$IMAGE" "code_sha=$CODE_SHA" \
   "build_id=$BUILD_ID" "output_prefix=$PREFIX" \
   "protocol_sha256=$PROTOCOL_SHA" \
+  "source_population_amendment_sha256=$AMENDMENT_SHA" \
   "runner_sha256=$(sha256sum "$RUNNER" | awk '{print $1}')" \
   "finisher_sha256=$(sha256sum "$FINISHER" | awk '{print $1}')" \
   "lease_tool_sha256=$(sha256sum "$LEASE_TOOL" | awk '{print $1}')" \
@@ -112,7 +117,9 @@ printf '%s\n' \
   "coherent_completion_sha256=$(sha256sum "$COHERENT/completion.txt" | awk '{print $1}')" \
   'uses_realized_outcomes=true' 'candidate_or_lineup_scores_read=false' \
   'production_change_licensed=false' 'blocks=5' 'worlds_per_block=10000' \
-  'aggregate_worlds=50000' 'slates=54' 'cpu=8' 'memory=32Gi' \
+  'aggregate_worlds=50000' 'candidate_rows=68199' \
+  'candidate_union_rows=10729' 'eligible_rows=9469' \
+  'slates=54' 'cpu=8' 'memory=32Gi' \
   'timeout_seconds=14400' 'max_retries=0' > "$OUT/manifest.txt"
 
 JOB=production-law-dependence-v1

@@ -118,10 +118,16 @@ def test_production_law_source_lock_and_outcome_firewall_are_explicit():
     protocol = (
         ROOT / "reports/2026-08-17-production-law-dependence-remeasurement-protocol.md"
     ).read_text(encoding="utf-8")
+    amendment = (
+        ROOT / "reports/2026-08-17-production-law-dependence-source-population-amendment.md"
+    ).read_text(encoding="utf-8")
 
     player_sql = lock.split('PLAYER_SQL = f"""', 1)[1].split('"""', 1)[0].lower()
+    candidate_sql = lock.split('CANDIDATE_SQL = f"""', 1)[1].split('"""', 1)[0].lower()
     assert "actual" not in player_sql
     assert "score" not in player_sql
+    assert "actual" not in candidate_sql
+    assert "score_artifact_uri" in candidate_sql
     assert "_validate_artifact_metadata(gcs, artifacts)" in outcome
     assert outcome.index("_validate_artifact_metadata(gcs, artifacts)") < \
         outcome.index("outcomes = _query(bq, OUTCOME_SQL")
@@ -135,6 +141,7 @@ def test_production_law_source_lock_and_outcome_firewall_are_explicit():
     assert "historical_outcome_lease.py\" acquire" in stack_serialized
     assert "historical_outcome_lease.py\" release" in stack_serialized
     assert "at least three of R0--R4" in protocol
+    assert "68,199" in amendment and "10,729" in amendment and "9,469" in amendment
 
 
 def test_locked_catalog_digest_is_order_and_value_sensitive():
@@ -158,7 +165,7 @@ def test_frozen_transfer_report_is_exact_production_multinomial_grid():
     hashes = source._validate_local_sources()
     transfer = json.loads(source.TRANSFER_REPORT.read_text(encoding="utf-8"))
     artifacts = source._validate_policy_and_artifacts(transfer)
-    assert len(hashes) == 6
+    assert len(hashes) == 7
     assert len(artifacts) == 270
     assert artifacts[0]["panel_run_id"] == source.SOURCE_PANELS[0]
     assert artifacts[-1]["panel_run_id"] == source.SOURCE_PANELS[-1]

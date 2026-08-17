@@ -38,8 +38,13 @@ from run_production_law_dependence_source_lock import (
     REPAIR_COMPLETION_SHA256,
     REPAIR_EXECUTION,
     REPAIR_EXECUTION_SHA256,
+    REPAIR_ARTIFACT_SHA256,
+    REPAIR_ARTIFACT_URI,
+    REPAIR_PANEL,
     REPAIR_VALIDATION,
     REPAIR_VALIDATION_SHA256,
+    SOURCE_POPULATION_AMENDMENT,
+    SOURCE_POPULATION_AMENDMENT_SHA256,
     SOURCE_PANELS,
     TRANSFER_REPORT,
     TRANSFER_REPORT_SHA256,
@@ -93,7 +98,14 @@ def _validate_source_lock(
         "candidate_or_lineup_scores_read": False,
         "production_change_licensed": False,
         "protocol_sha256": PROTOCOL_SHA256,
+        "source_population_amendment_sha256": (
+            SOURCE_POPULATION_AMENDMENT_SHA256
+        ),
         "artifact_count": 270,
+        "candidate_rows": 68_199,
+        "candidate_union_rows": 10_729,
+        "catalog_rows": 10_729,
+        "eligible_rows": 9_469,
         "slates": 54,
         "source_panels": list(SOURCE_PANELS),
     }
@@ -107,6 +119,9 @@ def _validate_source_lock(
         raise RuntimeError("production-law dependence source lock differs")
     expected_hashes = {
         str(PROTOCOL): PROTOCOL_SHA256,
+        str(SOURCE_POPULATION_AMENDMENT): (
+            SOURCE_POPULATION_AMENDMENT_SHA256
+        ),
         str(TRANSFER_REPORT): TRANSFER_REPORT_SHA256,
         str(CBWU_REPORT): CBWU_REPORT_SHA256,
         str(REPAIR_VALIDATION): REPAIR_VALIDATION_SHA256,
@@ -129,10 +144,31 @@ def _validate_source_lock(
         raise RuntimeError("production-law dependence locked policy differs")
     artifacts = lock.get("artifact_receipts")
     catalog = lock.get("catalog")
+    substitution = lock.get("candidate_source_substitution")
     if not isinstance(artifacts, list) or len(artifacts) != 270 or \
             not isinstance(catalog, list) or len(catalog) != lock.get("catalog_rows") or \
             _catalog_digest(catalog) != lock.get("catalog_sha256"):
         raise RuntimeError("production-law dependence locked population differs")
+    repaired_source = next(
+        row for row in artifacts
+        if row.get("season") == 2025 and row.get("week") == 1
+        and row.get("seed") == 3
+    )
+    expected_substitution = {
+        "season": 2025,
+        "week": 1,
+        "seed": 3,
+        "panel_run_id": REPAIR_PANEL,
+        "original_uri": repaired_source["uri"],
+        "repaired_uri": REPAIR_ARTIFACT_URI,
+        "sha256": REPAIR_ARTIFACT_SHA256,
+        "byte_identical": True,
+    }
+    if substitution != expected_substitution or \
+            repaired_source.get("sha256") != REPAIR_ARTIFACT_SHA256:
+        raise RuntimeError(
+            "production-law dependence locked repair substitution differs"
+        )
     artifact_fields = {
         "bytes", "candidate_rows", "generation", "panel_run_id", "season",
         "seed", "sha256", "updated", "uri", "week",
@@ -321,7 +357,9 @@ def run(
 ) -> dict:
     if source_lock_uri != SOURCE_LOCK_URI or output_uri != OUTPUT_URI or \
             not PROTOCOL.is_file() or sha256(PROTOCOL.read_bytes()).hexdigest() != \
-            PROTOCOL_SHA256:
+            PROTOCOL_SHA256 or not SOURCE_POPULATION_AMENDMENT.is_file() or \
+            sha256(SOURCE_POPULATION_AMENDMENT.read_bytes()).hexdigest() != \
+            SOURCE_POPULATION_AMENDMENT_SHA256:
         raise RuntimeError("production-law dependence run identity differs")
     code_sha = os.environ.get("CODE_SHA", "").strip()
     image = os.environ.get("ANALYSIS_IMAGE", "").strip()
@@ -363,6 +401,9 @@ def run(
     result.update({
         "run_id": RUN_ID,
         "protocol_sha256": PROTOCOL_SHA256,
+        "source_population_amendment_sha256": (
+            SOURCE_POPULATION_AMENDMENT_SHA256
+        ),
         "code_sha": code_sha,
         "analysis_image": image,
         "source_lock": lock_object,
