@@ -170,6 +170,24 @@ agent or developer:
   watcher session `15054` only after every build step succeeds and a new
   digest-bound watcher reports a normal repair5 wait.
 
+  Build `ad5211b0-7ef1-4efe-a757-1d744972d659` was prospectively cancelled
+  during its test step and is ineligible after a broader closure audit found
+  that terminal repair6 canary/grid failures exited without the queue
+  amendment's mandatory immediate parity release, while historical-v4 could
+  wait forever for an impossible hybrid. No Cloud Run experiment was
+  cancelled. The complete score-blind repair was frozen while 43 primaries
+  remained nonterminal at
+  `reports/2026-08-17-atlas-repair6-closure-release-repair.md`, SHA-256
+  `1bd230b83f326489a2944f2e3e8db87d5d21907695df0beae0f0642712f2393b`.
+  Failure-classification, terminal dual-canary, terminal grid, and explicit
+  invalid-hybrid closures now write a create-once categorical receipt and
+  release the unchanged continuous-parity chain through one shared function;
+  historical-v4 exits score-free on that receipt. Missing/local transport
+  receipts still stop for repair rather than inferring scientific closure.
+  Sixteen focused tests, both shell syntax checks and `git diff --check` pass.
+  Next: commit/push both closure paths, submit one replacement clean build,
+  then replace both watcher sessions only after success.
+
 - The lower-priority same-law capacity question retained by the corrected
   exact-P census review is now prospectively frozen without launching compute
   or reading any new candidate identity, candidate score or outcome. Protocol

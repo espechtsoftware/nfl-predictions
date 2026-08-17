@@ -12,7 +12,35 @@ IMAGE=${1:-}
 CODE_SHA=${2:-}
 BUILD_ID=${3:-}
 
+repair6_closure_is_valid() {
+  closure="$UPSTREAM/queue-closure.txt"
+  receipt="$UPSTREAM/queue-closure.sha256"
+  [ -s "$closure" ] && [ -s "$receipt" ] && \
+    sha256sum -c "$receipt" >/dev/null 2>&1 && \
+    [ "$(wc -l < "$closure")" = 6 ] && \
+    [ "$(grep -c '^reason=' "$closure")" = 1 ] && \
+    grep -qx 'disposition=repair6-closed-no-scoreable-population' "$closure" && \
+    grep -qx 'uses_realized_outcomes=false' "$closure" && \
+    grep -qx 'candidate_or_lineup_scores_read=false' "$closure" && \
+    grep -qx 'production_change_licensed=false' "$closure" && \
+    grep -Eq '^recorded_at=[0-9]{4}-[0-9]{2}-[0-9]{2}T' "$closure" || return 1
+  reason=$(awk -F= '$1=="reason" {print substr($0,8)}' "$closure")
+  case "$reason" in
+    failure-classification-closed|dual-canary-execution-failed|\
+repair6-grid-execution-failed|hybrid-population-invalid) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
 while [ ! -s "$UPSTREAM/hybrid-completion.txt" ]; do
+  if [ -s "$UPSTREAM/queue-closure.txt" ]; then
+    if repair6_closure_is_valid; then
+      echo "ATLAS_HISTORICAL_V4_NOT_LICENSED_REPAIR6_CLOSED"
+      exit 0
+    fi
+    echo "ERROR: ATLAS repair6 queue closure receipt differs" >&2
+    exit 2
+  fi
   if [ -s "$UPSTREAM/canary-completion.txt" ] && \
       ! grep -qx 'disposition=repair6-dual-canary-passes' \
         "$UPSTREAM/canary-completion.txt"; then

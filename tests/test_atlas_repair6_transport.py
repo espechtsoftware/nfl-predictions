@@ -196,3 +196,22 @@ def test_repair6_watcher_waits_for_resolved_accepted_attempts_before_census():
 
     assert '"$REPAIR5/accepted-executions.txt"' in watcher
     assert accepted_wait < terminal_census
+
+
+def test_repair6_terminal_closures_release_parity_and_stop_history_wait():
+    watcher = (ROOT / "scripts/watch_atlas_repair6_queue.sh").read_text()
+    historical = (
+        ROOT / "scripts/watch_atlas_historical_v4_queue.sh"
+    ).read_text()
+
+    assert "run_continuous_parity()" in watcher
+    assert "record_repair6_closure()" in watcher
+    for reason in (
+        "failure-classification-closed",
+        "dual-canary-execution-failed",
+        "repair6-grid-execution-failed",
+        "hybrid-population-invalid",
+    ):
+        assert f"close_repair6_and_release_parity {reason}" in watcher
+    assert "queue-closure.txt" in historical
+    assert "ATLAS_HISTORICAL_V4_NOT_LICENSED_REPAIR6_CLOSED" in historical

@@ -14,6 +14,9 @@ AMENDMENT="$ROOT/reports/2026-08-17-atlas-repair6-queue-order-amendment.md"
 AMENDMENT_SHA=73f6a049789a2a695653d8085fd8d21587cb2a1b9bd97207ab4a65f90918910c
 WAIT_REPAIR="$ROOT/reports/2026-08-17-atlas-repair6-accepted-retry-wait-repair.md"
 WAIT_REPAIR_SHA=3f4c420e64ffbebc29de247a3a2cdc43f9cf8af15b3d7b965b8dabb52a9d44b7
+CLOSURE_REPAIR="$ROOT/reports/2026-08-17-atlas-repair6-closure-release-repair.md"
+CLOSURE_REPAIR_SHA=1bd230b83f326489a2944f2e3e8db87d5d21907695df0beae0f0642712f2393b
+CLOSURE="$REPAIR6/queue-closure.txt"
 IMAGE=${1:-}
 CODE_SHA=${2:-}
 BUILD_ID=${3:-}
@@ -28,11 +31,14 @@ BUILD_ID=${3:-}
   echo "ERROR: ATLAS repair6 queue amendment differs" >&2; exit 2; }
 [ "$(sha256sum "$WAIT_REPAIR" | awk '{print $1}')" = "$WAIT_REPAIR_SHA" ] || {
   echo "ERROR: ATLAS repair6 accepted-retry wait repair differs" >&2; exit 2; }
+[ "$(sha256sum "$CLOSURE_REPAIR" | awk '{print $1}')" = "$CLOSURE_REPAIR_SHA" ] || {
+  echo "ERROR: ATLAS repair6 closure-release repair differs" >&2; exit 2; }
 git -C "$ROOT" cat-file -e "$CODE_SHA^{commit}" || exit $?
 for RELATIVE in \
   reports/2026-08-17-atlas-repair6-identity-tiebreak-extension-protocol.md \
   reports/2026-08-17-atlas-repair6-queue-order-amendment.md \
   reports/2026-08-17-atlas-repair6-accepted-retry-wait-repair.md \
+  reports/2026-08-17-atlas-repair6-closure-release-repair.md \
   scripts/prepare_atlas_repair6_classification.py \
   scripts/cloud_atlas_repair6_dual_canary.sh \
   scripts/finish_atlas_repair6_dual_canary.py \
@@ -48,6 +54,75 @@ done
 execution_status() {
   gcloud run jobs executions describe "$1" --project "$PROJECT" \
     --region "$REGION" --format='value(status.conditions[0].status)'
+}
+
+run_continuous_parity() {
+  "$ROOT/scripts/cloud_atlas_interaction_parity_diagnostic.sh" || return $?
+  read -r _season _week _seed _job parity_execution _uri \
+    < "$PARITY/execution.txt" || return $?
+  while true; do
+    state=$(execution_status "$parity_execution") || return $?
+    printf '%s ATLAS_CONTINUOUS_PARITY_AFTER_REPAIR6_STATUS state=%s\n' \
+      "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$state"
+    [ "$state" != Unknown ] && break
+    sleep 60
+  done
+  "$ROOT/scripts/cloud_finish_atlas_interaction_parity_diagnostic.sh"
+}
+
+repair6_closure_is_valid() {
+  [ -s "$CLOSURE" ] && [ -s "$REPAIR6/queue-closure.sha256" ] && \
+    sha256sum -c "$REPAIR6/queue-closure.sha256" >/dev/null 2>&1 && \
+    [ "$(wc -l < "$CLOSURE")" = 6 ] && \
+    [ "$(grep -c '^reason=' "$CLOSURE")" = 1 ] && \
+    grep -qx 'disposition=repair6-closed-no-scoreable-population' "$CLOSURE" && \
+    grep -qx 'uses_realized_outcomes=false' "$CLOSURE" && \
+    grep -qx 'candidate_or_lineup_scores_read=false' "$CLOSURE" && \
+    grep -qx 'production_change_licensed=false' "$CLOSURE" && \
+    grep -Eq '^recorded_at=[0-9]{4}-[0-9]{2}-[0-9]{2}T' "$CLOSURE" || return 1
+  recorded_reason=$(awk -F= '$1=="reason" {print substr($0,8)}' "$CLOSURE")
+  case "$recorded_reason" in
+    failure-classification-closed|dual-canary-execution-failed|\
+repair6-grid-execution-failed|hybrid-population-invalid) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+record_repair6_closure() {
+  reason=$1
+  case "$reason" in
+    failure-classification-closed|dual-canary-execution-failed|\
+repair6-grid-execution-failed|hybrid-population-invalid) ;;
+    *) echo "ERROR: unknown ATLAS repair6 closure reason" >&2; return 2 ;;
+  esac
+  if [ -s "$CLOSURE" ]; then
+    repair6_closure_is_valid && grep -qx "reason=$reason" "$CLOSURE" || {
+      echo "ERROR: ATLAS repair6 closure receipt differs" >&2; return 2; }
+    return 0
+  fi
+  [ ! -e "$CLOSURE" ] || {
+    echo "ERROR: empty ATLAS repair6 closure receipt exists" >&2; return 2; }
+  pending=$(mktemp "$REPAIR6/.queue-closure.XXXXXX") || return $?
+  printf '%s\n' \
+    'disposition=repair6-closed-no-scoreable-population' \
+    "reason=$reason" \
+    'uses_realized_outcomes=false' \
+    'candidate_or_lineup_scores_read=false' \
+    'production_change_licensed=false' \
+    "recorded_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$pending"
+  mv "$pending" "$CLOSURE"
+  sha256sum "$CLOSURE" > "$REPAIR6/queue-closure.sha256"
+  repair6_closure_is_valid || {
+    echo "ERROR: ATLAS repair6 closure receipt failed validation" >&2
+    return 2
+  }
+}
+
+close_repair6_and_release_parity() {
+  reason=$1
+  record_repair6_closure "$reason" || return $?
+  printf 'ATLAS_REPAIR6_CLOSED reason=%s RELEASING_CONTINUOUS_PARITY\n' "$reason"
+  run_continuous_parity
 }
 
 while true; do
@@ -100,8 +175,8 @@ fi
 if [ "$classification_rc" -ne 0 ] || \
     ! grep -qx 'disposition=repair6-dual-canary-licensed' \
       "$REPAIR6/classification-completion.txt"; then
-  echo "ATLAS_REPAIR6_CLOSED_RELEASING_CONTINUOUS_PARITY"
-  "$ROOT/scripts/cloud_atlas_interaction_parity_diagnostic.sh" || exit $?
+  close_repair6_and_release_parity failure-classification-closed
+  exit $?
 else
   if [ ! -s "$REPAIR6/canary-executions.txt" ]; then
     "$ROOT/scripts/cloud_atlas_repair6_dual_canary.sh" \
@@ -122,8 +197,10 @@ else
     [ "$unknown" -eq 0 ] && break
     sleep 300
   done
-  [ "$failed" -eq 0 ] || {
-    echo "ATLAS_REPAIR6_DUAL_CANARY_FAILED"; exit 10; }
+  if [ "$failed" -ne 0 ]; then
+    close_repair6_and_release_parity dual-canary-execution-failed
+    exit $?
+  fi
   if [ ! -s "$REPAIR6/canary-completion.txt" ]; then
     PYTHONPATH="$ROOT/src:$ROOT/scripts" "$ROOT/.venv/bin/python" \
       "$ROOT/scripts/finish_atlas_repair6_dual_canary.py" || exit $?
@@ -146,27 +223,24 @@ else
     [ "$unknown" -eq 0 ] && break
     sleep 300
   done
-  [ "$failed" -eq 0 ] || {
-    echo "ATLAS_REPAIR6_GRID_FAILED"; exit 10; }
+  if [ "$failed" -ne 0 ]; then
+    close_repair6_and_release_parity repair6-grid-execution-failed
+    exit $?
+  fi
   if [ ! -s "$REPAIR6/hybrid-completion.txt" ]; then
     PYTHONPATH="$ROOT/src:$ROOT/scripts" "$ROOT/.venv/bin/python" \
       "$ROOT/scripts/finish_atlas_repair6_hybrid_population.py" || exit $?
+  fi
+  if ! grep -qx 'disposition=valid-complete-repair6-hybrid-population' \
+      "$REPAIR6/hybrid-completion.txt"; then
+    close_repair6_and_release_parity hybrid-population-invalid
+    exit $?
   fi
   while [ ! -s "$HISTORICAL/queue-completion.txt" ]; do
     printf '%s ATLAS_REPAIR6_WAITING_FOR_HISTORICAL_V4\n' \
       "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
     sleep 300
   done
-  "$ROOT/scripts/cloud_atlas_interaction_parity_diagnostic.sh" || exit $?
+  run_continuous_parity
+  exit $?
 fi
-
-read -r _season _week _seed _job parity_execution _uri \
-  < "$PARITY/execution.txt"
-while true; do
-  state=$(execution_status "$parity_execution") || exit $?
-  printf '%s ATLAS_CONTINUOUS_PARITY_AFTER_REPAIR6_STATUS state=%s\n' \
-    "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$state"
-  [ "$state" != Unknown ] && break
-  sleep 60
-done
-"$ROOT/scripts/cloud_finish_atlas_interaction_parity_diagnostic.sh"
