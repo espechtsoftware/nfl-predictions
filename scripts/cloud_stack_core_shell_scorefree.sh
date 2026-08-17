@@ -23,6 +23,7 @@ SOURCES="$ROOT/scripts/stack_core_shell_sources.py"
 CANARY="$ROOT/scripts/cloud_wait_stack_core_shell_scorefree_canary.sh"
 CANARY_VALIDATOR="$ROOT/scripts/validate_stack_core_shell_scorefree_canary.py"
 ATTEMPTS="$ROOT/scripts/manage_stack_core_shell_scorefree_attempts.py"
+FINISHER="$ROOT/scripts/finish_stack_core_shell_scorefree.py"
 IMAGE=${1:-}
 CODE_SHA=${2:-}
 BUILD_ID=${3:-}
@@ -180,6 +181,7 @@ printf '%s\n' \
   "canary_sha256=$(sha256sum "$CANARY" | awk '{print $1}')" \
   "canary_validator_sha256=$(sha256sum "$CANARY_VALIDATOR" | awk '{print $1}')" \
   "attempt_manager_sha256=$(sha256sum "$ATTEMPTS" | awk '{print $1}')" \
+  "finisher_sha256=$(sha256sum "$FINISHER" | awk '{print $1}')" \
   'seasons=2023,2024,2025' 'weeks=1-18' 'slates=54' 'folds=270' \
   'cpu=4' 'memory=16Gi' 'timeout_seconds=14400' 'max_retries=0' \
   'uses_realized_outcomes=false' 'effect_fields_inspected=false' \
