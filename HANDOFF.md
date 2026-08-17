@@ -1355,6 +1355,12 @@ agent or developer:
   expansion and the exact reported cross-pair total. Nineteen focused stack
   construction/support/attempt/execution tests pass; Python compilation, all
   four shell syntax checks and `git diff --check` pass.
+  These transport and strict-validation repairs are pushed on `main` at exact
+  commit `999ffea78d15f7c5c2dab103e83bd71fa687cda7`. Replacement managed watcher
+  session `58159` consumed the successful build/digest and reached the intended
+  `stack-core/shell support awaits ATLAS preflight` gate at
+  `2026-08-17T00:53:47Z`; it created no run directory or Cloud execution and
+  will retry that same gate every five minutes.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).
