@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 00:31 CDT
+## Current state — 2026-08-17 00:34 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -1360,6 +1360,17 @@ agent or developer:
   No outcome query, historical build, image, job or object has occurred. Next:
   commit/push this exact prospective scorer, submit its own clean-archive
   build, and start its watcher behind the complete coherent score-free harvest.
+  That exact historical scorer is now pushed at
+  `ae9780b3d52037b014031c7982912afb204d265d`. Its clean tracked-archive
+  Cloud Build is `4ce80f20-a976-436c-9276-1e45c306aff9`, submitted at
+  `2026-08-17T05:33:14Z` under create-only tag
+  `coherent-market-historical-ae9780b`; source object
+  `gs://nfl-predictions-503414_cloudbuild/source/1786944769.996391-e01cef37b1c44cbfa631d0eca5da3b7e.tgz`
+  has generation `1786944794447545`. It is queued, and durable watcher PID
+  `1241887` (managed terminal session `86846`) is polling it. A successful
+  build only resolves its digest; the watcher then waits for the complete
+  coherent score-free `completion.txt` before it can create an upstream
+  receipt, query any realized outcome or launch the one scoring task.
   The reviewer response
   `reports/2026-08-16-retry-narrowing-and-lattice-support-response.md` was also
   reconciled. Its retry narrowing agrees with the implementation. Its two
