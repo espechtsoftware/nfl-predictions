@@ -64,8 +64,9 @@ agent or developer:
   plus all seven existing exact-P census tests pass; both new Python sources
   compile and `git diff --check` passes. No source loader, immutable runner,
   build or cloud execution exists yet. The protocol/seed freeze is pushed at
-  commit `402662e`; the exact pure-analyzer milestone is pushed on `main` at
-  `17263671c5f516234867fe8fef50c3a9510052d6`.
+  commit `402662e`; the superseding exact pure-analyzer/source-preflight
+  milestone is pushed on `main` at
+  `33a66124306684fb5ffe52bbb11d7afc9d07a73c`.
 
 - A direct reread of the operator-supplied
   `reports/2026-08-16-retry-narrowing-and-lattice-support-response.md`
