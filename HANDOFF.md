@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 00:44 CDT
+## Current state — 2026-08-17 00:57 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -1382,11 +1382,18 @@ agent or developer:
   `2026-08-17T05:33:14Z` under create-only tag
   `coherent-market-historical-ae9780b`; source object
   `gs://nfl-predictions-503414_cloudbuild/source/1786944769.996391-e01cef37b1c44cbfa631d0eca5da3b7e.tgz`
-  has generation `1786944794447545`. It is queued, and durable watcher PID
-  `1241887` (managed terminal session `86846`) is polling it. A successful
-  build only resolves its digest; the watcher then waits for the complete
-  coherent score-free `completion.txt` before it can create an upstream
-  receipt, query any realized outcome or launch the one scoring task.
+  has generation `1786944794447545`. It completed successfully at
+  `2026-08-17T05:55:17Z`: 1,722 tests passed, 2 skipped and 5 warnings in
+  1,049.09 seconds; the image build and all ten required real-container
+  source/runner smokes passed. Its sole immutable digest is
+  `sha256:cbf4411940bd7024309575b470c7ec1b12df1f0045e5609f7061da36fa92b06b`.
+  The uploaded archive was independently diffed against exact source commit
+  `ae9780b3d52037b014031c7982912afb204d265d`; every available tracked file
+  matched and only `.gitignore`, excluded by upload ignore rules, was absent.
+  Durable watcher PID `1241887` (managed terminal session `86846`) is now at
+  `COHERENT_MARKET_STATE_HISTORICAL_WAITS_FOR_SCOREFREE`. It cannot create an
+  upstream receipt, query any realized outcome or launch the one scoring task
+  until the complete coherent score-free `completion.txt` exists.
   The reviewer response
   `reports/2026-08-16-retry-narrowing-and-lattice-support-response.md` was also
   reconciled. Its retry narrowing agrees with the implementation. Its two
