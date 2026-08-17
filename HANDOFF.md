@@ -1285,6 +1285,26 @@ agent or developer:
   at commit `40c26a7c8cba2e7eda108bd7c25e8b208bd3cac3`. Docker/Cloud Build,
   bounded-attempt resolver and strict-harvest plumbing remain open; do not
   launch this support census from the current constraint image.
+  Those remaining support-transport pieces are now implemented locally. A
+  dedicated `Dockerfile.stack-support` layers the exact current source and
+  receipts over the already fully validated constraint digest, and
+  `cloudbuild.stack-support.yaml` runs the full suite before three real-
+  container source/runner/aggregator smokes. This isolation deliberately does
+  not modify the shared Dockerfile/Cloud Build bytes still bound by the active
+  constraint launcher. The attempt manager inventories all 54 primaries
+  before acting, accepts one replacement only for the prospectively literal
+  zero-object platform condition, durably binds primary/retry/accepted
+  ledgers, and treats memory, timeout, signal, solver, cancellation, nonzero,
+  object-bearing or ambiguous failures as terminal. The strict finisher
+  independently revalidates the complete execution sets/specs/statuses and all
+  object metadata before downloading any shard, invokes only the frozen
+  aggregator and writes create-only aggregate/completion receipts. A managed
+  watcher can carry build -> ATLAS queue -> canary -> 54 primaries -> attempt
+  resolution -> strict harvest without user intervention. Fourteen focused
+  construction/support/attempt tests pass; all Python and embedded shell
+  Python compile, four shell scripts pass `bash -n`, and `git diff --check`
+  passes. Commit/push this exact milestone, submit its isolated clean-archive
+  build, and start that watcher; it must remain behind ATLAS closure.
   The same namespace defect would have broken every future generic build, so
   tracked `cloudbuild.yaml` now also invokes `PYTHONPATH=. pytest` (SHA-256
   `eb08ae284f578f179155462a4d9819d6c4d3947be104a76eeae9359f34388004`).

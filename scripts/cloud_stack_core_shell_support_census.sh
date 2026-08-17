@@ -22,6 +22,7 @@ RUNNER="$ROOT/scripts/run_stack_core_shell_support_census.py"
 AGGREGATOR="$ROOT/scripts/aggregate_stack_core_shell_support_census.py"
 SOURCES="$ROOT/scripts/stack_core_shell_sources.py"
 CANARY="$ROOT/scripts/cloud_wait_stack_core_shell_support_canary.sh"
+ATTEMPTS="$ROOT/scripts/manage_stack_core_shell_support_attempts.py"
 PREFLIGHT="$ROOT/reports/atlas-cbc-32g-full-cell-preflight-runs/20260816-atlas-cbc-32g-full-cell-preflight-v1"
 REPAIR5="$ROOT/reports/atlas-matched-diversity-runs/20260816-atlas-matched-diversity-mvp-v1-repair5"
 PARITY="$ROOT/reports/atlas-interaction-parity-runs/20260816-atlas-interaction-parity-v1"
@@ -39,7 +40,7 @@ BUILD_ID=${3:-}
 git -C "$ROOT" cat-file -e "$CODE_SHA^{commit}" || {
   echo "ERROR: stack-core/shell source commit is unavailable" >&2; exit 2; }
 for RELATIVE in \
-  Dockerfile cloudbuild.yaml \
+  Dockerfile.stack-support cloudbuild.stack-support.yaml \
   reports/2026-08-16-stack-core-shell-scorefree-protocol.md \
   reports/2026-08-16-stack-core-shell-support-execution-protocol.md \
   reports/atlas-money-transfer-runs/20260815-atlas-current-money-transfer-v1/report.json \
@@ -51,6 +52,7 @@ for RELATIVE in \
   scripts/run_stack_core_shell_support_census.py \
   scripts/aggregate_stack_core_shell_support_census.py \
   scripts/cloud_wait_stack_core_shell_support_canary.sh \
+  scripts/manage_stack_core_shell_support_attempts.py \
   src/nfl_dfs/analysis/stack_core_shell.py \
   src/nfl_dfs/analysis/constraint_lattice.py \
   src/nfl_dfs/analysis/atlas_matched_diversity.py \
@@ -62,13 +64,14 @@ for RELATIVE in \
     echo "ERROR: stack-core/shell built source differs: $RELATIVE" >&2; exit 2; }
 done
 git -C "$ROOT" diff --quiet -- \
-  Dockerfile cloudbuild.yaml \
+  Dockerfile.stack-support cloudbuild.stack-support.yaml \
   reports/2026-08-16-stack-core-shell-scorefree-protocol.md \
   reports/2026-08-16-stack-core-shell-support-execution-protocol.md \
   scripts/stack_core_shell_sources.py \
   scripts/run_stack_core_shell_support_census.py \
   scripts/aggregate_stack_core_shell_support_census.py \
   scripts/cloud_wait_stack_core_shell_support_canary.sh \
+  scripts/manage_stack_core_shell_support_attempts.py \
   src/nfl_dfs/analysis/stack_core_shell.py || {
   echo "ERROR: stack-core/shell built sources have tracked edits" >&2; exit 2; }
 for SPEC in "$PROTOCOL:$PROTOCOL_SHA" \
@@ -191,6 +194,7 @@ printf '%s\n' \
   "runner_sha256=$(sha256sum "$RUNNER" | awk '{print $1}')" \
   "aggregator_sha256=$(sha256sum "$AGGREGATOR" | awk '{print $1}')" \
   "canary_validator_sha256=$(sha256sum "$CANARY" | awk '{print $1}')" \
+  "attempt_manager_sha256=$(sha256sum "$ATTEMPTS" | awk '{print $1}')" \
   "build_metadata_sha256=$(sha256sum "$OUT/build-metadata.json" | awk '{print $1}')" \
   "queue_release_sha256=$(sha256sum "$OUT/queue-release.json" | awk '{print $1}')" \
   "queue_release_branch=$("$ROOT/.venv/bin/python" -c 'import json,sys; print(json.load(open(sys.argv[1]))["branch"])' "$OUT/queue-release.json")" \

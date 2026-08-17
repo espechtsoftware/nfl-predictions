@@ -5,6 +5,7 @@ import hashlib
 import json
 import math
 from pathlib import Path
+import re
 import sys
 
 
@@ -135,6 +136,16 @@ def test_support_launcher_uses_real_path_canary_and_atlas_queue() -> None:
     canary = (
         ROOT / "scripts/cloud_wait_stack_core_shell_support_canary.sh"
     ).read_text(encoding="utf-8")
+    finisher = (
+        ROOT / "scripts/cloud_finish_stack_core_shell_support_census.sh"
+    ).read_text(encoding="utf-8")
+    docker = (ROOT / "Dockerfile.stack-support").read_text(encoding="utf-8")
+    cloudbuild = (
+        ROOT / "cloudbuild.stack-support.yaml"
+    ).read_text(encoding="utf-8")
+    watcher = (
+        ROOT / "scripts/watch_stack_core_shell_support_queue.sh"
+    ).read_text(encoding="utf-8")
     assert "stack-core/shell support awaits ATLAS preflight" in launcher
     assert "repair5-valid-historical-closed" in launcher
     assert "repair5-failed-parity-closed" in launcher
@@ -148,6 +159,48 @@ def test_support_launcher_uses_real_path_canary_and_atlas_queue() -> None:
     assert '"remaining_cells_released=false"' in canary
     assert '"treatment_constructed=false"' in canary
     assert "gcloud storage cp" not in canary
+    assert "attempt_manager_sha256=" in launcher
+    assert "manage_stack_core_shell_support_attempts.py" in launcher
+    assert '"$ATTEMPTS" validate' in finisher
+    assert "stack-core/shell job attempt population differs" in finisher
+    assert "STACK_CORE_SHELL_SUPPORT_STRICTLY_VALIDATED" in finisher
+    assert finisher.index('gcloud storage objects describe "$URI"') < \
+        finisher.index('gcloud storage cp "$URI"')
+    assert "treatment_constructed=false" in finisher
+    assert "Dockerfile.stack-support cloudbuild.stack-support.yaml" in launcher
+    assert "sha256:51782451d1850ba213cb1fb374f25fe5f53d1d518bcae6a521811719ef8a8179" \
+        in docker
+    for name in (
+        "stack_core_shell_sources.py",
+        "run_stack_core_shell_support_census.py",
+        "aggregate_stack_core_shell_support_census.py",
+    ):
+        assert f"COPY scripts/{name} ./scripts/{name}" in docker
+    assert "PYTHONPATH=. pytest" in cloudbuild
+    for step in (
+        "smoke-stack-core-shell-source-loader",
+        "smoke-stack-core-shell-support-runner",
+        "smoke-stack-core-shell-support-aggregator",
+    ):
+        assert f"id: {step}" in cloudbuild
+    assert 'IMAGE="${TAG%:*}@${DIGEST}"' in watcher
+    assert "manage_stack_core_shell_support_attempts.py" in watcher
+    assert "cloud_finish_stack_core_shell_support_census.sh" in watcher
+    assert "accepted-population-with-platform-replacements" in watcher
+
+
+def test_support_shell_embedded_python_compiles() -> None:
+    paths = (
+        ROOT / "scripts/cloud_stack_core_shell_support_census.sh",
+        ROOT / "scripts/cloud_wait_stack_core_shell_support_canary.sh",
+        ROOT / "scripts/cloud_finish_stack_core_shell_support_census.sh",
+    )
+    for path in paths:
+        source = path.read_text(encoding="utf-8")
+        blocks = re.findall(r"<<'PY'\n(.*?)\nPY\n", source, flags=re.DOTALL)
+        assert blocks, path
+        for index, block in enumerate(blocks):
+            compile(block, f"{path.name}:heredoc-{index}", "exec")
 
 
 def test_distributed_support_licenses_p230_treatment(tmp_path: Path) -> None:
