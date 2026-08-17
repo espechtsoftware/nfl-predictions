@@ -58,9 +58,9 @@ agent or developer:
   This is governance-only: it reads no outcome, score, rank, ownership, payout
   or effect, issues no scientific verdict and licenses no production/UI
   change. The exact implementation milestone is commit
-  `4bbb4f5f01c4bef7667eff9894a8146cd703f055`. Next: push this milestone and
-  its handoff update; then continue status-only ATLAS polling and leave every
-  gated outcome mechanism serialized behind its frozen prerequisites.
+  `4bbb4f5f01c4bef7667eff9894a8146cd703f055` and is pushed on `main` with
+  this handoff. Next: continue status-only ATLAS polling and leave every gated
+  outcome mechanism serialized behind its frozen prerequisites.
 
 - An outcome-free live preflight caught and corrected the production-law
   dependence source-population defect before any source lock or outcome query
