@@ -283,7 +283,7 @@ agent or developer:
   At `2026-08-17T13:34:16Z`, the existing repair5 watcher still reports all
   53 post-canary primary executions nonterminal; no partial output was opened.
   The exact implementation milestone is pushed on `main` at commit
-  `0d61d97a07e4c004f94a5c89ae44f9cd25e16eef`.
+  `0d61d97934c1113891d6f98c4fce86b82e06635a`.
   Next: commit/push this implementation, run its full-test immutable Cloud
   Build in parallel with the score-blind grid, then start the v3 queue watcher
   with that digest/build so strict repair5 completion automatically seals and
