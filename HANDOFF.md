@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 15:10 CDT
+## Current state — 2026-08-17 15:25 CDT
 
 ### Extreme-tail prerequisites implemented and prospectively frozen while ATLAS continues
 
@@ -95,19 +95,37 @@ agent or developer:
   law only; it does not prove historical rule parity, populate an event
   ledger, or license a DST outcome arm.
 
-- A durable global heavy-experiment lease and the pure residual-pricing core
-  are being implemented locally from the frozen contracts. These readiness
-  tasks launch no cloud experiment. The active ATLAS watcher remains the sole
-  heavy chain: its complete terminal-only sweep at
-  `2026-08-17T20:05:15Z` reported 13 of 54 repair5 primaries nonterminal, 40
+- The standalone shared heavy-experiment lease prerequisite is implemented in
+  `scripts/heavy_experiment_lease.py`. It atomically acquires the single
+  create-only GCS object
+  `gs://nfl-predictions-503414-raw/research-governance/heavy-experiment-active-v1.json`,
+  never expires by age, and releases only after independently downloading and
+  reconciling an immutable registered population, complete terminal census,
+  every exact Cloud Run execution receipt and the strict-harvest object.
+  Normal release and explicit operator recovery both write a durable intent
+  before exact-generation deletion and a durable completion afterward; audit
+  never deletes. The implementation report is
+  `reports/2026-08-17-shared-heavy-experiment-lease-prerequisite.md`, SHA-256
+  `1a82a100840fe321bd995af458064a14f65f357f7936201fc5e8bd0420f6c00b`.
+  Thirty offline fake-GCS tests and compilation pass. It is not yet packaged
+  or wired into a launcher/finisher and licenses no launch: all potentially
+  concurrent watchers must first participate or be durably terminal/disabled,
+  and narrow IAM, bucket lifecycle/retention and real-GCS concurrency still
+  require preflight.
+
+- The pure residual-pricing core remains in a final exact-solver audit. These
+  readiness tasks launch no cloud experiment. The active ATLAS watcher remains
+  the sole heavy chain: its complete terminal-only sweep at
+  `2026-08-17T20:23:15Z` reported 10 of 54 repair5 primaries nonterminal, 43
   terminal successes and the one known zero-object 2023 Week 7 identity-tie
   failure. Repair6, historical v4, parity and then constraint-lattice support
   remain serialized; no partial scientific output has been inspected.
 
-- Exact next actions: commit/push the DST D0 contract separately; continue
-  terminal-only ATLAS polling; validate and commit the heavy lease and pure
-  residual core separately; implement the D0 historical event-vector
-  extraction/output-schema prerequisite without scoring outcomes; when the
+- Exact next actions: commit/push the shared lease prerequisite; continue
+  terminal-only ATLAS polling; resolve and commit the pure residual core only
+  after its widened numerical audit passes; finish/commit the D0 historical
+  event-vector extraction/output-schema prerequisite without populating it;
+  when the
   ATLAS chain closes, strictly harvest its licensed terminal result before
   releasing the constraint-lattice support/resource preflight.
 
