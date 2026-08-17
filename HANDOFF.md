@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 00:03 CDT
+## Current state — 2026-08-17 00:16 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -1295,6 +1295,47 @@ agent or developer:
   implement new mechanism-specific launcher/attempt/finisher scripts rather
   than changing any attempt script whose hash is already bound by active
   lattice/stack watchers.
+  That transport is now implemented without touching any bound active-queue
+  source. `scripts/cloud_coherent_market_state_scorefree.sh` verifies exact
+  committed source and a successful clean-archive build, waits for a strict
+  ATLAS closure branch, creates only the actual 2023 Week 1 final-path canary,
+  and releases the other 53 jobs only after the metadata-only canary passes.
+  `scripts/cloud_prepare_coherent_market_state_attempts.sh` classifies the
+  complete primary population and permits at most one same-spec external
+  replacement only for a literal zero-object `Internal error running task`;
+  `scripts/validate_coherent_market_state_attempts.py` independently binds
+  every primary/replacement/accepted execution, metadata digest, object
+  inventory and terminal condition. The strict finisher now proves all 54
+  accepted execution specs/statuses and object metadata before it downloads
+  any shard, uses a cleanup-on-failure pending directory, validates/aggregates
+  the full 270-fold population once, and preserves the predeclared historical
+  scoring license regardless of score-free pass/fail. The tracked autonomous
+  watcher carries build, ATLAS queue wait, real-path canary, primaries,
+  bounded attempt resolution, accepted-execution polling and strict harvest
+  in order. Thirty-six focused coherent-state/lattice/stack/ATLAS tests pass;
+  all five shell sources pass `bash -n`, the attempt validator compiles, both
+  runner help paths pass and `git diff --check` passes. No coherent-state
+  build, image, job, object or effect exists yet. Next: commit/push this exact
+  transport, submit one clean-archive build under tag
+  `coherent-market-state-{commit[:7]}`, start its durable watcher, and leave it
+  queued behind ATLAS.
+  The reviewer response
+  `reports/2026-08-16-retry-narrowing-and-lattice-support-response.md` was also
+  reconciled. Its retry narrowing agrees with the implementation. Its two
+  remaining corrections are now explicit queue requirements: ATLAS repair5
+  is using the actual final-path canary (not merely the earlier resource
+  preflight), and the constraint-lattice support census must measure per-slate
+  nonzero p194/p210/p230 support, top-slate concentration and fold correlation
+  rather than raw pooled world count. The latter remains owned by the active
+  lattice support watcher; do not infer adequate power from 540k pooled rows
+  alone.
+  At `2026-08-17T05:15Z`, repair5 canary execution
+  `atlas-md-s2023-w1-r5-45nvf` remains healthy/nonterminal with
+  `Completed=Unknown` and one running task. No seed/effect field or shard was
+  opened and `grid-release.txt` remains absent, so the other 53 repair5 cells
+  are still unreleased. Durable watcher PID `1154635` and the lattice/stack
+  queue watchers remain active. Continue status-only polling; the approximate
+  nine-hour preflight runtime makes the present canary age unsurprising.
   The handoff-only correction commits after that code are pushed through
   `f1e344bd1395d64ea5b530c2fb22c87bd402c902`. Superseding exact-archive
   Cloud Build `df158df9-ef83-4555-b5ea-0e254a7ea0bd` under create-only tag
