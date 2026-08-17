@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-16 21:13 CDT
+## Current state — 2026-08-16 21:26 CDT
 
 ### Historical queue closed; prospective construction, recourse and finite-usage pass-tail infrastructure frozen
 
@@ -1181,6 +1181,33 @@ agent or developer:
   `bash -n`, and `git diff --check` passes. This follow-up is pushed on `main`
   at exact commit `7a628050caf299868ead47cf1f73e0bcc2dbd597` and must receive a
   superseding exact-archive build before launch.
+  A later direct reread of the supplied response found one scope error in that
+  reconciliation: its repair3 discussion required the forthcoming **ATLAS
+  repair5 grid itself**, not only the downstream lattice grids, to use a real
+  launch-path canary. This was corrected prospectively while the 32-GiB
+  preflight remained nonterminal and before the repair5 prefix, job or shard
+  existed. Repair5 now launches only its actual 2023 Week 1 job and final URI,
+  requires terminal exact-spec success plus positive object metadata without
+  downloading the shard, and only then releases the remaining 53 primaries.
+  Any canary failure terminates the version and is excluded from the later
+  bounded replacement rule. The attempt resolver, success finisher, failure
+  census and future v3 historical upstream receipt all bind the canary and
+  `grid-release.txt`. Frozen amendments are
+  `reports/2026-08-16-atlas-repair5-real-path-canary-amendment.md` (SHA-256
+  `b2d0e32dabeb87bb1a67bee58c01f00c4c0d97e3fac9d1f7181bfcee50abc242`)
+  and
+  `reports/2026-08-16-atlas-historical-score-repair5-canary-binding-amendment.md`
+  (SHA-256
+  `c893d958b300484e0468d84763267ee89211178127bf84fc664a9bbc8170ee1e`).
+  Forty-one focused ATLAS/historical/parity/lattice tests pass with
+  `PYTHONPATH=.`, all six affected shell scripts pass `bash -n`, every embedded
+  Python block compiles and `git diff --check` passes. The exact code milestone
+  is pushed-ready on `main` at commit
+  `c0319be02d5a0279cd63b9ea61df454a1f91eb3f`; the repair5 watcher was stopped
+  before editing so it could not race the change and must be restarted only
+  after this handoff is pushed. At `2026-08-17T02:25:46Z`, preflight execution
+  `atlas-cbc-32g-full-2023-w8-v1-lbzjd` remained healthy/nonterminal after R3;
+  no partial shard/effect was opened.
   The handoff-only correction commits after that code are pushed through
   `f1e344bd1395d64ea5b530c2fb22c87bd402c902`. Superseding exact-archive
   Cloud Build `df158df9-ef83-4555-b5ea-0e254a7ea0bd` under create-only tag
