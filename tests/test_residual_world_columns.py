@@ -732,7 +732,9 @@ def test_cbc_evidence_is_unique_and_bare_solver_cannot_license_result():
 
 def test_warm_cbc_evidence_binds_every_normalized_mip_start_value():
     problem = _cbc_evidence_problem()
-    rw._solve(problem, rw.make_cbc_solver(120, False), "cold seed")
+    cold_evidence = rw._solve(
+        problem, rw.make_cbc_solver(120, False), "cold seed"
+    )
     expected = tuple(
         (variable.name, int(round(float(variable.value()))))
         for variable in problem.variables()
@@ -747,6 +749,10 @@ def test_warm_cbc_evidence_binds_every_normalized_mip_start_value():
     assert evidence.mip_start_values_sha256 == rw._canonical_json_sha256([
         [name, value] for name, value in expected
     ])
+    assert evidence.predecessor_assignment_sha256 == (
+        cold_evidence.canonical_assignment_sha256
+    )
+    assert evidence.mip_start_reconstructed_objective == cold_evidence.objective
     assert evidence.mip_start_path is not None
     renamed_sha, count = rw._validate_mip_start_body(
         rw.Path(evidence.mip_start_path).read_text(encoding="utf-8"),
@@ -764,6 +770,126 @@ def test_warm_cbc_evidence_binds_every_normalized_mip_start_value():
         rw.validate_cbc_solve_evidence(replace(
             evidence, mip_start_values=tuple(poisoned_values)
         ))
+
+
+def test_warm_solve_rejects_forged_predecessor_and_infeasible_new_auxiliary():
+    problem = _cbc_evidence_problem()
+    rw._solve(problem, rw.make_cbc_solver(120, False), "cold predecessor")
+    original = tuple(problem._residual_proven_assignment)
+    name, value = original[0]
+    problem._residual_proven_assignment = (
+        (name, 1 - value), *original[1:]
+    )
+    with pytest.raises(rw.SolverFailure, match="predecessor assignment differs"):
+        rw._solve(
+            problem,
+            rw.make_cbc_solver(120, True),
+            "forged predecessor",
+        )
+
+    problem._residual_proven_assignment = original
+    auxiliary = rw.pulp.LpVariable("new_auxiliary", 0, 1, cat="Binary")
+    problem += auxiliary == 0, "new_auxiliary_must_be_zero"
+    auxiliary.setInitialValue(1)
+    with pytest.raises(rw.SolverFailure, match="MIP start violates a current PuLP row"):
+        rw._solve(
+            problem,
+            rw.make_cbc_solver(120, True),
+            "infeasible expanded predecessor",
+        )
+
+
+def test_warm_solve_requires_all_three_predecessor_attributes():
+    problem = _cbc_evidence_problem()
+    rw._solve(problem, rw.make_cbc_solver(120, False), "complete predecessor")
+    for attribute in (
+        "_residual_proven_assignment",
+        "_residual_proven_assignment_sha256",
+        "_residual_proven_evidence",
+    ):
+        value = getattr(problem, attribute)
+        delattr(problem, attribute)
+        with pytest.raises(rw.SolverFailure, match="predecessor lacks"):
+            rw._solve(
+                problem,
+                rw.make_cbc_solver(120, True),
+                f"missing predecessor {attribute}",
+            )
+        setattr(problem, attribute, value)
+
+
+def test_ordered_audit_rejects_alternate_feasible_warm_start(tmp_path):
+    root = tmp_path / "ordered-predecessor"
+    root.mkdir()
+    problem = _cbc_evidence_problem()
+    cold = rw._solve(
+        problem,
+        rw.make_cbc_solver(120, False, evidence_root=root),
+        "ordered cold predecessor",
+    )
+    warm_solver = rw.make_cbc_solver(120, True, evidence_root=root)
+    warm_solver.optionsDict["cuts"] = False
+    warm_solver.cuts_exact = False
+    warm_solver.disable_preprocess()
+    warm = rw._solve(problem, warm_solver, "ordered warm successor")
+    rw._validate_ordered_warm_predecessor(cold, warm)
+
+    assert warm.mip_start_values is not None
+    player_for_variable = {
+        f"x_{index:04d}": player.player_id
+        for index, player in enumerate(sorted(
+            _players(), key=lambda player: player.player_id
+        ))
+    }
+    prior_roster = frozenset(
+        player_for_variable[name]
+        for name, value in rw._scientific_assignment_from_evidence(cold)
+        if value == 1
+    )
+    alternate_roster = next(
+        roster for roster in _legal_rosters()
+        if frozenset(roster) != prior_roster
+    )
+    alternate_values = tuple(
+        (name, int(player_for_variable[name] in alternate_roster))
+        for name, _ in warm.mip_start_values
+    )
+    parsed = rw._parse_exact_mps(rw.Path(warm.model_path))
+    alternate_objective = rw._validate_assignment_against_mps(
+        parsed,
+        warm.variable_domain_manifest,
+        dict(alternate_values),
+    )
+    mip_path = rw.Path(warm.mip_start_path)
+    mip_text = "\n".join((
+        "Stopped on time - objective value 0",
+        *(
+            f"{index} X{index:07d} {value} 0"
+            for index, (_, value) in enumerate(alternate_values)
+        ),
+        "",
+    ))
+    mip_path.write_text(mip_text, encoding="utf-8")
+    renamed_sha, count = rw._validate_mip_start_body(
+        mip_text, [value for _, value in alternate_values]
+    )
+    poisoned = replace(
+        warm,
+        mip_start_sha256=rw._sha256_file(mip_path),
+        mip_start_values_sha256=rw._canonical_json_sha256([
+            [name, value] for name, value in alternate_values
+        ]),
+        mip_start_renamed_values_sha256=renamed_sha,
+        mip_start_variable_count=count,
+        mip_start_reconstructed_objective=alternate_objective,
+        mip_start_values=alternate_values,
+    )
+    # The poison is a coherent, complete, current-MPS-feasible retained start
+    # with the genuine predecessor digest.  Only the ordered chain audit can
+    # prove that it is not the predecessor assignment actually licensed.
+    rw.validate_cbc_solve_evidence(poisoned)
+    with pytest.raises(rw.SolverFailure, match="prior canonical assignment"):
+        rw._validate_ordered_warm_predecessor(cold, poisoned)
 
 
 def test_retained_evidence_reparses_command_and_complete_solution(tmp_path):
@@ -788,6 +914,30 @@ def test_retained_evidence_reparses_command_and_complete_solution(tmp_path):
     ):
         with pytest.raises(rw.SolverFailure):
             rw.validate_cbc_solve_evidence(poison)
+
+    alias_parent = tmp_path / "evidence-parent-alias"
+    alias_parent.symlink_to(tmp_path, target_is_directory=True)
+    aliased_root = alias_parent / root.name
+    aliased_directory = aliased_root / rw.Path(
+        evidence.evidence_directory
+    ).name
+    aliased = replace(
+        evidence,
+        evidence_directory=str(aliased_directory),
+        log_path=str(aliased_directory / rw.Path(evidence.log_path).name),
+        solution_path=str(
+            aliased_directory / rw.Path(evidence.solution_path).name
+        ),
+        model_path=str(aliased_directory / rw.Path(evidence.model_path).name),
+        variable_domain_manifest_path=str(
+            aliased_directory
+            / rw.Path(evidence.variable_domain_manifest_path).name
+        ),
+    )
+    with pytest.raises(rw.SolverFailure, match="ancestor"):
+        rw.validate_cbc_solve_evidence(aliased)
+    with pytest.raises(rw.SolverFailure, match="ancestor"):
+        rw.make_cbc_solver(120, False, evidence_root=aliased_root)
 
     solution_path = rw.Path(evidence.solution_path)
     solution = solution_path.read_text()
@@ -957,6 +1107,31 @@ def test_strict_mps_parser_preserves_pinned_bound_and_category_semantics(
         assert parsed.column_categories[renamed] == (
             domain if domain == "integer" else "continuous"
         )
+
+
+def test_residual_problem_clone_preserves_implied_registry_without_aliasing():
+    problem = rw.pulp.LpProblem("clone_metadata", rw.pulp.LpMaximize)
+    selected = rw.pulp.LpVariable("selected", cat="Binary")
+    implied = rw.pulp.LpVariable(
+        "implied", lowBound=0, upBound=1, cat="Continuous"
+    )
+    rw._register_implied_integer(problem, implied)
+    problem += implied == selected, "implied_definition"
+    problem.setObjective(implied)
+
+    # This is the exact PuLP defect the audited wrapper closes.
+    raw_clone = problem.deepcopy()
+    assert getattr(raw_clone, "_residual_implied_integer_names", None) is None
+
+    clone = rw._clone_residual_problem(problem)
+    source_registry = problem._residual_implied_integer_names
+    clone_registry = clone._residual_implied_integer_names
+    assert clone_registry == frozenset({"implied"})
+    assert isinstance(clone_registry, frozenset)
+    assert clone_registry is not source_registry
+    source_registry.add("later_source_only_mutation")
+    assert clone._residual_implied_integer_names == frozenset({"implied"})
+    assert rw._variable_domain_manifest(clone)
 
 
 @pytest.mark.parametrize(

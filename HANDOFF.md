@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 21:35 CDT
+## Current state — 2026-08-17 21:55 CDT
 
 ### Production readiness is now a separate lane; residual phase 1 is durable
 
@@ -58,20 +58,29 @@ agent or developer:
   PuLP/CBC identities, retains literal-false license flags, and explicitly
   leaves actual-byte attestation to a reviewed future launcher.
 
-- Residual phase 2 is paused at candidate source SHA-256
-  `be6de2d8daa72294e2e8208902b95c4c952e56060cd1471f7664ead93db8db0f`
-  after 3/3 focused warm/evidence tests, 27/27 proof-hardening tests and 87/87
-  short core tests passed. It revalidates and binds each warm start to the
-  immediately preceding retained canonical assignment. Independent review is
-  not yet green: raw PuLP `deepcopy()` drops the custom implied-integer
-  registry used by ambiguity/proof clones. Replace both raw clones with one
-  audited metadata-preserving clone helper and add a no-aliasing poison before
-  accepting phase 2. Phase 3 must then remove the hard-coded `B_s=88` result
-  assumption and independently rebuild all dose/pricing/book/parity/fold
-  identities at serialization. Phase 4 must structurally bind and recompute
-  the exact `RunContext`. Only after new short/static gates are green may the
-  long local pricing fixture run; residual cloud and historical scoring remain
-  separately unlicensed.
+- Residual phase 2 is independently GREEN and ready for this durable
+  checkpoint. Its source SHA-256 is
+  `2bf8d4e3800398c0905830a6ecfe2ca18c7a88cf3357ab48e81118eb308c78d4`
+  and its core-test SHA-256 is
+  `77e1ef7bb15ce4df9b8716e102c9b98891d4c9381729f84036fdc071430f49a7`;
+  the unchanged proof-test SHA-256 is
+  `5edb03b25886685384661d93aed8a85bfa54cf92d1d005e8513b25ff5d1556ae`.
+  Validation passed 4/4 focused ordered/warm evidence cases, 27/27 pure
+  proof-hardening cases, 90/90 short core cases, compile and diff checks. One
+  audited metadata-preserving clone helper now retains an immutable independent
+  implied-integer registry across both former raw PuLP `deepcopy()` sites.
+  Every warm proof revalidates the immediately preceding and current receipts,
+  reconstructs the prior canonical scientific assignment from the retained
+  manifest/decode rows, and proves that assignment is an exact subset of the
+  successor's complete MIP start (exact equality when the variable sets match).
+  Missing predecessor fields, forged predecessor values, infeasible new
+  auxiliaries and a coherent alternate current-model-feasible MIP start with
+  recomputed hashes all fail closed. Phase 3 must next remove the hard-coded
+  `B_s=88` result assumption and independently rebuild all
+  dose/pricing/book/parity/fold identities at serialization. Phase 4 must then
+  structurally bind and recompute the exact `RunContext`. Only after new
+  short/static gates are green may the long local pricing fixture run;
+  residual cloud and historical scoring remain separately unlicensed.
 
 - `reports/2026-08-17-process-health-assessment.md` identifies a real process
   failure but overstates its central statistical claim. The quoted `+0.030`
@@ -132,14 +141,14 @@ agent or developer:
   disposition and queue state license it. No ATLAS partial shard body,
   treatment effect or score has been inspected.
 
-- Exact next actions: (1) close the phase-2 clone-metadata blocker and repeat
-  its short/static gate; (2) implement phases 3 and 4 with separate stable
-  reviews; (3) keep polling the ATLAS target by terminal status only; (4)
-  freeze the non-duplicative book-level surrogate-transport audit before any
-  new historical arm; and (5) advance the Week 1 operations checklist on its
-  own schedule. Do not run the residual cloud/historical path, start a second
-  heavy chain, inspect partial ATLAS scientific artifacts or change the money
-  policy.
+- Exact next actions: (1) commit this independently green residual phase-2
+  checkpoint; (2) implement phases 3 and 4 with separate stable reviews; (3)
+  keep polling the ATLAS target by terminal status only; (4) independently
+  review and then run the already-frozen, non-duplicative book-level surrogate
+  calibration audit before any new historical arm; and (5) advance the Week 1
+  operations checklist on its own schedule. Do not run the residual
+  cloud/historical path, start a second heavy chain, inspect partial ATLAS
+  scientific artifacts or change the money policy.
 
 ## Prior state — 2026-08-17 20:29 CDT
 

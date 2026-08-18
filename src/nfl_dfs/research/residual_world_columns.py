@@ -552,7 +552,13 @@ class _RetainedCbcSolver(pulp.PULP_CBC_CMD):
         *,
         evidence_root: str | Path | None = None,
     ) -> None:
-        root = None if evidence_root is None else str(Path(evidence_root))
+        root = (
+            None
+            if evidence_root is None
+            else str(_resolve_real_directory(
+                Path(evidence_root), "CBC evidence root"
+            ))
+        )
         directory = Path(tempfile.mkdtemp(prefix="residual_cbc_", dir=root))
         self.evidence_directory = directory
         self.max_seconds_exact = max_seconds
@@ -1683,7 +1689,7 @@ def _expected_pricing_model_receipts(
     )
 
     first = audit_legal_identity(players, pricing.rank_first_roster)
-    probe = model.problem.deepcopy()
+    probe = _clone_residual_problem(model.problem)
     overlap = pulp.lpSum(model.decision[player_id] for player_id in first)
     probe.sense = pulp.LpMinimize
     probe.setObjective(overlap)
@@ -1886,6 +1892,12 @@ def _audit_pricing_evidence_semantics(
         evidence, semantics, expected_models, strict=True
     ):
         validate_cbc_solve_evidence(receipt)
+        if warm:
+            if prior_receipt is None:
+                raise ResidualWorldError(
+                    "warm pricing evidence lacks an ordered predecessor"
+                )
+            _validate_ordered_warm_predecessor(prior_receipt, receipt)
         directory = Path(receipt.evidence_directory).resolve()
         if directory.parent != resolved_root:
             raise ResidualWorldError("pricing evidence is outside its run root")
@@ -1930,29 +1942,9 @@ def _audit_evidence_root_inventory(
     receipts = tuple(
         evidence for step in steps for evidence in step.pricing.solve_evidence
     )
-    raw_root = Path(evidence_root)
-    absolute_root = raw_root if raw_root.is_absolute() else Path.cwd() / raw_root
-    # ``resolve`` is intentionally last: resolving first would erase the fact
-    # that either the requested root or one of its ancestors was replaced by a
-    # symlink.  Retained scientific evidence may not cross that boundary.
-    if ".." in absolute_root.parts:
-        raise ResidualWorldError("pricing evidence root is not canonical")
-    current = Path(absolute_root.anchor)
-    for part in absolute_root.parts[1:]:
-        if part in {"", "."}:
-            continue
-        current /= part
-        try:
-            metadata = current.lstat()
-        except OSError as exc:
-            raise ResidualWorldError(
-                "pricing evidence root cannot be inspected exactly"
-            ) from exc
-        if stat.S_ISLNK(metadata.st_mode) or not stat.S_ISDIR(metadata.st_mode):
-            raise ResidualWorldError(
-                "pricing evidence root or ancestor is not a real directory"
-            )
-    resolved_root = absolute_root.resolve(strict=True)
+    resolved_root = _resolve_real_directory(
+        Path(evidence_root), "pricing evidence root"
+    )
     raw_directories = tuple(
         Path(evidence.evidence_directory) for evidence in receipts
     )
@@ -3587,6 +3579,26 @@ def _sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _resolve_real_directory(path: Path, label: str) -> Path:
+    """Resolve an existing directory only after lstat-checking every component."""
+    raw = Path(path)
+    absolute = raw if raw.is_absolute() else Path.cwd() / raw
+    if ".." in absolute.parts:
+        raise SolverFailure(f"{label} is not a canonical directory path")
+    current = Path(absolute.anchor)
+    for part in absolute.parts[1:]:
+        if part in {"", "."}:
+            continue
+        current /= part
+        try:
+            metadata = current.lstat()
+        except OSError as exc:
+            raise SolverFailure(f"{label} cannot be inspected exactly") from exc
+        if stat.S_ISLNK(metadata.st_mode) or not stat.S_ISDIR(metadata.st_mode):
+            raise SolverFailure(f"{label} or an ancestor is not a real directory")
+    return absolute.resolve(strict=True)
+
+
 def _stable_regular_file_bytes(path: Path) -> tuple[bytes, str]:
     """Read and hash one non-symlink regular inode without a path TOCTOU.
 
@@ -4464,22 +4476,167 @@ def _validate_assignment_against_mps(
     return activity(model.objective_row)
 
 
+def _validated_predecessor_receipt(
+    problem: pulp.LpProblem,
+) -> tuple[tuple[tuple[str, int], ...], CbcSolveEvidence]:
+    """Return the exact immediately preceding retained solve assignment.
+
+    A pair of mutable attributes is not proof.  Revalidate the retained CBC
+    bundle, then require the in-memory predecessor values and renamed digest
+    to be exactly the assignment independently decoded from that bundle.
+    """
+    values = getattr(problem, "_residual_proven_assignment", None)
+    digest = getattr(problem, "_residual_proven_assignment_sha256", None)
+    evidence = getattr(problem, "_residual_proven_evidence", None)
+    if (
+        values is None
+        or not isinstance(digest, str)
+        or not isinstance(evidence, CbcSolveEvidence)
+    ):
+        raise SolverFailure("CBC predecessor lacks a retained proven assignment")
+    validate_cbc_solve_evidence(evidence)
+    manifest = tuple(evidence.variable_domain_manifest)
+    expected = _scientific_assignment_from_evidence(evidence)
+    try:
+        frozen_values = tuple((name, value) for name, value in values)
+    except (TypeError, ValueError) as exc:
+        raise SolverFailure("CBC predecessor assignment is malformed") from exc
+    if (
+        frozen_values != expected
+        or digest != evidence.canonical_assignment_sha256
+        or _canonical_json_sha256([
+            [manifest_row[0], name, value]
+            for manifest_row, (name, value) in zip(
+                manifest, frozen_values, strict=True
+            )
+        ]) != digest
+    ):
+        raise SolverFailure("CBC predecessor assignment differs from its proof")
+    return frozen_values, evidence
+
+
+def _scientific_assignment_from_evidence(
+    evidence: CbcSolveEvidence,
+) -> tuple[tuple[str, int], ...]:
+    """Reconstruct canonical scientific values from one validated solve."""
+    manifest = tuple(evidence.variable_domain_manifest)
+    decode_rows = tuple(evidence.integer_decode_rows)
+    if len(manifest) != len(decode_rows):
+        raise SolverFailure("CBC canonical assignment receipt is misaligned")
+    assignment: list[tuple[str, int]] = []
+    for manifest_row, decode_row in zip(manifest, decode_rows, strict=True):
+        renamed, scientific, *_ = manifest_row
+        if (
+            not isinstance(scientific, str)
+            or not scientific
+            or decode_row[0] != renamed
+            or isinstance(decode_row[2], bool)
+            or not isinstance(decode_row[2], int)
+        ):
+            raise SolverFailure("CBC canonical assignment receipt is malformed")
+        assignment.append((scientific, decode_row[2]))
+    if len({name for name, _ in assignment}) != len(assignment):
+        raise SolverFailure("CBC canonical assignment repeats a scientific name")
+    return tuple(assignment)
+
+
+def _validate_ordered_warm_predecessor(
+    prior: CbcSolveEvidence,
+    current: CbcSolveEvidence,
+) -> None:
+    """Prove one warm MST contains the immediately prior exact assignment."""
+    validate_cbc_solve_evidence(prior)
+    validate_cbc_solve_evidence(current)
+    if not current.warm_start or current.mip_start_values is None:
+        raise SolverFailure("ordered predecessor audit requires a warm solve")
+    if current.predecessor_assignment_sha256 != (
+        prior.canonical_assignment_sha256
+    ):
+        raise SolverFailure("warm solve names the wrong predecessor proof")
+    prior_values = _scientific_assignment_from_evidence(prior)
+    current_values = tuple(current.mip_start_values)
+    if any(
+        not isinstance(row, tuple)
+        or len(row) != 2
+        or not isinstance(row[0], str)
+        or not row[0]
+        or isinstance(row[1], bool)
+        or not isinstance(row[1], int)
+        for row in current_values
+    ):
+        raise SolverFailure("warm MIP-start scientific values are malformed")
+    current_map = dict(current_values)
+    if len(current_map) != len(current_values) or any(
+        current_map.get(name) != value for name, value in prior_values
+    ):
+        raise SolverFailure(
+            "warm MIP start does not contain its prior canonical assignment"
+        )
+    prior_names = {name for name, _ in prior_values}
+    if prior_names == set(current_map) and current_values != prior_values:
+        raise SolverFailure("same-model warm MIP start differs from predecessor")
+
+
 def _copy_proven_assignment(
     source: pulp.LpProblem,
     destination: pulp.LpProblem,
 ) -> None:
-    values = getattr(source, "_residual_proven_assignment", None)
-    digest = getattr(source, "_residual_proven_assignment_sha256", None)
-    if values is None or digest is None:
-        raise SolverFailure("CBC predecessor lacks a proven canonical assignment")
-    setattr(destination, "_residual_proven_assignment", tuple(values))
-    setattr(destination, "_residual_proven_assignment_sha256", str(digest))
+    values, evidence = _validated_predecessor_receipt(source)
+    source_names = {variable.name for variable in source.variables()}
+    if source_names != {name for name, _ in values}:
+        raise SolverFailure("CBC predecessor is not complete for its source model")
+    _validate_assignment_against_problem(source, dict(values))
+    setattr(destination, "_residual_proven_assignment", values)
+    setattr(
+        destination,
+        "_residual_proven_assignment_sha256",
+        evidence.canonical_assignment_sha256,
+    )
+    setattr(destination, "_residual_proven_evidence", evidence)
     destination_by_name = {
         variable.name: variable for variable in destination.variables()
     }
+    if not {name for name, _ in values} <= set(destination_by_name):
+        raise SolverFailure("CBC predecessor variables are absent after model copy")
     for name, value in values:
-        if name in destination_by_name:
-            destination_by_name[name].varValue = int(value)
+        destination_by_name[name].varValue = int(value)
+
+
+def _clone_residual_problem(
+    problem: pulp.LpProblem,
+    *,
+    copy_proven_assignment: bool = False,
+) -> pulp.LpProblem:
+    """Clone PuLP state without dropping residual proof metadata.
+
+    PuLP 3.3.2's ``deepcopy`` copies objectives/constraints/SOS only.  The
+    implied-integer registry is part of the reviewed exact model law, so every
+    research clone freezes an independent immutable copy and proves it names
+    columns that actually remain in the clone.  Proven-solve provenance is a
+    separate opt-in because semantic receipt rebuilds must remain score-free
+    and solver-artifact independent.
+    """
+    if type(copy_proven_assignment) is not bool:
+        raise SolverFailure("residual clone provenance flag must be boolean")
+    raw_names = getattr(problem, "_residual_implied_integer_names", set())
+    try:
+        names = frozenset(raw_names)
+    except TypeError as exc:
+        raise SolverFailure("residual implied-integer registry is malformed") from exc
+    if any(not isinstance(name, str) or not name for name in names):
+        raise SolverFailure("residual implied-integer registry is malformed")
+    clone = problem.deepcopy()
+    clone_variable_names = {variable.name for variable in clone.variables()}
+    if not names <= clone_variable_names:
+        raise SolverFailure(
+            "residual implied-integer registry references a missing clone column"
+        )
+    setattr(clone, "_residual_implied_integer_names", names)
+    if frozenset(getattr(clone, "_residual_implied_integer_names")) != names:
+        raise SolverFailure("residual implied-integer registry changed during clone")
+    if copy_proven_assignment:
+        _copy_proven_assignment(problem, clone)
+    return clone
 
 
 def _command_value(tokens: Sequence[str], flag: str) -> str:
@@ -4909,6 +5066,7 @@ def _parse_cbc_evidence(
         "_residual_proven_assignment_sha256",
         canonical_assignment_sha256,
     )
+    setattr(problem, "_residual_proven_evidence", evidence)
     solver.evidence = evidence
     return evidence
 
@@ -4936,9 +5094,9 @@ def validate_cbc_solve_evidence(evidence: CbcSolveEvidence) -> None:
     ):
         if isinstance(value, bool) or not isinstance(value, int):
             raise SolverFailure(f"CBC retained {label} is not an integer")
-    directory = Path(evidence.evidence_directory)
-    if directory.is_symlink() or not directory.is_dir():
-        raise SolverFailure("CBC retained evidence directory is missing")
+    directory = _resolve_real_directory(
+        Path(evidence.evidence_directory), "CBC retained evidence directory"
+    )
     required = (
         (Path(evidence.log_path), evidence.log_sha256, "log"),
         (Path(evidence.solution_path), evidence.solution_sha256, "solution"),
@@ -4980,11 +5138,13 @@ def validate_cbc_solve_evidence(evidence: CbcSolveEvidence) -> None:
     seen_paths: set[Path] = set()
     retained_bytes: dict[str, bytes] = {}
     for path, expected_sha, label in required:
+        absolute = path if path.is_absolute() else Path.cwd() / path
         resolved = path.resolve()
         if (
-            path.is_symlink()
-            or path.parent.resolve() != directory.resolve()
-            or resolved.parent != directory.resolve()
+            ".." in absolute.parts
+            or path.is_symlink()
+            or absolute.parent != directory
+            or resolved.parent != directory
             or resolved in seen_paths
         ):
             raise SolverFailure(f"CBC retained {label} path is reused or misplaced")
@@ -5396,18 +5556,10 @@ def _solve(
     )
     solver.variable_domain_manifest_path = manifest_path
     if solver.warm_start_exact:
-        predecessor_values = getattr(
-            problem, "_residual_proven_assignment", None
+        predecessor_values, predecessor_evidence = (
+            _validated_predecessor_receipt(problem)
         )
-        predecessor_sha256 = getattr(
-            problem, "_residual_proven_assignment_sha256", None
-        )
-        if predecessor_values is None or not isinstance(
-            predecessor_sha256, str
-        ):
-            raise SolverFailure(
-                "CBC warm start is not linked to the preceding proven assignment"
-            )
+        predecessor_sha256 = predecessor_evidence.canonical_assignment_sha256
         predecessor = dict(predecessor_values)
         if len(predecessor) != len(tuple(predecessor_values)):
             raise SolverFailure("CBC predecessor assignment repeats a variable")
@@ -6000,8 +6152,9 @@ def solve_residual_pricing(
     # relying on an ``Infeasible`` status.  The first roster remains feasible,
     # so maximizing its exact Hamming distance must terminate Optimal: zero is
     # a uniqueness proof and a positive optimum proves ambiguity.
-    probe_problem = model.problem.deepcopy()
-    _copy_proven_assignment(model.problem, probe_problem)
+    probe_problem = _clone_residual_problem(
+        model.problem, copy_proven_assignment=True
+    )
     overlap_expression = pulp.lpSum(
         model.decision[player_id] for player_id in first
     )
