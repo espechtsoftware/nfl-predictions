@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 23:18 CDT
+## Current state — 2026-08-18 00:10 CDT
 
 ### Production readiness is now a separate lane; residual phase 1 is durable
 
@@ -213,6 +213,23 @@ agent or developer:
   phase 4, then run the already-deferred long local score-free pricing fixture
   before designing a launcher.
 
+- The deferred five-case LOCAL score-free exact-pricing gate ran once from
+  pushed phase-4 commit `bdbb5a6` with retained evidence root
+  `/tmp/residual_pricing_gate_ReQTUq`. It completed after 3,003.70 seconds with
+  3 passed, 2 failed and 90 deselected. Rank-sum ambiguity passed in 5.31s;
+  exact no-good next-identity passed in 891.45s; and semantic evidence binding
+  passed in 1,011.70s. The exact pricing/brute/player-row-order case failed on
+  the reversed run after 1,034.25s because a CBC assignment token
+  `9.0315311e-11` exceeded the frozen integer decode epsilon `1e-11`. The
+  all-three positive-part case failed after 60.34s because retained row-display
+  reconstruction rejected one row. Neither failure reached a wrong-roster or
+  wrong-objective assertion; both failed closed at the proof/parser boundary.
+  All 699+ model/solution/log/domain artifacts remain untouched. Do not rerun,
+  widen a tolerance or license the residual runner yet. Independently classify
+  the exact raw tokens, MPS feasibility, row activity and frozen-amendment
+  obligations first; accept only a narrowly justified prospective proof-law
+  correction or treat the formulation as invalid.
+
 - The P0 cleanup/resume repair pushed at `029581e` is independently GREEN. It
   requires both frozen forensic
   manifests, an exact eight-table pre-cleanup union, schema/metadata/expiry
@@ -301,18 +318,18 @@ agent or developer:
   execution failed before model work on a prefix/output-identity transport
   mismatch. The original target execution
   `atlas-md-s2023-w7-r6-9pxdt` remains genuinely running
-  (`Completed=Unknown`, `runningCount=1`) through the 23:13 CDT terminal-only
+  (`Completed=Unknown`, `runningCount=1`) through the 00:04 CDT terminal-only
   poll and must not be cancelled, duplicated or opened. The prospective
   transport amendment/validator at commit `71962ab` remains frozen; apply its
   unique replacement-proof branch only if the original target's terminal
   disposition and queue state license it. No ATLAS partial shard body,
   treatment effect or score has been inspected.
 
-- Exact next actions: (1) commit/push the independently green residual phase-4
-  checkpoint and this handoff; (2) run and independently inspect the deferred
-  long local score-free pricing gate; (3) only after that gate, freeze the
-  remaining source-lock/54-slate orchestration/stability/launcher prerequisites;
-  (4) keep polling the ATLAS target by terminal status only; and (5) retain the verified
+- Exact next actions: (1) independently diagnose the two retained long-pricing
+  proof failures and freeze any justified narrow correction before a single
+  rerun; (2) only after a green exact-pricing gate, freeze the remaining source-
+  lock/54-slate orchestration/stability/launcher prerequisites; (3) keep
+  polling the ATLAS target by terminal status only; and (4) retain the verified
   forensic corpus until the independent-review window closes, then execute the
   manifest-bound v3 cleanup/verification/receipt sequence before scheduler
   resume and advance the remaining Week 1 operations checklist. Do not run
