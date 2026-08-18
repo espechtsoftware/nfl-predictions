@@ -48,6 +48,83 @@ _LATENT_STATE_ORDER = ("inactive", "dormant", "rotation", "secondary", "primary"
 _SHA256_PATTERN = re.compile(r"[0-9a-f]{64}")
 
 
+# Every env capable of changing projections, simulation, generation, or
+# selection belongs in the immutable candidate row.  The original short
+# allow-list omitted EXTRA_FEATURES, so a feature treatment looked identical
+# to its baseline in the warehouse; a later audit (2026-08-18, N5) found the
+# same gap for SCRIPT_FEEDBACK, SCHAAKE_K, and nine optimizer knobs.  The
+# registry is module-level so tests/test_lever_registry.py can enforce that
+# every score-relevant environment read in the simulation/generation path is
+# either registered here or explicitly exempted as infrastructure.
+# Infrastructure destinations/credentials are deliberately out.  Adding a key
+# here changes no recorded receipt unless a run actually sets that key.
+_lever_keys = {
+    "ALT_CEIL", "ATLAS_BOOM_WORLD_RANKING",
+    "BIGPLAY", "BLEND_MODEL_WEIGHT", "BOOM_UNIQUE_FILL", "CAND_MULT",
+    "CE_GAMES", "CE_SEED",
+    "DIRICHLET_K", "DIV_TILT", "DROP_FEATURES", "DST_CORR_DRAWS",
+    "DST_PUNT_BONUS", "EMP_MARGINALS", "EMP_POS",
+    "EPISTEMIC_FAMILY", "EPISTEMIC_W", "EXTRA_FEATURES",
+    "ENSEMBLE_WORLD_MODE", "ENSEMBLE_WORLD_SEED",
+    "FORBID_RB_DST",
+    "GAME_SIM_MODE", "GAME_SIM_PACE", "GAME_SIM_TEAM_FACTORS",
+    "GAME_SIM_USAGE", "GEN_POOL_CAP", "GEN_POOL_CAP_MAP",
+    "GEN_TOTAL_BUDGET", "GUMBEL_MODE", "GUMBEL_SCALE",
+    "GUMBEL_SEED", "HYPER_BOOM", "LEV_PENALTY",
+    "LEV_POS_WEIGHTS", "LEV_SHAPE", "M4_QBLOCK", "MAX_PER_GAME", "MAX_QBS",
+    "MIN_LINEUP_SALARY", "MIN_LOWOWN", "MODEL_ENSEMBLE",
+    "MULTISEED_CANDIDATE_ENTRY_BASIS", "MULTISEED_PORTFOLIO",
+    "MULTISEED_SEED_PAIRS", "MULTISEED_WORLDS_PER_BLOCK",
+    "ARCHETYPE_ALLOCATION_VERSION", "ARCHETYPE_TAIL_LINE",
+    "PROSPECTIVE_SHADOW_ID",
+    "MODEL_ENSEMBLE_MIX", "MODEL_REGISTRY_VARIANT",
+    "N_BOOM", "N_CE", "N_DARKGAME",
+    "N_EPISTEMIC", "N_GAMESTACK", "N_GUMBEL", "N_LOWSAL",
+    "N_ROUTE_TAIL", "N_COVERAGE_TAIL",
+    "CAND_ARTIFACT_PLAYER_WORLDS",
+    "N_MIDQB", "N_NOSTACK", "N_QB_VARIANTS", "OWN_BARBELL",
+    "OWN_BARBELL_HIGH", "OWN_BARBELL_LOW", "OWN_BARBELL_NHIGH",
+    "OWN_BARBELL_NLOW",
+    "OWN_MODEL", "PEAK_SLICE", "PUNT_BOOM", "PUNT_BOOM_WR",
+    "PUNT_MAX", "PUNT_MIN", "PUNT_SLOPE", "PUNT_STRICT", "PUNT_VALUE",
+    "Q99_WILD", "QD_CELLS", "RATE_DENOM_WEIGHTS",
+    "REPLACEMENT_SLOTS", "ROOKIE_WIDEN", "SCHAAKE_DIAG",
+    "REPLAY_PROJECTION_SEED",
+    "SIS_ASOE_BETA", "SIS_ASOE_TARGET_ALLOCATION",
+    "SCHAAKE_DIAG_ONLY", "SCHAAKE_DIAG_STRICT", "SCHAAKE_K",
+    "SCHAAKE_TEMPLATE_MODE", "SCRIPT_FEEDBACK",
+    "SELECT_LSE", "SELECT_OBJ",
+    "SERVED_POSITION_SCALES", "SERVED_TAIL_SCALE", "SHAPE_MIX",
+    "SIM_WIDEN_DRAWS",
+    "STACK_BRING_BACK",
+    "STACK_QB_MIN", "TABPFN_COMPONENTS", "TABPFN_MARGINALS",
+    "TABPFN_MARGINAL_TABLE",
+    "TABPFN_MEAN", "TD_LEDGER", "TD_LEDGER_RANK_COUPLING",
+    "TD_COMPETITIVE_WR_ALLOCATION",
+    "TD_COMP_WR_EXACT80_LICENSED",
+    "TD_COMP_WR_PROTOCOL_SHA256",
+    "TD_COMP_WR_REFERENCE_REPORT_SHA256",
+    "TD_COMP_WR_TREATMENT_REPORT_SHA256",
+    "TRAIN_MAX_WEEK",
+    "VALUE2_MAX", "VALUE2_MIN",
+    "ROLE_BELIEF_FEATURES", "ROLE_BELIEF_SEED", "WR_BOOM",
+}
+
+# Environment keys the simulation/generation path may read WITHOUT lever
+# registration: infrastructure destinations and provenance identity only.
+# A key on this list must never change a projection, draw, candidate, or
+# selection.  tests/test_lever_registry.py enforces the partition.
+_lever_exempt_keys = frozenset({
+    "CAND_ARTIFACT_BUCKET",   # GCS destination for score artifacts
+    "CAND_FEATURE_TABLE",     # BigQuery feature-snapshot destination
+    "CAND_LOG_TABLE",         # BigQuery candidate table destination
+    "CODE_SHA",               # provenance fallback when .git is absent
+    "PANEL_RUN_ID",           # provenance label
+    "REPLAY_LINEUPS_TABLE",   # BigQuery lineup table destination
+    "SEEDS",                  # provenance metadata joined into run seeds
+})
+
+
 @dataclass(frozen=True)
 class CandidateBatch:
     """A complete preselection candidate book and its aligned worlds.
@@ -1090,13 +1167,27 @@ def tail_select_lineups(
                 seen.add(lu.ids)
                 cands.append(lu)
     boom_order = _boom_world_order(rd, slate["pos"].tolist(), runtime_env)
-    boom_cursor = n_boom_solves
+    # Research lever (env BOOM_UNIQUE_FILL, default off; N6/S5 arm,
+    # protocol reports/2026-08-18-boom-unique-fill-protocol.md): the default
+    # primary pass solves exactly the top-N worlds, so duplicate optima
+    # silently deliver fewer than N unique boom candidates, and the CE/EPI
+    # replacement passes both resume from a cursor that is never advanced.
+    # With the lever set, the primary pass walks further down the world
+    # order until exactly N unique boom rosters exist, and every boom pass
+    # advances the shared cursor past the worlds it attempted.  Default
+    # behavior is byte-identical to before the lever existed.
+    boom_unique_fill = str(
+        runtime_env.get("BOOM_UNIQUE_FILL", "") or "") not in ("", "0")
+    boom_cursor = 0 if boom_unique_fill else n_boom_solves
 
     def _add_boom(sim_indices, unique_target: int | None = None) -> int:
+        nonlocal boom_cursor
         added = 0
+        consumed = 0
         for k in sim_indices:
             if unique_target is not None and added >= unique_target:
                 break
+            consumed += 1
             sim_pool = [{**p, "proj_sim": float(rd[i, k])}
                         for i, p in enumerate(pool)]
             try:
@@ -1112,9 +1203,17 @@ def tail_select_lineups(
                 seen.add(lu.ids)
                 cands.append(lu)
                 added += 1
+        if boom_unique_fill:
+            boom_cursor += consumed
         return added
 
-    _add_boom(boom_order[:n_boom_solves])
+    if boom_unique_fill:
+        _primary_boom = _add_boom(boom_order, unique_target=n_boom_solves)
+        log.info(
+            "boom unique-fill: %d/%d unique candidates from %d worlds "
+            "attempted", _primary_boom, n_boom_solves, boom_cursor)
+    else:
+        _add_boom(boom_order[:n_boom_solves])
     # A/B lever (env HYPER_BOOM=<n games>, off by default; review #4
     # round 2): the sim's sampled worlds may never realize the
     # perfectly-collinear game scripts that break slates (45-42
@@ -1840,59 +1939,6 @@ def tail_select_lineups(
                 _seeds,
                 f"MODEL_ENSEMBLE_SIZE={_ensemble_size}",
                 f"MODEL_MEMBER_SPEC={_ensemble_spec}") if x)
-            # Every env capable of changing projections, simulation,
-            # generation, or selection belongs in the immutable row.  The
-            # original short allow-list omitted EXTRA_FEATURES, so a feature
-            # treatment looked identical to its baseline in the warehouse.
-            # Infrastructure destinations/credentials are deliberately out.
-            _lever_keys = {
-                "ALT_CEIL", "ATLAS_BOOM_WORLD_RANKING",
-                "BIGPLAY", "BLEND_MODEL_WEIGHT", "CAND_MULT",
-                "CE_GAMES", "CE_SEED",
-                "DIRICHLET_K", "DIV_TILT", "DROP_FEATURES", "DST_CORR_DRAWS",
-                "DST_PUNT_BONUS", "EMP_MARGINALS", "EMP_POS",
-                "EPISTEMIC_FAMILY", "EPISTEMIC_W", "EXTRA_FEATURES",
-                "ENSEMBLE_WORLD_MODE", "ENSEMBLE_WORLD_SEED",
-                "FORBID_RB_DST",
-                "GAME_SIM_MODE", "GAME_SIM_PACE", "GAME_SIM_TEAM_FACTORS",
-                "GAME_SIM_USAGE", "GEN_POOL_CAP", "GEN_POOL_CAP_MAP",
-                "GEN_TOTAL_BUDGET", "GUMBEL_MODE", "GUMBEL_SCALE",
-                "GUMBEL_SEED", "HYPER_BOOM", "LEV_PENALTY",
-                "LEV_POS_WEIGHTS", "LEV_SHAPE", "M4_QBLOCK", "MAX_QBS",
-                "MIN_LINEUP_SALARY", "MODEL_ENSEMBLE",
-                "MULTISEED_CANDIDATE_ENTRY_BASIS", "MULTISEED_PORTFOLIO",
-                "MULTISEED_SEED_PAIRS", "MULTISEED_WORLDS_PER_BLOCK",
-                "ARCHETYPE_ALLOCATION_VERSION", "ARCHETYPE_TAIL_LINE",
-                "PROSPECTIVE_SHADOW_ID",
-                "MODEL_ENSEMBLE_MIX", "MODEL_REGISTRY_VARIANT",
-                "N_BOOM", "N_CE", "N_DARKGAME",
-                "N_EPISTEMIC", "N_GAMESTACK", "N_GUMBEL", "N_LOWSAL",
-                "N_ROUTE_TAIL", "N_COVERAGE_TAIL",
-                "CAND_ARTIFACT_PLAYER_WORLDS",
-                "N_MIDQB", "N_NOSTACK", "N_QB_VARIANTS", "OWN_BARBELL",
-                "OWN_MODEL", "PEAK_SLICE", "PUNT_BOOM", "PUNT_BOOM_WR",
-                "PUNT_MIN", "PUNT_SLOPE", "PUNT_STRICT", "PUNT_VALUE",
-                "Q99_WILD", "QD_CELLS", "RATE_DENOM_WEIGHTS",
-                "REPLACEMENT_SLOTS", "ROOKIE_WIDEN", "SCHAAKE_DIAG",
-                "REPLAY_PROJECTION_SEED",
-                "SIS_ASOE_BETA", "SIS_ASOE_TARGET_ALLOCATION",
-                "SCHAAKE_DIAG_ONLY", "SCHAAKE_DIAG_STRICT",
-                "SCHAAKE_TEMPLATE_MODE",
-                "SELECT_LSE", "SELECT_OBJ",
-                "SERVED_POSITION_SCALES", "SERVED_TAIL_SCALE", "SHAPE_MIX",
-                "SIM_WIDEN_DRAWS",
-                "STACK_BRING_BACK",
-                "STACK_QB_MIN", "TABPFN_COMPONENTS", "TABPFN_MARGINALS",
-                "TABPFN_MARGINAL_TABLE",
-                "TABPFN_MEAN", "TD_LEDGER", "TD_LEDGER_RANK_COUPLING",
-                "TD_COMPETITIVE_WR_ALLOCATION",
-                "TD_COMP_WR_EXACT80_LICENSED",
-                "TD_COMP_WR_PROTOCOL_SHA256",
-                "TD_COMP_WR_REFERENCE_REPORT_SHA256",
-                "TD_COMP_WR_TREATMENT_REPORT_SHA256",
-                "TRAIN_MAX_WEEK",
-                "ROLE_BELIEF_FEATURES", "ROLE_BELIEF_SEED", "WR_BOOM",
-            }
             _levers = ",".join(sorted(
                 f"{k}={v}" for k, v in runtime_env.items()
                 if k in _lever_keys))

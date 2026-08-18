@@ -1,7 +1,11 @@
 """Central configuration, driven by environment variables.
 
-Everything that differs between local dev and Cloud Run lives here so the
-rest of the codebase never reads os.environ directly.
+Everything that differs between local dev and Cloud Run lives here.
+Research and simulation levers are the deliberate exception: they are read
+from the environment (or a request-local mapping) at their call sites, and
+every score-relevant lever must be registered in
+``backtest.engine._lever_keys`` so treatments are self-identifying in the
+warehouse — ``tests/test_lever_registry.py`` enforces that partition.
 """
 
 from __future__ import annotations

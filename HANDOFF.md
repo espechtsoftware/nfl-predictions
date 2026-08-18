@@ -20,7 +20,93 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-18 13:20 CDT
+## Current state — 2026-08-18 15:04 CDT
+
+### Challenges-assessment Part III triage: N1/N5/N6/N7 implemented offline; three protocol drafts await operator freeze
+
+- Branch `main`, work UNCOMMITTED in the working tree (operator to review/
+  stage; untracked reports remain unstaged per standing rule). The operator
+  asked for implementation of the Part III ideas in
+  `reports/2026-08-18-high-score-challenges-assessment.md` that are testable
+  with historical data during the offseason. Triage: N1/N5/N6/N7 implemented
+  now (below); N2 is a contingent adoption shape to be written into the
+  D-lane/S2 protocols when a repair first passes the scorecard; N3/N4 are
+  prospective Week-1-lane items (collector config and the entries-as-
+  bandwidth standing rule) with no historical test surface — not implemented
+  here.
+- **N5 (lever-registry completeness) — implemented, and the gap was larger
+  than reported.** The assessment named SCRIPT_FEEDBACK and SCHAAKE_K; a
+  full scan also found nine unregistered score-relevant optimizer keys:
+  MAX_PER_GAME, MIN_LOWOWN, OWN_BARBELL_HIGH/LOW/NHIGH/NLOW, PUNT_MAX,
+  VALUE2_MAX, VALUE2_MIN. `_lever_keys` is hoisted to module level in
+  `backtest/engine.py` (same literal name; the existing source-splitting
+  test still passes) with all eleven registered, plus a frozen
+  `_lever_exempt_keys` infrastructure partition (artifact bucket, three
+  destination tables, CODE_SHA, PANEL_RUN_ID, SEEDS).
+  `tests/test_lever_registry.py` scans the six sim/generation-path modules
+  and fails on any unregistered read; it caught CAND_FEATURE_TABLE (a
+  destination, now exempted) that manual grep missed. Registration is
+  receipt-safe: only keys actually SET are recorded, so no existing
+  lever_env or receipt changes. `config.py`'s false "nothing else reads
+  os.environ" docstring now points at the registry contract.
+- **N6 (boom unique-fill + cursor) — implemented as gated lever
+  `BOOM_UNIQUE_FILL`, default byte-identical.** Off: primary pass solves
+  exactly the top-N worlds (duplicate optima under-deliver, cursor static)
+  — unchanged. On: primary pass walks the world order until N unique boom
+  rosters exist and every boom pass advances the shared cursor, so the
+  CE/EPI shortfall passes never re-solve attempted worlds.
+  `tests/test_boom_unique_fill.py` (4 tests) proves default parity
+  (unset == "0", candidates and selections), lever firing on an engineered
+  duplicate-optimum slate, and treatment-pool superset of control boom
+  uniques. Arm protocol DRAFT:
+  `reports/2026-08-18-boom-unique-fill-protocol.md` (predeclares the
+  solve-count-vs-unique-quota budget accounting; score gate deferred to
+  the operator's frozen utility).
+- **N7 (paired weekly-max co-primary) — implemented.**
+  `research/paired_max_stats.py`: mean/median paired difference,
+  deterministic two-sided sign-flip inference (exact enumeration ≤ 20
+  nonzero diffs, else fixed-seed 200k Monte Carlo, seed 20260818), and
+  per-threshold discordant pairs with exact McNemar binomial p.
+  `tests/test_paired_max_stats.py` (7 tests) includes a hand-computed
+  exact case. Preregistration DRAFT:
+  `reports/2026-08-18-paired-max-coprimary-preregistration.md` — on
+  operator freeze it becomes the standing co-primary for all future arm
+  reports and the 2026 shadow grading specs (rider pattern), before Week 1.
+- **N1 (winner-lineup law audit) — implemented, execution gated on
+  protocol freeze.** `analysis/winner_law_audit.py` (block alignment on a
+  canonical player order, exact nine-slot roster world totals, mid-rank
+  percentile + Pr_sim(≥ realized), exceedance aggregation) +
+  `tests/test_winner_law_audit.py` (8 tests) + create-only runner
+  `scripts/analyze_winner_law_audit.py` (reuses
+  `real_winner_overlap.load_known_winner_rows`/`match_known_winner_players`;
+  fail-closed on unresolved winners, missing player worlds, universe
+  mismatch). Protocol DRAFT with frozen interpretation rules:
+  `reports/2026-08-18-winner-law-audit-protocol.md`. Before execution the
+  operator must freeze the protocol SHA and bind the artifact manifest
+  (winner weeks ∩ artifacts persisted with player worlds); the audit is
+  outcome-aware, diagnostic-only, run exactly once per protocol version.
+- Validation: focused suites all green serially — lever registry 4/4 (plus
+  the pre-existing boom-world-ranking lever 7/7), boom unique-fill 4/4,
+  paired stats 7/7, winner-law audit 8/8, and the golden-parity/generation
+  regression set (test_sbi, persistence contract, live multiseed, QB-capped
+  select, review4 levers, CE worlds) 63/63. Full offline suite launched
+  single-process after confirming no other heavy local process; record its
+  result in the next update.
+- Exact next actions: (1) operator reviews/stages this work and decides the
+  three DRAFT freezes (winner-law audit + artifact manifest; paired-max
+  co-primary before Week 1, then the CBWU-OI grading-spec rider; boom
+  unique-fill arm scheduling behind the standing queue); (2) N2 adoption
+  shape gets written into the D-lane/S2 protocol drafts when those are
+  authored; (3) N3 (deep alt-ladder + 2+ TD multi-book collection) and N4
+  (entries-as-bandwidth rule) belong in the Week-1 lane; (4) all prior
+  next actions from the 13:20 state remain in force (C-test smoke after
+  the suite, C-test launcher/finisher, odds-key rotation, DST sizing
+  design, D0 gate-3 freeze, coherent-chain monitoring — note the
+  challenges assessment records the score-free harvest abort as the
+  chain's current blocker). Do not resume schedulers, delete forensic
+  data, or change the money policy.
+
+## Prior state — 2026-08-18 13:20 CDT
 
 ### Orchestration handover to Claude (Fable 5); coherent-market-state released; parity census-key repair
 
