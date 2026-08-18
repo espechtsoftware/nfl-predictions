@@ -147,3 +147,167 @@ frozen gates.
    have a way of becoming unfalsifiable. The timebox and the
    upstream-moments-only fitting rule are the guards; judge whether they
    are tight enough.
+
+---
+
+# Review of this approach — Claude (Opus 5), 2026-08-18
+
+I wrote the handover this briefing reviews. Three of my positions were corrected
+here; I accept all three, and one of the corrections is better than what it
+replaced. Below: what I accept, one statistical gap that neither of us closed,
+one deadline risk I think is being under-weighted, and answers to the five
+attack points.
+
+## A. Accepted corrections
+
+**A.1 The DST prior (§2.1) — I was wrong and this is a fair hit.** I called DST
+zero-variance "the only verified structural omission" and asserted its value
+without measuring, while simultaneously flagging that assertion as my weakest
+link. The prior record is real and I failed to engage it: `system-study.md:837`
+records `DST_CORR_DRAWS` **closed** after a refit to measured moments
+(corr `-0.491`, rel-sd `0.93`, 4,390 team-games).
+
+One nuance worth preserving rather than flattening: the closed arm was a
+**scalar anti-correlation multiplier** under an older downstream stack, and the
+project's own transfer law says verdicts do not survive a changed downstream
+stage. So the record does not *close* a discrete event model — but it does mean
+the prior should be **negative**, not the positive one I implied. The re-scope to
+an outcome-based sizing step first is the right call and is better than what I
+proposed.
+
+**A.2 The process diagnosis (§2.3) — this is a genuine improvement on mine.** I
+framed a 3.6:1 governance-to-results ratio with zero adoptions as pathological
+governance. "Governance caught three invalid arms; zero adoptions is what honesty
+looks like at this power; the pathology is that **mechanical** failures get
+scientific ceremony" is a sharper and more actionable diagnosis. The evidence
+that it was needed — two further offline-detectable contract defects surfacing on
+a single launch — is about as direct as validation gets. I withdraw my framing in
+favour of this one.
+
+**A.3 Not changing the validation laws.** Correct, and worth stating explicitly
+as this briefing does.
+
+## B. The statistical gap neither of us closed
+
+**Both my "six mechanisms failed" framing and the §2.2 power reframe are computed
+on the wrong statistic.**
+
+§2.2 uses the binomial sd on a *count*: at `p ≈ 27/107`, `sd = sqrt(107 × 0.25 ×
+0.75) ≈ 4.5`. That is the right number for two **independent** samples. But these
+are **paired** comparisons — co-run controls, same slates, same seeds, same image,
+by explicit project law. For paired binary outcomes the informative quantity is
+not the marginal counts but the **discordant pairs**: slates where control clears
+and treatment does not, versus the reverse. The relevant test is McNemar's, whose
+variance depends only on the discordant count and is typically **much smaller**
+than the independent-binomial figure.
+
+This cuts both ways and neither of us can currently say which:
+
+- If discordance is low (arms agree on most slates), then a `26 v 27` split might
+  be `4 v 3` discordant — unambiguously null, as §2.2 says.
+- If discordance is high, `11 v 17` could be `9 v 3` discordant, which is a much
+  stronger negative than "1.5 sd" implies.
+
+**No arm report in this repository records discordant counts.** They report
+threshold grids. So the six-mechanism record cannot presently be adjudicated
+either way, and both readings in circulation — my "weak surrogate" and this
+briefing's "mostly noise" — are unsupported by the statistic that actually
+applies.
+
+**Suggestion, and I would make it the highest-priority analytical item:**
+recompute the closed arms as **discordant-pair tables** from the existing
+artifacts. This is cheap, reads no new outcomes (they are already read), needs no
+cloud spend, and it directly settles attack point 1 — which this briefing itself
+names as the thing most worth attacking. It also generalises: **every future arm
+should report discordant slates, not just threshold counts**, which is the
+already-recognised "distinct slates moved" rule applied with the correct test.
+
+## C. The deadline risk I think is under-weighted
+
+**CBWU-OI has no prospective shadow wired, and by this briefing's own argument it
+is the only mechanism that could ever clear the gate.**
+
+§2.2 concludes the only escapes from the power trap are structural corrections,
+prospective data, and "effects large enough for a low-power gate — CBWU-OI's
+`11 -> 18` at `>=194` is the only member of that class so far." §5 then ranks Week
+1 operational readiness first *because* prospective data is the only path to
+promoting CBWU-OI.
+
+But I checked: the deployed shadow schedulers are `s-shadow-k1-*`,
+`s-shadow-k3-*`, `-route-`, `-roleunion-`, `-archetype-`, `-nofloor-`. **None is
+CBWU-OI**, and all are PAUSED. `production_policy.py` carries
+`multiseed_portfolio = "CBWU"`, not the order-invariant variant.
+
+So the highest-value known mechanism has **no collection vehicle** three weeks
+before Week 1. "Week 1 operational readiness" as a priority label does not by
+itself produce one, and if the season starts without it, the only member of the
+adoptable-effect class loses an entire year of the only evidence that could
+promote it. That is a larger and more time-bound loss than anything else in the
+queue.
+
+**Suggestion:** make "freeze and wire the CBWU-OI 2026 prospective shadow" an
+explicit, separately-tracked item at the top of §5 rather than an implication of
+it, and treat Week 1 readiness as a concrete checklist with named artifacts. The
+`dk_contest_fills` case is the cautionary precedent: a fully-implemented
+collector with no job and no schedule, which would have silently produced nothing
+all season.
+
+## D. One design gap in the DST sizing step
+
+The step as scoped — measure DST points-above-projection inside the existing H/P
+hindsight solves — measures **upside only**, and DST upside is not free.
+
+DraftKings DST scoring is dominated by points-allowed bands, so a booming DST is
+largely a world in which the **opposing offense collapsed**. A lineup gaining DST
+points is disproportionately a lineup whose stack is on the *other* side of that
+same game. Sizing the upside without sizing that displacement will **overstate**
+the opportunity, possibly substantially.
+
+**Suggestion:** make the sizing step paired. For each slate report both (a) DST
+points above projection in the H/P optimal roster, and (b) whether that roster's
+QB stack is on the opposing side of the DST's game, plus the offensive points
+that roster forgoes relative to the best non-DST-boom alternative. If (a) and (b)
+are strongly anti-correlated, the honest size is the **net**, and it may be near
+zero — which would close the lane cheaply and correctly.
+
+## E. Answers to the five attack points
+
+**1. The power reframe.** Directionally right, wrong statistic — see §B. Settle it
+with discordant-pair tables before letting it govern prioritisation, because it is
+currently carrying a lot of weight.
+
+**2. The four-seed recovery cell.** Do **not** make the slate descriptive-only:
+dropping a cell changes the population of a fixed 54-slate panel, which is a
+larger methodological cost than a disclosed smaller pool. Disclosure is right.
+**Report the aggregate both ways** — with and without the cell — as mandatory
+context. That costs nothing and removes the need to choose.
+
+**3. The reproduction-gate determinism assumption.** Smoke-before-launcher is
+correct. One refinement: the risk is not uniform failure, it is **silent per-slate
+divergence**. Run the smoke on the slate most likely to differ — the one whose
+generation path touches the code that has since changed — not an arbitrary or
+first-index cell. A pass on an unaffected slate is weak evidence.
+
+**4. Keeping the C test.** Keep it. The cost argument holds, and there is a second
+one: a null does not merely close ATLAS, it **retires a proxy-versus-exact
+confusion** that has already produced two circular passes and consumed six grids.
+That is worth paying for once even at a negative prior.
+
+**5. The tail-calibration lane's scope.** The guards are good but incomplete. A
+timebox and an upstream-moments-only fitting rule constrain *how* you work; they
+do not say **when you stop**. Add a predeclared falsifier: a named condition under
+which the lane is abandoned — for example, if the fitted coupling repair fails to
+move the calibration audit's `210` ratio by a preregistered minimum on held-out
+seasons. "Fix the instrument" programmes become unfalsifiable precisely when no
+stopping rule was written down in advance.
+
+## F. Net assessment
+
+The direction is sound and better than the one it replaced. §2.1 and §2.3 are
+straight improvements on my handover, and the launch-engineering remedy is the
+single highest-leverage process change made in weeks.
+
+Two things I would change in the queue: **wire the CBWU-OI shadow now** (§C), and
+**recompute the closed arms as discordant pairs** (§B) before the power reframe
+is allowed to steer prioritisation any further. The DST sizing step should gain
+its anti-correlation arm (§D) before it is run, not after.
