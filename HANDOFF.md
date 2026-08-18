@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 23:09 CDT
+## Current state — 2026-08-17 23:18 CDT
 
 ### Production readiness is now a separate lane; residual phase 1 is durable
 
@@ -29,9 +29,9 @@ agent or developer:
   scheduler-resume repair is pushed at `029581e`; and residual phase 2 is
   durable at `a8c87d9`. Independently green residual phase 3 is pushed at
   `f22b764`. The intended tracked worktree edits are residual phase 4 in the
-  residual core/tests and the narrow cleanup-manifest provenance correction in
-  the cleanup/resume runbook and tests. Operator-supplied untracked reports/
-  cloud receipts must not be staged implicitly.
+  residual core/tests; the cleanup-manifest provenance correction is pushed at
+  `f457336`. Operator-supplied untracked reports/cloud receipts must not be
+  staged implicitly.
 
 - Residual phase 1 is score-free and does not license a cloud run, historical
   score, 2026 outcome read or production change. It durably includes the
@@ -188,6 +188,31 @@ agent or developer:
   regression. Heavy pricing cases, cloud and historical outcomes were not run.
   Commit/push this score-free checkpoint before beginning phase 4.
 
+- Residual phase 4 is independently GREEN and ready for a durable checkpoint.
+  Prepared reservoirs now require the exact keyword-only reviewed
+  `ResidualRunContext`, freeze its canonical ordered payload and SHA, and bind
+  both into the prepared scientific hash. Dose execution duplicates that exact
+  context receipt; final audit independently revalidates the prepared/result
+  copies and equality, reruns the complete scientific audit and emits only the
+  reconstructed payload/SHA. Missing/extra fields, stale hashes, valid-but-
+  different contexts and same-version byte-different PuLP/CBC identities fail
+  closed. Source SHA-256 is
+  `60cbc6f707f9453eaadcb55bc8a836fb3624d8ccc4966c547c2c2d85052875ed`;
+  core-test SHA-256 is
+  `338b10a83461fcbfe370d87045c0c79bbb61c8b1d5d424c7d89229426991ec94`;
+  dose-test SHA-256 is
+  `e95ca8e66362e8cce3cadc16febcb6c33014f357961a7e3fe03c6e1105a7545c`.
+  The reviewed RunContext module/test remain `0ad6ed6...` / `51f2d408...`,
+  and proof test remains `5edb03b...`. Serialized validation passed 2/2
+  focused integration cases plus one result-level expansion, 56/56 RunContext,
+  31/31 dose, 27/27 proof and exact 90/90 frozen short-core cases, plus compile/
+  diff checks. Independent static review found no blocker or phase-3
+  regression. `external_attestation_boundary=reviewed-launcher-required` and
+  all three no-license flags remain literal false; no source-lock creation,
+  launcher attestation, cloud run or historical score is licensed. Commit/push
+  phase 4, then run the already-deferred long local score-free pricing fixture
+  before designing a launcher.
+
 - The P0 cleanup/resume repair pushed at `029581e` is independently GREEN. It
   requires both frozen forensic
   manifests, an exact eight-table pre-cleanup union, schema/metadata/expiry
@@ -276,17 +301,18 @@ agent or developer:
   execution failed before model work on a prefix/output-identity transport
   mismatch. The original target execution
   `atlas-md-s2023-w7-r6-9pxdt` remains genuinely running
-  (`Completed=Unknown`, `runningCount=1`) through the 23:08 CDT terminal-only
+  (`Completed=Unknown`, `runningCount=1`) through the 23:13 CDT terminal-only
   poll and must not be cancelled, duplicated or opened. The prospective
   transport amendment/validator at commit `71962ab` remains frozen; apply its
   unique replacement-proof branch only if the original target's terminal
   disposition and queue state license it. No ATLAS partial shard body,
   treatment effect or score has been inspected.
 
-- Exact next actions: (1) commit/push the independently green repair3/repair4
-  cleanup-provenance correction and this handoff; (2) finish and independently
-  review residual phase 4 before the deferred long local pricing gate; (3) keep
-  polling the ATLAS target by terminal status only; and (4) retain the verified
+- Exact next actions: (1) commit/push the independently green residual phase-4
+  checkpoint and this handoff; (2) run and independently inspect the deferred
+  long local score-free pricing gate; (3) only after that gate, freeze the
+  remaining source-lock/54-slate orchestration/stability/launcher prerequisites;
+  (4) keep polling the ATLAS target by terminal status only; and (5) retain the verified
   forensic corpus until the independent-review window closes, then execute the
   manifest-bound v3 cleanup/verification/receipt sequence before scheduler
   resume and advance the remaining Week 1 operations checklist. Do not run

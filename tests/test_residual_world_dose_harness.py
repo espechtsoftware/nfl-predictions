@@ -169,6 +169,7 @@ def test_heldout_only_draw_mutation_cannot_change_construction_or_reuse_prepared
         changed_selector,
         changed_control_micro,
         prepared.reservoir_bounds,
+        run_context=prepared.run_context,
     )
     assert independently_prepared.player_draws_sha256 != (
         prepared.player_draws_sha256
@@ -530,6 +531,7 @@ def test_native_candidate_count_above_88_survives_prepare_dose_and_payload(
         selector,
         control_micro,
         base_prepared.reservoir_bounds,
+        run_context=base_prepared.run_context,
     )
     assert prepared.pruning.original_candidates == 89
     assert [step.remaining_candidates for step in prepared.pruning.steps] == [
@@ -575,6 +577,82 @@ def test_native_candidate_count_above_88_survives_prepare_dose_and_payload(
     )
 
 
+def test_prepared_fold_structurally_recomputes_exact_run_context(
+    monkeypatch,
+):
+    (
+        prepared, players, worlds, raw, controls, tags, selector,
+        control_micro, _, _, _,
+    ) = dose_fixture._prepare_dose_fixture(monkeypatch)
+    payload = rw.prepared_fold_scientific_payload(prepared)
+    stored = dict(prepared.run_context_payload)
+    assert payload["run_context"] == stored
+    assert payload["run_context_sha256"] == prepared.run_context_sha256
+    assert stored["external_attestation_boundary"] == (
+        "reviewed-launcher-required"
+    )
+    assert all(stored[name] is False for name in rw.UNLICENSED_SCIENTIFIC_FLAGS)
+
+    with pytest.raises(TypeError, match="run_context"):
+        rw.prepare_fold_reservoir(
+            "A",
+            players,
+            worlds,
+            raw,
+            controls,
+            tags,
+            selector,
+            control_micro,
+            prepared.reservoir_bounds,
+        )
+
+    def changed_payload(field, value):
+        return tuple(
+            (name, value if name == field else current)
+            for name, current in prepared.run_context_payload
+        )
+
+    poisons = (
+        replace(
+            prepared,
+            run_context_payload=tuple(
+                row for row in prepared.run_context_payload
+                if row[0] != "code_archive_sha256"
+            ),
+        ),
+        replace(
+            prepared,
+            run_context_payload=(
+                *prepared.run_context_payload,
+                ("execution_name", "mutable"),
+            ),
+        ),
+        replace(prepared, run_context_sha256="a" * 64),
+        # Version strings remain identical while reviewed implementation bytes
+        # differ.  The exact module/binary digests, not version labels, bind
+        # the scientific law.
+        replace(
+            prepared,
+            run_context_payload=changed_payload(
+                "pulp_module_sha256", "a" * 64
+            ),
+        ),
+        replace(
+            prepared,
+            run_context_payload=changed_payload("cbc_sha256", "b" * 64),
+        ),
+        replace(
+            prepared,
+            run_context=replace(
+                prepared.run_context, code_commit="a" * 40
+            ),
+        ),
+    )
+    for poisoned in poisons:
+        with pytest.raises(rw.ResidualWorldError, match="run-context"):
+            rw.prepared_fold_scientific_payload(poisoned)
+
+
 def _one_positive_dose_result(monkeypatch, tmp_path):
     (
         prepared, players, worlds, raw, controls, tags, selector,
@@ -600,6 +678,49 @@ def _one_positive_dose_result(monkeypatch, tmp_path):
         evidence_root=tmp_path / "phase3-positive",
     )
     return result
+
+
+def test_dose_and_final_payload_rebind_prepared_run_context(
+    monkeypatch, tmp_path,
+):
+    result = _one_positive_dose_result(monkeypatch, tmp_path)
+    payload = rw.fold_dose_scientific_payload(result)
+    assert result.run_context == result.audit_context.prepared.run_context
+    assert result.run_context_payload == (
+        result.audit_context.prepared.run_context_payload
+    )
+    assert result.run_context_sha256 == (
+        result.audit_context.prepared.run_context_sha256
+    )
+    assert payload["run_context"] == dict(result.run_context_payload)
+    assert payload["run_context_sha256"] == result.run_context_sha256
+
+    poisons = (
+        replace(
+            result,
+            run_context=replace(
+                result.run_context, code_commit="b" * 40
+            ),
+        ),
+        replace(
+            result,
+            run_context_payload=result.run_context_payload[:-1],
+        ),
+        replace(
+            result,
+            run_context_payload=(
+                *result.run_context_payload,
+                ("execution_name", "mutable"),
+            ),
+        ),
+        replace(result, run_context_sha256="c" * 64),
+    )
+    for poisoned in poisons:
+        with pytest.raises(
+            rw.ResidualWorldError,
+            match="run-context binding|run context differs",
+        ):
+            rw.fold_dose_scientific_payload(poisoned)
 
 
 def test_final_payload_rebuilds_every_pricing_objective_field(
@@ -1116,6 +1237,7 @@ def test_prepared_scientific_hash_excludes_operational_solver_paths_and_times(
         selector,
         control_micro,
         relocated_bounds,
+        run_context=prepared.run_context,
     )
     original_payload = rw.prepared_fold_scientific_payload(prepared)
     relocated_payload = rw.prepared_fold_scientific_payload(relocated)

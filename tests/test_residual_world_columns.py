@@ -12,6 +12,24 @@ import numpy as np
 import pytest
 
 from nfl_dfs.research import residual_world_columns as rw
+from nfl_dfs.research.residual_world_run_context import (
+    CBC_SHA256,
+    build_residual_run_context,
+)
+
+
+@lru_cache(maxsize=1)
+def _run_context():
+    """Synthetic exact context; it never attests or licenses a real run."""
+    return build_residual_run_context(
+        code_commit="1" * 40,
+        code_archive_sha256="2" * 64,
+        source_file_lock_sha256="3" * 64,
+        source_data_lock_sha256="4" * 64,
+        image_sha256="5" * 64,
+        python_version="3.14.4",
+        cbc_sha256=CBC_SHA256,
+    )
 
 
 def _players() -> tuple[rw.PlayerSpec, ...]:
@@ -1880,6 +1898,7 @@ def _prepare_dose_fixture(monkeypatch):
     prepared = rw.prepare_fold_reservoir(
         "A", players, worlds, raw, controls, tags,
         selector, control_micro, bounds,
+        run_context=_run_context(),
     )
     assert prepared.control_score_parity.selector_thresholds_sha256 == (
         prepared.control_score_parity.float64_thresholds_sha256

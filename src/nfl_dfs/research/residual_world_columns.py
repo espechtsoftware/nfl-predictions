@@ -38,6 +38,12 @@ from nfl_dfs.optimizer.lineup import (
     add_classic_lineup_constraints,
     select_tail_entries,
 )
+from nfl_dfs.research.residual_world_run_context import (
+    ResidualRunContext,
+    recompute_residual_run_context_binding,
+    validate_residual_run_context,
+    validate_residual_run_context_binding,
+)
 
 
 PROTOCOL_ID: Final = "20260817-residual-world-column-generation-scorefree-v1"
@@ -370,6 +376,9 @@ class PreparedFoldReservoir:
     """Immutable source/pruning/reservoir binding consumed by one fold run."""
 
     fold_name: str
+    run_context: ResidualRunContext
+    run_context_payload: tuple[tuple[str, object], ...]
+    run_context_sha256: str
     fold_sha256: str
     world_ids_sha256: str
     player_catalog_sha256: str
@@ -434,6 +443,9 @@ class FoldDoseAuditContext:
 @dataclass(frozen=True, slots=True)
 class FoldDoseResult:
     fold_name: str
+    run_context: ResidualRunContext
+    run_context_payload: tuple[tuple[str, object], ...]
+    run_context_sha256: str
     prepared_fold_sha256: str
     prepared_reservoir_sha256: str
     control_book: tuple[tuple[str, ...], ...]
@@ -902,12 +914,93 @@ def _pruning_scientific_receipt(pruning: PruningResult) -> dict[str, object]:
     }
 
 
+def _freeze_run_context_binding(
+    context: ResidualRunContext,
+) -> tuple[
+    ResidualRunContext,
+    tuple[tuple[str, object], ...],
+    str,
+]:
+    """Validate and freeze the reviewed path-free run identity."""
+    if not isinstance(context, ResidualRunContext):
+        raise ResidualWorldError(
+            "residual preparation requires the reviewed run-context type"
+        )
+    try:
+        validated = validate_residual_run_context(context)
+        payload, digest = recompute_residual_run_context_binding(validated)
+    except (TypeError, ValueError) as exc:
+        raise ResidualWorldError("residual run context is invalid") from exc
+    if (
+        payload.get("protocol_id") != PROTOCOL_ID
+        or payload.get("protocol_sha256") != PROTOCOL_DOCUMENT_SHA256
+        or payload.get("amendment_id") != PROTOCOL_AMENDMENT_ID
+        or payload.get("amendment_sha256") != PROTOCOL_AMENDMENT_SHA256
+    ):
+        raise ResidualWorldError(
+            "residual run context differs from the frozen protocol law"
+        )
+    return validated, tuple(payload.items()), digest
+
+
+def _validate_run_context_binding(
+    context: ResidualRunContext,
+    stored_payload: tuple[tuple[str, object], ...],
+    stored_sha256: str,
+) -> tuple[ResidualRunContext, dict[str, object], str]:
+    """Recompute one stored context receipt without trusting tuple/digest."""
+    if not isinstance(stored_payload, tuple) or any(
+        not isinstance(row, tuple)
+        or len(row) != 2
+        or not isinstance(row[0], str)
+        for row in stored_payload
+    ):
+        raise ResidualWorldError("stored residual run-context payload is malformed")
+    names = tuple(row[0] for row in stored_payload)
+    if len(names) != len(set(names)):
+        raise ResidualWorldError("stored residual run-context payload repeats a field")
+    stored_mapping = dict(stored_payload)
+    try:
+        validated = validate_residual_run_context_binding(
+            context,
+            expected_payload=stored_mapping,
+            expected_sha256=stored_sha256,
+        )
+        reconstructed, digest = recompute_residual_run_context_binding(
+            validated
+        )
+    except (TypeError, ValueError) as exc:
+        raise ResidualWorldError(
+            "stored residual run-context binding differs from reconstruction"
+        ) from exc
+    if tuple(reconstructed.items()) != stored_payload:
+        raise ResidualWorldError(
+            "stored residual run-context field order or values changed"
+        )
+    if (
+        reconstructed.get("protocol_id") != PROTOCOL_ID
+        or reconstructed.get("protocol_sha256") != PROTOCOL_DOCUMENT_SHA256
+        or reconstructed.get("amendment_id") != PROTOCOL_AMENDMENT_ID
+        or reconstructed.get("amendment_sha256")
+        != PROTOCOL_AMENDMENT_SHA256
+    ):
+        raise ResidualWorldError(
+            "stored residual run context differs from the frozen protocol law"
+        )
+    return validated, reconstructed, digest
+
+
 def prepared_fold_scientific_payload(
     prepared: PreparedFoldReservoir,
 ) -> dict[str, object]:
     """Return the path/time-free immutable preparation identity."""
     if not isinstance(prepared, PreparedFoldReservoir):
         raise ResidualWorldError("prepared fold receipt has the wrong type")
+    _, run_context_payload, run_context_sha256 = _validate_run_context_binding(
+        prepared.run_context,
+        prepared.run_context_payload,
+        prepared.run_context_sha256,
+    )
     if prepared.control_score_parity.sha256 != (
         prepared.control_score_parity_sha256
     ):
@@ -982,6 +1075,8 @@ def prepared_fold_scientific_payload(
         "protocol_document_sha256": PROTOCOL_DOCUMENT_SHA256,
         "protocol_amendment_id": PROTOCOL_AMENDMENT_ID,
         "protocol_amendment_sha256": PROTOCOL_AMENDMENT_SHA256,
+        "run_context": run_context_payload,
+        "run_context_sha256": run_context_sha256,
         "fold_name": prepared.fold_name,
         "fold_sha256": prepared.fold_sha256,
         "native_candidate_count": native_candidate_count,
@@ -1263,8 +1358,15 @@ def prepare_fold_reservoir(
     control_selector_totals: np.ndarray,
     control_micro_totals: np.ndarray,
     reservoir_bounds: Sequence[WorldLegalBound],
+    *,
+    run_context: ResidualRunContext,
 ) -> PreparedFoldReservoir:
     """Freeze Q_C, all-eight pruning, and exact 96-world reservoir bindings."""
+    (
+        frozen_run_context,
+        run_context_payload,
+        run_context_sha256,
+    ) = _freeze_run_context_binding(run_context)
     spec = _fold_spec(fold_name)
     rows = _players(players)
     worlds = _exact_world_order(world_ids)
@@ -1368,6 +1470,9 @@ def prepare_fold_reservoir(
 
     return PreparedFoldReservoir(
         fold_name=spec.name,
+        run_context=frozen_run_context,
+        run_context_payload=run_context_payload,
+        run_context_sha256=run_context_sha256,
         fold_sha256=_fold_sha256(spec),
         world_ids_sha256=_world_ids_sha256(worlds),
         player_catalog_sha256=_player_catalog_sha256(rows),
@@ -2294,6 +2399,7 @@ def run_fold_doses(
         selector_totals,
         micro_totals,
         prepared.reservoir_bounds,
+        run_context=prepared.run_context,
     )
     if rebuilt != prepared:
         raise ResidualWorldError("prepared fold/source/Q_C binding changed")
@@ -2576,6 +2682,9 @@ def run_fold_doses(
     _audit_evidence_root_inventory(evidence_path, steps)
     return FoldDoseResult(
         fold_name=spec.name,
+        run_context=prepared.run_context,
+        run_context_payload=prepared.run_context_payload,
+        run_context_sha256=prepared.run_context_sha256,
         prepared_fold_sha256=prepared_fold_sha256(prepared),
         prepared_reservoir_sha256=prepared.reservoir_sha256,
         control_book=prepared.control_book,
@@ -2652,6 +2761,28 @@ def _audit_fold_dose_result_scientific_state(result: FoldDoseResult) -> None:
         context.prepared, PreparedFoldReservoir
     ):
         raise ResidualWorldError("fold dose lacks its retained audit context")
+    prepared_context, prepared_context_payload, prepared_context_sha256 = (
+        _validate_run_context_binding(
+            context.prepared.run_context,
+            context.prepared.run_context_payload,
+            context.prepared.run_context_sha256,
+        )
+    )
+    result_context, result_context_payload, result_context_sha256 = (
+        _validate_run_context_binding(
+            result.run_context,
+            result.run_context_payload,
+            result.run_context_sha256,
+        )
+    )
+    if (
+        result_context != prepared_context
+        or result_context_payload != prepared_context_payload
+        or result_context_sha256 != prepared_context_sha256
+    ):
+        raise ResidualWorldError(
+            "fold dose run context differs from its prepared receipt"
+        )
     spec = _fold_spec(result.fold_name)
     if context.prepared.fold_name != spec.name:
         raise ResidualWorldError("fold dose prepared fold identity changed")
@@ -3194,12 +3325,19 @@ def fold_dose_scientific_payload(result: FoldDoseResult) -> dict[str, object]:
     ):
         raise ResidualWorldError("fold dose score-parity receipt hash changed")
     spec = _fold_spec(result.fold_name)
+    _, run_context_payload, run_context_sha256 = _validate_run_context_binding(
+        result.run_context,
+        result.run_context_payload,
+        result.run_context_sha256,
+    )
     native_candidate_count = len(result.audit_context.control_identities)
     payload: dict[str, object] = {
         "protocol_id": PROTOCOL_ID,
         "protocol_document_sha256": PROTOCOL_DOCUMENT_SHA256,
         "protocol_amendment_id": PROTOCOL_AMENDMENT_ID,
         "protocol_amendment_sha256": PROTOCOL_AMENDMENT_SHA256,
+        "run_context": run_context_payload,
+        "run_context_sha256": run_context_sha256,
         "fold_name": result.fold_name,
         "fold_sha256": _fold_sha256(spec),
         "native_candidate_count": native_candidate_count,
