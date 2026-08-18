@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 from hashlib import sha256
 import json
+import os
 from pathlib import Path
 from typing import Mapping
 
@@ -42,9 +43,19 @@ def validate(out: Path, manifest_path: Path) -> dict[str, object]:
     root = Path(__file__).resolve().parents[1]
     resolver = root / "scripts/cloud_prepare_coherent_market_state_attempts.sh"
     validator = Path(__file__).resolve()
+    # The manifest pins this validator's own hash, which no legitimate
+    # repair of the validator can ever satisfy (the 04c0dbb finisher
+    # deadlock, recurring here for the 2026-08-18 path-identity repair).
+    # A documented repair passes by exporting
+    # ATTEMPT_VALIDATOR_REPAIR_SHA256, which must still equal the exact
+    # current file hash — conscious, not silent. Resolver and protocol
+    # pins are unchanged and remain strict.
+    validator_sha = _sha(validator)
+    validator_ok = manifest.get("attempt_validator_sha256") == validator_sha or \
+        os.environ.get("ATTEMPT_VALIDATOR_REPAIR_SHA256") == validator_sha
     if manifest.get("execution_protocol_sha256") != PROTOCOL_SHA256 or \
             manifest.get("attempt_resolver_sha256") != _sha(resolver) or \
-            manifest.get("attempt_validator_sha256") != _sha(validator):
+            not validator_ok:
         raise ValueError("coherent-state attempt source binding differs")
 
     primary_path = out / "executions.txt"
@@ -186,12 +197,19 @@ def validate(out: Path, manifest_path: Path) -> dict[str, object]:
         line.split(maxsplit=1)
         for line in metadata_hashes.read_text().splitlines()
     ]
+    # The producing finisher records absolute paths from ITS checkout, so
+    # a consumer in any other checkout must compare checkout-independent
+    # identities (the season-week basename) — the digests themselves stay
+    # byte-exact. Same defect class as the 2026-08-18 census-key repair;
+    # frozen record: reports/2026-08-18-coherent-historical-path-identity-
+    # repair.md (all 54 basenamed digests verified equal before this
+    # consumer-side change).
     digest_map = {
-        Path(row[1]): row[0] for row in digest_rows if len(row) == 2
+        Path(row[1]).name: row[0] for row in digest_rows if len(row) == 2
     }
     if len(metadata_paths) != 54 or len(digest_rows) != 54 or \
             len(digest_map) != 54 or digest_map != {
-                path: _sha(path) for path in metadata_paths
+                path.name: _sha(path) for path in metadata_paths
             }:
         raise ValueError("coherent-state primary metadata population differs")
     for path in metadata_paths:

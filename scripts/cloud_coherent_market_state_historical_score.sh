@@ -65,9 +65,17 @@ done
   [ "$(find "$UPSTREAM/shards" -maxdepth 1 -name 'slate-*.json' | wc -l)" = 54 ] && \
   [ "$(find "$UPSTREAM/object-metadata" -maxdepth 1 -name 'slate-*.json' | wc -l)" = 54 ] || {
   echo "ERROR: coherent-state historical upstream population differs" >&2; exit 2; }
+# The producing finisher recorded absolute paths from ITS checkout, so
+# these checks must verify the files at checkout-independent run-relative
+# paths (digests unchanged). Without this, the check silently verifies
+# the PRODUCER checkout while it survives and hard-fails after any
+# reboot. Same defect class and repair record as the attempt validator:
+# reports/2026-08-18-coherent-historical-path-identity-repair.md.
 for LEDGER in report.sha256 report-upload.sha256 execution-metadata.sha256 \
   object-metadata.sha256 shards.sha256; do
-  (cd "$ROOT" && sha256sum --check "$UPSTREAM/$LEDGER" >/dev/null) || {
+  (cd "$UPSTREAM" && sed -E \
+    's#^([0-9a-f]{64})  .*/coherent-market-state-runs/[^/]+/#\1  #' \
+    "$UPSTREAM/$LEDGER" | sha256sum --check - >/dev/null) || {
     echo "ERROR: coherent-state historical upstream hash ledger differs: $LEDGER" >&2
     exit 2
   }
