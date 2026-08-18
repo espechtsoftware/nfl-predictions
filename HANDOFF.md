@@ -135,6 +135,27 @@ agent or developer:
   and ENABLE schedulers `s-shadow-cbwu-oi-paired-early/late` (these two
   only; the fleet stays paused). Pre-season Sunday firings fail on the
   empty-slate guard by design.
+- **Boom-capability report reviewed; four operator decisions (late evening).**
+  `reports/2026-08-18-boom-lineup-capability-review-and-suggestions.md`
+  (external session) was verified against README/code/ledger: headline table
+  exact, market-implied instrument confirmed (q90-only validation), S5's
+  "unique_target unused" premise corrected (used at two CE/EPI shortfall
+  sites, both dead in production config; the primary boom pass at
+  `engine.py:1117` genuinely lacks unique-fill). Its three-problem split
+  (shoulder 194-210 = construction; 220+ = generation/joint-law; rare booms
+  = information) is endorsed with a small-N caveat at 220+. Operator
+  decisions: (a) **S1 null-calibrated P-C floor and S4 marginal-vs-
+  dependence attribution APPROVED** as frozen score-free/diagnostic design-
+  lane protocols — S1 freezes W and the held-out-world rule before any
+  number; S4 treats q95/q99 as descriptive until the instrument is
+  validated there; (b) **S2 overtime v2 protocol draft APPROVED**
+  (dependence-only base-rate mixture, exact marginal preservation; the arm
+  stays gated on the dependence scorecard); (c) **heavy-slot order: ATLAS C
+  first after the coherent chain, then S1's result decides residual-columns
+  vs DST/law work** — resolving the report's §4/§6 tension; (d) **S8
+  prospective surprise ledger APPROVED** as a standing decision-free
+  post-settlement job. Design-lane queue is now: S1 protocol, McNemar pair
+  table, S4 protocol, S2 v2 draft, S8 spec.
 - Exact next actions: (1) local `--smoke` of one cell (2023 W1) AFTER the
   background full suite finishes — never two heavy local processes; a
   reproduction failure there is a halt-and-disposition, not a retry; (2)
