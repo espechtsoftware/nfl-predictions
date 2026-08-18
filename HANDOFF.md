@@ -20,7 +20,81 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-18 02:55 CDT
+## Current state — 2026-08-18 12:15 CDT
+
+### ATLAS closed and dispositioned; DST Phase D0 rebuilt, gate 3 blocked on a protocol decision
+
+- Branch `main`. ATLAS repair6 reached terminal
+  `repair6-closed-no-scoreable-population` (`reason=dual-canary-execution-failed`)
+  at 2026-08-18T07:20:19Z. Six grid attempts produced zero scoreable population.
+  `reports/2026-08-18-atlas-disposition-and-minimal-c-test-protocol.md` records
+  the formal disposition: the matched-diversity MVP is **closed permanently**,
+  and the two completed ATLAS results (Phase S +12.8754, production-law transfer
+  +10.9340) are **retired as adoption evidence** because the ranking key
+  (`roster_slot_upper_bound`) is a relaxation of the evaluation metric — the
+  transfer's own proxy/exact rank correlation is 0.6064 with 27.0615 points of
+  slack. They establish only that the sort key sorts. ATLAS has never measured
+  candidate `C`, selected `S`, or a realized score.
+
+- That document also proposes `20260818-atlas-minimal-world-selection-c-v1`: the
+  one cheap decisive test ATLAS never had. It swaps only the boom-family world
+  ranking at `src/nfl_dfs/backtest/engine.py:1067` from `rd.sum(axis=0)` (total
+  slate points) to the roster-shaped bound, holds `N_BOOM=40` so budget parity is
+  exact by construction, reuses the already-validated 270 production-law world
+  artifacts, and measures `C`. Ordinary lineup MILPs, no interaction variables.
+  Prior is predeclared **negative** (ATLAS pair reach 0.9520 / dominant-game
+  0.9080 versus CBWU-OI's +41%/+52%); a null closes the world-ranking family
+  permanently. **Protocol is a proposal — it still needs real source/image
+  hashes bound and a runner before any outcome is opened.**
+
+- DST Phase D0 warehouse population ran now that the heavy chain is free.
+  `nfl_features.team_defense_week` rebuilt from clean
+  `sql/features/024_team_defense_week.sql` at code `ef36db5`, SQL SHA-256
+  `2f197df1...`, query job `9556eae9-12af-4611-aa17-ffd122c4142f`, 66,630,074
+  bytes. Table went **13 -> 55 columns**, 6,302 rows / 3,151 games / 2014-2025.
+  Schema SHA-256 `d31f67c1...`. **Gates 1, 2 and 4 PASS**: census SHA-256
+  `3e63ca8f...` with `prior_windows_validated=true` and
+  `authoritative_source_failures=0`; an independent live PIT check found zero
+  L4/L16 window overruns and zero negative support across all 6,302 rows;
+  `tests/test_leakage.py` + `tests/test_feature_sql.py` are 101 passed / 1
+  skipped. Receipts in `reports/dst-d0-runs/20260818-dst-d0-rebuild-v1/`.
+
+- **Gate 3 is BLOCKED and needs an operator protocol decision, not more
+  diagnosis.** Two separate problems: (a) 2022, 2023 and 2024 have **zero**
+  authoritative DST rows (1,630 team-games), so three of six panel seasons have
+  nothing to reconcile against; (b) where the source exists it disagrees with the
+  reconstruction on a stable ~2.3% of panel rows (37/1,584; 162/4,656 overall,
+  2014 an outlier at 11.72%). Tier boundaries are **refuted** (mean distance to a
+  DK tier edge 1.62 mismatched vs 1.66 matched) and excluded non-DST points
+  explain only 3 of 41 candidate rows. Deltas are 97% +/-1..3. Recommendation in
+  `reports/2026-08-18-dst-d0-rebuild-and-gate-result.md` is to accept a bounded
+  mismatch rate with a named canonical source and fit D1/D2 on **event
+  components** rather than the reconstructed total, since the components are not
+  implicated in the delta. A row was appended to the README data deficiency log.
+
+- Motivation for the DST lane: DST is **constant across all 30,000 worlds**
+  (`live_lineups.py:334` `draw_idx=-1`, production `DST_CORR_DRAWS=""`,
+  `engine.py:636`). One of nine roster slots has zero variance, understating
+  every lineup's tail. This is the only verified structural omission in the
+  system.
+
+- Live processes: watcher session `1273069` (production-law dependence) remains
+  correctly parked in `PRODUCTION_LAW_DEPENDENCE_WAITS_FOR_COHERENT_HISTORICAL`,
+  a pure printf+sleep loop with **no API calls**, awaiting a coherent-market-state
+  historical completion that has never been launched. It is idle, not stalled,
+  and will resume automatically when that dependency lands.
+
+- Exact next actions: (1) operator decides D0 gate 3 — bounded-mismatch
+  acceptance versus per-row forensics — then D0-5 common-lock odds/weather
+  selectors before D1/D2; (2) decide whether to release coherent-market-state
+  (unblocks the parked watcher) or leave the chain idle; (3) if the minimal ATLAS
+  C test is wanted, bind hashes and write the runner; (4) Week 1 operations lane
+  still holds two unaddressed items — literal `ODDS_API_KEY` values in non-odds
+  jobs needing rotation, and `dk_contest_fills` implemented but empty with no
+  deployed collector. Do not resume schedulers, delete forensic data, run
+  residual historical scoring or change the money policy.
+
+## Prior state — 2026-08-18 02:55 CDT
 
 ### Production readiness is now a separate lane; residual phase 1 is durable
 

@@ -1,0 +1,18 @@
+{
+  "code_sha": "ef36db5ed9303c9c3a287ee6a60f56104e8bd754",
+  "gate": "D0-1 rebuild from exact committed SQL",
+  "production_change_licensed": false,
+  "protocol_id": "20260818-dst-d0-rebuild-v1",
+  "query_job_id": "9556eae9-12af-4611-aa17-ffd122c4142f",
+  "query_job_location": "US",
+  "recorded_at": "2026-08-18T12:01:33.476158+00:00",
+  "schema_field_count": 55,
+  "schema_sha256": "d31f67c1b23d86b2a4d0aff718d1f4f4bb390e8b72b4155b53c7bdf947534be0",
+  "sql_path": "sql/features/024_team_defense_week.sql",
+  "sql_sha256": "2f197df10cb9805f6a76309fe8ba751316cea9e3dde848ae5f41570eb4a411ad",
+  "table_id": "nfl-predictions-503414:nfl_features.team_defense_week",
+  "table_modified": "2026-08-18T12:01:31.496000+00:00",
+  "table_num_rows": 6302,
+  "total_bytes_processed": 66630074,
+  "uses_realized_outcomes": false
+}

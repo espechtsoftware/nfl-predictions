@@ -1,0 +1,388 @@
+{
+  "authoritative_coverage_contract": null,
+  "authoritative_mismatches": 162,
+  "authoritative_rows": 4656,
+  "authoritative_source_failures": 0,
+  "games": 3151,
+  "prior_windows_validated": true,
+  "rows": 6302,
+  "scoring_law_id": "draftkings-nfl-classic-dst-2026-08-17-v1",
+  "season_support": [
+    {
+      "authoritative_mismatches": 60,
+      "authoritative_rows": 512,
+      "authoritative_source_failures": 0,
+      "authoritative_source_matched_rows": 512,
+      "authoritative_source_raw_rows": 512,
+      "authoritative_source_rejected_rows": 0,
+      "canonical_tail_support": {
+        "ge_15": 70,
+        "ge_20": 29,
+        "ge_25": 12
+      },
+      "games": 256,
+      "nonzero_components": {
+        "blocked_kicks": 57,
+        "defensive_conversions": 0,
+        "fumble_recoveries": 231,
+        "interceptions": 294,
+        "return_tds": 91,
+        "sacks": 439,
+        "safeties": 21
+      },
+      "reconstructed_tail_support": {
+        "ge_15": 69,
+        "ge_20": 28,
+        "ge_25": 12
+      },
+      "rows": 512,
+      "season": 2014
+    },
+    {
+      "authoritative_mismatches": 12,
+      "authoritative_rows": 512,
+      "authoritative_source_failures": 0,
+      "authoritative_source_matched_rows": 512,
+      "authoritative_source_raw_rows": 512,
+      "authoritative_source_rejected_rows": 0,
+      "canonical_tail_support": {
+        "ge_15": 70,
+        "ge_20": 24,
+        "ge_25": 5
+      },
+      "games": 256,
+      "nonzero_components": {
+        "blocked_kicks": 47,
+        "defensive_conversions": 1,
+        "fumble_recoveries": 220,
+        "interceptions": 286,
+        "return_tds": 95,
+        "sacks": 453,
+        "safeties": 16
+      },
+      "reconstructed_tail_support": {
+        "ge_15": 71,
+        "ge_20": 24,
+        "ge_25": 5
+      },
+      "rows": 512,
+      "season": 2015
+    },
+    {
+      "authoritative_mismatches": 13,
+      "authoritative_rows": 512,
+      "authoritative_source_failures": 0,
+      "authoritative_source_matched_rows": 512,
+      "authoritative_source_raw_rows": 512,
+      "authoritative_source_rejected_rows": 0,
+      "canonical_tail_support": {
+        "ge_15": 47,
+        "ge_20": 18,
+        "ge_25": 4
+      },
+      "games": 256,
+      "nonzero_components": {
+        "blocked_kicks": 47,
+        "defensive_conversions": 4,
+        "fumble_recoveries": 207,
+        "interceptions": 276,
+        "return_tds": 69,
+        "sacks": 443,
+        "safeties": 20
+      },
+      "reconstructed_tail_support": {
+        "ge_15": 46,
+        "ge_20": 18,
+        "ge_25": 4
+      },
+      "rows": 512,
+      "season": 2016
+    },
+    {
+      "authoritative_mismatches": 19,
+      "authoritative_rows": 512,
+      "authoritative_source_failures": 0,
+      "authoritative_source_matched_rows": 512,
+      "authoritative_source_raw_rows": 512,
+      "authoritative_source_rejected_rows": 0,
+      "canonical_tail_support": {
+        "ge_15": 68,
+        "ge_20": 28,
+        "ge_25": 12
+      },
+      "games": 256,
+      "nonzero_components": {
+        "blocked_kicks": 44,
+        "defensive_conversions": 1,
+        "fumble_recoveries": 207,
+        "interceptions": 279,
+        "return_tds": 88,
+        "sacks": 455,
+        "safeties": 15
+      },
+      "reconstructed_tail_support": {
+        "ge_15": 68,
+        "ge_20": 28,
+        "ge_25": 12
+      },
+      "rows": 512,
+      "season": 2017
+    },
+    {
+      "authoritative_mismatches": 12,
+      "authoritative_rows": 512,
+      "authoritative_source_failures": 0,
+      "authoritative_source_matched_rows": 512,
+      "authoritative_source_raw_rows": 512,
+      "authoritative_source_rejected_rows": 0,
+      "canonical_tail_support": {
+        "ge_15": 61,
+        "ge_20": 20,
+        "ge_25": 4
+      },
+      "games": 256,
+      "nonzero_components": {
+        "blocked_kicks": 27,
+        "defensive_conversions": 2,
+        "fumble_recoveries": 213,
+        "interceptions": 274,
+        "return_tds": 76,
+        "sacks": 458,
+        "safeties": 10
+      },
+      "reconstructed_tail_support": {
+        "ge_15": 61,
+        "ge_20": 20,
+        "ge_25": 4
+      },
+      "rows": 512,
+      "season": 2018
+    },
+    {
+      "authoritative_mismatches": 11,
+      "authoritative_rows": 512,
+      "authoritative_source_failures": 0,
+      "authoritative_source_matched_rows": 512,
+      "authoritative_source_raw_rows": 512,
+      "authoritative_source_rejected_rows": 0,
+      "canonical_tail_support": {
+        "ge_15": 62,
+        "ge_20": 25,
+        "ge_25": 10
+      },
+      "games": 256,
+      "nonzero_components": {
+        "blocked_kicks": 36,
+        "defensive_conversions": 2,
+        "fumble_recoveries": 228,
+        "interceptions": 268,
+        "return_tds": 79,
+        "sacks": 447,
+        "safeties": 17
+      },
+      "reconstructed_tail_support": {
+        "ge_15": 62,
+        "ge_20": 25,
+        "ge_25": 10
+      },
+      "rows": 512,
+      "season": 2019
+    },
+    {
+      "authoritative_mismatches": 9,
+      "authoritative_rows": 512,
+      "authoritative_source_failures": 0,
+      "authoritative_source_matched_rows": 512,
+      "authoritative_source_raw_rows": 512,
+      "authoritative_source_rejected_rows": 0,
+      "canonical_tail_support": {
+        "ge_15": 47,
+        "ge_20": 14,
+        "ge_25": 4
+      },
+      "games": 256,
+      "nonzero_components": {
+        "blocked_kicks": 36,
+        "defensive_conversions": 0,
+        "fumble_recoveries": 205,
+        "interceptions": 275,
+        "return_tds": 61,
+        "sacks": 443,
+        "safeties": 24
+      },
+      "reconstructed_tail_support": {
+        "ge_15": 47,
+        "ge_20": 14,
+        "ge_25": 4
+      },
+      "rows": 512,
+      "season": 2020
+    },
+    {
+      "authoritative_mismatches": 12,
+      "authoritative_rows": 544,
+      "authoritative_source_failures": 0,
+      "authoritative_source_matched_rows": 544,
+      "authoritative_source_raw_rows": 544,
+      "authoritative_source_rejected_rows": 0,
+      "canonical_tail_support": {
+        "ge_15": 59,
+        "ge_20": 18,
+        "ge_25": 2
+      },
+      "games": 272,
+      "nonzero_components": {
+        "blocked_kicks": 31,
+        "defensive_conversions": 1,
+        "fumble_recoveries": 214,
+        "interceptions": 290,
+        "return_tds": 72,
+        "sacks": 485,
+        "safeties": 8
+      },
+      "reconstructed_tail_support": {
+        "ge_15": 59,
+        "ge_20": 18,
+        "ge_25": 2
+      },
+      "rows": 544,
+      "season": 2021
+    },
+    {
+      "authoritative_mismatches": 0,
+      "authoritative_rows": 0,
+      "authoritative_source_failures": 0,
+      "authoritative_source_matched_rows": 0,
+      "authoritative_source_raw_rows": 0,
+      "authoritative_source_rejected_rows": 0,
+      "canonical_tail_support": {
+        "ge_15": 51,
+        "ge_20": 17,
+        "ge_25": 4
+      },
+      "games": 271,
+      "nonzero_components": {
+        "blocked_kicks": 46,
+        "defensive_conversions": 0,
+        "fumble_recoveries": 239,
+        "interceptions": 280,
+        "return_tds": 67,
+        "sacks": 473,
+        "safeties": 13
+      },
+      "reconstructed_tail_support": {
+        "ge_15": 51,
+        "ge_20": 17,
+        "ge_25": 4
+      },
+      "rows": 542,
+      "season": 2022
+    },
+    {
+      "authoritative_mismatches": 0,
+      "authoritative_rows": 0,
+      "authoritative_source_failures": 0,
+      "authoritative_source_matched_rows": 0,
+      "authoritative_source_raw_rows": 0,
+      "authoritative_source_rejected_rows": 0,
+      "canonical_tail_support": {
+        "ge_15": 62,
+        "ge_20": 22,
+        "ge_25": 8
+      },
+      "games": 272,
+      "nonzero_components": {
+        "blocked_kicks": 30,
+        "defensive_conversions": 1,
+        "fumble_recoveries": 219,
+        "interceptions": 294,
+        "return_tds": 71,
+        "sacks": 484,
+        "safeties": 17
+      },
+      "reconstructed_tail_support": {
+        "ge_15": 62,
+        "ge_20": 22,
+        "ge_25": 8
+      },
+      "rows": 544,
+      "season": 2023
+    },
+    {
+      "authoritative_mismatches": 0,
+      "authoritative_rows": 0,
+      "authoritative_source_failures": 0,
+      "authoritative_source_matched_rows": 0,
+      "authoritative_source_raw_rows": 0,
+      "authoritative_source_rejected_rows": 0,
+      "canonical_tail_support": {
+        "ge_15": 53,
+        "ge_20": 14,
+        "ge_25": 1
+      },
+      "games": 272,
+      "nonzero_components": {
+        "blocked_kicks": 41,
+        "defensive_conversions": 1,
+        "fumble_recoveries": 221,
+        "interceptions": 266,
+        "return_tds": 59,
+        "sacks": 472,
+        "safeties": 14
+      },
+      "reconstructed_tail_support": {
+        "ge_15": 53,
+        "ge_20": 14,
+        "ge_25": 1
+      },
+      "rows": 544,
+      "season": 2024
+    },
+    {
+      "authoritative_mismatches": 14,
+      "authoritative_rows": 528,
+      "authoritative_source_failures": 0,
+      "authoritative_source_matched_rows": 528,
+      "authoritative_source_raw_rows": 528,
+      "authoritative_source_rejected_rows": 0,
+      "canonical_tail_support": {
+        "ge_15": 51,
+        "ge_20": 13,
+        "ge_25": 4
+      },
+      "games": 272,
+      "nonzero_components": {
+        "blocked_kicks": 43,
+        "defensive_conversions": 2,
+        "fumble_recoveries": 197,
+        "interceptions": 273,
+        "return_tds": 66,
+        "sacks": 473,
+        "safeties": 12
+      },
+      "reconstructed_tail_support": {
+        "ge_15": 50,
+        "ge_20": 13,
+        "ge_25": 4
+      },
+      "rows": 544,
+      "season": 2025
+    }
+  ],
+  "seasons": [
+    2014,
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "strict_reconciliation_required": false,
+  "version": "dst-team-game-event-frame-2026-08-17-v1"
+}
