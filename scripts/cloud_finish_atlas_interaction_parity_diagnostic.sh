@@ -90,7 +90,7 @@ elif trigger=="repair5-terminal-failure-census":
   raise SystemExit("ABORT: ATLAS interaction-parity repair5 trigger binding differs")
  census=json.loads(repair5_census.read_text(encoding="utf-8"))
  completion=dict(line.rstrip("\n").split("=",1) for line in repair5_census_completion.read_text(encoding="utf-8").splitlines() if "=" in line)
- if census.get("version")!="atlas-matched-diversity-repair5-terminal-census-v1" or census.get("executions")!=54 or census.get("terminal_failed",0)<1 or census.get("scientific_result_valid") is not False or census.get("effect_fields_inspected") is not False or census.get("historical_scoring_licensed") is not False or census.get("continuous_parity_capacity_released") is not True or completion.get("all_terminal")!="true" or completion.get("continuous_parity_capacity_released")!="true":
+ if census.get("version")!="atlas-matched-diversity-repair5-terminal-census-v1" or census.get("executions")!=54 or census.get("terminal_failed",0)<1 or census.get("scientific_result_valid") is not False or census.get("effect_fields_inspected") is not False or census.get("historical_scoring_licensed") is not False or census.get("continuous_parity_capacity_released") is not True or completion.get("all_declared_attempts_terminal")!="true" or completion.get("continuous_parity_capacity_released")!="true":
   raise SystemExit("ABORT: ATLAS interaction-parity repair5 trigger differs")
 else:
  raise SystemExit("ABORT: ATLAS interaction-parity queue trigger differs")

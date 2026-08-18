@@ -20,7 +20,87 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-18 12:15 CDT
+## Current state — 2026-08-18 13:20 CDT
+
+### Orchestration handover to Claude (Fable 5); coherent-market-state released; parity census-key repair
+
+- Branch `main`. The operator reviewed
+  `reports/2026-08-18-handover-state-and-proposed-direction.md` through an
+  independent second-opinion pass (recorded at
+  `reports/2026-08-18-orchestration-takeover-and-handover-review.md`) and
+  transferred orchestration to a new session. Four operator decisions were
+  made explicitly:
+  1. **D0 gate 3: bounded-mismatch acceptance.** Fit D1/D2 on event
+     components; name the canonical source and freeze acceptance in the
+     protocol BEFORE any treatment effect is observed. Per-row forensics
+     rejected (cannot help 2022-2024, which have zero authoritative rows).
+  2. **DST lane: outcome-based sizing step first.** Before any D1/D2
+     modeling, measure DST points-above-projection inside the existing H/P
+     hindsight solves across the 54-slate corpus. Context the handover
+     omitted: the ledger records `DST_CORR_DRAWS` tested-twice-negative
+     (2026-08-01 cycle: null at first calibration; refit to measured moments
+     corr -0.491 / rel-sd 0.93 from 4,390 team-games still negative at
+     186.5/5-17, verdict "constant DST projections in entry selection are
+     not a deficiency"). Old universe/law, so reopenable — but any D-series
+     protocol must engage that record, and acceptance criteria must be
+     instrument tail-calibration, never simulated coverage.
+  3. **Minimal ATLAS world-ranking C test: approved to run**, through a
+     preflight canary; a null closes the world-ranking family permanently.
+  4. **Coherent-market-state: released now** (operator chose immediate
+     release over deferring behind Week 1 readiness).
+- **Coherent-market-state release executed.** Found: the interaction-parity
+  diagnostic had never been launched (`launch_status=deferred` in its build
+  receipt); its queue guard is now satisfiable (binary preflight status=True
+  + complete repair5 terminal failure census, validated 2026-08-18T01:06:32Z,
+  54 primaries / 0 retries). All three prior chain watchers were dead except
+  production-law dependence `1273069` (untouched, correctly parked).
+  - Parity launch runs from new pinned worktree `/tmp/nfl-parity-fa90ff7` at
+    `fa90ff7cd4f62483f3dd21a7ec7dcb35c83f7246` — the latest commit where all
+    seven launcher-pinned frozen hashes match (`optimizer/lineup.py` drifted
+    at `7c74f2a` for constraint-lattice work). Live run dirs symlinked to
+    this checkout, `.venv` symlinked.
+  - First launch failed closed: `ERROR: ATLAS repair5 census completion
+    differs` — the frozen census harvester writes
+    `all_declared_attempts_terminal=true` while launcher/finisher expected
+    `all_terminal=true`. One-key consumer-side rename repaired in both
+    scripts (census artifacts untouched, checksums intact); frozen record
+    with before/after SHA-256 at
+    `reports/2026-08-18-atlas-parity-census-key-repair.md`. Identical patch
+    applied to `main` and the worktree. Relaunched; log
+    `~/nfl-panels/parity-launch-20260818-r1.log`.
+  - Watchers restarted with original arguments, detached, durable logs under
+    `~/nfl-panels/`: score-free watcher PID `2144081` from
+    `/tmp/nfl-coherent-cde9c60` (build `74f048df-…`, commit `cde9c60…`,
+    correctly looping `QUEUE_NOT_RELEASED` until parity completion exists);
+    historical watcher PID `2144083` from this checkout (build `4ce80f20-…`,
+    commit `ae9780b…`, sources verified byte-identical to that commit; at
+    `WAITS_FOR_SCOREFREE`); parity finisher driver PID `2144082`
+    (`~/nfl-panels/parity-finish-driver.sh`, rerunnable after crash). After
+    any reboot: rerun the parity finisher driver and both watcher commands
+    recorded in the takeover report; state files resume.
+  - Chain from here is autonomous: parity completion → score-free canary +
+    53 → strict harvest → historical scorer (outcome-read, lease-bound) →
+    dependence watcher `1273069` resumes.
+- **Local pytest collection defect fixed.** Bare `pytest` failed collection
+  on three ATLAS test files importing the repo-level `scripts` namespace;
+  cloud builds run `PYTHONPATH=. pytest` (see the frozen build-path repair).
+  Added `pythonpath = ["."]` to `[tool.pytest.ini_options]` so local bare
+  `pytest` matches container semantics. Full-suite rerun result to be
+  recorded in the next update.
+- **Stale item corrected:** `dk_contest_fills` WAS deployed at `46cc871`
+  (Cloud Run job + two schedulers, verified end-to-end through a forced run);
+  the prior current-state's "no deployed collector" line predated that
+  commit. Still open in the Week 1 lane: literal `ODDS_API_KEY` values in
+  non-odds Cloud Run job specs need rotation.
+- Exact next actions: (1) Week 1 ops — rotate `ODDS_API_KEY`, verify
+  contest-fills rows landing; (2) design the DST sizing step (outcome-based,
+  H/P solves, no simulator); (3) draft the D0 gate-3 acceptance freeze
+  (canonical source named) before any D1/D2 treatment effect; (4) bind
+  hashes + write the runner for the minimal ATLAS C test with a single-cell
+  canary; (5) monitor the coherent chain via `~/nfl-panels/` logs. Do not
+  resume schedulers, delete forensic data, or change the money policy.
+
+## Prior state — 2026-08-18 12:15 CDT
 
 ### ATLAS closed and dispositioned; DST Phase D0 rebuilt, gate 3 blocked on a protocol decision
 

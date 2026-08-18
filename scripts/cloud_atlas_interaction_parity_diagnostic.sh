@@ -83,7 +83,7 @@ census=json.load(open(sys.argv[1],encoding="utf-8"))
 completion=dict(line.rstrip("\n").split("=",1) for line in open(sys.argv[2],encoding="utf-8") if "=" in line)
 if census.get("version")!="atlas-matched-diversity-repair5-terminal-census-v1" or census.get("executions")!=54 or census.get("terminal_failed",0)<1 or census.get("scientific_result_valid") is not False or census.get("effect_fields_inspected") is not False or census.get("historical_scoring_licensed") is not False or census.get("continuous_parity_capacity_released") is not True:
  raise SystemExit("ERROR: ATLAS repair5 terminal census does not release parity")
-expected={"all_terminal":"true","scientific_result_valid":"false","effect_fields_inspected":"false","historical_scoring_licensed":"false","continuous_parity_capacity_released":"true"}
+expected={"all_declared_attempts_terminal":"true","scientific_result_valid":"false","effect_fields_inspected":"false","historical_scoring_licensed":"false","continuous_parity_capacity_released":"true"}
 if any(completion.get(key)!=value for key,value in expected.items()):
  raise SystemExit("ERROR: ATLAS repair5 census completion differs")
 PY
