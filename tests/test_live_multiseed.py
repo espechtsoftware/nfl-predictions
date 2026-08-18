@@ -180,8 +180,13 @@ def test_live_cbwu_rejects_more_than_licensed_80_entries():
 
 
 def test_live_control_rejects_paired_control_capture():
+    # Paired capture is licensed only for the named paired shadow
+    # portfolios (archetype, CBWU-OI); the plain money portfolio must
+    # still fail closed (message updated with CBWU_OI_SHADOW, 2026-08-18).
     env = ADOPTED_CLASSIC_POLICY.engine_environment()
-    with pytest.raises(ValueError, match="requires CBWU_ARCHETYPE_SHADOW"):
+    with pytest.raises(
+        ValueError, match="requires a paired shadow portfolio"
+    ):
         live_lineups.build_sim_lineups(
             2026, 1, n_entries=1, stack=None, tail_line=194,
             apply_notes=False, policy_env=env,
