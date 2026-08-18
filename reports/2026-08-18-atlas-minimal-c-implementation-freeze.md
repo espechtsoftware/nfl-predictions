@@ -1,0 +1,86 @@
+# Implementation freeze: minimal ATLAS world-selection C test
+
+Date: 2026-08-18
+Protocol: `20260818-atlas-minimal-world-selection-c-v1` (Part B of
+`reports/2026-08-18-atlas-disposition-and-minimal-c-test-protocol.md`).
+This document binds the implementation before any outcome is opened.
+Operator approval to run: recorded 2026-08-18 (HANDOFF 13:20 entry).
+
+## Sources (outcome-blind bindings)
+
+- **Worlds and natives**: the five production-law money-worlds panels
+  `20260815-atlas-money-worlds-r{0..4}-v1` — registered candidates in
+  `nfl_predictions.replay_candidates_staging` (support census 2026-08-18,
+  counts only: 13,633 / 13,649 / 13,642 / 13,395 / 13,632; r3 carries 53
+  slates). The r3/2025-W1 cell was never registered (artifact-only recovery
+  in the transfer; no snapshot, no natives), so faithful regeneration is
+  impossible for that seed: the 2025-W1 slate runs BOTH arms on the same
+  four seeds (r0/r1/r2/r4) — budget parity holds and the receipt discloses
+  `recovery_four_seed_slate`. Artifact bindings for all cells come from the
+  acquisition `source-grid.json`, SHA-256
+  `9a18458c63f0155b72f3847c705fbd0bdde9b64c923a5b63cc4a1f42bfe3445b`.
+- **Generation inputs**: per-panel immutable snapshots in
+  `nfl_predictions.slate_player_features` (support census: 29,605 rows x 54
+  slates per panel, 29,016 x 53 for r3; `proj_tourney`, `own_est`, `actual`
+  fully populated).
+- **Environment**: exact per-block acquisition environment from
+  `nfl_dfs.research.atlas_money_transfer.acquisition_environment` with
+  `SEED_PAIRS` unchanged. Persistence destinations (`CAND_LOG_TABLE`,
+  `CAND_FEATURE_TABLE`, `REPLAY_LINEUPS_TABLE`, `CAND_ARTIFACT_BUCKET`)
+  are blanked at generation — infrastructure destinations, outside the
+  lever set — and the diagnostic persists nothing to candidate tables.
+
+## Invocation constants (mirroring the panel replay path)
+
+`tail_select_lineups` called directly per slate x seed x arm with:
+slate reconstructed as skill rows in artifact `player_ids` order
+(`draw_idx = 0..n-1`) followed by DST rows sorted by team (`draw_idx = -1`);
+`pool = slate.to_dict("records")`; draws = artifact `player_draws`;
+`tail_line = 194.0`; `n_entries = 40`; `objective_col = "proj_tourney"`;
+`contest = payout.gpp()`; `sharp_fraction = 0.0`;
+`StackRules(qb_stack_min=2, bring_back_min=1, forbid_rb_vs_dst=True)`;
+`candidate_multiple`, `n_boom_solves`, `n_game_stacks` from the acquisition
+env (`CAND_MULT=2`, `N_BOOM=40`, `N_GAMESTACK=4`); `cand_log_table = None`;
+`candidate_capture` collects the in-memory `CandidateBatch`.
+
+## Arms
+
+- Control: acquisition environment exactly as recorded.
+- Treatment: identical plus `ATLAS_BOOM_WORLD_RANKING=1`, the engine lever
+  added 2026-08-18 (`_boom_world_order` in `backtest/engine.py`; recorded
+  in the immutable lever set; absent from the production policy receipt;
+  seven-case offline test `tests/test_atlas_boom_world_ranking_lever.py`).
+  Default path proven byte-identical to the incumbent argsort ranking
+  (lever tests + golden-hash parity `tests/test_sbi.py` 12/12).
+
+## Validity gates (before any outcome is read, per cell)
+
+1. Artifact/candidate/snapshot support counts match the registered census
+   exactly; one artifact URI+digest per cell.
+2. **Exact native reproduction**: the control arm's ordered candidate
+   identities must equal the registered natives for every seed of the
+   cell. A reproduction failure halts the cell before any outcome read;
+   the canary halts the whole run.
+3. Actual-score parity: every registered native's `actual_score`
+   reproduced from nine snapshot outcomes to 1e-9.
+
+## Endpoints (after gates, per protocol B.5)
+
+C per arm = max realized score over the five-seed pool union; S per arm =
+realized max of the exact-80 book from
+`combine_cbwu_books(books, (R0..R4), expected_worlds_per_book=10000)` +
+`select_tail_entries(totals, 80, 194.0, env={"SELECT_LSE": "0"})`;
+diversity context = pair reach, QB-stack-core reach, dominant-game reach
+(CBWU-OI definitions). Gate and predeclared negative prior: protocol B.5/B.6
+unchanged. Fail or null closes the ATLAS world-ranking family permanently.
+
+## Execution envelope
+
+54 create-only cells (one per slate), 4 CPU / 16 GiB, zero Cloud retries,
+real-path canary on the first cell (with reproduction gate) before the 53
+release; at most one same-spec replacement for a literal zero-object
+platform error. Queued strictly behind the coherent-market-state score-free
+chain; no launch while that chain occupies the heavy lane. Runner:
+`scripts/run_atlas_minimal_world_selection_c.py` (SHA-256 pinned by the
+launcher at launch time, with this document's SHA-256 pinned inside the
+runner).

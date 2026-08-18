@@ -907,6 +907,31 @@ def coverage_tail_candidates(
     return added
 
 
+def _boom_world_order(
+    rd: np.ndarray,
+    positions: Sequence[str],
+    runtime_env,
+) -> np.ndarray:
+    """World visit order for the boom family.
+
+    Control (default): descending total simulated slate points — the
+    incumbent ranking. With ATLAS_BOOM_WORLD_RANKING set (research-only;
+    the minimal world-selection C test, protocol
+    20260818-atlas-minimal-world-selection-c-v1), rank instead by the
+    roster-shaped attainable upper bound with the deterministic world-id
+    tiebreak. Never set on production deployments; the key is recorded in
+    the immutable lever set so any treatment is self-identifying in BQ.
+    """
+    if runtime_env.get("ATLAS_BOOM_WORLD_RANKING"):
+        from ..analysis.atlas_world_ranking import (
+            rank_worlds,
+            roster_slot_upper_bound,
+        )
+        return rank_worlds(
+            roster_slot_upper_bound(rd, positions), rd.shape[1])
+    return np.argsort(rd.sum(axis=0))[::-1]
+
+
 def tail_select_lineups(
     slate: pd.DataFrame,
     pool: list[dict],
@@ -1064,7 +1089,7 @@ def tail_select_lineups(
                 lu.tag = "thesis"
                 seen.add(lu.ids)
                 cands.append(lu)
-    boom_order = np.argsort(rd.sum(axis=0))[::-1]
+    boom_order = _boom_world_order(rd, slate["pos"].tolist(), runtime_env)
     boom_cursor = n_boom_solves
 
     def _add_boom(sim_indices, unique_target: int | None = None) -> int:
@@ -1821,7 +1846,8 @@ def tail_select_lineups(
             # treatment looked identical to its baseline in the warehouse.
             # Infrastructure destinations/credentials are deliberately out.
             _lever_keys = {
-                "ALT_CEIL", "BIGPLAY", "BLEND_MODEL_WEIGHT", "CAND_MULT",
+                "ALT_CEIL", "ATLAS_BOOM_WORLD_RANKING",
+                "BIGPLAY", "BLEND_MODEL_WEIGHT", "CAND_MULT",
                 "CE_GAMES", "CE_SEED",
                 "DIRICHLET_K", "DIV_TILT", "DROP_FEATURES", "DST_CORR_DRAWS",
                 "DST_PUNT_BONUS", "EMP_MARGINALS", "EMP_POS",
