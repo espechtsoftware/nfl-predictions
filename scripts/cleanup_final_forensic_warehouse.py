@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Delete and verify the complete temporary final-forensic BigQuery corpus.
 
-Both the original and authoritative repair4 manifests wrote four tables into
-the isolated review dataset. This Week-1 gate treats their union as one
+The repair3 freeze wrote the live unsuffixed four-table corpus and the
+authoritative repair4 freeze wrote four suffixed tables into the isolated
+review dataset. This Week-1 gate treats their union as one
 indivisible eight-table corpus: before any deletion the dataset inventory must
 equal that union exactly, and after deletion the dataset must be empty.
 """
@@ -21,7 +22,7 @@ from google.cloud import bigquery
 
 PROJECT = "nfl-predictions-503414"
 ISOLATION_DATASET = f"{PROJECT}.nfl_forensic_review"
-RECEIPT_VERSION = "aggregate-final-forensic-cleanup-v2"
+RECEIPT_VERSION = "aggregate-final-forensic-cleanup-v3"
 WAREHOUSE_TABLE_PREFIX = ISOLATION_DATASET + ".final_forensic_20260814_"
 WAREHOUSE_TABLE_IDS = frozenset({
     "actual_selections",
@@ -34,8 +35,8 @@ REQUIRED_MANIFEST_SUFFIXES = frozenset({"", "_repair4"})
 # acquired later checklist fields, so applying it retroactively would reject
 # these immutable manifests for reasons unrelated to their warehouse contract.
 REQUIRED_MANIFEST_FILE_SHA256 = {
-    "470d336085c04ffcca5ae2e28d42deb3fb3f8037f195855845f49e7975a86776": (
-        "966bec4d2f72a36d7fcd4d580263c06dfa44b955a4d8ea0d6c5315e26a632443"
+    "122303a1fc14ae76c9379010eb632b8c4ae837408d4726fe47611ec88be20ce7": (
+        "bdd4afa398ae8739319553725b8f6b4ef052e478d505746bed22d751732f051d"
     ),
     "51edbe124846dc936ade71c4e5a9a07e252bcf6c7d7872b979715ccd1f6bab02": (
         "565cdcfaffad6e131449c991dda64dc171cad2d23ec0b3dc55ae0a53c9ef94e3"
@@ -52,7 +53,7 @@ def _parser() -> argparse.ArgumentParser:
         "--manifest",
         required=True,
         action="append",
-        help="manifest path; provide once for original and once for repair4",
+        help="manifest path; provide once for repair3 and once for repair4",
     )
     parser.add_argument(
         "--confirm-manifest-sha",
@@ -121,7 +122,7 @@ def _manifest_suffix(manifest: Mapping[str, Any]) -> str:
 def _aggregate_contract(bindings: Iterable[Mapping[str, Any]]) -> dict[str, Any]:
     bound = list(bindings)
     if len(bound) != 2:
-        raise RuntimeError("cleanup requires exactly the original and repair4 manifests")
+        raise RuntimeError("cleanup requires exactly the repair3 and repair4 manifests")
 
     suffixes: set[str] = set()
     manifest_shas: set[str] = set()
@@ -157,7 +158,7 @@ def _aggregate_contract(bindings: Iterable[Mapping[str, Any]]) -> dict[str, Any]
         })
 
     if suffixes != REQUIRED_MANIFEST_SUFFIXES:
-        raise RuntimeError("cleanup requires the exact original and repair4 table variants")
+        raise RuntimeError("cleanup requires the exact repair3 and repair4 table variants")
     if datasets != {ISOLATION_DATASET}:
         raise RuntimeError("aggregate manifests do not bind the isolation dataset")
     if len(policies) != 1:

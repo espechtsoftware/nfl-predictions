@@ -220,7 +220,7 @@ def test_preflight_drift_fails_without_any_resume_mutation(monkeypatch, tmp_path
 
 def test_cleanup_preflight_command_pairs_both_manifests_and_shas(tmp_path):
     cleanup = tmp_path / "cleanup.py"
-    manifests = [tmp_path / "original.json", tmp_path / "repair4.json"]
+    manifests = [tmp_path / "repair3.json", tmp_path / "repair4.json"]
     receipt = tmp_path / "receipt.json"
     command = resume._cleanup_preflight_command(
         cleanup, manifests, ["a" * 64, "b" * 64], receipt

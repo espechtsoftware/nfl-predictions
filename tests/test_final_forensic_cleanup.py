@@ -57,15 +57,15 @@ def _bindings():
     ]
 
 
-def test_tracked_original_and_repair4_manifest_bytes_are_frozen():
+def test_tracked_repair3_and_repair4_manifest_bytes_are_frozen():
     base = (
         ROOT
         / "reports/final-forensic-runs/20260814-final-preseason-forensic-v1"
     )
     bindings = [
         cleanup._load_manifest(
-            base / "freeze_manifest.json",
-            "470d336085c04ffcca5ae2e28d42deb3fb3f8037f195855845f49e7975a86776",
+            base / "freeze_manifest_repair3.json",
+            "122303a1fc14ae76c9379010eb632b8c4ae837408d4726fe47611ec88be20ce7",
         ),
         cleanup._load_manifest(
             base / "freeze_manifest_repair4.json",
@@ -77,6 +77,18 @@ def test_tracked_original_and_repair4_manifest_bytes_are_frozen():
     assert {
         row["manifest_file_sha256"] for row in contract["manifests"]
     } == set(cleanup.REQUIRED_MANIFEST_FILE_SHA256.values())
+
+
+def test_superseded_original_manifest_is_not_a_cleanup_identity():
+    base = (
+        ROOT
+        / "reports/final-forensic-runs/20260814-final-preseason-forensic-v1"
+    )
+    with pytest.raises(RuntimeError, match="frozen cleanup identity"):
+        cleanup._load_manifest(
+            base / "freeze_manifest.json",
+            "470d336085c04ffcca5ae2e28d42deb3fb3f8037f195855845f49e7975a86776",
+        )
 
 
 class _Client:
@@ -168,12 +180,12 @@ def test_cleanup_refuses_missing_repair4_table_before_any_deletion():
 def test_cleanup_requires_both_exact_manifest_variants():
     bindings = _bindings()
     client = _Client(bindings)
-    with pytest.raises(RuntimeError, match="exactly the original and repair4"):
+    with pytest.raises(RuntimeError, match="exactly the repair3 and repair4"):
         cleanup.delete_corpus(client, bindings[:1])
     assert client.deleted == []
 
-    wrong_variant = [bindings[0], _binding("_repair3", "e" * 64, "f" * 64)]
-    with pytest.raises(RuntimeError, match="exact original and repair4"):
+    wrong_variant = [bindings[0], _binding("_repair2", "e" * 64, "f" * 64)]
+    with pytest.raises(RuntimeError, match="exact repair3 and repair4"):
         cleanup.delete_corpus(_Client(wrong_variant), wrong_variant)
 
 

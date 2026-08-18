@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Resume 2026 production schedulers only after aggregate forensic cleanup.
 
-No scheduler mutation occurs until the immutable two-manifest cleanup receipt
-has passed and all 27 schedulers exactly match the tracked paused-state,
+No scheduler mutation occurs until the immutable repair3-plus-repair4 cleanup
+receipt has passed and all 27 schedulers exactly match the tracked paused-state,
 cadence, timezone, HTTP method, and Cloud Run target contract.
 """
 

@@ -20,17 +20,18 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 22:59 CDT
+## Current state — 2026-08-17 23:09 CDT
 
 ### Production readiness is now a separate lane; residual phase 1 is durable
 
 - Branch is `main`. The independently reproduced selected-book calibration
   result is pushed at `0233da5`; the independently green P0 forensic cleanup/
   scheduler-resume repair is pushed at `029581e`; and residual phase 2 is
-  durable at `a8c87d9`. The only intended tracked worktree edits are repaired
-  residual phase 3 in `src/nfl_dfs/research/residual_world_columns.py` and
-  `tests/test_residual_world_dose_harness.py`. Operator-supplied untracked
-  reports/cloud receipts must not be staged implicitly.
+  durable at `a8c87d9`. Independently green residual phase 3 is pushed at
+  `f22b764`. The intended tracked worktree edits are residual phase 4 in the
+  residual core/tests and the narrow cleanup-manifest provenance correction in
+  the cleanup/resume runbook and tests. Operator-supplied untracked reports/
+  cloud receipts must not be staged implicitly.
 
 - Residual phase 1 is score-free and does not license a cloud run, historical
   score, 2026 outcome read or production change. It durably includes the
@@ -205,6 +206,29 @@ agent or developer:
   before the eventual cleanup; do not resume until the tracked cleanup receipt
   itself is committed and pushed.
 
+- The first live read-only pre-deletion inspection caught one additional
+  provenance blocker in `029581e`; no table was deleted and no scheduler state
+  changed. BigQuery contains exactly the expected eight tables, but the four
+  unsuffixed tables are the retained terminal-invalid partial repair3 corpus,
+  not the corrected-original manifest corpus: their full description/label
+  binds repair3 internal SHA-256
+  `122303a1fc14ae76c9379010eb632b8c4ae837408d4726fe47611ec88be20ce7`
+  and their row counts are 17,200 actual selections, 54,430 candidates, 860
+  oracle rosters and 111,191 player rows. The four `_repair4` tables bind
+  `51edbe124846dc936ade71c4e5a9a07e252bcf6c7d7872b979715ccd1f6bab02`
+  and contain 17,200 / 54,430 / 1,075 / 111,191 rows. The cleanup code and
+  README have therefore been corrected to use
+  `freeze_manifest_repair3.json` (file SHA-256
+  `bdd4afa398ae8739319553725b8f6b4ef052e478d505746bed22d751732f051d`)
+  plus repair4 (file SHA-256
+  `565cdcfaffad6e131449c991dda64dc171cad2d23ec0b3dc55ae0a53c9ef94e3`),
+  explicitly reject the inapplicable `470d336...` original identity and bump
+  the aggregate receipt to v3. Focused validation passed 31/31 and independent
+  static re-review is GREEN: the exact-eight, metadata, empty-after, request-
+  body and atomic scheduler safeguards remain intact. Commit/push this narrow
+  correction before any cleanup. The live read established provenance only;
+  it did not inspect forensic scientific values.
+
 - Adopt the process-health recommendations in a bounded form. Production
   readiness and research are separate queues. Pure build/transport failures
   receive standardized append-only incident receipts rather than a new
@@ -252,19 +276,20 @@ agent or developer:
   execution failed before model work on a prefix/output-identity transport
   mismatch. The original target execution
   `atlas-md-s2023-w7-r6-9pxdt` remains genuinely running
-  (`Completed=Unknown`, `runningCount=1`) through the 22:58 CDT terminal-only
+  (`Completed=Unknown`, `runningCount=1`) through the 23:08 CDT terminal-only
   poll and must not be cancelled, duplicated or opened. The prospective
   transport amendment/validator at commit `71962ab` remains frozen; apply its
   unique replacement-proof branch only if the original target's terminal
   disposition and queue state license it. No ATLAS partial shard body,
   treatment effect or score has been inspected.
 
-- Exact next actions: (1) commit/push the independently green residual phase-3
-  checkpoint and this handoff; (2) implement and independently review residual
-  phase 4 before the deferred long local pricing gate; (3) keep polling the
-  ATLAS target by terminal status only; and (4) perform a live read-only
-  pre-deletion forensic inventory/contract check, then advance the remaining
-  Week 1 operations checklist. Do not run
+- Exact next actions: (1) commit/push the independently green repair3/repair4
+  cleanup-provenance correction and this handoff; (2) finish and independently
+  review residual phase 4 before the deferred long local pricing gate; (3) keep
+  polling the ATLAS target by terminal status only; and (4) retain the verified
+  forensic corpus until the independent-review window closes, then execute the
+  manifest-bound v3 cleanup/verification/receipt sequence before scheduler
+  resume and advance the remaining Week 1 operations checklist. Do not run
   residual cloud/historical scoring, start a second heavy chain, inspect
   partial ATLAS scientific artifacts, delete forensic data, resume schedulers
   or change the money policy yet.
