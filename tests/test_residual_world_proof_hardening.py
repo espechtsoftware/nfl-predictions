@@ -348,7 +348,7 @@ def _cold_exact_command_fixture(tmp_path):
         str(cbc), str(model), "-max", "-sec", "120", "-cuts", "off",
         "-randomSeed", str(rw.CBC_RANDOM_SEED),
         "-randomCbcSeed", str(rw.CBC_RANDOM_SEED),
-        "-primalTolerance", "1e-9", "-integerTolerance", "1e-9",
+        "-primalTolerance", "1e-9", "-integerTolerance", "1e-12",
         "-ratio", "0.0", "-allow", "0.0", "-threads", "1",
         "-timeMode", "elapsed", "-solve", "-printingOptions", "all",
         "-solution", str(solution),
@@ -363,6 +363,46 @@ def test_extra_cbc_positional_token_fails_closed(tmp_path):
     poisoned.insert(poisoned.index("-solve"), "quit")
     with pytest.raises(rw.SolverFailure, match="exact registered grammar"):
         rw._validate_retained_command(evidence, shlex.join(poisoned))
+
+
+def test_row_display_is_nonlicensing_but_exact_assignment_remains_decisive(
+    tmp_path,
+):
+    model_path = tmp_path / "display-only.mps"
+    model_path.write_bytes(_ONE_BINARY_MPS)
+    manifest = (("X0000000", "scientific_x", "binary", 0, 1),)
+
+    harmless_drift = (
+        "Optimal - objective value 1.00000000\n"
+        "0 C0000000 -3.0089264e-11 -0\n"
+        "0 X0000000 1 0\n"
+    )
+    objective, _, affected, maximum_residual, _, _ = (
+        rw._validate_solution_body(harmless_drift, model_path, manifest)
+    )
+    assert objective == 1
+    assert affected == 0
+    assert maximum_residual == 0
+
+    above_decode_boundary = (
+        "Optimal - objective value 1.00000000\n"
+        "0 C0000000 1 0\n"
+        "0 X0000000 0.000000000011 0\n"
+    )
+    with pytest.raises(rw.SolverFailure, match="decode epsilon"):
+        rw._validate_solution_body(
+            above_decode_boundary, model_path, manifest
+        )
+
+    benign_display_infeasible_assignment = (
+        "Optimal - objective value 1.00000000\n"
+        "0 C0000000 1 0\n"
+        "0 X0000000 0 0\n"
+    )
+    with pytest.raises(rw.SolverFailure, match="violates an MPS row"):
+        rw._validate_solution_body(
+            benign_display_infeasible_assignment, model_path, manifest
+        )
 
 
 @pytest.mark.parametrize("symlink_kind", ("root", "parent"))

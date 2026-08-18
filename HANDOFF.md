@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-18 00:10 CDT
+## Current state — 2026-08-18 00:36 CDT
 
 ### Production readiness is now a separate lane; residual phase 1 is durable
 
@@ -229,6 +229,37 @@ agent or developer:
   the exact raw tokens, MPS feasibility, row activity and frozen-amendment
   obligations first; accept only a narrowly justified prospective proof-law
   correction or treat the formulation as invalid.
+
+- The two exact-pricing failures are independently classified and the narrow
+  prospective proof-law repair is independently GREEN before any rerun. The
+  reversed-row failure was residual chunk 01: one CBC binary token was
+  `9.0315311e-11`, outside the unchanged inclusive `1e-11` decoder even though
+  its canonical integer assignment had zero exact-MPS violations and the exact
+  objective matched. The positive-part failure was residual chunk 04: every
+  assignment token decoded within `1e-11`, the canonical assignment had zero
+  exact-MPS violations and exact objective 11, but CBC's redundant printed row
+  activity drifted by about `3.01e-11`. The amended solver law, SHA-256
+  `18155f674c60383a51583f9a08916680dd3917665dbfaf064ede1330f2b3671f`,
+  now uniformly pins CBC integer tolerance to `1e-12` with no retry or
+  parameter-dependent branch; primal tolerance remains `1e-9`, and the
+  decoder remains `Decimal('1e-11')` and may never be widened. Printed row
+  activities remain complete, ordered, unique, finite, no-`**`, retained and
+  hash-bound, but their numeric drift is display-only; exact canonical MPS
+  bounds, rows and objective remain the licensing proof. Repaired residual
+  source SHA-256 is
+  `4a5ed46560b9fb1c7f0595286c0ec8faa58eff4471701307c588ef97af6f13ba`;
+  RunContext source is
+  `7d4f0e65c1fe52b8b09c0ca4c7a672da1cb765c71ec7fc6fb1af1f32f42d66a9`;
+  core/proof/context test SHAs are `4c8677b8...` / `7853a243...` /
+  `6fed6beb...`, with dose tests unchanged at `e95ca8e...`. Serialized gates
+  passed focused proof 2/2, focused core 3/3, RunContext 56/56, proof 28/28,
+  dose 31/31 and exact frozen short core 90/90, plus compile/diff checks.
+  Independent static review found no blocker or regression and confirmed both
+  original failure classes are covered. Preserve the original evidence root
+  `/tmp/residual_pricing_gate_ReQTUq`; commit/push this repair, then run the
+  exact same five-case local score-free gate once under the newly frozen law.
+  If the token failure persists, do not tune another tolerance or license a
+  runner; return to formulation/polish design prospectively.
 
 - The P0 cleanup/resume repair pushed at `029581e` is independently GREEN. It
   requires both frozen forensic

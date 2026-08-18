@@ -109,7 +109,7 @@ def test_context_is_frozen_and_sha_is_canonical_and_stable() -> None:
     assert context.scientific_sha256 == context.sha256
     assert residual_world_run_context_sha256(context) == context.sha256
     assert context.sha256 == (
-        "4dcd5ab749a42c1784c579752cadf21fdf8ce5557750be82855227ce5e1931d8"
+        "8c4814462c1602fc0724820594536d5e5b63b26071b85d73deeaf533927d1214"
     )
     assert b"/tmp/" not in residual_run_context_json(context)
 

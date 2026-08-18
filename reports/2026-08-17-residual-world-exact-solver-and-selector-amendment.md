@@ -129,7 +129,8 @@ The solver law is deterministic:
 - one thread, elapsed-time mode;
 - `randomSeed=170817` and `randomCbcSeed=170817`;
 - relative and absolute gap zero;
-- primal and integer tolerances both `1e-9`;
+- primal tolerance exactly `1e-9` and integer tolerance exactly `1e-12` for
+  every CBC solve, with no retry or parameter-dependent branch;
 - 120 seconds for a bound stage and 600 seconds for a pricing/tie stage;
 - the first nonconstant tail tier is cold with cuts off;
 - each later nonconstant tail tier uses only the immediately preceding proven
@@ -172,7 +173,7 @@ An accepted solve requires all of the following:
   distance from the unique nearest integer is inclusively at most literal
   `Decimal('1e-11')`; it is then canonicalized once to that integer, and a
   binary must canonicalize to exactly zero or one. This evidence-decoding bound
-  is 100 times smaller than the frozen `1e-9` CBC integer tolerance, may never
+  is ten times larger than the frozen `1e-12` CBC integer tolerance, may never
   be widened, and permits no other tolerance-based rounding;
 - a strict-ASCII retained MPS accepted only under the pinned PuLP 3.3.2 writer
   profile: exactly one ordered `*SENSE`, `NAME MODEL`, `ROWS`, `COLUMNS`, `RHS`,
@@ -194,7 +195,11 @@ An accepted solve requires all of the following:
 - exact Python-integer reconstruction from the complete solution assignment of
   every variable bound, binary/integer condition, MPS row activity and
   `E`/`L`/`G` relation, and the objective. CBC's `%15.8g` printed row activities
-  are redundant display receipts only and never license feasibility. Every
+  are redundant display receipts only and never license feasibility: their
+  tokens must be complete, ordered, unique and finite, contain no `**` marker,
+  and remain retained and hashed under the pinned solution-body profile, but
+  numeric drift between a printed row activity and the independently
+  reconstructed exact integer activity is not a rejection condition. Every
   scientific integer coefficient, bound, assignment, and worst-case row or
   objective activity must have absolute magnitude strictly below `2^53`, so
   the retained decimal model and CBC's executed double model cannot diverge;

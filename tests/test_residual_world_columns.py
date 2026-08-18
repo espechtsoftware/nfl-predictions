@@ -204,9 +204,13 @@ def test_frozen_constants_and_fold_contract_are_immutable_values():
     assert rw.WORLDS_PER_BLOCK == 10_000
     assert rw.CBC_WARM_START is True
     assert rw.CBC_AUXILIARY_CUTS is False
-    assert rw.CBC_INTEGER_TOLERANCE == Decimal("1e-9")
+    assert rw.CBC_INTEGER_TOLERANCE == Decimal("1e-12")
+    assert rw.CBC_INTEGER_TOLERANCE_OPTION == "1e-12"
     assert rw.PROTOCOL_AMENDMENT_ID == (
         "20260817-residual-world-exact-solver-selector-v1"
+    )
+    assert rw.PROTOCOL_AMENDMENT_SHA256 == (
+        "18155f674c60383a51583f9a08916680dd3917665dbfaf064ede1330f2b3671f"
     )
     assert rw.SCORE_RADIX == 100
     assert (rw.ENTRY_COUNT, rw.CONTROL_TAIL_LINE_DK) == (80, 194)
@@ -737,6 +741,8 @@ def test_cbc_evidence_is_unique_and_bare_solver_cannot_license_result():
     solver = rw.make_cbc_solver(120, False)
     evidence = rw._solve(problem, solver, "golden exact solve")
     assert evidence.objective == rw._integer_value(problem.objective)
+    assert evidence.integer_tolerance == Decimal("1e-12")
+    assert "-integerTolerance 1e-12" in evidence.command_line
     assert rw._sha256_file(rw.Path(evidence.model_path)) == evidence.model_sha256
     with pytest.raises(rw.SolverFailure, match="reused"):
         rw._parse_cbc_evidence(problem, solver, "reuse")
@@ -1170,7 +1176,6 @@ def test_residual_problem_clone_preserves_implied_registry_without_aliasing():
         "wrong_seed_command",
         "starred_row",
         "starred_column",
-        "row_activity_mismatch",
         "fractional_integer",
         "bound_violation",
         "mps_duplicate_coefficient",
@@ -1315,18 +1320,13 @@ def test_retained_evidence_poison_records_fail_closed(tmp_path, poison):
         solution = "\n".join(lines) + "\n"
     else:
         lines = solution.splitlines()
-        if poison == "row_activity_mismatch":
-            fields = lines[1].split()
-            fields[2] = str(Decimal(fields[2]) + 1)
-            lines[1] = " ".join(fields)
-        else:
-            target = next(
-                index for index, line in enumerate(lines[1:], 1)
-                if line.split()[1].startswith("X")
-            )
-            fields = lines[target].split()
-            fields[2] = "0.5" if poison == "fractional_integer" else "2"
-            lines[target] = " ".join(fields)
+        target = next(
+            index for index, line in enumerate(lines[1:], 1)
+            if line.split()[1].startswith("X")
+        )
+        fields = lines[target].split()
+        fields[2] = "0.5" if poison == "fractional_integer" else "2"
+        lines[target] = " ".join(fields)
         solution = "\n".join(lines) + "\n"
     log_path.write_text(log)
     solution_path.write_text(solution)
@@ -1340,6 +1340,29 @@ def test_retained_evidence_poison_records_fail_closed(tmp_path, poison):
     )
     with pytest.raises(rw.SolverFailure):
         rw.validate_cbc_solve_evidence(poisoned)
+
+
+def test_retained_evidence_allows_nonlicensing_row_display_drift(tmp_path):
+    root = tmp_path / "row-display-drift"
+    root.mkdir()
+    evidence = rw._solve(
+        _cbc_evidence_problem(),
+        rw.make_cbc_solver(120, False, evidence_root=root),
+        "row display drift",
+    )
+    solution_path = rw.Path(evidence.solution_path)
+    lines = solution_path.read_text().splitlines()
+    fields = lines[1].split()
+    fields[2] = str(Decimal(fields[2]) + Decimal("1.23456789"))
+    lines[1] = " ".join(fields)
+    solution_path.write_text("\n".join(lines) + "\n")
+    drifted = replace(
+        evidence,
+        solution_sha256=rw._sha256_file(solution_path),
+    )
+    # Printed row activities are retained, hashed, ordered, unique and finite,
+    # but exact feasibility is licensed only by the canonical assignment/MPS.
+    rw.validate_cbc_solve_evidence(drifted)
 
 
 def test_finite_cbc_primal_dual_infeasibility_diagnostics_are_not_nonfinite(
@@ -1826,7 +1849,7 @@ def _dummy_cbc_evidence(label: str) -> rw.CbcSolveEvidence:
         relative_gap=Decimal(0),
         absolute_gap=Decimal(0),
         primal_tolerance=Decimal("1e-9"),
-        integer_tolerance=Decimal("1e-9"),
+        integer_tolerance=Decimal("1e-12"),
         variable_domain_manifest_sha256="4" * 64,
         canonical_assignment_sha256="5" * 64,
         integer_decode_affected_count=0,
