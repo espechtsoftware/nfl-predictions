@@ -20,12 +20,12 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 22:38 CDT
+## Current state — 2026-08-17 22:52 CDT
 
 ### Production readiness is now a separate lane; residual phase 1 is durable
 
-- Branch is `main`. The latest pushed checkpoint is `79a4d58`
-  (`Add selected-book tail calibration audit`), with residual phase 2 already
+- Branch is `main`. The selected-book calibration result and its independently
+  reproduced interpretation are pushed at `0233da5`, with residual phase 2 already
   durable at `a8c87d9` and the Week 1 operations blockers recorded at
   `dceda64`. The worktree contains two deliberate, separate uncommitted sets:
   residual phase 3 in `src/nfl_dfs/research/residual_world_columns.py` and
@@ -169,31 +169,46 @@ agent or developer:
   result licenses no fit, tuning, arm promotion, production change or
   permanent closure, and the money policy remains unchanged.
 
-- Residual phase 3 is locally green and paused for independent static review.
+- Residual phase 3's first local checkpoint was blocked by independent static
+  review despite its green tests. The serializer did not independently replay
+  the exact selector for the control/pruning-prefix/treatment books, and the
+  claimed rank-first roster was not yet independently proven to lie on the
+  frozen tail/residual/no-good face before ambiguity testing. Both are real
+  proof gaps, not new scientific hypotheses. Narrow repairs and coherent poison
+  tests are in progress; do not cite or commit phase 3 until the repaired stable
+  SHA passes the full short gates and independent re-review. The superseded
+  first-checkpoint identities were:
   Source SHA-256 is
   `1879a5d191c94e1687b76b0805332d2840e02414c363f7f73b51db79eef7ca6e`;
   dose-test SHA-256 is
   `e5f3f95e51e66409b3b34fe4840195ac3b47b3babb669d3422181959b18be537`.
-  It preserves native `B_s >= 88` and independently rebuilds final fold,
+  Apart from those two blockers, review found that it preserves native
+  `B_s >= 88` and independently rebuilds final fold,
   exact-active-world quota/order, exact-80 book, pricing objective/indicator/
   residual/rank/ambiguity/admissibility, cross-score parity, pruning and proof
   artifact identities at serialization. Serialized score-free validation
   passed 26/26 dose cases, 27/27 proof-hardening cases and the exact frozen
-  90/90 short-core selection, plus compile/diff checks. The heavy pricing
+  90/90 short-core selection, plus compile/diff checks. Those gates belong to
+  the superseded checkpoint and must be rerun after repair. The heavy pricing
   cases, cloud and historical outcomes were not run; do not begin phase 4 or
-  commit phase 3 until its independent review is green.
+  commit phase 3 until its independent re-review is green.
 
-- The local P0 cleanup/resume repair now requires both frozen forensic
+- The local P0 cleanup/resume repair is independently GREEN. It requires both frozen forensic
   manifests, an exact eight-table pre-cleanup union, schema/metadata/expiry
   parity, an empty isolation dataset after deletion and an immutable aggregate
   receipt. Resume also requires byte-identical receipt content locally, at
   `HEAD` and `origin/main`, then validates all 27 scheduler states, names,
   cadences, timezones, POST/OAuth identities and Cloud Run v2 targets before
-  mutation. Focused tests pass 22/22, deployment-contract parity is 27/27 and
-  compile/diff checks pass. No live cleanup or scheduler resume occurred. The
-  patch is awaiting an independent static review before commit; even after a
-  green code review, perform a live verify-only dry run before deletion and do
-  not resume until the tracked cleanup receipt is committed and pushed.
+  mutation. It also rejects any scheduler request body, proves all 27 jobs are
+  `ENABLED` after a successful resume, and on any command or postcondition
+  failure compensating-pauses every attempted job and proves all 27 are
+  `PAUSED`; rollback uncertainty fails loudly. Focused cleanup validation
+  passed 22/22, the repaired scheduler suite passed 23/23, deployment-contract
+  parity is 27/27 and compile/diff checks pass. Independent static re-review
+  found both prior blockers resolved and no new blocker. No live cleanup or
+  scheduler resume occurred. Commit and push this patch, then perform a live
+  verify-only dry run before deletion; do not resume until the tracked cleanup
+  receipt itself is committed and pushed.
 
 - Adopt the process-health recommendations in a bounded form. Production
   readiness and research are separate queues. Pure build/transport failures
@@ -242,23 +257,23 @@ agent or developer:
   execution failed before model work on a prefix/output-identity transport
   mismatch. The original target execution
   `atlas-md-s2023-w7-r6-9pxdt` remains genuinely running
-  (`Completed=Unknown`, `runningCount=1`) through the 22:38 CDT terminal-only
+  (`Completed=Unknown`, `runningCount=1`) through the 22:48 CDT terminal-only
   poll and must not be cancelled, duplicated or opened. The prospective
   transport amendment/validator at commit `71962ab` remains frozen; apply its
   unique replacement-proof branch only if the original target's terminal
   disposition and queue state license it. No ATLAS partial shard body,
   treatment effect or score has been inspected.
 
-- Exact next actions: (1) commit/push the independently reproduced
-  selected-book result and this handoff; (2) finish independent reviews of
-  residual phase 3 and the cleanup/resume repair, then commit each separately
-  if green; (3) implement and independently review residual phase 4 before the
-  deferred long local pricing gate; (4) keep polling the ATLAS target by
-  terminal status only; and (5) advance the Week 1 operations checklist,
-  beginning with a cleanup verify-only dry run after its patch is durable. Do
-  not run residual cloud/historical scoring, start a second heavy chain,
-  inspect partial ATLAS scientific artifacts, delete forensic data, resume
-  schedulers or change the money policy yet.
+- Exact next actions: (1) commit/push the independently green cleanup/resume
+  patch and this handoff; (2) finish the two narrow residual phase-3 repairs,
+  rerun its frozen short gates and obtain a new independent re-review; (3)
+  implement and independently review residual phase 4 before the deferred long
+  local pricing gate; (4) keep polling the ATLAS target by terminal status
+  only; and (5) perform the cleanup verify-only live dry run after its patch is
+  durable, then advance the remaining Week 1 operations checklist. Do not run
+  residual cloud/historical scoring, start a second heavy chain, inspect
+  partial ATLAS scientific artifacts, delete forensic data, resume schedulers
+  or change the money policy yet.
 
 ## Prior state — 2026-08-17 20:29 CDT
 
