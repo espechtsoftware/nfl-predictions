@@ -20,17 +20,24 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 22:25 CDT
+## Current state — 2026-08-17 22:38 CDT
 
 ### Production readiness is now a separate lane; residual phase 1 is durable
 
-- Branch is `main`. The latest pushed code checkpoint is `38442b0`
-  (`Add score-free residual column-generation core`), preceded by the
-  independently reviewed residual `RunContext` at `c63aa0d`. The worktree
-  currently contains only the intended, uncommitted residual phase-2 edits in
-  `src/nfl_dfs/research/residual_world_columns.py` and
-  `tests/test_residual_world_columns.py`, plus operator-supplied untracked
-  reports/cloud receipts that must not be staged implicitly.
+- Branch is `main`. The latest pushed checkpoint is `79a4d58`
+  (`Add selected-book tail calibration audit`), with residual phase 2 already
+  durable at `a8c87d9` and the Week 1 operations blockers recorded at
+  `dceda64`. The worktree contains two deliberate, separate uncommitted sets:
+  residual phase 3 in `src/nfl_dfs/research/residual_world_columns.py` and
+  `tests/test_residual_world_dose_harness.py`; and the local P0 forensic
+  cleanup/resume repair in `README.md`,
+  `scripts/cleanup_final_forensic_warehouse.py`,
+  `scripts/resume_2026_production_schedulers.py`,
+  `tests/test_final_forensic_cleanup.py`, and
+  `tests/test_resume_2026_production_schedulers.py`. The selected-book result
+  and its durable interpretation are also uncommitted pending this checkpoint.
+  Operator-supplied untracked reports/cloud receipts must not be staged
+  implicitly.
 
 - Residual phase 1 is score-free and does not license a cloud run, historical
   score, 2026 outcome read or production change. It durably includes the
@@ -137,6 +144,57 @@ agent or developer:
   asserting the production constant is exactly 10,000. Commit this frozen code
   before executing the real report exactly once.
 
+- The frozen selected-book calibration audit was then executed exactly once.
+  Its canonical result is
+  `reports/book-tail-calibration-runs/20260817-selected-book-tail-calibration-v1/report.json`,
+  SHA-256
+  `d3ca53303e195e66a6e476bfab830b4246595a1151a6d61054621a42fe78b628`;
+  the readable interpretation is
+  `reports/2026-08-17-selected-book-tail-calibration-result.md`. Across the 54
+  corrected slates, realized/expected threshold counts were 17/16.01 at 187,
+  8/10.26 at 194, 7/6.53 at 200 and 6/2.76 at 210. Brier skills were +0.0435,
+  +0.0092, +0.0221 and -0.0219; every 95% interval crossed zero. ROC AUC point
+  estimates were 0.571, 0.630, 0.635 and 0.670, but every interval crossed
+  0.5. Simulated q95/q99 selected-book maxima had Pearson/Spearman association
+  only about 0.16--0.17, with every interval crossing zero. An independent
+  stdlib-only implementation matched every aggregate and by-season point
+  metric with zero mismatches (maximum absolute delta `4.44e-16`), verified
+  all 54 cells/594 book receipts/50,000-world counts and confirmed every
+  bootstrap finite-plus-undefined count equals 10,000. The evidence is
+  weak/mixed: it does not establish reliable calibration or discrimination,
+  but it also does not support a literal zero-signal conclusion. Keep
+  simulated coverage as a weak diagnostic/ranking input, never the sole gate;
+  prioritize upstream marginal/dependence calibration, a separately frozen
+  same-context arm-transport estimand and prospective 2026 collection. This
+  result licenses no fit, tuning, arm promotion, production change or
+  permanent closure, and the money policy remains unchanged.
+
+- Residual phase 3 is locally green and paused for independent static review.
+  Source SHA-256 is
+  `1879a5d191c94e1687b76b0805332d2840e02414c363f7f73b51db79eef7ca6e`;
+  dose-test SHA-256 is
+  `e5f3f95e51e66409b3b34fe4840195ac3b47b3babb669d3422181959b18be537`.
+  It preserves native `B_s >= 88` and independently rebuilds final fold,
+  exact-active-world quota/order, exact-80 book, pricing objective/indicator/
+  residual/rank/ambiguity/admissibility, cross-score parity, pruning and proof
+  artifact identities at serialization. Serialized score-free validation
+  passed 26/26 dose cases, 27/27 proof-hardening cases and the exact frozen
+  90/90 short-core selection, plus compile/diff checks. The heavy pricing
+  cases, cloud and historical outcomes were not run; do not begin phase 4 or
+  commit phase 3 until its independent review is green.
+
+- The local P0 cleanup/resume repair now requires both frozen forensic
+  manifests, an exact eight-table pre-cleanup union, schema/metadata/expiry
+  parity, an empty isolation dataset after deletion and an immutable aggregate
+  receipt. Resume also requires byte-identical receipt content locally, at
+  `HEAD` and `origin/main`, then validates all 27 scheduler states, names,
+  cadences, timezones, POST/OAuth identities and Cloud Run v2 targets before
+  mutation. Focused tests pass 22/22, deployment-contract parity is 27/27 and
+  compile/diff checks pass. No live cleanup or scheduler resume occurred. The
+  patch is awaiting an independent static review before commit; even after a
+  green code review, perform a live verify-only dry run before deletion and do
+  not resume until the tracked cleanup receipt is committed and pushed.
+
 - Adopt the process-health recommendations in a bounded form. Production
   readiness and research are separate queues. Pure build/transport failures
   receive standardized append-only incident receipts rather than a new
@@ -184,21 +242,23 @@ agent or developer:
   execution failed before model work on a prefix/output-identity transport
   mismatch. The original target execution
   `atlas-md-s2023-w7-r6-9pxdt` remains genuinely running
-  (`Completed=Unknown`, `runningCount=1`) through the 21:28 CDT terminal-only
+  (`Completed=Unknown`, `runningCount=1`) through the 22:38 CDT terminal-only
   poll and must not be cancelled, duplicated or opened. The prospective
   transport amendment/validator at commit `71962ab` remains frozen; apply its
   unique replacement-proof branch only if the original target's terminal
   disposition and queue state license it. No ATLAS partial shard body,
   treatment effect or score has been inspected.
 
-- Exact next actions: (1) commit this independently green residual phase-2
-  checkpoint; (2) implement phases 3 and 4 with separate stable reviews; (3)
-  keep polling the ATLAS target by terminal status only; (4) independently
-  review and then run the already-frozen, non-duplicative book-level surrogate
-  calibration audit before any new historical arm; and (5) advance the Week 1
-  operations checklist on its own schedule. Do not run the residual
-  cloud/historical path, start a second heavy chain, inspect partial ATLAS
-  scientific artifacts or change the money policy.
+- Exact next actions: (1) commit/push the independently reproduced
+  selected-book result and this handoff; (2) finish independent reviews of
+  residual phase 3 and the cleanup/resume repair, then commit each separately
+  if green; (3) implement and independently review residual phase 4 before the
+  deferred long local pricing gate; (4) keep polling the ATLAS target by
+  terminal status only; and (5) advance the Week 1 operations checklist,
+  beginning with a cleanup verify-only dry run after its patch is durable. Do
+  not run residual cloud/historical scoring, start a second heavy chain,
+  inspect partial ATLAS scientific artifacts, delete forensic data, resume
+  schedulers or change the money policy yet.
 
 ## Prior state — 2026-08-17 20:29 CDT
 
