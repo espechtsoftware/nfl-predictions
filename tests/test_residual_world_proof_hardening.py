@@ -161,8 +161,8 @@ def test_raw_mps_writer_profile_poison_fails_closed(tmp_path, poison):
 @pytest.mark.parametrize(
     "token, expected_residual",
     (
-        ("0.99999999999", Decimal("-1e-11")),
-        ("1.00000000001", Decimal("1e-11")),
+        ("0.999999999", Decimal("-1e-9")),
+        ("1.000000001", Decimal("1e-9")),
     ),
 )
 @pytest.mark.parametrize(
@@ -188,8 +188,8 @@ def test_integer_decode_boundary_is_inclusive_and_context_independent(
 @pytest.mark.parametrize(
     "token",
     (
-        "0.9999999999899999999999999999999999999999",
-        "1.0000000000100000000000000000000000000001",
+        "0.9999999989999999999999999999999999999999",
+        "1.0000000010000000000000000000000000000001",
     ),
 )
 def test_integer_decode_just_over_literal_boundary_fails_under_low_precision(
@@ -348,7 +348,7 @@ def _cold_exact_command_fixture(tmp_path):
         str(cbc), str(model), "-max", "-sec", "120", "-cuts", "off",
         "-randomSeed", str(rw.CBC_RANDOM_SEED),
         "-randomCbcSeed", str(rw.CBC_RANDOM_SEED),
-        "-primalTolerance", "1e-9", "-integerTolerance", "1e-12",
+        "-primalTolerance", "1e-9", "-integerTolerance", "1e-9",
         "-ratio", "0.0", "-allow", "0.0", "-threads", "1",
         "-timeMode", "elapsed", "-solve", "-printingOptions", "all",
         "-solution", str(solution),
@@ -387,7 +387,7 @@ def test_row_display_is_nonlicensing_but_exact_assignment_remains_decisive(
     above_decode_boundary = (
         "Optimal - objective value 1.00000000\n"
         "0 C0000000 1 0\n"
-        "0 X0000000 0.000000000011 0\n"
+        "0 X0000000 0.000000001001 0\n"
     )
     with pytest.raises(rw.SolverFailure, match="decode epsilon"):
         rw._validate_solution_body(

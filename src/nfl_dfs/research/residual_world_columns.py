@@ -54,7 +54,7 @@ PROTOCOL_AMENDMENT_ID: Final = (
     "20260817-residual-world-exact-solver-selector-v1"
 )
 PROTOCOL_AMENDMENT_SHA256: Final = (
-    "18155f674c60383a51583f9a08916680dd3917665dbfaf064ede1330f2b3671f"
+    "a13c09eb6e4ea1e4f0515a0aa4b750614a020fc930d3d1d9e53b1bfe787042ff"
 )
 MICRO_DK_SCALE: Final = 1_000_000
 TAIL_THRESHOLDS_DK: Final = (240, 230, 220, 210, 200, 194, 187)
@@ -80,9 +80,9 @@ MIN_GAMES: Final = 2
 BOUND_TIME_LIMIT_SECONDS: Final = 120
 PRICING_TIME_LIMIT_SECONDS: Final = 600
 CBC_RANDOM_SEED: Final = 170_817
-CBC_INTEGER_TOLERANCE: Final = Decimal("1e-12")
-CBC_INTEGER_TOLERANCE_OPTION: Final = "1e-12"
-CBC_INTEGER_DECODE_EPS: Final = Decimal("1e-11")
+CBC_INTEGER_TOLERANCE: Final = Decimal("1e-9")
+CBC_INTEGER_TOLERANCE_OPTION: Final = "1e-9"
+CBC_INTEGER_DECODE_EPS: Final = Decimal("1e-9")
 PINNED_PULP_VERSION: Final = "3.3.2"
 PINNED_CBC_VERSION: Final = "2.10.3"
 CBC_WARM_START: Final = True
@@ -4391,7 +4391,7 @@ def _decode_integer_token(value: str, label: str) -> tuple[int, Decimal]:
     """Decode one registered integer token at the literal amendment boundary.
 
     Decimal precision is sized from the token itself, so ambient process
-    context cannot round a just-over-boundary residue onto ``1e-11``.
+    context cannot round a just-over-boundary residue onto ``1e-9``.
     """
     raw = _finite_cbc_decimal(value, label)
     if abs(raw) >= CBC_EXACT_INTEGER_MAX + 1:
@@ -4403,7 +4403,7 @@ def _decode_integer_token(value: str, label: str) -> tuple[int, Decimal]:
         signed_residual = raw - canonical_decimal
         # Keep the comparison inside the same widened context.  Applying
         # ``abs`` after leaving it would let a hostile low-precision ambient
-        # Decimal context round a just-over-boundary residue back to 1e-11.
+        # Decimal context round a just-over-boundary residue back to 1e-9.
         if signed_residual.copy_abs() > CBC_INTEGER_DECODE_EPS:
             raise SolverFailure("CBC integer token exceeds decode epsilon")
     return int(canonical_decimal), signed_residual

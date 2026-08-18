@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-18 01:34 CDT
+## Current state — 2026-08-18 01:52 CDT
 
 ### Production readiness is now a separate lane; residual phase 1 is durable
 
@@ -280,6 +280,54 @@ agent or developer:
   `integerTolerance=decode epsilon=1e-9` repair (or a fixed-canonical polish)
   before changing the proof law again. Residual cloud/historical execution
   remains unlicensed; this result is numerical evidence, not a score result.
+
+- `reports/2026-08-18-recent-failure-review.md` is directionally useful but
+  overstates two conclusions. It is correct that CBC row-display drift is
+  nonlicensing, that the Week 1 cleanup finding was an audit success and that
+  contest-fill/ownership/payout collection is urgent. Its claim that
+  `integerTolerance=1e-12` is logically incoherent is too strong: CBC treats
+  integer and primal residuals separately, although CBC 2.10.3 explicitly
+  cautions against integer tolerance below primal tolerance. Its claim that
+  tightening would force clean solution tokens is false: the authorized rerun
+  logged `integerTolerance=1e-12` yet reproduced a byte-identical solution and
+  the exact same `9.0315311e-11` token. Two independent CBC-source reviews
+  support one final coherent numerical contract: primal tolerance, integer
+  tolerance and inclusive raw-token decoder all exactly `1e-9`, followed by
+  zero-tolerance canonical MPS domain/bound/row/objective reconstruction. This
+  proves the canonical incumbent feasible with the exact integer objective;
+  CBC's global search remains numerical rather than a formal rational
+  optimality certificate.
+
+- The review's 194-over/210-under pattern is a useful shoulder-versus-tail
+  hypothesis, not “decisive independent convergence.” The calibration book
+  used finite-K plus SIS-ASOE Phase-S worlds, the quoted dependence diagnostic
+  used finite-K with ASOE disabled and production uses multinomial allocation.
+  Both diagnostics reuse the same historical slates/outcomes; 194 and 210 are
+  nested, with only 8/6 events, and the naive one-sided Poisson tail for six
+  events versus 2.76 expected is about 0.062 before threshold multiplicity.
+  Queue a same-law production remeasurement with mutually exclusive score
+  bins and the dependence scorecard on those exact worlds, then collect it
+  prospectively in 2026; do not reframe the existing result as a confirmed
+  production-law defect.
+
+- Final tolerance repair #2 is prospectively frozen and independently GREEN.
+  Amendment SHA-256 is
+  `a13c09eb6e4ea1e4f0515a0aa4b750614a020fc930d3d1d9e53b1bfe787042ff`;
+  residual source is
+  `0b595ba5e49b6895ef04bc6d97290e363dac924100805a90b0270b842dcf8bb0`;
+  RunContext source is
+  `aaf278e351d605e3df3e2b5fdad57198c4bba78aaff49fcf1ba452c5ed98f302`;
+  core/proof/context tests are `43c5af97...` / `9b2bb775...` /
+  `80958355...`, with dose tests unchanged at `e95ca8e...`. The amendment
+  freezes primal/integer/decode at `1e-9`, explicitly exhausts the tolerance
+  repair budget and makes any future token beyond `1e-9` terminal with no
+  retry, sweep, alternate branch, further widening or amendment. Serialized
+  validation passed 11/11 focused boundary/parser, 3/3 focused actual CBC,
+  56/56 RunContext, 28/28 proof, 31/31 dose and exact frozen short core 90/90,
+  plus compile/diff checks. Independent review found exact option/receipt/hash
+  propagation, inclusive hostile-Decimal boundary coverage and no fallback
+  path. Commit/push, then run the complete five-case local score-free gate one
+  final time under this exact contract. Preserve both prior evidence roots.
 
 - The P0 cleanup/resume repair pushed at `029581e` is independently GREEN. It
   requires both frozen forensic

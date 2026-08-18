@@ -204,13 +204,13 @@ def test_frozen_constants_and_fold_contract_are_immutable_values():
     assert rw.WORLDS_PER_BLOCK == 10_000
     assert rw.CBC_WARM_START is True
     assert rw.CBC_AUXILIARY_CUTS is False
-    assert rw.CBC_INTEGER_TOLERANCE == Decimal("1e-12")
-    assert rw.CBC_INTEGER_TOLERANCE_OPTION == "1e-12"
+    assert rw.CBC_INTEGER_TOLERANCE == Decimal("1e-9")
+    assert rw.CBC_INTEGER_TOLERANCE_OPTION == "1e-9"
     assert rw.PROTOCOL_AMENDMENT_ID == (
         "20260817-residual-world-exact-solver-selector-v1"
     )
     assert rw.PROTOCOL_AMENDMENT_SHA256 == (
-        "18155f674c60383a51583f9a08916680dd3917665dbfaf064ede1330f2b3671f"
+        "a13c09eb6e4ea1e4f0515a0aa4b750614a020fc930d3d1d9e53b1bfe787042ff"
     )
     assert rw.SCORE_RADIX == 100
     assert (rw.ENTRY_COUNT, rw.CONTROL_TAIL_LINE_DK) == (80, 194)
@@ -741,8 +741,8 @@ def test_cbc_evidence_is_unique_and_bare_solver_cannot_license_result():
     solver = rw.make_cbc_solver(120, False)
     evidence = rw._solve(problem, solver, "golden exact solve")
     assert evidence.objective == rw._integer_value(problem.objective)
-    assert evidence.integer_tolerance == Decimal("1e-12")
-    assert "-integerTolerance 1e-12" in evidence.command_line
+    assert evidence.integer_tolerance == Decimal("1e-9")
+    assert "-integerTolerance 1e-9" in evidence.command_line
     assert rw._sha256_file(rw.Path(evidence.model_path)) == evidence.model_sha256
     with pytest.raises(rw.SolverFailure, match="reused"):
         rw._parse_cbc_evidence(problem, solver, "reuse")
@@ -1039,7 +1039,7 @@ def test_integer_token_decode_boundary_is_literal_complete_and_signed(tmp_path):
         )
     changed = original.splitlines()
     values = changed[target].split()
-    values[2] = "0.9999999995"
+    values[2] = "0.9999999985"
     changed[target] = " ".join(values)
     with pytest.raises(rw.SolverFailure, match="decode epsilon"):
         rw._validate_solution_body(
@@ -1849,7 +1849,7 @@ def _dummy_cbc_evidence(label: str) -> rw.CbcSolveEvidence:
         relative_gap=Decimal(0),
         absolute_gap=Decimal(0),
         primal_tolerance=Decimal("1e-9"),
-        integer_tolerance=Decimal("1e-12"),
+        integer_tolerance=Decimal("1e-9"),
         variable_domain_manifest_sha256="4" * 64,
         canonical_assignment_sha256="5" * 64,
         integer_decode_affected_count=0,

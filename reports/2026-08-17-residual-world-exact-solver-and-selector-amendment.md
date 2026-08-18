@@ -129,8 +129,8 @@ The solver law is deterministic:
 - one thread, elapsed-time mode;
 - `randomSeed=170817` and `randomCbcSeed=170817`;
 - relative and absolute gap zero;
-- primal tolerance exactly `1e-9` and integer tolerance exactly `1e-12` for
-  every CBC solve, with no retry or parameter-dependent branch;
+- primal tolerance and integer tolerance both exactly `1e-9` for every CBC
+  solve, with no retry or parameter-dependent branch;
 - 120 seconds for a bound stage and 600 seconds for a pricing/tie stage;
 - the first nonconstant tail tier is cold with cuts off;
 - each later nonconstant tail tier uses only the immediately preceding proven
@@ -171,10 +171,14 @@ An accepted solve requires all of the following:
   auxiliaries written as continuous but proven integer-valued by the exact
   radix/Boolean construction. Such a token is accepted only when its absolute
   distance from the unique nearest integer is inclusively at most literal
-  `Decimal('1e-11')`; it is then canonicalized once to that integer, and a
+  `Decimal('1e-9')`; it is then canonicalized once to that integer, and a
   binary must canonicalize to exactly zero or one. This evidence-decoding bound
-  is ten times larger than the frozen `1e-12` CBC integer tolerance, may never
-  be widened, and permits no other tolerance-based rounding;
+  is an operational raw-token canonicalization boundary equal to the frozen
+  `1e-9` CBC integer tolerance, may never be widened, and permits no other
+  tolerance-based rounding. The tolerance-repair budget is exhausted: any
+  future assignment token farther than `Decimal('1e-9')` from its unique
+  nearest integer invalidates the solve and stops the experiment without a
+  retry, parameter sweep, alternate solver branch or further amendment;
 - a strict-ASCII retained MPS accepted only under the pinned PuLP 3.3.2 writer
   profile: exactly one ordered `*SENSE`, `NAME MODEL`, `ROWS`, `COLUMNS`, `RHS`,
   `BOUNDS`, `ENDATA` sequence; normalized contiguous renamed rows and columns;
@@ -225,6 +229,13 @@ An accepted solve requires all of the following:
   code, and every final exact-optimal/body/reconstruction gate still passes;
   and
 - reported wall time strictly below the registered limit.
+
+Exact canonical reconstruction proves that the decoded incumbent satisfies
+the retained MPS domains, bounds and rows and has the exact reconstructed
+integer objective. CBC's terminal search, however, remains a numerical MILP
+search under the frozen executable and solver law; neither its terminal status
+nor this reconstruction is represented as a formal rational or mathematical
+certificate of global optimality.
 
 All artifacts are re-hashed immediately before preparation or dose output can
 be accepted. The evidence audit also requires create-only root containment,

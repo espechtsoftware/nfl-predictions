@@ -30,7 +30,7 @@ PROTOCOL_SHA256: Final = (
 )
 AMENDMENT_ID: Final = "20260817-residual-world-exact-solver-selector-v1"
 AMENDMENT_SHA256: Final = (
-    "18155f674c60383a51583f9a08916680dd3917665dbfaf064ede1330f2b3671f"
+    "a13c09eb6e4ea1e4f0515a0aa4b750614a020fc930d3d1d9e53b1bfe787042ff"
 )
 
 PULP_VERSION: Final = "3.3.2"
