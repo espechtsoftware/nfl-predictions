@@ -166,6 +166,32 @@ agent or developer:
   unaffected. NEW Week-1 lane task: an entry-export step reading the
   week's frozen 20-membership into the DK upload (small; must exist before
   Week 1; never touches the money book).
+- **Coherent chain OPEN and rolling (17:30-17:36Z).** The interaction-parity
+  cell completed after ~4.5h; the strict finisher harvested clean (RC=0).
+  Verdict: completion `status=True`, `disposition=real-slate-parity-fails`
+  — the continuous formulation does NOT reproduce the binary 40 exactly on
+  2024-W15-R0, so the continuous-interaction fallback remains closed
+  (consistent with the ATLAS MVP disposition; no further attempts). The
+  score-free queue gate opened on the valid closure as designed; real-path
+  canary `coherent-state-s2023-w1-v1-dqrpm` PASSED at 17:36Z and the
+  watcher is deploying the remaining 53 shard jobs. Expected: strict
+  54-shard harvest tonight, then the historical scorer, then dependence
+  watcher `1273069` resumes.
+- **Offseason selection decisions (operator, evening).** Reviewed
+  `reports/2026-08-18-offseason-selection-ideas-toward-194.md` (external
+  session; numbers verified against the frozen forensic result; A1's
+  submodularity claim checked and correct). Recorded decisions: (1)
+  **utility u = sparse threshold ladder** emphasizing >=194 with meaningful
+  210+/220+ weight and a hard predeclared no-decline guard at 210+; (2)
+  **the Ring A/B one-shot offseason family is AUTHORIZED** — one
+  preregistered family (A1+A4; B2 conditional on B1 >= ~190; B3), frozen
+  variants/utility/hashes before the first aggregate, zero analysis
+  reruns, McNemar + LOSO + full-grid reporting, decision-support-for-2026
+  labeling only. Review corrections imposed: **B1 must carry an
+  order-statistic null** (K-random-replica union curve) before its number
+  is read; A5 is S6 (already queued); A2/A4 fold into A1's single family.
+  Immediate design-lane order: A3 greedy optimality-gap audit (score-free)
+  and B1-with-null census first, then S1, then the authorized family.
 - Exact next actions: (1) local `--smoke` of one cell (2023 W1) AFTER the
   background full suite finishes — never two heavy local processes; a
   reproduction failure there is a halt-and-disposition, not a retry; (2)
