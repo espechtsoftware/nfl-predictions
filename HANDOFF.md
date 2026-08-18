@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 21:55 CDT
+## Current state — 2026-08-17 22:05 CDT
 
 ### Production readiness is now a separate lane; residual phase 1 is durable
 
@@ -129,6 +129,29 @@ agent or developer:
   polling, post-settlement complete standings/payout/entry-history capture and
   backup verification. `dk_contest_fills` remains the key empty/unscheduled
   prospective evidence gap.
+
+- A 2026-08-17 read-only Week 1 operations audit found a P0 cleanup/resume
+  defect; do **not** resume the 27 paused production schedulers yet. The
+  isolation dataset currently contains both the original four
+  `final_forensic_20260814_*` tables and four authoritative `_repair4` tables,
+  while `cleanup_final_forensic_warehouse.py` and
+  `resume_2026_production_schedulers.py` accept and verify only one four-table
+  manifest. The current flow could therefore delete the originals, leave the
+  repaired forensic corpus live and still resume. Fix this with an exact
+  aggregate two-manifest inventory/zero-after-cleanup receipt and verify every
+  scheduler's state, cadence, timezone and target URI before resume. The same
+  audit found that cross-environment CBWU/image/code/policy attestation remains
+  incomplete; several non-odds jobs still carry unused literal
+  `ODDS_API_KEY` environment values that must be removed and the provider key
+  rotated if those values are live. The weekly FP/SIS/Odds orchestrator and
+  backups are otherwise substantially ready. Projected-ownership row capture
+  is still only a DOM-inventory protocol; `dk_contest_fills` is implemented but
+  empty and has no deployed job/schedule; exact UI-preview-to-DKEntries export
+  is not yet guaranteed; and declarative `contest_entries`/per-entry payout
+  history storage is missing. Address the cleanup/attestation/secret P0 items
+  first, then implement and exercise the ownership, exact DKEntries, contest
+  fill, standings/duplication/payout and backup path before or on the first
+  live slate.
 
 - ATLAS repair6 remains the only active historical/heavy chain. The proof
   execution failed before model work on a prefix/output-identity transport
