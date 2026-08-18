@@ -20,7 +20,199 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 15:56 CDT
+## Current state — 2026-08-17 20:29 CDT
+
+### Extreme-tail review implementation is at the final score-free proof boundary
+
+- Branch is `main`; the last pushed commit is
+  `71962ab` (the frozen ATLAS proof-transport protocol and offline validator).
+  The residual-world implementation
+  is deliberately still uncommitted while its exact CBC evidence contract is
+  completing independent review. Do not discard the current worktree. The
+  intended milestone files are
+  `src/nfl_dfs/optimizer/lineup.py`,
+  `src/nfl_dfs/research/residual_world_columns.py`,
+  `tests/test_shared_lineup_constraints.py`,
+  `tests/test_residual_world_columns.py`,
+  `tests/test_residual_world_dose_harness.py`, and
+  `reports/2026-08-17-residual-world-exact-solver-and-selector-amendment.md`.
+  Numerous other untracked `reports/*.md` files are operator-supplied review
+  documents and must not be staged implicitly.
+
+- The recommendations in
+  `reports/2026-08-17-extreme-tail-system-review-and-recommendations.md`
+  remain accepted selectively as recorded in the committed reconciliation.
+  The new residual-world mechanism is a construction experiment, not another
+  selector sweep: it prices the next legal lineup by its marginal improvement
+  over the current exact-80 book in still-uncovered production-law worlds,
+  with the frozen `240 -> 230 -> 220 -> 210 -> 200 -> 194 -> 187`
+  lexicographic utility, two held-out cross-fit folds, exact fixed budgets,
+  complete no-good cuts, deterministic pruning and stop-at-first-null through
+  `K_max=8`. It has not been joined to a historical result or a 2026 outcome.
+
+- Production Classic feasibility has been extracted into the shared
+  `add_classic_lineup_constraints` adder while retaining the ordinary
+  optimizer's historical constraint order and literal CBC invocation. The
+  pre-refactor fixture corpus and 75 shared-domain parity cases pass, including
+  the one-game/missing-game legacy edges; research keeps an independent
+  post-solve legality audit and fails closed on malformed catalogs.
+
+- The pure residual solver and fixed-dose harness now implement the direct
+  production selector call (`N=80`, line `194`, `SELECT_LSE=0`), immutable
+  96-world reservoirs and exact 66-world active sets, selected-book rather
+  than candidate-pool maxima, complete original-control plus prior-column
+  no-goods, raw-float32 selector totals separated from exact micro-DK MILP
+  totals, generated-column cross-scoring over all 50,000 named worlds, exact
+  replacement budget and first-null semantics. Scientific payloads carry
+  literal-false `uses_realized_outcomes`, `production_change_licensed`, and
+  `historical_scoring_licensed` flags.
+
+- Exact-solver review found that PuLP 3.3.2 can label stopped or gap-tolerance
+  CBC incumbents `Optimal`, and that CBC's `**` solution marker denotes a real
+  row/column bound violation. The implementation therefore retains and
+  re-hashes unique MPS, MIP-start, log and solution artifacts; requires exact
+  terminal log/solution grammar, frozen zero-gap single-thread options and
+  independently reconstructed scientific objectives/constraints; rejects
+  every `**`; never uses an infeasible solve as uniqueness proof; and performs
+  an always-feasible overlap ambiguity solve plus deterministic incidence
+  chunks. Evidence directories and artifacts are create-only, exact-inventory
+  checked, symlink-rejected and revalidated immediately before a dose result
+  can escape.
+
+- Tight per-world legal bounds now use a small-coefficient base-100
+  digit/carry formulation after a Horner equality exposed a genuine one-micro
+  CBC feasibility error. Pricing keeps the proven binary tail face, uses exact
+  binary positive-part comparators, fixed MSB-first residual/incidence chunks,
+  complete warm starts where CBC otherwise falsely reported infeasibility,
+  and solver-free handling only for structurally forced-zero chunks. The
+  widened 19-player/four-world brute-force fixture matches in both player-row
+  orders and is marker-free, but one pricing call consumed roughly 425--459
+  cumulative CBC wall-seconds across its proof solves. That is a material
+  resource/canary gate, not launch-ready evidence.
+
+- The dedicated dose-harness suite covers null, positive-then-null and all
+  eight-dose mechanics, falling selected-book maxima, malformed selector and
+  active-world receipts, held-out-score decision firewalls, illegal controls,
+  direct selector/pricer calls, full no-good lists, aggregate float/raw/micro
+  parity receipts, evidence mutations, and two-process scientific identity.
+  At this checkpoint the harness is green; a serialized final combined run,
+  amendment-hash binding, independent stable-source conformance review,
+  implementation report, `git diff --check`, and adjacent repository suite
+  remain before commit.
+
+- The current read-only audit checkpoint is source SHA-256
+  `bdce4279cbb4e6daa17fd35c1b3aa3cc1d845647254f5eb7384e4fc525758600`,
+  core-test SHA-256
+  `d6dad51e5ee67a3c5aafc1aa30ca4539c05477a5a5a58d88a3309295e5000e8e`,
+  dose-test SHA-256
+  `0a50f2b2b2caa27b2a0f2b4b50d2793d2e613f8e19fb9859d8719bc260714089`,
+  and shared-parity-test SHA-256
+  `3a7edb677abfc014b86dc85ca670925f47ed35b4f382c4ca7efbe5ae0f62da5d`.
+  Serialized gates at that checkpoint are 85/85 short core, 19/19 dose
+  harness, and 75/75 shared production-constraint parity, plus Python compile
+  and diff checks. It is not final: retained MPS coefficients/RHS/senses and
+  the zero objective constant still must be compared exactly back to the
+  in-memory PuLP model so a writer-rounded but internally self-consistent MPS
+  cannot be accepted. Two independent static reviews are running before that
+  correction and the long exact-pricing test.
+
+- An independent read-only audit of interim source SHA-256
+  `e6b9554a875b06e679bb1c9ae07fafa2c136e2c8d5313077a68a04c5140a719e`
+  found four pre-commit proof blockers. `_cbc_scientific_receipt` constructed
+  but did not return its payload, so scientific solver receipts collapsed to
+  `null`; pricing receipts were not yet compared with independently rebuilt
+  expected MPS hashes; retained solution assignments were not yet checked
+  against every registered MPS bound/integrality/row relation; and final dose
+  serialization trusted several stored step/manifest hashes instead of
+  recomputing them. These findings invalidate no result because no real-slate
+  treatment/output exists. They must receive focused poison tests, a new
+  stable-source audit and green serialized validation before this work may be
+  committed. The amendment hash in code now binds the final frozen value while
+  those corrections undergo serialized validation. The frozen amended document SHA-256 is
+  `ab155cbb91347f6768b7081729cc7b64346267a1f59e523903729ea63a322d14`;
+  final validation must verify that exact binding.
+
+- The strict retained-MPS follow-up is now durable in
+  `reports/2026-08-17-residual-world-mps-proof-parser-review.md`, SHA-256
+  `9e0d07ed0cb2b82a5155316c9382de0dea4ebdab568ee08a788f9141326dadd2`.
+  It rejects a same-library PuLP `fromMPS` round trip as insufficiently
+  independent, freezes the exact PuLP-writer section/marker/RHS/bound profile,
+  decodes only registered integral/implied-integral solution tokens within the
+  literal inclusive `1e-11` nearest-integer boundary and then requires exact
+  Python-integer reconstruction of every bound/row/objective, treats CBC's
+  eight-significant-digit activities as display evidence only, binds the
+  renamed/scientific/domain bijection, and caps executed-model arithmetic below
+  `2^53`. Its complete poison matrix must pass before the core is accepted.
+
+- No residual-world cloud launch is licensed by this local core. Before a
+  real slate can run, freeze the execution/aggregation law (RNG ordering,
+  endpoint, bootstrap/CI and stability rules), implement immutable source
+  locks plus a 54-slate/108-fold runner/harvester, package and receipt the
+  pinned PuLP/CBC binary, use a dedicated GCS-only service account with no
+  BigQuery permissions, integrate the shared heavy lease into every possible
+  launcher, and pass two full 2023 Week 1 canaries within the declared
+  resource envelope. Historical scoring remains a later, separately licensed
+  step.
+
+- ATLAS repair6 remains the sole active historical/heavy chain. The repair5
+  terminal census completed with exactly 53 successful primaries and the one
+  known zero-object 2023 Week 7 identity-tie failure (`54` total). The frozen
+  classifier declared `repair6-dual-canary-licensed` with exactly one eligible
+  repair cell and no ineligible cells. It launched target execution
+  `atlas-md-s2023-w7-r6-9pxdt` and unchanged-slate proof execution
+  `atlas-md-s2023-w1-r6-proof-m6ctm`. The proof execution terminal-failed at
+  `2026-08-18T01:10:39Z` before model work because the rendered runner was
+  bound to the main repair6 prefix while its dedicated proof URI used the
+  `-proof` prefix; the only inspected error is
+  `ATLAS MVP shard season/week/output identity differs`. The target defect
+  canary remains nonterminal and must not be cancelled or duplicated. The
+  active frozen watcher will close repair6 and release parity only after the
+  target reaches terminal state. A separately frozen transport-only repair is
+  required; no retry is licensed yet. The repair must also replace the
+  impossible raw-byte proof gate: repair5 and repair6 correctly serialize
+  different `code_sha` and `analysis_image` provenance, so their raw objects
+  cannot be identical. The frozen replacement should use a unique proof job,
+  execution and prefix with `render(new_proof_prefix)`, retain and validate the
+  failed original proof receipt, and compare the complete opaque suffix after
+  removing only the exact canonical leading `analysis_image` and `code_sha`
+  bytes. It must not parse or report slate fields. This prospective rule should
+  reuse `atlas-md-s2023-w7-r6-9pxdt` if and only if that original target succeeds
+  with its exact execution contract and one create-only object; it must never
+  rerun a successful target. No shard body, treatment effect or
+  partial score has been opened. The watcher also has a fail-closed status
+  parsing defect: a fresh execution with no returned Completed status can be
+  counted as failed. The first transient occurrence did not close the queue
+  because another execution remained `Unknown`; future watcher code must map a
+  missing/empty Completed condition to `Unknown`, reject duplicate/unexpected
+  states, and never use a wildcard terminal-failure branch. The repair
+  protocol was frozen before the target terminal disposition at
+  `reports/2026-08-17-atlas-repair6-proof-transport-v1.md`, SHA-256
+  `23bf6bc88c46d18205360910e2e8875621d0201df70022f05d36893240115e29`.
+  Its offline-only validator is now implemented at
+  `src/nfl_dfs/research/atlas_repair6_proof_transport.py` (SHA-256
+  `e01ca8a558dde45692c698058e66830733ee0cfd5ba1af921fd0f78f6de75f42`)
+  with 10 focused passing tests in
+  `tests/test_atlas_repair6_proof_transport.py` (SHA-256
+  `2f65dde16a831ded137b78b8ada9c7f47694ec446b9c10f53b7a128cbb4a6b92`).
+  It performs no network, cloud, JSON decoding or launch. A versioned launcher,
+  finisher, hybrid-v2 receipt and historical rebind remain gated on the final
+  immutable target/closure/parity state.
+  The immutable repair6 code/build/image identities remain
+  `061767492628fccf0c9058fa8e1d41acb5fd55dc`,
+  `6b1331f1-8a1a-4c1e-8703-4ccb0c0e751b`, and
+  `sha256:86b852e838f1ac685f40d8f0aed136337cdc5e230f38335076e45aaf24727487`.
+  Repair6, historical-v4 and constraint-lattice support remain serialized.
+
+- Exact next action: finish the strict independent retained-MPS parser and its
+  model/hash/scientific-payload poison tests; freeze the core source SHA;
+  perform final amendment/source conformance; run the serialized focused and adjacent validations;
+  write the implementation report; update this section with exact hashes and
+  test counts; commit and push only the intended score-free milestone. Keep
+  polling ATLAS by terminal status only. Do not launch residual worlds, inspect
+  ATLAS partial artifacts, score historical residual treatment, or start any
+  competing heavy job.
+
+## Prior state — 2026-08-17 15:56 CDT
 
 ### Extreme-tail prerequisites implemented and prospectively frozen while ATLAS continues
 
