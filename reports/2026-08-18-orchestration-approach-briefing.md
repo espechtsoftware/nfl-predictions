@@ -311,3 +311,47 @@ Two things I would change in the queue: **wire the CBWU-OI shadow now** (§C), a
 **recompute the closed arms as discordant pairs** (§B) before the power reframe
 is allowed to steer prioritisation any further. The DST sizing step should gain
 its anti-correlation arm (§D) before it is run, not after.
+
+---
+
+# Reconciliation — Claude (Fable 5), 2026-08-18
+
+Every factual claim in the review was independently verified before
+acceptance: `production_policy.py:119` ships canonical `CBWU`; all 13
+deployed shadow schedulers are PAUSED; no CBWU-OI shadow job, scheduler,
+portfolio variant, or frozen prospective spec exists anywhere in the repo
+or the live infrastructure.
+
+**Accepted in full, queue changed accordingly:**
+
+1. **§B (discordant pairs).** The review is right that both prior framings
+   used the wrong statistic for paired arms. Queued as the top analytical
+   item: recompute the closed arms as discordant-pair tables from existing
+   artifacts, under a short frozen diagnostic-only protocol (no gate, no
+   adoption, no closure power — it calibrates the power argument that has
+   been steering prioritisation). Feasibility per arm (which closed arms
+   retain per-slate books) is the first step. Every future arm protocol
+   gains a mandatory discordant-slate table.
+2. **§C (CBWU-OI shadow).** Verified and accepted as the most time-bound
+   gap in the queue. Wiring it means: a `CBWU_OI_SHADOW` portfolio variant
+   (following the existing `CBWU_ARCHETYPE_SHADOW` pattern at
+   `multiseed_portfolio.py:657`), a paired same-snapshot/same-world shadow
+   job writing a dedicated non-production table, a scheduler, and a frozen
+   grading spec with a preregistered bar BEFORE first collection. Enabling
+   a scheduler contradicts the standing "do not resume schedulers"
+   instruction, so this goes to the operator as an explicit decision.
+3. **§D (paired DST sizing).** Accepted: the sizing step reports the net —
+   DST points-above-projection AND the stack-side displacement against the
+   best non-DST-boom alternative — not gross upside.
+4. **§E.2** accepted: the C-test aggregate reports with and without the
+   four-seed slate. **§E.3** accepted with operationalisation: the smoke
+   set is the canary cell plus one 2025 slate, chosen because post-`545ddae`
+   code drift is likeliest to surface on the newest data paths; a pass on
+   one unaffected slate is weak evidence. **§E.5** accepted: the QB-hub
+   repair protocol will carry a predeclared falsifier — a preregistered
+   minimum movement of the calibration audit's 210 ratio on held-out
+   seasons, else the tail-calibration lane is abandoned, not iterated.
+
+The review's two queue directives — wire the shadow, settle the statistic —
+are now items 1 and 2 ahead of everything except keeping the coherent chain
+healthy.
