@@ -20,7 +20,118 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 20:29 CDT
+## Current state — 2026-08-17 21:35 CDT
+
+### Production readiness is now a separate lane; residual phase 1 is durable
+
+- Branch is `main`. The latest pushed code checkpoint is `38442b0`
+  (`Add score-free residual column-generation core`), preceded by the
+  independently reviewed residual `RunContext` at `c63aa0d`. The worktree
+  currently contains only the intended, uncommitted residual phase-2 edits in
+  `src/nfl_dfs/research/residual_world_columns.py` and
+  `tests/test_residual_world_columns.py`, plus operator-supplied untracked
+  reports/cloud receipts that must not be staged implicitly.
+
+- Residual phase 1 is score-free and does not license a cloud run, historical
+  score, 2026 outcome read or production change. It durably includes the
+  shared production Classic constraint adder, the direct unchanged exact-80
+  selector, immutable 96-world reservoirs/exact 66-world active sets,
+  complete no-goods, native first-null dosing through `K=8`, and the strict
+  retained CBC/MPS proof boundary. Its frozen source SHA-256 is
+  `eef053f916eb42331fc0d0483bca161fe3e720f37d4e9b7de04d9084f442c3d4`;
+  core-test SHA-256 is
+  `5ba033dc15f5841dd6b519b364f21850514fcc9fd236c9dd6276d7c044b2160d`;
+  proof-test SHA-256 is
+  `5edb03b25886685384661d93aed8a85bfa54cf92d1d005e8513b25ff5d1556ae`.
+  Serialized validation passed 27/27 pure proof-hardening tests, 86/86 short
+  core tests, 19/19 dose-harness tests and 75/75 shared-lineup parity tests,
+  plus compile and diff checks. The heavy exact-pricing fixture remains
+  deliberately deferred.
+
+- The frozen residual protocol/amendment SHA-256 values remain
+  `db02c7bb7994ea887ad32a935f3188bc78384c3c4b97a3dc712f3ffd2a8fc02a`
+  and
+  `ab155cbb91347f6768b7081729cc7b64346267a1f59e523903729ea63a322d14`.
+  The independently reviewed `RunContext` module SHA-256 is
+  `0ad6ed6f1e3d72af08cc62f14de62cab7e1f205d2a63997c3426d506a54ada8c`,
+  with 56/56 focused tests. It pins source/data/archive/image/runtime and exact
+  PuLP/CBC identities, retains literal-false license flags, and explicitly
+  leaves actual-byte attestation to a reviewed future launcher.
+
+- Residual phase 2 is paused at candidate source SHA-256
+  `be6de2d8daa72294e2e8208902b95c4c952e56060cd1471f7664ead93db8db0f`
+  after 3/3 focused warm/evidence tests, 27/27 proof-hardening tests and 87/87
+  short core tests passed. It revalidates and binds each warm start to the
+  immediately preceding retained canonical assignment. Independent review is
+  not yet green: raw PuLP `deepcopy()` drops the custom implied-integer
+  registry used by ambiguity/proof clones. Replace both raw clones with one
+  audited metadata-preserving clone helper and add a no-aliasing poison before
+  accepting phase 2. Phase 3 must then remove the hard-coded `B_s=88` result
+  assumption and independently rebuild all dose/pricing/book/parity/fold
+  identities at serialization. Phase 4 must structurally bind and recompute
+  the exact `RunContext`. Only after new short/static gates are green may the
+  long local pricing fixture run; residual cloud and historical scoring remain
+  separately unlicensed.
+
+- `reports/2026-08-17-process-health-assessment.md` identifies a real process
+  failure but overstates its central statistical claim. The quoted `+0.030`
+  was not a candidate-level simulator/outcome correlation: it was a
+  54-observation omitted-oracle rank/regret statistic from superseded panel
+  `20260805-hf5`, whose historical scorecard is non-citable after the PIT/DST
+  repairs. On the terminal current 54-slate CBWU forensic corpus, pooled
+  candidate Spearman correlations with actual score are approximately 0.216
+  for `p_line`, 0.237 for simulated mean and 0.223 for simulated q99; the
+  corresponding mean within-slate correlations are approximately 0.156,
+  0.195 and 0.166 with slate-bootstrap intervals above zero. The held-out
+  candidate model also had ROC AUC 0.6255. These are weak signals, not proof
+  that the simulator is globally useless. The remaining high-value question
+  is narrower: whether preregistered changes in *book-level simulated tail
+  coverage* transport to realized selected-book tail outcomes across valid
+  arms. Freeze and run that compact audit before launching any new historical
+  arm; exclude invalid/superseded controls and treat it as diagnosis, not a
+  promotion screen.
+
+- Adopt the process-health recommendations in a bounded form. Production
+  readiness and research are separate queues. Pure build/transport failures
+  receive standardized append-only incident receipts rather than a new
+  scientific protocol; an amendment is required only when the population,
+  scientific law, gate, evidence identity or result validity changes. Every
+  future experiment must freeze a repair-count and wall-clock budget. Keep the
+  one-heavy-chain rule, but do not let that lease block bounded score-free
+  implementation or the Week 1 operations lane.
+
+- The money path is already frozen/deployed as
+  `classic-k1-role12-boom40-poscal-cbwu-v4`; research is not a scientific
+  prerequisite to use it. Regular-season readiness is not complete, however.
+  Independently prioritize the existing README runbook: cross-environment
+  CBWU determinism, projected-ownership collector smoke, exact forensic-table
+  cleanup/verification receipt, fail-closed production-scheduler resume,
+  first-real-slate UI -> 80 lineups -> DKEntries rehearsal, contest-fill
+  polling, post-settlement complete standings/payout/entry-history capture and
+  backup verification. `dk_contest_fills` remains the key empty/unscheduled
+  prospective evidence gap.
+
+- ATLAS repair6 remains the only active historical/heavy chain. The proof
+  execution failed before model work on a prefix/output-identity transport
+  mismatch. The original target execution
+  `atlas-md-s2023-w7-r6-9pxdt` remains genuinely running
+  (`Completed=Unknown`, `runningCount=1`) through the 21:28 CDT terminal-only
+  poll and must not be cancelled, duplicated or opened. The prospective
+  transport amendment/validator at commit `71962ab` remains frozen; apply its
+  unique replacement-proof branch only if the original target's terminal
+  disposition and queue state license it. No ATLAS partial shard body,
+  treatment effect or score has been inspected.
+
+- Exact next actions: (1) close the phase-2 clone-metadata blocker and repeat
+  its short/static gate; (2) implement phases 3 and 4 with separate stable
+  reviews; (3) keep polling the ATLAS target by terminal status only; (4)
+  freeze the non-duplicative book-level surrogate-transport audit before any
+  new historical arm; and (5) advance the Week 1 operations checklist on its
+  own schedule. Do not run the residual cloud/historical path, start a second
+  heavy chain, inspect partial ATLAS scientific artifacts or change the money
+  policy.
+
+## Prior state — 2026-08-17 20:29 CDT
 
 ### Extreme-tail review implementation is at the final score-free proof boundary
 
