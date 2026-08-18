@@ -117,6 +117,30 @@ agent or developer:
   cannot be accepted. Two independent static reviews are running before that
   correction and the long exact-pricing test.
 
+- Both independent reviews of the locked `bdce4279...` checkpoint conclude
+  that amendment `ab155cbb...` is internally consistent but the implementation
+  is not yet proof-green. In addition to the in-memory-to-MPS correspondence,
+  the consolidated correction must: derive and bind native `B_s>=88` instead
+  of serializing 88; use conservative L1 worst-case row/objective magnitude
+  below `2^53`; build every warm start from and bind it to the preceding
+  canonical proven assignment; preserve domain metadata through probe clones;
+  validate MIP starts exactly against the current retained MPS; reject a
+  symlinked evidence root/parent and hash/parse the same immutable bytes;
+  enforce the pinned raw MPS ROWS/COLUMNS/marker/BOUNDS/newline profile and full
+  CBC argv grammar; make `1e-11` decoding independent of ambient Decimal
+  context; materialize deterministic zero objectives before PuLP can inject an
+  unregistered dummy; require literal PuLP/CBC identities; and independently
+  rebuild fold, active-world, pricing, book-uniqueness, parity, artifact and
+  no-license state at the final prepared/dose serialization boundary. A
+  `B_s>88`, cancellation, predecessor, MPS-rounding/constant, malformed marker
+  and bounds, huge-exponent diagnostic, extra-command-token, duplicate-book,
+  post-return artifact mutation and context-precision poison matrix is
+  required. Source/image/data/run-context identities must be structurally
+  bound by a fail-closed core manifest even though the real runner and cloud
+  launch remain separately unlicensed. No long exact-pricing test may run until
+  the consolidated short gates pass and a new source SHA receives another
+  static review.
+
 - An independent read-only audit of interim source SHA-256
   `e6b9554a875b06e679bb1c9ae07fafa2c136e2c8d5313077a68a04c5140a719e`
   found four pre-commit proof blockers. `_cbc_scientific_receipt` constructed
