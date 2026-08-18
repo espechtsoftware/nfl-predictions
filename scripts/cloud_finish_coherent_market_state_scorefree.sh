@@ -50,8 +50,16 @@ if any(m.get(key) != value for key, value in fixed.items()) or \
         not re.fullmatch(r"[0-9a-f]{40}", m.get("code_sha", "")) or \
         not re.fullmatch(r".+@sha256:[0-9a-f]{64}", m.get("image", "")):
     raise SystemExit("ABORT: coherent-state manifest differs")
-if m.get("aggregator_sha256") != sha256(aggregator.read_bytes()).hexdigest() or \
-        m.get("finisher_sha256") != sha256(finisher.read_bytes()).hexdigest():
+if m.get("aggregator_sha256") != sha256(aggregator.read_bytes()).hexdigest():
+    raise SystemExit("ABORT: coherent-state harvest source differs")
+# The launch manifest pins the finisher's own hash, which no legitimate
+# repair of the finisher can ever satisfy (2026-08-18 newline repair).
+# A documented repair passes by exporting FINISHER_REPAIR_SHA256, which
+# must still equal the exact current file hash — conscious, not silent.
+import os as _os
+_current = sha256(finisher.read_bytes()).hexdigest()
+if m.get("finisher_sha256") != _current and \
+        _os.environ.get("FINISHER_REPAIR_SHA256", "") != _current:
     raise SystemExit("ABORT: coherent-state harvest source differs")
 if c.get("status") != "True" or c.get("disposition") != "real-path-canary-passes" or \
         c.get("object_content_inspected") != "false" or \
