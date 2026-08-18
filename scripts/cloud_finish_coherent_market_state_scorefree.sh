@@ -82,7 +82,7 @@ while read -r SEASON WEEK JOB EXEC URI; do
     "$WEEK" "$URI" <<'PY'
 import json, sys
 x = json.load(open(sys.argv[1], encoding="utf-8"))
-m = dict(line.split("=", 1) for line in open(sys.argv[2], encoding="utf-8") if "=" in line)
+m = dict(line.rstrip("\n").split("=", 1) for line in open(sys.argv[2], encoding="utf-8") if "=" in line)
 name, season, week, uri = sys.argv[3:]
 if x.get("metadata", {}).get("name") != name:
     raise SystemExit("ABORT: coherent-state execution name differs")
@@ -148,7 +148,7 @@ PYTHONPATH="$ROOT/src:$ROOT/scripts" "$ROOT/.venv/bin/python" "$AGGREGATOR" \
 "$ROOT/.venv/bin/python" - "$OUT/report.json" "$MANIFEST" <<'PY'
 import json, sys
 r = json.load(open(sys.argv[1], encoding="utf-8"))
-m = dict(line.split("=", 1) for line in open(sys.argv[2], encoding="utf-8") if "=" in line)
+m = dict(line.rstrip("\n").split("=", 1) for line in open(sys.argv[2], encoding="utf-8") if "=" in line)
 if r.get("version") != "coherent-market-state-scorefree-report-v1" or \
         r.get("run_id") != m["run_id"] or \
         r.get("uses_realized_outcomes") is not False or \
