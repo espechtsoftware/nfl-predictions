@@ -24,8 +24,9 @@ agent or developer:
 
 ### Production readiness is now a separate lane; residual phase 1 is durable
 
-- Branch is `main`. The current pushed checkpoint is `7ac32a1` on both local
-  `HEAD` and `origin/main`; it contains final residual tolerance repair #2.
+- Branch is `main`. Final residual tolerance repair #2 is pushed at code
+  checkpoint `7ac32a1`; the green terminal proof result, ATLAS closure and exact
+  repair6 receipts are pushed in the associated evidence commit `c93603f`.
   The independently reproduced selected-book calibration
   result is pushed at `0233da5`; the independently green P0 forensic cleanup/
   scheduler-resume repair is pushed at `029581e`; and residual phase 2 is
