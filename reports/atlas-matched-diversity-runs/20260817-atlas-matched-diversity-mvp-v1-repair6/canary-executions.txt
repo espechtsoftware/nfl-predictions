@@ -1,0 +1,2 @@
+defect 2023 7 atlas-md-s2023-w7-r6 atlas-md-s2023-w7-r6-9pxdt gs://nfl-predictions-503414-raw/research/atlas-matched-diversity-runs/20260817-atlas-matched-diversity-mvp-v1-repair6/slate-2023-7.json
+proof 2023 1 atlas-md-s2023-w1-r6-proof atlas-md-s2023-w1-r6-proof-m6ctm gs://nfl-predictions-503414-raw/research/atlas-matched-diversity-runs/20260817-atlas-matched-diversity-mvp-v1-repair6-proof/slate-2023-1.json

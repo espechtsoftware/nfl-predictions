@@ -1,0 +1,6 @@
+disposition=repair6-closed-no-scoreable-population
+reason=dual-canary-execution-failed
+uses_realized_outcomes=false
+candidate_or_lineup_scores_read=false
+production_change_licensed=false
+recorded_at=2026-08-18T07:20:19Z

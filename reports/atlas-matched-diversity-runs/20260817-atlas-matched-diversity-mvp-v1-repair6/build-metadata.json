@@ -1,0 +1,161 @@
+{
+  "artifacts": {
+    "images": [
+      "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:atlas-repair6-0617674"
+    ]
+  },
+  "createTime": "2026-08-17T16:37:26.278234202Z",
+  "finishTime": "2026-08-17T16:58:47.632054Z",
+  "id": "6b1331f1-8a1a-4c1e-8703-4ccb0c0e751b",
+  "images": [
+    "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:atlas-repair6-0617674"
+  ],
+  "logUrl": "https://console.cloud.google.com/cloud-build/builds;region=us-central1/6b1331f1-8a1a-4c1e-8703-4ccb0c0e751b?project=817589974517",
+  "logsBucket": "gs://817589974517.cloudbuild-logs.googleusercontent.com",
+  "name": "projects/817589974517/locations/us-central1/builds/6b1331f1-8a1a-4c1e-8703-4ccb0c0e751b",
+  "options": {
+    "logging": "LEGACY",
+    "machineType": "E2_HIGHCPU_8",
+    "pool": {}
+  },
+  "projectId": "nfl-predictions-503414",
+  "queueTtl": "3600s",
+  "results": {
+    "buildStepImages": [
+      "sha256:9c900dea9e8fb7e16277c179b555cc72d29a352dbc33cff48ad5a0412fd5bfc7",
+      "sha256:617f98016081e2978c0b44184d7b09446027b909f1078b8fdc23efc4c74c5f20",
+      "sha256:617f98016081e2978c0b44184d7b09446027b909f1078b8fdc23efc4c74c5f20"
+    ],
+    "buildStepOutputs": [
+      "",
+      "",
+      ""
+    ],
+    "buildStepResults": {
+      "build-image": {},
+      "full-test-suite": {},
+      "smoke-atlas-mvp-runner": {}
+    },
+    "images": [
+      {
+        "artifactRegistryPackage": "projects/nfl-predictions-503414/locations/us-central1/repositories/nfl-dfs/packages/nfl-dfs/versions/sha256:86b852e838f1ac685f40d8f0aed136337cdc5e230f38335076e45aaf24727487",
+        "digest": "sha256:86b852e838f1ac685f40d8f0aed136337cdc5e230f38335076e45aaf24727487",
+        "name": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:atlas-repair6-0617674",
+        "pushTiming": {
+          "endTime": "2026-08-17T16:58:47.073962541Z",
+          "startTime": "2026-08-17T16:57:56.164364204Z"
+        }
+      }
+    ]
+  },
+  "serviceAccount": "projects/nfl-predictions-503414/serviceAccounts/817589974517-compute@developer.gserviceaccount.com",
+  "source": {
+    "storageSource": {
+      "bucket": "nfl-predictions-503414_cloudbuild",
+      "generation": "1786984645927948",
+      "object": "source/1786984620.889686-23e32351e12742ee9e43f272fe9a99a7.tgz"
+    }
+  },
+  "sourceProvenance": {
+    "fileHashes": {
+      "gs://nfl-predictions-503414_cloudbuild/source/1786984620.889686-23e32351e12742ee9e43f272fe9a99a7.tgz#1786984645927948": {
+        "fileHash": [
+          {
+            "type": "MD5",
+            "value": "mPcooBO1XUvo27gASNG3IQ=="
+          },
+          {
+            "type": "SHA256",
+            "value": "51qI_xsJejuWrJZtIgj2JXowfQ_Yk8spZ-wiU-adsDM="
+          }
+        ]
+      }
+    },
+    "resolvedStorageSource": {
+      "bucket": "nfl-predictions-503414_cloudbuild",
+      "generation": "1786984645927948",
+      "object": "source/1786984620.889686-23e32351e12742ee9e43f272fe9a99a7.tgz"
+    }
+  },
+  "startTime": "2026-08-17T16:38:19.300106038Z",
+  "status": "SUCCESS",
+  "steps": [
+    {
+      "args": [
+        "-ceu",
+        "apt-get update\napt-get install -y --no-install-recommends git libgomp1\npip install --no-cache-dir '.[gcp,app,dev]'\nPYTHONPATH=. pytest\n"
+      ],
+      "entrypoint": "bash",
+      "id": "full-test-suite",
+      "name": "python:3.11-slim",
+      "pullTiming": {
+        "endTime": "2026-08-17T16:38:26.967319777Z",
+        "startTime": "2026-08-17T16:38:24.884484557Z"
+      },
+      "status": "SUCCESS",
+      "timing": {
+        "endTime": "2026-08-17T16:55:32.685536502Z",
+        "startTime": "2026-08-17T16:38:24.884484557Z"
+      }
+    },
+    {
+      "args": [
+        "build",
+        "-t",
+        "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:atlas-repair6-0617674",
+        "."
+      ],
+      "id": "build-image",
+      "name": "gcr.io/cloud-builders/docker",
+      "pullTiming": {
+        "endTime": "2026-08-17T16:55:32.691679873Z",
+        "startTime": "2026-08-17T16:55:32.685830852Z"
+      },
+      "status": "SUCCESS",
+      "timing": {
+        "endTime": "2026-08-17T16:57:30.393950920Z",
+        "startTime": "2026-08-17T16:55:32.685830852Z"
+      }
+    },
+    {
+      "args": [
+        "-ceu",
+        "docker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:atlas-repair6-0617674' \\\n  python scripts/run_atlas_matched_diversity_mvp.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:atlas-repair6-0617674' \\\n  python scripts/run_atlas_historical_score_diagnostic.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:atlas-repair6-0617674' \\\n  python scripts/run_atlas_historical_score_diagnostic_v3.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:atlas-repair6-0617674' \\\n  python scripts/run_atlas_historical_score_diagnostic_v4.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:atlas-repair6-0617674' \\\n  python scripts/run_constraint_lattice_scorefree.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:atlas-repair6-0617674' \\\n  python scripts/aggregate_constraint_lattice_scorefree.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:atlas-repair6-0617674' \\\n  python scripts/run_constraint_lattice_support_census.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:atlas-repair6-0617674' \\\n  python scripts/aggregate_constraint_lattice_support_census.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:atlas-repair6-0617674' \\\n  python scripts/run_constraint_lattice_resource_preflight.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:atlas-repair6-0617674' \\\n  python scripts/run_recourse_aware_initial_scorefree.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:atlas-repair6-0617674' \\\n  python scripts/aggregate_recourse_aware_initial_scorefree.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:atlas-repair6-0617674' \\\n  python scripts/run_coherent_market_state_scorefree.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:atlas-repair6-0617674' \\\n  python scripts/aggregate_coherent_market_state_scorefree.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:atlas-repair6-0617674' \\\n  python scripts/run_coherent_market_state_historical_score.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:atlas-repair6-0617674' \\\n  python scripts/run_production_law_dependence_source_lock.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:atlas-repair6-0617674' \\\n  python scripts/run_production_law_dependence_remeasurement.py --help >/dev/null\n"
+      ],
+      "entrypoint": "bash",
+      "id": "smoke-atlas-mvp-runner",
+      "name": "gcr.io/cloud-builders/docker",
+      "pullTiming": {
+        "endTime": "2026-08-17T16:57:30.395465049Z",
+        "startTime": "2026-08-17T16:57:30.394167450Z"
+      },
+      "status": "SUCCESS",
+      "timing": {
+        "endTime": "2026-08-17T16:57:56.117205748Z",
+        "startTime": "2026-08-17T16:57:30.394167450Z"
+      }
+    }
+  ],
+  "substitutions": {
+    "_IMAGE": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:atlas-repair6-0617674"
+  },
+  "timeout": "3600s",
+  "timing": {
+    "BUILD": {
+      "endTime": "2026-08-17T16:57:56.164210144Z",
+      "startTime": "2026-08-17T16:38:24.372238445Z"
+    },
+    "FETCHSOURCE": {
+      "endTime": "2026-08-17T16:38:24.372087465Z",
+      "startTime": "2026-08-17T16:38:21.421822145Z"
+    },
+    "PUSH": {
+      "endTime": "2026-08-17T16:58:47.074082771Z",
+      "startTime": "2026-08-17T16:57:56.164355114Z"
+    },
+    "STORAGE_SOURCE": {
+      "endTime": "2026-08-17T16:38:24.372087465Z",
+      "startTime": "2026-08-17T16:38:21.421822145Z"
+    }
+  }
+}

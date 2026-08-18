@@ -1,0 +1,10 @@
+run_id=20260817-atlas-matched-diversity-mvp-v1-repair6
+disposition=repair6-dual-canary-licensed
+repair5_successes=53
+repair5_failures=1
+eligible_tiebreak_failures=1
+ineligible_failures=0
+uses_realized_outcomes=false
+candidate_or_lineup_scores_read=false
+effect_fields_inspected=false
+production_change_licensed=false

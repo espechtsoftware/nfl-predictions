@@ -20,17 +20,20 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-18 01:52 CDT
+## Current state — 2026-08-18 02:55 CDT
 
 ### Production readiness is now a separate lane; residual phase 1 is durable
 
-- Branch is `main`. The independently reproduced selected-book calibration
+- Branch is `main`. The current pushed checkpoint is `7ac32a1` on both local
+  `HEAD` and `origin/main`; it contains final residual tolerance repair #2.
+  The independently reproduced selected-book calibration
   result is pushed at `0233da5`; the independently green P0 forensic cleanup/
   scheduler-resume repair is pushed at `029581e`; and residual phase 2 is
   durable at `a8c87d9`. Independently green residual phase 3 is pushed at
-  `f22b764`. The intended tracked worktree edits are residual phase 4 in the
-  residual core/tests; the cleanup-manifest provenance correction is pushed at
-  `f457336`. Operator-supplied untracked reports/cloud receipts must not be
+  `f22b764`; residual phase 4 is pushed at `bdbb5a6`; and the cleanup-manifest
+  provenance correction is pushed at `f457336`. The only intended new durable
+  milestone content is this handoff update plus the exact repair6 ATLAS receipt
+  directory. Operator-supplied untracked reports/cloud receipts must not be
   staged implicitly.
 
 - Residual phase 1 is score-free and does not license a cloud run, historical
@@ -329,6 +332,31 @@ agent or developer:
   path. Commit/push, then run the complete five-case local score-free gate one
   final time under this exact contract. Preserve both prior evidence roots.
 
+- The final five-case LOCAL score-free exact-pricing gate is now fully GREEN
+  under pushed commit `7ac32a1` and the frozen `1e-9` primal/integer/decode
+  contract. The exact command collected five tests and deselected 90; all five
+  passed in 3,552.70 seconds (59m12s): exact pricing versus brute force with
+  reversed player-row identity (1,623.82s), all three positive-part bound cases
+  (89.18s), canonical rank/ambiguity fallback (4.51s), exact no-good next
+  identity (880.30s), and semantic evidence binding to inputs/run root
+  (954.79s). Fresh retained evidence remains untouched at
+  `/tmp/residual_pricing_gate_final_z5ErLM` (769 files, about 80 MiB). This
+  result is independently GREEN: all 168 solve bundles are complete; all 168
+  commands carry the exact uniform `1e-9` tolerances/seeds/zero gaps/one thread;
+  every log has one exact-Optimal terminal and zero warning-code hits; every
+  solution has an integral-objective Optimal header with zero `**`/nonfinite
+  markers; and the largest raw assignment residual is the original failure-
+  class token `9.0315311e-11`, safely inside the final frozen decoder. The audit
+  also found 11,168 noninteger printed-row activities, proving the passing gate
+  exercised the intended nonlicensing display treatment while exact canonical
+  MPS reconstruction remained decisive. This closes the retained
+  parser/decode/formulation gate and licenses design of the
+  remaining source-lock, 54-slate orchestration, stability, reviewed-launcher
+  and strict-harvester prerequisites. It does **not** license a residual cloud
+  run, historical score read, 2026 outcome read or production change by itself.
+  Preserve all three local pricing evidence roots until independent review is
+  complete.
+
 - The P0 cleanup/resume repair pushed at `029581e` is independently GREEN. It
   requires both frozen forensic
   manifests, an exact eight-table pre-cleanup union, schema/metadata/expiry
@@ -413,28 +441,37 @@ agent or developer:
   fill, standings/duplication/payout and backup path before or on the first
   live slate.
 
-- ATLAS repair6 remains the only active historical/heavy chain. The proof
-  execution failed before model work on a prefix/output-identity transport
-  mismatch. The original target execution
-  `atlas-md-s2023-w7-r6-9pxdt` remains genuinely running
-  (`Completed=Unknown`, `runningCount=1`) through the 00:04 CDT terminal-only
-  poll and must not be cancelled, duplicated or opened. The prospective
-  transport amendment/validator at commit `71962ab` remains frozen; apply its
-  unique replacement-proof branch only if the original target's terminal
-  disposition and queue state license it. No ATLAS partial shard body,
-  treatment effect or score has been inspected.
+- ATLAS repair6 is now terminal and fail-closed at the transport boundary.
+  Target `atlas-md-s2023-w7-r6-9pxdt` terminal-succeeded at
+  `2026-08-18T07:19:33Z` with exactly one execution and one unopened output
+  object; legacy proof `atlas-md-s2023-w1-r6-proof-m6ctm` terminal-failed at
+  `2026-08-18T01:10:39Z` on the frozen pre-model output-prefix identity error,
+  with zero progress markers and zero proof objects. At `07:20:19Z` the watcher
+  correctly wrote create-once `queue-closure.txt` with
+  `reason=dual-canary-execution-failed`, SHA-256
+  `03bb22e539958996526d19c092e6fa8e6fb78396655478c0da3f501a1d19dddf`,
+  then released continuous parity. Parity made no cloud side effect: its
+  preflight expected `lineup.py` SHA `ba5ac3a7...`, while current tracked source
+  is `b76ddb3b...`, so it exited 2 before creating a job, execution, manifest or
+  object. Never rerun the successful target or failed legacy proof and never
+  delete/bypass the closure. Resume the already-frozen parity chain from an
+  isolated exact-source checkout at `e88afb84a9b289f7b3c2117020065bc312e289cf`;
+  only after strict parity succeeds may the unique replacement proof
+  `atlas-md-s2023-w1-r6-proof-r1` run while reusing the existing Week 7 target.
+  Historical scoring remains unlicensed. No ATLAS object body, treatment
+  effect, lineup, candidate field or score was inspected.
 
-- Exact next actions: (1) independently diagnose the two retained long-pricing
-  proof failures and freeze any justified narrow correction before a single
-  rerun; (2) only after a green exact-pricing gate, freeze the remaining source-
-  lock/54-slate orchestration/stability/launcher prerequisites; (3) keep
-  polling the ATLAS target by terminal status only; and (4) retain the verified
+- Exact next actions: (1) freeze/implement the remaining source-lock, 54-slate
+  orchestration, stability, reviewed-launcher and strict-harvester prerequisites
+  before any residual cloud/historical execution; (2) commit/push the ATLAS
+  terminal closure receipt, repair continuous parity from isolated exact source
+  `e88afb84...`, and only after parity success run the one licensed replacement
+  proof while reusing the successful target; and (3) retain the verified
   forensic corpus until the independent-review window closes, then execute the
   manifest-bound v3 cleanup/verification/receipt sequence before scheduler
-  resume and advance the remaining Week 1 operations checklist. Do not run
-  residual cloud/historical scoring, start a second heavy chain, inspect
-  partial ATLAS scientific artifacts, delete forensic data, resume schedulers
-  or change the money policy yet.
+  resume and advance the remaining Week 1 operations checklist. Do not inspect
+  ATLAS scientific bodies, run residual historical scoring, delete forensic
+  data, resume schedulers or change the money policy yet.
 
 ## Prior state — 2026-08-17 20:29 CDT
 
