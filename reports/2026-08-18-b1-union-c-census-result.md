@@ -7,7 +7,7 @@ only; licenses nothing. Canonical result:
 
 ## Headline and its mandatory null
 
-Across 42 corrected-era panels (127,778 distinct legal rosters, 54 slates,
+Across 51 corrected-era panels (the frozen list; an earlier prose line miscounted 42 — the computed numbers always used the full list) (127,778 distinct legal rosters, 54 slates,
 zero legality drops): **union mean C = 198.10**, grid
 43/31/24/15/6/2/1 at 187–240 — versus canonical C 181.07 (11/8/6, 3/1/0)
 and CBWU-OI 186.73. The union of everything ever generated exceeds the
@@ -25,7 +25,7 @@ homogeneous (same-generator seeds):
 | 20 | 195.36 | 194.94 | +0.42 |
 
 The curve climbs ~+3.5 per doubling of books with no visible saturation
-through k=42 — and **arm diversity is worth ~+0.4 over simply running the
+through k=51 — and **arm diversity is worth ~+0.4 over simply running the
 same generator with more independent seeds.** Slate-max attribution is
 spread thin (no arm claims more than 3 of 54 maxima).
 
