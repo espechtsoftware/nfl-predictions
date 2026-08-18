@@ -110,6 +110,31 @@ agent or developer:
   ODDS_API_KEY literals were stripped from the five non-odds jobs
   (operator-approved); provider-side key rotation remains an operator
   action.
+- **Briefing review reconciled; CBWU-OI shadow wired (evening, commits
+  `d2bcf1f`, `e06fa70`).** The operator-relayed review (`4a11ab4`, Opus 5)
+  landed four accepted corrections: (a) paired arms need the
+  discordant-pair statistic (McNemar), not marginal counts — a frozen
+  diagnostic-only reanalysis of the closed arms is now the top analytical
+  item, and every future arm reports discordant slates; (b) CBWU-OI had NO
+  prospective collection vehicle (verified: no job/scheduler/variant/spec
+  anywhere, all 13 shadow schedulers paused) — operator approved
+  wire-and-enable-now; (c) the DST sizing step becomes paired
+  (upside net of stack-side displacement); (d) C-test aggregate reports
+  with/without the four-seed slate, smoke targets the likeliest-divergent
+  slate, and the QB-hub repair protocol must carry a predeclared
+  falsifier. CBWU-OI shadow implementation: `CBWU_OI_SHADOW` portfolio
+  dispatch with paired control capture (`live_lineups.py`),
+  `cbwu_oi_shadow_environment` (exactly two keys changed, tested),
+  variant-parametrized `prospective_shadow` runner (archetype defaults
+  byte-unchanged), CLI `shadow-cbwu-oi-paired`, deploy entries, frozen
+  grading spec `reports/2026-08-18-cbwu-oi-prospective-shadow-spec.md`
+  (SHA `8eb9c144…`) with a preregistered discordant-pairs-at-194 primary
+  gate. Clean-archive Cloud Build `ceca8678-6f10-49b8-844c-3eb40156aa69`
+  (tag `cbwu-oi-shadow-e06fa70`) is running the full in-container suite;
+  on SUCCESS, create job `shadow-cbwu-oi-paired` at the immutable digest
+  and ENABLE schedulers `s-shadow-cbwu-oi-paired-early/late` (these two
+  only; the fleet stays paused). Pre-season Sunday firings fail on the
+  empty-slate guard by design.
 - Exact next actions: (1) local `--smoke` of one cell (2023 W1) AFTER the
   background full suite finishes — never two heavy local processes; a
   reproduction failure there is a halt-and-disposition, not a retry; (2)
