@@ -53,6 +53,8 @@ steps:
           python scripts/run_production_law_dependence_source_lock.py --help >/dev/null
         docker run --rm '${_IMAGE}' \
           python scripts/run_production_law_dependence_remeasurement.py --help >/dev/null
+        docker run --rm '${_IMAGE}' \
+          python scripts/run_atlas_minimal_world_selection_c.py --help >/dev/null
 images:
   - '${_IMAGE}'
 substitutions:

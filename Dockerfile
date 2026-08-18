@@ -14,6 +14,9 @@ COPY reports ./reports
 COPY src ./src
 COPY sql ./sql
 COPY scripts/harvest_accept.py ./scripts/harvest_accept.py
+COPY scripts/run_atlas_minimal_world_selection_c.py ./scripts/run_atlas_minimal_world_selection_c.py
+COPY scripts/run_b1_union_c_census.py ./scripts/run_b1_union_c_census.py
+COPY scripts/run_b2prime_volume_oi_admission.py ./scripts/run_b2prime_volume_oi_admission.py
 COPY scripts/compare_adoption_panel.py ./scripts/compare_adoption_panel.py
 COPY scripts/compare_k1_ce_panel.py ./scripts/compare_k1_ce_panel.py
 COPY scripts/compare_k1_role_belief_panel.py ./scripts/compare_k1_role_belief_panel.py
