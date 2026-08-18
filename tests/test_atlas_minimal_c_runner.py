@@ -51,6 +51,10 @@ def test_expected_candidate_census_totals():
 def test_lever_env_validation_catches_drift():
     cell = {"lever_env": "N_BOOM=40,CAND_MULT=2"}
     runner._validate_lever_env(cell, {"N_BOOM": "40", "CAND_MULT": "2"})
+    # Comma-containing values must not fragment (the smoke-2 defect).
+    commas = {"lever_env": "ROLE_BELIEF_FEATURES=a,b,c,N_BOOM=40"}
+    runner._validate_lever_env(
+        commas, {"ROLE_BELIEF_FEATURES": "a,b,c", "N_BOOM": "40"})
     with pytest.raises(RuntimeError, match="acquisition record"):
         runner._validate_lever_env(
             cell, {"N_BOOM": "40", "CAND_MULT": "4"})

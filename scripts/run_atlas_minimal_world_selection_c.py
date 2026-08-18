@@ -143,8 +143,11 @@ def _grid_cell(grid: list[dict], panel: str, season: int, week: int) -> dict:
 
 def _validate_lever_env(cell: dict, env: dict[str, str]) -> None:
     """The reconstructed environment must match the acquisition record."""
+    # Values may contain commas (ROLE_BELIEF_FEATURES,
+    # SERVED_POSITION_SCALES); split only where a new KEY= begins.
     recorded = dict(
-        item.split("=", 1) for item in str(cell["lever_env"]).split(",")
+        item.split("=", 1)
+        for item in re.split(r",(?=[A-Z][A-Z0-9_]*=)", str(cell["lever_env"]))
         if "=" in item
     )
     mismatched = {
