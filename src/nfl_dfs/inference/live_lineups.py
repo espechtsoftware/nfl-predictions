@@ -458,6 +458,7 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
     portfolio = runtime_env.get("MULTISEED_PORTFOLIO", "").upper()
     multiseed_portfolios = {
         "CBWU", "CBWU_ARCHETYPE_SHADOW", "CBWU_LATENT_ROLE_SHADOW",
+        "CBWU_OI_SHADOW",
     }
     if portfolio and portfolio not in multiseed_portfolios:
         raise ValueError(f"unknown MULTISEED_PORTFOLIO={portfolio!r}")
@@ -479,10 +480,10 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                 "latent-role scenario factory requires its named shadow")
         if (
             _control_candidate_capture is not None
-            and portfolio != "CBWU_ARCHETYPE_SHADOW"
+            and portfolio not in {"CBWU_ARCHETYPE_SHADOW", "CBWU_OI_SHADOW"}
         ):
             raise ValueError(
-                "paired control capture requires CBWU_ARCHETYPE_SHADOW"
+                "paired control capture requires a paired shadow portfolio"
             )
         from .archetype_candidate_allocator import ALLOCATION_VERSION
         from .multiseed_portfolio import (
@@ -593,6 +594,43 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                     labels,
                     tail_line=archetype_tail_line,
                     expected_worlds_per_book=worlds_per_block,
+                )
+            elif portfolio == "CBWU_OI_SHADOW":
+                # Paired order-invariant union shadow (2026-08-18): control
+                # is the adopted CBWU combine, treatment the frozen
+                # CBWU-OI-v1 complete union on the identical five books.
+                from ..backtest.engine import CandidateBatch
+                from .multiseed_portfolio import (
+                    combine_cbwu_order_invariant_books,
+                )
+
+                if _control_candidate_capture is not None:
+                    _control_candidate_capture(combine_cbwu_books(
+                        books,
+                        labels,
+                        expected_worlds_per_book=worlds_per_block,
+                    ))
+                oi = combine_cbwu_order_invariant_books(
+                    books,
+                    labels,
+                    tail_line=float(tail_line),
+                    expected_worlds_per_book=worlds_per_block,
+                )
+                combined = CandidateBatch(
+                    candidates=oi.candidates,
+                    candidate_totals=oi.candidate_totals,
+                    player_ids=oi.player_ids,
+                    player_rows=oi.player_rows,
+                    row_draws=oi.row_draws,
+                    all_tags=oi.all_tags,
+                    metadata={
+                        **oi.metadata,
+                        "portfolio": "CBWU_OI_SHADOW",
+                        "production_enabled": False,
+                        "prospective_shadow_id": runtime_env.get(
+                            "PROSPECTIVE_SHADOW_ID", ""),
+                        "uses_realized_outcomes": False,
+                    },
                 )
             else:
                 combined = combine_cbwu_books(

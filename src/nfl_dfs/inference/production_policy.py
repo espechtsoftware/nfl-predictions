@@ -305,6 +305,28 @@ class ClassicProductionPolicy:
         })
         return env
 
+    def cbwu_oi_shadow_environment(
+        self, base: Mapping[str, str] | None = None,
+    ) -> dict[str, str]:
+        """Outcome-unseen order-invariant CBWU union shadow (2026-08-18).
+
+        Derives from the complete adopted money environment and changes only
+        the five-book combination law to the frozen CBWU-OI-v1 complete
+        union (``combine_cbwu_order_invariant_books``) — the one mechanism
+        that improved retrospective candidate C (+5.66 mean at equal budget,
+        2026-08-16) and whose promotion requires prospective 2026 evidence.
+        Never returned by ``engine_environment``; a separately labeled
+        shadow job must opt in. Grading bar frozen at
+        reports/2026-08-18-cbwu-oi-prospective-shadow-spec.md before first
+        collection.
+        """
+        env = self.engine_environment(base)
+        env.update({
+            "MULTISEED_PORTFOLIO": "CBWU_OI_SHADOW",
+            "PROSPECTIVE_SHADOW_ID": "2026-cbwu-oi-v1",
+        })
+        return env
+
     def public_identity(
         self, *, model_version: str | None = None,
         entries: int | None = None, tail_line: float | None = None,

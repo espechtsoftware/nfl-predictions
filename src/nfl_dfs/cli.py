@@ -94,6 +94,13 @@ def main(argv: list[str] | None = None) -> None:
         ),
     )
     sub.add_parser(
+        "shadow-cbwu-oi-paired",
+        help=(
+            "Freeze same-world incumbent/CBWU-OI union candidates, "
+            "memberships, and recourse artifacts"
+        ),
+    )
+    sub.add_parser(
         "shadow-sis-pass-tail-paired",
         help="Freeze the isolated prospective five-seed SIS pass-tail pair",
     )
@@ -846,6 +853,10 @@ def main(argv: list[str] | None = None) -> None:
         from .inference import prospective_shadow
 
         prospective_shadow.run_paired_prospective_shadow()
+    elif args.command == "shadow-cbwu-oi-paired":
+        from .inference import prospective_shadow
+
+        prospective_shadow.run_paired_prospective_shadow(variant="cbwu_oi")
     elif args.command == "shadow-sis-pass-tail-paired":
         from .inference import sis_pass_tail_portfolio
 

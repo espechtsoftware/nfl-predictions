@@ -125,8 +125,23 @@ def paired_shadow_receipt(
     }
 
 
+SHADOW_VARIANTS = {
+    "archetype": {
+        "env_method": "archetype_shadow_environment",
+        "panel_prefix": "prospective-archetype",
+        "candidate_run_type": "prospective_archetype_shadow",
+    },
+    "cbwu_oi": {
+        "env_method": "cbwu_oi_shadow_environment",
+        "panel_prefix": "prospective-cbwu-oi",
+        "candidate_run_type": "prospective_cbwu_oi_shadow",
+    },
+}
+
+
 def run_paired_prospective_shadow(
     *,
+    variant: str = "archetype",
     store=None,
     season: int | None = None,
     week: int | None = None,
@@ -136,6 +151,9 @@ def run_paired_prospective_shadow(
     bucket_name: str | None = None,
 ) -> dict:
     """Build, pair-check, and durably freeze the control/treatment shadow."""
+    if variant not in SHADOW_VARIANTS:
+        raise ValueError(f"unknown prospective shadow variant {variant!r}")
+    spec = SHADOW_VARIANTS[variant]
     code_sha = _validated_code_sha(os.environ.get("CODE_SHA"))
     if store is None:
         from ..app.store import BigQueryStore
@@ -180,11 +198,11 @@ def run_paired_prospective_shadow(
         raise ValueError("prospective shadow generated_at must be timezone-aware")
     stamp = stamp.astimezone(timezone.utc)
     panel_run_id = (
-        f"prospective-archetype-{season}w{week:02d}-"
+        f"{spec['panel_prefix']}-{season}w{week:02d}-"
         f"{stamp.strftime('%Y%m%dT%H%M%SZ')}"
     )
     policy = ADOPTED_CLASSIC_POLICY
-    policy_env = policy.archetype_shadow_environment(os.environ)
+    policy_env = getattr(policy, spec["env_method"])(os.environ)
     policy_env.update({
         "CAND_ARTIFACT_BUCKET": bucket_name or settings.gcs_bucket,
         "CAND_ARTIFACT_PLAYER_WORLDS": "1",
@@ -211,7 +229,7 @@ def run_paired_prospective_shadow(
         cand_log_async=False,
         cand_log_required=True,
         panel_run_id=panel_run_id,
-        candidate_run_type="prospective_archetype_shadow",
+        candidate_run_type=spec["candidate_run_type"],
         policy_env=policy_env,
         expected_model_k=policy.model_ensemble,
         belief_model_variant=policy.role_model_variant,
