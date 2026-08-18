@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 22:05 CDT
+## Current state — 2026-08-17 22:25 CDT
 
 ### Production readiness is now a separate lane; residual phase 1 is durable
 
@@ -109,6 +109,33 @@ agent or developer:
   same-context paired `delta simulated coverage` versus `delta realized tail`
   over only valid arm/control comparisons; do not conflate it with this
   absolute calibration audit.
+
+- The prospective implementation of that compact absolute-calibration audit
+  is independently GREEN **before opening the real report**. It is isolated in
+  `src/nfl_dfs/research/book_tail_calibration.py` (SHA-256
+  `6825aa7220aec21d85bf3aa47164f3145155c65824252ae8b6a314d01da2b21a`),
+  `scripts/analyze_book_tail_calibration.py` (SHA-256
+  `1da65102fc0819d015f7263a1a1273c72d9fc58ce7002e5ef0b0dcd4e8c958fd`)
+  and `tests/test_book_tail_calibration.py` (SHA-256
+  `bb7ac2c2e439ae57cf07e03e96a2ad494fabdfad2f570a6e45dedfbf431cc3a3`).
+  Its protocol ID is `20260817-selected-book-tail-calibration-v1`; it pins the
+  source report SHA-256
+  `a41d3427aa267ed9ab52753a898f14135caa9bd42c11c645d92eccffbb170239`,
+  enforces the exact 2023--2025 x weeks 1--18 cells, CBWU/C0W0 candidate-budget
+  parity, five seed counts summing to 80 and 50,000 worlds, and rejects schema
+  drift. Because the compact upstream report deliberately stripped ordered
+  roster identities, the result must say
+  `exact80_count_attestation=transitive_pinned_source` and
+  `selected_roster_identity_revalidated=false`; it may not claim a direct
+  roster-membership reconstruction. The fixed audit reports Brier skill versus
+  the leave-one-season-out prevalence baseline, ROC AUC/AP and deterministic
+  10,000-resample within-season uncertainty for those measures plus q95/q99
+  book-maximum association; 220/230/240 remain descriptive only. It carries
+  `uses_realized_outcomes=true` and literal no-fit/no-tune/no-gate/no-promotion/
+  no-production/no-permanent-closure flags. Focused synthetic validation passed
+  24/24 in 15.9 seconds using a test-only 200-resample override while separately
+  asserting the production constant is exactly 10,000. Commit this frozen code
+  before executing the real report exactly once.
 
 - Adopt the process-health recommendations in a bounded form. Production
   readiness and research are separate queues. Pure build/transport failures
