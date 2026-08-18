@@ -1,0 +1,117 @@
+{
+  "distinct_rosters_total": 127778,
+  "drops_per_panel": {},
+  "growth_curves": {
+    "heterogeneous": {
+      "1": {
+        "mean": 176.77941177498255,
+        "q25": 175.81666666666672,
+        "q75": 177.89851851851853
+      },
+      "10": {
+        "mean": 191.91477592592594,
+        "q25": 191.19555555555556,
+        "q75": 192.63268518518518
+      },
+      "2": {
+        "mean": 181.51928888888892,
+        "q25": 180.6201851851852,
+        "q75": 182.572037037037
+      },
+      "20": {
+        "mean": 195.36173148148148,
+        "q25": 194.86592592592592,
+        "q75": 195.83777777777777
+      },
+      "5": {
+        "mean": 187.41473703703704,
+        "q25": 186.56435185185188,
+        "q75": 188.27416666666664
+      }
+    },
+    "homogeneous": {
+      "1": {
+        "mean": 176.88865094339627,
+        "q25": 176.06925925925927,
+        "q75": 177.83249999999998
+      },
+      "10": {
+        "mean": 191.44577037037038,
+        "q25": 190.74685185185186,
+        "q75": 192.13481481481483
+      },
+      "2": {
+        "mean": 180.92075370370375,
+        "q25": 180.20481481481485,
+        "q75": 181.8362962962963
+      },
+      "20": {
+        "mean": 194.93668518518518,
+        "q25": 194.63305555555553,
+        "q75": 195.30157407407404
+      },
+      "5": {
+        "mean": 186.99397037037036,
+        "q25": 186.7692592592593,
+        "q75": 187.57888888888888
+      }
+    }
+  },
+  "labels": {
+    "diagnostic_only": true,
+    "licenses_adoption": false,
+    "uses_realized_outcomes": true
+  },
+  "panels": 51,
+  "protocol_sha256": "2d1cb29bda5fc25965661acb891566bd8e9daf108bb579ad9eca99d862c29789",
+  "references": {
+    "canonical_c": 181.07,
+    "cbwu_oi_c": 186.73
+  },
+  "slate_max_attribution": {
+    "20260811-lockfix-e80-k1-role12-poscal-usage-control-v1": 1,
+    "20260811-lockfix-e80-k1-role12-poscal-usage-k28246898-v1": 3,
+    "20260811-lockfix-e80-k1-role12-position-control-v1": 2,
+    "20260811-lockfix-e80-k1-role12-position-scales-v1": 1,
+    "20260811-lockfix-e80-k1-role12-tail1025-v1": 2,
+    "20260812-pitclean-e80-selected-tabpfn-active-v2": 1,
+    "20260812-pitclean-e80-selected-usage-control-v2": 2,
+    "20260812-pitclean-e80-selected-usage-fitted-v2": 2,
+    "20260813-game-team-k-r0-v1": 1,
+    "20260813-game-team-k-r1-v1": 3,
+    "20260813-game-team-k-r4-v1": 1,
+    "20260813-game-team-mult-r1-v1": 1,
+    "20260813-game-team-mult-r4-v1": 2,
+    "20260813-incumbent-mcseed-r1-v1": 2,
+    "20260813-incumbent-mcseed-r2-v1": 1,
+    "20260813-incumbent-mcseed-r3-v1": 2,
+    "20260813-incumbent-mcseed-r4-v1": 1,
+    "20260813-sis-asoe-control-r0-v1": 1,
+    "20260813-sis-asoe-control-r1-v1": 1,
+    "20260813-sis-asoe-control-r2-v1": 2,
+    "20260813-sis-asoe-control-r3-v1": 1,
+    "20260813-sis-asoe-control-r4-v1": 1,
+    "20260813-sis-asoe-treatment-r0-v1": 2,
+    "20260813-sis-asoe-treatment-r1-v1": 2,
+    "20260813-sis-asoe-treatment-r2-v1": 1,
+    "20260814-sis-pass-tail-control-r3-v1": 1,
+    "20260814-sis-pass-tail-treatment-r1-v1": 1,
+    "20260814-sis-pass-tail-treatment-r2-v1": 3,
+    "20260814-sis-pass-tail-treatment-r4-v1": 1,
+    "20260815-atlas-money-worlds-r1-v1": 3,
+    "20260815-atlas-money-worlds-r2-v1": 2,
+    "20260815-atlas-money-worlds-r3-v1": 2,
+    "20260815-atlas-money-worlds-r4-v1": 2
+  },
+  "slates": 54,
+  "union_grid": {
+    "187": 43,
+    "194": 31,
+    "200": 24,
+    "210": 15,
+    "220": 6,
+    "230": 2,
+    "240": 1
+  },
+  "union_mean_c": 198.09555555555556
+}
