@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-18 00:36 CDT
+## Current state — 2026-08-18 01:34 CDT
 
 ### Production readiness is now a separate lane; residual phase 1 is durable
 
@@ -260,6 +260,26 @@ agent or developer:
   exact same five-case local score-free gate once under the newly frozen law.
   If the token failure persists, do not tune another tolerance or license a
   runner; return to formulation/polish design prospectively.
+
+- The single authorized five-case rerun under pushed repair commit `a5bbbc9`
+  completed after 3,242.49 seconds with 4 passed, 1 failed and 90 deselected.
+  Fresh evidence is retained at
+  `/tmp/residual_pricing_gate_repair_eDcABs` (734 files, about 72 MiB). The
+  repaired positive-part case passed, as did ambiguity, exact no-good and
+  semantic evidence binding; therefore the redundant row-display defect is
+  closed. The reversed-row exact-pricing case still failed on the identical
+  raw binary token `X0000117=9.0315311e-11` despite CBC receiving and logging
+  `integerTolerance=1e-12`. The failing evidence directory is
+  `residual_cbc_dzjupv1l`; its MPS, solution, MIP-start and domain-manifest
+  hashes are byte-identical to the prior failure (`60d38d9b...`, `6e1e4b11...`,
+  `57810b0a...`, `259e7b36...`), proving the tighter integer option did not
+  alter CBC's postsolve assignment text. Only the log hash changed because the
+  command/path changed. Do not rerun or tune another solver tolerance from
+  this result. Review `reports/2026-08-18-recent-failure-review.md` and obtain
+  an independent solver-contract verdict on its proposed coherent
+  `integerTolerance=decode epsilon=1e-9` repair (or a fixed-canonical polish)
+  before changing the proof law again. Residual cloud/historical execution
+  remains unlicensed; this result is numerical evidence, not a score result.
 
 - The P0 cleanup/resume repair pushed at `029581e` is independently GREEN. It
   requires both frozen forensic
