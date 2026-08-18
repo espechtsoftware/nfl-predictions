@@ -382,6 +382,15 @@ def test_direct_selector_and_pricer_spies_observe_exact_fold_dose_contract(
     assert payload["treatment_score_parity"] == (
         rw._score_parity_scientific_receipt(result.treatment_score_parity)
     )
+    # Final serialization replays Q_C, every one of the eight protected
+    # pruning prefixes, and every positive-dose selector call.  This proves
+    # exact ordered books rather than trusting coherent identity/hash edits.
+    expected_selector_shapes = [
+        88, 87, 86, 85, 84, 83, 82, 81, 80, 88,
+    ]
+    assert [call[0][0] for call in selector_calls] == (
+        expected_selector_shapes * 2
+    )
     assert {
         name: payload[name] for name in rw.UNLICENSED_SCIENTIFIC_FLAGS
     } == {
@@ -497,6 +506,463 @@ def test_null_dose_binds_deterministic_empty_and_treatment_parity_receipts(
         rw.fold_dose_scientific_payload(replace(
             result, generated_score_parity_sha256="0" * 64
         ))
+
+
+def test_native_candidate_count_above_88_survives_prepare_dose_and_payload(
+    monkeypatch, tmp_path,
+):
+    (
+        base_prepared, players, worlds, raw, controls, tags, _, _,
+        neither, _, _,
+    ) = dose_fixture._prepare_dose_fixture(monkeypatch)
+    native_controls = (*controls, neither[87])
+    native_tags = (*tags, ("control:088",))
+    selector, control_micro = rw._cross_score_rosters(
+        players, raw, rw.to_micro_dk(raw), native_controls
+    )
+    prepared = rw.prepare_fold_reservoir(
+        "A",
+        players,
+        worlds,
+        raw,
+        native_controls,
+        native_tags,
+        selector,
+        control_micro,
+        base_prepared.reservoir_bounds,
+    )
+    assert prepared.pruning.original_candidates == 89
+    assert [step.remaining_candidates for step in prepared.pruning.steps] == [
+        88, 87, 86, 85, 84, 83, 82, 81,
+    ]
+    assert rw.prepared_fold_scientific_payload(prepared)[
+        "native_candidate_count"
+    ] == 89
+    shortened = prepared.control_candidates[:-1]
+    with pytest.raises(
+        rw.ResidualWorldError, match="source tags are misaligned|candidate pool"
+    ):
+        rw.prepared_fold_scientific_payload(replace(
+            prepared,
+            control_candidates=shortened,
+            control_candidates_sha256=rw._identities_sha256(shortened),
+        ))
+
+    monkeypatch.setattr(
+        rw,
+        "solve_residual_pricing",
+        dose_fixture._fake_pricer((neither[88],), []),
+    )
+    monkeypatch.setattr(
+        rw, "_audit_pricing_evidence_semantics", lambda *args: None
+    )
+    result = rw.run_fold_doses(
+        prepared,
+        players,
+        worlds,
+        raw,
+        native_controls,
+        native_tags,
+        selector,
+        control_micro,
+        evidence_root=tmp_path / "native-b-89",
+    )
+    assert len(result.treatment_candidates) == 89
+    payload = rw.fold_dose_scientific_payload(result)
+    assert payload["native_candidate_count"] == 89
+    assert payload["control_candidates_sha256"] == rw._identities_sha256(
+        native_controls
+    )
+
+
+def _one_positive_dose_result(monkeypatch, tmp_path):
+    (
+        prepared, players, worlds, raw, controls, tags, selector,
+        control_micro, neither, column_only, _,
+    ) = dose_fixture._prepare_dose_fixture(monkeypatch)
+    monkeypatch.setattr(
+        rw,
+        "solve_residual_pricing",
+        dose_fixture._fake_pricer((column_only[0], neither[87]), []),
+    )
+    monkeypatch.setattr(
+        rw, "_audit_pricing_evidence_semantics", lambda *args: None
+    )
+    result = rw.run_fold_doses(
+        prepared,
+        players,
+        worlds,
+        raw,
+        controls,
+        tags,
+        selector,
+        control_micro,
+        evidence_root=tmp_path / "phase3-positive",
+    )
+    return result
+
+
+def test_final_payload_rebuilds_every_pricing_objective_field(
+    monkeypatch, tmp_path,
+):
+    result = _one_positive_dose_result(monkeypatch, tmp_path)
+    first = result.steps[0]
+    pricing = first.pricing
+    indicators = [list(row) for row in pricing.indicators_by_threshold]
+    indicators[0][0] = 1 - indicators[0][0]
+    mutations = (
+        (
+            "scores_micro",
+            (*pricing.scores_micro[:-1], pricing.scores_micro[-1] + 1),
+            "active scores",
+        ),
+        (
+            "objective_vector",
+            (*pricing.objective_vector[:-1], pricing.objective_vector[-1] + 1),
+            "sequential objective",
+        ),
+        (
+            "sequential_optima",
+            (*pricing.sequential_optima[:-1], pricing.sequential_optima[-1] + 1),
+            "sequential objective",
+        ),
+        (
+            "marginal_threshold_counts",
+            (
+                *pricing.marginal_threshold_counts[:-1],
+                pricing.marginal_threshold_counts[-1] + 1,
+            ),
+            "tail counts",
+        ),
+        (
+            "indicators_by_threshold",
+            tuple(tuple(row) for row in indicators),
+            "tail indicators",
+        ),
+        (
+            "residuals_micro",
+            (*pricing.residuals_micro[:-1], pricing.residuals_micro[-1] + 1),
+            "positive residuals",
+        ),
+        (
+            "residual_gain_micro",
+            pricing.residual_gain_micro + 1,
+            "positive residuals",
+        ),
+        ("rank_sum", pricing.rank_sum + 1, "rank sum"),
+        (
+            "rank_sum_ambiguous",
+            not pricing.rank_sum_ambiguous,
+            "ambiguity receipt",
+        ),
+        ("admissible", not pricing.admissible, "admissibility"),
+    )
+    for field, value, match in mutations:
+        poisoned_pricing = replace(pricing, **{field: value})
+        poisoned = replace(
+            result,
+            steps=(
+                replace(first, pricing=poisoned_pricing),
+                *result.steps[1:],
+            ),
+        )
+        with pytest.raises(rw.ResidualWorldError, match=match):
+            rw.fold_dose_scientific_payload(poisoned)
+
+
+def test_final_payload_rejects_coherent_rank_first_roster_off_frozen_face(
+    monkeypatch, tmp_path,
+):
+    result = _one_positive_dose_result(monkeypatch, tmp_path)
+    first = result.steps[0]
+    pricing = first.pricing
+    players = result.audit_context.players
+    rank = {
+        player_id: index + 1
+        for index, player_id in enumerate(sorted(
+            player.player_id for player in players
+        ))
+    }
+    # Preserve canonical rank exactly while moving the claimed first roster
+    # off the frozen tail/residual face.  It is legal, known, and not a cut,
+    # so legality/rank/hash-only checks cannot reject it.
+    off_face = next(
+        roster for roster in dose_fixture._legal_rosters()
+        if roster != pricing.rank_first_roster
+        and roster not in first.complete_no_goods
+        and "DTE" not in roster
+        and sum(rank[player_id] for player_id in roster) == pricing.rank_sum
+    )
+    poisoned_pricing = replace(pricing, rank_first_roster=off_face)
+    poisoned = replace(
+        result,
+        steps=(replace(
+            first, pricing=poisoned_pricing
+        ), *result.steps[1:]),
+    )
+    with pytest.raises(
+        rw.ResidualWorldError, match="off its frozen objective face"
+    ):
+        rw.fold_dose_scientific_payload(poisoned)
+
+
+def _assignment_evidence(players, roster, *, label, objective):
+    model = rw.build_legal_lineup_model(
+        players, name=f"test_{label.replace(' ', '_')}"
+    )
+    decisions = tuple(sorted(
+        model.decision.items(), key=lambda item: item[1].name
+    ))
+    manifest = tuple(
+        (f"X{index:07d}", variable.name, "binary", 0, 1)
+        for index, (_, variable) in enumerate(decisions)
+    )
+    decode = tuple(
+        (
+            renamed,
+            str(int(player_id in roster)),
+            int(player_id in roster),
+            "0",
+        )
+        for (renamed, *_), (player_id, _) in zip(
+            manifest, decisions, strict=True
+        )
+    )
+    return replace(
+        dose_fixture._dummy_cbc_evidence(label),
+        objective=objective,
+        variable_domain_manifest=manifest,
+        integer_decode_rows=decode,
+    )
+
+
+def test_rank_and_ambiguity_receipts_bind_assignment_and_distance(
+    monkeypatch, tmp_path,
+):
+    result = _one_positive_dose_result(monkeypatch, tmp_path)
+    first = result.steps[0]
+    pricing = first.pricing
+    players = result.audit_context.players
+    rank_evidence = _assignment_evidence(
+        players,
+        pricing.rank_first_roster,
+        label="pricing tier canonical_rank_sum",
+        objective=pricing.rank_sum,
+    )
+    ambiguity_evidence = _assignment_evidence(
+        players,
+        pricing.rank_first_roster,
+        label="canonical ambiguity distance",
+        objective=rw.ROSTER_SIZE - pricing.ambiguity_distance,
+    )
+    rw._audit_rank_ambiguity_evidence_bindings(
+        pricing,
+        rank_evidence,
+        ambiguity_evidence,
+        players,
+        first.complete_no_goods,
+    )
+
+    alternate = next(
+        roster for roster in dose_fixture._legal_rosters()
+        if roster != pricing.rank_first_roster
+    )
+    wrong_rank_evidence = _assignment_evidence(
+        players,
+        alternate,
+        label="pricing tier canonical_rank_sum",
+        objective=pricing.rank_sum,
+    )
+    with pytest.raises(rw.ResidualWorldError, match="differs from rank evidence"):
+        rw._audit_rank_ambiguity_evidence_bindings(
+            pricing,
+            wrong_rank_evidence,
+            ambiguity_evidence,
+            players,
+            first.complete_no_goods,
+        )
+    with pytest.raises(
+        rw.ResidualWorldError, match="differs from ambiguity evidence"
+    ):
+        rw._audit_rank_ambiguity_evidence_bindings(
+            pricing,
+            rank_evidence,
+            replace(
+                ambiguity_evidence,
+                objective=ambiguity_evidence.objective - 1,
+            ),
+            players,
+            first.complete_no_goods,
+        )
+
+
+def test_final_payload_requires_the_exact_registered_prepared_fold(
+    monkeypatch, tmp_path,
+):
+    result = _one_positive_dose_result(monkeypatch, tmp_path)
+    for fold_name in ("B", "C"):
+        with pytest.raises(
+            rw.ResidualWorldError,
+            match="prepared fold identity|not one frozen cross-fit fold",
+        ):
+            rw.fold_dose_scientific_payload(replace(
+                result, fold_name=fold_name
+            ))
+
+
+def test_final_payload_independently_rebuilds_active_world_selection(
+    monkeypatch, tmp_path,
+):
+    result = _one_positive_dose_result(monkeypatch, tmp_path)
+    first = result.steps[0]
+    active = first.active_selections
+    poisons = (
+        (active[1], active[0], *active[2:]),
+        (*active[:-1], active[0]),
+        (
+            replace(active[0], book_max_micro=active[0].book_max_micro - 1),
+            *active[1:],
+        ),
+    )
+    for poisoned_active in poisons:
+        with pytest.raises(
+            rw.ResidualWorldError,
+            match="independent deterministic|repeats",
+        ):
+            rw.fold_dose_scientific_payload(replace(
+                result,
+                steps=(replace(
+                    first, active_selections=poisoned_active
+                ), *result.steps[1:]),
+            ))
+
+
+def test_final_payload_rejects_coherently_rehashed_duplicate_books_or_pools(
+    monkeypatch, tmp_path,
+):
+    result = _one_positive_dose_result(monkeypatch, tmp_path)
+    first = result.steps[0]
+    assert first.treatment_pool_after is not None
+    pool = (
+        first.treatment_pool_after[0],
+        first.treatment_pool_after[0],
+        *first.treatment_pool_after[2:],
+    )
+    assert first.selected_book_after is not None
+    book = (
+        first.selected_book_after[0],
+        first.selected_book_after[0],
+        *first.selected_book_after[2:],
+    )
+    final_pool = (
+        result.treatment_candidates[0],
+        result.treatment_candidates[0],
+        *result.treatment_candidates[2:],
+    )
+    poisons = (
+        replace(
+            result,
+            steps=(replace(
+                first,
+                treatment_pool_after=pool,
+                treatment_pool_sha256=rw._identities_sha256(pool),
+            ), *result.steps[1:]),
+        ),
+        replace(
+            result,
+            steps=(replace(
+                first,
+                selected_book_after=book,
+                selected_book_sha256=rw._identities_sha256(book),
+            ), *result.steps[1:]),
+        ),
+        replace(result, treatment_candidates=final_pool),
+    )
+    for poisoned in poisons:
+        with pytest.raises(
+            rw.ResidualWorldError,
+            match="treatment identity|treatment pool/book|final treatment pool",
+        ):
+            rw.fold_dose_scientific_payload(poisoned)
+
+
+def test_final_payload_replays_selector_against_coherently_reordered_book(
+    monkeypatch, tmp_path,
+):
+    result = _one_positive_dose_result(monkeypatch, tmp_path)
+    positive, null = result.steps
+    assert positive.selected_book_after is not None
+    reordered = tuple(reversed(positive.selected_book_after))
+    poisoned = replace(
+        result,
+        treatment_book=reordered,
+        steps=(
+            replace(
+                positive,
+                selected_book_after=reordered,
+                selected_book_sha256=rw._identities_sha256(reordered),
+            ),
+            replace(
+                null,
+                reference_book_before=reordered,
+                reference_book_sha256=rw._identities_sha256(reordered),
+            ),
+        ),
+    )
+    with pytest.raises(
+        rw.ResidualWorldError, match="treatment pool/book changed"
+    ):
+        rw.fold_dose_scientific_payload(poisoned)
+
+
+def test_final_payload_reopens_the_retained_artifact_inventory(
+    monkeypatch, tmp_path,
+):
+    result = _one_positive_dose_result(monkeypatch, tmp_path)
+    calls = []
+
+    def mutated_inventory(path, steps):
+        calls.append((path, tuple(steps)))
+        raise rw.ResidualWorldError("retained artifact hash changed")
+
+    monkeypatch.setattr(rw, "_audit_evidence_root_inventory", mutated_inventory)
+    with pytest.raises(rw.ResidualWorldError, match="artifact hash changed"):
+        rw.fold_dose_scientific_payload(result)
+    assert len(calls) == 1
+
+
+def test_final_payload_reconstructs_retained_score_matrices_not_only_hashes(
+    monkeypatch, tmp_path,
+):
+    result = _one_positive_dose_result(monkeypatch, tmp_path)
+    generated_selector = np.array(
+        result.generated_selector_totals, copy=True
+    )
+    generated_selector[0, 0] += np.float32(1.0)
+    coherent_generated_hash = replace(
+        result,
+        generated_selector_totals=generated_selector,
+        generated_selector_totals_sha256=rw._array_sha256(
+            generated_selector
+        ),
+    )
+    with pytest.raises(
+        rw.ResidualWorldError, match="generated selector totals changed"
+    ):
+        rw.fold_dose_scientific_payload(coherent_generated_hash)
+
+    treatment_micro = np.array(result.treatment_micro_totals, copy=True)
+    treatment_micro[0, 0] += 1
+    coherent_treatment_hash = replace(
+        result,
+        treatment_micro_totals=treatment_micro,
+        treatment_micro_totals_sha256=rw._array_sha256(treatment_micro),
+    )
+    with pytest.raises(
+        rw.ResidualWorldError,
+        match="micro totals do not reconstruct|treatment score-parity",
+    ):
+        rw.fold_dose_scientific_payload(coherent_treatment_hash)
 
 
 @pytest.mark.parametrize(

@@ -374,6 +374,7 @@ class PreparedFoldReservoir:
     world_ids_sha256: str
     player_catalog_sha256: str
     player_draws_sha256: str
+    control_candidates: tuple[tuple[str, ...], ...]
     control_candidates_sha256: str
     control_source_tags: tuple[tuple[str, ...], ...]
     control_source_tags_sha256: str
@@ -410,6 +411,27 @@ class FoldDoseStep:
 
 
 @dataclass(frozen=True, slots=True)
+class FoldDoseAuditContext:
+    """Immutable source material needed to re-audit a dose at serialization.
+
+    These values are deliberately excluded from the scientific projection:
+    their canonical hashes and the independently reconstructed receipts are
+    what enter that projection.  Retaining the source values prevents a
+    deserialized :class:`FoldDoseResult` from licensing itself by presenting
+    only internally consistent hashes.
+    """
+
+    prepared: PreparedFoldReservoir
+    players: tuple[PlayerSpec, ...]
+    world_ids: tuple[WorldId, ...]
+    raw_player_draws: np.ndarray = field(compare=False, repr=False)
+    control_identities: tuple[tuple[str, ...], ...]
+    control_source_tags: tuple[tuple[str, ...], ...]
+    control_selector_totals: np.ndarray = field(compare=False, repr=False)
+    control_micro_totals: np.ndarray = field(compare=False, repr=False)
+
+
+@dataclass(frozen=True, slots=True)
 class FoldDoseResult:
     fold_name: str
     prepared_fold_sha256: str
@@ -425,6 +447,7 @@ class FoldDoseResult:
     stopped_on_first_null: bool
     null_iteration: int | None
     selector_call_count: int
+    audit_context: FoldDoseAuditContext = field(compare=False, repr=False)
     operational_evidence: "FoldDoseOperationalEvidence" = field(
         compare=False, repr=False
     )
@@ -892,8 +915,22 @@ def prepared_fold_scientific_payload(
     spec = _fold_spec(prepared.fold_name)
     if prepared.fold_sha256 != _fold_sha256(spec):
         raise ResidualWorldError("prepared fold definition hash changed")
+    control_candidates = tuple(
+        canonical_identity(identity) for identity in prepared.control_candidates
+    )
+    native_candidate_count = len(control_candidates)
+    if (
+        native_candidate_count < ENTRY_COUNT + K_MAX
+        or control_candidates != prepared.control_candidates
+        or len(set(control_candidates)) != native_candidate_count
+        or _identities_sha256(control_candidates)
+        != prepared.control_candidates_sha256
+    ):
+        raise ResidualWorldError(
+            "prepared native candidate pool identity changed"
+        )
     control_source_tags = _source_tags(
-        prepared.control_source_tags, ENTRY_COUNT + K_MAX
+        prepared.control_source_tags, native_candidate_count
     )
     if (
         _source_tags_sha256(control_source_tags)
@@ -904,20 +941,28 @@ def prepared_fold_scientific_payload(
         canonical_identity(identity) for identity in prepared.control_book
     )
     if (
-        len(control_book) != ENTRY_COUNT
+        control_book != prepared.control_book
+        or len(control_book) != ENTRY_COUNT
         or len(set(control_book)) != ENTRY_COUNT
+        or not set(control_book) <= set(control_candidates)
         or _identities_sha256(control_book) != prepared.control_book_sha256
     ):
         raise ResidualWorldError("prepared control book hash changed")
     pruning = prepared.pruning
+    removal_order = tuple(
+        canonical_identity(identity) for identity in pruning.removal_order
+    )
     if (
-        pruning.original_candidates != ENTRY_COUNT + K_MAX
+        pruning.original_candidates != native_candidate_count
         or len(pruning.steps) != K_MAX
         or tuple(step.dose for step in pruning.steps)
         != tuple(range(1, K_MAX + 1))
         or tuple(step.remaining_candidates for step in pruning.steps)
         != tuple(pruning.original_candidates - dose for dose in range(1, K_MAX + 1))
-        or len(set(pruning.removal_order)) != K_MAX
+        or removal_order != pruning.removal_order
+        or len(set(removal_order)) != K_MAX
+        or not set(removal_order) <= set(control_candidates)
+        or set(removal_order) & set(control_book)
     ):
         raise ResidualWorldError("prepared pruning receipt changed")
     selections = tuple(prepared.reservoir_selections)
@@ -939,6 +984,7 @@ def prepared_fold_scientific_payload(
         "protocol_amendment_sha256": PROTOCOL_AMENDMENT_SHA256,
         "fold_name": prepared.fold_name,
         "fold_sha256": prepared.fold_sha256,
+        "native_candidate_count": native_candidate_count,
         "world_ids_sha256": prepared.world_ids_sha256,
         "player_catalog_sha256": prepared.player_catalog_sha256,
         "player_draws_sha256": prepared.player_draws_sha256,
@@ -1326,6 +1372,7 @@ def prepare_fold_reservoir(
         world_ids_sha256=_world_ids_sha256(worlds),
         player_catalog_sha256=_player_catalog_sha256(rows),
         player_draws_sha256=_array_sha256(raw),
+        control_candidates=controls,
         control_candidates_sha256=_identities_sha256(controls),
         control_source_tags=source_tags,
         control_source_tags_sha256=_source_tags_sha256(source_tags),
@@ -1745,6 +1792,66 @@ def _expected_pricing_model_receipts(
     return tuple(receipts)
 
 
+def _rank_identity_from_solve_evidence(
+    evidence: CbcSolveEvidence,
+    players: tuple[PlayerSpec, ...],
+    complete_no_goods: tuple[tuple[str, ...], ...],
+) -> tuple[str, ...]:
+    """Decode the rank solve's exact roster from its retained assignment.
+
+    The ambiguity model is constructed relative to ``rank_first_roster``.
+    Therefore that identity cannot be accepted merely because its claimed
+    rank sum is correct: it must be the binary decision assignment proven by
+    the immediately preceding canonical-rank solve.
+    """
+    model = build_legal_lineup_model(
+        players,
+        name="residual_world_rank_assignment_audit",
+        forbidden_rosters=complete_no_goods,
+    )
+    assignment_rows = _scientific_assignment_from_evidence(evidence)
+    assignment = dict(assignment_rows)
+    if len(assignment) != len(assignment_rows):
+        raise ResidualWorldError("pricing rank evidence repeats a variable")
+    selected: list[str] = []
+    for player_id, variable in model.decision.items():
+        value = assignment.get(variable.name)
+        if value not in {0, 1}:
+            raise ResidualWorldError(
+                "pricing rank evidence lacks an exact binary decision"
+            )
+        if value == 1:
+            selected.append(player_id)
+    try:
+        return audit_legal_identity(players, selected)
+    except ResidualWorldError as exc:
+        raise ResidualWorldError(
+            "pricing rank evidence does not decode one legal roster"
+        ) from exc
+
+
+def _audit_rank_ambiguity_evidence_bindings(
+    pricing: PricingResult,
+    rank_receipt: CbcSolveEvidence,
+    ambiguity_receipt: CbcSolveEvidence,
+    players: tuple[PlayerSpec, ...],
+    complete_no_goods: tuple[tuple[str, ...], ...],
+) -> None:
+    """Bind both tie receipts to the claimed rank-first identity/distance."""
+    if _rank_identity_from_solve_evidence(
+        rank_receipt, players, complete_no_goods
+    ) != pricing.rank_first_roster:
+        raise ResidualWorldError(
+            "pricing first rank-optimal roster differs from rank evidence"
+        )
+    if ambiguity_receipt.objective != (
+        ROSTER_SIZE - pricing.ambiguity_distance
+    ):
+        raise ResidualWorldError(
+            "pricing ambiguity distance differs from ambiguity evidence"
+        )
+
+
 def _audit_pricing_evidence_semantics(
     pricing: PricingResult,
     players: tuple[PlayerSpec, ...],
@@ -1886,6 +1993,8 @@ def _audit_pricing_evidence_semantics(
     resolved_root = evidence_root.resolve()
     paths: list[Path] = []
     prior_receipt: CbcSolveEvidence | None = None
+    rank_receipt: CbcSolveEvidence | None = None
+    ambiguity_receipt: CbcSolveEvidence | None = None
     for receipt, (label, objective, warm, cuts, preprocess), (
         model_label, model_sha256, manifest_sha256
     ) in zip(
@@ -1931,9 +2040,22 @@ def _audit_pricing_evidence_semantics(
             )
         ):
             raise ResidualWorldError("pricing evidence semantic law changed")
+        if label == "pricing tier canonical_rank_sum":
+            rank_receipt = receipt
+        elif label == "canonical ambiguity distance":
+            ambiguity_receipt = receipt
         prior_receipt = receipt
     if len(paths) != len(set(paths)):
         raise ResidualWorldError("pricing evidence path or receipt is reused")
+    if rank_receipt is None or ambiguity_receipt is None:
+        raise ResidualWorldError("pricing rank/ambiguity evidence is missing")
+    _audit_rank_ambiguity_evidence_bindings(
+        pricing,
+        rank_receipt,
+        ambiguity_receipt,
+        players,
+        complete_no_goods,
+    )
 
 
 def _audit_evidence_root_inventory(
@@ -2075,6 +2197,32 @@ def _audit_pricing_result(
     )
     if pricing.rank_first_roster != first or first_rank != pricing.rank_sum:
         raise ResidualWorldError("pricing first rank-optimal roster is malformed")
+    if first in complete_no_goods:
+        raise ResidualWorldError(
+            "pricing first rank-optimal roster violates a complete no-good"
+        )
+    first_chosen = np.asarray(
+        [row[player_id] for player_id in first], dtype=int
+    )
+    first_scores = active_scores_micro[first_chosen].sum(
+        axis=0, dtype=np.int64
+    )
+    if np.any(first_scores < lower) or np.any(first_scores > upper):
+        raise ResidualWorldError(
+            "pricing first rank-optimal roster is off its frozen legal face"
+        )
+    first_indicators = tuple(tuple(
+        int(int(maxima[world]) < threshold <= int(first_scores[world]))
+        for world in range(len(first_scores))
+    ) for threshold in TAIL_THRESHOLDS_MICRO)
+    first_counts = tuple(sum(values) for values in first_indicators)
+    first_gain = sum(
+        int(value) for value in np.maximum(first_scores - maxima, 0)
+    )
+    if first_counts != counts or first_gain != gain:
+        raise ResidualWorldError(
+            "pricing first rank-optimal roster is off its frozen objective face"
+        )
     distance = _strict_integer(
         pricing.ambiguity_distance, "pricing ambiguity distance"
     )
@@ -2084,6 +2232,10 @@ def _audit_pricing_result(
         raise ResidualWorldError("pricing ambiguity receipt is inconsistent")
     if pricing.admissible != any(counts):
         raise ResidualWorldError("pricing admissibility disagrees with tail tiers")
+    if not pricing.rank_sum_ambiguous and identity != first:
+        raise ResidualWorldError(
+            "unambiguous pricing identity differs from its rank solve"
+        )
     _audit_pricing_evidence_semantics(
         pricing,
         players,
@@ -2439,6 +2591,16 @@ def run_fold_doses(
         stopped_on_first_null=stopped,
         null_iteration=null_iteration,
         selector_call_count=selector_call_count,
+        audit_context=FoldDoseAuditContext(
+            prepared=prepared,
+            players=rows,
+            world_ids=worlds,
+            raw_player_draws=_readonly_copy(raw),
+            control_identities=controls,
+            control_source_tags=prepared.control_source_tags,
+            control_selector_totals=_readonly_copy(selector_totals),
+            control_micro_totals=_readonly_copy(micro_totals),
+        ),
         operational_evidence=FoldDoseOperationalEvidence(
             evidence_root=str(evidence_path.resolve()),
             evidence_root_sha256=_canonical_json_sha256({
@@ -2478,67 +2640,424 @@ def _pricing_evidence_manifest_sha256(
 
 
 def _audit_fold_dose_result_scientific_state(result: FoldDoseResult) -> None:
-    """Recompute every scientific field retained inside a dose result."""
+    """Rebuild a complete fold dose from retained source values.
+
+    This is intentionally more than a hash check.  Every selector book,
+    residual-world queue, pricing statistic, matched-budget replacement,
+    score-parity receipt, and retained CBC artifact is reconstructed at the
+    serialization boundary.
+    """
+    context = result.audit_context
+    if not isinstance(context, FoldDoseAuditContext) or not isinstance(
+        context.prepared, PreparedFoldReservoir
+    ):
+        raise ResidualWorldError("fold dose lacks its retained audit context")
+    spec = _fold_spec(result.fold_name)
+    if context.prepared.fold_name != spec.name:
+        raise ResidualWorldError("fold dose prepared fold identity changed")
+    rows = _players(context.players)
+    if rows != tuple(context.players):
+        raise ResidualWorldError("fold dose player catalog changed")
+    worlds = _exact_world_order(context.world_ids)
+    raw = _player_draw_matrix(
+        context.raw_player_draws, len(rows), len(worlds)
+    )
+    player_micro = to_micro_dk(raw)
+    controls = tuple(
+        canonical_identity(identity) for identity in context.control_identities
+    )
+    native_candidate_count = len(controls)
+    if (
+        native_candidate_count < ENTRY_COUNT + K_MAX
+        or len(set(controls)) != native_candidate_count
+    ):
+        raise ResidualWorldError("fold dose native control pool changed")
+    for identity in controls:
+        audit_legal_identity(rows, identity)
+    control_tags = _source_tags(
+        context.control_source_tags, native_candidate_count
+    )
+    selector_totals = _selector_matrix(
+        context.control_selector_totals,
+        native_candidate_count,
+        len(worlds),
+    )
+    micro_totals = _micro_matrix(
+        context.control_micro_totals,
+        rows=native_candidate_count,
+        label="retained control micro totals",
+    )
+    if micro_totals.shape[1] != len(worlds):
+        raise ResidualWorldError("retained control micro totals are misaligned")
+
+    # Rebuild the immutable preparation from retained values.  The final
+    # scientific boundary deliberately replays the unchanged deterministic
+    # selector: hashes, membership, and downstream maxima cannot prove the
+    # exact ordered book when an attacker coherently changes a receipt.
+    rebuilt_prepared = context.prepared
+    if (
+        rebuilt_prepared.fold_sha256 != _fold_sha256(spec)
+        or rebuilt_prepared.world_ids_sha256 != _world_ids_sha256(worlds)
+        or rebuilt_prepared.player_catalog_sha256
+        != _player_catalog_sha256(rows)
+        or rebuilt_prepared.player_draws_sha256 != _array_sha256(raw)
+        or rebuilt_prepared.control_candidates != controls
+        or rebuilt_prepared.control_candidates_sha256
+        != _identities_sha256(controls)
+        or rebuilt_prepared.control_source_tags != control_tags
+        or rebuilt_prepared.control_source_tags_sha256
+        != _source_tags_sha256(control_tags)
+        or rebuilt_prepared.control_selector_totals_sha256
+        != _array_sha256(selector_totals)
+        or rebuilt_prepared.control_micro_totals_sha256
+        != _array_sha256(micro_totals)
+    ):
+        raise ResidualWorldError("fold dose prepared source binding changed")
+    reconstructed_selector, reconstructed_micro = _cross_score_rosters(
+        rows, raw, player_micro, controls
+    )
+    if not np.array_equal(reconstructed_selector, selector_totals) or not (
+        np.array_equal(reconstructed_micro, micro_totals)
+    ):
+        raise ResidualWorldError("fold dose prepared score matrices changed")
+    control_parity = _validate_roster_micro_parity(
+        rows,
+        raw,
+        player_micro,
+        controls,
+        selector_totals,
+        micro_totals,
+    )
+    if (
+        control_parity != rebuilt_prepared.control_score_parity
+        or control_parity.sha256
+        != rebuilt_prepared.control_score_parity_sha256
+    ):
+        raise ResidualWorldError("fold dose control score-parity changed")
+    control_book = tuple(
+        canonical_identity(identity) for identity in rebuilt_prepared.control_book
+    )
+    if (
+        control_book != rebuilt_prepared.control_book
+        or len(control_book) != ENTRY_COUNT
+        or len(set(control_book)) != ENTRY_COUNT
+        or not set(control_book) <= set(controls)
+        or _identities_sha256(control_book)
+        != rebuilt_prepared.control_book_sha256
+    ):
+        raise ResidualWorldError("fold dose prepared control book changed")
+    construction_columns = np.asarray([
+        index for index, world in enumerate(worlds)
+        if world.block in spec.construction_blocks
+    ], dtype=int)
+    replayed_control_book, _ = _select_exact_book(
+        controls, selector_totals, construction_columns
+    )
+    if replayed_control_book != control_book:
+        raise ResidualWorldError(
+            "fold dose prepared control book differs from selector replay"
+        )
+    expected_pruning = reverse_greedy_pruning_order(
+        controls,
+        micro_totals[:, construction_columns],
+        control_book,
+        steps=K_MAX,
+        expected_protected_count=ENTRY_COUNT,
+    )
+    if expected_pruning != rebuilt_prepared.pruning:
+        raise ResidualWorldError("fold dose prepared pruning changed")
+    replayed_prefix_books: list[tuple[tuple[str, ...], ...]] = []
+    for dose in range(1, K_MAX + 1):
+        removed = set(expected_pruning.removal_order[:dose])
+        retained_indices = [
+            index for index, identity in enumerate(controls)
+            if identity not in removed
+        ]
+        retained = tuple(controls[index] for index in retained_indices)
+        selected, _ = _select_exact_book(
+            retained,
+            selector_totals[retained_indices],
+            construction_columns,
+        )
+        replayed_prefix_books.append(selected)
+    verify_protected_book_reproduction(
+        control_book, replayed_prefix_books
+    )
+    initial_rows = np.asarray(
+        [controls.index(identity) for identity in control_book], dtype=int
+    )
+    initial_maxima = micro_totals[
+        initial_rows[:, None], construction_columns
+    ].max(axis=0)
+    relaxed_upper = position_shape_upper_bounds_micro(
+        player_micro[:, construction_columns],
+        [player.position for player in rows],
+    )
+    construction_worlds = tuple(worlds[index] for index in construction_columns)
+    reservoir_selections = _audit_block_selection(
+        rebuilt_prepared.reservoir_selections,
+        construction_worlds,
+        initial_maxima,
+        relaxed_upper,
+        tuple(
+            (block, spec.reservoir_per_block)
+            for block in spec.construction_blocks
+        ),
+    )
+    bounds = tuple(rebuilt_prepared.reservoir_bounds)
+    if (
+        tuple(value.world_id for value in reservoir_selections)
+        != tuple(bound.world_id for bound in bounds)
+        or _world_selections_sha256(reservoir_selections)
+        != rebuilt_prepared.reservoir_selections_sha256
+        or _reservoir_sha256(reservoir_selections, bounds)
+        != rebuilt_prepared.reservoir_sha256
+    ):
+        raise ResidualWorldError("fold dose prepared reservoir changed")
+    _validate_bound_receipts(rows, player_micro, worlds, bounds)
+    if (
+        prepared_fold_sha256(rebuilt_prepared) != result.prepared_fold_sha256
+        or rebuilt_prepared.reservoir_sha256
+        != result.prepared_reservoir_sha256
+    ):
+        raise ResidualWorldError("fold dose prepared receipt hash changed")
+    if (
+        tuple(result.control_source_tags) != control_tags
+        or tuple(result.control_book) != rebuilt_prepared.control_book
+    ):
+        raise ResidualWorldError("fold dose control source/book changed")
+
     steps = tuple(result.steps)
     if not steps or tuple(step.iteration for step in steps) != tuple(
         range(1, len(steps) + 1)
     ):
         raise ResidualWorldError("fold dose step order changed")
-    if len(steps) > K_MAX or len(result.generated_columns) > K_MAX:
-        raise ResidualWorldError("fold dose exceeds frozen K_max")
-
-    controls = tuple(
-        canonical_identity(identity) for identity in steps[0].complete_no_goods
+    generated_tuple = tuple(
+        canonical_identity(identity) for identity in result.generated_columns
     )
     if (
-        len(controls) != ENTRY_COUNT + K_MAX
-        or len(set(controls)) != len(controls)
-        or len(result.control_book) != ENTRY_COUNT
-        or not set(result.control_book) <= set(controls)
+        len(steps) > K_MAX
+        or len(generated_tuple) > K_MAX
+        or generated_tuple != tuple(result.generated_columns)
+        or len(set(generated_tuple)) != len(generated_tuple)
+        or set(generated_tuple) & set(controls)
     ):
-        raise ResidualWorldError("fold dose control pool/book changed")
-    control_tags = _source_tags(result.control_source_tags, len(controls))
-    if tuple(result.control_source_tags) != control_tags:
-        raise ResidualWorldError("fold dose control source tags changed")
+        raise ResidualWorldError("fold dose generated-column sequence changed")
 
+    generated_selector = _selector_matrix(
+        result.generated_selector_totals,
+        len(generated_tuple),
+        len(worlds),
+    )
+    if generated_tuple:
+        generated_micro = _micro_matrix(
+            result.generated_micro_totals,
+            rows=len(generated_tuple),
+            label="retained generated micro totals",
+        )
+    else:
+        generated_micro = np.asarray(result.generated_micro_totals)
+        if generated_micro.dtype != np.int64 or generated_micro.shape != (
+            0, len(worlds)
+        ):
+            raise ResidualWorldError(
+                "retained generated micro totals are misaligned"
+            )
+    if generated_micro.shape[1] != len(worlds):
+        raise ResidualWorldError("retained generated micro totals are misaligned")
+    expected_generated_selector, expected_generated_micro = _cross_score_rosters(
+        rows, raw, player_micro, generated_tuple
+    )
+    if not np.array_equal(generated_selector, expected_generated_selector):
+        raise ResidualWorldError("generated selector totals changed")
+    if not np.array_equal(generated_micro, expected_generated_micro):
+        raise ResidualWorldError("generated micro totals changed")
+    generated_parity = _validate_roster_micro_parity(
+        rows,
+        raw,
+        player_micro,
+        generated_tuple,
+        generated_selector,
+        generated_micro,
+    )
+    if (
+        generated_parity != result.generated_score_parity
+        or generated_parity.sha256 != result.generated_score_parity_sha256
+        or _array_sha256(generated_selector)
+        != result.generated_selector_totals_sha256
+        or _array_sha256(generated_micro)
+        != result.generated_micro_totals_sha256
+    ):
+        raise ResidualWorldError("generated score-parity receipt hash changed")
+
+    treatment_candidates = tuple(
+        canonical_identity(identity) for identity in result.treatment_candidates
+    )
+    if (
+        treatment_candidates != tuple(result.treatment_candidates)
+        or len(treatment_candidates) != native_candidate_count
+        or len(set(treatment_candidates)) != native_candidate_count
+    ):
+        raise ResidualWorldError("fold dose final treatment identity changed")
+    treatment_selector = _selector_matrix(
+        result.treatment_selector_totals,
+        native_candidate_count,
+        len(worlds),
+    )
+    treatment_micro = _micro_matrix(
+        result.treatment_micro_totals,
+        rows=native_candidate_count,
+        label="retained treatment micro totals",
+    )
+    if treatment_micro.shape[1] != len(worlds):
+        raise ResidualWorldError("retained treatment micro totals are misaligned")
+    treatment_parity = _validate_roster_micro_parity(
+        rows,
+        raw,
+        player_micro,
+        treatment_candidates,
+        treatment_selector,
+        treatment_micro,
+    )
+    if (
+        treatment_parity != result.treatment_score_parity
+        or treatment_parity.sha256 != result.treatment_score_parity_sha256
+        or _array_sha256(treatment_selector)
+        != result.treatment_selector_totals_sha256
+        or _array_sha256(treatment_micro)
+        != result.treatment_micro_totals_sha256
+    ):
+        raise ResidualWorldError("treatment score-parity receipt hash changed")
+
+    operational = result.operational_evidence
+    if not isinstance(operational, FoldDoseOperationalEvidence):
+        raise ResidualWorldError("fold dose operational evidence is malformed")
+    evidence_path = Path(operational.evidence_root)
+    if not evidence_path.is_absolute():
+        raise ResidualWorldError("fold dose evidence root is not absolute")
+    resolved_evidence = evidence_path.resolve()
+    if (
+        str(resolved_evidence) != operational.evidence_root
+        or _canonical_json_sha256({
+            "resolved_evidence_root": str(resolved_evidence)
+        }) != operational.evidence_root_sha256
+    ):
+        raise ResidualWorldError("fold dose operational evidence root changed")
+
+    reservoir_ids = tuple(
+        bound.world_id for bound in rebuilt_prepared.reservoir_bounds
+    )
+    if len(reservoir_ids) != FOLD_RESERVOIR_SIZE or len(
+        set(reservoir_ids)
+    ) != FOLD_RESERVOIR_SIZE:
+        raise ResidualWorldError("fold dose reservoir identities changed")
+    reservoir_positions = {world: index for index, world in enumerate(reservoir_ids)}
+    global_positions = {world: index for index, world in enumerate(worlds)}
+    reservoir_global = np.asarray(
+        [global_positions[world] for world in reservoir_ids], dtype=int
+    )
+    reservoir_upper = np.asarray(
+        [bound.upper_micro for bound in rebuilt_prepared.reservoir_bounds],
+        dtype=np.int64,
+    )
+    lower_by_world = {
+        bound.world_id: bound.lower_micro
+        for bound in rebuilt_prepared.reservoir_bounds
+    }
+    upper_by_world = {
+        bound.world_id: bound.upper_micro
+        for bound in rebuilt_prepared.reservoir_bounds
+    }
     generated: list[tuple[str, ...]] = []
-    prior_book = tuple(canonical_identity(value) for value in result.control_book)
+    generated_selector_rows: list[np.ndarray] = []
+    generated_micro_rows: list[np.ndarray] = []
+    current_identities = controls
+    current_selector = selector_totals
+    current_micro = micro_totals
+    prior_book = rebuilt_prepared.control_book
     saw_null = False
     for step in steps:
         if step.reservoir_sha256 != result.prepared_reservoir_sha256:
             raise ResidualWorldError("fold dose reservoir binding changed")
-        maxima = np.asarray(step.reservoir_maxima_micro, dtype=np.int64)
-        if maxima.shape != (FOLD_RESERVOIR_SIZE,) or _array_sha256(maxima) != (
-            step.reservoir_maxima_sha256
-        ):
-            raise ResidualWorldError("fold dose reservoir maxima hash changed")
         if (
-            tuple(canonical_identity(value) for value in step.reference_book_before)
-            != prior_book
-            or _identities_sha256(step.reference_book_before)
-            != step.reference_book_sha256
+            tuple(step.reference_book_before) != prior_book
+            or len(prior_book) != ENTRY_COUNT
+            or len(set(prior_book)) != ENTRY_COUNT
+            or not set(prior_book) <= set(current_identities)
+            or _identities_sha256(prior_book) != step.reference_book_sha256
         ):
             raise ResidualWorldError("fold dose reference book hash changed")
-        active = tuple(step.active_selections)
+        current_rows = {identity: index for index, identity in enumerate(
+            current_identities
+        )}
+        book_rows = np.asarray(
+            [current_rows[identity] for identity in prior_book], dtype=int
+        )
+        expected_reservoir_maxima = current_micro[
+            book_rows[:, None], reservoir_global
+        ].max(axis=0)
+        observed_reservoir_maxima = _micro_vector(
+            step.reservoir_maxima_micro,
+            FOLD_RESERVOIR_SIZE,
+            "fold dose reservoir maxima",
+        )
         if (
-            len(active) != FOLD_ACTIVE_SIZE
-            or len({selection.world_id for selection in active}) != len(active)
-            or tuple(selection.book_max_micro for selection in active)
-            != tuple(step.reference_maxima_micro)
+            not np.array_equal(
+                observed_reservoir_maxima, expected_reservoir_maxima
+            )
+            or _array_sha256(observed_reservoir_maxima)
+            != step.reservoir_maxima_sha256
         ):
+            raise ResidualWorldError("fold dose reservoir maxima hash changed")
+        active = _audit_block_selection(
+            step.active_selections,
+            reservoir_ids,
+            expected_reservoir_maxima,
+            reservoir_upper,
+            tuple(
+                (block, spec.active_per_block)
+                for block in spec.construction_blocks
+            ),
+        )
+        if len(active) != FOLD_ACTIVE_SIZE:
             raise ResidualWorldError("fold dose active-world receipt changed")
+        active_reservoir = np.asarray(
+            [reservoir_positions[value.world_id] for value in active],
+            dtype=int,
+        )
+        active_global = reservoir_global[active_reservoir]
+        active_maxima = expected_reservoir_maxima[active_reservoir]
+        if tuple(int(value) for value in active_maxima) != tuple(
+            step.reference_maxima_micro
+        ):
+            raise ResidualWorldError("fold dose active maxima changed")
+        active_lower = np.asarray(
+            [lower_by_world[value.world_id] for value in active],
+            dtype=np.int64,
+        )
+        active_upper = np.asarray(
+            [upper_by_world[value.world_id] for value in active],
+            dtype=np.int64,
+        )
         expected_cuts = (*controls, *generated)
         if (
             tuple(step.complete_no_goods) != expected_cuts
-            or _identities_sha256(step.complete_no_goods)
+            or _identities_sha256(expected_cuts)
             != step.complete_no_goods_sha256
             or step.pricing.no_good_rosters != expected_cuts
         ):
             raise ResidualWorldError("fold dose complete no-good receipt changed")
+        _audit_pricing_result(
+            step.pricing,
+            rows,
+            player_micro[:, active_global],
+            active_maxima,
+            active_lower,
+            active_upper,
+            expected_cuts,
+            resolved_evidence,
+        )
         pricing_identity = canonical_identity(step.pricing.roster)
-        if pricing_identity != step.pricing.roster:
-            raise ResidualWorldError("fold dose pricing identity changed")
-
         if not step.pricing.admissible:
             if (
                 saw_null
@@ -2552,30 +3071,55 @@ def _audit_fold_dose_result_scientific_state(result: FoldDoseResult) -> None:
             saw_null = True
             continue
 
-        if saw_null or pricing_identity in expected_cuts:
+        if (
+            saw_null
+            or len(generated) >= len(generated_tuple)
+            or pricing_identity != generated_tuple[len(generated)]
+        ):
             raise ResidualWorldError("fold dose positive-step identity changed")
         generated.append(pricing_identity)
-        if step.treatment_pool_after is None or step.selected_book_after is None:
-            raise ResidualWorldError("fold dose positive-step pool is missing")
-        treatment_pool = tuple(
-            canonical_identity(value) for value in step.treatment_pool_after
+        generated_selector_rows.append(generated_selector[len(generated) - 1])
+        generated_micro_rows.append(generated_micro[len(generated) - 1])
+        (
+            expected_treatment,
+            expected_selector,
+            expected_micro,
+        ) = _materialize_treatment_scores(
+            controls,
+            selector_totals,
+            micro_totals,
+            rebuilt_prepared.pruning,
+            tuple(generated),
+            generated_selector_rows,
+            generated_micro_rows,
         )
         selected_book = tuple(
-            canonical_identity(value) for value in step.selected_book_after
+            canonical_identity(identity)
+            for identity in (step.selected_book_after or ())
+        )
+        replayed_selected_book, _ = _select_exact_book(
+            expected_treatment,
+            expected_selector,
+            construction_columns,
         )
         if (
-            len(treatment_pool) != len(controls)
-            or len(set(treatment_pool)) != len(treatment_pool)
-            or _identities_sha256(treatment_pool) != step.treatment_pool_sha256
+            step.treatment_pool_after != expected_treatment
+            or step.treatment_pool_sha256
+            != _identities_sha256(expected_treatment)
+            or step.selected_book_after != selected_book
             or len(selected_book) != ENTRY_COUNT
-            or not set(selected_book) <= set(treatment_pool)
-            or _identities_sha256(selected_book) != step.selected_book_sha256
+            or len(set(selected_book)) != ENTRY_COUNT
+            or not set(selected_book) <= set(expected_treatment)
+            or step.selected_book_sha256 != _identities_sha256(selected_book)
+            or selected_book != replayed_selected_book
         ):
-            raise ResidualWorldError("fold dose treatment pool/book hash changed")
+            raise ResidualWorldError("fold dose treatment pool/book changed")
+        current_identities = expected_treatment
+        current_selector = expected_selector
+        current_micro = expected_micro
         prior_book = selected_book
 
-    generated_tuple = tuple(generated)
-    if generated_tuple != tuple(result.generated_columns):
+    if tuple(generated) != generated_tuple:
         raise ResidualWorldError("fold dose generated-column sequence changed")
     if saw_null:
         if (
@@ -2594,48 +3138,36 @@ def _audit_fold_dose_result_scientific_state(result: FoldDoseResult) -> None:
     if result.selector_call_count != 1 + K_MAX + len(generated_tuple):
         raise ResidualWorldError("fold dose selector call count changed")
 
-    treatment_candidates = tuple(
-        canonical_identity(value) for value in result.treatment_candidates
-    )
     if (
-        len(treatment_candidates) != len(controls)
-        or len(set(treatment_candidates)) != len(treatment_candidates)
+        treatment_candidates != current_identities
+        or not np.array_equal(treatment_selector, current_selector)
+        or not np.array_equal(treatment_micro, current_micro)
         or tuple(result.treatment_book) != prior_book
-        or len(result.treatment_book) != ENTRY_COUNT
-        or not set(result.treatment_book) <= set(treatment_candidates)
     ):
-        raise ResidualWorldError("fold dose final treatment identity changed")
-    expected_candidates = (
-        tuple(steps[-1].treatment_pool_after)
-        if steps[-1].treatment_pool_after is not None
-        else (
-            tuple(steps[-2].treatment_pool_after)
-            if len(steps) > 1 and steps[-2].treatment_pool_after is not None
-            else controls
-        )
-    )
-    if treatment_candidates != expected_candidates:
         raise ResidualWorldError("fold dose final treatment pool changed")
-
     tag_by_control = dict(zip(controls, control_tags, strict=True))
     generated_tag = {
-        identity: (f"residual_world:fold_{result.fold_name}:column_{index:02d}",)
+        identity: (f"residual_world:fold_{spec.name}:column_{index:02d}",)
         for index, identity in enumerate(generated_tuple, 1)
     }
     expected_tags = tuple(
         tag_by_control.get(identity, generated_tag.get(identity, ()))
         for identity in treatment_candidates
     )
-    if any(not tags for tags in expected_tags) or tuple(
-        result.treatment_source_tags
-    ) != expected_tags or _source_tags_sha256(expected_tags) != (
-        result.treatment_source_tags_sha256
+    if (
+        any(not tags for tags in expected_tags)
+        or tuple(result.treatment_source_tags) != expected_tags
+        or _source_tags_sha256(expected_tags)
+        != result.treatment_source_tags_sha256
     ):
         raise ResidualWorldError("fold dose treatment source tags changed")
     if _pricing_evidence_manifest_sha256(steps) != (
         result.pricing_evidence_manifest_sha256
     ):
         raise ResidualWorldError("fold dose pricing evidence manifest changed")
+    # This is deliberately last: every solve artifact is re-opened and
+    # re-hashed immediately before the result can be serialized.
+    _audit_evidence_root_inventory(resolved_evidence, steps)
 
 
 def fold_dose_scientific_payload(result: FoldDoseResult) -> dict[str, object]:
@@ -2661,14 +3193,21 @@ def fold_dose_scientific_payload(result: FoldDoseResult) -> dict[str, object]:
         != result.treatment_score_parity_sha256
     ):
         raise ResidualWorldError("fold dose score-parity receipt hash changed")
+    spec = _fold_spec(result.fold_name)
+    native_candidate_count = len(result.audit_context.control_identities)
     payload: dict[str, object] = {
         "protocol_id": PROTOCOL_ID,
         "protocol_document_sha256": PROTOCOL_DOCUMENT_SHA256,
         "protocol_amendment_id": PROTOCOL_AMENDMENT_ID,
         "protocol_amendment_sha256": PROTOCOL_AMENDMENT_SHA256,
         "fold_name": result.fold_name,
+        "fold_sha256": _fold_sha256(spec),
+        "native_candidate_count": native_candidate_count,
         "prepared_fold_sha256": result.prepared_fold_sha256,
         "prepared_reservoir_sha256": result.prepared_reservoir_sha256,
+        "control_candidates_sha256": _identities_sha256(
+            result.audit_context.control_identities
+        ),
         "control_book_sha256": _identities_sha256(result.control_book),
         "control_source_tags_sha256": _source_tags_sha256(
             result.control_source_tags
@@ -2692,7 +3231,30 @@ def fold_dose_scientific_payload(result: FoldDoseResult) -> dict[str, object]:
             "complete_no_goods_sha256": step.complete_no_goods_sha256,
             "pricing_input_sha256": step.pricing.pricing_input_sha256,
             "pricing_roster": list(step.pricing.roster),
+            "pricing_scores_micro_sha256": _array_sha256(np.asarray(
+                step.pricing.scores_micro, dtype=np.int64
+            )),
+            "pricing_marginal_threshold_counts": list(
+                step.pricing.marginal_threshold_counts
+            ),
+            "pricing_indicators_sha256": _array_sha256(np.asarray(
+                step.pricing.indicators_by_threshold, dtype=np.int8
+            )),
+            "pricing_residuals_micro_sha256": _array_sha256(np.asarray(
+                step.pricing.residuals_micro, dtype=np.int64
+            )),
+            "pricing_residual_gain_micro": step.pricing.residual_gain_micro,
             "pricing_objective": list(step.pricing.objective_vector),
+            "pricing_sequential_optima": list(
+                step.pricing.sequential_optima
+            ),
+            "pricing_rank_sum": step.pricing.rank_sum,
+            "pricing_rank_sum_ambiguous": step.pricing.rank_sum_ambiguous,
+            "pricing_ambiguity_distance": step.pricing.ambiguity_distance,
+            "pricing_rank_first_roster": list(
+                step.pricing.rank_first_roster
+            ),
+            "pricing_admissible": step.pricing.admissible,
             "pricing_evidence": [
                 _cbc_scientific_receipt(evidence)
                 for evidence in step.pricing.solve_evidence

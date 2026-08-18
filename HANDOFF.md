@@ -20,24 +20,17 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-17 22:52 CDT
+## Current state — 2026-08-17 22:59 CDT
 
 ### Production readiness is now a separate lane; residual phase 1 is durable
 
-- Branch is `main`. The selected-book calibration result and its independently
-  reproduced interpretation are pushed at `0233da5`, with residual phase 2 already
-  durable at `a8c87d9` and the Week 1 operations blockers recorded at
-  `dceda64`. The worktree contains two deliberate, separate uncommitted sets:
+- Branch is `main`. The independently reproduced selected-book calibration
+  result is pushed at `0233da5`; the independently green P0 forensic cleanup/
+  scheduler-resume repair is pushed at `029581e`; and residual phase 2 is
+  durable at `a8c87d9`. The only intended tracked worktree edits are repaired
   residual phase 3 in `src/nfl_dfs/research/residual_world_columns.py` and
-  `tests/test_residual_world_dose_harness.py`; and the local P0 forensic
-  cleanup/resume repair in `README.md`,
-  `scripts/cleanup_final_forensic_warehouse.py`,
-  `scripts/resume_2026_production_schedulers.py`,
-  `tests/test_final_forensic_cleanup.py`, and
-  `tests/test_resume_2026_production_schedulers.py`. The selected-book result
-  and its durable interpretation are also uncommitted pending this checkpoint.
-  Operator-supplied untracked reports/cloud receipts must not be staged
-  implicitly.
+  `tests/test_residual_world_dose_harness.py`. Operator-supplied untracked
+  reports/cloud receipts must not be staged implicitly.
 
 - Residual phase 1 is score-free and does not license a cloud run, historical
   score, 2026 outcome read or production change. It durably includes the
@@ -169,31 +162,33 @@ agent or developer:
   result licenses no fit, tuning, arm promotion, production change or
   permanent closure, and the money policy remains unchanged.
 
-- Residual phase 3's first local checkpoint was blocked by independent static
-  review despite its green tests. The serializer did not independently replay
-  the exact selector for the control/pruning-prefix/treatment books, and the
-  claimed rank-first roster was not yet independently proven to lie on the
-  frozen tail/residual/no-good face before ambiguity testing. Both are real
-  proof gaps, not new scientific hypotheses. Narrow repairs and coherent poison
-  tests are in progress; do not cite or commit phase 3 until the repaired stable
-  SHA passes the full short gates and independent re-review. The superseded
-  first-checkpoint identities were:
-  Source SHA-256 is
-  `1879a5d191c94e1687b76b0805332d2840e02414c363f7f73b51db79eef7ca6e`;
+- Residual phase 3 is independently GREEN after closing two proof gaps found by
+  its first static review. The final serializer now replays the exact unchanged
+  selector and requires ordered equality for the control book, all eight
+  pruning-prefix books and every positive treatment-dose book. It also proves
+  the rank-first roster is legal, outside all no-goods and on the frozen tail/
+  residual/rank face, decodes that identity from the retained rank-solve
+  assignment and binds the ambiguity distance to the retained ambiguity
+  objective. Repaired source SHA-256 is
+  `675dc73b2d9c708b0e33e79c92c8e5b7b843b2f89051887c5c67064d36924583`;
   dose-test SHA-256 is
-  `e5f3f95e51e66409b3b34fe4840195ac3b47b3babb669d3422181959b18be537`.
-  Apart from those two blockers, review found that it preserves native
-  `B_s >= 88` and independently rebuilds final fold,
+  `14c6774b02e03d3376b3bf487dcb1db5903688bd1629e310d4f37c9452ab1e64`;
+  core-test SHA-256 is
+  `6cdb0475b7c544a8ddbcfc15fa4dd05f865eae81f01d2051851d15dcba5dd29b`;
+  proof-test SHA-256 remains
+  `5edb03b25886685384661d93aed8a85bfa54cf92d1d005e8513b25ff5d1556ae`.
+  It preserves native `B_s >= 88` and independently rebuilds final fold,
   exact-active-world quota/order, exact-80 book, pricing objective/indicator/
   residual/rank/ambiguity/admissibility, cross-score parity, pruning and proof
-  artifact identities at serialization. Serialized score-free validation
-  passed 26/26 dose cases, 27/27 proof-hardening cases and the exact frozen
-  90/90 short-core selection, plus compile/diff checks. Those gates belong to
-  the superseded checkpoint and must be rerun after repair. The heavy pricing
-  cases, cloud and historical outcomes were not run; do not begin phase 4 or
-  commit phase 3 until its independent re-review is green.
+  artifact identities at serialization. Serialized validation passed 4/4 new
+  blocker poisons, 29/29 dose cases, 27/27 proof-hardening cases, 4/4 state-
+  machine cases and the exact frozen 90/90 short-core selection, plus compile/
+  diff checks. Independent re-review found both blockers closed and no
+  regression. Heavy pricing cases, cloud and historical outcomes were not run.
+  Commit/push this score-free checkpoint before beginning phase 4.
 
-- The local P0 cleanup/resume repair is independently GREEN. It requires both frozen forensic
+- The P0 cleanup/resume repair pushed at `029581e` is independently GREEN. It
+  requires both frozen forensic
   manifests, an exact eight-table pre-cleanup union, schema/metadata/expiry
   parity, an empty isolation dataset after deletion and an immutable aggregate
   receipt. Resume also requires byte-identical receipt content locally, at
@@ -206,9 +201,9 @@ agent or developer:
   passed 22/22, the repaired scheduler suite passed 23/23, deployment-contract
   parity is 27/27 and compile/diff checks pass. Independent static re-review
   found both prior blockers resolved and no new blocker. No live cleanup or
-  scheduler resume occurred. Commit and push this patch, then perform a live
-  verify-only dry run before deletion; do not resume until the tracked cleanup
-  receipt itself is committed and pushed.
+  scheduler resume occurred. Perform a live read-only pre-deletion inspection
+  before the eventual cleanup; do not resume until the tracked cleanup receipt
+  itself is committed and pushed.
 
 - Adopt the process-health recommendations in a bounded form. Production
   readiness and research are separate queues. Pure build/transport failures
@@ -257,20 +252,19 @@ agent or developer:
   execution failed before model work on a prefix/output-identity transport
   mismatch. The original target execution
   `atlas-md-s2023-w7-r6-9pxdt` remains genuinely running
-  (`Completed=Unknown`, `runningCount=1`) through the 22:48 CDT terminal-only
+  (`Completed=Unknown`, `runningCount=1`) through the 22:58 CDT terminal-only
   poll and must not be cancelled, duplicated or opened. The prospective
   transport amendment/validator at commit `71962ab` remains frozen; apply its
   unique replacement-proof branch only if the original target's terminal
   disposition and queue state license it. No ATLAS partial shard body,
   treatment effect or score has been inspected.
 
-- Exact next actions: (1) commit/push the independently green cleanup/resume
-  patch and this handoff; (2) finish the two narrow residual phase-3 repairs,
-  rerun its frozen short gates and obtain a new independent re-review; (3)
-  implement and independently review residual phase 4 before the deferred long
-  local pricing gate; (4) keep polling the ATLAS target by terminal status
-  only; and (5) perform the cleanup verify-only live dry run after its patch is
-  durable, then advance the remaining Week 1 operations checklist. Do not run
+- Exact next actions: (1) commit/push the independently green residual phase-3
+  checkpoint and this handoff; (2) implement and independently review residual
+  phase 4 before the deferred long local pricing gate; (3) keep polling the
+  ATLAS target by terminal status only; and (4) perform a live read-only
+  pre-deletion forensic inventory/contract check, then advance the remaining
+  Week 1 operations checklist. Do not run
   residual cloud/historical scoring, start a second heavy chain, inspect
   partial ATLAS scientific artifacts, delete forensic data, resume schedulers
   or change the money policy yet.

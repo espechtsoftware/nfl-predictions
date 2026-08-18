@@ -1968,19 +1968,29 @@ def test_hardwired_fold_dose_state_machine_and_complete_coupling(
         control_micro, neither, column_only, selector_calls,
     ) = _prepare_dose_fixture(monkeypatch)
     treatment_calls = 0
+    selector_outputs: dict[str, tuple[int, ...]] = {}
 
     def scripted_selector(values, entries, line, env):
         nonlocal treatment_calls
         selector_calls.append((values.shape, entries, line, dict(env)))
         assert values.dtype == np.float32
         assert values.shape[1] == 30_000
+        key = rw._array_sha256(values)
+        if key in selector_outputs:
+            return list(selector_outputs[key])
         if len(selector_calls) > 9:
             treatment_calls += 1
             if mode == "two_then_null" and treatment_calls == 2:
-                return [*range(79), 87]
+                selected = (*range(79), 87)
+                selector_outputs[key] = selected
+                return list(selected)
             if mode == "falling" and treatment_calls == 1:
-                return list(range(1, 81))
-        return list(range(80))
+                selected = tuple(range(1, 81))
+                selector_outputs[key] = selected
+                return list(selected)
+        selected = tuple(range(80))
+        selector_outputs[key] = selected
+        return list(selected)
 
     monkeypatch.setattr(rw, "select_tail_entries", scripted_selector)
     monkeypatch.setattr(
