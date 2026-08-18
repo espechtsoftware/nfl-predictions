@@ -9,6 +9,17 @@ risk that the current plan does not cover. Everything cited is from the
 frozen forensic/calibration/census results or the experiment ledger; no
 number here is aspirational.
 
+> **[REVISION PASS — 2026-08-18 late afternoon, Claude (Fable 5), independent
+> review session.]** This document was re-verified against the code
+> (`simulate.py`, `game_sim.py`, `engine.py`, `lineup.py`,
+> `multiseed_portfolio.py`, `replay.py`, `live_lineups.py`), HANDOFF.md, the
+> ledger through Addendum 120, and today's run logs. Every headline number in
+> the frame below checks out. Revisions are marked **[REV]** in blockquotes;
+> a new **Part III** adds reviewer findings and new ideas. Two status
+> statements in the original were already stale at time of writing and are
+> corrected in place (the coherent-chain "unblocks tonight" claim in
+> Challenge 1, and the C-test smoke status in Challenge 7).
+
 **The frame:** production selects 80 (now 100) lineups per Sunday main
 slate; the objective is the maximum realized score among them. Current
 measured state on the 54-slate 2023-25 corpus: selected-book mean weekly
@@ -46,6 +57,36 @@ The evidence triangulates from independent directions:
 - The dependence diagnostic independently found an under-coupled QB hub
   with over-produced high multiplicity — the same signature.
 
+> **[REV — code verification, all three holes confirmed, plus one the
+> original understated.]** (a) DST: `live_lineups.py:321-334` stamps
+> `draw_idx=-1`; `engine.py:646-652` then broadcasts the scalar projection
+> across every world column. The `DST_CORR_DRAWS` lever that would vary it
+> is a *continuous mean-preserving multiplier* (fitted corr −0.491, rel-sd
+> 0.93), not an event law — relevant because its twice-negative record does
+> not test discrete DST events (sacks/turnovers/return TDs), which is what
+> the D-lane proposes. (b) OT: there is no overtime branch anywhere in the
+> sim path; `game_sim.py:213-222` draws drive counts from a truncated
+> normal and a tied simulated game simply ends. The only OT code in the
+> repo is the frozen historical study (`analysis/overtime_fantasy_odds.py`),
+> which feeds nothing. (c) Cross-team: the per-team factor path
+> (`game_sim.py:286-328`) documents measured cross-team corr ~0.1–0.2
+> against a real-game anchor of ≈0.016 — so near-independence *across
+> teams* may be roughly right, which is exactly why the scorecard, not
+> intuition, must adjudicate it. **Understated in the original: cross-GAME
+> coupling is exactly zero by construction** — `team_game_factors` loops
+> per game with no slate-level latent. Real slates plausibly carry a small
+> shared environment (weather waves, league scoring regime); the scorecard
+> should measure this too before it is dismissed.
+>
+> One structural fact the original omitted that strengthens its own thesis:
+> the entire joint law is determined by the `game_mult` factor matrix
+> (`simulate.py:262-322`) plus per-player component sampling — everything
+> downstream (TabPFN shaping, market blend, position scales) is
+> rank-preserving or additive-mean-only (`replay.py:583-640`). Nothing
+> after `simulate()` can create a co-boom. This is why the repair surface
+> is small (see Part III), and why no amount of marginal work can fix
+> Challenge 1.
+
 **Why it caps high scores:** 220+ weeks are, by construction, worlds where
 a game or two detonated and correlated stacks rode it. If the simulator
 almost never manufactures those worlds, then (i) the boom generator never
@@ -61,12 +102,38 @@ draft, the production-law dependence scorecard (unblocks tonight when the
 coherent chain completes), S4 attribution audit, with acceptance defined
 as the calibration audit's 194/210 shape improving.
 
+> **[REV — status correction, ~14:40 CDT.]** "Unblocks tonight" was
+> already wrong when written. The chain's parity cell completed and
+> harvested clean (verdict: continuous formulation does NOT reproduce the
+> binary 40; the continuous-interaction fallback stays closed), and all 54
+> score-free shards SUCCEEDED — but the strict score-free harvest has now
+> aborted twice: first on the manifest-newline defect (repaired,
+> `df6dcb0`), then on `ABORT: coherent-state harvest source differs`,
+> which is unrepaired and has no finisher process running. Until that
+> abort is diagnosed and the harvest reruns clean, the historical scorer
+> and therefore the dependence scorecard stay blocked. This is the single
+> stalled link in the otherwise-autonomous chain and should be the next
+> mechanical fix.
+
 **Residual risk the plan does not cover:** dependence repairs at fixed
 marginals are zero-sum — adding OT/DST co-boom mass *thins* other co-boom
 mass. The net effect on max-of-80 is genuinely two-sided, the DST prior
 is tested-twice-negative in an older stack, and no one has demonstrated
 that a better-calibrated tail produces a better realized book. This lane
 is the right bet, and it is still a bet.
+
+> **[REV — one more precedent that belongs in this risk paragraph.]** The
+> codebase already contains a manufactured-detonation lever: `HYPER_BOOM`
+> (`engine.py:1131-1156`) builds synthetic worlds where every player in a
+> top-total game sits at his own p98 simultaneously, and it was tested as
+> a candidate arm at 24/107 versus the 27/107 control (old universe).
+> That failure is instructive rather than damning for this lane: it
+> supplied detonation *candidates* while the selector kept scoring
+> coverage against the *unrepaired* law, so the new candidates could not
+> win worlds the law never produced. It is direct evidence for the
+> ordering this document already argues — repair the law the selector
+> scores against first; candidate supply alone cannot capture what the
+> world book cannot express.
 
 ---
 
@@ -104,6 +171,19 @@ shrinks the usable evidence base further. And the 2026 season itself is
 only ~18 graded slates: the prospective instrument is also low-power, so
 even CBWU-OI's live year may end ambiguous.
 
+> **[REV — a power upgrade the plan should adopt alongside McNemar.]**
+> Clear-counts throw away magnitude. Every paired arm also produces a
+> continuous per-slate statistic — the difference in realized weekly max —
+> and a paired permutation/signed-rank test on that difference has
+> materially more power than any threshold count on 54 (or 18) slates.
+> The authorized Ring family already requires McNemar + LOSO + full-grid;
+> the recommendation here is to make the **paired max-score difference
+> (mean, and a signed-rank test) a standing co-primary** in every future
+> arm report and in the 2026 shadow grading specs. It costs nothing, is
+> preregistrable now, and partially relieves the bind this challenge
+> describes: an effect of ~+2 mean points is invisible to clear-counts but
+> potentially resolvable in paired continuous form.
+
 ---
 
 ## Challenge 3 — The construction gap is huge, but nobody knows how much
@@ -133,6 +213,19 @@ into fixed-budget realized C; residual-world columns — the only generator
 that prices lineups by marginal contribution to uncovered tail states —
 awaits its S1-gated slot.
 
+> **[REV — the B1 grid contains one detail the summary above drops, and it
+> cuts against a pure order-statistic reading at the extreme tail.]** The
+> full union grid is 43/31/24/15/**6/2/1** at 187–240 versus the canonical
+> book's 3/1/0 at 220/230/240. So the 51-book union *doubles* the
+> 220+ count — the extreme tail is not entirely absent from everything
+> ever generated, it is just almost never in any single 40-candidate book.
+> That is precisely the population B2' admission is being asked to
+> harvest, and it sharpens B2's stakes: if OI admission at fixed budget
+> retains any of those union-only 220+ slates, the mechanism has extreme-
+> tail value the CBWU-OI 54-slate diagnostic (220+ unchanged) could not
+> show. B2' is still running as of this revision; read its result against
+> this specific question, not only mean C.
+
 **Residual risk:** if S1 says the floor is ~55 of the 69 points, the
 honest conclusion is that construction is close to its practical ceiling
 and the remaining points live in Challenges 1 and 4 — a result that would
@@ -161,6 +254,18 @@ utility with a hard 210+ no-decline guard); A3 (exact-vs-greedy audit) to
 close the algorithm question permanently; S6 stability work score-free;
 and the legitimate reopening path — an adopted dependence repair — runs
 through Challenge 1.
+
+> **[REV — the "indifferent once covered" fingerprint is now verified
+> mechanically, not just statistically.]** `select_from_support`
+> (`optimizer/lineup.py:583-618`) breaks out of the greedy loop the moment
+> marginal world coverage hits zero and fills remaining slots by
+> `(p_line, mean_total)` — a candidate scoring 265 in a covered world adds
+> literally nothing over one scoring 200 there. The coded alternative that
+> pays for depth above the line (`SELECT_LSE`, log-sum-exp) is one of the
+> five falsified selector redesigns, so this stays closed on current
+> signals; the A1 sparse-ladder family is the correct one-shot because the
+> ladder utility is the minimal change that makes depth matter at exactly
+> the thresholds the operator is paid on.
 
 **Residual risk:** A1's in-sim gains transfer through the same ~0.2
 signal as everything else; expected realized value is ~+1-2 mean at best,
@@ -245,6 +350,24 @@ serial time the scarcest resource the project has.
 with the C runner alone), canary-first launches, spec lint, durable
 watchers/recovery runbooks, and repair notes measured in minutes.
 
+> **[REV — two more instances landed between this document's drafting and
+> this revision, and one latent instance was found in code review.]**
+> (1) Both ATLAS C-test cloud smokes (`atlas-minimal-c-smoke-d5hh7`,
+> `-6vnwt`) FAILED with exit code 2 — the runners were missing from the
+> image allowlist. The fix is committed (`18b3234`) but the smokes have
+> not been relaunched on a rebuilt image. (2) The coherent score-free
+> strict harvest aborted a second time (`harvest source differs`, see the
+> Challenge 1 revision) and is the chain's current blocker. (3) Latent:
+> **`SCRIPT_FEEDBACK` and `SCHAAKE_K` are read from `os.environ` in the
+> sim path but are absent from the immutable lever set**
+> (`engine.py:1847-1889`), so a run with either set would be
+> indistinguishable from its baseline in BigQuery — the exact defect class
+> that invalidated panel `20260806-universe-baseline-81b7ff3` (its lever
+> record omitted `EXTRA_FEATURES`). Registering both and adding a
+> completeness test that checks sim-path `os.environ` reads against
+> `_lever_keys` is a minutes-scale fix that removes a whole future
+> instance of this challenge (see Part III, N5).
+
 **Residual risk:** the frozen-artifact web keeps growing; each new frozen
 protocol adds surface for the next contract mismatch. The discipline
 holds correctness; it spends calendar.
@@ -292,6 +415,27 @@ is. Size class: unknown but structurally unique — the 2.2x under-
 prediction at 210 says the missing mass is real. S2's base-rate OT
 mixture is the cheapest first shot because it requires no prediction
 skill at all.
+
+> **[REV — implementation surface, from the code map.]** The repairs this
+> opportunity needs are small-surface because the architecture funnels all
+> joint structure through three seams: (i) `game_mult`
+> (`simulate.py:262-322`) — the one `(rows × worlds)` matrix every joint
+> property flows through, and the only place a slate-level or paired-game
+> latent could exist at all (~10 lines + one lever); (ii)
+> `simulate_game_points` (`game_sim.py:198-253`) — the natural home for an
+> OT branch (a tied game granting both teams extra possessions is
+> intrinsically a joint event for all rostered players in that game), with
+> `SCRIPT_FEEDBACK` as the exact structural precedent to copy; (iii)
+> `_row_draws` (`engine.py:646-679`) — the DST seam, where the
+> `DST_CORR_DRAWS` plumbing (opponent lookup, separate RNG, mean
+> preservation) already proves the wiring a discrete event law would use.
+> Everything downstream is rank-preserving, so a repair at these seams
+> propagates to candidates and selection automatically. The two cautions
+> stand: the `HYPER_BOOM` precedent (Challenge 1 revision) says candidate
+> supply without a law change does not pay, and Addendum 115 says a
+> dependence change can improve average structure (variogram) while
+> *worsening* joint-q90 tail Brier — the scorecard's tail metrics, not its
+> averages, are the acceptance bar.
 
 ## O2. The admission/distillation class — the only mechanism family with
 a proven realized gain
@@ -367,3 +511,144 @@ spends its next slots in exactly that order of leverage — and the
 2026 season, with collectors live and preregistered gates, is the first
 season where a positive result anywhere in this portfolio can actually
 be promoted rather than merely admired.
+
+---
+
+# Part III — Reviewer additions (new ideas, 2026-08-18 revision pass)
+
+Everything below is new relative to Parts I–II, was pressure-tested
+against the ledger (through Addendum 120) and the code before being
+written down, and follows the house rule: adopt-only-as-proven, frozen
+protocol before any outcome is read. Ordered roughly by
+value-per-unit-cost.
+
+## N1. The winner-lineup law audit — score the actual Milly winners under
+our worlds
+
+The book-tail calibration audit measured the law against *our own
+selected book*. The system also holds 68 known same-week Milly-winner
+rosters, already resolved to 612 slots against immutable slate snapshots
+(Addendum 116; `real_winner_overlap.py` tooling exists). Nobody has ever
+scored those rosters **under the production world book**: for each winner,
+compute its simulated total across the archived world blocks and report
+(a) the percentile of its realized winning score within its own simulated
+distribution and (b) `Pr_sim(roster ≥ its realized score)`.
+
+A correct joint law should place realized winning scores in the upper
+tail of their own roster's distribution but not beyond it; systematic
+mass at the 99.9th+ percentile is a direct, dollars-weighted measurement
+of the missing co-boom mass — on exactly the lineups the program is
+trying to learn to build, and fully independent of our generator and
+selector. It also gives the D/S2 lanes a second acceptance instrument:
+a repair that moves the 194/210 book calibration *and* makes real
+winners' scores plausible under the law is far stronger evidence than
+either alone. Prior art check: Addendum 114 ranked hedges against
+winners, Addendum 116 measured exposure overlap; neither scored winners
+under the law. Diagnostic-only, outcome-aware (winner scores are already
+consumed by A114/A116-class diagnostics), needs a frozen report format
+before the first number, limited to slates with archived world
+artifacts. Cost: hours, no heavy slot.
+
+## N2. Deploy any dependence repair as a law *mixture*, not a swap
+
+Challenge 1's residual risk is that dependence repairs at fixed marginals
+are zero-sum: adding OT/DST/detonation mass thins other co-boom mass, and
+the net max-of-80 effect is two-sided. The CBWU architecture offers a
+structural hedge nobody has named: selection already runs on five
+concatenated 10k-world blocks. An adopted repair can enter as **one or
+two blocks drawn from the new law** while the rest stay incumbent — the
+selected 80 then cover the union of both hypotheses about the world,
+protecting shoulder coverage while adding detonation coverage, and the
+mixture fraction is a small preregistered grid rather than a binary bet.
+Ledger engagement: Addendum 112 (ensemble-member worlds) was
+unsupported-neutral with a high-tail cost, but that arm mixed *marginal
+belief* members; this mixes *dependence laws* at rank-preserved
+marginals, which is a different estimand and must still run as its own
+paired arm behind the scorecard. Size class: not standalone points — a
+risk-mitigation multiplier on O1 that makes a partial repair adoptable
+where a wholesale swap would fail the two-sided test.
+
+## N3. Extend the multi-book prop collection to deep alt-ladders and
+multi-TD markets
+
+The market-implied instrument is validated at q90 only, which is exactly
+why S4 must treat q95/q99 as descriptive. The multi-book collection now
+starting should explicitly capture **deep alt-yardage rungs and 2+ TD
+scorer markets** (anytime-TD is already ingested and de-vigged in
+`prop_market.py`): (a) it upgrades S4 into a validated q95/q99
+instrument, closing the "no instrument at the extreme tail" half of
+Challenge 2; (b) 2+ TD prices are the market's direct quote on the exact
+event class that fills Milly rosters, available pre-lock on thin-history
+players where the market impounds beat/vacancy news faster than any
+stat line — Challenge 5's population. This is squarely inside the
+preregistered "genuinely new pre-lock signal" reopening class. Cost:
+collector configuration and storage now, evaluation frozen before any
+2026 outcome is read.
+
+## N4. Treat incremental entries as experimental bandwidth (the 80+20
+pattern, made a standing rule)
+
+The Week-1 decision (money 80 + the CBWU-OI top-20 entered live) quietly
+created the program's most valuable prospective instrument: real-money
+paired arms. The standing principle worth freezing: **every future entry
+increment above the money book ships as a preregistered frozen treatment
+book with paired discordant-slate grading** — never as "more of the
+same." If residual columns or an A1-family book reach a shadow-worthy
+state, the next +20 carries one of them. The 2026 season then grades
+several mechanisms concurrently at ~zero scientific risk to the money
+book, directly widening the learning bandwidth Challenge 6 says is about
+to become the binding constraint. Guard rails: the 80-entry money basis
+stays untouched (the `live_lineups.py` contract already enforces it),
+and arms never shrink below contest minimums.
+
+## N5. Close the lever-registry gap before it invalidates a panel
+
+`SCRIPT_FEEDBACK` (`game_sim.py:225`) and `SCHAAKE_K`
+(`schaake_diag.py:192`) are live `os.environ` reads absent from the
+immutable lever set (`engine.py:1847-1889`) — meaning an arm that set
+either would be non-self-identifying in the warehouse, the defect class
+that already cost one panel (`81b7ff3`). Register both and add an
+offline completeness test that fails when any sim-path environment read
+is missing from `_lever_keys` (or an explicit exemption list). Minutes
+of work; removes an entire future instance of Challenge 7. (The
+`config.py` docstring's claim that nothing else reads `os.environ`
+directly is also false and should be amended to point at the lever
+registry as the real contract.)
+
+## N6. Repair the boom family's silent under-delivery (cursor + unique
+fill)
+
+Two related mechanical defects in the primary generator: the main boom
+pass (`engine.py:1117`) solves exactly the top-40 worlds with no
+`unique_target`, so duplicate optima silently deliver fewer than 40
+unique boom candidates with no top-up (this is S5, already proposed);
+additionally — new finding — the two replacement passes
+(`engine.py:1255`, `engine.py:1319`) both resume from `boom_cursor`
+**without advancing it**, so when both fire they re-solve the same
+worlds. Fixing either changes production books byte-for-byte, so this is
+not a hotfix: fold the cursor repair into the S5 arm's protocol and
+report realized unique-boom counts per slate as the mechanism audit.
+Size class: shoulder, small — but it is the cheapest genuine increase in
+effective candidate supply available, and it is currently a *random* tax
+that varies by slate.
+
+## N7. Make the paired max-score difference a standing co-primary
+
+Restating the Challenge 2 revision as an action item: every future arm
+report and every 2026 shadow grading spec should carry the paired
+per-slate weekly-max difference (mean plus a signed-rank/permutation
+test) alongside McNemar and the threshold grid — preregistered now,
+before Week 1, so the season's ~18 slates are analyzed under the
+highest-power estimand available. Clear-counts alone cannot resolve a
++2-mean effect on 18 slates; paired continuous statistics sometimes can.
+
+## Sequencing note
+
+N5/N6/N7 are minutes-to-days and belong in the design lane immediately
+(N5 and N7 before Week 1; N6 as an S5 protocol amendment). N1 is the
+next cheap measurement after S1 and shares its spirit: it redirects
+heavy slots by telling us how wrong the law is where the money is. N3
+and N4 are Week-1-lane additions with a hard calendar deadline. N2 is
+contingent — it matters the day a dependence repair first passes the
+scorecard, and it should be written into the D/S2 protocols as the
+intended adoption shape rather than invented after a result exists.
