@@ -6,7 +6,7 @@ Author: Claude (Opus 5), acting as operator-directed orchestrator since
 Audience: an external reviewer asked to second-guess the direction below
 
 **Read this as an argument, not a report.** It states what was inherited, what I
-changed, where I propose to go, and — in §6 — the four places I think I am most
+changed, where I propose to go, and — in §7.2 — the four places I think I am most
 likely to be wrong. The operator wants that fourth section pressure-tested.
 
 ---
@@ -24,11 +24,86 @@ Everything before commit `ef36db5` is the other model's work. Commits `eed48f8`,
 I want to be explicit that **the inherited work is of high quality.** The
 governance discipline is real, it has caught genuine defects, and on the two
 occasions the other model contradicted my analysis it was correct both times
-(§5). My disagreements below are about *allocation of effort*, not rigor.
+(§6). My disagreements below are about *allocation of effort*, not rigor.
 
 ---
 
-## 2. What the system is, in one paragraph
+## 2. Before you open `reports/` — what to ignore
+
+**This matters more than anything else in this document.** `reports/` holds
+**397 markdown files**. Roughly **200 are governance** (84 protocols, 49 repairs,
+43 reconciliations, 24 amendments, 3 invalidations) and the large majority of the
+rest describe **experiments that failed and mechanisms that are closed.** They are
+retained deliberately — the discipline here is to record negative results rather
+than delete them — but they do **not** describe how the system works.
+
+> **Do not infer current behaviour from `reports/` unless a document explicitly
+> says a mechanism was adopted. Almost nothing is adopted.**
+
+### 2.1 Closed — present in `reports/`, not in production
+
+- **Candidate generation:** GFlowNet; the **entire Gumbel family** (plain,
+  fixed-budget, hierarchical); Schaake shuffle; cross-entropy (CE) worlds;
+  epistemic (EPI) candidates; forest-learned dependence templates; Chronos
+  marginals; raw candidate-budget scaling (multiple 2->4)
+- **ATLAS matched-diversity MVP** — closed permanently today (§5.1)
+- **Marginal channel (~12 arms, all failed):** Fantasy Points route share (both
+  marginal and rank variants), advanced prior-season, coverage fit, same-season
+  coverage, route shape, QB shell, defense PROE
+- **SIS:** team context, QB line, RB run defense, pass-tail marginal, run-tail
+  Boom/Bust, team pass-defense coverage schema, receiver copula calibration
+- **Dependence:** TD ledger (all four attempts), G2 QB-Gumbel factor,
+  competitive-WR allocation, TE hub follow-up
+- **Selection:** reranker, LSE, sharp-LSE, QB-concentration, dollars-objective,
+  bagged/bootstrap selection
+- **Other:** fast-role / latent role state, overtime prediction, the realized
+  late-swap recourse policy
+
+### 2.2 Authoritative sources
+
+| file | what it is |
+|---|---|
+| `HANDOFF.md` | **The current-state record.** Often days ahead of any report. |
+| `README.md` | Design guide with a section-to-code map, plus the data deficiency log |
+| `CLAUDE.md` | Project rules and the validation law |
+| `src/nfl_dfs/inference/production_policy.py` | The single frozen definition of production behaviour |
+| `reports/2026-08-17-external-reviewer-briefing-v2.md` | Fuller orientation than this section |
+
+**If a document and the code disagree, the code wins. If `HANDOFF.md` and a
+report disagree, `HANDOFF.md` wins.**
+
+### 2.3 Four traps that have produced wrong conclusions here
+
+1. **Stale constants.** This project corrects its own headline numbers and
+   superseded values keep circulating. Known-stale: forensic gaps **3.58/78.99**
+   (superseded by 4.06/68.91); recourse **+42.62**; simulated QB->WR **~1.05**
+   (pre-`26e73c5`); selector overlap **54.28/80** (different sample width; current
+   comparable value 65.69); source row count **72,520** (actual 68,199); and
+   **`corr = +0.030`** (a superseded-panel omitted-oracle statistic, not a
+   candidate correlation — actual ~0.22). **Search for a later correction before
+   relying on any number.**
+2. **Endpoint confusion.** *attainable world quality*, *candidate `C`* and
+   *selected `S`* are three different quantities. ATLAS's `+10.93` and CBWU-OI's
+   `+5.66` are **not** comparable — that confusion is exactly what §5.1 unwinds.
+3. **Simulation-law confusion.** Three laws exist — production multinomial (the
+   money path), fitted-Dirichlet (older G-series diagnostics), and finite-K +
+   SIS-ASOE (Phase S). Results do not transfer between them. See
+   `reports/2026-08-16-simulation-law-ledger.md`.
+4. **Nested thresholds read as independent.** Counts at 240/230/220/210/200 are
+   nested — a slate crossing 220 necessarily crosses 210 and 200 — so "+2/+2/+3"
+   may be three distinct slates, not seven improvements. Ask for **distinct slates
+   moved**.
+
+### 2.4 A note on recent failures
+
+A reviewer skimming the last two weeks will see a long run of failures and may
+conclude the science is collapsing. Mostly it isn't: of the six ATLAS grid
+attempts, four were lost to a hard-coded string constant, infrastructure noise
+against a zero-retry contract, and build defects. **Distinguish mechanical
+failures from scientific ones** — they are recorded with equal ceremony here, and
+that is itself part of the process diagnosis in §4.5.
+
+## 3. What the system is, in one paragraph
 
 A DraftKings NFL Classic DFS system. Each week it picks 9 players under a
 $50,000 cap and submits **80 lineups** into large-field tournaments. Payouts are
@@ -39,9 +114,9 @@ not average accuracy. Historical panels: 107 slates (2019, 2021-2025) and a
 
 ---
 
-## 3. Inherited state
+## 4. Inherited state
 
-### 3.1 The forensic frame
+### 4.1 The forensic frame
 
 Each slate is decomposed by hindsight-optimal solves: **H** (best legal lineup
 from the whole player universe), **P** (best from the union of players appearing
@@ -70,7 +145,7 @@ Two caveats the raw table hides, both established later and both important:
   losses and a median five swaps to the nearest generated roster. But a perfect
   searcher optimising the *simulated* objective would also miss P.
 
-### 3.2 The one construction mechanism that has ever worked
+### 4.2 The one construction mechanism that has ever worked
 
 **CBWU-OI**, at exactly equal candidate budget: mean C `181.07 -> 186.73`
 (+5.66), with `>=194/200/210` going `11/8/6 -> 18/14/10` and `>=220/230/240`
@@ -81,7 +156,7 @@ Mechanism: player-pair reach `3,056 -> 4,308` (+41%) and QB-stack-core reach
 slates retaining all nine P players). **Combination breadth, not player breadth.**
 It is not in production; promotion requires prospective evidence.
 
-### 3.3 The transfer record
+### 4.3 The transfer record
 
 | mechanism | simulated criteria | realized outcome |
 |---|---|---|
@@ -92,7 +167,7 @@ It is not in production; promotion requires prospective evidence.
 
 Six mechanisms cleared simulated gates and failed the real one.
 
-### 3.4 Surrogate quality (measured 2026-08-17)
+### 4.4 Surrogate quality (measured 2026-08-17)
 
 Candidate-level Spearman vs realized score: **0.216** (`p_line`), **0.237**
 (simulated mean), **0.223** (q99); within-slate 0.156/0.195/0.166 with bootstrap
@@ -109,7 +184,7 @@ Independently, the dependence diagnostic found an **under-coupled QB hub** with
 over-produced high multiplicity — which produces exactly that shape. Two methods,
 same error.
 
-### 3.5 Process condition
+### 4.5 Process condition
 
 `reports/` holds 389 documents: 202 governance (protocols, amendments, repairs,
 reconciliations, invalidations) against 56 results — a **3.6:1 ratio**, sustained
@@ -124,9 +199,9 @@ of six taught anything about the model.
 
 ---
 
-## 4. What I did on taking over
+## 5. What I did on taking over
 
-### 4.1 Closed and dispositioned ATLAS (`eed48f8`)
+### 5.1 Closed and dispositioned ATLAS (`eed48f8`)
 
 ATLAS repair6 reached `repair6-closed-no-scoreable-population` at 07:20Z. I then
 found something that had not been stated: **ATLAS's two completed "passes" are
@@ -152,7 +227,7 @@ the MVP needed. **Prior predeclared negative** (ATLAS pair reach 0.9520 and
 dominant-game 0.9080 move opposite to CBWU-OI's +41%/+52%); a null closes the
 family permanently.
 
-### 4.2 Rebuilt the DST D0 frame (`eed48f8`)
+### 5.2 Rebuilt the DST D0 frame (`eed48f8`)
 
 The handoff had gated this on the heavy chain being free; ATLAS closing released
 it. Rebuilt `team_defense_week` from clean SQL: **13 -> 55 columns**, 6,302 rows,
@@ -167,14 +242,14 @@ causes and both fail — tier boundaries refuted (mean distance to a DK tier edg
 1.62 mismatched vs 1.66 matched), excluded non-DST points explain only 3 of 41.
 Logged to the README deficiency table.
 
-### 4.3 Deployed the contest-fills collector (`46cc871`)
+### 5.3 Deployed the contest-fills collector (`46cc871`)
 
 `dk_contest_fills` had a CLI subcommand and a job function but **no Cloud Run job
 and no scheduler**. Entries, fill rate, prize pool and overlay are live-only; once
 a contest settles the pre-lock trajectory is gone. Created the job plus two
 schedulers, verified end-to-end through a forced scheduler run.
 
-### 4.4 Found gate 5 is the wrong gate (`0ac819d`)
+### 5.4 Found gate 5 is the wrong gate (`0ac819d`)
 
 Before writing the odds/weather common-lock selectors I checked what they would
 select from. `nfl_raw.weather` holds **0 rows and can never be backfilled** — its
@@ -184,7 +259,7 @@ these covariates **cannot enter any historical DST fit**.
 
 ---
 
-## 5. My error record, for calibration
+## 6. My error record, for calibration
 
 The reviewer should weight my judgment accordingly. In the last four days I have
 been wrong, in public, five times:
@@ -207,13 +282,13 @@ been wrong, in public, five times:
    against `ingest-odds`.
 
 Pattern: **I generalise from a single statistic too fast.** Every error above is
-that. The direction in §6 should be read with that in mind.
+that. The direction in §7 should be read with that in mind.
 
 ---
 
-## 6. Proposed direction — and where to attack it
+## 7. Proposed direction — and where to attack it
 
-### 6.1 The reasoning chain
+### 7.1 The reasoning chain
 
 1. The forensic says construction holds 68.91 points.
 2. But P is a hindsight target, candidate-level simulated/realized correlation is
@@ -249,7 +324,7 @@ and failing real ones.
 collected during the season is permanently lost, and it is the only source of
 prospective evidence — which is the *only* thing that can promote CBWU-OI.
 
-### 6.2 The four places I am most likely to be wrong
+### 7.2 The four places I am most likely to be wrong
 
 **(1) DST may not be worth what I think.** It is the cheapest roster slot, real
 DST scores are genuinely low-variance, and DK DST scoring is dominated by
@@ -279,7 +354,7 @@ unblocks the lane I want to work on. The stricter reading — that an unexplaine
 not trustworthy — is defensible and I may be discounting it because it is
 inconvenient.
 
-### 6.3 Open decisions the operator has not yet made
+### 7.3 Open decisions the operator has not yet made
 
 1. **D0 gate 3** — bounded-mismatch acceptance vs per-row forensics that still
    cannot cover 2022-2024.
@@ -291,14 +366,14 @@ inconvenient.
 
 ---
 
-## 7. What would be most useful from a second opinion
+## 8. What would be most useful from a second opinion
 
 In priority order:
 
-1. **Attack §6.2(1).** Is a correlated DST event model actually worth building
+1. **Attack §7.2(1).** Is a correlated DST event model actually worth building
    for a max-of-80 objective, given that DST booms anti-correlate with the
    offensive stacks that drive big lineups?
-2. **Adjudicate §6.2(2).** Weak surrogate, or six bad ideas? These imply opposite
+2. **Adjudicate §7.2(2).** Weak surrogate, or six bad ideas? These imply opposite
    research programmes.
 3. **Is the tail-calibration lane real work or a detour?** Fixing 194-over /
    210-under is appealing because it is upstream — but nobody has shown that a
