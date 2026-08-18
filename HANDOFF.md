@@ -20,7 +20,105 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-18 15:04 CDT
+## Current state — 2026-08-18 16:14 CDT
+
+### Scoring-possibility exhaustion: Ring A ladder selector, S2 OT mixture, A3 gap audit, S1 null floor, S4 attribution, B1 union census — all implemented offline
+
+- Branch `main`. The operator directed "exhaust all scoring possibilities";
+  every remaining score-relevant item that can be built and offline-tested
+  now is implemented. Outcome-facing executions stay behind their protocol
+  freezes; nothing touches production paths by default.
+- **Ring A / A1 — `SELECT_LADDER` lever (`optimizer/lineup.py`),
+  registered, default byte-identical.** Portfolio-marginal greedy on a
+  sparse tail-utility ladder u(x)=Σ w_t·1[x≥t] (+ optional `mean:<w>`
+  E[max] term) — monotone submodular, same (1−1/e) guarantee as coverage;
+  unlike binary coverage it credits raising an already-covered world (the
+  5.01-point C−S MEAN gap's fingerprint) and pays at the thresholds the
+  operator is paid on. Spec parsing fails closed.
+  `tests/test_select_ladder.py` (8) proves default parity, gating, the
+  depth-over-redundancy case, exact coverage-count parity at a single
+  threshold, higher-rung preference, determinism, registry membership.
+  The outcome-facing one-shot still requires the operator's utility freeze
+  (mean vs ladder vs lexicographic) plus the selector-closure amendment —
+  both flagged in the offseason-ideas report; only then is its protocol
+  drafted.
+- **S2 — OT shared-duration mixture v2
+  (`research/ot_shared_duration.py`), research-only, no production call
+  site.** Dependence-only base-rate mechanism: per game, worlds flagged OT
+  at frozen p=14/272 (seed 20260818, sorted-game order), flagged worlds
+  rank-remapped (+1.5σ pre-rank uplift) onto each player's own sorted
+  marginal — marginal preservation EXACT by construction and enforced;
+  constant (DST) and keyless rows byte-identical; p=0 is the identity.
+  `tests/test_ot_shared_duration.py` (7) proves preservation, identity,
+  determinism, same-game co-movement rise, flagged-world co-boom, and
+  fail-closed validation. Protocol DRAFT
+  `reports/2026-08-18-ot-shared-duration-v2-protocol.md` freezes the
+  three-gate order (mechanism → dependence-scorecard TAIL families, with
+  Addendum 115's variogram-vs-tail-Brier trap written in → one paired
+  arm) and predeclares the N2 mixture-block adoption shape. Arm remains
+  scorecard-gated per operator decision (b).
+- **A3 — selector optimality-gap audit
+  (`research/selector_optimality_gap.py`).** Greedy (unchanged production
+  selector) versus EXACT CBC max-coverage on the same totals; gap citable
+  only on Optimal status. `tests/test_selector_optimality_gap.py` (4)
+  includes a constructed instance where greedy provably loses one world
+  and random instances with zero gap. Score-free; running it over the
+  stored 54-slate totals closes the selector-ALGORITHM family or licenses
+  an exact-selection arm.
+- **S1 — null-calibrated construction floor
+  (`research/null_gap_floor.py`).** Per held-out world: H (frozen forensic
+  oracle, QB+2/BB1/$49k) → P (support-restricted) → C/S (exact roster
+  sums), then `aggregate_null_floor` reports each gap's null distribution,
+  the observed 4.057/68.914/5.007 anchors, and `winnable_vs_null_median`.
+  `tests/test_null_gap_floor.py` (5) proves chain ordering, exact sums,
+  world sensitivity, aggregation math, fail-closed paths. Protocol DRAFT
+  `reports/2026-08-18-null-gap-floor-protocol.md` freezes W=100, the
+  fresh-seed R5 held-out-world rule (selection-visible worlds prohibited —
+  they bias C up and understate the floor), and the interpretation rule
+  that routes the post-ATLAS-C heavy slot (winnable ≲15 → law lanes;
+  ≳25 → residual columns). ~10,800 CBC solves = bounded cloud job.
+- **S4 — marginal-vs-dependence attribution
+  (`analysis/marginal_market_attribution.py`).** Common-support panel:
+  archived draw-row quantiles vs market-implied quantiles (q90 validated
+  instrument; q95/q99 flagged descriptive per decision a) vs realized
+  actuals; exceedance + pinball per overall/position/breakout-state
+  stratum, strata <25 rows suppressed.
+  `tests/test_marginal_market_attribution.py` (5) proves detection of a
+  too-wide model against a calibrated market, suppression, known pinball
+  values, fail-closed paths. Protocol DRAFT
+  `reports/2026-08-18-marginal-market-attribution-protocol.md` (honest
+  pre-lock prop rule; distinct from the closed market-tail feature gate).
+- **B1 — all-arms union candidate census
+  (`research/all_arms_union.py` + `scripts/union_candidate_census.py`).**
+  Mechanical inclusion of every registered panel's rosters per slate;
+  legality revalidated under corrected snapshots and the production
+  strategy contract via the frozen `audit_roster`; every roster REVALUED
+  from snapshot actuals (stored cross-era labels reconciled, counted,
+  never trusted); per-slate union C with panel attribution, full grid,
+  anchors. Runner refuses to execute without `--protocol-frozen`.
+  `tests/test_all_arms_union.py` (5) proves revalidation, label
+  reconciliation, unmatched-drop accounting, aggregation, fail-closed.
+  Protocol DRAFT `reports/2026-08-18-all-arms-union-census-protocol.md`
+  predeclares the decision reading (union mean C ≥ ~192 → design B2
+  union admission; ≲ ~188 → target is construction/law-bound).
+- Validation: 56-test focused sweep green in one serial run (ladder 8, OT
+  7, gap 4, null floor 5, attribution 5, union 5, registry 4+7, review4
+  levers, QB-capped select), plus earlier 63-test golden-parity set;
+  all changed sources compile. The pre-batch background full suite is
+  still running and predates these edits — a FRESH full-suite run on the
+  final tree is the next validation action once it exits (one heavy
+  process at a time).
+- Exact next actions: (1) fresh full suite on the final tree, record
+  result; (2) operator freeze decisions now number seven DRAFTs:
+  winner-law audit (+ manifest), paired-max co-primary (pre-Week-1),
+  boom unique-fill arm, null-gap floor (W/R5 rule; also generate the R5
+  block on the frozen image), OT v2 (arm scorecard-gated), attribution
+  audit, union census; plus the utility freeze + one-shot amendment that
+  unlock the SELECT_LADDER and B2 evaluations; (3) all prior next actions
+  from the 15:04 and 13:20 states remain in force. Do not resume
+  schedulers, delete forensic data, or change the money policy.
+
+## Prior state — 2026-08-18 15:04 CDT
 
 ### Challenges-assessment Part III triage: N1/N5/N6/N7 implemented offline; three protocol drafts await operator freeze
 

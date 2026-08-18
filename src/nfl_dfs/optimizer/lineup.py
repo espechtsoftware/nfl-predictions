@@ -575,6 +575,16 @@ def select_tail_entries(
     _alpha = float(_env.get("SELECT_LSE", "0") or 0)
     if _alpha > 0:
         return _select_lse_entries(cand_totals, n_entries, line, _alpha)
+    # Research lever (env SELECT_LADDER, off by default; Ring A / A1,
+    # protocol pending the operator's utility freeze): portfolio-marginal
+    # greedy on a sparse tail-utility ladder (optionally plus an E[max]
+    # term) instead of binary coverage at one line.  Registered in the
+    # immutable lever set; never set on production deployments.
+    _ladder_spec = _env.get("SELECT_LADDER", "")
+    if _ladder_spec:
+        ladder, mean_weight = _parse_ladder(_ladder_spec)
+        return select_ladder_entries(
+            cand_totals, n_entries, ladder, mean_weight=mean_weight)
     clears = cand_totals >= line
     return select_from_support(clears, clears.mean(axis=1),
                                cand_totals.mean(axis=1), n_entries)
@@ -638,6 +648,78 @@ def _select_lse_entries(
         best = int(idx[int(np.argmax(gains))])
         selected.append(best)
         S = S + E[best]
+        remaining.discard(best)
+    return selected
+
+
+def _parse_ladder(spec: str) -> tuple[dict[float, float], float]:
+    """Parse SELECT_LADDER: comma-separated ``threshold:weight`` pairs plus
+    an optional ``mean:<weight>`` E[max] term, e.g.
+    ``"240:32,230:16,220:8,210:4,200:2,194:1"`` or ``"mean:1"``. Junk
+    fails closed rather than silently selecting under a half-read utility.
+    """
+    ladder: dict[float, float] = {}
+    mean_weight = 0.0
+    for token in (t.strip() for t in spec.split(",") if t.strip()):
+        key, _, value = token.partition(":")
+        if not value:
+            raise ValueError(f"SELECT_LADDER entry {token!r} lacks a weight")
+        weight = float(value)
+        if weight < 0:
+            raise ValueError(f"SELECT_LADDER weight is negative in {token!r}")
+        if key.strip().lower() == "mean":
+            mean_weight = weight
+            continue
+        ladder[float(key)] = weight
+    if not ladder and mean_weight <= 0:
+        raise ValueError("SELECT_LADDER specifies no positive utility term")
+    return ladder, mean_weight
+
+
+def select_ladder_entries(
+    cand_totals: np.ndarray,
+    n_entries: int,
+    ladder: dict[float, float],
+    mean_weight: float = 0.0,
+) -> list[int]:
+    """Greedy portfolio-marginal selection on E[u(max)] for the sparse
+    ladder utility u(x) = sum_t w_t*1[x >= t] + mean_weight*x.
+
+    Each step adds the candidate maximizing
+    sum_w [u(max(m_w, S_iw)) - u(m_w)], where m_w is the book's best
+    total so far in world w. The objective is monotone submodular for any
+    nondecreasing u, so greedy keeps the same (1-1/e) guarantee binary
+    coverage has; unlike binary coverage it credits raising an
+    already-covered world (the C-S mean gap's fingerprint) and values the
+    thresholds the operator is actually paid on. m starts at 0.0, which
+    is exact for nonnegative DK totals. Ties break by mean total then
+    lower candidate index, deterministically.
+    """
+    T = np.asarray(cand_totals, dtype=float)
+    n_entries = min(n_entries, len(T))
+    if not ladder and mean_weight <= 0:
+        raise ValueError("ladder utility has no positive term")
+    thresholds = np.array(sorted(ladder), dtype=float)
+    weights = np.array([ladder[t] for t in thresholds], dtype=float)
+    mean_total = T.mean(axis=1)
+    m = np.zeros(T.shape[1])
+    # cleared[t, w]: book already clears threshold t in world w.
+    cleared = np.zeros((len(thresholds), T.shape[1]), dtype=bool)
+    remaining = set(range(len(T)))
+    selected: list[int] = []
+    while len(selected) < n_entries and remaining:
+        idx = np.fromiter(sorted(remaining), dtype=int)
+        gains = np.zeros(len(idx))
+        for t_ix, threshold in enumerate(thresholds):
+            newly = (T[idx] >= threshold) & ~cleared[t_ix]
+            gains += weights[t_ix] * newly.sum(axis=1)
+        if mean_weight > 0:
+            gains += mean_weight * np.maximum(T[idx] - m, 0.0).sum(axis=1)
+        order = np.lexsort((-idx, mean_total[idx], gains))
+        best = int(idx[order[-1]])
+        selected.append(best)
+        np.maximum(m, T[best], out=m)
+        cleared |= T[best] >= thresholds[:, None]
         remaining.discard(best)
     return selected
 
