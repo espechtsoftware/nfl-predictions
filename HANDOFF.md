@@ -20,7 +20,65 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-18 16:14 CDT
+## Current state — 2026-08-18 17:50 CDT
+
+### Coherent historical stage repaired and relaunched; final-tree full suite green; sessions consolidated
+
+- Branch `main` at `6f1ce80` (pushed). The FRESH full offline suite on the
+  final tree (both implementation batches) completed exit 0 — fully green
+  (the runner's output filter ate the count line; the exit code is
+  authoritative). This closes the "fresh full suite" next action from the
+  16:14 entry.
+- **Coherent historical stage: root cause found, repaired, relaunched.**
+  The two 16:21 aborts ("coherent-state primary metadata population
+  differs") were a checkout-path identity defect: the score-free finisher
+  records ABSOLUTE paths from its own checkout in
+  `primary-execution-metadata.sha256`, and the validator compares
+  path-KEYED digest maps — keys can never match cross-checkout even
+  though all 54 digests are byte-equal (verified read-only, 54/54 on
+  basename, before any change). Same class as the census-key and
+  `04c0dbb` repairs. Consumer-side fixes only, committed at `6f1ce80`
+  with frozen record
+  `reports/2026-08-18-coherent-historical-path-identity-repair.md`
+  (before/after SHAs): (a) validator digest map keyed by season-week
+  basename; (b) validator self-hash pin accepts an explicitly exported
+  `ATTEMPT_VALIDATOR_REPAIR_SHA256` equal to the exact current hash
+  (04c0dbb deadlock pattern; fails closed without it — both verified);
+  (c) the launcher's five `sha256sum --check` ledger checks verify
+  run-relative paths inside `$UPSTREAM` (all five verified OK; the old
+  form silently verified the PRODUCER checkout and would hard-fail after
+  any reboot). The repaired validator validates the complete real
+  upstream end-to-end: `ATTEMPTS_VALIDATED accepted-primary-population`.
+- **Relaunch (autonomous chain continues):** clean-archive Cloud Build
+  `f4cbaaff-2b18-4649-bb11-32c429b85ebd` submitted from exact commit
+  `6f1ce80` under tag `coherent-market-historical-6f1ce80`; fresh pinned
+  worktree `/tmp/nfl-historical-6f1ce80` (`.venv` symlinked; upstream
+  harvest symlinked from the ae9780b worktree; historical OUT symlinked
+  to the main checkout so receipts survive `/tmp`); watcher r3 PID
+  `2358587` detached with the override exported, log
+  `~/nfl-panels/coherent-historical-watcher-r3.log`, currently
+  `BUILD status=WORKING`. On build success it runs the repaired launcher
+  → historical scorer (outcome-read, lease-bound, operator-released) →
+  production-law dependence watcher `1273069` resumes. This session
+  holds a persistent monitor on `~/nfl-panels/*.log`.
+- **Session consolidation:** the operator closed the idle `-45` session.
+  Peer `-67` identified itself as the review session (revision pass
+  author), confirmed nothing in-flight, verified its work is consolidated
+  (`730bfcc`, `1fd2483`), and closed out. The chain author of `04c0dbb`
+  remains unidentified among the remaining peers (queried, no reply);
+  concurrent commits `5a2ce54`/`3c561c5` (lever-env comma parsing,
+  runner import robustness) landed mid-evening from a peer — main merged
+  cleanly throughout. Any peer resuming chain work should note THIS
+  session now owns the historical relaunch (create-only receipts make a
+  double-launch fail closed, not corrupt).
+- Exact next actions: (1) monitor r3 through build success → launch →
+  terminal state (Monitor fires on log movement; on a build failure,
+  classify before any resubmit); (2) the 16:14 entry's operator freeze
+  decisions all still stand (seven DRAFTs + utility freeze + one-shot
+  amendment); (3) prior lanes unchanged. Do not resume schedulers,
+  delete forensic data, or change the money policy.
+
+## Prior state — 2026-08-18 16:14 CDT
 
 ### Scoring-possibility exhaustion: Ring A ladder selector, S2 OT mixture, A3 gap audit, S1 null floor, S4 attribution, B1 union census — all implemented offline
 
