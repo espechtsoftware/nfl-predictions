@@ -139,7 +139,7 @@ printf '%s\n' \
 
 SMOKE_JOB=atlas-interaction-parity-smoke-v1
 gcloud run jobs deploy "$SMOKE_JOB" --project "$PROJECT" --region "$REGION" \
-  --image "$IMAGE" --command python --args=-c,"$SMOKE_COMMAND" \
+  --image "$IMAGE" --command python --args="^@^-c@$SMOKE_COMMAND" \
   --service-account "$SERVICE_ACCOUNT" --cpu 1 --memory 1Gi \
   --tasks 1 --parallelism 1 --max-retries 0 --task-timeout 10m --quiet
 SMOKE_EXEC=$(gcloud run jobs execute "$SMOKE_JOB" --project "$PROJECT" \
