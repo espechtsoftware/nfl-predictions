@@ -271,3 +271,99 @@ is that the system currently earns ~176 against a ~181 pool on a ~250
 hindsight universe, every cheap route between those numbers has been
 measured or closed, and the remaining routes are the hard ones now funded
 in priority order.
+
+---
+
+# Part II — Where the largest opportunities are
+
+Ranked by expected value against the challenges above, with the honest
+size class of each.
+
+## O1. The dependence repair is the one move that pays four ways
+
+Every other opportunity improves one layer; a real joint-co-boom repair
+(OT mixture, DST events, cross-team/QB-hub coupling) simultaneously (i)
+puts detonation worlds into the pool the boom generator solves, (ii)
+sharpens the selector's coverage signal, (iii) legitimately reopens
+selector evaluation under the preregistered condition, and (iv) fixes the
+gate instrument every future experiment is judged with. It is also the
+only lane aimed at 220+, where selection is already perfect and the money
+is. Size class: unknown but structurally unique — the 2.2x under-
+prediction at 210 says the missing mass is real. S2's base-rate OT
+mixture is the cheapest first shot because it requires no prediction
+skill at all.
+
+## O2. The admission/distillation class — the only mechanism family with
+a proven realized gain
+
+CBWU-OI: +5.66 mean C at exactly fixed budget, the single positive
+construction result in the project's history — now live as a paired
+shadow with 20 real entries. Tonight's B2' answers whether the same
+admission law scales with book volume toward the 198 union ceiling. If
+even a third of the k=5-to-k=51 pool growth survives admission at fixed
+budget, that is the largest near-term realized-C gain available from
+existing data, and its prospective vehicle (the shadow pattern) already
+exists. Size class: +2-6 mean C if it scales; a clean closure if not.
+
+## O3. Residual-world columns — the only generator aimed at the operator's
+actual utility
+
+Everything else generates candidates by proxy objectives and hopes; the
+residual-column machine prices each new lineup by its marginal
+contribution to uncovered tail states across the exact thresholds the
+operator is paid on. It is implemented, score-free green through its
+proof chain, and S1's floor tells us how much room it has. Size class:
+the remainder of whatever S1 says is winnable — potentially the largest
+single number in the program, or nearly nothing; that is exactly why S1
+runs first.
+
+## O4. The selection objective fix (A1 family) — small, cheap, and already
+authorized
+
+The C-S gap is a mean gap because the selector's objective stops caring
+above its line. Retargeting the same greedy machinery at the operator's
+sparse-ladder utility is a laptop-scale one-shot with a plausible +1-2
+realized mean and the 210+ guard frozen in. Not transformative; nearly
+free; the definition of picking up a dropped coin.
+
+## O5. Prospective information on thin-history players — the only path to
+the 33 missed winner slots
+
+Tracking traits (data in hand, gate defined), multi-book prop dispersion
+(collection starting; the old null was measured on data that could not
+support the question), the surprise ledger (approved), news/evidence
+activation. None is provable offline; together they attack the one loss
+category no construction or selection change can reach. Size class per
+winning lineup: one to two roster slots — which at Milly lines is often
+the whole difference.
+
+## O6. Entry scaling and operational excellence — the guaranteed capture
+
+Max-of-N grows with N with certainty, not with model skill. The 80-to-100
+move (money book + OI top-20) is already decided; every additional entry,
+every collector running by Week 1, every Sunday the shadow fleet actually
+fires is expected value that requires nothing to be discovered. Addendum
+95 named more entries as one of exactly two guaranteed capture paths, and
+it remains the only lever with zero scientific risk.
+
+## O7. The meta-instruments — cheap measurements that keep the season's
+scarce slots honest
+
+S1 (winnable-gap floor), A3 (selector-algorithm closure), the McNemar
+reanalysis (what the closed arms actually proved), S4 (marginal-vs-
+dependence attribution). None scores a point; each one redirects heavy
+slots away from unwinnable territory. Their combined cost is days; the
+slots they protect are the offseason. The B1 census already demonstrated
+the pattern: one query killed an entire tempting-but-empty program (B2
+diversity admission) before it spent a heavy slot.
+
+## The portfolio view
+
+O1 is the bet that changes the game; O2/O3 are the funded construction
+bets with the only proven precedent; O4 is loose change worth taking; O5
+is the only answer to the hardest loss category; O6 is certain and
+boring; O7 keeps everything else honest. The program as now sequenced
+spends its next slots in exactly that order of leverage — and the
+2026 season, with collectors live and preregistered gates, is the first
+season where a positive result anywhere in this portfolio can actually
+be promoted rather than merely admired.
