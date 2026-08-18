@@ -9,6 +9,15 @@ composition only.
 """
 from __future__ import annotations
 
+import sys as _sys
+from pathlib import Path as _Path
+# Script-to-script imports need scripts/ on sys.path under BOTH
+# invocation modes: as a file (parent dir) and as injected -c
+# source (cwd-relative scripts/).
+_scripts_dir = (_Path(__file__).parent if "__file__" in globals()
+                else _Path("scripts"))
+_sys.path.insert(0, str(_scripts_dir.resolve()))
+
 import argparse
 import hashlib
 import json
