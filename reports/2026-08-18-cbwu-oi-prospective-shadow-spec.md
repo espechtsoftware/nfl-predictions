@@ -74,3 +74,16 @@ after any outcome is visible voids the shadow.
 - The `SELECT_LSE="0"` unchanged selector on both arms, tail line 194.0,
   80 entries, identical seeds R0-R4 — all inherited unchanged from the
   adopted money policy.
+
+## Rider: Week 1 live entry of the OI top-20 (operator decision, 2026-08-18)
+
+After this spec was frozen, the operator raised the Week 1 entry budget to
+100 and allocated seats 81-100 to this shadow's frozen treatment
+20-membership, entered live alongside the byte-identical 80-entry money
+book. This rider changes NOTHING about collection or grading: the books are
+frozen pre-lock regardless of entry, the money path and its 80-license are
+untouched, and the preregistered gate stands exactly as written above. The
+only new artifact is an entry-export step that reads the already-frozen
+20-membership (canonical DK draftable ids) into the DK upload. Live results
+of the entered 20 are settlement facts, not grading inputs; the shadow is
+graded on the frozen books alone.

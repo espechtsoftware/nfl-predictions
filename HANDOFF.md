@@ -156,6 +156,16 @@ agent or developer:
   prospective surprise ledger APPROVED** as a standing decision-free
   post-settlement job. Design-lane queue is now: S1 protocol, McNemar pair
   table, S4 protocol, S2 v2 draft, S8 spec.
+- **Entry budget decision (operator, late 2026-08-18): Week 1 runs 100
+  entries = the unchanged 80-entry money book + the CBWU-OI shadow's frozen
+  treatment top-20 entered live.** The money path and its enforced
+  80-basis license are untouched; the +20 are incremental operator budget
+  on the frozen OI 20-membership (canonical DK ids already recorded by
+  `paired_shadow_receipt`). Spec rider appended to
+  `reports/2026-08-18-cbwu-oi-prospective-shadow-spec.md` — grading is
+  unaffected. NEW Week-1 lane task: an entry-export step reading the
+  week's frozen 20-membership into the DK upload (small; must exist before
+  Week 1; never touches the money book).
 - Exact next actions: (1) local `--smoke` of one cell (2023 W1) AFTER the
   background full suite finishes — never two heavy local processes; a
   reproduction failure there is a halt-and-disposition, not a retry; (2)
