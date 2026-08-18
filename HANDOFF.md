@@ -192,6 +192,27 @@ agent or developer:
   is read; A5 is S6 (already queued); A2/A4 fold into A1's single family.
   Immediate design-lane order: A3 greedy optimality-gap audit (score-free)
   and B1-with-null census first, then S1, then the authorized family.
+- **CBWU-OI shadow DEPLOYED AND ENABLED (19:22Z).** Build 3
+  (`f1b69079`, tag `cbwu-oi-shadow-5dcb41b`) SUCCEEDED: full 2,253-test
+  in-container suite green; immutable digest `sha256:fcfafc10ef7745ab…`.
+  Job `shadow-cbwu-oi-paired` created at that digest (16Gi/4CPU/7200s,
+  CODE_SHA=5dcb41b full sha); schedulers `s-shadow-cbwu-oi-paired-early`
+  (Sun 09:45 CT) and `-late` (10:45 CT) created **ENABLED** — the only
+  enabled shadows; the fleet stays paused. Pre-season firings fail on the
+  empty-slate guard by design. The build history: attempt 1 timed out at
+  3600s (suite outgrew it, +11k test lines since the last green build);
+  attempt 2 at 3h found one stale-message test pin (fixed at `5dcb41b`);
+  attempt 3 green.
+- **C-test cloud smokes launched** on the same digest: executions
+  `atlas-minimal-c-smoke-d5hh7` (2023-W1, the canary cell) and `-6vnwt`
+  (2025-W17, the likeliest post-`545ddae` divergence surface). These are
+  the outcome-blind reproduction-gate answers; a divergence is a
+  halt-and-disposition for the C test, not a retry.
+- **B2' one-shot in flight** (see the frozen protocol
+  `2026-08-18-b2prime-volume-oi-admission-protocol.md`): volume-scaled OI
+  admission, arms k={5,10,20,51}, launched locally in background after a
+  clean score-free smoke; B1 census complete (union C 198.10; diversity
+  premium ~+0.4 — volume, not diversity; B2-as-designed did not trigger).
 - Exact next actions: (1) local `--smoke` of one cell (2023 W1) AFTER the
   background full suite finishes — never two heavy local processes; a
   reproduction failure there is a halt-and-disposition, not a retry; (2)
