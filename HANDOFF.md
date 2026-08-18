@@ -24,8 +24,9 @@ agent or developer:
 
 ### Extreme-tail review implementation is at the final score-free proof boundary
 
-- Branch is `main`; the last pushed commit is
-  `71962ab` (the frozen ATLAS proof-transport protocol and offline validator).
+- Branch is `main`; the latest durable code checkpoint is
+  `71962ab` (the frozen ATLAS proof-transport protocol and offline validator),
+  followed only by its associated tracked handoff update.
   The residual-world implementation
   is deliberately still uncommitted while its exact CBC evidence contract is
   completing independent review. Do not discard the current worktree. The
