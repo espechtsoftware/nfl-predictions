@@ -85,11 +85,21 @@ agent or developer:
   0.195 and 0.166 with slate-bootstrap intervals above zero. The held-out
   candidate model also had ROC AUC 0.6255. These are weak signals, not proof
   that the simulator is globally useless. The remaining high-value question
-  is narrower: whether preregistered changes in *book-level simulated tail
-  coverage* transport to realized selected-book tail outcomes across valid
-  arms. Freeze and run that compact audit before launching any new historical
-  arm; exclude invalid/superseded controls and treat it as diagnosis, not a
-  promotion screen.
+  is narrower: whether *book-level simulated tail coverage* predicts realized
+  selected-book tail outcomes. Before querying that result, freeze the compact
+  audit to the manifest-bound `phase-s-cbwu-54` exact-80 book and its 54
+  corrected 2023--2025 slates. At thresholds 187/194/200/210 compare
+  `q_t = Pr_sim(max(selected 80) >= t)` with
+  `y_t = 1[realized max(selected 80) >= t]`; report Brier skill against a
+  leave-one-season-out prevalence baseline, AUC/AP where both classes exist,
+  simulated-versus-realized book-maximum association, season rows and
+  uncertainty. Treat 220/230/240 as descriptive because their event counts
+  are too small. Fit and tune nothing, exclude every invalid/superseded panel,
+  and label the result retrospective diagnosis rather than a promotion or
+  permanent-closure screen. A separate arm-transport estimand would require
+  same-context paired `delta simulated coverage` versus `delta realized tail`
+  over only valid arm/control comparisons; do not conflate it with this
+  absolute calibration audit.
 
 - Adopt the process-health recommendations in a bounded form. Production
   readiness and research are separate queues. Pure build/transport failures
