@@ -92,12 +92,34 @@ agent or developer:
   the prior current-state's "no deployed collector" line predated that
   commit. Still open in the Week 1 lane: literal `ODDS_API_KEY` values in
   non-odds Cloud Run job specs need rotation.
-- Exact next actions: (1) Week 1 ops — rotate `ODDS_API_KEY`, verify
-  contest-fills rows landing; (2) design the DST sizing step (outcome-based,
-  H/P solves, no simulator); (3) draft the D0 gate-3 acceptance freeze
-  (canonical source named) before any D1/D2 treatment effect; (4) bind
-  hashes + write the runner for the minimal ATLAS C test with a single-cell
-  canary; (5) monitor the coherent chain via `~/nfl-panels/` logs. Do not
+- **Minimal ATLAS C test implemented (17:00 CDT, commit `f97ab6b`).**
+  Engine lever `ATLAS_BOOM_WORLD_RANKING` (default byte-identical to the
+  incumbent ranking — 7 lever tests + `test_sbi.py` 12/12 golden parity;
+  in the immutable lever set; absent from the production policy receipt).
+  Cell runner `scripts/run_atlas_minimal_world_selection_c.py` regenerates
+  both arms per slate x seed from the pinned money-worlds artifacts
+  (`source-grid.json` SHA `9a18458c…`) and per-panel snapshots (support
+  census verified: 5 x 54 slates, `proj_tourney`/`own_est`/`actual`
+  complete; candidates 13,633/13,649/13,642/13,395/13,632), with exact
+  native-reproduction + artifact-totals + actual-parity gates before any
+  outcome read, and a `--smoke` outcome-blind mode. The r3/2025-W1 cell was
+  never registered (artifact-only recovery), so that slate runs both arms
+  on the same FOUR seeds, parity preserved and disclosed. Freeze doc:
+  `reports/2026-08-18-atlas-minimal-c-implementation-freeze.md` (SHA
+  `4fdb5143…` pinned in the runner). 14 offline contract tests pass.
+  ODDS_API_KEY literals were stripped from the five non-odds jobs
+  (operator-approved); provider-side key rotation remains an operator
+  action.
+- Exact next actions: (1) local `--smoke` of one cell (2023 W1) AFTER the
+  background full suite finishes — never two heavy local processes; a
+  reproduction failure there is a halt-and-disposition, not a retry; (2)
+  write the C-test launcher/finisher with real-path canary + one
+  platform-error replacement, queued strictly behind the coherent
+  score-free chain; (3) Week 1 ops — operator rotates the odds key; verify
+  contest-fills rows landing; (4) design the DST sizing step
+  (outcome-based, H/P solves, no simulator); (5) draft the D0 gate-3
+  acceptance freeze (canonical source named) before any D1/D2 treatment
+  effect; (6) monitor the coherent chain via `~/nfl-panels/` logs. Do not
   resume schedulers, delete forensic data, or change the money policy.
 
 ## Prior state — 2026-08-18 12:15 CDT
