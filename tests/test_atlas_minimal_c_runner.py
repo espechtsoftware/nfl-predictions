@@ -77,29 +77,48 @@ def _synthetic_snapshot():
     return pd.DataFrame(rows)
 
 
-def test_slate_frame_orders_skill_by_artifact_and_dst_by_team():
+def test_slate_frame_preserves_artifact_order_dst_inclusive():
+    # The pinned artifacts store the COMPLETE generation slate, DST rows
+    # included (2026-08-18 smoke disposition); every row keeps artifact
+    # order and gets a real draw index.
     snapshot = _synthetic_snapshot()
-    artifact_ids = np.array(["P3", "P0", "P5", "P1", "P2", "P4"])
+    artifact_ids = np.array(
+        ["P3", "P0", "DST_B", "P5", "P1", "P2", "P4", "DST_A"])
     slate = runner._slate_frame(snapshot, artifact_ids)
-    assert slate["id"].tolist()[:6] == list(artifact_ids)
-    assert slate["draw_idx"].tolist()[:6] == list(range(6))
-    # DST rows follow, team-sorted, with draw_idx -1.
-    assert slate["id"].tolist()[6:] == ["DST_A", "DST_B"]
-    assert slate["draw_idx"].tolist()[6:] == [-1, -1]
+    assert slate["id"].tolist() == list(artifact_ids)
+    assert slate["draw_idx"].tolist() == list(range(8))
 
 
 def test_slate_frame_rejects_missing_artifact_player():
     with pytest.raises(RuntimeError, match="missing from snapshot"):
         runner._slate_frame(
-            _synthetic_snapshot(), np.array(["P0", "P1", "GHOST"]))
+            _synthetic_snapshot(),
+            np.array(["P0", "P1", "DST_A", "GHOST"]))
 
 
-def test_slate_frame_rejects_non_dst_leftovers():
+def test_slate_frame_rejects_snapshot_leftovers():
     snapshot = _synthetic_snapshot()
-    with pytest.raises(RuntimeError, match="not all DST"):
-        # P5 left out of the artifact must fail: only DSTs may be drawless.
+    with pytest.raises(RuntimeError, match="absent from the artifact"):
+        # P5 left out of the artifact must fail: the artifact stores the
+        # complete slate, so an unmatched snapshot row is a defect.
         runner._slate_frame(
-            snapshot, np.array(["P3", "P0", "P1", "P2", "P4"]))
+            snapshot,
+            np.array(["P3", "P0", "P1", "P2", "P4", "DST_A", "DST_B"]))
+
+
+def test_slate_frame_rejects_dst_free_artifact():
+    snapshot = _synthetic_snapshot().query("pos != 'DST'").copy()
+    with pytest.raises(RuntimeError, match="no DST rows"):
+        runner._slate_frame(
+            snapshot, np.array([f"P{i}" for i in range(6)]))
+
+
+def test_slate_frame_rejects_duplicate_artifact_ids():
+    with pytest.raises(RuntimeError, match="ids repeat"):
+        runner._slate_frame(
+            _synthetic_snapshot(),
+            np.array(["P0", "P0", "P1", "P2", "P3", "P4", "P5",
+                      "DST_A", "DST_B"]))
 
 
 class _Lineup:
@@ -180,3 +199,69 @@ def test_freeze_doc_sha_constant_matches_file():
     digest = hashlib.sha256(
         Path(runner.FREEZE_DOC).read_bytes()).hexdigest()
     assert digest == runner.FREEZE_DOC_SHA256
+
+
+def test_inject_role_natives_splices_by_registered_positions():
+    slate = _synthetic_snapshot().copy()
+    extra = pd.DataFrame([
+        {"id": "P6", "pos": "RB", "team": "T0", "salary": 5000,
+         "proj_tourney": 9.0},
+    ])
+    slate = pd.concat([slate, extra], ignore_index=True)
+    slate["draw_idx"] = range(len(slate))
+    n_worlds = 4
+    draws = np.arange(len(slate) * n_worlds, dtype=float).reshape(
+        len(slate), n_worlds)
+    from nfl_dfs.backtest.engine import CandidateBatch
+    from nfl_dfs.optimizer.lineup import Lineup
+    records = {str(r["id"]): r for r in slate.to_dict("records")}
+
+    def _lineup(ids, tag):
+        return Lineup(players=[records[i] for i in ids], tag=tag)
+
+    role_roster = "P0,P1,P2,P3,P4,P5,P6,DST_A,DST_B"
+    regen = (_lineup(["P0", "P1"], "lev"), _lineup(["P2", "P3"], "boom"))
+    regen_totals = np.ones((2, n_worlds))
+    batch = CandidateBatch(
+        candidates=regen, candidate_totals=regen_totals,
+        player_ids=tuple(slate["id"].tolist()),
+        player_rows=tuple(slate.to_dict("records")),
+        row_draws=draws,
+        all_tags={regen[0].ids: ("lev",), regen[1].ids: ("boom",)},
+        metadata={},
+    )
+    natives = pd.DataFrame({
+        "cand_ix": [0, 1, 2],
+        "tag": ["lev", "epi", "boom"],
+        "players": ["P0,P1", role_roster, "P2,P3"],
+    })
+    artifact = {"totals": np.stack([
+        np.full(n_worlds, 10.0), np.full(n_worlds, 77.0),
+        np.full(n_worlds, 30.0),
+    ])}
+    spliced = runner._inject_role_natives(batch, natives, slate, artifact)
+    assert len(spliced.candidates) == 3
+    assert spliced.candidates[1].tag == "epi"
+    assert [p["id"] for p in spliced.candidates[1].players] == \
+        role_roster.split(",")
+    np.testing.assert_array_equal(
+        spliced.candidate_totals[1], np.full(n_worlds, 77.0))
+    np.testing.assert_array_equal(spliced.candidate_totals[0], np.ones(4))
+    assert spliced.metadata["role_injection"]["count"] == 1
+    assert spliced.metadata["role_injection"]["cand_ix"] == [1]
+
+    # Collision with a regenerated identity fails closed.
+    collide = natives.copy()
+    collide.loc[1, "players"] = "P1,P0"
+    with pytest.raises(RuntimeError, match="nine unique ids"):
+        runner._inject_role_natives(batch, collide, slate, artifact)
+
+    # Budget mismatch fails closed.
+    short = natives.iloc[:2]
+    with pytest.raises(RuntimeError, match="splice budget"):
+        runner._inject_role_natives(batch, short, slate, artifact)
+
+    # Missing role natives with a role dose fails closed.
+    no_role = natives[natives.tag.ne("epi")]
+    with pytest.raises(RuntimeError, match="registered no role natives"):
+        runner._inject_role_natives(batch, no_role, slate, artifact)

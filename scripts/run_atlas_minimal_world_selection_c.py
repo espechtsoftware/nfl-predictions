@@ -54,7 +54,7 @@ VERSION = "atlas-minimal-world-selection-c-v1"
 PROJECT = "nfl-predictions-503414"
 FREEZE_DOC = Path("reports/2026-08-18-atlas-minimal-c-implementation-freeze.md")
 FREEZE_DOC_SHA256 = (
-    "4fdb514333e5c7c073fd6c1dd0710290af0155d5da510b5f97a090fd0acfd4fb"
+    "ba2f04984cfaa96dd0e21d7488e5b575704f03cd26277c4a717c2d1d64f7405c"
 )
 SOURCE_GRID = Path(
     "reports/atlas-money-world-runs/20260815-atlas-current-money-worlds-v1/"
@@ -83,7 +83,13 @@ EXPECTED_PANEL_CANDIDATES = {
 # seed. That slate runs BOTH arms on the same four seeds — parity holds.
 RECOVERY_CELL = (SOURCE_PANEL_IDS[3], 2025, 1)
 TAIL_LINE = 194.0
-N_ENTRIES = 40
+# Amendment 3 (2026-08-18 smoke disposition): the source money-world
+# panels were TRUE-80 replays — generation basis 80 entries (160 lev
+# candidates at CAND_MULT=2; the coherent support census records exactly
+# 160 leverage candidates per cell). The original freeze passed 40,
+# silently halving the lev family (smoke #3: natives 255 vs regenerated
+# 164 + injected 12). The reproduction gate remains the arbiter.
+N_ENTRIES = 80
 WORLDS_PER_ARTIFACT = 10_000
 # Infrastructure destinations blanked at generation (outside the lever set).
 BLANKED_ENV = (
@@ -183,32 +189,41 @@ def _generation_env(block: int, season: int, code_sha: str) -> dict[str, str]:
 def _slate_frame(
     snapshot: pd.DataFrame, player_ids: np.ndarray,
 ) -> pd.DataFrame:
-    """Reconstruct the generation slate: skill rows in artifact order
-    (draw_idx = 0..n-1) followed by DST rows sorted by team (draw_idx=-1)."""
+    """Reconstruct the generation slate: ALL rows in artifact order with
+    draw_idx = 0..n-1.
+
+    The pinned money-world artifacts store the complete generation slate
+    — skill AND DST rows, DST draws being the constant projection
+    broadcast (asserted where draws are in scope). The original freeze
+    assumed skill-only artifacts and failed closed on first contact with
+    a real artifact (2023 W1 R0: 756 skill + 17 DST rows). Amendment
+    record: reports/2026-08-18-atlas-minimal-c-smoke-disposition.md; the
+    exact native-reproduction gate remains the arbiter of faithfulness.
+    """
     frame = snapshot.copy()
     frame["id"] = frame["id"].astype(str)
     if frame["id"].duplicated().any():
         raise RuntimeError("ATLAS C snapshot has duplicate player ids")
     catalog = frame.set_index("id", drop=False)
     ids = [str(value) for value in player_ids]
+    if len(set(ids)) != len(ids):
+        raise RuntimeError("ATLAS C artifact ids repeat")
     missing = set(ids) - set(catalog.index)
     if missing:
         raise RuntimeError(
             f"ATLAS C artifact players missing from snapshot: "
             f"{sorted(missing)[:5]}"
         )
-    skill = catalog.loc[ids].reset_index(drop=True)
-    if (skill["pos"].astype(str).str.upper() == "DST").any():
-        raise RuntimeError("ATLAS C artifact rows include DST players")
-    skill["draw_idx"] = np.arange(len(skill), dtype=int)
-    dst = catalog[~catalog.index.isin(ids)].copy()
-    if not (dst["pos"].astype(str).str.upper() == "DST").all():
+    leftover = catalog[~catalog.index.isin(ids)]
+    if len(leftover):
         raise RuntimeError(
-            "ATLAS C non-artifact snapshot rows are not all DST"
+            "ATLAS C snapshot rows absent from the artifact: "
+            f"{sorted(leftover['id'].astype(str))[:5]}"
         )
-    dst = dst.sort_values("team").reset_index(drop=True)
-    dst["draw_idx"] = -1
-    slate = pd.concat([skill, dst], ignore_index=True)
+    slate = catalog.loc[ids].reset_index(drop=True)
+    if not (slate["pos"].astype(str).str.upper() == "DST").any():
+        raise RuntimeError("ATLAS C artifact carries no DST rows")
+    slate["draw_idx"] = np.arange(len(slate), dtype=int)
     return slate
 
 
@@ -223,6 +238,15 @@ def _generate(
     treatment: bool,
 ) -> CandidateBatch:
     run_env = dict(env)
+    # Amendment 2 (2026-08-18 smoke disposition): the production role
+    # family requires the role registry's belief slate/draws, which are
+    # not reconstructible from the pinned artifacts. Role candidates are
+    # arm-invariant by code (role generation never reads the boom world
+    # ranking), so generation runs with the role dose at zero and the
+    # registered role natives are injected verbatim afterwards
+    # (_inject_role_natives). The acquisition-record env validation is
+    # unchanged and still checks the FAITHFUL environment.
+    run_env["N_EPISTEMIC"] = "0"
     if treatment:
         run_env["ATLAS_BOOM_WORLD_RANKING"] = "1"
     captured: list[CandidateBatch] = []
@@ -266,6 +290,98 @@ def _generate(
     if not lineups:
         raise RuntimeError("ATLAS C generation selected no lineups")
     return captured[0]
+
+
+def _inject_role_natives(
+    batch: CandidateBatch,
+    natives: pd.DataFrame,
+    slate: pd.DataFrame,
+    artifact: dict[str, np.ndarray],
+) -> CandidateBatch:
+    """Splice the registered role natives into a regenerated batch.
+
+    The role family is arm-invariant (its generation never reads the boom
+    world ranking), so both arms receive the SAME registered role rosters
+    at their registered cand_ix positions. Injected rows carry the
+    artifact's own world totals verbatim — they are pinned inputs exactly
+    like the draws — while every regenerated row must still reproduce
+    independently under the unchanged exact gate. Player order follows
+    the registered roster string so downstream recomputation stays
+    bit-consistent. Any collision between an injected identity and a
+    regenerated one fails closed (amendment record:
+    reports/2026-08-18-atlas-minimal-c-smoke-disposition.md).
+    """
+    from nfl_dfs.optimizer.lineup import Lineup
+
+    ordered = natives.sort_values("cand_ix", kind="stable")
+    role_rows = ordered[ordered["tag"].astype(str).eq("epi")]
+    if role_rows.empty:
+        raise RuntimeError(
+            "ATLAS C acquisition env carries a role dose but the panel "
+            "registered no role natives")
+    art_totals = np.asarray(artifact["totals"])
+    record_by_id = {
+        str(row["id"]): row for row in slate.to_dict("records")
+    }
+    regen_identities = {_identity(lineup) for lineup in batch.candidates}
+    injected: dict[int, tuple[Lineup, np.ndarray]] = {}
+    for _, row in role_rows.iterrows():
+        roster = [
+            value for value in str(row["players"]).split(",") if value
+        ]
+        if len(roster) != 9 or len(set(roster)) != 9:
+            raise RuntimeError("ATLAS C role native is not nine unique ids")
+        if tuple(sorted(roster)) in regen_identities:
+            raise RuntimeError(
+                "ATLAS C regenerated candidate collides with an injected "
+                "role native; halt and disposition")
+        missing = [pid for pid in roster if pid not in record_by_id]
+        if missing:
+            raise RuntimeError(
+                f"ATLAS C role native players missing from slate: {missing}")
+        index = int(row["cand_ix"])
+        if not 0 <= index < len(art_totals):
+            raise RuntimeError("ATLAS C role native cand_ix outside artifact")
+        injected[index] = (
+            Lineup(players=[record_by_id[pid] for pid in roster],
+                   tag="epi"),
+            art_totals[index],
+        )
+    native_order = ordered["cand_ix"].astype(int).tolist()
+    if len(native_order) != len(batch.candidates) + len(injected):
+        raise RuntimeError(
+            "ATLAS C splice budget differs: natives "
+            f"{len(native_order)} vs regenerated {len(batch.candidates)} "
+            f"+ injected {len(injected)}")
+    regen_iter = iter(zip(batch.candidates, batch.candidate_totals))
+    final_candidates: list = []
+    final_totals: list = []
+    for index in native_order:
+        if index in injected:
+            lineup, totals_row = injected[index]
+        else:
+            lineup, totals_row = next(regen_iter)
+        final_candidates.append(lineup)
+        final_totals.append(np.asarray(totals_row))
+    all_tags = {key: tuple(value) for key, value in batch.all_tags.items()}
+    for lineup, _ in injected.values():
+        all_tags.setdefault(lineup.ids, ("epi",))
+    return CandidateBatch(
+        candidates=tuple(final_candidates),
+        candidate_totals=np.stack(final_totals),
+        player_ids=batch.player_ids,
+        player_rows=batch.player_rows,
+        row_draws=batch.row_draws,
+        all_tags=all_tags,
+        metadata={
+            **dict(batch.metadata),
+            "role_injection": {
+                "mode": "verbatim-registered-arm-invariant",
+                "count": len(injected),
+                "cand_ix": sorted(injected),
+            },
+        },
+    )
 
 
 def _native_identities(rows: pd.DataFrame) -> list[tuple[str, ...]]:
@@ -504,9 +620,19 @@ def run(season: int, week: int, output_uri: str, smoke: bool) -> dict:
             raise RuntimeError(
                 f"ATLAS C artifact draw shape differs: {draws.shape}"
             )
-        control = _generate(slate, draws, env, treatment=False)
+        # DST rows must carry the constant projection broadcast the
+        # source panel generated with — any variance means this is not
+        # the pinned law (amendment record: smoke disposition, 2026-08-18).
+        dst_mask = slate["pos"].astype(str).str.upper().eq("DST").to_numpy()
+        if float(draws[dst_mask].std(axis=1).max()) != 0.0:
+            raise RuntimeError("ATLAS C DST artifact rows are not constant")
+        control = _inject_role_natives(
+            _generate(slate, draws, env, treatment=False),
+            panel_natives, slate, artifact)
         repro = _reproduction_check(control, panel_natives, artifact)
-        treatment = _generate(slate, draws, env, treatment=True)
+        treatment = _inject_role_natives(
+            _generate(slate, draws, env, treatment=True),
+            panel_natives, slate, artifact)
         if len(treatment.candidates) != len(control.candidates):
             raise RuntimeError(
                 "ATLAS C arm budgets differ: control "
@@ -521,6 +647,8 @@ def run(season: int, week: int, output_uri: str, smoke: bool) -> dict:
             "projection_seed": SEED_PAIRS[block][0],
             "artifact": art_receipt,
             "reproduction": repro,
+            "role_injected": control.metadata.get("role_injection", {}).get(
+                "count"),
             "treatment_candidates": len(treatment.candidates),
         })
 

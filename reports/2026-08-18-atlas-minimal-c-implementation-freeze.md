@@ -84,3 +84,50 @@ chain; no launch while that chain occupies the heavy lane. Runner:
 `scripts/run_atlas_minimal_world_selection_c.py` (SHA-256 pinned by the
 launcher at launch time, with this document's SHA-256 pinned inside the
 runner).
+
+## Amendment 1 (2026-08-18 evening): artifact schema correction
+
+The first local outcome-blind smoke failed closed: the frozen
+`_slate_frame` assumed skill-only artifact rows and reconstructed DST from
+the snapshot, while the pinned money-world artifacts store the complete
+generation slate (2023 W1 R0: 756 skill + 17 DST rows, DST rows being the
+constant projection broadcast). Classification and full record:
+`reports/2026-08-18-atlas-minimal-c-smoke-disposition.md`. Amended
+contract: all artifact rows form the slate in artifact order with real
+draw indices; duplicate ids, snapshot leftovers, DST-free artifacts, and
+non-constant DST rows all fail closed. No lever, budget, selector, gate,
+or outcome rule changes; the exact native-reproduction gate remains the
+arbiter of faithfulness. This document's SHA-256 is re-pinned in the
+runner as part of the same commit.
+
+## Amendment 2 (2026-08-18 evening): arm-invariant role-native injection
+
+The amended smoke's second failure: the acquisition environment carries
+the production `role_draws` family (N_EPISTEMIC=12), whose belief
+slate/draws come from the role registry pipeline and are not
+reconstructible from the pinned artifacts. The role family is
+arm-invariant by code — its generation never reads the boom world
+ranking — so both arms now generate with the role dose at zero and
+receive the SAME registered role natives spliced in verbatim at their
+registered cand_ix positions (`_inject_role_natives`): player order
+follows the registered roster string; injected rows carry the artifact's
+own world totals (pinned inputs, exactly like the draws); collisions
+with regenerated identities, budget mismatches, missing players and
+missing role natives all fail closed. The acquisition-record environment
+validation is unchanged and still checks the faithful environment. The
+exact native-reproduction gate is unchanged and its evidential force now
+rests on every REGENERATED row, which is precisely the population the
+lever can move. Estimand, budgets, selector, gates and outcome rules are
+unchanged. Full record:
+`reports/2026-08-18-atlas-minimal-c-smoke-disposition.md`.
+
+## Amendment 3 (2026-08-18 evening): true-80 generation basis
+
+Smoke #3 failed closed at the splice budget: natives 255 versus
+regenerated 164 + injected 12. The source money-world panels were
+true-80 replays (generation basis 80 entries; 160 lev candidates at
+CAND_MULT=2, exactly as the coherent support census records per cell);
+the original freeze passed a 40-entry basis, silently halving the lev
+family. `N_ENTRIES` is corrected to 80. No lever, dose, selector, gate
+or outcome rule changes; the exact native-reproduction gate remains the
+arbiter. Record: `reports/2026-08-18-atlas-minimal-c-smoke-disposition.md`.
