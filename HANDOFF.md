@@ -20,7 +20,45 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-18 20:10 CDT
+## Current state — 2026-08-18 23:35 CDT
+
+### Coherent historical stage COMPLETE — tail-negative; ATLAS C canary running; dependence watcher unblocked
+
+- Branch `main` at `beaa5d5` (pushed). After six repair cycles the
+  historical scorer ran end-to-end: execution
+  `coherent-market-historical-v1-m2kc4` succeeded, and the r6 strict
+  finisher VALIDATED and HARVESTED the result with disposition
+  **`coherent-market-state-historical-tail-negative`** — the first
+  completed historical outcome of the coherent chain. Interpretation
+  follows the frozen historical-score protocol's reading rules; the
+  disposition token is the harvester's own output. Per the preregistered
+  structure, tail-negative licenses no adoption; the family's 2026
+  shadow disposition follows the protocol, not this note.
+- The two launch-cycle failures after the path-identity repair are
+  recorded as addenda in the same repair report: kqw47 failed a combined
+  three-leg gate that could not be reproduced outside the container;
+  the r6 gate (commit `beaa5d5`) is leg-diagnostic, content-identity on
+  object receipts, and tolerates only 1e-12 float re-derivation across
+  images — it passed in production, closing the fifth and final
+  representation-identity instance of the day.
+- **ATLAS C is executing.** The queue gate released on the report
+  object; real-path canary `atlas-minimal-c-s2023-w1-v1-4zgzx` is
+  running. On canary success the launcher releases the 53 remaining
+  cells automatically, then `scripts/cloud_finish_atlas_minimal_c.sh`
+  aggregates (54 terminal successes + proven reproduction required;
+  predeclared prior NEGATIVE — a null closes the world-ranking family).
+- **Dependence watcher `1273069`** is alive and will detect the
+  historical completion on its own cadence — the production-law
+  dependence scorecard (gate for the OT arm and any QB-hub repair) is
+  next in that lane.
+- Exact next actions: (1) let the C-test grid run; read the aggregate
+  only against the freeze's gates and the negative prior; (2) the
+  historical result's protocol-governed interpretation; (3) operator
+  decision queue unchanged (seven DRAFT freezes + utility freeze +
+  one-shot amendment); (4) do not resume schedulers, delete forensic
+  data, or change the money policy.
+
+## Prior state — 2026-08-18 20:10 CDT
 
 ### Historical stage: launched, failed on a fourth identity instance, repaired, relaunched (r4); ATLAS C reality-tested through three amendments, smoke green
 
