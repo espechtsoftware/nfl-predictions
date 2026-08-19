@@ -20,7 +20,62 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-18 17:50 CDT
+## Current state — 2026-08-18 20:10 CDT
+
+### Historical stage: launched, failed on a fourth identity instance, repaired, relaunched (r4); ATLAS C reality-tested through three amendments, smoke green
+
+- Branch `main` at `81b286d` (pushed). Two autonomous lanes running:
+  historical chain rebuild `8ff25d4a` (tag
+  `coherent-market-historical-81b286d`) under watcher r4 PID `2394428`
+  (log `coherent-historical-watcher-r4.log`, override exported), and
+  C-test image build `b3761b23` (tag `atlas-minimal-c-075453d`). The
+  signature-line monitor (third iteration — heartbeat-blind) covers all
+  `~/nfl-panels/*.log`.
+- **Historical stage first launch (r1 fix cycle):** build `f4cbaaff`
+  passed; the repaired launcher cleared pins, normalized ledgers, and the
+  amended validator end-to-end; execution
+  `coherent-market-historical-v1-bg74m` LAUNCHED — the furthest this
+  chain has ever run — then failed closed in-container at shard
+  validation: `shard object changed`. Read-only diagnosis: generation,
+  sha256, bytes, uri all EQUAL; the mismatch was the `updated` STRING
+  FORMAT (harvest-time `+0000` no-microseconds vs the scorer's
+  `blob.updated.isoformat()`). No outcome was read. Repair at `81b286d`
+  (addendum in the path-identity repair record): shard receipts
+  live-derived with the scorer's exact primitive plus a strictly
+  stronger harvest-generation-equality pin (re-uploads since harvest now
+  fail closed). Failed-attempt receipts preserved under
+  `failed-launch-attempt-1/` (local + GCS); canonical receipt object
+  removed so the create-only re-upload can proceed. This is the FOURTH
+  representation-identity instance of the day (census key, checkout
+  paths, validator self-hash, timestamp format) — all one defect class:
+  frozen consumers comparing representations instead of content.
+- **ATLAS C test: reality-tested and green.** The recorded local smoke
+  surfaced three frozen-implementation defects, each dispositioned
+  before repair per the halt-and-disposition rule
+  (`reports/2026-08-18-atlas-minimal-c-smoke-disposition.md`; freeze doc
+  now carries Amendments 1–3, re-pinned `ba2f0498…`): (1) artifacts are
+  DST-inclusive complete slates; (2) the role family's belief draws are
+  not reconstructible — both arms now inject the registered role natives
+  verbatim (arm-invariant by code; artifact totals as pinned inputs;
+  collisions fail closed); (3) the source panels were true-80 replays —
+  generation basis corrected 40→80 (the splice count 255 = 160 lev + 40
+  boom + 12 role + families identified it exactly). Smoke #4 PASSED on
+  real 2023 W1: exact native reproduction + artifact-total parity on all
+  five seeds, outcome-blind — which also proves the role-injection dedup
+  caveat did not bind. 17 contract tests green; committed `075453d`.
+  The redundant pre-amendment image build was cancelled (compute
+  hygiene). Remaining before the C test can launch: the launcher/finisher
+  (real-path canary + one platform-error replacement), then queue behind
+  the historical chain per the heavy-slot order.
+- Exact next actions: (1) monitor r4 through build → launch → terminal;
+  on the next in-container failure, classify before any rerun; (2) write
+  the C-test launcher/finisher against image `atlas-minimal-c-075453d`
+  once build `b3761b23` succeeds; (3) the operator decision queue is
+  unchanged (seven DRAFT freezes + utility freeze + one-shot amendment);
+  (4) prior lanes unchanged. Do not resume schedulers, delete forensic
+  data, or change the money policy.
+
+## Prior state — 2026-08-18 17:50 CDT
 
 ### Coherent historical stage repaired and relaunched; final-tree full suite green; sessions consolidated
 
