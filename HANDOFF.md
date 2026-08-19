@@ -20,7 +20,46 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-18 23:35 CDT
+## Current state — 2026-08-19 00:45 CDT
+
+### ATLAS C attempt 2 armed under freeze Amendment 4; attempt 1 superseded with full census
+
+- Branch `main` at `c7757f6` (pushed). Attempt 1's grid fired the
+  Amendment-2 PREDECLARED collision gate on 2023 W5 (a post-role family
+  regenerated a roster the source run's dedup skipped — the role natives
+  occupied `seen` there), after the canary PASSED and a JobsPerProject
+  =1000 quota stop at cell #17 was routed around with per-execution
+  `--args` overrides (zero new jobs; `resume_atlas_minimal_c_grid.sh`,
+  quota disclosed in the attempt-1 manifest). No outcome was read from
+  any cell; the attempt-1 tally driver is recording the complete
+  success/collision census (`~/nfl-panels/atlas-c-tally.log`).
+- **Freeze Amendment 4** (re-pinned `4cd37148…`, commit `d4b3c78`):
+  engine seam `preseeded_role_identities` — default None byte-identical,
+  rejects nonzero role dose — inserts the registered role identities into
+  the dedup universe at the exact source position so later families skip
+  them exactly as the source did. 4 seam tests + 17 contract + golden
+  parity green. The 2023 W5 smoke (the colliding slate, outcome-blind)
+  then PASSED with exact reproduction on all five seeds.
+- **Attempt 2 in flight, fully autonomous**
+  (`cloud_atlas_minimal_c_attempt2_chain.sh`, PID `2477177`, log
+  `~/nfl-panels/atlas-c2-chain.log`): waits out build `2dbc091d` (tag
+  `atlas-minimal-c-d4b3c78`), verifies it + pins + the queue gate,
+  redeploys the single reused job to the new image (quota-neutral),
+  2023 W1 real-path canary, 53 `--args`-override cells under
+  `…/attempt-2/`, polls to terminal failing closed on any cell, then the
+  attempt-aware strict finisher aggregates paired ΔC (with/without the
+  recovery slate) against the predeclared NEGATIVE prior. Attempt-1
+  ledger/objects preserved untouched.
+- Chain context: coherent historical stage COMPLETE
+  (`coherent-market-state-historical-tail-negative`, harvested);
+  dependence watcher `1273069` unblocked on its own cadence.
+- Exact next actions: (1) let the attempt-2 chain run; read the
+  aggregate only against the freeze's gates and the negative prior; (2)
+  attempt-1 tally census → append to the smoke-disposition record when
+  terminal; (3) operator decision queue unchanged; (4) do not resume
+  schedulers, delete forensic data, or change the money policy.
+
+## Prior state — 2026-08-18 23:35 CDT
 
 ### Coherent historical stage COMPLETE — tail-negative; ATLAS C canary running; dependence watcher unblocked
 
