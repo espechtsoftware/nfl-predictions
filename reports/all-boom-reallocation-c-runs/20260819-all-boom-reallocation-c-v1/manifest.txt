@@ -1,0 +1,14 @@
+run_id=20260819-all-boom-reallocation-c-v1
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:d7ee2240f60bfa6793bb6b14c42269bdd802d2ef0063ef790cc3f5cbd50d132b
+code_sha=ecb9cb655f6334cca5670da5af34f78b123ef877
+build_id=4f2c213a-3f46-46b7-8548-4dde1559574a
+output_prefix=gs://nfl-predictions-503414-raw/research/all-boom-reallocation-c-runs/20260819-all-boom-reallocation-c-v1
+protocol_sha256=cb45336918ffedf33b00e44571aae7fdbeb1c0a5ed2e22cdd5ece00d4587d680
+runner_sha256=82863503f601eae0c89e0d96ef91a3c9551788024758cc43e93ab22dd779074d
+chain_sha256=b640adc3b7aa4856e5bf9af44dbf50a4eb75970784052da22f86b73def0ab793
+quota_note=reused job atlas-minimal-c-s2023-w1-v1 (frozen-chain rule 5)
+uses_realized_outcomes=true
+production_change_licensed=false
+predeclared_prior=uncertain
+cells=54
+canary=2023-1

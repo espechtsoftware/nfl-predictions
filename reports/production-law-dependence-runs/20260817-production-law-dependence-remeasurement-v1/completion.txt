@@ -1,0 +1,7 @@
+run_id=20260817-production-law-dependence-remeasurement-v1
+validated_at=2026-08-19T19:36:52Z
+uses_realized_outcomes=true
+production_change_licensed=false
+blocks=5
+slates=54
+disposition=production-law-shape-reproduced-ledger-prototype-licensed

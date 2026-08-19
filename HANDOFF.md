@@ -20,7 +20,48 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-19 13:00 CDT
+## Current state — 2026-08-19 14:45 CDT
+
+### Both in-flight arms COMPLETED: all-boom clears C decisively (+9.06), dependence returns a named premise miss
+
+- Branch `main` at `bb9970f`+ (pushed). Results doc:
+  `reports/2026-08-19-all-boom-and-dependence-results.md`.
+- **All-boom reallocation** (`20260819-all-boom-reallocation-c-v1`,
+  aggregate SHA `503c9b04…`, 54/54 cells): mean pool C 187.58 → **196.64
+  (+9.06)**, median ΔC +7.94, **43 better / 1 worse / 10 tied**,
+  co-primary p_mean = p_signed_rank = 0.0 (MC, W+ 961.5). Threshold grid
+  control→treatment: 187 29→41 (McNemar p=0.00049), 194 19→30 (0.0034),
+  200 14→20 (0.070), 210 5→11 (0.031), 220 3→5, 230 0→1, 240 0→1.
+  Mechanism gate exact: 269/269 seed blocks at identical budget, zero
+  shortfall, 200 boom uniques each. TWO CAVEATS: (1) this is pool C, not
+  selected S — the protocol declares no selection endpoint and now
+  licenses an S follow-up that needs its own freeze; (2) the deduplicated
+  union roughly doubles (550 → 1,106 unique lineups at identical per-seed
+  budget), so part of ΔC is the order-statistic consequence of more
+  DISTINCT lineups — B1's "volume not diversity" arriving by another
+  door.
+- **Production-law dependence** (`20260817-…-remeasurement-v1`, 54
+  slates / 5 blocks, 1,194 team-weeks, zero missing outcomes, lease
+  released cleanly): disposition **`dependence-premise-miss`** /
+  `production-law-shape-reproduced-ledger-prototype-licensed`;
+  `sparse_ledger_prototype_licensed=true`, `exact80_scoring_licensed=false`.
+  log(sim/real): multiplicity ≥2 +0.259, ≥3 +0.744, ≥4 +1.648; QB–RB
+  +1.167, RB–RB +1.488, TE–TE +1.343, WR–WR +0.691, QB–TE +0.239
+  (inconclusive), **QB–WR −0.261**. The law over-couples generic teammate
+  booms (5× at four-plus) and UNDER-couples the one pairing tournaments
+  are won with (QB→WR).
+- **Convergence:** anatomy C (optima lean on never-demonstrated
+  performances) + Stage-1 census (marginals not fat) + N1c (winners never
+  world optima) + anatomy A (chance-level proximity) + dependence (named
+  shape) = one diagnosis. Dependence is now the highest-value law lane,
+  with a measured direction rather than "fatter tails".
+- Next: (1) freeze the all-boom S follow-up with the anatomy mechanism
+  gate; (2) dependence repair design on the measured shape; (3)
+  stack-relaxation arm — now more interesting, since production mandates
+  the stack the law under-rewards; (4) marginal-tail Stage 2/3 stay
+  parked.
+
+## Prior state — 2026-08-19 13:00 CDT
 
 ### Winner anatomy executed (operator: "do all of that"); all-boom repaired and relaunched; dependence r5 armed
 

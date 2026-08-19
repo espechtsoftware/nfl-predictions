@@ -1,0 +1,161 @@
+{
+  "artifacts": {
+    "images": [
+      "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:production-law-dependence-b01a4db"
+    ]
+  },
+  "createTime": "2026-08-19T17:58:48.308255579Z",
+  "finishTime": "2026-08-19T19:27:24.698303Z",
+  "id": "1fea8b81-3d21-4c9b-b175-4c5f596fc4ef",
+  "images": [
+    "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:production-law-dependence-b01a4db"
+  ],
+  "logUrl": "https://console.cloud.google.com/cloud-build/builds/1fea8b81-3d21-4c9b-b175-4c5f596fc4ef?project=817589974517",
+  "logsBucket": "gs://817589974517.cloudbuild-logs.googleusercontent.com",
+  "name": "projects/817589974517/locations/global/builds/1fea8b81-3d21-4c9b-b175-4c5f596fc4ef",
+  "options": {
+    "logging": "LEGACY",
+    "machineType": "E2_HIGHCPU_8",
+    "pool": {}
+  },
+  "projectId": "nfl-predictions-503414",
+  "queueTtl": "3600s",
+  "results": {
+    "buildStepImages": [
+      "sha256:9c900dea9e8fb7e16277c179b555cc72d29a352dbc33cff48ad5a0412fd5bfc7",
+      "sha256:661e95acd923514f71f47ce7b390e06a8d31b15febecf772e506babf62960528",
+      "sha256:661e95acd923514f71f47ce7b390e06a8d31b15febecf772e506babf62960528"
+    ],
+    "buildStepOutputs": [
+      "",
+      "",
+      ""
+    ],
+    "buildStepResults": {
+      "build-image": {},
+      "full-test-suite": {},
+      "smoke-atlas-mvp-runner": {}
+    },
+    "images": [
+      {
+        "artifactRegistryPackage": "projects/nfl-predictions-503414/locations/us-central1/repositories/nfl-dfs/packages/nfl-dfs/versions/sha256:cb59d6ace766ae84d78f0caf0d8038b32a4874e7d1d7e844061c18e42d80216d",
+        "digest": "sha256:cb59d6ace766ae84d78f0caf0d8038b32a4874e7d1d7e844061c18e42d80216d",
+        "name": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:production-law-dependence-b01a4db",
+        "pushTiming": {
+          "endTime": "2026-08-19T19:27:24.089125603Z",
+          "startTime": "2026-08-19T19:26:35.685173131Z"
+        }
+      }
+    ]
+  },
+  "serviceAccount": "projects/nfl-predictions-503414/serviceAccounts/817589974517-compute@developer.gserviceaccount.com",
+  "source": {
+    "storageSource": {
+      "bucket": "nfl-predictions-503414_cloudbuild",
+      "generation": "1787162327982318",
+      "object": "source/1787162301.593969-f15b4ffef86c43ee86b061444a6a501b.tgz"
+    }
+  },
+  "sourceProvenance": {
+    "fileHashes": {
+      "gs://nfl-predictions-503414_cloudbuild/source/1787162301.593969-f15b4ffef86c43ee86b061444a6a501b.tgz#1787162327982318": {
+        "fileHash": [
+          {
+            "type": "MD5",
+            "value": "aC2SMxeluo9fmY-KlFt3lw=="
+          },
+          {
+            "type": "SHA256",
+            "value": "Gjk_rU6_EUbhMpPImsB2j0hQnlfRB8lLWpkb4aN_fuY="
+          }
+        ]
+      }
+    },
+    "resolvedStorageSource": {
+      "bucket": "nfl-predictions-503414_cloudbuild",
+      "generation": "1787162327982318",
+      "object": "source/1787162301.593969-f15b4ffef86c43ee86b061444a6a501b.tgz"
+    }
+  },
+  "startTime": "2026-08-19T17:59:42.854151630Z",
+  "status": "SUCCESS",
+  "steps": [
+    {
+      "args": [
+        "-ceu",
+        "apt-get update\napt-get install -y --no-install-recommends git libgomp1\npip install --no-cache-dir '.[gcp,app,dev]'\nPYTHONPATH=. pytest\n"
+      ],
+      "entrypoint": "bash",
+      "id": "full-test-suite",
+      "name": "python:3.11-slim",
+      "pullTiming": {
+        "endTime": "2026-08-19T17:59:52.131479969Z",
+        "startTime": "2026-08-19T17:59:48.125362080Z"
+      },
+      "status": "SUCCESS",
+      "timing": {
+        "endTime": "2026-08-19T19:24:58.242600364Z",
+        "startTime": "2026-08-19T17:59:48.125362080Z"
+      }
+    },
+    {
+      "args": [
+        "build",
+        "-t",
+        "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:production-law-dependence-b01a4db",
+        "."
+      ],
+      "id": "build-image",
+      "name": "gcr.io/cloud-builders/docker",
+      "pullTiming": {
+        "endTime": "2026-08-19T19:24:58.248843734Z",
+        "startTime": "2026-08-19T19:24:58.242892244Z"
+      },
+      "status": "SUCCESS",
+      "timing": {
+        "endTime": "2026-08-19T19:26:10.297252524Z",
+        "startTime": "2026-08-19T19:24:58.242892244Z"
+      }
+    },
+    {
+      "args": [
+        "-ceu",
+        "docker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:production-law-dependence-b01a4db' \\\n  python scripts/run_atlas_matched_diversity_mvp.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:production-law-dependence-b01a4db' \\\n  python scripts/run_atlas_historical_score_diagnostic.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:production-law-dependence-b01a4db' \\\n  python scripts/run_atlas_historical_score_diagnostic_v3.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:production-law-dependence-b01a4db' \\\n  python scripts/run_atlas_historical_score_diagnostic_v4.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:production-law-dependence-b01a4db' \\\n  python scripts/run_constraint_lattice_scorefree.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:production-law-dependence-b01a4db' \\\n  python scripts/aggregate_constraint_lattice_scorefree.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:production-law-dependence-b01a4db' \\\n  python scripts/run_constraint_lattice_support_census.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:production-law-dependence-b01a4db' \\\n  python scripts/aggregate_constraint_lattice_support_census.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:production-law-dependence-b01a4db' \\\n  python scripts/run_constraint_lattice_resource_preflight.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:production-law-dependence-b01a4db' \\\n  python scripts/run_recourse_aware_initial_scorefree.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:production-law-dependence-b01a4db' \\\n  python scripts/aggregate_recourse_aware_initial_scorefree.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:production-law-dependence-b01a4db' \\\n  python scripts/run_coherent_market_state_scorefree.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:production-law-dependence-b01a4db' \\\n  python scripts/aggregate_coherent_market_state_scorefree.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:production-law-dependence-b01a4db' \\\n  python scripts/run_coherent_market_state_historical_score.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:production-law-dependence-b01a4db' \\\n  python scripts/run_production_law_dependence_source_lock.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:production-law-dependence-b01a4db' \\\n  python scripts/run_production_law_dependence_remeasurement.py --help >/dev/null\ndocker run --rm 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:production-law-dependence-b01a4db' \\\n  python scripts/run_atlas_minimal_world_selection_c.py --help >/dev/null\n"
+      ],
+      "entrypoint": "bash",
+      "id": "smoke-atlas-mvp-runner",
+      "name": "gcr.io/cloud-builders/docker",
+      "pullTiming": {
+        "endTime": "2026-08-19T19:26:10.298639133Z",
+        "startTime": "2026-08-19T19:26:10.297543034Z"
+      },
+      "status": "SUCCESS",
+      "timing": {
+        "endTime": "2026-08-19T19:26:35.638219585Z",
+        "startTime": "2026-08-19T19:26:10.297543034Z"
+      }
+    }
+  ],
+  "substitutions": {
+    "_IMAGE": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:production-law-dependence-b01a4db"
+  },
+  "timeout": "10800s",
+  "timing": {
+    "BUILD": {
+      "endTime": "2026-08-19T19:26:35.685011431Z",
+      "startTime": "2026-08-19T17:59:47.648130566Z"
+    },
+    "FETCHSOURCE": {
+      "endTime": "2026-08-19T17:59:47.647999195Z",
+      "startTime": "2026-08-19T17:59:44.690243941Z"
+    },
+    "PUSH": {
+      "endTime": "2026-08-19T19:27:24.089386273Z",
+      "startTime": "2026-08-19T19:26:35.685167241Z"
+    },
+    "STORAGE_SOURCE": {
+      "endTime": "2026-08-19T17:59:47.647999195Z",
+      "startTime": "2026-08-19T17:59:44.690243941Z"
+    }
+  }
+}
