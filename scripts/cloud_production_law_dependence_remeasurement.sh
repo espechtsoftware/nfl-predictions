@@ -68,9 +68,9 @@ LOCK_SHA=$(sha256sum "$LOCK/source-lock.json" | awk '{print $1}')
 "$ROOT/.venv/bin/python" - "$LOCK/completion.txt" "$COHERENT/report.json" \
   "$COHERENT/completion.txt" "$LEASE_RECEIPT" <<'PY'
 import json, sys
-lock = dict(line.split("=",1) for line in open(sys.argv[1]) if "=" in line)
+lock = dict(line.rstrip("\n").split("=",1) for line in open(sys.argv[1]) if "=" in line)
 coherent = json.load(open(sys.argv[2], encoding="utf-8"))
-completion = dict(line.split("=",1) for line in open(sys.argv[3]) if "=" in line)
+completion = dict(line.rstrip("\n").split("=",1) for line in open(sys.argv[3]) if "=" in line)
 lease = json.load(open(sys.argv[4], encoding="utf-8"))
 if lock.get("disposition") != "valid-production-law-source-lock" or \
         lock.get("uses_realized_outcomes") != "false" or \

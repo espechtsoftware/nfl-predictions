@@ -116,3 +116,20 @@ at 1e-12 relative/absolute tolerance — requiring bit-exact float
 re-derivation across independently built images was never sound; value
 equality at 1e-12 is. No outcome was read by kqw47 (the gate precedes
 scoring). If r6 trips the same gate, its error now names the exact keys.
+
+## Addendum 3: sixth representation instance — the dependence launcher's newline parse
+
+After the historical completion released it, the production-law
+dependence watcher acquired the outcome lease (23:32 CDT) and its
+remeasurement launcher failed closed at the queue/lease check — every
+compared VALUE was correct; the launcher's key=value parser kept trailing
+newlines on values (`'…source-lock\n' != '…source-lock'`). The check had
+never run before (frozen without reality contact). Additionally, main's
+Dockerfile/cloudbuild.yaml drift breaks the launcher's pin loop from the
+main checkout, so the rerun uses the standard pinned-worktree cycle.
+Repair: `rstrip("\n")` on both parse sites (the only two instances of
+the class in the dependence scripts); new build at the repair commit;
+the stale lease receipt and governance object are ARCHIVED (the crashed
+launcher never launched an execution, so the lease's release path has
+nothing to bind) and the rerun watcher acquires a fresh lease consistent
+with the repaired identity.
