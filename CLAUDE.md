@@ -34,6 +34,26 @@ Config is env vars only, all read in `src/nfl_dfs/config.py`.
 
 ## Rules
 
+- **Frozen-chain lessons (2026-08-18: seven serialized fix cycles, each
+  costing a ~90-minute build+launch).** Four standing rules for anyone —
+  human or model — working a frozen protocol chain:
+  1. Before freezing/SHA-pinning any runner or receipt contract, run one
+     outcome-blind smoke against the REAL artifacts it will consume.
+     Synthetic contract tests alone passed a frozen runner carrying three
+     schema defects; outcome-blind reality contact costs nothing
+     scientifically and would have caught every one pre-freeze.
+  2. Compare receipts by CONTENT identity — uri/generation/sha256/bytes,
+     via `research/object_identity.py` — never by representation
+     (absolute paths, timestamp string formats, key spellings). Four
+     representation mismatches with byte-identical content each consumed
+     a full fix cycle in one day.
+  3. Never pin a script's own hash in a manifest that script later
+     validates: every legitimate repair then fails its own gate. Include
+     the explicit `<NAME>_REPAIR_SHA256` override pattern (must equal the
+     exact current file hash — conscious, not silent) from day one.
+  4. When a fail-closed gate trips, classify and then sweep the ENTIRE
+     defect class across sibling consumers before starting the rebuild
+     cycle; point-wise fixes made the same class recur across scripts.
 - **Keep the handoff in the repository.** Update tracked `HANDOFF.md` at
   every material milestone and before any pause, machine move, or agent
   handoff. Record the exact branch/commit, completed work, validation and
