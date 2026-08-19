@@ -75,3 +75,31 @@ overlap beat the chance null?). One shot, frozen before launch.
    rookies.
 3. Whether Stage 3 replaces or accompanies the stack-relaxation arm in
    the queue — operator sequencing call after the all-boom read.
+
+## Stage 1 result (2026-08-19, outcome-blind, census SHA `06b52214…`)
+
+With the v1 ceiling (1.1 × max(own realized max, position q999 over
+2014+)), the transform is a NO-OP across all 255 blocks: essentially no
+draws move (fraction changed ~0; shrink median 1.0; the single largest
+movement anywhere is 0.89 points). The law's marginal tails are NOT fat
+in absolute position terms — simulated per-player q999s sit below what
+the position has actually produced since 2014.
+
+Reconciliation with anatomy C: the mirage signal is PER-PLAYER-RELATIVE
+— optima put big draws on players who have never demonstrated them
+(beyond own-max), not draws beyond what the position can do. A
+position-dominant ceiling cannot bind on that, and a per-player own-max
+ceiling would be WRONG to freeze: winners' own rosters exceed their own
+maxima in 43/51 best worlds (median 1 player) — breakout mass is
+exactly what wins; the defect is who gets it and with whom (3 players
+per optimum vs the winners' 1).
+
+**Design consequence:** anatomy C is an ALLOCATION defect, not a
+marginal-level defect. Marginal truncation is the wrong tool; the
+signal routes to the dependence/co-movement lane (remeasurement in
+flight) and to generation-side realism weighting (e.g., penalizing
+solve objectives on never-demonstrated mass rather than truncating the
+law). Stage 2/3 of THIS design are PARKED — not run — pending the
+dependence read; the machinery, census, and this record stay as the
+audit trail. Recommendation to the operator queue: no marginal-tail
+experiment; revisit after dependence lands.
