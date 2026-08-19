@@ -79,3 +79,20 @@ many sigma) independently suggests the score-level deficit is real but
 FAR smaller than the naive N1 reading. N1b's geometry (generating
 worlds at ranks 41–511, margins +44 over the pool) is unaffected by
 this confound: it compares rosters within the same worlds.
+
+## Addendum 2 (2026-08-19, post N1c/N1d): both headline readings superseded
+
+The frozen follow-ups settle the questions this document raised, in
+opposite directions from its narrative. N1d: the score-percentile
+extremity is what a CORRECT law produces under field-max selection at
+plausible field sizes (~9.5k rosters); the N1 "missing co-boom mass"
+reading is dead, and the book-tail factor-of-two is the only surviving
+law-deficit evidence at winner scale. N1c: no winner is the optimum of
+any archived world (0/51, median 47.4 points below, 4/9 overlap), so
+"the generator stops one world short of the winners' territory" is also
+dead — deeper solving harvests different rosters, not winners. The
+N1b geometry itself (winners dominate the pool in worlds at ranks
+41–511) remains valid; its actionable content moved to the stacking
+finding: 43/51 winners violate the production stack/bring-back rules
+and are unbuildable at ANY depth. See
+reports/2026-08-19-winner-world-optima-and-field-null-results.md.
