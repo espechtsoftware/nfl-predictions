@@ -55,7 +55,7 @@ from nfl_dfs.research.real_winner_overlap import _book_overlap  # noqa: E402
 
 VERSION = "all-boom-selection-s-v1"
 RUN_ID = "20260819-all-boom-selection-s-v1"
-PROTOCOL_SHA256 = "608740fda3b39e2c56b40ba76c68eb69ba52033374b8624a5bbee7a0621d99f4"
+PROTOCOL_SHA256 = "f27a21f73e1b0303a6c5d40d8581e9aae0c8dc90c41477688255fdc1be65fe28"
 PROJECT = "nfl-predictions-503414"
 ATLAS_CELLS = (
     ROOT / "reports/atlas-minimal-c-runs"

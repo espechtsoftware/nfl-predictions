@@ -1,4 +1,4 @@
-# All-boom selection follow-up (S endpoint) — protocol
+# All-boom selection follow-up (S endpoint) — FROZEN 2026-08-19
 
 **Protocol id:** `20260819-all-boom-selection-s-v1`. Licensed by the C
 arm's preregistered rule: "S requires its own frozen follow-up only if C
@@ -77,5 +77,15 @@ checks against the registered natives, budgets asserted equal per seed,
 exact-80 selection for both arms, receipt serialized on the smoke path;
 no actuals query issued, no score computed.
 
-- Smoke disposition: PENDING — this protocol is NOT FROZEN and the chain
-  must not launch until the real smoke output is recorded here verbatim.
+- Smoke disposition: **PASSED 2026-08-19, exit 0.** Runner output,
+  verbatim:
+  `{"cross_run_reproduction": null, "paired_delta_s": null, "run_id":
+  "20260819-all-boom-selection-s-v1", "season": 2023, "seeds": 5,
+  "selected_book_intersection": 26, "smoke": true, "week": 1}`
+  — five seeds processed end to end; the in-path fail-closed gates
+  (exact source reproduction per seed, equal candidate budgets, exact-80
+  selection for BOTH arms) all held or the run would have raised; the
+  two selected books share 26 of 80 lineups; the receipt serialized on
+  the smoke path; no actuals query was issued
+  (`cross_run_reproduction`/`paired_delta_s` null by design in smoke).
+  With this record the protocol is FROZEN.
