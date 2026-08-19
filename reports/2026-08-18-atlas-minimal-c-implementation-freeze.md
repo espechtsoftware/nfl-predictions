@@ -166,3 +166,19 @@ Amendment-4 image are unaffected; ONLY the 2025 W1 cell reruns on the
 Amendment-5 image, and the run manifest records both digests with this
 unreachability argument. Estimand, budgets, selector, gates, prior:
 unchanged.
+
+## Amendment 7 (2026-08-19): treatment boom quota via unique-fill
+
+The W14 forensic's final classification corrects Amendment 6's
+misdiagnosis: the failing generation was R3's TREATMENT arm (the spy's
+seven passing generations preceded it), not a late-position control —
+controls reproduce deterministically at any process position. The
+treatment's top-40 roster-shaped-ranked worlds can share optima,
+delivering fewer than 40 unique boom candidates (39/40 on W14 R3), and
+the treatment has no reproduction obligation to the source count. The
+treatment arm now generates with `BOOM_UNIQUE_FILL=1`, walking deeper
+down ITS OWN ordering until the full boom quota is unique — restoring
+this freeze's equal-candidate-budget parity by construction. Control
+generation is byte-untouched (reproduction gate unchanged). Amendment
+6's controls-first ordering is retained as defense-in-depth. Estimand
+unchanged: ranking swap at equal candidate budget.

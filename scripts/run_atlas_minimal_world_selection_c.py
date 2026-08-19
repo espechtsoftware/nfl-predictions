@@ -54,7 +54,7 @@ VERSION = "atlas-minimal-world-selection-c-v1"
 PROJECT = "nfl-predictions-503414"
 FREEZE_DOC = Path("reports/2026-08-18-atlas-minimal-c-implementation-freeze.md")
 FREEZE_DOC_SHA256 = (
-    "2f5c334acbd43f1f4c5f44bf4638efe6408176f7ce00c28151e66bc67e7f0332"
+    "ba6d3a351038d9e7089e23c120e84b6f4a0dd51c27ec5d43364842c2872c62a2"
 )
 SOURCE_GRID = Path(
     "reports/atlas-money-world-runs/20260815-atlas-current-money-worlds-v1/"
@@ -250,6 +250,14 @@ def _generate(
     run_env["N_EPISTEMIC"] = "0"
     if treatment:
         run_env["ATLAS_BOOM_WORLD_RANKING"] = "1"
+        # Amendment 7 (2026-08-19): the treatment's top-40 ATLAS-ranked
+        # worlds can share optima, delivering fewer than 40 boom uniques
+        # (2025 W14 R3: 39/40) — the source-side count the control must
+        # reproduce carries no such obligation for the treatment. The
+        # treatment walks deeper down ITS OWN ordering until the full
+        # boom quota is unique, restoring the freeze's equal-candidate-
+        # budget parity by construction. Control generation is untouched.
+        run_env["BOOM_UNIQUE_FILL"] = "1"
     captured: list[CandidateBatch] = []
     stack = StackRules(
         qb_stack_min=int(run_env.get("STACK_QB_MIN", "2")),
@@ -617,6 +625,16 @@ def run(season: int, week: int, output_uri: str, smoke: bool) -> dict:
     blocks = [0, 1, 2, 4] if recovery_slate else list(range(5))
     if recovery_slate:
         receipt["recovery_four_seed_slate"] = True
+    # Amendment 6 (2026-08-19): ALL control generations run before any
+    # treatment generation. The 2025 W14 forensic isolated a boom solve
+    # whose tie direction depends on accumulated in-process solver state:
+    # interleaved control/treatment ordering placed later controls at
+    # deep process positions where one tie flipped to a duplicate (boom
+    # 39/40), while a controls-first process reproduced every panel
+    # exactly. Controls therefore generate at fixed early positions in
+    # every cell; the exact reproduction gate remains the per-cell
+    # arbiter, and treatments (ungated by reproduction) follow.
+    prepared: list[dict[str, Any]] = []
     for block in blocks:
         panel = SOURCE_PANEL_IDS[block]
         cell = _grid_cell(grid, panel, season, week)
@@ -658,29 +676,44 @@ def run(season: int, week: int, output_uri: str, smoke: bool) -> dict:
             for _, row in ordered_natives.iterrows()
             if str(row["tag"]) == "epi"
         ]
+        prepared.append({
+            "block": block, "panel": panel, "env": env, "slate": slate,
+            "draws": draws, "artifact": artifact,
+            "art_receipt": art_receipt, "panel_natives": panel_natives,
+            "role_identities": role_identities,
+        })
+
+    reproductions: dict[int, dict[str, Any]] = {}
+    for item in prepared:
         control = _inject_role_natives(
-            _generate(slate, draws, env, treatment=False,
-                      role_identities=role_identities),
-            panel_natives, slate, artifact)
-        repro = _reproduction_check(control, panel_natives, artifact)
+            _generate(item["slate"], item["draws"], item["env"],
+                      treatment=False,
+                      role_identities=item["role_identities"]),
+            item["panel_natives"], item["slate"], item["artifact"])
+        reproductions[item["block"]] = _reproduction_check(
+            control, item["panel_natives"], item["artifact"])
+        control_batches[f"R{item['block']}"] = control
+
+    for item in prepared:
         treatment = _inject_role_natives(
-            _generate(slate, draws, env, treatment=True,
-                      role_identities=role_identities),
-            panel_natives, slate, artifact)
+            _generate(item["slate"], item["draws"], item["env"],
+                      treatment=True,
+                      role_identities=item["role_identities"]),
+            item["panel_natives"], item["slate"], item["artifact"])
+        control = control_batches[f"R{item['block']}"]
         if len(treatment.candidates) != len(control.candidates):
             raise RuntimeError(
                 "ATLAS C arm budgets differ: control "
                 f"{len(control.candidates)} vs treatment "
                 f"{len(treatment.candidates)}"
             )
-        control_batches[f"R{block}"] = control
-        treatment_batches[f"R{block}"] = treatment
+        treatment_batches[f"R{item['block']}"] = treatment
         receipt["seeds"].append({
-            "block": block,
-            "panel_run_id": panel,
-            "projection_seed": SEED_PAIRS[block][0],
-            "artifact": art_receipt,
-            "reproduction": repro,
+            "block": item["block"],
+            "panel_run_id": item["panel"],
+            "projection_seed": SEED_PAIRS[item["block"]][0],
+            "artifact": item["art_receipt"],
+            "reproduction": reproductions[item["block"]],
             "role_injected": control.metadata.get("role_injection", {}).get(
                 "count"),
             "treatment_candidates": len(treatment.candidates),
