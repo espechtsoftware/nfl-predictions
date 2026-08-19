@@ -1,9 +1,13 @@
 # Winner-lineup law audit — protocol (DRAFT for operator freeze)
 
 **Protocol ID:** `20260818-winner-law-audit-v1`
-**Status:** DRAFT — not frozen. The operator must approve this document,
-pin its SHA-256, and bind the exact artifact manifest before the runner
-executes. Execution is exactly once per frozen protocol version.
+**Status:** FROZEN — operator approved 2026-08-19 ("please run the
+winner audit"). Bound artifact manifest:
+`reports/2026-08-19-winner-law-audit-manifest.json` (51 slates, five
+artifacts each, SHA-256
+`514b46b969edbe7c3fde08eee49d4294fbbea05b74836238bef67d35cd1afc1a`).
+Execution is exactly once for this frozen version; the N1b
+generating-worlds census runs in the same pass.
 **Class:** outcome-aware diagnostic. `uses_realized_outcomes=true`;
 no fit, no tuning, no gate, no promotion, no closure, no production change.
 **Origin:** idea N1 in

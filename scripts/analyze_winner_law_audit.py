@@ -38,6 +38,11 @@ from nfl_dfs.analysis.winner_law_audit import (  # noqa: E402
     audit_roster_under_law,
     winner_law_report,
     winner_roster_world_totals,
+    winner_world_assignment,
+)
+from nfl_dfs.analysis.atlas_world_ranking import (  # noqa: E402
+    rank_worlds,
+    roster_slot_upper_bound,
 )
 from nfl_dfs.research.real_winner_overlap import (  # noqa: E402
     load_known_winner_rows,
@@ -51,17 +56,20 @@ def _load_features(path: Path) -> pd.DataFrame:
     return pd.read_csv(path)
 
 
-def _load_block(path: Path) -> tuple[np.ndarray, np.ndarray]:
+def _load_block_full(
+    path: Path,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     with np.load(path) as artifact:
         keys = set(artifact.files)
-        if not {"player_ids", "player_draws"} <= keys:
+        if not {"player_ids", "player_draws", "totals"} <= keys:
             raise WinnerLawAuditError(
-                f"{path} lacks player worlds (keys: {sorted(keys)}); only "
-                "artifacts persisted with CAND_ARTIFACT_PLAYER_WORLDS carry "
-                "the aligned player-by-world matrix")
+                f"{path} lacks player worlds/totals (keys: {sorted(keys)}); "
+                "only artifacts persisted with CAND_ARTIFACT_PLAYER_WORLDS "
+                "carry the aligned player-by-world matrix")
         return (
             np.asarray(artifact["player_ids"], dtype=str),
             np.asarray(artifact["player_draws"], dtype=np.float64),
+            np.asarray(artifact["totals"], dtype=np.float64),
         )
 
 
@@ -97,11 +105,70 @@ def main(argv: list[str] | None = None) -> int:
             raise WinnerLawAuditError(
                 f"{season} week {week}: resolved {len(roster)} winner "
                 "slots, expected 9")
-        blocks = [_load_block(Path(p)) for p in slate["artifacts"]]
+        blocks = []
+        block_extras = []
+        for p in slate["artifacts"]:
+            ids, draws_block, cand_totals = _load_block_full(Path(p))
+            blocks.append((ids, draws_block))
+            block_extras.append((ids, draws_block, cand_totals))
         player_ids, draws = align_world_blocks(blocks)
         totals = winner_roster_world_totals(
             roster.id.tolist(), player_ids, draws)
         realized_snapshot = float(roster.snapshot_actual.sum())
+
+        # N1b: generating-worlds census per seed block. A generating
+        # world is one where the winner outscores every registered
+        # candidate; ranks are positions in each block's own boom visit
+        # order (descending slate total — the incumbent production
+        # ordering), with the closed ATLAS ordering kept as descriptive
+        # context per the frozen protocol.
+        slate_pos = features[
+            features.season.eq(season) & features.week.eq(week)
+        ].drop_duplicates("id").set_index("id")["pos"].astype(str)
+        assignment = {
+            "n_generating_worlds": 0, "blocks": [],
+            "best_rank_slate_total": None, "within_top40_slate_total": 0,
+            "within_top200_slate_total": 0, "best_rank_atlas": None,
+            "within_top40_atlas": 0, "max_margin": None,
+        }
+        for ids, draws_block, cand_totals in block_extras:
+            winner_block = winner_roster_world_totals(
+                roster.id.tolist(), ids, draws_block)
+            order = np.argsort(
+                np.asarray(draws_block).sum(axis=0), kind="stable")[::-1]
+            positions = [slate_pos.get(str(pid), "") for pid in ids]
+            atlas = rank_worlds(
+                roster_slot_upper_bound(
+                    np.asarray(draws_block), positions),
+                np.asarray(draws_block).shape[1])
+            block_result = winner_world_assignment(
+                winner_block, cand_totals, order, atlas_order=atlas)
+            assignment["blocks"].append(block_result)
+            assignment["n_generating_worlds"] += \
+                block_result["n_generating_worlds"]
+            margin = block_result["max_margin"]
+            if assignment["max_margin"] is None or \
+                    margin > assignment["max_margin"]:
+                assignment["max_margin"] = margin
+            summary = block_result.get("generating_rank_summary")
+            if summary:
+                for field, best in (
+                    ("best_rank_slate_total", "best_rank_slate_total"),
+                    ("best_rank_atlas", "best_rank_atlas"),
+                ):
+                    value = summary.get(best)
+                    if value is not None and (
+                        assignment[field] is None
+                        or value < assignment[field]
+                    ):
+                        assignment[field] = value
+                assignment["within_top40_slate_total"] += summary.get(
+                    "within_top40_slate_total", 0)
+                assignment["within_top200_slate_total"] += summary.get(
+                    "within_top200_slate_total", 0)
+                assignment["within_top40_atlas"] += summary.get(
+                    "within_top40_atlas", 0)
+
         entries.append({
             "season": season,
             "week": week,
@@ -110,6 +177,7 @@ def main(argv: list[str] | None = None) -> int:
             "realized_tracked_total": float(roster.winner_actual.sum()),
             "n_artifacts": len(blocks),
             "audit": audit_roster_under_law(realized_snapshot, totals),
+            "world_assignment": assignment,
         })
 
     report = winner_law_report(entries)
