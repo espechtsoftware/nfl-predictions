@@ -60,7 +60,7 @@ expected_args=[
  "--source-lock-generation",m["source_lock_generation"],
  "--source-lock-sha256",m["source_lock_sha256"],"--output-uri",uri,
 ]
-if job!="production-law-dependence-v1" or c.get("image")!=m["image"] or \
+if job!="dependence-forest-2023" or c.get("image")!=m["image"] or \
  c.get("command")!=["python"] or c.get("args")!=expected_args or \
  env!={"CODE_SHA":m["code_sha"],"ANALYSIS_IMAGE":m["image"]} or \
  c.get("resources",{}).get("limits")!={"cpu":"8","memory":"32Gi"} or \

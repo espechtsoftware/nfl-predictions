@@ -79,7 +79,7 @@ if lock.get("disposition") != "valid-production-law-source-lock" or \
         completion.get("uses_realized_outcomes") != "true" or \
         lease.get("lease", {}).get("run_id") != \
         "20260817-production-law-dependence-remeasurement-v1" or \
-        lease.get("lease", {}).get("job") != "production-law-dependence-v1":
+        lease.get("lease", {}).get("job") != "dependence-forest-2023":
     raise SystemExit("ERROR: production-law dependence queue/lease differs")
 PY
 
@@ -122,7 +122,9 @@ printf '%s\n' \
   'slates=54' 'cpu=8' 'memory=32Gi' \
   'timeout_seconds=14400' 'max_retries=0' > "$OUT/manifest.txt"
 
-JOB=production-law-dependence-v1
+# JobsPerProject=1000 cap (frozen-chain lesson 5): reuse an existing job
+# via deploy-update — creating production-law-dependence-v1 was job #1001.
+JOB=dependence-forest-2023
 URI="$PREFIX/report.json"
 gcloud run jobs deploy "$JOB" --project "$PROJECT" --region "$REGION" \
   --image "$IMAGE" --service-account "$SERVICE_ACCOUNT" \

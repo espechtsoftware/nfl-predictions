@@ -54,6 +54,13 @@ Config is env vars only, all read in `src/nfl_dfs/config.py`.
   4. When a fail-closed gate trips, classify and then sweep the ENTIRE
      defect class across sibling consumers before starting the rebuild
      cycle; point-wise fixes made the same class recur across scripts.
+  5. Cloud Run us-central1 sits AT the JobsPerProject=1000 quota
+     (2026-08-19: it stopped two chains in one night). New chains must
+     REUSE an existing job via `gcloud run jobs deploy` (an update, not
+     a creation) plus per-execution `--args` overrides — never create
+     per-cell or per-run jobs — and disclose the reused job name in the
+     run manifest. Freeing quota by deleting old jobs erases their cloud
+     execution history and is an operator-only decision.
 - **Keep the handoff in the repository.** Update tracked `HANDOFF.md` at
   every material milestone and before any pause, machine move, or agent
   handoff. Record the exact branch/commit, completed work, validation and

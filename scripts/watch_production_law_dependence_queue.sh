@@ -12,7 +12,7 @@ TAG=${3:-}
 LOCK="$ROOT/reports/production-law-dependence-runs/20260817-production-law-dependence-source-lock-v1"
 COHERENT="$ROOT/reports/coherent-market-state-historical-score-runs/20260817-coherent-market-state-historical-score-v1"
 OUT="$ROOT/reports/production-law-dependence-runs/20260817-production-law-dependence-remeasurement-v1"
-JOB=production-law-dependence-v1
+JOB=dependence-forest-2023
 
 [[ "$BUILD_ID" =~ ^[0-9a-f-]{36}$ ]] && [[ "$CODE_SHA" =~ ^[0-9a-f]{40}$ ]] && \
  [[ "$TAG" =~ ^us-central1-docker\.pkg\.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:production-law-dependence-[0-9a-f]{7}$ ]] || exit 2
