@@ -20,7 +20,74 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-19 11:35 CDT
+## Current state — 2026-08-19 12:10 CDT
+
+### Winner audits settled: N1 was a selection effect; winners are never world optima; stacking mandates exclude 43/51 — construction-rule relaxation is the new lead candidate
+
+- Branch `main` at `5f88a0b` (all pushed). Two frozen one-shot follow-ups
+  to the winner-law audit executed today, both smoked outcome-blind
+  against real artifacts BEFORE their freezes (CLAUDE.md rule 1; the N1d
+  smoke caught a false cross-block stacking assumption pre-freeze —
+  seed books register their own candidate sets, 255/257/254/256/254 on
+  one slate):
+  - **N1d field-max null** (`20260819-field-max-null-v1`, report SHA
+    `c37b93c3…`): verdict `n1_nondiagnostic_within_plausible_field`.
+    A CORRECT law reproduces the observed 47/51 beyond-p999 with a
+    field of only ~9,500 rosters (~2,544 effective; Milly fields are
+    150k+). The N1 "missing co-boom mass" headline is DEAD; surviving
+    law-deficit evidence at winner scale = book-tail factor-of-two
+    only. Winner-implied SBI calibration DEMOTED accordingly.
+  - **N1c winner-world optima** (`20260819-winner-world-optima-v1`,
+    report SHA `50ea349c…`): 0/51 winners are their best generating
+    world's DK-legal optimum (0 within 2 pts; median gap 47.4, overlap
+    4/9). "One world past the solve horizon" is DEAD — depth harvests
+    world optima, which are different rosters. Sharpest new fact:
+    **43/51 winners violate the production stack rules** (32 fail
+    QB-stack>=2, 31 fail bring-back>=1, 20 both; salary floor and both
+    bans exclude ZERO). 84% of real winners are unbuildable at ANY
+    depth under the current construction contract.
+  - Joint interpretation + updated queue:
+    `reports/2026-08-19-winner-world-optima-and-field-null-results.md`
+    (supersedes the morning narrative; winner-law-audit result doc
+    carries two correction addenda). New queue order: all-boom read →
+    **stack-relaxation carved-budget arm (NEW lead)** → regret-targeted
+    generation (reframed, gated on all-boom) → law lanes → field model
+    (N1d contributes the first N_eff anchor).
+- **All-boom chain**: image build `174e59ff` SUCCESS; canary
+  `atlas-minimal-c-s2023-w1-v1-mqpgm` launched on the reused job;
+  53-cell fan-out + aggregate follow automatically
+  (~/nfl-panels/all-boom-chain.log).
+- **Dependence chain**: watcher r3 died at the launcher's create-only
+  manifest guard (attempt-2 remnants) holding the lease — THIRD stale
+  lease. Class fixed, not instance: new generation-matched `abandon`
+  subcommand in `scripts/historical_outcome_lease.py` (archive
+  create-only → delete if-generation-match → preserve receipt) and the
+  watcher now abandons on pre-launch/terminal failures and explicitly
+  HOLDS on mid-run/finisher failures. Fix proved itself live on r4:
+  launcher tripped the built-source guard (worktree at `5f88a0b`
+  differs from CODE_SHA `07a0596` on Dockerfile — the pinned-list
+  design working as intended) and the lease auto-abandoned with
+  receipts. Attempt remnants swept to failed-launch-attempt-2/3
+  siblings; stale leases archived under research-governance/archive/.
+  NEXT: rebuild at `5f88a0b` (clean-archive submit, tag
+  `production-law-dependence-5f88a0b`) after the local full suite
+  passes, then relaunch watcher r5 from a `5f88a0b` worktree with the
+  new CODE_SHA. No repair-override retrofit: the tripped gate stays as
+  designed.
+- Winner-audit artifact cache `~/winner-audit-cache/` (6.5GB) now also
+  holds `opp-map.parquet` (schedules-derived, closure-validated, SHA
+  `ddddc7e9…`) built by new `scripts/build_slate_opp_map.py`. Keep the
+  cache until N-series follow-ups settle.
+- Exact next actions: (1) dependence rebuild + r5 relaunch; (2) read
+  the all-boom aggregate against its uncertain prior, jointly with
+  N1c's depth caveat; (3) draft the stack-relaxation carved-budget
+  protocol (freeze AFTER the all-boom read); (4) unchanged operator
+  queue: utility freeze + one-shot amendment (unlocks SELECT_LADDER),
+  S1 freeze + R5 block, paired-max co-primary preregistration,
+  `shadow-cbwu-volume` k=20 implementation before Week 1. Do not
+  resume schedulers, delete forensic data, or change the money policy.
+
+## Prior state — 2026-08-19 11:35 CDT
 
 ### Verdict day: ATLAS closed, coherent tail-negative, B1/B2-prime read; the volume×admission plan is the standing selection direction
 
