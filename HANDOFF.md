@@ -20,7 +20,45 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-19 12:10 CDT
+## Current state — 2026-08-19 13:00 CDT
+
+### Winner anatomy executed (operator: "do all of that"); all-boom repaired and relaunched; dependence r5 armed
+
+- Branch `main` at `b01a4db`+ (all pushed). **Winner anatomy v1 executed**
+  (frozen `20260819-winner-anatomy-v1`, report SHA `597787ac…`; results
+  `reports/2026-08-19-winner-anatomy-results.md`): (A) pool proximity to
+  winners is exactly CHANCE level (max-minus-null median 0.00; median
+  best overlap 4/9, never ≥7, even for the 8 rule-compliant winners —
+  stack relaxation necessary but NOT sufficient); (B) winners are a
+  chalk core + median 4 sub-10% pieces, cumulative ownership median
+  104.5% (span 2.7%–181%); (C) 49/51 N1c world optima carry
+  never-realized player draws (median 3 players, +19.3 pts) vs winners'
+  own 43/51 (median 1, +5.8) — deep optima are ~1/3 mirage, naming a
+  NEW law target: marginal upper-tail realism. Queue updated in the
+  plan doc (Update 2026-08-19 section).
+- **All-boom chain r2**: attempt-1 canary died on np.int64 receipt
+  serialization (family_counts); repaired class-wide, smoke now
+  exercises the JSON contract; remnants swept to
+  failed-canary-attempt-1/ with disposition. New build `4f2c213a`
+  (tag all-boom-ecb9cb6) WORKING; chain relaunched
+  (~/nfl-panels/all-boom-chain-r2.log) — job reuse unchanged.
+- **Dependence r5**: rebuild `2e81fdac` (tag
+  production-law-dependence-b01a4db) QUEUED; watcher r5 launched from
+  pinned worktree /tmp/nfl-deplaw-b01a4db with the lease class fix
+  in-chain (abandon on pre-launch/terminal failures, hold on
+  mid-run/finisher failures).
+- LOAD-BEARING: `nfl_raw.contest_entries` has never received a row
+  (importer parses ranked lineups; no import ran with the entry
+  block). September Mon/Tue standings downloads are the only source
+  of field rosters (DK purges ~4 days) — they feed the field model,
+  measured N_eff, and top-N winner sets. Never skip them.
+- Next: read the all-boom aggregate (canary → 53 cells → aggregate);
+  freeze stack-relaxation (add the anatomy mechanism gate: open solves
+  must beat the chance-overlap null); design doc for the
+  marginal-upper-tail realism experiment; dependence r5 through
+  completion + lease release.
+
+## Prior state — 2026-08-19 12:10 CDT
 
 ### Winner audits settled: N1 was a selection effect; winners are never world optima; stacking mandates exclude 43/51 — construction-rule relaxation is the new lead candidate
 
