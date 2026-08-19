@@ -56,7 +56,7 @@ diagnostic; 2026 prospective season is the confirmation instrument.
 
 | # | Item | Status | Why |
 |---|---|---|---|
-| A11 | **Stack-shape census**: winners' stack anatomy (QB+nWR/TE, double stacks, bring-back shapes, game concentration) versus our registered books' | NEW — descriptive, all data local, runnable anytime | Dependence found QB–WR under-coupling; anatomy B measured ownership shape but never STACK shape. Directly informs the A2 repair target and the A3 carve design |
-| A12 | **Eight-constructible-winners forensic**: the 8 rule-legal winners still peaked at 4.5/9 pool overlap — per-case, were their generating worlds solved? players candidate-eligible? salary-reachable? | NEW — 8 cases, cheap | Names the residual non-rule blocker; sharpest possible microscope on why legal winners still are not built |
+| A11 | **Stack-shape census** | **DONE** — report SHA `39d66b7c…`, results in `2026-08-19-winner-structure-census-results.md` | — | Winners: 16% full production shape, 63% stack ≤1, 61% no bring-back; our books: 100% full shape |
+| A12 | **Eight-constructible-winners forensic** | **DONE** — same report | — | Blocker is worlds+combinations, not coverage: 7/8 zero missing players, best ranks 43–119 (all past top-40), gaps 17–57 |
 | A2+ | **Post-repair winner re-census**: after any dependence repair passes its law-shape gate, re-run N1b/N1c under the repaired law (generating-world counts, winner-vs-optimum gaps) | NEW — amendment to A2's guard metrics | The winner-side validation that the repair moves worlds TOWARD winners, not merely inside equivalence bands |
 | — | **Standing rule:** every future generation/selection arm reports the anatomy-A instrument (selected-book winner overlap vs exposure-null) | ADOPTED in A1; now standing | Distinguishes aim from volume in every future positive result |
