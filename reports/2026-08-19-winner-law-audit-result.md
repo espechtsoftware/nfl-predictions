@@ -61,3 +61,21 @@ seasons.**
    independent draws (more worlds, more chances the winners' patterns
    arise); depth solves the drawn worlds further down; the law lanes
    make the simulated scores of those patterns realistic.
+
+## Addendum (same day): the field-max confound, stated honestly
+
+The N1 headline overclaims as written. Winners are the maximum over a
+~150,000-entry field: under a PERFECTLY correct law, the field-max
+roster's realized score would still sit at an extreme percentile of its
+own simulated distribution (roughly 1 − 1/N_effective). With effective
+independent field size plausibly above 50,000, percentiles near 1.0 —
+and even occasional scores above all 50k sim draws — are consistent
+with a correct law. Only a computed null calibrates "how high is too
+high": **N1d (proposed)** — under our own law, simulate field-max
+selection at candidate effective sizes, and compare the null percentile
+distribution against the observed 51. The book-tail calibration's
+modest miss (realized 6 vs expected 2.76 at 210 — a factor of ~2, not
+many sigma) independently suggests the score-level deficit is real but
+FAR smaller than the naive N1 reading. N1b's geometry (generating
+worlds at ranks 41–511, margins +44 over the pool) is unaffected by
+this confound: it compares rosters within the same worlds.
