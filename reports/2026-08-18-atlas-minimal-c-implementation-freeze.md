@@ -131,3 +131,22 @@ the original freeze passed a 40-entry basis, silently halving the lev
 family. `N_ENTRIES` is corrected to 80. No lever, dose, selector, gate
 or outcome rule changes; the exact native-reproduction gate remains the
 arbiter. Record: `reports/2026-08-18-atlas-minimal-c-smoke-disposition.md`.
+
+## Amendment 4 (2026-08-19): preseeded role dedup at the source position
+
+Attempt 1's grid fired the Amendment-2 predeclared collision gate on
+2023 W5: a post-role family regenerated a roster the source run's dedup
+had skipped, because the role natives occupied the dedup universe there.
+Dose-zero regeneration alone therefore cannot reproduce slates where
+that dedup bound. The engine gains a faithful-regeneration seam
+(`preseeded_role_identities`, default None byte-identical, rejects a
+nonzero role dose and malformed identities): the registered role-native
+identities enter `seen` at the exact position the role family occupied,
+so every later family skips them exactly as the source did. The runner
+passes the registered role identities in both arms; the injection
+collision check remains as a backstop that should now be unreachable.
+Attempt 1 (16 per-cell jobs + 38 reused-job executions, quota event
+disclosed in its manifest) is SUPERSEDED before any outcome read from
+its cells; its objects and ledger are preserved. Attempt 2 runs from a
+fresh image at this amendment's commit under the `attempt-2/` output
+prefix. Estimand, budgets, selector, gates, prior: unchanged.

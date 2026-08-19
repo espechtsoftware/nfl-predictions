@@ -1043,6 +1043,7 @@ def tail_select_lineups(
     candidate_transform: (
         Callable[[CandidateBatch], CandidateBatch] | None
     ) = None,
+    preseeded_role_identities: Sequence[frozenset] | None = None,
 ) -> list[Lineup]:
     """Entry selection on P(best-of-N >= tail_line) (guide: issue #5).
 
@@ -1352,6 +1353,24 @@ def tail_select_lineups(
                         "the missing %d with boom worlds", ce_added, n_ce,
                         missing)
             _add_boom(boom_order[boom_cursor:], unique_target=missing)
+
+    # Faithful-regeneration seam (ATLAS C freeze Amendment 4, 2026-08-19):
+    # when a replay cannot regenerate the role family (its belief draws
+    # come from the role registry pipeline), the registered role-native
+    # identities enter the dedup universe HERE — the exact position the
+    # role family occupied in the source run — so every later family
+    # skips them exactly as the source did. Requires a zero role dose;
+    # default None is byte-identical to before the seam existed.
+    if preseeded_role_identities is not None:
+        if n_epi:
+            raise ValueError(
+                "preseeded role identities require a zero role dose")
+        for identity in preseeded_role_identities:
+            frozen = frozenset(str(player) for player in identity)
+            if len(frozen) != 9:
+                raise ValueError(
+                    "preseeded role identity is not nine unique players")
+            seen.add(frozen)
 
     # A/B lever (env N_EPISTEMIC, off by default; scoring plan §8):
     # EPISTEMIC-scenario candidates. Every existing generator samples

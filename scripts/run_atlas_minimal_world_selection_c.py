@@ -54,7 +54,7 @@ VERSION = "atlas-minimal-world-selection-c-v1"
 PROJECT = "nfl-predictions-503414"
 FREEZE_DOC = Path("reports/2026-08-18-atlas-minimal-c-implementation-freeze.md")
 FREEZE_DOC_SHA256 = (
-    "ba2f04984cfaa96dd0e21d7488e5b575704f03cd26277c4a717c2d1d64f7405c"
+    "4cd371487dcfb27d9a2323caa603e2f1deab99b3b07b649d3cd7b9bf832986dd"
 )
 SOURCE_GRID = Path(
     "reports/atlas-money-world-runs/20260815-atlas-current-money-worlds-v1/"
@@ -236,6 +236,7 @@ def _generate(
     draws: np.ndarray,
     env: dict[str, str],
     treatment: bool,
+    role_identities: list[frozenset] | None = None,
 ) -> CandidateBatch:
     run_env = dict(env)
     # Amendment 2 (2026-08-18 smoke disposition): the production role
@@ -276,6 +277,12 @@ def _generate(
             cand_log_table=None,
             policy_env=run_env,
             candidate_capture=captured.append,
+            # Amendment 4: the registered role identities occupy the
+            # dedup universe at the exact source position, so post-role
+            # families skip them exactly as the source run did (the
+            # attempt-1 2023 W5 collision proved dose-zero regeneration
+            # alone cannot reproduce slates where that dedup bound).
+            preseeded_role_identities=role_identities,
         )
     finally:
         for key, value in previous.items():
@@ -626,12 +633,20 @@ def run(season: int, week: int, output_uri: str, smoke: bool) -> dict:
         dst_mask = slate["pos"].astype(str).str.upper().eq("DST").to_numpy()
         if float(draws[dst_mask].std(axis=1).max()) != 0.0:
             raise RuntimeError("ATLAS C DST artifact rows are not constant")
+        ordered_natives = panel_natives.sort_values("cand_ix", kind="stable")
+        role_identities = [
+            frozenset(v for v in str(row["players"]).split(",") if v)
+            for _, row in ordered_natives.iterrows()
+            if str(row["tag"]) == "epi"
+        ]
         control = _inject_role_natives(
-            _generate(slate, draws, env, treatment=False),
+            _generate(slate, draws, env, treatment=False,
+                      role_identities=role_identities),
             panel_natives, slate, artifact)
         repro = _reproduction_check(control, panel_natives, artifact)
         treatment = _inject_role_natives(
-            _generate(slate, draws, env, treatment=True),
+            _generate(slate, draws, env, treatment=True,
+                      role_identities=role_identities),
             panel_natives, slate, artifact)
         if len(treatment.candidates) != len(control.candidates):
             raise RuntimeError(
