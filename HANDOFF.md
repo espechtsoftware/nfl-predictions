@@ -20,7 +20,45 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-19 00:45 CDT
+## Current state — 2026-08-19 11:35 CDT
+
+### Verdict day: ATLAS closed, coherent tail-negative, B1/B2-prime read; the volume×admission plan is the standing selection direction
+
+- Branch `main` at `850b729`+ (all pushed). Three completed one-shot
+  results now anchor direction: **ATLAS C world-ranking NEGATIVE**
+  (−1.53 mean ΔC, 19/21/14; family closed permanently, ATLAS fully
+  closed); **coherent-market-state historical tail-negative** (harvested);
+  and the peer-run **B1 union census** (union mean C 198.10, volume not
+  diversity: +3.5/doubling vs +0.4 diversity premium) with **B2-prime
+  volume-OI admission** (selected S 178.38→181.13 monotone in admitted
+  volume at fixed budget; S tails 12/4/3→14/5/4 at 194/210/220).
+- **Standing plan (operator-directed "document and follow"):**
+  `reports/2026-08-19-selection-volume-admission-plan.md` — priority
+  order: (1) prospective `shadow-cbwu-volume` k=20 variant for Week-1
+  collection (largest measured selection-side gain; adoption only via
+  the prospective record); (2) all-boom arm (chain armed, aggregate
+  today); (3) winner audit N1/N1b (FROZEN by operator approval, protocol
+  SHA `daa9865f…`, manifest `514b46b9…`, 51 slates; artifacts
+  downloading with hash verification, run imminent); (4) A3 optimality
+  audit (score-free, cloud-queued); (5) SELECT_LADDER one-shot (gated on
+  the utility freeze + one-shot amendment); (6) law lanes in parallel
+  (dependence remeasurement build `cf71f423` + watcher r3 armed on the
+  reused job per new frozen-chain rule 5 — the JobsPerProject=1000 cap
+  stopped two chains and is now codified in CLAUDE.md).
+- In-flight: all-boom image build `174e59ff` + end-to-end chain (PID
+  `2707295`), smoke PASSED (200/200 boom uniques all five seeds, zero
+  shortfall); dependence build; winner-audit inputs staged (features
+  parquet 111,269 rows; 255 artifacts verifying). Operator-runnable
+  visibility: `bash scripts/chain_status.sh`.
+- Exact next actions: (1) run the winner audit on verified artifacts,
+  read N1+N1b jointly with the all-boom aggregate; (2) implement the
+  `shadow-cbwu-volume` variant for the Week-1 shadow fleet; (3) execute
+  A3 in cloud after current lanes settle; (4) operator queue: utility
+  freeze + one-shot amendment (unlocks SELECT_LADDER), S1 freeze + R5
+  block, paired-max co-primary preregistration before Week 1. Do not
+  resume schedulers, delete forensic data, or change the money policy.
+
+## Prior state — 2026-08-19 00:45 CDT
 
 ### ATLAS C attempt 2 armed under freeze Amendment 4; attempt 1 superseded with full census
 
