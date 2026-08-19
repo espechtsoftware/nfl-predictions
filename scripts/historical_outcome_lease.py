@@ -54,10 +54,8 @@ def acquire(
     return receipt
 
 
-def release(
-    *, receipt_path: Path, execution_path: Path, completion_path: Path,
-) -> None:
-    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+def _verified_lease_blob(receipt: dict):
+    """Validate a receipt and return its live, byte-verified lease blob."""
     lease = receipt.get("lease", {})
     expected_object = receipt.get("object", {})
     if lease.get("version") != "historical-outcome-active-v1" or \
@@ -68,11 +66,48 @@ def release(
         raise RuntimeError("historical-outcome lease receipt differs")
     client = storage.Client(project=PROJECT)
     bucket, name = _parse_gcs(LEASE_URI)
-    blob = client.bucket(bucket).blob(name, generation=int(expected_object["generation"]))
+    blob = client.bucket(bucket).blob(
+        name, generation=int(expected_object["generation"]))
     raw = blob.download_as_bytes()
     if sha256(raw).hexdigest() != expected_object["sha256"] or \
             json.loads(raw) != lease:
         raise RuntimeError("historical-outcome active lease changed")
+    return client, lease, expected_object, blob, raw
+
+
+def abandon(*, receipt_path: Path, reason: str, preserve_dir: Path) -> str:
+    """Archive and delete OUR OWN live lease after a failed attempt.
+
+    Generation-matched end to end: refuses to touch a lease the receipt
+    does not describe byte-for-byte. The stale object is preserved
+    create-only under research-governance/archive/ before deletion, and
+    the local receipt moves into the failed-attempt directory so a later
+    acquisition can never be blocked by (or confused with) this one.
+    """
+    if not re.fullmatch(r"[a-z0-9][a-z0-9-]{2,60}", reason):
+        raise RuntimeError("abandon reason must be a short slug")
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    client, _, expected_object, blob, raw = _verified_lease_blob(receipt)
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    archive_uri = (
+        "gs://nfl-predictions-503414-raw/research-governance/archive/"
+        f"historical-outcome-stale-{stamp}-{reason}.json"
+    )
+    _upload_create_only(client, archive_uri, raw)
+    blob.delete(if_generation_match=int(expected_object["generation"]))
+    preserve_dir.mkdir(parents=True, exist_ok=True)
+    target = preserve_dir / receipt_path.name
+    if target.exists():
+        raise RuntimeError("abandon preserve target already exists")
+    receipt_path.rename(target)
+    return archive_uri
+
+
+def release(
+    *, receipt_path: Path, execution_path: Path, completion_path: Path,
+) -> None:
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    _, lease, expected_object, blob, _ = _verified_lease_blob(receipt)
     execution = json.loads(execution_path.read_text(encoding="utf-8"))
     status = execution.get("status", {})
     completed = [
@@ -108,6 +143,10 @@ def main() -> None:
     release_parser.add_argument("--receipt", type=Path, required=True)
     release_parser.add_argument("--execution", type=Path, required=True)
     release_parser.add_argument("--completion", type=Path, required=True)
+    abandon_parser = sub.add_parser("abandon")
+    abandon_parser.add_argument("--receipt", type=Path, required=True)
+    abandon_parser.add_argument("--reason", required=True)
+    abandon_parser.add_argument("--preserve-dir", type=Path, required=True)
     args = parser.parse_args()
     if args.command == "acquire":
         value = acquire(
@@ -117,6 +156,12 @@ def main() -> None:
         print("HISTORICAL_OUTCOME_LEASE_ACQUIRED " + json.dumps(
             value["object"], sort_keys=True,
         ))
+    elif args.command == "abandon":
+        archived = abandon(
+            receipt_path=args.receipt, reason=args.reason,
+            preserve_dir=args.preserve_dir,
+        )
+        print("HISTORICAL_OUTCOME_LEASE_ABANDONED " + archived)
     else:
         release(
             receipt_path=args.receipt, execution_path=args.execution,
