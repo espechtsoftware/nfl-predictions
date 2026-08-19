@@ -61,3 +61,27 @@ modest expectations and a strict fixed-budget design.
 
 This draft licenses nothing. No build, no launch, no lever until the
 freeze document exists with pinned SHAs and the operator's k.
+
+## Update 2026-08-19 (operator: "I'm in favor of relaxing them")
+
+1. **Operator direction recorded:** relaxation of the construction
+   mandates is approved as a direction; this arm remains the frozen
+   test that earns any production change. k defaults to the proposed 8
+   unless the operator overrides at freeze.
+2. **Engine seam implemented and tested** (`OPEN_BOOM_SOLVES=k`,
+   registered in `_lever_keys`, default off, byte-identical when unset
+   — golden-hash parity confirmed): the first k boom visits at stride
+   `n_boom/k` solve with `qb_stack_min=0, bring_back_min=0`; both RB
+   prohibitions and all salary bounds unchanged; open solves stay
+   primary-tag `boom` (family quotas untouched) and carry a secondary
+   `open` tag in `all_tags`, so they are self-identifying in the
+   warehouse and in receipts.
+3. **Census baseline attached** (`39d66b7c…`): winners are 22% naked-QB,
+   63% stack ≤1, 61% no bring-back, 69% game-concentration ≤3 — the
+   mechanism gate now reads: open-solve candidates must actually occupy
+   that shape region (structure census of the carve), selected books
+   must beat the chance-overlap null, and the score endpoint follows
+   the standard paired co-primary.
+4. Freeze still waits on the all-boom S read for its comparator; with
+   the lever in the engine, the freeze-to-launch gap is one protocol
+   document.

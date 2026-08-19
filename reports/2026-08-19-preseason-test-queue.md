@@ -38,7 +38,7 @@ deployed BEFORE Week 1; in-season items follow the September cadence in
 
 ## C. Operator decision queue (blocking the flagged items)
 
-1. Stack-relaxation k (A3) — proposed 8 of 40.
+1. Stack-relaxation k (A3) — DIRECTION APPROVED by operator 2026-08-19 ("in favor of relaxing them"); k=8 default unless overridden; engine lever OPEN_BOOM_SOLVES implemented and tested.
 2. Utility freeze + one-shot selector amendment (A7).
 3. S1 freeze + R5 fresh-seed block (A6).
 4. Deep-history rebuild go/no-go (A10).

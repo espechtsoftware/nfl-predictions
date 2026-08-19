@@ -14,7 +14,7 @@ import logging
 import os
 import re
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass, field as dc_field
+from dataclasses import dataclass, field as dc_field, replace as dc_replace
 
 import numpy as np
 import pandas as pd
@@ -92,6 +92,7 @@ _lever_keys = {
     "REPLAY_PROJECTION_SEED",
     "SIS_ASOE_BETA", "SIS_ASOE_TARGET_ALLOCATION",
     "SCHAAKE_DIAG_ONLY", "SCHAAKE_DIAG_STRICT", "SCHAAKE_K",
+    "OPEN_BOOM_SOLVES",
     "SCHAAKE_TEMPLATE_MODE", "SCRIPT_FEEDBACK",
     "SELECT_LADDER", "SELECT_LSE", "SELECT_OBJ",
     "SERVED_POSITION_SCALES", "SERVED_TAIL_SCALE", "SHAPE_MIX",
@@ -1180,25 +1181,60 @@ def tail_select_lineups(
     boom_unique_fill = str(
         runtime_env.get("BOOM_UNIQUE_FILL", "") or "") not in ("", "0")
     boom_cursor = 0 if boom_unique_fill else n_boom_solves
+    # Research lever (env OPEN_BOOM_SOLVES=k, default off; A3
+    # stack-relaxation carve, reports/2026-08-19-stack-relaxation-
+    # carved-budget-draft.md): the structure census measured that the
+    # stack/bring-back mandates confine 100% of generated volume to a
+    # shape region holding 16% of real Milly winners. With the lever
+    # set, the FIRST k boom visits at a deterministic stride solve
+    # WITHOUT the QB-stack and bring-back minima (both RB prohibitions
+    # and every salary bound unchanged); all other solves keep the
+    # production StackRules. Default behavior is byte-identical to
+    # before the lever existed.
+    open_boom_solves = int(runtime_env.get("OPEN_BOOM_SOLVES", "0") or 0)
+    if open_boom_solves > 0:
+        open_stack = (
+            dc_replace(stack, qb_stack_min=0, bring_back_min=0)
+            if stack is not None
+            else StackRules(qb_stack_min=0, bring_back_min=0)
+        )
+        open_stride = max(1, n_boom_solves // open_boom_solves)
+    else:
+        open_stack = None
+        open_stride = 0
 
     def _add_boom(sim_indices, unique_target: int | None = None) -> int:
         nonlocal boom_cursor
         added = 0
         consumed = 0
+        opened = 0
         for k in sim_indices:
             if unique_target is not None and added >= unique_target:
                 break
+            is_open = (
+                open_boom_solves > 0 and opened < open_boom_solves
+                and consumed % open_stride == 0
+            )
             consumed += 1
+            if is_open:
+                opened += 1
             sim_pool = [{**p, "proj_sim": float(rd[i, k])}
                         for i, p in enumerate(pool)]
             try:
-                lu = optimize(sim_pool, stack=stack, objective_col="proj_sim",
+                lu = optimize(sim_pool,
+                              stack=open_stack if is_open else stack,
+                              objective_col="proj_sim",
                               locks=set(locks), env=runtime_env)
             except Exception as exc:  # CBC subprocess flake: skip this draw
                 log.warning("boom-draw solve failed: %s", exc)
                 continue
             if lu is not None:
                 _note(lu.ids, "boom")
+                if is_open:
+                    # Secondary tag only: downstream family quotas key on
+                    # the primary tag, so open solves stay "boom" there
+                    # and remain self-identifying through all_tags.
+                    _note(lu.ids, "open")
             if lu is not None and lu.ids not in seen:
                 lu.tag = "boom"
                 seen.add(lu.ids)
