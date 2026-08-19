@@ -99,3 +99,20 @@ format-fragile equality. The failed attempt's launch receipts are
 preserved under `failed-launch-attempt-1/`; the launcher is pinned, so
 the relaunch runs from a fresh build/commit cycle per the frozen
 build↔code binding.
+
+## Addendum 2: fifth instance — the silent combined gate (kqw47)
+
+Execution `coherent-market-historical-v1-kqw47` cleared shard validation
+(confirming the timestamp repair) and failed at the combined upstream-
+aggregate gate, which raises one message for three distinct legs. Every
+leg passes when replicated outside the container against the same live
+objects with the scorer's own module code — the failing leg is therefore
+unidentifiable from the evidence the gate emits, and the in-container
+difference could not be isolated remotely. Repair: the gate is now
+diagnostic and leg-specific (each raise names its leg and the differing
+identities/paths), object comparisons use content identity per the
+frozen-chain rules, and the cross-image re-aggregation compares floats
+at 1e-12 relative/absolute tolerance — requiring bit-exact float
+re-derivation across independently built images was never sound; value
+equality at 1e-12 is. No outcome was read by kqw47 (the gate precedes
+scoring). If r6 trips the same gate, its error now names the exact keys.

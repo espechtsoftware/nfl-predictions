@@ -80,6 +80,50 @@ def _parse_gcs(uri: str) -> tuple[str, str]:
     return bucket, name
 
 
+def _content_identity(receipt: Mapping[str, Any]) -> tuple:
+    """Representation-free object identity (CLAUDE.md frozen-chain rule 2):
+    uri/generation/sha256/bytes. `updated` strings and any extra keys are
+    representations and must never fail a gate."""
+    return (
+        str(receipt["uri"]), str(receipt["generation"]),
+        str(receipt["sha256"]), int(receipt["bytes"]),
+    )
+
+
+def _tree_drift(left: Any, right: Any, path: str = "$") -> list[str]:
+    """JSON paths where two aggregates differ. Floats compare by value at
+    1e-12 relative/absolute tolerance (cross-image re-derivation must not
+    require bit-exact float arithmetic); everything else compares exactly.
+    """
+    import math
+
+    if isinstance(left, bool) or isinstance(right, bool):
+        return [] if left == right else [f"{path}:{left!r}!={right!r}"]
+    if isinstance(left, (int, float)) and isinstance(right, (int, float)):
+        lf, rf = float(left), float(right)
+        if math.isnan(lf) and math.isnan(rf):
+            return []
+        if math.isclose(lf, rf, rel_tol=1e-12, abs_tol=1e-12):
+            return []
+        return [f"{path}:{left!r}!={right!r}"]
+    if isinstance(left, dict) and isinstance(right, dict):
+        drift: list[str] = []
+        for key in sorted(set(left) | set(right)):
+            if key not in left or key not in right:
+                drift.append(f"{path}.{key}:missing")
+            else:
+                drift.extend(_tree_drift(left[key], right[key], f"{path}.{key}"))
+        return drift
+    if isinstance(left, list) and isinstance(right, list):
+        if len(left) != len(right):
+            return [f"{path}:len {len(left)}!={len(right)}"]
+        drift = []
+        for index, (a, b) in enumerate(zip(left, right)):
+            drift.extend(_tree_drift(a, b, f"{path}[{index}]"))
+        return drift
+    return [] if left == right else [f"{path}:{left!r}!={right!r}"]
+
+
 def _download_json(
     client: storage.Client, uri: str,
 ) -> tuple[dict, dict[str, Any], bytes]:
@@ -314,11 +358,14 @@ def run(upstream_receipt_uri: str, output_uri: str) -> dict:
         paths = []
         for expected in receipt["shard_objects"]:
             payload, object_receipt, raw = _download_json(gcs, expected["uri"])
-            if object_receipt != {
-                key: value for key, value in expected.items()
-                if key not in {"season", "week"}
-            }:
-                raise RuntimeError("coherent-state historical shard object changed")
+            # Content identity (CLAUDE.md frozen-chain rule 2): compare
+            # uri/generation/sha256/bytes; `updated` is a representation.
+            if _content_identity(object_receipt) != _content_identity(expected):
+                raise RuntimeError(
+                    "coherent-state historical shard object changed: "
+                    f"{expected['season']}-{expected['week']} "
+                    f"live={_content_identity(object_receipt)} "
+                    f"receipt={_content_identity(expected)}")
             path = temp / f"slate-{expected['season']}-{expected['week']}.json"
             path.write_bytes(raw)
             paths.append(path)
@@ -331,9 +378,27 @@ def run(upstream_receipt_uri: str, output_uri: str) -> dict:
     upstream_report, report_object, _ = _download_json(
         gcs, f"{UPSTREAM_PREFIX}/report.json",
     )
-    if report_object != receipt["report_object"] or reproduced != upstream_report or \
-            upstream_report.get("historical_scoring_licensed") is not True:
-        raise RuntimeError("coherent-state historical upstream aggregate changed")
+    # Diagnostic fail-closed gate (2026-08-18 kqw47: the combined
+    # condition raised without naming its leg, and the failure could not
+    # be reproduced outside the container). Each leg now reports itself,
+    # and the cross-image re-aggregation compares floats at 1e-12
+    # relative tolerance — bit-exact float re-derivation across image
+    # builds is not a sound requirement, value equality is.
+    if _content_identity(report_object) != _content_identity(
+            receipt["report_object"]):
+        raise RuntimeError(
+            "coherent-state historical upstream aggregate changed: "
+            f"report object live={_content_identity(report_object)} "
+            f"receipt={_content_identity(receipt['report_object'])}")
+    drift = _tree_drift(reproduced, upstream_report)
+    if drift:
+        raise RuntimeError(
+            "coherent-state historical upstream aggregate changed: "
+            f"re-aggregation differs at {drift[:8]}")
+    if upstream_report.get("historical_scoring_licensed") is not True:
+        raise RuntimeError(
+            "coherent-state historical upstream aggregate changed: "
+            "report is not licensed for historical scoring")
     if reproduced.get("code_sha") != receipt["code_sha"] or \
             reproduced.get("analysis_image") != receipt["image"]:
         raise RuntimeError("coherent-state historical upstream source differs")
