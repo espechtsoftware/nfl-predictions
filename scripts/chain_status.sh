@@ -559,28 +559,61 @@ cleanup() { tput rmcup 2>/dev/null; tput cnorm 2>/dev/null; echo; exit 0; }
 trap cleanup INT TERM
 tput smcup 2>/dev/null; tput civis 2>/dev/null
 [ -s "$CACHE/builds" ] || { clear; echo "  loading cloud state…"; refresh_cloud; }
+# The alternate screen has NO terminal scrollback by design, so the app
+# scrolls its own frame: OFFSET is the first visible line of the render.
+OFFSET=0
 while :; do
   maybe_refresh_cloud
   frame=$(render)
+  total=$(printf '%s\n' "$frame" | wc -l)
+  view_rows=$(( $(tput lines 2>/dev/null || echo 40) - 1 ))
+  max_offset=$(( total > view_rows ? total - view_rows : 0 ))
+  [ "$OFFSET" -gt "$max_offset" ] && OFFSET=$max_offset
+  [ "$OFFSET" -lt 0 ] && OFFSET=0
   # Repaint from home, clearing each line, then wipe the tail: no flicker
   # and no clear-screen blank between frames.
   printf '\033[H'
   # ANSI-C quoting: sed's replacement must carry a literal ESC, not the
   # four characters \033.
-  printf '%s\n' "$frame" | sed $'s/$/\033[K/'
+  printf '%s\n' "$frame" \
+    | sed -n "$((OFFSET + 1)),$((OFFSET + view_rows))p" \
+    | sed $'s/$/\033[K/'
   printf '\033[J'
-  printf '%s' "${D}  [q]uit · [r]efresh · [1-6] build log · [a-h] execution log · [x] experiments · ${INTERVAL}s${N}"
-  read -r -N 1 -t "$INTERVAL" key && case "$key" in
-    q|Q) cleanup ;;
-    r|R) rm -f "$CACHE/stamp" ;;
-    x|X) printf '\033[2J'; experiments_browser ;;
-    [1-6])
-      build=$(build_id_at "$key") && [ -n "$build" ] && {
-        printf '\033[2J'; stream_build "$build"; }
-      ;;
-    [a-h])
-      execution=$(exec_at "$key") && [ -n "$execution" ] && {
-        printf '\033[2J'; stream_execution "$execution"; }
-      ;;
-  esac
+  scroll_note=""
+  [ "$max_offset" -gt 0 ] && scroll_note="↑↓/jk scroll $((OFFSET + 1))-$((OFFSET + view_rows > total ? total : OFFSET + view_rows))/${total} · "
+  printf '%s' "${D}  [q]uit · [r]efresh · ${scroll_note}[1-6] build · [a-h] execution · [x] experiments · ${INTERVAL}s${N}"
+  if read -r -N 1 -t "$INTERVAL" key; then
+    # Arrow keys arrive as ESC [ A/B; consume the tail so a bare Escape
+    # (no sequence) still falls through harmlessly.
+    if [ "$key" = $'\033' ]; then
+      read -r -N 2 -t 0.02 seq || seq=""
+      case "$seq" in
+        '[A') key=__up ;;
+        '[B') key=__dn ;;
+        '[5') read -r -N 1 -t 0.02 _; key=__pgu ;;   # PgUp: ESC [ 5 ~
+        '[6') read -r -N 1 -t 0.02 _; key=__pgd ;;   # PgDn: ESC [ 6 ~
+        *) key="" ;;
+      esac
+    fi
+    # j/k mirror the arrows; d-h stay reserved for execution selection.
+    case "$key" in
+      q|Q) cleanup ;;
+      r|R) rm -f "$CACHE/stamp" ;;
+      j|__dn) OFFSET=$((OFFSET + 2)) ;;
+      k|__up) OFFSET=$((OFFSET - 2)) ;;
+      __pgd|' ') OFFSET=$((OFFSET + view_rows / 2)) ;;
+      __pgu) OFFSET=$((OFFSET - view_rows / 2)) ;;
+      G) OFFSET=$max_offset ;;
+      0) OFFSET=0 ;;
+      x|X) printf '\033[2J'; experiments_browser ;;
+      [1-6])
+        build=$(build_id_at "$key") && [ -n "$build" ] && {
+          printf '\033[2J'; stream_build "$build"; }
+        ;;
+      [a-h])
+        execution=$(exec_at "$key") && [ -n "$execution" ] && {
+          printf '\033[2J'; stream_execution "$execution"; }
+        ;;
+    esac
+  fi
 done
