@@ -54,7 +54,7 @@ VERSION = "atlas-minimal-world-selection-c-v1"
 PROJECT = "nfl-predictions-503414"
 FREEZE_DOC = Path("reports/2026-08-18-atlas-minimal-c-implementation-freeze.md")
 FREEZE_DOC_SHA256 = (
-    "4cd371487dcfb27d9a2323caa603e2f1deab99b3b07b649d3cd7b9bf832986dd"
+    "2f5c334acbd43f1f4c5f44bf4638efe6408176f7ce00c28151e66bc67e7f0332"
 )
 SOURCE_GRID = Path(
     "reports/atlas-money-world-runs/20260815-atlas-current-money-worlds-v1/"
@@ -520,6 +520,25 @@ def _score_books(
                 sum(actuals[player] for player in identity)
             )
     scores = np.asarray(pool_scores, dtype=float)
+    if len(batches) == 4:
+        # Freeze-disclosed four-seed recovery slate (r3/2025-W1 was never
+        # registered): the five-block CBWU transport cannot run, so the
+        # exact-80 S endpoint is ABSENT BY DESIGN for this slate — the
+        # paired primary (delta C) never needed it, and the aggregate
+        # reports with/without this slate (Amendment 5). Any other seed
+        # count below five still fails closed via combine_cbwu_books.
+        return {
+            "c_score": float(scores.max()),
+            "pool_unique": int(scores.size),
+            "pool_mean": float(scores.mean()),
+            "s_score": None,
+            "selected_mean": None,
+            "four_seed_recovery": True,
+            "thresholds": {
+                str(line): int((scores >= line).sum())
+                for line in (187, 194, 200, 210, 220, 230, 240)
+            },
+        }
     combined = combine_cbwu_books(
         batches, tuple(batches),
         expected_worlds_per_book=WORLDS_PER_ARTIFACT,

@@ -150,3 +150,19 @@ disclosed in its manifest) is SUPERSEDED before any outcome read from
 its cells; its objects and ledger are preserved. Attempt 2 runs from a
 fresh image at this amendment's commit under the `attempt-2/` output
 prefix. Estimand, budgets, selector, gates, prior: unchanged.
+
+## Amendment 5 (2026-08-19): four-seed recovery slate S endpoint
+
+Attempt 2's 2025 W1 cell failed closed at `combine_cbwu_books`' exact
+five-seed contract: this freeze predeclared that the recovery slate
+(r3 never registered) runs both arms on the same FOUR seeds, but the
+S-endpoint path was never adapted. Amendment: for exactly four books the
+runner reports C normally (the paired primary, delta C, never needed S)
+and S is ABSENT BY DESIGN with a `four_seed_recovery` disclosure; any
+other seed shortfall still fails closed through the CBWU contract. The
+five-seed path is byte-untouched (an early-return branch reachable only
+at len==4), so the 53 five-seed cells already executing under the
+Amendment-4 image are unaffected; ONLY the 2025 W1 cell reruns on the
+Amendment-5 image, and the run manifest records both digests with this
+unreachability argument. Estimand, budgets, selector, gates, prior:
+unchanged.

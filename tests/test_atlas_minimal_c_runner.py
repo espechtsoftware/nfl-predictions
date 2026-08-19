@@ -265,3 +265,38 @@ def test_inject_role_natives_splices_by_registered_positions():
     no_role = natives[natives.tag.ne("epi")]
     with pytest.raises(RuntimeError, match="registered no role natives"):
         runner._inject_role_natives(batch, no_role, slate, artifact)
+
+
+def test_score_books_four_seed_recovery_reports_c_without_s():
+    # Amendment 5: the four-seed recovery slate (r3/2025-W1 never
+    # registered) reports C normally and S absent by design; any other
+    # short seed count still fails via the CBWU five-seed contract.
+    from nfl_dfs.backtest.engine import CandidateBatch
+    from nfl_dfs.optimizer.lineup import Lineup
+
+    def _batch(offset):
+        players = [
+            {"id": f"p{offset}{i}", "pos": "WR", "salary": 5000, "proj": 9.0}
+            for i in range(9)
+        ]
+        lineup = Lineup(players=players, tag="lev")
+        return CandidateBatch(
+            candidates=(lineup,),
+            candidate_totals=np.ones((1, 4)),
+            player_ids=tuple(p["id"] for p in players),
+            player_rows=tuple(players),
+            row_draws=np.ones((9, 4)),
+            all_tags={lineup.ids: ("lev",)},
+            metadata={},
+        )
+
+    batches = {f"R{i}": _batch(i) for i in (0, 1, 2, 4)}
+    actuals = {f"p{o}{i}": float(10 + o + i)
+               for o in (0, 1, 2, 4) for i in range(9)}
+    result = runner._score_books(batches, actuals)
+    assert result["four_seed_recovery"] is True
+    assert result["s_score"] is None
+    best = max(
+        sum(actuals[f"p{o}{i}"] for i in range(9)) for o in (0, 1, 2, 4))
+    assert result["c_score"] == pytest.approx(best)
+    assert "194" in result["thresholds"]
