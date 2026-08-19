@@ -8,6 +8,11 @@ set -uo pipefail
 #   bash scripts/chain_status.sh            one-shot snapshot (scriptable)
 #   bash scripts/chain_status.sh --watch    full-screen live app (q quits)
 #   bash scripts/chain_status.sh -w -i 5    live app, 5s repaint
+#   bash scripts/chain_status.sh -b latest  follow the newest build's log
+#   bash scripts/chain_status.sh -b <id>    follow that build's log
+#
+# In the live app, keys 1-6 stream the matching build's log in place; q or
+# Escape returns to the dashboard.
 #
 # Everything is derived at run time — nothing is hardcoded to a specific
 # experiment. Local state (processes, logs, ledgers, git) is cheap and
@@ -29,12 +34,14 @@ CHAIN_RE="$CHAIN_RE"'|tally_[a-z_]+\.sh|cloud_[a-z0-9_]+chain\.sh'
 
 WATCH=0
 INTERVAL=3
+BUILD_LOG=""
 while [ $# -gt 0 ]; do
   case "$1" in
     -w|--watch) WATCH=1 ;;
     -i|--interval) INTERVAL=${2:-3}; shift ;;
+    -b|--build-log) BUILD_LOG=${2:?build id or "latest"}; shift ;;
     -h|--help)
-      sed -n '4,17p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+      sed -n '4,19p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "unknown option: $1 (try --help)" >&2; exit 2 ;;
   esac
   shift
@@ -149,6 +156,68 @@ maybe_refresh_cloud() {
   fi
 }
 
+# ----------------------------------------------------------- build logs
+BUILD_TAIL=400   # log entries kept in view; a full build log is far longer
+BUILD_POLL=5     # seconds between Cloud Logging reads while viewing
+
+stream_build() {  # follow one Cloud Build's log until the operator returns
+  local id=$1
+  [ -z "$id" ] && return
+  # Declared separately: bash expands every argument of a single `local`
+  # before assigning any of them, so "$id" would be unbound here.
+  local out="$CACHE/buildlog.$id" stop="$CACHE/buildlog.$id.stop"
+  local pid key rows
+  : > "$out"; rm -f "$stop"
+  # Sweep snapshots orphaned by an earlier kill; anything an hour old
+  # cannot belong to a live viewer.
+  find "$CACHE" -maxdepth 1 -name 'buildlog.*' -mmin +60 -delete 2>/dev/null
+  (
+    # Cloud Build streams step output to Cloud Logging; `builds log
+    # --stream` reads only the Cloud Storage copy, which stays empty
+    # until the build finishes — so poll Logging directly and rewrite a
+    # full snapshot each time (no cursor state, never out of order).
+    while [ ! -e "$stop" ]; do
+      if gcloud logging read \
+          "resource.type=build AND resource.labels.build_id=$id" \
+          --project "$PROJECT" --limit "$BUILD_TAIL" --order desc \
+          --format='value(textPayload)' 2>/dev/null | tac > "$out.tmp"; then
+        mv "$out.tmp" "$out"
+      fi
+      sleep "$BUILD_POLL"
+    done
+    rm -f "$out.tmp"
+  ) &
+  pid=$!
+  # A kill during viewing must still stop the poller and drop its files.
+  trap 'touch "$stop" 2>/dev/null; kill "$pid" 2>/dev/null;
+        rm -f "$out" "$out.tmp" "$stop"; exit 0' INT TERM
+  while :; do
+    rows=$(( $(tput lines 2>/dev/null || echo 40) - 4 ))
+    local state
+    state=$(grep -m1 -F "$id" "$CACHE/builds" 2>/dev/null | cut -f2)
+    printf '\033[H'
+    fit "${B}BUILD LOG${N} ${C}${id:0:8}${N} $(paint "${state:-?}")${D}$(wc -l < "$out" 2>/dev/null | tr -d ' ') lines · polling Cloud Logging every ${BUILD_POLL}s · [q] back${N}"
+    printf '\033[K\n\033[K\n'
+    tail -n "$rows" "$out" 2>/dev/null | sed $'s/$/\033[K/'
+    printf '\033[J'
+    read -r -N 1 -t 2 key && case "$key" in
+      q|Q|$'\033') break ;;
+    esac
+  done
+  touch "$stop"
+  kill "$pid" 2>/dev/null
+  wait "$pid" 2>/dev/null
+  rm -f "$out" "$out.tmp" "$stop"
+  trap - INT TERM
+  [ "$WATCH" = 1 ] && trap cleanup INT TERM
+  printf '\033[2J'
+}
+
+build_id_at() {  # map a 1-based menu index to its cached build id
+  [ -s "$CACHE/builds" ] || return 1
+  sed -n "${1}p" "$CACHE/builds" | cut -f1
+}
+
 # --------------------------------------------------------------- render
 render() {
   local now; now=$(date +%s)
@@ -188,12 +257,16 @@ render() {
 
   # ---- cloud builds --------------------------------------------------
   echo
-  echo "${B}CLOUD BUILDS${N} ${D}(cached, $cloud_age)${N}"
+  local hint=""
+  [ "$WATCH" = 1 ] && hint=" ${D}— press 1-6 to stream a build's log${N}"
+  echo "${B}CLOUD BUILDS${N} ${D}(cached, $cloud_age)${N}$hint"
   if [ -s "$CACHE/builds" ]; then
+    local idx=0
     while IFS=$'\t' read -r id status image created; do
       [ -z "$id" ] && continue
+      idx=$((idx + 1))
       local tag="${image##*:}"
-      fit "  $(paint "$status") $(printf '%-34s' "${tag:0:34}") ${D}${id:0:8}${N}"
+      fit "  ${D}[$idx]${N} $(paint "$status") $(printf '%-34s' "${tag:0:34}") ${D}${id:0:8}${N}"
       echo
     done < <(head -6 "$CACHE/builds")
   else
@@ -233,24 +306,34 @@ render() {
 
   # ---- change feed ---------------------------------------------------
   echo
-  echo "${B}RECENT EVENTS${N} ${D}(non-heartbeat lines, newest first)${N}"
-  local shown=0 log line age
+  echo "${B}EVENTS — LIVE CHAINS${N} ${D}(newest non-heartbeat line per running chain)${N}"
+  local log line age live_shown=0 past=""
   for log in $(ls -t "$PANELS"/*.log 2>/dev/null | head -12); do
-    [ "$shown" -ge 7 ] && break
     line=$(grep -avE "$HEARTBEAT" "$log" 2>/dev/null | tail -1)
     [ -z "$line" ] && continue
     age=$(( now - $(stat -c %Y "$log" 2>/dev/null || echo "$now") ))
-    local mark="${D}·${N}"
-    printf '%s' "$live_logs" | grep -qxF "$log" && mark="${G}●${N}"
     case "$line" in
       *ERROR*|*FAILED*|*failed*) line="${R}${line}${N}" ;;
       *COMPLETE*|*FINISHED*|*ACQUIRED*|*SUCCESS*) line="${G}${line}${N}" ;;
     esac
-    fit "  $mark $(printf '%-30s' "$(basename "$log")") ${D}$(ago $age)${N}  $line"
-    echo
-    shown=$((shown + 1))
+    if printf '%s' "$live_logs" | grep -qxF "$log"; then
+      fit "  ${G}●${N} $(printf '%-30s' "$(basename "$log")") ${D}$(ago $age)${N}  $line"
+      echo
+      live_shown=$((live_shown + 1))
+    elif [ ${#past} -lt 1200 ]; then
+      # Superseded runs keep their last error forever; they must never be
+      # mistaken for something happening now.
+      past="$past$(fit "  ${D}·${N} $(printf '%-30s' "$(basename "$log")") ${D}$(ago $age)${N}  ${D}$line${N}")
+"
+    fi
   done
-  [ "$shown" = 0 ] && echo "  ${D}nothing yet${N}"
+  [ "$live_shown" = 0 ] \
+    && echo "  ${D}no running chain has emitted an event yet${N}"
+  if [ -n "$past" ]; then
+    echo
+    echo "${D}  ── history: finished or superseded runs, not current ──${N}"
+    printf '%s' "$past" | head -6
+  fi
 
   # ---- commits -------------------------------------------------------
   echo
@@ -261,6 +344,27 @@ render() {
 }
 
 # ----------------------------------------------------------------- run
+if [ -n "$BUILD_LOG" ]; then
+  # Direct log follow, no dashboard: usable over a plain pipe or ssh.
+  if [ "$BUILD_LOG" = latest ]; then
+    BUILD_LOG=$(gcloud builds list --project "$PROJECT" --limit 1 \
+      --format='value(id)' 2>/dev/null)
+    [ -z "$BUILD_LOG" ] && { echo "no builds found" >&2; exit 2; }
+  fi
+  if [ -t 1 ]; then
+    mkdir -p "$CACHE"
+    trap 'printf "\033[?25h\n"; exit 0' INT TERM
+    printf '\033[2J'
+    stream_build "$BUILD_LOG"
+    exit 0
+  fi
+  # Non-tty: emit the log body once (Cloud Logging holds the step output).
+  exec gcloud logging read \
+    "resource.type=build AND resource.labels.build_id=$BUILD_LOG" \
+    --project "$PROJECT" --limit "${BUILD_TAIL:-400}" --order desc \
+    --format='value(textPayload)'
+fi
+
 if [ "$WATCH" = 0 ]; then
   # One-shot fetches in the foreground when the cache is cold or stale:
   # it must never print an empty or misleadingly old dashboard.
@@ -285,9 +389,13 @@ while :; do
   # four characters \033.
   printf '%s\n' "$frame" | sed $'s/$/\033[K/'
   printf '\033[J'
-  printf '%s' "${D}  [q] quit · [r] refresh cloud now · repaint ${INTERVAL}s${N}"
+  printf '%s' "${D}  [q] quit · [r] refresh cloud · [1-6] stream that build's log · repaint ${INTERVAL}s${N}"
   read -r -N 1 -t "$INTERVAL" key && case "$key" in
     q|Q) cleanup ;;
     r|R) rm -f "$CACHE/stamp" ;;
+    [1-6])
+      build=$(build_id_at "$key") && [ -n "$build" ] && {
+        printf '\033[2J'; stream_build "$build"; }
+      ;;
   esac
 done
