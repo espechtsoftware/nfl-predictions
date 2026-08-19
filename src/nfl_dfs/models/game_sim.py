@@ -305,7 +305,7 @@ def team_game_factors(
     dynamics to make it more likely. Equally important: independence
     REMOVES the within-game cross-team correlation the shared factor
     provided, which is what makes QB + opposing bring-back shootout
-    stacks price correctly (README §6.2). Reality sits between corr=1
+    stacks price correctly (design guide §6.2). Reality sits between corr=1
     (shared) and corr~0 (this): interpret any replay A/B accordingly, and
     if this arm underperforms, the fix is likely a hybrid (shared
     environment component x team-specific component), not abandoning

@@ -1,9 +1,13 @@
 # CLAUDE.md
 
 DraftKings NFL DFS prediction and lineup-construction system on free data +
-GCP. [README.md](README.md) is the authoritative document: the full design
-guide (§0–§14), the Quick start (install, env vars, local usage, deploy),
-and the section-to-code map at the top. Don't duplicate it — read it.
+GCP. [README.md](README.md) is the entry point: overview, architecture
+diagram, local setup (install, env vars, tests), how the production cadence
+and the frozen research chains are orchestrated, the `nfl-dfs` CLI, and the
+*Known gaps* section that hosts the Data deficiency log.
+[docs/design-guide.md](docs/design-guide.md) holds the original design guide
+(§0–§14): data sources, warehouse schema, feature/model theory, optimizer,
+backtesting, roadmap. Don't duplicate either — read them.
 
 `HANDOFF.md` is the authoritative current-work record. Read it before doing
 project work; the historical narrative below is context and may be

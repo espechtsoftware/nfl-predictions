@@ -42,7 +42,7 @@ class Feed:
     note: str = ""
 
 
-# Thresholds follow the LIVE scheduler cadences, not merely README §11's
+# Thresholds follow the LIVE scheduler cadences, not merely the design guide §11's
 # targets. nflverse is daily in-season so collector-time injury observations
 # have a 36-hour bar; feature/training/projection chains remain weekly, hence
 # their 8-day bars. s-odds runs 9:00/15:00 CT Wed-Sun (worst gap ~66h -> 78h).

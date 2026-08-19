@@ -100,7 +100,7 @@ job score-entries    score-entries
 job trends-alerts    trends
 job check-freshness  check-freshness 1Gi 1
 
-# --- Schedules (live cadences; seasonal pauses managed by the README §11
+# --- Schedules (live cadences; seasonal pauses managed by the design guide §11
 # runbook: s-nflverse/s-features/s-train*/s-project-*/s-shadow-* and
 # s-freeze-tail-* are PAUSED in the
 # off-season and resumed ~Aug 24) --------------------------------------------
