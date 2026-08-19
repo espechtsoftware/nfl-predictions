@@ -158,20 +158,32 @@ completion = dict(
 gcs = storage.Client(project="nfl-predictions-503414")
 
 def object_receipt(uri, metadata_path, local_path):
+    # The scorer recomputes each live object's receipt with
+    # blob.updated.isoformat(); harvest-time update_time strings carry a
+    # different representation (+0000, no microseconds) and can never
+    # compare equal — the fourth checkout/representation identity defect
+    # of 2026-08-18 (record: the path-identity repair report, addendum).
+    # Live-derive generation/updated exactly as the scorer will, and
+    # require the live generation to EQUAL the harvest-time generation —
+    # a strictly stronger pin: any re-upload since harvest fails closed.
     metadata = json.loads(metadata_path.read_text())
     raw = local_path.read_bytes()
-    updated = str(metadata.get("update_time", ""))
-    if updated.endswith("Z"):
-        updated = datetime.fromisoformat(updated[:-1] + "+00:00").isoformat()
+    blob = gcs.bucket(uri[5:].split("/", 1)[0]).blob(uri[5:].split("/", 1)[1])
+    blob.reload()
     value = {
         "uri": uri,
-        "generation": str(metadata.get("generation", "")),
+        "generation": str(blob.generation),
         "sha256": sha256(raw).hexdigest(),
         "bytes": len(raw),
-        "updated": updated,
+        "updated": blob.updated.isoformat() if blob.updated else "",
     }
     if not value["generation"].isdigit() or int(metadata.get("size", -1)) != len(raw):
         raise SystemExit("ERROR: coherent-state historical upstream object differs")
+    if str(metadata.get("generation", "")) != value["generation"]:
+        raise SystemExit(
+            "ERROR: coherent-state historical upstream object regenerated since harvest")
+    if int(blob.size or -1) != len(raw):
+        raise SystemExit("ERROR: coherent-state historical upstream object size differs")
     return value
 
 shards = []

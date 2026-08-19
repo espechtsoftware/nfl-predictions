@@ -78,3 +78,24 @@ with absolute `$OUT` paths (producer side of the same class). Consumers
 of THOSE ledgers should use run-relative identities; a future
 producer-side change to record run-relative paths belongs in a separate,
 prospectively frozen change, not this repair.
+
+## Addendum: fourth representation-identity instance (launch r1 failure)
+
+The relaunched historical execution (`coherent-market-historical-v1-bg74m`)
+failed closed in-container at shard validation: `coherent-state historical
+shard object changed`. Read-only comparison of the first shard showed
+generation, sha256, bytes and uri all EQUAL; the mismatch was the
+`updated` STRING FORMAT — the launcher's upstream receipt passed
+harvest-time `update_time` strings through verbatim
+(`2026-08-18T17:35:15+0000`), while the scorer recomputes
+`blob.updated.isoformat()` (`2026-08-18T17:35:15.743000+00:00`). No
+outcome was read (the failure precedes scoring).
+
+Repair (launcher-side; the in-image scorer is untouched): shard object
+receipts are now live-derived with the scorer's exact primitive, and the
+harvest-time generation must EQUAL the live generation — a strictly
+stronger pin (any re-upload since harvest fails closed) replacing a
+format-fragile equality. The failed attempt's launch receipts are
+preserved under `failed-launch-attempt-1/`; the launcher is pinned, so
+the relaunch runs from a fresh build/commit cycle per the frozen
+build↔code binding.
