@@ -37,7 +37,7 @@ RUN_ID = "20260819-all-boom-reallocation-c-v1"
 VERSION = "all-boom-reallocation-c-v1"
 PROJECT = base.PROJECT
 PROTOCOL_DOC = Path("reports/2026-08-19-all-boom-reallocation-protocol.md")
-PROTOCOL_SHA256 = "PENDING-FREEZE"
+PROTOCOL_SHA256 = "cb45336918ffedf33b00e44571aae7fdbeb1c0a5ed2e22cdd5ece00d4587d680"
 OUTPUT_PREFIX = (
     "gs://nfl-predictions-503414-raw/research/"
     f"all-boom-reallocation-c-runs/{RUN_ID}"

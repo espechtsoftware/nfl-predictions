@@ -1,0 +1,27 @@
+run_id=20260818-atlas-minimal-world-selection-c-v1
+attempt=2
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:6ae77b735ee2349ec6cb50744aa869505c1c6f9365363019f73e0ec9d93c2b89
+code_sha=d4b3c78c08398d4001e2d45d4818f5b3cb991067
+build_id=2dbc091d-cc37-41e4-a40c-76c84630bc10
+output_prefix=gs://nfl-predictions-503414-raw/research/atlas-minimal-world-selection-c-runs/20260818-atlas-minimal-world-selection-c-v1/attempt-2
+freeze_doc_sha256=4cd371487dcfb27d9a2323caa603e2f1deab99b3b07b649d3cd7b9bf832986dd
+runner_sha256=da85a600d2d365bda71e75e6b6a2767ec2f11a6970983979857bbeadc9cfa3fe
+chain_sha256=6d3b6131c246526914d2903d76aca7dc3783dc6dfbaccd485a106efb10cf0816
+attempt1_note=superseded-by-freeze-amendment-4 (preseeded role dedup); attempt-1 ledger/objects preserved untouched
+quota_note=single reused job, per-execution --args overrides (JobsPerProject=1000)
+uses_realized_outcomes=true
+production_change_licensed=false
+predeclared_prior=negative
+cells=54
+canary=2023-1
+cpu=4
+memory=16Gi
+timeout_seconds=7200
+max_retries=0
+amendment5_recovery_execution=atlas-minimal-c-s2023-w1-v1-x895p
+amendment5_image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:bb147d098102668c4fc3bac53a0a52f5b8ee2e4299a028d5d12c98b27cd076df
+amendment5_code_sha=fe81fbed364ff60670aa1748eaaccd26d03bb365
+amendment5_note=only the four-seed recovery cell runs this image; the Amendment-5 branch is unreachable at five seeds
+amendment7_repair_execution=atlas-minimal-c-s2023-w1-v1-8nbfv
+amendment7_image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:723ff89708fadaa98f9c3deecf985f7db537efac20e9688888adae0a93023a32
+amendment7_code_sha=f3a0a26a2e076bf180ca8a48186c038968374827
