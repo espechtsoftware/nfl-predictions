@@ -81,3 +81,20 @@ without player worlds; player-universe mismatch across blocks; fewer than
 
 Hours, design lane, no heavy slot, no cloud simulation. Reads only
 tracked CSVs, immutable snapshots, and archived artifacts.
+
+## N1b extension (2026-08-19, operator-requested): winner world-assignment
+
+Same frozen population and artifacts; one additional computation per
+winner (`winner_world_assignment`, offline-tested): the winner roster's
+world totals against the best REGISTERED candidate's total per world.
+Worlds where the winner outscores every candidate ever built are its
+"generating worlds" — the worlds where a per-world solver would plausibly
+have produced it. Reported per winner: generating-world count, margins,
+and the generating worlds' positions under BOTH the incumbent slate-total
+boom ordering and the roster-shaped ATLAS ordering (top-40/top-200
+membership). Interpretation, frozen in advance: generating worlds that
+exist but rank deep = a world-CHOICE failure (boom-depth/ranking
+remedies, e.g. an all-boom or lev-to-boom reallocation arm); winners with
+no generating worlds = a LAW failure (only the OT/DST/dependence lanes
+can reach them). Diagnostic-only; it aims a future preregistered
+reallocation arm and can never be one.

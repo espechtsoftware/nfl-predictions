@@ -115,3 +115,33 @@ def test_report_rejects_duplicate_slates():
     entries = [_entry(2023, 1, 0.5), _entry(2023, 1, 0.6)]
     with pytest.raises(WinnerLawAuditError):
         winner_law_report(entries)
+
+
+def test_world_assignment_separates_choice_from_law_failure():
+    from nfl_dfs.analysis.winner_law_audit import winner_world_assignment
+    n_worlds = 100
+    cands = np.full((3, n_worlds), 100.0)
+    winner = np.full(n_worlds, 90.0)
+    # Winner dominates the pool only in worlds 7 and 55.
+    winner[7] = 130.0
+    winner[55] = 120.0
+    # Slate-total order ranks world 55 third and world 7 ninetieth.
+    order = np.arange(n_worlds)
+    order[2], order[55] = 55, 2
+    order[89], order[7] = 7, 89
+    atlas = np.arange(n_worlds)
+    atlas[0], atlas[7] = 7, 0   # ATLAS ranks world 7 first
+    result = winner_world_assignment(winner, cands, order, atlas_order=atlas)
+    assert result["n_generating_worlds"] == 2
+    assert result["max_margin"] == pytest.approx(30.0)
+    summary = result["generating_rank_summary"]
+    assert summary["best_rank_slate_total"] == 3
+    assert summary["within_top40_slate_total"] == 1
+    assert summary["best_rank_atlas"] == 1
+    # Law-failure case: no generating worlds at all.
+    nothing = winner_world_assignment(
+        np.full(n_worlds, 90.0), cands, np.arange(n_worlds))
+    assert nothing["n_generating_worlds"] == 0
+    assert nothing["generating_rank_summary"] is None
+    with pytest.raises(WinnerLawAuditError):
+        winner_world_assignment(winner, cands, np.zeros(n_worlds, dtype=int))

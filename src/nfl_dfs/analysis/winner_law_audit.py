@@ -181,3 +181,68 @@ def winner_law_report(entries: Sequence[dict]) -> dict:
         "gate_decision": None,
         "production_change_licensed": False,
     }
+
+
+def winner_world_assignment(
+    winner_totals: np.ndarray,
+    candidate_totals: np.ndarray,
+    slate_total_order: np.ndarray,
+    atlas_order: np.ndarray | None = None,
+) -> dict:
+    """Which worlds would have GENERATED this winner (N1b, 2026-08-19)?
+
+    ``winner_totals``: the winner roster's simulated total per world;
+    ``candidate_totals``: (candidates, worlds) totals of every registered
+    candidate; ``slate_total_order``: world indices in the incumbent boom
+    visit order (descending slate points); ``atlas_order``: optional
+    roster-shaped-bound visit order. A "winner-generating world" is one
+    where the winner outscores every candidate ever built — the worlds in
+    which a per-world solver would plausibly have produced it. Their
+    count and their positions in each visit order separate a world-CHOICE
+    failure (generating worlds exist but rank deep) from a LAW failure
+    (no world manufactures the winner's co-boom pattern at all).
+    """
+    winner = np.asarray(winner_totals, dtype=np.float64)
+    cands = np.asarray(candidate_totals, dtype=np.float64)
+    if winner.ndim != 1 or cands.ndim != 2 or cands.shape[1] != len(winner):
+        raise WinnerLawAuditError("winner/candidate worlds are misaligned")
+    order = np.asarray(slate_total_order, dtype=int)
+    if sorted(order.tolist()) != list(range(len(winner))):
+        raise WinnerLawAuditError(
+            "slate-total order is not a permutation of the worlds")
+    pool_best = cands.max(axis=0)
+    margin = winner - pool_best
+    generating = np.flatnonzero(margin > 0)
+    result: dict = {
+        "n_worlds": int(len(winner)),
+        "n_generating_worlds": int(len(generating)),
+        "max_margin": float(margin.max()),
+        "mean_margin": float(margin.mean()),
+        # Ranks are 1-based positions in the visit order; the boom family
+        # solves the first N (production N=40).
+        "generating_rank_summary": None,
+    }
+    if len(generating):
+        position = np.empty(len(winner), dtype=int)
+        position[order] = np.arange(1, len(winner) + 1)
+        ranks = np.sort(position[generating])
+        result["generating_rank_summary"] = {
+            "best_rank_slate_total": int(ranks[0]),
+            "within_top40_slate_total": int((ranks <= 40).sum()),
+            "within_top200_slate_total": int((ranks <= 200).sum()),
+            "median_rank_slate_total": float(np.median(ranks)),
+        }
+        if atlas_order is not None:
+            aorder = np.asarray(atlas_order, dtype=int)
+            if sorted(aorder.tolist()) != list(range(len(winner))):
+                raise WinnerLawAuditError(
+                    "atlas order is not a permutation of the worlds")
+            apos = np.empty(len(winner), dtype=int)
+            apos[aorder] = np.arange(1, len(winner) + 1)
+            aranks = np.sort(apos[generating])
+            result["generating_rank_summary"].update({
+                "best_rank_atlas": int(aranks[0]),
+                "within_top40_atlas": int((aranks <= 40).sum()),
+                "within_top200_atlas": int((aranks <= 200).sum()),
+            })
+    return result
