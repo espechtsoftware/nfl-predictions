@@ -13,8 +13,10 @@ PROJECT=nfl-predictions-503414
 REGION=us-central1
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 RUN_ID=20260818-atlas-minimal-world-selection-c-v1
-OUT="$ROOT/reports/atlas-minimal-c-runs/$RUN_ID"
-PREFIX=gs://nfl-predictions-503414-raw/research/atlas-minimal-world-selection-c-runs/$RUN_ID
+# Attempt-aware paths (freeze Amendment 4): the attempt-2 chain overrides
+# both; defaults preserve the original invocation.
+OUT="${ATLAS_C_OUT_DIR:-$ROOT/reports/atlas-minimal-c-runs/$RUN_ID}"
+PREFIX="${ATLAS_C_PREFIX:-gs://nfl-predictions-503414-raw/research/atlas-minimal-world-selection-c-runs/$RUN_ID}"
 EXECUTIONS="$OUT/executions.txt"
 AGGREGATE="$OUT/aggregate-report.json"
 
