@@ -63,3 +63,28 @@ No production change from any historical diagnostic. The 2026 prospective
 season is the confirmation instrument for items 1 and 5. This document
 does not supersede the operator decision queue; it sequences work between
 decisions.
+
+## Update 2026-08-19 (post winner-audit series; operator: "do all of that")
+
+The winner-audit series (N1/N1b → N1c/N1d → anatomy) resolved into
+three standing facts: winners are never world optima (median 47.4 below,
+overlap 4/9); pool proximity to winners is exactly chance-level
+(max-minus-null median 0.00) even for the 8 rule-compliant winners; and
+deep-world optima carry ~3× the winners' never-realized draw mass
+(median +19.3 vs +5.8). Queue adjustments, in force:
+
+1. All-boom aggregate (chain r2 in flight after the serialization
+   repair) — unchanged primary; anatomy C is its mechanistic prior.
+2. Stack-relaxation carved-budget arm (draft exists) — freeze after the
+   all-boom read; add the anatomy mechanism gate (open solves must beat
+   the chance-overlap null, not just the score).
+3. NEW law lane target: marginal upper-tail realism (per-player draw
+   tails vs realized-max-consistent quantiles); design doc next, runs
+   through the standard frozen one-shot discipline.
+4. Winner-anatomy protocol executed (report `597787ac…`) — descriptive
+   basis for 2 and 3; no further anatomy runs without a new version.
+5. LOAD-BEARING data note: `nfl_raw.contest_entries` has never received
+   a row; the standings importer already parses ranked lineups. The
+   September Mon/Tue standings downloads are the only path to field
+   rosters (DK purges ~4 days) — they feed the field model, measured
+   N_eff, and a winner set beyond the 51 tracked #1s. Do not skip.
