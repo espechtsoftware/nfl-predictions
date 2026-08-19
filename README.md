@@ -295,9 +295,14 @@ Governance that keeps this honest:
   historical corpora.
 
 `bash scripts/chain_status.sh` prints a one-shot status of every chain
-(live processes, logs, cell grids, builds, lease, recent events);
-`bash scripts/chain_status.sh --watch` is the same view as a live
-full-screen dashboard.
+(live processes, logs, cell grids, builds, job executions, lease, recent
+events); `--watch` is the same view as a live full-screen dashboard where
+`1-6` streams a build's log, `a-h` streams a job execution's log (the
+experiment cells themselves), and `x` opens a browser over the retained
+result JSONs in `reports/*-runs/` — every score-affecting run commits its
+receipts there, so the browser doubles as the review tool for past
+experiments (`--experiments` / `--result <substr>` are the scriptable
+forms).
 
 ### Working rules
 

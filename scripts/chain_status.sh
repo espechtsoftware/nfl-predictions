@@ -9,10 +9,16 @@ set -uo pipefail
 #   bash scripts/chain_status.sh --watch    full-screen live app (q quits)
 #   bash scripts/chain_status.sh -w -i 5    live app, 5s repaint
 #   bash scripts/chain_status.sh -b latest  follow the newest build's log
-#   bash scripts/chain_status.sh -b <id>    follow that build's log
+#   bash scripts/chain_status.sh -e latest  follow the newest job execution's log
+#   bash scripts/chain_status.sh -e <name>  follow that execution's log
+#   bash scripts/chain_status.sh --experiments   list retained experiment results
+#   bash scripts/chain_status.sh --result <substr>  pretty-print one result JSON
 #
-# In the live app, keys 1-6 stream the matching build's log in place; q or
-# Escape returns to the dashboard.
+# Live-app keys: 1-6 stream a build's log; a-h stream a job execution's
+# log (the experiment cells themselves); x opens the experiments browser
+# over the retained result JSONs in reports/*-runs/ (every score-affecting
+# run commits its aggregate there — the browser is a review tool for past
+# experiments); q or Escape returns.
 #
 # Everything is derived at run time — nothing is hardcoded to a specific
 # experiment. Local state (processes, logs, ledgers, git) is cheap and
@@ -22,6 +28,7 @@ set -uo pipefail
 # and the API is never hammered.
 
 PROJECT=nfl-predictions-503414
+REGION=us-central1
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 PANELS="$HOME/nfl-panels"
 CACHE="${TMPDIR:-/tmp}/chain-status-$(id -u)"
@@ -35,13 +42,19 @@ CHAIN_RE="$CHAIN_RE"'|tally_[a-z_]+\.sh|cloud_[a-z0-9_]+chain\.sh'
 WATCH=0
 INTERVAL=3
 BUILD_LOG=""
+EXEC_LOG=""
+LIST_EXPERIMENTS=0
+RESULT_QUERY=""
 while [ $# -gt 0 ]; do
   case "$1" in
     -w|--watch) WATCH=1 ;;
     -i|--interval) INTERVAL=${2:-3}; shift ;;
     -b|--build-log) BUILD_LOG=${2:?build id or "latest"}; shift ;;
+    -e|--exec-log) EXEC_LOG=${2:?execution name or "latest"}; shift ;;
+    --experiments) LIST_EXPERIMENTS=1 ;;
+    --result) RESULT_QUERY=${2:?run-id substring}; shift ;;
     -h|--help)
-      sed -n '4,19p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+      sed -n '4,26p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "unknown option: $1 (try --help)" >&2; exit 2 ;;
   esac
   shift
@@ -91,8 +104,8 @@ ago() {  # ago <seconds> -> compact human age
 paint() {  # paint <status-word> -> colored, fixed width
   case "$1" in
     SUCCESS|done|PRESENT|free|True) printf '%s%-14s%s' "$G" "$1" "$N" ;;
-    WORKING|QUEUED|ACTIVE|pending)  printf '%s%-14s%s' "$Y" "$1" "$N" ;;
-    FAILURE|INTERNAL_ERROR|TIMEOUT|CANCELLED|EXPIRED|stalled|HELD)
+    WORKING|QUEUED|ACTIVE|pending|running)  printf '%s%-14s%s' "$Y" "$1" "$N" ;;
+    FAILURE|FAILED|INTERNAL_ERROR|TIMEOUT|CANCELLED|EXPIRED|stalled|HELD)
       printf '%s%-14s%s' "$R" "$1" "$N" ;;
     *) printf '%-14s' "$1" ;;
   esac
@@ -116,6 +129,11 @@ refresh_cloud() {  # writes atomically into $CACHE; safe to run twice
     printf 'free\n' > "$CACHE/lease.$t"
   fi
   mv "$CACHE/lease.$t" "$CACHE/lease"
+  gcloud run jobs executions list --project "$PROJECT" --region "$REGION" \
+    --limit 8 --sort-by "~metadata.creationTimestamp" --format \
+    "value(metadata.name,status.conditions[0].status,metadata.creationTimestamp,status.completionTime)" \
+    > "$CACHE/execs.$t" 2>/dev/null && mv "$CACHE/execs.$t" "$CACHE/execs"
+  rm -f "$CACHE/execs.$t"
   : > "$CACHE/grids.$t"
   for ledger in $(ls -t "$ROOT"/reports/*-runs/*/executions.txt 2>/dev/null \
                   | head -3); do
@@ -160,25 +178,23 @@ maybe_refresh_cloud() {
 BUILD_TAIL=400   # log entries kept in view; a full build log is far longer
 BUILD_POLL=5     # seconds between Cloud Logging reads while viewing
 
-stream_build() {  # follow one Cloud Build's log until the operator returns
-  local id=$1
-  [ -z "$id" ] && return
+stream_gcloud_log() {  # follow one Cloud Logging filter until q/Escape
+  local title=$1 label=$2 filter=$3
+  [ -z "$filter" ] && return
   # Declared separately: bash expands every argument of a single `local`
-  # before assigning any of them, so "$id" would be unbound here.
-  local out="$CACHE/buildlog.$id" stop="$CACHE/buildlog.$id.stop"
+  # before assigning any of them, so "$label" would be unbound here.
+  local out="$CACHE/viewlog.$label" stop="$CACHE/viewlog.$label.stop"
   local pid key rows
   : > "$out"; rm -f "$stop"
   # Sweep snapshots orphaned by an earlier kill; anything an hour old
   # cannot belong to a live viewer.
-  find "$CACHE" -maxdepth 1 -name 'buildlog.*' -mmin +60 -delete 2>/dev/null
+  find "$CACHE" -maxdepth 1 -name 'viewlog.*' -mmin +60 -delete 2>/dev/null
   (
-    # Cloud Build streams step output to Cloud Logging; `builds log
-    # --stream` reads only the Cloud Storage copy, which stays empty
-    # until the build finishes — so poll Logging directly and rewrite a
-    # full snapshot each time (no cursor state, never out of order).
+    # Both Cloud Build steps and Cloud Run job cells stream to Cloud
+    # Logging; poll it and rewrite a full snapshot each time (no cursor
+    # state, never out of order).
     while [ ! -e "$stop" ]; do
-      if gcloud logging read \
-          "resource.type=build AND resource.labels.build_id=$id" \
+      if gcloud logging read "$filter" \
           --project "$PROJECT" --limit "$BUILD_TAIL" --order desc \
           --format='value(textPayload)' 2>/dev/null | tac > "$out.tmp"; then
         mv "$out.tmp" "$out"
@@ -193,10 +209,8 @@ stream_build() {  # follow one Cloud Build's log until the operator returns
         rm -f "$out" "$out.tmp" "$stop"; exit 0' INT TERM
   while :; do
     rows=$(( $(tput lines 2>/dev/null || echo 40) - 4 ))
-    local state
-    state=$(grep -m1 -F "$id" "$CACHE/builds" 2>/dev/null | cut -f2)
     printf '\033[H'
-    fit "${B}BUILD LOG${N} ${C}${id:0:8}${N} $(paint "${state:-?}")${D}$(wc -l < "$out" 2>/dev/null | tr -d ' ') lines · polling Cloud Logging every ${BUILD_POLL}s · [q] back${N}"
+    fit "${B}${title}${N} ${C}${label}${N}  ${D}$(wc -l < "$out" 2>/dev/null | tr -d ' ') lines · polling Cloud Logging every ${BUILD_POLL}s · [q] back${N}"
     printf '\033[K\n\033[K\n'
     tail -n "$rows" "$out" 2>/dev/null | sed $'s/$/\033[K/'
     printf '\033[J'
@@ -213,9 +227,117 @@ stream_build() {  # follow one Cloud Build's log until the operator returns
   printf '\033[2J'
 }
 
+stream_build() {
+  stream_gcloud_log "BUILD LOG" "${1:0:8}" \
+    "resource.type=build AND resource.labels.build_id=$1"
+}
+
+stream_execution() {
+  stream_gcloud_log "EXECUTION LOG" "$1" \
+    "resource.type=\"cloud_run_job\" AND labels.\"run.googleapis.com/execution_name\"=\"$1\""
+}
+
 build_id_at() {  # map a 1-based menu index to its cached build id
   [ -s "$CACHE/builds" ] || return 1
   sed -n "${1}p" "$CACHE/builds" | cut -f1
+}
+
+exec_at() {  # map a letter a-h to its cached execution name
+  [ -s "$CACHE/execs" ] || return 1
+  local idx
+  idx=$(( $(printf '%d' "'$1") - 96 ))   # a=1 … h=8
+  sed -n "${idx}p" "$CACHE/execs" | cut -f1
+}
+
+# ---------------------------------------------------- experiments browser
+EXPERIMENTS_HELPER='
+import json, sys, time
+from pathlib import Path
+root = Path(sys.argv[1]) / "reports"
+rows = []
+for path in root.glob("*-runs/**/*.json"):
+    name = path.name
+    if not (name in ("aggregate-report.json", "report.json")
+            or name.endswith("-report.json") or name.endswith("-census.json")):
+        continue
+    try:
+        r = json.loads(path.read_text())
+    except Exception:
+        continue
+    if not isinstance(r, dict):
+        continue
+    label = r.get("run_id") or r.get("protocol_id") or path.parent.name
+    # Some aggregates nest their headline numbers one level down.
+    nested = r.get("aggregate")
+    if isinstance(nested, dict):
+        r = {**nested, **r}
+    bits = []
+    for key, fmt in (
+        ("mean_paired_delta_s", "dS={:+.2f}"), ("mean_paired_delta_c", "dC={:+.2f}"),
+        ("treatment_better_s", "S better={}"), ("treatment_better", "better={}"),
+        ("verdict", "{}"), ("median_percentile", "median pct={}"),
+        ("n_exact_legal_optimum", "exact optima={}"),
+        ("required_raw_field_size", "req field={:.0f}"),
+        ("fraction_draws_changed_mean", "draws changed={:.4f}"),
+        ("n_winner_production_valid", "prod-legal winners={}"),
+    ):
+        v = r.get(key)
+        if v is not None:
+            try: bits.append(fmt.format(v))
+            except Exception: bits.append(f"{key}={v}")
+    gate = r.get("gate") or {}
+    if isinstance(gate, dict) and gate.get("disposition"):
+        bits.append(str(gate["disposition"]))
+    if r.get("uses_realized_outcomes"): bits.append("outcome-aware")
+    rows.append((path.stat().st_mtime, str(label)[:52],
+                 " ".join(bits)[:90] or "(no headline keys)",
+                 str(path.relative_to(root.parent))))
+rows.sort(reverse=True)
+for m, label, headline, rel in rows[:40]:
+    stamp = time.strftime("%m-%d %H:%M", time.localtime(m))
+    print(f"{stamp}\t{label}\t{headline}\t{rel}")
+'
+
+list_experiments() {
+  "$ROOT/.venv/bin/python" -c "$EXPERIMENTS_HELPER" "$ROOT" 2>/dev/null
+}
+
+view_json() {  # pretty-print one result through a pager, TUI-safely
+  local file=$1
+  [ -f "$file" ] || return
+  if [ "$WATCH" = 1 ]; then tput rmcup 2>/dev/null; tput cnorm 2>/dev/null; fi
+  "$ROOT/.venv/bin/python" -m json.tool "$file" | less -R
+  if [ "$WATCH" = 1 ]; then tput smcup 2>/dev/null; tput civis 2>/dev/null; fi
+  printf '\033[2J'
+}
+
+experiments_browser() {  # interactive list -> pager on the chosen result
+  local table key n line file
+  table=$(list_experiments)
+  [ -z "$table" ] && { printf '\033[2J\033[H  no retained results found\n'; sleep 2; return; }
+  while :; do
+    printf '\033[H'
+    fit "${B}EXPERIMENTS${N} ${D}retained result JSONs in reports/*-runs — newest first · [1-9] view · [q] back${N}"
+    printf '\033[K\n\033[K\n'
+    n=0
+    while IFS=$'\t' read -r stamp label headline rel; do
+      n=$((n + 1)); [ "$n" -gt 9 ] && break
+      fit "  ${D}[$n]${N} ${D}$stamp${N} $(printf '%-52s' "$label") ${G}$headline${N}"
+      printf '\033[K\n'
+      fit "        ${D}$rel${N}"
+      printf '\033[K\n'
+    done <<< "$table"
+    printf '\033[J'
+    read -r -N 1 -t 30 key || continue
+    case "$key" in
+      q|Q|$'\033') printf '\033[2J'; return ;;
+      [1-9])
+        line=$(sed -n "${key}p" <<< "$table")
+        file="$ROOT/$(printf '%s' "$line" | cut -f4)"
+        view_json "$file"
+        ;;
+    esac
+  done
 }
 
 # --------------------------------------------------------------- render
@@ -269,6 +391,29 @@ render() {
       fit "  ${D}[$idx]${N} $(paint "$status") $(printf '%-34s' "${tag:0:34}") ${D}${id:0:8}${N}"
       echo
     done < <(head -6 "$CACHE/builds")
+  else
+    echo "  ${D}fetching…${N}"
+  fi
+
+  # ---- job executions --------------------------------------------------
+  echo
+  local ehint=""
+  [ "$WATCH" = 1 ] && ehint=" ${D}— press a-h to stream that execution's log${N}"
+  echo "${B}JOB EXECUTIONS${N} ${D}(cached, $cloud_age)${N}$ehint"
+  if [ -s "$CACHE/execs" ]; then
+    local letter_ix=0 letters="abcdefgh"
+    while IFS=$'\t' read -r name state created completed; do
+      [ -z "$name" ] && continue
+      local word
+      case "$state" in
+        True) word=done ;;
+        False) word=FAILED ;;
+        *) word=running ;;
+      esac
+      local lt="${letters:$letter_ix:1}"; letter_ix=$((letter_ix + 1))
+      fit "  ${D}[$lt]${N} $(paint "$word") $(printf '%-46s' "${name:0:46}") ${D}${created:5:11}${N}"
+      echo
+    done < <(head -8 "$CACHE/execs")
   else
     echo "  ${D}fetching…${N}"
   fi
@@ -344,6 +489,41 @@ render() {
 }
 
 # ----------------------------------------------------------------- run
+if [ "$LIST_EXPERIMENTS" = 1 ]; then
+  list_experiments | while IFS=$'\t' read -r stamp label headline rel; do
+    printf '%s  %-52s %s\n        %s\n' "$stamp" "$label" "$headline" "$rel"
+  done
+  exit 0
+fi
+
+if [ -n "$RESULT_QUERY" ]; then
+  match=$(list_experiments | awk -F'\t' -v q="$RESULT_QUERY" \
+    'index($2, q) || index($4, q) {print $4; exit}')
+  [ -z "$match" ] && { echo "no retained result matches: $RESULT_QUERY" >&2; exit 2; }
+  exec "$ROOT/.venv/bin/python" -m json.tool "$ROOT/$match"
+fi
+
+if [ -n "$EXEC_LOG" ]; then
+  if [ "$EXEC_LOG" = latest ]; then
+    EXEC_LOG=$(gcloud run jobs executions list --project "$PROJECT" \
+      --region "$REGION" --limit 1 --sort-by "~metadata.creationTimestamp" \
+      --format='value(metadata.name)' 2>/dev/null)
+    [ -z "$EXEC_LOG" ] && { echo "no executions found" >&2; exit 2; }
+  fi
+  if [ -t 1 ]; then
+    mkdir -p "$CACHE"
+    trap 'printf "\033[?25h\n"; exit 0' INT TERM
+    printf '\033[2J'
+    stream_execution "$EXEC_LOG"
+    exit 0
+  fi
+  gcloud logging read \
+    "resource.type=\"cloud_run_job\" AND labels.\"run.googleapis.com/execution_name\"=\"$EXEC_LOG\"" \
+    --project "$PROJECT" --limit "${BUILD_TAIL:-400}" --order desc \
+    --format='value(textPayload)' | tac
+  exit 0
+fi
+
 if [ -n "$BUILD_LOG" ]; then
   # Direct log follow, no dashboard: usable over a plain pipe or ssh.
   if [ "$BUILD_LOG" = latest ]; then
@@ -389,13 +569,18 @@ while :; do
   # four characters \033.
   printf '%s\n' "$frame" | sed $'s/$/\033[K/'
   printf '\033[J'
-  printf '%s' "${D}  [q] quit · [r] refresh cloud · [1-6] stream that build's log · repaint ${INTERVAL}s${N}"
+  printf '%s' "${D}  [q]uit · [r]efresh · [1-6] build log · [a-h] execution log · [x] experiments · ${INTERVAL}s${N}"
   read -r -N 1 -t "$INTERVAL" key && case "$key" in
     q|Q) cleanup ;;
     r|R) rm -f "$CACHE/stamp" ;;
+    x|X) printf '\033[2J'; experiments_browser ;;
     [1-6])
       build=$(build_id_at "$key") && [ -n "$build" ] && {
         printf '\033[2J'; stream_build "$build"; }
+      ;;
+    [a-h])
+      execution=$(exec_at "$key") && [ -n "$execution" ] && {
+        printf '\033[2J'; stream_execution "$execution"; }
       ;;
   esac
 done
