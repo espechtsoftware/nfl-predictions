@@ -85,3 +85,29 @@ freeze document exists with pinned SHAs and the operator's k.
 4. Freeze still waits on the all-boom S read for its comparator; with
    the lever in the engine, the freeze-to-launch gap is one protocol
    document.
+
+## Carve size DECIDED: k = 8 open solves per seed, absolute dose
+(2026-08-19, operator delegated: "I will trust your best informed and
+researched judgement on the carve size")
+
+Reasoning, recorded so the freeze inherits it:
+
+1. **The dose must be modest because of a measured interaction.** The
+   dependence remeasurement says the law OVER-couples generic teammate
+   booms (RB–RB +1.49, TE–TE +1.34 log-ratio) and UNDER-couples QB–WR.
+   The stack mandate currently masks part of that bias: forced QB
+   stacks stop the solver from freely chasing the whole-team pile-ups
+   the law overvalues. Open solves remove that mask — they will express
+   the law's biases MORE, not less. The retained same-team-RB ban
+   mitigates the worst cell; TE–TE and WR–WR piles remain reachable. A
+   20%-of-solves, ~3%-of-pool dose lets the selector see genuinely new
+   shapes without letting a known law bias steer the book.
+2. **Absolute, not proportional.** k = 8 per seed regardless of whether
+   the comparator is boom-40 or boom-200 (the S read decides): the same
+   absolute open-candidate dose per seed keeps the pool-composition
+   change identical across comparators, so the arm stays one lever.
+3. **Dose-response comes later, honestly.** The wholesale deletion
+   (100%) was tail-negative in the old regime; 0% is the incumbent.
+   One preregistered point at 8 decides the direction; any k sweep on
+   this corpus would be panel mining and is forbidden. If k=8 clears,
+   the next dose is a NEW frozen arm or a prospective shadow.
