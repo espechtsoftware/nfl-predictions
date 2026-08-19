@@ -67,13 +67,31 @@ agent or developer:
   hygiene). Remaining before the C test can launch: the launcher/finisher
   (real-path canary + one platform-error replacement), then queue behind
   the historical chain per the heavy-slot order.
+- **C-test launch machinery armed (21:30 CDT, commit `6fed92f`).** Build
+  `b3761b23` SUCCEEDED (digest `sha256:60359f06…`). The launcher/strict
+  finisher/queue watcher trio is committed: canary-first create-only grid
+  (2023 W1 real-path canary + 53), queued strictly behind the coherent
+  historical report object; in-image sources pin to the image commit
+  while local orchestration scripts are manifest-recorded WITHOUT image
+  pinning (frozen-chain lessons — an orchestration fix never costs a
+  rebuild again); finisher requires 54 terminal successes with proven
+  reproduction per cell and aggregates paired ΔC with/without the
+  recovery slate. Queue watcher PID `2416348` is armed and correctly
+  parked at `ATLAS_C_QUEUE_NOT_RELEASED` (log
+  `~/nfl-panels/atlas-c-queue-watcher.log`): pins and build verification
+  pass on every 10-minute loop. The chain is autonomous end-to-end:
+  historical build → r4 launch → scorer → report object → C-test canary
+  → 53 cells → finisher. CLAUDE.md now carries the four frozen-chain
+  lessons and `research/object_identity.py` is the shared content-identity
+  receipt primitive (commit `eafc0c2`).
 - Exact next actions: (1) monitor r4 through build → launch → terminal;
-  on the next in-container failure, classify before any rerun; (2) write
-  the C-test launcher/finisher against image `atlas-minimal-c-075453d`
-  once build `b3761b23` succeeds; (3) the operator decision queue is
-  unchanged (seven DRAFT freezes + utility freeze + one-shot amendment);
-  (4) prior lanes unchanged. Do not resume schedulers, delete forensic
-  data, or change the money policy.
+  on the next in-container failure, classify before any rerun; (2) after
+  the C-test finisher runs, the aggregate is outcome-facing — read it
+  against the predeclared negative prior and the freeze's gates only;
+  (3) the operator decision queue is unchanged (seven DRAFT freezes +
+  utility freeze + one-shot amendment); (4) prior lanes unchanged. Do
+  not resume schedulers, delete forensic data, or change the money
+  policy.
 
 ## Prior state — 2026-08-18 17:50 CDT
 
