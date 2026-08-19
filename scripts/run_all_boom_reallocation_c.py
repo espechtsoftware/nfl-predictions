@@ -238,11 +238,16 @@ def run(season: int, week: int, output_uri: str, smoke: bool) -> dict:
             "treatment_count": int(len(treatment.candidates)),
             "shortfall": int(shortfall),
             "boom_uniques": int(boom_uniques),
-            "role_injected": treatment.metadata.get(
-                "role_injection", {}).get("count"),
-            "family_counts": dict(pd.Series(
-                [c.tag for c in treatment.candidates]
-            ).value_counts()),
+            "role_injected": (
+                None if (injected := treatment.metadata.get(
+                    "role_injection", {}).get("count")) is None
+                else int(injected)),
+            "family_counts": {
+                str(tag): int(count)
+                for tag, count in pd.Series(
+                    [c.tag for c in treatment.candidates]
+                ).value_counts().items()
+            },
         })
         treatment_pools[f"R{block}"] = treatment
         native_frames[f"R{block}"] = ordered
@@ -293,8 +298,12 @@ def run(season: int, week: int, output_uri: str, smoke: bool) -> dict:
         receipt["paired_delta_c"] = (
             receipt["treatment"]["c_score"] - receipt["control"]["c_score"]
         )
-        payload = json.dumps(
-            receipt, sort_keys=True, separators=(",", ":")).encode()
+    # Serialize on EVERY path: the first canary died on an np.int64 that
+    # only the non-smoke branch ever tried to serialize. Smoke must
+    # exercise the full receipt contract; only the upload stays gated.
+    payload = json.dumps(
+        receipt, sort_keys=True, separators=(",", ":")).encode()
+    if not smoke:
         receipt["upload"] = _upload_create_only(gcs, output_uri, payload)
     return receipt
 
