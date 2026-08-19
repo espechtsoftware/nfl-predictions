@@ -52,11 +52,20 @@ agent or developer:
   block). September Mon/Tue standings downloads are the only source
   of field rosters (DK purges ~4 days) — they feed the field model,
   measured N_eff, and top-N winner sets. Never skip them.
+- **C-lane update (13:30):** marginal-tail machinery implemented/tested
+  (`research/marginal_tail_realism.py`); Stage-1 outcome-blind census
+  RAN (SHA `06b52214…`): the v1 ceiling never binds — marginal tails
+  are NOT fat in absolute position terms; anatomy C reclassified as an
+  ALLOCATION defect and routed to the dependence lane; Stage 2/3
+  PARKED (record in the design doc). B-lane ownership-template arm
+  drafted (own_est-vs-realized calibration check is its entry gate).
+  Dependence rebuild hit a Cloud Build INTERNAL_ERROR (`2e81fdac`,
+  infra, pre-lease, no leak); resubmitted as `1fea8b81` with watcher
+  r6 (~/nfl-panels/dependence-watcher-r6.log).
 - Next: read the all-boom aggregate (canary → 53 cells → aggregate);
   freeze stack-relaxation (add the anatomy mechanism gate: open solves
-  must beat the chance-overlap null); design doc for the
-  marginal-upper-tail realism experiment; dependence r5 through
-  completion + lease release.
+  must beat the chance-overlap null); own_est calibration check for
+  the B arm; dependence r6 through completion + lease release.
 
 ## Prior state — 2026-08-19 12:10 CDT
 
