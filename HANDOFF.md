@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-20 10:55 CDT
+## Current state — 2026-08-20 11:00 CDT
 
 ### A7 v1 is closed at its outcome-blind smoke; A2a is now the active research lane
 
@@ -90,6 +90,13 @@ agent or developer:
   The combined focused plus standing dependence validation is 41/41 green;
   py_compile and diff-check are green. No outcome query, lineup construction,
   historical lease, or cloud execution occurred.
+- Exact-source A2a validation build
+  `a48d9cff-ea56-4b90-9ab9-3d5321153837` is active from commit
+  `afdfe58d10b07f5ae0cc61373ee8586b272c4d4b` (image tag
+  `a2a-afdfe58-20260820`). It runs the existing full suite before image build
+  and the image smoke now includes the A2a runner. Monitor it under `CLOUD
+  BUILDS` in `scripts/chain_status.sh`; do not start another build. No Cloud
+  Run A2a job has been updated or executed yet.
 
 **Scientific queue and next concrete action.** Do not build A7 v2 now. The
 single A2a dose is now frozen before treatment output in
