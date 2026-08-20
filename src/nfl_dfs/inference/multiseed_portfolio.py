@@ -397,6 +397,159 @@ def combine_cbwu_order_invariant_books(
     )
 
 
+def combine_cbwu_volume_books(
+    books: Mapping[str, CandidateBatch],
+    seed_order: Sequence[str],
+    *,
+    tail_line: float = 194.0,
+    expected_worlds_per_book: int | None = None,
+    tolerance: float = 1e-4,
+    world_seed_labels: Sequence[str] = ("R0", "R1", "R2", "R3", "R4"),
+) -> CandidateBatch:
+    """Build the frozen volume-OI admission book (B2-prime, prospective).
+
+    CANDIDATES come from every supplied seed book (R0..R{k-1}, k >= 5);
+    the WORLD BLOCKS and the CANDIDATE BUDGET stay the registered
+    production instrument (the canonical R0--R4 blocks and the R0 native
+    pool size). This is exactly the retrospective B2-prime admission —
+    selected mean S rose monotonically with admitted volume at the fixed
+    budget — expressed as a weekly prospective mechanism. Order-invariant
+    by construction: candidate identity, attribution, and ranking cannot
+    depend on ``seed_order``. Outcome-free; never called by the
+    production policy — a separately labeled shadow job must opt in.
+    """
+    if not np.isfinite(tail_line):
+        raise ValueError("CBWU volume tail line must be finite")
+    supplied_order = tuple(seed_order)
+    canonical_order = tuple(sorted(books, key=lambda name: int(name[1:])))
+    expected_labels = tuple(f"R{index}" for index in range(len(books)))
+    if len(supplied_order) < 5 or len(set(supplied_order)) != len(
+            supplied_order):
+        raise ValueError(
+            "CBWU volume requires at least five distinct registered seeds")
+    if set(supplied_order) != set(books) or canonical_order != expected_labels:
+        raise ValueError(
+            "CBWU volume requires contiguous registered seeds R0..R{k-1}")
+    world_labels = tuple(world_seed_labels)
+    if world_labels != ("R0", "R1", "R2", "R3", "R4"):
+        raise ValueError(
+            "CBWU volume scores on the registered R0--R4 world blocks")
+    if not set(world_labels) <= set(books):
+        raise ValueError("CBWU volume world blocks are missing")
+
+    base = books["R0"]
+    base_universe = set(base.player_ids)
+    for name in canonical_order:
+        batch = books[name]
+        _validate_native_book(
+            name,
+            batch,
+            expected_worlds=expected_worlds_per_book,
+            tolerance=tolerance,
+        )
+        if set(batch.player_ids) != base_universe:
+            raise ValueError(
+                "CBWU volume player-id universes differ across seeds")
+    budget = len(base.candidates)
+    if budget <= 0:
+        raise ValueError("CBWU volume R0 candidate budget is empty")
+
+    # Symmetric aggregation over EVERY book: no first-supplier identity.
+    union: dict[tuple[str, ...], dict[str, object]] = {}
+    for name in canonical_order:
+        batch = books[name]
+        for lineup in batch.candidates:
+            roster = tuple(sorted(
+                str(player_id) for player_id in _canonical_roster(lineup)))
+            tags = batch.all_tags.get(lineup.ids, (lineup.tag or "lev",))
+            row = union.setdefault(roster, {"tags": set(), "seeds": set()})
+            row["tags"].update(str(tag) for tag in tags)
+            row["seeds"].add(name)
+    roster_keys = sorted(union)
+    if len(roster_keys) < budget:
+        raise ValueError("CBWU volume union cannot fill the R0 budget")
+
+    base_by_id = {
+        str(player_id): player
+        for player_id, player in zip(
+            base.player_ids, base.player_rows, strict=True)
+    }
+    try:
+        union_lineups = [
+            Lineup([base_by_id[player_id] for player_id in roster], tag="lev")
+            for roster in roster_keys
+        ]
+    except KeyError as exc:
+        raise ValueError(
+            "CBWU volume roster is outside the player universe") from exc
+
+    roster_rows = np.asarray([
+        [base.player_ids.index(player_id) for player_id in lineup.ids]
+        for lineup in union_lineups
+    ], dtype=np.int64)
+    row_blocks: list[np.ndarray] = []
+    total_blocks: list[np.ndarray] = []
+    for name in world_labels:
+        world = books[name]
+        world_index = {
+            str(player_id): index
+            for index, player_id in enumerate(world.player_ids)
+        }
+        rows_in_base_order = [
+            world_index[str(player_id)] for player_id in base.player_ids
+        ]
+        aligned = np.asarray(
+            world.row_draws[rows_in_base_order], dtype=np.float32)
+        row_blocks.append(aligned)
+        total_blocks.append(aligned[roster_rows].sum(axis=1).astype(np.float32))
+    union_totals = np.concatenate(total_blocks, axis=1)
+    combined_rows = np.concatenate(row_blocks, axis=1)
+    admitted = _select_tail_entries_bitpacked(union_totals, budget, tail_line)
+    if len(admitted) != budget or len(set(admitted)) != budget:
+        raise ValueError(
+            "CBWU volume selector did not return the exact R0 budget")
+
+    candidates = tuple(union_lineups[index] for index in admitted)
+    candidate_totals = union_totals[admitted]
+    all_tags: dict[frozenset, tuple[str, ...]] = {}
+    appearance_counts: dict[str, int] = {}
+    for lineup, union_index in zip(candidates, admitted, strict=True):
+        roster = roster_keys[union_index]
+        tags = union[roster]["tags"]
+        seeds = union[roster]["seeds"]
+        combined_tags = tuple(sorted({
+            *(str(tag) for tag in tags),
+            *(f"candidate_seed:{seed}" for seed in seeds),
+            "candidate_admission:cbwu-volume-v1",
+        }))
+        all_tags[lineup.ids] = combined_tags
+        appearance_counts[_candidate_key(lineup)] = len(seeds)
+
+    return CandidateBatch(
+        candidates=candidates,
+        candidate_totals=candidate_totals,
+        player_ids=base.player_ids,
+        player_rows=base.player_rows,
+        row_draws=combined_rows,
+        all_tags=all_tags,
+        metadata={
+            "portfolio": "CBWU_VOLUME_V1",
+            "production_enabled": False,
+            "uses_realized_outcomes": False,
+            "tail_line": float(tail_line),
+            "candidate_budget": budget,
+            "candidate_books": len(canonical_order),
+            "complete_union_candidates": len(union_lineups),
+            "canonical_seed_order": list(canonical_order),
+            "native_appearance_counts": appearance_counts,
+            "world_blocks": len(world_labels),
+            "worlds_per_block": [
+                int(books[name].row_draws.shape[1]) for name in world_labels
+            ],
+        },
+    )
+
+
 def audit_cbwu_seed_orders(
     books: Mapping[str, CandidateBatch],
     seed_order: Sequence[str],
