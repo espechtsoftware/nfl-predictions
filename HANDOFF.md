@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-20 13:34 CDT
+## Current state — 2026-08-20 13:52 CDT
 
 ### A2a score-free mechanism passed; one realized-law remeasurement is next
 
@@ -155,6 +155,33 @@ agent or developer:
   `reports/2026-08-20-b1-winner-relative-census-result.md`; it is descriptive
   and outcome-viewed and licenses no retrospective model or construction
   change.
+- The direct generated-corpus tail challenger is now frozen on `main` from
+  parent `dbbff59c61b1767e6214a14c9f8708c578d80b96`. Protocol
+  `reports/2026-08-20-b1-corpus-tail-model-protocol.md` has SHA-256
+  `a91dbb5ee761087096131a51616605b648d9c1f057d11001c09cb7312659f309`.
+  It fits one fixed L2 logistic model to `actual_score >= 200` using only
+  pre-lock properties of the 127,778 generated B1-union rosters, scores it by
+  leave-one-season-out transport, and challenges the stored selector with an
+  equal-candidate-budget exact-80 book. It has no Milly winner target or
+  feature, no model/threshold/overlap sweep, and cannot change production.
+  Every candidate calibration and exact-80 weekly-max/200+/210+/194 gate must
+  pass before a portable model or default-off 2026 shadow is licensed.
+  The historical query additionally requires the current live lease generation
+  and a remote create-once attempt object written before outcome access, so a
+  crash or stale receipt cannot authorize another look. Prospective source
+  receipts prove the exact returned panel set and query completion before lock;
+  adoption reconstructs Weeks 1--6 from hash-pinned exact-80 books and settled
+  roster-score files rather than trusting caller-supplied maxima or flags.
+  Focused validation is 14/14 green; py_compile, CLI help, and diff-check are
+  green. The final exact-code outcome-blind `2023-W1` smoke reproduced 51
+  panels, 13,008 source candidates, 2,277 deduplicated rosters, the canonical
+  255-candidate pool, and exact-80 control. Its receipt is
+  `reports/b1-corpus-tail-runs/20260820-b1-corpus-tail-model-v1/outcome-blind-smoke-locked.json`,
+  SHA-256 `7b5a7c35f05d10c14f0394f400e41b72fbecfa5278dfb9053892e5bdb1990e00`.
+  It read no actual score, winner, payout, ownership outcome, or historical
+  lease. The next action is the single historical gate, serialized after the
+  already-licensed A2a realized-law remeasurement; do not inspect or retune
+  partial results.
 - The first-2026-contest full-field DraftKings capture path is now implemented
   on `main` from parent commit `5fee29ef91f8daf267c41fdb035be0b8020fc487`.
   `nfl-dfs capture-dk-standings` is validation-only unless the operator supplies
