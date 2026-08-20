@@ -458,7 +458,7 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
     portfolio = runtime_env.get("MULTISEED_PORTFOLIO", "").upper()
     multiseed_portfolios = {
         "CBWU", "CBWU_ARCHETYPE_SHADOW", "CBWU_LATENT_ROLE_SHADOW",
-        "CBWU_OI_SHADOW",
+        "CBWU_OI_SHADOW", "CBWU_VOLUME_SHADOW",
     }
     if portfolio and portfolio not in multiseed_portfolios:
         raise ValueError(f"unknown MULTISEED_PORTFOLIO={portfolio!r}")
@@ -480,7 +480,10 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                 "latent-role scenario factory requires its named shadow")
         if (
             _control_candidate_capture is not None
-            and portfolio not in {"CBWU_ARCHETYPE_SHADOW", "CBWU_OI_SHADOW"}
+            and portfolio not in {
+                "CBWU_ARCHETYPE_SHADOW", "CBWU_OI_SHADOW",
+                "CBWU_VOLUME_SHADOW",
+            }
         ):
             raise ValueError(
                 "paired control capture requires a paired shadow portfolio"
@@ -501,7 +504,16 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
         except (TypeError, ValueError) as exc:
             raise ValueError("MULTISEED_SEED_PAIRS is malformed") from exc
         labels = tuple(label for label, _, _ in parsed)
-        if labels != ("R0", "R1", "R2", "R3", "R4"):
+        if portfolio == "CBWU_VOLUME_SHADOW":
+            # Volume shadow: contiguous R0..R{k-1}, k >= 5 (twenty in the
+            # frozen policy). Candidate books widen; the world blocks and
+            # budget stay the registered five inside the combine.
+            expected = tuple(f"R{index}" for index in range(len(parsed)))
+            if len(parsed) < 5 or labels != expected:
+                raise ValueError(
+                    "CBWU volume requires contiguous registered seeds "
+                    "R0..R{k-1}")
+        elif labels != ("R0", "R1", "R2", "R3", "R4"):
             raise ValueError("CBWU requires registered R0--R4 seed order")
         try:
             worlds_per_block = int(
@@ -594,6 +606,46 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                     labels,
                     tail_line=archetype_tail_line,
                     expected_worlds_per_book=worlds_per_block,
+                )
+            elif portfolio == "CBWU_VOLUME_SHADOW":
+                # Paired volume-OI admission shadow (B1, 2026-08-19):
+                # control is the adopted CBWU combine on the FIRST FIVE
+                # books (the registered production pairs); treatment
+                # admits every book's candidates at the registered R0
+                # budget on the registered R0--R4 world blocks.
+                from ..backtest.engine import CandidateBatch
+                from .multiseed_portfolio import combine_cbwu_volume_books
+
+                if _control_candidate_capture is not None:
+                    control_books = {
+                        name: books[name] for name in labels[:5]
+                    }
+                    _control_candidate_capture(combine_cbwu_books(
+                        control_books,
+                        labels[:5],
+                        expected_worlds_per_book=worlds_per_block,
+                    ))
+                volume = combine_cbwu_volume_books(
+                    books,
+                    labels,
+                    tail_line=float(tail_line),
+                    expected_worlds_per_book=worlds_per_block,
+                )
+                combined = CandidateBatch(
+                    candidates=volume.candidates,
+                    candidate_totals=volume.candidate_totals,
+                    player_ids=volume.player_ids,
+                    player_rows=volume.player_rows,
+                    row_draws=volume.row_draws,
+                    all_tags=volume.all_tags,
+                    metadata={
+                        **volume.metadata,
+                        "portfolio": "CBWU_VOLUME_SHADOW",
+                        "production_enabled": False,
+                        "prospective_shadow_id": runtime_env.get(
+                            "PROSPECTIVE_SHADOW_ID", ""),
+                        "uses_realized_outcomes": False,
+                    },
                 )
             elif portfolio == "CBWU_OI_SHADOW":
                 # Paired order-invariant union shadow (2026-08-18): control

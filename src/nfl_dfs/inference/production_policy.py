@@ -126,6 +126,29 @@ class ClassicProductionPolicy:
     )
     multiseed_worlds_per_block: int = 10_000
     multiseed_candidate_entry_basis: int = 80
+    # B1 volume shadow (2026-08-19): fifteen ADDITIONAL frozen seed pairs
+    # extending the registered five to twenty candidate books. Generated
+    # once from numpy default_rng(20260819) and frozen as literals; the
+    # shadow's candidate books are R0..R19 while world blocks and the
+    # candidate budget stay the registered five (see
+    # combine_cbwu_volume_books). Never consumed by engine_environment.
+    multiseed_volume_extra_seed_pairs: tuple[tuple[int, int], ...] = (
+        (2786141412, 2801677210),
+        (1461353386, 1586091810),
+        (137204844, 2046775861),
+        (2184743543, 3320854134),
+        (651833611, 3089304063),
+        (1935613362, 3432329768),
+        (31867868, 2977492966),
+        (1988904477, 4192316077),
+        (1852762881, 2368290637),
+        (4006641982, 2226041783),
+        (1093906274, 1859951038),
+        (135109598, 3661127064),
+        (3815695926, 1138144331),
+        (3020163036, 3089093104),
+        (186549143, 564317351),
+    )
     prospective_archetype_allocation_version: str = (
         "prospective-archetype-allocation-v1"
     )
@@ -324,6 +347,38 @@ class ClassicProductionPolicy:
         env.update({
             "MULTISEED_PORTFOLIO": "CBWU_OI_SHADOW",
             "PROSPECTIVE_SHADOW_ID": "2026-cbwu-oi-v1",
+        })
+        return env
+
+    def cbwu_volume_shadow_environment(
+        self, base: Mapping[str, str] | None = None,
+    ) -> dict[str, str]:
+        """Outcome-unseen volume-OI admission shadow (B1, 2026-08-19).
+
+        Derives from the complete adopted money environment and changes
+        only the candidate-book count: twenty registered seed books
+        (the five production pairs plus the fifteen frozen volume pairs)
+        admitted at the registered R0 budget on the registered R0--R4
+        world blocks (``combine_cbwu_volume_books``) — the retrospective
+        B2-prime mechanism (+2.0-2.75 selected mean at fixed budget,
+        2026-08-18) whose promotion requires prospective 2026 evidence.
+        Never returned by ``engine_environment``; a separately labeled
+        shadow job must opt in. Grading bar frozen at
+        reports/2026-08-19-cbwu-volume-prospective-shadow-spec.md before
+        first collection.
+        """
+        env = self.engine_environment(base)
+        all_pairs = (
+            self.multiseed_seed_pairs
+            + self.multiseed_volume_extra_seed_pairs
+        )
+        env.update({
+            "MULTISEED_PORTFOLIO": "CBWU_VOLUME_SHADOW",
+            "MULTISEED_SEED_PAIRS": ";".join(
+                f"R{index}={projection}:{role}"
+                for index, (projection, role) in enumerate(all_pairs)
+            ),
+            "PROSPECTIVE_SHADOW_ID": "2026-cbwu-volume-v1",
         })
         return env
 
