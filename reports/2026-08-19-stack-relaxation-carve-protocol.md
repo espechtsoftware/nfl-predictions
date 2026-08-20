@@ -1,4 +1,4 @@
-# Stack-relaxation carve (A3) — protocol
+# Stack-relaxation carve (A3) — FROZEN 2026-08-19
 
 **Protocol id:** `20260819-stack-relaxation-carve-v1`. Operator direction
 2026-08-19: relaxation of the construction mandates approved ("I'm in
@@ -80,5 +80,17 @@ gates, open-candidate census, exact-80 selection both arms, receipt
 serialized; no actuals query. Disposition recorded verbatim below
 before launch.
 
-- Smoke disposition: PENDING — this protocol is NOT FROZEN and the
-  chain must not launch until the real smoke output is recorded here.
+- Smoke disposition: **PASSED 2026-08-19, exit 0.** Runner output,
+  verbatim:
+  `{"open_candidates_total": 40, "open_selected_count": 11,
+  "paired_delta_s": null, "run_id":
+  "20260819-stack-relaxation-carve-v1", "season": 2023, "seeds": 5,
+  "selected_book_intersection": 64, "smoke": true, "week": 1}`
+  — all 40 open solves survived dedup (8 x 5 seeds, zero collisions
+  with mandated candidates); every fail-closed gate held (source
+  reproduction per seed, equal budgets, vacuity, exact-80 both arms);
+  and the outcome-blind mechanism signal is strong: the UNCHANGED
+  selector took 11 open candidates into the 80-lineup treatment book
+  (16/80 lineups changed). The carve demonstrably reaches the book;
+  the frozen question is whether it scores. With this record the
+  protocol is FROZEN.

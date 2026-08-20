@@ -50,7 +50,7 @@ from nfl_dfs.analysis.winner_structure_census import (  # noqa: E402
 
 VERSION = "stack-relaxation-carve-v1"
 RUN_ID = "20260819-stack-relaxation-carve-v1"
-PROTOCOL_SHA256 = "PENDING-FREEZE"
+PROTOCOL_SHA256 = "3bc1ace97dc0eb5120a16e961aad2d84f4258f008c1f3a9da8a7f5c80866e7bf"
 PROJECT = "nfl-predictions-503414"
 TREATMENT_LEVERS = {"OPEN_BOOM_SOLVES": "8"}
 
