@@ -309,6 +309,16 @@ agent or developer:
   integration set is 142/142 green; Python compilation, shell syntax and
   whitespace checks are green. No new build, job update, lease acquisition or
   outcome read occurred during this integration checkpoint.
+- The integrated B1 source is committed and pushed at
+  `3ad43a8eceabc0f4b23439cdf6d802edf5e82832`. Cloud Build
+  `9a60167f-1725-4ca0-8637-b30d70e36093` was accidentally cancelled when the
+  submitting local `gcloud` client was interrupted; it is non-scientific
+  build evidence only and must never be reused. Its exact asynchronous
+  replacement is `5e979b25-e15e-4400-8d16-f5bfafcb1280`, from the same
+  source and requested tag `b1-tail-3ad43a8`; it is currently running the full
+  test suite. No Cloud Run job, outcome lease, attempt object or historical
+  score was touched. Wait for all three build steps and the image push to
+  succeed; do not prepare or launch from a partial or cancelled build.
 - One bounded integrated successor is now prepared, but deliberately remains
   `READY-AWAITING-A2A-AND-B1`: `20260820-legal-soft-law-v1`. It is the single
   policy answer to the operator's direction to replace most house construction
