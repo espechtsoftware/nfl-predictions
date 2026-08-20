@@ -22,7 +22,7 @@ agent or developer:
 
 ## Current state — 2026-08-20 07:34 CDT
 
-### A3 post-open recovery is locally proof-green; A7 governance is rebound; no cloud action yet
+### A3 post-open recovery is complete; A7 is next in the serialized queue
 
 - Branch `main`; the recovery source lock is pushed at
   `4b0a1c530f8c1d592bdd06074a57254c55854fb1` and its test-boundary follow-up
@@ -55,6 +55,15 @@ agent or developer:
   opened outcomes, records the negative/closed disposition, proves the active
   outcome lease absent, and keeps rerun/retest/shadow/transport/production
   licenses literal false.
+- The operator-approved recovery completed at `2026-08-20T12:56:09Z` without
+  launching or mutating a cloud resource. It proved all 54 executions strict
+  terminal, the exact 54-object inventory, generation-pinned remote/Git byte
+  identity, and a byte-identical recomputation of aggregate `2e08a551…`.
+  Durable closure SHA-256 is `27acd0b4…`; logical-release-v2 SHA-256 is
+  `77c4979b…`; execution/object/cell ledger SHAs are respectively
+  `8d34150e…`, `dbec62c6…`, and `e1b02155…`. A second invocation completed
+  idempotently without another metadata/body traversal. The historical-outcome
+  lease was definitively absent at release.
 - A7 now rejects legacy A3 release-v1 and exact-validates the embedded v2
   closure, nested schemas, source/result identities, JSON types, UTC chronology,
   and all false licenses before creating its durable job claim. Its governance-
@@ -82,10 +91,8 @@ A2a QB-WR/generic same-team dependence repair passes. Cross-team bring-back,
 spread, residual worlds, and ownership are separate later questions. Never fit
 winner-frequency quotas on the same 2023–2025 grading corpus.
 
-**Next concrete action.** Commit/push the implementation-freeze manifest and
-A7's exact producer binding; then execute the A3
-read-only forensic closure and commit/push its durable v2 release. Only after
-that release may orchestration build A7 from the exact remote commit and run,
+**Next concrete action.** Commit/push the durable A3 closure and v2 release.
+Then build A7 from that exact remote commit and run,
 strictly serialized, real-artifact smoke -> all-54 support census -> external
 freeze -> one historical arm. Use only `atlas-minimal-c-s2023-w1-v1`; never
 `deploy_jobs.sh`, never B1's job/scheduler, and never overlap outcome arms.
