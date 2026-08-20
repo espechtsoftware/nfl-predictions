@@ -869,6 +869,10 @@ def test_launcher_is_reuse_only_default_off_and_exact_six_week_grade() -> None:
     assert "--update-env-vars CORPUS_TAIL_SHADOW_ENABLED=1" in text
     assert "for WEEK in 1 2 3 4 5 6" in text
     assert "validate-historical-license" in text
+    assert "--panel-source-receipt-object" in text
+    assert "--lock-at" not in text
+    assert "publish-week --intent" in text
+    assert "publish-week --week" not in text
     assert "commit_and_push_before_launch=true" in text
 
 

@@ -160,7 +160,7 @@ rows = [
 ]
 if not rows:
     print("Unknown")
-elif len(rows) == 1 and rows[0].get("status") in {"True", "False"}:
+elif len(rows) == 1 and rows[0].get("status") in {"Unknown", "True", "False"}:
     print(rows[0]["status"])
 else:
     print("Malformed")

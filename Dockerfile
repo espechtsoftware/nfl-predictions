@@ -85,6 +85,14 @@ COPY scripts/run_a2a_production_law_dependence_remeasurement.py ./scripts/run_a2
 COPY scripts/finish_a2a_production_law_dependence_remeasurement.py ./scripts/finish_a2a_production_law_dependence_remeasurement.py
 COPY scripts/cloud_a2a_production_law_dependence_remeasurement.sh ./scripts/cloud_a2a_production_law_dependence_remeasurement.sh
 COPY scripts/watch_a2a_production_law_dependence_queue.sh ./scripts/watch_a2a_production_law_dependence_queue.sh
+COPY scripts/run_b1_corpus_tail_model.py ./scripts/run_b1_corpus_tail_model.py
+COPY scripts/finish_b1_corpus_tail_model.py ./scripts/finish_b1_corpus_tail_model.py
+COPY scripts/cloud_b1_corpus_tail_model.sh ./scripts/cloud_b1_corpus_tail_model.sh
+COPY scripts/watch_b1_corpus_tail_queue.sh ./scripts/watch_b1_corpus_tail_queue.sh
+COPY scripts/run_b1_corpus_tail_panel_producer.py ./scripts/run_b1_corpus_tail_panel_producer.py
+COPY scripts/run_b1_corpus_tail_shadow_transport.py ./scripts/run_b1_corpus_tail_shadow_transport.py
+COPY scripts/run_b1_authoritative_settlement.py ./scripts/run_b1_authoritative_settlement.py
+COPY scripts/cloud_b1_corpus_tail_shadow.sh ./scripts/cloud_b1_corpus_tail_shadow.sh
 COPY scripts/run_cbwu_seed_order_audit.py ./scripts/run_cbwu_seed_order_audit.py
 COPY scripts/run_cbwu_oi_construction_diagnostic.py ./scripts/run_cbwu_oi_construction_diagnostic.py
 COPY scripts/run_cbwu_oi_selector_stability.py ./scripts/run_cbwu_oi_selector_stability.py

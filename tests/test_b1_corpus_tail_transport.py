@@ -520,3 +520,4 @@ def test_launcher_watcher_encode_reuse_only_serial_order_and_no_retry() -> None:
     assert "launch is ambiguous; no retry" in watcher
     assert "deploy_jobs.sh" not in launcher + watcher
     assert "B1_CORPUS_TAIL_OUTCOME" in watcher
+    assert 'in {"Unknown", "True", "False"}' in watcher

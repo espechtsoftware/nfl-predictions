@@ -64,6 +64,22 @@ steps:
         docker run --rm '${_IMAGE}' \
           bash -n scripts/watch_a2a_production_law_dependence_queue.sh
         docker run --rm '${_IMAGE}' \
+          python scripts/run_b1_corpus_tail_model.py --help >/dev/null
+        docker run --rm '${_IMAGE}' \
+          python scripts/finish_b1_corpus_tail_model.py --help >/dev/null
+        docker run --rm '${_IMAGE}' \
+          bash -n scripts/cloud_b1_corpus_tail_model.sh
+        docker run --rm '${_IMAGE}' \
+          bash -n scripts/watch_b1_corpus_tail_queue.sh
+        docker run --rm '${_IMAGE}' \
+          python scripts/run_b1_corpus_tail_panel_producer.py --help >/dev/null
+        docker run --rm '${_IMAGE}' \
+          python scripts/run_b1_corpus_tail_shadow_transport.py --help >/dev/null
+        docker run --rm '${_IMAGE}' \
+          python scripts/run_b1_authoritative_settlement.py --help >/dev/null
+        docker run --rm '${_IMAGE}' \
+          bash -n scripts/cloud_b1_corpus_tail_shadow.sh
+        docker run --rm '${_IMAGE}' \
           python scripts/run_atlas_minimal_world_selection_c.py --help >/dev/null
         docker run --rm '${_IMAGE}' \
           python scripts/run_a7_select_ladder.py --help >/dev/null

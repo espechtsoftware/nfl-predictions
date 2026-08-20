@@ -596,6 +596,14 @@ def _expected_cloud_build_steps(image_tag: str) -> list[dict[str, Any]]:
         "  bash -n scripts/cloud_b1_corpus_tail_model.sh\n",
         f"docker run --rm '{image_tag}' \\\n"
         "  bash -n scripts/watch_b1_corpus_tail_queue.sh\n",
+        f"docker run --rm '{image_tag}' \\\n"
+        "  python scripts/run_b1_corpus_tail_panel_producer.py --help >/dev/null\n",
+        f"docker run --rm '{image_tag}' \\\n"
+        "  python scripts/run_b1_corpus_tail_shadow_transport.py --help >/dev/null\n",
+        f"docker run --rm '{image_tag}' \\\n"
+        "  python scripts/run_b1_authoritative_settlement.py --help >/dev/null\n",
+        f"docker run --rm '{image_tag}' \\\n"
+        "  bash -n scripts/cloud_b1_corpus_tail_shadow.sh\n",
     ))
     if smoke.count(marker) != 1:
         raise RuntimeError("B1 Cloud Build insertion marker differs")

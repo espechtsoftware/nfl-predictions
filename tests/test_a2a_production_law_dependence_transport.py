@@ -4,6 +4,7 @@ import copy
 from hashlib import sha256
 import json
 from pathlib import Path
+import subprocess
 import sys
 from typing import Any
 
@@ -801,4 +802,46 @@ def test_launcher_watcher_and_chain_status_keep_required_order_and_scope() -> No
     assert "storage cp" not in watcher
     assert "jobs cancel" not in watcher
     assert "close-failed-execution" in watcher
+    assert 'in {"Unknown", "True", "False"}' in watcher
     assert "A2a realized law" in status
+
+
+@pytest.mark.parametrize("watcher_name", [
+    "watch_a2a_production_law_dependence_queue.sh",
+    "watch_b1_corpus_tail_queue.sh",
+])
+def test_watcher_completed_condition_classifier_is_executable(
+    watcher_name: str, tmp_path: Path,
+) -> None:
+    watcher = (ROOT / "scripts" / watcher_name).read_text()
+    marker = 'STATE=$("$PYTHON" - "$POLL" <<\'PY\'\n'
+    start = watcher.index(marker) + len(marker)
+    program = watcher[start:watcher.index("\nPY\n", start)]
+    poll = tmp_path / "poll.json"
+    cases = [
+        ({}, "Unknown"),
+        ({"status": {"conditions": []}}, "Unknown"),
+        ({"status": {"conditions": [
+            {"type": "Completed", "status": "Unknown"},
+        ]}}, "Unknown"),
+        ({"status": {"conditions": [
+            {"type": "Completed", "status": "True"},
+        ]}}, "True"),
+        ({"status": {"conditions": [
+            {"type": "Completed", "status": "False"},
+        ]}}, "False"),
+        ({"status": {"conditions": [
+            {"type": "Completed", "status": "Unknown"},
+            {"type": "Completed", "status": "True"},
+        ]}}, "Malformed"),
+        ({"status": {"conditions": [
+            {"type": "Completed", "status": "invalid"},
+        ]}}, "Malformed"),
+    ]
+    for value, expected in cases:
+        poll.write_text(json.dumps(value), encoding="utf-8")
+        completed = subprocess.run(
+            [sys.executable, "-", str(poll)], input=program, text=True,
+            capture_output=True, check=True,
+        )
+        assert completed.stdout.strip() == expected

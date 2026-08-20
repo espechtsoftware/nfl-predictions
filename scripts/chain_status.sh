@@ -190,33 +190,80 @@ PYE
   while IFS= read -r ledger; do
     [ -n "$ledger" ] || continue
     dir=$(dirname "$ledger"); run=$(basename "$dir")
+    shadow_phase=""
+    case "$ledger" in
+      */b1-corpus-tail-shadow-runs/*/freeze-execution.txt)
+        shadow_phase=freeze ;;
+      */b1-corpus-tail-shadow-runs/*/settlement-execution.txt)
+        shadow_phase=settlement ;;
+      */b1-corpus-tail-shadow-runs/*/adoption-execution.txt)
+        shadow_phase=adoption ;;
+    esac
     case "$run" in
       smoke|support) run="$(basename "$(dirname "$dir")")/$run" ;;
     esac
+    [ -z "$shadow_phase" ] || run="$run/$shadow_phase"
     age=$(( $(date +%s) - $(stat -c %Y "$ledger" 2>/dev/null || date +%s) ))
     cells=$(wc -l < "$ledger" 2>/dev/null | tr -d ' ')
-    uri=$(awk 'NF>=5 {print $5; exit} NF==3 {print $3; exit}' "$ledger" 2>/dev/null)
-    execution=$(awk 'NF==3 {print $2; exit}' "$ledger" 2>/dev/null)
+    single_execution=0
+    case "$ledger" in
+      */b1-corpus-tail-runs/*/executions.txt)
+        # B1's historical ledger is exactly:
+        # job execution attempt-uri report-uri model-uri intent-generation.
+        uri=$(awk 'NF==6 {print $4; exit}' "$ledger" 2>/dev/null)
+        execution=$(awk 'NF==6 {print $2; exit}' "$ledger" 2>/dev/null)
+        single_execution=1
+        ;;
+      */b1-corpus-tail-shadow-runs/*-execution.txt)
+        uri=""
+        execution=$(awk 'NF>=2 {print $2; exit}' "$ledger" 2>/dev/null)
+        single_execution=1
+        ;;
+      *)
+        uri=$(awk 'NF>=5 {print $5; exit} NF==3 {print $3; exit}' "$ledger" 2>/dev/null)
+        execution=$(awk 'NF==3 {print $2; exit}' "$ledger" 2>/dev/null)
+        [ "$(awk 'NR==1 {print NF}' "$ledger" 2>/dev/null)" = 3 ] && \
+          single_execution=1
+        ;;
+    esac
     case "$uri" in
       */preflight/real-artifact-smoke.json) phase="A7 smoke" ;;
       */preflight/support-census.json) phase="A7 support" ;;
       */a7-select-ladder-runs/*/result.json) phase="A7 historical" ;;
       */a2a-rank-factor-split-runs/*/result.json) phase="A2a scorefree" ;;
       */a2a-production-law-dependence-runs/*/report.json) phase="A2a realized law" ;;
-      *) phase="" ;;
+      */b1-corpus-tail-runs/*/historical-report.json) phase="B1 corpus tail" ;;
+      *)
+        case "$shadow_phase" in
+          freeze) phase="B1 shadow freeze" ;;
+          settlement) phase="B1 shadow settlement" ;;
+          adoption) phase="B1 shadow adoption" ;;
+          *) phase="" ;;
+        esac
+        ;;
     esac
     [ -z "$execution" ] || [ -z "$phase" ] || \
       printf '%s\t%s\n' "$execution" "$phase" >> "$CACHE/exec-labels.$t"
     prefix="${uri%/*}"
     # Aggregates land locally beside the ledger, or in GCS beside the
     # cells / one level up when the run used an attempt subdirectory.
-    if { [ -s "$dir/finish.sha256" ] && [ -s "$dir/completion.txt" ]; } \
-      || { [ -s "$dir/result.json" ] && [ -s "$dir/completion.txt" ]; } \
-      || [ -s "$dir/aggregate-report.json" ] \
-      || { [ -n "$prefix" ] && { \
-           gsutil -q stat "$prefix/aggregate-report.json" 2>/dev/null \
-        || gsutil -q stat "${prefix%/*}/aggregate-report.json" 2>/dev/null; }; }
-    then agg=PRESENT; else agg=pending; fi
+    if [ -n "$shadow_phase" ]; then
+      if [ -s "$dir/${shadow_phase}-harvest/harvest.sha256" ]; then
+        agg=PRESENT
+      else
+        agg=pending
+      fi
+    elif { [ -s "$dir/finish.sha256" ] && [ -s "$dir/completion.txt" ]; } \
+        || { [ -s "$dir/result.json" ] && [ -s "$dir/completion.txt" ]; } \
+        || [ -s "$dir/aggregate-report.json" ] \
+        || { [ -n "$prefix" ] && { \
+             gsutil -q stat "$prefix/aggregate-report.json" 2>/dev/null \
+          || gsutil -q stat "${prefix%/*}/aggregate-report.json" 2>/dev/null; }; }
+    then
+      agg=PRESENT
+    else
+      agg=pending
+    fi
     execution_state=""
     if [ -n "$execution" ] && [ -s "$CACHE/execs" ]; then
       execution_state=$(awk -F '\t' -v target="$execution" \
@@ -230,7 +277,7 @@ PYE
     elif [ "$age" -lt "$GRID_WINDOW" ]; then tag=ACTIVE
     else tag=stalled; fi
     done_n="?"
-    if [ "$(awk 'NR==1 {print NF}' "$ledger" 2>/dev/null)" = 3 ]; then
+    if [ "$single_execution" = 1 ]; then
       if [ "$agg" = PRESENT ]; then done_n=1
       elif [ -n "$uri" ] && gsutil -q stat "$uri" 2>/dev/null; then done_n=1
       elif [ "$execution_state" = False ]; then done_n=0
@@ -241,8 +288,12 @@ PYE
     printf '%s\t%s\t%s\t%s\t%s\t%s\n' \
       "$tag" "$run" "$done_n" "$cells" "$agg" "$age" >> "$CACHE/grids.$t"
   done < <(
-    find "$ROOT/reports" -type f -name executions.txt -path '*-runs/*' \
-      -printf '%T@\t%p\n' 2>/dev/null | sort -nr | head -3 | cut -f2-
+    find "$ROOT/reports" -type f -path '*-runs/*' \
+      \( -name executions.txt \
+         -o \( -path '*b1-corpus-tail-shadow-runs/*' \
+                \( -name freeze-execution.txt -o -name settlement-execution.txt \
+                   -o -name adoption-execution.txt \) \) \) \
+      -printf '%T@\t%p\n' 2>/dev/null | sort -nr | head -8 | cut -f2-
   )
   mv "$CACHE/grids.$t" "$CACHE/grids"
   mv "$CACHE/exec-labels.$t" "$CACHE/exec-labels"

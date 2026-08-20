@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-20 14:17 CDT
+## Current state — 2026-08-20 17:25 CDT
 
 ### A2a score-free mechanism passed; one realized-law remeasurement is next
 
@@ -293,6 +293,22 @@ agent or developer:
   plus frozen science/runner validation is 25/25 green; compile, shell syntax,
   help and diff checks are green. No shared integration, build, job update,
   lease or outcome action is licensed before A2a closure is durable.
+- The A2a terminal miss and exact lease closure are now durable and pushed in
+  commit `f2b7cf9ffcb8`; this satisfies B1's serialization prerequisite without
+  transporting any A2a scientific license. On parent `49e058b89451`, B1's
+  historical and prospective support scripts are now integrated into the
+  Docker image and exact Cloud Build smoke contract. The prospective launcher
+  accepts only a pushed generation-pinned panel-source receipt object and
+  derives its week from the canonical receipt URI; caller-supplied lock,
+  snapshot and panel identities are removed. Both A2a and B1 watcher copies
+  now treat a singleton Cloud Run `Completed=Unknown` condition as a normal
+  provisioning state, with executable regressions covering absent, empty,
+  Unknown, True, False, duplicate and invalid conditions. `chain_status.sh`
+  parses B1's exact six-field historical ledger and the freeze, settlement and
+  adoption ledgers, while preserving A7/A2a behavior. The focused B1/A2a
+  integration set is 142/142 green; Python compilation, shell syntax and
+  whitespace checks are green. No new build, job update, lease acquisition or
+  outcome read occurred during this integration checkpoint.
 - One bounded integrated successor is now prepared, but deliberately remains
   `READY-AWAITING-A2A-AND-B1`: `20260820-legal-soft-law-v1`. It is the single
   policy answer to the operator's direction to replace most house construction
@@ -337,18 +353,16 @@ agent or developer:
   `CORPUS_TAIL_SHADOW_ENABLED=0`; every weekly freeze, settlement and adoption
   execution is explicit, strict-terminal and no-retry. Focused plus standing
   B1 validation is 85/85, with compile, CLI help and whitespace checks green.
-  The launcher still has the old week/lock/panel calling convention and must be
-  aligned to the producer-receipt CLI during later shared integration. It
-  cannot deploy before a committed B1 historical pass and a
+  The launcher is now aligned to the producer-receipt CLI, but the prospective
+  lane still cannot deploy before a committed B1 historical pass and a
   real outcome-blind smoke over the actual 2026 candidate-panel shape. A
   prospective producer for the canonical/companion `replay_candidates_staging`
   panels and `slate_player_features` remains the explicit upstream requirement;
-  the transport does not invent or schedule that producer. Later integration
-  must add the two scripts to Docker/Cloud Build, add their ledger shapes to
-  `chain_status.sh`, select and pin one idle unscheduled existing job for the
-  six-week lane, and keep launch default-off until the Week 1 producer receipt
-  and lock time exist. No shared file, cloud resource, data or outcome was
-  touched.
+  the transport does not invent or schedule that producer. Docker/Cloud Build
+  and monitoring integration is now present. A later deployment must still
+  select and pin one idle unscheduled existing job for the six-week lane and
+  keep launch default-off until the Week 1 producer receipt and lock time
+  exist. No cloud resource, data or outcome was touched.
 - The previously missing outcome-blind prospective panel producer is now
   prepared separately at `scripts/run_b1_corpus_tail_panel_producer.py`
   (SHA-256 `a3fd995e...`). No existing command met the frozen B1 source shape:
@@ -389,23 +403,18 @@ agent or developer:
   unmocked producer-to-settlement receipt-chain smoke. No cloud/data/outcome
   read or mutation occurred.
 
-**Scientific queue and next concrete action.** Do not build A7 v2 now. The
-single A2a dose is now frozen before treatment output in
-`reports/2026-08-20-a2a-rank-factor-split-scorefree-protocol.md`: subtract
-half the empirical team-rank source from every non-QB and allocate one full
-QB-rank source to exactly one WR per team-world, then remap only by exact row
-permutations. There is no grid or retune. The next action is the one separately
-frozen outcome-bearing A2a law-shape remeasurement now licensed by this
-result. It must keep the exact transform and dose, report exact skipped-group
-reasons and coverage, treat QB-WR overshoot beyond its registered realized
-target as a miss, and state that RB/TE receive attenuation only. Do not query
-outcomes or launch until that new protocol, runner, receipt schema, and tests
-are frozen. Only a law-shape pass may unlock the prepared exact-one historical
-arm. Cross-team bring-back,
-ownership/duplication, residual worlds, and A7 v2 remain separate later
-questions. Never use broad `deploy_jobs.sh`; do not touch B1's job/scheduler;
-verify the reused job is idle and the shared lease absent before the cloud
-phase.
+**Scientific queue and next concrete action.** Do not build A7 v2 or launch
+the unlicensed exact-one/legal-soft drafts. Commit and push the B1 integration
+checkpoint, start one exact direct-Git full build, and wait for all tests,
+image construction and container smoke to pass. Then prepare B1 against the
+immutable digest, revalidate that reused job
+`atlas-minimal-c-s2023-w1-v1` is idle and unscheduled and that the shared
+historical-outcome lease/result/attempt prefixes are absent, commit and push
+the create-once manifest, and let the dedicated watcher acquire the lease and
+launch exactly one `maxRetries=0` historical execution. Do not inspect partial
+metrics. A B1 pass may license only the already prepared default-off 2026
+shadow; production remains unchanged until prospective proof. Never use broad
+`deploy_jobs.sh` and never create or delete a Cloud Run job.
 
 ## Prior state — 2026-08-20 08:37 CDT
 

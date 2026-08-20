@@ -8,7 +8,7 @@ set -euo pipefail
 # Usage:
 #   cloud_b1_corpus_tail_shadow.sh build-command CODE_SHA
 #   cloud_b1_corpus_tail_shadow.sh prepare IMAGE CODE_SHA BUILD_ID JOB JOB_UID EVIDENCE_COMMIT
-#   cloud_b1_corpus_tail_shadow.sh prepare-week WEEK LOCK_AT SNAPSHOT_ID CANONICAL_PANEL PANEL...
+#   cloud_b1_corpus_tail_shadow.sh prepare-week PANEL_SOURCE_RECEIPT_OBJECT
 #   cloud_b1_corpus_tail_shadow.sh launch-week WEEK
 #   cloud_b1_corpus_tail_shadow.sh harvest-week WEEK freeze|settlement
 #   cloud_b1_corpus_tail_shadow.sh launch-settlement WEEK
@@ -173,15 +173,34 @@ case "$COMMAND" in
     ;;
 
   prepare-week)
-    WEEK=${2:-}
-    LOCK_AT=${3:-}
-    SNAPSHOT_ID=${4:-}
-    CANONICAL_PANEL=${5:-}
-    shift 5 || die "prepare-week arguments differ"
-    [[ "$WEEK" =~ ^[1-6]$ ]] || die "week must be 1 through 6"
-    [ "$#" -ge 1 ] || die "at least one panel is required"
+    PANEL_SOURCE_RECEIPT_OBJECT=${2:-}
+    [ "$#" = 2 ] || die "prepare-week requires one panel-source receipt object"
+    [ -n "$PANEL_SOURCE_RECEIPT_OBJECT" ] || \
+      die "panel-source receipt object is required"
     verify_pushed "$DEPLOYMENT"
     verify_pushed "$DEPLOYMENT_RECEIPT"
+    verify_pushed "$PANEL_SOURCE_RECEIPT_OBJECT"
+    WEEK=$("$PYTHON" - "$PANEL_SOURCE_RECEIPT_OBJECT" <<'PY'
+import json
+import re
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as handle:
+    value = json.load(handle)
+if not isinstance(value, dict) or not isinstance(value.get("uri"), str):
+    raise SystemExit("panel-source receipt object schema differs")
+match = re.fullmatch(
+    r"gs://nfl-predictions-503414-raw/research/"
+    r"b1-corpus-tail-shadow-panel-sources/2026/week-(0[1-6])/[0-9a-f]{64}/"
+    r"source-receipt\.json",
+    value["uri"],
+)
+if match is None:
+    raise SystemExit("panel-source receipt URI differs")
+print(int(match.group(1)))
+PY
+    ) || die "panel-source receipt object cannot determine a canonical week"
+    [[ "$WEEK" =~ ^[1-6]$ ]] || die "derived week must be 1 through 6"
     JOB=$(deployment_job)
     mkdir -p "$(week_dir "$WEEK")"
     capture_job_state "$JOB" "week-${WEEK}-prepare"
@@ -189,17 +208,13 @@ case "$COMMAND" in
       --job "$OUT/job-week-${WEEK}-prepare.json" \
       --executions "$OUT/executions-week-${WEEK}-prepare.json" \
       --schedulers "$OUT/schedulers-week-${WEEK}-prepare.json"
-    PANEL_ARGS=()
-    for PANEL in "$@"; do
-      PANEL_ARGS+=(--panel "$PANEL")
-    done
     INTENT="$(week_dir "$WEEK")/freeze-intent.json"
     RECEIPT="$(week_dir "$WEEK")/freeze-intent-receipt.json"
     run_transport prepare-week --deployment "$DEPLOYMENT" \
-      --deployment-receipt "$DEPLOYMENT_RECEIPT" --week "$WEEK" \
-      --lock-at "$LOCK_AT" --snapshot-id "$SNAPSHOT_ID" \
-      --canonical-panel "$CANONICAL_PANEL" "${PANEL_ARGS[@]}" --output "$INTENT"
-    run_transport publish-week --week "$WEEK" --intent "$INTENT" --receipt "$RECEIPT"
+      --deployment-receipt "$DEPLOYMENT_RECEIPT" \
+      --panel-source-receipt-object "$PANEL_SOURCE_RECEIPT_OBJECT" \
+      --output "$INTENT"
+    run_transport publish-week --intent "$INTENT" --receipt "$RECEIPT"
     (
       cd "$(week_dir "$WEEK")"
       sha256sum freeze-intent.json freeze-intent.json.sha256 \
