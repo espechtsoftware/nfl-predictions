@@ -36,6 +36,7 @@ import sys
 import tarfile
 import tempfile
 from typing import Any, Callable, Final, Mapping, Sequence
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 from google.api_core.exceptions import NotFound, PreconditionFailed
@@ -48,6 +49,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import finish_b1_corpus_tail_model as historical  # noqa: E402
 import run_b1_corpus_tail_model as runner  # noqa: E402
+import run_b1_corpus_tail_panel_producer as panel_producer  # noqa: E402
 from nfl_dfs.research import b1_corpus_tail as science  # noqa: E402
 
 
@@ -75,6 +77,28 @@ _GENERATION = re.compile(r"[1-9][0-9]*")
 _IMAGE = re.compile(
     rf"{re.escape(IMAGE_REPOSITORY)}@sha256:[0-9a-f]{{64}}"
 )
+
+_PANEL_SOURCE_RECEIPT_KEYS: Final = {
+    "version", "status", "season", "week", "draft_group_id",
+    "snapshot_id", "snapshot_at", "lock_at", "code_sha", "policy_id",
+    "canonical_panel", "companion_panels", "panels", "build_order",
+    "candidate_table", "player_table", "deployment_object",
+    "deployment_receipt_sha256", "model_artifact_sha256", "attempt_object",
+    "schedule_sunday", "source_queries", "validation",
+    "realized_outcome_columns_read", "winner_fields_read", "labels_complete",
+    "b1_shadow_input_only", "production_licensed",
+}
+_PANEL_QUERY_KEYS: Final = {
+    "job_id", "location", "created", "started", "ended",
+    "total_bytes_processed", "query_sha256",
+}
+_WEEK_INTENT_KEYS: Final = {
+    "version", "transport_id", "season", "week", "deployment_object",
+    "panel_source_receipt_object", "model_artifact_sha256",
+    "panel_source_identity", "output", "outcomes_allowed",
+    "winner_fields_allowed", "shadow_enabled_execution_required",
+    "production_licensed", "create_only",
+}
 
 
 class ShadowTransportError(RuntimeError):
@@ -146,12 +170,15 @@ def _write_create_once(path: Path, value: Any) -> str:
 
 
 def _utc(value: object, *, label: str) -> datetime:
-    if not isinstance(value, str) or not value.strip():
+    if isinstance(value, datetime):
+        parsed = value
+    elif isinstance(value, str) and value.strip():
+        try:
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        except ValueError as exc:
+            raise ShadowTransportError(f"{label} is not ISO-8601") from exc
+    else:
         raise ShadowTransportError(f"{label} is absent")
-    try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
-    except ValueError as exc:
-        raise ShadowTransportError(f"{label} is not ISO-8601") from exc
     if parsed.tzinfo is None or parsed.utcoffset() is None:
         raise ShadowTransportError(f"{label} is not timezone-aware")
     return parsed
@@ -278,6 +305,470 @@ def _download_generation(
     if observed != checked:
         raise ShadowTransportError(f"{label} content identity changed")
     return observed, raw
+
+
+def _panel_source_object_identity(
+    value: object,
+    *,
+    uri: str | None = None,
+) -> dict[str, Any]:
+    """Validate the producer's exact create-only GCS identity schema."""
+    if not isinstance(value, Mapping) or set(value) != {
+        "uri", "generation", "metageneration", "bytes", "sha256",
+        "created_at", "create_only",
+    }:
+        raise ShadowTransportError("panel-source receipt object schema differs")
+    if (
+        not isinstance(value["uri"], str)
+        or not isinstance(value["generation"], str)
+        or not isinstance(value["metageneration"], str)
+        or not isinstance(value["sha256"], str)
+        or not isinstance(value["created_at"], str)
+    ):
+        raise ShadowTransportError("panel-source receipt object identity differs")
+    base = _object_identity(
+        {
+            key: value[key]
+            for key in (
+                "uri", "generation", "metageneration", "bytes", "sha256",
+                "create_only",
+            )
+        },
+        uri=uri,
+        create_only=True,
+    )
+    created = _utc(value.get("created_at"), label="panel-source object creation")
+    created = created.astimezone(timezone.utc)
+    if value.get("created_at") != created.isoformat():
+        raise ShadowTransportError(
+            "panel-source receipt object creation time is noncanonical"
+        )
+    return {**base, "created_at": created.isoformat()}
+
+
+def _validate_panel_query(
+    value: object,
+    *,
+    label: str,
+    expected_sha256: str,
+    lock: datetime,
+) -> tuple[datetime, datetime, datetime]:
+    if not isinstance(value, dict) or set(value) != _PANEL_QUERY_KEYS:
+        raise ShadowTransportError(f"panel-source {label} query schema differs")
+    if (
+        not isinstance(value["job_id"], str)
+        or not value["job_id"]
+        or not isinstance(value["location"], str)
+        or type(value["total_bytes_processed"]) is not int
+        or value["total_bytes_processed"] < 0
+        or value["query_sha256"] != expected_sha256
+    ):
+        raise ShadowTransportError(f"panel-source {label} query identity differs")
+    created = _utc(value["created"], label=f"panel-source {label} query creation")
+    started = _utc(value["started"], label=f"panel-source {label} query start")
+    ended = _utc(value["ended"], label=f"panel-source {label} query completion")
+    if (
+        any(
+            value[key] != observed.astimezone(timezone.utc).isoformat()
+            for key, observed in (
+                ("created", created), ("started", started), ("ended", ended)
+            )
+        )
+        or not created <= started <= ended < lock
+    ):
+        raise ShadowTransportError(
+            f"panel-source {label} query is not strictly pre-lock"
+        )
+    return created, started, ended
+
+
+def _validate_panel_batch_metadata(
+    value: object,
+    *,
+    spec: panel_producer.PanelSpec,
+    season: int,
+    week: int,
+    candidate_rows: int,
+) -> None:
+    if not isinstance(value, dict):
+        raise ShadowTransportError("panel-source batch metadata is absent")
+    if spec.role == "canonical":
+        labels = [
+            f"R{index}"
+            for index in range(
+                len(panel_producer.ADOPTED_CLASSIC_POLICY.multiseed_seed_pairs)
+            )
+        ]
+        counts = value.get("candidate_source_counts")
+        novelty = value.get("novel_candidates_by_seed")
+        if (
+            set(value) != {
+                "portfolio", "candidate_budget", "candidate_source_counts",
+                "novel_candidates_by_seed", "world_blocks",
+                "worlds_per_block",
+            }
+            or value.get("portfolio") != "CBWU"
+            or type(value.get("candidate_budget")) is not int
+            or value["candidate_budget"] != candidate_rows
+            or type(value.get("world_blocks")) is not int
+            or value["world_blocks"] != len(labels)
+            or value.get("worlds_per_block") != [
+                panel_producer.ADOPTED_CLASSIC_POLICY.multiseed_worlds_per_block
+            ] * len(labels)
+            or not isinstance(counts, dict)
+            or list(counts) != labels
+            or any(
+                type(counts[label]) is not int or counts[label] < 0
+                for label in labels
+            )
+            or sum(counts.values()) != candidate_rows
+            or not isinstance(novelty, dict)
+            or list(novelty) != labels
+            or any(
+                type(novelty[label]) is not int
+                or novelty[label] < counts[label]
+                for label in labels
+            )
+        ):
+            raise ShadowTransportError("canonical panel-source batch differs")
+        return
+    expected = {
+        "season": season,
+        "week": week,
+        "tail_line": float(
+            panel_producer.ADOPTED_CLASSIC_POLICY.tail_line
+        ),
+        "n_entries": panel_producer.ENTRIES,
+        "candidate_generation_entries": panel_producer.ENTRIES,
+        "latent_optimization_receipt": [],
+        "latent_scenario_receipt": {},
+    }
+    if value != expected or type(value.get("tail_line")) is not float:
+        raise ShadowTransportError("companion panel-source batch differs")
+
+
+def _validate_panel_source_receipt(
+    value: object,
+    *,
+    receipt_object: Mapping[str, Any],
+    deployment: Mapping[str, Any],
+    deployment_object: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Validate every identity emitted by the create-once panel producer."""
+    deployment = _validate_deployment(dict(deployment))
+    deployment_object = _object_identity(
+        deployment_object, uri=DEPLOYMENT_URI, create_only=True
+    )
+    receipt_object = _panel_source_object_identity(receipt_object)
+    if not isinstance(value, dict) or set(value) != _PANEL_SOURCE_RECEIPT_KEYS:
+        raise ShadowTransportError("panel-source receipt schema differs")
+    raw = _canonical_json(value)
+    if (
+        receipt_object["bytes"] != len(raw)
+        or receipt_object["sha256"] != sha256(raw).hexdigest()
+    ):
+        raise ShadowTransportError("panel-source receipt bytes were tampered")
+
+    season = _exact_int(value["season"], label="panel-source season")
+    week = _exact_int(value["week"], label="panel-source week")
+    draft_group_id = _exact_int(
+        value["draft_group_id"], label="panel-source draft group"
+    )
+    snapshot_id = value["snapshot_id"]
+    if (
+        value["version"] != panel_producer.RECEIPT_VERSION
+        or value["status"] != "outcome-blind-prelock-panels-complete"
+        or season != SEASON
+        or week not in WEEKS
+        or draft_group_id <= 0
+        or not isinstance(snapshot_id, str)
+        or not snapshot_id.strip()
+        or value["code_sha"] != deployment["code"]["commit_sha"]
+        or value["policy_id"]
+        != panel_producer.ADOPTED_CLASSIC_POLICY.policy_id
+        or value["candidate_table"] != panel_producer.CANDIDATE_TABLE
+        or value["player_table"] != panel_producer.PLAYER_TABLE
+        or value["deployment_object"] != deployment_object
+        or value["model_artifact_sha256"]
+        != deployment["historical_license"]["model_artifact_sha256"]
+        or value["realized_outcome_columns_read"] != []
+        or value["winner_fields_read"] != []
+        or value["labels_complete"] is not False
+        or value["b1_shadow_input_only"] is not True
+        or value["production_licensed"] is not False
+    ):
+        raise ShadowTransportError("panel-source receipt boundary differs")
+
+    expected_deployment_receipt = {
+        "version": "b1-corpus-tail-shadow-deployment-receipt-v1",
+        "object": deployment_object,
+    }
+    if value["deployment_receipt_sha256"] != sha256(
+        _canonical_json(expected_deployment_receipt)
+    ).hexdigest():
+        raise ShadowTransportError("panel-source deployment receipt differs")
+
+    plan = panel_producer.panel_plan(
+        season=season, week=week, snapshot_id=snapshot_id
+    )
+    canonical = plan[0].panel_run_id
+    companions = [spec.panel_run_id for spec in plan[1:]]
+    panels = sorted(spec.panel_run_id for spec in plan)
+    build_order = [
+        {
+            "panel_run_id": spec.panel_run_id,
+            "role": spec.role,
+            "seed_index": spec.seed_index,
+            "entries_returned": panel_producer.ENTRIES,
+        }
+        for spec in (*plan[1:], plan[0])
+    ]
+    if (
+        value["canonical_panel"] != canonical
+        or value["companion_panels"] != companions
+        or value["panels"] != panels
+        or value["build_order"] != build_order
+        or any(
+            (
+                row["seed_index"] is not None
+                if expected["seed_index"] is None
+                else type(row["seed_index"]) is not int
+            )
+            for row, expected in zip(
+                value["build_order"], build_order, strict=True
+            )
+        )
+    ):
+        raise ShadowTransportError("panel-source plan identities differ")
+    expected_uri = panel_producer.canonical_receipt_uri(
+        season=season, week=week, snapshot_id=snapshot_id
+    )
+    if receipt_object["uri"] != expected_uri:
+        raise ShadowTransportError("panel-source receipt URI differs")
+
+    lock = _utc(value["lock_at"], label="panel-source contest lock")
+    snapshot = _utc(value["snapshot_at"], label="panel-source snapshot")
+    if (
+        value["lock_at"] != lock.astimezone(timezone.utc).isoformat()
+        or value["snapshot_at"] != snapshot.astimezone(timezone.utc).isoformat()
+        or snapshot >= lock
+        or value["schedule_sunday"]
+        != lock.astimezone(ZoneInfo("America/New_York")).date().isoformat()
+    ):
+        raise ShadowTransportError("panel-source pre-lock/slate identity differs")
+
+    queries = value["source_queries"]
+    if not isinstance(queries, dict) or set(queries) != {
+        "schedule", "preflight", "candidates", "players",
+    }:
+        raise ShadowTransportError("panel-source query inventory differs")
+    query_sql = {
+        "schedule": panel_producer.schedule_sql(),
+        "preflight": panel_producer.preflight_sql(),
+        "candidates": panel_producer.candidate_sql(),
+        "players": panel_producer.player_sql(),
+    }
+    timings = {
+        label: _validate_panel_query(
+            queries[label],
+            label=label,
+            expected_sha256=sha256(query_sql[label].encode("utf-8")).hexdigest(),
+            lock=lock,
+        )
+        for label in query_sql
+    }
+    attempt = _panel_source_object_identity(
+        value["attempt_object"], uri=panel_producer._attempt_uri(expected_uri)
+    )
+    attempt_created = _utc(
+        attempt["created_at"], label="panel-source attempt creation"
+    )
+    receipt_created = _utc(
+        receipt_object["created_at"], label="panel-source receipt creation"
+    )
+    if (
+        timings["schedule"][2] > timings["preflight"][0]
+        or timings["preflight"][2] > attempt_created
+        or attempt_created > timings["candidates"][0]
+        or timings["candidates"][2] > timings["players"][0]
+        or max(timings["candidates"][2], timings["players"][2]) != snapshot
+        or snapshot > receipt_created
+        or receipt_created >= lock
+    ):
+        raise ShadowTransportError("panel-source phase ordering differs")
+
+    validation = value["validation"]
+    if not isinstance(validation, dict) or set(validation) != {
+        "panel_rows", "candidate_rows", "player_rows",
+        "deduplicated_rosters", "canonical_candidates",
+        "canonical_selected", "candidate_frame_sha256",
+        "player_frame_sha256",
+    }:
+        raise ShadowTransportError("panel-source validation schema differs")
+    panel_rows = validation["panel_rows"]
+    if not isinstance(panel_rows, dict) or set(panel_rows) != set(panels):
+        raise ShadowTransportError("panel-source validated panel set differs")
+    candidate_total = 0
+    player_total = 0
+    for spec in plan:
+        row = panel_rows[spec.panel_run_id]
+        if not isinstance(row, dict) or set(row) != {
+            "role", "seed_index", "candidate_rows", "selected_rows",
+            "player_rows", "slate_run_id", "config_hash",
+            "lever_env_sha256", "seeds_sha256", "n_worlds",
+            "candidate_batch_metadata",
+        }:
+            raise ShadowTransportError("panel-source panel receipt schema differs")
+        candidate_rows = _exact_int(
+            row["candidate_rows"], label="panel-source candidate rows"
+        )
+        player_rows = _exact_int(
+            row["player_rows"], label="panel-source player rows"
+        )
+        provenance = panel_producer._expected_candidate_provenance(
+            spec, code_sha=str(value["code_sha"])
+        )
+        seed_identity_differs = (
+            row["seed_index"] is not None
+            if spec.seed_index is None
+            else type(row["seed_index"]) is not int
+            or row["seed_index"] != spec.seed_index
+        )
+        if (
+            row["role"] != spec.role
+            or seed_identity_differs
+            or candidate_rows < panel_producer.ENTRIES
+            or _exact_int(
+                row["selected_rows"], label="panel-source selected rows"
+            ) != panel_producer.ENTRIES
+            or player_rows <= 0
+            or not isinstance(row["slate_run_id"], str)
+            or not row["slate_run_id"]
+            or row["config_hash"] != provenance["config_hash"]
+            or row["lever_env_sha256"]
+            != sha256(provenance["lever_env"].encode("utf-8")).hexdigest()
+            or row["seeds_sha256"]
+            != sha256(provenance["seeds"].encode("utf-8")).hexdigest()
+            or _exact_int(
+                row["n_worlds"], label="panel-source world count"
+            ) != provenance["n_worlds"]
+        ):
+            raise ShadowTransportError("panel-source panel identity differs")
+        _validate_panel_batch_metadata(
+            row["candidate_batch_metadata"],
+            spec=spec,
+            season=season,
+            week=week,
+            candidate_rows=candidate_rows,
+        )
+        candidate_total += candidate_rows
+        player_total += player_rows
+
+    candidate_rows = _exact_int(
+        validation["candidate_rows"], label="panel-source total candidate rows"
+    )
+    player_rows = _exact_int(
+        validation["player_rows"], label="panel-source total player rows"
+    )
+    deduplicated = _exact_int(
+        validation["deduplicated_rosters"],
+        label="panel-source deduplicated rosters",
+    )
+    canonical_candidates = _exact_int(
+        validation["canonical_candidates"],
+        label="panel-source canonical candidates",
+    )
+    canonical_selected = _exact_int(
+        validation["canonical_selected"],
+        label="panel-source canonical selected",
+    )
+    if (
+        candidate_rows != candidate_total
+        or player_rows != player_total
+        or deduplicated < canonical_candidates
+        or deduplicated > candidate_rows
+        or canonical_candidates < panel_producer.ENTRIES
+        or canonical_candidates > panel_rows[canonical]["candidate_rows"]
+        or canonical_selected != panel_producer.ENTRIES
+        or len({panel_rows[panel]["player_rows"] for panel in panels}) != 1
+        or _HEX64.fullmatch(str(validation["candidate_frame_sha256"])) is None
+        or _HEX64.fullmatch(str(validation["player_frame_sha256"])) is None
+    ):
+        raise ShadowTransportError("panel-source validation totals differ")
+    return value
+
+
+def _panel_source_identity(value: Mapping[str, Any]) -> dict[str, Any]:
+    """Project the exact producer receipt into the auditable week intent."""
+    validation = value["validation"]
+    panel_rows = validation["panel_rows"]
+    return {
+        "draft_group_id": value["draft_group_id"],
+        "snapshot_id": value["snapshot_id"],
+        "snapshot_at": value["snapshot_at"],
+        "lock_at": value["lock_at"],
+        "schedule_sunday": value["schedule_sunday"],
+        "canonical_panel": value["canonical_panel"],
+        "companion_panels": list(value["companion_panels"]),
+        "panels": list(value["panels"]),
+        "panel_slate_run_ids": {
+            panel: panel_rows[panel]["slate_run_id"]
+            for panel in value["panels"]
+        },
+        "candidate_table": value["candidate_table"],
+        "player_table": value["player_table"],
+        "source_queries": {
+            label: dict(value["source_queries"][label])
+            for label in ("schedule", "preflight", "candidates", "players")
+        },
+        "candidate_rows": validation["candidate_rows"],
+        "player_rows": validation["player_rows"],
+        "deduplicated_rosters": validation["deduplicated_rosters"],
+        "canonical_candidates": validation["canonical_candidates"],
+        "canonical_selected": validation["canonical_selected"],
+        "candidate_frame_sha256": validation["candidate_frame_sha256"],
+        "player_frame_sha256": validation["player_frame_sha256"],
+    }
+
+
+def _download_panel_source_receipt(
+    client: storage.Client,
+    *,
+    receipt_object: Mapping[str, Any],
+    deployment: Mapping[str, Any],
+    deployment_object: Mapping[str, Any],
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Generation-read and validate one exact create-once producer receipt."""
+    checked = _panel_source_object_identity(receipt_object)
+    bucket_name, name = _gcs_parts(str(checked["uri"]))
+    generation = int(checked["generation"])
+    blob = client.bucket(bucket_name).blob(name, generation=generation)
+    try:
+        blob.reload()
+        raw = blob.download_as_bytes(if_generation_match=generation)
+    except NotFound as exc:
+        raise ShadowTransportError("panel-source receipt is absent") from exc
+    observed = {
+        **_blob_identity(blob, uri=str(checked["uri"]), raw=raw),
+        "created_at": (
+            _utc(blob.time_created, label="panel-source object creation")
+            .astimezone(timezone.utc)
+            .isoformat()
+            if blob.time_created is not None else None
+        ),
+        "create_only": True,
+    }
+    if observed != checked:
+        raise ShadowTransportError("panel-source receipt content identity changed")
+    receipt = _strict_json_bytes(raw, label="panel-source receipt")
+    if not isinstance(receipt, dict) or raw != _canonical_json(receipt):
+        raise ShadowTransportError("panel-source receipt is not canonical")
+    return _validate_panel_source_receipt(
+        receipt,
+        receipt_object=observed,
+        deployment=deployment,
+        deployment_object=deployment_object,
+    ), observed
 
 
 def _download_current(
@@ -971,43 +1462,38 @@ def build_week_intent(
     *,
     deployment: Mapping[str, Any],
     deployment_object: Mapping[str, Any],
-    week: int,
-    lock_at: str,
-    snapshot_id: str,
-    panels: Sequence[str],
-    canonical_panel: str,
+    panel_source_receipt: Mapping[str, Any],
+    panel_source_receipt_object: Mapping[str, Any],
 ) -> dict[str, Any]:
+    """Derive one week intent solely from a verified producer receipt."""
+    if not isinstance(panel_source_receipt, Mapping):
+        raise ShadowTransportError("panel-source receipt is absent")
     deployment = _validate_deployment(dict(deployment))
     deployment_object = _object_identity(
         deployment_object, uri=DEPLOYMENT_URI, create_only=True
     )
     if deployment_object["sha256"] != sha256(_canonical_json(deployment)).hexdigest():
         raise ShadowTransportError("deployment object does not bind manifest bytes")
-    week = _exact_int(week, label="week")
+    source_object = _panel_source_object_identity(panel_source_receipt_object)
+    source_receipt = _validate_panel_source_receipt(
+        dict(panel_source_receipt),
+        receipt_object=source_object,
+        deployment=deployment,
+        deployment_object=deployment_object,
+    )
+    week = _exact_int(source_receipt["week"], label="panel-source week")
     _week_root(week)
-    lock = _utc(lock_at, label="contest lock").astimezone(timezone.utc)
-    if not isinstance(snapshot_id, str) or not snapshot_id.strip():
-        raise ShadowTransportError("weekly snapshot ID is absent")
-    if not isinstance(canonical_panel, str) or not canonical_panel.strip():
-        raise ShadowTransportError("weekly canonical panel is absent")
-    if any(not isinstance(item, str) or not item.strip() for item in panels):
-        raise ShadowTransportError("weekly panel list is invalid")
-    ordered = sorted(set(panels))
-    if len(ordered) != len(panels) or canonical_panel not in ordered:
-        raise ShadowTransportError("weekly panels repeat or omit the canonical panel")
     return {
-        "version": "b1-corpus-tail-shadow-week-intent-v1",
+        "version": "b1-corpus-tail-shadow-week-intent-v2",
         "transport_id": TRANSPORT_ID,
         "season": SEASON,
         "week": week,
         "deployment_object": deployment_object,
+        "panel_source_receipt_object": source_object,
         "model_artifact_sha256": deployment["historical_license"][
             "model_artifact_sha256"
         ],
-        "snapshot_id": snapshot_id,
-        "lock_at": lock.isoformat(),
-        "panels": ordered,
-        "canonical_panel": canonical_panel,
+        "panel_source_identity": _panel_source_identity(source_receipt),
         "output": _week_uris(week),
         "outcomes_allowed": False,
         "winner_fields_allowed": False,
@@ -1021,47 +1507,19 @@ def _validate_week_intent(
     value: object,
     *,
     deployment: Mapping[str, Any],
+    panel_source_receipt: Mapping[str, Any],
 ) -> dict[str, Any]:
-    keys = {
-        "version", "transport_id", "season", "week", "deployment_object",
-        "model_artifact_sha256", "snapshot_id", "lock_at", "panels",
-        "canonical_panel", "output", "outcomes_allowed",
-        "winner_fields_allowed", "shadow_enabled_execution_required",
-        "production_licensed", "create_only",
-    }
-    if not isinstance(value, dict) or set(value) != keys:
+    if not isinstance(value, dict) or set(value) != _WEEK_INTENT_KEYS:
         raise ShadowTransportError("weekly shadow intent schema differs")
     deployment = _validate_deployment(dict(deployment))
-    week = _exact_int(value["week"], label="intent week")
-    if (
-        value["version"] != "b1-corpus-tail-shadow-week-intent-v1"
-        or value["transport_id"] != TRANSPORT_ID
-        or value["season"] != SEASON
-        or week not in WEEKS
-        or value["model_artifact_sha256"]
-        != deployment["historical_license"]["model_artifact_sha256"]
-        or value["output"] != _week_uris(week)
-        or value["outcomes_allowed"] is not False
-        or value["winner_fields_allowed"] is not False
-        or value["shadow_enabled_execution_required"] is not True
-        or value["production_licensed"] is not False
-        or value["create_only"] is not True
-    ):
-        raise ShadowTransportError("weekly shadow intent boundary differs")
-    _object_identity(
-        value["deployment_object"], uri=DEPLOYMENT_URI, create_only=True
+    expected = build_week_intent(
+        deployment=deployment,
+        deployment_object=value["deployment_object"],
+        panel_source_receipt=panel_source_receipt,
+        panel_source_receipt_object=value["panel_source_receipt_object"],
     )
-    _utc(value["lock_at"], label="contest lock")
-    panels = value["panels"]
-    if (
-        not isinstance(panels, list)
-        or not panels
-        or panels != sorted(set(panels))
-        or value["canonical_panel"] not in panels
-        or not isinstance(value["snapshot_id"], str)
-        or not value["snapshot_id"].strip()
-    ):
-        raise ShadowTransportError("weekly shadow panel/snapshot boundary differs")
+    if value != expected:
+        raise ShadowTransportError("weekly shadow intent boundary differs")
     return value
 
 
@@ -1125,7 +1583,9 @@ def _load_remote_week_intent(
     *,
     week: int,
     generation: str,
-) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+) -> tuple[
+    dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any]
+]:
     if _GENERATION.fullmatch(generation) is None:
         raise ShadowTransportError("weekly intent generation differs")
     uri = _week_uris(week)["freeze_intent"]
@@ -1137,8 +1597,27 @@ def _load_remote_week_intent(
     intent = _strict_json_bytes(raw, label="weekly intent")
     if not isinstance(intent, dict) or raw != _canonical_json(intent):
         raise ShadowTransportError("weekly intent is not canonical")
+    if set(intent) != _WEEK_INTENT_KEYS:
+        raise ShadowTransportError("weekly shadow intent schema differs")
     deployment, _ = _load_remote_deployment(client, intent["deployment_object"])
-    return _validate_week_intent(intent, deployment=deployment), deployment, intent_object
+    source_receipt, observed_source = _download_panel_source_receipt(
+        client,
+        receipt_object=intent["panel_source_receipt_object"],
+        deployment=deployment,
+        deployment_object=intent["deployment_object"],
+    )
+    intent = _validate_week_intent(
+        intent,
+        deployment=deployment,
+        panel_source_receipt=source_receipt,
+    )
+    if intent["week"] != week or intent_object["uri"] != intent["output"][
+        "freeze_intent"
+    ]:
+        raise ShadowTransportError("weekly intent object/week identity differs")
+    if observed_source != intent["panel_source_receipt_object"]:
+        raise ShadowTransportError("weekly intent panel-source generation differs")
+    return intent, deployment, intent_object, source_receipt
 
 
 def execute_freeze(
@@ -1151,8 +1630,10 @@ def execute_freeze(
     """Execute one pre-lock freeze only after explicit default-off override."""
     week = _exact_int(week, label="week")
     client = storage.Client(project=PROJECT) if storage_client is None else storage_client
-    intent, deployment, intent_object = _load_remote_week_intent(
+    intent, deployment, intent_object, panel_source_receipt = (
+        _load_remote_week_intent(
         client, week=week, generation=intent_generation
+        )
     )
     _validate_runtime_environment(deployment, freeze=True)
     model, model_raw = _runtime_model(client, deployment=deployment)
@@ -1162,6 +1643,9 @@ def execute_freeze(
         "season": SEASON,
         "week": week,
         "intent_object": intent_object,
+        "panel_source_receipt_object": intent[
+            "panel_source_receipt_object"
+        ],
         "model_object": deployment["historical_license"][
             "historical_model_object"
         ],
@@ -1178,15 +1662,16 @@ def execute_freeze(
         model_path = temp / "model.json"
         output = temp / "shadow-receipt.json"
         model_path.write_bytes(model_raw)
+        source = intent["panel_source_identity"]
         argv = [
             "--shadow", f"{SEASON}:{week}",
-            "--shadow-canonical-panel", intent["canonical_panel"],
+            "--shadow-canonical-panel", source["canonical_panel"],
             "--model-artifact", str(model_path),
             "--shadow-output", str(output),
-            "--snapshot-id", intent["snapshot_id"],
-            "--lock-at", intent["lock_at"],
+            "--snapshot-id", source["snapshot_id"],
+            "--lock-at", source["lock_at"],
         ]
-        for panel in intent["panels"]:
+        for panel in source["panels"]:
             argv.extend(["--shadow-panel", panel])
         if runner_main(argv) != 0:
             raise ShadowTransportError("frozen shadow runner returned nonzero")
@@ -1202,8 +1687,26 @@ def execute_freeze(
             or receipt.get("production_licensed") is not False
         ):
             raise ShadowTransportError("shadow receipt boundary differs")
+        shadow_source = receipt.get("source_identity")
+        if (
+            not isinstance(shadow_source, dict)
+            or "panel_source_receipt_object" in shadow_source
+        ):
+            raise ShadowTransportError("shadow runner source identity differs")
+        receipt = {
+            **receipt,
+            "source_identity": {
+                **shadow_source,
+                "panel_source_receipt_object": intent[
+                    "panel_source_receipt_object"
+                ],
+            },
+        }
+        raw = _canonical_json(receipt)
         _validate_shadow_receipt(receipt, week=week, deployment=deployment)
-        _require_receipt_matches_intent(receipt, intent)
+        _require_receipt_matches_intent(
+            receipt, intent, panel_source_receipt=panel_source_receipt
+        )
         receipt_object = _upload_create_once(
             client, uri=intent["output"]["shadow_receipt"], raw=raw
         )
@@ -1212,6 +1715,9 @@ def execute_freeze(
         "season": SEASON,
         "week": week,
         "intent_object": intent_object,
+        "panel_source_receipt_object": intent[
+            "panel_source_receipt_object"
+        ],
         "attempt_object": attempt_object,
         "receipt_object": receipt_object,
         "uses_realized_outcomes": False,
@@ -1219,7 +1725,12 @@ def execute_freeze(
     }
 
 
-def _validate_shadow_receipt(value: object, *, week: int, deployment: Mapping[str, Any]) -> tuple[list[str], list[str]]:
+def _validate_shadow_receipt(
+    value: object,
+    *,
+    week: int,
+    deployment: Mapping[str, Any],
+) -> tuple[list[str], list[str]]:
     keys = {
         "version", "policy_version", "season", "week",
         "model_artifact_sha256", "source_identity", "candidate_budget_control",
@@ -1254,22 +1765,95 @@ def _validate_shadow_receipt(value: object, *, week: int, deployment: Mapping[st
         lock = runner._utc_timestamp(source.get("lock_at"), field="contest lock")
     except Exception as exc:
         raise ShadowTransportError("shadow receipt book/source differs") from exc
-    if snapshot >= lock or source.get("realized_outcome_columns_read") != []:
+    source_keys = {
+        "snapshot_id", "snapshot_at", "lock_at", "panels",
+        "canonical_panel", "candidate_rows", "deduplicated_rosters",
+        "candidate_frame_sha256", "player_frame_sha256", "candidate_query",
+        "player_query", "realized_outcome_columns_read",
+        "panel_source_receipt_object",
+    }
+    if not isinstance(source, dict) or set(source) != source_keys:
+        raise ShadowTransportError("shadow receipt source schema differs")
+    panels = source["panels"]
+    candidate_rows = _exact_int(
+        source["candidate_rows"], label="shadow source candidate rows"
+    )
+    deduplicated = _exact_int(
+        source["deduplicated_rosters"],
+        label="shadow source deduplicated rosters",
+    )
+    source_object = _panel_source_object_identity(
+        source["panel_source_receipt_object"]
+    )
+    candidate_times = _validate_panel_query(
+        source["candidate_query"],
+        label="shadow candidate",
+        expected_sha256=sha256(
+            runner._candidate_sql(outcomes=False, one_slate=True).encode("utf-8")
+        ).hexdigest(),
+        lock=lock,
+    )
+    player_times = _validate_panel_query(
+        source["player_query"],
+        label="shadow player",
+        expected_sha256=sha256(
+            runner._player_sql(one_slate=True).encode("utf-8")
+        ).hexdigest(),
+        lock=lock,
+    )
+    if (
+        snapshot >= lock
+        or max(candidate_times[2], player_times[2]) != snapshot
+        or source.get("realized_outcome_columns_read") != []
+        or not isinstance(source["snapshot_id"], str)
+        or not source["snapshot_id"].strip()
+        or not isinstance(panels, list)
+        or not panels
+        or panels != sorted(set(panels))
+        or not isinstance(source["canonical_panel"], str)
+        or source["canonical_panel"] not in panels
+        or candidate_rows < 80
+        or deduplicated < value["candidate_budget_control"]
+        or _HEX64.fullmatch(str(source["candidate_frame_sha256"])) is None
+        or _HEX64.fullmatch(str(source["player_frame_sha256"])) is None
+        or _utc(
+            source_object["created_at"], label="panel-source receipt creation"
+        ) > min(candidate_times[0], player_times[0])
+    ):
         raise ShadowTransportError("shadow receipt is not outcome-blind/pre-lock")
     return control, challenger
 
 
 def _require_receipt_matches_intent(
-    receipt: Mapping[str, Any], intent: Mapping[str, Any]
+    receipt: Mapping[str, Any],
+    intent: Mapping[str, Any],
+    *,
+    panel_source_receipt: Mapping[str, Any],
 ) -> None:
     source = receipt.get("source_identity")
+    frozen = intent["panel_source_identity"]
     if not isinstance(source, Mapping) or (
-        source.get("snapshot_id") != intent["snapshot_id"]
-        or source.get("lock_at") != intent["lock_at"]
-        or source.get("panels") != intent["panels"]
-        or source.get("canonical_panel") != intent["canonical_panel"]
+        source.get("snapshot_id") != frozen["snapshot_id"]
+        or source.get("lock_at") != frozen["lock_at"]
+        or source.get("panels") != frozen["panels"]
+        or source.get("canonical_panel") != frozen["canonical_panel"]
+        or source.get("candidate_rows") != frozen["candidate_rows"]
+        or source.get("deduplicated_rosters")
+        != frozen["deduplicated_rosters"]
+        or source.get("panel_source_receipt_object")
+        != intent["panel_source_receipt_object"]
+        or receipt.get("candidate_budget_control")
+        != frozen["canonical_candidates"]
+        or receipt.get("candidate_budget_challenger")
+        != frozen["canonical_candidates"]
     ):
         raise ShadowTransportError("shadow receipt differs from weekly intent")
+    if _panel_source_identity(panel_source_receipt) != frozen:
+        raise ShadowTransportError("weekly intent panel-source projection differs")
+    if _utc(source["snapshot_at"], label="shadow snapshot") < _utc(
+        frozen["snapshot_at"], label="panel-source snapshot"
+    ):
+        raise ShadowTransportError("shadow query predates the producer receipt")
 
 
 def _settlement_sql() -> str:
@@ -1377,8 +1961,27 @@ def execute_settlement(
     intent = _strict_json_bytes(intent_raw, label="freeze intent")
     if not isinstance(intent, dict) or intent_raw != _canonical_json(intent):
         raise ShadowTransportError("freeze intent is not canonical")
-    _validate_week_intent(intent, deployment=deployment)
-    _require_receipt_matches_intent(receipt, intent)
+    if set(intent) != _WEEK_INTENT_KEYS or intent.get("week") != week:
+        raise ShadowTransportError("freeze intent schema/week differs")
+    current_deployment_identity = {**deployment_object, "create_only": True}
+    if intent["deployment_object"] != current_deployment_identity:
+        raise ShadowTransportError("freeze intent deployment generation differs")
+    panel_source_receipt, observed_source = _download_panel_source_receipt(
+        gcs,
+        receipt_object=intent["panel_source_receipt_object"],
+        deployment=deployment,
+        deployment_object=intent["deployment_object"],
+    )
+    if observed_source != intent["panel_source_receipt_object"]:
+        raise ShadowTransportError("freeze intent panel-source generation differs")
+    _validate_week_intent(
+        intent,
+        deployment=deployment,
+        panel_source_receipt=panel_source_receipt,
+    )
+    _require_receipt_matches_intent(
+        receipt, intent, panel_source_receipt=panel_source_receipt
+    )
     attempt = {
         "version": "b1-corpus-tail-shadow-settlement-attempt-v1",
         "transport_id": TRANSPORT_ID,
@@ -1837,15 +2440,12 @@ def _args() -> argparse.Namespace:
     week = sub.add_parser("prepare-week")
     week.add_argument("--deployment", type=Path, required=True)
     week.add_argument("--deployment-receipt", type=Path, required=True)
-    week.add_argument("--week", type=int, required=True, choices=WEEKS)
-    week.add_argument("--lock-at", required=True)
-    week.add_argument("--snapshot-id", required=True)
-    week.add_argument("--canonical-panel", required=True)
-    week.add_argument("--panel", action="append", default=[])
+    week.add_argument(
+        "--panel-source-receipt-object", type=Path, required=True,
+    )
     week.add_argument("--output", type=Path, required=True)
 
     publish_week = sub.add_parser("publish-week")
-    publish_week.add_argument("--week", type=int, required=True, choices=WEEKS)
     publish_week.add_argument("--intent", type=Path, required=True)
     publish_week.add_argument("--receipt", type=Path, required=True)
 
@@ -1950,26 +2550,61 @@ def main() -> None:
         receipt = _load_canonical(
             args.deployment_receipt, label="deployment receipt"
         )
-        if not isinstance(receipt, dict) or set(receipt) != {"version", "object"}:
+        if (
+            not isinstance(receipt, dict)
+            or set(receipt) != {"version", "object"}
+            or receipt["version"]
+            != "b1-corpus-tail-shadow-deployment-receipt-v1"
+        ):
             raise ShadowTransportError("deployment receipt schema differs")
+        panel_source_object = _load_canonical(
+            args.panel_source_receipt_object,
+            label="panel-source receipt object",
+        )
+        panel_source_receipt, observed_source = _download_panel_source_receipt(
+            storage.Client(project=PROJECT),
+            receipt_object=panel_source_object,
+            deployment=deployment,
+            deployment_object=receipt["object"],
+        )
+        if observed_source != panel_source_object:
+            raise ShadowTransportError("panel-source receipt generation differs")
         value = build_week_intent(
             deployment=deployment,
             deployment_object=receipt["object"],
-            week=args.week,
-            lock_at=args.lock_at,
-            snapshot_id=args.snapshot_id,
-            panels=args.panel,
-            canonical_panel=args.canonical_panel,
+            panel_source_receipt=panel_source_receipt,
+            panel_source_receipt_object=observed_source,
         )
         digest = _write_create_once(args.output, value)
         print(json.dumps({"week_intent": str(args.output), "sha256": digest}))
     elif args.command == "publish-week":
-        uri = _week_uris(args.week)["freeze_intent"]
+        intent = _load_canonical(args.intent, label="weekly intent")
+        if not isinstance(intent, dict) or set(intent) != _WEEK_INTENT_KEYS:
+            raise ShadowTransportError("weekly shadow intent schema differs")
+        client = storage.Client(project=PROJECT)
+        deployment, _ = _load_remote_deployment(
+            client, intent["deployment_object"]
+        )
+        panel_source_receipt, observed_source = _download_panel_source_receipt(
+            client,
+            receipt_object=intent["panel_source_receipt_object"],
+            deployment=deployment,
+            deployment_object=intent["deployment_object"],
+        )
+        if observed_source != intent["panel_source_receipt_object"]:
+            raise ShadowTransportError("panel-source receipt generation differs")
+        intent = _validate_week_intent(
+            intent,
+            deployment=deployment,
+            panel_source_receipt=panel_source_receipt,
+        )
+        week = int(intent["week"])
+        uri = _week_uris(week)["freeze_intent"]
         value = _publish_json(args.intent, uri=uri)
         _write_create_once(args.receipt, {
-            "version": "b1-corpus-tail-shadow-week-intent-receipt-v1",
+            "version": "b1-corpus-tail-shadow-week-intent-receipt-v2",
             "season": SEASON,
-            "week": args.week,
+            "week": week,
             "object": value,
         })
         print(json.dumps(value, sort_keys=True))

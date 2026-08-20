@@ -298,7 +298,7 @@ agent or developer:
 - The conditional B1 2026 shadow transport is also prepared in three isolated
   files, without integrating or deploying it while A2a owns the frozen shared
   build surface. `scripts/run_b1_corpus_tail_shadow_transport.py` (SHA-256
-  `df60f08b...`) independently authenticates the exact pushed historical pass,
+  `45a09633...`) independently authenticates the exact pushed historical pass,
   portable model and lease closure; freezes one create-only pre-lock receipt
   for each exact 2026 Week 1--6; binds one create-only post-settlement score
   artifact per frozen week; and feeds only the six generation-pinned pairs to
@@ -306,20 +306,30 @@ agent or developer:
   the build validator now requires the repository's exact three step IDs,
   including `smoke-atlas-mvp-runner`, and treats direct-Git commit
   substitutions as optional-but-exact when present rather than requiring a
-  field the real submit path does not emit. `scripts/cloud_b1_corpus_tail_shadow.sh`
+  field the real submit path does not emit. The prospective week boundary now
+  generation-pins the producer's create-once receipt object and independently
+  validates its exact body, query chronology and panel/source census; season,
+  week, lock, snapshot, draft group and canonical/companion panel identities
+  are derived from that receipt rather than caller arguments. `prepare-week`
+  accepts the deployment evidence plus `--panel-source-receipt-object`, and
+  `publish-week` derives its target week from the frozen intent.
+  `scripts/cloud_b1_corpus_tail_shadow.sh`
   (SHA-256 `da8b7f35...`) is reuse-only and persists an inert job with
   `CORPUS_TAIL_SHADOW_ENABLED=0`; every weekly freeze, settlement and adoption
   execution is explicit, strict-terminal and no-retry. Focused plus standing
-  B1 validation is 42/42, with compile, shell syntax, CLI help and whitespace
-  checks green. It cannot deploy before a committed B1 historical pass and a
+  B1 validation is 85/85, with compile, CLI help and whitespace checks green.
+  The launcher still has the old week/lock/panel calling convention and must be
+  aligned to the producer-receipt CLI during later shared integration. It
+  cannot deploy before a committed B1 historical pass and a
   real outcome-blind smoke over the actual 2026 candidate-panel shape. A
   prospective producer for the canonical/companion `replay_candidates_staging`
   panels and `slate_player_features` remains the explicit upstream requirement;
   the transport does not invent or schedule that producer. Later integration
   must add the two scripts to Docker/Cloud Build, add their ledger shapes to
   `chain_status.sh`, select and pin one idle unscheduled existing job for the
-  six-week lane, and keep launch default-off until the Week 1 panel IDs and
-  lock time exist. No shared file, cloud resource, data or outcome was touched.
+  six-week lane, and keep launch default-off until the Week 1 producer receipt
+  and lock time exist. No shared file, cloud resource, data or outcome was
+  touched.
 - The previously missing outcome-blind prospective panel producer is now
   prepared separately at `scripts/run_b1_corpus_tail_panel_producer.py`
   (SHA-256 `a3fd995e...`). No existing command met the frozen B1 source shape:
