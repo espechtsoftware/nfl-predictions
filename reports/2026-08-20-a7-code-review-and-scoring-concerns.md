@@ -561,3 +561,74 @@ first: if they land materially negative as the census projects, the
 correct disposition is that the dose is wrong, not that the mechanism
 family is closed — and the re-dose belongs on the score-free census,
 where iteration costs no outcome exposure.
+
+---
+
+## Addendum 5 (2026-08-20): the A2a realized-law result, and a finding worth acting on
+
+The remeasurement completed and was harvested cleanly
+(`f2b7cf9`, disposition **`dependence-premise-miss`**). The lease was
+released. Result:
+
+| Cell | before repair | after repair | class now |
+|---|---|---|---|
+| multiplicity ≥2 | +0.259 | +0.251 | material miss |
+| multiplicity ≥3 | +0.744 | **+0.038** | inconclusive |
+| multiplicity ≥4 | +1.648 | **+0.128** | inconclusive |
+| QB–RB | +1.167 | **+0.131** | inconclusive |
+| QB–WR | −0.261 | **−0.016** | inconclusive |
+| TE–TE | +1.343 | +0.704 | inconclusive |
+| RB–RB | +1.488 | +0.704 | material miss |
+| **QB–TE** | +0.239 *(inconclusive)* | **−0.913** | **material miss** |
+| **WR–WR** | +0.691 | **−1.150** | **material miss** |
+
+**Balanced read.** Material misses fell from eight to four, and the
+targeted cell landed almost perfectly (QB–WR −0.016). That is real
+progress and the mechanism works. But the repair *manufactured* a
+material miss in QB–TE — the one cell previously classified
+inconclusive — and drove WR–WR to a larger absolute defect than it had
+before (+0.691 → −1.150). The law is better on count and worse in two
+specific places, which is why the disposition is still
+`dependence-premise-miss`.
+
+### The finding: the free census predicted this exactly
+
+Addendum 3 projected the post-repair position of every cell from the
+score-free census, with an explicit caveat that different populations
+made the numbers "indicative rather than exact." Comparing that
+projection against the measured result:
+
+| Cell | projected | measured |
+|---|---|---|
+| multiplicity ≥2 / ≥3 / ≥4 | +0.251 / +0.038 / +0.128 | +0.251 / +0.038 / +0.128 |
+| QB–WR / QB–RB / QB–TE | −0.016 / +0.131 / −0.913 | −0.016 / +0.131 / −0.913 |
+| WR–WR / RB–RB / TE–TE | −1.150 / +0.704 / +0.704 | −1.150 / +0.704 / +0.704 |
+
+**All nine cells match to three decimals.** My caveat was unnecessary;
+the populations align exactly.
+
+That has a concrete consequence worth adopting: for *dose evaluation*,
+the outcome-bearing remeasurement added **no information** beyond what
+the score-free census already contained. The census movement plus the
+prior position determines the post-repair position deterministically.
+
+**Recommendation:** evaluate future doses entirely on the score-free
+census, and spend the outcome-bearing remeasurement only to CONFIRM a
+dose that the census already shows landing every cell in band. This is
+not a corner-cut — it is the same arithmetic, computed without holding
+the historical-outcome lease, without consuming a one-shot, and without
+the watcher/lease incident risk that this run demonstrated. It also
+makes dose iteration cheap enough that the overshoot in WR–WR and QB–TE
+can be fixed properly rather than accepted.
+
+### Standing recommendation for the next dose
+
+Unchanged from Addendum 3, now with measured targets rather than
+projections. QB–WR needs almost none of its current allocation
+(−0.016 means the one-hot dose could be cut substantially and still
+clear), and that same reduction is what would relieve WR–WR. QB–TE needs
+protection, and RB–RB / multiplicity ≥2 need more attenuation than 0.5
+delivers. A position-aware dose evaluated on the census should be able
+to land all nine cells without another outcome-bearing run — and the
+evidence above says the census will tell you whether it has, before you
+spend anything.
