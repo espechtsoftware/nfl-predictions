@@ -131,6 +131,18 @@ agent or developer:
   `historical_remeasurement_licensed=true`; exact-80, exact-one, prospective,
   and production licenses remain false. The human result record is
   `reports/2026-08-20-a2a-rank-factor-split-scorefree-result.md`.
+- The missing all-valid-union winner comparison is now frozen as the one-shot
+  descriptive protocol
+  `reports/2026-08-20-b1-winner-relative-census-protocol.md` (SHA-256
+  `bb5851e38ae6a2934fc791997916ce6d1f7be46187d1263682ff15b70725ff03`).
+  Its exact outcome-blind `2023-W1` real-artifact smoke reproduced 51 panels,
+  13,008 candidate rows, 4,080 selected rows, and 773 catalog rows without
+  selecting `actual` or `actual_score`; receipt SHA-256 is `520310de…`.
+  Focused validation is 4/4 green. The frozen full read will compare only the
+  127,778 actually generated legal B1-union rosters with the 51 matched Milly
+  winners, preserving source/selected/anatomy and keeping H/P/world optima
+  categorically separate. It is descriptive and licenses no rule or model
+  change.
 
 **Scientific queue and next concrete action.** Do not build A7 v2 now. The
 single A2a dose is now frozen before treatment output in
