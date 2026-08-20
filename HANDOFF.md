@@ -253,6 +253,19 @@ agent or developer:
   authorize its real-artifact outcome-blind smoke and later freeze. No A2a
   miss may be repaired into this arm, and no bring-back/spread/ownership/world
   variant is bundled with it.
+- The B1 corpus-tail historical transport is prepared in four isolated files
+  without changing Docker, Cloud Build or monitoring bytes used by the active
+  A2a run. Launcher SHA-256 is `b28ac559…`, finisher `194f96be…`, watcher
+  `b1c9b98f…`, and transport tests `8186984c…`. It hard-requires a committed,
+  pushed A2a terminal closure; only then may it reuse the exact idle/unscheduled
+  `atlas-minimal-c-s2023-w1-v1` UID. It binds the exact direct-Git build and
+  current lease, checks both result and runner-owned attempt prefixes empty,
+  uses one task with `maxRetries=0`, harvests only after strict terminal
+  metadata, generation-pins the report, independently replays every candidate
+  and exact-80 gate, and closes the lease crash-safely without retry. Transport
+  plus frozen science/runner validation is 25/25 green; compile, shell syntax,
+  help and diff checks are green. No shared integration, build, job update,
+  lease or outcome action is licensed before A2a closure is durable.
 
 **Scientific queue and next concrete action.** Do not build A7 v2 now. The
 single A2a dose is now frozen before treatment output in
