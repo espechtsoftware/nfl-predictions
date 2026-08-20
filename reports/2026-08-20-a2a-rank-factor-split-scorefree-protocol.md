@@ -1,8 +1,19 @@
 # A2a half-residualized, one-hot QB-WR rank factor split
 
-**Protocol ID:** `20260820-a2a-rank-factor-split-scorefree-v1`
+**Protocol ID:** `20260820-a2a-rank-factor-split-scorefree-v2`
 
-**Status:** FROZEN before treatment output
+**Status:** FROZEN after an outcome-blind support amendment and before any
+treatment output
+
+**V1 support disposition:** V1 reached one real-artifact preflight and stopped
+before returning or inspecting a treatment because the locked catalog contains
+teams with multiple projection-eligible QBs. The outcome-blind catalog census
+found 1,194 team-slate groups: 1,041 have exactly one eligible QB and at least
+two eligible WRs; 118 have multiple eligible QBs (116 of those have at least
+two eligible WRs); 28 have no eligible QB; and seven have exactly one eligible
+QB but fewer than two eligible WRs. V1 produced no receipt, treatment metric,
+lineup, score, or outcome read. V2 makes only the support rule below explicit;
+the formula, dose, estimands, and decision gates are unchanged.
 
 **Scope:** outcome-free mechanism census only. This protocol cannot query
 realized player scores, construct or select lineups, score a historical book,
@@ -56,14 +67,18 @@ and any equivalent post-lock label. The runner must contain no outcome query.
 
 Within each block, group the exact eligible rows by
 `(season, week, team)`, sorted canonically. A group is transform-eligible only
-when it has exactly one eligible QB and at least two eligible WRs. Rows outside
-an eligible group, the QB row inside an eligible group, and every ineligible
-catalog/artifact row remain bit-exact.
+when it has exactly one eligible QB and at least two eligible WRs. Groups with
+zero or multiple eligible QBs, groups with fewer than two eligible WRs, the QB
+row inside an eligible group, and every ineligible catalog/artifact row remain
+bit-exact. This matches the registered G0 conditional estimator, which forms
+QB teammate cells only for groups containing exactly one eligible QB. V2 does
+not choose a presumed starter from projection rank or any other unfrozen
+field.
 
 Canonical WR order is ascending `(player_id, source_row_index)`. Any duplicate
-player-slate key, ambiguous QB group, misaligned player universe, missing row,
-nonfinite draw, noncanonical block/slate order, or non-10,000-world artifact is
-terminal invalidity.
+player-slate key, misaligned player universe, missing row, nonfinite draw,
+noncanonical block/slate order, or non-10,000-world artifact is terminal
+invalidity.
 
 ### 3.2 Stable open-unit ranks
 
