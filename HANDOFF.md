@@ -232,10 +232,14 @@ agent or developer:
   crash-safe lease closure. Focused transport is 11/11 and the standing A2a/G0
   set is 66/66; compile, shell syntax, CLI help, build-step parity and
   diff-check are green. Independent final review is GO with no blocker/high
-  issue. No build, Cloud Run update/execution, outcome query or result read has
-  occurred for this remeasurement. Next: commit/push these exact bytes, run
-  the direct-Git build, prepare/review/commit its immutable manifest, then let
-  the existing live gates launch exactly once.
+  issue. Source is committed/pushed at
+  `c088dc2636825db3016d00a4b53498b06bca00e6`. Exact direct-Git Cloud Build
+  `50f7858d-9b83-4654-8f22-f3a41ce91e7a` was created at
+  `2026-08-20T19:19:15Z` and is running the full test step against that exact
+  resolved revision with tag `a2a-remeasurement-c088dc2`. No Cloud Run
+  update/execution, outcome query or result read has occurred. Next: harvest
+  the terminal build; on exact success, prepare/review/commit its immutable
+  manifest, then let the existing live gates launch exactly once.
 
 **Scientific queue and next concrete action.** Do not build A7 v2 now. The
 single A2a dose is now frozen before treatment output in
