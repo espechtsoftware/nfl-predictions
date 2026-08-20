@@ -11,7 +11,6 @@ from typing import Any
 import pytest
 
 import close_stack_relaxation_carve_post_open as recovery
-import finish_a7_select_ladder as finish_a7
 import finish_stack_relaxation_carve as strict
 
 
@@ -200,9 +199,7 @@ def test_post_open_closure_is_ordered_byte_exact_and_idempotent(
         path.name: _sha(path.read_bytes())
         for path in (synthetic.out / "cells").glob("*.json")
     }
-    release = finish_a7._validate_a3_release(
-        synthetic.out / recovery.RELEASE_NAME
-    )
+    release = recovery._validate_release(synthetic.out)
     assert release["strict_harvest_completed_before_read"] is False
     assert release["a3_result_transport_to_a7_licensed"] is False
     synthetic.events.clear()
@@ -373,10 +370,10 @@ def test_release_v1_extra_and_license_poison_fail(
         poisoned = dict(valid)
         mutate(poisoned)
         path.write_bytes(recovery._canonical(poisoned))
-        with pytest.raises(RuntimeError, match="A3 logical release"):
-            finish_a7._validate_a3_release(path)
+        with pytest.raises(RuntimeError, match="A3 recovery logical release"):
+            recovery._validate_release(synthetic.out)
     path.write_bytes(recovery._canonical(valid))
-    finish_a7._validate_a3_release(path)
+    recovery._validate_release(synthetic.out)
 
 
 def test_embedded_closure_type_hash_nested_and_chronology_poisons_fail(
@@ -396,8 +393,8 @@ def test_embedded_closure_type_hash_nested_and_chronology_poisons_fail(
                 recovery._canonical(poisoned["forensic_closure_receipt"])
             )
         path.write_bytes(recovery._canonical(poisoned))
-        with pytest.raises(RuntimeError, match="A3 (forensic|logical release)"):
-            finish_a7._validate_a3_release(path)
+        with pytest.raises(RuntimeError, match="A3 recovery"):
+            recovery._validate_release(synthetic.out)
 
     assert_rejected(
         lambda row: row["forensic_closure_receipt"]["cells"].update(extra=1)
@@ -427,7 +424,7 @@ def test_embedded_closure_type_hash_nested_and_chronology_poisons_fail(
         refresh_closure_sha=False,
     )
     path.write_bytes(recovery._canonical(valid))
-    finish_a7._validate_a3_release(path)
+    recovery._validate_release(synthetic.out)
 
 
 def test_frozen_preopen_material_hashes_and_original_result_are_exact() -> None:

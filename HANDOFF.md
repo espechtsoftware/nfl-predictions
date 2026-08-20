@@ -24,7 +24,8 @@ agent or developer:
 
 ### A3 post-open recovery is locally proof-green; A7 governance is rebound; no cloud action yet
 
-- Branch `main`, based on pushed `d65c446a8c2a54842816aaaf94665b22f890cd13`.
+- Branch `main`; the recovery source lock is pushed at
+  `4b0a1c530f8c1d592bdd06074a57254c55854fb1`.
   A3's negative result is already committed at
   `56b09e960e5445cc7cd54c22eceef7cb5e7ec8c0`: exact 54 cells, 53 paired S
   endpoints, aggregate SHA-256 `2e08a551…`, result report SHA-256 `b8ae2d26…`.
@@ -79,7 +80,7 @@ A2a QB-WR/generic same-team dependence repair passes. Cross-team bring-back,
 spread, residual worlds, and ownership are separate later questions. Never fit
 winner-frequency quotas on the same 2023–2025 grading corpus.
 
-**Next concrete action.** Commit/push these exact recovery bytes; create and
+**Next concrete action.** Commit/push the test-boundary follow-up; create and
 commit the operator implementation-freeze manifest against that source commit;
 hard-pin its identities in A7; rerun the focused suite; then execute the A3
 read-only forensic closure and commit/push its durable v2 release. Only after
@@ -87,6 +88,10 @@ that release may orchestration build A7 from the exact remote commit and run,
 strictly serialized, real-artifact smoke -> all-54 support census -> external
 freeze -> one historical arm. Use only `atlas-minimal-c-s2023-w1-v1`; never
 `deploy_jobs.sh`, never B1's job/scheduler, and never overlap outcome arms.
+
+The recovery test suite now validates its own producer contract; the separate
+A7 finisher suite validates the exact cross-arm handoff. This avoids a circular
+test fixture while retaining both boundaries as fail-closed gates.
 
 ## Prior state — 2026-08-20 03:59 CDT
 
