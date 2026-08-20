@@ -76,8 +76,19 @@ agent or developer:
   before create-once publication and pins the transitive paired-statistics
   implementation (`9d2f5e9e…`). `py_compile`, `bash -n`, and
   `git diff --check` are green.
-  No GCP resource, warehouse query, CBC/simulation, scheduler, lease, or outcome
-  arm was launched in this milestone.
+  That local validation touched no GCP resource, warehouse query, scheduler,
+  lease, or outcome arm.
+- First exact-source A7 Cloud Build
+  `15cbdb37-f12b-4366-b6db-1beaf02ad134` used commit `091bd4d9…` and was
+  operator-cancelled at 63% after it was already red, immediately before the
+  known long exact-pricing section. No image was built. All ten early failures
+  localized to the A3 recovery test file: its synthetic aggregate fixture was
+  unintentionally sensitive to Cloud Build's newer numeric dependencies, and
+  one local-provenance assertion assumed historical Git objects that the
+  direct-Git checkout does not retain. Production recovery and its durable
+  receipts were unaffected. The narrow test-only repair freezes the synthetic
+  aggregate value and skips only the unavailable historical-object assertion;
+  local full-history validation remains active.
 
 **Construction/winner-law disposition.** The requested review is incorporated
 in `reports/2026-08-20-construction-law-findings-and-relaxation-recommendation.md`.
@@ -91,8 +102,9 @@ A2a QB-WR/generic same-team dependence repair passes. Cross-team bring-back,
 spread, residual worlds, and ownership are separate later questions. Never fit
 winner-frequency quotas on the same 2023–2025 grading corpus.
 
-**Next concrete action.** Commit/push the durable A3 closure and v2 release.
-Then build A7 from that exact remote commit and run,
+**Next concrete action.** Commit/push the Cloud-Build-compatible recovery test
+fixture, rerun its focused/archive gates, then rebuild A7 from that exact remote
+commit and run,
 strictly serialized, real-artifact smoke -> all-54 support census -> external
 freeze -> one historical arm. Use only `atlas-minimal-c-s2023-w1-v1`; never
 `deploy_jobs.sh`, never B1's job/scheduler, and never overlap outcome arms.

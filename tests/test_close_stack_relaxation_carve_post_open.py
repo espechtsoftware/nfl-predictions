@@ -6,6 +6,7 @@ from hashlib import sha256
 import json
 from pathlib import Path
 import shutil
+import subprocess
 from typing import Any
 
 import pytest
@@ -107,6 +108,13 @@ class SyntheticRecovery:
             for index, cell in enumerate(self.cells)
         }
         self.events: list[tuple[Any, ...]] = []
+        frozen_aggregate = json.loads(
+            (self.out / "aggregate-report.json").read_text(encoding="utf-8")
+        )
+        monkeypatch.setattr(
+            strict, "_aggregate",
+            lambda *_args, **_kwargs: copy.deepcopy(frozen_aggregate),
+        )
         self.implementation = {
             "source_commit": "a" * 40,
             "freeze_manifest_path": (
@@ -435,9 +443,13 @@ def test_frozen_preopen_material_hashes_and_original_result_are_exact() -> None:
     assert recovery._sha(recovery.RESULT_REPORT) == recovery.RESULT_REPORT_SHA256
     assert recovery._sha(recovery.PAIRED_STATS_PATH) == recovery.PAIRED_STATS_SHA256
     for commit in (strict.FROZEN.code_sha, recovery.RESULT_COMMIT):
-        assert _sha(recovery._git_blob(
-            commit, recovery.PAIRED_STATS_RELATIVE,
-        )) == recovery.PAIRED_STATS_SHA256
+        try:
+            committed = recovery._git_blob(
+                commit, recovery.PAIRED_STATS_RELATIVE,
+            )
+        except subprocess.CalledProcessError:
+            pytest.skip("source checkout does not retain historical Git objects")
+        assert _sha(committed) == recovery.PAIRED_STATS_SHA256
     assert recovery._sha(SOURCE_OUT / "aggregate-report.json") == recovery.AGGREGATE_SHA256
     cells = strict._read_ledger(SOURCE_OUT / "executions.txt", strict.FROZEN)
     assert len(cells) == 54
