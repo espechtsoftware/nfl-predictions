@@ -214,15 +214,23 @@ PYE
            gsutil -q stat "$prefix/aggregate-report.json" 2>/dev/null \
         || gsutil -q stat "${prefix%/*}/aggregate-report.json" 2>/dev/null; }; }
     then agg=PRESENT; else agg=pending; fi
-    # Aggregate present means finished however fresh the ledger looks;
-    # only an unaggregated recent ledger is still running.
-    if [ "$agg" = PRESENT ]; then tag=done
+    execution_state=""
+    if [ -n "$execution" ] && [ -s "$CACHE/execs" ]; then
+      execution_state=$(awk -F '\t' -v target="$execution" \
+        '$1 == target {print $2; exit}' "$CACHE/execs")
+    fi
+    # A terminal cloud failure takes precedence over ledger age. Aggregate
+    # present means finished however fresh the ledger looks; only a recent,
+    # nonterminal ledger is still active.
+    if [ "$execution_state" = False ]; then tag=FAILED
+    elif [ "$agg" = PRESENT ]; then tag=done
     elif [ "$age" -lt "$GRID_WINDOW" ]; then tag=ACTIVE
     else tag=stalled; fi
     done_n="?"
     if [ "$(awk 'NR==1 {print NF}' "$ledger" 2>/dev/null)" = 3 ]; then
       if [ "$agg" = PRESENT ]; then done_n=1
       elif [ -n "$uri" ] && gsutil -q stat "$uri" 2>/dev/null; then done_n=1
+      elif [ "$execution_state" = False ]; then done_n=0
       fi
     elif [ -n "$prefix" ]; then
       done_n=$(gsutil ls "$prefix/slate-*.json" 2>/dev/null | wc -l | tr -d ' ')
@@ -429,7 +437,7 @@ render() {
   echo
   echo "${B}CHAINS${N}"
   if [ -z "$procs" ]; then
-    local active_build=""
+    local active_build="" active_execution=""
     if [ -s "$CACHE/builds" ]; then
       active_build=$(awk -F '\t' '$2 == "WORKING" || $2 == "QUEUED" {
         image=$3; sub(/^.*:/, "", image)
@@ -439,8 +447,18 @@ render() {
     if [ -n "$active_build" ]; then
       fit "  ${Y}●${N} cloud build active: $active_build ${D}— see CLOUD BUILDS below${N}"
       echo
+    elif [ -s "$CACHE/execs" ]; then
+      active_execution=$(awk -F '\t' '$2 != "True" && $2 != "False" {
+        print $1; exit
+      }' "$CACHE/execs")
+      if [ -n "$active_execution" ]; then
+        fit "  ${Y}●${N} cloud execution active: $active_execution ${D}— see JOB EXECUTIONS below${N}"
+        echo
+      else
+        echo "  ${D}no local chain process or active cloud work${N}"
+      fi
     else
-      echo "  ${D}no local chain process or active cloud build${N}"
+      echo "  ${D}no local chain process or active cloud work${N}"
     fi
   else
     while read -r pid etime rest; do
@@ -586,10 +604,12 @@ PYB
     fi
   done
   if [ "$live_shown" = 0 ]; then
-    if [ -s "$CACHE/builds" ] && awk -F '\t' \
-        '$2 == "WORKING" || $2 == "QUEUED" {found=1} END {exit !found}' \
-        "$CACHE/builds"; then
-      echo "  ${D}no local watcher yet; active cloud-build progress is shown above${N}"
+    if { [ -s "$CACHE/builds" ] && awk -F '\t' \
+          '$2 == "WORKING" || $2 == "QUEUED" {found=1} END {exit !found}' \
+          "$CACHE/builds"; } || { [ -s "$CACHE/execs" ] && awk -F '\t' \
+          '$2 != "True" && $2 != "False" {found=1} END {exit !found}' \
+          "$CACHE/execs"; }; then
+      echo "  ${D}no local watcher yet; active cloud progress is shown above${N}"
     else
       echo "  ${D}no local watcher has emitted an event yet${N}"
     fi

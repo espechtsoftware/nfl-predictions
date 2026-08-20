@@ -344,3 +344,34 @@ single-stack dose under that repaired law. Bring-back removal, max-game spread,
 ownership, and residual-world pricing remain separate experiments. This keeps
 the redesign focused on producing more winner-like roster composition without
 claiming that descriptive winner frequencies are an oracle.
+
+---
+
+## 8. Execution update: the winner-law path is now the active queue
+
+A7 v1 subsequently failed its one-slate outcome-blind smoke while hashing the
+player-source query. The frozen player table contains 439 SQL NULL projections
+among 30,044 rows; the receipt rejected their pandas NaN representation before
+any outcome query or scientific output. This is neither an A7 score result nor
+evidence against its utility. V1 is closed with no retry, and a fresh A7
+protocol is deferred rather than allowed to displace the higher-priority law
+work. Exact evidence is recorded in
+`reports/2026-08-20-a7-outcome-blind-smoke-failure-and-queue-disposition.md`.
+
+The queued tests now align with the winner evidence in the following limited,
+scientific sense:
+
+1. A2a first tests whether the simulator can reduce generic teammate
+   over-coupling while increasing the specifically under-coupled QB–WR cell,
+   without changing player marginals.
+2. The prepared exact-one arm then tests the winners' modal QB construction
+   shape without copying winner frequencies into a fitted quota and without
+   simultaneously removing bring-backs.
+3. Only a later, separate cross-team dependence census can justify a
+   bring-back relaxation.
+
+What is *not* in the active queue is equally important: no wholesale rule
+removal, no naked-QB redo, no ownership template, no 230/240 world chase, and
+no production change. The tests are designed to discover whether a narrow
+winner-like construction improves the exact-80 book—not to force historical
+winners to appear in-sample.

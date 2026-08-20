@@ -252,3 +252,45 @@ The smoke did its job: it failed before the real grid, and it cost
 nothing. That is the rule-1 reality smoke working as designed. The
 concern is only that the failure mode would have recurred mid-grid with
 the lease held.
+
+---
+
+## Correction after terminal state (2026-08-20 10:11 CDT)
+
+The addendum above was correct about the **first poll** but wrong about the
+eventual execution result. The empty `conditions` array was a transient
+polling/parser defect. The same execution later became terminal with exactly
+one `Completed=False` condition and `failedCount=1`; it therefore must not be
+harvested as a successful smoke or relaunched.
+
+The terminal traceback is a separate, outcome-blind input-contract failure:
+
+```text
+RuntimeError: A7 source query contains a non-finite value
+```
+
+It occurred while constructing the canonical `player_source` query receipt.
+An independent read-only census of the frozen `phase-s-cbwu-54` player corpus
+found 30,044 rows, including 439 SQL `NULL` values in `mean_projection`, no
+non-null NaN/Inf projections, and no null salary/name/position/team/opponent/
+game fields. Pandas represents those SQL nulls as NaN, while the downstream
+CBWU lineup reconstruction already maps a non-finite projection to `0.0`.
+The A7 receipt rejected that representation before reaching the reconstruction.
+
+Cloud evidence at the terminal boundary:
+
+- execution `atlas-minimal-c-s2023-w1-v1-6qfpk`, completion
+  `2026-08-20T15:00:41.442723Z`;
+- exact task result: zero successes, one failure, zero retries by the frozen
+  `maxRetries=0` contract;
+- the A7 prefix contains only the 1,026-byte create-once job claim—no smoke,
+  support, freeze, or historical-result object;
+- the historical-outcome lease is absent; no realized-score query or
+  historical look occurred.
+
+Accordingly, v1 is `invalid-outcome-blind-preflight-closed-no-retry`. The
+polling parser should be fixed before a future cloud arm, but that fix cannot
+rescue this execution. Normalizing the player-source query would change a
+bound input receipt and would require a fresh A7 protocol/run/build/preflight.
+That repair is not the current priority: the dependence-law mechanism and the
+prepared exact-one stack arm are closer to the winner-structure question.
