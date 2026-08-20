@@ -20,7 +20,76 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-20 08:37 CDT
+## Current state — 2026-08-20 10:16 CDT
+
+### A7 v1 is closed at its outcome-blind smoke; A2a is now the active research lane
+
+- Branch `main`. The winner-law queue and outcome-blind A7 closure are recorded
+  in commit `5936e00ed9602b838832167f345be50bb53542ad`. This supersedes the
+  earlier current-state instruction to continue A7 v1. The independently added
+  review at `73e845c…` correctly identified the first-poll `conditions=[]`
+  parser bug, but its statement that nothing was wrong with the execution was
+  later falsified by the execution's terminal state; the correction is now
+  inline in `reports/2026-08-20-a7-code-review-and-scoring-concerns.md`.
+- Replacement exact-source Cloud Build
+  `3503c493-60d5-4fe6-a853-583679c8e33d` completed successfully from
+  `96f4487bdefa297f66d03e4aca896728581540b2`. The full test step, image
+  build, and image smoke all passed. Immutable image:
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:9956f2b4444bc60255c29a1844c23a1f772d6b0c85ae1a532e032ece975e86ed`.
+- A7 v1 created its one durable job claim (generation
+  `1787237723143509`, SHA-256 `3a8d4a25…`) and launched exactly one
+  outcome-blind smoke execution:
+  `atlas-minimal-c-s2023-w1-v1-6qfpk`. The launcher's first poll saw no
+  `Completed` condition and incorrectly called the metadata malformed. The
+  retained Cloud Run execution continued and later became strict terminal
+  `Completed=False`, failed count 1, at `2026-08-20T15:00:41.442723Z`.
+  Do not call the success-only `finish-preflight` path and do not relaunch v1.
+- The terminal traceback is a separate input-receipt failure while hashing the
+  raw player query: `RuntimeError: A7 source query contains a non-finite
+  value`. A read-only frozen-corpus census found 30,044 player rows, 439 SQL
+  NULL `mean_projection` values, zero non-null NaN/Inf values, and zero nulls
+  in the other required fields. The shared reconstruction maps those missing
+  projections to `0.0`, but A7's raw canonical receipt rejected the pandas NaN
+  first. Normalizing that source would require a fresh A7 protocol/run/build;
+  it may not repair or retry v1.
+- The exact v1 cloud prefix contains only the 1,026-byte create-once job claim.
+  No smoke result, smoke terminal, support census, freeze manifest, or
+  historical result exists. The historical-outcome lease is definitively
+  absent. No realized-score query ran and no historical look was consumed.
+  Durable disposition is
+  `invalid-outcome-blind-preflight-closed-no-retry`; full evidence and literal
+  false licenses are in
+  `reports/2026-08-20-a7-outcome-blind-smoke-failure-and-queue-disposition.md`.
+- `scripts/chain_status.sh` now reports cloud work even without a local watcher
+  and shows this terminal preflight as `FAILED 0/1`, not `ACTIVE ?/1`. A fresh
+  authenticated one-shot refresh shows build `3503c493…` SUCCESS, execution
+  `…-6qfpk` FAILED, and the outcome lease free. `bash -n` and
+  `git diff --check` are green. The lower-priority cross-machine portability
+  backlog remains; do not let it displace the science queue.
+- Production construction is unchanged. The default-off exact-one seam
+  `SINGLE_STACK_BOOM_SOLVES` remains locally prepared and 59/59 focused-green.
+  It is a clean test of the winners' modal one-partner QB shape because it
+  holds bring-back, salary, RB/DST, game, budget, worlds, and selector fixed.
+  It is not frozen or licensed to run until the same-team dependence law is
+  repaired and passes its score-free mechanism gate.
+
+**Scientific queue and next concrete action.** Do not build A7 v2 now. Freeze
+one executable A2a same-team dependence intervention before observing its
+treatment output, then implement only a pure research transform and simulated-
+world census. The minimum mechanism must preserve every player's exact
+marginal draw multiset, reduce the generic same-team source, add a sparse
+QB-to-WR-specific source, remain deterministic/non-vacuous, and demonstrate
+QB-WR co-boom moving up without increasing protected generic multiplicity,
+WR-WR, QB-RB, RB-RB, or TE-TE cells. There is currently no A2a code, lever,
+runner, or test; the exact attenuation/allocation dose is the one unresolved
+preimplementation choice and must be preregistered rather than tuned. Only a
+passing score-free census may unlock the already-prepared exact-one historical
+arm. Cross-team bring-back, ownership/duplication, residual worlds, and A7 v2
+remain separate later questions. Never use broad `deploy_jobs.sh`; do not touch
+B1's job/scheduler; verify the reused job is idle and the shared lease absent
+before any future cloud phase.
+
+## Prior state — 2026-08-20 08:37 CDT
 
 ### A3 post-open recovery is complete; A7 is next in the serialized queue
 
