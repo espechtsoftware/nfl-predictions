@@ -700,7 +700,7 @@ while :; do
     | sed $'s/$/\033[K/'
   printf '\033[J'
   scroll_note=""
-  [ "$max_offset" -gt 0 ] && scroll_note="↑↓/jk scroll $((OFFSET + 1))-$((OFFSET + view_rows > total ? total : OFFSET + view_rows))/${total} · "
+  [ "$max_offset" -gt 0 ] && scroll_note="↑↓/jk scroll · [0]top · $((OFFSET + 1))-$((OFFSET + view_rows > total ? total : OFFSET + view_rows))/${total} · "
   printf '%s' "${D}  [q]uit · [r]efresh · ${scroll_note}[1-6] build · [a-h] execution · [x] experiments · ${INTERVAL}s${N}"
   if read -r -N 1 -t "$INTERVAL" key; then
     # Arrow keys arrive as ESC [ A/B; consume the tail so a bare Escape
