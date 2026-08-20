@@ -1,0 +1,5 @@
+execution=atlas-minimal-c-s2023-w1-v1-wn9tq
+result_uri=gs://nfl-predictions-503414-raw/research/a2a-rank-factor-split-runs/20260820-a2a-rank-factor-split-scorefree-v2/result.json
+result_generation=1787248289501941
+result_sha256=86f72b40b714dd186dd81e698b390eb9e0d5dd3d7b5c96eb42c92f5d213c6774
+result_bytes=884522

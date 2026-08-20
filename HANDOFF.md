@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-20 12:39 CDT
+## Current state — 2026-08-20 12:58 CDT
 
-### A7 v1 is closed at its outcome-blind smoke; A2a is now the active research lane
+### A2a score-free mechanism passed; one realized-law remeasurement is next
 
 - Branch `main`. The winner-law queue and outcome-blind A7 closure are recorded
   in commit `5936e00ed9602b838832167f345be50bb53542ad`. This supersedes the
@@ -98,14 +98,15 @@ agent or developer:
   (tag `a2a-afdfe58-20260820`). No Cloud Run A2a job had been updated or
   executed at build completion. The build receipt was recorded and pushed in
   commit `5a3b6605e39481a232bae005c8a41181ca22ff5c`.
-- The one registered full 270-artifact A2a score-free census has now launched.
+- The one registered full 270-artifact A2a score-free census launched and
+  completed strict-green.
   It reuses only idle research job `atlas-minimal-c-s2023-w1-v1` (UID
   `d6e4b8c1-5950-46b7-8869-7e34dbf29ad2`, updated generation 10) and exact
   execution `atlas-minimal-c-s2023-w1-v1-wn9tq`. The immutable image is the
   digest above, the frozen code is `afdfe58d…`, and the post-update job-spec
   SHA-256 is `557d872458fe50b6fed1df869771d501f81ff9567f042b1ee6fa529f8b02c931`.
   It has one task, 4 CPU, 16 GiB, a 24-hour timeout and `maxRetries=0`.
-  The result target is create-only
+  The create-only result is
   `gs://nfl-predictions-503414-raw/research/a2a-rank-factor-split-runs/20260820-a2a-rank-factor-split-scorefree-v2/result.json`.
   Preconditions were independently green: exact successful build/source,
   frozen protocol/source lock, idle reused job, no active build/execution,
@@ -113,23 +114,37 @@ agent or developer:
   prefix. No partial treatment metric or realized outcome was inspected.
   The exact execution ledger is tracked under
   `reports/a2a-rank-factor-split-runs/20260820-a2a-rank-factor-split-scorefree-v2/`.
-  A detached outcome-blind watcher records strict terminal state and only
-  copies/hashes the result after strict success; `scripts/chain_status.sh`
-  reports the A2a score-free chain as active.
+  The execution completed at `2026-08-20T17:51:35.308407Z` with one success
+  and zero failures, cancellations, or retries. The watcher generation-pinned
+  sole object generation `1787248289501941` (metageneration 1), 884,522 bytes,
+  SHA-256 `86f72b40b714dd186dd81e698b390eb9e0d5dd3d7b5c96eb42c92f5d213c6774`.
+  An independent generation-qualified read reproduced the bytes and hash, and
+  replayed all 270 source identities, cell reports, five block aggregates,
+  exact gate decisions, execution contract, and license truth table.
+- Registered disposition is `a2a-scorefree-mechanism-passes`. Mechanical and
+  directional gates are all true. QB-WR conditional lift increased
+  `2.571824827 -> 3.285500472`; multiplicity `>=3` fell
+  `5,048,883 -> 2,493,589`; both moved in all five blocks. Multiplicity `>=2`
+  and `>=4`, QB-RB, QB-TE, WR-WR, RB-RB, and TE-TE are each no greater than
+  control. Exact marginals, q90 counts, deterministic replay, QB/unsupported
+  parity, and all 52,050,000 one-hot assignments pass. Only
+  `historical_remeasurement_licensed=true`; exact-80, exact-one, prospective,
+  and production licenses remain false. The human result record is
+  `reports/2026-08-20-a2a-rank-factor-split-scorefree-result.md`.
 
 **Scientific queue and next concrete action.** Do not build A7 v2 now. The
 single A2a dose is now frozen before treatment output in
 `reports/2026-08-20-a2a-rank-factor-split-scorefree-protocol.md`: subtract
 half the empirical team-rank source from every non-QB and allocate one full
 QB-rank source to exactly one WR per team-world, then remap only by exact row
-permutations. There is no grid or retune. That exact-source serialized full
-census is now the only active research execution. Poll only execution
-metadata; do not relaunch, retry, inspect a partial directional result, or
-touch the reused job. After strict terminal success, generation-pin and hash
-the one create-only result before reading its registered disposition. A census
-pass licenses only a
-separately frozen outcome-bearing A2a remeasurement; only a later law-shape
-pass may unlock the prepared exact-one historical arm. Cross-team bring-back,
+permutations. There is no grid or retune. The next action is the one separately
+frozen outcome-bearing A2a law-shape remeasurement now licensed by this
+result. It must keep the exact transform and dose, report exact skipped-group
+reasons and coverage, treat QB-WR overshoot beyond its registered realized
+target as a miss, and state that RB/TE receive attenuation only. Do not query
+outcomes or launch until that new protocol, runner, receipt schema, and tests
+are frozen. Only a law-shape pass may unlock the prepared exact-one historical
+arm. Cross-team bring-back,
 ownership/duplication, residual worlds, and A7 v2 remain separate later
 questions. Never use broad `deploy_jobs.sh`; do not touch B1's job/scheduler;
 verify the reused job is idle and the shared lease absent before the cloud
