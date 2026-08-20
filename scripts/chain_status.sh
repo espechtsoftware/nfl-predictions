@@ -45,7 +45,7 @@ fi
 GRID_WINDOW=$((12 * 3600))
 HEARTBEAT='status=WORKING|status=QUEUED|state=Unknown|WAITS_FOR'
 CHAIN_RE='watch_[a-z0-9_]+\.sh|drive_[a-z0-9_]+\.sh|repair_[a-z0-9_]+\.sh'
-CHAIN_RE="$CHAIN_RE"'|tally_[a-z_]+\.sh|cloud_[a-z0-9_]+chain\.sh'
+CHAIN_RE="$CHAIN_RE"'|tally_[a-z_]+\.sh|cloud_[a-z0-9_]+\.sh'
 
 WATCH=0
 INTERVAL=3
@@ -429,7 +429,19 @@ render() {
   echo
   echo "${B}CHAINS${N}"
   if [ -z "$procs" ]; then
-    echo "  ${D}no chain process running${N}"
+    local active_build=""
+    if [ -s "$CACHE/builds" ]; then
+      active_build=$(awk -F '\t' '$2 == "WORKING" || $2 == "QUEUED" {
+        image=$3; sub(/^.*:/, "", image)
+        printf "%s (%s)", image, substr($1, 1, 8); exit
+      }' "$CACHE/builds")
+    fi
+    if [ -n "$active_build" ]; then
+      fit "  ${Y}●${N} cloud build active: $active_build ${D}— see CLOUD BUILDS below${N}"
+      echo
+    else
+      echo "  ${D}no local chain process or active cloud build${N}"
+    fi
   else
     while read -r pid etime rest; do
       script=$(printf '%s' "$rest" | tr ' ' '\n' | grep -m1 '\.sh$')
