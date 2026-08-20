@@ -1,4 +1,4 @@
-# Dependence repair — design log (DRAFT, not frozen)
+# Dependence repair — design log (direction superseded by frozen A2a protocol)
 
 **Status:** design direction recorded 2026-08-19, same day as the
 remeasurement verdict. No law change is licensed; the remeasurement
@@ -6,6 +6,13 @@ disposition licenses only the sparse-ledger PROTOTYPE
 (`sparse_ledger_prototype_licensed=true`,
 `exact80_scoring_licensed=false`). Any adopted repair runs through the
 standard frozen one-shot discipline with its own protocol.
+
+**2026-08-20 disposition.** The first mechanism is now frozen, before any
+treatment output, in
+`reports/2026-08-20-a2a-rank-factor-split-scorefree-protocol.md`. It is one
+rank-space half-residualization plus one-hot QB-WR allocation dose with no
+grid. This design log remains the motivation record; the newer protocol is the
+binding scientific law.
 
 ## The measured target (remeasurement `20260817-…-v1`)
 
