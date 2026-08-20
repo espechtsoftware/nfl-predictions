@@ -33,21 +33,71 @@ HEADERS = {
 # which 0/180 groups sampled live on that date actually carried (see the
 # README's Data deficiency log). sportId is confirmed present and reliable.
 CFB_SPORT_ID = 5
+NFL_SPORT_ID = 1
+
+# DK tags its off-season Madden simulations as NFL and distinguishes them
+# only by league abbreviation (verified live 2026-08-20: 5 of 94 NFL-sportId
+# groups were SIM). A simulation is not a slate; the ingest must skip them.
+SIM_LEAGUE = "SIM"
 
 # rosterSlotIds seen on showdown slates (CPT/FLEX) differ from classic;
 # startTimeSuffix like "(Sun only)" marks the classic main slate variants.
 SHOWDOWN_GAME_TYPES = {"Showdown Captain Mode", "Madden Showdown Captain Mode"}
 
+# The only two DK products this pipeline prices. The same live check found
+# 62 of 94 NFL groups were Best Ball and a further 9 Snake/Pick6 — snake
+# drafts and pick-em, not salary-cap DFS, and ingesting them as slates
+# would pollute the salary history the whole system trains on.
+SUPPORTED_GAME_TYPES = {"Classic", "Showdown Captain Mode"}
+
 
 def nfl_draft_groups(session: requests.Session | None = None) -> list[dict[str, Any]]:
+    """Upcoming DK NFL draft groups this pipeline can actually price.
+
+    Filter corrected 2026-08-20 against the live endpoint (deficiency log
+    row 2026-07-31, which predicted exactly this and prescribed the fix).
+    Three facts about the real payload drove it:
+
+    * NO draft group carries a top-level ``sport`` key — the previous
+      ``g["sport"] == "NFL"`` test matched zero groups in any season, so
+      the hourly slate/salary ingest silently wrote nothing. ``sportId``
+      (1=NFL) is the reliable field, mirroring ``cfb_draft_groups``.
+    * DK tags Madden simulations as NFL; they are separated by their
+      league (``SIM``) and excluded here — a Madden sim is not a slate.
+    * Group entries carry only ``gameTypeId``; the human-readable names
+      live in the response's sibling ``gameTypes`` array. Resolving that
+      lets us keep only the two products the pipeline supports (Classic
+      and Showdown Captain Mode) and drop Best Ball / Snake / Pick6,
+      which are not salary-cap DFS at all. The resolved name is attached
+      as ``gameTypeDescription`` so :func:`classify_slate` — which reads
+      that key — classifies correctly instead of calling everything
+      classic.
+    """
     s = session or requests.Session()
     r = s.get(DK_GROUPS, headers=HEADERS, timeout=30)
     r.raise_for_status()
-    return [
-        g
-        for g in r.json().get("draftGroups", [])
-        if g.get("sport") == "NFL" and g.get("draftGroupState") == "Upcoming"
-    ]
+    payload = r.json()
+    names = {
+        entry.get("gameTypeId"): entry.get("name")
+        for entry in payload.get("gameTypes", [])
+    }
+    groups = []
+    for g in payload.get("draftGroups", []):
+        if g.get("sportId") != NFL_SPORT_ID:
+            continue
+        if g.get("draftGroupState") != "Upcoming":
+            continue
+        leagues = {
+            str(entry.get("leagueAbbreviation", "")).upper()
+            for entry in (g.get("leagues") or [])
+        }
+        if SIM_LEAGUE in leagues:
+            continue
+        name = g.get("gameTypeDescription") or names.get(g.get("gameTypeId"))
+        if name not in SUPPORTED_GAME_TYPES:
+            continue
+        groups.append({**g, "gameTypeDescription": name})
+    return groups
 
 
 def cfb_draft_groups(session: requests.Session | None = None) -> list[dict[str, Any]]:
@@ -191,6 +241,15 @@ def draftables_frame(gid: int, slate_type: str, payload: dict[str, Any]) -> pd.D
         # Nullable Int64 so BigQuery sees INT64, not FLOAT64 via NaN.
         for col in ("dk_draftable_id", "dk_cpt_draftable_id"):
             df[col] = df[col].astype("Int64")
+        # DK serializes competition start times with SEVEN fractional-second
+        # digits ("2026-08-22T16:00:00.0000000Z"), which pyarrow refuses to
+        # cast to a microsecond BigQuery TIMESTAMP — the load raised
+        # ArrowInvalid and the whole hourly ingest died (found 2026-08-20 by
+        # running the real job end to end). Parse to real timestamps here so
+        # the frame carries a proper dtype rather than raw provider strings.
+        df["game_start"] = pd.to_datetime(
+            df["game_start"], format="ISO8601", utc=True, errors="coerce"
+        )
     return df
 
 

@@ -55,6 +55,11 @@ def run() -> None:
         "dk_salaries",
         write_disposition="WRITE_APPEND",
         partition_field="pulled_at",
+        # The live table is clustered; a load job that omits the clustering
+        # spec is rejected outright ("Incompatible table partitioning
+        # specification"), which killed the ingest even after the draft-group
+        # filter was repaired (found 2026-08-20 running the real job).
+        clustering_fields=("season", "week", "dk_player_id"),
     )
 
 

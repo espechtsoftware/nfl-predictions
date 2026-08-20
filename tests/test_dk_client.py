@@ -57,10 +57,14 @@ def test_draftables_frame_dedupes_roster_slots():
 
 
 def test_draftables_frame_fields():
+    import pandas as pd
+
     df = dk_client.draftables_frame(123, "classic", payload())
     jj = df[df.dk_player_id == 1].iloc[0]
     assert jj.salary == 8900
-    assert jj.game_start == "2025-09-07T17:00:00Z"
+    # Parsed to a real UTC timestamp: DK sends seven fractional-second
+    # digits, which pyarrow cannot cast to a BigQuery TIMESTAMP.
+    assert jj.game_start == pd.Timestamp("2025-09-07T17:00:00Z")
     assert jj.dk_ppg == 21.3
     import pandas as pd
 
@@ -136,6 +140,65 @@ class _FakeResponse:
 
     def json(self):
         return self._payload
+
+
+def _live_shaped_payload():
+    """The real /draftgroups/v1/ shape (verified live 2026-08-20).
+
+    No group carries a top-level ``sport`` key; game-type names live in a
+    sibling ``gameTypes`` array; Madden sims are tagged NFL and separated
+    only by their SIM league.
+    """
+    nfl = [{"leagueId": 1, "leagueAbbreviation": "NFL"}]
+    sim = [{"leagueId": 1, "leagueAbbreviation": "SIM"}]
+    return {
+        "gameTypes": [
+            {"gameTypeId": 1, "name": "Classic"},
+            {"gameTypeId": 96, "name": "Showdown Captain Mode"},
+            {"gameTypeId": 145, "name": "Best Ball"},
+            {"gameTypeId": 158, "name": "Madden Classic"},
+            {"gameTypeId": 189, "name": "Snake"},
+            {"gameTypeId": 282, "name": "NFL Pick6"},
+        ],
+        "draftGroups": [
+            {"draftGroupId": 1, "sportId": 1, "draftGroupState": "Upcoming",
+             "gameTypeId": 1, "leagues": nfl},
+            {"draftGroupId": 2, "sportId": 1, "draftGroupState": "Upcoming",
+             "gameTypeId": 96, "leagues": nfl},
+            # Best Ball / Snake / Pick6 are not salary-cap DFS.
+            {"draftGroupId": 3, "sportId": 1, "draftGroupState": "Upcoming",
+             "gameTypeId": 145, "leagues": nfl},
+            {"draftGroupId": 4, "sportId": 1, "draftGroupState": "Upcoming",
+             "gameTypeId": 189, "leagues": nfl},
+            {"draftGroupId": 5, "sportId": 1, "draftGroupState": "Upcoming",
+             "gameTypeId": 282, "leagues": nfl},
+            # Madden simulation tagged NFL, separated only by league.
+            {"draftGroupId": 6, "sportId": 1, "draftGroupState": "Upcoming",
+             "gameTypeId": 158, "leagues": sim},
+            # Right product, wrong state / wrong sport.
+            {"draftGroupId": 7, "sportId": 1, "draftGroupState": "Complete",
+             "gameTypeId": 1, "leagues": nfl},
+            {"draftGroupId": 8, "sportId": 5, "draftGroupState": "Upcoming",
+             "gameTypeId": 1, "leagues": nfl},
+        ],
+    }
+
+
+def test_nfl_draft_groups_matches_real_payload_shape(monkeypatch):
+    """Regression for the deficiency-log defect (logged 2026-07-31,
+    confirmed and fixed 2026-08-20): the old top-level ``sport`` filter
+    matched zero groups against the real endpoint, silently starving the
+    slate/salary ingest."""
+    def fake_get(self, url, headers=None, timeout=None):
+        return _FakeResponse(_live_shaped_payload())
+
+    monkeypatch.setattr(requests.Session, "get", fake_get)
+    groups = dk_client.nfl_draft_groups()
+    assert [g["draftGroupId"] for g in groups] == [1, 2]
+    # The resolved name must reach classify_slate, or every showdown slate
+    # would be mislabeled classic.
+    assert [dk_client.classify_slate(g) for g in groups] == [
+        "classic", "showdown"]
 
 
 def test_cfb_draft_groups_filters_by_sport_id(monkeypatch):
