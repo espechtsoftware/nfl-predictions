@@ -564,7 +564,7 @@ PYB
 
   # ---- change feed ---------------------------------------------------
   echo
-  echo "${B}EVENTS — LIVE CHAINS${N} ${D}(newest non-heartbeat line per running chain)${N}"
+  echo "${B}EVENTS — LOCAL CHAIN LOGS${N} ${D}(newest non-heartbeat line per local watcher)${N}"
   local log line age live_shown=0 past=""
   for log in $(ls -t "$PANELS"/*.log 2>/dev/null | head -12); do
     line=$(grep -avE "$HEARTBEAT" "$log" 2>/dev/null | tail -1)
@@ -585,8 +585,15 @@ PYB
 "
     fi
   done
-  [ "$live_shown" = 0 ] \
-    && echo "  ${D}no running chain has emitted an event yet${N}"
+  if [ "$live_shown" = 0 ]; then
+    if [ -s "$CACHE/builds" ] && awk -F '\t' \
+        '$2 == "WORKING" || $2 == "QUEUED" {found=1} END {exit !found}' \
+        "$CACHE/builds"; then
+      echo "  ${D}no local watcher yet; active cloud-build progress is shown above${N}"
+    else
+      echo "  ${D}no local watcher has emitted an event yet${N}"
+    fi
+  fi
   if [ -n "$past" ]; then
     echo
     echo "${D}  ── history: finished or superseded runs, not current ──${N}"
