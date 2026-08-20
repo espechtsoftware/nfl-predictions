@@ -1,0 +1,14 @@
+run_id=20260819-stack-relaxation-carve-v1
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:0bee6350966981985ae1721454c1a7753e2ca7a9278cac43fd2cd8a52b90ee47
+code_sha=5ced3d3f7fed83a3a5f68670c946b0f70bf3ece2
+build_id=7b638c3f-3327-411d-adcb-222c77efcfdf
+output_prefix=gs://nfl-predictions-503414-raw/research/stack-relaxation-carve-runs/20260819-stack-relaxation-carve-v1
+protocol_sha256=3bc1ace97dc0eb5120a16e961aad2d84f4258f008c1f3a9da8a7f5c80866e7bf
+runner_sha256=4f1df879dff94523d628d7d6d57c81d45d8cc0cfcb87c15c794c3e7d1620698d
+chain_sha256=585b0edee9f4eadc876a5446930c2bbff046af11886c3a5e74cb9d4bdf684f51
+quota_note=reused job atlas-minimal-c-s2023-w1-v1 (frozen-chain rule 5)
+uses_realized_outcomes=true
+production_change_licensed=false
+predeclared_prior=uncertain-modest-dose
+cells=54
+canary=2023-1
