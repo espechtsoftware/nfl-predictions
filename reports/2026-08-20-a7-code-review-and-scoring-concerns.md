@@ -389,3 +389,99 @@ determinism checks are all sound. Concern A is the one I would act on
 before the remeasurement, because it is cheap, it is pure accounting,
 and without it a null is ambiguous between "mechanism too weak" and
 "mechanism never touched enough of the slate."
+
+---
+
+## Addendum 3 (2026-08-20): A2a census result — direction passed, magnitude did not
+
+The A2a score-free census completed
+(`a2a-scorefree-mechanism-passes`, `historical_remeasurement_licensed=true`,
+result `86f72b40…`, 54x5 grid complete, all mechanical invariants exact:
+marginals preserved, QB rows bit-exact, deterministic repeat, one-hot
+exact). The mechanism is real and non-vacuous: 35,855 rows transformed
+across 5,205 groups.
+
+**Every one of the nine cells moved in the correct direction, and the
+gate checks direction only.** Its sixteen conditions are all of the form
+`*_no_greater`, `*_strictly_less`, `*_strictly_greater`. None constrains
+*how far* a cell moves. On magnitude the picture is materially worse.
+
+### Where the treatment law lands
+
+Combining each cell's census movement with its prior remeasurement
+position (both use the same `_conditional_lift` functional; multiplicity
+cells use the same rate):
+
+| Cell | prior log(sim/real) | census Δlog | implied new | band | status |
+|---|---|---|---|---|---|
+| multiplicity ≥2 | +0.259 | −0.008 | +0.251 | 0.095 | barely moved |
+| multiplicity ≥3 | +0.744 | −0.705 | **+0.038** | 0.140 | fixed |
+| multiplicity ≥4 | +1.648 | −1.520 | **+0.128** | 0.223 | fixed |
+| QB–WR | −0.261 | +0.245 | **−0.016** | 0.140 | fixed, no overshoot |
+| QB–RB | +1.167 | −1.036 | **+0.131** | 0.140 | fixed |
+| RB–RB | +1.488 | −0.784 | +0.704 | 0.140 | still off |
+| TE–TE | +1.343 | −0.639 | +0.704 | 0.140 | still off |
+| **QB–TE** | +0.239 | −1.153 | **−0.913** | 0.140 | **OVERSHOOT** |
+| **WR–WR** | +0.691 | −1.842 | **−1.150** | 0.140 | **OVERSHOOT** |
+
+Four cells land in band — including QB–WR, the cell the whole repair was
+aimed at, which lands almost exactly on target (−0.016). That is a
+genuine success and the mechanism deserves credit for it.
+
+But two cells cross into the mirror-image defect:
+
+- **WR–WR** was over-coupled at +0.691 and is now under-coupled at about
+  **−1.150** — the absolute defect is *larger than before the repair*.
+- **QB–TE** was the one cell the remeasurement classified
+  **inconclusive** (+0.239, nearest to acceptable). It is now roughly
+  **−0.913**, a large material miss that the repair created.
+
+This is the overshoot I flagged in Addendum 2, Concern B. The one-hot
+rule boosts the single already-highest WR per world, which mechanically
+anti-correlates every other WR on the team; a −1.84 log-unit swing
+against a +0.69 defect is far past the target. Concern D also played
+out: TEs receive only generic attenuation, so TE–TE stayed off while
+QB–TE lost its group factor with nothing re-coupling it.
+
+**Caveat, stated plainly:** "implied new" adds a census movement measured
+on the pre-lock Phase-S artifacts (with A2a's eligibility and flag rules)
+to a prior measured on the final-served book. Same functional, different
+populations, so these positions are indicative rather than exact — the
+remeasurement produces the authoritative number. That said, the WR–WR
+swing is so much larger than its target that overshoot is near-certain
+regardless of population alignment.
+
+### The recommendation, and why it is not panel mining
+
+**Do not spend the outcome-bearing remeasurement on this dose.** It
+consumes the historical-outcome lease and a one-shot to measure a law
+that has traded two defects for two mirror-image defects, one of which
+it manufactured in a previously acceptable cell.
+
+The important point: **the score-free census is exactly where dose
+iteration is legitimate.** No outcomes are read, no lease is held, and
+no realized score is exposed — so adjusting `GENERIC_ATTENUATION` and
+`QB_WR_ALLOCATION` against *this* instrument carries none of the
+panel-mining risk that forbids dose sweeps on scored corpora. The
+standing prohibition is on tuning against outcomes; it does not and
+should not prevent tuning a mechanism against a score-free mechanical
+census.
+
+Concretely I would suggest, before any outcome-bearing step:
+
+1. Add **magnitude conditions** to the gate — each cell's implied
+   position must move toward its band without crossing it — and treat
+   crossing as a fail rather than a pass.
+2. **Soften the one-hot allocation.** A partial or rank-weighted
+   allocation across WRs (rather than winner-take-all on the argmax)
+   would raise QB–WR while doing far less violence to WR–WR. QB–WR
+   currently lands at −0.016, so there is ample room to reduce the dose
+   and still fix that cell.
+3. **Protect QB–TE explicitly.** It was the healthiest cell and the
+   repair broke it; it belongs in a protected set that must not be
+   pushed past its band.
+4. Consider a **position-specific attenuation** so RB–RB and TE–TE
+   (+0.70 remaining) get more, while pairs already in band get less.
+
+Only once the census shows all nine cells moving toward band without
+crossings should the historical remeasurement be spent.
