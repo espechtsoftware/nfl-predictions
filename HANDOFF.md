@@ -372,6 +372,22 @@ agent or developer:
   scorer/materializer and one real outcome-blind resource smoke are required
   before Week 1 deployment. No data, build, cloud job, outcome or shared
   runtime file was touched.
+- The default-off authoritative post-settlement scorer is now prepared at
+  `scripts/run_b1_authoritative_settlement.py` (SHA-256 `92bd1bd9...`). It
+  generation-pins the deployment, frozen shadow receipt and embedded producer
+  receipt; revalidates the complete all-panel pre-lock player-frame hash; and
+  reads authoritative outcomes only for the exact canonical roster union. A
+  create-only attempt precedes the outcome query. Game finality requires an
+  explicit latest PBP `END GAME`/`END OF GAME` record plus schedule/PBP final
+  score equality, so clock-zero and partial-game states fail closed. Its v2
+  score artifact carries the full mapping, roster-union, query and object
+  identities and contains no maxima, winner, payout, ownership or production
+  claim. Focused settlement plus current shadow validation is 67/67; compile,
+  CLI help and whitespace checks are green. It remains an isolated scaffold:
+  the shared shadow settlement/adoption validators and launcher must explicitly
+  adopt the truthful v2 source/schema and generation arguments, followed by one
+  unmocked producer-to-settlement receipt-chain smoke. No cloud/data/outcome
+  read or mutation occurred.
 
 **Scientific queue and next concrete action.** Do not build A7 v2 now. The
 single A2a dose is now frozen before treatment output in
