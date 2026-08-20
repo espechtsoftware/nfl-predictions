@@ -245,9 +245,28 @@ agent or developer:
   seconds and `maxRetries=0`; both the result prefix and outcome lease were
   still absent. Create-only launch manifest SHA-256 is `e615dd3c...`, published
   at object generation `1787262603778410`, and `prepared.sha256` is
-  `4c903e6a...`. No execution, outcome query or result read has occurred. Next:
-  commit/push the reviewed prepared receipts, then start the dedicated watcher;
-  the watcher, not a bare launch, owns the one-shot lease and execution.
+  `4c903e6a...`. The prepared receipts were pushed at `e90b2e3`, after which
+  the one-shot watcher acquired lease generation `1787262763096602` and
+  launched execution `atlas-minimal-c-s2023-w1-v1-8cnxz`. It completed strict
+  terminal success at `2026-08-20T22:03:52Z` with succeeded=1 and
+  failed/cancelled/retried=0. The generation-pinned result is object generation
+  `1787263427489841`, SHA-256 `aed876f3...`; `finish.sha256` revalidates and the
+  exact lease generation is closed through create-only release intent
+  generation `1787263593683877` / SHA-256 `48cde66d...`. Idempotent re-harvest
+  and re-close are green and the global lease is absent.
+
+  The registered disposition is
+  `a2a-law-shape-miss-qb-wr-not-equivalent`: QB-WR's point estimate was close
+  (`3.2855` simulated versus `3.3392` realized) but statistically inconclusive
+  with zero equivalent blocks; QB-TE and WR-WR were material misses, and no
+  registered equivalence/block gate passed. All single-stack, exact-80,
+  prospective, and production licenses are false; there is no retry or dose
+  repair on this corpus. The initial provisioning poll exposed the predicted
+  watcher defect: `Completed=Unknown` was classified as malformed. The exact
+  metadata is retained in `malformed-execution.json`; no relaunch occurred,
+  and the unchanged finisher performed strict terminal harvest after the same
+  execution completed. Repair both watcher parser copies only after these
+  closure bytes are committed/pushed.
 - The exact-one QB-partner k=8 successor is prepared, but deliberately not
   frozen, in
   `reports/2026-08-20-single-stack-k8-under-a2a-protocol-draft.md` (SHA-256
@@ -257,10 +276,10 @@ agent or developer:
   seed, candidate, exact-80 and selector laws. Its pure accounting/runner
   scaffold has no optimizer, data, outcome or cloud path. New tests are 16/16
   and the existing engine seam is 19/19; compile/help/import/diff checks are
-  green. Status remains `READY-AWAITING-A2A`: only the sole strict A2a pass may
-  authorize its real-artifact outcome-blind smoke and later freeze. No A2a
-  miss may be repaired into this arm, and no bring-back/spread/ownership/world
-  variant is bundled with it.
+  green. The sole A2a prerequisite missed, so this exact successor is now
+  unlicensed and must not receive a real-artifact smoke, freeze, or historical
+  run. No A2a miss may be repaired into this arm, and no
+  bring-back/spread/ownership/world variant is bundled with it.
 - The B1 corpus-tail historical transport is prepared in four isolated files
   without changing Docker, Cloud Build or monitoring bytes used by the active
   A2a run. Launcher SHA-256 is `b28ac559…`, finisher `194f96be…`, watcher
@@ -289,8 +308,8 @@ agent or developer:
   mean/200+ and protected 194+/210+. This arithmetic is necessary because the
   full current B1 union's hindsight ceiling is only 198.10. The draft accepts
   mock-only inputs and grants no real smoke/freeze/outcome/shadow/production
-  license; a literal A2a realized-law pass and B1 corpus-tail historical pass
-  are both required before any real-artifact contact. Exactly four isolated
+  license; its literal A2a prerequisite has now missed, so this exact v1 cannot
+  activate even if the B1 corpus-tail historical arm passes. Exactly four isolated
   files were added: protocol SHA-256 `fbc2c346...`, pure module `39b9df75...`,
   mock runner `12acd6a9...`, and tests `68de3c35...`. Focused validation is
   12/12; compilation, CLI help and whitespace checks are green. No shared
