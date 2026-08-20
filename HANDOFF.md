@@ -20,14 +20,29 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-19 21:15 CDT
+## Current state — 2026-08-19 23:30 CDT
 
 ### LIVE INGEST WAS BROKEN THREE WAYS (fixed, verified); boom-S null closed the reallocation; A3 carve grid running
 
-- Branch `main` at `bb91471` (pushed). Read
+- Branch `main` at `b74a83d` (pushed before the documentation milestone
+  below). Read
   `reports/2026-08-19-preseason-test-queue.md` for the ordered queue and
   `reports/2026-08-19-external-reviewer-briefing-v3.md` for a
   self-contained state briefing.
+
+**0. Shareable large-field tournament strategy plan added.**
+`reports/2026-08-19-large-field-tournament-winning-strategy-plan.md` is a
+self-contained proposal for independent review of the exact-80 Millionaire
+Maker and roughly 40,000-entry qualifier goal (SHA-256 `8910964e…`). It records
+the current baseline, the all-boom C-to-S conversion failure, the exact-selector
+closure, winner structure/anatomy, and the ordered sequence: finish A3,
+deploy/collect B1, freeze incumbent-pool A7 `SELECT_LADDER`, test the A2
+dependence-factor split, then add field/duplication-aware utility only after PIT
+ownership and full standings capture. It is explicitly not a frozen protocol
+or production-policy change. Independent adversarial review corrected the
+outcome-lease order, preserved the boom-deep arm's frozen closure, separated
+score-free from outcome-bearing A2 gates, and distinguished the exact-80 weekly
+master from actual per-contest N.
 
 **1. Week-1 blocker found and repaired — the highest-consequence item here.**
 Running the REAL `ingest-dk` job against live preseason slates (rather
@@ -76,13 +91,22 @@ unchanged selector took **11 of 80** book slots from un-mandated shapes
 BEFORE any score was seen. Build → canary → 54 cells → aggregate;
 log `~/nfl-panels/stack-carve-chain.log`.
 
-**5. B1 volume shadow (pre-Week-1 deliverable), partially built.**
-`combine_cbwu_volume_books` (candidates from k books, worlds+budget from
-the registered five; provably identical to the incumbent admission at
-k=5), the twenty-book policy env with fifteen frozen seed pairs, and the
-paired live dispatch are implemented and tested. REMAINING: the
-`shadow-cbwu-volume` CLI subcommand, its schedule entry, and the frozen
-grading spec.
+Metadata-only audit at 23:20 CDT found the watcher alive, a complete 54-row
+execution ledger (SHA-256 `83559745…`), 11 terminal-successful executions, 43
+queued/running, zero terminal failures or missing executions, ten expected
+objects and zero unexpected objects. Do not relaunch the chain. Before opening
+or aggregating the completed cells, require all 54 registered executions to be
+terminal `True`, require the exact 54-object inventory, and record a create-once
+provenance addendum: the current manifest line names the wrong chain file. The
+actual `scripts/cloud_stack_carve_chain.sh` SHA is `ab277131…` and matches
+commit `5ced3d3f`; no cell rerun is warranted for that receipt correction.
+
+**5. B1 volume shadow (pre-Week-1 deliverable), implementation complete.**
+Commit `0a4f15b` contains `combine_cbwu_volume_books`, the twenty-book policy
+environment and fifteen frozen seed pairs, paired live dispatch, the
+`shadow-cbwu-volume` CLI subcommand, job/schedule entry, and frozen six-slate
+grading spec. It remains default-off and requires deployment plus prospective
+collection; the historical volume curve does not license the money path.
 
 **6. Structure census + winner series** (earlier today, all frozen):
 production mandates confine 100% of generated volume to a shape region
@@ -90,12 +114,13 @@ holding 16% of winners; winners are never their world's optimum (0/51);
 pool proximity to winners is exactly chance; the law over-couples generic
 teammate booms and under-couples QB→WR (first directional law defect).
 
-- Next actions: (a) read the A3 aggregate against its four-branch
-  preregistered reading; (b) rehearse the remaining live legs
-  (project-slate → shadow freeze → DK CSV export) before Week 1;
-  (c) finish B1; (d) operator decisions in the queue doc §C, notably the
-  B2-prime adoption path. Do not resume schedulers, delete forensic data,
-  or change the money policy.
+- Next actions: (a) finish and read the A3 aggregate against its four-branch
+  preregistered reading, after the terminal/inventory/provenance safeguards
+  above; (b) rehearse the remaining live legs (project-slate → shadow freeze →
+  DK CSV export) before Week 1; (c) deploy the already-frozen B1 prospective
+  shadow when operator-ready; (d) freeze the A7 selector-utility decision
+  before any one-shot historical read. Do not resume schedulers, delete
+  forensic data, or change the money policy.
 
 ## Prior state — 2026-08-19 14:45 CDT
 
