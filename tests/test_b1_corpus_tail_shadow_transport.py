@@ -108,11 +108,11 @@ def _build(*, build_id: str, code: str, image: str) -> dict[str, Any]:
         "status": "SUCCESS",
         "source": {"gitSource": source},
         "sourceProvenance": {"resolvedGitSource": source},
-        "substitutions": {"_IMAGE": tag, "COMMIT_SHA": code},
+        "substitutions": {"_IMAGE": tag},
         "steps": [
             {"id": "full-test-suite", "status": "SUCCESS"},
             {"id": "build-image", "status": "SUCCESS"},
-            {"id": "container-smoke", "status": "SUCCESS"},
+            {"id": "smoke-atlas-mvp-runner", "status": "SUCCESS"},
         ],
         "results": {"images": [{
             "name": tag, "digest": image.rsplit("@", 1)[1],
@@ -263,6 +263,42 @@ def test_deployment_is_reuse_only_default_off_and_historical_pass_bound() -> Non
     assert deployment["job"]["max_retries"] == 0
     assert deployment["historical_license"]["historical_gate_passed"] is True
     assert deployment["production_licensed"] is False
+
+
+@pytest.mark.parametrize("commit_key", ["COMMIT_SHA", "_CODE_SHA"])
+def test_build_accepts_omitted_commit_substitution_but_rejects_wrong_declared(
+    commit_key: str,
+) -> None:
+    code = "1" * 40
+    image = shadow.IMAGE_REPOSITORY + "@sha256:" + "2" * 64
+    build = _build(build_id="build-12345678", code=code, image=image)
+    shadow._validate_build(
+        build, build_id="build-12345678", code_sha=code, image=image,
+    )
+    build["substitutions"][commit_key] = "3" * 40
+    with pytest.raises(shadow.ShadowTransportError, match="substitutions"):
+        shadow._validate_build(
+            build, build_id="build-12345678", code_sha=code, image=image,
+        )
+
+
+@pytest.mark.parametrize("mutation", ["missing", "reordered", "extra"])
+def test_build_rejects_nonexact_three_step_contract(mutation: str) -> None:
+    code = "1" * 40
+    image = shadow.IMAGE_REPOSITORY + "@sha256:" + "2" * 64
+    build = _build(build_id="build-12345678", code=code, image=image)
+    if mutation == "missing":
+        build["steps"] = build["steps"][:-1]
+    elif mutation == "reordered":
+        build["steps"][1], build["steps"][2] = (
+            build["steps"][2], build["steps"][1],
+        )
+    else:
+        build["steps"].append({"id": "unexpected", "status": "SUCCESS"})
+    with pytest.raises(shadow.ShadowTransportError, match="build"):
+        shadow._validate_build(
+            build, build_id="build-12345678", code_sha=code, image=image,
+        )
 
 
 def test_deployment_rejects_false_or_unclosed_historical_license() -> None:

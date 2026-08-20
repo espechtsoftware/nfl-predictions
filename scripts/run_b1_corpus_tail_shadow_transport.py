@@ -651,23 +651,22 @@ def _validate_build(
     ):
         raise ShadowTransportError("shadow build is not exact direct-Git source")
     steps = value.get("steps")
-    if not isinstance(steps, list) or len(steps) < 3:
+    if not isinstance(steps, list) or len(steps) != 3:
         raise ShadowTransportError("shadow build steps differ")
     ids = [str(row.get("id", "")) for row in steps if isinstance(row, dict)]
-    required = ("full-test-suite", "build-image", "container-smoke")
-    if any(name not in ids for name in required) or [ids.index(x) for x in required] != sorted(
-        ids.index(x) for x in required
-    ):
+    required = ["full-test-suite", "build-image", "smoke-atlas-mvp-runner"]
+    if ids != required:
         raise ShadowTransportError("shadow build test/image gate differs")
     if any(row.get("status") != "SUCCESS" for row in steps):
         raise ShadowTransportError("shadow build contains a non-successful step")
     tag = f"{IMAGE_REPOSITORY}:b1-shadow-{code_sha[:7]}"
     substitutions = value.get("substitutions")
-    if not isinstance(substitutions, Mapping) or (
-        substitutions.get("_IMAGE") != tag
-        or substitutions.get("COMMIT_SHA") != code_sha
-    ):
+    if not isinstance(substitutions, Mapping) or substitutions.get("_IMAGE") != tag:
         raise ShadowTransportError("shadow build substitutions differ")
+    for optional_commit_key in ("COMMIT_SHA", "_CODE_SHA"):
+        if optional_commit_key in substitutions and \
+                substitutions[optional_commit_key] != code_sha:
+            raise ShadowTransportError("shadow build substitutions differ")
     images = value.get("results", {}).get("images", [])
     digest = image.rsplit("@", 1)[1]
     if not isinstance(images, list) or not any(

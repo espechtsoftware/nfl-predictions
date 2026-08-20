@@ -294,11 +294,15 @@ agent or developer:
   portable model and lease closure; freezes one create-only pre-lock receipt
   for each exact 2026 Week 1--6; binds one create-only post-settlement score
   artifact per frozen week; and feeds only the six generation-pinned pairs to
-  the existing frozen adoption law. `scripts/cloud_b1_corpus_tail_shadow.sh`
+  the existing frozen adoption law. Its post-review SHA-256 is `7258e4a5...`:
+  the build validator now requires the repository's exact three step IDs,
+  including `smoke-atlas-mvp-runner`, and treats direct-Git commit
+  substitutions as optional-but-exact when present rather than requiring a
+  field the real submit path does not emit. `scripts/cloud_b1_corpus_tail_shadow.sh`
   (SHA-256 `da8b7f35...`) is reuse-only and persists an inert job with
   `CORPUS_TAIL_SHADOW_ENABLED=0`; every weekly freeze, settlement and adoption
   execution is explicit, strict-terminal and no-retry. Focused plus standing
-  B1 validation is 37/37, with compile, shell syntax, CLI help and whitespace
+  B1 validation is 42/42, with compile, shell syntax, CLI help and whitespace
   checks green. It cannot deploy before a committed B1 historical pass and a
   real outcome-blind smoke over the actual 2026 candidate-panel shape. A
   prospective producer for the canonical/companion `replay_candidates_staging`
