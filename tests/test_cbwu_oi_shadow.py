@@ -29,14 +29,20 @@ def test_production_engine_environment_is_untouched():
     assert "PROSPECTIVE_SHADOW_ID" not in env
 
 
-def test_variant_registry_has_both_shadows():
+def test_variant_registry_has_every_shadow():
+    """Pins the registry: a new shadow variant must be added here
+    deliberately, never by accident."""
     assert set(prospective_shadow.SHADOW_VARIANTS) == {
-        "archetype", "cbwu_oi",
+        "archetype", "cbwu_oi", "cbwu_volume",
     }
     spec = prospective_shadow.SHADOW_VARIANTS["cbwu_oi"]
     assert spec["env_method"] == "cbwu_oi_shadow_environment"
     assert spec["panel_prefix"] == "prospective-cbwu-oi"
     assert spec["candidate_run_type"] == "prospective_cbwu_oi_shadow"
+    volume = prospective_shadow.SHADOW_VARIANTS["cbwu_volume"]
+    assert volume["env_method"] == "cbwu_volume_shadow_environment"
+    assert volume["panel_prefix"] == "prospective-cbwu-volume"
+    assert volume["candidate_run_type"] == "prospective_cbwu_volume_shadow"
     # Every named env method must exist on the adopted policy.
     for variant in prospective_shadow.SHADOW_VARIANTS.values():
         assert hasattr(ADOPTED_CLASSIC_POLICY, variant["env_method"])

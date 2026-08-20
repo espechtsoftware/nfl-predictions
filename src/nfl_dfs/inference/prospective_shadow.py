@@ -136,6 +136,14 @@ SHADOW_VARIANTS = {
         "panel_prefix": "prospective-cbwu-oi",
         "candidate_run_type": "prospective_cbwu_oi_shadow",
     },
+    # B1 (2026-08-19): the volume-OI admission shadow. Same paired
+    # control/treatment machinery; the treatment widens the CANDIDATE
+    # books to twenty while world blocks and budget stay registered.
+    "cbwu_volume": {
+        "env_method": "cbwu_volume_shadow_environment",
+        "panel_prefix": "prospective-cbwu-volume",
+        "candidate_run_type": "prospective_cbwu_volume_shadow",
+    },
 }
 
 

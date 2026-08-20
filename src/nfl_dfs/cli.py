@@ -101,6 +101,13 @@ def main(argv: list[str] | None = None) -> None:
         ),
     )
     sub.add_parser(
+        "shadow-cbwu-volume",
+        help=(
+            "Freeze the paired volume-OI admission shadow: twenty seed "
+            "books' candidates admitted at the registered budget"
+        ),
+    )
+    sub.add_parser(
         "shadow-sis-pass-tail-paired",
         help="Freeze the isolated prospective five-seed SIS pass-tail pair",
     )
@@ -857,6 +864,11 @@ def main(argv: list[str] | None = None) -> None:
         from .inference import prospective_shadow
 
         prospective_shadow.run_paired_prospective_shadow(variant="cbwu_oi")
+    elif args.command == "shadow-cbwu-volume":
+        from .inference import prospective_shadow
+
+        prospective_shadow.run_paired_prospective_shadow(
+            variant="cbwu_volume")
     elif args.command == "shadow-sis-pass-tail-paired":
         from .inference import sis_pass_tail_portfolio
 

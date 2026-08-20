@@ -89,6 +89,9 @@ job shadow-archetype-paired shadow-archetype-paired 16Gi 4 "CODE_SHA=${CODE_SHA}
 # order-invariant union on identical worlds; grading bar frozen at
 # reports/2026-08-18-cbwu-oi-prospective-shadow-spec.md.
 job shadow-cbwu-oi-paired shadow-cbwu-oi-paired 16Gi 4 "CODE_SHA=${CODE_SHA}" "" 7200
+# B1 volume shadow: builds TWENTY seed books instead of five, so it gets a
+# 4h task timeout and starts earliest of the Sunday shadows.
+job shadow-cbwu-volume shadow-cbwu-volume 16Gi 4 "CODE_SHA=${CODE_SHA}" "" 14400
 # Independent finite-usage SIS pass-tail evidence. The job is a ten-book
 # five-seed pair and deliberately never changes the K=1/CBWU money path.
 job shadow-sis-pass-tail-paired shadow-sis-pass-tail-paired 16Gi 4 "CODE_SHA=${CODE_SHA}" "" 14400
@@ -135,6 +138,7 @@ sched s-shadow-k3-late  shadow-k3   "20 11 * * 7"
 # Paired snapshots begin earlier than the one-seed shadows so their five-book
 # build and create-only manifest can finish before the next decision boundary.
 sched s-shadow-archetype-paired-early shadow-archetype-paired "15 9 * * 7"
+sched s-shadow-cbwu-volume shadow-cbwu-volume "30 8 * * 7"
 sched s-shadow-cbwu-oi-paired-early shadow-cbwu-oi-paired "45 9 * * 7"
 sched s-shadow-cbwu-oi-paired-late  shadow-cbwu-oi-paired "45 10 * * 7"
 sched s-shadow-archetype-paired-late  shadow-archetype-paired "30 10 * * 7"

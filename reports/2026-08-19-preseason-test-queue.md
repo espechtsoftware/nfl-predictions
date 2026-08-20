@@ -31,7 +31,7 @@ deployed BEFORE Week 1; in-season items follow the September cadence in
 
 | # | Item | Status | Notes |
 |---|---|---|---|
-| B1 | **shadow-cbwu-volume k=20** weekly variant | NOT implemented — next implementation slot after A1 launches | Largest measured selection-side gain (B2-prime +2.0–2.75 mean S at fixed budget); adoption only via the prospective record |
+| B1 | **shadow-cbwu-volume** (20 books) | **BUILT** — combine, policy env, live dispatch, CLI subcommand, job + Sunday 08:30 schedule, and FROZEN grading spec (`2026-08-19-cbwu-volume-prospective-shadow-spec.md`). Deploys with the next `deploy_jobs.sh` run | Operator: deploy + resume schedulers | Prospective test of the B2-prime volume gain; adoption bar frozen before collection |
 | B2 | **Contest-entries collection** | Importer ready; `contest_entries` still empty | LOAD-BEARING: Mon/Tue standings downloads from Week 1 (DK purges ~4 days). Feeds field model, measured N_eff, top-N winner sets. Verify rows land Week 1 |
 | B3 | Shadow fleet + schedulers resume (~Aug 24) | Operator action | Existing CT schedules; no research lever enabled |
 | B4 | September cadence | Standing (`CLAUDE.md`) | standings → import-ownership; Wed tabpfn-gen; ETR CSV; persona/env-forecast grading; CQR at ≥100 rows; DIV_TILT grade wk 4–6; entries per contest-mix |
