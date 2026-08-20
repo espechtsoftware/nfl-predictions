@@ -82,7 +82,7 @@ PROTOCOL_PATH = Path(
 # Candidate-protocol digest. The protocol and implementation bytes remain
 # unchanged across smoke, support census, and the one historical run. A
 # separate immutable freeze manifest binds the two preflight receipts.
-PROTOCOL_SHA256 = "e3222f94bc5f5fdc0e7c63df277a96a98e26cc497624f799252628645e10fba0"
+PROTOCOL_SHA256 = "987ad3eb8bd141427ce201348de165b9b337c1184de1fc8bdd32987bd1373cce"
 SOURCE_REPORT_PATH = Path(
     "reports/cbwu-order-invariant-runs/"
     "20260815-cbwu-order-invariant-repair-v1/report.json"

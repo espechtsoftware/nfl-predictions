@@ -20,7 +20,75 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-20 03:59 CDT
+## Current state — 2026-08-20 07:34 CDT
+
+### A3 post-open recovery is locally proof-green; A7 governance is rebound; no cloud action yet
+
+- Branch `main`, based on pushed `d65c446a8c2a54842816aaaf94665b22f890cd13`.
+  A3's negative result is already committed at
+  `56b09e960e5445cc7cd54c22eceef7cb5e7ec8c0`: exact 54 cells, 53 paired S
+  endpoints, aggregate SHA-256 `2e08a551…`, result report SHA-256 `b8ae2d26…`.
+  The original strict finisher never ran before those bodies were opened, so
+  the canonical run lacks its metadata ledgers/completion/logical release.
+  Do **not** call the old finisher over those preexisting files and do not rerun
+  an A3 cell.
+- The pre-open materials are now preserved unchanged: strict finisher
+  `c43505f6…`, its tests `13a6359b…`, and provenance addendum `fb2ad4f3…`.
+  New protocol `reports/2026-08-20-a3-post-open-forensic-closure-protocol.md`
+  (SHA-256 `502c9c2c…`) defines an honest recovery, not a fabricated strict
+  harvest. New `scripts/close_stack_relaxation_carve_post_open.py` has no
+  launch/retry/BigQuery/upload/delete/scientific-write path. It validates all
+  54 terminal execution contracts and the exact 54-object inventory before
+  remote body 1, generation-pins every download, requires byte equality to the
+  original Git result, rebuilds the aggregate byte-for-byte, and publishes
+  only create-once local provenance plus a logical-release-v2.
+- The recovery implementation requires a separate tracked, canonical operator
+  manifest that pins one source commit and exact script/test/protocol bytes.
+  That manifest is intentionally **not created until this implementation commit
+  is pushed**; no recovery execution is licensed before the follow-up freeze
+  commit. It will not bind mutable HEAD, so later receipt/HANDOFF commits remain
+  idempotent. The v2 release embeds the closure receipt, declares that results
+  were opened before strict harvest and that recovery rereads those already
+  opened outcomes, records the negative/closed disposition, proves the active
+  outcome lease absent, and keeps rerun/retest/shadow/transport/production
+  licenses literal false.
+- A7 now rejects legacy A3 release-v1 and exact-validates the embedded v2
+  closure, nested schemas, source/result identities, JSON types, UTC chronology,
+  and all false licenses before creating its durable job claim. Its governance-
+  only amended protocol SHA-256 is `987ad3eb…`; the unchanged scientific
+  predecessor is commit `c1dcf4f…` / protocol `e3222f94…`, which predates the
+  A3 result, and no A7 smoke/support/freeze/result existed at amendment time.
+- Complete focused local suite is GREEN: **165/165** across A3 strict/recovery,
+  A7 selector/science/execution/freeze/cloud/finisher, production isolation,
+  and lever registry. The recovery validates a candidate release completely
+  before create-once publication and pins the transitive paired-statistics
+  implementation (`9d2f5e9e…`). `py_compile`, `bash -n`, and
+  `git diff --check` are green.
+  No GCP resource, warehouse query, CBC/simulation, scheduler, lease, or outcome
+  arm was launched in this milestone.
+
+**Construction/winner-law disposition.** The requested review is incorporated
+in `reports/2026-08-20-construction-law-findings-and-relaxation-recommendation.md`.
+A3 is a non-vacuous negative for the bundled open k=8 dose, not proof that
+mandates causally help. It overgenerated naked QBs (57.8% versus 22% of
+winners) and underrepresented exact-one stacks (29.6% versus 41%). Production
+construction remains unchanged. The smallest later winner-like arm is a
+default-off exact-one QB stack sleeve with bring-back/salary/RB/game rules held
+fixed; implement it now if useful, but do not freeze/run it until the separate
+A2a QB-WR/generic same-team dependence repair passes. Cross-team bring-back,
+spread, residual worlds, and ownership are separate later questions. Never fit
+winner-frequency quotas on the same 2023–2025 grading corpus.
+
+**Next concrete action.** Commit/push these exact recovery bytes; create and
+commit the operator implementation-freeze manifest against that source commit;
+hard-pin its identities in A7; rerun the focused suite; then execute the A3
+read-only forensic closure and commit/push its durable v2 release. Only after
+that release may orchestration build A7 from the exact remote commit and run,
+strictly serialized, real-artifact smoke -> all-54 support census -> external
+freeze -> one historical arm. Use only `atlas-minimal-c-s2023-w1-v1`; never
+`deploy_jobs.sh`, never B1's job/scheduler, and never overlap outcome arms.
+
+## Prior state — 2026-08-20 03:59 CDT
 
 ### A7 tail-ladder selector is locally proof-green; GCP work is intentionally blocked behind A3 release
 

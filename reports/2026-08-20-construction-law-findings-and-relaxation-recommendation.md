@@ -16,9 +16,10 @@ by report path. Supporting context lives in `HANDOFF.md` (current state),
 
 DraftKings NFL Millionaire-Maker system. The optimization target is the
 **weekly maximum realized score of an entered book**, not expected value.
-Production builds an exact-80 book by generating candidate lineups
+The standing research pipeline builds an exact-80 book by generating candidate lineups
 against ~50,000 simulated worlds and selecting for coverage of a
-194-point line. Verified baseline on the 54-slate 2023–2025 Sunday-main
+194-point line. The registered Phase-S finite-K plus SIS-ASOE baseline on
+the 54-slate 2023–2025 Sunday-main
 corpus: mean weekly best **176.06**; it clears 194 on 8 of 54 slates.
 (`reports/current-baseline.json`.)
 
@@ -90,7 +91,8 @@ have with a measured direction.
 
 ### 2.4 Relaxing the mandates made our book WORSE
 
-Frozen arm `20260819-stack-relaxation-carve-v1`, 54/54 cells, one lever
+Frozen arm `20260819-stack-relaxation-carve-v1`, 54/54 terminal cells and
+53 paired S endpoints (the 2025-W1 recovery cell has no S endpoint), one lever
 (`OPEN_BOOM_SOLVES=8`): 8 of 40 boom solves per seed dropped the QB-stack
 and bring-back minima; everything else — salary bounds, RB prohibitions,
 worlds, candidate budget, selector, seeds — held identical.
@@ -106,12 +108,17 @@ worlds, candidate budget, selector, seeds — held identical.
 p_mean 0.367 — not significant, but directionally consistent and
 regressive at exactly the thresholds that matter.
 
-**The mechanism gate makes this decisive rather than a shrug.** The arm
-was not vacuous: 2,152 open candidates were generated and the *unchanged*
-production selector admitted **530 of them into the books, on all 53
-slates**. The selector wanted the un-mandated shapes, took them in
-quantity, and the books got slightly worse. Winner overlap moved *away*
-from the winners.
+**The mechanism gate makes this a real negative estimate rather than a
+vacuous arm, but it does not make the causal explanation decisive.** The
+arm was not vacuous: 2,152 open candidates were generated and the
+*unchanged* production selector admitted **530 of them into the books, on
+all 53 slates**. The selector admitted un-mandated candidates in quantity
+and the whole treatment books got slightly worse. Whole-book winner overlap
+moved *away* from the winners; the retained receipt does not identify the
+structures of the selected open-tagged subset. The estimate is still noisy
+(`p_mean=0.367`) and the
+single treatment relaxed both same-team stacking and cross-team bring-back
+requirements together.
 (`reports/2026-08-20-stack-relaxation-carve-results.md`.)
 
 ---
@@ -123,20 +130,25 @@ shapes, so relax them" — is **falsified at this dose** by 2.4. Both
 statements are simultaneously true:
 
 1. The mandates exclude 84% of real winners' structures.
-2. The mandates are, right now, *helping* our books score.
+2. This bundled k=8 relaxation did not improve our books under the current
+   law and selector.
 
-The mechanism that reconciles them is 2.3. Our simulator under-couples
-QB→WR by −0.26 log units while over-coupling every generic teammate
-pairing. Inside that law, a stack is worth *less* than it is in reality,
-so an unconstrained solver will under-build stacks and over-build generic
-same-team pile-ups (which the law overvalues by up to five-fold).
+The leading mechanism that could reconcile them is 2.3. Our simulator
+under-couples QB→WR by −0.26 log units while over-coupling every generic
+teammate pairing. Inside that law, a stack can be worth *less* than it is
+in reality, so an unconstrained solver can under-build stacks and
+over-build generic same-team pile-ups (which the law overvalues by up to
+five-fold).
 
-**The mandates have been functioning as a hand-applied correction for a
-known law defect.** They force the correlation the simulator fails to
-value. Relaxing them while the law remains mis-specified removes the
-correction and exposes the defect — which is exactly the negative result
-observed, and exactly why the freed shapes drifted *away* from winners
-rather than toward them.
+**The same-team stack mandate may be functioning as a hand-applied
+correction for a known law defect.** That is a plausible, testable
+explanation—not an identified causal result. The cited dependence table
+does not identify the bring-back mechanism: bring-backs are cross-team,
+and the current simulator's nearly independent team factors remove much
+of the game-level dependence that could price them. A3 bundled the two
+relaxations, so it cannot tell us whether its negative estimate came from
+the stack change, the bring-back change, their interaction, portfolio
+variance, duplication control, or sampling noise.
 
 A supporting observation points the same way: deep simulated world optima
 carry roughly **three times** the never-realized player-score mass of
@@ -161,9 +173,12 @@ preference.
 
 ### Proposed order
 
-**Step 1 — repair the law (A2 dependence factor split).** Reduce the
-shared/generic team factor and add an explicit QB→pass-catcher factor,
-targeting the nine measured cells above. Stages must stay separate:
+**Step 1 — repair the law (A2a dependence factor split).** Reduce the
+shared/generic same-team factor and add a sparse QB→WR allocation factor,
+targeting the nine measured cells above. Do not apply one common factor to
+all pass catchers: WR–WR is already high and QB–TE is inconclusive. Preserve
+each player's marginal draw distribution exactly and change dependence only.
+Stages must stay separate:
 
 1. *Score-free mechanism census:* verify on simulated worlds only that
    the intended split is active, marginals are preserved, budgets match,
@@ -182,9 +197,23 @@ universe/selector), and while that verdict does not transfer across the
 changed stack, expectations should stay modest and the old failure mode
 (season pooling) must be designed out.
 
-**Step 2 — re-freeze the relaxation carve on the repaired law.** Same
-single lever, same k=8 dose, same mechanism gates, newly frozen protocol.
-The preregistered reading becomes sharper than before:
+**Cross-team diagnosis before Step 2.** Preregister supported
+QB–opponent-WR/TE/RB and joint-team upper-tail cells. Prefer parameters fit on
+pre-2023 data and evaluated on 2023–2025, or season-walk-forward fitting. Only
+if this census identifies a cross-team miss should a separate A2b hybrid
+game/opponent factor be tested; do not bundle it into A2a's first scored arm.
+
+**Step 2 — re-freeze the relaxation question on the repaired law.** Keep
+the prior k=8 bundled result closed; do not tune its dose. Before another
+outcome-bearing run, use score-free mechanism checks to separate the
+same-team stack relaxation from the cross-team bring-back relaxation. A
+single-stack `qb_stack_min: 2→1` arm while holding bring-back fixed is the
+best first construction test because one partner is the winners' modal
+shape and A3's generated open population overproduced naked QBs. Test
+`bring_back_min: 1→0` separately while holding stack fixed. A newly frozen
+protocol may then test one prespecified contrast (or a
+multiplicity-controlled factorial if justified before outcomes). The
+preregistered reading becomes sharper than before:
 
 - Relaxation now helps → the mandates were a law-defect correction and
   can be retired or reduced (via a 2026 prospective shadow, never by
@@ -195,10 +224,11 @@ The preregistered reading becomes sharper than before:
 - Either outcome is informative; today's negative result alone cannot
   distinguish them.
 
-**Step 3 — add a winner-realism gate to any future construction arm.**
+**Step 3 — add a winner-realism gate to newly designed construction arms
+after A7.**
 Score alone was nearly uninformative here (p 0.37); the *mechanism*
 readings (530 admitted, overlap moving the wrong way) carried the
-finding. Every future construction/selection arm should report the
+finding. Every such future construction arm should report the
 winner-overlap-versus-chance instrument and a never-realized-mass check
 alongside the score.
 
@@ -235,3 +265,43 @@ alongside the score.
 4. Should the salary floor and RB prohibitions be treated as part of the
    same question? Both were measured to exclude **zero** winners, so they
    were deliberately left untouched by the carve.
+
+---
+
+## 6. Independent implementation review and disposition
+
+The recommendation to **leave production construction unchanged now is
+accepted**, but for the narrower reason supported by the evidence: the
+registered k=8 bundled relaxation did not prove higher scoring. It does
+not prove that the existing mandates improve scores, and it does not
+identify the dependence defect as the cause of the negative estimate.
+
+The four reviewer questions are disposed as follows:
+
+1. The law-defect-correction story is the best current hypothesis for the
+   same-team stack requirement, not a conclusion. Variance, duplication,
+   selector interaction, and sampling noise remain live alternatives.
+2. A factor split is the right first same-team repair because it targets
+   the only directional defect measured with useful precision. The repair
+   must not be represented as a bring-back repair. Cross-team/game-level
+   dependence needs its own score-free measurement and protected cells.
+3. A mandate can be reduced only after: a frozen score-free mechanism
+   gate; a fixed-budget historical arm under the repaired law; and an
+   unseen 2026 shadow with a prespecified positive score endpoint and no
+   protected-tail regression. A historical positive alone cannot alter
+   money lineups.
+4. Salary floor and RB prohibitions remain out of scope. The current census
+   found no winner exclusion from them, so relaxing them would add a new
+   causal question without measured upside.
+
+No validation, point-in-time, fixed-budget, one-shot, provenance, or
+prospective-adoption rule should be relaxed in pursuit of a higher score.
+Those rules protect the score claim from hindsight. The only permissible
+relaxations are lineup-construction treatments that are default-off,
+preregistered, mechanically isolated, and promoted only after proving the
+registered endpoint. A7 already satisfies the document's warning: it caps
+reward at 210, treats 220/230/240 as report-only, and carries a score-free
+simultaneous-extremes realism guard. It may proceed without changing the
+production construction law. Its frozen scope intentionally excludes the
+winner-overlap and never-realized-mass diagnostics above, so those diagnostics
+must not be retrofitted into A7 after its science was registered.

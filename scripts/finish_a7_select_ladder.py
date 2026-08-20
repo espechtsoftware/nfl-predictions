@@ -614,27 +614,239 @@ def _validate_implementation_sources(
 def _validate_a3_release(path: Path) -> dict[str, Any]:
     value = _load_json(path, label="A3 logical release")
     if set(value) != {
-        "version", "run_id", "status", "next_run_id",
-        "strict_harvest_complete", "strict_harvest_completion_sha256",
-        "historical_outcome_lease_released", "operator_approved",
-        "released_at", "production_change_licensed",
+        "version", "run_id", "status", "next_run_id", "closure_mode",
+        "strict_harvest_completed_before_read",
+        "post_open_forensic_closure_complete", "forensic_closure_sha256",
+        "forensic_closure_receipt",
+        "original_result_commit", "aggregate_sha256", "result_report_sha256",
+        "prior_arm_disposition", "historical_outcome_lease_clear",
+        "historical_outcome_lease_state",
+        "historical_outcome_lease_absence_checked_at", "operator_approved",
+        "released_at", "cell_rerun_licensed", "scientific_retest_licensed",
+        "production_change_licensed", "shadow_adoption_licensed",
+        "a3_result_transport_to_a7_licensed",
     }:
         raise RuntimeError("A7 A3 logical release fields differ")
-    required = {
-        "version": "stack-relaxation-carve-logical-release-v1",
-        "run_id": "20260819-stack-relaxation-carve-v1",
-        "status": "released-for-next-historical-arm",
-        "next_run_id": RUN_ID,
-        "strict_harvest_complete": True,
-        "historical_outcome_lease_released": True,
-        "operator_approved": True,
-        "production_change_licensed": False,
+    closure = value.get("forensic_closure_receipt")
+    closure_keys = {
+        "version", "run_id", "status", "closure_mode", "protocol_sha256",
+        "protocol_deviation_disclosed",
+        "scientific_result_opened_before_strict_harvest",
+        "recovery_reads_already_opened_realized_outcomes",
+        "strict_harvest_completed_before_read", "original_result_commit",
+        "prior_arm_disposition", "result_report", "aggregate", "cells",
+        "launch", "preopen_material", "closure_implementation",
+        "executions", "objects", "cell_rerun_licensed",
+        "scientific_retest_licensed", "production_change_licensed",
+        "shadow_adoption_licensed", "a3_result_transport_to_a7_licensed",
+        "closed_at",
     }
-    if any(value.get(key) != expected for key, expected in required.items()) or \
+    if not isinstance(closure, dict) or set(closure) != closure_keys:
+        raise RuntimeError("A7 A3 forensic closure fields differ")
+    closure_fixed = {
+        "version": "stack-relaxation-carve-post-open-forensic-closure-v1",
+        "run_id": "20260819-stack-relaxation-carve-v1",
+        "status": "post-open-forensic-closure-complete",
+        "closure_mode": "post-open-forensic-provenance-recovery",
+        "protocol_sha256": (
+            "502c9c2c70ac0aa99ea5873c7fa99999557cd6f2aac5f6c95bfde1b33351e22b"
+        ),
+        "protocol_deviation_disclosed": True,
+        "scientific_result_opened_before_strict_harvest": True,
+        "recovery_reads_already_opened_realized_outcomes": True,
+        "strict_harvest_completed_before_read": False,
+        "original_result_commit": (
+            "56b09e960e5445cc7cd54c22eceef7cb5e7ec8c0"
+        ),
+        "prior_arm_disposition": "negative-closed-at-this-dose",
+        "cell_rerun_licensed": False,
+        "scientific_retest_licensed": False,
+        "production_change_licensed": False,
+        "shadow_adoption_licensed": False,
+        "a3_result_transport_to_a7_licensed": False,
+    }
+    if any(not _exact_json_value(closure.get(key), expected)
+           for key, expected in closure_fixed.items()):
+        raise RuntimeError("A7 A3 forensic closure differs")
+    nested_fixed = {
+        "result_report": {
+            "path": "reports/2026-08-20-stack-relaxation-carve-results.md",
+            "sha256": (
+                "b8ae2d2684baa8a236e5e0cfeb31eec27d9b1a8697702d11cb30c16724cbe7ae"
+            ),
+        },
+        "launch": {
+            "manifest_sha256": (
+                "6d822d6434aff3f16e00ac7e78216bcf583558abedbe93b0372683ba12edcbe7"
+            ),
+            "execution_ledger_sha256": (
+                "8355974533586b549ba11bca0302b7ebc3ae792094283bb40645e7c6841ebc6f"
+            ),
+            "launch_receipt_sha256": (
+                "8f883eed18dad935459f211bcd821a8dacadde284e6c4d9170ac5e6bb399df5b"
+            ),
+        },
+        "preopen_material": {
+            "finisher_sha256": (
+                "c43505f61008dd217395ba21f6f485c9a87a72fd72a581123f68c565df2addf2"
+            ),
+            "tests_sha256": (
+                "13a6359b1d4165737f9b9b38755d5e6924f15d946b410a6801ee4b499204a191"
+            ),
+            "addendum_sha256": (
+                "fb2ad4f3239f08ef17e35f71e10fbfa1471b48e2b18c9be77730ade3594c4860"
+            ),
+            "was_untracked_at_result_commit": True,
+        },
+    }
+    if any(not _exact_json_value(closure.get(key), expected)
+           for key, expected in nested_fixed.items()):
+        raise RuntimeError("A7 A3 forensic closure source binding differs")
+    aggregate = closure.get("aggregate")
+    cells = closure.get("cells")
+    executions = closure.get("executions")
+    objects = closure.get("objects")
+    implementation = closure.get("closure_implementation")
+    if not isinstance(aggregate, dict) or set(aggregate) != {
+        "path", "sha256", "bytes", "recomputed_byte_identical",
+    } or aggregate.get("path") != (
+        "reports/stack-relaxation-carve-runs/"
+        "20260819-stack-relaxation-carve-v1/aggregate-report.json"
+    ) or aggregate.get("sha256") != (
+        "2e08a551d116dc385b92ef123be3a6bb8296c71a75c822797d04c71bd669afdc"
+    ) or not isinstance(aggregate.get("bytes"), int) or \
+            isinstance(aggregate.get("bytes"), bool) or \
+            aggregate["bytes"] <= 0 or \
+            aggregate.get("recomputed_byte_identical") is not True:
+        raise RuntimeError("A7 A3 forensic aggregate binding differs")
+    for block, expected in (
+        (cells, {"count": 54, "git_byte_identity": True,
+                 "remote_generation_byte_identity": True}),
+        (executions, {"count": 54, "all_strict_terminal": True}),
+        (objects, {"count": 54, "exact_inventory": True,
+                   "generation_pinned": True}),
+    ):
+        expected_keys = (
+            {"count", "ledger_sha256", "git_byte_identity",
+             "remote_generation_byte_identity"}
+            if block is cells else
+            ({"count", "metadata_ledger_sha256", "all_strict_terminal"}
+             if block is executions else
+             {"count", "metadata_ledger_sha256", "exact_inventory",
+              "generation_pinned"})
+        )
+        if not isinstance(block, dict) or set(block) != expected_keys or any(
+            not _exact_json_value(block.get(key), expected_value)
+            for key, expected_value in expected.items()
+        ) or re.fullmatch(r"[0-9a-f]{64}", str(
+            block.get("ledger_sha256" if block is cells else
+                      "metadata_ledger_sha256", "")
+        )) is None:
+            raise RuntimeError("A7 A3 forensic population binding differs")
+    if not isinstance(implementation, dict) or set(implementation) != {
+        "source_commit", "freeze_manifest_path", "freeze_manifest_sha256",
+        "implementation", "operator_approved", "frozen_at",
+    } or re.fullmatch(r"[0-9a-f]{40}", str(
+        implementation.get("source_commit", "")
+    )) is None or re.fullmatch(r"[0-9a-f]{64}", str(
+        implementation.get("freeze_manifest_sha256", "")
+    )) is None or implementation.get("freeze_manifest_path") != (
+        "reports/2026-08-20-a3-post-open-forensic-closure-"
+        "implementation-freeze.json"
+    ) or implementation.get("operator_approved") is not True or \
+            not isinstance(implementation.get("frozen_at"), str) or \
+            not implementation["frozen_at"]:
+        raise RuntimeError("A7 A3 forensic implementation binding differs")
+    implementation_rows = implementation.get("implementation")
+    expected_paths = {
+        "script": "scripts/close_stack_relaxation_carve_post_open.py",
+        "tests": "tests/test_close_stack_relaxation_carve_post_open.py",
+        "protocol": (
+            "reports/2026-08-20-a3-post-open-forensic-closure-protocol.md"
+        ),
+    }
+    if not isinstance(implementation_rows, dict) or \
+            set(implementation_rows) != set(expected_paths):
+        raise RuntimeError("A7 A3 forensic implementation population differs")
+    for key, relative in expected_paths.items():
+        row = implementation_rows.get(key)
+        if not isinstance(row, dict) or set(row) != {"path", "sha256"} or \
+                row.get("path") != relative or re.fullmatch(
+                    r"[0-9a-f]{64}", str(row.get("sha256", ""))
+                ) is None:
+            raise RuntimeError("A7 A3 forensic implementation row differs")
+    if implementation_rows["protocol"]["sha256"] != \
+            closure_fixed["protocol_sha256"]:
+        raise RuntimeError("A7 A3 forensic implementation protocol differs")
+    if _sha_bytes(_canonical_json(closure)) != value.get(
+        "forensic_closure_sha256"
+    ):
+        raise RuntimeError("A7 A3 forensic closure SHA differs")
+    required = {
+        "version": "stack-relaxation-carve-logical-release-v2",
+        "run_id": "20260819-stack-relaxation-carve-v1",
+        "status": (
+            "released-for-next-historical-arm-after-post-open-forensic-closure"
+        ),
+        "next_run_id": RUN_ID,
+        "closure_mode": "post-open-forensic-provenance-recovery",
+        "strict_harvest_completed_before_read": False,
+        "post_open_forensic_closure_complete": True,
+        "original_result_commit": (
+            "56b09e960e5445cc7cd54c22eceef7cb5e7ec8c0"
+        ),
+        "aggregate_sha256": (
+            "2e08a551d116dc385b92ef123be3a6bb8296c71a75c822797d04c71bd669afdc"
+        ),
+        "result_report_sha256": (
+            "b8ae2d2684baa8a236e5e0cfeb31eec27d9b1a8697702d11cb30c16724cbe7ae"
+        ),
+        "prior_arm_disposition": "negative-closed-at-this-dose",
+        "historical_outcome_lease_clear": True,
+        "historical_outcome_lease_state": "absent",
+        "operator_approved": True,
+        "cell_rerun_licensed": False,
+        "scientific_retest_licensed": False,
+        "production_change_licensed": False,
+        "shadow_adoption_licensed": False,
+        "a3_result_transport_to_a7_licensed": False,
+    }
+    if any(not _exact_json_value(value.get(key), expected)
+           for key, expected in required.items()) or \
             re.fullmatch(r"[0-9a-f]{64}", str(
-                value.get("strict_harvest_completion_sha256", "")
-            )) is None or not str(value.get("released_at", "")):
+                value.get("forensic_closure_sha256", "")
+            )) is None:
         raise RuntimeError("A7 A3 logical release differs")
+    parsed_timestamps: dict[str, datetime] = {}
+    for key in (
+        "closed_at", "historical_outcome_lease_absence_checked_at",
+        "released_at",
+    ):
+        timestamp = closure.get(key) if key == "closed_at" else value.get(key)
+        if not isinstance(timestamp, str) or not timestamp:
+            raise RuntimeError("A7 A3 logical release timestamp differs")
+        try:
+            parsed = datetime.fromisoformat(timestamp)
+        except ValueError as exc:
+            raise RuntimeError("A7 A3 logical release timestamp differs") from exc
+        if parsed.tzinfo is None or parsed.utcoffset() != timezone.utc.utcoffset(parsed):
+            raise RuntimeError("A7 A3 logical release timestamp differs")
+        parsed_timestamps[key] = parsed
+    if not parsed_timestamps["closed_at"] <= parsed_timestamps[
+        "historical_outcome_lease_absence_checked_at"
+    ] <= parsed_timestamps["released_at"]:
+        raise RuntimeError("A7 A3 logical release chronology differs")
+    frozen_at = implementation.get("frozen_at")
+    if not isinstance(frozen_at, str) or not frozen_at:
+        raise RuntimeError("A7 A3 implementation freeze timestamp differs")
+    try:
+        parsed_frozen_at = datetime.fromisoformat(frozen_at)
+    except ValueError as exc:
+        raise RuntimeError("A7 A3 implementation freeze timestamp differs") from exc
+    if parsed_frozen_at.tzinfo is None or parsed_frozen_at.utcoffset() != \
+            timezone.utc.utcoffset(parsed_frozen_at) or \
+            parsed_frozen_at > parsed_timestamps["closed_at"]:
+        raise RuntimeError("A7 A3 implementation freeze chronology differs")
     return value
 
 

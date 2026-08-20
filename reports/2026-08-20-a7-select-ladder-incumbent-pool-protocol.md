@@ -346,8 +346,23 @@ candidate byte is `invalid`, not repair authority.
   A7 may update or execute the reused Cloud Run job, including for an
   outcome-blind preflight. A7 must bind a separate create-once A3 lane-release
   receipt that explicitly names A7 as the next owner; A3's strict-harvest
-  completion alone is insufficient. B1's distinct job/scheduler are outside
-  A7's allowlist and must never be touched.
+  completion alone is insufficient. For the completed A3 run only, its result
+  bodies were opened before the newer strict finisher published its ledgers.
+  A7 therefore requires the exact logical-release-v2 recovery receipt defined
+  by `reports/2026-08-20-a3-post-open-forensic-closure-protocol.md`: it must
+  disclose `strict_harvest_completed_before_read=false`, bind byte identity to
+  all 54 generation-pinned remote objects and the original result commit,
+  independently reproduce the aggregate, record the negative disposition,
+  prove the historical-outcome lease absent, and make all scientific-transfer,
+  rerun, retest, shadow, and production licenses false. This operational
+  deviation cannot affect A7's dose because A7's scientific contract commit
+  `c1dcf4f2910c4f3298c83270bd228d1ec51c975c` and prior protocol SHA-256
+  `e3222f94bc5f5fdc0e7c63df277a96a98e26cc497624f799252628645e10fba0`
+  predate the A3 result commit. No A7 smoke, support receipt, freeze manifest,
+  or historical result existed when this governance-only recovery amendment
+  was made; the ladder, endpoints, gates, sources, and disposition law are
+  unchanged. The legacy release-v1 shape is rejected for this handoff. B1's
+  distinct job/scheduler are outside A7's allowlist and must never be touched.
 - Before the first job update, create and revalidate one generation-matched,
   create-only GCS A7 job-claim object. It binds the A3 release receipt, reused
   job name/UID/generation, run/protocol/code/image identities, and literal

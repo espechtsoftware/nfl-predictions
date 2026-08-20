@@ -549,17 +549,144 @@ def synthetic(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Synthetic:
         "baseline": _sha(b"baseline\n"),
         "baseline_vector": _sha(b"vector\n"),
     }
-    release = {
-        "version": "stack-relaxation-carve-logical-release-v1",
+    a3_closure = {
+        "version": "stack-relaxation-carve-post-open-forensic-closure-v1",
         "run_id": "20260819-stack-relaxation-carve-v1",
-        "status": "released-for-next-historical-arm",
+        "status": "post-open-forensic-closure-complete",
+        "closure_mode": "post-open-forensic-provenance-recovery",
+        "protocol_sha256": (
+            "502c9c2c70ac0aa99ea5873c7fa99999557cd6f2aac5f6c95bfde1b33351e22b"
+        ),
+        "protocol_deviation_disclosed": True,
+        "scientific_result_opened_before_strict_harvest": True,
+        "recovery_reads_already_opened_realized_outcomes": True,
+        "strict_harvest_completed_before_read": False,
+        "original_result_commit": (
+            "56b09e960e5445cc7cd54c22eceef7cb5e7ec8c0"
+        ),
+        "prior_arm_disposition": "negative-closed-at-this-dose",
+        "result_report": {
+            "path": "reports/2026-08-20-stack-relaxation-carve-results.md",
+            "sha256": (
+                "b8ae2d2684baa8a236e5e0cfeb31eec27d9b1a8697702d11cb30c16724cbe7ae"
+            ),
+        },
+        "aggregate": {
+            "path": (
+                "reports/stack-relaxation-carve-runs/"
+                "20260819-stack-relaxation-carve-v1/aggregate-report.json"
+            ),
+            "sha256": (
+                "2e08a551d116dc385b92ef123be3a6bb8296c71a75c822797d04c71bd669afdc"
+            ),
+            "bytes": 1,
+            "recomputed_byte_identical": True,
+        },
+        "cells": {
+            "count": 54, "ledger_sha256": "1" * 64,
+            "git_byte_identity": True,
+            "remote_generation_byte_identity": True,
+        },
+        "launch": {
+            "manifest_sha256": (
+                "6d822d6434aff3f16e00ac7e78216bcf583558abedbe93b0372683ba12edcbe7"
+            ),
+            "execution_ledger_sha256": (
+                "8355974533586b549ba11bca0302b7ebc3ae792094283bb40645e7c6841ebc6f"
+            ),
+            "launch_receipt_sha256": (
+                "8f883eed18dad935459f211bcd821a8dacadde284e6c4d9170ac5e6bb399df5b"
+            ),
+        },
+        "preopen_material": {
+            "finisher_sha256": (
+                "c43505f61008dd217395ba21f6f485c9a87a72fd72a581123f68c565df2addf2"
+            ),
+            "tests_sha256": (
+                "13a6359b1d4165737f9b9b38755d5e6924f15d946b410a6801ee4b499204a191"
+            ),
+            "addendum_sha256": (
+                "fb2ad4f3239f08ef17e35f71e10fbfa1471b48e2b18c9be77730ade3594c4860"
+            ),
+            "was_untracked_at_result_commit": True,
+        },
+        "closure_implementation": {
+            "source_commit": "a" * 40,
+            "freeze_manifest_path": (
+                "reports/2026-08-20-a3-post-open-forensic-closure-"
+                "implementation-freeze.json"
+            ),
+            "freeze_manifest_sha256": "d" * 64,
+            "implementation": {
+                "script": {
+                    "path": "scripts/close_stack_relaxation_carve_post_open.py",
+                    "sha256": "b" * 64,
+                },
+                "tests": {
+                    "path": "tests/test_close_stack_relaxation_carve_post_open.py",
+                    "sha256": "c" * 64,
+                },
+                "protocol": {
+                    "path": (
+                        "reports/2026-08-20-a3-post-open-forensic-closure-protocol.md"
+                    ),
+                    "sha256": (
+                        "502c9c2c70ac0aa99ea5873c7fa99999557cd6f2aac5f6c95bfde1b33351e22b"
+                    ),
+                },
+            },
+            "operator_approved": True,
+            "frozen_at": "2026-08-20T00:00:00+00:00",
+        },
+        "executions": {
+            "count": 54, "metadata_ledger_sha256": "2" * 64,
+            "all_strict_terminal": True,
+        },
+        "objects": {
+            "count": 54, "metadata_ledger_sha256": "3" * 64,
+            "exact_inventory": True, "generation_pinned": True,
+        },
+        "cell_rerun_licensed": False,
+        "scientific_retest_licensed": False,
+        "production_change_licensed": False,
+        "shadow_adoption_licensed": False,
+        "a3_result_transport_to_a7_licensed": False,
+        "closed_at": "2026-08-20T00:00:00+00:00",
+    }
+    release = {
+        "version": "stack-relaxation-carve-logical-release-v2",
+        "run_id": "20260819-stack-relaxation-carve-v1",
+        "status": (
+            "released-for-next-historical-arm-after-post-open-forensic-closure"
+        ),
         "next_run_id": finish.RUN_ID,
-        "strict_harvest_complete": True,
-        "strict_harvest_completion_sha256": "5" * 64,
-        "historical_outcome_lease_released": True,
+        "closure_mode": "post-open-forensic-provenance-recovery",
+        "strict_harvest_completed_before_read": False,
+        "post_open_forensic_closure_complete": True,
+        "forensic_closure_sha256": _sha(_canonical(a3_closure)),
+        "forensic_closure_receipt": a3_closure,
+        "original_result_commit": (
+            "56b09e960e5445cc7cd54c22eceef7cb5e7ec8c0"
+        ),
+        "aggregate_sha256": (
+            "2e08a551d116dc385b92ef123be3a6bb8296c71a75c822797d04c71bd669afdc"
+        ),
+        "result_report_sha256": (
+            "b8ae2d2684baa8a236e5e0cfeb31eec27d9b1a8697702d11cb30c16724cbe7ae"
+        ),
+        "prior_arm_disposition": "negative-closed-at-this-dose",
+        "historical_outcome_lease_clear": True,
+        "historical_outcome_lease_state": "absent",
+        "historical_outcome_lease_absence_checked_at": (
+            "2026-08-20T00:00:00+00:00"
+        ),
         "operator_approved": True,
         "released_at": "2026-08-20T00:00:00+00:00",
+        "cell_rerun_licensed": False,
+        "scientific_retest_licensed": False,
         "production_change_licensed": False,
+        "shadow_adoption_licensed": False,
+        "a3_result_transport_to_a7_licensed": False,
     }
     release_path = out / "a3-logical-release.json"
     release_path.write_bytes(_canonical(release))
