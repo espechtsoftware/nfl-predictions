@@ -319,6 +319,23 @@ agent or developer:
   test suite. No Cloud Run job, outcome lease, attempt object or historical
   score was touched. Wait for all three build steps and the image push to
   succeed; do not prepare or launch from a partial or cancelled build.
+- The full outcome-viewed B1 research corpus is now durably retained without
+  a new SQL query or row inspection. Four create-only snapshot jobs (original
+  plus one bounded retry per table) failed terminally with BigQuery
+  `backendError` and created no destination. The one authorized fallback used
+  independent `COPY` jobs
+  `b1_wr_candidate_copy_archive_20260820` and
+  `b1_wr_player_copy_archive_20260820`; both are `DONE` with no error and
+  `WRITE_EMPTY`. Permanent tables
+  `nfl_predictions.b1_wr_candidate_extract_20260820_archive` and
+  `nfl_predictions.b1_wr_player_extract_20260820_archive` exactly reproduce
+  698,172 candidate rows / 135,014,001 logical bytes and 29,605 player rows /
+  2,591,917 bytes plus exact schemas. Their inherited expirations were removed
+  and both carry literal outcome-viewed/retention-only/no-retune/no-production
+  labels. The exact job, source, destination, hash and failure ledger is
+  `reports/2026-08-20-b1-winner-relative-corpus-retention-checkpoint.md`.
+  Retention licenses no retrospective model change; B1 remains the sole frozen
+  first use of these labels.
 - One bounded integrated successor is now prepared, but deliberately remains
   `READY-AWAITING-A2A-AND-B1`: `20260820-legal-soft-law-v1`. It is the single
   policy answer to the operator's direction to replace most house construction
