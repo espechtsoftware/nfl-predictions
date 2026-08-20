@@ -318,7 +318,12 @@ agent or developer:
   source and requested tag `b1-tail-3ad43a8`; it is currently running the full
   test suite. No Cloud Run job, outcome lease, attempt object or historical
   score was touched. Wait for all three build steps and the image push to
-  succeed; do not prepare or launch from a partial or cancelled build.
+  succeed; do not prepare or launch from a partial or cancelled build. Durable
+  local watcher `/home/erich/nfl-panels/watch_b1_build_prepare.sh` (log
+  `b1-build-prepare.log`) validates the exact successful source, three build
+  steps and digest, then performs only the registered non-outcome preparation
+  and stops at `commit_and_push_manifest_before_launch`; it cannot acquire the
+  lease or execute the historical arm. `chain_status.sh` reports it as live.
 - The full outcome-viewed B1 research corpus is now durably retained without
   a new SQL query or row inspection. Four create-only snapshot jobs (original
   plus one bounded retry per table) failed terminally with BigQuery
