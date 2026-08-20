@@ -63,6 +63,8 @@ def test_previous_registry_gaps_stay_closed():
 
 def test_boom_unique_fill_lever_is_registered():
     assert "BOOM_UNIQUE_FILL" in engine._lever_keys
+    assert "OPEN_BOOM_SOLVES" in engine._lever_keys
+    assert "SINGLE_STACK_BOOM_SOLVES" in engine._lever_keys
 
 
 def test_exempt_keys_are_infrastructure_only():

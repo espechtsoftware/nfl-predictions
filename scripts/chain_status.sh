@@ -28,16 +28,23 @@ set -uo pipefail
 # from cache with its age shown, so the UI never blocks on the network
 # and the API is never hammered.
 
-PROJECT=nfl-predictions-503414
-REGION=us-central1
+PROJECT=${NFL_DFS_PROJECT:-nfl-predictions-503414}
+REGION=${NFL_DFS_REGION:-us-central1}
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-PANELS="$HOME/nfl-panels"
-CACHE="${TMPDIR:-/tmp}/chain-status-$(id -u)"
-LEASE_URI=gs://nfl-predictions-503414-raw/research-governance/historical-outcome-active-v1.json
-CLOUD_INTERVAL=60
+PANELS=${NFL_DFS_PANELS_DIR:-"$HOME/nfl-panels"}
+CACHE=${NFL_DFS_CHAIN_CACHE_DIR:-"${TMPDIR:-/tmp}/chain-status-$(id -u)"}
+LEASE_URI=${NFL_DFS_HISTORICAL_LEASE_URI:-gs://nfl-predictions-503414-raw/research-governance/historical-outcome-active-v1.json}
+CLOUD_INTERVAL=${NFL_DFS_CHAIN_CLOUD_INTERVAL:-60}
+if [ -n "${NFL_DFS_PYTHON:-}" ]; then
+  PYTHON=$NFL_DFS_PYTHON
+elif [ -x "$ROOT/.venv/bin/python" ]; then
+  PYTHON="$ROOT/.venv/bin/python"
+else
+  PYTHON=python3
+fi
 GRID_WINDOW=$((12 * 3600))
 HEARTBEAT='status=WORKING|status=QUEUED|state=Unknown|WAITS_FOR'
-CHAIN_RE='watch_[a-z_]+\.sh|drive_[a-z_]+\.sh|repair_[a-z0-9_]+\.sh'
+CHAIN_RE='watch_[a-z0-9_]+\.sh|drive_[a-z0-9_]+\.sh|repair_[a-z0-9_]+\.sh'
 CHAIN_RE="$CHAIN_RE"'|tally_[a-z_]+\.sh|cloud_[a-z0-9_]+chain\.sh'
 
 WATCH=0
@@ -54,8 +61,7 @@ while [ $# -gt 0 ]; do
     -e|--exec-log) EXEC_LOG=${2:?execution name or "latest"}; shift ;;
     --experiments) LIST_EXPERIMENTS=1 ;;
     --baseline)
-      exec "$(cd "$(dirname "$0")/.." && pwd)/.venv/bin/python" -m json.tool \
-        "$(cd "$(dirname "$0")/.." && pwd)/reports/current-baseline.json" ;;
+      exec "$PYTHON" -m json.tool "$ROOT/reports/current-baseline.json" ;;
     --result) RESULT_QUERY=${2:?run-id substring}; shift ;;
     -h|--help)
       sed -n '4,26p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
@@ -125,30 +131,85 @@ refresh_cloud() {  # writes atomically into $CACHE; safe to run twice
     --format="value(id,status,substitutions._IMAGE,createTime)" \
     > "$CACHE/builds.$t" 2>/dev/null && mv "$CACHE/builds.$t" "$CACHE/builds"
   rm -f "$CACHE/builds.$t"
-  if gsutil -q stat "$LEASE_URI" 2>/dev/null; then
-    holder=$(gsutil cat "$LEASE_URI" 2>/dev/null \
-      | grep -ao '"run_id":"[^"]*"' | head -1 | cut -d'"' -f4)
-    printf 'HELD %s\n' "${holder:-unknown}" > "$CACHE/lease.$t"
+  if lease_state=$("$PYTHON" - "$PROJECT" "$LEASE_URI" 2>/dev/null <<'PYL'
+import json
+import sys
+
+from google.api_core.exceptions import NotFound
+from google.cloud import storage
+
+project, uri = sys.argv[1:]
+bucket_name, object_name = uri[5:].split("/", 1)
+blob = storage.Client(project=project).bucket(bucket_name).blob(object_name)
+try:
+    blob.reload()
+except NotFound:
+    print("free")
+    raise SystemExit(0)
+body = json.loads(blob.download_as_bytes(if_generation_match=blob.generation))
+holder = body.get("run_id")
+if not isinstance(holder, str) or not holder:
+    raise SystemExit("lease run_id differs")
+print(f"HELD {holder}")
+PYL
+  ); then
+    printf '%s\n' "$lease_state" > "$CACHE/lease.$t"
+    mv "$CACHE/lease.$t" "$CACHE/lease"
   else
-    printf 'free\n' > "$CACHE/lease.$t"
+    rm -f "$CACHE/lease.$t"
+    [ -s "$CACHE/lease" ] || printf 'UNKNOWN lease-query-failed\n' > "$CACHE/lease"
   fi
-  mv "$CACHE/lease.$t" "$CACHE/lease"
-  gcloud run jobs executions list --project "$PROJECT" --region "$REGION" \
-    --limit 8 --sort-by "~metadata.creationTimestamp" --format \
-    "value(metadata.name,status.conditions[0].status,metadata.creationTimestamp,status.completionTime)" \
-    > "$CACHE/execs.$t" 2>/dev/null && mv "$CACHE/execs.$t" "$CACHE/execs"
-  rm -f "$CACHE/execs.$t"
+  if gcloud run jobs executions list --project "$PROJECT" --region "$REGION" \
+      --limit 8 --sort-by "~metadata.creationTimestamp" --format=json \
+      > "$CACHE/execs-raw.$t" 2>/dev/null \
+    && "$PYTHON" - "$CACHE/execs-raw.$t" > "$CACHE/execs.$t" <<'PYE'
+import json
+import sys
+
+rows = json.load(open(sys.argv[1], encoding="utf-8"))
+for row in rows:
+    conditions = [
+        item for item in row.get("status", {}).get("conditions", [])
+        if item.get("type") == "Completed"
+    ]
+    state = conditions[0].get("status", "Unknown") if len(conditions) == 1 else "Unknown"
+    metadata = row.get("metadata", {})
+    status = row.get("status", {})
+    print("\t".join((
+        str(metadata.get("name", "")), str(state),
+        str(metadata.get("creationTimestamp", "")),
+        str(status.get("completionTime", "")),
+    )))
+PYE
+  then
+    mv "$CACHE/execs.$t" "$CACHE/execs"
+  fi
+  rm -f "$CACHE/execs.$t" "$CACHE/execs-raw.$t"
   : > "$CACHE/grids.$t"
-  for ledger in $(ls -t "$ROOT"/reports/*-runs/*/executions.txt 2>/dev/null \
-                  | head -3); do
+  : > "$CACHE/exec-labels.$t"
+  while IFS= read -r ledger; do
+    [ -n "$ledger" ] || continue
     dir=$(dirname "$ledger"); run=$(basename "$dir")
+    case "$run" in
+      smoke|support) run="$(basename "$(dirname "$dir")")/$run" ;;
+    esac
     age=$(( $(date +%s) - $(stat -c %Y "$ledger" 2>/dev/null || date +%s) ))
     cells=$(wc -l < "$ledger" 2>/dev/null | tr -d ' ')
-    uri=$(awk 'NF>=5 {print $5; exit}' "$ledger" 2>/dev/null)
+    uri=$(awk 'NF>=5 {print $5; exit} NF==3 {print $3; exit}' "$ledger" 2>/dev/null)
+    execution=$(awk 'NF==3 {print $2; exit}' "$ledger" 2>/dev/null)
+    case "$uri" in
+      */preflight/real-artifact-smoke.json) phase="A7 smoke" ;;
+      */preflight/support-census.json) phase="A7 support" ;;
+      */a7-select-ladder-runs/*/result.json) phase="A7 historical" ;;
+      *) phase="" ;;
+    esac
+    [ -z "$execution" ] || [ -z "$phase" ] || \
+      printf '%s\t%s\n' "$execution" "$phase" >> "$CACHE/exec-labels.$t"
     prefix="${uri%/*}"
     # Aggregates land locally beside the ledger, or in GCS beside the
     # cells / one level up when the run used an attempt subdirectory.
-    if [ -s "$dir/aggregate-report.json" ] \
+    if { [ -s "$dir/finish.sha256" ] && [ -s "$dir/completion.txt" ]; } \
+      || [ -s "$dir/aggregate-report.json" ] \
       || { [ -n "$prefix" ] && { \
            gsutil -q stat "$prefix/aggregate-report.json" 2>/dev/null \
         || gsutil -q stat "${prefix%/*}/aggregate-report.json" 2>/dev/null; }; }
@@ -159,12 +220,21 @@ refresh_cloud() {  # writes atomically into $CACHE; safe to run twice
     elif [ "$age" -lt "$GRID_WINDOW" ]; then tag=ACTIVE
     else tag=stalled; fi
     done_n="?"
-    [ -n "$prefix" ] && done_n=$(gsutil ls "$prefix/slate-*.json" 2>/dev/null \
-      | wc -l | tr -d ' ')
+    if [ "$(awk 'NR==1 {print NF}' "$ledger" 2>/dev/null)" = 3 ]; then
+      if [ "$agg" = PRESENT ]; then done_n=1
+      elif [ -n "$uri" ] && gsutil -q stat "$uri" 2>/dev/null; then done_n=1
+      fi
+    elif [ -n "$prefix" ]; then
+      done_n=$(gsutil ls "$prefix/slate-*.json" 2>/dev/null | wc -l | tr -d ' ')
+    fi
     printf '%s\t%s\t%s\t%s\t%s\t%s\n' \
       "$tag" "$run" "$done_n" "$cells" "$agg" "$age" >> "$CACHE/grids.$t"
-  done
+  done < <(
+    find "$ROOT/reports" -type f -name executions.txt -path '*-runs/*' \
+      -printf '%T@\t%p\n' 2>/dev/null | sort -nr | head -3 | cut -f2-
+  )
   mv "$CACHE/grids.$t" "$CACHE/grids"
+  mv "$CACHE/exec-labels.$t" "$CACHE/exec-labels"
   date +%s > "$CACHE/stamp"
 }
 
@@ -303,14 +373,14 @@ for m, label, headline, rel in rows[:40]:
 '
 
 list_experiments() {
-  "$ROOT/.venv/bin/python" -c "$EXPERIMENTS_HELPER" "$ROOT" 2>/dev/null
+  "$PYTHON" -c "$EXPERIMENTS_HELPER" "$ROOT" 2>/dev/null
 }
 
 view_json() {  # pretty-print one result through a pager, TUI-safely
   local file=$1
   [ -f "$file" ] || return
   if [ "$WATCH" = 1 ]; then tput rmcup 2>/dev/null; tput cnorm 2>/dev/null; fi
-  "$ROOT/.venv/bin/python" -m json.tool "$file" | less -R
+  "$PYTHON" -m json.tool "$file" | less -R
   if [ "$WATCH" = 1 ]; then tput smcup 2>/dev/null; tput civis 2>/dev/null; fi
   printf '\033[2J'
 }
@@ -403,7 +473,7 @@ render() {
   echo
   echo "${B}BASELINE${N} ${D}(reports/current-baseline.json)${N}"
   if [ -f "$ROOT/reports/current-baseline.json" ]; then
-    "$ROOT/.venv/bin/python" - "$ROOT/reports/current-baseline.json" <<'PYB' 2>/dev/null | while read -r line; do fit "  $line"; echo; done
+    "$PYTHON" - "$ROOT/reports/current-baseline.json" <<'PYB' 2>/dev/null | while read -r line; do fit "  $line"; echo; done
 import json, sys
 b = json.load(open(sys.argv[1]))
 mb, ac, pc = b["money_book"], b["arm_comparator_book"], b["pool_ceiling"]
@@ -428,14 +498,19 @@ PYB
     local letter_ix=0 letters="abcdefgh"
     while IFS=$'\t' read -r name state created completed; do
       [ -z "$name" ] && continue
-      local word
+      local word phase_label="" display_name
       case "$state" in
         True) word=done ;;
         False) word=FAILED ;;
         *) word=running ;;
       esac
+      [ ! -s "$CACHE/exec-labels" ] || \
+        phase_label=$(awk -F '\t' -v execution="$name" \
+          '$1 == execution {print $2; exit}' "$CACHE/exec-labels")
+      display_name=$name
+      [ -z "$phase_label" ] || display_name="$phase_label · $name"
       local lt="${letters:$letter_ix:1}"; letter_ix=$((letter_ix + 1))
-      fit "  ${D}[$lt]${N} $(paint "$word") $(printf '%-46s' "${name:0:46}") ${D}${created:5:11}${N}"
+      fit "  ${D}[$lt]${N} $(paint "$word") $(printf '%-46s' "${display_name:0:46}") ${D}${created:5:11}${N}"
       echo
     done < <(head -8 "$CACHE/execs")
   else
@@ -465,6 +540,8 @@ PYB
     read -r state holder < "$CACHE/lease"
     if [ "$state" = HELD ]; then
       fit "  $(paint HELD) ${holder}"
+    elif [ "$state" = UNKNOWN ]; then
+      fit "  $(paint UNKNOWN) ${R}${holder:-lease-query-failed}; last state unavailable${N}"
     else
       fit "  $(paint free) ${D}no historical-outcome experiment holds it${N}"
     fi
@@ -524,7 +601,7 @@ if [ -n "$RESULT_QUERY" ]; then
   match=$(list_experiments | awk -F'\t' -v q="$RESULT_QUERY" \
     'index($2, q) || index($4, q) {print $4; exit}')
   [ -z "$match" ] && { echo "no retained result matches: $RESULT_QUERY" >&2; exit 2; }
-  exec "$ROOT/.venv/bin/python" -m json.tool "$ROOT/$match"
+  exec "$PYTHON" -m json.tool "$ROOT/$match"
 fi
 
 if [ -n "$EXEC_LOG" ]; then

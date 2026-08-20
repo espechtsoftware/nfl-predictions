@@ -95,6 +95,13 @@ def test_effective_config_flags_a_deployment_override():
         env={"TD_LEDGER_RANK_COUPLING": "1"})
     assert not td_rank["matches_adopted_default"]
     assert td_rank["overrides"] == {"TD_LEDGER_RANK_COUPLING": "1"}
+    for key in ("OPEN_BOOM_SOLVES", "SINGLE_STACK_BOOM_SOLVES"):
+        inactive = effective_generation_config(env={key: "0"})
+        assert inactive["matches_adopted_default"]
+        assert inactive["overrides"] == {key: "0"}
+        active = effective_generation_config(env={key: "1"})
+        assert not active["matches_adopted_default"]
+        assert active["overrides"] == {key: "1"}
 
 
 # --- fair pool-size control ---------------------------------------------

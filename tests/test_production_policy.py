@@ -63,6 +63,8 @@ def test_policy_overwrites_research_levers_without_mutating_base():
         "SELECT_LADDER": "210:999",
         "MIN_LINEUP_SALARY": "0",
         "N_GUMBEL": "20",
+        "OPEN_BOOM_SOLVES": "8",
+        "SINGLE_STACK_BOOM_SOLVES": "8",
         "GEN_POOL_CAP": "99",
         "N_ROUTE_TAIL": "12",
         "MIN_LOWOWN": "2",
@@ -84,6 +86,8 @@ def test_policy_overwrites_research_levers_without_mutating_base():
     assert env["SELECT_LADDER"] == ""
     assert env["MIN_LINEUP_SALARY"] == "49000"
     assert env["N_GUMBEL"] == "0"
+    assert env["OPEN_BOOM_SOLVES"] == "0"
+    assert env["SINGLE_STACK_BOOM_SOLVES"] == "0"
     assert env["GEN_POOL_CAP"] == "0"
     assert env["SERVED_POSITION_SCALES"] == (
         "QB:0.970,RB:1.005,TE:0.940,WR:1.070")
@@ -122,8 +126,12 @@ def test_policy_overwrites_research_levers_without_mutating_base():
 
 
 def test_ladder_is_explicitly_off_in_money_policy_and_forbidden_on_app():
-    assert ADOPTED_CLASSIC_POLICY.engine_environment()["SELECT_LADDER"] == ""
+    env = ADOPTED_CLASSIC_POLICY.engine_environment()
+    assert env["SELECT_LADDER"] == ""
     assert "SELECT_LADDER" in APP_FORBIDDEN
+    for key in ("OPEN_BOOM_SOLVES", "SINGLE_STACK_BOOM_SOLVES"):
+        assert env[key] == "0"
+        assert key in APP_FORBIDDEN
 
 
 def test_public_identity_exposes_fixed_budget_five_by_five_contract():

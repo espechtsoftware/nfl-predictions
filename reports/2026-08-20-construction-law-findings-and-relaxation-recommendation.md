@@ -305,3 +305,42 @@ simultaneous-extremes realism guard. It may proceed without changing the
 production construction law. Its frozen scope intentionally excludes the
 winner-overlap and never-realized-mass diagnostics above, so those diagnostics
 must not be retrofitted into A7 after its science was registered.
+
+---
+
+## 7. Minimal winner-like implementation now prepared
+
+The recent winner census does not justify copying historical winner shares
+into hard quotas. It does justify correcting the specific mismatch in A3's
+treatment population. Across 51 winners, the number of same-team QB WR/TE
+partners was 0/1/2/3+ in approximately 22%/41%/31%/6% of lineups. A3's open
+candidates were approximately 58% naked and only 30% exact-single-stack, so
+that arm did not actually test the modal winner structure.
+
+A separate default-off seam, `SINGLE_STACK_BOOM_SOLVES`, is therefore prepared
+with the narrowest causal contrast:
+
+- replace exactly the registered number of deterministic boom visits; never
+  add solve slots or candidates;
+- require exactly one same-team QB WR/TE partner on those visits;
+- retain the incumbent bring-back, salary, RB/DST, and game rules unchanged;
+- retain the incumbent worlds, seeds, objective, candidate budget, and
+  selector;
+- reject coexistence with `OPEN_BOOM_SOLVES`, malformed or over-budget doses,
+  solver/infeasibility failures, and any duplicate-replacement shortfall;
+- tag the treatment `single_stack` while retaining its primary `boom` family;
+- force both OPEN and SINGLE to zero in the money policy and reject either in
+  deployed application configuration.
+
+The seam is locally covered by 59 focused tests, including absent/zero parity,
+exact-one structure, preserved bring-back and protected constraints,
+deterministic budget use, duplicate shortfalls, runtime visibility, and
+production/deployment isolation. This is implementation readiness only. It is
+not frozen, outcome-tested, shadow-licensed, or adopted.
+
+To avoid repeating an over-broad arm, its execution order is fixed: first pass
+the separate A2a same-team dependence repair; then freeze this one exact
+single-stack dose under that repaired law. Bring-back removal, max-game spread,
+ownership, and residual-world pricing remain separate experiments. This keeps
+the redesign focused on producing more winner-like roster composition without
+claiming that descriptive winner frequencies are an oracle.

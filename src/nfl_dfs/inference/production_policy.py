@@ -227,6 +227,8 @@ class ClassicProductionPolicy:
             "N_MIDQB": "0",
             "N_GAMESTACK": "4",
             "N_DARKGAME": "10",
+            "OPEN_BOOM_SOLVES": "0",
+            "SINGLE_STACK_BOOM_SOLVES": "0",
             "CAND_MULT": str(self.candidate_multiple),
             # Fixed coverage selector; rejected selector arms stay off.
             "SELECT_OBJ": "",

@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-20 07:34 CDT
+## Current state — 2026-08-20 08:37 CDT
 
 ### A3 post-open recovery is complete; A7 is next in the serialized queue
 
@@ -89,6 +89,14 @@ agent or developer:
   receipts were unaffected. The narrow test-only repair freezes the synthetic
   aggregate value and skips only the unavailable historical-object assertion;
   local full-history validation remains active.
+- The repaired source and handoff are pushed at
+  `96f4487bdefa297f66d03e4aca896728581540b2`. Replacement exact-source A7
+  Cloud Build `3503c493-60d5-4fe6-a853-583679c8e33d` is running from that
+  commit with tag `a7-96f4487-20260820`. It cleared the former failure region
+  through 48% with no failure marker and is currently inside a long full-suite
+  test. No image, job update, preflight object, outcome lease, or outcome read
+  exists yet from this build. If it fails, stop on that concrete failure; do
+  not open another broad review cycle.
 
 **Construction/winner-law disposition.** The requested review is incorporated
 in `reports/2026-08-20-construction-law-findings-and-relaxation-recommendation.md`.
@@ -102,12 +110,35 @@ A2a QB-WR/generic same-team dependence repair passes. Cross-team bring-back,
 spread, residual worlds, and ownership are separate later questions. Never fit
 winner-frequency quotas on the same 2023–2025 grading corpus.
 
-**Next concrete action.** Commit/push the Cloud-Build-compatible recovery test
-fixture, rerun its focused/archive gates, then rebuild A7 from that exact remote
-commit and run,
-strictly serialized, real-artifact smoke -> all-54 support census -> external
-freeze -> one historical arm. Use only `atlas-minimal-c-s2023-w1-v1`; never
-`deploy_jobs.sh`, never B1's job/scheduler, and never overlap outcome arms.
+That exact-one seam is now prepared locally as
+`SINGLE_STACK_BOOM_SOLVES`, default zero. It replaces, rather than adds, the
+same deterministic A3 boom visits; requires exactly one QB WR/TE teammate;
+holds bring-back, salary, RB/DST, game, world, budget, and selector laws fixed;
+and fails closed on malformed doses, coexistence with `OPEN_BOOM_SOLVES`, solve
+failure, infeasibility, or a duplicate-replacement shortfall. Both OPEN and
+SINGLE are visible in the runtime receipt and are forced off/forbidden in the
+money/deployment policy. Focused validation is **59/59**. This milestone is
+implementation readiness only: no freeze, historical run, shadow license, or
+production adoption, and it remains queued behind A2a.
+
+`scripts/chain_status.sh` is also locally hardened for the active orchestration:
+it recognizes digits in A7 watcher names, exact-selects the Cloud Run
+`Completed` condition, discovers the nested smoke/support and three-field
+historical ledgers, labels A7 phases, treats strict finish receipts as done,
+and never turns a lease-query/authentication failure into `free`. Project,
+region, panels, cache, lease URI, refresh interval, and Python are now
+environment-overridable. `bash -n` and a live one-shot monitor refresh are
+green. These monitor-only bytes do not change the frozen A7 experiment.
+
+**Next concrete action.** Let replacement build `3503c493…` finish. On exact
+success, resolve its immutable image digest and run, strictly serialized,
+preflight job claim -> real-artifact smoke -> strict smoke harvest -> all-54
+support census -> strict support harvest. Freeze only if support passes; then
+prepare and launch the one historical arm under the existing A7 watcher. Use
+only `atlas-minimal-c-s2023-w1-v1`; never `deploy_jobs.sh`, never B1's
+job/scheduler, and never overlap outcome arms. Run the watcher with direct
+stdout/stderr redirection to `~/nfl-panels/a7-select-ladder-chain.log` so the
+monitor can display it.
 
 The recovery test suite now validates its own producer contract; the separate
 A7 finisher suite validates the exact cross-arm handoff. This avoids a circular

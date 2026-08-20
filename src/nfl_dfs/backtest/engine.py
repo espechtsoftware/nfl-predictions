@@ -92,7 +92,7 @@ _lever_keys = {
     "REPLAY_PROJECTION_SEED",
     "SIS_ASOE_BETA", "SIS_ASOE_TARGET_ALLOCATION",
     "SCHAAKE_DIAG_ONLY", "SCHAAKE_DIAG_STRICT", "SCHAAKE_K",
-    "OPEN_BOOM_SOLVES",
+    "OPEN_BOOM_SOLVES", "SINGLE_STACK_BOOM_SOLVES",
     "SCHAAKE_TEMPLATE_MODE", "SCRIPT_FEEDBACK",
     "SELECT_LADDER", "SELECT_LSE", "SELECT_OBJ",
     "SERVED_POSITION_SCALES", "SERVED_TAIL_SCALE", "SHAPE_MIX",
@@ -310,6 +310,26 @@ def resolve_generation_budget(n_boom_solves: int | None = None,
     return n_ce, n_epi, n_boom
 
 
+def _boom_structure_carve_counts(env, n_boom_solves: int) -> tuple[int, int]:
+    """Return validated ``(open, exact-single-stack)`` boom carve doses."""
+    values: list[int] = []
+    for key in ("OPEN_BOOM_SOLVES", "SINGLE_STACK_BOOM_SOLVES"):
+        raw = env.get(key, "0")
+        if raw == "":
+            raw = "0"
+        if not isinstance(raw, str) or re.fullmatch(r"0|[1-9][0-9]*", raw) is None:
+            raise ValueError(f"{key} must be a canonical nonnegative integer")
+        value = int(raw)
+        if value > n_boom_solves:
+            raise ValueError(
+                f"{key}={value} exceeds the {n_boom_solves} boom-solve budget")
+        values.append(value)
+    if values[0] and values[1]:
+        raise ValueError(
+            "OPEN_BOOM_SOLVES and SINGLE_STACK_BOOM_SOLVES are mutually exclusive")
+    return values[0], values[1]
+
+
 def effective_generation_config(env: dict | None = None) -> dict:
     """The config a RUNNING process will actually use, including any
     deployment override. The manifest proves CODE defaults; this proves
@@ -317,6 +337,9 @@ def effective_generation_config(env: dict | None = None) -> dict:
     visible in logs and health output rather than silent."""
     e = os.environ if env is None else env
     n_ce, n_epi, n_boom = resolve_generation_budget(env=e)
+    open_boom_solves, single_stack_boom_solves = (
+        _boom_structure_carve_counts(e, n_boom)
+    )
     n_gumbel = int(e.get("N_GUMBEL", "0") or 0)
     research_only = (
         "EPISTEMIC_FAMILY", "ROLE_BELIEF_FEATURES", "ROLE_BELIEF_SEED",
@@ -332,6 +355,8 @@ def effective_generation_config(env: dict | None = None) -> dict:
             "matches_adopted_default": (n_ce, n_epi, n_boom) ==
                                        (DEFAULT_N_CE, 0, DEFAULT_N_BOOM)
                                        and n_gumbel == 0
+                                       and open_boom_solves == 0
+                                       and single_stack_boom_solves == 0
                                        and not any(k in e for k in research_only),
             "ce_seed": int(e.get("CE_SEED", "1701") or 1701),
             "epistemic_family": e.get("EPISTEMIC_FAMILY", "standard"),
@@ -350,6 +375,7 @@ def effective_generation_config(env: dict | None = None) -> dict:
                            "TD_LEDGER_RANK_COUPLING",
                            "N_GUMBEL", "GUMBEL_SEED", "GUMBEL_SCALE",
                            "GUMBEL_MODE",
+                           "OPEN_BOOM_SOLVES", "SINGLE_STACK_BOOM_SOLVES",
                            "REPLACEMENT_SLOTS", "GEN_TOTAL_BUDGET",
                            "GEN_POOL_CAP", "GEN_POOL_CAP_MAP") if k in e}}
 
@@ -1181,61 +1207,76 @@ def tail_select_lineups(
     boom_unique_fill = str(
         runtime_env.get("BOOM_UNIQUE_FILL", "") or "") not in ("", "0")
     boom_cursor = 0 if boom_unique_fill else n_boom_solves
-    # Research lever (env OPEN_BOOM_SOLVES=k, default off; A3
-    # stack-relaxation carve, reports/2026-08-19-stack-relaxation-
-    # carved-budget-draft.md): the structure census measured that the
-    # stack/bring-back mandates confine 100% of generated volume to a
-    # shape region holding 16% of real Milly winners. With the lever
-    # set, the FIRST k boom visits at a deterministic stride solve
-    # WITHOUT the QB-stack and bring-back minima (both RB prohibitions
-    # and every salary bound unchanged); all other solves keep the
-    # production StackRules. Default behavior is byte-identical to
-    # before the lever existed.
-    open_boom_solves = int(runtime_env.get("OPEN_BOOM_SOLVES", "0") or 0)
-    if open_boom_solves > 0:
-        open_stack = (
-            dc_replace(stack, qb_stack_min=0, bring_back_min=0)
-            if stack is not None
-            else StackRules(qb_stack_min=0, bring_back_min=0)
-        )
-        open_stride = max(1, n_boom_solves // open_boom_solves)
+    # Fixed-budget structure carves. OPEN_BOOM_SOLVES is the closed A3
+    # comparator. SINGLE_STACK_BOOM_SOLVES is a separate, default-off seam:
+    # exactly k of the same deterministic boom visits require exactly one
+    # QB WR/TE partner while preserving every incumbent bring-back, salary,
+    # RB and game rule. They are mutually exclusive and never add solve slots.
+    open_boom_solves, single_stack_boom_solves = (
+        _boom_structure_carve_counts(runtime_env, n_boom_solves)
+    )
+    carve_count = open_boom_solves or single_stack_boom_solves
+    if carve_count and stack is None:
+        raise ValueError("boom structure carves require incumbent StackRules")
+    if open_boom_solves:
+        carve_key = "OPEN_BOOM_SOLVES"
+        carve_tag = "open"
+        carve_stack = dc_replace(
+            stack, qb_stack_min=0, bring_back_min=0)
+    elif single_stack_boom_solves:
+        carve_key = "SINGLE_STACK_BOOM_SOLVES"
+        carve_tag = "single_stack"
+        carve_stack = dc_replace(
+            stack, qb_stack_min=1, qb_stack_max=1)
     else:
-        open_stack = None
-        open_stride = 0
+        carve_key = ""
+        carve_tag = ""
+        carve_stack = None
+    carve_stride = max(1, n_boom_solves // carve_count) if carve_count else 0
+    carve_visits = {
+        index * carve_stride for index in range(carve_count)
+    }
+    carve_attempts = 0
+    carve_added = 0
+    carve_rosters: set[frozenset] = set()
 
-    def _add_boom(sim_indices, unique_target: int | None = None) -> int:
-        nonlocal boom_cursor
+    def _add_boom(sim_indices, unique_target: int | None = None,
+                  apply_structure_carve: bool = False) -> int:
+        nonlocal boom_cursor, carve_attempts, carve_added
         added = 0
         consumed = 0
-        opened = 0
         for k in sim_indices:
             if unique_target is not None and added >= unique_target:
                 break
-            is_open = (
-                open_boom_solves > 0 and opened < open_boom_solves
-                and consumed % open_stride == 0
-            )
+            is_carved = apply_structure_carve and consumed in carve_visits
             consumed += 1
-            if is_open:
-                opened += 1
+            if is_carved:
+                carve_attempts += 1
             sim_pool = [{**p, "proj_sim": float(rd[i, k])}
                         for i, p in enumerate(pool)]
             try:
                 lu = optimize(sim_pool,
-                              stack=open_stack if is_open else stack,
+                              stack=carve_stack if is_carved else stack,
                               objective_col="proj_sim",
                               locks=set(locks), env=runtime_env)
             except Exception as exc:  # CBC subprocess flake: skip this draw
+                if is_carved:
+                    raise RuntimeError(
+                        f"{carve_key} carved boom solve failed") from exc
                 log.warning("boom-draw solve failed: %s", exc)
                 continue
+            if is_carved and lu is None:
+                raise RuntimeError(f"{carve_key} carved boom solve was infeasible")
             if lu is not None:
                 _note(lu.ids, "boom")
-                if is_open:
-                    # Secondary tag only: downstream family quotas key on
-                    # the primary tag, so open solves stay "boom" there
-                    # and remain self-identifying through all_tags.
-                    _note(lu.ids, "open")
+                if is_carved:
+                    # Secondary tag only: downstream family quotas continue
+                    # to key on the primary "boom" tag.
+                    _note(lu.ids, carve_tag)
+                    carve_rosters.add(lu.ids)
             if lu is not None and lu.ids not in seen:
+                if is_carved:
+                    carve_added += 1
                 lu.tag = "boom"
                 seen.add(lu.ids)
                 cands.append(lu)
@@ -1245,12 +1286,22 @@ def tail_select_lineups(
         return added
 
     if boom_unique_fill:
-        _primary_boom = _add_boom(boom_order, unique_target=n_boom_solves)
+        _primary_boom = _add_boom(
+            boom_order, unique_target=n_boom_solves,
+            apply_structure_carve=True)
         log.info(
             "boom unique-fill: %d/%d unique candidates from %d worlds "
             "attempted", _primary_boom, n_boom_solves, boom_cursor)
     else:
-        _add_boom(boom_order[:n_boom_solves])
+        _add_boom(
+            boom_order[:n_boom_solves], apply_structure_carve=True)
+    if carve_count and (
+            carve_attempts != carve_count or len(carve_rosters) != carve_count
+            or carve_added != carve_count):
+        raise RuntimeError(
+            f"{carve_key} shortfall: expected {carve_count} distinct carved "
+            f"additions from {carve_count} visits, got {carve_added} additions, "
+            f"{len(carve_rosters)} distinct rosters, and {carve_attempts} visits")
     # A/B lever (env HYPER_BOOM=<n games>, off by default; review #4
     # round 2): the sim's sampled worlds may never realize the
     # perfectly-collinear game scripts that break slates (45-42
