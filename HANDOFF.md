@@ -266,6 +266,27 @@ agent or developer:
   plus frozen science/runner validation is 25/25 green; compile, shell syntax,
   help and diff checks are green. No shared integration, build, job update,
   lease or outcome action is licensed before A2a closure is durable.
+- One bounded integrated successor is now prepared, but deliberately remains
+  `READY-AWAITING-A2A-AND-B1`: `20260820-legal-soft-law-v1`. It is the single
+  policy answer to the operator's direction to replace most house construction
+  rules with a smarter ranking law rather than opening another constraint
+  lattice. DK legality, PIT/provenance, exact-80, equal compute/world/solve and
+  candidate budgets remain hard. Stack multiplicity, bring-back, salary floor,
+  RB/DST and same-team-RB restrictions, game concentration, ownership and
+  duplication become audited model features; the final treatment book has no
+  structural quota. Its fixed candidate support is 80 incumbent-law, 80
+  exact-one, and `B_s-160` legality-only candidates, followed only by the
+  frozen corpus-tail model order. The registered on-track milestones are mean
+  candidate ceiling `C >= 205` and mean `C-S <= 5`, alongside improved exact-80
+  mean/200+ and protected 194+/210+. This arithmetic is necessary because the
+  full current B1 union's hindsight ceiling is only 198.10. The draft accepts
+  mock-only inputs and grants no real smoke/freeze/outcome/shadow/production
+  license; a literal A2a realized-law pass and B1 corpus-tail historical pass
+  are both required before any real-artifact contact. Exactly four isolated
+  files were added: protocol SHA-256 `fbc2c346...`, pure module `39b9df75...`,
+  mock runner `12acd6a9...`, and tests `68de3c35...`. Focused validation is
+  12/12; compilation, CLI help and whitespace checks are green. No shared
+  runtime, optimizer, data, cloud, lease or outcome path was changed.
 
 **Scientific queue and next concrete action.** Do not build A7 v2 now. The
 single A2a dose is now frozen before treatment output in
