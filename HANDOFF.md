@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-20 13:52 CDT
+## Current state — 2026-08-20 14:17 CDT
 
 ### A2a score-free mechanism passed; one realized-law remeasurement is next
 
@@ -212,6 +212,30 @@ agent or developer:
   artifact was created. The quota-only amendment and durable deployment record
   are in `reports/2026-08-20-cbwu-volume-shadow-deployment.md`; the candidate,
   world, grading and adoption laws are unchanged.
+- A Cloud Run jobs quota preference was submitted at
+  `2026-08-20T19:10:54Z` for `JobsPerProject` in `us-central1`: preferred
+  1,250, currently granted 1,000, `reconciling=true`, preference identity
+  `597808f1-e395-4749-9721-e307b876d5be`. Poll both the preference and the
+  effective quota at build/launch checkpoints. Do not wait for approval and
+  do not delete jobs; the queue remains on the update-only reuse path.
+- The single A2a realized-law remeasurement science and transport are now
+  locally launch-ready on parent `89966cca994bb78069567d9282f57425606132b5`.
+  Frozen protocol SHA-256 is `d9e5246b82c010b61fb8a9ef0202873b74e48092d4447c8c68bae1c8fe44389a`;
+  the final outcome-blind real-artifact smoke receipt SHA-256 is
+  `a8d61cd8b4646af70dea6ac30c79e53b61d5c0f72be9f7c13c7f88e500531c7f`.
+  The transport uses only update-in-place research job
+  `atlas-minimal-c-s2023-w1-v1`, one task, 8 CPU, 32 GiB, 14,400 seconds and
+  `maxRetries=0`; it proves the job is idle/unscheduled, the output prefix is
+  empty, and the exact direct-Git build/image/manifest are current before it
+  acquires the outcome lease. Terminal harvesting is metadata-first,
+  generation-pinned and independently replays the registered decision before
+  crash-safe lease closure. Focused transport is 11/11 and the standing A2a/G0
+  set is 66/66; compile, shell syntax, CLI help, build-step parity and
+  diff-check are green. Independent final review is GO with no blocker/high
+  issue. No build, Cloud Run update/execution, outcome query or result read has
+  occurred for this remeasurement. Next: commit/push these exact bytes, run
+  the direct-Git build, prepare/review/commit its immutable manifest, then let
+  the existing live gates launch exactly once.
 
 **Scientific queue and next concrete action.** Do not build A7 v2 now. The
 single A2a dose is now frozen before treatment output in

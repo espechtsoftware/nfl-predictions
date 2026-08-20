@@ -1,0 +1,88 @@
+{
+  "actual_outcomes_queried": false,
+  "artifact": {
+    "bytes": 31752021,
+    "generation": "1786843060343205",
+    "sha256": "c35ecb83ecc8cacb802735f5b4f44c64b8733822e0d36e9475bab1b68de65498",
+    "uri": "gs://nfl-predictions-503414-raw/cand_scores/20260815-atlas-money-worlds-r0-v1/2023_w1_886e19454d2e.npz"
+  },
+  "block": "R0",
+  "candidate_or_lineup_scores_read": false,
+  "control_reference": {
+    "run_id": "20260817-production-law-dependence-remeasurement-v1",
+    "sha256": "5b92339b2a9118727d41a8f4b91e982c5478318029c216652d66b7cdd113e696",
+    "source_lock_sha256": "7ede34b6d13dacb6645836a85ff35dc82f757331423e49f84537d710c500346c"
+  },
+  "coverage": {
+    "covered_group_fraction": 0.8461538461538461,
+    "covered_groups": 22,
+    "covered_qb_anchor_rows_unchanged": 22,
+    "direct_row_transform_fraction": 0.7285067873303167,
+    "directly_transformed_non_qb_rows": 161,
+    "eligible_rows": 221,
+    "eligible_team_slate_groups": 26,
+    "reporting_only_not_a_mechanism_or_gate": true,
+    "skipped_group_eligible_rows_unchanged": 38,
+    "skipped_group_reasons": {
+      "fewer_than_two_eligible_wrs": 0,
+      "multiple_eligible_qbs": 3,
+      "zero_eligible_qb": 1
+    },
+    "skipped_groups": 4
+  },
+  "mechanics": {
+    "changed_rows": 161,
+    "changed_world_cells": 1536101,
+    "deterministic_repeat_exact": true,
+    "eligible_group_worlds": 220000,
+    "eligible_groups": 22,
+    "eligible_rows": 221,
+    "exact_q90_boom_counts": true,
+    "exact_sorted_marginals": true,
+    "finite_output": true,
+    "generic_attenuation": 0.5,
+    "ineligible_or_unsupported_bit_exact": true,
+    "nonvacuous": true,
+    "one_hot_assignments": 220000,
+    "one_hot_exact": true,
+    "passes": true,
+    "q90_rows_checked": 773,
+    "qb_bit_exact": true,
+    "qb_rows_checked": 30,
+    "qb_wr_allocation": 1.0,
+    "row_world_budget_unchanged": true,
+    "row_world_cells": 7730000,
+    "source_alignment_exact": true,
+    "transformed_rows": 161,
+    "unchanged_rows_checked": 612
+  },
+  "mechanism_license": {
+    "bytes": 884522,
+    "disposition": "a2a-scorefree-mechanism-passes",
+    "generation": "1787248289501941",
+    "historical_remeasurement_licensed": true,
+    "sha256": "86f72b40b714dd186dd81e698b390eb9e0d5dd3d7b5c96eb42c92f5d213c6774",
+    "uri": "gs://nfl-predictions-503414-raw/research/a2a-rank-factor-split-runs/20260820-a2a-rank-factor-split-scorefree-v2/result.json"
+  },
+  "slate": [
+    2023,
+    1
+  ],
+  "source_lock": {
+    "bytes": 1341911,
+    "generation": "1786950155692968",
+    "sha256": "7ede34b6d13dacb6645836a85ff35dc82f757331423e49f84537d710c500346c",
+    "uri": "gs://nfl-predictions-503414-raw/research/production-law-dependence-runs/20260817-production-law-dependence-source-lock-v1/source-lock.json"
+  },
+  "static_sources": {
+    "reports/2026-08-20-a2a-production-law-dependence-remeasurement-protocol.md": "d9e5246b82c010b61fb8a9ef0202873b74e48092d4447c8c68bae1c8fe44389a",
+    "reports/a2a-rank-factor-split-runs/20260820-a2a-rank-factor-split-scorefree-v2/result.json": "86f72b40b714dd186dd81e698b390eb9e0d5dd3d7b5c96eb42c92f5d213c6774",
+    "reports/production-law-dependence-runs/20260817-production-law-dependence-remeasurement-v1/report.json": "5b92339b2a9118727d41a8f4b91e982c5478318029c216652d66b7cdd113e696",
+    "scripts/run_a2a_rank_factor_split_census.py": "24ddb3caceda3d660bed39fcdec84575b3545a2717e75ff944dc86319ef75ad1",
+    "src/nfl_dfs/analysis/a2a_production_law_dependence.py": "9bb4cede575bc811abc542e38ec617d7ad5cd822dbe7e1c9c028397af0415978",
+    "src/nfl_dfs/analysis/final_served_dependence.py": "85acc05b716fe6d3f39dce46d645c2652e8630a620df8b464dbfb16f2d1e3ffd",
+    "src/nfl_dfs/research/a2a_rank_factor_split.py": "208bcc1707edc53fec7905025572a447d2deef9fbdb725332016f98c60138d02"
+  },
+  "uses_realized_outcomes": false,
+  "version": "a2a-production-law-dependence-outcome-blind-smoke-v1"
+}

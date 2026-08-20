@@ -202,6 +202,7 @@ PYE
       */preflight/support-census.json) phase="A7 support" ;;
       */a7-select-ladder-runs/*/result.json) phase="A7 historical" ;;
       */a2a-rank-factor-split-runs/*/result.json) phase="A2a scorefree" ;;
+      */a2a-production-law-dependence-runs/*/report.json) phase="A2a realized law" ;;
       *) phase="" ;;
     esac
     [ -z "$execution" ] || [ -z "$phase" ] || \
