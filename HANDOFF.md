@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-20 11:00 CDT
+## Current state — 2026-08-20 12:31 CDT
 
 ### A7 v1 is closed at its outcome-blind smoke; A2a is now the active research lane
 
@@ -91,12 +91,12 @@ agent or developer:
   py_compile and diff-check are green. No outcome query, lineup construction,
   historical lease, or cloud execution occurred.
 - Exact-source A2a validation build
-  `a48d9cff-ea56-4b90-9ab9-3d5321153837` is active from commit
-  `afdfe58d10b07f5ae0cc61373ee8586b272c4d4b` (image tag
-  `a2a-afdfe58-20260820`). It runs the existing full suite before image build
-  and the image smoke now includes the A2a runner. Monitor it under `CLOUD
-  BUILDS` in `scripts/chain_status.sh`; do not start another build. No Cloud
-  Run A2a job has been updated or executed yet.
+  `a48d9cff-ea56-4b90-9ab9-3d5321153837` completed successfully from commit
+  `afdfe58d10b07f5ae0cc61373ee8586b272c4d4b`. The full test suite, image
+  build, and container smoke all passed. Immutable image:
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:765db76cc65f74edfa28915f7b390aafc23a763010768bbff08a8553d50525af`
+  (tag `a2a-afdfe58-20260820`). No Cloud Run A2a job had been updated or
+  executed at build completion.
 
 **Scientific queue and next concrete action.** Do not build A7 v2 now. The
 single A2a dose is now frozen before treatment output in
@@ -104,9 +104,9 @@ single A2a dose is now frozen before treatment output in
 half the empirical team-rank source from every non-QB and allocate one full
 QB-rank source to exactly one WR per team-world, then remap only by exact row
 permutations. There is no grid or retune. The next action is one exact-source
-Cloud Build from the committed V2 bytes, then one serialized full 270-artifact
-score-free census using an idle reused research job; do not run another smoke
-or inspect a partial directional result. A census pass licenses only a
+serialized full 270-artifact score-free census from the immutable image above
+using an idle reused research job; do not run another smoke or inspect a
+partial directional result. A census pass licenses only a
 separately frozen outcome-bearing A2a remeasurement; only a later law-shape
 pass may unlock the prepared exact-one historical arm. Cross-team bring-back,
 ownership/duplication, residual worlds, and A7 v2 remain separate later
