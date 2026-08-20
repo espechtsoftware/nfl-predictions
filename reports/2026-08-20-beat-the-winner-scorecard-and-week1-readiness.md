@@ -86,3 +86,47 @@ not a score experiment — it is a machinery rehearsal: run the real jobs,
 on the real image, against a real stored slate, and verify every
 artifact the Sunday path must produce. Failures found in a rehearsal
 cost nothing; failures found at 11:20 Sunday cost the week.
+
+## 5. Rehearsal results (2026-08-19/20) — three legs exercised
+
+**Leg 1 — `ingest-dk` (slates/salaries): WAS BROKEN, NOW FIXED AND VERIFIED.**
+Three independent defects each fatal to Week 1 (draft-group filter matched
+zero groups; showdown slates misclassified; timestamp + clustering both
+rejected by BigQuery). `dk_salaries` had been empty with the scheduler
+enabled. Repaired and verified live: 17 slates, 2,413 rows. See the
+deficiency log row dated 2026-08-20.
+
+**Leg 2 — `build-features` crosswalk: BLOCKED BY LEG 1, NOW UNBLOCKED
+(needs a run).** `nfl_features.player_id_map` holds ZERO rows — a direct
+cascade of the empty `dk_salaries`, since the crosswalk is built from it.
+Nothing is wrong with the crosswalk logic; it has simply never had input.
+Tested read-only against the newly ingested real slates: the join matches
+**564 of 1,049** preseason players (54%).
+
+**Leg 3 — `project`: FAILS, correctly, and this is the operational
+finding.** `run_projections.upcoming_slate_features` raises hard when ANY
+slate player lacks a GSIS mapping ("a dropped player is a lineup you
+can't build"). With the crosswalk empty it refused on 990 players.
+
+The 54% preseason match rate is NOT itself alarming — preseason rosters
+carry third-string and camp players (long snappers, UDFAs) that nflverse
+has no ID for, and `nfl_raw.player_ids` currently holds 7,985 entries with
+no 2026 additions because `s-nflverse` is paused and nflverse serves only
+started seasons. A regular-season Sunday-main slate is ~300–400 mostly
+established players and will match far better.
+
+**But the fail-closed design makes ANY unmatched player a hard stop.** So
+the Week-1 sequence must be, in order and verified before Sunday:
+
+1. Resume `s-nflverse`; confirm 2026 rows land in `player_ids` /
+   `rosters_weekly`.
+2. Let `ingest-dk` land a real Week-1 slate (now that it works).
+3. Run `build-features`; confirm `player_id_map` is non-empty.
+4. **Run `project` and read the unmatched list.** Every straggler
+   (rookies, new signings, name variants) must be added to
+   `nfl_features.player_id_overrides` BEFORE the Sunday path runs.
+5. Only then are the book-freeze and CSV-export legs rehearsable.
+
+Steps 1–3 are gated on the season starting and on the operator resuming
+schedulers; step 4 is the one that historically bites and should be run
+the moment step 3 succeeds, not on Sunday morning.
