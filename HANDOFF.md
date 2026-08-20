@@ -26,8 +26,8 @@ agent or developer:
 
 - Branch `main`; A7 implementation milestone commit
   `c1dcf4f` (parent `291c4a7ae6be142b5c040f49085c94884f042555`).
-  This immediate handoff follow-up records that exact code commit before both
-  commits are pushed together.
+  Handoff follow-up `710de3e` records that exact code commit; both are pushed
+  to `origin/main`.
 - **No cloud resource, historical outcome, lease, scheduler, or queued job was
   touched in this milestone.** A3 now has strict terminal success and the exact
   54-object inventory, but its preregistered read/strict harvest and separate
