@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import sys
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -234,12 +235,25 @@ class Store:
     "column,value",
     (
         ("dk_player_id", 1.5),
+        ("dk_player_id", 21.0),
+        ("dk_player_id", True),
+        ("dk_player_id", "21"),
+        ("dk_player_id", 0),
+        ("dk_player_id", 1),
         ("dk_draftable_id", 0),
+        ("dk_draftable_id", 121.0),
+        ("dk_draftable_id", False),
+        ("dk_draftable_id", "121"),
+        ("dk_draftable_id", -1),
         ("dk_draftable_id", 101),
         ("salary", 5000.75),
+        ("salary", 5001.0),
+        ("salary", True),
+        ("salary", "5001"),
+        ("salary", 0),
     ),
 )
-def test_salary_snapshot_rejects_fractional_nonpositive_or_duplicate_identity(
+def test_salary_snapshot_requires_positive_exact_unique_integer_identity(
     column, value
 ):
     frame = Store().classic_salaries(123)
@@ -253,6 +267,30 @@ def test_salary_snapshot_rejects_fractional_nonpositive_or_duplicate_identity(
 
     with pytest.raises(producer.PanelProducerError, match="salary snapshot"):
         producer._salary_inputs(MalformedStore(), 123)
+
+
+def test_salary_snapshot_accepts_positive_numpy_integer_scalars():
+    frame = pd.DataFrame({
+        "dk_player_id": pd.Series(
+            [np.int64(1), np.int64(2)], dtype=object
+        ),
+        "dk_draftable_id": pd.Series(
+            [np.int64(101), np.int64(102)], dtype=object
+        ),
+        "salary": pd.Series(
+            [np.int64(5000), np.int64(5100)], dtype=object
+        ),
+    })
+
+    class NumpyIntegerStore:
+        def classic_salaries(self, draft_group_id):
+            assert draft_group_id == 123
+            return frame
+
+    assert producer._salary_inputs(NumpyIntegerStore(), 123) == (
+        {1, 2},
+        {1: 5000, 2: 5100},
+    )
 
 
 def test_no_verification_query_can_read_an_outcome():

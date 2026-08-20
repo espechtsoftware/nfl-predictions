@@ -314,7 +314,7 @@ agent or developer:
   lock time exist. No shared file, cloud resource, data or outcome was touched.
 - The previously missing outcome-blind prospective panel producer is now
   prepared separately at `scripts/run_b1_corpus_tail_panel_producer.py`
-  (SHA-256 `0c3a4192...`). No existing command met the frozen B1 source shape:
+  (SHA-256 `a3fd995e...`). No existing command met the frozen B1 source shape:
   the older shadows emit one panel to `live_candidates_shadow`, while B1 needs
   one canonical five-block CBWU panel plus five registered-seed companions in
   `replay_candidates_staging` with the matching `slate_player_features`
@@ -322,8 +322,12 @@ agent or developer:
   1--6, validates the Sunday-main group and salary identities, binds the exact
   deployed code/image/model/policy/seeds/world counts, creates its attempt and
   receipt once, requires all verification queries to complete before lock,
-  and reads no outcome column. Producer plus standing B1 validation is 54/54;
-  compile, help and whitespace checks are green. It is a prepared scaffold,
+  and reads no outcome column. Its salary boundary now accepts only positive
+  Python/NumPy integer DK player IDs, draftable IDs and salaries before any
+  conversion; booleans, strings, all floats, nonpositive values and duplicate
+  identities fail closed. Focused producer validation is 37/37 and the earlier
+  standing B1 validation remains green; compile and whitespace checks are
+  green. It is a prepared scaffold,
   not a deployable weekly chain: the B1 week intent must still generation-pin
   and derive its fields from this receipt, and the repository still lacks a
   frozen post-settlement materializer that maps authoritative actuals back to

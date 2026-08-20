@@ -24,7 +24,6 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from hashlib import sha256
 import json
-import math
 import os
 from pathlib import Path
 import re
@@ -854,21 +853,19 @@ def _salary_inputs(store: Any, draft_group_id: int) -> tuple[set[int], dict[int,
         raise PanelProducerError("salary snapshot contains incomplete identity")
     exact: dict[str, pd.Series] = {}
     for column in sorted(required):
-        if pd.api.types.is_bool_dtype(salaries[column].dtype):
+        values = salaries[column]
+        valid = values.map(
+            lambda value: (
+                not pd.api.types.is_bool(value)
+                and pd.api.types.is_integer(value)
+                and int(value) > 0
+            )
+        )
+        if not valid.all():
             raise PanelProducerError(
                 f"salary snapshot {column} is not a positive exact integer"
             )
-        numeric = pd.to_numeric(salaries[column], errors="raise")
-        as_float = numeric.astype(float)
-        if (
-            not as_float.map(math.isfinite).all()
-            or as_float.le(0).any()
-            or as_float.mod(1.0).ne(0.0).any()
-        ):
-            raise PanelProducerError(
-                f"salary snapshot {column} is not a positive exact integer"
-            )
-        exact[column] = numeric.astype("int64")
+        exact[column] = values.map(int).astype("int64")
     for column in ("dk_player_id", "dk_draftable_id"):
         if exact[column].duplicated().any():
             raise PanelProducerError(f"salary snapshot repeats {column}")
