@@ -172,6 +172,19 @@ agent or developer:
   green. No CSV was captured and no GCS or BigQuery write occurred. The next
   data action is to validate, then explicitly apply, the first real settled
   2026 Milly/qualifier export on Monday or Tuesday before DraftKings removes it.
+- The frozen 20-book CBWU-volume prospective shadow is now deployed without a
+  run. A direct new-job attempt failed before creation at the documented
+  `JobsPerProject=1000` limit. Per repository rule 5, no old job was deleted;
+  the closed and unscheduled `fantasy-points-route-tail-union` resource (UID
+  `c3892b0e-568e-4e20-8be3-06532c117c6c`) was updated in place from generation
+  1 to 2. It now runs exact image digest `sha256:765db76c...`, source
+  `afdfe58d...`, command `nfl-dfs shadow-cbwu-volume`, one task, 4 CPU, 16 GiB,
+  14,400 seconds, and at most one retry. Scheduler `s-shadow-cbwu-volume`
+  targets the reused job at Sunday 08:30 CT and is **PAUSED** until the regular
+  season shadow fleet is deliberately resumed. No lineup, outcome, or shadow
+  artifact was created. The quota-only amendment and durable deployment record
+  are in `reports/2026-08-20-cbwu-volume-shadow-deployment.md`; the candidate,
+  world, grading and adoption laws are unchanged.
 
 **Scientific queue and next concrete action.** Do not build A7 v2 now. The
 single A2a dose is now frozen before treatment output in

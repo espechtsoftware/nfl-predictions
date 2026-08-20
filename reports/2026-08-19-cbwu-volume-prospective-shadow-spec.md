@@ -55,9 +55,23 @@ construction. `production_enabled=False` and
 
 ## Operational
 
-Job `shadow-cbwu-volume`, 16Gi / 4 CPU, 4h task timeout (it builds four
-times the books of the incumbent shadow), scheduled Sundays 08:30 CT —
+Scheduler `s-shadow-cbwu-volume`, 16Gi / 4 CPU, 4h task timeout (it builds
+four times the books of the incumbent shadow), scheduled Sundays 08:30 CT —
 earliest of the Sunday shadows so it completes before the money path's
 decision boundary. A failed or late shadow run NEVER blocks the money
 book; it simply loses that week from the graded population, which must
 be disclosed at grading.
+
+**Quota-only transport amendment (2026-08-20, before the first collection).**
+The project reached the hard 1,000 Cloud Run job limit after this spec first
+named a new `shadow-cbwu-volume` resource. Repository rule 5 forbids deleting
+old jobs because that erases their cloud execution history. The scheduler
+therefore targets the closed, idle, unscheduled existing job resource
+`fantasy-points-route-tail-union` (UID
+`c3892b0e-568e-4e20-8be3-06532c117c6c`) after an in-place update to the exact
+image/command/environment/resources above. Its earlier terminal executions
+remain durable under their original execution names. This changes only the
+Cloud Run resource name; the `shadow-cbwu-volume` CLI command, panel prefix,
+candidate/world law, fixed budgets, grading population and adoption bar are
+unchanged. The scheduler remains paused until the regular-season shadow fleet
+is deliberately resumed.
