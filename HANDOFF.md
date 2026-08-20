@@ -24,10 +24,10 @@ agent or developer:
 
 ### A7 tail-ladder selector is locally proof-green; GCP work is intentionally blocked behind A3 release
 
-- Branch `main`, based on pushed commit
-  `291c4a7ae6be142b5c040f49085c94884f042555`. The associated A7 code commit
-  is the next commit in this branch; the immediate handoff follow-up records
-  its exact SHA after creation and push.
+- Branch `main`; A7 implementation milestone commit
+  `c1dcf4f` (parent `291c4a7ae6be142b5c040f49085c94884f042555`).
+  This immediate handoff follow-up records that exact code commit before both
+  commits are pushed together.
 - **No cloud resource, historical outcome, lease, scheduler, or queued job was
   touched in this milestone.** A3 now has strict terminal success and the exact
   54-object inventory, but its preregistered read/strict harvest and separate
