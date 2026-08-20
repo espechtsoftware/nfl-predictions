@@ -20,7 +20,84 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-19 14:45 CDT
+## Current state — 2026-08-19 21:15 CDT
+
+### LIVE INGEST WAS BROKEN THREE WAYS (fixed, verified); boom-S null closed the reallocation; A3 carve grid running
+
+- Branch `main` at `bb91471` (pushed). Read
+  `reports/2026-08-19-preseason-test-queue.md` for the ordered queue and
+  `reports/2026-08-19-external-reviewer-briefing-v3.md` for a
+  self-contained state briefing.
+
+**1. Week-1 blocker found and repaired — the highest-consequence item here.**
+Running the REAL `ingest-dk` job against live preseason slates (rather
+than trusting tests) proved the hourly slate/salary ingest — the core of
+the live pipeline — was broken three independent ways, leaving
+`nfl_raw.dk_salaries` at **zero rows** while `s-dk` ran enabled daily:
+  1. the draft-group filter tested a top-level `sport` key that NO group
+     carries (0 of 198 live; 94 are NFL by `sportId`) — exactly what the
+     2026-07-31 deficiency row predicted;
+  2. game-type names live in the payload's sibling `gameTypes` array, so
+     `classify_slate` mislabeled every showdown slate as classic;
+  3. DK's seven fractional-second digits cannot cast to a BigQuery
+     TIMESTAMP (`ArrowInvalid`), and the load omitted the table's
+     clustering spec — both rejected the write.
+  Fix also excludes Madden `SIM` leagues and non-salary-cap products
+  (Best Ball/Snake/Pick6, 62 of 94 NFL groups) that a naive `sportId`
+  swap would have ingested as slates and poisoned salary history.
+  **Verified live end to end: 17 slates (8 classic / 9 showdown), 2,413
+  rows landed, correctly typed and classified.** Regression test pins the
+  real payload shape; deficiency log row closed with evidence.
+  CAVEAT: only the INGEST leg is rehearsed. Projections → book freeze →
+  CSV export remain unrehearsed and are the highest-value preseason work
+  left (see `reports/2026-08-20-beat-the-winner-scorecard-and-week1-readiness.md`).
+
+**2. Beat-the-winner scorecard (computed from receipts, no new run).**
+Across 50 paired slates the money book NEVER produced a lineup that would
+have beaten that week's Milly winner (0/50; median shortfall **53.4**;
+pool ceiling 0/51; boom-deep book 0/50). Winner scores median 233.2 (10th
+pct 205.4); our book's weekly best mean 178.6, best-ever 223.9. Book
+hit rates: 187 → 30%, **194 → 17%**, 200 → 13%, 210 → 4%. Recommendation
+recorded: retire "beat the winner" as a target (keep it as a ceiling
+diagnostic) and preregister payout-relevant cash / top-1% lines from real
+standings once Week-1 data exists.
+
+**3. All-boom S: NULL — reallocation closed for the money path.**
+ΔS +1.34, p 0.49 (19/18/16); the +9.06 pool ceiling did not convert, and
+the boom book aims WORSE at winners than the incumbent (+0.11 vs +0.24
+over the chance null). C−S gap widens 9 → 16.7 with pool depth, making
+the selection lane the largest measured unclaimed prize. Results:
+`reports/2026-08-19-all-boom-selection-s-results.md`.
+
+**4. In flight: A3 stack-relaxation carve** (`20260819-stack-relaxation-carve-v1`,
+protocol FROZEN, `OPEN_BOOM_SOLVES=8`, comparator = incumbent). Smoke was
+strongly positive on mechanism: 40/40 open solves survived and the
+unchanged selector took **11 of 80** book slots from un-mandated shapes
+BEFORE any score was seen. Build → canary → 54 cells → aggregate;
+log `~/nfl-panels/stack-carve-chain.log`.
+
+**5. B1 volume shadow (pre-Week-1 deliverable), partially built.**
+`combine_cbwu_volume_books` (candidates from k books, worlds+budget from
+the registered five; provably identical to the incumbent admission at
+k=5), the twenty-book policy env with fifteen frozen seed pairs, and the
+paired live dispatch are implemented and tested. REMAINING: the
+`shadow-cbwu-volume` CLI subcommand, its schedule entry, and the frozen
+grading spec.
+
+**6. Structure census + winner series** (earlier today, all frozen):
+production mandates confine 100% of generated volume to a shape region
+holding 16% of winners; winners are never their world's optimum (0/51);
+pool proximity to winners is exactly chance; the law over-couples generic
+teammate booms and under-couples QB→WR (first directional law defect).
+
+- Next actions: (a) read the A3 aggregate against its four-branch
+  preregistered reading; (b) rehearse the remaining live legs
+  (project-slate → shadow freeze → DK CSV export) before Week 1;
+  (c) finish B1; (d) operator decisions in the queue doc §C, notably the
+  B2-prime adoption path. Do not resume schedulers, delete forensic data,
+  or change the money policy.
+
+## Prior state — 2026-08-19 14:45 CDT
 
 ### Both in-flight arms COMPLETED: all-boom clears C decisively (+9.06), dependence returns a named premise miss
 
