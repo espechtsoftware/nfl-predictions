@@ -143,6 +143,18 @@ agent or developer:
   winners, preserving source/selected/anatomy and keeping H/P/world optima
   categorically separate. It is descriptive and licenses no rule or model
   change.
+- That frozen B1 census completed once over 698,172 source rows and reproduced
+  all 127,778 distinct legal generated rosters with zero legality drops or
+  canonical-score mismatches. Result SHA-256 is
+  `23e05731a9509b6b53ef0be6300d9a15b99e47a29333066e241ba3f0d318f823`.
+  No generated roster beat or tied its matched Milly winner: `0/51`; one slate
+  was within 10 and eight were within 25. Mean/median gaps were
+  `-34.71/-34.02`. The union-best actual lineups were still a useful tail
+  corpus: mean `198.74`, median `197.30`, with `24/15/6/2/1` slates at
+  `>=200/210/220/230/240`. The result is recorded in
+  `reports/2026-08-20-b1-winner-relative-census-result.md`; it is descriptive
+  and outcome-viewed and licenses no retrospective model or construction
+  change.
 
 **Scientific queue and next concrete action.** Do not build A7 v2 now. The
 single A2a dose is now frozen before treatment output in
