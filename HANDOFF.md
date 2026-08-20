@@ -240,6 +240,19 @@ agent or developer:
   update/execution, outcome query or result read has occurred. Next: harvest
   the terminal build; on exact success, prepare/review/commit its immutable
   manifest, then let the existing live gates launch exactly once.
+- The exact-one QB-partner k=8 successor is prepared, but deliberately not
+  frozen, in
+  `reports/2026-08-20-single-stack-k8-under-a2a-protocol-draft.md` (SHA-256
+  `43596000a48b20ca4dab03ee1cc0fbad3e0ce1c0da79fc1c363a65e95d3670b0`).
+  It changes only `SINGLE_STACK_BOOM_SOLVES=0 -> 8`, replacing the same eight
+  visits while retaining incumbent bring-back, salary, RB/DST, game, world,
+  seed, candidate, exact-80 and selector laws. Its pure accounting/runner
+  scaffold has no optimizer, data, outcome or cloud path. New tests are 16/16
+  and the existing engine seam is 19/19; compile/help/import/diff checks are
+  green. Status remains `READY-AWAITING-A2A`: only the sole strict A2a pass may
+  authorize its real-artifact outcome-blind smoke and later freeze. No A2a
+  miss may be repaired into this arm, and no bring-back/spread/ownership/world
+  variant is bundled with it.
 
 **Scientific queue and next concrete action.** Do not build A7 v2 now. The
 single A2a dose is now frozen before treatment output in
