@@ -201,6 +201,7 @@ PYE
       */preflight/real-artifact-smoke.json) phase="A7 smoke" ;;
       */preflight/support-census.json) phase="A7 support" ;;
       */a7-select-ladder-runs/*/result.json) phase="A7 historical" ;;
+      */a2a-rank-factor-split-runs/*/result.json) phase="A2a scorefree" ;;
       *) phase="" ;;
     esac
     [ -z "$execution" ] || [ -z "$phase" ] || \
@@ -209,6 +210,7 @@ PYE
     # Aggregates land locally beside the ledger, or in GCS beside the
     # cells / one level up when the run used an attempt subdirectory.
     if { [ -s "$dir/finish.sha256" ] && [ -s "$dir/completion.txt" ]; } \
+      || { [ -s "$dir/result.json" ] && [ -s "$dir/completion.txt" ]; } \
       || [ -s "$dir/aggregate-report.json" ] \
       || { [ -n "$prefix" ] && { \
            gsutil -q stat "$prefix/aggregate-report.json" 2>/dev/null \
