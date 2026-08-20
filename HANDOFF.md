@@ -312,6 +312,25 @@ agent or developer:
   `chain_status.sh`, select and pin one idle unscheduled existing job for the
   six-week lane, and keep launch default-off until the Week 1 panel IDs and
   lock time exist. No shared file, cloud resource, data or outcome was touched.
+- The previously missing outcome-blind prospective panel producer is now
+  prepared separately at `scripts/run_b1_corpus_tail_panel_producer.py`
+  (SHA-256 `0c3a4192...`). No existing command met the frozen B1 source shape:
+  the older shadows emit one panel to `live_candidates_shadow`, while B1 needs
+  one canonical five-block CBWU panel plus five registered-seed companions in
+  `replay_candidates_staging` with the matching `slate_player_features`
+  catalog. The new producer is explicit/default-off, accepts only 2026 Weeks
+  1--6, validates the Sunday-main group and salary identities, binds the exact
+  deployed code/image/model/policy/seeds/world counts, creates its attempt and
+  receipt once, requires all verification queries to complete before lock,
+  and reads no outcome column. Producer plus standing B1 validation is 54/54;
+  compile, help and whitespace checks are green. It is a prepared scaffold,
+  not a deployable weekly chain: the B1 week intent must still generation-pin
+  and derive its fields from this receipt, and the repository still lacks a
+  frozen post-settlement materializer that maps authoritative actuals back to
+  these exact roster keys without mutating the pre-lock receipt. That separate
+  scorer/materializer and one real outcome-blind resource smoke are required
+  before Week 1 deployment. No data, build, cloud job, outcome or shared
+  runtime file was touched.
 
 **Scientific queue and next concrete action.** Do not build A7 v2 now. The
 single A2a dose is now frozen before treatment output in
