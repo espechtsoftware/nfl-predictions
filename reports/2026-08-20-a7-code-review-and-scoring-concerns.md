@@ -485,3 +485,79 @@ Concretely I would suggest, before any outcome-bearing step:
 
 Only once the census shows all nine cells moving toward band without
 crossings should the historical remeasurement be spent.
+
+---
+
+## Addendum 4 (2026-08-20, URGENT): the predicted watcher defect fired and the lease is stranded
+
+The A2a outcome-bearing remeasurement launched
+(`atlas-minimal-c-s2023-w1-v1-8cnxz`) and its watcher then died with:
+
+```
+A2A_REMEASUREMENT_OUTCOME state=Malformed execution=atlas-minimal-c-s2023-w1-v1-8cnxz
+ERROR: A2a execution metadata malformed; lease held
+```
+
+**This is exactly the false failure diagnosed in Addendum 1, in the
+sibling consumer, with the consequence I flagged there.** I verified the
+facts rather than inferring them:
+
+- The execution is **healthy and still running**: one `Completed`
+  condition with `status=Unknown`, `runningCount=1`, and it is actively
+  emitting `A2A_REMEASUREMENT_ARTIFACT_COMPLETE` lines (2023 W14/W15
+  across blocks R0/R2/R4 as of this writing). Nothing is wrong with the
+  work.
+- The **historical-outcome lease is HELD** by the dead watcher
+  (`acquired_at 2026-08-20T21:52:42Z`, run_id `20260820-a2a-…`,
+  job `atlas-minimal-c-s2023-w1-v1`).
+
+So the job will very likely run to completion and write its result,
+while no watcher is left to harvest it, and the lease blocks every
+subsequent scored arm until someone releases it by hand.
+
+### Why this happened
+
+Addendum 1 identified the parse at
+`scripts/watch_a7_select_ladder_queue.sh:250` and
+`scripts/cloud_a7_select_ladder.sh:349`:
+
+```python
+print(rows[0].get("status", "") if len(rows) == 1 else "Malformed")
+```
+
+An execution that has not yet published its `conditions` array yields
+`len(rows) == 0` → `Malformed` → fatal. The A2a chain carries the same
+pattern. `CLAUDE.md` frozen-chain rule 4 exists for precisely this: when
+a fail-closed gate trips, sweep the entire defect class across sibling
+consumers before rebuilding. The class was identified and published
+before this launch; the sweep did not reach the A2a watcher.
+
+### Remediation, in order (owning agent's call — I have changed nothing)
+
+1. **Do not kill the execution.** It is healthy; let it finish and write
+   its result object.
+2. **Re-attach or hand-harvest** the result when the execution reaches
+   terminal success, then release the lease through the normal
+   `historical_outcome_lease.py release` path with the execution and
+   completion receipts, so the release is receipted rather than
+   abandoned.
+3. If the execution instead ends non-terminal or the receipts do not
+   validate, use the generation-matched `abandon` path (added
+   2026-08-19) so the stale lease is archived with evidence rather than
+   deleted.
+4. **Then apply the Addendum-1 fix to every consumer**, not just A7:
+   treat empty conditions as "not ready" and reserve `Malformed` for a
+   genuine multi-row contradiction. Grep for the literal
+   `len(rows) == 1 else "Malformed"` to find them all.
+
+### Standing concern, restated
+
+The remeasurement launched on the **unchanged dose**
+(`GENERIC_ATTENUATION = 0.5`, `QB_WR_ALLOCATION = 1.0`), so Addendum 3
+stands: this outcome-bearing run is being spent on a law whose census
+shows WR–WR and QB–TE crossing into mirror-image defects. If the run
+completes and is harvested, I would read the WR–WR and QB–TE cells
+first: if they land materially negative as the census projects, the
+correct disposition is that the dose is wrong, not that the mechanism
+family is closed — and the re-dose belongs on the score-free census,
+where iteration costs no outcome exposure.
