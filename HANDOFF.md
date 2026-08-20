@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-20 10:16 CDT
+## Current state — 2026-08-20 10:26 CDT
 
 ### A7 v1 is closed at its outcome-blind smoke; A2a is now the active research lane
 
@@ -73,21 +73,22 @@ agent or developer:
   It is not frozen or licensed to run until the same-team dependence law is
   repaired and passes its score-free mechanism gate.
 
-**Scientific queue and next concrete action.** Do not build A7 v2 now. Freeze
-one executable A2a same-team dependence intervention before observing its
-treatment output, then implement only a pure research transform and simulated-
-world census. The minimum mechanism must preserve every player's exact
-marginal draw multiset, reduce the generic same-team source, add a sparse
-QB-to-WR-specific source, remain deterministic/non-vacuous, and demonstrate
-QB-WR co-boom moving up without increasing protected generic multiplicity,
-WR-WR, QB-RB, RB-RB, or TE-TE cells. There is currently no A2a code, lever,
-runner, or test; the exact attenuation/allocation dose is the one unresolved
-preimplementation choice and must be preregistered rather than tuned. Only a
-passing score-free census may unlock the already-prepared exact-one historical
-arm. Cross-team bring-back, ownership/duplication, residual worlds, and A7 v2
-remain separate later questions. Never use broad `deploy_jobs.sh`; do not touch
-B1's job/scheduler; verify the reused job is idle and the shared lease absent
-before any future cloud phase.
+**Scientific queue and next concrete action.** Do not build A7 v2 now. The
+single A2a dose is now frozen before treatment output in
+`reports/2026-08-20-a2a-rank-factor-split-scorefree-protocol.md`: subtract
+half the empirical team-rank source from every non-QB and allocate one full
+QB-rank source to exactly one WR per team-world, then remap only by exact row
+permutations. The frozen protocol is commit
+`1e3a01816f62f38ed571f81f87351d5af117f707`, SHA-256
+`e8f449eccc49f2f241680febdd35972f3ca94fc7057a6bc3b6b49e7f6a90a52b`.
+There is no grid or retune. Implement only the pure transform,
+exact-integer simulated-cell comparisons, tests, and outcome-blind census
+runner. A census pass licenses only a separately frozen outcome-bearing A2a
+remeasurement; only a later law-shape pass may unlock the prepared exact-one
+historical arm. Cross-team bring-back, ownership/duplication, residual worlds,
+and A7 v2 remain separate later questions. Never use broad `deploy_jobs.sh`;
+do not touch B1's job/scheduler; verify the reused job is idle and the shared
+lease absent before any future cloud phase.
 
 ## Prior state — 2026-08-20 08:37 CDT
 
