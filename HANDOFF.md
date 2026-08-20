@@ -20,7 +20,98 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-19 23:30 CDT
+## Current state — 2026-08-20 03:59 CDT
+
+### A7 tail-ladder selector is locally proof-green; GCP work is intentionally blocked behind A3 release
+
+- Branch `main`, based on pushed commit
+  `291c4a7ae6be142b5c040f49085c94884f042555`. The associated A7 code commit
+  is the next commit in this branch; the immediate handoff follow-up records
+  its exact SHA after creation and push.
+- **No cloud resource, historical outcome, lease, scheduler, or queued job was
+  touched in this milestone.** A3 now has strict terminal success and the exact
+  54-object inventory, but its preregistered read/strict harvest and separate
+  `logical-release.json` are still absent. A7 must not update the reused job,
+  run even an outcome-blind smoke, or acquire an outcome lease until that
+  create-once release explicitly names A7 as the next owner.
+
+**A7 scientific contract and reviewer dispositions.**
+
+- `reports/2026-08-19-large-field-tournament-winning-strategy-plan.md`
+  (SHA-256 `b5709e0a…`) now contains the external reviewers' concerns and the
+  inline dispositions. It registers S80 as the sole gate, N4/N14 as non-gating
+  prefix diagnostics, keeps A7 before the larger A2 law repair, caps reward at
+  210, and treats the unconverted candidate supply as potentially simulator
+  artifact rather than proven upside.
+- The one-shot protocol is
+  `reports/2026-08-20-a7-select-ladder-incumbent-pool-protocol.md`
+  (SHA-256 `e3222f94…`). Treatment is exactly
+  `170:10,180:10,187:7,194:7,200:6,210:10`, with no mean term, no alternate
+  weights, and no sweep. It measures the Phase-S finite-K plus SIS-ASOE
+  research law, not the current production-multinomial law. A historical
+  positive can license only a separately frozen score-free production-law
+  transfer; it cannot license a shadow, money policy, or production change.
+- The realism falsifier uses strict `>` within-block own-player q99 (constant
+  rows never extreme), at least 100 positive-gain R3 events in each arm and at
+  least one in every block, with the `+1/100` boundary decided by exact integer
+  cross multiplication. The 54-cell baseline vector is hash-bound and replayed
+  from its exact source bytes; no rounded duplicate literals remain.
+
+**Implementation.**
+
+- `SELECT_LADDER` is a deterministic, default-off selector seam in
+  `src/nfl_dfs/optimizer/lineup.py`; production policy clears it explicitly and
+  deployment validation forbids it. The control money path remains unchanged.
+- New pure science, runner, freeze builder, launcher, watcher, and finisher:
+  `src/nfl_dfs/research/a7_select_ladder.py`,
+  `scripts/run_a7_select_ladder.py`,
+  `scripts/freeze_a7_select_ladder.py`,
+  `scripts/cloud_a7_select_ladder.sh`,
+  `scripts/watch_a7_select_ladder_queue.sh`, and
+  `scripts/finish_a7_select_ladder.py`.
+- The transport is reuse-only and serialized: A3 release -> generation/spec
+  job claim -> real-artifact smoke -> strict smoke terminal -> 54-slate compact
+  support census -> strict support terminal -> external operator freeze -> one
+  historical look. Each boundary has exact schemas, generation-pinned objects,
+  cumulative inventory hashes, all-three-false license flags, no retry, and
+  recursive prepared/launch/finish ledger validation.
+- The reused job is scrubbed of inherited volumes, mounts, secrets, working
+  directory, startup probe, and environment before its exact post-update spec
+  is accepted. External JSON is strict-parsed and canonicalized only after a
+  successful `gcloud` call. The approved build is the direct public Git source
+  at the exact commit and the committed `cloudbuild.yaml`; local working-tree
+  uploads and caller-only commit labels fail closed. Scientific replay runs in
+  the immutable image and must match an independent local harvest replay.
+- Realized lease release is crash-idempotent: a deterministic create-only GCS
+  release intent binds the strict completion and active lease generation before
+  generation-matched deletion. Restart finishes that same closure before any
+  acquisition. Tail and failed executions have separate no-retry closures.
+
+**Validation and review.**
+
+- Focused serialized tests: selector/science 29/29; production isolation 11/11;
+  runner/execution 15/15; freeze 4/4; launcher/watcher/finisher 75/75; lever
+  registry 4/4 (**138/138 total**).
+- `py_compile`, `bash -n`, and `git diff --check` are green. No real artifact,
+  GCP, warehouse, or outcome test ran.
+- Independent exact-byte static review is GREEN at the final lock. Key hashes:
+  selector `c4e663a6…`, science `cfe4ff5f…`, runner `10a7408f…`, freeze builder
+  `b1d22641…`, launcher `d4b30c67…`, watcher `fefc5764…`, finisher `b03817a4…`,
+  Dockerfile `a40ae9c…`, Cloud Build `799f498b…`.
+
+**Next concrete action.**
+
+1. Finish A3's already-terminal strict harvest and preregistered read; publish
+   its create-once logical release naming A7. Do not rerun A3.
+2. Only after that release, print/use the A7 direct-Git build command for this
+   pushed A7 commit, resolve the immutable image digest, and run the one-cell
+   outcome-blind smoke. If strict harvest passes, run the compact 54-slate
+   outcome-blind support census. No broad deploy script and no B1 resource.
+3. If support passes, obtain the explicit operator approvals and create the
+   external freeze manifest. The one historical look remains separately gated;
+   no result can directly change production.
+
+## Prior state — 2026-08-19 23:30 CDT
 
 ### LIVE INGEST WAS BROKEN THREE WAYS (fixed, verified); boom-S null closed the reallocation; A3 carve grid running
 

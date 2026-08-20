@@ -6,6 +6,7 @@ from nfl_dfs.inference.production_policy import (
     ADOPTED_CLASSIC_POLICY,
     contest_entry_policy,
 )
+from scripts.verify_deployment import APP_FORBIDDEN
 
 
 @pytest.mark.parametrize(
@@ -59,6 +60,7 @@ def test_policy_overwrites_research_levers_without_mutating_base():
         "N_CE": "0",
         "N_BOOM": "40",
         "SELECT_LSE": "0.2",
+        "SELECT_LADDER": "210:999",
         "MIN_LINEUP_SALARY": "0",
         "N_GUMBEL": "20",
         "GEN_POOL_CAP": "99",
@@ -79,6 +81,7 @@ def test_policy_overwrites_research_levers_without_mutating_base():
     assert env["EPISTEMIC_FAMILY"] == "role_draws"
     assert env["ROLE_BELIEF_SEED"] == "7331"
     assert env["SELECT_LSE"] == "0"
+    assert env["SELECT_LADDER"] == ""
     assert env["MIN_LINEUP_SALARY"] == "49000"
     assert env["N_GUMBEL"] == "0"
     assert env["GEN_POOL_CAP"] == "0"
@@ -116,6 +119,11 @@ def test_policy_overwrites_research_levers_without_mutating_base():
     assert latent["PROSPECTIVE_SHADOW_ID"] == "2026-latent-role-cbwu-v1"
     assert latent["MULTISEED_SEED_PAIRS"] == env["MULTISEED_SEED_PAIRS"]
     assert (latent["N_EPISTEMIC"], latent["N_BOOM"]) == ("12", "40")
+
+
+def test_ladder_is_explicitly_off_in_money_policy_and_forbidden_on_app():
+    assert ADOPTED_CLASSIC_POLICY.engine_environment()["SELECT_LADDER"] == ""
+    assert "SELECT_LADDER" in APP_FORBIDDEN
 
 
 def test_public_identity_exposes_fixed_budget_five_by_five_contract():

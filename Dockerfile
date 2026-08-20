@@ -6,7 +6,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml README.md CLAUDE.md ./
+COPY pyproject.toml README.md CLAUDE.md cloudbuild.yaml ./
 # The final forensic image verifies the byte-level inventory of every tracked
 # report before any outcome query.  This remains a private Artifact Registry
 # image; the vendor-derived corpus is not published by the application.
@@ -18,6 +18,12 @@ COPY scripts/run_atlas_minimal_world_selection_c.py ./scripts/run_atlas_minimal_
 COPY scripts/run_all_boom_reallocation_c.py ./scripts/run_all_boom_reallocation_c.py
 COPY scripts/run_all_boom_selection_s.py ./scripts/run_all_boom_selection_s.py
 COPY scripts/run_stack_relaxation_carve.py ./scripts/run_stack_relaxation_carve.py
+COPY scripts/run_a7_select_ladder.py ./scripts/run_a7_select_ladder.py
+COPY scripts/freeze_a7_select_ladder.py ./scripts/freeze_a7_select_ladder.py
+COPY scripts/cloud_a7_select_ladder.sh ./scripts/cloud_a7_select_ladder.sh
+COPY scripts/watch_a7_select_ladder_queue.sh ./scripts/watch_a7_select_ladder_queue.sh
+COPY scripts/finish_a7_select_ladder.py ./scripts/finish_a7_select_ladder.py
+COPY scripts/historical_outcome_lease.py ./scripts/historical_outcome_lease.py
 COPY scripts/run_b1_union_c_census.py ./scripts/run_b1_union_c_census.py
 COPY scripts/run_b2prime_volume_oi_admission.py ./scripts/run_b2prime_volume_oi_admission.py
 COPY scripts/compare_adoption_panel.py ./scripts/compare_adoption_panel.py

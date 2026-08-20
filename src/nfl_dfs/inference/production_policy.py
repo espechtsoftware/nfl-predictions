@@ -231,6 +231,7 @@ class ClassicProductionPolicy:
             # Fixed coverage selector; rejected selector arms stay off.
             "SELECT_OBJ": "",
             "SELECT_LSE": "0",
+            "SELECT_LADDER": "",
             "M4_QBLOCK": "0",
             "MAX_QBS": "0",
             "PEAK_SLICE": "0",

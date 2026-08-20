@@ -571,8 +571,14 @@ def select_tail_entries(
     # co-booming players into single entries when the exchange rate
     # favors it. alpha in 1/DK-points; ~0.05-0.15 spans soft-to-sharp.
     import os as _os
+    import math as _math
     _env = _os.environ if env is None else env
     _alpha = float(_env.get("SELECT_LSE", "0") or 0)
+    _ladder_spec = _env.get("SELECT_LADDER", "")
+    if not _math.isfinite(_alpha) or _alpha < 0:
+        raise ValueError("SELECT_LSE must be finite and nonnegative")
+    if _alpha > 0 and _ladder_spec:
+        raise ValueError("SELECT_LSE and SELECT_LADDER are mutually exclusive")
     if _alpha > 0:
         return _select_lse_entries(cand_totals, n_entries, line, _alpha)
     # Research lever (env SELECT_LADDER, off by default; Ring A / A1,
@@ -580,7 +586,6 @@ def select_tail_entries(
     # greedy on a sparse tail-utility ladder (optionally plus an E[max]
     # term) instead of binary coverage at one line.  Registered in the
     # immutable lever set; never set on production deployments.
-    _ladder_spec = _env.get("SELECT_LADDER", "")
     if _ladder_spec:
         ladder, mean_weight = _parse_ladder(_ladder_spec)
         return select_ladder_entries(
@@ -658,20 +663,36 @@ def _parse_ladder(spec: str) -> tuple[dict[float, float], float]:
     ``"240:32,230:16,220:8,210:4,200:2,194:1"`` or ``"mean:1"``. Junk
     fails closed rather than silently selecting under a half-read utility.
     """
+    import math
+
+    if not isinstance(spec, str) or not spec.strip():
+        raise ValueError("SELECT_LADDER is empty")
+    tokens = spec.split(",")
+    if any(not token.strip() for token in tokens):
+        raise ValueError("SELECT_LADDER contains an empty entry")
     ladder: dict[float, float] = {}
     mean_weight = 0.0
-    for token in (t.strip() for t in spec.split(",") if t.strip()):
+    mean_seen = False
+    for token in (t.strip() for t in tokens):
         key, _, value = token.partition(":")
         if not value:
             raise ValueError(f"SELECT_LADDER entry {token!r} lacks a weight")
         weight = float(value)
-        if weight < 0:
-            raise ValueError(f"SELECT_LADDER weight is negative in {token!r}")
+        if not math.isfinite(weight) or weight < 0:
+            raise ValueError(f"SELECT_LADDER weight is invalid in {token!r}")
         if key.strip().lower() == "mean":
+            if mean_seen:
+                raise ValueError("SELECT_LADDER repeats the mean term")
+            mean_seen = True
             mean_weight = weight
             continue
-        ladder[float(key)] = weight
-    if not ladder and mean_weight <= 0:
+        threshold = float(key)
+        if not math.isfinite(threshold) or threshold <= 0:
+            raise ValueError(f"SELECT_LADDER threshold is invalid in {token!r}")
+        if threshold in ladder:
+            raise ValueError(f"SELECT_LADDER repeats threshold {threshold:g}")
+        ladder[threshold] = weight
+    if mean_weight <= 0 and not any(weight > 0 for weight in ladder.values()):
         raise ValueError("SELECT_LADDER specifies no positive utility term")
     return ladder, mean_weight
 
@@ -697,8 +718,24 @@ def select_ladder_entries(
     """
     T = np.asarray(cand_totals, dtype=float)
     n_entries = min(n_entries, len(T))
-    if not ladder and mean_weight <= 0:
+    if T.ndim != 2 or not np.isfinite(T).all():
+        raise ValueError("ladder candidate totals must be a finite matrix")
+    if not np.isfinite(mean_weight) or mean_weight < 0:
+        raise ValueError("ladder mean weight is invalid")
+    if any(
+        not np.isfinite(float(threshold))
+        or float(threshold) <= 0
+        or not np.isfinite(float(weight))
+        or float(weight) < 0
+        for threshold, weight in ladder.items()
+    ):
+        raise ValueError("ladder threshold or weight is invalid")
+    if mean_weight <= 0 and not any(float(weight) > 0 for weight in ladder.values()):
         raise ValueError("ladder utility has no positive term")
+    if mean_weight > 0 and np.any(T < 0):
+        raise ValueError(
+            "ladder mean utility requires nonnegative candidate totals"
+        )
     thresholds = np.array(sorted(ladder), dtype=float)
     weights = np.array([ladder[t] for t in thresholds], dtype=float)
     mean_total = T.mean(axis=1)

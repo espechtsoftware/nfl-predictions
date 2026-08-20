@@ -25,18 +25,24 @@ much stronger candidate ceiling mostly failed to transfer into the selected
 book. The next selection experiment should therefore change the **portfolio
 utility**, not the optimizer algorithm.
 
-The recommended next selection experiment, after the already-running A3 arm
-releases the historical-outcome lease, is a frozen, exact-80,
-multi-threshold `SELECT_LADDER` arm that protects the useful 194/200 shoulder
-while materially valuing 210/220/230/240 outcomes. It should hold candidates,
-worlds, legal constraints, compute, and book size fixed, and it should be read
-as a paired selection-mechanism test on the incumbent candidate pool. The
-boom-deep pool was explicitly shelved by its frozen null disposition and may be
-revisited only in a separately frozen follow-up after a selector change first
-proves that it can harvest the incumbent ceiling.
+The recommended next selection experiment, after the terminal A3 arm is
+strictly harvested, read through its preregistered disposition, and given a
+durable logical-lane release, is a frozen, exact-80, multi-threshold
+`SELECT_LADDER` arm that protects the useful 194/200 shoulder while rewarding
+outcomes only through 210. Scores at 220/230/240 remain mandatory report-only
+diagnostics because the current simulator is least trustworthy and the
+realized corpus is sparsest there. It should hold candidates, worlds, legal
+constraints, compute, and book size fixed, and it should be read as a paired
+selection-mechanism test on the incumbent candidate pool under the **Phase-S
+finite-K plus SIS-ASOE research law**. That is not the live
+production-multinomial simulation law. A positive A7 result can therefore
+license only a separately frozen, outcome-blind production-law score-free
+selector-transfer test—not a 2026 shadow or production change. The boom-deep
+pool remains closed by its own frozen null disposition; A7 does not reopen it.
 
-In parallel, the project should finish the already-running stack-relaxation
-carve, deploy the already-built 20-book prospective volume shadow, then test
+In parallel, the project should strictly harvest and read the completed
+stack-relaxation carve, deploy the already-built 20-book prospective volume
+shadow, then test
 the measured dependence defect: generic teammate booms are over-coupled while
 QB-to-WR booms are under-coupled. Full standings and pre-lock ownership
 collection are prerequisites before adopting a genuine field-, duplication-,
@@ -59,10 +65,13 @@ ticket rank, adjusted for the contest's tie rule and duplication.
 
 ## Current evidence
 
-### Baseline
+### Registered 54-slate Phase-S CBWU historical baseline
 
-Across the valid 54-slate 2023-2025 Sunday-main corpus, the adopted money book
-has a mean weekly best score of **176.06**. Its threshold counts are:
+Across the valid 54-slate 2023-2025 Sunday-main corpus, the registered CBWU
+selector control under the Phase-S finite-K plus SIS-ASOE research law has a
+mean weekly best score of **176.06**. This is the historical source of the
+adopted money-book aggregate, but it is not a production-multinomial replay.
+Its threshold counts are:
 
 | Score | Slates reaching score |
 |---:|---:|
@@ -74,20 +83,37 @@ has a mean weekly best score of **176.06**. Its threshold counts are:
 | 230 | 1 / 54 |
 | 240 | 0 / 54 |
 
+The exact W1-W18 weekly-baseline vector, which A7 must reproduce before any
+treatment summary, is:
+
+- 2023: `173.64, 187.28, 235.60, 167.72, 173.98, 171.34, 168.16,
+  180.28, 224.20, 194.72, 166.98, 162.62, 171.08, 193.28, 188.84,
+  169.02, 173.06, 171.20`
+- 2024: `170.48, 160.72, 225.28, 153.90, 185.22, 177.90, 144.20,
+  166.80, 158.52, 149.72, 192.48, 179.20, 146.94, 218.48, 193.72,
+  189.46, 207.26, 188.54`
+- 2025: `136.18, 217.20, 168.14, 156.46, 163.86, 170.74, 158.54,
+  156.98, 189.10, 167.50, 160.42, 217.34, 151.76, 148.64, 188.80,
+  163.62, 161.34, 148.96`
+
+Aggregate mean/grid agreement cannot rescue a weekly-vector mismatch.
+
 The direct winner comparison is sobering but should remain a ceiling
 diagnostic rather than the optimization target: the money book beat the
 tracked Millionaire Maker winner on 0/50 paired slates, had a median shortfall
 of 53.4 points, and recorded a best-ever weekly maximum of 223.9. The tracked
 winners had a median score of 233.2 and a 10th percentile of 205.4.
 
-### Candidate supply improved; selected-book conversion did not
+### Simulated candidate supply improved; selected-book conversion did not
 
 The all-boom candidate experiment raised mean pool ceiling C from **187.58 to
 196.64 (+9.06)**, with 43 better slates, one worse, and ten tied. The unchanged
 selector converted that into only **+1.34** selected-book points
 (178.57 to 179.91; p=0.49; 19 better, 18 worse, 16 tied). The treatment C-S gap
-widened to roughly 16.7 points. This is the clearest evidence that additional
-tail supply is being stranded by admission or objective alignment.
+widened to roughly 16.7 points. This proves that the unchanged selector did
+not convert the extra simulated ceiling. It does **not** prove that all of that
+ceiling was real: admission, objective alignment, and simulator artifact
+remain competing explanations.
 
 ### The selector algorithm is effectively closed
 
@@ -133,7 +159,7 @@ co-booms, not for another generic marginal-tail inflation.
 
 ## Recommended execution sequence
 
-### 1. Finish A3: bounded construction-shape relaxation
+### 1. Strictly harvest and read A3: bounded construction-shape relaxation
 
 The frozen arm replaces exactly 8 of 40 boom solves per seed with open solves
 that remove only the QB-stack and bring-back minima. Salary bounds and the
@@ -173,33 +199,107 @@ historical-outcome arm.
 
 The causal question should be: with identical candidates and simulated
 worlds, can a different exact-80 utility convert more of the available tail
-into one exceptional selected lineup?
+into one exceptional selected lineup under the Phase-S finite-K plus SIS-ASOE
+research law? The result is law-specific and cannot be described as a test of
+the production-multinomial simulator.
 
-A preferred design for review is:
+A7's frozen scientific design is:
 
-1. Use only simulated pre-lock worlds during selection. Include lower rungs
-   such as 170 and 180 so weak simulated slates still discriminate, retain the
-   194/200 shoulder, and materially reward 210/220/230/240 with fixed weights.
-2. Freeze the exact threshold list, weights, optional mean term, and existing
-   tie law before outcome access. The implemented seam breaks remaining ties
-   by mean and then candidate index; q99 is not currently part of it.
-3. Separately preregister the **realized-result** shoulder guard or
-   non-inferiority margin at 194/200. It is an evaluation gate after the book
-   is frozen and can never enter selection.
+1. Use only simulated pre-lock worlds during selection. Freeze the clipped
+   score ladder `170:10,180:10,187:7,194:7,200:6,210:10`: its cumulative
+   utility is 10/20/27/34/40/50, approximating score above 160 and then
+   deliberately capping at 210. There is no mean term and no weight, rung, or
+   threshold sweep. Scores at 220/230/240 are reported but never rewarded.
+2. Retain each implemented arm's tie law: control uses marginal uncovered
+   worlds, individual p194, then simulated mean and must exactly reproduce its
+   registered order; treatment uses marginal ladder gain, simulated mean, then
+   lower candidate index. Pass an explicit environment to both arms so neither
+   process state nor a host-level research lever can change selection.
+3. Separately preregister the **realized-result** non-inferiority margin at
+   194/200: treatment may lose at most one net slate at each threshold over
+   the same 54-slate population. This is an evaluation gate after both books
+   are frozen and can never enter selection.
 4. Keep exact-80 legality, candidate identities, common worlds, candidate and
-   solver budgets, and random seeds equal between arms.
+   solver budgets, and random seeds equal between arms. The treatment changes
+   only the selector utility.
+5. Add a score-free realism falsifier. A player is extreme only when its draw
+   is **strictly greater than** its own within-block q99 computed with
+   `method="higher"`; equality does not count, and constant/zero-variance
+   series are never extreme. Attribute each positive marginal ladder-gain
+   event by simultaneous-extreme count and define R3 as the share of marginal
+   utility from events with at least three extreme players.
+6. Freeze support before interpreting R3: each arm must contain at least 100
+   positive-gain R3 events across the 54 slates and strictly more than zero in
+   every one of the five aggregated world blocks. Unsupported R3 is `invalid`
+   before outcomes. Once supported, a treatment-minus-control R3 difference
+   strictly above `+0.01` is the outcome-blind
+   `tail-artifact-risk-phase-s` closure; `<= +0.01` may proceed. Report R2, R4,
+   and q99.5 analogues as non-gating score-free diagnostics. Decide the exact
+   `1/100` boundary by integer cross-multiplication of retained utility
+   numerators/denominators, not binary floating-point rounding.
 
-The arm should report the complete 187/194/200/210/220/230/240 grid, paired
-weekly-best delta, C-to-S conversion, selected source composition, book
-overlap, selector stability under world resampling, and leave-one-slate/season
-influence. A historical positive can license only an unseen 2026 shadow, not a
-money-policy change.
+S80, the maximum of the exact-80 book, is the sole realized gate. Historical
+positive requires the intersection of a positive mean paired delta with its
+deterministic two-sided paired sign-flip `p <= .05`, a favorable signed-rank
+direction with its deterministic paired sign-flip `p <= .05`, and the two
+`-1`-slate non-inferiority guards at 194 and 200. The arm reports the complete
+187/194/200/210/220/230/240 grid, all aligned leave-one-slate/season influence,
+and the frozen 10,000-draw season-stratified bootstrap (`default_rng(20260820)`,
+NumPy linear 0.025/0.975 quantiles). It does not promise selector-resampling,
+winner-overlap, or never-realized-player diagnostics.
 
-Run A7 on the incumbent pool only. If it clears its frozen mechanism and
-realized-result gates, that result may license a separately frozen test of the
-same selector law on boom-deep supply. This preserves the all-boom null's
-preregistered closure and avoids a post-result rescue or immediate 2x2
-multiplicity problem.
+The frozen sign-flip implementation enumerates exactly only with at most 20
+nonzero deltas; otherwise it uses exactly 200,000 fixed-seed Monte Carlo sign
+draws from NumPy `default_rng(20260818)` with the standing add-one correction.
+At A7's normal 54-slate support, those p-values are therefore deterministic
+Monte Carlo estimates, not exact permutation p-values.
+
+Its causal control is the canonical 54-slate Phase-S CBWU historical baseline
+and must reproduce the exact weekly vector above, mean
+`176.06296296296293`, and the 17/8/7/6/3/1/0 grid before treatment scores can
+be interpreted. The separate 53-slate ATLAS production-multinomial comparator
+(mean 178.57; 16/9/7/2/1/0/0) remains contextual for the arms built on that
+reconstruction, not A7's control. Denominators must never be mixed.
+
+After the weekly baseline passes, A7 reports C-to-S conversion exactly: C is
+the maximum realized score of the shared admitted candidate pool, S is the
+arm's selected exact-80 maximum, and C-S is the conversion gap. Persist all 54
+C, S, and C-S values and their means; C must be identical across arms. The
+immutable result must also retain every finite candidate actual score aligned
+to the shared canonical candidate order, derived from a retained complete
+native actual-query row key-and-score vector and its full content receipt. That
+lets the finisher reconstruct both the native query and every admitted/selected
+score without querying outcomes again. C-to-S remains diagnostic rather than
+an adoption gate: a high common C is not evidence that treatment converted it.
+
+Persist the ordered 80 identities and per-lineup scores. Report maxima of the
+first 4, first 14, and all 80 for both arms. The N=4 and N=14 prefixes are
+registered non-gating diagnostics for today's slicing behavior; they cannot
+rescue or veto the exact-80 primary, and they license no cardinality-specific
+money policy. S80 remains the sole disposition gate.
+
+Run A7 on the incumbent pool only. A historical positive licenses only one
+separately frozen, outcome-blind production-multinomial-law score-free
+selector-transfer test. It does not license shadow scoring, production, or a
+boom-deep follow-up. A null or rejection closes only this exact Phase-S dose;
+it does not establish a production-law selector null.
+
+The protocol bytes must remain unchanged through smoke, full score-free
+support census, and outcome execution. Passing preflights do not edit
+or promote the protocol. Instead, an external create-only operator-approval
+and freeze manifest must bind the exact unchanged protocol SHA, code/archive
+and image identities, exact source hashes/receipts, and smoke/support receipt
+identities. It must explicitly approve the frozen utility, support/realism
+law, S80 co-primary intersection, and 194/200 non-inferiority margins. The full
+runner must fail closed without that exact manifest. Any repair requires a new
+protocol ID and new outcome-blind preflights.
+
+The compact pre-freeze support receipt discloses only event support and its
+pass/fail state; it hash-binds, but does not expose, selector effects, utility,
+R3 deltas, identities, or traces. The manifest freezes those hidden inputs and
+the decision law. The full runner evaluates nonvacuity, utility, block, and
+exact R3 gates only after loading the manifest and still before constructing or
+executing the historical outcome query.
 
 ### 4. Test the A2 dependence-factor split
 
@@ -309,7 +409,8 @@ that all 80 necessarily enter one Milly.
 
 - Optimize the maximum of the book, not average lineup score.
 - Protect enough shoulder coverage to avoid turning every entry into an
-  implausible lottery ticket, then reward 210-240 outcomes.
+  implausible lottery ticket. In the Phase-S-law A7 test, reward through 210
+  and report 220-240 without optimizing them.
 - Build multiple coherent paths to first rather than 80 minor variants of the
   same four-player game stack.
 - Prefer chalk-core-plus-leverage combinations over indiscriminate ownership
@@ -345,7 +446,9 @@ that all 80 necessarily enter one Milly.
 - Wholesale deletion of stack rules based on the winner census.
 - Post-hoc dose sweeps or threshold-weight tuning on the same 54 slates.
 - Production promotion from any favorable historical result without an
-  outcome-unseen 2026 confirmation record.
+  outcome-unseen 2026 confirmation record. A7 is narrower still: even a
+  positive licenses only an outcome-blind production-law score-free transfer,
+  not the confirmation shadow itself.
 
 ## Evaluation and adoption law
 
@@ -361,26 +464,44 @@ Every proposed historical arm should be frozen before outcome access and use:
 - paired weekly-book maximum, bootstrap and sign-based uncertainty,
   McNemar-style threshold changes, season direction, and leave-one-slate-out
   influence;
-- a mechanism gate specific to the arm; and
-- winner overlap only as a diagnostic, never as a promotion endpoint.
+- a mechanism gate specific to the arm.
 
 Events at 230 and 240 are too sparse for one threshold crossing to prove an
 arm. A frozen continuous or multi-threshold utility should be primary, with
 registered threshold and shoulder guards. Historical results are decision
 support; production adoption requires a prospective shadow on unseen 2026
-slates.
+slates. For A7, a positive historical result first licenses only the separate
+production-law score-free transfer; it does not license that shadow.
 
 ## Current operational state relevant to this plan
 
-- A3 stack relaxation is in flight. A metadata-only snapshot late on
-  2026-08-19 showed 54/54 executions registered, 11 terminal successful, 43
-  queued/running, zero terminal failures, and ten expected result objects.
-  `scripts/chain_status.sh` is the current status surface. Do not relaunch the
-  chain.
+- A3 stack relaxation has reached strict terminal success for all 54 registered
+  executions and the exact 54-object inventory, but remains deliberately
+  unharvested and unread. Its preregistered read, durable finish receipts, and
+  separate logical historical-outcome-lane release must complete before A7
+  can reuse the lane. Do not relaunch the chain or inspect partial science.
+- A7 must not update the reused research job even for an outcome-blind smoke
+  until that A3 release explicitly transfers the job to A7 and A7 creates a
+  generation-matched, create-only remote job claim. Smoke and support then run
+  sequentially with strict terminal receipts; no broad deployment script or
+  B1 job/scheduler is in scope.
 - The B1 20-book shadow is implemented and frozen; deployment and prospective
   collection remain.
-- `SELECT_LADDER` exists behind a default-off research seam; its utility and
-  one-shot execution have not yet been frozen for this recommendation.
+- `SELECT_LADDER` exists behind a default-off research seam. A7 now has fixed
+  scientific wording and a locally validated fail-closed transport, but it is
+  not externally frozen: the bound smoke, compact support receipt, and operator
+  manifest remain required. The approved image build uses the exact public Git
+  origin at the frozen commit, binds the committed Cloud Build recipe, and
+  requires an independent finisher replay inside the immutable image before
+  any result upload; the later local harvest must match that retained replay
+  exactly. A caller-supplied commit label, local working-tree build, or
+  local-only replay is insufficient. Realized lease release is additionally
+  protected by a create-only remote intent so a crash cannot license a retry.
+- A4's current ownership-template entry gate failed: `own_est` precision and
+  rank association are too weak to support a roster constraint. That exact arm
+  is closed at current input quality; revisit field-aware selection only after
+  a materially better PIT ownership model is calibrated from prospective
+  standings/ownership capture.
 - Residual-world column generation has a validated score-free core, but its
   real source-lock, 54-slate runner, reviewed launcher, and historical
   evaluation boundary are incomplete. It remains a later construction arm,
@@ -407,15 +528,18 @@ Official references:
 - <https://support.draftkings.com/dk/en-us/what-happens-when-i-tie-with-others-in-a-fantasy-sports-contest?id=kb_article_view&sysparm_article=KB0010633>
 - <https://support.draftkings.com/dk/en-us/contest-type-satellite-and-qualifiers-overview?id=kb_article_view&sysparm_article=KB0010643>
 
-## Questions for the reviewing agent
+## Resolved reviewer questions and remaining review prompts
 
-1. Is a strict 194/200 no-decline guard the right protection for A7, or would
-   a frozen non-inferiority margin better serve the stated one-monster-lineup
-   goal?
-2. If incumbent-pool A7 clears, what exact evidence should be required before
-   freezing the separate boom-deep selector follow-up?
-3. What exact ladder ordering or weights best approximate first-place utility
-   without over-rewarding the simulator's least realistic extreme worlds?
+1. **Resolved before outcomes:** A7 uses the explicitly approved `-1`-slate
+   non-inferiority margin at both 194 and 200, not strict no-decline.
+2. Does the separately frozen production-law score-free transfer preserve the
+   A7 utility mechanism and supported realism law without relying on Phase-S
+   transport?
+3. Are there any remaining pre-outcome implementation defects in the fixed
+   freeze-candidate ladder `170:10,180:10,187:7,194:7,200:6,210:10`? Its
+   utility bytes are not externally frozen until the real outcome-blind smoke,
+   all-54 support census, and operator freeze manifest pass; its weights are
+   already closed to outcome-informed revision on this corpus.
 4. Is the A3 k=8 carve a sufficient first representation of winner-like
    structures, or does a future prospective arm need explicit structural
    quotas?
@@ -462,7 +586,7 @@ sub-10% pieces; chance-level overlap at median 4/9 with none at 7/9;
 union ceiling 198.10; B2-prime 178.38 → 181.13; boom C +9.06 → S +1.34.
 The "closed or deprioritized" list is well-supported and I endorse it as
 written. Four disagreements, ranked by how much they would change the
-plan.
+plan, follow. A fifth governance correction was added while disposing them.
 
 ### 1. The 80-lineup book is not the object we actually enter (first-order)
 
@@ -491,6 +615,27 @@ Consequences the plan should absorb rather than defer:
 - This also reframes the exact-N work from "nice to have" to the
   primary deployment question.
 
+#### Project response
+
+**Partly accepted, with two overrides.** The estimand warning is correct:
+max-of-80 is the weekly master-book mechanism, not automatically the maximum
+actually entered into one contest. A7 will therefore persist the ordered book
+and register first-4 and first-14 maxima as non-gating secondaries. They are
+prefix diagnostics for today's slicing behavior, not purpose-built exact-N
+books and not a license to deploy at N=4 or N=14. The frozen exact-N work
+remains the only current cardinality-specific evidence (N=1/3/20 shadow
+licenses; N=40 closed).
+
+I override the recommendation to inspect max-of-4 before freezing A7. The
+committed summary receipts do not retain enough ordered lineup/score evidence
+to reconstruct it independently, and a separate outcome look before choosing
+weights would create an avoidable tuning channel. A7 registers N4/N14 now and
+computes them inside the same one-shot result. S80 is the sole gating endpoint;
+N4/N14 are non-gating and cannot rescue or veto it. The external freeze
+manifest must explicitly record the operator's approval of that estimand law
+before outcomes. The older `3 x 14 + 4` memory may not describe the stated
+80-entry weekly plan, but later contest allocation cannot alter this A7 gate.
+
 ### 2. A7 before A2 weights the least trustworthy region of the law
 
 The plan sequences the ladder (step 3) ahead of the dependence repair
@@ -510,6 +655,18 @@ calibration support (210 is defensible; 230/240 are ~1 and ~0 events in
 weights on 230/240 is fitting to a region with almost no support in
 either the corpus or the law.
 
+#### Project response
+
+**Accepted via option (b); sequencing retained.** A7 remains ahead of A2
+because it is a small, clean selector-only causal test under the existing
+Phase-S finite-K plus SIS-ASOE **research** law, while A2 is a larger staged law
+repair whose mechanism may fail before book scoring. Phase S is not the
+production-multinomial law. The A7 utility is clipped at 210 and has no mean
+term: `170:10,180:10,187:7,194:7,200:6,210:10`. Scores at 220/230/240 remain
+mandatory report-only diagnostics and cannot affect membership. A7 does not
+transport to either A2 or production worlds. Even a positive licenses only a
+separately frozen, outcome-blind production-law score-free transfer test.
+
 ### 3. "Stranded supply" is one of three readings, and not the leading one
 
 The plan reads the boom null as tail supply "stranded by admission or
@@ -527,6 +684,26 @@ harmful, and A7's mechanism gate should include a realism check (do the
 newly selected lineups rely on never-realized player draws?) rather than
 only score and composition.
 
+#### Project response
+
+**Accepted, with a PIT correction.** The main text now says "unconverted
+simulated supply" and explicitly retains simulator artifact as a competing
+explanation. A7 adds a score-free simultaneous-extremes falsifier on the same
+pre-lock worlds: for each ordered lineup addition, it attributes marginal
+ladder utility by the number of roster players **strictly greater than** their
+own within-block simulated q99; equality does not count, and constant or
+zero-variance player series are never extreme. The falsifier is supported only
+if each arm has at least 100 positive-gain R3 events in aggregate and more than
+zero in every aggregated world block. Unsupported is `invalid` before outcomes.
+Once supported, treatment R3 more than one percentage point above control is
+the outcome-blind `tail-artifact-risk-phase-s` closure; `<= +0.01` may proceed.
+R2/R4 and q99.5 cells are non-gating score-free diagnostics.
+
+I do not use a full-history "never realized" ceiling as the selection input or
+the score-free gate: that would be outcome-facing and can punish legitimate
+new breakouts. A7 makes no mandatory selector-resampling, winner-overlap, or
+never-realized-player diagnostic promise.
+
 ### 4. Two baselines are used without labeling (minor but fixable)
 
 The baseline table is the registered **money book** (54 slates,
@@ -536,6 +713,19 @@ and they are different books. A reader can easily conflate "8/54 at 194"
 with the comparator's 9/53. Recommend labeling each occurrence, since
 downstream arms are graded against the comparator, not the money book.
 
+#### Project response
+
+**Accepted and made arm- and law-specific.** A7's control is the 54-slate
+Phase-S finite-K plus SIS-ASOE CBWU historical baseline that supplied the
+registered money-book aggregate; it is not a production-multinomial replay.
+A7 must reproduce the exact 54-value weekly vector printed above, its mean
+`176.06296296296293`, and 17/8/7/6/3/1/0 before treatment is interpretable.
+The 53-slate ATLAS production-multinomial comparator—178.57 and
+16/9/7/2/1/0/0—remains contextual only for arms built on that reconstruction.
+No law or denominator is mixed. A7 also freezes weekly C-to-S conversion: C is
+the shared admitted-pool realized maximum, S the selected-book maximum, and
+C-S the gap; C must match across arms.
+
 ### On the document's own question 1
 
 With 8 of 54 slates at 194 and 6 at 210, a strict no-decline guard is
@@ -544,3 +734,39 @@ strict guard will mostly fail arms for chance. A preregistered
 non-inferiority margin is the more defensible instrument at this event
 density, and it should be stated in slates-at-threshold terms with an
 explicit margin rather than as "no decline."
+
+#### Project response
+
+**Accepted.** A7 freezes a one-slate non-inferiority margin at both 194 and
+200 over the same 54 slates: treatment minus control must be at least `-1` at
+each. This is a realized evaluation guard, never a selection input. Historical
+success additionally requires positive paired mean direction and both standing
+paired sign-flip tests at `p <= .05`; even a full pass can license only a
+separately frozen, outcome-blind production-law score-free transfer test. It
+does not license a shadow or production.
+
+### 5. Preflight-to-freeze sequencing must not be circular
+
+A protocol cannot be described as editable `PRE-FREEZE`, run a smoke/support
+census, and then change its own status or scientific bytes before the outcome
+run. That would leave ambiguity about whether the preflights tested the
+outcome-bearing protocol and whether the operator approved the actual utility,
+support, endpoint, and non-inferiority laws.
+
+#### Project response
+
+**Accepted.** A7 now uses unchanged freeze-candidate bytes plus an external,
+create-only operator-approval/freeze manifest. The real-artifact smoke and the
+54-slate score-free support census bind the exact candidate protocol, code,
+image, source, hidden score-free row hashes, and receipt hashes without
+disclosing arm effects. Neither changes this document. The external manifest
+then binds those exact receipts and identities and records
+explicit operator approval of (1) the exact ladder with no mean term, (2) the
+R3 support floor and `+0.01` margin, (3) the S80 co-primary intersection, and
+(4) the `-1`-slate guards at both 194 and 200. The full runner must reject a
+missing or mismatched manifest, then evaluate the hidden mechanism and R3
+effect gates before any outcome query. Any protocol, selector, science,
+runner, or direct scientific-dependency repair gets a new protocol ID and
+repeats both outcome-blind preflights. Only a transport-proof repair to the
+launcher/watcher/finisher may use the project's explicit exact-current-hash
+override seam, with independent review and no scientific/input/outcome change.
