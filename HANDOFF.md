@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-20 10:26 CDT
+## Current state — 2026-08-20 10:55 CDT
 
 ### A7 v1 is closed at its outcome-blind smoke; A2a is now the active research lane
 
@@ -72,23 +72,40 @@ agent or developer:
   holds bring-back, salary, RB/DST, game, budget, worlds, and selector fixed.
   It is not frozen or licensed to run until the same-team dependence law is
   repaired and passes its score-free mechanism gate.
+- The A2a score-free mechanism is implemented at
+  `0b43a07239195f27e3961bb5f802bf019f34f13f`. Its first real-artifact
+  support contact returned no treatment result: 118/1,194 team-slate groups
+  have multiple projection-eligible QBs, so the unsupported V1 ambiguity rule
+  was closed before any treatment metric was inspected. Frozen V2 leaves
+  zero-/multi-QB groups bit-exact, matching the registered G0 estimator, and
+  transforms only exact-one-QB groups; it does not guess a starter. V2 protocol
+  SHA-256 is
+  `329379ebd7be5e4a92ee34f8a8dd9ae2f6dca90517a81627800f5756852eeab7`.
+- The post-amendment local real-artifact smoke on exact `2023-W1/R0` is
+  strict green: source-lock `7ede34b6…`, artifact `c35ecb83…`, 773 artifact
+  rows, 250 catalog rows, 10,000 worlds, 22 transformed groups, 161 changed
+  rows, exact marginals/QB/unsupported-row parity, and exactly 220,000 one-hot
+  assignments. Directional treatment cells were not inspected. Receipt SHA is
+  `523fcd98e13677342509af52832e6119fab07cab26633f01a83ab6a3c01a8d76`.
+  The combined focused plus standing dependence validation is 41/41 green;
+  py_compile and diff-check are green. No outcome query, lineup construction,
+  historical lease, or cloud execution occurred.
 
 **Scientific queue and next concrete action.** Do not build A7 v2 now. The
 single A2a dose is now frozen before treatment output in
 `reports/2026-08-20-a2a-rank-factor-split-scorefree-protocol.md`: subtract
 half the empirical team-rank source from every non-QB and allocate one full
 QB-rank source to exactly one WR per team-world, then remap only by exact row
-permutations. The frozen protocol is commit
-`1e3a01816f62f38ed571f81f87351d5af117f707`, SHA-256
-`e8f449eccc49f2f241680febdd35972f3ca94fc7057a6bc3b6b49e7f6a90a52b`.
-There is no grid or retune. Implement only the pure transform,
-exact-integer simulated-cell comparisons, tests, and outcome-blind census
-runner. A census pass licenses only a separately frozen outcome-bearing A2a
-remeasurement; only a later law-shape pass may unlock the prepared exact-one
-historical arm. Cross-team bring-back, ownership/duplication, residual worlds,
-and A7 v2 remain separate later questions. Never use broad `deploy_jobs.sh`;
-do not touch B1's job/scheduler; verify the reused job is idle and the shared
-lease absent before any future cloud phase.
+permutations. There is no grid or retune. The next action is one exact-source
+Cloud Build from the committed V2 bytes, then one serialized full 270-artifact
+score-free census using an idle reused research job; do not run another smoke
+or inspect a partial directional result. A census pass licenses only a
+separately frozen outcome-bearing A2a remeasurement; only a later law-shape
+pass may unlock the prepared exact-one historical arm. Cross-team bring-back,
+ownership/duplication, residual worlds, and A7 v2 remain separate later
+questions. Never use broad `deploy_jobs.sh`; do not touch B1's job/scheduler;
+verify the reused job is idle and the shared lease absent before the cloud
+phase.
 
 ## Prior state — 2026-08-20 08:37 CDT
 

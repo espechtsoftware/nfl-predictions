@@ -80,6 +80,7 @@ COPY scripts/aggregate_coherent_market_state_scorefree.py ./scripts/aggregate_co
 COPY scripts/run_coherent_market_state_historical_score.py ./scripts/run_coherent_market_state_historical_score.py
 COPY scripts/run_production_law_dependence_source_lock.py ./scripts/run_production_law_dependence_source_lock.py
 COPY scripts/run_production_law_dependence_remeasurement.py ./scripts/run_production_law_dependence_remeasurement.py
+COPY scripts/run_a2a_rank_factor_split_census.py ./scripts/run_a2a_rank_factor_split_census.py
 COPY scripts/run_cbwu_seed_order_audit.py ./scripts/run_cbwu_seed_order_audit.py
 COPY scripts/run_cbwu_oi_construction_diagnostic.py ./scripts/run_cbwu_oi_construction_diagnostic.py
 COPY scripts/run_cbwu_oi_selector_stability.py ./scripts/run_cbwu_oi_selector_stability.py

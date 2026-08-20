@@ -54,6 +54,8 @@ steps:
         docker run --rm '${_IMAGE}' \
           python scripts/run_production_law_dependence_remeasurement.py --help >/dev/null
         docker run --rm '${_IMAGE}' \
+          python scripts/run_a2a_rank_factor_split_census.py --help >/dev/null
+        docker run --rm '${_IMAGE}' \
           python scripts/run_atlas_minimal_world_selection_c.py --help >/dev/null
         docker run --rm '${_IMAGE}' \
           python scripts/run_a7_select_ladder.py --help >/dev/null
