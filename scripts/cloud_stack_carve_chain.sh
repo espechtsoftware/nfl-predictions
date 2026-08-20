@@ -1,0 +1,233 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# All-boom SELECTION (S) follow-up: wait out the validation build, verify
+# it, reuse the existing job (frozen-chain rule 5: deploy-update plus
+# per-execution --args, zero job creations), run the 2023 W1 real-path
+# canary, release the 53 remaining cells, poll to terminal failing closed
+# on any cell, then aggregate the paired S endpoint create-only.
+#
+# Usage: cloud_all_boom_s_chain.sh <build-id> <code-sha>
+
+PROJECT=nfl-predictions-503414
+REGION=us-central1
+ROOT=$(cd "$(dirname "$0")/.." && pwd)
+RUN_ID=20260819-stack-relaxation-carve-v1
+OUT="$ROOT/reports/stack-relaxation-carve-runs/$RUN_ID"
+PREFIX=gs://nfl-predictions-503414-raw/research/stack-relaxation-carve-runs/$RUN_ID
+REUSED_JOB=atlas-minimal-c-s2023-w1-v1
+EXECUTIONS="$OUT/executions.txt"
+BUILD_ID=${1:?build id}
+CODE_SHA=${2:?code sha}
+
+[ -e "$EXECUTIONS" ] && { echo "ERROR: stack-carve ledger exists" >&2; exit 2; }
+
+while :; do
+  STATUS=$(gcloud builds describe "$BUILD_ID" --project "$PROJECT" \
+    --format='value(status)' 2>/dev/null || echo "")
+  printf '%s STACKCARVE_BUILD status=%s\n' \
+    "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${STATUS:-Unknown}"
+  case "$STATUS" in
+    SUCCESS) break ;;
+    FAILURE|CANCELLED|TIMEOUT|EXPIRED|INTERNAL_ERROR)
+      echo "ERROR: stack-carve build terminal $STATUS" >&2; exit 2 ;;
+    *) sleep 120 ;;
+  esac
+done
+DIGEST=$(gcloud builds describe "$BUILD_ID" --project "$PROJECT" \
+  --format='value(results.images[0].digest)')
+IMAGE="us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@${DIGEST}"
+
+for RELATIVE in Dockerfile cloudbuild.yaml \
+  scripts/run_stack_relaxation_carve.py \
+  scripts/run_all_boom_selection_s.py \
+  scripts/run_all_boom_reallocation_c.py \
+  scripts/run_atlas_minimal_world_selection_c.py \
+  reports/2026-08-19-stack-relaxation-carve-protocol.md; do
+  CURRENT=$(sha256sum "$ROOT/$RELATIVE" | awk '{print $1}')
+  BUILT=$(git -C "$ROOT" show "$CODE_SHA:$RELATIVE" | sha256sum | awk '{print $1}')
+  [ "$CURRENT" = "$BUILT" ] || {
+    echo "ERROR: stack-carve built source differs: $RELATIVE" >&2; exit 2; }
+done
+if gsutil -q stat "$PREFIX/slate-*.json" 2>/dev/null; then
+  echo "ERROR: stack-carve prefix already holds objects" >&2; exit 2
+fi
+mkdir -p "$OUT"
+
+gcloud run jobs deploy "$REUSED_JOB" --project "$PROJECT" --region "$REGION" \
+  --image "$IMAGE" --tasks 1 --parallelism 1 --cpu 4 --memory 16Gi \
+  --max-retries 0 --task-timeout 2h \
+  --service-account 817589974517-compute@developer.gserviceaccount.com \
+  --set-env-vars "CODE_SHA=$CODE_SHA,ANALYSIS_IMAGE=$IMAGE" \
+  --command python \
+  --args "scripts/run_stack_relaxation_carve.py,--season,2023,--week,1,--output-uri,$PREFIX/slate-2023-1.json" \
+  --quiet >/dev/null
+echo "STACKCARVE_JOB_UPDATED $IMAGE"
+
+run_cell() {
+  local season=$1 week=$2
+  local uri="$PREFIX/slate-${season}-${week}.json"
+  local execution
+  execution=$(gcloud run jobs execute "$REUSED_JOB" --project "$PROJECT" \
+    --region "$REGION" --async --format='value(metadata.name)' \
+    --args "scripts/run_stack_relaxation_carve.py,--season,$season,--week,$week,--output-uri,$uri")
+  [[ "$execution" == "$REUSED_JOB-"* ]] || {
+    echo "ERROR: stack-carve execution identity missing" >&2; exit 2; }
+  printf '%s %s %s %s %s\n' "$season" "$week" "$REUSED_JOB" "$execution" "$uri" \
+    >> "$EXECUTIONS"
+}
+
+run_cell 2023 1
+CANARY=$(awk '{print $4}' "$EXECUTIONS")
+echo "STACKCARVE_CANARY_LAUNCHED $CANARY"
+DEADLINE=$(( $(date +%s) + 7200 ))
+while :; do
+  STATE=$(gcloud run jobs executions describe "$CANARY" \
+    --project "$PROJECT" --region "$REGION" \
+    --format='value(status.conditions[0].status)' 2>/dev/null || echo "")
+  printf '%s STACKCARVE_CANARY state=%s\n' \
+    "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${STATE:-Unknown}"
+  [ "$STATE" = "True" ] && break
+  [ "$STATE" = "False" ] && {
+    echo "ERROR: stack-carve canary failed; halt and disposition" >&2; exit 2; }
+  [ "$(date +%s)" -ge "$DEADLINE" ] && {
+    echo "ERROR: stack-carve canary exceeded two hours" >&2; exit 2; }
+  sleep 60
+done
+gsutil -q stat "$PREFIX/slate-2023-1.json" || {
+  echo "ERROR: stack-carve canary produced no output" >&2; exit 2; }
+echo "STACKCARVE_CANARY_PASSED"
+
+for SEASON in 2023 2024 2025; do
+  for WEEK in $(seq 1 18); do
+    [ "$SEASON" = 2023 ] && [ "$WEEK" = 1 ] && continue
+    run_cell "$SEASON" "$WEEK"
+    sleep 2
+  done
+done
+[ "$(wc -l < "$EXECUTIONS")" = 54 ] || {
+  echo "ERROR: stack-carve population is not 54" >&2; exit 2; }
+printf '%s\n' \
+  "run_id=$RUN_ID" "image=$IMAGE" "code_sha=$CODE_SHA" "build_id=$BUILD_ID" \
+  "output_prefix=$PREFIX" \
+  "protocol_sha256=$(sha256sum "$ROOT/reports/2026-08-19-stack-relaxation-carve-protocol.md" | awk '{print $1}')" \
+  "runner_sha256=$(sha256sum "$ROOT/scripts/run_stack_relaxation_carve.py" | awk '{print $1}')" \
+  "chain_sha256=$(sha256sum "$ROOT/scripts/cloud_all_boom_s_chain.sh" | awk '{print $1}')" \
+  "quota_note=reused job $REUSED_JOB (frozen-chain rule 5)" \
+  'uses_realized_outcomes=true' 'production_change_licensed=false' \
+  'predeclared_prior=uncertain-modest-dose' 'cells=54' 'canary=2023-1' \
+  > "$OUT/manifest.txt"
+sha256sum "$OUT/manifest.txt" "$EXECUTIONS" > "$OUT/launch.sha256"
+echo "STACKCARVE_GRID_LAUNCHED"
+
+while :; do
+  OBJECTS=$(gsutil ls "$PREFIX/slate-*.json" 2>/dev/null | wc -l)
+  printf '%s STACKCARVE_GRID objects=%s/54\n' \
+    "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$OBJECTS"
+  [ "$OBJECTS" -ge 54 ] && break
+  while read -r SEASON WEEK JOB EXECUTION URI; do
+    gsutil -q stat "$URI" 2>/dev/null && continue
+    STATE=$(gcloud run jobs executions describe "$EXECUTION" \
+      --project "$PROJECT" --region "$REGION" \
+      --format='value(status.conditions[0].status)' 2>/dev/null || echo "")
+    if [ "$STATE" = "False" ]; then
+      printf '%s STACKCARVE_CELL_FAILED %s %s %s\n' \
+        "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$SEASON" "$WEEK" "$EXECUTION"
+      exit 2
+    fi
+  done < "$EXECUTIONS"
+  sleep 300
+done
+
+mkdir -p "$OUT/cells"
+gsutil -m cp "$PREFIX/slate-*.json" "$OUT/cells/" >/dev/null 2>&1
+PYTHONPATH="$ROOT/src" "$ROOT/.venv/bin/python" - "$OUT" <<'PY'
+import json, sys
+from hashlib import sha256
+from pathlib import Path
+
+from nfl_dfs.research.paired_max_stats import paired_weekly_max_report
+
+out = Path(sys.argv[1])
+cells = sorted(out.glob("cells/slate-*.json"))
+if len(cells) != 54:
+    raise SystemExit(f"ERROR: stack-carve downloaded {len(cells)} cells")
+rows, control_s, treatment_s = [], [], []
+overlap = {"control": [], "treatment": []}
+for path in cells:
+    r = json.loads(path.read_text())
+    if r.get("smoke"):
+        raise SystemExit(f"ERROR: smoke receipt in grid: {path.name}")
+    if not r.get("cross_run_reproduction"):
+        raise SystemExit(f"ERROR: reproduction gate missing: {path.name}")
+    row = {
+        "season": int(r["season"]), "week": int(r["week"]),
+        "paired_delta_c": float(r["paired_delta_c"]),
+        "control": r["control"], "treatment": r["treatment"],
+        "selected_book_intersection": r.get("selected_book_intersection"),
+        "winner_overlap": r.get("winner_overlap"),
+        "open_candidates_total": r.get("open_candidates_total"),
+        "open_selected_count": r.get("open_selected_count"),
+        "open_census": [s.get("open_census") for s in r.get("seeds", [])],
+        "sha256": sha256(path.read_bytes()).hexdigest(),
+    }
+    if r.get("paired_delta_s") is not None:
+        row["paired_delta_s"] = float(r["paired_delta_s"])
+        control_s.append(float(r["control"]["s_score"]))
+        treatment_s.append(float(r["treatment"]["s_score"]))
+        wo = r.get("winner_overlap") or {}
+        for arm in ("control", "treatment"):
+            if arm in wo:
+                overlap[arm].append(float(wo[arm]["max_minus_null"]))
+    rows.append(row)
+if len(control_s) != 53:
+    raise SystemExit(
+        f"ERROR: expected 53 paired S slates, got {len(control_s)}")
+coprimary = paired_weekly_max_report(control_s, treatment_s)
+deltas = [t - c for c, t in zip(control_s, treatment_s)]
+report = {
+    "run_id": "20260819-stack-relaxation-carve-v1",
+    "predeclared_prior": "favorable-c-cleared-s-uncertain",
+    "uses_realized_outcomes": True,
+    "production_change_licensed": False,
+    "n_slates": len(rows),
+    "n_paired_s": len(deltas),
+    "mean_paired_delta_s": sum(deltas) / len(deltas),
+    "treatment_better_s": sum(d > 0 for d in deltas),
+    "control_better_s": sum(d < 0 for d in deltas),
+    "tied_s": sum(d == 0 for d in deltas),
+    "mean_control_s": sum(control_s) / len(control_s),
+    "mean_treatment_s": sum(treatment_s) / len(treatment_s),
+    "selected_threshold_grid": {
+        str(line): {
+            "control": sum(s >= line for s in control_s),
+            "treatment": sum(s >= line for s in treatment_s),
+        }
+        for line in (187, 194, 200, 210, 220, 230, 240)
+    },
+    "coprimary": coprimary,
+    "winner_overlap_max_minus_null_mean": {
+        arm: (sum(values) / len(values) if values else None)
+        for arm, values in overlap.items()
+    },
+    "open_candidates_total": sum(
+        r.get("open_candidates_total") or 0 for r in rows),
+    "open_selected_total": sum(
+        r.get("open_selected_count") or 0 for r in rows),
+    "slates_with_open_in_book": sum(
+        1 for r in rows if (r.get("open_selected_count") or 0) > 0),
+    "per_slate": rows,
+}
+target = out / "aggregate-report.json"
+if target.exists():
+    raise SystemExit("ERROR: aggregate exists (create-only)")
+payload = json.dumps(report, sort_keys=True, separators=(",", ":")) + "\n"
+target.write_text(payload)
+print("STACKCARVE_AGGREGATED",
+      f"mean_delta_s={report['mean_paired_delta_s']:.4f}",
+      f"treatment_better_s={report['treatment_better_s']}/53",
+      f"sha256={sha256(payload.encode()).hexdigest()}")
+PY
+sha256sum "$OUT/aggregate-report.json" "$EXECUTIONS" "$OUT/manifest.txt" \
+  > "$OUT/finish.sha256"
+echo "STACKCARVE_FINISHED $RUN_ID"
