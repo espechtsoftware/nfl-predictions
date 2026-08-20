@@ -287,6 +287,27 @@ agent or developer:
   mock runner `12acd6a9...`, and tests `68de3c35...`. Focused validation is
   12/12; compilation, CLI help and whitespace checks are green. No shared
   runtime, optimizer, data, cloud, lease or outcome path was changed.
+- The conditional B1 2026 shadow transport is also prepared in three isolated
+  files, without integrating or deploying it while A2a owns the frozen shared
+  build surface. `scripts/run_b1_corpus_tail_shadow_transport.py` (SHA-256
+  `df60f08b...`) independently authenticates the exact pushed historical pass,
+  portable model and lease closure; freezes one create-only pre-lock receipt
+  for each exact 2026 Week 1--6; binds one create-only post-settlement score
+  artifact per frozen week; and feeds only the six generation-pinned pairs to
+  the existing frozen adoption law. `scripts/cloud_b1_corpus_tail_shadow.sh`
+  (SHA-256 `da8b7f35...`) is reuse-only and persists an inert job with
+  `CORPUS_TAIL_SHADOW_ENABLED=0`; every weekly freeze, settlement and adoption
+  execution is explicit, strict-terminal and no-retry. Focused plus standing
+  B1 validation is 37/37, with compile, shell syntax, CLI help and whitespace
+  checks green. It cannot deploy before a committed B1 historical pass and a
+  real outcome-blind smoke over the actual 2026 candidate-panel shape. A
+  prospective producer for the canonical/companion `replay_candidates_staging`
+  panels and `slate_player_features` remains the explicit upstream requirement;
+  the transport does not invent or schedule that producer. Later integration
+  must add the two scripts to Docker/Cloud Build, add their ledger shapes to
+  `chain_status.sh`, select and pin one idle unscheduled existing job for the
+  six-week lane, and keep launch default-off until the Week 1 panel IDs and
+  lock time exist. No shared file, cloud resource, data or outcome was touched.
 
 **Scientific queue and next concrete action.** Do not build A7 v2 now. The
 single A2a dose is now frozen before treatment output in
