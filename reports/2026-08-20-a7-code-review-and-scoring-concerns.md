@@ -176,3 +176,79 @@ cheap parallel probe rather than the main line.
 None of this argues against running A7 — it is built, frozen, and
 scientifically clean. It argues against expecting it to move the
 program's headline number.
+
+---
+
+## Addendum (2026-08-20, same day): the A7 smoke failure is a false failure
+
+The A7 preflight smoke died with
+`ERROR: A7 smoke execution metadata malformed` (execution
+`atlas-minimal-c-s2023-w1-v1-6qfpk`,
+log `~/nfl-panels/a7-select-ladder-smoke.log`). I reviewed it rather
+than touching it. **The execution was not malformed and nothing was
+actually wrong with the run.**
+
+### Diagnosis
+
+Both the launcher and the watcher parse execution state with the same
+line:
+
+```python
+rows = [row for row in value.get("status", {}).get("conditions", [])
+        if row.get("type") == "Completed"]
+print(rows[0].get("status", "") if len(rows) == 1 else "Malformed")
+```
+
+- `scripts/cloud_a7_select_ladder.sh:349`
+- `scripts/watch_a7_select_ladder_queue.sh:250`
+
+A freshly created Cloud Run execution does not immediately publish its
+`conditions` array. In that window `len(rows) == 0`, the parser emits
+`Malformed`, and the caller's `*)` branch treats it as fatal. Polling
+the same execution now returns exactly one `Completed` row with
+`status=Unknown` — i.e. healthy and still running. The gate fired on a
+transient absence, not a defect.
+
+`len(rows) == 0` (not yet published) and `len(rows) > 1` (genuinely
+contradictory metadata) are different conditions and must not share a
+branch. Only the second is malformation.
+
+### Why this matters beyond the smoke
+
+This is the frozen-chain defect class from `CLAUDE.md` — a fail-closed
+gate tripping on a *representation* rather than a content defect — and
+rule 4 requires sweeping the whole class rather than fixing one site.
+Both consumers carry the identical pattern, and the watcher's failure is
+worse than the launcher's: its message is
+`"A7 execution metadata malformed; lease held"`, so the same transient
+would **strand the historical-outcome lease** and block every subsequent
+scored arm until someone abandons it by hand. On a 54-cell grid the
+chance of hitting one unpopulated poll is not small.
+
+### Suggested fix (for the owning agent — I made no code change)
+
+Treat empty conditions as "not ready" and reserve `Malformed` for real
+contradictions, at both sites:
+
+```python
+rows = [row for row in value.get("status", {}).get("conditions", [])
+        if row.get("type") == "Completed"]
+if not rows:
+    print("")          # not yet published -> existing Unknown|"" retry branch
+elif len(rows) == 1:
+    print(rows[0].get("status", ""))
+else:
+    print("Malformed")  # contradictory metadata: genuinely fatal
+```
+
+Worth adding a regression test that feeds `{"status": {}}` and
+`{"status": {"conditions": []}}` and asserts the retry branch, plus a
+two-`Completed`-row fixture that asserts the fatal branch. The existing
+suites did not catch this because they exercise well-formed metadata.
+
+### One process note
+
+The smoke did its job: it failed before the real grid, and it cost
+nothing. That is the rule-1 reality smoke working as designed. The
+concern is only that the failure mode would have recurred mid-grid with
+the lease held.
