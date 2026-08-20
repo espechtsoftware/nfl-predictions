@@ -449,3 +449,98 @@ Official references:
 - `reports/2026-08-19-cbwu-volume-prospective-shadow-spec.md`
 - `reports/2026-08-19-dependence-repair-design.md`
 - `reports/2026-08-19-stack-relaxation-carve-protocol.md`
+
+---
+
+## Review notes (orchestrating agent, 2026-08-20)
+
+Every figure I can check against committed receipts is accurate: the
+baseline table and 176.06; the A5 gap (0.134%, worst 0.70%, 255/255
+exact); 43/51 winners failing the construction contract; the winner
+structure percentages (22/41/61/69); ownership 104.5% median with four
+sub-10% pieces; chance-level overlap at median 4/9 with none at 7/9;
+union ceiling 198.10; B2-prime 178.38 → 181.13; boom C +9.06 → S +1.34.
+The "closed or deprioritized" list is well-supported and I endorse it as
+written. Four disagreements, ranked by how much they would change the
+plan.
+
+### 1. The 80-lineup book is not the object we actually enter (first-order)
+
+The plan treats contest-specific allocation as a later layer ("a future
+allocation layer... rather than implying that all 80 necessarily enter
+one Milly"). I think this understates it. The standing entry memory in
+`CLAUDE.md` is **3 qualifiers x 14 + 4 Milly**. If the Millionaire gets
+four entries, then every S number in this document — 176.06, the +1.34
+conversion, all threshold grids — is the maximum of **eighty** lineups,
+while the realized Milly outcome is the maximum of **four**. Those are
+very different distributions, and the gap is large precisely because the
+book is built for coverage breadth.
+
+Consequences the plan should absorb rather than defer:
+
+- The headline baseline overstates realized Millionaire performance. A
+  max-of-4 baseline should be computed from the same receipts (take the
+  first 4 of the selection ordering per slate) and reported alongside
+  176.06. This is cheap, needs no new run, and I would do it before
+  A7 is frozen.
+- Arm ranking may not be invariant to N. A utility change that improves
+  the max of 80 can fail at the max of 4 (breadth-vs-concentration
+  trades reverse), so A7's frozen report should include the max-of-4 and
+  max-of-14 cuts as registered secondaries. That costs nothing at
+  freeze time and is impossible to add credibly afterward.
+- This also reframes the exact-N work from "nice to have" to the
+  primary deployment question.
+
+### 2. A7 before A2 weights the least trustworthy region of the law
+
+The plan sequences the ladder (step 3) ahead of the dependence repair
+(step 4), and its ladder materially rewards 210/220/230/240 **simulated**
+outcomes. But this document's own evidence says the extreme simulated
+region is where the law is least believable: deep-world optima carry
+about three times the never-realized excess of real winning rosters, and
+generic teammate co-booms are over-produced. Weighting those rungs
+heavily means weighting the law's known error heavily, and the selector
+will faithfully chase it.
+
+I am not arguing to block A7 — it is cheap and the incumbent pool is
+what exists. I am arguing that either (a) A2's factor split should
+precede it, or (b) the frozen ladder should stop at a rung with
+calibration support (210 is defensible; 230/240 are ~1 and ~0 events in
+54 slates) and treat higher rungs as reported-not-rewarded. Freezing
+weights on 230/240 is fitting to a region with almost no support in
+either the corpus or the law.
+
+### 3. "Stranded supply" is one of three readings, and not the leading one
+
+The plan reads the boom null as tail supply "stranded by admission or
+objective alignment." There is a third possibility it does not weigh:
+the extra ceiling may be substantially **simulator artifact**. The
+winner-overlap instrument on that arm showed the boom-deep book sitting
+*closer to chance* than the incumbent (+0.11 vs +0.24), i.e. the added
+supply aimed worse, not merely unconverted. Combined with the
+mirage-optima finding, the most parsimonious reading is that a
+meaningful share of the +9.06 was never real points.
+
+This matters because it changes what A7 is expected to do. If part of
+the ceiling is fake, a utility that harvests more of it can be actively
+harmful, and A7's mechanism gate should include a realism check (do the
+newly selected lineups rely on never-realized player draws?) rather than
+only score and composition.
+
+### 4. Two baselines are used without labeling (minor but fixable)
+
+The baseline table is the registered **money book** (54 slates,
+17/8/7/6/3/1/0, mean 176.06); the conversion figures are the **arm
+comparator** reconstruction (53 slates, mean 178.57). Both are correct
+and they are different books. A reader can easily conflate "8/54 at 194"
+with the comparator's 9/53. Recommend labeling each occurrence, since
+downstream arms are graded against the comparator, not the money book.
+
+### On the document's own question 1
+
+With 8 of 54 slates at 194 and 6 at 210, a strict no-decline guard is
+close to untestable — one slate flipping is noise, not evidence, and a
+strict guard will mostly fail arms for chance. A preregistered
+non-inferiority margin is the more defensible instrument at this event
+density, and it should be stated in slates-at-threshold terms with an
+explicit margin rather than as "no decline."
