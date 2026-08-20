@@ -234,12 +234,20 @@ agent or developer:
   diff-check are green. Independent final review is GO with no blocker/high
   issue. Source is committed/pushed at
   `c088dc2636825db3016d00a4b53498b06bca00e6`. Exact direct-Git Cloud Build
-  `50f7858d-9b83-4654-8f22-f3a41ce91e7a` was created at
-  `2026-08-20T19:19:15Z` and is running the full test step against that exact
-  resolved revision with tag `a2a-remeasurement-c088dc2`. No Cloud Run
-  update/execution, outcome query or result read has occurred. Next: harvest
-  the terminal build; on exact success, prepare/review/commit its immutable
-  manifest, then let the existing live gates launch exactly once.
+  `50f7858d-9b83-4654-8f22-f3a41ce91e7a` completed `SUCCESS` at
+  `2026-08-20T21:48:10Z`: the full suite, image build and container smoke all
+  passed. Its immutable image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:9a57af8c6b49aca50bf75dfa26d358f58576dd1e0354bc01f81e819dd990b13a`.
+  The quota preference was terminally denied, leaving the effective limit at
+  1,000; this is nonblocking because the lane remains update-only. The verified
+  prepare then reused exact job UID `d6e4b8c1-5950-46b7-8869-7e34dbf29ad2`,
+  advancing it from generation 10 to 11 with one task, 8 CPU, 32 GiB, 14,400
+  seconds and `maxRetries=0`; both the result prefix and outcome lease were
+  still absent. Create-only launch manifest SHA-256 is `e615dd3c...`, published
+  at object generation `1787262603778410`, and `prepared.sha256` is
+  `4c903e6a...`. No execution, outcome query or result read has occurred. Next:
+  commit/push the reviewed prepared receipts, then start the dedicated watcher;
+  the watcher, not a bare launch, owns the one-shot lease and execution.
 - The exact-one QB-partner k=8 successor is prepared, but deliberately not
   frozen, in
   `reports/2026-08-20-single-stack-k8-under-a2a-protocol-draft.md` (SHA-256
