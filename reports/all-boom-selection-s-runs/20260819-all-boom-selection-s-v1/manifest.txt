@@ -1,0 +1,14 @@
+run_id=20260819-all-boom-selection-s-v1
+image=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:fbb5989d1eec27f19962fc35924327aaf2656cf5126163673d5bbf810618757a
+code_sha=21a79607622903de66f4827f87370561a7943a62
+build_id=7dc5e35b-f08a-4eaf-9363-5982aec40a8c
+output_prefix=gs://nfl-predictions-503414-raw/research/all-boom-selection-s-runs/20260819-all-boom-selection-s-v1
+protocol_sha256=f27a21f73e1b0303a6c5d40d8581e9aae0c8dc90c41477688255fdc1be65fe28
+runner_sha256=82b0e89c9827f01587c8af75869f08372d6cfde43b94a27ad1bf27f0d50855a5
+chain_sha256=585b0edee9f4eadc876a5446930c2bbff046af11886c3a5e74cb9d4bdf684f51
+quota_note=reused job atlas-minimal-c-s2023-w1-v1 (frozen-chain rule 5)
+uses_realized_outcomes=true
+production_change_licensed=false
+predeclared_prior=favorable-c-cleared-s-uncertain
+cells=54
+canary=2023-1

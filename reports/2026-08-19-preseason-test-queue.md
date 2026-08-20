@@ -16,7 +16,7 @@ deployed BEFORE Week 1; in-season items follow the September cadence in
 
 | # | Arm | Status | Gate / prerequisite | Decides |
 |---|---|---|---|---|
-| A1 | **All-boom S follow-up** (`20260819-all-boom-selection-s-v1`) | Implemented; smoke in progress; launch on smoke pass + freeze | Licensed by the C arm's clear (+9.06) | Does boom depth reach the actual 80-lineup book (the operator's "boom as actual lineups against full history") |
+| A1 | **All-boom S follow-up** | **DONE — NULL** (ΔS +1.34, p 0.49; 19/18/16; winner-overlap worse than control). Reallocation CLOSED for the money path at this dose; boom-deep pool shelved pending a selector change. Results: `2026-08-19-all-boom-selection-s-results.md` | — | Selector cannot harvest the +9 ceiling; selection-side lane elevated |
 | A2 | **Dependence repair** (factor split first) | Design logged (`2026-08-19-dependence-repair-design.md`) | All-boom S read (owns the next law build slot); measured shape is the target | Whether the law's co-boom misallocation (generic ↑, QB–WR ↓) is fixable; guard: book-tail + optimum-realism |
 | A3 | **Stack-relaxation carved budget** | Draft frozen-ready (`2026-08-19-stack-relaxation-carved-budget-draft.md`) | Operator k (proposed 8); comparator = whichever boom config the S read crowns; anatomy chance-null mechanism gate included | Whether removing QB-stack/bring-back on a carve reaches the 43/51 winners the rules exclude |
 | A4 | **Ownership-template arm** (B lane) | Draft (`2026-08-19-ownership-template-arm-draft.md`) | ENTRY GATE first: own_est-vs-realized calibration on the 51 winner slates (descriptive, runnable anytime); then queue behind A3 | Whether imposing the measured chalk-core+4-leverage shape on a carve closes the chance-level proximity gap |
