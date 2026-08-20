@@ -294,3 +294,98 @@ rescue this execution. Normalizing the player-source query would change a
 bound input receipt and would require a fresh A7 protocol/run/build/preflight.
 That repair is not the current priority: the dependence-law mechanism and the
 prepared exact-one stack arm are closer to the winner-structure question.
+
+---
+
+## Addendum 2 (2026-08-20): review of the A2a rank-factor-split census
+
+Reviewed `0b43a07` (`research/a2a_rank_factor_split.py`, its runner, two
+test suites, protocol `20260820-a2a-rank-factor-split-scorefree-v2`) and
+the committed real-artifact smoke receipt. All A2a tests pass. This is
+the lane I recommended prioritizing, and the mechanism is well chosen.
+
+### What is right
+
+The transform is a **rank remapping**: each player's new world-ordering
+is computed from a residualized priority, then that player's own sorted
+draws are reassigned along it (`out[row, order] = np.sort(values[row])`).
+Because the result is a permutation of the player's own values, the
+marginal distribution is preserved *exactly* — the smoke confirms
+`exact_sorted_marginals=True` and `exact_q90_boom_counts=True`, with
+`deterministic_repeat_exact=True`. Only the copula moves, which is
+precisely the defect being repaired. Half-residualizing against the team
+factor targets the generic over-coupling, and the one-hot QB→WR
+allocation targets the under-coupled cell. Single frozen dose, no grid:
+protocol-compliant.
+
+### Concern A — undisclosed coverage gap (should be fixed before the remeasurement)
+
+The transform only runs on groups with **exactly one QB and at least two
+WRs**; everything else hits `continue` and keeps the unrepaired law. The
+smoke shows the scale: **161 of 221 eligible rows transformed across 22
+groups**. Twenty-two of those unchanged rows are QBs (skipped by design,
+they are the anchor), which leaves roughly forty non-QB eligible rows
+sitting in groups that received no repair at all.
+
+The receipt reports `eligible_groups`, `eligible_rows`,
+`transformed_rows` — but **no count of skipped groups and no skip
+reason**. That matters because DraftKings routinely lists a backup QB,
+so `len(qbs) != 1` is not a rare edge case; it may systematically
+exclude particular teams every week.
+
+Scientifically this is the risk: the remeasurement compares *aggregate*
+co-boom cells. If ~15% of teams retain the over-coupled law, any real
+improvement is diluted toward the null, and a failed gate could not be
+distinguished from a coverage artifact.
+
+**Recommendation:** add a skipped-group census (count plus reason —
+`qb_count != 1`, `wr_count < 2`) to the receipt, and disclose the
+covered fraction, *before* the outcome-bearing remeasurement is read.
+This is an accounting addition, not a mechanism change, so it does not
+disturb the frozen scientific law.
+
+### Concern B — the one-hot rule concentrates on the already-hot WR
+
+`competitive_wr_assignment` selects `argmax` of the canonical WR ranks,
+so the QB-linked boost goes to the WR who was *already* highest in that
+world. Directionally this is right twice over: it raises QB–WR (measured
+under-coupled at −0.261) and, because only one WR is boosted per world,
+it should lower WR–WR (measured over-coupled at +0.691).
+
+The risk is overshoot. Amplifying the already-leading WR is a
+concentrating rather than redistributing rule, and with
+`QB_WR_ALLOCATION = 1.0` applied to a centered rank it is not a small
+nudge. **Recommendation:** pre-commit that crossing QB–WR *past* its
+realized target (over-coupling a previously under-coupled cell) is
+recorded as a miss, not a pass. Otherwise a treatment that lands at, say,
++0.30 could be read as "moved in the right direction" when it has simply
+traded one mis-specification for its mirror image.
+
+### Concern C — dose sufficiency, and what to do if it undershoots
+
+`GENERIC_ATTENUATION = 0.5` removes half the team factor from the
+priority. The defects it must move are large: RB–RB +1.49, TE–TE +1.34,
+multiplicity ≥4 +1.65. Whether half-residualization moves log-ratios of
+that size into a ±0.14 equivalence band is genuinely unknown, and the
+census is the right way to find out.
+
+The important part is the response to an undershoot: it must be a **new
+frozen protocol**, never a dose bump re-run against the same corpus.
+Worth stating that in the protocol now, while no result has been seen.
+
+### Concern D — TE and RB get only the generic term
+
+The mechanism has a QB-specific term for WRs only. TEs and RBs receive
+attenuation but no re-coupling, so QB–TE (currently "inconclusive",
++0.239) and QB–RB (+1.167) are repaired only by removing generic mass.
+That is a defensible first dose and I would not add terms now — but the
+result document should say so explicitly, so a partial success is not
+read as a full law repair.
+
+### Summary for this lane
+
+No defect found; the mechanism, the marginal-preservation proof, and the
+determinism checks are all sound. Concern A is the one I would act on
+before the remeasurement, because it is cheap, it is pure accounting,
+and without it a null is ambiguous between "mechanism too weak" and
+"mechanism never touched enough of the slate."
