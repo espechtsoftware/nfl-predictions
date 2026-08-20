@@ -13,6 +13,7 @@ set -uo pipefail
 #   bash scripts/chain_status.sh -e <name>  follow that execution's log
 #   bash scripts/chain_status.sh --experiments   list retained experiment results
 #   bash scripts/chain_status.sh --result <substr>  pretty-print one result JSON
+#   bash scripts/chain_status.sh --baseline    print the canonical baseline
 #
 # Live-app keys: 1-6 stream a build's log; a-h stream a job execution's
 # log (the experiment cells themselves); x opens the experiments browser
@@ -52,6 +53,9 @@ while [ $# -gt 0 ]; do
     -b|--build-log) BUILD_LOG=${2:?build id or "latest"}; shift ;;
     -e|--exec-log) EXEC_LOG=${2:?execution name or "latest"}; shift ;;
     --experiments) LIST_EXPERIMENTS=1 ;;
+    --baseline)
+      exec "$(cd "$(dirname "$0")/.." && pwd)/.venv/bin/python" -m json.tool \
+        "$(cd "$(dirname "$0")/.." && pwd)/reports/current-baseline.json" ;;
     --result) RESULT_QUERY=${2:?run-id substring}; shift ;;
     -h|--help)
       sed -n '4,26p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
@@ -393,6 +397,26 @@ render() {
     done < <(head -6 "$CACHE/builds")
   else
     echo "  ${D}fetching…${N}"
+  fi
+
+  # ---- baseline --------------------------------------------------------
+  echo
+  echo "${B}BASELINE${N} ${D}(reports/current-baseline.json)${N}"
+  if [ -f "$ROOT/reports/current-baseline.json" ]; then
+    "$ROOT/.venv/bin/python" - "$ROOT/reports/current-baseline.json" <<'PYB' 2>/dev/null | while read -r line; do fit "  $line"; echo; done
+import json, sys
+b = json.load(open(sys.argv[1]))
+mb, ac, pc = b["money_book"], b["arm_comparator_book"], b["pool_ceiling"]
+t = lambda d: "/".join(str(d[k]) for k in ("187","194","200","210","220","230","240"))
+print(f"money book  {mb['mean_weekly_best']:.2f} mean weekly best "
+      f"({mb['slates']} slates) · {t(mb['at_or_above'])} at 187-240 "
+      f"· target {b['target']['value']:.0f}")
+print(f"comparator  {ac['mean_weekly_best']:.2f} ({ac['slates']}) · "
+      f"pool C {pc['control_mean']:.2f} (boom-deep {pc['boom_deep_treatment_mean']:.2f}) · "
+      f"C-S gap {b['gaps']['C_minus_S']:.2f} · as of {b['as_of']}")
+PYB
+  else
+    echo "  ${D}reports/current-baseline.json missing${N}"
   fi
 
   # ---- job executions --------------------------------------------------

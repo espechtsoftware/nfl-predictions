@@ -1,0 +1,40 @@
+{
+  "as_of": "2026-08-19",
+  "target": {
+    "metric": "mean weekly best realized score of the entered book",
+    "value": 194.0
+  },
+  "corpus": {
+    "id": "54-slate Sunday-main corpus, 2023-2025 (weeks 1-18 x 3)",
+    "note": "The full VALID history. 2019/2021 are rebuildable (queue A10); 2020/2022 are salary-gated; the old six-season panels are invalid (see README data deficiency log + reports/replay-universe-and-leaderboard-forensics.md)."
+  },
+  "production_policy": "classic-k1-role12-boom40-poscal-cbwu-v4",
+  "money_book": {
+    "label": "registered production 80-entry book, realized weekly best",
+    "mean_weekly_best": 176.06,
+    "slates": 54,
+    "at_or_above": {"187": 17, "194": 8, "200": 7, "210": 6, "220": 3, "230": 1, "240": 0},
+    "source": "corpus scorecard (2026-08-16/17 session record; reports/2026-08-18-offseason-selection-ideas-toward-194.md)"
+  },
+  "arm_comparator_book": {
+    "label": "ATLAS-reconstruction control S (dose-zero regen + role injection, exact-80 CBWU); the paired comparator inside frozen arms",
+    "mean_weekly_best": 178.57,
+    "slates": 53,
+    "at_or_above": {"187": 16, "194": 9, "200": 7, "210": 2, "220": 1, "230": 0, "240": 0},
+    "source": "reports/atlas-minimal-c-runs/20260818-atlas-minimal-world-selection-c-v1-attempt-2/cells"
+  },
+  "pool_ceiling": {
+    "label": "best realized candidate in the registered pool (C)",
+    "control_mean": 187.58,
+    "boom_deep_treatment_mean": 196.64,
+    "source": "reports/all-boom-reallocation-c-runs/20260819-all-boom-reallocation-c-v1/aggregate-report.json"
+  },
+  "gaps": {
+    "H_minus_P": 4.057,
+    "P_minus_C": 68.914,
+    "C_minus_S": 5.007,
+    "note": "H universe oracle; P pool-support oracle; C pool best; S selected best (exact-stack decomposition)"
+  },
+  "superseded": "All pre-correction six-season headlines (27/107, 17/107 etc.) are retracted/non-citable; see HANDOFF.md.",
+  "update_rule": "Update this file only from committed run receipts, citing the source path; the S-arm aggregate (20260819-all-boom-selection-s-v1) re-derives the arm-comparator mean independently."
+}
