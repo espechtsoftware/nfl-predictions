@@ -775,6 +775,43 @@ def _validate_a3_release(path: Path) -> dict[str, Any]:
                     r"[0-9a-f]{64}", str(row.get("sha256", ""))
                 ) is None:
             raise RuntimeError("A7 A3 forensic implementation row differs")
+    frozen_implementation = {
+        "source_commit": "bdd54da82c1244abced6a0eea6f234180685f062",
+        "freeze_manifest_path": (
+            "reports/2026-08-20-a3-post-open-forensic-closure-"
+            "implementation-freeze.json"
+        ),
+        "freeze_manifest_sha256": (
+            "07c54932e1494155c5302d94274c2bd3f0da7fd39c8450b912de7b4150067dcf"
+        ),
+        "implementation": {
+            "script": {
+                "path": "scripts/close_stack_relaxation_carve_post_open.py",
+                "sha256": (
+                    "bba975fc1de68935d5de2084f31c1cebeca2968063970b26553e210725210584"
+                ),
+            },
+            "tests": {
+                "path": "tests/test_close_stack_relaxation_carve_post_open.py",
+                "sha256": (
+                    "9338e079e4ace56989d6b28420685d46ff09b6cccc05e8e948f12f746c2e65be"
+                ),
+            },
+            "protocol": {
+                "path": (
+                    "reports/2026-08-20-a3-post-open-forensic-"
+                    "closure-protocol.md"
+                ),
+                "sha256": (
+                    "502c9c2c70ac0aa99ea5873c7fa99999557cd6f2aac5f6c95bfde1b33351e22b"
+                ),
+            },
+        },
+        "operator_approved": True,
+        "frozen_at": "2026-08-20T12:51:34.435948+00:00",
+    }
+    if not _exact_json_value(implementation, frozen_implementation):
+        raise RuntimeError("A7 A3 forensic implementation identity differs")
     if implementation_rows["protocol"]["sha256"] != \
             closure_fixed["protocol_sha256"]:
         raise RuntimeError("A7 A3 forensic implementation protocol differs")

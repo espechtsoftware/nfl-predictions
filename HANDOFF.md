@@ -25,7 +25,8 @@ agent or developer:
 ### A3 post-open recovery is locally proof-green; A7 governance is rebound; no cloud action yet
 
 - Branch `main`; the recovery source lock is pushed at
-  `4b0a1c530f8c1d592bdd06074a57254c55854fb1`.
+  `4b0a1c530f8c1d592bdd06074a57254c55854fb1` and its test-boundary follow-up
+  is pushed at `bdd54da82c1244abced6a0eea6f234180685f062`.
   A3's negative result is already committed at
   `56b09e960e5445cc7cd54c22eceef7cb5e7ec8c0`: exact 54 cells, 53 paired S
   endpoints, aggregate SHA-256 `2e08a551…`, result report SHA-256 `b8ae2d26…`.
@@ -43,12 +44,13 @@ agent or developer:
   remote body 1, generation-pins every download, requires byte equality to the
   original Git result, rebuilds the aggregate byte-for-byte, and publishes
   only create-once local provenance plus a logical-release-v2.
-- The recovery implementation requires a separate tracked, canonical operator
-  manifest that pins one source commit and exact script/test/protocol bytes.
-  That manifest is intentionally **not created until this implementation commit
-  is pushed**; no recovery execution is licensed before the follow-up freeze
-  commit. It will not bind mutable HEAD, so later receipt/HANDOFF commits remain
-  idempotent. The v2 release embeds the closure receipt, declares that results
+- The recovery implementation is frozen by the canonical operator manifest
+  `reports/2026-08-20-a3-post-open-forensic-closure-implementation-freeze.json`
+  (SHA-256 `07c54932…`), which pins source commit `bdd54da8…` and the exact
+  script/test/protocol bytes. No recovery execution is licensed before this
+  manifest and A7's exact producer binding are committed and pushed. It does
+  not bind mutable HEAD, so later receipt/HANDOFF commits remain idempotent.
+  The v2 release embeds the closure receipt, declares that results
   were opened before strict harvest and that recovery rereads those already
   opened outcomes, records the negative/closed disposition, proves the active
   outcome lease absent, and keeps rerun/retest/shadow/transport/production
@@ -59,7 +61,7 @@ agent or developer:
   only amended protocol SHA-256 is `987ad3eb…`; the unchanged scientific
   predecessor is commit `c1dcf4f…` / protocol `e3222f94…`, which predates the
   A3 result, and no A7 smoke/support/freeze/result existed at amendment time.
-- Complete focused local suite is GREEN: **165/165** across A3 strict/recovery,
+- Complete focused local suite is GREEN: **166/166** across A3 strict/recovery,
   A7 selector/science/execution/freeze/cloud/finisher, production isolation,
   and lever registry. The recovery validates a candidate release completely
   before create-once publication and pins the transitive paired-statistics
@@ -80,9 +82,8 @@ A2a QB-WR/generic same-team dependence repair passes. Cross-team bring-back,
 spread, residual worlds, and ownership are separate later questions. Never fit
 winner-frequency quotas on the same 2023–2025 grading corpus.
 
-**Next concrete action.** Commit/push the test-boundary follow-up; create and
-commit the operator implementation-freeze manifest against that source commit;
-hard-pin its identities in A7; rerun the focused suite; then execute the A3
+**Next concrete action.** Commit/push the implementation-freeze manifest and
+A7's exact producer binding; then execute the A3
 read-only forensic closure and commit/push its durable v2 release. Only after
 that release may orchestration build A7 from the exact remote commit and run,
 strictly serialized, real-artifact smoke -> all-54 support census -> external

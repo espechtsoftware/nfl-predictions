@@ -611,20 +611,26 @@ def synthetic(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Synthetic:
             "was_untracked_at_result_commit": True,
         },
         "closure_implementation": {
-            "source_commit": "a" * 40,
+            "source_commit": "bdd54da82c1244abced6a0eea6f234180685f062",
             "freeze_manifest_path": (
                 "reports/2026-08-20-a3-post-open-forensic-closure-"
                 "implementation-freeze.json"
             ),
-            "freeze_manifest_sha256": "d" * 64,
+            "freeze_manifest_sha256": (
+                "07c54932e1494155c5302d94274c2bd3f0da7fd39c8450b912de7b4150067dcf"
+            ),
             "implementation": {
                 "script": {
                     "path": "scripts/close_stack_relaxation_carve_post_open.py",
-                    "sha256": "b" * 64,
+                    "sha256": (
+                        "bba975fc1de68935d5de2084f31c1cebeca2968063970b26553e210725210584"
+                    ),
                 },
                 "tests": {
                     "path": "tests/test_close_stack_relaxation_carve_post_open.py",
-                    "sha256": "c" * 64,
+                    "sha256": (
+                        "9338e079e4ace56989d6b28420685d46ff09b6cccc05e8e948f12f746c2e65be"
+                    ),
                 },
                 "protocol": {
                     "path": (
@@ -636,7 +642,7 @@ def synthetic(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Synthetic:
                 },
             },
             "operator_approved": True,
-            "frozen_at": "2026-08-20T00:00:00+00:00",
+            "frozen_at": "2026-08-20T12:51:34.435948+00:00",
         },
         "executions": {
             "count": 54, "metadata_ledger_sha256": "2" * 64,
@@ -651,7 +657,7 @@ def synthetic(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Synthetic:
         "production_change_licensed": False,
         "shadow_adoption_licensed": False,
         "a3_result_transport_to_a7_licensed": False,
-        "closed_at": "2026-08-20T00:00:00+00:00",
+        "closed_at": "2026-08-20T12:52:00+00:00",
     }
     release = {
         "version": "stack-relaxation-carve-logical-release-v2",
@@ -678,10 +684,10 @@ def synthetic(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Synthetic:
         "historical_outcome_lease_clear": True,
         "historical_outcome_lease_state": "absent",
         "historical_outcome_lease_absence_checked_at": (
-            "2026-08-20T00:00:00+00:00"
+            "2026-08-20T12:53:00+00:00"
         ),
         "operator_approved": True,
-        "released_at": "2026-08-20T00:00:00+00:00",
+        "released_at": "2026-08-20T12:54:00+00:00",
         "cell_rerun_licensed": False,
         "scientific_retest_licensed": False,
         "production_change_licensed": False,
@@ -703,7 +709,7 @@ def synthetic(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Synthetic:
         code_sha=code, image=image, protocol_sha256=protocol_sha,
         a3_logical_release_sha256=release_sha, job_uid="job-uid",
         job_generation="6", job_spec_sha256=smoke_spec_sha,
-        claimed_at="2026-08-20T00:00:01+00:00",
+        claimed_at="2026-08-20T12:54:01+00:00",
     )
     claim_raw = _canonical(claim_body)
     claim_meta = _metadata(finish.JOB_CLAIM_URI, "10", claim_raw)
@@ -1877,6 +1883,36 @@ def test_live_artifact_storage_checksums_are_exactly_bound() -> None:
     changed = {**row, "md5_hash": "aW52YWxpZA=="}
     with pytest.raises(RuntimeError, match="live source-artifact receipts differ"):
         finish._validate_live_artifact_result_receipts([changed], [row])
+
+
+def test_a3_release_pins_exact_recovery_producer(synthetic: Synthetic) -> None:
+    path = synthetic.out / "a3-logical-release.json"
+    original = json.loads(path.read_bytes())
+    finish._validate_a3_release(path)
+    mutations = (
+        ("source_commit", "0" * 40),
+        ("freeze_manifest_sha256", "0" * 64),
+        ("script", "0" * 64),
+        ("tests", "0" * 64),
+    )
+    for index, (field, value) in enumerate(mutations):
+        changed = json.loads(json.dumps(original))
+        implementation = changed["forensic_closure_receipt"][
+            "closure_implementation"
+        ]
+        if field in {"script", "tests"}:
+            implementation["implementation"][field]["sha256"] = value
+        else:
+            implementation[field] = value
+        changed["forensic_closure_sha256"] = _sha(
+            _canonical(changed["forensic_closure_receipt"])
+        )
+        changed_path = synthetic.out / f"a3-release-producer-poison-{index}.json"
+        changed_path.write_bytes(_canonical(changed))
+        with pytest.raises(
+            RuntimeError, match="forensic implementation identity differs",
+        ):
+            finish._validate_a3_release(changed_path)
 
 
 @pytest.mark.parametrize(
