@@ -186,6 +186,55 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--contest-name", default=None)
 
     p = sub.add_parser(
+        "capture-dk-standings",
+        help=(
+            "Validate a complete settled DK field; --apply archives it "
+            "create-only and imports entries + ownership"
+        ),
+    )
+    p.add_argument("path")
+    p.add_argument("--season", type=int, required=True)
+    p.add_argument("--week", type=int, required=True)
+    p.add_argument("--contest-id", required=True)
+    p.add_argument("--contest-name", required=True)
+    p.add_argument(
+        "--expected-entries",
+        type=int,
+        required=True,
+        help="Exact submitted field size shown by DK; partial CSVs fail closed",
+    )
+    p.add_argument(
+        "--captured-at",
+        default=None,
+        help=(
+            "ISO-8601 download timestamp with UTC offset; defaults to the "
+            "source file modification time"
+        ),
+    )
+    p.add_argument("--bucket", default=None,
+                   help="GCS archive bucket; defaults to GCS_BUCKET")
+    p.add_argument("--archive-prefix", default=None,
+                   help="GCS object prefix; defaults to the versioned operator prefix")
+    p.add_argument(
+        "--confirm-settled",
+        action="store_true",
+        help="Confirm DK showed the contest complete after scoring settled",
+    )
+    p.add_argument(
+        "--confirm-full-field",
+        action="store_true",
+        help=(
+            "Confirm season/week/name and expected-entries against the DK "
+            "contest page"
+        ),
+    )
+    p.add_argument(
+        "--apply",
+        action="store_true",
+        help="Perform create-only GCS archive and retry-safe BigQuery loads",
+    )
+
+    p = sub.add_parser(
         "leaderboard-analysis",
         help="Analyze captured top entries and player appearances for a contest",
     )
@@ -954,6 +1003,29 @@ def main(argv: list[str] | None = None) -> None:
         ownership_import.run(args.path, season=args.season, week=args.week,
                              contest_id=args.contest_id,
                              contest_name=args.contest_name)
+    elif args.command == "capture-dk-standings":
+        import json
+
+        from .ingest import ownership_import
+
+        kwargs = {}
+        if args.archive_prefix is not None:
+            kwargs["archive_prefix"] = args.archive_prefix
+        result = ownership_import.capture_full_field(
+            args.path,
+            season=args.season,
+            week=args.week,
+            contest_id=args.contest_id,
+            contest_name=args.contest_name,
+            expected_entries=args.expected_entries,
+            captured_at=args.captured_at,
+            bucket_name=args.bucket,
+            confirm_settled=args.confirm_settled,
+            confirm_full_field=args.confirm_full_field,
+            apply=args.apply,
+            **kwargs,
+        )
+        print(json.dumps(result, sort_keys=True, indent=2))
     elif args.command == "archetypes":
         from .analysis import archetypes
 

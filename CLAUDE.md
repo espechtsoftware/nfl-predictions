@@ -319,7 +319,9 @@ correction in a later one).
   build-features), tabpfn-comp, lem-train, lem-rollout. Sources
   versioned under scripts/.
 - **September cadence (run-only; NO new code should be needed)**:
-  Mon/Tue standings downloads (DK purges ~4 days) → import-ownership;
+  Mon/Tue standings downloads (DK purges ~4 days) →
+  `capture-dk-standings` validation, then explicit settlement/full-field
+  confirmations plus `--apply`;
   Wed tabpfn-gen with TABPFN_UPCOMING; weekly ETR CSV to /market
   (paid pass Sep 8-9); persona shadow + env-forecast logged weekly and
   GRADED before any adoption; CQR auto-activates at >=100 scored

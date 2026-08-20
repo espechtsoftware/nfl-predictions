@@ -144,9 +144,17 @@ def load_dataframe(
     write_disposition: str = "WRITE_TRUNCATE",
     partition_field: str | None = None,
     clustering_fields: tuple[str, ...] | list[str] | None = None,
+    job_id: str | None = None,
 ) -> None:
-    """Load a DataFrame into `dataset.table` (fully qualified or raw-relative)."""
+    """Load a DataFrame into `dataset.table` (fully qualified or raw-relative).
+
+    ``job_id`` is reserved for create-once operator imports.  Reusing the
+    same id after an ambiguous client/network failure resumes the original
+    BigQuery job instead of appending the same irreplaceable source twice.
+    Callers must derive it from the exact source and destination identities.
+    """
     from google.cloud import bigquery
+    from google.api_core.exceptions import Conflict
 
     if "." not in table:
         table = f"{settings.raw}.{table}"
@@ -166,4 +174,40 @@ def load_dataframe(
         # both parts of the destination contract explicit.
         job_config.clustering_fields = list(clustering_fields)
     log.info("Loading %d rows into %s (%s)", len(df), table, write_disposition)
-    client().load_table_from_dataframe(df, table, job_config=job_config).result()
+    c = client()
+    try:
+        c.load_table_from_dataframe(
+            df,
+            table,
+            job_config=job_config,
+            **({"job_id": job_id} if job_id else {}),
+        ).result()
+    except Conflict:
+        if not job_id:
+            raise
+        # A deterministic job id can collide only with the same caller's
+        # prior attempt. Still verify the terminal job kind, destination,
+        # disposition and row count before treating the conflict as a retry.
+        existing = c.get_job(job_id, location=settings.location)
+        existing.result()
+        destination = getattr(existing, "destination", None)
+        destination_id = (
+            f"{destination.project}.{destination.dataset_id}.{destination.table_id}"
+            if destination is not None else None
+        )
+        job_type = getattr(existing, "job_type", None)
+        existing_disposition = getattr(existing, "write_disposition", None)
+        output_rows = getattr(existing, "output_rows", None)
+        if (
+            job_type != "load"
+            or destination_id != table
+            or existing_disposition != write_disposition
+            or output_rows != len(df)
+        ):
+            raise RuntimeError(
+                f"BigQuery job {job_id} retry contract differs: "
+                f"type={job_type!r} destination={destination_id!r} "
+                f"disposition={existing_disposition!r} rows={output_rows!r}; "
+                f"expected load/{table}/{write_disposition}/{len(df)}"
+            )
+        log.info("BigQuery load job %s already completed; kept", job_id)

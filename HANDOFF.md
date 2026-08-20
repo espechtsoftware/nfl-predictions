@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-20 12:58 CDT
+## Current state — 2026-08-20 13:34 CDT
 
 ### A2a score-free mechanism passed; one realized-law remeasurement is next
 
@@ -155,6 +155,23 @@ agent or developer:
   `reports/2026-08-20-b1-winner-relative-census-result.md`; it is descriptive
   and outcome-viewed and licenses no retrospective model or construction
   change.
+- The first-2026-contest full-field DraftKings capture path is now implemented
+  on `main` from parent commit `5fee29ef91f8daf267c41fdb035be0b8020fc487`.
+  `nfl-dfs capture-dk-standings` is validation-only unless the operator supplies
+  both settlement/full-field confirmations and `--apply`. It requires an exact
+  submitted field size, settled scores, reconstructed competition ranks,
+  complete legal rosters, and ownership counts independently reproduced from
+  every roster. An applied capture archives the exact CSV create-only, appends
+  entries and ownership through deterministic retry-safe BigQuery job IDs, and
+  only then writes a create-once receipt. All rows are explicitly
+  `post_settlement`; this path changes no pre-lock model, selector, scheduler,
+  or production policy. The operator workflow is documented in
+  `docs/dk-full-field-capture.md`; the idempotent table migration is
+  `sql/raw/004_ownership.sql`. Focused capture/import/load/ownership/backup
+  validation is 25/25 green, CLI help, py_compile, and `git diff --check` are
+  green. No CSV was captured and no GCS or BigQuery write occurred. The next
+  data action is to validate, then explicitly apply, the first real settled
+  2026 Milly/qualifier export on Monday or Tuesday before DraftKings removes it.
 
 **Scientific queue and next concrete action.** Do not build A7 v2 now. The
 single A2a dose is now frozen before treatment output in
