@@ -25,7 +25,7 @@ deployed BEFORE Week 1; in-season items follow the September cadence in
 | A7 | **SELECT_LADDER one-shot** | Implemented, default-off | Operator utility freeze (mean vs ladder vs lexicographic) + one-shot selector amendment | The 5.01-point C−S objective-alignment prize |
 | A8 | **Regret-targeted generation** | Concept logged (winner-audit result doc) | All-boom S read; N1c reframed it as sim-coverage-hole closing, not winner-reaching | Whether choosing WHICH worlds to solve by pool regret beats rank-order depth |
 | A9 | Marginal-tail Stage 2/3 | **PARKED** by the Stage-1 census (transform is a no-op; defect is allocation) | Revisit only after A2 lands | — |
-| A10 | **Boom vs deep history (2019–2022)** | Logged as operator option | Requires rebuilding the corrected-universe artifacts for those seasons (the old panels are invalid: DST aliases, Thursday dupes, slate mixing). Large lane; needs an explicit operator go | Extends the boom verdicts beyond the 54-slate 2023–2025 corpus — the current runs already cover the full VALID history |
+| A10 | **Deep-history rebuild** | Scoped 2026-08-19: 2019 and 2021 are REBUILDABLE with the already-fixed pipeline (salaries exist via RotoGuru); 2020 and 2022 are salary-gated (no free source; paid/community archive only). Needs an operator go | Adds ~36 valid slates (2019+2021) to every construction/selection experiment and extends the winner censuses to 2019 winners |
 
 ## B. Prospective — must exist before Week 1
 
