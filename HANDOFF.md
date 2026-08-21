@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 14:54 CDT
+## Current state — 2026-08-21 14:55 CDT
 
 ### Corpus retrieval engine is focused-green; exact cloud task 0 is pending
 
@@ -145,7 +145,11 @@ agent or developer:
   rejects the installed-wheel path. A whole-test-tree search found no other
   assertion applying the obsolete literal to repository `cloudbuild.yaml`.
   The repaired five-test Atlas file and the 16-test effective-policy inventory
-  are green. This third canceled build is permanently ineligible.
+  are green. This third canceled build is permanently ineligible. Repair
+  commit `ddef590fe71ed0e4070c1f6a43864bf6ed665cff` is pushed. Clean direct-Git
+  replacement `98335823-1467-4626-bbbc-d8ba8d361510` resolves that exact
+  commit and immutable tag `corpus-retrieval-v1-ddef590`; it was queued at
+  14:55 CDT. Do not submit a concurrent replacement while it is active.
 - A prior outcome-blind engineering prototype over the exact task-0 shapes
   found 1,276 source rows, 585 unique lineups, 27,117 strict-`>200` events,
   581 lineups with an event, and 9,534 worlds with an event. These are
@@ -192,8 +196,8 @@ agent or developer:
   launch authority: transport/terminal publication and one real-artifact
   end-to-end smoke remain open, and Neo4j remains a separate rebuildable
   append-only projection with no execution or policy authority.
-- Next concrete action: commit/push the stale-test build repair, submit one
-  clean direct-Git replacement from that exact commit, require it to succeed,
+- Next concrete action: require clean direct-Git build
+  `98335823-1467-4626-bbbc-d8ba8d361510` to succeed,
   publish/reopen the
   exact create-once input suite against its immutable digest, build canonical runtime
   IAM evidence, run immediate all-region scheduler and namespace censuses,
