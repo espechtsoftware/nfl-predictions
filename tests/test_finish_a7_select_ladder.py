@@ -668,6 +668,13 @@ def synthetic(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Synthetic:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(f"{key}\n".encode())
         implementation[key] = _sha(path.read_bytes())
+    cloudbuild_path = root / "cloudbuild.yaml"
+    cloudbuild_path.write_bytes((REPO / "cloudbuild.yaml").read_bytes())
+    implementation["cloudbuild_config"] = _sha(cloudbuild_path.read_bytes())
+    monkeypatch.setattr(
+        finish, "_git_blob",
+        lambda _repo, _commit, relative: (root / relative).read_bytes(),
+    )
     protocol_path = root / (
         "reports/2026-08-20-a7-select-ladder-incumbent-pool-protocol-v2.md"
     )
@@ -1009,7 +1016,8 @@ def synthetic(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Synthetic:
             "_IMAGE": "registry.invalid/nfl-dfs:frozen",
         },
         "steps": finish._expected_cloud_build_steps(
-            "registry.invalid/nfl-dfs:frozen"
+            "registry.invalid/nfl-dfs:frozen",
+            cloudbuild_raw=cloudbuild_path.read_bytes(),
         ),
         "options": {"machineType": "E2_HIGHCPU_8"},
         "timeout": "10800s",
@@ -1988,28 +1996,28 @@ def test_build_gate_binds_exact_committed_step_contract(synthetic: Synthetic) ->
         image=synthetic.frozen.image, code_sha=synthetic.frozen.code_sha,
     )
     value["steps"][0]["args"][1] = "PYTHONPATH=. pytest -q"
-    with pytest.raises(RuntimeError, match="build/test/image gate differs"):
+    with pytest.raises(RuntimeError, match="step full-test-suite differs"):
         finish._validate_build_metadata(
             value, build_id=synthetic.frozen.build_id,
             image=synthetic.frozen.image, code_sha=synthetic.frozen.code_sha,
         )
     value = json.loads(build_path.read_bytes())
     value["steps"][0]["allowExitCodes"] = [1]
-    with pytest.raises(RuntimeError, match="build/test/image gate differs"):
+    with pytest.raises(RuntimeError, match="step full-test-suite differs"):
         finish._validate_build_metadata(
             value, build_id=synthetic.frozen.build_id,
             image=synthetic.frozen.image, code_sha=synthetic.frozen.code_sha,
         )
     value = json.loads(build_path.read_bytes())
     value["options"]["env"] = ["PYTEST_ADDOPTS=--collect-only"]
-    with pytest.raises(RuntimeError, match="build/test/image gate differs"):
+    with pytest.raises(RuntimeError, match="build options differ"):
         finish._validate_build_metadata(
             value, build_id=synthetic.frozen.build_id,
             image=synthetic.frozen.image, code_sha=synthetic.frozen.code_sha,
         )
     value = json.loads(build_path.read_bytes())
     value["availableSecrets"] = {"secretManager": [{"env": "PYTEST_ADDOPTS"}]}
-    with pytest.raises(RuntimeError, match="build/test/image gate differs"):
+    with pytest.raises(RuntimeError, match="available secrets differ"):
         finish._validate_build_metadata(
             value, build_id=synthetic.frozen.build_id,
             image=synthetic.frozen.image, code_sha=synthetic.frozen.code_sha,
@@ -2033,7 +2041,66 @@ def test_expected_build_smoke_is_exact_current_cloudbuild_literal() -> None:
         "\nimages:\n", 1,
     )[0]
     rendered = textwrap.dedent(literal).replace("${_IMAGE}", image_tag) + "\n"
-    assert finish._expected_cloud_build_steps(image_tag)[2]["args"][1] == rendered
+    assert finish._expected_cloud_build_steps(
+        image_tag, cloudbuild_raw=cloudbuild.encode(),
+    )[2]["args"][1] == rendered
+
+
+def _cloudbuild_with_later_unrelated_smoke(raw: bytes) -> bytes:
+    marker = b"images:\n"
+    addition = (
+        b"        docker run --rm '${_IMAGE}' \\\n"
+        b"          python scripts/future_unrelated_transport.py --help >/dev/null\n"
+    )
+    assert raw.count(marker) == 1
+    return raw.replace(marker, addition + marker, 1)
+
+
+def test_build_gate_uses_submitted_cloudbuild_not_later_worktree(
+    synthetic: Synthetic,
+) -> None:
+    build = json.loads((synthetic.out / "build-metadata.json").read_bytes())
+    cloudbuild_path = synthetic.root / "cloudbuild.yaml"
+    committed = cloudbuild_path.read_bytes()
+    cloudbuild_path.write_bytes(_cloudbuild_with_later_unrelated_smoke(committed))
+
+    def submitted(repo: Path, code_sha: str, relative: str) -> bytes:
+        assert repo == synthetic.root
+        assert code_sha == synthetic.frozen.code_sha
+        return committed if relative == "cloudbuild.yaml" else (
+            repo / relative
+        ).read_bytes()
+
+    finish._validate_build_metadata(
+        build, build_id=synthetic.frozen.build_id,
+        image=synthetic.frozen.image, code_sha=synthetic.frozen.code_sha,
+        root=synthetic.root, git_source_loader=submitted,
+    )
+
+
+def test_build_gate_rejects_step_change_at_submitted_commit(
+    synthetic: Synthetic,
+) -> None:
+    build = json.loads((synthetic.out / "build-metadata.json").read_bytes())
+    changed = _cloudbuild_with_later_unrelated_smoke(
+        (synthetic.root / "cloudbuild.yaml").read_bytes()
+    )
+
+    def submitted(repo: Path, code_sha: str, relative: str) -> bytes:
+        assert repo == synthetic.root
+        assert code_sha == synthetic.frozen.code_sha
+        return changed if relative == "cloudbuild.yaml" else (
+            repo / relative
+        ).read_bytes()
+
+    with pytest.raises(
+        RuntimeError, match="step smoke-atlas-mvp-runner differs",
+    ):
+        finish._validate_build_metadata(
+            build, build_id=synthetic.frozen.build_id,
+            image=synthetic.frozen.image, code_sha=synthetic.frozen.code_sha,
+            root=synthetic.root, git_source_loader=submitted,
+        )
 
 
 @pytest.mark.parametrize(
@@ -2056,7 +2123,9 @@ def test_build_gate_rejects_missing_registered_smoke_family(
     smoke = value["steps"][2]["args"][1]
     assert smoke.count(command) == 1
     value["steps"][2]["args"][1] = smoke.replace(command, "poison", 1)
-    with pytest.raises(RuntimeError, match="build/test/image gate differs"):
+    with pytest.raises(
+        RuntimeError, match="step smoke-atlas-mvp-runner differs",
+    ):
         finish._validate_build_metadata(
             value, build_id=synthetic.frozen.build_id,
             image=synthetic.frozen.image, code_sha=synthetic.frozen.code_sha,

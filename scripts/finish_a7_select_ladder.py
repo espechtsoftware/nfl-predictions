@@ -2052,62 +2052,61 @@ def _local_preflight_manifest(
     }
 
 
-def _expected_cloud_build_steps(image_tag: str) -> list[dict[str, Any]]:
-    full_test = (
-        "apt-get update\n"
-        "apt-get install -y --no-install-recommends git libgomp1\n"
-        "pip install --no-cache-dir '.[gcp,app,dev]'\n"
-        "PYTHONPATH=. pytest\n"
-    )
-    smoke_commands = (
-        ("python", "run_atlas_matched_diversity_mvp.py --help >/dev/null"),
-        ("python", "run_atlas_historical_score_diagnostic.py --help >/dev/null"),
-        ("python", "run_atlas_historical_score_diagnostic_v3.py --help >/dev/null"),
-        ("python", "run_atlas_historical_score_diagnostic_v4.py --help >/dev/null"),
-        ("python", "run_constraint_lattice_scorefree.py --help >/dev/null"),
-        ("python", "aggregate_constraint_lattice_scorefree.py --help >/dev/null"),
-        ("python", "run_constraint_lattice_support_census.py --help >/dev/null"),
-        ("python", "aggregate_constraint_lattice_support_census.py --help >/dev/null"),
-        ("python", "run_constraint_lattice_resource_preflight.py --help >/dev/null"),
-        ("python", "run_recourse_aware_initial_scorefree.py --help >/dev/null"),
-        ("python", "aggregate_recourse_aware_initial_scorefree.py --help >/dev/null"),
-        ("python", "run_coherent_market_state_scorefree.py --help >/dev/null"),
-        ("python", "aggregate_coherent_market_state_scorefree.py --help >/dev/null"),
-        ("python", "run_coherent_market_state_historical_score.py --help >/dev/null"),
-        ("python", "run_production_law_dependence_source_lock.py --help >/dev/null"),
-        ("python", "run_production_law_dependence_remeasurement.py --help >/dev/null"),
-        ("python", "run_a2a_rank_factor_split_census.py --help >/dev/null"),
-        ("python", "run_a2a_production_law_dependence_remeasurement.py --help >/dev/null"),
-        ("python", "finish_a2a_production_law_dependence_remeasurement.py --help >/dev/null"),
-        ("bash", "cloud_a2a_production_law_dependence_remeasurement.sh"),
-        ("bash", "watch_a2a_production_law_dependence_queue.sh"),
-        ("python", "run_b1_corpus_tail_model.py --help >/dev/null"),
-        ("python", "finish_b1_corpus_tail_model.py --help >/dev/null"),
-        ("bash", "cloud_b1_corpus_tail_model.sh"),
-        ("bash", "watch_b1_corpus_tail_queue.sh"),
-        ("python", "run_b1_corpus_tail_panel_producer.py --help >/dev/null"),
-        ("python", "run_b1_corpus_tail_shadow_transport.py --help >/dev/null"),
-        ("python", "run_b1_authoritative_settlement.py --help >/dev/null"),
-        ("bash", "cloud_b1_corpus_tail_shadow.sh"),
-        ("python", "run_atlas_minimal_world_selection_c.py --help >/dev/null"),
-        ("python", "run_a7_select_ladder.py --help >/dev/null"),
-        ("python", "freeze_a7_select_ladder.py --help >/dev/null"),
-        ("python", "finish_a7_select_ladder.py --help >/dev/null"),
-        ("bash", "cloud_a7_select_ladder.sh"),
-        ("bash", "watch_a7_select_ladder_queue.sh"),
-        ("python", "run_lr8_training_source.py --help >/dev/null"),
-        ("python", "finish_lr8_training_source_smoke.py --help >/dev/null"),
-        ("bash", "cloud_lr8_training_source_smoke.sh"),
-        ("bash", "watch_lr8_training_source_smoke_queue.sh"),
-    )
-    smoke = "".join(
-        f"docker run --rm '{image_tag}' \\\n"
-        f"  {kind} scripts/{command}\n"
-        if kind == "python"
-        else f"docker run --rm '{image_tag}' \\\n"
-        f"  bash -n scripts/{command}\n"
-        for kind, command in smoke_commands
-    )
+_CLOUDBUILD_CONTRACT = re.compile(
+    r"\A(?P<preamble>(?:#[^\n]*\n|\n)*)"
+    r"steps:\n"
+    r"  - name: python:3\.11-slim\n"
+    r"    id: full-test-suite\n"
+    r"    entrypoint: bash\n"
+    r"    args:\n"
+    r"      - -ceu\n"
+    r"      - \|\n"
+    r"(?P<full_test>(?:        [^\n]*\n)+)"
+    r"  - name: gcr\.io/cloud-builders/docker\n"
+    r"    id: build-image\n"
+    r"    args: \[build, -t, '\$\{_IMAGE\}', \.\]\n"
+    r"  - name: gcr\.io/cloud-builders/docker\n"
+    r"    id: smoke-atlas-mvp-runner\n"
+    r"    entrypoint: bash\n"
+    r"    args:\n"
+    r"      - -ceu\n"
+    r"      - \|\n"
+    r"(?P<smoke>(?:        [^\n]*\n)+)"
+    r"images:\n"
+    r"  - '\$\{_IMAGE\}'\n"
+    r"substitutions:\n"
+    r"  _IMAGE: (?P<default_image>[^\n]+)\n"
+    r"timeout: 10800s\n"
+    r"options:\n"
+    r"  machineType: E2_HIGHCPU_8\n\Z"
+)
+
+
+def _cloudbuild_literal(value: str) -> str:
+    lines = value.splitlines(keepends=True)
+    if not lines or any(not line.startswith("        ") for line in lines):
+        raise RuntimeError("A7 committed Cloud Build literal differs")
+    return "".join(line[8:] for line in lines)
+
+
+def _expected_cloud_build_steps(
+    image_tag: str, *, cloudbuild_raw: bytes,
+) -> list[dict[str, Any]]:
+    """Extract the exact normalized steps from the submitted Git source."""
+    if not isinstance(cloudbuild_raw, bytes) or b"\r" in cloudbuild_raw:
+        raise RuntimeError("A7 committed Cloud Build bytes differ")
+    try:
+        source = cloudbuild_raw.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise RuntimeError("A7 committed Cloud Build is not UTF-8") from exc
+    match = _CLOUDBUILD_CONTRACT.fullmatch(source)
+    if match is None:
+        raise RuntimeError("A7 committed Cloud Build contract differs")
+    full_test = _cloudbuild_literal(match.group("full_test"))
+    smoke = _cloudbuild_literal(match.group("smoke"))
+    if "${_IMAGE}" in full_test or "${_IMAGE}" not in smoke:
+        raise RuntimeError("A7 committed Cloud Build substitution differs")
+    smoke = smoke.replace("${_IMAGE}", image_tag)
     common = {
         "env": [], "dir": "", "secretEnv": [], "status": "SUCCESS",
         "allowFailure": False, "allowExitCodes": [], "waitFor": [],
@@ -2134,6 +2133,7 @@ def _expected_cloud_build_steps(image_tag: str) -> list[dict[str, Any]]:
 
 def _validate_build_metadata(
     value: dict[str, Any], *, build_id: str, image: str, code_sha: str,
+    root: Path = ROOT, git_source_loader: GitSourceLoader | None = None,
 ) -> None:
     meta = value.get("metadata", {})
     if value.get("id") != build_id and meta.get("build", {}).get("id") != build_id:
@@ -2159,6 +2159,8 @@ def _validate_build_metadata(
         if substitutions.get(key) is not None
     }
     image_tag = substitutions.get("_IMAGE")
+    if not isinstance(image_tag, str):
+        raise RuntimeError("A7 build image substitution differs")
     options = value.get("options")
     allowed_option_keys = {
         "machineType", "diskSizeGb", "substitutionOption",
@@ -2200,7 +2202,14 @@ def _validate_build_metadata(
         "defaultLogsBucketBehavior": "DEFAULT_LOGS_BUCKET_BEHAVIOR_UNSPECIFIED",
         "enableStructuredLogging": False,
     }
-    expected_steps = _expected_cloud_build_steps(str(image_tag))
+    loader = _git_blob if git_source_loader is None else git_source_loader
+    try:
+        cloudbuild_raw = loader(root, code_sha, "cloudbuild.yaml")
+    except (OSError, subprocess.SubprocessError) as exc:
+        raise RuntimeError("A7 committed Cloud Build source is unreadable") from exc
+    expected_steps = _expected_cloud_build_steps(
+        str(image_tag), cloudbuild_raw=cloudbuild_raw,
+    )
     steps = value.get("steps")
     if not isinstance(steps, list) or len(steps) != len(expected_steps):
         raise RuntimeError("A7 build/test step population differs")
@@ -2224,23 +2233,44 @@ def _validate_build_metadata(
             "automapSubstitutions": row.get("automapSubstitutions", False),
             "exitCode": row.get("exitCode", 0),
         })
-    if normalized_options != expected_options or value.get("timeout") != "10800s" or \
-            value.get("images") != [image_tag] or value.get("secrets") is not None or \
-            value.get("availableSecrets") is not None or value.get(
-                "serviceAccount"
-            ) != BUILD_SERVICE_ACCOUNT or value.get(
-                "logsBucket"
-            ) != BUILD_LOGS_BUCKET or value.get("artifacts") != {
-                "images": [image_tag]
-            } or value.get("status") != "SUCCESS" or \
-            normalized_steps != expected_steps or \
-            any(
-        value != code_sha for value in declared_commits
-    ) or not isinstance(image_tag, str) or not any(
-        row.get("digest") == digest and row.get("name") == image_tag
-        for row in images
+    for observed, expected in zip(normalized_steps, expected_steps, strict=True):
+        if observed != expected:
+            fields = sorted(
+                key for key in expected if observed.get(key) != expected[key]
+            )
+            field_receipts = ",".join(
+                f"{key}:expected={_sha_bytes(_canonical_json(expected[key]))}:"
+                f"actual={_sha_bytes(_canonical_json(observed.get(key)))}"
+                for key in fields
+            )
+            raise RuntimeError(
+                f"A7 build step {expected['id']} differs ({field_receipts})"
+            )
+    if normalized_options != expected_options:
+        raise RuntimeError("A7 build options differ")
+    if value.get("timeout") != "10800s":
+        raise RuntimeError("A7 build timeout differs")
+    if value.get("images") != [image_tag]:
+        raise RuntimeError("A7 build image-output declaration differs")
+    if value.get("secrets") is not None:
+        raise RuntimeError("A7 build secrets differ")
+    if value.get("availableSecrets") is not None:
+        raise RuntimeError("A7 build available secrets differ")
+    if value.get("serviceAccount") != BUILD_SERVICE_ACCOUNT:
+        raise RuntimeError("A7 build service account differs")
+    if value.get("logsBucket") != BUILD_LOGS_BUCKET:
+        raise RuntimeError("A7 build logs bucket differs")
+    if value.get("artifacts") != {"images": [image_tag]}:
+        raise RuntimeError("A7 build artifact declaration differs")
+    if value.get("status") != "SUCCESS":
+        raise RuntimeError("A7 build terminal status differs")
+    if any(value != code_sha for value in declared_commits):
+        raise RuntimeError("A7 build declared commit differs")
+    if not any(
+        isinstance(row, dict) and row.get("digest") == digest
+        and row.get("name") == image_tag for row in images
     ):
-        raise RuntimeError("A7 build/test/image gate differs")
+        raise RuntimeError("A7 build result image digest differs")
 
 
 def _parse_checksum_ledger(path: Path) -> list[tuple[str, str]]:

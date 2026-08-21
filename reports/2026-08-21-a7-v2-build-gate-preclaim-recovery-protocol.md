@@ -21,15 +21,28 @@ metadata, and then failed closed in
 release, reading/updating the reused job, creating the v2 job claim, or
 launching an execution.
 
-The defect is exact and administrative. The A7 finisher reconstructed an
-older Cloud Build smoke step that omitted the A2a and B1 checks already
-present in the successful build. The repair makes the expected metadata step
-byte-exact to the current committed `cloudbuild.yaml`, including its A2a, B1,
-A7, and LR8 checks. It does not normalize metadata, relax a comparison, change
-science, or make the old build acceptable. Because the current Cloud Build
-contract also contains LR8 checks absent from the old build, that build and
-image are permanently ineligible for A7-v2 after this repair. A fresh
-direct-Git build from the exact repair commit is required.
+The defect is exact and administrative. The successful build contains the
+exact 70-line smoke step in its own submitted
+`7057554eb2d930be29e882745e52d271fde09339:cloudbuild.yaml`. The later working
+tree contains a 78-line step because an unrelated LR8 transport added four
+checks after that build. Reconstructing expected metadata from a hardcoded or
+working-tree smoke list therefore coupled an immutable build to future
+unrelated changes.
+
+The repair loads `cloudbuild.yaml` from the build's already-validated exact
+Git `code_sha`, parses its registered three-step shape without a YAML runtime
+dependency, substitutes only that build's `_IMAGE`, and compares every
+normalized step byte-exactly. A later working-tree smoke addition cannot
+invalidate an older exact build; the same addition at the submitted commit
+must invalidate metadata that lacks it. Failures name the exact step and
+changed fields with expected/actual content hashes. This does not normalize
+metadata, relax a comparison, or change science.
+
+Although the repaired validator correctly recognizes that the old build
+matches its own source-time Cloud Build contract, the old build/image remain
+ineligible for A7-v2: the repaired finisher is absent from their source and
+image, and v2 preflight forbids a post-commit transport override. A fresh
+direct-Git build from the exact repair commit is still required.
 
 No A7-v2 scientific or cloud attempt exists, so the run ID can remain v2 if
 and only if this exact failed-preclaim shell is durably preserved first. The
@@ -72,11 +85,11 @@ Before arming the archive rename, the recovery must prove and retain:
 
 1. The v2 protocol, scientific module, runner, freeze builder, launcher, and
    watcher are byte-identical to source
-   `7057554eb2d930be29e882745e52d271fde09339`. Only the finisher build-step
-   validator and its focused tests may differ. The current Cloud Build,
-   repaired finisher, this protocol, recovery tool, and focused tests must all
-   be byte-identical to one caller-supplied fresh local Git commit distinct
-   from the old source.
+   `7057554eb2d930be29e882745e52d271fde09339`. Among those frozen A7 files,
+   only the finisher may differ. The submitted-commit Cloud Build, repaired
+   finisher, this protocol, recovery tool, and focused tests must all be
+   byte-identical to one caller-supplied fresh local Git commit distinct from
+   the old source.
 2. The complete v2 GCS prefix is empty. Direct metadata lookups for claim,
    smoke, smoke terminal, support, support terminal, freeze, and result must
    each return definitive `NotFound`; the historical-outcome lease must also

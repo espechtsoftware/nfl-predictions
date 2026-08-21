@@ -150,14 +150,19 @@ agent or developer:
   or outcome access. The retained v2 shell contains only the definitive empty
   prefix inventory and canonical successful metadata for build `063251e8...`;
   its 370-byte watcher log records
-  `RuntimeError: A7 build/test/image gate differs`. The finisher's exact
-  expected Cloud Build smoke list had not been updated when A2a/B1 checks were
-  added, so it rejected the longer real build. The repaired
-  `_expected_cloud_build_steps` now byte-matches current `cloudbuild.yaml` in
-  exact A2a/B1/A7/LR8 order and has six cross-family order/omission poisons;
-  it does not normalize metadata or relax any comparison. This necessarily
-  makes old build `063251e8...` and image `f9ec...` ineligible, because they
-  predate the LR8 build checks now in the registered contract.
+  `RuntimeError: A7 build/test/image gate differs`. The finisher reconstructed
+  expected Cloud Build steps from its future working-tree version, so later
+  LR8 smoke additions invalidated an otherwise exact earlier A7 build. The
+  repaired gate now loads and strictly parses `code_sha:cloudbuild.yaml` from
+  the build's own Git commit, substitutes only that build's image tag, and
+  byte-compares the normalized three steps. Later unrelated pipeline changes
+  therefore cannot invalidate an already exact image; a changed pipeline at
+  the submitted commit still fails. Per-leg diagnostics now identify the
+  exact step and changed-field hashes rather than a compound generic error.
+  Retained build `063251e8...` now validates against its own committed
+  pipeline, but its source/image does not contain this repaired finisher and
+  the preflight forbids transport repair overrides, so a fresh build is still
+  required.
 - The same-v2 administrative closure is frozen in
   `reports/2026-08-21-a7-v2-build-gate-preclaim-recovery-protocol.md` with
   one-purpose tool `scripts/recover_a7_v2_build_gate_preclaim.py`. It pins and
@@ -165,12 +170,12 @@ agent or developer:
   proves the empty prefix/direct objects/lease, unchanged generation-12 job,
   exact 262 terminal executions, scheduler absence, and byte-clean science,
   and licenses only a fresh exact-source build followed by the first v2 job
-  claim. Focused validation passes 104/104 across finisher, closure, and A7
-  cloud-contract suites; pycompile and whitespace checks are green. Commit and
-  push this repair, execute the closure once using that full fresh commit SHA,
-  commit its receipts, then submit a fresh direct-Git A7-v2 build. Inspect the
-  first-claim receipt before handing subsequent smoke/support work to the
-  watcher.
+  claim. The final commit-pinned finisher and closure suites pass 83/83; the
+  prior supplemental A7 cloud-contract suite remains 23/23, and pycompile and
+  whitespace checks are green. Commit and push this repair, execute the
+  closure once using that full fresh commit SHA, commit its receipts, then
+  submit a fresh direct-Git A7-v2 build. Inspect the first-claim receipt before
+  handing subsequent smoke/support work to the watcher.
 
 ### LR8 historical legal-relaxation arm has green mechanics and a score-free source contract
 

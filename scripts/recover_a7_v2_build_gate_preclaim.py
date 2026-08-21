@@ -39,10 +39,10 @@ PROTOCOL_PATH: Final = (
     "reports/2026-08-21-a7-v2-build-gate-preclaim-recovery-protocol.md"
 )
 PROTOCOL_SHA256: Final = (
-    "27ab7e10c8f4c44deaa5f919ffc51a2e8bcea45299b9d552f3c9d8dcb1803325"
+    "3db061f916b46024d9ff91f5a106dde83673369db42265e670e1eb18a96c5e84"
 )
 REPAIRED_FINISHER_SHA256: Final = (
-    "50d3cec755b0bdb52f6cf2f84eeef3c26448f9e1732191a2c3a8a5309d739266"
+    "d1f93cbe10a9e0d0d064dff36e9f168db3259a8fb833012df56f513fad509490"
 )
 CLOUDBUILD_SHA256: Final = (
     "a4a3d8b9bd637e9f1c7efe74bea5e9c25aa200ec4e63759497b745e47dcd4a4e"
@@ -455,8 +455,10 @@ def recover(
             "phase": "preflight-prepare-build-metadata-validation",
             "classification": "administrative-failed-preclaim",
             "exact_error": "A7 build/test/image gate differs",
-            "old_finisher_omitted_existing_a2a_b1_smokes": True,
-            "repaired_gate_requires_current_lr8_smokes": True,
+            "submitted_build_matches_own_cloudbuild": True,
+            "later_lr8_smokes_absent_from_submitted_contract": True,
+            "working_tree_cross_experiment_coupling_removed": True,
+            "repaired_gate_uses_submitted_code_sha_cloudbuild": True,
             "normalization_or_gate_relaxation_used": False,
         },
         "local_boundary": {
