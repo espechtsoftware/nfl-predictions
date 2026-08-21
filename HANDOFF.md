@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 14:55 CDT
+## Current state — 2026-08-21 15:03 CDT
 
 ### Corpus retrieval engine is focused-green; exact cloud task 0 is pending
 
@@ -182,6 +182,15 @@ agent or developer:
   250 used players, five exact 10,000-world artifacts, and no realized-outcome
   field. All source-lock/R0--R4 local bytes match their frozen generations,
   byte counts, and SHA-256 values.
+- The preconfigure reuse evidence is now retained canonically under the task-0
+  governance directory: the all-region Scheduler census contains 42 jobs and
+  no target of `atlas-minimal-c-s2023-w1-v1`; the reused job has UID
+  `d6e4b8c1-5950-46b7-8869-7e34dbf29ad2`, generation 15, and all 265 prior
+  executions terminal. SHA-256 values are `6de7bd0c...5f6d` (Scheduler),
+  `f05548fb...d8a1` (job), `9a7f78dd...19cc` (executions), and
+  `fdb0c1fa...0bef` (validated reuse binding). Repeat the all-region census
+  immediately before configure and again immediately before the one launch;
+  this baseline is evidence, not a substitute for those launch-time checks.
 - Commit `247d482` (`Add corpus legal-feasibility authority`) adds a separate
   default-off larger-suite milestone with the parametric
   manifest v2, the outcome-blind legal-feasibility producer, and an independent
