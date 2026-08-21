@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 05:22 CDT
+## Current state — 2026-08-21 06:01 CDT
 
 ### A7 exact-80 historical comparison is the sole active priority
 
@@ -223,6 +223,29 @@ agent or developer:
   is 9/9 green plus pycompile and whitespace checks. Script/test SHA-256 are
   `8e967584eb6d210b1c5e54bdba4d4041f82ce775cd9348a5f66a24531280d0a7`
   and `be2a6a3193d55412f2d3052056f30cdf3c5181de54e1d0024074e55b767433cd`.
+- Before the A7 historical result was available, the conditional production-
+  law transfer science was separately frozen as
+  `20260821-a7-production-law-scorefree-selector-transfer-v1`. It validates an
+  exact positive, lease-closed A7 result before any cloud client; generation-
+  pins the existing 54-slate/270-artifact production source lock; gives both
+  arms one identical combined candidate/world batch; changes only
+  `SELECT_LADDER`; imports A7's unchanged score-free support and decision gate;
+  and keeps every outcome/production/retry license false. A pass can set only
+  `prospective_shadow_licensed=true`. Smoke and support must be create-only,
+  generation/SHA/byte-pinned, and bound with the exact code/image/query and
+  implementation receipts into a separate immutable full-execution freeze.
+  Focused validation is 15/15 green; pycompile, CLI help, and whitespace checks
+  are green, and an independent P0/P1 review is clean after correcting the
+  pinned-downloader import, in-image Dockerfile availability, complete direct-
+  dependency receipt set, and removal of a repair override. Protocol, science,
+  runner, freezer, and test SHA-256 are respectively
+  `2c0781ab849827fb6c59e9be8a3df03b5cb220e4e72581cfc08851bdac258aa2`,
+  `9dcd22fe0d37942ef2bbdeac2e8cf95ec76c2e2a159b4e3e569cffc5ee2da271`,
+  `3e2c01f13e7be23f6e1638037d5b334d1380543c5986086a3c7e81c2c061092f`,
+  `2f27304b73e988398e7323b00d2a92784e56de6ecfbef9ef48781e8c119afe08`,
+  and `12cc1a962f2cdf7e6102e267b8683e4630dbdb0b14b0a6ffc25e6b76bd223408`.
+  This is a pre-result science/implementation freeze only: no update-only
+  one-job/retry-zero terminal transport exists yet, so it is not launchable.
 
 - Branch `main`, historical pushed parent milestone
   `1cbbc3d88e199bd9078e7059ef13b1d9ef76df64` (pushed to `origin/main`); the

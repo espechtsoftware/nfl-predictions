@@ -6,7 +6,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml README.md CLAUDE.md cloudbuild.yaml ./
+COPY pyproject.toml README.md CLAUDE.md cloudbuild.yaml Dockerfile ./
 # The final forensic image verifies the byte-level inventory of every tracked
 # report before any outcome query.  This remains a private Artifact Registry
 # image; the vendor-derived corpus is not published by the application.
@@ -19,6 +19,8 @@ COPY scripts/run_all_boom_reallocation_c.py ./scripts/run_all_boom_reallocation_
 COPY scripts/run_all_boom_selection_s.py ./scripts/run_all_boom_selection_s.py
 COPY scripts/run_stack_relaxation_carve.py ./scripts/run_stack_relaxation_carve.py
 COPY scripts/run_a7_select_ladder.py ./scripts/run_a7_select_ladder.py
+COPY scripts/run_a7_production_law_transfer.py ./scripts/run_a7_production_law_transfer.py
+COPY scripts/freeze_a7_production_law_transfer.py ./scripts/freeze_a7_production_law_transfer.py
 COPY scripts/freeze_a7_select_ladder.py ./scripts/freeze_a7_select_ladder.py
 COPY scripts/cloud_a7_select_ladder.sh ./scripts/cloud_a7_select_ladder.sh
 COPY scripts/watch_a7_select_ladder_queue.sh ./scripts/watch_a7_select_ladder_queue.sh

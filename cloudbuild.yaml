@@ -84,6 +84,10 @@ steps:
         docker run --rm '${_IMAGE}' \
           python scripts/run_a7_select_ladder.py --help >/dev/null
         docker run --rm '${_IMAGE}' \
+          python scripts/run_a7_production_law_transfer.py --help >/dev/null
+        docker run --rm '${_IMAGE}' \
+          python scripts/freeze_a7_production_law_transfer.py --help >/dev/null
+        docker run --rm '${_IMAGE}' \
           python scripts/freeze_a7_select_ladder.py --help >/dev/null
         docker run --rm '${_IMAGE}' \
           python scripts/finish_a7_select_ladder.py --help >/dev/null
