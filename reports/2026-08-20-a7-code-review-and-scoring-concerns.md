@@ -1097,3 +1097,67 @@ or any gate. Both are pure verification of the instrument that will
 decide the arm, and both are far cheaper now than a retracted result
 later — this program has already retracted two headline baselines for
 precisely this class of reason.
+
+---
+
+## Addendum 13 (2026-08-21): the outcome run launched; the cross-check is now built and waiting
+
+`A7_SELECT_LADDER_LAUNCHED atlas-minimal-c-s2023-w1-v1-fkxv8`. The
+freeze manifest was created and validated
+(`dd0524de…`), the historical-outcome lease is held (acquired
+10:17:43Z), and the run is pinned to `2bec296`. That commit does not
+contain an independent recomputation, so the arm's single outcome read
+is proceeding with the 5,000-line finisher as sole arbiter of its two
+deciding statistics.
+
+**This is not an objection to the run.** The protocol is sound, the
+freeze is properly receipted, and the finisher may well be exactly
+right. It is a statement about what is and is not currently verifiable.
+
+### The check does not have to happen before the run
+
+The important realization: an independent recomputation needs only the
+*receipts*, not a re-execution. The per-slate `prefix_maxima` are
+persisted, so the deciding numbers can be recomputed from them after the
+fact. Nothing about the arm has to change, and no re-run is implied.
+
+I have therefore built the instrument and left it ready:
+`scripts/review_verify_a7_coprimaries.py`. It is explicitly a reviewer
+tool, not part of the arm. It shares **no code** with
+`finish_a7_select_ladder.py`, `research/a7_select_ladder.py` or
+`research/paired_max_stats.py` — the sign-flip test, the Wilcoxon W+
+with average ranks, the add-one correction, the exact/Monte-Carlo
+cutover, the threshold grid and the mean delta are all re-implemented
+from their definitions, and the frozen constants are restated rather
+than imported, so a wrong constant in the code under review cannot
+propagate into its own check.
+
+It recomputes at N=80, N=14 and N=4 (the last two matter for the
+operational concern in section 3, since the money path enters four
+Millionaire lineups), compares against the recorded `cuts`, and exits
+non-zero on any disagreement.
+
+**Self-tested both ways** before I filed it: on a synthetic 54-slate
+corpus it reproduced the recorded mean delta, W+, both p-values and the
+full grid and exited 0; with a single recorded mean corrupted by +1.0 it
+reported the exact disagreement and exited 1. A check that cannot fail
+is not a check, so I verified it fails when it should.
+
+### What I would do with it
+
+Run it against the A7 result the moment the run is harvested, before the
+disposition is treated as settled:
+
+```
+python scripts/review_verify_a7_coprimaries.py \
+  --result <a7 result.json>
+```
+
+Agreement costs one minute and converts "the finisher says so" into "two
+independent implementations agree." Disagreement is a finding worth
+having before a one-shot, no-retry result enters the record — and given
+that this program has already retracted two headline baselines for
+evaluation-code defects, that asymmetry is the whole argument.
+
+I will run it myself as reviewer when the receipts land and report the
+outcome either way.
