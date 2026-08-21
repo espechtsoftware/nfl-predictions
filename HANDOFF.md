@@ -20,11 +20,42 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 03:13 CDT
+## Current state — 2026-08-21 03:59 CDT
+
+### LR8 historical score path is the sole active priority
+
+- Branch `main`; pushed parent before this prepare receipt is
+  `d7a248ac2d39be432181ba97046a91ffe918ec14`. Keep A7 paused and do not spend
+  another dedicated build or execution on it while LR8 is active.
+- Exact LR8-v2 Cloud Build `6a364353-2485-43e9-9fdc-21f42df70bcb`
+  completed `SUCCESS` at `2026-08-21T08:55:38.776811Z` from resolved Git
+  source `2bec2965442b90ec87990fb25f086de9005265dc`. The full suite passed
+  3,007 tests with four skips in 5,354.44 seconds; image build and the
+  registered container smoke also passed. Build metadata and an independent
+  Artifact Registry tag lookup agree on immutable image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:a75471c1636f11e5a0c5471f7dbc4d254e2dfc1d4b982bae4ea658bf2d221186`.
+- The sole new score-free real-source smoke
+  `20260821-lr8-training-source-smoke-v2` is now prepared, not launched. Its
+  strict preflight revalidated the exact closed v1 predecessor, empty result
+  and governance prefixes, absent historical-outcome lease, idle unscheduled
+  reused job, and exact build/source/image. It updated only existing job
+  `atlas-md-prefix-r4-smoke`, UID
+  `51545eb0-59e4-424e-91c9-98dd318285f4`, generation 2 to 3 with one task,
+  eight CPU, 32 GiB, six-hour timeout and zero retries. The create-once launch
+  manifest is generation `1787302639012533`, 6,318 bytes, SHA-256
+  `dee55544486f211214c9ed38cd37b351ffdf315b058e9592bfb8168e212574f4`;
+  local `prepared.sha256` is
+  `3d6f5b1d3547ab6805dab1a0076f26f3d9ef4bfc939e1dbd3a46872428aa40ef`.
+  No outcome data was queried and no execution exists yet.
+- Commit and push this complete immutable prepare directory with this HANDOFF,
+  then start only `scripts/watch_lr8_training_source_smoke_queue.sh` in a
+  persistent foreground session. That watcher owns the single launch,
+  metadata-only polling, strict terminal-first harvest, and permanent
+  no-relaunch closure. Never invoke the launch subcommand separately.
 
 ### A7-v1 close-only recovery and fresh A7-v2 repair are source-ready
 
-- Branch `main`, current pushed parent milestone
+- Branch `main`, historical pushed parent milestone
   `1cbbc3d88e199bd9078e7059ef13b1d9ef76df64` (pushed to `origin/main`); the
   LR8 full-source/fit integration described below is in the associated commit
   carrying this record. The failed A7-v1 smoke remains
