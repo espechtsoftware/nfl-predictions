@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-20 21:22 CDT
+## Current state — 2026-08-20 21:25 CDT
 
 ### A7-v1 close-only recovery and fresh A7-v2 repair are source-ready
 
@@ -100,12 +100,20 @@ agent or developer:
   `.git` directory independently completed both real-evidence validation and
   create-once/idempotent closure. Production code and frozen science are
   unchanged. No Cloud Run update, v2 claim, or preflight has occurred.
-- Exact next action: commit/push the test-only archive repair, launch one full
-  direct-Git replacement build from that exact commit, and require every test,
-  image-build, and container-smoke step to pass. Only after exact `SUCCESS`,
-  source/digest validation, and the already-green idle/unscheduled reused-job
-  census may v2 create its fresh claim and begin its one new outcome-blind
-  smoke.
+- The archive-only test repair is committed/pushed at
+  `7057554eb2d930be29e882745e52d271fde09339`. Submission
+  `9b9b9716-7580-4e4f-a829-dab6e5a523b2` mistakenly used a nonexistent expanded
+  SHA with the same seven-character prefix and failed closed during source
+  fetch (`upload-pack: not our ref`); all three steps remained `QUEUED`, it
+  produced no image, and it must not be reused. Corrected direct-Git build
+  `063251e8-888b-4d64-9c78-1346af5b12bf` is `QUEUED` from the exact pushed
+  source `7057554eb2d930be29e882745e52d271fde09339`, with requested tag
+  `a7-v2-7057554-20260820` and the registered 10,800-second timeout.
+- Exact next action: monitor corrected build `063251e8...` and require every
+  test, image-build, and container-smoke step to pass. Only after exact
+  `SUCCESS`, source/digest validation, and the already-green idle/unscheduled
+  reused-job census may v2 create its fresh claim and begin its one new
+  outcome-blind smoke.
 
 ### A2a and B1 one-shot historical arms are closed; neither licenses adoption
 
