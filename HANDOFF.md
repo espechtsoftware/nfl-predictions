@@ -201,9 +201,11 @@ agent or developer:
   historical file, and the fake committed-source loader asserts the registered
   source commit. Both recovery modules pass 28/28 in the live checkout and in
   a clean source archive with no `.git` directory; pycompile and whitespace
-  checks are green. Commit/push this fixture-only repair, then run fresh exact-
-  source builds; do not reuse `f500c3ed...` even if its later unrelated tests
-  continue after the already definitive failure cluster.
+  checks are green. The fixture-only repair and milestone record were
+  committed/pushed at `2bec296a6d8e1385768767e00dc2d1e578fb77c0`.
+  Run fresh exact-source builds from that source; do not reuse `f500c3ed...`
+  even if its later unrelated tests continue after the already definitive
+  failure cluster.
 
 ### LR8 historical legal-relaxation arm has green mechanics and a score-free source contract
 
