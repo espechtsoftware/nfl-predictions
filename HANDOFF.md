@@ -121,6 +121,8 @@ agent or developer:
 
 ### LR8 historical legal-relaxation arm has green mechanics and a score-free source contract
 
+- Branch `main`; the bounded mechanics/source-contract milestone is committed
+  and pushed at `cce5511c623a4f9325255a4353ad31c0bae3ab7f`.
 - The registered question is now one bounded historical arm, not a blanket
   repeal of lineup rules: can at most eight matched-budget residual columns per
   cross-fit fold improve the unchanged exact-80 selector when the new columns
