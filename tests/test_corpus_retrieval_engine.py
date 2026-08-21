@@ -4,6 +4,7 @@ from copy import deepcopy
 from hashlib import sha256
 from io import BytesIO
 from itertools import combinations
+import math
 from typing import Any
 
 import numpy as np
@@ -752,3 +753,50 @@ def test_redundancy_flags_exact_duplicate_score_vectors() -> None:
         if {row["left_lineup_index"], row["right_lineup_index"]} == {0, 1}
     )
     assert exact_pair["exact_score_vector_duplicate"] is True
+
+
+def test_redundancy_replay_allows_only_cross_blas_last_bit_drift() -> None:
+    lineup_rows = [{
+        "lineup_id": f"lineup:{index:064x}",
+        "roster_player_ids": [f"p{index}-{slot}" for slot in range(9)],
+    } for index in range(3)]
+    first = np.linspace(150.0, 250.0, 50_000, dtype=np.float32)
+    scores = np.stack([
+        first,
+        first + np.sin(np.arange(50_000, dtype=np.float32)),
+        first + np.cos(np.arange(50_000, dtype=np.float32)),
+    ])
+    rebuilt = retrieval._build_redundancy(
+        lineup_rows=lineup_rows, scores=scores
+    )
+    published = deepcopy(rebuilt)
+    correlation = published["pairs"][0]["pearson_score_correlation"]
+    published["pairs"][0]["pearson_score_correlation"] = math.nextafter(
+        correlation, -math.inf
+    )
+    published["redundancy_sha256"] = retrieval.canonical_sha256({
+        key: value for key, value in published.items()
+        if key != "redundancy_sha256"
+    })
+    assert retrieval._redundancy_semantic_replay_equal(published, rebuilt) is True
+
+    excessive = deepcopy(published)
+    excessive["pairs"][0]["pearson_score_correlation"] = correlation - 1e-12
+    excessive["redundancy_sha256"] = retrieval.canonical_sha256({
+        key: value for key, value in excessive.items()
+        if key != "redundancy_sha256"
+    })
+    assert retrieval._redundancy_semantic_replay_equal(excessive, rebuilt) is False
+
+    structurally_changed = deepcopy(published)
+    structurally_changed["pairs"][0]["strict_gt_200_event_union"] += 1
+    structurally_changed["redundancy_sha256"] = retrieval.canonical_sha256({
+        key: value for key, value in structurally_changed.items()
+        if key != "redundancy_sha256"
+    })
+    assert (
+        retrieval._redundancy_semantic_replay_equal(
+            structurally_changed, rebuilt
+        )
+        is False
+    )
