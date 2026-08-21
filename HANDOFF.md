@@ -69,6 +69,18 @@ agent or developer:
   score, lease, or cloud call occurred. The remaining operational dependency
   is the in-progress update-only source/construction transport plus packaging
   all new runners in the one post-smoke integrated build.
+- One shared update-only historical-score transport now covers both serialized
+  outcome stages: the 2019/2021 label-map-plus-fixed-fit execution and the
+  final 2023--2025 exact-union evaluation. It acquires the shared historical
+  lease immediately before a durable create-once launch/job-use claim, then
+  revalidates the mutable job as the final pre-execute read, launches exactly
+  one zero-retry task, harvests only after strict terminal success, and keeps
+  the claim live through a restart-safe generation-bound lease release. A
+  permanent claim forbids same-run relaunch even if local state is lost.
+  Focused transport and adjacent executable-runner validation is 34/34 green;
+  pycompile, shell syntax, and whitespace checks are green. It has not touched
+  cloud state, outcomes, or the lease. Its runners and three transport scripts
+  must be copied/smoked in the one post-smoke integrated image before use.
 
 ### A7-v1 close-only recovery and fresh A7-v2 repair are source-ready
 
