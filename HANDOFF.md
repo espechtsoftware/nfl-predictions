@@ -20,6 +20,44 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current state — 2026-08-21 11:00 CDT
+
+### Artifact-supported corpus source authority is focused-green
+
+- Branch `main`; parent before this milestone is
+  `1baf303b774c8bcc11e9fc06336c33ddd42e0c00` (`Freeze corpus batch evidence
+  and graph-storage contract`). The new pure source verifier is
+  `src/nfl_dfs/research/corpus_artifact_source_authority.py`, with its frozen
+  contract in
+  `reports/2026-08-21-corpus-artifact-supported-source-authority-v1.md`.
+- The only positive universe claim is
+  `exact-artifact-supported-r0-r4-player-universe`. The verifier consumes an
+  exact closed task-major R0--R4 iterator, reopens and hashes all 270 retained
+  NPZ bodies one at a time, applies the existing exact artifact validator,
+  requires finite float32 `[players,10000]` draws, and proves every panel's
+  player-ID set equals that slate's structural catalog. It emits 54
+  self-hashed task bindings and exact receipt/validation/task manifest roots.
+- The salary-ID comparison is explicitly a
+  `predeclared-query-relative-salary-player-id-coverage-diagnostic`. It has no
+  independent BigQuery-result authority, grants no draws to salary-only
+  players, and cannot establish a complete DK salary universe. Complete-DK,
+  outcome-read, historical-score, production-change, and live-strategy flags
+  are all hard-false.
+- Focused validation is 14/14 green; Python compile and `git diff --check` are
+  green. Exact SHA-256 values are `96e69e0996e4488f4e72aa2ee7eb664e12e039942b7c1c806c111e8f8fb9b49b`
+  for the verifier, `9b2553fa0ddd83f3bfaa5b469b21885921ece368b555a9e5683a7e237d57ecab`
+  for its test, and
+  `3c249fe0903a834c1f2724888a88e79216931db6c10a287df5ada5853fbe3443`
+  for the protocol. No cloud call, BigQuery query, outcome read, lease, build,
+  job mutation, or deployment occurred.
+- This milestone is not launch authority. The batch manifest is being
+  amended to bind the generation-pinned source-authority completion and its
+  distinct internal SHA; the authoritative runner and independent verifier
+  must reject any task that lacks the exact matching completion/task row.
+  A production source-only transport must still predeclare the snapshot and
+  approved salary-ID query, use least privilege, reopen exact generations,
+  and publish create-once governance receipts before the seven-arm batch.
+
 ## Current state — 2026-08-21 10:29 CDT
 
 ### Seven-arm decision contract is frozen; production runner remains NO-GO
