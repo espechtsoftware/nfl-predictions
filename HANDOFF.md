@@ -364,10 +364,13 @@ agent or developer:
   and failure-closure SHA-256 is
   `79d496df434dbe007041cc51a356052ff15a5069ce0059d3418aa00a6f1d2636`.
   Terminal logs identify the exact source-boundary defect before any solve or
-  final smoke publication: a catalog salary scalar reached
-  `PlayerSpec.from_mapping`, whose Python-only strict integer validator raised
-  `ResidualWorldError: player salary must be an integer`; the exact runtime
-  scalar class remains part of the bounded v2 diagnosis.
+  final smoke publication: `slate_player_features.salary` is a nullable
+  BigQuery `FLOAT`, so its JSON/pandas reconstruction reached
+  `PlayerSpec.from_mapping` as a float and the Python/NumPy-integer-only
+  validator raised `ResidualWorldError: player salary must be an integer`.
+  The v2 boundary must prove the raw value is finite, positive and exactly
+  integral before converting it; fractional values, rounding, booleans,
+  strings, nulls and nonpositive values remain fatal.
   Four create-once outcome-blind input extracts exist under the failed prefix:
   `catalog.json` generation `1787293377280423` (61,669 bytes),
   `incumbents.json` generation `1787293377531751` (43,143 bytes),
