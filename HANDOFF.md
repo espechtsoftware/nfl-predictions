@@ -278,7 +278,18 @@ agent or developer:
   and `12cc1a962f2cdf7e6102e267b8683e4630dbdb0b14b0a6ffc25e6b76bd223408`.
   This remains a pre-result science/implementation freeze only. The now-null
   A7 predecessor fails its first gate, so neither this transfer nor its
-  source-green uncommitted update-only transport may be launched.
+  uncommitted update-only transport may be launched. Transport work stopped
+  immediately after the null result: `Dockerfile` and `cloudbuild.yaml` have
+  unstaged local additions, while
+  `scripts/cloud_a7_production_law_transfer.sh`,
+  `scripts/finish_a7_production_law_transfer.py`,
+  `scripts/watch_a7_production_law_transfer_queue.sh`, and
+  `tests/test_a7_production_law_transfer_transport.py` are untracked. Static
+  checks were clean, but transport pytest was deliberately never run. A
+  read-only review had also identified unresolved stale-prepare/repeated-update,
+  post-terminal cumulative-execution-census, and predecessor-binding concerns.
+  Preserve these bytes as unlicensed research only; do not commit or execute
+  them under this closed A7 identity.
 
 **Next concrete action.** Treat A7 as closed with no retune and no shadow.
 Keep the unchanged incumbent for Week 1. The only honest ongoing challenger
