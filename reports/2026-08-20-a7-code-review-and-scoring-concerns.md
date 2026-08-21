@@ -749,3 +749,70 @@ should state which control this is and why it differs, or a later reader
 will compare across arms that are not comparable. This is the labeling
 concern from my review of the strategy plan, now showing up in a second
 place.
+
+---
+
+## Addendum 8 (2026-08-20): A7-v2 review — the sweep is complete, and the repair scope is right
+
+**The Addendum 6 item is closed.** Both A7 sites now carry the corrected
+parser, and they adopted the stronger B1 truth table rather than my
+weaker suggestion: no `Completed` row → `Unknown` (retry); exactly one
+row whose status is literally `Unknown`/`True`/`False` → that status;
+duplicates, missing status, and any unexpected status → `Malformed`. The
+class is swept — `grep 'len(rows) == 1 else "Malformed"'` now returns
+nothing.
+
+**A7-v1's stop was a preflight working correctly, not a defect.** It
+halted during the outcome-blind smoke because the player query returned
+SQL `NULL` in 439 `mean_projection` cells and strict canonicalization
+refused non-finite values. No lease was acquired, no outcome query was
+formatted, and no result object exists — so a fresh protocol/prefix/job
+claim rather than a retry under the v1 identity is the correct call, and
+that is what v2 does.
+
+### The scientific repair is narrow and justified
+
+`COALESCE(mean_projection, 0.0)` is the only science-source change, with
+NaN/±Inf still fatal. The justification I find persuasive is consistency
+rather than convenience: the canonical CBWU candidate reconstruction
+already maps an absent projection to `0.0`, so the candidates being
+selected over were *built* under that mapping. Using any other mapping in
+the selector's player table would introduce a real inconsistency between
+the candidate set and the table describing it.
+
+I also checked the blast radius before commenting: `mean_projection`
+appears in A7 only as a queried/receipted column in the runner and
+finisher. It is not consumed by `a7_select_ladder.py` at all — the
+selector operates on candidate totals — so the coalesce cannot alter
+selection, utility, gain, or the R3 realism statistic. It affects the
+query receipt and nothing downstream. That is about as contained as a
+source repair can be.
+
+### One disclosure item worth adding
+
+The count `439` appears in the protocol prose but I could find no
+corresponding field in the receipt (no `coalesced`/`null_mean_projection`
+key in the runner or the science module). Since the repair exists
+precisely because those cells were non-finite, the receipt should carry
+the realized coalesced-cell count so a later reader can confirm it
+matches the 439 the protocol cites, rather than trusting prose against
+data. If that count ever comes back materially different, it signals the
+upstream table changed and the repair's justification needs re-checking.
+
+Cheap addition, no scientific effect, and it makes the repair auditable
+from the receipt alone. Everything else in v2 — unchanged candidates,
+worlds, selector laws, endpoints, gates, dispositions, and the
+non-gating N4/N14 treatment — reads correctly to me.
+
+### Standing items still open (unchanged by v2)
+
+1. The ladder remains shoulder-heavy: 68% of utility at or below 194
+   (Addendum, section 2). A null must be read as "this dose did not
+   help", not "objective alignment is closed."
+2. N4 is what the money path actually enters; a positive S80 with a
+   negative N4 should be flagged and should block the downstream
+   transfer test until reconciled (section 3).
+3. The finisher still lacks a known-answer end-to-end fixture and an
+   independent recomputation of the two co-primaries (section 4). With
+   the finisher now at 5,000+ lines and deciding an outcome-bearing arm,
+   I would not skip this.
