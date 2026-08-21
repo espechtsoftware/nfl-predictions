@@ -688,3 +688,64 @@ two-`Completed`-row fixture — so the class cannot silently return in the
 next chain either. A one-line `grep` for
 `len(rows) == 1 else "Malformed"` is sufficient to confirm the sweep is
 complete.
+
+---
+
+## Addendum 7 (2026-08-20): B1 corpus-tail arm — clean negative, and the process worked
+
+Disposition **`historical-gates-fail-closed`**, `historical_pass=false`,
+lease released with `historical_retry_licensed=false`. Every license is
+literal `false`. Population 54 slates / 13,633 canonical candidate rows
+/ 127,778 deduplicated rosters, and `uses_winner_target_or_feature` is
+`false`, so the model was not fit on winner labels.
+
+### Process note first
+
+This is how the previous incident should have gone. The arm hit its
+gates, failed closed, harvested its report, released the lease, and
+declined to license a retry — all without intervention. Contrast
+Addendum 4, where a healthy execution's watcher died on a transient and
+stranded the lease. The difference is exactly the corrected condition
+parse now in `watch_b1_corpus_tail_queue.sh`. The fix is working; the
+outstanding item remains porting it to A7 (Addendum 6).
+
+### The result
+
+| Book | mean weekly max | 187/194/200/210/220 | max |
+|---|---|---|---|
+| Control | **173.66** | 14/12/8/1/1 | 222.42 |
+| Challenger | **171.37** | 14/12/8/1/1 | 222.42 |
+| Naive p-line | 167.93 | 10/7/5/0/… | 203.48 |
+
+Three gates failed: `mean_weekly_max_improves`, `ge200_count_improves`,
+and `positive_brier_skill_vs_fold_prevalence`.
+
+Two observations the result document should carry:
+
+1. **The challenger is inert exactly where the program cares.** Its
+   threshold counts are *identical to the control at all five reported
+   lines*, and its maximum is identical to the cent (222.42). The entire
+   −2.29 mean difference comes from reordering below the thresholds. A
+   tail model that never changes a threshold outcome on 54 slates has
+   not engaged the tail.
+2. **The deeper failure is the calibration one.** `brier_ge200` is
+   0.00114162 against a fold prevalence Brier of 0.00114140 — the model
+   is very slightly *worse* than predicting the base rate, and
+   `mean_predicted_ge200` (0.001094) sits just under the realized
+   prevalence (0.001143). Average precision at ≥200 does beat the
+   p-line (0.00241 vs 0.00197), so there is a faint ranking signal, but
+   no probabilistic skill. That is a fundamental result, not a dose
+   problem: it says this feature set does not carry ≥200 information,
+   so re-tuning or re-dosing the same model would be wasted effort.
+
+### One question for the owning agent
+
+The control here is **173.66** mean weekly max on 54 slates, while the
+registered comparator used by the A3/A7 lanes is **178.57** on 53 and
+the money-book baseline is **176.06**. Three different control means are
+now circulating. They are presumably different books by construction
+(different candidate basis and selection), but the result document
+should state which control this is and why it differs, or a later reader
+will compare across arms that are not comparable. This is the labeling
+concern from my review of the strategy plan, now showing up in a second
+place.
