@@ -374,6 +374,85 @@ def _score_map(
         "later_period_inputs_used": False,
         "production_inputs_used": False,
     }
+    output_root = f"{adapter.SCORE_OUTPUT_ROOT}/{lease_body['run_id']}"
+    attempt_receipt = _create_once_receipt(
+        f"{output_root}/label-read-attempt.json", attempt
+    )
+    catalog_keys = [{
+        "season": season,
+        "week": week,
+        "source_kind": "dst" if player.position == "DST" else "skill",
+        "source_key": (
+            player.team.upper() if player.position == "DST" else player.player_id
+        ),
+        "player_id": player.player_id,
+        "position": player.position,
+    } for season, week in source.EXPECTED_SLATE_KEYS for player in players]
+    score_by_player = {
+        (row["season"], row["week"], row["player_id"]): row["realized_score_micro"]
+        for row in rows
+    }
+    source_rows = sorted(({
+        "season": row["season"],
+        "week": row["week"],
+        "source_kind": row["source_kind"],
+        "source_key": row["source_key"],
+        "realized_score_micro": score_by_player[
+            (row["season"], row["week"], row["player_id"])
+        ],
+    } for row in catalog_keys), key=lambda row: (
+        row["season"], row["week"], row["source_kind"], row["source_key"]
+    ))
+    parameters = [{
+        "name": "source_snapshot_at", "type": "TIMESTAMP", "array": False,
+        "value": "2026-08-21T00:00:02+00:00",
+    }]
+    parameters_sha = sha256(adapter.canonical_json(parameters) + b"\n").hexdigest()
+    source_extract = {
+        "schema": adapter.SCORE_SOURCE_EXTRACT_VERSION,
+        "supplier_version": adapter.SCORE_SUPPLIER_VERSION,
+        "protocol_id": lr8.PROTOCOL_ID,
+        "supplier_boundary": adapter.SCORE_SUPPLIER_BOUNDARY,
+        "training_source_manifest_sha256": frozen["manifest_sha256"],
+        "training_source_object": source_receipt,
+        "target_seasons": list(source.TARGET_SEASONS),
+        "slate_keys": [list(key) for key in source.EXPECTED_SLATE_KEYS],
+        "catalog_universe_sha256": adapter.canonical_sha256(universe),
+        "catalog_keys": catalog_keys,
+        "catalog_keys_sha256": adapter.canonical_sha256(catalog_keys),
+        "query_identity": adapter.authoritative_query_identity(),
+        "query_sha256": adapter.AUTHORITATIVE_QUERY_SHA256,
+        "sql_sha256": adapter.AUTHORITATIVE_SQL_SHA256,
+        "parameters": parameters,
+        "parameters_sha256": parameters_sha,
+        "source_snapshot_at": "2026-08-21T00:00:02+00:00",
+        "job_receipt": {
+            "sql_sha256": adapter.AUTHORITATIVE_SQL_SHA256,
+            "parameters_sha256": parameters_sha,
+            "error_result": None,
+        },
+        "table_receipts": [{
+            "table_id": "nfl-predictions-503414.nfl_features.player_week_actuals",
+        }, {
+            "table_id": "nfl-predictions-503414.nfl_features.team_defense_week",
+        }],
+        "table_metadata_stable_during_query": True,
+        "historical_outcome_lease_unchanged_during_query": True,
+        "label_read_attempt": attempt,
+        "label_read_attempt_receipt": attempt_receipt,
+        "row_fields": list(adapter.SCORE_SOURCE_ROW_FIELDS),
+        "rows": source_rows,
+        "rows_sha256": adapter.canonical_sha256(source_rows),
+        "query_completed_at": "2026-08-21T00:00:03+00:00",
+        "b1_inputs_used": False,
+        "a2a_inputs_used": False,
+        "winner_inputs_used": False,
+        "later_period_inputs_used": False,
+        "production_inputs_used": False,
+    }
+    source_extract_receipt = _create_once_receipt(
+        f"{output_root}/authoritative-score-source.json", source_extract
+    )
     score_map = {
         "schema": adapter.SCORE_MAP_VERSION,
         "protocol_id": lr8.PROTOCOL_ID,
@@ -388,11 +467,14 @@ def _score_map(
         "authoritative_source_id": adapter.AUTHORITATIVE_SOURCE_ID,
         "query_identity": adapter.authoritative_query_identity(),
         "query_sha256": adapter.AUTHORITATIVE_QUERY_SHA256,
-        "score_source_receipts": (_receipt("gs://test/scores/source"),),
+        "score_source_receipts": ({
+            key: source_extract_receipt[key]
+            for key in ("uri", "generation", "sha256", "bytes")
+        },),
+        "score_source_extract": source_extract,
+        "score_source_extract_receipt": source_extract_receipt,
         "label_read_attempt": attempt,
-        "label_read_attempt_receipt": _create_once_receipt(
-            "gs://test/scores/attempt", attempt
-        ),
+        "label_read_attempt_receipt": attempt_receipt,
         "rows": rows,
         "score_rows_sha256": adapter.canonical_sha256(rows),
         "b1_inputs_used": False,
@@ -401,7 +483,9 @@ def _score_map(
         "later_period_inputs_used": False,
         "production_inputs_used": False,
     }
-    receipt = _create_once_receipt("gs://test/scores/map.json", score_map)
+    receipt = _create_once_receipt(
+        f"{output_root}/authoritative-score-map.json", score_map
+    )
     return score_map, receipt
 
 
@@ -431,14 +515,40 @@ def _rehash_score(score_map: dict[str, object]):
     except adapter.LR8LabelFitError:
         # A non-finite poison is intentionally not canonicalizable.  The
         # adapter validates row values before the external object binding.
-        return _receipt("gs://test/scores/map.json", raw=b"noncanonical")
-    return _create_once_receipt("gs://test/scores/map.json", score_map)
+        return _receipt(
+            score_map["score_source_extract_receipt"]["uri"], raw=b"noncanonical"
+        )
+    run_id = score_map["label_read_attempt"]["historical_outcome_lease"]["body"][
+        "run_id"
+    ]
+    return _create_once_receipt(
+        f"{adapter.SCORE_OUTPUT_ROOT}/{run_id}/authoritative-score-map.json",
+        score_map,
+    )
+
+
+def _rehash_extract(score_map: dict[str, object]):
+    extract = score_map["score_source_extract"]
+    extract["rows_sha256"] = adapter.canonical_sha256(extract["rows"])
+    run_id = score_map["label_read_attempt"]["historical_outcome_lease"]["body"][
+        "run_id"
+    ]
+    receipt = _create_once_receipt(
+        f"{adapter.SCORE_OUTPUT_ROOT}/{run_id}/authoritative-score-source.json",
+        extract,
+    )
+    score_map["score_source_extract_receipt"] = receipt
+    score_map["score_source_receipts"] = ({
+        key: receipt[key] for key in ("uri", "generation", "sha256", "bytes")
+    },)
+    return _rehash_score(score_map)
 
 
 def _rehash_attempt(score_map: dict[str, object]):
     attempt = score_map["label_read_attempt"]
+    run_id = attempt["historical_outcome_lease"]["body"]["run_id"]
     score_map["label_read_attempt_receipt"] = _create_once_receipt(
-        "gs://test/scores/attempt", attempt
+        f"{adapter.SCORE_OUTPUT_ROOT}/{run_id}/label-read-attempt.json", attempt
     )
     return _rehash_score(score_map)
 
@@ -602,6 +712,34 @@ def test_score_object_hash_and_schema_are_exact(exact_fixture):
         )
 
 
+def test_score_source_extract_is_transitively_replayed(exact_fixture):
+    frozen, source_receipt, original, _ = exact_fixture
+    changed_row = deepcopy(original)
+    changed_row["score_source_extract"]["rows"][0][
+        "realized_score_micro"
+    ] += 1
+    with pytest.raises(adapter.LR8LabelFitError, match="source extract"):
+        adapter.fit_and_freeze(
+            training_source_freeze=frozen,
+            expected_source_manifest_sha256=frozen["manifest_sha256"],
+            training_source_receipt=source_receipt,
+            authoritative_score_map=changed_row,
+            authoritative_score_map_receipt=_rehash_extract(changed_row),
+        )
+
+    wrong_sql = deepcopy(original)
+    wrong_sql["score_source_extract"]["sql_sha256"] = "9" * 64
+    wrong_sql["score_source_extract"]["job_receipt"]["sql_sha256"] = "9" * 64
+    with pytest.raises(adapter.LR8LabelFitError, match="score-source boundary"):
+        adapter.fit_and_freeze(
+            training_source_freeze=frozen,
+            expected_source_manifest_sha256=frozen["manifest_sha256"],
+            training_source_receipt=source_receipt,
+            authoritative_score_map=wrong_sql,
+            authoritative_score_map_receipt=_rehash_extract(wrong_sql),
+        )
+
+
 def test_2023_plus_and_b1_later_period_inputs_are_forbidden(exact_fixture):
     frozen, source_receipt, original, _ = exact_fixture
     score_map = deepcopy(original)
@@ -618,7 +756,7 @@ def test_2023_plus_and_b1_later_period_inputs_are_forbidden(exact_fixture):
     for field in ("b1_inputs_used", "later_period_inputs_used"):
         poisoned = deepcopy(original)
         poisoned[field] = True
-        receipt = _create_once_receipt("gs://test/scores/map.json", poisoned)
+        receipt = _rehash_score(poisoned)
         with pytest.raises(adapter.LR8LabelFitError, match=field):
             adapter.fit_and_freeze(
                 training_source_freeze=frozen,

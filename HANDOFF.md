@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 01:47 CDT
+## Current state — 2026-08-21 02:05 CDT
 
 ### A7-v1 close-only recovery and fresh A7-v2 repair are source-ready
 
@@ -442,7 +442,7 @@ agent or developer:
   no full-source cloud execution has been created.
 - The pure earlier-period label/fit boundary is now implemented in
   `src/nfl_dfs/research/lr8_label_fit_adapter.py` (SHA-256
-  `78621312f230099eed8b353c1e2d610f7788532b601d9d18a53736fc942ad98a`).
+  `ad41590c30359ab76e37c350ceec1e9397e191366052aa2cbbb55b085efd5b4b`).
   It accepts only the externally pinned complete 35-slate source freeze and a
   separately create-once, generation-pinned authoritative 2019/2021
   player/DST score map. It exact-validates the active shared-lease body,
@@ -451,9 +451,28 @@ agent or developer:
   fixed no-sweep fit law, and transitive anatomy-artifact binding. Rehashed
   2023+, B1, query/lease, label, total, weighting, and sweep poisons all fail
   closed; every later-period, prospective, production, and adoption license is
-  false. Its focused suite passes 14/14, with pycompile and whitespace checks
-  green. This module performs no I/O and does not itself authorize the future
+  false. This module performs no I/O and does not itself authorize the future
   lease-protected score-map query.
+- The bounded callback-only supplier for that future query is now prepared at
+  `src/nfl_dfs/research/lr8_label_score_map.py` (SHA-256
+  `4a05bfa2dea2b0cbbf2c319c477ba85cc083bcc0538ecac9200ee032ba95690e`).
+  It is literal default-off and restricted to the exact 35-slate 2019/2021
+  frozen catalog. A live shared lease and create-once pre-query attempt must
+  precede its one registered player/DST query; B1/A2a/winner/2023+ fields,
+  lineup totals, alternate targets and tuning paths are absent. The supplier
+  preserves the live FLOAT actual columns through an explicit BigQuery
+  `NUMERIC` boundary and accepts only exact micro-DK values; decimal residue,
+  null, infinity and overflow fail closed. Intended object URIs are proven
+  distinct before any query, source-extract publication must precede score-map
+  publication, and the adapter independently replays the receipt-bound source
+  extract, registered SQL/parameter hashes, catalog mapping, row hash and exact
+  source-to-map scores both initially and from the retained fit freeze. Focused
+  supplier+adapter validation is 32/32 green; pycompile and `git diff --check`
+  pass. Metadata-only schema checks confirm the registered columns exist in
+  `player_week_actuals` (243,248 rows; FLOAT `dk_points`) and
+  `team_defense_week` (6,302 rows; FLOAT `dst_dk_points`). No query, row read,
+  cloud client, lease action or write occurred; a separate default-off runner/
+  transport is still required before any historical label access.
 - No real outcomes, BigQuery rows, GCS bodies, Cloud Run job, shared lease, or
   production path were touched by this milestone. The old 35 NPZs contain only
   candidate indices/totals and cannot score novel relaxed rosters. Exact next

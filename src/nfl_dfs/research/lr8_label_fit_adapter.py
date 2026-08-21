@@ -43,6 +43,8 @@ AUTHORITATIVE_QUERY_ID: Final = "lr8-2019-2021-player-dst-catalog-score-query-v1
 SCORE_SUPPLIER_BOUNDARY: Final = (
     "external-historical-outcome-lease-protected-runner-v1"
 )
+SCORE_SUPPLIER_VERSION: Final = "lr8-authoritative-label-score-map-supplier-v1"
+SCORE_SOURCE_EXTRACT_VERSION: Final = "lr8-authoritative-score-source-extract-v1"
 SCORE_UNIT: Final = "micro_dk_1e-6"
 AUTHORITATIVE_SOURCE_ID: Final = (
     "nfl_features.player_week_actuals.dk_points+"
@@ -55,6 +57,12 @@ HISTORICAL_OUTCOME_LEASE_URI: Final = (
     "gs://nfl-predictions-503414-raw/research-governance/"
     "historical-outcome-active-v1.json"
 )
+SCORE_OUTPUT_ROOT: Final = (
+    "gs://nfl-predictions-503414-raw/research/lr8-authoritative-label-score-map"
+)
+AUTHORITATIVE_SQL_SHA256: Final = (
+    "f25fd4c3d0b4dd5d9317ca0aed53fe7a4b1180289f6c98c0a9e100586791b7eb"
+)
 
 SCORE_ROW_FIELDS: Final = (
     "season",
@@ -63,6 +71,13 @@ SCORE_ROW_FIELDS: Final = (
     "position",
     "realized_score_micro",
     "actual_source",
+)
+SCORE_SOURCE_ROW_FIELDS: Final = (
+    "season",
+    "week",
+    "source_kind",
+    "source_key",
+    "realized_score_micro",
 )
 
 _SHA256: Final = re.compile(r"[0-9a-f]{64}")
@@ -204,6 +219,8 @@ _SCORE_MAP_FIELDS: Final = frozenset({
     "query_identity",
     "query_sha256",
     "score_source_receipts",
+    "score_source_extract",
+    "score_source_extract_receipt",
     "label_read_attempt",
     "label_read_attempt_receipt",
     "rows",
@@ -214,6 +231,20 @@ _SCORE_MAP_FIELDS: Final = frozenset({
     "later_period_inputs_used",
     "production_inputs_used",
 })
+
+_SCORE_SOURCE_EXTRACT_FIELDS: Final = frozenset("""
+schema supplier_version protocol_id supplier_boundary
+training_source_manifest_sha256 training_source_object target_seasons slate_keys
+catalog_universe_sha256 catalog_keys catalog_keys_sha256 query_identity query_sha256
+sql_sha256 parameters parameters_sha256 source_snapshot_at job_receipt table_receipts
+table_metadata_stable_during_query historical_outcome_lease_unchanged_during_query
+label_read_attempt label_read_attempt_receipt row_fields rows rows_sha256
+query_completed_at b1_inputs_used a2a_inputs_used winner_inputs_used
+later_period_inputs_used production_inputs_used
+""".split())
+_SCORE_SOURCE_CATALOG_KEY_FIELDS: Final = frozenset(
+    "season week source_kind source_key player_id position".split()
+)
 
 _LEASE_BODY_FIELDS: Final = frozenset({
     "version",
@@ -267,6 +298,8 @@ _SCORE_PROVENANCE_FIELDS: Final = frozenset({
     "query_sha256",
     "score_map_object",
     "score_source_receipts",
+    "score_source_extract",
+    "score_source_extract_object",
     "label_read_attempt",
     "label_read_attempt_object",
     "score_unit",
@@ -1178,10 +1211,191 @@ def _label_read_attempt(
         attempt_receipt,
         attempt,
         label="label-read attempt receipt",
+        expected_uri=_score_object_uri(attempt, "label-read-attempt.json"),
     )
     if receipt["uri"] == HISTORICAL_OUTCOME_LEASE_URI:
         raise LR8LabelFitError("label-read attempt URI aliases the outcome lease")
     return attempt, receipt
+
+
+def _score_object_uri(attempt: Mapping[str, object], name: str) -> str:
+    run_id = attempt["historical_outcome_lease"]["body"]["run_id"]
+    return f"{SCORE_OUTPUT_ROOT}/{run_id}/{name}"
+
+
+def _catalog_score_keys(
+    catalogs: Mapping[tuple[int, int], tuple[rw.PlayerSpec, ...]],
+) -> list[dict[str, object]]:
+    return [{
+        "season": season,
+        "week": week,
+        "source_kind": "dst" if player.position == "DST" else "skill",
+        "source_key": (
+            player.team.upper() if player.position == "DST" else player.player_id
+        ),
+        "player_id": player.player_id,
+        "position": player.position,
+    } for season, week in source.EXPECTED_SLATE_KEYS
+      for player in catalogs[(season, week)]]
+
+
+def _score_source_extract(
+    value: object,
+    *,
+    extract_receipt: object,
+    source_receipts: object,
+    training_source_manifest_sha256: str,
+    training_source_object: Mapping[str, object],
+    catalog_universe_sha256: str,
+    attempt: Mapping[str, object],
+    attempt_receipt: Mapping[str, object],
+    expected_catalog_keys: Sequence[Mapping[str, object]] | None,
+) -> tuple[dict[str, object], dict, dict[str, object], tuple[dict, ...]]:
+    """Replay the exact source body retained inside the score map."""
+    if not isinstance(value, Mapping) or set(value) != _SCORE_SOURCE_EXTRACT_FIELDS:
+        raise LR8LabelFitError("authoritative score-source extract schema differs")
+    extract = dict(value)
+    if (
+        extract["schema"] != SCORE_SOURCE_EXTRACT_VERSION
+        or extract["supplier_version"] != SCORE_SUPPLIER_VERSION
+        or extract["protocol_id"] != lr8.PROTOCOL_ID
+        or extract["supplier_boundary"] != SCORE_SUPPLIER_BOUNDARY
+        or extract["training_source_manifest_sha256"]
+        != training_source_manifest_sha256
+        or extract["training_source_object"] != training_source_object
+        or extract["target_seasons"] != list(source.TARGET_SEASONS)
+        or extract["slate_keys"] != [list(key) for key in source.EXPECTED_SLATE_KEYS]
+        or extract["catalog_universe_sha256"] != catalog_universe_sha256
+        or extract["query_identity"] != authoritative_query_identity()
+        or extract["query_sha256"] != AUTHORITATIVE_QUERY_SHA256
+        or extract["sql_sha256"] != AUTHORITATIVE_SQL_SHA256
+        or extract["row_fields"] != list(SCORE_SOURCE_ROW_FIELDS)
+        or extract["label_read_attempt"] != attempt
+        or extract["label_read_attempt_receipt"] != attempt_receipt
+        or extract["table_metadata_stable_during_query"] is not True
+        or extract["historical_outcome_lease_unchanged_during_query"] is not True
+    ):
+        raise LR8LabelFitError("authoritative score-source boundary differs")
+    for field in (
+        "b1_inputs_used", "a2a_inputs_used", "winner_inputs_used",
+        "later_period_inputs_used", "production_inputs_used",
+    ):
+        _literal_bool(extract[field], label=f"source extract {field}", expected=False)
+    catalog_keys = extract["catalog_keys"]
+    if not isinstance(catalog_keys, list) or not catalog_keys or any(
+        not isinstance(row, Mapping) or set(row) != _SCORE_SOURCE_CATALOG_KEY_FIELDS
+        for row in catalog_keys
+    ):
+        raise LR8LabelFitError("authoritative source catalog keys differ")
+    if expected_catalog_keys is not None and catalog_keys != list(expected_catalog_keys):
+        raise LR8LabelFitError("authoritative source catalog mapping differs")
+    source_to_player: dict[tuple[int, int, str, str], tuple[str, str]] = {}
+    player_order: list[tuple[int, int, str]] = []
+    for row in catalog_keys:
+        season = _exact_int(row["season"], label="source catalog season")
+        week = _exact_int(row["week"], label="source catalog week", minimum=1)
+        kind = _strict_string(row["source_kind"], label="source catalog kind")
+        source_key = _strict_string(row["source_key"], label="source catalog key")
+        player_id = _strict_string(row["player_id"], label="source catalog player")
+        position = _strict_string(row["position"], label="source catalog position")
+        expected_kind = "dst" if position == "DST" else "skill"
+        source_id = (season, week, kind, source_key)
+        player_id_key = (season, week, player_id)
+        if (
+            (season, week) not in source.EXPECTED_SLATE_KEYS
+            or position not in {"QB", "RB", "WR", "TE", "DST"}
+            or kind != expected_kind
+            or (kind == "skill" and source_key != player_id)
+            or (kind == "dst" and source_key != source_key.upper())
+            or source_id in source_to_player
+            or player_id_key in player_order
+        ):
+            raise LR8LabelFitError("authoritative source catalog mapping differs")
+        source_to_player[source_id] = (player_id, position)
+        player_order.append(player_id_key)
+    universe = [{
+        "season": row["season"], "week": row["week"],
+        "player_id": row["player_id"], "position": row["position"],
+    } for row in catalog_keys]
+    if (
+        player_order != sorted(player_order)
+        or canonical_sha256(catalog_keys) != extract["catalog_keys_sha256"]
+        or canonical_sha256(universe) != catalog_universe_sha256
+    ):
+        raise LR8LabelFitError("authoritative source catalog-key binding differs")
+
+    parameters = extract["parameters"]
+    job = extract["job_receipt"]
+    tables = extract["table_receipts"]
+    if (
+        not isinstance(parameters, list)
+        or extract["parameters_sha256"] != sha256(canonical_json(parameters) + b"\n").hexdigest()
+        or not isinstance(job, Mapping)
+        or job.get("sql_sha256") != AUTHORITATIVE_SQL_SHA256
+        or job.get("parameters_sha256") != extract["parameters_sha256"]
+        or job.get("error_result") is not None
+        or not isinstance(tables, list)
+        or [row.get("table_id") if isinstance(row, Mapping) else None for row in tables]
+        != [
+            "nfl-predictions-503414.nfl_features.player_week_actuals",
+            "nfl-predictions-503414.nfl_features.team_defense_week",
+        ]
+    ):
+        raise LR8LabelFitError("authoritative source query evidence differs")
+    _utc_timestamp(extract["source_snapshot_at"], label="source snapshot")
+    _utc_timestamp(extract["query_completed_at"], label="query completion")
+
+    rows = extract["rows"]
+    if not isinstance(rows, list) or any(
+        not isinstance(row, Mapping) or set(row) != set(SCORE_SOURCE_ROW_FIELDS)
+        for row in rows
+    ):
+        raise LR8LabelFitError("authoritative source rows differ")
+    observed: dict[tuple[int, int, str, str], int] = {}
+    order: list[tuple[int, int, str, str]] = []
+    for row in rows:
+        key = (
+            _exact_int(row["season"], label="source score season"),
+            _exact_int(row["week"], label="source score week", minimum=1),
+            _strict_string(row["source_kind"], label="source score kind"),
+            _strict_string(row["source_key"], label="source score key"),
+        )
+        score = _exact_int(
+            row["realized_score_micro"], label="source score micro-DK", minimum=None
+        )
+        if key not in source_to_player or key in observed or abs(score) > (
+            np.iinfo(np.int64).max // rw.ROSTER_SIZE
+        ):
+            raise LR8LabelFitError("authoritative source score coverage differs")
+        observed[key] = score
+        order.append(key)
+    if (
+        set(observed) != set(source_to_player)
+        or order != sorted(order)
+        or extract["rows_sha256"] != canonical_sha256(rows)
+    ):
+        raise LR8LabelFitError("authoritative source-row binding differs")
+    player_scores = {
+        (season, week, player_id): observed[(season, week, kind, source_key)]
+        for (season, week, kind, source_key), (player_id, _) in source_to_player.items()
+    }
+    object_receipt = _bound_create_once_receipt(
+        extract_receipt,
+        extract,
+        label="authoritative score-source object",
+        expected_uri=_score_object_uri(attempt, "authoritative-score-source.json"),
+    )
+    receipts = _receipts(source_receipts, label="score source receipts")
+    if list(receipts) != [{
+        key: object_receipt[key] for key in ("uri", "generation", "sha256", "bytes")
+    }]:
+        raise LR8LabelFitError("score source receipt does not bind its extract")
+    if training_source_object["uri"] in {
+        HISTORICAL_OUTCOME_LEASE_URI, attempt_receipt["uri"], object_receipt["uri"],
+        _score_object_uri(attempt, "authoritative-score-map.json"),
+    }:
+        raise LR8LabelFitError("authoritative score object URIs alias")
+    return extract, player_scores, object_receipt, receipts
 
 
 def _score_map(
@@ -1217,14 +1431,25 @@ def _score_map(
         or score_map["query_sha256"] != AUTHORITATIVE_QUERY_SHA256
     ):
         raise LR8LabelFitError("authoritative score-map boundary differs")
-    source_receipts = _receipts(
-        score_map["score_source_receipts"], label="score source receipts"
-    )
     attempt, attempt_receipt = _label_read_attempt(
         score_map["label_read_attempt"],
         attempt_receipt=score_map["label_read_attempt_receipt"],
         training_source_manifest_sha256=frozen_source.manifest_sha256,
         training_source_object=frozen_source.object_receipt,
+    )
+    expected_catalog_keys = _catalog_score_keys(frozen_source.catalogs)
+    source_extract, source_scores, source_extract_receipt, source_receipts = (
+        _score_source_extract(
+        score_map["score_source_extract"],
+        extract_receipt=score_map["score_source_extract_receipt"],
+        source_receipts=score_map["score_source_receipts"],
+        training_source_manifest_sha256=frozen_source.manifest_sha256,
+        training_source_object=frozen_source.object_receipt,
+        catalog_universe_sha256=frozen_source.catalog_universe_sha256,
+        attempt=attempt,
+        attempt_receipt=attempt_receipt,
+        expected_catalog_keys=expected_catalog_keys,
+        )
     )
     for field in (
         "b1_inputs_used",
@@ -1277,6 +1502,10 @@ def _score_map(
         )
         if abs(score) > np.iinfo(np.int64).max // rw.ROSTER_SIZE:
             raise LR8LabelFitError("realized score is outside exact roster-sum range")
+        if source_scores.get(key) != score:
+            raise LR8LabelFitError(
+                "authoritative score row differs from its source extract"
+            )
         observed[key] = score
         normalized.append({
             "season": season,
@@ -1303,6 +1532,7 @@ def _score_map(
         score_map_receipt,
         score_map,
         label="authoritative score-map receipt",
+        expected_uri=_score_object_uri(attempt, "authoritative-score-map.json"),
     )
     provenance = {
         "supplier_boundary": SCORE_SUPPLIER_BOUNDARY,
@@ -1311,6 +1541,8 @@ def _score_map(
         "query_sha256": score_map["query_sha256"],
         "score_map_object": object_receipt,
         "score_source_receipts": list(source_receipts),
+        "score_source_extract": source_extract,
+        "score_source_extract_object": source_extract_receipt,
         "label_read_attempt": attempt,
         "label_read_attempt_object": attempt_receipt,
         "score_unit": SCORE_UNIT,
@@ -1478,14 +1710,24 @@ def _validate_score_provenance(
         "production_inputs_used",
     ):
         _literal_bool(provenance[field], label=field, expected=False)
-    score_source_receipts = _receipts(
-        provenance["score_source_receipts"], label="score source receipts"
-    )
     attempt, attempt_object = _label_read_attempt(
         provenance["label_read_attempt"],
         attempt_receipt=provenance["label_read_attempt_object"],
         training_source_manifest_sha256=str(training_source["manifest_sha256"]),
         training_source_object=training_source["object_receipt"],
+    )
+    source_extract, source_scores, source_extract_object, score_source_receipts = (
+        _score_source_extract(
+        provenance["score_source_extract"],
+        extract_receipt=provenance["score_source_extract_object"],
+        source_receipts=provenance["score_source_receipts"],
+        training_source_manifest_sha256=str(training_source["manifest_sha256"]),
+        training_source_object=training_source["object_receipt"],
+        catalog_universe_sha256=str(training_source["catalog_universe_sha256"]),
+        attempt=attempt,
+        attempt_receipt=attempt_object,
+        expected_catalog_keys=None,
+        )
     )
     raw_score_rows = provenance["score_rows"]
     if not isinstance(raw_score_rows, list) or not raw_score_rows:
@@ -1521,6 +1763,8 @@ def _validate_score_provenance(
         key = (season, week, player_id)
         if key in scores:
             raise LR8LabelFitError("retained authoritative score rows repeat")
+        if source_scores.get(key) != realized:
+            raise LR8LabelFitError("retained score differs from its source extract")
         scores[key] = realized
         normalized_score_rows.append({
             "season": season,
@@ -1571,6 +1815,8 @@ def _validate_score_provenance(
         "query_identity": expected_query,
         "query_sha256": AUTHORITATIVE_QUERY_SHA256,
         "score_source_receipts": list(score_source_receipts),
+        "score_source_extract": source_extract,
+        "score_source_extract_receipt": source_extract_object,
         "label_read_attempt": attempt,
         "label_read_attempt_receipt": attempt_object,
         "rows": normalized_score_rows,
@@ -1585,11 +1831,14 @@ def _validate_score_provenance(
         provenance["score_map_object"],
         score_map_payload,
         label="authoritative score-map object",
+        expected_uri=_score_object_uri(attempt, "authoritative-score-map.json"),
     )
     normalized_provenance = {
         **provenance,
         "score_map_object": score_map_object,
         "score_source_receipts": list(score_source_receipts),
+        "score_source_extract": source_extract,
+        "score_source_extract_object": source_extract_object,
         "label_read_attempt": attempt,
         "label_read_attempt_object": attempt_object,
         "score_row_count": score_row_count,
