@@ -59,6 +59,32 @@ agent or developer:
   become queryable in the dedicated Neo4j/UI path. Do not rerun task 0 or the
   repository-wide test suite.
 
+### Parametric transport hardening is focused-green
+
+- Commit `c3ac9e1` hardens the default-off 54-task transport with complete
+  upstream-prefix derivation, exact GET tracing, fully explored effective-IAM
+  analysis, exact build/job UID binding, inherited attachment rejection and
+  clearing, rollback verification, no-clobber local evidence, and the
+  producer/verifier launch/acceptance boundary. It still accepts only an
+  isolated one-task smoke or the complete ordered 54-task/378-cell batch;
+  every execution remains serial and zero-retry.
+- Focused validation only: `tests/test_corpus_parametric_transport.py` is
+  green 14/14, launcher `bash -n` is green, all required current gcloud
+  clearing flags were confirmed locally, and scoped whitespace validation is
+  green. No broad tests or cloud mutation ran.
+- The transport intentionally remains outcome-blind. Task and batch
+  acceptance hard-bind `uses_realized_outcomes=false` and
+  `historical_scoring_licensed=false`. Realized grading belongs after accepted
+  `batch_completion` plus `batch_acceptance`, reopening each arm's retained
+  `unique_rosters` and `selected_rosters` under a separate one-read authority.
+- Live read-only census at this milestone found only the existing
+  `corpus-retrieval-research` service account and dedicated retrieval bucket;
+  parametric/source/graph service accounts and dedicated storage have not yet
+  been provisioned. The accepted retrieval job remains unchanged at
+  generation 16, UID `d6e4b8c1-5950-46b7-8869-7e34dbf29ad2`, parked on the
+  accepted retrieval image. Provisioning and any reuse update must follow the
+  remaining build and real-artifact-smoke gates.
+
 ## Prior state — 2026-08-21 18:20 CDT
 
 ### Corpus task 0 is terminal-accepted; never relaunch it
