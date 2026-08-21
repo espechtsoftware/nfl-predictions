@@ -246,6 +246,12 @@ agent or developer:
   substitution. The launcher now emits only the used `_IMAGE` substitution;
   its focused 12-test suite and shell/render checks pass after the repair,
   committed at `c6ce76aa89d189c6ceec72227ed2b49013438f58`.
+- Exact direct-Git Cloud Build
+  `7336e787-b201-40b0-946d-8004be8beb9b` was created at
+  `2026-08-21T04:37:50.917456612Z` from pushed source
+  `8989db00a8efad83d101c7c043be4f7306aa7fcf`, with requested tag
+  `lr8-smoke-8989db0`. Initial source/provenance/substitution checks are exact;
+  the build is queued and has not produced an image or touched Cloud Run.
 - The smoke transport, dashboard/build integration, 70-cell pure sharding
   core, focused tests, and milestone record are committed at
   `8a76096aa19c69f5bf5b4d7e2a7b84a06b893257`.
