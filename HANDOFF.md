@@ -20,14 +20,16 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 14:22 CDT
+## Current state — 2026-08-21 14:36 CDT
 
 ### Corpus retrieval engine is focused-green; exact cloud task 0 is pending
 
 - Branch `main`; retrieval milestone commit
   `2fb3ed25fc81b853435bef8d2338d8b1627e65fb` (`Add governed corpus retrieval
-  engine`) is pushed to `origin/main`. Full Git and Google Cloud access was
-  restored after the editor restart. The new retrieval path is deliberately
+  engine`) and build-smoke repair commit
+  `198bb006b6e73d7c0506e36ef5ddae60972ecaa8` are pushed to `origin/main`.
+  Full Git and Google Cloud access was restored after the editor restart. The
+  new retrieval path is deliberately
   independent of corpus production: it scores the complete unique R0--R4
   lineup union in all 50,000 worlds, retains every strict `score > 200`
   event, and applies four frozen exact-80 selection laws on R0--R3 with R4
@@ -101,9 +103,10 @@ agent or developer:
 - Two independent read-only audits of the stable final hashes found no code
   P0/P1 in the GET-only worker/PAP lane and no remaining combined code P0.
   Their verdict is implementation GO for exactly one gated, outcome-blind,
-  real-artifact task-0 smoke. Cloud launch remains conditional NO-GO until
-  dedicated provisioning, exact capture/build, operator namespace
-  censuses, and the effective-access census all pass. Non-blocking provenance
+  real-artifact task-0 smoke. Dedicated provisioning, exact capture, and the
+  effective-access census now pass. Cloud launch remains conditional NO-GO
+  until the clean build succeeds, immutable input publication completes, and
+  the immediate operator namespace/scheduler censuses pass. Non-blocking provenance
   debt: raw query rows are not retained for later raw-digest recomputation;
   normalized scoring bodies are retained and fully replayed. The producer
   authority is exact-reopened but not semantically parsed by the core, and a
@@ -123,8 +126,10 @@ agent or developer:
   retrieval import smoke did not contain the exact fragment required by the
   build validator. The smoke now uses an exact module import and a new test
   checks the repository Cloud Build file against every required build fragment.
-  Resubmit only from a clean temporary checkout after this repair is committed;
-  the canceled build is permanently ineligible.
+  The canceled build is permanently ineligible. Replacement direct-Git build
+  `38e6940f-8e29-4ff4-830f-3dca13c5337b` was submitted from clean temporary
+  checkout `/tmp/corpus-retrieval-build.XPKXQE`, resolves exact commit
+  `198bb006b6e73d7c0506e36ef5ddae60972ecaa8`, and is currently `WORKING`.
 - A prior outcome-blind engineering prototype over the exact task-0 shapes
   found 1,276 source rows, 585 unique lineups, 27,117 strict-`>200` events,
   581 lineups with an event, and 9,534 worlds with an event. These are
@@ -132,30 +137,36 @@ agent or developer:
   preliminary all-world mean portfolio maximum was 177.6081 for
   `coverage-194-v1`; the frozen first task must reproduce its own exact
   create-once results before any claim is accepted.
-- Storage audit is GO only for a new dedicated UBLA/PAP bucket
+- The dedicated UBLA/PAP bucket
   `gs://nfl-predictions-503414-corpus-retrieval` and a new zero-project-role
   service account
-  `corpus-retrieval-research@nfl-predictions-503414.iam.gserviceaccount.com`.
-  Grant conditional object viewer only on the exact input/output prefixes and
-  object creator only on the exact output prefix. The existing raw bucket and
-  Editor compute service account are NO-GO. No bucket, service account, IAM,
-  BigQuery, build, job, or execution mutation has occurred. The retained IAM
-  validator proves direct policy bindings, exact prefixes, UBLA, and PAP; an
-  independent live preflight must also census effective access for inherited,
-  group, or public-principal grants before the first smoke. Treat an
-  unavailable or ambiguous effective-access result as NO-GO.
+  `corpus-retrieval-research@nfl-predictions-503414.iam.gserviceaccount.com`
+  were created at 14:29 CDT. The account has no project role and exactly two
+  bucket bindings: conditional object viewer on the exact input/output prefixes
+  and conditional object creator on the exact output prefix. Cloud Asset API is
+  enabled. Expanded effective-access analysis is fully explored with no
+  noncritical errors and exposes only those two conditional grants for the
+  runtime identity; separate `allUsers` and `allAuthenticatedUsers` analyses
+  are fully explored with zero results. The existing raw bucket and Editor
+  compute service account remain forbidden for runtime use. Canonical project
+  policy, bucket policy/metadata, service-account, and Cloud Asset evidence are
+  retained under the task-0 governance directory.
 - Exact task-0 query SQL is frozen under
   `reports/corpus-retrieval-runs/20260821-corpus-retrieval-engine-v1/governance/`
   with SHA-256 `ede519d5...f23` (candidates) and
   `d6e2dff3...996` (players). The source lock and R0--R4 generations/hashes
-  are recorded in `reports/2026-08-21-corpus-retrieval-engine-v1.md`.
-  DNS resolution and authenticated Google Cloud access are now available.
-  The temporary exact R0--R4 local bodies were lost when the editor/container
-  restarted and must be reopened from their generation-pinned origins.
-- Next concrete action: provision and independently census the dedicated
-  bucket/identity, execute the two frozen query jobs,
-  stage and reopen exact input generations, make one selective retrieval-only
-  commit/push, build an immutable image from that clean commit, permanently
+  are recorded in `reports/2026-08-21-corpus-retrieval-engine-v1.md`. Both
+  frozen BigQuery jobs completed outcome-blind at 14:31 CDT. Capture authority
+  SHA-256 is `fc098c20262190223bfa7b4f1bf11199ef8d8c94ca0a32a7adfa686e75b8351d`:
+  1,276 candidate rows across exact R0--R4 counts, 773 point-in-time players,
+  250 used players, five exact 10,000-world artifacts, and no realized-outcome
+  field. All source-lock/R0--R4 local bytes match their frozen generations,
+  byte counts, and SHA-256 values.
+- Next concrete action: require build
+  `38e6940f-8e29-4ff4-830f-3dca13c5337b` to succeed, publish/reopen the exact
+  create-once input suite against its immutable digest, build canonical runtime
+  IAM evidence, run immediate all-region scheduler and namespace censuses,
+  permanently
   park the existing idle Cloud Run job `atlas-minimal-c-s2023-w1-v1` on the
   generic retrieval command, and launch task 0 exactly once with durable
   intent/name/terminal/result receipts. Do not restore its old A7 job spec
