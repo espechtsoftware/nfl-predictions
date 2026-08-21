@@ -54,6 +54,21 @@ agent or developer:
 - Keep the registered watcher session alive. It owns metadata-only polling,
   strict terminal-first harvest, and permanent no-relaunch closure. Never
   invoke the launch subcommand separately and never launch a second execution.
+- The real 2023--2025 LR8 construction and one-read evaluator are now
+  source-green in seven isolated files. The source boundary pins the exact
+  retained 270-artifact lock, one common point-in-time canonical-R0/full-DK
+  catalog query contract, generation-pinned worlds, the exact earlier fit,
+  strict 2023-W1 smoke terminal evidence, and every mechanics/pricing-proof/
+  candidate/book equality before producing the ordered 54-slate/108-book
+  freeze. Only that complete freeze licenses the later exact-union score read.
+  The evaluator creates its attempt before the query, reads only the frozen
+  candidate union from authoritative player/DST tables, exact-sums integer
+  micro-DK roster scores, and independently replays the frozen evaluator.
+  Focused validation is 22/22 green; a root rerun is also 22/22, with
+  pycompile and whitespace checks green. No source, construction, historical
+  score, lease, or cloud call occurred. The remaining operational dependency
+  is the in-progress update-only source/construction transport plus packaging
+  all new runners in the one post-smoke integrated build.
 
 ### A7-v1 close-only recovery and fresh A7-v2 repair are source-ready
 
