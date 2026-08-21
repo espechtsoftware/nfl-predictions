@@ -127,6 +127,9 @@ agent or developer:
   runner, tests, and this milestone record are committed at
   `057fca84df961300fc79049fa882e33ad3067775`; push status is recorded by the
   immediately following HANDOFF receipt commit.
+- The complete smoke solve/request/evidence freeze binding and its updated
+  runner test are committed at
+  `107b92f30ce5ead5c84da4a92c4d16f6664944fd`.
 - The registered question is now one bounded historical arm, not a blanket
   repeal of lineup rules: can at most eight matched-budget residual columns per
   cross-fit fold improve the unchanged exact-80 selector when the new columns
