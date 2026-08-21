@@ -1,0 +1,1 @@
+atlas-md-prefix-r4-smoke atlas-md-prefix-r4-smoke-kgsnh gs://nfl-predictions-503414-raw/research/lr8-training-source/20260821-lr8-training-source-smoke-v2/smoke-manifest.json
