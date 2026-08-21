@@ -20,6 +20,68 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current state — 2026-08-21 10:29 CDT
+
+### Seven-arm decision contract is frozen; production runner remains NO-GO
+
+- Branch `main`; parent before this milestone is
+  `8cd679320c3ad06b5b998df344262c283910f3bf` (`Add corpus parametric batch
+  foundation`). `reports/2026-08-21-corpus-parametric-batch-evidence-contract-v1.md`
+  and `src/nfl_dfs/research/corpus_batch_evidence_contract.py` now bind the
+  exact incumbent-versus-six endpoint, gate, multiplicity, reporting, license,
+  and append-only knowledge-graph laws before any batch or outcome read.
+- Every task-qualified arm population is distinct in the graph. The contract
+  requires every generated-unique lineup to have exactly 50,000 ordered
+  simulated scores and, if the separately governed historical read is later
+  licensed, exactly one reconstructed task/slate-keyed micro-DK actual score.
+  Missing, extra, partial, winner-only, or exact80-only coverage invalidates
+  the completion. Duplicate visit/arm identities may be computed once but
+  must map back to every population membership.
+- C (complete generated-unique candidate ceiling) and S (frozen exact-80
+  maximum) are historical co-primaries. All six challengers are retained;
+  paired mean and signed-rank tests use a fresh exact NumPy RNG stream per
+  `(challenger, endpoint)`, a frozen call shape, and the same sign matrix for
+  both statistics. The joint p-value is Holm-adjusted across exactly six.
+  At most one deterministic historical passer can license creation/freeze/
+  deployment of one default-off 2026 research shadow. Historical evidence
+  never licenses production, adoption, default-on behavior, money entry,
+  retuning, or a retry; prospective pass remains false until a separately
+  frozen unseen-2026 gate clears.
+- The graph topology is task-qualified and grain-exact. For the two-task test
+  fixture it validates 42 populations, 26,252 score-free measurements, and 56
+  realized measurements; IDs cannot collide across slates. It also requires a
+  dedicated research logical database: canonical create-once artifacts remain
+  authoritative, while a separate Neo4j database or equivalent is only an
+  append-only, rebuildable query projection. It cannot share the application's
+  operational datastore, store large world/outcome bodies, authorize a run, or
+  change policy.
+- `pyproject.toml` now pins `pulp==3.3.2`, matching the current environment,
+  because byte-identical MPS reconstruction cannot rely on a ranged solver
+  frontend dependency. A future immutable image must still pin and receipt the
+  exact CBC binary/version/options and its image digest.
+- Validation: the combined batch-contract, independent-inventory, and
+  evidence-contract suite is 99/99 green; Python compile and `git diff
+  --check` are green. Evidence module SHA is
+  `aca5b41dde6acfe992a8d58b97636a6071fa9db944ab4476254b67e41082bfa2`,
+  test SHA is
+  `a0de2f9b63485eae9e211b3f126a068acc2ba8bb57200f1e1f1816445565a3c1`,
+  and protocol SHA is
+  `c8194d69e2533c412b7850f45c19d625e16125b510c8265dfa8561301750862f`.
+  No CBC, cloud call, outcome read, lease, build, job update, or deployment
+  occurred.
+- The untracked `corpus_legal_feasibility.py` draft remains explicitly
+  **NO-GO** while its authoritative path is being replaced with a fixed
+  two-stage lexicographic CBC law, hard process watchdog, streamed 100-visit
+  evidence shards, authoritative/test schema separation, and a separately
+  implemented raw-byte verifier. Do not package or launch it yet.
+- Next concrete action: finish the core and independent verifier, adversarially
+  review their canonical authority/shard schemas, then add the smallest
+  default-off `validate-only`/`execute-task`/`verify-task`/`finish-batch`
+  transport. The execution command must require both a literal flag and
+  `CORPUS_PARAMETRIC_RESEARCH_ENABLED=1`; reuse an idle job parked disabled,
+  use zero retries/create-once output, and grant no outcome or live-strategy
+  authority.
+
 ## Current state — 2026-08-21 09:55 CDT
 
 ### Parametric corpus foundation is source-green; the runner remains NO-GO
