@@ -233,6 +233,7 @@ PYE
       */a2a-rank-factor-split-runs/*/result.json) phase="A2a scorefree" ;;
       */a2a-production-law-dependence-runs/*/report.json) phase="A2a realized law" ;;
       */b1-corpus-tail-runs/*/historical-report.json) phase="B1 corpus tail" ;;
+      */lr8-training-source/*/smoke-manifest.json) phase="LR8 source smoke" ;;
       *)
         case "$shadow_phase" in
           freeze) phase="B1 shadow freeze" ;;
@@ -253,7 +254,8 @@ PYE
       else
         agg=pending
       fi
-    elif { [ -s "$dir/finish.sha256" ] && [ -s "$dir/completion.txt" ]; } \
+    elif { [ -s "$dir/finish.sha256" ] && \
+           { [ -s "$dir/completion.txt" ] || [ -s "$dir/completion.json" ]; }; } \
         || { [ -s "$dir/result.json" ] && [ -s "$dir/completion.txt" ]; } \
         || [ -s "$dir/aggregate-report.json" ] \
         || { [ -n "$prefix" ] && { \

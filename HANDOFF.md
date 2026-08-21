@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-20 22:59 CDT
+## Current state — 2026-08-20 23:34 CDT
 
 ### A7-v1 close-only recovery and fresh A7-v2 repair are source-ready
 
@@ -217,6 +217,40 @@ agent or developer:
   the model. Its focused suite passes 13/13; py_compile and whitespace checks
   are green. No real BigQuery row, GCS object, CBC smoke, or cloud job was
   touched.
+- The single real-source smoke now has a dedicated update-only transport:
+  `scripts/cloud_lr8_training_source_smoke.sh` (SHA-256
+  `59b3d4f4043a1e66281bcb630455bbfd7e46ef358429cca004f7b6c10e8cc1f7`),
+  `scripts/watch_lr8_training_source_smoke_queue.sh` (SHA-256
+  `bf64db446b182cafb574d7487e086c2e7cdbba7fbed80d1fd458da6a8bf0d388`),
+  and `scripts/finish_lr8_training_source_smoke.py` (SHA-256
+  `bba451d5264480a1ca9cb53c2f631a5acada1281a01260dd8d738308818b53dd`).
+  It can only update exact existing job `atlas-md-prefix-r4-smoke`, UID
+  `51545eb0-59e4-424e-91c9-98dd318285f4`; a fresh metadata-only census found
+  generation 1 Ready, its sole prior execution terminal, and zero scheduler
+  targets. It uses one task, 8 CPU, 32 GiB, six hours, `maxRetries=0`, a
+  create-once launch intent, strict terminal metadata before any result-body
+  read, generation-pinned inventory/bodies, and no historical-outcome lease.
+  Ambiguous or failed launch is permanently no-retry.
+- The transport independently replays all forty request preimages, proof
+  objects, raw CBC artifacts, roster/anatomy/legality hashes, and exact prefix
+  inventory. It deliberately stops at the retained source/draw/request/proof
+  boundary rather than claiming to refit the model. The one-line execution
+  ledger is in the dashboard's canonical three-field form and
+  `chain_status.sh` labels it `LR8 source smoke`. Transport validation is
+  12/12 green; Python compilation, both shell syntax checks, finisher help,
+  direct-Git build-command rendering, and whitespace checks are green.
+  Dockerfile and Cloud Build contain the runner/transport plus their four
+  registered container smokes.
+- The post-smoke full-source core is already prepared in
+  `src/nfl_dfs/research/lr8_full_source_shards.py` (SHA-256
+  `bd01a460ea79875169c2b30408a3d74083049454d82a378b33f7e455b6288896`).
+  It preserves one shared season-wide replay/refit, then requires the exact
+  ordered 70 cells `(2019 W1..17, 2021 W1..18) x (R0,R1)`, complete
+  generation-pinned float32 draw/source bindings, one unchanged max-80-to-40
+  solve per cell, and byte-equivalent reconstruction through the existing
+  scientific freeze serializer. The focused shard suite is 9/9 green; the
+  combined transport/shard checkpoint is 21/21 green. No full-source cloud
+  launcher or execution has been created.
 - No real outcomes, BigQuery rows, GCS bodies, Cloud Run job, shared lease, or
   production path were touched by this milestone. The old 35 NPZs contain only
   candidate indices/totals and cannot score novel relaxed rosters. Exact next
