@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 00:40 CDT
+## Current state — 2026-08-21 01:14 CDT
 
 ### A7-v1 close-only recovery and fresh A7-v2 repair are source-ready
 
@@ -319,8 +319,12 @@ agent or developer:
   `7336e787-b201-40b0-946d-8004be8beb9b` was created at
   `2026-08-21T04:37:50.917456612Z` from pushed source
   `8989db00a8efad83d101c7c043be4f7306aa7fcf`, with requested tag
-  `lr8-smoke-8989db0`. Initial source/provenance/substitution checks are exact;
-  the build is queued and has not produced an image or touched Cloud Run.
+  `lr8-smoke-8989db0`. It completed `SUCCESS` at
+  `2026-08-21T06:12:34.330069Z`: 2,908 tests passed with four skips; image build
+  and every registered container smoke passed. Exact immutable image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:fcb6990e0967f5b8d0ee01f73053a5fab1f539ab96eea55f12f978019dcbcdb2`.
+  Source/resolved source and the registry tag agree exactly; the build did not
+  touch Cloud Run or historical outcomes.
 - The smoke transport, dashboard/build integration, 70-cell pure sharding
   core, focused tests, and milestone record are committed at
   `8a76096aa19c69f5bf5b4d7e2a7b84a06b893257`.
@@ -332,8 +336,27 @@ agent or developer:
   generation-pinned float32 draw/source bindings, one unchanged max-80-to-40
   solve per cell, and byte-equivalent reconstruction through the existing
   scientific freeze serializer. The focused shard suite is 9/9 green; the
-  combined transport/shard checkpoint is 21/21 green. No full-source cloud
-  launcher or execution has been created.
+  earlier combined smoke-transport/shard checkpoint is 21/21 green.
+- The post-smoke full-source transport scaffold is source-green in
+  `scripts/run_lr8_full_source_shards.py` (SHA-256
+  `c0f8594a5e25f958198416cf4afd4151ff220d6bd2cab74775dcb783d424e062`),
+  `scripts/finish_lr8_full_source_shards.py` (SHA-256
+  `96a8f0f6a4e1c4ef4e3d9b6232348ba0dbd085bd9303aff323252c88751d1d95`),
+  `scripts/cloud_lr8_full_source_shards.sh` (SHA-256
+  `43780427b1bb2f4f53cea14dea555a8d7d6b7a4db4a471cd6a730fe1c98919f0`),
+  and `scripts/watch_lr8_full_source_shards_queue.sh` (SHA-256
+  `f3b7beca20f3d529c5f26b679aa8ec9914879f57bf2945bb4c9848b355e94351`).
+  It prepares exactly two season-wide replay/refit batches, generation-pins
+  the exact 70 cells, and uses distinct one-task/zero-retry executions on one
+  reused job before terminal-first harvest and byte-equivalent aggregation.
+  Exact code/build/image, job UID/generation/spec/executable contract, each
+  execution-to-cell mapping, create-once attempt body, strict three-field
+  ledgers, and prepared-row/body hashes are bound end to end; permutation,
+  schema, lineage, and bool-vs-int poisons fail closed. Focused shard/transport
+  validation is 19/19 green, with pycompile, CLI help, Ruff, shell syntax, and
+  whitespace checks green. It remains intentionally unintegrated and
+  unlaunchable until the single real smoke and prepared-cell-0 parity pass;
+  no full-source cloud execution has been created.
 - The pure earlier-period label/fit boundary is now implemented in
   `src/nfl_dfs/research/lr8_label_fit_adapter.py` (SHA-256
   `78621312f230099eed8b353c1e2d610f7788532b601d9d18a53736fc942ad98a`).
