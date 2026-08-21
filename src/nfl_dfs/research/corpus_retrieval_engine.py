@@ -59,6 +59,7 @@ WORLDS_PER_BLOCK: Final = 10_000
 ROSTER_SIZE: Final = 9
 DEFAULT_ENTRY_BUDGET: Final = 80
 MAX_REDUNDANCY_PAIRS: Final = 2_000
+REDUNDANCY_CORRELATION_REPLAY_ABS_TOLERANCE: Final = 1e-15
 MIN_ENRICHMENT_LINEUP_SUPPORT: Final = 5
 NPZ_FORMAT: Final = "retained-candidate-world-npz/v1"
 
@@ -1870,6 +1871,80 @@ def _build_redundancy(
     return _self_hash(body, "redundancy_sha256")
 
 
+def _redundancy_semantic_replay_equal(
+    published: object, rebuilt: object,
+) -> bool:
+    """Compare redundancy evidence across BLAS implementations.
+
+    The retained artifact and its self-hash remain byte-exact authorities.
+    Recomputing a Pearson dot product on another CPU/BLAS implementation can
+    differ in the final binary64 bit, so replay permits only that one scalar
+    field to move by at most the declared absolute tolerance. Pair identity,
+    order, overlap, event counts, duplicate flags, and every other field stay
+    exact. A relative tolerance would make the allowance scale with content
+    and is deliberately forbidden.
+    """
+    left = dict(_mapping(published, label="published redundancy replay"))
+    right = dict(_mapping(rebuilt, label="rebuilt redundancy replay"))
+    _validate_self_hash(left, "redundancy_sha256", label="published redundancy")
+    _validate_self_hash(right, "redundancy_sha256", label="rebuilt redundancy")
+    left.pop("redundancy_sha256", None)
+    right.pop("redundancy_sha256", None)
+    left_pairs = list(_sequence(
+        left.pop("pairs", None), label="published redundancy pairs"
+    ))
+    right_pairs = list(_sequence(
+        right.pop("pairs", None), label="rebuilt redundancy pairs"
+    ))
+    if (
+        canonical_json_bytes(left) != canonical_json_bytes(right)
+        or len(left_pairs) != len(right_pairs)
+    ):
+        return False
+    pair_keys = {
+        "left_lineup_index", "right_lineup_index", "left_lineup_id",
+        "right_lineup_id", "shared_player_count",
+        "pearson_score_correlation", "exact_score_vector_duplicate",
+        "strict_gt_200_event_intersection", "strict_gt_200_event_union",
+        "strict_gt_200_event_jaccard",
+    }
+    for index, (left_raw, right_raw) in enumerate(
+        zip(left_pairs, right_pairs, strict=True)
+    ):
+        left_pair = dict(_mapping(
+            left_raw, label=f"published redundancy pair[{index}]"
+        ))
+        right_pair = dict(_mapping(
+            right_raw, label=f"rebuilt redundancy pair[{index}]"
+        ))
+        _keys(
+            left_pair, pair_keys, label=f"published redundancy pair[{index}]"
+        )
+        _keys(
+            right_pair, pair_keys, label=f"rebuilt redundancy pair[{index}]"
+        )
+        left_correlation = left_pair.pop("pearson_score_correlation")
+        right_correlation = right_pair.pop("pearson_score_correlation")
+        if canonical_json_bytes(left_pair) != canonical_json_bytes(right_pair):
+            return False
+        if (
+            type(left_correlation) is not float
+            or type(right_correlation) is not float
+            or not math.isfinite(left_correlation)
+            or not math.isfinite(right_correlation)
+            or abs(left_correlation) > 1.0 + REDUNDANCY_CORRELATION_REPLAY_ABS_TOLERANCE
+            or abs(right_correlation) > 1.0 + REDUNDANCY_CORRELATION_REPLAY_ABS_TOLERANCE
+            or not math.isclose(
+                left_correlation,
+                right_correlation,
+                rel_tol=0.0,
+                abs_tol=REDUNDANCY_CORRELATION_REPLAY_ABS_TOLERANCE,
+            )
+        ):
+            return False
+    return True
+
+
 def _top_supported(
     rows: Sequence[Mapping[str, object]], *, key: str, limit: int = 20,
 ) -> list[dict[str, object]]:
@@ -3088,10 +3163,11 @@ def validate_retrieval_task_result(
         for left, right in (
             (discovery_enrichment, rebuilt_discovery_enrichment),
             (full_enrichment, rebuilt_full_enrichment),
-            (redundancy, rebuilt_redundancy),
             (fill_insight, rebuilt_fill),
             (graph, rebuilt_graph),
         )
+    ) or not _redundancy_semantic_replay_equal(
+        redundancy, rebuilt_redundancy
     ):
         raise CorpusRetrievalError("analytics or graph semantic replay differs")
 

@@ -20,7 +20,66 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 17:28 CDT
+## Current state — 2026-08-21 18:10 CDT
+
+### Corpus task 0 scored successfully; terminal ULP replay amendment is pending
+
+- Branch `corpus-retrieval-continuation-v1` is pushed through
+  `bfe2e4882f0b51a5c2fe62885e934b73077b0a76`. Dedicated continuation Cloud
+  Build `1a1e95f2-29af-4102-acfc-dc62b0426f31` is terminal `SUCCESS` at that
+  exact source and produced accepted immutable image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ba9dbc9ccf51fa74e2e49d90d4f2856885fe5183cc738fbc0b061ad31ae008e4`.
+  It retained the failed predecessor suite evidence and ran only the two
+  focused continuation files; the complete suite was not rerun.
+- Frozen task-0 input publication completed create-once under run ID
+  `20260821-corpus-retrieval-engine-v1`. The suite identity is generation
+  `1787351968476426`, SHA-256
+  `9af6891a5f832dc8e6ec9a32d3d404cdd507edfe52f65b007652411831a4dfdb`;
+  snapshot generation `1787351967889665`, SHA-256
+  `f38032f7aa829b6a19de8d8381a8ea750500cfd5451724b9761474c93d0d99eb`;
+  publication receipt generation `1787351969027478`, SHA-256
+  `42ee43d547c1730498acb81607208b7dc9eb96b5852041357aff6a745223c9fc`.
+  Exact-generation
+  local reopens match all five governed JSON inputs. Fresh direct IAM and two
+  fully explored Cloud Asset gates passed before configuration and again
+  immediately before launch: the runtime principal has only the exact
+  conditional object-viewer/object-creator bindings, no object list/delete,
+  no project role, and neither public principal has access.
+- The existing job was configured once, accepted parked, and invoked exactly
+  once. Bound execution `atlas-minimal-c-s2023-w1-v1-fcsgd` is terminal
+  successful, attempt 0/retry 0. It published result generation
+  `1787352766192580`, 27,651 bytes, SHA-256
+  `805e560d146256887e47a99e4f8a96ab7a6062a345a7887aca32f8506b837d78`,
+  then exited zero. Never relaunch this task.
+- The result scored all 585 unique lineups in all 50,000 worlds (29,250,000
+  lineup-world scores), with 27,117 strict-`>200` events. On held-out R4,
+  exact-80 `coverage-194-v1` leads portfolio `>200` coverage at 1,216/10,000
+  worlds versus 1,017 for `mean-score-v1`; `strict-200-coverage-v1` is 1,211
+  and leads `>220` at 182. These are simulated held-out-world metrics and use
+  no realized outcomes.
+- Initial terminal replay rejected only the redundancy JSON byte comparison.
+  A retained-artifact diagnosis proves both enrichments, fill insight, graph,
+  score matrices, selections, event fields, pair identity/order, and every
+  non-correlation redundancy field replay exactly. Exactly 1,389/2,000
+  Pearson values differ across Cloud Run and the workstation BLAS by at most
+  `8.881784197001252e-16`. The worker used Python 3.11.16/NumPy 2.4.6; even an
+  exact local package/ABI match cannot reproduce the Cloud CPU's BLAS
+  reduction order.
+- The pending narrow amendment retains both redundancy artifacts' exact
+  self-hashes and requires every structural field byte-exact, while allowing
+  only `pearson_score_correlation` absolute drift `<=1e-15` with relative
+  tolerance zero and finite approximately-`[-1,1]` values. A focused test
+  accepts a one-ULP change and rejects excessive or structural changes; the
+  actual published/rebuilt artifacts pass this comparator. No full suite was
+  run.
+- Exact next action: commit and push this narrowly tested ULP amendment with
+  this handoff, then rerun only the terminal watcher/finisher against the
+  already bound successful execution. Do not launch or score again. Accept
+  metrics only after `finish.json`, batch completion, terminal receipt, and
+  exact final output inventory are all present; then record their identities
+  here in a follow-up commit.
+
+## Prior state — 2026-08-21 17:28 CDT
 
 ### Corpus task 0 is continuing from retained suite evidence; no full rerun
 
