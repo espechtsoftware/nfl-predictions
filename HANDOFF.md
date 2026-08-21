@@ -79,10 +79,17 @@ agent or developer:
   A second invocation returned `already-released` and generation-pinned the
   same remote bytes. Every historical/scientific/shadow/production license is
   literal false; no historical look or lease was consumed.
-- Exact next action: commit and push the retained v1 evidence, release body,
-  object receipt, terminal/inventory/absence receipts, and this handoff. Then
-  run the exact direct-Git A7-v2 build from source commit `a9edde4…`; only
-  after build success may v2 create its fresh claim and begin its new smoke.
+- Retained v1 evidence and release closure were committed/pushed in
+  `b3e18f550f6b2cd67c5105b27686dd0e45ec1fb6`. Exact direct-Git A7-v2 build
+  `f8a01f72-0bb6-4301-be68-f194200778bf` is now `WORKING` from that resolved
+  source with requested tag `a7-v2-b3e18f5-20260820`. It was created at
+  `2026-08-21T02:06:48.121454664Z`, started at
+  `2026-08-21T02:07:43.346555545Z`, and has the registered 10,800-second
+  timeout. No Cloud Run update, v2 claim, or preflight has occurred.
+- Exact next action: monitor this build through all tests, image construction,
+  and container smoke. Only after exact `SUCCESS`, source/digest validation,
+  and an idle/unscheduled reused-job census may v2 create its fresh claim and
+  begin its one new outcome-blind smoke.
 
 ### A2a and B1 one-shot historical arms are closed; neither licenses adoption
 
