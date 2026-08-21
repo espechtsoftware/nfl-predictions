@@ -202,7 +202,7 @@ agent or developer:
   source commit. Both recovery modules pass 28/28 in the live checkout and in
   a clean source archive with no `.git` directory; pycompile and whitespace
   checks are green. The fixture-only repair and milestone record were
-  committed/pushed at `2bec296a6d8e1385768767e00dc2d1e578fb77c0`.
+  committed/pushed at `2bec2965442b90ec87990fb25f086de9005265dc`.
   Run fresh exact-source builds from that source; do not reuse `f500c3ed...`
   even if its later unrelated tests continue after the already definitive
   failure cluster.
@@ -433,6 +433,15 @@ agent or developer:
   Artifact Registry has no `lr8-smoke-7ae6f37` tag and no digest was produced.
   It must not be reused. Rebuild v2 only from the pushed fixture-repair commit,
   and never substitute the prior v1 image or bypass the full-test gate.
+- The first fixture-repair submission,
+  `0448d449-521e-4451-9592-fc93df3b07cb`, was given a nonexistent expanded
+  SHA that shared the valid `2bec296` prefix. It failed closed in source fetch
+  after three status-128 attempts; all test/image/smoke steps remained queued
+  and it produced no image. The exact pushed repair commit was then verified
+  as `2bec2965442b90ec87990fb25f086de9005265dc`. Replacement build
+  `6a364353-2485-43e9-9fdc-21f42df70bcb` was submitted from that full identity
+  with the same canonical `lr8-smoke-2bec296` tag. Require its resolved source,
+  full suite, container smokes and immutable digest before any prepare.
 - The smoke transport, dashboard/build integration, 70-cell pure sharding
   core, focused tests, and milestone record are committed at
   `8a76096aa19c69f5bf5b4d7e2a7b84a06b893257`.
@@ -498,6 +507,21 @@ agent or developer:
   `team_defense_week` (6,302 rows; FLOAT `dst_dk_points`). No query, row read,
   cloud client, lease action or write occurred; a separate default-off runner/
   transport is still required before any historical label access.
+- That default-off executable boundary is now prepared in
+  `scripts/run_lr8_label_score_map.py`. It requires both explicit `--execute`
+  and `LR8_LABEL_SCORE_MAP_ENABLED=1`, an exact generation/SHA/manifest pin for
+  the completed 35-slate source freeze, an immutable digest/code/job identity,
+  and a separately acquired local receipt for the shared historical-outcome
+  lease before constructing any cloud client. It does not acquire, release or
+  delete the lease. The live lease generation/body is independently reopened
+  before and after the one deterministic BigQuery query; query cache and job
+  retry are disabled. The attempt, authoritative source extract and score map
+  are each create-once, generation-pinned and byte-reopened, and stdout carries
+  only object receipts—never rows, scores or metrics. The runner is 450 lines;
+  its focused mocked transport is 3/3 green, and the combined supplier,
+  adapter and runner boundary is 35/35 green with pycompile and whitespace
+  checks passing. It is not yet in Docker/Cloud Build and no real client,
+  query, object, lease action or outcome access occurred.
 - No real outcomes, BigQuery rows, GCS bodies, Cloud Run job, shared lease, or
   production path were touched by this milestone. The old 35 NPZs contain only
   candidate indices/totals and cannot score novel relaxed rosters. Exact next
