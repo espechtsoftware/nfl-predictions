@@ -241,6 +241,9 @@ agent or developer:
   direct-Git build-command rendering, and whitespace checks are green.
   Dockerfile and Cloud Build contain the runner/transport plus their four
   registered container smokes.
+- The smoke transport, dashboard/build integration, 70-cell pure sharding
+  core, focused tests, and milestone record are committed at
+  `8a76096aa19c69f5bf5b4d7e2a7b84a06b893257`.
 - The post-smoke full-source core is already prepared in
   `src/nfl_dfs/research/lr8_full_source_shards.py` (SHA-256
   `bd01a460ea79875169c2b30408a3d74083049454d82a378b33f7e455b6288896`).
