@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 15:34 CDT
+## Current state — 2026-08-21 15:37 CDT
 
 ### Corpus retrieval engine is focused-green; exact cloud task 0 is pending
 
@@ -238,6 +238,23 @@ agent or developer:
   No live connection was attempted; a dedicated endpoint, network path, and
   secret remain external provisioning blockers. See
   `reports/2026-08-21-corpus-research-neo4j-foundation.md`.
+- The independent artifact-source publication transport needed by the larger
+  suite is now locally focused-green and ready to commit. It pre-registers
+  three fixed point-in-time, outcome-blind query jobs before either query
+  runs; exact-name create-once publication and generation-pinned reopen guard
+  every object; and it streams the complete 54-slate/270-artifact R0--R4
+  lattice one body at a time without LIST. The terminal publication binds the
+  source verifier completion, query row digests, source-freeze manifest,
+  salary diagnostic, pre-terminal object inventory, and hard-false outcome,
+  production, and live-strategy authorities. Execution is default-off behind
+  both literal `--execute` and
+  `CORPUS_ARTIFACT_SOURCE_AUTHORITY_ENABLED=1`; dry-run and parked modes
+  construct no clients. Focused validation is 9/9 green; Python compile,
+  launcher shell syntax, and targeted `git diff --check` are green. SHA-256
+  values are `c2b3ec3aa700ef3286ba3632af6083a6787b6161637e4dd636a82c852c7f7300`
+  (transport), `ad84677ae80b659d216a9757eb62564818bc7f05d533daa9befd3bd71bc9e1be`
+  (test), and `6693650e117b35cf755149ea085f0ed54641cc64ba2a456a2c6920bc1dc5795b`
+  (frozen salary-player-ID SQL). No source query or publication was executed.
 - Next concrete action: require clean direct-Git build
   `544a65df-2a37-4fb8-b207-870dabee263c` to succeed,
   publish/reopen the
