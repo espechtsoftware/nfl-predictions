@@ -11,7 +11,7 @@ steps:
         apt-get update
         apt-get install -y --no-install-recommends git libgomp1
         pip install --no-cache-dir '.[gcp,app,dev]'
-        PYTHONPATH=. pytest
+        PYTHONPATH=src pytest
   - name: gcr.io/cloud-builders/docker
     id: build-image
     args: [build, -t, '${_IMAGE}', .]

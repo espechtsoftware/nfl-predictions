@@ -30,6 +30,12 @@ from nfl_dfs.research.effective_policy_rule_inventory import (
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def test_cloudbuild_full_suite_imports_the_pinned_source_tree():
+    source = (ROOT / "cloudbuild.yaml").read_text(encoding="utf-8")
+    assert "PYTHONPATH=src pytest" in source
+    assert "PYTHONPATH=. pytest" not in source
+
+
 @pytest.fixture(scope="module")
 def inventory() -> dict[str, object]:
     return generate_effective_policy_rule_inventory(ROOT)

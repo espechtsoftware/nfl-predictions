@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 14:36 CDT
+## Current state — 2026-08-21 14:46 CDT
 
 ### Corpus retrieval engine is focused-green; exact cloud task 0 is pending
 
@@ -56,8 +56,9 @@ agent or developer:
   score-vector census.
 - Focused engine validation is 17/17 green:
   `.venv/bin/python -m pytest -q tests/test_corpus_retrieval_engine.py`.
-  The exact-input publication suite is 5/5 green and the reuse-only transport
-  suite is 24/24 green. Python compile, shell syntax, CLI smokes, Cloud Build
+  The exact-input publication suite is 5/5 green, the reuse-only transport
+  suite is 24/24 green, and the effective-policy source-import suite is 16/16
+  green. Python compile, shell syntax, CLI smokes, Cloud Build
   YAML parsing, and `git diff --check` are green.
   Current SHA-256 values are
   `2e9a62874090f4515c97ca627057c5e3d631484337c4096278c605f8e0ff22ae`
@@ -128,8 +129,14 @@ agent or developer:
   checks the repository Cloud Build file against every required build fragment.
   The canceled build is permanently ineligible. Replacement direct-Git build
   `38e6940f-8e29-4ff4-830f-3dca13c5337b` was submitted from clean temporary
-  checkout `/tmp/corpus-retrieval-build.XPKXQE`, resolves exact commit
-  `198bb006b6e73d7c0506e36ef5ddae60972ecaa8`, and is currently `WORKING`.
+  checkout `/tmp/corpus-retrieval-build.XPKXQE` and resolved exact commit
+  `198bb006b6e73d7c0506e36ef5ddae60972ecaa8`, but was canceled at 14:44 CDT
+  after the full suite exposed the pre-existing src-layout test-import defect:
+  `PYTHONPATH=.` loaded the installed wheel instead of the pinned checkout for
+  the new effective-policy inventory tests. `PYTHONPATH=src` makes all 16 tests
+  pass, and a repository-config regression now pins that exact setting. This
+  second canceled build is also permanently ineligible; one repaired clean
+  direct-Git build remains to be submitted.
 - A prior outcome-blind engineering prototype over the exact task-0 shapes
   found 1,276 source rows, 585 unique lineups, 27,117 strict-`>200` events,
   581 lineups with an event, and 9,534 worlds with an event. These are
@@ -162,9 +169,9 @@ agent or developer:
   250 used players, five exact 10,000-world artifacts, and no realized-outcome
   field. All source-lock/R0--R4 local bytes match their frozen generations,
   byte counts, and SHA-256 values.
-- Next concrete action: require build
-  `38e6940f-8e29-4ff4-830f-3dca13c5337b` to succeed, publish/reopen the exact
-  create-once input suite against its immutable digest, build canonical runtime
+- Next concrete action: commit/push the src-layout Cloud Build repair, submit
+  one clean direct-Git replacement, require it to succeed, publish/reopen the
+  exact create-once input suite against its immutable digest, build canonical runtime
   IAM evidence, run immediate all-region scheduler and namespace censuses,
   permanently
   park the existing idle Cloud Run job `atlas-minimal-c-s2023-w1-v1` on the
