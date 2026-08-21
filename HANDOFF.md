@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 01:21 CDT
+## Current state — 2026-08-21 01:26 CDT
 
 ### A7-v1 close-only recovery and fresh A7-v2 repair are source-ready
 
@@ -354,6 +354,31 @@ agent or developer:
   `/home/erich/nfl-panels/lr8-training-source-smoke.log` remain active. Do not
   launch another execution or inspect a partial result body; let this watcher
   reach strict terminal metadata and own the generation-pinned harvest.
+- That watcher reached strict terminal failure at
+  `2026-08-21T06:23:07.712084Z`: execution
+  `atlas-md-prefix-r4-smoke-wqzpc` had exactly one failed task, zero retries,
+  and container exit 1. The watcher recorded canonical failure disposition
+  `terminal-failed-no-relaunch-no-result-read` and exited; execution-metadata
+  SHA-256 is
+  `2c357f17410f61868657a55ea14206641054d1da06f165f0cd65c620b0933ca6`
+  and failure-closure SHA-256 is
+  `79d496df434dbe007041cc51a356052ff15a5069ce0059d3418aa00a6f1d2636`.
+  Terminal logs identify the exact source-boundary defect before any solve or
+  final smoke publication: a catalog salary scalar reached
+  `PlayerSpec.from_mapping`, whose Python-only strict integer validator raised
+  `ResidualWorldError: player salary must be an integer`; the exact runtime
+  scalar class remains part of the bounded v2 diagnosis.
+  Four create-once outcome-blind input extracts exist under the failed prefix:
+  `catalog.json` generation `1787293377280423` (61,669 bytes),
+  `incumbents.json` generation `1787293377531751` (43,143 bytes),
+  `pit-panel-2019.json` generation `1787293381874831` (32,262,213 bytes), and
+  `tabpfn-2019.json` generation `1787293383343434` (105,490 bytes), each at
+  metageneration 1. There is no `smoke-manifest.json` or
+  `smoke-solve-freeze.json`. No realized target/candidate outcome or historical
+  lease was read. Attempt v1 is permanently closed: never relaunch, overwrite,
+  delete, or treat those partial extracts as a passing source. A bounded v2
+  identity must repair only exact non-boolean integer-scalar handling, preserve
+  all scientific mechanics, rebuild, and pass a fresh outcome-blind smoke.
 - The smoke transport, dashboard/build integration, 70-cell pure sharding
   core, focused tests, and milestone record are committed at
   `8a76096aa19c69f5bf5b4d7e2a7b84a06b893257`.
@@ -854,20 +879,19 @@ agent or developer:
   unmocked producer-to-settlement receipt-chain smoke. No cloud/data/outcome
   read or mutation occurred.
 
-**Scientific queue and next concrete action.** Keep the two independent lanes
-serialized only where required. First commit/push the exact LR8 smoke
-preparation receipts, then start its dedicated watcher in a persistent session;
-it owns exactly one score-free 2019-W1/R0 execution with `maxRetries=0`, and an
-ambiguous or failed launch is never retried. If its terminal harvest and cell-0
-parity pass, integrate the already source-green 70-cell full-source transport
-into Docker/Cloud Build/dashboard, rebuild from an exact pushed source, and
-prepare the historical 2019/2021 source census. In parallel, let repaired A7
-build `f500c3ed-1960-427a-a415-2f4a4bff804b` reach terminal; only after exact
-success manually create and inspect its first v2 preflight claim before giving
-the later smoke/support stages to the watcher. Do not inspect partial metrics,
-launch the unlicensed exact-one/legal-soft drafts, use broad `deploy_jobs.sh`,
-or create/delete a Cloud Run job. Production remains unchanged until the
-registered historical evidence licenses a bounded challenger.
+**Scientific queue and next concrete action.** Keep the independent lanes
+serialized only where required. LR8 smoke v1 is terminal-failed and closed;
+freeze a fresh v2 identity around the narrow exact-integer-scalar repair, run
+focused poison tests, rebuild from exact pushed source, and prepare/launch one
+new score-free 2019-W1/R0 smoke. Only a strict v2 pass and prepared-cell-0
+parity may unlock Docker/Cloud Build/dashboard integration of the already
+source-green 70-cell full-source transport. In parallel, let repaired A7 build
+`f500c3ed-1960-427a-a415-2f4a4bff804b` reach terminal and retain its exact test
+failures or success; only an exact success may create the first v2 preflight
+claim. Do not bypass either full-test gate, inspect partial metrics, relaunch a
+closed attempt, launch the unlicensed exact-one/legal-soft drafts, use broad
+`deploy_jobs.sh`, or create/delete a Cloud Run job. Production remains
+unchanged until registered historical evidence licenses a bounded challenger.
 
 ## Prior state — 2026-08-20 08:37 CDT
 
