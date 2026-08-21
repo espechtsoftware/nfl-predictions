@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-20 20:56 CDT
+## Current state — 2026-08-20 21:22 CDT
 
 ### A7-v1 close-only recovery and fresh A7-v2 repair are source-ready
 
@@ -81,15 +81,31 @@ agent or developer:
   literal false; no historical look or lease was consumed.
 - Retained v1 evidence and release closure were committed/pushed in
   `b3e18f550f6b2cd67c5105b27686dd0e45ec1fb6`. Exact direct-Git A7-v2 build
-  `f8a01f72-0bb6-4301-be68-f194200778bf` is now `WORKING` from that resolved
-  source with requested tag `a7-v2-b3e18f5-20260820`. It was created at
-  `2026-08-21T02:06:48.121454664Z`, started at
-  `2026-08-21T02:07:43.346555545Z`, and has the registered 10,800-second
-  timeout. No Cloud Run update, v2 claim, or preflight has occurred.
-- Exact next action: monitor this build through all tests, image construction,
-  and container smoke. Only after exact `SUCCESS`, source/digest validation,
-  and an idle/unscheduled reused-job census may v2 create its fresh claim and
-  begin its one new outcome-blind smoke.
+  `f8a01f72-0bb6-4301-be68-f194200778bf` used that resolved source and requested
+  tag `a7-v2-b3e18f5-20260820`. Its full suite reached 51%, but at 23% the new
+  close-only test module emitted exactly one failure and twelve setup errors.
+  A clean `git archive` reproduction established one common cause: the test
+  harness called `git show` for v1 ancestor `96f4487...`, while an exact Cloud
+  Build source archive correctly contains the submitted tree but not the full
+  ancestor-object database. The production closer/release was not implicated.
+  The already-invalid build was explicitly cancelled at
+  `2026-08-21T02:21:25.770752Z`; step 0 is `CANCELLED` and image/smoke remained
+  `QUEUED`, so it produced no deployable image and must not be reused.
+- The mocked Git-loader seam is now archive-hermetic: deterministic test blobs
+  exercise source-hash rejection without requiring unavailable Git history,
+  while the retained v1 ledgers/contracts remain the real positive evidence.
+  The repaired test SHA-256 is
+  `777c7ffbc431412e31f342a46cf0b196d3c609a1ff69f07631aafe6404ec0504`.
+  The focused close-only suite is 14/14 green, and a source archive with no
+  `.git` directory independently completed both real-evidence validation and
+  create-once/idempotent closure. Production code and frozen science are
+  unchanged. No Cloud Run update, v2 claim, or preflight has occurred.
+- Exact next action: commit/push the test-only archive repair, launch one full
+  direct-Git replacement build from that exact commit, and require every test,
+  image-build, and container-smoke step to pass. Only after exact `SUCCESS`,
+  source/digest validation, and the already-green idle/unscheduled reused-job
+  census may v2 create its fresh claim and begin its one new outcome-blind
+  smoke.
 
 ### A2a and B1 one-shot historical arms are closed; neither licenses adoption
 

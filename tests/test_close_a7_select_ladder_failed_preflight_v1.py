@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 from datetime import datetime, timezone
+from hashlib import sha256
 import json
 from pathlib import Path
 import shutil
@@ -157,7 +158,9 @@ class FakeStorage:
 
 
 class Harness:
-    def __init__(self, tmp_path: Path) -> None:
+    def __init__(
+        self, tmp_path: Path, source_blobs: dict[str, bytes],
+    ) -> None:
         self.root = tmp_path / "repo"
         self.out = (
             self.root / "reports/a7-select-ladder-preflight-runs"
@@ -184,10 +187,7 @@ class Harness:
             (self.out / "job-claim-receipt.json").read_text(encoding="utf-8")
         )["claim"]
         self.storage = FakeStorage(_canonical(claim))
-        self.source_blobs = {
-            relative: close_v1._git_blob(ROOT, close_v1.CODE_SHA, relative)
-            for relative in close_v1.V1_SOURCE_SHA256
-        }
+        self.source_blobs = source_blobs
 
     def git_loader(self, _root: Path, code_sha: str, relative: str) -> bytes:
         assert code_sha == close_v1.CODE_SHA
@@ -208,13 +208,46 @@ class Harness:
         return close_v1.close(**options)
 
 
+def _hermetic_source_blobs() -> dict[str, bytes]:
+    return {
+        relative: f"hermetic-v1-source:{relative}\n".encode()
+        for relative in close_v1.V1_SOURCE_SHA256
+    }
+
+
+def _patch_hermetic_source_hashes(
+    monkeypatch: pytest.MonkeyPatch, source_blobs: dict[str, bytes],
+) -> None:
+    monkeypatch.setattr(
+        close_v1,
+        "V1_SOURCE_SHA256",
+        {
+            relative: sha256(raw).hexdigest()
+            for relative, raw in source_blobs.items()
+        },
+    )
+
+
 @pytest.fixture
-def harness(tmp_path: Path) -> Harness:
-    return Harness(tmp_path)
+def harness(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Harness:
+    # Cloud Build receives an exact source archive, not the repository's full
+    # ancestor-object database.  Keep the mocked closure tests hermetic while
+    # the real retained-evidence test below continues to exercise the frozen
+    # production identities and receipts.
+    source_blobs = _hermetic_source_blobs()
+    _patch_hermetic_source_hashes(monkeypatch, source_blobs)
+    return Harness(tmp_path, source_blobs)
 
 
-def test_real_retained_local_evidence_is_exact() -> None:
-    evidence = close_v1._validate_local_evidence(SOURCE_OUT)
+def test_real_retained_local_evidence_is_exact(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source_blobs = _hermetic_source_blobs()
+    _patch_hermetic_source_hashes(monkeypatch, source_blobs)
+    evidence = close_v1._validate_local_evidence(
+        SOURCE_OUT,
+        git_loader=lambda _root, _commit, relative: source_blobs[relative],
+    )
     assert evidence["build"]["id"] == close_v1.BUILD_ID
     future_execution_spec = (
         evidence["job_after"]["spec"]["template"]["spec"]
