@@ -20,12 +20,14 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 18:10 CDT
+## Current state — 2026-08-21 18:20 CDT
 
-### Corpus task 0 scored successfully; terminal ULP replay amendment is pending
+### Corpus task 0 is terminal-accepted; never relaunch it
 
 - Branch `corpus-retrieval-continuation-v1` is pushed through
-  `bfe2e4882f0b51a5c2fe62885e934b73077b0a76`. Dedicated continuation Cloud
+  ULP-replay amendment commit
+  `61d444ac2a2aa6ec7b84768fda2cfd98b248974d`; this terminal handoff update is
+  the immediately following commit. Dedicated continuation Cloud
   Build `1a1e95f2-29af-4102-acfc-dc62b0426f31` is terminal `SUCCESS` at that
   exact source and produced accepted immutable image
   `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:ba9dbc9ccf51fa74e2e49d90d4f2856885fe5183cc738fbc0b061ad31ae008e4`.
@@ -65,19 +67,34 @@ agent or developer:
   `8.881784197001252e-16`. The worker used Python 3.11.16/NumPy 2.4.6; even an
   exact local package/ABI match cannot reproduce the Cloud CPU's BLAS
   reduction order.
-- The pending narrow amendment retains both redundancy artifacts' exact
+- The narrow amendment retains both redundancy artifacts' exact
   self-hashes and requires every structural field byte-exact, while allowing
   only `pearson_score_correlation` absolute drift `<=1e-15` with relative
   tolerance zero and finite approximately-`[-1,1]` values. A focused test
   accepts a one-ULP change and rejects excessive or structural changes; the
   actual published/rebuilt artifacts pass this comparator. No full suite was
-  run.
-- Exact next action: commit and push this narrowly tested ULP amendment with
-  this handoff, then rerun only the terminal watcher/finisher against the
-  already bound successful execution. Do not launch or score again. Accept
-  metrics only after `finish.json`, batch completion, terminal receipt, and
-  exact final output inventory are all present; then record their identities
-  here in a follow-up commit.
+  run. A second replay check proved all 29,250,000 source-reconstructed scores
+  exactly equal. Python 3.14 differed only in 273 lineup `projection` metadata
+  sums because Python 3.12 changed built-in float summation; the finisher used
+  the image's exact Python 3.11.16 and reproduced all 585 values byte-exact.
+- Terminal acceptance is complete. Local `finish.json` is
+  `corpus-retrieval-transport-finish/v1`, binds execution UID
+  `5afb04b5-8154-4a08-b98d-e88e0a8ef111`, and proves generation-pinned replay,
+  26 exact final objects, final inventory SHA-256
+  `754b67bfb2d7125e537006784582160d10f834ba7c8ca9c3644949e7151c20e4`,
+  no realized outcomes, and the deployment still parked. Batch completion is
+  generation `1787354348497388`, 2,064 bytes, SHA-256
+  `e8b48c98415b9eeaabbc8407ba963831c06abddcd148350faf379d70c25bbb7b`.
+  Terminal receipt is generation `1787354391156959`, 10,047 bytes, SHA-256
+  `515522df207d263ba77a47c5d2ce1928ed886d4247944a2be38421568cbb5f3c`.
+  The reused job is observed generation 16 and remains on the immutable image
+  with args `scripts/run_corpus_retrieval_transport.py,parked`.
+- Exact next action: do not rerun task 0. Integrate this continuation branch
+  into `main` without staging unrelated dirty work, retain the accepted score
+  evidence, then use it as the immutable retrieval foundation for the
+  separately governed parametric/Neo4j research expansion. The larger suite
+  must use new run IDs and preserve manual serial launch/no-auto-retry until
+  its dedicated build and IAM gates are accepted.
 
 ## Prior state — 2026-08-21 17:28 CDT
 
