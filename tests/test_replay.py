@@ -22,6 +22,47 @@ def test_replay_is_point_in_time(proj, small_panel):
     assert proj.proj_p10.le(proj.proj_p90 + 1e-9).all()
 
 
+def test_replay_include_actual_default_matches_explicit_true(small_panel):
+    kwargs = dict(
+        season=2022, n_sims=20, num_boost_round=2, seed=91,
+        return_draws=True,
+    )
+    default_frame, default_draws = replay.replay_projections(
+        small_panel, **kwargs,
+    )
+    explicit_frame, explicit_draws = replay.replay_projections(
+        small_panel, **kwargs, include_actual=True,
+    )
+    pd.testing.assert_frame_equal(default_frame, explicit_frame)
+    assert np.array_equal(default_draws, explicit_draws)
+    assert "actual" in default_frame
+
+
+def test_replay_outcome_blind_without_y_column(small_panel):
+    panel = small_panel.drop(columns=["y_dk_points"])
+    frame, draws = replay.replay_projections(
+        panel, season=2022, n_sims=20, num_boost_round=2, seed=91,
+        return_draws=True, include_actual=False,
+    )
+    assert "actual" not in frame
+    assert len(frame) == (panel.season == 2022).sum()
+    assert draws.shape == (len(frame), 20)
+    assert draws.dtype == np.float32
+
+
+@pytest.mark.parametrize("value", [1, np.bool_(True), None, "false"])
+def test_replay_include_actual_requires_literal_bool(value):
+    with pytest.raises(ValueError, match="literal bool"):
+        replay.replay_projections(
+            pd.DataFrame(), season=2022, include_actual=value,
+        )
+
+
+def test_replay_default_requires_y_column():
+    with pytest.raises(ValueError, match="requires y_dk_points"):
+        replay.replay_projections(pd.DataFrame(), season=2022)
+
+
 def test_role_snapshot_fields_survive_projection_and_slate_build(small_panel):
     """The snapshot writer cannot audit a feature dropped by replay plumbing."""
     panel = small_panel.copy()

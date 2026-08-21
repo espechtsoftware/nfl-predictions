@@ -77,6 +77,7 @@ def replay_projections(
     seed: int = 0,
     widen: bool = True,
     return_draws: bool = False,
+    include_actual: bool = True,
 ) -> pd.DataFrame | tuple[pd.DataFrame, np.ndarray]:
     """Project every (player, week) row of `season` with models trained on
     strictly earlier seasons. Rows carry point-in-time features, so no
@@ -84,7 +85,14 @@ def replay_projections(
 
     return_draws=True also returns the raw correlated draw matrix
     (row-aligned with the output frame, float32) for tail-objective entry
-    selection."""
+    selection. ``include_actual=False`` is the outcome-blind source seam: it
+    neither requires nor reads the target season's ``y_dk_points`` column and
+    omits ``actual`` from the returned frame. The default preserves the
+    historical replay schema exactly."""
+    if not isinstance(include_actual, bool):
+        raise ValueError("include_actual must be a literal bool")
+    if include_actual and "y_dk_points" not in panel.columns:
+        raise ValueError("include_actual=True requires y_dk_points")
     cm = components.train(panel, target_season=season, num_boost_round=num_boost_round)
     rows = panel[panel.season == season].reset_index(drop=True)
     if rows.empty:
@@ -231,7 +239,8 @@ def replay_projections(
     out = pd.concat([rows[keep], summary], axis=1)
     if not member_points.empty:
         out = pd.concat([out, member_points.reset_index(drop=True)], axis=1)
-    out["actual"] = rows["y_dk_points"].to_numpy()
+    if include_actual:
+        out["actual"] = rows["y_dk_points"].to_numpy()
     out["naive"] = rows.get("dk_points_l4")  # trailing average, the free baseline
     if return_draws:
         return out, draws_out.astype(np.float32)

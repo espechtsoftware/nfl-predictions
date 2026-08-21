@@ -168,6 +168,16 @@ agent or developer:
   provenance and is absent from solve inputs/hashes. Focused validation is
   34/34 green. Root reran all 63 focused LR8 mechanics/runner/source tests
   together successfully; py_compile and whitespace checks are green.
+- The first real-source prerequisite is now implemented in
+  `replay_projections(include_actual=False)` and
+  `src/nfl_dfs/research/lr8_replay_source.py`. The default remains literal
+  `True` and preserves every existing replay column; the false path never
+  indexes target `y_dk_points` and omits `actual`. The adapter requires exact
+  prior-plus-target seasons, null/absent target outcome fields, R0/R1 baseline
+  seeds, exact skill/catalog identity, and static canonical DST
+  `mean_projection` worlds with correlated DST/role worlds literal false. It
+  never calls `build_slates`. Root reran the 24 adapter tests plus seven exact
+  replay-seam tests: 31/31 green. No real query or cloud write occurred.
 - No real outcomes, BigQuery rows, GCS bodies, Cloud Run job, shared lease, or
   production path were touched by this milestone. The old 35 NPZs contain only
   candidate indices/totals and cannot score novel relaxed rosters. Exact next
