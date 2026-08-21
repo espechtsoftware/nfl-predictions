@@ -160,6 +160,17 @@ agent or developer:
   watcher in a persistent foreground session from only the dedicated worktree.
   It owns the one smoke, one support census, freeze, and—only after both
   outcome-blind gates pass—the one historical exact-80 comparison.
+- The sole A7-v2 outcome-blind real-artifact smoke then completed strict
+  terminal success as execution `atlas-minimal-c-s2023-w1-v1-b6lpq` at
+  `2026-08-21T09:41:06.440624Z`, succeeded=1 with no failed/cancelled/retried
+  task. The generation-pinned result and terminal receipts replayed exactly;
+  disposition is `smoke-passed`, preflight receipt SHA-256 is
+  `582a206427745cc3445bf5beaf659194ff0c7d2731d3485342ab1396452120ed`,
+  and local `smoke/finish.sha256` SHA-256 is
+  `0933009ef16995e4c01d1dcc09dac537c69f848af0127092bc3f2c0821bfdf98`.
+  It read no realized outcome and grants no shadow or production license. The
+  same registered watcher has proceeded to the one score-free support census;
+  never relaunch the smoke.
 
 - Branch `main`, historical pushed parent milestone
   `1cbbc3d88e199bd9078e7059ef13b1d9ef76df64` (pushed to `origin/main`); the

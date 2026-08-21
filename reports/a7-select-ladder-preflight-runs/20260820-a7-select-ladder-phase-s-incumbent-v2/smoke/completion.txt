@@ -1,0 +1,15 @@
+validated_at=2026-08-21T09:41:30.175967+00:00
+run_id=20260820-a7-select-ladder-phase-s-incumbent-v2
+mode=real-artifact-smoke
+strict_terminal_harvest=true
+preflight_receipt_sha256=582a206427745cc3445bf5beaf659194ff0c7d2731d3485342ab1396452120ed
+terminal_receipt_sha256=49772b747a0e12935c19e3cb2d409d316e0c0143501457df37028fcf6bc5c7a6
+terminal_object_sha256=49772b747a0e12935c19e3cb2d409d316e0c0143501457df37028fcf6bc5c7a6
+terminal_object_generation=1787305289547876
+disposition=smoke-passed
+support_passed=none
+uses_realized_outcomes=false
+actual_score_query_executed=false
+production_change_licensed=false
+production_law_scorefree_transfer_licensed=false
+prospective_shadow_licensed=false
