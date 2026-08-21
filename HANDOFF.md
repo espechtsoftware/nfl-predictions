@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 15:53 CDT
+## Current state — 2026-08-21 15:58 CDT
 
 ### Corpus retrieval engine is focused-green; exact cloud task 0 is pending
 
@@ -281,6 +281,28 @@ agent or developer:
   expansion image/build, source/batch input publication, real-artifact smoke,
   and the governed Cloud Run delivery/launch wrapper for the existing
   source-authority plan; the last gap is being implemented separately.
+- The score-free batch foundation preparer is now locally focused-green. It
+  consumes, but cannot manufacture, both accepted prerequisites: retrieval
+  task 0 is replayed through the frozen core with `replay=True` across its
+  complete suite/snapshot/result/completion/terminal/sidecar graph, and the
+  source publication is semantically rebuilt from its registration, three
+  query captures, later-source freeze, salary diagnostic, completion, and all
+  270 generation-pinned NPZ bodies without LIST. It derives exact top-200
+  world schedules per R0--R4 block, regenerates the effective-policy
+  inventory and 11 common-law bodies, and publishes either an isolated
+  one-task smoke or the complete 54-task manifest/evidence foundation. The
+  preparer namespace is separate from the clean batch output prefix; optional
+  task-request objects never pollute the batch finisher's exact inventory.
+  Execute mode accepts a local preplan or its exact GCS
+  URI/generation/SHA/bytes identity, with the literal/environment gate before
+  client construction. Focused validation is 9/9 green and Python compile
+  plus whitespace checks pass. SHA-256 values are
+  `35715455231f84cfacd56968c19fc306d2160275069ae9d335cdea617e67ec6c`
+  (preparer) and
+  `559802cdf5e628907a3c9c546b48228c5030ea917eb18774256fa202510b6dfb`
+  (test). No GCS write, source query, solver run, retrieval execution, or
+  batch launch occurred. The live source publication and accepted retrieval
+  receipt remain required inputs, and image/IAM integration remains open.
 - Next concrete action: require clean direct-Git build
   `544a65df-2a37-4fb8-b207-870dabee263c` to succeed,
   publish/reopen the
