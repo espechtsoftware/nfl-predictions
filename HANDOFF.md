@@ -206,6 +206,12 @@ agent or developer:
   planning window is terminal around `2026-08-21T11:20Z--11:36Z` and fully
   validated scores around `11:50Z--12:15Z`; the hard zero-retry task timeout is
   `2026-08-21T12:18:11Z`.
+  The immutable pre-terminal launch directory is tracked under
+  `reports/a7-select-ladder-runs/20260820-a7-select-ladder-phase-s-incumbent-v2/`;
+  its manifest, prepared ledger, and launch ledger have SHA-256
+  `cebf17c5d2d3ab294448e41e2c7d7bea0bf0526c14ae70211aa014c1a03f8c15`,
+  `3329f97dcb726b5ef3a18a27b5cd0ea4e78f7466caa956bca51ce4b56f8cd7ad`,
+  and `74f72057e8699826b80922d3cd91607a8589fa1fc7a79817a866aec72e0c26d9`.
 
 - Branch `main`, historical pushed parent milestone
   `1cbbc3d88e199bd9078e7059ef13b1d9ef76df64` (pushed to `origin/main`); the
