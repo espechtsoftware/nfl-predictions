@@ -891,3 +891,70 @@ I see `reports/a7-select-ladder-preflight-recovery-runs/20260821-a7-v2-empty-pre
 was created. Recording the stopped shell is right. The substantive point
 stands: unless the expected-steps source is pinned to the build's commit,
 the next concurrent transport addition reproduces this failure.
+
+---
+
+## Addendum 10 (2026-08-21): A7 gate fix verified; LR8 training source checked and cleared
+
+### The Addendum 9 fix is correct, and better than what I suggested
+
+`f389f33` replaces the hard-coded `_expected_cloud_build_steps()` with
+extraction from the **submitted Git source**: the finisher parses the
+committed `cloudbuild.yaml` bytes for that build's commit against a
+strict structural contract (`_CLOUDBUILD_CONTRACT`), pulls the literal
+`full-test-suite` and `smoke-atlas-mvp-runner` blocks out of it, and
+substitutes `${_IMAGE}`. Combined with the existing
+`_git_archive_sha()` binding, the gate now asserts exactly what it
+should — *this image was built from this committed source by this
+pipeline* — and is immune to later unrelated `cloudbuild.yaml` edits.
+
+This is stronger than my suggestion. I proposed reading the file at the
+build's commit; they additionally pin the *structure* via regex, so a
+malformed or reordered pipeline still fails closed rather than being
+silently accepted. The cross-experiment coupling is resolved: LR8, B1,
+A2a and any future lane can now add smoke lines without invalidating
+other lanes' prebuilt images.
+
+### LR8 training-source check: my concern does not apply
+
+I flagged internally that LR8 trains on `{2019, 2021}` — seasons my
+earlier review recorded as unusable until rebuilt (slate mixing, DST
+alias omission dropping 228 rows in 2019 and 250 in 2021, Thursday DST
+duplication). Every 2019 panel visible in `slate_player_features` from
+the 08-05 through 08-08 era is documented invalid or superseded, so this
+was worth checking before the fit is frozen.
+
+**It checks out.** LR8 pins
+`CANONICAL_PANEL_ID = "20260811-pitclean-e80-k1-role12union-a12ab31"`,
+whose lineage is documented in
+`reports/2026-08-11-pit-clean-tier1-revalidation.md`: frozen 08-11 after
+an outcome-free warehouse reconciliation gate, generated at application
+code `a12ab31`, and explicitly **"seasons 2019, 2021, 2022, 2023, 2024
+and 2025, Sunday main only"** — which is precisely the defect class
+(all-NFL-week slate mixing) that invalidated the earlier panels, and it
+postdates the 08-07 alias corrections. The warehouse counts match the
+protocol's cell lattice exactly: 2019 has 17 weeks and 2021 has 18, for
+the stated 35 season-week cells.
+
+What I verified: the panel's documented lineage, its Sunday-main-only
+scope, its post-correction date, and its exact week counts. What I did
+not independently verify: that the 228/250 DST alias rows are present in
+this specific panel. If the owning agent wants belt-and-braces before
+freezing the fit, a one-query DST row count for 2019/2021 against the
+pre-correction panel would settle it; on the documented lineage alone I
+consider the concern closed.
+
+### Design note, positive
+
+Using `{2019, 2021}` for *training only* — with 2023–2025 reserved for
+the single evaluation read, 2020 absent and 2022 excluded for the
+documented salary gap — is the right use of seasons that cannot serve as
+scored test beds. It extracts value from the deep history without
+letting its known construction limits contaminate a scored comparison.
+
+I also want to credit the protocol's own honesty, which is unusual and
+correct: *"LR8 was designed after aggregate winner and B1 2023--2025
+evidence had already been reviewed, so its one 2023--2025 evaluation is
+disciplined historical decision evidence, not an untouched statistical
+holdout or causally independent proof."* That is exactly the framing
+this program's history demands, stated before any result exists.
