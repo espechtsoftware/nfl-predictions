@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 14:50 CDT
+## Current state — 2026-08-21 14:54 CDT
 
 ### Corpus retrieval engine is focused-green; exact cloud task 0 is pending
 
@@ -138,9 +138,14 @@ agent or developer:
   pass, and a repository-config regression now pins that exact setting. This
   second canceled build is also permanently ineligible. Repaired clean
   direct-Git build `210b1f7d-c37a-4201-b6eb-66e9686c2205` resolved exact
-  commit `17dc09599225a6c9505359d88569db6b82ea5ec7` and started its full test step
-  at 14:47 CDT. It was still `WORKING` at the last 14:50 CDT observation; do
-  not submit another build while it runs.
+  commit `17dc09599225a6c9505359d88569db6b82ea5ec7`, but was canceled at 14:53 CDT
+  after its progress stream exposed one deterministic failure at test 249.
+  The old Atlas interaction-parity regression still required the superseded
+  literal `PYTHONPATH=. pytest`; it now requires `PYTHONPATH=src pytest` and
+  rejects the installed-wheel path. A whole-test-tree search found no other
+  assertion applying the obsolete literal to repository `cloudbuild.yaml`.
+  The repaired five-test Atlas file and the 16-test effective-policy inventory
+  are green. This third canceled build is permanently ineligible.
 - A prior outcome-blind engineering prototype over the exact task-0 shapes
   found 1,276 source rows, 585 unique lineups, 27,117 strict-`>200` events,
   581 lineups with an event, and 9,534 worlds with an event. These are
@@ -173,7 +178,8 @@ agent or developer:
   250 used players, five exact 10,000-world artifacts, and no realized-outcome
   field. All source-lock/R0--R4 local bytes match their frozen generations,
   byte counts, and SHA-256 values.
-- A separate default-off larger-suite milestone now includes the parametric
+- Commit `247d482` (`Add corpus legal-feasibility authority`) adds a separate
+  default-off larger-suite milestone with the parametric
   manifest v2, the outcome-blind legal-feasibility producer, and an independent
   raw-authority replay verifier. It freezes the incumbent plus six relaxation
   arms, binds each task to the artifact-source-authority completion/task row,
@@ -186,8 +192,9 @@ agent or developer:
   launch authority: transport/terminal publication and one real-artifact
   end-to-end smoke remain open, and Neo4j remains a separate rebuildable
   append-only projection with no execution or policy authority.
-- Next concrete action: require build
-  `210b1f7d-c37a-4201-b6eb-66e9686c2205` to succeed, publish/reopen the
+- Next concrete action: commit/push the stale-test build repair, submit one
+  clean direct-Git replacement from that exact commit, require it to succeed,
+  publish/reopen the
   exact create-once input suite against its immutable digest, build canonical runtime
   IAM evidence, run immediate all-region scheduler and namespace censuses,
   permanently

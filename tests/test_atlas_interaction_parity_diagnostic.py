@@ -35,9 +35,9 @@ def test_interaction_parity_protocol_and_source_are_frozen() -> None:
     assert sha256(build_config.read_bytes()).hexdigest() == (
         "950db566469aa645efda634370e1f6fe7554db6317537e3a820e9161bec8f93e"
     )
-    assert "PYTHONPATH=. pytest" in (
-        ROOT / "cloudbuild.yaml"
-    ).read_text(encoding="utf-8")
+    repository_build = (ROOT / "cloudbuild.yaml").read_text(encoding="utf-8")
+    assert "PYTHONPATH=src pytest" in repository_build
+    assert "PYTHONPATH=. pytest" not in repository_build
     repair = (
         ROOT / "reports/2026-08-16-atlas-continuous-build-path-repair.md"
     ).read_text(encoding="utf-8")
