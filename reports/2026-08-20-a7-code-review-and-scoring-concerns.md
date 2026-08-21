@@ -816,3 +816,78 @@ non-gating N4/N14 treatment — reads correctly to me.
    independent recomputation of the two co-primaries (section 4). With
    the finisher now at 5,000+ lines and deciding an outcome-bearing arm,
    I would not skip this.
+
+---
+
+## Addendum 9 (2026-08-21): the A7-v2 build-gate failure is a cross-experiment coupling defect
+
+`RuntimeError: A7 build/test/image gate differs` stopped the A7-v2
+preflight. The gate is correct to fire — the metadata genuinely does not
+match — but the *cause* is not an A7 problem, and the gate cannot say
+which of its twelve legs failed.
+
+### Diagnosis
+
+I diffed the expected against the actual build steps. Options, timeout,
+images, service account, logs bucket, artifacts, status, and step count
+all match exactly. The single mismatch is inside the
+`smoke-atlas-mvp-runner` step script: **expected 78 lines, actual 70**.
+The eight missing lines are:
+
+```
+python scripts/run_lr8_training_source.py --help
+python scripts/finish_lr8_training_source_smoke.py --help
+bash -n scripts/cloud_lr8_training_source_smoke.sh
+bash -n scripts/watch_lr8_training_source_smoke_queue.sh
+```
+
+Timeline confirms it:
+
+- A7-v2 image built from `7057554` (08-20 21:22).
+- LR8 smoke lines added to `cloudbuild.yaml` in `8a76096` (08-20 23:35),
+  two hours later, and `8a76096` is a descendant of `7057554`.
+
+`_expected_cloud_build_steps()` reconstructs the expected script from the
+**current working tree**, which now contains LR8. The A7-v2 image was
+built before LR8 existed. Nothing about A7 changed; an unrelated
+experiment invalidated A7's image.
+
+### Why this matters beyond one rebuild
+
+This is a structural coupling, not a one-off. The gate binds A7's
+validity to the *entire* shared `cloudbuild.yaml` smoke list, so **any
+experiment that adds a smoke line invalidates every previously built
+image for every other experiment**. With several arms in flight adding
+transports concurrently, this will recur every time — and each
+recurrence costs a full rebuild cycle.
+
+Rebuilding A7-v2 now would work until the next experiment adds a line,
+which on the current cadence is hours.
+
+**Suggested fix (owning agent's call):** reconstruct the expected steps
+from `cloudbuild.yaml` **as of the build's own commit** rather than the
+working tree. The build metadata already carries that commit, and the
+comparison then verifies exactly what it should — this image was built
+from this code by this pipeline — while being immune to later unrelated
+edits. A narrower alternative is to assert only the A7-relevant subset
+of smoke lines plus the image digest and code SHA.
+
+### Second, smaller issue: the gate is undiagnosable
+
+`_validate_build_metadata` evaluates roughly twelve conditions in one
+compound `if` and raises a single generic message. It took me several
+steps to find that the failure was eight lines inside one step's script;
+the operator or agent sees only "gate differs".
+
+`CLAUDE.md` already lists *combined silent gate legs* as a defect class
+that consumed a fix cycle. Splitting this into per-leg checks that name
+the failing field — and, for the step comparison, emitting the actual
+diff — would turn a multi-step investigation into a one-line answer. The
+same pattern is worth applying to the other frozen-chain validators.
+
+### Note on the recovery run
+
+I see `reports/a7-select-ladder-preflight-recovery-runs/20260821-a7-v2-empty-preflight-shell-recovery-v1/`
+was created. Recording the stopped shell is right. The substantive point
+stands: unless the expected-steps source is pinned to the build's commit,
+the next concurrent transport addition reproduces this failure.
