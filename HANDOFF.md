@@ -20,7 +20,46 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 18:20 CDT
+## Current state — 2026-08-21 18:28 CDT
+
+### Accepted task-0 score is on main; corpus research dashboard is mounted
+
+- Branch `main`. The accepted task-0 continuation is integrated and pushed
+  through `d648e04e100303965de6fc3525ca0a53cadee20f`; task 0 remains terminal
+  and must never be relaunched. The corpus research dashboard implementation
+  is commit `2c8564ec1915b28d7ed659e75a57f7a8222f7f76`. It mounts the read-only
+  `/corpus-research` page plus status/projection APIs and adds the shared
+  navigation link.
+- The dashboard provides versioned fill/retrieval preset views, strategy
+  lineage, discovery/held-out comparison heatmaps and deltas,
+  coverage-versus-diversity analysis, promotion history, and bounded
+  lineup/player/team/game/winner drilldowns. It revalidates receipt/hash and
+  authority-firewall fields before serving a projection, performs no graph
+  mutation or promotion, and returns not-ready/503 for projection data until
+  a receipt-bound source is configured through
+  `CORPUS_RESEARCH_UI_PROJECTION_PATH` or an injected read-only query reader.
+- Focused validation only, per operator direction: `tests/test_corpus_research_ui.py`
+  is green 5/5; the production app smoke returned 200 for the page and status
+  API and the unconfigured projection API correctly returned 503. Scoped
+  whitespace validation is green. No broad suite, cloud mutation, graph
+  connection, outcome read, or scoring relaunch occurred for this milestone.
+- The operator has closed further investigation of the sub-ULP BLAS replay
+  difference and reprioritized the complete 54-slate by seven-arm execution
+  plus separately governed realized historical grading. The outcome-blind
+  batch must remain immutable; realized scoring is a downstream stage that
+  scores complete generated-unique populations and exact-80 books. Full-field
+  rank/ROI claims remain unavailable unless exact standings and payout
+  authorities are present; they must not be inferred from simulated worlds or
+  winner-only evidence.
+- Exact next action: finish the focused-green parametric transport/build/IAM
+  gate, publish the separate 54-slate source and batch foundations, run one
+  outcome-blind real-artifact smoke, then launch the 54 tasks serially with
+  producer/verifier acceptance. In parallel, complete the one-read realized
+  grader and graph registry loader so accepted simulated and realized metrics
+  become queryable in the dedicated Neo4j/UI path. Do not rerun task 0 or the
+  repository-wide test suite.
+
+## Prior state — 2026-08-21 18:20 CDT
 
 ### Corpus task 0 is terminal-accepted; never relaunch it
 
