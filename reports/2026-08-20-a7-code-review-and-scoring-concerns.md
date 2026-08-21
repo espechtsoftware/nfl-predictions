@@ -958,3 +958,72 @@ evidence had already been reviewed, so its one 2023--2025 evaluation is
 disciplined historical decision evidence, not an untouched statistical
 holdout or causally independent proof."* That is exactly the framing
 this program's history demands, stated before any result exists.
+
+---
+
+## Addendum 11 (2026-08-21): LR8 smoke failure — third instance of one defect class
+
+The LR8 training-source smoke failed terminally
+(`atlas-md-prefix-r4-smoke-wqzpc`, `no_retry=true`). Root cause, from the
+container log:
+
+```
+nfl_dfs.research.residual_world_columns.ResidualWorldError: player salary must be an integer
+```
+
+### Diagnosis
+
+`residual_world_columns._strict_integer` accepts only Python `int` /
+`np.integer` and rejects everything else. But `salary` in
+`nfl_predictions.slate_player_features` is declared **`FLOAT64`**, so
+BigQuery hands the runner a float and strict validation refuses it at the
+source boundary.
+
+The data itself is clean. I checked the exact training population
+(`20260811-pitclean-…`, seasons 2019 and 2021): **11,021 rows, zero NULL
+salaries, and zero non-integral values** — every salary is an exact
+integer stored in a float column. This is purely a type-representation
+mismatch, not a data problem.
+
+### This is the third instance of the same class
+
+1. **A7-v1** stopped because `mean_projection` arrived as SQL `NULL` and
+   strict canonicalization refused non-finite values → repaired with
+   `COALESCE(mean_projection, 0.0)`.
+2. **A7-v2 build gate** failed on a representation mismatch in the
+   expected build steps → repaired by pinning to submitted source.
+3. **LR8 now** fails because a `FLOAT64` column meets an int-only
+   validator.
+
+All three are the same shape: *strict validation at a source boundary
+meets a BigQuery representation that does not match the Python
+expectation.* `CLAUDE.md` frozen-chain rule 4 says to classify and sweep
+the entire class rather than repairing point-wise — and the log already
+records six representation-identity defects that each cost a full fix
+cycle. This is the same tax being paid again, one column at a time.
+
+### Recommendation
+
+The point fix is obvious and legitimate: `CAST(salary AS INT64)` in the
+LR8 catalog SQL, mirroring the A7-v2 `COALESCE` precedent, since the
+values are provably integral. But I would pair it with the sweep:
+
+1. **Inventory the source-boundary contracts.** For every research
+   runner that reads warehouse columns into a strict validator, record
+   the BigQuery declared type beside the Python expectation. `salary`,
+   `mean_projection`, `proj`, `own_est`, and any count column are the
+   obvious candidates — `salary` being `FLOAT64` while every consumer
+   treats it as an integer is a trap that will keep firing.
+2. **Normalize at one place.** A single query-canonicalization helper
+   that casts declared-integer-valued columns and coalesces documented
+   nullable ones, used by every runner, would convert this from a
+   recurring per-arm failure into a one-time contract.
+3. **Add the type assertion to the outcome-blind smoke's purpose
+   statement.** These smokes are catching real defects every single time
+   — which is the system working — but each catch currently costs a
+   build-and-launch cycle because the class is rediscovered rather than
+   swept.
+
+Nothing here is scientific; no LR8 result exists and none is
+invalidated. The smoke did its job before any lease or outcome access,
+which is exactly the design intent.
