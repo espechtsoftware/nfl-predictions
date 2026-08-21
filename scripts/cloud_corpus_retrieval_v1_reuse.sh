@@ -86,6 +86,55 @@ refresh_json() {
   mv "$next" "$output"
 }
 
+refresh_all_region_schedulers() {
+  local output="$1"
+  local next="${output}.next"
+  local locations="${output%.json}-locations.json"
+  local next_locations="${locations}.next"
+  [[ ! -e "$next" && ! -e "$next_locations" && ! -L "$locations" ]] || \
+    die "stale or unsafe all-region scheduler capture"
+  local scratch
+  scratch="$(mktemp -d "$RUN_DIR/.scheduler-census.XXXXXX")"
+
+  gcloud scheduler locations list --project="$PROJECT" --format=json \
+    >"$scratch/locations.raw.json"
+  "$PYTHON" "$TRANSPORT" canonicalize-external-json \
+    --raw "$scratch/locations.raw.json" --output "$next_locations"
+
+  local location
+  while IFS= read -r location; do
+    gcloud scheduler jobs list --project="$PROJECT" \
+      --location="$location" --format=json \
+      >"$scratch/${location}.jobs.json"
+  done < <("$PYTHON" - "$next_locations" <<'PY'
+import json
+import pathlib
+import re
+import sys
+
+rows = json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))
+if not isinstance(rows, list) or not rows:
+    raise SystemExit("Scheduler location census is empty or malformed")
+locations = []
+for row in rows:
+    value = row.get("locationId") if isinstance(row, dict) else None
+    if not isinstance(value, str) or re.fullmatch(r"[a-z0-9-]+", value) is None:
+        raise SystemExit("Scheduler location identity is malformed")
+    locations.append(value)
+if len(locations) != len(set(locations)):
+    raise SystemExit("Scheduler location census repeats a location")
+for value in sorted(locations):
+    print(value)
+PY
+  )
+  jq -s 'add // []' "$scratch"/*.jobs.json >"$scratch/jobs.raw.json"
+  "$PYTHON" "$TRANSPORT" canonicalize-external-json \
+    --raw "$scratch/jobs.raw.json" --output "$next"
+  mv "$next_locations" "$locations"
+  mv "$next" "$output"
+  rm -r -- "$scratch"
+}
+
 identity_args_from_governance() {
   local receipt="$1"
   "$PYTHON" - "$receipt" <<'PY'
@@ -164,8 +213,7 @@ capture_live_census() {
     gcloud run jobs describe "$JOB" --project="$PROJECT" --region="$REGION" --format=json
   refresh_json "$RUN_DIR/executions-current.json" \
     gcloud run jobs executions list --job="$JOB" --project="$PROJECT" --region="$REGION" --format=json
-  refresh_json "$RUN_DIR/schedulers-current.json" \
-    gcloud scheduler jobs list --project="$PROJECT" --location="$REGION" --format=json
+  refresh_all_region_schedulers "$RUN_DIR/schedulers-current.json"
 }
 
 configure_parked() {
@@ -196,8 +244,7 @@ configure_parked() {
     --format=export >"$RUN_DIR/job-before-export.yaml"
   capture_json "$RUN_DIR/executions-before.json" \
     gcloud run jobs executions list --job="$JOB" --project="$PROJECT" --region="$REGION" --format=json
-  capture_json "$RUN_DIR/schedulers-before.json" \
-    gcloud scheduler jobs list --project="$PROJECT" --location="$REGION" --format=json
+  refresh_all_region_schedulers "$RUN_DIR/schedulers-before.json"
   capture_json "$RUN_DIR/build.json" \
     gcloud builds describe "$build_id" --project="$PROJECT" --format=json
 
@@ -391,8 +438,7 @@ watch_bound() {
     gcloud run jobs describe "$JOB" --project="$PROJECT" --region="$REGION" --format=json
   refresh_json "$RUN_DIR/executions-post-terminal.json" \
     gcloud run jobs executions list --job="$JOB" --project="$PROJECT" --region="$REGION" --format=json
-  refresh_json "$RUN_DIR/schedulers-post-terminal.json" \
-    gcloud scheduler jobs list --project="$PROJECT" --location="$REGION" --format=json
+  refresh_all_region_schedulers "$RUN_DIR/schedulers-post-terminal.json"
   local finished_at
   finished_at="$(timestamp_once "$RUN_DIR/finished-at.txt")"
   "$PYTHON" "$TRANSPORT" finish-task "${CONTRACT_ARGS[@]}" \
