@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 15:58 CDT
+## Current state — 2026-08-21 16:34 CDT
 
 ### Corpus retrieval engine is focused-green; exact cloud task 0 is pending
 
@@ -303,6 +303,33 @@ agent or developer:
   (test). No GCS write, source query, solver run, retrieval execution, or
   batch launch occurred. The live source publication and accepted retrieval
   receipt remain required inputs, and image/IAM integration remains open.
+- A post-implementation red-team review found that the committed larger-suite
+  transport is not yet deploy authority despite its original focused-green
+  result. The in-progress uncommitted IAM-v2 patch improves direct policy
+  replay, transitive retrieval-task-0 reopening, build fragments, and inherited
+  attachment clearing, but still requires six closures before launch: fully
+  explored Cloud Asset effective-access evidence (runtime identity and both
+  public principals), read roots derived from frozen upstream prefix claims
+  rather than operator-selected prefixes, whole-producer/verifier GET tracing,
+  a read-only full preflight bound to an externally frozen reused-job name/UID
+  before any job mutation, exact committed Cloud Build step/config binding,
+  and rejection/clearing of all network/Cloud SQL/probe/template attachments.
+  Queue automation remains deferred until those gates are green. The retrieval
+  task-0 path is independent of these findings.
+- An independent live-graph audit found that the Neo4j commit is a sound
+  offline projection foundation, not an operational loader. It does not block
+  task 0 or the 54-task computation, and graph writes must remain
+  post-acceptance. Before any live graph claim, add a generation-pinned GCS
+  transport, accepted retrieval/task/batch-chain replay, mandatory task-0
+  enrichment/correlation/selection sidecars, deployment/TLS/database/instance
+  binding, separate bootstrap/writer/reader privileges, initial-empty and
+  foreign-schema censuses, create-once GCS load receipts, ambiguity recovery,
+  a serial 0--53 loader, and a graph-observed suite finisher. The broader
+  intelligence goal also requires importing the retained 51-winner evidence
+  and adding traversable Player/PlayerSlate/TeamSlate/Game/Slate/roster nodes;
+  full world matrices and raw outcomes remain generation-pinned in GCS only.
+  Governed graph transport implementation is now in progress in separate new
+  files; no endpoint, secret, graph write, or cloud mutation has occurred.
 - Next concrete action: require clean direct-Git build
   `544a65df-2a37-4fb8-b207-870dabee263c` to succeed,
   publish/reopen the
