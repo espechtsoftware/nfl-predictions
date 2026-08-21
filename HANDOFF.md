@@ -24,8 +24,8 @@ agent or developer:
 
 ### A7-v1 close-only recovery and fresh A7-v2 repair are source-ready
 
-- Branch `main`, current pushed source commit
-  `29a810311fa5837e9c3ac93819593e05abe80855` (pushed to `origin/main`). The failed A7-v1 smoke remains
+- Branch `main`, current pushed source milestone
+  `d6b5038d467a11e81497d1c5620a452a153b0101` (pushed to `origin/main`). The failed A7-v1 smoke remains
   permanently closed and must never be relaunched or passed to the v1
   success-only finisher.
 - A new isolated close-only protocol and implementation validate the exact
@@ -229,7 +229,9 @@ agent or developer:
   real terminal-success build whose exact source is `2bec296...`, tag is
   `lr8-smoke-2bec296`, and immutable digest/build metadata pass both unchanged
   A7 and LR8 validators. It grants no LR8 authority, smoke/retry/outcome/lease
-  authority, repair override, or old-build reuse.
+  authority, repair override, or old-build reuse. The extension, fixtures,
+  focused tests, and associated HANDOFF milestone were committed/pushed at
+  `d6b5038d467a11e81497d1c5620a452a153b0101`.
 
 ### LR8 historical legal-relaxation arm has green mechanics and a score-free source contract
 
