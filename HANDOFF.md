@@ -24,11 +24,10 @@ agent or developer:
 
 ### Corpus retrieval engine is focused-green; exact cloud task 0 is pending
 
-- Branch `main`; current parent is
-  `9046ee0fe235af8899d5653ff78c83334f56be7a` (`Review corpus population
-  against the high-score goal`). Full Git and Google Cloud access was restored
-  after the editor restart; selective commit/push of this milestone is in
-  progress. The new retrieval path is deliberately
+- Branch `main`; retrieval milestone commit
+  `2fb3ed25fc81b853435bef8d2338d8b1627e65fb` (`Add governed corpus retrieval
+  engine`) is pushed to `origin/main`. Full Git and Google Cloud access was
+  restored after the editor restart. The new retrieval path is deliberately
   independent of corpus production: it scores the complete unique R0--R4
   lineup union in all 50,000 worlds, retains every strict `score > 200`
   event, and applies four frozen exact-80 selection laws on R0--R3 with R4
@@ -144,9 +143,8 @@ agent or developer:
   DNS resolution and authenticated Google Cloud access are now available.
   The temporary exact R0--R4 local bodies were lost when the editor/container
   restarted and must be reopened from their generation-pinned origins.
-- Next concrete action: selectively commit/push only this retrieval milestone,
-  then provision and independently census the dedicated bucket/identity,
-  execute the two frozen query jobs,
+- Next concrete action: provision and independently census the dedicated
+  bucket/identity, execute the two frozen query jobs,
   stage and reopen exact input generations, make one selective retrieval-only
   commit/push, build an immutable image from that clean commit, permanently
   park the existing idle Cloud Run job `atlas-minimal-c-s2023-w1-v1` on the
