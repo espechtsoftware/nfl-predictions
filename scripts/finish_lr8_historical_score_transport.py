@@ -44,6 +44,8 @@ MEMORY: Final = "32Gi"
 TIMEOUT_SECONDS: Final = "21600"
 LEASE_TMP: Final = "/tmp/lr8-historical-outcome-lease.json"
 VERSION: Final = "lr8-shared-historical-score-transport-v1"
+LABEL_FIT_HANDOFF_SCHEMA: Final = "lr8-label-fit-handoff-v1"
+LABEL_FIT_LOCAL_RECEIPT_SCHEMA: Final = "lr8-label-fit-local-receipt-v1"
 _COMMIT = re.compile(r"[0-9a-f]{40}")
 _BUILD = re.compile(r"[0-9A-Za-z-]{8,80}")
 _GENERATION = re.compile(r"[1-9][0-9]*")
@@ -1389,7 +1391,7 @@ def _validate_earlier_results(
     *, contract: Mapping[str, object], intent: Mapping[str, object],
     loaded: Mapping[str, tuple[dict[str, object], dict[str, object]]],
     input_loader: Callable[[], tuple[dict[str, object], dict[str, object]]],
-) -> dict[str, dict[str, object]]:
+) -> tuple[dict[str, dict[str, object]], dict[str, object]]:
     pin = contract["input"]
     assert isinstance(pin, Mapping)
     input_receipt, input_value = input_loader()
@@ -1421,16 +1423,30 @@ def _validate_earlier_results(
         or attempt.get("historical_outcome_lease") != _expected_lease(intent)
     ):
         raise LR8HistoricalTransportError("earlier result transitive binding differs")
-    return {
+    receipts = {
         name: loaded[name][0] for name in MODES["earlier"].output_names
     }
+    handoff = {
+        "schema": LABEL_FIT_HANDOFF_SCHEMA,
+        "label_fit_freeze_object": fit_receipt,
+        "label_fit_freeze_sha256": _digest(
+            validated_fit.get("freeze_sha256"), label="label-fit freeze hash",
+        ),
+        "anatomy_artifact_sha256": _digest(
+            validated_fit.get("anatomy_artifact_sha256"),
+            label="anatomy artifact hash",
+        ),
+        "generation_pinned_reopen_validated": True,
+        "independent_fit_replay_validated": True,
+    }
+    return receipts, handoff
 
 
 def _validate_later_results(
     *, contract: Mapping[str, object], intent: Mapping[str, object],
     loaded: Mapping[str, tuple[dict[str, object], dict[str, object]]],
     input_loader: Callable[[], tuple[dict[str, object], dict[str, object]]],
-) -> dict[str, dict[str, object]]:
+) -> tuple[dict[str, dict[str, object]], None]:
     pin = contract["input"]
     assert isinstance(pin, Mapping)
     input_receipt, input_value = input_loader()
@@ -1457,7 +1473,72 @@ def _validate_later_results(
         attempt_receipt=attempt_receipt,
         attempt_identity=attempt_identity,
     )
-    return {name: loaded[name][0] for name in MODES["later"].output_names}
+    return (
+        {name: loaded[name][0] for name in MODES["later"].output_names},
+        None,
+    )
+
+
+def _validated_label_fit_handoff(
+    *, mode: ModeSpec, value: object,
+    result_objects: Mapping[str, object],
+) -> dict[str, object] | None:
+    if mode.name == "later":
+        if value is not None:
+            raise LR8HistoricalTransportError(
+                "later result carries an earlier label-fit handoff"
+            )
+        return None
+    required = {
+        "schema", "label_fit_freeze_object", "label_fit_freeze_sha256",
+        "anatomy_artifact_sha256", "generation_pinned_reopen_validated",
+        "independent_fit_replay_validated",
+    }
+    if not isinstance(value, Mapping) or set(value) != required:
+        raise LR8HistoricalTransportError("label-fit handoff fields differ")
+    result = dict(value)
+    fit_object = _create_only_receipt(
+        result["label_fit_freeze_object"], label="label-fit handoff object",
+    )
+    if (
+        result.get("schema") != LABEL_FIT_HANDOFF_SCHEMA
+        or fit_object != result_objects.get("label-fit-freeze.json")
+        or result.get("generation_pinned_reopen_validated") is not True
+        or result.get("independent_fit_replay_validated") is not True
+    ):
+        raise LR8HistoricalTransportError("label-fit handoff authority differs")
+    result["label_fit_freeze_object"] = fit_object
+    result["label_fit_freeze_sha256"] = _digest(
+        result.get("label_fit_freeze_sha256"), label="label-fit freeze hash",
+    )
+    result["anatomy_artifact_sha256"] = _digest(
+        result.get("anatomy_artifact_sha256"), label="anatomy artifact hash",
+    )
+    return result
+
+
+def _label_fit_local_receipt(
+    *, mode: ModeSpec, validation_sha256: str,
+    handoff: Mapping[str, object],
+) -> dict[str, object]:
+    if mode.name != "earlier":
+        raise LR8HistoricalTransportError("label-fit local receipt mode differs")
+    return {
+        "schema": LABEL_FIT_LOCAL_RECEIPT_SCHEMA,
+        "mode": mode.name,
+        "run_id": mode.run_id,
+        "validation_sha256": _digest(
+            validation_sha256, label="label-fit validation hash",
+        ),
+        "label_fit_freeze_object": handoff["label_fit_freeze_object"],
+        "label_fit_freeze_sha256": handoff["label_fit_freeze_sha256"],
+        "anatomy_artifact_sha256": handoff["anatomy_artifact_sha256"],
+        "generation_pinned_reopen_validated": True,
+        "independent_fit_replay_validated": True,
+        "historical_outcome_lease_release_required": True,
+        "later_source_prepare_values_complete": True,
+        "production_change_licensed": False,
+    }
 
 
 def finish_success(
@@ -1489,13 +1570,13 @@ def finish_success(
         loader=object_loader,
     )
     if mode.name == "earlier":
-        receipts = _validate_earlier_results(
+        receipts, label_fit_handoff = _validate_earlier_results(
             contract=frozen, intent=launch, loaded=loaded,
             input_loader=input_loader,
         )
         disposition = "earlier-score-map-and-fit-validated"
     else:
-        receipts = _validate_later_results(
+        receipts, label_fit_handoff = _validate_later_results(
             contract=frozen, intent=launch, loaded=loaded,
             input_loader=input_loader,
         )
@@ -1511,6 +1592,7 @@ def finish_success(
         "launch_claim_object": dict(claim_object),
         "input_object": frozen["input_object"],
         "result_objects": receipts,
+        "label_fit_handoff": label_fit_handoff,
         "result_inventory_sha256": sha256(canonical_json(inventory)).hexdigest(),
         "generation_pinned_reopen_validated": True,
         "independent_runner_validation_replayed": True,
@@ -1521,15 +1603,41 @@ def finish_success(
     return validation, inventory
 
 
-def completion_text(*, mode: ModeSpec, disposition: str, validation_sha: str) -> bytes:
+def completion_text(
+    *, mode: ModeSpec, disposition: str, validation_sha: str,
+    label_fit_handoff: Mapping[str, object] | None = None,
+) -> bytes:
     if not disposition or _SHA.fullmatch(validation_sha) is None:
         raise LR8HistoricalTransportError("completion identity differs")
+    handoff_lines = ""
+    if label_fit_handoff is not None:
+        normalized = _validated_label_fit_handoff(
+            mode=mode, value=label_fit_handoff,
+            result_objects={
+                "label-fit-freeze.json": label_fit_handoff.get(
+                    "label_fit_freeze_object"
+                ),
+            },
+        )
+        assert normalized is not None
+        local = _label_fit_local_receipt(
+            mode=mode, validation_sha256=validation_sha, handoff=normalized,
+        )
+        handoff_lines = (
+            f"label_fit_freeze_sha256={normalized['label_fit_freeze_sha256']}\n"
+            f"anatomy_artifact_sha256={normalized['anatomy_artifact_sha256']}\n"
+            "label_fit_local_receipt_sha256="
+            f"{sha256(canonical_json(local)).hexdigest()}\n"
+        )
+    elif mode.name == "later":
+        handoff_lines = "label_fit_handoff_not_applicable=true\n"
     return (
         f"run_id={mode.run_id}\n"
         f"mode={mode.name}\n"
         "uses_realized_outcomes=true\n"
         f"disposition={disposition}\n"
         f"validation_sha256={validation_sha}\n"
+        f"{handoff_lines}"
         "receipt_only_completion=true\n"
         "production_change_licensed=false\n"
     ).encode("utf-8")
@@ -1555,7 +1663,7 @@ def _success_files(
     fields = {
         "version", "mode", "run_id", "disposition", "contract_sha256",
         "intent_sha256", "terminal", "launch_claim_object", "input_object",
-        "result_objects", "result_inventory_sha256",
+        "result_objects", "label_fit_handoff", "result_inventory_sha256",
         "generation_pinned_reopen_validated",
         "independent_runner_validation_replayed", "uses_realized_outcomes",
         "historical_outcome_lease_release_required",
@@ -1569,6 +1677,10 @@ def _success_files(
         normalized = _create_only_receipt(receipt, label=f"result {name}")
         if normalized["uri"] != f"{mode.output_prefix}/{name}":
             raise LR8HistoricalTransportError("successful result URI differs")
+    label_fit_handoff = _validated_label_fit_handoff(
+        mode=mode, value=validation.get("label_fit_handoff"),
+        result_objects=result_objects,
+    )
     claim_object = claim["object"]
     if (
         set(validation) != fields
@@ -1589,6 +1701,24 @@ def _success_files(
         or validation.get("production_change_licensed") is not False
     ):
         raise LR8HistoricalTransportError("successful validation authority differs")
+    local_handoff_path = out / "label-fit-handoff.json"
+    if label_fit_handoff is None:
+        if local_handoff_path.exists():
+            raise LR8HistoricalTransportError(
+                "later result carries a local label-fit receipt"
+            )
+    else:
+        expected_local_handoff = _label_fit_local_receipt(
+            mode=mode, validation_sha256=sha256(validation_raw).hexdigest(),
+            handoff=label_fit_handoff,
+        )
+        if (
+            local_handoff_path.is_symlink()
+            or not local_handoff_path.is_file()
+            or local_handoff_path.read_bytes()
+            != canonical_json(expected_local_handoff)
+        ):
+            raise LR8HistoricalTransportError("local label-fit receipt differs")
     completion_path = out / "completion.txt"
     if completion_path.is_symlink() or not completion_path.is_file():
         raise LR8HistoricalTransportError("successful completion is absent")
@@ -1596,10 +1726,38 @@ def _success_files(
     expected_completion = completion_text(
         mode=mode, disposition=str(validation["disposition"]),
         validation_sha=sha256(validation_raw).hexdigest(),
+        label_fit_handoff=label_fit_handoff,
     )
     if completion_raw != expected_completion:
         raise LR8HistoricalTransportError("successful completion differs")
     return contract, claim, intent, terminal, validation_raw, completion_raw
+
+
+def label_fit_handoff_values(out: Path) -> tuple[str, ...]:
+    contract, _claim, _intent, _terminal, validation_raw, _completion_raw = (
+        _success_files(out)
+    )
+    mode = _mode(str(contract["mode"]))
+    if mode.name != "earlier":
+        raise LR8HistoricalTransportError("label-fit handoff mode differs")
+    validation = strict_json(validation_raw, label="successful validation")
+    result_objects = validation.get("result_objects")
+    if not isinstance(result_objects, Mapping):
+        raise LR8HistoricalTransportError("successful result receipts differ")
+    handoff = _validated_label_fit_handoff(
+        mode=mode, value=validation.get("label_fit_handoff"),
+        result_objects=result_objects,
+    )
+    assert handoff is not None
+    receipt = _create_only_receipt(
+        handoff["label_fit_freeze_object"], label="label-fit handoff object",
+    )
+    return (
+        str(receipt["uri"]), str(receipt["generation"]),
+        str(receipt["sha256"]), str(receipt["bytes"]),
+        str(handoff["label_fit_freeze_sha256"]),
+        str(handoff["anatomy_artifact_sha256"]),
+    )
 
 
 def _release_authority_body(
@@ -1890,6 +2048,8 @@ def _cli() -> argparse.ArgumentParser:
     queue = sub.add_parser("validate-queue-completion")
     queue.add_argument("--mode", required=True)
     queue.add_argument("--output-dir", type=Path, required=True)
+    handoff = sub.add_parser("label-fit-handoff-values")
+    handoff.add_argument("--output-dir", type=Path, required=True)
     return parser
 
 
@@ -2057,13 +2217,29 @@ def main(argv: Sequence[str] | None = None) -> int:
             claim_loader=storage.load_create_once,
         )
         validation_raw = canonical_json(validation)
+        result_objects = validation["result_objects"]
+        assert isinstance(result_objects, Mapping)
+        label_fit_handoff = _validated_label_fit_handoff(
+            mode=mode, value=validation["label_fit_handoff"],
+            result_objects=result_objects,
+        )
         _write_once(out / "result-inventory.json", canonical_json(inventory))
         _write_once(out / "validation.json", validation_raw)
+        if label_fit_handoff is not None:
+            local_handoff = _label_fit_local_receipt(
+                mode=mode,
+                validation_sha256=sha256(validation_raw).hexdigest(),
+                handoff=label_fit_handoff,
+            )
+            _write_once(
+                out / "label-fit-handoff.json", canonical_json(local_handoff),
+            )
         _write_once(
             out / "completion.txt",
             completion_text(
                 mode=mode, disposition=str(validation["disposition"]),
                 validation_sha=sha256(validation_raw).hexdigest(),
+                label_fit_handoff=label_fit_handoff,
             ),
         )
     elif args.command == "close-failure":
@@ -2111,6 +2287,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         if contract["mode"] != mode.name:
             raise LR8HistoricalTransportError("queue mode differs")
         validate_queue_completion(out=args.output_dir, storage=Storage())
+    elif args.command == "label-fit-handoff-values":
+        for value in label_fit_handoff_values(args.output_dir):
+            print(value)
     else:  # pragma: no cover - argparse owns this boundary
         raise LR8HistoricalTransportError("command differs")
     return 0

@@ -22,6 +22,8 @@ IMAGE = (
     "nfl-dfs/nfl-dfs@sha256:" + "b" * 64
 )
 INPUT_URI = "gs://nfl-predictions-503414-raw/research/fixture/input.json"
+FIT_FREEZE_SHA = "6" * 64
+ANATOMY_ARTIFACT_SHA = "7" * 64
 
 
 def _job(mode: transport.ModeSpec, generation: str = "7") -> dict[str, object]:
@@ -146,6 +148,33 @@ def _claim(mode_name: str) -> dict[str, object]:
     )
 
 
+def _result_objects(mode_name: str) -> dict[str, dict[str, object]]:
+    mode = transport.MODES[mode_name]
+    return {
+        name: {
+            "uri": f"{mode.output_prefix}/{name}",
+            "generation": str(index + 1),
+            "sha256": f"{index + 1:064x}",
+            "bytes": 100 + index,
+            "create_only": True,
+        }
+        for index, name in enumerate(mode.output_names)
+    }
+
+
+def _fit_handoff(
+    result_objects: dict[str, dict[str, object]],
+) -> dict[str, object]:
+    return {
+        "schema": transport.LABEL_FIT_HANDOFF_SCHEMA,
+        "label_fit_freeze_object": result_objects["label-fit-freeze.json"],
+        "label_fit_freeze_sha256": FIT_FREEZE_SHA,
+        "anatomy_artifact_sha256": ANATOMY_ARTIFACT_SHA,
+        "generation_pinned_reopen_validated": True,
+        "independent_fit_replay_validated": True,
+    }
+
+
 def _terminal(
     mode_name: str, *, state: str = "True", generation: str = "7",
 ) -> dict[str, object]:
@@ -192,6 +221,62 @@ def _terminal(
             **counters,
         },
     }
+
+
+def _materialize_earlier_success(out: Path) -> None:
+    mode = transport.MODES["earlier"]
+    contract = _contract("earlier")
+    claim = _claim("earlier")
+    intent = _intent("earlier")
+    terminal_metadata = _terminal("earlier")
+    terminal = transport.validate_terminal(
+        terminal_metadata, execution=transport.JOB + "-abc12",
+        contract=contract, intent=intent, expected_state="True",
+    )
+    result_objects = _result_objects("earlier")
+    handoff = _fit_handoff(result_objects)
+    validation = {
+        "version": transport.VERSION,
+        "mode": mode.name,
+        "run_id": mode.run_id,
+        "disposition": "earlier-score-map-and-fit-validated",
+        "contract_sha256": contract["contract_sha256"],
+        "intent_sha256": intent["intent_sha256"],
+        "terminal": terminal,
+        "launch_claim_object": claim["object"],
+        "input_object": contract["input_object"],
+        "result_objects": result_objects,
+        "label_fit_handoff": handoff,
+        "result_inventory_sha256": "8" * 64,
+        "generation_pinned_reopen_validated": True,
+        "independent_runner_validation_replayed": True,
+        "uses_realized_outcomes": True,
+        "historical_outcome_lease_release_required": True,
+        "production_change_licensed": False,
+    }
+    validation_raw = transport.canonical_json(validation)
+    validation_sha = sha256(validation_raw).hexdigest()
+    local_receipt = transport._label_fit_local_receipt(  # noqa: SLF001
+        mode=mode, validation_sha256=validation_sha, handoff=handoff,
+    )
+    out.mkdir()
+    files = {
+        "contract.json": transport.canonical_json(contract),
+        "launch-claim.json": transport.canonical_json(claim),
+        "launch-intent.json": transport.canonical_json(intent),
+        "execution.txt": transport.ledger_line(
+            transport.JOB + "-abc12", mode.output_prefix,
+        ),
+        "execution-terminal.json": transport.canonical_json(terminal_metadata),
+        "validation.json": validation_raw,
+        "label-fit-handoff.json": transport.canonical_json(local_receipt),
+        "completion.txt": transport.completion_text(
+            mode=mode, disposition=str(validation["disposition"]),
+            validation_sha=validation_sha, label_fit_handoff=handoff,
+        ),
+    }
+    for name, raw in files.items():
+        (out / name).write_bytes(raw)
 
 
 @pytest.mark.parametrize("mode_name", ["earlier", "later"])
@@ -405,8 +490,18 @@ def test_finish_is_terminal_first_exact_inventory_and_dispatches_replay(
 
     def validator(**kwargs):
         calls.append("replay")
-        return {
+        receipts = {
             name: kwargs["loaded"][name][0] for name in mode.output_names
+        }
+        if mode_name == "later":
+            return receipts, None
+        return receipts, {
+            "schema": transport.LABEL_FIT_HANDOFF_SCHEMA,
+            "label_fit_freeze_object": receipts["label-fit-freeze.json"],
+            "label_fit_freeze_sha256": FIT_FREEZE_SHA,
+            "anatomy_artifact_sha256": ANATOMY_ARTIFACT_SHA,
+            "generation_pinned_reopen_validated": True,
+            "independent_fit_replay_validated": True,
         }
 
     target = (
@@ -429,6 +524,71 @@ def test_finish_is_terminal_first_exact_inventory_and_dispatches_replay(
     assert validation["generation_pinned_reopen_validated"] is True
     assert validation["independent_runner_validation_replayed"] is True
     assert validation["production_change_licensed"] is False
+    if mode_name == "earlier":
+        assert validation["label_fit_handoff"]["label_fit_freeze_sha256"] == (
+            FIT_FREEZE_SHA
+        )
+        assert validation["label_fit_handoff"]["anatomy_artifact_sha256"] == (
+            ANATOMY_ARTIFACT_SHA
+        )
+    else:
+        assert validation["label_fit_handoff"] is None
+
+
+@pytest.mark.parametrize(
+    "poison",
+    ("fit_object", "fit_freeze_sha", "anatomy_sha", "replay_flag"),
+)
+def test_label_fit_handoff_rejects_prepare_input_poison(poison: str) -> None:
+    mode = transport.MODES["earlier"]
+    result_objects = _result_objects("earlier")
+    handoff = _fit_handoff(result_objects)
+    if poison == "fit_object":
+        handoff["label_fit_freeze_object"] = {
+            **result_objects["label-fit-freeze.json"], "generation": "99",
+        }
+    elif poison == "fit_freeze_sha":
+        handoff["label_fit_freeze_sha256"] = "not-a-sha"
+    elif poison == "anatomy_sha":
+        handoff["anatomy_artifact_sha256"] = "not-a-sha"
+    else:
+        handoff["independent_fit_replay_validated"] = False
+    with pytest.raises(transport.LR8HistoricalTransportError):
+        transport._validated_label_fit_handoff(  # noqa: SLF001
+            mode=mode, value=handoff, result_objects=result_objects,
+        )
+
+
+def test_local_fit_receipt_is_replay_checked_and_exposes_prepare_values(
+    tmp_path: Path,
+) -> None:
+    out = tmp_path / "earlier"
+    _materialize_earlier_success(out)
+    assert transport.label_fit_handoff_values(out) == (
+        transport.MODES["earlier"].output_prefix + "/label-fit-freeze.json",
+        "4", f"{4:064x}", "103", FIT_FREEZE_SHA,
+        ANATOMY_ARTIFACT_SHA,
+    )
+    completion = (out / "completion.txt").read_text()
+    assert f"label_fit_freeze_sha256={FIT_FREEZE_SHA}\n" in completion
+    assert f"anatomy_artifact_sha256={ANATOMY_ARTIFACT_SHA}\n" in completion
+    local_path = out / "label-fit-handoff.json"
+    poisoned = json.loads(local_path.read_bytes())
+    poisoned["anatomy_artifact_sha256"] = "0" * 64
+    local_path.write_bytes(transport.canonical_json(poisoned))
+    with pytest.raises(
+        transport.LR8HistoricalTransportError, match="local label-fit receipt",
+    ):
+        transport.label_fit_handoff_values(out)
+
+
+def test_later_validation_rejects_earlier_fit_handoff() -> None:
+    result_objects = _result_objects("later")
+    with pytest.raises(transport.LR8HistoricalTransportError, match="earlier"):
+        transport._validated_label_fit_handoff(  # noqa: SLF001
+            mode=transport.MODES["later"], value={"unexpected": True},
+            result_objects=result_objects,
+        )
 
 
 def test_finish_never_opens_results_before_strict_terminal() -> None:

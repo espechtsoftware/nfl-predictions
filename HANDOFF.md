@@ -24,6 +24,39 @@ agent or developer:
 
 ### LR8 historical score path is the sole active priority
 
+- **2026-08-21 operator reprioritization:** do not hold the Week-1 decision
+  behind additional LR8 transport or solver scaffolding. The closest completed
+  historical high-corpus treatment already has immutable scored receipts. The
+  boom-depth candidate pool improved mean weekly ceiling `187.58 -> 196.64`
+  and 200+ candidate weeks `14 -> 20`, but the exact-80 selected book moved
+  only `178.57 -> 179.91` with 200+ weeks `7 -> 9`, 210+ weeks `2 -> 4`, and
+  a `19 / 18 / 16` better/worse/tied record (`p_mean=0.4865`). On the later
+  2025 slice, selected mean moved `174.44 -> 176.12` while 200+ weeks fell
+  `3 -> 2`. The separate k=8 rule-relaxation arm regressed selected mean
+  `178.57 -> 177.59` and 200+ weeks `7 -> 6`. These are the current decision
+  results: the corpus contains a materially higher candidate ceiling, but the
+  tested selector and straightforward rule relaxation did not prove a
+  reliable money-book strategy. No new outcome read was needed for this
+  summary; it replays committed aggregate receipts
+  `503c9b0466737d589d7cfc7ad957e5c8b764a0546e699e7a1854c8ca5fa54a1d`,
+  `dfbfb48d74d71c33d0bedcacd1046d63e1db2384916174d3995a0c0edf1659b8`,
+  and `2e08a551d116dc385b92ef123be3a6bb8296c71a75c822797d04c71bd669afdc`.
+  Keep the incumbent as the Week-1 money path; boom-depth/high-corpus work is
+  shadow-only, and bundled open-rule relaxation stays off.
+- The new LR8 source smoke remains a mechanical research failure, not a
+  scored scientific result. Its first exact solve almost certainly exhausted
+  the registered 300-second CBC stage, so v2 produced no lineup score. A v3
+  may proceed only as bounded research after a measured solver benchmark; it
+  is no longer the critical path for answering the operator's historical
+  question.
+- The shared historical-score finisher now also emits a replay-validated
+  earlier-fit handoff containing the fit object receipt, internal fit-freeze
+  SHA, and anatomy SHA for downstream construction without an ad-hoc GCS
+  read. Focused/adjacent validation is 54/54 green. The later-period source
+  transport is source-green at 19/19 after exact crash-resume and terminal
+  replay hardening, but its four new files remain uncommitted pending final
+  integration review and are not on the Week-1 decision critical path.
+
 - Branch `main`; pushed parent before this prepare receipt is
   `d7a248ac2d39be432181ba97046a91ffe918ec14`. Keep A7 paused and do not spend
   another dedicated build or execution on it while LR8 is active.
