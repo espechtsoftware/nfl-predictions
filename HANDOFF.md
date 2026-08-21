@@ -134,9 +134,17 @@ agent or developer:
   archive; it cannot update/execute Cloud Run, query outcomes, or write/delete
   cloud objects. Focused recovery validation is 12/12 green; pycompile,
   whitespace checks, and an independent live read-only precheck are green.
-  Execute it once only after this amendment is committed/pushed, commit its
-  durable incident receipts, then start the unchanged v2 watcher in a
-  persistent foreground tool session rather than a detached short-lived shell.
+  The amendment was committed/pushed at `d0f4ae9`. The recovery then completed
+  once at `2026-08-21T05:12:51.750018Z`: the original path is absent and the
+  exact inode is preserved under
+  `reports/a7-select-ladder-preflight-recovery-runs/20260821-a7-v2-empty-preflight-shell-recovery-v1/empty-preflight-shell`.
+  Its evidence-ledger SHA-256 is
+  `5dc4cd3c0fa3771a4375d22df2c2af66a0e8ec56e9fd74e7b0b913c0d5889864`
+  and recovery-receipt SHA-256 is
+  `a752eb7af26af463384462c107b11c042b7fc63b6e4d78295e315f4108ba1db0`.
+  Commit/push those durable receipts, then start the unchanged v2 watcher in
+  a persistent foreground tool session rather than a detached short-lived
+  shell.
 
 ### LR8 historical legal-relaxation arm has green mechanics and a score-free source contract
 
