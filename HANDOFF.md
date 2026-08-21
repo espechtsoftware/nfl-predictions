@@ -244,7 +244,8 @@ agent or developer:
 - The first LR8 build submission was rejected by the API before a build was
   created because its rendered command supplied an unused `_CODE_SHA` custom
   substitution. The launcher now emits only the used `_IMAGE` substitution;
-  its focused 12-test suite and shell/render checks pass after the repair.
+  its focused 12-test suite and shell/render checks pass after the repair,
+  committed at `c6ce76aa89d189c6ceec72227ed2b49013438f58`.
 - The smoke transport, dashboard/build integration, 70-cell pure sharding
   core, focused tests, and milestone record are committed at
   `8a76096aa19c69f5bf5b4d7e2a7b84a06b893257`.
