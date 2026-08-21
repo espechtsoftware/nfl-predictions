@@ -20,12 +20,12 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 02:05 CDT
+## Current state — 2026-08-21 02:16 CDT
 
 ### A7-v1 close-only recovery and fresh A7-v2 repair are source-ready
 
-- Branch `main`, latest source commit
-  `5d50067872f7aa014443c0f5db246f499dcc07c1` (pushed to `origin/main`). The failed A7-v1 smoke remains
+- Branch `main`, latest pre-milestone source commit
+  `7cd13e24d87f4753ec2785ada82786f924eda5ac` (pushed to `origin/main`). The failed A7-v1 smoke remains
   permanently closed and must never be relaunched or passed to the v1
   success-only finisher.
 - A new isolated close-only protocol and implementation validate the exact
@@ -184,9 +184,26 @@ agent or developer:
   `f500c3ed-1960-427a-a415-2f4a4bff804b` was then created from exact repaired
   source `f389f33336868d552220bcc9e6decfe557a85220` with requested tag
   `a7-v2-f389f33-20260821`. Initial metadata confirms the exact resolved source,
-  tag, and ordered three-step contract; it is queued. After terminal success,
-  inspect the first-claim receipt before handing subsequent smoke/support work
-  to the watcher.
+  tag, and ordered three-step contract. At 65% its full suite emitted one
+  failure followed by nine additional failure markers; it remains active so
+  the cloud log can retain the canonical node IDs, tracebacks and terminal
+  summary. A clean archive independently reproduced the complete cluster as
+  nine failures in `test_recover_a7_v2_empty_preflight_shell.py`: the unit
+  harness copied the later commit-pinned finisher from the working tree while
+  the correctly frozen one-shot recovery validator requires the exact
+  recovery-era finisher SHA-256 `f9963fe...`. This is historical test-fixture
+  drift, not an A7 science, query, optimizer or transport failure.
+- The archive-hermetic fixture repair leaves the production recovery script,
+  protocol, constants and prior evidence byte-unchanged. The unit harness now
+  decodes a tracked content-addressed LZMA/Base64 fixture containing the exact
+  229,783 recovery-era finisher bytes and asserts their full SHA-256 before
+  exercising the real validator. The source-drift poison targets that exact
+  historical file, and the fake committed-source loader asserts the registered
+  source commit. Both recovery modules pass 28/28 in the live checkout and in
+  a clean source archive with no `.git` directory; pycompile and whitespace
+  checks are green. Commit/push this fixture-only repair, then run fresh exact-
+  source builds; do not reuse `f500c3ed...` even if its later unrelated tests
+  continue after the already definitive failure cluster.
 
 ### LR8 historical legal-relaxation arm has green mechanics and a score-free source contract
 
@@ -405,9 +422,15 @@ agent or developer:
   `2026-08-21T06:45:02.123397008Z` with resolved source exactly that commit
   and requested tag `lr8-smoke-7ae6f37`; it entered `WORKING` at
   `2026-08-21T06:46:06.060376520Z` with `full-test-suite` active and image/
-  container-smoke steps queued. Let the full suite run to terminal and require
-  one immutable digest before preparing v2; never substitute the prior v1
-  image or bypass a test failure.
+  container-smoke steps queued. At 64% it reproduced the same deterministic
+  historical A7 recovery-test failure cluster established independently above.
+  Because the separate A7 build remains the canonical full traceback source,
+  this duplicate LR8 build was explicitly cancelled at
+  `2026-08-21T07:10:23.504417Z` rather than spending another hour on identical
+  CBC tail tests. Its test step is `CANCELLED`; image and smoke never started;
+  Artifact Registry has no `lr8-smoke-7ae6f37` tag and no digest was produced.
+  It must not be reused. Rebuild v2 only from the pushed fixture-repair commit,
+  and never substitute the prior v1 image or bypass the full-test gate.
 - The smoke transport, dashboard/build integration, 70-cell pure sharding
   core, focused tests, and milestone record are committed at
   `8a76096aa19c69f5bf5b4d7e2a7b84a06b893257`.
@@ -929,14 +952,15 @@ agent or developer:
 
 **Scientific queue and next concrete action.** Keep the independent lanes
 serialized only where required. LR8 smoke v1 is terminal-failed and closed;
-freeze a fresh v2 identity around the narrow exact-integer-scalar repair, run
-focused poison tests, rebuild from exact pushed source, and prepare/launch one
-new score-free 2019-W1/R0 smoke. Only a strict v2 pass and prepared-cell-0
+commit/push the archive-hermetic A7 recovery-test fixture, rebuild the already
+frozen v2 exact-integer-scalar repair from that exact pushed source, and
+prepare/launch one new score-free 2019-W1/R0 smoke. Only a strict v2 pass and prepared-cell-0
 parity may unlock Docker/Cloud Build/dashboard integration of the already
 source-green 70-cell full-source transport. In parallel, let repaired A7 build
-`f500c3ed-1960-427a-a415-2f4a4bff804b` reach terminal and retain its exact test
-failures or success; only an exact success may create the first v2 preflight
-claim. Do not bypass either full-test gate, inspect partial metrics, relaunch a
+`f500c3ed-1960-427a-a415-2f4a4bff804b` reach terminal only to retain its exact
+test failures; it is non-reusable. Submit a fresh A7 exact-source build after
+the fixture repair, and only its exact success may create the first v2
+preflight claim. Do not bypass either full-test gate, inspect partial metrics, relaunch a
 closed attempt, launch the unlicensed exact-one/legal-soft drafts, use broad
 `deploy_jobs.sh`, or create/delete a Cloud Run job. Production remains
 unchanged until registered historical evidence licenses a bounded challenger.

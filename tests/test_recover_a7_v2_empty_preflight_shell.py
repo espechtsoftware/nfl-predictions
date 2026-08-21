@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import base64
 import copy
 from datetime import datetime, timezone
+from hashlib import sha256
 import json
+import lzma
 from pathlib import Path
 import shutil
 import sys
@@ -18,6 +21,13 @@ if SCRIPTS not in sys.path:
     sys.path.insert(0, SCRIPTS)
 
 import recover_a7_v2_empty_preflight_shell as recovery  # noqa: E402
+
+
+HISTORICAL_FINISHER = "scripts/finish_a7_select_ladder.py"
+HISTORICAL_FINISHER_FIXTURE = (
+    ROOT / "tests/fixtures/a7_v2_empty_preflight_shell"
+    / "finish_a7_select_ladder.py.xz.b64"
+)
 
 
 class FakeBlob:
@@ -65,6 +75,17 @@ def _copy(root: Path, relative: str) -> None:
     shutil.copy2(ROOT / relative, destination)
 
 
+def _historical_finisher_bytes() -> bytes:
+    encoded = b"".join(HISTORICAL_FINISHER_FIXTURE.read_bytes().split())
+    raw = lzma.decompress(
+        base64.b64decode(encoded, validate=True)
+    )
+    assert sha256(raw).hexdigest() == recovery.FROZEN_SOURCE_SHA256[
+        HISTORICAL_FINISHER
+    ]
+    return raw
+
+
 class Harness:
     def __init__(self, tmp_path: Path) -> None:
         self.root = tmp_path / "repo"
@@ -75,7 +96,12 @@ class Harness:
             recovery.ANCHOR_EXECUTIONS_PATH,
             recovery.ANCHOR_LAST_EXECUTION_PATH,
         ):
-            _copy(self.root, relative)
+            if relative == HISTORICAL_FINISHER:
+                destination = self.root / relative
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                destination.write_bytes(_historical_finisher_bytes())
+            else:
+                _copy(self.root, relative)
 
         self.shell = (
             self.root / "reports/a7-select-ladder-preflight-runs"
@@ -138,9 +164,7 @@ class Harness:
             "executions_loader": lambda: copy.deepcopy(self.executions),
             "schedulers_loader": lambda: copy.deepcopy(self.schedulers),
             "process_loader": lambda: copy.deepcopy(self.processes),
-            "git_loader": lambda root, _sha, relative: (
-                root / relative
-            ).read_bytes(),
+            "git_loader": self.git_loader,
             "now": lambda: datetime(
                 2026, 8, 21, 5, 30, tzinfo=timezone.utc
             ),
@@ -148,10 +172,32 @@ class Harness:
         options.update(overrides)
         return recovery.recover(**options)
 
+    @staticmethod
+    def git_loader(root: Path, code_sha: str, relative: str) -> bytes:
+        assert code_sha == recovery.CODE_SHA
+        return (root / relative).read_bytes()
+
 
 @pytest.fixture
 def harness(tmp_path: Path) -> Harness:
     return Harness(tmp_path)
+
+
+def test_registered_source_identity_matches_durable_recovery_incident() -> None:
+    incident_path = (
+        ROOT / "reports/a7-select-ladder-preflight-recovery-runs"
+        / recovery.RECOVERY_ID / "incident.json"
+    )
+    incident = json.loads(incident_path.read_text(encoding="utf-8"))
+    assert incident["source"] == {
+        "build_id": recovery.BUILD_ID,
+        "code_sha": recovery.CODE_SHA,
+        "frozen_source_sha256": dict(recovery.FROZEN_SOURCE_SHA256),
+        "image": recovery.IMAGE,
+    }
+    assert sha256(
+        (ROOT / recovery.PROTOCOL_PATH).read_bytes()
+    ).hexdigest() == recovery.PROTOCOL_SHA256
 
 
 def test_exact_empty_shell_is_archived_atomically_with_canonical_evidence(
@@ -249,7 +295,7 @@ def test_every_ambiguity_fails_before_the_shell_moves(
     elif poison == "historical-local":
         harness.historical_out.mkdir(parents=True)
     elif poison == "source-drift":
-        target = harness.root / next(iter(recovery.FROZEN_SOURCE_SHA256))
+        target = harness.root / HISTORICAL_FINISHER
         target.write_bytes(target.read_bytes() + b"drift\n")
     else:  # pragma: no cover - parameter list is closed above
         raise AssertionError(poison)
