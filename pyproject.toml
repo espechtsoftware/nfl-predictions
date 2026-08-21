@@ -34,6 +34,9 @@ app = [
     "uvicorn>=0.24",
     "python-multipart>=0.0.9",
 ]
+graph = [
+    "neo4j==6.2.0",
+]
 browser = [
     "playwright>=1.49,<2",
 ]
@@ -61,8 +64,8 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-# Cloud builds run `PYTHONPATH=. pytest` so tests can import the repo-level
-# `scripts` namespace; mirror that for bare local `pytest` invocations.
+# Cloud builds run `PYTHONPATH=src pytest`; pytest still adds the repository
+# root so tests can import the repo-level `scripts` namespace.
 pythonpath = ["."]
 addopts = "-q"
 filterwarnings = [

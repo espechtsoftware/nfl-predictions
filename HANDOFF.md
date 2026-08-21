@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 15:31 CDT
+## Current state — 2026-08-21 15:34 CDT
 
 ### Corpus retrieval engine is focused-green; exact cloud task 0 is pending
 
@@ -164,6 +164,12 @@ agent or developer:
   `648b8d944d08690ab2255396c9ca6e388e8b6c29785e58be3d35f31a62c7c8c5`;
   current dirty A7 additions remain excluded. The canceled full build and both
   diagnostics are permanently ineligible as retrieval images.
+  Submission `33f1f50e-f998-4f6a-98d4-ed2294548e53` was canceled while queued
+  because its requested revision contained an incorrect expanded SHA. The
+  replacement build `544a65df-2a37-4fb8-b207-870dabee263c` resolves exact
+  pushed commit `f81d02fd143f3cb5318eee1d795099fe2b167c39`, uses tag
+  `corpus-retrieval-v1-f81d02f`, and started at 15:33 CDT. Only this exact
+  replacement can become task-0 image authority if every step succeeds.
 - A prior outcome-blind engineering prototype over the exact task-0 shapes
   found 1,276 source rows, 585 unique lineups, 27,117 strict-`>200` events,
   581 lineups with an event, and 9,534 worlds with an event. These are
@@ -219,10 +225,21 @@ agent or developer:
   launch authority: transport/terminal publication and one real-artifact
   end-to-end smoke remain open, and Neo4j remains a separate rebuildable
   append-only projection with no execution or policy authority.
-- Next concrete action: commit/push the narrow stale A7 recovery build-hash
-  repair, prove its 15 focused tests in a clean checkout, and submit one clean
-  direct-Git retrieval build from that repair commit. Require that replacement
-  to succeed,
+- The dedicated Neo4j projection foundation is now offline focused-green
+  (16/16). It validates the accepted retrieval chain, supports exact task
+  indexes 0--53 from a complete 54-task/378-cell parametric completion,
+  separates `corpus-parametric-research` from the reserved and empty
+  `corpus-population-research` namespace, binds URI/generation/SHA/bytes on
+  every retained-object node, rejects cross-task aliases, and emits an
+  exclusive canonical load receipt with all authority flags false. The query
+  catalog includes retrieval tail/event/enrichment/correlation inspection and
+  paired cross-slate challenger-minus-incumbent aggregates. The official
+  driver is pinned as optional dependency `neo4j==6.2.0` and imports locally.
+  No live connection was attempted; a dedicated endpoint, network path, and
+  secret remain external provisioning blockers. See
+  `reports/2026-08-21-corpus-research-neo4j-foundation.md`.
+- Next concrete action: require clean direct-Git build
+  `544a65df-2a37-4fb8-b207-870dabee263c` to succeed,
   publish/reopen the
   exact create-once input suite against its immutable digest, build canonical runtime
   IAM evidence, run immediate all-region scheduler and namespace censuses,
