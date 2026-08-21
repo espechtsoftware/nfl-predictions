@@ -292,6 +292,20 @@ agent or developer:
   scientific freeze serializer. The focused shard suite is 9/9 green; the
   combined transport/shard checkpoint is 21/21 green. No full-source cloud
   launcher or execution has been created.
+- The pure earlier-period label/fit boundary is now implemented in
+  `src/nfl_dfs/research/lr8_label_fit_adapter.py` (SHA-256
+  `78621312f230099eed8b353c1e2d610f7788532b601d9d18a53736fc942ad98a`).
+  It accepts only the externally pinned complete 35-slate source freeze and a
+  separately create-once, generation-pinned authoritative 2019/2021
+  player/DST score map. It exact-validates the active shared-lease body,
+  pre-query attempt chronology, registered query identity, complete catalog
+  universe, nine-player integer sums, `>=200` labels, equal-slate weighting,
+  fixed no-sweep fit law, and transitive anatomy-artifact binding. Rehashed
+  2023+, B1, query/lease, label, total, weighting, and sweep poisons all fail
+  closed; every later-period, prospective, production, and adoption license is
+  false. Its focused suite passes 14/14, with pycompile and whitespace checks
+  green. This module performs no I/O and does not itself authorize the future
+  lease-protected score-map query.
 - No real outcomes, BigQuery rows, GCS bodies, Cloud Run job, shared lease, or
   production path were touched by this milestone. The old 35 NPZs contain only
   candidate indices/totals and cannot score novel relaxed rosters. Exact next
