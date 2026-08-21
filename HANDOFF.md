@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 04:14 CDT
+## Current state — 2026-08-21 04:37 CDT
 
 ### LR8 historical score path is the sole active priority
 
@@ -131,6 +131,35 @@ agent or developer:
   must be copied/smoked in the one post-smoke integrated image before use.
 
 ### A7-v1 close-only recovery and fresh A7-v2 repair are source-ready
+
+- After the B1 learned tail classifier, all-boom selector, and bundled rule
+  relaxation closed without adoption, the unchanged A7-v2 SELECT_LADDER is the
+  sole frozen, outcome-unread exact-80 successor. Its dose predates the B1
+  result and uses no B1/archive label. The current `main` checkout cannot run
+  its local implementation replay because later LR8-only Docker/Cloud Build
+  additions changed files pinned by the A7 manifest. A dedicated operational
+  worktree at extension commit `d6b5038d467a11e81497d1c5620a452a153b0101`
+  retains A7 implementation bytes identical to build source
+  `2bec2965442b90ec87990fb25f086de9005265dc`; the registered live-Git lineage
+  validator passes there with all non-authorities false. Do not run the A7
+  watcher from current `main`, and do not copy current Docker/Cloud Build bytes
+  into that operational worktree.
+- The first A7-v2 preflight claim is now durable and consumed exactly once,
+  with no job update, execution, lease, or outcome access. It revalidated
+  shared terminal-success build `6a364353-2485-43e9-9fdc-21f42df70bcb`, exact
+  immutable image `sha256:a75471c1636f11e5a0c5471f7dbc4d254e2dfc1d4b982bae4ea658bf2d221186`,
+  empty A7 prefix, absent lease, idle unscheduled reused job UID
+  `d6e4b8c1-5950-46b7-8869-7e34dbf29ad2` generation 12/spec SHA-256
+  `c0e4b6985f79265373d8ada306575470a794f38426e25fbc9188daf551331f94`,
+  and all 262 prior executions strict terminal. Create-only claim object
+  generation is `1787305004732995`, SHA-256
+  `f7737333e369412d98512feaa6006c5939e817b5b4f0a972504f75fd19d82c4c`;
+  local `prepared.sha256` SHA-256 is
+  `9c319c9e3b0e4eb12fccf503e2cc750ba472ce51360d568e63d3ac3dfe0e4d36`.
+  Exact next action after this receipt is committed/pushed: run the registered
+  watcher in a persistent foreground session from only the dedicated worktree.
+  It owns the one smoke, one support census, freeze, and—only after both
+  outcome-blind gates pass—the one historical exact-80 comparison.
 
 - Branch `main`, historical pushed parent milestone
   `1cbbc3d88e199bd9078e7059ef13b1d9ef76df64` (pushed to `origin/main`); the
