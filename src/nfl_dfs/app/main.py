@@ -34,6 +34,7 @@ from ..inference.production_policy import (
     ADOPTED_CLASSIC_POLICY,
     contest_entry_policy,
 )
+from .corpus_research import router as corpus_research_router
 from .store import BigQueryStore, ProjectionStore
 
 app = FastAPI(title="Fingerblasters' Brain", version="0.1.0")
@@ -42,6 +43,7 @@ from pathlib import Path as _Path
 
 app.mount("/static", StaticFiles(directory=_Path(__file__).parent / "static"),
           name="static")
+app.include_router(corpus_research_router)
 log = logging.getLogger(__name__)
 _EXPLAINER_PATH = _Path(__file__).parent / "static" / "explainer.html"
 
@@ -227,6 +229,7 @@ _NAV_HTML = """
 <div class='topbar'><img src='/static/logo.png' class='logo' alt=''><div class='brand'>Fingerblasters&#39; <span>Brain</span></div>
 <a href='/'>Season</a><a href='/lineups/view'>Lineups</a>
 <a href='/defense'>Defense</a><a href='/market'>Market</a>
+<a href='/corpus-research'>Corpus research</a>
 <a href='/watchlist'>Watchlist</a><a href='/explainer'>About</a>
 <a href='/docs'>API</a>
 <button class='guide' onclick="document.getElementById('modal').style.display=
