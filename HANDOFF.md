@@ -314,16 +314,23 @@ agent or developer:
   `9a60167f-1725-4ca0-8637-b30d70e36093` was accidentally cancelled when the
   submitting local `gcloud` client was interrupted; it is non-scientific
   build evidence only and must never be reused. Its exact asynchronous
-  replacement is `5e979b25-e15e-4400-8d16-f5bfafcb1280`, from the same
-  source and requested tag `b1-tail-3ad43a8`; it is currently running the full
-  test suite. No Cloud Run job, outcome lease, attempt object or historical
-  score was touched. Wait for all three build steps and the image push to
-  succeed; do not prepare or launch from a partial or cancelled build. Durable
-  local watcher `/home/erich/nfl-panels/watch_b1_build_prepare.sh` (log
-  `b1-build-prepare.log`) validates the exact successful source, three build
-  steps and digest, then performs only the registered non-outcome preparation
-  and stops at `commit_and_push_manifest_before_launch`; it cannot acquire the
-  lease or execute the historical arm. `chain_status.sh` reports it as live.
+  replacement `5e979b25-e15e-4400-8d16-f5bfafcb1280` completed `SUCCESS`
+  from the same source and requested tag `b1-tail-3ad43a8` at
+  `2026-08-20T23:59:28Z`. Full validation was 2,750 passed / 4 skipped; image
+  build and every registered container smoke succeeded. Immutable image is
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:2f38c7ac3a6571b084519328d5dd87dd40303e978ea26b26e89092344bcb5894`.
+  Durable local watcher `/home/erich/nfl-panels/watch_b1_build_prepare.sh`
+  (log `b1-build-prepare.log`) exact-validated that receipt and performed only
+  the registered non-outcome preparation. The reused job advanced generation
+  `11 -> 12` with UID unchanged, one task, 8 CPU, 32 GiB, four-hour timeout and
+  `maxRetries=0`; all prior executions were terminal and no scheduler targeted
+  it. Result/attempt prefixes and the historical-outcome lease remained absent
+  before and after the update. Create-only launch manifest SHA-256 is
+  `b5235614b26e9a2f7f9b406ea5720315c8d529637b078638902900688c276ab7`,
+  object generation `1787270469735984`. `validate-prepared` and every
+  `prepared.sha256` target are green. No lease, launch intent, execution,
+  outcome query or score access occurred. Commit and push these exact prepared
+  receipts before starting the registered historical watcher.
 - The full outcome-viewed B1 research corpus is now durably retained without
   a new SQL query or row inspection. Four create-only snapshot jobs (original
   plus one bounded retry per table) failed terminally with BigQuery
