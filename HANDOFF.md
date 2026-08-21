@@ -20,9 +20,9 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-20 17:25 CDT
+## Current state — 2026-08-20 19:25 CDT
 
-### A2a score-free mechanism passed; one realized-law remeasurement is next
+### A2a and B1 one-shot historical arms are closed; neither licenses adoption
 
 - Branch `main`. The winner-law queue and outcome-blind A7 closure are recorded
   in commit `5936e00ed9602b838832167f345be50bb53542ad`. This supersedes the
@@ -334,11 +334,28 @@ agent or developer:
   acquired historical-outcome lease generation `1787270618157974`, published
   create-only launch intent generation `1787270636016750`, repeated the exact
   idle-job/scheduler/prefix gates, and launched exactly one `maxRetries=0`
-  execution: `atlas-minimal-c-s2023-w1-v1-sm64k`. Its six-field execution
-  ledger names the sole attempt/report/model URIs and is visible to
-  `chain_status.sh`. Do not open any body or metric while the execution is
-  nonterminal; the watcher alone owns strict metadata polling, harvest and
-  exact-generation lease closure. There is no retry.
+  execution: `atlas-minimal-c-s2023-w1-v1-sm64k`. It completed strict-success
+  at `2026-08-21T00:17:24.845961Z` with succeeded=1 and
+  failed/cancelled/retried=0. The registered watcher generation-pinned the
+  sole 1,218-byte attempt object at generation `1787270838253869` / SHA-256
+  `1a9cbe97...` and the 31,606-byte report at generation
+  `1787271440125485` / SHA-256 `2deeaa73...`, independently replayed all
+  candidate, model and exact-80 gates, and published release intent generation
+  `1787271474897332` / SHA-256 `725e3f05...` before closing only active lease
+  generation `1787270618157974`. Idempotent re-harvest and re-close, both hash
+  ledgers, and a fresh global lease-absence check are green.
+
+  Registered disposition is `historical-gates-fail-closed`. The challenger
+  reduced mean weekly maximum `173.6556 -> 171.3685`; 200+ weeks remained
+  `8 -> 8`, while 194+/210+ were protected at `12/1 -> 12/1`. The fixed tail
+  score did beat `p_line` on 200/210 average precision, but its 200-point Brier
+  score was slightly worse than fold prevalence (`0.001141619` versus
+  `0.001141396`). Thus the ranking signal did not improve the equal-budget
+  diversified 80-book. No portable model exists and historical retune,
+  2026-shadow, shadow-write and production licenses are all literal false.
+  There is no retry, parameter sweep or gate relaxation. Exact evidence and
+  interpretation are in
+  `reports/2026-08-20-b1-corpus-tail-model-result.md`.
 - The full outcome-viewed B1 research corpus is now durably retained without
   a new SQL query or row inspection. Four create-only snapshot jobs (original
   plus one bounded retry per table) failed terminally with BigQuery
