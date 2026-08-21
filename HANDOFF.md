@@ -20,12 +20,12 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 01:14 CDT
+## Current state — 2026-08-21 01:18 CDT
 
 ### A7-v1 close-only recovery and fresh A7-v2 repair are source-ready
 
-- Branch `main`, source commit
-  `a9edde40903ba3567aa22174dbe8f4b9fc40ae41` (pushed to `origin/main`). The failed A7-v1 smoke remains
+- Branch `main`, latest source commit
+  `5d50067872f7aa014443c0f5db246f499dcc07c1` (pushed to `origin/main`). The failed A7-v1 smoke remains
   permanently closed and must never be relaunched or passed to the v1
   success-only finisher.
 - A new isolated close-only protocol and implementation validate the exact
@@ -325,6 +325,25 @@ agent or developer:
   `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:fcb6990e0967f5b8d0ee01f73053a5fab1f539ab96eea55f12f978019dcbcdb2`.
   Source/resolved source and the registry tag agree exactly; the build did not
   touch Cloud Run or historical outcomes.
+- The registered score-free smoke was prepared once at
+  `2026-08-21T06:15:48Z` against that exact digest/source/build. It updated
+  only existing job `atlas-md-prefix-r4-smoke`, UID
+  `51545eb0-59e4-424e-91c9-98dd318285f4`, from generation 1 to generation 2
+  with spec SHA-256
+  `fdccbebaa5046dbaa8fd8ba7344729c2f7226221c0ff2759c194d6c80ef09f6b`.
+  Before and after the update the job was idle, all prior executions were
+  terminal, no scheduler targeted it, and both result and governance prefixes
+  were exactly empty. `validate-prepared` passes over the retained create-once
+  preparation directory
+  `reports/lr8-training-source-smoke-runs/20260820-lr8-training-source-smoke-v1/`;
+  manifest SHA-256 is
+  `137a41c0d1b2aca4ddb05fefccfe32f186e641e5756e1bd2ea2ae1e1dd35c463`
+  and prepared-ledger SHA-256 is
+  `6167f71c76df15434e372760208191f77bd268e5d00f20d1b040cfb4d455b5f6`.
+  No execution, launch intent, result body, realized target/candidate outcome,
+  or historical-outcome lease exists yet. Commit/push these exact preparation
+  receipts before starting the dedicated watcher; the watcher owns the sole
+  no-retry launch, terminal poll, and strict score-free harvest.
 - The smoke transport, dashboard/build integration, 70-cell pure sharding
   core, focused tests, and milestone record are committed at
   `8a76096aa19c69f5bf5b4d7e2a7b84a06b893257`.
@@ -825,18 +844,20 @@ agent or developer:
   unmocked producer-to-settlement receipt-chain smoke. No cloud/data/outcome
   read or mutation occurred.
 
-**Scientific queue and next concrete action.** Do not build A7 v2 or launch
-the unlicensed exact-one/legal-soft drafts. Commit and push the B1 integration
-checkpoint, start one exact direct-Git full build, and wait for all tests,
-image construction and container smoke to pass. Then prepare B1 against the
-immutable digest, revalidate that reused job
-`atlas-minimal-c-s2023-w1-v1` is idle and unscheduled and that the shared
-historical-outcome lease/result/attempt prefixes are absent, commit and push
-the create-once manifest, and let the dedicated watcher acquire the lease and
-launch exactly one `maxRetries=0` historical execution. Do not inspect partial
-metrics. A B1 pass may license only the already prepared default-off 2026
-shadow; production remains unchanged until prospective proof. Never use broad
-`deploy_jobs.sh` and never create or delete a Cloud Run job.
+**Scientific queue and next concrete action.** Keep the two independent lanes
+serialized only where required. First commit/push the exact LR8 smoke
+preparation receipts, then start its dedicated watcher in a persistent session;
+it owns exactly one score-free 2019-W1/R0 execution with `maxRetries=0`, and an
+ambiguous or failed launch is never retried. If its terminal harvest and cell-0
+parity pass, integrate the already source-green 70-cell full-source transport
+into Docker/Cloud Build/dashboard, rebuild from an exact pushed source, and
+prepare the historical 2019/2021 source census. In parallel, let repaired A7
+build `f500c3ed-1960-427a-a415-2f4a4bff804b` reach terminal; only after exact
+success manually create and inspect its first v2 preflight claim before giving
+the later smoke/support stages to the watcher. Do not inspect partial metrics,
+launch the unlicensed exact-one/legal-soft drafts, use broad `deploy_jobs.sh`,
+or create/delete a Cloud Run job. Production remains unchanged until the
+registered historical evidence licenses a bounded challenger.
 
 ## Prior state — 2026-08-20 08:37 CDT
 
