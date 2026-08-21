@@ -329,8 +329,16 @@ agent or developer:
   `b5235614b26e9a2f7f9b406ea5720315c8d529637b078638902900688c276ab7`,
   object generation `1787270469735984`. `validate-prepared` and every
   `prepared.sha256` target are green. No lease, launch intent, execution,
-  outcome query or score access occurred. Commit and push these exact prepared
-  receipts before starting the registered historical watcher.
+  outcome query or score access occurred during preparation. Those exact
+  receipts were committed and pushed at `485dc87`. The registered watcher then
+  acquired historical-outcome lease generation `1787270618157974`, published
+  create-only launch intent generation `1787270636016750`, repeated the exact
+  idle-job/scheduler/prefix gates, and launched exactly one `maxRetries=0`
+  execution: `atlas-minimal-c-s2023-w1-v1-sm64k`. Its six-field execution
+  ledger names the sole attempt/report/model URIs and is visible to
+  `chain_status.sh`. Do not open any body or metric while the execution is
+  nonterminal; the watcher alone owns strict metadata polling, harvest and
+  exact-generation lease closure. There is no retry.
 - The full outcome-viewed B1 research corpus is now durably retained without
   a new SQL query or row inspection. Four create-only snapshot jobs (original
   plus one bounded retry per table) failed terminally with BigQuery
