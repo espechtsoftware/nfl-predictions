@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 01:43 CDT
+## Current state — 2026-08-21 01:47 CDT
 
 ### A7-v1 close-only recovery and fresh A7-v2 repair are source-ready
 
@@ -399,6 +399,15 @@ agent or developer:
   is unavailable locally. No real query, cloud write, lease or launch occurred
   during this repair. Build a fresh exact-source image before any v2 prepare;
   the old v1 image is not repair-overridable or reusable.
+- The v2 repair was committed/pushed at
+  `7ae6f37c7ba256e09daa9f41c66c79c5c2530924`. Exact direct-Git build
+  `a2940800-2006-4495-95ae-fc04eb5036cf` was created at
+  `2026-08-21T06:45:02.123397008Z` with resolved source exactly that commit
+  and requested tag `lr8-smoke-7ae6f37`; it entered `WORKING` at
+  `2026-08-21T06:46:06.060376520Z` with `full-test-suite` active and image/
+  container-smoke steps queued. Let the full suite run to terminal and require
+  one immutable digest before preparing v2; never substitute the prior v1
+  image or bypass a test failure.
 - The smoke transport, dashboard/build integration, 70-cell pure sharding
   core, focused tests, and milestone record are committed at
   `8a76096aa19c69f5bf5b4d7e2a7b84a06b893257`.
