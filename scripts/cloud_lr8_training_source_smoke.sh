@@ -84,7 +84,7 @@ case "$COMMAND" in
     IMAGE_TAG="us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:lr8-smoke-${CODE_SHA:0:7}"
     printf 'gcloud builds submit %q --git-source-revision=%q --config=%q --substitutions=%q --project=%q --format=%q\n' \
       'https://github.com/espechtsoftware/nfl-predictions.git' \
-      "$CODE_SHA" cloudbuild.yaml "_IMAGE=$IMAGE_TAG,_CODE_SHA=$CODE_SHA" \
+      "$CODE_SHA" cloudbuild.yaml "_IMAGE=$IMAGE_TAG" \
       "$PROJECT" json
     ;;
 

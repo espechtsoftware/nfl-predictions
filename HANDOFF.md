@@ -219,7 +219,7 @@ agent or developer:
   touched.
 - The single real-source smoke now has a dedicated update-only transport:
   `scripts/cloud_lr8_training_source_smoke.sh` (SHA-256
-  `59b3d4f4043a1e66281bcb630455bbfd7e46ef358429cca004f7b6c10e8cc1f7`),
+  `7b60802876665385543ea5c8c5b944a3a66e4c8a411c48bb67de1c19cd25761d`),
   `scripts/watch_lr8_training_source_smoke_queue.sh` (SHA-256
   `bf64db446b182cafb574d7487e086c2e7cdbba7fbed80d1fd458da6a8bf0d388`),
   and `scripts/finish_lr8_training_source_smoke.py` (SHA-256
@@ -241,6 +241,10 @@ agent or developer:
   direct-Git build-command rendering, and whitespace checks are green.
   Dockerfile and Cloud Build contain the runner/transport plus their four
   registered container smokes.
+- The first LR8 build submission was rejected by the API before a build was
+  created because its rendered command supplied an unused `_CODE_SHA` custom
+  substitution. The launcher now emits only the used `_IMAGE` substitution;
+  its focused 12-test suite and shell/render checks pass after the repair.
 - The smoke transport, dashboard/build integration, 70-cell pure sharding
   core, focused tests, and milestone record are committed at
   `8a76096aa19c69f5bf5b4d7e2a7b84a06b893257`.

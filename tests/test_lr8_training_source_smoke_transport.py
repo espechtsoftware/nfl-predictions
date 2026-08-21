@@ -729,6 +729,7 @@ def test_shell_transport_is_update_only_no_lease_and_status_visible():
     assert "gcloud run jobs create" not in launcher
     assert "gcloud run jobs deploy" not in launcher
     assert "gcloud run jobs delete" not in launcher
+    assert "_CODE_SHA" not in launcher
     assert "historical_outcome_lease.py" not in launcher + watcher
     assert "--tasks 1 --parallelism 1" in launcher
     assert "--max-retries 0" in launcher
