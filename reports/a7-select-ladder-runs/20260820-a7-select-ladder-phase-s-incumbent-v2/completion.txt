@@ -1,0 +1,16 @@
+validated_at=2026-08-21T11:31:04.003329+00:00
+run_id=20260820-a7-select-ladder-phase-s-incumbent-v2
+disposition=historical-null-or-inconclusive-phase-s
+executions=1
+objects=1
+scientific_bodies=1
+strict_science_replay=true
+report_sha256=e29c31df96f8d207361504d5db5615e3120ede77d783a0725a4721621bf74b15
+science_replay_sha256=54e233c33c434cb4f2dc29ced35e0962dae1b4d84796392df22c932caa1da48e
+freeze_manifest_sha256=1621e68d9b40880c2b17cc517b2222027483e7f60109ff4ecb15abedb12f65e0
+uses_realized_outcomes=true
+actual_score_query_executed=true
+production_change_licensed=false
+prospective_shadow_licensed=false
+historical_outcome_lease_release_licensed=true
+historical_outcome_lease_released=false

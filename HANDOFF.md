@@ -20,9 +20,23 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 06:01 CDT
+## Current state — 2026-08-21 06:35 CDT
 
-### A7 exact-80 historical comparison is the sole active priority
+### A7 exact-80 historical comparison is terminally null; no shadow is licensed
+
+- The sole A7-v2 historical comparison is complete and independently
+  verified. Exact-80 SELECT_LADDER versus the frozen control produced mean
+  delta `+0.049630`, signed-rank `W+=13.0`, deterministic mean-test
+  `p=0.843750`, and signed-rank `p=0.687500`. Threshold counts moved
+  `187 17->17`, `194 8->8`, `200 7->6`, `210 6->5`, `220 3->2`,
+  `230 1->1`, and `240 0->0`. Exact-14 mean delta was `+0.087037`
+  (`p_mean=0.824219`, `p_rank=0.496094`) with no tail-count improvement;
+  exact-4 mean delta was `+0.660370` (`p_mean=0.602173`,
+  `p_rank=0.714844`) while 187+ fell `4->3`. The registered and independently
+  recomputed disposition is `historical-null-or-inconclusive-phase-s`.
+  Production-law transfer and prospective-shadow licenses are both false.
+  Do not retune the ladder, launch the conditional transfer, or deploy this
+  challenger. The Week-1 money path remains the unchanged incumbent.
 
 - **2026-08-21 operator reprioritization:** do not hold the Week-1 decision
   behind additional LR8 transport or solver scaffolding. The closest completed
@@ -57,8 +71,10 @@ agent or developer:
   replay hardening, but its four new files remain uncommitted pending final
   integration review and are not on the Week-1 decision critical path.
 
-- Branch `main`; pushed parent before the A7 support/freeze receipt is
-  `8c52489fa83be1dfdd45e320f46fa0a3cc5eaeea`. LR8-v2 is mechanically closed
+- Branch `main`; pushed parent before this terminal A7 receipt is
+  `f065bf2` (`Freeze A7 production-law selector transfer before result`).
+  This HANDOFF and the immutable terminal receipt population are committed
+  together. LR8-v2 is mechanically closed
   without a score; do not spend another LR8 build or execution while the one
   licensed A7-v2 historical comparison is active.
 - Exact LR8-v2 Cloud Build `6a364353-2485-43e9-9fdc-21f42df70bcb`
@@ -196,22 +212,35 @@ agent or developer:
   `d4ce05e3463e9098c27d55db914031456342c05ce1cc2c07ecf37ce06ec3c660`),
   and launched the sole zero-retry historical execution
   `atlas-minimal-c-s2023-w1-v1-fkxv8` at
-  `2026-08-21T10:17:57.157063Z`. It became `Started=True` at
-  `2026-08-21T10:19:06.056901Z`; it currently has one running task and no
-  failed, succeeded, or retried counter. Do not read a partial result, release
-  the lease manually, cancel, or relaunch. The registered watcher must carry
-  it through terminal-first strict harvest and lease closure. The immediately
-  preceding same-corpus support run took 33m56.78s; historical mode performs
-  that reconstruction plus a second independent replay. The evidence-based
-  planning window is terminal around `2026-08-21T11:20Z--11:36Z` and fully
-  validated scores around `11:50Z--12:15Z`; the hard zero-retry task timeout is
-  `2026-08-21T12:18:11Z`.
-  The immutable pre-terminal launch directory is tracked under
+  `2026-08-21T10:17:57.157063Z`. It started at
+  `2026-08-21T10:18:11.497677Z` and completed successfully at
+  `2026-08-21T10:54:05.254876Z` after 35m53.75s, with one succeeded task and
+  no failed or retried task. Strict terminal-first harvest and independent
+  science replay completed at `2026-08-21T11:31:04Z`. Report, science replay,
+  completion, and finish-ledger SHA-256 are respectively
+  `e29c31df96f8d207361504d5db5615e3120ede77d783a0725a4721621bf74b15`,
+  `54e233c33c434cb4f2dc29ced35e0962dae1b4d84796392df22c932caa1da48e`,
+  `af23011cc3f2d7837e62dedd1c492c999c47498643cc8c362c35dc0089674787`,
+  and `e9328355dbf43a1451ef8a705d898688ad5ec4eae1ad4639804b8cf30d70c692`.
+  The immutable terminal directory is tracked under
   `reports/a7-select-ladder-runs/20260820-a7-select-ladder-phase-s-incumbent-v2/`;
   its manifest, prepared ledger, and launch ledger have SHA-256
   `cebf17c5d2d3ab294448e41e2c7d7bea0bf0526c14ae70211aa014c1a03f8c15`,
   `3329f97dcb726b5ef3a18a27b5cd0ea4e78f7466caa956bca51ce4b56f8cd7ad`,
   and `74f72057e8699826b80922d3cd91607a8589fa1fc7a79817a866aec72e0c26d9`.
+- The first post-harvest watcher pass hit an administrative parser defect:
+  completion values retained their newline characters, so shell `read`
+  populated only `historical_outcome_lease_release_licensed` and left the
+  realized/disposition fields empty. It failed closed after the immutable
+  harvest and left the lease held; it did not alter the result or relaunch.
+  The registered restart path then recognized the finished realized result,
+  created the durable release intent, deleted only the exact lease generation,
+  and revalidated closure at `2026-08-21T11:32:25Z`. Release-intent object
+  generation is `1787311943746495`; intent/object/lease-release receipt
+  SHA-256 are `61d3af2a5d1bfa46bf87a8d6939fb8d7b897e1a0679b9dcf44d09d796f17df09`,
+  `33b898ff720247cb714cee0d6f4002981d91e536fb9a52ceeae499f9a5db0efc`,
+  and `0cb058154da510505100df3be56a9fc4851d073a46a2f962d3e411665632641f`.
+  The active lease object is absent and no A7 chain process remains.
 - The independent post-harvest co-primary verifier is now source-green before
   the historical result exists. It imports no A7 science, finisher, or paired-
   statistics implementation; requires the exact canonical 54-slate report to
@@ -223,6 +252,9 @@ agent or developer:
   is 9/9 green plus pycompile and whitespace checks. Script/test SHA-256 are
   `8e967584eb6d210b1c5e54bdba4d4041f82ce775cd9348a5f66a24531280d0a7`
   and `be2a6a3193d55412f2d3052056f30cdf3c5181de54e1d0024074e55b767433cd`.
+  It was run after strict closure against the sealed report and returned exit
+  zero: every mean, W+, exact/randomization p-value, threshold-grid cell,
+  condition, disposition, and license matched independently.
 - Before the A7 historical result was available, the conditional production-
   law transfer science was separately frozen as
   `20260821-a7-production-law-scorefree-selector-transfer-v1`. It validates an
@@ -244,8 +276,16 @@ agent or developer:
   `3e2c01f13e7be23f6e1638037d5b334d1380543c5986086a3c7e81c2c061092f`,
   `2f27304b73e988398e7323b00d2a92784e56de6ecfbef9ef48781e8c119afe08`,
   and `12cc1a962f2cdf7e6102e267b8683e4630dbdb0b14b0a6ffc25e6b76bd223408`.
-  This is a pre-result science/implementation freeze only: no update-only
-  one-job/retry-zero terminal transport exists yet, so it is not launchable.
+  This remains a pre-result science/implementation freeze only. The now-null
+  A7 predecessor fails its first gate, so neither this transfer nor its
+  source-green uncommitted update-only transport may be launched.
+
+**Next concrete action.** Treat A7 as closed with no retune and no shadow.
+Keep the unchanged incumbent for Week 1. The only honest ongoing challenger
+paths are the already-default-off prospective CBWU-volume shadow, which needs
+unseen 2026 slates, or a separately frozen LR8-v3 warm-start repair plus its
+outcome-free real-shaped solver benchmark. Neither is licensed by this null
+result to become the requested passing default-off shadow before Week 1.
 
 - Branch `main`, historical pushed parent milestone
   `1cbbc3d88e199bd9078e7059ef13b1d9ef76df64` (pushed to `origin/main`); the

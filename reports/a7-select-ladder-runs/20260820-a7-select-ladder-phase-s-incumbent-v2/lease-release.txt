@@ -1,0 +1,10 @@
+released_at=2026-08-21T11:32:25.534203+00:00
+run_id=20260820-a7-select-ladder-phase-s-incumbent-v2
+lease_receipt_sha256=5928d65445df1371f9212b0c6b1e57acb213c178a77cbd3c1546605763964d2b
+completion_sha256=af23011cc3f2d7837e62dedd1c492c999c47498643cc8c362c35dc0089674787
+lease_action=released-after-realized-outcome
+lease_archive_uri=none
+lease_release_intent_uri=gs://nfl-predictions-503414-raw/research/a7-select-ladder-runs/20260820-a7-select-ladder-phase-s-incumbent-v2/lease-release-intent.json
+lease_release_intent_generation=1787311943746495
+lease_release_intent_sha256=61d3af2a5d1bfa46bf87a8d6939fb8d7b897e1a0679b9dcf44d09d796f17df09
+lease_release_intent_object_sha256=33b898ff720247cb714cee0d6f4002981d91e536fb9a52ceeae499f9a5db0efc
