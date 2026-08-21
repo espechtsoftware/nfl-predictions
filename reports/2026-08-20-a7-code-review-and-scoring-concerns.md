@@ -1161,3 +1161,102 @@ evaluation-code defects, that asymmetry is the whole argument.
 
 I will run it myself as reviewer when the receipts land and report the
 outcome either way.
+
+---
+
+## Addendum 14 (2026-08-21): A7 result — NULL, verified as far as the receipts allow
+
+`A7_SELECT_LADDER_STRICTLY_HARVESTED ... disposition=historical-null-or-inconclusive-phase-s`.
+
+### The numbers
+
+| Cut | Control | Treatment | Delta |
+|---|---|---|---|
+| **N=80 (gating)** | 176.063 | 176.113 | **+0.050** |
+| N=14 | 161.666 | 161.753 | +0.087 |
+| N=4 | 146.260 | 146.920 | +0.660 |
+
+N=80 co-primaries: `p_mean = 0.844`, `p_signed_rank = 0.688`, with 4
+slates better, 2 worse, **48 tied**. Season deltas +0.31 / −1.51 / +1.35;
+bootstrap 95% interval [−1.35, +1.35] straddles zero. Null on every
+reading.
+
+### Two findings the result document should carry
+
+**1. The ladder bought its (negligible) mean by giving up tail clears.**
+Threshold grid, control → treatment:
+
+| Line | 187 | 194 | 200 | 210 | 220 | 230 |
+|---|---|---|---|---|---|---|
+| Control | 17 | 8 | 7 | 6 | 3 | 1 |
+| Treatment | 17 | 8 | **6** | **5** | **2** | 1 |
+
+The treatment lost a slate at 200, at 210, and at 220 while gaining
++0.05 of mean. It passed the frozen non-inferiority guards only because
+those guards cover 194 (unchanged) and 200 (−1, exactly at the floor)
+and do not extend to 210 or 220. This is the shoulder-heavy concern from
+section 2 of this review landing precisely as described: 68% of the
+ladder's utility sits at or below 194, so the selector bought breadth
+low and paid for it in the tail — the region the program actually cares
+about.
+
+**2. N=4 improved more than N=80, by an order of magnitude.** The
+non-gating prefixes moved +0.66 (N=4) and +0.087 (N=14) against +0.050
+(N=80). That is the operational hazard from section 3, inverted: the
+arm is null on the gated cut while the cut we actually enter shows the
+largest movement. It licenses nothing — the prefixes are non-gating by
+design and n=54 with 48 ties is nowhere near evidence — but it is a
+concrete argument for making exact-N a first-class question rather than
+a reported afterthought.
+
+**Reading discipline, as pre-committed:** this is a null *for this
+shoulder-heavy dose*, not a verdict that objective alignment is closed.
+The protocol's own branch says the same ("close only this Phase-S
+dose"). Given finding 1, a tail-weighted ladder is a materially
+different experiment and remains untested.
+
+### Verification status: partial, and honestly so
+
+I ran the reviewer instrument. It refused: `INVALID HARVEST: --result
+must be the final local report.json`. That refusal is correct — the
+strict local harvest never completed because the completion step errored
+(below), so the receipt ledger it requires does not exist.
+
+I therefore ran every independent check the published summary supports,
+directly from the GCS result body:
+
+- `cuts` mean delta reproduces `paired.mean_diff` exactly (+0.049630);
+- better/worse/tied (4/2/48) sums to the 54 slates;
+- all 54 leave-one-slate deltas average back to the full-sample delta
+  (+0.049630) and their min/max match the recorded extremes exactly;
+- the `threshold_grid` block agrees cell-for-cell with the per-arm
+  threshold counts.
+
+**What I could NOT verify:** the two p-values and the threshold counts
+themselves, because the result body carries no per-slate `prefix_maxima`
+— only the aggregated `cuts`. The instrument was built to recompute from
+per-slate receipts; those are not in the published object. So the
+deciding statistics remain checked only by the code that produced them.
+
+**Recommendation:** persist per-slate prefix maxima (or a per-slate
+control/treatment score vector) in the result object. It is a few
+kilobytes, it costs nothing scientifically, and without it no
+independent party — including a future reader of the record — can
+recompute the numbers that decided the arm. For this run the practical
+step is to complete the local harvest so the ledger exists, then rerun
+the instrument; if per-slate rows are genuinely absent from the object,
+the recomputation cannot be done at all and that limitation belongs in
+the result document.
+
+### The lease is stranded again
+
+`ERROR: A7 completion outcome/release branch differs; lease held` — the
+execution succeeded, the science was harvested, and the completion/
+release branch then failed, leaving the historical-outcome lease HELD
+for the second time in two days (Addendum 4 was the first). Every
+subsequent scored arm is blocked until it is released. The science is
+safe; this is transport. It should be released through the receipted
+path once the completion mismatch is understood, and the completion
+branch deserves the same "name the failing leg" treatment I recommended
+for the build gate in Addendum 9 — a generic "branch differs" message on
+a step that strands a global mutex is expensive to diagnose twice.
