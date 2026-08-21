@@ -33,6 +33,10 @@ def _common_law() -> dict[str, object]:
         "source_receipts": source_receipts,
         "source_receipt_set_sha256": batch.canonical_sha256(source_receipts),
         "later_source_freeze_manifest_sha256": "9" * 64,
+        "artifact_source_authority_completion": _receipt(
+            "artifact-source-authority-completion", 14
+        ),
+        "artifact_source_authority_completion_sha256": "2" * 64,
         "effective_policy_inventory_identity": _receipt(
             "effective-policy-inventory", 3
         ),
@@ -109,6 +113,9 @@ def _tasks() -> list[dict[str, object]]:
             "world_artifact_receipts": artifacts,
             "world_artifact_receipt_set_sha256": batch.canonical_sha256(
                 artifacts
+            ),
+            "artifact_source_authority_task_sha256": (
+                str(5 + task_index) * 64
             ),
         })
     return rows

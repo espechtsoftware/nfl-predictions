@@ -20,14 +20,15 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 14:46 CDT
+## Current state — 2026-08-21 14:50 CDT
 
 ### Corpus retrieval engine is focused-green; exact cloud task 0 is pending
 
 - Branch `main`; retrieval milestone commit
   `2fb3ed25fc81b853435bef8d2338d8b1627e65fb` (`Add governed corpus retrieval
-  engine`) and build-smoke repair commit
-  `198bb006b6e73d7c0506e36ef5ddae60972ecaa8` are pushed to `origin/main`.
+  engine`), input-capture commit
+  `9dd4a4ac2e3e8b5c2fb30bfd01e0c2e9dea5229d`, and src-layout build repair
+  `17dc09599225a6c9505359d88569db6b82ea5ec7` are pushed to `origin/main`.
   Full Git and Google Cloud access was restored after the editor restart. The
   new retrieval path is deliberately
   independent of corpus production: it scores the complete unique R0--R4
@@ -135,8 +136,11 @@ agent or developer:
   `PYTHONPATH=.` loaded the installed wheel instead of the pinned checkout for
   the new effective-policy inventory tests. `PYTHONPATH=src` makes all 16 tests
   pass, and a repository-config regression now pins that exact setting. This
-  second canceled build is also permanently ineligible; one repaired clean
-  direct-Git build remains to be submitted.
+  second canceled build is also permanently ineligible. Repaired clean
+  direct-Git build `210b1f7d-c37a-4201-b6eb-66e9686c2205` resolved exact
+  commit `17dc09599225a6c9505359d88569db6b82ea5ec7` and started its full test step
+  at 14:47 CDT. It was still `WORKING` at the last 14:50 CDT observation; do
+  not submit another build while it runs.
 - A prior outcome-blind engineering prototype over the exact task-0 shapes
   found 1,276 source rows, 585 unique lineups, 27,117 strict-`>200` events,
   581 lineups with an event, and 9,534 worlds with an event. These are
@@ -169,8 +173,21 @@ agent or developer:
   250 used players, five exact 10,000-world artifacts, and no realized-outcome
   field. All source-lock/R0--R4 local bytes match their frozen generations,
   byte counts, and SHA-256 values.
-- Next concrete action: commit/push the src-layout Cloud Build repair, submit
-  one clean direct-Git replacement, require it to succeed, publish/reopen the
+- A separate default-off larger-suite milestone now includes the parametric
+  manifest v2, the outcome-blind legal-feasibility producer, and an independent
+  raw-authority replay verifier. It freezes the incumbent plus six relaxation
+  arms, binds each task to the artifact-source-authority completion/task row,
+  retains complete generated-unique 50,000-world coverage, and independently
+  replays CBC evidence, effective policies, populations, matrices, and exact-80
+  books. Focused validation is 78 batch, 17 evidence-contract, 26 producer,
+  and 15 verifier tests; a real CBC regression is optimal then collision-proof
+  infeasible. See
+  `reports/2026-08-21-corpus-legal-feasibility-authority-v1.md`. This is not
+  launch authority: transport/terminal publication and one real-artifact
+  end-to-end smoke remain open, and Neo4j remains a separate rebuildable
+  append-only projection with no execution or policy authority.
+- Next concrete action: require build
+  `210b1f7d-c37a-4201-b6eb-66e9686c2205` to succeed, publish/reopen the
   exact create-once input suite against its immutable digest, build canonical runtime
   IAM evidence, run immediate all-region scheduler and namespace censuses,
   permanently

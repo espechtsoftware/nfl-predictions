@@ -32,6 +32,10 @@ def _common_law() -> dict[str, object]:
         "source_receipts": source_receipts,
         "source_receipt_set_sha256": batch.canonical_sha256(source_receipts),
         "later_source_freeze_manifest_sha256": "9" * 64,
+        "artifact_source_authority_completion": _receipt(
+            "artifact-source-authority-completion", 14
+        ),
+        "artifact_source_authority_completion_sha256": "2" * 64,
         "effective_policy_inventory_identity": _receipt(
             "effective-policy-inventory", 3
         ),
@@ -113,6 +117,9 @@ def _tasks() -> list[dict[str, object]]:
     for task in tasks:
         task["world_artifact_receipt_set_sha256"] = batch.canonical_sha256(
             task["world_artifact_receipts"]
+        )
+        task["artifact_source_authority_task_sha256"] = (
+            str(5 + task["task_index"]) * 64
         )
     return tasks
 
@@ -416,6 +423,13 @@ def test_common_source_and_inventory_roles_and_hashes_are_exact() -> None:
     assert law["later_source_freeze_manifest_sha256"] != law[
         "source_receipts"
     ]["later_source_freeze"]["sha256"]
+    assert law["artifact_source_authority_completion"] == _receipt(
+        "artifact-source-authority-completion", 14
+    )
+    assert law["artifact_source_authority_completion_sha256"] == "2" * 64
+    assert law["artifact_source_authority_completion_sha256"] != law[
+        "artifact_source_authority_completion"
+    ]["sha256"]
     assert set(law) >= {
         "effective_policy_inventory_identity",
         "effective_policy_inventory_sha256",
@@ -463,6 +477,30 @@ def test_common_source_and_inventory_roles_and_hashes_are_exact() -> None:
             "lowercase SHA-256",
         ),
         (
+            lambda law: law.pop("artifact_source_authority_completion"),
+            "missing=.*artifact_source_authority_completion",
+        ),
+        (
+            lambda law: law.update({
+                "artifact_source_authority_completion_sha256": law[
+                    "artifact_source_authority_completion"
+                ]["sha256"]
+            }),
+            "must not be conflated",
+        ),
+        (
+            lambda law: law.update({
+                "artifact_source_authority_completion_sha256": True
+            }),
+            "lowercase SHA-256",
+        ),
+        (
+            lambda law: law["artifact_source_authority_completion"].update({
+                "uri": law["source_receipts"]["later_source_freeze"]["uri"]
+            }),
+            "URI overlaps a common source",
+        ),
+        (
             lambda law: law["effective_policy_inventory_identity"].update({
                 "generation": "0"
             }),
@@ -496,6 +534,7 @@ def test_task_world_artifact_roles_and_hash_are_exact() -> None:
         assert task["world_artifact_receipt_set_sha256"] == (
             batch.canonical_sha256(task["world_artifact_receipts"])
         )
+        assert len(task["artifact_source_authority_task_sha256"]) == 64
 
 
 @pytest.mark.parametrize(
@@ -518,6 +557,16 @@ def test_task_world_artifact_roles_and_hash_are_exact() -> None:
                 "world_artifact_receipt_set_sha256": "0" * 64
             }),
             "world-artifact-set hash differs",
+        ),
+        (
+            lambda task: task.pop("artifact_source_authority_task_sha256"),
+            "missing=.*artifact_source_authority_task_sha256",
+        ),
+        (
+            lambda task: task.update({
+                "artifact_source_authority_task_sha256": True
+            }),
+            "lowercase SHA-256",
         ),
         (
             lambda task: task["world_artifact_receipts"][
@@ -649,6 +698,17 @@ def test_manifest_object_identity_must_use_exact_governance_uri() -> None:
             ].update({
                 "uri": (
                     "gs://test-bucket/batches/corpus-demo-v1/inputs/policy.json"
+                )
+            }),
+            "source/common artifact namespace overlaps",
+        ),
+        (
+            lambda tasks, law: law[
+                "artifact_source_authority_completion"
+            ].update({
+                "uri": (
+                    "gs://test-bucket/batches/corpus-demo-v1/inputs/"
+                    "source-authority.json"
                 )
             }),
             "source/common artifact namespace overlaps",
@@ -823,6 +883,8 @@ def test_successful_task_result_binds_every_common_identity_and_variant() -> Non
     manifest = _manifest()
     receipt = _task_result(manifest, 0)
 
+    assert manifest["schema_version"] == "corpus-parametric-batch-manifest-v2"
+    assert receipt["schema_version"] == "corpus-parametric-task-result-v2"
     assert receipt["batch_manifest_sha256"] == manifest["batch_manifest_sha256"]
     assert receipt["common_law_sha256"] == manifest["common_law_sha256"]
     assert receipt["code_source"] == manifest["common_law"]["code_source"]
@@ -834,6 +896,12 @@ def test_successful_task_result_binds_every_common_identity_and_variant() -> Non
     assert receipt["later_source_freeze_manifest_sha256"] == manifest[
         "common_law"
     ]["later_source_freeze_manifest_sha256"]
+    assert receipt["artifact_source_authority_completion"] == manifest[
+        "common_law"
+    ]["artifact_source_authority_completion"]
+    assert receipt["artifact_source_authority_completion_sha256"] == manifest[
+        "common_law"
+    ]["artifact_source_authority_completion_sha256"]
     assert receipt["effective_policy_inventory_identity"] == manifest[
         "common_law"
     ]["effective_policy_inventory_identity"]
@@ -857,6 +925,9 @@ def test_successful_task_result_binds_every_common_identity_and_variant() -> Non
     assert receipt["world_artifact_receipt_set_sha256"] == manifest["tasks"][0][
         "world_artifact_receipt_set_sha256"
     ]
+    assert receipt["artifact_source_authority_task_sha256"] == manifest[
+        "tasks"
+    ][0]["artifact_source_authority_task_sha256"]
     assert receipt["world_schedule"] == manifest["common_law"]["world_schedule"]
     assert receipt["solver"] == manifest["common_law"]["solver"]
     assert len(receipt["variant_results"]) == 7
@@ -968,6 +1039,33 @@ def test_result_replay_rejects_common_law_field_drift_even_if_rehashed() -> None
         )
 
 
+@pytest.mark.parametrize(
+    "field",
+    [
+        "artifact_source_authority_completion_sha256",
+        "artifact_source_authority_task_sha256",
+        "world_artifact_receipt_set_sha256",
+    ],
+)
+def test_result_replay_rejects_source_authority_binding_drift(
+    field: str,
+) -> None:
+    manifest = _manifest()
+    receipt = _task_result(manifest, 0)
+    receipt[field] = "7" * 64
+    body = {
+        key: value for key, value in receipt.items() if key != "task_result_sha256"
+    }
+    receipt["task_result_sha256"] = batch.canonical_sha256(body)
+
+    with pytest.raises(batch.CorpusParametricBatchError, match="binding differs"):
+        batch.validate_task_result_receipt(
+            receipt,
+            batch_manifest=manifest,
+            batch_manifest_identity=_manifest_identity(manifest),
+        )
+
+
 def test_result_replay_rejects_classified_projection_drift_if_rehashed() -> None:
     manifest = _manifest()
     receipt = _task_result(manifest, 0)
@@ -1000,6 +1098,9 @@ def test_completion_requires_the_exact_task_by_seven_variant_matrix() -> None:
         "matrix_cell_count": 14,
         "complete": True,
     }
+    assert completion["schema_version"] == (
+        "corpus-parametric-batch-completion-v2"
+    )
     assert completion["later_source_freeze_manifest_sha256"] == manifest[
         "common_law"
     ]["later_source_freeze_manifest_sha256"]
@@ -1008,12 +1109,25 @@ def test_completion_requires_the_exact_task_by_seven_variant_matrix() -> None:
     ] == manifest["common_law"][
         "effective_policy_classified_input_projection_sha256"
     ]
+    assert completion["artifact_source_authority_completion"] == manifest[
+        "common_law"
+    ]["artifact_source_authority_completion"]
+    assert completion["artifact_source_authority_completion_sha256"] == manifest[
+        "common_law"
+    ]["artifact_source_authority_completion_sha256"]
     assert len(completion["task_results"]) == 2
     assert [
         row["world_artifact_receipt_set_sha256"]
         for row in completion["task_results"]
     ] == [
         task["world_artifact_receipt_set_sha256"]
+        for task in manifest["tasks"]
+    ]
+    assert [
+        row["artifact_source_authority_task_sha256"]
+        for row in completion["task_results"]
+    ] == [
+        task["artifact_source_authority_task_sha256"]
         for task in manifest["tasks"]
     ]
     assert batch.validate_batch_completion_receipt(
@@ -1033,6 +1147,31 @@ def test_completion_replay_rejects_freeze_manifest_hash_drift() -> None:
         retained_task_results=retained,
     )
     completion["later_source_freeze_manifest_sha256"] = "8" * 64
+    body = {
+        key: value
+        for key, value in completion.items()
+        if key != "batch_completion_sha256"
+    }
+    completion["batch_completion_sha256"] = batch.canonical_sha256(body)
+
+    with pytest.raises(batch.CorpusParametricBatchError, match="differs"):
+        batch.validate_batch_completion_receipt(
+            completion,
+            batch_manifest=manifest,
+            batch_manifest_identity=_manifest_identity(manifest),
+            retained_task_results=retained,
+        )
+
+
+def test_completion_replay_rejects_source_authority_hash_drift() -> None:
+    manifest = _manifest()
+    retained = _retained_results(manifest)
+    completion = batch.build_batch_completion_receipt(
+        batch_manifest=manifest,
+        batch_manifest_identity=_manifest_identity(manifest),
+        retained_task_results=retained,
+    )
+    completion["artifact_source_authority_completion_sha256"] = "7" * 64
     body = {
         key: value
         for key, value in completion.items()

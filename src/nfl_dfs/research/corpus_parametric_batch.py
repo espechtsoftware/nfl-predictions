@@ -26,10 +26,10 @@ from typing import Final
 
 PARAMETER_SPEC_SCHEMA: Final = "corpus-parametric-parameter-spec-v1"
 PARAMETER_SET_SCHEMA: Final = "corpus-parametric-parameter-set-v1"
-BATCH_MANIFEST_SCHEMA: Final = "corpus-parametric-batch-manifest-v1"
+BATCH_MANIFEST_SCHEMA: Final = "corpus-parametric-batch-manifest-v2"
 TASK_REQUEST_SCHEMA: Final = "corpus-parametric-task-request-v1"
-TASK_RESULT_SCHEMA: Final = "corpus-parametric-task-result-v1"
-BATCH_COMPLETION_SCHEMA: Final = "corpus-parametric-batch-completion-v1"
+TASK_RESULT_SCHEMA: Final = "corpus-parametric-task-result-v2"
+BATCH_COMPLETION_SCHEMA: Final = "corpus-parametric-batch-completion-v2"
 ESTIMAND: Final = (
     "matched-world legal-feasibility generation under frozen "
     "admission/selector"
@@ -173,6 +173,7 @@ _TASK_INPUT_KEYS: Final = frozenset({
     "variant_output_prefix",
     "world_artifact_receipts",
     "world_artifact_receipt_set_sha256",
+    "artifact_source_authority_task_sha256",
 })
 _TASK_KEYS: Final = _TASK_INPUT_KEYS | {"task_sha256"}
 _SOLVE_BUDGET_KEYS: Final = frozenset({
@@ -198,6 +199,8 @@ _COMMON_LAW_KEYS: Final = frozenset({
     "source_receipts",
     "source_receipt_set_sha256",
     "later_source_freeze_manifest_sha256",
+    "artifact_source_authority_completion",
+    "artifact_source_authority_completion_sha256",
     "effective_policy_inventory_identity",
     "effective_policy_inventory_sha256",
     "effective_policy_rule_universe_sha256",
@@ -710,10 +713,44 @@ def normalize_common_law(value: object) -> dict[str, object]:
             "must not be conflated"
         )
     result["later_source_freeze_manifest_sha256"] = freeze_manifest_sha256
+    authority_completion = normalize_object_identity(
+        item["artifact_source_authority_completion"],
+        label="common law.artifact_source_authority_completion",
+    )
+    authority_completion_sha256 = _sha256(
+        item["artifact_source_authority_completion_sha256"],
+        label="common law.artifact_source_authority_completion_sha256",
+    )
+    if authority_completion_sha256 == authority_completion["sha256"]:
+        raise CorpusParametricBatchError(
+            "artifact-source-authority completion internal and retained-object "
+            "hashes must not be conflated"
+        )
+    occupied_common_uris = {
+        result[key]["uri"] for key in _MECHANISM_RECEIPT_KEYS
+    }
+    occupied_common_uris.update(
+        identity["uri"] for identity in sources.values()
+    )
+    if authority_completion["uri"] in occupied_common_uris:
+        raise CorpusParametricBatchError(
+            "artifact-source-authority completion URI overlaps a common source"
+        )
+    result["artifact_source_authority_completion"] = authority_completion
+    result["artifact_source_authority_completion_sha256"] = (
+        authority_completion_sha256
+    )
     result["effective_policy_inventory_identity"] = normalize_object_identity(
         item["effective_policy_inventory_identity"],
         label="common law.effective_policy_inventory_identity",
     )
+    if (
+        result["effective_policy_inventory_identity"]["uri"]
+        == authority_completion["uri"]
+    ):
+        raise CorpusParametricBatchError(
+            "artifact-source-authority completion URI overlaps policy inventory"
+        )
     for key in (
         "effective_policy_inventory_sha256",
         "effective_policy_rule_universe_sha256",
@@ -780,6 +817,7 @@ def _validate_input_namespace(
     ]
     identities.extend(common_law["source_receipts"].values())
     identities.append(common_law["effective_policy_inventory_identity"])
+    identities.append(common_law["artifact_source_authority_completion"])
     for identity in identities:
         uri = identity["uri"]
         if _artifact_namespace_overlaps(uri, output_prefix=output_prefix):
@@ -871,6 +909,12 @@ def _normalize_task_input(
         raise CorpusParametricBatchError(
             f"task[{expected_index}] world-artifact-set hash differs"
         )
+    authority_task_sha256 = _sha256(
+        item["artifact_source_authority_task_sha256"],
+        label=(
+            f"task[{expected_index}].artifact_source_authority_task_sha256"
+        ),
+    )
     body: dict[str, object] = {
         "task_index": task_index,
         "slate_id": _canonical_id(
@@ -886,6 +930,7 @@ def _normalize_task_input(
         "variant_output_prefix": variant_output_prefix,
         "world_artifact_receipts": world_artifacts,
         "world_artifact_receipt_set_sha256": world_artifact_set_sha256,
+        "artifact_source_authority_task_sha256": authority_task_sha256,
     }
     body["task_sha256"] = canonical_sha256(body)
     return body
@@ -1335,12 +1380,21 @@ def build_task_result_receipt(
         "world_artifact_receipt_set_sha256": task[
             "world_artifact_receipt_set_sha256"
         ],
+        "artifact_source_authority_task_sha256": task[
+            "artifact_source_authority_task_sha256"
+        ],
         "code_source": common_law["code_source"],
         "immutable_image": common_law["immutable_image"],
         "source_receipts": common_law["source_receipts"],
         "source_receipt_set_sha256": common_law["source_receipt_set_sha256"],
         "later_source_freeze_manifest_sha256": common_law[
             "later_source_freeze_manifest_sha256"
+        ],
+        "artifact_source_authority_completion": common_law[
+            "artifact_source_authority_completion"
+        ],
+        "artifact_source_authority_completion_sha256": common_law[
+            "artifact_source_authority_completion_sha256"
         ],
         "effective_policy_inventory_identity": common_law[
             "effective_policy_inventory_identity"
@@ -1388,11 +1442,14 @@ def validate_task_result_receipt(
         "slate_id",
         "world_artifact_receipts",
         "world_artifact_receipt_set_sha256",
+        "artifact_source_authority_task_sha256",
         "code_source",
         "immutable_image",
         "source_receipts",
         "source_receipt_set_sha256",
         "later_source_freeze_manifest_sha256",
+        "artifact_source_authority_completion",
+        "artifact_source_authority_completion_sha256",
         "effective_policy_inventory_identity",
         "effective_policy_inventory_sha256",
         "effective_policy_rule_universe_sha256",
@@ -1488,6 +1545,9 @@ def build_batch_completion_receipt(
         result_bindings.append({
             "task_index": task_index,
             "task_sha256": task["task_sha256"],
+            "artifact_source_authority_task_sha256": task[
+                "artifact_source_authority_task_sha256"
+            ],
             "world_artifact_receipt_set_sha256": task[
                 "world_artifact_receipt_set_sha256"
             ],
@@ -1504,6 +1564,12 @@ def build_batch_completion_receipt(
         "common_law_sha256": manifest["common_law_sha256"],
         "later_source_freeze_manifest_sha256": manifest["common_law"][
             "later_source_freeze_manifest_sha256"
+        ],
+        "artifact_source_authority_completion": manifest["common_law"][
+            "artifact_source_authority_completion"
+        ],
+        "artifact_source_authority_completion_sha256": manifest["common_law"][
+            "artifact_source_authority_completion_sha256"
         ],
         "effective_policy_classified_input_projection_sha256": manifest[
             "common_law"
@@ -1538,6 +1604,8 @@ def validate_batch_completion_receipt(
         "parameter_schema_sha256",
         "common_law_sha256",
         "later_source_freeze_manifest_sha256",
+        "artifact_source_authority_completion",
+        "artifact_source_authority_completion_sha256",
         "effective_policy_classified_input_projection_sha256",
         "coverage",
         "task_results",
