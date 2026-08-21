@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 04:00 CDT
+## Current state — 2026-08-21 04:14 CDT
 
 ### LR8 historical score path is the sole active priority
 
@@ -48,12 +48,27 @@ agent or developer:
   local `prepared.sha256` is
   `3d6f5b1d3547ab6805dab1a0076f26f3d9ef4bfc939e1dbd3a46872428aa40ef`.
   The immutable prepare receipt and HANDOFF were committed/pushed at
-  `533ea97`. Create-once launch intent and execution claim now exist; the first
-  watcher poll at `2026-08-21T08:59:54Z` returned `Completed=Unknown`. No
-  outcome data is selected by this execution.
-- Keep the registered watcher session alive. It owns metadata-only polling,
-  strict terminal-first harvest, and permanent no-relaunch closure. Never
-  invoke the launch subcommand separately and never launch a second execution.
+  `533ea97`; launch evidence was committed/pushed at `35d3469`.
+- That execution is now terminal `Completed=False`: it started at
+  `2026-08-21T09:01:01.272911Z`, completed at
+  `2026-08-21T09:12:29.695377Z`, failed one task with exit code 1, and had
+  zero retries. The strict failure path read no result body and produced the
+  permanent no-relaunch closure SHA-256
+  `543701bb4dfeb40131da50be3dce169e177df8f3b6f9100447582e3fb88d86b4`;
+  terminal metadata SHA-256 is
+  `7bb71206de912d37cc86dceed0c6be0358463209e5e324e2b4d5fe7cc397d089`.
+  Application stderr identifies a mechanical exact-solver failure in the
+  first world's score-remainder stage: retained CBC evidence contained a
+  forbidden terminal marker. The exact marker was not published; elapsed
+  timing is consistent with the registered 300-second solve limit, but that
+  remains an inference. No outcome column, historical lease, score result, or
+  scientific disposition was reached. Never relaunch v2.
+- Freeze a fresh v3 mechanical solver/scaling amendment and identity before
+  any new smoke. It must reduce first-world proof time rather than merely raise
+  the timeout, retain exact DK legality and independent proof replay, and bind
+  this exact v2 failure closure. Fold the already completed historical
+  construction/scoring integrations into that single v3 build so a passing
+  smoke can reuse the same immutable image without another full build.
 - The real 2023--2025 LR8 construction and one-read evaluator are now
   source-green in seven isolated files. The source boundary pins the exact
   retained 270-artifact lock, one common point-in-time canonical-R0/full-DK
