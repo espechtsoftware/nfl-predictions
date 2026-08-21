@@ -1,0 +1,72 @@
+{
+  "bucket": "nfl-predictions-503414-raw",
+  "bucket_iam_policy_before": {
+    "bindings": [
+      {
+        "members": [
+          "projectEditor:nfl-predictions-503414",
+          "projectOwner:nfl-predictions-503414"
+        ],
+        "role": "roles/storage.legacyBucketOwner"
+      },
+      {
+        "members": [
+          "projectViewer:nfl-predictions-503414"
+        ],
+        "role": "roles/storage.legacyBucketReader"
+      }
+    ],
+    "etag": "CAE="
+  },
+  "bucket_metageneration": 1,
+  "captured_at_utc": "2026-08-21T17:37:14Z",
+  "conditional_iam_supported_under_current_bucket_mode": false,
+  "current_bucket_mode": {
+    "uniform_bucket_level_access_enabled": false
+  },
+  "evidence_scope": "blocked-preflight-only",
+  "forbidden_fallbacks_used": [],
+  "git_branch": "main",
+  "git_commit": "9046ee0fe235af8899d5653ff78c83334f56be7a",
+  "mutation_performed": false,
+  "object_bodies_read": false,
+  "planned_conditional_bindings_not_applied": [
+    {
+      "exact_objects": [
+        "projects/_/buckets/nfl-predictions-503414-raw/objects/research/production-law-dependence-runs/20260817-production-law-dependence-source-lock-v1/source-lock.json",
+        "projects/_/buckets/nfl-predictions-503414-raw/objects/cand_scores/20260815-atlas-money-worlds-r0-v1/2023_w1_886e19454d2e.npz",
+        "projects/_/buckets/nfl-predictions-503414-raw/objects/cand_scores/20260815-atlas-money-worlds-r1-v1/2023_w1_f88dca75e9b6.npz",
+        "projects/_/buckets/nfl-predictions-503414-raw/objects/cand_scores/20260815-atlas-money-worlds-r2-v1/2023_w1_299dd21af798.npz",
+        "projects/_/buckets/nfl-predictions-503414-raw/objects/cand_scores/20260815-atlas-money-worlds-r3-v1/2023_w1_db82b55fef56.npz",
+        "projects/_/buckets/nfl-predictions-503414-raw/objects/cand_scores/20260815-atlas-money-worlds-r4-v1/2023_w1_b82a85a8bf8b.npz"
+      ],
+      "prefixes": [
+        "projects/_/buckets/nfl-predictions-503414-raw/objects/research/corpus-retrieval-inputs/20260821-corpus-retrieval-engine-v1/",
+        "projects/_/buckets/nfl-predictions-503414-raw/objects/research/corpus-retrieval-runs/20260821-corpus-retrieval-engine-v1/"
+      ],
+      "role": "roles/storage.objectViewer",
+      "title": "corpus-retrieval-read-v1"
+    },
+    {
+      "prefixes": [
+        "projects/_/buckets/nfl-predictions-503414-raw/objects/research/corpus-retrieval-runs/20260821-corpus-retrieval-engine-v1/"
+      ],
+      "role": "roles/storage.objectCreator",
+      "title": "corpus-retrieval-create-v1"
+    }
+  ],
+  "project": "nfl-predictions-503414",
+  "project_iam_policy_etag_before": "BwZXgnWLsvU=",
+  "project_level_binding_added": false,
+  "reason": "Uniform bucket-level access is disabled. Cloud Storage conditional IAM bindings require uniform bucket-level access, and the bounded task forbids enabling it or falling back to broad grants.",
+  "service_account": "corpus-retrieval-research@nfl-predictions-503414.iam.gserviceaccount.com",
+  "service_account_created": false,
+  "service_account_state_before": "absent",
+  "status": "blocked-no-mutation",
+  "verification": {
+    "bucket_policy_retrieved_read_only": true,
+    "project_policy_retrieved_read_only": true,
+    "service_account_describe_result": "NOT_FOUND",
+    "uniform_bucket_level_access_checked_read_only": true
+  }
+}

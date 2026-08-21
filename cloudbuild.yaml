@@ -88,6 +88,15 @@ steps:
         docker run --rm '${_IMAGE}' \
           python scripts/freeze_a7_production_law_transfer.py --help >/dev/null
         docker run --rm '${_IMAGE}' \
+          python scripts/run_corpus_retrieval_transport.py --help >/dev/null
+        docker run --rm '${_IMAGE}' \
+          python scripts/run_corpus_retrieval_transport.py parked | \
+          grep -F 'CORPUS_RETRIEVAL_PARKED default_off=true client_constructed=false' >/dev/null
+        docker run --rm '${_IMAGE}' \
+          python -c 'from nfl_dfs.research import corpus_retrieval_engine as e; assert e.DEFAULT_ENTRY_BUDGET == 80'
+        docker run --rm '${_IMAGE}' \
+          bash -n scripts/cloud_corpus_retrieval_v1_reuse.sh
+        docker run --rm '${_IMAGE}' \
           python scripts/freeze_a7_select_ladder.py --help >/dev/null
         docker run --rm '${_IMAGE}' \
           python scripts/finish_a7_select_ladder.py --help >/dev/null

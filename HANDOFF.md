@@ -20,6 +20,140 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Current state — 2026-08-21 14:22 CDT
+
+### Corpus retrieval engine is focused-green; exact cloud task 0 is pending
+
+- Branch `main`; current parent is
+  `9046ee0fe235af8899d5653ff78c83334f56be7a` (`Review corpus population
+  against the high-score goal`). Full Git and Google Cloud access was restored
+  after the editor restart; selective commit/push of this milestone is in
+  progress. The new retrieval path is deliberately
+  independent of corpus production: it scores the complete unique R0--R4
+  lineup union in all 50,000 worlds, retains every strict `score > 200`
+  event, and applies four frozen exact-80 selection laws on R0--R3 with R4
+  held out.
+- The engine now closes the retrieval audit's three P0s. It publishes a
+  producer-safe R0--R3 enrichment and a separate R0--R4 descriptive
+  enrichment; only the former can produce fill insight. V1 rejects budgets
+  79 and 81. Validation semantically rebuilds both enrichments, redundancy,
+  fill insight, every selection trace, and the graph projection byte for byte.
+  The graph has exact pointers to every sidecar and explicit false
+  decision/fill/live licenses; held-out content is labeled descriptive only.
+- A second independent audit exposed candidate-origin leakage after the first
+  score-column fix. The corrected discovery universe now admits only lineups
+  with an R0--R3 source membership and strips all R4 memberships/tags before
+  producer enrichment. R4-only candidates are still scored across all 50,000
+  worlds in the complete descriptive union but cannot be selected or feed
+  fill insight. The validator replays the eligible-global-index mapping and
+  trace mapping exactly.
+- Additional hardening reopens the candidate/player source authority and
+  snapshot-producer authority, validates every native source row (including
+  repeated rosters) and exact threshold classifications at 194/200/210/220,
+  hashes all strategy tie laws, adds team/game/team-pair enrichment, labels
+  correlations as overlap-prefiltered, and retains a global exact duplicate
+  score-vector census.
+- Focused engine validation is 17/17 green:
+  `.venv/bin/python -m pytest -q tests/test_corpus_retrieval_engine.py`.
+  The exact-input publication suite is 5/5 green and the reuse-only transport
+  suite is 23/23 green. Python compile, shell syntax, CLI smokes, Cloud Build
+  YAML parsing, and `git diff --check` are green.
+  Current SHA-256 values are
+  `2e9a62874090f4515c97ca627057c5e3d631484337c4096278c605f8e0ff22ae`
+  (engine),
+  `df140bd2f7f4fa259d0085e7789f500b211f3e409dd3ab516c29377437fb4250`
+  (test),
+  `12ec4d82882d6d0e556bae89412ca0e3f2df6dcb249c2f53f2e1c03b33924806`
+  (input preparer),
+  `8224883bcd9c2db60ec9399238f0ecf6d55064c44e19bd541ee67532e5329011`
+  (input test),
+  `22f9d33b33e9d517d084bf674ee1bb6e978527ca07319d3d0ba3ca948e979a81`
+  (transport),
+  `2a6154d8c8e566d7c2b6492d60111b9d5499e247c66f2723cbcba3257d225e2b`
+  (transport test), and
+  `735913cbb3f9018186f65ba8ad9c64f2225be9133a06ce75958c2c0da6e3894a`
+  (reuse-only launcher). The protocol SHA-256 is
+  `1fc369a02baa01236283a1e3634daea54f1ca50c494b5076ab9115c7b23bf3cc`.
+- Input publication uses the canonical core query authority, completes a pure
+  preview before the first write, binds candidate/player bodies to the real
+  published query-authority generation, stages exact source-lock/R0--R4 bytes,
+  and publishes snapshot, suite, then completion. A partial namespace is
+  terminal for this run ID and never cleaned or silently resumed; only the
+  final receipt proves completeness. Both query receipts preserve the raw
+  query-row digest and now bind a distinct canonical normalized-row digest.
+  Candidate construction and worker replay recompute these bindings for both
+  candidate and player bodies; same-count substitutions fail closed. The
+  preparer's mismatch test proves this happens before its first publication.
+- Transport binds clean commit/build/image, observed Cloud Run generation,
+  zero-project-role runtime identity, UBLA and exact two-prefix IAM, and the
+  full nested read closure. Create-once intent/launch/name/terminal ledgers
+  prevent ambiguous relaunch; the worker waits for its bound execution-name
+  receipt before scoring. A final IAM audit found that prefix-conditioned
+  object-viewer bindings cannot authorize bucket-level LIST. The worker path
+  now uses exact-name object GET plus generation-pinned reopen for claim, IAM,
+  intent, launch, and execution-name authorities and performs no inventory or
+  list call. Mandatory namespace/sole-generation censuses remain operator-side
+  immediately before launch and at terminal acceptance. Dedicated fake-storage
+  tests fail if any worker governance/wait path invokes LIST. Runtime IAM
+  evidence now also rejects a dedicated bucket unless both uniform bucket-level
+  access and public-access prevention are enforced. The retrieval milestone
+  includes only the two retrieval `Dockerfile` copies and four retrieval Cloud
+  Build smokes; the adjacent unrelated A7 work remains outside this milestone.
+- Two independent read-only audits of the stable final hashes found no code
+  P0/P1 in the GET-only worker/PAP lane and no remaining combined code P0.
+  Their verdict is implementation GO for exactly one gated, outcome-blind,
+  real-artifact task-0 smoke. Cloud launch remains conditional NO-GO until
+  dedicated provisioning, exact capture/build, operator namespace
+  censuses, and the effective-access census all pass. Non-blocking provenance
+  debt: raw query rows are not retained for later raw-digest recomputation;
+  normalized scoring bodies are retained and fully replayed. The producer
+  authority is exact-reopened but not semantically parsed by the core, and a
+  future whole-worker fake-storage test would strengthen LIST regression
+  coverage.
+- At 13:41 CDT, an explicit retrieval-only `git add` attempt failed before
+  changing the index because that execution environment mounted `.git`
+  read-only (`index.lock: Read-only file system`). At 14:18 CDT the replacement
+  session proved `.git` writable, resolved `oauth2.googleapis.com`, and
+  authenticated `espechtsoftware@gmail.com`. `scripts/chain_status.sh` found no
+  active local or cloud research execution and the historical-outcome lease is
+  free. Do not stage the unrelated dirty A7/LR8/corpus-parametric paths.
+- A prior outcome-blind engineering prototype over the exact task-0 shapes
+  found 1,276 source rows, 585 unique lineups, 27,117 strict-`>200` events,
+  581 lineups with an event, and 9,534 worlds with an event. These are
+  preliminary diagnostics, not an accepted production receipt. Its best
+  preliminary all-world mean portfolio maximum was 177.6081 for
+  `coverage-194-v1`; the frozen first task must reproduce its own exact
+  create-once results before any claim is accepted.
+- Storage audit is GO only for a new dedicated UBLA/PAP bucket
+  `gs://nfl-predictions-503414-corpus-retrieval` and a new zero-project-role
+  service account
+  `corpus-retrieval-research@nfl-predictions-503414.iam.gserviceaccount.com`.
+  Grant conditional object viewer only on the exact input/output prefixes and
+  object creator only on the exact output prefix. The existing raw bucket and
+  Editor compute service account are NO-GO. No bucket, service account, IAM,
+  BigQuery, build, job, or execution mutation has occurred. The retained IAM
+  validator proves direct policy bindings, exact prefixes, UBLA, and PAP; an
+  independent live preflight must also census effective access for inherited,
+  group, or public-principal grants before the first smoke. Treat an
+  unavailable or ambiguous effective-access result as NO-GO.
+- Exact task-0 query SQL is frozen under
+  `reports/corpus-retrieval-runs/20260821-corpus-retrieval-engine-v1/governance/`
+  with SHA-256 `ede519d5...f23` (candidates) and
+  `d6e2dff3...996` (players). The source lock and R0--R4 generations/hashes
+  are recorded in `reports/2026-08-21-corpus-retrieval-engine-v1.md`.
+  DNS resolution and authenticated Google Cloud access are now available.
+  The temporary exact R0--R4 local bodies were lost when the editor/container
+  restarted and must be reopened from their generation-pinned origins.
+- Next concrete action: selectively commit/push only this retrieval milestone,
+  then provision and independently census the dedicated bucket/identity,
+  execute the two frozen query jobs,
+  stage and reopen exact input generations, make one selective retrieval-only
+  commit/push, build an immutable image from that clean commit, permanently
+  park the existing idle Cloud Run job `atlas-minimal-c-s2023-w1-v1` on the
+  generic retrieval command, and launch task 0 exactly once with durable
+  intent/name/terminal/result receipts. Do not restore its old A7 job spec
+  after an accepted retrieval deployment.
+
 ## Current state — 2026-08-21 11:00 CDT
 
 ### Artifact-supported corpus source authority is focused-green

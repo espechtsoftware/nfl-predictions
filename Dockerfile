@@ -21,6 +21,8 @@ COPY scripts/run_stack_relaxation_carve.py ./scripts/run_stack_relaxation_carve.
 COPY scripts/run_a7_select_ladder.py ./scripts/run_a7_select_ladder.py
 COPY scripts/run_a7_production_law_transfer.py ./scripts/run_a7_production_law_transfer.py
 COPY scripts/freeze_a7_production_law_transfer.py ./scripts/freeze_a7_production_law_transfer.py
+COPY scripts/run_corpus_retrieval_transport.py ./scripts/run_corpus_retrieval_transport.py
+COPY scripts/cloud_corpus_retrieval_v1_reuse.sh ./scripts/cloud_corpus_retrieval_v1_reuse.sh
 COPY scripts/freeze_a7_select_ladder.py ./scripts/freeze_a7_select_ladder.py
 COPY scripts/cloud_a7_select_ladder.sh ./scripts/cloud_a7_select_ladder.sh
 COPY scripts/watch_a7_select_ladder_queue.sh ./scripts/watch_a7_select_ladder_queue.sh
