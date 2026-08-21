@@ -571,7 +571,11 @@ agent or developer:
   smoke-freeze digest, and exact seven-entry immutable `finish.sha256` ledger.
   `chain_status.sh` labels cell shard ledgers as `LR8 full source`. Attempt,
   freeze-hash and mixed-ledger poisons fail closed. The score-map runner is
-  also packaged and container-smoked.
+  also packaged and container-smoked. Final aggregation now propagates the
+  training freeze's independently validated inner `manifest_sha256` into both
+  the aggregate and strict completion handoff, so the score-map CLI receives
+  its required external manifest pin without an ad-hoc body read. The focused
+  shard/transport set passes 22/22 including this handoff.
 - The same lease-protected score-map execution now deterministically calls the
   already frozen no-sweep `fit_and_freeze` law before returning, publishes
   `label-fit-freeze.json` create-once through the same generation-pinned

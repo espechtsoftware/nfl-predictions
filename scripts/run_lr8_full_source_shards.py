@@ -1712,6 +1712,10 @@ def aggregate_and_publish(
         } for row in rows],
         "training_source_freeze_object": freeze_receipt.as_dict(),
         "training_source_freeze_sha256": _sha(aggregate.freeze_bytes),
+        "training_source_manifest_sha256": _strict_sha(
+            aggregate.freeze_manifest["manifest_sha256"],
+            label="training source manifest hash",
+        ),
         "byte_equivalent_existing_scientific_serializer": True,
         "target_player_labels_read": False,
         "candidate_labels_read": False,
@@ -1730,6 +1734,9 @@ def aggregate_and_publish(
         "manifest": manifest,
         "manifest_object": aggregate_receipt.as_dict(),
         "freeze_object": freeze_receipt.as_dict(),
+        "training_source_manifest_sha256": manifest[
+            "training_source_manifest_sha256"
+        ],
     }
 
 

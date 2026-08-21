@@ -6,6 +6,7 @@ from hashlib import sha256
 from itertools import combinations
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -365,6 +366,60 @@ def test_preparation_is_exact_70_and_replays_once_per_season(prepared_grid: Fixt
     )
     assert reopened.prepared_cell_sha256 == first.prepared_cell_sha256
     assert reopened.player_draws_bytes == first.player_draws_bytes
+
+
+def test_aggregate_exposes_the_inner_manifest_pin_for_score_map_handoff(
+    monkeypatch: pytest.MonkeyPatch, prepared_grid: Fixture,
+) -> None:
+    inner_manifest_sha = "9" * 64
+    freeze_bytes = b'{"fixture":"training-source-freeze"}\n'
+    aggregate = SimpleNamespace(
+        freeze_bytes=freeze_bytes,
+        freeze_manifest={"manifest_sha256": inner_manifest_sha},
+    )
+    monkeypatch.setattr(
+        transport.shard_core, "aggregate_cell_shards", lambda _rows: aggregate,
+    )
+    cell_provenance = _cell_provenance(prepared_grid.publication)
+    rows = []
+    for index in range(shards.EXPECTED_CELLS):
+        execution = f"{transport.JOB}-x{index:04d}"
+        attempt_receipt = transport._receipt({  # noqa: SLF001
+            "uri": transport.cell_attempt_uri(index),
+            "generation": "1",
+            "sha256": _digest(f"attempt-{index}"),
+            "bytes": index + 1,
+        }, label="fixture attempt")
+        shard_receipt = transport._receipt({  # noqa: SLF001
+            "uri": transport.cell_shard_uri(index),
+            "generation": "1",
+            "sha256": _digest(f"shard-{index}"),
+            "bytes": index + 2,
+        }, label="fixture shard")
+        rows.append(transport.HarvestedCell(
+            cell_index=index,
+            execution=execution,
+            terminal_sha256=_digest(f"terminal-{index}"),
+            shard=SimpleNamespace(
+                execution_attempt_receipt=attempt_receipt,
+                shard_sha256=_digest(f"shard-body-{index}"),
+            ),
+            shard_receipt=shard_receipt,
+            attempt={"attempt_uri": transport.cell_attempt_uri(index)},
+            execution_provenance=cell_provenance,
+        ))
+    publisher = MemoryPublisher()
+    result = transport.aggregate_and_publish(
+        rows,
+        preparation_manifest_receipt=prepared_grid.publication.manifest_receipt,
+        parity_receipt=_parity_receipt(),
+        prepared_execution_provenance=PREP_PROVENANCE,
+        publish=publisher,
+    )
+    assert result["training_source_manifest_sha256"] == inner_manifest_sha
+    assert result["manifest"]["training_source_manifest_sha256"] == (
+        inner_manifest_sha
+    )
 
 
 def test_smoke_gate_requires_exact_prepared_cell_parity(prepared_grid: Fixture):

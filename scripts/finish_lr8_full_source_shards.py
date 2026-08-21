@@ -733,6 +733,9 @@ def finish_cells(
         "cell_execution_provenance": cell_provenance,
         "aggregate_manifest_object": aggregate["manifest_object"],
         "training_source_freeze_object": aggregate["freeze_object"],
+        "training_source_manifest_sha256": aggregate[
+            "training_source_manifest_sha256"
+        ],
         "smoke_prepared_parity_exact": True,
         "actual_score_queried": False,
         "historical_outcome_lease_acquired": False,
