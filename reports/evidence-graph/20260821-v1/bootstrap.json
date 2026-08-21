@@ -1,0 +1,864 @@
+{
+  "arms": [
+    {
+      "corpus_id": "corpus:sunday-main-2023-2025-54",
+      "evidence": [
+        {
+          "artifact_id": "artifact:current-baseline",
+          "expected": "classic-k1-role12-boom40-poscal-cbwu-v4",
+          "json_pointer": "/production_policy",
+          "role": "specification"
+        }
+      ],
+      "id": "arm:incumbent-production-context",
+      "inherits": null,
+      "knowledge_class": "outcome_blind",
+      "label": "Incumbent production candidate and line-194 selection context",
+      "parameter_changes": [],
+      "policy_id": "policy:incumbent-production",
+      "population_id": "population:incumbent-main54-generation-context",
+      "properties": {
+        "attribution_scope": "reference_only",
+        "candidate_paths_all_treatment_law": false,
+        "fixed_pool": false,
+        "lifecycle": "reference",
+        "relations": []
+      },
+      "rule_overrides": {
+        "rule:boom-family": {
+          "application": "direct",
+          "effect": "retained",
+          "evidence": [
+            {
+              "artifact_id": "artifact:production-policy",
+              "contains": "\"N_BOOM\": str(self.n_boom)",
+              "role": "implementation"
+            }
+          ],
+          "scope": {"candidate_path": "boom", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "candidate_path"}
+        },
+        "rule:bring-back-min-one": {
+          "application": "direct",
+          "effect": "retained",
+          "evidence": [
+            {
+              "artifact_id": "artifact:atlas-runner",
+              "contains": "bring_back_min=int(run_env.get(\"STACK_BRING_BACK\", \"1\"))",
+              "role": "implementation"
+            }
+          ],
+          "scope": {"candidate_path": "all", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "candidate_paths"}
+        },
+        "rule:candidate-budget-truncation": {
+          "application": "direct",
+          "effect": "nonoperative",
+          "evidence": [
+            {
+              "artifact_id": "artifact:engine",
+              "contains": "GEN_POOL_CAP trims deterministically",
+              "role": "implementation"
+            }
+          ],
+          "scope": {"candidate_path": "all", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "candidate_paths"}
+        },
+        "rule:cbwu-cross-seed-admission": {
+          "application": "direct",
+          "effect": "retained",
+          "evidence": [
+            {
+              "artifact_id": "artifact:multiseed",
+              "contains": "def combine_cbwu_books(",
+              "role": "implementation"
+            }
+          ],
+          "scope": {"candidate_path": "all", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "admitted_pools"}
+        },
+        "rule:dark-game-family": {
+          "application": "direct",
+          "effect": "retained",
+          "evidence": [
+            {
+              "artifact_id": "artifact:production-policy",
+              "contains": "\"N_DARKGAME\": \"10\"",
+              "role": "implementation"
+            }
+          ],
+          "scope": {"candidate_path": "dark", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "candidate_path"}
+        },
+        "rule:dk-min-two-games": {
+          "application": "direct",
+          "effect": "retained",
+          "evidence": [
+            {"artifact_id": "artifact:lineup", "contains": "MIN_GAMES = 2", "role": "implementation"}
+          ],
+          "scope": {"candidate_path": "all", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "candidate_paths"}
+        },
+        "rule:dk-position-shape": {
+          "application": "direct",
+          "effect": "retained",
+          "evidence": [
+            {"artifact_id": "artifact:lineup", "contains": "prob += count(\"QB\") == 1", "role": "implementation"}
+          ],
+          "scope": {"candidate_path": "all", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "candidate_paths"}
+        },
+        "rule:dk-roster-size-nine": {
+          "application": "direct",
+          "effect": "retained",
+          "evidence": [
+            {"artifact_id": "artifact:lineup", "contains": "ROSTER_SIZE = 9", "role": "implementation"}
+          ],
+          "scope": {"candidate_path": "all", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "candidate_paths"}
+        },
+        "rule:dk-salary-cap-50000": {
+          "application": "direct",
+          "effect": "retained",
+          "evidence": [
+            {"artifact_id": "artifact:lineup", "contains": "SALARY_CAP = 50_000", "role": "implementation"}
+          ],
+          "scope": {"candidate_path": "all", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "candidate_paths"}
+        },
+        "rule:dk-team-cap-eight": {
+          "application": "direct",
+          "effect": "retained",
+          "evidence": [
+            {"artifact_id": "artifact:lineup", "contains": "MAX_FROM_TEAM = 8", "role": "implementation"}
+          ],
+          "scope": {"candidate_path": "all", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "candidate_paths"}
+        },
+        "rule:first-producer-dedup-order": {
+          "application": "direct",
+          "effect": "retained",
+          "evidence": [
+            {"artifact_id": "artifact:engine", "contains": "`seen` dedupes rosters", "role": "implementation"}
+          ],
+          "scope": {"candidate_path": "all", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "candidate_paths"}
+        },
+        "rule:forbid-rb-vs-dst": {
+          "application": "direct",
+          "effect": "retained",
+          "evidence": [
+            {"artifact_id": "artifact:atlas-runner", "contains": "forbid_rb_vs_dst=run_env.get(\"FORBID_RB_DST\", \"1\") != \"0\"", "role": "implementation"}
+          ],
+          "scope": {"candidate_path": "all", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "candidate_paths"}
+        },
+        "rule:forbid-two-rb-same-team": {
+          "application": "direct",
+          "effect": "retained",
+          "evidence": [
+            {"artifact_id": "artifact:lineup", "contains": "forbid_two_rb_same_team: bool = True", "role": "implementation"}
+          ],
+          "scope": {"candidate_path": "all", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "candidate_paths"}
+        },
+        "rule:game-lock-min-five": {
+          "application": "direct",
+          "effect": "retained",
+          "evidence": [
+            {"artifact_id": "artifact:engine", "contains": "game_lock=(gid, 5)", "role": "implementation"}
+          ],
+          "scope": {"candidate_path": "game,dark", "denominator": 2, "fraction": 1, "numerator": 2, "unit": "candidate_paths"}
+        },
+        "rule:game-stack-family": {
+          "application": "direct",
+          "effect": "retained",
+          "evidence": [
+            {"artifact_id": "artifact:production-policy", "contains": "\"N_GAMESTACK\": \"4\"", "role": "implementation"}
+          ],
+          "scope": {"candidate_path": "game", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "candidate_path"}
+        },
+        "rule:leverage-family": {
+          "application": "direct",
+          "effect": "retained",
+          "evidence": [
+            {"artifact_id": "artifact:production-policy", "contains": "\"CAND_MULT\": str(self.candidate_multiple)", "role": "implementation"}
+          ],
+          "scope": {"candidate_path": "leverage", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "candidate_path"}
+        },
+        "rule:max-per-game-cap": {
+          "application": "direct",
+          "effect": "nonoperative",
+          "evidence": [
+            {"artifact_id": "artifact:production-policy", "contains": "\"MAX_PER_GAME\": \"0\"", "role": "implementation"}
+          ],
+          "scope": {"candidate_path": "all", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "candidate_paths"}
+        },
+        "rule:game-overlap-seven": {
+          "application": "direct",
+          "effect": "retained",
+          "evidence": [
+            {"artifact_id": "artifact:engine", "contains": "game_lock=(gid, 5), banned_lineups=banned,\n                              max_overlap=7", "role": "implementation"}
+          ],
+          "scope": {"candidate_path": "game", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "candidate_path"}
+        },
+        "rule:leverage-overlap-seven": {
+          "application": "direct",
+          "effect": "retained",
+          "evidence": [
+            {"artifact_id": "artifact:lineup", "contains": "max_overlap: int = 7", "role": "implementation"}
+          ],
+          "scope": {"candidate_path": "leverage", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "candidate_path"}
+        },
+        "rule:qbvar-overlap-six": {
+          "application": "direct",
+          "effect": "retained",
+          "evidence": [
+            {"artifact_id": "artifact:engine", "contains": "banned_lineups=banned_qv,\n                                  max_overlap=6", "role": "implementation"}
+          ],
+          "scope": {"candidate_path": "qbvar", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "candidate_path"}
+        },
+        "rule:qb-stack-min-two": {
+          "application": "direct",
+          "effect": "retained",
+          "evidence": [
+            {"artifact_id": "artifact:atlas-runner", "contains": "qb_stack_min=int(run_env.get(\"STACK_QB_MIN\", \"2\"))", "role": "implementation"}
+          ],
+          "scope": {"candidate_path": "all", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "candidate_paths"}
+        },
+        "rule:qb-variant-family": {
+          "application": "direct",
+          "effect": "retained",
+          "evidence": [
+            {"artifact_id": "artifact:engine", "contains": "n_qbvar = int(runtime_env.get(\"N_QB_VARIANTS\", \"4\"))", "role": "implementation"}
+          ],
+          "scope": {"candidate_path": "qbvar", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "candidate_path"}
+        },
+        "rule:role-family": {
+          "application": "direct",
+          "effect": "retained",
+          "evidence": [
+            {"artifact_id": "artifact:production-policy", "contains": "\"N_EPISTEMIC\": str(self.n_role)", "role": "implementation"}
+          ],
+          "scope": {"candidate_path": "role", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "candidate_path"}
+        },
+        "rule:salary-floor-49000": {
+          "application": "direct",
+          "effect": "retained",
+          "evidence": [
+            {"artifact_id": "artifact:lineup", "contains": "_env.get(\"MIN_LINEUP_SALARY\", \"49000\")", "role": "implementation"}
+          ],
+          "scope": {"candidate_path": "all", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "candidate_paths"}
+        },
+        "rule:simulation-rank-factor-law": {
+          "application": "direct",
+          "effect": "retained",
+          "evidence": [
+            {"artifact_id": "artifact:a2a-protocol", "contains": "exact production-law worlds", "role": "specification"}
+          ],
+          "scope": {"candidate_path": "player_worlds", "denominator": 5, "fraction": 1, "numerator": 5, "unit": "world_blocks"}
+        },
+        "rule:selector-ladder": {
+          "application": "direct",
+          "effect": "nonoperative",
+          "evidence": [
+            {"artifact_id": "artifact:a7-protocol", "contains": "SELECT_LADDER\":\"\"", "role": "specification"}
+          ],
+          "scope": {"candidate_path": "selected_book", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "books"}
+        },
+        "rule:selector-line194": {
+          "application": "direct",
+          "effect": "retained",
+          "evidence": [
+            {"artifact_id": "artifact:current-baseline", "expected": 194.0, "json_pointer": "/target/value", "role": "specification"}
+          ],
+          "scope": {"candidate_path": "selected_book", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "books"}
+        },
+        "rule:selector-tail-model": {
+          "application": "direct",
+          "effect": "nonoperative",
+          "evidence": [
+            {"artifact_id": "artifact:b1-result", "contains": "The one frozen B1 historical challenger did not pass.", "role": "observation"}
+          ],
+          "scope": {"candidate_path": "selected_book", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "books"}
+        }
+      },
+      "selector_rule_id": "rule:selector-line194"
+    },
+    {
+      "corpus_id": "corpus:sunday-main-2023-2025-54",
+      "evidence": [
+        {"artifact_id": "artifact:allboom-protocol", "contains": "`CAND_MULT=0`, `N_BOOM=200`, `BOOM_UNIQUE_FILL=1`", "role": "specification"},
+        {"artifact_id": "artifact:allboom-protocol", "contains": "every other family and the incumbent slate-total world ordering\nunchanged", "role": "specification"}
+      ],
+      "id": "arm:allboom-generation",
+      "inherits": "arm:incumbent-production-context",
+      "knowledge_class": "outcome_viewed",
+      "label": "All-boom family reallocation",
+      "parameter_changes": [
+        {
+          "bindings": {
+            "control": {"artifact_id": "artifact:production-policy", "group": 1, "op": "text_capture", "pattern": "candidate_multiple: int = ([0-9]+)", "role": "implementation", "value_type": "integer"},
+            "treatment": {"artifact_id": "artifact:allboom-protocol", "group": 1, "op": "text_capture", "pattern": "does replacing.*?\\(`CAND_MULT=([0-9]+)`, `N_BOOM=200`, `BOOM_UNIQUE_FILL=1`", "role": "specification", "value_type": "integer"}
+          },
+          "control": 2,
+          "parameter_id": "parameter:cand-mult",
+          "treatment": 0
+        },
+        {
+          "bindings": {
+            "control": {"artifact_id": "artifact:production-policy", "group": 1, "op": "text_capture", "pattern": "n_boom: int = ([0-9]+)", "role": "implementation", "value_type": "integer"},
+            "treatment": {"artifact_id": "artifact:allboom-protocol", "group": 1, "op": "text_capture", "pattern": "does replacing.*?\\(`CAND_MULT=0`, `N_BOOM=([0-9]+)`, `BOOM_UNIQUE_FILL=1`", "role": "specification", "value_type": "integer"}
+          },
+          "control": 40,
+          "parameter_id": "parameter:n-boom",
+          "treatment": 200
+        },
+        {
+          "bindings": {
+            "control": {"artifact_id": "artifact:engine", "group": 1, "op": "text_capture", "pattern": "runtime_env\\.get\\(\"BOOM_UNIQUE_FILL\", \"([^\"]*)\"\\)", "role": "implementation", "value_type": "env_boolean"},
+            "treatment": {"artifact_id": "artifact:allboom-protocol", "group": 1, "op": "text_capture", "pattern": "does replacing.*?\\(`CAND_MULT=0`, `N_BOOM=200`, `BOOM_UNIQUE_FILL=([0-9]+)`", "role": "specification", "value_type": "env_boolean"}
+          },
+          "control": false,
+          "parameter_id": "parameter:boom-unique-fill",
+          "treatment": true
+        }
+      ],
+      "policy_id": "policy:incumbent-production",
+      "population_id": "population:allboom-treatment-union",
+      "properties": {
+        "attribution_scope": "joint_three_parameter_generation_bundle",
+        "candidate_paths_all_treatment_law": false,
+        "fixed_pool": false,
+        "lifecycle": "completed-null-at-selection",
+        "relations": [
+          {"evidence": [{"artifact_id": "artifact:allboom-c", "expected": 9.05925925925926, "json_pointer": "/mean_paired_delta_c", "role": "observation"}], "kind": "ARM_RESULT", "properties": {}, "to": "measurement:allboom-c"},
+          {"evidence": [{"artifact_id": "artifact:allboom-s", "expected": 1.3377358490566034, "json_pointer": "/mean_paired_delta_s", "role": "observation"}], "kind": "ARM_RESULT", "properties": {}, "to": "measurement:allboom-s"}
+        ]
+      },
+      "rule_overrides": {
+        "rule:candidate-budget-truncation": {
+          "application": "direct",
+          "effect": "added",
+          "evidence": [{"artifact_id": "artifact:allboom-protocol", "contains": "treatment pool is truncated to the native count", "role": "specification"}],
+          "scope": {"candidate_path": "all", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "candidate_paths"}
+        },
+        "rule:leverage-family": {
+          "application": "direct",
+          "effect": "removed",
+          "evidence": [{"artifact_id": "artifact:allboom-protocol", "contains": "replacing the ENTIRE lev batch with boom-family depth", "role": "specification"}],
+          "scope": {"candidate_path": "leverage", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "candidate_path"}
+        }
+      },
+      "selector_rule_id": "rule:selector-line194"
+    },
+    {
+      "corpus_id": "corpus:sunday-main-2023-2025-54",
+      "evidence": [
+        {"artifact_id": "artifact:a3-protocol", "contains": "`OPEN_BOOM_SOLVES=8`. Open solves drop `qb_stack_min`/`bring_back_min`\n  only; RB prohibitions and salary bounds unchanged", "role": "specification"}
+      ],
+      "id": "arm:a3-partial-stack-carve",
+      "inherits": "arm:incumbent-production-context",
+      "knowledge_class": "outcome_viewed",
+      "label": "A3 partial boom stack and bring-back carve",
+      "parameter_changes": [
+        {
+          "bindings": {
+            "control": {"artifact_id": "artifact:production-policy", "group": 1, "op": "text_capture", "pattern": "\"OPEN_BOOM_SOLVES\": \"([0-9]+)\"", "role": "implementation", "value_type": "integer"},
+            "treatment": {"artifact_id": "artifact:a3-protocol", "group": 1, "op": "text_capture", "pattern": "OPEN_BOOM_SOLVES=([0-9]+)", "role": "specification", "value_type": "integer"}
+          },
+          "control": 0,
+          "parameter_id": "parameter:open-boom-solves",
+          "treatment": 8
+        }
+      ],
+      "policy_id": "policy:incumbent-production",
+      "population_id": "population:a3-mixed-candidates",
+      "properties": {
+        "attribution_scope": "joint_qb_stack_bring_back_and_equal_count_bundle",
+        "candidate_paths_all_treatment_law": false,
+        "fixed_pool": false,
+        "lifecycle": "completed-negative",
+        "relations": [
+          {"evidence": [{"artifact_id": "artifact:a3-result", "expected": -0.9784905660377367, "json_pointer": "/mean_paired_delta_s", "role": "observation"}], "kind": "ARM_RESULT", "properties": {}, "to": "measurement:a3-s"}
+        ]
+      },
+      "rule_overrides": {
+        "rule:candidate-budget-truncation": {
+          "application": "direct",
+          "effect": "added",
+          "evidence": [{"artifact_id": "artifact:a3-protocol", "contains": "truncation machinery (equal candidate counts per seed)", "role": "specification"}],
+          "scope": {"candidate_path": "all", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "candidate_paths"}
+        },
+        "rule:bring-back-min-one": {
+          "application": "direct",
+          "effect": "relaxed",
+          "evidence": [{"artifact_id": "artifact:a3-protocol", "contains": "Open solves drop `qb_stack_min`/`bring_back_min`", "role": "specification"}],
+          "scope": {"candidate_path": "boom", "denominator": 40, "fraction": 0.2, "numerator": 8, "unit": "solve_attempts_per_seed"}
+        },
+        "rule:qb-stack-min-two": {
+          "application": "direct",
+          "effect": "relaxed",
+          "evidence": [{"artifact_id": "artifact:a3-protocol", "contains": "Open solves drop `qb_stack_min`/`bring_back_min`", "role": "specification"}],
+          "scope": {"candidate_path": "boom", "denominator": 40, "fraction": 0.2, "numerator": 8, "unit": "solve_attempts_per_seed"}
+        }
+      },
+      "selector_rule_id": "rule:selector-line194"
+    },
+    {
+      "corpus_id": "corpus:sunday-main-2023-2025-54",
+      "evidence": [
+        {"artifact_id": "artifact:a7-protocol", "contains": "Both arms receive the identical candidate/world matrix and an exact-80 budget.", "role": "specification"}
+      ],
+      "id": "arm:a7-selector-ladder",
+      "inherits": "arm:incumbent-production-context",
+      "knowledge_class": "outcome_viewed",
+      "label": "A7 fixed-pool selection ladder",
+      "parameter_changes": [
+        {
+          "bindings": {
+            "control": {"artifact_id": "artifact:a7-protocol", "group": 1, "op": "text_capture", "pattern": "- Control:.*?\"SELECT_LADDER\":\"([^\"]*)\"", "role": "specification", "value_type": "string"},
+            "treatment": {"artifact_id": "artifact:a7-protocol", "group": 1, "op": "text_capture", "pattern": "- Treatment:.*?\"SELECT_LADDER\":\\s*\\n?\\s*\"([^\"]*)\"", "role": "specification", "value_type": "string"}
+          },
+          "control": "",
+          "parameter_id": "parameter:select-ladder",
+          "treatment": "170:10,180:10,187:7,194:7,200:6,210:10"
+        }
+      ],
+      "policy_id": "policy:a7-phase-s-finite-k",
+      "population_id": "population:a7-fixed-pool",
+      "properties": {
+        "attribution_scope": "selector_ladder_bundle_only",
+        "candidate_paths_all_treatment_law": false,
+        "fixed_pool": true,
+        "lifecycle": "completed-null",
+        "relations": [
+          {"evidence": [{"artifact_id": "artifact:a7-result", "expected": 0.04962962962962818, "json_pointer": "/outcome/cuts/80/paired/mean_diff", "role": "observation"}], "kind": "ARM_RESULT", "properties": {}, "to": "measurement:a7-s"},
+          {"evidence": [{"artifact_id": "artifact:a7-protocol", "contains": "Both arms receive the identical candidate/world matrix and an exact-80 budget.", "role": "specification"}], "kind": "SHARES_POOL_WITH", "properties": {}, "to": "population:a7-fixed-pool"}
+        ]
+      },
+      "rule_overrides": {
+        "rule:simulation-rank-factor-law": {
+          "application": "upstream_inherited",
+          "effect": "replaced",
+          "evidence": [{"artifact_id": "artifact:a7-protocol", "contains": "it is not the live\n  production-multinomial law", "role": "specification"}],
+          "scope": {"candidate_path": "fixed_pool", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "world_law"}
+        },
+        "rule:selector-ladder": {
+          "application": "direct",
+          "effect": "added",
+          "evidence": [{"artifact_id": "artifact:a7-protocol", "contains": "Treatment: `select_tail_entries(T, 80, 194", "role": "specification"}],
+          "scope": {"candidate_path": "selected_book", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "books"}
+        },
+        "rule:selector-line194": {
+          "application": "direct",
+          "effect": "removed",
+          "evidence": [{"artifact_id": "artifact:a7-protocol", "contains": "Treatment: `select_tail_entries(T, 80, 194", "role": "specification"}],
+          "scope": {"candidate_path": "selected_book", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "books"}
+        }
+      },
+      "selector_rule_id": "rule:selector-ladder"
+    },
+    {
+      "corpus_id": "corpus:sunday-main-2023-2025-54",
+      "evidence": [
+        {"artifact_id": "artifact:b1-result", "contains": "restricted to that same roughly 250-roster weekly pool", "role": "observation"}
+      ],
+      "id": "arm:b1-tail-model",
+      "inherits": "arm:incumbent-production-context",
+      "knowledge_class": "outcome_viewed",
+      "label": "B1 fixed-pool tail classifier selection",
+      "parameter_changes": [
+        {
+          "bindings": {
+            "control": {"artifact_id": "artifact:b1-result", "group": 1, "op": "text_capture", "pattern": "(stored ranks 0--79)", "role": "observation", "value_type": "string"},
+            "treatment": {"artifact_id": "artifact:b1-result", "group": 1, "op": "text_capture", "pattern": "(fixed leave-one-season-out\\nL2 logistic tail score)", "role": "observation", "value_type": "string"}
+          },
+          "control": "stored ranks 0--79",
+          "parameter_id": "parameter:b1-selector-model",
+          "treatment": "fixed leave-one-season-out\nL2 logistic tail score"
+        }
+      ],
+      "policy_id": "policy:incumbent-production",
+      "population_id": "population:b1-fixed-pool",
+      "properties": {
+        "attribution_scope": "tail_model_selector_bundle_only",
+        "candidate_paths_all_treatment_law": false,
+        "fixed_pool": true,
+        "lifecycle": "completed-negative",
+        "relations": [
+          {"evidence": [{"artifact_id": "artifact:b1-result", "contains": "| Mean weekly maximum | 173.6556 | 171.3685 | fail |", "role": "observation"}], "kind": "ARM_RESULT", "properties": {}, "to": "measurement:b1-s"},
+          {"evidence": [{"artifact_id": "artifact:b1-result", "contains": "restricted to that same roughly 250-roster weekly pool", "role": "observation"}], "kind": "SHARES_POOL_WITH", "properties": {}, "to": "population:b1-fixed-pool"}
+        ]
+      },
+      "rule_overrides": {
+        "rule:selector-line194": {
+          "application": "direct",
+          "effect": "removed",
+          "evidence": [{"artifact_id": "artifact:b1-result", "contains": "control is specifically the stored ranks 0--79 from the canonical", "role": "observation"}],
+          "scope": {"candidate_path": "selected_book", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "books"}
+        },
+        "rule:selector-tail-model": {
+          "application": "direct",
+          "effect": "added",
+          "evidence": [{"artifact_id": "artifact:b1-result", "contains": "L2 logistic tail score ranked `actual_score >= 200`", "role": "observation"}],
+          "scope": {"candidate_path": "selected_book", "denominator": 1, "fraction": 1, "numerator": 1, "unit": "books"}
+        }
+      },
+      "selector_rule_id": "rule:selector-tail-model"
+    },
+    {
+      "corpus_id": "corpus:sunday-main-2023-2025-54",
+      "evidence": [
+        {"artifact_id": "artifact:a2a-result", "contains": "Disposition:** `a2a-law-shape-miss-qb-wr-not-equivalent`", "role": "observation"},
+        {"artifact_id": "artifact:a2a-protocol", "contains": "It does not construct,\nselect, or score a lineup", "role": "specification"}
+      ],
+      "id": "arm:a2a-dependence-remeasurement",
+      "inherits": "arm:incumbent-production-context",
+      "knowledge_class": "outcome_viewed",
+      "label": "A2a production-law dependence remeasurement",
+      "parameter_changes": [
+        {
+          "bindings": {
+            "control": {"artifact_id": "artifact:a2a-protocol", "group": 1, "op": "text_capture", "pattern": "(production-law worlds)", "role": "specification", "value_type": "string"},
+            "treatment": {"artifact_id": "artifact:a2a-result", "group": 1, "op": "text_capture", "pattern": "(single frozen A2a dose)", "role": "observation", "value_type": "string"}
+          },
+          "control": "production-law worlds",
+          "parameter_id": "parameter:a2a-rank-factor-law",
+          "treatment": "single frozen A2a dose"
+        }
+      ],
+      "policy_id": "policy:incumbent-production",
+      "population_id": "population:a2a-player-dependence",
+      "properties": {
+        "attribution_scope": "simulation_dependence_law_diagnostic_only",
+        "candidate_paths_all_treatment_law": false,
+        "diagnostic_only": true,
+        "fixed_pool": false,
+        "lifecycle": "completed-negative",
+        "relations": [
+          {"evidence": [{"artifact_id": "artifact:a2a-result", "contains": "zero of five registered\nblocks were equivalent", "role": "observation"}], "kind": "ARM_RESULT", "properties": {}, "to": "measurement:a2a-law-shape"}
+        ]
+      },
+      "rule_overrides": {
+        "rule:simulation-rank-factor-law": {
+          "application": "direct",
+          "effect": "replaced",
+          "evidence": [{"artifact_id": "artifact:a2a-protocol", "contains": "Apply the frozen A2a V2 transform without changing a coefficient", "role": "specification"}],
+          "scope": {"candidate_path": "player_worlds", "denominator": 5, "fraction": 1, "numerator": 5, "unit": "world_blocks"}
+        }
+      },
+      "selector_rule_id": null
+    }
+  ],
+  "artifacts": [
+    {"id": "artifact:a2a-protocol", "kind": "protocol", "path": "reports/2026-08-20-a2a-production-law-dependence-remeasurement-protocol.md", "sha256": "d9e5246b82c010b61fb8a9ef0202873b74e48092d4447c8c68bae1c8fe44389a"},
+    {"id": "artifact:a2a-result", "kind": "result", "path": "reports/2026-08-20-a2a-production-law-dependence-remeasurement-result.md", "sha256": "9f73a08bb5b420f551d4d29ef2884050c31014629ddc5a0f921110a1c45b8f9f"},
+    {"id": "artifact:a2a-report", "kind": "result", "path": "reports/a2a-production-law-dependence-runs/20260820-a2a-production-law-dependence-remeasurement-v1/harvest/report.json", "sha256": "aed876f38733153506bd6c8fb8c90d2423ff2a20af231d2f4a2132e168247534"},
+    {"id": "artifact:a3-protocol", "kind": "protocol", "path": "reports/2026-08-19-stack-relaxation-carve-protocol.md", "sha256": "3bc1ace97dc0eb5120a16e961aad2d84f4258f008c1f3a9da8a7f5c80866e7bf"},
+    {"id": "artifact:a3-result", "kind": "result", "path": "reports/stack-relaxation-carve-runs/20260819-stack-relaxation-carve-v1/aggregate-report.json", "sha256": "2e08a551d116dc385b92ef123be3a6bb8296c71a75c822797d04c71bd669afdc"},
+    {"id": "artifact:a7-protocol", "kind": "protocol", "path": "reports/2026-08-20-a7-select-ladder-incumbent-pool-protocol-v2.md", "sha256": "dd85acbd48a40530b59a7e8e6e5a4c769cf039e55d23be3000320a29d8e434f2"},
+    {"id": "artifact:a7-result", "kind": "result", "path": "reports/a7-select-ladder-runs/20260820-a7-select-ladder-phase-s-incumbent-v2/report.json", "sha256": "e29c31df96f8d207361504d5db5615e3120ede77d783a0725a4721621bf74b15"},
+    {"id": "artifact:allboom-c", "kind": "result", "path": "reports/all-boom-reallocation-c-runs/20260819-all-boom-reallocation-c-v1/aggregate-report.json", "sha256": "503c9b0466737d589d7cfc7ad957e5c8b764a0546e699e7a1854c8ca5fa54a1d"},
+    {"id": "artifact:allboom-protocol", "kind": "protocol", "path": "reports/2026-08-19-all-boom-reallocation-protocol.md", "sha256": "cb45336918ffedf33b00e44571aae7fdbeb1c0a5ed2e22cdd5ece00d4587d680"},
+    {"id": "artifact:allboom-results", "kind": "result", "path": "reports/2026-08-19-all-boom-and-dependence-results.md", "sha256": "97935e617c3b6a48e384d0d253f7fe298fd5984b3332416b610d7b753550e652"},
+    {"id": "artifact:allboom-s", "kind": "result", "path": "reports/all-boom-selection-s-runs/20260819-all-boom-selection-s-v1/aggregate-report.json", "sha256": "dfbfb48d74d71c33d0bedcacd1046d63e1db2384916174d3995a0c0edf1659b8"},
+    {"id": "artifact:allboom-s-runner", "kind": "code", "path": "scripts/run_all_boom_selection_s.py", "sha256": "82b0e89c9827f01587c8af75869f08372d6cfde43b94a27ad1bf27f0d50855a5"},
+    {"id": "artifact:atlas-runner", "kind": "code", "path": "scripts/run_atlas_minimal_world_selection_c.py", "sha256": "d527669b65c2dde0c0d797d1771bcfd1494d4d0cf4e7e5a5f2d21ac38b13f903"},
+    {"id": "artifact:b1-result", "kind": "result", "path": "reports/2026-08-20-b1-corpus-tail-model-result.md", "sha256": "8002dff8481d0ba1823699aa0c68c3134cabb8d8493a0b0bc4bd2be887fa44a9"},
+    {"id": "artifact:b1-report", "kind": "result", "path": "reports/b1-corpus-tail-runs/20260820-b1-corpus-tail-model-v1/harvest/historical-report.json", "sha256": "2deeaa732c5b58798237b46c32f8fd99e40a0aa7b03ff4ee6c8e89b355e925b4"},
+    {"id": "artifact:current-baseline", "kind": "result", "path": "reports/current-baseline.json", "sha256": "1946ce8af123a4aad83c98d5fa204fb9f70cb47bd0113e3d5b9d492d23e864da"},
+    {"id": "artifact:dk-only", "kind": "code", "path": "src/nfl_dfs/research/lr8_historical_arm.py", "sha256": "118e159c281ae411412c831b354eb453a359ced62ba93e2bb60229f32cfb90ae"},
+    {"id": "artifact:engine", "kind": "code", "path": "src/nfl_dfs/backtest/engine.py", "sha256": "04fd647fa6916c693f8ac22dcd31741d6f64b466b82ee8aac236e52fcaaa16bf"},
+    {"id": "artifact:lineup", "kind": "code", "path": "src/nfl_dfs/optimizer/lineup.py", "sha256": "c4e663a628986b8b411ea1e12236d5d7f2c9868d0355f4e9fd274b1b9afc6b80"},
+    {"id": "artifact:multiseed", "kind": "code", "path": "src/nfl_dfs/inference/multiseed_portfolio.py", "sha256": "f783116be582e93bb9b55c8abc3a48c5acc64b34a6988d7ca25e91c89818a92a"},
+    {"id": "artifact:production-policy", "kind": "code", "path": "src/nfl_dfs/inference/production_policy.py", "sha256": "69dce9b735cb1ad2a4d7f56bbecca3dd4193a8063a54e999f48057813dd4d388"},
+    {"id": "artifact:winner-anatomy", "kind": "result", "path": "reports/winner-law-audit-runs/20260819-winner-anatomy-v1-report.json", "sha256": "597787acffb8b6948474080e551fe71fcec4afd4072a2175941913a29eba5663"},
+    {"id": "artifact:winner-law", "kind": "result", "path": "reports/winner-law-audit-runs/20260818-winner-law-audit-v1-report.json", "sha256": "c715cd786dfcd2a23a691bf0a63e58301865e9cc3992ef06bf7edeaa5d618eaa"},
+    {"id": "artifact:winner-optima", "kind": "result", "path": "reports/winner-law-audit-runs/20260819-winner-world-optima-v1-report.json", "sha256": "50ea349c2704e312315e0c3719422483f2cd24d44cacd05e9a2dd8c71bbe352a"},
+    {"id": "artifact:winner-structure", "kind": "result", "path": "reports/winner-law-audit-runs/20260819-winner-structure-census.json", "sha256": "39d66b7cb7010fd0c6564d57b8b8d5b058de76e3df5434cb52cc97e7742eee60"}
+  ],
+  "graph_id": "graph:generated-corpus-tail-20260821-v1",
+  "measurement_bindings": {
+    "measurement:a2a-law-shape": {
+      "disposition": {"artifact_id": "artifact:a2a-report", "json_pointer": "/disposition", "op": "source", "role": "observation"},
+      "equivalent_blocks": {"artifact_id": "artifact:a2a-report", "json_pointer": "/qb_wr_equivalent_blocks", "op": "source", "role": "observation"},
+      "prospective_shadow_licensed": {"artifact_id": "artifact:a2a-report", "json_pointer": "/prospective_shadow_licensed", "op": "source", "role": "observation"},
+      "registered_blocks": {"op": "length", "value": {"artifact_id": "artifact:a2a-report", "json_pointer": "/blocks", "op": "source", "role": "observation"}}
+    },
+    "measurement:a3-s": {
+      "control_value": {"artifact_id": "artifact:a3-result", "json_pointer": "/mean_control_s", "op": "source", "role": "observation"},
+      "delta": {"artifact_id": "artifact:a3-result", "json_pointer": "/mean_paired_delta_s", "op": "source", "role": "observation"},
+      "entry_count": {"artifact_id": "artifact:a3-result", "json_pointer": "/per_slate/0/winner_overlap/control/n_entries", "op": "source", "role": "observation"},
+      "p_mean": {"artifact_id": "artifact:a3-result", "json_pointer": "/coprimary/inference/p_mean_two_sided", "op": "source", "role": "observation"},
+      "p_signed_rank": {"artifact_id": "artifact:a3-result", "json_pointer": "/coprimary/inference/p_signed_rank_two_sided", "op": "source", "role": "observation"},
+      "production_change_licensed": {"artifact_id": "artifact:a3-result", "json_pointer": "/production_change_licensed", "op": "source", "role": "observation"},
+      "slate_count": {"artifact_id": "artifact:a3-result", "json_pointer": "/n_paired_s", "op": "source", "role": "observation"},
+      "treatment_value": {"artifact_id": "artifact:a3-result", "json_pointer": "/mean_treatment_s", "op": "source", "role": "observation"}
+    },
+    "measurement:a7-s": {
+      "control_value": {"artifact_id": "artifact:a7-result", "json_pointer": "/outcome/cuts/80/control_mean", "op": "source", "role": "observation"},
+      "delta": {"artifact_id": "artifact:a7-result", "json_pointer": "/outcome/cuts/80/paired/mean_diff", "op": "source", "role": "observation"},
+      "disposition": {"artifact_id": "artifact:a7-result", "json_pointer": "/outcome/disposition", "op": "source", "role": "observation"},
+      "entry_count": {"op": "length", "value": {"artifact_id": "artifact:a7-result", "json_pointer": "/slates/0/control/indices", "op": "source", "role": "observation"}},
+      "p_mean": {"artifact_id": "artifact:a7-result", "json_pointer": "/outcome/cuts/80/paired/inference/p_mean_two_sided", "op": "source", "role": "observation"},
+      "p_signed_rank": {"artifact_id": "artifact:a7-result", "json_pointer": "/outcome/cuts/80/paired/inference/p_signed_rank_two_sided", "op": "source", "role": "observation"},
+      "prospective_shadow_licensed": {"artifact_id": "artifact:a7-result", "json_pointer": "/prospective_shadow_licensed", "op": "source", "role": "observation"},
+      "slate_count": {"artifact_id": "artifact:a7-result", "json_pointer": "/scorefree/slates", "op": "source", "role": "observation"},
+      "treatment_value": {"artifact_id": "artifact:a7-result", "json_pointer": "/outcome/cuts/80/treatment_mean", "op": "source", "role": "observation"}
+    },
+    "measurement:allboom-c": {
+      "control_value": {"artifact_id": "artifact:allboom-c", "json_pointer": "/mean_control_c", "op": "source", "role": "observation"},
+      "delta": {"artifact_id": "artifact:allboom-c", "json_pointer": "/mean_paired_delta_c", "op": "source", "role": "observation"},
+      "production_change_licensed": {"artifact_id": "artifact:allboom-c", "json_pointer": "/production_change_licensed", "op": "source", "role": "observation"},
+      "slate_count": {"artifact_id": "artifact:allboom-c", "json_pointer": "/n_slates", "op": "source", "role": "observation"},
+      "treatment_value": {"artifact_id": "artifact:allboom-c", "json_pointer": "/mean_treatment_c", "op": "source", "role": "observation"}
+    },
+    "measurement:allboom-s": {
+      "control_value": {"artifact_id": "artifact:allboom-s", "json_pointer": "/mean_control_s", "op": "source", "role": "observation"},
+      "delta": {"artifact_id": "artifact:allboom-s", "json_pointer": "/mean_paired_delta_s", "op": "source", "role": "observation"},
+      "entry_count": {"artifact_id": "artifact:allboom-s", "json_pointer": "/per_slate/0/winner_overlap/control/n_entries", "op": "source", "role": "observation"},
+      "p_mean": {"artifact_id": "artifact:allboom-s", "json_pointer": "/coprimary/inference/p_mean_two_sided", "op": "source", "role": "observation"},
+      "p_signed_rank": {"artifact_id": "artifact:allboom-s", "json_pointer": "/coprimary/inference/p_signed_rank_two_sided", "op": "source", "role": "observation"},
+      "production_change_licensed": {"artifact_id": "artifact:allboom-s", "json_pointer": "/production_change_licensed", "op": "source", "role": "observation"},
+      "slate_count": {"artifact_id": "artifact:allboom-s", "json_pointer": "/n_paired_s", "op": "source", "role": "observation"},
+      "treatment_value": {"artifact_id": "artifact:allboom-s", "json_pointer": "/mean_treatment_s", "op": "source", "role": "observation"}
+    },
+    "measurement:b1-s": {
+      "control_value": {"artifact_id": "artifact:b1-report", "json_pointer": "/exact80/books/control/mean_weekly_max", "op": "source", "role": "observation"},
+      "delta": {"left": {"artifact_id": "artifact:b1-report", "json_pointer": "/exact80/books/challenger/mean_weekly_max", "op": "source", "role": "observation"}, "op": "difference", "right": {"artifact_id": "artifact:b1-report", "json_pointer": "/exact80/books/control/mean_weekly_max", "op": "source", "role": "observation"}},
+      "entry_count": {"artifact_id": "artifact:b1-report", "json_pointer": "/exact80/slates/0/entries_control", "op": "source", "role": "observation"},
+      "prospective_shadow_licensed": {"artifact_id": "artifact:b1-report", "json_pointer": "/licenses/run_2026_shadow", "op": "source", "role": "observation"},
+      "slate_count": {"artifact_id": "artifact:b1-report", "json_pointer": "/exact80/books/control/slates", "op": "source", "role": "observation"},
+      "treatment_value": {"artifact_id": "artifact:b1-report", "json_pointer": "/exact80/books/challenger/mean_weekly_max", "op": "source", "role": "observation"}
+    },
+    "measurement:pool-full-shape": {"value": {"artifact_id": "artifact:winner-structure", "json_pointer": "/pool/full_production_shape_rate", "op": "source", "role": "observation"}},
+    "measurement:pool-games": {"value": {"artifact_id": "artifact:winner-structure", "json_pointer": "/pool/n_games_mean", "op": "source", "role": "observation"}},
+    "measurement:pool-qb-stack": {"value": {"artifact_id": "artifact:winner-structure", "json_pointer": "/pool/qb_stack_mean", "op": "source", "role": "observation"}},
+    "measurement:selected-full-shape": {"value": {"artifact_id": "artifact:winner-structure", "json_pointer": "/selected_books/full_production_shape_rate", "op": "source", "role": "observation"}},
+    "measurement:selected-games": {"value": {"artifact_id": "artifact:winner-structure", "json_pointer": "/selected_books/n_games_mean", "op": "source", "role": "observation"}},
+    "measurement:selected-qb-stack": {"value": {"artifact_id": "artifact:winner-structure", "json_pointer": "/selected_books/qb_stack_mean", "op": "source", "role": "observation"}},
+    "measurement:winner-full-shape": {"value": {"artifact_id": "artifact:winner-structure", "json_pointer": "/winners/full_production_shape_rate", "op": "source", "role": "observation"}},
+    "measurement:winner-games": {"value": {"artifact_id": "artifact:winner-structure", "json_pointer": "/winners/n_games_mean", "op": "source", "role": "observation"}},
+    "measurement:winner-p99": {
+      "denominator": {"artifact_id": "artifact:winner-law", "json_pointer": "/n_winners", "op": "source", "role": "observation"},
+      "numerator": {"artifact_id": "artifact:winner-law", "json_pointer": "/exceedance/at_or_beyond_p99/observed", "op": "source", "role": "observation"},
+      "value": {"left": {"artifact_id": "artifact:winner-law", "json_pointer": "/exceedance/at_or_beyond_p99/observed", "op": "source", "role": "observation"}, "op": "ratio", "right": {"artifact_id": "artifact:winner-law", "json_pointer": "/n_winners", "op": "source", "role": "observation"}}
+    },
+    "measurement:winner-production-valid": {
+      "denominator": {"artifact_id": "artifact:winner-optima", "json_pointer": "/n_winners", "op": "source", "role": "observation"},
+      "numerator": {"artifact_id": "artifact:winner-optima", "json_pointer": "/n_winner_production_valid", "op": "source", "role": "observation"},
+      "value": {"left": {"artifact_id": "artifact:winner-optima", "json_pointer": "/n_winner_production_valid", "op": "source", "role": "observation"}, "op": "ratio", "right": {"artifact_id": "artifact:winner-optima", "json_pointer": "/n_winners", "op": "source", "role": "observation"}}
+    },
+    "measurement:winner-qb-stack": {"value": {"artifact_id": "artifact:winner-structure", "json_pointer": "/winners/qb_stack_mean", "op": "source", "role": "observation"}}
+  },
+  "nodes": [
+    {
+      "evidence": [{"artifact_id": "artifact:current-baseline", "expected": "54-slate Sunday-main corpus, 2023-2025 (weeks 1-18 x 3)", "json_pointer": "/corpus/id", "role": "specification"}],
+      "id": "corpus:sunday-main-2023-2025-54",
+      "kind": "corpus",
+      "knowledge_class": "outcome_viewed",
+      "label": "54-slate 2023-2025 Sunday-main corpus",
+      "properties": {"outcome_status": "previously_opened", "seasons": [2023, 2024, 2025], "slates": 54}
+    },
+    {
+      "evidence": [{"artifact_id": "artifact:winner-optima", "expected": 51, "json_pointer": "/n_winners", "role": "observation"}],
+      "id": "corpus:winner-matched-2023-2025-51",
+      "kind": "corpus",
+      "knowledge_class": "outcome_viewed",
+      "label": "51 winner-matched slate records pinned by the winner-optima report",
+      "properties": {"outcome_status": "previously_opened", "slates": 51, "source_identity_array": "/winners"}
+    },
+    {
+      "evidence": [{"artifact_id": "artifact:current-baseline", "expected": "classic-k1-role12-boom40-poscal-cbwu-v4", "json_pointer": "/production_policy", "role": "specification"}],
+      "id": "policy:incumbent-production",
+      "kind": "policy",
+      "knowledge_class": "outcome_blind",
+      "label": "classic-k1-role12-boom40-poscal-cbwu-v4",
+      "properties": {"status": "reference_context"}
+    },
+    {
+      "evidence": [{"artifact_id": "artifact:a7-protocol", "contains": "it is not the live\n  production-multinomial law", "role": "specification"}],
+      "id": "policy:a7-phase-s-finite-k",
+      "kind": "policy",
+      "knowledge_class": "outcome_blind",
+      "label": "Phase-S finite-K plus SIS-ASOE research law",
+      "properties": {"status": "historical_research_context", "relations": [{"evidence": [{"artifact_id": "artifact:a7-protocol", "contains": "Both arms receive the identical candidate/world matrix and an exact-80 budget.", "role": "specification"}], "kind": "SUPPORTED_BY", "properties": {"role": "inherited_candidate_construction_context"}, "to": "policy:incumbent-production"}]}
+    },
+    {
+      "evidence": [{"artifact_id": "artifact:winner-structure", "expected": 51, "json_pointer": "/n_winner_slates", "role": "observation"}],
+      "id": "population:milly-winners-2023-2025",
+      "kind": "population",
+      "knowledge_class": "outcome_viewed",
+      "label": "51 tracked Millionaire winners",
+      "properties": {"n": 51, "relations": [{"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 51, "json_pointer": "/n_winner_slates", "role": "observation"}], "kind": "USES_CORPUS", "properties": {}, "to": "corpus:winner-matched-2023-2025-51"}]}
+    },
+    {
+      "evidence": [{"artifact_id": "artifact:winner-structure", "expected": 64098, "json_pointer": "/pool/n", "role": "observation"}],
+      "id": "population:incumbent-candidate-structure",
+      "kind": "population",
+      "knowledge_class": "outcome_blind",
+      "label": "Five-panel incumbent candidate appearances on 51 winner-matched slates",
+      "properties": {"n": 64098, "relations": [{"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 64098, "json_pointer": "/pool/n", "role": "observation"}], "kind": "USES_CORPUS", "properties": {}, "to": "corpus:winner-matched-2023-2025-51"}]}
+    },
+    {
+      "evidence": [{"artifact_id": "artifact:winner-structure", "expected": 20320, "json_pointer": "/selected_books/n", "role": "observation"}],
+      "id": "population:incumbent-selected-structure",
+      "kind": "population",
+      "knowledge_class": "outcome_blind",
+      "label": "Five-panel selected-book appearances on 51 winner-matched slates",
+      "properties": {"n": 20320, "relations": [{"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 20320, "json_pointer": "/selected_books/n", "role": "observation"}], "kind": "USES_CORPUS", "properties": {}, "to": "corpus:winner-matched-2023-2025-51"}]}
+    },
+    {
+      "evidence": [{"artifact_id": "artifact:current-baseline", "expected": "54-slate Sunday-main corpus, 2023-2025 (weeks 1-18 x 3)", "json_pointer": "/corpus/id", "role": "specification"}],
+      "id": "population:incumbent-main54-generation-context",
+      "kind": "population",
+      "knowledge_class": "outcome_blind",
+      "label": "Incumbent 54-slate generation context",
+      "properties": {"slates": 54}
+    },
+    {
+      "evidence": [{"artifact_id": "artifact:allboom-results", "contains": "control holds 550 unique lineups and treatment 1,106", "role": "observation"}],
+      "id": "population:allboom-treatment-union",
+      "kind": "population",
+      "knowledge_class": "outcome_viewed",
+      "label": "All-boom raw five-seed unique union before CBWU admission",
+      "properties": {"stage": "raw_union"}
+    },
+    {
+      "evidence": [{"artifact_id": "artifact:allboom-s-runner", "contains": "combined = combine_cbwu_books(", "role": "implementation"}],
+      "id": "population:allboom-cbwu-admitted",
+      "kind": "population",
+      "knowledge_class": "outcome_blind",
+      "label": "All-boom CBWU-admitted pool before shared line-194 exact-80 selection",
+      "properties": {"admission": "combine_cbwu_books", "budget_source": "first_seed_native_count", "stage": "admission"}
+    },
+    {
+      "evidence": [{"artifact_id": "artifact:a3-result", "expected": 2152, "json_pointer": "/open_candidates_total", "role": "observation"}, {"artifact_id": "artifact:a3-result", "expected": 530, "json_pointer": "/open_selected_total", "role": "observation"}],
+      "id": "population:a3-mixed-candidates",
+      "kind": "population",
+      "knowledge_class": "outcome_viewed",
+      "label": "A3 incumbent candidates plus partial open-boom carve",
+      "properties": {"open_candidates": 2152, "open_selected": 530}
+    },
+    {
+      "evidence": [{"artifact_id": "artifact:a7-protocol", "contains": "Both arms receive the identical candidate/world matrix and an exact-80 budget.", "role": "specification"}],
+      "id": "population:a7-fixed-pool",
+      "kind": "population",
+      "knowledge_class": "outcome_viewed",
+      "label": "A7 fixed Phase-S candidate pool",
+      "properties": {}
+    },
+    {
+      "evidence": [{"artifact_id": "artifact:b1-result", "contains": "same roughly 250-roster weekly pool", "role": "observation"}],
+      "id": "population:b1-fixed-pool",
+      "kind": "population",
+      "knowledge_class": "outcome_viewed",
+      "label": "B1 roughly 250-roster weekly fixed pool",
+      "properties": {"control_context": "20260815-atlas-money-worlds-r0-v1", "fixed_between_arms": true}
+    },
+    {
+      "evidence": [{"artifact_id": "artifact:a2a-result", "contains": "zero of five registered\nblocks were equivalent", "role": "observation"}],
+      "id": "population:a2a-player-dependence",
+      "kind": "population",
+      "knowledge_class": "outcome_viewed",
+      "label": "A2a dependence evaluation population",
+      "properties": {"blocks": 5}
+    },
+    {
+      "evidence": [{"artifact_id": "artifact:a2a-report", "expected": "5b92339b2a9118727d41a8f4b91e982c5478318029c216652d66b7cdd113e696", "json_pointer": "/control_reference/sha256", "role": "observation"}],
+      "id": "population:a2a-production-law-control",
+      "kind": "population",
+      "knowledge_class": "outcome_viewed",
+      "label": "A2a registered production-law dependence control",
+      "properties": {"blocks": 5, "control_report_sha256": "5b92339b2a9118727d41a8f4b91e982c5478318029c216652d66b7cdd113e696"}
+    },
+    {
+      "evidence": [{"artifact_id": "artifact:allboom-s", "expected": 178.5667924528302, "json_pointer": "/mean_control_s", "role": "observation"}],
+      "id": "population:atlas-reconstruction-control-s-53",
+      "kind": "population",
+      "knowledge_class": "outcome_viewed",
+      "label": "Shared ATLAS reconstruction control exact-80 books on 53 paired slates",
+      "properties": {"entry_count": 80, "slates": 53}
+    },
+    {
+      "evidence": [{"artifact_id": "artifact:allboom-c", "expected": 187.57888888888888, "json_pointer": "/mean_control_c", "role": "observation"}],
+      "id": "population:atlas-native-candidate-control-54",
+      "kind": "population",
+      "knowledge_class": "outcome_viewed",
+      "label": "ATLAS native candidate-pool control on 54 slates",
+      "properties": {"slates": 54}
+    },
+    {
+      "evidence": [{"artifact_id": "artifact:a7-result", "expected": 176.06296296296293, "json_pointer": "/outcome/cuts/80/control_mean", "role": "observation"}],
+      "id": "population:a7-money-control-54",
+      "kind": "population",
+      "knowledge_class": "outcome_viewed",
+      "label": "A7 Phase-S money-book control exact-80 books",
+      "properties": {"entry_count": 80, "slates": 54}
+    },
+    {
+      "evidence": [{"artifact_id": "artifact:b1-report", "expected": 173.6555555555556, "json_pointer": "/exact80/books/control/mean_weekly_max", "role": "observation"}],
+      "id": "population:b1-stored-current-selector-control-54",
+      "kind": "population",
+      "knowledge_class": "outcome_viewed",
+      "label": "B1 stored current-selector rank 0-79 control exact-80 books",
+      "properties": {"entry_count": 80, "slates": 54}
+    },
+
+    {"evidence": [{"artifact_id": "artifact:allboom-c", "expected": 9.05925925925926, "json_pointer": "/mean_paired_delta_c", "role": "observation"}], "id": "endpoint:candidate-ceiling-c", "kind": "endpoint", "knowledge_class": "outcome_viewed", "label": "Mean weekly realized candidate ceiling C", "properties": {"unit": "DK points"}},
+    {"evidence": [{"artifact_id": "artifact:allboom-s", "expected": 1.3377358490566034, "json_pointer": "/mean_paired_delta_s", "role": "observation"}], "id": "endpoint:selected-exact80-s", "kind": "endpoint", "knowledge_class": "outcome_viewed", "label": "Mean weekly realized maximum of selected exact-80 book S", "properties": {"unit": "DK points"}},
+    {"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 0.1568627450980392, "json_pointer": "/winners/full_production_shape_rate", "role": "observation"}], "id": "endpoint:full-production-shape-rate", "kind": "endpoint", "knowledge_class": "outcome_viewed", "label": "Full production shape rate", "properties": {"unit": "fraction"}},
+    {"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 5.666666666666667, "json_pointer": "/winners/n_games_mean", "role": "observation"}], "id": "endpoint:games-represented-mean", "kind": "endpoint", "knowledge_class": "outcome_viewed", "label": "Mean games represented", "properties": {"unit": "games"}},
+    {"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 1.2156862745098038, "json_pointer": "/winners/qb_stack_mean", "role": "observation"}], "id": "endpoint:qb-stack-mean", "kind": "endpoint", "knowledge_class": "outcome_viewed", "label": "Mean same-team QB stack count", "properties": {"unit": "players"}},
+    {"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 0.49019607843137253, "json_pointer": "/winners/bring_back_mean", "role": "observation"}], "id": "endpoint:bring-back-mean", "kind": "endpoint", "knowledge_class": "outcome_viewed", "label": "Mean opponent bring-back count", "properties": {"unit": "players"}},
+    {"evidence": [{"artifact_id": "artifact:winner-law", "expected": 50, "json_pointer": "/exceedance/at_or_beyond_p99/observed", "role": "observation"}], "id": "endpoint:winner-simulated-percentile", "kind": "endpoint", "knowledge_class": "outcome_viewed", "label": "Winner percentile under retained simulated worlds", "properties": {"unit": "fraction"}},
+    {"evidence": [{"artifact_id": "artifact:a2a-result", "contains": "a2a-law-shape-miss-qb-wr-not-equivalent", "role": "observation"}], "id": "endpoint:dependence-law-shape", "kind": "endpoint", "knowledge_class": "outcome_viewed", "label": "Dependence law-shape equivalence", "properties": {"unit": "gate"}},
+
+    {"evidence": [{"artifact_id": "artifact:production-policy", "contains": "\"CAND_MULT\": str(self.candidate_multiple)", "role": "implementation"}], "id": "parameter:cand-mult", "kind": "parameter", "knowledge_class": "outcome_blind", "label": "CAND_MULT", "properties": {"allowed_values": [0, 2], "surface": "historical_observed_only", "type": "integer"}},
+    {"evidence": [{"artifact_id": "artifact:production-policy", "contains": "\"N_BOOM\": str(self.n_boom)", "role": "implementation"}], "id": "parameter:n-boom", "kind": "parameter", "knowledge_class": "outcome_blind", "label": "N_BOOM", "properties": {"allowed_values": [40, 200], "surface": "historical_observed_only", "type": "integer"}},
+    {"evidence": [{"artifact_id": "artifact:engine", "contains": "BOOM_UNIQUE_FILL", "role": "implementation"}], "id": "parameter:boom-unique-fill", "kind": "parameter", "knowledge_class": "outcome_blind", "label": "BOOM_UNIQUE_FILL", "properties": {"allowed_values": [false, true], "surface": "historical_observed_only", "type": "boolean"}},
+    {"evidence": [{"artifact_id": "artifact:engine", "contains": "OPEN_BOOM_SOLVES", "role": "implementation"}], "id": "parameter:open-boom-solves", "kind": "parameter", "knowledge_class": "outcome_blind", "label": "OPEN_BOOM_SOLVES", "properties": {"allowed_values": [0, 8], "surface": "historical_observed_only", "type": "integer"}},
+    {"evidence": [{"artifact_id": "artifact:a7-protocol", "contains": "SELECT_LADDER", "role": "specification"}], "id": "parameter:select-ladder", "kind": "parameter", "knowledge_class": "outcome_blind", "label": "SELECT_LADDER", "properties": {"allowed_values": ["", "170:10,180:10,187:7,194:7,200:6,210:10"], "surface": "historical_observed_only", "type": "string"}},
+    {"evidence": [{"artifact_id": "artifact:b1-result", "contains": "L2 logistic tail score", "role": "observation"}], "id": "parameter:b1-selector-model", "kind": "parameter", "knowledge_class": "outcome_viewed", "label": "B1 selector model", "properties": {"allowed_values": ["stored ranks 0--79", "fixed leave-one-season-out\nL2 logistic tail score"], "surface": "historical_observed_only", "type": "category"}},
+    {"evidence": [{"artifact_id": "artifact:a2a-result", "contains": "single frozen A2a dose", "role": "observation"}], "id": "parameter:a2a-rank-factor-law", "kind": "parameter", "knowledge_class": "outcome_viewed", "label": "A2a rank-factor dependence law", "properties": {"allowed_values": ["production-law worlds", "single frozen A2a dose"], "surface": "historical_observed_only", "type": "category"}},
+
+    {"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 0.1568627450980392, "json_pointer": "/winners/full_production_shape_rate", "role": "observation"}], "id": "measurement:winner-full-shape", "kind": "measurement", "knowledge_class": "outcome_viewed", "label": "Winner full production shape rate", "properties": {"value": 0.1568627450980392, "relations": [{"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 0.1568627450980392, "json_pointer": "/winners/full_production_shape_rate", "role": "observation"}], "kind": "MEASURES", "properties": {}, "to": "endpoint:full-production-shape-rate"}, {"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 51, "json_pointer": "/winners/n", "role": "observation"}], "kind": "OBSERVED_ON", "properties": {}, "to": "population:milly-winners-2023-2025"}]}},
+    {"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 1.0, "json_pointer": "/pool/full_production_shape_rate", "role": "observation"}], "id": "measurement:pool-full-shape", "kind": "measurement", "knowledge_class": "outcome_blind", "label": "Candidate pool full production shape rate", "properties": {"value": 1.0, "relations": [{"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 1.0, "json_pointer": "/pool/full_production_shape_rate", "role": "observation"}], "kind": "MEASURES", "properties": {}, "to": "endpoint:full-production-shape-rate"}, {"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 64098, "json_pointer": "/pool/n", "role": "observation"}], "kind": "OBSERVED_ON", "properties": {}, "to": "population:incumbent-candidate-structure"}]}},
+    {"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 1.0, "json_pointer": "/selected_books/full_production_shape_rate", "role": "observation"}], "id": "measurement:selected-full-shape", "kind": "measurement", "knowledge_class": "outcome_blind", "label": "Selected-book full production shape rate", "properties": {"value": 1.0, "relations": [{"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 1.0, "json_pointer": "/selected_books/full_production_shape_rate", "role": "observation"}], "kind": "MEASURES", "properties": {}, "to": "endpoint:full-production-shape-rate"}, {"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 20320, "json_pointer": "/selected_books/n", "role": "observation"}], "kind": "OBSERVED_ON", "properties": {}, "to": "population:incumbent-selected-structure"}]}},
+    {"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 5.666666666666667, "json_pointer": "/winners/n_games_mean", "role": "observation"}], "id": "measurement:winner-games", "kind": "measurement", "knowledge_class": "outcome_viewed", "label": "Winner mean games represented", "properties": {"value": 5.666666666666667, "relations": [{"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 5.666666666666667, "json_pointer": "/winners/n_games_mean", "role": "observation"}], "kind": "MEASURES", "properties": {}, "to": "endpoint:games-represented-mean"}, {"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 51, "json_pointer": "/winners/n", "role": "observation"}], "kind": "OBSERVED_ON", "properties": {}, "to": "population:milly-winners-2023-2025"}]}},
+    {"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 4.8705419825891605, "json_pointer": "/pool/n_games_mean", "role": "observation"}], "id": "measurement:pool-games", "kind": "measurement", "knowledge_class": "outcome_blind", "label": "Candidate pool mean games represented", "properties": {"value": 4.8705419825891605, "relations": [{"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 4.8705419825891605, "json_pointer": "/pool/n_games_mean", "role": "observation"}], "kind": "MEASURES", "properties": {}, "to": "endpoint:games-represented-mean"}, {"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 64098, "json_pointer": "/pool/n", "role": "observation"}], "kind": "OBSERVED_ON", "properties": {}, "to": "population:incumbent-candidate-structure"}]}},
+    {"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 4.6540846456692915, "json_pointer": "/selected_books/n_games_mean", "role": "observation"}], "id": "measurement:selected-games", "kind": "measurement", "knowledge_class": "outcome_blind", "label": "Selected-book mean games represented", "properties": {"value": 4.6540846456692915, "relations": [{"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 4.6540846456692915, "json_pointer": "/selected_books/n_games_mean", "role": "observation"}], "kind": "MEASURES", "properties": {}, "to": "endpoint:games-represented-mean"}, {"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 20320, "json_pointer": "/selected_books/n", "role": "observation"}], "kind": "OBSERVED_ON", "properties": {}, "to": "population:incumbent-selected-structure"}]}},
+    {"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 1.2156862745098038, "json_pointer": "/winners/qb_stack_mean", "role": "observation"}], "id": "measurement:winner-qb-stack", "kind": "measurement", "knowledge_class": "outcome_viewed", "label": "Winner mean QB stack", "properties": {"value": 1.2156862745098038, "relations": [{"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 1.2156862745098038, "json_pointer": "/winners/qb_stack_mean", "role": "observation"}], "kind": "MEASURES", "properties": {}, "to": "endpoint:qb-stack-mean"}, {"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 51, "json_pointer": "/winners/n", "role": "observation"}], "kind": "OBSERVED_ON", "properties": {}, "to": "population:milly-winners-2023-2025"}]}},
+    {"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 2.024743361727355, "json_pointer": "/pool/qb_stack_mean", "role": "observation"}], "id": "measurement:pool-qb-stack", "kind": "measurement", "knowledge_class": "outcome_blind", "label": "Candidate pool mean QB stack", "properties": {"value": 2.024743361727355, "relations": [{"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 2.024743361727355, "json_pointer": "/pool/qb_stack_mean", "role": "observation"}], "kind": "MEASURES", "properties": {}, "to": "endpoint:qb-stack-mean"}, {"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 64098, "json_pointer": "/pool/n", "role": "observation"}], "kind": "OBSERVED_ON", "properties": {}, "to": "population:incumbent-candidate-structure"}]}},
+    {"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 2.0428149606299213, "json_pointer": "/selected_books/qb_stack_mean", "role": "observation"}], "id": "measurement:selected-qb-stack", "kind": "measurement", "knowledge_class": "outcome_blind", "label": "Selected-book mean QB stack", "properties": {"value": 2.0428149606299213, "relations": [{"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 2.0428149606299213, "json_pointer": "/selected_books/qb_stack_mean", "role": "observation"}], "kind": "MEASURES", "properties": {}, "to": "endpoint:qb-stack-mean"}, {"evidence": [{"artifact_id": "artifact:winner-structure", "expected": 20320, "json_pointer": "/selected_books/n", "role": "observation"}], "kind": "OBSERVED_ON", "properties": {}, "to": "population:incumbent-selected-structure"}]}},
+    {"evidence": [{"artifact_id": "artifact:winner-optima", "expected": 8, "json_pointer": "/n_winner_production_valid", "role": "observation"}], "id": "measurement:winner-production-valid", "kind": "measurement", "knowledge_class": "outcome_viewed", "label": "Winners valid under production construction law", "properties": {"denominator": 51, "numerator": 8, "value": 0.1568627450980392, "relations": [{"evidence": [{"artifact_id": "artifact:winner-optima", "expected": 8, "json_pointer": "/n_winner_production_valid", "role": "observation"}], "kind": "OBSERVED_ON", "properties": {}, "to": "population:milly-winners-2023-2025"}]}},
+    {"evidence": [{"artifact_id": "artifact:winner-law", "expected": 50, "json_pointer": "/exceedance/at_or_beyond_p99/observed", "role": "observation"}], "id": "measurement:winner-p99", "kind": "measurement", "knowledge_class": "outcome_viewed", "label": "Winners at or beyond retained simulated p99", "properties": {"denominator": 51, "numerator": 50, "value": 0.9803921568627451, "relations": [{"evidence": [{"artifact_id": "artifact:winner-law", "expected": 50, "json_pointer": "/exceedance/at_or_beyond_p99/observed", "role": "observation"}], "kind": "MEASURES", "properties": {}, "to": "endpoint:winner-simulated-percentile"}, {"evidence": [{"artifact_id": "artifact:winner-law", "expected": 51, "json_pointer": "/n_winners", "role": "observation"}], "kind": "OBSERVED_ON", "properties": {}, "to": "population:milly-winners-2023-2025"}]}},
+
+    {"evidence": [{"artifact_id": "artifact:allboom-c", "expected": 9.05925925925926, "json_pointer": "/mean_paired_delta_c", "role": "observation"}], "id": "measurement:allboom-c", "kind": "measurement", "knowledge_class": "outcome_viewed", "label": "All-boom candidate ceiling effect", "properties": {"control_value": 187.57888888888888, "delta": 9.05925925925926, "production_change_licensed": false, "slate_count": 54, "treatment_value": 196.63814814814816, "relations": [{"evidence": [{"artifact_id": "artifact:allboom-c", "expected": 9.05925925925926, "json_pointer": "/mean_paired_delta_c", "role": "observation"}], "kind": "MEASURES", "properties": {}, "to": "endpoint:candidate-ceiling-c"}, {"evidence": [{"artifact_id": "artifact:allboom-c", "expected": 187.57888888888888, "json_pointer": "/mean_control_c", "role": "observation"}], "kind": "COMPARES_WITH", "properties": {}, "to": "population:atlas-native-candidate-control-54"}, {"evidence": [{"artifact_id": "artifact:allboom-results", "contains": "treatment 1,106", "role": "observation"}], "kind": "OBSERVED_ON", "properties": {}, "to": "population:allboom-treatment-union"}]}},
+    {"evidence": [{"artifact_id": "artifact:allboom-s", "expected": 1.3377358490566034, "json_pointer": "/mean_paired_delta_s", "role": "observation"}], "id": "measurement:allboom-s", "kind": "measurement", "knowledge_class": "outcome_viewed", "label": "All-boom selected exact-80 effect", "properties": {"control_value": 178.5667924528302, "delta": 1.3377358490566034, "entry_count": 80, "p_mean": 0.48650756746216267, "p_signed_rank": 0.7773661131694342, "production_change_licensed": false, "slate_count": 53, "treatment_value": 179.9045283018868, "relations": [{"evidence": [{"artifact_id": "artifact:allboom-s", "expected": 1.3377358490566034, "json_pointer": "/mean_paired_delta_s", "role": "observation"}], "kind": "MEASURES", "properties": {}, "to": "endpoint:selected-exact80-s"}, {"evidence": [{"artifact_id": "artifact:allboom-s", "expected": 178.5667924528302, "json_pointer": "/mean_control_s", "role": "observation"}], "kind": "COMPARES_WITH", "properties": {}, "to": "population:atlas-reconstruction-control-s-53"}, {"evidence": [{"artifact_id": "artifact:allboom-s-runner", "contains": "combined = combine_cbwu_books(", "role": "implementation"}], "kind": "OBSERVED_ON", "properties": {}, "to": "population:allboom-cbwu-admitted"}]}},
+    {"evidence": [{"artifact_id": "artifact:a3-result", "expected": -0.9784905660377367, "json_pointer": "/mean_paired_delta_s", "role": "observation"}], "id": "measurement:a3-s", "kind": "measurement", "knowledge_class": "outcome_viewed", "label": "A3 partial carve selected exact-80 effect", "properties": {"control_value": 178.5667924528302, "delta": -0.9784905660377367, "entry_count": 80, "p_mean": 0.36676025390625, "p_signed_rank": 0.4585723876953125, "production_change_licensed": false, "slate_count": 53, "treatment_value": 177.58830188679246, "relations": [{"evidence": [{"artifact_id": "artifact:a3-result", "expected": -0.9784905660377367, "json_pointer": "/mean_paired_delta_s", "role": "observation"}], "kind": "MEASURES", "properties": {}, "to": "endpoint:selected-exact80-s"}, {"evidence": [{"artifact_id": "artifact:a3-protocol", "contains": "identical\n  to the S arm's control, re-validated per cell against the ATLAS\n  attempt-2 receipts", "role": "specification"}], "kind": "COMPARES_WITH", "properties": {}, "to": "population:atlas-reconstruction-control-s-53"}, {"evidence": [{"artifact_id": "artifact:a3-result", "expected": 2152, "json_pointer": "/open_candidates_total", "role": "observation"}], "kind": "OBSERVED_ON", "properties": {}, "to": "population:a3-mixed-candidates"}]}},
+    {"evidence": [{"artifact_id": "artifact:a7-result", "expected": 0.04962962962962818, "json_pointer": "/outcome/cuts/80/paired/mean_diff", "role": "observation"}], "id": "measurement:a7-s", "kind": "measurement", "knowledge_class": "outcome_viewed", "label": "A7 selector ladder exact-80 effect", "properties": {"control_value": 176.06296296296293, "delta": 0.04962962962962818, "disposition": "historical-null-or-inconclusive-phase-s", "entry_count": 80, "p_mean": 0.84375, "p_signed_rank": 0.6875, "prospective_shadow_licensed": false, "slate_count": 54, "treatment_value": 176.1125925925926, "relations": [{"evidence": [{"artifact_id": "artifact:a7-result", "expected": 0.04962962962962818, "json_pointer": "/outcome/cuts/80/paired/mean_diff", "role": "observation"}], "kind": "MEASURES", "properties": {}, "to": "endpoint:selected-exact80-s"}, {"evidence": [{"artifact_id": "artifact:a7-result", "expected": 176.06296296296293, "json_pointer": "/outcome/cuts/80/control_mean", "role": "observation"}], "kind": "COMPARES_WITH", "properties": {}, "to": "population:a7-money-control-54"}, {"evidence": [{"artifact_id": "artifact:a7-protocol", "contains": "Both arms receive the identical candidate/world matrix and an exact-80 budget.", "role": "specification"}], "kind": "OBSERVED_ON", "properties": {}, "to": "population:a7-fixed-pool"}]}},
+    {"evidence": [{"artifact_id": "artifact:b1-report", "expected": 171.3685185185185, "json_pointer": "/exact80/books/challenger/mean_weekly_max", "role": "observation"}], "id": "measurement:b1-s", "kind": "measurement", "knowledge_class": "outcome_viewed", "label": "B1 tail model exact-80 effect", "properties": {"control_value": 173.6555555555556, "delta": -2.287037037037095, "entry_count": 80, "prospective_shadow_licensed": false, "slate_count": 54, "treatment_value": 171.3685185185185, "relations": [{"evidence": [{"artifact_id": "artifact:b1-report", "expected": false, "json_pointer": "/historical_pass", "role": "observation"}], "kind": "MEASURES", "properties": {}, "to": "endpoint:selected-exact80-s"}, {"evidence": [{"artifact_id": "artifact:b1-report", "expected": 173.6555555555556, "json_pointer": "/exact80/books/control/mean_weekly_max", "role": "observation"}], "kind": "COMPARES_WITH", "properties": {}, "to": "population:b1-stored-current-selector-control-54"}, {"evidence": [{"artifact_id": "artifact:b1-report", "expected": 13633, "json_pointer": "/population/canonical_candidate_rows", "role": "observation"}], "kind": "OBSERVED_ON", "properties": {}, "to": "population:b1-fixed-pool"}]}},
+    {"evidence": [{"artifact_id": "artifact:a2a-report", "expected": "a2a-law-shape-miss-qb-wr-not-equivalent", "json_pointer": "/disposition", "role": "observation"}], "id": "measurement:a2a-law-shape", "kind": "measurement", "knowledge_class": "outcome_viewed", "label": "A2a dependence law shape gate", "properties": {"disposition": "a2a-law-shape-miss-qb-wr-not-equivalent", "equivalent_blocks": 0, "prospective_shadow_licensed": false, "registered_blocks": 5, "relations": [{"evidence": [{"artifact_id": "artifact:a2a-report", "expected": 0, "json_pointer": "/qb_wr_equivalent_blocks", "role": "observation"}], "kind": "MEASURES", "properties": {}, "to": "endpoint:dependence-law-shape"}, {"evidence": [{"artifact_id": "artifact:a2a-report", "expected": "5b92339b2a9118727d41a8f4b91e982c5478318029c216652d66b7cdd113e696", "json_pointer": "/control_reference/sha256", "role": "observation"}], "kind": "COMPARES_WITH", "properties": {}, "to": "population:a2a-production-law-control"}, {"evidence": [{"artifact_id": "artifact:a2a-report", "expected": 0, "json_pointer": "/qb_wr_equivalent_blocks", "role": "observation"}], "kind": "OBSERVED_ON", "properties": {}, "to": "population:a2a-player-dependence"}]}}
+  ],
+  "rule_universe": [
+    {"baseline_operational": true, "classification": "simulation_law", "evidence": [{"artifact_id": "artifact:a2a-protocol", "contains": "exact production-law worlds", "role": "specification"}], "id": "rule:simulation-rank-factor-law", "label": "Production rank-factor dependence law", "stage": "simulation"},
+    {"baseline_operational": true, "classification": "dk_hard", "evidence": [{"artifact_id": "artifact:lineup", "contains": "ROSTER_SIZE = 9", "role": "implementation"}], "id": "rule:dk-roster-size-nine", "label": "Exactly nine distinct players", "stage": "generation"},
+    {"baseline_operational": true, "classification": "dk_hard", "evidence": [{"artifact_id": "artifact:lineup", "contains": "prob += count(\"QB\") == 1", "role": "implementation"}], "id": "rule:dk-position-shape", "label": "DK Classic position shape", "stage": "generation"},
+    {"baseline_operational": true, "classification": "dk_hard", "evidence": [{"artifact_id": "artifact:lineup", "contains": "SALARY_CAP = 50_000", "role": "implementation"}], "id": "rule:dk-salary-cap-50000", "label": "Salary at or below 50000", "stage": "generation"},
+    {"baseline_operational": true, "classification": "dk_hard", "evidence": [{"artifact_id": "artifact:lineup", "contains": "MAX_FROM_TEAM = 8", "role": "implementation"}], "id": "rule:dk-team-cap-eight", "label": "At most eight players per team", "stage": "generation"},
+    {"baseline_operational": true, "classification": "dk_hard", "evidence": [{"artifact_id": "artifact:lineup", "contains": "MIN_GAMES = 2", "role": "implementation"}], "id": "rule:dk-min-two-games", "label": "At least two games represented", "stage": "generation"},
+    {"baseline_operational": true, "classification": "house_soft", "evidence": [{"artifact_id": "artifact:lineup", "contains": "_env.get(\"MIN_LINEUP_SALARY\", \"49000\")", "role": "implementation"}], "id": "rule:salary-floor-49000", "label": "Minimum salary 49000", "stage": "generation"},
+    {"baseline_operational": true, "classification": "house_soft", "evidence": [{"artifact_id": "artifact:atlas-runner", "contains": "STACK_QB_MIN\", \"2\"", "role": "implementation"}], "id": "rule:qb-stack-min-two", "label": "QB plus at least two same-team pass catchers", "stage": "generation"},
+    {"baseline_operational": true, "classification": "house_soft", "evidence": [{"artifact_id": "artifact:atlas-runner", "contains": "STACK_BRING_BACK\", \"1\"", "role": "implementation"}], "id": "rule:bring-back-min-one", "label": "At least one opponent bring-back", "stage": "generation"},
+    {"baseline_operational": true, "classification": "house_soft", "evidence": [{"artifact_id": "artifact:atlas-runner", "contains": "FORBID_RB_DST\", \"1\"", "role": "implementation"}], "id": "rule:forbid-rb-vs-dst", "label": "Forbid RB against selected DST", "stage": "generation"},
+    {"baseline_operational": true, "classification": "house_soft", "evidence": [{"artifact_id": "artifact:lineup", "contains": "forbid_two_rb_same_team: bool = True", "role": "implementation"}], "id": "rule:forbid-two-rb-same-team", "label": "Forbid two RB from one team", "stage": "generation"},
+    {"baseline_operational": true, "classification": "generation_recipe", "evidence": [{"artifact_id": "artifact:production-policy", "contains": "\"CAND_MULT\": str(self.candidate_multiple)", "role": "implementation"}], "id": "rule:leverage-family", "label": "Leverage candidate family", "stage": "generation"},
+    {"baseline_operational": true, "classification": "generation_recipe", "evidence": [{"artifact_id": "artifact:production-policy", "contains": "\"N_BOOM\": str(self.n_boom)", "role": "implementation"}], "id": "rule:boom-family", "label": "Boom-world candidate family", "stage": "generation"},
+    {"baseline_operational": true, "classification": "generation_recipe", "evidence": [{"artifact_id": "artifact:production-policy", "contains": "\"N_EPISTEMIC\": str(self.n_role)", "role": "implementation"}], "id": "rule:role-family", "label": "Direct-role candidate family", "stage": "generation"},
+    {"baseline_operational": true, "classification": "generation_recipe", "evidence": [{"artifact_id": "artifact:engine", "contains": "n_qbvar = int(runtime_env.get(\"N_QB_VARIANTS\", \"4\"))", "role": "implementation"}], "id": "rule:qb-variant-family", "label": "QB-variant candidate family", "stage": "generation"},
+    {"baseline_operational": true, "classification": "generation_recipe", "evidence": [{"artifact_id": "artifact:production-policy", "contains": "\"N_GAMESTACK\": \"4\"", "role": "implementation"}], "id": "rule:game-stack-family", "label": "Projected-game stack family", "stage": "generation"},
+    {"baseline_operational": true, "classification": "generation_recipe", "evidence": [{"artifact_id": "artifact:production-policy", "contains": "\"N_DARKGAME\": \"10\"", "role": "implementation"}], "id": "rule:dark-game-family", "label": "Dark-game stack family", "stage": "generation"},
+    {"baseline_operational": true, "classification": "house_soft", "evidence": [{"artifact_id": "artifact:lineup", "contains": "max_overlap: int = 7", "role": "implementation"}], "id": "rule:leverage-overlap-seven", "label": "Leverage-family sequential overlap at most seven", "stage": "generation"},
+    {"baseline_operational": true, "classification": "house_soft", "evidence": [{"artifact_id": "artifact:engine", "contains": "banned_lineups=banned_qv,\n                                  max_overlap=6", "role": "implementation"}], "id": "rule:qbvar-overlap-six", "label": "QB-variant sequential overlap at most six", "stage": "generation"},
+    {"baseline_operational": true, "classification": "house_soft", "evidence": [{"artifact_id": "artifact:engine", "contains": "game_lock=(gid, 5), banned_lineups=banned,\n                              max_overlap=7", "role": "implementation"}], "id": "rule:game-overlap-seven", "label": "Game-stack sequential overlap at most seven", "stage": "generation"},
+    {"baseline_operational": true, "classification": "house_soft", "evidence": [{"artifact_id": "artifact:engine", "contains": "game_lock=(gid, 5)", "role": "implementation"}], "id": "rule:game-lock-min-five", "label": "Family game lock of at least five players", "stage": "generation"},
+    {"baseline_operational": true, "classification": "generation_recipe", "evidence": [{"artifact_id": "artifact:engine", "contains": "`seen` dedupes rosters", "role": "implementation"}], "id": "rule:first-producer-dedup-order", "label": "First-producer exact-roster dedup and generation order", "stage": "admission"},
+    {"baseline_operational": true, "classification": "generation_recipe", "evidence": [{"artifact_id": "artifact:multiseed", "contains": "def combine_cbwu_books(", "role": "implementation"}], "id": "rule:cbwu-cross-seed-admission", "label": "CBWU cross-seed admission and budget", "stage": "admission"},
+    {"baseline_operational": false, "classification": "house_soft", "evidence": [{"artifact_id": "artifact:engine", "contains": "GEN_POOL_CAP trims deterministically", "role": "implementation"}], "id": "rule:candidate-budget-truncation", "label": "Candidate-pool cap or truncation", "stage": "admission"},
+    {"baseline_operational": false, "classification": "house_soft", "evidence": [{"artifact_id": "artifact:production-policy", "contains": "\"MAX_PER_GAME\": \"0\"", "role": "implementation"}], "id": "rule:max-per-game-cap", "label": "Dormant maximum players from one game cap", "stage": "generation"},
+    {"baseline_operational": true, "classification": "selector", "evidence": [{"artifact_id": "artifact:current-baseline", "expected": 194.0, "json_pointer": "/target/value", "role": "specification"}], "id": "rule:selector-line194", "label": "Greedy marginal coverage selector at line 194", "stage": "selection"},
+    {"baseline_operational": false, "classification": "selector", "evidence": [{"artifact_id": "artifact:a7-protocol", "contains": "SELECT_LADDER", "role": "specification"}], "id": "rule:selector-ladder", "label": "A7 multi-threshold ladder selector", "stage": "selection"},
+    {"baseline_operational": false, "classification": "selector", "evidence": [{"artifact_id": "artifact:b1-result", "contains": "L2 logistic tail score", "role": "observation"}], "id": "rule:selector-tail-model", "label": "B1 fitted tail-model selector", "stage": "selection"}
+  ],
+  "schema": "nfl-dfs-research-evidence-graph/v1",
+  "scope": "Generated-corpus tail decisions, winner characteristics, rules, selectors, endpoints, gates, and licenses through 2026-08-21"
+}

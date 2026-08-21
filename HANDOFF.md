@@ -20,7 +20,66 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 06:35 CDT
+## Current state — 2026-08-21 08:55 CDT
+
+### Evidence graph v1 is materialized; parametric execution is design-only
+
+- Branch `main`; parent before this milestone is
+  `25fbf945c053f33bb5ec024b34166bd0993f0aea` (`Record frozen A7 corpus
+  variation grid`). A repository-native research evidence graph now indexes
+  the retained winner, corpus, rule, arm, selector, endpoint, comparator, and
+  license evidence. The implementation is
+  `src/nfl_dfs/research/evidence_knowledge_graph.py`, the CLI is
+  `scripts/research_evidence_graph.py`, and the protocol is
+  `reports/2026-08-21-research-evidence-knowledge-graph-v1.md`.
+- Create-once materialization at
+  `reports/evidence-graph/20260821-v1/materialized/` contains 25 pinned
+  artifacts, 85 nodes, and 249 edges. Exact registry SHA-256 is
+  `388d9645a34a29abff0bf22f50ee352531e9b0264fb27013b374fb21efe95751`;
+  builder SHA-256 is
+  `f70e5b1667107201808756c8737d23fac6cb47e35c80f47bef05177cec3b2d59`;
+  curated rule-universe SHA-256 is
+  `2d02cf1ca8f2b0024fe8ec822c1e137a1ecc25f1a55470a34c5475131690d562`;
+  materialized manifest SHA-256 is
+  `dcfbe866414f6b011eda14659931217168bcc5371cc6caade9c596a4df8fe9ca`.
+  Validation rebuilds from the pinned registry and source bytes and compares
+  canonical bytes, so Boolean/integer/float aliases and coordinated
+  self-receipt rewrites fail. Every measurement property and both sides of
+  every historical parameter assignment are source-bound. Missing or
+  duplicate arm/rule applications fail.
+- Known answers are explicit: all-boom removed no feasibility rule; A3 only
+  relaxed QB stack and bring-back on 8/40 boom attempts and added equal-count
+  truncation; A7 is a fixed-pool selector arm under its Phase-S world law; B1
+  replaced the stored current selector rather than a `p_line` control; A2a is
+  a simulation-only diagnostic. No completed arm proves full soft-rule
+  removal. `full-soft-removal` is hard-false because no independently
+  generated effective-policy rule inventory or runtime receipt exists.
+- The approved no-rebuild architecture is frozen as design only: one immutable
+  image, one create-once typed batch manifest, and exactly seven complete
+  settings over five fields (`min_lineup_salary`, `qb_stack_min`,
+  `bring_back_min`, `forbid_rb_vs_dst`, and
+  `forbid_two_rb_same_team`): incumbent, five one-rule removals, and one
+  DK-classic-only assignment. A worker should evaluate all seven in fixed
+  order for one slate with common pinned sources/worlds/objective/budget/
+  admission/selector, and a strict finisher should append graph sidecars.
+  Arbitrary environment exposure, sparse assignments, defaults, coercion,
+  score-inspect-adjust-score loops, and worker graph mutation are forbidden.
+  A rebuild is needed only for code or parameter-schema changes, not allowed
+  values inside a frozen batch.
+- Validation: `tests/test_evidence_knowledge_graph.py` is 19/19 green;
+  Python compile, CLI help, create-once build, source-aware validate, all
+  registered query dry runs, JSON parsing, and `git diff --check` are green.
+  Independent adversarial review reported no remaining P0/P1. Ruff is not
+  installed locally. No BigQuery, GCS, Cloud Run, lease, new outcome read,
+  simulation, CBC, deploy, or execution occurred.
+- The manifest deliberately says `decision_authority=false`,
+  `property_binding_scope=measurement_properties_and_parameter_assignments`,
+  and all operational licenses false. Do not launch the parametric batch yet.
+  Next action is to generate/freeze the independent effective-policy rule
+  inventory, replace process-global environment reads with typed request-local
+  policy objects (including an explicit same-team-RB field), implement complete
+  `ParameterSpec`/parameter-set/batch/runtime receipts, and focused-test that
+  runner before any immutable build or historical scoring request.
 
 ### A7 exact-80 historical comparison is terminally null; no shadow is licensed
 
