@@ -106,18 +106,19 @@ agent or developer:
   SHA with the same seven-character prefix and failed closed during source
   fetch (`upload-pack: not our ref`); all three steps remained `QUEUED`, it
   produced no image, and it must not be reused. Corrected direct-Git build
-  `063251e8-888b-4d64-9c78-1346af5b12bf` is `QUEUED` from the exact pushed
-  source `7057554eb2d930be29e882745e52d271fde09339`, with requested tag
-  `a7-v2-7057554-20260820` and the registered 10,800-second timeout. It is now
-  `WORKING` in `full-test-suite`, has passed the prior archive-fixture failure
-  region cleanly, and reached the expected long retained-CBC block after 64%
-  with no failure or error marker. Image build and container smoke remain
-  queued; no digest exists yet.
-- Exact next action: monitor corrected build `063251e8...` and require every
-  test, image-build, and container-smoke step to pass. Only after exact
-  `SUCCESS`, source/digest validation, and the already-green idle/unscheduled
-  reused-job census may v2 create its fresh claim and begin its one new
-  outcome-blind smoke.
+  `063251e8-888b-4d64-9c78-1346af5b12bf` completed `SUCCESS` from exact pushed
+  source `7057554eb2d930be29e882745e52d271fde09339`. The full suite passed
+  2,771 tests with four skips; image build and all registered container smokes
+  also passed. Build-result metadata and an independent Artifact Registry tag
+  lookup agree on immutable image
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:f9ecbcc6a45046b4155bb22e0497e7b7c1c618655bad2a7852bfc8fb04c2370f`.
+  It finished at `2026-08-21T04:53:40.738864Z`; no Cloud Run update or outcome
+  access occurred during the build.
+- Exact next action: recheck the v2 prefix, lease, reused-job idleness and
+  scheduler absence, then start the registered v2 watcher with the immutable
+  image, source `7057554...`, and build `063251e8...`. The watcher owns the
+  sole smoke, support census, external freeze, and any subsequently licensed
+  one-shot historical execution.
 
 ### LR8 historical legal-relaxation arm has green mechanics and a score-free source contract
 
