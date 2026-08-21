@@ -17,6 +17,7 @@ from collections import Counter
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from decimal import Decimal, ROUND_HALF_EVEN, localcontext
 from hashlib import sha256
 import json
 import math
@@ -52,7 +53,26 @@ BOOK_MAX_CAP_MICRO: Final = BOOK_MAX_CAP_DK * rw.MICRO_DK_SCALE
 ANATOMY_LABEL_DK: Final = 200
 ANATOMY_LABEL_MICRO: Final = ANATOMY_LABEL_DK * rw.MICRO_DK_SCALE
 ANATOMY_MODEL_VERSION: Final = "lr8-soft-anatomy-logistic-v1"
-ANATOMY_UTILITY_SCALE: Final = 1_000_000_000
+ANATOMY_LINEAR_SCALE: Final = 1_000_000
+ANATOMY_LINEAR_ROUNDING: Final = "decimal-round-half-even-v1"
+ANATOMY_FEATURE_ABS_UPPER: Final = (
+    50_000,  # salary_used
+    9,  # games_represented
+    9,  # teams_represented
+    8,  # max_from_one_game (at least two games are required)
+    8,  # max_from_one_team
+    6,  # qb_wrte_partners (four WR plus two TE are shape-legal)
+    7,  # bring_back_skill_players
+    3,  # rb_against_dst_count
+    3,  # same_team_rb_pairs
+    1,  # naked_qb
+    1,  # exact_one_qb_partner
+    50_000,  # qb_salary
+    50_000,  # rb_salary
+    50_000,  # wr_salary
+    50_000,  # te_salary
+    50_000,  # dst_salary
+)
 FOLD_WEIGHT: Final = 0.5
 MIN_SELECTED_MEAN_DK: Final = 194
 MIN_CANDIDATE_CEILING_DK: Final = 205
@@ -138,6 +158,67 @@ def _json_int(value: object, *, label: str, minimum: int = 0) -> int:
     if type(value) is not int or value < minimum:
         raise LR8Error(f"{label} must be an exact non-bool JSON integer")
     return value
+
+
+def _json_signed_int(value: object, *, label: str) -> int:
+    if type(value) is not int:
+        raise LR8Error(f"{label} must be an exact non-bool JSON integer")
+    return value
+
+
+def _quantize_anatomy_linear_law(
+    means: Sequence[float],
+    scales: Sequence[float],
+    coefficients: Sequence[float],
+    intercept: float,
+) -> tuple[tuple[int, ...], int, int]:
+    """Freeze the standardized logit as one exact raw-feature integer tier."""
+    if not (
+        len(means) == len(scales) == len(coefficients) == len(ANATOMY_FEATURES)
+        == len(ANATOMY_FEATURE_ABS_UPPER)
+    ):
+        raise LR8Error("soft-anatomy linear law width differs")
+    with localcontext() as context:
+        context.prec = 80
+        decimal_means = tuple(Decimal(str(float(value))) for value in means)
+        decimal_scales = tuple(Decimal(str(float(value))) for value in scales)
+        decimal_coefficients = tuple(
+            Decimal(str(float(value))) for value in coefficients
+        )
+        if any(
+            not value.is_finite() for value in (
+                *decimal_means, *decimal_scales, *decimal_coefficients,
+                Decimal(str(float(intercept))),
+            )
+        ) or any(value <= 0 for value in decimal_scales):
+            raise LR8Error("soft-anatomy linear law is nonfinite")
+        raw_weights = tuple(
+            coefficient / scale
+            for coefficient, scale in zip(
+                decimal_coefficients, decimal_scales, strict=True
+            )
+        )
+        raw_intercept = Decimal(str(float(intercept))) - sum(
+            weight * mean
+            for weight, mean in zip(raw_weights, decimal_means, strict=True)
+        )
+        scale_value = Decimal(ANATOMY_LINEAR_SCALE)
+        unit = Decimal(1)
+        weight_units = tuple(int((weight * scale_value).quantize(
+            unit, rounding=ROUND_HALF_EVEN
+        )) for weight in raw_weights)
+        intercept_units = int((raw_intercept * scale_value).quantize(
+            unit, rounding=ROUND_HALF_EVEN
+        ))
+    worst_case = abs(intercept_units) + sum(
+        abs(weight) * bound
+        for weight, bound in zip(
+            weight_units, ANATOMY_FEATURE_ABS_UPPER, strict=True
+        )
+    )
+    if worst_case > rw.CBC_EXACT_INTEGER_MAX:
+        raise LR8Error("soft-anatomy fixed-point tier exceeds exact CBC range")
+    return weight_units, intercept_units, worst_case
 
 
 def _players(
@@ -392,6 +473,16 @@ def fit_soft_anatomy_law(
     model.fit(standardized, labels, sample_weight=weights)
     if model.n_iter_.shape != (1,) or int(model.n_iter_[0]) >= 2000:
         raise LR8Error("soft-anatomy fixed fit did not converge")
+    coefficient_values = model.coef_[0].astype(float).tolist()
+    intercept_value = float(model.intercept_[0])
+    operative_weights, operative_intercept, operative_bound = (
+        _quantize_anatomy_linear_law(
+            means.tolist(),
+            scales.tolist(),
+            coefficient_values,
+            intercept_value,
+        )
+    )
     artifact: dict[str, object] = {
         "version": ANATOMY_MODEL_VERSION,
         "training_seasons": list(TRAINING_SEASONS),
@@ -401,8 +492,14 @@ def fit_soft_anatomy_law(
         "imputation": "none_finite_required",
         "standardize_means": means.tolist(),
         "standardize_scales": scales.tolist(),
-        "coefficients": model.coef_[0].astype(float).tolist(),
-        "intercept": float(model.intercept_[0]),
+        "coefficients": coefficient_values,
+        "intercept": intercept_value,
+        "operative_tier": "raw_feature_linear_predictor_fixed_point",
+        "operative_linear_scale": ANATOMY_LINEAR_SCALE,
+        "operative_rounding": ANATOMY_LINEAR_ROUNDING,
+        "operative_raw_weight_units": list(operative_weights),
+        "operative_intercept_units": operative_intercept,
+        "operative_worst_case_abs_units": operative_bound,
         "c": 1.0,
         "solver": "lbfgs",
         "class_weight": None,
@@ -414,6 +511,7 @@ def fit_soft_anatomy_law(
         "feature_sweep": False,
         "hyperparameter_sweep": False,
         "threshold_sweep": False,
+        "sigmoid_probability_operative": False,
         "b1_inputs_used": False,
         "a2a_inputs_used": False,
         "production_change_licensed": False,
@@ -429,9 +527,13 @@ def validate_soft_anatomy_artifact(
         "version", "training_seasons", "evaluation_seasons_forbidden_during_fit",
         "target", "feature_columns", "imputation", "standardize_means",
         "standardize_scales", "coefficients", "intercept", "c", "solver",
+        "operative_tier", "operative_linear_scale", "operative_rounding",
+        "operative_raw_weight_units", "operative_intercept_units",
+        "operative_worst_case_abs_units",
         "class_weight", "max_iter", "sample_weight", "training_rows",
         "training_cells", "training_positive_rows", "feature_sweep",
-        "hyperparameter_sweep", "threshold_sweep", "b1_inputs_used",
+        "hyperparameter_sweep", "threshold_sweep",
+        "sigmoid_probability_operative", "b1_inputs_used",
         "a2a_inputs_used", "production_change_licensed", "artifact_sha256",
     }
     if not isinstance(value, Mapping) or set(value) != expected:
@@ -445,16 +547,26 @@ def validate_soft_anatomy_artifact(
         or artifact["target"] != "realized_total_dk_gte_200"
         or artifact["feature_columns"] != list(ANATOMY_FEATURES)
         or artifact["imputation"] != "none_finite_required"
+        or artifact["operative_tier"]
+        != "raw_feature_linear_predictor_fixed_point"
+        or artifact["operative_rounding"] != ANATOMY_LINEAR_ROUNDING
         or artifact["solver"] != "lbfgs"
         or artifact["class_weight"] is not None
         or artifact["sample_weight"] != "equal_total_weight_per_season_week"
         or any(artifact[key] is not False for key in (
             "feature_sweep", "hyperparameter_sweep", "threshold_sweep",
+            "sigmoid_probability_operative",
             "b1_inputs_used", "a2a_inputs_used", "production_change_licensed",
         ))
     ):
         raise LR8Error("soft-anatomy artifact law differs")
     if _json_number(artifact["c"], label="soft-anatomy c") != 1.0:
+        raise LR8Error("soft-anatomy artifact law differs")
+    if _json_int(
+        artifact["operative_linear_scale"],
+        label="soft-anatomy operative_linear_scale",
+        minimum=1,
+    ) != ANATOMY_LINEAR_SCALE:
         raise LR8Error("soft-anatomy artifact law differs")
     if _json_int(
         artifact["max_iter"], label="soft-anatomy max_iter", minimum=1
@@ -491,6 +603,35 @@ def validate_soft_anatomy_artifact(
         or not 0 < training_positive_rows < training_rows
     ):
         raise LR8Error("soft-anatomy artifact training lattice differs")
+    raw_units = artifact["operative_raw_weight_units"]
+    if not isinstance(raw_units, list) or len(raw_units) != width:
+        raise LR8Error("soft-anatomy operative weight units differ")
+    operative_weights = tuple(
+        _json_signed_int(value, label="soft-anatomy operative weight unit")
+        for value in raw_units
+    )
+    operative_intercept = _json_signed_int(
+        artifact["operative_intercept_units"],
+        label="soft-anatomy operative intercept units",
+    )
+    operative_bound = _json_int(
+        artifact["operative_worst_case_abs_units"],
+        label="soft-anatomy operative worst-case bound",
+    )
+    expected_weights, expected_intercept, expected_bound = (
+        _quantize_anatomy_linear_law(
+            vectors[0].tolist(),
+            vectors[1].tolist(),
+            vectors[2].tolist(),
+            float(artifact["intercept"]),
+        )
+    )
+    if (
+        operative_weights != expected_weights
+        or operative_intercept != expected_intercept
+        or operative_bound != expected_bound
+    ):
+        raise LR8Error("soft-anatomy operative fixed-point law differs")
     digest = artifact["artifact_sha256"]
     if not isinstance(digest, str) or _SHA256.fullmatch(digest) is None or (
         digest != canonical_sha256(_artifact_payload(artifact))
@@ -522,13 +663,31 @@ def anatomy_probability(
     return probability
 
 
-def anatomy_utility_ppb(probability: float) -> int:
-    """Quantize the fixed anatomy probability into an operative exact tier."""
-    if isinstance(probability, bool) or not isinstance(
-        probability, (int, float, np.integer, np.floating)
-    ) or not math.isfinite(float(probability)) or not 0.0 <= float(probability) <= 1.0:
-        raise LR8Error("soft-anatomy probability is malformed")
-    return int(round(float(probability) * ANATOMY_UTILITY_SCALE))
+def operative_anatomy_linear_units(
+    artifact: Mapping[str, object], features: Sequence[float],
+) -> int:
+    """Replay the exact fixed-point raw-feature linear-predictor tier."""
+    frozen = validate_soft_anatomy_artifact(artifact)
+    if isinstance(features, (str, bytes)) or len(features) != len(
+        ANATOMY_FEATURES
+    ):
+        raise LR8Error("operative anatomy features differ")
+    integers: list[int] = []
+    for value in features:
+        if isinstance(value, (bool, np.bool_)) or not isinstance(
+            value, (int, float, np.integer, np.floating)
+        ) or not math.isfinite(float(value)) or not float(value).is_integer():
+            raise LR8Error("operative anatomy features must be exact integers")
+        integers.append(int(value))
+    result = int(frozen["operative_intercept_units"]) + sum(
+        int(weight) * value
+        for weight, value in zip(
+            frozen["operative_raw_weight_units"], integers, strict=True
+        )
+    )
+    if abs(result) > int(frozen["operative_worst_case_abs_units"]):
+        raise LR8Error("operative anatomy tier exceeds its frozen bound")
+    return result
 
 
 @dataclass(frozen=True, slots=True)
@@ -546,7 +705,7 @@ class PricingRequest:
     marginal_thresholds_micro: tuple[int, ...]
     book_max_cap_micro: int
     portfolio_improvement_required: bool
-    anatomy_utility_scale: int
+    anatomy_linear_scale: int
     anatomy_artifact: Mapping[str, object] = field(compare=False, repr=False)
 
 
@@ -558,7 +717,7 @@ class MarginalReceipt:
     iteration: int
     roster: tuple[str, ...] | None
     threshold_counts: tuple[int, ...]
-    anatomy_utility_ppb: int | None
+    anatomy_tier_units: int | None
     clipped_residual_gain_micro: int
     objective_vector: tuple[int, ...]
     anatomy_probability: float | None
@@ -836,7 +995,7 @@ def run_fold_mechanics(
             marginal_thresholds_micro=MARGINAL_THRESHOLDS_MICRO,
             book_max_cap_micro=BOOK_MAX_CAP_MICRO,
             portfolio_improvement_required=True,
-            anatomy_utility_scale=ANATOMY_UTILITY_SCALE,
+            anatomy_linear_scale=ANATOMY_LINEAR_SCALE,
             anatomy_artifact=frozen_artifact,
         )
         proposal = pricing_step(request)
@@ -847,7 +1006,7 @@ def run_fold_mechanics(
                 iteration=iteration,
                 roster=None,
                 threshold_counts=(0,) * len(MARGINAL_THRESHOLDS_MICRO),
-                anatomy_utility_ppb=None,
+                anatomy_tier_units=None,
                 clipped_residual_gain_micro=0,
                 objective_vector=(0,) * (len(MARGINAL_THRESHOLDS_MICRO) + 2),
                 anatomy_probability=None,
@@ -866,10 +1025,11 @@ def run_fold_mechanics(
         counts, _, gain, _ = clipped_marginal_utility(
             column_micro[0, construction_columns], maxima
         )
-        probability = anatomy_probability(
-            frozen_artifact, lineup_anatomy(rows, identity)
+        anatomy_features = lineup_anatomy(rows, identity)
+        probability = anatomy_probability(frozen_artifact, anatomy_features)
+        anatomy_tier = operative_anatomy_linear_units(
+            frozen_artifact, anatomy_features
         )
-        anatomy_tier = anatomy_utility_ppb(probability)
         # The fixed anatomy law is an operative tier below all four clear
         # counts and above capped book-max gain.  It cannot manufacture a
         # positive column: admission still requires a portfolio improvement
@@ -900,7 +1060,7 @@ def run_fold_mechanics(
             iteration=iteration,
             roster=identity,
             threshold_counts=counts,
-            anatomy_utility_ppb=anatomy_tier,
+            anatomy_tier_units=anatomy_tier,
             clipped_residual_gain_micro=gain,
             objective_vector=pricing_objective,
             anatomy_probability=probability,
@@ -1053,10 +1213,11 @@ def mechanics_payload(result: LR8MechanicsResult) -> dict[str, object]:
         "k_max_combined": None,
         "marginal_thresholds_dk": list(MARGINAL_THRESHOLDS_DK),
         "book_max_gain_cap_dk": BOOK_MAX_CAP_DK,
-        "anatomy_utility_scale": ANATOMY_UTILITY_SCALE,
+        "anatomy_linear_scale": ANATOMY_LINEAR_SCALE,
         "pricing_objective_order": [
             "g_210", "g_200", "g_194", "g_187",
-            "soft_anatomy_probability_ppb", "clipped_book_max_gain_micro",
+            "soft_anatomy_linear_predictor_units",
+            "clipped_book_max_gain_micro",
         ],
         "deployment_fold": result.deployment_fold,
         "deployment_fold_rule": "odd_week_A_even_week_B",
@@ -1083,7 +1244,7 @@ def mechanics_payload(result: LR8MechanicsResult) -> dict[str, object]:
                 "iteration": step.iteration,
                 "roster": None if step.roster is None else list(step.roster),
                 "threshold_counts": list(step.threshold_counts),
-                "anatomy_utility_ppb": step.anatomy_utility_ppb,
+                "anatomy_tier_units": step.anatomy_tier_units,
                 "clipped_residual_gain_micro": step.clipped_residual_gain_micro,
                 "objective_vector": list(step.objective_vector),
                 "anatomy_probability": step.anatomy_probability,
@@ -1487,7 +1648,9 @@ __all__ = [
     "ANATOMY_FEATURES",
     "ANATOMY_LABEL_DK",
     "ANATOMY_MODEL_VERSION",
-    "ANATOMY_UTILITY_SCALE",
+    "ANATOMY_FEATURE_ABS_UPPER",
+    "ANATOMY_LINEAR_ROUNDING",
+    "ANATOMY_LINEAR_SCALE",
     "AnatomyTrainingRow",
     "BOOK_MAX_CAP_DK",
     "EVALUATION_SEASONS",
@@ -1509,7 +1672,6 @@ __all__ = [
     "TRAINING_SEASONS",
     "TRAINING_CELLS",
     "anatomy_probability",
-    "anatomy_utility_ppb",
     "audit_dk_classic_identity",
     "build_dk_classic_model",
     "canonical_json",
@@ -1520,6 +1682,7 @@ __all__ = [
     "fit_soft_anatomy_law",
     "lineup_anatomy",
     "mechanics_payload",
+    "operative_anatomy_linear_units",
     "run_fold_mechanics",
     "run_lr8_mechanics",
     "validate_prelock_timestamp",

@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-20 22:13 CDT
+## Current state — 2026-08-20 22:59 CDT
 
 ### A7-v1 close-only recovery and fresh A7-v2 repair are source-ready
 
@@ -178,15 +178,40 @@ agent or developer:
   `mean_projection` worlds with correlated DST/role worlds literal false. It
   never calls `build_slates`. Root reran the 24 adapter tests plus seven exact
   replay-seam tests: 31/31 green. No real query or cloud write occurred.
+- LR8's operative anatomy tier is now exact fixed-point arithmetic rather than
+  a rounded floating sigmoid. The fixed registered coefficients are scaled by
+  1,000,000 with decimal half-even rounding; the sigmoid remains report-only.
+  Exact CBC pricing first requires a positive residual, then maximizes the
+  registered 210/200/194/187 tiers, the fixed-point anatomy score, 210-clipped
+  book gain, and the retained deterministic rank-sum/incidence tie law. This
+  preserves the rule-relaxation question while making the full objective
+  independently replayable from retained solver evidence.
+- The exact solver is `src/nfl_dfs/research/lr8_exact_solvers.py` (SHA-256
+  `beb1e1ecc4f17f16c658608ac25b311cb63d790d1b0786031a8fcd08b7179cdc`).
+  It implements the DK-only training solves, positive-residual pricing and
+  exact null proof, fixed-point anatomy graph, create-once CBC proof bundles,
+  and independent re-solves. The bounded mechanics/runner/exact-solver suite
+  passes 38/38; the exact-solver module alone passes 7/7. The previously
+  captured unchanged residual helper suite remains 95/95 with exit 0.
+- The create-once source runner is
+  `scripts/run_lr8_training_source.py` (SHA-256
+  `fe69a176136306900a58e7bf81656821bdd1b61a8eb0205ecdbc4b4c0b275633`).
+  `smoke` is exactly 2019-W1/R0 and cannot succeed without forty unique
+  DK-only optima plus reopened proof/log/SOL/MPS/domain/MST evidence.
+  `full-source` is exactly the 35-slate R0/R1 lattice. It generation-pins and
+  reopens every extract, reuses the exact hash-bound fitted model object,
+  requires target labels to be NULL, and records prior-season training-label
+  use truthfully while all target/candidate/B1/production licenses remain
+  false. Its focused suite passes 13/13; py_compile and whitespace checks are
+  green. No real BigQuery row, GCS object, CBC smoke, or cloud job was touched.
 - No real outcomes, BigQuery rows, GCS bodies, Cloud Run job, shared lease, or
   production path were touched by this milestone. The old 35 NPZs contain only
   candidate indices/totals and cannot score novel relaxed rosters. Exact next
-  actions are already active in separate lanes: add the default-preserving
-  `replay_projections(include_actual=False)` seam and audited catalog/DST
-  alignment, then bind exact CBC proof callbacks for relaxed-world and
-  residual-column pricing. After a real outcome-blind source smoke, freeze the
-  2019/2021 source and portable anatomy artifact; only then construct/freeze
-  the 270-cell 2023--2025 books before the sole score read.
+  action is to integrate the source runner into one immutable image and run
+  exactly one outcome-blind 2019-W1/R0 Cloud Run smoke. If its live schemas,
+  replay, forty-optimum support, evidence publication, and runtime all pass,
+  freeze the 2019/2021 source and portable anatomy artifact; only then
+  construct/freeze the 270-cell 2023--2025 books before the sole score read.
 
 ### A2a and B1 one-shot historical arms are closed; neither licenses adoption
 

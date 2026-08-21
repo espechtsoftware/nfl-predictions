@@ -10,7 +10,8 @@ import pytest
 from nfl_dfs.research import residual_world_columns as rw
 from nfl_dfs.research.lr8_historical_arm import (
     ANATOMY_FEATURES,
-    ANATOMY_UTILITY_SCALE,
+    ANATOMY_FEATURE_ABS_UPPER,
+    ANATOMY_LINEAR_SCALE,
     BOOK_MAX_CAP_MICRO,
     EVALUATION_SEASONS,
     FOLD_WEIGHT,
@@ -30,6 +31,7 @@ from nfl_dfs.research.lr8_historical_arm import (
     fit_soft_anatomy_law,
     lineup_anatomy,
     mechanics_payload,
+    operative_anatomy_linear_units,
     run_lr8_mechanics,
     validate_prelock_timestamp,
     validate_soft_anatomy_artifact,
@@ -205,6 +207,19 @@ def test_soft_anatomy_fit_is_exactly_2019_and_2021_and_hash_bound():
     assert artifact["training_cells"] == 35
     assert artifact["b1_inputs_used"] is False
     assert artifact["a2a_inputs_used"] is False
+    assert artifact["operative_linear_scale"] == ANATOMY_LINEAR_SCALE
+    assert artifact["operative_rounding"] == "decimal-round-half-even-v1"
+    assert artifact["sigmoid_probability_operative"] is False
+    assert artifact["operative_worst_case_abs_units"] <= rw.CBC_EXACT_INTEGER_MAX
+    assert ANATOMY_FEATURE_ABS_UPPER[5] == 6
+    features = lineup_anatomy(_players(), _house_rule_violator())
+    expected_tier = int(artifact["operative_intercept_units"]) + sum(
+        int(weight) * int(value)
+        for weight, value in zip(
+            artifact["operative_raw_weight_units"], features, strict=True
+        )
+    )
+    assert operative_anatomy_linear_units(artifact, features) == expected_tier
     poisoned = dict(artifact, training_seasons=[2019, 2020, 2021])
     with pytest.raises(LR8Error, match="law differs"):
         validate_soft_anatomy_artifact(poisoned)
@@ -281,6 +296,20 @@ def _rehash_artifact(artifact: dict[str, object]) -> dict[str, object]:
             lambda artifact: artifact.update(training_positive_rows=35),
             "training lattice differs",
         ),
+        (
+            lambda artifact: artifact["operative_raw_weight_units"].__setitem__(
+                0, artifact["operative_raw_weight_units"][0] + 1
+            ),
+            "fixed-point law differs",
+        ),
+        (
+            lambda artifact: artifact.update(
+                operative_worst_case_abs_units=(
+                    artifact["operative_worst_case_abs_units"] + 1
+                )
+            ),
+            "fixed-point law differs",
+        ),
     ],
 )
 def test_soft_anatomy_artifact_numeric_types_and_counts_fail_closed(
@@ -345,7 +374,7 @@ def test_two_folds_each_get_k8_budget_and_stop_at_their_own_first_null():
             assert request.player_scores_micro.flags.writeable is False
             assert request.book_maxima_micro.flags.writeable is False
             assert request.portfolio_improvement_required is True
-            assert request.anatomy_utility_scale == ANATOMY_UTILITY_SCALE
+            assert request.anatomy_linear_scale == ANATOMY_LINEAR_SCALE
             return proposal if request.iteration == 1 else None
         return price
 
@@ -371,10 +400,10 @@ def test_two_folds_each_get_k8_budget_and_stop_at_their_own_first_null():
         assert fold.stopped_on_first_null is True
         assert fold.null_iteration == 2
         assert fold.steps[0].admitted is True
-        assert fold.steps[0].anatomy_utility_ppb is not None
+        assert fold.steps[0].anatomy_tier_units is not None
         assert fold.steps[0].objective_vector == (
             *fold.steps[0].threshold_counts,
-            fold.steps[0].anatomy_utility_ppb,
+            fold.steps[0].anatomy_tier_units,
             fold.steps[0].clipped_residual_gain_micro,
         )
         assert fold.steps[1].null is True
@@ -387,7 +416,8 @@ def test_two_folds_each_get_k8_budget_and_stop_at_their_own_first_null():
     assert payload["folds"][1]["fold_weight"] == 0.5
     assert payload["pricing_objective_order"] == [
         "g_210", "g_200", "g_194", "g_187",
-        "soft_anatomy_probability_ppb", "clipped_book_max_gain_micro",
+        "soft_anatomy_linear_predictor_units",
+        "clipped_book_max_gain_micro",
     ]
     assert result.deployment_fold == "A"
     assert result.control_deployment_book == result.folds[0].control_book

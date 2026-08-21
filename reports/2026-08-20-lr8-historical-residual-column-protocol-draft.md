@@ -148,7 +148,17 @@ The feature vector is frozen to:
 9. QB/RB/WR/TE/DST salary spend.
 
 There is no feature, hyperparameter, target, threshold, calibration, season,
-or model sweep. The quantized soft probability is an operative but subordinate
+or model sweep. After the one logistic fit, its standardized coefficients are
+converted once to raw-feature linear weights, `w_j=beta_j/scale_j`, and raw
+intercept, `b=intercept-sum(w_j*mean_j)`. Each is quantized at scale 1,000,000
+with `Decimal` and `ROUND_HALF_EVEN`. The operative integer tier is exactly
+`b_units + sum(w_units_j * anatomy_j)`. The frozen artifact stores and the
+validator recomputes a conservative absolute bound using the exact DK feature
+bounds (including up to six same-team QB WR/TE partners); that bound must stay
+within CBC's exact integer range. The sigmoid probability remains report-only
+and nonoperative.
+
+This fixed-point linear predictor is the operative but subordinate
 lexicographic tier: it follows all four portfolio threshold-clear counts and
 precedes only the 210-clipped book-max gain. It can never reject an otherwise
 DK-legal lineup, impose a structural quota, outrank a registered threshold
@@ -161,13 +171,13 @@ For the current selected reference book and each active construction world,
 let `m` be its maximum and `s(l)` a proposed lineup's score. Pricing is the
 lexicographic vector:
 
-`(g_210, g_200, g_194, g_187, p_anatomy_ppb, sum clipped_gain)`
+`(g_210, g_200, g_194, g_187, anatomy_linear_units, sum clipped_gain)`
 
 where:
 
 - `g_t = sum 1[m < t <= s(l)]`; and
-- `p_anatomy_ppb` is the fixed earlier-period anatomy probability rounded onto
-  the integer range 0--1,000,000,000; and
+- `anatomy_linear_units` is the exact signed fixed-point raw-feature linear
+  predictor frozen above; and
 - `clipped_gain = max(0, min(s(l),210) - min(m,210))` in integer micro-DK.
 
 Thus 210 is the highest rewarded threshold and the book-max term cannot
@@ -176,7 +186,10 @@ never affect generation, pruning, selection, or disposition. A lineup is in
 the pricing domain only if at least one threshold count or its clipped gain is
 positive; anatomy alone cannot qualify it. Within that positive-residual
 domain, anatomy is therefore non-vacuous when the four counts tie, even when
-clipped gains differ. Canonical roster identity is the last tie-break.
+clipped gains differ. The retained canonical roster law is minimum UTF-8
+player-rank sum followed, only when that face is ambiguous, by UTF-8 incidence
+chunks. This is an exact deterministic last tie-break on the frozen rank-sum
+face; it is not described as the globally lexicographically smallest roster.
 
 A null is an explicit exact proof that the positive-residual pricing domain is
 empty. A zero-residual roster may not stand in for null. The sequence stops at
@@ -255,10 +268,12 @@ Required before launch:
    score-free; the existing August 17 candidate lock enforces the old house-law
    domain and cannot license novel LR8 columns by itself.
 5. Binding of the existing retained exact CBC proof path to the relaxed model,
-   positive-residual eligibility, four threshold tiers, operative anatomy
-   tier, and 210-clipped gain. The local module currently exposes and tests the
-   shared constraint and fold/pricing seams; it does not yet claim exact
-   pricing optimality.
+   positive-residual eligibility, four threshold tiers, operative fixed-point
+   anatomy tier, and 210-clipped gain. The local exact-solver adapter retains
+   every exact-Optimal CBC stage, freezes the rank-sum/incidence tie law, emits
+   canonical proof bytes to a caller-owned create-once evidence publisher, and
+   supports a fresh-model exact replay validator. This mechanics proof is not
+   itself a launch/source/outcome license.
 6. Outcome-blind reality smokes for the training and evaluation sources,
    clean-archive validation, immutable image, update-only reused Cloud Run job,
    create-once attempt, strict terminal harvester, independent evaluator
