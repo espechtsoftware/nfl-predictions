@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 00:28 CDT
+## Current state — 2026-08-21 00:40 CDT
 
 ### A7-v1 close-only recovery and fresh A7-v2 repair are source-ready
 
@@ -180,9 +180,13 @@ agent or developer:
   `43272bf6af7b1b4f936d30401946b0b56dcecdafb53d9117cf1554b79efb03a9`
   and recovery-receipt SHA-256 is
   `f25b87b7bce3dd170ad47f647c3f7d3606ad7de5cd646082c0b6ce34463e0e66`.
-  Commit/push these receipts, then submit a fresh direct-Git A7-v2 build from
-  exact `f389f333...`. Inspect the first-claim receipt before handing
-  subsequent smoke/support work to the watcher.
+  The receipts were committed/pushed at `f952900`. Fresh direct-Git build
+  `f500c3ed-1960-427a-a415-2f4a4bff804b` was then created from exact repaired
+  source `f389f33336868d552220bcc9e6decfe557a85220` with requested tag
+  `a7-v2-f389f33-20260821`. Initial metadata confirms the exact resolved source,
+  tag, and ordered three-step contract; it is queued. After terminal success,
+  inspect the first-claim receipt before handing subsequent smoke/support work
+  to the watcher.
 
 ### LR8 historical legal-relaxation arm has green mechanics and a score-free source contract
 
