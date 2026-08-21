@@ -6,6 +6,7 @@ import json
 import math
 from pathlib import Path
 import sys
+import textwrap
 from typing import Any
 
 import pytest
@@ -2016,6 +2017,46 @@ def test_build_gate_binds_exact_committed_step_contract(synthetic: Synthetic) ->
     value = json.loads(build_path.read_bytes())
     value["source"]["gitSource"]["revision"] = "b" * 40
     with pytest.raises(RuntimeError, match="resolved Git source differs"):
+        finish._validate_build_metadata(
+            value, build_id=synthetic.frozen.build_id,
+            image=synthetic.frozen.image, code_sha=synthetic.frozen.code_sha,
+        )
+
+
+def test_expected_build_smoke_is_exact_current_cloudbuild_literal() -> None:
+    image_tag = "registry.invalid/nfl-dfs:exact-cloudbuild"
+    cloudbuild = (REPO / "cloudbuild.yaml").read_text(encoding="utf-8")
+    smoke_step = cloudbuild.split(
+        "    id: smoke-atlas-mvp-runner\n", 1,
+    )[1]
+    literal = smoke_step.split("      - |\n", 1)[1].split(
+        "\nimages:\n", 1,
+    )[0]
+    rendered = textwrap.dedent(literal).replace("${_IMAGE}", image_tag) + "\n"
+    assert finish._expected_cloud_build_steps(image_tag)[2]["args"][1] == rendered
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "run_a2a_rank_factor_split_census.py --help >/dev/null",
+        "cloud_a2a_production_law_dependence_remeasurement.sh",
+        "run_b1_corpus_tail_model.py --help >/dev/null",
+        "cloud_b1_corpus_tail_shadow.sh",
+        "run_lr8_training_source.py --help >/dev/null",
+        "watch_lr8_training_source_smoke_queue.sh",
+    ],
+)
+def test_build_gate_rejects_missing_registered_smoke_family(
+    synthetic: Synthetic, command: str,
+) -> None:
+    value = json.loads(
+        (synthetic.out / "build-metadata.json").read_bytes()
+    )
+    smoke = value["steps"][2]["args"][1]
+    assert smoke.count(command) == 1
+    value["steps"][2]["args"][1] = smoke.replace(command, "poison", 1)
+    with pytest.raises(RuntimeError, match="build/test/image gate differs"):
         finish._validate_build_metadata(
             value, build_id=synthetic.frozen.build_id,
             image=synthetic.frozen.image, code_sha=synthetic.frozen.code_sha,

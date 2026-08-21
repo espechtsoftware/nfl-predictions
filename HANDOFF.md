@@ -20,7 +20,7 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-21 00:11 CDT
+## Current state — 2026-08-21 00:28 CDT
 
 ### A7-v1 close-only recovery and fresh A7-v2 repair are source-ready
 
@@ -145,6 +145,32 @@ agent or developer:
   Commit/push those durable receipts, then start the unchanged v2 watcher in
   a persistent foreground tool session rather than a detached short-lived
   shell.
+- That persistent start exposed one real pre-claim gate defect and stopped
+  before any job read/update/claim, execution, GCS write, lease, science body,
+  or outcome access. The retained v2 shell contains only the definitive empty
+  prefix inventory and canonical successful metadata for build `063251e8...`;
+  its 370-byte watcher log records
+  `RuntimeError: A7 build/test/image gate differs`. The finisher's exact
+  expected Cloud Build smoke list had not been updated when A2a/B1 checks were
+  added, so it rejected the longer real build. The repaired
+  `_expected_cloud_build_steps` now byte-matches current `cloudbuild.yaml` in
+  exact A2a/B1/A7/LR8 order and has six cross-family order/omission poisons;
+  it does not normalize metadata or relax any comparison. This necessarily
+  makes old build `063251e8...` and image `f9ec...` ineligible, because they
+  predate the LR8 build checks now in the registered contract.
+- The same-v2 administrative closure is frozen in
+  `reports/2026-08-21-a7-v2-build-gate-preclaim-recovery-protocol.md` with
+  one-purpose tool `scripts/recover_a7_v2_build_gate_preclaim.py`. It pins and
+  preserves the exact two-file shell inode and exact traceback log, double
+  proves the empty prefix/direct objects/lease, unchanged generation-12 job,
+  exact 262 terminal executions, scheduler absence, and byte-clean science,
+  and licenses only a fresh exact-source build followed by the first v2 job
+  claim. Focused validation passes 104/104 across finisher, closure, and A7
+  cloud-contract suites; pycompile and whitespace checks are green. Commit and
+  push this repair, execute the closure once using that full fresh commit SHA,
+  commit its receipts, then submit a fresh direct-Git A7-v2 build. Inspect the
+  first-claim receipt before handing subsequent smoke/support work to the
+  watcher.
 
 ### LR8 historical legal-relaxation arm has green mechanics and a score-free source contract
 

@@ -2060,37 +2060,54 @@ def _expected_cloud_build_steps(image_tag: str) -> list[dict[str, Any]]:
         "PYTHONPATH=. pytest\n"
     )
     smoke_commands = (
-        "run_atlas_matched_diversity_mvp.py",
-        "run_atlas_historical_score_diagnostic.py",
-        "run_atlas_historical_score_diagnostic_v3.py",
-        "run_atlas_historical_score_diagnostic_v4.py",
-        "run_constraint_lattice_scorefree.py",
-        "aggregate_constraint_lattice_scorefree.py",
-        "run_constraint_lattice_support_census.py",
-        "aggregate_constraint_lattice_support_census.py",
-        "run_constraint_lattice_resource_preflight.py",
-        "run_recourse_aware_initial_scorefree.py",
-        "aggregate_recourse_aware_initial_scorefree.py",
-        "run_coherent_market_state_scorefree.py",
-        "aggregate_coherent_market_state_scorefree.py",
-        "run_coherent_market_state_historical_score.py",
-        "run_production_law_dependence_source_lock.py",
-        "run_production_law_dependence_remeasurement.py",
-        "run_atlas_minimal_world_selection_c.py",
-        "run_a7_select_ladder.py",
-        "freeze_a7_select_ladder.py",
-        "finish_a7_select_ladder.py",
+        ("python", "run_atlas_matched_diversity_mvp.py --help >/dev/null"),
+        ("python", "run_atlas_historical_score_diagnostic.py --help >/dev/null"),
+        ("python", "run_atlas_historical_score_diagnostic_v3.py --help >/dev/null"),
+        ("python", "run_atlas_historical_score_diagnostic_v4.py --help >/dev/null"),
+        ("python", "run_constraint_lattice_scorefree.py --help >/dev/null"),
+        ("python", "aggregate_constraint_lattice_scorefree.py --help >/dev/null"),
+        ("python", "run_constraint_lattice_support_census.py --help >/dev/null"),
+        ("python", "aggregate_constraint_lattice_support_census.py --help >/dev/null"),
+        ("python", "run_constraint_lattice_resource_preflight.py --help >/dev/null"),
+        ("python", "run_recourse_aware_initial_scorefree.py --help >/dev/null"),
+        ("python", "aggregate_recourse_aware_initial_scorefree.py --help >/dev/null"),
+        ("python", "run_coherent_market_state_scorefree.py --help >/dev/null"),
+        ("python", "aggregate_coherent_market_state_scorefree.py --help >/dev/null"),
+        ("python", "run_coherent_market_state_historical_score.py --help >/dev/null"),
+        ("python", "run_production_law_dependence_source_lock.py --help >/dev/null"),
+        ("python", "run_production_law_dependence_remeasurement.py --help >/dev/null"),
+        ("python", "run_a2a_rank_factor_split_census.py --help >/dev/null"),
+        ("python", "run_a2a_production_law_dependence_remeasurement.py --help >/dev/null"),
+        ("python", "finish_a2a_production_law_dependence_remeasurement.py --help >/dev/null"),
+        ("bash", "cloud_a2a_production_law_dependence_remeasurement.sh"),
+        ("bash", "watch_a2a_production_law_dependence_queue.sh"),
+        ("python", "run_b1_corpus_tail_model.py --help >/dev/null"),
+        ("python", "finish_b1_corpus_tail_model.py --help >/dev/null"),
+        ("bash", "cloud_b1_corpus_tail_model.sh"),
+        ("bash", "watch_b1_corpus_tail_queue.sh"),
+        ("python", "run_b1_corpus_tail_panel_producer.py --help >/dev/null"),
+        ("python", "run_b1_corpus_tail_shadow_transport.py --help >/dev/null"),
+        ("python", "run_b1_authoritative_settlement.py --help >/dev/null"),
+        ("bash", "cloud_b1_corpus_tail_shadow.sh"),
+        ("python", "run_atlas_minimal_world_selection_c.py --help >/dev/null"),
+        ("python", "run_a7_select_ladder.py --help >/dev/null"),
+        ("python", "freeze_a7_select_ladder.py --help >/dev/null"),
+        ("python", "finish_a7_select_ladder.py --help >/dev/null"),
+        ("bash", "cloud_a7_select_ladder.sh"),
+        ("bash", "watch_a7_select_ladder_queue.sh"),
+        ("python", "run_lr8_training_source.py --help >/dev/null"),
+        ("python", "finish_lr8_training_source_smoke.py --help >/dev/null"),
+        ("bash", "cloud_lr8_training_source_smoke.sh"),
+        ("bash", "watch_lr8_training_source_smoke_queue.sh"),
     )
     smoke = "".join(
         f"docker run --rm '{image_tag}' \\\n"
-        f"  python scripts/{name} --help >/dev/null\n"
-        for name in smoke_commands
-    ) + "".join((
-        f"docker run --rm '{image_tag}' \\\n"
-        "  bash -n scripts/cloud_a7_select_ladder.sh\n",
-        f"docker run --rm '{image_tag}' \\\n"
-        "  bash -n scripts/watch_a7_select_ladder_queue.sh\n",
-    ))
+        f"  {kind} scripts/{command}\n"
+        if kind == "python"
+        else f"docker run --rm '{image_tag}' \\\n"
+        f"  bash -n scripts/{command}\n"
+        for kind, command in smoke_commands
+    )
     common = {
         "env": [], "dir": "", "secretEnv": [], "status": "SUCCESS",
         "allowFailure": False, "allowExitCodes": [], "waitFor": [],
