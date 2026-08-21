@@ -212,6 +212,17 @@ agent or developer:
   `cebf17c5d2d3ab294448e41e2c7d7bea0bf0526c14ae70211aa014c1a03f8c15`,
   `3329f97dcb726b5ef3a18a27b5cd0ea4e78f7466caa956bca51ce4b56f8cd7ad`,
   and `74f72057e8699826b80922d3cd91607a8589fa1fc7a79817a866aec72e0c26d9`.
+- The independent post-harvest co-primary verifier is now source-green before
+  the historical result exists. It imports no A7 science, finisher, or paired-
+  statistics implementation; requires the exact canonical 54-slate report to
+  be bound by the complete strict finish ledger/completion/science replay; and
+  independently recomputes the paired mean, signed-rank statistic and both
+  deterministic sign-flip p-values, the full threshold/discordance/McNemar
+  grid, conditions, disposition, and transfer licenses. It rejects partial
+  harvests and rehashed arithmetic/disposition corruption. Focused validation
+  is 9/9 green plus pycompile and whitespace checks. Script/test SHA-256 are
+  `8e967584eb6d210b1c5e54bdba4d4041f82ce775cd9348a5f66a24531280d0a7`
+  and `be2a6a3193d55412f2d3052056f30cdf3c5181de54e1d0024074e55b767433cd`.
 
 - Branch `main`, historical pushed parent milestone
   `1cbbc3d88e199bd9078e7059ef13b1d9ef76df64` (pushed to `origin/main`); the
