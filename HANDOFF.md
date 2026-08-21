@@ -55,7 +55,7 @@ agent or developer:
 - Focused engine validation is 17/17 green:
   `.venv/bin/python -m pytest -q tests/test_corpus_retrieval_engine.py`.
   The exact-input publication suite is 5/5 green and the reuse-only transport
-  suite is 23/23 green. Python compile, shell syntax, CLI smokes, Cloud Build
+  suite is 24/24 green. Python compile, shell syntax, CLI smokes, Cloud Build
   YAML parsing, and `git diff --check` are green.
   Current SHA-256 values are
   `2e9a62874090f4515c97ca627057c5e3d631484337c4096278c605f8e0ff22ae`
@@ -68,7 +68,7 @@ agent or developer:
   (input test),
   `22f9d33b33e9d517d084bf674ee1bb6e978527ca07319d3d0ba3ca948e979a81`
   (transport),
-  `2a6154d8c8e566d7c2b6492d60111b9d5499e247c66f2723cbcba3257d225e2b`
+  `312e48c89479eec011be1ea5ff63dded1b98d0cb90f48827d07f1b3cb35ef5fe`
   (transport test), and
   `735913cbb3f9018186f65ba8ad9c64f2225be9133a06ce75958c2c0da6e3894a`
   (reuse-only launcher). The protocol SHA-256 is
@@ -116,6 +116,15 @@ agent or developer:
   authenticated `espechtsoftware@gmail.com`. `scripts/chain_status.sh` found no
   active local or cloud research execution and the historical-outcome lease is
   free. Do not stage the unrelated dirty A7/LR8/corpus-parametric paths.
+- Cloud Build `6a74cf1c-70c5-4b06-be08-192ea71fc2a5` was canceled while still
+  queued at 14:27 CDT. Although its direct-Git source was exact, `gcloud`
+  rendered the separately supplied config from the dirty checkout, which added
+  unrelated A7 smoke commands. A subsequent audit also found that the committed
+  retrieval import smoke did not contain the exact fragment required by the
+  build validator. The smoke now uses an exact module import and a new test
+  checks the repository Cloud Build file against every required build fragment.
+  Resubmit only from a clean temporary checkout after this repair is committed;
+  the canceled build is permanently ineligible.
 - A prior outcome-blind engineering prototype over the exact task-0 shapes
   found 1,276 source rows, 585 unique lineups, 27,117 strict-`>200` events,
   581 lineups with an event, and 9,534 worlds with an event. These are

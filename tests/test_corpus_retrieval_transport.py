@@ -283,6 +283,12 @@ def test_build_binds_direct_git_source_digest_and_integration_smokes():
             )
 
 
+def test_repository_cloudbuild_contains_required_transport_fragments():
+    source = (ROOT / "cloudbuild.yaml").read_text(encoding="utf-8")
+    for fragment in transport.REQUIRED_BUILD_FRAGMENTS:
+        assert fragment in source
+
+
 def test_suite_release_must_equal_the_validated_build():
     suite = {
         "engine_release": {
