@@ -21,7 +21,7 @@ PROJECT=nfl-predictions-503414
 REGION=us-central1
 SERVICE_ACCOUNT=817589974517-compute@developer.gserviceaccount.com
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-RUN_ID=20260820-a7-select-ladder-phase-s-incumbent-v1
+RUN_ID=20260820-a7-select-ladder-phase-s-incumbent-v2
 JOB=atlas-minimal-c-s2023-w1-v1
 OUT="$ROOT/reports/a7-select-ladder-runs/$RUN_ID"
 PENDING="$ROOT/reports/a7-select-ladder-runs/.$RUN_ID.prepare.pending"
@@ -36,6 +36,8 @@ FREEZE_URI_EXPECTED="$PREFIX/preflight/freeze-manifest.json"
 LEASE_URI=gs://nfl-predictions-503414-raw/research-governance/historical-outcome-active-v1.json
 PREFLIGHT_OUT="$ROOT/reports/a7-select-ladder-preflight-runs/$RUN_ID"
 A3_RELEASE="$ROOT/reports/stack-relaxation-carve-runs/20260819-stack-relaxation-carve-v1/logical-release.json"
+V1_FAILURE_RELEASE="$ROOT/reports/a7-select-ladder-preflight-runs/20260820-a7-select-ladder-phase-s-incumbent-v1/failed-preflight-logical-release.json"
+V1_FAILURE_RELEASE_OBJECT="$ROOT/reports/a7-select-ladder-preflight-runs/20260820-a7-select-ladder-phase-s-incumbent-v1/failed-preflight-logical-release-object.json"
 FINISHER="$ROOT/scripts/finish_a7_select_ladder.py"
 LEASE_TOOL="$ROOT/scripts/historical_outcome_lease.py"
 FREEZE_BUILDER="$ROOT/scripts/freeze_a7_select_ladder.py"
@@ -346,7 +348,12 @@ import json, sys
 value = json.load(open(sys.argv[1]))
 rows = [row for row in value.get("status", {}).get("conditions", [])
         if row.get("type") == "Completed"]
-print(rows[0].get("status", "") if len(rows) == 1 else "Malformed")
+if not rows:
+    print("Unknown")
+elif len(rows) == 1 and rows[0].get("status") in {"Unknown", "True", "False"}:
+    print(rows[0]["status"])
+else:
+    print("Malformed")
 PY
     )
     case "$STATE" in
@@ -386,6 +393,10 @@ case "$COMMAND" in
       die "A7 build ID differs"
     [ ! -e "$PREFLIGHT_OUT" ] || die "immutable A7 preflight already exists"
     [ -s "$A3_RELEASE" ] || die "A3 logical release is absent"
+    [ -s "$V1_FAILURE_RELEASE" ] || \
+      die "A7-v1 failed-preflight logical release is absent"
+    [ -s "$V1_FAILURE_RELEASE_OBJECT" ] || \
+      die "A7-v1 failed-preflight object receipt is absent"
     strict_object_absent "$LEASE_URI"
     mkdir -p "$(dirname "$PREFLIGHT_OUT")"
     mkdir "$PREFLIGHT_OUT"
@@ -410,6 +421,8 @@ PY
       --code-sha "$CODE_SHA" --image "$IMAGE" \
       --job-metadata "$PREFLIGHT_OUT/job-at-claim.json" \
       --a3-logical-release "$PREFLIGHT_OUT/a3-logical-release.json" \
+      --v1-failed-preflight-release "$V1_FAILURE_RELEASE" \
+      --v1-failed-preflight-release-object "$V1_FAILURE_RELEASE_OBJECT" \
       --receipt "$PREFLIGHT_OUT/job-claim-receipt.json"
     validate_prefix_inventory claimed "$PREFLIGHT_OUT/.inventory-claimed"
     (
@@ -786,7 +799,7 @@ import sys
 path, job, uri = Path(sys.argv[1]), sys.argv[2], sys.argv[3]
 payload = {
     "version": "a7-select-ladder-launch-intent-v1",
-    "run_id": "20260820-a7-select-ladder-phase-s-incumbent-v1",
+    "run_id": "20260820-a7-select-ladder-phase-s-incumbent-v2",
     "job": job,
     "output_uri": uri,
     "created_at": datetime.now(timezone.utc).isoformat(),

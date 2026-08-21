@@ -1,6 +1,11 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
+import subprocess
+import sys
+
+import pytest
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -37,6 +42,52 @@ def test_all_retained_gcloud_json_is_captured_then_canonicalized() -> None:
         assert "--format=json >" not in source
     assert launcher.count("capture_gcloud_json ") >= 10
     assert watcher.count("capture_gcloud_json ") >= 1
+
+
+@pytest.mark.parametrize(
+    "path,marker",
+    [
+        (
+            LAUNCHER,
+            'STATE=$("$PYTHON" - "$mode_out/.execution-poll.json" <<\'PY\'',
+        ),
+        (WATCHER, 'STATE=$("$PYTHON" - "$POLL" <<\'PY\''),
+    ],
+)
+def test_completed_condition_parser_matches_b1_truth_table(
+    tmp_path: Path, path: Path, marker: str,
+) -> None:
+    source = _source(path)
+    start = source.index("import json", source.index(marker))
+    end = source.index("\nPY", start)
+    parser = source[start:end]
+    cases = (
+        ({}, "Unknown"),
+        ({"status": {"conditions": []}}, "Unknown"),
+        ({"status": {"conditions": [{"type": "Ready", "status": "True"}]}},
+         "Unknown"),
+        ({"status": {"conditions": [{"type": "Completed"}]}}, "Malformed"),
+        ({"status": {"conditions": [{"type": "Completed", "status": "Unknown"}]}},
+         "Unknown"),
+        ({"status": {"conditions": [{"type": "Completed", "status": "True"}]}},
+         "True"),
+        ({"status": {"conditions": [{"type": "Completed", "status": "False"}]}},
+         "False"),
+        ({"status": {"conditions": [{"type": "Completed", "status": "Maybe"}]}},
+         "Malformed"),
+        ({"status": {"conditions": [
+            {"type": "Completed", "status": "True"},
+            {"type": "Completed", "status": "False"},
+        ]}}, "Malformed"),
+    )
+    for index, (payload, expected) in enumerate(cases):
+        input_path = tmp_path / f"conditions-{index}.json"
+        input_path.write_text(json.dumps(payload), encoding="utf-8")
+        completed = subprocess.run(
+            [sys.executable, "-", str(input_path)], input=parser,
+            text=True, capture_output=True, check=True,
+        )
+        assert completed.stdout.strip() == expected
 
 
 def test_job_updates_explicitly_clear_mutable_mount_and_workdir_state() -> None:
@@ -185,6 +236,7 @@ def test_historical_build_id_is_cross_bound_before_lease_and_execute() -> None:
 def test_queue_orders_release_preflights_freeze_prepare_lease_and_finish() -> None:
     source = _source(WATCHER)
     wait = source.index("A7_WAITS_FOR_A3_LOGICAL_RELEASE")
+    v1_close = source.index("A7_WAITS_FOR_V1_FAILED_PREFLIGHT_LOGICAL_RELEASE")
     preflight = source.index('bash "$LAUNCHER" preflight-prepare')
     smoke = source.index('bash "$LAUNCHER" smoke')
     support = source.index('bash "$LAUNCHER" support')
@@ -195,8 +247,25 @@ def test_queue_orders_release_preflights_freeze_prepare_lease_and_finish() -> No
     describe = source.index("jobs executions describe")
     finish = source.index('"$FINISHER" finish')
     close = source.index("LEASE_ACTION=")
-    assert wait < preflight < smoke < support < freeze < prepare < acquire
+    assert wait < v1_close < preflight < smoke < support < freeze < prepare < acquire
     assert acquire < launch < describe < finish < close
+
+
+def test_fresh_v2_claim_consumes_generation_pinned_v1_failure_release() -> None:
+    launcher = _source(LAUNCHER)
+    finisher = _source(FINISHER)
+    assert "20260820-a7-select-ladder-phase-s-incumbent-v2" in launcher
+    assert "failed-preflight-logical-release.json" in launcher
+    assert "failed-preflight-logical-release-object.json" in launcher
+    claim = launcher[launcher.index("claim-job"):launcher.index(
+        "validate_prefix_inventory claimed"
+    )]
+    assert "--v1-failed-preflight-release" in claim
+    assert "--v1-failed-preflight-release-object" in claim
+    assert "validate_failure_release_files" in finisher
+    assert "V1_FAILURE_RELEASE_URI" in finisher
+    assert "object_loader(" in finisher
+    assert '"a7-select-ladder-job-claim-v2"' in finisher
 
 
 def test_queue_never_reads_result_body_and_holds_ambiguous_lease() -> None:

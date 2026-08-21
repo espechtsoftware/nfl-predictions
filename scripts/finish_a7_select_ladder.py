@@ -65,7 +65,7 @@ from nfl_dfs.research.source_preflight import (  # noqa: E402
 )
 from run_cbwu_seed_order_audit import (  # noqa: E402
     FORENSIC_MANIFEST_SHA256,
-    PLAYER_SQL,
+    PLAYER_TABLE,
     PROJECT,
     SOURCE_PANEL_IDS,
     SOURCE_SQL,
@@ -77,6 +77,14 @@ from run_exact_n_scorefree import _is_production_legal  # noqa: E402
 
 REGION = "us-central1"
 RUN_ID = PROTOCOL_ID
+V1_RUN_ID = "20260820-a7-select-ladder-phase-s-incumbent-v1"
+V1_FAILURE_RELEASE_URI = (
+    "gs://nfl-predictions-503414-raw/research/a7-select-ladder-runs/"
+    f"{V1_RUN_ID}/preflight/failed-preflight-logical-release.json"
+)
+V1_FAILURE_RELEASE_OBJECT_RECEIPT_VERSION = (
+    "a7-select-ladder-failed-preflight-logical-release-object-receipt-v1"
+)
 PREFIX = (
     "gs://nfl-predictions-503414-raw/research/a7-select-ladder-runs/"
     f"{RUN_ID}"
@@ -99,6 +107,14 @@ DEFAULT_A3_RELEASE = (
     ROOT / "reports/stack-relaxation-carve-runs/"
     "20260819-stack-relaxation-carve-v1/logical-release.json"
 )
+DEFAULT_V1_FAILURE_RELEASE = (
+    ROOT / "reports/a7-select-ladder-preflight-runs" / V1_RUN_ID
+    / "failed-preflight-logical-release.json"
+)
+DEFAULT_V1_FAILURE_RELEASE_OBJECT = (
+    ROOT / "reports/a7-select-ladder-preflight-runs" / V1_RUN_ID
+    / "failed-preflight-logical-release-object.json"
+)
 PENDING_NAME = ".strict-harvest.pending"
 JOB = "atlas-minimal-c-s2023-w1-v1"
 SERVICE_ACCOUNT = "817589974517-compute@developer.gserviceaccount.com"
@@ -111,7 +127,7 @@ CPU = "4"
 MEMORY = "16Gi"
 TIMEOUT_SECONDS = "7200"
 PROTOCOL_PATH = Path(
-    "reports/2026-08-20-a7-select-ladder-incumbent-pool-protocol.md"
+    "reports/2026-08-20-a7-select-ladder-incumbent-pool-protocol-v2.md"
 )
 SOURCE_QUERY_COLUMNS = (
     "panel_run_id", "season", "week", "cand_ix", "tag", "all_tags",
@@ -141,12 +157,15 @@ IMPLEMENTATION_PATHS = {
     "launcher": "scripts/cloud_a7_select_ladder.sh",
     "watcher": "scripts/watch_a7_select_ladder_queue.sh",
     "finisher": "scripts/finish_a7_select_ladder.py",
+    "v1_failure_closer": (
+        "scripts/close_a7_select_ladder_failed_preflight_v1.py"
+    ),
 }
 CORE_IMPLEMENTATION_KEYS = tuple(
     key for key in IMPLEMENTATION_PATHS
     if key not in {
         "lease_tool", "cloudbuild_config", "freeze_builder", "launcher",
-        "watcher", "finisher",
+        "watcher", "finisher", "v1_failure_closer",
     }
 )
 FROZEN_CHOICES = {
@@ -199,6 +218,18 @@ ALLOWED_DISPOSITIONS = {
     "historical-positive-phase-s",
 }
 
+# Keep the strict-harvest replay query byte-for-byte aligned with the v2
+# runner.  Only SQL NULL is normalized; every other non-finite value reaches
+# _canonical_query_value and remains fatal.
+PLAYER_SQL = f"""
+SELECT manifest_sha256, season, week, player_id, player_name, position,
+       team, opponent, game_id, salary,
+       COALESCE(mean_projection,0.0) AS mean_projection
+FROM `{PLAYER_TABLE}`
+WHERE scope = 'phase-s-cbwu-54'
+ORDER BY season, week, player_id
+"""
+
 FREEZE_MANIFEST_KEYS = frozenset({
     "version", "status", "run_id", "protocol_id", "protocol", "code",
     "image", "operator_approved", "operator_approval_basis",
@@ -246,7 +277,8 @@ TRANSPORT_REPAIR_ENV = {
 }
 JOB_CLAIM_KEYS = frozenset({
     "version", "run_id", "protocol_id", "protocol_sha256", "code_sha",
-    "image", "claimant_phase", "a3_logical_release_sha256", "job",
+    "image", "claimant_phase", "a3_logical_release_sha256",
+    "v1_failed_preflight_release", "job",
     "job_uid", "job_generation", "job_spec_sha256", "claimed_at",
     "uses_realized_outcomes",
     "actual_score_query_executed", "production_change_licensed",
@@ -825,7 +857,7 @@ def _validate_a3_release(path: Path) -> dict[str, Any]:
         "status": (
             "released-for-next-historical-arm-after-post-open-forensic-closure"
         ),
-        "next_run_id": RUN_ID,
+        "next_run_id": V1_RUN_ID,
         "closure_mode": "post-open-forensic-provenance-recovery",
         "strict_harvest_completed_before_read": False,
         "post_open_forensic_closure_complete": True,
@@ -889,11 +921,12 @@ def _validate_a3_release(path: Path) -> dict[str, Any]:
 
 def _job_claim_body(
     *, code_sha: str, image: str, protocol_sha256: str,
-    a3_logical_release_sha256: str, job_uid: str, job_generation: str,
-    job_spec_sha256: str, claimed_at: str,
+    a3_logical_release_sha256: str,
+    v1_failed_preflight_release: Mapping[str, Any], job_uid: str,
+    job_generation: str, job_spec_sha256: str, claimed_at: str,
 ) -> dict[str, Any]:
     return {
-        "version": "a7-select-ladder-job-claim-v1",
+        "version": "a7-select-ladder-job-claim-v2",
         "run_id": RUN_ID,
         "protocol_id": PROTOCOL_ID,
         "protocol_sha256": protocol_sha256,
@@ -901,6 +934,7 @@ def _job_claim_body(
         "image": image,
         "claimant_phase": "smoke-support-freeze-historical",
         "a3_logical_release_sha256": a3_logical_release_sha256,
+        "v1_failed_preflight_release": dict(v1_failed_preflight_release),
         "job": JOB,
         "job_uid": job_uid,
         "job_generation": job_generation,
@@ -911,6 +945,65 @@ def _job_claim_body(
         "production_change_licensed": False,
         "production_law_scorefree_transfer_licensed": False,
         "prospective_shadow_licensed": False,
+    }
+
+
+def _validate_v1_failed_preflight_release_binding(
+    value: object,
+) -> dict[str, Any]:
+    if not isinstance(value, dict) or set(value) != {
+        "prior_run_id", "next_run_id", "release_sha256",
+        "object_receipt", "object_receipt_sha256",
+    }:
+        raise RuntimeError("A7-v2 v1 failed-preflight release binding differs")
+    if value.get("prior_run_id") != V1_RUN_ID or value.get(
+        "next_run_id"
+    ) != RUN_ID:
+        raise RuntimeError("A7-v2 v1 failed-preflight release lineage differs")
+    release_sha = _hex(
+        value.get("release_sha256"), length=64,
+        label="v1 failed-preflight release SHA",
+    )
+    receipt_sha = _hex(
+        value.get("object_receipt_sha256"), length=64,
+        label="v1 failed-preflight release object-receipt SHA",
+    )
+    receipt = value.get("object_receipt")
+    if not isinstance(receipt, dict) or set(receipt) != {
+        "version", "run_id", "release_sha256", "object",
+    } or receipt.get(
+        "version"
+    ) != V1_FAILURE_RELEASE_OBJECT_RECEIPT_VERSION or receipt.get(
+        "run_id"
+    ) != V1_RUN_ID or receipt.get(
+        "release_sha256"
+    ) != release_sha or receipt_sha != _sha_bytes(_canonical_json(receipt)):
+        raise RuntimeError("A7-v2 v1 failed-preflight object receipt differs")
+    obj = receipt.get("object")
+    if not isinstance(obj, dict) or set(obj) != {
+        "uri", "generation", "metageneration", "bytes", "sha256",
+        "create_only",
+    } or obj.get("create_only") is not True:
+        raise RuntimeError("A7-v2 v1 failed-preflight object identity differs")
+    metadata = _metadata_block(
+        obj, uri=V1_FAILURE_RELEASE_URI,
+        label="v1 failed-preflight logical release",
+    )
+    if obj != {**metadata, "create_only": True}:
+        raise RuntimeError("A7-v2 v1 failed-preflight object identity differs")
+    if metadata["sha256"] != release_sha:
+        raise RuntimeError("A7-v2 v1 failed-preflight release body differs")
+    return {
+        "prior_run_id": V1_RUN_ID,
+        "next_run_id": RUN_ID,
+        "release_sha256": release_sha,
+        "object_receipt": {
+            "version": V1_FAILURE_RELEASE_OBJECT_RECEIPT_VERSION,
+            "run_id": V1_RUN_ID,
+            "release_sha256": release_sha,
+            "object": {**metadata, "create_only": True},
+        },
+        "object_receipt_sha256": receipt_sha,
     }
 
 
@@ -930,7 +1023,7 @@ def _validate_job_claim_receipt(
             }:
         raise RuntimeError("A7 durable job-claim fields differ")
     fixed = {
-        "version": "a7-select-ladder-job-claim-v1",
+        "version": "a7-select-ladder-job-claim-v2",
         "run_id": RUN_ID,
         "protocol_id": PROTOCOL_ID,
         "protocol_sha256": protocol_sha256,
@@ -948,6 +1041,9 @@ def _validate_job_claim_receipt(
     if any(claim.get(key) != expected for key, expected in fixed.items()) or \
             not str(claim.get("claimed_at", "")):
         raise RuntimeError("A7 durable job-claim identity differs")
+    _validate_v1_failed_preflight_release_binding(
+        claim.get("v1_failed_preflight_release")
+    )
     actual_uid = str(claim.get("job_uid", ""))
     actual_generation = str(claim.get("job_generation", ""))
     _hex(claim.get("job_spec_sha256"), length=64, label="job-claim spec SHA")
@@ -1563,7 +1659,7 @@ def _validate_freeze_manifest(
     image = value.get("image")
     if not isinstance(protocol, dict) or set(protocol) != {"path", "sha256"} or \
             protocol.get("path") != (
-        "reports/2026-08-20-a7-select-ladder-incumbent-pool-protocol.md"
+        "reports/2026-08-20-a7-select-ladder-incumbent-pool-protocol-v2.md"
     ) or re.fullmatch(r"[0-9a-f]{64}", str(protocol.get("sha256", ""))) is None:
         raise RuntimeError("A7 freeze protocol binding differs")
     if not isinstance(code, dict) or set(code) != {
@@ -2758,10 +2854,20 @@ class _StorageReader:
 
 def create_job_claim(
     *, code_sha: str, image: str, job_metadata: Mapping[str, Any],
-    a3_release_path: Path, receipt_path: Path, root: Path = ROOT,
+    a3_release_path: Path, v1_failure_release_path: Path,
+    v1_failure_release_object_path: Path, receipt_path: Path,
+    root: Path = ROOT,
     git_source_loader: GitSourceLoader = _git_blob,
+    object_loader: ObjectLoader | None = None,
     object_creator: ObjectCreator | None = None,
 ) -> dict[str, Any]:
+    # The close-only v1 module is needed only while transferring ownership;
+    # historical runner/harvest imports do not depend on that administrative
+    # implementation after the immutable v2 claim has bound its receipts.
+    from close_a7_select_ladder_failed_preflight_v1 import (
+        validate_failure_release_files,
+    )
+
     if receipt_path.exists():
         raise RuntimeError("A7 immutable durable job-claim receipt exists")
     if re.fullmatch(r"[0-9a-f]{40}", code_sha) is None or re.fullmatch(
@@ -2770,6 +2876,31 @@ def create_job_claim(
         raise RuntimeError("A7 job-claim execution identity differs")
     _validate_a3_release(a3_release_path)
     release_sha = _sha(a3_release_path)
+    v1_release, v1_object_receipt = validate_failure_release_files(
+        v1_failure_release_path, v1_failure_release_object_path,
+        require_next_run_id=RUN_ID,
+    )
+    v1_release_raw = v1_failure_release_path.read_bytes()
+    v1_object_raw = v1_failure_release_object_path.read_bytes()
+    v1_object = v1_object_receipt["object"]
+    if object_loader is None:
+        object_loader = _StorageReader().load
+    live_metadata, live_raw = object_loader(
+        V1_FAILURE_RELEASE_URI, str(v1_object["generation"]),
+    )
+    _validate_loaded_object(
+        live_metadata, live_raw, v1_object,
+        label="v1 failed-preflight logical release",
+    )
+    if live_raw != v1_release_raw:
+        raise RuntimeError("A7-v2 v1 failed-preflight release changed")
+    v1_binding = _validate_v1_failed_preflight_release_binding({
+        "prior_run_id": v1_release["run_id"],
+        "next_run_id": v1_release["next_run_id"],
+        "release_sha256": _sha_bytes(v1_release_raw),
+        "object_receipt": v1_object_receipt,
+        "object_receipt_sha256": _sha_bytes(v1_object_raw),
+    })
     protocol = root / PROTOCOL_PATH
     if not protocol.is_file():
         raise RuntimeError("A7 job-claim protocol is absent")
@@ -2787,7 +2918,8 @@ def create_job_claim(
         raise RuntimeError("A7 job-claim reused-job identity differs")
     claim = _job_claim_body(
         code_sha=code_sha, image=image, protocol_sha256=protocol_sha,
-        a3_logical_release_sha256=release_sha, job_uid=uid,
+        a3_logical_release_sha256=release_sha,
+        v1_failed_preflight_release=v1_binding, job_uid=uid,
         job_generation=generation, job_spec_sha256=_job_spec_sha256(job_metadata),
         claimed_at=datetime.now(timezone.utc).isoformat(),
     )
@@ -3160,7 +3292,7 @@ def _validate_result_header(
     require_in_image_replay: bool = True,
 ) -> list[dict[str, Any]]:
     fixed = {
-        "version": "a7-select-ladder-phase-s-incumbent-v1",
+        "version": "a7-select-ladder-phase-s-incumbent-v2",
         "run_id": RUN_ID,
         "code_sha": frozen.code_sha,
         "image": frozen.image,
@@ -4931,6 +5063,14 @@ def main() -> None:
     claim_parser.add_argument(
         "--a3-logical-release", type=Path, default=DEFAULT_A3_RELEASE,
     )
+    claim_parser.add_argument(
+        "--v1-failed-preflight-release", type=Path,
+        default=DEFAULT_V1_FAILURE_RELEASE,
+    )
+    claim_parser.add_argument(
+        "--v1-failed-preflight-release-object", type=Path,
+        default=DEFAULT_V1_FAILURE_RELEASE_OBJECT,
+    )
     claim_parser.add_argument("--receipt", type=Path, required=True)
     preflight_parser = subparsers.add_parser("finish-preflight")
     preflight_parser.add_argument(
@@ -4966,6 +5106,10 @@ def main() -> None:
             code_sha=args.code_sha, image=args.image,
             job_metadata=_load_json(args.job_metadata, label="job metadata"),
             a3_release_path=args.a3_logical_release,
+            v1_failure_release_path=args.v1_failed_preflight_release,
+            v1_failure_release_object_path=(
+                args.v1_failed_preflight_release_object
+            ),
             receipt_path=args.receipt,
         )
         print(

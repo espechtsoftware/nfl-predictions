@@ -23,6 +23,7 @@ COPY scripts/freeze_a7_select_ladder.py ./scripts/freeze_a7_select_ladder.py
 COPY scripts/cloud_a7_select_ladder.sh ./scripts/cloud_a7_select_ladder.sh
 COPY scripts/watch_a7_select_ladder_queue.sh ./scripts/watch_a7_select_ladder_queue.sh
 COPY scripts/finish_a7_select_ladder.py ./scripts/finish_a7_select_ladder.py
+COPY scripts/close_a7_select_ladder_failed_preflight_v1.py ./scripts/close_a7_select_ladder_failed_preflight_v1.py
 COPY scripts/historical_outcome_lease.py ./scripts/historical_outcome_lease.py
 COPY scripts/run_b1_union_c_census.py ./scripts/run_b1_union_c_census.py
 COPY scripts/run_b2prime_volume_oi_admission.py ./scripts/run_b2prime_volume_oi_admission.py

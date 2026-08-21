@@ -374,8 +374,8 @@ def main() -> None:
         a3_logical_release_sha256=release_sha256,
         archive_sha256=args.archive_sha256,
     )
-    if release.get("next_run_id") != manifest["run_id"]:
-        raise RuntimeError("A7 A3 release does not name the frozen run")
+    if release.get("next_run_id") != transport.V1_RUN_ID:
+        raise RuntimeError("A7 A3 release does not name the closed v1 run")
     payload = _canonical_json(manifest)
     uploaded = a7._upload_create_only(client, args.output_uri, payload)
     reopened, reopened_object = a7._download_json_object_pinned(

@@ -21,7 +21,7 @@ from nfl_dfs.optimizer.lineup import select_tail_entries
 from nfl_dfs.research.paired_max_stats import paired_weekly_max_report
 
 
-PROTOCOL_ID = "20260820-a7-select-ladder-phase-s-incumbent-v1"
+PROTOCOL_ID = "20260820-a7-select-ladder-phase-s-incumbent-v2"
 LADDER_SPEC = "170:10,180:10,187:7,194:7,200:6,210:10"
 LADDER = {170.0: 10, 180.0: 10, 187.0: 7,
           194.0: 7, 200.0: 6, 210.0: 10}

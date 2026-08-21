@@ -20,7 +20,58 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
-## Current state — 2026-08-20 19:25 CDT
+## Current state — 2026-08-20 20:56 CDT
+
+### A7-v1 close-only recovery and fresh A7-v2 repair are source-ready
+
+- Branch `main`, source parent
+  `8b486c47ed77f11586923fcc3c325f7ae43122cf`. The failed A7-v1 smoke remains
+  permanently closed and must never be relaunched or passed to the v1
+  success-only finisher.
+- A new isolated close-only protocol and implementation validate the exact
+  retained v1 build, prepared/launch ledgers, job claim, first provisioning
+  poll, strict `Completed=False` execution `atlas-minimal-c-s2023-w1-v1-6qfpk`,
+  singleton `{job-claim}` prefix, generation-pinned claim body, absence of all
+  v1 science/result objects, and definitive absence of the historical-outcome
+  lease. Its only cloud write is the create-once failed-preflight logical
+  release naming the exact successor
+  `20260820-a7-select-ladder-phase-s-incumbent-v2`; it has no execute, update,
+  retry, cancel, delete, BigQuery, log, result-body, or outcome path.
+- Close-only files are
+  `reports/2026-08-20-a7-v1-failed-preflight-logical-release-protocol.md`
+  (SHA-256 `b399dbcbafc92926eee6c4c50474422858d748d005a2acffb95fa87b0dffe69a`),
+  `scripts/close_a7_select_ladder_failed_preflight_v1.py` (SHA-256
+  `f8e70cd47e4cbb54bec614c68b900b1a4c7f71486964d332740fe715198f569e`),
+  and `tests/test_close_a7_select_ladder_failed_preflight_v1.py` (SHA-256
+  `8b55f1b781867ddea78762bf189d21523cf499e9730764226a103a20aa0b6755`).
+  Focused validation is 14/14 green, including the positive real retained
+  evidence path, boundary poisons, create-only collision, and idempotency.
+- A7-v2 has a fresh run ID, protocol, local directory, GCS prefix, and job
+  claim. Protocol SHA-256 is
+  `dd85acbd48a40530b59a7e8e6e5a4c769cf039e55d23be3000320a29d8e434f2`.
+  The only scientific-source repair is exact SQL
+  `COALESCE(mean_projection,0.0) AS mean_projection`; SQL NaN and infinities
+  remain fatal. Both polling sites now use the exact `Completed` truth table:
+  absent is `Unknown`, exactly one `Unknown`/`True`/`False` is that state, and
+  duplicate/missing/unexpected status is malformed. The v2 claim validates,
+  generation-pins, reopens, and binds the full v1 failure release and object
+  receipt before any reused-job update.
+- A7-v2 science is otherwise byte-equivalent: control line 194; treatment
+  ladder `170:10,180:10,187:7,194:7,200:6,210:10`; `mean_weight=0`; identical
+  Phase-S pools/worlds, exact-80 budget, endpoints, and decision gates. The
+  five focused A7 suites pass 116/116; py_compile, `bash -n`, protocol hash,
+  frozen-constant assertions, score-free query validation, and
+  `git diff --check` are green. The close-only validator is also copied into
+  the image and registered as a non-core frozen implementation dependency;
+  the combined close-only plus A7-v2 suite passes 130/130 after that binding.
+  No cloud build/job, outcome query, or lease action occurred during
+  implementation or validation.
+- Exact next action: commit and push these reviewed source bytes, invoke the
+  close-only v1 tool once, validate and commit/push its local release body,
+  object receipt, terminal/inventory/absence evidence, and this handoff, then
+  build A7-v2 from its exact direct-Git source commit. Do not create a v2 job
+  claim until the create-once v1 release is generation-pinned and locally
+  reproduced.
 
 ### A2a and B1 one-shot historical arms are closed; neither licenses adoption
 

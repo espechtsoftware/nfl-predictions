@@ -10,11 +10,13 @@ set -uo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 PROJECT=nfl-predictions-503414
 REGION=us-central1
-RUN_ID=20260820-a7-select-ladder-phase-s-incumbent-v1
+RUN_ID=20260820-a7-select-ladder-phase-s-incumbent-v2
 JOB=atlas-minimal-c-s2023-w1-v1
 OUT="$ROOT/reports/a7-select-ladder-runs/$RUN_ID"
 PREFLIGHT_OUT="$ROOT/reports/a7-select-ladder-preflight-runs/$RUN_ID"
 A3_RELEASE="$ROOT/reports/stack-relaxation-carve-runs/20260819-stack-relaxation-carve-v1/logical-release.json"
+V1_FAILURE_RELEASE="$ROOT/reports/a7-select-ladder-preflight-runs/20260820-a7-select-ladder-phase-s-incumbent-v1/failed-preflight-logical-release.json"
+V1_FAILURE_RELEASE_OBJECT="$ROOT/reports/a7-select-ladder-preflight-runs/20260820-a7-select-ladder-phase-s-incumbent-v1/failed-preflight-logical-release-object.json"
 LAUNCHER="$ROOT/scripts/cloud_a7_select_ladder.sh"
 FINISHER="$ROOT/scripts/finish_a7_select_ladder.py"
 LEASE_TOOL="$ROOT/scripts/historical_outcome_lease.py"
@@ -77,7 +79,7 @@ if not lease.is_file() or terminal is not execution.is_file():
     raise SystemExit("A7 failed-attempt closure inputs differ")
 value = {
     "version": "a7-watcher-failure-closure-v1",
-    "run_id": "20260820-a7-select-ladder-phase-s-incumbent-v1",
+    "run_id": "20260820-a7-select-ladder-phase-s-incumbent-v2",
     "reason": reason,
     "disposition": disposition,
     "execution": execution_name if terminal else None,
@@ -152,6 +154,13 @@ fi
 
 while [ ! -s "$A3_RELEASE" ]; do
   printf '%s A7_WAITS_FOR_A3_LOGICAL_RELEASE\n' \
+    "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  sleep 60
+done
+
+while [ ! -s "$V1_FAILURE_RELEASE" ] || \
+    [ ! -s "$V1_FAILURE_RELEASE_OBJECT" ]; do
+  printf '%s A7_WAITS_FOR_V1_FAILED_PREFLIGHT_LOGICAL_RELEASE\n' \
     "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   sleep 60
 done
@@ -247,7 +256,12 @@ rows = [
     row for row in value.get("status", {}).get("conditions", [])
     if row.get("type") == "Completed"
 ]
-print(rows[0].get("status", "") if len(rows) == 1 else "Malformed")
+if not rows:
+    print("Unknown")
+elif len(rows) == 1 and rows[0].get("status") in {"Unknown", "True", "False"}:
+    print(rows[0]["status"])
+else:
+    print("Malformed")
 PY
   ) || exit $?
   printf '%s A7_EXECUTION state=%s execution=%s\n' \
@@ -381,7 +395,7 @@ action = sys.argv[4]
 archive_uri = sys.argv[5]
 raw = (
     f"released_at={datetime.now(timezone.utc).isoformat()}\n"
-    "run_id=20260820-a7-select-ladder-phase-s-incumbent-v1\n"
+    "run_id=20260820-a7-select-ladder-phase-s-incumbent-v2\n"
     f"lease_receipt_sha256={sha256(lease.read_bytes()).hexdigest()}\n"
     f"completion_sha256={sha256(completion.read_bytes()).hexdigest()}\n"
     f"lease_action={action}\n"

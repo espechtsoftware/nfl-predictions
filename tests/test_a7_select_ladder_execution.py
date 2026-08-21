@@ -20,13 +20,33 @@ runner = importlib.import_module("run_a7_select_ladder")
 
 
 def test_candidate_protocol_hash_and_phase_s_identity_are_literal():
+    v1_protocol = ROOT / (
+        "reports/2026-08-20-a7-select-ladder-incumbent-pool-protocol.md"
+    )
+    assert sha256(v1_protocol.read_bytes()).hexdigest() == (
+        "987ad3eb8bd141427ce201348de165b9b337c1184de1fc8bdd32987bd1373cce"
+    )
     assert sha256((ROOT / runner.PROTOCOL_PATH).read_bytes()).hexdigest() == (
         runner.PROTOCOL_SHA256
     )
-    assert runner.RUN_ID == "20260820-a7-select-ladder-phase-s-incumbent-v1"
+    assert runner.RUN_ID == "20260820-a7-select-ladder-phase-s-incumbent-v2"
     assert runner.FROZEN_CHOICES["simulation_law"] == (
         "phase-s-finite-k-plus-sis-asoe"
     )
+
+
+def test_v2_player_query_repairs_only_null_projection_at_both_sites():
+    expected = "COALESCE(mean_projection,0.0) AS mean_projection"
+    assert expected in runner.PLAYER_SQL
+    assert runner.a7_transport.PLAYER_SQL == runner.PLAYER_SQL
+    assert "salary, mean_projection\n" not in runner.PLAYER_SQL
+    assert runner._canonical_query_value(0.0) == 0.0
+    assert runner.a7_transport._canonical_query_value(0.0) == 0.0
+    for value in (float("nan"), float("inf"), float("-inf")):
+        with pytest.raises(RuntimeError, match="non-finite"):
+            runner._canonical_query_value(value)
+        with pytest.raises(RuntimeError, match="non-finite"):
+            runner.a7_transport._canonical_query_value(value)
 
 
 def _identity(season: int, week: int, index: int) -> list[str]:

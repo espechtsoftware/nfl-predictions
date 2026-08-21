@@ -17,6 +17,7 @@ if SCRIPTS not in sys.path:
     sys.path.insert(0, SCRIPTS)
 
 import finish_a7_select_ladder as finish  # noqa: E402
+import close_a7_select_ladder_failed_preflight_v1 as v1_closure  # noqa: E402
 
 
 def _canonical(value: object) -> bytes:
@@ -27,6 +28,154 @@ def _canonical(value: object) -> bytes:
 
 def _sha(raw: bytes) -> str:
     return sha256(raw).hexdigest()
+
+
+def _v1_failure_release_binding() -> dict[str, Any]:
+    release_sha = "6" * 64
+    receipt = {
+        "version": finish.V1_FAILURE_RELEASE_OBJECT_RECEIPT_VERSION,
+        "run_id": finish.V1_RUN_ID,
+        "release_sha256": release_sha,
+        "object": {
+            "uri": finish.V1_FAILURE_RELEASE_URI,
+            "generation": "5",
+            "metageneration": "1",
+            "bytes": 123,
+            "sha256": release_sha,
+            "create_only": True,
+        },
+    }
+    return {
+        "prior_run_id": finish.V1_RUN_ID,
+        "next_run_id": finish.RUN_ID,
+        "release_sha256": release_sha,
+        "object_receipt": receipt,
+        "object_receipt_sha256": _sha(_canonical(receipt)),
+    }
+
+
+def test_v2_claim_binding_is_exactly_generation_pinned_to_v1_release() -> None:
+    assert finish.V1_RUN_ID == v1_closure.RUN_ID
+    assert finish.RUN_ID == v1_closure.NEXT_RUN_ID
+    assert finish.V1_FAILURE_RELEASE_URI == v1_closure.RELEASE_URI
+    assert finish.DEFAULT_V1_FAILURE_RELEASE == v1_closure.DEFAULT_RELEASE
+    assert finish.DEFAULT_V1_FAILURE_RELEASE_OBJECT == (
+        v1_closure.DEFAULT_RELEASE_OBJECT
+    )
+    assert finish.V1_FAILURE_RELEASE_OBJECT_RECEIPT_VERSION == (
+        v1_closure.OBJECT_RECEIPT_VERSION
+    )
+    binding = _v1_failure_release_binding()
+    assert finish._validate_v1_failed_preflight_release_binding(
+        binding
+    ) == binding
+    for field in ("release_sha256", "object_receipt_sha256"):
+        changed = json.loads(json.dumps(binding))
+        changed[field] = "0" * 64
+        with pytest.raises(RuntimeError, match="object receipt differs"):
+            finish._validate_v1_failed_preflight_release_binding(changed)
+    changed = json.loads(json.dumps(binding))
+    changed["object_receipt"]["object"]["generation"] = "6"
+    with pytest.raises(RuntimeError, match="object receipt differs"):
+        finish._validate_v1_failed_preflight_release_binding(changed)
+    changed = json.loads(json.dumps(binding))
+    changed["object_receipt"]["object"]["sha256"] = "0" * 64
+    changed["object_receipt_sha256"] = _sha(_canonical(
+        changed["object_receipt"]
+    ))
+    with pytest.raises(RuntimeError, match="release body differs"):
+        finish._validate_v1_failed_preflight_release_binding(changed)
+    changed = json.loads(json.dumps(binding))
+    changed["next_run_id"] = finish.V1_RUN_ID
+    with pytest.raises(RuntimeError, match="release lineage differs"):
+        finish._validate_v1_failed_preflight_release_binding(changed)
+
+
+def test_create_v2_claim_strictly_consumes_and_reopens_v1_release(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root = tmp_path / "repo"
+    protocol = root / finish.PROTOCOL_PATH
+    protocol.parent.mkdir(parents=True)
+    protocol.write_bytes(b"v2 protocol\n")
+    a3 = root / "a3.json"
+    a3.write_bytes(b"a3 release\n")
+    release_path = root / "v1-release.json"
+    release_raw = b'{"closed":true}\n'
+    release_path.write_bytes(release_raw)
+    release_sha = _sha(release_raw)
+    release_object = {
+        "uri": finish.V1_FAILURE_RELEASE_URI,
+        "generation": "31",
+        "metageneration": "1",
+        "bytes": len(release_raw),
+        "sha256": release_sha,
+        "create_only": True,
+    }
+    object_receipt = {
+        "version": finish.V1_FAILURE_RELEASE_OBJECT_RECEIPT_VERSION,
+        "run_id": finish.V1_RUN_ID,
+        "release_sha256": release_sha,
+        "object": release_object,
+    }
+    object_path = root / "v1-release-object.json"
+    object_path.write_bytes(_canonical(object_receipt))
+    monkeypatch.setattr(finish, "_validate_a3_release", lambda path: {})
+
+    def validate_files(release, receipt, *, require_next_run_id):
+        assert release == release_path
+        assert receipt == object_path
+        assert require_next_run_id == finish.RUN_ID
+        return {
+            "run_id": finish.V1_RUN_ID,
+            "next_run_id": finish.RUN_ID,
+        }, object_receipt
+
+    monkeypatch.setattr(
+        v1_closure, "validate_failure_release_files", validate_files,
+    )
+    reopened = []
+
+    def load(uri: str, generation: str):
+        reopened.append((uri, generation))
+        return {
+            key: value for key, value in release_object.items()
+            if key != "create_only"
+        }, release_raw
+
+    created = []
+
+    def create(uri: str, raw: bytes):
+        created.append((uri, raw))
+        return {
+            "uri": uri, "generation": "32", "metageneration": "1",
+            "bytes": len(raw), "sha256": _sha(raw),
+        }, raw
+
+    code = "a" * 40
+    image = "registry.invalid/nfl-dfs@sha256:" + "b" * 64
+    job = _job_metadata(
+        generation="12", code=code, image=image,
+        mode="real-artifact-smoke",
+    )
+    receipt_path = root / "claim-receipt.json"
+    claim = finish.create_job_claim(
+        code_sha=code, image=image, job_metadata=job,
+        a3_release_path=a3, v1_failure_release_path=release_path,
+        v1_failure_release_object_path=object_path,
+        receipt_path=receipt_path, root=root,
+        git_source_loader=lambda *_args: protocol.read_bytes(),
+        object_loader=load, object_creator=create,
+    )
+    assert reopened == [(finish.V1_FAILURE_RELEASE_URI, "31")]
+    assert [uri for uri, _ in created] == [finish.JOB_CLAIM_URI]
+    assert claim["claim"]["version"] == "a7-select-ladder-job-claim-v2"
+    binding = claim["claim"]["v1_failed_preflight_release"]
+    assert binding["prior_run_id"] == finish.V1_RUN_ID
+    assert binding["next_run_id"] == finish.RUN_ID
+    assert binding["release_sha256"] == release_sha
+    assert binding["object_receipt"] == object_receipt
+    assert receipt_path.read_bytes() == _canonical(claim)
 
 
 def test_external_pretty_json_is_strictly_canonicalized(tmp_path: Path) -> None:
@@ -519,7 +668,7 @@ def synthetic(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Synthetic:
         path.write_bytes(f"{key}\n".encode())
         implementation[key] = _sha(path.read_bytes())
     protocol_path = root / (
-        "reports/2026-08-20-a7-select-ladder-incumbent-pool-protocol.md"
+        "reports/2026-08-20-a7-select-ladder-incumbent-pool-protocol-v2.md"
     )
     protocol_path.parent.mkdir(parents=True, exist_ok=True)
     protocol_path.write_bytes(b"frozen protocol\n")
@@ -665,7 +814,7 @@ def synthetic(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Synthetic:
         "status": (
             "released-for-next-historical-arm-after-post-open-forensic-closure"
         ),
-        "next_run_id": finish.RUN_ID,
+        "next_run_id": finish.V1_RUN_ID,
         "closure_mode": "post-open-forensic-provenance-recovery",
         "strict_harvest_completed_before_read": False,
         "post_open_forensic_closure_complete": True,
@@ -707,7 +856,9 @@ def synthetic(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Synthetic:
     support_spec_sha = finish._job_spec_sha256(support_job)
     claim_body = finish._job_claim_body(
         code_sha=code, image=image, protocol_sha256=protocol_sha,
-        a3_logical_release_sha256=release_sha, job_uid="job-uid",
+        a3_logical_release_sha256=release_sha,
+        v1_failed_preflight_release=_v1_failure_release_binding(),
+        job_uid="job-uid",
         job_generation="6", job_spec_sha256=smoke_spec_sha,
         claimed_at="2026-08-20T12:54:01+00:00",
     )
@@ -1002,7 +1153,7 @@ def synthetic(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Synthetic:
         "production_change_licensed": False,
     }
     result = {
-        "version": "a7-select-ladder-phase-s-incumbent-v1",
+        "version": "a7-select-ladder-phase-s-incumbent-v2",
         "run_id": finish.RUN_ID, "code_sha": code, "image": image,
         "protocol_sha256": protocol_sha,
         "source_report_sha256": freeze_value["source_report"]["sha256"],
@@ -1913,6 +2064,19 @@ def test_a3_release_pins_exact_recovery_producer(synthetic: Synthetic) -> None:
             RuntimeError, match="forensic implementation identity differs",
         ):
             finish._validate_a3_release(changed_path)
+
+
+def test_a3_release_names_closed_v1_and_cannot_bypass_v1_to_v2_release(
+    synthetic: Synthetic,
+) -> None:
+    path = synthetic.out / "a3-logical-release.json"
+    value = json.loads(path.read_bytes())
+    assert finish._validate_a3_release(path)["next_run_id"] == finish.V1_RUN_ID
+    value["next_run_id"] = finish.RUN_ID
+    changed = synthetic.out / "a3-release-direct-to-v2.json"
+    changed.write_bytes(_canonical(value))
+    with pytest.raises(RuntimeError, match="A3 logical release differs"):
+        finish._validate_a3_release(changed)
 
 
 @pytest.mark.parametrize(

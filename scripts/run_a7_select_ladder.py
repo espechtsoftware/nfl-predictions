@@ -59,8 +59,9 @@ from nfl_dfs.research.source_preflight import (  # noqa: E402
 )
 
 from run_cbwu_seed_order_audit import (  # noqa: E402
+    FORBIDDEN_QUERY_TOKENS,
     FORENSIC_MANIFEST_SHA256,
-    PLAYER_SQL,
+    PLAYER_TABLE,
     PROJECT,
     SOURCE_PANEL_IDS,
     SOURCE_SQL,
@@ -68,21 +69,21 @@ from run_cbwu_seed_order_audit import (  # noqa: E402
     _parse_gcs,
     _query,
     _upload_create_only,
-    validate_scorefree_queries,
+    validate_scorefree_queries as validate_cbwu_scorefree_queries,
 )
 from run_exact_n_scorefree import _is_production_legal  # noqa: E402
 import finish_a7_select_ladder as a7_transport  # noqa: E402
 
 
-VERSION = "a7-select-ladder-phase-s-incumbent-v1"
+VERSION = "a7-select-ladder-phase-s-incumbent-v2"
 RUN_ID = PROTOCOL_ID
 PROTOCOL_PATH = Path(
-    "reports/2026-08-20-a7-select-ladder-incumbent-pool-protocol.md"
+    "reports/2026-08-20-a7-select-ladder-incumbent-pool-protocol-v2.md"
 )
-# Candidate-protocol digest. The protocol and implementation bytes remain
+# Candidate-protocol digest. The v2 protocol and implementation bytes remain
 # unchanged across smoke, support census, and the one historical run. A
 # separate immutable freeze manifest binds the two preflight receipts.
-PROTOCOL_SHA256 = "987ad3eb8bd141427ce201348de165b9b337c1184de1fc8bdd32987bd1373cce"
+PROTOCOL_SHA256 = "dd85acbd48a40530b59a7e8e6e5a4c769cf039e55d23be3000320a29d8e434f2"
 SOURCE_REPORT_PATH = Path(
     "reports/cbwu-order-invariant-runs/"
     "20260815-cbwu-order-invariant-repair-v1/report.json"
@@ -137,6 +138,9 @@ FREEZE_IMPLEMENTATION_PATHS = {
     "launcher": Path("scripts/cloud_a7_select_ladder.sh"),
     "watcher": Path("scripts/watch_a7_select_ladder_queue.sh"),
     "finisher": Path("scripts/finish_a7_select_ladder.py"),
+    "v1_failure_closer": Path(
+        "scripts/close_a7_select_ladder_failed_preflight_v1.py"
+    ),
 }
 FREEZE_MANIFEST_VERSION = "a7-select-ladder-freeze-manifest-v1"
 FROZEN_CHOICES = {
@@ -211,6 +215,31 @@ SUPPORT_RECEIPT_KEYS = frozenset({
     "minimum_aggregate_events_per_arm", "r3_positive_gain_events_by_block",
     "conditions", "passes",
 })
+
+# A7-v2 intentionally repairs only the source-boundary representation that
+# stopped v1 outcome-blind.  Canonical CBWU reconstruction already maps an
+# absent projection to 0.0.  Do that explicitly in SQL so query-receipt
+# canonicalization sees the same finite value; NaN/Inf remain unchanged and
+# are still fatal in _canonical_query_value.
+PLAYER_SQL = f"""
+SELECT manifest_sha256, season, week, player_id, player_name, position,
+       team, opponent, game_id, salary,
+       COALESCE(mean_projection,0.0) AS mean_projection
+FROM `{PLAYER_TABLE}`
+WHERE scope = 'phase-s-cbwu-54'
+ORDER BY season, week, player_id
+"""
+
+
+def validate_scorefree_queries() -> None:
+    validate_cbwu_scorefree_queries()
+    combined = f"{SOURCE_SQL}\n{PLAYER_SQL}".lower()
+    present = [token for token in FORBIDDEN_QUERY_TOKENS if token in combined]
+    if present:
+        raise RuntimeError(
+            "A7 score-free query contains forbidden fields: "
+            + ", ".join(present)
+        )
 
 
 def _implementation_receipts() -> dict[str, str]:
